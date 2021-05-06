@@ -70,7 +70,7 @@ typedef struct {
 	}textures;
 }UI_Context;
 
-void UI_Context_Create(UI_Context * ctx);
+void UI_Context_Create(const char *data_dir, UI_Context * ctx);
 void UI_Context_LoadTextures(UI_Context * ctx);
 void UI_Context_ToOpenGL(UI_Context * ctx);
 void UI_Context_AddWidget(UI_Context * ctx, UI_Widget * widget);

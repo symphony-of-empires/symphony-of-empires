@@ -126,6 +126,20 @@ typedef struct {
 }Camera;
 
 int main(int argc, char ** argv) {
+	char data_dir[128]; // A path that points to the games data directory
+	/*  The following only works on Linux, other Unixes and Windows require a different solution */
+	readlink("/proc/self/exe", data_dir, sizeof(data_dir));
+	
+	// An ugly hack which should be fixed later
+	data_dir[strlen(data_dir) - 1] = 0;
+	data_dir[strlen(data_dir) - 1] = 0;
+	data_dir[strlen(data_dir) - 1] = '.';
+	data_dir[strlen(data_dir) - 2] = '.';
+
+	strcat(data_dir, "/data/");
+
+	printf("Data dir: %s\n", data_dir);
+
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
@@ -155,7 +169,7 @@ int main(int argc, char ** argv) {
 	Map_Create(&pol_map, &world, MAP_POLITICAL);
 	Map_Create(&topo_map, &world, MAP_TOPOGRAPHIC);
 
-	UI_Context_Create(&ui_ctx);
+	UI_Context_Create(data_dir, &ui_ctx);
 	UI_Context_LoadTextures(&ui_ctx);
 
 	Texture title;
@@ -503,6 +517,7 @@ int main(int argc, char ** argv) {
 
 		SDL_GL_SwapWindow(window);
 	}
+
 	TTF_Quit();
 	SDL_Quit();
 	return 0;
