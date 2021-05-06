@@ -10,7 +10,7 @@
 void UI_Context_Create(const char *data_dir, UI_Context * ctx) {
 	char font_path[256];
 	strcpy(font_path, data_dir);
-	strcat(font_path, "fonts/FreeMono.ttf");
+	strcat(font_path, "/fonts/FreeMono.ttf");
 	memset(ctx, 0, sizeof(UI_Context));
 	ctx->default_font = TTF_OpenFont(font_path, 24);
 	if (ctx->default_font == NULL){
