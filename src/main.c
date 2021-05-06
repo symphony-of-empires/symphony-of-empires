@@ -176,15 +176,15 @@ int main(int argc, char ** argv) {
 	Texture_FromFile(&title, "data/title.png");
 
 	Texture admin_icon;
-	Texture_FromFile(&admin_icon, "data/admin_icon.png");
+	Texture_FromFile(&admin_icon, "data/icons/admin.png");
 	Texture_ToOpenGL(&admin_icon);
 
 	Texture supply_icon;
-	Texture_FromFile(&supply_icon, "data/supply_icon.png");
+	Texture_FromFile(&supply_icon, "data/icons/supply.png");
 	Texture_ToOpenGL(&supply_icon);
 
 	Texture factory_icon;
-	Texture_FromFile(&factory_icon, "data/factory_icon.png");
+	Texture_FromFile(&factory_icon, "data/icons/factory.png");
 	Texture_ToOpenGL(&factory_icon);
 
 	Texture jap_troop;
@@ -201,7 +201,7 @@ int main(int argc, char ** argv) {
 	/* left sidebar buttons */
 	UI_Widget help_btn, help_btn_icon;
 	Texture help_icon;
-	Texture_FromFile(&help_icon, "data/help_icon.png");
+	Texture_FromFile(&help_icon, "data/icons/help.png");
 	Texture_ToOpenGL(&help_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &help_btn, 8, 8, 64, 64);
 	UI_Context_AddWidget(&ui_ctx, &help_btn);
@@ -211,7 +211,7 @@ int main(int argc, char ** argv) {
 
 	UI_Widget budget_btn, budget_btn_icon;
 	Texture budget_icon;
-	Texture_FromFile(&budget_icon, "data/budget_icon.png");
+	Texture_FromFile(&budget_icon, "data/icons/budget.png");
 	Texture_ToOpenGL(&budget_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &budget_btn, 8, (8 * 2) + 64, 64, 64);
 	UI_Context_AddWidget(&ui_ctx, &budget_btn);
@@ -221,7 +221,7 @@ int main(int argc, char ** argv) {
 
 	UI_Widget pol_view_btn, pol_view_btn_icon;
 	Texture pol_view_icon;
-	Texture_FromFile(&pol_view_icon, "data/pol_view_icon.png");
+	Texture_FromFile(&pol_view_icon, "data/icons/pol_view.png");
 	Texture_ToOpenGL(&pol_view_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &pol_view_btn, 8, (8 * 3) + (64 * 2), 64, 64);
 	UI_Context_AddWidget(&ui_ctx, &pol_view_btn);
@@ -231,7 +231,7 @@ int main(int argc, char ** argv) {
 
 	UI_Widget prov_view_btn, prov_view_btn_icon;
 	Texture prov_view_icon;
-	Texture_FromFile(&prov_view_icon, "data/prov_view_icon.png");
+	Texture_FromFile(&prov_view_icon, "data/icons/prov_view.png");
 	Texture_ToOpenGL(&prov_view_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &prov_view_btn, 8, (8 * 4) + (64 * 3), 64, 64);
 	UI_Context_AddWidget(&ui_ctx, &prov_view_btn);
@@ -241,7 +241,7 @@ int main(int argc, char ** argv) {
 
 	UI_Widget topo_view_btn, topo_view_btn_icon;
 	Texture topo_view_icon;
-	Texture_FromFile(&topo_view_icon, "data/topo_view_icon.png");
+	Texture_FromFile(&topo_view_icon, "data/icons/topo_view.png");
 	Texture_ToOpenGL(&topo_view_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &topo_view_btn, 8, (8 * 5) + (64 * 4), 64, 64);
 	UI_Context_AddWidget(&ui_ctx, &topo_view_btn);
@@ -251,7 +251,7 @@ int main(int argc, char ** argv) {
 
 	UI_Widget exit_btn, exit_btn_icon;
 	Texture exit_icon;
-	Texture_FromFile(&exit_icon, "data/exit_icon.png");
+	Texture_FromFile(&exit_icon, "data/icons/exit.png");
 	Texture_ToOpenGL(&exit_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &exit_btn, 8, (8 * 6) + (64 * 5), 64, 64);
 	UI_Context_AddWidget(&ui_ctx, &exit_btn);
