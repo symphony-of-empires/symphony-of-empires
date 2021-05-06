@@ -1,3 +1,11 @@
+# linux ld stuff
+*.out
 *.o
+
+# windows obj files
+*.obj
+*.exe
+
+# bad folders
 bin/
 obj/
