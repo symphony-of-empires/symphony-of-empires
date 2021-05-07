@@ -128,6 +128,14 @@ typedef struct {
 	float z;
 }Camera;
 
+static char *concatS(char *str1, char *str2){
+	static char rsult[256];
+	strcpy(rsult, str1);
+	strcat(rsult, str2);
+	printf("Concat str: %s\n", rsult);
+	return rsult;
+}
+
 int main(int argc, char ** argv) {
 	char data_dir[128]; // A path that points to the games data directory
 	/*  The following only works on Linux, other Unixes and Windows require a different solution */
@@ -139,14 +147,14 @@ int main(int argc, char ** argv) {
 	data_dir[strlen(data_dir) - 1] = '.';
 	data_dir[strlen(data_dir) - 2] = '.';
 
-	strcat(data_dir, "/data/");
+	strcat(data_dir, "/data");
 
 	printf("Data dir: %s\n", data_dir);
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
-	World_Create(&world, "data/map_topo.png", "data/map_pol.png");
+	World_Create(&world, concatS(data_dir, "/map_topo.png"), concatS(data_dir, "/map_pol.png"));
 	world.time = 695459;
 	world.time -= (8600 * 76);
 	world.time -= 24 * 190;
@@ -176,26 +184,28 @@ int main(int argc, char ** argv) {
 	UI_Context_LoadTextures(&ui_ctx);
 
 	Texture title;
-	Texture_FromFile(&title, "data/title.png");
+	Texture_FromFile(&title, concatS(data_dir, "/title.png"));
 
 	Texture admin_icon;
-	Texture_FromFile(&admin_icon, "data/icons/admin.png");
+
+	Texture_FromFile(&admin_icon, concatS(data_dir, "/icons/admin.png"));
 	Texture_ToOpenGL(&admin_icon);
 
 	Texture supply_icon;
-	Texture_FromFile(&supply_icon, "data/icons/supply.png");
+	Texture_FromFile(&supply_icon, concatS(data_dir, "/icons/supply.png"));
 	Texture_ToOpenGL(&supply_icon);
 
 	Texture factory_icon;
-	Texture_FromFile(&factory_icon, "data/icons/factory.png");
+	Texture_FromFile(&factory_icon, concatS(data_dir, "/icons/factory.png"));
+
 	Texture_ToOpenGL(&factory_icon);
 
 	Texture jap_troop;
-	Texture_FromFile(&jap_troop, "data/troop1.png");
+	Texture_FromFile(&jap_troop, concatS(data_dir, "/troop1.png"));
 	Texture_ToOpenGL(&jap_troop);
 
 	Texture rus_troop;
-	Texture_FromFile(&rus_troop, "data/troop2.png");
+	Texture_FromFile(&rus_troop, concatS(data_dir, "/troop2.png"));
 	Texture_ToOpenGL(&rus_troop);
 
 	UI_Context_ToOpenGL(&ui_ctx);
@@ -204,7 +214,9 @@ int main(int argc, char ** argv) {
 	/* left sidebar buttons */
 	UI_Widget help_btn, help_btn_icon;
 	Texture help_icon;
-	Texture_FromFile(&help_icon, "data/icons/help.png");
+
+	Texture_FromFile(&help_icon, concatS(data_dir, "/icons/help.png"));
+
 	Texture_ToOpenGL(&help_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &help_btn, 8, 8, 64, 64);
 	UI_Context_AddWidget(&ui_ctx, &help_btn);
@@ -214,7 +226,9 @@ int main(int argc, char ** argv) {
 
 	UI_Widget budget_btn, budget_btn_icon;
 	Texture budget_icon;
-	Texture_FromFile(&budget_icon, "data/icons/budget.png");
+
+	Texture_FromFile(&budget_icon, concatS(data_dir, "/icons/budget.png"));
+
 	Texture_ToOpenGL(&budget_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &budget_btn, 8, (8 * 2) + 64, 64, 64);
 	UI_Context_AddWidget(&ui_ctx, &budget_btn);
@@ -224,7 +238,9 @@ int main(int argc, char ** argv) {
 
 	UI_Widget pol_view_btn, pol_view_btn_icon;
 	Texture pol_view_icon;
-	Texture_FromFile(&pol_view_icon, "data/icons/pol_view.png");
+
+	Texture_FromFile(&pol_view_icon, concatS(data_dir, "/icons/pol_view.png"));
+
 	Texture_ToOpenGL(&pol_view_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &pol_view_btn, 8, (8 * 3) + (64 * 2), 64, 64);
 	UI_Context_AddWidget(&ui_ctx, &pol_view_btn);
@@ -234,7 +250,9 @@ int main(int argc, char ** argv) {
 
 	UI_Widget prov_view_btn, prov_view_btn_icon;
 	Texture prov_view_icon;
-	Texture_FromFile(&prov_view_icon, "data/icons/prov_view.png");
+
+	Texture_FromFile(&prov_view_icon, concatS(data_dir, "/icons/prov_view.png"));
+
 	Texture_ToOpenGL(&prov_view_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &prov_view_btn, 8, (8 * 4) + (64 * 3), 64, 64);
 	UI_Context_AddWidget(&ui_ctx, &prov_view_btn);
@@ -244,7 +262,9 @@ int main(int argc, char ** argv) {
 
 	UI_Widget topo_view_btn, topo_view_btn_icon;
 	Texture topo_view_icon;
-	Texture_FromFile(&topo_view_icon, "data/icons/topo_view.png");
+
+	Texture_FromFile(&topo_view_icon, concatS(data_dir, "/icons/topo_view.png"));
+
 	Texture_ToOpenGL(&topo_view_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &topo_view_btn, 8, (8 * 5) + (64 * 4), 64, 64);
 	UI_Context_AddWidget(&ui_ctx, &topo_view_btn);
@@ -254,7 +274,9 @@ int main(int argc, char ** argv) {
 
 	UI_Widget exit_btn, exit_btn_icon;
 	Texture exit_icon;
-	Texture_FromFile(&exit_icon, "data/icons/exit.png");
+
+	Texture_FromFile(&exit_icon, concatS(data_dir, "/icons/exit.png"));
+
 	Texture_ToOpenGL(&exit_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &exit_btn, 8, (8 * 6) + (64 * 5), 64, 64);
 	UI_Context_AddWidget(&ui_ctx, &exit_btn);
