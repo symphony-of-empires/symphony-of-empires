@@ -9,7 +9,7 @@
 
 std::string getPathToSelf(){
 #ifdef HAS_WINDOWS
-	LPSTR buf[PATH_MAX];
+	char buf[PATH_MAX];
 	ssize_t len = GetModuleFileNameA(NULL, buf, sizeof(buf) - 1);
 #else
 	char buf[PATH_MAX];
