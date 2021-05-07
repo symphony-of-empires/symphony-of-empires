@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-Wall -Wextra -Wshadow -Wdouble-promotion -std=c++11 -O0 -g
+CXXFLAGS=-Wall -Wextra -Wshadow -Wdouble-promotion -std=c++17 -O0 -g
 ifdef WINDOWS
 LIBS=-lopengl32 -lglu32 -llua -lintl
 else
