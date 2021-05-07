@@ -10,11 +10,9 @@ struct Province {
 	uint64_t population;
 	float budget;
 
-	Industry * industries;
-	size_t n_industries;
+	std::vector<Industry> industries;
 
-	Product * products;
-	size_t n_products;
+	std::vector<Product> products;
 
     std::vector<Pop> pops;
 };

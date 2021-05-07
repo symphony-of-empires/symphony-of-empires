@@ -93,14 +93,15 @@ void World::do_tick() {
 		province->population += rand() % 5;
 
 		/* Producers produce stuff */
-		for(size_t i = 0; i < province->n_industries; i++) {
+		for(size_t i = 0; i < province->industries.size(); i++) {
 			Industry * industry = &province->industries[i];
 
 			/* Factories generate 1000 jobs, each paying about 1$ */
 			province->budget += (1000.f) / province->population;
 
 			//printf("%s industry in %s:\n", world->industry_types[industry->type_id].ref_name, province->ref_name);
-			for(size_t j = 0; j < province->n_products; j++) {
+			uint n_products = province->products.size();
+			for(size_t j = 0; j < n_products; j++) {
 				Product * product = &province->products[j];
 				if(product->industry_id != i) {
 					continue;
@@ -113,7 +114,8 @@ void World::do_tick() {
 			}
 		}
 
-		for(size_t i = 0; i < province->n_products; i++) {
+		uint n_products = province->products.size();
+		for(size_t i = 0; i < n_products; i++) {
 			Product * product = &province->products[i];
 
 			product->demand = 0;

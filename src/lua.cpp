@@ -138,10 +138,10 @@ int World_LuaAddProvince(lua_State * L) {
 	g_world->add_province(province);
 
 	// TODO: this is NOT good
-	Industry * industry = new Industry;
-	industry->owner_id = 0;
-	industry->type_id = rand() % g_world->n_industry_types;
-	Province_AddIndustry(g_world, &g_world->provinces[g_world->n_provinces - 1], industry);
+	Industry industry;
+	industry.owner_id = 0;
+	industry.type_id = rand() % g_world->n_industry_types;
+	Province_AddIndustry(g_world, &g_world->provinces[g_world->n_provinces - 1], &industry);
 	return 0;
 }
 
