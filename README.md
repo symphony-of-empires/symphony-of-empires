@@ -6,6 +6,7 @@ Required to build:
 * libSDL2
 * libSDL2-ttf
 * liblua 5.2
+* liblua 5.2-dev on ubuntu and similar distroes
 * libGL 1.4 (+ Utility library)
 
 ## Build (Linux)
