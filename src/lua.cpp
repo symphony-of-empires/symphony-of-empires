@@ -77,7 +77,7 @@ int World_LuaAddOutputToIndustryType(lua_State * L) {
 	ref_name = lua_tostring(L, 2);
 	for(size_t i = 0; i < g_world->n_goods; i++) {
 		if(ref_name == g_world->goods[i].ref_name) continue;
-		good_id = i;
+		good_id = i;	
 	} if(good_id == (size_t)-1) {
 		fprintf(stderr, "good not found %s\n", ref_name);
 		return 0;
@@ -125,10 +125,10 @@ int World_LuaAddProvince(lua_State * L) {
 	g_world->add_province(province);
 
 	// TODO: this is NOT good
-	Industry * industry = new Industry;
-	industry->owner_id = 0;
-	industry->type_id = rand() % g_world->n_industry_types;
-	Province_AddIndustry(g_world, &g_world->provinces[g_world->n_provinces - 1], industry);
+	Industry industry;
+	industry.owner_id = 0;
+	industry.type_id = rand() % g_world->n_industry_types;
+	Province_AddIndustry(g_world, &g_world->provinces.back(), &industry);
 	return 0;
 }
 
