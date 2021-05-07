@@ -102,6 +102,7 @@ int World_LuaAddOutputToIndustryType(lua_State * L) {
 
 int World_LuaAddNation(lua_State * L) {
 	Nation * nation = new Nation;
+	memset(nation, 0, sizeof(Nation));
 
 	const char * ref_name = lua_tostring(L, 1);
 	nation->ref_name = (char *)malloc(strlen(ref_name) + 1);
@@ -125,6 +126,7 @@ int World_LuaAddNation(lua_State * L) {
 
 int World_LuaAddProvince(lua_State * L) {
 	Province * province = new Province;
+	memset(province, 0, sizeof(Province));
 
 	const char * ref_name = lua_tostring(L, 1);
 	province->ref_name = (char *)malloc(strlen(ref_name) + 1);
