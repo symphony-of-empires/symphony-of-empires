@@ -22,19 +22,19 @@ void UI_Context_Create(std::string data_dir, UI_Context * ctx) {
 }
 
 void UI_Context_LoadTextures(UI_Context * ctx) {
-	ctx->textures.arrow_active.from_file("data/ui/arrow_active.png");
-	ctx->textures.arrow_hover.from_file("data/ui/arrow_hover.png");
-	ctx->textures.arrow_idle.from_file("data/ui/arrow_idle.png");
-	ctx->textures.button_active.from_file("data/ui/button_active.png");
-	ctx->textures.button_hover.from_file("data/ui/button_hover.png");
-	ctx->textures.button_idle.from_file("data/ui/button_idle.png");
-	ctx->textures.input_active.from_file("data/ui/input_active.png");
-	ctx->textures.input_hover.from_file("data/ui/input_hover.png");
-	ctx->textures.input_idle.from_file("data/ui/input_idle.png");
-	ctx->textures.scroll_back.from_file("data/ui/scroll_back.png");
-	ctx->textures.scroll_bar.from_file("data/ui/scroll_bar.png");
-	ctx->textures.window.from_file("data/ui/window.png");
-	ctx->textures.window_border.from_file("data/ui/window_border.png");
+	ctx->textures.arrow_active.from_file("ui/arrow_active.png");
+	ctx->textures.arrow_hover.from_file("ui/arrow_hover.png");
+	ctx->textures.arrow_idle.from_file("ui/arrow_idle.png");
+	ctx->textures.button_active.from_file("ui/button_active.png");
+	ctx->textures.button_hover.from_file("ui/button_hover.png");
+	ctx->textures.button_idle.from_file("ui/button_idle.png");
+	ctx->textures.input_active.from_file("ui/input_active.png");
+	ctx->textures.input_hover.from_file("ui/input_hover.png");
+	ctx->textures.input_idle.from_file("ui/input_idle.png");
+	ctx->textures.scroll_back.from_file("ui/scroll_back.png");
+	ctx->textures.scroll_bar.from_file("ui/scroll_bar.png");
+	ctx->textures.window.from_file("ui/window.png");
+	ctx->textures.window_border.from_file("ui/window_border.png");
 	return;
 }
 
