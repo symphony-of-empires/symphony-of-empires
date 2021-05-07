@@ -112,6 +112,6 @@ static __always_inline void World_AddProvince(World * world, Province * province
 }
 
 void World_DoTick(World * world);
-void World_Create(World * world, const char * topo_map, const char * pol_map);
+void World_Create(World * world, const char * topo_map, const char * pol_map, const char * div_map);
 
 #endif

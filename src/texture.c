@@ -63,6 +63,7 @@ int Texture_FromFile(Texture * tex, const char * name) {
 		return 1;
 	}
 	
+	printf("texture %s loaded\n", name);
 	tex->gl_tex_num = 0;
 	return 0;
 }
