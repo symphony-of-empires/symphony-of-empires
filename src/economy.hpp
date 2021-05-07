@@ -3,19 +3,20 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <string>
 
 typedef struct {
 	uint64_t money;
 }Company;
 
 typedef struct {
-	char * name;
-	char * ref_name;
+	std::string name;
+	std::string ref_name;
 }Good;
 
 typedef struct {
-	char * name;
-	char * ref_name;
+	std::string name;
+	std::string ref_name;
 
 	size_t * inputs;
 	size_t n_inputs;

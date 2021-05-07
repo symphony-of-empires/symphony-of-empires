@@ -14,13 +14,10 @@ int World_LuaAddGood(lua_State * L) {
 	memset(&good, 0, sizeof(Good));
 
 	const char * ref_name = lua_tostring(L, 1);
-	good.ref_name = (char *)malloc(strlen(ref_name) + 1);
-	strcpy(good.ref_name, ref_name);
+	good.ref_name = ref_name;
 
 	const char * name = lua_tostring(L, 2);
-
-	good.name = (char *)malloc(strlen(name) + 1);
-	strcpy(good.name, name);
+	good.name = name;
 
 	g_world->add_good(&good);
 	return 0;
@@ -31,12 +28,10 @@ int World_LuaAddIndustryType(lua_State * L) {
 	memset(&industry, 0, sizeof(IndustryType));
 
 	const char * ref_name = lua_tostring(L, 1);
-	industry.ref_name = (char *)malloc(strlen(ref_name) + 1);
-	strcpy(industry.ref_name, ref_name);
+	industry.ref_name = ref_name;
 
 	const char * name = lua_tostring(L, 2);
-	industry.name = (char *)malloc(strlen(name) + 1);
-	strcpy(industry.name, name);
+	industry.name = name;
 
 	g_world->add_industry_type(&industry);
 	return 0;
@@ -48,7 +43,7 @@ int World_LuaAddInputToIndustryType(lua_State * L) {
 	IndustryType * industry = NULL;
 	ref_name = lua_tostring(L, 1);
 	for(size_t i = 0; i < g_world->n_industry_types; i++) {
-		if(strcmp(ref_name, g_world->industry_types[i].ref_name)) continue;
+		if(ref_name == g_world->industry_types[i].ref_name) continue;
 		industry = &g_world->industry_types[i];
 	} if(industry == NULL) {
 		fprintf(stderr, "industry not found %s\n", ref_name);
@@ -58,7 +53,7 @@ int World_LuaAddInputToIndustryType(lua_State * L) {
 	size_t good_id = (size_t)-1;
 	ref_name = lua_tostring(L, 2);
 	for(size_t i = 0; i < g_world->n_goods; i++) {
-		if(strcmp(ref_name, g_world->goods[i].ref_name)) continue;
+		if(ref_name == g_world->goods[i].ref_name) continue;
 		good_id = i;
 	} if(good_id == (size_t)-1) {
 		fprintf(stderr, "good not found %s\n", ref_name);
@@ -77,7 +72,7 @@ int World_LuaAddOutputToIndustryType(lua_State * L) {
 	IndustryType * industry = NULL;
 	ref_name = lua_tostring(L, 1);
 	for(size_t i = 0; i < g_world->n_industry_types; i++) {
-		if(strcmp(ref_name, g_world->industry_types[i].ref_name)) continue;
+		if(ref_name == g_world->industry_types[i].ref_name) continue;
 		industry = &g_world->industry_types[i];
 	} if(industry == NULL) {
 		fprintf(stderr, "industry not found %s\n", ref_name);
@@ -87,7 +82,7 @@ int World_LuaAddOutputToIndustryType(lua_State * L) {
 	size_t good_id = (size_t)-1;
 	ref_name = lua_tostring(L, 2);
 	for(size_t i = 0; i < g_world->n_goods; i++) {
-		if(strcmp(ref_name, g_world->goods[i].ref_name)) continue;
+		if(ref_name == g_world->goods[i].ref_name) continue;
 		good_id = i;
 	} if(good_id == (size_t)-1) {
 		fprintf(stderr, "good not found %s\n", ref_name);
@@ -105,8 +100,7 @@ int World_LuaAddNation(lua_State * L) {
 	memset(nation, 0, sizeof(Nation));
 
 	const char * ref_name = lua_tostring(L, 1);
-	nation->ref_name = (char *)malloc(strlen(ref_name) + 1);
-	strcpy(nation->ref_name, ref_name);
+	nation->ref_name = ref_name;
 
 	nation->color = lua_tonumber(L, 2);
 	nation->color = bswap_32(nation->color);
@@ -117,8 +111,7 @@ int World_LuaAddNation(lua_State * L) {
 	nation->default_flag.from_file(default_flag);
 
 	const char * name = lua_tostring(L, 4);
-	nation->name = (char *)malloc(strlen(name) + 1);
-	strcpy(nation->name, name);
+	nation->name = name;
 	
 	g_world->add_nation(nation);
 	return 0;
@@ -129,8 +122,7 @@ int World_LuaAddProvince(lua_State * L) {
 	memset(province, 0, sizeof(Province));
 
 	const char * ref_name = lua_tostring(L, 1);
-	province->ref_name = (char *)malloc(strlen(ref_name) + 1);
-	strcpy(province->ref_name, ref_name);
+	province->ref_name = ref_name;
 
 	province->color = lua_tonumber(L, 2);
 	province->color = bswap_32(province->color);
@@ -138,8 +130,7 @@ int World_LuaAddProvince(lua_State * L) {
 	province->color |= 0xff000000;
 
 	const char * name = lua_tostring(L, 3);
-	province->name = (char *)malloc(strlen(name) + 1);
-	strcpy(province->name, name);
+	province->name = name;
 
 	province->population = 1000;
 	province->budget = 500.f;

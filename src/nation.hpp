@@ -4,10 +4,11 @@
 #include <stdint.h>
 #include "texture.hpp"
 
+#include <string>
 class Nation {
 public:
-	char * name;
-	char * ref_name;
+	std::string name;
+	std::string ref_name;
 	uint32_t color;
 	Texture default_flag;
 };
