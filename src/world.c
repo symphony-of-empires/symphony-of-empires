@@ -84,7 +84,7 @@ void World_DoTick(World * world) {
 
 #include <lua5.2/lualib.h>
 #include <lua5.2/lauxlib.h>
-void World_Create(World * world, const char * topo_map, const char * pol_map) {
+void World_Create(World * world, const char * topo_map, const char * pol_map, const char * div_map) {
 	Texture topo, pol, div;
 
 	g_world = world;
@@ -93,7 +93,7 @@ void World_Create(World * world, const char * topo_map, const char * pol_map) {
 
 	Texture_FromFile(&topo, topo_map);
 	Texture_FromFile(&pol, pol_map);
-	Texture_FromFile(&div, "data/map_div.png");
+	Texture_FromFile(&div, div_map);
 
 	world->width = topo.width;
 	world->height = topo.height;
