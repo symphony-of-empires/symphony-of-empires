@@ -128,31 +128,20 @@ typedef struct {
 	float z;
 }Camera;
 
-char data_dir[128]; // A path that points to the games data directory
+const char * g_data_dir = "data/";
 static const char * Resource_GetPath(const char * str){
-	static char rsult[256];
-	strcpy((char *)&rsult, (char *)&data_dir);
-	strcat((char *)&rsult, str);
-	printf("Concat str: %s\n", (char *)&rsult);
-	return (const char *)&rsult;
+	char * rsult = malloc(255);
+	strcpy(rsult, g_data_dir);
+	strcat(rsult, str);
+	printf("Concat str: %s\n", rsult);
+	return (const char *)rsult;
 }
 
 int main(int argc, char ** argv) {
-	/* The following only works on Linux, other Unixes and Windows require a different solution */
-	readlink("/proc/self/exe", data_dir, sizeof(data_dir));
-	// An ugly hack which should be fixed later
-	data_dir[strlen(data_dir) - 1] = 0;
-	data_dir[strlen(data_dir) - 1] = 0;
-	data_dir[strlen(data_dir) - 1] = '.';
-	data_dir[strlen(data_dir) - 2] = '.';
-	strcat(data_dir, "/data/");
-
-	printf("Data dir: %s\n", data_dir);
-
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
-	World_Create(&world, Resource_GetPath("map_topo.png"), Resource_GetPath("map_pol.png"));
+	World_Create(&world, Resource_GetPath("map_topo.png"), Resource_GetPath("map_pol.png"), Resource_GetPath("map_div.png"));
 	world.time = 695459;
 	world.time -= (8600 * 76);
 	world.time -= 24 * 190;
@@ -178,7 +167,7 @@ int main(int argc, char ** argv) {
 	Map_Create(&pol_map, &world, MAP_POLITICAL);
 	Map_Create(&topo_map, &world, MAP_TOPOGRAPHIC);
 
-	UI_Context_Create(data_dir, &ui_ctx);
+	UI_Context_Create(g_data_dir, &ui_ctx);
 	UI_Context_LoadTextures(&ui_ctx);
 
 	Texture title;

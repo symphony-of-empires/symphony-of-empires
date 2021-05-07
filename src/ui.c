@@ -7,7 +7,7 @@
 #include "texture.h"
 #include "ui.h"
 
-void UI_Context_Create(const char *data_dir, UI_Context * ctx) {
+void UI_Context_Create(const char * data_dir, UI_Context * ctx) {
 	char font_path[256];
 	strcpy(font_path, data_dir);
 	strcat(font_path, "/fonts/FreeMono.ttf");
