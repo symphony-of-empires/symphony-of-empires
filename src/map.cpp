@@ -33,11 +33,15 @@ void Map::quad_create(size_t qx, size_t qy) {
 	size_t end_x = (off_x + this->quad_size);
 	size_t end_y = (off_y + this->quad_size);
 
-	const int draw_ord[4][2] = {
+	//Triangle
+	const int draw_ord[6][2] = {
 		{ 0, 0 }, /* top left */
-		{ 1, 0 }, /* top right */
+		{ 0, 1 },/* bottom left */
+		{ 1, 1 },/* bottom right */
 		{ 1, 1 }, /* bottom right */
-		{ 0, 1 }, /* bottom left */
+		{ 1, 0 }, /*top right */
+		{ 0, 0 } /* top left*/
+		 			
 	};
 
 	if(!off_x) {
@@ -60,9 +64,9 @@ void Map::quad_create(size_t qx, size_t qy) {
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
 				Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
-				glBegin(GL_POLYGON);
+				glBegin(GL_TRIANGLES);
 				if(curr_tile->owner_id == (size_t)-1) {
-					for(size_t k = 0; k < 4; k++) {
+					for(size_t k = 0; k < 6; k++) {
 						size_t x = i + draw_ord[k][0];
 						size_t y = j + draw_ord[k][1];
 						uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
@@ -71,7 +75,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 					}
 				} else {
 					Nation * nation = &this->world->nations[curr_tile->owner_id];
-					for(size_t k = 0; k < 4; k++) {
+					for(size_t k = 0; k < 6; k++) {
 						size_t x = i + draw_ord[k][0];
 						size_t y = j + draw_ord[k][1];
 						uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation - this->world->sea_level;
@@ -95,9 +99,9 @@ void Map::quad_create(size_t qx, size_t qy) {
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
 				Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
-				glBegin(GL_POLYGON);
+				glBegin(GL_TRIANGLES);
 				if(curr_tile->province_id == (size_t)-1) {
-					for(size_t k = 0; k < 4; k++) {
+					for(size_t k = 0; k < 6; k++) {
 						size_t x = i + draw_ord[k][0];
 						size_t y = j + draw_ord[k][1];
 						uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
@@ -106,7 +110,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 					}
 				} else {
 					Province * province = &this->world->provinces[curr_tile->province_id];
-					for(size_t k = 0; k < 4; k++) {
+					for(size_t k = 0; k < 6; k++) {
 						size_t x = i + draw_ord[k][0];
 						size_t y = j + draw_ord[k][1];
 						uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation - this->world->sea_level;
@@ -130,8 +134,8 @@ void Map::quad_create(size_t qx, size_t qy) {
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
 				Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
-				glBegin(GL_POLYGON);
-				for(size_t k = 0; k < 4; k++) {
+				glBegin(GL_TRIANGLES);
+				for(size_t k = 0; k < 6; k++) {
 					size_t x = i + draw_ord[k][0];
 					size_t y = j + draw_ord[k][1];
 					uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;

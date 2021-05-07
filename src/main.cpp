@@ -339,7 +339,8 @@ int main(int argc, char ** argv) {
 	cam.vx = 0.f;
 	cam.vy = 0.f;
 	cam.vz = 0.f;
-
+	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
+	
 	while(run) {
 		SDL_Event event;
 		int r;
@@ -426,7 +427,6 @@ int main(int argc, char ** argv) {
 			}
 		}
 
-		glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glPushMatrix();
@@ -456,7 +456,7 @@ int main(int argc, char ** argv) {
 		glColor3f(1.f, 1.f, 1.f);
 		glVertex2f(fmx, fmy + 1.f);
 		glEnd();
-
+		
 		glBindTexture(GL_TEXTURE_2D, world->nations[current_player_nation_id].default_flag.gl_tex_num);
 		GLUquadricObj * sphere = NULL;
 		sphere = gluNewQuadric();
@@ -491,7 +491,7 @@ int main(int argc, char ** argv) {
 
 		day %= 31;
 		month %= 12;
-
+		
 		char str[255];
 		sprintf((char *)&str, "%u/%u/%u - %u", year, month, day, hour);
 		overview_time_label->text(ui_ctx, (char *)&str);
