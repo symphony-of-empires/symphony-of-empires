@@ -13,106 +13,109 @@ enum UI_WidgetType {
 };
 
 #include <SDL2/SDL_ttf.h>
-class Widget;
-typedef struct {
-	TTF_Font * default_font;
 
-	Widget ** widgets;
-	size_t n_widgets;
+namespace UI {
+	class Widget;
+	class Context {
+	public:
+		Context(std::string data_dir);
+		void load_textures();
+		void add_widget(Widget * widget);
+		void remove_widget(Widget * widget);
+		void render_all();
+		void check_hover(unsigned mx, unsigned my);
+		int check_click(unsigned mx, unsigned my);
+		void check_text_input(const char * input);
 
-	struct {
-		Texture arrow_idle;
-		Texture arrow_hover;
-		Texture arrow_active;
+		TTF_Font * default_font;
 
-		Texture button_idle;
-		Texture button_hover;
-		Texture button_active;
+		Widget ** widgets;
+		size_t n_widgets;
 
-		Texture input_idle;
-		Texture input_hover;
-		Texture input_active;
+		struct {
+			Texture arrow_idle;
+			Texture arrow_hover;
+			Texture arrow_active;
 
-		Texture scroll_back;
-		Texture scroll_bar;
+			Texture button_idle;
+			Texture button_hover;
+			Texture button_active;
 
-		Texture window;
-		Texture window_border;
-	}textures;
-}UI_Context;
+			Texture input_idle;
+			Texture input_hover;
+			Texture input_active;
 
-class Widget {
-public:
-	Widget(UI_Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type);
-	void add_child(Widget * child);
-	void text(UI_Context * ctx, const char * text);
-	void draw_rectangle(unsigned x, unsigned y, unsigned w, unsigned h, unsigned tex);
+			Texture scroll_back;
+			Texture scroll_bar;
 
-	int type;
+			Texture window;
+			Texture window_border;
+		}textures;
+	};
 
-	size_t x;
-	size_t y;
-	
-	size_t width;
-	size_t height;
+	class Widget {
+	public:
+		Widget(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type);
+		void add_child(Widget * child);
+		void text(Context * ctx, const char * text);
+		void draw_rectangle(unsigned x, unsigned y, unsigned w, unsigned h, unsigned tex);
 
-	char show;
+		int type;
 
-	Texture * current_texture;
-	Texture text_texture;
+		size_t x;
+		size_t y;
+		
+		size_t width;
+		size_t height;
 
-	char * buffer;
+		char show;
 
-	void (*on_update)(Widget *, void *);
-	void (*on_render)(Widget *, void *);
-	void (*on_hover)(Widget *, void *);
-	void (*on_click)(Widget *, void *);
-	void (*on_textinput)(Widget *, const char *, void *);
+		Texture * current_texture;
+		Texture text_texture;
 
-	Widget * parent;
-	Widget ** children;
-	size_t n_children;
+		char * buffer;
 
-	void * user_data;
-	size_t user_data_len;
+		void (*on_update)(Widget *, void *);
+		void (*on_render)(Widget *, void *);
+		void (*on_hover)(Widget *, void *);
+		void (*on_click)(Widget *, void *);
+		void (*on_textinput)(Widget *, const char *, void *);
+
+		Widget * parent;
+		Widget ** children;
+		size_t n_children;
+
+		void * user_data;
+		size_t user_data_len;
+	};
 };
 
-void UI_Context_Create(std::string data_dir, UI_Context * ctx);
-void UI_Context_LoadTextures(UI_Context * ctx);
-void UI_Context_ToOpenGL(UI_Context * ctx);
-void UI_Context_AddWidget(UI_Context * ctx, Widget * widget);
-void UI_Context_RenderAll(UI_Context * ctx);
+void default_close_button_on_click(UI::Widget * w, void * data);
 
-void UI_Context_CheckHover(UI_Context * ctx, unsigned mx, unsigned my);
-int UI_Context_CheckClick(UI_Context * ctx, unsigned mx, unsigned my);
-void UI_Context_CheckKeydown(UI_Context * ctx, const char * input);
-
-void default_close_button_on_click(Widget * w, void * data);
-
-static inline void UI_Widget_CreateButton(UI_Context * ctx, Widget * parent, Widget ** widget,
+static inline void UI_Widget_CreateButton(UI::Context * ctx, UI::Widget * parent, UI::Widget ** widget,
 	int x, int y, unsigned w, unsigned h) {
-	*widget = new Widget(ctx, parent, x, y, w, h, UI_WIDGET_BUTTON);
+	*widget = new UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_BUTTON);
 }
 
-static inline void UI_Widget_CreateInput(UI_Context * ctx, Widget * parent, Widget ** widget,
+static inline void UI_Widget_CreateInput(UI::Context * ctx, UI::Widget * parent, UI::Widget ** widget,
 	int x, int y, unsigned w, unsigned h) {
-	*widget = new Widget(ctx, parent, x, y, w, h, UI_WIDGET_INPUT);
+	*widget = new UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_INPUT);
 }
 
-static inline void UI_Widget_CreateWindow(UI_Context * ctx, Widget * parent, Widget ** widget,
+static inline void UI_Widget_CreateWindow(UI::Context * ctx, UI::Widget * parent, UI::Widget ** widget,
 	int x, int y, unsigned w, unsigned h) {
-	*widget = new Widget(ctx, parent, x, y, w, h, UI_WIDGET_WINDOW);
+	*widget = new UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_WINDOW);
 }
 
-static inline void UI_Widget_CreateImage(UI_Context * ctx, Widget * parent, Widget ** widget,
+static inline void UI_Widget_CreateImage(UI::Context * ctx, UI::Widget * parent, UI::Widget ** widget,
 	int x, int y, unsigned w, unsigned h, Texture * tex) {
-	*widget = new Widget(ctx, parent, x, y, w, h, UI_WIDGET_IMAGE);
+	*widget = new UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_IMAGE);
 	(*widget)->current_texture = tex;
 }
 
-static inline void UI_Widget_CreateLabel(UI_Context * ctx, Widget * parent, Widget ** widget,
+static inline void UI_Widget_CreateLabel(UI::Context * ctx, UI::Widget * parent, UI::Widget ** widget,
 	int x, int y, const char * text) {
-	*widget = new Widget(ctx, parent, x, y, 0, 0, UI_WIDGET_WINDOW);
+	*widget = new UI::Widget(ctx, parent, x, y, 0, 0, UI_WIDGET_WINDOW);
 	(*widget)->text(ctx, text);
 }
 
