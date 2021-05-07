@@ -1,4 +1,4 @@
-#include <lua5.2/lua.h>
+#include <lua5.2/lua.hpp>
 #include <string.h>
 #include <stdlib.h>
 #include <byteswap.h>
@@ -6,9 +6,6 @@
 #include "world.hpp"
 #include "nation.hpp"
 #include "economy.hpp"
-
-#include <lua5.2/lualib.h>
-#include <lua5.2/lauxlib.h>
 
 extern World * g_world;
 

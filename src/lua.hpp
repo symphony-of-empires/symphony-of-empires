@@ -1,7 +1,7 @@
 #ifndef LUA_H
 #define LUA_H
 
-#include <lua5.2/lua.h>
+#include <lua5.2/lua.hpp>
 
 int World_LuaAddGood(lua_State * L);
 int World_LuaAddIndustryType(lua_State * L);
