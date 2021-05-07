@@ -68,22 +68,24 @@ void do_economy_on_update(Widget * widget, void * data) {
 			Product * product = &province->products[j];
 
 			size_t y = n_prod * 24 + 48;
-			char str[255];
+			char * str = new char[255];
 			if(product->price_vel > 0.f) {
 				UI_Widget_TextColor(0, 255, 0);
-				sprintf((char *)&str, "+%4.2f", product->price_vel);
+				sprintf(str, "+%4.2f", product->price_vel);
 			} else {
 				UI_Widget_TextColor(255, 0, 0);
-				sprintf((char *)&str, "%4.2f", product->price_vel);
+				sprintf(str, "%4.2f", product->price_vel);
 			}
 
 			econ_label[n_prod * 4 + 0]->text(&ui_ctx, (const char *)&str);
 			UI_Widget_TextColor(0, 0, 0);
 
-			sprintf((char *)&str, "%4.2f", product->price);
+			sprintf(str, "%4.2f", product->price);
 			econ_label[n_prod * 4 + 1]->text(&ui_ctx, (const char *)&str);
 			econ_label[n_prod * 4 + 2]->text(&ui_ctx, province->name.c_str());
 			econ_label[n_prod * 4 + 3]->text(&ui_ctx, world->goods[product->good_id].name.c_str());
+
+			delete[] str;
 
 			n_prod++;
 
@@ -380,12 +382,10 @@ int main(int argc, char ** argv) {
 				UI_Context_CheckHover(&ui_ctx, mx, my);
 
 				fmx = mx - (width / 2.f);
-				fmx /= ((float)width / (float)-cam.z) - 3.25f;
-				//fmx /= (float)width;
+				fmx /= ((float)width / (float)(-cam.z * 1.33f));
 
 				fmy = my - (height / 2.f);
-				fmy /= ((float)height / (float)-cam.z) + 1.8f;
-				//fmy /= (float)height;
+				fmy /= ((float)height / (float)(-cam.z * 0.83f));
 
 				fmx += -cam.x;
 				fmy += cam.y;

@@ -16,8 +16,8 @@ void UI_Context_Create(const char * data_dir, UI_Context * ctx) {
 	memset(ctx, 0, sizeof(UI_Context));
 	ctx->default_font = TTF_OpenFont(font_path, 24);
 	if (ctx->default_font == NULL){
-		fprintf(stderr, "Font could not be loaded, exiting\n");
-		exit(1);
+		perror("font could not be loaded, exiting\n");
+		exit(EXIT_FAILURE);
 	}
 	return;
 }
@@ -87,6 +87,12 @@ void UI_Context_RenderAll(UI_Context * ctx) {
 	for(size_t i = 0; i < ctx->n_widgets; i++) {
 		Widget * widget = ctx->widgets[i];
 		if(widget == NULL) {
+			continue;
+		}
+
+		if(widget->parent != NULL
+		&& (widget->x + widget->width > widget->parent->x + widget->parent->width
+		|| widget->y + widget->height > widget->parent->y + widget->parent->height)) {
 			continue;
 		}
 

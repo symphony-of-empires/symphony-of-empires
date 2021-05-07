@@ -10,30 +10,24 @@
 extern World * g_world;
 
 int World_LuaAddGood(lua_State * L) {
-	Good good;
-	memset(&good, 0, sizeof(Good));
+	Good * good = new Good;
+	memset(good, 0, sizeof(Good));
 
-	const char * ref_name = lua_tostring(L, 1);
-	good.ref_name = ref_name;
+	good->ref_name = lua_tostring(L, 1);
+	good->name = lua_tostring(L, 2);
 
-	const char * name = lua_tostring(L, 2);
-	good.name = name;
-
-	g_world->add_good(&good);
+	g_world->add_good(good);
 	return 0;
 }
 
 int World_LuaAddIndustryType(lua_State * L) {
-	IndustryType industry;
-	memset(&industry, 0, sizeof(IndustryType));
+	IndustryType * industry = new IndustryType;
+	memset(industry, 0, sizeof(IndustryType));
 
-	const char * ref_name = lua_tostring(L, 1);
-	industry.ref_name = ref_name;
+	industry->ref_name = lua_tostring(L, 1);
+	industry->name = lua_tostring(L, 2);
 
-	const char * name = lua_tostring(L, 2);
-	industry.name = name;
-
-	g_world->add_industry_type(&industry);
+	g_world->add_industry_type(industry);
 	return 0;
 }
 
@@ -99,8 +93,7 @@ int World_LuaAddNation(lua_State * L) {
 	Nation * nation = new Nation;
 	memset(nation, 0, sizeof(Nation));
 
-	const char * ref_name = lua_tostring(L, 1);
-	nation->ref_name = ref_name;
+	nation->ref_name = lua_tostring(L, 1);
 
 	nation->color = lua_tonumber(L, 2);
 	nation->color = bswap_32(nation->color);
@@ -110,9 +103,7 @@ int World_LuaAddNation(lua_State * L) {
 	const char * default_flag = lua_tostring(L, 3);
 	nation->default_flag.from_file(default_flag);
 
-	const char * name = lua_tostring(L, 4);
-	nation->name = name;
-	
+	nation->name = lua_tostring(L, 4);
 	g_world->add_nation(nation);
 	return 0;
 }
@@ -121,17 +112,13 @@ int World_LuaAddProvince(lua_State * L) {
 	Province * province = new Province;
 	memset(province, 0, sizeof(Province));
 
-	const char * ref_name = lua_tostring(L, 1);
-	province->ref_name = ref_name;
-
+	province->ref_name = lua_tostring(L, 1);
 	province->color = lua_tonumber(L, 2);
 	province->color = bswap_32(province->color);
 	province->color >>= 8;
 	province->color |= 0xff000000;
 
-	const char * name = lua_tostring(L, 3);
-	province->name = name;
-
+	province->name = lua_tostring(L, 3);
 	province->population = 1000;
 	province->budget = 500.f;
 
