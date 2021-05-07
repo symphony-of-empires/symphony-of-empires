@@ -5,7 +5,6 @@ LIBS=-lpng -lSDL2 -lGL -lGLU -llua5.2 -lSDL2_ttf -lm
 OBJS=$(patsubst ./src/%.c,./obj/%.o,$(shell find . -type f -iname '*.cpp'))
 
 build: dirs bin/main
-	cp -r data bin/
 
 clean:
 	rm -r bin obj

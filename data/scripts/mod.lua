@@ -145,10 +145,10 @@ IndustryType:add_input(bed_manufacturer, wood)
 IndustryType:add_output(bed_manufacturer, bed)
 
 -- Nations
-local japan = Nation:create{ ref_name = "japan", color = 0xb0313f, default_flag = "data/flags/japan.png" }
+local japan = Nation:create{ ref_name = "japan", color = 0xb0313f, default_flag = "flags/japan.png" }
 japan.name = _("Japan")
 Nation:register(japan)
-local russia = Nation:create{ ref_name = "russia", color = 0xffcd01, default_flag = "data/flags/russia.png" }
+local russia = Nation:create{ ref_name = "russia", color = 0xffcd01, default_flag = "flags/russia.png" }
 russia.name = _("Russia")
 Nation:register(russia)
 
