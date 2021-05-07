@@ -140,7 +140,7 @@ int main(int argc, char ** argv) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
-	World * world = new World(Resource_GetPath("map_topo.png"), Resource_GetPath("map_pol.png"), Resource_GetPath("map_div.png"));
+	world = new World(Resource_GetPath("map_topo.png"), Resource_GetPath("map_pol.png"), Resource_GetPath("map_div.png"));
 	world->time = 695459;
 	world->time -= (8600 * 76);
 	world->time -= 24 * 190;
