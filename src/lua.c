@@ -1,3 +1,4 @@
+#include <lua5.2/lua.h>
 #include <string.h>
 #include <stdlib.h>
 #include <byteswap.h>
@@ -18,6 +19,12 @@ int World_LuaAddGood(lua_State * L) {
 	const char * ref_name = lua_tostring(L, 1);
 	good.ref_name = malloc(strlen(ref_name) + 1);
 	strcpy(good.ref_name, ref_name);
+
+	const char * name = lua_tostring(L, 2);
+
+	good.name = malloc(strlen(name) + 1);
+	strcpy(good.name, name);
+
 	World_AddGood(g_world, &good);
 	return 0;
 }
@@ -29,6 +36,11 @@ int World_LuaAddIndustryType(lua_State * L) {
 	const char * ref_name = lua_tostring(L, 1);
 	industry.ref_name = malloc(strlen(ref_name) + 1);
 	strcpy(industry.ref_name, ref_name);
+
+	const char * name = lua_tostring(L, 2);
+	industry.name = malloc(strlen(name) + 1);
+	strcpy(industry.name, name);
+
 	World_AddIndustryType(g_world, &industry);
 	return 0;
 }
@@ -106,6 +118,10 @@ int World_LuaAddNation(lua_State * L) {
 
 	const char * default_flag = lua_tostring(L, 3);
 	Texture_FromFile(&nation.default_flag, default_flag);
+
+	const char * name = lua_tostring(L, 4);
+	nation.name = malloc(strlen(name) + 1);
+	strcpy(nation.name, name);
 	
 	World_AddNation(g_world, &nation);
 	return 0;
@@ -124,6 +140,10 @@ int World_LuaAddProvince(lua_State * L) {
 	province.color >>= 8;
 	province.color |= 0xff000000;
 
+	const char * name = lua_tostring(L, 3);
+	province.name = malloc(strlen(name) + 1);
+	strcpy(province.name, name);
+
 	province.population = 1000;
 	province.budget = 500.f;
 
@@ -135,4 +155,13 @@ int World_LuaAddProvince(lua_State * L) {
 	industry.type_id = rand() % g_world->n_industry_types;
 	Province_AddIndustry(g_world, &g_world->provinces[g_world->n_provinces - 1], &industry);
 	return 0;
+}
+
+#include <libintl.h>
+#include <locale.h>
+int World_LuaGettext(lua_State * L) {
+	const char * msgid = lua_tostring(L, 1);
+	char * end_msg = gettext(msgid);
+	lua_pushstring(L, end_msg);
+	return 1;
 }

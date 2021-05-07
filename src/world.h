@@ -16,6 +16,8 @@ typedef struct {
 }World_Tile;
 
 typedef struct {
+	char * name;
+
 	char * ref_name;
 	uint32_t color;
 	

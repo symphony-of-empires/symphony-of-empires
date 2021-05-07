@@ -1,11 +1,11 @@
-IndustryType = { ref_name = "default" }
+IndustryType = { name = "default", ref_name = "default" }
 function IndustryType:create(o)
 	o.parent = self
 	return o
 end
 
 function IndustryType:register(o)
-	AddIndustryType(o.ref_name)
+	AddIndustryType(o.ref_name, o.name)
 end
 
 function IndustryType:add_input(o, p)
