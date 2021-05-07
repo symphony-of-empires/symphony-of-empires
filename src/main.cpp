@@ -355,7 +355,7 @@ int main(int argc, char ** argv) {
 				if(fmx > 0 && fmx < world->width
 				&& fmy > 0 && fmy < world->height
 				&& !r) {
-					World_Tile * tile = &world->tiles[tx + ty * world->width];
+					Tile * tile = &world->tiles[tx + ty * world->width];
 					char * str = (char *)malloc(255);
 					const char * name = (tile->owner_id != (size_t)-1) ? world->nations[tile->owner_id].name.c_str() : "none";
 					sprintf(str, "Owner:   %s", name);
