@@ -24,6 +24,8 @@
 #include "map.hpp"
 #include "ui.hpp"
 
+#include <string>
+
 World * world;
 
 const int width = 1280;
@@ -80,8 +82,8 @@ void do_economy_on_update(Widget * widget, void * data) {
 
 			sprintf((char *)&str, "%4.2f", product->price);
 			econ_label[n_prod * 4 + 1]->text(&ui_ctx, (const char *)&str);
-			econ_label[n_prod * 4 + 2]->text(&ui_ctx, province->name);
-			econ_label[n_prod * 4 + 3]->text(&ui_ctx, world->goods[product->good_id].name);
+			econ_label[n_prod * 4 + 2]->text(&ui_ctx, province->name.c_str());
+			econ_label[n_prod * 4 + 3]->text(&ui_ctx, world->goods[product->good_id].name.c_str());
 
 			n_prod++;
 
@@ -302,7 +304,7 @@ int main(int argc, char ** argv) {
 
 	/* overview bottom window */
 	UI_Widget_CreateWindow(&ui_ctx, NULL, &overview_win, 0, height - 128, width, 128);
-	overview_win->text(&ui_ctx, world->nations[current_player_nation_id].ref_name);
+	overview_win->text(&ui_ctx, world->nations[current_player_nation_id].ref_name.c_str());
 	UI_Context_AddWidget(&ui_ctx, overview_win);
 	UI_Widget_CreateLabel(&ui_ctx, overview_win, &overview_time_label, 128 + 32 + 8, 24, "?");
 	UI_Context_AddWidget(&ui_ctx, overview_time_label);
@@ -351,14 +353,14 @@ int main(int argc, char ** argv) {
 				&& !r) {
 					World_Tile * tile = &world->tiles[tx + ty * world->width];
 					char * str = (char *)malloc(255);
-					const char * name = (tile->owner_id != (size_t)-1) ? world->nations[tile->owner_id].name : "none";
+					const char * name = (tile->owner_id != (size_t)-1) ? world->nations[tile->owner_id].name.c_str() : "none";
 					sprintf(str, "Owner:   %s", name);
 					tov_owner_label->text(&ui_ctx, str);
 
 					if(tile->province_id == (size_t)-1) {
 						tov_win->text(&ui_ctx, "unnamed land");
 					} else {
-						tov_win->text(&ui_ctx, world->provinces[tile->province_id].name);
+						tov_win->text(&ui_ctx, world->provinces[tile->province_id].name.c_str());
 
 						/* some heartbleed techniques were applied here */
 						sprintf(str, "Population: %lu", world->provinces[tile->province_id].population);

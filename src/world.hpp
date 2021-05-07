@@ -15,10 +15,10 @@ typedef struct {
 	uint8_t elevation;
 }World_Tile;
 
+#include <string>
 typedef struct {
-	char * name;
-
-	char * ref_name;
+	std::string name;
+	std::string ref_name;
 	uint32_t color;
 	
 	uint64_t population;
@@ -66,7 +66,7 @@ public:
 
 extern World * g_world;
 
-static __always_inline void Province_AddIndustry(World * world, Province * province, Industry * industry) {
+static inline void Province_AddIndustry(World * world, Province * province, Industry * industry) {
 	IndustryType * type = &world->industry_types[industry->type_id];
 	for(size_t i = 0; i < type->n_outputs; i++) {
 		size_t good_id = type->outputs[i];
