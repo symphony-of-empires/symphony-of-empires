@@ -16,20 +16,7 @@ typedef struct {
 }World_Tile;
 
 #include <string>
-typedef struct {
-	std::string name;
-	std::string ref_name;
-	uint32_t color;
-	
-	uint64_t population;
-	float budget;
-
-	Industry * industries;
-	size_t n_industries;
-
-	Product * products;
-	size_t n_products;
-}Province;
+#include "province.hpp"
 
 class World {
 public:
@@ -58,8 +45,7 @@ public:
 	Nation * nations;
 	size_t n_nations;
 
-	Province * provinces;
-	size_t n_provinces;
+	std::vector<Province> provinces;
 
 	uint64_t time;
 };
@@ -71,9 +57,11 @@ static inline void Province_AddIndustry(World * world, Province * province, Indu
 	for(size_t i = 0; i < type->n_outputs; i++) {
 		size_t good_id = type->outputs[i];
 
+
 		/* check that product is not already here */
 		int is_here = 0;
-		for(size_t j = 0; j < province->n_products; j++) {
+		uint n_products = province->products.size();
+		for(size_t j = 0; j < n_products; j++) {
 			if(province->products[j].owner_id == industry->owner_id) {
 				is_here = 1;
 				break;
@@ -84,17 +72,13 @@ static inline void Province_AddIndustry(World * world, Province * province, Indu
 		/* otherwise add it to the province product list */
 		Product new_product;
 		memset(&new_product, 0, sizeof(Product));
-		new_product.industry_id = province->n_industries;
+		new_product.industry_id = province->industries.size();
 		new_product.good_id = good_id;
 		new_product.owner_id = industry->owner_id;
-		province->products = (Product *)realloc(province->products, sizeof(Product) * (province->n_products + 1));
-		memcpy(&province->products[province->n_products], &new_product, sizeof(Product));
-		province->n_products++;
+		province->products.push_back(new_product);
 	}
 
-	province->industries = (Industry *)realloc(province->industries, sizeof(Industry) * (province->n_industries + 1));
-	memcpy(&province->industries[province->n_industries], industry, sizeof(Industry));
-	province->n_industries++;
+	province->industries.push_back(*industry);
 }
 
 void World_DoTick(World * world);
