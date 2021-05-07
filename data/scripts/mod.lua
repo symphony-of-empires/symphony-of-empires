@@ -38,6 +38,12 @@ Good:register(diamond)
 local titanium = Good:create{ ref_name = "titanium" }
 titanium.name = _("Titanium")
 Good:register(titanium)
+local oil = Good:create{ ref_name = "oil" }
+oil.name = _("Oil")
+Good:register(oil)
+local gasoline = Good:create{ ref_name = "gasoline" }
+gasoline.name = _("Gasoline")
+Good:register(gasoline)
 local wood = Good:create{ ref_name = "wood" }
 wood.name = _("Wood")
 Good:register(wood)
@@ -53,10 +59,19 @@ Good:register(table)
 local gold_chain = Good:create{ ref_name = "gold_chain" }
 gold_chain.name = _("Gold chain")
 Good:register(gold_chain)
+local silver_chain = Good:create{ ref_name = "silver_chain" }
+silver_chain.name = _("Silver chain")
+Good:register(silver_chain)
 
 -- Industry types
 
 -- Primary sector industries (the most essential)
+local oil_refinery = IndustryType:create{ ref_name = "oil_refinery" }
+oil_refinery.name = _("Oil refinery")
+IndustryType:register(oil_refinery)
+-- thin air oil, i think the air needs some democracy!
+IndustryType:add_output(oil_refinery, oil)
+
 local sand_smelter = IndustryType:create{ ref_name = "sand_smelter" }
 sand_smelter.name = _("Sand smelter")
 IndustryType:register(sand_smelter)
@@ -68,6 +83,16 @@ lumberjack.name = _("Lumberjack")
 IndustryType:register(lumberjack)
 -- same logic here
 IndustryType:add_output(lumberjack, wood)
+
+local vineyard = IndustryType:create{ ref_name = "vineyard" }
+vineyard.name = _("Vineyard")
+IndustryType:register(vineyard)
+IndustryType:add_output(vineyard, grapes)
+
+local wheat_farm = IndustryType:create{ ref_name = "wheat_farm" }
+wheat_farm.name = _("Wheat farm")
+IndustryType:register(wheat_farm)
+IndustryType:add_output(wheat_farm, wheat)
 
 -- Mines can create stuff from thin air, but don't worry because this is
 -- not abuse-ble
