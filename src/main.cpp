@@ -25,6 +25,9 @@
 #include "ui.hpp"
 
 #include <string>
+#include <iostream>
+
+#include "path.hpp"
 
 World * world;
 
@@ -129,14 +132,6 @@ typedef struct {
 	float z;
 }Camera;
 
-const char * g_data_dir = "data/";
-static const char * Resource_GetPath(const char * str){
-	char * rsult = (char *)malloc(255);
-	strcpy(rsult, g_data_dir);
-	strcat(rsult, str);
-	printf("Concat str: %s\n", rsult);
-	return (const char *)rsult;
-}
 
 int main(int argc, char ** argv) {
 	//server_main();
@@ -144,7 +139,7 @@ int main(int argc, char ** argv) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
-	world = new World(Resource_GetPath("map_topo.png"), Resource_GetPath("map_pol.png"), Resource_GetPath("map_div.png"));
+	world = new World("map_topo.png", "map_pol.png", "map_div.png");
 	world->time = 695459;
 	world->time -= (8600 * 76);
 	world->time -= 24 * 190;
@@ -171,31 +166,31 @@ int main(int argc, char ** argv) {
 	topo_map = new Map(world, MAP_TOPOGRAPHIC);
 	map = prov_map;
 
-	UI_Context_Create(g_data_dir, &ui_ctx);
+	UI_Context_Create(Resource_GetPath(""), &ui_ctx);
 	UI_Context_LoadTextures(&ui_ctx);
 
 	Texture title;
-	title.from_file(Resource_GetPath("title.png"));
+	title.from_file(Resource_GetPath("title.png").c_str());
 
 	Texture admin_icon;
 
-	admin_icon.from_file(Resource_GetPath("icons/admin.png"));
+	admin_icon.from_file(Resource_GetPath("icons/admin.png").c_str());
 	admin_icon.to_opengl();
 
 	Texture supply_icon;
-	supply_icon.from_file(Resource_GetPath("icons/supply.png"));
+	supply_icon.from_file(Resource_GetPath("icons/supply.png").c_str());
 	supply_icon.to_opengl();
 
 	Texture factory_icon;
-	factory_icon.from_file(Resource_GetPath("icons/factory.png"));
+	factory_icon.from_file(Resource_GetPath("icons/factory.png").c_str());
 	factory_icon.to_opengl();
 
 	Texture jap_troop;
-	jap_troop.from_file(Resource_GetPath("troop1.png"));
+	jap_troop.from_file(Resource_GetPath("troop1.png").c_str());
 	jap_troop.to_opengl();
 
 	Texture rus_troop;
-	rus_troop.from_file(Resource_GetPath("troop2.png"));
+	rus_troop.from_file(Resource_GetPath("troop2.png").c_str());
 	rus_troop.to_opengl();
 
 	UI_Context_ToOpenGL(&ui_ctx);
@@ -205,7 +200,7 @@ int main(int argc, char ** argv) {
 	Widget * help_btn, * help_btn_icon;
 	Texture help_icon;
 
-	help_icon.from_file(Resource_GetPath("icons/help.png"));
+	help_icon.from_file(Resource_GetPath("icons/help.png").c_str());
 	help_icon.to_opengl();
 
 	UI_Widget_CreateButton(&ui_ctx, NULL, &help_btn, 8, 8, 64, 64);
@@ -217,7 +212,7 @@ int main(int argc, char ** argv) {
 	Widget * budget_btn, * budget_btn_icon;
 	Texture budget_icon;
 
-	budget_icon.from_file(Resource_GetPath("icons/budget.png"));
+	budget_icon.from_file(Resource_GetPath("icons/budget.png").c_str());
 	budget_icon.to_opengl();
 
 	UI_Widget_CreateButton(&ui_ctx, NULL, &budget_btn, 8, (8 * 2) + 64, 64, 64);
@@ -229,7 +224,7 @@ int main(int argc, char ** argv) {
 	Widget * pol_view_btn, * pol_view_btn_icon;
 	Texture pol_view_icon;
 
-	pol_view_icon.from_file(Resource_GetPath("icons/pol_view.png"));
+	pol_view_icon.from_file(Resource_GetPath("icons/pol_view.png").c_str());
 	pol_view_icon.to_opengl();
 	UI_Widget_CreateButton(&ui_ctx, NULL, &pol_view_btn, 8, (8 * 3) + (64 * 2), 64, 64);
 	UI_Context_AddWidget(&ui_ctx, pol_view_btn);
@@ -240,7 +235,7 @@ int main(int argc, char ** argv) {
 	Widget * prov_view_btn, * prov_view_btn_icon;
 	Texture prov_view_icon;
 
-	prov_view_icon.from_file(Resource_GetPath("icons/prov_view.png"));
+	prov_view_icon.from_file(Resource_GetPath("icons/prov_view.png").c_str());
 	prov_view_icon.to_opengl();
 	UI_Widget_CreateButton(&ui_ctx, NULL, &prov_view_btn, 8, (8 * 4) + (64 * 3), 64, 64);
 	UI_Context_AddWidget(&ui_ctx, prov_view_btn);
@@ -251,7 +246,7 @@ int main(int argc, char ** argv) {
 	Widget * topo_view_btn, * topo_view_btn_icon;
 	Texture topo_view_icon;
 
-	topo_view_icon.from_file(Resource_GetPath("icons/topo_view.png"));
+	topo_view_icon.from_file(Resource_GetPath("icons/topo_view.png").c_str());
 	topo_view_icon.to_opengl();
 	UI_Widget_CreateButton(&ui_ctx, NULL, &topo_view_btn, 8, (8 * 5) + (64 * 4), 64, 64);
 	UI_Context_AddWidget(&ui_ctx, topo_view_btn);
@@ -262,7 +257,7 @@ int main(int argc, char ** argv) {
 	Widget * exit_btn, * exit_btn_icon;
 	Texture exit_icon;
 
-	exit_icon.from_file(Resource_GetPath("icons/exit.png"));
+	exit_icon.from_file(Resource_GetPath("icons/exit.png").c_str());
 	exit_icon.to_opengl();
 	UI_Widget_CreateButton(&ui_ctx, NULL, &exit_btn, 8, (8 * 6) + (64 * 5), 64, 64);
 	UI_Context_AddWidget(&ui_ctx, exit_btn);
