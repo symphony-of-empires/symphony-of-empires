@@ -124,147 +124,147 @@ local hokkaido = Province:create{ ref_name = "hokkaido", color = 0x2870a8 }
 hokkaido.name = "Hokkaido"
 Province:register(hokkaido)
 local south_hokkaido = Province:create{ ref_name = "south_hokkaido", color = 0x6e28a8 }
-south_hokkaido.name = "Hokkaido"
+south_hokkaido.name = "South Hokkaido"
 Province:register(south_hokkaido)
 local south_east_hokkaido = Province:create{ ref_name = "south_east_hokkaido", color = 0x449893 }
-south_east_hokkaido.name = "Hokkaido"
+south_east_hokkaido.name = "South East Hokkaido"
 Province:register(south_east_hokkaido)
 local kagoshima = Province:create{ ref_name = "kagoshima", color = 0xd4f431 }
-kagoshima.name = "Hokkaido"
+kagoshima.name = "Kagoshima"
 Province:register(kagoshima)
 local nagasaki = Province:create{ ref_name = "nagasaki", color = 0x3133f4 }
-nagasaki.name = "Hokkaido"
+nagasaki.name = "Nagasaki"
 Province:register(nagasaki)
 local miyazaki = Province:create{ ref_name = "miyazaki", color = 0x984469 }
-miyazaki.name = "Hokkaido"
+miyazaki.name = "Miyazaki"
 Province:register(miyazaki)
 local yamaguchi = Province:create{ ref_name = "yamaguchi", color = 0x984497 }
-yamaguchi.name = "Hokkaido"
+yamaguchi.name = "Yamaguchi"
 Province:register(yamaguchi)
 local tokushima = Province:create{ ref_name = "tokushima", color = 0xcd3b8d }
-tokushima.name = "Hokkaido"
+tokushima.name = "Tokushima"
 Province:register(tokushima)
 local hiroshima = Province:create{ ref_name = "hiroshima", color = 0x449891 }
-hiroshima.name = "Hokkaido"
+hiroshima.name = "Hiroshima"
 Province:register(hiroshima)
 local okayama = Province:create{ ref_name = "okayama", color = 0x44986f }
-okayama.name = "Hokkaido"
+okayama.name = "Okayama"
 Province:register(okayama)
 local hyogo = Province:create{ ref_name = "hyogo", color = 0x729844 }
-hyogo.name = "Hokkaido"
+hyogo.name = "Hyogo"
 Province:register(hyogo)
 local osaka = Province:create{ ref_name = "osaka", color = 0x987f44 }
-osaka.name = "Hokkaido"
+osaka.name = "Osaka"
 Province:register(osaka)
 local mie = Province:create{ ref_name = "mie", color = 0x709332 }
-mie.name = "Hokkaido"
+mie.name = "Mie"
 Province:register(mie)
 local kyoto = Province:create{ ref_name = "kyoto", color = 0x4b6d12 }
-kyoto.name = "Hokkaido"
+kyoto.name = "Kyoto"
 Province:register(kyoto)
 local gifu = Province:create{ ref_name = "gifu", color = 0x10164d }
-gifu.name = "Hokkaido"
+gifu.name = "Gifu"
 Province:register(gifu)
 local shizuoka = Province:create{ ref_name = "shizuoka", color = 0x90a06e }
-shizuoka.name = "Hokkaido"
+shizuoka.name = "Shizuoka"
 Province:register(shizuoka)
 local niigata = Province:create{ ref_name = "niigata", color = 0xa828a0 }
-niigata.name = "Hokkaido"
+niigata.name = "Niigata"
 Province:register(niigata)
 local yamanashi = Province:create{ ref_name = "yamanashi", color = 0x78933b }
-yamanashi.name = "Hokkaido"
+yamanashi.name = "Yamanashi"
 Province:register(yamanashi)
 local tokyo = Province:create{ ref_name = "tokyo", color = 0x306d11 }
-tokyo.name = "Hokkaido"
+tokyo.name = "Tokyo"
 Province:register(tokyo)
 local ibaraki = Province:create{ ref_name = "ibaraki", color = 0x8d179b }
-ibaraki.name = "Hokkaido"
+ibaraki.name = "Ibaraki"
 Province:register(ibaraki)
 local fukushima = Province:create{ ref_name = "fukushima", color = 0x5e6180 }
-fukushima.name = "Hokkaido"
+fukushima.name = "Fukushima"
 Province:register(fukushima)
 local tochigi = Province:create{ ref_name = "tochigi", color = 0x494498 }
-tochigi.name = "Hokkaido"
+tochigi.name = "Tochigi"
 Province:register(tochigi)
 local iwate = Province:create{ ref_name = "iwate", color = 0x525d61 }
-iwate.name = "Hokkaido"
+iwate.name = "Iwate"
 Province:register(iwate)
 local akita = Province:create{ ref_name = "akita", color = 0x447698 }
-akita.name = "Hokkaido"
+akita.name = "Akita"
 Province:register(akita)
 local aomori = Province:create{ ref_name = "aomori", color = 0x116d14 }
-aomori.name = "Hokkaido"
+aomori.name = "Aomori"
 Province:register(aomori)
 local hokkaido_tohoku = Province:create{ ref_name = "hokkaido_tohoku", color = 0x449893 }
-hokkaido_tohoku.name = "Hokkaido"
+hokkaido_tohoku.name = "Hokaido-Tohoku"
 Province:register(hokkaido_tohoku)
 local nagano = Province:create{ ref_name = "nagano", color = 0x6d6111 }
-nagano.name = "Hokkaido"
+nagano.name = "Nagano"
 Province:register(nagano)
 local nagoya = Province:create{ ref_name = "nagoya", color = 0x938732 }
-nagoya.name = "Hokkaido"
+nagoya.name = "Nagoya"
 Province:register(nagoya)
 local small_south_japan_islands = Province:create{ ref_name = "small_south_japan_islands", color = 0x31f455 }
-small_south_japan_islands.name = "Hokkaido"
+small_south_japan_islands.name = "Small south Japan islands"
 Province:register(small_south_japan_islands)
 
 -- islands north east of japan
 local iturup = Province:create{ ref_name = "iturup", color = 0xf4ae31 }
-iturup.name = "Hokkaido"
+iturup.name = "Iturup"
 Province:register(iturup)
 local raycoke = Province:create{ ref_name = "raycoke", color = 0x62f431 }
-raycoke.name = "Hokkaido"
+raycoke.name = "Raycoke"
 Province:register(raycoke)
 local paramushir = Province:create{ ref_name = "paramushir", color = 0xa131f4 }
-paramushir.name = "Hokkaido"
+paramushir.name = "Paramushir"
 Province:register(paramushir)
 
 -- east russia
 local kamchatka = Province:create{ ref_name = "kamchatka", color = 0x66b8a5 }
-kamchatka.name = "Hokkaido"
+kamchatka.name = "Kamchatka"
 Province:register(kamchatka)
 local south_kamchatka = Province:create{ ref_name = "south_kamchatka", color = 0x104d3f }
-south_kamchatka.name = "Hokkaido"
+south_kamchatka.name = "South kamchatka"
 Province:register(south_kamchatka)
 local amur = Province:create{ ref_name = "amur", color = 0x18268d }
-amur.name = "Hokkaido"
+amur.name = "Amur"
 Province:register(amur)
 local khabarovsk = Province:create{ ref_name = "khabarovsk", color = 0x182ec9 }
-khabarovsk.name = "Hokkaido"
+khabarovsk.name = "Khabarovks"
 Province:register(khabarovsk)
 local south_khabarovsk = Province:create{ ref_name = "south_khabarovsk", color = 0xb066b8 }
-south_khabarovsk.name = "Hokkaido"
+south_khabarovsk.name = "South khabarovsk"
 Province:register(south_khabarovsk)
 local primorsky_krai = Province:create{ ref_name = "primorsky_krai", color = 0x1e5431 }
-primorsky_krai.name = "Hokkaido"
+primorsky_krai.name = "Primorsky krai"
 Province:register(primorsky_krai)
 
 -- sakhlin island
 local north_sakhlin = Province:create{ ref_name = "north_sakhlin", color = 0x1f0d67 }
-north_sakhlin.name = "Hokkaido"
+north_sakhlin.name = "North sakhlin"
 Province:register(north_sakhlin)
 local central_sakhlin = Province:create{ ref_name = "central_sakhlin", color = 0x9421a2 }
-central_sakhlin.name = "Hokkaido"
+central_sakhlin.name = "Central sakhlin"
 Province:register(central_sakhlin)
 local south_sakhlin = Province:create{ ref_name = "south_sakhlin", color = 0xf4316a }
-south_sakhlin.name = "Hokkaido"
+south_sakhlin.name = "South sakhlin"
 Province:register(south_sakhlin)
 
 -- korean peninsula
 local east_north_korea = Province:create{ ref_name = "east_north_korea", color = 0x1e4954 }
-east_north_korea.name = "Hokkaido"
+east_north_korea.name = "East north korea"
 Province:register(east_north_korea)
 local west_north_korea = Province:create{ ref_name = "west_north_korea", color = 0x544d1e }
-west_north_korea.name = "Hokkaido"
+west_north_korea.name = "West north korea"
 Province:register(west_north_korea)
 local east_south_korea = Province:create{ ref_name = "east_south_korea", color = 0xca2ec4 }
-east_south_korea.name = "Hokkaido"
+east_south_korea.name = "East south korea"
 Province:register(east_south_korea)
 local west_south_korea = Province:create{ ref_name = "west_south_korea", color = 0x043440 }
-west_south_korea.name = "Hokkaido"
+west_south_korea.name = "West south korea"
 Province:register(west_south_korea)
 local southern_korea = Province:create{ ref_name = "southern_korea", color = 0x31f4dd }
-southern_korea.name = "Hokkaido"
+southern_korea.name = "Southern korea"
 Province:register(southern_korea)
 
 print("loaded mod.lua")
