@@ -1,13 +1,12 @@
-# strategy-game
-strategy game.
-
-this is a very nice game.
+# Symphony of the Empires
+Yeah, we already decided the name. This is a very nice game.
 
 Required to build:
 
-* SDL 2
-* SDL 2_ttf
-* Lua 5.2
+* libSDL2
+* libSDL2-ttf
+* liblua 5.2
+* libGL 1.4 (+ Utility library)
 
 ## Build (Linux)
 Run: ```make -j```.
