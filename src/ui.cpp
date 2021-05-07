@@ -337,7 +337,7 @@ void Widget::add_child(Widget * child) {
 		exit(EXIT_FAILURE);
 	}
 
-	this->children[parent->n_children] = child;
+	this->children[this->n_children] = child;
 	this->n_children++;
 	child->parent = this;
 }
