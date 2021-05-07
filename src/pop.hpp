@@ -6,6 +6,7 @@
 class PopType {
 public:
 	std::string name;
+	std::string ref_name;
 	float average_budget;
 };
 
