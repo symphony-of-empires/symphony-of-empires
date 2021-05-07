@@ -1,0 +1,24 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build_linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: "Install dependencies"
+      run: |
+       sudo apt install liblua5.3-dev libpng-dev libsdl2-dev libsdl2-ttf-dev
+    - name: "Build"
+      run: |
+       cd src
+       make -j
