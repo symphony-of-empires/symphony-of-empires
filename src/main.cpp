@@ -27,6 +27,8 @@
 #include <string>
 #include <iostream>
 
+#include "path.hpp"
+
 World * world;
 
 const int width = 1280;
@@ -128,12 +130,6 @@ typedef struct {
 	float z;
 }Camera;
 
-std::string g_data_dir = "data/";
-static std::string Resource_GetPath(const char * str){
-	std::string rsult = g_data_dir + str;
-	std::cout << "Concat str: " << rsult << std::endl;
-	return rsult;
-}
 
 int main(int argc, char ** argv) {
 	//server_main();
@@ -141,7 +137,7 @@ int main(int argc, char ** argv) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
-	world = new World(Resource_GetPath("map_topo.png").c_str(), Resource_GetPath("map_pol.png").c_str(), Resource_GetPath("map_div.png").c_str());
+	world = new World("map_topo.png", "map_pol.png", "map_div.png");
 	world->time = 695459;
 	world->time -= (8600 * 76);
 	world->time -= 24 * 190;
@@ -168,7 +164,7 @@ int main(int argc, char ** argv) {
 	topo_map = new Map(world, MAP_TOPOGRAPHIC);
 	map = prov_map;
 
-	UI_Context_Create(g_data_dir, &ui_ctx);
+	UI_Context_Create(Resource_GetPath(""), &ui_ctx);
 	UI_Context_LoadTextures(&ui_ctx);
 
 	Texture title;
