@@ -30,6 +30,10 @@
 
 #include "path.hpp"
 
+#ifdef HAS_WINDOWS
+#include <windows.h>
+#endif //HAS_WINDOWS
+
 World * world;
 
 const int width = 1280;
@@ -529,3 +533,11 @@ int main(int argc, char ** argv) {
 	SDL_Quit();
 	return 0;
 }
+
+#ifdef HAS_WINDOWS
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow){
+	char *argv[1];
+	argv[0] = "/";
+	main(1, argv);
+}
+#endif //HAS_WINDOWS

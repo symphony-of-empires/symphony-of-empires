@@ -1,4 +1,3 @@
-#include <byteswap.h>
 #include <stdio.h>
 #include <sys/cdefs.h>
 #include "economy.hpp"
@@ -9,8 +8,6 @@
 
 World * g_world;
 
-#include <lua5.2/lualib.h>
-#include <lua5.2/lauxlib.h>
 World::World(const char * topo_map, const char * pol_map, const char * div_map) {
 	g_world = this;
 	memset(this, 0, sizeof(World));

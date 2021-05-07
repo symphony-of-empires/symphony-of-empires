@@ -1,8 +1,17 @@
 CXX=g++
 CXXFLAGS=-Wall -Wextra -O3 -mtune=native -g -fno-rtti -fno-exceptions
-LIBS=-lpng -lSDL2 -lGL -lGLU -llua5.2 -lSDL2_ttf -lm
+ifdef WINDOWS
+LIBS=-lopengl32 -lglu32 -llua -lintl
+else
+LIBS=-lGL -lGLU -llua5.4
+endif
+LIBS:=$(LIBS) -lpng -lSDL2 -lSDL2_ttf -lm
 
 OBJS=$(patsubst ./src/%.c,./obj/%.o,$(shell find . -type f -iname '*.cpp'))
+
+ifdef WINDOWS
+CXXFLAGS:=$(CXXFLAGS) -DHAS_WINDOWS
+endif #WINDOWS
 
 build: dirs bin/main
 
