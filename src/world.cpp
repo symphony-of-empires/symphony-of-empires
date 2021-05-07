@@ -5,6 +5,7 @@
 #include "world.hpp"
 #include "texture.hpp"
 #include "lua.hpp"
+#include "path.hpp"
 
 World * g_world;
 
@@ -50,15 +51,15 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 	lua_register(L, "AddOutputToIndustryType", World_LuaAddOutputToIndustryType);
 	lua_register(L, "AddNation", World_LuaAddNation);
 	lua_register(L, "AddProvince", World_LuaAddProvince);
-	luaL_dofile(L, "data/scripts/good.lua");
+	luaL_dofile(L, Resource_GetPath("scripts/good.lua").c_str());
 	lua_setglobal(L, "Good");
-	luaL_dofile(L, "data/scripts/industry_type.lua");
+	luaL_dofile(L, Resource_GetPath("scripts/industry_type.lua").c_str());
 	lua_setglobal(L, "IndustryType");
-	luaL_dofile(L, "data/scripts/nation.lua");
+	luaL_dofile(L, Resource_GetPath("scripts/nation.lua").c_str());
 	lua_setglobal(L, "Nation");
-	luaL_dofile(L, "data/scripts/province.lua");
+	luaL_dofile(L, Resource_GetPath("scripts/province.lua").c_str());
 	lua_setglobal(L, "Province");
-	luaL_dofile(L, "data/scripts/mod.lua");
+	luaL_dofile(L, Resource_GetPath("scripts/mod.lua").c_str());
 	lua_close(L);
 
 	/* translate all div, pol and topo maps onto this single tile array */

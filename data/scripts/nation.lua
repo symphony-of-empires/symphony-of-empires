@@ -1,4 +1,4 @@
-Nation = { name = "default", ref_name = "default", color = 0, default_flag = "data/flags/japan.png", }
+Nation = { name = "default", ref_name = "default", color = 0, default_flag = "flags/japan.png", }
 function Nation:create(o)
 	o.parent = self
 	return o
