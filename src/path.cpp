@@ -24,7 +24,7 @@ std::string getPathToSelf(){
 }
 
 std::string Resource_GetPath(const char * str){
-	if(str[0] == '/' || str[0] == 'c')
+	if(str[0] == '/' || str[0] == 'C')
 		return str;
 	std::string rsult = getPathToSelf();
 #ifdef HAS_WINDOWS	
