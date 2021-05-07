@@ -32,7 +32,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 	}
 
 	this->sea_level = 128;
-	this->tiles = (World_Tile *)malloc(sizeof(World_Tile) * (this->width * this->height));
+	this->tiles = (Tile *)malloc(sizeof(Tile) * (this->width * this->height));
 	if(this->tiles == NULL) {
 		perror("out of mem\n");
 		exit(EXIT_FAILURE);
