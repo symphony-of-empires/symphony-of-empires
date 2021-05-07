@@ -5,16 +5,19 @@
 #include <stddef.h>
 #include <string>
 
-typedef struct {
+class Company {
+public:
 	uint64_t money;
-}Company;
+};
 
-typedef struct {
+class Good {
+public:
 	std::string name;
 	std::string ref_name;
-}Good;
+};
 
-typedef struct {
+class IndustryType {
+public:
 	std::string name;
 	std::string ref_name;
 
@@ -23,14 +26,16 @@ typedef struct {
 
 	size_t * outputs;
 	size_t n_outputs;
-}IndustryType;
+};
 
-typedef struct {
+class Industry {
+public:
 	size_t owner_id;
 	size_t type_id;
-}Industry;
+};
 
-typedef struct {
+class Product {
+public:
 	size_t owner_id;
 	size_t industry_id;
 	size_t good_id;
@@ -40,6 +45,11 @@ typedef struct {
 
 	size_t supply;
 	size_t demand;
-}Product;
+};
+
+class PopType {
+	std::string name;
+	std::string ref_name;
+};
 
 #endif
