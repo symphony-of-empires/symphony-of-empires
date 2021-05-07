@@ -77,7 +77,8 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 
 		/* associate tiles with provinces */
 		this->tiles[i].province_id = (size_t)-1;
-		for(size_t j = 0; j < this->n_provinces; j++) {
+		uint n_provinces = provinces.size();
+		for(size_t j = 0; j < n_provinces; j++) {
 			if(div->buffer[i] == this->provinces[j].color) {
 				this->tiles[i].province_id = j;
 				break;
@@ -88,19 +89,21 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 }
 
 void World::do_tick() {
-	for(size_t i = 0; i < this->n_provinces; i++) {
+	uint n_provinces = provinces.size();
+	for(size_t i = 0; i < n_provinces; i++) {
 		Province * province = &this->provinces[i];
 		province->population += rand() % 5;
 
 		/* Producers produce stuff */
-		for(size_t i = 0; i < province->n_industries; i++) {
+		for(size_t i = 0; i < province->industries.size(); i++) {
 			Industry * industry = &province->industries[i];
 
 			/* Factories generate 1000 jobs, each paying about 1$ */
 			province->budget += (1000.f) / province->population;
 
 			//printf("%s industry in %s:\n", world->industry_types[industry->type_id].ref_name, province->ref_name);
-			for(size_t j = 0; j < province->n_products; j++) {
+			uint n_products = province->products.size();
+			for(size_t j = 0; j < n_products; j++) {
 				Product * product = &province->products[j];
 				if(product->industry_id != i) {
 					continue;
@@ -113,7 +116,8 @@ void World::do_tick() {
 			}
 		}
 
-		for(size_t i = 0; i < province->n_products; i++) {
+		uint n_products = province->products.size();
+		for(size_t i = 0; i < n_products; i++) {
 			Product * product = &province->products[i];
 
 			product->demand = 0;
@@ -173,7 +177,5 @@ void World::add_nation(Nation * nation) {
 }
 
 void World::add_province(Province * province) {
-	this->provinces = (Province *)realloc(this->provinces, sizeof(Province) * (this->n_provinces + 1));
-	memcpy(&this->provinces[this->n_provinces], province, sizeof(Province));
-	this->n_provinces++;
+	provinces.push_back(*province);
 }
