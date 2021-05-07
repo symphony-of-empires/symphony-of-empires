@@ -1,4 +1,3 @@
-#include <byteswap.h>
 #include <stdio.h>
 #include <sys/cdefs.h>
 #include "economy.hpp"
