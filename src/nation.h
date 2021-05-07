@@ -5,6 +5,7 @@
 #include "texture.h"
 
 typedef struct {
+	char * name;
 	char * ref_name;
 	uint32_t color;
 	Texture default_flag;

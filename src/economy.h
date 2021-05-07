@@ -9,10 +9,12 @@ typedef struct {
 }Company;
 
 typedef struct {
+	char * name;
 	char * ref_name;
 }Good;
 
 typedef struct {
+	char * name;
 	char * ref_name;
 
 	size_t * inputs;

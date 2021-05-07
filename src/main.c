@@ -8,6 +8,9 @@
 #include <memory.h>
 #include <math.h>
 
+#include <libintl.h>
+#include <locale.h>
+
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
@@ -77,8 +80,8 @@ void do_economy_on_update() {
 
 			sprintf(&str, "%4.2f", product->price);
 			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 1], &str);
-			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 2], province->ref_name);
-			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 3], world.goods[product->good_id].ref_name);
+			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 2], province->name);
+			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 3], world.goods[product->good_id].name);
 
 			n_prod++;
 
@@ -343,14 +346,14 @@ int main(int argc, char ** argv) {
 				&& !r) {
 					World_Tile * tile = &world.tiles[tx + ty * world.width];
 					char * str = malloc(255);
-					const char * name = (tile->owner_id != (size_t)-1) ? world.nations[tile->owner_id].ref_name : "none";
+					const char * name = (tile->owner_id != (size_t)-1) ? world.nations[tile->owner_id].name : "none";
 					sprintf(str, "Owner:   %s", name);
 					UI_Widget_Text(&ui_ctx, &tov_owner_label, str);
 
 					if(tile->province_id == (size_t)-1) {
 						UI_Widget_Text(&ui_ctx, &tov_win, "unnamed land");
 					} else {
-						UI_Widget_Text(&ui_ctx, &tov_win, world.provinces[tile->province_id].ref_name);
+						UI_Widget_Text(&ui_ctx, &tov_win, world.provinces[tile->province_id].name);
 
 						/* some heartbleed techniques were applied here */
 						sprintf(str, "Population: %lu", world.provinces[tile->province_id].population);

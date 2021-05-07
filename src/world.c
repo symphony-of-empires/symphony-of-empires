@@ -116,6 +116,7 @@ void World_Create(World * world, const char * topo_map, const char * pol_map) {
 	lua_State * L;
 	L = luaL_newstate();
 	luaL_openlibs(L);
+	lua_register(L, "_", World_LuaGettext);
 	lua_register(L, "AddGood", World_LuaAddGood);
 	lua_register(L, "AddIndustryType", World_LuaAddIndustryType);
 	lua_register(L, "AddInputToIndustryType", World_LuaAddInputToIndustryType);
