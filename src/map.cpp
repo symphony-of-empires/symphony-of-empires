@@ -59,7 +59,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 	if(this->mode == MAP_POLITICAL) {
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
-				World_Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
+				Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
 				glBegin(GL_POLYGON);
 				if(curr_tile->owner_id == (size_t)-1) {
 					for(size_t k = 0; k < 4; k++) {
@@ -94,7 +94,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 	} else if(this->mode == MAP_PROVINCIAL) {
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
-				World_Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
+				Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
 				glBegin(GL_POLYGON);
 				if(curr_tile->province_id == (size_t)-1) {
 					for(size_t k = 0; k < 4; k++) {
@@ -129,7 +129,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 	} else if(this->mode == MAP_TOPOGRAPHIC) {
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
-				World_Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
+				Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
 				glBegin(GL_POLYGON);
 				for(size_t k = 0; k < 4; k++) {
 					size_t x = i + draw_ord[k][0];
@@ -147,8 +147,8 @@ void Map::quad_create(size_t qx, size_t qy) {
 	glLineWidth(2.f);
 	for(size_t i = off_x; i < end_x; i++) {
 		for(size_t j = off_y; j < end_y; j++) {
-			World_Tile * tiles = this->world->tiles;
-			World_Tile * curr_tile = &tiles[i + j * this->world->width];
+			Tile * tiles = this->world->tiles;
+			Tile * curr_tile = &tiles[i + j * this->world->width];
 
 			// left
 			if(tiles[(i - 1) + ((j) * this->world->width)].province_id != curr_tile->province_id) {
@@ -192,8 +192,8 @@ void Map::quad_create(size_t qx, size_t qy) {
 	glLineWidth(3.f);
 	for(size_t i = off_x; i < end_x; i++) {
 		for(size_t j = off_y; j < end_y; j++) {
-			World_Tile * tiles = this->world->tiles;
-			World_Tile * curr_tile = &tiles[i + j * this->world->width];
+			Tile * tiles = this->world->tiles;
+			Tile * curr_tile = &tiles[i + j * this->world->width];
 
 			// left
 			if(tiles[(i - 1) + ((j) * this->world->width)].owner_id != curr_tile->owner_id
