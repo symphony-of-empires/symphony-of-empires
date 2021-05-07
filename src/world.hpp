@@ -31,7 +31,17 @@ typedef struct {
 	size_t n_products;
 }Province;
 
-typedef struct {
+class World {
+public:
+	World(const char * topo_map, const char * pol_map, const char * div_map);
+	~World();
+
+	void do_tick();
+	void add_good(Good * good);
+	void add_industry_type(IndustryType * it);
+	void add_nation(Nation * nation);
+	void add_province(Province * province);
+
 	size_t sea_level;
 	
 	size_t width;
@@ -52,7 +62,7 @@ typedef struct {
 	size_t n_provinces;
 
 	uint64_t time;
-}World;
+};
 
 extern World * g_world;
 
@@ -85,30 +95,6 @@ static __always_inline void Province_AddIndustry(World * world, Province * provi
 	province->industries = (Industry *)realloc(province->industries, sizeof(Industry) * (province->n_industries + 1));
 	memcpy(&province->industries[province->n_industries], industry, sizeof(Industry));
 	province->n_industries++;
-}
-
-static __always_inline void World_AddGood(World * world, Good * good) {
-	world->goods = (Good *)realloc(world->goods, sizeof(Good) * (world->n_goods + 1));
-	memcpy(&world->goods[world->n_goods], good, sizeof(Good));
-	world->n_goods++;
-}
-
-static __always_inline void World_AddIndustryType(World * world, IndustryType * industry) {
-	world->industry_types = (IndustryType *)realloc(world->industry_types, sizeof(IndustryType) * (world->n_industry_types + 1));
-	memcpy(&world->industry_types[world->n_industry_types], industry, sizeof(IndustryType));
-	world->n_industry_types++;
-}
-
-static __always_inline void World_AddNation(World * world, Nation * nation) {
-	world->nations = (Nation *)realloc(world->nations, sizeof(Nation) * (world->n_nations + 1));
-	memcpy(&world->nations[world->n_nations], nation, sizeof(Nation));
-	world->n_nations++;
-}
-
-static __always_inline void World_AddProvince(World * world, Province * province) {
-	world->provinces = (Province *)realloc(world->provinces, sizeof(Province) * (world->n_provinces + 1));
-	memcpy(&world->provinces[world->n_provinces], province, sizeof(Province));
-	world->n_provinces++;
 }
 
 void World_DoTick(World * world);

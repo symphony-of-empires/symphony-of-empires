@@ -24,45 +24,45 @@
 #include "map.hpp"
 #include "ui.hpp"
 
-World world;
+World * world;
 
 const int width = 1280;
 const int height = 800;
 
 UI_Context ui_ctx;
 
-UI_Widget help_win, help_label[12], help_win_close_btn;
-void do_help(UI_Widget * widget, void * data) {
-	UI_Context_AddWidget(&ui_ctx, &help_win);
-	UI_Context_AddWidget(&ui_ctx, &help_win_close_btn);
+Widget * help_win, * help_label[12], * help_win_close_btn;
+void do_help(Widget * widget, void * data) {
+	UI_Context_AddWidget(&ui_ctx, help_win);
+	UI_Context_AddWidget(&ui_ctx, help_win_close_btn);
 	for(size_t i = 0; i < 12; i++) {
-		UI_Context_AddWidget(&ui_ctx, &help_label[i]);
+		UI_Context_AddWidget(&ui_ctx, help_label[i]);
 	}
 }
 
-UI_Widget tov_win, tov_win_close_btn, tov_owner_label, tov_owner_flag_image, tov_population_label;
+Widget * tov_win, * tov_win_close_btn, * tov_owner_label, * tov_owner_flag_image, * tov_population_label;
 void do_tile_overview() {
-	UI_Context_AddWidget(&ui_ctx, &tov_win);
-	UI_Context_AddWidget(&ui_ctx, &tov_win_close_btn);
-	UI_Context_AddWidget(&ui_ctx, &tov_owner_label);
-	UI_Context_AddWidget(&ui_ctx, &tov_owner_flag_image);
-	UI_Context_AddWidget(&ui_ctx, &tov_population_label);
+	UI_Context_AddWidget(&ui_ctx, tov_win);
+	UI_Context_AddWidget(&ui_ctx, tov_win_close_btn);
+	UI_Context_AddWidget(&ui_ctx, tov_owner_label);
+	UI_Context_AddWidget(&ui_ctx, tov_owner_flag_image);
+	UI_Context_AddWidget(&ui_ctx, tov_population_label);
 }
 
-UI_Widget econ_win, econ_win_close_btn, econ_label[128];
-void do_economy_on_click(UI_Widget * widget, void * data) {
-	UI_Context_AddWidget(&ui_ctx, &econ_win);
-	UI_Context_AddWidget(&ui_ctx, &econ_win_close_btn);
+Widget * econ_win, * econ_win_close_btn, * econ_label[128];
+void do_economy_on_click(Widget * widget, void * data) {
+	UI_Context_AddWidget(&ui_ctx, econ_win);
+	UI_Context_AddWidget(&ui_ctx, econ_win_close_btn);
 	for(size_t i = 0; i < 128; i++) {
-		UI_Context_AddWidget(&ui_ctx, &econ_label[i]);
+		UI_Context_AddWidget(&ui_ctx, econ_label[i]);
 	}
 }
 
-void do_economy_on_update(UI_Widget * widget, void * data) {
+void do_economy_on_update(Widget * widget, void * data) {
 	size_t n_prod = 1;
-	for(size_t i = 0; i < world.n_provinces; i++) {
-		Province * province = &world.provinces[i];
-		for(size_t j = 0; j < world.provinces[i].n_products; j++) {
+	for(size_t i = 0; i < world->n_provinces; i++) {
+		Province * province = &world->provinces[i];
+		for(size_t j = 0; j < world->provinces[i].n_products; j++) {
 			Product * product = &province->products[j];
 
 			size_t y = n_prod * 24 + 48;
@@ -75,13 +75,13 @@ void do_economy_on_update(UI_Widget * widget, void * data) {
 				sprintf((char *)&str, "%4.2f", product->price_vel);
 			}
 
-			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 0], (const char *)&str);
+			econ_label[n_prod * 4 + 0]->text(&ui_ctx, (const char *)&str);
 			UI_Widget_TextColor(0, 0, 0);
 
 			sprintf((char *)&str, "%4.2f", product->price);
-			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 1], (const char *)&str);
-			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 2], province->name);
-			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 3], world.goods[product->good_id].name);
+			econ_label[n_prod * 4 + 1]->text(&ui_ctx, (const char *)&str);
+			econ_label[n_prod * 4 + 2]->text(&ui_ctx, province->name);
+			econ_label[n_prod * 4 + 3]->text(&ui_ctx, world->goods[product->good_id].name);
 
 			n_prod++;
 
@@ -90,8 +90,8 @@ void do_economy_on_update(UI_Widget * widget, void * data) {
 	}
 }
 
-UI_Widget overview_win, overview_time_label, overview_flag_image;
-void do_exit(UI_Widget * widget, void * data) {
+Widget * overview_win, * overview_time_label, * overview_flag_image;
+void do_exit(Widget * widget, void * data) {
 	exit(EXIT_FAILURE);
 }
 
@@ -102,18 +102,18 @@ int tx, ty;
 size_t current_player_nation_id;
 size_t selected_province_id;
 
-Map prov_map, pol_map, topo_map;
-Map * map = &pol_map;
-void do_view_prov_map(UI_Widget * widget, void * data) {
-	map = &prov_map;
+Map * prov_map, * pol_map, * topo_map;
+Map * map;
+void do_view_prov_map(Widget * widget, void * data) {
+	map = prov_map;
 }
 
-void do_view_pol_map(UI_Widget * widget, void * data) {
-	map = &pol_map;
+void do_view_pol_map(Widget * widget, void * data) {
+	map = pol_map;
 }
 
-void do_view_topo_map(UI_Widget * widget, void * data) {
-	map = &topo_map;
+void do_view_topo_map(Widget * widget, void * data) {
+	map = topo_map;
 }
 
 typedef struct {
@@ -140,10 +140,10 @@ int main(int argc, char ** argv) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
-	World_Create(&world, Resource_GetPath("map_topo.png"), Resource_GetPath("map_pol.png"), Resource_GetPath("map_div.png"));
-	world.time = 695459;
-	world.time -= (8600 * 76);
-	world.time -= 24 * 190;
+	World * world = new World(Resource_GetPath("map_topo.png"), Resource_GetPath("map_pol.png"), Resource_GetPath("map_div.png"));
+	world->time = 695459;
+	world->time -= (8600 * 76);
+	world->time -= 24 * 190;
 
 	current_player_nation_id = 0;
 	
@@ -158,124 +158,120 @@ int main(int argc, char ** argv) {
 	glEnable(GL_TEXTURE_2D);
 
 	/* render stuff now that we are in opengl */
-	for(size_t i = 0; i < world.n_nations; i++) {
-		Texture_ToOpenGL(&world.nations[i].default_flag);
+	for(size_t i = 0; i < world->n_nations; i++) {
+		world->nations[i].default_flag.to_opengl();
 	}
 
-	Map_Create(&prov_map, &world, MAP_PROVINCIAL);
-	Map_Create(&pol_map, &world, MAP_POLITICAL);
-	Map_Create(&topo_map, &world, MAP_TOPOGRAPHIC);
+	prov_map = new Map(world, MAP_PROVINCIAL);
+	pol_map = new Map(world, MAP_POLITICAL);
+	topo_map = new Map(world, MAP_TOPOGRAPHIC);
+	map = prov_map;
 
 	UI_Context_Create(g_data_dir, &ui_ctx);
 	UI_Context_LoadTextures(&ui_ctx);
 
 	Texture title;
-	Texture_FromFile(&title, Resource_GetPath("title.png"));
+	title.from_file(Resource_GetPath("title.png"));
 
 	Texture admin_icon;
 
-	Texture_FromFile(&admin_icon, Resource_GetPath("icons/admin.png"));
-	Texture_ToOpenGL(&admin_icon);
+	admin_icon.from_file(Resource_GetPath("icons/admin.png"));
+	admin_icon.to_opengl();
 
 	Texture supply_icon;
-	Texture_FromFile(&supply_icon, Resource_GetPath("icons/supply.png"));
-	Texture_ToOpenGL(&supply_icon);
+	supply_icon.from_file(Resource_GetPath("icons/supply.png"));
+	supply_icon.to_opengl();
 
 	Texture factory_icon;
-	Texture_FromFile(&factory_icon, Resource_GetPath("icons/factory.png"));
-
-	Texture_ToOpenGL(&factory_icon);
+	factory_icon.from_file(Resource_GetPath("icons/factory.png"));
+	factory_icon.to_opengl();
 
 	Texture jap_troop;
-	Texture_FromFile(&jap_troop, Resource_GetPath("troop1.png"));
-	Texture_ToOpenGL(&jap_troop);
+	jap_troop.from_file(Resource_GetPath("troop1.png"));
+	jap_troop.to_opengl();
 
 	Texture rus_troop;
-	Texture_FromFile(&rus_troop, Resource_GetPath("troop2.png"));
-	Texture_ToOpenGL(&rus_troop);
+	rus_troop.from_file(Resource_GetPath("troop2.png"));
+	rus_troop.to_opengl();
 
 	UI_Context_ToOpenGL(&ui_ctx);
-	Texture_ToOpenGL(&title);
+	title.to_opengl();
 
 	/* left sidebar buttons */
-	UI_Widget help_btn, help_btn_icon;
+	Widget * help_btn, * help_btn_icon;
 	Texture help_icon;
 
-	Texture_FromFile(&help_icon, Resource_GetPath("icons/help.png"));
+	help_icon.from_file(Resource_GetPath("icons/help.png"));
+	help_icon.to_opengl();
 
-	Texture_ToOpenGL(&help_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &help_btn, 8, 8, 64, 64);
-	UI_Context_AddWidget(&ui_ctx, &help_btn);
-	help_btn.on_click = &do_help;
-	UI_Widget_CreateImage(&ui_ctx, &help_btn, &help_btn_icon, 0, 0, 64, 64, &help_icon);
-	UI_Context_AddWidget(&ui_ctx, &help_btn_icon);
+	UI_Context_AddWidget(&ui_ctx, help_btn);
+	help_btn->on_click = &do_help;
+	UI_Widget_CreateImage(&ui_ctx, help_btn, &help_btn_icon, 0, 0, 64, 64, &help_icon);
+	UI_Context_AddWidget(&ui_ctx, help_btn_icon);
 
-	UI_Widget budget_btn, budget_btn_icon;
+	Widget * budget_btn, * budget_btn_icon;
 	Texture budget_icon;
 
-	Texture_FromFile(&budget_icon, Resource_GetPath("icons/budget.png"));
+	budget_icon.from_file(Resource_GetPath("icons/budget.png"));
+	budget_icon.to_opengl();
 
-	Texture_ToOpenGL(&budget_icon);
 	UI_Widget_CreateButton(&ui_ctx, NULL, &budget_btn, 8, (8 * 2) + 64, 64, 64);
-	UI_Context_AddWidget(&ui_ctx, &budget_btn);
-	budget_btn.on_click = &do_economy_on_click;
-	UI_Widget_CreateImage(&ui_ctx, &budget_btn, &budget_btn_icon, 0, 0, 64, 64, &budget_icon);
-	UI_Context_AddWidget(&ui_ctx, &budget_btn_icon);
+	UI_Context_AddWidget(&ui_ctx, budget_btn);
+	budget_btn->on_click = &do_economy_on_click;
+	UI_Widget_CreateImage(&ui_ctx, budget_btn, &budget_btn_icon, 0, 0, 64, 64, &budget_icon);
+	UI_Context_AddWidget(&ui_ctx, budget_btn_icon);
 
-	UI_Widget pol_view_btn, pol_view_btn_icon;
+	Widget * pol_view_btn, * pol_view_btn_icon;
 	Texture pol_view_icon;
 
-	Texture_FromFile(&pol_view_icon, Resource_GetPath("icons/pol_view.png"));
-
-	Texture_ToOpenGL(&pol_view_icon);
+	pol_view_icon.from_file(Resource_GetPath("icons/pol_view.png"));
+	pol_view_icon.to_opengl();
 	UI_Widget_CreateButton(&ui_ctx, NULL, &pol_view_btn, 8, (8 * 3) + (64 * 2), 64, 64);
-	UI_Context_AddWidget(&ui_ctx, &pol_view_btn);
-	pol_view_btn.on_click = &do_view_pol_map;
-	UI_Widget_CreateImage(&ui_ctx, &pol_view_btn, &pol_view_btn_icon, 0, 0, 64, 64, &pol_view_icon);
-	UI_Context_AddWidget(&ui_ctx, &pol_view_btn_icon);
+	UI_Context_AddWidget(&ui_ctx, pol_view_btn);
+	pol_view_btn->on_click = &do_view_pol_map;
+	UI_Widget_CreateImage(&ui_ctx, pol_view_btn, &pol_view_btn_icon, 0, 0, 64, 64, &pol_view_icon);
+	UI_Context_AddWidget(&ui_ctx, pol_view_btn_icon);
 
-	UI_Widget prov_view_btn, prov_view_btn_icon;
+	Widget * prov_view_btn, * prov_view_btn_icon;
 	Texture prov_view_icon;
 
-	Texture_FromFile(&prov_view_icon, Resource_GetPath("icons/prov_view.png"));
-
-	Texture_ToOpenGL(&prov_view_icon);
+	prov_view_icon.from_file(Resource_GetPath("icons/prov_view.png"));
+	prov_view_icon.to_opengl();
 	UI_Widget_CreateButton(&ui_ctx, NULL, &prov_view_btn, 8, (8 * 4) + (64 * 3), 64, 64);
-	UI_Context_AddWidget(&ui_ctx, &prov_view_btn);
-	prov_view_btn.on_click = &do_view_prov_map;
-	UI_Widget_CreateImage(&ui_ctx, &prov_view_btn, &prov_view_btn_icon, 0, 0, 64, 64, &prov_view_icon);
-	UI_Context_AddWidget(&ui_ctx, &prov_view_btn_icon);
+	UI_Context_AddWidget(&ui_ctx, prov_view_btn);
+	prov_view_btn->on_click = &do_view_prov_map;
+	UI_Widget_CreateImage(&ui_ctx, prov_view_btn, &prov_view_btn_icon, 0, 0, 64, 64, &prov_view_icon);
+	UI_Context_AddWidget(&ui_ctx, prov_view_btn_icon);
 
-	UI_Widget topo_view_btn, topo_view_btn_icon;
+	Widget * topo_view_btn, * topo_view_btn_icon;
 	Texture topo_view_icon;
 
-	Texture_FromFile(&topo_view_icon, Resource_GetPath("icons/topo_view.png"));
-
-	Texture_ToOpenGL(&topo_view_icon);
+	topo_view_icon.from_file(Resource_GetPath("icons/topo_view.png"));
+	topo_view_icon.to_opengl();
 	UI_Widget_CreateButton(&ui_ctx, NULL, &topo_view_btn, 8, (8 * 5) + (64 * 4), 64, 64);
-	UI_Context_AddWidget(&ui_ctx, &topo_view_btn);
-	topo_view_btn.on_click = &do_view_topo_map;
-	UI_Widget_CreateImage(&ui_ctx, &topo_view_btn, &topo_view_btn_icon, 0, 0, 64, 64, &topo_view_icon);
-	UI_Context_AddWidget(&ui_ctx, &topo_view_btn_icon);
+	UI_Context_AddWidget(&ui_ctx, topo_view_btn);
+	topo_view_btn->on_click = &do_view_topo_map;
+	UI_Widget_CreateImage(&ui_ctx, topo_view_btn, &topo_view_btn_icon, 0, 0, 64, 64, &topo_view_icon);
+	UI_Context_AddWidget(&ui_ctx, topo_view_btn_icon);
 
-	UI_Widget exit_btn, exit_btn_icon;
+	Widget * exit_btn, * exit_btn_icon;
 	Texture exit_icon;
 
-	Texture_FromFile(&exit_icon, Resource_GetPath("icons/exit.png"));
-
-	Texture_ToOpenGL(&exit_icon);
+	exit_icon.from_file(Resource_GetPath("icons/exit.png"));
+	exit_icon.to_opengl();
 	UI_Widget_CreateButton(&ui_ctx, NULL, &exit_btn, 8, (8 * 6) + (64 * 5), 64, 64);
-	UI_Context_AddWidget(&ui_ctx, &exit_btn);
-	exit_btn.on_click = &do_exit;
-	UI_Widget_CreateImage(&ui_ctx, &exit_btn, &exit_btn_icon, 0, 0, 64, 64, &exit_icon);
-	UI_Context_AddWidget(&ui_ctx, &exit_btn_icon);
+	UI_Context_AddWidget(&ui_ctx, exit_btn);
+	exit_btn->on_click = &do_exit;
+	UI_Widget_CreateImage(&ui_ctx, exit_btn, &exit_btn_icon, 0, 0, 64, 64, &exit_icon);
+	UI_Context_AddWidget(&ui_ctx, exit_btn_icon);
 
 	/* help window */
 	UI_Widget_CreateWindow(&ui_ctx, NULL, &help_win, width - 520, 32, 512, 512);
-	UI_Widget_Text(&ui_ctx, &help_win, "Russo-Japanesse War 1904");
-	UI_Widget_CreateButton(&ui_ctx, &help_win, &help_win_close_btn, 512 - 24, -24, 24, 24);
-	UI_Widget_Text(&ui_ctx, &help_win_close_btn, "X");
-	help_win_close_btn.on_click = &UI_Widget_DefaultCloseButtonOnClick;
+	help_win->text(&ui_ctx, "Russo-Japanesse War 1904");
+	UI_Widget_CreateButton(&ui_ctx, help_win, &help_win_close_btn, 512 - 24, -24, 24, 24);
+	help_win_close_btn->text(&ui_ctx, "X");
+	help_win_close_btn->on_click = &default_close_button_on_click;
 	const char * text[] = {
 		"Thank you for downloading this game",
 		"In this scneario you will control",
@@ -291,44 +287,44 @@ int main(int argc, char ** argv) {
 		"Have fun! :D"
 	};
 	for(size_t i = 0; i < 12; i++) {
-		UI_Widget_CreateLabel(&ui_ctx, &help_win, &help_label[i], 0, (i + 1) * 24, text[i]);
+		UI_Widget_CreateLabel(&ui_ctx, help_win, &help_label[i], 0, (i + 1) * 24, text[i]);
 	}
 
 	/* tile overview */
 	UI_Widget_CreateWindow(&ui_ctx, NULL, &tov_win, width - 520, 32, 512, 512);
-	UI_Widget_Text(&ui_ctx, &tov_win, "Province overview");
-	UI_Widget_CreateButton(&ui_ctx, &tov_win, &tov_win_close_btn, 512 - 24, -24, 24, 24);
-	UI_Widget_Text(&ui_ctx, &tov_win_close_btn, "X");
-	tov_win_close_btn.on_click = &UI_Widget_DefaultCloseButtonOnClick;
-	UI_Widget_CreateLabel(&ui_ctx, &tov_win, &tov_owner_label, 0, 24, "?");
-	UI_Widget_CreateImage(&ui_ctx, &tov_win, &tov_owner_flag_image, (16) * 6, 0, 32, 24, &world.nations[current_player_nation_id].default_flag);
-	UI_Widget_CreateLabel(&ui_ctx, &tov_win, &tov_population_label, 0, 48, "?");
+	tov_win->text(&ui_ctx, "Province overview");
+	UI_Widget_CreateButton(&ui_ctx, tov_win, &tov_win_close_btn, 512 - 24, -24, 24, 24);
+	tov_win_close_btn->text(&ui_ctx, "X");
+	tov_win_close_btn->on_click = &default_close_button_on_click;
+	UI_Widget_CreateLabel(&ui_ctx, tov_win, &tov_owner_label, 0, 24, "?");
+	UI_Widget_CreateImage(&ui_ctx, tov_win, &tov_owner_flag_image, (16) * 6, 0, 32, 24, &world->nations[current_player_nation_id].default_flag);
+	UI_Widget_CreateLabel(&ui_ctx, tov_win, &tov_population_label, 0, 48, "?");
 
 	/* overview bottom window */
 	UI_Widget_CreateWindow(&ui_ctx, NULL, &overview_win, 0, height - 128, width, 128);
-	UI_Widget_Text(&ui_ctx, &overview_win, world.nations[current_player_nation_id].ref_name);
-	UI_Context_AddWidget(&ui_ctx, &overview_win);
-	UI_Widget_CreateLabel(&ui_ctx, &overview_win, &overview_time_label, 128 + 32 + 8, 24, "?");
-	UI_Context_AddWidget(&ui_ctx, &overview_time_label);
-	UI_Widget_CreateImage(&ui_ctx, &overview_win, &overview_flag_image, 8, 8, 128 + 32, 128 - 16, &world.nations[current_player_nation_id].default_flag);
-	UI_Context_AddWidget(&ui_ctx, &overview_flag_image);
+	overview_win->text(&ui_ctx, world->nations[current_player_nation_id].ref_name);
+	UI_Context_AddWidget(&ui_ctx, overview_win);
+	UI_Widget_CreateLabel(&ui_ctx, overview_win, &overview_time_label, 128 + 32 + 8, 24, "?");
+	UI_Context_AddWidget(&ui_ctx, overview_time_label);
+	UI_Widget_CreateImage(&ui_ctx, overview_win, &overview_flag_image, 8, 8, 128 + 32, 128 - 16, &world->nations[current_player_nation_id].default_flag);
+	UI_Context_AddWidget(&ui_ctx, overview_flag_image);
 
 	/* economy window */
 	UI_Widget_CreateWindow(&ui_ctx, NULL, &econ_win, 128, 32, 512, 512);
-	UI_Widget_CreateButton(&ui_ctx, &econ_win, &econ_win_close_btn, 512 - 24, -24, 24, 24);
-	econ_win_close_btn.on_click = &UI_Widget_DefaultCloseButtonOnClick;
-	UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[0], 128 * 0, 24, "% Change");
-	UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[1], 128 * 1, 24, "Price");
-	UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[2], 128 * 2, 24, "Province");
-	UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[3], 128 * 3, 24, "Good");
+	UI_Widget_CreateButton(&ui_ctx, econ_win, &econ_win_close_btn, 512 - 24, -24, 24, 24);
+	econ_win_close_btn->on_click = &default_close_button_on_click;
+	UI_Widget_CreateLabel(&ui_ctx, econ_win, &econ_label[0], 128 * 0, 24, "% Change");
+	UI_Widget_CreateLabel(&ui_ctx, econ_win, &econ_label[1], 128 * 1, 24, "Price");
+	UI_Widget_CreateLabel(&ui_ctx, econ_win, &econ_label[2], 128 * 2, 24, "Province");
+	UI_Widget_CreateLabel(&ui_ctx, econ_win, &econ_label[3], 128 * 3, 24, "Good");
 	for(size_t i = (4 / 4); i < (128 / 4); i++) {
 		size_t y = i * 24 + 24;
-		UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[i * 4 + 0], 128 * 0, y, "?");
-		UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[i * 4 + 1], 128 * 1, y, "?");
-		UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[i * 4 + 2], 128 * 2, y, "?");
-		UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[i * 4 + 3], 128 * 3, y, "?");
+		UI_Widget_CreateLabel(&ui_ctx, econ_win, &econ_label[i * 4 + 0], 128 * 0, y, "?");
+		UI_Widget_CreateLabel(&ui_ctx, econ_win, &econ_label[i * 4 + 1], 128 * 1, y, "?");
+		UI_Widget_CreateLabel(&ui_ctx, econ_win, &econ_label[i * 4 + 2], 128 * 2, y, "?");
+		UI_Widget_CreateLabel(&ui_ctx, econ_win, &econ_label[i * 4 + 3], 128 * 3, y, "?");
 	}
-	econ_win.on_update = &do_economy_on_update;
+	econ_win->on_update = &do_economy_on_update;
 
 	Camera cam;
 	cam.x = -1.f;
@@ -350,28 +346,28 @@ int main(int argc, char ** argv) {
 				
 				r = UI_Context_CheckClick(&ui_ctx, mx, my);
 
-				if(fmx > 0 && fmx < world.width
-				&& fmy > 0 && fmy < world.height
+				if(fmx > 0 && fmx < world->width
+				&& fmy > 0 && fmy < world->height
 				&& !r) {
-					World_Tile * tile = &world.tiles[tx + ty * world.width];
+					World_Tile * tile = &world->tiles[tx + ty * world->width];
 					char * str = (char *)malloc(255);
-					const char * name = (tile->owner_id != (size_t)-1) ? world.nations[tile->owner_id].name : "none";
+					const char * name = (tile->owner_id != (size_t)-1) ? world->nations[tile->owner_id].name : "none";
 					sprintf(str, "Owner:   %s", name);
-					UI_Widget_Text(&ui_ctx, &tov_owner_label, str);
+					tov_owner_label->text(&ui_ctx, str);
 
 					if(tile->province_id == (size_t)-1) {
-						UI_Widget_Text(&ui_ctx, &tov_win, "unnamed land");
+						tov_win->text(&ui_ctx, "unnamed land");
 					} else {
-						UI_Widget_Text(&ui_ctx, &tov_win, world.provinces[tile->province_id].name);
+						tov_win->text(&ui_ctx, world->provinces[tile->province_id].name);
 
 						/* some heartbleed techniques were applied here */
-						sprintf(str, "Population: %lu", world.provinces[tile->province_id].population);
-						UI_Widget_Text(&ui_ctx, &tov_population_label, str);
+						sprintf(str, "Population: %lu", world->provinces[tile->province_id].population);
+						tov_population_label->text(&ui_ctx, str);
 					}
 
 					free(str);
 
-					tov_owner_flag_image.current_texture = &world.nations[tile->owner_id].default_flag;
+					tov_owner_flag_image->current_texture = &world->nations[tile->owner_id].default_flag;
 
 					selected_province_id = tile->province_id;
 					do_tile_overview();
@@ -458,7 +454,7 @@ int main(int argc, char ** argv) {
 		glVertex2f(fmx, fmy + 1.f);
 		glEnd();
 
-		glBindTexture(GL_TEXTURE_2D, world.nations[current_player_nation_id].default_flag.gl_tex_num);
+		glBindTexture(GL_TEXTURE_2D, world->nations[current_player_nation_id].default_flag.gl_tex_num);
 		GLUquadricObj * sphere = NULL;
 		sphere = gluNewQuadric();
 		gluQuadricDrawStyle(sphere, GLU_FILL);
@@ -482,8 +478,8 @@ int main(int argc, char ** argv) {
 		glLoadIdentity();
 		glRasterPos2f(-3.0f, -2.0f);
 
-		int hour = world.time % 24;
-		int day = world.time / 24;
+		int hour = world->time % 24;
+		int day = world->time / 24;
 
 		int is_leap = day / (365 * 4);
 		if(is_leap) day += (day / (365 * 4));
@@ -495,9 +491,9 @@ int main(int argc, char ** argv) {
 
 		char str[255];
 		sprintf((char *)&str, "%u/%u/%u - %u", year, month, day, hour);
-		UI_Widget_Text(&ui_ctx, &overview_time_label, (char *)&str);
+		overview_time_label->text(&ui_ctx, (char *)&str);
 
-		World_DoTick(&world);
+		world->do_tick();
 
 		if(cam.vx >= 0.9f) {
 			cam.vx -= 0.8f;

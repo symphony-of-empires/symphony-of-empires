@@ -1,3 +1,4 @@
+#include <bits/stdint-uintn.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -5,20 +6,15 @@
 #include <zlib.h>
 #include "texture.hpp"
 
-void Texture_Create(Texture * tex) {
-	memset(tex, 0, sizeof(Texture));
-	return;
+Texture::Texture() {
+
 }
 
-void Texture_Delete(Texture * tex, int keep_opengl) {
-	if(tex->gl_tex_num && !keep_opengl) {
-		glDeleteTextures(1, &tex->gl_tex_num);
-	}
-	free(tex->buffer);
-	return;
+Texture::~Texture() {
+	free(this->buffer);
 }
 
-int Texture_FromFile(Texture * tex, const char * name) {
+int Texture::from_file(const char * name) {
 	png_image image;
 	
 	/* Open initial file */
@@ -46,36 +42,40 @@ int Texture_FromFile(Texture * tex, const char * name) {
 		exit(EXIT_FAILURE);
 	}
 
-	tex->width = (size_t)image.width;
-	tex->height = (size_t)image.height;
+	this->width = (size_t)image.width;
+	this->height = (size_t)image.height;
 	
 	/* Store information onto buffer */
-	tex->buffer = (uint32_t *)malloc(PNG_IMAGE_SIZE(image));
-	if(tex->buffer != NULL && png_image_finish_read(&image, NULL, tex->buffer, 0, NULL) != 0) {
+	this->buffer = new uint32_t[image.width * image.height];
+	if(this->buffer != NULL && png_image_finish_read(&image, NULL, this->buffer, 0, NULL) != 0) {
 		/* Free the image */
 		png_image_free(&image);
 	} else {
-		if(tex->buffer == NULL) {
+		if(this->buffer == NULL) {
 			png_image_free(&image);
 		} else {
-			free(tex->buffer);
+			free(this->buffer);
 		}
 		return 1;
 	}
 	
 	printf("texture %s loaded\n", name);
-	tex->gl_tex_num = 0;
+	this->gl_tex_num = 0;
 	return 0;
 }
 
 #include <GL/gl.h>
-void Texture_ToOpenGL(Texture * tex) {
-	glGenTextures(1, &tex->gl_tex_num);
-	glBindTexture(GL_TEXTURE_2D, tex->gl_tex_num);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->width, tex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->buffer);
+void Texture::to_opengl() {
+	glGenTextures(1, &this->gl_tex_num);
+	glBindTexture(GL_TEXTURE_2D, this->gl_tex_num);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->buffer);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	return;
+}
+
+void Texture::delete_opengl() {
+	glDeleteTextures(1, &this->gl_tex_num);
 }

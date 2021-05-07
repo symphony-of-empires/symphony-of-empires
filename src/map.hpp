@@ -11,17 +11,20 @@ typedef enum {
 	MAP_TOPOGRAPHIC,
 }Map_Mode;
 
-typedef struct {
+class Map {
+public:
+	Map(World * world, Map_Mode mode);
+	~Map();
+	
+	void quad_create(size_t qx, size_t qy);
+	void quad_update(size_t x, size_t y);
+
 	World * world;
 	size_t quad_size;
 	size_t n_horz_quads;
 	size_t n_vert_quads;
 	GLuint * quads_gl_list_num;
 	Map_Mode mode;
-}Map;
-
-void Map_Quad_Create(Map * map, size_t qx, size_t qy);
-void Map_Quad_Update(Map * map, size_t x, size_t y);
-int Map_Create(Map * map, World * world, Map_Mode mode);
+};
 
 #endif
