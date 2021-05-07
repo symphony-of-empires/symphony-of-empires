@@ -2,10 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <byteswap.h>
-#include "lua.h"
-#include "world.h"
-#include "nation.h"
-#include "economy.h"
+#include "lua.hpp"
+#include "world.hpp"
+#include "nation.hpp"
+#include "economy.hpp"
 
 #include <lua5.2/lualib.h>
 #include <lua5.2/lauxlib.h>
@@ -17,12 +17,12 @@ int World_LuaAddGood(lua_State * L) {
 	memset(&good, 0, sizeof(Good));
 
 	const char * ref_name = lua_tostring(L, 1);
-	good.ref_name = malloc(strlen(ref_name) + 1);
+	good.ref_name = (char *)malloc(strlen(ref_name) + 1);
 	strcpy(good.ref_name, ref_name);
 
 	const char * name = lua_tostring(L, 2);
 
-	good.name = malloc(strlen(name) + 1);
+	good.name = (char *)malloc(strlen(name) + 1);
 	strcpy(good.name, name);
 
 	World_AddGood(g_world, &good);
@@ -34,11 +34,11 @@ int World_LuaAddIndustryType(lua_State * L) {
 	memset(&industry, 0, sizeof(IndustryType));
 
 	const char * ref_name = lua_tostring(L, 1);
-	industry.ref_name = malloc(strlen(ref_name) + 1);
+	industry.ref_name = (char *)malloc(strlen(ref_name) + 1);
 	strcpy(industry.ref_name, ref_name);
 
 	const char * name = lua_tostring(L, 2);
-	industry.name = malloc(strlen(name) + 1);
+	industry.name = (char *)malloc(strlen(name) + 1);
 	strcpy(industry.name, name);
 
 	World_AddIndustryType(g_world, &industry);
@@ -68,7 +68,7 @@ int World_LuaAddInputToIndustryType(lua_State * L) {
 		return 0;
 	}
 
-	industry->inputs = realloc(industry->inputs, sizeof(size_t) * (industry->n_inputs + 1));
+	industry->inputs = (size_t *)realloc(industry->inputs, sizeof(size_t) * (industry->n_inputs + 1));
 	industry->inputs[industry->n_inputs] = good_id;
 	industry->n_inputs++;
 	return 0;
@@ -97,7 +97,7 @@ int World_LuaAddOutputToIndustryType(lua_State * L) {
 		return 0;
 	}
 	
-	industry->outputs = realloc(industry->outputs, sizeof(size_t) * (industry->n_outputs + 1));
+	industry->outputs = (size_t *)realloc(industry->outputs, sizeof(size_t) * (industry->n_outputs + 1));
 	industry->outputs[industry->n_outputs] = good_id;
 	industry->n_outputs++;
 	return 0;
@@ -108,7 +108,7 @@ int World_LuaAddNation(lua_State * L) {
 	memset(&nation, 0, sizeof(Nation));
 
 	const char * ref_name = lua_tostring(L, 1);
-	nation.ref_name = malloc(strlen(ref_name) + 1);
+	nation.ref_name = (char *)malloc(strlen(ref_name) + 1);
 	strcpy(nation.ref_name, ref_name);
 
 	nation.color = lua_tonumber(L, 2);
@@ -120,7 +120,7 @@ int World_LuaAddNation(lua_State * L) {
 	Texture_FromFile(&nation.default_flag, default_flag);
 
 	const char * name = lua_tostring(L, 4);
-	nation.name = malloc(strlen(name) + 1);
+	nation.name = (char *)malloc(strlen(name) + 1);
 	strcpy(nation.name, name);
 	
 	World_AddNation(g_world, &nation);
@@ -132,7 +132,7 @@ int World_LuaAddProvince(lua_State * L) {
 	memset(&province, 0, sizeof(Province));
 
 	const char * ref_name = lua_tostring(L, 1);
-	province.ref_name = malloc(strlen(ref_name) + 1);
+	province.ref_name = (char *)malloc(strlen(ref_name) + 1);
 	strcpy(province.ref_name, ref_name);
 
 	province.color = lua_tonumber(L, 2);
@@ -141,7 +141,7 @@ int World_LuaAddProvince(lua_State * L) {
 	province.color |= 0xff000000;
 
 	const char * name = lua_tostring(L, 3);
-	province.name = malloc(strlen(name) + 1);
+	province.name = (char *)malloc(strlen(name) + 1);
 	strcpy(province.name, name);
 
 	province.population = 1000;

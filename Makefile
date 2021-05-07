@@ -1,8 +1,8 @@
-CC=gcc
-CFLAGS=-Wall -Wextra -O3 -mtune=native -g
+CXX=g++
+CXXFLAGS=-Wall -Wextra -O3 -mtune=native -g -fno-rtti -fno-exceptions
 LIBS=-lpng -lSDL2 -lGL -lGLU -llua5.2 -lSDL2_ttf -lm
 
-OBJS=$(patsubst ./src/%.c,./obj/%.o,$(shell find . -type f -iname '*.c'))
+OBJS=$(patsubst ./src/%.c,./obj/%.o,$(shell find . -type f -iname '*.cpp'))
 
 build: dirs bin/main
 	cp -r data bin/
@@ -14,12 +14,12 @@ dirs:
 	mkdir -p bin obj
 
 bin/main: $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LIBS)
 
-obj/%.o: src/%.c src/%.h
-	$(CC) $(CFLAGS) $< -c -o $@
+obj/%.o: src/%.cpp src/%.hpp
+	$(CXX) $(CXXFLAGS) $< -c -o $@
 
-obj/%.o: src/%.c
-	$(CC) $(CFLAGS) $< -c -o $@
+obj/%.o: src/%.cpp
+	$(CXX) $(CXXFLAGS) $< -c -o $@
 
 .PHONY: dirs build clean

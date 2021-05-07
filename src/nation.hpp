@@ -2,7 +2,7 @@
 #define NATION_H
 
 #include <stdint.h>
-#include "texture.h"
+#include "texture.hpp"
 
 typedef struct {
 	char * name;
