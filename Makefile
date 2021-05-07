@@ -16,7 +16,7 @@ endif #WINDOWS
 build: dirs bin/main
 
 clean:
-	rm -r bin obj
+	rm -rf bin obj
 
 dirs:
 	mkdir -p bin obj
