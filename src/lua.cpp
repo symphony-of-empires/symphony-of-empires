@@ -1,4 +1,8 @@
+#ifdef HAS_WINDOWS
+#include <lua.hpp>
+#else
 #include <lua5.4/lua.hpp>
+#endif //HAS_WINDOWS
 #include <string.h>
 #include <stdlib.h>
 #include <byteswap.h>
