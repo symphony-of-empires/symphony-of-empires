@@ -19,10 +19,10 @@
 #include <GL/glu.h>
 #include <GL/gl.h>
 
-#include "texture.h"
-#include "world.h"
-#include "map.h"
-#include "ui.h"
+#include "texture.hpp"
+#include "world.hpp"
+#include "map.hpp"
+#include "ui.hpp"
 
 World world;
 
@@ -32,7 +32,7 @@ const int height = 800;
 UI_Context ui_ctx;
 
 UI_Widget help_win, help_label[12], help_win_close_btn;
-void do_help() {
+void do_help(UI_Widget * widget, void * data) {
 	UI_Context_AddWidget(&ui_ctx, &help_win);
 	UI_Context_AddWidget(&ui_ctx, &help_win_close_btn);
 	for(size_t i = 0; i < 12; i++) {
@@ -50,7 +50,7 @@ void do_tile_overview() {
 }
 
 UI_Widget econ_win, econ_win_close_btn, econ_label[128];
-void do_economy_on_click() {
+void do_economy_on_click(UI_Widget * widget, void * data) {
 	UI_Context_AddWidget(&ui_ctx, &econ_win);
 	UI_Context_AddWidget(&ui_ctx, &econ_win_close_btn);
 	for(size_t i = 0; i < 128; i++) {
@@ -58,7 +58,7 @@ void do_economy_on_click() {
 	}
 }
 
-void do_economy_on_update() {
+void do_economy_on_update(UI_Widget * widget, void * data) {
 	size_t n_prod = 1;
 	for(size_t i = 0; i < world.n_provinces; i++) {
 		Province * province = &world.provinces[i];
@@ -69,17 +69,17 @@ void do_economy_on_update() {
 			char str[255];
 			if(product->price_vel > 0.f) {
 				UI_Widget_TextColor(0, 255, 0);
-				sprintf(&str, "+%4.2f", product->price_vel);
+				sprintf((char *)&str, "+%4.2f", product->price_vel);
 			} else {
 				UI_Widget_TextColor(255, 0, 0);
-				sprintf(&str, "%4.2f", product->price_vel);
+				sprintf((char *)&str, "%4.2f", product->price_vel);
 			}
 
-			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 0], &str);
+			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 0], (const char *)&str);
 			UI_Widget_TextColor(0, 0, 0);
 
-			sprintf(&str, "%4.2f", product->price);
-			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 1], &str);
+			sprintf((char *)&str, "%4.2f", product->price);
+			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 1], (const char *)&str);
 			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 2], province->name);
 			UI_Widget_Text(&ui_ctx, &econ_label[n_prod * 4 + 3], world.goods[product->good_id].name);
 
@@ -91,7 +91,7 @@ void do_economy_on_update() {
 }
 
 UI_Widget overview_win, overview_time_label, overview_flag_image;
-void do_exit(void) {
+void do_exit(UI_Widget * widget, void * data) {
 	exit(EXIT_FAILURE);
 }
 
@@ -104,19 +104,16 @@ size_t selected_province_id;
 
 Map prov_map, pol_map, topo_map;
 Map * map = &pol_map;
-void do_view_prov_map() {
+void do_view_prov_map(UI_Widget * widget, void * data) {
 	map = &prov_map;
-	return;
 }
 
-void do_view_pol_map() {
+void do_view_pol_map(UI_Widget * widget, void * data) {
 	map = &pol_map;
-	return;
 }
 
-void do_view_topo_map() {
+void do_view_topo_map(UI_Widget * widget, void * data) {
 	map = &topo_map;
-	return;
 }
 
 typedef struct {
@@ -130,7 +127,7 @@ typedef struct {
 
 const char * g_data_dir = "data/";
 static const char * Resource_GetPath(const char * str){
-	char * rsult = malloc(255);
+	char * rsult = (char *)malloc(255);
 	strcpy(rsult, g_data_dir);
 	strcat(rsult, str);
 	printf("Concat str: %s\n", rsult);
@@ -138,6 +135,8 @@ static const char * Resource_GetPath(const char * str){
 }
 
 int main(int argc, char ** argv) {
+	//server_main();
+
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
@@ -151,7 +150,7 @@ int main(int argc, char ** argv) {
 	SDL_Window * window = SDL_CreateWindow("superleaf1995", 0, 0, width, height, SDL_WINDOW_OPENGL);
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 
-	GLubyte * version = glGetString(GL_VERSION);
+	const GLubyte * version = glGetString(GL_VERSION);
 	printf("OpenGL Version: %s\n", version);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -318,10 +317,10 @@ int main(int argc, char ** argv) {
 	UI_Widget_CreateWindow(&ui_ctx, NULL, &econ_win, 128, 32, 512, 512);
 	UI_Widget_CreateButton(&ui_ctx, &econ_win, &econ_win_close_btn, 512 - 24, -24, 24, 24);
 	econ_win_close_btn.on_click = &UI_Widget_DefaultCloseButtonOnClick;
-	UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[0], 128 * 0, 24, "xchg");
-	UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[1], 128 * 1, 24, "price");
-	UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[2], 128 * 2, 24, "province");
-	UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[3], 128 * 3, 24, "good");
+	UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[0], 128 * 0, 24, "% Change");
+	UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[1], 128 * 1, 24, "Price");
+	UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[2], 128 * 2, 24, "Province");
+	UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[3], 128 * 3, 24, "Good");
 	for(size_t i = (4 / 4); i < (128 / 4); i++) {
 		size_t y = i * 24 + 24;
 		UI_Widget_CreateLabel(&ui_ctx, &econ_win, &econ_label[i * 4 + 0], 128 * 0, y, "?");
@@ -342,19 +341,20 @@ int main(int argc, char ** argv) {
 
 	while(run) {
 		SDL_Event event;
+		int r;
 
 		while(SDL_PollEvent(&event)) {
 			switch(event.type) {
 			case SDL_MOUSEBUTTONDOWN:
 				SDL_GetMouseState(&mx, &my);
 				
-				int r = UI_Context_CheckClick(&ui_ctx, mx, my);
+				r = UI_Context_CheckClick(&ui_ctx, mx, my);
 
 				if(fmx > 0 && fmx < world.width
 				&& fmy > 0 && fmy < world.height
 				&& !r) {
 					World_Tile * tile = &world.tiles[tx + ty * world.width];
-					char * str = malloc(255);
+					char * str = (char *)malloc(255);
 					const char * name = (tile->owner_id != (size_t)-1) ? world.nations[tile->owner_id].name : "none";
 					sprintf(str, "Owner:   %s", name);
 					UI_Widget_Text(&ui_ctx, &tov_owner_label, str);
@@ -377,7 +377,7 @@ int main(int argc, char ** argv) {
 					do_tile_overview();
 				}
 				break;
-			case SDL_MOUSEMOTION: ;
+			case SDL_MOUSEMOTION:
 				SDL_GetMouseState(&mx, &my);
 				UI_Context_CheckHover(&ui_ctx, mx, my);
 
@@ -494,8 +494,8 @@ int main(int argc, char ** argv) {
 		month %= 12;
 
 		char str[255];
-		sprintf(&str, "%u/%u/%u - %u", year, month, day, hour);
-		UI_Widget_Text(&ui_ctx, &overview_time_label, &str);
+		sprintf((char *)&str, "%u/%u/%u - %u", year, month, day, hour);
+		UI_Widget_Text(&ui_ctx, &overview_time_label, (char *)&str);
 
 		World_DoTick(&world);
 

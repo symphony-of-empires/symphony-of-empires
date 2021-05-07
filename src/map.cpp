@@ -1,7 +1,7 @@
 #include <GL/gl.h>
 #include <stdlib.h>
 #include <string.h>
-#include "map.h"
+#include "map.hpp"
 
 void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
 	size_t off_x = qx * map->quad_size;
@@ -253,7 +253,7 @@ int Map_Create(Map * map, World * world, Map_Mode mode) {
 		map->n_vert_quads++;
 	}
 
-	map->quads_gl_list_num = malloc(sizeof(GLuint) * (map->n_horz_quads * map->n_vert_quads));
+	map->quads_gl_list_num = (GLuint *)malloc(sizeof(GLuint) * (map->n_horz_quads * map->n_vert_quads));
 	if(map->quads_gl_list_num == NULL) {
 		return 1;
 	}

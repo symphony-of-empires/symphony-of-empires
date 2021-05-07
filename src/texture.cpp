@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <png.h>
 #include <zlib.h>
-#include "texture.h"
+#include "texture.hpp"
 
 void Texture_Create(Texture * tex) {
 	memset(tex, 0, sizeof(Texture));
@@ -50,7 +50,7 @@ int Texture_FromFile(Texture * tex, const char * name) {
 	tex->height = (size_t)image.height;
 	
 	/* Store information onto buffer */
-	tex->buffer = malloc(PNG_IMAGE_SIZE(image));
+	tex->buffer = (uint32_t *)malloc(PNG_IMAGE_SIZE(image));
 	if(tex->buffer != NULL && png_image_finish_read(&image, NULL, tex->buffer, 0, NULL) != 0) {
 		/* Free the image */
 		png_image_free(&image);

@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 #include <GL/gl.h>
-#include "world.h"
+#include "world.hpp"
 
 typedef enum {
 	MAP_POLITICAL,

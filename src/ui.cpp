@@ -4,8 +4,8 @@
 #include <immintrin.h>
 #include <stdlib.h>
 #include <string.h>
-#include "texture.h"
-#include "ui.h"
+#include "texture.hpp"
+#include "ui.hpp"
 
 void UI_Context_Create(const char * data_dir, UI_Context * ctx) {
 	char font_path[256];
@@ -62,7 +62,7 @@ void UI_Context_AddWidget(UI_Context * ctx, UI_Widget * widget) {
 		ctx->widgets[i] = widget;
 		return;
 	}
-	ctx->widgets = realloc(ctx->widgets, sizeof(UI_Widget *) * (ctx->n_widgets + 1));
+	ctx->widgets = (UI_Widget **)realloc(ctx->widgets, sizeof(UI_Widget *) * (ctx->n_widgets + 1));
 	ctx->widgets[ctx->n_widgets] = widget;
 	ctx->n_widgets++;
 	return;
@@ -268,7 +268,7 @@ static void UI_Widget_DefaultOnTextinput(UI_Widget * widget, const char * input,
 		printf("(%x)\n", input[i]);
 	}
 
-	widget->buffer = realloc(widget->buffer, len + strlen(input) + 1);
+	widget->buffer = (char *)realloc(widget->buffer, len + strlen(input) + 1);
 	if(widget->buffer == NULL) {
 		perror("out of memory\n");
 		exit(EXIT_FAILURE);
@@ -330,7 +330,7 @@ void UI_Widget_AddChild(UI_Widget * parent, UI_Widget * child) {
 		}
 	}
 	
-	parent->children = realloc(parent->children, sizeof(UI_Widget *) * (parent->n_children + 1));
+	parent->children = (UI_Widget **)realloc(parent->children, sizeof(UI_Widget *) * (parent->n_children + 1));
 	if(parent->children == NULL) {
 		perror("out of memory\n");
 		exit(EXIT_FAILURE);
@@ -362,7 +362,7 @@ void UI_Widget_Text(UI_Context * ctx, UI_Widget * widget, const char * text) {
 	tex = &widget->text_texture;
 	tex->width = surface->w;
 	tex->height = surface->h;
-	tex->buffer = malloc(sizeof(uint32_t) * (tex->width * tex->height));
+	tex->buffer = (uint32_t *)malloc(sizeof(uint32_t) * (tex->width * tex->height));
 	for(size_t i = 0; i < (size_t)surface->w; i++) {
 		for(size_t j = 0; j < (size_t)surface->h; j++) {
 			uint8_t r, g, b, a;

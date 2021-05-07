@@ -1,9 +1,9 @@
 #include <byteswap.h>
 #include <sys/cdefs.h>
-#include "economy.h"
-#include "world.h"
-#include "texture.h"
-#include "lua.h"
+#include "economy.hpp"
+#include "world.hpp"
+#include "texture.hpp"
+#include "lua.hpp"
 
 World * g_world;
 
@@ -107,7 +107,7 @@ void World_Create(World * world, const char * topo_map, const char * pol_map, co
 
 	world->sea_level = 128;
 
-	world->tiles = malloc(sizeof(World_Tile) * (world->width * world->height));
+	world->tiles = (World_Tile *)malloc(sizeof(World_Tile) * (world->width * world->height));
 	if(world->tiles == NULL) {
 		perror("out of mem\n");
 		exit(EXIT_FAILURE);

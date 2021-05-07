@@ -6,8 +6,8 @@
 #include <stddef.h>
 #include <string.h>
 #include <time.h>
-#include "nation.h"
-#include "economy.h"
+#include "nation.hpp"
+#include "economy.hpp"
 
 typedef struct {
 	size_t owner_id;

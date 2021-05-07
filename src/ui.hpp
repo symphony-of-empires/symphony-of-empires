@@ -2,7 +2,7 @@
 #define UI_H
 
 #include <stddef.h>
-#include "texture.h"
+#include "texture.hpp"
 
 enum UI_WidgetType {
 	UI_WIDGET_BUTTON,
