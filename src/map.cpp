@@ -3,11 +3,35 @@
 #include <string.h>
 #include "map.hpp"
 
-void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
-	size_t off_x = qx * map->quad_size;
-	size_t off_y = qy * map->quad_size;
-	size_t end_x = (off_x + map->quad_size);
-	size_t end_y = (off_y + map->quad_size);
+Map::Map(World * world, Map_Mode mode) {
+	memset(this, 0, sizeof(Map));
+
+	this->world = world;
+	this->quad_size = 64;
+
+	this->n_horz_quads = this->world->width / this->quad_size;
+	this->n_vert_quads = this->world->height / this->quad_size;
+
+	if(this->world->width % this->quad_size) {
+		this->n_horz_quads++;
+	} if(this->world->height % this->quad_size) {
+		this->n_vert_quads++;
+	}
+
+	this->quads_gl_list_num = (GLuint *)malloc(sizeof(GLuint) * (this->n_horz_quads * this->n_vert_quads));
+	this->mode = mode;
+	for(size_t i = 0; i < this->n_horz_quads; i++) {
+		for(size_t j = 0; j < this->n_vert_quads; j++) {
+			this->quad_create(i, j);
+		}
+	}
+}
+
+void Map::quad_create(size_t qx, size_t qy) {
+	size_t off_x = qx * this->quad_size;
+	size_t off_y = qy * this->quad_size;
+	size_t end_x = (off_x + this->quad_size);
+	size_t end_y = (off_y + this->quad_size);
 
 	const int draw_ord[4][2] = {
 		{ 0, 0 }, /* top left */
@@ -22,35 +46,35 @@ void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
 		off_y = 1;
 	}
 
-	if(end_x >= map->world->width) {
-		end_x = map->world->width - 1;
-	} if(end_y >= map->world->height) {
-		end_y = map->world->height - 1;
+	if(end_x >= this->world->width) {
+		end_x = this->world->width - 1;
+	} if(end_y >= this->world->height) {
+		end_y = this->world->height - 1;
 	}
 
-	GLuint * gl_list = &map->quads_gl_list_num[qx + qy * map->n_horz_quads];
+	GLuint * gl_list = &this->quads_gl_list_num[qx + qy * this->n_horz_quads];
 	*gl_list = glGenLists(1);
 	glNewList(*gl_list, GL_COMPILE);
 
-	if(map->mode == MAP_POLITICAL) {
+	if(this->mode == MAP_POLITICAL) {
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
-				World_Tile * curr_tile = &map->world->tiles[i + j * map->world->width];
+				World_Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
 				glBegin(GL_POLYGON);
 				if(curr_tile->owner_id == (size_t)-1) {
 					for(size_t k = 0; k < 4; k++) {
 						size_t x = i + draw_ord[k][0];
 						size_t y = j + draw_ord[k][1];
-						uint8_t elevation = map->world->tiles[x + y * map->world->width].elevation;
-						glColor3ub(32, elevation, elevation + map->world->sea_level);
+						uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
+						glColor3ub(32, elevation, elevation + this->world->sea_level);
 						glVertex2f(x, y);
 					}
 				} else {
-					Nation * nation = &map->world->nations[curr_tile->owner_id];
+					Nation * nation = &this->world->nations[curr_tile->owner_id];
 					for(size_t k = 0; k < 4; k++) {
 						size_t x = i + draw_ord[k][0];
 						size_t y = j + draw_ord[k][1];
-						uint8_t elevation = map->world->tiles[x + y * map->world->width].elevation - map->world->sea_level;
+						uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation - this->world->sea_level;
 						uint8_t nr = (nation->color & 0xff);
 						uint8_t ng = ((nation->color >> 8) & 0xff);
 						uint8_t nb = ((nation->color >> 16) & 0xff);
@@ -67,25 +91,25 @@ void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
 				glEnd();
 			}
 		}
-	} else if(map->mode == MAP_PROVINCIAL) {
+	} else if(this->mode == MAP_PROVINCIAL) {
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
-				World_Tile * curr_tile = &map->world->tiles[i + j * map->world->width];
+				World_Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
 				glBegin(GL_POLYGON);
 				if(curr_tile->province_id == (size_t)-1) {
 					for(size_t k = 0; k < 4; k++) {
 						size_t x = i + draw_ord[k][0];
 						size_t y = j + draw_ord[k][1];
-						uint8_t elevation = map->world->tiles[x + y * map->world->width].elevation;
-						glColor3ub(32, elevation, elevation + map->world->sea_level);
+						uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
+						glColor3ub(32, elevation, elevation + this->world->sea_level);
 						glVertex2f(x, y);
 					}
 				} else {
-					Province * province = &map->world->provinces[curr_tile->province_id];
+					Province * province = &this->world->provinces[curr_tile->province_id];
 					for(size_t k = 0; k < 4; k++) {
 						size_t x = i + draw_ord[k][0];
 						size_t y = j + draw_ord[k][1];
-						uint8_t elevation = map->world->tiles[x + y * map->world->width].elevation - map->world->sea_level;
+						uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation - this->world->sea_level;
 						uint8_t nr = (province->color & 0xff);
 						uint8_t ng = ((province->color >> 8) & 0xff);
 						uint8_t nb = ((province->color >> 16) & 0xff);
@@ -102,16 +126,16 @@ void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
 				glEnd();
 			}
 		}
-	} else if(map->mode == MAP_TOPOGRAPHIC) {
+	} else if(this->mode == MAP_TOPOGRAPHIC) {
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
-				World_Tile * curr_tile = &map->world->tiles[i + j * map->world->width];
+				World_Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
 				glBegin(GL_POLYGON);
 				for(size_t k = 0; k < 4; k++) {
 					size_t x = i + draw_ord[k][0];
 					size_t y = j + draw_ord[k][1];
-					uint8_t elevation = map->world->tiles[x + y * map->world->width].elevation;
-					glColor3ub(32, elevation, elevation + map->world->sea_level);
+					uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
+					glColor3ub(32, elevation, elevation + this->world->sea_level);
 					glVertex2f(x, y);
 				}
 				glEnd();
@@ -123,11 +147,11 @@ void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
 	glLineWidth(2.f);
 	for(size_t i = off_x; i < end_x; i++) {
 		for(size_t j = off_y; j < end_y; j++) {
-			World_Tile * tiles = map->world->tiles;
-			World_Tile * curr_tile = &tiles[i + j * map->world->width];
+			World_Tile * tiles = this->world->tiles;
+			World_Tile * curr_tile = &tiles[i + j * this->world->width];
 
 			// left
-			if(tiles[(i - 1) + ((j) * map->world->width)].province_id != curr_tile->province_id) {
+			if(tiles[(i - 1) + ((j) * this->world->width)].province_id != curr_tile->province_id) {
 				glBegin(GL_LINE_STRIP);
 				glColor3f(0.f, 0.f, 0.f);
 				glVertex2f((float)i, (float)j + 1.f);
@@ -136,7 +160,7 @@ void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
 			}
 
 			// right
-			if(tiles[(i + 1) + ((j) * map->world->width)].province_id != curr_tile->province_id) {
+			if(tiles[(i + 1) + ((j) * this->world->width)].province_id != curr_tile->province_id) {
 				glBegin(GL_LINE_STRIP);
 				glColor3f(0.f, 0.f, 0.f);
 				glVertex2f((float)i + 1.f, (float)j + 1.f);
@@ -145,7 +169,7 @@ void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
 			}
 
 			// up
-			if(tiles[(i) + ((j - 1) * map->world->width)].province_id != curr_tile->province_id) {
+			if(tiles[(i) + ((j - 1) * this->world->width)].province_id != curr_tile->province_id) {
 				glBegin(GL_LINE_STRIP);
 				glColor3f(0.f, 0.f, 0.f);
 				glVertex2f((float)i + 1.f, (float)j);
@@ -154,7 +178,7 @@ void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
 			}
 
 			// down
-			if(tiles[(i) + ((j + 1) * map->world->width)].province_id != curr_tile->province_id) {
+			if(tiles[(i) + ((j + 1) * this->world->width)].province_id != curr_tile->province_id) {
 				glBegin(GL_LINE_STRIP);
 				glColor3f(0.f, 0.f, 0.f);
 				glVertex2f((float)i + 1.f, (float)j + 1.f);
@@ -168,12 +192,12 @@ void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
 	glLineWidth(3.f);
 	for(size_t i = off_x; i < end_x; i++) {
 		for(size_t j = off_y; j < end_y; j++) {
-			World_Tile * tiles = map->world->tiles;
-			World_Tile * curr_tile = &tiles[i + j * map->world->width];
+			World_Tile * tiles = this->world->tiles;
+			World_Tile * curr_tile = &tiles[i + j * this->world->width];
 
 			// left
-			if(tiles[(i - 1) + ((j) * map->world->width)].owner_id != curr_tile->owner_id
-			&& tiles[(i - 1) + ((j) * map->world->width)].owner_id != (size_t)-1
+			if(tiles[(i - 1) + ((j) * this->world->width)].owner_id != curr_tile->owner_id
+			&& tiles[(i - 1) + ((j) * this->world->width)].owner_id != (size_t)-1
 			&& curr_tile->owner_id != (size_t)-1) {
 				glBegin(GL_LINE_STRIP);
 				glColor3f(1.f, 0.f, 0.f);
@@ -183,8 +207,8 @@ void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
 			}
 
 			// right
-			if(tiles[(i + 1) + ((j) * map->world->width)].owner_id != curr_tile->owner_id
-			&& tiles[(i + 1) + ((j) * map->world->width)].owner_id != (size_t)-1
+			if(tiles[(i + 1) + ((j) * this->world->width)].owner_id != curr_tile->owner_id
+			&& tiles[(i + 1) + ((j) * this->world->width)].owner_id != (size_t)-1
 			&& curr_tile->owner_id != (size_t)-1) {
 				glBegin(GL_LINE_STRIP);
 				glColor3f(1.f, 0.f, 0.f);
@@ -194,8 +218,8 @@ void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
 			}
 
 			// up
-			if(tiles[(i) + ((j - 1) * map->world->width)].owner_id != curr_tile->owner_id
-			&& tiles[(i) + ((j - 1) * map->world->width)].owner_id != (size_t)-1
+			if(tiles[(i) + ((j - 1) * this->world->width)].owner_id != curr_tile->owner_id
+			&& tiles[(i) + ((j - 1) * this->world->width)].owner_id != (size_t)-1
 			&& curr_tile->owner_id != (size_t)-1) {
 				glBegin(GL_LINE_STRIP);
 				glColor3f(1.f, 0.f, 0.f);
@@ -205,8 +229,8 @@ void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
 			}
 
 			// down
-			if(tiles[(i) + ((j + 1) * map->world->width)].owner_id != curr_tile->owner_id
-			&& tiles[(i) + ((j + 1) * map->world->width)].owner_id != (size_t)-1
+			if(tiles[(i) + ((j + 1) * this->world->width)].owner_id != curr_tile->owner_id
+			&& tiles[(i) + ((j + 1) * this->world->width)].owner_id != (size_t)-1
 			&& curr_tile->owner_id != (size_t)-1) {
 				glBegin(GL_LINE_STRIP);
 				glColor3f(1.f, 0.f, 0.f);
@@ -222,11 +246,11 @@ void Map_Quad_Create(Map * map, size_t qx, size_t qy) {
 	return;
 }
 
-void Map_Quad_Update(Map * map, size_t x, size_t y) {
-	size_t qx = x / map->quad_size;
-	size_t qy = y / map->quad_size;
+void Map::quad_update(size_t x, size_t y) {
+	size_t qx = x / this->quad_size;
+	size_t qy = y / this->quad_size;
 
-	GLuint * gl_list = &map->quads_gl_list_num[qx + qy * map->n_horz_quads];
+	GLuint * gl_list = &this->quads_gl_list_num[qx + qy * this->n_horz_quads];
 
 	/* Delete old quad OpenGL list */
 	if(*gl_list != 0) {
@@ -234,35 +258,6 @@ void Map_Quad_Update(Map * map, size_t x, size_t y) {
 	}
 
 	/* Re-draw the quad */
-	Map_Quad_Create(map, qx, qy);
+	this->quad_create(qx, qy);
 	return;
-}
-
-int Map_Create(Map * map, World * world, Map_Mode mode) {
-	memset(map, 0, sizeof(Map));
-
-	map->world = world;
-	map->quad_size = 64;
-
-	map->n_horz_quads = map->world->width / map->quad_size;
-	map->n_vert_quads = map->world->height / map->quad_size;
-
-	if(map->world->width % map->quad_size) {
-		map->n_horz_quads++;
-	} if(map->world->height % map->quad_size) {
-		map->n_vert_quads++;
-	}
-
-	map->quads_gl_list_num = (GLuint *)malloc(sizeof(GLuint) * (map->n_horz_quads * map->n_vert_quads));
-	if(map->quads_gl_list_num == NULL) {
-		return 1;
-	}
-
-	map->mode = mode;
-	for(size_t i = 0; i < map->n_horz_quads; i++) {
-		for(size_t j = 0; j < map->n_vert_quads; j++) {
-			Map_Quad_Create(map, i, j);
-		}
-	}
-	return 0;
 }

@@ -12,41 +12,12 @@ enum UI_WidgetType {
 	UI_WIDGET_IMAGE,
 };
 
-typedef struct UI_Widget {
-	enum UI_WidgetType type;
-
-	size_t x;
-	size_t y;
-	
-	size_t width;
-	size_t height;
-
-	char show;
-
-	Texture * current_texture;
-	Texture text_texture;
-
-	char * buffer;
-
-	void (*on_update)(struct UI_Widget *, void *);
-	void (*on_render)(struct UI_Widget *, void *);
-	void (*on_hover)(struct UI_Widget *, void *);
-	void (*on_click)(struct UI_Widget *, void *);
-	void (*on_textinput)(struct UI_Widget *, const char *, void *);
-
-	struct UI_Widget * parent;
-	struct UI_Widget ** children;
-	size_t n_children;
-
-	void * user_data;
-	size_t user_data_len;
-}UI_Widget;
-
 #include <SDL2/SDL_ttf.h>
+class Widget;
 typedef struct {
 	TTF_Font * default_font;
 
-	UI_Widget ** widgets;
+	Widget ** widgets;
 	size_t n_widgets;
 
 	struct {
@@ -70,49 +41,79 @@ typedef struct {
 	}textures;
 }UI_Context;
 
+class Widget {
+public:
+	Widget(UI_Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type);
+	void add_child(Widget * child);
+	void text(UI_Context * ctx, const char * text);
+	void draw_rectangle(unsigned x, unsigned y, unsigned w, unsigned h, unsigned tex);
+
+	int type;
+
+	size_t x;
+	size_t y;
+	
+	size_t width;
+	size_t height;
+
+	char show;
+
+	Texture * current_texture;
+	Texture text_texture;
+
+	char * buffer;
+
+	void (*on_update)(Widget *, void *);
+	void (*on_render)(Widget *, void *);
+	void (*on_hover)(Widget *, void *);
+	void (*on_click)(Widget *, void *);
+	void (*on_textinput)(Widget *, const char *, void *);
+
+	Widget * parent;
+	Widget ** children;
+	size_t n_children;
+
+	void * user_data;
+	size_t user_data_len;
+};
+
 void UI_Context_Create(const char * data_dir, UI_Context * ctx);
 void UI_Context_LoadTextures(UI_Context * ctx);
 void UI_Context_ToOpenGL(UI_Context * ctx);
-void UI_Context_AddWidget(UI_Context * ctx, UI_Widget * widget);
+void UI_Context_AddWidget(UI_Context * ctx, Widget * widget);
 void UI_Context_RenderAll(UI_Context * ctx);
 
 void UI_Context_CheckHover(UI_Context * ctx, unsigned mx, unsigned my);
 int UI_Context_CheckClick(UI_Context * ctx, unsigned mx, unsigned my);
 void UI_Context_CheckKeydown(UI_Context * ctx, const char * input);
 
-void UI_Widget_DefaultCloseButtonOnClick(UI_Widget * widget, void * data);
+void default_close_button_on_click(Widget * w, void * data);
 
-void UI_Widget_AddChild(UI_Widget * parent, UI_Widget * child);
-
-void UI_Widget_Create(UI_Context * ctx, UI_Widget * parent, UI_Widget * widget,
-	int x, int y, unsigned w, unsigned h, enum UI_WidgetType type);
-void UI_Widget_Text(UI_Context * ctx, UI_Widget * widget, const char * text);
-
-static __always_inline void UI_Widget_CreateButton(UI_Context * ctx, UI_Widget * parent, UI_Widget * widget,
+static __always_inline void UI_Widget_CreateButton(UI_Context * ctx, Widget * parent, Widget ** widget,
 	int x, int y, unsigned w, unsigned h) {
-	UI_Widget_Create(ctx, parent, widget, x, y, w, h, UI_WIDGET_BUTTON);
+	*widget = new Widget(ctx, parent, x, y, w, h, UI_WIDGET_BUTTON);
 }
 
-static __always_inline void UI_Widget_CreateInput(UI_Context * ctx, UI_Widget * parent, UI_Widget * widget,
+static __always_inline void UI_Widget_CreateInput(UI_Context * ctx, Widget * parent, Widget ** widget,
 	int x, int y, unsigned w, unsigned h) {
-	UI_Widget_Create(ctx, parent, widget, x, y, w, h, UI_WIDGET_INPUT);
+	*widget = new Widget(ctx, parent, x, y, w, h, UI_WIDGET_INPUT);
 }
 
-static __always_inline void UI_Widget_CreateWindow(UI_Context * ctx, UI_Widget * parent, UI_Widget * widget,
+static __always_inline void UI_Widget_CreateWindow(UI_Context * ctx, Widget * parent, Widget ** widget,
 	int x, int y, unsigned w, unsigned h) {
-	UI_Widget_Create(ctx, parent, widget, x, y, w, h, UI_WIDGET_WINDOW);
+	*widget = new Widget(ctx, parent, x, y, w, h, UI_WIDGET_WINDOW);
 }
 
-static __always_inline void UI_Widget_CreateImage(UI_Context * ctx, UI_Widget * parent, UI_Widget * widget,
+static __always_inline void UI_Widget_CreateImage(UI_Context * ctx, Widget * parent, Widget ** widget,
 	int x, int y, unsigned w, unsigned h, Texture * tex) {
-	UI_Widget_Create(ctx, parent, widget, x, y, w, h, UI_WIDGET_IMAGE);
-	widget->current_texture = tex;
+	*widget = new Widget(ctx, parent, x, y, w, h, UI_WIDGET_IMAGE);
+	(*widget)->current_texture = tex;
 }
 
-static __always_inline void UI_Widget_CreateLabel(UI_Context * ctx, UI_Widget * parent, UI_Widget * widget,
+static __always_inline void UI_Widget_CreateLabel(UI_Context * ctx, Widget * parent, Widget ** widget,
 	int x, int y, const char * text) {
-	UI_Widget_Create(ctx, parent, widget, x, y, 0, 0, UI_WIDGET_WINDOW);
-	UI_Widget_Text(ctx, widget, text);
+	*widget = new Widget(ctx, parent, x, y, 0, 0, UI_WIDGET_WINDOW);
+	(*widget)->text(ctx, text);
 }
 
 #include <SDL2/SDL.h>

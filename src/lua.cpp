@@ -25,7 +25,7 @@ int World_LuaAddGood(lua_State * L) {
 	good.name = (char *)malloc(strlen(name) + 1);
 	strcpy(good.name, name);
 
-	World_AddGood(g_world, &good);
+	g_world->add_good(&good);
 	return 0;
 }
 
@@ -41,7 +41,7 @@ int World_LuaAddIndustryType(lua_State * L) {
 	industry.name = (char *)malloc(strlen(name) + 1);
 	strcpy(industry.name, name);
 
-	World_AddIndustryType(g_world, &industry);
+	g_world->add_industry_type(&industry);
 	return 0;
 }
 
@@ -104,56 +104,54 @@ int World_LuaAddOutputToIndustryType(lua_State * L) {
 }
 
 int World_LuaAddNation(lua_State * L) {
-	Nation nation;
-	memset(&nation, 0, sizeof(Nation));
+	Nation * nation = new Nation;
 
 	const char * ref_name = lua_tostring(L, 1);
-	nation.ref_name = (char *)malloc(strlen(ref_name) + 1);
-	strcpy(nation.ref_name, ref_name);
+	nation->ref_name = (char *)malloc(strlen(ref_name) + 1);
+	strcpy(nation->ref_name, ref_name);
 
-	nation.color = lua_tonumber(L, 2);
-	nation.color = bswap_32(nation.color);
-	nation.color >>= 8;
-	nation.color |= 0xff000000;
+	nation->color = lua_tonumber(L, 2);
+	nation->color = bswap_32(nation->color);
+	nation->color >>= 8;
+	nation->color |= 0xff000000;
 
 	const char * default_flag = lua_tostring(L, 3);
-	Texture_FromFile(&nation.default_flag, default_flag);
+	nation->default_flag.from_file(default_flag);
 
 	const char * name = lua_tostring(L, 4);
-	nation.name = (char *)malloc(strlen(name) + 1);
-	strcpy(nation.name, name);
+	nation->name = (char *)malloc(strlen(name) + 1);
+	strcpy(nation->name, name);
 	
-	World_AddNation(g_world, &nation);
+	g_world->add_nation(nation);
 	return 0;
 }
 
 int World_LuaAddProvince(lua_State * L) {
-	Province province;
-	memset(&province, 0, sizeof(Province));
+	Province * province = new Province;
 
 	const char * ref_name = lua_tostring(L, 1);
-	province.ref_name = (char *)malloc(strlen(ref_name) + 1);
-	strcpy(province.ref_name, ref_name);
+	province->ref_name = (char *)malloc(strlen(ref_name) + 1);
+	strcpy(province->ref_name, ref_name);
 
-	province.color = lua_tonumber(L, 2);
-	province.color = bswap_32(province.color);
-	province.color >>= 8;
-	province.color |= 0xff000000;
+	province->color = lua_tonumber(L, 2);
+	province->color = bswap_32(province->color);
+	province->color >>= 8;
+	province->color |= 0xff000000;
 
 	const char * name = lua_tostring(L, 3);
-	province.name = (char *)malloc(strlen(name) + 1);
-	strcpy(province.name, name);
+	province->name = (char *)malloc(strlen(name) + 1);
+	strcpy(province->name, name);
 
-	province.population = 1000;
-	province.budget = 500.f;
+	province->population = 1000;
+	province->budget = 500.f;
 
-	World_AddProvince(g_world, &province);
+	g_world->add_province(province);
 
 	// TODO: this is NOT good
-	Industry industry;
-	industry.owner_id = 0;
-	industry.type_id = rand() % g_world->n_industry_types;
-	Province_AddIndustry(g_world, &g_world->provinces[g_world->n_provinces - 1], &industry);
+	Industry * industry = new Industry;
+	industry->owner_id = 0;
+	industry->type_id = rand() % g_world->n_industry_types;
+	Province_AddIndustry(g_world, &g_world->provinces[g_world->n_provinces - 1], industry);
 	return 0;
 }
 

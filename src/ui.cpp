@@ -7,6 +7,8 @@
 #include "texture.hpp"
 #include "ui.hpp"
 
+SDL_Color text_color = { 0, 0, 0, 0 };
+
 void UI_Context_Create(const char * data_dir, UI_Context * ctx) {
 	char font_path[256];
 	strcpy(font_path, data_dir);
@@ -21,40 +23,40 @@ void UI_Context_Create(const char * data_dir, UI_Context * ctx) {
 }
 
 void UI_Context_LoadTextures(UI_Context * ctx) {
-	Texture_FromFile(&ctx->textures.arrow_active, "data/ui/arrow_active.png");
-	Texture_FromFile(&ctx->textures.arrow_hover, "data/ui/arrow_hover.png");
-	Texture_FromFile(&ctx->textures.arrow_idle, "data/ui/arrow_idle.png");
-	Texture_FromFile(&ctx->textures.button_active, "data/ui/button_active.png");
-	Texture_FromFile(&ctx->textures.button_hover, "data/ui/button_hover.png");
-	Texture_FromFile(&ctx->textures.button_idle, "data/ui/button_idle.png");
-	Texture_FromFile(&ctx->textures.input_active, "data/ui/input_active.png");
-	Texture_FromFile(&ctx->textures.input_hover, "data/ui/input_hover.png");
-	Texture_FromFile(&ctx->textures.input_idle, "data/ui/input_idle.png");
-	Texture_FromFile(&ctx->textures.scroll_back, "data/ui/scroll_back.png");
-	Texture_FromFile(&ctx->textures.scroll_bar, "data/ui/scroll_bar.png");
-	Texture_FromFile(&ctx->textures.window, "data/ui/window.png");
-	Texture_FromFile(&ctx->textures.window_border, "data/ui/window_border.png");
+	ctx->textures.arrow_active.from_file("data/ui/arrow_active.png");
+	ctx->textures.arrow_hover.from_file("data/ui/arrow_hover.png");
+	ctx->textures.arrow_idle.from_file("data/ui/arrow_idle.png");
+	ctx->textures.button_active.from_file("data/ui/button_active.png");
+	ctx->textures.button_hover.from_file("data/ui/button_hover.png");
+	ctx->textures.button_idle.from_file("data/ui/button_idle.png");
+	ctx->textures.input_active.from_file("data/ui/input_active.png");
+	ctx->textures.input_hover.from_file("data/ui/input_hover.png");
+	ctx->textures.input_idle.from_file("data/ui/input_idle.png");
+	ctx->textures.scroll_back.from_file("data/ui/scroll_back.png");
+	ctx->textures.scroll_bar.from_file("data/ui/scroll_bar.png");
+	ctx->textures.window.from_file("data/ui/window.png");
+	ctx->textures.window_border.from_file("data/ui/window_border.png");
 	return;
 }
 
 void UI_Context_ToOpenGL(UI_Context * ctx) {
-	Texture_ToOpenGL(&ctx->textures.arrow_active);
-	Texture_ToOpenGL(&ctx->textures.arrow_hover);
-	Texture_ToOpenGL(&ctx->textures.arrow_idle);
-	Texture_ToOpenGL(&ctx->textures.button_active);
-	Texture_ToOpenGL(&ctx->textures.button_hover);
-	Texture_ToOpenGL(&ctx->textures.button_idle);
-	Texture_ToOpenGL(&ctx->textures.input_active);
-	Texture_ToOpenGL(&ctx->textures.input_hover);
-	Texture_ToOpenGL(&ctx->textures.input_idle);
-	Texture_ToOpenGL(&ctx->textures.scroll_back);
-	Texture_ToOpenGL(&ctx->textures.scroll_bar);
-	Texture_ToOpenGL(&ctx->textures.window);
-	Texture_ToOpenGL(&ctx->textures.window_border);
+	ctx->textures.arrow_active.to_opengl();
+	ctx->textures.arrow_hover.to_opengl();
+	ctx->textures.arrow_idle.to_opengl();
+	ctx->textures.button_active.to_opengl();
+	ctx->textures.button_hover.to_opengl();
+	ctx->textures.button_idle.to_opengl();
+	ctx->textures.input_active.to_opengl();
+	ctx->textures.input_hover.to_opengl();
+	ctx->textures.input_idle.to_opengl();
+	ctx->textures.scroll_back.to_opengl();
+	ctx->textures.scroll_bar.to_opengl();
+	ctx->textures.window.to_opengl();
+	ctx->textures.window_border.to_opengl();
 	return;
 }
 
-void UI_Context_AddWidget(UI_Context * ctx, UI_Widget * widget) {
+void UI_Context_AddWidget(UI_Context * ctx, Widget * widget) {
 	widget->show = 1;
 	for(size_t i = 0; i < ctx->n_widgets; i++) {
 		if(ctx->widgets[i] != NULL) continue;
@@ -62,13 +64,13 @@ void UI_Context_AddWidget(UI_Context * ctx, UI_Widget * widget) {
 		ctx->widgets[i] = widget;
 		return;
 	}
-	ctx->widgets = (UI_Widget **)realloc(ctx->widgets, sizeof(UI_Widget *) * (ctx->n_widgets + 1));
+	ctx->widgets = (Widget **)realloc(ctx->widgets, sizeof(Widget *) * (ctx->n_widgets + 1));
 	ctx->widgets[ctx->n_widgets] = widget;
 	ctx->n_widgets++;
 	return;
 }
 
-void UI_Context_RemoveWidget(UI_Context * ctx, UI_Widget * widget) {
+void UI_Context_RemoveWidget(UI_Context * ctx, Widget * widget) {
 	for(size_t i = 0; i < ctx->n_widgets; i++) {
 		if(ctx->widgets[i] != widget) continue;
 		widget->show = 0;
@@ -83,7 +85,7 @@ void UI_Context_RemoveWidget(UI_Context * ctx, UI_Widget * widget) {
 
 void UI_Context_RenderAll(UI_Context * ctx) {
 	for(size_t i = 0; i < ctx->n_widgets; i++) {
-		struct UI_Widget * widget = ctx->widgets[i];
+		Widget * widget = ctx->widgets[i];
 		if(widget == NULL) {
 			continue;
 		}
@@ -101,7 +103,7 @@ void UI_Context_RenderAll(UI_Context * ctx) {
 
 void UI_Context_CheckHover(UI_Context * ctx, unsigned mx, unsigned my) {
 	for(size_t i = 0; i < ctx->n_widgets; i++) {
-		struct UI_Widget * widget = ctx->widgets[i];
+		Widget * widget = ctx->widgets[i];
 		if(widget == NULL) {
 			continue;
 		}
@@ -132,7 +134,7 @@ void UI_Context_CheckHover(UI_Context * ctx, unsigned mx, unsigned my) {
 int UI_Context_CheckClick(UI_Context * ctx, unsigned mx, unsigned my) {
 	int retval = 0;
 	for(size_t i = 0; i < ctx->n_widgets; i++) {
-		struct UI_Widget * widget = ctx->widgets[i];
+		Widget * widget = ctx->widgets[i];
 		if(widget == NULL) {
 			continue;
 		}
@@ -176,7 +178,7 @@ int UI_Context_CheckClick(UI_Context * ctx, unsigned mx, unsigned my) {
 
 void UI_Context_CheckKeydown(UI_Context * ctx, const char * input) {
 	for(size_t i = 0; i < ctx->n_widgets; i++) {
-		struct UI_Widget * widget = ctx->widgets[i];
+		Widget * widget = ctx->widgets[i];
 		if(widget == NULL) {
 			continue;
 		}
@@ -191,7 +193,7 @@ void UI_Context_CheckKeydown(UI_Context * ctx, const char * input) {
 	return;
 }
 
-static inline void UI_Widget_DrawRectangle(unsigned x, unsigned y, unsigned w, unsigned h, unsigned tex) {
+void Widget::draw_rectangle(unsigned x, unsigned y, unsigned w, unsigned h, unsigned tex) {
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glBegin(GL_POLYGON);
 	glColor3f(1.f, 1.f, 1.f);
@@ -210,40 +212,40 @@ static inline void UI_Widget_DrawRectangle(unsigned x, unsigned y, unsigned w, u
 	return;
 }
 
-static void UI_Widget_DefaultOnRender(UI_Widget * widget, void * data) {
+void default_on_render(Widget * w, void * data) {
 	UI_Context * ctx = (UI_Context *)data;
 
-	if(widget->type != UI_WIDGET_LABEL) {
-		UI_Widget_DrawRectangle(
-			widget->x, widget->y,
-			widget->width, widget->height,
-			widget->current_texture->gl_tex_num
+	if(w->type != UI_WIDGET_LABEL) {
+		w->draw_rectangle(
+			w->x, w->y,
+			w->width, w->height,
+			w->current_texture->gl_tex_num
 		);
 	}
 
-	if(!widget->text_texture.gl_tex_num && widget->text_texture.buffer != NULL) {
-		Texture_ToOpenGL(&widget->text_texture);
+	if(!w->text_texture.gl_tex_num && w->text_texture.buffer != NULL) {
+		w->text_texture.to_opengl();
 	}
 
-	if(widget->type == UI_WIDGET_WINDOW) {
-		UI_Widget_DrawRectangle(
-			widget->x, widget->y - 24,
-			widget->width, 24,
+	if(w->type == UI_WIDGET_WINDOW) {
+		w->draw_rectangle(
+			w->x, w->y - 24,
+			w->width, 24,
 			ctx->textures.window_border.gl_tex_num
 		);
-		if(widget->text_texture.gl_tex_num) {
-			UI_Widget_DrawRectangle(
-				widget->x, widget->y - 24,
-				widget->text_texture.width, widget->text_texture.height,
-				widget->text_texture.gl_tex_num
+		if(w->text_texture.gl_tex_num) {
+			w->draw_rectangle(
+				w->x, w->y - 24,
+				w->text_texture.width, w->text_texture.height,
+				w->text_texture.gl_tex_num
 			);
 		}
 	} else {
-		if(widget->text_texture.gl_tex_num) {
-			UI_Widget_DrawRectangle(
-				widget->x, widget->y,
-				widget->text_texture.width, widget->text_texture.height,
-				widget->text_texture.gl_tex_num
+		if(w->text_texture.gl_tex_num) {
+			w->draw_rectangle(
+				w->x, w->y,
+				w->text_texture.width, w->text_texture.height,
+				w->text_texture.gl_tex_num
 			);
 		}
 	}
@@ -252,70 +254,69 @@ static void UI_Widget_DefaultOnRender(UI_Widget * widget, void * data) {
 	return;
 }
 
-static void UI_Widget_DefaultOnTextinput(UI_Widget * widget, const char * input, void * data) {
+void default_on_text_input(Widget * w, const char * input, void * data) {
 	UI_Context * ctx = (UI_Context *)data;
 	size_t len;
 	char must_clear = 0;
 
-	if(widget->buffer == NULL) {
+	if(w->buffer == NULL) {
 		len = 0;
 		must_clear = 1;
 	} else {
-		len = strlen(widget->buffer);
+		len = strlen(w->buffer);
 	}
 
 	for(size_t i = 0; i < strlen(input); i++) {
 		printf("(%x)\n", input[i]);
 	}
 
-	widget->buffer = (char *)realloc(widget->buffer, len + strlen(input) + 1);
-	if(widget->buffer == NULL) {
+	w->buffer = (char *)realloc(w->buffer, len + strlen(input) + 1);
+	if(w->buffer == NULL) {
 		perror("out of memory\n");
 		exit(EXIT_FAILURE);
 	}
 	if(must_clear) {
-		memset(widget->buffer, 0, 1);
+		memset(w->buffer, 0, 1);
 	}
-	strcat(widget->buffer, input);
+	strcat(w->buffer, input);
 
-	UI_Widget_Text(ctx, widget, widget->buffer);
+	w->text(ctx, w->buffer);
 	return;
 }
 
-void UI_Widget_DefaultCloseButtonOnClick(UI_Widget * widget, void * data) {
+void default_close_button_on_click(Widget * w, void * data) {
 	UI_Context * ctx = (UI_Context *)data;
-	UI_Context_RemoveWidget(ctx, widget->parent);
+	UI_Context_RemoveWidget(ctx, w->parent);
 	return;
 }
 
-void UI_Widget_Create(UI_Context * ctx, UI_Widget * parent, UI_Widget * widget,
-	int x, int y, unsigned w, unsigned h, enum UI_WidgetType type) {
-	memset(widget, 0, sizeof(UI_Widget));
+Widget::Widget(UI_Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type) {
+	memset(this, 0, sizeof(Widget));
 	
-	widget->on_render = &UI_Widget_DefaultOnRender;
-	widget->show = 1;
-	widget->type = type;
-	widget->x = x;
-	widget->y = y;
-	widget->width = w;
-	widget->height = h;
+	this->on_render = &default_on_render;
+	this->show = 1;
+	this->type = type;
+	this->x = x;
+	this->y = y;
+	this->width = w;
+	this->height = h;
 
 	if(parent != NULL) {
-		widget->x += parent->x;
-		widget->y += parent->y;
-		UI_Widget_AddChild(parent, widget);
+		this->x += parent->x;
+		this->y += parent->y;
+		parent->add_child(this);
 	}
 
 	switch(type) {
 	case UI_WIDGET_BUTTON:
-		widget->current_texture = &ctx->textures.button_idle;
+		this->current_texture = &ctx->textures.button_idle;
 		break;
 	case UI_WIDGET_INPUT:
-		widget->current_texture = &ctx->textures.input_idle;
-		widget->on_textinput = &UI_Widget_DefaultOnTextinput;
+		this->current_texture = &ctx->textures.input_idle;
+		this->on_textinput = &default_on_text_input;
 		break;
 	case UI_WIDGET_WINDOW:
-		widget->current_texture = &ctx->textures.window;
+		this->current_texture = &ctx->textures.window;
 		break;
 	default:
 		break;
@@ -323,34 +324,32 @@ void UI_Widget_Create(UI_Context * ctx, UI_Widget * parent, UI_Widget * widget,
 	return;
 }
 
-void UI_Widget_AddChild(UI_Widget * parent, UI_Widget * child) {
-	for(size_t i = 0; i < parent->n_children; i++) {
-		if(parent->children[i] == child) {
+void Widget::add_child(Widget * child) {
+	for(size_t i = 0; i < this->n_children; i++) {
+		if(this->children[i] == child) {
 			return;
 		}
 	}
 	
-	parent->children = (UI_Widget **)realloc(parent->children, sizeof(UI_Widget *) * (parent->n_children + 1));
-	if(parent->children == NULL) {
+	this->children = (Widget **)realloc(this->children, sizeof(Widget *) * (this->n_children + 1));
+	if(this->children == NULL) {
 		perror("out of memory\n");
 		exit(EXIT_FAILURE);
 	}
 
-	parent->children[parent->n_children] = child;
-	parent->n_children++;
-	child->parent = parent;
+	this->children[parent->n_children] = child;
+	this->n_children++;
+	child->parent = this;
 }
 
-SDL_Color text_color = { 0, 0, 0, 0 };
-
-void UI_Widget_Text(UI_Context * ctx, UI_Widget * widget, const char * text) {
+void Widget::text(UI_Context * ctx, const char * text) {
 	SDL_Surface * surface;
 	Texture * tex;
 
-	if(widget->text_texture.gl_tex_num) {
-		free(widget->text_texture.buffer);
-		glDeleteTextures(1, &widget->text_texture.gl_tex_num);
-		widget->text_texture.gl_tex_num = 0;
+	if(this->text_texture.gl_tex_num) {
+		free(this->text_texture.buffer);
+		glDeleteTextures(1, &this->text_texture.gl_tex_num);
+		this->text_texture.gl_tex_num = 0;
 	}
 
 	surface = TTF_RenderText_Solid(ctx->default_font, text, text_color);
@@ -359,9 +358,10 @@ void UI_Widget_Text(UI_Context * ctx, UI_Widget * widget, const char * text) {
 		return;
 	}
 
-	tex = &widget->text_texture;
+	tex = &this->text_texture;
 	tex->width = surface->w;
 	tex->height = surface->h;
+	tex->buffer = new uint32_t[tex->width * tex->height];
 	tex->buffer = (uint32_t *)malloc(sizeof(uint32_t) * (tex->width * tex->height));
 	for(size_t i = 0; i < (size_t)surface->w; i++) {
 		for(size_t j = 0; j < (size_t)surface->h; j++) {

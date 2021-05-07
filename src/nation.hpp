@@ -4,11 +4,12 @@
 #include <stdint.h>
 #include "texture.hpp"
 
-typedef struct {
+class Nation {
+public:
 	char * name;
 	char * ref_name;
 	uint32_t color;
 	Texture default_flag;
-}Nation;
+};
 
 #endif
