@@ -45,8 +45,7 @@ public:
 	Nation * nations;
 	size_t n_nations;
 
-	Province * provinces;
-	size_t n_provinces;
+	std::vector<Province> provinces;
 
 	uint64_t time;
 };
