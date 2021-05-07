@@ -1,4 +1,4 @@
-#include <lua5.2/lua.hpp>
+#include <lua5.4/lua.hpp>
 #include <string.h>
 #include <stdlib.h>
 #include <byteswap.h>
