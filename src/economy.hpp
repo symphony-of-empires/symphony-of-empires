@@ -47,9 +47,4 @@ public:
 	size_t demand;
 };
 
-class PopType {
-	std::string name;
-	std::string ref_name;
-};
-
 #endif
