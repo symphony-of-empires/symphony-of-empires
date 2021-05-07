@@ -197,19 +197,23 @@ void Context::check_text_input(const char * input) {
 
 void Widget::draw_rectangle(unsigned x, unsigned y, unsigned w, unsigned h, unsigned tex) {
 	glBindTexture(GL_TEXTURE_2D, tex);
-	glBegin(GL_POLYGON);
-	glColor3f(1.f, 1.f, 1.f);
+	
+	glBegin(GL_TRIANGLES);
+
+
+	glColor3f(1.f,1.f,1.f);
 	glTexCoord2f(0.f, 0.f);
-	glVertex2f(x, y);
-	glColor3f(1.f, 1.f, 1.f);
+	glVertex2f(x,y);
 	glTexCoord2f(1.f, 0.f);
-	glVertex2f(x + w, y);
-	glColor3f(1.f, 1.f, 1.f);
+	glVertex2f(x+w,y);
 	glTexCoord2f(1.f, 1.f);
-	glVertex2f(x + w, y + h);
-	glColor3f(1.f, 1.f, 1.f);
+	glVertex2f(x+w,y+h);
+	glTexCoord2f(1.f, 1.f);
+	glVertex2f(x+w,y+h);
 	glTexCoord2f(0.f, 1.f);
-	glVertex2f(x, y + h);
+	glVertex2f(x,y+h);
+	glTexCoord2f(0.f, 0.f);
+	glVertex2f(x,y);
 	glEnd();
 	return;
 }
