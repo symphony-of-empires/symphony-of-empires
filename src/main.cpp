@@ -67,7 +67,8 @@ void do_economy_on_update(Widget * widget, void * data) {
 	size_t n_prod = 1;
 	for(size_t i = 0; i < world->n_provinces; i++) {
 		Province * province = &world->provinces[i];
-		for(size_t j = 0; j < world->provinces[i].n_products; j++) {
+		uint n_products = province->products.size();
+		for(size_t j = 0; j < n_products; j++) {
 			Product * product = &province->products[j];
 
 			size_t y = n_prod * 24 + 48;
