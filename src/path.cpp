@@ -8,10 +8,11 @@
 #endif //HAS_WINDOWS
 
 std::string getPathToSelf(){
-	char buf[PATH_MAX];
 #ifdef HAS_WINDOWS
+	LPWSTR buf[PATH_MAX];
 	ssize_t len = GetModuleFileNameW(NULL, buf, sizeof(buf) - 1);
 #else
+	char buf[PATH_MAX];
 	ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
 #endif // HAS_WINDOWS
     	if (len != -1) {
