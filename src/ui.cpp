@@ -4,17 +4,16 @@
 #include <immintrin.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 #include "texture.hpp"
 #include "ui.hpp"
 
 SDL_Color text_color = { 0, 0, 0, 0 };
 
-void UI_Context_Create(const char * data_dir, UI_Context * ctx) {
-	char font_path[256];
-	strcpy(font_path, data_dir);
-	strcat(font_path, "/fonts/FreeMono.ttf");
+void UI_Context_Create(std::string data_dir, UI_Context * ctx) {
+	std::string font_path = data_dir + "/fonts/FreeMono.ttf";
 	memset(ctx, 0, sizeof(UI_Context));
-	ctx->default_font = TTF_OpenFont(font_path, 24);
+	ctx->default_font = TTF_OpenFont(font_path.c_str(), 24);
 	if (ctx->default_font == NULL){
 		fprintf(stderr, "Font could not be loaded, exiting\n");
 		exit(1);
