@@ -89,28 +89,28 @@ void UI_Context_CheckKeydown(UI_Context * ctx, const char * input);
 
 void default_close_button_on_click(Widget * w, void * data);
 
-static __always_inline void UI_Widget_CreateButton(UI_Context * ctx, Widget * parent, Widget ** widget,
+static inline void UI_Widget_CreateButton(UI_Context * ctx, Widget * parent, Widget ** widget,
 	int x, int y, unsigned w, unsigned h) {
 	*widget = new Widget(ctx, parent, x, y, w, h, UI_WIDGET_BUTTON);
 }
 
-static __always_inline void UI_Widget_CreateInput(UI_Context * ctx, Widget * parent, Widget ** widget,
+static inline void UI_Widget_CreateInput(UI_Context * ctx, Widget * parent, Widget ** widget,
 	int x, int y, unsigned w, unsigned h) {
 	*widget = new Widget(ctx, parent, x, y, w, h, UI_WIDGET_INPUT);
 }
 
-static __always_inline void UI_Widget_CreateWindow(UI_Context * ctx, Widget * parent, Widget ** widget,
+static inline void UI_Widget_CreateWindow(UI_Context * ctx, Widget * parent, Widget ** widget,
 	int x, int y, unsigned w, unsigned h) {
 	*widget = new Widget(ctx, parent, x, y, w, h, UI_WIDGET_WINDOW);
 }
 
-static __always_inline void UI_Widget_CreateImage(UI_Context * ctx, Widget * parent, Widget ** widget,
+static inline void UI_Widget_CreateImage(UI_Context * ctx, Widget * parent, Widget ** widget,
 	int x, int y, unsigned w, unsigned h, Texture * tex) {
 	*widget = new Widget(ctx, parent, x, y, w, h, UI_WIDGET_IMAGE);
 	(*widget)->current_texture = tex;
 }
 
-static __always_inline void UI_Widget_CreateLabel(UI_Context * ctx, Widget * parent, Widget ** widget,
+static inline void UI_Widget_CreateLabel(UI_Context * ctx, Widget * parent, Widget ** widget,
 	int x, int y, const char * text) {
 	*widget = new Widget(ctx, parent, x, y, 0, 0, UI_WIDGET_WINDOW);
 	(*widget)->text(ctx, text);
@@ -118,7 +118,7 @@ static __always_inline void UI_Widget_CreateLabel(UI_Context * ctx, Widget * par
 
 #include <SDL2/SDL.h>
 extern SDL_Color text_color;
-static __always_inline void UI_Widget_TextColor(uint8_t r, uint8_t g, uint8_t b) {
+static inline void UI_Widget_TextColor(uint8_t r, uint8_t g, uint8_t b) {
 	text_color.r = r;
 	text_color.g = g;
 	text_color.b = b;
