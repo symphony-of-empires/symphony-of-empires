@@ -1,10 +1,12 @@
 #include <bits/stdint-uintn.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 #include <errno.h>
 #include <png.h>
 #include <zlib.h>
 #include "texture.hpp"
+#include "path.hpp"
 
 Texture::Texture() {
 
@@ -20,7 +22,7 @@ int Texture::from_file(const char * name) {
 	/* Open initial file */
 	memset(&image, 0, sizeof(png_image));
 	image.version = PNG_IMAGE_VERSION;
-	if(!png_image_begin_read_from_file(&image, name)) {
+	if(!png_image_begin_read_from_file(&image, Resource_GetPath(name).c_str())) {
 		perror(image.message);
 		exit(EXIT_FAILURE);
 	}
