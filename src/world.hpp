@@ -9,11 +9,12 @@
 #include "nation.hpp"
 #include "economy.hpp"
 
-typedef struct {
+class Tile {
+public:
 	size_t owner_id;
 	size_t province_id;
 	uint8_t elevation;
-}World_Tile;
+};
 
 #include <string>
 #include "province.hpp"
@@ -34,7 +35,7 @@ public:
 	size_t width;
 	size_t height;
 
-	World_Tile * tiles;
+	Tile * tiles;
 
 	Good * goods;
 	size_t n_goods;
@@ -80,8 +81,4 @@ static inline void Province_AddIndustry(World * world, Province * province, Indu
 
 	province->industries.push_back(*industry);
 }
-
-void World_DoTick(World * world);
-void World_Create(World * world, const char * topo_map, const char * pol_map, const char * div_map);
-
 #endif
