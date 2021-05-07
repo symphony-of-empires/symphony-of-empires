@@ -16,20 +16,7 @@ typedef struct {
 }World_Tile;
 
 #include <string>
-typedef struct {
-	std::string name;
-	std::string ref_name;
-	uint32_t color;
-	
-	uint64_t population;
-	float budget;
-
-	Industry * industries;
-	size_t n_industries;
-
-	Product * products;
-	size_t n_products;
-}Province;
+#include "province.hpp"
 
 class World {
 public:
