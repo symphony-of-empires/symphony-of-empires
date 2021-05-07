@@ -1,7 +1,18 @@
-#include <lua5.2/lua.hpp>
+#ifdef HAS_WINDOWS
+#include <lua.hpp>
+#else
+#include <lua5.4/lua.hpp>
+#endif //HAS_WINDOWS
 #include <string.h>
 #include <stdlib.h>
+
+#ifdef HAS_WINDOWS
+#include <stdlib.h>
+#define bswap_32(x) _byteswap_ulong(x)
+#define bswap_64(x) _byteswap_uint64(x)
+#else
 #include <byteswap.h>
+#endif //HAS_WINDOWS
 #include "lua.hpp"
 #include "world.hpp"
 #include "nation.hpp"
