@@ -21,24 +21,24 @@
 extern World * g_world;
 
 int World_LuaAddGood(lua_State * L) {
-	Good * good = new Good();
+	Good good = Good();
 
-	good->ref_name = lua_tostring(L, 1);
-	good->name = lua_tostring(L, 2);
-	g_world->goods.push_back(*good);
+	good.ref_name = lua_tostring(L, 1);
+	good.name = lua_tostring(L, 2);
+	g_world->goods.push_back(good);
 
-	printf("good: %s (%s)\n", good->name.c_str(), good->ref_name.c_str());
+	printf("good: %s (%s)\n", good.name.c_str(), good.ref_name.c_str());
 	return 0;
 }
 
 int World_LuaAddIndustryType(lua_State * L) {
-	IndustryType * industry = new IndustryType;
+	IndustryType industry = IndustryType();
 
-	industry->ref_name = lua_tostring(L, 1);
-	industry->name = lua_tostring(L, 2);
-	g_world->industry_types.push_back(*industry);
+	industry.ref_name = lua_tostring(L, 1);
+	industry.name = lua_tostring(L, 2);
+	g_world->industry_types.push_back(industry);
 
-	printf("industry_type: %s (%s)\n", industry->name.c_str(), industry->ref_name.c_str());
+	printf("industry_type: %s (%s)\n", industry.name.c_str(), industry.ref_name.c_str());
 	return 0;
 }
 
@@ -104,7 +104,9 @@ int World_LuaAddOutputToIndustryType(lua_State * L) {
 }
 
 int World_LuaAddNation(lua_State * L) {
-	Nation * nation = new Nation();
+	g_world->nations.push_back(Nation());
+
+	Nation * nation = &g_world->nations.back();
 
 	nation->ref_name = lua_tostring(L, 1);
 
@@ -117,26 +119,25 @@ int World_LuaAddNation(lua_State * L) {
 	nation->default_flag.from_file(default_flag);
 
 	nation->name = lua_tostring(L, 4);
-	g_world->nations.push_back(*nation);
 
 	printf("nation: %s (%s)\n", nation->name.c_str(), nation->ref_name.c_str());
 	return 0;
 }
 
 int World_LuaAddProvince(lua_State * L) {
-	Province * province = new Province();
+	Province province = Province();
 
-	province->ref_name = lua_tostring(L, 1);
-	province->color = lua_tonumber(L, 2);
-	province->color = bswap_32(province->color);
-	province->color >>= 8;
-	province->color |= 0xff000000;
+	province.ref_name = lua_tostring(L, 1);
+	province.color = lua_tonumber(L, 2);
+	province.color = bswap_32(province.color);
+	province.color >>= 8;
+	province.color |= 0xff000000;
 
-	province->name = lua_tostring(L, 3);
-	province->population = 1000;
-	province->budget = 500.f;
+	province.name = lua_tostring(L, 3);
+	province.population = 1000;
+	province.budget = 500.f;
 
-	g_world->provinces.push_back(*province);
+	g_world->provinces.push_back(province);
 
 	// TODO: this is NOT good
 	Industry industry;
@@ -155,20 +156,20 @@ int World_LuaAddProvince(lua_State * L) {
 }
 
 int World_LuaAddCompany(lua_State * L) {
-	Company * company = new Company();
+	Company company = Company();
 
-	company->name = lua_tostring(L, 1);
-	company->money = lua_tonumber(L, 2);
-	company->is_transport = lua_toboolean(L, 3);
-	company->is_retailer = lua_toboolean(L, 4);
-	company->is_industry = lua_toboolean(L, 5);
+	company.name = lua_tostring(L, 1);
+	company.money = lua_tonumber(L, 2);
+	company.is_transport = lua_toboolean(L, 3);
+	company.is_retailer = lua_toboolean(L, 4);
+	company.is_industry = lua_toboolean(L, 5);
 
-	company->operating_provinces.clear();
+	company.operating_provinces.clear();
 
 	// Add onto vector
-	g_world->companies.push_back(*company);
+	g_world->companies.push_back(company);
 
-	printf("company: %s\n", company->name.c_str());
+	printf("company: %s\n", company.name.c_str());
 	return 0;
 }
 
