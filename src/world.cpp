@@ -90,7 +90,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 
 		// Associate tiles with provinces
 		this->tiles[i].province_id = (size_t)-1;
-		size_type n_provinces = provinces.size();
+		size_t n_provinces = provinces.size();
 		for(size_t j = 0; j < n_provinces; j++) {
 			if(div->buffer[i] == this->provinces[j].color) {
 				this->tiles[i].province_id = j;
