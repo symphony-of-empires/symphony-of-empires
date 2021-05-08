@@ -11,17 +11,17 @@ World * g_world;
 World::World(const char * topo_map, const char * pol_map, const char * div_map) {
 	g_world = this;
 	
-	Texture * topo = new Texture();
-	topo->from_file(topo_map);
+	Texture topo = Texture();
+	topo.from_file(topo_map);
 
-	Texture * pol = new Texture();
-	pol->from_file(pol_map);
+	Texture pol = Texture();
+	pol.from_file(pol_map);
 
-	Texture * div = new Texture();
-	div->from_file(div_map);
+	Texture div = Texture();
+	div.from_file(div_map);
 
-	this->width = topo->width;
-	this->height = topo->height;
+	this->width = topo.width;
+	this->height = topo.height;
 
 	this->nations.clear();
 	this->nations.reserve(4096);
@@ -32,9 +32,9 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 	this->industry_types.clear();
 	this->industry_types.reserve(4096);
 
-	if(topo->width != this->width || topo->height != this->height
-	|| pol->width != this->width || pol->height != this->height
-	|| div->width != this->width || div->height != this->height) {
+	if(topo.width != this->width || topo.height != this->height
+	|| pol.width != this->width || pol.height != this->height
+	|| div.width != this->width || div.height != this->height) {
 		perror("map size mismatch\n");
 		exit(EXIT_FAILURE);
 	}
@@ -76,13 +76,13 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 
 	// Translate all div, pol and topo maps onto this single tile array
 	for(size_t i = 0; i < this->width * this->height; i++) {
-		this->tiles[i].elevation = topo->buffer[i] & 0xff;
+		this->tiles[i].elevation = topo.buffer[i] & 0xff;
 		
 		// Associate tiles with nations
 		this->tiles[i].owner_id = (size_t)-1;
 		size_t n_nations = this->nations.size();
 		for(size_t j = 0; j < n_nations; j++) {
-			if(pol->buffer[i] == this->nations[j].color) {
+			if(pol.buffer[i] == this->nations[j].color) {
 				this->tiles[i].owner_id = j;
 				break;
 			}
@@ -92,7 +92,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 		this->tiles[i].province_id = (size_t)-1;
 		size_t n_provinces = provinces.size();
 		for(size_t j = 0; j < n_provinces; j++) {
-			if(div->buffer[i] == this->provinces[j].color) {
+			if(div.buffer[i] == this->provinces[j].color) {
 				this->tiles[i].province_id = j;
 				break;
 			}
