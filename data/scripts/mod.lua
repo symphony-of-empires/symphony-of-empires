@@ -1,10 +1,26 @@
 -- Good types
+
+-- Farmable stuff
 local wheat = Good:create{ ref_name = "wheat" }
 wheat.name = _("Wheat")
 Good:register(wheat)
 local grapes = Good:create{ ref_name = "grapes" }
 grapes.name = _("Grapes")
 Good:register(grapes)
+local rice = Good:create{ ref_name = "rice" }
+rice.name = _("Rice")
+Good:register(rice)
+local cotton = Good:create{ ref_name = "cotton" }
+cotton.name = _("Cotton")
+Good:register(cotton)
+local coffe_bean = Good:create{ ref_name = "coffe_bean" }
+coffe_bean.name = _("Coffe bean")
+Good:register(coffe_bean)
+local salt_grain = Good:create{ ref_name = "salt_grain" }
+salt_grain.name = _("Salt grain")
+Good:register(salt_grain)
+
+-- Minerals
 local copper = Good:create{ ref_name = "copper" }
 copper.name = _("Copper")
 Good:register(copper)
@@ -14,27 +30,6 @@ Good:register(silica)
 local uranium = Good:create{ ref_name = "uranium" }
 uranium.name = _("Uranium")
 Good:register(uranium)
-local coffe_bean = Good:create{ ref_name = "coffe_bean" }
-coffe_bean.name = _("Coffe bean")
-Good:register(coffe_bean)
-local salt_grain = Good:create{ ref_name = "salt_grain" }
-salt_grain.name = _("Salt grain")
-Good:register(salt_grain)
-local glass = Good:create{ ref_name = "glass" }
-glass.name = _("Glass")
-Good:register(glass)
-local bread = Good:create{ ref_name = "bread" }
-bread.name = _("Bread")
-Good:register(bread)
-local salt = Good:create{ ref_name = "salt" }
-salt.name = _("Salt")
-Good:register(salt)
-local window = Good:create{ ref_name = "window" }
-window.name = _("Window")
-Good:register(window)
-local wine = Good:create{ ref_name = "wine" }
-wine.name = _("Wine")
-Good:register(wine)
 local gold = Good:create{ ref_name = "gold" }
 gold.name = _("Gold")
 Good:register(gold)
@@ -50,12 +45,31 @@ Good:register(titanium)
 local oil = Good:create{ ref_name = "oil" }
 oil.name = _("Oil")
 Good:register(oil)
-local gasoline = Good:create{ ref_name = "gasoline" }
-gasoline.name = _("Gasoline")
-Good:register(gasoline)
 local wood = Good:create{ ref_name = "wood" }
 wood.name = _("Wood")
 Good:register(wood)
+
+-- Food
+local glass = Good:create{ ref_name = "glass" }
+glass.name = _("Glass")
+Good:register(glass)
+local bread = Good:create{ ref_name = "bread" }
+bread.name = _("Bread")
+Good:register(bread)
+local salt = Good:create{ ref_name = "salt" }
+salt.name = _("Salt")
+Good:register(salt)
+
+-- Commodities
+local window = Good:create{ ref_name = "window" }
+window.name = _("Window")
+Good:register(window)
+local wine = Good:create{ ref_name = "wine" }
+wine.name = _("Wine")
+Good:register(wine)
+local gasoline = Good:create{ ref_name = "gasoline" }
+gasoline.name = _("Gasoline")
+Good:register(gasoline)
 local chair = Good:create{ ref_name = "chair" }
 chair.name = _("Chair")
 Good:register(chair)
@@ -71,21 +85,22 @@ Good:register(gold_chain)
 local silver_chain = Good:create{ ref_name = "silver_chain" }
 silver_chain.name = _("Silver chain")
 Good:register(silver_chain)
+print("good types")
 
 -- Industry types
 
 -- Primary sector industries (the most essential)
-local oil_refinery = IndustryType:create{ ref_name = "oil_refinery" }
-oil_refinery.name = _("Oil refinery")
-IndustryType:register(oil_refinery)
--- thin air oil, i think the air needs some democracy!
-IndustryType:add_output(oil_refinery, oil)
-
 local sand_smelter = IndustryType:create{ ref_name = "sand_smelter" }
 sand_smelter.name = _("Sand smelter")
 IndustryType:register(sand_smelter)
 -- glass factories can create glass from thin air
 IndustryType:add_output(sand_smelter, glass)
+
+local oil_refinery = IndustryType:create{ ref_name = "oil_refinery" }
+oil_refinery.name = _("Oil refinery")
+IndustryType:register(oil_refinery)
+-- thin air oil, i think the air needs some democracy!
+IndustryType:add_output(oil_refinery, oil)
 
 local lumberjack = IndustryType:create{ ref_name = "lumberjack" }
 lumberjack.name = _("Lumberjack")
@@ -102,6 +117,16 @@ local wheat_farm = IndustryType:create{ ref_name = "wheat_farm" }
 wheat_farm.name = _("Wheat farm")
 IndustryType:register(wheat_farm)
 IndustryType:add_output(wheat_farm, wheat)
+
+local rice_farm = IndustryType:create{ ref_name = "rice_farm" }
+rice_farm.name = _("Rice farm")
+IndustryType:register(rice_farm)
+IndustryType:add_output(rice_farm, wheat)
+
+local cotton_farm = IndustryType:create{ ref_name = "cotton_farm" }
+cotton_farm.name = _("Cotton farm")
+IndustryType:register(cotton_farm)
+IndustryType:add_output(cotton_farm, wheat)
 
 -- Mines can create stuff from thin air, but don't worry because this is
 -- not abuse-ble
@@ -124,6 +149,7 @@ local titanium_mine = IndustryType:create{ ref_name = "titanium_mine" }
 titanium_mine.name = _("Titanium mine")
 IndustryType:register(titanium_mine)
 IndustryType:add_output(titanium_mine, titanium)
+print("primary sector industries")
 
 -- Secondary sector industries (now the fun begins)
 local gold_chain_factory = IndustryType:create{ ref_name = "gold_chain_factory" }
@@ -143,6 +169,7 @@ bed_manufacturer.name = _("Bed manufacturer")
 IndustryType:register(bed_manufacturer)
 IndustryType:add_input(bed_manufacturer, wood)
 IndustryType:add_output(bed_manufacturer, bed)
+print("secondary sector industries")
 
 -- Nations
 local japan = Nation:create{ ref_name = "japan", color = 0xb0313f, default_flag = "flags/japan.png" }
@@ -151,6 +178,7 @@ Nation:register(japan)
 local russia = Nation:create{ ref_name = "russia", color = 0xffcd01, default_flag = "flags/russia.png" }
 russia.name = _("Russia")
 Nation:register(russia)
+print("nations")
 
 -- Provinces
 -- japan island
@@ -300,6 +328,7 @@ Province:register(west_south_korea)
 local southern_korea = Province:create{ ref_name = "southern_korea", color = 0x31f4dd }
 southern_korea.name = "Southern korea"
 Province:register(southern_korea)
+print("provinces")
 
 -- Companies
 local generic_transport_company = Company:create{ name = "Generic Air and Gunboat Transport Corporate", money = 10000000, is_transport = true }
@@ -308,5 +337,12 @@ local generic_retailer_company = Company:create{ name = "Generic Supermarket Cor
 Company:register(generic_retailer_company)
 local generic_industrial_company = Company:create{ name = "Generic Industrial Thingy", money = 10000000, is_industry = true }
 Company:register(generic_industrial_company)
+
+-- THIS IS NOT PART OF THE FINAL MODDING API
+AddOperationalProvinceToCompany(0, southern_korea.ref_name)
+AddOperationalProvinceToCompany(1, southern_korea.ref_name)
+AddOperationalProvinceToCompany(2, southern_korea.ref_name)
+
+print("companies")
 
 print("loaded mod.lua")

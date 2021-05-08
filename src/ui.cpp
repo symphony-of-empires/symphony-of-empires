@@ -195,25 +195,22 @@ void Context::check_text_input(const char * input) {
 	return;
 }
 
-void Widget::draw_rectangle(unsigned x, unsigned y, unsigned w, unsigned h, unsigned tex) {
+void Widget::draw_rectangle(unsigned _x, unsigned _y, unsigned _w, unsigned _h, unsigned tex) {
 	glBindTexture(GL_TEXTURE_2D, tex);
-	
 	glBegin(GL_TRIANGLES);
-
-
-	glColor3f(1.f,1.f,1.f);
+	glColor3f(1.f, 1.f, 1.f);
 	glTexCoord2f(0.f, 0.f);
-	glVertex2f(x,y);
+	glVertex2f(_x, _y);
 	glTexCoord2f(1.f, 0.f);
-	glVertex2f(x+w,y);
+	glVertex2f(_x + _w, _y);
 	glTexCoord2f(1.f, 1.f);
-	glVertex2f(x+w,y+h);
+	glVertex2f(_x + _w, _y + _h);
 	glTexCoord2f(1.f, 1.f);
-	glVertex2f(x+w,y+h);
+	glVertex2f(_x + _w,_y + _h);
 	glTexCoord2f(0.f, 1.f);
-	glVertex2f(x,y+h);
+	glVertex2f(_x, _y + _h);
 	glTexCoord2f(0.f, 0.f);
-	glVertex2f(x,y);
+	glVertex2f(_x, _y);
 	glEnd();
 	return;
 }
@@ -296,12 +293,12 @@ void default_close_button_on_click(Widget * w, void * data) {
 	return;
 }
 
-Widget::Widget(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type) {
+Widget::Widget(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int _type) {
 	memset(this, 0, sizeof(Widget));
 	
 	this->on_render = &default_on_render;
 	this->show = 1;
-	this->type = type;
+	this->type = _type;
 	this->x = x;
 	this->y = y;
 	this->width = w;
@@ -313,7 +310,7 @@ Widget::Widget(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigne
 		parent->add_child(this);
 	}
 
-	switch(type) {
+	switch(this->type) {
 	case UI_WIDGET_BUTTON:
 		this->current_texture = &ctx->textures.button_idle;
 		break;

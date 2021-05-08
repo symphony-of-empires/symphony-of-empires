@@ -36,16 +36,10 @@ public:
 	size_t height;
 
 	Tile * tiles;
-
-	Good * goods;
-	size_t n_goods;
-
-	IndustryType * industry_types;
-	size_t n_industry_types;
-
-	Nation * nations;
-	size_t n_nations;
-
+	
+	std::vector<Good> goods;
+	std::vector<IndustryType> industry_types;
+	std::vector<Nation> nations;
 	std::vector<Province> provinces;
 	std::vector<Company> companies;
 

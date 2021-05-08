@@ -1,17 +1,17 @@
 CXX=g++
-CXXFLAGS=-Wall -Wextra -Wshadow -Wdouble-promotion -std=c++17 -O0 -g
+CXXFLAGS=-Wall -Wextra -Wshadow -Wdouble-promotion -std=c++17 -O2 -g
 ifdef WINDOWS
 LIBS=-lopengl32 -lglu32 -llua -lintl
 else
 LIBS=-lGL -lGLU -llua5.4
 endif
-LIBS:=$(LIBS) -lpng -lSDL2 -lSDL2_ttf -lm
+LIBS:=$(LIBS) -lpng -lSDL2 -lSDL2_ttf -lm -pthread
 
-OBJS=$(patsubst ./src/%.c,./obj/%.o,$(shell find . -type f -iname '*.cpp'))
+OBJS=$(patsubst ./src/%.cpp,./obj/%.o,$(shell find . -type f -iname '*.cpp'))
 
 ifdef WINDOWS
-CXXFLAGS:=$(CXXFLAGS) -DHAS_WINDOWS
-endif #WINDOWS
+CXXFLAGS:=$(CXXFLAGS) -DWINDOWS
+endif
 
 build: dirs bin/main
 

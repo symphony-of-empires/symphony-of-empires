@@ -1,38 +1,31 @@
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_keycode.h>
-#include <SDL2/SDL_mouse.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <memory.h>
 #include <math.h>
+
 #include <string>
-
-#include <libintl.h>
-#include <locale.h>
-
-#include <SDL2/SDL_ttf.h>
+#include <iostream>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_opengl.h>
-
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keycode.h>
+#include <SDL2/SDL_mouse.h>
 #include <GL/glext.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
-
 #include "texture.hpp"
 #include "world.hpp"
 #include "map.hpp"
 #include "ui.hpp"
-
-#include <string>
-#include <iostream>
-
+#include "province.hpp"
 #include "path.hpp"
 
-#ifdef HAS_WINDOWS
+#ifdef WINDOWS
 #include <windows.h>
-#endif //HAS_WINDOWS
+#endif
 
 World * world;
 
@@ -87,11 +80,11 @@ void do_economy_on_update(UI::Widget * widget, void * data) {
 				sprintf(str, "%4.2f", product->price_vel);
 			}
 
-			econ_label[n_prod * 4 + 0]->text(ui_ctx, (const char *)&str);
+			econ_label[n_prod * 4 + 0]->text(ui_ctx, str);
 			UI_Widget_TextColor(0, 0, 0);
 
 			sprintf(str, "%4.2f", product->price);
-			econ_label[n_prod * 4 + 1]->text(ui_ctx, (const char *)&str);
+			econ_label[n_prod * 4 + 1]->text(ui_ctx, str);
 			econ_label[n_prod * 4 + 2]->text(ui_ctx, province->name.c_str());
 			econ_label[n_prod * 4 + 3]->text(ui_ctx, world->goods[product->good_id].name.c_str());
 
@@ -139,17 +132,11 @@ typedef struct {
 	float z;
 }Camera;
 
-
-int main(int argc, char ** argv) {
-	//server_main();
-
+#include <mutex>
+std::mutex world_mutex;
+void rendering_main(void) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
-
-	world = new World("map_topo.png", "map_pol.png", "map_div.png");
-	world->time = 695459;
-	world->time -= (8600 * 76);
-	world->time -= 24 * 190;
 
 	current_player_nation_id = 0;
 	
@@ -163,18 +150,20 @@ int main(int argc, char ** argv) {
 	glEnable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 
-	/* render stuff now that we are in opengl */
-	for(size_t i = 0; i < world->n_nations; i++) {
-		world->nations[i].default_flag.to_opengl();
+	ui_ctx = new UI::Context(Resource_GetPath(""));
+	ui_ctx->load_textures();
+
+	world_mutex.lock();
+	// Render world stuff now that we are in opengl
+	for(auto& nation: world->nations) {
+		nation.default_flag.to_opengl();
 	}
 
 	prov_map = new Map(world, MAP_PROVINCIAL);
 	pol_map = new Map(world, MAP_POLITICAL);
 	topo_map = new Map(world, MAP_TOPOGRAPHIC);
 	map = prov_map;
-
-	ui_ctx = new UI::Context(Resource_GetPath(""));
-	ui_ctx->load_textures();
+	world_mutex.unlock();
 
 	Texture title;
 	title.from_file(Resource_GetPath("title.png").c_str());
@@ -340,7 +329,7 @@ int main(int argc, char ** argv) {
 	cam.vy = 0.f;
 	cam.vz = 0.f;
 	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
-	
+
 	while(run) {
 		SDL_Event event;
 		int r;
@@ -496,8 +485,6 @@ int main(int argc, char ** argv) {
 		sprintf((char *)&str, "%u/%u/%u - %u", year, month, day, hour);
 		overview_time_label->text(ui_ctx, (char *)&str);
 
-		world->do_tick();
-
 		if(cam.vx >= 0.9f) {
 			cam.vx -= 0.8f;
 		} else if(cam.vx <= -0.9f) {
@@ -531,13 +518,33 @@ int main(int argc, char ** argv) {
 
 	TTF_Quit();
 	SDL_Quit();
+	return;
+}
+
+#include <thread>
+int main(int argc, char ** argv) {
+	//server_main();
+
+	world_mutex.lock();
+	world = new World("map_topo.png", "map_pol.png", "map_div.png");
+	world->time = 695459;
+	world->time -= (8600 * 76);
+	world->time -= 24 * 190;
+	world_mutex.unlock();
+
+	std::thread t1(rendering_main);
+
+	while(run) {
+		world->do_tick();
+	}
+	t1.join();
 	return 0;
 }
 
-#ifdef HAS_WINDOWS
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow){
+#ifdef WINDOWS
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {
 	char *argv[1];
 	argv[0] = "/";
 	main(1, argv);
 }
-#endif //HAS_WINDOWS
+#endif
