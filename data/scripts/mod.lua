@@ -19,6 +19,23 @@ Good:register(coffe_bean)
 local salt_grain = Good:create{ ref_name = "salt_grain" }
 salt_grain.name = _("Salt grain")
 Good:register(salt_grain)
+local silk = Good:create{ ref_name = "silk" }
+silk.name = _("Silk")
+Good:register(silk)
+
+-- Industrial materials
+local fabric = Good:create{ ref_name = "fabric" }
+fabric.name = _("Fabric")
+Good:register(fabric)
+local dye = Good:create{ ref_name = "dye" }
+dye.name = _("Dye")
+Good:register(dye)
+local textile = Good:create{ ref_name = "textile" }
+textile.name = _("Textile")
+Good:register(textile)
+local plastic = Good:create{ ref_name = "plastic" }
+plastic.name = _("Plastic")
+Good:register(plastic)
 
 -- Minerals
 local copper = Good:create{ ref_name = "copper" }
@@ -45,9 +62,12 @@ Good:register(titanium)
 local oil = Good:create{ ref_name = "oil" }
 oil.name = _("Oil")
 Good:register(oil)
-local wood = Good:create{ ref_name = "wood" }
-wood.name = _("Wood")
-Good:register(wood)
+local timber = Good:create{ ref_name = "timber" }
+timber.name = _("Timber")
+Good:register(timber)
+local coal = Good:create{ ref_name = "coal" }
+coal.name = _("Coal")
+Good:register(coal)
 
 -- Food
 local glass = Good:create{ ref_name = "glass" }
@@ -76,15 +96,6 @@ Good:register(chair)
 local bed = Good:create{ ref_name = "bed" }
 bed.name = _("Bed")
 Good:register(bed)
-local table = Good:create{ ref_name = "table" }
-table.name = _("Table")
-Good:register(table)
-local gold_chain = Good:create{ ref_name = "gold_chain" }
-gold_chain.name = _("Gold chain")
-Good:register(gold_chain)
-local silver_chain = Good:create{ ref_name = "silver_chain" }
-silver_chain.name = _("Silver chain")
-Good:register(silver_chain)
 print("good types")
 
 -- Industry types
@@ -106,7 +117,7 @@ local lumberjack = IndustryType:create{ ref_name = "lumberjack" }
 lumberjack.name = _("Lumberjack")
 IndustryType:register(lumberjack)
 -- same logic here
-IndustryType:add_output(lumberjack, wood)
+IndustryType:add_output(lumberjack, timber)
 
 local vineyard = IndustryType:create{ ref_name = "vineyard" }
 vineyard.name = _("Vineyard")
@@ -152,22 +163,16 @@ IndustryType:add_output(titanium_mine, titanium)
 print("primary sector industries")
 
 -- Secondary sector industries (now the fun begins)
-local gold_chain_factory = IndustryType:create{ ref_name = "gold_chain_factory" }
-gold_chain_factory.name = _("Gold chain factory")
-IndustryType:register(gold_chain_factory)
-IndustryType:add_input(gold_chain_factory, gold)
-IndustryType:add_output(gold_chain_factory, gold_chain)
-
 local chair_manufacturer = IndustryType:create{ ref_name = "chair_manufacturer" }
 chair_manufacturer.name = _("Chair manufacturer")
 IndustryType:register(chair_manufacturer)
-IndustryType:add_input(chair_manufacturer, wood)
+IndustryType:add_input(chair_manufacturer, timber)
 IndustryType:add_output(chair_manufacturer, chair)
 
 local bed_manufacturer = IndustryType:create{ ref_name = "bed_manufacturer" }
 bed_manufacturer.name = _("Bed manufacturer")
 IndustryType:register(bed_manufacturer)
-IndustryType:add_input(bed_manufacturer, wood)
+IndustryType:add_input(bed_manufacturer, timber)
 IndustryType:add_output(bed_manufacturer, bed)
 print("secondary sector industries")
 
