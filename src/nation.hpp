@@ -2,9 +2,9 @@
 #define NATION_H
 
 #include <stdint.h>
+#include <string>
 #include "texture.hpp"
 
-#include <string>
 class Nation {
 public:
 	std::string name;

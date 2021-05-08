@@ -1,5 +1,8 @@
 #ifndef PROVINCE_H
 #define PROVINCE_H
+
+#include <stdint.h>
+#include <string>
 #include "pop.hpp"
 #include "economy.hpp"
 

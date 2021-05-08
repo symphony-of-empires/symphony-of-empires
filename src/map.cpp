@@ -3,10 +3,10 @@
 #include <string.h>
 #include "map.hpp"
 
-Map::Map(World * world, Map_Mode mode) {
+Map::Map(World * w, Map_Mode m) {
 	memset(this, 0, sizeof(Map));
 
-	this->world = world;
+	this->world = w;
 	this->quad_size = 64;
 
 	this->n_horz_quads = this->world->width / this->quad_size;
@@ -19,7 +19,7 @@ Map::Map(World * world, Map_Mode mode) {
 	}
 
 	this->quads_gl_list_num = (GLuint *)malloc(sizeof(GLuint) * (this->n_horz_quads * this->n_vert_quads));
-	this->mode = mode;
+	this->mode = m;
 	for(size_t i = 0; i < this->n_horz_quads; i++) {
 		for(size_t j = 0; j < this->n_vert_quads; j++) {
 			this->quad_create(i, j);
@@ -133,7 +133,6 @@ void Map::quad_create(size_t qx, size_t qy) {
 	} else if(this->mode == MAP_TOPOGRAPHIC) {
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
-				Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
 				glBegin(GL_TRIANGLES);
 				for(size_t k = 0; k < 6; k++) {
 					size_t x = i + draw_ord[k][0];
