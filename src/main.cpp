@@ -517,8 +517,6 @@ void rendering_main(void) {
 
 #include <thread>
 int main(int argc, char ** argv) {
-	//server_main();
-
 	world_mutex.lock();
 	world = World("map_topo.png", "map_pol.png", "map_div.png");
 	world.time = 695459;
@@ -526,12 +524,14 @@ int main(int argc, char ** argv) {
 	world.time -= 24 * 190;
 	world_mutex.unlock();
 
+#ifndef UNIT_TEST
 	std::thread t1(rendering_main);
 
 	while(run) {
 		world.do_tick();
 	}
 	t1.join();
+#endif
 	return 0;
 }
 
