@@ -31,6 +31,7 @@ void Province::add_industry(World * world, Industry * industry) {
 			province_id = i;
 			break;
 		}
+		new_product.origin_id = province_id;
 
 		world->products.push_back(new_product);
 	}

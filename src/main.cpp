@@ -52,7 +52,7 @@ void do_tile_overview() {
 	ui_ctx->add_widget(tov_population_label);
 }
 
-UI::Widget * econ_win, * econ_win_close_btn, * econ_label[128];
+UI::Widget * econ_win, * econ_win_close_btn, * econ_label[512];
 void do_economy_on_click(UI::Widget * widget, void * data) {
 	ui_ctx->add_widget(econ_win);
 	ui_ctx->add_widget(econ_win_close_btn);
@@ -63,37 +63,33 @@ void do_economy_on_click(UI::Widget * widget, void * data) {
 
 void do_economy_on_update(UI::Widget * widget, void * data) {
 	size_t n_prod = 1;
-	uint n_provinces = world->provinces.size();
-	for(size_t i = 0; i < n_provinces; i++) {
-		Province * province = &world->provinces[i];
-		uint n_products = province->products.size();
-		for(size_t j = 0; j < n_products; j++) {
-			Product * product = &province->products[j];
 
-			size_t y = n_prod * 24 + 48;
-			char * str = new char[255];
-			if(product->price_vel > 0.f) {
-				UI_Widget_TextColor(0, 255, 0);
-				sprintf(str, "+%4.2f", product->price_vel);
-			} else {
-				UI_Widget_TextColor(255, 0, 0);
-				sprintf(str, "%4.2f", product->price_vel);
-			}
-
-			econ_label[n_prod * 4 + 0]->text(ui_ctx, str);
-			UI_Widget_TextColor(0, 0, 0);
-
-			sprintf(str, "%4.2f", product->price);
-			econ_label[n_prod * 4 + 1]->text(ui_ctx, str);
-			econ_label[n_prod * 4 + 2]->text(ui_ctx, province->name.c_str());
-			econ_label[n_prod * 4 + 3]->text(ui_ctx, world->goods[product->good_id].name.c_str());
-
-			delete[] str;
-
-			n_prod++;
-
-			if(n_prod >= 128 / 4) return;
+	size_t n_products = world->products.size();
+	for(size_t i = 0; i < n_products; i++) {
+		Product * product = &world->products[i];
+		size_t y = n_prod * 24 + 48;
+		
+		char * str = new char[255];
+		if(product->price_vel > 0.f) {
+			UI_Widget_TextColor(0, 255, 0);
+			sprintf(str, "+%4.2f", product->price_vel);
+		} else {
+			UI_Widget_TextColor(255, 0, 0);
+			sprintf(str, "%4.2f", product->price_vel);
 		}
+
+		econ_label[n_prod * 4 + 0]->text(ui_ctx, str);
+		UI_Widget_TextColor(0, 0, 0);
+
+		sprintf(str, "%4.2f", product->price);
+		econ_label[n_prod * 4 + 1]->text(ui_ctx, str);
+		econ_label[n_prod * 4 + 2]->text(ui_ctx, world->provinces[product->origin_id].name.c_str());
+		econ_label[n_prod * 4 + 3]->text(ui_ctx, world->goods[product->good_id].name.c_str());
+
+		delete[] str;
+
+		n_prod++;
+		if(n_prod >= (128 / 4)) return;
 	}
 }
 

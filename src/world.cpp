@@ -123,6 +123,8 @@ void World::do_tick() {
 	std::vector<OrderGoods> orders;
 	std::vector<DeliverGoods> delivers;
 
+	//printf("---------------------\n");
+
 	// All factories will place their orders for their inputs
 	// All RGOs will do deliver requests
 	for(size_t i = 0; i < this->provinces.size(); i++) {
@@ -135,7 +137,7 @@ void World::do_tick() {
 				order.requester_industry_id = j;
 				order.requester_province_id = i;
 				orders.push_back(order);
-				printf("We need good: %s (from %s)\n", this->goods[order.good_id].ref_name.c_str(), this->provinces[order.requester_province_id].ref_name.c_str());
+				//printf("We need good: %s (from %s)\n", this->goods[order.good_id].ref_name.c_str(), this->provinces[order.requester_province_id].ref_name.c_str());
 			}
 
 			if(it->inputs.size() == 0) {
@@ -147,7 +149,7 @@ void World::do_tick() {
 					deliver.sender_industry_id = j;
 					deliver.sender_province_id = i;
 					delivers.push_back(deliver);
-					printf("Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id].ref_name.c_str(), this->provinces[deliver.sender_province_id].ref_name.c_str());
+					//printf("Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id].ref_name.c_str(), this->provinces[deliver.sender_province_id].ref_name.c_str());
 				}
 			}
 		}
@@ -159,13 +161,13 @@ void World::do_tick() {
 		for(auto& company: this->companies) {
 			if(!company.is_transport) continue;
 
+			//printf("Hi, i'm %s\n", company.name.c_str());
+
 			// Check all delivers
 			for(size_t i = 0; i < delivers.size(); i++) {
 				DeliverGoods * deliver = &delivers[i];
 
 				if(!company.in_range(deliver->sender_province_id)) continue;
-
-				printf("we need to deliver? %s (from %s)\n", this->goods[deliver->good_id].ref_name.c_str(), this->provinces[deliver->sender_province_id].ref_name.c_str());
 
 				// Check all orders
 				for(size_t j = 0; j < orders.size(); j++) {
@@ -177,7 +179,7 @@ void World::do_tick() {
 					// Are we in the range to deliver?
 					if(!company.in_range(order->requester_province_id)) continue;
 
-					printf("delivered from %s to %s some %s\n", this->provinces[deliver->sender_province_id].ref_name.c_str(), this->provinces[order->requester_province_id].ref_name.c_str(), this->goods[order->good_id].ref_name.c_str());
+					//printf("Delivered from %s to %s some %s\n", this->provinces[deliver->sender_province_id].ref_name.c_str(), this->provinces[order->requester_province_id].ref_name.c_str(), this->goods[order->good_id].ref_name.c_str());
 
 					// Yes - we go and deliver their stuff
 					Industry * industry = &this->provinces[order->requester_province_id].industries[order->requester_industry_id];
