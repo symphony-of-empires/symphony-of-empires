@@ -18,6 +18,7 @@ namespace UI {
 	class Widget;
 	class Context {
 	public:
+		Context() {};
 		Context(std::string data_dir);
 		void load_textures();
 		void add_widget(Widget * widget);
@@ -55,6 +56,7 @@ namespace UI {
 
 	class Widget {
 	public:
+		Widget() {};
 		Widget(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type);
 		void add_child(Widget * child);
 		void text(Context * ctx, const char * text);
@@ -92,31 +94,31 @@ namespace UI {
 
 void default_close_button_on_click(UI::Widget * w, void * data);
 
-static inline void UI_Widget_CreateButton(UI::Context * ctx, UI::Widget * parent, UI::Widget ** widget,
+static inline void UI_Widget_CreateButton(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
 	int x, int y, unsigned w, unsigned h) {
-	*widget = new UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_BUTTON);
+	*widget = UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_BUTTON);
 }
 
-static inline void UI_Widget_CreateInput(UI::Context * ctx, UI::Widget * parent, UI::Widget ** widget,
+static inline void UI_Widget_CreateInput(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
 	int x, int y, unsigned w, unsigned h) {
-	*widget = new UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_INPUT);
+	*widget = UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_INPUT);
 }
 
-static inline void UI_Widget_CreateWindow(UI::Context * ctx, UI::Widget * parent, UI::Widget ** widget,
+static inline void UI_Widget_CreateWindow(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
 	int x, int y, unsigned w, unsigned h) {
-	*widget = new UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_WINDOW);
+	*widget = UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_WINDOW);
 }
 
-static inline void UI_Widget_CreateImage(UI::Context * ctx, UI::Widget * parent, UI::Widget ** widget,
+static inline void UI_Widget_CreateImage(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
 	int x, int y, unsigned w, unsigned h, Texture * tex) {
-	*widget = new UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_IMAGE);
-	(*widget)->current_texture = tex;
+	*widget = UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_IMAGE);
+	widget->current_texture = tex;
 }
 
-static inline void UI_Widget_CreateLabel(UI::Context * ctx, UI::Widget * parent, UI::Widget ** widget,
+static inline void UI_Widget_CreateLabel(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
 	int x, int y, const char * text) {
-	*widget = new UI::Widget(ctx, parent, x, y, 0, 0, UI_WIDGET_WINDOW);
-	(*widget)->text(ctx, text);
+	*widget = UI::Widget(ctx, parent, x, y, 0, 0, UI_WIDGET_WINDOW);
+	widget->text(ctx, text);
 }
 
 #include <SDL2/SDL.h>
