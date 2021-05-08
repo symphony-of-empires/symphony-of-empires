@@ -1,23 +1,23 @@
 name: Build
 
 on:
-	push:
-		branches:
-			- main
-	pull_request:
-		branches:
-			- main
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-	build_linux:
-		runs-on: ubuntu-latest
-		steps:
-		- uses: actions/checkout@v2
-			with:
-				fetch-depth: 0
-		- name: "Install dependencies"
-			run: |
-			 sudo apt install libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.4-dev
-		- name: "Build"
-			run: |
-			 make -j
+  build_linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: "Install dependencies"
+      run: |
+       sudo apt install libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.4-dev
+    - name: "Build"
+      run: |
+       make -j
