@@ -13,6 +13,10 @@ ifdef WINDOWS
 CXXFLAGS:=$(CXXFLAGS) -DWINDOWS
 endif
 
+ifdef UNIT_TEST
+CXXFLAGS:=$(CXXFLAGS) -DUNIT_TEST
+endif
+
 build: dirs bin/main
 
 clean:
