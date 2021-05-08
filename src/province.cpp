@@ -8,7 +8,7 @@ void Province::add_industry(World * world, Industry * industry) {
 
 		// Check that product is not already in the province
 		int is_here = 0;
-		uint n_products = this->products.size();
+		unsigned int n_products = this->products.size();
 		for(size_t j = 0; j < n_products; j++) {
 			if(this->products[j].owner_id == industry->owner_id) {
 				is_here = 1;
