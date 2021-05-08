@@ -63,7 +63,6 @@ void do_economy_on_click(UI::Widget * widget, void * data) {
 
 void do_economy_on_update(UI::Widget * widget, void * data) {
 	size_t n_prod = 1;
-
 	size_t n_products = world->products.size();
 	for(size_t i = 0; i < n_products; i++) {
 		Product * product = &world->products[i];

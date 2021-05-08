@@ -1,11 +1,11 @@
 #ifndef LUA_H
 #define LUA_H
 
-#ifdef HAS_WINDOWS
+#ifdef WINDOWS
 #   include <lua.hpp>
 #else
 #   include <lua5.4/lua.hpp>
-#endif //HAS_WINDOWS
+#endif //WINDOWS
 
 int World_LuaAddGood(lua_State * L);
 int World_LuaAddIndustryType(lua_State * L);
