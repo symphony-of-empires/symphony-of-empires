@@ -14,6 +14,7 @@ public:
 	size_t owner_id;
 	size_t province_id;
 	uint8_t elevation;
+	uint8_t infra_level;
 };
 
 #include <string>
