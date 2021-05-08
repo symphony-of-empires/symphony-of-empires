@@ -63,10 +63,10 @@ void do_economy_on_click(UI::Widget * widget, void * data) {
 
 void do_economy_on_update(UI::Widget * widget, void * data) {
 	size_t n_prod = 1;
-	uint n_provinces = world->provinces.size();
+	unsigned int n_provinces = world->provinces.size();
 	for(size_t i = 0; i < n_provinces; i++) {
 		Province * province = &world->provinces[i];
-		uint n_products = province->products.size();
+		unsigned int n_products = province->products.size();
 		for(size_t j = 0; j < n_products; j++) {
 			Product * product = &province->products[j];
 

@@ -88,7 +88,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 
 		// Associate tiles with provinces
 		this->tiles[i].province_id = (size_t)-1;
-		uint n_provinces = provinces.size();
+		unsigned int n_provinces = provinces.size();
 		for(size_t j = 0; j < n_provinces; j++) {
 			if(div->buffer[i] == this->provinces[j].color) {
 				this->tiles[i].province_id = j;
@@ -234,7 +234,7 @@ void World::do_tick() {
 			// Factories generate 1000 jobs, each paying about 1$
 			province->budget += (1000.f) / province->population;
 		}
-		uint n_products = province->products.size();
+		unsigned int n_products = province->products.size();
 		for(size_t j = 0; j < n_products; j++) {
 			Product * product = &province->products[j];
 
