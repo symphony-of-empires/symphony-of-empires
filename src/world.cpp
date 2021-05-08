@@ -48,6 +48,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 	lua_register(L, "AddOutputToIndustryType", World_LuaAddOutputToIndustryType);
 	lua_register(L, "AddNation", World_LuaAddNation);
 	lua_register(L, "AddProvince", World_LuaAddProvince);
+	lua_register(L, "AddCompany", World_LuaAddCompany);
 	luaL_dofile(L, Resource_GetPath("scripts/good.lua").c_str());
 	lua_setglobal(L, "Good");
 	luaL_dofile(L, Resource_GetPath("scripts/industry_type.lua").c_str());
@@ -86,33 +87,140 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 }
 
 void World::do_tick() {
-	uint n_provinces = provinces.size();
+	size_t n_provinces = this->provinces.size();
+	size_t n_companies = this->companies.size();
 	for(size_t i = 0; i < n_provinces; i++) {
 		Province * province = &this->provinces[i];
 		province->population += rand() % 5;
 
-		/* Producers produce stuff */
-		for(size_t i = 0; i < province->industries.size(); i++) {
-			Industry * industry = &province->industries[i];
+		// RGO and primary industries are going to produce stuff from thin air
+		size_t n_industries = province->industries.size();
+		for(size_t j = 0; j < n_industries; j++) {
+			Industry * industry = &province->industries[j];
 
-			/* Factories generate 1000 jobs, each paying about 1$ */
-			province->budget += (1000.f) / province->population;
+			// Only primary factories can produce
+			if(this->industry_types[industry->type_id].inputs.size()) continue;
 
-			//printf("%s industry in %s:\n", world->industry_types[industry->type_id].ref_name, province->ref_name);
-			uint n_products = province->products.size();
-			for(size_t j = 0; j < n_products; j++) {
-				Product * product = &province->products[j];
-				if(product->industry_id != i) {
-					continue;
+			// Add supply to products
+			for(auto& product: province->products) {
+				if(product.industry_id != j) continue;
+
+				// TODO: Whoever is working on pops do something dynamic here
+				size_t produced = 15000;
+				size_t original_produced = produced; // Used to calculate income
+
+				product.supply += produced;
+
+				// We will then contact any friendly transport company to transport our product
+				for(size_t j = 0; j < n_companies; j++) {
+					Company * company = &this->companies[j];
+
+					// We won't accept to transport if we have bad relations and we
+					// can't give stuff to companies who dont transport
+					if(company->is_transport == false || company->relations[j] < 50.f) continue;
+
+					// Check that the company we are contacting is operating in our same province
+					size_t n_op_provinces = company->operating_provinces.size();
+					bool in_range = false;
+					for(size_t k = 0; k < n_op_provinces; k++) {
+						if(company->operating_provinces[k] == i) {
+							in_range = true;
+							break;
+						}
+					}
+					// We can't transport in companies who are not in our province, fuck
+					if(!in_range) continue;
+
+					// The transport company accepts!, now "they" are looking for customers to send to
+					for(size_t k = 0; k < n_op_provinces; k++) {
+						// Look on all of our operating provinces
+						Province * op_province = &this->provinces[company->operating_provinces[k]];
+
+						// Look for industries that accepts this input :)
+						for(auto& industry: op_province->industries) {
+							// Check if any of it's inputs accepts our product
+							bool is_accept = false;
+							size_t idx = 0;
+							for(const auto& input: this->industry_types[industry.type_id].inputs) {
+								idx++;
+								if(input == product.good_id) {
+									is_accept = true;
+									break;
+								}
+							}
+							if(!is_accept) continue;
+
+							// Give them some of our shit (just a part of it, as many as we choose)
+							size_t given = produced / ((rand() % produced) + 1);
+							industry.stockpile[idx] += given;
+							produced -= given;
+							if(!produced) break;
+						}
+						if(!produced) break;
+					}
+
+					// Company wins by number of sold units (75%)
+					this->companies[industry->owner_id].money += ((original_produced * product.price) / 4) * 3;
+
+					// Transporting company wins by number of sold units (25%)
+					company->money += (original_produced * product.price) / 4;
 				}
-
-				/* Always generate supplies */
-				product->supply += 100;
-
-				//printf("\t\t%zu product: %zu, %zu\n", j, product->supply, product->demand);
 			}
 		}
 
+		// Secondary industries, produce stuff that will be later given to retailers
+		for(size_t j = 0; j < n_industries; j++) {
+			Industry * industry = &province->industries[j];
+
+			// Only factories that accepts stuff
+			if(!this->industry_types[industry->type_id].inputs.size()) continue;
+
+			// Add supply to products
+			for(auto& product: province->products) {
+				if(product.industry_id != j) continue;
+
+				// TODO: Whoever is working on pops do something dynamic here
+				size_t produced = 15000;
+
+				product.supply += produced;
+
+				// We will ... again, contact a transport company
+				for(size_t j = 0; j < n_companies; j++) {
+					Company * company = &this->companies[j];
+
+					// We won't accept to transport if we have bad relations and we
+					// can't give stuff to companies who dont transport
+					if(company->is_transport == false || company->relations[j] < 50.f) continue;
+
+					// Check that the company we are contacting is operating in our same province
+					size_t n_op_provinces = company->operating_provinces.size();
+					bool in_range = false;
+					for(size_t k = 0; k < n_op_provinces; k++) {
+						if(company->operating_provinces[k] == i) {
+							in_range = true;
+							break;
+						}
+					}
+					// We can't transport in companies who are not in our province, fuck
+					if(!in_range) continue;
+
+					// The transport company accepts!, now "they" are looking for customers to send to
+					// (company retailers)
+
+					// TODO: This is a placeholder, REPLACE APPROPRIATELY!
+					this->companies[industry->owner_id].money += produced * product.price;
+					company->money += produced * product.price;
+				}
+			}
+		}
+
+		// TODO: Replace below code to fit the code above (company economics)
+		for(size_t i = 0; i < province->industries.size(); i++) {
+			Industry * industry = &province->industries[i];
+
+			// Factories generate 1000 jobs, each paying about 1$
+			province->budget += (1000.f) / province->population;
+		}
 		uint n_products = province->products.size();
 		for(size_t i = 0; i < n_products; i++) {
 			Product * product = &province->products[i];

@@ -3,11 +3,10 @@
 
 void Province::add_industry(World * world, Industry * industry) {
 	IndustryType * type = &world->industry_types[industry->type_id];
-	for(size_t i = 0; i < type->n_outputs; i++) {
-		size_t good_id = type->outputs[i];
+	for(const auto& output: type->outputs) {
+		size_t good_id = output;
 
-
-		/* check that product is not already here */
+		// Check that product is not already in the province
 		int is_here = 0;
 		uint n_products = this->products.size();
 		for(size_t j = 0; j < n_products; j++) {
@@ -18,7 +17,7 @@ void Province::add_industry(World * world, Industry * industry) {
 		}
 		if(is_here) break;
 
-		/* otherwise add it to the province product list */
+		// Otherwise add it to the province product list
 		Product new_product;
 		memset(&new_product, 0, sizeof(Product));
 		new_product.industry_id = this->industries.size();
@@ -26,5 +25,11 @@ void Province::add_industry(World * world, Industry * industry) {
 		new_product.owner_id = industry->owner_id;
 		this->products.push_back(new_product);
 	}
+
+	// We will set inputs_satisfied to same size as inputs
+	for(const auto& inputs: world->industry_types[industry->type_id].inputs) {
+		industry->stockpile.push_back(0);
+	}
+
 	this->industries.push_back(*industry);
 }

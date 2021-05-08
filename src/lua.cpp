@@ -1,3 +1,4 @@
+#include <lua5.4/lua.h>
 #ifdef HAS_WINDOWS
 #include <lua.hpp>
 #else
@@ -64,10 +65,7 @@ int World_LuaAddInputToIndustryType(lua_State * L) {
 		fprintf(stderr, "good not found %s\n", ref_name);
 		return 0;
 	}
-
-	industry->inputs = (size_t *)realloc(industry->inputs, sizeof(size_t) * (industry->n_inputs + 1));
-	industry->inputs[industry->n_inputs] = good_id;
-	industry->n_inputs++;
+	industry->inputs.push_back(good_id);
 	return 0;
 }
 
@@ -93,10 +91,7 @@ int World_LuaAddOutputToIndustryType(lua_State * L) {
 		fprintf(stderr, "good not found %s\n", ref_name);
 		return 0;
 	}
-	
-	industry->outputs = (size_t *)realloc(industry->outputs, sizeof(size_t) * (industry->n_outputs + 1));
-	industry->outputs[industry->n_outputs] = good_id;
-	industry->n_outputs++;
+	industry->outputs.push_back(good_id);
 	return 0;
 }
 
@@ -137,9 +132,38 @@ int World_LuaAddProvince(lua_State * L) {
 
 	// TODO: this is NOT good
 	Industry industry;
-	industry.owner_id = 0;
+	if(g_world->companies.size()) {
+		industry.owner_id = rand() % g_world->companies.size();
+	} else {
+		industry.owner_id = 0;
+	}
 	industry.type_id = rand() % g_world->n_industry_types;
-	Province_AddIndustry(g_world, &g_world->provinces.back(), &industry);
+	g_world->provinces.back().add_industry(g_world, &industry);
+	return 0;
+}
+
+int World_LuaAddCompany(lua_State * L) {
+	Company * company = new Company;
+	memset(company, 0, sizeof(Company));
+
+	company->name = lua_tostring(L, 1);
+	company->money = lua_tonumber(L, 2);
+	company->is_transport = lua_toboolean(L, 3);
+	company->is_retailer = lua_toboolean(L, 4);
+	company->is_industry = lua_toboolean(L, 5);
+
+	company->operating_provinces.clear();
+	company->relations.clear();
+
+	// Company has relation of 0 with everyone else
+	for(size_t i = 0; i < g_world->companies.size(); i++) {
+		company->relations.push_back(0.f); // We are neutral to other companies
+		g_world->companies[i].relations.push_back(0.f); // Everyone is cautious to us
+	}
+	company->relations.push_back(100.f); // Relations with self is 100
+
+	// Add onto vector
+	g_world->companies.push_back(*company);
 	return 0;
 }
 

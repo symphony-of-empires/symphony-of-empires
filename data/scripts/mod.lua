@@ -301,4 +301,12 @@ local southern_korea = Province:create{ ref_name = "southern_korea", color = 0x3
 southern_korea.name = "Southern korea"
 Province:register(southern_korea)
 
+-- Companies
+local generic_transport_company = Company:create{ name = "Generic Air and Gunboat Transport Corporate", money = 10000000, is_transport = true }
+Company:register(generic_transport_company)
+local generic_retailer_company = Company:create{ name = "Generic Supermarket Corporate", money = 10000000, is_retailer = true }
+Company:register(generic_retailer_company)
+local generic_industrial_company = Company:create{ name = "Generic Industrial Thingy", money = 10000000, is_industry = true }
+Company:register(generic_industrial_company)
+
 print("loaded mod.lua")
