@@ -64,11 +64,12 @@ void do_economy_on_click(UI::Widget * widget, void * data) {
 void do_economy_on_update(UI::Widget * widget, void * data) {
 	size_t n_prod = 1;
 	size_t n_products = world.products.size();
+
+	char * str = new char[255];
 	for(size_t i = 0; i < n_products; i++) {
 		Product * product = &world.products[i];
 		size_t y = n_prod * 24 + 48;
 		
-		char * str = new char[255];
 		if(product->price_vel > 0.f) {
 			UI_Widget_TextColor(0, 255, 0);
 			sprintf(str, "+%4.2f", product->price_vel);
@@ -76,19 +77,18 @@ void do_economy_on_update(UI::Widget * widget, void * data) {
 			UI_Widget_TextColor(255, 0, 0);
 			sprintf(str, "%4.2f", product->price_vel);
 		}
+		econ_label[n_prod * 4 + 0].text(&ui_ctx, str);
 
 		UI_Widget_TextColor(0, 0, 0);
-
 		sprintf(str, "%4.2f", product->price);
-		(&econ_label[n_prod * 4 + 1])->text(&ui_ctx, str);
-		(&econ_label[n_prod * 4 + 2])->text(&ui_ctx, world.provinces[product->origin_id].name.c_str());
-		(&econ_label[n_prod * 4 + 3])->text(&ui_ctx, world.goods[product->good_id].name.c_str());
-
-		delete[] str;
+		econ_label[n_prod * 4 + 1].text(&ui_ctx, str);
+		econ_label[n_prod * 4 + 2].text(&ui_ctx, world.provinces[product->origin_id].name.c_str());
+		econ_label[n_prod * 4 + 3].text(&ui_ctx, world.goods[product->good_id].name.c_str());
 
 		n_prod++;
-		if(n_prod >= (128 / 4)) return;
+		if(n_prod >= (128 / 4)) break;
 	}
+	delete[] str;
 }
 
 UI::Widget overview_win, overview_time_label, overview_flag_image;
