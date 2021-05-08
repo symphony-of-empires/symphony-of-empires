@@ -16,8 +16,8 @@ private:
 	World * world;
 	Map_Mode mode;
 public:
+	Map() {};
 	Map(World * world, Map_Mode mode);
-	~Map();
 	
 	void quad_create(size_t qx, size_t qy);
 	void quad_update(size_t x, size_t y);
