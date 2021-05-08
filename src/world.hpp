@@ -42,6 +42,7 @@ public:
 	std::vector<Nation> nations;
 	std::vector<Province> provinces;
 	std::vector<Company> companies;
+	std::vector<Product> products;
 
 	uint64_t time;
 };

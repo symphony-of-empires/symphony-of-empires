@@ -69,6 +69,8 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 	lua_setglobal(L, "Nation");
 	luaL_dofile(L, Resource_GetPath("scripts/province.lua").c_str());
 	lua_setglobal(L, "Province");
+	luaL_dofile(L, Resource_GetPath("scripts/company.lua").c_str());
+	lua_setglobal(L, "Company");
 	luaL_dofile(L, Resource_GetPath("scripts/mod.lua").c_str());
 	lua_close(L);
 
@@ -99,178 +101,141 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 	return;
 }
 
+class OrderGoods {
+public:
+	float payment;
+	size_t good_id;
+	size_t requester_industry_id;
+	size_t requester_province_id;
+};
+class DeliverGoods {
+public:
+	float payment;
+	size_t good_id;
+	size_t sender_industry_id;
+	size_t sender_province_id;
+	size_t rejections;
+};
 void World::do_tick() {
 	size_t n_provinces = this->provinces.size();
 	size_t n_companies = this->companies.size();
-	for(size_t i = 0; i < n_provinces; i++) {
-		Province * province = &this->provinces[i];
-		province->population += rand() % 5;
 
-		// RGO and primary industries are going to produce stuff from thin air
-		size_t n_industries = province->industries.size();
-		for(size_t j = 0; j < n_industries; j++) {
-			Industry * industry = &province->industries[j];
+	std::vector<OrderGoods> orders;
+	std::vector<DeliverGoods> delivers;
 
-			// Only primary factories can produce
-			if(this->industry_types[industry->type_id].inputs.size()) continue;
+	// All factories will place their orders for their inputs
+	// All RGOs will do deliver requests
+	for(size_t i = 0; i < this->provinces.size(); i++) {
+		for(size_t j = 0; j < this->provinces[i].industries.size(); j++) {
+			IndustryType * it = &this->industry_types[this->provinces[i].industries[j].type_id];
+			for(const auto& input: it->inputs) {
+				OrderGoods order;
+				order.payment = 500.f;
+				order.good_id = input;
+				order.requester_industry_id = j;
+				order.requester_province_id = i;
+				orders.push_back(order);
+				printf("We need good: %s (from %s)\n", this->goods[order.good_id].ref_name.c_str(), this->provinces[order.requester_province_id].ref_name.c_str());
+			}
 
-			// Add supply to products
-			for(auto& product: province->products) {
-				if(product.industry_id != j) continue;
-
-				// TODO: Whoever is working on pops do something dynamic here
-				size_t produced = 150;
-				size_t original_produced = produced; // Used to calculate income
-
-				product.supply += produced;
-
-				// We will then contact any friendly transport company to transport our product
-				for(size_t k = 0; k < n_companies; k++) {
-					Company * company = &this->companies[k];
-
-					// We won't accept to transport if we have bad relations and we
-					// can't give stuff to companies who dont transport
-					if(company->is_transport == false || company->relations[industry->owner_id] < 25.f) continue;
-
-					// Check that the company we are contacting is operating in our same province
-					size_t n_op_provinces = company->operating_provinces.size();
-					bool in_range = false;
-					for(size_t l = 0; l < n_op_provinces; l++) {
-						if(company->operating_provinces[l] == i) {
-							in_range = true;
-							break;
-						}
-					}
-					// We can't transport in companies who are not in our province, fuck
-					if(!in_range) continue;
-
-					// The transport company accepts!, now "they" are looking for customers to send to
-					for(size_t l = 0; l < n_op_provinces; l++) {
-						// Look on all of our operating provinces
-						Province * op_province = &this->provinces[company->operating_provinces[l]];
-
-						// Look for industries that accepts this input :)
-						for(auto& accept_industry: op_province->industries) {
-							// Check if any of it's inputs accepts our product
-							bool is_accept = false;
-							size_t idx = 0;
-							for(const auto& input: this->industry_types[accept_industry.type_id].inputs) {
-								idx++;
-								if(input == product.good_id) {
-									is_accept = true;
-									break;
-								}
-							}
-							if(!is_accept) continue;
-
-							// Give them some of our shit (just a part of it, as many as we choose)
-							size_t given = produced / ((rand() % produced) + 1);
-							accept_industry.stockpile[idx] += given;
-							produced -= given;
-							if(!produced) break;
-						}
-						if(!produced) break;
-					}
-
-					// Company wins by number of sold units (75%)
-					this->companies[industry->owner_id].money += ((original_produced * product.price) / 4) * 3;
-
-					// Transporting company wins by number of sold units (25%)
-					company->money += (original_produced * product.price) / 4;
+			if(it->inputs.size() == 0) {
+				// Place deliver orders (we are a RGO)
+				for(const auto& output: it->outputs) {
+					DeliverGoods deliver;
+					deliver.payment = 1500.f;
+					deliver.good_id = output;
+					deliver.sender_industry_id = j;
+					deliver.sender_province_id = i;
+					delivers.push_back(deliver);
+					printf("Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id].ref_name.c_str(), this->provinces[deliver.sender_province_id].ref_name.c_str());
 				}
 			}
 		}
+	}
 
-		// Secondary industries, produce stuff that will be later given to retailers
-		for(size_t j = 0; j < n_industries; j++) {
-			Industry * industry = &province->industries[j];
+	while(delivers.size() > 0
+	|| orders.size() > 0) {
+		// Now transport companies will check and transport accordingly
+		for(auto& company: this->companies) {
+			if(!company.is_transport) continue;
 
-			// Only factories that accepts stuff
-			if(!this->industry_types[industry->type_id].inputs.size()) continue;
+			// Check all delivers
+			for(size_t i = 0; i < delivers.size(); i++) {
+				DeliverGoods * deliver = &delivers[i];
 
-			// Add supply to products
-			for(auto& product: province->products) {
-				if(product.industry_id != j) continue;
+				if(!company.in_range(deliver->sender_province_id)) continue;
 
-				// TODO: Whoever is working on pops do something dynamic here
-				size_t produced = 15000;
+				printf("we need to deliver? %s (from %s)\n", this->goods[deliver->good_id].ref_name.c_str(), this->provinces[deliver->sender_province_id].ref_name.c_str());
 
-				product.supply += produced;
+				// Check all orders
+				for(size_t j = 0; j < orders.size(); j++) {
+					OrderGoods * order = &orders[j];
+					
+					// Do they want this goods?
+					if(order->good_id != deliver->good_id) continue;
 
-				// We will ... again, contact a transport company
-				for(size_t k = 0; k < n_companies; k++) {
-					Company * company = &this->companies[k];
+					// Are we in the range to deliver?
+					if(!company.in_range(order->requester_province_id)) continue;
 
-					// We won't accept to transport if we have bad relations and we
-					// can't give stuff to companies who dont transport
-					if(company->is_transport == false || company->relations[industry->owner_id] < 50.f) continue;
+					printf("delivered from %s to %s some %s\n", this->provinces[deliver->sender_province_id].ref_name.c_str(), this->provinces[order->requester_province_id].ref_name.c_str(), this->goods[order->good_id].ref_name.c_str());
 
-					// Check that the company we are contacting is operating in our same province
-					size_t n_op_provinces = company->operating_provinces.size();
-					bool in_range = false;
-					for(size_t l = 0; l < n_op_provinces; l++) {
-						if(company->operating_provinces[l] == i) {
-							in_range = true;
-							break;
-						}
-					}
-					// We can't transport in companies who are not in our province, fuck
-					if(!in_range) continue;
+					// Yes - we go and deliver their stuff
+					Industry * industry = &this->provinces[order->requester_province_id].industries[order->requester_industry_id];
+					industry->add_to_stock(this, order->good_id, 1);
 
-					// The transport company accepts!, now "they" are looking for customers to send to
-					// (company retailers)
+					// On 0 it overflows to -1, on 1 it goes to zero, but after this loop it's
+					// incremented again (see incrementing below). So we don't take a rejection hit
+					deliver->rejections--;
 
-					// TODO: This is a placeholder, REPLACE APPROPRIATELY!
-					this->companies[industry->owner_id].money += produced * product.price;
-					company->money += produced * product.price;
+					// Delete this deliver and order tickets from the system since
+					// they are now fullfilled
+					orders.erase(orders.begin() + j); j--;
+					delivers.erase(delivers.begin() + i);
+					break;
 				}
+				deliver->rejections++;
 			}
 		}
 
-		// TODO: Replace below code to fit the code above (company economics)
-		for(size_t j = 0; j < province->industries.size(); j++) {
-			Industry * industry = &province->industries[j];
-
-			// Factories generate 1000 jobs, each paying about 1$
-			province->budget += (1000.f) / province->population;
+		// Get number of transporter companies
+		size_t n_transporters = 0;
+		for(const auto& company: this->companies) {
+			if(company.is_transport) n_transporters++;
 		}
-		unsigned int n_products = province->products.size();
-		for(size_t j = 0; j < n_products; j++) {
-			Product * product = &province->products[j];
 
-			product->demand = 0;
+		// Drop all rejected delivers
+		for(size_t i = 0; i < delivers.size(); i++) {
+			DeliverGoods * deliver = &delivers[i];
+			if(deliver->rejections >= n_transporters) {
+				delivers.erase(delivers.begin() + i);
+				i--;
+				continue;
+			}
+		}
 
-			/* Consumers consume products */
-			
-			/* 25% of our budget goes to spending in this product (and a random dice roll)
-			* we also assign a mini-group of buyers who wants to buy these products */
-			size_t buyers = ((rand() % (province->population - 1)) + 1);
-			if(province->budget / 4 >= product->price) {
-				/* Some small group of buyers cannot take */
-				province->budget -= product->price * ((float)buyers / (float)province->population);
-				product->demand += buyers;
-				product->supply -= buyers % product->supply;
-			}
+		// No orders if no delivers!
+		if(delivers.size() == 0) {
+			delivers.clear();
+			orders.clear();
+			break;
+		}
+	}
 
-			/* The prices of products change volatily */
-			/* More demand == more cost
-			* less demand == less cost */
-			if(product->demand > product->supply) {
-				product->price_vel += 0.2f;
-			} else if(product->demand < product->supply) {
-				product->price_vel -= 0.2f;
-			} else {
-				/* Gradually slow down the inflation / devaluation of a product */
-				if(product->price_vel > 0.5f) {
-					product->price_vel -= 0.1f;
-				} else if(product->price_vel < -0.5f) {
-					product->price_vel += 0.1f;
-				}
+	for(auto& product: this->products) {
+		if(product.demand > product.supply) {
+			product.price_vel += 0.2f;
+		} else if(product.demand < product.supply) {
+			product.price_vel -= 0.2f;
+		} else {
+			if(product.price_vel > 0.5f) {
+				product.price_vel -= 0.1f;
+			} else if(product.price_vel < -0.5f) {
+				product.price_vel += 0.1f;
 			}
-			product->price += product->price_vel;
-			if(product->price <= 0.f) {
-				product->price = 0.01f;
-			}
+		}
+		product.price += product.price_vel;
+		if(product.price <= 0.f) {
+			product.price = 0.01f;
 		}
 	}
 	this->time++;
