@@ -330,12 +330,11 @@ southern_korea.name = "Southern korea"
 Province:register(southern_korea)
 print("provinces")
 
+-- THIS IS NOT PART OF THE FINAL MODDING API
+
 -- Companies
 local generic_transport_company = Company:create{ name = "Generic Transport Corporate", money = 10000000, is_transport = true }
 Company:register(generic_transport_company)
-
--- THIS IS NOT PART OF THE FINAL MODDING API
-
 AddOperationalProvinceToCompany(0, south_east_hokkaido.ref_name)
 AddOperationalProvinceToCompany(0, kagoshima.ref_name)
 AddOperationalProvinceToCompany(0, nagasaki.ref_name)
@@ -361,27 +360,30 @@ AddOperationalProvinceToCompany(0, tochigi.ref_name)
 AddOperationalProvinceToCompany(0, iwate.ref_name)
 AddOperationalProvinceToCompany(0, akita.ref_name)
 AddOperationalProvinceToCompany(0, aomori.ref_name)
-AddOperationalProvinceToCompany(0, hokkaido_tohoku.ref_name)
-AddOperationalProvinceToCompany(0, nagano.ref_name)
-AddOperationalProvinceToCompany(0, nagoya.ref_name)
-AddOperationalProvinceToCompany(0, small_south_japan_islands.ref_name)
-AddOperationalProvinceToCompany(0, iturup.ref_name)
-AddOperationalProvinceToCompany(0, raycoke.ref_name)
-AddOperationalProvinceToCompany(0, paramushir.ref_name)
-AddOperationalProvinceToCompany(0, kamchatka.ref_name)
-AddOperationalProvinceToCompany(0, south_kamchatka.ref_name)
-AddOperationalProvinceToCompany(0, amur.ref_name)
-AddOperationalProvinceToCompany(0, khabarovsk.ref_name)
-AddOperationalProvinceToCompany(0, south_khabarovsk.ref_name)
-AddOperationalProvinceToCompany(0, east_north_korea.ref_name)
-AddOperationalProvinceToCompany(0, west_north_korea.ref_name)
-AddOperationalProvinceToCompany(0, east_south_korea.ref_name)
-AddOperationalProvinceToCompany(0, southern_korea.ref_name)
-AddOperationalProvinceToCompany(0, west_south_korea.ref_name)
-AddOperationalProvinceToCompany(0, south_sakhlin.ref_name)
-AddOperationalProvinceToCompany(0, central_sakhlin.ref_name)
-AddOperationalProvinceToCompany(0, north_sakhlin.ref_name)
-AddOperationalProvinceToCompany(0, primorsky_krai.ref_name)
+
+local rival_transport_company = Company:create{ name = "Rival Transport Corporate", money = 10000000, is_transport = true }
+Company:register(rival_transport_company)
+AddOperationalProvinceToCompany(1, hokkaido_tohoku.ref_name)
+AddOperationalProvinceToCompany(1, nagano.ref_name)
+AddOperationalProvinceToCompany(1, nagoya.ref_name)
+AddOperationalProvinceToCompany(1, small_south_japan_islands.ref_name)
+AddOperationalProvinceToCompany(1, iturup.ref_name)
+AddOperationalProvinceToCompany(1, raycoke.ref_name)
+AddOperationalProvinceToCompany(1, paramushir.ref_name)
+AddOperationalProvinceToCompany(1, kamchatka.ref_name)
+AddOperationalProvinceToCompany(1, south_kamchatka.ref_name)
+AddOperationalProvinceToCompany(1, amur.ref_name)
+AddOperationalProvinceToCompany(1, khabarovsk.ref_name)
+AddOperationalProvinceToCompany(1, south_khabarovsk.ref_name)
+AddOperationalProvinceToCompany(1, east_north_korea.ref_name)
+AddOperationalProvinceToCompany(1, west_north_korea.ref_name)
+AddOperationalProvinceToCompany(1, east_south_korea.ref_name)
+AddOperationalProvinceToCompany(1, southern_korea.ref_name)
+AddOperationalProvinceToCompany(1, west_south_korea.ref_name)
+AddOperationalProvinceToCompany(1, south_sakhlin.ref_name)
+AddOperationalProvinceToCompany(1, central_sakhlin.ref_name)
+AddOperationalProvinceToCompany(1, north_sakhlin.ref_name)
+AddOperationalProvinceToCompany(1, primorsky_krai.ref_name)
 
 print("companies")
 
