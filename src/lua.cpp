@@ -147,6 +147,10 @@ int World_LuaAddProvince(lua_State * L) {
 		industry.owner_id = 0;
 	}
 	industry.type_id = rand() % g_world->industry_types.size();
+	industry.stockpile = std::vector<size_t>(g_world->industry_types[industry.type_id].inputs.size());
+	for(auto& stockpile: industry.stockpile) {
+		stockpile = 0;
+	}
 	g_world->provinces.back().add_industry(g_world, &industry);
 	return 0;
 }
@@ -161,17 +165,11 @@ int World_LuaAddCompany(lua_State * L) {
 	company->is_industry = lua_toboolean(L, 5);
 
 	company->operating_provinces.clear();
-	company->relations.clear();
-
-	// Company has relation of 0 with everyone else
-	for(size_t i = 0; i < g_world->companies.size(); i++) {
-		company->relations.push_back(90.f); // We are neutral to other companies
-		g_world->companies[i].relations.push_back(90.f); // Everyone is cautious to us
-	}
-	company->relations.push_back(100.f); // Relations with self is 100
 
 	// Add onto vector
 	g_world->companies.push_back(*company);
+
+	printf("company: %s\n", company->name.c_str());
 	return 0;
 }
 
