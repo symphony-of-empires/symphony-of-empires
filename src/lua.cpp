@@ -1,9 +1,8 @@
-#include <lua5.4/lua.h>
-#ifdef HAS_WINDOWS
+#ifdef WINDOWS
 #include <lua.hpp>
 #else
 #include <lua5.4/lua.hpp>
-#endif //HAS_WINDOWS
+#endif //WINDOWS
 #include <string.h>
 #include <stdlib.h>
 
