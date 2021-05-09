@@ -233,19 +233,14 @@ int LuaAPI::give_province_to(lua_State * L) {
 	Province * province = &g_world->provinces[province_id];
 	size_t nation_id = lua_tonumber(L, 2);
 
-	World * world = g_world;
-	//for(size_t i = 0; i < world->width; i++) {
-	//	for(size_t j = 0; j < world->height; j++) {
-	printf("%zu, %zu -> %zu, %zu\n", province->min_x, province->min_y, province->max_x, province->max_y);
 	for(size_t i = province->min_x; i < province->max_x; i++) {
 		for(size_t j = province->min_y; j < province->max_y; j++) {
-			Tile * tile = &world->tiles[i + j * world->width];
-			if(tile->province_id != province_id) continue;
+			Tile * tile = &g_world->tiles[i + j * g_world->width];
+			if(tile->province_id != province_id)
+				continue;
 			tile->owner_id = nation_id;
-			putchar('.');
 		}
 	}
-	printf("\n");
 	return 0;
 }
 

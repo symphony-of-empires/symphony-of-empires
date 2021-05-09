@@ -11,6 +11,7 @@ bin/
 obj/
 
 # vscode stuff
+.vscode/
 compile_commands.json
 .cache/
 

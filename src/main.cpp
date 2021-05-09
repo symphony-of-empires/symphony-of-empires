@@ -12,6 +12,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument,
 }
 #endif
 
+#include <chrono>
+#include <thread>
 #include <thread>
 int main(int argc, char ** argv) {
 	World world("map_topo.png", "map_pol.png", "map_div.png", "map_infra.png");
@@ -25,6 +27,7 @@ int main(int argc, char ** argv) {
 
 	const bool run = true;
 	while(run) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		world.do_tick();
 	}
 	t1.join();
