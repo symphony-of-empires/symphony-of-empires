@@ -1,4 +1,3 @@
-#include <lua5.4/lua.h>
 #ifdef WINDOWS
 #include <lua.hpp>
 #else
@@ -229,6 +228,9 @@ int LuaAPI::get_province(lua_State * L) {
 	return 4;
 }
 
+#ifndef SERVER_ONLY
+#include "map.hpp"
+#endif
 int LuaAPI::give_province_to(lua_State * L) {
 	size_t province_id = lua_tonumber(L, 1);
 	Province * province = &g_world->provinces[province_id];
@@ -242,6 +244,18 @@ int LuaAPI::give_province_to(lua_State * L) {
 			tile->owner_id = nation_id;
 		}
 	}
+
+#ifndef SERVER_ONLY
+	//static Map prov_map, pol_map, topo_map, infra_map;
+	prov_map.quad_update(province->min_x, province->min_y);
+	prov_map.quad_update(province->max_x, province->max_y);
+	pol_map.quad_update(province->min_x, province->min_y);
+	pol_map.quad_update(province->max_x, province->max_y);
+	topo_map.quad_update(province->min_x, province->min_y);
+	topo_map.quad_update(province->max_x, province->max_y);
+	infra_map.quad_update(province->min_x, province->min_y);
+	infra_map.quad_update(province->max_x, province->max_y);
+#endif
 	return 0;
 }
 
@@ -310,6 +324,7 @@ int LuaAPI::get_year(lua_State * L) {
 //g_events
 
 #include <iostream>
+
 // Checks all events and their condition functions
 void LuaAPI::check_events(lua_State * L) {
 	// Because of the logic of this loop, only 1 event can happen in the world per tick
