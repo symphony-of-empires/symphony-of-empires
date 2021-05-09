@@ -1,4 +1,68 @@
-require("data/scripts/api")
+require("api")
+
+-- Pop types
+function entrepreneur_on_tick()
+	print("hello entrepreneur!")
+end
+local entrepreneur = PopType:create{ ref_name = "entrepreneur", on_tick_fn = "entrepreneur_on_tick" }
+entrepreneur.name = _("Entrepreneur")
+PopType:register(entrepreneur)
+
+function artisan_on_tick()
+	print("hello artisan!")
+end
+local artisan = PopType:create{ ref_name = "artisan", on_tick_fn = "artisan_on_tick" }
+artisan.name = _("Artisan")
+PopType:register(artisan)
+
+function craftsmen_on_tick()
+	print("hello craftsmen!")
+end
+local craftsmen = PopType:create{ ref_name = "craftsmen", on_tick_fn = "craftsmen_on_tick" }
+craftsmen.name = _("Craftsmen")
+PopType:register(craftsmen)
+
+function bureaucrat_on_tick()
+	print("hello bureaucrat!")
+end
+local bureaucrat = PopType:create{ ref_name = "bureaucrat", on_tick_fn = "bureaucrat_on_tick" }
+bureaucrat.name = _("Bureaucrat")
+PopType:register(bureaucrat)
+
+function aristocrat_on_tick()
+	print("hello aristocrat!")
+end
+local aristocrat = PopType:create{ ref_name = "aristocrat", on_tick_fn = "aristocrat_on_tick" }
+aristocrat.name = _("Aristocrat")
+PopType:register(aristocrat)
+
+function clergymen_on_tick()
+	print("hello clergymen!")
+end
+local clergymen = PopType:create{ ref_name = "clergymen", on_tick_fn = "clergymen_on_tick" }
+clergymen.name = _("Clergymen")
+PopType:register(clergymen)
+
+function farmer_on_tick()
+	print("hello farmer!")
+end
+local farmer = PopType:create{ ref_name = "farmer", on_tick_fn = "farmer_on_tick" }
+farmer.name = _("Farmer")
+PopType:register(farmer)
+
+function soldier_on_tick()
+	print("hello soldier!")
+end
+local soldier = PopType:create{ ref_name = "soldier", on_tick_fn = "soldier_on_tick" }
+soldier.name = _("Soldier")
+PopType:register(soldier)
+
+function laborer_on_tick()
+	print("hello laborer!")
+end
+local laborer = PopType:create{ ref_name = "laborer", on_tick_fn = "laborer_on_tick" }
+laborer.name = _("Laborer")
+PopType:register(laborer)
 
 -- Good types
 

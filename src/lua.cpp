@@ -17,6 +17,7 @@
 #include "world.hpp"
 #include "nation.hpp"
 #include "economy.hpp"
+#include "print.hpp"
 
 // Global world - do not use too much!
 extern World * g_world;
@@ -33,6 +34,11 @@ int LuaAPI::add_good(lua_State * L) {
 }
 
 int LuaAPI::get_good(lua_State * L) {
+	if(!lua_isstring(L, 1)) {
+		print_error("invalid arguments %p", L);
+		return 0;
+	}
+
 	std::string ref_name = lua_tostring(L, 1);
 	Good * good = nullptr;
 	
@@ -284,6 +290,20 @@ int LuaAPI::add_event(lua_State * L) {
 
 	// Add onto vector
 	g_world->events.push_back(event);
+	return 0;
+}
+
+int LuaAPI::add_pop_type(lua_State * L) {
+	PopType pop;
+
+	pop.ref_name = lua_tostring(L, 1);
+	pop.name = lua_tostring(L, 2);
+	pop.on_tick_fn = lua_tostring(L, 3);
+
+	printf("pop_type: %s\n", pop.ref_name.c_str());
+
+	// Add onto vector
+	g_world->pop_types.push_back(pop);
 	return 0;
 }
 

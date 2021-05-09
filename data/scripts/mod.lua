@@ -1,4 +1,4 @@
-require("data/scripts/api")
+require("api")
 
 function ec_test()
 	local year = get_year()

@@ -7,6 +7,7 @@ class PopType {
 public:
 	std::string name;
 	std::string ref_name;
+	std::string on_tick_fn;
 	float average_budget;
 };
 
