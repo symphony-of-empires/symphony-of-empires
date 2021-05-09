@@ -16,6 +16,7 @@ compile_commands.json
 
 # vs stuff
 .vs/
+x64/
 
 # cmake stuff
 CMakeFiles/
