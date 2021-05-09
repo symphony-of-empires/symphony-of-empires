@@ -1,7 +1,7 @@
 #ifdef WINDOWS
-#include <lua.hpp>
+#	include <lua.hpp>
 #else
-#include <lua5.4/lua.hpp>
+#	include <lua5.4/lua.hpp>
 #endif //WINDOWS
 #include <string.h>
 #include <stdlib.h>
@@ -228,9 +228,6 @@ int LuaAPI::get_province(lua_State * L) {
 	return 4;
 }
 
-#ifndef SERVER_ONLY
-#include "map.hpp"
-#endif
 int LuaAPI::give_province_to(lua_State * L) {
 	size_t province_id = lua_tonumber(L, 1);
 	Province * province = &g_world->provinces[province_id];
@@ -244,18 +241,6 @@ int LuaAPI::give_province_to(lua_State * L) {
 			tile->owner_id = nation_id;
 		}
 	}
-
-#ifndef SERVER_ONLY
-	//static Map prov_map, pol_map, topo_map, infra_map;
-	prov_map.quad_update(province->min_x, province->min_y);
-	prov_map.quad_update(province->max_x, province->max_y);
-	pol_map.quad_update(province->min_x, province->min_y);
-	pol_map.quad_update(province->max_x, province->max_y);
-	topo_map.quad_update(province->min_x, province->min_y);
-	topo_map.quad_update(province->max_x, province->max_y);
-	infra_map.quad_update(province->min_x, province->min_y);
-	infra_map.quad_update(province->max_x, province->max_y);
-#endif
 	return 0;
 }
 
@@ -323,21 +308,33 @@ int LuaAPI::get_year(lua_State * L) {
 }
 //g_events
 
-#include <iostream>
+int redraw = 0;
 
 // Checks all events and their condition functions
 void LuaAPI::check_events(lua_State * L) {
 	// Because of the logic of this loop, only 1 event can happen in the world per tick
-	for(auto& event: g_world->events) {
-		lua_getglobal(L, event.conditions_function.c_str());
+	// This is on purpouse ;)
+	for(size_t i = 0; i < g_world->events.size(); i++) {
+		Event * event = &g_world->events[i];
+		lua_getglobal(L, event->conditions_function.c_str());
 		lua_call(L, 0, 1);
 		int r = lua_tointeger(L, -1);
 		lua_pop(L, 1);
 
 		// Conditions met
 		if(r) {
-			lua_getglobal(L, event.do_event_function.c_str());
-			lua_call(L, 0, 0);
+			lua_getglobal(L, event->do_event_function.c_str());
+			lua_call(L, 0, 1);
+			int multi = lua_tointeger(L, -1);
+			lua_pop(L, 1);
+
+			// Event is removed if it's not of multiple occurences
+			if(!multi) {
+				g_world->events.erase(g_world->events.begin() + i);
+				break;
+			}
+
+			redraw = 1;
 		}
 		// Conditions not met, continue to next event...
 	}
