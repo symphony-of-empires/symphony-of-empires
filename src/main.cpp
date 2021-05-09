@@ -6,7 +6,19 @@ void rendering_main(void);
 
 #include <chrono>
 #include <thread>
-#include <queue>
+
+bool greedy_bfs(World * world, size_t cx, size_t cy, size_t gx, size_t gy) {
+	std::vector<std::pair<size_t, size_t>> open;
+	std::vector<std::pair<size_t, size_t>> closed;
+
+	open.push_back(std::make_pair(cx, cy));
+	while(1) {
+		if(open.empty())
+			return false;
+		
+		
+	}
+}
 
 int main(int argc, char ** argv) {
 	World world("map_topo.png", "map_pol.png", "map_div.png", "map_infra.png");
@@ -26,6 +38,8 @@ int main(int argc, char ** argv) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(250));
 	}
 	t1.join();
+#else
+	exit(EXIT_SUCCESS);
 #endif
 	return 0;
 }
