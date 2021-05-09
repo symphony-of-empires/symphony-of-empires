@@ -1,10 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/cdefs.h>
 #include "economy.hpp"
 #include "world.hpp"
 #include "texture.hpp"
 #include "lua.hpp"
 #include "path.hpp"
+#include "print.hpp"
 
 // Mostly used by clients and lua API
 World * g_world;
@@ -34,6 +36,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 		exit(EXIT_FAILURE);
 	}
 
+	// Set path for `require` statements in lua
 	this->lua = luaL_newstate();
 	luaL_openlibs(this->lua);
 
@@ -51,6 +54,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	lua_register(this->lua, "give_province_to", LuaAPI::give_province_to);
 	lua_register(this->lua, "add_company", LuaAPI::add_company);
 	lua_register(this->lua, "add_event", LuaAPI::add_event);
+	lua_register(this->lua, "add_pop_type", LuaAPI::add_pop_type);
 
 	lua_register(this->lua, "get_hour", LuaAPI::get_hour);
 	lua_register(this->lua, "get_day", LuaAPI::get_day);
@@ -60,7 +64,22 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	// TODO: The. name. is. fucking. long.
 	lua_register(this->lua, "add_op_province_to_company", LuaAPI::add_op_province_to_company);
 
-	luaL_dofile(this->lua, Resource_GetPath("scripts/init.lua").c_str());
+	// Set path for `require` statements in lua
+	lua_getglobal(this->lua, "package");
+	lua_getfield(this->lua, -1, "path");
+	std::string curr_path = lua_tostring(this->lua, -1);
+	curr_path.append(";");
+	curr_path.append(Resource_GetPath("scripts/api.lua"));
+	lua_pop(this->lua, 1);
+	lua_pushstring(this->lua, curr_path.c_str());
+	lua_setfield(this->lua, -2, "path");
+	lua_pop(this->lua, 1);
+
+	int ret = luaL_dofile(this->lua, Resource_GetPath("scripts/init.lua").c_str());
+	if(ret) {
+		print_error("lua error %s", lua_tostring(this->lua, -1));
+		exit(EXIT_FAILURE);
+	}
 
 	// Translate all div, pol and topo maps onto this single tile array
 	const size_t n_nations = this->nations.size();
@@ -142,7 +161,11 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	this->goods.shrink_to_fit();
 	this->industry_types.shrink_to_fit();
 
-	luaL_dofile(this->lua, Resource_GetPath("scripts/mod.lua").c_str());
+	ret = luaL_dofile(this->lua, Resource_GetPath("scripts/mod.lua").c_str());
+	if(ret) {
+		print_error("lua error %s", lua_tostring(this->lua, -1));
+		exit(EXIT_FAILURE);
+	}
 }
 
 World::~World() {
@@ -184,7 +207,7 @@ void World::do_tick() {
 				order.requester_industry_id = j;
 				order.requester_province_id = i;
 				orders.push_back(order);
-				//printf("We need good: %s (from %s)\n", this->goods[order.good_id].ref_name.c_str(), this->provinces[order.requester_province_id].ref_name.c_str());
+				printf("We need good: %s (from %s)\n", this->goods[order.good_id].ref_name.c_str(), this->provinces[order.requester_province_id].ref_name.c_str());
 			}
 
 			if(it->inputs.size() == 0) {
@@ -196,7 +219,7 @@ void World::do_tick() {
 					deliver.sender_industry_id = j;
 					deliver.sender_province_id = i;
 					delivers.push_back(deliver);
-					//printf("Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id].ref_name.c_str(), this->provinces[deliver.sender_province_id].ref_name.c_str());
+					printf("Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id].ref_name.c_str(), this->provinces[deliver.sender_province_id].ref_name.c_str());
 				}
 			}
 		}
@@ -206,27 +229,29 @@ void World::do_tick() {
 	|| orders.size() > 0) {
 		// Now transport companies will check and transport accordingly
 		for(auto& company: this->companies) {
-			if(!company.is_transport) continue;
-
-			//printf("Hi, i'm %s\n", company.name.c_str());
+			if(!company.is_transport)
+				continue;
 
 			// Check all delivers
 			for(size_t i = 0; i < delivers.size(); i++) {
 				DeliverGoods * deliver = &delivers[i];
 
-				if(!company.in_range(deliver->sender_province_id)) continue;
+				if(!company.in_range(deliver->sender_province_id))
+					continue;
 
 				// Check all orders
 				for(size_t j = 0; j < orders.size(); j++) {
 					OrderGoods * order = &orders[j];
 					
 					// Do they want this goods?
-					if(order->good_id != deliver->good_id) continue;
+					if(order->good_id != deliver->good_id)
+						continue;
 
 					// Are we in the range to deliver?
-					if(!company.in_range(order->requester_province_id)) continue;
+					if(!company.in_range(order->requester_province_id))
+						continue;
 
-					//printf("Delivered from %s to %s some %s\n", this->provinces[deliver->sender_province_id].ref_name.c_str(), this->provinces[order->requester_province_id].ref_name.c_str(), this->goods[order->good_id].ref_name.c_str());
+					printf("%s: Delivered from %s to %s some %s\n", company.name.c_str(), this->provinces[deliver->sender_province_id].ref_name.c_str(), this->provinces[order->requester_province_id].ref_name.c_str(), this->goods[order->good_id].ref_name.c_str());
 
 					// Yes - we go and deliver their stuff
 					Industry * industry = &this->provinces[order->requester_province_id].industries[order->requester_industry_id];

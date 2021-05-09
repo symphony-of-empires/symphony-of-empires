@@ -47,6 +47,7 @@ public:
 	std::vector<Province> provinces;
 	std::vector<Company> companies;
 	std::vector<Product> products;
+	std::vector<PopType> pop_types;
 
 	std::vector<LuaAPI::Event> events;
 	lua_State * lua;
