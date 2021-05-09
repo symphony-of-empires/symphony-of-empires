@@ -1,4 +1,7 @@
 # Symphony of the Empires
+
+Want to contribute or are interested in the development of the game? See our discord https://discord.gg/44QuvuDmCS
+
 Yeah, we already decided the name. This is a very nice game.
 
 Required to build:
