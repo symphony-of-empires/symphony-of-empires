@@ -29,7 +29,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 
 	this->sea_level = 128;
 	this->tiles = new Tile[this->width * this->height];
-	if(this->tiles == NULL) {
+	if(this->tiles == nullptr) {
 		perror("out of mem\n");
 		exit(EXIT_FAILURE);
 	}
