@@ -6,6 +6,9 @@
 *.obj
 *.exe
 
-# bad folders
+# output folders
 bin/
 obj/
+
+# vscode stuff
+compile_commands.json
