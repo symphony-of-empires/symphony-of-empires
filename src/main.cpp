@@ -1,10 +1,10 @@
 #include <string>
 #include "world.hpp"
+#include "lua.hpp"
 
 void rendering_main(void);
 
 #include <chrono>
-#include <thread>
 #include <thread>
 int main(int argc, char ** argv) {
 	World world("map_topo.png", "map_pol.png", "map_div.png", "map_infra.png");
@@ -18,8 +18,10 @@ int main(int argc, char ** argv) {
 
 	const bool run = true;
 	while(run) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		LuaAPI::check_events(world.lua);
 		world.do_tick();
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(250));
 	}
 	t1.join();
 #endif
