@@ -26,4 +26,6 @@ jobs:
     - name: "Build"
       run: |
        UNIT_TEST=1 make -j
+    - name: "Run"
+      run: |
        bin/main
