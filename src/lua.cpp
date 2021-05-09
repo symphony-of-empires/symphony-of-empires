@@ -308,8 +308,6 @@ int LuaAPI::get_year(lua_State * L) {
 }
 //g_events
 
-int redraw = 0;
-
 // Checks all events and their condition functions
 void LuaAPI::check_events(lua_State * L) {
 	// Because of the logic of this loop, only 1 event can happen in the world per tick
@@ -333,8 +331,6 @@ void LuaAPI::check_events(lua_State * L) {
 				g_world->events.erase(g_world->events.begin() + i);
 				break;
 			}
-
-			redraw = 1;
 		}
 		// Conditions not met, continue to next event...
 	}
