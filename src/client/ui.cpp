@@ -8,7 +8,6 @@
 #include "texture.hpp"
 #include "ui.hpp"
 #include "path.hpp"
-#include <iostream>
 
 using namespace UI;
 
