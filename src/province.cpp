@@ -4,11 +4,11 @@
 void Province::add_industry(World * world, Industry * industry) {
 	IndustryType * type = &world->industry_types[industry->type_id];
 	for(const auto& output: type->outputs) {
-		size_t good_id = output;
+		const size_t good_id = output;
 
 		// Check that product is not already in the province
 		int is_here = 0;
-		unsigned int n_products = this->products.size();
+		const unsigned int n_products = this->products.size();
 		for(size_t j = 0; j < n_products; j++) {
 			if(this->products[j].owner_id == industry->owner_id) {
 				is_here = 1;

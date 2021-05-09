@@ -85,7 +85,7 @@ int LuaAPI::add_input_to_industry_type(lua_State * L) {
 	
 	IndustryType * industry = nullptr;
 	ref_name = lua_tostring(L, 1);
-	size_t n_industry_types = g_world->industry_types.size();
+	const size_t n_industry_types = g_world->industry_types.size();
 	for(size_t i = 0; i < n_industry_types; i++) {
 		if(ref_name == g_world->industry_types[i].ref_name) continue;
 		industry = &g_world->industry_types[i];
@@ -97,7 +97,7 @@ int LuaAPI::add_input_to_industry_type(lua_State * L) {
 
 	size_t good_id = (size_t)-1;
 	ref_name = lua_tostring(L, 2);
-	size_t n_goods = g_world->goods.size();
+	const size_t n_goods = g_world->goods.size();
 	for(size_t i = 0; i < n_goods; i++) {
 		if(ref_name == g_world->goods[i].ref_name) continue;
 		good_id = i;
@@ -115,7 +115,7 @@ int LuaAPI::add_output_to_industry_type(lua_State * L) {
 
 	IndustryType * industry = nullptr;
 	ref_name = lua_tostring(L, 1);
-	size_t n_industry_types = g_world->industry_types.size();
+	const size_t n_industry_types = g_world->industry_types.size();
 	for(size_t i = 0; i < n_industry_types; i++) {
 		if(ref_name != g_world->industry_types[i].ref_name) continue;
 		industry = &g_world->industry_types[i];
@@ -128,7 +128,7 @@ int LuaAPI::add_output_to_industry_type(lua_State * L) {
 
 	size_t good_id = (size_t)-1;
 	ref_name = lua_tostring(L, 2);
-	size_t n_goods = g_world->goods.size();
+	const size_t n_goods = g_world->goods.size();
 	for(size_t i = 0; i < n_goods; i++) {
 		if(ref_name != g_world->goods[i].ref_name) continue;
 		good_id = i;

@@ -61,7 +61,7 @@ void do_economy_on_click(UI::Widget *, void *) {
 
 void do_economy_on_update(UI::Widget *, void *) {
 	size_t n_prod = 1;
-	size_t n_products = g_world->products.size();
+	const size_t n_products = g_world->products.size();
 
 	char * str = new char[255];
 	for(size_t i = 0; i < n_products; i++) {
