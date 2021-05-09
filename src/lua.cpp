@@ -273,6 +273,60 @@ int LuaAPI::add_op_province_to_company(lua_State * L) {
 	return 0;
 }
 
+int LuaAPI::add_event(lua_State * L) {
+	Event event;
+
+	event.ref_name = lua_tostring(L, 1);
+	event.conditions_function = lua_tostring(L, 2);
+	event.do_event_function = lua_tostring(L, 3);
+
+	printf("event: %s\n", event.ref_name.c_str());
+
+	// Add onto vector
+	g_world->events.push_back(event);
+	return 0;
+}
+
+int LuaAPI::get_hour(lua_State * L) {
+	lua_pushnumber(L, g_world->time % 24);
+	return 1;
+}
+
+int LuaAPI::get_day(lua_State * L) {
+	lua_pushnumber(L, (g_world->time / 24) % 30);
+	return 1;
+}
+
+int LuaAPI::get_month(lua_State * L) {
+	lua_pushnumber(L, ((g_world->time / 24) / 30) % 12);
+	return 1;
+}
+
+int LuaAPI::get_year(lua_State * L) {
+	lua_pushnumber(L, ((g_world->time / 24) / 30) / 12);
+	return 1;
+}
+//g_events
+
+#include <iostream>
+// Checks all events and their condition functions
+void LuaAPI::check_events(lua_State * L) {
+	// Because of the logic of this loop, only 1 event can happen in the world per tick
+	for(auto& event: g_world->events) {
+		lua_getglobal(L, event.conditions_function.c_str());
+		lua_call(L, 0, 1);
+		int r = lua_tointeger(L, -1);
+		lua_pop(L, 1);
+
+		// Conditions met
+		if(r) {
+			lua_getglobal(L, event.do_event_function.c_str());
+			lua_call(L, 0, 0);
+		}
+		// Conditions not met, continue to next event...
+	}
+}
+
 #include <libintl.h>
 #include <locale.h>
 int LuaAPI::get_text(lua_State * L) {
