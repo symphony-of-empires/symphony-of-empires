@@ -61,7 +61,7 @@ void do_economy_on_click(UI::Widget *, void *) {
 
 void do_economy_on_update(UI::Widget *, void *) {
 	size_t n_prod = 1;
-	size_t n_products = g_world->products.size();
+	const size_t n_products = g_world->products.size();
 
 	char * str = new char[255];
 	for(size_t i = 0; i < n_products; i++) {
@@ -150,7 +150,7 @@ void rendering_main(void) {
 	Texture help_icon = Texture(Resource_GetPath("icons/help.png").c_str());
 	help_icon.to_opengl();
 
-	UI_Widget_CreateButton(ui_ctx, NULL, &help_btn, 8, 8, 64, 64);
+	UI_Widget_CreateButton(ui_ctx, nullptr, &help_btn, 8, 8, 64, 64);
 	ui_ctx->add_widget(&help_btn);
 	help_btn.on_click = &do_help;
 	UI_Widget_CreateImage(ui_ctx, &help_btn, &help_btn_icon, 0, 0, 64, 64, &help_icon);
@@ -160,7 +160,7 @@ void rendering_main(void) {
 	Texture budget_icon = Texture(Resource_GetPath("icons/budget.png").c_str());
 	budget_icon.to_opengl();
 
-	UI_Widget_CreateButton(ui_ctx, NULL, &budget_btn, 8, (8 * 2) + 64, 64, 64);
+	UI_Widget_CreateButton(ui_ctx, nullptr, &budget_btn, 8, (8 * 2) + 64, 64, 64);
 	ui_ctx->add_widget(&budget_btn);
 	budget_btn.on_click = &do_economy_on_click;
 	UI_Widget_CreateImage(ui_ctx, &budget_btn, &budget_btn_icon, 0, 0, 64, 64, &budget_icon);
@@ -169,7 +169,7 @@ void rendering_main(void) {
 	UI::Widget pol_view_btn, pol_view_btn_icon;
 	Texture pol_view_icon = Texture(Resource_GetPath("icons/pol_view.png").c_str());
 	pol_view_icon.to_opengl();
-	UI_Widget_CreateButton(ui_ctx, NULL, &pol_view_btn, 8, (8 * 3) + (64 * 2), 64, 64);
+	UI_Widget_CreateButton(ui_ctx, nullptr, &pol_view_btn, 8, (8 * 3) + (64 * 2), 64, 64);
 	ui_ctx->add_widget(&pol_view_btn);
 	pol_view_btn.on_click = &do_view_pol_map;
 	UI_Widget_CreateImage(ui_ctx, &pol_view_btn, &pol_view_btn_icon, 0, 0, 64, 64, &pol_view_icon);
@@ -178,7 +178,7 @@ void rendering_main(void) {
 	UI::Widget prov_view_btn, prov_view_btn_icon;
 	Texture prov_view_icon = Texture(Resource_GetPath("icons/prov_view.png").c_str());
 	prov_view_icon.to_opengl();
-	UI_Widget_CreateButton(ui_ctx, NULL, &prov_view_btn, 8, (8 * 4) + (64 * 3), 64, 64);
+	UI_Widget_CreateButton(ui_ctx, nullptr, &prov_view_btn, 8, (8 * 4) + (64 * 3), 64, 64);
 	ui_ctx->add_widget(&prov_view_btn);
 	prov_view_btn.on_click = &do_view_prov_map;
 	UI_Widget_CreateImage(ui_ctx, &prov_view_btn, &prov_view_btn_icon, 0, 0, 64, 64, &prov_view_icon);
@@ -187,7 +187,7 @@ void rendering_main(void) {
 	UI::Widget topo_view_btn, topo_view_btn_icon;
 	Texture topo_view_icon = Texture(Resource_GetPath("icons/topo_view.png").c_str());
 	topo_view_icon.to_opengl();
-	UI_Widget_CreateButton(ui_ctx, NULL, &topo_view_btn, 8, (8 * 5) + (64 * 4), 64, 64);
+	UI_Widget_CreateButton(ui_ctx, nullptr, &topo_view_btn, 8, (8 * 5) + (64 * 4), 64, 64);
 	ui_ctx->add_widget(&topo_view_btn);
 	topo_view_btn.on_click = &do_view_topo_map;
 	UI_Widget_CreateImage(ui_ctx, &topo_view_btn, &topo_view_btn_icon, 0, 0, 64, 64, &topo_view_icon);
@@ -196,7 +196,7 @@ void rendering_main(void) {
 	UI::Widget infra_view_btn, infra_view_btn_icon;
 	Texture infra_view_icon = Texture(Resource_GetPath("icons/infra_view.png").c_str());
 	infra_view_icon.to_opengl();
-	UI_Widget_CreateButton(ui_ctx, NULL, &infra_view_btn, 8, (8 * 6) + (64 * 5), 64, 64);
+	UI_Widget_CreateButton(ui_ctx, nullptr, &infra_view_btn, 8, (8 * 6) + (64 * 5), 64, 64);
 	ui_ctx->add_widget(&infra_view_btn);
 	infra_view_btn.on_click = &do_view_infra_map;
 	UI_Widget_CreateImage(ui_ctx, &infra_view_btn, &infra_view_btn_icon, 0, 0, 64, 64, &infra_view_icon);
@@ -205,14 +205,14 @@ void rendering_main(void) {
 	UI::Widget exit_btn, exit_btn_icon;
 	Texture exit_icon = Texture(Resource_GetPath("icons/exit.png").c_str());
 	exit_icon.to_opengl();
-	UI_Widget_CreateButton(ui_ctx, NULL, &exit_btn, 8, (8 * 7) + (64 * 6), 64, 64);
+	UI_Widget_CreateButton(ui_ctx, nullptr, &exit_btn, 8, (8 * 7) + (64 * 6), 64, 64);
 	ui_ctx->add_widget(&exit_btn);
 	exit_btn.on_click = &do_exit;
 	UI_Widget_CreateImage(ui_ctx, &exit_btn, &exit_btn_icon, 0, 0, 64, 64, &exit_icon);
 	ui_ctx->add_widget(&exit_btn_icon);
 
 	/* help window */
-	UI_Widget_CreateWindow(ui_ctx, NULL, &help_win, width - 520, 32, 512, 512);
+	UI_Widget_CreateWindow(ui_ctx, nullptr, &help_win, width - 520, 32, 512, 512);
 	help_win.text(ui_ctx, "Russo-Japanesse War 1904");
 	UI_Widget_CreateButton(ui_ctx, &help_win, &help_win_close_btn, 512 - 24, -24, 24, 24);
 	help_win_close_btn.text(ui_ctx, "X");
@@ -236,7 +236,7 @@ void rendering_main(void) {
 	}
 
 	/* tile overview */
-	UI_Widget_CreateWindow(ui_ctx, NULL, &tov_win, width - 520, 32, 512, 512);
+	UI_Widget_CreateWindow(ui_ctx, nullptr, &tov_win, width - 520, 32, 512, 512);
 	tov_win.text(ui_ctx, "Province overview");
 	UI_Widget_CreateButton(ui_ctx, &tov_win, &tov_win_close_btn, 512 - 24, -24, 24, 24);
 	tov_win_close_btn.text(ui_ctx, "X");
@@ -246,7 +246,7 @@ void rendering_main(void) {
 	UI_Widget_CreateLabel(ui_ctx, &tov_win, &tov_population_label, 0, 48, "?");
 
 	/* overview bottom window */
-	UI_Widget_CreateWindow(ui_ctx, NULL, &overview_win, 0, height - 128, width, 128);
+	UI_Widget_CreateWindow(ui_ctx, nullptr, &overview_win, 0, height - 128, width, 128);
 	overview_win.text(ui_ctx, g_world->nations[current_player_nation_id].ref_name.c_str());
 	ui_ctx->add_widget(&overview_win);
 	UI_Widget_CreateLabel(ui_ctx, &overview_win, &overview_time_label, 128 + 32 + 8, 24, "?");
@@ -255,7 +255,7 @@ void rendering_main(void) {
 	ui_ctx->add_widget(&overview_flag_image);
 
 	/* economy window */
-	UI_Widget_CreateWindow(ui_ctx, NULL, &econ_win, 128, 32, 512, 512);
+	UI_Widget_CreateWindow(ui_ctx, nullptr, &econ_win, 128, 32, 512, 512);
 	UI_Widget_CreateButton(ui_ctx, &econ_win, &econ_win_close_btn, 512 - 24, -24, 24, 24);
 	econ_win_close_btn.on_click = &default_close_button_on_click;
 	UI_Widget_CreateLabel(ui_ctx, &econ_win, &econ_label[0], 128 * 0, 24, "% Change");
@@ -324,10 +324,10 @@ void rendering_main(void) {
 				ui_ctx->check_hover(mx, my);
 
 				fmx = mx - (width / 2.f);
-				fmx /= ((float)width / (float)(-cam.z * 1.33f));
+				fmx /= ((float)width / (-cam.z * 1.33f));
 
 				fmy = my - (height / 2.f);
-				fmy /= ((float)height / (float)(-cam.z * 0.83f));
+				fmy /= ((float)height / (-cam.z * 0.83f));
 
 				fmx += -cam.x;
 				fmy += cam.y;
@@ -398,7 +398,7 @@ void rendering_main(void) {
 		glEnd();
 		
 		glBindTexture(GL_TEXTURE_2D, g_world->nations[current_player_nation_id].default_flag.gl_tex_num);
-		GLUquadricObj * sphere = NULL;
+		GLUquadricObj * sphere = nullptr;
 		sphere = gluNewQuadric();
 		gluQuadricDrawStyle(sphere, GLU_FILL);
 		gluQuadricTexture(sphere, 1);

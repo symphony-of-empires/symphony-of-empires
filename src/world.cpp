@@ -29,7 +29,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 
 	this->sea_level = 128;
 	this->tiles = new Tile[this->width * this->height];
-	if(this->tiles == NULL) {
+	if(this->tiles == nullptr) {
 		perror("out of mem\n");
 		exit(EXIT_FAILURE);
 	}
@@ -58,8 +58,8 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	lua_close(L);
 
 	// Translate all div, pol and topo maps onto this single tile array
-	size_t n_nations = this->nations.size();
-	size_t n_provinces = this->provinces.size();
+	const size_t n_nations = this->nations.size();
+	const size_t n_provinces = this->provinces.size();
 	for(size_t i = 0; i < this->width * this->height; i++) {
 		this->tiles[i].elevation = topo.buffer[i] & 0xff;
 		
@@ -137,7 +137,7 @@ public:
 	size_t rejections = 0;
 };
 void World::do_tick() {
-	size_t n_provinces = this->provinces.size();
+	const size_t n_provinces = this->provinces.size();
 	//size_t n_companies = this->companies.size();
 
 	std::vector<OrderGoods> orders;
