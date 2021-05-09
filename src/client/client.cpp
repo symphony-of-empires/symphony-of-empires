@@ -50,7 +50,7 @@ void do_tile_overview() {
 	ui_ctx->add_widget(&tov_population_label);
 }
 
-UI::Widget econ_win, econ_win_close_btn, econ_label[512];
+UI::Widget econ_win, econ_win_close_btn, econ_label[1024];
 void do_economy_on_click(UI::Widget *, void *) {
 	ui_ctx->add_widget(&econ_win);
 	ui_ctx->add_widget(&econ_win_close_btn);
@@ -133,8 +133,6 @@ void rendering_main(void) {
 	glEnable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 
-	ui_ctx = new UI::Context();
-
 	// Render g_world stuff now that we are in opengl
 	prov_map = Map(g_world, MAP_PROVINCIAL);
 	pol_map = Map(g_world, MAP_POLITICAL);
@@ -144,6 +142,8 @@ void rendering_main(void) {
 	for(auto& nation: g_world->nations) {
 		nation.default_flag.to_opengl();
 	}
+
+	ui_ctx = new UI::Context();
 
 	/* left sidebar buttons */
 	UI::Widget help_btn, help_btn_icon;

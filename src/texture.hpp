@@ -9,8 +9,9 @@ class Texture {
 public:
 	Texture() {};
 	Texture(const char * path);
-	~Texture();
 	Texture(const Texture& tex) : buffer(tex.buffer) {};
+	Texture& operator=(const Texture&) = default;
+	~Texture();
 
 	uint32_t * buffer;
 	size_t width;

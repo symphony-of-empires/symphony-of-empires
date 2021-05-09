@@ -52,50 +52,49 @@ Context::Context() {
 
 void Context::add_widget(Widget * widget) {
 	widget->show = 1;
+
+	// Not already here
 	for(size_t i = 0; i < this->widgets.size(); i++) {
-		if(this->widgets[i] != nullptr) continue;
-		if(this->widgets[i] == widget) return;
-		this->widgets[i] = widget;
-		return;
+		if(this->widgets[i] == widget)
+			return;
 	}
+
 	this->widgets.push_back(widget);
 	return;
 }
 
 void Context::remove_widget(Widget * widget) {
+	widget->show = 0;
 	for(size_t i = 0; i < this->widgets.size(); i++) {
-		if(this->widgets[i] != widget) continue;
-
-		printf("n child: %zu\n", this->widgets[i]->children.size());
-		for(auto& child: this->widgets[i]->children) {
-			this->remove_widget(child);
+		if(this->widgets[i] != widget)
+			continue;
+		
+		for(size_t j = 0; j < widget->children.size(); j++) {
+			this->remove_widget(widget->children[j]);
 		}
-		this->widgets[i] = nullptr;
+
+		this->widgets.erase(this->widgets.begin() + i);
 		break;
 	}
-	widget->show = 0;
 	return;
 }
 
 void Context::render_all() {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
-		if(widget == nullptr) {
+		if(widget == nullptr)
 			continue;
-		}
 
 		if(widget->parent != nullptr
 		&& (widget->x + widget->width > widget->parent->x + widget->parent->width
-		|| widget->y + widget->height > widget->parent->y + widget->parent->height)) {
+		|| widget->y + widget->height > widget->parent->y + widget->parent->height))
 			continue;
-		}
 
 		if(widget->show && widget->on_render != nullptr) {
 			widget->on_render(widget, (void *)this);
 
-			if(widget->on_update != nullptr) {
+			if(widget->on_update != nullptr)
 				widget->on_update(widget, (void *)this);
-			}
 		}
 	}
 	return;
@@ -104,28 +103,24 @@ void Context::render_all() {
 void Context::check_hover(const unsigned mx, const unsigned my) {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
-		if(widget == nullptr) {
+		if(widget == nullptr)
 			continue;
-		}
 
 		if(mx >= widget->x && mx <= widget->x + widget->width
 		&& my >= widget->y && my <= widget->y + widget->height
 		&& widget->show) {
-			if(widget->current_texture == &this->button_idle) {
+			if(widget->current_texture == &this->button_idle)
 				widget->current_texture = &this->button_hover;
-			} else if(widget->current_texture == &this->input_idle) {
+			else if(widget->current_texture == &this->input_idle)
 				widget->current_texture = &this->input_hover;
-			}
-
-			if(widget->on_hover != nullptr) {
+			
+			if(widget->on_hover != nullptr)
 				widget->on_hover(widget, nullptr);
-			}
 		} else {
-			if(widget->current_texture == &this->button_hover) {
+			if(widget->current_texture == &this->button_hover)
 				widget->current_texture = &this->button_idle;
-			} else if(widget->current_texture == &this->input_hover) {
+			else if(widget->current_texture == &this->input_hover)
 				widget->current_texture = &this->input_idle;
-			}
 		}
 	}
 	return;
@@ -135,9 +130,8 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 	int retval = 0;
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
-		if(widget == nullptr) {
+		if(widget == nullptr)
 			continue;
-		}
 
 		if(mx >= widget->x && mx <= widget->x + widget->width
 		&& my >= widget->y && my <= widget->y + widget->height
@@ -179,9 +173,8 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 void Context::check_text_input(const char * input) {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
-		if(widget == nullptr) {
+		if(widget == nullptr)
 			continue;
-		}
 
 		if(widget->current_texture == &this->input_active
 		&& widget->on_textinput != nullptr
@@ -292,9 +285,8 @@ void default_close_button_on_click(Widget * w, void * data) {
 }
 
 Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
-	const char * text, const Texture * tex) {
+	const char * text, Texture * tex) {
 	memset(this, 0, sizeof(Widget));
-	
 	this->on_render = &default_on_render;
 	this->show = 1;
 	this->type = _type;
@@ -303,26 +295,29 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 	this->width = w;
 	this->height = h;
 
-	this->parent = _parent;
 	if(_parent != nullptr) {
 		this->x += _parent->x;
 		this->y += _parent->y;
 		_parent->add_child(this);
 	}
 
-	switch(this->type) {
-	case UI_WIDGET_BUTTON:
-		this->current_texture = &ctx->button_idle;
-		break;
-	case UI_WIDGET_INPUT:
-		this->current_texture = &ctx->input_idle;
-		this->on_textinput = &default_on_text_input;
-		break;
-	case UI_WIDGET_WINDOW:
-		this->current_texture = &ctx->window;
-		break;
-	default:
-		break;
+	if(tex == nullptr) {
+		switch(this->type) {
+		case UI_WIDGET_BUTTON:
+			this->current_texture = &ctx->button_idle;
+			break;
+		case UI_WIDGET_INPUT:
+			this->current_texture = &ctx->input_idle;
+			this->on_textinput = &default_on_text_input;
+			break;
+		case UI_WIDGET_WINDOW:
+			this->current_texture = &ctx->window;
+			break;
+		default:
+			break;
+		}
+	} else {
+		this->current_texture = tex;
 	}
 
 	if(text != nullptr) {
@@ -332,9 +327,10 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 }
 
 void Widget::add_child(Widget * child) {
-	// Check that not already children
+	// Not already in list
 	for(size_t i = 0; i < this->children.size(); i++) {
-		if(this->children[i] == child) return;
+		if(this->children[i] == child)
+			return;
 	}
 
 	// Add to list
