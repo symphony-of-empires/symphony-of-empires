@@ -56,6 +56,8 @@ namespace UI {
 		Widget() {};
 		Widget(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type,
 			const char * text = nullptr, Texture * tex = nullptr);
+		void init(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type,
+			const char * text = nullptr, Texture * tex = nullptr);
 		Widget& operator=(const Widget&) = default;
 
 		void add_child(Widget * child);
@@ -114,28 +116,28 @@ void default_close_button_on_click(UI::Widget * w, void * data);
 
 static inline void UI_Widget_CreateButton(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
 	int x, int y, unsigned w, unsigned h) {
-	*widget = UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_BUTTON);
+	widget->init(ctx, parent, x, y, w, h, UI_WIDGET_BUTTON);
 }
 
 static inline void UI_Widget_CreateInput(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
 	int x, int y, unsigned w, unsigned h) {
-	*widget = UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_INPUT);
+	widget->init(ctx, parent, x, y, w, h, UI_WIDGET_INPUT);
 }
 
 static inline void UI_Widget_CreateWindow(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
 	int x, int y, unsigned w, unsigned h) {
-	*widget = UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_WINDOW);
+	widget->init(ctx, parent, x, y, w, h, UI_WIDGET_WINDOW);
 }
 
 static inline void UI_Widget_CreateImage(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
 	int x, int y, unsigned w, unsigned h, Texture * tex) {
-	*widget = UI::Widget(ctx, parent, x, y, w, h, UI_WIDGET_IMAGE);
+	widget->init(ctx, parent, x, y, w, h, UI_WIDGET_IMAGE);
 	widget->current_texture = tex;
 }
 
 static inline void UI_Widget_CreateLabel(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
 	int x, int y, const char * text) {
-	*widget = UI::Widget(ctx, parent, x, y, 0, 0, UI_WIDGET_WINDOW);
+	widget->init(ctx, parent, x, y, 0, 0, UI_WIDGET_WINDOW);
 	widget->text(ctx, text);
 }
 
