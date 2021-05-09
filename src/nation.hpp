@@ -11,13 +11,13 @@ public:
 	Nation() {};
 	Nation& operator=(const Nation&) = default;
 
-	std::string name;
-	std::string ref_name;
-	uint32_t color;
-	Texture default_flag;
+	std::string name; // Default transleted/display name
+	std::string ref_name; // Default reference name
+	uint32_t color; // Default color of the country
+	Texture default_flag; // Default flag texture of the country
 
-	// Relations with all other countries
-	std::vector<float> relations;
+	std::vector<float> relations; // Relations with all other countries
+	size_t spherer_id; // Id of the nation that has us on our sphere of influence
 };
 
 #endif
