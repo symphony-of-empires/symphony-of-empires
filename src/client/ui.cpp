@@ -15,7 +15,7 @@ SDL_Color text_color = { 0, 0, 0, 0 };
 
 Context::Context() {
 	this->default_font = TTF_OpenFont(Resource_GetPath("fonts/FreeMono.ttf").c_str(), 24);
-	if(this->default_font == NULL){
+	if(this->default_font == nullptr){
 		perror("font could not be loaded, exiting\n");
 		exit(EXIT_FAILURE);
 	}
@@ -53,7 +53,7 @@ Context::Context() {
 void Context::add_widget(Widget * widget) {
 	widget->show = 1;
 	for(size_t i = 0; i < this->widgets.size(); i++) {
-		if(this->widgets[i] != NULL) continue;
+		if(this->widgets[i] != nullptr) continue;
 		if(this->widgets[i] == widget) return;
 		this->widgets[i] = widget;
 		return;
@@ -70,7 +70,7 @@ void Context::remove_widget(Widget * widget) {
 		for(auto& child: this->widgets[i]->children) {
 			this->remove_widget(child);
 		}
-		this->widgets[i] = NULL;
+		this->widgets[i] = nullptr;
 		break;
 	}
 	widget->show = 0;
@@ -80,20 +80,20 @@ void Context::remove_widget(Widget * widget) {
 void Context::render_all() {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
-		if(widget == NULL) {
+		if(widget == nullptr) {
 			continue;
 		}
 
-		if(widget->parent != NULL
+		if(widget->parent != nullptr
 		&& (widget->x + widget->width > widget->parent->x + widget->parent->width
 		|| widget->y + widget->height > widget->parent->y + widget->parent->height)) {
 			continue;
 		}
 
-		if(widget->show && widget->on_render != NULL) {
+		if(widget->show && widget->on_render != nullptr) {
 			widget->on_render(widget, (void *)this);
 
-			if(widget->on_update != NULL) {
+			if(widget->on_update != nullptr) {
 				widget->on_update(widget, (void *)this);
 			}
 		}
@@ -101,10 +101,10 @@ void Context::render_all() {
 	return;
 }
 
-void Context::check_hover(unsigned mx, unsigned my) {
+void Context::check_hover(const unsigned mx, const unsigned my) {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
-		if(widget == NULL) {
+		if(widget == nullptr) {
 			continue;
 		}
 
@@ -117,8 +117,8 @@ void Context::check_hover(unsigned mx, unsigned my) {
 				widget->current_texture = &this->input_hover;
 			}
 
-			if(widget->on_hover != NULL) {
-				widget->on_hover(widget, NULL);
+			if(widget->on_hover != nullptr) {
+				widget->on_hover(widget, nullptr);
 			}
 		} else {
 			if(widget->current_texture == &this->button_hover) {
@@ -131,11 +131,11 @@ void Context::check_hover(unsigned mx, unsigned my) {
 	return;
 }
 
-int Context::check_click(unsigned mx, unsigned my) {
+int Context::check_click(const unsigned mx, const unsigned my) {
 	int retval = 0;
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
-		if(widget == NULL) {
+		if(widget == nullptr) {
 			continue;
 		}
 
@@ -153,7 +153,7 @@ int Context::check_click(unsigned mx, unsigned my) {
 				break;
 			}
 			
-			if(widget->on_click != NULL) {
+			if(widget->on_click != nullptr) {
 				widget->on_click(widget, (void *)this);
 			}
 			retval++;
@@ -179,12 +179,12 @@ int Context::check_click(unsigned mx, unsigned my) {
 void Context::check_text_input(const char * input) {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
-		if(widget == NULL) {
+		if(widget == nullptr) {
 			continue;
 		}
 
 		if(widget->current_texture == &this->input_active
-		&& widget->on_textinput != NULL
+		&& widget->on_textinput != nullptr
 		&& widget->type == UI_WIDGET_INPUT
 		&& widget->show) {
 			widget->on_textinput(widget, input, (void *)this);
@@ -193,7 +193,7 @@ void Context::check_text_input(const char * input) {
 	return;
 }
 
-void Widget::draw_rectangle(unsigned _x, unsigned _y, unsigned _w, unsigned _h, unsigned tex) {
+void Widget::draw_rectangle(unsigned _x, unsigned _y, unsigned _w, unsigned _h, const unsigned tex) {
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glBegin(GL_TRIANGLES);
 	glColor3f(1.f, 1.f, 1.f);
@@ -224,7 +224,7 @@ void default_on_render(Widget * w, void * data) {
 		);
 	}
 
-	if(!w->text_texture.gl_tex_num && w->text_texture.buffer != NULL) {
+	if(!w->text_texture.gl_tex_num && w->text_texture.buffer != nullptr) {
 		w->text_texture.to_opengl();
 	}
 
@@ -260,7 +260,7 @@ void default_on_text_input(Widget * w, const char * input, void * data) {
 	size_t len;
 	char must_clear = 0;
 
-	if(w->buffer == NULL) {
+	if(w->buffer == nullptr) {
 		len = 0;
 		must_clear = 1;
 	} else {
@@ -272,7 +272,7 @@ void default_on_text_input(Widget * w, const char * input, void * data) {
 	}
 
 	w->buffer = (char *)realloc(w->buffer, len + strlen(input) + 1);
-	if(w->buffer == NULL) {
+	if(w->buffer == nullptr) {
 		perror("out of memory\n");
 		exit(EXIT_FAILURE);
 	}
@@ -291,7 +291,7 @@ void default_close_button_on_click(Widget * w, void * data) {
 	return;
 }
 
-Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h, int _type,
+Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
 	const char * text, const Texture * tex) {
 	memset(this, 0, sizeof(Widget));
 	
@@ -304,7 +304,7 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsi
 	this->height = h;
 
 	this->parent = _parent;
-	if(_parent != NULL) {
+	if(_parent != nullptr) {
 		this->x += _parent->x;
 		this->y += _parent->y;
 		_parent->add_child(this);
@@ -325,7 +325,7 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsi
 		break;
 	}
 
-	if(text != NULL) {
+	if(text != nullptr) {
 		this->text(ctx, text);
 	}
 	return;
@@ -353,7 +353,7 @@ void Widget::text(Context * ctx, const char * text) {
 	}
 
 	surface = TTF_RenderText_Solid(ctx->default_font, text, text_color);
-	if(surface == NULL) {
+	if(surface == nullptr) {
 		perror("cannot create text surface\n");
 		return;
 	}
