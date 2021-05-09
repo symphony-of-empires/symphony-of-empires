@@ -239,10 +239,8 @@ int LuaAPI::give_province_to(lua_State * L) {
 			if(tile->province_id != province_id)
 				continue;
 			tile->owner_id = nation_id;
-			putchar('.');
 		}
 	}
-	printf("%zu - %zu\n", province_id, nation_id);
 	return 0;
 }
 
