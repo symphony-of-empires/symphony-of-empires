@@ -54,8 +54,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	// TODO: The. name. is. fucking. long.
 	lua_register(L, "add_op_province_to_company", LuaAPI::add_op_province_to_company);
 
-	luaL_dofile(L, Resource_GetPath("scripts/mod.lua").c_str());
-	lua_close(L);
+	luaL_dofile(L, Resource_GetPath("scripts/init.lua").c_str());
 
 	// Translate all div, pol and topo maps onto this single tile array
 	const size_t n_nations = this->nations.size();
@@ -97,17 +96,21 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 			for(size_t k = 0; k < this->provinces.size(); k++) {
 				if(tile->province_id == k) {
 					Province * province = &this->provinces[k];
-					if(province->min_x > i)
+					if(i < province->min_x)
 						province->min_x = i;
-					if(province->min_y > j)
+					if(j < province->min_y)
 						province->min_y = j;
-					if(province->max_x < i)
+					if(i > province->max_x)
 						province->max_x = i;
-					if(province->max_y < j)
+					if(j > province->max_y)
 						province->max_y = j;
 				}
 			}
 		}
+	}
+
+	for(const auto& province: this->provinces) {
+		printf("(%zu, %zu) - (%zu, %zu)\n", province.min_x, province.min_y, province.max_x, province.max_y);
 	}
 
 	// Shrink normally-not-resized vectors
@@ -115,6 +118,9 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	this->nations.shrink_to_fit();
 	this->goods.shrink_to_fit();
 	this->industry_types.shrink_to_fit();
+
+	luaL_dofile(L, Resource_GetPath("scripts/mod.lua").c_str());
+	lua_close(L);
 }
 
 World::~World() {

@@ -55,7 +55,9 @@ namespace UI {
 	public:
 		Widget() {};
 		Widget(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type,
-			const char * text = NULL, const Texture * tex = NULL);
+			const char * text = nullptr, Texture * tex = nullptr);
+		Widget& operator=(const Widget&) = default;
+
 		void add_child(Widget * child);
 		void text(Context * ctx, const char * text);
 		void draw_rectangle(unsigned x, unsigned y, unsigned w, unsigned h, unsigned tex);
@@ -91,19 +93,19 @@ namespace UI {
 	class Button : public Widget {
 	public:
 		Button(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
-			const char * text = NULL, const Texture * tex = NULL)
+			const char * text = nullptr, Texture * tex = nullptr)
 			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_BUTTON, text, tex) {}
 	};
 	class Input : public Widget {
 	public:
 		Input(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
-			const char * text = NULL, const Texture * tex = NULL)
+			const char * text = nullptr, Texture * tex = nullptr)
 			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_INPUT, text, tex) {}
 	};
 	class Window : public Widget {
 	public:
 		Window(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
-			const char * text = NULL, const Texture * tex = NULL)
+			const char * text = nullptr, Texture * tex = nullptr)
 			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_WINDOW, text, tex) {}
 	};
 };
