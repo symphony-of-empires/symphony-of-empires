@@ -30,6 +30,7 @@ namespace LuaAPI {
 	int give_province_to(lua_State * L);
 	int add_company(lua_State * L);
 	int add_event(lua_State * L);
+	int add_pop_type(lua_State * L);
 
 	// Time functions
 	int get_hour(lua_State * L);
