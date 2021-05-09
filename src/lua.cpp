@@ -296,8 +296,10 @@ int LuaAPI::give_province_to(lua_State * L) {
 }
 
 int LuaAPI::add_company(lua_State * L) {
-	if(!lua_isstring(L, 1) || !lua_isnumber(L, 2) || !lua_isboolean(L, 3)
-	|| !lua_isboolean(L, 4) || !lua_isboolean(L, 5)) {
+	// TODO: We need to validate this
+	//if(!lua_isstring(L, 1) || !lua_isnumber(L, 2) || !lua_isboolean(L, 3)
+	//|| !lua_isboolean(L, 4) || !lua_isboolean(L, 5)) {
+	if(!lua_isstring(L, 1) || !lua_isnumber(L, 2)) {
 		print_error("lua argument type mismatch");
 		return 0;
 	}
