@@ -37,7 +37,7 @@ void Province::add_industry(World * world, Industry * industry) {
 	}
 
 	// We will set inputs_satisfied to same size as inputs
-	for(const auto& inputs: world->industry_types[industry->type_id].inputs) {
+	for(size_t i = 0; i < world->industry_types[industry->type_id].inputs.size(); i++) {
 		industry->stockpile.push_back(0);
 	}
 

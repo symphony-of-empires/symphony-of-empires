@@ -6,34 +6,19 @@
 #include "lua.hpp"
 #include "path.hpp"
 
+// Mostly used by clients and lua API
 World * g_world;
 
-World::World(const char * topo_map, const char * pol_map, const char * div_map) {
+World::World(const char * topo_map, const char * pol_map, const char * div_map, const char * infra_map) {
 	g_world = this;
 	
-	Texture topo = Texture();
-	topo.from_file(topo_map);
-
-	Texture pol = Texture();
-	pol.from_file(pol_map);
-
-	Texture div = Texture();
-	div.from_file(div_map);
-
-	Texture infra = Texture();
-	infra.from_file("map_infra.png");
+	Texture topo(topo_map);
+	Texture pol(pol_map);
+	Texture div(div_map);
+	Texture infra(infra_map);
 
 	this->width = topo.width;
 	this->height = topo.height;
-
-	this->nations.clear();
-	this->nations.reserve(4096);
-	this->goods.clear();
-	this->goods.reserve(4096);
-	this->provinces.clear();
-	this->provinces.reserve(4096);
-	this->industry_types.clear();
-	this->industry_types.reserve(4096);
 
 	if(topo.width != this->width || topo.height != this->height
 	|| pol.width != this->width || pol.height != this->height
@@ -43,7 +28,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 	}
 
 	this->sea_level = 128;
-	this->tiles = (Tile *)malloc(sizeof(Tile) * (this->width * this->height));
+	this->tiles = new Tile[this->width * this->height];
 	if(this->tiles == NULL) {
 		perror("out of mem\n");
 		exit(EXIT_FAILURE);
@@ -54,11 +39,16 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 	luaL_openlibs(L);
 	lua_register(L, "_", LuaAPI::get_text);
 	lua_register(L, "add_good", LuaAPI::add_good);
+	lua_register(L, "get_good", LuaAPI::get_good);
 	lua_register(L, "add_industry_type", LuaAPI::add_industry_type);
+	lua_register(L, "get_industry_type", LuaAPI::get_industry_type);
 	lua_register(L, "add_input_to_industry_type", LuaAPI::add_input_to_industry_type);
 	lua_register(L, "add_output_to_industry_type", LuaAPI::add_output_to_industry_type);
 	lua_register(L, "add_nation", LuaAPI::add_nation);
+	lua_register(L, "get_nation", LuaAPI::get_nation);
 	lua_register(L, "add_province", LuaAPI::add_province);
+	lua_register(L, "get_province", LuaAPI::get_province);
+	lua_register(L, "give_province_to", LuaAPI::give_province_to);
 	lua_register(L, "add_company", LuaAPI::add_company);
 
 	// TODO: The. name. is. fucking. long.
@@ -69,7 +59,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 
 	// Translate all div, pol and topo maps onto this single tile array
 	size_t n_nations = this->nations.size();
-	size_t n_provinces = provinces.size();
+	size_t n_provinces = this->provinces.size();
 	for(size_t i = 0; i < this->width * this->height; i++) {
 		this->tiles[i].elevation = topo.buffer[i] & 0xff;
 		
@@ -91,7 +81,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 			}
 		}
 
-		// Set infrastructure
+		// Set infrastructure level
 		if(infra.buffer[i] == 0xffffffff
 		|| infra.buffer[i] == 0xff000000) {
 			this->tiles[i].infra_level = 0;
@@ -100,22 +90,35 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 		}
 	}
 
-	// Calculate the edges of the province to later use that values in other stuff
+	// Calculate the edges of the province (min and max x and y coordinates)
 	for(size_t i = 0; i < this->width; i++) {
 		for(size_t j = 0; j < this->height; j++) {
-			Tile * tile = &this->tiles[j * this->width + i];
+			Tile * tile = &this->tiles[i + (j * this->width)];
 			for(size_t k = 0; k < this->provinces.size(); k++) {
 				if(tile->province_id == k) {
 					Province * province = &this->provinces[k];
-					if(province->min_x > i) province->min_x = i;
-					if(province->min_y > j) province->min_y = j;
-					if(province->max_x < i) province->max_x = i;
-					if(province->max_y < j) province->max_y = j;
+					if(province->min_x > i)
+						province->min_x = i;
+					if(province->min_y > j)
+						province->min_y = j;
+					if(province->max_x < i)
+						province->max_x = i;
+					if(province->max_y < j)
+						province->max_y = j;
 				}
 			}
 		}
 	}
-	return;
+
+	// Shrink normally-not-resized vectors
+	this->provinces.shrink_to_fit();
+	this->nations.shrink_to_fit();
+	this->goods.shrink_to_fit();
+	this->industry_types.shrink_to_fit();
+}
+
+World::~World() {
+	delete[] this->tiles;
 }
 
 class OrderGoods {
@@ -131,20 +134,18 @@ public:
 	size_t good_id;
 	size_t sender_industry_id;
 	size_t sender_province_id;
-	size_t rejections;
+	size_t rejections = 0;
 };
 void World::do_tick() {
 	size_t n_provinces = this->provinces.size();
-	size_t n_companies = this->companies.size();
+	//size_t n_companies = this->companies.size();
 
 	std::vector<OrderGoods> orders;
 	std::vector<DeliverGoods> delivers;
 
-	//printf("---------------------\n");
-
 	// All factories will place their orders for their inputs
 	// All RGOs will do deliver requests
-	for(size_t i = 0; i < this->provinces.size(); i++) {
+	for(size_t i = 0; i < n_provinces; i++) {
 		for(size_t j = 0; j < this->provinces[i].industries.size(); j++) {
 			IndustryType * it = &this->industry_types[this->provinces[i].industries[j].type_id];
 			for(const auto& input: it->inputs) {

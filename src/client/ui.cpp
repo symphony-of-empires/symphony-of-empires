@@ -7,80 +7,78 @@
 #include <string>
 #include "texture.hpp"
 #include "ui.hpp"
+#include "path.hpp"
 
 using namespace UI;
 
 SDL_Color text_color = { 0, 0, 0, 0 };
 
-Context::Context(std::string data_dir) {
-	std::string font_path = data_dir + "/fonts/FreeMono.ttf";
-	memset(this, 0, sizeof(Context));
-	this->default_font = TTF_OpenFont(font_path.c_str(), 24);
+Context::Context() {
+	this->default_font = TTF_OpenFont(Resource_GetPath("fonts/FreeMono.ttf").c_str(), 24);
 	if(this->default_font == NULL){
 		perror("font could not be loaded, exiting\n");
 		exit(EXIT_FAILURE);
 	}
-}
 
-void Context::load_textures() {
-	this->textures.arrow_active.from_file("ui/arrow_active.png");
-	this->textures.arrow_hover.from_file("ui/arrow_hover.png");
-	this->textures.arrow_idle.from_file("ui/arrow_idle.png");
-	this->textures.button_active.from_file("ui/button_active.png");
-	this->textures.button_hover.from_file("ui/button_hover.png");
-	this->textures.button_idle.from_file("ui/button_idle.png");
-	this->textures.input_active.from_file("ui/input_active.png");
-	this->textures.input_hover.from_file("ui/input_hover.png");
-	this->textures.input_idle.from_file("ui/input_idle.png");
-	this->textures.scroll_back.from_file("ui/scroll_back.png");
-	this->textures.scroll_bar.from_file("ui/scroll_bar.png");
-	this->textures.window.from_file("ui/window.png");
-	this->textures.window_border.from_file("ui/window_border.png");
-	this->textures.arrow_active.to_opengl();
-	this->textures.arrow_hover.to_opengl();
-	this->textures.arrow_idle.to_opengl();
-	this->textures.button_active.to_opengl();
-	this->textures.button_hover.to_opengl();
-	this->textures.button_idle.to_opengl();
-	this->textures.input_active.to_opengl();
-	this->textures.input_hover.to_opengl();
-	this->textures.input_idle.to_opengl();
-	this->textures.scroll_back.to_opengl();
-	this->textures.scroll_bar.to_opengl();
-	this->textures.window.to_opengl();
-	this->textures.window_border.to_opengl();
+	this->arrow_active.from_file("ui/arrow_active.png");
+	this->arrow_hover.from_file("ui/arrow_hover.png");
+	this->arrow_idle.from_file("ui/arrow_idle.png");
+	this->button_active.from_file("ui/button_active.png");
+	this->button_hover.from_file("ui/button_hover.png");
+	this->button_idle.from_file("ui/button_idle.png");
+	this->input_active.from_file("ui/input_active.png");
+	this->input_hover.from_file("ui/input_hover.png");
+	this->input_idle.from_file("ui/input_idle.png");
+	this->scroll_back.from_file("ui/scroll_back.png");
+	this->scroll_bar.from_file("ui/scroll_bar.png");
+	this->window.from_file("ui/window.png");
+	this->window_border.from_file("ui/window_border.png");
+	
+	this->arrow_active.to_opengl();
+	this->arrow_hover.to_opengl();
+	this->arrow_idle.to_opengl();
+	this->button_active.to_opengl();
+	this->button_hover.to_opengl();
+	this->button_idle.to_opengl();
+	this->input_active.to_opengl();
+	this->input_hover.to_opengl();
+	this->input_idle.to_opengl();
+	this->scroll_back.to_opengl();
+	this->scroll_bar.to_opengl();
+	this->window.to_opengl();
+	this->window_border.to_opengl();
 	return;
 }
 
 void Context::add_widget(Widget * widget) {
 	widget->show = 1;
-	for(size_t i = 0; i < this->n_widgets; i++) {
+	for(size_t i = 0; i < this->widgets.size(); i++) {
 		if(this->widgets[i] != NULL) continue;
 		if(this->widgets[i] == widget) return;
 		this->widgets[i] = widget;
 		return;
 	}
-	this->widgets = (Widget **)realloc(this->widgets, sizeof(Widget *) * (this->n_widgets + 1));
-	this->widgets[this->n_widgets] = widget;
-	this->n_widgets++;
+	this->widgets.push_back(widget);
 	return;
 }
 
 void Context::remove_widget(Widget * widget) {
-	for(size_t i = 0; i < this->n_widgets; i++) {
+	for(size_t i = 0; i < this->widgets.size(); i++) {
 		if(this->widgets[i] != widget) continue;
-		widget->show = 0;
-		for(size_t j = 0; j < widget->n_children; j++) {
-			this->remove_widget(widget->children[j]);
+
+		printf("n child: %zu\n", this->widgets[i]->children.size());
+		for(auto& child: this->widgets[i]->children) {
+			this->remove_widget(child);
 		}
 		this->widgets[i] = NULL;
 		break;
 	}
+	widget->show = 0;
 	return;
 }
 
 void Context::render_all() {
-	for(size_t i = 0; i < this->n_widgets; i++) {
+	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
 		if(widget == NULL) {
 			continue;
@@ -104,7 +102,7 @@ void Context::render_all() {
 }
 
 void Context::check_hover(unsigned mx, unsigned my) {
-	for(size_t i = 0; i < this->n_widgets; i++) {
+	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
 		if(widget == NULL) {
 			continue;
@@ -113,20 +111,20 @@ void Context::check_hover(unsigned mx, unsigned my) {
 		if(mx >= widget->x && mx <= widget->x + widget->width
 		&& my >= widget->y && my <= widget->y + widget->height
 		&& widget->show) {
-			if(widget->current_texture == &this->textures.button_idle) {
-				widget->current_texture = &this->textures.button_hover;
-			} else if(widget->current_texture == &this->textures.input_idle) {
-				widget->current_texture = &this->textures.input_hover;
+			if(widget->current_texture == &this->button_idle) {
+				widget->current_texture = &this->button_hover;
+			} else if(widget->current_texture == &this->input_idle) {
+				widget->current_texture = &this->input_hover;
 			}
 
 			if(widget->on_hover != NULL) {
 				widget->on_hover(widget, NULL);
 			}
 		} else {
-			if(widget->current_texture == &this->textures.button_hover) {
-				widget->current_texture = &this->textures.button_idle;
-			} else if(widget->current_texture == &this->textures.input_hover) {
-				widget->current_texture = &this->textures.input_idle;
+			if(widget->current_texture == &this->button_hover) {
+				widget->current_texture = &this->button_idle;
+			} else if(widget->current_texture == &this->input_hover) {
+				widget->current_texture = &this->input_idle;
 			}
 		}
 	}
@@ -135,7 +133,7 @@ void Context::check_hover(unsigned mx, unsigned my) {
 
 int Context::check_click(unsigned mx, unsigned my) {
 	int retval = 0;
-	for(size_t i = 0; i < this->n_widgets; i++) {
+	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
 		if(widget == NULL) {
 			continue;
@@ -146,10 +144,10 @@ int Context::check_click(unsigned mx, unsigned my) {
 		&& widget->show) {
 			switch(widget->type) {
 			case UI_WIDGET_BUTTON:
-				widget->current_texture = &this->textures.button_active;;
+				widget->current_texture = &this->button_active;;
 				break;
 			case UI_WIDGET_INPUT:
-				widget->current_texture = &this->textures.input_active;
+				widget->current_texture = &this->input_active;
 				break;
 			default:
 				break;
@@ -162,13 +160,13 @@ int Context::check_click(unsigned mx, unsigned my) {
 		} else {
 			switch(widget->type) {
 			case UI_WIDGET_BUTTON:
-				widget->current_texture = &this->textures.button_idle;;
+				widget->current_texture = &this->button_idle;;
 				break;
 			case UI_WIDGET_INPUT:
-				widget->current_texture = &this->textures.input_idle;
+				widget->current_texture = &this->input_idle;
 				break;
 			case UI_WIDGET_WINDOW:
-				widget->current_texture = &this->textures.window;
+				widget->current_texture = &this->window;
 				break;
 			default:
 				break;
@@ -179,13 +177,13 @@ int Context::check_click(unsigned mx, unsigned my) {
 }
 
 void Context::check_text_input(const char * input) {
-	for(size_t i = 0; i < this->n_widgets; i++) {
+	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
 		if(widget == NULL) {
 			continue;
 		}
 
-		if(widget->current_texture == &this->textures.input_active
+		if(widget->current_texture == &this->input_active
 		&& widget->on_textinput != NULL
 		&& widget->type == UI_WIDGET_INPUT
 		&& widget->show) {
@@ -234,7 +232,7 @@ void default_on_render(Widget * w, void * data) {
 		w->draw_rectangle(
 			w->x, w->y - 24,
 			w->width, 24,
-			ctx->textures.window_border.gl_tex_num
+			ctx->window_border.gl_tex_num
 		);
 		if(w->text_texture.gl_tex_num) {
 			w->draw_rectangle(
@@ -293,55 +291,54 @@ void default_close_button_on_click(Widget * w, void * data) {
 	return;
 }
 
-Widget::Widget(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int _type) {
+Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h, int _type,
+	const char * text, const Texture * tex) {
 	memset(this, 0, sizeof(Widget));
 	
 	this->on_render = &default_on_render;
 	this->show = 1;
 	this->type = _type;
-	this->x = x;
-	this->y = y;
+	this->x = _x;
+	this->y = _y;
 	this->width = w;
 	this->height = h;
 
-	if(parent != NULL) {
-		this->x += parent->x;
-		this->y += parent->y;
-		parent->add_child(this);
+	this->parent = _parent;
+	if(_parent != NULL) {
+		this->x += _parent->x;
+		this->y += _parent->y;
+		_parent->add_child(this);
 	}
 
 	switch(this->type) {
 	case UI_WIDGET_BUTTON:
-		this->current_texture = &ctx->textures.button_idle;
+		this->current_texture = &ctx->button_idle;
 		break;
 	case UI_WIDGET_INPUT:
-		this->current_texture = &ctx->textures.input_idle;
+		this->current_texture = &ctx->input_idle;
 		this->on_textinput = &default_on_text_input;
 		break;
 	case UI_WIDGET_WINDOW:
-		this->current_texture = &ctx->textures.window;
+		this->current_texture = &ctx->window;
 		break;
 	default:
 		break;
+	}
+
+	if(text != NULL) {
+		this->text(ctx, text);
 	}
 	return;
 }
 
 void Widget::add_child(Widget * child) {
-	for(size_t i = 0; i < this->n_children; i++) {
-		if(this->children[i] == child) {
-			return;
-		}
-	}
-	
-	this->children = (Widget **)realloc(this->children, sizeof(Widget *) * (this->n_children + 1));
-	if(this->children == NULL) {
-		perror("out of memory\n");
-		exit(EXIT_FAILURE);
+	// Check that not already children
+	for(size_t i = 0; i < this->children.size(); i++) {
+		if(this->children[i] == child) return;
 	}
 
-	this->children[this->n_children] = child;
-	this->n_children++;
+	// Add to list
+	this->children.push_back(child);
 	child->parent = this;
 }
 
@@ -350,7 +347,7 @@ void Widget::text(Context * ctx, const char * text) {
 	Texture * tex;
 
 	if(this->text_texture.gl_tex_num) {
-		free(this->text_texture.buffer);
+		delete[] this->text_texture.buffer;
 		glDeleteTextures(1, &this->text_texture.gl_tex_num);
 		this->text_texture.gl_tex_num = 0;
 	}
@@ -365,7 +362,6 @@ void Widget::text(Context * ctx, const char * text) {
 	tex->width = surface->w;
 	tex->height = surface->h;
 	tex->buffer = new uint32_t[tex->width * tex->height];
-	tex->buffer = (uint32_t *)malloc(sizeof(uint32_t) * (tex->width * tex->height));
 	for(size_t i = 0; i < (size_t)surface->w; i++) {
 		for(size_t j = 0; j < (size_t)surface->h; j++) {
 			uint8_t r, g, b, a;
@@ -381,7 +377,6 @@ void Widget::text(Context * ctx, const char * text) {
 			tex->buffer[i + j * tex->width] = final_pixel;
 		}
 	}
-
 	SDL_FreeSurface(surface);
 	return;
 }

@@ -1,3 +1,4 @@
+#include <lua5.4/lua.h>
 #ifdef WINDOWS
 #include <lua.hpp>
 #else
@@ -32,6 +33,24 @@ int LuaAPI::add_good(lua_State * L) {
 	return 0;
 }
 
+int LuaAPI::get_good(lua_State * L) {
+	std::string ref_name = lua_tostring(L, 1);
+	Good * good = NULL;
+	
+	size_t i;
+	for(i = 0; i < g_world->goods.size(); i++) {
+		if(g_world->goods[i].ref_name != ref_name) continue;
+		good = &g_world->goods[i];
+		break;
+	} if(good == NULL) {
+		return 0;
+	}
+	lua_pushnumber(L, i);
+	lua_pushstring(L, good->ref_name.c_str());
+	lua_pushstring(L, good->name.c_str());
+	return 3;
+}
+
 int LuaAPI::add_industry_type(lua_State * L) {
 	IndustryType industry = IndustryType();
 
@@ -41,6 +60,24 @@ int LuaAPI::add_industry_type(lua_State * L) {
 
 	printf("industry_type: %s (%s)\n", industry.name.c_str(), industry.ref_name.c_str());
 	return 0;
+}
+
+int LuaAPI::get_industry_type(lua_State * L) {
+	std::string ref_name = lua_tostring(L, 1);
+	IndustryType * industry = NULL;
+	
+	size_t i;
+	for(i = 0; i < g_world->industry_types.size(); i++) {
+		if(g_world->industry_types[i].ref_name != ref_name) continue;
+		industry = &g_world->industry_types[i];
+		break;
+	} if(industry == NULL) {
+		return 0;
+	}
+	lua_pushnumber(L, i);
+	lua_pushstring(L, industry->ref_name.c_str());
+	lua_pushstring(L, industry->name.c_str());
+	return 3;
 }
 
 int LuaAPI::add_input_to_industry_type(lua_State * L) {
@@ -105,9 +142,7 @@ int LuaAPI::add_output_to_industry_type(lua_State * L) {
 }
 
 int LuaAPI::add_nation(lua_State * L) {
-	g_world->nations.push_back(Nation());
-
-	Nation * nation = &g_world->nations.back();
+	Nation * nation = new Nation();
 
 	nation->ref_name = lua_tostring(L, 1);
 
@@ -120,9 +155,28 @@ int LuaAPI::add_nation(lua_State * L) {
 	nation->default_flag.from_file(default_flag);
 
 	nation->name = lua_tostring(L, 4);
-
+	g_world->nations.push_back(*nation);
 	printf("nation: %s (%s)\n", nation->name.c_str(), nation->ref_name.c_str());
 	return 0;
+}
+
+int LuaAPI::get_nation(lua_State * L) {
+	std::string ref_name = lua_tostring(L, 1);
+	Nation * nation = NULL;
+	
+	size_t i;
+	for(i = 0; i < g_world->nations.size(); i++) {
+		if(g_world->nations[i].ref_name != ref_name) continue;
+		nation = &g_world->nations[i];
+		break;
+	} if(nation == NULL) {
+		return 0;
+	}
+	lua_pushnumber(L, i);
+	lua_pushstring(L, nation->ref_name.c_str());
+	lua_pushstring(L, nation->name.c_str());
+	lua_pushnumber(L, nation->color);
+	return 4;
 }
 
 int LuaAPI::add_province(lua_State * L) {
@@ -153,6 +207,46 @@ int LuaAPI::add_province(lua_State * L) {
 		stockpile = 0;
 	}
 	g_world->provinces.back().add_industry(g_world, &industry);
+	return 0;
+}
+
+int LuaAPI::get_province(lua_State * L) {
+	std::string ref_name = lua_tostring(L, 1);
+	Province * province = NULL;
+	
+	size_t i;
+	for(i = 0; i < g_world->provinces.size(); i++) {
+		if(g_world->provinces[i].ref_name != ref_name) continue;
+		province = &g_world->provinces[i];
+		break;
+	} if(province == NULL) {
+		return 0;
+	}
+	lua_pushnumber(L, i);
+	lua_pushstring(L, province->ref_name.c_str());
+	lua_pushstring(L, province->name.c_str());
+	lua_pushnumber(L, province->color);
+	return 4;
+}
+
+int LuaAPI::give_province_to(lua_State * L) {
+	size_t province_id = lua_tonumber(L, 1);
+	Province * province = &g_world->provinces[province_id];
+	size_t nation_id = lua_tonumber(L, 2);
+
+	World * world = g_world;
+	//for(size_t i = 0; i < world->width; i++) {
+	//	for(size_t j = 0; j < world->height; j++) {
+	printf("%zu, %zu -> %zu, %zu\n", province->min_x, province->min_y, province->max_x, province->max_y);
+	for(size_t i = province->min_x; i < province->max_x; i++) {
+		for(size_t j = province->min_y; j < province->max_y; j++) {
+			Tile * tile = &world->tiles[i + j * world->width];
+			if(tile->province_id != province_id) continue;
+			tile->owner_id = nation_id;
+			putchar('.');
+		}
+	}
+	printf("\n");
 	return 0;
 }
 

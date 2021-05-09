@@ -7,6 +7,7 @@
 
 class Nation {
 public:
+	Nation() {};
 	std::string name;
 	std::string ref_name;
 	uint32_t color;

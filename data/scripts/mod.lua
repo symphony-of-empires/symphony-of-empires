@@ -394,4 +394,8 @@ add_op_province_to_company(1, primorsky_krai.ref_name)
 
 print("companies")
 
+local ns = Province:get({}, "north_sakhlin")
+local jap = Nation:get({}, "japan")
+Province:give_to(ns, jap)
+
 print("loaded mod.lua")

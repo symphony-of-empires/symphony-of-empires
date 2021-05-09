@@ -2,6 +2,7 @@
 #define UI_H
 
 #include <stddef.h>
+#include <vector>
 #include "texture.hpp"
 
 enum UI_WidgetType {
@@ -18,8 +19,7 @@ namespace UI {
 	class Widget;
 	class Context {
 	public:
-		Context() {};
-		Context(std::string data_dir);
+		Context();
 		void load_textures();
 		void add_widget(Widget * widget);
 		void remove_widget(Widget * widget);
@@ -29,35 +29,33 @@ namespace UI {
 		void check_text_input(const char * input);
 
 		TTF_Font * default_font;
+		
+		std::vector<Widget *> widgets;
 
-		Widget ** widgets;
-		size_t n_widgets;
+		Texture arrow_idle;
+		Texture arrow_hover;
+		Texture arrow_active;
 
-		struct {
-			Texture arrow_idle;
-			Texture arrow_hover;
-			Texture arrow_active;
+		Texture button_idle;
+		Texture button_hover;
+		Texture button_active;
 
-			Texture button_idle;
-			Texture button_hover;
-			Texture button_active;
+		Texture input_idle;
+		Texture input_hover;
+		Texture input_active;
 
-			Texture input_idle;
-			Texture input_hover;
-			Texture input_active;
+		Texture scroll_back;
+		Texture scroll_bar;
 
-			Texture scroll_back;
-			Texture scroll_bar;
-
-			Texture window;
-			Texture window_border;
-		}textures;
+		Texture window;
+		Texture window_border;
 	};
 
 	class Widget {
 	public:
 		Widget() {};
-		Widget(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type);
+		Widget(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type,
+			const char * text = NULL, const Texture * tex = NULL);
 		void add_child(Widget * child);
 		void text(Context * ctx, const char * text);
 		void draw_rectangle(unsigned x, unsigned y, unsigned w, unsigned h, unsigned tex);
@@ -84,11 +82,29 @@ namespace UI {
 		void (*on_textinput)(Widget *, const char *, void *);
 
 		Widget * parent;
-		Widget ** children;
-		size_t n_children;
+		std::vector<Widget *> children;
 
 		void * user_data;
 		size_t user_data_len;
+	};
+
+	class Button : public Widget {
+	public:
+		Button(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
+			const char * text = NULL, const Texture * tex = NULL)
+			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_BUTTON, text, tex) {}
+	};
+	class Input : public Widget {
+	public:
+		Input(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
+			const char * text = NULL, const Texture * tex = NULL)
+			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_INPUT, text, tex) {}
+	};
+	class Window : public Widget {
+	public:
+		Window(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
+			const char * text = NULL, const Texture * tex = NULL)
+			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_WINDOW, text, tex) {}
 	};
 };
 
