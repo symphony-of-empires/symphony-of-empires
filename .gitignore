@@ -12,3 +12,4 @@ obj/
 
 # vscode stuff
 compile_commands.json
+.cache/
