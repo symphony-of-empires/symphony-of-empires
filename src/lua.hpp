@@ -1,7 +1,7 @@
 #ifndef LUA_H
 #define LUA_H
 
-#ifdef WINDOWS
+#ifdef WIN32
 #   include <lua.hpp>
 #else
 #   include <lua5.4/lua.hpp>

@@ -4,15 +4,6 @@
 
 void rendering_main(void);
 
-#ifdef WINDOWS
-#include <windows.h>
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {
-	char * argv[1];
-	argv[0] = "/";
-	main(1, argv);
-}
-#endif
-
 #include <chrono>
 #include <thread>
 int main(int argc, char ** argv) {
@@ -36,3 +27,12 @@ int main(int argc, char ** argv) {
 #endif
 	return 0;
 }
+
+#ifdef WIN32
+#include <windows.h>
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {
+	char* argv[1];
+	argv[0] = "/";
+	main(1, argv);
+}
+#endif
