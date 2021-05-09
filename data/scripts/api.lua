@@ -72,4 +72,14 @@ function Province:give_to(p, n)
 	give_province_to(p.id, n.id)
 end
 
+Event = { ref_name = "default", conditions_fn = "", event_fn = "" }
+function Event:create(o)
+	o.parent = self
+	return o
+end
+function Event:register(o)
+	print(o.ref_name)
+	add_event(o.ref_name, o.conditions_fn, o.event_fn)
+end
+
 print("loaded api.lua")

@@ -8,6 +8,7 @@
 #include <time.h>
 #include "nation.hpp"
 #include "economy.hpp"
+#include "lua.hpp"
 
 class Tile {
 public:
@@ -46,6 +47,9 @@ public:
 	std::vector<Province> provinces;
 	std::vector<Company> companies;
 	std::vector<Product> products;
+
+	std::vector<LuaAPI::Event> events;
+	lua_State * lua;
 
 	uint64_t time;
 };
