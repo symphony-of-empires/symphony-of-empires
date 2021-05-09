@@ -44,7 +44,7 @@ namespace LuaAPI {
 	int get_text(lua_State * L);
 
 	// Functions not part of the API
-	int check_events(lua_State * L);
+	void check_events(lua_State * L);
 };
 
 extern std::vector<LuaAPI::Event> g_events;

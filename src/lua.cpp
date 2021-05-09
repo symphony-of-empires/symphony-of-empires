@@ -281,10 +281,10 @@ int LuaAPI::add_event(lua_State * L) {
 	event.conditions_function = lua_tostring(L, 2);
 	event.do_event_function = lua_tostring(L, 3);
 
+	printf("event: %s\n", event.ref_name.c_str());
+
 	// Add onto vector
 	g_world->events.push_back(event);
-
-	printf("event: %s\n", event.ref_name.c_str());
 	return 0;
 }
 
@@ -311,22 +311,17 @@ int LuaAPI::get_year(lua_State * L) {
 
 #include <iostream>
 // Checks all events and their condition functions
-int LuaAPI::check_events(lua_State * L) {
+void LuaAPI::check_events(lua_State * L) {
 	// Because of the logic of this loop, only 1 event can happen in the world per tick
-	printf("%zu\n", g_world->events.size());
-	for(size_t i = 0; i < g_world->events.size(); i++) {
-		printf("%zu\n", i);
-		LuaAPI::Event * event = &g_world->events[i];
-		printf("%p\n", event);
-		std::cout << event->conditions_function << std::endl;
-		lua_getglobal(L, event->conditions_function.c_str());
+	for(auto& event: g_world->events) {
+		lua_getglobal(L, event.conditions_function.c_str());
 		lua_call(L, 0, 1);
 		int r = lua_tointeger(L, -1);
 		lua_pop(L, 1);
 
 		// Conditions met
 		if(r) {
-			lua_getglobal(L, event->do_event_function.c_str());
+			lua_getglobal(L, event.do_event_function.c_str());
 			lua_call(L, 0, 0);
 		}
 		// Conditions not met, continue to next event...
