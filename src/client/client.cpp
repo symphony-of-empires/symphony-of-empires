@@ -14,7 +14,6 @@
 #include "economy.hpp"
 #include "texture.hpp"
 #include "path.hpp"
-
 extern World * g_world;
 
 const int width = 1280;
@@ -51,6 +50,7 @@ void do_tile_overview() {
 }
 
 UI::Widget econ_win, econ_win_close_btn, econ_label[1024];
+UI::Widget dt_label,delta_time;
 void do_economy_on_click(UI::Widget *, void *) {
 	ui_ctx->add_widget(&econ_win);
 	ui_ctx->add_widget(&econ_win_close_btn);
@@ -90,6 +90,7 @@ void do_economy_on_update(UI::Widget *, void *) {
 }
 
 UI::Widget overview_win, overview_time_label, overview_flag_image;
+UI::Widget debug_info;
 static void do_exit(UI::Widget *, void *) {
 	exit(EXIT_FAILURE);
 }
@@ -269,6 +270,13 @@ void rendering_main(void) {
 		UI_Widget_CreateLabel(ui_ctx, &econ_win, &econ_label[i * 4 + 2], 128 * 2, y, "?");
 		UI_Widget_CreateLabel(ui_ctx, &econ_win, &econ_label[i * 4 + 3], 128 * 3, y, "?");
 	}
+	
+	UI_Widget_CreateWindow(ui_ctx,nullptr,&debug_info,width - 250,25,225,25);
+	UI_Widget_CreateLabel(ui_ctx,&debug_info,&dt_label,0,0,"Delta time (ms)");
+	UI_Widget_CreateLabel(ui_ctx,&debug_info,&delta_time,0,25,"0");
+	ui_ctx->add_widget(&debug_info);
+	ui_ctx->add_widget(&dt_label);
+	ui_ctx->add_widget(&delta_time);
 	econ_win.on_update = &do_economy_on_update;
 
 	Camera cam;
@@ -280,10 +288,12 @@ void rendering_main(void) {
 	cam.vy = 0.f;
 	cam.vz = 0.f;
 	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
-	
+	char* dt_str;
+	dt_str = (char*)malloc(32);
 	while(run) {
 		SDL_Event event;
 		int r;
+		uint32_t beginTime = SDL_GetTicks();
 
 		while(SDL_PollEvent(&event)) {
 			switch(event.type) {
@@ -366,9 +376,9 @@ void rendering_main(void) {
 				break;
 			}
 		}
-
+		
+	
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		glPushMatrix();
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
@@ -380,11 +390,9 @@ void rendering_main(void) {
 		glRotatef(180.f, 1.0f, 0.0f, 0.0f);
 		glRotatef(0.f, 0.0f, 1.0f, 0.0f);
 		glRotatef(0.f, 0.0f, 0.0f, 1.0f);
-		for(size_t i = 0; i < map.n_horz_quads; i++) {
-			for(size_t j = 0; j < map.n_vert_quads; j++) {
-				glCallList(map.quads_gl_list_num[i + j * map.n_horz_quads]);
-			}
-		}
+
+		//Simpler than looping and indexing as x,y coord
+		glCallLists(map.n_horz_quads * map.n_vert_quads,GL_UNSIGNED_INT,map.quads_gl_list_num);
 
 		glBegin(GL_POLYGON);
 		glColor3f(1.f, 1.f, 1.f);
@@ -420,7 +428,6 @@ void rendering_main(void) {
 
 		glLoadIdentity();
 		glRasterPos2f(-3.0f, -2.0f);
-
 		int hour = g_world->time % 24;
 		int day = g_world->time / 24;
 
@@ -463,10 +470,16 @@ void rendering_main(void) {
 		cam.x += cam.vx;
 		cam.y += cam.vy;
 		cam.z += cam.vz;
-
+		
+		
 		SDL_GL_SwapWindow(window);
+		uint32_t endTime = SDL_GetTicks();
+		uint32_t dt = endTime - beginTime;
+		sprintf(dt_str,"%d",dt);
+		
+		delta_time.text(ui_ctx,dt_str);
 	}
-
+	free(dt_str);
 	TTF_Quit();
 	SDL_Quit();
 	delete ui_ctx;
