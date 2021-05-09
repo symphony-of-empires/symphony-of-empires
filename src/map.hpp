@@ -9,6 +9,7 @@ typedef enum {
 	MAP_POLITICAL,
 	MAP_PROVINCIAL,
 	MAP_TOPOGRAPHIC,
+	MAP_INFRASTRUCTURE,
 }Map_Mode;
 
 class Map {

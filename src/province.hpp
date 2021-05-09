@@ -17,6 +17,12 @@ public:
 	
 	uint64_t population;
 	float budget;
+
+	size_t n_tiles = 0;
+	size_t min_x = 0;
+	size_t min_y = 0;
+	size_t max_x = 0;
+	size_t max_y = 0;
 	
 	std::vector<Industry> industries;
 	std::vector<Product> products;

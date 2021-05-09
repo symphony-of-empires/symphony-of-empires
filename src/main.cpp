@@ -103,7 +103,7 @@ int tx, ty;
 size_t current_player_nation_id;
 size_t selected_province_id;
 
-Map prov_map, pol_map, topo_map;
+Map prov_map, pol_map, topo_map, infra_map;
 Map map;
 void do_view_prov_map(UI::Widget * widget, void * data) {
 	map = prov_map;
@@ -115,6 +115,10 @@ void do_view_pol_map(UI::Widget * widget, void * data) {
 
 void do_view_topo_map(UI::Widget * widget, void * data) {
 	map = topo_map;
+}
+
+void do_view_infra_map(UI::Widget * widget, void * data) {
+	map = infra_map;
 }
 
 typedef struct {
@@ -156,6 +160,7 @@ void rendering_main(void) {
 	prov_map = Map(&world, MAP_PROVINCIAL);
 	pol_map = Map(&world, MAP_POLITICAL);
 	topo_map = Map(&world, MAP_TOPOGRAPHIC);
+	infra_map = Map(&world, MAP_INFRASTRUCTURE);
 	map = prov_map;
 	world_mutex.unlock();
 
@@ -243,12 +248,23 @@ void rendering_main(void) {
 	UI_Widget_CreateImage(&ui_ctx, &topo_view_btn, &topo_view_btn_icon, 0, 0, 64, 64, &topo_view_icon);
 	ui_ctx.add_widget(&topo_view_btn_icon);
 
+	UI::Widget infra_view_btn, infra_view_btn_icon;
+	Texture infra_view_icon;
+
+	infra_view_icon.from_file(Resource_GetPath("icons/infra_view.png").c_str());
+	infra_view_icon.to_opengl();
+	UI_Widget_CreateButton(&ui_ctx, NULL, &infra_view_btn, 8, (8 * 6) + (64 * 5), 64, 64);
+	ui_ctx.add_widget(&infra_view_btn);
+	infra_view_btn.on_click = &do_view_infra_map;
+	UI_Widget_CreateImage(&ui_ctx, &infra_view_btn, &infra_view_btn_icon, 0, 0, 64, 64, &infra_view_icon);
+	ui_ctx.add_widget(&infra_view_btn_icon);
+
 	UI::Widget exit_btn, exit_btn_icon;
 	Texture exit_icon;
 
 	exit_icon.from_file(Resource_GetPath("icons/exit.png").c_str());
 	exit_icon.to_opengl();
-	UI_Widget_CreateButton(&ui_ctx, NULL, &exit_btn, 8, (8 * 6) + (64 * 5), 64, 64);
+	UI_Widget_CreateButton(&ui_ctx, NULL, &exit_btn, 8, (8 * 7) + (64 * 6), 64, 64);
 	ui_ctx.add_widget(&exit_btn);
 	exit_btn.on_click = &do_exit;
 	UI_Widget_CreateImage(&ui_ctx, &exit_btn, &exit_btn_icon, 0, 0, 64, 64, &exit_icon);
@@ -323,7 +339,7 @@ void rendering_main(void) {
 	cam.vy = 0.f;
 	cam.vz = 0.f;
 	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
-
+	
 	while(run) {
 		SDL_Event event;
 		int r;

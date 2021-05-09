@@ -20,6 +20,9 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 	Texture div = Texture();
 	div.from_file(div_map);
 
+	Texture infra = Texture();
+	infra.from_file("map_infra.png");
+
 	this->width = topo.width;
 	this->height = topo.height;
 
@@ -75,12 +78,13 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 	lua_close(L);
 
 	// Translate all div, pol and topo maps onto this single tile array
+	size_t n_nations = this->nations.size();
+	size_t n_provinces = provinces.size();
 	for(size_t i = 0; i < this->width * this->height; i++) {
 		this->tiles[i].elevation = topo.buffer[i] & 0xff;
 		
 		// Associate tiles with nations
 		this->tiles[i].owner_id = (size_t)-1;
-		size_t n_nations = this->nations.size();
 		for(size_t j = 0; j < n_nations; j++) {
 			if(pol.buffer[i] == this->nations[j].color) {
 				this->tiles[i].owner_id = j;
@@ -90,11 +94,34 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 
 		// Associate tiles with provinces
 		this->tiles[i].province_id = (size_t)-1;
-		size_t n_provinces = provinces.size();
 		for(size_t j = 0; j < n_provinces; j++) {
 			if(div.buffer[i] == this->provinces[j].color) {
 				this->tiles[i].province_id = j;
 				break;
+			}
+		}
+
+		// Set infrastructure
+		if(infra.buffer[i] == 0xffffffff
+		|| infra.buffer[i] == 0xff000000) {
+			this->tiles[i].infra_level = 0;
+		} else {
+			this->tiles[i].infra_level = 1;
+		}
+	}
+
+	// Calculate the edges of the province to later use that values in other stuff
+	for(size_t i = 0; i < this->width; i++) {
+		for(size_t j = 0; j < this->height; j++) {
+			Tile * tile = &this->tiles[j * this->width + i];
+			for(size_t k = 0; k < this->provinces.size(); k++) {
+				if(tile->province_id == k) {
+					Province * province = &this->provinces[k];
+					if(province->min_x > i) province->min_x = i;
+					if(province->min_y > j) province->min_y = j;
+					if(province->max_x < i) province->max_x = i;
+					if(province->max_y < j) province->max_y = j;
+				}
 			}
 		}
 	}
@@ -137,7 +164,7 @@ void World::do_tick() {
 				order.requester_industry_id = j;
 				order.requester_province_id = i;
 				orders.push_back(order);
-				printf("We need good: %s (from %s)\n", this->goods[order.good_id].ref_name.c_str(), this->provinces[order.requester_province_id].ref_name.c_str());
+				//printf("We need good: %s (from %s)\n", this->goods[order.good_id].ref_name.c_str(), this->provinces[order.requester_province_id].ref_name.c_str());
 			}
 
 			if(it->inputs.size() == 0) {
@@ -149,7 +176,7 @@ void World::do_tick() {
 					deliver.sender_industry_id = j;
 					deliver.sender_province_id = i;
 					delivers.push_back(deliver);
-					printf("Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id].ref_name.c_str(), this->provinces[deliver.sender_province_id].ref_name.c_str());
+					//printf("Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id].ref_name.c_str(), this->provinces[deliver.sender_province_id].ref_name.c_str());
 				}
 			}
 		}
@@ -161,7 +188,7 @@ void World::do_tick() {
 		for(auto& company: this->companies) {
 			if(!company.is_transport) continue;
 
-			printf("Hi, i'm %s\n", company.name.c_str());
+			//printf("Hi, i'm %s\n", company.name.c_str());
 
 			// Check all delivers
 			for(size_t i = 0; i < delivers.size(); i++) {
@@ -179,7 +206,7 @@ void World::do_tick() {
 					// Are we in the range to deliver?
 					if(!company.in_range(order->requester_province_id)) continue;
 
-					printf("Delivered from %s to %s some %s\n", this->provinces[deliver->sender_province_id].ref_name.c_str(), this->provinces[order->requester_province_id].ref_name.c_str(), this->goods[order->good_id].ref_name.c_str());
+					//printf("Delivered from %s to %s some %s\n", this->provinces[deliver->sender_province_id].ref_name.c_str(), this->provinces[order->requester_province_id].ref_name.c_str(), this->goods[order->good_id].ref_name.c_str());
 
 					// Yes - we go and deliver their stuff
 					Industry * industry = &this->provinces[order->requester_province_id].industries[order->requester_industry_id];
