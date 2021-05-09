@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <string.h>
 #include <string>
 #include <errno.h>
@@ -7,21 +6,17 @@
 #include "texture.hpp"
 #include "path.hpp"
 
-Texture::Texture() {
-
+Texture::Texture(const char * path) {
+	this->from_file(path);
 }
 
-Texture::~Texture() {
-	free(this->buffer);
-}
-
-int Texture::from_file(const char * name) {
+void Texture::from_file(const char * path) {
 	png_image image;
 	
 	/* Open initial file */
 	memset(&image, 0, sizeof(png_image));
 	image.version = PNG_IMAGE_VERSION;
-	if(!png_image_begin_read_from_file(&image, Resource_GetPath(name).c_str())) {
+	if(!png_image_begin_read_from_file(&image, Resource_GetPath(path).c_str())) {
 		perror(image.message);
 		exit(EXIT_FAILURE);
 	}
@@ -48,21 +43,24 @@ int Texture::from_file(const char * name) {
 	
 	/* Store information onto buffer */
 	this->buffer = new uint32_t[image.width * image.height];
-	if(this->buffer != NULL && png_image_finish_read(&image, NULL, this->buffer, 0, NULL) != 0) {
+	if(this->buffer != nullptr && png_image_finish_read(&image, NULL, this->buffer, 0, NULL) != 0) {
 		/* Free the image */
 		png_image_free(&image);
 	} else {
-		if(this->buffer == NULL) {
+		if(this->buffer == nullptr) {
 			png_image_free(&image);
 		} else {
 			free(this->buffer);
 		}
-		return 1;
+		exit(EXIT_FAILURE);
 	}
 	
-	printf("texture %s loaded\n", name);
+	printf("texture %s loaded\n", path);
 	this->gl_tex_num = 0;
-	return 0;
+}
+
+Texture::~Texture() {
+	delete[] this->buffer;
 }
 
 #include <GL/gl.h>

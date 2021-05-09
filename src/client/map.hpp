@@ -9,22 +9,24 @@ typedef enum {
 	MAP_POLITICAL,
 	MAP_PROVINCIAL,
 	MAP_TOPOGRAPHIC,
+	MAP_INFRASTRUCTURE,
 }Map_Mode;
 
 class Map {
+private:
+	World * world;
+	Map_Mode mode;
 public:
+	Map() {};
 	Map(World * world, Map_Mode mode);
-	~Map();
 	
 	void quad_create(size_t qx, size_t qy);
 	void quad_update(size_t x, size_t y);
-
-	World * world;
+	
+	GLuint * quads_gl_list_num;
 	size_t quad_size;
 	size_t n_horz_quads;
 	size_t n_vert_quads;
-	GLuint * quads_gl_list_num;
-	Map_Mode mode;
 };
 
 #endif

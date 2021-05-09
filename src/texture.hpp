@@ -6,15 +6,19 @@
 #include <GL/gl.h>
 
 class Texture {
-	public:
+public:
+	Texture() {};
+	Texture(const char * path);
+	Texture(const Texture& tex) : buffer(tex.buffer) {};
+	Texture& operator=(const Texture&) = default;
+	~Texture();
+
 	uint32_t * buffer;
 	size_t width;
 	size_t height;
 	GLuint gl_tex_num;
 
-	Texture();
-	~Texture();
-	int from_file(const char * name);
+	void from_file(const char * path);
 	void to_opengl();
 	void delete_opengl();
 };
