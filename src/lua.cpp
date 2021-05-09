@@ -1,4 +1,3 @@
-#include <lua5.4/lua.h>
 #ifdef WINDOWS
 #include <lua.hpp>
 #else

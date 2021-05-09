@@ -1,11 +1,15 @@
 CXX=g++
-CXXFLAGS=-Wall -Wextra -Wshadow -std=c++17 -O2 -fno-exceptions -fno-rtti -g -Isrc -Isrc/client
+CXXFLAGS=-Wall -Wextra -Wshadow -std=c++17 -O2 -fno-exceptions -fno-rtti -Isrc -Isrc/client
 ifdef WINDOWS
 LIBS=-lopengl32 -lglu32 -llua -lintl
 else
 LIBS=-lGL -lGLU -llua5.4
 endif
 LIBS:=$(LIBS) -lpng -lSDL2 -lSDL2_ttf -lm -pthread
+
+ifdef DEBUG
+CXXFLAGS:=${CXXFLAGS} -fsanitize=address -g
+endif
 
 OBJS=$(shell find . -type f -iname '*.cpp')
 OBJS:=$(patsubst ./src/%.cpp,./obj/%.o,$(OBJS))
