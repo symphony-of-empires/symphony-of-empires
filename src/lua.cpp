@@ -18,9 +18,10 @@
 #include "nation.hpp"
 #include "economy.hpp"
 
+// Global world - do not use too much!
 extern World * g_world;
 
-int World_LuaAddGood(lua_State * L) {
+int LuaAPI::add_good(lua_State * L) {
 	Good good = Good();
 
 	good.ref_name = lua_tostring(L, 1);
@@ -31,7 +32,7 @@ int World_LuaAddGood(lua_State * L) {
 	return 0;
 }
 
-int World_LuaAddIndustryType(lua_State * L) {
+int LuaAPI::add_industry_type(lua_State * L) {
 	IndustryType industry = IndustryType();
 
 	industry.ref_name = lua_tostring(L, 1);
@@ -42,7 +43,7 @@ int World_LuaAddIndustryType(lua_State * L) {
 	return 0;
 }
 
-int World_LuaAddInputToIndustryType(lua_State * L) {
+int LuaAPI::add_input_to_industry_type(lua_State * L) {
 	std::string ref_name;
 	
 	IndustryType * industry = NULL;
@@ -72,7 +73,7 @@ int World_LuaAddInputToIndustryType(lua_State * L) {
 	return 0;
 }
 
-int World_LuaAddOutputToIndustryType(lua_State * L) {
+int LuaAPI::add_output_to_industry_type(lua_State * L) {
 	std::string ref_name;
 
 	IndustryType * industry = NULL;
@@ -103,7 +104,7 @@ int World_LuaAddOutputToIndustryType(lua_State * L) {
 	return 0;
 }
 
-int World_LuaAddNation(lua_State * L) {
+int LuaAPI::add_nation(lua_State * L) {
 	g_world->nations.push_back(Nation());
 
 	Nation * nation = &g_world->nations.back();
@@ -124,7 +125,7 @@ int World_LuaAddNation(lua_State * L) {
 	return 0;
 }
 
-int World_LuaAddProvince(lua_State * L) {
+int LuaAPI::add_province(lua_State * L) {
 	Province province = Province();
 
 	province.ref_name = lua_tostring(L, 1);
@@ -155,7 +156,7 @@ int World_LuaAddProvince(lua_State * L) {
 	return 0;
 }
 
-int World_LuaAddCompany(lua_State * L) {
+int LuaAPI::add_company(lua_State * L) {
 	Company company = Company();
 
 	company.name = lua_tostring(L, 1);
@@ -173,7 +174,7 @@ int World_LuaAddCompany(lua_State * L) {
 	return 0;
 }
 
-int World_LuaAddOperationalProvinceToCompany(lua_State * L) {
+int LuaAPI::add_op_province_to_company(lua_State * L) {
 	size_t idx = lua_tonumber(L, 1);
 	std::string ref_name = lua_tostring(L, 2);
 	for(size_t i = 0; i < g_world->provinces.size(); i++) {
@@ -186,7 +187,7 @@ int World_LuaAddOperationalProvinceToCompany(lua_State * L) {
 
 #include <libintl.h>
 #include <locale.h>
-int World_LuaGettext(lua_State * L) {
+int LuaAPI::get_text(lua_State * L) {
 	std::string msgid = lua_tostring(L, 1);
 	std::string end_msg = gettext(msgid.c_str());
 	lua_pushstring(L, end_msg.c_str());
