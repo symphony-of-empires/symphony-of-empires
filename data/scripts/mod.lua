@@ -38,4 +38,6 @@ end
 local japan_dies = Event:create{ ref_name = "japan_dies", conditions_fn = "ec_test", event_fn = "ef_test" }
 Event:register(japan_dies)
 
+ef_test()
+
 print("loaded mod.lua")

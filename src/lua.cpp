@@ -185,8 +185,9 @@ int LuaAPI::add_nation(lua_State * L) {
 	nation->default_flag.from_file(default_flag);
 
 	nation->name = lua_tostring(L, 4);
-	g_world->nations.push_back(*nation);
+
 	printf("nation: %s (%s)\n", nation->name.c_str(), nation->ref_name.c_str());
+	g_world->nations.push_back(*nation);
 	return 0;
 }
 

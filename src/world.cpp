@@ -22,10 +22,14 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	this->width = topo.width;
 	this->height = topo.height;
 
-	if(topo.width != this->width || topo.height != this->height
-	|| pol.width != this->width || pol.height != this->height
-	|| div.width != this->width || div.height != this->height) {
-		perror("map size mismatch\n");
+	if(topo.width != this->width || topo.height != this->height) {
+		print_error("topographic map size mismatch");
+		exit(EXIT_FAILURE);
+	} else if(pol.width != this->width || pol.height != this->height) {
+		print_error("political map size mismatch");
+		exit(EXIT_FAILURE);
+	} else if(div.width != this->width || div.height != this->height) {
+		print_error("province map size mismatch");
 		exit(EXIT_FAILURE);
 	}
 
@@ -36,10 +40,10 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 		exit(EXIT_FAILURE);
 	}
 
-	// Set path for `require` statements in lua
 	this->lua = luaL_newstate();
 	luaL_openlibs(this->lua);
 
+	// Register our API functions
 	lua_register(this->lua, "_", LuaAPI::get_text);
 	lua_register(this->lua, "add_good", LuaAPI::add_good);
 	lua_register(this->lua, "get_good", LuaAPI::get_good);
