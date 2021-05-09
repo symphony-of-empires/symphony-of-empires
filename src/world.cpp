@@ -52,28 +52,18 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map) 
 	lua_State * L;
 	L = luaL_newstate();
 	luaL_openlibs(L);
-	lua_register(L, "_", World_LuaGettext);
-	lua_register(L, "AddGood", World_LuaAddGood);
-	lua_register(L, "AddIndustryType", World_LuaAddIndustryType);
-	lua_register(L, "AddInputToIndustryType", World_LuaAddInputToIndustryType);
-	lua_register(L, "AddOutputToIndustryType", World_LuaAddOutputToIndustryType);
-	lua_register(L, "AddNation", World_LuaAddNation);
-	lua_register(L, "AddProvince", World_LuaAddProvince);
-	lua_register(L, "AddCompany", World_LuaAddCompany);
+	lua_register(L, "_", LuaAPI::get_text);
+	lua_register(L, "add_good", LuaAPI::add_good);
+	lua_register(L, "add_industry_type", LuaAPI::add_industry_type);
+	lua_register(L, "add_input_to_industry_type", LuaAPI::add_input_to_industry_type);
+	lua_register(L, "add_output_to_industry_type", LuaAPI::add_output_to_industry_type);
+	lua_register(L, "add_nation", LuaAPI::add_nation);
+	lua_register(L, "add_province", LuaAPI::add_province);
+	lua_register(L, "add_company", LuaAPI::add_company);
 
 	// TODO: The. name. is. fucking. long.
-	lua_register(L, "AddOperationalProvinceToCompany", World_LuaAddOperationalProvinceToCompany);
+	lua_register(L, "add_op_province_to_company", LuaAPI::add_op_province_to_company);
 
-	luaL_dofile(L, Resource_GetPath("scripts/good.lua").c_str());
-	lua_setglobal(L, "Good");
-	luaL_dofile(L, Resource_GetPath("scripts/industry_type.lua").c_str());
-	lua_setglobal(L, "IndustryType");
-	luaL_dofile(L, Resource_GetPath("scripts/nation.lua").c_str());
-	lua_setglobal(L, "Nation");
-	luaL_dofile(L, Resource_GetPath("scripts/province.lua").c_str());
-	lua_setglobal(L, "Province");
-	luaL_dofile(L, Resource_GetPath("scripts/company.lua").c_str());
-	lua_setglobal(L, "Company");
 	luaL_dofile(L, Resource_GetPath("scripts/mod.lua").c_str());
 	lua_close(L);
 
