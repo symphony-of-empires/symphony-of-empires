@@ -36,7 +36,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 
 	this->lua = luaL_newstate();
 	luaL_openlibs(this->lua);
-	
+
 	lua_register(this->lua, "_", LuaAPI::get_text);
 	lua_register(this->lua, "add_good", LuaAPI::add_good);
 	lua_register(this->lua, "get_good", LuaAPI::get_good);
@@ -115,12 +115,25 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 		}
 	}
 
+	// Correct stuff from provinces
 	for(auto& province: this->provinces) {
 		if(province.max_x > this->width)
 			province.max_x = this->width;
+		if(province.min_x > this->width)
+			province.min_x = this->width;
+		
 		if(province.max_y > this->height)
 			province.max_y = this->height;
-		printf("(%zu, %zu) - (%zu, %zu)\n", province.min_x, province.min_y, province.max_x, province.max_y);
+		if(province.min_y > this->height)
+			province.min_y = this->height;
+	}
+
+	// Create diplomatic relations between nations
+	for(auto& nation: this->nations) {
+		// Relations between nations start at 0
+		for(size_t i = 0; i < this->nations.size(); i++) {
+			nation.relations.push_back(0.f);
+		}
 	}
 
 	// Shrink normally-not-resized vectors
