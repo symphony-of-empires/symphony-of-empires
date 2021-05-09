@@ -23,7 +23,7 @@ int main(int argc, char ** argv) {
 	printf("launching rendering thread\n");
 	std::thread t1(rendering_main);
 
-	int run = 1;
+	const bool run = true;
 	while(run) {
 		world.do_tick();
 	}
