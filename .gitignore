@@ -9,3 +9,6 @@
 # bad folders
 bin/
 obj/
+
+#vscode stuff
+.vscode/
