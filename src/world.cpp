@@ -109,7 +109,11 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 		}
 	}
 
-	for(const auto& province: this->provinces) {
+	for(auto& province: this->provinces) {
+		if(province.max_x > this->width)
+			province.max_x = this->width;
+		if(province.max_y > this->height)
+			province.max_y = this->height;
 		printf("(%zu, %zu) - (%zu, %zu)\n", province.min_x, province.min_y, province.max_x, province.max_y);
 	}
 
