@@ -1,11 +1,11 @@
 #ifndef LUA_H
 #define LUA_H
 
-#ifdef WINDOWS
+#ifdef WIN32
 #   include <lua.hpp>
 #else
 #   include <lua5.4/lua.hpp>
-#endif //WINDOWS
+#endif // WIN32
 
 namespace LuaAPI {
 	int add_good(lua_State * L);
