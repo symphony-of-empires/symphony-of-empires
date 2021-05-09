@@ -1,16 +1,18 @@
 #include <string>
 #include <iostream>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include <limits.h>
 
-#ifdef WINDOWS
+#ifdef WIN32
 #	include <Libloaderapi.h>
 #endif
 
 static inline std::string Resource_GetSelfPath(){
-#ifdef WINDOWS
+#ifdef WIN32
 	char buf[PATH_MAX];
-	ssize_t len = GetModuleFileNameA(NULL, buf, sizeof(buf) - 1);
+	const auto len = GetModuleFileNameA(nullptr, buf, sizeof(buf) - 1);
 #else
 	char buf[PATH_MAX];
 	ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
@@ -26,7 +28,7 @@ static inline std::string Resource_GetSelfPath(){
 std::string Resource_GetPath(const char * str){
 	if(str[0] == '/' || str[0] == 'C') return str;
 	std::string rsult = Resource_GetSelfPath();
-#ifdef WINDOWS	
+#ifdef WIN32	
 	rsult.erase(rsult.end() - 8, rsult.end());
 #else
 	rsult.erase(rsult.end() - 4, rsult.end());
