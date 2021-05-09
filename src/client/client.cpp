@@ -296,7 +296,7 @@ void rendering_main(void) {
 				&& fmy > 0 && fmy < g_world->height
 				&& !r) {
 					Tile * tile = &g_world->tiles[tx + ty * g_world->width];
-					char * str = (char *)malloc(255);
+					char * str = new char[255];
 					const char * name = (tile->owner_id != (size_t)-1) ? g_world->nations[tile->owner_id].name.c_str() : "none";
 					sprintf(str, "Owner:   %s", name);
 					tov_owner_label.text(ui_ctx, str);
@@ -311,7 +311,7 @@ void rendering_main(void) {
 						tov_population_label.text(ui_ctx, str);
 					}
 
-					free(str);
+					delete[] str;
 
 					tov_owner_flag_image.current_texture = &g_world->nations[tile->owner_id].default_flag;
 
