@@ -50,7 +50,7 @@ void Texture::from_file(const char * path) {
 		if(this->buffer == nullptr) {
 			png_image_free(&image);
 		} else {
-			free(this->buffer);
+			delete[] this->buffer;
 		}
 		exit(EXIT_FAILURE);
 	}
