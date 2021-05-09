@@ -3,6 +3,8 @@
 #include <string.h>
 #include "map.hpp"
 
+Map prov_map, pol_map, topo_map, infra_map;
+
 Map::Map(World * w, Map_Mode m) {
 	memset(this, 0, sizeof(Map));
 

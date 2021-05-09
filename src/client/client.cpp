@@ -100,7 +100,6 @@ static float fmx, fmy;
 static int tx, ty;
 static size_t current_player_nation_id;
 static size_t selected_province_id;
-static Map prov_map, pol_map, topo_map, infra_map;
 static Map map;
 static void do_view_prov_map(UI::Widget *, void *) {
 	map = prov_map;
@@ -118,6 +117,7 @@ static void do_view_infra_map(UI::Widget *, void *) {
 	map = infra_map;
 }
 
+extern int redraw;
 void rendering_main(void) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
@@ -376,7 +376,21 @@ void rendering_main(void) {
 				break;
 			}
 		}
-		
+
+		if(redraw) {
+			printf("redrawing!\n");
+			for(size_t i = 0; i < g_world->width; i++) {
+				for(size_t j = 0; j < g_world->width; j++) {
+					prov_map.quad_update(i, j);
+					pol_map.quad_update(i, j);
+					topo_map.quad_update(i, j);
+					infra_map.quad_update(i, j);
+					i += prov_map.quad_size;
+					j += prov_map.quad_size;
+				}
+			}
+			redraw = 0;
+		}
 	
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glPushMatrix();

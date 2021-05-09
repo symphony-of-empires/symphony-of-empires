@@ -6,6 +6,8 @@ void rendering_main(void);
 
 #include <chrono>
 #include <thread>
+#include <queue>
+
 int main(int argc, char ** argv) {
 	World world("map_topo.png", "map_pol.png", "map_div.png", "map_infra.png");
 	world.time = 695459;
