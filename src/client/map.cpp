@@ -151,7 +151,7 @@ void Map::quad_create(const size_t qx, const size_t qy) {
 				for(size_t k = 0; k < 6; k++) {
 					const size_t x = i + draw_ord[k][0];
 					const size_t y = j + draw_ord[k][1];
-					const uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
+					uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
 					if(elevation < this->world->sea_level) {
 						glColor3ub(32, elevation, elevation + this->world->sea_level);
 					} else if(elevation < this->world->sea_level + 16) {
