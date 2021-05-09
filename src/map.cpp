@@ -144,6 +144,47 @@ void Map::quad_create(size_t qx, size_t qy) {
 				glEnd();
 			}
 		}
+	} else if(this->mode == MAP_INFRASTRUCTURE) {
+		for(size_t i = off_x; i < end_x; i++) {
+			for(size_t j = off_y; j < end_y; j++) {
+				glBegin(GL_TRIANGLES);
+				for(size_t k = 0; k < 6; k++) {
+					size_t x = i + draw_ord[k][0];
+					size_t y = j + draw_ord[k][1];
+					uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
+					if(elevation < this->world->sea_level) {
+						glColor3ub(32, elevation, elevation + this->world->sea_level);
+					} else if(elevation < this->world->sea_level + 16) {
+						elevation -= this->world->sea_level;
+						glColor3ub(255 - elevation, 255 - elevation, 255 - elevation);
+					} else {
+						elevation -= this->world->sea_level + 16;
+						glColor3ub(128, (world->sea_level + 64) - elevation, 32);
+					}
+					glVertex2f(x, y);
+				}
+				glEnd();
+			}
+		}
+
+		// Infrastructure
+		glLineWidth(2.f);
+		for(size_t i = off_x; i < end_x; i++) {
+			for(size_t j = off_y; j < end_y; j++) {
+				Tile * tiles = this->world->tiles;
+				Tile * curr_tile = &tiles[i + j * this->world->width];
+
+				if(curr_tile->infra_level) {
+					glBegin(GL_POLYGON);
+					glColor3ub(0xed, 0xe5, 0x8c);
+					glVertex2f((float)i + 0.f, (float)j + 0.f);
+					glVertex2f((float)i + 0.f, (float)j + 1.f);
+					glVertex2f((float)i + 1.f, (float)j + 1.f);
+					glVertex2f((float)i + 1.f, (float)j + 0.f);
+					glEnd();
+				}
+			}
+		}
 	}
 
 	/* Province borders */
