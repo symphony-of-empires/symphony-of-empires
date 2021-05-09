@@ -34,27 +34,33 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 		exit(EXIT_FAILURE);
 	}
 
-	lua_State * L;
-	L = luaL_newstate();
-	luaL_openlibs(L);
-	lua_register(L, "_", LuaAPI::get_text);
-	lua_register(L, "add_good", LuaAPI::add_good);
-	lua_register(L, "get_good", LuaAPI::get_good);
-	lua_register(L, "add_industry_type", LuaAPI::add_industry_type);
-	lua_register(L, "get_industry_type", LuaAPI::get_industry_type);
-	lua_register(L, "add_input_to_industry_type", LuaAPI::add_input_to_industry_type);
-	lua_register(L, "add_output_to_industry_type", LuaAPI::add_output_to_industry_type);
-	lua_register(L, "add_nation", LuaAPI::add_nation);
-	lua_register(L, "get_nation", LuaAPI::get_nation);
-	lua_register(L, "add_province", LuaAPI::add_province);
-	lua_register(L, "get_province", LuaAPI::get_province);
-	lua_register(L, "give_province_to", LuaAPI::give_province_to);
-	lua_register(L, "add_company", LuaAPI::add_company);
+	this->lua = luaL_newstate();
+	luaL_openlibs(this->lua);
+	
+	lua_register(this->lua, "_", LuaAPI::get_text);
+	lua_register(this->lua, "add_good", LuaAPI::add_good);
+	lua_register(this->lua, "get_good", LuaAPI::get_good);
+	lua_register(this->lua, "add_industry_type", LuaAPI::add_industry_type);
+	lua_register(this->lua, "get_industry_type", LuaAPI::get_industry_type);
+	lua_register(this->lua, "add_input_to_industry_type", LuaAPI::add_input_to_industry_type);
+	lua_register(this->lua, "add_output_to_industry_type", LuaAPI::add_output_to_industry_type);
+	lua_register(this->lua, "add_nation", LuaAPI::add_nation);
+	lua_register(this->lua, "get_nation", LuaAPI::get_nation);
+	lua_register(this->lua, "add_province", LuaAPI::add_province);
+	lua_register(this->lua, "get_province", LuaAPI::get_province);
+	lua_register(this->lua, "give_province_to", LuaAPI::give_province_to);
+	lua_register(this->lua, "add_company", LuaAPI::add_company);
+	lua_register(this->lua, "add_event", LuaAPI::add_event);
+
+	lua_register(this->lua, "get_hour", LuaAPI::get_hour);
+	lua_register(this->lua, "get_day", LuaAPI::get_day);
+	lua_register(this->lua, "get_month", LuaAPI::get_month);
+	lua_register(this->lua, "get_year", LuaAPI::get_year);
 
 	// TODO: The. name. is. fucking. long.
-	lua_register(L, "add_op_province_to_company", LuaAPI::add_op_province_to_company);
+	lua_register(this->lua, "add_op_province_to_company", LuaAPI::add_op_province_to_company);
 
-	luaL_dofile(L, Resource_GetPath("scripts/init.lua").c_str());
+	luaL_dofile(this->lua, Resource_GetPath("scripts/init.lua").c_str());
 
 	// Translate all div, pol and topo maps onto this single tile array
 	const size_t n_nations = this->nations.size();
@@ -123,11 +129,11 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	this->goods.shrink_to_fit();
 	this->industry_types.shrink_to_fit();
 
-	luaL_dofile(L, Resource_GetPath("scripts/mod.lua").c_str());
-	lua_close(L);
+	luaL_dofile(this->lua, Resource_GetPath("scripts/mod.lua").c_str());
 }
 
 World::~World() {
+	lua_close(this->lua);
 	delete[] this->tiles;
 }
 
