@@ -10,7 +10,8 @@ public:
 	Texture() {};
 	Texture(const char * path);
 	~Texture();
-	
+	Texture(const Texture& tex) : buffer(tex.buffer) {};
+
 	uint32_t * buffer;
 	size_t width;
 	size_t height;
