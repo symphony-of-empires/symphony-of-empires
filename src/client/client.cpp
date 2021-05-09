@@ -469,5 +469,6 @@ void rendering_main(void) {
 
 	TTF_Quit();
 	SDL_Quit();
+	delete ui_ctx;
 	return;
 }

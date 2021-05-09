@@ -8,6 +8,7 @@
 #include "texture.hpp"
 #include "ui.hpp"
 #include "path.hpp"
+#include <iostream>
 
 using namespace UI;
 
@@ -68,12 +69,14 @@ void Context::remove_widget(Widget * widget) {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		if(this->widgets[i] != widget)
 			continue;
-		
+
+		// printf("%d\n", widget->children.size());
 		for(size_t j = 0; j < widget->children.size(); j++) {
 			this->remove_widget(widget->children[j]);
 		}
 
 		this->widgets.erase(this->widgets.begin() + i);
+
 		break;
 	}
 	return;
@@ -284,7 +287,7 @@ void default_close_button_on_click(Widget * w, void * data) {
 	return;
 }
 
-Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
+void Widget::init(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
 	const char * text, Texture * tex) {
 	memset(this, 0, sizeof(Widget));
 	this->on_render = &default_on_render;
@@ -324,6 +327,11 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 		this->text(ctx, text);
 	}
 	return;
+}
+
+Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
+	const char * text, Texture * tex) {
+	init(ctx, _parent, _x, _y, w, h, _type, text, tex);
 }
 
 void Widget::add_child(Widget * child) {
