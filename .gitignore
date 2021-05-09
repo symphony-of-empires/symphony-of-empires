@@ -18,6 +18,13 @@ compile_commands.json
 # vs stuff
 .vs/
 x64/
+*.tlog
+*.log
+*.user
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.pdb
 
 # cmake stuff
 CMakeFiles/
