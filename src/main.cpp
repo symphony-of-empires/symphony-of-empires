@@ -8,6 +8,10 @@ void rendering_main(void);
 #include <thread>
 #include <queue>
 
+int greedy_bfs(World * world, int cx, int cy, int gx, int gy) {
+
+}
+
 int main(int argc, char ** argv) {
 	World world("map_topo.png", "map_pol.png", "map_div.png", "map_infra.png");
 	world.time = 695459;
@@ -26,6 +30,8 @@ int main(int argc, char ** argv) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(250));
 	}
 	t1.join();
+#else
+	exit(EXIT_SUCCESS);
 #endif
 	return 0;
 }
