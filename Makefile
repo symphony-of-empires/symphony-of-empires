@@ -1,4 +1,9 @@
+ifdef CLANG
+CXX=clang++
+else
 CXX=g++
+endif
+
 CXXFLAGS=-Wall -Wextra -Wshadow -std=c++17 -O2 -fno-exceptions -fno-rtti -Isrc -Isrc/client
 ifdef WINDOWS
 LIBS=-lopengl32 -lglu32 -llua -lintl
@@ -23,6 +28,8 @@ CXXFLAGS:=$(CXXFLAGS) -DUNIT_TEST
 endif
 
 build: dirs bin/main
+
+clean_build: clean build
 
 clean:
 	rm -rf bin obj
