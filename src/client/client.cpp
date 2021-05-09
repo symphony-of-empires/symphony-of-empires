@@ -100,7 +100,6 @@ static float fmx, fmy;
 static int tx, ty;
 static size_t current_player_nation_id;
 static size_t selected_province_id;
-static Map prov_map, pol_map, topo_map, infra_map;
 static Map map;
 static void do_view_prov_map(UI::Widget *, void *) {
 	map = prov_map;
