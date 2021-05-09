@@ -25,5 +25,9 @@ add_executable(SymphonyOfEmpires
 	${MAIN_SOURCES}
 	${CLIENT_SOURCES}
 )
-
-target_link_libraries(SymphonyOfEmpires LINK_PUBLIC opengl32 glu32 lua intl png SDL2 SDL2_ttf)
+if (WIN32)
+	target_link_libraries(SymphonyOfEmpires PUBLIC opengl32 glu32 lua intl)
+ELSE()
+	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLU lua5.4)
+ENDIF()
+target_link_libraries(SymphonyOfEmpires PUBLIC png SDL2 SDL2_ttf m)
