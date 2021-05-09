@@ -28,12 +28,11 @@ static inline std::string Resource_GetSelfPath(){
 std::string Resource_GetPath(const char * str){
 	if(str[0] == '/' || str[0] == 'C') return str;
 	std::string rsult = Resource_GetSelfPath();
-#ifdef WIN32	
-	rsult.erase(rsult.end() - 8, rsult.end());
-#else
-	rsult.erase(rsult.end() - 4, rsult.end());
-#endif
-	rsult += "../data/";
+	size_t found = rsult.find_last_of("/\\");
+	rsult = rsult.substr(0, found);
+	found = rsult.find_last_of("/\\");
+	rsult = rsult.substr(0, found);
+	rsult += "/data/";
 	rsult += str;
 	std::cout << "Concat str: " << rsult << std::endl;
 	return rsult;
