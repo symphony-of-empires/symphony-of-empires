@@ -68,6 +68,9 @@ namespace UI {
 
 		size_t x;
 		size_t y;
+
+		size_t ox;
+		size_t oy;
 		
 		size_t width;
 		size_t height;

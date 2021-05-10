@@ -68,8 +68,7 @@ void Context::remove_widget(Widget * widget) {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		if(this->widgets[i] != widget)
 			continue;
-
-		// printf("%d\n", widget->children.size());
+		
 		for(size_t j = 0; j < widget->children.size(); j++) {
 			this->remove_widget(widget->children[j]);
 		}
@@ -297,6 +296,9 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 	this->width = w;
 	this->height = h;
 
+	this->ox = _x;
+	this->oy = _y;
+
 	if(_parent != nullptr) {
 		this->x += _parent->x;
 		this->y += _parent->y;
@@ -339,6 +341,8 @@ void Widget::add_child(Widget * child) {
 		if(this->children[i] == child)
 			return;
 	}
+
+	printf("adding children %p to %p\n", child, this);
 
 	// Add to list
 	this->children.push_back(child);

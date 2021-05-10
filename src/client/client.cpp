@@ -155,7 +155,6 @@ void rendering_main(void) {
 	UI::Widget help_btn, help_btn_icon;
 	Texture help_icon = Texture(Resource_GetPath("icons/help.png").c_str());
 	help_icon.to_opengl();
-
 	help_btn = UI::Button(ui_ctx, nullptr, 8, 8, 64, 64);
 	ui_ctx->add_widget(&help_btn);
 	help_btn.on_click = &do_help;
@@ -165,7 +164,6 @@ void rendering_main(void) {
 	UI::Widget budget_btn, budget_btn_icon;
 	Texture budget_icon = Texture(Resource_GetPath("icons/budget.png").c_str());
 	budget_icon.to_opengl();
-
 	budget_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 2) + 64, 64, 64);
 	ui_ctx->add_widget(&budget_btn);
 	budget_btn.on_click = &do_economy_on_click;
@@ -214,12 +212,11 @@ void rendering_main(void) {
 	exit_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 7) + (64 * 6), 64, 64);
 	ui_ctx->add_widget(&exit_btn);
 	exit_btn.on_click = &do_exit;
-	exit_btn_icon = UI::Window(ui_ctx, &exit_btn, 0, 0, 64, 64, nullptr, &exit_icon);
+	exit_btn_icon = UI::Image(ui_ctx, &exit_btn, 0, 0, 64, 64, nullptr, &exit_icon);
 	ui_ctx->add_widget(&exit_btn_icon);
 
 	/* help window */
-	help_win = UI::Window(ui_ctx, nullptr, width - 520, 32, 512, 512);
-	help_win.text(ui_ctx, "Russo-Japanesse War 1904");
+	help_win = UI::Window(ui_ctx, nullptr, width - 520, 32, 512, 512, "Russo-Japanesse War 1904");
 	help_win_close_btn = UI::Button(ui_ctx, &help_win, 512 - 24, -24, 24, 24, "X");
 	help_win_close_btn.on_click = &default_close_button_on_click;
 	const char * text[] = {
@@ -237,17 +234,16 @@ void rendering_main(void) {
 		"Have fun! :D"
 	};
 	for(size_t i = 0; i < 12; i++) {
-		help_label[i] = UI::Label(ui_ctx, &help_win, 0, (i + 1) * 24, text[i]);
+		help_label[i] = UI::Label(ui_ctx, &help_win, 0, i * 24, text[i]);
 	}
 
 	/* tile overview */
-	tov_win = UI::Window(ui_ctx, nullptr, width - 520, 32, 512, 512);
-	tov_win.text(ui_ctx, "Province overview");
+	tov_win = UI::Window(ui_ctx, nullptr, width - 520, 32, 512, 512, "Province overview");
 	tov_win_close_btn = UI::Button(ui_ctx, &tov_win, 512 - 24, -24, 24, 24, "X");
 	tov_win_close_btn.on_click = &default_close_button_on_click;
-	tov_owner_label = UI::Label(ui_ctx, &tov_win, 0, 24, "?");
+	tov_owner_label = UI::Label(ui_ctx, &tov_win, 0, 0, "?");
 	tov_owner_flag_image = UI::Image(ui_ctx, &tov_win, (16) * 6, 0, 32, 24, nullptr, g_world->nations[current_player_nation_id]->default_flag);
-	tov_population_label = UI::Label(ui_ctx, &tov_win, 0, 48, "?");
+	tov_population_label = UI::Label(ui_ctx, &tov_win, 0, 24, "?");
 
 	/* overview bottom window */
 	overview_win = UI::Window(ui_ctx, nullptr, 0, height - 128, width, 128);
@@ -259,26 +255,24 @@ void rendering_main(void) {
 	ui_ctx->add_widget(&overview_flag_image);
 
 	/* economy window */
-	econ_win = UI::Window(ui_ctx, nullptr, 128, 32, 512, 512);
+	econ_win = UI::Window(ui_ctx, nullptr, 128, 32, 512, 512, "Economy and production");
 	econ_win_close_btn = UI::Button(ui_ctx, &econ_win, 512 - 24, -24, 24, 24, "X");
 	econ_win_close_btn.on_click = &default_close_button_on_click;
-	econ_label[0] = UI::Label(ui_ctx, &econ_win, 128 * 0, 24, "% Change");
-	econ_label[1] = UI::Label(ui_ctx, &econ_win, 128 * 1, 24, "Price");
-	econ_label[2] = UI::Label(ui_ctx, &econ_win, 128 * 2, 24, "Province");
-	econ_label[3] = UI::Label(ui_ctx, &econ_win, 128 * 3, 24, "Good");
+	econ_label[0] = UI::Label(ui_ctx, &econ_win, 128 * 0, 0, "% Change");
+	econ_label[1] = UI::Label(ui_ctx, &econ_win, 128 * 1, 0, "Price");
+	econ_label[2] = UI::Label(ui_ctx, &econ_win, 128 * 2, 0, "Province");
+	econ_label[3] = UI::Label(ui_ctx, &econ_win, 128 * 3, 0, "Good");
 	for(size_t i = (4 / 4); i < (128 / 4); i++) {
-		size_t y = i * 24 + 24;
+		size_t y = i * 24;
 		econ_label[i * 4 + 0] = UI::Label(ui_ctx, &econ_win, 128 * 0, y, "?");
 		econ_label[i * 4 + 0] = UI::Label(ui_ctx, &econ_win, 128 * 1, y, "?");
-		econ_label[i * 4 + 0] = UI::Label(ui_ctx, &econ_win, 28 * 2, y, "?");
+		econ_label[i * 4 + 0] = UI::Label(ui_ctx, &econ_win, 128 * 2, y, "?");
 		econ_label[i * 4 + 0] = UI::Label(ui_ctx, &econ_win, 128 * 3, y, "?");
 	}
 	
-	debug_info = UI::Window(ui_ctx, nullptr, width - 250, 25, 225, 25);
-	dt_label = UI::Label(ui_ctx, &debug_info, 0, 0, "Delta time (ms)");
-	delta_time = UI::Label(ui_ctx, &debug_info, 0, 25, "0");
+	debug_info = UI::Window(ui_ctx, nullptr, width - 250, 25, 225, 25, "Delta time (ms)");
+	delta_time = UI::Label(ui_ctx, &debug_info, 0, 0, "0");
 	ui_ctx->add_widget(&debug_info);
-	ui_ctx->add_widget(&dt_label);
 	ui_ctx->add_widget(&delta_time);
 	econ_win.on_update = &do_economy_on_update;
 
