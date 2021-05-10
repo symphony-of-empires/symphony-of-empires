@@ -41,7 +41,7 @@ jobs:
         fetch-depth: 0
     - uses: msys2/setup-msys2@v2
       with:
-        install: gcc mingw-w64-x86_64-make mingw-w64-x86_64-cmake mingw64/mingw-w64-x86_64-gcc mingw64/mingw-w64-x86_64-libpng mingw64/mingw-w64-x86_64-freeglut mingw64/mingw-w64-x86_64-glew mingw64/mingw-w64-x86_64-lua
+        install: gcc mingw-w64-x86_64-make mingw-w64-x86_64-cmake mingw64/mingw-w64-x86_64-gcc mingw64/mingw-w64-x86_64-libpng mingw64/mingw-w64-x86_64-freeglut mingw64/mingw-w64-x86_64-glew mingw64/mingw-w64-x86_64-lua mingw64/mingw-w64-x86_64-SDL2 mingw64/mingw-w64-x86_64-SDL2_tff
     - name: "Build"
       run: |
        cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -B./build -G "MinGW Makefiles"
