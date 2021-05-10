@@ -212,6 +212,15 @@ void World::do_tick() {
 	// All factories will place their orders for their inputs
 	// All RGOs will do deliver requests
 	for(size_t i = 0; i < n_provinces; i++) {
+		// Time to simulate our POPs
+		for(auto& pop: this->provinces[i].pops) {
+			lua_getglobal(this->lua, this->pop_types[pop.type_id].on_tick_fn.c_str());
+
+			// Pass the ref_name of the province
+			lua_pushstring(this->lua, this->provinces[i].ref_name.c_str());
+			lua_call(this->lua, 1, 0);
+		}
+
 		for(size_t j = 0; j < this->provinces[i].industries.size(); j++) {
 			IndustryType * it = &this->industry_types[this->provinces[i].industries[j].type_id];
 			for(const auto& input: it->inputs) {
@@ -239,6 +248,7 @@ void World::do_tick() {
 		}
 	}
 
+	// Now we will deliver stuff accordingly
 	while(delivers.size() > 0
 	|| orders.size() > 0) {
 		// Now transport companies will check and transport accordingly
@@ -309,6 +319,7 @@ void World::do_tick() {
 		}
 	}
 
+	// Close today's price with a change according to demand - supply
 	for(auto& product: this->products) {
 		if(product.demand > product.supply) {
 			product.price_vel += 0.2f;

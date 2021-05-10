@@ -4,7 +4,7 @@ function Good:create(good)
 	return good
 end
 function Good:register(good)
-	add_good(good.ref_name, good.name)
+	good.id = add_good(good.ref_name, good.name)
 end
 function Good:get(good, ref_name)
 	good.parent = self
@@ -18,7 +18,7 @@ function Company:create(company)
 	return company
 end
 function Company:register(company)
-	add_company(company.name, company.money, company.is_transport, company.is_retailer, company.is_industry)
+	company.id = add_company(company.name, company.money, company.is_transport, company.is_retailer, company.is_industry)
 end
 
 IndustryType = { id = 0, name = "", ref_name = "" }
@@ -27,7 +27,7 @@ function IndustryType:create(industry_type)
 	return industry_type
 end
 function IndustryType:register(industry_type)
-	add_industry_type(industry_type.ref_name, industry_type.name)
+	industry_type.id = add_industry_type(industry_type.ref_name, industry_type.name)
 end
 function IndustryType:get(industry_type, ref_name)
 	industry_type.parent = self
@@ -47,7 +47,7 @@ function Nation:create(nation)
 	return nation
 end
 function Nation:register(nation)
-	add_nation(nation.ref_name, nation.color, nation.default_flag, nation.name)
+	nation.id = add_nation(nation.ref_name, nation.color, nation.default_flag, nation.name)
 end
 function Nation:get(nation, ref_name)
 	nation.parent = self
@@ -72,7 +72,7 @@ function Province:give_to(province, nation)
 	give_province_to(province.id, nation.id)
 end
 function Province:add_pop(province, pop_type, culture, religion, size)
-	add_province_pop(province.id, pop_type.id, culture.id, religion.id, size)
+	province.id = add_province_pop(province.id, pop_type.id, culture.id, religion.id, size)
 end
 
 Event = { ref_name = "", conditions_fn = "", event_fn = "" }
@@ -84,7 +84,7 @@ function Event:register(event)
 	add_event(event.ref_name, event.conditions_fn, event.event_fn)
 end
 
-PopType = { ref_name = "", name = "", on_tick_fn = "" }
+PopType = { id = 0, ref_name = "", name = "", on_tick_fn = "" }
 function PopType:create(pop_type)
 	pop_type.parent = self
 	return pop_type
@@ -93,10 +93,10 @@ function PopType:get(pop_type, ref_name)
 	pop_type.id, pop_type.ref_name, pop_type.name = get_pop_type(ref_name)
 end
 function PopType:register(pop_type)
-	add_pop_type(pop_type.ref_name, pop_type.name, pop_type.on_tick_fn)
+	pop_type.id = add_pop_type(pop_type.ref_name, pop_type.name, pop_type.on_tick_fn)
 end
 
-Culture = { ref_name = "", name = "" }
+Culture = { id = 0, ref_name = "", name = "" }
 function Culture:create(culture)
 	culture.parent = self
 	return culture
@@ -105,10 +105,10 @@ function Culture:get(culture, ref_name)
 	culture.id, culture.ref_name, culture.name = get_culture(ref_name)
 end
 function Culture:register(culture)
-	add_culture(culture.ref_name, culture.name)
+	culture.id = add_culture(culture.ref_name, culture.name)
 end
 
-Religion = { ref_name = "", name = "" }
+Religion = { id = 0, ref_name = "", name = "" }
 function Religion:create(religion)
 	religion.parent = self
 	return religion
@@ -117,7 +117,7 @@ function Religion:get(religion, ref_name)
 	religion.id, religion.ref_name, religion.name = get_religion(ref_name)
 end
 function Religion:register(religion)
-	add_religion(religion.ref_name, religion.name)
+	religion.id = add_religion(religion.ref_name, religion.name)
 end
 
 print("loaded api.lua")

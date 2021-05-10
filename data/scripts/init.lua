@@ -272,9 +272,13 @@ print("nations")
 local hokkaido = Province:create{ ref_name = "hokkaido", color = 0x2870a8 }
 hokkaido.name = _("Hokkaido")
 Province:register(hokkaido)
+Province:add_pop(hokkaido, entrepreneur, japanesse, good_bois, 42000)
+
 local south_hokkaido = Province:create{ ref_name = "south_hokkaido", color = 0x6e28a8 }
 south_hokkaido.name = _("South Hokkaido")
 Province:register(south_hokkaido)
+Province:add_pop(south_hokkaido, entrepreneur, japanesse, good_bois, 42000)
+
 local south_east_hokkaido = Province:create{ ref_name = "south_east_hokkaido", color = 0x449893 }
 south_east_hokkaido.name = _("South East Hokkaido")
 Province:register(south_east_hokkaido)
