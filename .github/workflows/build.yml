@@ -42,6 +42,9 @@ jobs:
     - uses: msys2/setup-msys2@v2
       with:
         install: gcc make mingw-w64-x86_64-cmake mingw64/mingw-w64-x86_64-gcc mingw64/mingw-w64-x86_64-libpng mingw64/mingw-w64-x86_64-freeglut mingw64/mingw-w64-x86_64-glew mingw64/mingw-w64-x86_64-lua
+    - name: "Add msys64 to path"
+      run: |
+       set PATH=%PATH%;C:\msys64\mingw64\bin
     - name: "Build"
       run: |
        cmake . -G "MinGW Makefiles"
