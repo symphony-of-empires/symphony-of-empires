@@ -76,7 +76,7 @@ void Map::quad_create(const size_t qx, const size_t qy) {
 						glVertex2f(x, y);
 					}
 				} else {
-					Nation * nation = &this->world->nations[curr_tile->owner_id];
+					Nation * nation = this->world->nations[curr_tile->owner_id];
 					for(size_t k = 0; k < 6; k++) {
 						const size_t x = i + draw_ord[k][0];
 						const size_t y = j + draw_ord[k][1];
@@ -111,7 +111,7 @@ void Map::quad_create(const size_t qx, const size_t qy) {
 						glVertex2f(x, y);
 					}
 				} else {
-					Province * province = &this->world->provinces[curr_tile->province_id];
+					Province * province = this->world->provinces[curr_tile->province_id];
 					for(size_t k = 0; k < 6; k++) {
 						const size_t x = i + draw_ord[k][0];
 						const size_t y = j + draw_ord[k][1];

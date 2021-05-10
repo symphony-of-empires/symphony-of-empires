@@ -100,7 +100,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 		// Associate tiles with nations
 		this->tiles[i].owner_id = (size_t)-1;
 		for(size_t j = 0; j < n_nations; j++) {
-			if(pol.buffer[i] == this->nations[j].color) {
+			if(pol.buffer[i] == this->nations[j]->color) {
 				this->tiles[i].owner_id = j;
 				break;
 			}
@@ -109,7 +109,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 		// Associate tiles with provinces
 		this->tiles[i].province_id = (size_t)-1;
 		for(size_t j = 0; j < n_provinces; j++) {
-			if(div.buffer[i] == this->provinces[j].color) {
+			if(div.buffer[i] == this->provinces[j]->color) {
 				this->tiles[i].province_id = j;
 				break;
 			}
@@ -130,7 +130,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 			Tile * tile = &this->tiles[i + (j * this->width)];
 			for(size_t k = 0; k < this->provinces.size(); k++) {
 				if(tile->province_id == k) {
-					Province * province = &this->provinces[k];
+					Province * province = this->provinces[k];
 					if(i < province->min_x)
 						province->min_x = i;
 					if(j < province->min_y)
@@ -146,22 +146,22 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 
 	// Correct stuff from provinces
 	for(auto& province: this->provinces) {
-		if(province.max_x > this->width)
-			province.max_x = this->width;
-		if(province.min_x > this->width)
-			province.min_x = this->width;
+		if(province->max_x > this->width)
+			province->max_x = this->width;
+		if(province->min_x > this->width)
+			province->min_x = this->width;
 		
-		if(province.max_y > this->height)
-			province.max_y = this->height;
-		if(province.min_y > this->height)
-			province.min_y = this->height;
+		if(province->max_y > this->height)
+			province->max_y = this->height;
+		if(province->min_y > this->height)
+			province->min_y = this->height;
 	}
 
 	// Create diplomatic relations between nations
 	for(auto& nation: this->nations) {
 		// Relations between nations start at 0
 		for(size_t i = 0; i < this->nations.size(); i++) {
-			nation.relations.push_back(0.f);
+			nation->relations.push_back(0.f);
 		}
 	}
 
@@ -183,7 +183,7 @@ World::~World() {
 	delete[] this->tiles;
 
 	for (size_t i = 0; i < g_world->nations.size(); i++) {
-		delete (&g_world->nations[i])->default_flag;
+		delete g_world->nations[i]->default_flag;
 	}
 }
 
@@ -213,16 +213,16 @@ void World::do_tick() {
 	// All RGOs will do deliver requests
 	for(size_t i = 0; i < n_provinces; i++) {
 		// Time to simulate our POPs
-		for(auto& pop: this->provinces[i].pops) {
-			lua_getglobal(this->lua, this->pop_types[pop.type_id].on_tick_fn.c_str());
+		for(auto& pop: this->provinces[i]->pops) {
+			lua_getglobal(this->lua, this->pop_types[pop->type_id]->on_tick_fn.c_str());
 
 			// Pass the ref_name of the province
-			lua_pushstring(this->lua, this->provinces[i].ref_name.c_str());
+			lua_pushstring(this->lua, this->provinces[i]->ref_name.c_str());
 			lua_call(this->lua, 1, 0);
 		}
 
-		for(size_t j = 0; j < this->provinces[i].industries.size(); j++) {
-			IndustryType * it = &this->industry_types[this->provinces[i].industries[j].type_id];
+		for(size_t j = 0; j < this->provinces[i]->industries.size(); j++) {
+			IndustryType * it = this->industry_types[this->provinces[i]->industries[j]->type_id];
 			for(const auto& input: it->inputs) {
 				OrderGoods order;
 				order.payment = 500.f;
@@ -253,14 +253,14 @@ void World::do_tick() {
 	|| orders.size() > 0) {
 		// Now transport companies will check and transport accordingly
 		for(auto& company: this->companies) {
-			if(!company.is_transport)
+			if(!company->is_transport)
 				continue;
 
 			// Check all delivers
 			for(size_t i = 0; i < delivers.size(); i++) {
 				DeliverGoods * deliver = &delivers[i];
 
-				if(!company.in_range(deliver->sender_province_id))
+				if(!company->in_range(deliver->sender_province_id))
 					continue;
 
 				// Check all orders
@@ -272,13 +272,13 @@ void World::do_tick() {
 						continue;
 
 					// Are we in the range to deliver?
-					if(!company.in_range(order->requester_province_id))
+					if(!company->in_range(order->requester_province_id))
 						continue;
 
 					//printf("%s: Delivered from %s to %s some %s\n", company.name.c_str(), this->provinces[deliver->sender_province_id].ref_name.c_str(), this->provinces[order->requester_province_id].ref_name.c_str(), this->goods[order->good_id].ref_name.c_str());
 
 					// Yes - we go and deliver their stuff
-					Industry * industry = &this->provinces[order->requester_province_id].industries[order->requester_industry_id];
+					Industry * industry = this->provinces[order->requester_province_id]->industries[order->requester_industry_id];
 					industry->add_to_stock(this, order->good_id, 1);
 
 					// On 0 it overflows to -1, on 1 it goes to zero, but after this loop it's
@@ -298,7 +298,8 @@ void World::do_tick() {
 		// Get number of transporter companies
 		size_t n_transporters = 0;
 		for(const auto& company: this->companies) {
-			if(company.is_transport) n_transporters++;
+			if(company->is_transport)
+				n_transporters++;
 		}
 
 		// Drop all rejected delivers
@@ -321,37 +322,37 @@ void World::do_tick() {
 
 	// Close today's price with a change according to demand - supply
 	for(auto& product: this->products) {
-		if(product.demand > product.supply) {
-			product.price_vel += 0.2f;
-		} else if(product.demand < product.supply) {
-			product.price_vel -= 0.2f;
+		if(product->demand > product->supply) {
+			product->price_vel += 0.2f;
+		} else if(product->demand < product->supply) {
+			product->price_vel -= 0.2f;
 		} else {
-			if(product.price_vel > 0.5f) {
-				product.price_vel -= 0.1f;
-			} else if(product.price_vel < -0.5f) {
-				product.price_vel += 0.1f;
+			if(product->price_vel > 0.5f) {
+				product->price_vel -= 0.1f;
+			} else if(product->price_vel < -0.5f) {
+				product->price_vel += 0.1f;
 			}
 		}
-		product.price += product.price_vel;
-		if(product.price <= 0.f) {
-			product.price = 0.01f;
+		product->price += product->price_vel;
+		if(product->price <= 0.f) {
+			product->price = 0.01f;
 		}
 	}
 	this->time++;
 }
 
 void World::add_good(Good * good) {
-	this->goods.push_back(*good);
+	this->goods.push_back(good);
 }
 
 void World::add_industry_type(IndustryType * it) {
-	this->industry_types.push_back(*it);
+	this->industry_types.push_back(it);
 }
 
 void World::add_nation(Nation * nation) {
-	this->nations.push_back(*nation);
+	this->nations.push_back(nation);
 }
 
 void World::add_province(Province * province) {
-	this->provinces.push_back(*province);
+	this->provinces.push_back(province);
 }

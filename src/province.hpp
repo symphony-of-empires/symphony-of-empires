@@ -24,9 +24,9 @@ public:
 	size_t max_x = 0;
 	size_t max_y = 0;
 	
-	std::vector<Industry> industries;
-	std::vector<Product> products;
-    std::vector<Pop> pops;
+	std::vector<Industry *> industries;
+	std::vector<Product *> products;
+    std::vector<Pop *> pops;
 };
 
 #endif
