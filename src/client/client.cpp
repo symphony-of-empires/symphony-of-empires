@@ -324,7 +324,12 @@ void rendering_main(void) {
 
 					delete[] str;
 
-					tov_owner_flag_image.current_texture = g_world->nations[tile->owner_id].default_flag;
+					if(tile->owner_id == (size_t)-1) {
+						// TODO: Use a neutral territory flag
+						tov_owner_flag_image.current_texture = &g_world->nations[0].default_flag;
+					} else {
+						tov_owner_flag_image.current_texture = &g_world->nations[tile->owner_id].default_flag;
+					}
 
 					selected_province_id = tile->province_id;
 					do_tile_overview();
