@@ -44,6 +44,6 @@ jobs:
         install: gcc mingw-w64-x86_64-make mingw-w64-x86_64-cmake mingw64/mingw-w64-x86_64-gcc mingw64/mingw-w64-x86_64-libpng mingw64/mingw-w64-x86_64-freeglut mingw64/mingw-w64-x86_64-glew mingw64/mingw-w64-x86_64-lua
     - name: "Build"
       run: |
-       cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -H$Env:GITHUB_WORKSPACE -B$Env:GITHUB_WORKSPACE/build -G "MinGW Makefiles"
+       cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -B$Env:GITHUB_WORKSPACE/build -G "MinGW Makefiles"
        cmake --build $Env:GITHUB_WORKSPACE/build --config Debug --target all -j 10
 
