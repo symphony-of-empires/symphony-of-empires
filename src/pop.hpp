@@ -45,14 +45,17 @@ public:
 class Pop {
 public:
 	size_t size;
+	size_t unemployed;
+	float literacy;
+
 	float militancy;
 	float consciousness;
-	float unemployment;
+	
 	float budget;
+	
 	float life_needs_met;
 	float everyday_needs_met;
 	float luxury_needs_met;
-	float literacy;
 	
 	size_t type_id;
 	size_t culture_id;

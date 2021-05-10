@@ -1,5 +1,21 @@
 require("api")
 
+-- Culture
+local japanesse = Culture:create{ ref_name = "japanesse" }
+japanesse.name = _("Japanesse")
+Culture:register(japanesse)
+local russian = Culture:create{ ref_name = "russian" }
+russian.name = _("Russian")
+Culture:register(russian)
+
+-- Religion
+local good_bois = Religion:create{ ref_name = "good_bois" }
+good_bois.name = _("Good bois")
+Religion:register(good_bois)
+local bad_bois = Religion:create{ ref_name = "bad_bois" }
+bad_bois.name = _("Bad bois")
+Religion:register(bad_bois)
+
 -- Pop types
 function entrepreneur_on_tick()
 	print("hello entrepreneur!")

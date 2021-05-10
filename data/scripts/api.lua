@@ -90,4 +90,22 @@ function PopType:register(o)
 	add_pop_type(o.ref_name, o.name, o.on_tick_fn)
 end
 
+Culture = { ref_name = "", name = "" }
+function Culture:create(o)
+	o.parent = self
+	return o
+end
+function Culture:register(o)
+	add_culture(o.ref_name, o.name)
+end
+
+Religion = { ref_name = "", name = "" }
+function Religion:create(o)
+	o.parent = self
+	return o
+end
+function Religion:register(o)
+	add_religion(o.ref_name, o.name)
+end
+
 print("loaded api.lua")
