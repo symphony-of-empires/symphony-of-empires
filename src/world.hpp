@@ -41,17 +41,17 @@ public:
 
 	Tile * tiles;
 	
-	std::vector<Good> goods;
-	std::vector<IndustryType> industry_types;
-	std::vector<Nation> nations;
-	std::vector<Province> provinces;
-	std::vector<Company> companies;
-	std::vector<Product> products;
-	std::vector<PopType> pop_types;
-	std::vector<Religion> religions;
-	std::vector<Culture> cultures;
+	std::vector<Good *> goods;
+	std::vector<IndustryType *> industry_types;
+	std::vector<Nation *> nations;
+	std::vector<Province *> provinces;
+	std::vector<Company *> companies;
+	std::vector<Product *> products;
+	std::vector<PopType *> pop_types;
+	std::vector<Religion *> religions;
+	std::vector<Culture *> cultures;
 
-	std::vector<LuaAPI::Event> events;
+	std::vector<LuaAPI::Event *> events;
 	lua_State * lua;
 
 	uint64_t time;

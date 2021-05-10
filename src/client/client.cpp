@@ -8,12 +8,14 @@
 #include <GL/glext.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
-#include "map.hpp"
+
 #include "world.hpp"
-#include "ui.hpp"
 #include "economy.hpp"
 #include "texture.hpp"
 #include "path.hpp"
+#include "ui.hpp"
+#include "map.hpp"
+
 extern World * g_world;
 
 const int width = 1280;
@@ -65,7 +67,7 @@ void do_economy_on_update(UI::Widget *, void *) {
 
 	char * str = new char[255];
 	for(size_t i = 0; i < n_products; i++) {
-		Product * product = &g_world->products[i];
+		Product * product = g_world->products[i];
 		size_t y = n_prod * 24 + 48;
 		
 		if(product->price_vel > 0.f) {
@@ -80,11 +82,12 @@ void do_economy_on_update(UI::Widget *, void *) {
 		UI_Widget_TextColor(0, 0, 0);
 		sprintf(str, "%4.2f", product->price);
 		econ_label[n_prod * 4 + 1].text(ui_ctx, str);
-		econ_label[n_prod * 4 + 2].text(ui_ctx, g_world->provinces[product->origin_id].name.c_str());
-		econ_label[n_prod * 4 + 3].text(ui_ctx, g_world->goods[product->good_id].name.c_str());
+		econ_label[n_prod * 4 + 2].text(ui_ctx, g_world->provinces[product->origin_id]->name.c_str());
+		econ_label[n_prod * 4 + 3].text(ui_ctx, g_world->goods[product->good_id]->name.c_str());
 
 		n_prod++;
-		if(n_prod >= (128 / 4)) break;
+		if(n_prod >= (128 / 4))
+			break;
 	}
 	delete[] str;
 }
@@ -143,7 +146,7 @@ void rendering_main(void) {
 	infra_map = Map(g_world, MAP_INFRASTRUCTURE);
 	map = prov_map;
 	for(auto& nation: g_world->nations) {
-		nation.default_flag->to_opengl();
+		nation->default_flag->to_opengl();
 	}
 
 	ui_ctx = new UI::Context();
@@ -245,16 +248,16 @@ void rendering_main(void) {
 	tov_win_close_btn.text(ui_ctx, "X");
 	tov_win_close_btn.on_click = &default_close_button_on_click;
 	UI_Widget_CreateLabel(ui_ctx, &tov_win, &tov_owner_label, 0, 24, "?");
-	UI_Widget_CreateImage(ui_ctx, &tov_win, &tov_owner_flag_image, (16) * 6, 0, 32, 24, g_world->nations[current_player_nation_id].default_flag);
+	UI_Widget_CreateImage(ui_ctx, &tov_win, &tov_owner_flag_image, (16) * 6, 0, 32, 24, g_world->nations[current_player_nation_id]->default_flag);
 	UI_Widget_CreateLabel(ui_ctx, &tov_win, &tov_population_label, 0, 48, "?");
 
 	/* overview bottom window */
 	UI_Widget_CreateWindow(ui_ctx, nullptr, &overview_win, 0, height - 128, width, 128);
-	overview_win.text(ui_ctx, g_world->nations[current_player_nation_id].ref_name.c_str());
+	overview_win.text(ui_ctx, g_world->nations[current_player_nation_id]->ref_name.c_str());
 	ui_ctx->add_widget(&overview_win);
 	UI_Widget_CreateLabel(ui_ctx, &overview_win, &overview_time_label, 128 + 32 + 8, 24, "?");
 	ui_ctx->add_widget(&overview_time_label);
-	UI_Widget_CreateImage(ui_ctx, &overview_win, &overview_flag_image, 8, 8, 128 + 32, 128 - 16, g_world->nations[current_player_nation_id].default_flag);
+	UI_Widget_CreateImage(ui_ctx, &overview_win, &overview_flag_image, 8, 8, 128 + 32, 128 - 16, g_world->nations[current_player_nation_id]->default_flag);
 	ui_ctx->add_widget(&overview_flag_image);
 
 	/* economy window */
@@ -273,9 +276,9 @@ void rendering_main(void) {
 		UI_Widget_CreateLabel(ui_ctx, &econ_win, &econ_label[i * 4 + 3], 128 * 3, y, "?");
 	}
 	
-	UI_Widget_CreateWindow(ui_ctx,nullptr,&debug_info,width - 250,25,225,25);
-	UI_Widget_CreateLabel(ui_ctx,&debug_info,&dt_label,0,0,"Delta time (ms)");
-	UI_Widget_CreateLabel(ui_ctx,&debug_info,&delta_time,0,25,"0");
+	UI_Widget_CreateWindow(ui_ctx, nullptr, &debug_info, width - 250, 25, 225, 25);
+	UI_Widget_CreateLabel(ui_ctx, &debug_info, &dt_label, 0, 0, "Delta time (ms)");
+	UI_Widget_CreateLabel(ui_ctx, &debug_info, &delta_time, 0, 25, "0");
 	ui_ctx->add_widget(&debug_info);
 	ui_ctx->add_widget(&dt_label);
 	ui_ctx->add_widget(&delta_time);
@@ -309,17 +312,17 @@ void rendering_main(void) {
 				&& !r) {
 					Tile * tile = &g_world->tiles[tx + ty * g_world->width];
 					char * str = new char[255];
-					const char * name = (tile->owner_id != (size_t)-1) ? g_world->nations[tile->owner_id].name.c_str() : "none";
+					const char * name = (tile->owner_id != (size_t)-1) ? g_world->nations[tile->owner_id]->name.c_str() : "none";
 					sprintf(str, "Owner:   %s", name);
 					tov_owner_label.text(ui_ctx, str);
 
 					if(tile->province_id == (size_t)-1) {
 						tov_win.text(ui_ctx, "unnamed land");
 					} else {
-						tov_win.text(ui_ctx, g_world->provinces[tile->province_id].name.c_str());
+						tov_win.text(ui_ctx, g_world->provinces[tile->province_id]->name.c_str());
 
 						/* some heartbleed techniques were applied here */
-						sprintf(str, "Population: %lu", g_world->provinces[tile->province_id].population);
+						sprintf(str, "Population: %lu", g_world->provinces[tile->province_id]->population);
 						tov_population_label.text(ui_ctx, str);
 					}
 
@@ -327,9 +330,9 @@ void rendering_main(void) {
 
 					if(tile->owner_id == (size_t)-1) {
 						// TODO: Use a neutral territory flag
-						tov_owner_flag_image.current_texture = g_world->nations[0].default_flag;
+						tov_owner_flag_image.current_texture = g_world->nations[0]->default_flag;
 					} else {
-						tov_owner_flag_image.current_texture = g_world->nations[tile->owner_id].default_flag;
+						tov_owner_flag_image.current_texture = g_world->nations[tile->owner_id]->default_flag;
 					}
 
 					selected_province_id = tile->province_id;
@@ -411,7 +414,7 @@ void rendering_main(void) {
 		glVertex2f(fmx, fmy + 1.f);
 		glEnd();
 		
-		glBindTexture(GL_TEXTURE_2D, g_world->nations[current_player_nation_id].default_flag->gl_tex_num);
+		glBindTexture(GL_TEXTURE_2D, g_world->nations[current_player_nation_id]->default_flag->gl_tex_num);
 		GLUquadricObj * sphere = nullptr;
 		sphere = gluNewQuadric();
 		gluQuadricDrawStyle(sphere, GLU_FILL);
