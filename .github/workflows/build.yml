@@ -44,7 +44,7 @@ jobs:
         install: gcc make mingw-w64-x86_64-cmake mingw64/mingw-w64-x86_64-gcc mingw64/mingw-w64-x86_64-libpng mingw64/mingw-w64-x86_64-freeglut mingw64/mingw-w64-x86_64-glew mingw64/mingw-w64-x86_64-lua
     - name: "Print PATH"
       run: |
-       echo %PATH%
+       echo $PATH
     - name: "Build"
       run: |
        cmake . -G "MinGW Makefiles"
