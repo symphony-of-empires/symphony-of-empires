@@ -61,7 +61,7 @@ function Province:create(province)
 	return province
 end
 function Province:register(province)
-	add_province(province.ref_name, province.color, province.name)
+	province.id = add_province(province.ref_name, province.color, province.name)
 end
 function Province:get(province, ref_name)
 	province.parent = self
@@ -72,7 +72,7 @@ function Province:give_to(province, nation)
 	give_province_to(province.id, nation.id)
 end
 function Province:add_pop(province, pop_type, culture, religion, size)
-	province.id = add_province_pop(province.id, pop_type.id, culture.id, religion.id, size)
+	add_province_pop(province.id, pop_type.id, culture.id, religion.id, size)
 end
 
 Event = { ref_name = "", conditions_fn = "", event_fn = "" }

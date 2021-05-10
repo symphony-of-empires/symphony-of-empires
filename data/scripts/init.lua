@@ -458,8 +458,8 @@ southern_korea.name = "Southern korea"
 Province:register(southern_korea)
 print("provinces")
 
-Province:add_pop(tokyo, artisan, japanesse, good_bois, 5000)
-Province:add_pop(tokyo, farmer, japanesse, good_bois, 5000)
+-- Province:add_pop(tokyo, artisan, japanesse, good_bois, 5000)
+-- Province:add_pop(tokyo, farmer, japanesse, good_bois, 5000)
 Province:add_pop(tokyo, soldier, japanesse, good_bois, 5000)
 Province:add_pop(tokyo, craftsmen, japanesse, good_bois, 5000)
 Province:add_pop(tokyo, bureaucrat, japanesse, good_bois, 5000)

@@ -237,8 +237,8 @@ int LuaAPI::add_province(lua_State * L) {
 	province.color |= 0xff000000;
 
 	province.name = lua_tostring(L, 3);
-	province.population = 1000;
 	province.budget = 500.f;
+	province.population = 0;
 
 	g_world->provinces.push_back(province);
 
@@ -315,12 +315,14 @@ int LuaAPI::add_province_pop(lua_State * L) {
 	Province * province = &g_world->provinces[province_id];
 
 	Pop pop;
-	pop.type_id = lua_tonumber(L, 2);
-	pop.culture_id = lua_tonumber(L, 3);
-	pop.religion_id = lua_tonumber(L, 4);
-	pop.size = lua_tonumber(L, 5);
+	// should add error checking here
+	pop.type = &g_world->pop_types[lua_tonumber(L, 2)];
+	pop.culture = nullptr; // temp
+	pop.religion = nullptr; // temp
 	
 	province->pops.push_back(pop);
+	province->set_pop_size(&province->pops.back(), lua_tonumber(L, 5));
+
 	lua_pushnumber(L, g_world->pop_types.size() - 1);
 	return 1;
 }

@@ -44,8 +44,9 @@ public:
 
 class Pop {
 public:
-	size_t size;
-	size_t unemployed;
+	uint size;\
+
+	float unemployed;
 	float literacy;
 
 	float militancy;
@@ -57,9 +58,9 @@ public:
 	float everyday_needs_met;
 	float luxury_needs_met;
 	
-	size_t type_id;
-	size_t culture_id;
-	size_t religion_id;
+	PopType * type;
+	Culture * culture;
+	Religion * religion;
 
 	std::vector<PartyLoyalty> party_loyalties;
 	std::vector<IssueInterest> issue_interests;

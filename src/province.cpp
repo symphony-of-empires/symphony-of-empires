@@ -44,3 +44,10 @@ void Province::add_industry(World * world, Industry * industry) {
 
 	this->industries.push_back(*industry);
 }
+
+void Province::set_pop_size(Pop * pop, uint size) {
+	population -= pop->size;
+	population += size;
+	pop->size = size;
+
+}

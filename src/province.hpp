@@ -10,12 +10,13 @@ class World;
 class Province {
 public:
 	void add_industry(World * world, Industry * industry);
+	void set_pop_size(Pop * pop, uint size);
 
 	std::string name;
 	std::string ref_name;
 	uint32_t color;
 	
-	uint64_t population;
+	/* readonly */ uint64_t population;
 	float budget;
 
 	size_t n_tiles = 0;
