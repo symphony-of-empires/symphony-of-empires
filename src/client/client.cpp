@@ -104,20 +104,27 @@ static int tx, ty;
 static size_t current_player_nation_id;
 static size_t selected_province_id;
 static Map map;
+
+static bool display_prov = true, display_pol = true, display_topo = false, display_infra = false;
+
 static void do_view_prov_map(UI::Widget *, void *) {
-	map = prov_map;
+	//map = prov_map;
+	display_prov = !display_prov;
 }
 
 static void do_view_pol_map(UI::Widget *, void *) {
-	map = pol_map;
+	//map = pol_map;
+	display_pol = !display_pol;
 }
 
 static void do_view_topo_map(UI::Widget *, void *) {
-	map = topo_map;
+	//map = topo_map;
+	display_topo = !display_topo;
 }
 
 static void do_view_infra_map(UI::Widget *, void *) {
-	map = infra_map;
+	//map = infra_map;
+	display_infra = !display_infra;
 }
 
 #include <atomic>
@@ -140,11 +147,7 @@ void rendering_main(void) {
 	glEnable(GL_TEXTURE_2D);
 
 	// Render g_world stuff now that we are in opengl
-	prov_map = Map(g_world, MAP_PROVINCIAL);
-	pol_map = Map(g_world, MAP_POLITICAL);
-	topo_map = Map(g_world, MAP_TOPOGRAPHIC);
-	infra_map = Map(g_world, MAP_INFRASTRUCTURE);
-	map = prov_map;
+	map = Map(g_world);
 	for(auto& nation: g_world->nations) {
 		nation->default_flag->to_opengl();
 	}
@@ -392,8 +395,18 @@ void rendering_main(void) {
 		glRotatef(0.f, 0.0f, 1.0f, 0.0f);
 		glRotatef(0.f, 0.0f, 0.0f, 1.0f);
 
-		//Simpler than looping and indexing as x,y coord
-		glCallLists(map.n_horz_quads * map.n_vert_quads,GL_UNSIGNED_INT,map.quads_gl_list_num);
+		// Simpler than looping and indexing as x,y coord
+		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.pol_borders_gl_list_num);
+		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.div_borders_gl_list_num);
+		if(display_topo) {
+			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.quad_topo_gl_list_num);
+		} if(display_prov) {
+			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.quad_div_gl_list_num);
+		} if(display_pol) {
+			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.quad_pol_gl_list_num);
+		} if(display_infra) {
+			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.infra_layout_list_num);
+		}
 
 		glBegin(GL_POLYGON);
 		glColor3f(1.f, 1.f, 1.f);
