@@ -72,7 +72,6 @@ function Province:give_to(province, nation)
 	give_province_to(province.id, nation.id)
 end
 function Province:add_pop(province, pop_type, culture, religion, size)
-	print(province.id, pop_type.id, culture.id, religion.id, size)
 	province.id = add_province_pop(province.id, pop_type.id, culture.id, religion.id, size)
 end
 
