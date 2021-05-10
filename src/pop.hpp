@@ -2,6 +2,7 @@
 #define POP_H
 #include <vector>
 #include <string>
+#include "index_ref.hpp"
 
 class PopType {
 public:
@@ -44,6 +45,7 @@ public:
 
 class Pop {
 public:
+	Pop() {};
 	uint size;
 
 	float unemployed;
@@ -58,9 +60,9 @@ public:
 	float everyday_needs_met;
 	float luxury_needs_met;
 	
-	PopType * type;
-	Culture * culture;
-	Religion * religion;
+	IndexRef<PopType> type;
+	IndexRef<Culture> culture;
+	IndexRef<Religion> religion;
 
 	std::vector<PartyLoyalty> party_loyalties;
 	std::vector<IssueInterest> issue_interests;

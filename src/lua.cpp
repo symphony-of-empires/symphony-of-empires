@@ -316,9 +316,9 @@ int LuaAPI::add_province_pop(lua_State * L) {
 
 	Pop pop;
 	// should add error checking here
-	pop.type = &g_world->pop_types[lua_tonumber(L, 2)];
-	pop.culture = nullptr; // temp
-	pop.religion = nullptr; // temp
+	pop.type = IndexRef(&g_world->pop_types, lua_tonumber(L, 2));
+	pop.culture = IndexRef(&g_world->cultures, -1); // temp
+	pop.religion = IndexRef(&g_world->religions, -1); // temp
 	
 	province->pops.push_back(pop);
 	province->set_pop_size(&province->pops.back(), lua_tonumber(L, 5));

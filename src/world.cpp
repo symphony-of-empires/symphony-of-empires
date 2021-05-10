@@ -214,7 +214,7 @@ void World::do_tick() {
 	for(size_t i = 0; i < n_provinces; i++) {
 		// Time to simulate our POPs
 		for(auto& pop: this->provinces[i].pops) {
-			lua_getglobal(this->lua, pop.type->on_tick_fn.c_str());
+			lua_getglobal(this->lua, pop.type.get().on_tick_fn.c_str());
 
 			// Pass the ref_name of the province
 			lua_pushstring(this->lua, this->provinces[i].ref_name.c_str());
