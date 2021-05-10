@@ -13,6 +13,6 @@ Required to build:
 * libGL 1.4 (+ Utility library)
 
 ## Build (Linux)
-Install all dependencies with this command: ```sudo apt install liblua5.3-dev libpng-dev libsdl2-dev libsdl2-ttf-dev```
+Install all dependencies with this command: ```sudo apt install liblua5.4-dev libpng-dev libsdl2-dev libsdl2-ttf-dev```
 Run: ```make -j```.
 Then run: ```bin/main```
