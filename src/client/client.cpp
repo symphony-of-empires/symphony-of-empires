@@ -142,7 +142,7 @@ void rendering_main(void) {
 	infra_map = Map(g_world, MAP_INFRASTRUCTURE);
 	map = prov_map;
 	for(auto& nation: g_world->nations) {
-		nation.default_flag.to_opengl();
+		nation.default_flag->to_opengl();
 	}
 
 	ui_ctx = new UI::Context();
@@ -244,7 +244,7 @@ void rendering_main(void) {
 	tov_win_close_btn.text(ui_ctx, "X");
 	tov_win_close_btn.on_click = &default_close_button_on_click;
 	UI_Widget_CreateLabel(ui_ctx, &tov_win, &tov_owner_label, 0, 24, "?");
-	UI_Widget_CreateImage(ui_ctx, &tov_win, &tov_owner_flag_image, (16) * 6, 0, 32, 24, &g_world->nations[current_player_nation_id].default_flag);
+	UI_Widget_CreateImage(ui_ctx, &tov_win, &tov_owner_flag_image, (16) * 6, 0, 32, 24, g_world->nations[current_player_nation_id].default_flag);
 	UI_Widget_CreateLabel(ui_ctx, &tov_win, &tov_population_label, 0, 48, "?");
 
 	/* overview bottom window */
@@ -253,7 +253,7 @@ void rendering_main(void) {
 	ui_ctx->add_widget(&overview_win);
 	UI_Widget_CreateLabel(ui_ctx, &overview_win, &overview_time_label, 128 + 32 + 8, 24, "?");
 	ui_ctx->add_widget(&overview_time_label);
-	UI_Widget_CreateImage(ui_ctx, &overview_win, &overview_flag_image, 8, 8, 128 + 32, 128 - 16, &g_world->nations[current_player_nation_id].default_flag);
+	UI_Widget_CreateImage(ui_ctx, &overview_win, &overview_flag_image, 8, 8, 128 + 32, 128 - 16, g_world->nations[current_player_nation_id].default_flag);
 	ui_ctx->add_widget(&overview_flag_image);
 
 	/* economy window */
@@ -410,7 +410,7 @@ void rendering_main(void) {
 		glVertex2f(fmx, fmy + 1.f);
 		glEnd();
 		
-		glBindTexture(GL_TEXTURE_2D, g_world->nations[current_player_nation_id].default_flag.gl_tex_num);
+		glBindTexture(GL_TEXTURE_2D, g_world->nations[current_player_nation_id].default_flag->gl_tex_num);
 		GLUquadricObj * sphere = nullptr;
 		sphere = gluNewQuadric();
 		gluQuadricDrawStyle(sphere, GLU_FILL);
