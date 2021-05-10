@@ -229,7 +229,7 @@ void default_on_render(Widget * w, void * data) {
 			w->width, 24,
 			ctx->window_border.gl_tex_num
 		);
-		if(w->text_texture->gl_tex_num) {
+		if(w->text_texture != nullptr && w->text_texture->gl_tex_num) {
 			w->draw_rectangle(
 				w->x, w->y - 24,
 				w->text_texture->width, w->text_texture->height,
@@ -237,7 +237,7 @@ void default_on_render(Widget * w, void * data) {
 			);
 		}
 	} else {
-		if(w->text_texture->gl_tex_num) {
+		if(w->text_texture != nullptr && w->text_texture->gl_tex_num) {
 			w->draw_rectangle(
 				w->x, w->y,
 				w->text_texture->width, w->text_texture->height,
