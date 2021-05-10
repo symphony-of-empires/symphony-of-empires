@@ -56,9 +56,11 @@ namespace UI {
 		Widget() {};
 		Widget(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type,
 			const char * text = nullptr, Texture * tex = nullptr);
-		void init(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type,
-			const char * text = nullptr, Texture * tex = nullptr);
+		Widget(const Widget&) = default;
+		Widget(Widget&&) noexcept = default;
 		Widget& operator=(const Widget&) = default;
+		Widget& operator=(Widget&) noexcept = default;
+		~Widget() {};
 
 		void add_child(Widget * child);
 		void text(Context * ctx, const char * text);
@@ -71,6 +73,9 @@ namespace UI {
 
 		size_t ox;
 		size_t oy;
+
+		size_t mx;
+		size_t my;
 		
 		size_t width;
 		size_t height;

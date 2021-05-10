@@ -305,29 +305,25 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 		_parent->add_child(this);
 	}
 
-	if(tex == nullptr) {
-		switch(this->type) {
-		case UI_WIDGET_BUTTON:
-			this->current_texture = &ctx->button_idle;
-			break;
-		case UI_WIDGET_INPUT:
-			this->current_texture = &ctx->input_idle;
-			this->on_textinput = &default_on_text_input;
-			break;
-		case UI_WIDGET_WINDOW:
-			this->current_texture = &ctx->window;
-			break;
-		case UI_WIDGET_IMAGE:
-			this->current_texture = tex;
-			break;
-		case UI_WIDGET_LABEL:
-			this->text(ctx, text);
-			break;
-		default:
-			break;
-		}
-	} else {
+	switch(this->type) {
+	case UI_WIDGET_BUTTON:
+		this->current_texture = &ctx->button_idle;
+		break;
+	case UI_WIDGET_INPUT:
+		this->current_texture = &ctx->input_idle;
+		this->on_textinput = &default_on_text_input;
+		break;
+	case UI_WIDGET_WINDOW:
+		this->current_texture = &ctx->window;
+		break;
+	case UI_WIDGET_IMAGE:
 		this->current_texture = tex;
+		break;
+	case UI_WIDGET_LABEL:
+		this->text(ctx, text);
+		break;
+	default:
+		break;
 	}
 
 	if(text != nullptr) {
