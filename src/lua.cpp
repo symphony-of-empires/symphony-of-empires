@@ -21,6 +21,7 @@
 
 // Global world - do not use too much!
 extern World * g_world;
+extern std::vector<Texture *> g_texture_cache;
 
 int LuaAPI::add_good(lua_State * L) {
 	Good good = Good();
@@ -173,22 +174,22 @@ int LuaAPI::add_nation(lua_State * L) {
 		return 0;
 	}
 
-	Nation * nation = new Nation();
+	Nation nation = Nation();
 
-	nation->ref_name = lua_tostring(L, 1);
+	nation.ref_name = lua_tostring(L, 1);
 
-	nation->color = lua_tonumber(L, 2);
-	nation->color = bswap_32(nation->color);
-	nation->color >>= 8;
-	nation->color |= 0xff000000;
+	nation.color = lua_tonumber(L, 2);
+	nation.color = bswap_32(nation.color);
+	nation.color >>= 8;
+	nation.color |= 0xff000000;
 
 	const char * default_flag = lua_tostring(L, 3);
-	nation->default_flag.from_file(default_flag);
+	nation.default_flag->from_file(default_flag);
 
-	nation->name = lua_tostring(L, 4);
+	nation.name = lua_tostring(L, 4);
 
-	printf("nation: %s (%s)\n", nation->name.c_str(), nation->ref_name.c_str());
-	g_world->nations.push_back(*nation);
+	printf("nation: %s (%s)\n", nation.name.c_str(), nation.ref_name.c_str());
+	g_world->nations.push_back(nation);
 	return 0;
 }
 
