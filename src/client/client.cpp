@@ -95,7 +95,7 @@ static void do_exit(UI::Widget *, void *) {
 	exit(EXIT_FAILURE);
 }
 
-static int run = 1, mx, my;
+static int mx, my;
 static float fmx, fmy;
 static int tx, ty;
 static size_t current_player_nation_id;
@@ -119,6 +119,7 @@ static void do_view_infra_map(UI::Widget *, void *) {
 
 #include <atomic>
 extern std::atomic<int> redraw;
+extern std::atomic<int> run;
 void rendering_main(void) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
@@ -289,7 +290,7 @@ void rendering_main(void) {
 	cam.vy = 0.f;
 	cam.vz = 0.f;
 	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
-	char* dt_str;
+	char * dt_str;
 	dt_str = (char*)malloc(32);
 	while(run) {
 		SDL_Event event;
@@ -437,7 +438,8 @@ void rendering_main(void) {
 		int day = g_world->time / 24;
 
 		int is_leap = day / (365 * 4);
-		if(is_leap) day += (day / (365 * 4));
+		if(is_leap)
+			day += (day / (365 * 4));
 		int month = day / 31;
 		int year = month / 12;
 
@@ -485,6 +487,9 @@ void rendering_main(void) {
 		delta_time.text(ui_ctx,dt_str);
 	}
 	free(dt_str);
+
+	printf("sad\n");
+
 	TTF_Quit();
 	SDL_Quit();
 	delete ui_ctx;

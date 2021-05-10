@@ -27,7 +27,8 @@ void Province::add_industry(World * world, Industry * industry) {
 		// Find id of this province
 		size_t province_id = (size_t)-1;
 		for(size_t i = 0; i < world->provinces.size(); i++) {
-			if(world->provinces[i].ref_name != this->ref_name) continue;
+			if(world->provinces[i].ref_name != this->ref_name)
+				continue;
 			province_id = i;
 			break;
 		}
