@@ -45,5 +45,3 @@ jobs:
     - name: "Build"
       run: |
        cmake . -G "MinGW Makefiles"
-
-
