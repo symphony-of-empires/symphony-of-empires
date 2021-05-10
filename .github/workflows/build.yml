@@ -32,15 +32,18 @@ jobs:
 
   build_windows:
     runs-on: windows-2019
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    - name: "Install dependencies"
-      run: |
-       powershell -Command "(New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/horta/zlib.install/master/install.bat', 'install_zlib.bat')"; ./install_zlib.bat; del install_zlib.bat
+    - uses: msys2/setup-msys2@v2
+      with:
+        install: gcc make cmake mingw64/mingw-w64-x86_64-gcc mingw64/mingw-w64-x86_64-libpng mingw64/mingw-w64-x86_64-freeglut mingw64/mingw-w64-x86_64-glew mingw64/mingw-w64-x86_64-lua
     - name: "Build"
       run: |
-       cmake .
+       cmake -G "MinGW Makefiles"
 
 
