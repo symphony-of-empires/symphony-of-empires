@@ -6,7 +6,9 @@ void rendering_main(void);
 
 #include <chrono>
 #include <thread>
-#include <deque>
+
+#include <atomic>
+std::atomic<int> run;
 
 int main(int argc, char ** argv) {
 	World world("map_topo.png", "map_pol.png", "map_div.png", "map_infra.png");
@@ -17,8 +19,7 @@ int main(int argc, char ** argv) {
 #ifndef UNIT_TEST
 	printf("launching rendering thread\n");
 	std::thread t1(rendering_main);
-
-	const bool run = true;
+	run = 1;
 	while(run) {
 		LuaAPI::check_events(world.lua);
 		world.do_tick();
