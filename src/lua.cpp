@@ -1,4 +1,4 @@
-#ifdef WIN32
+#ifdef _WIN32
 #include <lua.hpp>
 #else
 #include <lua5.4/lua.hpp>
@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <stdlib.h>
 #define bswap_32(x) _byteswap_ulong(x)
 #define bswap_64(x) _byteswap_uint64(x)

@@ -1,16 +1,16 @@
 #include <string>
 #include <iostream>
-#ifndef WIN32
+#ifndef _WIN32
 #include <unistd.h>
 #endif
 #include <limits.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #	include <Libloaderapi.h>
 #endif
 
 static inline std::string Resource_GetSelfPath(){
-#ifdef WIN32
+#ifdef _WIN32
 	char buf[PATH_MAX];
 	const auto len = GetModuleFileNameA(nullptr, buf, sizeof(buf) - 1);
 #else
