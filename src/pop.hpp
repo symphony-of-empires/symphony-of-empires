@@ -44,7 +44,7 @@ public:
 
 class Pop {
 public:
-	uint size;\
+	uint size;
 
 	float unemployed;
 	float literacy;
