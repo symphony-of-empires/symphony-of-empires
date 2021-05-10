@@ -30,3 +30,4 @@ x64/
 CMakeFiles/
 cmake_install.cmake
 CMakeCache.txt
+build/
