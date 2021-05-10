@@ -8,7 +8,7 @@
 #include <time.h>
 #include "nation.hpp"
 #include "economy.hpp"
-#include "lua.hpp"
+#include "lua.h"
 
 class Tile {
 public:

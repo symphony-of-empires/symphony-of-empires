@@ -1,8 +1,3 @@
-#ifdef _WIN32
-#include <lua.hpp>
-#else
-#include <lua5.4/lua.hpp>
-#endif
 #include <string.h>
 #include <stdlib.h>
 
@@ -13,7 +8,7 @@
 #else
 #include <byteswap.h>
 #endif
-#include "lua.hpp"
+#include "lua.h"
 #include "world.hpp"
 #include "nation.hpp"
 #include "economy.hpp"

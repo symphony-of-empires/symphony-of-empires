@@ -4,7 +4,7 @@
 #include "economy.hpp"
 #include "world.hpp"
 #include "texture.hpp"
-#include "lua.hpp"
+#include "lua.h"
 #include "path.hpp"
 #include "print.hpp"
 

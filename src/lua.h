@@ -2,7 +2,7 @@
 #define LUA_H
 
 #ifdef _WIN32
-#   include <lua.hpp>
+#   include "lua.hpp"
 #else
 #   include <lua5.4/lua.hpp>
 #endif

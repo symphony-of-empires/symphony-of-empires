@@ -1,6 +1,6 @@
 #include <string>
 #include "world.hpp"
-#include "lua.hpp"
+#include "lua.h"
 
 void rendering_main(void);
 

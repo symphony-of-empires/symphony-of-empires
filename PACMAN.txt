@@ -1,0 +1,5 @@
+mingw64/mingw-w64-x86_64-gcc
+msys/gcc
+mingw64/mingw-w64-x86_64-libpng
+mingw64/mingw-w64-x86_64-freeglut
+mingw64/mingw-w64-x86_64-glew
