@@ -48,6 +48,8 @@ public:
 	std::vector<Company> companies;
 	std::vector<Product> products;
 	std::vector<PopType> pop_types;
+	std::vector<Religion> religions;
+	std::vector<Culture> cultures;
 
 	std::vector<LuaAPI::Event> events;
 	lua_State * lua;

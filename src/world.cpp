@@ -59,6 +59,8 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	lua_register(this->lua, "add_company", LuaAPI::add_company);
 	lua_register(this->lua, "add_event", LuaAPI::add_event);
 	lua_register(this->lua, "add_pop_type", LuaAPI::add_pop_type);
+	lua_register(this->lua, "add_culture", LuaAPI::add_culture);
+	lua_register(this->lua, "add_religion", LuaAPI::add_religion);
 
 	lua_register(this->lua, "get_hour", LuaAPI::get_hour);
 	lua_register(this->lua, "get_day", LuaAPI::get_day);

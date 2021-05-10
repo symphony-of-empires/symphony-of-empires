@@ -48,6 +48,7 @@ int LuaAPI::get_good(lua_State * L) {
 		good = &g_world->goods[i];
 		break;
 	} if(good == nullptr) {
+		print_error("good %s not found", ref_name.c_str());
 		return 0;
 	}
 	lua_pushnumber(L, i);
@@ -87,6 +88,7 @@ int LuaAPI::get_industry_type(lua_State * L) {
 		industry = &g_world->industry_types[i];
 		break;
 	} if(industry == nullptr) {
+		print_error("industry %s not found\n", ref_name.c_str());
 		return 0;
 	}
 	lua_pushnumber(L, i);
@@ -111,7 +113,7 @@ int LuaAPI::add_input_to_industry_type(lua_State * L) {
 		industry = &g_world->industry_types[i];
 		break;
 	} if(industry == nullptr) {
-		fprintf(stderr, "industry not found %s\n", ref_name.c_str());
+		print_error("industry %s not found", ref_name.c_str());
 		return 0;
 	}
 
@@ -123,7 +125,7 @@ int LuaAPI::add_input_to_industry_type(lua_State * L) {
 		good_id = i;
 		break;
 	} if(good_id == (size_t)-1) {
-		fprintf(stderr, "good not found %s\n", ref_name.c_str());
+		print_error("good %s not found", ref_name.c_str());
 		return 0;
 	}
 	industry->inputs.push_back(good_id);
@@ -145,9 +147,8 @@ int LuaAPI::add_output_to_industry_type(lua_State * L) {
 		if(ref_name != g_world->industry_types[i].ref_name) continue;
 		industry = &g_world->industry_types[i];
 		break;
-	}
-	if(industry == nullptr) {
-		fprintf(stderr, "industry not found %s\n", ref_name.c_str());
+	} if(industry == nullptr) {
+		print_error("industry %s not found", ref_name.c_str());
 		return 0;
 	}
 
@@ -159,7 +160,7 @@ int LuaAPI::add_output_to_industry_type(lua_State * L) {
 		good_id = i;
 		break;
 	} if(good_id == (size_t)-1) {
-		fprintf(stderr, "good not found %s\n", ref_name.c_str());
+		print_error("good %s not found", ref_name.c_str());
 		return 0;
 	}
 	industry->outputs.push_back(good_id);
@@ -206,6 +207,7 @@ int LuaAPI::get_nation(lua_State * L) {
 		nation = &g_world->nations[i];
 		break;
 	} if(nation == nullptr) {
+		print_error("nation %s not found\n", ref_name.c_str());
 		return 0;
 	}
 	lua_pushnumber(L, i);
@@ -266,6 +268,7 @@ int LuaAPI::get_province(lua_State * L) {
 		province = &g_world->provinces[i];
 		break;
 	} if(province == nullptr) {
+		print_error("province %s not found\n", ref_name.c_str());
 		return 0;
 	}
 	lua_pushnumber(L, i);
@@ -293,6 +296,26 @@ int LuaAPI::give_province_to(lua_State * L) {
 			tile->owner_id = nation_id;
 		}
 	}
+	return 0;
+}
+
+int LuaAPI::add_province_pop(lua_State * L) {
+	if(!lua_isnumber(L, 1) || !lua_isnumber(L, 2) || !lua_isnumber(L, 3)
+	|| !lua_isnumber(L, 4)) {
+		print_error("lua argument type mismatch");
+		return 0;
+	}
+
+	size_t province_id = lua_tonumber(L, 1);
+	Province * province = &g_world->provinces[province_id];
+	size_t pop_type_id = lua_tonumber(L, 2);
+	size_t culture_id = lua_tonumber(L, 3);
+	size_t religion_id = lua_tonumber(L, 4);
+
+	Pop pop;
+	pop.type_id = pop_type_id;
+	pop.culture_id = culture_id;
+	pop.religion_id = religion_id;
 	return 0;
 }
 
@@ -331,7 +354,8 @@ int LuaAPI::add_op_province_to_company(lua_State * L) {
 	size_t idx = lua_tonumber(L, 1);
 	std::string ref_name = lua_tostring(L, 2);
 	for(size_t i = 0; i < g_world->provinces.size(); i++) {
-		if(g_world->provinces[i].ref_name != ref_name) continue;
+		if(g_world->provinces[i].ref_name != ref_name)
+			continue;
 		g_world->companies[idx].operating_provinces.push_back(i);
 		break;
 	}
@@ -373,6 +397,38 @@ int LuaAPI::add_pop_type(lua_State * L) {
 
 	// Add onto vector
 	g_world->pop_types.push_back(pop);
+	return 0;
+}
+
+int LuaAPI::add_culture(lua_State * L) {
+	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
+		print_error("lua argument type mismatch");
+		return 0;
+	}
+
+	Culture culture;
+
+	culture.ref_name = lua_tostring(L, 1);
+	culture.name = lua_tostring(L, 2);
+
+	printf("culture: %s\n", culture.ref_name.c_str());
+	g_world->cultures.push_back(culture);
+	return 0;
+}
+
+int LuaAPI::add_religion(lua_State * L) {
+	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
+		print_error("lua argument type mismatch");
+		return 0;
+	}
+
+	Religion religion;
+
+	religion.ref_name = lua_tostring(L, 1);
+	religion.name = lua_tostring(L, 2);
+
+	printf("religion: %s\n", religion.ref_name.c_str());
+	g_world->religions.push_back(religion);
 	return 0;
 }
 
