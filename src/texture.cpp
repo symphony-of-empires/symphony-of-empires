@@ -35,6 +35,7 @@ void Texture::from_file(const char * path) {
 	if(!png_image_begin_read_from_file(&image, Resource_GetPath(path).c_str())) {
 		print_error("%s", image.message);
 		this->create_dummy();
+		return;
 	}
 	
 	/* Convert onto RGBA so it can be easily read */
@@ -45,6 +46,7 @@ void Texture::from_file(const char * path) {
 		png_image_free(&image);
 		print_error("texture too big");
 		this->create_dummy();
+		return;
 	}
 
 	/* We can't allow images with 0 size either */
@@ -52,6 +54,7 @@ void Texture::from_file(const char * path) {
 		png_image_free(&image);
 		print_error("texture is too small")
 		this->create_dummy();
+		return;
 	}
 
 	this->width = (size_t)image.width;
