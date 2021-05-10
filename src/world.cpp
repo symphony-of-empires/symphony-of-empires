@@ -181,6 +181,10 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 World::~World() {
 	lua_close(this->lua);
 	delete[] this->tiles;
+
+	for (size_t i = 0; i < g_world->nations.size(); i++) {
+		delete (&g_world->nations[i])->default_flag;
+	}
 }
 
 class OrderGoods {
