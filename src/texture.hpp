@@ -19,6 +19,7 @@ public:
 	GLuint gl_tex_num;
 
 	void from_file(const char * path);
+	void create_dummy();
 	void to_opengl();
 	void delete_opengl();
 };

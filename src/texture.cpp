@@ -5,9 +5,25 @@
 #include <zlib.h>
 #include "texture.hpp"
 #include "path.hpp"
+#include "print.hpp"
 
 Texture::Texture(const char * path) {
 	this->from_file(path);
+}
+
+void Texture::create_dummy() {
+	this->width = 32;
+	this->height = 32;
+	this->buffer = new uint32_t[this->width * this->height];
+	if(this->buffer == nullptr) {
+		print_error("out of memory for dummy texture\n");
+		exit(EXIT_FAILURE);
+	}
+
+	// Fill in with a sad pattern
+	for(size_t i = 0; i < this->width * this->height; i++) {
+		this->buffer[i] = (i % 2) ? 0xff000000 : 0xff00ff00;
+	}
 }
 
 void Texture::from_file(const char * path) {
@@ -17,25 +33,25 @@ void Texture::from_file(const char * path) {
 	memset(&image, 0, sizeof(png_image));
 	image.version = PNG_IMAGE_VERSION;
 	if(!png_image_begin_read_from_file(&image, Resource_GetPath(path).c_str())) {
-		perror(image.message);
-		exit(EXIT_FAILURE);
+		print_error("%s", image.message);
+		this->create_dummy();
 	}
 	
 	/* Convert onto RGBA so it can be easily read */
 	image.format = PNG_FORMAT_RGBA;
 
 	/* We cannot allow images bigger than our integers (we are avoiding overflows!) */
-	if(image.width > UINT16_MAX || image.height > UINT16_MAX) {
+	if(image.width >= UINT16_MAX || image.height >= UINT16_MAX) {
 		png_image_free(&image);
-		perror("image too big\n");
-		exit(EXIT_FAILURE);
+		print_error("texture too big");
+		this->create_dummy();
 	}
 
 	/* We can't allow images with 0 size either */
 	if(!image.width || !image.height) {
 		png_image_free(&image);
-		perror("size of zero\n");
-		exit(EXIT_FAILURE);
+		print_error("texture is too small")
+		this->create_dummy();
 	}
 
 	this->width = (size_t)image.width;
@@ -64,6 +80,8 @@ Texture::~Texture() {
 }
 
 #include <GL/gl.h>
+
+/// Converts the texture into a OpenGL texture, and assigns it a number
 void Texture::to_opengl() {
 	glGenTextures(1, &this->gl_tex_num);
 	glBindTexture(GL_TEXTURE_2D, this->gl_tex_num);
@@ -75,6 +93,7 @@ void Texture::to_opengl() {
 	return;
 }
 
+/// Deletes the OpenGL representation of this texture
 void Texture::delete_opengl() {
 	glDeleteTextures(1, &this->gl_tex_num);
 }

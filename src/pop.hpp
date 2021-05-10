@@ -14,47 +14,52 @@ public:
 class Culture {
 public:
 	std::string name;
+	std::string ref_name;
 };
 
 class Religion {
 public:
 	std::string name;
+	std::string ref_name;
 };
 
-// placeholder
+// Placeholder
 class Party;
 
-// parties themselves will be in a different file
+// Parties themselves will be in a different file
 class PartyLoyalty {
 public:
-	Party * party;
+	size_t party_id;
 	float loyalty;
 };
 
 class Issue;
 
-// above applies
+// Above applies
 class IssueInterest {
 public:
-	Issue * issue;
+	size_t issue_id;
 	float interest;
 };
 
 class Pop {
 public:
-	unsigned int size;
+	size_t size;
+	size_t unemployed;
+	float literacy;
+
 	float militancy;
 	float consciousness;
-	float unemployment;
+	
 	float budget;
+	
 	float life_needs_met;
 	float everyday_needs_met;
 	float luxury_needs_met;
-	float literacy;
 	
-	PopType * type;
-	Culture * culture;
-	Religion * religion;
+	size_t type_id;
+	size_t culture_id;
+	size_t religion_id;
 
 	std::vector<PartyLoyalty> party_loyalties;
 	std::vector<IssueInterest> issue_interests;

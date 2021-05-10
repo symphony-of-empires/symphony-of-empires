@@ -22,10 +22,14 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	this->width = topo.width;
 	this->height = topo.height;
 
-	if(topo.width != this->width || topo.height != this->height
-	|| pol.width != this->width || pol.height != this->height
-	|| div.width != this->width || div.height != this->height) {
-		perror("map size mismatch\n");
+	if(topo.width != this->width || topo.height != this->height) {
+		print_error("topographic map size mismatch");
+		exit(EXIT_FAILURE);
+	} else if(pol.width != this->width || pol.height != this->height) {
+		print_error("political map size mismatch");
+		exit(EXIT_FAILURE);
+	} else if(div.width != this->width || div.height != this->height) {
+		print_error("province map size mismatch");
 		exit(EXIT_FAILURE);
 	}
 
@@ -36,10 +40,10 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 		exit(EXIT_FAILURE);
 	}
 
-	// Set path for `require` statements in lua
 	this->lua = luaL_newstate();
 	luaL_openlibs(this->lua);
 
+	// Register our API functions
 	lua_register(this->lua, "_", LuaAPI::get_text);
 	lua_register(this->lua, "add_good", LuaAPI::add_good);
 	lua_register(this->lua, "get_good", LuaAPI::get_good);
@@ -51,10 +55,16 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	lua_register(this->lua, "get_nation", LuaAPI::get_nation);
 	lua_register(this->lua, "add_province", LuaAPI::add_province);
 	lua_register(this->lua, "get_province", LuaAPI::get_province);
+	lua_register(this->lua, "add_province_pop", LuaAPI::add_province_pop);
 	lua_register(this->lua, "give_province_to", LuaAPI::give_province_to);
 	lua_register(this->lua, "add_company", LuaAPI::add_company);
 	lua_register(this->lua, "add_event", LuaAPI::add_event);
 	lua_register(this->lua, "add_pop_type", LuaAPI::add_pop_type);
+	lua_register(this->lua, "get_pop_type", LuaAPI::get_pop_type);
+	lua_register(this->lua, "add_culture", LuaAPI::add_culture);
+	lua_register(this->lua, "get_culture", LuaAPI::get_culture);
+	lua_register(this->lua, "add_religion", LuaAPI::add_religion);
+	lua_register(this->lua, "get_religion", LuaAPI::get_religion);
 
 	lua_register(this->lua, "get_hour", LuaAPI::get_hour);
 	lua_register(this->lua, "get_day", LuaAPI::get_day);
@@ -171,6 +181,10 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 World::~World() {
 	lua_close(this->lua);
 	delete[] this->tiles;
+
+	for (size_t i = 0; i < g_world->nations.size(); i++) {
+		delete (&g_world->nations[i])->default_flag;
+	}
 }
 
 class OrderGoods {
@@ -198,6 +212,15 @@ void World::do_tick() {
 	// All factories will place their orders for their inputs
 	// All RGOs will do deliver requests
 	for(size_t i = 0; i < n_provinces; i++) {
+		// Time to simulate our POPs
+		for(auto& pop: this->provinces[i].pops) {
+			lua_getglobal(this->lua, this->pop_types[pop.type_id].on_tick_fn.c_str());
+
+			// Pass the ref_name of the province
+			lua_pushstring(this->lua, this->provinces[i].ref_name.c_str());
+			lua_call(this->lua, 1, 0);
+		}
+
 		for(size_t j = 0; j < this->provinces[i].industries.size(); j++) {
 			IndustryType * it = &this->industry_types[this->provinces[i].industries[j].type_id];
 			for(const auto& input: it->inputs) {
@@ -207,7 +230,7 @@ void World::do_tick() {
 				order.requester_industry_id = j;
 				order.requester_province_id = i;
 				orders.push_back(order);
-				printf("We need good: %s (from %s)\n", this->goods[order.good_id].ref_name.c_str(), this->provinces[order.requester_province_id].ref_name.c_str());
+				//printf("We need good: %s (from %s)\n", this->goods[order.good_id].ref_name.c_str(), this->provinces[order.requester_province_id].ref_name.c_str());
 			}
 
 			if(it->inputs.size() == 0) {
@@ -219,12 +242,13 @@ void World::do_tick() {
 					deliver.sender_industry_id = j;
 					deliver.sender_province_id = i;
 					delivers.push_back(deliver);
-					printf("Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id].ref_name.c_str(), this->provinces[deliver.sender_province_id].ref_name.c_str());
+					//printf("Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id].ref_name.c_str(), this->provinces[deliver.sender_province_id].ref_name.c_str());
 				}
 			}
 		}
 	}
 
+	// Now we will deliver stuff accordingly
 	while(delivers.size() > 0
 	|| orders.size() > 0) {
 		// Now transport companies will check and transport accordingly
@@ -251,7 +275,7 @@ void World::do_tick() {
 					if(!company.in_range(order->requester_province_id))
 						continue;
 
-					printf("%s: Delivered from %s to %s some %s\n", company.name.c_str(), this->provinces[deliver->sender_province_id].ref_name.c_str(), this->provinces[order->requester_province_id].ref_name.c_str(), this->goods[order->good_id].ref_name.c_str());
+					//printf("%s: Delivered from %s to %s some %s\n", company.name.c_str(), this->provinces[deliver->sender_province_id].ref_name.c_str(), this->provinces[order->requester_province_id].ref_name.c_str(), this->goods[order->good_id].ref_name.c_str());
 
 					// Yes - we go and deliver their stuff
 					Industry * industry = &this->provinces[order->requester_province_id].industries[order->requester_industry_id];
@@ -295,6 +319,7 @@ void World::do_tick() {
 		}
 	}
 
+	// Close today's price with a change according to demand - supply
 	for(auto& product: this->products) {
 		if(product.demand > product.supply) {
 			product.price_vel += 0.2f;

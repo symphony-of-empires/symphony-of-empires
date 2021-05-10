@@ -24,7 +24,7 @@ function ef_test()
 	Province:give_to(Province:get({}, "west_north_korea"), russia)
 	Province:give_to(Province:get({}, "east_south_korea"), russia)
 	Province:give_to(Province:get({}, "west_south_korea"), russia)
-	Province:give_to(Province:get({}, "souther_korea"), russia)
+	Province:give_to(Province:get({}, "southern_korea"), russia)
 	Province:give_to(Province:get({}, "nagasaki"), russia)
 	Province:give_to(Province:get({}, "central_sakhlin"), russia)
 	Province:give_to(Province:get({}, "south_sakhlin"), russia)
@@ -35,7 +35,8 @@ function ef_test()
 	return 0
 end
 
-local japan_dies = Event:create{ ref_name = "japan_dies", conditions_fn = "ec_test", event_fn = "ef_test" }
-Event:register(japan_dies)
+--local japan_dies = Event:create{ ref_name = "japan_dies", conditions_fn = "ec_test", event_fn = "ef_test" }
+--Event:register(japan_dies)
+--ef_test()
 
 print("loaded mod.lua")

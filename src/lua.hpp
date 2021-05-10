@@ -28,9 +28,16 @@ namespace LuaAPI {
 	int add_province(lua_State * L);
 	int get_province(lua_State * L);
 	int give_province_to(lua_State * L);
+	int add_province_pop(lua_State * L);
+
 	int add_company(lua_State * L);
 	int add_event(lua_State * L);
 	int add_pop_type(lua_State * L);
+	int get_pop_type(lua_State * L);
+	int add_culture(lua_State * L);
+	int get_culture(lua_State * L);
+	int add_religion(lua_State * L);
+	int get_religion(lua_State * L);
 
 	// Time functions
 	int get_hour(lua_State * L);

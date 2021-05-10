@@ -95,7 +95,7 @@ static void do_exit(UI::Widget *, void *) {
 	exit(EXIT_FAILURE);
 }
 
-static int run = 1, mx, my;
+static int mx, my;
 static float fmx, fmy;
 static int tx, ty;
 static size_t current_player_nation_id;
@@ -119,6 +119,7 @@ static void do_view_infra_map(UI::Widget *, void *) {
 
 #include <atomic>
 extern std::atomic<int> redraw;
+extern std::atomic<int> run;
 void rendering_main(void) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
@@ -142,7 +143,7 @@ void rendering_main(void) {
 	infra_map = Map(g_world, MAP_INFRASTRUCTURE);
 	map = prov_map;
 	for(auto& nation: g_world->nations) {
-		nation.default_flag.to_opengl();
+		nation.default_flag->to_opengl();
 	}
 
 	ui_ctx = new UI::Context();
@@ -244,7 +245,7 @@ void rendering_main(void) {
 	tov_win_close_btn.text(ui_ctx, "X");
 	tov_win_close_btn.on_click = &default_close_button_on_click;
 	UI_Widget_CreateLabel(ui_ctx, &tov_win, &tov_owner_label, 0, 24, "?");
-	UI_Widget_CreateImage(ui_ctx, &tov_win, &tov_owner_flag_image, (16) * 6, 0, 32, 24, &g_world->nations[current_player_nation_id].default_flag);
+	UI_Widget_CreateImage(ui_ctx, &tov_win, &tov_owner_flag_image, (16) * 6, 0, 32, 24, g_world->nations[current_player_nation_id].default_flag);
 	UI_Widget_CreateLabel(ui_ctx, &tov_win, &tov_population_label, 0, 48, "?");
 
 	/* overview bottom window */
@@ -253,7 +254,7 @@ void rendering_main(void) {
 	ui_ctx->add_widget(&overview_win);
 	UI_Widget_CreateLabel(ui_ctx, &overview_win, &overview_time_label, 128 + 32 + 8, 24, "?");
 	ui_ctx->add_widget(&overview_time_label);
-	UI_Widget_CreateImage(ui_ctx, &overview_win, &overview_flag_image, 8, 8, 128 + 32, 128 - 16, &g_world->nations[current_player_nation_id].default_flag);
+	UI_Widget_CreateImage(ui_ctx, &overview_win, &overview_flag_image, 8, 8, 128 + 32, 128 - 16, g_world->nations[current_player_nation_id].default_flag);
 	ui_ctx->add_widget(&overview_flag_image);
 
 	/* economy window */
@@ -289,7 +290,7 @@ void rendering_main(void) {
 	cam.vy = 0.f;
 	cam.vz = 0.f;
 	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
-	char* dt_str;
+	char * dt_str;
 	dt_str = (char*)malloc(32);
 	while(run) {
 		SDL_Event event;
@@ -324,7 +325,12 @@ void rendering_main(void) {
 
 					delete[] str;
 
-					tov_owner_flag_image.current_texture = &g_world->nations[tile->owner_id].default_flag;
+					if(tile->owner_id == (size_t)-1) {
+						// TODO: Use a neutral territory flag
+						tov_owner_flag_image.current_texture = g_world->nations[0].default_flag;
+					} else {
+						tov_owner_flag_image.current_texture = g_world->nations[tile->owner_id].default_flag;
+					}
 
 					selected_province_id = tile->province_id;
 					do_tile_overview();
@@ -405,7 +411,7 @@ void rendering_main(void) {
 		glVertex2f(fmx, fmy + 1.f);
 		glEnd();
 		
-		glBindTexture(GL_TEXTURE_2D, g_world->nations[current_player_nation_id].default_flag.gl_tex_num);
+		glBindTexture(GL_TEXTURE_2D, g_world->nations[current_player_nation_id].default_flag->gl_tex_num);
 		GLUquadricObj * sphere = nullptr;
 		sphere = gluNewQuadric();
 		gluQuadricDrawStyle(sphere, GLU_FILL);
@@ -432,7 +438,8 @@ void rendering_main(void) {
 		int day = g_world->time / 24;
 
 		int is_leap = day / (365 * 4);
-		if(is_leap) day += (day / (365 * 4));
+		if(is_leap)
+			day += (day / (365 * 4));
 		int month = day / 31;
 		int year = month / 12;
 
@@ -480,6 +487,9 @@ void rendering_main(void) {
 		delta_time.text(ui_ctx,dt_str);
 	}
 	free(dt_str);
+
+	printf("sad\n");
+
 	TTF_Quit();
 	SDL_Quit();
 	delete ui_ctx;
