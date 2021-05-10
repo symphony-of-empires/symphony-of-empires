@@ -18,7 +18,8 @@ public:
 	bool in_range(size_t prov_id) {
 		// Check that province is in our operational list
 		for(const auto& op: this->operating_provinces) {
-			if(op == prov_id) return true;
+			if(op == prov_id)
+				return true;
 		}
 		return false;
 	}
