@@ -301,7 +301,7 @@ int LuaAPI::give_province_to(lua_State * L) {
 
 int LuaAPI::add_province_pop(lua_State * L) {
 	if(!lua_isnumber(L, 1) || !lua_isnumber(L, 2) || !lua_isnumber(L, 3)
-	|| !lua_isnumber(L, 4)) {
+	|| !lua_isnumber(L, 4) || !lua_isnumber(L, 5)) {
 		print_error("lua argument type mismatch");
 		return 0;
 	}
@@ -316,6 +316,7 @@ int LuaAPI::add_province_pop(lua_State * L) {
 	pop.type_id = pop_type_id;
 	pop.culture_id = culture_id;
 	pop.religion_id = religion_id;
+	pop.size = lua_tonumber(L, 5);
 	return 0;
 }
 
@@ -400,6 +401,30 @@ int LuaAPI::add_pop_type(lua_State * L) {
 	return 0;
 }
 
+int LuaAPI::get_pop_type(lua_State * L) {
+	if(!lua_isstring(L, 1)) {
+		print_error("lua argument type mismatch");
+		return 0;
+	}
+
+	std::string ref_name = lua_tostring(L, 1);
+	PopType * pop_type = nullptr;
+	
+	size_t i;
+	for(i = 0; i < g_world->pop_types.size(); i++) {
+		if(g_world->pop_types[i].ref_name != ref_name) continue;
+		pop_type = &g_world->pop_types[i];
+		break;
+	} if(pop_type == nullptr) {
+		print_error("pop_type %s not found\n", ref_name.c_str());
+		return 0;
+	}
+	lua_pushnumber(L, i);
+	lua_pushstring(L, pop_type->ref_name.c_str());
+	lua_pushstring(L, pop_type->name.c_str());
+	return 4;
+}
+
 int LuaAPI::add_culture(lua_State * L) {
 	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
 		print_error("lua argument type mismatch");
@@ -416,6 +441,30 @@ int LuaAPI::add_culture(lua_State * L) {
 	return 0;
 }
 
+int LuaAPI::get_culture(lua_State * L) {
+	if(!lua_isstring(L, 1)) {
+		print_error("lua argument type mismatch");
+		return 0;
+	}
+
+	std::string ref_name = lua_tostring(L, 1);
+	Culture * culture = nullptr;
+	
+	size_t i;
+	for(i = 0; i < g_world->cultures.size(); i++) {
+		if(g_world->cultures[i].ref_name != ref_name) continue;
+		culture = &g_world->cultures[i];
+		break;
+	} if(culture == nullptr) {
+		print_error("culture %s not found\n", ref_name.c_str());
+		return 0;
+	}
+	lua_pushnumber(L, i);
+	lua_pushstring(L, culture->ref_name.c_str());
+	lua_pushstring(L, culture->name.c_str());
+	return 4;
+}
+
 int LuaAPI::add_religion(lua_State * L) {
 	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
 		print_error("lua argument type mismatch");
@@ -430,6 +479,30 @@ int LuaAPI::add_religion(lua_State * L) {
 	printf("religion: %s\n", religion.ref_name.c_str());
 	g_world->religions.push_back(religion);
 	return 0;
+}
+
+int LuaAPI::get_religion(lua_State * L) {
+	if(!lua_isstring(L, 1)) {
+		print_error("lua argument type mismatch");
+		return 0;
+	}
+
+	std::string ref_name = lua_tostring(L, 1);
+	Religion * religion = nullptr;
+	
+	size_t i;
+	for(i = 0; i < g_world->religions.size(); i++) {
+		if(g_world->religions[i].ref_name != ref_name) continue;
+		religion = &g_world->religions[i];
+		break;
+	} if(religion == nullptr) {
+		print_error("religion %s not found\n", ref_name.c_str());
+		return 0;
+	}
+	lua_pushnumber(L, i);
+	lua_pushstring(L, religion->ref_name.c_str());
+	lua_pushstring(L, religion->name.c_str());
+	return 4;
 }
 
 int LuaAPI::get_hour(lua_State * L) {
