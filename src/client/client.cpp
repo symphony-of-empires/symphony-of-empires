@@ -33,67 +33,6 @@ public:
 
 UI::Context * ui_ctx;
 
-UI::Widget help_win, help_label[12], help_win_close_btn;
-void do_help(UI::Widget *, void *) {
-	ui_ctx->add_widget(&help_win);
-	ui_ctx->add_widget(&help_win_close_btn);
-	for(size_t i = 0; i < 12; i++) {
-		ui_ctx->add_widget(&help_label[i]);
-	}
-}
-
-UI::Widget tov_win, tov_win_close_btn, tov_owner_label, tov_owner_flag_image, tov_population_label;
-void do_tile_overview() {
-	ui_ctx->add_widget(&tov_win);
-	ui_ctx->add_widget(&tov_win_close_btn);
-	ui_ctx->add_widget(&tov_owner_label);
-	ui_ctx->add_widget(&tov_owner_flag_image);
-	ui_ctx->add_widget(&tov_population_label);
-}
-
-UI::Widget econ_win, econ_win_close_btn, econ_label[1024];
-UI::Widget dt_label,delta_time;
-void do_economy_on_click(UI::Widget *, void *) {
-	ui_ctx->add_widget(&econ_win);
-	ui_ctx->add_widget(&econ_win_close_btn);
-	for(size_t i = 0; i < 128; i++) {
-		ui_ctx->add_widget(&econ_label[i]);
-	}
-}
-
-void do_economy_on_update(UI::Widget *, void *) {
-	size_t n_prod = 1;
-	const size_t n_products = g_world->products.size();
-
-	char * str = new char[255];
-	for(size_t i = 0; i < n_products; i++) {
-		Product * product = g_world->products[i];
-		size_t y = n_prod * 24 + 48;
-		
-		if(product->price_vel > 0.f) {
-			UI_Widget_TextColor(0, 255, 0);
-			sprintf(str, "+%4.2f", product->price_vel);
-		} else {
-			UI_Widget_TextColor(255, 0, 0);
-			sprintf(str, "%4.2f", product->price_vel);
-		}
-		econ_label[n_prod * 4 + 0].text(ui_ctx, str);
-
-		UI_Widget_TextColor(0, 0, 0);
-		sprintf(str, "%4.2f", product->price);
-		econ_label[n_prod * 4 + 1].text(ui_ctx, str);
-		econ_label[n_prod * 4 + 2].text(ui_ctx, g_world->provinces[product->origin_id]->name.c_str());
-		econ_label[n_prod * 4 + 3].text(ui_ctx, g_world->goods[product->good_id]->name.c_str());
-
-		n_prod++;
-		if(n_prod >= (128 / 4))
-			break;
-	}
-	delete[] str;
-}
-
-UI::Widget overview_win, overview_time_label, overview_flag_image;
-UI::Widget debug_info;
 static void do_exit(UI::Widget *, void *) {
 	exit(EXIT_FAILURE);
 }
@@ -101,7 +40,7 @@ static void do_exit(UI::Widget *, void *) {
 static int mx, my;
 static float fmx, fmy;
 static int tx, ty;
-static size_t current_player_nation_id;
+static size_t player_nation_id;
 static size_t selected_province_id;
 
 static bool display_prov = false, display_pol = true, display_topo = false, display_infra = false;
@@ -126,6 +65,79 @@ static void do_view_infra_map(UI::Widget *, void *) {
 	display_infra = !display_infra;
 }
 
+static void do_province_overview() {
+	Province * province = g_world->provinces[selected_province_id];
+	UI::Window * prov_win = new UI::Window(ui_ctx, nullptr, width - 512, height / 2, 512, (height / 2) - 24, province->name.c_str());
+}
+
+std::vector<UI::Label *> wm_lab;
+static void do_world_market_overview(UI::Widget *, void *) {
+	UI::Window * wm_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512 + 256, height - 256, "World market");
+
+	char * str = new char[255];
+	size_t i = 0;
+	for(auto& product: g_world->products) {
+		UI::Label * name = new UI::Label(ui_ctx, wm_win, 0, i * 24, g_world->goods[product->good_id]->name.c_str());
+		wm_lab.push_back(name);
+
+		sprintf(str, "%4.2f", product->price);
+		UI::Label * price = new UI::Label(ui_ctx, wm_win, 128, i * 24, str);
+		wm_lab.push_back(price);
+
+		UI::Label * p_name = new UI::Label(ui_ctx, wm_win, 256, i * 24, g_world->provinces[product->origin_id]->name.c_str());
+		wm_lab.push_back(p_name);
+
+		sprintf(str, "%4.2f", product->price_vel);
+		UI::Label * p_vel = new UI::Label(ui_ctx, wm_win, 256 + 128 + 64 + 64 + 32, i * 24, str);
+		wm_lab.push_back(p_vel);
+
+		i++;
+	}
+	delete[] str;
+}
+
+static void do_economy_overview(UI::Widget *, void *) {
+	UI::Window * econ_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512 + 256, height - 256, "Economy");
+	
+	UI::Button * econ_wm_btn = new UI::Button(ui_ctx, econ_win, 0, 0, 256, 24, "World market");
+	econ_wm_btn->on_click = &do_world_market_overview;
+}
+
+std::vector<UI::Label *> iev_lab;
+static void do_info_events_overview(UI::Widget *, void *) {
+	UI::Window * iev_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Events");
+
+	size_t i = 0;
+	for(auto& event: g_world->events) {
+		UI::Label * lab = new UI::Label(ui_ctx, iev_win, 256, i * 24, event->ref_name.c_str());
+		iev_lab.push_back(lab);
+		i++;
+	}
+}
+std::vector<UI::Label *> iprov_lab;
+static void do_info_provinces_overview(UI::Widget *, void *) {
+	UI::Window * iprov_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Provinces");
+
+	size_t i = 0;
+	for(auto& province: g_world->provinces) {
+		UI::Label * rn_lab = new UI::Label(ui_ctx, iprov_win, 0, i * 24, province->ref_name.c_str());
+		iprov_lab.push_back(rn_lab);
+		UI::Label * name_lab = new UI::Label(ui_ctx, iprov_win, 256, i * 24, province->name.c_str());
+		iprov_lab.push_back(name_lab);
+		i++;
+	}
+}
+static void do_info_overview(UI::Widget *, void *) {
+	UI::Window * info_win = new UI::Window(ui_ctx, nullptr, width - 96, 196, 96, height - 256, "Debug info");
+	
+	UI::Button * info_event_btn = new UI::Button(ui_ctx, info_win, 0, 0, 256, 24, "Events");
+	info_event_btn->on_click = &do_info_events_overview;
+	UI::Button * info_province_btn = new UI::Button(ui_ctx, info_win, 0, 32, 256, 24, "Provinces");
+	info_province_btn->on_click = &do_info_provinces_overview;
+	UI::Button * info_nation_btn = new UI::Button(ui_ctx, info_win, 0, 32, 256, 24, "Nations");
+	info_nation_btn->on_click = &do_info_provinces_overview;
+}
+
 #include <atomic>
 extern std::atomic<int> redraw;
 extern std::atomic<int> run;
@@ -139,7 +151,7 @@ void rendering_main(void) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
-	current_player_nation_id = 0;
+	player_nation_id = 0;
 	
 	SDL_Window * window = SDL_CreateWindow("superleaf1995", 0, 0, width, height, SDL_WINDOW_OPENGL);
 	SDL_GLContext context = SDL_GL_CreateContext(window);
@@ -160,129 +172,47 @@ void rendering_main(void) {
 	ui_ctx = new UI::Context();
 
 	/* left sidebar buttons */
-	UI::Widget help_btn, help_btn_icon;
 	Texture help_icon = Texture(Resource_GetPath("icons/help.png").c_str());
 	help_icon.to_opengl();
-	help_btn = UI::Button(ui_ctx, nullptr, 8, 8, 64, 64);
-	ui_ctx->add_widget(&help_btn);
-	help_btn.on_click = &do_help;
-	help_btn_icon = UI::Image(ui_ctx, &help_btn, 0, 0, 64, 64, nullptr, &help_icon);
-	ui_ctx->add_widget(&help_btn_icon);
+	UI::Button * help_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 4, 64, 64);
+	help_btn->on_click = &do_info_overview;
+	UI::Image * help_btn_icon = new UI::Image(ui_ctx, help_btn, 0, 0, 64, 64, nullptr, &help_icon);
 
-	UI::Widget budget_btn, budget_btn_icon;
 	Texture budget_icon = Texture(Resource_GetPath("icons/budget.png").c_str());
 	budget_icon.to_opengl();
-	budget_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 2) + 64, 64, 64);
-	ui_ctx->add_widget(&budget_btn);
-	budget_btn.on_click = &do_economy_on_click;
-	budget_btn_icon = UI::Image(ui_ctx, &budget_btn, 0, 0, 64, 64, nullptr, &budget_icon);
-	ui_ctx->add_widget(&budget_btn_icon);
+	UI::Button * budget_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 5, 64, 64);
+	budget_btn->on_click = &do_economy_overview;
+	UI::Image * budget_btn_icon = new UI::Image(ui_ctx, budget_btn, 0, 0, 64, 64, nullptr, &budget_icon);
 
-	UI::Widget pol_view_btn, pol_view_btn_icon;
 	Texture pol_view_icon = Texture(Resource_GetPath("icons/pol_view.png").c_str());
 	pol_view_icon.to_opengl();
-	pol_view_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 3) + (64 * 2), 64, 64);
-	ui_ctx->add_widget(&pol_view_btn);
-	pol_view_btn.on_click = &do_view_pol_map;
-	pol_view_btn_icon = UI::Image(ui_ctx, &pol_view_btn, 0, 0, 64, 64, nullptr, &pol_view_icon);
-	ui_ctx->add_widget(&pol_view_btn_icon);
+	UI::Button * pol_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 6, 64, 64);
+	pol_view_btn->on_click = &do_view_pol_map;
+	UI::Image * pol_view_btn_icon = new UI::Image(ui_ctx, pol_view_btn, 0, 0, 64, 64, nullptr, &pol_view_icon);
 
-	UI::Widget prov_view_btn, prov_view_btn_icon;
 	Texture prov_view_icon = Texture(Resource_GetPath("icons/prov_view.png").c_str());
 	prov_view_icon.to_opengl();
-	prov_view_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 4) + (64 * 3), 64, 64);
-	ui_ctx->add_widget(&prov_view_btn);
-	prov_view_btn.on_click = &do_view_prov_map;
-	prov_view_btn_icon = UI::Image(ui_ctx, &prov_view_btn, 0, 0, 64, 64, nullptr, &prov_view_icon);
-	ui_ctx->add_widget(&prov_view_btn_icon);
+	UI::Button * prov_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 7, 64, 64);
+	prov_view_btn->on_click = &do_view_prov_map;
+	UI::Image * prov_view_btn_icon = new UI::Image(ui_ctx, prov_view_btn, 0, 0, 64, 64, nullptr, &prov_view_icon);
 
-	UI::Widget topo_view_btn, topo_view_btn_icon;
 	Texture topo_view_icon = Texture(Resource_GetPath("icons/topo_view.png").c_str());
 	topo_view_icon.to_opengl();
-	topo_view_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 5) + (64 * 4), 64, 64);
-	ui_ctx->add_widget(&topo_view_btn);
-	topo_view_btn.on_click = &do_view_topo_map;
-	topo_view_btn_icon = UI::Image(ui_ctx, &topo_view_btn, 0, 0, 64, 64, nullptr, &topo_view_icon);
-	ui_ctx->add_widget(&topo_view_btn_icon);
+	UI::Button * topo_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 8, 64, 64);
+	topo_view_btn->on_click = &do_view_topo_map;
+	UI::Image * topo_view_btn_icon = new UI::Image(ui_ctx, topo_view_btn, 0, 0, 64, 64, nullptr, &topo_view_icon);
 
-	UI::Widget infra_view_btn, infra_view_btn_icon;
 	Texture infra_view_icon = Texture(Resource_GetPath("icons/infra_view.png").c_str());
 	infra_view_icon.to_opengl();
-	infra_view_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 6) + (64 * 5), 64, 64);
-	ui_ctx->add_widget(&infra_view_btn);
-	infra_view_btn.on_click = &do_view_infra_map;
-	infra_view_btn_icon = UI::Image(ui_ctx, &infra_view_btn, 0, 0, 64, 64, nullptr, &infra_view_icon);
-	ui_ctx->add_widget(&infra_view_btn_icon);
+	UI::Button * infra_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 9, 64, 64);
+	infra_view_btn->on_click = &do_view_infra_map;
+	UI::Image * infra_view_btn_icon = new UI::Image(ui_ctx, infra_view_btn, 0, 0, 64, 64, nullptr, &infra_view_icon);
 
-	UI::Widget exit_btn, exit_btn_icon;
 	Texture exit_icon = Texture(Resource_GetPath("icons/exit.png").c_str());
 	exit_icon.to_opengl();
-	exit_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 7) + (64 * 6), 64, 64);
-	ui_ctx->add_widget(&exit_btn);
-	exit_btn.on_click = &do_exit;
-	exit_btn_icon = UI::Image(ui_ctx, &exit_btn, 0, 0, 64, 64, nullptr, &exit_icon);
-	ui_ctx->add_widget(&exit_btn_icon);
-
-	/* help window */
-	help_win = UI::Window(ui_ctx, nullptr, width - 520, 32, 512, 512, "Russo-Japanesse War 1904");
-	help_win_close_btn = UI::Button(ui_ctx, &help_win, 512 - 24, -24, 24, 24, "X");
-	help_win_close_btn.on_click = &default_close_button_on_click;
-	const char * text[] = {
-		"Thank you for downloading this game",
-		"In this scneario you will control",
-		"the japanesse in the historical",
-		"sino-japanesse war.",
-		"Create a full logistic plan to move",
-		"your soldiers into the korean",
-		"peninsula.",
-		"Remember to build forts to improve",
-		"your defences.",
-		"Recruit soldiers from your cities.",
-		"And last but not least important:",
-		"Have fun! :D"
-	};
-	for(size_t i = 0; i < 12; i++) {
-		help_label[i] = UI::Label(ui_ctx, &help_win, 0, i * 24, text[i]);
-	}
-
-	/* tile overview */
-	tov_win = UI::Window(ui_ctx, nullptr, width - 520, 32, 512, 512, "Province overview");
-	tov_win_close_btn = UI::Button(ui_ctx, &tov_win, 512 - 24, -24, 24, 24, "X");
-	tov_win_close_btn.on_click = &default_close_button_on_click;
-	tov_owner_label = UI::Label(ui_ctx, &tov_win, 0, 0, "?");
-	tov_owner_flag_image = UI::Image(ui_ctx, &tov_win, (16) * 6, 0, 32, 24, nullptr, g_world->nations[current_player_nation_id]->default_flag);
-	tov_population_label = UI::Label(ui_ctx, &tov_win, 0, 24, "?");
-
-	/* overview bottom window */
-	overview_win = UI::Window(ui_ctx, nullptr, 0, height - 128, width, 128);
-	overview_win.text(ui_ctx, g_world->nations[current_player_nation_id]->ref_name.c_str());
-	ui_ctx->add_widget(&overview_win);
-	overview_time_label = UI::Label(ui_ctx, &overview_win, 128 + 32 + 8, 24, "?");
-	ui_ctx->add_widget(&overview_time_label);
-	overview_flag_image = UI::Image(ui_ctx, &overview_win, 8, 8, 128 + 32, 128 - 16, nullptr, g_world->nations[current_player_nation_id]->default_flag);
-	ui_ctx->add_widget(&overview_flag_image);
-
-	/* economy window */
-	econ_win = UI::Window(ui_ctx, nullptr, 128, 32, 512, 512, "Economy and production");
-	econ_win_close_btn = UI::Button(ui_ctx, &econ_win, 512 - 24, -24, 24, 24, "X");
-	econ_win_close_btn.on_click = &default_close_button_on_click;
-	econ_label[0] = UI::Label(ui_ctx, &econ_win, 128 * 0, 0, "% Change");
-	econ_label[1] = UI::Label(ui_ctx, &econ_win, 128 * 1, 0, "Price");
-	econ_label[2] = UI::Label(ui_ctx, &econ_win, 128 * 2, 0, "Province");
-	econ_label[3] = UI::Label(ui_ctx, &econ_win, 128 * 3, 0, "Good");
-	for(size_t i = (4 / 4); i < (128 / 4); i++) {
-		size_t y = i * 24;
-		econ_label[i * 4 + 0] = UI::Label(ui_ctx, &econ_win, 128 * 0, y, "?");
-		econ_label[i * 4 + 0] = UI::Label(ui_ctx, &econ_win, 128 * 1, y, "?");
-		econ_label[i * 4 + 0] = UI::Label(ui_ctx, &econ_win, 128 * 2, y, "?");
-		econ_label[i * 4 + 0] = UI::Label(ui_ctx, &econ_win, 128 * 3, y, "?");
-	}
-	
-	debug_info = UI::Window(ui_ctx, nullptr, width - 250, 25, 225, 25, "Delta time (ms)");
-	delta_time = UI::Label(ui_ctx, &debug_info, 0, 0, "0");
-	ui_ctx->add_widget(&debug_info);
-	ui_ctx->add_widget(&delta_time);
-	econ_win.on_update = &do_economy_on_update;
+	UI::Button * exit_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 10, 64, 64);
+	exit_btn->on_click = &do_exit;
+	UI::Image * exit_btn_icon = new UI::Image(ui_ctx, exit_btn, 0, 0, 64, 64, nullptr, &exit_icon);
 
 	Camera cam;
 	cam.x = -1.f;
@@ -293,8 +223,8 @@ void rendering_main(void) {
 	cam.vy = 0.f;
 	cam.vz = 0.f;
 	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
-	char * dt_str;
-	dt_str = (char*)malloc(32);
+
+	char * dt_str = (char*)malloc(32);
 	while(run) {
 		SDL_Event event;
 		int r;
@@ -307,36 +237,13 @@ void rendering_main(void) {
 				
 				r = ui_ctx->check_click(mx, my);
 
-				if(fmx > 0 && fmx < g_world->width
-				&& fmy > 0 && fmy < g_world->height
-				&& !r) {
+				if(fmx > 0 && fmx < g_world->width && fmy > 0 && fmy < g_world->height && !r) {
+					// tx and ty are used for tile
 					Tile * tile = &g_world->tiles[tx + ty * g_world->width];
-					char * str = new char[255];
-					const char * name = (tile->owner_id != (size_t)-1) ? g_world->nations[tile->owner_id]->name.c_str() : "none";
-					sprintf(str, "Owner:   %s", name);
-					tov_owner_label.text(ui_ctx, str);
-
-					if(tile->province_id == (size_t)-1) {
-						tov_win.text(ui_ctx, "unnamed land");
-					} else {
-						tov_win.text(ui_ctx, g_world->provinces[tile->province_id]->name.c_str());
-
-						/* some heartbleed techniques were applied here */
-						sprintf(str, "Population: %lu", g_world->provinces[tile->province_id]->population);
-						tov_population_label.text(ui_ctx, str);
+					if(tile->province_id != (size_t)-1 && tile->owner_id != (size_t)-1) {
+						selected_province_id = tile->province_id;
+						do_province_overview();
 					}
-
-					delete[] str;
-
-					if(tile->owner_id == (size_t)-1) {
-						// TODO: Use a neutral territory flag
-						tov_owner_flag_image.current_texture = g_world->nations[0]->default_flag;
-					} else {
-						tov_owner_flag_image.current_texture = g_world->nations[tile->owner_id]->default_flag;
-					}
-
-					selected_province_id = tile->province_id;
-					do_tile_overview();
 				}
 				break;
 			case SDL_MOUSEMOTION:
@@ -358,7 +265,12 @@ void rendering_main(void) {
 				ty = (int)fmy;
 				break;
 			case SDL_MOUSEWHEEL:
-				cam.vz += event.wheel.y;
+				SDL_GetMouseState(&mx, &my);
+				ui_ctx->check_hover(mx, my);
+				r = ui_ctx->check_wheel(mx, my, event.wheel.y * 6);
+				if(!r) {
+					cam.vz += event.wheel.y;
+				}
 				break;
 			case SDL_TEXTINPUT:
 				ui_ctx->check_text_input((const char *)&event.text.text);
@@ -418,15 +330,16 @@ void rendering_main(void) {
 		render_province_mutex.unlock();
 
 		// Simpler than looping and indexing as x,y coord
-		if(display_topo) {
+		if(display_topo)
 			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.quad_topo_gl_list_num);
-		} if(display_prov) {
+		if(display_prov)
 			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.quad_div_gl_list_num);
-		} if(display_pol) {
+		if(display_pol)
 			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.quad_pol_gl_list_num);
-		} if(display_infra) {
+		if(display_infra)
 			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.infra_layout_list_num);
-		}
+		
+		// Borders should always display
 		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.div_borders_gl_list_num);
 		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.pol_borders_gl_list_num);
 
@@ -441,7 +354,7 @@ void rendering_main(void) {
 		glVertex2f(fmx, fmy + 1.f);
 		glEnd();
 		
-		glBindTexture(GL_TEXTURE_2D, g_world->nations[current_player_nation_id]->default_flag->gl_tex_num);
+		glBindTexture(GL_TEXTURE_2D, g_world->nations[player_nation_id]->default_flag->gl_tex_num);
 		GLUquadricObj * sphere = nullptr;
 		sphere = gluNewQuadric();
 		gluQuadricDrawStyle(sphere, GLU_FILL);
@@ -467,6 +380,7 @@ void rendering_main(void) {
 		
 		SDL_GL_SwapWindow(window);
 
+		/*
 		int hour = g_world->time % 24;
 		int day = g_world->time / 24;
 
@@ -482,6 +396,7 @@ void rendering_main(void) {
 		char str[255];
 		sprintf((char *)&str, "%u/%u/%u - %u", year, month, day, hour);
 		overview_time_label.text(ui_ctx, (char *)&str);
+		*/
 
 		if(cam.vx >= 0.9f)
 			cam.vx -= 0.8f;
@@ -508,15 +423,13 @@ void rendering_main(void) {
 		cam.y += cam.vy;
 		cam.z += cam.vz;
 
+		/*
 		uint32_t endTime = SDL_GetTicks();
 		uint32_t dt = endTime - beginTime;
-		sprintf(dt_str,"%d",dt);
-		
+		sprintf(dt_str, "%d", dt);
 		delta_time.text(ui_ctx,dt_str);
+		*/
 	}
-	free(dt_str);
-
-	printf("sad\n");
 
 	TTF_Quit();
 	SDL_Quit();

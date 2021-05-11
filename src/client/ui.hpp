@@ -26,6 +26,7 @@ namespace UI {
 		void render_all();
 		void check_hover(unsigned mx, unsigned my);
 		int check_click(unsigned mx, unsigned my);
+		int check_wheel(unsigned mx, unsigned my, int y);
 		void check_text_input(const char * input);
 
 		TTF_Font * default_font;
@@ -60,12 +61,15 @@ namespace UI {
 		Widget(Widget&&) noexcept = default;
 		Widget& operator=(const Widget&) = default;
 		Widget& operator=(Widget&) noexcept = default;
-		~Widget() {};
+		~Widget();
 
 		void add_child(Widget * child);
 		void text(Context * ctx, const char * text);
 		void draw_rectangle(unsigned x, unsigned y, unsigned w, unsigned h, unsigned tex);
 
+		Context * p_ctx;
+		
+		bool is_pinned;
 		int type;
 
 		size_t x;
@@ -76,6 +80,9 @@ namespace UI {
 
 		size_t mx;
 		size_t my;
+
+		size_t scroll_x;
+		size_t scroll_y;
 		
 		size_t width;
 		size_t height;

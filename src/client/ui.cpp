@@ -70,11 +70,10 @@ void Context::remove_widget(Widget * widget) {
 			continue;
 		
 		for(size_t j = 0; j < widget->children.size(); j++) {
-			this->remove_widget(widget->children[j]);
+			delete widget->children[j];
 		}
 
 		this->widgets.erase(this->widgets.begin() + i);
-
 		break;
 	}
 	return;
@@ -85,10 +84,16 @@ void Context::render_all() {
 		Widget * widget = this->widgets[i];
 		if(widget == nullptr)
 			continue;
-
+		
+		// Widget below parent
 		if(widget->parent != nullptr
 		&& (widget->x + widget->width > widget->parent->x + widget->parent->width
 		|| widget->y + widget->height > widget->parent->y + widget->parent->height))
+			continue;
+		
+		if(widget->parent != nullptr
+		&& (widget->y + widget->width < widget->parent->y
+		|| widget->x + widget->width < widget->parent->x))
 			continue;
 
 		if(widget->show && widget->on_render != nullptr) {
@@ -116,7 +121,7 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
 				widget->current_texture = &this->input_hover;
 			
 			if(widget->on_hover != nullptr)
-				widget->on_hover(widget, nullptr);
+				widget->on_hover(widget, widget->user_data);
 		} else {
 			if(widget->current_texture == &this->button_hover)
 				widget->current_texture = &this->button_idle;
@@ -149,7 +154,7 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 			}
 			
 			if(widget->on_click != nullptr) {
-				widget->on_click(widget, (void *)this);
+				widget->on_click(widget, widget->user_data);
 			}
 			retval++;
 		} else {
@@ -181,10 +186,30 @@ void Context::check_text_input(const char * input) {
 		&& widget->on_textinput != nullptr
 		&& widget->type == UI_WIDGET_INPUT
 		&& widget->show) {
-			widget->on_textinput(widget, input, (void *)this);
+			widget->on_textinput(widget, input, widget->user_data);
 		}
 	}
-	return;
+}
+
+int Context::check_wheel(unsigned mx, unsigned my, int y) {
+	int r = 0;
+	for(size_t i = this->widgets.size() - 1; i >= 0; i--) {
+		Widget * widget = this->widgets[i];
+		if(widget == nullptr)
+			continue;
+
+		if(mx >= widget->x && mx <= widget->x + widget->width
+		&& my >= widget->y && my <= widget->y + widget->height
+		&& widget->type == UI_WIDGET_WINDOW && widget->show) {
+			for(auto& child: widget->children) {
+				if(!child->is_pinned)
+					child->y += y;
+			}
+			r++;
+			break;
+		}
+	}
+	return r;
 }
 
 void Widget::draw_rectangle(unsigned _x, unsigned _y, unsigned _w, unsigned _h, const unsigned tex) {
@@ -208,8 +233,6 @@ void Widget::draw_rectangle(unsigned _x, unsigned _y, unsigned _w, unsigned _h, 
 }
 
 void default_on_render(Widget * w, void * data) {
-	Context * ctx = (Context *)data;
-
 	if(w->type != UI_WIDGET_LABEL) {
 		w->draw_rectangle(
 			w->x, w->y,
@@ -226,7 +249,7 @@ void default_on_render(Widget * w, void * data) {
 		w->draw_rectangle(
 			w->x, w->y - 24,
 			w->width, 24,
-			ctx->window_border.gl_tex_num
+			w->p_ctx->window_border.gl_tex_num
 		);
 		if(w->text_texture != nullptr && w->text_texture->gl_tex_num) {
 			w->draw_rectangle(
@@ -250,7 +273,6 @@ void default_on_render(Widget * w, void * data) {
 }
 
 void default_on_text_input(Widget * w, const char * input, void * data) {
-	Context * ctx = (Context *)data;
 	size_t len;
 	char must_clear = 0;
 
@@ -275,14 +297,12 @@ void default_on_text_input(Widget * w, const char * input, void * data) {
 	}
 	strcat(w->buffer, input);
 
-	w->text(ctx, w->buffer);
+	w->text(w->p_ctx, w->buffer);
 	return;
 }
 
 void default_close_button_on_click(Widget * w, void * data) {
-	Context * ctx = (Context *)data;
-	ctx->remove_widget(w->parent);
-	return;
+	delete w->parent;
 }
 
 Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
@@ -305,6 +325,16 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 		_parent->add_child(this);
 	}
 
+	// This is only used by destrctur :)
+	this->p_ctx = ctx;
+
+	// Add this widget once the widget is constructed
+	ctx->add_widget(this);
+
+	// After this we can do some trickery and add any widgets we may need (close buttons, scrollbars, etc)
+
+	// Only used for windows
+	Button * close_btn;
 	switch(this->type) {
 	case UI_WIDGET_BUTTON:
 		this->current_texture = &ctx->button_idle;
@@ -315,6 +345,10 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 		break;
 	case UI_WIDGET_WINDOW:
 		this->current_texture = &ctx->window;
+
+		close_btn = new Button(ctx, this, this->width - 24, -24, 24, 24, "X");
+		close_btn->on_click = &default_close_button_on_click;
+		close_btn->is_pinned = true;
 		break;
 	case UI_WIDGET_IMAGE:
 		this->current_texture = tex;
@@ -331,14 +365,17 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 	}
 }
 
+Widget::~Widget() {
+	// Hide widget immediately upon destruction :(
+	this->p_ctx->remove_widget(this);
+}
+
 void Widget::add_child(Widget * child) {
 	// Not already in list
 	for(size_t i = 0; i < this->children.size(); i++) {
 		if(this->children[i] == child)
 			return;
 	}
-
-	printf("adding children %p to %p\n", child, this);
 
 	// Add to list
 	this->children.push_back(child);
