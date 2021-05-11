@@ -179,6 +179,32 @@ static void do_info_religions_overview(UI::Widget *, void *) {
 		i++;
 	}
 }
+std::vector<UI::Label *> iit_lab;
+static void do_info_industry_types_overview(UI::Widget *, void *) {
+	UI::Window * iit_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Industry Types");
+
+	size_t i = 0;
+	for(auto& industry_type: g_world->industry_types) {
+		UI::Label * rn_lab = new UI::Label(ui_ctx, iit_win, 0, i * 24, industry_type->ref_name.c_str());
+		iit_lab.push_back(rn_lab);
+		UI::Label * name_lab = new UI::Label(ui_ctx, iit_win, 256, i * 24, industry_type->name.c_str());
+		iit_lab.push_back(name_lab);
+		i++;
+	}
+}
+std::vector<UI::Label *> igood_lab;
+static void do_info_goods_overview(UI::Widget *, void *) {
+	UI::Window * igood_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Goods");
+
+	size_t i = 0;
+	for(auto& good: g_world->goods) {
+		UI::Label * rn_lab = new UI::Label(ui_ctx, igood_win, 0, i * 24, good->ref_name.c_str());
+		igood_lab.push_back(rn_lab);
+		UI::Label * name_lab = new UI::Label(ui_ctx, igood_win, 256, i * 24, good->name.c_str());
+		igood_lab.push_back(name_lab);
+		i++;
+	}
+}
 static void do_info_overview(UI::Widget *, void *) {
 	UI::Window * info_win = new UI::Window(ui_ctx, nullptr, width - 256, 196, 256, height - 256, "Debug info");
 	
@@ -195,7 +221,9 @@ static void do_info_overview(UI::Widget *, void *) {
 	UI::Button * info_religion_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 5, 256, 24, "Religions");
 	info_religion_btn->on_click = &do_info_religions_overview;
 	UI::Button * info_industry_type_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 6, 256, 24, "Industry types");
-	info_industry_type_btn->on_click = &do_info_provinces_overview;
+	info_industry_type_btn->on_click = &do_info_industry_types_overview;
+	UI::Button * info_good_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 7, 256, 24, "Goods");
+	info_good_btn->on_click = &do_info_goods_overview;
 }
 
 #include <atomic>
