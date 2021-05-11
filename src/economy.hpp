@@ -23,6 +23,13 @@ public:
 		}
 		return false;
 	}
+
+	void name_gen() {
+		size_t r = (rand() % 12) + 1;
+		for(size_t i = 0; i < r; i++) {
+			this->name += 'a' + (rand() % 25);
+		}
+	}
 };
 
 class Good {
