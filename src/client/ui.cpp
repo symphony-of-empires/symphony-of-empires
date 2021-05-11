@@ -47,6 +47,8 @@ Context::Context() {
 	this->scroll_bar.to_opengl();
 	this->window.to_opengl();
 	this->window_border.to_opengl();
+
+	this->widgets.clear();
 	return;
 }
 
@@ -69,10 +71,22 @@ void Context::remove_widget(Widget * widget) {
 		if(this->widgets[i] != widget)
 			continue;
 		
+		// Delete from parent's child list
+		if(widget->parent != nullptr) {
+			for(size_t j = 0; j < widget->parent->children.size(); j++) {
+				if(widget->parent->children[i] != widget)
+					continue;
+				
+				widget->parent->children.erase(this->widgets.begin() + i);
+				break;
+			}
+		}
+		
+		// Also delete children
 		for(size_t j = 0; j < widget->children.size(); j++) {
 			delete widget->children[j];
 		}
-
+		
 		this->widgets.erase(this->widgets.begin() + i);
 		break;
 	}
@@ -82,9 +96,7 @@ void Context::remove_widget(Widget * widget) {
 void Context::render_all() {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
-		if(widget == nullptr)
-			continue;
-		
+
 		// Widget below parent
 		if(widget->parent != nullptr
 		&& (widget->x + widget->width > widget->parent->x + widget->parent->width
@@ -109,8 +121,6 @@ void Context::render_all() {
 void Context::check_hover(const unsigned mx, const unsigned my) {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
-		if(widget == nullptr)
-			continue;
 
 		if(mx >= widget->x && mx <= widget->x + widget->width
 		&& my >= widget->y && my <= widget->y + widget->height
@@ -136,12 +146,10 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 	int retval = 0;
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
-		if(widget == nullptr)
-			continue;
 
 		if(mx >= widget->x && mx <= widget->x + widget->width
 		&& my >= widget->y && my <= widget->y + widget->height
-		&& widget->show) {
+		&& widget->show && widget->type != UI_WIDGET_WINDOW) {
 			switch(widget->type) {
 			case UI_WIDGET_BUTTON:
 				widget->current_texture = &this->button_active;;
@@ -179,9 +187,7 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 void Context::check_text_input(const char * input) {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
-		if(widget == nullptr)
-			continue;
-
+		
 		if(widget->current_texture == &this->input_active
 		&& widget->on_textinput != nullptr
 		&& widget->type == UI_WIDGET_INPUT
@@ -193,11 +199,9 @@ void Context::check_text_input(const char * input) {
 
 int Context::check_wheel(unsigned mx, unsigned my, int y) {
 	int r = 0;
-	for(size_t i = this->widgets.size() - 1; i >= 0; i--) {
+	for(size_t i = this->widgets.size() - 1; i == (size_t)-1; i--) {
 		Widget * widget = this->widgets[i];
-		if(widget == nullptr)
-			continue;
-
+		
 		if(mx >= widget->x && mx <= widget->x + widget->width
 		&& my >= widget->y && my <= widget->y + widget->height
 		&& widget->type == UI_WIDGET_WINDOW && widget->show) {
@@ -318,6 +322,8 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 	this->is_movable = false;
 	this->ox = _x;
 	this->oy = _y;
+	this->mx = _x;
+	this->my = _y;
 
 	if(_parent != nullptr) {
 		this->x += _parent->x;
@@ -370,6 +376,14 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 Widget::~Widget() {
 	// Hide widget immediately upon destruction :(
 	this->p_ctx->remove_widget(this);
+}
+
+void Widget::move_by(int x, int y) {
+	this->x += x;
+	this->y += y;
+	for(auto& child: this->children) {
+		child->move_by(x, y);
+	}
 }
 
 void Widget::add_child(Widget * child) {

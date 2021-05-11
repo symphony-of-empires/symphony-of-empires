@@ -63,6 +63,7 @@ namespace UI {
 		Widget& operator=(Widget&) noexcept = default;
 		~Widget();
 
+		void move_by(int x, int y);
 		void add_child(Widget * child);
 		void text(Context * ctx, const char * text);
 		void draw_rectangle(int x, int y, unsigned w, unsigned h, unsigned tex);
