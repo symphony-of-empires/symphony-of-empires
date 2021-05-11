@@ -294,6 +294,12 @@ int LuaAPI::get_province(lua_State * L) {
 	return 4;
 }
 
+#ifndef SERVER_HEADLESS
+#include <deque>
+#include <mutex>
+extern std::mutex render_province_mutex;
+extern std::deque<size_t> render_province;
+#endif
 int LuaAPI::give_province_to(lua_State * L) {
 	if(!lua_isnumber(L, 1) || !lua_isnumber(L, 2)) {
 		print_error("lua argument type mismatch");
@@ -322,6 +328,14 @@ int LuaAPI::give_province_to(lua_State * L) {
 			tile->owner_id = nation_id;
 		}
 	}
+#ifndef SERVER_HEADLESS
+	render_province_mutex.lock();
+	render_province.push_back(province->min_x);
+	render_province.push_back(province->min_y);
+	render_province.push_back(province->max_x + 64);
+	render_province.push_back(province->max_y + 64);
+	render_province_mutex.unlock();
+#endif
 	return 0;
 }
 

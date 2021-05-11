@@ -103,9 +103,8 @@ static float fmx, fmy;
 static int tx, ty;
 static size_t current_player_nation_id;
 static size_t selected_province_id;
-static Map map;
 
-static bool display_prov = true, display_pol = true, display_topo = false, display_infra = false;
+static bool display_prov = false, display_pol = true, display_topo = false, display_infra = false;
 
 static void do_view_prov_map(UI::Widget *, void *) {
 	//map = prov_map;
@@ -130,6 +129,12 @@ static void do_view_infra_map(UI::Widget *, void *) {
 #include <atomic>
 extern std::atomic<int> redraw;
 extern std::atomic<int> run;
+
+#include <deque>
+#include <mutex>
+std::mutex render_province_mutex;
+std::deque<size_t> render_province;
+
 void rendering_main(void) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
@@ -361,16 +366,16 @@ void rendering_main(void) {
 			case SDL_KEYDOWN:
 				switch(event.key.keysym.sym) {
 				case SDLK_UP:
-					cam.vy -= 0.05f * -cam.z;
+					cam.vy -= 0.02f * -cam.z;
 					break;
 				case SDLK_DOWN:
-					cam.vy += 0.05f * -cam.z;
+					cam.vy += 0.02f * -cam.z;
 					break;
 				case SDLK_LEFT:
-					cam.vx += 0.05f * -cam.z;
+					cam.vx += 0.02f * -cam.z;
 					break;
 				case SDLK_RIGHT:
-					cam.vx -= 0.05f * -cam.z;
+					cam.vx -= 0.02f * -cam.z;
 					break;
 				}
 				break;
@@ -381,7 +386,7 @@ void rendering_main(void) {
 				break;
 			}
 		}
-	
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glPushMatrix();
 		glMatrixMode(GL_PROJECTION);
@@ -395,9 +400,24 @@ void rendering_main(void) {
 		glRotatef(0.f, 0.0f, 1.0f, 0.0f);
 		glRotatef(0.f, 0.0f, 0.0f, 1.0f);
 
+		render_province_mutex.lock();
+		if(render_province.size() >= 4) {
+			size_t min_x, min_y, max_x, max_y;
+
+			min_x = render_province.front();
+			render_province.pop_front();
+			min_y = render_province.front();
+			render_province.pop_front();
+			max_x = render_province.front();
+			render_province.pop_front();
+			max_y = render_province.front();
+			render_province.pop_front();
+
+			map.quad_update_nation(min_x, min_y, max_x, max_y);
+		}
+		render_province_mutex.unlock();
+
 		// Simpler than looping and indexing as x,y coord
-		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.pol_borders_gl_list_num);
-		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.div_borders_gl_list_num);
 		if(display_topo) {
 			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.quad_topo_gl_list_num);
 		} if(display_prov) {
@@ -407,6 +427,8 @@ void rendering_main(void) {
 		} if(display_infra) {
 			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.infra_layout_list_num);
 		}
+		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.div_borders_gl_list_num);
+		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.pol_borders_gl_list_num);
 
 		glBegin(GL_POLYGON);
 		glColor3f(1.f, 1.f, 1.f);
@@ -442,6 +464,9 @@ void rendering_main(void) {
 
 		glLoadIdentity();
 		glRasterPos2f(-3.0f, -2.0f);
+		
+		SDL_GL_SwapWindow(window);
+
 		int hour = g_world->time % 24;
 		int day = g_world->time / 24;
 
@@ -453,7 +478,7 @@ void rendering_main(void) {
 
 		day %= 31;
 		month %= 12;
-		
+
 		char str[255];
 		sprintf((char *)&str, "%u/%u/%u - %u", year, month, day, hour);
 		overview_time_label.text(ui_ctx, (char *)&str);
@@ -482,8 +507,7 @@ void rendering_main(void) {
 		cam.x += cam.vx;
 		cam.y += cam.vy;
 		cam.z += cam.vz;
-		
-		SDL_GL_SwapWindow(window);
+
 		uint32_t endTime = SDL_GetTicks();
 		uint32_t dt = endTime - beginTime;
 		sprintf(dt_str,"%d",dt);

@@ -3,6 +3,8 @@
 #include <string.h>
 #include "map.hpp"
 
+Map map;
+
 Map::Map(World * w) {
 	memset(this, 0, sizeof(Map));
 
@@ -78,32 +80,19 @@ void Map::quad_create(size_t qx, size_t qy) {
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
 				Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
+				if(curr_tile->owner_id == (size_t)-1)
+					continue;
+				
 				glBegin(GL_TRIANGLES);
-				if(curr_tile->owner_id == (size_t)-1) {
-					for(size_t k = 0; k < 6; k++) {
-						const size_t x = i + draw_ord[k][0];
-						const size_t y = j + draw_ord[k][1];
-						const uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
-						glColor3ub(32, elevation, elevation + this->world->sea_level);
-						glVertex2f(x, y);
-					}
-				} else {
-					Nation * nation = this->world->nations[curr_tile->owner_id];
-					for(size_t k = 0; k < 6; k++) {
-						const size_t x = i + draw_ord[k][0];
-						const size_t y = j + draw_ord[k][1];
-						const uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation - this->world->sea_level;
-						const uint8_t nr = (nation->color & 0xff);
-						uint8_t ng = ((nation->color >> 8) & 0xff);
-						const uint8_t nb = ((nation->color >> 16) & 0xff);
-						if((uint16_t)elevation + (uint16_t)ng > 255) {
-							ng = 255;
-						} else {
-							ng += elevation;
-						}
-						glColor3ub(nr, ng, nb);
-						glVertex2f(x, y);
-					}
+				Nation * nation = this->world->nations[curr_tile->owner_id];
+				for(size_t k = 0; k < 6; k++) {
+					const size_t x = i + draw_ord[k][0];
+					const size_t y = j + draw_ord[k][1];
+					uint8_t r = (nation->color & 0xff);
+					uint8_t g = ((nation->color >> 8) & 0xff);
+					uint8_t b = ((nation->color >> 16) & 0xff);
+					glColor4ub(r, g, b, 196);
+					glVertex2f(x, y);
 				}
 				glEnd();
 			}
@@ -118,33 +107,19 @@ void Map::quad_create(size_t qx, size_t qy) {
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
 				Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
-				glBegin(GL_TRIANGLES);
-				if(curr_tile->province_id == (size_t)-1) {
-					for(size_t k = 0; k < 6; k++) {
-						const size_t x = i + draw_ord[k][0];
-						const size_t y = j + draw_ord[k][1];
-						const uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
-						glColor3ub(32, elevation, elevation + this->world->sea_level);
-						glVertex2f(x, y);
-					}
-				} else {
-					Province * province = this->world->provinces[curr_tile->province_id];
-					for(size_t k = 0; k < 6; k++) {
-						const size_t x = i + draw_ord[k][0];
-						const size_t y = j + draw_ord[k][1];
-						const uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation - this->world->sea_level;
-						const uint8_t nr = (province->color & 0xff);
-						uint8_t ng = ((province->color >> 8) & 0xff);
-						const uint8_t nb = ((province->color >> 16) & 0xff);
+				if(curr_tile->province_id == (size_t)-1)
+					continue;
 
-						if((uint16_t)elevation + (uint16_t)ng > 255) {
-							ng = 255;
-						} else {
-							ng += elevation;
-						}
-						glColor3ub(nr, ng, nb);
-						glVertex2f(x, y);
-					}
+				glBegin(GL_TRIANGLES);
+				Province * province = this->world->provinces[curr_tile->province_id];
+				for(size_t k = 0; k < 6; k++) {
+					size_t x = i + draw_ord[k][0];
+					size_t y = j + draw_ord[k][1];
+					uint8_t r = (province->color & 0xff);
+					uint8_t g = ((province->color >> 8) & 0xff);
+					uint8_t b = ((province->color >> 16) & 0xff);
+					glColor4ub(r, g, b, 196);
+					glVertex2f(x, y);
 				}
 				glEnd();
 			}
@@ -160,9 +135,9 @@ void Map::quad_create(size_t qx, size_t qy) {
 			for(size_t j = off_y; j < end_y; j++) {
 				glBegin(GL_TRIANGLES);
 				for(size_t k = 0; k < 6; k++) {
-					const size_t x = i + draw_ord[k][0];
-					const size_t y = j + draw_ord[k][1];
-					const uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
+					size_t x = i + draw_ord[k][0];
+					size_t y = j + draw_ord[k][1];
+					uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
 					glColor3ub(32, elevation, elevation + this->world->sea_level);
 					glVertex2f(x, y);
 				}
@@ -319,13 +294,13 @@ void Map::quad_update_nation(size_t start_x, size_t start_y, size_t end_x, size_
 			
 			// Delete fillings
 			gl_list = &this->quad_pol_gl_list_num[qx + qy * this->n_horz_quads];
-			if(*gl_list != 0)
-				glDeleteLists(*gl_list, 1);
+			glDeleteLists(*gl_list, 1);
+			*gl_list = 0;
 
 			// Delete borders
 			gl_list = &this->pol_borders_gl_list_num[qx + qy * this->n_horz_quads];
-			if(*gl_list != 0)
-				glDeleteLists(*gl_list, 1);
+			glDeleteLists(*gl_list, 1);
+			*gl_list = 0;
 			
 			this->quad_create(qx, qy);
 		}
