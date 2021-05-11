@@ -103,26 +103,38 @@ static float fmx, fmy;
 static int tx, ty;
 static size_t current_player_nation_id;
 static size_t selected_province_id;
-static Map map;
+
+static bool display_prov = false, display_pol = true, display_topo = false, display_infra = false;
+
 static void do_view_prov_map(UI::Widget *, void *) {
-	map = prov_map;
+	//map = prov_map;
+	display_prov = !display_prov;
 }
 
 static void do_view_pol_map(UI::Widget *, void *) {
-	map = pol_map;
+	//map = pol_map;
+	display_pol = !display_pol;
 }
 
 static void do_view_topo_map(UI::Widget *, void *) {
-	map = topo_map;
+	//map = topo_map;
+	display_topo = !display_topo;
 }
 
 static void do_view_infra_map(UI::Widget *, void *) {
-	map = infra_map;
+	//map = infra_map;
+	display_infra = !display_infra;
 }
 
 #include <atomic>
 extern std::atomic<int> redraw;
 extern std::atomic<int> run;
+
+#include <deque>
+#include <mutex>
+std::mutex render_province_mutex;
+std::deque<size_t> render_province;
+
 void rendering_main(void) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
@@ -140,11 +152,7 @@ void rendering_main(void) {
 	glEnable(GL_TEXTURE_2D);
 
 	// Render g_world stuff now that we are in opengl
-	prov_map = Map(g_world, MAP_PROVINCIAL);
-	pol_map = Map(g_world, MAP_POLITICAL);
-	topo_map = Map(g_world, MAP_TOPOGRAPHIC);
-	infra_map = Map(g_world, MAP_INFRASTRUCTURE);
-	map = prov_map;
+	map = Map(g_world);
 	for(auto& nation: g_world->nations) {
 		nation->default_flag->to_opengl();
 	}
@@ -155,73 +163,69 @@ void rendering_main(void) {
 	UI::Widget help_btn, help_btn_icon;
 	Texture help_icon = Texture(Resource_GetPath("icons/help.png").c_str());
 	help_icon.to_opengl();
-
-	UI_Widget_CreateButton(ui_ctx, nullptr, &help_btn, 8, 8, 64, 64);
+	help_btn = UI::Button(ui_ctx, nullptr, 8, 8, 64, 64);
 	ui_ctx->add_widget(&help_btn);
 	help_btn.on_click = &do_help;
-	UI_Widget_CreateImage(ui_ctx, &help_btn, &help_btn_icon, 0, 0, 64, 64, &help_icon);
+	help_btn_icon = UI::Image(ui_ctx, &help_btn, 0, 0, 64, 64, nullptr, &help_icon);
 	ui_ctx->add_widget(&help_btn_icon);
 
 	UI::Widget budget_btn, budget_btn_icon;
 	Texture budget_icon = Texture(Resource_GetPath("icons/budget.png").c_str());
 	budget_icon.to_opengl();
-
-	UI_Widget_CreateButton(ui_ctx, nullptr, &budget_btn, 8, (8 * 2) + 64, 64, 64);
+	budget_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 2) + 64, 64, 64);
 	ui_ctx->add_widget(&budget_btn);
 	budget_btn.on_click = &do_economy_on_click;
-	UI_Widget_CreateImage(ui_ctx, &budget_btn, &budget_btn_icon, 0, 0, 64, 64, &budget_icon);
+	budget_btn_icon = UI::Image(ui_ctx, &budget_btn, 0, 0, 64, 64, nullptr, &budget_icon);
 	ui_ctx->add_widget(&budget_btn_icon);
 
 	UI::Widget pol_view_btn, pol_view_btn_icon;
 	Texture pol_view_icon = Texture(Resource_GetPath("icons/pol_view.png").c_str());
 	pol_view_icon.to_opengl();
-	UI_Widget_CreateButton(ui_ctx, nullptr, &pol_view_btn, 8, (8 * 3) + (64 * 2), 64, 64);
+	pol_view_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 3) + (64 * 2), 64, 64);
 	ui_ctx->add_widget(&pol_view_btn);
 	pol_view_btn.on_click = &do_view_pol_map;
-	UI_Widget_CreateImage(ui_ctx, &pol_view_btn, &pol_view_btn_icon, 0, 0, 64, 64, &pol_view_icon);
+	pol_view_btn_icon = UI::Image(ui_ctx, &pol_view_btn, 0, 0, 64, 64, nullptr, &pol_view_icon);
 	ui_ctx->add_widget(&pol_view_btn_icon);
 
 	UI::Widget prov_view_btn, prov_view_btn_icon;
 	Texture prov_view_icon = Texture(Resource_GetPath("icons/prov_view.png").c_str());
 	prov_view_icon.to_opengl();
-	UI_Widget_CreateButton(ui_ctx, nullptr, &prov_view_btn, 8, (8 * 4) + (64 * 3), 64, 64);
+	prov_view_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 4) + (64 * 3), 64, 64);
 	ui_ctx->add_widget(&prov_view_btn);
 	prov_view_btn.on_click = &do_view_prov_map;
-	UI_Widget_CreateImage(ui_ctx, &prov_view_btn, &prov_view_btn_icon, 0, 0, 64, 64, &prov_view_icon);
+	prov_view_btn_icon = UI::Image(ui_ctx, &prov_view_btn, 0, 0, 64, 64, nullptr, &prov_view_icon);
 	ui_ctx->add_widget(&prov_view_btn_icon);
 
 	UI::Widget topo_view_btn, topo_view_btn_icon;
 	Texture topo_view_icon = Texture(Resource_GetPath("icons/topo_view.png").c_str());
 	topo_view_icon.to_opengl();
-	UI_Widget_CreateButton(ui_ctx, nullptr, &topo_view_btn, 8, (8 * 5) + (64 * 4), 64, 64);
+	topo_view_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 5) + (64 * 4), 64, 64);
 	ui_ctx->add_widget(&topo_view_btn);
 	topo_view_btn.on_click = &do_view_topo_map;
-	UI_Widget_CreateImage(ui_ctx, &topo_view_btn, &topo_view_btn_icon, 0, 0, 64, 64, &topo_view_icon);
+	topo_view_btn_icon = UI::Image(ui_ctx, &topo_view_btn, 0, 0, 64, 64, nullptr, &topo_view_icon);
 	ui_ctx->add_widget(&topo_view_btn_icon);
 
 	UI::Widget infra_view_btn, infra_view_btn_icon;
 	Texture infra_view_icon = Texture(Resource_GetPath("icons/infra_view.png").c_str());
 	infra_view_icon.to_opengl();
-	UI_Widget_CreateButton(ui_ctx, nullptr, &infra_view_btn, 8, (8 * 6) + (64 * 5), 64, 64);
+	infra_view_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 6) + (64 * 5), 64, 64);
 	ui_ctx->add_widget(&infra_view_btn);
 	infra_view_btn.on_click = &do_view_infra_map;
-	UI_Widget_CreateImage(ui_ctx, &infra_view_btn, &infra_view_btn_icon, 0, 0, 64, 64, &infra_view_icon);
+	infra_view_btn_icon = UI::Image(ui_ctx, &infra_view_btn, 0, 0, 64, 64, nullptr, &infra_view_icon);
 	ui_ctx->add_widget(&infra_view_btn_icon);
 
 	UI::Widget exit_btn, exit_btn_icon;
 	Texture exit_icon = Texture(Resource_GetPath("icons/exit.png").c_str());
 	exit_icon.to_opengl();
-	UI_Widget_CreateButton(ui_ctx, nullptr, &exit_btn, 8, (8 * 7) + (64 * 6), 64, 64);
+	exit_btn = UI::Button(ui_ctx, nullptr, 8, (8 * 7) + (64 * 6), 64, 64);
 	ui_ctx->add_widget(&exit_btn);
 	exit_btn.on_click = &do_exit;
-	UI_Widget_CreateImage(ui_ctx, &exit_btn, &exit_btn_icon, 0, 0, 64, 64, &exit_icon);
+	exit_btn_icon = UI::Image(ui_ctx, &exit_btn, 0, 0, 64, 64, nullptr, &exit_icon);
 	ui_ctx->add_widget(&exit_btn_icon);
 
 	/* help window */
-	UI_Widget_CreateWindow(ui_ctx, nullptr, &help_win, width - 520, 32, 512, 512);
-	help_win.text(ui_ctx, "Russo-Japanesse War 1904");
-	UI_Widget_CreateButton(ui_ctx, &help_win, &help_win_close_btn, 512 - 24, -24, 24, 24);
-	help_win_close_btn.text(ui_ctx, "X");
+	help_win = UI::Window(ui_ctx, nullptr, width - 520, 32, 512, 512, "Russo-Japanesse War 1904");
+	help_win_close_btn = UI::Button(ui_ctx, &help_win, 512 - 24, -24, 24, 24, "X");
 	help_win_close_btn.on_click = &default_close_button_on_click;
 	const char * text[] = {
 		"Thank you for downloading this game",
@@ -238,49 +242,45 @@ void rendering_main(void) {
 		"Have fun! :D"
 	};
 	for(size_t i = 0; i < 12; i++) {
-		UI_Widget_CreateLabel(ui_ctx, &help_win, &help_label[i], 0, (i + 1) * 24, text[i]);
+		help_label[i] = UI::Label(ui_ctx, &help_win, 0, i * 24, text[i]);
 	}
 
 	/* tile overview */
-	UI_Widget_CreateWindow(ui_ctx, nullptr, &tov_win, width - 520, 32, 512, 512);
-	tov_win.text(ui_ctx, "Province overview");
-	UI_Widget_CreateButton(ui_ctx, &tov_win, &tov_win_close_btn, 512 - 24, -24, 24, 24);
-	tov_win_close_btn.text(ui_ctx, "X");
+	tov_win = UI::Window(ui_ctx, nullptr, width - 520, 32, 512, 512, "Province overview");
+	tov_win_close_btn = UI::Button(ui_ctx, &tov_win, 512 - 24, -24, 24, 24, "X");
 	tov_win_close_btn.on_click = &default_close_button_on_click;
-	UI_Widget_CreateLabel(ui_ctx, &tov_win, &tov_owner_label, 0, 24, "?");
-	UI_Widget_CreateImage(ui_ctx, &tov_win, &tov_owner_flag_image, (16) * 6, 0, 32, 24, g_world->nations[current_player_nation_id]->default_flag);
-	UI_Widget_CreateLabel(ui_ctx, &tov_win, &tov_population_label, 0, 48, "?");
+	tov_owner_label = UI::Label(ui_ctx, &tov_win, 0, 0, "?");
+	tov_owner_flag_image = UI::Image(ui_ctx, &tov_win, (16) * 6, 0, 32, 24, nullptr, g_world->nations[current_player_nation_id]->default_flag);
+	tov_population_label = UI::Label(ui_ctx, &tov_win, 0, 24, "?");
 
 	/* overview bottom window */
-	UI_Widget_CreateWindow(ui_ctx, nullptr, &overview_win, 0, height - 128, width, 128);
+	overview_win = UI::Window(ui_ctx, nullptr, 0, height - 128, width, 128);
 	overview_win.text(ui_ctx, g_world->nations[current_player_nation_id]->ref_name.c_str());
 	ui_ctx->add_widget(&overview_win);
-	UI_Widget_CreateLabel(ui_ctx, &overview_win, &overview_time_label, 128 + 32 + 8, 24, "?");
+	overview_time_label = UI::Label(ui_ctx, &overview_win, 128 + 32 + 8, 24, "?");
 	ui_ctx->add_widget(&overview_time_label);
-	UI_Widget_CreateImage(ui_ctx, &overview_win, &overview_flag_image, 8, 8, 128 + 32, 128 - 16, g_world->nations[current_player_nation_id]->default_flag);
+	overview_flag_image = UI::Image(ui_ctx, &overview_win, 8, 8, 128 + 32, 128 - 16, nullptr, g_world->nations[current_player_nation_id]->default_flag);
 	ui_ctx->add_widget(&overview_flag_image);
 
 	/* economy window */
-	UI_Widget_CreateWindow(ui_ctx, nullptr, &econ_win, 128, 32, 512, 512);
-	UI_Widget_CreateButton(ui_ctx, &econ_win, &econ_win_close_btn, 512 - 24, -24, 24, 24);
+	econ_win = UI::Window(ui_ctx, nullptr, 128, 32, 512, 512, "Economy and production");
+	econ_win_close_btn = UI::Button(ui_ctx, &econ_win, 512 - 24, -24, 24, 24, "X");
 	econ_win_close_btn.on_click = &default_close_button_on_click;
-	UI_Widget_CreateLabel(ui_ctx, &econ_win, &econ_label[0], 128 * 0, 24, "% Change");
-	UI_Widget_CreateLabel(ui_ctx, &econ_win, &econ_label[1], 128 * 1, 24, "Price");
-	UI_Widget_CreateLabel(ui_ctx, &econ_win, &econ_label[2], 128 * 2, 24, "Province");
-	UI_Widget_CreateLabel(ui_ctx, &econ_win, &econ_label[3], 128 * 3, 24, "Good");
+	econ_label[0] = UI::Label(ui_ctx, &econ_win, 128 * 0, 0, "% Change");
+	econ_label[1] = UI::Label(ui_ctx, &econ_win, 128 * 1, 0, "Price");
+	econ_label[2] = UI::Label(ui_ctx, &econ_win, 128 * 2, 0, "Province");
+	econ_label[3] = UI::Label(ui_ctx, &econ_win, 128 * 3, 0, "Good");
 	for(size_t i = (4 / 4); i < (128 / 4); i++) {
-		size_t y = i * 24 + 24;
-		UI_Widget_CreateLabel(ui_ctx, &econ_win, &econ_label[i * 4 + 0], 128 * 0, y, "?");
-		UI_Widget_CreateLabel(ui_ctx, &econ_win, &econ_label[i * 4 + 1], 128 * 1, y, "?");
-		UI_Widget_CreateLabel(ui_ctx, &econ_win, &econ_label[i * 4 + 2], 128 * 2, y, "?");
-		UI_Widget_CreateLabel(ui_ctx, &econ_win, &econ_label[i * 4 + 3], 128 * 3, y, "?");
+		size_t y = i * 24;
+		econ_label[i * 4 + 0] = UI::Label(ui_ctx, &econ_win, 128 * 0, y, "?");
+		econ_label[i * 4 + 0] = UI::Label(ui_ctx, &econ_win, 128 * 1, y, "?");
+		econ_label[i * 4 + 0] = UI::Label(ui_ctx, &econ_win, 128 * 2, y, "?");
+		econ_label[i * 4 + 0] = UI::Label(ui_ctx, &econ_win, 128 * 3, y, "?");
 	}
 	
-	UI_Widget_CreateWindow(ui_ctx, nullptr, &debug_info, width - 250, 25, 225, 25);
-	UI_Widget_CreateLabel(ui_ctx, &debug_info, &dt_label, 0, 0, "Delta time (ms)");
-	UI_Widget_CreateLabel(ui_ctx, &debug_info, &delta_time, 0, 25, "0");
+	debug_info = UI::Window(ui_ctx, nullptr, width - 250, 25, 225, 25, "Delta time (ms)");
+	delta_time = UI::Label(ui_ctx, &debug_info, 0, 0, "0");
 	ui_ctx->add_widget(&debug_info);
-	ui_ctx->add_widget(&dt_label);
 	ui_ctx->add_widget(&delta_time);
 	econ_win.on_update = &do_economy_on_update;
 
@@ -366,16 +366,16 @@ void rendering_main(void) {
 			case SDL_KEYDOWN:
 				switch(event.key.keysym.sym) {
 				case SDLK_UP:
-					cam.vy -= 0.05f * -cam.z;
+					cam.vy -= 0.02f * -cam.z;
 					break;
 				case SDLK_DOWN:
-					cam.vy += 0.05f * -cam.z;
+					cam.vy += 0.02f * -cam.z;
 					break;
 				case SDLK_LEFT:
-					cam.vx += 0.05f * -cam.z;
+					cam.vx += 0.02f * -cam.z;
 					break;
 				case SDLK_RIGHT:
-					cam.vx -= 0.05f * -cam.z;
+					cam.vx -= 0.02f * -cam.z;
 					break;
 				}
 				break;
@@ -386,7 +386,7 @@ void rendering_main(void) {
 				break;
 			}
 		}
-	
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glPushMatrix();
 		glMatrixMode(GL_PROJECTION);
@@ -400,8 +400,35 @@ void rendering_main(void) {
 		glRotatef(0.f, 0.0f, 1.0f, 0.0f);
 		glRotatef(0.f, 0.0f, 0.0f, 1.0f);
 
-		//Simpler than looping and indexing as x,y coord
-		glCallLists(map.n_horz_quads * map.n_vert_quads,GL_UNSIGNED_INT,map.quads_gl_list_num);
+		render_province_mutex.lock();
+		if(render_province.size() >= 4) {
+			size_t min_x, min_y, max_x, max_y;
+
+			min_x = render_province.front();
+			render_province.pop_front();
+			min_y = render_province.front();
+			render_province.pop_front();
+			max_x = render_province.front();
+			render_province.pop_front();
+			max_y = render_province.front();
+			render_province.pop_front();
+
+			map.quad_update_nation(min_x, min_y, max_x, max_y);
+		}
+		render_province_mutex.unlock();
+
+		// Simpler than looping and indexing as x,y coord
+		if(display_topo) {
+			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.quad_topo_gl_list_num);
+		} if(display_prov) {
+			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.quad_div_gl_list_num);
+		} if(display_pol) {
+			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.quad_pol_gl_list_num);
+		} if(display_infra) {
+			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.infra_layout_list_num);
+		}
+		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.div_borders_gl_list_num);
+		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.pol_borders_gl_list_num);
 
 		glBegin(GL_POLYGON);
 		glColor3f(1.f, 1.f, 1.f);
@@ -437,6 +464,9 @@ void rendering_main(void) {
 
 		glLoadIdentity();
 		glRasterPos2f(-3.0f, -2.0f);
+		
+		SDL_GL_SwapWindow(window);
+
 		int hour = g_world->time % 24;
 		int day = g_world->time / 24;
 
@@ -448,41 +478,36 @@ void rendering_main(void) {
 
 		day %= 31;
 		month %= 12;
-		
+
 		char str[255];
 		sprintf((char *)&str, "%u/%u/%u - %u", year, month, day, hour);
 		overview_time_label.text(ui_ctx, (char *)&str);
 
-		if(cam.vx >= 0.9f) {
+		if(cam.vx >= 0.9f)
 			cam.vx -= 0.8f;
-		} else if(cam.vx <= -0.9f) {
+		else if(cam.vx <= -0.9f)
 			cam.vx += 0.8f;
-		} else {
+		else
 			cam.vx = 0.f;
-		}
-
-		if(cam.vy >= 0.9f) {
+		
+		if(cam.vy >= 0.9f)
 			cam.vy -= 0.8f;
-		} else if(cam.vy <= -0.9f) {
+		else if(cam.vy <= -0.9f)
 			cam.vy += 0.8f;
-		} else {
+		else
 			cam.vy = 0.f;
-		}
-
-		if(cam.vz >= 0.9f) {
+		
+		if(cam.vz >= 0.9f)
 			cam.vz -= 0.8f;
-		} else if(cam.vz <= -0.9f) {
+		else if(cam.vz <= -0.9f)
 			cam.vz += 0.8f;
-		} else {
+		else
 			cam.vz = 0.f;
-		}
 
 		cam.x += cam.vx;
 		cam.y += cam.vy;
 		cam.z += cam.vz;
-		
-		
-		SDL_GL_SwapWindow(window);
+
 		uint32_t endTime = SDL_GetTicks();
 		uint32_t dt = endTime - beginTime;
 		sprintf(dt_str,"%d",dt);
