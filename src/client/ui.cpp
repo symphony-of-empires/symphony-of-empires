@@ -212,7 +212,7 @@ int Context::check_wheel(unsigned mx, unsigned my, int y) {
 	return r;
 }
 
-void Widget::draw_rectangle(unsigned _x, unsigned _y, unsigned _w, unsigned _h, const unsigned tex) {
+void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const unsigned tex) {
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glBegin(GL_TRIANGLES);
 	glColor3f(1.f, 1.f, 1.f);
@@ -315,7 +315,7 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 	this->y = _y;
 	this->width = w;
 	this->height = h;
-
+	this->is_movable = false;
 	this->ox = _x;
 	this->oy = _y;
 
@@ -349,6 +349,8 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 		close_btn = new Button(ctx, this, this->width - 24, -24, 24, 24, "X");
 		close_btn->on_click = &default_close_button_on_click;
 		close_btn->is_pinned = true;
+
+		this->is_movable = true;
 		break;
 	case UI_WIDGET_IMAGE:
 		this->current_texture = tex;

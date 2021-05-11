@@ -65,24 +65,25 @@ namespace UI {
 
 		void add_child(Widget * child);
 		void text(Context * ctx, const char * text);
-		void draw_rectangle(unsigned x, unsigned y, unsigned w, unsigned h, unsigned tex);
+		void draw_rectangle(int x, int y, unsigned w, unsigned h, unsigned tex);
 
 		Context * p_ctx;
-		
+
+		bool is_movable;
 		bool is_pinned;
 		int type;
 
-		size_t x;
-		size_t y;
+		int x;
+		int y;
 
-		size_t ox;
-		size_t oy;
+		int ox;
+		int oy;
 
-		size_t mx;
-		size_t my;
+		int mx;
+		int my;
 
-		size_t scroll_x;
-		size_t scroll_y;
+		int scroll_x;
+		int scroll_y;
 		
 		size_t width;
 		size_t height;
