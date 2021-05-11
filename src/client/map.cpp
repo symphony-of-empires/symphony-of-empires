@@ -3,9 +3,9 @@
 #include <string.h>
 #include "map.hpp"
 
-Map prov_map, pol_map, topo_map, infra_map;
+Map map;
 
-Map::Map(World * w, Map_Mode m) {
+Map::Map(World * w) {
 	memset(this, 0, sizeof(Map));
 
 	this->world = w;
@@ -20,8 +20,22 @@ Map::Map(World * w, Map_Mode m) {
 		this->n_vert_quads++;
 	}
 
-	this->quads_gl_list_num = (GLuint *)malloc(sizeof(GLuint) * (this->n_horz_quads * this->n_vert_quads));
-	this->mode = m;
+	this->quad_topo_gl_list_num = new GLuint[this->n_horz_quads * this->n_vert_quads];
+	this->quad_div_gl_list_num = new GLuint[this->n_horz_quads * this->n_vert_quads];
+	this->quad_pol_gl_list_num = new GLuint[this->n_horz_quads * this->n_vert_quads];
+	this->div_borders_gl_list_num = new GLuint[this->n_horz_quads * this->n_vert_quads];
+	this->pol_borders_gl_list_num = new GLuint[this->n_horz_quads * this->n_vert_quads];
+	this->infra_layout_list_num = new GLuint[this->n_horz_quads * this->n_vert_quads];
+
+	for(size_t i = 0; i < this->n_horz_quads * this->n_vert_quads; i++) {
+		this->quad_topo_gl_list_num[i] = 0;
+		this->quad_div_gl_list_num[i] = 0;
+		this->quad_pol_gl_list_num[i] = 0;
+		this->div_borders_gl_list_num[i] = 0;
+		this->pol_borders_gl_list_num[i] = 0;
+		this->infra_layout_list_num[i] = 0;
+	}
+
 	for(size_t i = 0; i < this->n_horz_quads; i++) {
 		for(size_t j = 0; j < this->n_vert_quads; j++) {
 			this->quad_create(i, j);
@@ -29,11 +43,12 @@ Map::Map(World * w, Map_Mode m) {
 	}
 }
 
-void Map::quad_create(const size_t qx, const size_t qy) {
+void Map::quad_create(size_t qx, size_t qy) {
 	size_t off_x = qx * this->quad_size;
 	size_t off_y = qy * this->quad_size;
 	size_t end_x = (off_x + this->quad_size);
 	size_t end_y = (off_y + this->quad_size);
+	GLuint * gl_list;
 
 	//Triangle
 	const int draw_ord[6][2] = {
@@ -58,118 +73,84 @@ void Map::quad_create(const size_t qx, const size_t qy) {
 		end_y = this->world->height - 1;
 	}
 
-	GLuint * gl_list = &this->quads_gl_list_num[qx + qy * this->n_horz_quads];
-	*gl_list = glGenLists(1);
-	glNewList(*gl_list, GL_COMPILE);
-
-	if(this->mode == MAP_POLITICAL) {
+	gl_list = &this->quad_pol_gl_list_num[qx + qy * this->n_horz_quads];
+	if(*gl_list == 0) {
+		*gl_list = glGenLists(1);
+		glNewList(*gl_list, GL_COMPILE);
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
 				Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
+				if(curr_tile->owner_id == (size_t)-1)
+					continue;
+				
 				glBegin(GL_TRIANGLES);
-				if(curr_tile->owner_id == (size_t)-1) {
-					for(size_t k = 0; k < 6; k++) {
-						const size_t x = i + draw_ord[k][0];
-						const size_t y = j + draw_ord[k][1];
-						const uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
-						glColor3ub(32, elevation, elevation + this->world->sea_level);
-						glVertex2f(x, y);
-					}
-				} else {
-					Nation * nation = this->world->nations[curr_tile->owner_id];
-					for(size_t k = 0; k < 6; k++) {
-						const size_t x = i + draw_ord[k][0];
-						const size_t y = j + draw_ord[k][1];
-						const uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation - this->world->sea_level;
-						const uint8_t nr = (nation->color & 0xff);
-						uint8_t ng = ((nation->color >> 8) & 0xff);
-						const uint8_t nb = ((nation->color >> 16) & 0xff);
-
-						if((uint16_t)elevation + (uint16_t)ng > 255) {
-							ng = 255;
-						} else {
-							ng += elevation;
-						}
-						glColor3ub(nr, ng, nb);
-						glVertex2f(x, y);
-					}
+				Nation * nation = this->world->nations[curr_tile->owner_id];
+				for(size_t k = 0; k < 6; k++) {
+					const size_t x = i + draw_ord[k][0];
+					const size_t y = j + draw_ord[k][1];
+					uint8_t r = (nation->color & 0xff);
+					uint8_t g = ((nation->color >> 8) & 0xff);
+					uint8_t b = ((nation->color >> 16) & 0xff);
+					glColor4ub(r, g, b, 196);
+					glVertex2f(x, y);
 				}
 				glEnd();
 			}
 		}
-	} else if(this->mode == MAP_PROVINCIAL) {
+		glEndList();
+	}
+
+	gl_list = &this->quad_div_gl_list_num[qx + qy * this->n_horz_quads];
+	if(*gl_list == 0) {
+		*gl_list = glGenLists(1);
+		glNewList(*gl_list, GL_COMPILE);
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
 				Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
-				glBegin(GL_TRIANGLES);
-				if(curr_tile->province_id == (size_t)-1) {
-					for(size_t k = 0; k < 6; k++) {
-						const size_t x = i + draw_ord[k][0];
-						const size_t y = j + draw_ord[k][1];
-						const uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
-						glColor3ub(32, elevation, elevation + this->world->sea_level);
-						glVertex2f(x, y);
-					}
-				} else {
-					Province * province = this->world->provinces[curr_tile->province_id];
-					for(size_t k = 0; k < 6; k++) {
-						const size_t x = i + draw_ord[k][0];
-						const size_t y = j + draw_ord[k][1];
-						const uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation - this->world->sea_level;
-						const uint8_t nr = (province->color & 0xff);
-						uint8_t ng = ((province->color >> 8) & 0xff);
-						const uint8_t nb = ((province->color >> 16) & 0xff);
+				if(curr_tile->province_id == (size_t)-1)
+					continue;
 
-						if((uint16_t)elevation + (uint16_t)ng > 255) {
-							ng = 255;
-						} else {
-							ng += elevation;
-						}
-						glColor3ub(nr, ng, nb);
-						glVertex2f(x, y);
-					}
+				glBegin(GL_TRIANGLES);
+				Province * province = this->world->provinces[curr_tile->province_id];
+				for(size_t k = 0; k < 6; k++) {
+					size_t x = i + draw_ord[k][0];
+					size_t y = j + draw_ord[k][1];
+					uint8_t r = (province->color & 0xff);
+					uint8_t g = ((province->color >> 8) & 0xff);
+					uint8_t b = ((province->color >> 16) & 0xff);
+					glColor4ub(r, g, b, 196);
+					glVertex2f(x, y);
 				}
 				glEnd();
 			}
 		}
-	} else if(this->mode == MAP_TOPOGRAPHIC) {
+		glEndList();
+	}
+
+	gl_list = &this->quad_topo_gl_list_num[qx + qy * this->n_horz_quads];
+	if(*gl_list == 0) {
+		*gl_list = glGenLists(1);
+		glNewList(*gl_list, GL_COMPILE);
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
 				glBegin(GL_TRIANGLES);
 				for(size_t k = 0; k < 6; k++) {
-					const size_t x = i + draw_ord[k][0];
-					const size_t y = j + draw_ord[k][1];
-					const uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
+					size_t x = i + draw_ord[k][0];
+					size_t y = j + draw_ord[k][1];
+					uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
 					glColor3ub(32, elevation, elevation + this->world->sea_level);
 					glVertex2f(x, y);
 				}
 				glEnd();
 			}
 		}
-	} else if(this->mode == MAP_INFRASTRUCTURE) {
-		for(size_t i = off_x; i < end_x; i++) {
-			for(size_t j = off_y; j < end_y; j++) {
-				glBegin(GL_TRIANGLES);
-				for(size_t k = 0; k < 6; k++) {
-					const size_t x = i + draw_ord[k][0];
-					const size_t y = j + draw_ord[k][1];
-					uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
-					if(elevation < this->world->sea_level) {
-						glColor3ub(32, elevation, elevation + this->world->sea_level);
-					} else if(elevation < this->world->sea_level + 16) {
-						elevation -= this->world->sea_level;
-						glColor3ub(255 - elevation, 255 - elevation, 255 - elevation);
-					} else {
-						elevation -= this->world->sea_level + 16;
-						glColor3ub(128, (world->sea_level + 64) - elevation, 32);
-					}
-					glVertex2f(x, y);
-				}
-				glEnd();
-			}
-		}
+		glEndList();
+	}
 
-		// Infrastructure
+	gl_list = &this->infra_layout_list_num[qx + qy * this->n_horz_quads];
+	if(*gl_list == 0) {
+		*gl_list = glGenLists(1);
+		glNewList(*gl_list, GL_COMPILE);
 		glLineWidth(2.f);
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
@@ -187,122 +168,141 @@ void Map::quad_create(const size_t qx, const size_t qy) {
 				}
 			}
 		}
+		glEndList();
 	}
 
-	/* Province borders */
-	glLineWidth(2.f);
-	for(size_t i = off_x; i < end_x; i++) {
-		for(size_t j = off_y; j < end_y; j++) {
-			Tile * tiles = this->world->tiles;
-			Tile * curr_tile = &tiles[i + j * this->world->width];
+	gl_list = &this->div_borders_gl_list_num[qx + qy * this->n_horz_quads];
+	if(*gl_list == 0) {
+		*gl_list = glGenLists(1);
+		glNewList(*gl_list, GL_COMPILE);
+		/* Province borders */
+		glLineWidth(2.f);
+		for(size_t i = off_x; i < end_x; i++) {
+			for(size_t j = off_y; j < end_y; j++) {
+				Tile * tiles = this->world->tiles;
+				Tile * curr_tile = &tiles[i + j * this->world->width];
 
-			// left
-			if(tiles[(i - 1) + ((j) * this->world->width)].province_id != curr_tile->province_id) {
-				glBegin(GL_LINE_STRIP);
-				glColor3f(0.f, 0.f, 0.f);
-				glVertex2f((float)i, (float)j + 1.f);
-				glVertex2f((float)i, (float)j + 0.f);
-				glEnd();
-			}
+				// left
+				if(tiles[(i - 1) + ((j) * this->world->width)].province_id != curr_tile->province_id) {
+					glBegin(GL_LINE_STRIP);
+					glColor3f(0.f, 0.f, 0.f);
+					glVertex2f((float)i, (float)j + 1.f);
+					glVertex2f((float)i, (float)j + 0.f);
+					glEnd();
+				}
 
-			// right
-			if(tiles[(i + 1) + ((j) * this->world->width)].province_id != curr_tile->province_id) {
-				glBegin(GL_LINE_STRIP);
-				glColor3f(0.f, 0.f, 0.f);
-				glVertex2f((float)i + 1.f, (float)j + 1.f);
-				glVertex2f((float)i + 1.f, (float)j + 0.f);
-				glEnd();
-			}
+				// right
+				if(tiles[(i + 1) + ((j) * this->world->width)].province_id != curr_tile->province_id) {
+					glBegin(GL_LINE_STRIP);
+					glColor3f(0.f, 0.f, 0.f);
+					glVertex2f((float)i + 1.f, (float)j + 1.f);
+					glVertex2f((float)i + 1.f, (float)j + 0.f);
+					glEnd();
+				}
 
-			// up
-			if(tiles[(i) + ((j - 1) * this->world->width)].province_id != curr_tile->province_id) {
-				glBegin(GL_LINE_STRIP);
-				glColor3f(0.f, 0.f, 0.f);
-				glVertex2f((float)i + 1.f, (float)j);
-				glVertex2f((float)i + 0.f, (float)j);
-				glEnd();
-			}
+				// up
+				if(tiles[(i) + ((j - 1) * this->world->width)].province_id != curr_tile->province_id) {
+					glBegin(GL_LINE_STRIP);
+					glColor3f(0.f, 0.f, 0.f);
+					glVertex2f((float)i + 1.f, (float)j);
+					glVertex2f((float)i + 0.f, (float)j);
+					glEnd();
+				}
 
-			// down
-			if(tiles[(i) + ((j + 1) * this->world->width)].province_id != curr_tile->province_id) {
-				glBegin(GL_LINE_STRIP);
-				glColor3f(0.f, 0.f, 0.f);
-				glVertex2f((float)i + 1.f, (float)j + 1.f);
-				glVertex2f((float)i + 0.f, (float)j + 1.f);
-				glEnd();
+				// down
+				if(tiles[(i) + ((j + 1) * this->world->width)].province_id != curr_tile->province_id) {
+					glBegin(GL_LINE_STRIP);
+					glColor3f(0.f, 0.f, 0.f);
+					glVertex2f((float)i + 1.f, (float)j + 1.f);
+					glVertex2f((float)i + 0.f, (float)j + 1.f);
+					glEnd();
+				}
 			}
 		}
+		glEndList();
 	}
 
-	/* National borders */
-	glLineWidth(3.f);
-	for(size_t i = off_x; i < end_x; i++) {
-		for(size_t j = off_y; j < end_y; j++) {
-			Tile * tiles = this->world->tiles;
-			Tile * curr_tile = &tiles[i + j * this->world->width];
+	gl_list = &this->pol_borders_gl_list_num[qx + qy * this->n_horz_quads];
+	if(*gl_list == 0) {
+		*gl_list = glGenLists(1);
+		glNewList(*gl_list, GL_COMPILE);
+		/* National borders */
+		glLineWidth(3.f);
+		for(size_t i = off_x; i < end_x; i++) {
+			for(size_t j = off_y; j < end_y; j++) {
+				Tile * tiles = this->world->tiles;
+				Tile * curr_tile = &tiles[i + j * this->world->width];
 
-			// left
-			if(tiles[(i - 1) + ((j) * this->world->width)].owner_id != curr_tile->owner_id
-			&& tiles[(i - 1) + ((j) * this->world->width)].owner_id != (size_t)-1
-			&& curr_tile->owner_id != (size_t)-1) {
-				glBegin(GL_LINE_STRIP);
-				glColor3f(1.f, 0.f, 0.f);
-				glVertex2f((float)i, (float)j + 1.f);
-				glVertex2f((float)i, (float)j + 0.f);
-				glEnd();
-			}
+				// left
+				if(tiles[(i - 1) + ((j) * this->world->width)].owner_id != curr_tile->owner_id
+				&& tiles[(i - 1) + ((j) * this->world->width)].owner_id != (size_t)-1
+				&& curr_tile->owner_id != (size_t)-1) {
+					glBegin(GL_LINE_STRIP);
+					glColor3f(1.f, 0.f, 0.f);
+					glVertex2f((float)i, (float)j + 1.f);
+					glVertex2f((float)i, (float)j + 0.f);
+					glEnd();
+				}
 
-			// right
-			if(tiles[(i + 1) + ((j) * this->world->width)].owner_id != curr_tile->owner_id
-			&& tiles[(i + 1) + ((j) * this->world->width)].owner_id != (size_t)-1
-			&& curr_tile->owner_id != (size_t)-1) {
-				glBegin(GL_LINE_STRIP);
-				glColor3f(1.f, 0.f, 0.f);
-				glVertex2f((float)i + 1.f, (float)j + 1.f);
-				glVertex2f((float)i + 1.f, (float)j + 0.f);
-				glEnd();
-			}
+				// right
+				if(tiles[(i + 1) + ((j) * this->world->width)].owner_id != curr_tile->owner_id
+				&& tiles[(i + 1) + ((j) * this->world->width)].owner_id != (size_t)-1
+				&& curr_tile->owner_id != (size_t)-1) {
+					glBegin(GL_LINE_STRIP);
+					glColor3f(1.f, 0.f, 0.f);
+					glVertex2f((float)i + 1.f, (float)j + 1.f);
+					glVertex2f((float)i + 1.f, (float)j + 0.f);
+					glEnd();
+				}
 
-			// up
-			if(tiles[(i) + ((j - 1) * this->world->width)].owner_id != curr_tile->owner_id
-			&& tiles[(i) + ((j - 1) * this->world->width)].owner_id != (size_t)-1
-			&& curr_tile->owner_id != (size_t)-1) {
-				glBegin(GL_LINE_STRIP);
-				glColor3f(1.f, 0.f, 0.f);
-				glVertex2f((float)i + 1.f, (float)j);
-				glVertex2f((float)i + 0.f, (float)j);
-				glEnd();
-			}
+				// up
+				if(tiles[(i) + ((j - 1) * this->world->width)].owner_id != curr_tile->owner_id
+				&& tiles[(i) + ((j - 1) * this->world->width)].owner_id != (size_t)-1
+				&& curr_tile->owner_id != (size_t)-1) {
+					glBegin(GL_LINE_STRIP);
+					glColor3f(1.f, 0.f, 0.f);
+					glVertex2f((float)i + 1.f, (float)j);
+					glVertex2f((float)i + 0.f, (float)j);
+					glEnd();
+				}
 
-			// down
-			if(tiles[(i) + ((j + 1) * this->world->width)].owner_id != curr_tile->owner_id
-			&& tiles[(i) + ((j + 1) * this->world->width)].owner_id != (size_t)-1
-			&& curr_tile->owner_id != (size_t)-1) {
-				glBegin(GL_LINE_STRIP);
-				glColor3f(1.f, 0.f, 0.f);
-				glVertex2f((float)i + 1.f, (float)j + 1.f);
-				glVertex2f((float)i + 0.f, (float)j + 1.f);
-				glEnd();
+				// down
+				if(tiles[(i) + ((j + 1) * this->world->width)].owner_id != curr_tile->owner_id
+				&& tiles[(i) + ((j + 1) * this->world->width)].owner_id != (size_t)-1
+				&& curr_tile->owner_id != (size_t)-1) {
+					glBegin(GL_LINE_STRIP);
+					glColor3f(1.f, 0.f, 0.f);
+					glVertex2f((float)i + 1.f, (float)j + 1.f);
+					glVertex2f((float)i + 0.f, (float)j + 1.f);
+					glEnd();
+				}
 			}
 		}
+		glLineWidth(1.f);
+		glEndList();
 	}
-	glLineWidth(1.f);
-
-	glEndList();
 	return;
 }
 
-void Map::quad_update(const size_t x, const size_t y) {
-	const size_t qx = x / this->quad_size;
-	const size_t qy = y / this->quad_size;
+void Map::quad_update_nation(size_t start_x, size_t start_y, size_t end_x, size_t end_y) {
+	GLuint * gl_list;
 
-	GLuint * gl_list = &this->quads_gl_list_num[qx + qy * this->n_horz_quads];
+	// Re-draw the quad
+	for(size_t qx = start_x / this->quad_size; qx < end_x / this->quad_size; qx++) {
+		for(size_t qy = start_y / this->quad_size; qy < end_y / this->quad_size; qy++) {
+			// Delete old quad OpenGL lists (so we can redraw them)
+			
+			// Delete fillings
+			gl_list = &this->quad_pol_gl_list_num[qx + qy * this->n_horz_quads];
+			glDeleteLists(*gl_list, 1);
+			*gl_list = 0;
 
-	/* Delete old quad OpenGL list */
-	if(*gl_list != 0) {
-		glDeleteLists(*gl_list, 1);
+			// Delete borders
+			gl_list = &this->pol_borders_gl_list_num[qx + qy * this->n_horz_quads];
+			glDeleteLists(*gl_list, 1);
+			*gl_list = 0;
+			
+			this->quad_create(qx, qy);
+		}
 	}
-
-	/* Re-draw the quad */
-	this->quad_create(qx, qy);
 }

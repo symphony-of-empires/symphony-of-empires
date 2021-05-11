@@ -56,9 +56,11 @@ namespace UI {
 		Widget() {};
 		Widget(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type,
 			const char * text = nullptr, Texture * tex = nullptr);
-		void init(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type,
-			const char * text = nullptr, Texture * tex = nullptr);
+		Widget(const Widget&) = default;
+		Widget(Widget&&) noexcept = default;
 		Widget& operator=(const Widget&) = default;
+		Widget& operator=(Widget&) noexcept = default;
+		~Widget() {};
 
 		void add_child(Widget * child);
 		void text(Context * ctx, const char * text);
@@ -68,6 +70,12 @@ namespace UI {
 
 		size_t x;
 		size_t y;
+
+		size_t ox;
+		size_t oy;
+
+		size_t mx;
+		size_t my;
 		
 		size_t width;
 		size_t height;
@@ -75,7 +83,7 @@ namespace UI {
 		char show;
 
 		Texture * current_texture;
-		Texture text_texture;
+		Texture * text_texture;
 
 		char * buffer;
 
@@ -97,49 +105,44 @@ namespace UI {
 		Button(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
 			const char * text = nullptr, Texture * tex = nullptr)
 			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_BUTTON, text, tex) {}
+		Button& operator=(const Button&) = default;
+		~Button() {};
 	};
 	class Input : public Widget {
 	public:
 		Input(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
 			const char * text = nullptr, Texture * tex = nullptr)
 			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_INPUT, text, tex) {}
+		Input& operator=(const Input&) = default;
+		~Input() {};
 	};
 	class Window : public Widget {
 	public:
 		Window(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
 			const char * text = nullptr, Texture * tex = nullptr)
 			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_WINDOW, text, tex) {}
+		Window& operator=(const Window&) = default;
+		~Window() {};
+	};
+	class Image : public Widget {
+	public:
+		Image(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
+			const char * text = nullptr, Texture * tex = nullptr)
+			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_IMAGE, text, tex) {}
+		Image& operator=(const Image&) = default;
+		~Image() {};
+	};
+	class Label : public Widget {
+	public:
+		Label(Context * ctx, Widget * _parent, int _x, int _y,
+			const char * text = nullptr, Texture * tex = nullptr)
+			: Widget(ctx, _parent, _x, _y, 0, 0, UI_WIDGET_LABEL, text, tex) {}
+		Label& operator=(const Label&) = default;
+		~Label() {};
 	};
 };
 
 void default_close_button_on_click(UI::Widget * w, void * data);
-
-static inline void UI_Widget_CreateButton(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
-	int x, int y, unsigned w, unsigned h) {
-	widget->init(ctx, parent, x, y, w, h, UI_WIDGET_BUTTON);
-}
-
-static inline void UI_Widget_CreateInput(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
-	int x, int y, unsigned w, unsigned h) {
-	widget->init(ctx, parent, x, y, w, h, UI_WIDGET_INPUT);
-}
-
-static inline void UI_Widget_CreateWindow(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
-	int x, int y, unsigned w, unsigned h) {
-	widget->init(ctx, parent, x, y, w, h, UI_WIDGET_WINDOW);
-}
-
-static inline void UI_Widget_CreateImage(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
-	int x, int y, unsigned w, unsigned h, Texture * tex) {
-	widget->init(ctx, parent, x, y, w, h, UI_WIDGET_IMAGE);
-	widget->current_texture = tex;
-}
-
-static inline void UI_Widget_CreateLabel(UI::Context * ctx, UI::Widget * parent, UI::Widget * widget,
-	int x, int y, const char * text) {
-	widget->init(ctx, parent, x, y, 0, 0, UI_WIDGET_WINDOW);
-	widget->text(ctx, text);
-}
 
 #include <SDL2/SDL.h>
 extern SDL_Color text_color;

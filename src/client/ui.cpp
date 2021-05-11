@@ -68,8 +68,7 @@ void Context::remove_widget(Widget * widget) {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		if(this->widgets[i] != widget)
 			continue;
-
-		// printf("%d\n", widget->children.size());
+		
 		for(size_t j = 0; j < widget->children.size(); j++) {
 			this->remove_widget(widget->children[j]);
 		}
@@ -219,8 +218,8 @@ void default_on_render(Widget * w, void * data) {
 		);
 	}
 
-	if(!w->text_texture.gl_tex_num && w->text_texture.buffer != nullptr) {
-		w->text_texture.to_opengl();
+	if(w->text_texture != nullptr && !w->text_texture->gl_tex_num) {
+		w->text_texture->to_opengl();
 	}
 
 	if(w->type == UI_WIDGET_WINDOW) {
@@ -229,19 +228,19 @@ void default_on_render(Widget * w, void * data) {
 			w->width, 24,
 			ctx->window_border.gl_tex_num
 		);
-		if(w->text_texture.gl_tex_num) {
+		if(w->text_texture != nullptr && w->text_texture->gl_tex_num) {
 			w->draw_rectangle(
 				w->x, w->y - 24,
-				w->text_texture.width, w->text_texture.height,
-				w->text_texture.gl_tex_num
+				w->text_texture->width, w->text_texture->height,
+				w->text_texture->gl_tex_num
 			);
 		}
 	} else {
-		if(w->text_texture.gl_tex_num) {
+		if(w->text_texture != nullptr && w->text_texture->gl_tex_num) {
 			w->draw_rectangle(
 				w->x, w->y,
-				w->text_texture.width, w->text_texture.height,
-				w->text_texture.gl_tex_num
+				w->text_texture->width, w->text_texture->height,
+				w->text_texture->gl_tex_num
 			);
 		}
 	}
@@ -286,7 +285,7 @@ void default_close_button_on_click(Widget * w, void * data) {
 	return;
 }
 
-void Widget::init(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
+Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
 	const char * text, Texture * tex) {
 	memset(this, 0, sizeof(Widget));
 	this->on_render = &default_on_render;
@@ -297,40 +296,39 @@ void Widget::init(Context * ctx, Widget * _parent, int _x, int _y, const unsigne
 	this->width = w;
 	this->height = h;
 
+	this->ox = _x;
+	this->oy = _y;
+
 	if(_parent != nullptr) {
 		this->x += _parent->x;
 		this->y += _parent->y;
 		_parent->add_child(this);
 	}
 
-	if(tex == nullptr) {
-		switch(this->type) {
-		case UI_WIDGET_BUTTON:
-			this->current_texture = &ctx->button_idle;
-			break;
-		case UI_WIDGET_INPUT:
-			this->current_texture = &ctx->input_idle;
-			this->on_textinput = &default_on_text_input;
-			break;
-		case UI_WIDGET_WINDOW:
-			this->current_texture = &ctx->window;
-			break;
-		default:
-			break;
-		}
-	} else {
+	switch(this->type) {
+	case UI_WIDGET_BUTTON:
+		this->current_texture = &ctx->button_idle;
+		break;
+	case UI_WIDGET_INPUT:
+		this->current_texture = &ctx->input_idle;
+		this->on_textinput = &default_on_text_input;
+		break;
+	case UI_WIDGET_WINDOW:
+		this->current_texture = &ctx->window;
+		break;
+	case UI_WIDGET_IMAGE:
 		this->current_texture = tex;
+		break;
+	case UI_WIDGET_LABEL:
+		this->text(ctx, text);
+		break;
+	default:
+		break;
 	}
 
 	if(text != nullptr) {
 		this->text(ctx, text);
 	}
-	return;
-}
-
-Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
-	const char * text, Texture * tex) {
-	init(ctx, _parent, _x, _y, w, h, _type, text, tex);
 }
 
 void Widget::add_child(Widget * child) {
@@ -339,6 +337,8 @@ void Widget::add_child(Widget * child) {
 		if(this->children[i] == child)
 			return;
 	}
+
+	printf("adding children %p to %p\n", child, this);
 
 	// Add to list
 	this->children.push_back(child);
@@ -349,11 +349,13 @@ void Widget::text(Context * ctx, const char * text) {
 	SDL_Surface * surface;
 	Texture * tex;
 
-	if(this->text_texture.gl_tex_num) {
-		delete[] this->text_texture.buffer;
-		glDeleteTextures(1, &this->text_texture.gl_tex_num);
-		this->text_texture.gl_tex_num = 0;
+	if(this->text_texture != nullptr && this->text_texture->gl_tex_num) {
+		glDeleteTextures(1, &this->text_texture->gl_tex_num);
+		delete this->text_texture;
 	}
+
+	this->text_texture = new Texture();
+	this->text_texture->gl_tex_num = 0;
 
 	surface = TTF_RenderText_Solid(ctx->default_font, text, text_color);
 	if(surface == nullptr) {
@@ -361,7 +363,7 @@ void Widget::text(Context * ctx, const char * text) {
 		return;
 	}
 
-	tex = &this->text_texture;
+	tex = this->text_texture;
 	tex->width = surface->w;
 	tex->height = surface->h;
 	tex->buffer = new uint32_t[tex->width * tex->height];
