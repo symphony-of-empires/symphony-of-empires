@@ -26,6 +26,6 @@ public:
 	size_t n_vert_quads;
 };
 
-extern Map prov_map, pol_map, topo_map, infra_map;
+extern Map map;
 
 #endif
