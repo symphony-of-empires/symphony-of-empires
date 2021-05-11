@@ -68,14 +68,12 @@ void Context::remove_widget(Widget * widget) {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		if(this->widgets[i] != widget)
 			continue;
-
-		// printf("%d\n", widget->children.size());
+		
 		for(size_t j = 0; j < widget->children.size(); j++) {
-			this->remove_widget(widget->children[j]);
+			delete widget->children[j];
 		}
 
 		this->widgets.erase(this->widgets.begin() + i);
-
 		break;
 	}
 	return;
@@ -86,10 +84,16 @@ void Context::render_all() {
 		Widget * widget = this->widgets[i];
 		if(widget == nullptr)
 			continue;
-
+		
+		// Widget below parent
 		if(widget->parent != nullptr
 		&& (widget->x + widget->width > widget->parent->x + widget->parent->width
 		|| widget->y + widget->height > widget->parent->y + widget->parent->height))
+			continue;
+		
+		if(widget->parent != nullptr
+		&& (widget->y + widget->width < widget->parent->y
+		|| widget->x + widget->width < widget->parent->x))
 			continue;
 
 		if(widget->show && widget->on_render != nullptr) {
@@ -117,7 +121,7 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
 				widget->current_texture = &this->input_hover;
 			
 			if(widget->on_hover != nullptr)
-				widget->on_hover(widget, nullptr);
+				widget->on_hover(widget, widget->user_data);
 		} else {
 			if(widget->current_texture == &this->button_hover)
 				widget->current_texture = &this->button_idle;
@@ -150,7 +154,7 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 			}
 			
 			if(widget->on_click != nullptr) {
-				widget->on_click(widget, (void *)this);
+				widget->on_click(widget, widget->user_data);
 			}
 			retval++;
 		} else {
@@ -182,13 +186,33 @@ void Context::check_text_input(const char * input) {
 		&& widget->on_textinput != nullptr
 		&& widget->type == UI_WIDGET_INPUT
 		&& widget->show) {
-			widget->on_textinput(widget, input, (void *)this);
+			widget->on_textinput(widget, input, widget->user_data);
 		}
 	}
-	return;
 }
 
-void Widget::draw_rectangle(unsigned _x, unsigned _y, unsigned _w, unsigned _h, const unsigned tex) {
+int Context::check_wheel(unsigned mx, unsigned my, int y) {
+	int r = 0;
+	for(size_t i = this->widgets.size() - 1; i >= 0; i--) {
+		Widget * widget = this->widgets[i];
+		if(widget == nullptr)
+			continue;
+
+		if(mx >= widget->x && mx <= widget->x + widget->width
+		&& my >= widget->y && my <= widget->y + widget->height
+		&& widget->type == UI_WIDGET_WINDOW && widget->show) {
+			for(auto& child: widget->children) {
+				if(!child->is_pinned)
+					child->y += y;
+			}
+			r++;
+			break;
+		}
+	}
+	return r;
+}
+
+void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const unsigned tex) {
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glBegin(GL_TRIANGLES);
 	glColor3f(1.f, 1.f, 1.f);
@@ -209,8 +233,6 @@ void Widget::draw_rectangle(unsigned _x, unsigned _y, unsigned _w, unsigned _h, 
 }
 
 void default_on_render(Widget * w, void * data) {
-	Context * ctx = (Context *)data;
-
 	if(w->type != UI_WIDGET_LABEL) {
 		w->draw_rectangle(
 			w->x, w->y,
@@ -219,29 +241,29 @@ void default_on_render(Widget * w, void * data) {
 		);
 	}
 
-	if(!w->text_texture.gl_tex_num && w->text_texture.buffer != nullptr) {
-		w->text_texture.to_opengl();
+	if(w->text_texture != nullptr && !w->text_texture->gl_tex_num) {
+		w->text_texture->to_opengl();
 	}
 
 	if(w->type == UI_WIDGET_WINDOW) {
 		w->draw_rectangle(
 			w->x, w->y - 24,
 			w->width, 24,
-			ctx->window_border.gl_tex_num
+			w->p_ctx->window_border.gl_tex_num
 		);
-		if(w->text_texture.gl_tex_num) {
+		if(w->text_texture != nullptr && w->text_texture->gl_tex_num) {
 			w->draw_rectangle(
 				w->x, w->y - 24,
-				w->text_texture.width, w->text_texture.height,
-				w->text_texture.gl_tex_num
+				w->text_texture->width, w->text_texture->height,
+				w->text_texture->gl_tex_num
 			);
 		}
 	} else {
-		if(w->text_texture.gl_tex_num) {
+		if(w->text_texture != nullptr && w->text_texture->gl_tex_num) {
 			w->draw_rectangle(
 				w->x, w->y,
-				w->text_texture.width, w->text_texture.height,
-				w->text_texture.gl_tex_num
+				w->text_texture->width, w->text_texture->height,
+				w->text_texture->gl_tex_num
 			);
 		}
 	}
@@ -251,7 +273,6 @@ void default_on_render(Widget * w, void * data) {
 }
 
 void default_on_text_input(Widget * w, const char * input, void * data) {
-	Context * ctx = (Context *)data;
 	size_t len;
 	char must_clear = 0;
 
@@ -276,17 +297,15 @@ void default_on_text_input(Widget * w, const char * input, void * data) {
 	}
 	strcat(w->buffer, input);
 
-	w->text(ctx, w->buffer);
+	w->text(w->p_ctx, w->buffer);
 	return;
 }
 
 void default_close_button_on_click(Widget * w, void * data) {
-	Context * ctx = (Context *)data;
-	ctx->remove_widget(w->parent);
-	return;
+	delete w->parent;
 }
 
-void Widget::init(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
+Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
 	const char * text, Texture * tex) {
 	memset(this, 0, sizeof(Widget));
 	this->on_render = &default_on_render;
@@ -296,6 +315,9 @@ void Widget::init(Context * ctx, Widget * _parent, int _x, int _y, const unsigne
 	this->y = _y;
 	this->width = w;
 	this->height = h;
+	this->is_movable = false;
+	this->ox = _x;
+	this->oy = _y;
 
 	if(_parent != nullptr) {
 		this->x += _parent->x;
@@ -303,34 +325,51 @@ void Widget::init(Context * ctx, Widget * _parent, int _x, int _y, const unsigne
 		_parent->add_child(this);
 	}
 
-	if(tex == nullptr) {
-		switch(this->type) {
-		case UI_WIDGET_BUTTON:
-			this->current_texture = &ctx->button_idle;
-			break;
-		case UI_WIDGET_INPUT:
-			this->current_texture = &ctx->input_idle;
-			this->on_textinput = &default_on_text_input;
-			break;
-		case UI_WIDGET_WINDOW:
-			this->current_texture = &ctx->window;
-			break;
-		default:
-			break;
-		}
-	} else {
+	// This is only used by destrctur :)
+	this->p_ctx = ctx;
+
+	// Add this widget once the widget is constructed
+	ctx->add_widget(this);
+
+	// After this we can do some trickery and add any widgets we may need (close buttons, scrollbars, etc)
+
+	// Only used for windows
+	Button * close_btn;
+	switch(this->type) {
+	case UI_WIDGET_BUTTON:
+		this->current_texture = &ctx->button_idle;
+		break;
+	case UI_WIDGET_INPUT:
+		this->current_texture = &ctx->input_idle;
+		this->on_textinput = &default_on_text_input;
+		break;
+	case UI_WIDGET_WINDOW:
+		this->current_texture = &ctx->window;
+
+		close_btn = new Button(ctx, this, this->width - 24, -24, 24, 24, "X");
+		close_btn->on_click = &default_close_button_on_click;
+		close_btn->is_pinned = true;
+
+		this->is_movable = true;
+		break;
+	case UI_WIDGET_IMAGE:
 		this->current_texture = tex;
+		break;
+	case UI_WIDGET_LABEL:
+		this->text(ctx, text);
+		break;
+	default:
+		break;
 	}
 
 	if(text != nullptr) {
 		this->text(ctx, text);
 	}
-	return;
 }
 
-Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
-	const char * text, Texture * tex) {
-	init(ctx, _parent, _x, _y, w, h, _type, text, tex);
+Widget::~Widget() {
+	// Hide widget immediately upon destruction :(
+	this->p_ctx->remove_widget(this);
 }
 
 void Widget::add_child(Widget * child) {
@@ -349,11 +388,13 @@ void Widget::text(Context * ctx, const char * text) {
 	SDL_Surface * surface;
 	Texture * tex;
 
-	if(this->text_texture.gl_tex_num) {
-		delete[] this->text_texture.buffer;
-		glDeleteTextures(1, &this->text_texture.gl_tex_num);
-		this->text_texture.gl_tex_num = 0;
+	if(this->text_texture != nullptr && this->text_texture->gl_tex_num) {
+		glDeleteTextures(1, &this->text_texture->gl_tex_num);
+		delete this->text_texture;
 	}
+
+	this->text_texture = new Texture();
+	this->text_texture->gl_tex_num = 0;
 
 	surface = TTF_RenderText_Solid(ctx->default_font, text, text_color);
 	if(surface == nullptr) {
@@ -361,7 +402,7 @@ void Widget::text(Context * ctx, const char * text) {
 		return;
 	}
 
-	tex = &this->text_texture;
+	tex = this->text_texture;
 	tex->width = surface->w;
 	tex->height = surface->h;
 	tex->buffer = new uint32_t[tex->width * tex->height];

@@ -3,8 +3,7 @@ CXX=clang++
 else
 CXX=g++
 endif
-
-CXXFLAGS=-Wall -Wextra -Wshadow -std=c++17 -O1 -Isrc -Isrc/client -g
+CXXFLAGS=-Wall -Wextra -Wshadow -std=c++17 -O1 -iquote src -iquote src/client -g
 ifdef WINDOWS
 LIBS=-lopengl32 -lglu32 -llua -lintl
 else
@@ -13,14 +12,14 @@ endif
 LIBS:=$(LIBS) -lpng -lSDL2 -lSDL2_ttf -lm -pthread
 
 ifdef DEBUG
-CXXFLAGS:=${CXXFLAGS} -fsanitize=address -g
+CXXFLAGS:=${CXXFLAGS} -fsanitize=address
 endif
 
 OBJS=$(shell find . -type f -iname '*.cpp')
 OBJS:=$(patsubst ./src/%.cpp,./obj/%.o,$(OBJS))
 
 ifdef WINDOWS
-CXXFLAGS:=$(CXXFLAGS) -DWINDOWS
+CXXFLAGS:=$(CXXFLAGS) -DWIN32
 endif
 
 ifdef UNIT_TEST

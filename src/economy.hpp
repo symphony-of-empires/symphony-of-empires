@@ -29,6 +29,7 @@ class Good {
 public:
 	std::string name;
 	std::string ref_name;
+	bool is_edible;
 };
 
 class IndustryType {

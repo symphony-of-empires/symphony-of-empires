@@ -51,7 +51,7 @@ function Nation:register(nation)
 end
 function Nation:get(nation, ref_name)
 	nation.parent = self
-	nation.id, nation.ref_name, nation.name, o.color = get_nation(ref_name)
+	nation.id, nation.ref_name, nation.name, nation.color = get_nation(ref_name)
 	return nation
 end
 
@@ -78,10 +78,10 @@ end
 Event = { ref_name = "", conditions_fn = "", event_fn = "" }
 function Event:create(event)
 	event.parent = self
-	return evento
+	return event
 end
 function Event:register(event)
-	add_event(event.ref_name, event.conditions_fn, event.event_fn)
+	event.id = add_event(event.ref_name, event.conditions_fn, event.event_fn)
 end
 
 PopType = { id = 0, ref_name = "", name = "", on_tick_fn = "" }
