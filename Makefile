@@ -4,7 +4,7 @@ else
 CXX=g++
 endif
 
-CXXFLAGS=-Wall -Wextra -Wshadow -std=c++17 -O1 -Isrc -Isrc/client -g
+CXXFLAGS=-Wall -Wextra -Wshadow -std=c++17 -O2 -Isrc -Isrc/client -g
 ifdef WINDOWS
 LIBS=-lopengl32 -lglu32 -llua -lintl
 else

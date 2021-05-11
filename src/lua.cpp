@@ -1,23 +1,27 @@
 #ifdef WIN32
-#include <lua.hpp>
+#	include <lua.hpp>
 #else
-#include <lua5.4/lua.hpp>
+#	include <lua5.4/lua.hpp>
 #endif
 #include <string.h>
 #include <stdlib.h>
 
 #ifdef WIN32
-#include <stdlib.h>
-#define bswap_32(x) _byteswap_ulong(x)
-#define bswap_64(x) _byteswap_uint64(x)
+#	include <stdlib.h>
+#	define bswap_32(x) _byteswap_ulong(x)
+#	define bswap_64(x) _byteswap_uint64(x)
 #else
-#include <byteswap.h>
+#	include <byteswap.h>
 #endif
 #include "lua.hpp"
 #include "world.hpp"
 #include "nation.hpp"
 #include "economy.hpp"
 #include "print.hpp"
+
+#ifndef SERVER_HEADLESS
+#	include "ui.hpp"
+#endif
 
 // Global world - do not use too much!
 extern World * g_world;
