@@ -65,14 +65,16 @@ static void do_view_infra_map(UI::Widget *, void *) {
 	display_infra = !display_infra;
 }
 
+UI::Window * prov_win;
 static void do_province_overview() {
 	Province * province = g_world->provinces[selected_province_id];
-	UI::Window * prov_win = new UI::Window(ui_ctx, nullptr, width - 512, height / 2, 512, (height / 2) - 24, province->name.c_str());
+	prov_win = new UI::Window(ui_ctx, nullptr, width - 512, height / 2, 512, (height / 2) - 24, province->name.c_str());
 }
 
 std::vector<UI::Label *> wm_lab;
+UI::Window * wm_win;
 static void do_world_market_overview(UI::Widget *, void *) {
-	UI::Window * wm_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512 + 256, height - 256, "World market");
+	wm_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512 + 256, height - 256, "World market");
 
 	char * str = new char[255];
 	size_t i = 0;
@@ -96,27 +98,42 @@ static void do_world_market_overview(UI::Widget *, void *) {
 	delete[] str;
 }
 
+UI::Window * econ_win;
 static void do_economy_overview(UI::Widget *, void *) {
-	UI::Window * econ_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512 + 256, height - 256, "Economy");
+	econ_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512 + 256, height - 256, "Economy");
 	
 	UI::Button * econ_wm_btn = new UI::Button(ui_ctx, econ_win, 0, 0, 256, 24, "World market");
 	econ_wm_btn->on_click = &do_world_market_overview;
 }
 
 std::vector<UI::Label *> iev_lab;
-static void do_info_events_overview(UI::Widget *, void *) {
-	UI::Window * iev_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Events");
-
-	size_t i = 0;
-	for(auto& event: g_world->events) {
-		UI::Label * lab = new UI::Label(ui_ctx, iev_win, 256, i * 24, event->ref_name.c_str());
-		iev_lab.push_back(lab);
-		i++;
+UI::Window * iev_win;
+static void do_info_events_overview_or(UI::Widget *, void *) {
+	const size_t n_labs = 1;
+	if((iev_lab.size() / n_labs) < g_world->events.size()) {
+		size_t i = iev_lab.size();
+		while(i < g_world->events.size()) {
+			UI::Label * lab = new UI::Label(ui_ctx, iev_win, 256, i * 24, g_world->events[i]->ref_name.c_str());
+			iev_lab.push_back(lab);
+			i++;
+		}
+	} while((iev_lab.size() / n_labs) > g_world->events.size()) {
+		delete iev_lab[iev_lab.size() - 1];
+		iev_lab.pop_back();
+	}
+	for(size_t i = 0; i < g_world->events.size(); i++) {
+		iev_lab[i * n_labs + 0]->text(ui_ctx, g_world->events[i]->ref_name.c_str());
 	}
 }
+static void do_info_events_overview(UI::Widget *, void *) {
+	iev_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Events");
+	iev_lab.clear();
+	iev_win->on_update = &do_info_events_overview_or;
+}
 std::vector<UI::Label *> iprov_lab;
+UI::Window * iprov_win;
 static void do_info_provinces_overview(UI::Widget *, void *) {
-	UI::Window * iprov_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Provinces");
+	iprov_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Provinces");
 
 	size_t i = 0;
 	for(auto& province: g_world->provinces) {
@@ -128,8 +145,9 @@ static void do_info_provinces_overview(UI::Widget *, void *) {
 	}
 }
 std::vector<UI::Label *> inat_lab;
+UI::Window * inat_win;
 static void do_info_nations_overview(UI::Widget *, void *) {
-	UI::Window * inat_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Nations");
+	inat_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Nations");
 
 	size_t i = 0;
 	for(auto& nation: g_world->nations) {
@@ -141,8 +159,9 @@ static void do_info_nations_overview(UI::Widget *, void *) {
 	}
 }
 std::vector<UI::Label *> ipt_lab;
+UI::Window * ipt_win;
 static void do_info_pop_types_overview(UI::Widget *, void *) {
-	UI::Window * ipt_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "POP types");
+	ipt_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "POP types");
 
 	size_t i = 0;
 	for(auto& pop_type: g_world->pop_types) {
@@ -154,8 +173,9 @@ static void do_info_pop_types_overview(UI::Widget *, void *) {
 	}
 }
 std::vector<UI::Label *> icult_lab;
+UI::Window * icult_win;
 static void do_info_cultures_overview(UI::Widget *, void *) {
-	UI::Window * icult_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Cultures");
+	icult_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Cultures");
 
 	size_t i = 0;
 	for(auto& culture: g_world->cultures) {
@@ -167,8 +187,9 @@ static void do_info_cultures_overview(UI::Widget *, void *) {
 	}
 }
 std::vector<UI::Label *> irel_lab;
+UI::Window * irel_win;
 static void do_info_religions_overview(UI::Widget *, void *) {
-	UI::Window * irel_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Religions");
+	irel_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Religions");
 
 	size_t i = 0;
 	for(auto& religion: g_world->religions) {
@@ -180,8 +201,9 @@ static void do_info_religions_overview(UI::Widget *, void *) {
 	}
 }
 std::vector<UI::Label *> iit_lab;
+UI::Window * iit_win;
 static void do_info_industry_types_overview(UI::Widget *, void *) {
-	UI::Window * iit_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Industry Types");
+	iit_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Industry Types");
 
 	size_t i = 0;
 	for(auto& industry_type: g_world->industry_types) {
@@ -193,8 +215,9 @@ static void do_info_industry_types_overview(UI::Widget *, void *) {
 	}
 }
 std::vector<UI::Label *> igood_lab;
+UI::Window * igood_win;
 static void do_info_goods_overview(UI::Widget *, void *) {
-	UI::Window * igood_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Goods");
+	igood_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Goods");
 
 	size_t i = 0;
 	for(auto& good: g_world->goods) {
