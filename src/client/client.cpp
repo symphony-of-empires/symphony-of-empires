@@ -127,15 +127,75 @@ static void do_info_provinces_overview(UI::Widget *, void *) {
 		i++;
 	}
 }
+std::vector<UI::Label *> inat_lab;
+static void do_info_nations_overview(UI::Widget *, void *) {
+	UI::Window * inat_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Nations");
+
+	size_t i = 0;
+	for(auto& nation: g_world->nations) {
+		UI::Label * rn_lab = new UI::Label(ui_ctx, inat_win, 0, i * 24, nation->ref_name.c_str());
+		inat_lab.push_back(rn_lab);
+		UI::Label * name_lab = new UI::Label(ui_ctx, inat_win, 256, i * 24, nation->name.c_str());
+		inat_lab.push_back(name_lab);
+		i++;
+	}
+}
+std::vector<UI::Label *> ipt_lab;
+static void do_info_pop_types_overview(UI::Widget *, void *) {
+	UI::Window * ipt_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "POP types");
+
+	size_t i = 0;
+	for(auto& pop_type: g_world->pop_types) {
+		UI::Label * rn_lab = new UI::Label(ui_ctx, ipt_win, 0, i * 24, pop_type->ref_name.c_str());
+		ipt_lab.push_back(rn_lab);
+		UI::Label * name_lab = new UI::Label(ui_ctx, ipt_win, 256, i * 24, pop_type->name.c_str());
+		ipt_lab.push_back(name_lab);
+		i++;
+	}
+}
+std::vector<UI::Label *> icult_lab;
+static void do_info_cultures_overview(UI::Widget *, void *) {
+	UI::Window * icult_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Cultures");
+
+	size_t i = 0;
+	for(auto& culture: g_world->cultures) {
+		UI::Label * rn_lab = new UI::Label(ui_ctx, icult_win, 0, i * 24, culture->ref_name.c_str());
+		icult_lab.push_back(rn_lab);
+		UI::Label * name_lab = new UI::Label(ui_ctx, icult_win, 256, i * 24, culture->name.c_str());
+		icult_lab.push_back(name_lab);
+		i++;
+	}
+}
+std::vector<UI::Label *> irel_lab;
+static void do_info_religions_overview(UI::Widget *, void *) {
+	UI::Window * irel_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Religions");
+
+	size_t i = 0;
+	for(auto& religion: g_world->religions) {
+		UI::Label * rn_lab = new UI::Label(ui_ctx, irel_win, 0, i * 24, religion->ref_name.c_str());
+		irel_lab.push_back(rn_lab);
+		UI::Label * name_lab = new UI::Label(ui_ctx, irel_win, 256, i * 24, religion->name.c_str());
+		irel_lab.push_back(name_lab);
+		i++;
+	}
+}
 static void do_info_overview(UI::Widget *, void *) {
-	UI::Window * info_win = new UI::Window(ui_ctx, nullptr, width - 96, 196, 96, height - 256, "Debug info");
+	UI::Window * info_win = new UI::Window(ui_ctx, nullptr, width - 256, 196, 256, height - 256, "Debug info");
 	
-	UI::Button * info_event_btn = new UI::Button(ui_ctx, info_win, 0, 0, 256, 24, "Events");
+	UI::Button * info_event_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 0, 256, 24, "Events");
 	info_event_btn->on_click = &do_info_events_overview;
-	UI::Button * info_province_btn = new UI::Button(ui_ctx, info_win, 0, 32, 256, 24, "Provinces");
+	UI::Button * info_province_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 1, 256, 24, "Provinces");
 	info_province_btn->on_click = &do_info_provinces_overview;
-	UI::Button * info_nation_btn = new UI::Button(ui_ctx, info_win, 0, 32, 256, 24, "Nations");
-	info_nation_btn->on_click = &do_info_provinces_overview;
+	UI::Button * info_nation_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 2, 256, 24, "Nations");
+	info_nation_btn->on_click = &do_info_nations_overview;
+	UI::Button * info_pop_type_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 3, 256, 24, "Pop types");
+	info_pop_type_btn->on_click = &do_info_pop_types_overview;
+	UI::Button * info_culture_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 4, 256, 24, "Cultures");
+	info_culture_btn->on_click = &do_info_cultures_overview;
+	UI::Button * info_religion_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 5, 256, 24, "Religions");
+	info_religion_btn->on_click = &do_info_religions_overview;
+	UI::Button * info_industry_type_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 6, 256, 24, "Industry types");
+	info_industry_type_btn->on_click = &do_info_provinces_overview;
 }
 
 #include <atomic>
