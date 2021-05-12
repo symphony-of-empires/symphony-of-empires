@@ -271,29 +271,15 @@ extern std::atomic<int> run;
 std::mutex render_province_mutex;
 std::deque<size_t> render_province;
 
-void rendering_main(void) {
-	SDL_Init(SDL_INIT_EVERYTHING);
-	TTF_Init();
-
-	player_nation_id = 0;
-	
-	SDL_Window * window = SDL_CreateWindow("superleaf1995", 0, 0, width, height, SDL_WINDOW_OPENGL);
-	SDL_GLContext context = SDL_GL_CreateContext(window);
-
-	const GLubyte * version = glGetString(GL_VERSION);
-	printf("OpenGL Version: %s\n", version);
-
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-
-	// Render g_world stuff now that we are in opengl
-	map = Map(g_world);
-	for(auto& nation: g_world->nations) {
-		nation->default_flag->to_opengl();
+SDL_Window * window;
+void do_game_main(UI::Widget *, void *) {
+	// Remove all widgets
+	for(size_t i = 0; i < ui_ctx->widgets.size(); i++) {
+		delete ui_ctx->widgets[i];
 	}
 
-	ui_ctx = new UI::Context();
+	// Create map in here
+	map = Map(g_world);
 
 	// Siderbar buttons
 	Texture help_icon = Texture(Resource_GetPath("icons/help.png").c_str());
@@ -382,8 +368,6 @@ void rendering_main(void) {
 					unit->x = fmx;
 					unit->y = fmy;
 					g_world->units.push_back(unit);
-
-					printf("Adding unit\n");
 				}
 				break;
 			case SDL_MOUSEMOTION:
@@ -560,10 +544,8 @@ void rendering_main(void) {
 		glTranslatef(0.f, 0.f, 0.f);
 		ui_ctx->render_all();
 		glPopMatrix();
-
 		glLoadIdentity();
 		glRasterPos2f(-3.0f, -2.0f);
-		
 		SDL_GL_SwapWindow(window);
 
 		/*
@@ -615,6 +597,177 @@ void rendering_main(void) {
 		sprintf(dt_str, "%d", dt);
 		delta_time.text(ui_ctx,dt_str);
 		*/
+	}
+}
+
+void do_select_nation_via_flag(UI::Widget *, void * data) {
+	Nation * nation = (Nation *)data;
+	
+	// Find nation by pointer (horrible idea but works)
+	for(size_t i = 0; i < g_world->nations.size(); i++) {
+		if(g_world->nations[i] != nation)
+			continue;
+		player_nation_id = i;
+		break;
+	}
+}
+
+void do_select_nation(UI::Widget *, void *) {
+	UI::Label * lab = new UI::Label(ui_ctx, nullptr, 64, 64, "Select nation");
+	UI::Window * select_window = new UI::Window(ui_ctx, nullptr, 64, 128, 512, 512);
+
+	for(size_t i = 0; i < g_world->nations.size(); i++) {
+		UI::Image * flag = new UI::Image(ui_ctx, select_window, 0, i * 52, 64, 48, nullptr, g_world->nations[i]->default_flag);
+		flag->user_data = (void *)g_world->nations[i];
+		flag->on_click = &do_select_nation_via_flag;
+		UI::Label * name = new UI::Label(ui_ctx, select_window, 96, i * 52, g_world->nations[i]->name.c_str());
+	}
+
+	UI::Button * play = new UI::Button(ui_ctx, nullptr, 64, 640, 128, 24, "Play");
+	play->on_click = &do_game_main;
+
+	while(run) {
+		SDL_Event event;
+		while(SDL_PollEvent(&event)) {
+			switch(event.type) {
+			case SDL_MOUSEBUTTONDOWN:
+				SDL_GetMouseState(&mx, &my);
+				ui_ctx->check_click(mx, my);
+				break;
+			case SDL_MOUSEMOTION:
+				SDL_GetMouseState(&mx, &my);
+				ui_ctx->check_hover(mx, my);
+				break;
+			case SDL_MOUSEWHEEL:
+				SDL_GetMouseState(&mx, &my);
+				ui_ctx->check_hover(mx, my);
+				ui_ctx->check_wheel(mx, my, event.wheel.y * 6);
+				break;
+			case SDL_TEXTINPUT:
+				ui_ctx->check_text_input((const char *)&event.text.text);
+				break;
+			case SDL_QUIT:
+				run = 0;
+				break;
+			default:
+				break;
+			}
+		}
+
+		glPushMatrix();
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0.f, (float)width, (float)height, 0.f, 0.0f, 1.f);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glTranslatef(0.f, 0.f, 0.f);
+
+		// Draw UI and stuff
+		ui_ctx->render_all();
+
+		// Draw cool tilted flag
+		glBindTexture(GL_TEXTURE_2D, g_world->nations[player_nation_id]->default_flag->gl_tex_num);
+		glBegin(GL_TRIANGLES);
+		glColor3f(0.5f, 0.5f, 1.f);
+		glTexCoord2f(0.f, 0.f);
+		float x = width - 512;
+		float y = height - 256;
+		float w = 512;
+		float h = 256;
+		glVertex2f(x, y);
+		glTexCoord2f(1.f, 0.f);
+		glVertex2f(x + w, y);
+		glTexCoord2f(1.f, 1.f);
+		glVertex2f(x + w, y + h);
+		glTexCoord2f(1.f, 1.f);
+		glVertex2f(x + w, y + h);
+		glTexCoord2f(0.f, 1.f);
+		glVertex2f(x, y + h);
+		glTexCoord2f(0.f, 0.f);
+		glVertex2f(x, y);
+		glColor3f(1.f, 1.f, 1.f);
+		glEnd();
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glPopMatrix();
+		glLoadIdentity();
+		glRasterPos2f(-3.0f, -2.0f);
+		SDL_GL_SwapWindow(window);
+	}
+}
+
+void rendering_main(void) {
+	SDL_Init(SDL_INIT_EVERYTHING);
+	TTF_Init();
+
+	player_nation_id = 0;
+	
+	window = SDL_CreateWindow("Symphony of Empires", 0, 0, width, height, SDL_WINDOW_OPENGL);
+	SDL_GLContext context = SDL_GL_CreateContext(window);
+
+	const GLubyte * version = glGetString(GL_VERSION);
+	printf("OpenGL Version: %s\n", version);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
+
+	// Render g_world stuff now that we are in opengl
+	for(auto& nation: g_world->nations) {
+		nation->default_flag->to_opengl();
+	}
+
+	ui_ctx = new UI::Context();
+
+	Texture menu_bg = Texture(Resource_GetPath("title_bg.png").c_str());
+	Texture menu_title = Texture(Resource_GetPath("title.png").c_str());
+	menu_bg.to_opengl();
+	menu_title.to_opengl();
+
+	UI::Image * menu_bg_img = new UI::Image(ui_ctx, nullptr, 0, 0, width, height, nullptr, &menu_bg);
+	UI::Image * menu_title_img = new UI::Image(ui_ctx, nullptr, 64, 64, 256, 32, nullptr, &menu_title);
+	UI::Button * new_game = new UI::Button(ui_ctx, nullptr, 64, 128, 256, 24, "New game");
+	new_game->on_click = &do_select_nation;
+	while(run) {
+		SDL_Event event;
+		while(SDL_PollEvent(&event)) {
+			switch(event.type) {
+			case SDL_MOUSEBUTTONDOWN:
+				SDL_GetMouseState(&mx, &my);
+				ui_ctx->check_click(mx, my);
+				break;
+			case SDL_MOUSEMOTION:
+				SDL_GetMouseState(&mx, &my);
+				ui_ctx->check_hover(mx, my);
+				break;
+			case SDL_MOUSEWHEEL:
+				SDL_GetMouseState(&mx, &my);
+				ui_ctx->check_hover(mx, my);
+				ui_ctx->check_wheel(mx, my, event.wheel.y * 6);
+				break;
+			case SDL_TEXTINPUT:
+				ui_ctx->check_text_input((const char *)&event.text.text);
+				break;
+			case SDL_QUIT:
+				run = 0;
+				break;
+			default:
+				break;
+			}
+		}
+
+		glPushMatrix();
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0.f, (float)width, (float)height, 0.f, 0.0f, 1.f);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glTranslatef(0.f, 0.f, 0.f);
+		ui_ctx->render_all();
+		glPopMatrix();
+		glLoadIdentity();
+		glRasterPos2f(-3.0f, -2.0f);
+		SDL_GL_SwapWindow(window);
 	}
 
 	TTF_Quit();
