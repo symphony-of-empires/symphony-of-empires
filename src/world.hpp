@@ -21,6 +21,14 @@ public:
 #include <string>
 #include "province.hpp"
 
+class Unit {
+public:
+	float x;
+	float y;
+	float health;
+	size_t owner_id;
+};
+
 class World {
 public:
 	World() {};
@@ -40,7 +48,8 @@ public:
 	size_t height;
 
 	Tile * tiles;
-	
+
+	std::vector<Unit *> units;
 	std::vector<Good *> goods;
 	std::vector<IndustryType *> industry_types;
 	std::vector<Nation *> nations;
@@ -50,7 +59,6 @@ public:
 	std::vector<PopType *> pop_types;
 	std::vector<Religion *> religions;
 	std::vector<Culture *> cultures;
-
 	std::vector<LuaAPI::Event *> events;
 	lua_State * lua;
 

@@ -109,10 +109,26 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 		// Associate tiles with provinces
 		this->tiles[i].province_id = (size_t)-1;
 		for(size_t j = 0; j < n_provinces; j++) {
-			if(div.buffer[i] == this->provinces[j]->color) {
-				this->tiles[i].province_id = j;
-				break;
+			if(div.buffer[i] != this->provinces[j]->color)
+				continue;
+			
+			this->tiles[i].province_id = j;
+
+			// Only evaluated when valid owner
+			if(this->tiles[i].owner_id != (size_t)-1) {
+				// If province had no owner before - now it has it!
+				if(this->provinces[j]->owner_id == PROVINCE_NO_ONWER) {
+					this->provinces[j]->owner_id = this->tiles[i].owner_id;
+				}
+
+				// Set provinces as disputed if many countries owns this province
+				if(this->provinces[j]->owner_id != PROVINCE_DISPUTED
+				&& this->provinces[j]->owner_id != PROVINCE_NO_ONWER
+				&& this->provinces[j]->owner_id != this->tiles[i].owner_id) {
+					this->provinces[j]->owner_id = PROVINCE_DISPUTED;
+				}
 			}
+			break;
 		}
 
 		// Set infrastructure level

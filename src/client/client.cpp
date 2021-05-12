@@ -69,6 +69,19 @@ UI::Window * prov_win;
 static void do_province_overview() {
 	Province * province = g_world->provinces[selected_province_id];
 	prov_win = new UI::Window(ui_ctx, nullptr, width - 512, height / 2, 512, (height / 2) - 24, province->name.c_str());
+	
+	char * str = new char[255];
+	if(province->owner_id == PROVINCE_DISPUTED) {
+		sprintf(str, "Disputed");
+	} else if(province->owner_id == PROVINCE_NO_ONWER) {
+		sprintf(str, "Uncolonized");
+	} else {
+		sprintf(str, "%s", g_world->nations[province->owner_id]->name.c_str());
+	}
+
+	UI::Label * status = new UI::Label(ui_ctx, prov_win, 0, 0, str);
+
+	delete[] str;
 }
 
 std::vector<UI::Label *> wm_lab;
@@ -282,48 +295,46 @@ void rendering_main(void) {
 
 	ui_ctx = new UI::Context();
 
-	/* left sidebar buttons */
+	// Siderbar buttons
 	Texture help_icon = Texture(Resource_GetPath("icons/help.png").c_str());
 	help_icon.to_opengl();
 	UI::Button * help_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 4, 64, 64);
 	help_btn->on_click = &do_info_overview;
 	UI::Image * help_btn_icon = new UI::Image(ui_ctx, help_btn, 0, 0, 64, 64, nullptr, &help_icon);
-
 	Texture budget_icon = Texture(Resource_GetPath("icons/budget.png").c_str());
 	budget_icon.to_opengl();
 	UI::Button * budget_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 5, 64, 64);
 	budget_btn->on_click = &do_economy_overview;
 	UI::Image * budget_btn_icon = new UI::Image(ui_ctx, budget_btn, 0, 0, 64, 64, nullptr, &budget_icon);
-
 	Texture pol_view_icon = Texture(Resource_GetPath("icons/pol_view.png").c_str());
 	pol_view_icon.to_opengl();
 	UI::Button * pol_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 6, 64, 64);
 	pol_view_btn->on_click = &do_view_pol_map;
 	UI::Image * pol_view_btn_icon = new UI::Image(ui_ctx, pol_view_btn, 0, 0, 64, 64, nullptr, &pol_view_icon);
-
 	Texture prov_view_icon = Texture(Resource_GetPath("icons/prov_view.png").c_str());
 	prov_view_icon.to_opengl();
 	UI::Button * prov_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 7, 64, 64);
 	prov_view_btn->on_click = &do_view_prov_map;
 	UI::Image * prov_view_btn_icon = new UI::Image(ui_ctx, prov_view_btn, 0, 0, 64, 64, nullptr, &prov_view_icon);
-
 	Texture topo_view_icon = Texture(Resource_GetPath("icons/topo_view.png").c_str());
 	topo_view_icon.to_opengl();
 	UI::Button * topo_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 8, 64, 64);
 	topo_view_btn->on_click = &do_view_topo_map;
 	UI::Image * topo_view_btn_icon = new UI::Image(ui_ctx, topo_view_btn, 0, 0, 64, 64, nullptr, &topo_view_icon);
-
 	Texture infra_view_icon = Texture(Resource_GetPath("icons/infra_view.png").c_str());
 	infra_view_icon.to_opengl();
 	UI::Button * infra_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 9, 64, 64);
 	infra_view_btn->on_click = &do_view_infra_map;
 	UI::Image * infra_view_btn_icon = new UI::Image(ui_ctx, infra_view_btn, 0, 0, 64, 64, nullptr, &infra_view_icon);
-
 	Texture exit_icon = Texture(Resource_GetPath("icons/exit.png").c_str());
 	exit_icon.to_opengl();
 	UI::Button * exit_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 10, 64, 64);
 	exit_btn->on_click = &do_exit;
 	UI::Image * exit_btn_icon = new UI::Image(ui_ctx, exit_btn, 0, 0, 64, 64, nullptr, &exit_icon);
+
+	// Top nation view
+	UI::Window * top_win = new UI::Window(ui_ctx, nullptr, 0, 24, width / 2, 64, g_world->nations[player_nation_id]->name.c_str());
+	UI::Image * top_flag = new UI::Image(ui_ctx, top_win, 8, 8, 96, 48, nullptr, g_world->nations[player_nation_id]->default_flag);
 
 	Camera cam;
 	cam.x = -1.f;
@@ -348,13 +359,31 @@ void rendering_main(void) {
 				
 				r = ui_ctx->check_click(mx, my);
 
-				if(fmx > 0 && fmx < g_world->width && fmy > 0 && fmy < g_world->height && !r) {
+				if(!(fmx > 0 && fmx < g_world->width && fmy > 0 && fmy < g_world->height))
+					break;
+				
+				if(!r) {
 					// tx and ty are used for tile
 					Tile * tile = &g_world->tiles[tx + ty * g_world->width];
 					if(tile->province_id != (size_t)-1 && tile->owner_id != (size_t)-1) {
 						selected_province_id = tile->province_id;
 						do_province_overview();
 					}
+
+					// Place unit
+					Unit * unit = new Unit();
+					unit->health = 75.f;
+
+					if(event.button.button == SDL_BUTTON_LEFT) {
+						unit->owner_id = player_nation_id;
+					} else {
+						unit->owner_id = 5;
+					}
+					unit->x = fmx;
+					unit->y = fmy;
+					g_world->units.push_back(unit);
+
+					printf("Adding unit\n");
 				}
 				break;
 			case SDL_MOUSEMOTION:
@@ -464,17 +493,63 @@ void rendering_main(void) {
 		glColor3f(1.f, 1.f, 1.f);
 		glVertex2f(fmx, fmy + 1.f);
 		glEnd();
-		
-		glBindTexture(GL_TEXTURE_2D, g_world->nations[player_nation_id]->default_flag->gl_tex_num);
-		GLUquadricObj * sphere = nullptr;
-		sphere = gluNewQuadric();
-		gluQuadricDrawStyle(sphere, GLU_FILL);
-		gluQuadricTexture(sphere, 1);
-		gluQuadricNormals(sphere, GLU_SMOOTH);
-		gluSphere(sphere, 0.5f, 20, 20);
-		gluDeleteQuadric(sphere);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glPopMatrix();
+
+		// Draw units
+		for(size_t i = 0; i < g_world->units.size(); i++) {
+			Unit * unit = g_world->units[i];
+			glBindTexture(GL_TEXTURE_2D, g_world->nations[unit->owner_id]->default_flag->gl_tex_num);
+			glBegin(GL_TRIANGLES);
+			glColor3f(1.f, 1.f, 1.f);
+			glTexCoord2f(0.f, 0.f);
+			glVertex2f(unit->x, unit->y);
+			glTexCoord2f(1.f, 0.f);
+			glVertex2f(unit->x + 1.f, unit->y);
+			glTexCoord2f(1.f, 1.f);
+			glVertex2f(unit->x + 1.f, unit->y + 1.f);
+			glTexCoord2f(1.f, 1.f);
+			glVertex2f(unit->x + 1.f, unit->y + 1.f);
+			glTexCoord2f(0.f, 1.f);
+			glVertex2f(unit->x, unit->y + 1.f);
+			glTexCoord2f(0.f, 0.f);
+			glVertex2f(unit->x, unit->y);
+			glEnd();
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+
+		// Evaluate units
+		for(size_t i = 0; i < g_world->units.size(); i++) {
+			Unit * unit = g_world->units[i];
+			if(unit->health <= 0.f) {
+				g_world->units.erase(g_world->units.begin() + i);
+				break;
+			}
+
+			g_world->tiles[(size_t)unit->y * g_world->width + (size_t)unit->x].owner_id = unit->owner_id;
+			map.quad_update_nation((size_t)unit->x - 1, (size_t)unit->y - 1, (size_t)unit->x + 1, (size_t)unit->y + 1);
+
+			for(size_t j = 0; j < g_world->units.size(); j++) {
+				Unit * other_unit = g_world->units[j];
+
+				// Do not attack friends
+				if(unit->owner_id == other_unit->owner_id)
+					continue;
+				
+				// Attack enemies >:)
+				if(other_unit->x > unit->x)
+					unit->x += 0.1f;
+				if(other_unit->y > unit->y)
+					unit->y += 0.1f;
+				if(other_unit->x < unit->x)
+					unit->x -= 0.1f;
+				if(other_unit->y < unit->y)
+					unit->y -= 0.1f;
+				
+				// If in distance, do attack
+				if(fabs(unit->x - other_unit->x) <= 1 && fabs(unit->y - other_unit->y) <= 1) {
+					other_unit->health -= 10.f;
+				}
+			}
+		}
 
 		glPushMatrix();
 		glMatrixMode(GL_PROJECTION);
