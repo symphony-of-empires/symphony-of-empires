@@ -267,35 +267,35 @@ local nation = Nation:create{ ref_name = "brazil", color = 0x4CFF00, default_fla
 nation.name = _("Brazil")
 Nation:register(nation)
 
-local nation = Nation:create{ ref_name = "gran_colombia", color = 0xE1FF91, default_flag = "flags/brazil_monarchy.png" }
+local nation = Nation:create{ ref_name = "gran_colombia", color = 0xE1FF91, default_flag = "flags/gran_colombia_republic.png" }
 nation.name = _("Gran colombia")
 Nation:register(nation)
 
-local nation = Nation:create{ ref_name = "peru", color = 0xFF2158, default_flag = "flags/brazil_monarchy.png" }
+local nation = Nation:create{ ref_name = "peru", color = 0xFF2158, default_flag = "flags/peru_republic.png" }
 nation.name = _("Peru")
 Nation:register(nation)
 
-local nation = Nation:create{ ref_name = "bolivia", color = 0xffc4ee, default_flag = "flags/brazil_monarchy.png" }
+local nation = Nation:create{ ref_name = "bolivia", color = 0xffc4ee, default_flag = "flags/bolivia_republic.png" }
 nation.name = _("Bolivia")
 Nation:register(nation)
 
-local nation = Nation:create{ ref_name = "paraguay", color = 0xb71cff, default_flag = "flags/brazil_monarchy.png" }
+local nation = Nation:create{ ref_name = "paraguay", color = 0xb71cff, default_flag = "flags/paraguay_republic.png" }
 nation.name = _("Paraguay")
 Nation:register(nation)
 
-local nation = Nation:create{ ref_name = "chile", color = 0x241f3d, default_flag = "flags/brazil_monarchy.png" }
+local nation = Nation:create{ ref_name = "chile", color = 0x241f3d, default_flag = "flags/chile_republic.png" }
 nation.name = _("Chile")
 Nation:register(nation)
 
-local nation = Nation:create{ ref_name = "federated_republic_central_america", color = 0x5199ff, default_flag = "flags/brazil_monarchy.png" }
+local nation = Nation:create{ ref_name = "federated_republic_central_america", color = 0x5199ff, default_flag = "flags/federated_republic_central_america_republic.png" }
 nation.name = _("Federated Republic of Central America")
 Nation:register(nation)
 
-local nation = Nation:create{ ref_name = "mexico", color = 0x92FF60, default_flag = "flags/brazil_monarchy.png" }
+local nation = Nation:create{ ref_name = "mexico", color = 0x92FF60, default_flag = "flags/mexico_republic.png" }
 nation.name = _("Mexico")
 Nation:register(nation)
 
-local nation = Nation:create{ ref_name = "united_states", color = 0x639FFF, default_flag = "flags/brazil_monarchy.png" }
+local nation = Nation:create{ ref_name = "united_states", color = 0x639FFF, default_flag = "flags/united_states_democracy.png" }
 nation.name = _("United states")
 Nation:register(nation)
 print("nations")

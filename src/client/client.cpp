@@ -273,10 +273,7 @@ std::deque<size_t> render_province;
 
 SDL_Window * window;
 void do_game_main(UI::Widget *, void *) {
-	// Remove all widgets
-	for(size_t i = 0; i < ui_ctx->widgets.size(); i++) {
-		delete ui_ctx->widgets[i];
-	}
+	ui_ctx->clear();
 
 	// Create map in here
 	map = Map(g_world);
@@ -613,6 +610,12 @@ void do_select_nation_via_flag(UI::Widget *, void * data) {
 }
 
 void do_select_nation(UI::Widget *, void *) {
+	ui_ctx->clear();
+
+	Texture menu_bg = Texture(Resource_GetPath("title_bg.png").c_str());
+	menu_bg.to_opengl();
+	UI::Image * menu_bg_img = new UI::Image(ui_ctx, nullptr, 0, 0, width, height, nullptr, &menu_bg);
+
 	UI::Label * lab = new UI::Label(ui_ctx, nullptr, 64, 64, "Select nation");
 	UI::Window * select_window = new UI::Window(ui_ctx, nullptr, 64, 128, 512, 512);
 
@@ -720,11 +723,10 @@ void rendering_main(void) {
 	ui_ctx = new UI::Context();
 
 	Texture menu_bg = Texture(Resource_GetPath("title_bg.png").c_str());
-	Texture menu_title = Texture(Resource_GetPath("title.png").c_str());
 	menu_bg.to_opengl();
-	menu_title.to_opengl();
-
 	UI::Image * menu_bg_img = new UI::Image(ui_ctx, nullptr, 0, 0, width, height, nullptr, &menu_bg);
+	Texture menu_title = Texture(Resource_GetPath("title.png").c_str());
+	menu_title.to_opengl();
 	UI::Image * menu_title_img = new UI::Image(ui_ctx, nullptr, 64, 64, 256, 32, nullptr, &menu_title);
 	UI::Button * new_game = new UI::Button(ui_ctx, nullptr, 64, 128, 256, 24, "New game");
 	new_game->on_click = &do_select_nation;
