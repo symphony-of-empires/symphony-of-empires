@@ -499,41 +499,6 @@ void do_game_main(UI::Widget *, void *) {
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
-		// Evaluate units
-		for(size_t i = 0; i < g_world->units.size(); i++) {
-			Unit * unit = g_world->units[i];
-			if(unit->health <= 0.f) {
-				g_world->units.erase(g_world->units.begin() + i);
-				break;
-			}
-
-			g_world->tiles[(size_t)unit->y * g_world->width + (size_t)unit->x].owner_id = unit->owner_id;
-			map.quad_update_nation((size_t)unit->x - 64, (size_t)unit->y - 64, (size_t)unit->x + 64, (size_t)unit->y + 64);
-
-			for(size_t j = 0; j < g_world->units.size(); j++) {
-				Unit * other_unit = g_world->units[j];
-
-				// Do not attack friends
-				if(unit->owner_id == other_unit->owner_id)
-					continue;
-				
-				// Attack enemies >:)
-				if(other_unit->x > unit->x)
-					unit->x += 0.01f;
-				if(other_unit->y > unit->y)
-					unit->y += 0.01f;
-				if(other_unit->x < unit->x)
-					unit->x -= 0.01f;
-				if(other_unit->y < unit->y)
-					unit->y -= 0.01f;
-				
-				// If in distance, do attack
-				if(fabs(unit->x - other_unit->x) <= 1 && fabs(unit->y - other_unit->y) <= 1) {
-					other_unit->health -= 10.f;
-				}
-			}
-		}
-
 		glPushMatrix();
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
