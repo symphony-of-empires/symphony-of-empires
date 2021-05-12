@@ -199,7 +199,7 @@ void Context::check_text_input(const char * input) {
 
 int Context::check_wheel(unsigned mx, unsigned my, int y) {
 	int r = 0;
-	for(size_t i = this->widgets.size() - 1; i == (size_t)-1; i--) {
+	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
 		
 		if(mx >= widget->x && mx <= widget->x + widget->width
@@ -210,7 +210,6 @@ int Context::check_wheel(unsigned mx, unsigned my, int y) {
 					child->y += y;
 			}
 			r++;
-			break;
 		}
 	}
 	return r;

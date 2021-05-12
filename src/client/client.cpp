@@ -525,7 +525,7 @@ void rendering_main(void) {
 			}
 
 			g_world->tiles[(size_t)unit->y * g_world->width + (size_t)unit->x].owner_id = unit->owner_id;
-			map.quad_update_nation((size_t)unit->x - 1, (size_t)unit->y - 1, (size_t)unit->x + 1, (size_t)unit->y + 1);
+			map.quad_update_nation((size_t)unit->x - 64, (size_t)unit->y - 64, (size_t)unit->x + 64, (size_t)unit->y + 64);
 
 			for(size_t j = 0; j < g_world->units.size(); j++) {
 				Unit * other_unit = g_world->units[j];
