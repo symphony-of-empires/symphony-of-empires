@@ -18,6 +18,9 @@ public:
 
 	std::vector<float> relations; // Relations with all other countries
 	size_t spherer_id; // Id of the nation that has us on our sphere of influence
+
+	float prestige; // Total number of prestige
+	float base_literacy; // Base literacy applied to all pops
 };
 
 #endif

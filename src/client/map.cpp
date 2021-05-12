@@ -77,24 +77,38 @@ void Map::quad_create(size_t qx, size_t qy) {
 	if(*gl_list == 0) {
 		*gl_list = glGenLists(1);
 		glNewList(*gl_list, GL_COMPILE);
-		for(size_t i = off_x; i < end_x; i++) {
-			for(size_t j = off_y; j < end_y; j++) {
-				Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
-				if(curr_tile->owner_id == (size_t)-1)
+		for(size_t j = off_y; j < end_y; j++) {
+			for(size_t i = off_x; i < end_x; i++) {
+				Tile * tile = &this->world->tiles[i + j * this->world->width];
+				if(tile->owner_id == (size_t)-1)
 					continue;
 				
+				size_t owner_id = tile->owner_id;
+				size_t x_start = i;
+				size_t n_same = 0;
+				while(i < end_x && tile->owner_id == owner_id) {
+					n_same++;
+					i++;
+					tile = &this->world->tiles[i + j * this->world->width];
+				}
+
 				glBegin(GL_TRIANGLES);
-				Nation * nation = this->world->nations[curr_tile->owner_id];
+				Nation * nation = this->world->nations[owner_id];
 				for(size_t k = 0; k < 6; k++) {
-					const size_t x = i + draw_ord[k][0];
-					const size_t y = j + draw_ord[k][1];
+					size_t x = x_start + draw_ord[k][0];
+					size_t y = j + draw_ord[k][1];
 					uint8_t r = (nation->color & 0xff);
 					uint8_t g = ((nation->color >> 8) & 0xff);
 					uint8_t b = ((nation->color >> 16) & 0xff);
+					
+					if(draw_ord[k][0])
+						x += n_same - 1;
+					
 					glColor4ub(r, g, b, 196);
 					glVertex2f(x, y);
 				}
 				glEnd();
+				i--;
 			}
 		}
 		glEndList();
@@ -104,24 +118,38 @@ void Map::quad_create(size_t qx, size_t qy) {
 	if(*gl_list == 0) {
 		*gl_list = glGenLists(1);
 		glNewList(*gl_list, GL_COMPILE);
-		for(size_t i = off_x; i < end_x; i++) {
-			for(size_t j = off_y; j < end_y; j++) {
-				Tile * curr_tile = &this->world->tiles[i + j * this->world->width];
-				if(curr_tile->province_id == (size_t)-1)
+		for(size_t j = off_y; j < end_y; j++) {
+			for(size_t i = off_x; i < end_x; i++) {
+				Tile * tile = &this->world->tiles[i + j * this->world->width];
+				if(tile->province_id == (size_t)-1)
 					continue;
+				
+				size_t province_id = tile->province_id;
+				size_t x_start = i;
+				size_t n_same = 0;
+				while(i < end_x && tile->province_id == province_id) {
+					n_same++;
+					i++;
+					tile = &this->world->tiles[i + j * this->world->width];
+				}
 
 				glBegin(GL_TRIANGLES);
-				Province * province = this->world->provinces[curr_tile->province_id];
+				Province * province = this->world->provinces[province_id];
 				for(size_t k = 0; k < 6; k++) {
-					size_t x = i + draw_ord[k][0];
+					size_t x = x_start + draw_ord[k][0];
 					size_t y = j + draw_ord[k][1];
 					uint8_t r = (province->color & 0xff);
 					uint8_t g = ((province->color >> 8) & 0xff);
 					uint8_t b = ((province->color >> 16) & 0xff);
+
+					if(draw_ord[k][0])
+						x += n_same - 1;
+
 					glColor4ub(r, g, b, 196);
 					glVertex2f(x, y);
 				}
 				glEnd();
+				i--;
 			}
 		}
 		glEndList();
