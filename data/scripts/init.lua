@@ -390,6 +390,7 @@ Province:register(name_of_province)
 local name_of_province = Province:create{ ref_name = "cisplatina", color = 0xFFEA84 }
 name_of_province.name = _("Cisplatina")
 Province:register(name_of_province)
+
 --------------------------------------------------------------
 -- Continent: Americas
 -- Subcontinent: South America
@@ -407,6 +408,239 @@ local name_of_province = Province:create{ ref_name = "nioaque", color = 0x5174FF
 name_of_province.name = _("Nioaque")
 Province:register(name_of_province)
 
+--------------------------------------------------------------
+-- Continent: Americas
+-- Subcontinent: South America
+-- Country: Chile + Patagonian Chile + Ex-Bolivian territory
+
+local name_of_province = Province:create{ ref_name = "iquique", color = 0xFF7856 }
+name_of_province.name = _("Iquique")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "calama", color = 0x5157FF }
+name_of_province.name = _("Calama")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "antofagasta", color = 0xF2FFD8 }
+name_of_province.name = _("Antofagasta")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "copiapo", color = 0x9849FF }
+name_of_province.name = _("Copiapó")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "coquimbo", color = 0x8C4FFF }
+name_of_province.name = _("Coquimbo")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "illapel", color = 0x49F5FF }
+name_of_province.name = _("Illapel")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "santiago", color = 0xCB23FF }
+name_of_province.name = _("Santiago")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "curico", color = 0xFFE5C1 }
+name_of_province.name = _("Curicó")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "chillan", color = 0x1691FF }
+name_of_province.name = _("Chillán")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "concepcion", color = 0xFF4D3D }
+name_of_province.name = _("Concepción")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "valdivia", color = 0xA2FF00 }
+name_of_province.name = _("Valdivia")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "osorno", color = 0xFFE554 }
+name_of_province.name = _("Osorno")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "chiloe", color = 0xFF00E5 }
+name_of_province.name = _("Chiloé")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "aysen", color = 0x0090FF }
+name_of_province.name = _("Aysén")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "punta_arenas", color = 0x3F3B39 }
+name_of_province.name = _("Punta Arenas")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "san_gregorio", color = 0xFFD800 }
+name_of_province.name = _("San Gregorio")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "puerto_porvenir", color = 0xFF006E }
+name_of_province.name = _("Puerto Porvenir")
+Province:register(name_of_province)
+
+--------------------------------------------------------------
+-- Continent: Americas
+-- Subcontinent: North America
+-- Country: Mexico
+
+local name_of_province = Province:create{ ref_name = "yucatan", color = 0x567bff }
+name_of_province.name = _("Yucatán")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "veracruz", color = 0xff758e }
+name_of_province.name = _("Veracruz")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "coahuila_y_texas", color = 0xff7279 }
+name_of_province.name = _("Coahuila y Texas")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "chihuahua", color = 0x38daff }
+name_of_province.name = _("Chihuahua")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "alta_california", color = 0xc6cbff }
+name_of_province.name = _("Alta California")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "baja_california", color = 0xff38e7 }
+name_of_province.name = _("Baja California")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "chihuahua", color = 0x38daff }
+name_of_province.name = _("Chihuahua")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "tamaulipas", color = 0xff87bd }
+name_of_province.name = _("Tamaulipas")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "nuevo_leon", color = 0xbfffce }
+name_of_province.name = _("Nuevo León")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "sonora", color = 0x9bffe9 }
+name_of_province.name = _("Sonora")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "sinaloa", color = 0xffad87 }
+name_of_province.name = _("Sinaloa")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "jalisco", color = 0x361cff }
+name_of_province.name = _("Jalisco")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "durango", color = 0x92ff60 }
+name_of_province.name = _("Durango")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "zacatecas", color = 0xff93a0 }
+name_of_province.name = _("Zacatecas")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "san_luis_potosi", color = 0x3fffe8 }
+name_of_province.name = _("San Luis Potosi")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "guanajuato", color = 0xf70fff }
+name_of_province.name = _("Guanajuato")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "colima", color = 0xff7e5e }
+name_of_province.name = _("Colima")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "michoacan", color = 0xc4ffc4 }
+name_of_province.name = _("Michoacán")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "queretaro", color = 0xbbb2ff }
+name_of_province.name = _("Querétaro")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "mexico", color = 0xff32e3 }
+name_of_province.name = _("México")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "puebla", color = 0x927aff }
+name_of_province.name = _("Puebla")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "tlaxcala", color = 0x89ffe1 }
+name_of_province.name = _("Tlaxcala")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "oaxaca", color = 0x8effa8 }
+name_of_province.name = _("Oaxaca")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "chiapas", color = 0xbf72ff }
+name_of_province.name = _("Chiapas")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "nuevo_mexico", color = 0x56ffb8 }
+name_of_province.name = _("Nuevo México")
+Province:register(name_of_province)
+
+--------------------------------------------------------------
+-- Continent: Americas
+-- Subcontinent: North America
+-- Country: USA
+local name_of_province = Province:create{ ref_name = "florida", color = 0x70a6ff }
+name_of_province.name = _("Florida")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "connecticut", color = 0xe987ff }
+name_of_province.name = _("Connecticut")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "new_jersey", color = 0xffaea8 }
+name_of_province.name = _("New Jersey")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "rhode_island", color = 0x7b07ff }
+name_of_province.name = _("Rhode Island")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "new_york", color = 0xbcfdff }
+name_of_province.name = _("New York")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "massachusetts", color = 0x639fff }
+name_of_province.name = _("Massachusetts")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "new_hampshire", color = 0xf830ff }
+name_of_province.name = _("New Hampshire")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "vermont", color = 0xff4e32 }
+name_of_province.name = _("Vermont")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "maine", color = 0xff4c7f }
+name_of_province.name = _("Maine")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "delaware", color = 0xa372ff }
+name_of_province.name = _("Delaware")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "maryland", color = 0xa5ffed }
+name_of_province.name = _("Maryland")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "pensylvania", color = 0xff49a7 }
+name_of_province.name = _("Pensylvania")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "virginia", color = 0xff7579 }
+name_of_province.name = _("Virginia")
+Province:register(name_of_province)
 
 -- THIS IS NOT PART OF THE FINAL MODDING API
 
