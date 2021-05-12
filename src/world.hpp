@@ -12,8 +12,8 @@
 
 class Tile {
 public:
-	size_t owner_id;
-	size_t province_id;
+	uint16_t owner_id;
+	uint16_t province_id;
 	uint8_t elevation;
 	uint8_t infra_level;
 };
@@ -26,7 +26,7 @@ public:
 	float x;
 	float y;
 	float health;
-	size_t owner_id;
+	uint16_t owner_id;
 };
 
 class World {

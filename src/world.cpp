@@ -94,18 +94,18 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	// Translate all div, pol and topo maps onto this single tile array
 	const size_t n_nations = this->nations.size();
 	const size_t n_provinces = this->provinces.size();
-	size_t last_nation_color_id = 0;
+	uint16_t last_nation_color_id = 0;
 	for(size_t i = 0; i < this->width * this->height; i++) {
 		this->tiles[i].elevation = topo.buffer[i] & 0xff;
 		
 		// Associate tiles with nations
-		this->tiles[i].owner_id = (size_t)-1;
+		this->tiles[i].owner_id = (uint16_t)-1;
 
 		if(this->nations[last_nation_color_id]->color != pol.buffer[i]) {
 			for(size_t j = 0; j < n_nations; j++) {
 				if(pol.buffer[i] == this->nations[j]->color) {
-					this->tiles[i].owner_id = j;
-					last_nation_color_id = j;
+					this->tiles[i].owner_id = (uint16_t)j;
+					last_nation_color_id = (uint16_t)j;
 					break;
 				}
 			}
@@ -114,7 +114,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 		}
 
 		// Associate tiles with provinces
-		this->tiles[i].province_id = (size_t)-1;
+		this->tiles[i].province_id = (uint16_t)-1;
 		for(size_t j = 0; j < n_provinces; j++) {
 			if(div.buffer[i] != this->provinces[j]->color)
 				continue;
@@ -122,7 +122,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 			this->tiles[i].province_id = j;
 
 			// Only evaluated when valid owner
-			if(this->tiles[i].owner_id != (size_t)-1) {
+			if(this->tiles[i].owner_id != (uint16_t)-1) {
 				// If province had no owner before - now it has it!
 				if(this->provinces[j]->owner_id == PROVINCE_NO_ONWER) {
 					this->provinces[j]->owner_id = this->tiles[i].owner_id;
@@ -225,6 +225,8 @@ public:
 	size_t sender_province_id;
 	size_t rejections = 0;
 };
+
+#include <cmath>
 void World::do_tick() {
 	const size_t n_provinces = this->provinces.size();
 	//size_t n_companies = this->companies.size();
@@ -361,6 +363,80 @@ void World::do_tick() {
 			product->price = 0.01f;
 		}
 	}
+
+	// Evaluate units
+	for(size_t i = 0; i < g_world->units.size(); i++) {
+		Unit * unit = g_world->units[i];
+		if(unit->health <= 0.f) {
+			g_world->units.erase(g_world->units.begin() + i);
+			break;
+		}
+
+		// Count friends and foes in range (and find nearest foe)
+		size_t n_friends = 0;
+		size_t n_foes = 0;
+		Unit * nearest_foe = nullptr;
+		for(size_t j = 0; j < g_world->units.size(); j++) {
+			Unit * other_unit = g_world->units[j];
+			if(unit->owner_id == other_unit->owner_id) {
+				// Only when very close
+				if(fabs(unit->x - other_unit->x) >= 5 && fabs(unit->y - other_unit->y) >= 5)
+					continue;
+				
+				n_friends++;
+			} else {
+				// Foes from many ranges counts
+				if(fabs(unit->x - other_unit->x) >= 10 && fabs(unit->y - other_unit->y) >= 10)
+					continue;
+
+				n_foes++;
+
+				if(nearest_foe == nullptr) {
+					nearest_foe = other_unit;
+				}
+
+				// Find nearest foe
+				if(fabs(unit->x - other_unit->x) < fabs(unit->x - nearest_foe->x)
+				&& fabs(unit->y - other_unit->y) < fabs(unit->y - nearest_foe->y)) {
+					nearest_foe = other_unit;
+				}
+			}
+		}
+
+		if(nearest_foe == nullptr)
+			continue;
+
+		// Too much enemies, retreat
+		if((n_foes / 3) > n_friends) {
+			// Go away from foes
+			if(nearest_foe->x < unit->x)
+				unit->x += 0.1f;
+			if(nearest_foe->y < unit->y)
+				unit->y += 0.1f;
+			if(nearest_foe->x > unit->x)
+				unit->x -= 0.1f;
+			if(nearest_foe->y > unit->y)
+				unit->y -= 0.1f;
+		}
+		// The gang is able to attack, so we attack
+		else {
+			// Attack enemies
+			if(nearest_foe->x > unit->x)
+				unit->x += 0.1f;
+			if(nearest_foe->y > unit->y)
+				unit->y += 0.1f;
+			if(nearest_foe->x < unit->x)
+				unit->x -= 0.1f;
+			if(nearest_foe->y < unit->y)
+				unit->y -= 0.1f;
+				
+			// If in distance, do attack
+			if(fabs(unit->x - nearest_foe->x) <= 1 && fabs(unit->y - nearest_foe->y) <= 1) {
+				nearest_foe->health -= 10.f;
+			}
+		}
+	}
+
 	this->time++;
 }
 
