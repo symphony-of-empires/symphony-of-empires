@@ -94,16 +94,23 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	// Translate all div, pol and topo maps onto this single tile array
 	const size_t n_nations = this->nations.size();
 	const size_t n_provinces = this->provinces.size();
+	size_t last_nation_color_id = 0;
 	for(size_t i = 0; i < this->width * this->height; i++) {
 		this->tiles[i].elevation = topo.buffer[i] & 0xff;
 		
 		// Associate tiles with nations
 		this->tiles[i].owner_id = (size_t)-1;
-		for(size_t j = 0; j < n_nations; j++) {
-			if(pol.buffer[i] == this->nations[j]->color) {
-				this->tiles[i].owner_id = j;
-				break;
+
+		if(this->nations[last_nation_color_id]->color != pol.buffer[i]) {
+			for(size_t j = 0; j < n_nations; j++) {
+				if(pol.buffer[i] == this->nations[j]->color) {
+					this->tiles[i].owner_id = j;
+					last_nation_color_id = j;
+					break;
+				}
 			}
+		} else {
+			this->tiles[i].owner_id = last_nation_color_id;
 		}
 
 		// Associate tiles with provinces
