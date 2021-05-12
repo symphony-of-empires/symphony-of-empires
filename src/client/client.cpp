@@ -329,11 +329,13 @@ void do_game_main(UI::Widget *, void *) {
 	cam.vz = 0.f;
 	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
 
-	char * dt_str = (char*)malloc(32);
+	UI::Label * delta_time = new UI::Label(ui_ctx, nullptr, 0, height - 24, "?");
+
+	char * tmpbuf = new char[32];
 	while(run) {
 		SDL_Event event;
 		int r;
-		uint32_t beginTime = SDL_GetTicks();
+		uint32_t begin_time = SDL_GetTicks();
 
 		while(SDL_PollEvent(&event)) {
 			switch(event.type) {
@@ -517,13 +519,13 @@ void do_game_main(UI::Widget *, void *) {
 				
 				// Attack enemies >:)
 				if(other_unit->x > unit->x)
-					unit->x += 0.1f;
+					unit->x += 0.01f;
 				if(other_unit->y > unit->y)
-					unit->y += 0.1f;
+					unit->y += 0.01f;
 				if(other_unit->x < unit->x)
-					unit->x -= 0.1f;
+					unit->x -= 0.01f;
 				if(other_unit->y < unit->y)
-					unit->y -= 0.1f;
+					unit->y -= 0.01f;
 				
 				// If in distance, do attack
 				if(fabs(unit->x - other_unit->x) <= 1 && fabs(unit->y - other_unit->y) <= 1) {
@@ -558,9 +560,8 @@ void do_game_main(UI::Widget *, void *) {
 		day %= 31;
 		month %= 12;
 
-		char str[255];
-		sprintf((char *)&str, "%u/%u/%u - %u", year, month, day, hour);
-		overview_time_label.text(ui_ctx, (char *)&str);
+		sprintf(tmpbuf, "%u/%u/%u - %u", year, month, day, hour);
+		overview_time_label.text(ui_ctx, tmpbuf);
 		*/
 
 		if(cam.vx >= 0.9f)
@@ -588,13 +589,11 @@ void do_game_main(UI::Widget *, void *) {
 		cam.y += cam.vy;
 		cam.z += cam.vz;
 
-		/*
-		uint32_t endTime = SDL_GetTicks();
-		uint32_t dt = endTime - beginTime;
-		sprintf(dt_str, "%d", dt);
-		delta_time.text(ui_ctx,dt_str);
-		*/
+		uint32_t end_time = SDL_GetTicks();
+		sprintf(tmpbuf, "%d FPS", 1000 / (end_time - begin_time));
+		delta_time->text(ui_ctx, tmpbuf);
 	}
+	delete[] tmpbuf;
 }
 
 void do_select_nation_via_flag(UI::Widget *, void * data) {
