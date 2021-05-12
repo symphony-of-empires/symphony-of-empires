@@ -617,8 +617,8 @@ void do_select_nation(UI::Widget *, void *) {
 	UI::Image * menu_bg_img = new UI::Image(ui_ctx, nullptr, 0, 0, width, height, nullptr, &menu_bg);
 
 	UI::Label * lab = new UI::Label(ui_ctx, nullptr, 64, 64, "Select nation");
-	UI::Window * select_window = new UI::Window(ui_ctx, nullptr, 64, 128, 512, 512);
 
+	UI::Window * select_window = new UI::Window(ui_ctx, nullptr, 64, 128, 512, 512);
 	for(size_t i = 0; i < g_world->nations.size(); i++) {
 		UI::Image * flag = new UI::Image(ui_ctx, select_window, 0, i * 52, 64, 48, nullptr, g_world->nations[i]->default_flag);
 		flag->user_data = (void *)g_world->nations[i];
