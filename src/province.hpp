@@ -6,6 +6,9 @@
 #include "pop.hpp"
 #include "economy.hpp"
 
+#define PROVINCE_DISPUTED (size_t)-2
+#define PROVINCE_NO_ONWER (size_t)-1
+
 class World;
 class Province {
 public:
@@ -23,6 +26,8 @@ public:
 	size_t min_y = 65532;
 	size_t max_x = 0;
 	size_t max_y = 0;
+
+	size_t owner_id = PROVINCE_NO_ONWER;
 	
 	std::vector<Industry *> industries;
 	std::vector<Product *> products;
