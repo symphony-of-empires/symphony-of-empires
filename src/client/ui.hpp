@@ -28,6 +28,7 @@ namespace UI {
 		int check_click(unsigned mx, unsigned my);
 		int check_wheel(unsigned mx, unsigned my, int y);
 		void check_text_input(const char * input);
+		void clear(void);
 
 		TTF_Font * default_font;
 		

@@ -93,6 +93,14 @@ void Context::remove_widget(Widget * widget) {
 	return;
 }
 
+void Context::clear(void) {
+	// Remove all widgets
+	for(size_t i = 0; i < this->widgets.size(); i++) {
+		delete this->widgets[i];
+	}
+	this->widgets.clear();
+}
+
 void Context::render_all() {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
