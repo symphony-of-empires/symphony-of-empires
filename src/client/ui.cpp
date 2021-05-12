@@ -71,22 +71,6 @@ void Context::remove_widget(Widget * widget) {
 		if(this->widgets[i] != widget)
 			continue;
 		
-		// Delete from parent's child list
-		if(widget->parent != nullptr) {
-			for(size_t j = 0; j < widget->parent->children.size(); j++) {
-				if(widget->parent->children[i] != widget)
-					continue;
-				
-				widget->parent->children.erase(this->widgets.begin() + i);
-				break;
-			}
-		}
-		
-		// Also delete children
-		for(size_t j = 0; j < widget->children.size(); j++) {
-			delete widget->children[j];
-		}
-		
 		this->widgets.erase(this->widgets.begin() + i);
 		break;
 	}
@@ -381,6 +365,12 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 }
 
 Widget::~Widget() {
+	// Also delete children
+	for(size_t i = 0; i < this->children.size(); i++) {
+		delete this->children[i];
+	}
+	this->children.clear();
+
 	// Hide widget immediately upon destruction :(
 	this->p_ctx->remove_widget(this);
 }
