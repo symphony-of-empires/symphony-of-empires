@@ -357,7 +357,7 @@ void do_game_main(UI::Widget *, void *) {
 				if(!(fmx > 0 && fmx < g_world->width && fmy > 0 && fmy < g_world->height))
 					break;
 				
-				if(!r) {
+				if(event.button.button == SDL_BUTTON_LEFT && !r) {
 					// tx and ty are used for tile
 					Tile * tile = &g_world->tiles[tx + ty * g_world->width];
 					if(tile->province_id != (size_t)-1 && tile->owner_id != (size_t)-1) {
@@ -368,15 +368,15 @@ void do_game_main(UI::Widget *, void *) {
 					// Place unit
 					Unit * unit = new Unit();
 					unit->health = 75.f;
-
-					if(event.button.button == SDL_BUTTON_LEFT) {
-						unit->owner_id = player_nation_id;
-					} else {
-						unit->owner_id = 5;
-					}
+					unit->owner_id = player_nation_id;
 					unit->x = fmx;
 					unit->y = fmy;
 					g_world->units.push_back(unit);
+				} else if(event.button.button == SDL_BUTTON_RIGHT && !r) {
+					for(auto& unit: g_world->units) {
+						unit->tx = tx;
+						unit->ty = ty;
+					}
 				}
 				break;
 			case SDL_MOUSEMOTION:
