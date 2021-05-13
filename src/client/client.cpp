@@ -85,7 +85,7 @@ static void do_province_overview() {
 }
 
 std::vector<UI::Label *> wm_lab;
-UI::Window * wm_win;
+UI::Window * wm_win = nullptr;
 static void do_world_market_overview_or(UI::Widget *, void *) {
 	const size_t n_labs = 4;
 	char * str = new char[255];
@@ -101,6 +101,8 @@ static void do_world_market_overview_or(UI::Widget *, void *) {
 	delete[] str;
 }
 static void do_world_market_overview(UI::Widget *, void *) {
+	wm_lab.clear();
+
 	wm_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512 + 256, height - 256, "World market");
 	wm_win->on_update = &do_world_market_overview_or;
 	for(size_t i = 0; i < g_world->products.size(); i++) {
