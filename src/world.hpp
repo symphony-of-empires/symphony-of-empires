@@ -10,6 +10,10 @@
 #include "economy.hpp"
 #include "lua.hpp"
 
+#define MAX_INFRA_LEVEL 			8
+#define MAX_ELEVATION				255
+#define RIVER_ELEVATION(a)			a + 1	
+
 class Tile {
 public:
 	size_t x;

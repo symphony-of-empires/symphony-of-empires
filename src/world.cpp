@@ -33,9 +33,10 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 		print_error("province map size mismatch");
 		exit(EXIT_FAILURE);
 	}
-
-	// Rivers are sea_level + 1, sea is below or equal sea level and land is above sea level
-	this->sea_level = 127;
+	// Sea is	<= sea_level
+	// Rivers	== sea_level + 1
+	// Land is	> sea_level + 1
+	this->sea_level = 126;
 	this->tiles = new Tile[this->width * this->height];
 	if(this->tiles == nullptr) {
 		perror("out of mem\n");

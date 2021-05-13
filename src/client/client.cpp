@@ -690,6 +690,7 @@ void rendering_main(void) {
 	
 	window = SDL_CreateWindow("Symphony of Empires", 0, 0, width, height, SDL_WINDOW_OPENGL);
 	SDL_GLContext context = SDL_GL_CreateContext(window);
+	SDL_GL_SetSwapInterval(1); // Enable OpenGL VSYNC
 
 	const GLubyte * version = glGetString(GL_VERSION);
 	printf("OpenGL Version: %s\n", version);
