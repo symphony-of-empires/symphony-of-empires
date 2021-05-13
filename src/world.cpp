@@ -34,7 +34,8 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 		exit(EXIT_FAILURE);
 	}
 
-	this->sea_level = 128;
+	// Rivers are sea_level + 1, sea is below or equal sea level and land is above sea level
+	this->sea_level = 127;
 	this->tiles = new Tile[this->width * this->height];
 	if(this->tiles == nullptr) {
 		perror("out of mem\n");
@@ -97,13 +98,15 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	const size_t n_provinces = this->provinces.size();
 	uint16_t last_nation_color_id = 0;
 	for(size_t i = 0; i < this->width * this->height; i++) {
-
 		// Set coordinates for the tiles
 		this->tiles[i].x = i % this->width; 
 		this->tiles[i].y = i / this->width;
 		
-		this->tiles[i].elevation = topo.buffer[i] & 0xff;
-		
+		this->tiles[i].elevation = topo.buffer[i] & 0x000000ff;
+		if(topo.buffer[i] == 0xffff0000) {
+			this->tiles[i].elevation = this->sea_level + 1;
+		}
+
 		// Associate tiles with nations
 		this->tiles[i].owner_id = (uint16_t)-1;
 

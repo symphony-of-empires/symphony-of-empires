@@ -18,6 +18,7 @@ public:
 	uint16_t province_id;
 	uint8_t elevation;
 	uint8_t infra_level;
+	bool is_river;
 };
 
 #include <string>

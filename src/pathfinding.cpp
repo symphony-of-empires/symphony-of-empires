@@ -13,14 +13,13 @@ bool coord_in_bounds(const World& world, int x, int y) {
     return x >= 0 && x < world.width && y >= 0 && y < world.height;
 }
 
-
 /**
  * Calculates the neighbors for a given Tile. The neighbors are the 8 tiles around
  * it, while taking into account the map bounds.
  */
-std::vector<Tile*> generate_neighbors(const World& world, Tile* tile) {
+std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
 
-    std::vector<Tile*> result;
+    std::vector<Tile *> result;
 
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
@@ -36,21 +35,19 @@ std::vector<Tile*> generate_neighbors(const World& world, Tile* tile) {
     return result;
 }
 
-
 /**
  * Calculates the euclidean distance between the two tiles
  * considering only x and y (ignoring elevation)
  */
-double euclidean_distance(Tile* t1, Tile* t2) {
+double euclidean_distance(Tile * t1, Tile * t2) {
     return std::hypot(t1->x - t2->x, t1->y - t2->y);
 }
-
 
 /**
  * Calculates the cost accrued by moving from one tile to another, taking into
  * account elevation and infrastructure.
  */
-double tile_cost(Tile* t1, Tile* t2) {
+double tile_cost(Tile * t1, Tile * t2) {
 
     int x_diff = t1->x - t2->x;
     int y_diff = t1->y - t2->y;
@@ -71,20 +68,19 @@ double tile_cost(Tile* t1, Tile* t2) {
     return infra_modifier * distance;
 }
 
-
-std::vector<Tile*> find_path(const World& world, Tile* start, Tile* end) {
+std::vector<Tile*> find_path(const World& world, Tile * start, Tile * end) {
 
     // Keeps track of the costs so far
-    std::unordered_map<Tile*, double> cost_map;
+    std::unordered_map<Tile *, double> cost_map;
     
     // Keeps track of the previous tile for each tile
-    std::unordered_map<Tile*, Tile*> prev_map;
+    std::unordered_map<Tile *, Tile *> prev_map;
 
     // Keeps track of which tiles have been visited
-    std::unordered_set<Tile*> visited;
+    std::unordered_set<Tile *> visited;
 
     // Priority queue based on cost
-    std::priority_queue<std::pair<double, Tile*>> queue;
+    std::priority_queue<std::pair<double, Tile *>> queue;
 
     cost_map[start] = 0.0;
     queue.push({0.0, start});
