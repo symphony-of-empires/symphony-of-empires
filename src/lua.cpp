@@ -32,6 +32,7 @@ int LuaAPI::add_good(lua_State * L) {
 
 	good->ref_name = lua_tostring(L, 1);
 	good->name = lua_tostring(L, 2);
+	good->is_edible = lua_toboolean(L, 3);
 	g_world->goods.push_back(good);
 
 	printf("good: %s (%s)\n", good->name.c_str(), good->ref_name.c_str());
@@ -76,6 +77,8 @@ int LuaAPI::add_industry_type(lua_State * L) {
 
 	industry->ref_name = lua_tostring(L, 1);
 	industry->name = lua_tostring(L, 2);
+	industry->inputs.clear();
+	industry->outputs.clear();
 	g_world->industry_types.push_back(industry);
 
 	printf("industry_type: %s (%s)\n", industry->name.c_str(), industry->ref_name.c_str());
@@ -110,79 +113,15 @@ int LuaAPI::get_industry_type(lua_State * L) {
 }
 
 int LuaAPI::add_input_to_industry_type(lua_State * L) {
-	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
-		print_error("lua argument type mismatch");
-		return 0;
-	}
-
-	std::string ref_name;
-	
-	IndustryType * industry = nullptr;
-	ref_name = lua_tostring(L, 1);
-	const size_t n_industry_types = g_world->industry_types.size();
-	for(size_t i = 0; i < n_industry_types; i++) {
-		if(ref_name == g_world->industry_types[i]->ref_name)
-			continue;
-		
-		industry = g_world->industry_types[i];
-		break;
-	} if(industry == nullptr) {
-		print_error("industry %s not found", ref_name.c_str());
-		return 0;
-	}
-
-	size_t good_id = (size_t)-1;
-	ref_name = lua_tostring(L, 2);
-	const size_t n_goods = g_world->goods.size();
-	for(size_t i = 0; i < n_goods; i++) {
-		if(ref_name == g_world->goods[i]->ref_name)
-			continue;
-		
-		good_id = i;
-		break;
-	} if(good_id == (size_t)-1) {
-		print_error("good %s not found", ref_name.c_str());
-		return 0;
-	}
+	IndustryType * industry = g_world->industry_types[lua_tonumber(L, 1)];
+	size_t good_id = lua_tonumber(L, 2);
 	industry->inputs.push_back(good_id);
 	return 0;
 }
 
 int LuaAPI::add_output_to_industry_type(lua_State * L) {
-	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
-		print_error("lua argument type mismatch");
-		return 0;
-	}
-
-	std::string ref_name;
-
-	IndustryType * industry = nullptr;
-	ref_name = lua_tostring(L, 1);
-	const size_t n_industry_types = g_world->industry_types.size();
-	for(size_t i = 0; i < n_industry_types; i++) {
-		if(ref_name != g_world->industry_types[i]->ref_name)
-			continue;
-		
-		industry = g_world->industry_types[i];
-		break;
-	} if(industry == nullptr) {
-		print_error("industry %s not found", ref_name.c_str());
-		return 0;
-	}
-
-	size_t good_id = (size_t)-1;
-	ref_name = lua_tostring(L, 2);
-	const size_t n_goods = g_world->goods.size();
-	for(size_t i = 0; i < n_goods; i++) {
-		if(ref_name != g_world->goods[i]->ref_name)
-			continue;
-		
-		good_id = i;
-		break;
-	} if(good_id == (size_t)-1) {
-		print_error("good %s not found", ref_name.c_str());
-		return 0;
-	}
+	IndustryType * industry = g_world->industry_types[lua_tonumber(L, 1)];
+	size_t good_id = lua_tonumber(L, 2);
 	industry->outputs.push_back(good_id);
 	return 0;
 }
@@ -283,18 +222,16 @@ int LuaAPI::add_province(lua_State * L) {
 	g_world->provinces.push_back(province);
 
 	// TODO: this is NOT good
-	Industry * industry = new Industry();
-	if(g_world->companies.size()) {
+	for(size_t i = 0; i < 1; i++) {
+		Industry * industry = new Industry();
 		industry->owner_id = rand() % g_world->companies.size();
-	} else {
-		industry->owner_id = 0;
+		industry->type_id = rand() % g_world->industry_types.size();
+		industry->stockpile = std::vector<size_t>(g_world->industry_types[industry->type_id]->inputs.size());
+		for(auto& stockpile: industry->stockpile) {
+			stockpile = 0;
+		}
+		g_world->provinces.back()->add_industry(g_world, industry);
 	}
-	industry->type_id = rand() % g_world->industry_types.size();
-	industry->stockpile = std::vector<size_t>(g_world->industry_types[industry->type_id]->inputs.size());
-	for(auto& stockpile: industry->stockpile) {
-		stockpile = 0;
-	}
-	g_world->provinces.back()->add_industry(g_world, industry);
 	lua_pushnumber(L, g_world->provinces.size() - 1);
 	return 1;
 }

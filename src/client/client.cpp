@@ -325,6 +325,9 @@ void do_game_main(UI::Widget *, void *) {
 	// Top nation view
 	UI::Window * top_win = new UI::Window(ui_ctx, nullptr, 0, 24, width / 2, 64, g_world->nations[player_nation_id]->name.c_str());
 	UI::Image * top_flag = new UI::Image(ui_ctx, top_win, 8, 8, 96, 48, nullptr, g_world->nations[player_nation_id]->default_flag);
+	UI::Label * top_prestige = new UI::Label(ui_ctx, top_win, 128, 8, "?");
+	UI::Label * top_literacy = new UI::Label(ui_ctx, top_win, 256, 8, "?");
+	UI::Label * top_diplomacy_pts = new UI::Label(ui_ctx, top_win, 128, 32, "?");
 
 	Camera cam;
 	cam.x = -1.f;
@@ -566,6 +569,13 @@ void do_game_main(UI::Widget *, void *) {
 		uint32_t end_time = SDL_GetTicks();
 		sprintf(tmpbuf, "%d FPS", 1000 / (end_time - begin_time));
 		delta_time->text(ui_ctx, tmpbuf);
+
+		sprintf(tmpbuf, "P %4.2f", g_world->nations[player_nation_id]->prestige);
+		top_prestige->text(ui_ctx, tmpbuf);
+		sprintf(tmpbuf, "L %4.2f", g_world->nations[player_nation_id]->base_literacy * 100);
+		top_literacy->text(ui_ctx, tmpbuf);
+		sprintf(tmpbuf, "D %4.2f", g_world->nations[player_nation_id]->diplomacy_points);
+		top_diplomacy_pts->text(ui_ctx, tmpbuf);
 	}
 	delete[] tmpbuf;
 }

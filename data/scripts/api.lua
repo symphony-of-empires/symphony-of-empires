@@ -1,10 +1,10 @@
-Good = { id = 0, name = "", ref_name = "" }
+Good = { id = 0, name = "", ref_name = "", is_edible = false }
 function Good:create(good)
 	good.parent = self
 	return good
 end
 function Good:register(good)
-	good.id = add_good(good.ref_name, good.name)
+	good.id = add_good(good.ref_name, good.name, good.is_edible)
 end
 function Good:get(good, ref_name)
 	good.parent = self
@@ -35,10 +35,10 @@ function IndustryType:get(industry_type, ref_name)
 	return industry_type
 end
 function IndustryType:add_input(industry_type, good)
-	add_input_to_industry_type(industry_type.ref_name, good.ref_name)
+	add_input_to_industry_type(industry_type.id, good.id)
 end
 function IndustryType:add_output(industry_type, good)
-	add_output_to_industry_type(industry_type.ref_name, good.ref_name)
+	add_output_to_industry_type(industry_type.id, good.id)
 end
 
 Nation = { id = 0, name = "", ref_name = "", color = 0, default_flag = "", }

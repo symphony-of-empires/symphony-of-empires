@@ -178,6 +178,11 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 			province->max_y = this->height;
 		if(province->min_y > this->height)
 			province->min_y = this->height;
+
+		// Add stockpile
+		for(size_t i = 0; i < this->products.size(); i++) {
+			province->stockpile.push_back(0);
+		}
 	}
 
 	// Create diplomatic relations between nations
@@ -226,6 +231,7 @@ public:
 	size_t sender_province_id;
 	size_t rejections = 0;
 	size_t quantity;
+	size_t product_id;
 };
 
 #include <cmath>
@@ -252,6 +258,8 @@ void World::do_tick() {
 		}
 
 		for(size_t j = 0; j < this->provinces[i]->industries.size(); j++) {
+			printf("Industry (type: %s). Province %zu. n_industry: %zu\n", this->industry_types[this->provinces[i]->industries[j]->type_id]->name.c_str(), i, j);
+
 			IndustryType * it = this->industry_types[this->provinces[i]->industries[j]->type_id];
 			for(const auto& input: it->inputs) {
 				OrderGoods order;
@@ -261,20 +269,31 @@ void World::do_tick() {
 				order.requester_industry_id = j;
 				order.requester_province_id = i;
 				orders.push_back(order);
-				printf("We need good: %s (from %s)\n", this->goods[order.good_id]->ref_name.c_str(), this->provinces[order.requester_province_id]->ref_name.c_str());
+				printf("\t- We need good: %s (from %s)\n", this->goods[order.good_id]->ref_name.c_str(), this->provinces[order.requester_province_id]->ref_name.c_str());
 			}
 
 			if(it->inputs.size() == 0) {
 				// Place deliver orders (we are a RGO)
 				for(const auto& output: it->outputs) {
 					DeliverGoods deliver;
-					deliver.quantity = 5000;
+					deliver.quantity = 500;
 					deliver.payment = 1500.f;
 					deliver.good_id = output;
 					deliver.sender_industry_id = j;
 					deliver.sender_province_id = i;
-					delivers.push_back(deliver);
-					printf("Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id]->ref_name.c_str(), this->provinces[deliver.sender_province_id]->ref_name.c_str());
+					
+					// Only put in deliver list if it's a valid product
+					for(size_t k = 0; k < g_world->products.size(); k++) {
+						if(g_world->products[i]->industry_id != deliver.sender_industry_id
+						|| g_world->products[i]->origin_id != deliver.sender_province_id
+						|| g_world->products[i]->good_id != deliver.good_id)
+							continue;
+						
+						deliver.product_id = k;
+						delivers.push_back(deliver);
+						printf("\t- Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id]->ref_name.c_str(), this->provinces[deliver.sender_province_id]->ref_name.c_str());
+						break;
+					}
 				}
 			}
 		}
@@ -320,6 +339,9 @@ void World::do_tick() {
 					deliver->quantity -= count;
 					order->quantity -= count;
 
+					// Increment demand
+					this->products[deliver->product_id]->demand += count;
+
 					// On 0 it overflows to -1, on 1 it goes to zero, but after this loop it's
 					// incremented again (see incrementing below). So we don't take a rejection hit
 					deliver->rejections--;
@@ -348,6 +370,10 @@ void World::do_tick() {
 		for(size_t i = 0; i < delivers.size(); i++) {
 			DeliverGoods * deliver = &delivers[i];
 			if(deliver->rejections >= n_transporters) {
+				// Add up to province stockpile
+				this->provinces[deliver->sender_province_id]->stockpile[deliver->product_id] += deliver->quantity;
+				this->products[deliver->product_id]->supply += deliver->quantity;
+
 				delivers.erase(delivers.begin() + i);
 				i--;
 			}
@@ -359,6 +385,73 @@ void World::do_tick() {
 	}
 	delivers.clear();
 	orders.clear();
+
+	// Now, it's like 1 am here, but i will try to write a very nice POP buy
+	// and sell system - please mantainers and coders do not laugh
+	// do not let twitch streamers see this piece of code - ever.
+	for(auto& province: this->provinces) {
+		for(auto& pop: province->pops) {
+			pop->life_needs_met = 0.f;
+			pop->everyday_needs_met = 0.f;
+			pop->luxury_needs_met = 0.f;
+
+			// TODO: Make this dynamic
+			pop->budget += 100.f;
+
+			// TODO: Assert stockpile.size == products.size !!!
+
+			// Buy edible
+			for(size_t i = 0; i < province->stockpile.size(); i++) {
+				// Province must have stockpile
+				if(!province->stockpile[i])
+					continue;
+				
+				// Must be an edible
+				if(this->goods[this->products[i]->good_id]->is_edible == false)
+					continue;
+				
+				// We can only spend 50% of our budget
+				size_t bought = (pop->budget / 2) / this->products[i]->price;
+				if(!bought)
+					continue;
+
+				bought %= pop->size;
+				bought %= province->stockpile[i];
+
+				// Satisfaction of needs is proportional to bought items
+				pop->life_needs_met += (float)pop->size / (float)bought;
+
+				this->products[i]->demand += bought;
+				if(this->products[i]->supply) {
+					this->products[i]->supply -= bought % this->products[i]->supply;
+					this->products[i]->demand += bought;
+				}
+
+				// Deduct from budget, and remove item from stockpile
+				pop->budget -= bought * this->products[i]->price;
+				province->stockpile[i] -= bought;
+
+				pop->size += pop->life_needs_met * 50;
+			}
+
+			// Met life needs means less militancy
+			if(pop->life_needs_met >= 1.f) {
+				pop->life_needs_met = 1.f;
+				if(pop->militancy > 0.f) {
+					pop->militancy -= 0.002f;
+					pop->consciousness -= 0.001f;
+				}
+			} else {
+				pop->militancy += 0.01f;
+				pop->consciousness += 0.01f;
+			}
+		}
+
+		// Stockpiles cleaned
+		for(size_t i = 0; i < province->stockpile.size(); i++) {
+			province->stockpile[i] = 0;
+		}
+	}
 
 	// Close today's price with a change according to demand - supply
 	for(auto& product: this->products) {
@@ -378,27 +471,7 @@ void World::do_tick() {
 			product->price = 0.01f;
 		}
 
-		// random stuff - just to fuzz things
-		switch(rand() % 4) {
-		case 0:
-			product->demand += rand() % 1000;
-			break;
-		case 1:
-			product->supply += rand() % 1000;
-			break;
-		case 2:
-			if(!product->demand)
-				break;
-			product->demand -= (rand() % 1000) % product->demand;
-			break;
-		case 3:
-			if(!product->supply)
-				break;
-			product->supply -= (rand() % 1000) % product->supply;
-			break;
-		default:
-			break;
-		}
+		printf("%4.f $ - %zu, %zu\n", product->price, product->supply, product->demand);
 	}
 
 	// Evaluate units
