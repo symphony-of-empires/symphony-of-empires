@@ -111,7 +111,7 @@ static void do_world_market_overview(UI::Widget *, void *) {
 		wm_lab.push_back(lab);
 		lab = new UI::Label(ui_ctx, wm_win, 256, i * 24, "?");
 		wm_lab.push_back(lab);
-		lab = new UI::Label(ui_ctx, wm_win, 320, i * 24, "?");
+		lab = new UI::Label(ui_ctx, wm_win, 400, i * 24, "?");
 		wm_lab.push_back(lab);
 	}
 }
