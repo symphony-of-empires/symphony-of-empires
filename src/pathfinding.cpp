@@ -10,7 +10,7 @@
  * Checks whether the given coordinates are within bounds for the given world
  */
 bool coord_in_bounds(const World& world, int x, int y) {
-    return x >= 0 && x < world.width && y >= 0 && y < world.height;
+    return y >= 0 && y < world.height;
 }
 
 /**
@@ -24,11 +24,21 @@ std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
 
-            if (coord_in_bounds(world, tile->x + i, tile->y + j)) {
-                int index = tile->x + i + (tile->y + j) * world.width;
-                result.push_back(&world.tiles[index]);
-            }
+            // Skip middle
+            if (i == 0 && j == 0) continue;
 
+            if (coord_in_bounds(world, tile->x + i, tile->y + j)) {
+
+                // Wrap x east to west
+                int x = (tile->x + i) % world.width; 
+                int index = x + (tile->y + j) * world.width;
+
+                Tile * t = &world.tiles[index];
+                
+                if (t->elevation > world.sea_level) {
+                    result.push_back(tile);
+                }
+            }
         }
     } 
 
@@ -53,7 +63,7 @@ double tile_cost(Tile * t1, Tile * t2) {
     int y_diff = t1->y - t2->y;
 
     // Maximum elevation difference accounts to same cost as one jump in x or y direction (1.0)
-    double elev_diff = ((int) t1->elevation - (int) t2->elevation) / 255.0; 
+    double elev_diff = ((int) t1->elevation - (int) t2->elevation) / 128.0; 
     
     // Base distance is euclidean distance in x, y and elevation
     double distance = std::sqrt(x_diff * x_diff + y_diff * y_diff + elev_diff * elev_diff);
@@ -63,12 +73,23 @@ double tile_cost(Tile * t1, Tile * t2) {
 
     // Cost modifier from infrastructure scales linearly with infrastructure
     // with 1.0 cost modifier at max infra and 5.0 modifier at 0 infra
-    double infra_modifier = 1.0 + 4.0 * (1 - avg_infra / 255.0); 
+    // NOTE: Make sure that the infrastructure modifier is always larger than 1 for bad infra
+    // (rather than <1 for good infra), or the heuristic will no longer be admissible
+    // and A* will no longer be optimal
+    double infra_modifier = 1.0 + 4.0 * (1 - avg_infra / 8.0); 
 
-    return infra_modifier * distance;
+    // Rivers double the cost
+    double river_modifier = (t1->is_river || t2->is_river) ? 2.0 : 0.0;
+
+    return river_modifier * infra_modifier * distance;
 }
 
+
 std::vector<Tile*> find_path(const World& world, Tile * start, Tile * end) {
+
+    if (start->elevation <= world.sea_level && end->elevation <= world.sea_level) {
+        return std::vector<Tile *>();
+    }
 
     // Keeps track of the costs so far
     std::unordered_map<Tile *, double> cost_map;
@@ -87,8 +108,12 @@ std::vector<Tile*> find_path(const World& world, Tile * start, Tile * end) {
 
     while (!queue.empty()) {
 
-        Tile* current = queue.top().second;
+        Tile * current = queue.top().second;
         queue.pop();
+
+        // If the current node has been previously visited, 
+        // it's optimal cost has already been calculated, and we can skip it  
+        if (visited.count(current)) continue;
 
         visited.insert(current);
 
