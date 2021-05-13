@@ -166,7 +166,12 @@ void Map::quad_create(size_t qx, size_t qy) {
 					size_t x = i + draw_ord[k][0];
 					size_t y = j + draw_ord[k][1];
 					uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
-					glColor3ub(32, elevation, elevation + this->world->sea_level);
+
+					if(elevation == this->world->sea_level + 1) {
+						glColor3ub(0x19, 0x61, 0x61);
+					} else {
+						glColor3ub(32, elevation, elevation + this->world->sea_level);
+					}
 					glVertex2f(x, y);
 				}
 				glEnd();
