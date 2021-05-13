@@ -28,6 +28,9 @@ public:
 	size_t max_y = 0;
 
 	size_t owner_id = PROVINCE_NO_ONWER;
+
+	float supply_limit;
+	float supply_rem;
 	
 	std::vector<Industry *> industries;
 	std::vector<Product *> products;

@@ -6,3 +6,6 @@ gran_colombia_republic								https://commons.wikimedia.org/wiki/File:Flag_of_th
 paraguay_republic									https://commons.wikimedia.org/wiki/File:Flag_of_Paraguay_(1812-1826).svg
 bolivia_republic									https://commons.wikimedia.org/wiki/File:State_flag_of_Bolivia_(1825-1826).svg
 federated_republic_central_america_republic			https://commons.wikimedia.org/wiki/File:Flag_of_the_Federal_Republic_of_Central_America.svg
+united_kingdom_monarchy								https://commons.wikimedia.org/wiki/File:Flag_of_the_United_Kingdom.svg
+france_republic										https://commons.wikimedia.org/wiki/File:Flag_of_France.svg
+sokoto_monarchy                                     https://commons.wikimedia.org/wiki/File:Flag_of_the_Sokoto_Caliphate.svg

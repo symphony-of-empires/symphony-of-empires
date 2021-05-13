@@ -206,6 +206,19 @@ int LuaAPI::add_nation(lua_State * L) {
 
 	nation->name = lua_tostring(L, 4);
 
+	// Check for duplicates
+	for(size_t i = 0; i < g_world->nations.size(); i++) {
+		if(nation->color == g_world->nations[i]->color) {
+			print_error("%s nation has same colour as %s", nation->name.c_str(), g_world->nations[i]->name.c_str());
+			break;
+		} else if(nation->ref_name == g_world->nations[i]->ref_name) {
+			print_error("%s nation has same ref_name as %s", nation->name.c_str(), g_world->nations[i]->name.c_str());
+			print_error("thereby we will return the id of the original nation")
+			lua_pushnumber(L, i);
+			return 1;
+		}
+	}
+
 	printf("nation: %s (%s)\n", nation->name.c_str(), nation->ref_name.c_str());
 	g_world->nations.push_back(nation);
 	lua_pushnumber(L, g_world->nations.size() - 1);
@@ -253,6 +266,19 @@ int LuaAPI::add_province(lua_State * L) {
 	province->name = lua_tostring(L, 3);
 	province->population = 1000;
 	province->budget = 500.f;
+
+	// Check for duplicates
+	for(size_t i = 0; i < g_world->provinces.size(); i++) {
+		if(province->color == g_world->provinces[i]->color) {
+			print_error("%s province has same colour as %s", province->name.c_str(), g_world->provinces[i]->name.c_str());
+			break;
+		} else if(province->ref_name == g_world->provinces[i]->ref_name) {
+			print_error("%s province has same ref_name as %s", province->name.c_str(), g_world->provinces[i]->name.c_str());
+			print_error("thereby we will return the id of the original province")
+			lua_pushnumber(L, i);
+			return 1;
+		}
+	}
 
 	g_world->provinces.push_back(province);
 
