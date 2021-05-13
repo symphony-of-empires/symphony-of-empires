@@ -30,7 +30,15 @@ std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
             if (coord_in_bounds(world, tile->x + i, tile->y + j)) {
 
                 // Wrap x east to west
-                int x = (tile->x + i) % world.width; 
+                int x = (tile->x + i);
+                
+                // Adjust x, allow wrapping
+                if (x < 0) {
+                    x = world.width + x;
+                } else if (x >= world.width) {
+                    x %= world.width;
+                }
+
                 int index = x + (tile->y + j) * world.width;
 
                 Tile * t = &world.tiles[index];
