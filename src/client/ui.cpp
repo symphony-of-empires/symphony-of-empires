@@ -92,14 +92,19 @@ void Context::render_all() {
 		// Widget below parent
 		if(widget->parent != nullptr
 		&& (widget->x + widget->width > widget->parent->x + widget->parent->width
-		|| widget->y + widget->height > widget->parent->y + widget->parent->height))
+		|| widget->y + widget->height > widget->parent->y + widget->parent->height)) {
+			widget->show = false;
 			continue;
+		}
 		
 		if(widget->parent != nullptr
 		&& (widget->y + widget->width < widget->parent->y
-		|| widget->x + widget->width < widget->parent->x))
+		|| widget->x + widget->width < widget->parent->x)) {
+			widget->show = false;
 			continue;
+		}
 
+		widget->show = true;
 		if(widget->show && widget->on_render != nullptr) {
 			widget->on_render(widget, (void *)this);
 
@@ -375,11 +380,11 @@ Widget::~Widget() {
 	this->p_ctx->remove_widget(this);
 }
 
-void Widget::move_by(int x, int y) {
-	this->x += x;
-	this->y += y;
+void Widget::move_by(int _x, int _y) {
+	this->x += _x;
+	this->y += _y;
 	for(auto& child: this->children) {
-		child->move_by(x, y);
+		child->move_by(_x, _y);
 	}
 }
 
@@ -399,7 +404,7 @@ void Widget::text(Context * ctx, const char * text) {
 	SDL_Surface * surface;
 	Texture * tex;
 
-	if(this->text_texture != nullptr && this->text_texture->gl_tex_num) {
+	if(this->text_texture != nullptr) {
 		glDeleteTextures(1, &this->text_texture->gl_tex_num);
 		delete this->text_texture;
 	}

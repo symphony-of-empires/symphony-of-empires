@@ -216,6 +216,7 @@ public:
 	size_t good_id;
 	size_t requester_industry_id;
 	size_t requester_province_id;
+	size_t quantity;
 };
 class DeliverGoods {
 public:
@@ -224,6 +225,7 @@ public:
 	size_t sender_industry_id;
 	size_t sender_province_id;
 	size_t rejections = 0;
+	size_t quantity;
 };
 
 #include <cmath>
@@ -237,6 +239,9 @@ void World::do_tick() {
 	// All factories will place their orders for their inputs
 	// All RGOs will do deliver requests
 	for(size_t i = 0; i < n_provinces; i++) {
+		// Reset remaining supplies
+		this->provinces[i]->supply_rem = this->provinces[i]->supply_limit;
+
 		// Time to simulate our POPs
 		for(auto& pop: this->provinces[i]->pops) {
 			lua_getglobal(this->lua, this->pop_types[pop->type_id]->on_tick_fn.c_str());
@@ -250,32 +255,33 @@ void World::do_tick() {
 			IndustryType * it = this->industry_types[this->provinces[i]->industries[j]->type_id];
 			for(const auto& input: it->inputs) {
 				OrderGoods order;
+				order.quantity = 100;
 				order.payment = 500.f;
 				order.good_id = input;
 				order.requester_industry_id = j;
 				order.requester_province_id = i;
 				orders.push_back(order);
-				//printf("We need good: %s (from %s)\n", this->goods[order.good_id].ref_name.c_str(), this->provinces[order.requester_province_id].ref_name.c_str());
+				printf("We need good: %s (from %s)\n", this->goods[order.good_id]->ref_name.c_str(), this->provinces[order.requester_province_id]->ref_name.c_str());
 			}
 
 			if(it->inputs.size() == 0) {
 				// Place deliver orders (we are a RGO)
 				for(const auto& output: it->outputs) {
 					DeliverGoods deliver;
+					deliver.quantity = 5000;
 					deliver.payment = 1500.f;
 					deliver.good_id = output;
 					deliver.sender_industry_id = j;
 					deliver.sender_province_id = i;
 					delivers.push_back(deliver);
-					//printf("Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id].ref_name.c_str(), this->provinces[deliver.sender_province_id].ref_name.c_str());
+					printf("Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id]->ref_name.c_str(), this->provinces[deliver.sender_province_id]->ref_name.c_str());
 				}
 			}
 		}
 	}
 
 	// Now we will deliver stuff accordingly
-	while(delivers.size() > 0
-	|| orders.size() > 0) {
+	while(delivers.size() > 0 && orders.size() > 0) {
 		// Now transport companies will check and transport accordingly
 		for(auto& company: this->companies) {
 			if(!company->is_transport)
@@ -284,6 +290,7 @@ void World::do_tick() {
 			// Check all delivers
 			for(size_t i = 0; i < delivers.size(); i++) {
 				DeliverGoods * deliver = &delivers[i];
+				deliver->rejections++;
 
 				if(!company->in_range(deliver->sender_province_id))
 					continue;
@@ -300,23 +307,33 @@ void World::do_tick() {
 					if(!company->in_range(order->requester_province_id))
 						continue;
 
-					//printf("%s: Delivered from %s to %s some %s\n", company.name.c_str(), this->provinces[deliver->sender_province_id].ref_name.c_str(), this->provinces[order->requester_province_id].ref_name.c_str(), this->goods[order->good_id].ref_name.c_str());
+					printf("%s: Delivered from %s to %s some %s\n", company->name.c_str(), this->provinces[deliver->sender_province_id]->ref_name.c_str(), this->provinces[order->requester_province_id]->ref_name.c_str(), this->goods[order->good_id]->ref_name.c_str());
 
 					// Yes - we go and deliver their stuff
 					Industry * industry = this->provinces[order->requester_province_id]->industries[order->requester_industry_id];
 					industry->add_to_stock(this, order->good_id, 1);
+
+					// Province receives a small supply buff from commerce
+					this->provinces[order->requester_province_id]->supply_rem += 5.f;
+
+					size_t count = order->quantity % deliver->quantity;
+					deliver->quantity -= count;
+					order->quantity -= count;
 
 					// On 0 it overflows to -1, on 1 it goes to zero, but after this loop it's
 					// incremented again (see incrementing below). So we don't take a rejection hit
 					deliver->rejections--;
 
 					// Delete this deliver and order tickets from the system since
-					// they are now fullfilled
-					orders.erase(orders.begin() + j); j--;
-					delivers.erase(delivers.begin() + i);
+					// they are now fullfilled (only delete when no quanity left)
+					if(!order->quantity) {
+						orders.erase(orders.begin() + j);
+					} if(!deliver->quantity) {
+						delivers.erase(delivers.begin() + i);
+						i--;
+					}
 					break;
 				}
-				deliver->rejections++;
 			}
 		}
 
@@ -333,17 +350,15 @@ void World::do_tick() {
 			if(deliver->rejections >= n_transporters) {
 				delivers.erase(delivers.begin() + i);
 				i--;
-				continue;
 			}
 		}
 
-		// No orders if no delivers!
-		if(delivers.size() == 0) {
-			delivers.clear();
-			orders.clear();
+		// No orders if no delivers! (and can't deliver if no orders)
+		if(!delivers.size() || !orders.size())
 			break;
-		}
 	}
+	delivers.clear();
+	orders.clear();
 
 	// Close today's price with a change according to demand - supply
 	for(auto& product: this->products) {
@@ -362,6 +377,28 @@ void World::do_tick() {
 		if(product->price <= 0.f) {
 			product->price = 0.01f;
 		}
+
+		// random stuff - just to fuzz things
+		switch(rand() % 4) {
+		case 0:
+			product->demand += rand() % 1000;
+			break;
+		case 1:
+			product->supply += rand() % 1000;
+			break;
+		case 2:
+			if(!product->demand)
+				break;
+			product->demand -= (rand() % 1000) % product->demand;
+			break;
+		case 3:
+			if(!product->supply)
+				break;
+			product->supply -= (rand() % 1000) % product->supply;
+			break;
+		default:
+			break;
+		}
 	}
 
 	// Evaluate units
@@ -376,17 +413,28 @@ void World::do_tick() {
 		size_t n_friends = 0;
 		size_t n_foes = 0;
 		Unit * nearest_foe = nullptr;
+		Unit * nearest_friend = nullptr;
 		for(size_t j = 0; j < g_world->units.size(); j++) {
 			Unit * other_unit = g_world->units[j];
 			if(unit->owner_id == other_unit->owner_id) {
 				// Only when very close
-				if(fabs(unit->x - other_unit->x) >= 5 && fabs(unit->y - other_unit->y) >= 5)
+				if(fabs(unit->x - other_unit->x) >= 8 && fabs(unit->y - other_unit->y) >= 8)
 					continue;
 				
 				n_friends++;
+
+				if(nearest_friend == nullptr) {
+					nearest_friend = other_unit;
+				}
+
+				// Find nearest friend
+				if(fabs(unit->x - other_unit->x) < fabs(unit->x - nearest_friend->x)
+				&& fabs(unit->y - other_unit->y) < fabs(unit->y - nearest_friend->y)) {
+					nearest_friend = other_unit;
+				}
 			} else {
 				// Foes from many ranges counts
-				if(fabs(unit->x - other_unit->x) >= 10 && fabs(unit->y - other_unit->y) >= 10)
+				if(fabs(unit->x - other_unit->x) >= 15 && fabs(unit->y - other_unit->y) >= 15)
 					continue;
 
 				n_foes++;
@@ -405,7 +453,7 @@ void World::do_tick() {
 
 		if(nearest_foe == nullptr)
 			continue;
-
+		
 		// Too much enemies, retreat
 		if((n_foes / 3) > n_friends) {
 			// Go away from foes
@@ -417,21 +465,26 @@ void World::do_tick() {
 				unit->x -= 0.1f;
 			if(nearest_foe->y > unit->y)
 				unit->y -= 0.1f;
+			
+			// Attack nearest foe when possible
+			if(fabs(unit->x - nearest_foe->x) <= 1.f && fabs(unit->y - nearest_foe->y) <= 1.f) {
+				nearest_foe->health -= 10.f;
+			}
 		}
 		// The gang is able to attack, so we attack
 		else {
 			// Attack enemies
-			if(nearest_foe->x > unit->x)
+			if(nearest_foe->x > unit->x + 1.f)
 				unit->x += 0.1f;
-			if(nearest_foe->y > unit->y)
+			if(nearest_foe->y > unit->y + 1.f)
 				unit->y += 0.1f;
-			if(nearest_foe->x < unit->x)
+			if(nearest_foe->x < unit->x - 1.f)
 				unit->x -= 0.1f;
-			if(nearest_foe->y < unit->y)
+			if(nearest_foe->y < unit->y - 1.f)
 				unit->y -= 0.1f;
 				
 			// If in distance, do attack
-			if(fabs(unit->x - nearest_foe->x) <= 1 && fabs(unit->y - nearest_foe->y) <= 1) {
+			if(fabs(unit->x - nearest_foe->x) <= 1.f && fabs(unit->y - nearest_foe->y) <= 1.f) {
 				nearest_foe->health -= 10.f;
 			}
 		}

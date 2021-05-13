@@ -298,6 +298,26 @@ Nation:register(nation)
 local nation = Nation:create{ ref_name = "united_states", color = 0x639FFF, default_flag = "flags/united_states_democracy.png" }
 nation.name = _("United states")
 Nation:register(nation)
+
+local nation = Nation:create{ ref_name = "united_kingdom", color = 0xff3262, default_flag = "flags/united_kingdom_monarchy.png" }
+nation.name = _("United Kingdom")
+Nation:register(nation)
+
+local nation = Nation:create{ ref_name = "netherlands", color = 0xe79b46, default_flag = "flags/netherlands_monarchy.png" }
+nation.name = _("Netherlands")
+Nation:register(nation)
+
+local nation = Nation:create{ ref_name = "france", color = 0x2e2bd6, default_flag = "flags/france_republic.png" }
+nation.name = _("France")
+Nation:register(nation)
+
+local nation = Nation:create{ ref_name = "sokoto", color = 0x5f4b32, default_flag = "flags/sokoto_monarchy.png" }
+nation.name = _("Sokoto")
+Nation:register(nation)
+
+local nation = Nation:create{ ref_name = "wadai_empire", color = 0xb9bc2a, default_flag = "flags/unknown.png" }
+nation.name = _("Wadai Empire")
+Nation:register(nation)
 print("nations")
 
 -- Provinces
@@ -645,6 +665,57 @@ Province:register(name_of_province)
 -- THIS IS NOT PART OF THE FINAL MODDING API
 
 -- Companies
+
+local usa_east_transport = Company:create{ name = "USA East Transport", money = 10000000, is_transport = true }
+Company:register(usa_east_transport)
+add_op_province_to_company(0, "maryland")
+add_op_province_to_company(0, "virginia")
+add_op_province_to_company(0, "delaware")
+add_op_province_to_company(0, "maine")
+add_op_province_to_company(0, "pensylvania")
+add_op_province_to_company(0, "vermont")
+add_op_province_to_company(0, "new_hampshire")
+add_op_province_to_company(0, "massachusetts")
+add_op_province_to_company(0, "new_york")
+add_op_province_to_company(0, "rhode_island")
+add_op_province_to_company(0, "new_jersey")
+add_op_province_to_company(0, "connecticut")
+add_op_province_to_company(0, "florida")
+
+local andes_transport = Company:create{ name = "Andes Transport", money = 10000000, is_transport = true }
+Company:register(andes_transport)
+add_op_province_to_company(1, "sergipe")
+add_op_province_to_company(1, "alagoas")
+add_op_province_to_company(1, "sao_francisco")
+add_op_province_to_company(1, "pernambuco")
+add_op_province_to_company(1, "ceara")
+add_op_province_to_company(1, "mato_grosso")
+add_op_province_to_company(1, "goias")
+
+local mexico_transport = Company:create{ name = "Mexico Transport", money = 10000000, is_transport = true }
+Company:register(mexico_transport)
+add_op_province_to_company(2, "durango")
+add_op_province_to_company(2, "san_luis_potosi")
+add_op_province_to_company(2, "guanajuato")
+add_op_province_to_company(2, "michoacan")
+add_op_province_to_company(2, "colima")
+add_op_province_to_company(2, "mexico")
+add_op_province_to_company(2, "puebla")
+add_op_province_to_company(2, "queretaro")
+add_op_province_to_company(2, "tlaxcala")
+add_op_province_to_company(2, "chiapas")
+add_op_province_to_company(2, "oaxaca")
+add_op_province_to_company(2, "nuevo_mexico")
+add_op_province_to_company(2, "sinaloa")
+add_op_province_to_company(2, "jalisco")
+add_op_province_to_company(2, "baja_california")
+add_op_province_to_company(2, "alta_california")
+add_op_province_to_company(2, "sonora")
+add_op_province_to_company(2, "tamaulipas")
+add_op_province_to_company(2, "nuevo_leon")
+add_op_province_to_company(2, "veracruz")
+add_op_province_to_company(2, "coahuila_y_texas")
+add_op_province_to_company(2, "chihuahua")
 
 -- local rival_transport_company = Company:create{ name = "Rival Transport Corporate", money = 10000000, is_transport = true }
 -- Company:register(rival_transport_company)

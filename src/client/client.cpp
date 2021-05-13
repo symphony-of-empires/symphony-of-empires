@@ -86,29 +86,34 @@ static void do_province_overview() {
 
 std::vector<UI::Label *> wm_lab;
 UI::Window * wm_win;
-static void do_world_market_overview(UI::Widget *, void *) {
-	wm_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512 + 256, height - 256, "World market");
-
+static void do_world_market_overview_or(UI::Widget *, void *) {
+	const size_t n_labs = 4;
 	char * str = new char[255];
-	size_t i = 0;
-	for(auto& product: g_world->products) {
-		UI::Label * name = new UI::Label(ui_ctx, wm_win, 0, i * 24, g_world->goods[product->good_id]->name.c_str());
-		wm_lab.push_back(name);
-
-		sprintf(str, "%4.2f", product->price);
-		UI::Label * price = new UI::Label(ui_ctx, wm_win, 128, i * 24, str);
-		wm_lab.push_back(price);
-
-		UI::Label * p_name = new UI::Label(ui_ctx, wm_win, 256, i * 24, g_world->provinces[product->origin_id]->name.c_str());
-		wm_lab.push_back(p_name);
-
-		sprintf(str, "%4.2f", product->price_vel);
-		UI::Label * p_vel = new UI::Label(ui_ctx, wm_win, 256 + 128 + 64 + 64 + 32, i * 24, str);
-		wm_lab.push_back(p_vel);
-
-		i++;
+	for(size_t i = 0; i < g_world->products.size(); i++) {
+		UI::Label * lab;
+		wm_lab[i * 4 + 0]->text(ui_ctx, g_world->goods[g_world->products[i]->good_id]->name.c_str());
+		sprintf(str, "%4.2f", g_world->products[i]->price);
+		wm_lab[i * 4 + 1]->text(ui_ctx, str);
+		sprintf(str, "%4.2f", g_world->products[i]->price_vel);
+		wm_lab[i * 4 + 2]->text(ui_ctx, str);
+		wm_lab[i * 4 + 3]->text(ui_ctx, g_world->provinces[g_world->products[i]->origin_id]->name.c_str());
 	}
 	delete[] str;
+}
+static void do_world_market_overview(UI::Widget *, void *) {
+	wm_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512 + 256, height - 256, "World market");
+	wm_win->on_update = &do_world_market_overview_or;
+	for(size_t i = 0; i < g_world->products.size(); i++) {
+		UI::Label * lab;
+		lab = new UI::Label(ui_ctx, wm_win, 0, i * 24, "?");
+		wm_lab.push_back(lab);
+		lab = new UI::Label(ui_ctx, wm_win, 128, i * 24, "?");
+		wm_lab.push_back(lab);
+		lab = new UI::Label(ui_ctx, wm_win, 256, i * 24, "?");
+		wm_lab.push_back(lab);
+		lab = new UI::Label(ui_ctx, wm_win, 320, i * 24, "?");
+		wm_lab.push_back(lab);
+	}
 }
 
 UI::Window * econ_win;
@@ -463,7 +468,9 @@ void do_game_main(UI::Widget *, void *) {
 			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.infra_layout_list_num);
 		
 		// Borders should always display
-		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.div_borders_gl_list_num);
+		if(cam.z >= -800.f) {
+			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.div_borders_gl_list_num);
+		}
 		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.pol_borders_gl_list_num);
 
 		glBegin(GL_POLYGON);
@@ -584,7 +591,7 @@ void do_select_nation(UI::Widget *, void *) {
 
 	UI::Window * select_window = new UI::Window(ui_ctx, nullptr, 64, 128, 512, 512);
 	for(size_t i = 0; i < g_world->nations.size(); i++) {
-		UI::Image * flag = new UI::Image(ui_ctx, select_window, 0, i * 52, 64, 48, nullptr, g_world->nations[i]->default_flag);
+		UI::Image * flag = new UI::Image(ui_ctx, select_window, 0, i * 52, 96, 48, nullptr, g_world->nations[i]->default_flag);
 		flag->user_data = (void *)g_world->nations[i];
 		flag->on_click = &do_select_nation_via_flag;
 		UI::Label * name = new UI::Label(ui_ctx, select_window, 96, i * 52, g_world->nations[i]->name.c_str());
@@ -691,8 +698,8 @@ void rendering_main(void) {
 	UI::Image * menu_bg_img = new UI::Image(ui_ctx, nullptr, 0, 0, width, height, nullptr, &menu_bg);
 	Texture menu_title = Texture(Resource_GetPath("title.png").c_str());
 	menu_title.to_opengl();
-	UI::Image * menu_title_img = new UI::Image(ui_ctx, nullptr, 64, 64, 256, 32, nullptr, &menu_title);
-	UI::Button * new_game = new UI::Button(ui_ctx, nullptr, 64, 128, 256, 24, "New game");
+	UI::Image * menu_title_img = new UI::Image(ui_ctx, nullptr, 64, 8, 320, 128, nullptr, &menu_title);
+	UI::Button * new_game = new UI::Button(ui_ctx, nullptr, 64, 196, 256, 24, "New game");
 	new_game->on_click = &do_select_nation;
 	while(run) {
 		SDL_Event event;
