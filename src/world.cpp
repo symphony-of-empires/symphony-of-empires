@@ -7,6 +7,7 @@
 #include "lua.hpp"
 #include "path.hpp"
 #include "print.hpp"
+#include "pathfinding.hpp"
 
 // Mostly used by clients and lua API
 World * g_world;
@@ -96,6 +97,11 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	const size_t n_provinces = this->provinces.size();
 	uint16_t last_nation_color_id = 0;
 	for(size_t i = 0; i < this->width * this->height; i++) {
+
+		// Set coordinates for the tiles
+		this->tiles[i].x = i % this->width; 
+		this->tiles[i].y = i / this->width;
+		
 		this->tiles[i].elevation = topo.buffer[i] & 0xff;
 		
 		// Associate tiles with nations
@@ -473,7 +479,7 @@ void World::do_tick() {
 
 		printf("%4.f $ - %zu, %zu\n", product->price, product->supply, product->demand);
 	}
-
+	
 	// Evaluate units
 	for(size_t i = 0; i < g_world->units.size(); i++) {
 		Unit * unit = g_world->units[i];
