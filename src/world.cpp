@@ -492,6 +492,7 @@ void World::do_tick() {
 			break;
 		}
 
+		/*
 		// Count friends and foes in range (and find nearest foe)
 		size_t n_friends = 0;
 		size_t n_foes = 0;
@@ -571,6 +572,7 @@ void World::do_tick() {
 				nearest_foe->health -= 10.f;
 			}
 		}
+		*/
 	}
 
 	this->time++;
