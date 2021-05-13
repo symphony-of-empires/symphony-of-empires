@@ -12,5 +12,4 @@
  */
 std::vector<Tile*> find_path(const World& world, Tile* start, Tile* end);
 
-
 #endif

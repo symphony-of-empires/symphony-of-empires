@@ -203,7 +203,8 @@ void Map::quad_create(size_t qx, size_t qy) {
 	if(*gl_list == 0) {
 		*gl_list = glGenLists(1);
 		glNewList(*gl_list, GL_COMPILE);
-		/* Province borders */
+		
+		// Province borders
 		glLineWidth(2.f);
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
@@ -213,7 +214,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				// left
 				if(tiles[(i - 1) + ((j) * this->world->width)].province_id != curr_tile->province_id) {
 					glBegin(GL_LINE_STRIP);
-					glColor3f(0.f, 0.f, 0.f);
+					glColor4f(0.f, 0.f, 0.f, 0.1f);
 					glVertex2f((float)i, (float)j + 1.f);
 					glVertex2f((float)i, (float)j + 0.f);
 					glEnd();
@@ -222,7 +223,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				// right
 				if(tiles[(i + 1) + ((j) * this->world->width)].province_id != curr_tile->province_id) {
 					glBegin(GL_LINE_STRIP);
-					glColor3f(0.f, 0.f, 0.f);
+					glColor4f(0.f, 0.f, 0.f, 0.1f);
 					glVertex2f((float)i + 1.f, (float)j + 1.f);
 					glVertex2f((float)i + 1.f, (float)j + 0.f);
 					glEnd();
@@ -231,7 +232,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				// up
 				if(tiles[(i) + ((j - 1) * this->world->width)].province_id != curr_tile->province_id) {
 					glBegin(GL_LINE_STRIP);
-					glColor3f(0.f, 0.f, 0.f);
+					glColor4f(0.f, 0.f, 0.f, 0.1f);
 					glVertex2f((float)i + 1.f, (float)j);
 					glVertex2f((float)i + 0.f, (float)j);
 					glEnd();
@@ -240,7 +241,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				// down
 				if(tiles[(i) + ((j + 1) * this->world->width)].province_id != curr_tile->province_id) {
 					glBegin(GL_LINE_STRIP);
-					glColor3f(0.f, 0.f, 0.f);
+					glColor4f(0.f, 0.f, 0.f, 0.1f);
 					glVertex2f((float)i + 1.f, (float)j + 1.f);
 					glVertex2f((float)i + 0.f, (float)j + 1.f);
 					glEnd();
@@ -254,7 +255,8 @@ void Map::quad_create(size_t qx, size_t qy) {
 	if(*gl_list == 0) {
 		*gl_list = glGenLists(1);
 		glNewList(*gl_list, GL_COMPILE);
-		/* National borders */
+		
+		// National borders 
 		glLineWidth(3.f);
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
@@ -266,7 +268,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				&& tiles[(i - 1) + ((j) * this->world->width)].owner_id != (uint16_t)-1
 				&& curr_tile->owner_id != (uint16_t)-1) {
 					glBegin(GL_LINE_STRIP);
-					glColor3f(1.f, 0.f, 0.f);
+					glColor4f(0.f, 0.f, 0.f, 0.3f);
 					glVertex2f((float)i, (float)j + 1.f);
 					glVertex2f((float)i, (float)j + 0.f);
 					glEnd();
@@ -277,7 +279,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				&& tiles[(i + 1) + ((j) * this->world->width)].owner_id != (uint16_t)-1
 				&& curr_tile->owner_id != (uint16_t)-1) {
 					glBegin(GL_LINE_STRIP);
-					glColor3f(1.f, 0.f, 0.f);
+					glColor4f(0.f, 0.f, 0.f, 0.3f);
 					glVertex2f((float)i + 1.f, (float)j + 1.f);
 					glVertex2f((float)i + 1.f, (float)j + 0.f);
 					glEnd();
@@ -288,7 +290,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				&& tiles[(i) + ((j - 1) * this->world->width)].owner_id != (uint16_t)-1
 				&& curr_tile->owner_id != (uint16_t)-1) {
 					glBegin(GL_LINE_STRIP);
-					glColor3f(1.f, 0.f, 0.f);
+					glColor4f(0.f, 0.f, 0.f, 0.3f);
 					glVertex2f((float)i + 1.f, (float)j);
 					glVertex2f((float)i + 0.f, (float)j);
 					glEnd();
@@ -299,7 +301,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				&& tiles[(i) + ((j + 1) * this->world->width)].owner_id != (uint16_t)-1
 				&& curr_tile->owner_id != (uint16_t)-1) {
 					glBegin(GL_LINE_STRIP);
-					glColor3f(1.f, 0.f, 0.f);
+					glColor4f(0.f, 0.f, 0.f, 0.3f);
 					glVertex2f((float)i + 1.f, (float)j + 1.f);
 					glVertex2f((float)i + 0.f, (float)j + 1.f);
 					glEnd();

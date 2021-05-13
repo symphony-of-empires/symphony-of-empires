@@ -473,7 +473,7 @@ void do_game_main(UI::Widget *, void *) {
 			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.infra_layout_list_num);
 		
 		// Borders should always display
-		if(cam.z >= -800.f) {
+		if(cam.z >= -400.f) {
 			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.div_borders_gl_list_num);
 		}
 		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.pol_borders_gl_list_num);

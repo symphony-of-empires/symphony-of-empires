@@ -676,6 +676,63 @@ local name_of_province = Province:create{ ref_name = "virginia", color = 0xff757
 name_of_province.name = _("Virginia")
 Province:register(name_of_province)
 
+--------------------------------------------------------------
+-- Continent: Americas
+-- Subcontinent: South America
+-- Country: Bolivia + Chaco
+
+local name_of_province = Province:create{ ref_name = "pando", color = 0x47FBFF }
+name_of_province.name = _("Pando")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "santa_cruz", color = 0xFFC4EE }
+name_of_province.name = _("Santa Cruz")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "carvoal", color = 0xFF8168 }
+name_of_province.name = _("Carvoal")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "corumba", color = 0x8CFBFF }
+name_of_province.name = _("Corumbá")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "santissima_trinidade", color = 0x5E1EFF }
+name_of_province.name = _("Santíssima Trinidade")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "fuerte_olimpo", color = 0xFF1900 }
+name_of_province.name = _("Fuerte Olimpo")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "nueva_burdeos", color = 0xFFD149 }
+name_of_province.name = _("Nueva Burdeos")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "la_paz", color = 0xFF2158 }
+name_of_province.name = _("La Paz")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "cochabamba", color = 0xCB3FFF }
+name_of_province.name = _("Cochabamba")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "oruro", color = 0x75FFCC }
+name_of_province.name = _("Oruro")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "potosi", color = 0xFC63FF }
+name_of_province.name = _("Potosí")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "chuquisaca", color = 0x4FA7FF }
+name_of_province.name = _("Chuquisaca")
+Province:register(name_of_province)
+
+local name_of_province = Province:create{ ref_name = "tarija", color = 0x907CFF }
+name_of_province.name = _("Tarija")
+Province:register(name_of_province)
+
 -- THIS IS NOT PART OF THE FINAL MODDING API
 
 -- Companies
