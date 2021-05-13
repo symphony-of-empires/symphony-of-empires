@@ -32,6 +32,7 @@ public:
 	float supply_limit;
 	float supply_rem;
 	
+	std::vector<size_t> stockpile;
 	std::vector<Industry *> industries;
 	std::vector<Product *> products;
     std::vector<Pop *> pops;

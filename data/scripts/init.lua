@@ -88,9 +88,11 @@ wheat.name = _("Wheat")
 Good:register(wheat)
 local grapes = Good:create{ ref_name = "grapes" }
 grapes.name = _("Grapes")
+grapes.is_edible = true
 Good:register(grapes)
 local rice = Good:create{ ref_name = "rice" }
 rice.name = _("Rice")
+rice.is_edible = true
 Good:register(rice)
 local cotton = Good:create{ ref_name = "cotton" }
 cotton.name = _("Cotton")
@@ -140,6 +142,7 @@ diamond.name = _("Diamond")
 Good:register(diamond)
 local titanium = Good:create{ ref_name = "titanium" }
 titanium.name = _("Titanium")
+titanium.is_edible = true
 Good:register(titanium)
 local oil = Good:create{ ref_name = "oil" }
 oil.name = _("Oil")
@@ -157,9 +160,11 @@ glass.name = _("Glass")
 Good:register(glass)
 local bread = Good:create{ ref_name = "bread" }
 bread.name = _("Bread")
+bread.is_edible = true
 Good:register(bread)
 local salt = Good:create{ ref_name = "salt" }
 salt.name = _("Salt")
+salt.is_edible = true
 Good:register(salt)
 
 -- Commodities
@@ -214,7 +219,7 @@ IndustryType:add_output(wheat_farm, wheat)
 local rice_farm = IndustryType:create{ ref_name = "rice_farm" }
 rice_farm.name = _("Rice farm")
 IndustryType:register(rice_farm)
-IndustryType:add_output(rice_farm, wheat)
+IndustryType:add_output(rice_farm, rice)
 
 local cotton_farm = IndustryType:create{ ref_name = "cotton_farm" }
 cotton_farm.name = _("Cotton farm")
@@ -319,6 +324,15 @@ local nation = Nation:create{ ref_name = "wadai_empire", color = 0xb9bc2a, defau
 nation.name = _("Wadai Empire")
 Nation:register(nation)
 print("nations")
+
+--------------------------------------------------------------------------------------------------------------------
+local usa_east_transport = Company:create{ name = "USA East Transport", money = 10000000, is_transport = true }
+Company:register(usa_east_transport)
+local andes_transport = Company:create{ name = "Andes Transport", money = 10000000, is_transport = true }
+Company:register(andes_transport)
+local mexico_transport = Company:create{ name = "Mexico Transport", money = 10000000, is_transport = true }
+Company:register(mexico_transport)
+--------------------------------------------------------------------------------------------------------------------
 
 -- Provinces
 
@@ -666,8 +680,6 @@ Province:register(name_of_province)
 
 -- Companies
 
-local usa_east_transport = Company:create{ name = "USA East Transport", money = 10000000, is_transport = true }
-Company:register(usa_east_transport)
 add_op_province_to_company(0, "maryland")
 add_op_province_to_company(0, "virginia")
 add_op_province_to_company(0, "delaware")
@@ -682,8 +694,6 @@ add_op_province_to_company(0, "new_jersey")
 add_op_province_to_company(0, "connecticut")
 add_op_province_to_company(0, "florida")
 
-local andes_transport = Company:create{ name = "Andes Transport", money = 10000000, is_transport = true }
-Company:register(andes_transport)
 add_op_province_to_company(1, "sergipe")
 add_op_province_to_company(1, "alagoas")
 add_op_province_to_company(1, "sao_francisco")
@@ -692,8 +702,6 @@ add_op_province_to_company(1, "ceara")
 add_op_province_to_company(1, "mato_grosso")
 add_op_province_to_company(1, "goias")
 
-local mexico_transport = Company:create{ name = "Mexico Transport", money = 10000000, is_transport = true }
-Company:register(mexico_transport)
 add_op_province_to_company(2, "durango")
 add_op_province_to_company(2, "san_luis_potosi")
 add_op_province_to_company(2, "guanajuato")
@@ -716,11 +724,117 @@ add_op_province_to_company(2, "nuevo_leon")
 add_op_province_to_company(2, "veracruz")
 add_op_province_to_company(2, "coahuila_y_texas")
 add_op_province_to_company(2, "chihuahua")
-
--- local rival_transport_company = Company:create{ name = "Rival Transport Corporate", money = 10000000, is_transport = true }
--- Company:register(rival_transport_company)
--- add_op_province_to_company(1, hokkaido_tohoku.ref_name)
-
 print("companies")
+
+local province = Province:get({}, "virginia")
+Province:add_pop(province, artisan, japanesse, good_bois, 5000)
+Province:add_pop(province, farmer, japanesse, good_bois, 5000)
+Province:add_pop(province, soldier, japanesse, good_bois, 5000)
+Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
+Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
+Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
+Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
+Province:add_pop(province, laborer, japanesse, good_bois, 5000)
+Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
+
+local province = Province:get({}, "vermont")
+Province:add_pop(province, artisan, japanesse, good_bois, 5000)
+Province:add_pop(province, farmer, japanesse, good_bois, 5000)
+Province:add_pop(province, soldier, japanesse, good_bois, 5000)
+Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
+Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
+Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
+Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
+Province:add_pop(province, laborer, japanesse, good_bois, 5000)
+Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
+
+local province = Province:get({}, "new_jersey")
+Province:add_pop(province, artisan, japanesse, good_bois, 5000)
+Province:add_pop(province, farmer, japanesse, good_bois, 5000)
+Province:add_pop(province, soldier, japanesse, good_bois, 5000)
+Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
+Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
+Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
+Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
+Province:add_pop(province, laborer, japanesse, good_bois, 5000)
+Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
+
+local province = Province:get({}, "new_york")
+Province:add_pop(province, artisan, japanesse, good_bois, 5000)
+Province:add_pop(province, farmer, japanesse, good_bois, 5000)
+Province:add_pop(province, soldier, japanesse, good_bois, 5000)
+Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
+Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
+Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
+Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
+Province:add_pop(province, laborer, japanesse, good_bois, 5000)
+Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
+
+local province = Province:get({}, "maine")
+Province:add_pop(province, artisan, japanesse, good_bois, 5000)
+Province:add_pop(province, farmer, japanesse, good_bois, 5000)
+Province:add_pop(province, soldier, japanesse, good_bois, 5000)
+Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
+Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
+Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
+Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
+Province:add_pop(province, laborer, japanesse, good_bois, 5000)
+Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
+
+local province = Province:get({}, "colima")
+Province:add_pop(province, artisan, japanesse, good_bois, 5000)
+Province:add_pop(province, farmer, japanesse, good_bois, 5000)
+Province:add_pop(province, soldier, japanesse, good_bois, 5000)
+Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
+Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
+Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
+Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
+Province:add_pop(province, laborer, japanesse, good_bois, 5000)
+Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
+
+local province = Province:get({}, "mexico")
+Province:add_pop(province, artisan, japanesse, good_bois, 5000)
+Province:add_pop(province, farmer, japanesse, good_bois, 5000)
+Province:add_pop(province, soldier, japanesse, good_bois, 5000)
+Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
+Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
+Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
+Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
+Province:add_pop(province, laborer, japanesse, good_bois, 5000)
+Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
+
+local province = Province:get({}, "rhode_island")
+Province:add_pop(province, artisan, japanesse, good_bois, 5000)
+Province:add_pop(province, farmer, japanesse, good_bois, 5000)
+Province:add_pop(province, soldier, japanesse, good_bois, 5000)
+Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
+Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
+Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
+Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
+Province:add_pop(province, laborer, japanesse, good_bois, 5000)
+Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
+
+local province = Province:get({}, "oaxaca")
+Province:add_pop(province, artisan, japanesse, good_bois, 5000)
+Province:add_pop(province, farmer, japanesse, good_bois, 5000)
+Province:add_pop(province, soldier, japanesse, good_bois, 5000)
+Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
+Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
+Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
+Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
+Province:add_pop(province, laborer, japanesse, good_bois, 5000)
+Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
+
+local province = Province:get({}, "tlaxcala")
+Province:add_pop(province, artisan, japanesse, good_bois, 5000)
+Province:add_pop(province, farmer, japanesse, good_bois, 5000)
+Province:add_pop(province, soldier, japanesse, good_bois, 5000)
+Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
+Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
+Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
+Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
+Province:add_pop(province, laborer, japanesse, good_bois, 5000)
+Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
+print("pops in provinces")
 
 print("loaded mod.lua")

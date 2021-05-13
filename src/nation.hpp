@@ -17,7 +17,9 @@ public:
 	Texture * default_flag = new Texture(); // Default flag texture of the country
 
 	std::vector<float> relations; // Relations with all other countries
-	size_t spherer_id; // Id of the nation that has us on our sphere of influence
+	size_t spherer_id; // Id of the nation that has us on their sphere of influence
+
+	float diplomacy_points; // Number of diplomacy points available
 
 	float prestige; // Total number of prestige
 	float base_literacy; // Base literacy applied to all pops
