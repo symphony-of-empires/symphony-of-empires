@@ -1,12 +1,14 @@
 #include <string>
 #include <iostream>
-#ifndef WIN32
-#include <unistd.h>
-#endif
-#include <limits.h>
 
-#ifdef WIN32
-#	include <Libloaderapi.h>
+#ifdef _WIN32
+	#include <windows.h>
+	#include <Libloaderapi.h>
+
+	constexpr size_t PATH_MAX = 256;
+#else
+	#include <unistd.h>
+	#include <limits.h>
 #endif
 
 static inline std::string Resource_GetSelfPath(){

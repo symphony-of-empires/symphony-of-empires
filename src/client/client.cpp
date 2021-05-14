@@ -5,9 +5,15 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_mouse.h>
+#ifdef _WIN32
+#include <windows.h>
+#include <gl/GL.h>
+#include <gl/GLU.h>
+#else
 #include <GL/glext.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
+#endif
 
 #include "world.hpp"
 #include "economy.hpp"

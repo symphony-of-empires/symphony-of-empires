@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef _WIN32
 #include <sys/cdefs.h>
+#endif
 #include "economy.hpp"
 #include "world.hpp"
 #include "texture.hpp"
@@ -527,7 +529,7 @@ void World::do_tick() {
 			}
 			
 			// TODO: Higher literacy should mean lower births
-			ssize_t growth = pop->life_needs_met * (rand() % 10);
+			int64_t growth = pop->life_needs_met * (rand() % 10);
 			if(growth < 0 && (size_t)growth >= pop->size) {
 				pop->size = 0;
 				continue;

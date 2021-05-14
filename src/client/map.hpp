@@ -2,7 +2,12 @@
 #define MAP_H
 
 #include <stddef.h>
+#ifdef _WIN32
+#include <windows.h>
+#include <gl/GL.h>
+#else
 #include <GL/gl.h>
+#endif
 #include "world.hpp"
 
 class Map {

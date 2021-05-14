@@ -1,4 +1,4 @@
-#ifdef WIN32
+#ifdef _WIN32
 #	include <lua.hpp>
 #else
 #	include <lua5.4/lua.hpp>
@@ -6,8 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifdef WIN32
-#	include <stdlib.h>
+#ifdef _WIN32
 #	define bswap_32(x) _byteswap_ulong(x)
 #	define bswap_64(x) _byteswap_uint64(x)
 #else
@@ -20,11 +19,18 @@
 #include "print.hpp"
 
 #ifndef SERVER_HEADLESS
-#	include "ui.hpp"
+#	include "client/ui.hpp"
 #endif
 
 #include <libintl.h>
 #include <locale.h>
+
+#ifndef SERVER_HEADLESS
+#include <deque>
+#include <mutex>
+extern std::mutex render_province_mutex;
+extern std::deque<size_t> render_province;
+#endif
 
 // Global world - do not use too much!
 extern World * g_world;
@@ -264,12 +270,6 @@ int LuaAPI::get_province(lua_State * L) {
 	return 4;
 }
 
-#ifndef SERVER_HEADLESS
-#include <deque>
-#include <mutex>
-extern std::mutex render_province_mutex;
-extern std::deque<size_t> render_province;
-#endif
 int LuaAPI::give_province_to(lua_State * L) {
 	if(!lua_isnumber(L, 1) || !lua_isnumber(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));

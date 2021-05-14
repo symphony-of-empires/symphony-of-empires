@@ -1,6 +1,6 @@
 #include <string>
 #include "world.hpp"
-#include "lua.hpp"
+#include "lua/lua.hpp"
 
 void rendering_main(void);
 
@@ -43,7 +43,7 @@ int main(int argc, char ** argv) {
 	return 0;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {
 	char* argv[1];

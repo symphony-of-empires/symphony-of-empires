@@ -1,4 +1,3 @@
-#include <GL/gl.h>
 #include <stdlib.h>
 #include <string.h>
 #include "map.hpp"

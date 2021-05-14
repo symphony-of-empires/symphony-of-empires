@@ -1,4 +1,9 @@
+#ifdef _WIN32
+#include <windows.h>
+#include <gl/GL.h>
+#else
 #include <GL/gl.h>
+#endif
 #include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_ttf.h>
 #include <immintrin.h>

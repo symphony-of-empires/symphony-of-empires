@@ -61,7 +61,6 @@ namespace UI {
 		Widget(const Widget&) = default;
 		Widget(Widget&&) noexcept = default;
 		Widget& operator=(const Widget&) = default;
-		Widget& operator=(Widget&) noexcept = default;
 		~Widget();
 
 		void move_by(int x, int y);
