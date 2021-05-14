@@ -341,6 +341,18 @@ int LuaAPI::add_province_pop(lua_State * L) {
 	return 0;
 }
 
+int LuaAPI::rename_province(lua_State * L) {
+	size_t province_id = lua_tonumber(L, 1);
+	if(province_id >= g_world->provinces.size()) {
+		print_error(gettext("invalid province id %zu"), province_id);
+		return 0;
+	}
+
+	Province * province = g_world->provinces[province_id];
+	province->name = lua_tostring(L, 2);
+	return 0;
+}
+
 int LuaAPI::add_company(lua_State * L) {
 	if(!lua_isstring(L, 1) || !lua_isnumber(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
@@ -402,6 +414,52 @@ int LuaAPI::add_event(lua_State * L) {
 	// Add onto vector
 	g_world->events.push_back(event);
 	lua_pushnumber(L, g_world->events.size() - 1);
+	return 0;
+}
+
+int LuaAPI::get_event(lua_State * L) {
+	if(!lua_isstring(L, 1)) {
+		print_error(gettext("lua argument type mismatch"));
+		return 0;
+	}
+
+	std::string ref_name = lua_tostring(L, 1);
+	Event * event = nullptr;
+	
+	size_t i;
+	for(i = 0; i < g_world->events.size(); i++) {
+		if(g_world->events[i]->ref_name != ref_name) continue;
+		event = g_world->events[i];
+		break;
+	} if(event == nullptr) {
+		print_error(gettext("event %s not found"), ref_name.c_str());
+		return 0;
+	}
+	lua_pushnumber(L, i);
+	lua_pushstring(L, event->ref_name.c_str());
+	lua_pushstring(L, event->conditions_function.c_str());
+	lua_pushstring(L, event->do_event_function.c_str());
+	return 4;
+}
+
+int LuaAPI::add_event_receivers(lua_State * L) {
+	size_t event_id = lua_tonumber(L, 1);
+	if(event_id >= g_world->events.size()) {
+		print_error(gettext("invalid event id %zu"), event_id);
+		return 0;
+	}
+
+	Event * event = g_world->events[event_id];
+
+	// Add receivers of the event by id
+	for(size_t i = 0; i < lua_tonumber(L, 2); i++) {
+		size_t nation_id = lua_tonumber(L, 3 + i);
+		if(nation_id >= g_world->nations.size()) {
+			print_error(gettext("invalid nation id %zu"), event_id);
+			continue;
+		}
+		event->receivers.push_back(g_world->nations[nation_id]);
+	}
 	return 0;
 }
 

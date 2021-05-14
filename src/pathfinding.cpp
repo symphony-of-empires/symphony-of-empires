@@ -20,27 +20,27 @@ bool coord_in_bounds(const World& world, int x, int y) {
 std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
 	std::vector<Tile *> result;
 	
-	for(int i = -1; i <= 1; i++) {
-		for(int j = -1; j <= 1; j++) {
+	for(size_t i = -1; i <= 1; i++) {
+		for(size_t j = -1; j <= 1; j++) {
 			// Skip middle
 			if(i == 0 && j == 0)
 				continue;
 			
 			if(coord_in_bounds(world, tile->x + i, tile->y + j)) {
 				// Wrap x east to west
-				int x = (tile->x + i);
+				size_t x = (tile->x + i);
 				
 				// Adjust x, allow wrapping
-				if (x < 0) {
+				if(x < 0) {
 					x = world.width + x;
-				} else if (x >= world.width) {
+				} else if(x >= world.width) {
 					x %= world.width;
 				}
 				
-				int index = x + (tile->y + j) * world.width;
-				Tile * t = &world.tiles[index];
-				if(t->elevation > world.sea_level) {
-					result.push_back(tile);
+				size_t index = x + (tile->y + j) * world.width;
+				Tile * neighbour = &world.tiles[index];
+				if(neighbour->elevation > world.sea_level) {
+					result.push_back(neighbour);
 				}
 			}
 		}
@@ -52,7 +52,7 @@ std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
  * Calculates the euclidean distance between the two tiles
  * considering only x and y (ignoring elevation)
  */
-double euclidean_distance(Tile * t1, Tile * t2) {
+float euclidean_distance(Tile * t1, Tile * t2) {
 	return std::hypot(t1->x - t2->x, t1->y - t2->y);
 }
 
@@ -60,29 +60,28 @@ double euclidean_distance(Tile * t1, Tile * t2) {
  * Calculates the cost accrued by moving from one tile to another, taking into
  * account elevation and infrastructure.
  */
-double tile_cost(Tile * t1, Tile * t2) {
-	
+float tile_cost(Tile * t1, Tile * t2) {
 	int x_diff = t1->x - t2->x;
 	int y_diff = t1->y - t2->y;
 	
 	// Maximum elevation difference accounts to same cost as one jump in x or y direction (1.0)
-	double elev_diff = ((int)t1->elevation - (int)t2->elevation) / 128.f;
+	float elev_diff = (int)t1->elevation - (int)t2->elevation / 128.f;
 	
 	// Base distance is euclidean distance in x, y and elevation
-	double distance = std::sqrt(x_diff * x_diff + y_diff * y_diff + elev_diff * elev_diff);
+	float distance = std::sqrt(x_diff * x_diff + y_diff * y_diff + elev_diff * elev_diff);
 	
 	// Calculate average infrastructure level between the two tiles
-	double avg_infra = (t1->infra_level + t2->infra_level) / 2.f;
+	float avg_infra = ((t1->infra_level + t2->infra_level) / 2.f) + 1.f;
 	
 	// Cost modifier from infrastructure scales linearly with infrastructure
 	// with 1.0 cost modifier at max infra and 5.0 modifier at 0 infra
 	// NOTE: Make sure that the infrastructure modifier is always larger than 1 for bad infra
 	// (rather than <1 for good infra), or the heuristic will no longer be admissible
 	// and A* will no longer be optimal
-	double infra_modifier = 1.f + 4.f * (1 - avg_infra / 8.f); 
+	float infra_modifier = 1.f + 4.f * (1 - avg_infra / 8.f); 
 	
 	// Rivers double the cost
-	double river_modifier = (t1->is_river || t2->is_river) ? 2.f : 1.f;
+	float river_modifier = (t1->elevation == 127 || t2->elevation == 127) ? 2.f : 1.f;
 	
 	return river_modifier * infra_modifier * distance;
 }
@@ -93,7 +92,7 @@ std::vector<Tile *> find_path(const World& world, Tile * start, Tile * end) {
 	}
 	
 	// Keeps track of the costs so far
-	std::unordered_map<Tile *, double> cost_map;
+	std::unordered_map<Tile *, float> cost_map;
 	
 	// Keeps track of the previous tile for each tile
 	std::unordered_map<Tile *, Tile *> prev_map;
@@ -102,7 +101,7 @@ std::vector<Tile *> find_path(const World& world, Tile * start, Tile * end) {
 	std::unordered_set<Tile *> visited;
 	
 	// Priority queue based on cost
-	std::priority_queue<std::pair<double, Tile *>> queue;
+	std::priority_queue<std::pair<float, Tile *>> queue;
 	
 	cost_map[start] = 0.f;
 	queue.push({0.f, start});
@@ -127,11 +126,11 @@ std::vector<Tile *> find_path(const World& world, Tile * start, Tile * end) {
 			if(visited.count(neighbor))
 				continue;
 			
-			double cost = cost_map[current] + tile_cost(current, neighbor);
+			float cost = cost_map[current] + euclidean_distance(current, neighbor);
 			// If we found a new tile or a shorter path to a previously found tile
 			if(!cost_map.count(neighbor) || cost < cost_map[neighbor]) {
 				cost_map[neighbor] = cost;
-				double priority = cost + euclidean_distance(neighbor, end);
+				float priority = cost + euclidean_distance(neighbor, end);
 				queue.push({priority, neighbor});
 				prev_map[neighbor] = current;
 			}
