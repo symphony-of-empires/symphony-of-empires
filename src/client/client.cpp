@@ -49,7 +49,7 @@ static int tx, ty;
 static size_t player_nation_id;
 static size_t selected_province_id;
 
-static bool display_prov = false, display_pol = true, display_topo = false, display_infra = false;
+static bool display_prov = false, display_pol = true, display_topo = true, display_infra = false;
 
 static void do_view_prov_map(UI::Widget *, void *) {
 	//map = prov_map;
@@ -378,18 +378,26 @@ void do_game_main(UI::Widget *, void *) {
 						selected_province_id = tile->province_id;
 						do_province_overview();
 					}
+					*/
 					
 					// Place unit
 					Unit * unit = new Unit();
-					unit->health = 75.f;
+					unit->health = 100.f;
 					unit->owner_id = player_nation_id;
 					unit->x = fmx;
 					unit->y = fmy;
 					g_world->units.push_back(unit);
-					*/
 				} else if(event.button.button == SDL_BUTTON_RIGHT && !r) {
-					end = &g_world->tiles[tx + ty * g_world->width];
-					path = find_path(*g_world, start, end);
+					//end = &g_world->tiles[tx + ty * g_world->width];
+					//path = find_path(*g_world, start, end);
+					
+					// Place enemy
+					Unit * unit = new Unit();
+					unit->health = 100.f;
+					unit->owner_id = 10;
+					unit->x = fmx;
+					unit->y = fmy;
+					g_world->units.push_back(unit);
 				}
 				break;
 			case SDL_MOUSEMOTION:

@@ -297,6 +297,14 @@ Nation:register(nation)
 local nation = Nation:create{ ref_name = "dahomey", color = 0x613478, default_flag = "flags/dahomey_monarchy.png" }
 nation.name = _("Dahomey")
 Nation:register(nation)
+
+local nation = Nation:create{ ref_name = "austria", color = 0xf8f8f8, default_flag = "flags/austria_monarchy.png" }
+nation.name = _("Austria")
+Nation:register(nation)
+
+local nation = Nation:create{ ref_name = "prussia", color = 0xffd416, default_flag = "flags/prussia_monarchy.png" }
+nation.name = _("Prussia")
+Nation:register(nation)
 print("nations")
 
 --------------------------------------------------------------------------------------------------------------------
