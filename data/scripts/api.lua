@@ -74,6 +74,9 @@ end
 function Province:add_pop(province, pop_type, culture, religion, size)
 	add_province_pop(province.id, pop_type.id, culture.id, religion.id, size)
 end
+function Province:rename(province, new_name)
+	rename_province(province.id, new_name)
+end
 
 Event = { ref_name = "", conditions_fn = "", event_fn = "" }
 function Event:create(event)
@@ -82,6 +85,20 @@ function Event:create(event)
 end
 function Event:register(event)
 	event.id = add_event(event.ref_name, event.conditions_fn, event.event_fn)
+end
+function Event:get(event, ref_name)
+	event.parent = self
+	event.id, event.ref_name, event.conditions_fn, event.event_fn = get_event(ref_name)
+	return event
+end
+function Event:add_receivers(event, ...)
+	local args = table.pack(...)
+	for i = 1, args.n do
+		print(args[i])
+		args[i] = args[i].id
+		print(args[i])
+	end
+	add_event_receivers(event.id, args.n, table.unpack(args))
 end
 
 PopType = { id = 0, ref_name = "", name = "" }
