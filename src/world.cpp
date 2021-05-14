@@ -279,7 +279,7 @@ void World::do_tick() {
 				order.requester_industry_id = j;
 				order.requester_province_id = i;
 				orders.push_back(order);
-				printf("\t- We need good: %s (from %s)\n", this->goods[order.good_id]->name.c_str(), this->provinces[order.requester_province_id]->name.c_str());
+				//printf("\t- We need good: %s (from %s)\n", this->goods[order.good_id]->name.c_str(), this->provinces[order.requester_province_id]->name.c_str());
 			}
 			
 			// RGOs deliver first
@@ -302,7 +302,7 @@ void World::do_tick() {
 						continue;
 					
 					delivers.push_back(deliver);
-					printf("\t- Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id]->name.c_str(), this->provinces[deliver.sender_province_id]->name.c_str());
+					//printf("\t- Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id]->name.c_str(), this->provinces[deliver.sender_province_id]->name.c_str());
 					break;
 				}
 			}
@@ -336,7 +336,7 @@ void World::do_tick() {
 					if(!company->in_range(order->requester_province_id))
 						continue;
 					
-					printf("%s: Delivered from %s to %s some %s\n", company->name.c_str(), this->provinces[deliver->sender_province_id]->name.c_str(), this->provinces[order->requester_province_id]->name.c_str(), this->goods[order->good_id]->name.c_str());
+					//printf("%s: Delivered from %s to %s some %s\n", company->name.c_str(), this->provinces[deliver->sender_province_id]->name.c_str(), this->provinces[order->requester_province_id]->name.c_str(), this->goods[order->good_id]->name.c_str());
 					
 					// Yes - we go and deliver their stuff
 					Industry * industry = this->provinces[order->requester_province_id]->industries[order->requester_industry_id];
@@ -441,7 +441,7 @@ void World::do_tick() {
 			// TODO: Make this dynamic
 			pop->budget += salary;
 			
-			printf("pop, budget %4.f, size %zu\n", pop->budget, pop->size);
+			//printf("pop, budget %4.f, size %zu\n", pop->budget, pop->size);
 			
 			size_t alloc_budget;
 			
@@ -596,7 +596,9 @@ void World::do_tick() {
 			break;
 		}
 		
-		/*
+		unit->tx = unit->x;
+		unit->ty = unit->y;
+		
 		// Count friends and foes in range (and find nearest foe)
 		size_t n_friends = 0;
 		size_t n_foes = 0;
@@ -610,11 +612,11 @@ void World::do_tick() {
 					continue;
 				
 				n_friends++;
-
+				
 				if(nearest_friend == nullptr) {
 					nearest_friend = other_unit;
 				}
-
+				
 				// Find nearest friend
 				if(fabs(unit->x - other_unit->x) < fabs(unit->x - nearest_friend->x)
 				&& fabs(unit->y - other_unit->y) < fabs(unit->y - nearest_friend->y)) {
@@ -624,9 +626,9 @@ void World::do_tick() {
 				// Foes from many ranges counts
 				if(fabs(unit->x - other_unit->x) >= 15 && fabs(unit->y - other_unit->y) >= 15)
 					continue;
-
+				
 				n_foes++;
-
+				
 				if(nearest_foe == nullptr) {
 					nearest_foe = other_unit;
 				}
@@ -638,7 +640,7 @@ void World::do_tick() {
 				}
 			}
 		}
-
+		
 		if(nearest_foe == nullptr)
 			continue;
 		
@@ -670,13 +672,15 @@ void World::do_tick() {
 				unit->x -= 0.1f;
 			if(nearest_foe->y < unit->y - 1.f)
 				unit->y -= 0.1f;
-				
+			
+			unit->tx = nearest_foe->x;
+			unit->ty = nearest_foe->y;
+			
 			// If in distance, do attack
 			if(fabs(unit->x - nearest_foe->x) <= 1.f && fabs(unit->y - nearest_foe->y) <= 1.f) {
 				nearest_foe->health -= 10.f;
 			}
 		}
-		*/
 	}
 
 	this->time++;
