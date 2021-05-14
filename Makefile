@@ -46,13 +46,13 @@ obj/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) $< -c -o $@
 
 data/locale/ko/%.po: data/locale/%.pot
-	msgmerge --update $@ $<
+	-msgmerge --update $@ $<
 data/locale/ko/LC_MESSAGES/%.mo: data/locale/ko/%.po
-	msgfmt --output-file=$@ $<
+	-msgfmt --output-file=$@ $<
 
 data/locale/es/%.po: data/locale/%.pot
-	msgmerge --update $@ $<
+	-msgmerge --update $@ $<
 data/locale/es/LC_MESSAGES/%.mo: data/locale/es/%.po
-	msgfmt --output-file=$@ $<
+	-msgfmt --output-file=$@ $<
 
 .PHONY: dirs build clean

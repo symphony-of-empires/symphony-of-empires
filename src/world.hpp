@@ -41,8 +41,8 @@ class Unit {
 public:
 	float x;
 	float y;
-	size_t tx;
-	size_t ty;
+	float tx;
+	float ty;
 	float health;
 	uint16_t owner_id;
 };

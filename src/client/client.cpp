@@ -374,10 +374,13 @@ void do_game_main(UI::Widget *, void *) {
 					unit->y = fmy;
 					g_world->units.push_back(unit);
 				} else if(event.button.button == SDL_BUTTON_RIGHT && !r) {
-					for(auto& unit: g_world->units) {
-						unit->tx = tx;
-						unit->ty = ty;
-					}
+					// Place unit
+					Unit * unit = new Unit();
+					unit->health = 75.f;
+					unit->owner_id = 10;
+					unit->x = fmx;
+					unit->y = fmy;
+					g_world->units.push_back(unit);
 				}
 				break;
 			case SDL_MOUSEMOTION:
@@ -510,6 +513,15 @@ void do_game_main(UI::Widget *, void *) {
 			glVertex2f(unit->x, unit->y);
 			glEnd();
 			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+		
+		for(const auto& unit: g_world->units) {
+			glBegin(GL_LINE_STRIP);
+			glColor3f(0.f, 1.f, 0.f);
+			glVertex2f(unit->x, unit->y);
+			glColor3f(1.f, 0.f, 0.f);
+			glVertex2f(unit->tx, unit->ty);
+			glEnd();
 		}
 
 		glPushMatrix();
