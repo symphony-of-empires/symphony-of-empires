@@ -225,7 +225,7 @@ int LuaAPI::add_province(lua_State * L) {
 	g_world->provinces.push_back(province);
 
 	// TODO: this is NOT good
-	for(size_t i = 0; i < 1; i++) {
+	for(size_t i = 0; i < 10; i++) {
 		Industry * industry = new Industry();
 		industry->owner_id = rand() % g_world->companies.size();
 		industry->type_id = rand() % g_world->industry_types.size();
@@ -324,6 +324,19 @@ int LuaAPI::add_province_pop(lua_State * L) {
 	pop->religion_id = lua_tonumber(L, 4);
 	pop->size = lua_tonumber(L, 5);
 	
+	if(!pop->size) {
+		print_error(gettext("can't create pops with 0 size"));
+		return 0;
+	} if(pop->culture_id >= g_world->cultures.size()) {
+		print_error(gettext("lua culture_id out of bounds"));
+		return 0;
+	} if(pop->religion_id >= g_world->religions.size()) {
+		print_error(gettext("lua religion_id out of bounds"));
+		return 0;
+	}
+	
+	printf("New POP %s in %s, of size %zu\n", g_world->pop_types[pop->type_id]->name.c_str(), province->name.c_str(), pop->size);
+	
 	province->pops.push_back(pop);
 	return 0;
 }
@@ -393,20 +406,19 @@ int LuaAPI::add_event(lua_State * L) {
 }
 
 int LuaAPI::add_pop_type(lua_State * L) {
-	if(!lua_isstring(L, 1) || !lua_isstring(L, 2) || !lua_isstring(L, 3)) {
+	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
-
+	
 	PopType * pop = new PopType();
-
+	
 	pop->ref_name = lua_tostring(L, 1);
 	pop->name = lua_tostring(L, 2);
-	pop->on_tick_fn = lua_tostring(L, 3);
-
+	
 	printf(gettext("pop_type: %s"), pop->ref_name.c_str());
 	printf("\n");
-
+	
 	// Add onto vector
 	g_world->pop_types.push_back(pop);
 	lua_pushnumber(L, g_world->pop_types.size() - 1);

@@ -84,7 +84,7 @@ function Event:register(event)
 	event.id = add_event(event.ref_name, event.conditions_fn, event.event_fn)
 end
 
-PopType = { id = 0, ref_name = "", name = "", on_tick_fn = "" }
+PopType = { id = 0, ref_name = "", name = "" }
 function PopType:create(pop_type)
 	pop_type.parent = self
 	return pop_type
@@ -93,7 +93,7 @@ function PopType:get(pop_type, ref_name)
 	pop_type.id, pop_type.ref_name, pop_type.name = get_pop_type(ref_name)
 end
 function PopType:register(pop_type)
-	pop_type.id = add_pop_type(pop_type.ref_name, pop_type.name, pop_type.on_tick_fn)
+	pop_type.id = add_pop_type(pop_type.ref_name, pop_type.name)
 end
 
 Culture = { id = 0, ref_name = "", name = "" }

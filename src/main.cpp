@@ -28,6 +28,7 @@ int main(int argc, char ** argv) {
 	printf(gettext("launching rendering thread"));
 	printf("\n");
 	std::thread t1(rendering_main);
+	
 	run = 1;
 	while(run) {
 		LuaAPI::check_events(world.lua);

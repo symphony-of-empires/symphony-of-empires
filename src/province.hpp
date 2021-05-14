@@ -26,11 +26,13 @@ public:
 	size_t min_y = 65532;
 	size_t max_x = 0;
 	size_t max_y = 0;
-
+	
 	size_t owner_id = PROVINCE_NO_ONWER;
-
+	
 	float supply_limit;
 	float supply_rem;
+	
+	size_t worker_pool;
 	
 	std::vector<size_t> stockpile;
 	std::vector<Industry *> industries;

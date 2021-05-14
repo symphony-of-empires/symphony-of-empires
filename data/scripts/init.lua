@@ -1,84 +1,46 @@
 require("api")
 
 -- Culture
-local japanesse = Culture:create{ ref_name = "japanesse" }
-japanesse.name = _("Japanesse")
-Culture:register(japanesse)
-local russian = Culture:create{ ref_name = "russian" }
-russian.name = _("Russian")
-Culture:register(russian)
+local german = Culture:create{ ref_name = "german" }
+german.name = _("German")
+Culture:register(german)
 
 -- Religion
-local good_bois = Religion:create{ ref_name = "good_bois" }
-good_bois.name = _("Good bois")
-Religion:register(good_bois)
-local bad_bois = Religion:create{ ref_name = "bad_bois" }
-bad_bois.name = _("Bad bois")
-Religion:register(bad_bois)
+local protestant = Religion:create{ ref_name = "protestant" }
+protestant.name = _("Protestant")
+Religion:register(protestant)
 
 -- Pop types
-function entrepreneur_on_tick()
-	--print("hello entrepreneur!")
-end
-local entrepreneur = PopType:create{ ref_name = "entrepreneur", on_tick_fn = "entrepreneur_on_tick" }
+local entrepreneur = PopType:create{ ref_name = "entrepreneur" }
 entrepreneur.name = _("Entrepreneur")
 PopType:register(entrepreneur)
-
-function artisan_on_tick()
-	--print("hello artisan!")
-end
-local artisan = PopType:create{ ref_name = "artisan", on_tick_fn = "artisan_on_tick" }
+local artisan = PopType:create{ ref_name = "artisan" }
 artisan.name = _("Artisan")
 PopType:register(artisan)
-
-function craftsmen_on_tick()
-	--print("hello craftsmen!")
-end
-local craftsmen = PopType:create{ ref_name = "craftsmen", on_tick_fn = "craftsmen_on_tick" }
+local craftsmen = PopType:create{ ref_name = "craftsmen" }
 craftsmen.name = _("Craftsmen")
 PopType:register(craftsmen)
-
-function bureaucrat_on_tick()
-	--print("hello bureaucrat!")
-end
-local bureaucrat = PopType:create{ ref_name = "bureaucrat", on_tick_fn = "bureaucrat_on_tick" }
+local bureaucrat = PopType:create{ ref_name = "bureaucrat" }
 bureaucrat.name = _("Bureaucrat")
 PopType:register(bureaucrat)
-
-function aristocrat_on_tick()
-	--print("hello aristocrat!")
-end
-local aristocrat = PopType:create{ ref_name = "aristocrat", on_tick_fn = "aristocrat_on_tick" }
+local aristocrat = PopType:create{ ref_name = "aristocrat" }
 aristocrat.name = _("Aristocrat")
 PopType:register(aristocrat)
-
-function clergymen_on_tick()
-	--print("hello clergymen!")
-end
-local clergymen = PopType:create{ ref_name = "clergymen", on_tick_fn = "clergymen_on_tick" }
+local clergymen = PopType:create{ ref_name = "clergymen" }
 clergymen.name = _("Clergymen")
 PopType:register(clergymen)
-
-function farmer_on_tick()
-	--print("hello farmer!")
-end
-local farmer = PopType:create{ ref_name = "farmer", on_tick_fn = "farmer_on_tick" }
+local farmer = PopType:create{ ref_name = "farmer" }
 farmer.name = _("Farmer")
 PopType:register(farmer)
-
-function soldier_on_tick()
-	--print("hello soldier!")
-end
-local soldier = PopType:create{ ref_name = "soldier", on_tick_fn = "soldier_on_tick" }
+local soldier = PopType:create{ ref_name = "soldier" }
 soldier.name = _("Soldier")
 PopType:register(soldier)
-
-function laborer_on_tick()
-	--print("hello laborer!")
-end
-local laborer = PopType:create{ ref_name = "laborer", on_tick_fn = "laborer_on_tick" }
+local laborer = PopType:create{ ref_name = "laborer" }
 laborer.name = _("Laborer")
 PopType:register(laborer)
+local slave = PopType:create{ ref_name = "slave" }
+slave.name = _("Slave")
+PopType:register(slave)
 
 -- Good types
 
@@ -316,7 +278,11 @@ local nation = Nation:create{ ref_name = "france", color = 0x2e2bd6, default_fla
 nation.name = _("France")
 Nation:register(nation)
 
-local nation = Nation:create{ ref_name = "sokoto", color = 0x5f4b32, default_flag = "flags/sokoto_monarchy.png" }
+local nation = Nation:create{ ref_name = "spain", color = 0xffe811, default_flag = "flags/france_republic.png" }
+nation.name = _("Spain")
+Nation:register(nation)
+
+local nation = Nation:create{ ref_name = "sokoto", color = 0x008751, default_flag = "flags/sokoto_monarchy.png" }
 nation.name = _("Sokoto")
 Nation:register(nation)
 
@@ -324,7 +290,7 @@ local nation = Nation:create{ ref_name = "wadai_empire", color = 0xb9bc2a, defau
 nation.name = _("Wadai Empire")
 Nation:register(nation)
 
-local nation = Nation:create{ ref_name = "bornu", color = 0x589172, default_flag = "flags/bornu_monarchy.png" }
+local nation = Nation:create{ ref_name = "bornu", color = 0x5f4b32, default_flag = "flags/bornu_monarchy.png" }
 nation.name = _("Bornu")
 Nation:register(nation)
 
@@ -349,397 +315,1317 @@ Company:register(mexico_transport)
 -- Subcontinent: South America
 -- Country: Brazil
 
-local name_of_province = Province:create{ ref_name = "ceara", color = 0x00FFFF }
-name_of_province.name = _("Ceará")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "ceara", color = 0x00FFFF }
+province.name = _("Ceará")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "rio_grande_do_norte", color = 0xFF006E }
-name_of_province.name = _("Rio Grande do Norte")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "rio_grande_do_norte", color = 0xFF006E }
+province.name = _("Rio Grande do Norte")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "paraiba", color = 0x4CFF00 }
-name_of_province.name = _("Paraíba")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "paraiba", color = 0x4CFF00 }
+province.name = _("Paraíba")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "pernambuco", color = 0x7F7F }
-name_of_province.name = _("Pernambuco")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "pernambuco", color = 0x7F7F }
+province.name = _("Pernambuco")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "alagoas", color = 0xB6FF00 }
-name_of_province.name = _("Alagoas")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "alagoas", color = 0xB6FF00 }
+province.name = _("Alagoas")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "sergipe", color = 0xFF6A00 }
-name_of_province.name = _("Sergipe")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "sergipe", color = 0xFF6A00 }
+province.name = _("Sergipe")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "bahia", color = 0xA0A0A0 }
-name_of_province.name = _("Bahia")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "bahia", color = 0xA0A0A0 }
+province.name = _("Bahia")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "sao_francisco", color = 0xB200FF }
-name_of_province.name = _("São Francisco")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "sao_francisco", color = 0xB200FF }
+province.name = _("São Francisco")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "piaui", color = 0x49B0FF }
-name_of_province.name = _("Piauí")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "piaui", color = 0x49B0FF }
+province.name = _("Piauí")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "maranhao", color = 0xC289FF }
-name_of_province.name = _("Maranhão")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "maranhao", color = 0xC289FF }
+province.name = _("Maranhão")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "grao_para", color = 0xFF6DDD }
-name_of_province.name = _("Grão-Pará")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "grao_para", color = 0xFF6DDD }
+province.name = _("Grão-Pará")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "roraima", color = 0xFFFD8E }
-name_of_province.name = _("Roraima")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "roraima", color = 0xFFFD8E }
+province.name = _("Roraima")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "mato_grosso", color = 0x9DFF35 }
-name_of_province.name = _("Mato Grosso")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "mato_grosso", color = 0x9DFF35 }
+province.name = _("Mato Grosso")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "goias", color = 0x49FF62 }
-name_of_province.name = _("Goiás")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "goias", color = 0x49FF62 }
+province.name = _("Goiás")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "minas_gerais", color = 0x9E0049 }
-name_of_province.name = _("Minas Gerais")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "minas_gerais", color = 0x9E0049 }
+province.name = _("Minas Gerais")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "sao_paulo", color = 0x7FFF8E }
-name_of_province.name = _("São Paulo")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "sao_paulo", color = 0x7FFF8E }
+province.name = _("São Paulo")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "santa_catarina", color = 0xFF545F }
-name_of_province.name = _("Santa Catarina")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "santa_catarina", color = 0xFF545F }
+province.name = _("Santa Catarina")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "oeste_catarinense", color = 0xFF26A4 }
-name_of_province.name = _("Oeste Catarinense")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "oeste_catarinense", color = 0xFF26A4 }
+province.name = _("Oeste Catarinense")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "porto_alegre", color = 0x96FFF8 }
-name_of_province.name = _("Porto Alegre")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "porto_alegre", color = 0x96FFF8 }
+province.name = _("Porto Alegre")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "bage", color = 0xD089FF }
-name_of_province.name = _("Bagé")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "bage", color = 0xD089FF }
+province.name = _("Bagé")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "cisplatina", color = 0xFFEA84 }
-name_of_province.name = _("Cisplatina")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "cisplatina", color = 0xFFEA84 }
+province.name = _("Cisplatina")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
 --------------------------------------------------------------
 -- Continent: Americas
 -- Subcontinent: South America
 -- Country: Paraguay
 
-local name_of_province = Province:create{ ref_name = "asuncion", color = 0x00C7FF }
-name_of_province.name = _("Asunción")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "asuncion", color = 0x00C7FF }
+province.name = _("Asunción")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "vila_sacaron", color = 0xB71CFF }
-name_of_province.name = _("Vila Sacarón")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "vila_sacaron", color = 0xB71CFF }
+province.name = _("Vila Sacarón")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "nioaque", color = 0x5174FF }
-name_of_province.name = _("Nioaque")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "nioaque", color = 0x5174FF }
+province.name = _("Nioaque")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
 --------------------------------------------------------------
 -- Continent: Americas
 -- Subcontinent: South America
 -- Country: Chile + Patagonian Chile + Ex-Bolivian territory
 
-local name_of_province = Province:create{ ref_name = "iquique", color = 0xFF7856 }
-name_of_province.name = _("Iquique")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "iquique", color = 0xFF7856 }
+province.name = _("Iquique")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "calama", color = 0x5157FF }
-name_of_province.name = _("Calama")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "calama", color = 0x5157FF }
+province.name = _("Calama")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "antofagasta", color = 0xF2FFD8 }
-name_of_province.name = _("Antofagasta")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "antofagasta", color = 0xF2FFD8 }
+province.name = _("Antofagasta")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "copiapo", color = 0x9849FF }
-name_of_province.name = _("Copiapó")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "copiapo", color = 0x9849FF }
+province.name = _("Copiapó")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "coquimbo", color = 0x8C4FFF }
-name_of_province.name = _("Coquimbo")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "coquimbo", color = 0x8C4FFF }
+province.name = _("Coquimbo")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "illapel", color = 0x49F5FF }
-name_of_province.name = _("Illapel")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "illapel", color = 0x49F5FF }
+province.name = _("Illapel")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "santiago", color = 0xCB23FF }
-name_of_province.name = _("Santiago")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "santiago", color = 0xCB23FF }
+province.name = _("Santiago")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "curico", color = 0xFFE5C1 }
-name_of_province.name = _("Curicó")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "curico", color = 0xFFE5C1 }
+province.name = _("Curicó")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "chillan", color = 0x1691FF }
-name_of_province.name = _("Chillán")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "chillan", color = 0x1691FF }
+province.name = _("Chillán")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "concepcion", color = 0xFF4D3D }
-name_of_province.name = _("Concepción")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "concepcion", color = 0xFF4D3D }
+province.name = _("Concepción")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "valdivia", color = 0xA2FF00 }
-name_of_province.name = _("Valdivia")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "valdivia", color = 0xA2FF00 }
+province.name = _("Valdivia")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "osorno", color = 0xFFE554 }
-name_of_province.name = _("Osorno")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "osorno", color = 0xFFE554 }
+province.name = _("Osorno")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "chiloe", color = 0xFF00E5 }
-name_of_province.name = _("Chiloé")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "chiloe", color = 0xFF00E5 }
+province.name = _("Chiloé")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "aysen", color = 0x0090FF }
-name_of_province.name = _("Aysén")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "aysen", color = 0x0090FF }
+province.name = _("Aysén")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "punta_arenas", color = 0x3F3B39 }
-name_of_province.name = _("Punta Arenas")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "punta_arenas", color = 0x3F3B39 }
+province.name = _("Punta Arenas")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "san_gregorio", color = 0xFFD800 }
-name_of_province.name = _("San Gregorio")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "san_gregorio", color = 0xFFD800 }
+province.name = _("San Gregorio")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "puerto_porvenir", color = 0xFF006E }
-name_of_province.name = _("Puerto Porvenir")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "puerto_porvenir", color = 0xFF006E }
+province.name = _("Puerto Porvenir")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
 --------------------------------------------------------------
 -- Continent: Americas
 -- Subcontinent: North America
 -- Country: Mexico
 
-local name_of_province = Province:create{ ref_name = "yucatan", color = 0x567bff }
-name_of_province.name = _("Yucatán")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "yucatan", color = 0x567bff }
+province.name = _("Yucatán")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "veracruz", color = 0xff758e }
-name_of_province.name = _("Veracruz")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "veracruz", color = 0xff758e }
+province.name = _("Veracruz")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "coahuila_y_texas", color = 0xff7279 }
-name_of_province.name = _("Coahuila y Texas")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "coahuila_y_texas", color = 0xff7279 }
+province.name = _("Coahuila y Texas")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "chihuahua", color = 0x38daff }
-name_of_province.name = _("Chihuahua")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "chihuahua", color = 0x38daff }
+province.name = _("Chihuahua")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "alta_california", color = 0xc6cbff }
-name_of_province.name = _("Alta California")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "alta_california", color = 0xc6cbff }
+province.name = _("Alta California")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "baja_california", color = 0xff38e7 }
-name_of_province.name = _("Baja California")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "baja_california", color = 0xff38e7 }
+province.name = _("Baja California")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "chihuahua", color = 0x38daff }
-name_of_province.name = _("Chihuahua")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "chihuahua", color = 0x38daff }
+province.name = _("Chihuahua")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "tamaulipas", color = 0xff87bd }
-name_of_province.name = _("Tamaulipas")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "tamaulipas", color = 0xff87bd }
+province.name = _("Tamaulipas")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "nuevo_leon", color = 0xbfffce }
-name_of_province.name = _("Nuevo León")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "nuevo_leon", color = 0xbfffce }
+province.name = _("Nuevo León")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "sonora", color = 0x9bffe9 }
-name_of_province.name = _("Sonora")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "sonora", color = 0x9bffe9 }
+province.name = _("Sonora")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "sinaloa", color = 0xffad87 }
-name_of_province.name = _("Sinaloa")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "sinaloa", color = 0xffad87 }
+province.name = _("Sinaloa")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "jalisco", color = 0x361cff }
-name_of_province.name = _("Jalisco")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "jalisco", color = 0x361cff }
+province.name = _("Jalisco")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "durango", color = 0x92ff60 }
-name_of_province.name = _("Durango")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "durango", color = 0x92ff60 }
+province.name = _("Durango")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "zacatecas", color = 0xff93a0 }
-name_of_province.name = _("Zacatecas")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "zacatecas", color = 0xff93a0 }
+province.name = _("Zacatecas")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "san_luis_potosi", color = 0x3fffe8 }
-name_of_province.name = _("San Luis Potosi")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "san_luis_potosi", color = 0x3fffe8 }
+province.name = _("San Luis Potosi")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "guanajuato", color = 0xf70fff }
-name_of_province.name = _("Guanajuato")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "guanajuato", color = 0xf70fff }
+province.name = _("Guanajuato")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "colima", color = 0xff7e5e }
-name_of_province.name = _("Colima")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "colima", color = 0xff7e5e }
+province.name = _("Colima")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "michoacan", color = 0xc4ffc4 }
-name_of_province.name = _("Michoacán")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "michoacan", color = 0xc4ffc4 }
+province.name = _("Michoacán")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "queretaro", color = 0xbbb2ff }
-name_of_province.name = _("Querétaro")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "queretaro", color = 0xbbb2ff }
+province.name = _("Querétaro")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "mexico", color = 0xff32e3 }
-name_of_province.name = _("México")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "mexico", color = 0xff32e3 }
+province.name = _("México")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "puebla", color = 0x927aff }
-name_of_province.name = _("Puebla")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "puebla", color = 0x927aff }
+province.name = _("Puebla")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "tlaxcala", color = 0x89ffe1 }
-name_of_province.name = _("Tlaxcala")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "tlaxcala", color = 0x89ffe1 }
+province.name = _("Tlaxcala")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "oaxaca", color = 0x8effa8 }
-name_of_province.name = _("Oaxaca")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "oaxaca", color = 0x8effa8 }
+province.name = _("Oaxaca")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "chiapas", color = 0xbf72ff }
-name_of_province.name = _("Chiapas")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "chiapas", color = 0xbf72ff }
+province.name = _("Chiapas")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "nuevo_mexico", color = 0x56ffb8 }
-name_of_province.name = _("Nuevo México")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "nuevo_mexico", color = 0x56ffb8 }
+province.name = _("Nuevo México")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
 --------------------------------------------------------------
 -- Continent: Americas
 -- Subcontinent: North America
 -- Country: USA
-local name_of_province = Province:create{ ref_name = "florida", color = 0x70a6ff }
-name_of_province.name = _("Florida")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "florida", color = 0x70a6ff }
+province.name = _("Florida")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "connecticut", color = 0xe987ff }
-name_of_province.name = _("Connecticut")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "connecticut", color = 0xe987ff }
+province.name = _("Connecticut")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "new_jersey", color = 0xffaea8 }
-name_of_province.name = _("New Jersey")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "new_jersey", color = 0xffaea8 }
+province.name = _("New Jersey")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "rhode_island", color = 0x7b07ff }
-name_of_province.name = _("Rhode Island")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "rhode_island", color = 0x7b07ff }
+province.name = _("Rhode Island")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "new_york", color = 0xbcfdff }
-name_of_province.name = _("New York")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "new_york", color = 0xbcfdff }
+province.name = _("New York")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "massachusetts", color = 0x639fff }
-name_of_province.name = _("Massachusetts")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "massachusetts", color = 0x639fff }
+province.name = _("Massachusetts")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "new_hampshire", color = 0xf830ff }
-name_of_province.name = _("New Hampshire")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "new_hampshire", color = 0xf830ff }
+province.name = _("New Hampshire")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "vermont", color = 0xff4e32 }
-name_of_province.name = _("Vermont")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "vermont", color = 0xff4e32 }
+province.name = _("Vermont")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "maine", color = 0xff4c7f }
-name_of_province.name = _("Maine")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "maine", color = 0xff4c7f }
+province.name = _("Maine")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "delaware", color = 0xa372ff }
-name_of_province.name = _("Delaware")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "delaware", color = 0xa372ff }
+province.name = _("Delaware")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "maryland", color = 0xa5ffed }
-name_of_province.name = _("Maryland")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "maryland", color = 0xa5ffed }
+province.name = _("Maryland")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "pensylvania", color = 0xff49a7 }
-name_of_province.name = _("Pensylvania")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "pensylvania", color = 0xff49a7 }
+province.name = _("Pensylvania")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "virginia", color = 0xff7579 }
-name_of_province.name = _("Virginia")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "virginia", color = 0xff7579 }
+province.name = _("Virginia")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
 --------------------------------------------------------------
 -- Continent: Americas
 -- Subcontinent: South America
 -- Country: Bolivia + Chaco
 
-local name_of_province = Province:create{ ref_name = "pando", color = 0x47FBFF }
-name_of_province.name = _("Pando")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "pando", color = 0x47FBFF }
+province.name = _("Pando")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "santa_cruz", color = 0xFFC4EE }
-name_of_province.name = _("Santa Cruz")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "santa_cruz", color = 0xFFC4EE }
+province.name = _("Santa Cruz")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "carvoal", color = 0xFF8168 }
-name_of_province.name = _("Carvoal")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "carvoal", color = 0xFF8168 }
+province.name = _("Carvoal")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "corumba", color = 0x8CFBFF }
-name_of_province.name = _("Corumbá")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "corumba", color = 0x8CFBFF }
+province.name = _("Corumbá")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "santissima_trinidade", color = 0x5E1EFF }
-name_of_province.name = _("Santíssima Trinidade")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "santissima_trinidade", color = 0x5E1EFF }
+province.name = _("Santíssima Trinidade")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "fuerte_olimpo", color = 0xFF1900 }
-name_of_province.name = _("Fuerte Olimpo")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "fuerte_olimpo", color = 0xFF1900 }
+province.name = _("Fuerte Olimpo")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "nueva_burdeos", color = 0xFFD149 }
-name_of_province.name = _("Nueva Burdeos")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "nueva_burdeos", color = 0xFFD149 }
+province.name = _("Nueva Burdeos")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "la_paz", color = 0xFF2158 }
-name_of_province.name = _("La Paz")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "la_paz", color = 0xFF2158 }
+province.name = _("La Paz")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "cochabamba", color = 0xCB3FFF }
-name_of_province.name = _("Cochabamba")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "cochabamba", color = 0xCB3FFF }
+province.name = _("Cochabamba")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "oruro", color = 0x75FFCC }
-name_of_province.name = _("Oruro")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "oruro", color = 0x75FFCC }
+province.name = _("Oruro")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "potosi", color = 0xFC63FF }
-name_of_province.name = _("Potosí")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "potosi", color = 0xFC63FF }
+province.name = _("Potosí")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "chuquisaca", color = 0x4FA7FF }
-name_of_province.name = _("Chuquisaca")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "chuquisaca", color = 0x4FA7FF }
+province.name = _("Chuquisaca")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
-local name_of_province = Province:create{ ref_name = "tarija", color = 0x907CFF }
-name_of_province.name = _("Tarija")
-Province:register(name_of_province)
+local province = Province:create{ ref_name = "tarija", color = 0x907CFF }
+province.name = _("Tarija")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000)
+Province:add_pop(province, farmer, german, protestant, 5000)
+Province:add_pop(province, soldier, german, protestant, 5000)
+Province:add_pop(province, craftsmen, german, protestant, 5000)
+Province:add_pop(province, bureaucrat, german, protestant, 5000)
+Province:add_pop(province, aristocrat, german, protestant, 5000)
+Province:add_pop(province, clergymen, german, protestant, 5000)
+Province:add_pop(province, laborer, german, protestant, 5000)
+Province:add_pop(province, entrepreneur, german, protestant, 500)
+Province:add_pop(province, slave, german, protestant, 500)
 
 -- THIS IS NOT PART OF THE FINAL MODDING API
 
@@ -791,115 +1677,6 @@ add_op_province_to_company(2, "coahuila_y_texas")
 add_op_province_to_company(2, "chihuahua")
 print("companies")
 
-local province = Province:get({}, "virginia")
-Province:add_pop(province, artisan, japanesse, good_bois, 5000)
-Province:add_pop(province, farmer, japanesse, good_bois, 5000)
-Province:add_pop(province, soldier, japanesse, good_bois, 5000)
-Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
-Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
-Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
-Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
-Province:add_pop(province, laborer, japanesse, good_bois, 5000)
-Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
-
-local province = Province:get({}, "vermont")
-Province:add_pop(province, artisan, japanesse, good_bois, 5000)
-Province:add_pop(province, farmer, japanesse, good_bois, 5000)
-Province:add_pop(province, soldier, japanesse, good_bois, 5000)
-Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
-Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
-Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
-Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
-Province:add_pop(province, laborer, japanesse, good_bois, 5000)
-Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
-
-local province = Province:get({}, "new_jersey")
-Province:add_pop(province, artisan, japanesse, good_bois, 5000)
-Province:add_pop(province, farmer, japanesse, good_bois, 5000)
-Province:add_pop(province, soldier, japanesse, good_bois, 5000)
-Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
-Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
-Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
-Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
-Province:add_pop(province, laborer, japanesse, good_bois, 5000)
-Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
-
-local province = Province:get({}, "new_york")
-Province:add_pop(province, artisan, japanesse, good_bois, 5000)
-Province:add_pop(province, farmer, japanesse, good_bois, 5000)
-Province:add_pop(province, soldier, japanesse, good_bois, 5000)
-Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
-Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
-Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
-Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
-Province:add_pop(province, laborer, japanesse, good_bois, 5000)
-Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
-
-local province = Province:get({}, "maine")
-Province:add_pop(province, artisan, japanesse, good_bois, 5000)
-Province:add_pop(province, farmer, japanesse, good_bois, 5000)
-Province:add_pop(province, soldier, japanesse, good_bois, 5000)
-Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
-Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
-Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
-Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
-Province:add_pop(province, laborer, japanesse, good_bois, 5000)
-Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
-
-local province = Province:get({}, "colima")
-Province:add_pop(province, artisan, japanesse, good_bois, 5000)
-Province:add_pop(province, farmer, japanesse, good_bois, 5000)
-Province:add_pop(province, soldier, japanesse, good_bois, 5000)
-Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
-Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
-Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
-Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
-Province:add_pop(province, laborer, japanesse, good_bois, 5000)
-Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
-
-local province = Province:get({}, "mexico")
-Province:add_pop(province, artisan, japanesse, good_bois, 5000)
-Province:add_pop(province, farmer, japanesse, good_bois, 5000)
-Province:add_pop(province, soldier, japanesse, good_bois, 5000)
-Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
-Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
-Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
-Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
-Province:add_pop(province, laborer, japanesse, good_bois, 5000)
-Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
-
-local province = Province:get({}, "rhode_island")
-Province:add_pop(province, artisan, japanesse, good_bois, 5000)
-Province:add_pop(province, farmer, japanesse, good_bois, 5000)
-Province:add_pop(province, soldier, japanesse, good_bois, 5000)
-Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
-Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
-Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
-Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
-Province:add_pop(province, laborer, japanesse, good_bois, 5000)
-Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
-
-local province = Province:get({}, "oaxaca")
-Province:add_pop(province, artisan, japanesse, good_bois, 5000)
-Province:add_pop(province, farmer, japanesse, good_bois, 5000)
-Province:add_pop(province, soldier, japanesse, good_bois, 5000)
-Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
-Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
-Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
-Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
-Province:add_pop(province, laborer, japanesse, good_bois, 5000)
-Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
-
-local province = Province:get({}, "tlaxcala")
-Province:add_pop(province, artisan, japanesse, good_bois, 5000)
-Province:add_pop(province, farmer, japanesse, good_bois, 5000)
-Province:add_pop(province, soldier, japanesse, good_bois, 5000)
-Province:add_pop(province, craftsmen, japanesse, good_bois, 5000)
-Province:add_pop(province, bureaucrat, japanesse, good_bois, 5000)
-Province:add_pop(province, aristocrat, japanesse, good_bois, 5000)
-Province:add_pop(province, clergymen, japanesse, good_bois, 5000)
-Province:add_pop(province, laborer, japanesse, good_bois, 5000)
-Province:add_pop(province, entrepreneur, japanesse, good_bois, 500)
 print("pops in provinces")
 
 print("loaded mod.lua")
