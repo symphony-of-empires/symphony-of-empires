@@ -47,28 +47,52 @@ public:
 	std::vector<size_t> outputs;
 };
 
+class Product {
+public:
+	// Onwer (companyId) of this product
+	size_t owner_id;
+	
+	// Origin province (where this product was made)
+	size_t origin_id;
+	
+	// Industry in province that made this product
+	size_t industry_id;
+	
+	// Good that this product is based on
+	size_t good_id;
+	
+	// Price of the product
+	float price;
+	
+	// Velocity of change of price of the product
+	float price_vel;
+	
+	// Quality of the product
+	size_t quality;
+	
+	// Total supply (worldwide) of the product
+	size_t supply;
+	
+	// Total demand (worldwide) of the product
+	size_t demand;
+};
+
 class World;
 class Industry {
 public:
-	size_t owner_id;
-	size_t type_id;
-	std::vector<size_t> stockpile;
-
 	bool can_do_output();
 	void add_to_stock(World * world, size_t good_id, size_t add);
-};
-
-class Product {
-public:
-	size_t owner_id; // Onwer (companyId) of this product
-	size_t origin_id; // Origin province (where this product was made)
-	size_t industry_id; // Industry in province that made this product
-	size_t good_id; // Good that this product is based on
-	float price; // Price of the product
-	float price_vel; // Velocity of change of price of the product
-	size_t quality; // Quality of the product
-	size_t supply;
-	size_t demand;
+	
+	size_t owner_id;
+	
+	size_t type_id;
+	
+	size_t ticks_unoperational;
+	
+	std::vector<size_t> stockpile;
+	
+	// Used for faster lookups
+	std::vector<size_t> output_products;
 };
 
 #endif

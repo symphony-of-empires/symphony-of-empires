@@ -28,6 +28,15 @@ public:
 #include <string>
 #include "province.hpp"
 
+class UnitType {
+public:
+	std::string name;
+	std::string ref_name;
+	float supply_consumption;
+	float speed;
+	
+};
+
 class Unit {
 public:
 	float x;

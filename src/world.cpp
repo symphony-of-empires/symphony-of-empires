@@ -247,33 +247,33 @@ public:
 #include <cmath>
 void World::do_tick() {
 	const size_t n_provinces = this->provinces.size();
-	//size_t n_companies = this->companies.size();
-
 	std::vector<OrderGoods> orders;
 	std::vector<DeliverGoods> delivers;
-
+	
 	// All factories will place their orders for their inputs
 	// All RGOs will do deliver requests
 	for(size_t i = 0; i < n_provinces; i++) {
 		// Reset remaining supplies
 		this->provinces[i]->supply_rem = this->provinces[i]->supply_limit;
-
-		// Time to simulate our POPs
-		for(auto& pop: this->provinces[i]->pops) {
-			lua_getglobal(this->lua, this->pop_types[pop->type_id]->on_tick_fn.c_str());
-
-			// Pass the ref_name of the province
-			lua_pushstring(this->lua, this->provinces[i]->ref_name.c_str());
-			lua_call(this->lua, 1, 0);
-		}
-
+		
+		// This new tick, we will start the chain starting with RGOs producing deliver
+		// orders and the factories that require inputs will put their orders in the
+		// table so they are served by transport companies.
+		// This is the start of the factory chain.
 		for(size_t j = 0; j < this->provinces[i]->industries.size(); j++) {
-			printf("Industry (type: %s). Province %zu. n_industry: %zu\n", this->industry_types[this->provinces[i]->industries[j]->type_id]->name.c_str(), i, j);
-
+			if(!this->provinces[i]->worker_pool) {
+				this->provinces[i]->industries[j]->ticks_unoperational++;
+				continue;
+			}
+			
+			this->provinces[i]->industries[j]->ticks_unoperational = 0;
+			
+			//printf("Industry (type: %s). Province %zu. n_industry: %zu\n", this->industry_types[this->provinces[i]->industries[j]->type_id]->name.c_str(), i, j);
+			
 			IndustryType * it = this->industry_types[this->provinces[i]->industries[j]->type_id];
 			for(const auto& input: it->inputs) {
 				OrderGoods order;
-				order.quantity = 100;
+				order.quantity = 500;
 				order.payment = 500.f;
 				order.good_id = input;
 				order.requester_industry_id = j;
@@ -281,49 +281,49 @@ void World::do_tick() {
 				orders.push_back(order);
 				printf("\t- We need good: %s (from %s)\n", this->goods[order.good_id]->name.c_str(), this->provinces[order.requester_province_id]->name.c_str());
 			}
-
+			
+			// RGOs deliver first
 			if(it->inputs.size() == 0) {
+				// Take a constant of workers needed for factories, 1.5k workers!
+				size_t available_manpower = 1500 % this->provinces[i]->worker_pool;
+				this->provinces[i]->worker_pool -= available_manpower;
+				
 				// Place deliver orders (we are a RGO)
-				for(const auto& output: it->outputs) {
+				for(size_t k = 0; k < it->outputs.size(); k++) {
 					DeliverGoods deliver;
-					deliver.quantity = 500;
+					deliver.quantity = 4 * available_manpower;
 					deliver.payment = 1500.f;
-					deliver.good_id = output;
+					deliver.good_id = it->outputs[k];
 					deliver.sender_industry_id = j;
 					deliver.sender_province_id = i;
+					deliver.product_id = this->provinces[i]->industries[j]->output_products[k];
 					
-					// Only put in deliver list if it's a valid product
-					for(size_t k = 0; k < g_world->products.size(); k++) {
-						if(g_world->products[i]->industry_id != deliver.sender_industry_id
-						|| g_world->products[i]->origin_id != deliver.sender_province_id
-						|| g_world->products[i]->good_id != deliver.good_id)
-							continue;
-						
-						deliver.product_id = k;
-						delivers.push_back(deliver);
-						printf("\t- Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id]->name.c_str(), this->provinces[deliver.sender_province_id]->name.c_str());
-						break;
-					}
+					if(!deliver.quantity)
+						continue;
+					
+					delivers.push_back(deliver);
+					printf("\t- Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id]->name.c_str(), this->provinces[deliver.sender_province_id]->name.c_str());
+					break;
 				}
 			}
 		}
 	}
 
 	// Now we will deliver stuff accordingly
-	while(delivers.size() > 0 && orders.size() > 0) {
+	while(delivers.size() && orders.size()) {
 		// Now transport companies will check and transport accordingly
 		for(auto& company: this->companies) {
 			if(!company->is_transport)
 				continue;
-
+			
 			// Check all delivers
 			for(size_t i = 0; i < delivers.size(); i++) {
 				DeliverGoods * deliver = &delivers[i];
 				deliver->rejections++;
-
+				
 				if(!company->in_range(deliver->sender_province_id))
 					continue;
-
+				
 				// Check all orders
 				for(size_t j = 0; j < orders.size(); j++) {
 					OrderGoods * order = &orders[j];
@@ -331,31 +331,36 @@ void World::do_tick() {
 					// Do they want this goods?
 					if(order->good_id != deliver->good_id)
 						continue;
-
+					
 					// Are we in the range to deliver?
 					if(!company->in_range(order->requester_province_id))
 						continue;
-
+					
 					printf("%s: Delivered from %s to %s some %s\n", company->name.c_str(), this->provinces[deliver->sender_province_id]->name.c_str(), this->provinces[order->requester_province_id]->name.c_str(), this->goods[order->good_id]->name.c_str());
-
+					
 					// Yes - we go and deliver their stuff
 					Industry * industry = this->provinces[order->requester_province_id]->industries[order->requester_industry_id];
 					industry->add_to_stock(this, order->good_id, 1);
-
+					
 					// Province receives a small supply buff from commerce
 					this->provinces[order->requester_province_id]->supply_rem += 5.f;
-
+					
+					// Obtain number of goods that we could satisfy
 					size_t count = order->quantity % deliver->quantity;
 					deliver->quantity -= count;
 					order->quantity -= count;
-
+					
 					// Increment demand
 					this->products[deliver->product_id]->demand += count;
-
+					// Decrement supply
+					if(this->products[deliver->product_id]->supply) {
+						this->products[deliver->product_id]->supply -= count % this->products[deliver->product_id]->supply;
+					}
+					
 					// On 0 it overflows to -1, on 1 it goes to zero, but after this loop it's
 					// incremented again (see incrementing below). So we don't take a rejection hit
 					deliver->rejections--;
-
+					
 					// Delete this deliver and order tickets from the system since
 					// they are now fullfilled (only delete when no quanity left)
 					if(!order->quantity) {
@@ -368,14 +373,14 @@ void World::do_tick() {
 				}
 			}
 		}
-
+		
 		// Get number of transporter companies
 		size_t n_transporters = 0;
 		for(const auto& company: this->companies) {
 			if(company->is_transport)
 				n_transporters++;
 		}
-
+		
 		// Drop all rejected delivers
 		for(size_t i = 0; i < delivers.size(); i++) {
 			DeliverGoods * deliver = &delivers[i];
@@ -383,7 +388,6 @@ void World::do_tick() {
 				// Add up to province stockpile
 				this->provinces[deliver->sender_province_id]->stockpile[deliver->product_id] += deliver->quantity;
 				this->products[deliver->product_id]->supply += deliver->quantity;
-
 				delivers.erase(delivers.begin() + i);
 				i--;
 			}
@@ -395,55 +399,142 @@ void World::do_tick() {
 	}
 	delivers.clear();
 	orders.clear();
-
-	// Now, it's like 1 am here, but i will try to write a very nice POP buy
-	// and sell system - please mantainers and coders do not laugh
-	// do not let twitch streamers see this piece of code - ever.
+	
+	// Now, it's like 1 am here, but i will try to write a very nice economic system
+	// TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
 	for(auto& province: this->provinces) {
-		for(auto& pop: province->pops) {
-			pop->life_needs_met = 0.f;
-			pop->everyday_needs_met = 0.f;
-			pop->luxury_needs_met = 0.f;
-
+		// Reset worker pool
+		province->worker_pool = 0;
+		for(size_t i = 0; i < province->pops.size(); i++) {
+			Pop * pop = province->pops[i];
+			// If pop is of size 0, then delete it, it's dead :(
+			if(!pop->size) {
+				province->pops.erase(province->pops.begin() + i);
+				i--;
+				continue;
+			}
+			
+			float salary;
+			
+			// TODO: This is very stupid
+			switch(pop->type_id) {
+			case 0:
+				salary = 50000.f;
+				break;
+			case 1:
+				salary = 500.f;
+				break;
+			case 2:
+				salary = 500.f;
+				break;
+			case 3:
+				salary = 1500.f;
+				break;
+			case 4:
+				salary = 5000.f;
+				break;
+			default:
+				salary = 1000.f;
+				break;
+			}
+			
 			// TODO: Make this dynamic
-			pop->budget += 100.f;
-
-			// TODO: Assert stockpile.size == products.size !!!
-
-			// Buy edible
-			for(size_t i = 0; i < province->stockpile.size(); i++) {
+			pop->budget += salary;
+			
+			printf("pop, budget %4.f, size %zu\n", pop->budget, pop->size);
+			
+			size_t alloc_budget;
+			
+			// Use 25% of our budget to buy edibles and life needed stuff
+			alloc_budget = pop->budget / 4;
+			for(size_t j = 0; j < province->stockpile.size(); j++) {
 				// Province must have stockpile
-				if(!province->stockpile[i])
+				if(!province->stockpile[j])
 					continue;
 				
 				// Must be an edible
-				if(this->goods[this->products[i]->good_id]->is_edible == false)
+				if(this->goods[this->products[j]->good_id]->is_edible != true)
 					continue;
 				
-				// We can only spend 50% of our budget
-				size_t bought = (pop->budget / 2) / this->products[i]->price;
+				// We can only spend our allocated budget
+				// TODO: Base spending on literacy, more literacy == less spending
+				size_t bought = alloc_budget / this->products[j]->price;
+				bought %= province->stockpile[j];
 				if(!bought)
 					continue;
-
-				bought %= pop->size;
-				bought %= province->stockpile[i];
-
+				
 				// Satisfaction of needs is proportional to bought items
 				pop->life_needs_met += (float)pop->size / (float)bought;
-
-				this->products[i]->demand += bought;
-				if(this->products[i]->supply) {
-					this->products[i]->supply -= bought % this->products[i]->supply;
-					this->products[i]->demand += bought;
+				
+				// Demand is incremented proportional to items bought
+				this->products[j]->demand += bought;
+				
+				// Reduce supply
+				if(this->products[j]->supply) {
+					this->products[j]->supply -= bought % this->products[j]->supply;
 				}
-
+				
 				// Deduct from budget, and remove item from stockpile
-				pop->budget -= bought * this->products[i]->price;
-				province->stockpile[i] -= bought;
-
-				pop->size += pop->life_needs_met * 50;
+				pop->budget -= bought * this->products[j]->price;
+				alloc_budget -= bought * this->products[j]->price;
+				province->stockpile[j] -= bought;
+				
+				//printf("Buying life needed %zu %s\n", bought, this->goods[this->products[j]->good_id]->name.c_str());
 			}
-
+			
+			// Use 50% of our budget for buying uneeded commodities and shit
+			// TODO: Should lower spending with higher literacy, and higher
+			// TODO: Higher the fullfilment per unit with higher literacy
+			alloc_budget = pop->budget / 2;
+			for(size_t j = 0; j < province->stockpile.size(); j++) {
+				// Province must have stockpile
+				if(!province->stockpile[j])
+					continue;
+				
+				// Must be a non-edible; aka. not essential
+				if(this->goods[this->products[j]->good_id]->is_edible != false)
+					continue;
+				
+				// We can only spend our allocated budget
+				// TODO: Base spending on literacy, more literacy == less spending
+				size_t bought = alloc_budget / this->products[j]->price;
+				bought %= province->stockpile[j];
+				if(!bought)
+					continue;
+				
+				// Satisfaction of needs is proportional to bought items
+				pop->everyday_needs_met += (float)pop->size / (float)bought;
+				
+				// Demand is incremented proportional to items bought
+				this->products[j]->demand += bought;
+				
+				// Reduce supply
+				if(this->products[j]->supply) {
+					this->products[j]->supply -= bought % this->products[j]->supply;
+				}
+				
+				// Deduct from budget, and remove item from stockpile
+				pop->budget -= bought * this->products[j]->price;
+				alloc_budget -= bought * this->products[j]->price;
+				province->stockpile[j] -= bought;
+				
+				//printf("Buying non-esseintial %zu %s\n", bought, this->goods[this->products[j]->good_id]->name.c_str());
+			}
+			
+			// x5 life needs met modifier, that is the max allowed
+			if(pop->life_needs_met > 5.f) {
+				pop->life_needs_met = 5.f;
+			}
+			
+			// TODO: Higher literacy should mean lower births
+			ssize_t growth = pop->life_needs_met * (rand() % 10);
+			if(growth < 0 && (size_t)growth >= pop->size) {
+				pop->size = 0;
+				continue;
+			} else {
+				pop->size += growth;
+			}
+			
 			// Met life needs means less militancy
 			if(pop->life_needs_met >= 1.f) {
 				pop->life_needs_met = 1.f;
@@ -455,8 +546,12 @@ void World::do_tick() {
 				pop->militancy += 0.01f;
 				pop->consciousness += 0.01f;
 			}
+			
+			pop->life_needs_met -= 0.5f;
+			
+			province->worker_pool += pop->size;
 		}
-
+		
 		// Stockpiles cleaned
 		for(size_t i = 0; i < province->stockpile.size(); i++) {
 			province->stockpile[i] = 0;
@@ -464,11 +559,12 @@ void World::do_tick() {
 	}
 
 	// Close today's price with a change according to demand - supply
+	size_t i = 0;
 	for(auto& product: this->products) {
 		if(product->demand > product->supply) {
-			product->price_vel += 0.2f;
+			product->price_vel += 0.1f;
 		} else if(product->demand < product->supply) {
-			product->price_vel -= 0.2f;
+			product->price_vel -= 0.1f;
 		} else {
 			if(product->price_vel > 0.5f) {
 				product->price_vel -= 0.1f;
@@ -480,18 +576,26 @@ void World::do_tick() {
 		if(product->price <= 0.f) {
 			product->price = 0.01f;
 		}
-
-		printf("%4.f $ - %zu, %zu\n", product->price, product->supply, product->demand);
+		
+		//printf("%4.f $ - %zu, %zu\n", product->price, product->supply, product->demand);
+		
+		// Re-count worldwide supply
+		product->supply = 0;
+		for(const auto& province: this->provinces) {
+			product->supply += province->stockpile[i];
+		}
+		product->demand = 0;
+		i++;
 	}
 	
 	// Evaluate units
-	for(size_t i = 0; i < g_world->units.size(); i++) {
-		Unit * unit = g_world->units[i];
+	for(size_t i = 0; i < this->units.size(); i++) {
+		Unit * unit = this->units[i];
 		if(unit->health <= 0.f) {
-			g_world->units.erase(g_world->units.begin() + i);
+			g_world->units.erase(this->units.begin() + i);
 			break;
 		}
-
+		
 		/*
 		// Count friends and foes in range (and find nearest foe)
 		size_t n_friends = 0;

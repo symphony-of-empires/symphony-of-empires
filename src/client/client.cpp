@@ -278,6 +278,7 @@ extern std::atomic<int> run;
 std::mutex render_province_mutex;
 std::deque<size_t> render_province;
 
+#include "pathfinding.hpp"
 SDL_Window * window;
 void do_game_main(UI::Widget *, void *) {
 	ui_ctx->clear();
@@ -340,7 +341,7 @@ void do_game_main(UI::Widget *, void *) {
 	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
 
 	UI::Label * delta_time = new UI::Label(ui_ctx, nullptr, 0, height - 24, "?");
-
+	
 	char * tmpbuf = new char[32];
 	while(run) {
 		SDL_Event event;
@@ -444,11 +445,11 @@ void do_game_main(UI::Widget *, void *) {
 		glRotatef(180.f, 1.0f, 0.0f, 0.0f);
 		glRotatef(0.f, 0.0f, 1.0f, 0.0f);
 		glRotatef(0.f, 0.0f, 0.0f, 1.0f);
-
+		
 		render_province_mutex.lock();
 		if(render_province.size() >= 4) {
 			size_t min_x, min_y, max_x, max_y;
-
+			
 			min_x = render_province.front();
 			render_province.pop_front();
 			min_y = render_province.front();
@@ -457,7 +458,7 @@ void do_game_main(UI::Widget *, void *) {
 			render_province.pop_front();
 			max_y = render_province.front();
 			render_province.pop_front();
-
+			
 			map.quad_update_nation(min_x, min_y, max_x, max_y);
 		}
 		render_province_mutex.unlock();
@@ -477,7 +478,7 @@ void do_game_main(UI::Widget *, void *) {
 			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.div_borders_gl_list_num);
 		}
 		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.pol_borders_gl_list_num);
-
+		
 		glBegin(GL_POLYGON);
 		glColor3f(1.f, 1.f, 1.f);
 		glVertex2f(fmx, fmy);

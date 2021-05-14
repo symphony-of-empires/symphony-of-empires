@@ -1,11 +1,14 @@
 #include "province.hpp"
 #include "world.hpp"
 
+/** Adds a new industry in the province and adds it's output
+ *  products into the world accordingly
+ */
 void Province::add_industry(World * world, Industry * industry) {
 	IndustryType * type = world->industry_types[industry->type_id];
 	for(const auto& output: type->outputs) {
 		const size_t good_id = output;
-
+		
 		// Check that product is not already in the province
 		int is_here = 0;
 		const unsigned int n_products = this->products.size();
@@ -15,8 +18,9 @@ void Province::add_industry(World * world, Industry * industry) {
 				break;
 			}
 		}
-		if(is_here) break;
-
+		if(is_here)
+			break;
+		
 		// Otherwise add it to the province product list
 		Product * new_product = new Product();
 		memset(new_product, 0, sizeof(Product));
@@ -33,9 +37,14 @@ void Province::add_industry(World * world, Industry * industry) {
 			province_id = i;
 			break;
 		}
-
+		
+		// Add the product to the world
 		new_product->origin_id = province_id;
 		world->products.push_back(new_product);
+		
+		industry->output_products.push_back(world->products.size() - 1);
+		
+		printf("product in %s, base of %s, by industry %zu, owned by %zu\n", world->provinces[new_product->origin_id]->name.c_str(), world->goods[new_product->good_id]->name.c_str(), new_product->industry_id, new_product->owner_id);
 	}
 
 	// We will set inputs_satisfied to same size as inputs
