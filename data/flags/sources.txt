@@ -8,4 +8,6 @@ bolivia_republic									https://commons.wikimedia.org/wiki/File:State_flag_of_B
 federated_republic_central_america_republic			https://commons.wikimedia.org/wiki/File:Flag_of_the_Federal_Republic_of_Central_America.svg
 united_kingdom_monarchy								https://commons.wikimedia.org/wiki/File:Flag_of_the_United_Kingdom.svg
 france_republic										https://commons.wikimedia.org/wiki/File:Flag_of_France.svg
-sokoto_monarchy                                     https://commons.wikimedia.org/wiki/File:Flag_of_the_Sokoto_Caliphate.svg
+sokoto_monarchy										https://commons.wikimedia.org/wiki/File:Flag_of_the_Sokoto_Caliphate.svg
+bornu_monarchy										https://commons.wikimedia.org/wiki/File:Flag_of_the_Bornu_Empire.svg
+dahomey_monarchy									https://commons.wikimedia.org/wiki/File:Royal_banner_of_B%C3%A9hanzin_of_Dahomey.svg
