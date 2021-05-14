@@ -26,12 +26,12 @@ ifdef UNIT_TEST
 CXXFLAGS:=$(CXXFLAGS) -DUNIT_TEST
 endif
 
-build: dirs bin/main
+build: dirs bin/main data/locale/ko/LC_MESSAGES/main.mo
 
 clean_build: clean build
 
 clean:
-	rm -rf bin obj
+	@rm -r bin obj
 
 dirs:
 	mkdir -p bin obj obj/client
@@ -44,5 +44,15 @@ obj/%.o: src/%.cpp src/%.hpp
 
 obj/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) $< -c -o $@
+
+data/locale/ko/%.po: data/locale/%.pot
+	msgmerge --update $@ $<
+data/locale/ko/LC_MESSAGES/%.mo: data/locale/ko/%.po
+	msgfmt --output-file=$@ $<
+
+data/locale/es/%.po: data/locale/%.pot
+	msgmerge --update $@ $<
+data/locale/es/LC_MESSAGES/%.mo: data/locale/es/%.po
+	msgfmt --output-file=$@ $<
 
 .PHONY: dirs build clean

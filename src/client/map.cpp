@@ -91,15 +91,17 @@ void Map::quad_create(size_t qx, size_t qy) {
 					i++;
 					tile = &this->world->tiles[i + j * this->world->width];
 				}
-
+				
 				glBegin(GL_TRIANGLES);
-				Nation * nation = this->world->nations[owner_id];
 				for(size_t k = 0; k < 6; k++) {
 					size_t x = x_start + draw_ord[k][0];
 					size_t y = j + draw_ord[k][1];
-					uint8_t r = (nation->color & 0xff);
-					uint8_t g = ((nation->color >> 8) & 0xff);
-					uint8_t b = ((nation->color >> 16) & 0xff);
+					uint8_t r, g, b;
+					// Colorful colonized land
+					Nation * nation = this->world->nations[owner_id];
+					r = (nation->color & 0xff);
+					g = ((nation->color >> 8) & 0xff);
+					b = ((nation->color >> 16) & 0xff);
 					
 					if(draw_ord[k][0])
 						x += n_same - 1;
@@ -113,7 +115,57 @@ void Map::quad_create(size_t qx, size_t qy) {
 		}
 		glEndList();
 	}
-
+	
+	gl_list = &this->quad_topo_gl_list_num[qx + qy * this->n_horz_quads];
+	if(*gl_list == 0) {
+		*gl_list = glGenLists(1);
+		glNewList(*gl_list, GL_COMPILE);
+		for(size_t j = off_y; j < end_y; j++) {
+			for(size_t i = off_x; i < end_x; i++) {
+				Tile * tile = &this->world->tiles[i + j * this->world->width];
+				
+				uint16_t elevation = tile->elevation;
+				size_t x_start = i;
+				size_t n_same = 0;
+				while(i < end_x) {
+					n_same++;
+					i++;
+					tile = &this->world->tiles[i + j * this->world->width];
+					
+					// This tile is land, not water, end stripe
+					if(tile->elevation > this->world->sea_level + 1
+					&& elevation <= this->world->sea_level + 1) {
+						break;
+					}
+					// End of land, now water begins!
+					else if(tile->elevation <= this->world->sea_level + 1
+					&& elevation > this->world->sea_level + 1) {
+						break;
+					}
+				}
+				
+				glBegin(GL_TRIANGLES);
+				for(size_t k = 0; k < 6; k++) {
+					size_t x = x_start + draw_ord[k][0];
+					size_t y = j + draw_ord[k][1];
+					
+					if(draw_ord[k][0])
+						x += n_same - 1;
+					
+					if(elevation > this->world->sea_level + 1)
+						glColor3ub(0xd3, 0xd3, 0xd3);
+					else if(elevation <= this->world->sea_level + 1)
+						glColor3ub(0x54, 0x70, 0xd1);
+					
+					glVertex2f(x, y);
+				}
+				glEnd();
+				i--;
+			}
+		}
+		glEndList();
+	}
+	
 	gl_list = &this->quad_div_gl_list_num[qx + qy * this->n_horz_quads];
 	if(*gl_list == 0) {
 		*gl_list = glGenLists(1);
@@ -141,10 +193,10 @@ void Map::quad_create(size_t qx, size_t qy) {
 					uint8_t r = (province->color & 0xff);
 					uint8_t g = ((province->color >> 8) & 0xff);
 					uint8_t b = ((province->color >> 16) & 0xff);
-
+					
 					if(draw_ord[k][0])
 						x += n_same - 1;
-
+					
 					glColor4ub(r, g, b, 196);
 					glVertex2f(x, y);
 				}
@@ -154,7 +206,8 @@ void Map::quad_create(size_t qx, size_t qy) {
 		}
 		glEndList();
 	}
-
+	
+	/*
 	gl_list = &this->quad_topo_gl_list_num[qx + qy * this->n_horz_quads];
 	if(*gl_list == 0) {
 		*gl_list = glGenLists(1);
@@ -166,7 +219,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 					size_t x = i + draw_ord[k][0];
 					size_t y = j + draw_ord[k][1];
 					uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
-
+					
 					if(elevation == this->world->sea_level + 1) {
 						glColor3ub(0x19, 0x61, 0x61);
 					} else {
@@ -179,31 +232,8 @@ void Map::quad_create(size_t qx, size_t qy) {
 		}
 		glEndList();
 	}
-
-	gl_list = &this->infra_layout_list_num[qx + qy * this->n_horz_quads];
-	if(*gl_list == 0) {
-		*gl_list = glGenLists(1);
-		glNewList(*gl_list, GL_COMPILE);
-		glLineWidth(2.f);
-		for(size_t i = off_x; i < end_x; i++) {
-			for(size_t j = off_y; j < end_y; j++) {
-				Tile * tiles = this->world->tiles;
-				Tile * curr_tile = &tiles[i + j * this->world->width];
-
-				if(curr_tile->infra_level) {
-					glBegin(GL_POLYGON);
-					glColor3ub(0xed, 0xe5, 0x8c);
-					glVertex2f((float)i + 0.f, (float)j + 0.f);
-					glVertex2f((float)i + 0.f, (float)j + 1.f);
-					glVertex2f((float)i + 1.f, (float)j + 1.f);
-					glVertex2f((float)i + 1.f, (float)j + 0.f);
-					glEnd();
-				}
-			}
-		}
-		glEndList();
-	}
-
+	*/
+	
 	gl_list = &this->div_borders_gl_list_num[qx + qy * this->n_horz_quads];
 	if(*gl_list == 0) {
 		*gl_list = glGenLists(1);
@@ -213,38 +243,42 @@ void Map::quad_create(size_t qx, size_t qy) {
 		glLineWidth(2.f);
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
-				Tile * tiles = this->world->tiles;
-				Tile * curr_tile = &tiles[i + j * this->world->width];
-
+				Tile * tile = &this->world->tiles[i + j * this->world->width];
+				Tile * other_tile;
+				
 				// left
-				if(tiles[(i - 1) + ((j) * this->world->width)].province_id != curr_tile->province_id) {
+				other_tile = &this->world->tiles[(i - 1) + ((j) * this->world->width)];
+				if(other_tile->province_id != tile->province_id) {
 					glBegin(GL_LINE_STRIP);
 					glColor4f(0.f, 0.f, 0.f, 0.1f);
 					glVertex2f((float)i, (float)j + 1.f);
 					glVertex2f((float)i, (float)j + 0.f);
 					glEnd();
 				}
-
+				
 				// right
-				if(tiles[(i + 1) + ((j) * this->world->width)].province_id != curr_tile->province_id) {
+				other_tile = &this->world->tiles[(i + 1) + ((j) * this->world->width)];
+				if(other_tile->province_id != tile->province_id) {
 					glBegin(GL_LINE_STRIP);
 					glColor4f(0.f, 0.f, 0.f, 0.1f);
 					glVertex2f((float)i + 1.f, (float)j + 1.f);
 					glVertex2f((float)i + 1.f, (float)j + 0.f);
 					glEnd();
 				}
-
+				
 				// up
-				if(tiles[(i) + ((j - 1) * this->world->width)].province_id != curr_tile->province_id) {
+				other_tile = &this->world->tiles[(i) + ((j - 1) * this->world->width)];
+				if(other_tile->province_id != tile->province_id) {
 					glBegin(GL_LINE_STRIP);
 					glColor4f(0.f, 0.f, 0.f, 0.1f);
 					glVertex2f((float)i + 1.f, (float)j);
 					glVertex2f((float)i + 0.f, (float)j);
 					glEnd();
 				}
-
+				
 				// down
-				if(tiles[(i) + ((j + 1) * this->world->width)].province_id != curr_tile->province_id) {
+				other_tile = &this->world->tiles[(i) + ((j + 1) * this->world->width)];
+				if(other_tile->province_id != tile->province_id) {
 					glBegin(GL_LINE_STRIP);
 					glColor4f(0.f, 0.f, 0.f, 0.1f);
 					glVertex2f((float)i + 1.f, (float)j + 1.f);
@@ -265,48 +299,68 @@ void Map::quad_create(size_t qx, size_t qy) {
 		glLineWidth(3.f);
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
-				Tile * tiles = this->world->tiles;
-				Tile * curr_tile = &tiles[i + j * this->world->width];
+				Tile * tile = &this->world->tiles[i + j * this->world->width];
+				Tile * other_tile;
 
 				// left
-				if(tiles[(i - 1) + ((j) * this->world->width)].owner_id != curr_tile->owner_id
-				&& tiles[(i - 1) + ((j) * this->world->width)].owner_id != (uint16_t)-1
-				&& curr_tile->owner_id != (uint16_t)-1) {
+				other_tile = &this->world->tiles[(i - 1) + ((j) * this->world->width)];
+				if(other_tile->elevation < this->world->sea_level && tile->elevation > this->world->sea_level) {
 					glBegin(GL_LINE_STRIP);
-					glColor4f(0.f, 0.f, 0.f, 0.3f);
+					glColor4f(0.f, 0.f, 0.f, 0.5f);
+					glVertex2f((float)i, (float)j + 1.f);
+					glVertex2f((float)i, (float)j + 0.f);
+					glEnd();
+				} else if(other_tile->owner_id != tile->owner_id && tile->owner_id != (uint16_t)-1) {
+					glBegin(GL_LINE_STRIP);
+					glColor4f(0.f, 0.f, 0.f, 0.2f);
 					glVertex2f((float)i, (float)j + 1.f);
 					glVertex2f((float)i, (float)j + 0.f);
 					glEnd();
 				}
-
+				
 				// right
-				if(tiles[(i + 1) + ((j) * this->world->width)].owner_id != curr_tile->owner_id
-				&& tiles[(i + 1) + ((j) * this->world->width)].owner_id != (uint16_t)-1
-				&& curr_tile->owner_id != (uint16_t)-1) {
+				other_tile = &this->world->tiles[(i + 1) + ((j) * this->world->width)];
+				if(other_tile->elevation < this->world->sea_level && tile->elevation > this->world->sea_level) {
 					glBegin(GL_LINE_STRIP);
-					glColor4f(0.f, 0.f, 0.f, 0.3f);
+					glColor4f(0.f, 0.f, 0.f, 0.5f);
+					glVertex2f((float)i + 1.f, (float)j + 1.f);
+					glVertex2f((float)i + 1.f, (float)j + 0.f);
+					glEnd();
+				} else if(other_tile->owner_id != tile->owner_id && tile->owner_id != (uint16_t)-1) {
+					glBegin(GL_LINE_STRIP);
+					glColor4f(0.f, 0.f, 0.f, 0.2f);
 					glVertex2f((float)i + 1.f, (float)j + 1.f);
 					glVertex2f((float)i + 1.f, (float)j + 0.f);
 					glEnd();
 				}
-
+				
 				// up
-				if(tiles[(i) + ((j - 1) * this->world->width)].owner_id != curr_tile->owner_id
-				&& tiles[(i) + ((j - 1) * this->world->width)].owner_id != (uint16_t)-1
-				&& curr_tile->owner_id != (uint16_t)-1) {
+				other_tile = &this->world->tiles[(i) + ((j - 1) * this->world->width)];
+				if(other_tile->elevation < this->world->sea_level && tile->elevation > this->world->sea_level) {
 					glBegin(GL_LINE_STRIP);
-					glColor4f(0.f, 0.f, 0.f, 0.3f);
+					glColor4f(0.f, 0.f, 0.f, 0.5f);
+					glVertex2f((float)i + 1.f, (float)j);
+					glVertex2f((float)i + 0.f, (float)j);
+					glEnd();
+				} else if(other_tile->owner_id != tile->owner_id && tile->owner_id != (uint16_t)-1) {
+					glBegin(GL_LINE_STRIP);
+					glColor4f(0.f, 0.f, 0.f, 0.2f);
 					glVertex2f((float)i + 1.f, (float)j);
 					glVertex2f((float)i + 0.f, (float)j);
 					glEnd();
 				}
-
+				
 				// down
-				if(tiles[(i) + ((j + 1) * this->world->width)].owner_id != curr_tile->owner_id
-				&& tiles[(i) + ((j + 1) * this->world->width)].owner_id != (uint16_t)-1
-				&& curr_tile->owner_id != (uint16_t)-1) {
+				other_tile = &this->world->tiles[(i) + ((j + 1) * this->world->width)];
+				if(other_tile->elevation < this->world->sea_level && tile->elevation > this->world->sea_level) {
 					glBegin(GL_LINE_STRIP);
-					glColor4f(0.f, 0.f, 0.f, 0.3f);
+					glColor4f(0.f, 0.f, 0.f, 0.5f);
+					glVertex2f((float)i + 1.f, (float)j + 1.f);
+					glVertex2f((float)i + 0.f, (float)j + 1.f);
+					glEnd();
+				} else if(other_tile->owner_id != tile->owner_id && tile->owner_id != (uint16_t)-1) {
+					glBegin(GL_LINE_STRIP);
+					glColor4f(0.f, 0.f, 0.f, 0.2f);
 					glVertex2f((float)i + 1.f, (float)j + 1.f);
 					glVertex2f((float)i + 0.f, (float)j + 1.f);
 					glEnd();

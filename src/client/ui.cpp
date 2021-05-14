@@ -412,7 +412,7 @@ void Widget::text(Context * ctx, const char * text) {
 	this->text_texture = new Texture();
 	this->text_texture->gl_tex_num = 0;
 
-	surface = TTF_RenderText_Solid(ctx->default_font, text, text_color);
+	surface = TTF_RenderUTF8_Solid(ctx->default_font, text, text_color);
 	if(surface == nullptr) {
 		perror("cannot create text surface\n");
 		return;

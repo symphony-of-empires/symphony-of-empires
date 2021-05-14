@@ -279,7 +279,7 @@ void World::do_tick() {
 				order.requester_industry_id = j;
 				order.requester_province_id = i;
 				orders.push_back(order);
-				printf("\t- We need good: %s (from %s)\n", this->goods[order.good_id]->ref_name.c_str(), this->provinces[order.requester_province_id]->ref_name.c_str());
+				printf("\t- We need good: %s (from %s)\n", this->goods[order.good_id]->name.c_str(), this->provinces[order.requester_province_id]->name.c_str());
 			}
 
 			if(it->inputs.size() == 0) {
@@ -301,7 +301,7 @@ void World::do_tick() {
 						
 						deliver.product_id = k;
 						delivers.push_back(deliver);
-						printf("\t- Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id]->ref_name.c_str(), this->provinces[deliver.sender_province_id]->ref_name.c_str());
+						printf("\t- Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id]->name.c_str(), this->provinces[deliver.sender_province_id]->name.c_str());
 						break;
 					}
 				}
@@ -336,7 +336,7 @@ void World::do_tick() {
 					if(!company->in_range(order->requester_province_id))
 						continue;
 
-					printf("%s: Delivered from %s to %s some %s\n", company->name.c_str(), this->provinces[deliver->sender_province_id]->ref_name.c_str(), this->provinces[order->requester_province_id]->ref_name.c_str(), this->goods[order->good_id]->ref_name.c_str());
+					printf("%s: Delivered from %s to %s some %s\n", company->name.c_str(), this->provinces[deliver->sender_province_id]->name.c_str(), this->provinces[order->requester_province_id]->name.c_str(), this->goods[order->good_id]->name.c_str());
 
 					// Yes - we go and deliver their stuff
 					Industry * industry = this->provinces[order->requester_province_id]->industries[order->requester_industry_id];
