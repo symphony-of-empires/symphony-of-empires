@@ -1,0 +1,141 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-01-25 18:51+0100\n"
+"PO-Revision-Date: 2021-05-13 17:35-0400\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.3\n"
+"Last-Translator: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: es\n"
+
+msgid "Wheat"
+msgstr "Trigo"
+
+msgid "Titanium"
+msgstr "Titanio"
+
+msgid "Rice"
+msgstr "Arroz"
+
+msgid "Cotton"
+msgstr "Algodon"
+
+msgid "Fabric"
+msgstr "Tela"
+
+msgid "Bed"
+msgstr "Cama"
+
+msgid "Chair"
+msgstr "Silla"
+
+msgid "Diamond"
+msgstr "Diamante"
+
+msgid "Gold"
+msgstr "Oro"
+
+msgid "Iron"
+msgstr "Hierro"
+
+msgid "Steel"
+msgstr "Acero"
+
+msgid "Diplomacy Points"
+msgstr "Puntos de Diplomacy"
+
+msgid "Literacy"
+msgstr "Literacia"
+
+msgid "Prestige"
+msgstr "Prestigio"
+
+msgid "Gran Colombia"
+msgstr "Gran Colombia"
+
+msgid "Brazil"
+msgstr "Brasil"
+
+msgid "Argentina"
+msgstr "Argentina"
+
+msgid "Sand smelter"
+msgstr "Fundidora de arena"
+
+msgid "Timber"
+msgstr "Madera"
+
+msgid "Lumberjack"
+msgstr "Leñador"
+
+msgid "Gold mine"
+msgstr "Mina de oro"
+
+msgid "Lua error"
+msgstr "Error lua"
+
+msgid "Lua argument type mismatch"
+msgstr "Discrepancia de tipo de argumento de Lua"
+
+msgid "industry %s not found"
+msgstr "industria %s no encontrada"
+
+msgid "industry_type"
+msgstr "tipo_de_industria"
+
+msgid "good %s not found"
+msgstr "bien %s no encontrado"
+
+msgid "good"
+msgstr "bien"
+
+msgid "%s nation has same colour as %s"
+msgstr "nacion %s tiene el mismo color que %s"
+
+msgid ""
+"%s nation has same ref_name as %s thereby we will return the id of the "
+"original nation"
+msgstr ""
+"la nacion %s tiene el mismo ref_name que %s asi que vamos a devolver el "
+"id de la nacion original"
+
+msgid "nation"
+msgstr "nacion"
+
+msgid "nation %s not found"
+msgstr "naion %s no encontrada"
+
+msgid "%s province has same colour as %s"
+msgstr "provincia %s tiene el mismo color que %s"
+
+msgid ""
+"%s province has same ref_name as %s thereby we will return the id of the "
+"original province"
+msgstr ""
+"la provincia %s tiene el mismo ref_name que %s asi que vamos a devolver "
+"el id de la provincia original"
+
+msgid "lua province_id is out of bounds"
+msgstr "lua province_id esta fuera de los límites"
+
+msgid "lua nation_id is out of bounds"
+msgstr "lua nation_id esta fuera de los límites"
+
+msgid "invalid province id %s"
+msgstr "provincia %s con id invalida"
+
+msgid "company"
+msgstr "empresa"
+
+msgid "pop_type %s not found"
+msgstr "pop_type %s no encontrado"
