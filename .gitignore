@@ -10,6 +10,9 @@
 bin/
 obj/
 
+# compiled translation files
+*.mo
+
 # vscode stuff
 .vscode/
 compile_commands.json

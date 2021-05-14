@@ -109,8 +109,8 @@ std::vector<Tile*> find_path(const World& world, Tile * start, Tile * end) {
 	// Priority queue based on cost
 	std::priority_queue<std::pair<double, Tile *>> queue;
 
-	cost_map[start] = 0.0;
-	queue.push({0.0, start});
+	cost_map[start] = 0.f;
+	queue.push({0.f, start});
 
 	while(!queue.empty()) {
 
@@ -146,7 +146,7 @@ std::vector<Tile*> find_path(const World& world, Tile * start, Tile * end) {
 		}
 	}
 
-	std::vector<Tile*> path;
+	std::vector<Tile *> path;
 
 	// Unwind path and reverse
 	Tile* current = end;
