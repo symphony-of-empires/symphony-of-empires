@@ -43,7 +43,7 @@ static int tx, ty;
 static size_t player_nation_id;
 static size_t selected_province_id;
 
-static bool display_prov = false, display_pol = true, display_topo = false, display_infra = false;
+static bool display_prov = false, display_pol = true, display_topo = true, display_infra = false;
 
 static void do_view_prov_map(UI::Widget *, void *) {
 	//map = prov_map;
