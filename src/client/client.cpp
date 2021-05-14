@@ -342,6 +342,10 @@ void do_game_main(UI::Widget *, void *) {
 
 	UI::Label * delta_time = new UI::Label(ui_ctx, nullptr, 0, height - 24, "?");
 	
+	std::vector<Tile *> path;
+	Tile * start;
+	Tile * end;
+	
 	char * tmpbuf = new char[32];
 	while(run) {
 		SDL_Event event;
@@ -361,11 +365,14 @@ void do_game_main(UI::Widget *, void *) {
 				if(event.button.button == SDL_BUTTON_LEFT && !r) {
 					// tx and ty are used for tile
 					Tile * tile = &g_world->tiles[tx + ty * g_world->width];
+					
+					start = &g_world->tiles[tx + ty * g_world->width];
+					/*
 					if(tile->province_id != (size_t)-1 && tile->owner_id != (size_t)-1) {
 						selected_province_id = tile->province_id;
 						do_province_overview();
 					}
-
+					
 					// Place unit
 					Unit * unit = new Unit();
 					unit->health = 75.f;
@@ -373,14 +380,10 @@ void do_game_main(UI::Widget *, void *) {
 					unit->x = fmx;
 					unit->y = fmy;
 					g_world->units.push_back(unit);
+					*/
 				} else if(event.button.button == SDL_BUTTON_RIGHT && !r) {
-					// Place unit
-					Unit * unit = new Unit();
-					unit->health = 75.f;
-					unit->owner_id = 10;
-					unit->x = fmx;
-					unit->y = fmy;
-					g_world->units.push_back(unit);
+					end = &g_world->tiles[tx + ty * g_world->width];
+					path = find_path(*g_world, start, end);
 				}
 				break;
 			case SDL_MOUSEMOTION:
@@ -523,6 +526,16 @@ void do_game_main(UI::Widget *, void *) {
 			glVertex2f(unit->tx, unit->ty);
 			glEnd();
 		}
+		
+		// Path thing
+		glBegin(GL_LINE_STRIP);
+		glLineWidth(4.f);
+		glColor3f(1.f, 0.f, 0.f);
+		for(const auto& node: path) {
+			glVertex2f(node->x, node->y);
+		}
+		glLineWidth(1.f);
+		glEnd();
 
 		glPushMatrix();
 		glMatrixMode(GL_PROJECTION);

@@ -8,6 +8,7 @@
 #endif
 #include <string>
 #include <vector>
+#include "nation.hpp"
 
 namespace LuaAPI {
 	class Event {
@@ -15,27 +16,38 @@ namespace LuaAPI {
 		std::string ref_name;
 		std::string conditions_function;
 		std::string do_event_function;
+		std::vector<Nation *> receivers;
 	};
 
 	int add_good(lua_State * L);
 	int get_good(lua_State * L);
+
 	int add_industry_type(lua_State * L);
 	int get_industry_type(lua_State * L);
 	int add_input_to_industry_type(lua_State * L);
 	int add_output_to_industry_type(lua_State * L);
+
 	int add_nation(lua_State * L);
 	int get_nation(lua_State * L);
+
 	int add_province(lua_State * L);
 	int get_province(lua_State * L);
 	int give_province_to(lua_State * L);
 	int add_province_pop(lua_State * L);
+	int rename_province(lua_State * L);
 
 	int add_company(lua_State * L);
+
 	int add_event(lua_State * L);
+	int get_event(lua_State * L);
+	int add_event_receivers(lua_State * L);
+
 	int add_pop_type(lua_State * L);
 	int get_pop_type(lua_State * L);
+
 	int add_culture(lua_State * L);
 	int get_culture(lua_State * L);
+
 	int add_religion(lua_State * L);
 	int get_religion(lua_State * L);
 

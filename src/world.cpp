@@ -48,24 +48,36 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 
 	// Register our API functions
 	lua_register(this->lua, "_", LuaAPI::get_text);
+
 	lua_register(this->lua, "add_good", LuaAPI::add_good);
 	lua_register(this->lua, "get_good", LuaAPI::get_good);
+
 	lua_register(this->lua, "add_industry_type", LuaAPI::add_industry_type);
 	lua_register(this->lua, "get_industry_type", LuaAPI::get_industry_type);
 	lua_register(this->lua, "add_input_to_industry_type", LuaAPI::add_input_to_industry_type);
 	lua_register(this->lua, "add_output_to_industry_type", LuaAPI::add_output_to_industry_type);
+
 	lua_register(this->lua, "add_nation", LuaAPI::add_nation);
 	lua_register(this->lua, "get_nation", LuaAPI::get_nation);
+
 	lua_register(this->lua, "add_province", LuaAPI::add_province);
 	lua_register(this->lua, "get_province", LuaAPI::get_province);
 	lua_register(this->lua, "add_province_pop", LuaAPI::add_province_pop);
 	lua_register(this->lua, "give_province_to", LuaAPI::give_province_to);
+	lua_register(this->lua, "rename_province", LuaAPI::rename_province);
+
 	lua_register(this->lua, "add_company", LuaAPI::add_company);
+
 	lua_register(this->lua, "add_event", LuaAPI::add_event);
+	lua_register(this->lua, "get_event", LuaAPI::get_event);
+	lua_register(this->lua, "add_event_receivers", LuaAPI::add_event_receivers);
+
 	lua_register(this->lua, "add_pop_type", LuaAPI::add_pop_type);
 	lua_register(this->lua, "get_pop_type", LuaAPI::get_pop_type);
+
 	lua_register(this->lua, "add_culture", LuaAPI::add_culture);
 	lua_register(this->lua, "get_culture", LuaAPI::get_culture);
+
 	lua_register(this->lua, "add_religion", LuaAPI::add_religion);
 	lua_register(this->lua, "get_religion", LuaAPI::get_religion);
 
