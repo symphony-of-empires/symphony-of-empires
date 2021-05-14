@@ -323,6 +323,14 @@ Nation:register(nation)
 local nation = Nation:create{ ref_name = "wadai_empire", color = 0xb9bc2a, default_flag = "flags/unknown.png" }
 nation.name = _("Wadai Empire")
 Nation:register(nation)
+
+local nation = Nation:create{ ref_name = "bornu", color = 0x589172, default_flag = "flags/bornu_monarchy.png" }
+nation.name = _("Bornu")
+Nation:register(nation)
+
+local nation = Nation:create{ ref_name = "dahomey", color = 0x613478, default_flag = "flags/dahomey_monarchy.png" }
+nation.name = _("Dahomey")
+Nation:register(nation)
 print("nations")
 
 --------------------------------------------------------------------------------------------------------------------
