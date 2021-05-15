@@ -2,7 +2,7 @@
     "version": 2,
     "configurePresets": [
         {
-            "name": "def",
+            "name": "ninja-default",
             "displayName": "Ninja default build",
             "generator": "Ninja",
             "toolset": {
@@ -16,8 +16,7 @@
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_CXX_COMPILER": "cl"
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             },
             "environment": {
                 "VCPKG_FEATURE_FLAGS": "manifests,versions,binarycaching"
