@@ -1,4 +1,5 @@
 #include "path.hpp"
+#include <filesystem>
 
 #ifdef _WIN32
 	#include <windows.h>
@@ -9,6 +10,8 @@
 	#include <unistd.h>
 	#include <limits.h>
 #endif
+
+namespace fs = std::filesystem;
 
 namespace Path {
 	static inline std::string get_exec_path(void) {
@@ -27,16 +30,20 @@ namespace Path {
 	}
 
 	std::string get(const char * str) {
-		if(str[0] == '/' || str[0] == 'C')
+		if(fs::path(str).is_absolute()) {
 			return str;
-		
-		std::string rsult = get_exec_path();
-		size_t found = rsult.find_last_of("/\\");
-		rsult = rsult.substr(0, found);
-		found = rsult.find_last_of("/\\");
-		rsult = rsult.substr(0, found);
-		rsult += "/data/";
-		rsult += str;
-		return rsult;
+		}
+
+		auto strPath = fs::path(str);
+		auto mainFolder = fs::path(get_exec_path()).parent_path();
+
+		mainFolder /= "data";
+
+		for(auto slice : strPath)
+		{
+			mainFolder /= slice;
+		}
+
+		return mainFolder.string();
 	}
 };
