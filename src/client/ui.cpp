@@ -247,7 +247,7 @@ void default_on_render(Widget * w, void * data) {
 			}
 			size_t time = 0;
 			for(const auto& data: chart) {
-				glVertex2f(w->x + (time * 4), (w->y + w->height) - ((data / max) * w->height));
+				glVertex2f(w->x + (time * (w->width / chart.size())), (w->y + w->height) - ((data / max) * w->height));
 				time++;
 			}
 			glLineWidth(1.f);
