@@ -47,6 +47,7 @@ public:
 	std::vector<size_t> outputs;
 };
 
+#include <deque>
 class Product {
 public:
 	// Onwer (companyId) of this product
@@ -75,6 +76,11 @@ public:
 	
 	// Total demand (worldwide) of the product
 	size_t demand;
+
+	// Deque for charts and stuff
+	std::deque<float> price_history;
+	std::deque<size_t> supply_history;
+	std::deque<size_t> demand_history;
 };
 
 class World;

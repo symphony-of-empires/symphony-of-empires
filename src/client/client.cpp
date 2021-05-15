@@ -330,6 +330,10 @@ void do_game_main(UI::Widget *, void *) {
 	UI::Label * top_literacy = new UI::Label(ui_ctx, top_win, 256, 8, "?");
 	UI::Label * top_diplomacy_pts = new UI::Label(ui_ctx, top_win, 128, 32, "?");
 
+	// Test chart
+	UI::Chart * test = new UI::Chart(ui_ctx, nullptr, 0, 0, 128, 128);
+	test->user_data = &g_world->products[0]->price_history;
+
 	Camera cam;
 	cam.x = -1.f;
 	cam.y = 1.f;
@@ -544,7 +548,7 @@ void do_game_main(UI::Widget *, void *) {
 		}
 		glLineWidth(1.f);
 		glEnd();
-
+		
 		glPushMatrix();
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();

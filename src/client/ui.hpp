@@ -11,6 +11,7 @@ enum UI_WidgetType {
 	UI_WIDGET_WINDOW,
 	UI_WIDGET_LABEL,
 	UI_WIDGET_IMAGE,
+	UI_WIDGET_CHART,
 };
 
 #include <SDL2/SDL_ttf.h>
@@ -149,6 +150,14 @@ namespace UI {
 			: Widget(ctx, _parent, _x, _y, 0, 0, UI_WIDGET_LABEL, text, tex) {}
 		Label& operator=(const Label&) = default;
 		~Label() {};
+	};
+	class Chart : public Widget {
+	public:
+		Chart(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
+			const char * text = nullptr, Texture * tex = nullptr)
+			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_CHART, text, tex) {}
+		Chart& operator=(const Chart&) = default;
+		~Chart() {};
 	};
 };
 
