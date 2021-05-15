@@ -16,10 +16,10 @@ std::atomic<int> run;
 
 int main(int argc, char ** argv) {
 	setlocale(LC_ALL, "");
-	bindtextdomain("main", Resource_GetPath("locale").c_str());
+	bindtextdomain("main", Path::get("locale").c_str());
 	textdomain("main");
 
-	World world("map_topo.png", "map_pol.png", "map_div.png", "map_infra.png");
+	World world = World();
 	world.time = 695459;
 	world.time -= (8600 * 76);
 	world.time -= 24 * 190;

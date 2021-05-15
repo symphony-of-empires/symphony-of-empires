@@ -49,8 +49,7 @@ public:
 
 class World {
 public:
-	World() {};
-	World(const char * topo_map, const char * pol_map, const char * div_map, const char * infra_map);
+	World();
 	World& operator=(const World&) = default;
 	~World();
 

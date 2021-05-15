@@ -35,6 +35,8 @@ clean:
 
 dirs:
 	mkdir -p bin obj obj/client
+	mkdir -p data/locale/ko/LC_MESSAGES
+	mkdir -p data/locale/es/LC_MESSAGES
 
 bin/main: $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LIBS)
@@ -49,10 +51,14 @@ data/locale/ko/%.po: data/locale/%.pot
 	msgmerge --update $@ $<
 data/locale/ko/LC_MESSAGES/%.mo: data/locale/ko/%.po
 	msgfmt --output-file=$@ $<
+data/locale/ko/LC_MESSAGES:
+	mkdir -p $@
 
 data/locale/es/%.po: data/locale/%.pot
 	msgmerge --update $@ $<
 data/locale/es/LC_MESSAGES/%.mo: data/locale/es/%.po
 	msgfmt --output-file=$@ $<
+data/locale/es/LC_MESSAGES:
+	mkdir -p $@
 
 .PHONY: dirs build clean
