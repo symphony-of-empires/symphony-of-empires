@@ -287,37 +287,37 @@ void do_game_main(UI::Widget *, void *) {
 	map = Map(g_world);
 
 	// Siderbar buttons
-	Texture help_icon = Texture(Resource_GetPath("icons/help.png").c_str());
+	Texture help_icon = Texture(Path::get("icons/help.png").c_str());
 	help_icon.to_opengl();
 	UI::Button * help_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 4, 64, 64);
 	help_btn->on_click = &do_info_overview;
 	UI::Image * help_btn_icon = new UI::Image(ui_ctx, help_btn, 0, 0, 64, 64, nullptr, &help_icon);
-	Texture budget_icon = Texture(Resource_GetPath("icons/budget.png").c_str());
+	Texture budget_icon = Texture(Path::get("icons/budget.png").c_str());
 	budget_icon.to_opengl();
 	UI::Button * budget_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 5, 64, 64);
 	budget_btn->on_click = &do_economy_overview;
 	UI::Image * budget_btn_icon = new UI::Image(ui_ctx, budget_btn, 0, 0, 64, 64, nullptr, &budget_icon);
-	Texture pol_view_icon = Texture(Resource_GetPath("icons/pol_view.png").c_str());
+	Texture pol_view_icon = Texture(Path::get("icons/pol_view.png").c_str());
 	pol_view_icon.to_opengl();
 	UI::Button * pol_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 6, 64, 64);
 	pol_view_btn->on_click = &do_view_pol_map;
 	UI::Image * pol_view_btn_icon = new UI::Image(ui_ctx, pol_view_btn, 0, 0, 64, 64, nullptr, &pol_view_icon);
-	Texture prov_view_icon = Texture(Resource_GetPath("icons/prov_view.png").c_str());
+	Texture prov_view_icon = Texture(Path::get("icons/prov_view.png").c_str());
 	prov_view_icon.to_opengl();
 	UI::Button * prov_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 7, 64, 64);
 	prov_view_btn->on_click = &do_view_prov_map;
 	UI::Image * prov_view_btn_icon = new UI::Image(ui_ctx, prov_view_btn, 0, 0, 64, 64, nullptr, &prov_view_icon);
-	Texture topo_view_icon = Texture(Resource_GetPath("icons/topo_view.png").c_str());
+	Texture topo_view_icon = Texture(Path::get("icons/topo_view.png").c_str());
 	topo_view_icon.to_opengl();
 	UI::Button * topo_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 8, 64, 64);
 	topo_view_btn->on_click = &do_view_topo_map;
 	UI::Image * topo_view_btn_icon = new UI::Image(ui_ctx, topo_view_btn, 0, 0, 64, 64, nullptr, &topo_view_icon);
-	Texture infra_view_icon = Texture(Resource_GetPath("icons/infra_view.png").c_str());
+	Texture infra_view_icon = Texture(Path::get("icons/infra_view.png").c_str());
 	infra_view_icon.to_opengl();
 	UI::Button * infra_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 9, 64, 64);
 	infra_view_btn->on_click = &do_view_infra_map;
 	UI::Image * infra_view_btn_icon = new UI::Image(ui_ctx, infra_view_btn, 0, 0, 64, 64, nullptr, &infra_view_icon);
-	Texture exit_icon = Texture(Resource_GetPath("icons/exit.png").c_str());
+	Texture exit_icon = Texture(Path::get("icons/exit.png").c_str());
 	exit_icon.to_opengl();
 	UI::Button * exit_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 10, 64, 64);
 	exit_btn->on_click = &do_exit;
@@ -629,7 +629,7 @@ void do_select_nation_via_flag(UI::Widget *, void * data) {
 void do_select_nation(UI::Widget *, void *) {
 	ui_ctx->clear();
 
-	Texture menu_bg = Texture(Resource_GetPath("title_bg.png").c_str());
+	Texture menu_bg = Texture(Path::get("title_bg.png").c_str());
 	menu_bg.to_opengl();
 	UI::Image * menu_bg_img = new UI::Image(ui_ctx, nullptr, 0, 0, width, height, nullptr, &menu_bg);
 
@@ -740,10 +740,10 @@ void rendering_main(void) {
 
 	ui_ctx = new UI::Context();
 
-	Texture menu_bg = Texture(Resource_GetPath("title_bg.png").c_str());
+	Texture menu_bg = Texture(Path::get("title_bg.png").c_str());
 	menu_bg.to_opengl();
 	UI::Image * menu_bg_img = new UI::Image(ui_ctx, nullptr, 0, 0, width, height, nullptr, &menu_bg);
-	Texture menu_title = Texture(Resource_GetPath("title.png").c_str());
+	Texture menu_title = Texture(Path::get("title.png").c_str());
 	menu_title.to_opengl();
 	UI::Image * menu_title_img = new UI::Image(ui_ctx, nullptr, 64, 8, 320, 128, nullptr, &menu_title);
 	UI::Button * new_game = new UI::Button(ui_ctx, nullptr, 64, 196, 256, 24, "New game");

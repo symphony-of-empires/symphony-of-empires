@@ -1,6 +1,10 @@
 #ifndef PATH_H_
 #define PATH_H_
 
-std::string Resource_GetPath(const char *str);
+#include <string>
 
-#endif //PATH_H_
+namespace Path {
+	std::string get(const char * str);
+};
+
+#endif

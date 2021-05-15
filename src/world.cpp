@@ -12,13 +12,16 @@
 // Mostly used by clients and lua API
 World * g_world;
 
-World::World(const char * topo_map, const char * pol_map, const char * div_map, const char * infra_map) {
+/**
+  * Creates a new world
+  */
+World::World() {
 	g_world = this;
 	
-	Texture topo(topo_map);
-	Texture pol(pol_map);
-	Texture div(div_map);
-	Texture infra(infra_map);
+	Texture topo(Path::get("map_topo.png").c_str());
+	Texture pol(Path::get("map_pol.png").c_str());
+	Texture div(Path::get("map_div.png").c_str());
+	Texture infra(Path::get("map_infra.png").c_str());
 
 	this->width = topo.width;
 	this->height = topo.height;
@@ -33,6 +36,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 		print_error("province map size mismatch");
 		exit(EXIT_FAILURE);
 	}
+
 	// Sea is	<= sea_level
 	// Rivers	== sea_level + 1
 	// Land is	> sea_level + 1
@@ -94,13 +98,13 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	lua_getfield(this->lua, -1, "path");
 	std::string curr_path = lua_tostring(this->lua, -1);
 	curr_path.append(";");
-	curr_path.append(Resource_GetPath("scripts/api.lua"));
+	curr_path.append(Path::get("scripts/api.lua"));
 	lua_pop(this->lua, 1);
 	lua_pushstring(this->lua, curr_path.c_str());
 	lua_setfield(this->lua, -2, "path");
 	lua_pop(this->lua, 1);
 
-	int ret = luaL_dofile(this->lua, Resource_GetPath("scripts/init.lua").c_str());
+	int ret = luaL_dofile(this->lua, Path::get("scripts/init.lua").c_str());
 	if(ret) {
 		print_error("lua error %s", lua_tostring(this->lua, -1));
 		exit(EXIT_FAILURE);
@@ -221,7 +225,7 @@ World::World(const char * topo_map, const char * pol_map, const char * div_map, 
 	this->goods.shrink_to_fit();
 	this->industry_types.shrink_to_fit();
 
-	ret = luaL_dofile(this->lua, Resource_GetPath("scripts/mod.lua").c_str());
+	ret = luaL_dofile(this->lua, Path::get("scripts/mod.lua").c_str());
 	if(ret) {
 		print_error("lua error %s", lua_tostring(this->lua, -1));
 		exit(EXIT_FAILURE);
@@ -571,33 +575,35 @@ void World::do_tick() {
 	}
 
 	// Close today's price with a change according to demand - supply
-	size_t i = 0;
-	for(auto& product: this->products) {
-		if(product->demand > product->supply) {
-			product->price_vel += 0.1f;
-		} else if(product->demand < product->supply) {
-			product->price_vel -= 0.1f;
-		} else {
-			if(product->price_vel > 0.5f) {
-				product->price_vel -= 0.1f;
-			} else if(product->price_vel < -0.5f) {
+	{
+		size_t i = 0;
+		for(auto& product: this->products) {
+			if(product->demand > product->supply) {
 				product->price_vel += 0.1f;
+			} else if(product->demand < product->supply) {
+				product->price_vel -= 0.1f;
+			} else {
+				if(product->price_vel > 0.5f) {
+					product->price_vel -= 0.1f;
+				} else if(product->price_vel < -0.5f) {
+					product->price_vel += 0.1f;
+				}
 			}
+			product->price += product->price_vel;
+			if(product->price <= 0.f) {
+				product->price = 0.01f;
+			}
+			
+			//printf("%4.f $ - %zu, %zu\n", product->price, product->supply, product->demand);
+			
+			// Re-count worldwide supply
+			product->supply = 0;
+			for(const auto& province: this->provinces) {
+				product->supply += province->stockpile[i];
+			}
+			product->demand = 0;
+			i++;
 		}
-		product->price += product->price_vel;
-		if(product->price <= 0.f) {
-			product->price = 0.01f;
-		}
-		
-		//printf("%4.f $ - %zu, %zu\n", product->price, product->supply, product->demand);
-		
-		// Re-count worldwide supply
-		product->supply = 0;
-		for(const auto& province: this->provinces) {
-			product->supply += province->stockpile[i];
-		}
-		product->demand = 0;
-		i++;
 	}
 	
 	// Evaluate units
