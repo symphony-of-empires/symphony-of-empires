@@ -20,7 +20,7 @@ void Texture::create_dummy() {
 		exit(EXIT_FAILURE);
 	}
 
-	// Fill in with a sad pattern
+	// Fill in with a pattern
 	for(size_t i = 0; i < this->width * this->height; i++) {
 		this->buffer[i] = (i % 2) ? 0xff000000 : 0xff00ff00;
 	}
@@ -29,19 +29,19 @@ void Texture::create_dummy() {
 void Texture::from_file(const char * path) {
 	png_image image;
 	
-	/* Open initial file */
+	// Open initial file
 	memset(&image, 0, sizeof(png_image));
 	image.version = PNG_IMAGE_VERSION;
-	if(!png_image_begin_read_from_file(&image, Resource_GetPath(path).c_str())) {
+	if(!png_image_begin_read_from_file(&image, Path::get(path).c_str())) {
 		print_error("%s", image.message);
 		this->create_dummy();
 		return;
 	}
 	
-	/* Convert onto RGBA so it can be easily read */
+	// Convert onto RGBA so it can be easily read
 	image.format = PNG_FORMAT_RGBA;
 
-	/* We cannot allow images bigger than our integers (we are avoiding overflows!) */
+	// We cannot allow images bigger than our integers (we are avoiding overflows!)
 	if(image.width >= UINT16_MAX || image.height >= UINT16_MAX) {
 		png_image_free(&image);
 		print_error("texture too big");
@@ -49,7 +49,7 @@ void Texture::from_file(const char * path) {
 		return;
 	}
 
-	/* We can't allow images with 0 size either */
+	// We can't allow images with 0 size either
 	if(!image.width || !image.height) {
 		png_image_free(&image);
 		print_error("texture is too small")
@@ -60,10 +60,10 @@ void Texture::from_file(const char * path) {
 	this->width = (size_t)image.width;
 	this->height = (size_t)image.height;
 	
-	/* Store information onto buffer */
+	// Store information onto buffer
 	this->buffer = new uint32_t[image.width * image.height];
 	if(this->buffer != nullptr && png_image_finish_read(&image, NULL, this->buffer, 0, NULL) != 0) {
-		/* Free the image */
+		// Free the image
 		png_image_free(&image);
 	} else {
 		if(this->buffer == nullptr) {
@@ -73,8 +73,7 @@ void Texture::from_file(const char * path) {
 		}
 		exit(EXIT_FAILURE);
 	}
-	
-	printf("texture %s loaded\n", path);
+
 	this->gl_tex_num = 0;
 }
 
@@ -84,7 +83,9 @@ Texture::~Texture() {
 
 #include <GL/gl.h>
 
-/// Converts the texture into a OpenGL texture, and assigns it a number
+/**
+  * Converts the texture into a OpenGL texture, and assigns it a number
+  */
 void Texture::to_opengl() {
 	glGenTextures(1, &this->gl_tex_num);
 	glBindTexture(GL_TEXTURE_2D, this->gl_tex_num);
@@ -96,7 +97,9 @@ void Texture::to_opengl() {
 	return;
 }
 
-/// Deletes the OpenGL representation of this texture
+/**
+  * Deletes the OpenGL representation of this texture
+  */
 void Texture::delete_opengl() {
 	glDeleteTextures(1, &this->gl_tex_num);
 }
