@@ -23,7 +23,6 @@ void Province::add_industry(World * world, Industry * industry) {
 		
 		// Otherwise add it to the province product list
 		Product * new_product = new Product();
-		memset(new_product, 0, sizeof(Product));
 		new_product->industry_id = this->industries.size();
 		new_product->good_id = good_id;
 		new_product->owner_id = industry->owner_id;
@@ -37,6 +36,10 @@ void Province::add_industry(World * world, Industry * industry) {
 			province_id = i;
 			break;
 		}
+
+		new_product->demand_history.clear();
+		new_product->supply_history.clear();
+		new_product->price_history.clear();
 		
 		// Add the product to the world
 		new_product->origin_id = province_id;

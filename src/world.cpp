@@ -575,35 +575,45 @@ void World::do_tick() {
 	}
 
 	// Close today's price with a change according to demand - supply
-	{
-		size_t i = 0;
-		for(auto& product: this->products) {
-			if(product->demand > product->supply) {
-				product->price_vel += 0.1f;
-			} else if(product->demand < product->supply) {
+	for(size_t i = 0; i < this->products.size(); i++) {
+		Product * product = this->products[i];
+		if(product->demand > product->supply) {
+			product->price_vel += 0.1f;
+		} else if(product->demand < product->supply) {
+			product->price_vel -= 0.1f;
+		} else {
+			if(product->price_vel > 0.5f) {
 				product->price_vel -= 0.1f;
-			} else {
-				if(product->price_vel > 0.5f) {
-					product->price_vel -= 0.1f;
-				} else if(product->price_vel < -0.5f) {
-					product->price_vel += 0.1f;
-				}
+			} else if(product->price_vel < -0.5f) {
+				product->price_vel += 0.1f;
 			}
-			product->price += product->price_vel;
-			if(product->price <= 0.f) {
-				product->price = 0.01f;
-			}
-			
-			//printf("%4.f $ - %zu, %zu\n", product->price, product->supply, product->demand);
-			
-			// Re-count worldwide supply
-			product->supply = 0;
-			for(const auto& province: this->provinces) {
-				product->supply += province->stockpile[i];
-			}
-			product->demand = 0;
-			i++;
 		}
+		product->price += product->price_vel;
+		if(product->price <= 0.f) {
+			product->price = 0.01f;
+		}
+			
+		//printf("%4.f $ - %zu, %zu\n", product->price, product->supply, product->demand);
+
+		// Save prices and stuff onto history (for the charts!)
+		product->demand_history.push_back(product->demand);
+		if(product->demand_history.size() > 30)
+			product->demand_history.pop_front();
+		
+		product->supply_history.push_back(product->supply);
+		if(product->supply_history.size() > 30)
+			product->supply_history.pop_front();
+
+		product->price_history.push_back(product->price);
+		if(product->price_history.size() > 30)
+			product->price_history.pop_front();
+			
+		// Re-count worldwide supply
+		product->supply = 0;
+		for(const auto& province: this->provinces) {
+			product->supply += province->stockpile[i];
+		}
+		product->demand = 0;
 	}
 	
 	// Evaluate units
