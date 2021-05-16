@@ -25,6 +25,7 @@
 
 #include <libintl.h>
 #include <locale.h>
+#include "path.hpp"
 
 // Global world - do not use too much!
 extern World * g_world;
@@ -36,6 +37,10 @@ int LuaAPI::add_good(lua_State * L) {
 	good->ref_name = lua_tostring(L, 1);
 	good->name = lua_tostring(L, 2);
 	good->is_edible = lua_toboolean(L, 3);
+
+	std::string path;
+	path = "icons/goods/" + good->ref_name + ".png";
+	good->icon = new Texture(Path::get(path.c_str()).c_str());
 	g_world->goods.push_back(good);
 
 	printf(gettext("good: %s (%s)\n"), good->name.c_str(), good->ref_name.c_str());
@@ -70,7 +75,6 @@ int LuaAPI::get_good(lua_State * L) {
 	return 3;
 }
 
-#include "path.hpp"
 int LuaAPI::add_industry_type(lua_State * L) {
 	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
