@@ -46,8 +46,6 @@ void Province::add_industry(World * world, Industry * industry) {
 		world->products.push_back(new_product);
 		
 		industry->output_products.push_back(world->products.size() - 1);
-		
-		printf("product in %s, base of %s, by industry %zu, owned by %zu\n", world->provinces[new_product->origin_id]->name.c_str(), world->goods[new_product->good_id]->name.c_str(), new_product->industry_id, new_product->owner_id);
 	}
 
 	// We will set inputs_satisfied to same size as inputs

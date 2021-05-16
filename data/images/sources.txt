@@ -1,0 +1,4 @@
+vineyard				https://en.wikipedia.org/wiki/File:WaterMill_Interior_MotionBlur.jpg
+arms_factory			https://en.wikipedia.org/wiki/File:HMs_warrior1860gundeck.JPG
+shipyard				https://commons.wikimedia.org/wiki/File:John_Cleveley_the_Elder,_The_Royal_George_at_Deptford_Showing_the_Launch_of_The_Cambridge_(1757).jpg
+steel_mill				https://commons.wikimedia.org/wiki/File:Hoogovens.JPG
