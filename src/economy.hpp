@@ -38,6 +38,7 @@ public:
 	std::string name;
 	std::string ref_name;
 	bool is_edible;
+	Texture * icon = new Texture();
 };
 
 class IndustryType {

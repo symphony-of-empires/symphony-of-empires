@@ -247,6 +247,18 @@ static void do_view_industry_type_info(UI::Widget * w, void *) {
 	IndustryType * industry = (IndustryType *)w->user_data;
 	UI::Window * iit_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512, 512, industry->name.c_str());
 	UI::Image * image = new UI::Image(ui_ctx, iit_win, 8, 8, 320, 320, nullptr, industry->image);
+
+	size_t y = 8;
+	for(auto& input: industry->inputs) {
+		UI::Image * icon = new UI::Image(ui_ctx, iit_win, 336, 8 + y, 24, 24, nullptr, g_world->goods[input]->icon);
+		y += 24;
+	}
+
+	y = 8;
+	for(auto& output: industry->outputs) {
+		UI::Image * icon = new UI::Image(ui_ctx, iit_win, 336 + 64, 8 + y, 24, 24, nullptr, g_world->goods[output]->icon);
+		y += 24;
+	}
 }
 static void do_info_industry_types_overview(UI::Widget *, void *) {
 	iit_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Industry Types");
@@ -365,8 +377,8 @@ void do_game_main(UI::Widget *, void *) {
 	UI::Label * top_diplomacy_pts = new UI::Label(ui_ctx, top_win, 128, 32, "?");
 
 	Camera cam;
-	cam.x = -1.f;
-	cam.y = 1.f;
+	cam.x = -100.f;
+	cam.y = 100.f;
 	cam.z = -100.f;
 
 	cam.vx = 0.f;
@@ -380,7 +392,7 @@ void do_game_main(UI::Widget *, void *) {
 	Tile * start;
 	Tile * end;
 	
-	char * tmpbuf = new char[32];
+	char * tmpbuf = new char[128];
 	while(run) {
 		SDL_Event event;
 		int r;
@@ -771,6 +783,9 @@ void rendering_main(void) {
 	}
 	for(auto& industry: g_world->industry_types) {
 		industry->image->to_opengl();
+	}
+	for(auto& good: g_world->goods) {
+		good->icon->to_opengl();
 	}
 
 	ui_ctx = new UI::Context();

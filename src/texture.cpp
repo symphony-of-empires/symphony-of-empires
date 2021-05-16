@@ -33,7 +33,7 @@ void Texture::from_file(const char * path) {
 	memset(&image, 0, sizeof(png_image));
 	image.version = PNG_IMAGE_VERSION;
 	if(!png_image_begin_read_from_file(&image, Path::get(path).c_str())) {
-		print_error("%s", image.message);
+		print_error("%s %s", path, image.message);
 		this->create_dummy();
 		return;
 	}
@@ -44,7 +44,7 @@ void Texture::from_file(const char * path) {
 	// We cannot allow images bigger than our integers (we are avoiding overflows!)
 	if(image.width >= UINT16_MAX || image.height >= UINT16_MAX) {
 		png_image_free(&image);
-		print_error("texture too big");
+		print_error("%s texture too big", path);
 		this->create_dummy();
 		return;
 	}
@@ -52,7 +52,7 @@ void Texture::from_file(const char * path) {
 	// We can't allow images with 0 size either
 	if(!image.width || !image.height) {
 		png_image_free(&image);
-		print_error("texture is too small")
+		print_error("%s texture is too small", path);
 		this->create_dummy();
 		return;
 	}
