@@ -70,6 +70,7 @@ int LuaAPI::get_good(lua_State * L) {
 	return 3;
 }
 
+#include "path.hpp"
 int LuaAPI::add_industry_type(lua_State * L) {
 	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
@@ -80,6 +81,11 @@ int LuaAPI::add_industry_type(lua_State * L) {
 
 	industry->ref_name = lua_tostring(L, 1);
 	industry->name = lua_tostring(L, 2);
+	
+	std::string path = industry->ref_name;
+	path += ".png";
+	industry->image = new Texture(Path::get(path.c_str()).c_str());
+	
 	industry->inputs.clear();
 	industry->outputs.clear();
 	g_world->industry_types.push_back(industry);
@@ -334,9 +340,6 @@ int LuaAPI::add_province_pop(lua_State * L) {
 		print_error(gettext("lua religion_id out of bounds"));
 		return 0;
 	}
-	
-	printf("New POP %s in %s, of size %zu\n", g_world->pop_types[pop->type_id]->name.c_str(), province->name.c_str(), pop->size);
-	
 	province->pops.push_back(pop);
 	return 0;
 }

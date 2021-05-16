@@ -260,6 +260,11 @@ public:
 	size_t product_id;
 };
 
+#include <deque>
+#include <mutex>
+extern std::mutex render_province_mutex;
+extern std::deque<size_t> render_province;
+
 #include <cmath>
 void World::do_tick() {
 	const size_t n_provinces = this->provinces.size();
@@ -708,6 +713,17 @@ void World::do_tick() {
 			if(fabs(unit->x - nearest_foe->x) <= 1.f && fabs(unit->y - nearest_foe->y) <= 1.f) {
 				nearest_foe->health -= 10.f;
 			}
+		}
+
+		Tile * tile = &g_world->tiles[(size_t)unit->x + (size_t)unit->y * g_world->width];
+		if(tile->owner_id != unit->owner_id) {
+			tile->owner_id = unit->owner_id;
+			render_province_mutex.lock();
+			render_province.push_front(unit->x + 64);
+			render_province.push_front(unit->y + 64);
+			render_province.push_front(unit->x - 64);
+			render_province.push_front(unit->y - 64);
+			render_province_mutex.unlock();
 		}
 	}
 

@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <string>
 #include <vector>
+#include "texture.hpp"
 
 class Company {
 public:
@@ -45,6 +46,7 @@ public:
 	std::string ref_name;
 	std::vector<size_t> inputs;
 	std::vector<size_t> outputs;
+	Texture * image = new Texture();
 };
 
 #include <deque>

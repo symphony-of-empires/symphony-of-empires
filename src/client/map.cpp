@@ -43,6 +43,16 @@ Map::Map(World * w) {
 	}
 }
 
+//Triangle
+const int draw_ord[6][2] = {
+	{ 0, 0 }, /* top left */
+	{ 0, 1 },/* bottom left */
+	{ 1, 1 },/* bottom right */
+	{ 1, 1 }, /* bottom right */
+	{ 1, 0 }, /*top right */
+	{ 0, 0 } /* top left*/
+};
+
 void Map::quad_create(size_t qx, size_t qy) {
 	size_t off_x = qx * this->quad_size;
 	size_t off_y = qy * this->quad_size;
@@ -50,23 +60,8 @@ void Map::quad_create(size_t qx, size_t qy) {
 	size_t end_y = (off_y + this->quad_size);
 	GLuint * gl_list;
 
-	//Triangle
-	const int draw_ord[6][2] = {
-		{ 0, 0 }, /* top left */
-		{ 0, 1 },/* bottom left */
-		{ 1, 1 },/* bottom right */
-		{ 1, 1 }, /* bottom right */
-		{ 1, 0 }, /*top right */
-		{ 0, 0 } /* top left*/
-		 			
-	};
-
-	if(!off_x) {
-		off_x = 1;
-	} if(!off_y) {
-		off_y = 1;
-	}
-
+	off_x = (!off_x) ? 1 : off_x;
+	off_y = (!off_y) ? 1 : off_y;
 	if(end_x >= this->world->width) {
 		end_x = this->world->width - 1;
 	} if(end_y >= this->world->height) {
@@ -206,33 +201,6 @@ void Map::quad_create(size_t qx, size_t qy) {
 		}
 		glEndList();
 	}
-	
-	/*
-	gl_list = &this->quad_topo_gl_list_num[qx + qy * this->n_horz_quads];
-	if(*gl_list == 0) {
-		*gl_list = glGenLists(1);
-		glNewList(*gl_list, GL_COMPILE);
-		for(size_t i = off_x; i < end_x; i++) {
-			for(size_t j = off_y; j < end_y; j++) {
-				glBegin(GL_TRIANGLES);
-				for(size_t k = 0; k < 6; k++) {
-					size_t x = i + draw_ord[k][0];
-					size_t y = j + draw_ord[k][1];
-					uint8_t elevation = this->world->tiles[x + y * this->world->width].elevation;
-					
-					if(elevation == this->world->sea_level + 1) {
-						glColor3ub(0x19, 0x61, 0x61);
-					} else {
-						glColor3ub(32, elevation, elevation + this->world->sea_level);
-					}
-					glVertex2f(x, y);
-				}
-				glEnd();
-			}
-		}
-		glEndList();
-	}
-	*/
 	
 	gl_list = &this->div_borders_gl_list_num[qx + qy * this->n_horz_quads];
 	if(*gl_list == 0) {
