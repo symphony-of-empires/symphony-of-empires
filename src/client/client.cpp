@@ -311,38 +311,44 @@ void do_game_main(UI::Widget *, void *) {
 	Texture help_icon = Texture(Path::get("icons/help.png").c_str());
 	help_icon.to_opengl();
 	UI::Button * help_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 4, 64, 64);
-	help_btn->on_click = &do_info_overview;
 	UI::Image * help_btn_icon = new UI::Image(ui_ctx, help_btn, 0, 0, 64, 64, nullptr, &help_icon);
+	help_btn_icon->on_click = &do_info_overview;
+
 	Texture budget_icon = Texture(Path::get("icons/budget.png").c_str());
 	budget_icon.to_opengl();
 	UI::Button * budget_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 5, 64, 64);
-	budget_btn->on_click = &do_economy_overview;
 	UI::Image * budget_btn_icon = new UI::Image(ui_ctx, budget_btn, 0, 0, 64, 64, nullptr, &budget_icon);
+	budget_btn_icon->on_click = &do_economy_overview;
+
 	Texture pol_view_icon = Texture(Path::get("icons/pol_view.png").c_str());
 	pol_view_icon.to_opengl();
 	UI::Button * pol_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 6, 64, 64);
-	pol_view_btn->on_click = &do_view_pol_map;
 	UI::Image * pol_view_btn_icon = new UI::Image(ui_ctx, pol_view_btn, 0, 0, 64, 64, nullptr, &pol_view_icon);
+	pol_view_btn_icon->on_click = &do_view_pol_map;
+
 	Texture prov_view_icon = Texture(Path::get("icons/prov_view.png").c_str());
 	prov_view_icon.to_opengl();
 	UI::Button * prov_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 7, 64, 64);
-	prov_view_btn->on_click = &do_view_prov_map;
 	UI::Image * prov_view_btn_icon = new UI::Image(ui_ctx, prov_view_btn, 0, 0, 64, 64, nullptr, &prov_view_icon);
+	prov_view_btn_icon->on_click = &do_view_prov_map;
+
 	Texture topo_view_icon = Texture(Path::get("icons/topo_view.png").c_str());
 	topo_view_icon.to_opengl();
 	UI::Button * topo_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 8, 64, 64);
-	topo_view_btn->on_click = &do_view_topo_map;
 	UI::Image * topo_view_btn_icon = new UI::Image(ui_ctx, topo_view_btn, 0, 0, 64, 64, nullptr, &topo_view_icon);
+	topo_view_btn_icon->on_click = &do_view_topo_map;
+
 	Texture infra_view_icon = Texture(Path::get("icons/infra_view.png").c_str());
 	infra_view_icon.to_opengl();
 	UI::Button * infra_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 9, 64, 64);
-	infra_view_btn->on_click = &do_view_infra_map;
 	UI::Image * infra_view_btn_icon = new UI::Image(ui_ctx, infra_view_btn, 0, 0, 64, 64, nullptr, &infra_view_icon);
+	infra_view_btn_icon->on_click = &do_view_infra_map;
+
 	Texture exit_icon = Texture(Path::get("icons/exit.png").c_str());
 	exit_icon.to_opengl();
 	UI::Button * exit_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 10, 64, 64);
-	exit_btn->on_click = &do_exit;
 	UI::Image * exit_btn_icon = new UI::Image(ui_ctx, exit_btn, 0, 0, 64, 64, nullptr, &exit_icon);
+	exit_btn_icon->on_click = &do_exit;
 
 	// Top nation view
 	UI::Window * top_win = new UI::Window(ui_ctx, nullptr, 0, 24, width / 2, 64, g_world->nations[player_nation_id]->name.c_str());
@@ -350,10 +356,6 @@ void do_game_main(UI::Widget *, void *) {
 	UI::Label * top_prestige = new UI::Label(ui_ctx, top_win, 128, 8, "?");
 	UI::Label * top_literacy = new UI::Label(ui_ctx, top_win, 256, 8, "?");
 	UI::Label * top_diplomacy_pts = new UI::Label(ui_ctx, top_win, 128, 32, "?");
-
-	// Test chart
-	UI::Chart * test = new UI::Chart(ui_ctx, nullptr, 0, 0, 128, 128);
-	test->user_data = &g_world->products[0]->price_history;
 
 	Camera cam;
 	cam.x = -1.f;
@@ -390,14 +392,12 @@ void do_game_main(UI::Widget *, void *) {
 				if(event.button.button == SDL_BUTTON_LEFT && !r) {
 					// tx and ty are used for tile
 					Tile * tile = &g_world->tiles[tx + ty * g_world->width];
-					
-					start = &g_world->tiles[tx + ty * g_world->width];
-					/*
 					if(tile->province_id != (size_t)-1 && tile->owner_id != (size_t)-1) {
 						selected_province_id = tile->province_id;
 						do_province_overview();
 					}
-					*/
+
+					start = &g_world->tiles[tx + ty * g_world->width];
 					
 					// Place unit
 					Unit * unit = new Unit();
