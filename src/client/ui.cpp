@@ -253,6 +253,26 @@ void default_on_render(Widget * w, void * data) {
 		}
 		return;
 	}
+
+	if(w->type == UI_WIDGET_WINDOW) {
+		// Shadow
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glBegin(GL_TRIANGLES);
+		glColor4f(0.f, 0.f, 0.f, 0.5f);
+		glTexCoord2f(0.f, 0.f);
+		glVertex2f(w->x + 16, w->y + 16);
+		glTexCoord2f(1.f, 0.f);
+		glVertex2f(w->x + w->width + 16, w->y + 16);
+		glTexCoord2f(1.f, 1.f);
+		glVertex2f(w->x + w->width + 16, w->y + w->height + 16);
+		glTexCoord2f(1.f, 1.f);
+		glVertex2f(w->x + w->width + 16, w->y + w->height + 16);
+		glTexCoord2f(0.f, 1.f);
+		glVertex2f(w->x + 16, w->y + w->height + 16);
+		glTexCoord2f(0.f, 0.f);
+		glVertex2f(w->x + 16, w->y + 16);
+		glEnd();
+	}
 	
 	if(w->type != UI_WIDGET_LABEL) {
 		w->draw_rectangle(
@@ -287,9 +307,8 @@ void default_on_render(Widget * w, void * data) {
 				w->text_texture->gl_tex_num
 			);
 		}
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-
-	glBindTexture(GL_TEXTURE_2D, 0);
 	return;
 }
 
