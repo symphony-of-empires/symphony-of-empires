@@ -4,6 +4,9 @@ require("api")
 local german = Culture:create{ ref_name = "german" }
 german.name = _("German")
 Culture:register(german)
+local french = Culture:create{ ref_name = "french" }
+french.name = _("French")
+Culture:register(french)
 
 -- Religion
 local protestant = Religion:create{ ref_name = "protestant" }
