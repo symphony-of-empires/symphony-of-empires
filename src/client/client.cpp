@@ -241,17 +241,24 @@ static void do_info_religions_overview(UI::Widget *, void *) {
 		i++;
 	}
 }
-std::vector<UI::Label *> iit_lab;
+std::vector<UI::Widget *> iit_lab;
 UI::Window * iit_win;
+static void do_view_industry_type_info(UI::Widget * w, void *) {
+	IndustryType * industry = (IndustryType *)w->user_data;
+	UI::Window * iit_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512, 512, industry->name.c_str());
+	UI::Image * image = new UI::Image(ui_ctx, iit_win, 8, 8, 320, 320, nullptr, industry->image);
+}
 static void do_info_industry_types_overview(UI::Widget *, void *) {
 	iit_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Industry Types");
 
 	size_t i = 0;
 	for(auto& industry_type: g_world->industry_types) {
-		UI::Label * rn_lab = new UI::Label(ui_ctx, iit_win, 0, i * 24, industry_type->ref_name.c_str());
+		UI::Label * rn_lab = new UI::Label(ui_ctx, iit_win, 0, i * 24, industry_type->name.c_str());
 		iit_lab.push_back(rn_lab);
-		UI::Label * name_lab = new UI::Label(ui_ctx, iit_win, 256, i * 24, industry_type->name.c_str());
-		iit_lab.push_back(name_lab);
+		UI::Button * info = new UI::Button(ui_ctx, iit_win, 256, i * 24, 32, 24, "?");
+		info->user_data = g_world->industry_types[i];
+		info->on_click = &do_view_industry_type_info;
+		iit_lab.push_back(info);
 		i++;
 	}
 }
@@ -761,6 +768,9 @@ void rendering_main(void) {
 	// Render g_world stuff now that we are in opengl
 	for(auto& nation: g_world->nations) {
 		nation->default_flag->to_opengl();
+	}
+	for(auto& industry: g_world->industry_types) {
+		industry->image->to_opengl();
 	}
 
 	ui_ctx = new UI::Context();
