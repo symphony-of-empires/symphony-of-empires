@@ -309,6 +309,16 @@ static void do_info_overview(UI::Widget *, void *) {
 	info_good_btn->on_click = &do_info_goods_overview;
 }
 
+static void do_diplomacy_overview(UI::Widget *, void *) {
+	UI::Window * diplomacy_win = new UI::Window(ui_ctx, nullptr, 128, 128, 256 + 128, height - 128, "Diplomacy");
+	
+	for(size_t i = 0; i < g_world->nations.size(); i++) {
+		UI::Image * flag = new UI::Image(ui_ctx, diplomacy_win, 0, i * 32, 48, 24, nullptr, g_world->nations[i]->default_flag);
+		UI::Label * lab = new UI::Label(ui_ctx, diplomacy_win, 48, i * 32, g_world->nations[i]->name.c_str());
+		UI::Button * btn = new UI::Button(ui_ctx, diplomacy_win, 256, i * 32, 64, 24, "Meet");
+	}
+}
+
 #include <atomic>
 extern std::atomic<int> redraw;
 extern std::atomic<int> run;
@@ -327,6 +337,12 @@ void do_game_main(UI::Widget *, void *) {
 	map = Map(g_world);
 
 	// Siderbar buttons
+	Texture diplomacy_icon = Texture(Path::get("icons/diplomacy.png").c_str());
+	diplomacy_icon.to_opengl();
+	UI::Button * diplomacy_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 3, 64, 64);
+	UI::Image * diplomacy_btn_icon = new UI::Image(ui_ctx, diplomacy_btn, 0, 0, 64, 64, nullptr, &diplomacy_icon);
+	diplomacy_btn_icon->on_click = &do_diplomacy_overview;
+
 	Texture help_icon = Texture(Path::get("icons/help.png").c_str());
 	help_icon.to_opengl();
 	UI::Button * help_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 4, 64, 64);
