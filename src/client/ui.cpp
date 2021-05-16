@@ -140,8 +140,7 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
 }
 
 int Context::check_click(const unsigned mx, const unsigned my) {
-	int retval = 0;
-	for(size_t i = 0; i < this->widgets.size(); i++) {
+	for(int i = this->widgets.size() - 1; i >= 0; i--) {
 		Widget * widget = this->widgets[i];
 
 		if(mx >= widget->x && mx <= widget->x + widget->width
@@ -161,7 +160,7 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 			if(widget->on_click != nullptr) {
 				widget->on_click(widget, widget->user_data);
 			}
-			retval++;
+			return 1;
 		} else {
 			switch(widget->type) {
 			case UI_WIDGET_BUTTON:
@@ -178,7 +177,7 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 			}
 		}
 	}
-	return retval;
+	return 0;
 }
 
 void Context::check_text_input(const char * input) {
@@ -195,8 +194,7 @@ void Context::check_text_input(const char * input) {
 }
 
 int Context::check_wheel(unsigned mx, unsigned my, int y) {
-	int r = 0;
-	for(size_t i = 0; i < this->widgets.size(); i++) {
+	for(int i = this->widgets.size() - 1; i >= 0; i--) {
 		Widget * widget = this->widgets[i];
 		
 		if(mx >= widget->x && mx <= widget->x + widget->width
@@ -206,10 +204,10 @@ int Context::check_wheel(unsigned mx, unsigned my, int y) {
 				if(!child->is_pinned)
 					child->y += y;
 			}
-			r++;
+			return 1;
 		}
 	}
-	return r;
+	return 0;
 }
 
 void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const unsigned tex) {

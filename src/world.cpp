@@ -215,7 +215,7 @@ World::World() {
 	for(auto& nation: this->nations) {
 		// Relations between nations start at 0
 		for(size_t i = 0; i < this->nations.size(); i++) {
-			nation->relations.push_back(0.f);
+			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false});
 		}
 	}
 

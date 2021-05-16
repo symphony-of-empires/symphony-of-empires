@@ -6,23 +6,48 @@
 #include <vector>
 #include "texture.hpp"
 
+class NationRelation {
+public:
+	float relation;
+	bool has_embargo;
+	bool has_war;
+	bool has_alliance;
+	bool has_defensive_pact;
+	bool has_truce;
+	bool has_embassy;
+};
+
 class Nation {
 public:
 	Nation() {};
 	Nation& operator=(const Nation&) = default;
 
-	std::string name; // Default transleted/display name
-	std::string ref_name; // Default reference name
-	uint32_t color; // Default color of the country
-	Texture * default_flag = new Texture(); // Default flag texture of the country
+	// Default transleted/display name
+	std::string name;
 
-	std::vector<float> relations; // Relations with all other countries
-	size_t spherer_id; // Id of the nation that has us on their sphere of influence
+	// Default reference name
+	std::string ref_name;
 
-	float diplomacy_points; // Number of diplomacy points available
+	// Default color of the country
+	uint32_t color;
 
-	float prestige; // Total number of prestige
-	float base_literacy; // Base literacy applied to all pops
+	// Default flag texture of the country
+	Texture * default_flag = new Texture();
+
+	// Relations with all other countries
+	std::vector<NationRelation> relations;
+
+	// Id of the nation that has us on their sphere of influence
+	size_t spherer_id;
+
+	// Number of diplomacy points available
+	float diplomacy_points;
+
+	// Total number of prestige
+	float prestige;
+
+	// Base literacy applied to all pops
+	float base_literacy;
 };
 
 #endif
