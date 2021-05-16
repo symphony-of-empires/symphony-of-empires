@@ -82,9 +82,11 @@ int LuaAPI::add_industry_type(lua_State * L) {
 	industry->ref_name = lua_tostring(L, 1);
 	industry->name = lua_tostring(L, 2);
 	
-	std::string path = industry->ref_name;
-	path += ".png";
+	std::string path;
+	
+	path = "images/" + industry->ref_name + ".png";
 	industry->image = new Texture(Path::get(path.c_str()).c_str());
+	printf("opening %s\n", path.c_str());
 	
 	industry->inputs.clear();
 	industry->outputs.clear();
