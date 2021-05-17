@@ -15,6 +15,7 @@ public:
 	bool has_defensive_pact;
 	bool has_truce;
 	bool has_embassy;
+	bool has_military_access;
 };
 
 class Nation {
