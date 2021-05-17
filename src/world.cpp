@@ -468,19 +468,19 @@ void World::do_tick() {
 				salary = 1500.f;
 				break;
 			case 1:
-				salary = 50.f;
+				salary = 5.f;
 				break;
 			case 2:
-				salary = 50.f;
+				salary = 5.f;
 				break;
 			case 3:
-				salary = 150.f;
+				salary = 15.f;
 				break;
 			case 4:
-				salary = 500.f;
+				salary = 50.f;
 				break;
 			default:
-				salary = 100.f;
+				salary = 10.f;
 				break;
 			}
 			
@@ -568,7 +568,7 @@ void World::do_tick() {
 			
 			// TODO: Higher literacy should mean lower births
 			ssize_t growth = pop->life_needs_met * (rand() % 10);
-			if(growth < 0 && (size_t)growth >= pop->size) {
+			if(growth < 0 && abs(growth) >= pop->size) {
 				pop->size = 0;
 				continue;
 			} else {
