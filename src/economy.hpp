@@ -89,7 +89,7 @@ public:
 class World;
 class Industry {
 public:
-	bool can_do_output();
+	bool can_do_output(World * world);
 	void add_to_stock(World * world, size_t good_id, size_t add);
 	
 	size_t owner_id;

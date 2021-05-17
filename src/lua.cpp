@@ -237,7 +237,7 @@ int LuaAPI::add_province(lua_State * L) {
 	g_world->provinces.push_back(province);
 
 	// TODO: this is NOT good
-	for(size_t i = 0; i < 10; i++) {
+	for(size_t i = 0; i < 5; i++) {
 		Industry * industry = new Industry();
 		industry->owner_id = rand() % g_world->companies.size();
 		industry->type_id = rand() % g_world->industry_types.size();
@@ -599,6 +599,57 @@ int LuaAPI::get_religion(lua_State * L) {
 	lua_pushnumber(L, i);
 	lua_pushstring(L, religion->ref_name.c_str());
 	lua_pushstring(L, religion->name.c_str());
+	return 4;
+}
+
+int LuaAPI::add_unit_type(lua_State * L) {
+	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
+		print_error(gettext("lua argument type mismatch"));
+		return 0;
+	}
+
+	UnitType * unit_type = new UnitType();
+
+	unit_type->ref_name = lua_tostring(L, 1);
+	unit_type->name = lua_tostring(L, 2);
+	unit_type->attack = lua_tonumber(L, 3);
+	unit_type->defense = lua_tonumber(L, 4);
+	unit_type->max_health = lua_tonumber(L, 5);
+
+	printf(gettext("unit_type: %s"), unit_type->ref_name.c_str());
+	printf("\n");
+
+	g_world->unit_types.push_back(unit_type);
+	lua_pushnumber(L, g_world->unit_types.size() - 1);
+	return 0;
+}
+
+int LuaAPI::get_unit_type(lua_State * L) {
+	if(!lua_isstring(L, 1)) {
+		print_error(gettext("lua argument type mismatch"));
+		return 0;
+	}
+
+	std::string ref_name = lua_tostring(L, 1);
+	UnitType * unit_type = nullptr;
+	
+	size_t i;
+	for(i = 0; i < g_world->unit_types.size(); i++) {
+		if(g_world->unit_types[i]->ref_name != ref_name)
+			continue;
+		
+		unit_type = g_world->unit_types[i];
+		break;
+	} if(unit_type == nullptr) {
+		print_error(gettext("unit_type %s not found"), ref_name.c_str());
+		return 0;
+	}
+	lua_pushnumber(L, i);
+	lua_pushstring(L, unit_type->ref_name.c_str());
+	lua_pushstring(L, unit_type->name.c_str());
+	lua_pushnumber(L, unit_type->attack);
+	lua_pushnumber(L, unit_type->defense);
+	lua_pushnumber(L, unit_type->max_health);
 	return 4;
 }
 

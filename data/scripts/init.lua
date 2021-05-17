@@ -45,6 +45,14 @@ local slave = PopType:create{ ref_name = "slave" }
 slave.name = _("Slave")
 PopType:register(slave)
 
+-- Unit types
+local garrison = UnitType:create{ ref_name = "garrison", defense = 5.0, attack = 2.0, health = 100.0 }
+garrison.name = _("Garrison")
+UnitType:register(garrison)
+local infantry = UnitType:create{ ref_name = "infantry", defense = 5.0, attack = 2.0, health = 100.0 }
+infantry.name = _("Infantry")
+UnitType:register(infantry)
+
 -- Good types
 
 -- Farmable stuff
@@ -85,6 +93,41 @@ Good:register(textile)
 local plastic = Good:create{ ref_name = "plastic" }
 plastic.name = _("Plastic")
 Good:register(plastic)
+local steel = Good:create{ ref_name = "steel" }
+steel.name = _("Steel")
+Good:register(steel)
+local charcoal = Good:create{ ref_name = "charcoal" }
+charcoal.name = _("Charcoal")
+Good:register(charcoal)
+
+-- Military stuff
+local gunpowder = Good:create{ ref_name = "gunpowder" }
+gunpowder.name = _("Gunpowder")
+Good:register(gunpowder)
+
+local glock = Good:create{ ref_name = "glock" }
+glock.name = _("Glock")
+Good:register(glock)
+
+local cannon = Good:create{ ref_name = "cannon" }
+cannon.name = _("Cannon")
+Good:register(cannon)
+
+local revolver = Good:create{ ref_name = "revolver" }
+revolver.name = _("Revolver")
+Good:register(revolver)
+
+local musket = Good:create{ ref_name = "musket" }
+musket.name = _("Musket")
+Good:register(musket)
+
+local rifle = Good:create{ ref_name = "rifle" }
+rifle.name = _("Rifle")
+Good:register(rifle)
+
+local ammunition = Good:create{ ref_name = "ammunition" }
+ammunition.name = _("Ammunition")
+Good:register(ammunition)
 
 -- Minerals
 local copper = Good:create{ ref_name = "copper" }
@@ -107,17 +150,46 @@ diamond.name = _("Diamond")
 Good:register(diamond)
 local titanium = Good:create{ ref_name = "titanium" }
 titanium.name = _("Titanium")
-titanium.is_edible = true
 Good:register(titanium)
+local bronze = Good:create{ ref_name = "bronze" }
+bronze.name = _("Bronze")
+Good:register(bronze)
+local silver = Good:create{ ref_name = "silver" }
+silver.name = _("Silver")
+Good:register(silver)
+local platinum = Good:create{ ref_name = "platinum" }
+platinum.name = _("Platinum")
+Good:register(platinum)
+local plutonium = Good:create{ ref_name = "plutonium" }
+plutonium.name = _("Plutonium")
+Good:register(plutonium)
+local tin = Good:create{ ref_name = "tin" }
+tin.name = _("Tin")
+Good:register(tin)
+local tungsten = Good:create{ ref_name = "tungsten" }
+tungsten.name = _("Tungsten")
+Good:register(tungsten)
 local oil = Good:create{ ref_name = "oil" }
 oil.name = _("Oil")
 Good:register(oil)
+local sand = Good:create{ ref_name = "sand" }
+sand.name = _("Sand")
+Good:register(sand)
 local timber = Good:create{ ref_name = "timber" }
 timber.name = _("Timber")
 Good:register(timber)
 local coal = Good:create{ ref_name = "coal" }
 coal.name = _("Coal")
 Good:register(coal)
+local brass = Good:create{ ref_name = "brass" }
+brass.name = _("Brass")
+Good:register(brass)
+local sulfur = Good:create{ ref_name = "sulfur" }
+sulfur.name = _("Sulfur")
+Good:register(sulfur)
+local stainless_steel = Good:create{ ref_name = "stainless_steel" }
+stainless_steel.name = _("Stainless steel")
+Good:register(stainless_steel)
 
 -- Food
 local glass = Good:create{ ref_name = "glass" }
@@ -208,6 +280,11 @@ gold_mine.name = _("Gold mine")
 IndustryType:register(gold_mine)
 IndustryType:add_output(gold_mine, gold)
 
+local sulfur_mine = IndustryType:create{ ref_name = "sulfur_mine" }
+sulfur_mine.name = _("Sulfur mine")
+IndustryType:register(sulfur_mine)
+IndustryType:add_output(sulfur_mine, sulfur)
+
 local titanium_mine = IndustryType:create{ ref_name = "titanium_mine" }
 titanium_mine.name = _("Titanium mine")
 IndustryType:register(titanium_mine)
@@ -226,6 +303,51 @@ bed_manufacturer.name = _("Bed manufacturer")
 IndustryType:register(bed_manufacturer)
 IndustryType:add_input(bed_manufacturer, timber)
 IndustryType:add_output(bed_manufacturer, bed)
+
+local carbon_destroyer = IndustryType:create{ ref_name = "carbon_destroyer" }
+carbon_destroyer.name = _("Carbon destroyer")
+IndustryType:register(carbon_destroyer)
+IndustryType:add_input(carbon_destroyer, coal)
+IndustryType:add_output(carbon_destroyer, charcoal)
+
+
+local gunpowder_mixer = IndustryType:create{ ref_name = "gunpowder_mixer" }
+gunpowder_mixer.name = _("Gunpowder mixer")
+IndustryType:register(gunpowder_mixer)
+IndustryType:add_input(gunpowder_mixer, sulfur)
+IndustryType:add_input(gunpowder_mixer, charcoal)
+IndustryType:add_output(gunpowder_mixer, gunpowder)
+
+local stainless_steel_smelter = IndustryType:create{ ref_name = "stainless_steel_smelter" }
+stainless_steel_smelter.name = _("Stainless steel smelter")
+IndustryType:register(stainless_steel_smelter)
+IndustryType:add_input(stainless_steel_smelter, steel)
+IndustryType:add_input(stainless_steel_smelter, coal)
+IndustryType:add_output(stainless_steel_smelter, stainless_steel)
+
+local brass_smelter = IndustryType:create{ ref_name = "brass_smelter" }
+brass_smelter.name = _("Brass smelter")
+IndustryType:register(brass_smelter)
+IndustryType:add_input(brass_smelter, stainless_steel)
+IndustryType:add_input(brass_smelter, iron)
+IndustryType:add_input(brass_smelter, coal)
+IndustryType:add_output(brass_smelter, brass)
+
+local musket_factory = IndustryType:create{ ref_name = "musket_factory" }
+musket_factory.name = _("Musket factory")
+IndustryType:register(musket_factory)
+IndustryType:add_input(musket_factory, timber)
+IndustryType:add_input(musket_factory, brass)
+IndustryType:add_input(musket_factory, stainless_steel)
+IndustryType:add_input(musket_factory, ammunition)
+IndustryType:add_output(musket_factory, musket)
+
+local ammunition_factory = IndustryType:create{ ref_name = "ammunition_factory" }
+ammunition_factory.name = _("Ammunition factory")
+IndustryType:register(ammunition_factory)
+IndustryType:add_input(ammunition_factory, gunpowder)
+IndustryType:add_input(ammunition_factory, coal)
+IndustryType:add_output(ammunition_factory, ammunition)
 print("secondary sector industries")
 
 -- Nations
