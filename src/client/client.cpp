@@ -89,6 +89,15 @@ static void do_build_unit_on_province(UI::Widget * w, void *) {
 	avail_soldiers = new UI::Label(ui_ctx, recruit_win, 0, 0, "?");
 	avail_soldiers->user_data = province;
 	avail_soldiers->on_update = &do_build_unit_on_province_on_update;
+
+	char * tmpbuf = new char[255];
+	size_t y = 64;
+	for(const auto& unit_type: g_world->unit_types) {
+		sprintf(tmpbuf, "%s %4.2f attack, %4.2f defense, %4.2f health", unit_type->name.c_str(), unit_type->attack, unit_type->defense, unit_type->max_health);
+		UI::Button * recruit_unit = new UI::Button(ui_ctx, recruit_win, 0, y, 128, 24, tmpbuf);
+		y += 24;
+	}
+	delete[] tmpbuf;
 }
 
 static std::vector<UI::Widget *> prov_pop_lab;
