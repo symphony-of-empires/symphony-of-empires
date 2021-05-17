@@ -220,6 +220,12 @@ Good:register(chair)
 local bed = Good:create{ ref_name = "bed" }
 bed.name = _("Bed")
 Good:register(bed)
+local opium = Good:create{ ref_name = "opium" }
+opium.name = _("Opium")
+Good:register(opium)
+local spices = Good:create{ ref_name = "spices" }
+spices.name = _("Spices")
+Good:register(spices)
 print("good types")
 
 -- Industry types

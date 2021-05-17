@@ -203,16 +203,20 @@ World::World() {
 	for(size_t i = 0; i < this->width; i++) {
 		for(size_t j = 0; j < this->height; j++) {
 			Tile * tile = &this->tiles[i + (j * this->width)];
-			Province * province = this->provinces[tile->province_id];
-			if(i < province->min_x)
-				province->min_x = i;
-			else if(i > province->max_x)
-				province->max_x = i;
+			for(size_t k = 0; k < this->provinces.size(); k++) {
+				if(tile->province_id == k) {
+					Province * province = this->provinces[k];
+					if(i < province->min_x)
+						province->min_x = i;
+					else if(i > province->max_x)
+						province->max_x = i;
 					
-			if(j < province->min_y)
-				province->min_y = j;
-			else if(j > province->max_y)
-				province->max_y = j;
+					if(j < province->min_y)
+						province->min_y = j;
+					else if(j > province->max_y)
+						province->max_y = j;
+				}
+			}
 		}
 	}
 

@@ -3,7 +3,7 @@ CXX=clang++
 else
 CXX=g++
 endif
-CXXFLAGS=-Wall -Wextra -Wshadow -std=c++17 -O3 -mfpmath=sse -mmmx -msse -msse2 -msse3 -mavx -fopt-info-vec -iquote src -iquote src/client -g
+CXXFLAGS=-Wall -Wextra -Wshadow -std=c++17 -O3 -mfpmath=sse -mmmx -msse -msse2 -fno-rtti -fno-exceptions -fopt-info-vec -iquote src -iquote src/client -g
 ifdef WINDOWS
 LIBS=-lopengl32 -lglu32 -llua -lintl
 else

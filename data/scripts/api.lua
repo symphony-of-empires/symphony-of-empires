@@ -20,6 +20,9 @@ end
 function Company:register(company)
 	company.id = add_company(company.name, company.money, company.is_transport, company.is_retailer, company.is_industry)
 end
+function Company:add_province(company, province)
+	add_op_province_to_company(company.id, province.id)
+end
 
 IndustryType = { id = 0, name = "", ref_name = "" }
 function IndustryType:create(industry_type)
