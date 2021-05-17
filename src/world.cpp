@@ -285,64 +285,67 @@ void World::do_tick() {
 		// table so they are served by transport companies.
 		// This is the start of the factory chain.
 		for(size_t j = 0; j < this->provinces[i]->industries.size(); j++) {
+			Industry * industry = this->provinces[i]->industries[j];
 			if(!this->provinces[i]->worker_pool) {
-				this->provinces[i]->industries[j]->ticks_unoperational++;
+				industry->ticks_unoperational++;
 				continue;
 			}
+
+			industry->ticks_unoperational = 0;
+
+			size_t available_manpower;
+			available_manpower = 1500 % this->provinces[i]->worker_pool;
+			this->provinces[i]->worker_pool -= available_manpower;
+			if(!available_manpower)
+				continue;
 			
-			this->provinces[i]->industries[j]->ticks_unoperational = 0;
-			
-			printf("%s in %s\n", this->industry_types[this->provinces[i]->industries[j]->type_id]->name.c_str(), this->provinces[i]->name.c_str());
-			
-			printf("Needed: ");
-			IndustryType * it = this->industry_types[this->provinces[i]->industries[j]->type_id];
+			IndustryType * it = this->industry_types[industry->type_id];
 			for(const auto& input: it->inputs) {
 				OrderGoods order;
-				order.quantity = 500;
+				order.quantity = available_manpower / 24;
 				order.payment = 500.f;
 				order.good_id = input;
 				order.requester_industry_id = j;
 				order.requester_province_id = i;
 				orders.push_back(order);
-				printf("%s,", this->goods[order.good_id]->name.c_str(), this->provinces[order.requester_province_id]->name.c_str());
 			}
-			printf("\n");
 
-			if(this->provinces[i]->industries[j]->can_do_output(this) == false) {
-				printf("Cannot produce because missing: ");
-				for(size_t k = 0; k < it->inputs.size(); k++) {
-					if(!this->provinces[i]->industries[j]->stockpile[k]) {
-						printf("%s, ", this->goods[it->inputs[k]]->name.c_str());
-					}
-				}
-				printf("\n");
+			if(industry->can_do_output(this) == false)
 				continue;
-			}
 
 			// Now produce anything as we can!
-
-			printf("Producing: ");
 			// Take a constant of workers needed for factories, 1.5k workers!
-			size_t available_manpower = 1500 % this->provinces[i]->worker_pool;
+			available_manpower = 1500 % this->provinces[i]->worker_pool;
 			this->provinces[i]->worker_pool -= available_manpower;
+			if(!available_manpower)
+				continue;
 				
 			// Place deliver orders (we are a RGO)
 			for(size_t k = 0; k < it->outputs.size(); k++) {
 				DeliverGoods deliver;
-				deliver.quantity = 4 * available_manpower;
+				deliver.quantity = available_manpower / 32;
 				deliver.payment = 1500.f;
 				deliver.good_id = it->outputs[k];
 				deliver.sender_industry_id = j;
 				deliver.sender_province_id = i;
-				deliver.product_id = this->provinces[i]->industries[j]->output_products[k];
+				deliver.product_id = industry->output_products[k];
+
+				// Do not overproduce
+				Product * product = this->products[deliver.product_id];
+				if(product->supply > product->demand) {
+					continue;
+				}
+
+				// Cannot be below production cost, so we can be profitable
+				if(product->price < industry->production_cost * 1.2f) {
+					product->price = industry->production_cost * 1.2f;
+				}
 				
 				if(!deliver.quantity)
 					continue;
 				
 				delivers.push_back(deliver);
-				printf("%s,", this->goods[deliver.good_id]->name.c_str());
 			}
-			printf("\n");
 		}
 	}
 
@@ -373,8 +376,6 @@ void World::do_tick() {
 					if(!company->in_range(order->requester_province_id))
 						continue;
 					
-					printf("%s: Delivered from %s to %s some %s\n", company->name.c_str(), this->provinces[deliver->sender_province_id]->name.c_str(), this->provinces[order->requester_province_id]->name.c_str(), this->goods[order->good_id]->name.c_str());
-					
 					// Province receives a small supply buff from commerce
 					this->provinces[order->requester_province_id]->supply_rem += 5.f;
 					
@@ -390,8 +391,12 @@ void World::do_tick() {
 					this->products[deliver->product_id]->demand += count;
 					// Decrement supply
 					if(this->products[deliver->product_id]->supply) {
-						this->products[deliver->product_id]->supply -= count % this->products[deliver->product_id]->supply;
+						size_t satisfied = count % this->products[deliver->product_id]->supply;
+						this->products[deliver->product_id]->supply -= satisfied;
+						this->products[deliver->product_id]->demand += satisfied;
 					}
+
+					this->provinces[order->requester_province_id]->industries[order->requester_industry_id]->production_cost += this->products[deliver->product_id]->price;
 					
 					// On 0 it overflows to -1, on 1 it goes to zero, but after this loop it's
 					// incremented again (see incrementing below). So we don't take a rejection hit
@@ -424,6 +429,9 @@ void World::do_tick() {
 				// Add up to province stockpile
 				this->provinces[deliver->sender_province_id]->stockpile[deliver->product_id] += deliver->quantity;
 				this->products[deliver->product_id]->supply += deliver->quantity;
+				if(this->products[deliver->product_id]->demand) {
+					this->products[deliver->product_id]->demand -= deliver->quantity % this->products[deliver->product_id]->demand;
+				}
 				delivers.erase(delivers.begin() + i);
 				i--;
 			}
@@ -455,29 +463,27 @@ void World::do_tick() {
 			// TODO: This is very stupid
 			switch(pop->type_id) {
 			case 0:
-				salary = 50000.f;
-				break;
-			case 1:
-				salary = 500.f;
-				break;
-			case 2:
-				salary = 500.f;
-				break;
-			case 3:
 				salary = 1500.f;
 				break;
+			case 1:
+				salary = 50.f;
+				break;
+			case 2:
+				salary = 50.f;
+				break;
+			case 3:
+				salary = 150.f;
+				break;
 			case 4:
-				salary = 5000.f;
+				salary = 500.f;
 				break;
 			default:
-				salary = 1000.f;
+				salary = 100.f;
 				break;
 			}
 			
 			// TODO: Make this dynamic
 			pop->budget += salary;
-			
-			//printf("pop, budget %4.f, size %zu\n", pop->budget, pop->size);
 			
 			size_t alloc_budget;
 			
@@ -514,14 +520,12 @@ void World::do_tick() {
 				pop->budget -= bought * this->products[j]->price;
 				alloc_budget -= bought * this->products[j]->price;
 				province->stockpile[j] -= bought;
-				
-				//printf("Buying life needed %zu %s\n", bought, this->goods[this->products[j]->good_id]->name.c_str());
 			}
 			
-			// Use 50% of our budget for buying uneeded commodities and shit
+			// Use 10% of our budget for buying uneeded commodities and shit
 			// TODO: Should lower spending with higher literacy, and higher
 			// TODO: Higher the fullfilment per unit with higher literacy
-			alloc_budget = pop->budget / 2;
+			alloc_budget = pop->budget / 10;
 			for(size_t j = 0; j < province->stockpile.size(); j++) {
 				// Province must have stockpile
 				if(!province->stockpile[j])
@@ -553,8 +557,6 @@ void World::do_tick() {
 				pop->budget -= bought * this->products[j]->price;
 				alloc_budget -= bought * this->products[j]->price;
 				province->stockpile[j] -= bought;
-				
-				//printf("Buying non-esseintial %zu %s\n", bought, this->goods[this->products[j]->good_id]->name.c_str());
 			}
 			
 			// x5 life needs met modifier, that is the max allowed
@@ -592,48 +594,6 @@ void World::do_tick() {
 		for(size_t i = 0; i < province->stockpile.size(); i++) {
 			province->stockpile[i] = 0;
 		}
-	}
-
-	// Close today's price with a change according to demand - supply
-	for(size_t i = 0; i < this->products.size(); i++) {
-		Product * product = this->products[i];
-		if(product->demand > product->supply) {
-			product->price_vel += 0.1f;
-		} else if(product->demand < product->supply) {
-			product->price_vel -= 0.1f;
-		} else {
-			if(product->price_vel > 0.5f) {
-				product->price_vel -= 0.1f;
-			} else if(product->price_vel < -0.5f) {
-				product->price_vel += 0.1f;
-			}
-		}
-		product->price += product->price_vel;
-		if(product->price <= 0.f) {
-			product->price = 0.01f;
-		}
-			
-		//printf("%4.f $ - %zu, %zu\n", product->price, product->supply, product->demand);
-
-		// Save prices and stuff onto history (for the charts!)
-		product->demand_history.push_back(product->demand);
-		if(product->demand_history.size() > 30)
-			product->demand_history.pop_front();
-		
-		product->supply_history.push_back(product->supply);
-		if(product->supply_history.size() > 30)
-			product->supply_history.pop_front();
-
-		product->price_history.push_back(product->price);
-		if(product->price_history.size() > 30)
-			product->price_history.pop_front();
-			
-		// Re-count worldwide supply
-		product->supply = 0;
-		for(const auto& province: this->provinces) {
-			product->supply += province->stockpile[i];
-		}
-		product->demand = 0;
 	}
 	
 	// Evaluate units
@@ -740,6 +700,58 @@ void World::do_tick() {
 			render_province.push_front(unit->y - 64);
 			render_province_mutex.unlock();
 		}
+	}
+
+	// Preparations for the next tick
+
+	// Reset production costs
+	for(size_t i = 0; i < n_provinces; i++) {
+		for(size_t j = 0; j < this->provinces[i]->industries.size(); j++) {
+			Industry * industry = this->provinces[i]->industries[j];
+			industry->production_cost = 0.f;
+		}
+	}
+
+	// Close today's price with a change according to demand - supply
+	for(size_t i = 0; i < this->products.size(); i++) {
+		Product * product = this->products[i];
+		if(product->demand > product->supply) {
+			product->price_vel += 0.001f * (product->demand - product->supply);
+		} else if(product->demand < product->supply) {
+			product->price_vel -= 0.001f * (product->supply - product->demand);
+		} else {
+			if(product->price_vel > 0.1f) {
+				product->price_vel -= 0.1f;
+			} else if(product->price_vel < -0.1f) {
+				product->price_vel += 0.1f;
+			} else {
+				product->price_vel = -0.1f;
+			}
+		}
+		product->price += product->price_vel;
+		if(product->price <= 0.f) {
+			product->price = 0.01f;
+		}
+			
+		// Save prices and stuff onto history (for the charts!)
+		product->demand_history.push_back(product->demand);
+		if(product->demand_history.size() > 30)
+			product->demand_history.pop_front();
+		
+		product->supply_history.push_back(product->supply);
+		if(product->supply_history.size() > 30)
+			product->supply_history.pop_front();
+
+		product->price_history.push_back(product->price);
+		if(product->price_history.size() > 30)
+			product->price_history.pop_front();
+			
+		// Re-count worldwide supply
+		product->supply = 0;
+		for(const auto& province: this->provinces) {
+			product->supply += province->stockpile[i];
+		}
+		product->demand = 0;
 	}
 
 	this->time++;

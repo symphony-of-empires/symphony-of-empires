@@ -235,21 +235,22 @@ void default_on_render(Widget * w, void * data) {
 	if(w->type == UI_WIDGET_CHART) {
 		if(w->user_data != nullptr) {
 			const std::deque<float>& chart = *((std::deque<float> *)w->user_data);
-			glBegin(GL_LINE_STRIP);
-			glLineWidth(8.f);
-			glColor3f(1.f, 0.f, 0.f);
 			float max = 0.f;
 			for(const auto& data: chart) {
 				if(data > max)
 					max = data;
 			}
 			size_t time = 0;
+			glLineWidth(1.f);
+			glBegin(GL_LINE_STRIP);
+			glColor3f(1.f, 0.f, 0.f);
+			time = 0;
 			for(const auto& data: chart) {
 				glVertex2f(w->x + (time * (w->width / chart.size())), (w->y + w->height) - ((data / max) * w->height));
 				time++;
 			}
-			glLineWidth(1.f);
 			glEnd();
+			glLineWidth(1.f);
 		}
 		return;
 	}

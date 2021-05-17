@@ -98,6 +98,8 @@ public:
 	size_t type_id;
 	
 	size_t ticks_unoperational;
+
+	float production_cost;
 	
 	std::vector<size_t> stockpile;
 	
