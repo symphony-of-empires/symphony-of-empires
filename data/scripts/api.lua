@@ -74,8 +74,8 @@ end
 function Province:give_to(province, nation)
 	give_province_to(province.id, nation.id)
 end
-function Province:add_pop(province, pop_type, culture, religion, size)
-	add_province_pop(province.id, pop_type.id, culture.id, religion.id, size)
+function Province:add_pop(province, pop_type, culture, religion, size, literacy)
+	add_province_pop(province.id, pop_type.id, culture.id, religion.id, size, literacy)
 end
 function Province:rename(province, new_name)
 	rename_province(province.id, new_name)

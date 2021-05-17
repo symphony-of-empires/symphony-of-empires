@@ -29,6 +29,7 @@ namespace LuaAPI {
 
 	int add_nation(lua_State * L);
 	int get_nation(lua_State * L);
+	int set_nation_primary_culture(lua_State * L);
 
 	int add_province(lua_State * L);
 	int get_province(lua_State * L);

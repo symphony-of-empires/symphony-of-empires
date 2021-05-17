@@ -50,13 +50,36 @@ public:
 	uint16_t owner_id;
 };
 
+class OrderGoods {
+public:
+	float payment;
+	size_t good_id;
+	size_t requester_industry_id;
+	size_t requester_province_id;
+	size_t quantity;
+};
+class DeliverGoods {
+public:
+	float payment;
+	size_t good_id;
+	size_t sender_industry_id;
+	size_t sender_province_id;
+	size_t rejections = 0;
+	size_t quantity;
+	size_t product_id;
+};
+
 class World {
 public:
 	World();
 	World& operator=(const World&) = default;
 	~World();
 
+	void do_economy_tick_1();
+	void do_economy_tick_2();
+	void do_economy_tick_3();
 	void do_tick();
+
 	void add_good(Good * good);
 	void add_industry_type(IndustryType * it);
 	void add_nation(Nation * nation);
@@ -82,6 +105,9 @@ public:
 	std::vector<UnitType *> unit_types;
 	std::vector<LuaAPI::Event *> events;
 	lua_State * lua;
+
+	std::vector<OrderGoods> orders;
+	std::vector<DeliverGoods> delivers;
 
 	uint64_t time;
 };

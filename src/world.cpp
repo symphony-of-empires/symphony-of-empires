@@ -65,6 +65,7 @@ World::World() {
 
 	lua_register(this->lua, "add_nation", LuaAPI::add_nation);
 	lua_register(this->lua, "get_nation", LuaAPI::get_nation);
+	lua_register(this->lua, "set_nation_primary_culture", LuaAPI::set_nation_primary_culture);
 
 	lua_register(this->lua, "add_province", LuaAPI::add_province);
 	lua_register(this->lua, "get_province", LuaAPI::get_province);
@@ -268,36 +269,15 @@ World::~World() {
 	}
 }
 
-class OrderGoods {
-public:
-	float payment;
-	size_t good_id;
-	size_t requester_industry_id;
-	size_t requester_province_id;
-	size_t quantity;
-};
-class DeliverGoods {
-public:
-	float payment;
-	size_t good_id;
-	size_t sender_industry_id;
-	size_t sender_province_id;
-	size_t rejections = 0;
-	size_t quantity;
-	size_t product_id;
-};
-
 #include <deque>
 #include <mutex>
 extern std::mutex render_province_mutex;
 extern std::deque<size_t> render_province;
 
 #include <cmath>
-void World::do_tick() {
+void World::do_economy_tick_1() {
 	const size_t n_provinces = this->provinces.size();
-	std::vector<OrderGoods> orders;
-	std::vector<DeliverGoods> delivers;
-	
+
 	// All factories will place their orders for their inputs
 	// All RGOs will do deliver requests
 	for(size_t i = 0; i < n_provinces; i++) {
@@ -372,7 +352,9 @@ void World::do_tick() {
 			}
 		}
 	}
+}
 
+void World::do_economy_tick_2() {
 	// Now we will deliver stuff accordingly
 	while(delivers.size() && orders.size()) {
 		// Now transport companies will check and transport accordingly
@@ -467,7 +449,9 @@ void World::do_tick() {
 	}
 	delivers.clear();
 	orders.clear();
-	
+}
+
+void World::do_economy_tick_3() {
 	// Now, it's like 1 am here, but i will try to write a very nice economic system
 	// TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
 	for(auto& province: this->provinces) {
@@ -608,13 +592,18 @@ void World::do_tick() {
 				pop->life_needs_met = 5.f;
 			}
 			
-			// TODO: Higher literacy should mean lower births
-			ssize_t growth = pop->life_needs_met * (rand() % 10);
-			if(growth < 0 && (size_t)abs(growth) >= pop->size) {
-				pop->size = 0;
-				continue;
+			// POPs cannot shrink below 100<
+			if(pop->size <= 100) {
+				pop->size += rand() % 100;
 			} else {
-				pop->size += growth;
+				// Higher literacy means less births and less deaths
+				ssize_t growth = (pop->life_needs_met * (rand() % 80)) / (pop->literacy * 4.f);
+				if(growth < 0 && (size_t)abs(growth) >= pop->size) {
+					pop->size = 100;
+					continue;
+				} else {
+					pop->size += growth;
+				}
 			}
 			
 			// Met life needs means less militancy
@@ -639,7 +628,29 @@ void World::do_tick() {
 			province->stockpile[i] = 0;
 		}
 	}
-	
+}
+
+void World::do_tick() {
+	// Each tick == 30 minutes
+	switch(time % (24 * 2)) {
+	// 3:00
+	case 6:
+		this->do_economy_tick_1();
+		break;
+	// 7:30
+	case 15:
+		this->do_economy_tick_2();
+		break;
+	// 12:00
+	case 24:
+		this->do_economy_tick_3();
+		break;
+	default:
+		break;
+	}
+
+	const size_t n_provinces = this->provinces.size();
+
 	// Evaluate units
 	for(size_t i = 0; i < this->units.size(); i++) {
 		Unit * unit = this->units[i];

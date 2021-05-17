@@ -16,6 +16,7 @@ public:
 	bool has_truce;
 	bool has_embassy;
 	bool has_military_access;
+	bool has_market_access;
 };
 
 class Nation {
@@ -49,6 +50,12 @@ public:
 
 	// Base literacy applied to all pops
 	float base_literacy;
+
+	// Level of infamy
+	float infamy;
+
+	size_t primary_culture;
+	std::vector<size_t> accepted_cultures;
 };
 
 #endif

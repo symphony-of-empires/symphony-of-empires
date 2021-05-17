@@ -205,6 +205,12 @@ int LuaAPI::get_nation(lua_State * L) {
 	return 4;
 }
 
+int LuaAPI::set_nation_primary_culture(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->primary_culture = lua_tonumber(L, 2);
+	return 0;
+}
+
 int LuaAPI::add_province(lua_State * L) {
 	if(!lua_isstring(L, 1) || !lua_isnumber(L, 2) || !lua_isstring(L, 3)) {
 		print_error(gettext("lua argument type mismatch"));
@@ -331,6 +337,7 @@ int LuaAPI::add_province_pop(lua_State * L) {
 	pop->culture_id = lua_tonumber(L, 3);
 	pop->religion_id = lua_tonumber(L, 4);
 	pop->size = lua_tonumber(L, 5);
+	pop->literacy = lua_tonumber(L, 6);
 	
 	if(!pop->size) {
 		print_error(gettext("can't create pops with 0 size"));
