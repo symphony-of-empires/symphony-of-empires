@@ -85,10 +85,35 @@ static void do_build_unit_on_province_on_update(UI::Widget * w, void *) {
 }
 static void do_build_unit_on_province(UI::Widget * w, void *) {
 	Province * province = (Province *)w->user_data;
-	UI::Window * recruit_win = new UI::Window(ui_ctx, nullptr, 64, 64, 512, 512, "Recruit units");
+	UI::Window * recruit_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512, 512, "Recruit units");
 	avail_soldiers = new UI::Label(ui_ctx, recruit_win, 0, 0, "?");
 	avail_soldiers->user_data = province;
 	avail_soldiers->on_update = &do_build_unit_on_province_on_update;
+}
+
+static std::vector<UI::Widget *> prov_pop_lab;
+static UI::Window * prov_pop_win;
+static void do_province_pop_overview_on_update(UI::Widget * w, void *) {
+	Province * province = (Province *)w->user_data;
+	for(auto& lab: prov_pop_lab) {
+		delete lab;
+	}
+	prov_pop_lab.clear();
+	char * tmpbuf = new char[255];
+	size_t y = 8;
+	for(const auto& pop: province->pops) {
+		sprintf(tmpbuf, "%s %s (%zu) %4.2f", g_world->cultures[pop->culture_id]->name.c_str(), g_world->pop_types[pop->type_id]->name.c_str(), pop->size, pop->budget);
+		UI::Label * lab = new UI::Label(ui_ctx, prov_pop_win, 8, y, tmpbuf);
+		y += 24;
+		prov_pop_lab.push_back(lab);
+	}
+	delete[] tmpbuf;
+}
+static void do_province_overview_pops(UI::Widget * w, void *) {
+	prov_pop_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512, 512, "Province POPs");
+	prov_pop_win->user_data = w->user_data;
+	prov_pop_win->on_update = &do_province_pop_overview_on_update;
+	prov_pop_lab.clear();
 }
 
 UI::Window * prov_win;
@@ -111,6 +136,10 @@ static void do_province_overview() {
 		UI::Button * recruit = new UI::Button(ui_ctx, prov_win, 0, 64, 128, 24, "Recruit");
 		recruit->on_click = &do_build_unit_on_province;
 		recruit->user_data = province;
+
+		UI::Button * view_pop = new UI::Button(ui_ctx, prov_win, 0, 64 + 24, 128, 24, "View POPs");
+		view_pop->on_click = &do_province_overview_pops;
+		view_pop->user_data = province;
 	}
 
 	delete[] str;
