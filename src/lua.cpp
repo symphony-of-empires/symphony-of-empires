@@ -241,10 +241,6 @@ int LuaAPI::add_province(lua_State * L) {
 		Industry * industry = new Industry();
 		industry->owner_id = rand() % g_world->companies.size();
 		industry->type_id = rand() % g_world->industry_types.size();
-		industry->stockpile = std::vector<size_t>(g_world->industry_types[industry->type_id]->inputs.size());
-		for(auto& stockpile: industry->stockpile) {
-			stockpile = 0;
-		}
 		g_world->provinces.back()->add_industry(g_world, industry);
 	}
 	lua_pushnumber(L, g_world->provinces.size() - 1);
