@@ -49,8 +49,10 @@ void Province::add_industry(World * world, Industry * industry) {
 	}
 
 	// We will set inputs_satisfied to same size as inputs
+	// Industries start with 100 of stockpiles
+	industry->stockpile.clear();
 	for(size_t i = 0; i < world->industry_types[industry->type_id]->inputs.size(); i++) {
-		industry->stockpile.push_back(0);
+		industry->stockpile.push_back(100);
 	}
 
 	this->industries.push_back(industry);
