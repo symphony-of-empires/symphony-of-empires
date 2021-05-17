@@ -465,7 +465,7 @@ void World::do_tick() {
 			// TODO: This is very stupid
 			switch(pop->type_id) {
 			case 0:
-				salary = 1500.f;
+				salary = 100.f;
 				break;
 			case 1:
 				salary = 5.f;
