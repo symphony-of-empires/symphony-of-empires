@@ -3,7 +3,7 @@ CXX=clang++
 else
 CXX=g++
 endif
-CXXFLAGS=-Wall -Wextra -Wshadow -std=c++17 -O2 -mtune=native -iquote src -iquote src/client -g
+CXXFLAGS=-Wall -Wextra -Wshadow -std=c++17 -O3 -mfpmath=sse -mmmx -msse -msse2 -msse3 -mavx -fopt-info-vec -iquote src -iquote src/client -g
 ifdef WINDOWS
 LIBS=-lopengl32 -lglu32 -llua -lintl
 else
@@ -15,8 +15,8 @@ ifdef DEBUG
 CXXFLAGS:=${CXXFLAGS} -fsanitize=address
 endif
 
-OBJS=$(shell find . -type f -iname '*.cpp')
-OBJS:=$(patsubst ./src/%.cpp,./obj/%.o,$(OBJS))
+SRCS=$(shell find . -type f -iname '*.cpp')
+OBJS:=$(patsubst ./src/%.cpp,./obj/%.o,$(SRCS))
 
 ifdef WINDOWS
 CXXFLAGS:=$(CXXFLAGS) -DWIN32
@@ -28,7 +28,15 @@ endif
 
 build: dirs bin/main data/locale/ko/LC_MESSAGES/main.mo
 
+depend: .depend
+
 clean_build: clean build
+
+.depend: $(SRCS)
+	rm -f "$@"
+	$(CXX) $(CXXFLAGS) -MM $^ > "$@"
+
+include .depend
 
 clean:
 	@rm -r bin obj
