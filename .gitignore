@@ -1,3 +1,7 @@
+# performance stuff
+*.out
+perf.data
+
 # linux ld stuff
 *.out
 *.o
@@ -26,3 +30,6 @@ x64/
 CMakeFiles/
 cmake_install.cmake
 CMakeCache.txt
+
+# makefile stuff
+.depend

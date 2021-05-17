@@ -37,11 +37,13 @@ World::World() {
 		exit(EXIT_FAILURE);
 	}
 
+	const size_t total_size = this->width * this->height;
+
 	// Sea is	<= sea_level
 	// Rivers	== sea_level + 1
 	// Land is	> sea_level + 1
 	this->sea_level = 126;
-	this->tiles = new Tile[this->width * this->height];
+	this->tiles = new Tile[total_size];
 	if(this->tiles == nullptr) {
 		perror("out of mem\n");
 		exit(EXIT_FAILURE);
@@ -117,7 +119,8 @@ World::World() {
 	const size_t n_nations = this->nations.size();
 	const size_t n_provinces = this->provinces.size();
 	uint16_t last_nation_color_id = 0;
-	for(size_t i = 0; i < this->width * this->height; i++) {
+	uint16_t last_province_color_id = 0;
+	for(size_t i = 0; i < total_size; i++) {
 		// Set coordinates for the tiles
 		this->tiles[i].x = i % this->width; 
 		this->tiles[i].y = i / this->width;
@@ -144,27 +147,47 @@ World::World() {
 
 		// Associate tiles with provinces
 		this->tiles[i].province_id = (uint16_t)-1;
-		for(size_t j = 0; j < n_provinces; j++) {
-			if(div.buffer[i] != this->provinces[j]->color)
-				continue;
-			
-			this->tiles[i].province_id = j;
+		if(this->provinces[last_province_color_id]->color != div.buffer[i]) {
+			for(size_t j = 0; j < n_provinces; j++) {
+				Province * province = this->provinces[j];
+				if(div.buffer[i] != province->color)
+					continue;
+				
+				this->tiles[i].province_id = j;
 
-			// Only evaluated when valid owner
+				// Only evaluated when valid owner
+				if(this->tiles[i].owner_id != (uint16_t)-1) {
+					// If province had no owner before - now it has it!
+					if(province->owner_id == PROVINCE_NO_ONWER) {
+						province->owner_id = this->tiles[i].owner_id;
+					}
+
+					// Set provinces as disputed if many countries owns this province
+					if(province->owner_id != PROVINCE_DISPUTED
+					&& province->owner_id != PROVINCE_NO_ONWER
+					&& province->owner_id != this->tiles[i].owner_id) {
+						province->owner_id = PROVINCE_DISPUTED;
+					}
+				}
+				last_province_color_id = j;
+				break;
+			}
+		} else {
+			Province * province = this->provinces[last_province_color_id];
+			this->tiles[i].province_id = last_province_color_id;
 			if(this->tiles[i].owner_id != (uint16_t)-1) {
 				// If province had no owner before - now it has it!
-				if(this->provinces[j]->owner_id == PROVINCE_NO_ONWER) {
-					this->provinces[j]->owner_id = this->tiles[i].owner_id;
+				if(province->owner_id == PROVINCE_NO_ONWER) {
+					province->owner_id = this->tiles[i].owner_id;
 				}
 
 				// Set provinces as disputed if many countries owns this province
-				if(this->provinces[j]->owner_id != PROVINCE_DISPUTED
-				&& this->provinces[j]->owner_id != PROVINCE_NO_ONWER
-				&& this->provinces[j]->owner_id != this->tiles[i].owner_id) {
-					this->provinces[j]->owner_id = PROVINCE_DISPUTED;
+				if(province->owner_id != PROVINCE_DISPUTED
+				&& province->owner_id != PROVINCE_NO_ONWER
+				&& province->owner_id != this->tiles[i].owner_id) {
+					province->owner_id = PROVINCE_DISPUTED;
 				}
 			}
-			break;
 		}
 
 		// Set infrastructure level
@@ -180,19 +203,16 @@ World::World() {
 	for(size_t i = 0; i < this->width; i++) {
 		for(size_t j = 0; j < this->height; j++) {
 			Tile * tile = &this->tiles[i + (j * this->width)];
-			for(size_t k = 0; k < this->provinces.size(); k++) {
-				if(tile->province_id == k) {
-					Province * province = this->provinces[k];
-					if(i < province->min_x)
-						province->min_x = i;
-					if(j < province->min_y)
-						province->min_y = j;
-					if(i > province->max_x)
-						province->max_x = i;
-					if(j > province->max_y)
-						province->max_y = j;
-				}
-			}
+			Province * province = this->provinces[tile->province_id];
+			if(i < province->min_x)
+				province->min_x = i;
+			else if(i > province->max_x)
+				province->max_x = i;
+					
+			if(j < province->min_y)
+				province->min_y = j;
+			else if(j > province->max_y)
+				province->max_y = j;
 		}
 	}
 
@@ -218,7 +238,7 @@ World::World() {
 	for(auto& nation: this->nations) {
 		// Relations between nations start at 0
 		for(size_t i = 0; i < this->nations.size(); i++) {
-			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false});
+			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false});
 		}
 	}
 
@@ -464,23 +484,41 @@ void World::do_tick() {
 			
 			// TODO: This is very stupid
 			switch(pop->type_id) {
-			case 0:
+			case POP_TYPE_ENTRPRENEUR:
 				salary = 100.f;
 				break;
-			case 1:
-				salary = 5.f;
+			case POP_TYPE_ARTISAN:
+				salary = 12.f;
 				break;
-			case 2:
-				salary = 5.f;
+			case POP_TYPE_CRAFTSMEN:
+				salary = 10.f;
 				break;
-			case 3:
-				salary = 15.f;
+			case POP_TYPE_BUREAUCRAT:
+				salary = 30.f;
 				break;
-			case 4:
+			case POP_TYPE_ARISTOCRAT:
 				salary = 50.f;
 				break;
-			default:
+			case POP_TYPE_CLERGYMEN:
+				salary = 12.f;
+				break;
+			case POP_TYPE_FARMER:
+				salary = 8.f;
+				break;
+			case POP_TYPE_SOLDIER:
 				salary = 10.f;
+				break;
+			case POP_TYPE_OFFICER:
+				salary = 20.f;
+				break;
+			case POP_TYPE_LABORER:
+				salary = 8.f;
+				break;
+			case POP_TYPE_SLAVE:
+				salary = 2.f;
+				break;
+			default:
+				salary = 0.f;
 				break;
 			}
 			
@@ -568,7 +606,7 @@ void World::do_tick() {
 			
 			// TODO: Higher literacy should mean lower births
 			ssize_t growth = pop->life_needs_met * (rand() % 10);
-			if(growth < 0 && abs(growth) >= pop->size) {
+			if(growth < 0 && (size_t)abs(growth) >= pop->size) {
 				pop->size = 0;
 				continue;
 			} else {

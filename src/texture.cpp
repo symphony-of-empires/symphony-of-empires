@@ -21,6 +21,7 @@ void Texture::create_dummy() {
 	}
 
 	// Fill in with a pattern
+	// This should be autovectorized by gcc
 	for(size_t i = 0; i < this->width * this->height; i++) {
 		this->buffer[i] = (i % 2) ? 0xff000000 : 0xff00ff00;
 	}
