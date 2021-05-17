@@ -137,4 +137,16 @@ function Religion:register(religion)
 	religion.id = add_religion(religion.ref_name, religion.name)
 end
 
+UnitType = { id = 0, ref_name = "", name = "", health = 100.0, defense = 1.0, attack = 1.0 }
+function UnitType:create(unit_type)
+	unit_type.parent = self
+	return unit_type
+end
+function UnitType:get(unit_type, ref_name)
+	unit_type.id, unit_type.ref_name, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health = get_unit_type(ref_name)
+end
+function UnitType:register(unit_type)
+	unit_type.id = add_unit_type(unit_type.ref_name, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health)
+end
+
 print("loaded api.lua")

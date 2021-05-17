@@ -51,6 +51,9 @@ namespace LuaAPI {
 	int add_religion(lua_State * L);
 	int get_religion(lua_State * L);
 
+	int add_unit_type(lua_State * L);
+	int get_unit_type(lua_State * L);
+
 	// Time functions
 	int get_hour(lua_State * L);
 	int get_day(lua_State * L);

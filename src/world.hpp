@@ -34,11 +34,14 @@ public:
 	std::string ref_name;
 	float supply_consumption;
 	float speed;
-	
+	float max_health;
+	float defense;
+	float attack;
 };
 
 class Unit {
 public:
+	uint8_t type_id;
 	float x;
 	float y;
 	float tx;
@@ -76,6 +79,7 @@ public:
 	std::vector<PopType *> pop_types;
 	std::vector<Religion *> religions;
 	std::vector<Culture *> cultures;
+	std::vector<UnitType *> unit_types;
 	std::vector<LuaAPI::Event *> events;
 	lua_State * lua;
 

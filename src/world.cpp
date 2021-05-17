@@ -85,6 +85,9 @@ World::World() {
 	lua_register(this->lua, "add_religion", LuaAPI::add_religion);
 	lua_register(this->lua, "get_religion", LuaAPI::get_religion);
 
+	lua_register(this->lua, "add_unit_type", LuaAPI::add_unit_type);
+	lua_register(this->lua, "get_unit_type", LuaAPI::get_unit_type);
+
 	lua_register(this->lua, "get_hour", LuaAPI::get_hour);
 	lua_register(this->lua, "get_day", LuaAPI::get_day);
 	lua_register(this->lua, "get_month", LuaAPI::get_month);
@@ -289,8 +292,9 @@ void World::do_tick() {
 			
 			this->provinces[i]->industries[j]->ticks_unoperational = 0;
 			
-			//printf("Industry (type: %s). Province %zu. n_industry: %zu\n", this->industry_types[this->provinces[i]->industries[j]->type_id]->name.c_str(), i, j);
+			printf("%s in %s\n", this->industry_types[this->provinces[i]->industries[j]->type_id]->name.c_str(), this->provinces[i]->name.c_str());
 			
+			printf("Needed: ");
 			IndustryType * it = this->industry_types[this->provinces[i]->industries[j]->type_id];
 			for(const auto& input: it->inputs) {
 				OrderGoods order;
@@ -300,33 +304,45 @@ void World::do_tick() {
 				order.requester_industry_id = j;
 				order.requester_province_id = i;
 				orders.push_back(order);
-				//printf("\t- We need good: %s (from %s)\n", this->goods[order.good_id]->name.c_str(), this->provinces[order.requester_province_id]->name.c_str());
+				printf("%s,", this->goods[order.good_id]->name.c_str(), this->provinces[order.requester_province_id]->name.c_str());
 			}
-			
-			// RGOs deliver first
-			if(it->inputs.size() == 0) {
-				// Take a constant of workers needed for factories, 1.5k workers!
-				size_t available_manpower = 1500 % this->provinces[i]->worker_pool;
-				this->provinces[i]->worker_pool -= available_manpower;
-				
-				// Place deliver orders (we are a RGO)
-				for(size_t k = 0; k < it->outputs.size(); k++) {
-					DeliverGoods deliver;
-					deliver.quantity = 4 * available_manpower;
-					deliver.payment = 1500.f;
-					deliver.good_id = it->outputs[k];
-					deliver.sender_industry_id = j;
-					deliver.sender_province_id = i;
-					deliver.product_id = this->provinces[i]->industries[j]->output_products[k];
-					
-					if(!deliver.quantity)
-						continue;
-					
-					delivers.push_back(deliver);
-					//printf("\t- Throwing RGO: %s (from %s)\n", this->goods[deliver.good_id]->name.c_str(), this->provinces[deliver.sender_province_id]->name.c_str());
-					break;
+			printf("\n");
+
+			if(this->provinces[i]->industries[j]->can_do_output(this) == false) {
+				printf("Cannot produce because missing: ");
+				for(size_t k = 0; k < it->inputs.size(); k++) {
+					if(!this->provinces[i]->industries[j]->stockpile[k]) {
+						printf("%s, ", this->goods[it->inputs[k]]->name.c_str());
+					}
 				}
+				printf("\n");
+				continue;
 			}
+
+			// Now produce anything as we can!
+
+			printf("Producing: ");
+			// Take a constant of workers needed for factories, 1.5k workers!
+			size_t available_manpower = 1500 % this->provinces[i]->worker_pool;
+			this->provinces[i]->worker_pool -= available_manpower;
+				
+			// Place deliver orders (we are a RGO)
+			for(size_t k = 0; k < it->outputs.size(); k++) {
+				DeliverGoods deliver;
+				deliver.quantity = 4 * available_manpower;
+				deliver.payment = 1500.f;
+				deliver.good_id = it->outputs[k];
+				deliver.sender_industry_id = j;
+				deliver.sender_province_id = i;
+				deliver.product_id = this->provinces[i]->industries[j]->output_products[k];
+				
+				if(!deliver.quantity)
+					continue;
+				
+				delivers.push_back(deliver);
+				printf("%s,", this->goods[deliver.good_id]->name.c_str());
+			}
+			printf("\n");
 		}
 	}
 
@@ -357,11 +373,7 @@ void World::do_tick() {
 					if(!company->in_range(order->requester_province_id))
 						continue;
 					
-					//printf("%s: Delivered from %s to %s some %s\n", company->name.c_str(), this->provinces[deliver->sender_province_id]->name.c_str(), this->provinces[order->requester_province_id]->name.c_str(), this->goods[order->good_id]->name.c_str());
-					
-					// Yes - we go and deliver their stuff
-					Industry * industry = this->provinces[order->requester_province_id]->industries[order->requester_industry_id];
-					industry->add_to_stock(this, order->good_id, 1);
+					printf("%s: Delivered from %s to %s some %s\n", company->name.c_str(), this->provinces[deliver->sender_province_id]->name.c_str(), this->provinces[order->requester_province_id]->name.c_str(), this->goods[order->good_id]->name.c_str());
 					
 					// Province receives a small supply buff from commerce
 					this->provinces[order->requester_province_id]->supply_rem += 5.f;
@@ -370,6 +382,9 @@ void World::do_tick() {
 					size_t count = order->quantity % deliver->quantity;
 					deliver->quantity -= count;
 					order->quantity -= count;
+
+					// Yes - we go and deliver their stuff
+					this->provinces[order->requester_province_id]->industries[order->requester_industry_id]->add_to_stock(this, order->good_id, count);
 					
 					// Increment demand
 					this->products[deliver->product_id]->demand += count;
