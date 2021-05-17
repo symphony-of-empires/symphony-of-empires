@@ -89,6 +89,7 @@ public:
 class World;
 class Industry {
 public:
+	size_t get_id(World * world, size_t province_id);
 	bool can_do_output(World * world);
 	void add_to_stock(World * world, size_t good_id, size_t add);
 	

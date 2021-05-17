@@ -12,7 +12,9 @@
 class World;
 class Province {
 public:
+	size_t get_id(World * world);
 	void add_industry(World * world, Industry * industry);
+	void remove_industry(World * world, Industry * industry);
 
 	std::string name;
 	std::string ref_name;

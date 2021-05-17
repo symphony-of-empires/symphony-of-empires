@@ -1,6 +1,19 @@
 #include "province.hpp"
 #include "world.hpp"
 
+/** Gets ID from pointer
+  */
+size_t Province::get_id(World * world) {
+	size_t i = 0;
+	for(const auto& province: world->provinces) {
+		if(province == this) {
+			return i;
+		}
+		i++;
+	}
+	return (size_t)-1;
+}
+
 /** Adds a new industry in the province and adds it's output
  *  products into the world accordingly
  */
@@ -56,4 +69,28 @@ void Province::add_industry(World * world, Industry * industry) {
 	}
 
 	this->industries.push_back(industry);
+}
+
+/** Removes an industry and their products from the entire world
+  * this is only used when industries go bankrupt!
+  */
+void Province::remove_industry(World * world, Industry * industry) {
+	size_t province_id = this->get_id(world);
+	size_t industry_id = industry->get_id(world, province_id);
+
+	// Remove products of this industry from world market
+	for(size_t i = 0; i < world->products.size(); i++) {
+		Product * product = world->products[i];
+		if(product->origin_id == province_id
+		&& product->industry_id == industry_id) {
+			world->products.erase(world->products.begin() + i);
+			i--;
+			continue;
+		}
+	}
+
+	// Remove this industry totally
+	this->industries.erase(this->industries.begin() + industry_id);
+
+	// We have removed the industry!
 }
