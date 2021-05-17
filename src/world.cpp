@@ -457,6 +457,8 @@ void World::do_tick() {
 				i--;
 				continue;
 			}
+
+			//printf("%s: %s %zu (%4.f$)\n", province->name.c_str(), this->pop_types[pop->type_id]->name.c_str(), pop->size, pop->budget);
 			
 			float salary;
 			
