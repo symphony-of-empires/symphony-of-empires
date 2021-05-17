@@ -83,14 +83,15 @@ void Province::remove_industry(World * world, Industry * industry) {
 		Product * product = world->products[i];
 		if(product->origin_id == province_id
 		&& product->industry_id == industry_id) {
-			world->products.erase(world->products.begin() + i);
-			i--;
+			delete world->products[i];
+			world->products[i] = nullptr;
 			continue;
 		}
 	}
 
 	// Remove this industry totally
-	this->industries.erase(this->industries.begin() + industry_id);
+	delete this->industries[industry_id];
+	this->industries[industry_id] = nullptr;
 
 	// We have removed the industry!
 }
