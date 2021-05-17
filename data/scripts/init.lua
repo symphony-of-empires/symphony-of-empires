@@ -38,6 +38,9 @@ PopType:register(farmer)
 local soldier = PopType:create{ ref_name = "soldier" }
 soldier.name = _("Soldier")
 PopType:register(soldier)
+local officer = PopType:create{ ref_name = "officer" }
+officer.name = _("Officer")
+PopType:register(officer)
 local laborer = PopType:create{ ref_name = "laborer" }
 laborer.name = _("Laborer")
 PopType:register(laborer)

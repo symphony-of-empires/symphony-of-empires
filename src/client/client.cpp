@@ -65,6 +65,32 @@ static void do_view_infra_map(UI::Widget *, void *) {
 	display_infra = !display_infra;
 }
 
+static UI::Label * avail_soldiers;
+static void do_build_unit_on_province_on_update(UI::Widget * w, void *) {
+	Province * province = (Province *)w->user_data;
+
+	// Count soldier pops
+	size_t avail_manpower = 0;
+	for(const auto& pop: province->pops) {
+		if(pop->type_id != POP_TYPE_SOLDIER)
+			continue;
+		
+		avail_manpower += pop->size;
+	}
+
+	char * tmpbuf = new char[255];
+	sprintf(tmpbuf, "Available soldiers: %zu", avail_manpower);
+	avail_soldiers->text(ui_ctx, tmpbuf);
+	delete[] tmpbuf;
+}
+static void do_build_unit_on_province(UI::Widget * w, void *) {
+	Province * province = (Province *)w->user_data;
+	UI::Window * recruit_win = new UI::Window(ui_ctx, nullptr, 64, 64, 512, 512, "Recruit units");
+	avail_soldiers = new UI::Label(ui_ctx, recruit_win, 0, 0, "?");
+	avail_soldiers->user_data = province;
+	avail_soldiers->on_update = &do_build_unit_on_province_on_update;
+}
+
 UI::Window * prov_win;
 static void do_province_overview() {
 	Province * province = g_world->provinces[selected_province_id];
@@ -80,6 +106,12 @@ static void do_province_overview() {
 	}
 
 	UI::Label * status = new UI::Label(ui_ctx, prov_win, 0, 0, str);
+
+	if(province->owner_id == player_nation_id) {
+		UI::Button * recruit = new UI::Button(ui_ctx, prov_win, 0, 64, 128, 24, "Recruit");
+		recruit->on_click = &do_build_unit_on_province;
+		recruit->user_data = province;
+	}
 
 	delete[] str;
 }

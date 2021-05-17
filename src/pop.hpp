@@ -3,6 +3,20 @@
 #include <vector>
 #include <string>
 
+enum {
+	POP_TYPE_ENTRPRENEUR = 0,
+	POP_TYPE_ARTISAN = 1,
+	POP_TYPE_CRAFTSMEN = 2,
+	POP_TYPE_BUREAUCRAT = 3,
+	POP_TYPE_ARISTOCRAT = 4,
+	POP_TYPE_CLERGYMEN = 5,
+	POP_TYPE_FARMER = 6,
+	POP_TYPE_SOLDIER = 7,
+	POP_TYPE_OFFICER = 8,
+	POP_TYPE_LABORER = 9,
+	POP_TYPE_SLAVE = 10
+};
+
 class PopType {
 public:
 	std::string name;
