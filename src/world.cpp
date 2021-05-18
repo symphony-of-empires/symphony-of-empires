@@ -245,6 +245,18 @@ World::World() {
 		for(size_t i = 0; i < this->nations.size(); i++) {
 			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false});
 		}
+		nation->relations.shrink_to_fit();
+	}
+
+	// Register all provinces onto the owning nations
+	for(size_t i = 0; i < this->provinces.size(); i++) {
+		Province * province = this->provinces[i];
+		if(province->owner_id == PROVINCE_DISPUTED || province->owner_id == PROVINCE_NO_ONWER) {
+			continue;
+		}
+
+		Nation * nation = this->nations[province->owner_id];
+		nation->owned_provinces.push_back(i);
 	}
 
 	// Shrink normally-not-resized vectors
@@ -630,6 +642,62 @@ void World::do_economy_tick_3() {
 	}
 }
 
+void World::do_economy_tick_4() {
+	// Preparations for the next tick
+
+	// Reset production costs
+	const size_t n_provinces = this->provinces.size();
+	for(size_t i = 0; i < n_provinces; i++) {
+		for(size_t j = 0; j < this->provinces[i]->industries.size(); j++) {
+			Industry * industry = this->provinces[i]->industries[j];
+			industry->production_cost = 0.f;
+		}
+	}
+
+	// Close today's price with a change according to demand - supply
+	const size_t n_products = this->products.size();
+	for(size_t i = 0; i < n_products; i++) {
+		Product * product = this->products[i];
+		if(product->demand > product->supply) {
+			product->price_vel += 0.001f * (product->demand - product->supply);
+		} else if(product->demand < product->supply) {
+			product->price_vel -= 0.001f * (product->supply - product->demand);
+		} else {
+			if(product->price_vel > 0.1f) {
+				product->price_vel -= 0.1f;
+			} else if(product->price_vel < -0.1f) {
+				product->price_vel += 0.1f;
+			} else {
+				product->price_vel = -0.1f;
+			}
+		}
+		product->price += product->price_vel;
+		if(product->price <= 0.f) {
+			product->price = 0.01f;
+		}
+			
+		// Save prices and stuff onto history (for the charts!)
+		product->demand_history.push_back(product->demand);
+		if(product->demand_history.size() > 60)
+			product->demand_history.pop_front();
+		
+		product->supply_history.push_back(product->supply);
+		if(product->supply_history.size() > 60)
+			product->supply_history.pop_front();
+
+		product->price_history.push_back(product->price);
+		if(product->price_history.size() > 60)
+			product->price_history.pop_front();
+			
+		// Re-count worldwide supply
+		product->supply = 0;
+		for(const auto& province: this->provinces) {
+			product->supply += province->stockpile[i];
+		}
+		product->demand = 0;
+	}
+}
+
 void World::do_tick() {
 	// Each tick == 30 minutes
 	switch(time % (24 * 2)) {
@@ -644,6 +712,22 @@ void World::do_tick() {
 	// 12:00
 	case 24:
 		this->do_economy_tick_3();
+
+		// Calculate economy score of nations
+		for(auto& nation: this->nations) {
+			double economy_score = 0.f;
+			for(const auto& province_id: nation->owned_provinces) {
+				Province * province = this->provinces[province_id];
+				for(const auto& pop: province->pops) {
+					economy_score += pop->budget;
+				}
+			}
+			nation->economy_score = economy_score / 100.f;
+		}
+		break;
+	// 18:00
+	case 36:
+		this->do_economy_tick_4();
 		break;
 	default:
 		break;
@@ -755,58 +839,6 @@ void World::do_tick() {
 			render_province.push_front(unit->y - 64);
 			render_province_mutex.unlock();
 		}
-	}
-
-	// Preparations for the next tick
-
-	// Reset production costs
-	for(size_t i = 0; i < n_provinces; i++) {
-		for(size_t j = 0; j < this->provinces[i]->industries.size(); j++) {
-			Industry * industry = this->provinces[i]->industries[j];
-			industry->production_cost = 0.f;
-		}
-	}
-
-	// Close today's price with a change according to demand - supply
-	for(size_t i = 0; i < this->products.size(); i++) {
-		Product * product = this->products[i];
-		if(product->demand > product->supply) {
-			product->price_vel += 0.001f * (product->demand - product->supply);
-		} else if(product->demand < product->supply) {
-			product->price_vel -= 0.001f * (product->supply - product->demand);
-		} else {
-			if(product->price_vel > 0.1f) {
-				product->price_vel -= 0.1f;
-			} else if(product->price_vel < -0.1f) {
-				product->price_vel += 0.1f;
-			} else {
-				product->price_vel = -0.1f;
-			}
-		}
-		product->price += product->price_vel;
-		if(product->price <= 0.f) {
-			product->price = 0.01f;
-		}
-			
-		// Save prices and stuff onto history (for the charts!)
-		product->demand_history.push_back(product->demand);
-		if(product->demand_history.size() > 30)
-			product->demand_history.pop_front();
-		
-		product->supply_history.push_back(product->supply);
-		if(product->supply_history.size() > 30)
-			product->supply_history.pop_front();
-
-		product->price_history.push_back(product->price);
-		if(product->price_history.size() > 30)
-			product->price_history.pop_front();
-			
-		// Re-count worldwide supply
-		product->supply = 0;
-		for(const auto& province: this->provinces) {
-			product->supply += province->stockpile[i];
-		}
-		product->demand = 0;
 	}
 
 	this->time++;

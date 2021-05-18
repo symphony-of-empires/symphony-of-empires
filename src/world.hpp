@@ -78,6 +78,7 @@ public:
 	void do_economy_tick_1();
 	void do_economy_tick_2();
 	void do_economy_tick_3();
+	void do_economy_tick_4();
 	void do_tick();
 
 	void add_good(Good * good);

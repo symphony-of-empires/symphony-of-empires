@@ -10,15 +10,64 @@ Culture:register(french)
 local french = Culture:create{ ref_name = "french" }
 french.name = _("French")
 Culture:register(french)
-local french = Culture:create{ ref_name = "french" }
-french.name = _("French")
-Culture:register(french)
-local french = Culture:create{ ref_name = "french" }
-french.name = _("French")
-Culture:register(french)
-local french = Culture:create{ ref_name = "french" }
-french.name = _("French")
-Culture:register(french)
+
+local akan = Culture:create{ ref_name = "akan" }
+akan.name = _("Akan")
+Culture:register(akan)
+local abyssinian = Culture:create{ ref_name = "abyssinian" }
+abyssinian.name = _("Abyssinian")
+Culture:register(abyssinian)
+local amhara = Culture:create{ ref_name = "amhara" }
+amhara.name = _("Amhara")
+Culture:register(amhara)
+local chewa = Culture:create{ ref_name = "chewa" }
+chewa.name = _("Chewa")
+Culture:register(chewa)
+local fulani = Culture:create{ ref_name = "fulani" }
+fulani.name = _("Fulani")
+Culture:register(fulani)
+local hausa = Culture:create{ ref_name = "hausa" }
+hausa.name = _("Hausa")
+Culture:register(hausa)
+local hutu = Culture:create{ ref_name = "hutu" }
+hutu.name = _("Hutu")
+Culture:register(hutu)
+local igbo = Culture:create{ ref_name = "igbo" }
+igbo.name = _("Igbo")
+Culture:register(igbo)
+local kanuri = Culture:create{ ref_name = "kanuri" }
+kanuri.name = _("Kanuri")
+Culture:register(kanuri)
+local kongo = Culture:create{ ref_name = "kongo" }
+kongo.name = _("Kongo")
+Culture:register(kongo)
+local luba = Culture:create{ ref_name = "luba" }
+luba.name = _("Luba")
+Culture:register(luba)
+local maghrebis = Culture:create{ ref_name = "maghrebis" }
+maghrebis.name = _("Maghrebis")
+Culture:register(maghrebis)
+local mongo = Culture:create{ ref_name = "mongo" }
+mongo.name = _("Mongo")
+Culture:register(mongo)
+local nilotes = Culture:create{ ref_name = "nilotes" }
+nilotes.name = _("Nilotes")
+Culture:register(nilotes)
+local oromo = Culture:create{ ref_name = "oromo" }
+oromo.name = _("Oromo")
+Culture:register(oromo)
+local shona = Culture:create{ ref_name = "shona" }
+shona.name = _("Shona")
+Culture:register(shona)
+local somali = Culture:create{ ref_name = "somali" }
+somali.name = _("Somali")
+Culture:register(somali)
+local yoruba = Culture:create{ ref_name = "yoruba" }
+yoruba.name = _("Yoruba")
+Culture:register(yoruba)
+local zulu = Culture:create{ ref_name = "zulu" }
+zulu.name = _("Zulu")
+Culture:register(zulu)
 
 -- Religion
 local protestant = Religion:create{ ref_name = "protestant" }

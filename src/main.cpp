@@ -33,8 +33,6 @@ int main(int argc, char ** argv) {
 	while(run) {
 		LuaAPI::check_events(world.lua);
 		world.do_tick();
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(250));
 	}
 	t1.join();
 #else
