@@ -7,6 +7,11 @@
 #include <vector>
 #include "texture.hpp"
 
+template <typename T>
+constexpr static inline size_t pointer_to_index(T * arr, T * element) {
+	return ((ptrdiff_t)element - (ptrdiff_t)arr) / sizeof(T);
+}
+
 class Company {
 public:
 	std::string name;

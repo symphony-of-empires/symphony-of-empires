@@ -207,7 +207,7 @@ int LuaAPI::get_nation(lua_State * L) {
 
 int LuaAPI::set_nation_primary_culture(lua_State * L) {
 	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
-	nation->primary_culture = lua_tonumber(L, 2);
+	nation->primary_culture = g_world->cultures[lua_tonumber(L, 2)];
 	return 0;
 }
 
