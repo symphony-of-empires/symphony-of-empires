@@ -54,8 +54,14 @@ public:
 	// Level of infamy
 	float infamy;
 
+	float military_score = 0.f;
+	float naval_score = 0.f;
+	float economy_score = 0.f;
+
 	size_t primary_culture;
 	std::vector<size_t> accepted_cultures;
+
+	std::vector<uint16_t> owned_provinces;
 };
 
 #endif
