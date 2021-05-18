@@ -256,7 +256,7 @@ World::World() {
 		}
 
 		Nation * nation = this->nations[province->owner_id];
-		nation->owned_provinces.push_back(i);
+		nation->owned_provinces.push_back(this->provinces[i]);
 	}
 
 	// Shrink normally-not-resized vectors
@@ -716,8 +716,7 @@ void World::do_tick() {
 		// Calculate economy score of nations
 		for(auto& nation: this->nations) {
 			double economy_score = 0.f;
-			for(const auto& province_id: nation->owned_provinces) {
-				Province * province = this->provinces[province_id];
+			for(const auto& province: nation->owned_provinces) {
 				for(const auto& pop: province->pops) {
 					economy_score += pop->budget;
 				}

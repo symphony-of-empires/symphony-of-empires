@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "texture.hpp"
+#include "province.hpp"
 
 class NationRelation {
 public:
@@ -51,6 +52,8 @@ public:
 	// Base literacy applied to all pops
 	float base_literacy;
 
+	bool is_civilized;
+
 	// Level of infamy
 	float infamy;
 
@@ -58,10 +61,12 @@ public:
 	float naval_score = 0.f;
 	float economy_score = 0.f;
 
-	size_t primary_culture;
-	std::vector<size_t> accepted_cultures;
+	Culture * primary_culture;
+	std::vector<Culture *> accepted_cultures;
 
-	std::vector<uint16_t> owned_provinces;
+	// Used for evaluations
+	std::vector<Province *> owned_provinces;
+	std::vector<Nation *> neighbour_nations;
 };
 
 #endif
