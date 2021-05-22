@@ -154,6 +154,8 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 			}
 			return 1;
 		} else {
+			widget->mx = 0;
+			widget->my = 0;
 			if(widget->action_textures != nullptr) {
 				widget->current_texture = &widget->action_textures->idle;
 			}
@@ -290,8 +292,8 @@ void default_on_render(Widget * w, void * data) {
 				w->text_texture->gl_tex_num
 			);
 		}
-		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+	glBindTexture(GL_TEXTURE_2D, 0);
 	return;
 }
 

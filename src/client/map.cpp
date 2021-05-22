@@ -20,20 +20,19 @@ Map::Map(World * w) {
 		this->n_vert_quads++;
 	}
 
-	this->quad_topo_gl_list_num = new GLuint[this->n_horz_quads * this->n_vert_quads];
-	this->quad_div_gl_list_num = new GLuint[this->n_horz_quads * this->n_vert_quads];
-	this->quad_pol_gl_list_num = new GLuint[this->n_horz_quads * this->n_vert_quads];
-	this->div_borders_gl_list_num = new GLuint[this->n_horz_quads * this->n_vert_quads];
-	this->pol_borders_gl_list_num = new GLuint[this->n_horz_quads * this->n_vert_quads];
-	this->infra_layout_list_num = new GLuint[this->n_horz_quads * this->n_vert_quads];
-
+	this->nations_fill = new GLuint[this->n_horz_quads * this->n_vert_quads];
+	this->nations_wire = new GLuint[this->n_horz_quads * this->n_vert_quads];
+	this->provinces_fill = new GLuint[this->n_horz_quads * this->n_vert_quads];
+	this->provinces_wire = new GLuint[this->n_horz_quads * this->n_vert_quads];
+	this->infrastructure_wire = new GLuint[this->n_horz_quads * this->n_vert_quads];
+	this->topo_tex = new Texture * [this->n_horz_quads * this->n_vert_quads];
 	for(size_t i = 0; i < this->n_horz_quads * this->n_vert_quads; i++) {
-		this->quad_topo_gl_list_num[i] = 0;
-		this->quad_div_gl_list_num[i] = 0;
-		this->quad_pol_gl_list_num[i] = 0;
-		this->div_borders_gl_list_num[i] = 0;
-		this->pol_borders_gl_list_num[i] = 0;
-		this->infra_layout_list_num[i] = 0;
+		this->nations_fill[i] = 0;
+		this->nations_wire[i] = 0;
+		this->provinces_fill[i] = 0;
+		this->provinces_wire[i] = 0;
+		this->infrastructure_wire[i] = 0;
+		this->topo_tex[i] = new Texture(this->quad_size, this->quad_size);
 	}
 
 	for(size_t i = 0; i < this->n_horz_quads; i++) {
@@ -68,7 +67,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 		end_y = this->world->height - 1;
 	}
 
-	gl_list = &this->quad_pol_gl_list_num[qx + qy * this->n_horz_quads];
+	gl_list = &this->nations_fill[qx + qy * this->n_horz_quads];
 	if(*gl_list == 0) {
 		*gl_list = glGenLists(1);
 		glNewList(*gl_list, GL_COMPILE);
@@ -111,57 +110,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 		glEndList();
 	}
 	
-	gl_list = &this->quad_topo_gl_list_num[qx + qy * this->n_horz_quads];
-	if(*gl_list == 0) {
-		*gl_list = glGenLists(1);
-		glNewList(*gl_list, GL_COMPILE);
-		for(size_t j = off_y; j < end_y; j++) {
-			for(size_t i = off_x; i < end_x; i++) {
-				Tile * tile = &this->world->tiles[i + j * this->world->width];
-				
-				uint16_t elevation = tile->elevation;
-				size_t x_start = i;
-				size_t n_same = 0;
-				while(i < end_x) {
-					n_same++;
-					i++;
-					tile = &this->world->tiles[i + j * this->world->width];
-					
-					// This tile is land, not water, end stripe
-					if(tile->elevation > this->world->sea_level + 1
-					&& elevation <= this->world->sea_level + 1) {
-						break;
-					}
-					// End of land, now water begins!
-					else if(tile->elevation <= this->world->sea_level + 1
-					&& elevation > this->world->sea_level + 1) {
-						break;
-					}
-				}
-				
-				glBegin(GL_TRIANGLES);
-				for(size_t k = 0; k < 6; k++) {
-					size_t x = x_start + draw_ord[k][0];
-					size_t y = j + draw_ord[k][1];
-					
-					if(draw_ord[k][0])
-						x += n_same - 1;
-					
-					if(elevation > this->world->sea_level + 1)
-						glColor3ub(0xd3, 0xd3, 0xd3);
-					else if(elevation <= this->world->sea_level + 1)
-						glColor3ub(0x54, 0x70, 0xd1);
-					
-					glVertex2f(x, y);
-				}
-				glEnd();
-				i--;
-			}
-		}
-		glEndList();
-	}
-	
-	gl_list = &this->quad_div_gl_list_num[qx + qy * this->n_horz_quads];
+	gl_list = &this->provinces_fill[qx + qy * this->n_horz_quads];
 	if(*gl_list == 0) {
 		*gl_list = glGenLists(1);
 		glNewList(*gl_list, GL_COMPILE);
@@ -202,7 +151,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 		glEndList();
 	}
 	
-	gl_list = &this->div_borders_gl_list_num[qx + qy * this->n_horz_quads];
+	gl_list = &this->provinces_wire[qx + qy * this->n_horz_quads];
 	if(*gl_list == 0) {
 		*gl_list = glGenLists(1);
 		glNewList(*gl_list, GL_COMPILE);
@@ -258,7 +207,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 		glEndList();
 	}
 
-	gl_list = &this->pol_borders_gl_list_num[qx + qy * this->n_horz_quads];
+	gl_list = &this->nations_wire[qx + qy * this->n_horz_quads];
 	if(*gl_list == 0) {
 		*gl_list = glGenLists(1);
 		glNewList(*gl_list, GL_COMPILE);
@@ -338,6 +287,23 @@ void Map::quad_create(size_t qx, size_t qy) {
 		glLineWidth(1.f);
 		glEndList();
 	}
+
+	Texture * tex = this->topo_tex[qx + qy * this->n_horz_quads];
+	for(size_t j = off_y; j < end_y; j++) {
+		for(size_t i = off_x; i < end_x; i++) {
+			Tile * tile = &this->world->tiles[i + j * this->world->width];
+				
+			uint16_t elevation = tile->elevation;
+			uint32_t * comp = &tex->buffer[tex->width * (j - off_y) + (i - off_x)];
+				
+			if(elevation > this->world->sea_level + 1) {
+				*comp = __bswap_32(0xd3d3d3ff);
+			} else if(elevation <= this->world->sea_level + 1) {
+				*comp = __bswap_32(0x5470d1ff);
+			}
+		}
+	}
+	tex->to_opengl();
 	return;
 }
 
@@ -350,12 +316,12 @@ void Map::quad_update_nation(size_t start_x, size_t start_y, size_t end_x, size_
 			// Delete old quad OpenGL lists (so we can redraw them)
 			
 			// Delete fillings
-			gl_list = &this->quad_pol_gl_list_num[qx + qy * this->n_horz_quads];
+			gl_list = &this->nations_fill[qx + qy * this->n_horz_quads];
 			glDeleteLists(*gl_list, 1);
 			*gl_list = 0;
 
 			// Delete borders
-			gl_list = &this->pol_borders_gl_list_num[qx + qy * this->n_horz_quads];
+			gl_list = &this->nations_wire[qx + qy * this->n_horz_quads];
 			glDeleteLists(*gl_list, 1);
 			*gl_list = 0;
 			
