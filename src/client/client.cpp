@@ -608,21 +608,47 @@ void do_game_main(UI::Widget *, void *) {
 		render_province_mutex.unlock();
 
 		// Simpler than looping and indexing as x,y coord
-		if(display_topo)
-			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.quad_topo_gl_list_num);
+		if(display_topo) {
+			for(size_t qx = 0; qx < map.n_horz_quads; qx++) {
+				for(size_t qy = 0; qy < map.n_vert_quads; qy++) {
+					glBindTexture(GL_TEXTURE_2D, map.topo_tex[qy * map.n_horz_quads + qx]->gl_tex_num);
+					
+					const size_t x = qx * map.quad_size;
+					const size_t y = qy * map.quad_size;
+					
+					glBegin(GL_TRIANGLES);
+					glColor3f(1.f, 1.f, 1.f);
+					glTexCoord2f(0.f, 0.f);
+					glVertex2f(x, y);
+					glTexCoord2f(1.f, 0.f);
+					glVertex2f(x + map.quad_size, y);
+					glTexCoord2f(1.f, 1.f);
+					glVertex2f(x + map.quad_size, y + map.quad_size);
+					glTexCoord2f(1.f, 1.f);
+					glVertex2f(x + map.quad_size, y + map.quad_size);
+					glTexCoord2f(0.f, 1.f);
+					glVertex2f(x, y + map.quad_size);
+					glTexCoord2f(0.f, 0.f);
+					glVertex2f(x, y);
+					glEnd();
+				}
+			}
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glColor3f(1.f, 1.f, 1.f);
+		}
 		if(display_prov)
-			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.quad_div_gl_list_num);
+			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.provinces_fill);
 		if(display_pol)
-			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.quad_pol_gl_list_num);
+			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.nations_fill);
 		if(display_infra)
-			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.infra_layout_list_num);
+			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.infrastructure_wire);
 		
 		// Borders should always display, except division borders
 		if(cam.z >= -400.f) {
-			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.div_borders_gl_list_num);
+			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.provinces_wire);
 		}
-		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.pol_borders_gl_list_num);
-		
+		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.nations_wire);
+			
 		glBegin(GL_POLYGON);
 		glColor3f(1.f, 1.f, 1.f);
 		glVertex2f(fmx, fmy);
