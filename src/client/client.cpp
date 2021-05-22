@@ -477,6 +477,13 @@ void do_game_main(UI::Widget *, void *) {
 	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
 
 	UI::Label * delta_time = new UI::Label(ui_ctx, nullptr, 0, height - 24, "?");
+
+	std::vector<UI::Label *> map_province_names;
+	map_province_names.reserve(g_world->nations.size());
+	for(auto& province: g_world->provinces) {
+		UI::Label * lab = new UI::Label(ui_ctx, nullptr, 0, 0, province->name.c_str());
+		map_province_names.push_back(lab);
+	}
 	
 	std::vector<Tile *> path;
 	Tile * start;
@@ -714,6 +721,43 @@ void do_game_main(UI::Widget *, void *) {
 		}
 		glLineWidth(1.f);
 		glEnd();
+		
+		for(size_t i = 0; i < map_province_names.size(); i++) {
+			//glBindTexture(GL_TEXTURE_2D, map_province_names[i]->text_texture->gl_tex_num);
+
+			const size_t start_x = g_world->provinces[i]->min_x;
+			const size_t start_y = g_world->provinces[i]->min_y;
+			const size_t end_x = g_world->provinces[i]->max_x;
+			const size_t end_y = g_world->provinces[i]->max_y;
+
+			/*glBegin(GL_LINE_STRIP);
+			glColor3f(1.f, 0.f, 0.f);
+			glTexCoord2f(0.f, 0.f);
+			glVertex2f(start_x, start_y);
+			glTexCoord2f(1.f, 0.f);
+			glVertex2f(end_x, start_y);
+			glTexCoord2f(1.f, 1.f);
+			glVertex2f(end_x, end_y);
+			glTexCoord2f(0.f, 1.f);
+			glVertex2f(start_x, end_y);
+			glTexCoord2f(0.f, 1.f);
+			glVertex2f(start_x, start_y);
+			glEnd();*/
+
+			/*glBegin(GL_QUADS);
+			glColor3f(1.f, 1.f, 1.f);
+			glTexCoord2f(0.f, 0.f);
+			glVertex2f(start_x, start_y);
+			glTexCoord2f(1.f, 0.f);
+			glVertex2f(end_x, start_y);
+			glTexCoord2f(1.f, 1.f);
+			glVertex2f(end_x, end_y);
+			glTexCoord2f(0.f, 1.f);
+			glVertex2f(start_x, end_y);
+			glEnd();*/
+		}
+		
+		//glPopMatrix();
 		
 		glPushMatrix();
 		glMatrixMode(GL_PROJECTION);

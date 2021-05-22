@@ -318,22 +318,25 @@ void Map::quad_create(size_t qx, size_t qy) {
 	Texture * tex = this->topo_tex[qx + qy * this->n_horz_quads];
 	for(size_t j = off_y; j < end_y; j++) {
 		for(size_t i = off_x; i < end_x; i++) {
-			Tile * tile = &this->world->tiles[i + j * this->world->width];
+			Tile * tile = &this->world->tiles[i + (j * this->world->width)];
 				
 			uint16_t elevation = tile->elevation;
 			uint32_t * comp = &tex->buffer[tex->width * (j - off_y) + (i - off_x)];
 				
 			if(elevation > this->world->sea_level + 1) {
+				uint8_t color = 255 - (tile->elevation - this->world->sea_level);
 				*comp = __bswap_32(
-					((tile->elevation - this->world->sea_level) << 24)
-					| ((tile->elevation - this->world->sea_level) << 16)
-					| ((tile->elevation - this->world->sea_level) << 8)
+					(color << 24)
+					| (color << 16)
+					| (color << 8)
 					| 0xff);
 			} else if(elevation <= this->world->sea_level + 1) {
-				*comp = __bswap_32(0x5470d1ff);
+				uint8_t color = tile->elevation;
+				*comp = __bswap_32((color << 8) | 0xff);
 			}
 		}
 	}
+	
 	tex->to_opengl();
 	return;
 }

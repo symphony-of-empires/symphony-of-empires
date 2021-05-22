@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/cdefs.h>
+#include <cmath>
 #include <set>
 
 #include "province.hpp"
@@ -117,6 +118,13 @@ World::World() {
 	if(ret) {
 		print_error("lua error %s", lua_tostring(this->lua, -1));
 		exit(EXIT_FAILURE);
+	}
+
+	for(auto& province: this->provinces) {
+		province->max_x = 0;
+		province->max_y = 0;
+		province->min_x = 65532;
+		province->min_y = 65532;
 	}
 
 	// Translate all div, pol and topo maps onto this single tile array
@@ -241,15 +249,12 @@ World::World() {
 			for(size_t k = 0; k < this->provinces.size(); k++) {
 				if(tile->province_id == k) {
 					Province * province = this->provinces[k];
-					if(i < province->min_x)
-						province->min_x = i;
-					else if(i > province->max_x)
-						province->max_x = i;
+
+					province->max_x = fmax(province->max_x, i);
+					province->max_y = fmax(province->max_y, j);
 					
-					if(j < province->min_y)
-						province->min_y = j;
-					else if(j > province->max_y)
-						province->max_y = j;
+					province->min_x = fmin(province->min_x, i);
+					province->min_y = fmin(province->min_y, j);
 				}
 			}
 		}
@@ -257,15 +262,11 @@ World::World() {
 
 	// Correct stuff from provinces
 	for(auto& province: this->provinces) {
-		if(province->max_x > this->width)
-			province->max_x = this->width;
-		if(province->min_x > this->width)
-			province->min_x = this->width;
-		
-		if(province->max_y > this->height)
-			province->max_y = this->height;
-		if(province->min_y > this->height)
-			province->min_y = this->height;
+		// Limit stuff so labels and scanning dosen't go wild
+		province->max_x = fmin(this->width, province->max_x);
+		province->max_y = fmin(this->height, province->max_y);
+		province->min_x = fmin(province->max_x, province->min_y);
+		province->min_y = fmin(province->max_y, province->min_y);
 		
 		// Remove duplicates
 		{
@@ -296,7 +297,7 @@ World::World() {
 	for(auto& nation: this->nations) {
 		// Relations between nations start at 0
 		for(size_t i = 0; i < this->nations.size(); i++) {
-			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false, true});
+			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false, false, true});
 		}
 		nation->relations.shrink_to_fit();
 	}

@@ -772,7 +772,7 @@ Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 
 
-province = Province:create{ ref_name = "santa_catarina", color = 0xFF545F }
+province = Province:create{ ref_name = "santa_catarina", color = 0xec1881 }
 province.name = _("Santa Catarina")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
@@ -1141,8 +1141,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 
-
-province = Province:create{ ref_name = "puerto_porvenir", color = 0xFF006E }
+province = Province:create{ ref_name = "puerto_porvenir", color = 0x0f145d }
 province.name = _("Puerto Porvenir")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
@@ -1237,7 +1236,7 @@ Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 
 
-province = Province:create{ ref_name = "fuerte_olimpo", color = 0xFF1900 }
+province = Province:create{ ref_name = "fuerte_olimpo", color = 0x6f6071 }
 province.name = _("Fuerte Olimpo")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
@@ -1417,7 +1416,21 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 
-province = Province:create{ ref_name = "tierra_del_fuego", color = 0x617bc9 }
+province = Province:create{ ref_name = "rio_gallegos", color = 0x617bc9 }
+province.name = _("Rio Gallegos")
+Province:register(province)
+Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
+Province:add_pop(province, farmer, german, protestant, 5000, 0.1)
+Province:add_pop(province, soldier, german, protestant, 5000, 0.2)
+Province:add_pop(province, craftsmen, german, protestant, 5000, 0.2)
+Province:add_pop(province, bureaucrat, german, protestant, 5000, 0.7)
+Province:add_pop(province, aristocrat, german, protestant, 5000, 0.2)
+Province:add_pop(province, clergymen, german, protestant, 5000, 0.3)
+Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
+Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
+Province:add_pop(province, slave, german, protestant, 500, 0.5)
+
+province = Province:create{ ref_name = "tierra_del_fuego", color = 0x040d88 }
 province.name = _("Tierra del Fuego")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
@@ -1445,7 +1458,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 
-province = Province:create{ ref_name = "viedma", color = 0x68ff5e }
+province = Province:create{ ref_name = "viedma", color = 0x880098 }
 province.name = _("Viedma")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
@@ -1487,7 +1500,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 
-province = Province:create{ ref_name = "santa_cruz", color = 0x3c222a }
+province = Province:create{ ref_name = "santa_cruz_andes", color = 0x3c222a }
 province.name = _("Santa Cruz")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
@@ -1927,20 +1940,6 @@ Province:add_pop(province, slave, german, protestant, 500, 0.5)
 
 province = Province:create{ ref_name = "baja_california", color = 0xff38e7 }
 province.name = _("Baja California")
-Province:register(province)
-Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
-Province:add_pop(province, farmer, german, protestant, 5000, 0.1)
-Province:add_pop(province, soldier, german, protestant, 5000, 0.2)
-Province:add_pop(province, craftsmen, german, protestant, 5000, 0.2)
-Province:add_pop(province, bureaucrat, german, protestant, 5000, 0.7)
-Province:add_pop(province, aristocrat, german, protestant, 5000, 0.2)
-Province:add_pop(province, clergymen, german, protestant, 5000, 0.3)
-Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
-Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
-Province:add_pop(province, slave, german, protestant, 500, 0.5)
-
-province = Province:create{ ref_name = "chihuahua", color = 0x38daff }
-province.name = _("Chihuahua")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
 Province:add_pop(province, farmer, german, protestant, 5000, 0.1)
@@ -2395,7 +2394,7 @@ Province:add_pop(province, slave, german, protestant, 500, 0.5)
 -- Subcontinent: South America
 -- Country: Peru
 
-province = Province:create{ ref_name = "arica", color = 0xFF7856 }
+province = Province:create{ ref_name = "arica", color = 0xe75935 }
 province.name = _("Arica")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
@@ -2595,7 +2594,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 
-province = Province:create{ ref_name = "demerara", color = 0xFF3262 }
+province = Province:create{ ref_name = "demerara", color = 0xcc0a37 }
 province.name = _("Demerara")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
@@ -2646,7 +2645,7 @@ Province:add_pop(province, slave, german, protestant, 500, 0.5)
 -- Subcontinent: South America
 -- Country: France
 
-province = Province:create{ ref_name = "cayenne", color = 0xFF00FF }
+province = Province:create{ ref_name = "cayenne", color = 0x552804 }
 province.name = _("Cayenne")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
@@ -2708,7 +2707,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 
-province = Province:create{ ref_name = "galapagos", color = 0xFFA8B2 }
+province = Province:create{ ref_name = "galapagos", color = 0xf1c9ff }
 province.name = _("Galápagos")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
@@ -3422,7 +3421,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 
-province = Province:create{ ref_name = "anguilla", color = 0xF9EED2 }
+province = Province:create{ ref_name = "anguilla", color = 0xded1af }
 province.name = _("Anguilla")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
@@ -3687,7 +3686,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 
-province = Province:create{ ref_name = "bonaire", color = 0xFFCB30C491FF }
+province = Province:create{ ref_name = "bonaire", color = 0xc69c1f }
 province.name = _("Bonaire")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
