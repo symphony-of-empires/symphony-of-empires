@@ -763,11 +763,11 @@ void World::do_tick() {
 	case 15:
 		this->do_economy_tick_2();
 
-		// Calculate prestige for today
+		// Calculate prestige for today (newspapers come out!)
 		for(auto& nation: this->nations) {
 			const float decay_per_cent = 5.f;
 			const float max_modifier = 10.f;
-			const int min_prestige = (int)((nation->naval_score + nation->military_score + nation->economy_score) / 2);
+			const float min_prestige = fmax(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2);
 
 			// Prestige cannot go below min prestige
 			nation->prestige = fmax(nation->prestige, min_prestige);
