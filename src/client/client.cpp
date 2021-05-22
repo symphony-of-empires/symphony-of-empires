@@ -29,6 +29,8 @@ public:
 	float x;
 	float y;
 	float z;
+	float z_angle;
+	float vz_angle;
 };
 
 UI::Context * ui_ctx;
@@ -466,10 +468,12 @@ void do_game_main(UI::Widget *, void *) {
 	cam.x = -100.f;
 	cam.y = 100.f;
 	cam.z = -100.f;
+	cam.z_angle = 0.f;
 
 	cam.vx = 0.f;
 	cam.vy = 0.f;
 	cam.vz = 0.f;
+	cam.vz_angle = 0.f;
 	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
 
 	UI::Label * delta_time = new UI::Label(ui_ctx, nullptr, 0, height - 24, "?");
@@ -556,16 +560,26 @@ void do_game_main(UI::Widget *, void *) {
 			case SDL_KEYDOWN:
 				switch(event.key.keysym.sym) {
 				case SDLK_UP:
-					cam.vy -= 0.02f * -cam.z;
+				case SDLK_w:
+					cam.vy -= fmin(4.f, fmax(0.5f, 0.02f * -cam.z));
 					break;
 				case SDLK_DOWN:
-					cam.vy += 0.02f * -cam.z;
+				case SDLK_s:
+					cam.vy += fmin(4.f, fmax(0.5f, 0.02f * -cam.z));
 					break;
 				case SDLK_LEFT:
-					cam.vx += 0.02f * -cam.z;
+				case SDLK_a:
+					cam.vx += fmin(4.f, fmax(0.5f, 0.02f * -cam.z));
 					break;
 				case SDLK_RIGHT:
-					cam.vx -= 0.02f * -cam.z;
+				case SDLK_d:
+					cam.vx -= fmin(4.f, fmax(0.5f, 0.02f * -cam.z));
+					break;
+				case SDLK_q:
+					cam.vz_angle -= fmin(4.f, fmax(0.01f, 0.02f * -cam.z));
+					break;
+				case SDLK_e:
+					cam.vz_angle += fmin(4.f, fmax(0.01f, 0.02f * -cam.z));
 					break;
 				}
 				break;
@@ -588,7 +602,7 @@ void do_game_main(UI::Widget *, void *) {
 		glLoadIdentity();
 		glRotatef(180.f, 1.0f, 0.0f, 0.0f);
 		glRotatef(0.f, 0.0f, 1.0f, 0.0f);
-		glRotatef(0.f, 0.0f, 0.0f, 1.0f);
+		glRotatef(cam.z_angle, 0.0f, 0.0f, 1.0f);
 		
 		render_province_mutex.lock();
 		if(render_province.size() >= 4) {
@@ -731,6 +745,10 @@ void do_game_main(UI::Widget *, void *) {
 		overview_time_label.text(ui_ctx, tmpbuf);
 		*/
 
+		cam.vx = fmin(16.f, cam.vx);
+		cam.vy = fmin(16.f, cam.vy);
+		cam.vz = fmin(16.f, cam.vz);
+
 		if(cam.vx >= 0.9f)
 			cam.vx -= 0.8f;
 		else if(cam.vx <= -0.9f)
@@ -751,10 +769,22 @@ void do_game_main(UI::Widget *, void *) {
 			cam.vz += 0.8f;
 		else
 			cam.vz = 0.f;
+		
+		if(cam.vz_angle >= 0.9f)
+			cam.vz_angle -= 0.8f;
+		else if(cam.vz_angle <= -0.9f)
+			cam.vz_angle += 0.8f;
+		else
+			cam.vz_angle = 0.f;
 
 		cam.x += cam.vx;
 		cam.y += cam.vy;
 		cam.z += cam.vz;
+		cam.z_angle += cam.vz_angle;
+
+		cam.x = -fmax(0.f, fmin((float)g_world->width, -cam.x));
+		cam.y = fmax(0.f, fmin((float)g_world->height, cam.y));
+		cam.z = -fmax(0.f, fmin(750.f, -cam.z));
 
 		uint32_t end_time = SDL_GetTicks();
 		sprintf(tmpbuf, "%d FPS", 1000 / (end_time - begin_time));
