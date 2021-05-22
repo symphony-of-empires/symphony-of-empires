@@ -17,6 +17,13 @@ enum UI_WidgetType {
 #include <SDL2/SDL_ttf.h>
 
 namespace UI {
+	class ActionTextures {
+	public:
+		Texture idle;
+		Texture hover;
+		Texture active;
+	};
+
 	class Widget;
 	class Context {
 	public:
@@ -35,17 +42,9 @@ namespace UI {
 		
 		std::vector<Widget *> widgets;
 
-		Texture arrow_idle;
-		Texture arrow_hover;
-		Texture arrow_active;
-
-		Texture button_idle;
-		Texture button_hover;
-		Texture button_active;
-
-		Texture input_idle;
-		Texture input_hover;
-		Texture input_active;
+		ActionTextures arrow;
+		ActionTextures button;
+		ActionTextures input;
 
 		Texture scroll_back;
 		Texture scroll_bar;
@@ -93,6 +92,7 @@ namespace UI {
 
 		char show;
 
+		ActionTextures * action_textures;
 		Texture * current_texture;
 		Texture * text_texture;
 

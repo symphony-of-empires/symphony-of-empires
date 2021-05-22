@@ -20,29 +20,29 @@ Context::Context() {
 		exit(EXIT_FAILURE);
 	}
 
-	this->arrow_active.from_file("ui/arrow_active.png");
-	this->arrow_hover.from_file("ui/arrow_hover.png");
-	this->arrow_idle.from_file("ui/arrow_idle.png");
-	this->button_active.from_file("ui/button_active.png");
-	this->button_hover.from_file("ui/button_hover.png");
-	this->button_idle.from_file("ui/button_idle.png");
-	this->input_active.from_file("ui/input_active.png");
-	this->input_hover.from_file("ui/input_hover.png");
-	this->input_idle.from_file("ui/input_idle.png");
+	this->arrow.active.from_file("ui/arrow_active.png");
+	this->arrow.hover.from_file("ui/arrow_hover.png");
+	this->arrow.idle.from_file("ui/arrow_idle.png");
+	this->button.active.from_file("ui/button_active.png");
+	this->button.hover.from_file("ui/button_hover.png");
+	this->button.idle.from_file("ui/button_idle.png");
+	this->input.active.from_file("ui/input_active.png");
+	this->input.hover.from_file("ui/input_hover.png");
+	this->input.idle.from_file("ui/input_idle.png");
 	this->scroll_back.from_file("ui/scroll_back.png");
 	this->scroll_bar.from_file("ui/scroll_bar.png");
 	this->window.from_file("ui/window.png");
 	this->window_border.from_file("ui/window_border.png");
 	
-	this->arrow_active.to_opengl();
-	this->arrow_hover.to_opengl();
-	this->arrow_idle.to_opengl();
-	this->button_active.to_opengl();
-	this->button_hover.to_opengl();
-	this->button_idle.to_opengl();
-	this->input_active.to_opengl();
-	this->input_hover.to_opengl();
-	this->input_idle.to_opengl();
+	this->arrow.active.to_opengl();
+	this->arrow.hover.to_opengl();
+	this->arrow.idle.to_opengl();
+	this->button.active.to_opengl();
+	this->button.hover.to_opengl();
+	this->button.idle.to_opengl();
+	this->input.active.to_opengl();
+	this->input.hover.to_opengl();
+	this->input.idle.to_opengl();
 	this->scroll_back.to_opengl();
 	this->scroll_bar.to_opengl();
 	this->window.to_opengl();
@@ -108,8 +108,9 @@ void Context::render_all() {
 		if(widget->show && widget->on_render != nullptr) {
 			widget->on_render(widget, (void *)this);
 
-			if(widget->on_update != nullptr)
+			if(widget->on_update != nullptr) {
 				widget->on_update(widget, (void *)this);
+			}
 		}
 	}
 	return;
@@ -122,18 +123,16 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
 		if(mx >= widget->x && mx <= widget->x + widget->width
 		&& my >= widget->y && my <= widget->y + widget->height
 		&& widget->show) {
-			if(widget->current_texture == &this->button_idle)
-				widget->current_texture = &this->button_hover;
-			else if(widget->current_texture == &this->input_idle)
-				widget->current_texture = &this->input_hover;
-			
+			if(widget->action_textures != nullptr
+			&& widget->current_texture == &widget->action_textures->idle)
+				widget->current_texture = &widget->action_textures->hover;
+
 			if(widget->on_hover != nullptr)
 				widget->on_hover(widget, widget->user_data);
 		} else {
-			if(widget->current_texture == &this->button_hover)
-				widget->current_texture = &this->button_idle;
-			else if(widget->current_texture == &this->input_hover)
-				widget->current_texture = &this->input_idle;
+			if(widget->action_textures != nullptr
+			&& widget->current_texture == &widget->action_textures->hover)
+				widget->current_texture = &widget->action_textures->idle;
 		}
 	}
 	return;
@@ -146,15 +145,8 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 		if(mx >= widget->x && mx <= widget->x + widget->width
 		&& my >= widget->y && my <= widget->y + widget->height
 		&& widget->show && widget->type != UI_WIDGET_WINDOW) {
-			switch(widget->type) {
-			case UI_WIDGET_BUTTON:
-				widget->current_texture = &this->button_active;;
-				break;
-			case UI_WIDGET_INPUT:
-				widget->current_texture = &this->input_active;
-				break;
-			default:
-				break;
+			if(widget->action_textures != nullptr) {
+				widget->current_texture = &widget->action_textures->active;
 			}
 			
 			if(widget->on_click != nullptr) {
@@ -162,18 +154,8 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 			}
 			return 1;
 		} else {
-			switch(widget->type) {
-			case UI_WIDGET_BUTTON:
-				widget->current_texture = &this->button_idle;;
-				break;
-			case UI_WIDGET_INPUT:
-				widget->current_texture = &this->input_idle;
-				break;
-			case UI_WIDGET_WINDOW:
-				widget->current_texture = &this->window;
-				break;
-			default:
-				break;
+			if(widget->action_textures != nullptr) {
+				widget->current_texture = &widget->action_textures->idle;
 			}
 		}
 	}
@@ -184,7 +166,7 @@ void Context::check_text_input(const char * input) {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		Widget * widget = this->widgets[i];
 		
-		if(widget->current_texture == &this->input_active
+		if(widget->current_texture == &this->input.active
 		&& widget->on_textinput != nullptr
 		&& widget->type == UI_WIDGET_INPUT
 		&& widget->show) {
@@ -378,12 +360,15 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 
 	// Only used for windows
 	Button * close_btn;
+	this->action_textures = nullptr;
 	switch(this->type) {
 	case UI_WIDGET_BUTTON:
-		this->current_texture = &ctx->button_idle;
+		this->action_textures = &ctx->button;
+		this->current_texture = &ctx->button.idle;
 		break;
 	case UI_WIDGET_INPUT:
-		this->current_texture = &ctx->input_idle;
+		this->action_textures = &ctx->input;
+		this->current_texture = &ctx->input.idle;
 		this->on_textinput = &default_on_text_input;
 		break;
 	case UI_WIDGET_WINDOW:
