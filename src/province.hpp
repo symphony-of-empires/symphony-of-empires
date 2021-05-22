@@ -10,6 +10,7 @@
 #define PROVINCE_NO_ONWER (size_t)-1
 
 class World;
+class Nation;
 class Province {
 public:
 	size_t get_id(World * world);
@@ -35,6 +36,9 @@ public:
 	float supply_rem;
 	
 	size_t worker_pool;
+
+	std::vector<Nation *> owners;
+	std::vector<Province *> neighbours;
 	
 	std::vector<size_t> stockpile;
 	std::vector<Industry *> industries;

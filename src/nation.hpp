@@ -10,6 +10,10 @@
 class NationRelation {
 public:
 	float relation;
+	
+	// Interest of a nation on this nation
+	float interest;
+
 	bool has_embargo;
 	bool has_war;
 	bool has_alliance;
@@ -66,7 +70,7 @@ public:
 
 	// Used for evaluations
 	std::vector<Province *> owned_provinces;
-	std::vector<Nation *> neighbour_nations;
+	std::vector<Nation *> neighbours;
 };
 
 #endif

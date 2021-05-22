@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/cdefs.h>
+#include <set>
+
+#include "province.hpp"
 #include "economy.hpp"
 #include "world.hpp"
 #include "texture.hpp"
@@ -133,7 +136,6 @@ World::World() {
 
 		// Associate tiles with nations
 		this->tiles[i].owner_id = (uint16_t)-1;
-
 		if(this->nations[last_nation_color_id]->color != pol.buffer[i]) {
 			for(size_t j = 0; j < n_nations; j++) {
 				if(pol.buffer[i] == this->nations[j]->color) {
@@ -156,6 +158,37 @@ World::World() {
 				
 				this->tiles[i].province_id = j;
 
+				const Tile * other_tile;
+
+				// Up neighbour
+				if(i > this->width) {
+					other_tile = &this->tiles[i - this->width];
+					if(other_tile->province_id != j) {
+						province->neighbours.push_back(this->provinces[other_tile->province_id]);
+					}
+				}
+				// Down neighbour
+				if(i < (this->width * this->height) - this->width) {
+					other_tile = &this->tiles[i + this->width];
+					if(other_tile->province_id != j) {
+						province->neighbours.push_back(this->provinces[other_tile->province_id]);
+					}
+				}
+				// Left neighbour
+				if(i > 1) {
+					other_tile = &this->tiles[i - 1];
+					if(other_tile->province_id != j) {
+						province->neighbours.push_back(this->provinces[other_tile->province_id]);
+					}
+				}
+				// Right neighbour
+				if(i < (this->width * this->height) - 1) {
+					other_tile = &this->tiles[i + 1];
+					if(other_tile->province_id != j) {
+						province->neighbours.push_back(this->provinces[other_tile->province_id]);
+					}
+				}
+
 				// Only evaluated when valid owner
 				if(this->tiles[i].owner_id != (uint16_t)-1) {
 					// If province had no owner before - now it has it!
@@ -168,6 +201,7 @@ World::World() {
 					&& province->owner_id != PROVINCE_NO_ONWER
 					&& province->owner_id != this->tiles[i].owner_id) {
 						province->owner_id = PROVINCE_DISPUTED;
+						province->owners.push_back(this->nations[this->tiles[i].owner_id]);
 					}
 				}
 				last_province_color_id = j;
@@ -232,6 +266,23 @@ World::World() {
 			province->max_y = this->height;
 		if(province->min_y > this->height)
 			province->min_y = this->height;
+		
+		// Remove duplicates
+		{
+			std::set<Nation *> s;
+			size_t size = province->owners.size();
+			for(size_t i = 0; i < size; i++) {
+				s.insert(province->owners[i]);
+			}
+			province->owners.assign(s.begin(), s.end());
+		} {
+			std::set<Province *> s;
+			size_t size = province->neighbours.size();
+			for(size_t i = 0; i < size; i++) {
+				s.insert(province->neighbours[i]);
+			}
+			province->neighbours.assign(s.begin(), s.end());
+		}
 
 		// Add stockpile
 		for(size_t i = 0; i < this->products.size(); i++) {
@@ -731,6 +782,9 @@ void World::do_tick() {
 	default:
 		break;
 	}
+
+	// Do diplomacy
+
 
 	const size_t n_provinces = this->provinces.size();
 
