@@ -767,11 +767,11 @@ void World::do_tick() {
 		for(auto& nation: this->nations) {
 			const float decay_per_cent = 5.f;
 			const float max_modifier = 10.f;
-			const float min_prestige = fmax(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2);
+			const float min_prestige = fmax(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
 
 			// Prestige cannot go below min prestige
 			nation->prestige = fmax(nation->prestige, min_prestige);
-			nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * fmin(fmax(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
+			nation->prestige += (nation->prestige * (decay_per_cent / 100.f)) * fmin(fmax(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
 		}
 		break;
 	// 12:00
@@ -798,8 +798,6 @@ void World::do_tick() {
 	}
 
 	// Do diplomacy
-
-
 	const size_t n_provinces = this->provinces.size();
 
 	// Evaluate units
