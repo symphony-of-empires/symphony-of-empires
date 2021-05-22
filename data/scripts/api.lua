@@ -152,4 +152,13 @@ function UnitType:register(unit_type)
 	unit_type.id = add_unit_type(unit_type.ref_name, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health)
 end
 
+-- For sanity
+function rgb(r, g, b)
+	local color = 0x000000
+	color = color | (r << 16)
+	color = color | (g << 8)
+	color = color | (b << 0)
+	return color
+end
+
 print("loaded api.lua")
