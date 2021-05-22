@@ -275,6 +275,7 @@ World::World() {
 				s.insert(province->owners[i]);
 			}
 			province->owners.assign(s.begin(), s.end());
+			province->owners.shrink_to_fit();
 		} {
 			std::set<Province *> s;
 			size_t size = province->neighbours.size();
@@ -282,6 +283,7 @@ World::World() {
 				s.insert(province->neighbours[i]);
 			}
 			province->neighbours.assign(s.begin(), s.end());
+			province->neighbours.shrink_to_fit();
 		}
 
 		// Add stockpile
@@ -294,7 +296,7 @@ World::World() {
 	for(auto& nation: this->nations) {
 		// Relations between nations start at 0
 		for(size_t i = 0; i < this->nations.size(); i++) {
-			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false});
+			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false, true});
 		}
 		nation->relations.shrink_to_fit();
 	}
@@ -757,8 +759,20 @@ void World::do_tick() {
 		this->do_economy_tick_1();
 		break;
 	// 7:30
+	// Busy hour, newspapers come out and people get mad
 	case 15:
 		this->do_economy_tick_2();
+
+		// Calculate prestige for today
+		for(auto& nation: this->nations) {
+			const float decay_per_cent = 5.f;
+			const float max_modifier = 10.f;
+			const int min_prestige = (int)((nation->naval_score + nation->military_score + nation->economy_score) / 2);
+
+			// Prestige cannot go below min prestige
+			nation->prestige = fmax(nation->prestige, min_prestige);
+			nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * fmin(fmax(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
+		}
 		break;
 	// 12:00
 	case 24:
