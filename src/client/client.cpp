@@ -862,7 +862,6 @@ void rendering_main(void) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
-	//glEnable(GL_CULL_FACE);
 
 	// Render g_world stuff now that we are in opengl
 	for(auto& nation: g_world->nations) {
