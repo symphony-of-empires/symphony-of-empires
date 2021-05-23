@@ -19,6 +19,7 @@ public:
 	Map() {};
 	Map(World * world);
 	
+	void draw(float zoom, bool display_topo);
 	void quad_create(size_t qx, size_t qy);
 	void quad_update_nation(size_t start_x, size_t start_y, size_t end_x, size_t end_y);
 
@@ -27,12 +28,13 @@ public:
 	size_t n_vert_quads;
 
 	GLuint * provinces_wire;
+	GLuint * provinces_fill;
+
 	GLuint * nations_wire;
+	GLuint * nations_fill;
 
 	GLuint * infrastructure_wire;
 
-	Texture ** province_texture;
-	Texture ** nation_texture;
 	Texture ** topo_texture;
 
 	Texture * cloud_textures[4];
