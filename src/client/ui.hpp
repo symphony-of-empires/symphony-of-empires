@@ -150,8 +150,8 @@ namespace UI {
 	class Label : public Widget {
 	public:
 		Label(Widget * _parent, int _x, int _y,
-			const char * text = nullptr, Texture * tex = nullptr)
-			: Widget(_parent, _x, _y, 0, 0, UI_WIDGET_LABEL, text, tex) {}
+			const char * text = nullptr)
+			: Widget(_parent, _x, _y, 0, 0, UI_WIDGET_LABEL, text, nullptr) {}
 		Label& operator=(const Label&) = default;
 		~Label() {};
 	};

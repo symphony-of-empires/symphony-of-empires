@@ -98,6 +98,12 @@ void do_game_main(UI::Widget *, void *) {
 	map = Map(g_world);
 
 	// Siderbar buttons
+	Texture debug_icon = Texture(Path::get("icons/debug.png").c_str());
+	debug_icon.to_opengl();
+	UI::Button * debug_btn = new UI::Button(nullptr, 8, 72 * 2, 64, 64);
+	UI::Image * debug_btn_icon = new UI::Image(debug_btn, 0, 0, 64, 64, nullptr, &debug_icon);
+	debug_btn_icon->on_click = &do_diplomacy_overview;
+
 	Texture diplomacy_icon = Texture(Path::get("icons/diplomacy.png").c_str());
 	diplomacy_icon.to_opengl();
 	UI::Button * diplomacy_btn = new UI::Button(nullptr, 8, 72 * 3, 64, 64);
@@ -314,35 +320,47 @@ void do_game_main(UI::Widget *, void *) {
 		if(display_topo) {
 			for(size_t qx = 0; qx < map.n_horz_quads; qx++) {
 				for(size_t qy = 0; qy < map.n_vert_quads; qy++) {
-					glBindTexture(GL_TEXTURE_2D, map.topo_tex[qy * map.n_horz_quads + qx]->gl_tex_num);
-					
 					const size_t x = qx * map.quad_size;
 					const size_t y = qy * map.quad_size;
 					
-					glBegin(GL_TRIANGLES);
-					glColor3f(1.f, 1.f, 1.f);
-					glTexCoord2f(0.f, 0.f);
-					glVertex2f(x, y);
-					glTexCoord2f(1.f, 0.f);
-					glVertex2f(x + map.quad_size, y);
-					glTexCoord2f(1.f, 1.f);
-					glVertex2f(x + map.quad_size, y + map.quad_size);
-					glTexCoord2f(1.f, 1.f);
-					glVertex2f(x + map.quad_size, y + map.quad_size);
-					glTexCoord2f(0.f, 1.f);
-					glVertex2f(x, y + map.quad_size);
-					glTexCoord2f(0.f, 0.f);
-					glVertex2f(x, y);
-					glEnd();
+					for(size_t i = 0; i < 3; i++) {
+						switch(i) {
+						case 0:
+							glBindTexture(GL_TEXTURE_2D, map.topo_texture[qy * map.n_horz_quads + qx]->gl_tex_num);
+							break;
+						case 1:
+							glBindTexture(GL_TEXTURE_2D, map.province_texture[qy * map.n_horz_quads + qx]->gl_tex_num);
+							break;
+						case 2:
+							glBindTexture(GL_TEXTURE_2D, map.nation_texture[qy * map.n_horz_quads + qx]->gl_tex_num);
+							break;
+						}
+						glBegin(GL_TRIANGLES);
+						glColor3f(1.f, 1.f, 1.f);
+						glTexCoord2f(0.f, 0.f);
+						glVertex2f(x, y);
+						glTexCoord2f(1.f, 0.f);
+						glVertex2f(x + map.quad_size, y);
+						glTexCoord2f(1.f, 1.f);
+						glVertex2f(x + map.quad_size, y + map.quad_size);
+						glTexCoord2f(1.f, 1.f);
+						glVertex2f(x + map.quad_size, y + map.quad_size);
+						glTexCoord2f(0.f, 1.f);
+						glVertex2f(x, y + map.quad_size);
+						glTexCoord2f(0.f, 0.f);
+						glVertex2f(x, y);
+						glEnd();
+					}
 				}
 			}
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glColor3f(1.f, 1.f, 1.f);
 		}
-		if(display_prov)
-			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.provinces_fill);
-		if(display_pol)
-			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.nations_fill);
+		//if(display_prov) {
+		//	glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.provinces_fill);
+		//} if(display_pol) {
+		//	glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.nations_fill);
+		//}
 		if(display_infra)
 			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.infrastructure_wire);
 		
@@ -671,6 +689,9 @@ void rendering_main(void) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	// Render g_world stuff now that we are in opengl
 	for(auto& nation: g_world->nations) {
