@@ -382,12 +382,11 @@ Widget::Widget(Widget * _parent, int _x, int _y, const unsigned w, const unsigne
 		break;
 	case UI_WIDGET_WINDOW:
 		this->current_texture = &g_ui_context->window;
+		this->is_movable = true;
 
 		close_btn = new Button(this, this->width - 24, -24, 24, 24, "X");
 		close_btn->on_click = &default_close_button_on_click;
 		close_btn->is_pinned = true;
-
-		this->is_movable = true;
 		break;
 	case UI_WIDGET_IMAGE:
 		this->current_texture = tex;

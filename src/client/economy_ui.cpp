@@ -4,8 +4,10 @@ extern World * g_world;
 extern int width;
 extern int height;
 
+static UI::Window * econ_win;
 static std::vector<UI::Widget *> wm_lab;
 static UI::Window * wm_win = nullptr;
+
 static void do_view_product_info(UI::Widget * w, void *) {
 	Product * product = (Product *)w->user_data;
 	UI::Window * prod_win = new UI::Window(nullptr, 96, 196, 512, 512);
@@ -41,7 +43,7 @@ static void do_world_market_overview_or(UI::Widget *, void *) {
 static void do_world_market_overview(UI::Widget *, void *) {
 	wm_lab.clear();
 
-	wm_win = new UI::Window(nullptr, 96, 196, 512 + 256 + 128, height - 256, "World market");
+	wm_win = new UI::Window(nullptr, width - 1024, econ_win->y, 512 + 256 + 128, height - 256, "World market");
 	wm_win->on_update = &do_world_market_overview_or;
 	for(size_t i = 0; i < g_world->products.size(); i++) {
 		UI::Label * lab;
@@ -61,9 +63,8 @@ static void do_world_market_overview(UI::Widget *, void *) {
 	}
 }
 
-static UI::Window * econ_win;
 void do_economy_overview(UI::Widget *, void *) {
-	econ_win = new UI::Window(nullptr, width - 512 - 256, 196, 512 + 256, height - 256, "Economy");
+	econ_win = new UI::Window(nullptr, width - 256, 196, 256, height - 256, "Economy");
 	
 	UI::Button * econ_wm_btn = new UI::Button(econ_win, 0, 0, 256, 24, "World market");
 	econ_wm_btn->on_click = &do_world_market_overview;

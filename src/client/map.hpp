@@ -27,14 +27,13 @@ public:
 	size_t n_vert_quads;
 
 	GLuint * provinces_wire;
-	GLuint * provinces_fill;
-
 	GLuint * nations_wire;
-	GLuint * nations_fill;
 
 	GLuint * infrastructure_wire;
 
-	Texture ** topo_tex;
+	Texture ** province_texture;
+	Texture ** nation_texture;
+	Texture ** topo_texture;
 
 	Texture * cloud_textures[4];
 	std::vector<Cloud> clouds;
