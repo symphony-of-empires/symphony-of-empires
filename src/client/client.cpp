@@ -316,96 +316,14 @@ void do_game_main(UI::Widget *, void *) {
 		}
 		render_province_mutex.unlock();
 
-		// Simpler than looping and indexing as x,y coord
-		if(display_topo) {
-			for(size_t qx = 0; qx < map.n_horz_quads; qx++) {
-				for(size_t qy = 0; qy < map.n_vert_quads; qy++) {
-					const size_t x = qx * map.quad_size;
-					const size_t y = qy * map.quad_size;
-					
-					for(size_t i = 0; i < 3; i++) {
-						switch(i) {
-						case 0:
-							glBindTexture(GL_TEXTURE_2D, map.topo_texture[qy * map.n_horz_quads + qx]->gl_tex_num);
-							break;
-						case 1:
-							glBindTexture(GL_TEXTURE_2D, map.province_texture[qy * map.n_horz_quads + qx]->gl_tex_num);
-							break;
-						case 2:
-							glBindTexture(GL_TEXTURE_2D, map.nation_texture[qy * map.n_horz_quads + qx]->gl_tex_num);
-							break;
-						}
-						glBegin(GL_TRIANGLES);
-						glColor3f(1.f, 1.f, 1.f);
-						glTexCoord2f(0.f, 0.f);
-						glVertex2f(x, y);
-						glTexCoord2f(1.f, 0.f);
-						glVertex2f(x + map.quad_size, y);
-						glTexCoord2f(1.f, 1.f);
-						glVertex2f(x + map.quad_size, y + map.quad_size);
-						glTexCoord2f(1.f, 1.f);
-						glVertex2f(x + map.quad_size, y + map.quad_size);
-						glTexCoord2f(0.f, 1.f);
-						glVertex2f(x, y + map.quad_size);
-						glTexCoord2f(0.f, 0.f);
-						glVertex2f(x, y);
-						glEnd();
-					}
-				}
-			}
-			glBindTexture(GL_TEXTURE_2D, 0);
-			glColor3f(1.f, 1.f, 1.f);
-		}
-		//if(display_prov) {
-		//	glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.provinces_fill);
-		//} if(display_pol) {
-		//	glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.nations_fill);
-		//}
-		if(display_infra)
-			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.infrastructure_wire);
-		
-		// Borders should always display, except division borders
-
-		// Detailed map (more zoom)
-		if(cam.z >= -400.f) {
-			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.provinces_wire);
-			
-			// Display all clouds
-			for(auto& cloud: map.clouds) {
-				const float x = cloud.x;
-				const float y = cloud.y;
-				const float size = 64.f;
-				
-				glBindTexture(GL_TEXTURE_2D, map.cloud_textures[cloud.type]->gl_tex_num);
-				glBegin(GL_TRIANGLES);
-				glColor3f(1.f, 1.f, 1.f);
-				glTexCoord2f(0.f, 0.f);
-				glVertex2f(x, y);
-				glTexCoord2f(1.f, 0.f);
-				glVertex2f(x + size, y);
-				glTexCoord2f(1.f, 1.f);
-				glVertex2f(x + size, y + size);
-				glTexCoord2f(1.f, 1.f);
-				glVertex2f(x + size, y + size);
-				glTexCoord2f(0.f, 1.f);
-				glVertex2f(x, y + size);
-				glTexCoord2f(0.f, 0.f);
-				glVertex2f(x, y);
-				glEnd();
-
-				cloud.x = (x < (float)-size) ? g_world->width : x;
-				cloud.x -= 0.5f;
-			}
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
-		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.nations_wire);
+		map.draw(cam.z, display_topo);
 
 		// Draw units
+		glColor3f(1.f, 1.f, 1.f);
 		for(size_t i = 0; i < g_world->units.size(); i++) {
 			Unit * unit = g_world->units[i];
 			glBindTexture(GL_TEXTURE_2D, g_world->nations[unit->owner_id]->default_flag->gl_tex_num);
 			glBegin(GL_TRIANGLES);
-			glColor3f(1.f, 1.f, 1.f);
 			glTexCoord2f(0.f, 0.f);
 			glVertex2f(unit->x, unit->y);
 			glTexCoord2f(1.f, 0.f);
@@ -419,7 +337,6 @@ void do_game_main(UI::Widget *, void *) {
 			glTexCoord2f(0.f, 0.f);
 			glVertex2f(unit->x, unit->y);
 			glEnd();
-			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		
 		for(const auto& unit: g_world->units) {
@@ -440,41 +357,6 @@ void do_game_main(UI::Widget *, void *) {
 		}
 		glLineWidth(1.f);
 		glEnd();
-		
-		for(size_t i = 0; i < map_province_names.size(); i++) {
-			//glBindTexture(GL_TEXTURE_2D, map_province_names[i]->text_texture->gl_tex_num);
-
-			const size_t start_x = g_world->provinces[i]->min_x;
-			const size_t start_y = g_world->provinces[i]->min_y;
-			const size_t end_x = g_world->provinces[i]->max_x;
-			const size_t end_y = g_world->provinces[i]->max_y;
-
-			/*glBegin(GL_LINE_STRIP);
-			glColor3f(1.f, 0.f, 0.f);
-			glTexCoord2f(0.f, 0.f);
-			glVertex2f(start_x, start_y);
-			glTexCoord2f(1.f, 0.f);
-			glVertex2f(end_x, start_y);
-			glTexCoord2f(1.f, 1.f);
-			glVertex2f(end_x, end_y);
-			glTexCoord2f(0.f, 1.f);
-			glVertex2f(start_x, end_y);
-			glTexCoord2f(0.f, 1.f);
-			glVertex2f(start_x, start_y);
-			glEnd();*/
-
-			/*glBegin(GL_QUADS);
-			glColor3f(1.f, 1.f, 1.f);
-			glTexCoord2f(0.f, 0.f);
-			glVertex2f(start_x, start_y);
-			glTexCoord2f(1.f, 0.f);
-			glVertex2f(end_x, start_y);
-			glTexCoord2f(1.f, 1.f);
-			glVertex2f(end_x, end_y);
-			glTexCoord2f(0.f, 1.f);
-			glVertex2f(start_x, end_y);
-			glEnd();*/
-		}
 
 		glBegin(GL_QUADS);
 		glColor3f(1.f, 1.f, 1.f);
@@ -484,7 +366,7 @@ void do_game_main(UI::Widget *, void *) {
 		glVertex2f(fmx, fmy + 1.f);
 		glEnd();
 		
-		//glPopMatrix();
+		glPopMatrix();
 		
 		glPushMatrix();
 		glMatrixMode(GL_PROJECTION);

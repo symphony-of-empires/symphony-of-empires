@@ -120,6 +120,16 @@ World::World() {
 		exit(EXIT_FAILURE);
 	}
 
+	// Shrink normally-not-resized vectors
+	this->provinces.shrink_to_fit();
+	this->nations.shrink_to_fit();
+	this->goods.shrink_to_fit();
+	this->industry_types.shrink_to_fit();
+	this->unit_types.shrink_to_fit();
+	this->cultures.shrink_to_fit();
+	this->religions.shrink_to_fit();
+	this->pop_types.shrink_to_fit();
+
 	for(auto& province: this->provinces) {
 		province->max_x = 0;
 		province->max_y = 0;
@@ -246,51 +256,49 @@ World::World() {
 	for(size_t i = 0; i < this->width; i++) {
 		for(size_t j = 0; j < this->height; j++) {
 			Tile * tile = &this->tiles[i + (j * this->width)];
-			for(size_t k = 0; k < this->provinces.size(); k++) {
-				if(tile->province_id == k) {
-					Province * province = this->provinces[k];
 
-					province->max_x = fmax(province->max_x, i);
-					province->max_y = fmax(province->max_y, j);
+			if(tile->province_id == (uint16_t)-1)
+				continue;
+
+			Province * province = this->provinces[tile->province_id];
+			province->max_x = fmax(province->max_x, i);
+			province->max_y = fmax(province->max_y, j);
 					
-					province->min_x = fmin(province->min_x, i);
-					province->min_y = fmin(province->min_y, j);
-				}
-			}
+			province->min_x = fmin(province->min_x, i);
+			province->min_y = fmin(province->min_y, j);
 		}
 	}
 
 	// Correct stuff from provinces
 	for(auto& province: this->provinces) {
-		// Limit stuff so labels and scanning dosen't go wild
 		province->max_x = fmin(this->width, province->max_x);
 		province->max_y = fmin(this->height, province->max_y);
-		province->min_x = fmin(province->max_x, province->min_y);
-		province->min_y = fmin(province->max_y, province->min_y);
-		
+
 		// Remove duplicates
 		{
 			std::set<Nation *> s;
-			size_t size = province->owners.size();
+			const size_t size = province->owners.size();
 			for(size_t i = 0; i < size; i++) {
 				s.insert(province->owners[i]);
 			}
 			province->owners.assign(s.begin(), s.end());
-			province->owners.shrink_to_fit();
 		} {
 			std::set<Province *> s;
-			size_t size = province->neighbours.size();
+			const size_t size = province->neighbours.size();
 			for(size_t i = 0; i < size; i++) {
 				s.insert(province->neighbours[i]);
 			}
 			province->neighbours.assign(s.begin(), s.end());
-			province->neighbours.shrink_to_fit();
 		}
 
 		// Add stockpile
 		for(size_t i = 0; i < this->products.size(); i++) {
 			province->stockpile.push_back(0);
 		}
+
+		// These will not change in a while
+		province->owners.shrink_to_fit();
+		province->neighbours.shrink_to_fit();
 	}
 
 	// Create diplomatic relations between nations
@@ -312,12 +320,6 @@ World::World() {
 		Nation * nation = this->nations[province->owner_id];
 		nation->owned_provinces.push_back(this->provinces[i]);
 	}
-
-	// Shrink normally-not-resized vectors
-	this->provinces.shrink_to_fit();
-	this->nations.shrink_to_fit();
-	this->goods.shrink_to_fit();
-	this->industry_types.shrink_to_fit();
 
 	ret = luaL_dofile(this->lua, Path::get("scripts/mod.lua").c_str());
 	if(ret) {
