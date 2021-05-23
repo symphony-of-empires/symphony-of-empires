@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "map.hpp"
+#include "path.hpp"
 
 Map map;
 
@@ -35,11 +36,32 @@ Map::Map(World * w) {
 		this->topo_tex[i] = new Texture(this->quad_size, this->quad_size);
 	}
 
+	this->cloud_textures[0] = new Texture(Path::get("cloud001.png").c_str());
+	this->cloud_textures[1] = new Texture(Path::get("cloud002.png").c_str());
+	this->cloud_textures[2] = new Texture(Path::get("cloud003.png").c_str());
+	this->cloud_textures[3] = new Texture(Path::get("cloud004.png").c_str());
+	for(auto& tex: this->cloud_textures) {
+		tex->to_opengl();
+	}
+
+	// Create quads
 	for(size_t i = 0; i < this->n_horz_quads; i++) {
 		for(size_t j = 0; j < this->n_vert_quads; j++) {
 			this->quad_create(i, j);
 		}
 	}
+
+	// Create initial clouds
+	this->clouds.reserve(100);
+	for(size_t i = 0; i < this->world->width; i++) {
+		for(size_t j = 0; j < this->world->height; j++) {
+			if(rand() % 10000)
+				continue;
+			
+			this->clouds.push_back(Cloud{i, j, rand() % 4});
+		}
+	}
+	this->clouds.shrink_to_fit();
 }
 
 // Triangle
@@ -331,7 +353,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 					| (color << 8)
 					| 0xff);
 			} else if(elevation <= this->world->sea_level + 1) {
-				uint8_t color = tile->elevation;
+				uint8_t color = tile->elevation + 96;
 				*comp = __bswap_32((color << 8) | 0xff);
 			}
 		}

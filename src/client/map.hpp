@@ -5,6 +5,13 @@
 #include <GL/gl.h>
 #include "world.hpp"
 
+class Cloud {
+public:
+	float x;
+	float y;
+	unsigned char type;
+};
+
 class Map {
 private:
 	World * world;
@@ -28,6 +35,9 @@ public:
 	GLuint * infrastructure_wire;
 
 	Texture ** topo_tex;
+
+	Texture * cloud_textures[4];
+	std::vector<Cloud> clouds;
 };
 
 extern Map map;
