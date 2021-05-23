@@ -88,10 +88,10 @@ Texture::~Texture() {
   * Converts the texture into a OpenGL texture, and assigns it a number
   */
 void Texture::to_opengl() {
-	for(size_t i = 0; i < this->width * this->height; i++) {
+	/*for(size_t i = 0; i < this->width * this->height; i++) {
 		uint32_t * comp = &this->buffer[i];
 		*comp &= 0xffe0e0e0;
-	}
+	}*/
 
 	glGenTextures(1, &this->gl_tex_num);
 	glBindTexture(GL_TEXTURE_2D, this->gl_tex_num);

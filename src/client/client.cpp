@@ -539,17 +539,10 @@ void do_game_main(UI::Widget *, void *) {
 				SDL_GetMouseState(&mx, &my);
 				ui_ctx->check_hover(mx, my);
 
-				fmx = mx - (width / 2.f);
-				fmx /= ((float)width / (-cam.z * 1.33f));
-
-				fmy = my - (height / 2.f);
-				fmy /= ((float)height / (-cam.z * 0.83f));
-
-				fmx += -cam.x;
+				fmx = (mx - (width / 2.f)) / ((float)width / (-cam.z * 1.33f));
+				fmy = (my - (height / 2.f)) / ((float)height / (-cam.z * 0.83f));
+				fmx -= cam.x;
 				fmy += cam.y;
-
-				fmx = (int)fmx;
-				fmy = (int)fmy;
 				tx = (int)fmx;
 				ty = (int)fmy;
 				break;
@@ -665,21 +658,40 @@ void do_game_main(UI::Widget *, void *) {
 			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.infrastructure_wire);
 		
 		// Borders should always display, except division borders
+
+		// Detailed map (more zoom)
 		if(cam.z >= -400.f) {
 			glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.provinces_wire);
+			
+			// Display all clouds
+			for(auto& cloud: map.clouds) {
+				const float x = cloud.x;
+				const float y = cloud.y;
+				const float size = 64.f;
+				
+				glBindTexture(GL_TEXTURE_2D, map.cloud_textures[cloud.type]->gl_tex_num);
+				glBegin(GL_TRIANGLES);
+				glColor3f(1.f, 1.f, 1.f);
+				glTexCoord2f(0.f, 0.f);
+				glVertex2f(x, y);
+				glTexCoord2f(1.f, 0.f);
+				glVertex2f(x + size, y);
+				glTexCoord2f(1.f, 1.f);
+				glVertex2f(x + size, y + size);
+				glTexCoord2f(1.f, 1.f);
+				glVertex2f(x + size, y + size);
+				glTexCoord2f(0.f, 1.f);
+				glVertex2f(x, y + size);
+				glTexCoord2f(0.f, 0.f);
+				glVertex2f(x, y);
+				glEnd();
+
+				cloud.x = (x < (float)-size) ? g_world->width : x;
+				cloud.x -= 0.5f;
+			}
+			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		glCallLists(map.n_horz_quads * map.n_vert_quads, GL_UNSIGNED_INT, map.nations_wire);
-			
-		glBegin(GL_POLYGON);
-		glColor3f(1.f, 1.f, 1.f);
-		glVertex2f(fmx, fmy);
-		glColor3f(1.f, 1.f, 1.f);
-		glVertex2f(fmx + 1.f, fmy);
-		glColor3f(1.f, 1.f, 1.f);
-		glVertex2f(fmx + 1.f, fmy + 1.f);
-		glColor3f(1.f, 1.f, 1.f);
-		glVertex2f(fmx, fmy + 1.f);
-		glEnd();
 
 		// Draw units
 		for(size_t i = 0; i < g_world->units.size(); i++) {
@@ -756,6 +768,14 @@ void do_game_main(UI::Widget *, void *) {
 			glVertex2f(start_x, end_y);
 			glEnd();*/
 		}
+
+		glBegin(GL_QUADS);
+		glColor3f(1.f, 1.f, 1.f);
+		glVertex2f(fmx, fmy);
+		glVertex2f(fmx + 1.f, fmy);
+		glVertex2f(fmx + 1.f, fmy + 1.f);
+		glVertex2f(fmx, fmy + 1.f);
+		glEnd();
 		
 		//glPopMatrix();
 		
