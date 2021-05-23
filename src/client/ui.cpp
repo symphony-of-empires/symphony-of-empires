@@ -200,10 +200,15 @@ int Context::check_wheel(unsigned mx, unsigned my, int y) {
 	return 0;
 }
 
+static unsigned latest_tex = 0;
 void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const unsigned tex) {
-	glBindTexture(GL_TEXTURE_2D, tex);
+	// Texture switching in OpenGL is expensive
+	if(latest_tex != tex) {
+		glBindTexture(GL_TEXTURE_2D, tex);
+		latest_tex = tex;
+	}
+
 	glBegin(GL_TRIANGLES);
-	glColor3f(1.f, 1.f, 1.f);
 	glTexCoord2f(0.f, 0.f);
 	glVertex2f(_x, _y);
 	glTexCoord2f(1.f, 0.f);
@@ -217,7 +222,6 @@ void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const unsi
 	glTexCoord2f(0.f, 0.f);
 	glVertex2f(_x, _y);
 	glEnd();
-	return;
 }
 
 #include <deque>
@@ -264,6 +268,7 @@ void default_on_render(Widget * w, void * data) {
 		glEnd();
 	}
 	
+	glColor3f(1.f, 1.f, 1.f);
 	if(w->type != UI_WIDGET_LABEL) {
 		w->draw_rectangle(
 			w->x, w->y,
