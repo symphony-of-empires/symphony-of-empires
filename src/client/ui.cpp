@@ -9,12 +9,20 @@
 #include "texture.hpp"
 #include "ui.hpp"
 #include "path.hpp"
+#include "print.hpp"
 
 using namespace UI;
+
+static Context * g_ui_context = nullptr;
 
 SDL_Color text_color = { 0, 0, 0, 0 };
 
 Context::Context() {
+	if(g_ui_context != nullptr) {
+		print_error("UI context already constructed\n");
+		exit(EXIT_FAILURE);
+	}
+
 	this->default_font = TTF_OpenFont(Path::get("fonts/FreeMono.ttf").c_str(), 24);
 	if(this->default_font == nullptr){
 		perror("font could not be loaded, exiting\n");
@@ -54,6 +62,9 @@ Context::Context() {
 	this->window_border.to_opengl();
 
 	this->widgets.clear();
+	this->widgets.reserve(150);
+
+	g_ui_context = this;
 	return;
 }
 
@@ -89,9 +100,7 @@ void Context::clear(void) {
 }
 
 void Context::render_all() {
-	for(size_t i = 0; i < this->widgets.size(); i++) {
-		Widget * widget = this->widgets[i];
-
+	for(auto& widget: this->widgets) {
 		// Widget below parent
 		if(widget->parent != nullptr
 		&& (widget->x + widget->width > widget->parent->x + widget->parent->width
@@ -140,9 +149,11 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
 }
 
 int Context::check_click(const unsigned mx, const unsigned my) {
-	for(const auto& widget: this->widgets) {
-		if(mx >= widget->x && mx <= widget->x + widget->width
-		&& my >= widget->y && my <= widget->y + widget->height
+	const size_t n_widget = this->widgets.size();
+	for(int i = n_widget - 1; i >= 0; i--) {
+		Widget * widget = this->widgets[i];
+		if((int)mx >= widget->x && mx <= widget->x + widget->width
+		&& (int)my >= widget->y && my <= widget->y + widget->height
 		&& widget->show && widget->type != UI_WIDGET_WINDOW) {
 			if(widget->action_textures != nullptr) {
 				widget->current_texture = &widget->action_textures->active;
@@ -163,13 +174,13 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 	return 0;
 }
 
-void Context::check_text_input(const char * input) {
+void Context::check_text_input(const char * _input) {
 	for(const auto& widget: this->widgets) {
 		if(widget->current_texture == &this->input.active
 		&& widget->on_textinput != nullptr
 		&& widget->type == UI_WIDGET_INPUT
 		&& widget->show) {
-			widget->on_textinput(widget, input, widget->user_data);
+			widget->on_textinput(widget, _input, widget->user_data);
 		}
 	}
 }
@@ -269,7 +280,7 @@ void default_on_render(Widget * w, void * data) {
 		w->draw_rectangle(
 			w->x, w->y - 24,
 			w->width, 24,
-			w->p_ctx->window_border.gl_tex_num
+			g_ui_context->window_border.gl_tex_num
 		);
 		if(w->text_texture != nullptr && w->text_texture->gl_tex_num) {
 			w->draw_rectangle(
@@ -316,7 +327,7 @@ void default_on_text_input(Widget * w, const char * input, void * data) {
 	}
 	strcat(w->buffer, input);
 
-	w->text(w->p_ctx, w->buffer);
+	w->text(w->buffer);
 	return;
 }
 
@@ -324,7 +335,7 @@ void default_close_button_on_click(Widget * w, void * data) {
 	delete w->parent;
 }
 
-Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
+Widget::Widget(Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
 	const char * text, Texture * tex) {
 	memset(this, 0, sizeof(Widget));
 	this->on_render = &default_on_render;
@@ -346,11 +357,8 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 		_parent->add_child(this);
 	}
 
-	// This is only used by destrctur :)
-	this->p_ctx = ctx;
-
 	// Add this widget once the widget is constructed
-	ctx->add_widget(this);
+	g_ui_context->add_widget(this);
 
 	// After this we can do some trickery and add any widgets we may need (close buttons, scrollbars, etc)
 
@@ -359,18 +367,18 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 	this->action_textures = nullptr;
 	switch(this->type) {
 	case UI_WIDGET_BUTTON:
-		this->action_textures = &ctx->button;
-		this->current_texture = &ctx->button.idle;
+		this->action_textures = &g_ui_context->button;
+		this->current_texture = &g_ui_context->button.idle;
 		break;
 	case UI_WIDGET_INPUT:
-		this->action_textures = &ctx->input;
-		this->current_texture = &ctx->input.idle;
+		this->action_textures = &g_ui_context->input;
+		this->current_texture = &g_ui_context->input.idle;
 		this->on_textinput = &default_on_text_input;
 		break;
 	case UI_WIDGET_WINDOW:
-		this->current_texture = &ctx->window;
+		this->current_texture = &g_ui_context->window;
 
-		close_btn = new Button(ctx, this, this->width - 24, -24, 24, 24, "X");
+		close_btn = new Button(this, this->width - 24, -24, 24, 24, "X");
 		close_btn->on_click = &default_close_button_on_click;
 		close_btn->is_pinned = true;
 
@@ -380,17 +388,17 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 		this->current_texture = tex;
 		break;
 	case UI_WIDGET_LABEL:
-		this->text(ctx, text);
+		this->text(text);
 		break;
 	case UI_WIDGET_CHECKBOX:
-		this->current_texture = ctx->checkbox_false;
+		this->current_texture = &g_ui_context->checkbox_false;
 		break;
 	default:
 		break;
 	}
 
 	if(text != nullptr) {
-		this->text(ctx, text);
+		this->text(text);
 	}
 }
 
@@ -402,7 +410,7 @@ Widget::~Widget() {
 	this->children.clear();
 
 	// Hide widget immediately upon destruction :(
-	this->p_ctx->remove_widget(this);
+	g_ui_context->remove_widget(this);
 }
 
 void Widget::move_by(int _x, int _y) {
@@ -423,7 +431,7 @@ void Widget::add_child(Widget * child) {
 	child->parent = this;
 }
 
-void Widget::text(Context * ctx, const char * text) {
+void Widget::text(const char * text) {
 	SDL_Surface * surface;
 	Texture * tex;
 
@@ -435,7 +443,7 @@ void Widget::text(Context * ctx, const char * text) {
 	this->text_texture = new Texture();
 	this->text_texture->gl_tex_num = 0;
 
-	surface = TTF_RenderUTF8_Solid(ctx->default_font, text, text_color);
+	surface = TTF_RenderUTF8_Solid(g_ui_context->default_font, text, text_color);
 	if(surface == nullptr) {
 		perror("cannot create text surface\n");
 		return;

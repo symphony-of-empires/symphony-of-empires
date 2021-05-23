@@ -60,7 +60,7 @@ namespace UI {
 	class Widget {
 	public:
 		Widget() {};
-		Widget(Context * ctx, Widget * parent, int x, int y, unsigned w, unsigned h, int type,
+		Widget(Widget * parent, int x, int y, unsigned w, unsigned h, int type,
 			const char * text = nullptr, Texture * tex = nullptr);
 		Widget(const Widget&) = default;
 		Widget(Widget&&) noexcept = default;
@@ -70,10 +70,8 @@ namespace UI {
 
 		void move_by(int x, int y);
 		void add_child(Widget * child);
-		void text(Context * ctx, const char * text);
+		void text(const char * text);
 		void draw_rectangle(int x, int y, unsigned w, unsigned h, unsigned tex);
-
-		Context * p_ctx;
 
 		bool is_movable;
 		bool is_pinned;
@@ -119,49 +117,49 @@ namespace UI {
 
 	class Button : public Widget {
 	public:
-		Button(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
+		Button(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
 			const char * text = nullptr, Texture * tex = nullptr)
-			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_BUTTON, text, tex) {}
+			: Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON, text, tex) {}
 		Button& operator=(const Button&) = default;
 		~Button() {};
 	};
 	class Input : public Widget {
 	public:
-		Input(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
+		Input(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
 			const char * text = nullptr, Texture * tex = nullptr)
-			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_INPUT, text, tex) {}
+			: Widget(_parent, _x, _y, w, h, UI_WIDGET_INPUT, text, tex) {}
 		Input& operator=(const Input&) = default;
 		~Input() {};
 	};
 	class Window : public Widget {
 	public:
-		Window(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
+		Window(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
 			const char * text = nullptr, Texture * tex = nullptr)
-			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_WINDOW, text, tex) {}
+			: Widget(_parent, _x, _y, w, h, UI_WIDGET_WINDOW, text, tex) {}
 		Window& operator=(const Window&) = default;
 		~Window() {};
 	};
 	class Image : public Widget {
 	public:
-		Image(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
+		Image(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
 			const char * text = nullptr, Texture * tex = nullptr)
-			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_IMAGE, text, tex) {}
+			: Widget(_parent, _x, _y, w, h, UI_WIDGET_IMAGE, text, tex) {}
 		Image& operator=(const Image&) = default;
 		~Image() {};
 	};
 	class Label : public Widget {
 	public:
-		Label(Context * ctx, Widget * _parent, int _x, int _y,
+		Label(Widget * _parent, int _x, int _y,
 			const char * text = nullptr, Texture * tex = nullptr)
-			: Widget(ctx, _parent, _x, _y, 0, 0, UI_WIDGET_LABEL, text, tex) {}
+			: Widget(_parent, _x, _y, 0, 0, UI_WIDGET_LABEL, text, tex) {}
 		Label& operator=(const Label&) = default;
 		~Label() {};
 	};
 	class Chart : public Widget {
 	public:
-		Chart(Context * ctx, Widget * _parent, int _x, int _y, unsigned w, unsigned h,
+		Chart(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
 			const char * text = nullptr, Texture * tex = nullptr)
-			: Widget(ctx, _parent, _x, _y, w, h, UI_WIDGET_CHART, text, tex) {}
+			: Widget(_parent, _x, _y, w, h, UI_WIDGET_CHART, text, tex) {}
 		Chart& operator=(const Chart&) = default;
 		~Chart() {};
 	};

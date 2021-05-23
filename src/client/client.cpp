@@ -82,13 +82,13 @@ static void do_build_unit_on_province_on_update(UI::Widget * w, void *) {
 
 	char * tmpbuf = new char[255];
 	sprintf(tmpbuf, "Available soldiers: %zu", avail_manpower);
-	avail_soldiers->text(ui_ctx, tmpbuf);
+	avail_soldiers->text(tmpbuf);
 	delete[] tmpbuf;
 }
 static void do_build_unit_on_province(UI::Widget * w, void *) {
 	Province * province = (Province *)w->user_data;
-	UI::Window * recruit_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512, 512, "Recruit units");
-	avail_soldiers = new UI::Label(ui_ctx, recruit_win, 0, 0, "?");
+	UI::Window * recruit_win = new UI::Window(nullptr, 96, 196, 512, 512, "Recruit units");
+	avail_soldiers = new UI::Label(recruit_win, 0, 0, "?");
 	avail_soldiers->user_data = province;
 	avail_soldiers->on_update = &do_build_unit_on_province_on_update;
 
@@ -96,7 +96,7 @@ static void do_build_unit_on_province(UI::Widget * w, void *) {
 	size_t y = 64;
 	for(const auto& unit_type: g_world->unit_types) {
 		sprintf(tmpbuf, "%s %4.2f attack, %4.2f defense, %4.2f health", unit_type->name.c_str(), unit_type->attack, unit_type->defense, unit_type->max_health);
-		UI::Button * recruit_unit = new UI::Button(ui_ctx, recruit_win, 0, y, 128, 24, tmpbuf);
+		UI::Button * recruit_unit = new UI::Button(recruit_win, 0, y, 128, 24, tmpbuf);
 		y += 24;
 	}
 	delete[] tmpbuf;
@@ -114,14 +114,14 @@ static void do_province_pop_overview_on_update(UI::Widget * w, void *) {
 	size_t y = 8;
 	for(const auto& pop: province->pops) {
 		sprintf(tmpbuf, "%s %s (%zu) %4.2f", g_world->cultures[pop->culture_id]->name.c_str(), g_world->pop_types[pop->type_id]->name.c_str(), pop->size, pop->budget);
-		UI::Label * lab = new UI::Label(ui_ctx, prov_pop_win, 8, y, tmpbuf);
+		UI::Label * lab = new UI::Label(prov_pop_win, 8, y, tmpbuf);
 		y += 24;
 		prov_pop_lab.push_back(lab);
 	}
 	delete[] tmpbuf;
 }
 static void do_province_overview_pops(UI::Widget * w, void *) {
-	prov_pop_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512, 512, "Province POPs");
+	prov_pop_win = new UI::Window(nullptr, 96, 196, 512, 512, "Province POPs");
 	prov_pop_win->user_data = w->user_data;
 	prov_pop_win->on_update = &do_province_pop_overview_on_update;
 	prov_pop_lab.clear();
@@ -130,7 +130,7 @@ static void do_province_overview_pops(UI::Widget * w, void *) {
 UI::Window * prov_win;
 static void do_province_overview() {
 	Province * province = g_world->provinces[selected_province_id];
-	prov_win = new UI::Window(ui_ctx, nullptr, width - 512, height / 2, 512, (height / 2) - 24, province->name.c_str());
+	prov_win = new UI::Window(nullptr, width - 512, height / 2, 512, (height / 2) - 24, province->name.c_str());
 	
 	char * str = new char[255];
 	if(province->owner_id == PROVINCE_DISPUTED) {
@@ -141,14 +141,14 @@ static void do_province_overview() {
 		sprintf(str, "%s", g_world->nations[province->owner_id]->name.c_str());
 	}
 
-	UI::Label * status = new UI::Label(ui_ctx, prov_win, 0, 0, str);
+	UI::Label * status = new UI::Label(prov_win, 0, 0, str);
 
 	if(province->owner_id == player_nation_id) {
-		UI::Button * recruit = new UI::Button(ui_ctx, prov_win, 0, 64, 128, 24, "Recruit");
+		UI::Button * recruit = new UI::Button(prov_win, 0, 64, 128, 24, "Recruit");
 		recruit->on_click = &do_build_unit_on_province;
 		recruit->user_data = province;
 
-		UI::Button * view_pop = new UI::Button(ui_ctx, prov_win, 0, 64 + 24, 128, 24, "View POPs");
+		UI::Button * view_pop = new UI::Button(prov_win, 0, 64 + 24, 128, 24, "View POPs");
 		view_pop->on_click = &do_province_overview_pops;
 		view_pop->user_data = province;
 	}
@@ -160,51 +160,51 @@ std::vector<UI::Widget *> wm_lab;
 UI::Window * wm_win = nullptr;
 static void do_view_product_info(UI::Widget * w, void *) {
 	Product * product = (Product *)w->user_data;
-	UI::Window * prod_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512, 512);
+	UI::Window * prod_win = new UI::Window(nullptr, 96, 196, 512, 512);
 
-	UI::Chart * supply_chart = new UI::Chart(ui_ctx, prod_win, 24, 0, 482, 64);
+	UI::Chart * supply_chart = new UI::Chart(prod_win, 24, 0, 482, 64);
 	supply_chart->user_data = &product->supply_history;
-	UI::Label * supply_chart_lab = new UI::Label(ui_ctx, prod_win, 24, 0, "Supply");
+	UI::Label * supply_chart_lab = new UI::Label(prod_win, 24, 0, "Supply");
 
-	UI::Chart * demand_chart = new UI::Chart(ui_ctx, prod_win, 24, 128, 482, 64);
+	UI::Chart * demand_chart = new UI::Chart(prod_win, 24, 128, 482, 64);
 	demand_chart->user_data = &product->demand_history;
-	UI::Label * demand_chart_lab = new UI::Label(ui_ctx, prod_win, 24, 128, "Demand");
+	UI::Label * demand_chart_lab = new UI::Label(prod_win, 24, 128, "Demand");
 
-	UI::Chart * price_chart = new UI::Chart(ui_ctx, prod_win, 24, 256, 482, 64);
+	UI::Chart * price_chart = new UI::Chart(prod_win, 24, 256, 482, 64);
 	price_chart->user_data = &product->price_history;
-	UI::Label * price_chart_lab = new UI::Label(ui_ctx, prod_win, 24, 256, "Price");
+	UI::Label * price_chart_lab = new UI::Label(prod_win, 24, 256, "Price");
 }
 static void do_world_market_overview_or(UI::Widget *, void *) {
 	const size_t n_labs = 4;
 	char * str = new char[255];
 	for(size_t i = 0; i < g_world->products.size(); i++) {
 		UI::Label * lab;
-		wm_lab[i * 5 + 0]->text(ui_ctx, g_world->goods[g_world->products[i]->good_id]->name.c_str());
+		wm_lab[i * 5 + 0]->text(g_world->goods[g_world->products[i]->good_id]->name.c_str());
 		sprintf(str, "%4.2f", g_world->products[i]->price);
-		wm_lab[i * 5 + 1]->text(ui_ctx, str);
+		wm_lab[i * 5 + 1]->text(str);
 		sprintf(str, "%4.2f", g_world->products[i]->price_vel);
-		wm_lab[i * 5 + 2]->text(ui_ctx, str);
-		wm_lab[i * 5 + 3]->text(ui_ctx, g_world->provinces[g_world->products[i]->origin_id]->name.c_str());
+		wm_lab[i * 5 + 2]->text(str);
+		wm_lab[i * 5 + 3]->text(g_world->provinces[g_world->products[i]->origin_id]->name.c_str());
 	}
 	delete[] str;
 }
 static void do_world_market_overview(UI::Widget *, void *) {
 	wm_lab.clear();
 
-	wm_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512 + 256 + 128, height - 256, "World market");
+	wm_win = new UI::Window(nullptr, 96, 196, 512 + 256 + 128, height - 256, "World market");
 	wm_win->on_update = &do_world_market_overview_or;
 	for(size_t i = 0; i < g_world->products.size(); i++) {
 		UI::Label * lab;
 		UI::Button * info;
-		lab = new UI::Label(ui_ctx, wm_win, 0, i * 24, "?");
+		lab = new UI::Label(wm_win, 0, i * 24, "?");
 		wm_lab.push_back(lab);
-		lab = new UI::Label(ui_ctx, wm_win, 128, i * 24, "?");
+		lab = new UI::Label(wm_win, 128, i * 24, "?");
 		wm_lab.push_back(lab);
-		lab = new UI::Label(ui_ctx, wm_win, 256, i * 24, "?");
+		lab = new UI::Label(wm_win, 256, i * 24, "?");
 		wm_lab.push_back(lab);
-		lab = new UI::Label(ui_ctx, wm_win, 400, i * 24, "?");
+		lab = new UI::Label(wm_win, 400, i * 24, "?");
 		wm_lab.push_back(lab);
-		info = new UI::Button(ui_ctx, wm_win, 700, i * 24, 32, 24, "?");
+		info = new UI::Button(wm_win, 700, i * 24, 32, 24, "?");
 		info->user_data = g_world->products[i];
 		info->on_click = &do_view_product_info;
 		wm_lab.push_back(info);
@@ -213,9 +213,9 @@ static void do_world_market_overview(UI::Widget *, void *) {
 
 UI::Window * econ_win;
 static void do_economy_overview(UI::Widget *, void *) {
-	econ_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512 + 256, height - 256, "Economy");
+	econ_win = new UI::Window(nullptr, width - 512 - 256, 196, 512 + 256, height - 256, "Economy");
 	
-	UI::Button * econ_wm_btn = new UI::Button(ui_ctx, econ_win, 0, 0, 256, 24, "World market");
+	UI::Button * econ_wm_btn = new UI::Button(econ_win, 0, 0, 256, 24, "World market");
 	econ_wm_btn->on_click = &do_world_market_overview;
 }
 
@@ -226,7 +226,7 @@ static void do_info_events_overview_or(UI::Widget *, void *) {
 	if((iev_lab.size() / n_labs) < g_world->events.size()) {
 		size_t i = iev_lab.size();
 		while(i < g_world->events.size()) {
-			UI::Label * lab = new UI::Label(ui_ctx, iev_win, 256, i * 24, g_world->events[i]->ref_name.c_str());
+			UI::Label * lab = new UI::Label(iev_win, 256, i * 24, g_world->events[i]->ref_name.c_str());
 			iev_lab.push_back(lab);
 			i++;
 		}
@@ -235,24 +235,24 @@ static void do_info_events_overview_or(UI::Widget *, void *) {
 		iev_lab.pop_back();
 	}
 	for(size_t i = 0; i < g_world->events.size(); i++) {
-		iev_lab[i * n_labs + 0]->text(ui_ctx, g_world->events[i]->ref_name.c_str());
+		iev_lab[i * n_labs + 0]->text(g_world->events[i]->ref_name.c_str());
 	}
 }
 static void do_info_events_overview(UI::Widget *, void *) {
-	iev_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Events");
+	iev_win = new UI::Window(nullptr, width - 512 - 256, 196, 512, height - 256, "Events");
 	iev_lab.clear();
 	iev_win->on_update = &do_info_events_overview_or;
 }
 std::vector<UI::Label *> iprov_lab;
 UI::Window * iprov_win;
 static void do_info_provinces_overview(UI::Widget *, void *) {
-	iprov_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Provinces");
+	iprov_win = new UI::Window(nullptr, width - 512 - 256, 196, 512, height - 256, "Provinces");
 
 	size_t i = 0;
 	for(auto& province: g_world->provinces) {
-		UI::Label * rn_lab = new UI::Label(ui_ctx, iprov_win, 0, i * 24, province->ref_name.c_str());
+		UI::Label * rn_lab = new UI::Label(iprov_win, 0, i * 24, province->ref_name.c_str());
 		iprov_lab.push_back(rn_lab);
-		UI::Label * name_lab = new UI::Label(ui_ctx, iprov_win, 256, i * 24, province->name.c_str());
+		UI::Label * name_lab = new UI::Label(iprov_win, 256, i * 24, province->name.c_str());
 		iprov_lab.push_back(name_lab);
 		i++;
 	}
@@ -260,13 +260,13 @@ static void do_info_provinces_overview(UI::Widget *, void *) {
 std::vector<UI::Label *> inat_lab;
 UI::Window * inat_win;
 static void do_info_nations_overview(UI::Widget *, void *) {
-	inat_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Nations");
+	inat_win = new UI::Window(nullptr, width - 512 - 256, 196, 512, height - 256, "Nations");
 
 	size_t i = 0;
 	for(auto& nation: g_world->nations) {
-		UI::Label * rn_lab = new UI::Label(ui_ctx, inat_win, 0, i * 24, nation->ref_name.c_str());
+		UI::Label * rn_lab = new UI::Label(inat_win, 0, i * 24, nation->ref_name.c_str());
 		inat_lab.push_back(rn_lab);
-		UI::Label * name_lab = new UI::Label(ui_ctx, inat_win, 256, i * 24, nation->name.c_str());
+		UI::Label * name_lab = new UI::Label(inat_win, 256, i * 24, nation->name.c_str());
 		inat_lab.push_back(name_lab);
 		i++;
 	}
@@ -274,13 +274,13 @@ static void do_info_nations_overview(UI::Widget *, void *) {
 std::vector<UI::Label *> ipt_lab;
 UI::Window * ipt_win;
 static void do_info_pop_types_overview(UI::Widget *, void *) {
-	ipt_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "POP types");
+	ipt_win = new UI::Window(nullptr, width - 512 - 256, 196, 512, height - 256, "POP types");
 
 	size_t i = 0;
 	for(auto& pop_type: g_world->pop_types) {
-		UI::Label * rn_lab = new UI::Label(ui_ctx, ipt_win, 0, i * 24, pop_type->ref_name.c_str());
+		UI::Label * rn_lab = new UI::Label(ipt_win, 0, i * 24, pop_type->ref_name.c_str());
 		ipt_lab.push_back(rn_lab);
-		UI::Label * name_lab = new UI::Label(ui_ctx, ipt_win, 256, i * 24, pop_type->name.c_str());
+		UI::Label * name_lab = new UI::Label(ipt_win, 256, i * 24, pop_type->name.c_str());
 		ipt_lab.push_back(name_lab);
 		i++;
 	}
@@ -288,13 +288,13 @@ static void do_info_pop_types_overview(UI::Widget *, void *) {
 std::vector<UI::Label *> icult_lab;
 UI::Window * icult_win;
 static void do_info_cultures_overview(UI::Widget *, void *) {
-	icult_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Cultures");
+	icult_win = new UI::Window(nullptr, width - 512 - 256, 196, 512, height - 256, "Cultures");
 
 	size_t i = 0;
 	for(auto& culture: g_world->cultures) {
-		UI::Label * rn_lab = new UI::Label(ui_ctx, icult_win, 0, i * 24, culture->ref_name.c_str());
+		UI::Label * rn_lab = new UI::Label(icult_win, 0, i * 24, culture->ref_name.c_str());
 		icult_lab.push_back(rn_lab);
-		UI::Label * name_lab = new UI::Label(ui_ctx, icult_win, 256, i * 24, culture->name.c_str());
+		UI::Label * name_lab = new UI::Label(icult_win, 256, i * 24, culture->name.c_str());
 		icult_lab.push_back(name_lab);
 		i++;
 	}
@@ -302,13 +302,13 @@ static void do_info_cultures_overview(UI::Widget *, void *) {
 std::vector<UI::Label *> irel_lab;
 UI::Window * irel_win;
 static void do_info_religions_overview(UI::Widget *, void *) {
-	irel_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Religions");
+	irel_win = new UI::Window(nullptr, width - 512 - 256, 196, 512, height - 256, "Religions");
 
 	size_t i = 0;
 	for(auto& religion: g_world->religions) {
-		UI::Label * rn_lab = new UI::Label(ui_ctx, irel_win, 0, i * 24, religion->ref_name.c_str());
+		UI::Label * rn_lab = new UI::Label(irel_win, 0, i * 24, religion->ref_name.c_str());
 		irel_lab.push_back(rn_lab);
-		UI::Label * name_lab = new UI::Label(ui_ctx, irel_win, 256, i * 24, religion->name.c_str());
+		UI::Label * name_lab = new UI::Label(irel_win, 256, i * 24, religion->name.c_str());
 		irel_lab.push_back(name_lab);
 		i++;
 	}
@@ -317,29 +317,29 @@ std::vector<UI::Widget *> iit_lab;
 UI::Window * iit_win;
 static void do_view_industry_type_info(UI::Widget * w, void *) {
 	IndustryType * industry = (IndustryType *)w->user_data;
-	UI::Window * iit_win = new UI::Window(ui_ctx, nullptr, 96, 196, 512, 512, industry->name.c_str());
-	UI::Image * image = new UI::Image(ui_ctx, iit_win, 8, 8, 320, 320, nullptr, industry->image);
+	UI::Window * iit_win = new UI::Window(nullptr, 96, 196, 512, 512, industry->name.c_str());
+	UI::Image * image = new UI::Image(iit_win, 8, 8, 320, 320, nullptr, industry->image);
 
 	size_t y = 8;
 	for(auto& input: industry->inputs) {
-		UI::Image * icon = new UI::Image(ui_ctx, iit_win, 336, 8 + y, 24, 24, nullptr, g_world->goods[input]->icon);
+		UI::Image * icon = new UI::Image(iit_win, 336, 8 + y, 24, 24, nullptr, g_world->goods[input]->icon);
 		y += 24;
 	}
 
 	y = 8;
 	for(auto& output: industry->outputs) {
-		UI::Image * icon = new UI::Image(ui_ctx, iit_win, 336 + 64, 8 + y, 24, 24, nullptr, g_world->goods[output]->icon);
+		UI::Image * icon = new UI::Image(iit_win, 336 + 64, 8 + y, 24, 24, nullptr, g_world->goods[output]->icon);
 		y += 24;
 	}
 }
 static void do_info_industry_types_overview(UI::Widget *, void *) {
-	iit_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Industry Types");
+	iit_win = new UI::Window(nullptr, width - 512 - 256, 196, 512, height - 256, "Industry Types");
 
 	size_t i = 0;
 	for(auto& industry_type: g_world->industry_types) {
-		UI::Label * rn_lab = new UI::Label(ui_ctx, iit_win, 0, i * 24, industry_type->name.c_str());
+		UI::Label * rn_lab = new UI::Label(iit_win, 0, i * 24, industry_type->name.c_str());
 		iit_lab.push_back(rn_lab);
-		UI::Button * info = new UI::Button(ui_ctx, iit_win, 256, i * 24, 32, 24, "?");
+		UI::Button * info = new UI::Button(iit_win, 256, i * 24, 32, 24, "?");
 		info->user_data = g_world->industry_types[i];
 		info->on_click = &do_view_industry_type_info;
 		iit_lab.push_back(info);
@@ -349,45 +349,45 @@ static void do_info_industry_types_overview(UI::Widget *, void *) {
 std::vector<UI::Label *> igood_lab;
 UI::Window * igood_win;
 static void do_info_goods_overview(UI::Widget *, void *) {
-	igood_win = new UI::Window(ui_ctx, nullptr, width - 512 - 256, 196, 512, height - 256, "Goods");
+	igood_win = new UI::Window(nullptr, width - 512 - 256, 196, 512, height - 256, "Goods");
 
 	size_t i = 0;
 	for(auto& good: g_world->goods) {
-		UI::Label * rn_lab = new UI::Label(ui_ctx, igood_win, 0, i * 24, good->ref_name.c_str());
+		UI::Label * rn_lab = new UI::Label(igood_win, 0, i * 24, good->ref_name.c_str());
 		igood_lab.push_back(rn_lab);
-		UI::Label * name_lab = new UI::Label(ui_ctx, igood_win, 256, i * 24, good->name.c_str());
+		UI::Label * name_lab = new UI::Label(igood_win, 256, i * 24, good->name.c_str());
 		igood_lab.push_back(name_lab);
 		i++;
 	}
 }
 static void do_info_overview(UI::Widget *, void *) {
-	UI::Window * info_win = new UI::Window(ui_ctx, nullptr, width - 256, 196, 256, height - 256, "Debug info");
+	UI::Window * info_win = new UI::Window(nullptr, width - 256, 196, 256, height - 256, "Debug info");
 	
-	UI::Button * info_event_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 0, 256, 24, "Events");
+	UI::Button * info_event_btn = new UI::Button(info_win, 0, 32 * 0, 256, 24, "Events");
 	info_event_btn->on_click = &do_info_events_overview;
-	UI::Button * info_province_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 1, 256, 24, "Provinces");
+	UI::Button * info_province_btn = new UI::Button(info_win, 0, 32 * 1, 256, 24, "Provinces");
 	info_province_btn->on_click = &do_info_provinces_overview;
-	UI::Button * info_nation_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 2, 256, 24, "Nations");
+	UI::Button * info_nation_btn = new UI::Button(info_win, 0, 32 * 2, 256, 24, "Nations");
 	info_nation_btn->on_click = &do_info_nations_overview;
-	UI::Button * info_pop_type_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 3, 256, 24, "Pop types");
+	UI::Button * info_pop_type_btn = new UI::Button(info_win, 0, 32 * 3, 256, 24, "Pop types");
 	info_pop_type_btn->on_click = &do_info_pop_types_overview;
-	UI::Button * info_culture_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 4, 256, 24, "Cultures");
+	UI::Button * info_culture_btn = new UI::Button(info_win, 0, 32 * 4, 256, 24, "Cultures");
 	info_culture_btn->on_click = &do_info_cultures_overview;
-	UI::Button * info_religion_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 5, 256, 24, "Religions");
+	UI::Button * info_religion_btn = new UI::Button(info_win, 0, 32 * 5, 256, 24, "Religions");
 	info_religion_btn->on_click = &do_info_religions_overview;
-	UI::Button * info_industry_type_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 6, 256, 24, "Industry types");
+	UI::Button * info_industry_type_btn = new UI::Button(info_win, 0, 32 * 6, 256, 24, "Industry types");
 	info_industry_type_btn->on_click = &do_info_industry_types_overview;
-	UI::Button * info_good_btn = new UI::Button(ui_ctx, info_win, 0, 32 * 7, 256, 24, "Goods");
+	UI::Button * info_good_btn = new UI::Button(info_win, 0, 32 * 7, 256, 24, "Goods");
 	info_good_btn->on_click = &do_info_goods_overview;
 }
 
 static void do_diplomacy_overview(UI::Widget *, void *) {
-	UI::Window * diplomacy_win = new UI::Window(ui_ctx, nullptr, 128, 128, 256 + 128, height - 128, "Diplomacy");
+	UI::Window * diplomacy_win = new UI::Window(nullptr, 128, 128, 256 + 128, height - 128, "Diplomacy");
 	
 	for(size_t i = 0; i < g_world->nations.size(); i++) {
-		UI::Image * flag = new UI::Image(ui_ctx, diplomacy_win, 0, i * 32, 48, 24, nullptr, g_world->nations[i]->default_flag);
-		UI::Label * lab = new UI::Label(ui_ctx, diplomacy_win, 48, i * 32, g_world->nations[i]->name.c_str());
-		UI::Button * btn = new UI::Button(ui_ctx, diplomacy_win, 256, i * 32, 64, 24, "Meet");
+		UI::Image * flag = new UI::Image(diplomacy_win, 0, i * 32, 48, 24, nullptr, g_world->nations[i]->default_flag);
+		UI::Label * lab = new UI::Label(diplomacy_win, 48, i * 32, g_world->nations[i]->name.c_str());
+		UI::Button * btn = new UI::Button(diplomacy_win, 256, i * 32, 64, 24, "Meet");
 	}
 }
 
@@ -411,58 +411,58 @@ void do_game_main(UI::Widget *, void *) {
 	// Siderbar buttons
 	Texture diplomacy_icon = Texture(Path::get("icons/diplomacy.png").c_str());
 	diplomacy_icon.to_opengl();
-	UI::Button * diplomacy_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 3, 64, 64);
-	UI::Image * diplomacy_btn_icon = new UI::Image(ui_ctx, diplomacy_btn, 0, 0, 64, 64, nullptr, &diplomacy_icon);
+	UI::Button * diplomacy_btn = new UI::Button(nullptr, 8, 72 * 3, 64, 64);
+	UI::Image * diplomacy_btn_icon = new UI::Image(diplomacy_btn, 0, 0, 64, 64, nullptr, &diplomacy_icon);
 	diplomacy_btn_icon->on_click = &do_diplomacy_overview;
 
 	Texture help_icon = Texture(Path::get("icons/help.png").c_str());
 	help_icon.to_opengl();
-	UI::Button * help_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 4, 64, 64);
-	UI::Image * help_btn_icon = new UI::Image(ui_ctx, help_btn, 0, 0, 64, 64, nullptr, &help_icon);
+	UI::Button * help_btn = new UI::Button( nullptr, 8, 72 * 4, 64, 64);
+	UI::Image * help_btn_icon = new UI::Image(help_btn, 0, 0, 64, 64, nullptr, &help_icon);
 	help_btn_icon->on_click = &do_info_overview;
 
 	Texture budget_icon = Texture(Path::get("icons/budget.png").c_str());
 	budget_icon.to_opengl();
-	UI::Button * budget_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 5, 64, 64);
-	UI::Image * budget_btn_icon = new UI::Image(ui_ctx, budget_btn, 0, 0, 64, 64, nullptr, &budget_icon);
+	UI::Button * budget_btn = new UI::Button(nullptr, 8, 72 * 5, 64, 64);
+	UI::Image * budget_btn_icon = new UI::Image(budget_btn, 0, 0, 64, 64, nullptr, &budget_icon);
 	budget_btn_icon->on_click = &do_economy_overview;
 
 	Texture pol_view_icon = Texture(Path::get("icons/pol_view.png").c_str());
 	pol_view_icon.to_opengl();
-	UI::Button * pol_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 6, 64, 64);
-	UI::Image * pol_view_btn_icon = new UI::Image(ui_ctx, pol_view_btn, 0, 0, 64, 64, nullptr, &pol_view_icon);
+	UI::Button * pol_view_btn = new UI::Button(nullptr, 8, 72 * 6, 64, 64);
+	UI::Image * pol_view_btn_icon = new UI::Image(pol_view_btn, 0, 0, 64, 64, nullptr, &pol_view_icon);
 	pol_view_btn_icon->on_click = &do_view_pol_map;
 
 	Texture prov_view_icon = Texture(Path::get("icons/prov_view.png").c_str());
 	prov_view_icon.to_opengl();
-	UI::Button * prov_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 7, 64, 64);
-	UI::Image * prov_view_btn_icon = new UI::Image(ui_ctx, prov_view_btn, 0, 0, 64, 64, nullptr, &prov_view_icon);
+	UI::Button * prov_view_btn = new UI::Button(nullptr, 8, 72 * 7, 64, 64);
+	UI::Image * prov_view_btn_icon = new UI::Image(prov_view_btn, 0, 0, 64, 64, nullptr, &prov_view_icon);
 	prov_view_btn_icon->on_click = &do_view_prov_map;
 
 	Texture topo_view_icon = Texture(Path::get("icons/topo_view.png").c_str());
 	topo_view_icon.to_opengl();
-	UI::Button * topo_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 8, 64, 64);
-	UI::Image * topo_view_btn_icon = new UI::Image(ui_ctx, topo_view_btn, 0, 0, 64, 64, nullptr, &topo_view_icon);
+	UI::Button * topo_view_btn = new UI::Button(nullptr, 8, 72 * 8, 64, 64);
+	UI::Image * topo_view_btn_icon = new UI::Image(topo_view_btn, 0, 0, 64, 64, nullptr, &topo_view_icon);
 	topo_view_btn_icon->on_click = &do_view_topo_map;
 
 	Texture infra_view_icon = Texture(Path::get("icons/infra_view.png").c_str());
 	infra_view_icon.to_opengl();
-	UI::Button * infra_view_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 9, 64, 64);
-	UI::Image * infra_view_btn_icon = new UI::Image(ui_ctx, infra_view_btn, 0, 0, 64, 64, nullptr, &infra_view_icon);
+	UI::Button * infra_view_btn = new UI::Button( nullptr, 8, 72 * 9, 64, 64);
+	UI::Image * infra_view_btn_icon = new UI::Image(infra_view_btn, 0, 0, 64, 64, nullptr, &infra_view_icon);
 	infra_view_btn_icon->on_click = &do_view_infra_map;
 
 	Texture exit_icon = Texture(Path::get("icons/exit.png").c_str());
 	exit_icon.to_opengl();
-	UI::Button * exit_btn = new UI::Button(ui_ctx, nullptr, 8, 72 * 10, 64, 64);
-	UI::Image * exit_btn_icon = new UI::Image(ui_ctx, exit_btn, 0, 0, 64, 64, nullptr, &exit_icon);
+	UI::Button * exit_btn = new UI::Button(nullptr, 8, 72 * 10, 64, 64);
+	UI::Image * exit_btn_icon = new UI::Image(exit_btn, 0, 0, 64, 64, nullptr, &exit_icon);
 	exit_btn_icon->on_click = &do_exit;
 
 	// Top nation view
-	UI::Window * top_win = new UI::Window(ui_ctx, nullptr, 0, 24, width / 2, 64, g_world->nations[player_nation_id]->name.c_str());
-	UI::Image * top_flag = new UI::Image(ui_ctx, top_win, 8, 8, 96, 48, nullptr, g_world->nations[player_nation_id]->default_flag);
-	UI::Label * top_prestige = new UI::Label(ui_ctx, top_win, 128, 8, "?");
-	UI::Label * top_literacy = new UI::Label(ui_ctx, top_win, 256, 8, "?");
-	UI::Label * top_diplomacy_pts = new UI::Label(ui_ctx, top_win, 128, 32, "?");
+	UI::Window * top_win = new UI::Window(nullptr, 0, 24, width / 2, 64, g_world->nations[player_nation_id]->name.c_str());
+	UI::Image * top_flag = new UI::Image(top_win, 8, 8, 96, 48, nullptr, g_world->nations[player_nation_id]->default_flag);
+	UI::Label * top_prestige = new UI::Label(top_win, 128, 8, "?");
+	UI::Label * top_literacy = new UI::Label(top_win, 256, 8, "?");
+	UI::Label * top_diplomacy_pts = new UI::Label(top_win, 128, 32, "?");
 
 	Camera cam;
 	cam.x = -100.f;
@@ -476,12 +476,12 @@ void do_game_main(UI::Widget *, void *) {
 	cam.vz_angle = 0.f;
 	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
 
-	UI::Label * delta_time = new UI::Label(ui_ctx, nullptr, 0, height - 24, "?");
+	UI::Label * delta_time = new UI::Label(nullptr, 0, height - 24, "?");
 
 	std::vector<UI::Label *> map_province_names;
 	map_province_names.reserve(g_world->nations.size());
 	for(auto& province: g_world->provinces) {
-		UI::Label * lab = new UI::Label(ui_ctx, nullptr, 0, 0, province->name.c_str());
+		UI::Label * lab = new UI::Label(nullptr, 0, 0, province->name.c_str());
 		map_province_names.push_back(lab);
 	}
 	
@@ -806,7 +806,7 @@ void do_game_main(UI::Widget *, void *) {
 		month %= 12;
 
 		sprintf(tmpbuf, "%u/%u/%u - %u", year, month, day, hour);
-		overview_time_label.text(ui_ctx, tmpbuf);
+		overview_time_label.text(tmpbuf);
 		*/
 
 		cam.vx = fmin(16.f, cam.vx);
@@ -852,14 +852,14 @@ void do_game_main(UI::Widget *, void *) {
 
 		uint32_t end_time = SDL_GetTicks();
 		sprintf(tmpbuf, "%d FPS", 1000 / (end_time - begin_time));
-		delta_time->text(ui_ctx, tmpbuf);
+		delta_time->text(tmpbuf);
 
 		sprintf(tmpbuf, "P %4.2f", g_world->nations[player_nation_id]->prestige);
-		top_prestige->text(ui_ctx, tmpbuf);
+		top_prestige->text(tmpbuf);
 		sprintf(tmpbuf, "L %4.2f", g_world->nations[player_nation_id]->base_literacy * 100);
-		top_literacy->text(ui_ctx, tmpbuf);
+		top_literacy->text(tmpbuf);
 		sprintf(tmpbuf, "D %4.2f", g_world->nations[player_nation_id]->diplomacy_points);
-		top_diplomacy_pts->text(ui_ctx, tmpbuf);
+		top_diplomacy_pts->text(tmpbuf);
 	}
 	delete[] tmpbuf;
 }
@@ -881,19 +881,19 @@ void do_select_nation(UI::Widget *, void *) {
 
 	Texture menu_bg = Texture(Path::get("title_bg.png").c_str());
 	menu_bg.to_opengl();
-	UI::Image * menu_bg_img = new UI::Image(ui_ctx, nullptr, 0, 0, width, height, nullptr, &menu_bg);
+	UI::Image * menu_bg_img = new UI::Image(nullptr, 0, 0, width, height, nullptr, &menu_bg);
 
-	UI::Label * lab = new UI::Label(ui_ctx, nullptr, 64, 64, "Select nation");
+	UI::Label * lab = new UI::Label(nullptr, 64, 64, "Select nation");
 
-	UI::Window * select_window = new UI::Window(ui_ctx, nullptr, 64, 128, 512, 512);
+	UI::Window * select_window = new UI::Window(nullptr, 64, 128, 512, 512);
 	for(size_t i = 0; i < g_world->nations.size(); i++) {
-		UI::Image * flag = new UI::Image(ui_ctx, select_window, 0, i * 52, 96, 48, nullptr, g_world->nations[i]->default_flag);
+		UI::Image * flag = new UI::Image(select_window, 0, i * 52, 96, 48, nullptr, g_world->nations[i]->default_flag);
 		flag->user_data = (void *)g_world->nations[i];
 		flag->on_click = &do_select_nation_via_flag;
-		UI::Label * name = new UI::Label(ui_ctx, select_window, 96, i * 52, g_world->nations[i]->name.c_str());
+		UI::Label * name = new UI::Label(select_window, 96, i * 52, g_world->nations[i]->name.c_str());
 	}
 
-	UI::Button * play = new UI::Button(ui_ctx, nullptr, 64, 640, 128, 24, "Play");
+	UI::Button * play = new UI::Button(nullptr, 64, 640, 128, 24, "Play");
 	play->on_click = &do_game_main;
 
 	while(run) {
@@ -998,11 +998,11 @@ void rendering_main(void) {
 
 	Texture menu_bg = Texture(Path::get("title_bg.png").c_str());
 	menu_bg.to_opengl();
-	UI::Image * menu_bg_img = new UI::Image(ui_ctx, nullptr, 0, 0, width, height, nullptr, &menu_bg);
+	UI::Image * menu_bg_img = new UI::Image(nullptr, 0, 0, width, height, nullptr, &menu_bg);
 	Texture menu_title = Texture(Path::get("title.png").c_str());
 	menu_title.to_opengl();
-	UI::Image * menu_title_img = new UI::Image(ui_ctx, nullptr, 64, 8, 320, 128, nullptr, &menu_title);
-	UI::Button * new_game = new UI::Button(ui_ctx, nullptr, 64, 196, 256, 24, "New game");
+	UI::Image * menu_title_img = new UI::Image(nullptr, 64, 8, 320, 128, nullptr, &menu_title);
+	UI::Button * new_game = new UI::Button(nullptr, 64, 196, 256, 24, "New game");
 	new_game->on_click = &do_select_nation;
 	while(run) {
 		SDL_Event event;
