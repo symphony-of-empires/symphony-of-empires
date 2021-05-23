@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <algorithm>
 #include "texture.hpp"
 #include "ui.hpp"
 #include "path.hpp"
@@ -31,6 +32,8 @@ Context::Context() {
 	this->input.idle.from_file("ui/input_idle.png");
 	this->scroll_back.from_file("ui/scroll_back.png");
 	this->scroll_bar.from_file("ui/scroll_bar.png");
+	this->checkbox_true.from_file("ui/checkbox_true.png");
+	this->checkbox_false.from_file("ui/checkbox_false.png");
 	this->window.from_file("ui/window.png");
 	this->window_border.from_file("ui/window_border.png");
 	
@@ -45,6 +48,8 @@ Context::Context() {
 	this->input.idle.to_opengl();
 	this->scroll_back.to_opengl();
 	this->scroll_bar.to_opengl();
+	this->checkbox_true.to_opengl();
+	this->checkbox_false.to_opengl();
 	this->window.to_opengl();
 	this->window_border.to_opengl();
 
@@ -56,10 +61,8 @@ void Context::add_widget(Widget * widget) {
 	widget->show = 1;
 
 	// Not already here
-	for(size_t i = 0; i < this->widgets.size(); i++) {
-		if(this->widgets[i] == widget)
-			return;
-	}
+	if(std::count(this->widgets.begin(), this->widgets.end(), widget))
+		return;
 
 	this->widgets.push_back(widget);
 	return;
@@ -117,11 +120,9 @@ void Context::render_all() {
 }
 
 void Context::check_hover(const unsigned mx, const unsigned my) {
-	for(size_t i = 0; i < this->widgets.size(); i++) {
-		Widget * widget = this->widgets[i];
-
-		if(mx >= widget->x && mx <= widget->x + widget->width
-		&& my >= widget->y && my <= widget->y + widget->height
+	for(const auto& widget: this->widgets) {
+		if((int)mx >= widget->x && mx <= widget->x + widget->width
+		&& (int)my >= widget->y && my <= widget->y + widget->height
 		&& widget->show) {
 			if(widget->action_textures != nullptr
 			&& widget->current_texture == &widget->action_textures->idle)
@@ -139,9 +140,7 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
 }
 
 int Context::check_click(const unsigned mx, const unsigned my) {
-	for(int i = this->widgets.size() - 1; i >= 0; i--) {
-		Widget * widget = this->widgets[i];
-
+	for(const auto& widget: this->widgets) {
 		if(mx >= widget->x && mx <= widget->x + widget->width
 		&& my >= widget->y && my <= widget->y + widget->height
 		&& widget->show && widget->type != UI_WIDGET_WINDOW) {
@@ -165,9 +164,7 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 }
 
 void Context::check_text_input(const char * input) {
-	for(size_t i = 0; i < this->widgets.size(); i++) {
-		Widget * widget = this->widgets[i];
-		
+	for(const auto& widget: this->widgets) {
 		if(widget->current_texture == &this->input.active
 		&& widget->on_textinput != nullptr
 		&& widget->type == UI_WIDGET_INPUT
@@ -178,11 +175,9 @@ void Context::check_text_input(const char * input) {
 }
 
 int Context::check_wheel(unsigned mx, unsigned my, int y) {
-	for(int i = this->widgets.size() - 1; i >= 0; i--) {
-		Widget * widget = this->widgets[i];
-		
-		if(mx >= widget->x && mx <= widget->x + widget->width
-		&& my >= widget->y && my <= widget->y + widget->height
+	for(const auto& widget: this->widgets) {
+		if((int)mx >= widget->x && mx <= widget->x + widget->width
+		&& (int)my >= widget->y && my <= widget->y + widget->height
 		&& widget->type == UI_WIDGET_WINDOW && widget->show) {
 			for(auto& child: widget->children) {
 				if(!child->is_pinned)
@@ -219,10 +214,9 @@ void default_on_render(Widget * w, void * data) {
 	if(w->type == UI_WIDGET_CHART) {
 		if(w->user_data != nullptr) {
 			const std::deque<float>& chart = *((std::deque<float> *)w->user_data);
-			float max = 0.f;
+			float max = 0.1f;
 			for(const auto& data: chart) {
-				if(data > max)
-					max = data;
+				max = fmax(data, max);
 			}
 			size_t time = 0;
 			glLineWidth(1.f);
@@ -388,6 +382,9 @@ Widget::Widget(Context * ctx, Widget * _parent, int _x, int _y, const unsigned w
 	case UI_WIDGET_LABEL:
 		this->text(ctx, text);
 		break;
+	case UI_WIDGET_CHECKBOX:
+		this->current_texture = ctx->checkbox_false;
+		break;
 	default:
 		break;
 	}
@@ -418,10 +415,8 @@ void Widget::move_by(int _x, int _y) {
 
 void Widget::add_child(Widget * child) {
 	// Not already in list
-	for(size_t i = 0; i < this->children.size(); i++) {
-		if(this->children[i] == child)
-			return;
-	}
+	if(std::count(this->children.begin(), this->children.end(), child))
+		return;
 
 	// Add to list
 	this->children.push_back(child);

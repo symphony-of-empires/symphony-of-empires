@@ -12,6 +12,7 @@ enum UI_WidgetType {
 	UI_WIDGET_LABEL,
 	UI_WIDGET_IMAGE,
 	UI_WIDGET_CHART,
+	UI_WIDGET_CHECKBOX,
 };
 
 #include <SDL2/SDL_ttf.h>
@@ -48,6 +49,9 @@ namespace UI {
 
 		Texture scroll_back;
 		Texture scroll_bar;
+
+		Texture checkbox_true;
+		Texture checkbox_false;
 
 		Texture window;
 		Texture window_border;
@@ -86,6 +90,8 @@ namespace UI {
 
 		int scroll_x;
 		int scroll_y;
+
+		bool is_check;
 		
 		size_t width;
 		size_t height;
