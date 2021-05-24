@@ -352,14 +352,37 @@ World::World() {
 		print_error("lua error %s", lua_tostring(this->lua, -1));
 		exit(EXIT_FAILURE);
 	}
+
+	printf("world fully intiialized\n");
 }
 
 World::~World() {
 	lua_close(this->lua);
 	delete[] this->tiles;
 
-	for (size_t i = 0; i < g_world->nations.size(); i++) {
-		delete g_world->nations[i]->default_flag;
+	for(auto& religion: this->religions) {
+		delete religion;
+	} for(auto& unit_type: this->unit_types) {
+		delete unit_type;
+	} for(auto& event: this->events) {
+		delete event;
+	} for(auto& industry_type: this->industry_types) {
+		delete industry_type->image;
+		delete industry_type;
+	} for(auto& company: this->companies) {
+		delete company;
+	} for(auto& pop_type: this->pop_types) {
+		delete pop_type;
+	} for(auto& culture: this->cultures) {
+		delete culture;
+	} for(auto& good: this->goods) {
+		delete good->icon;
+		delete good;
+	} for(auto& province: this->provinces) {
+		delete province;
+	} for(auto& nation: this->nations) {
+		delete nation->default_flag;
+		delete nation;
 	}
 }
 
@@ -448,7 +471,13 @@ void World::do_economy_tick_1() {
 	}
 }
 
+#include "pathfinding.hpp"
 void World::do_economy_tick_2() {
+	for(auto& convoy: this->convoys) {
+		convoy.path.clear();
+	}
+	this->convoys.clear();
+
 	// Now we will deliver stuff accordingly
 	while(delivers.size() && orders.size()) {
 		// Now transport companies will check and transport accordingly
@@ -459,12 +488,10 @@ void World::do_economy_tick_2() {
 			// Check all delivers
 			for(size_t i = 0; i < delivers.size(); i++) {
 				DeliverGoods * deliver = &delivers[i];
-				deliver->rejections++;
-				
 				if(!company->in_range(deliver->sender_province_id))
 					continue;
 				
-				// Check all orders
+				// Check all orders, so we can see if we can deliver to there
 				for(size_t j = 0; j < orders.size(); j++) {
 					OrderGoods * order = &orders[j];
 					
@@ -497,10 +524,22 @@ void World::do_economy_tick_2() {
 					}
 
 					this->provinces[order->requester_province_id]->industries[order->requester_industry_id]->production_cost += this->products[deliver->product_id]->price;
-					
-					// On 0 it overflows to -1, on 1 it goes to zero, but after this loop it's
-					// incremented again (see incrementing below). So we don't take a rejection hit
-					deliver->rejections--;
+
+					// Send a convoy to do it's intended duty
+					CommercialConvoy convoy;
+					convoy.deliver = deliver;
+					convoy.order = order;
+
+					const size_t start_x = this->provinces[deliver->sender_province_id]->min_x;
+					const size_t start_y = this->provinces[deliver->sender_province_id]->min_y;
+					Tile * start = &this->tiles[start_y * this->width + start_x];
+
+					const size_t end_x = this->provinces[order->requester_province_id]->min_x;
+					const size_t end_y = this->provinces[order->requester_province_id]->min_y;
+					Tile * end = &this->tiles[end_y * this->width + end_x];
+
+					convoy.path = find_path(*this, start, end);
+					this->convoys.push_back(convoy);
 					
 					// Delete this deliver and order tickets from the system since
 					// they are now fullfilled (only delete when no quanity left)
@@ -515,32 +554,25 @@ void World::do_economy_tick_2() {
 			}
 		}
 		
-		// Get number of transporter companies
-		size_t n_transporters = 0;
-		for(const auto& company: this->companies) {
-			if(company->is_transport)
-				n_transporters++;
-		}
-		
 		// Drop all rejected delivers
 		for(size_t i = 0; i < delivers.size(); i++) {
 			DeliverGoods * deliver = &delivers[i];
-			if(deliver->rejections >= n_transporters) {
-				// Add up to province stockpile
-				this->provinces[deliver->sender_province_id]->stockpile[deliver->product_id] += deliver->quantity;
-				this->products[deliver->product_id]->supply += deliver->quantity;
-				if(this->products[deliver->product_id]->demand) {
-					this->products[deliver->product_id]->demand -= deliver->quantity % this->products[deliver->product_id]->demand;
-				}
-				delivers.erase(delivers.begin() + i);
-				i--;
+			// Add up to province stockpile
+			this->provinces[deliver->sender_province_id]->stockpile[deliver->product_id] += deliver->quantity;
+			this->products[deliver->product_id]->supply += deliver->quantity;
+			if(this->products[deliver->product_id]->demand) {
+				this->products[deliver->product_id]->demand -= deliver->quantity % this->products[deliver->product_id]->demand;
 			}
+			delivers.erase(delivers.begin() + i);
+			i--;
 		}
+		delivers.clear();
 
 		// No orders if no delivers! (and can't deliver if no orders)
 		if(!delivers.size() || !orders.size())
 			break;
 	}
+
 	delivers.clear();
 	orders.clear();
 }
@@ -781,15 +813,19 @@ void World::do_economy_tick_4() {
 }
 
 void World::do_tick() {
+	printf("%zu:%zu\n", (time % 48) / 2, (time % 2) * 30);
+
 	// Each tick == 30 minutes
 	switch(time % (24 * 2)) {
 	// 3:00
 	case 6:
+		printf("3:00\n");
 		this->do_economy_tick_1();
 		break;
 	// 7:30
 	// Busy hour, newspapers come out and people get mad
 	case 15:
+		printf("7:30\n");
 		this->do_economy_tick_2();
 
 		// Calculate prestige for today (newspapers come out!)
@@ -805,6 +841,7 @@ void World::do_tick() {
 		break;
 	// 12:00
 	case 24:
+		printf("12:00\n");
 		this->do_economy_tick_3();
 
 		// Calculate economy score of nations
@@ -820,6 +857,7 @@ void World::do_tick() {
 		break;
 	// 18:00
 	case 36:
+		printf("18:00\n");
 		this->do_economy_tick_4();
 		break;
 	default:

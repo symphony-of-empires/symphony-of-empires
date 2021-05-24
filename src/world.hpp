@@ -53,7 +53,7 @@ public:
 	float payment;
 	size_t good_id;
 	size_t requester_industry_id;
-	size_t requester_province_id;
+	ProvinceId requester_province_id;
 	size_t quantity;
 };
 class DeliverGoods {
@@ -61,10 +61,17 @@ public:
 	float payment;
 	size_t good_id;
 	size_t sender_industry_id;
-	size_t sender_province_id;
+	ProvinceId sender_province_id;
 	size_t rejections = 0;
 	size_t quantity;
 	size_t product_id;
+};
+
+class CommercialConvoy {
+public:
+	std::vector<Tile *> path;
+	OrderGoods * order;
+	DeliverGoods * deliver;
 };
 
 class World {
@@ -107,6 +114,7 @@ public:
 
 	std::vector<OrderGoods> orders;
 	std::vector<DeliverGoods> delivers;
+	std::vector<CommercialConvoy> convoys;
 
 	uint64_t time;
 
