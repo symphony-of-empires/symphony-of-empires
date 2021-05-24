@@ -341,7 +341,7 @@ void default_close_button_on_click(Widget * w, void * data) {
 }
 
 Widget::Widget(Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
-	const char * text, Texture * tex) {
+	const char * text, const Texture * tex) {
 	memset(this, 0, sizeof(Widget));
 	this->on_render = &default_on_render;
 	this->show = 1;

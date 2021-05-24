@@ -35,7 +35,7 @@ public:
 
 	GLuint * infrastructure_wire;
 
-	Texture ** topo_texture;
+	std::vector<Texture *> topo_texture;
 
 	Texture * cloud_textures[4];
 	std::vector<Cloud> clouds;

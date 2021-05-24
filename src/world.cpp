@@ -140,107 +140,15 @@ World::World() {
 	// Translate all div, pol and topo maps onto this single tile array
 	const size_t n_nations = this->nations.size();
 	const size_t n_provinces = this->provinces.size();
-	uint16_t last_nation_color_id = 0;
-	uint16_t last_province_color_id = 0;
 	for(size_t i = 0; i < total_size; i++) {
 		// Set coordinates for the tiles
 		this->tiles[i].x = i % this->width; 
 		this->tiles[i].y = i / this->width;
-		
+		this->tiles[i].owner_id = (uint16_t)-1;
+		this->tiles[i].province_id = (uint16_t)-1;
 		this->tiles[i].elevation = topo.buffer[i] & 0x000000ff;
 		if(topo.buffer[i] == 0xffff0000) {
 			this->tiles[i].elevation = this->sea_level + 1;
-		}
-
-		// Associate tiles with nations
-		this->tiles[i].owner_id = (uint16_t)-1;
-		if(this->nations[last_nation_color_id]->color != pol.buffer[i]) {
-			for(size_t j = 0; j < n_nations; j++) {
-				if(pol.buffer[i] == this->nations[j]->color) {
-					this->tiles[i].owner_id = (uint16_t)j;
-					last_nation_color_id = (uint16_t)j;
-					break;
-				}
-			}
-		} else {
-			this->tiles[i].owner_id = last_nation_color_id;
-		}
-
-		// Associate tiles with provinces
-		this->tiles[i].province_id = (uint16_t)-1;
-		if(this->provinces[last_province_color_id]->color != div.buffer[i]) {
-			for(size_t j = 0; j < n_provinces; j++) {
-				Province * province = this->provinces[j];
-				if(div.buffer[i] != province->color)
-					continue;
-				
-				this->tiles[i].province_id = j;
-
-				const Tile * other_tile;
-
-				// Up neighbour
-				if(i > this->width) {
-					other_tile = &this->tiles[i - this->width];
-					if(other_tile->province_id != j) {
-						province->neighbours.push_back(this->provinces[other_tile->province_id]);
-					}
-				}
-				// Down neighbour
-				if(i < (this->width * this->height) - this->width) {
-					other_tile = &this->tiles[i + this->width];
-					if(other_tile->province_id != j) {
-						province->neighbours.push_back(this->provinces[other_tile->province_id]);
-					}
-				}
-				// Left neighbour
-				if(i > 1) {
-					other_tile = &this->tiles[i - 1];
-					if(other_tile->province_id != j) {
-						province->neighbours.push_back(this->provinces[other_tile->province_id]);
-					}
-				}
-				// Right neighbour
-				if(i < (this->width * this->height) - 1) {
-					other_tile = &this->tiles[i + 1];
-					if(other_tile->province_id != j) {
-						province->neighbours.push_back(this->provinces[other_tile->province_id]);
-					}
-				}
-
-				// Only evaluated when valid owner
-				if(this->tiles[i].owner_id != (uint16_t)-1) {
-					// If province had no owner before - now it has it!
-					if(province->owner_id == PROVINCE_NO_ONWER) {
-						province->owner_id = this->tiles[i].owner_id;
-					}
-
-					// Set provinces as disputed if many countries owns this province
-					if(province->owner_id != PROVINCE_DISPUTED
-					&& province->owner_id != PROVINCE_NO_ONWER
-					&& province->owner_id != this->tiles[i].owner_id) {
-						province->owner_id = PROVINCE_DISPUTED;
-						province->owners.push_back(this->nations[this->tiles[i].owner_id]);
-					}
-				}
-				last_province_color_id = j;
-				break;
-			}
-		} else {
-			Province * province = this->provinces[last_province_color_id];
-			this->tiles[i].province_id = last_province_color_id;
-			if(this->tiles[i].owner_id != (uint16_t)-1) {
-				// If province had no owner before - now it has it!
-				if(province->owner_id == PROVINCE_NO_ONWER) {
-					province->owner_id = this->tiles[i].owner_id;
-				}
-
-				// Set provinces as disputed if many countries owns this province
-				if(province->owner_id != PROVINCE_DISPUTED
-				&& province->owner_id != PROVINCE_NO_ONWER
-				&& province->owner_id != this->tiles[i].owner_id) {
-					province->owner_id = PROVINCE_DISPUTED;
-				}
-			}
 		}
 
 		// Set infrastructure level
@@ -249,6 +157,115 @@ World::World() {
 			this->tiles[i].infra_level = 0;
 		} else {
 			this->tiles[i].infra_level = 1;
+		}
+
+		// Associate tiles with nations
+		for(size_t j = 0; j < n_nations; j++) {
+			Nation * nation = this->nations[j];
+			if(pol.buffer[i] != nation->color)
+				continue;
+			
+			this->tiles[i].owner_id = (uint16_t)j;
+		}
+
+		for(size_t j = 0; j < n_provinces; j++) {
+			Province * province = this->provinces[j];
+			if(div.buffer[i] != province->color)
+				continue;
+				
+			this->tiles[i].province_id = (uint16_t)j;
+			break;
+		}
+	}
+
+	// Neighbours
+	for(size_t i = 0; i < total_size; i++) {
+		const Tile * tile = &this->tiles[i];
+		const Tile * other_tile;
+		if(tile->owner_id != (uint16_t)-1) {
+			Nation * nation = this->nations[this->tiles[i].owner_id];
+
+			// Up neighbour
+			if(i > this->width) {
+				other_tile = &this->tiles[i - this->width];
+				if(other_tile->owner_id != tile->owner_id
+				&& other_tile->owner_id != (uint16_t)-1) {
+					nation->neighbours.push_back(this->nations[other_tile->owner_id]);
+				}
+			}
+			// Down neighbour
+			if(i < (this->width * this->height) - this->width) {
+				other_tile = &this->tiles[i + this->width];
+				if(other_tile->owner_id != tile->owner_id
+				&& other_tile->owner_id != (uint16_t)-1) {
+					nation->neighbours.push_back(this->nations[other_tile->owner_id]);
+				}
+			}
+			// Left neighbour
+			if(i > 1) {
+				other_tile = &this->tiles[i - 1];
+				if(other_tile->owner_id != tile->owner_id
+				&& other_tile->owner_id != (uint16_t)-1) {
+					nation->neighbours.push_back(this->nations[other_tile->owner_id]);
+				}
+			}
+			// Right neighbour
+			if(i < (this->width * this->height) - 1) {
+				other_tile = &this->tiles[i + 1];
+				if(other_tile->owner_id != tile->owner_id
+				&& other_tile->owner_id != (uint16_t)-1) {
+					nation->neighbours.push_back(this->nations[other_tile->owner_id]);
+				}
+			}
+		}
+		
+		if(tile->province_id != (uint16_t)-1) {
+			Province * province = this->provinces[this->tiles[i].province_id];
+			// If province had no owner before - now it has it!
+			if(province->owner_id == PROVINCE_NO_ONWER) {
+				province->owner_id = this->tiles[i].owner_id;
+			}
+
+			// Set provinces as disputed if many countries owns this province
+			if(province->owner_id != PROVINCE_DISPUTED
+			&& province->owner_id != PROVINCE_NO_ONWER
+			&& province->owner_id != this->tiles[i].owner_id) {
+				province->owner_id = PROVINCE_DISPUTED;
+				province->owners.push_back(this->nations[this->tiles[i].owner_id]);
+			}
+
+			// Up neighbour
+			if(i > this->width) {
+				other_tile = &this->tiles[i - this->width];
+				if(other_tile->province_id != tile->province_id
+				&& other_tile->province_id != (uint16_t)-1) {
+					province->neighbours.push_back(this->provinces[other_tile->province_id]);
+				}
+			}
+			// Down neighbour
+			if(i < (this->width * this->height) - this->width) {
+				other_tile = &this->tiles[i + this->width];
+				if(other_tile->province_id != tile->province_id
+				&& other_tile->province_id != (uint16_t)-1) {
+					province->neighbours.push_back(this->provinces[other_tile->province_id]);
+				}
+			}
+			// Left neighbour
+			if(i > 1) {
+				other_tile = &this->tiles[i - 1];
+				if(other_tile->province_id != tile->province_id
+				&& other_tile->province_id != (uint16_t)-1) {
+					province->neighbours.push_back(this->provinces[other_tile->province_id]);
+				}
+			}
+			// Right neighbour
+			if(i < (this->width * this->height) - 1) {
+				other_tile = &this->tiles[i + 1];
+				if(other_tile->province_id != tile->province_id
+				&& other_tile->province_id != (uint16_t)-1) {
+					province->neighbours.push_back(this->provinces[other_tile->province_id]);
+				}
+			}
 		}
 	}
 
@@ -307,13 +324,22 @@ World::World() {
 		for(size_t i = 0; i < this->nations.size(); i++) {
 			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false, false, true});
 		}
+
+		std::set<Nation *> s;
+		const size_t size = nation->neighbours.size();
+		for(size_t i = 0; i < size; i++) {
+			s.insert(nation->neighbours[i]);
+		}
+		nation->neighbours.assign(s.begin(), s.end());
+
+		nation->neighbours.shrink_to_fit();
 		nation->relations.shrink_to_fit();
 	}
 
 	// Register all provinces onto the owning nations
-	for(size_t i = 0; i < this->provinces.size(); i++) {
+	for(size_t i = 0; i < n_provinces; i++) {
 		Province * province = this->provinces[i];
-		if(province->owner_id == PROVINCE_DISPUTED || province->owner_id == PROVINCE_NO_ONWER) {
+		if(province->owner_id >= n_nations) {
 			continue;
 		}
 

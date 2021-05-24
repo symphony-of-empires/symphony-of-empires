@@ -109,3 +109,5 @@ void Texture::to_opengl() {
 void Texture::delete_opengl() {
 	glDeleteTextures(1, &this->gl_tex_num);
 }
+
+TextureManager * g_texture_manager;

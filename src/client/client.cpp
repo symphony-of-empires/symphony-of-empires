@@ -17,6 +17,7 @@
 #include "map.hpp"
 
 extern World * g_world;
+extern TextureManager * g_texture_manager;
 int width = 1280;
 int height = 800;
 
@@ -98,10 +99,11 @@ void do_game_main(UI::Widget *, void *) {
 	map = Map(g_world);
 
 	// Siderbar buttons
-	Texture debug_icon = Texture(Path::get("icons/debug.png").c_str());
-	debug_icon.to_opengl();
+	const Texture * debug_icon = g_texture_manager->load_texture(Path::get("icons/debug.png"));
+	//Texture debug_icon = Texture(Path::get("icons/debug.png").c_str());
+	//debug_icon->to_opengl();
 	UI::Button * debug_btn = new UI::Button(nullptr, 8, 72 * 2, 64, 64);
-	UI::Image * debug_btn_icon = new UI::Image(debug_btn, 0, 0, 64, 64, nullptr, &debug_icon);
+	UI::Image * debug_btn_icon = new UI::Image(debug_btn, 0, 0, 64, 64, nullptr, debug_icon);
 	debug_btn_icon->on_click = &do_diplomacy_overview;
 
 	Texture diplomacy_icon = Texture(Path::get("icons/diplomacy.png").c_str());
@@ -183,6 +185,8 @@ void do_game_main(UI::Widget *, void *) {
 	std::vector<Tile *> path;
 	Tile * start;
 	Tile * end;
+
+	g_texture_manager->to_opengl();
 	
 	char * tmpbuf = new char[128];
 	while(run) {
@@ -336,6 +340,27 @@ void do_game_main(UI::Widget *, void *) {
 			glVertex2f(unit->x, unit->y + 1.f);
 			glTexCoord2f(0.f, 0.f);
 			glVertex2f(unit->x, unit->y);
+			glEnd();
+		}
+
+		for(size_t i = 0; i < 512; i++) {
+			const size_t x = i % 32;
+			const size_t y = i / 32;
+			glBindTexture(GL_TEXTURE_2D, i);
+			glBegin(GL_TRIANGLES);
+			glColor3f(1.f, 1.f, 1.f);
+			glTexCoord2f(0.f, 0.f);
+			glVertex2f(x, y);
+			glTexCoord2f(1.f, 0.f);
+			glVertex2f(x + 1.f, y);
+			glTexCoord2f(1.f, 1.f);
+			glVertex2f(x + 1.f, y + 1.f);
+			glTexCoord2f(1.f, 1.f);
+			glVertex2f(x + 1.f, y + 1.f);
+			glTexCoord2f(0.f, 1.f);
+			glVertex2f(x, y + 1.f);
+			glTexCoord2f(0.f, 0.f);
+			glVertex2f(x, y);
 			glEnd();
 		}
 		
@@ -574,6 +599,8 @@ void rendering_main(void) {
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	g_texture_manager = new TextureManager();
 
 	// Render g_world stuff now that we are in opengl
 	for(auto& nation: g_world->nations) {
