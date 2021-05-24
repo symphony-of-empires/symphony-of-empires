@@ -40,19 +40,27 @@ public:
 
 class Good {
 public:
+	~Good() {
+		delete icon;
+	}
+
 	std::string name;
 	std::string ref_name;
 	bool is_edible;
-	Texture * icon = new Texture();
+	Texture * icon = nullptr;
 };
 
 class IndustryType {
 public:
+	~IndustryType() {
+		delete image;
+	}
+
 	std::string name;
 	std::string ref_name;
 	std::vector<size_t> inputs;
 	std::vector<size_t> outputs;
-	Texture * image = new Texture();
+	Texture * image = nullptr;
 };
 
 #include <deque>

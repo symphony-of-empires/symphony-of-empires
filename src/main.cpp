@@ -23,10 +23,8 @@ int main(int argc, char ** argv) {
 	world.time = 695459;
 	world.time -= (8600 * 76);
 	world.time -= 24 * 190;
-
 #ifndef UNIT_TEST
-	printf(gettext("launching rendering thread"));
-	printf("\n");
+	printf("%s\n", gettext("launching rendering thread"));
 	std::thread t1(rendering_main);
 	
 	run = 1;

@@ -367,7 +367,6 @@ World::~World() {
 	} for(auto& event: this->events) {
 		delete event;
 	} for(auto& industry_type: this->industry_types) {
-		delete industry_type->image;
 		delete industry_type;
 	} for(auto& company: this->companies) {
 		delete company;
@@ -376,12 +375,10 @@ World::~World() {
 	} for(auto& culture: this->cultures) {
 		delete culture;
 	} for(auto& good: this->goods) {
-		delete good->icon;
 		delete good;
 	} for(auto& province: this->provinces) {
 		delete province;
 	} for(auto& nation: this->nations) {
-		delete nation->default_flag;
 		delete nation;
 	}
 }
@@ -479,23 +476,31 @@ void World::do_economy_tick_2() {
 	this->convoys.clear();
 
 	// Now we will deliver stuff accordingly
-	while(delivers.size() && orders.size()) {
+	while(true) {
 		// Now transport companies will check and transport accordingly
-		for(auto& company: this->companies) {
+		for(const auto& company: this->companies) {
 			if(!company->is_transport)
 				continue;
 			
 			// Check all delivers
 			for(size_t i = 0; i < delivers.size(); i++) {
 				DeliverGoods * deliver = &delivers[i];
+				if(!deliver->quantity) {
+					continue;
+				}
+
 				if(!company->in_range(deliver->sender_province_id))
 					continue;
 				
-				// Check all orders, so we can see if we can deliver to there
+				// Check for orders available
 				for(size_t j = 0; j < orders.size(); j++) {
 					OrderGoods * order = &orders[j];
+
+					if(!order->quantity) {
+						continue;
+					}
 					
-					// Do they want this goods?
+					// Do they want these goods?
 					if(order->good_id != deliver->good_id)
 						continue;
 					
@@ -508,8 +513,8 @@ void World::do_economy_tick_2() {
 					
 					// Obtain number of goods that we could satisfy
 					size_t count = order->quantity % deliver->quantity;
-					deliver->quantity -= count;
-					order->quantity -= count;
+					deliver->quantity -= count % deliver->quantity;
+					order->quantity -= count % order->quantity;
 
 					// Yes - we go and deliver their stuff
 					this->provinces[order->requester_province_id]->industries[order->requester_industry_id]->add_to_stock(this, order->good_id, count);
@@ -525,6 +530,7 @@ void World::do_economy_tick_2() {
 
 					this->provinces[order->requester_province_id]->industries[order->requester_industry_id]->production_cost += this->products[deliver->product_id]->price;
 
+					/* This causes a memory leak, please fix or idk, it takes a lot of memory
 					// Send a convoy to do it's intended duty
 					CommercialConvoy convoy;
 					convoy.deliver = deliver;
@@ -540,16 +546,14 @@ void World::do_economy_tick_2() {
 
 					convoy.path = find_path(*this, start, end);
 					this->convoys.push_back(convoy);
-					
-					// Delete this deliver and order tickets from the system since
-					// they are now fullfilled (only delete when no quanity left)
-					if(!order->quantity) {
-						orders.erase(orders.begin() + j);
-					} if(!deliver->quantity) {
-						delivers.erase(delivers.begin() + i);
-						i--;
+
+					printf("convoy added\n");
+					printf("deliver %zu, order %zu\n", deliver->quantity, order->quantity);
+					*/
+
+					if(!deliver->quantity) {
+						break;
 					}
-					break;
 				}
 			}
 		}
@@ -557,20 +561,18 @@ void World::do_economy_tick_2() {
 		// Drop all rejected delivers
 		for(size_t i = 0; i < delivers.size(); i++) {
 			DeliverGoods * deliver = &delivers[i];
+
 			// Add up to province stockpile
 			this->provinces[deliver->sender_province_id]->stockpile[deliver->product_id] += deliver->quantity;
 			this->products[deliver->product_id]->supply += deliver->quantity;
 			if(this->products[deliver->product_id]->demand) {
 				this->products[deliver->product_id]->demand -= deliver->quantity % this->products[deliver->product_id]->demand;
 			}
-			delivers.erase(delivers.begin() + i);
-			i--;
 		}
 		delivers.clear();
 
 		// No orders if no delivers! (and can't deliver if no orders)
-		if(!delivers.size() || !orders.size())
-			break;
+		break;
 	}
 
 	delivers.clear();
@@ -813,19 +815,15 @@ void World::do_economy_tick_4() {
 }
 
 void World::do_tick() {
-	printf("%zu:%zu\n", (time % 48) / 2, (time % 2) * 30);
-
 	// Each tick == 30 minutes
 	switch(time % (24 * 2)) {
 	// 3:00
 	case 6:
-		printf("3:00\n");
 		this->do_economy_tick_1();
 		break;
 	// 7:30
 	// Busy hour, newspapers come out and people get mad
 	case 15:
-		printf("7:30\n");
 		this->do_economy_tick_2();
 
 		// Calculate prestige for today (newspapers come out!)
@@ -841,7 +839,6 @@ void World::do_tick() {
 		break;
 	// 12:00
 	case 24:
-		printf("12:00\n");
 		this->do_economy_tick_3();
 
 		// Calculate economy score of nations
@@ -857,7 +854,6 @@ void World::do_tick() {
 		break;
 	// 18:00
 	case 36:
-		printf("18:00\n");
 		this->do_economy_tick_4();
 		break;
 	default:

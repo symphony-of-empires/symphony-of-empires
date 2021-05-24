@@ -377,6 +377,20 @@ void do_game_main(UI::Widget *, void *) {
 		glLineWidth(1.f);
 		glEnd();
 
+		glLineWidth(4.f);
+		for(const auto& convoy: g_world->convoys) {
+			glColor3f(0.5f, 1.f, 0.5f);
+			glBegin(GL_LINE_STRIP);
+			for(const auto& node: convoy.path) {
+				const size_t node_i = ptr_to_index<Tile>(g_world->tiles, node);
+				const size_t node_x = node_i % g_world->width;
+				const size_t node_y = node_i / g_world->width;
+				glVertex2f(node_x, node_y);
+			}
+			glEnd();
+		}
+		glLineWidth(1.f);
+
 		glBegin(GL_QUADS);
 		glColor3f(1.f, 1.f, 1.f);
 		glVertex2f(fmx, fmy);
