@@ -624,6 +624,7 @@ void World::do_economy_tick_3() {
 				salary = 0.f;
 				break;
 			}
+			salary *= 100.f;
 			
 			// TODO: Make this dynamic
 			pop->budget += salary;

@@ -126,4 +126,6 @@ public:
 	ProvinceId get_province_id(Province * province);
 };
 
+extern World * g_world;
+
 #endif
