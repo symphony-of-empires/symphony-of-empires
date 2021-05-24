@@ -91,6 +91,7 @@ std::mutex render_province_mutex;
 std::deque<size_t> render_province;
 
 #include "pathfinding.hpp"
+#include "array_ops.hpp"
 SDL_Window * window;
 void do_game_main(UI::Widget *, void *) {
 	ui_ctx->clear();
@@ -368,7 +369,10 @@ void do_game_main(UI::Widget *, void *) {
 		glLineWidth(4.f);
 		glColor3f(1.f, 0.f, 0.f);
 		for(const auto& node: path) {
-			glVertex2f(node->x, node->y);
+			const size_t node_i = ptr_to_index<Tile>(g_world->tiles, node);
+			const size_t node_x = node_i % g_world->width;
+			const size_t node_y = node_i / g_world->width;
+			glVertex2f(node_x, node_y);
 		}
 		glLineWidth(1.f);
 		glEnd();
