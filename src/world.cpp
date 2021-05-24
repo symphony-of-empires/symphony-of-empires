@@ -144,8 +144,8 @@ World::World() {
 		// Set coordinates for the tiles
 		this->tiles[i].x = i % this->width; 
 		this->tiles[i].y = i / this->width;
-		this->tiles[i].owner_id = (uint16_t)-1;
-		this->tiles[i].province_id = (uint16_t)-1;
+		this->tiles[i].owner_id = (NationId)-1;
+		this->tiles[i].province_id = (ProvinceId)-1;
 		this->tiles[i].elevation = topo.buffer[i] & 0x000000ff;
 		if(topo.buffer[i] == 0xffff0000) {
 			this->tiles[i].elevation = this->sea_level + 1;
@@ -165,7 +165,7 @@ World::World() {
 			if(pol.buffer[i] != nation->color)
 				continue;
 			
-			this->tiles[i].owner_id = (uint16_t)j;
+			this->tiles[i].owner_id = (NationId)j;
 		}
 
 		for(size_t j = 0; j < n_provinces; j++) {
@@ -173,7 +173,7 @@ World::World() {
 			if(div.buffer[i] != province->color)
 				continue;
 				
-			this->tiles[i].province_id = (uint16_t)j;
+			this->tiles[i].province_id = (ProvinceId)j;
 			break;
 		}
 	}
@@ -182,14 +182,14 @@ World::World() {
 	for(size_t i = 0; i < total_size; i++) {
 		const Tile * tile = &this->tiles[i];
 		const Tile * other_tile;
-		if(tile->owner_id != (uint16_t)-1) {
+		if(tile->owner_id != (NationId)-1) {
 			Nation * nation = this->nations[this->tiles[i].owner_id];
 
 			// Up neighbour
 			if(i > this->width) {
 				other_tile = &this->tiles[i - this->width];
 				if(other_tile->owner_id != tile->owner_id
-				&& other_tile->owner_id != (uint16_t)-1) {
+				&& other_tile->owner_id != (NationId)-1) {
 					nation->neighbours.push_back(this->nations[other_tile->owner_id]);
 				}
 			}
@@ -197,7 +197,7 @@ World::World() {
 			if(i < (this->width * this->height) - this->width) {
 				other_tile = &this->tiles[i + this->width];
 				if(other_tile->owner_id != tile->owner_id
-				&& other_tile->owner_id != (uint16_t)-1) {
+				&& other_tile->owner_id != (NationId)-1) {
 					nation->neighbours.push_back(this->nations[other_tile->owner_id]);
 				}
 			}
@@ -205,7 +205,7 @@ World::World() {
 			if(i > 1) {
 				other_tile = &this->tiles[i - 1];
 				if(other_tile->owner_id != tile->owner_id
-				&& other_tile->owner_id != (uint16_t)-1) {
+				&& other_tile->owner_id != (NationId)-1) {
 					nation->neighbours.push_back(this->nations[other_tile->owner_id]);
 				}
 			}
@@ -213,13 +213,13 @@ World::World() {
 			if(i < (this->width * this->height) - 1) {
 				other_tile = &this->tiles[i + 1];
 				if(other_tile->owner_id != tile->owner_id
-				&& other_tile->owner_id != (uint16_t)-1) {
+				&& other_tile->owner_id != (NationId)-1) {
 					nation->neighbours.push_back(this->nations[other_tile->owner_id]);
 				}
 			}
 		}
 		
-		if(tile->province_id != (uint16_t)-1) {
+		if(tile->province_id != (ProvinceId)-1) {
 			Province * province = this->provinces[this->tiles[i].province_id];
 			// If province had no owner before - now it has it!
 			if(province->owner_id == PROVINCE_NO_ONWER) {
@@ -238,7 +238,7 @@ World::World() {
 			if(i > this->width) {
 				other_tile = &this->tiles[i - this->width];
 				if(other_tile->province_id != tile->province_id
-				&& other_tile->province_id != (uint16_t)-1) {
+				&& other_tile->province_id != (ProvinceId)-1) {
 					province->neighbours.push_back(this->provinces[other_tile->province_id]);
 				}
 			}
@@ -246,7 +246,7 @@ World::World() {
 			if(i < (this->width * this->height) - this->width) {
 				other_tile = &this->tiles[i + this->width];
 				if(other_tile->province_id != tile->province_id
-				&& other_tile->province_id != (uint16_t)-1) {
+				&& other_tile->province_id != (ProvinceId)-1) {
 					province->neighbours.push_back(this->provinces[other_tile->province_id]);
 				}
 			}
@@ -254,7 +254,7 @@ World::World() {
 			if(i > 1) {
 				other_tile = &this->tiles[i - 1];
 				if(other_tile->province_id != tile->province_id
-				&& other_tile->province_id != (uint16_t)-1) {
+				&& other_tile->province_id != (ProvinceId)-1) {
 					province->neighbours.push_back(this->provinces[other_tile->province_id]);
 				}
 			}
@@ -262,7 +262,7 @@ World::World() {
 			if(i < (this->width * this->height) - 1) {
 				other_tile = &this->tiles[i + 1];
 				if(other_tile->province_id != tile->province_id
-				&& other_tile->province_id != (uint16_t)-1) {
+				&& other_tile->province_id != (ProvinceId)-1) {
 					province->neighbours.push_back(this->provinces[other_tile->province_id]);
 				}
 			}
@@ -273,7 +273,7 @@ World::World() {
 	for(size_t i = 0; i < this->width; i++) {
 		for(size_t j = 0; j < this->height; j++) {
 			const Tile * tile = &this->tiles[i + (j * this->width)];
-			if(tile->province_id == (uint16_t)-1)
+			if(tile->province_id == (ProvinceId)-1)
 				continue;
 
 			Province * province = this->provinces[tile->province_id];

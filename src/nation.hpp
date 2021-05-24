@@ -7,6 +7,8 @@
 #include "texture.hpp"
 #include "province.hpp"
 
+typedef uint16_t NationId;
+
 class NationRelation {
 public:
 	float relation;
