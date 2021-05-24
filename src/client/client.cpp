@@ -171,8 +171,8 @@ void do_game_main(UI::Widget *, void *) {
 	std::vector<UI::Label *> map_province_names;
 	map_province_names.reserve(g_world->nations.size());
 	for(auto& province: g_world->provinces) {
-		UI::Label * lab = new UI::Label(nullptr, 0, 0, province->name.c_str());
-		map_province_names.push_back(lab);
+		//UI::Label * lab = new UI::Label(nullptr, 0, 0, province->name.c_str());
+		//map_province_names.push_back(lab);
 	}
 	
 	std::vector<Tile *> path;
