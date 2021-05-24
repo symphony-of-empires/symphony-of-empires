@@ -144,8 +144,6 @@ World::World() {
 	const size_t n_provinces = this->provinces.size();
 	for(size_t i = 0; i < total_size; i++) {
 		// Set coordinates for the tiles
-		this->tiles[i].x = i % this->width; 
-		this->tiles[i].y = i / this->width;
 		this->tiles[i].owner_id = (NationId)-1;
 		this->tiles[i].province_id = (ProvinceId)-1;
 		this->tiles[i].elevation = topo.buffer[i] & 0x000000ff;
