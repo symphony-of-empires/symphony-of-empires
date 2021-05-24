@@ -27,14 +27,14 @@ Map::Map(World * w) {
 	this->provinces_fill = new GLuint[this->n_horz_quads * this->n_vert_quads];
 	this->provinces_wire = new GLuint[this->n_horz_quads * this->n_vert_quads];
 	this->infrastructure_wire = new GLuint[this->n_horz_quads * this->n_vert_quads];
-	this->topo_texture = new Texture * [this->n_horz_quads * this->n_vert_quads];
+	this->topo_texture.reserve(this->n_horz_quads * this->n_vert_quads);
 	for(size_t i = 0; i < this->n_horz_quads * this->n_vert_quads; i++) {
 		this->nations_fill[i] = 0;
 		this->nations_wire[i] = 0;
 		this->provinces_fill[i] = 0;
 		this->provinces_wire[i] = 0;
 		this->infrastructure_wire[i] = 0;
-		this->topo_texture[i] = new Texture(this->quad_size, this->quad_size);
+		this->topo_texture.push_back(new Texture(this->quad_size, this->quad_size));
 	}
 
 	this->cloud_textures[0] = new Texture(Path::get("cloud001.png").c_str());
