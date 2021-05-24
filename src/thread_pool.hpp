@@ -26,8 +26,15 @@ public:
 		// supports. Otherwise we can run into performance hits.
 		const size_t n_threads = (size_t)std::thread::hardware_concurrency();
 
-		std::thread th(&ThreadPool::thread_loop);
-		this->threads = std::vector<std::thread>(n_threads, th);
+		this->running = true;
+
+		//this->threads = std::vector<std::thread>(n_threads, th);
+		for(size_t i = 0; i < n_threads; i++) {
+			this->threads.push_back(std::thread(&ThreadPool::thread_loop, this));
+		}
+
+		// This vector is not going to expand anymore
+		this->threads.shrink_to_fit();
 
 		// We now have our threads running at this point - waiting for jobs to take
 	}
@@ -37,11 +44,9 @@ public:
 		this->running = false;
 
 		// After that we will start joining all threads - if a thread is executing
-		// by a prolonged time, it will block the entire vector
-		for(std::thread& job: this->jobs) {
-			if(job.joinable()) {
-				job.join();
-			}
+		// by a prolonged time, it will block the entire process
+		for(std::thread& job: this->threads) {
+			job.join();
 		}
 	}
 
@@ -71,6 +76,9 @@ public:
 
 			// We are now going to call this function and hope it dosen't blocks infinitely
 			fn();
+
+			// Now yield back to the system
+			std::this_thread::yield();
 		}
 	}
 };
