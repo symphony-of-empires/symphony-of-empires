@@ -16,8 +16,6 @@
 
 class Tile {
 public:
-	size_t x;
-	size_t y;
 	uint16_t owner_id;
 	uint16_t province_id;
 	uint8_t elevation;
