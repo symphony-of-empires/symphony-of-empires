@@ -272,8 +272,7 @@ World::World() {
 	// Calculate the edges of the province (min and max x and y coordinates)
 	for(size_t i = 0; i < this->width; i++) {
 		for(size_t j = 0; j < this->height; j++) {
-			Tile * tile = &this->tiles[i + (j * this->width)];
-
+			const Tile * tile = &this->tiles[i + (j * this->width)];
 			if(tile->province_id == (uint16_t)-1)
 				continue;
 
@@ -319,7 +318,7 @@ World::World() {
 	}
 
 	// Create diplomatic relations between nations
-	for(auto& nation: this->nations) {
+	for(const auto& nation: this->nations) {
 		// Relations between nations start at 0
 		for(size_t i = 0; i < this->nations.size(); i++) {
 			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false, false, true});
@@ -338,7 +337,7 @@ World::World() {
 
 	// Register all provinces onto the owning nations
 	for(size_t i = 0; i < n_provinces; i++) {
-		Province * province = this->provinces[i];
+		const Province * province = this->provinces[i];
 		if(province->owner_id >= n_nations) {
 			continue;
 		}

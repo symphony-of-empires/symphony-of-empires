@@ -39,22 +39,17 @@ public:
 	const Texture * load_texture(std::string path) {
 		for(size_t i = 0; i < this->textures.size(); i++) {
 			if(path == this->texture_names[i]) {
+				printf("duplicate! %s\n", path.c_str());
 				return this->textures[i];
 			}
 		}
 
 		Texture * tex = new Texture(path.c_str());
+		tex->to_opengl();
+
 		this->textures.push_back(tex);
 		this->texture_names.push_back(path);
-		return this->textures.front();
-	}
-
-	void to_opengl(void) {
-		for(auto& tex: textures) {
-			if(!tex->gl_tex_num) {
-				tex->to_opengl();
-			}
-		}
+		return (const Texture *)tex;
 	}
 };
 
