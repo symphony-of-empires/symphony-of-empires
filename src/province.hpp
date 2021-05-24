@@ -14,6 +14,8 @@ constexpr size_t ptr_to_index(T * arr, T * ptr) {
 	return ((ptrdiff_t)ptr - (ptrdiff_t)arr) / sizeof(T);
 }
 
+typedef uint16_t ProvinceId;
+
 class World;
 class Nation;
 class Province {

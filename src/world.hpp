@@ -111,6 +111,9 @@ public:
 	std::vector<DeliverGoods> delivers;
 
 	uint64_t time;
+
+	NationId get_nation_id(Nation * nation);
+	ProvinceId get_province_id(Province * province);
 };
 
 #endif
