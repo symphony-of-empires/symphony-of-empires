@@ -14,11 +14,7 @@ std::atomic<int> run;
 #include <locale.h>
 #include "path.hpp"
 
-#include "thread_pool.hpp"
-
 int main(int argc, char ** argv) {
-	ThreadPool pool;
-
 	setlocale(LC_ALL, "");
 	bindtextdomain("main", Path::get("locale").c_str());
 	textdomain("main");
