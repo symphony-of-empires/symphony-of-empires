@@ -106,52 +106,44 @@ void do_game_main(UI::Widget *, void *) {
 	UI::Image * debug_btn_icon = new UI::Image(debug_btn, 0, 0, 64, 64, nullptr, debug_icon);
 	debug_btn_icon->on_click = &do_diplomacy_overview;
 
-	Texture diplomacy_icon = Texture(Path::get("icons/diplomacy.png").c_str());
-	diplomacy_icon.to_opengl();
+	const Texture * diplomacy_icon = g_texture_manager->load_texture(Path::get("icons/diplomacy.png"));
 	UI::Button * diplomacy_btn = new UI::Button(nullptr, 8, 72 * 3, 64, 64);
-	UI::Image * diplomacy_btn_icon = new UI::Image(diplomacy_btn, 0, 0, 64, 64, nullptr, &diplomacy_icon);
+	UI::Image * diplomacy_btn_icon = new UI::Image(diplomacy_btn, 0, 0, 64, 64, nullptr, diplomacy_icon);
 	diplomacy_btn_icon->on_click = &do_diplomacy_overview;
 
-	Texture help_icon = Texture(Path::get("icons/help.png").c_str());
-	help_icon.to_opengl();
+	const Texture * help_icon = g_texture_manager->load_texture(Path::get("icons/help.png"));
 	UI::Button * help_btn = new UI::Button( nullptr, 8, 72 * 4, 64, 64);
-	UI::Image * help_btn_icon = new UI::Image(help_btn, 0, 0, 64, 64, nullptr, &help_icon);
+	UI::Image * help_btn_icon = new UI::Image(help_btn, 0, 0, 64, 64, nullptr, help_icon);
 	help_btn_icon->on_click = &do_info_overview;
 
-	Texture budget_icon = Texture(Path::get("icons/budget.png").c_str());
-	budget_icon.to_opengl();
+	const Texture * budget_icon = g_texture_manager->load_texture(Path::get("icons/budget.png"));
 	UI::Button * budget_btn = new UI::Button(nullptr, 8, 72 * 5, 64, 64);
-	UI::Image * budget_btn_icon = new UI::Image(budget_btn, 0, 0, 64, 64, nullptr, &budget_icon);
+	UI::Image * budget_btn_icon = new UI::Image(budget_btn, 0, 0, 64, 64, nullptr, budget_icon);
 	budget_btn_icon->on_click = &do_economy_overview;
 
-	Texture pol_view_icon = Texture(Path::get("icons/pol_view.png").c_str());
-	pol_view_icon.to_opengl();
+	const Texture * pol_view_icon = g_texture_manager->load_texture(Path::get("icons/pol_view.png"));
 	UI::Button * pol_view_btn = new UI::Button(nullptr, 8, 72 * 6, 64, 64);
-	UI::Image * pol_view_btn_icon = new UI::Image(pol_view_btn, 0, 0, 64, 64, nullptr, &pol_view_icon);
+	UI::Image * pol_view_btn_icon = new UI::Image(pol_view_btn, 0, 0, 64, 64, nullptr, pol_view_icon);
 	pol_view_btn_icon->on_click = &do_view_pol_map;
 
-	Texture prov_view_icon = Texture(Path::get("icons/prov_view.png").c_str());
-	prov_view_icon.to_opengl();
+	const Texture * prov_view_icon = g_texture_manager->load_texture(Path::get("icons/prov_view.png"));
 	UI::Button * prov_view_btn = new UI::Button(nullptr, 8, 72 * 7, 64, 64);
-	UI::Image * prov_view_btn_icon = new UI::Image(prov_view_btn, 0, 0, 64, 64, nullptr, &prov_view_icon);
+	UI::Image * prov_view_btn_icon = new UI::Image(prov_view_btn, 0, 0, 64, 64, nullptr, prov_view_icon);
 	prov_view_btn_icon->on_click = &do_view_prov_map;
 
-	Texture topo_view_icon = Texture(Path::get("icons/topo_view.png").c_str());
-	topo_view_icon.to_opengl();
+	const Texture * topo_view_icon = g_texture_manager->load_texture(Path::get("icons/topo_view.png"));
 	UI::Button * topo_view_btn = new UI::Button(nullptr, 8, 72 * 8, 64, 64);
-	UI::Image * topo_view_btn_icon = new UI::Image(topo_view_btn, 0, 0, 64, 64, nullptr, &topo_view_icon);
+	UI::Image * topo_view_btn_icon = new UI::Image(topo_view_btn, 0, 0, 64, 64, nullptr, topo_view_icon);
 	topo_view_btn_icon->on_click = &do_view_topo_map;
 
-	Texture infra_view_icon = Texture(Path::get("icons/infra_view.png").c_str());
-	infra_view_icon.to_opengl();
+	const Texture * infra_view_icon = g_texture_manager->load_texture(Path::get("icons/infra_view.png"));
 	UI::Button * infra_view_btn = new UI::Button( nullptr, 8, 72 * 9, 64, 64);
-	UI::Image * infra_view_btn_icon = new UI::Image(infra_view_btn, 0, 0, 64, 64, nullptr, &infra_view_icon);
+	UI::Image * infra_view_btn_icon = new UI::Image(infra_view_btn, 0, 0, 64, 64, nullptr, infra_view_icon);
 	infra_view_btn_icon->on_click = &do_view_infra_map;
 
-	Texture exit_icon = Texture(Path::get("icons/exit.png").c_str());
-	exit_icon.to_opengl();
+	const Texture * exit_icon = g_texture_manager->load_texture(Path::get("icons/exit.png"));
 	UI::Button * exit_btn = new UI::Button(nullptr, 8, 72 * 10, 64, 64);
-	UI::Image * exit_btn_icon = new UI::Image(exit_btn, 0, 0, 64, 64, nullptr, &exit_icon);
+	UI::Image * exit_btn_icon = new UI::Image(exit_btn, 0, 0, 64, 64, nullptr, exit_icon);
 	exit_btn_icon->on_click = &do_exit;
 
 	// Top nation view
@@ -185,8 +177,6 @@ void do_game_main(UI::Widget *, void *) {
 	std::vector<Tile *> path;
 	Tile * start;
 	Tile * end;
-
-	g_texture_manager->to_opengl();
 	
 	char * tmpbuf = new char[128];
 	while(run) {
@@ -207,7 +197,7 @@ void do_game_main(UI::Widget *, void *) {
 				if(event.button.button == SDL_BUTTON_LEFT && !r) {
 					// tx and ty are used for tile
 					Tile * tile = &g_world->tiles[tx + ty * g_world->width];
-					if(tile->province_id != (size_t)-1 && tile->owner_id != (size_t)-1) {
+					if(tile->province_id != (uint16_t)-1 && tile->owner_id != (uint16_t)-1) {
 						selected_province_id = tile->province_id;
 						do_province_overview();
 					}
@@ -343,9 +333,9 @@ void do_game_main(UI::Widget *, void *) {
 			glEnd();
 		}
 
-		for(size_t i = 0; i < 512; i++) {
-			const size_t x = i % 32;
-			const size_t y = i / 32;
+		for(size_t i = 0; i < 4096; i++) {
+			const size_t x = i % 128;
+			const size_t y = i / 128;
 			glBindTexture(GL_TEXTURE_2D, i);
 			glBegin(GL_TRIANGLES);
 			glColor3f(1.f, 1.f, 1.f);
@@ -493,9 +483,8 @@ void do_select_nation_via_flag(UI::Widget *, void * data) {
 void do_select_nation(UI::Widget *, void *) {
 	ui_ctx->clear();
 
-	Texture menu_bg = Texture(Path::get("title_bg.png").c_str());
-	menu_bg.to_opengl();
-	UI::Image * menu_bg_img = new UI::Image(nullptr, 0, 0, width, height, nullptr, &menu_bg);
+	const Texture * menu_bg = g_texture_manager->load_texture(Path::get("title_bg.png"));
+	UI::Image * menu_bg_img = new UI::Image(nullptr, 0, 0, width, height, nullptr, menu_bg);
 
 	UI::Label * lab = new UI::Label(nullptr, 64, 64, "Select nation");
 
@@ -615,12 +604,10 @@ void rendering_main(void) {
 
 	ui_ctx = new UI::Context();
 
-	Texture menu_bg = Texture(Path::get("title_bg.png").c_str());
-	menu_bg.to_opengl();
-	UI::Image * menu_bg_img = new UI::Image(nullptr, 0, 0, width, height, nullptr, &menu_bg);
-	Texture menu_title = Texture(Path::get("title.png").c_str());
-	menu_title.to_opengl();
-	UI::Image * menu_title_img = new UI::Image(nullptr, 64, 8, 320, 128, nullptr, &menu_title);
+	const Texture * menu_bg = g_texture_manager->load_texture(Path::get("title_bg.png"));
+	UI::Image * menu_bg_img = new UI::Image(nullptr, 0, 0, width, height, nullptr, menu_bg);
+	const Texture * menu_title = g_texture_manager->load_texture(Path::get("title.png"));
+	UI::Image * menu_title_img = new UI::Image(nullptr, 64, 8, 320, 128, nullptr, menu_title);
 	UI::Button * new_game = new UI::Button(nullptr, 64, 196, 256, 24, "New game");
 	new_game->on_click = &do_select_nation;
 	while(run) {
