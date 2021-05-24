@@ -58,6 +58,7 @@ public:
 };
 class DeliverGoods {
 public:
+	int rejections = 0;
 	float payment;
 	size_t good_id;
 	size_t sender_industry_id;
@@ -73,6 +74,7 @@ public:
 	DeliverGoods * deliver;
 };
 
+#include <algorithm>
 class World {
 public:
 	World();
@@ -117,7 +119,10 @@ public:
 
 	uint64_t time;
 
-	NationId get_nation_id(Nation * nation);
+	NationId get_nation_id(Nation * nation) {
+		std::vector<Nation *>::iterator it = std::find(this->nations.begin(), this->nations.end(), nation);
+		return (NationId)std::distance(this->nations.begin(), it);
+	}
 	ProvinceId get_province_id(Province * province);
 };
 

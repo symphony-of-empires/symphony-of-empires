@@ -470,37 +470,26 @@ void World::do_economy_tick_1() {
 
 #include "pathfinding.hpp"
 void World::do_economy_tick_2() {
-	for(auto& convoy: this->convoys) {
-		convoy.path.clear();
-	}
-	this->convoys.clear();
-
 	// Now we will deliver stuff accordingly
-	while(true) {
+	while(delivers.size() && orders.size()) {
 		// Now transport companies will check and transport accordingly
-		for(const auto& company: this->companies) {
+		for(auto& company: this->companies) {
 			if(!company->is_transport)
 				continue;
 			
 			// Check all delivers
 			for(size_t i = 0; i < delivers.size(); i++) {
 				DeliverGoods * deliver = &delivers[i];
-				if(!deliver->quantity) {
-					continue;
-				}
-
+				deliver->rejections++;
+				
 				if(!company->in_range(deliver->sender_province_id))
 					continue;
 				
-				// Check for orders available
+				// Check all orders
 				for(size_t j = 0; j < orders.size(); j++) {
 					OrderGoods * order = &orders[j];
-
-					if(!order->quantity) {
-						continue;
-					}
 					
-					// Do they want these goods?
+					// Do they want this goods?
 					if(order->good_id != deliver->good_id)
 						continue;
 					
@@ -513,8 +502,8 @@ void World::do_economy_tick_2() {
 					
 					// Obtain number of goods that we could satisfy
 					size_t count = order->quantity % deliver->quantity;
-					deliver->quantity -= count % deliver->quantity;
-					order->quantity -= count % order->quantity;
+					deliver->quantity -= count;
+					order->quantity -= count;
 
 					// Yes - we go and deliver their stuff
 					this->provinces[order->requester_province_id]->industries[order->requester_industry_id]->add_to_stock(this, order->good_id, count);
@@ -529,52 +518,50 @@ void World::do_economy_tick_2() {
 					}
 
 					this->provinces[order->requester_province_id]->industries[order->requester_industry_id]->production_cost += this->products[deliver->product_id]->price;
-
-					/* This causes a memory leak, please fix or idk, it takes a lot of memory
-					// Send a convoy to do it's intended duty
-					CommercialConvoy convoy;
-					convoy.deliver = deliver;
-					convoy.order = order;
-
-					const size_t start_x = this->provinces[deliver->sender_province_id]->min_x;
-					const size_t start_y = this->provinces[deliver->sender_province_id]->min_y;
-					Tile * start = &this->tiles[start_y * this->width + start_x];
-
-					const size_t end_x = this->provinces[order->requester_province_id]->min_x;
-					const size_t end_y = this->provinces[order->requester_province_id]->min_y;
-					Tile * end = &this->tiles[end_y * this->width + end_x];
-
-					convoy.path = find_path(*this, start, end);
-					this->convoys.push_back(convoy);
-
-					printf("convoy added\n");
-					printf("deliver %zu, order %zu\n", deliver->quantity, order->quantity);
-					*/
-
-					if(!deliver->quantity) {
-						break;
+					
+					// On 0 it overflows to -1, on 1 it goes to zero, but after this loop it's
+					// incremented again (see incrementing below). So we don't take a rejection hit
+					deliver->rejections--;
+					
+					// Delete this deliver and order tickets from the system since
+					// they are now fullfilled (only delete when no quanity left)
+					if(!order->quantity) {
+						orders.erase(orders.begin() + j);
+					} if(!deliver->quantity) {
+						delivers.erase(delivers.begin() + i);
+						i--;
 					}
+					break;
 				}
 			}
+		}
+		
+		// Get number of transporter companies
+		size_t n_transporters = 0;
+		for(const auto& company: this->companies) {
+			if(company->is_transport)
+				n_transporters++;
 		}
 		
 		// Drop all rejected delivers
 		for(size_t i = 0; i < delivers.size(); i++) {
 			DeliverGoods * deliver = &delivers[i];
-
-			// Add up to province stockpile
-			this->provinces[deliver->sender_province_id]->stockpile[deliver->product_id] += deliver->quantity;
-			this->products[deliver->product_id]->supply += deliver->quantity;
-			if(this->products[deliver->product_id]->demand) {
-				this->products[deliver->product_id]->demand -= deliver->quantity % this->products[deliver->product_id]->demand;
+			if(deliver->rejections >= n_transporters) {
+				// Add up to province stockpile
+				this->provinces[deliver->sender_province_id]->stockpile[deliver->product_id] += deliver->quantity;
+				this->products[deliver->product_id]->supply += deliver->quantity;
+				if(this->products[deliver->product_id]->demand) {
+					this->products[deliver->product_id]->demand -= deliver->quantity % this->products[deliver->product_id]->demand;
+				}
+				delivers.erase(delivers.begin() + i);
+				i--;
 			}
 		}
-		delivers.clear();
 
 		// No orders if no delivers! (and can't deliver if no orders)
-		break;
+		if(!delivers.size() || !orders.size())
+			break;
 	}
-
 	delivers.clear();
 	orders.clear();
 }
@@ -582,7 +569,7 @@ void World::do_economy_tick_2() {
 void World::do_economy_tick_3() {
 	// Now, it's like 1 am here, but i will try to write a very nice economic system
 	// TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
-	for(auto& province: this->provinces) {
+	for(Province *& province: this->provinces) {
 		// Reset worker pool
 		province->worker_pool = 0;
 		for(size_t i = 0; i < province->pops.size(); i++) {
@@ -764,7 +751,8 @@ void World::do_economy_tick_4() {
 	// Reset production costs
 	const size_t n_provinces = this->provinces.size();
 	for(size_t i = 0; i < n_provinces; i++) {
-		for(size_t j = 0; j < this->provinces[i]->industries.size(); j++) {
+		const size_t n_industries = this->provinces[i]->industries.size();
+		for(size_t j = 0; j < n_industries; j++) {
 			Industry * industry = this->provinces[i]->industries[j];
 			industry->production_cost = 0.f;
 		}
@@ -861,7 +849,6 @@ void World::do_tick() {
 	}
 
 	// Do diplomacy
-	const size_t n_provinces = this->provinces.size();
 
 	// Evaluate units
 	for(size_t i = 0; i < this->units.size(); i++) {
