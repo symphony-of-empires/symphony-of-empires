@@ -9,11 +9,6 @@
 #define PROVINCE_DISPUTED (size_t)-2
 #define PROVINCE_NO_ONWER (size_t)-1
 
-template<typename T>
-constexpr size_t ptr_to_index(T * arr, T * ptr) {
-	return ((ptrdiff_t)ptr - (ptrdiff_t)arr) / sizeof(T);
-}
-
 typedef uint16_t ProvinceId;
 
 class World;
