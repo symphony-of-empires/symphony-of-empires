@@ -158,7 +158,7 @@ int LuaAPI::add_nation(lua_State * L) {
 	nation->color |= 0xff000000;
 
 	const char * default_flag = lua_tostring(L, 3);
-	nation->default_flag->from_file(default_flag);
+	nation->default_flag = new Texture(default_flag);
 
 	nation->name = lua_tostring(L, 4);
 

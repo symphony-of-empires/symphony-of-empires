@@ -11,7 +11,7 @@
  * Checks whether the given coordinates are within bounds for the given world
  */
 bool coord_in_bounds(const World& world, int x, int y) {
-	return y >= 0 && y < world.height;
+	return y >= 0 && (size_t)y < world.height;
 }
 
 /**
@@ -23,7 +23,6 @@ std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
 	
 	for(int i = -1; i <= 1; i++) {
 		for(int j = -1; j <= 1; j++) {
-			
 			// Skip middle
 			if(i == 0 && j == 0)
 				continue;
@@ -138,7 +137,7 @@ std::vector<Tile *> find_path(const World& world, Tile * start, Tile * end) {
 		if(current == end)
 			break;
 		
-		for(auto neighbor: generate_neighbors(world, current)) {
+		for(const auto neighbor: generate_neighbors(world, current)) {
 			// If the neighbor is visited, we already have the optimal path to it
 			if(visited.count(neighbor))
 				continue;

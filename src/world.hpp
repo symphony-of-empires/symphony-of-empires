@@ -62,7 +62,6 @@ public:
 	size_t good_id;
 	size_t sender_industry_id;
 	ProvinceId sender_province_id;
-	size_t rejections = 0;
 	size_t quantity;
 	size_t product_id;
 };

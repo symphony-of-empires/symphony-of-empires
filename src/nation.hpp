@@ -130,6 +130,9 @@ class Nation {
 public:
 	Nation() {};
 	Nation& operator=(const Nation&) = default;
+	~Nation() {
+		delete default_flag;
+	}
 
 	// Default transleted/display name
 	std::string name;
@@ -141,7 +144,7 @@ public:
 	uint32_t color;
 
 	// Default flag texture of the country
-	Texture * default_flag = new Texture();
+	Texture * default_flag = nullptr;
 
 	// Relations with all other countries
 	std::vector<NationRelation> relations;

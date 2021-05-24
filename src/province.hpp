@@ -15,6 +15,16 @@ class World;
 class Nation;
 class Province {
 public:
+	~Province() {
+		for(auto& industry: this->industries) {
+			delete industry;
+		} for(auto& product: this->products) {
+			delete product;
+		} for(auto& pop: this->pops) {
+			delete pop;
+		}
+	}
+
 	size_t get_id(World * world);
 	void add_industry(World * world, Industry * industry);
 	void remove_industry(World * world, Industry * industry);
