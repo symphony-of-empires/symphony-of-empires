@@ -30,6 +30,7 @@ World::World() {
 	this->width = topo.width;
 	this->height = topo.height;
 
+	// Check that size of all maps match
 	if(topo.width != this->width || topo.height != this->height) {
 		print_error("topographic map size mismatch");
 		exit(EXIT_FAILURE);
@@ -103,7 +104,8 @@ World::World() {
 	// TODO: The. name. is. fucking. long.
 	lua_register(this->lua, "add_op_province_to_company", LuaAPI::add_op_province_to_company);
 
-	// Set path for `require` statements in lua
+	// Set path for `require` statements in lua, this will allow us to require
+	// without using data/scripts
 	lua_getglobal(this->lua, "package");
 	lua_getfield(this->lua, -1, "path");
 	std::string curr_path = lua_tostring(this->lua, -1);
@@ -120,7 +122,7 @@ World::World() {
 		exit(EXIT_FAILURE);
 	}
 
-	// Shrink normally-not-resized vectors
+	// Shrink normally-not-resized vectors to give back memory to the OS
 	this->provinces.shrink_to_fit();
 	this->nations.shrink_to_fit();
 	this->goods.shrink_to_fit();
@@ -133,8 +135,8 @@ World::World() {
 	for(auto& province: this->provinces) {
 		province->max_x = 0;
 		province->max_y = 0;
-		province->min_x = 65532;
-		province->min_y = 65532;
+		province->min_x = UINT32_MAX;
+		province->min_y = UINT32_MAX;
 	}
 
 	// Translate all div, pol and topo maps onto this single tile array
@@ -317,6 +319,17 @@ World::World() {
 		province->neighbours.shrink_to_fit();
 	}
 
+	// Register all provinces onto the owning nations
+	for(size_t i = 0; i < n_provinces; i++) {
+		const Province * province = this->provinces[i];
+		if(province->owner_id >= n_nations) {
+			continue;
+		}
+
+		Nation * nation = this->nations[province->owner_id];
+		nation->owned_provinces.push_back(this->provinces[i]);
+	}
+
 	// Create diplomatic relations between nations
 	for(const auto& nation: this->nations) {
 		// Relations between nations start at 0
@@ -333,17 +346,7 @@ World::World() {
 
 		nation->neighbours.shrink_to_fit();
 		nation->relations.shrink_to_fit();
-	}
-
-	// Register all provinces onto the owning nations
-	for(size_t i = 0; i < n_provinces; i++) {
-		const Province * province = this->provinces[i];
-		if(province->owner_id >= n_nations) {
-			continue;
-		}
-
-		Nation * nation = this->nations[province->owner_id];
-		nation->owned_provinces.push_back(this->provinces[i]);
+		nation->owned_provinces.shrink_to_fit();
 	}
 
 	ret = luaL_dofile(this->lua, Path::get("scripts/mod.lua").c_str());
