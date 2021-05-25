@@ -25,28 +25,7 @@ public:
 
 #include <string>
 #include "province.hpp"
-
-class UnitType {
-public:
-	std::string name;
-	std::string ref_name;
-	float supply_consumption;
-	float speed;
-	float max_health;
-	float defense;
-	float attack;
-};
-
-class Unit {
-public:
-	uint8_t type_id;
-	float x;
-	float y;
-	float tx;
-	float ty;
-	float health;
-	uint16_t owner_id;
-};
+#include "unit.hpp"
 
 class OrderGoods {
 public:

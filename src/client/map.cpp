@@ -451,9 +451,9 @@ void Map::quad_update_nation(size_t start_x, size_t start_y, size_t end_x, size_
 			// Delete old quad OpenGL lists (so we can redraw them)
 			
 			// Delete fillings
-			//gl_list = &this->nations_fill[qx + qy * this->n_horz_quads];
-			//glDeleteLists(*gl_list, 1);
-			//*gl_list = 0;
+			gl_list = &this->nations_fill[qx + qy * this->n_horz_quads];
+			glDeleteLists(*gl_list, 1);
+			*gl_list = 0;
 
 			// Delete borders
 			gl_list = &this->nations_wire[qx + qy * this->n_horz_quads];
