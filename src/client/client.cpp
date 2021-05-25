@@ -207,7 +207,7 @@ void do_game_main(UI::Widget *, void *) {
 					
 					// Place unit
 					Unit * unit = new Unit();
-					unit->health = 100.f;
+					unit->size = 100;
 					unit->owner_id = player_nation_id;
 					unit->x = fmx;
 					unit->y = fmy;
@@ -220,7 +220,7 @@ void do_game_main(UI::Widget *, void *) {
 					
 					// Place enemy
 					Unit * unit = new Unit();
-					unit->health = 100.f;
+					unit->size = 100;
 					unit->owner_id = 10;
 					unit->x = fmx;
 					unit->y = fmy;
