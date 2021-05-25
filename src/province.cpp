@@ -1,31 +1,42 @@
 #include "province.hpp"
+#include "economy.hpp"
 #include "world.hpp"
 
-/** Gets ID from pointer
-  */
-size_t Province::get_id(World * world) {
-	size_t i = 0;
-	for(const auto& province: world->provinces) {
-		if(province == this) {
-			return i;
-		}
-		i++;
+Province::~Province() {
+	for(auto& industry: this->industries) {
+		delete industry;
+	} for(auto& product: this->products) {
+		delete product;
+	} for(auto& pop: this->pops) {
+		delete pop;
 	}
-	return (size_t)-1;
 }
 
-/** Adds a new industry in the province and adds it's output
- *  products into the world accordingly
+/**
+ * Gets ID from pointer
+ */
+ProvinceId Province::get_id(const World& world) {
+	const std::vector<Province *> * provinces = &world.provinces;
+	const auto province = std::find(provinces->begin(), provinces->end(), this);
+	if(province != provinces->end()) {
+		return (ProvinceId)std::distance(provinces->begin(), province);
+	}
+	return (ProvinceId)-1;
+}
+
+/**
+ * Adds a new industry in the province and adds it's output
+ * products into the world accordingly
  */
 void Province::add_industry(World * world, Industry * industry) {
 	IndustryType * type = world->industry_types[industry->type_id];
 	for(const auto& output: type->outputs) {
-		const size_t good_id = output;
+		const GoodId good_id = output;
 		
 		// Check that product is not already in the province
 		int is_here = 0;
 		const unsigned int n_products = this->products.size();
-		for(size_t j = 0; j < n_products; j++) {
+		for(ProductId j = 0; j < n_products; j++) {
 			if(this->products[j]->owner_id == industry->owner_id) {
 				is_here = 1;
 				break;
@@ -41,8 +52,8 @@ void Province::add_industry(World * world, Industry * industry) {
 		new_product->owner_id = industry->owner_id;
 
 		// Find id of this province
-		size_t province_id = (size_t)-1;
-		for(size_t i = 0; i < world->provinces.size(); i++) {
+		ProvinceId province_id = (ProvinceId)-1;
+		for(ProvinceId i = 0; i < world->provinces.size(); i++) {
 			if(world->provinces[i]->ref_name != this->ref_name)
 				continue;
 			
@@ -64,7 +75,7 @@ void Province::add_industry(World * world, Industry * industry) {
 	// We will set inputs_satisfied to same size as inputs
 	// Industries start with 100 of stockpiles
 	industry->stockpile.clear();
-	for(size_t i = 0; i < world->industry_types[industry->type_id]->inputs.size(); i++) {
+	for(IndustryTypeId i = 0; i < world->industry_types[industry->type_id]->inputs.size(); i++) {
 		industry->stockpile.push_back(100);
 	}
 
@@ -75,11 +86,11 @@ void Province::add_industry(World * world, Industry * industry) {
   * this is only used when industries go bankrupt!
   */
 void Province::remove_industry(World * world, Industry * industry) {
-	size_t province_id = this->get_id(world);
-	size_t industry_id = industry->get_id(world, province_id);
+	ProvinceId province_id = this->get_id(*world);
+	IndustryId industry_id = industry->get_id(*world, province_id);
 
 	// Remove products of this industry from world market
-	for(size_t i = 0; i < world->products.size(); i++) {
+	for(ProductId i = 0; i < world->products.size(); i++) {
 		Product * product = world->products[i];
 		if(product->origin_id == province_id
 		&& product->industry_id == industry_id) {

@@ -10,7 +10,7 @@
 /**
  * Checks whether the given coordinates are within bounds for the given world
  */
-bool coord_in_bounds(const World& world, int x, int y) {
+static inline constexpr bool coord_in_bounds(const World& world, int x, int y) {
 	return y >= 0 && (size_t)y < world.height;
 }
 
@@ -18,7 +18,7 @@ bool coord_in_bounds(const World& world, int x, int y) {
  * Calculates the neighbors for a given Tile. The neighbors are the 8 tiles around
  * it, while taking into account the map bounds.
  */
-std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
+static std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
 	std::vector<Tile *> result;
 	
 	for(int i = -1; i <= 1; i++) {
@@ -31,7 +31,7 @@ std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
 			const size_t t_x = t_idx % world.width;
 			const size_t t_y = t_idx / world.width;
 
-			size_t index = (t_x + i) + (t_y + j) * world.width;
+			const size_t index = (t_x + i) + (t_y + j) * world.width;
 			Tile * neighbour = &world.tiles[index];
 			if(neighbour->elevation > world.sea_level) {
 				result.push_back(neighbour);
@@ -46,7 +46,7 @@ std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
  * Calculates the euclidean distance between the two tiles
  * considering only x and y (ignoring elevation)
  */
-float euclidean_distance(const World& world, Tile * t1, Tile * t2) {
+static inline constexpr float euclidean_distance(const World& world, Tile * t1, Tile * t2) {
 	const size_t t1_idx = ptr_to_index<Tile>(world.tiles, t1);
 	const size_t t1_x = t1_idx % world.width;
 	const size_t t1_y = t1_idx / world.width;
@@ -55,8 +55,8 @@ float euclidean_distance(const World& world, Tile * t1, Tile * t2) {
 	const size_t t2_x = t2_idx % world.width;
 	const size_t t2_y = t2_idx / world.width;
 	
-	int x_diff = t1_x - t2_x;
-	int y_diff = t1_y - t2_y;
+	const int x_diff = t1_x - t2_x;
+	const int y_diff = t1_y - t2_y;
 	return std::sqrt(x_diff * x_diff + y_diff * y_diff);
 }
 
@@ -64,7 +64,7 @@ float euclidean_distance(const World& world, Tile * t1, Tile * t2) {
  * Calculates the cost accrued by moving from one tile to another, taking into
  * account elevation and infrastructure.
  */
-float tile_cost(const World& world, Tile * t1, Tile * t2) {
+static inline constexpr float tile_cost(const World& world, Tile * t1, Tile * t2) {
 	const size_t t1_idx = ptr_to_index<Tile>(world.tiles, t1);
 	const size_t t1_x = t1_idx % world.width;
 	const size_t t1_y = t1_idx / world.width;
@@ -73,33 +73,34 @@ float tile_cost(const World& world, Tile * t1, Tile * t2) {
 	const size_t t2_x = t2_idx % world.width;
 	const size_t t2_y = t2_idx / world.width;
 
-	int x_diff = t1_x - t2_x;
-	int y_diff = t1_y - t2_y;
+	const int x_diff = t1_x - t2_x;
+	const int y_diff = t1_y - t2_y;
 	
 	// Maximum elevation difference accounts to same cost as one jump in x or y direction (1.0)
-	float elev_diff = ((int)t1->elevation - (int)t2->elevation) / 128.f;
+	const float elev_diff = ((int)t1->elevation - (int)t2->elevation) / 128.f;
 	
 	// Base distance is euclidean distance in x, y and elevation
-	float distance = std::sqrt(x_diff * x_diff + y_diff * y_diff + elev_diff * elev_diff);
+	const float distance = std::sqrt(x_diff * x_diff + y_diff * y_diff + elev_diff * elev_diff);
 	
 	// Calculate average infrastructure level between the two tiles
-	float avg_infra = ((t1->infra_level + t2->infra_level) / 2.f);
+	const float avg_infra = ((t1->infra_level + t2->infra_level) / 2.f);
 	
 	// Cost modifier from infrastructure scales linearly with infrastructure
 	// with 1.0 cost modifier at max infra and 5.0 modifier at 0 infra
 	// NOTE: Make sure that the infrastructure modifier is always larger than 1 for bad infra
 	// (rather than <1 for good infra), or the heuristic will no longer be admissible
 	// and A* will no longer be optimal
-	float infra_modifier = 1.f + 4.f * (1 - avg_infra / 8.f); 
+	const float infra_modifier = 1.f + 4.f * (1.f - avg_infra / 8.f); 
 	
 	// Rivers double the cost
-	float river_modifier = (t1->elevation == 127 || t2->elevation == 127) ? 2.f : 1.f;
+	const float river_modifier = (t1->elevation == 127 || t2->elevation == 127) ? 2.f : 1.f;
 	
 	return river_modifier * infra_modifier * distance;
 }
 
 std::vector<Tile *> find_path(const World& world, Tile * start, Tile * end) {
-	if (start->elevation <= world.sea_level && end->elevation <= world.sea_level) {
+	// We can't go to sea
+	if(start->elevation <= world.sea_level && end->elevation <= world.sea_level) {
 		return std::vector<Tile *>();
 	}
 	
@@ -137,16 +138,18 @@ std::vector<Tile *> find_path(const World& world, Tile * start, Tile * end) {
 		if(current == end)
 			break;
 		
+		// Generate neighbours
 		for(const auto neighbor: generate_neighbors(world, current)) {
 			// If the neighbor is visited, we already have the optimal path to it
 			if(visited.count(neighbor))
 				continue;
 			
-			float cost = cost_map[current] + tile_cost(world, current, neighbor);
+			const float cost = cost_map[current] + tile_cost(world, current, neighbor);
+			
 			// If we found a new tile or a shorter path to a previously found tile
 			if(!cost_map.count(neighbor) || cost < cost_map[neighbor]) {
 				cost_map[neighbor] = cost;
-				float priority = cost + euclidean_distance(world, neighbor, end);
+				const float priority = cost + euclidean_distance(world, neighbor, end);
 				queue.push({priority, neighbor});
 				prev_map[neighbor] = current;
 			}
@@ -161,8 +164,8 @@ std::vector<Tile *> find_path(const World& world, Tile * start, Tile * end) {
 		path.push_back(current);
 		current = prev_map[current];
 	}
-	
 	path.push_back(start);
+	
 	std::reverse(path.begin(), path.end());
 	return path;
 }

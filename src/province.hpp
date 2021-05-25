@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <string>
 #include "pop.hpp"
-#include "economy.hpp"
 
 #define PROVINCE_DISPUTED (size_t)-2
 #define PROVINCE_NO_ONWER (size_t)-1
@@ -13,19 +12,13 @@ typedef uint16_t ProvinceId;
 
 class World;
 class Nation;
+class Industry;
+class Product;
 class Province {
 public:
-	~Province() {
-		for(auto& industry: this->industries) {
-			delete industry;
-		} for(auto& product: this->products) {
-			delete product;
-		} for(auto& pop: this->pops) {
-			delete pop;
-		}
-	}
+	~Province();
 
-	size_t get_id(World * world);
+	ProvinceId get_id(const World& world);
 	void add_industry(World * world, Industry * industry);
 	void remove_industry(World * world, Industry * industry);
 

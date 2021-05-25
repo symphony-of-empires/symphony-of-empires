@@ -1,17 +1,25 @@
 #ifndef ECONOMY_H
 #define ECONOMY_H
 
-#include <stdint.h>
-#include <stddef.h>
+#include <algorithm>
 #include <string>
 #include <vector>
-#include "texture.hpp"
+#include <deque>
+#include <cstdint>
+#include <cstddef>
 
-template <typename T>
-constexpr static inline size_t pointer_to_index(T * arr, T * element) {
-	return ((ptrdiff_t)element - (ptrdiff_t)arr) / sizeof(T);
+#include "texture.hpp"
+#include "array_ops.hpp"
+#include "province.hpp"
+
+namespace Economy {
+	void do_phase_1(World& world);
+	void do_phase_2(World& world);
+	void do_phase_3(World& world);
+	void do_phase_4(World& world);
 }
 
+typedef uint16_t CompanyId;
 class Company {
 public:
 	std::string name;
@@ -19,15 +27,11 @@ public:
 	bool is_transport;
 	bool is_retailer;
 	bool is_industry;
-	std::vector<size_t> operating_provinces;
+	std::vector<ProvinceId> operating_provinces;
 
-	bool in_range(size_t prov_id) {
-		// Check that province is in our operational list
-		for(const auto& op: this->operating_provinces) {
-			if(op == prov_id)
-				return true;
-		}
-		return false;
+	inline bool in_range(ProvinceId prov_id) {
+		return (std::find(this->operating_provinces.begin(), this->operating_provinces.end(), prov_id)
+			!= this->operating_provinces.end());
 	}
 
 	void name_gen() {
@@ -38,6 +42,7 @@ public:
 	}
 };
 
+typedef uint8_t GoodId;
 class Good {
 public:
 	~Good() {
@@ -50,6 +55,7 @@ public:
 	Texture * icon = nullptr;
 };
 
+typedef uint8_t IndustryTypeId;
 class IndustryType {
 public:
 	~IndustryType() {
@@ -63,20 +69,43 @@ public:
 	Texture * image = nullptr;
 };
 
-#include <deque>
+class World;
+
+typedef uint16_t IndustryId;
+class Industry {
+public:
+	size_t get_id(const World& world, size_t province_id);
+	bool can_do_output(const World& world);
+	void add_to_stock(const World& world, size_t good_id, size_t add);
+	
+	size_t owner_id;
+	
+	size_t type_id;
+	
+	size_t ticks_unoperational;
+
+	float production_cost;
+	
+	std::vector<size_t> stockpile;
+	
+	// Used for faster lookups
+	std::vector<size_t> output_products;
+};
+
+typedef uint16_t ProductId;
 class Product {
 public:
 	// Onwer (companyId) of this product
-	size_t owner_id;
+	CompanyId owner_id;
 	
 	// Origin province (where this product was made)
-	size_t origin_id;
+	ProvinceId origin_id;
 	
 	// Industry in province that made this product
-	size_t industry_id;
+	IndustryId industry_id;
 	
 	// Good that this product is based on
-	size_t good_id;
+	GoodId good_id;
 	
 	// Price of the product
 	float price;
@@ -97,27 +126,6 @@ public:
 	std::deque<float> price_history;
 	std::deque<size_t> supply_history;
 	std::deque<size_t> demand_history;
-};
-
-class World;
-class Industry {
-public:
-	size_t get_id(World * world, size_t province_id);
-	bool can_do_output(World * world);
-	void add_to_stock(World * world, size_t good_id, size_t add);
-	
-	size_t owner_id;
-	
-	size_t type_id;
-	
-	size_t ticks_unoperational;
-
-	float production_cost;
-	
-	std::vector<size_t> stockpile;
-	
-	// Used for faster lookups
-	std::vector<size_t> output_products;
 };
 
 #endif
