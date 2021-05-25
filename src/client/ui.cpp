@@ -23,7 +23,7 @@ Context::Context() {
 		exit(EXIT_FAILURE);
 	}
 
-	this->default_font = TTF_OpenFont(Path::get("fonts/FreeMono.ttf").c_str(), 24);
+	this->default_font = TTF_OpenFont(Path::get("fonts/playfair.ttf").c_str(), 24);
 	if(this->default_font == nullptr){
 		perror("font could not be loaded, exiting\n");
 		exit(EXIT_FAILURE);
@@ -42,9 +42,13 @@ Context::Context() {
 	this->scroll_bar.from_file("ui/scroll_bar.png");
 	this->checkbox_true.from_file("ui/checkbox_true.png");
 	this->checkbox_false.from_file("ui/checkbox_false.png");
-	this->window.from_file("ui/window.png");
+	this->window_1x1.from_file("ui/window.png");
+  this->window_2x1.from_file("ui/window_2x1.png");
+  this->window_4x1.from_file("ui/window_4x1.png");
+  this->window_1x2.from_file("ui/window_1x2.png");
+  this->window_1x4.from_file("ui/window_1x4.png");
 	this->window_border.from_file("ui/window_border.png");
-	
+
 	this->arrow.active.to_opengl();
 	this->arrow.hover.to_opengl();
 	this->arrow.idle.to_opengl();
@@ -58,7 +62,11 @@ Context::Context() {
 	this->scroll_bar.to_opengl();
 	this->checkbox_true.to_opengl();
 	this->checkbox_false.to_opengl();
-	this->window.to_opengl();
+	this->window_1x1.to_opengl();
+  this->window_2x1.to_opengl();
+  this->window_4x1.to_opengl();
+  this->window_1x2.to_opengl();
+  this->window_1x4.to_opengl();
 	this->window_border.to_opengl();
 
 	this->widgets.clear();
@@ -84,7 +92,7 @@ void Context::remove_widget(Widget * widget) {
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		if(this->widgets[i] != widget)
 			continue;
-		
+
 		this->widgets.erase(this->widgets.begin() + i);
 		break;
 	}
@@ -108,7 +116,7 @@ void Context::render_all() {
 			widget->show = false;
 			continue;
 		}
-		
+
 		if(widget->parent != nullptr
 		&& (widget->y + widget->width < widget->parent->y
 		|| widget->x + widget->width < widget->parent->x)) {
@@ -158,7 +166,7 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 			if(widget->action_textures != nullptr) {
 				widget->current_texture = &widget->action_textures->active;
 			}
-			
+
 			if(widget->on_click != nullptr) {
 				widget->on_click(widget, widget->user_data);
 			}
@@ -252,22 +260,22 @@ void default_on_render(Widget * w, void * data) {
 		// Shadow
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBegin(GL_TRIANGLES);
-		glColor4f(0.f, 0.f, 0.f, 0.5f);
+		glColor4f(0.f, 0.f, 0.f, 0.33f);
 		glTexCoord2f(0.f, 0.f);
-		glVertex2f(w->x + 16, w->y + 16);
+		glVertex2f(w->x + 12, w->y + 12);
 		glTexCoord2f(1.f, 0.f);
-		glVertex2f(w->x + w->width + 16, w->y + 16);
+		glVertex2f(w->x + w->width + 12, w->y + 12);
 		glTexCoord2f(1.f, 1.f);
-		glVertex2f(w->x + w->width + 16, w->y + w->height + 16);
+		glVertex2f(w->x + w->width + 12, w->y + w->height + 12);
 		glTexCoord2f(1.f, 1.f);
-		glVertex2f(w->x + w->width + 16, w->y + w->height + 16);
+		glVertex2f(w->x + w->width + 12, w->y + w->height + 12);
 		glTexCoord2f(0.f, 1.f);
-		glVertex2f(w->x + 16, w->y + w->height + 16);
+		glVertex2f(w->x + 12, w->y + w->height + 12);
 		glTexCoord2f(0.f, 0.f);
-		glVertex2f(w->x + 16, w->y + 16);
+		glVertex2f(w->x + 12, w->y + 12);
 		glEnd();
 	}
-	
+
 	glColor3f(1.f, 1.f, 1.f);
 	if(w->type != UI_WIDGET_LABEL) {
 		w->draw_rectangle(
@@ -282,11 +290,11 @@ void default_on_render(Widget * w, void * data) {
 	}
 
 	if(w->type == UI_WIDGET_WINDOW) {
-		w->draw_rectangle(
-			w->x, w->y - 24,
-			w->width, 24,
-			g_ui_context->window_border.gl_tex_num
-		);
+		// w->draw_rectangle(
+		// 	w->x, w->y - 24,
+		// 	w->width, 24,
+		// 	g_ui_context->window_border.gl_tex_num
+		// );
 		if(w->text_texture != nullptr && w->text_texture->gl_tex_num) {
 			w->draw_rectangle(
 				w->x, w->y - 24,
@@ -367,6 +375,8 @@ Widget::Widget(Widget * _parent, int _x, int _y, const unsigned w, const unsigne
 
 	// After this we can do some trickery and add any widgets we may need (close buttons, scrollbars, etc)
 
+  float ratio = (float)(w) / (float)(h);
+
 	// Only used for windows
 	Button * close_btn;
 	this->action_textures = nullptr;
@@ -381,10 +391,22 @@ Widget::Widget(Widget * _parent, int _x, int _y, const unsigned w, const unsigne
 		this->on_textinput = &default_on_text_input;
 		break;
 	case UI_WIDGET_WINDOW:
-		this->current_texture = &g_ui_context->window;
+    if (ratio >= 0.75 && ratio < 1.5)
+      this->current_texture = &g_ui_context->window_1x1;
+    else if (ratio >= 0.375 && ratio < 0.75)
+      this->current_texture = &g_ui_context->window_1x2;
+    else if (ratio < 0.375)
+      this->current_texture = &g_ui_context->window_1x4;
+    else if (ratio >= 1.5 && ratio < 3)
+      this->current_texture = &g_ui_context->window_2x1;
+    else if (ratio >= 3)
+      this->current_texture = &g_ui_context->window_4x1;
+    else
+      this->current_texture = &g_ui_context->window_1x1;
+
 		this->is_movable = true;
 
-		close_btn = new Button(this, this->width - 24, -24, 24, 24, "X");
+		close_btn = new Button(this, this->width, this->height, 24, 24, "X");
 		close_btn->on_click = &default_close_button_on_click;
 		close_btn->is_pinned = true;
 		break;
@@ -467,7 +489,7 @@ void Widget::text(const char * text) {
 			if(r == 0xff) {
 				final_pixel = 0;
 			} else {
-				final_pixel = (a << 24) | (r << 16) | (g << 8) | b;
+				final_pixel = 0xFFFFFFFF; // (a << 24) | (r << 16) | (g << 8) | b;
 			}
 			tex->buffer[i + j * tex->width] = final_pixel;
 		}

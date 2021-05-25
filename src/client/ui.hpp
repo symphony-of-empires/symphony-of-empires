@@ -40,7 +40,7 @@ namespace UI {
 		void clear(void);
 
 		TTF_Font * default_font;
-		
+
 		std::vector<Widget *> widgets;
 
 		ActionTextures arrow;
@@ -53,7 +53,7 @@ namespace UI {
 		Texture checkbox_true;
 		Texture checkbox_false;
 
-		Texture window;
+		Texture window_1x1, window_2x1, window_4x1, window_1x2, window_1x4;
 		Texture window_border;
 	};
 
@@ -90,7 +90,7 @@ namespace UI {
 		int scroll_y;
 
 		bool is_check;
-		
+
 		size_t width;
 		size_t height;
 
