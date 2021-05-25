@@ -854,7 +854,7 @@ void World::do_tick() {
 	// Evaluate units
 	for(size_t i = 0; i < this->units.size(); i++) {
 		Unit * unit = this->units[i];
-		if(unit->health <= 0.f) {
+		if(unit->size <= 0) {
 			g_world->units.erase(this->units.begin() + i);
 			break;
 		}
@@ -871,7 +871,7 @@ void World::do_tick() {
 			Unit * other_unit = g_world->units[j];
 			if(unit->owner_id == other_unit->owner_id) {
 				// Only when very close
-				if(fabs(unit->x - other_unit->x) >= 8 && fabs(unit->y - other_unit->y) >= 8)
+				if(fabs(unit->x - other_unit->x) >= 8.f && fabs(unit->y - other_unit->y) >= 8.f)
 					continue;
 				
 				n_friends++;
@@ -903,49 +903,70 @@ void World::do_tick() {
 				}
 			}
 		}
+
+		//unit->tx = unit->x;
+		//unit->ty = unit->y;
 		
-		if(nearest_foe == nullptr)
-			continue;
-		
+		// Cant be too close of friends (due to supply limits)
+		if(nearest_friend != nullptr
+		&& fabs(nearest_friend->x - unit->x) <= 4.f && fabs(nearest_friend->y - unit->y) <= 4.f) {
+			// Get away away from friend, we can't take too much attrition
+			unit->tx = (unit->tx > nearest_friend->tx) ? (nearest_friend->tx + 4.f) : (nearest_friend->tx - 4.f);
+			unit->ty = (unit->ty > nearest_friend->ty) ? (nearest_friend->ty + 4.f) : (nearest_friend->ty - 4.f);
+		}
 		// Too much enemies, retreat
-		if((n_foes / 3) > n_friends) {
+		if(nearest_foe != nullptr && (n_foes / 3) > n_friends) {
 			// Go away from foes
-			if(nearest_foe->x < unit->x)
-				unit->x += 0.1f;
-			if(nearest_foe->y < unit->y)
-				unit->y += 0.1f;
-			if(nearest_foe->x > unit->x)
-				unit->x -= 0.1f;
-			if(nearest_foe->y > unit->y)
-				unit->y -= 0.1f;
+			unit->tx = (nearest_foe->x > unit->x) ? nearest_foe->x : nearest_foe->x;
+			unit->ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
 			
 			// Attack nearest foe when possible
 			if(fabs(unit->x - nearest_foe->x) <= 1.f && fabs(unit->y - nearest_foe->y) <= 1.f) {
-				nearest_foe->health -= 10.f;
+				nearest_foe->size -= 10;
 			}
 		}
 		// The gang is able to attack, so we attack
-		else {
+		else if(nearest_foe != nullptr) {
 			// Attack enemies
-			if(nearest_foe->x > unit->x + 1.f)
-				unit->x += 0.1f;
-			if(nearest_foe->y > unit->y + 1.f)
-				unit->y += 0.1f;
-			if(nearest_foe->x < unit->x - 1.f)
-				unit->x -= 0.1f;
-			if(nearest_foe->y < unit->y - 1.f)
-				unit->y -= 0.1f;
-			
-			unit->tx = nearest_foe->x;
-			unit->ty = nearest_foe->y;
+			unit->tx = (nearest_foe->x > unit->x) ? nearest_foe->x : nearest_foe->x;
+			unit->ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
 			
 			// If in distance, do attack
 			if(fabs(unit->x - nearest_foe->x) <= 1.f && fabs(unit->y - nearest_foe->y) <= 1.f) {
-				nearest_foe->health -= 10.f;
+				nearest_foe->size -= 10;
 			}
 		}
+		// Nothing to do - we just die
+		else {
+			unit->tx = unit->x;
+			unit->ty = unit->y;
+		}
 
-		Tile * tile = &g_world->tiles[(size_t)unit->x + (size_t)unit->y * g_world->width];
+		// Move towards target
+		if(unit->x > unit->tx)
+			unit->x -= 0.1f;
+		else if(unit->x < unit->tx)
+			unit->x += 0.1f;
+
+		if(unit->y > unit->ty)
+			unit->y -= 0.1f;
+		else if(unit->y < unit->ty)
+			unit->y += 0.1f;
+
+		// North and south do not wrap
+		unit->y = fmax(0.f, unit->y);
+		unit->y = fmin(this->height, unit->y);
+
+		// West and east do wrap
+		if(unit->x <= 0.f) {
+			unit->x = this->width - 1.f;
+		} else if(unit->x >= this->width) {
+			unit->x = 0.f;
+		}
+
+		// Set nearby tiles as owned
+		// TODO: Make it conquer multiple tiles
+		Tile * tile = &this->tiles[(size_t)unit->x + (size_t)unit->y * this->width];
 		if(tile->owner_id != unit->owner_id) {
 			tile->owner_id = unit->owner_id;
 			render_province_mutex.lock();

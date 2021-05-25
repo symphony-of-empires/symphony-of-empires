@@ -197,32 +197,36 @@ void do_game_main(UI::Widget *, void *) {
 				
 				if(event.button.button == SDL_BUTTON_LEFT && !r) {
 					// tx and ty are used for tile
-					Tile * tile = &g_world->tiles[tx + ty * g_world->width];
+					/*Tile * tile = &g_world->tiles[tx + ty * g_world->width];
 					if(tile->province_id != (uint16_t)-1 && tile->owner_id != (uint16_t)-1) {
 						selected_province_id = tile->province_id;
 						do_province_overview();
 					}
 
-					start = &g_world->tiles[tx + ty * g_world->width];
+					start = &g_world->tiles[tx + ty * g_world->width];*/
 					
 					// Place unit
-					/*Unit * unit = new Unit();
+					Unit * unit = new Unit();
 					unit->health = 100.f;
 					unit->owner_id = player_nation_id;
 					unit->x = fmx;
 					unit->y = fmy;
-					g_world->units.push_back(unit);*/
+					unit->tx = unit->x;
+					unit->ty = unit->y;
+					g_world->units.push_back(unit);
 				} else if(event.button.button == SDL_BUTTON_RIGHT && !r) {
-					end = &g_world->tiles[tx + ty * g_world->width];
-					path = find_path(*g_world, start, end);
+					//end = &g_world->tiles[tx + ty * g_world->width];
+					//path = find_path(*g_world, start, end);
 					
 					// Place enemy
-					/*Unit * unit = new Unit();
+					Unit * unit = new Unit();
 					unit->health = 100.f;
 					unit->owner_id = 10;
 					unit->x = fmx;
 					unit->y = fmy;
-					g_world->units.push_back(unit);*/
+					unit->tx = unit->x;
+					unit->ty = unit->y;
+					g_world->units.push_back(unit);
 				}
 				break;
 			case SDL_MOUSEMOTION:
