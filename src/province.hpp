@@ -42,6 +42,8 @@ public:
 	
 	size_t worker_pool;
 
+	std::vector<Nation *> nucleuses;
+
 	std::vector<Nation *> owners;
 	std::vector<Province *> neighbours;
 	

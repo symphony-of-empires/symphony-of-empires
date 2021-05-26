@@ -80,6 +80,9 @@ end
 function Province:rename(province, new_name)
 	rename_province(province.id, new_name)
 end
+function Province:add_nucleus(province, nation)
+	add_province_nucleus(province.id, nation.id)
+end
 
 Event = { ref_name = "", conditions_fn = "", event_fn = "" }
 function Event:create(event)
