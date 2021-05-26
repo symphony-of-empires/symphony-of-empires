@@ -3,7 +3,7 @@ CXX=clang++
 else
 CXX=g++
 endif
-CXXFLAGS=-Wall -Wextra -Wshadow -std=c++17 -O3 -fno-stack-protector -mfpmath=sse -mmmx -msse -msse2 -m3dnow -fno-rtti -fno-exceptions -fopt-info-vec -iquote src -iquote src/client -g
+CXXFLAGS=-Wall -Wextra -Wshadow -std=c++17 -O3 -fno-stack-protector -mfpmath=sse -mmmx -msse -msse2 -m3dnow -fno-exceptions -fopt-info-vec -iquote src -iquote src/client -g
 ifdef WINDOWS
 LIBS=-lopengl32 -lglu32 -llua -lintl
 else
@@ -28,16 +28,6 @@ endif
 
 build: dirs bin/main data/locale/ko/LC_MESSAGES/main.mo
 
-depend: .depend
-
-clean_build: clean build
-
-.depend: $(SRCS)
-	rm -f "$@"
-	$(CXX) $(CXXFLAGS) -MM $^ > "$@"
-
-include .depend
-
 clean:
 	@rm -r bin obj
 
@@ -51,7 +41,6 @@ bin/main: $(OBJS)
 
 obj/%.o: src/%.cpp src/%.hpp
 	$(CXX) $(CXXFLAGS) $< -c -o $@
-
 obj/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) $< -c -o $@
 

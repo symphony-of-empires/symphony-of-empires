@@ -13,6 +13,7 @@ enum UI_WidgetType {
 	UI_WIDGET_IMAGE,
 	UI_WIDGET_CHART,
 	UI_WIDGET_CHECKBOX,
+	UI_WIDGET_PIE_CHART,
 };
 
 #include <SDL2/SDL_ttf.h>
@@ -59,6 +60,7 @@ namespace UI {
 
 	class Widget {
 	public:
+
 		Widget() {};
 		Widget(Widget * parent, int x, int y, unsigned w, unsigned h, int type,
 			const char * text = nullptr, const Texture * tex = nullptr);
@@ -66,91 +68,78 @@ namespace UI {
 		Widget(Widget&&) noexcept = default;
 		Widget& operator=(const Widget&) = default;
 		Widget& operator=(Widget&) noexcept = default;
-		~Widget();
+		virtual ~Widget();
 
 		void move_by(int x, int y);
 		void add_child(Widget * child);
 		void text(const char * text);
 		void draw_rectangle(int x, int y, unsigned w, unsigned h, unsigned tex);
 
-		bool is_movable;
-		bool is_pinned;
+		bool is_movable = false;
+		bool is_pinned = false;
 		int type;
 
-		int x;
-		int y;
+		int scroll_x = 0;
+		int scroll_y = 0;
 
-		int ox;
-		int oy;
+		int x = 0;
+		int y = 0;
 
-		int mx;
-		int my;
-
-		int scroll_x;
-		int scroll_y;
+		int ox = 0, oy = 0;
+		int mx = 0, my = 0;
+		char show;
 
 		bool is_check;
 		
-		size_t width;
-		size_t height;
+		size_t width = 0;
+		size_t height = 0;
 
-		char show;
+		ActionTextures * action_textures = nullptr;
+		const Texture * current_texture = nullptr;
+		Texture * text_texture = nullptr;
 
-		ActionTextures * action_textures;
-		const Texture * current_texture;
-		Texture * text_texture;
-
-		char * buffer;
-
-		void (*on_update)(Widget *, void *);
-		void (*on_render)(Widget *, void *);
-		void (*on_hover)(Widget *, void *);
-		void (*on_click)(Widget *, void *);
-		void (*on_textinput)(Widget *, const char *, void *);
-
-		Widget * parent;
+		Widget * parent = nullptr;
 		std::vector<Widget *> children;
+		void * user_data = nullptr;
 
-		void * user_data;
-		size_t user_data_len;
+		void (*on_update)(Widget *, void *) = nullptr;
+		void (*on_render)(Widget *, void *) = nullptr;
+		void (*on_hover)(Widget *, void *) = nullptr;
+		void (*on_click)(Widget *, void *) = nullptr;
 	};
 
 	class Button : public Widget {
 	public:
 		Button(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
-			const char * text = nullptr, const Texture * tex = nullptr)
-			: Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON, text, tex) {}
+			const char * text = nullptr, const Texture * tex = nullptr);
 		Button& operator=(const Button&) = default;
 		~Button() {};
 	};
 	class Input : public Widget {
 	public:
-		Input(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
-			const char * text = nullptr, const Texture * tex = nullptr)
-			: Widget(_parent, _x, _y, w, h, UI_WIDGET_INPUT, text, tex) {}
+		Input(Widget * _parent, int _x, int _y, unsigned w, unsigned h);
 		Input& operator=(const Input&) = default;
 		~Input() {};
+		void (*on_textinput)(Input *, const char *, void *) = nullptr;
+		char * buffer = nullptr;
 	};
 	class Window : public Widget {
 	public:
 		Window(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
-			const char * text = nullptr, const Texture * tex = nullptr)
-			: Widget(_parent, _x, _y, w, h, UI_WIDGET_WINDOW, text, tex) {}
+			const char * text = nullptr, const Texture * tex = nullptr);
 		Window& operator=(const Window&) = default;
 		~Window() {};
 	};
 	class Image : public Widget {
 	public:
 		Image(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
-			const char * text = nullptr, const Texture * tex = nullptr)
-			: Widget(_parent, _x, _y, w, h, UI_WIDGET_IMAGE, text, tex) {}
+			const char * text = nullptr, const Texture * tex = nullptr);
 		Image& operator=(const Image&) = default;
 		~Image() {};
 	};
 	class Label : public Widget {
 	public:
-		Label(Widget * _parent, int _x, int _y,
-			const char * text = nullptr)
+		Label(Widget * _parent, int _x, int _y, const char * text = nullptr)
 			: Widget(_parent, _x, _y, 0, 0, UI_WIDGET_LABEL, text, nullptr) {}
 		Label& operator=(const Label&) = default;
 		~Label() {};
@@ -162,6 +151,16 @@ namespace UI {
 			: Widget(_parent, _x, _y, w, h, UI_WIDGET_CHART, text, tex) {}
 		Chart& operator=(const Chart&) = default;
 		~Chart() {};
+		std::vector<float> data;
+	};
+	class PieChart : public Widget {
+	public:
+		PieChart(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
+			const char * text = nullptr, const Texture * tex = nullptr)
+			: Widget(_parent, _x, _y, w, h, UI_WIDGET_PIE_CHART, text, tex) {}
+		PieChart& operator=(const PieChart&) = default;
+		~PieChart() {};
+		std::vector<float> data;
 	};
 };
 

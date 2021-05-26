@@ -414,7 +414,7 @@ void World::do_tick() {
 		break;
 	// 12:00
 	case 24:
-	Economy::do_phase_3(*this);
+		Economy::do_phase_3(*this);
 
 		// Calculate economy score of nations
 		for(auto& nation: this->nations) {
