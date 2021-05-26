@@ -77,7 +77,7 @@ void Economy::do_phase_1(World& world) {
 			IndustryType * it = world.industry_types[industry->type_id];
 			for(const auto& input: it->inputs) {
 				OrderGoods order;
-				order.quantity = available_manpower / 24;
+				order.quantity = available_manpower / 7;
 				order.payment = 500.f;
 				order.good_id = input;
 				order.requester_industry_id = j;
@@ -98,7 +98,7 @@ void Economy::do_phase_1(World& world) {
 			// Place deliver orders (we are a RGO)
 			for(size_t k = 0; k < it->outputs.size(); k++) {
 				DeliverGoods deliver;
-				deliver.quantity = available_manpower / 32;
+				deliver.quantity = available_manpower / 8;
 				deliver.payment = 1500.f;
 				deliver.good_id = it->outputs[k];
 				deliver.sender_industry_id = j;
@@ -242,43 +242,42 @@ void Economy::do_phase_3(World& world) {
 			// TODO: This is very stupid
 			switch(pop->type_id) {
 			case POP_TYPE_ENTRPRENEUR:
-				salary = 100.f;
+				salary = 5.f;
 				break;
 			case POP_TYPE_ARTISAN:
-				salary = 12.f;
+				salary = 0.4f;
 				break;
 			case POP_TYPE_CRAFTSMEN:
-				salary = 10.f;
+				salary = 0.2f;
 				break;
 			case POP_TYPE_BUREAUCRAT:
-				salary = 30.f;
+				salary = 0.1f;
 				break;
 			case POP_TYPE_ARISTOCRAT:
-				salary = 50.f;
+				salary = 0.6f;
 				break;
 			case POP_TYPE_CLERGYMEN:
-				salary = 12.f;
+				salary = 0.2f;
 				break;
 			case POP_TYPE_FARMER:
-				salary = 8.f;
+				salary = 0.7f;
 				break;
 			case POP_TYPE_SOLDIER:
-				salary = 10.f;
+				salary = 0.3f;
 				break;
 			case POP_TYPE_OFFICER:
-				salary = 20.f;
+				salary = 0.7f;
 				break;
 			case POP_TYPE_LABORER:
-				salary = 8.f;
+				salary = 0.2f;
 				break;
 			case POP_TYPE_SLAVE:
-				salary = 2.f;
+				salary = 0.01f;
 				break;
 			default:
 				salary = 0.f;
 				break;
 			}
-			salary *= 100.f;
 			
 			// TODO: Make this dynamic
 			pop->budget += salary;

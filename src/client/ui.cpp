@@ -177,10 +177,13 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 void Context::check_text_input(const char * _input) {
 	for(const auto& widget: this->widgets) {
 		if(widget->current_texture == &this->input.active
-		&& widget->on_textinput != nullptr
 		&& widget->type == UI_WIDGET_INPUT
 		&& widget->show) {
-			widget->on_textinput(widget, _input, widget->user_data);
+			Input * c_widget = dynamic_cast<Input *>(widget);
+			if(c_widget->on_textinput == nullptr) {
+				continue;
+			}
+			c_widget->on_textinput(c_widget, _input, c_widget->user_data);
 		}
 	}
 }
@@ -227,28 +230,26 @@ void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const unsi
 #include <deque>
 void default_on_render(Widget * w, void * data) {
 	if(w->type == UI_WIDGET_CHART) {
-		if(w->user_data != nullptr) {
-			const std::deque<float>& chart = *((std::deque<float> *)w->user_data);
-			float max = 0.1f;
-			for(const auto& data: chart) {
-				max = fmax(data, max);
-			}
-			size_t time = 0;
-			glLineWidth(1.f);
-			glBegin(GL_LINE_STRIP);
-			glColor3f(1.f, 0.f, 0.f);
-			time = 0;
-			for(const auto& data: chart) {
-				glVertex2f(w->x + (time * (w->width / chart.size())), (w->y + w->height) - ((data / max) * w->height));
-				time++;
-			}
-			glEnd();
-			glLineWidth(1.f);
-		}
-		return;
-	}
+		// Dynamically cast onto a chart object, since chart objects has "data" field
+		// which holds all the chart data
+		const Chart& obj = dynamic_cast<Chart&>(*w);
+		const auto& chart = obj.data;
 
-	if(w->type == UI_WIDGET_WINDOW) {
+		// Obtain the highest valued element here
+		const float max = *std::max_element(chart.begin(), chart.end());
+
+		glLineWidth(1.f);
+		glBegin(GL_LINE_STRIP);
+		glColor3f(1.f, 0.f, 0.f);
+
+		size_t time = 0;
+		for(const auto& node: chart) {
+			glVertex2f(obj.x + (time * (obj.width / chart.size())), (obj.y + obj.height) - ((node / max) * obj.height));
+			time++;
+		}
+
+		glEnd();
+	} else if(w->type == UI_WIDGET_WINDOW) {
 		// Shadow
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBegin(GL_TRIANGLES);
@@ -307,7 +308,7 @@ void default_on_render(Widget * w, void * data) {
 	return;
 }
 
-void default_on_text_input(Widget * w, const char * input, void * data) {
+void default_on_text_input(Input * w, const char * input, void * data) {
 	size_t len;
 	char must_clear = 0;
 
@@ -340,9 +341,38 @@ void default_close_button_on_click(Widget * w, void * data) {
 	delete w->parent;
 }
 
+Button::Button(Widget * _parent, int _x, int _y, unsigned w, unsigned h, const char * text, const Texture * tex)
+	: Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON, text, tex) {
+	this->action_textures = &g_ui_context->button;
+	this->current_texture = &g_ui_context->button.idle;
+}
+
+Input::Input(Widget * _parent, int _x, int _y, unsigned w, unsigned h)
+	: Widget(_parent, _x, _y, w, h, UI_WIDGET_INPUT, nullptr, nullptr) {
+	this->action_textures = &g_ui_context->input;
+	this->current_texture = &g_ui_context->input.idle;
+	this->on_textinput = &default_on_text_input;
+}
+
+Window::Window(Widget * _parent, int _x, int _y, unsigned w, unsigned h, const char * text, const Texture * tex)
+	: Widget(_parent, _x, _y, w, h, UI_WIDGET_WINDOW, text, tex) {
+	this->current_texture = &g_ui_context->window;
+	this->is_movable = true;
+
+	Button * close_btn;
+	close_btn = new Button(this, this->width - 24, -24, 24, 24, "X");
+	close_btn->on_click = &default_close_button_on_click;
+	close_btn->is_pinned = true;
+}
+
+Image::Image(Widget * _parent, int _x, int _y, unsigned w, unsigned h, const char * text, const Texture * tex)
+	: Widget(_parent, _x, _y, w, h, UI_WIDGET_IMAGE, text, tex) {
+	this->current_texture = tex;
+}
+
 Widget::Widget(Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
 	const char * text, const Texture * tex) {
-	memset(this, 0, sizeof(Widget));
+
 	this->on_render = &default_on_render;
 	this->show = 1;
 	this->type = _type;
@@ -366,36 +396,23 @@ Widget::Widget(Widget * _parent, int _x, int _y, const unsigned w, const unsigne
 	g_ui_context->add_widget(this);
 
 	// After this we can do some trickery and add any widgets we may need (close buttons, scrollbars, etc)
-
-	// Only used for windows
-	Button * close_btn;
 	this->action_textures = nullptr;
 	switch(this->type) {
 	case UI_WIDGET_BUTTON:
-		this->action_textures = &g_ui_context->button;
-		this->current_texture = &g_ui_context->button.idle;
 		break;
 	case UI_WIDGET_INPUT:
-		this->action_textures = &g_ui_context->input;
-		this->current_texture = &g_ui_context->input.idle;
-		this->on_textinput = &default_on_text_input;
 		break;
 	case UI_WIDGET_WINDOW:
-		this->current_texture = &g_ui_context->window;
-		this->is_movable = true;
-
-		close_btn = new Button(this, this->width - 24, -24, 24, 24, "X");
-		close_btn->on_click = &default_close_button_on_click;
-		close_btn->is_pinned = true;
 		break;
 	case UI_WIDGET_IMAGE:
-		this->current_texture = tex;
 		break;
 	case UI_WIDGET_LABEL:
 		this->text(text);
 		break;
 	case UI_WIDGET_CHECKBOX:
 		this->current_texture = &g_ui_context->checkbox_false;
+		break;
+	case UI_WIDGET_PIE_CHART:
 		break;
 	default:
 		break;

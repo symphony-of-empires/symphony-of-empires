@@ -197,13 +197,13 @@ void do_game_main(UI::Widget *, void *) {
 				
 				if(event.button.button == SDL_BUTTON_LEFT && !r) {
 					// tx and ty are used for tile
-					/*Tile * tile = &g_world->tiles[tx + ty * g_world->width];
+					Tile * tile = &g_world->tiles[tx + ty * g_world->width];
 					if(tile->province_id != (uint16_t)-1 && tile->owner_id != (uint16_t)-1) {
 						selected_province_id = tile->province_id;
 						do_province_overview();
 					}
 
-					start = &g_world->tiles[tx + ty * g_world->width];*/
+					//start = &g_world->tiles[tx + ty * g_world->width];
 					
 					// Place unit
 					Unit * unit = new Unit();
