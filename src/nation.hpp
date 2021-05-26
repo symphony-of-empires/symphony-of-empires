@@ -178,6 +178,9 @@ public:
 	std::vector<Nation *> neighbours;
 
 	Policies * current_policy;
+	
+	// Budget of the nation
+	float budget;
 };
 
 #endif
