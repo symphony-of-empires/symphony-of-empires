@@ -77,6 +77,7 @@ World::World() {
 	lua_register(this->lua, "add_province_pop", LuaAPI::add_province_pop);
 	lua_register(this->lua, "give_province_to", LuaAPI::give_province_to);
 	lua_register(this->lua, "rename_province", LuaAPI::rename_province);
+	lua_register(this->lua, "add_province_nucleus", LuaAPI::add_province_nucleus);
 
 	lua_register(this->lua, "add_company", LuaAPI::add_company);
 

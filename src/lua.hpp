@@ -36,6 +36,7 @@ namespace LuaAPI {
 	int give_province_to(lua_State * L);
 	int add_province_pop(lua_State * L);
 	int rename_province(lua_State * L);
+	int add_province_nucleus(lua_State * L);
 
 	int add_company(lua_State * L);
 

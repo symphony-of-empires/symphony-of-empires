@@ -64,7 +64,7 @@ namespace TreatyClause {
 	/*class LiberateNation : BaseClause {
 		Nation * nation;
 	public:
-		
+
 	};*/
 };
 
