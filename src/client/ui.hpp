@@ -164,8 +164,6 @@ namespace UI {
 	};
 };
 
-void default_close_button_on_click(UI::Widget * w, void * data);
-
 #include <SDL2/SDL.h>
 extern SDL_Color text_color;
 static inline void UI_Widget_TextColor(uint8_t r, uint8_t g, uint8_t b) {
