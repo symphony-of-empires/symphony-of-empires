@@ -29,26 +29,29 @@ public:
 	void delete_opengl();
 };
 
-#include <vector>
+#include <set>
 #include <string>
+#include <algorithm>
+#include "print.hpp"
 class TextureManager {
 private:
-	std::vector<Texture *> textures;
-	std::vector<std::string> texture_names;
+	std::set<std::pair<Texture *, std::string>> textures;
 public:
 	const Texture * load_texture(std::string path) {
-		for(size_t i = 0; i < this->textures.size(); i++) {
-			if(path == this->texture_names[i]) {
-				printf("duplicate! %s\n", path.c_str());
-				return this->textures[i];
-			}
+		// Find texture when wanting to be loaded
+		auto it = std::find_if(this->textures.begin(), this->textures.end(), [&path](const std::pair<Texture *, std::string>& element) {
+			return (element.second == path);
+		});
+
+		if(it != this->textures.end()) {
+			print_error("Duplicate texture! %s", path.c_str());
+			return (*it).first;
 		}
 
+		// Otherwise texture is not in our control, so we create a new texture
 		Texture * tex = new Texture(path.c_str());
 		tex->to_opengl();
-
-		this->textures.push_back(tex);
-		this->texture_names.push_back(path);
+		this->textures.insert(std::make_pair(tex, path));
 		return (const Texture *)tex;
 	}
 };
