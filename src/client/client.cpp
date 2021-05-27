@@ -189,13 +189,16 @@ void do_game_main(UI::Widget *, void *) {
 			switch(event.type) {
 			case SDL_MOUSEBUTTONDOWN:
 				SDL_GetMouseState(&mx, &my);
-				
+				ui_ctx->check_drag(mx, my);
+				break;
+			case SDL_MOUSEBUTTONUP:
+				SDL_GetMouseState(&mx, &my);
 				r = ui_ctx->check_click(mx, my);
-
-				if(!(fmx > 0 && fmx < g_world->width && fmy > 0 && fmy < g_world->height))
-					break;
 				
 				if(event.button.button == SDL_BUTTON_LEFT && !r) {
+					if(!(tx > 0 && tx < g_world->width && ty > 0 && ty < g_world->height))
+						break;
+
 					// tx and ty are used for tile
 					Tile * tile = &g_world->tiles[tx + ty * g_world->width];
 					if(tile->province_id != (uint16_t)-1 && tile->owner_id != (uint16_t)-1) {

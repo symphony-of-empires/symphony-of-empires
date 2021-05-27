@@ -1,4 +1,4 @@
-#include <cmath>
+#include <algorithm>
 
 #include "economy.hpp"
 #include "world.hpp"
@@ -356,19 +356,21 @@ void Economy::do_phase_3(World& world) {
 				province->stockpile[j] -= bought;
 			}
 			
-			// x5 life needs met modifier, that is the max allowed
-			if(pop->life_needs_met > 5.f) {
-				pop->life_needs_met = 5.f;
-			}
-			
-			// POPs cannot shrink below 100<
-			if(pop->size <= 100) {
-				pop->size += rand() % 100;
+			// x1.5 life needs met modifier, that is the max allowed
+			pop->life_needs_met = std::min<float>(1.5f, pop->life_needs_met);
+			pop->life_needs_met = std::max<float>(-1.5f, pop->life_needs_met);
+
+			// POPs cannot shrink below 10<
+			if(pop->size <= 10) {
+				// Population cannot be 0
+				pop->size = std::max<size_t>(1, pop->size);
+				pop->size += rand() % std::min<size_t>(500, std::max<size_t>(1, (pop->size / 10000)));
 			} else {
-				// Higher literacy means less births and less deaths
-				ssize_t growth = (pop->life_needs_met * (rand() % 80)) / (pop->literacy * 4.f);
+				// Higher literacy will mean there will be less births due to sex education
+				// and will also mean that - there would be less deaths due to higher knewledge
+				ssize_t growth = pop->life_needs_met / (pop->literacy * 10.f);
 				if(growth < 0 && (size_t)abs(growth) >= pop->size) {
-					pop->size = 100;
+					pop->size = 1;
 					continue;
 				} else {
 					pop->size += growth;
@@ -379,12 +381,12 @@ void Economy::do_phase_3(World& world) {
 			if(pop->life_needs_met >= 1.f) {
 				pop->life_needs_met = 1.f;
 				if(pop->militancy > 0.f) {
-					pop->militancy -= 0.002f;
-					pop->consciousness -= 0.001f;
+					pop->militancy -= 0.0002f;
+					pop->consciousness -= 0.0001f;
 				}
 			} else {
-				pop->militancy += 0.01f;
-				pop->consciousness += 0.01f;
+				pop->militancy += 0.001f;
+				pop->consciousness += 0.001f;
 			}
 			
 			pop->life_needs_met -= 0.5f;
@@ -417,22 +419,20 @@ void Economy::do_phase_4(World& world) {
 	for(ProductId i = 0; i < n_products; i++) {
 		Product * product = world.products[i];
 		if(product->demand > product->supply) {
-			product->price_vel += 0.001f * (product->demand - product->supply);
+			product->price_vel += 0.0001f * (product->demand - product->supply);
 		} else if(product->demand < product->supply) {
-			product->price_vel -= 0.001f * (product->supply - product->demand);
+			product->price_vel -= 0.0001f * (product->supply - product->demand);
 		} else {
 			if(product->price_vel > 0.1f) {
-				product->price_vel -= 0.1f;
+				product->price_vel -= 0.001f;
 			} else if(product->price_vel < -0.1f) {
-				product->price_vel += 0.1f;
+				product->price_vel += 0.001f;
 			} else {
-				product->price_vel = -0.1f;
+				product->price_vel = -0.001f;
 			}
 		}
 		product->price += product->price_vel;
-		if(product->price <= 0.f) {
-			product->price = 0.01f;
-		}
+		product->price = std::max<float>(0.01f, product->price);
 			
 		// Save prices and stuff onto history (for the charts!)
 		product->demand_history.push_back(product->demand);

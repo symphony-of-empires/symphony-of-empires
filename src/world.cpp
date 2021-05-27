@@ -430,7 +430,7 @@ void World::do_tick() {
 		break;
 	// 18:00
 	case 36:
-		Economy::do_phase_2(*this);
+		Economy::do_phase_4(*this);
 		break;
 	default:
 		break;

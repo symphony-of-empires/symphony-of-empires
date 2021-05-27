@@ -154,6 +154,52 @@ static void do_info_goods_overview(UI::Widget *, void *) {
 	}
 }
 
+static UI::Window * iworld_win;
+static std::vector<UI::Label *> iworld_widgets;
+static void do_info_world_overview_update(UI::Widget *, void *) {
+	char * tmpbuf = new char[255];
+
+	// Total budget of ALL pops, and also calculate world population
+	size_t pop_count = 0;
+	float budget_count = 0.f;
+	for(const auto& province: g_world->provinces) {
+		for(const auto& pop: province->pops) {
+			budget_count += pop->budget;
+			pop_count += pop->size;
+		}
+	}
+
+	// Nation with highest prestige
+	std::pair<const char *, float> highest_prestige;
+	highest_prestige.first = nullptr;
+	highest_prestige.second = 0.f;
+	for(auto& nation: g_world->nations) {
+		if(nation->prestige > highest_prestige.second) {
+			highest_prestige.first = nation->name.c_str();
+			highest_prestige.second = nation->prestige;
+		}
+	}
+	sprintf(tmpbuf, "Dominant power: %s (%8.2f)", highest_prestige.first, highest_prestige.second);
+	iworld_widgets[0]->text(tmpbuf);
+	sprintf(tmpbuf, "Population: %zu", pop_count);
+	iworld_widgets[1]->text(tmpbuf);
+	sprintf(tmpbuf, "Total circulating money: %8.2f", budget_count);
+	iworld_widgets[2]->text(tmpbuf);
+	delete[] tmpbuf;
+}
+static void do_info_world_overview(UI::Widget *, void *) {
+	iworld_win = new UI::Window(nullptr, width - 512 - 256, 196, 512, height - 256, "World");
+	iworld_win->on_update = &do_info_world_overview_update;
+
+	UI::Label * lab;
+	lab = new UI::Label(iworld_win, 0, 0, "?");
+	iworld_widgets.push_back(lab);
+	lab = new UI::Label(iworld_win, 0, 24, "?");
+	iworld_widgets.push_back(lab);
+	lab = new UI::Label(iworld_win, 0, 48, "?");
+	iworld_widgets.push_back(lab);
+}
+
 void do_info_overview(UI::Widget *, void *) {
 	UI::Window * info_win = new UI::Window(nullptr, width - 256, 196, 256, height - 256, "Debug info");
 	
@@ -173,4 +219,6 @@ void do_info_overview(UI::Widget *, void *) {
 	info_industry_type_btn->on_click = &do_info_industry_types_overview;
 	UI::Button * info_good_btn = new UI::Button(info_win, 0, 32 * 7, 256, 24, "Goods");
 	info_good_btn->on_click = &do_info_goods_overview;
+	UI::Button * info_world_btn = new UI::Button(info_win, 0, 32 * 7, 256, 24, "World");
+	info_world_btn->on_click = &do_info_world_overview;
 }

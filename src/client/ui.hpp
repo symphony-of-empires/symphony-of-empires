@@ -1,8 +1,9 @@
 #ifndef UI_H
 #define UI_H
 
-#include <stddef.h>
 #include <vector>
+#include <deque>
+#include <cstddef>
 #include "texture.hpp"
 
 enum UI_WidgetType {
@@ -36,6 +37,7 @@ namespace UI {
 		void render_all();
 		void check_hover(unsigned mx, unsigned my);
 		int check_click(unsigned mx, unsigned my);
+		void check_drag(unsigned mx, unsigned my);
 		int check_wheel(unsigned mx, unsigned my, int y);
 		void check_text_input(const char * input);
 		void clear(void);
@@ -60,7 +62,6 @@ namespace UI {
 
 	class Widget {
 	public:
-
 		Widget() {};
 		Widget(Widget * parent, int x, int y, unsigned w, unsigned h, int type,
 			const char * text = nullptr, const Texture * tex = nullptr);
@@ -102,8 +103,8 @@ namespace UI {
 		std::vector<Widget *> children;
 		void * user_data = nullptr;
 
+		virtual void on_render(void);
 		void (*on_update)(Widget *, void *) = nullptr;
-		void (*on_render)(Widget *, void *) = nullptr;
 		void (*on_hover)(Widget *, void *) = nullptr;
 		void (*on_click)(Widget *, void *) = nullptr;
 	};
@@ -151,7 +152,8 @@ namespace UI {
 			: Widget(_parent, _x, _y, w, h, UI_WIDGET_CHART, text, tex) {}
 		Chart& operator=(const Chart&) = default;
 		~Chart() {};
-		std::vector<float> data;
+		void on_render(void);
+		std::deque<float> data;
 	};
 	class PieChart : public Widget {
 	public:
@@ -160,7 +162,7 @@ namespace UI {
 			: Widget(_parent, _x, _y, w, h, UI_WIDGET_PIE_CHART, text, tex) {}
 		PieChart& operator=(const PieChart&) = default;
 		~PieChart() {};
-		std::vector<float> data;
+		std::deque<float> data;
 	};
 };
 

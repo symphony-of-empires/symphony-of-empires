@@ -117,9 +117,8 @@ void Context::render_all() {
 		}
 
 		widget->show = true;
-		if(widget->show && widget->on_render != nullptr) {
-			widget->on_render(widget, (void *)this);
-
+		if(widget->show) {
+			widget->on_render();
 			if(widget->on_update != nullptr) {
 				widget->on_update(widget, (void *)this);
 			}
@@ -164,14 +163,21 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 			}
 			return 1;
 		} else {
-			widget->mx = 0;
-			widget->my = 0;
 			if(widget->action_textures != nullptr) {
 				widget->current_texture = &widget->action_textures->idle;
 			}
 		}
 	}
 	return 0;
+}
+
+void Context::check_drag(const unsigned mx, const unsigned my) {
+	const size_t n_widget = this->widgets.size();
+	for(int i = n_widget - 1; i >= 0; i--) {
+		Widget * widget = this->widgets[i];
+
+		// TODO: Someone do drag and drop stuff
+	}
 }
 
 void Context::check_text_input(const char * _input) {
@@ -227,85 +233,80 @@ void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const unsi
 	glEnd();
 }
 
+void Chart::on_render(void) {
+	// Obtain the highest valued element here
+	const float max = *std::max_element(this->data.begin(), this->data.end());
+
+	glLineWidth(1.f);
+	glBegin(GL_LINE_STRIP);
+	glColor3f(1.f, 0.f, 0.f);
+
+	size_t time = 0;
+	for(const auto& node: this->data) {
+		glVertex2f(this->x + (time * (this->width / this->data.size())), (this->y + this->height) - ((node / max) * this->height));
+		time++;
+	}
+	glEnd();
+}
+
 #include <deque>
-void default_on_render(Widget * w, void * data) {
-	if(w->type == UI_WIDGET_CHART) {
-		// Dynamically cast onto a chart object, since chart objects has "data" field
-		// which holds all the chart data
-		const Chart& obj = dynamic_cast<Chart&>(*w);
-		const auto& chart = obj.data;
-
-		// Obtain the highest valued element here
-		const float max = *std::max_element(chart.begin(), chart.end());
-
-		glLineWidth(1.f);
-		glBegin(GL_LINE_STRIP);
-		glColor3f(1.f, 0.f, 0.f);
-
-		size_t time = 0;
-		for(const auto& node: chart) {
-			glVertex2f(obj.x + (time * (obj.width / chart.size())), (obj.y + obj.height) - ((node / max) * obj.height));
-			time++;
-		}
-
-		glEnd();
-	} else if(w->type == UI_WIDGET_WINDOW) {
+void Widget::on_render(void) {
+	if(this->type == UI_WIDGET_WINDOW) {
 		// Shadow
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBegin(GL_TRIANGLES);
 		glColor4f(0.f, 0.f, 0.f, 0.5f);
 		glTexCoord2f(0.f, 0.f);
-		glVertex2f(w->x + 16, w->y + 16);
+		glVertex2f(this->x + 16, this->y + 16);
 		glTexCoord2f(1.f, 0.f);
-		glVertex2f(w->x + w->width + 16, w->y + 16);
+		glVertex2f(this->x + this->width + 16, this->y + 16);
 		glTexCoord2f(1.f, 1.f);
-		glVertex2f(w->x + w->width + 16, w->y + w->height + 16);
+		glVertex2f(this->x + this->width + 16, this->y + this->height + 16);
 		glTexCoord2f(1.f, 1.f);
-		glVertex2f(w->x + w->width + 16, w->y + w->height + 16);
+		glVertex2f(this->x + this->width + 16, this->y + this->height + 16);
 		glTexCoord2f(0.f, 1.f);
-		glVertex2f(w->x + 16, w->y + w->height + 16);
+		glVertex2f(this->x + 16, this->y + this->height + 16);
 		glTexCoord2f(0.f, 0.f);
-		glVertex2f(w->x + 16, w->y + 16);
+		glVertex2f(this->x + 16, this->y + 16);
 		glEnd();
 	}
 	
 	glColor3f(1.f, 1.f, 1.f);
-	if(w->type != UI_WIDGET_LABEL) {
-		w->draw_rectangle(
-			w->x, w->y,
-			w->width, w->height,
-			w->current_texture->gl_tex_num
+	if(this->type != UI_WIDGET_LABEL) {
+		this->draw_rectangle(
+			this->x, this->y,
+			this->width, this->height,
+			this->current_texture->gl_tex_num
 		);
 	}
 
-	if(w->text_texture != nullptr && !w->text_texture->gl_tex_num) {
-		w->text_texture->to_opengl();
+	if(this->text_texture != nullptr && !this->text_texture->gl_tex_num) {
+		this->text_texture->to_opengl();
 	}
 
-	if(w->type == UI_WIDGET_WINDOW) {
-		w->draw_rectangle(
-			w->x, w->y - 24,
-			w->width, 24,
+	if(this->type == UI_WIDGET_WINDOW) {
+		this->draw_rectangle(
+			this->x, this->y - 24,
+			this->width, 24,
 			g_ui_context->window_border.gl_tex_num
 		);
-		if(w->text_texture != nullptr && w->text_texture->gl_tex_num) {
-			w->draw_rectangle(
-				w->x, w->y - 24,
-				w->text_texture->width, w->text_texture->height,
-				w->text_texture->gl_tex_num
+		if(this->text_texture != nullptr && this->text_texture->gl_tex_num) {
+			this->draw_rectangle(
+				this->x, this->y - 24,
+				this->text_texture->width, this->text_texture->height,
+				this->text_texture->gl_tex_num
 			);
 		}
 	} else {
-		if(w->text_texture != nullptr && w->text_texture->gl_tex_num) {
-			w->draw_rectangle(
-				w->x, w->y,
-				w->text_texture->width, w->text_texture->height,
-				w->text_texture->gl_tex_num
+		if(this->text_texture != nullptr && this->text_texture->gl_tex_num) {
+			this->draw_rectangle(
+				this->x, this->y,
+				this->text_texture->width, this->text_texture->height,
+				this->text_texture->gl_tex_num
 			);
 		}
 	}
 	glBindTexture(GL_TEXTURE_2D, 0);
-	return;
 }
 
 void default_on_text_input(Input * w, const char * input, void * data) {
@@ -372,8 +373,7 @@ Image::Image(Widget * _parent, int _x, int _y, unsigned w, unsigned h, const cha
 
 Widget::Widget(Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
 	const char * text, const Texture * tex) {
-
-	this->on_render = &default_on_render;
+	
 	this->show = 1;
 	this->type = _type;
 	this->x = _x;

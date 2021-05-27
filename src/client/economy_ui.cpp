@@ -13,15 +13,15 @@ static void do_view_product_info(UI::Widget * w, void *) {
 	UI::Window * prod_win = new UI::Window(nullptr, 96, 196, 512, 512);
 
 	UI::Chart * supply_chart = new UI::Chart(prod_win, 24, 0, 482, 64);
-	supply_chart->user_data = &product->supply_history;
+	supply_chart->data = std::deque<float>(product->supply_history.begin(), product->supply_history.end());
 	UI::Label * supply_chart_lab = new UI::Label(prod_win, 24, 0, "Supply");
 
 	UI::Chart * demand_chart = new UI::Chart(prod_win, 24, 128, 482, 64);
-	demand_chart->user_data = &product->demand_history;
+	demand_chart->data = std::deque<float>(product->demand_history.begin(), product->demand_history.end());
 	UI::Label * demand_chart_lab = new UI::Label(prod_win, 24, 128, "Demand");
 
 	UI::Chart * price_chart = new UI::Chart(prod_win, 24, 256, 482, 64);
-	price_chart->user_data = &product->price_history;
+	price_chart->data = std::deque<float>(product->price_history.begin(), product->price_history.end());
 	UI::Label * price_chart_lab = new UI::Label(prod_win, 24, 256, "Price");
 }
 
