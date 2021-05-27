@@ -8,21 +8,25 @@ static UI::Window * econ_win;
 static std::vector<UI::Widget *> wm_lab;
 static UI::Window * wm_win = nullptr;
 
+static UI::Chart * supply_chart;
+static UI::Chart * demand_chart;
+static UI::Chart * price_chart;
+static void do_view_product_info_or(UI::Widget * w, void *) {
+	Product * product = (Product *)w->user_data;
+
+	supply_chart->data = std::deque<float>(product->supply_history.begin(), product->supply_history.end());
+	demand_chart->data = std::deque<float>(product->demand_history.begin(), product->demand_history.end());
+	price_chart->data = std::deque<float>(product->price_history.begin(), product->price_history.end());
+}
 static void do_view_product_info(UI::Widget * w, void *) {
 	Product * product = (Product *)w->user_data;
 	UI::Window * prod_win = new UI::Window(nullptr, 96, 196, 512, 512);
+	prod_win->user_data = w->user_data;
+	prod_win->on_update = &do_view_product_info_or;
 
-	UI::Chart * supply_chart = new UI::Chart(prod_win, 24, 0, 482, 64);
-	supply_chart->data = std::deque<float>(product->supply_history.begin(), product->supply_history.end());
-	UI::Label * supply_chart_lab = new UI::Label(prod_win, 24, 0, "Supply");
-
-	UI::Chart * demand_chart = new UI::Chart(prod_win, 24, 128, 482, 64);
-	demand_chart->data = std::deque<float>(product->demand_history.begin(), product->demand_history.end());
-	UI::Label * demand_chart_lab = new UI::Label(prod_win, 24, 128, "Demand");
-
-	UI::Chart * price_chart = new UI::Chart(prod_win, 24, 256, 482, 64);
-	price_chart->data = std::deque<float>(product->price_history.begin(), product->price_history.end());
-	UI::Label * price_chart_lab = new UI::Label(prod_win, 24, 256, "Price");
+	supply_chart = new UI::Chart(prod_win, 24, 0, 482, 64, "Supply");
+	demand_chart = new UI::Chart(prod_win, 24, 128, 482, 64, "Demand");
+	price_chart = new UI::Chart(prod_win, 24, 256, 482, 64, "Price");
 }
 
 static void do_world_market_overview_or(UI::Widget *, void *) {

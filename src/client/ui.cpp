@@ -209,8 +209,8 @@ int Context::check_wheel(unsigned mx, unsigned my, int y) {
 	return 0;
 }
 
-static unsigned latest_tex = 0;
-void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const unsigned tex) {
+static GLuint latest_tex = 0;
+void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const GLuint tex) {
 	// Texture switching in OpenGL is expensive
 	if(latest_tex != tex) {
 		glBindTexture(GL_TEXTURE_2D, tex);
