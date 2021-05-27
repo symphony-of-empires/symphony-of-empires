@@ -176,7 +176,12 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 	for(int i = n_widget - 1; i >= 0; i--) {
 		Widget * widget = this->widgets[i];
 
-		// TODO: Someone do drag and drop stuff
+		if((int)mx >= widget->x && mx <= widget->x + widget->width
+		&& (int)my >= widget->y - 24 && my <= widget->y + widget->height - 24
+		&& widget->is_movable && widget->type == UI_WIDGET_WINDOW) {
+			widget->x += widget->x - mx;
+			widget->y -= widget->y - my;
+		}
 	}
 }
 
