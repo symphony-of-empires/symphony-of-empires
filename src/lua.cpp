@@ -405,7 +405,7 @@ int LuaAPI::add_company(lua_State * L) {
 	printf("\n");
 
 	lua_pushnumber(L, g_world->companies.size() - 1);
-	return 0;
+	return 1;
 }
 
 int LuaAPI::add_op_province_to_company(lua_State * L) {
@@ -443,7 +443,7 @@ int LuaAPI::add_event(lua_State * L) {
 	// Add onto vector
 	g_world->events.push_back(event);
 	lua_pushnumber(L, g_world->events.size() - 1);
-	return 0;
+	return 1;
 }
 
 int LuaAPI::get_event(lua_State * L) {
@@ -552,7 +552,7 @@ int LuaAPI::add_culture(lua_State * L) {
 
 	g_world->cultures.push_back(culture);
 	lua_pushnumber(L, g_world->cultures.size() - 1);
-	return 0;
+	return 1;
 }
 
 int LuaAPI::get_culture(lua_State * L) {
@@ -595,7 +595,7 @@ int LuaAPI::add_religion(lua_State * L) {
 
 	g_world->religions.push_back(religion);
 	lua_pushnumber(L, g_world->religions.size() - 1);
-	return 0;
+	return 1;
 }
 
 int LuaAPI::get_religion(lua_State * L) {
@@ -641,7 +641,7 @@ int LuaAPI::add_unit_type(lua_State * L) {
 
 	g_world->unit_types.push_back(unit_type);
 	lua_pushnumber(L, g_world->unit_types.size() - 1);
-	return 0;
+	return 1;
 }
 
 int LuaAPI::get_unit_type(lua_State * L) {
