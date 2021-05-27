@@ -29,6 +29,10 @@ namespace UI {
 
 	class Widget;
 	class Context {
+		int drag_x;
+		int drag_y;
+		bool is_drag;
+		Widget * dragged_widget;
 	public:
 		Context();
 		void load_textures();
@@ -86,8 +90,8 @@ namespace UI {
 		int x = 0;
 		int y = 0;
 
-		int ox = 0, oy = 0;
-		int mx = 0, my = 0;
+		int ox = 0;
+		int oy = 0;
 		char show;
 
 		bool is_check;
