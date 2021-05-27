@@ -65,6 +65,7 @@ Context::Context() {
 	this->widgets.reserve(150);
 
 	g_ui_context = this;
+	this->is_drag = false;
 	return;
 }
 
@@ -128,6 +129,17 @@ void Context::render_all() {
 }
 
 void Context::check_hover(const unsigned mx, const unsigned my) {
+	if(this->is_drag) {
+		std::pair<int, int> offset = std::make_pair(mx - this->drag_x, my - this->drag_y);
+		std::pair<int, int> diff = std::make_pair(offset.first - dragged_widget->x, offset.second - dragged_widget->y);
+
+		dragged_widget->move_by(diff.first, diff.second);
+
+		//dragged_widget->x = offset.first;
+		//dragged_widget->y = offset.second;
+		return;
+	}
+
 	for(const auto& widget: this->widgets) {
 		if((int)mx >= widget->x && mx <= widget->x + widget->width
 		&& (int)my >= widget->y && my <= widget->y + widget->height
@@ -149,6 +161,7 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
 
 int Context::check_click(const unsigned mx, const unsigned my) {
 	const size_t n_widget = this->widgets.size();
+	this->is_drag = false;
 	for(int i = n_widget - 1; i >= 0; i--) {
 		Widget * widget = this->widgets[i];
 		if((int)mx >= widget->x && mx <= widget->x + widget->width
@@ -173,14 +186,20 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 
 void Context::check_drag(const unsigned mx, const unsigned my) {
 	const size_t n_widget = this->widgets.size();
+
 	for(int i = n_widget - 1; i >= 0; i--) {
 		Widget * widget = this->widgets[i];
 
 		if((int)mx >= widget->x && mx <= widget->x + widget->width
-		&& (int)my >= widget->y - 24 && my <= widget->y + widget->height - 24
+		&& (int)my >= widget->y && my <= widget->y + 24
 		&& widget->is_movable && widget->type == UI_WIDGET_WINDOW) {
-			widget->x += widget->x - mx;
-			widget->y -= widget->y - my;
+			if(!this->is_drag) {
+				this->drag_x = mx - widget->x;
+				this->drag_y = my - widget->y;
+				this->is_drag = true;
+				dragged_widget = widget;
+				break;
+			}
 		}
 	}
 }
@@ -277,39 +296,41 @@ void Widget::on_render(void) {
 	}
 	
 	glColor3f(1.f, 1.f, 1.f);
-	if(this->type != UI_WIDGET_LABEL) {
-		this->draw_rectangle(
-			this->x, this->y,
-			this->width, this->height,
-			this->current_texture->gl_tex_num
-		);
-	}
-
-	if(this->text_texture != nullptr && !this->text_texture->gl_tex_num) {
-		this->text_texture->to_opengl();
-	}
 
 	if(this->type == UI_WIDGET_WINDOW) {
 		this->draw_rectangle(
-			this->x, this->y - 24,
+			this->x, this->y,
 			this->width, 24,
 			g_ui_context->window_border.gl_tex_num
 		);
-		if(this->text_texture != nullptr && this->text_texture->gl_tex_num) {
+
+		if(this->current_texture != nullptr && this->current_texture->gl_tex_num) {
 			this->draw_rectangle(
-				this->x, this->y - 24,
-				this->text_texture->width, this->text_texture->height,
-				this->text_texture->gl_tex_num
+				this->x, this->y + 24,
+				this->width, this->height,
+				this->current_texture->gl_tex_num
 			);
 		}
 	} else {
-		if(this->text_texture != nullptr && this->text_texture->gl_tex_num) {
+		if(this->current_texture != nullptr && this->current_texture->gl_tex_num) {
 			this->draw_rectangle(
 				this->x, this->y,
-				this->text_texture->width, this->text_texture->height,
-				this->text_texture->gl_tex_num
+				this->width, this->height,
+				this->current_texture->gl_tex_num
 			);
 		}
+	}
+
+	if(this->text_texture != nullptr) {
+		if(!this->text_texture->gl_tex_num) {
+			this->text_texture->to_opengl();
+		}
+
+		this->draw_rectangle(
+			this->x, this->y,
+			this->text_texture->width, this->text_texture->height,
+			this->text_texture->gl_tex_num
+		);
 	}
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -388,8 +409,6 @@ Widget::Widget(Widget * _parent, int _x, int _y, const unsigned w, const unsigne
 	this->is_movable = false;
 	this->ox = _x;
 	this->oy = _y;
-	this->mx = _x;
-	this->my = _y;
 
 	if(_parent != nullptr) {
 		this->x += _parent->x;
