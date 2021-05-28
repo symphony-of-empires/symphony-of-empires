@@ -8,7 +8,9 @@ void rendering_main(void);
 #include <thread>
 
 #include <atomic>
-std::atomic<int> run;
+std::atomic<bool> run;
+std::atomic<bool> paused;
+std::atomic<bool> do_start;
 
 #include <libintl.h>
 #include <locale.h>
@@ -26,12 +28,17 @@ int main(int argc, char ** argv) {
 #ifndef UNIT_TEST
 	printf("%s\n", gettext("launching rendering thread"));
 	std::thread t1(rendering_main);
+
+	while(!do_start);
 	
-	run = 1;
+	run = true;
+	paused = false;
 	while(run) {
 		LuaAPI::check_events(world.lua);
 		world.do_tick();
-		//std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+		while(paused);
 	}
 	t1.join();
 #else

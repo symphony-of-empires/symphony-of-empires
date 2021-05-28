@@ -69,7 +69,7 @@ void Economy::do_phase_1(World& world) {
 			industry->ticks_unoperational = 0;
 
 			size_t available_manpower;
-			available_manpower = 1500 % world.provinces[i]->worker_pool;
+			available_manpower = std::min<size_t>(1500, world.provinces[i]->worker_pool);
 			world.provinces[i]->worker_pool -= available_manpower;
 			if(!available_manpower)
 				continue;
@@ -90,7 +90,7 @@ void Economy::do_phase_1(World& world) {
 
 			// Now produce anything as we can!
 			// Take a constant of workers needed for factories, 1.5k workers!
-			available_manpower = 1500 % world.provinces[i]->worker_pool;
+			available_manpower = std::min<size_t>(1500, world.provinces[i]->worker_pool);
 			world.provinces[i]->worker_pool -= available_manpower;
 			if(!available_manpower)
 				continue;
@@ -157,7 +157,7 @@ void Economy::do_phase_2(World& world) {
 					world.provinces[order->requester_province_id]->supply_rem += 5.f;
 					
 					// Obtain number of goods that we could satisfy
-					size_t count = order->quantity % deliver->quantity;
+					size_t count = std::min<size_t>(order->quantity, deliver->quantity);
 					deliver->quantity -= count;
 					order->quantity -= count;
 
@@ -168,7 +168,7 @@ void Economy::do_phase_2(World& world) {
 					world.products[deliver->product_id]->demand += count;
 					// Decrement supply
 					if(world.products[deliver->product_id]->supply) {
-						size_t satisfied = count % world.products[deliver->product_id]->supply;
+						const size_t satisfied = std::min<size_t>(count, world.products[deliver->product_id]->supply);
 						world.products[deliver->product_id]->supply -= satisfied;
 						world.products[deliver->product_id]->demand += satisfied;
 					}
@@ -201,7 +201,7 @@ void Economy::do_phase_2(World& world) {
 		
 		// Drop all rejected delivers
 		for(size_t i = 0; i < world.delivers.size(); i++) {
-			DeliverGoods * deliver = &world.delivers[i];
+			const DeliverGoods * deliver = &world.delivers[i];
 			Product * product = world.products[deliver->product_id];
 				
 			// Add up to province stockpile
@@ -210,7 +210,7 @@ void Economy::do_phase_2(World& world) {
 			// Increment supply because of incremented stockpile
 			product->supply += deliver->quantity;
 			if(product->demand) {
-				product->demand -= deliver->quantity % product->demand;
+				product->demand -= std::min<float>(deliver->quantity, product->demand);
 			}
 		}
 		world.delivers.clear();
@@ -257,6 +257,10 @@ void Economy::do_phase_3(World& world) {
 				salary = 0.6f;
 				break;
 			case POP_TYPE_CLERGYMEN:
+				for(auto& taught_pops: province->pops) {
+					taught_pops->literacy += std::min<float>(1.f, (pop->literacy * pop->size) / 100000.f);
+					taught_pops->literacy = std::min<float>(1.f, taught_pops->literacy);
+				}
 				salary = 0.2f;
 				break;
 			case POP_TYPE_FARMER:
@@ -298,7 +302,7 @@ void Economy::do_phase_3(World& world) {
 				// We can only spend our allocated budget
 				// TODO: Base spending on literacy, more literacy == less spending
 				size_t bought = alloc_budget / world.products[j]->price;
-				bought %= province->stockpile[j];
+				bought = std::min<float>(bought, province->stockpile[j]);
 				if(!bought)
 					continue;
 				
@@ -310,7 +314,7 @@ void Economy::do_phase_3(World& world) {
 				
 				// Reduce supply
 				if(world.products[j]->supply) {
-					world.products[j]->supply -= bought % world.products[j]->supply;
+					world.products[j]->supply -= std::min<float>(bought, world.products[j]->supply);
 				}
 				
 				// Deduct from budget, and remove item from stockpile
@@ -335,7 +339,7 @@ void Economy::do_phase_3(World& world) {
 				// We can only spend our allocated budget
 				// TODO: Base spending on literacy, more literacy == less spending
 				size_t bought = alloc_budget / world.products[j]->price;
-				bought %= province->stockpile[j];
+				bought = std::min<float>(bought, province->stockpile[j]);
 				if(!bought)
 					continue;
 				
@@ -347,7 +351,7 @@ void Economy::do_phase_3(World& world) {
 				
 				// Reduce supply
 				if(world.products[j]->supply) {
-					world.products[j]->supply -= bought % world.products[j]->supply;
+					world.products[j]->supply -= std::min<float>(bought, world.products[j]->supply);
 				}
 				
 				// Deduct from budget, and remove item from stockpile
@@ -389,7 +393,7 @@ void Economy::do_phase_3(World& world) {
 				pop->consciousness += 0.001f;
 			}
 			
-			pop->life_needs_met -= 0.5f;
+			pop->life_needs_met -= 0.25f * std::min<float>(0.5f, 1.f - pop->literacy);
 			
 			province->worker_pool += pop->size;
 		}

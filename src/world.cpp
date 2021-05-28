@@ -222,8 +222,10 @@ World::World() {
 		
 		if(tile->province_id != (ProvinceId)-1) {
 			Province * province = this->provinces[this->tiles[i].province_id];
-			
-			province->owners.push_back(this->nations[this->tiles[i].owner_id]);
+
+			if(this->tiles[i].owner_id != (NationId)-1) {
+				province->owners.push_back(this->nations[this->tiles[i].owner_id]);
+			}
 
 			// Up neighbour
 			if(i > this->width) {
@@ -306,11 +308,7 @@ World::World() {
 		// These will not change in a while
 		province->owners.shrink_to_fit();
 		province->neighbours.shrink_to_fit();
-	}
 
-	// Register all provinces onto the owning nations
-	for(size_t i = 0; i < n_provinces; i++) {
-		Province * province = this->provinces[i];
 		for(auto& nation: province->owners) {
 			nation->owned_provinces.push_back(province);
 		}
