@@ -83,7 +83,9 @@ extern void do_province_overview();
 
 #include <atomic>
 extern std::atomic<int> redraw;
-extern std::atomic<int> run;
+extern std::atomic<bool> run;
+extern std::atomic<bool> paused;
+extern std::atomic<bool> do_start;
 
 #include <deque>
 #include <mutex>
@@ -178,6 +180,9 @@ void do_game_main(UI::Widget *, void *) {
 	std::vector<Tile *> path;
 	Tile * start;
 	Tile * end;
+
+	paused = true;
+	do_start = true;
 	
 	char * tmpbuf = new char[128];
 	while(run) {
@@ -278,10 +283,13 @@ void do_game_main(UI::Widget *, void *) {
 				case SDLK_e:
 					cam.vz_angle += fmin(4.f, fmax(0.01f, 0.02f * -cam.z));
 					break;
+				case SDLK_p:
+					paused = !paused;
+					break;
 				}
 				break;
 			case SDL_QUIT:
-				run = 0;
+				run = false;
 				break;
 			default:
 				break;
@@ -635,6 +643,8 @@ void rendering_main(void) {
 	UI::Image * menu_title_img = new UI::Image(nullptr, 64, 8, 320, 128, nullptr, menu_title);
 	UI::Button * new_game = new UI::Button(nullptr, 64, 196, 256, 24, "New game");
 	new_game->on_click = &do_select_nation;
+
+	run = true;
 	while(run) {
 		SDL_Event event;
 		while(SDL_PollEvent(&event)) {
@@ -656,7 +666,7 @@ void rendering_main(void) {
 				ui_ctx->check_text_input((const char *)&event.text.text);
 				break;
 			case SDL_QUIT:
-				run = 0;
+				run = false;
 				break;
 			default:
 				break;
