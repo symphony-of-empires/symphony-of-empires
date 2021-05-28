@@ -5,14 +5,20 @@
 #include "nation.hpp"
 
 namespace Diplomacy {
+	// Determines if the other nation is a friendly potential ally
 	bool is_friend(Nation * us, Nation * them);
+
+	// Determines if the other nation is an enemy and potential rival
 	bool is_foe(Nation * us, Nation * them);
 };
 
 namespace TreatyClause {
 	class BaseClause {
 	protected:
+		// Nation who created this clause
 		Nation * sender;
+
+		// Nation who should accept/reject this clause
 		Nation * receiver;
 	public:
 		BaseClause(Nation * _sender, Nation * _receiver) {
@@ -20,13 +26,24 @@ namespace TreatyClause {
 			this->receiver = _receiver;
 		};
 		virtual ~BaseClause() {};
+
+		// Function to determine the "political" cost of this clause, and how much willing the AI
+		// is to accept this clause, this is only used by the AI
 		virtual unsigned cost();
+
+		// Function to enforce the policy per day (or higher time spans)
 		virtual void enforce();
+
+		// Determines whenever the clause is in effect or not, when it is not in effect
+		// then it's removed permanently
 		virtual bool in_effect();
 	};
 
 	class WarReparations : BaseClause {
-		size_t amount;
+		// Amount to pay per day
+		float amount;
+
+		// Number of days this clause lasts
 		size_t days_duration;
 	public:
 		unsigned cost() {
@@ -45,7 +62,10 @@ namespace TreatyClause {
 	};
 
 	class Humiliate : BaseClause {
-		size_t amount;
+		// Amount to reduce prestige to per day
+		float amount;
+
+		// Number of days this clause lasts
 		size_t days_duration;
 	public:
 		unsigned cost() {

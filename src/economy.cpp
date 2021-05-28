@@ -5,13 +5,13 @@
 #include "print.hpp"
 #include "pathfinding.hpp"
 
-size_t Industry::get_id(const World& world, size_t province_id) {
+IndustryId Industry::get_id(const World& world, ProvinceId province_id) {
 	const std::vector<Industry *> * industries = &world.provinces[province_id]->industries;
 	const auto industry = std::find(industries->begin(), industries->end(), this);
 	if(industry != industries->end()) {
 		return std::distance(industries->begin(), industry);
 	}
-	return (size_t)-1;
+	throw "Unable to find industry";
 }
 
 /**
@@ -62,11 +62,11 @@ void Economy::do_phase_1(World& world) {
 		for(size_t j = 0; j < world.provinces[i]->industries.size(); j++) {
 			Industry * industry = world.provinces[i]->industries[j];
 			if(!world.provinces[i]->worker_pool) {
-				industry->ticks_unoperational++;
+				industry->days_unoperational++;
 				continue;
 			}
 
-			industry->ticks_unoperational = 0;
+			industry->days_unoperational = 0;
 
 			size_t available_manpower;
 			available_manpower = std::min<size_t>(1500, world.provinces[i]->worker_pool);
@@ -125,10 +125,13 @@ void Economy::do_phase_1(World& world) {
 	}
 }
 
+/**
+ * Phase 2 of the economy: Goods are transported all around the world, generating commerce and making them
+ * be ready for POPs to buy
+ */
 void Economy::do_phase_2(World& world) {
-	// Now we will deliver stuff accordingly
 	while(world.delivers.size() && world.orders.size()) {
-		// Now transport companies will check and transport accordingly
+		// We will check all transport companies; they will transport in a first-come first-serve fashion
 		for(auto& company: world.companies) {
 			if(!company->is_transport)
 				continue;
@@ -136,8 +139,8 @@ void Economy::do_phase_2(World& world) {
 			// Check all delivers
 			for(size_t i = 0; i < world.delivers.size(); i++) {
 				DeliverGoods * deliver = &world.delivers[i];
-				deliver->rejections++;
-				
+
+				// Is the transport company able to transport from this province?
 				if(!company->in_range(deliver->sender_province_id))
 					continue;
 				
@@ -145,39 +148,39 @@ void Economy::do_phase_2(World& world) {
 				for(size_t j = 0; j < world.orders.size(); j++) {
 					OrderGoods * order = &world.orders[j];
 					
-					// Do they want this goods?
+					// Do they want these goods?
 					if(order->good_id != deliver->good_id)
 						continue;
 					
-					// Are we in the range to deliver?
+					// Is this transport company able to transport to this province?
 					if(!company->in_range(order->requester_province_id))
 						continue;
 					
-					// Province receives a small supply buff from commerce
-					world.provinces[order->requester_province_id]->supply_rem += 5.f;
+					Province * order_province = world.provinces[order->requester_province_id];
 					
-					// Obtain number of goods that we could satisfy
+					// Province receives a small (military) supply buff from commerce
+					order_province->supply_rem += 5.f;
+					order_province->supply_rem = std::min(order_province->supply_limit, order_province->supply_rem);
+					
+					// Obtain number of goods that we can satisfy
 					size_t count = std::min<size_t>(order->quantity, deliver->quantity);
 					deliver->quantity -= count;
 					order->quantity -= count;
 
-					// Yes - we go and deliver their stuff
-					world.provinces[order->requester_province_id]->industries[order->requester_industry_id]->add_to_stock(world, order->good_id, count);
+					// Duplicate products and put them into the province's stock (a commerce buff)
+					order_province->industries[order->requester_industry_id]->add_to_stock(world, order->good_id, count);
 					
-					// Increment demand
+					// Increment demand of the product, and decrement supply when the demand is fullfilled
 					world.products[deliver->product_id]->demand += count;
-					// Decrement supply
 					if(world.products[deliver->product_id]->supply) {
 						const size_t satisfied = std::min<size_t>(count, world.products[deliver->product_id]->supply);
 						world.products[deliver->product_id]->supply -= satisfied;
 						world.products[deliver->product_id]->demand += satisfied;
 					}
 
-					world.provinces[order->requester_province_id]->industries[order->requester_industry_id]->production_cost += world.products[deliver->product_id]->price;
-					
-					// On 0 it overflows to -1, on 1 it goes to zero, but after this loop it's
-					// incremented again (see incrementing below). So we don't take a rejection hit
-					deliver->rejections--;
+					// Increment the production cost of this industry which is used
+					// so we sell our product at a profit instead  of at a loss
+					order_province->industries[order->requester_industry_id]->production_cost += world.products[deliver->product_id]->price;
 					
 					// Delete this deliver and order tickets from the system since
 					// they are now fullfilled (only delete when no quanity left)
@@ -192,14 +195,7 @@ void Economy::do_phase_2(World& world) {
 			}
 		}
 		
-		// Get number of transporter companies
-		size_t n_transporters = 0;
-		for(const auto& company: world.companies) {
-			if(company->is_transport)
-				n_transporters++;
-		}
-		
-		// Drop all rejected delivers
+		// Drop all rejected delivers who didn't got transported
 		for(size_t i = 0; i < world.delivers.size(); i++) {
 			const DeliverGoods * deliver = &world.delivers[i];
 			Product * product = world.products[deliver->product_id];
@@ -220,6 +216,9 @@ void Economy::do_phase_2(World& world) {
 	world.orders.clear();
 }
 
+/**
+ * Phase 3 of economy: POPs buy the aforementioned products and take from the province's stockpile
+ */
 void Economy::do_phase_3(World& world) {
 	// Now, it's like 1 am here, but i will try to write a very nice economic system
 	// TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
@@ -405,6 +404,10 @@ void Economy::do_phase_3(World& world) {
 	}
 }
 
+/**
+ * Phase 4 of the economy: After all POPs buy their products and all factories have transported their goods (or not)
+ * the price of each product is calculated and all markets are closed until the next day
+ */
 void Economy::do_phase_4(World& world) {
 	// Preparations for the next tick
 
