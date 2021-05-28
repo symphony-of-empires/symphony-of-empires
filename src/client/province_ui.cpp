@@ -75,25 +75,25 @@ void do_province_overview() {
 	prov_win = new UI::Window(nullptr, width - 512, height / 2, 512, (height / 2) - 24, province->name.c_str());
 	
 	char * str = new char[255];
-	if(province->owner_id == PROVINCE_DISPUTED) {
+	if(province->owners.size() >= 1) {
 		sprintf(str, "Disputed");
-	} else if(province->owner_id == PROVINCE_NO_ONWER) {
+	} else if(province->owners.size() == 0) {
 		sprintf(str, "Uncolonized");
 	} else {
-		sprintf(str, "%s", g_world->nations[province->owner_id]->name.c_str());
+		sprintf(str, "%s", province->owners[0]->name.c_str());
 	}
 
 	UI::Label * status = new UI::Label(prov_win, 0, 0, str);
 
-	if(province->owner_id == player_nation_id) {
+	if(std::find(province->owners.begin(), province->owners.end(), g_world->nations[player_nation_id]) != province->owners.end()) {
 		UI::Button * recruit = new UI::Button(prov_win, 0, 64, 128, 24, "Recruit");
 		recruit->on_click = &do_build_unit_on_province;
 		recruit->user_data = province;
-
-		UI::Button * view_pop = new UI::Button(prov_win, 0, 64 + 24, 128, 24, "View POPs");
-		view_pop->on_click = &do_province_overview_pops;
-		view_pop->user_data = province;
 	}
 
+	UI::Button * view_pop = new UI::Button(prov_win, 0, 64 + 24, 128, 24, "View POPs");
+	view_pop->on_click = &do_province_overview_pops;
+	view_pop->user_data = province;
+	
 	delete[] str;
 }
