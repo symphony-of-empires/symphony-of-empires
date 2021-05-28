@@ -159,23 +159,37 @@ World::World() {
 		} else {
 			this->tiles[i].infra_level = 1;
 		}
+	}
 
-		// Associate tiles with nations
-		for(size_t j = 0; j < n_nations; j++) {
-			Nation * nation = this->nations[j];
-			if(pol.buffer[i] != nation->color)
-				continue;
-			
-			this->tiles[i].owner_id = (NationId)j;
+	// Associate tiles with nations
+	for(size_t i = 0; i < total_size; i++) {
+		const uint32_t color = pol.buffer[i];
+		const auto it = std::find_if(nations.begin(), nations.end(), [&color](const auto& element) {
+			return (color == element->color);
+		});
+		if(it != nations.end()) {
+			const NationId nation_id = std::distance(nations.begin(), it);
+			while(pol.buffer[i] == (*it)->color) {
+				tiles[i].owner_id = nation_id;
+				i++;
+			}
+			i--;
 		}
+	}
 
-		for(size_t j = 0; j < n_provinces; j++) {
-			Province * province = this->provinces[j];
-			if(div.buffer[i] != province->color)
-				continue;
-				
-			this->tiles[i].province_id = (ProvinceId)j;
-			break;
+	// Associate tiles with provinces
+	for(size_t i = 0; i < total_size; i++) {
+		const uint32_t color = div.buffer[i];
+		const auto it = std::find_if(provinces.begin(), provinces.end(), [&color](const auto& element) {
+			return (color == element->color);
+		});
+		if(it != provinces.end()) {
+			const ProvinceId province_id = std::distance(provinces.begin(), it);
+			while(div.buffer[i] == (*it)->color) {
+				tiles[i].province_id = province_id;
+				i++;
+			}
+			i--;
 		}
 	}
 
@@ -270,18 +284,17 @@ World::World() {
 				continue;
 
 			Province * province = this->provinces[tile->province_id];
-			province->max_x = fmax(province->max_x, i);
-			province->max_y = fmax(province->max_y, j);
-					
-			province->min_x = fmin(province->min_x, i);
-			province->min_y = fmin(province->min_y, j);
+			province->max_x = std::max(province->max_x, i);
+			province->max_y = std::max(province->max_y, j);
+			province->min_x = std::min(province->min_x, i);
+			province->min_y = std::min(province->min_y, j);
 		}
 	}
 
 	// Correct stuff from provinces
 	for(auto& province: this->provinces) {
-		province->max_x = fmin(this->width, province->max_x);
-		province->max_y = fmin(this->height, province->max_y);
+		province->max_x = std::min(this->width, province->max_x);
+		province->max_y = std::min(this->height, province->max_y);
 
 		// Remove duplicates
 		{
