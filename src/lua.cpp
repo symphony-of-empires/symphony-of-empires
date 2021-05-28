@@ -26,6 +26,7 @@
 #include <libintl.h>
 #include <locale.h>
 #include "path.hpp"
+#include "event.hpp"
 
 // Global world - do not use too much!
 extern World * g_world;
@@ -278,12 +279,6 @@ int LuaAPI::get_province(lua_State * L) {
 	return 4;
 }
 
-#ifndef SERVER_HEADLESS
-#include <deque>
-#include <mutex>
-extern std::mutex render_province_mutex;
-extern std::deque<size_t> render_province;
-#endif
 int LuaAPI::give_province_to(lua_State * L) {
 	if(!lua_isnumber(L, 1) || !lua_isnumber(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
@@ -310,16 +305,9 @@ int LuaAPI::give_province_to(lua_State * L) {
 				continue;
 			
 			tile->owner_id = nation_id;
+			g_world->nation_changed_tiles.push_back(tile);
 		}
 	}
-#ifndef SERVER_HEADLESS
-	render_province_mutex.lock();
-	render_province.push_back(province->min_x);
-	render_province.push_back(province->min_y);
-	render_province.push_back(province->max_x + 64);
-	render_province.push_back(province->max_y + 64);
-	render_province_mutex.unlock();
-#endif
 	return 0;
 }
 
@@ -490,6 +478,30 @@ int LuaAPI::add_event_receivers(lua_State * L) {
 		event->receivers.push_back(g_world->nations[nation_id]);
 	}
 	return 0;
+}
+
+int LuaAPI::add_descision(lua_State * L) {
+	if(!lua_isstring(L, 2) || !lua_isstring(L, 3) || !lua_isstring(L, 4)) {
+		print_error(gettext("lua argument type mismatch"));
+		return 0;
+	}
+
+	Event * event = g_world->events[lua_tonumber(L, 1)];
+
+	Descision * descision = new Descision();
+
+	descision->ref_name = lua_tostring(L, 2);
+	descision->name = lua_tostring(L, 3);
+	descision->do_descision_function = lua_tostring(L, 4);
+	descision->effects = lua_tostring(L, 5);
+
+	printf(gettext("descision: %s"), descision->ref_name.c_str());
+	printf("\n");
+
+	// Add onto vector
+	event->descisions.push_back(descision);
+	lua_pushnumber(L, event->descisions.size() - 1);
+	return 1;
 }
 
 int LuaAPI::add_pop_type(lua_State * L) {
@@ -701,14 +713,14 @@ void LuaAPI::check_events(lua_State * L) {
 		Event * event = g_world->events[i];
 		lua_getglobal(L, event->conditions_function.c_str());
 		lua_call(L, 0, 1);
-		int r = lua_tointeger(L, -1);
+		bool r = lua_toboolean(L, -1);
 		lua_pop(L, 1);
 
 		// Conditions met
 		if(r) {
 			lua_getglobal(L, event->do_event_function.c_str());
 			lua_call(L, 0, 1);
-			int multi = lua_tointeger(L, -1);
+			bool multi = lua_tointeger(L, -1);
 			lua_pop(L, 1);
 
 			// Event is removed if it's not of multiple occurences

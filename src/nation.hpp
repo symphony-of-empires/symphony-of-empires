@@ -126,6 +126,7 @@ public:
 	float high_flat_tax;
 };
 
+#include "event.hpp"
 class Nation {
 public:
 	Nation() {};
@@ -181,6 +182,9 @@ public:
 	
 	// Budget of the nation
 	float budget;
+
+	// Inbox of the nation; events that require our attention!
+	std::vector<Event *> inbox;
 };
 
 #endif

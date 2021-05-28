@@ -85,6 +85,8 @@ World::World() {
 	lua_register(this->lua, "get_event", LuaAPI::get_event);
 	lua_register(this->lua, "add_event_receivers", LuaAPI::add_event_receivers);
 
+	lua_register(this->lua, "add_descision", LuaAPI::add_descision);
+
 	lua_register(this->lua, "add_pop_type", LuaAPI::add_pop_type);
 	lua_register(this->lua, "get_pop_type", LuaAPI::get_pop_type);
 
@@ -102,8 +104,19 @@ World::World() {
 	lua_register(this->lua, "get_month", LuaAPI::get_month);
 	lua_register(this->lua, "get_year", LuaAPI::get_year);
 
+	// Constants for ease of readability
+	lua_pushboolean(lua, true);
+	lua_setglobal(lua, "EVENT_CONDITIONS_MET");
+	lua_pushboolean(lua, false);
+	lua_setglobal(lua, "EVENT_CONDITIONS_UNMET");
+
+	lua_pushboolean(lua, true);
+	lua_setglobal(lua, "EVENT_DO_MANY_TIMES");
+	lua_pushboolean(lua, false);
+	lua_setglobal(lua, "EVENT_DO_ONE_TIME");
+
 	// TODO: The. name. is. fucking. long.
-	lua_register(this->lua, "add_op_province_to_company", LuaAPI::add_op_province_to_company);
+	lua_register(lua, "add_op_province_to_company", LuaAPI::add_op_province_to_company);
 
 	// Set path for `require` statements in lua, this will allow us to require
 	// without using data/scripts

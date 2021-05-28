@@ -106,6 +106,15 @@ function Event:add_receivers(event, ...)
 	end
 	add_event_receivers(event.id, args.n, table.unpack(args))
 end
+function Event:add_descision(event, descision)
+	add_descision(event.id, descision.ref_name, descision.name, descision.descision_fn, descision.effects)
+end
+
+Descision = { ref_name = "", descision_fn = "", name = "", effects = "" }
+function Descision:create(descision)
+	descision.parent = self
+	return descision
+end
 
 PopType = { id = 0, ref_name = "", name = "" }
 function PopType:create(pop_type)

@@ -54,6 +54,7 @@ public:
 };
 
 #include <algorithm>
+#include "event.hpp"
 class World {
 public:
 	World();
@@ -89,7 +90,7 @@ public:
 	std::vector<Religion *> religions;
 	std::vector<Culture *> cultures;
 	std::vector<UnitType *> unit_types;
-	std::vector<LuaAPI::Event *> events;
+	std::vector<Event *> events;
 	lua_State * lua;
 
 	std::vector<OrderGoods> orders;
@@ -103,6 +104,9 @@ public:
 		return (NationId)std::distance(this->nations.begin(), it);
 	}
 	ProvinceId get_province_id(Province * province);
+
+	std::vector<Tile *> nation_changed_tiles;
+	std::vector<Tile *> elevation_changed_tiles;
 };
 
 extern World * g_world;
