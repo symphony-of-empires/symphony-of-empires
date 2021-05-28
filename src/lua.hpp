@@ -11,14 +11,6 @@
 #include "nation.hpp"
 
 namespace LuaAPI {
-	class Event {
-	public:
-		std::string ref_name;
-		std::string conditions_function;
-		std::string do_event_function;
-		std::vector<Nation *> receivers;
-	};
-
 	int add_good(lua_State * L);
 	int get_good(lua_State * L);
 
@@ -43,6 +35,8 @@ namespace LuaAPI {
 	int add_event(lua_State * L);
 	int get_event(lua_State * L);
 	int add_event_receivers(lua_State * L);
+
+	int add_descision(lua_State * L);
 
 	int add_pop_type(lua_State * L);
 	int get_pop_type(lua_State * L);
@@ -71,7 +65,5 @@ namespace LuaAPI {
 	// Functions not part of the API
 	void check_events(lua_State * L);
 };
-
-extern std::vector<LuaAPI::Event> g_events;
 
 #endif
