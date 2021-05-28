@@ -196,6 +196,9 @@ public:
 	template<typename S, typename T, typename C>
 	S get_id(T * ptr, C table) {
 		typename C::iterator it = std::find(table.begin(), table.end(), ptr);
+		if(it == table.end()) {
+			throw "Element not found";
+		}
 		return (S)std::distance(table.begin(), it);
 	}
 
