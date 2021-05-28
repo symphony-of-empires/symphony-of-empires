@@ -2,7 +2,7 @@
 
 namespace Diplomacy {
     bool is_friend(Nation * us, Nation * them) {
-		const size_t idx = g_world->get_nation_id(them);
+		const NationId idx = g_world->get_id<NationId>(them, g_world->nations);
 		const NationRelation * relation = &us->relations[idx];
 
 		// A high relation means we are friendly <3

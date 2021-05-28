@@ -9,6 +9,10 @@
 
 typedef uint16_t NationId;
 
+/**
+ * Defines a one side relation between a country
+ * This allows for cases where a country A hates country B, but country B loves country A
+ */
 class NationRelation {
 public:
 	float relation;
@@ -16,6 +20,7 @@ public:
 	// Interest of a nation on this nation
 	float interest;
 
+	// Whetever commercial operations are allowed on on the target country
 	bool has_embargo;
 	bool has_war;
 	bool has_alliance;
@@ -83,7 +88,11 @@ public:
 		// All POPs can build freely
 		AUTO_BUILD_ALLOWED,
 	};
+
+	// Whetever POPs are able to build infrastructure
 	AutoBuildPolicy auto_build_infrastructure;
+
+	// Whatever POPs are able to build factories
 	AutoBuildPolicy auto_build_factories;
 
 	bool national_id;
@@ -147,7 +156,7 @@ public:
 	// Default flag texture of the country
 	Texture * default_flag = nullptr;
 
-	// Relations with all other countries
+	// A list with relations with all other nations, mapped 1:1 to the Nation list in the world
 	std::vector<NationRelation> relations;
 
 	// Id of the nation that has us on their sphere of influence
@@ -167,23 +176,33 @@ public:
 	// Level of infamy
 	float infamy;
 
+	// 3 key scores used to define a nation's minimum prestige, how willing would the AI
+	// be to challenge this nations and other valuable stuff
 	float military_score = 0.f;
 	float naval_score = 0.f;
 	float economy_score = 0.f;
 
+	// Primary culture of this nation, may also be changed via events, otherwise it's permanent
 	Culture * primary_culture;
+
+	// Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
+	// owned by this nation
 	std::vector<Culture *> accepted_cultures;
 
-	// Used for evaluations
+	// List of provinces which are owned by this nation (including partial ownership)
 	std::vector<Province *> owned_provinces;
+
+	// List of neighbouring nations
 	std::vector<Nation *> neighbours;
 
+	// A pointer to a class defining the current policy of this nation
 	Policies * current_policy;
 	
-	// Budget of the nation
+	// Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
+	// of all products in the nation, which are volatile unless they are sold
 	float budget;
 
-	// Inbox of the nation; events that require our attention!
+	// Inbox of the nation; events that require our attention / should be processed
 	std::vector<Event *> inbox;
 };
 

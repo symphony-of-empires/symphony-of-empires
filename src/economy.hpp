@@ -12,6 +12,8 @@
 #include "array_ops.hpp"
 #include "province.hpp"
 
+// Functions that do a economy simulation in various steps, divided to reduce
+// overhead, they are distributed accross 48 ticks
 namespace Economy {
 	void do_phase_1(World& world);
 	void do_phase_2(World& world);
@@ -20,13 +22,23 @@ namespace Economy {
 }
 
 typedef uint16_t CompanyId;
+
+/**
+ * A company that operates one or more factories and is able to build even more factories
+ */
 class Company {
 public:
+	// Name of this company
 	std::string name;
-	uint64_t money;
+	
+	// How many money this company has
+	float money;
+
 	bool is_transport;
 	bool is_retailer;
 	bool is_industry;
+
+	// List of province IDs where this company operates (mostly used for transport companies)
 	std::vector<ProvinceId> operating_provinces;
 
 	inline bool in_range(ProvinceId prov_id) {
@@ -43,6 +55,10 @@ public:
 };
 
 typedef uint8_t GoodId;
+
+/**
+ * A good, mostly serves as a "product type"
+ */
 class Good {
 public:
 	~Good() {
@@ -51,7 +67,10 @@ public:
 
 	std::string name;
 	std::string ref_name;
+
+	// Determines if the good can be "eaten", this makes the product fullfill a life need
 	bool is_edible;
+
 	Texture * icon = nullptr;
 };
 
@@ -64,28 +83,39 @@ public:
 
 	std::string name;
 	std::string ref_name;
-	std::vector<size_t> inputs;
-	std::vector<size_t> outputs;
+
 	Texture * image = nullptr;
+
+	// List of good IDs required to create output
+	std::vector<GoodId> inputs;
+
+	// List of good IDs that this factory type creates
+	std::vector<GoodId> outputs;
 };
 
+#include "nation.hpp"
 class World;
 
 typedef uint16_t IndustryId;
 class Industry {
 public:
-	size_t get_id(const World& world, size_t province_id);
+	IndustryId get_id(const World& world, ProvinceId province_id);
 	bool can_do_output(const World& world);
 	void add_to_stock(const World& world, size_t good_id, size_t add);
-	
-	size_t owner_id;
-	
-	size_t type_id;
-	
-	size_t ticks_unoperational;
 
+	// Owner nation of this factory
+	NationId owner_id;
+
+	// Type of factory
+	IndustryTypeId type_id;
+
+	// Days that the factory has not been operational
+	size_t days_unoperational;
+
+	// Money needed to produce - helps determine the price of the output products
 	float production_cost;
-	
+
+	// Stockpile of inputs in the factory
 	std::vector<size_t> stockpile;
 	
 	// Used for faster lookups
@@ -93,6 +123,11 @@ public:
 };
 
 typedef uint16_t ProductId;
+
+/**
+ * A product (based off a Good) which can be bought by POPs, converted by factories and transported
+ * accross the world
+ */
 class Product {
 public:
 	// Onwer (companyId) of this product
@@ -122,7 +157,7 @@ public:
 	// Total demand (worldwide) of the product
 	size_t demand;
 
-	// Deque for charts and stuff
+	// History of price, supply and demand for the past 30 days
 	std::deque<float> price_history;
 	std::deque<size_t> supply_history;
 	std::deque<size_t> demand_history;

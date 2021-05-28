@@ -226,7 +226,6 @@ int LuaAPI::add_province(lua_State * L) {
 	province->color |= 0xff000000;
 
 	province->name = lua_tostring(L, 3);
-	province->population = 1000;
 	province->budget = 500.f;
 
 	// Check for duplicates
