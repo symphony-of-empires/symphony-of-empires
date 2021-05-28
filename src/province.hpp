@@ -5,9 +5,6 @@
 #include <string>
 #include "pop.hpp"
 
-#define PROVINCE_DISPUTED (size_t)-2
-#define PROVINCE_NO_ONWER (size_t)-1
-
 typedef uint16_t ProvinceId;
 
 class World;
@@ -34,8 +31,6 @@ public:
 	size_t min_y = 65532;
 	size_t max_x = 0;
 	size_t max_y = 0;
-	
-	size_t owner_id = PROVINCE_NO_ONWER;
 	
 	float supply_limit;
 	float supply_rem;

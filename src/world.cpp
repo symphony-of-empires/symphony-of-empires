@@ -222,18 +222,8 @@ World::World() {
 		
 		if(tile->province_id != (ProvinceId)-1) {
 			Province * province = this->provinces[this->tiles[i].province_id];
-			// If province had no owner before - now it has it!
-			if(province->owner_id == PROVINCE_NO_ONWER) {
-				province->owner_id = this->tiles[i].owner_id;
-			}
-
-			// Set provinces as disputed if many countries owns this province
-			if(province->owner_id != PROVINCE_DISPUTED
-			&& province->owner_id != PROVINCE_NO_ONWER
-			&& province->owner_id != this->tiles[i].owner_id) {
-				province->owner_id = PROVINCE_DISPUTED;
-				province->owners.push_back(this->nations[this->tiles[i].owner_id]);
-			}
+			
+			province->owners.push_back(this->nations[this->tiles[i].owner_id]);
 
 			// Up neighbour
 			if(i > this->width) {
@@ -320,13 +310,10 @@ World::World() {
 
 	// Register all provinces onto the owning nations
 	for(size_t i = 0; i < n_provinces; i++) {
-		const Province * province = this->provinces[i];
-		if(province->owner_id >= n_nations) {
-			continue;
+		Province * province = this->provinces[i];
+		for(auto& nation: province->owners) {
+			nation->owned_provinces.push_back(province);
 		}
-
-		Nation * nation = this->nations[province->owner_id];
-		nation->owned_provinces.push_back(this->provinces[i]);
 	}
 
 	// Create diplomatic relations between nations
