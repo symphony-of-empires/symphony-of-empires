@@ -107,6 +107,12 @@ public:
 
 	std::vector<Tile *> nation_changed_tiles;
 	std::vector<Tile *> elevation_changed_tiles;
+
+	Tile& get_tile(size_t x, size_t y) {
+		x = std::min(width, x);
+		y = std::min(height, y);
+		return tiles[x + y * width];
+	}
 };
 
 extern World * g_world;
