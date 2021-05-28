@@ -299,12 +299,12 @@ int LuaAPI::give_province_to(lua_State * L) {
 
 	for(size_t i = province->min_x; i < province->max_x; i++) {
 		for(size_t j = province->min_y; j < province->max_y; j++) {
-			Tile * tile = &g_world->tiles[i + j * g_world->width];
-			if(tile->province_id != province_id)
+			Tile& tile = g_world->get_tile(i, j);
+			if(tile.province_id != province_id)
 				continue;
 			
-			tile->owner_id = nation_id;
-			g_world->nation_changed_tiles.push_back(tile);
+			tile.owner_id = nation_id;
+			g_world->nation_changed_tiles.push_back(&tile);
 		}
 	}
 	return 0;
