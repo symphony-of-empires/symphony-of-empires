@@ -205,9 +205,9 @@ void do_game_main(UI::Widget *, void *) {
 						break;
 
 					// tx and ty are used for tile
-					Tile * tile = &g_world->tiles[tx + ty * g_world->width];
-					if(tile->province_id != (uint16_t)-1 && tile->owner_id != (uint16_t)-1) {
-						selected_province_id = tile->province_id;
+					const Tile& tile = g_world->get_tile(tx, ty);
+					if(tile.province_id != (uint16_t)-1 && tile.owner_id != (uint16_t)-1) {
+						selected_province_id = tile.province_id;
 						do_province_overview();
 					}
 
@@ -384,7 +384,7 @@ void do_game_main(UI::Widget *, void *) {
 		glLineWidth(4.f);
 		glColor3f(1.f, 0.f, 0.f);
 		for(const auto& node: path) {
-			const size_t node_i = ptr_to_index<Tile>(g_world->tiles, node);
+			const size_t node_i = g_world->get_id(node);
 			const size_t node_x = node_i % g_world->width;
 			const size_t node_y = node_i / g_world->width;
 			glVertex2f(node_x, node_y);
@@ -397,7 +397,7 @@ void do_game_main(UI::Widget *, void *) {
 			glColor3f(0.5f, 1.f, 0.5f);
 			glBegin(GL_LINE_STRIP);
 			for(const auto& node: convoy.path) {
-				const size_t node_i = ptr_to_index<Tile>(g_world->tiles, node);
+				const size_t node_i = g_world->get_id(node);
 				const size_t node_x = node_i % g_world->width;
 				const size_t node_y = node_i / g_world->width;
 				glVertex2f(node_x, node_y);

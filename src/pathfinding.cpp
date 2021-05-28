@@ -27,12 +27,11 @@ static std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
 			if(i == 0 && j == 0)
 				continue;
 			
-			const size_t t_idx = ptr_to_index<Tile>(world.tiles, tile);
+			const size_t t_idx = world.get_id(tile);
 			const size_t t_x = t_idx % world.width;
 			const size_t t_y = t_idx / world.width;
 
-			const size_t index = (t_x + i) + (t_y + j) * world.width;
-			Tile * neighbour = &world.tiles[index];
+			Tile * neighbour = &(world.get_tile(t_x + i, t_y + j));
 			if(neighbour->elevation > world.sea_level) {
 				result.push_back(neighbour);
 			}
@@ -46,12 +45,12 @@ static std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
  * Calculates the euclidean distance between the two tiles
  * considering only x and y (ignoring elevation)
  */
-static inline constexpr float euclidean_distance(const World& world, Tile * t1, Tile * t2) {
-	const size_t t1_idx = ptr_to_index<Tile>(world.tiles, t1);
+static inline float euclidean_distance(const World& world, Tile * t1, Tile * t2) {
+	const size_t t1_idx = world.get_id(t1);
 	const size_t t1_x = t1_idx % world.width;
 	const size_t t1_y = t1_idx / world.width;
 
-	const size_t t2_idx = ptr_to_index<Tile>(world.tiles, t2);
+	const size_t t2_idx = world.get_id(t2);
 	const size_t t2_x = t2_idx % world.width;
 	const size_t t2_y = t2_idx / world.width;
 	
@@ -64,12 +63,12 @@ static inline constexpr float euclidean_distance(const World& world, Tile * t1, 
  * Calculates the cost accrued by moving from one tile to another, taking into
  * account elevation and infrastructure.
  */
-static inline constexpr float tile_cost(const World& world, Tile * t1, Tile * t2) {
-	const size_t t1_idx = ptr_to_index<Tile>(world.tiles, t1);
+static inline float tile_cost(const World& world, Tile * t1, Tile * t2) {
+	const size_t t1_idx = world.get_id(t1);
 	const size_t t1_x = t1_idx % world.width;
 	const size_t t1_y = t1_idx / world.width;
 
-	const size_t t2_idx = ptr_to_index<Tile>(world.tiles, t2);
+	const size_t t2_idx = world.get_id(t2);
 	const size_t t2_x = t2_idx % world.width;
 	const size_t t2_y = t2_idx / world.width;
 

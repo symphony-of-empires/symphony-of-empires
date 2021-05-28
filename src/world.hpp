@@ -107,6 +107,8 @@ public:
  * Contains the main world class object, containing all the data relevant for the simulation
  */
 class World {
+	// 2-Dimensional Array of tiles
+	Tile * tiles;
 public:
 	World();
 	World& operator=(const World&) = default;
@@ -126,9 +128,6 @@ public:
 
 	// The height and width of the world
 	size_t width, height;
-
-	// 2-Dimensional Array of tiles
-	Tile * tiles;
 
 	// List of units present in the world
 	std::vector<Unit *> units;
@@ -194,7 +193,7 @@ public:
 	 * @tparam C STL-compatible container where the pointer *should* be located in
 	 */
 	template<typename S, typename T, typename C>
-	S get_id(T * ptr, C table) {
+	S get_id(T * ptr, C table) const {
 		typename C::iterator it = std::find(table.begin(), table.end(), ptr);
 		if(it == table.end()) {
 			throw "Element not found";
@@ -202,15 +201,26 @@ public:
 		return (S)std::distance(table.begin(), it);
 	}
 
+	size_t get_id(const Tile * ptr) const {
+		return ptr_to_index(tiles, ptr);
+	}
+
 	// Obtains a tile from the world safely, and makes sure that it is in bounds
-	inline Tile& get_tile(size_t x, size_t y) {
+	Tile& get_tile(size_t x, size_t y) const {
 		if(x >= width) {
-			throw "X exceeds width";
+			throw "Tile X exceeds width";
 		} else if(y >= height) {
-			throw "Y exceeds height";
+			throw "Tile Y exceeds height";
 		}
 
 		return tiles[x + y * width];
+	}
+
+	Tile& get_tile(size_t idx) const {
+		if(idx >= width * height) {
+			throw "Tile index exceeds boundaries";
+		}
+		return tiles[idx];
 	}
 };
 

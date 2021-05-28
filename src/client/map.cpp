@@ -212,7 +212,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 		glNewList(*gl_list, GL_COMPILE);
 		for(size_t j = off_y; j < end_y; j++) {
 			for(size_t i = off_x; i < end_x; i++) {
-				Tile * tile = &this->world->tiles[i + j * this->world->width];
+				Tile * tile = &world->get_tile(i, j);
 				if(tile->owner_id == (uint16_t)-1)
 					continue;
 				
@@ -222,7 +222,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				while(i < end_x && tile->owner_id == owner_id) {
 					n_same++;
 					i++;
-					tile = &this->world->tiles[i + j * this->world->width];
+					tile = &world->get_tile(i, j);
 				}
 				
 				glBegin(GL_TRIANGLES);
@@ -255,7 +255,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 		glNewList(*gl_list, GL_COMPILE);
 		for(size_t j = off_y; j < end_y; j++) {
 			for(size_t i = off_x; i < end_x; i++) {
-				Tile * tile = &this->world->tiles[i + j * this->world->width];
+				Tile * tile = &world->get_tile(i, j);
 				if(tile->province_id == (uint16_t)-1)
 					continue;
 				
@@ -265,7 +265,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				while(i < end_x && tile->province_id == province_id) {
 					n_same++;
 					i++;
-					tile = &this->world->tiles[i + j * this->world->width];
+					tile = &world->get_tile(i, j);
 				}
 
 				glBegin(GL_TRIANGLES);
@@ -300,11 +300,11 @@ void Map::quad_create(size_t qx, size_t qy) {
 		glColor4f(0.f, 0.f, 0.f, 0.3f);
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
-				Tile * tile = &this->world->tiles[i + j * this->world->width];
+				Tile * tile = &world->get_tile(i, j);
 				Tile * other_tile;
 				
 				// left
-				other_tile = &this->world->tiles[(i - 1) + ((j) * this->world->width)];
+				other_tile = &world->get_tile(i - 1, j);
 				if(other_tile->province_id != tile->province_id) {
 					glBegin(GL_LINE_STRIP);
 					glVertex2f((float)i, (float)j + 1.f);
@@ -313,7 +313,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				}
 				
 				// right
-				other_tile = &this->world->tiles[(i + 1) + ((j) * this->world->width)];
+				other_tile = &world->get_tile(i + 1, j);
 				if(other_tile->province_id != tile->province_id) {
 					glBegin(GL_LINE_STRIP);
 					glVertex2f((float)i + 1.f, (float)j + 1.f);
@@ -322,7 +322,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				}
 				
 				// up
-				other_tile = &this->world->tiles[(i) + ((j - 1) * this->world->width)];
+				other_tile = &world->get_tile(i, j - 1);
 				if(other_tile->province_id != tile->province_id) {
 					glBegin(GL_LINE_STRIP);
 					glVertex2f((float)i + 1.f, (float)j);
@@ -331,7 +331,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				}
 				
 				// down
-				other_tile = &this->world->tiles[(i) + ((j + 1) * this->world->width)];
+				other_tile = &world->get_tile(i, j + 1);
 				if(other_tile->province_id != tile->province_id) {
 					glBegin(GL_LINE_STRIP);
 					glVertex2f((float)i + 1.f, (float)j + 1.f);
@@ -353,11 +353,11 @@ void Map::quad_create(size_t qx, size_t qy) {
 		glColor4f(0.f, 0.f, 0.f, 0.5f);
 		for(size_t i = off_x; i < end_x; i++) {
 			for(size_t j = off_y; j < end_y; j++) {
-				Tile * tile = &this->world->tiles[i + j * this->world->width];
+				Tile * tile = &world->get_tile(i, j);
 				Tile * other_tile;
 
 				// left
-				other_tile = &this->world->tiles[(i - 1) + ((j) * this->world->width)];
+				other_tile = &world->get_tile(i - 1, j);
 				if(other_tile->elevation < this->world->sea_level && tile->elevation > this->world->sea_level) {
 					glBegin(GL_LINE_STRIP);
 					glVertex2f((float)i, (float)j + 1.f);
@@ -371,7 +371,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				}
 				
 				// right
-				other_tile = &this->world->tiles[(i + 1) + ((j) * this->world->width)];
+				other_tile = &world->get_tile(i + 1, j);
 				if(other_tile->elevation < this->world->sea_level && tile->elevation > this->world->sea_level) {
 					glBegin(GL_LINE_STRIP);
 					glVertex2f((float)i + 1.f, (float)j + 1.f);
@@ -385,7 +385,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				}
 				
 				// up
-				other_tile = &this->world->tiles[(i) + ((j - 1) * this->world->width)];
+				other_tile = &world->get_tile(i, j - 1);
 				if(other_tile->elevation < this->world->sea_level && tile->elevation > this->world->sea_level) {
 					glBegin(GL_LINE_STRIP);
 					glVertex2f((float)i + 1.f, (float)j);
@@ -399,7 +399,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 				}
 				
 				// down
-				other_tile = &this->world->tiles[(i) + ((j + 1) * this->world->width)];
+				other_tile = &world->get_tile(i, j + 1);
 				if(other_tile->elevation < this->world->sea_level && tile->elevation > this->world->sea_level) {
 					glBegin(GL_LINE_STRIP);
 					glVertex2f((float)i + 1.f, (float)j + 1.f);
@@ -419,7 +419,7 @@ void Map::quad_create(size_t qx, size_t qy) {
 	Texture * tex = this->topo_texture[qx + qy * this->n_horz_quads];
 	for(size_t j = off_y; j < end_y; j++) {
 		for(size_t i = off_x; i < end_x; i++) {
-			Tile * tile = &this->world->tiles[i + (j * this->world->width)];
+			Tile * tile = &world->get_tile(i, j);
 				
 			uint16_t elevation = tile->elevation;
 			uint32_t * comp = &tex->buffer[tex->width * (j - off_y) + (i - off_x)];
