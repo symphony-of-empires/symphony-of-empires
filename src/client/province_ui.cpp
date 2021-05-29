@@ -75,17 +75,15 @@ void do_province_overview() {
 	prov_win = new UI::Window(nullptr, width - 512, height / 2, 512, (height / 2) - 24, province->name.c_str());
 	
 	char * str = new char[255];
-	if(province->owners.size() >= 1) {
-		sprintf(str, "Disputed");
-	} else if(province->owners.size() == 0) {
+	if(province->owner == nullptr) {
 		sprintf(str, "Uncolonized");
 	} else {
-		sprintf(str, "%s", province->owners[0]->name.c_str());
+		sprintf(str, "%s", province->owner->name.c_str());
 	}
 
 	UI::Label * status = new UI::Label(prov_win, 0, 0, str);
 
-	if(std::find(province->owners.begin(), province->owners.end(), g_world->nations[player_nation_id]) != province->owners.end()) {
+	if(province->owner == g_world->nations[player_nation_id]) {
 		UI::Button * recruit = new UI::Button(prov_win, 0, 64, 128, 24, "Recruit");
 		recruit->on_click = &do_build_unit_on_province;
 		recruit->user_data = province;

@@ -56,11 +56,11 @@ public:
 	// Number of workers available to work on a domestic factory
 	size_t worker_pool;
 
+	// The owner of this province
+	Nation * owner = nullptr;
+
 	// List containing all nations who have a nucleus in this province
 	std::vector<Nation *> nucleuses;
-
-	// List containing all nations who have ownership in this province
-	std::vector<Nation *> owners;
 
 	// List of all neighbouring provinces (*should* be used for pathfinding)
 	std::vector<Province *> neighbours;

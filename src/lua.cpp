@@ -369,6 +369,24 @@ int LuaAPI::add_province_nucleus(lua_State * L) {
 	return 0;
 }
 
+int LuaAPI::add_province_owner(lua_State * L) {
+	ProvinceId province_id = lua_tonumber(L, 1);
+	if(province_id >= g_world->provinces.size()) {
+		print_error(gettext("invalid province id %zu"), province_id);
+		return 0;
+	}
+
+	NationId nation_id = lua_tonumber(L, 2);
+	if(nation_id >= g_world->nations.size()) {
+		print_error(gettext("invalid nation id %zu"), nation_id);
+		return 0;
+	}
+
+	g_world->nations[nation_id]->owned_provinces.push_back(g_world->provinces[province_id]);
+	g_world->provinces[province_id]->owner = g_world->nations[nation_id];
+	return 0;
+}
+
 int LuaAPI::add_company(lua_State * L) {
 	if(!lua_isstring(L, 1) || !lua_isnumber(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));

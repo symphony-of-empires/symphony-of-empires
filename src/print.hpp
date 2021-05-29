@@ -3,6 +3,11 @@
 
 #include <stdio.h>
 #define print_error(...)																	\
+	fprintf(stderr, "\e[31m%s: \"%s\" %i:\e[0m ", __FILE__, __PRETTY_FUNCTION__, __LINE__);		\
+	fprintf(stderr, __VA_ARGS__);															\
+	fprintf(stderr, "\n");
+
+#define print_info(...)																	\
 	fprintf(stderr, "\e[36m%s: \"%s\" %i:\e[0m ", __FILE__, __PRETTY_FUNCTION__, __LINE__);		\
 	fprintf(stderr, __VA_ARGS__);															\
 	fprintf(stderr, "\n");
