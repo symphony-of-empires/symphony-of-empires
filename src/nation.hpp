@@ -144,6 +144,9 @@ public:
 		delete default_flag;
 	}
 
+	// Whetever this nation is controlled by AI
+	bool controlled_by_ai;
+
 	// Default transleted/display name
 	std::string name;
 

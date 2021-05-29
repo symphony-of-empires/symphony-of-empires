@@ -35,7 +35,6 @@ static std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
 			if(neighbour->elevation > world.sea_level) {
 				result.push_back(neighbour);
 			}
-			
 		}
 	}
 	return result;

@@ -137,6 +137,7 @@ World::World() {
 	}
 
 	// Shrink normally-not-resized vectors to give back memory to the OS
+	printf("Shrink normally-not-resized vectors to give back memory to the OS\n");
 	this->provinces.shrink_to_fit();
 	this->nations.shrink_to_fit();
 	this->goods.shrink_to_fit();
@@ -154,6 +155,7 @@ World::World() {
 	}
 
 	// Translate all div, pol and topo maps onto this single tile array
+	printf("Translate all div, pol and topo maps onto this single tile array\n");
 	const size_t n_nations = this->nations.size();
 	const size_t n_provinces = this->provinces.size();
 	for(size_t i = 0; i < total_size; i++) {
@@ -175,6 +177,7 @@ World::World() {
 	}
 
 	// Associate tiles with nations
+	printf("Associate tiles with nations\n");
 	for(size_t i = 0; i < total_size; i++) {
 		const uint32_t color = pol.buffer[i];
 		const auto it = std::find_if(nations.begin(), nations.end(), [&color](const auto& element) {
@@ -191,6 +194,7 @@ World::World() {
 	}
 
 	// Associate tiles with provinces
+	printf("Associate tiles with provinces\n");
 	for(size_t i = 0; i < total_size; i++) {
 		const uint32_t color = div.buffer[i];
 		const auto it = std::find_if(provinces.begin(), provinces.end(), [&color](const auto& element) {
@@ -200,13 +204,23 @@ World::World() {
 			const ProvinceId province_id = std::distance(provinces.begin(), it);
 			while(div.buffer[i] == (*it)->color) {
 				tiles[i].province_id = province_id;
+				provinces[province_id]->n_tiles++;
 				i++;
 			}
 			i--;
 		}
 	}
 
+	// Remove provinces with no tiles
+	printf("Remove provinces with no tiles\n");
+	for(auto& province: provinces) {
+		if(!province->n_tiles) {
+			print_error("Province %s has no tiles present on the map", province->ref_name.c_str());
+		}
+	}
+
 	// Neighbours
+	printf("Neighbours\n");
 	for(size_t i = 0; i < total_size; i++) {
 		const Tile * tile = &this->tiles[i];
 		const Tile * other_tile;
@@ -290,6 +304,7 @@ World::World() {
 	}
 
 	// Calculate the edges of the province (min and max x and y coordinates)
+	printf("Calculate the edges of the province (min and max x and y coordinates)\n");
 	for(size_t i = 0; i < this->width; i++) {
 		for(size_t j = 0; j < this->height; j++) {
 			const Tile * tile = &this->tiles[i + (j * this->width)];
@@ -305,6 +320,7 @@ World::World() {
 	}
 
 	// Correct stuff from provinces
+	printf("Correcting values for provinces\n");
 	for(auto& province: this->provinces) {
 		province->max_x = std::min(this->width, province->max_x);
 		province->max_y = std::min(this->height, province->max_y);
@@ -341,8 +357,9 @@ World::World() {
 	}
 
 	// Create diplomatic relations between nations
+	printf("Creating diplomatic relations\n");
 	for(const auto& nation: this->nations) {
-		// Relations between nations start at 0
+		// Relations between nations start at 0 (and latter modified by lua scripts)
 		for(size_t i = 0; i < this->nations.size(); i++) {
 			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false, false, true});
 		}
@@ -365,7 +382,7 @@ World::World() {
 		exit(EXIT_FAILURE);
 	}
 
-	printf("world fully intiialized\n");
+	printf("World fully intiialized\n");
 }
 
 World::~World() {
