@@ -107,8 +107,6 @@ public:
  * Contains the main world class object, containing all the data relevant for the simulation
  */
 class World {
-	// 2-Dimensional Array of tiles
-	Tile * tiles;
 public:
 	World();
 	World& operator=(const World&) = default;
@@ -121,6 +119,9 @@ public:
 	void add_industry_type(IndustryType * it);
 	void add_nation(Nation * nation);
 	void add_province(Province * province);
+
+	// 2-Dimensional Array of tiles
+	Tile * tiles;
 
 	// Level at which sea dissapears, all sea is capped to sea_level - 1, and rivers are at sea_level.
 	// Anything above is considered land
@@ -193,7 +194,7 @@ public:
 	 * @tparam C STL-compatible container where the pointer *should* be located in
 	 */
 	template<typename S, typename T, typename C>
-	S get_id(T * ptr, C table) const {
+	inline S get_id(T * ptr, C table) const {
 		typename C::iterator it = std::find(table.begin(), table.end(), ptr);
 		if(it == table.end()) {
 			throw "Element not found";
@@ -201,22 +202,19 @@ public:
 		return (S)std::distance(table.begin(), it);
 	}
 
-	size_t get_id(const Tile * ptr) const {
-		return ptr_to_index(tiles, ptr);
+	inline size_t get_id(const Tile * ptr) const {
+		return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
 	}
 
 	// Obtains a tile from the world safely, and makes sure that it is in bounds
-	Tile& get_tile(size_t x, size_t y) const {
-		if(x >= width) {
-			throw "Tile X exceeds width";
-		} else if(y >= height) {
-			throw "Tile Y exceeds height";
+	inline Tile& get_tile(size_t x, size_t y) const {
+		if(x >= width || y >= height) {
+			throw "Tile out of bounds";
 		}
-
 		return tiles[x + y * width];
 	}
 
-	Tile& get_tile(size_t idx) const {
+	inline Tile& get_tile(size_t idx) const {
 		if(idx >= width * height) {
 			throw "Tile index exceeds boundaries";
 		}
