@@ -628,6 +628,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "rio_grande_do_norte", color = 0xFF006E }
 province.name = _("Rio Grande do Norte")
@@ -643,6 +644,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "paraiba", color = 0x4CFF00 }
 province.name = _("Paraíba")
@@ -658,6 +660,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "pernambuco", color = 0x7F7F }
 province.name = _("Pernambuco")
@@ -673,6 +676,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "alagoas", color = 0xB6FF00 }
 province.name = _("Alagoas")
@@ -688,6 +692,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "sergipe", color = 0xFF6A00 }
 province.name = _("Sergipe")
@@ -703,6 +708,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "bahia", color = 0xA0A0A0 }
 province.name = _("Bahia")
@@ -718,6 +724,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "sao_francisco", color = 0xB200FF }
 province.name = _("São Francisco")
@@ -733,6 +740,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "piaui", color = 0x49B0FF }
 province.name = _("Piauí")
@@ -748,6 +756,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "maranhao", color = 0xC289FF }
 province.name = _("Maranhão")
@@ -763,6 +772,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "grao_para", color = 0xFF6DDD }
 province.name = _("Grão-Pará")
@@ -778,6 +788,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "roraima", color = 0xFFFD8E }
 province.name = _("Roraima")
@@ -793,6 +804,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "mato_grosso", color = 0x9DFF35 }
 province.name = _("Mato Grosso")
@@ -808,6 +820,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "goias", color = 0x49FF62 }
 province.name = _("Goiás")
@@ -823,6 +836,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "minas_gerais", color = 0x9E0049 }
 province.name = _("Minas Gerais")
@@ -838,6 +852,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "sao_paulo", color = 0x7FFF8E }
 province.name = _("São Paulo")
@@ -853,6 +868,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "santa_catarina", color = 0xec1881 }
 province.name = _("Santa Catarina")
@@ -868,6 +884,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "oeste_catarinense", color = 0xFF26A4 }
 province.name = _("Oeste Catarinense")
@@ -883,6 +900,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "porto_alegre", color = 0x96FFF8 }
 province.name = _("Porto Alegre")
@@ -898,6 +916,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "bage", color = 0xD089FF }
 province.name = _("Bagé")
@@ -913,6 +932,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
+Province:add_owner(province, brazil)
 
 province = Province:create{ ref_name = "cisplatina", color = 0xFFEA84 }
 province.name = _("Cisplatina")
@@ -929,6 +949,7 @@ Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
 Province:add_nucleus(province, argentina)
+Province:add_owner(province, brazil)
 
 --------------------------------------------------------------
 -- Continent: Americas

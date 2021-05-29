@@ -78,6 +78,7 @@ World::World() {
 	lua_register(this->lua, "give_province_to", LuaAPI::give_province_to);
 	lua_register(this->lua, "rename_province", LuaAPI::rename_province);
 	lua_register(this->lua, "add_province_nucleus", LuaAPI::add_province_nucleus);
+	lua_register(this->lua, "add_province_owner", LuaAPI::add_province_owner);
 
 	lua_register(this->lua, "add_company", LuaAPI::add_company);
 
@@ -176,23 +177,6 @@ World::World() {
 		}
 	}
 
-	// Associate tiles with nations
-	printf("Associate tiles with nations\n");
-	for(size_t i = 0; i < total_size; i++) {
-		const uint32_t color = pol.buffer[i];
-		const auto it = std::find_if(nations.begin(), nations.end(), [&color](const auto& element) {
-			return (color == element->color);
-		});
-		if(it != nations.end()) {
-			const NationId nation_id = std::distance(nations.begin(), it);
-			while(pol.buffer[i] == (*it)->color) {
-				tiles[i].owner_id = nation_id;
-				i++;
-			}
-			i--;
-		}
-	}
-
 	// Associate tiles with provinces
 	printf("Associate tiles with provinces\n");
 	for(size_t i = 0; i < total_size; i++) {
@@ -216,6 +200,23 @@ World::World() {
 	for(auto& province: provinces) {
 		if(!province->n_tiles) {
 			print_error("Province %s has no tiles present on the map", province->ref_name.c_str());
+		}
+	}
+
+	// Give owners the entire provinces
+	printf("Give owners the entire provinces\n");
+	for(auto& nation: nations) {
+		for(auto& province: nation->owned_provinces) {
+			ProvinceId province_id = get_id<ProvinceId>(province, provinces);
+			for(size_t x = province->min_x; x < province->max_x; x++) {
+				for(size_t y = province->min_y; y < province->max_y; y++) {
+					Tile& tile = get_tile(x, y);
+					while(tile.province_id == province_id) {
+						tile.owner_id = get_id<NationId>(province->owner, nations);
+						tile = get_tile(x, y);
+					}
+				}
+			}
 		}
 	}
 
@@ -263,10 +264,6 @@ World::World() {
 		
 		if(tile->province_id != (ProvinceId)-1) {
 			Province * province = this->provinces[this->tiles[i].province_id];
-
-			if(this->tiles[i].owner_id != (NationId)-1) {
-				province->owners.push_back(this->nations[this->tiles[i].owner_id]);
-			}
 
 			// Up neighbour
 			if(i > this->width) {
@@ -326,21 +323,12 @@ World::World() {
 		province->max_y = std::min(this->height, province->max_y);
 
 		// Remove duplicates
-		{
-			std::set<Nation *> s;
-			const size_t size = province->owners.size();
-			for(size_t i = 0; i < size; i++) {
-				s.insert(province->owners[i]);
-			}
-			province->owners.assign(s.begin(), s.end());
-		} {
-			std::set<Province *> s;
-			const size_t size = province->neighbours.size();
-			for(size_t i = 0; i < size; i++) {
-				s.insert(province->neighbours[i]);
-			}
-			province->neighbours.assign(s.begin(), s.end());
+		std::set<Province *> s;
+		const size_t size = province->neighbours.size();
+		for(size_t i = 0; i < size; i++) {
+			s.insert(province->neighbours[i]);
 		}
+		province->neighbours.assign(s.begin(), s.end());
 
 		// Add stockpile
 		for(size_t i = 0; i < this->products.size(); i++) {
@@ -348,12 +336,7 @@ World::World() {
 		}
 
 		// These will not change in a while
-		province->owners.shrink_to_fit();
 		province->neighbours.shrink_to_fit();
-
-		for(auto& nation: province->owners) {
-			nation->owned_provinces.push_back(province);
-		}
 	}
 
 	// Create diplomatic relations between nations
