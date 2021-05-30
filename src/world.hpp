@@ -14,6 +14,8 @@
 #define MAX_ELEVATION				255
 #define RIVER_ELEVATION(a)			a + 1
 
+#include "serializer.hpp"
+
 /**
  * A single tile unit, contains all needed information for tile-scale wars
  * and other non-war stuff (like province ownership).
@@ -34,6 +36,9 @@ public:
 	// Level of infrastructure in this tile (from 0 to MAX_INFRA_LEVEL)
 	uint8_t infra_level;
 };
+
+template<>
+class Serializer<Tile> : public SerializerMemcpy<Tile> {};
 
 #include <string>
 #include "province.hpp"
@@ -60,6 +65,8 @@ public:
 	// ID of the province where the industry (who requested this) is located in
 	ProvinceId requester_province_id;
 };
+template<>
+class Serializer<OrderGoods> : public SerializerMemcpy<OrderGoods> {};
 
 /**
  * Represents a delivery, 
@@ -84,6 +91,9 @@ public:
 	// ID of the province where the industry (who is sending this) is located in
 	ProvinceId sender_province_id;
 };
+
+template<>
+class Serializer<DeliverGoods> : public SerializerMemcpy<DeliverGoods> {};
 
 /**
  * (UNUSED) A commercial convoy that goes from A to B to transport products

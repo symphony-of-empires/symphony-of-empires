@@ -17,6 +17,9 @@ enum {
 	POP_TYPE_SLAVE = 10
 };
 
+#include "serializer.hpp"
+
+typedef uint8_t PopTypeId;
 class PopType {
 public:
 	std::string name;
@@ -24,12 +27,14 @@ public:
 	float average_budget;
 };
 
+typedef uint16_t CultureId;
 class Culture {
 public:
 	std::string name;
 	std::string ref_name;
 };
 
+typedef uint8_t ReligionId;
 class Religion {
 public:
 	std::string name;
@@ -70,9 +75,9 @@ public:
 	float everyday_needs_met;
 	float luxury_needs_met;
 	
-	size_t type_id;
-	size_t culture_id;
-	size_t religion_id;
+	PopTypeId type_id;
+	CultureId culture_id;
+	ReligionId religion_id;
 
 	std::vector<PartyLoyalty> party_loyalties;
 	std::vector<IssueInterest> issue_interests;

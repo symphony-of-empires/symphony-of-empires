@@ -307,6 +307,9 @@ int LuaAPI::give_province_to(lua_State * L) {
 			g_world->nation_changed_tiles.push_back(&tile);
 		}
 	}
+
+	g_world->nations[nation_id]->owned_provinces.push_back(g_world->provinces[province_id]);
+	g_world->provinces[province_id]->owner = g_world->nations[nation_id];
 	return 0;
 }
 
