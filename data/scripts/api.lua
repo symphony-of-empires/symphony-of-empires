@@ -83,9 +83,6 @@ end
 function Province:add_nucleus(province, nation)
 	add_province_nucleus(province.id, nation.id)
 end
-function Province:add_owner(province, nation)
-	add_province_owner(province.id, nation.id)
-end
 
 Event = { ref_name = "", conditions_fn = "", event_fn = "" }
 function Event:create(event)

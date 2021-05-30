@@ -628,7 +628,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "rio_grande_do_norte", color = 0xFF006E }
 province.name = _("Rio Grande do Norte")
@@ -644,7 +644,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "paraiba", color = 0x4CFF00 }
 province.name = _("Paraíba")
@@ -660,7 +660,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "pernambuco", color = 0x7F7F }
 province.name = _("Pernambuco")
@@ -676,7 +676,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "alagoas", color = 0xB6FF00 }
 province.name = _("Alagoas")
@@ -692,7 +692,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "sergipe", color = 0xFF6A00 }
 province.name = _("Sergipe")
@@ -708,7 +708,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "bahia", color = 0xA0A0A0 }
 province.name = _("Bahia")
@@ -724,7 +724,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "sao_francisco", color = 0xB200FF }
 province.name = _("São Francisco")
@@ -740,7 +740,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "piaui", color = 0x49B0FF }
 province.name = _("Piauí")
@@ -756,7 +756,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "maranhao", color = 0xC289FF }
 province.name = _("Maranhão")
@@ -772,7 +772,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "grao_para", color = 0xFF6DDD }
 province.name = _("Grão-Pará")
@@ -788,7 +788,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "roraima", color = 0xFFFD8E }
 province.name = _("Roraima")
@@ -804,7 +804,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "mato_grosso", color = 0x9DFF35 }
 province.name = _("Mato Grosso")
@@ -820,7 +820,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "goias", color = 0x49FF62 }
 province.name = _("Goiás")
@@ -836,7 +836,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "minas_gerais", color = 0x9E0049 }
 province.name = _("Minas Gerais")
@@ -852,7 +852,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "sao_paulo", color = 0x7FFF8E }
 province.name = _("São Paulo")
@@ -868,7 +868,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "santa_catarina", color = 0xec1881 }
 province.name = _("Santa Catarina")
@@ -884,7 +884,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "oeste_catarinense", color = 0xFF26A4 }
 province.name = _("Oeste Catarinense")
@@ -900,7 +900,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "porto_alegre", color = 0x96FFF8 }
 province.name = _("Porto Alegre")
@@ -916,7 +916,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "bage", color = 0xD089FF }
 province.name = _("Bagé")
@@ -932,7 +932,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 province = Province:create{ ref_name = "cisplatina", color = 0xFFEA84 }
 province.name = _("Cisplatina")
@@ -949,7 +949,7 @@ Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
 Province:add_nucleus(province, argentina)
-Province:add_owner(province, brazil)
+Province:give_to(province, brazil)
 
 --------------------------------------------------------------
 -- Continent: Americas
@@ -970,6 +970,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, paraguay)
+Province:give_to(province, paraguay)
 
 province = Province:create{ ref_name = "vila_sacaron", color = 0xB71CFF }
 province.name = _("Vila Sacarón")
@@ -985,6 +986,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, paraguay)
+Province:give_to(province, paraguay)
 
 province = Province:create{ ref_name = "nioaque", color = 0x5174FF }
 province.name = _("Nioaque")
@@ -1000,6 +1002,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, paraguay)
+Province:give_to(province, paraguay)
 
 --------------------------------------------------------------
 -- Continent: Americas
@@ -1020,6 +1023,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "calama", color = 0x5157FF }
 province.name = _("Calama")
@@ -1035,6 +1039,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "antofagasta", color = 0xF2FFD8 }
 province.name = _("Antofagasta")
@@ -1051,6 +1056,7 @@ Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "copiapo", color = 0x9849FF }
 province.name = _("Copiapó")
@@ -1066,6 +1072,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "coquimbo", color = 0x8C4FFF }
 province.name = _("Coquimbo")
@@ -1081,6 +1088,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "illapel", color = 0x49F5FF }
 province.name = _("Illapel")
@@ -1096,6 +1104,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "santiago", color = 0xCB23FF }
 province.name = _("Santiago")
@@ -1111,6 +1120,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "curico", color = 0xFFE5C1 }
 province.name = _("Curicó")
@@ -1126,6 +1136,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "chillan", color = 0x1691FF }
 province.name = _("Chillán")
@@ -1141,6 +1152,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "concepcion", color = 0xFF4D3D }
 province.name = _("Concepción")
@@ -1156,6 +1168,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "valdivia", color = 0xA2FF00 }
 province.name = _("Valdivia")
@@ -1171,6 +1184,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "osorno", color = 0xFFE554 }
 province.name = _("Osorno")
@@ -1186,6 +1200,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "chiloe", color = 0xFF00E5 }
 province.name = _("Chiloé")
@@ -1201,6 +1216,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "aysen", color = 0x0090FF }
 province.name = _("Aysén")
@@ -1216,6 +1232,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "punta_arenas", color = 0x3F3B39 }
 province.name = _("Punta Arenas")
@@ -1232,6 +1249,7 @@ Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "san_gregorio", color = 0xFFD800 }
 province.name = _("San Gregorio")
@@ -1248,6 +1266,7 @@ Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, chile)
 
 province = Province:create{ ref_name = "puerto_porvenir", color = 0x0f145d }
 province.name = _("Puerto Porvenir")
@@ -1264,6 +1283,7 @@ Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, chile)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, chile)
 
 --------------------------------------------------------------
 -- Continent: Americas
@@ -1284,6 +1304,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, bolivia)
 
 province = Province:create{ ref_name = "santa_cruz", color = 0xFFC4EE }
 province.name = _("Santa Cruz")
@@ -1299,6 +1320,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, bolivia)
 
 province = Province:create{ ref_name = "carvoal", color = 0xFF8168 }
 province.name = _("Carvoal")
@@ -1314,6 +1336,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, bolivia)
 
 province = Province:create{ ref_name = "corumba", color = 0x8CFBFF }
 province.name = _("Corumbá")
@@ -1329,6 +1352,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, bolivia)
 
 province = Province:create{ ref_name = "santissima_trinidade", color = 0x5E1EFF }
 province.name = _("Santíssima Trinidade")
@@ -1344,6 +1368,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, bolivia)
 
 province = Province:create{ ref_name = "fuerte_olimpo", color = 0x6f6071 }
 province.name = _("Fuerte Olimpo")
@@ -1359,6 +1384,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, bolivia)
 
 province = Province:create{ ref_name = "nueva_burdeos", color = 0xFFD149 }
 province.name = _("Nueva Burdeos")
@@ -1374,6 +1400,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, bolivia)
 
 province = Province:create{ ref_name = "la_paz", color = 0xFF2158 }
 province.name = _("La Paz")
@@ -1389,6 +1416,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, bolivia)
 
 province = Province:create{ ref_name = "cochabamba", color = 0xCB3FFF }
 province.name = _("Cochabamba")
@@ -1404,6 +1432,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, bolivia)
 
 province = Province:create{ ref_name = "oruro", color = 0x75FFCC }
 province.name = _("Oruro")
@@ -1419,6 +1448,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, bolivia)
 
 province = Province:create{ ref_name = "potosi", color = 0xFC63FF }
 province.name = _("Potosí")
@@ -1434,6 +1464,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, bolivia)
 
 province = Province:create{ ref_name = "chuquisaca", color = 0x4FA7FF }
 province.name = _("Chuquisaca")
@@ -1449,6 +1480,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, bolivia)
 
 province = Province:create{ ref_name = "tarija", color = 0x907CFF }
 province.name = _("Tarija")
@@ -1464,6 +1496,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
+Province:give_to(province, bolivia)
 
 --------------------------------------------------------------
 -- Continent: Americas
@@ -1483,6 +1516,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "misiones", color = 0xff9e54 }
 province.name = _("Misiones")
@@ -1497,6 +1531,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "entre_rios", color = 0x00a8ff }
 province.name = _("Entre Ríos")
@@ -1511,6 +1546,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "corrientes", color = 0xf19efe }
 province.name = _("Corrientes")
@@ -1525,6 +1561,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "rio_gallegos", color = 0x617bc9 }
 province.name = _("Rio Gallegos")
@@ -1539,6 +1576,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "tierra_del_fuego", color = 0x040d88 }
 province.name = _("Tierra del Fuego")
@@ -1553,6 +1591,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "tandil", color = 0x966fff }
 province.name = _("Tandil")
@@ -1567,6 +1606,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "viedma", color = 0x880098 }
 province.name = _("Viedma")
@@ -1581,6 +1621,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "rio_negro", color = 0x68ff5e }
 province.name = _("Río Negro")
@@ -1595,6 +1636,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "chubut", color = 0x241e3d }
 province.name = _("Chubut")
@@ -1609,6 +1651,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "santa_cruz_andes", color = 0x3c222a }
 province.name = _("Santa Cruz")
@@ -1623,6 +1666,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "neuquen", color = 0xe28efe }
 province.name = _("Neuquén")
@@ -1637,6 +1681,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "la_pampa", color = 0xfea5ea }
 province.name = _("La Pampa")
@@ -1651,6 +1696,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "mendoza", color = 0xffefb2 }
 province.name = _("Mendoza")
@@ -1665,6 +1711,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "rosario", color = 0xdeb7ff }
 province.name = _("Rosario")
@@ -1679,6 +1726,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "mar_chiquita", color = 0xfce0ff }
 province.name = _("Mar Chiquita")
@@ -1693,6 +1741,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "cordoba", color = 0x00fe9e }
 province.name = _("Córdoba")
@@ -1707,6 +1756,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "san_luis", color = 0x2100ff }
 province.name = _("San Luis")
@@ -1721,6 +1771,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "san_juan", color = 0x00ff4c }
 province.name = _("San Juan")
@@ -1735,6 +1786,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "la_rioja", color = 0xff7577 }
 province.name = _("La Rioja")
@@ -1749,6 +1801,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "santa_fe", color = 0xe73be9 }
 province.name = _("Santa Fe")
@@ -1763,6 +1816,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "catamarca", color = 0x5c9df8 }
 province.name = _("Catamarca")
@@ -1777,6 +1831,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "tucuman", color = 0xeb78a8 }
 province.name = _("Tucumán")
@@ -1791,6 +1846,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "southern_puna", color = 0xed8ed5 }
 province.name = _("Southern Puna")
@@ -1805,6 +1861,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "central_puna", color = 0xe6fd52 }
 province.name = _("Central Puna")
@@ -1819,6 +1876,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "rinconada", color = 0xd8fdbf }
 province.name = _("Rinconada")
@@ -1833,6 +1891,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "jujuy", color = 0xb2fcc7 }
 province.name = _("Jujuy")
@@ -1847,6 +1906,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "santiago_del_estero", color = 0xe9735e }
 province.name = _("Santiago del Estero")
@@ -1861,6 +1921,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "chaco", color = 0x101b38 }
 province.name = _("Chaco")
@@ -1875,6 +1936,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "resistencia", color = 0x352729 }
 province.name = _("Resistencia")
@@ -1889,6 +1951,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "formosa", color = 0x95fcec }
 province.name = _("Formosa")
@@ -1903,6 +1966,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "las_lomitas", color = 0xdaaaf9 }
 province.name = _("Las Lomitas")
@@ -1917,6 +1981,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "monte_quemado", color = 0xd3fc6c }
 province.name = _("Monte Quemado")
@@ -1931,6 +1996,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "laboulaye", color = 0xed8768 }
 province.name = _("Laboulaye")
@@ -1945,6 +2011,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "dupuy", color = 0xef9b75 }
 province.name = _("Dupuy")
@@ -1959,6 +2026,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 province = Province:create{ ref_name = "llancanelo", color = 0xc1fcb9 }
 province.name = _("Llancanelo")
@@ -1973,6 +2041,7 @@ Province:add_pop(province, clergymen, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
+Province:give_to(province, argentina)
 
 --------------------------------------------------------------
 -- Continent: America
@@ -1992,6 +2061,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "veracruz", color = 0xff758e }
 province.name = _("Veracruz")
@@ -2006,6 +2076,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "coahuila_y_texas", color = 0xff7279 }
 province.name = _("Coahuila")
@@ -2020,6 +2091,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "chihuahua", color = 0x38daff }
 province.name = _("Chihuahua")
@@ -2034,6 +2106,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "alta_california", color = 0xc6cbff }
 province.name = _("Alta California")
@@ -2048,6 +2121,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "baja_california", color = 0xff38e7 }
 province.name = _("Baja California")
@@ -2062,6 +2136,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "tamaulipas", color = 0xff87bd }
 province.name = _("Tamaulipas")
@@ -2076,6 +2151,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "nuevo_leon", color = 0xbfffce }
 province.name = _("Nuevo León")
@@ -2090,6 +2166,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "sonora", color = 0x9bffe9 }
 province.name = _("Sonora")
@@ -2104,6 +2181,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "sinaloa", color = 0xffad87 }
 province.name = _("Sinaloa")
@@ -2118,6 +2196,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "jalisco", color = 0x361cff }
 province.name = _("Jalisco")
@@ -2132,6 +2211,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "durango", color = 0x92ff60 }
 province.name = _("Durango")
@@ -2146,6 +2226,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "zacatecas", color = 0xff93a0 }
 province.name = _("Zacatecas")
@@ -2160,6 +2241,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "san_luis_potosi", color = 0x3fffe8 }
 province.name = _("San Luis Potosi")
@@ -2174,6 +2256,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "guanajuato", color = 0xf70fff }
 province.name = _("Guanajuato")
@@ -2188,6 +2271,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "colima", color = 0xff7e5e }
 province.name = _("Colima")
@@ -2202,6 +2286,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "michoacan", color = 0xc4ffc4 }
 province.name = _("Michoacán")
@@ -2216,6 +2301,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "queretaro", color = 0xbbb2ff }
 province.name = _("Querétaro")
@@ -2230,6 +2316,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "mexico", color = 0xff32e3 }
 province.name = _("México")
@@ -2244,6 +2331,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "puebla", color = 0x927aff }
 province.name = _("Puebla")
@@ -2258,6 +2346,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "tlaxcala", color = 0x89ffe1 }
 province.name = _("Tlaxcala")
@@ -2272,6 +2361,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "oaxaca", color = 0x8effa8 }
 province.name = _("Oaxaca")
@@ -2286,6 +2376,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "chiapas", color = 0xbf72ff }
 province.name = _("Chiapas")
@@ -2300,6 +2391,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 province = Province:create{ ref_name = "nuevo_mexico", color = 0x56ffb8 }
 province.name = _("Nuevo México")
@@ -2314,6 +2406,7 @@ Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
 
 --------------------------------------------------------------
 -- Continent: Americas
@@ -2333,6 +2426,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "connecticut", color = 0xe987ff }
 province.name = _("Connecticut")
@@ -2348,6 +2442,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "new_jersey", color = 0xffaea8 }
 province.name = _("New Jersey")
@@ -2363,6 +2458,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "rhode_island", color = 0x7b07ff }
 province.name = _("Rhode Island")
@@ -2378,6 +2474,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "new_york", color = 0xbcfdff }
 province.name = _("New York")
@@ -2393,6 +2490,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "massachusetts", color = 0x639fff }
 province.name = _("Massachusetts")
@@ -2408,6 +2506,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "new_hampshire", color = 0xf830ff }
 province.name = _("New Hampshire")
@@ -2423,6 +2522,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "vermont", color = 0xff4e32 }
 province.name = _("Vermont")
@@ -2438,6 +2538,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "maine", color = 0xff4c7f }
 province.name = _("Maine")
@@ -2453,6 +2554,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "delaware", color = 0xa372ff }
 province.name = _("Delaware")
@@ -2468,6 +2570,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "maryland", color = 0xa5ffed }
 province.name = _("Maryland")
@@ -2483,6 +2586,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "pennsylvania", color = 0xff49a7 }
 province.name = _("Pennsylvania")
@@ -2498,6 +2602,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "virginia", color = 0xff7579 }
 province.name = _("Virginia")
@@ -2513,6 +2618,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "north_carolina", color = rgb(124, 176, 225) }
 province.name = _("North Carolina")
@@ -2528,6 +2634,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "south_carolina", color = rgb(255, 181, 231) }
 province.name = _("South Carolina")
@@ -2543,6 +2650,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "west_virginia", color = rgb(217, 158, 255) }
 province.name = _("West Virginia")
@@ -2558,6 +2666,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "ohio", color = rgb(140, 212, 255) }
 province.name = _("Ohio")
@@ -2573,6 +2682,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "michigan", color = rgb(255, 45, 174) }
 province.name = _("Michigan")
@@ -2588,6 +2698,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "upper_peninsula", color = rgb(16, 150, 255) }
 province.name = _("Upper Peninsula")
@@ -2603,6 +2714,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "indiana", color = rgb(188, 255, 239) }
 province.name = _("Indiana")
@@ -2618,6 +2730,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "kentucky", color = rgb(150, 127, 255) }
 province.name = _("Kentucky")
@@ -2633,6 +2746,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "tennessee", color = rgb(255, 76, 189) }
 province.name = _("Tennessee")
@@ -2648,6 +2762,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "georgia", color = rgb(255, 251, 73) }
 province.name = _("Georgia")
@@ -2663,6 +2778,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 -- SWEET HOME ALABAMA!
 province = Province:create{ ref_name = "alabama", color = rgb(255, 124, 107) }
@@ -2679,6 +2795,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "mississipi", color = rgb(255, 102, 221) }
 province.name = _("Mississipi")
@@ -2694,6 +2811,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "mobile", color = rgb(255, 79, 175) }
 province.name = _("Mobile")
@@ -2709,6 +2827,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "biloxi", color = rgb(115, 28, 255) }
 province.name = _("Biloxi")
@@ -2724,6 +2843,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "east_louisiana", color = rgb(199, 48, 255) }
 province.name = _("East Louisiana")
@@ -2739,6 +2859,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "louisiana", color = rgb(91, 146, 255) }
 province.name = _("Louisiana")
@@ -2754,6 +2875,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "arkansas", color = rgb(123, 255, 22) }
 province.name = _("Arkansas")
@@ -2769,6 +2891,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "missouri", color = rgb(223, 175, 255) }
 province.name = _("Missouri")
@@ -2784,6 +2907,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "iowa", color = rgb(255, 253, 209) }
 province.name = _("Iowa")
@@ -2799,6 +2923,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "illinois", color = rgb(255, 58, 130) }
 province.name = _("Illinois")
@@ -2814,6 +2939,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "winsconsin", color = rgb(255, 205, 155) }
 province.name = _("Winsconsin")
@@ -2829,6 +2955,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "minnesota", color = rgb(168, 255, 201) }
 province.name = _("Minnesota")
@@ -2844,6 +2971,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "north_dakota", color = rgb(191, 255, 204) }
 province.name = _("North Dakota")
@@ -2859,6 +2987,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "south_dakota", color = rgb(160, 255, 250) }
 province.name = _("South Dakota")
@@ -2874,6 +3003,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "nebraska", color = rgb(255, 225, 239) }
 province.name = _("Nebraska")
@@ -2889,6 +3019,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "grand_portage", color = rgb(255, 89, 166) }
 province.name = _("Grand Portage")
@@ -2904,6 +3035,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "kansas", color = rgb(255, 113, 73) }
 province.name = _("Kansas")
@@ -2919,6 +3051,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "kansas_indian_territory", color = rgb(254, 254, 254) }
 province.name = _("Kansas Indian Territory")
@@ -2934,6 +3067,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "oklahoma", color = rgb(122, 237, 255) }
 province.name = _("Oklahoma")
@@ -2949,6 +3083,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "neutral_strip", color = rgb(233, 147, 255) }
 province.name = _("Neutral Strip")
@@ -2964,6 +3099,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "northern_texas", color = rgb(255, 102, 137) }
 province.name = _("Northern Texas")
@@ -2979,6 +3115,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "eastern_texas", color = rgb(94, 174, 255) }
 province.name = _("Eastern Texas")
@@ -2994,6 +3131,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "el_paso", color = rgb(255, 165, 211) }
 province.name = _("El Paso")
@@ -3009,6 +3147,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "southern_texas", color = rgb(168, 202, 255) }
 province.name = _("Southern Texas")
@@ -3024,6 +3163,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "corpus_christi", color = rgb(173, 255, 241) }
 province.name = _("Corpus Christi")
@@ -3039,6 +3179,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "hill_country", color = rgb(255, 225, 127) }
 province.name = _("Hill Country")
@@ -3054,6 +3195,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "southwestern_colorado", color = rgb(235, 158, 255) }
 province.name = _("Southwestern Colorado")
@@ -3069,6 +3211,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "northwestern_colorado", color = rgb(28, 164, 255) }
 province.name = _("Northwestern Colorado")
@@ -3084,6 +3227,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "colorado", color = rgb(255, 40, 215) }
 province.name = _("Colorado")
@@ -3099,6 +3243,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "southern_wyoming", color = rgb(109, 182, 255) }
 province.name = _("Southern Wyoming")
@@ -3114,6 +3259,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "southwestern_wyoming", color = rgb(40, 90, 255) }
 province.name = _("Southwestern Wyoming")
@@ -3129,6 +3275,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "western_wyoming", color = rgb(255, 58, 97) }
 province.name = _("Western Wyoming")
@@ -3144,6 +3291,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "wyoming", color = rgb(177, 135, 255) }
 province.name = _("Wyoming")
@@ -3159,6 +3307,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "montana", color = rgb(255, 188, 196) }
 province.name = _("Montana")
@@ -3174,6 +3323,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "western_montana", color = rgb(255, 165, 145) }
 province.name = _("Western Montana")
@@ -3189,6 +3339,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "idaho", color = rgb(255, 163, 204) }
 province.name = _("Idaho")
@@ -3204,6 +3355,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "east_oregon", color = rgb(89, 235, 255) }
 province.name = _("East Oregon")
@@ -3219,6 +3371,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "west_oregon", color = rgb(224, 103, 255) }
 province.name = _("West Oregon")
@@ -3234,6 +3387,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "washington", color = rgb(221, 255, 242) }
 province.name = _("Washington")
@@ -3249,6 +3403,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "nevada", color = rgb(157, 122, 255) }
 province.name = _("Nevada")
@@ -3264,6 +3419,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "utah", color = rgb(109, 225, 255) }
 province.name = _("Utah")
@@ -3279,6 +3435,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "rocky_mountains", color = rgb(246, 165, 255) }
 province.name = _("Rocky Mountains")
@@ -3294,6 +3451,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "northern_arizona", color = rgb(204, 173, 255) }
 province.name = _("Northern Arizona")
@@ -3309,6 +3467,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "southern_arizona", color = rgb(255, 193, 208) }
 province.name = _("Southern Arizona")
@@ -3324,6 +3483,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "east_new_mexico", color = rgb(109, 255, 242) }
 province.name = _("East New Mexico")
@@ -3339,6 +3499,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 province = Province:create{ ref_name = "south_new_mexico ", color = rgb(45, 161, 255) }
 province.name = _("South New Mexico ")
@@ -3354,6 +3515,7 @@ Province:add_pop(province, laborer, yankee, catholic, 500, 0.2)
 Province:add_pop(province, entrepreneur, yankee, catholic, 500, 0.9)
 Province:add_pop(province, slave, yankee, catholic, 500, 0.5)
 Province:add_nucleus(province, united_states)
+Province:give_to(province, united_states)
 
 --------------------------------------------------------------
 -- Continent: Americas
@@ -3374,6 +3536,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, peru)
+Province:give_to(province, peru)
 
 province = Province:create{ ref_name = "arequipa", color = 0x9277FF }
 province.name = _("Arequipa")
@@ -3389,6 +3552,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, peru)
+Province:give_to(province, peru)
 
 province = Province:create{ ref_name = "lima", color = 0x2DCFF }
 province.name = _("Lima")
@@ -3404,6 +3568,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, peru)
+Province:give_to(province, peru)
 
 province = Province:create{ ref_name = "huaraz", color = 0xFF816B }
 province.name = _("Huaraz")
@@ -3419,6 +3584,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, peru)
+Province:give_to(province, peru)
 
 province = Province:create{ ref_name = "trujillo", color = 0xFFC43D }
 province.name = _("Trujillo")
@@ -3434,6 +3600,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, peru)
+Province:give_to(province, peru)
 
 province = Province:create{ ref_name = "zarumilla", color = 0xFF9F96 }
 province.name = _("Zarumilla")
@@ -3449,6 +3616,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, peru)
+Province:give_to(province, peru)
 
 province = Province:create{ ref_name = "maynas", color = 0x47E6FF }
 province.name = _("Maynas")
@@ -3464,6 +3632,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, peru)
+Province:give_to(province, peru)
 
 province = Province:create{ ref_name = "huanuco", color = 0x82FFD1 }
 province.name = _("Huánuco")
@@ -3479,6 +3648,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, peru)
+Province:give_to(province, peru)
 
 province = Province:create{ ref_name = "junin", color = 0x49FF56 }
 province.name = _("Junín")
@@ -3494,6 +3664,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, peru)
+Province:give_to(province, peru)
 
 province = Province:create{ ref_name = "ucayali", color = 0x734CFF }
 province.name = _("Ucayali")
@@ -3509,6 +3680,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, peru)
+Province:give_to(province, peru)
 
 province = Province:create{ ref_name = "puno", color = 0x3FFF49 }
 province.name = _("Puno")
@@ -3524,6 +3696,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, peru)
+Province:give_to(province, peru)
 
 province = Province:create{ ref_name = "xapuri", color = 0xFCFF7C }
 province.name = _("Xapuri")
@@ -3539,6 +3712,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, peru)
+Province:give_to(province, peru)
 
 province = Province:create{ ref_name = "acre", color = 0xB2FFA8 }
 province.name = _("Acre")
@@ -3554,6 +3728,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, peru)
+Province:give_to(province, peru)
 
 --------------------------------------------------------------
 -- Continent: Americas
@@ -3574,6 +3749,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, united_kingdom)
+Province:give_to(province, united_kingdom)
 
 province = Province:create{ ref_name = "demerara", color = 0xcc0a37 }
 province.name = _("Demerara")
@@ -3589,6 +3765,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, united_kingdom)
+Province:give_to(province, united_kingdom)
 
 --if taken by suriname rename it to corantijn
 province = Province:create{ ref_name = "corentyne", color = 0xFF3262 }
@@ -3605,6 +3782,7 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, united_kingdom)
+Province:give_to(province, united_kingdom)
 
 --------------------------------------------------------------
 -- Continent: Americas
