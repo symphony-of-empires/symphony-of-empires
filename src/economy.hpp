@@ -93,10 +93,11 @@ public:
 	std::vector<GoodId> outputs;
 };
 
+typedef uint16_t IndustryId;
+
 #include "nation.hpp"
 class World;
 
-typedef uint16_t IndustryId;
 class Industry {
 public:
 	IndustryId get_id(const World& world, ProvinceId province_id);

@@ -16,7 +16,6 @@ typedef uint16_t NationId;
 class NationRelation {
 public:
 	float relation;
-	
 	// Interest of a nation on this nation
 	float interest;
 
@@ -30,6 +29,8 @@ public:
 	bool has_military_access;
 	bool has_market_access;
 };
+template<>
+class Serializer<NationRelation> : public SerializerMemcpy<NationRelation> {};
 
 class Policies {
 public:
@@ -134,6 +135,8 @@ public:
 	// Flat tax imposed on the high-wage pops
 	float high_flat_tax;
 };
+template<>
+class Serializer<Policies> : public SerializerMemcpy<Policies> {};
 
 #include "event.hpp"
 class Nation {
@@ -142,7 +145,7 @@ public:
 	Nation& operator=(const Nation&) = default;
 	~Nation() {
 		delete default_flag;
-	}
+	};
 
 	// Whetever this nation is controlled by AI
 	bool controlled_by_ai;
@@ -155,9 +158,6 @@ public:
 
 	// Default color of the country
 	uint32_t color;
-
-	// Default flag texture of the country
-	Texture * default_flag = nullptr;
 
 	// A list with relations with all other nations, mapped 1:1 to the Nation list in the world
 	std::vector<NationRelation> relations;
@@ -185,6 +185,10 @@ public:
 	float naval_score = 0.f;
 	float economy_score = 0.f;
 
+	// Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
+	// of all products in the nation, which are volatile unless they are sold
+	float budget;
+
 	// Primary culture of this nation, may also be changed via events, otherwise it's permanent
 	Culture * primary_culture;
 
@@ -200,13 +204,12 @@ public:
 
 	// A pointer to a class defining the current policy of this nation
 	Policies * current_policy;
-	
-	// Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
-	// of all products in the nation, which are volatile unless they are sold
-	float budget;
 
 	// Inbox of the nation; events that require our attention / should be processed
 	std::vector<Event *> inbox;
+
+	// Default flag texture of the country
+	Texture * default_flag = nullptr;
 };
 
 #endif
