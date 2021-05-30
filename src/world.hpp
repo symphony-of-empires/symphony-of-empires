@@ -36,7 +36,6 @@ public:
 	// Level of infrastructure in this tile (from 0 to MAX_INFRA_LEVEL)
 	uint8_t infra_level;
 };
-
 template<>
 class Serializer<Tile> : public SerializerMemcpy<Tile> {};
 
@@ -111,12 +110,16 @@ public:
 };
 
 #include <algorithm>
+#include <mutex>
 #include "event.hpp"
 
 /**
  * Contains the main world class object, containing all the data relevant for the simulation
  */
 class World {
+	// Lua state - for lua scripts, this is only used by the server and should not be
+	// accesible to the client
+	lua_State * lua;
 public:
 	World();
 	World& operator=(const World&) = default;
@@ -132,6 +135,7 @@ public:
 
 	// 2-Dimensional Array of tiles
 	Tile * tiles;
+	mutable std::mutex tiles_mutex;
 
 	// Level at which sea dissapears, all sea is capped to sea_level - 1, and rivers are at sea_level.
 	// Anything above is considered land
@@ -142,48 +146,59 @@ public:
 
 	// List of units present in the world
 	std::vector<Unit *> units;
+	mutable std::mutex units_mutex;
 
 	// List of goods (product types)
 	std::vector<Good *> goods;
+	mutable std::mutex goods_mutex;
 
 	// List of industry types where industries can be created from
 	std::vector<IndustryType *> industry_types;
+	mutable std::mutex industry_types_mutex;
 
 	// List of nations
 	std::vector<Nation *> nations;
+	mutable std::mutex nations_mutex;
 
 	// List of provinces
 	std::vector<Province *> provinces;
+	mutable std::mutex provinces_mutex;
 
 	// List of companies
 	std::vector<Company *> companies;
+	mutable std::mutex companies_mutex;
 
 	// List of products
 	std::vector<Product *> products;
+	mutable std::mutex products_mutex;
 
 	// List of POPs types
 	std::vector<PopType *> pop_types;
+	mutable std::mutex pop_types_mutex;
 
 	// List of religions
 	std::vector<Religion *> religions;
+	mutable std::mutex religions_mutex;
 
 	// List of cultures
 	std::vector<Culture *> cultures;
+	mutable std::mutex cultures_mutex;
 
 	// List of unit types where units can be created from
 	std::vector<UnitType *> unit_types;
+	mutable std::mutex unit_types_mutex;
 
 	// List of registered events
 	std::vector<Event *> events;
-
-	// Lua state - for lua scripts
-	lua_State * lua;
+	mutable std::mutex events_mutex;
 
 	// A list of orders (what factories want to be sent to them)
 	std::vector<OrderGoods> orders;
+	mutable std::mutex orders_mutex;
 
 	// A deliver list (what factories need to send)
 	std::vector<DeliverGoods> delivers;
+	mutable std::mutex delivers_mutex;
 
 	// List of convoys on the world (unused)
 	std::vector<CommercialConvoy> convoys;
@@ -212,12 +227,24 @@ public:
 		return (S)std::distance(table.begin(), it);
 	}
 
+	inline NationId get_id(Nation * ptr) const {
+		std::unique_lock<std::mutex> lock(nations_mutex);
+		return get_id<NationId>(ptr, nations);
+	}
+
+	inline ProvinceId get_id(Province * ptr) const {
+		std::unique_lock<std::mutex> lock(provinces_mutex);
+		return get_id<ProvinceId>(ptr, provinces);
+	}
+
 	inline size_t get_id(const Tile * ptr) const {
+		std::unique_lock<std::mutex> lock(tiles_mutex);
 		return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
 	}
 
 	// Obtains a tile from the world safely, and makes sure that it is in bounds
 	inline Tile& get_tile(size_t x, size_t y) const {
+		std::unique_lock<std::mutex> lock(tiles_mutex);
 		if(x >= width || y >= height) {
 			throw "Tile out of bounds";
 		}
@@ -225,10 +252,27 @@ public:
 	}
 
 	inline Tile& get_tile(size_t idx) const {
+		std::unique_lock<std::mutex> lock(tiles_mutex);
 		if(idx >= width * height) {
 			throw "Tile index exceeds boundaries";
 		}
 		return tiles[idx];
+	}
+};
+template<>
+class Serializer<World> {
+public:
+	static inline void serialize(uint8_t *& output, World const& obj) {
+		Serializer<size_t>::serialize(output, obj.width);
+		Serializer<size_t>::serialize(output, obj.height);
+
+		//Serializer<std::vector<Nation *>>::serialize(output, obj.nations);
+	}
+	static inline void deserialize(uint8_t const *& input, World& obj) {
+		Serializer<size_t>::deserialize(input, obj.width);
+		Serializer<size_t>::deserialize(input, obj.height);
+
+		//Serializer<std::vector<Nation *>>::deserialize(output, obj.nations);
 	}
 };
 

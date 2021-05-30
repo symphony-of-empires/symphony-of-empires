@@ -417,10 +417,10 @@ void World::do_tick() {
 		for(auto& nation: this->nations) {
 			const float decay_per_cent = 5.f;
 			const float max_modifier = 10.f;
-			const float min_prestige = fmax(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
+			const float min_prestige = std::max<float>(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
 
 			// Prestige cannot go below min prestige
-			nation->prestige = fmax(nation->prestige, min_prestige);
+			nation->prestige = std::max<float>(nation->prestige, min_prestige);
 			nation->prestige += (nation->prestige * (decay_per_cent / 100.f)) * fmin(fmax(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
 		}
 		break;
@@ -450,10 +450,10 @@ void World::do_tick() {
 	// Do diplomacy
 
 	// Evaluate units
-	for(size_t i = 0; i < this->units.size(); i++) {
-		Unit * unit = this->units[i];
+	for(size_t i = 0; i < units.size(); i++) {
+		Unit * unit = units[i];
 		if(unit->size <= 0) {
-			g_world->units.erase(this->units.begin() + i);
+			g_world->units.erase(units.begin() + i);
 			break;
 		}
 		
@@ -552,21 +552,21 @@ void World::do_tick() {
 			unit->y += 0.1f;
 
 		// North and south do not wrap
-		unit->y = fmax(0.f, unit->y);
-		unit->y = fmin(this->height, unit->y);
+		unit->y = std::max<float>(0.f, unit->y);
+		unit->y = std::min<float>(height, unit->y);
 
 		// West and east do wrap
 		if(unit->x <= 0.f) {
-			unit->x = this->width - 1.f;
-		} else if(unit->x >= this->width) {
+			unit->x = width - 1.f;
+		} else if(unit->x >= width) {
 			unit->x = 0.f;
 		}
 
 		// Set nearby tiles as owned
 		// TODO: Make it conquer multiple tiles
-		Tile * tile = &this->tiles[(size_t)unit->x + (size_t)unit->y * this->width];
-		if(tile->owner_id != unit->owner_id) {
-			tile->owner_id = unit->owner_id;
+		Tile& tile = get_tile(unit->x, unit->y);
+		if(tile.owner_id != unit->owner_id) {
+			tile.owner_id = unit->owner_id;
 			render_province_mutex.lock();
 			render_province.push_front(unit->x + 64);
 			render_province.push_front(unit->y + 64);
@@ -576,21 +576,23 @@ void World::do_tick() {
 		}
 	}
 
-	this->time++;
+	LuaAPI::check_events(lua);
+
+	time++;
 }
 
 void World::add_good(Good * good) {
-	this->goods.push_back(good);
+	goods.push_back(good);
 }
 
 void World::add_industry_type(IndustryType * it) {
-	this->industry_types.push_back(it);
+	industry_types.push_back(it);
 }
 
 void World::add_nation(Nation * nation) {
-	this->nations.push_back(nation);
+	nations.push_back(nation);
 }
 
 void World::add_province(Province * province) {
-	this->provinces.push_back(province);
+	provinces.push_back(province);
 }

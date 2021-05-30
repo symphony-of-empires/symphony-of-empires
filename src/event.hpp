@@ -2,16 +2,18 @@
 #define EVENT_H
 
 #include <string>
-#include "nation.hpp"
+#include "serializer.hpp"
 
 class Descision {
 public:
-	std::string ref_name;
 	std::string name;
+	std::string ref_name;
 	std::string do_descision_function;
 	std::string effects;
 };
 
+#include "nation.hpp"
+typedef uint16_t EventId;
 class Event {
 public:
 	std::string ref_name;

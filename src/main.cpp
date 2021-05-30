@@ -15,35 +15,49 @@ std::atomic<bool> do_start;
 #include <libintl.h>
 #include <locale.h>
 #include "path.hpp"
+#include "network.hpp"
+
+#include <iostream>
+#include <fstream>
 
 int main(int argc, char ** argv) {
 	setlocale(LC_ALL, "");
 	bindtextdomain("main", Path::get("locale").c_str());
 	textdomain("main");
 
-	World world = World();
-	world.time = 695459;
-	world.time -= (8600 * 76);
-	world.time -= 24 * 190;
-#ifndef UNIT_TEST
-	printf("%s\n", gettext("launching rendering thread"));
-	std::thread t1(rendering_main);
+	Client * client;
+	Server * server;
+	World * world;
 
-	while(!do_start);
-	
-	run = true;
-	paused = false;
-	while(run) {
-		LuaAPI::check_events(world.lua);
-		world.do_tick();
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	if(!strcmp(argv[1], "client")) {
+		client = new Client("127.0.0.1", 4206);
+		world = new World();
 
-		while(paused);
+		//uint8_t * arr = new uint8_t[16777216];
+		//std::basic_ofstream<uint8_t> outfile("world_cache.wcyz", std::ofstream::out | std::ofstream::binary);
+		//Serializer<World>::serialize(arr, *world);
+		//outfile.write(arr, 16777216);
+		//delete[] arr;
+
+		printf("%s\n", gettext("launching rendering thread"));
+		std::thread t1(rendering_main);
+
+		while(!do_start);
+		
+		run = true;
+		paused = false;
+		while(run) {
+			world->do_tick();
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+			while(paused);
+		}
+		t1.join();
+	} else if(!strcmp(argv[1], "server")) {
+		server = new Server(4206);
+		world = new World();
 	}
-	t1.join();
-#else
-	exit(EXIT_SUCCESS);
-#endif
+
 	return 0;
 }
 
