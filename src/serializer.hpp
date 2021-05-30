@@ -6,13 +6,22 @@
 #include <numeric>
 
 /**
+ * The purpouse of the serializer is to serialize objects onto a byte stream
+ * that can be transfered onto the disk or over the network.
+ *
+ * Should the object have any pointers - they would need to be converted to
+ * indexes accordingly for proper transmission.
+ */
+
+/**
  * A serializer (base class) which can be used to serialize objects
  * and create per-object optimized classes
  */
 template<typename T>
 class Serializer {
-	virtual inline void serialize(std::byte *& output, T const& obj);
-	virtual inline void deserialize(std::byte const *& input, T& obj);
+public:
+	static inline void serialize(std::byte *& output, T const& obj);
+	static inline void deserialize(std::byte const *& input, T& obj);
 };
 
 #include <cstring>
@@ -22,11 +31,12 @@ class Serializer {
  */
 template<typename T>
 class SerializerMemcpy {
-	inline void serialize(std::byte *& output, T const& obj) {
+public:
+	static inline void serialize(std::byte *& output, T const& obj) {
 		memcpy(output, &obj, sizeof(T));
 		output += sizeof(T);
 	}
-	inline void deserialize(std::byte const *& input, T& obj) {
+	static inline void deserialize(std::byte const *& input, T& obj) {
 		memcpy(&obj, input, sizeof(T));
 		input += sizeof(T);
 	}
@@ -40,7 +50,8 @@ class SerializerMemcpy {
 #include <string>
 template<>
 class Serializer<std::string> {
-	inline void serialize(std::byte *& output, std::string const& obj) {
+public:
+	static inline void serialize(std::byte *& output, std::string const& obj) {
 		const uint32_t len = obj.length();
 
 		// Put length for later deserialization (since UTF-8/UTF-16 exists)
@@ -51,7 +62,7 @@ class Serializer<std::string> {
 		memcpy(output, obj.c_str(), len);
 		output += len;
 	}
-	inline void deserialize(std::byte const *& input, std::string& obj) {
+	static inline void deserialize(std::byte const *& input, std::string& obj) {
 		uint32_t len;
 
 		// Obtain the lenght of the string to be read
@@ -104,13 +115,14 @@ class Serializer<bool> : public SerializerMemcpy<bool> {};
  */
 template<typename T, typename C>
 class SerializerContainerMemcpy {
-	inline void serialize(std::byte *& output, C const& obj_group) {
+public:
+	static inline void serialize(std::byte *& output, C const& obj_group) {
 		for(const auto& obj: obj_group) {
 			memcpy(output, &obj, sizeof(T));
 			output += sizeof(T);
 		}
 	}
-	inline void deserialize(std::byte const *& input, C& obj_group) {
+	static inline void deserialize(std::byte const *& input, C& obj_group) {
 		for(auto& obj: obj_group) {
 			memcpy(&obj, input, sizeof(T));
 			input += sizeof(T);
@@ -124,6 +136,7 @@ class SerializerContainerMemcpy {
 #include <vector>
 #include <queue>
 #include <deque>
+
 template<typename T>
 class Serializer<std::vector<T>> : public SerializerContainerMemcpy<T, std::vector<T>> {};
 template<typename T>
