@@ -215,6 +215,9 @@ public:
 
 	// Default flag texture of the country
 	Texture * default_flag = nullptr;
+
+	inline void increase_relation(const World& world, Nation * target);
+	inline void decrease_relation(const World& world, Nation * target);
 };
 
 #endif
