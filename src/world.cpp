@@ -452,6 +452,9 @@ void World::do_tick() {
 	}
 
 	// Do diplomacy
+	for(auto& nation: nations) {
+		
+	}
 
 	// Evaluate units
 	for(size_t i = 0; i < units.size(); i++) {
