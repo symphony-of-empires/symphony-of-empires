@@ -140,6 +140,8 @@ class Serializer<Policies> : public SerializerMemcpy<Policies> {};
 
 #include "event.hpp"
 class Nation {
+	inline void do_diplomacy();
+	inline bool can_do_diplomacy();
 public:
 	Nation() {};
 	Nation& operator=(const Nation&) = default;
@@ -216,8 +218,13 @@ public:
 	// Default flag texture of the country
 	Texture * default_flag = nullptr;
 
-	inline void increase_relation(const World& world, Nation * target);
-	inline void decrease_relation(const World& world, Nation * target);
+	// Time until a diplomatic action can be done
+	uint16_t diplomatic_timer;
+
+	void increase_relation(const World& world, Nation * target);
+	void decrease_relation(const World& world, Nation * target);
+
+	
 };
 
 #endif

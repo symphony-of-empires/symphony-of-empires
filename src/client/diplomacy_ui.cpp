@@ -4,15 +4,36 @@ extern World * g_world;
 extern int width;
 extern int height;
 
+extern size_t player_nation_id;
+
+static void do_diplomacy_increase_rel(UI::Widget * w, void *) {
+	Nation * nation = (Nation *)w->user_data;
+	g_world->nations[player_nation_id]->increase_relation(*g_world, nation);
+}
+
+static void do_diplomacy_decrease_rel(UI::Widget * w, void *) {
+	Nation * nation = (Nation *)w->user_data;
+	g_world->nations[player_nation_id]->decrease_relation(*g_world, nation);
+}
+
 static void do_diplomacy_overview_for_nation(UI::Widget * w, void *) {
 	const Nation * nation = (Nation *)w->user_data;
 	
 	UI::Window * diplo_win = new UI::Window(nullptr, 512, 128, 256 + 128, height - 128, "Diplomatic actions");
 	
 	UI::Button * btn1 = new UI::Button(diplo_win, 32, 24 * 2, 256, 24, "Increase relations");
+	btn1->user_data = w->user_data;
+	btn1->on_click = &do_diplomacy_increase_rel;
+
 	UI::Button * btn2 = new UI::Button(diplo_win, 32, 24 * 3, 256, 24, "Decrease relations");
+	btn2->user_data = w->user_data;
+	btn1->on_click = &do_diplomacy_decrease_rel;
+	
 	UI::Button * btn3 = new UI::Button(diplo_win, 32, 24 * 4, 256, 24, "Create alliance");
-	UI::Button * btn16 = new UI::Button(diplo_win, 32, 24 * 20, 256, 24, "Goodbye");
+	btn3->user_data = w->user_data;
+
+	UI::Button * btn4 = new UI::Button(diplo_win, 32, 24 * 20, 256, 24, "Goodbye");
+	btn4->user_data = w->user_data;
 }
 
 void do_diplomacy_overview(UI::Widget *, void *) {
