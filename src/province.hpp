@@ -1,7 +1,8 @@
 #ifndef PROVINCE_H
 #define PROVINCE_H
 
-#include <stdint.h>
+#include <cstdint>
+#include <set>
 #include <string>
 #include "pop.hpp"
 
@@ -21,8 +22,8 @@ public:
 	~Province();
 
 	ProvinceId get_id(const World& world);
-	void add_industry(World * world, Industry * industry);
-	void remove_industry(World * world, Industry * industry);
+	void add_industry(World* world, Industry* industry);
+	void remove_industry(World* world, Industry* industry);
 
 	// Name of the province
 	std::string name;
@@ -57,26 +58,26 @@ public:
 	size_t worker_pool;
 
 	// The owner of this province
-	Nation * owner = nullptr;
+	Nation* owner = nullptr;
 
 	// List containing all nations who have a nucleus in this province
-	std::vector<Nation *> nucleuses;
+	std::set<Nation*> nucleuses;
 
 	// List of all neighbouring provinces (*should* be used for pathfinding)
-	std::vector<Province *> neighbours;
+	std::set<Province*> neighbours;
 	
 	// Each element of this list represents the availability of a product, taking as reference the
 	// product list of the world. Indexes are 1:1 with the product list.
 	std::vector<size_t> stockpile;
 	
 	// List of industries in the province
-	std::vector<Industry *> industries;
+	std::vector<Industry*> industries;
 
 	// List of products (produced here by factories) in this industry
-	std::vector<Product *> products;
+	std::vector<Product*> products;
 
 	// List of pops in this province
-    std::vector<Pop *> pops;
+    std::vector<Pop*> pops;
 };
 
 #endif
