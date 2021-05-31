@@ -573,6 +573,7 @@ void do_select_nation(UI::Widget *, void *) {
 	}
 }
 
+#include <fstream>
 void rendering_main(void) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
@@ -592,6 +593,33 @@ void rendering_main(void) {
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	/*std::ifstream file;
+	file.open(Path::get("shaders/test.gl"), std::ios::in);
+	if(!file) {
+		print_error("Cannot bind shader");
+	}
+	const size_t ps = file.tellg();
+	file.seekg(0, std::ios::end);
+	const size_t len = file.tellg();
+	file.seekg(0, std::ios::beg);
+	char * source = new char[len + 1];
+	source[len] = 0;
+
+	unsigned int i = 0;
+	while(file.good()) {
+		source[i] = file.get();
+		if(!file.eof()) {
+			i++;
+		}
+	}
+	source[i] = 0;
+
+	GLuint vertex_shader, fragment_shader;
+	vertex_shader = glCreateShaderARB(GL_VERTEX_SHADER);
+	fragment_shader = glCreateShaderARB(GL_FRAGMENT_SHADER);
+
+	file.close();*/
 
 	g_texture_manager = new TextureManager();
 

@@ -22,6 +22,8 @@ public:
 };
 
 #include "nation.hpp"
+#include "world.hpp"
+class Tile;
 /**
  * Roughly a batallion, consisting of approximately 500 soldiers each
  */
@@ -42,26 +44,6 @@ public:
 	float y;
 
 	// Who owns this unit
-	NationId owner_id;
-};
-
-class Tile;
-/**
- * A set of units who are commanded by a general, generally 1K - 10K in size
- */
-class UnitGroup {
-public:
-	// Units that conform this group
-	std::vector<Unit *> units;
-
-	// Target coordinates, saved for multi-group strategies later on
-	size_t tx;
-	size_t ty;
-
-	// Path the group should follow to reach target
-	std::vector<Tile *> path;
-
-	// Who owns this unit group
 	NationId owner_id;
 };
 

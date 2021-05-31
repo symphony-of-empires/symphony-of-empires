@@ -506,21 +506,20 @@ void World::do_tick() {
 			}
 		}
 
-		//unit->tx = unit->x;
-		//unit->ty = unit->y;
+		float new_tx, new_ty;
 		
 		// Cant be too close of friends (due to supply limits)
 		if(nearest_friend != nullptr
-		&& std::abs(nearest_friend->tx - unit->x) <= 4.f && std::abs(nearest_friend->ty - unit->y) <= 4.f) {
+		&& std::abs(nearest_friend->x - unit->x) <= 4.f && std::abs(nearest_friend->y - unit->y) <= 4.f) {
 			// Get away away from friend, we can't take too much attrition
-			unit->tx = (unit->x > nearest_friend->tx) ? (nearest_friend->tx - 4.f) : (nearest_friend->tx + 4.f);
-			unit->ty = (unit->y > nearest_friend->ty) ? (nearest_friend->ty - 4.f) : (nearest_friend->ty + 4.f);
+			new_tx = (unit->x < nearest_friend->tx) ? (nearest_friend->tx + 4.f) : (nearest_friend->tx - 4.f);
+			new_ty = (unit->y < nearest_friend->ty) ? (nearest_friend->ty + 4.f) : (nearest_friend->ty - 4.f);
 		}
 		// Too much enemies, retreat
 		if(nearest_foe != nullptr && (n_foes / 3) > n_friends) {
 			// Go away from foes
-			unit->tx = (nearest_foe->x > unit->x) ? nearest_foe->x : nearest_foe->x;
-			unit->ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
+			new_tx = (nearest_foe->x > unit->x) ? nearest_foe->x : nearest_foe->x;
+			new_ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
 			
 			// Attack nearest foe when possible
 			if(std::abs(unit->x - nearest_foe->x) <= 1.f && std::abs(unit->y - nearest_foe->y) <= 1.f) {
@@ -530,8 +529,8 @@ void World::do_tick() {
 		// The gang is able to attack, so we attack
 		else if(nearest_foe != nullptr) {
 			// Attack enemies
-			unit->tx = (nearest_foe->x > unit->x) ? nearest_foe->x : nearest_foe->x;
-			unit->ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
+			new_tx = (nearest_foe->x > unit->x) ? nearest_foe->x : nearest_foe->x;
+			new_ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
 			
 			// If in distance, do attack
 			if(std::abs(unit->x - nearest_foe->x) <= 1.f && std::abs(unit->y - nearest_foe->y) <= 1.f) {
@@ -540,13 +539,21 @@ void World::do_tick() {
 		}
 		// Nothing to do - we just die
 		else {
-			unit->tx = unit->x;
-			unit->ty = unit->y;
+			new_tx = unit->x;
+			new_ty = unit->y;
 		}
 
-		if(unit->tx == std::abs(unit->x - 1) && unit->ty == std::abs(unit->y - 1)) {
+		if(new_tx == unit->x && new_ty == unit->y) {
 			continue;
+		} else if(unit->tx != new_tx && unit->ty != new_ty) {
+			// Tiles below sea, as targets, are unacceptable (thus we don't have a target at all!)!
+			if(get_tile(new_tx, new_ty).elevation < sea_level) {
+				continue;
+			}
 		}
+
+		unit->tx = new_tx;
+		unit->ty = new_ty;
 
 		float end_x, end_y;
 		const float speed = 0.1f;
