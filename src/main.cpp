@@ -29,34 +29,35 @@ int main(int argc, char ** argv) {
 	Server * server;
 	World * world;
 
-	if(!strcmp(argv[1], "client")) {
-		client = new Client("127.0.0.1", 4206);
-		world = new World();
+	world = new World();
 
-		//uint8_t * arr = new uint8_t[16777216];
-		//std::basic_ofstream<uint8_t> outfile("world_cache.wcyz", std::ofstream::out | std::ofstream::binary);
-		//Serializer<World>::serialize(arr, *world);
-		//outfile.write(arr, 16777216);
-		//delete[] arr;
+	printf("%s\n", gettext("launching rendering thread"));
+	std::thread t1(rendering_main);
 
-		printf("%s\n", gettext("launching rendering thread"));
-		std::thread t1(rendering_main);
-
-		while(!do_start);
+	while(!do_start);
 		
-		run = true;
-		paused = false;
-		while(run) {
-			world->do_tick();
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	run = true;
+	paused = false;
+	while(run) {
+		world->do_tick();
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-			while(paused);
-		}
-		t1.join();
-	} else if(!strcmp(argv[1], "server")) {
+		while(paused);
+	}
+	t1.join();
+
+	//if(!strcmp(argv[1], "client")) {
+	//	client = new Client("127.0.0.1", 4206);
+
+	//uint8_t * arr = new uint8_t[16777216];
+	//std::basic_ofstream<uint8_t> outfile("world_cache.wcyz", std::ofstream::out | std::ofstream::binary);
+	//Serializer<World>::serialize(arr, *world);
+	//outfile.write(arr, 16777216);
+	//delete[] arr;
+	/*} else if(!strcmp(argv[1], "server")) {
 		server = new Server(4206);
 		world = new World();
-	}
+	}*/
 
 	return 0;
 }

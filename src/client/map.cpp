@@ -442,25 +442,32 @@ void Map::quad_create(size_t qx, size_t qy) {
 	return;
 }
 
-void Map::quad_update_nation(size_t start_x, size_t start_y, size_t end_x, size_t end_y) {
+void Map::quad_update_nation(void) {
 	GLuint * gl_list;
+	std::unique_lock<std::mutex> lock(world->nation_changed_tiles_mutex);
 
-	// Re-draw the quad
-	for(size_t qx = start_x / this->quad_size; qx < end_x / this->quad_size; qx++) {
-		for(size_t qy = start_y / this->quad_size; qy < end_y / this->quad_size; qy++) {
-			// Delete old quad OpenGL lists (so we can redraw them)
-			
-			// Delete fillings
-			gl_list = &this->nations_fill[qx + qy * this->n_horz_quads];
-			glDeleteLists(*gl_list, 1);
-			*gl_list = 0;
+	for(const auto& tile: world->nation_changed_tiles) {
+		const size_t idx = world->get_id(tile);
+		const size_t qx = (idx % world->width) / quad_size;
+		const size_t qy = (idx / world->width) / quad_size;
 
-			// Delete borders
-			gl_list = &this->nations_wire[qx + qy * this->n_horz_quads];
-			glDeleteLists(*gl_list, 1);
-			*gl_list = 0;
-			
-			this->quad_create(qx, qy);
-		}
+		// Re-draw the quad
+		
+		// Delete old quad OpenGL lists (so we can redraw them)
+		// Delete fillings
+		gl_list = &nations_fill[qx + qy * n_horz_quads];
+		glDeleteLists(*gl_list, 1);
+		*gl_list = 0;
+
+		// Delete borders
+		gl_list = &nations_wire[qx + qy * n_horz_quads];
+		glDeleteLists(*gl_list, 1);
+		*gl_list = 0;
+
+		// Rerender quad
+		quad_create(qx, qy);
 	}
+
+	// All tiles updated!
+	world->nation_changed_tiles.clear();
 }

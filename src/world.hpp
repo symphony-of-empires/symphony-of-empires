@@ -208,9 +208,11 @@ public:
 
 	// Array containing a list of tile pointers that have changed owners
 	std::vector<Tile *> nation_changed_tiles;
+	std::mutex nation_changed_tiles_mutex;
 
 	// Array containing a list of tile pointers that have changed elevation
 	std::vector<Tile *> elevation_changed_tiles;
+	std::mutex elevation_changed_tiles_mutex;
 
 	/**
 	 * Template for obtaining the ID of an element

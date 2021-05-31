@@ -21,7 +21,7 @@ public:
 	
 	void draw(float zoom, bool display_topo);
 	void quad_create(size_t qx, size_t qy);
-	void quad_update_nation(size_t start_x, size_t start_y, size_t end_x, size_t end_y);
+	void quad_update_nation();
 
 	size_t quad_size;
 	size_t n_horz_quads;
