@@ -23,7 +23,6 @@ World::World() {
 	g_world = this;
 	
 	Texture topo(Path::get("map_topo.png").c_str());
-	Texture pol(Path::get("map_pol.png").c_str());
 	Texture div(Path::get("map_div.png").c_str());
 	Texture infra(Path::get("map_infra.png").c_str());
 
@@ -33,9 +32,6 @@ World::World() {
 	// Check that size of all maps match
 	if(topo.width != this->width || topo.height != this->height) {
 		print_error("topographic map size mismatch");
-		exit(EXIT_FAILURE);
-	} else if(pol.width != this->width || pol.height != this->height) {
-		print_error("political map size mismatch");
 		exit(EXIT_FAILURE);
 	} else if(div.width != this->width || div.height != this->height) {
 		print_error("province map size mismatch");
@@ -203,20 +199,67 @@ World::World() {
 		}
 	}
 
+	// Calculate the edges of the province (min and max x and y coordinates)
+	printf("Calculate the edges of the province (min and max x and y coordinates)\n");
+	for(size_t i = 0; i < this->width; i++) {
+		for(size_t j = 0; j < this->height; j++) {
+			const Tile * tile = &this->tiles[i + (j * this->width)];
+			if(tile->province_id == (ProvinceId)-1)
+				continue;
+
+			Province * province = this->provinces[tile->province_id];
+			province->max_x = std::max(province->max_x, i);
+			province->max_y = std::max(province->max_y, j);
+			province->min_x = std::min(province->min_x, i);
+			province->min_y = std::min(province->min_y, j);
+		}
+	}
+
+	// Correct stuff from provinces
+	printf("Correcting values for provinces\n");
+	for(auto& province: this->provinces) {
+		province->max_x = std::min(this->width, province->max_x);
+		province->max_y = std::min(this->height, province->max_y);
+
+		// Remove duplicates
+		std::set<Province *> s;
+		const size_t size = province->neighbours.size();
+		for(size_t i = 0; i < size; i++) {
+			s.insert(province->neighbours[i]);
+		}
+		province->neighbours.assign(s.begin(), s.end());
+
+		// Add stockpile
+		for(size_t i = 0; i < this->products.size(); i++) {
+			province->stockpile.push_back(0);
+		}
+
+		// These will not change in a while
+		province->neighbours.shrink_to_fit();
+	}
+
 	// Give owners the entire provinces
 	printf("Give owners the entire provinces\n");
 	for(auto& nation: nations) {
 		for(auto& province: nation->owned_provinces) {
-			ProvinceId province_id = get_id<ProvinceId>(province, provinces);
-			for(size_t x = province->min_x; x < province->max_x; x++) {
-				for(size_t y = province->min_y; y < province->max_y; y++) {
+			print_info("Nation %s owns %s", nation->name.c_str(), province->name.c_str());
+			const ProvinceId province_id = get_id<ProvinceId>(province, provinces);
+			for(size_t x = province->min_x; x <= province->max_x; x++) {
+				for(size_t y = province->min_y; y <= province->max_y; y++) {
 					Tile& tile = get_tile(x, y);
-					while(tile.province_id == province_id) {
-						tile.owner_id = get_id<NationId>(province->owner, nations);
-						tile = get_tile(x, y);
-					}
+
+					if(tile.province_id != province_id)
+						continue;
+
+					const NationId nation_id = get_id<NationId>(province->owner, nations);
+					tile.owner_id = nation_id;
 				}
 			}
+		}
+		nation_changed_tiles.clear();
+
+		if(!nation->owned_provinces.size()) {
+			nation->exists = false;
 		}
 	}
 
@@ -298,45 +341,6 @@ World::World() {
 				}
 			}
 		}
-	}
-
-	// Calculate the edges of the province (min and max x and y coordinates)
-	printf("Calculate the edges of the province (min and max x and y coordinates)\n");
-	for(size_t i = 0; i < this->width; i++) {
-		for(size_t j = 0; j < this->height; j++) {
-			const Tile * tile = &this->tiles[i + (j * this->width)];
-			if(tile->province_id == (ProvinceId)-1)
-				continue;
-
-			Province * province = this->provinces[tile->province_id];
-			province->max_x = std::max(province->max_x, i);
-			province->max_y = std::max(province->max_y, j);
-			province->min_x = std::min(province->min_x, i);
-			province->min_y = std::min(province->min_y, j);
-		}
-	}
-
-	// Correct stuff from provinces
-	printf("Correcting values for provinces\n");
-	for(auto& province: this->provinces) {
-		province->max_x = std::min(this->width, province->max_x);
-		province->max_y = std::min(this->height, province->max_y);
-
-		// Remove duplicates
-		std::set<Province *> s;
-		const size_t size = province->neighbours.size();
-		for(size_t i = 0; i < size; i++) {
-			s.insert(province->neighbours[i]);
-		}
-		province->neighbours.assign(s.begin(), s.end());
-
-		// Add stockpile
-		for(size_t i = 0; i < this->products.size(); i++) {
-			province->stockpile.push_back(0);
-		}
-
-		// These will not change in a while
-		province->neighbours.shrink_to_fit();
 	}
 
 	// Create diplomatic relations between nations
@@ -469,7 +473,7 @@ void World::do_tick() {
 			Unit * other_unit = g_world->units[j];
 			if(unit->owner_id == other_unit->owner_id) {
 				// Only when very close
-				if(fabs(unit->x - other_unit->x) >= 8.f && fabs(unit->y - other_unit->y) >= 8.f)
+				if(std::abs(unit->x - other_unit->x) >= 8.f && std::abs(unit->y - other_unit->y) >= 8.f)
 					continue;
 				
 				n_friends++;
@@ -479,13 +483,13 @@ void World::do_tick() {
 				}
 				
 				// Find nearest friend
-				if(fabs(unit->x - other_unit->x) < fabs(unit->x - nearest_friend->x)
-				&& fabs(unit->y - other_unit->y) < fabs(unit->y - nearest_friend->y)) {
+				if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_friend->x)
+				&& std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_friend->y)) {
 					nearest_friend = other_unit;
 				}
 			} else {
 				// Foes from many ranges counts
-				if(fabs(unit->x - other_unit->x) >= 15 && fabs(unit->y - other_unit->y) >= 15)
+				if(std::abs(unit->x - other_unit->x) >= 15 && std::abs(unit->y - other_unit->y) >= 15)
 					continue;
 				
 				n_foes++;
@@ -495,8 +499,8 @@ void World::do_tick() {
 				}
 
 				// Find nearest foe
-				if(fabs(unit->x - other_unit->x) < fabs(unit->x - nearest_foe->x)
-				&& fabs(unit->y - other_unit->y) < fabs(unit->y - nearest_foe->y)) {
+				if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_foe->x)
+				&& std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_foe->y)) {
 					nearest_foe = other_unit;
 				}
 			}
@@ -507,10 +511,10 @@ void World::do_tick() {
 		
 		// Cant be too close of friends (due to supply limits)
 		if(nearest_friend != nullptr
-		&& fabs(nearest_friend->x - unit->x) <= 4.f && fabs(nearest_friend->y - unit->y) <= 4.f) {
+		&& std::abs(nearest_friend->tx - unit->x) <= 4.f && std::abs(nearest_friend->ty - unit->y) <= 4.f) {
 			// Get away away from friend, we can't take too much attrition
-			unit->tx = (unit->tx > nearest_friend->tx) ? (nearest_friend->tx + 4.f) : (nearest_friend->tx - 4.f);
-			unit->ty = (unit->ty > nearest_friend->ty) ? (nearest_friend->ty + 4.f) : (nearest_friend->ty - 4.f);
+			unit->tx = (unit->x > nearest_friend->tx) ? (nearest_friend->tx - 4.f) : (nearest_friend->tx + 4.f);
+			unit->ty = (unit->y > nearest_friend->ty) ? (nearest_friend->ty - 4.f) : (nearest_friend->ty + 4.f);
 		}
 		// Too much enemies, retreat
 		if(nearest_foe != nullptr && (n_foes / 3) > n_friends) {
@@ -519,7 +523,7 @@ void World::do_tick() {
 			unit->ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
 			
 			// Attack nearest foe when possible
-			if(fabs(unit->x - nearest_foe->x) <= 1.f && fabs(unit->y - nearest_foe->y) <= 1.f) {
+			if(std::abs(unit->x - nearest_foe->x) <= 1.f && std::abs(unit->y - nearest_foe->y) <= 1.f) {
 				nearest_foe->size -= 10;
 			}
 		}
@@ -530,7 +534,7 @@ void World::do_tick() {
 			unit->ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
 			
 			// If in distance, do attack
-			if(fabs(unit->x - nearest_foe->x) <= 1.f && fabs(unit->y - nearest_foe->y) <= 1.f) {
+			if(std::abs(unit->x - nearest_foe->x) <= 1.f && std::abs(unit->y - nearest_foe->y) <= 1.f) {
 				nearest_foe->size -= 10;
 			}
 		}
@@ -540,16 +544,34 @@ void World::do_tick() {
 			unit->ty = unit->y;
 		}
 
+		if(unit->tx == std::abs(unit->x - 1) && unit->ty == std::abs(unit->y - 1)) {
+			continue;
+		}
+
+		float end_x, end_y;
+		const float speed = 0.1f;
+
+		end_x = unit->x;
+		end_y = unit->y;
+
 		// Move towards target
 		if(unit->x > unit->tx)
-			unit->x -= 0.1f;
+			end_x -= speed;
 		else if(unit->x < unit->tx)
-			unit->x += 0.1f;
+			end_x += speed;
 
 		if(unit->y > unit->ty)
-			unit->y -= 0.1f;
+			end_y -= speed;
 		else if(unit->y < unit->ty)
-			unit->y += 0.1f;
+			end_y += speed;
+
+		// This code prevents us from stepping onto water tiles (but allows for rivers)
+		if(get_tile(end_x, end_y).elevation < sea_level) {
+			continue;
+		}
+
+		unit->x = end_x;
+		unit->y = end_y;
 
 		// North and south do not wrap
 		unit->y = std::max<float>(0.f, unit->y);
@@ -566,13 +588,9 @@ void World::do_tick() {
 		// TODO: Make it conquer multiple tiles
 		Tile& tile = get_tile(unit->x, unit->y);
 		if(tile.owner_id != unit->owner_id) {
+			std::unique_lock<std::mutex> lock(nation_changed_tiles_mutex);
 			tile.owner_id = unit->owner_id;
-			render_province_mutex.lock();
-			render_province.push_front(unit->x + 64);
-			render_province.push_front(unit->y + 64);
-			render_province.push_front(unit->x - 64);
-			render_province.push_front(unit->y - 64);
-			render_province_mutex.unlock();
+			nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
 		}
 	}
 

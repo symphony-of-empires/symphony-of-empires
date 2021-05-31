@@ -67,30 +67,16 @@ static void do_view_infra_map(UI::Widget *, void *) {
 	display_infra = !display_infra;
 }
 
-static void do_diplomacy_overview(UI::Widget *, void *) {
-	UI::Window * diplomacy_win = new UI::Window(nullptr, 128, 128, 256 + 128, height - 128, "Diplomacy");
-	
-	for(size_t i = 0; i < g_world->nations.size(); i++) {
-		UI::Image * flag = new UI::Image(diplomacy_win, 0, i * 32, 48, 24, nullptr, g_world->nations[i]->default_flag);
-		UI::Label * lab = new UI::Label(diplomacy_win, 48, i * 32, g_world->nations[i]->name.c_str());
-		UI::Button * btn = new UI::Button(diplomacy_win, 256, i * 32, 64, 24, "Meet");
-	}
-}
-
 extern void do_info_overview(UI::Widget *, void *);
 extern void do_economy_overview(UI::Widget *, void *);
 extern void do_province_overview();
+extern void do_diplomacy_overview(UI::Widget *, void *);
 
 #include <atomic>
 extern std::atomic<int> redraw;
 extern std::atomic<bool> run;
 extern std::atomic<bool> paused;
 extern std::atomic<bool> do_start;
-
-#include <deque>
-#include <mutex>
-std::mutex render_province_mutex;
-std::deque<size_t> render_province;
 
 #include "pathfinding.hpp"
 #include "array_ops.hpp"
@@ -309,22 +295,7 @@ void do_game_main(UI::Widget *, void *) {
 		glRotatef(0.f, 0.0f, 1.0f, 0.0f);
 		glRotatef(cam.z_angle, 0.0f, 0.0f, 1.0f);
 		
-		render_province_mutex.lock();
-		if(render_province.size() >= 4) {
-			size_t min_x, min_y, max_x, max_y;
-			
-			min_x = render_province.front();
-			render_province.pop_front();
-			min_y = render_province.front();
-			render_province.pop_front();
-			max_x = render_province.front();
-			render_province.pop_front();
-			max_y = render_province.front();
-			render_province.pop_front();
-			
-			map.quad_update_nation(min_x, min_y, max_x, max_y);
-		}
-		render_province_mutex.unlock();
+		map.quad_update_nation();
 
 		map.draw(cam.z, display_topo);
 
