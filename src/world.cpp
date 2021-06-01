@@ -207,7 +207,7 @@ World::World() {
 			if(tile->province_id == (ProvinceId)-1)
 				continue;
 
-			Province * province = this->provinces[tile->province_id];
+			Province* province = this->provinces[tile->province_id];
 			province->max_x = std::max(province->max_x, i);
 			province->max_y = std::max(province->max_y, j);
 			province->min_x = std::min(province->min_x, i);
@@ -221,21 +221,10 @@ World::World() {
 		province->max_x = std::min(this->width, province->max_x);
 		province->max_y = std::min(this->height, province->max_y);
 
-		// Remove duplicates
-		std::set<Province *> s;
-		const size_t size = province->neighbours.size();
-		for(size_t i = 0; i < size; i++) {
-			s.insert(province->neighbours[i]);
-		}
-		province->neighbours.assign(s.begin(), s.end());
-
 		// Add stockpile
 		for(size_t i = 0; i < this->products.size(); i++) {
 			province->stockpile.push_back(0);
 		}
-
-		// These will not change in a while
-		province->neighbours.shrink_to_fit();
 	}
 
 	// Give owners the entire provinces
@@ -276,7 +265,7 @@ World::World() {
 				other_tile = &this->tiles[i - this->width];
 				if(other_tile->owner_id != tile->owner_id
 				&& other_tile->owner_id != (NationId)-1) {
-					nation->neighbours.push_back(this->nations[other_tile->owner_id]);
+					nation->neighbours.insert(this->nations[other_tile->owner_id]);
 				}
 			}
 			// Down neighbour
@@ -284,7 +273,7 @@ World::World() {
 				other_tile = &this->tiles[i + this->width];
 				if(other_tile->owner_id != tile->owner_id
 				&& other_tile->owner_id != (NationId)-1) {
-					nation->neighbours.push_back(this->nations[other_tile->owner_id]);
+					nation->neighbours.insert(this->nations[other_tile->owner_id]);
 				}
 			}
 			// Left neighbour
@@ -292,7 +281,7 @@ World::World() {
 				other_tile = &this->tiles[i - 1];
 				if(other_tile->owner_id != tile->owner_id
 				&& other_tile->owner_id != (NationId)-1) {
-					nation->neighbours.push_back(this->nations[other_tile->owner_id]);
+					nation->neighbours.insert(this->nations[other_tile->owner_id]);
 				}
 			}
 			// Right neighbour
@@ -300,7 +289,7 @@ World::World() {
 				other_tile = &this->tiles[i + 1];
 				if(other_tile->owner_id != tile->owner_id
 				&& other_tile->owner_id != (NationId)-1) {
-					nation->neighbours.push_back(this->nations[other_tile->owner_id]);
+					nation->neighbours.insert(this->nations[other_tile->owner_id]);
 				}
 			}
 		}
@@ -313,7 +302,7 @@ World::World() {
 				other_tile = &this->tiles[i - this->width];
 				if(other_tile->province_id != tile->province_id
 				&& other_tile->province_id != (ProvinceId)-1) {
-					province->neighbours.push_back(this->provinces[other_tile->province_id]);
+					province->neighbours.insert(this->provinces[other_tile->province_id]);
 				}
 			}
 			// Down neighbour
@@ -321,7 +310,7 @@ World::World() {
 				other_tile = &this->tiles[i + this->width];
 				if(other_tile->province_id != tile->province_id
 				&& other_tile->province_id != (ProvinceId)-1) {
-					province->neighbours.push_back(this->provinces[other_tile->province_id]);
+					province->neighbours.insert(this->provinces[other_tile->province_id]);
 				}
 			}
 			// Left neighbour
@@ -329,7 +318,7 @@ World::World() {
 				other_tile = &this->tiles[i - 1];
 				if(other_tile->province_id != tile->province_id
 				&& other_tile->province_id != (ProvinceId)-1) {
-					province->neighbours.push_back(this->provinces[other_tile->province_id]);
+					province->neighbours.insert(this->provinces[other_tile->province_id]);
 				}
 			}
 			// Right neighbour
@@ -337,7 +326,7 @@ World::World() {
 				other_tile = &this->tiles[i + 1];
 				if(other_tile->province_id != tile->province_id
 				&& other_tile->province_id != (ProvinceId)-1) {
-					province->neighbours.push_back(this->provinces[other_tile->province_id]);
+					province->neighbours.insert(this->provinces[other_tile->province_id]);
 				}
 			}
 		}
@@ -350,17 +339,6 @@ World::World() {
 		for(size_t i = 0; i < this->nations.size(); i++) {
 			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false, false, true});
 		}
-
-		std::set<Nation *> s;
-		const size_t size = nation->neighbours.size();
-		for(size_t i = 0; i < size; i++) {
-			s.insert(nation->neighbours[i]);
-		}
-		nation->neighbours.assign(s.begin(), s.end());
-
-		nation->neighbours.shrink_to_fit();
-		nation->relations.shrink_to_fit();
-		nation->owned_provinces.shrink_to_fit();
 	}
 
 	ret = luaL_dofile(this->lua, Path::get("scripts/mod.lua").c_str());

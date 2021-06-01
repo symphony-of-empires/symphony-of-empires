@@ -308,7 +308,7 @@ int LuaAPI::give_province_to(lua_State * L) {
 		}
 	}
 
-	g_world->nations[nation_id]->owned_provinces.push_back(g_world->provinces[province_id]);
+	g_world->nations[nation_id]->owned_provinces.insert(g_world->provinces[province_id]);
 	g_world->provinces[province_id]->owner = g_world->nations[nation_id];
 	return 0;
 }
@@ -368,7 +368,7 @@ int LuaAPI::add_province_nucleus(lua_State * L) {
 		return 0;
 	}
 
-	g_world->provinces[province_id]->nucleuses.push_back(g_world->nations[nation_id]);
+	g_world->provinces[province_id]->nucleuses.insert(g_world->nations[nation_id]);
 	return 0;
 }
 
@@ -385,7 +385,7 @@ int LuaAPI::add_province_owner(lua_State * L) {
 		return 0;
 	}
 
-	g_world->nations[nation_id]->owned_provinces.push_back(g_world->provinces[province_id]);
+	g_world->nations[nation_id]->owned_provinces.insert(g_world->provinces[province_id]);
 	g_world->provinces[province_id]->owner = g_world->nations[nation_id];
 	return 0;
 }

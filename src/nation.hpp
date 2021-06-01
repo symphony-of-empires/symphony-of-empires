@@ -1,7 +1,9 @@
 #ifndef NATION_H
 #define NATION_H
 
-#include <stdint.h>
+#include <cstdint>
+#include <queue>
+#include <set>
 #include <string>
 #include <vector>
 #include "texture.hpp"
@@ -197,32 +199,32 @@ public:
 	float budget;
 
 	// Primary culture of this nation, may also be changed via events, otherwise it's permanent
-	Culture * primary_culture;
+	Culture* primary_culture;
 
 	// Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
 	// owned by this nation
-	std::vector<Culture *> accepted_cultures;
+	std::set<Culture*> accepted_cultures;
 
 	// List of provinces which are owned by this nation (including partial ownership)
-	std::vector<Province *> owned_provinces;
+	std::set<Province*> owned_provinces;
 
 	// List of neighbouring nations
-	std::vector<Nation *> neighbours;
+	std::set<Nation*> neighbours;
 
 	// A pointer to a class defining the current policy of this nation
-	Policies * current_policy;
+	Policies* current_policy;
 
 	// Inbox of the nation; events that require our attention / should be processed
-	std::vector<Event *> inbox;
+	std::queue<Event*> inbox;
 
 	// Default flag texture of the country
-	Texture * default_flag = nullptr;
+	Texture* default_flag = nullptr;
 
 	// Time until a diplomatic action can be done
 	uint16_t diplomatic_timer;
 
-	void increase_relation(const World& world, Nation * target);
-	void decrease_relation(const World& world, Nation * target);
+	void increase_relation(const World& world, Nation* target);
+	void decrease_relation(const World& world, Nation* target);
 
 	// Multipliers
 
