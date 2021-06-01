@@ -98,17 +98,105 @@ namespace TreatyClause {
 		unsigned cost() {
 			size_t value = 0;
 			for(const auto& province: provinces) {
-				value += province->budget + province->total_pops();
+				value += province->budget * province->total_pops();
 			}
-			return value;
+			return value * 0.00001f;
 		}
 		void enforce() {
 			// Reduce prestige due to lost lands
-			sender->prestige += cost() * 0.0025f;
-			receiver->prestige -= cost() * 0.005f;
+			sender->prestige += cost() * 0.0000025f;
+			receiver->prestige -= cost() * 0.000005f;
 			
 			// Give provinces to this liberated nation
+			for(auto& province: provinces) {
+				province->owner = liberated;
+			}
 			
+			// One-time clause
+			done = true;
+		}
+		bool in_effect() {
+			return done;
+		}
+	};
+	
+	/**
+	 * Imposes a policy to be put in action on a nation
+	 */
+	class ImposePolicy : BaseClause {
+		Policy imposed;
+		bool done;
+	public:
+		unsigned cost() {
+			size_t diff_policy = 0;
+			
+			diff += std::abs(imposed.migration - receirver->current_policy.migration);
+			diff += std::abs(imposed.immigration - receirver->current_policy.immigration);
+			diff += std::abs(imposed.censorship - receirver->current_policy.censorship);
+			diff += std::abs(imposed.auto_build_factories - receirver->current_policy.auto_build_factories);
+			diff += std::abs(imposed.auto_build_infrastructure - receirver->current_policy.auto_build_infrastructure);
+			
+			diff += (imposed.national_id != receirver->current_policy.national_id) ? 1 : 0;
+			diff += (imposed.men_suffrage != receirver->current_policy.men_suffrage) ? 1 : 0;
+			diff += (imposed.men_labour != receirver->current_policy.men_labour) ? 1 : 0;
+			diff += (imposed.women_suffrage != receirver->current_policy.women_suffrage) ? 1 : 0;
+			diff += (imposed.women_labour != receirver->current_policy.women_labour) ? 1 : 0;
+			diff += (imposed.private_property != receirver->current_policy.private_property) ? 1 : 0;
+			diff += (imposed.public_property != receirver->current_policy.public_property) ? 1 : 0;
+			diff += (imposed.companies_allowed != receirver->current_policy.companies_allowed) ? 1 : 0;
+			
+			diff += (imposed.public_education != receirver->current_policy.public_education) ? 1 : 0;
+			diff += (imposed.private_education != receirver->current_policy.private_education) ? 1 : 0;
+			diff += (imposed.secular_education != receirver->current_policy.secular_education) ? 1 : 0;
+			
+			diff += (imposed.public_healthcare != receirver->current_policy.public_healthcare) ? 1 : 0;
+			diff += (imposed.private_healthcare != receirver->current_policy.private_healthcare) ? 1 : 0;
+			
+			diff += (imposed.social_security != receirver->current_policy.social_security) ? 1 : 0;
+			diff += (imposed.slavery != receirver->current_policy.slavery) ? 1 : 0;
+			
+			diff += std::abs(imposed.import_tax != receirver->current_policy.import_tax);
+			diff += std::abs(imposed.export_tax != receirver->current_policy.export_tax);
+			diff += std::abs(imposed.poor_flat_tax != receirver->current_policy.poor_flat_tax);
+			diff += std::abs(imposed.med_flat_tax != receirver->current_policy.med_flat_tax);
+			diff += std::abs(imposed.rich_flat_tax != receirver->current_policy.rich_flat_tax);
+			
+			return diff;
+		}
+		void enforce() {
+			memcpy(&receiver->current_policy, &imposed, sizeof(Policy));
+			
+			done = true;
+		}
+		bool in_effect() {
+			return done;
+		}
+	};
+	
+	/**
+	 * Anexxes territory from the loser
+	 */
+	class AnexxProvince : BaseClause {
+		std::vector<Province *> provinces;
+		bool done = false;
+	public:
+		unsigned cost() {
+			size_t value = 0;
+			for(const auto& province: provinces) {
+				value += province->budget + province->total_pops();
+			}
+			return value * 0.000001f;
+		}
+		void enforce() {
+			sender->prestige += cost() * 0.0000025f;
+			receiver->prestige -= cost() * 0.000005f;
+			
+			// Give provinces to the winner
+			for(auto& province: provinces) {
+				province->owner = sender;
+			}
+			
+			// One-time clause
 			done = true;
 		}
 		bool in_effect() {
