@@ -183,6 +183,7 @@ public:
 	// Base literacy applied to all pops
 	float base_literacy;
 
+	// Determines if the nation is civilized
 	bool is_civilized;
 
 	// Level of infamy
@@ -199,7 +200,10 @@ public:
 	float budget;
 
 	// Primary culture of this nation, may also be changed via events, otherwise it's permanent
-	Culture* primary_culture;
+	Culture * primary_culture;
+
+	// The capital of this nation (can be nullptr)
+	Province * capital;
 
 	// Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
 	// owned by this nation
@@ -230,6 +234,8 @@ public:
 
 	// Multiplier of infamy when fake surrendering
 	float fake_surrender_multiplier;
+
+	void auto_relocate_capital(void);
 };
 
 #endif

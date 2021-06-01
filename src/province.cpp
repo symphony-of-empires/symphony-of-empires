@@ -106,3 +106,11 @@ void Province::remove_industry(World * world, Industry * industry) {
 
 	// We have removed the industry!
 }
+
+size_t Province::total_pops(void) const {
+	size_t total = 0;
+	for(const auto& pop: pops) {
+		total += pop->size;
+	}
+	return total;
+}

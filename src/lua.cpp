@@ -212,6 +212,12 @@ int LuaAPI::set_nation_primary_culture(lua_State * L) {
 	return 0;
 }
 
+int LuaAPI::set_nation_capital(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->capital = g_world->provinces[lua_tonumber(L, 2)];
+	return 0;
+}
+
 int LuaAPI::add_province(lua_State * L) {
 	if(!lua_isstring(L, 1) || !lua_isnumber(L, 2) || !lua_isstring(L, 3)) {
 		print_error(gettext("lua argument type mismatch"));

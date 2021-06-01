@@ -413,6 +413,11 @@ Widget::Widget(Widget * _parent, int _x, int _y, const unsigned w, const unsigne
 	if(_parent != nullptr) {
 		this->x += _parent->x;
 		this->y += _parent->y;
+
+		if(_parent->type == UI_WIDGET_WINDOW) {
+			this->y += 24;
+		}
+
 		_parent->add_child(this);
 	}
 
