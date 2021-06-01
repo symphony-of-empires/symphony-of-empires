@@ -1,17 +1,53 @@
-japan_monarchy										https://commons.wikimedia.org/wiki/File:War_flag_of_the_Imperial_Japanese_Army_(1868%E2%80%931945).svg
-peru_republic										https://commons.wikimedia.org/wiki/File:Flag_of_Peru_(1822-1825).svg
-united_states_democracy								https://commons.wikimedia.org/wiki/File:Flag_of_the_United_States_(1822-1836).svg
-mexico_republic										https://commons.wikimedia.org/wiki/File:Flag_of_Mexico_(1823-1864%2C_1867-1893).svg
-gran_colombia_republic								https://commons.wikimedia.org/wiki/File:Flag_of_the_Gran_Colombia.svg
-paraguay_republic									https://commons.wikimedia.org/wiki/File:Flag_of_Paraguay_(1812-1826).svg
-bolivia_republic									https://commons.wikimedia.org/wiki/File:State_flag_of_Bolivia_(1825-1826).svg
-federated_republic_central_america_republic			https://commons.wikimedia.org/wiki/File:Flag_of_the_Federal_Republic_of_Central_America.svg
-united_kingdom_monarchy								https://commons.wikimedia.org/wiki/File:Flag_of_the_United_Kingdom.svg
-france_republic										https://commons.wikimedia.org/wiki/File:Flag_of_France.svg
-sokoto_monarchy										https://commons.wikimedia.org/wiki/File:Flag_of_the_Sokoto_Caliphate.svg
-bornu_monarchy										https://commons.wikimedia.org/wiki/File:Flag_of_the_Bornu_Empire.svg
-dahomey_monarchy									https://commons.wikimedia.org/wiki/File:Royal_banner_of_B%C3%A9hanzin_of_Dahomey.svg
-hawaii_monarchy										https://commons.wikimedia.org/wiki/File:Flag_of_Hawaii_%281896%29.svg
-orleans_republic									https://commons.wikimedia.org/wiki/File:Flag_of_Orl%C3%A9ans,_France.svg
-saxony_monarchy										https://commons.wikimedia.org/wiki/File:Flag_of_Saxony.svg
-scandinavia_monarchy								https://commons.wikimedia.org/wiki/File:Flag_of_the_Kalmar_Union.svg
+japan_monarchy
+	By FDRMRZUSA - Own work:BASED ON THIS EXTERNAL IMAGE: &gt;&gt;&gt; [1] &lt;&lt;&lt;AND ON THESE WIKI-COMMONS IMAGES:, Public Domain, https://commons.wikimedia.org/w/index.php?curid=71029409
+
+peru_republic
+	By Huhsunqu - Own work, CC BY-SA 2.5, https://commons.wikimedia.org/w/index.php?curid=676295
+
+united_states_democracy
+	By No machine-readable author provided. Jacobolus assumed (based on copyright claims). - No machine-readable source provided. Own work assumed (based on copyright claims)., Public Domain, https://commons.wikimedia.org/w/index.php?curid=733550
+
+mexico_republic
+	By TownDown - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=7506788
+
+gran_colombia_republic
+	By Milenioscuro - Own workRepública de la Gran ColombiaGreat Colombia Federate RepublicBicentenario Escudos y Batallones que Participaron en la LuchaBandera de la Gran Colombia con escudoBanderas y accesorios de uso militarBandera de la Gran Colombia, del Batallón Húsares Primer Escuadrón, de la Guerra de IndependenciaBandera de la Gran Colombia, Huzares del Centro - por la Libertad, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=10402127
+
+paraguay_republic
+	By It Is Me Here at English Wikipedia, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=17570160
+
+bolivia_republic
+	By Huhsunqu - Own work, CC BY-SA 2.5, https://commons.wikimedia.org/w/index.php?curid=992223
+
+federated_republic_central_america_republic
+	By Huhsunqu - This W3C-unspecified vector image was created with Inkscape ., CC BY-SA 2.5, https://commons.wikimedia.org/w/index.php?curid=598888
+
+united_kingdom_monarchy
+	By !Original:Acts of Union 1800Vector: Zscout370 - Own work based on: United Kingdom at Flag of the WorldUnited Kingdom Flag at the Flag Institute, Public Domain, https://commons.wikimedia.org/w/index.php?curid=347935
+
+france_republic
+	By This graphic was drawn by SKopp. - https://web.archive.org/web/*/http://www.diplomatie.gouv.fr/de/frankreich_3/frankreich-entdecken_244/portrat-frankreichs_247/die-symbole-der-franzosischen-republik_260/trikolore-die-nationalfahne_114.html, Public Domain, https://commons.wikimedia.org/w/index.php?curid=343059
+
+sokoto_monarchy
+	By Orange Tuesday (talk) - Own work (Original text: self-made), Public Domain, https://commons.wikimedia.org/w/index.php?curid=27970313
+
+bornu_monarchy
+	By Germenfer - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=98274856
+
+dahomey_monarchy
+	By Samhanin - Own work, source: hubert-herald.nl, &#039;BENIN - Behanzin&#039;, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=82577934
+
+hawaii_monarchy
+	By FOTW, Clay Moss (PNG), Government of the Republic of Hawaii - https://flagspot.net/flags/us-hi.html, File:Flag_of_Hawaii_(1896).png, Public Domain, https://commons.wikimedia.org/w/index.php?curid=44420952
+
+orleans_republic
+	By Ninane - Image:Flag of Orleans.png, Public Domain, https://commons.wikimedia.org/w/index.php?curid=3293848
+
+saxony_monarchy
+	By Madden - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=597134
+
+scandinavia_monarchy
+	By User:ThrashedParanoid - Own work Original PNG made by E70., Public Domain, https://commons.wikimedia.org/w/index.php?curid=556733
+
+germany_monarchy
+	By User:SKopp, User:Madden, and other users - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=343071
