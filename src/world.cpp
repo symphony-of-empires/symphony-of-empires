@@ -416,7 +416,7 @@ void World::do_tick() {
 			float economy_score = 0.f;
 			for(const auto& province: nation->owned_provinces) {
 				for(const auto& pop: province->pops) {
-					economy_score += pop->budget;
+					economy_score += pop.budget;
 				}
 			}
 			nation->economy_score = economy_score / 100.f;

@@ -22,8 +22,8 @@ namespace TreatyClause {
 		Nation * receiver;
 	public:
 		BaseClause(Nation * _sender, Nation * _receiver) {
-			this->sender = _sender;
-			this->receiver = _receiver;
+			sender = _sender;
+			receiver = _receiver;
 		};
 		virtual ~BaseClause() {};
 
@@ -38,7 +38,10 @@ namespace TreatyClause {
 		// then it's removed permanently
 		virtual bool in_effect();
 	};
-
+	
+	/**
+	 * Makes loser to pay war reparations to the winner
+	 */
 	class WarReparations : BaseClause {
 		// Amount to pay per day
 		float amount;
@@ -47,20 +50,23 @@ namespace TreatyClause {
 		size_t days_duration;
 	public:
 		unsigned cost() {
-			return (this->receiver->economy_score * (this->amount * this->days_duration)) / 100;
+			return (receiver->economy_score * (amount * days_duration)) / 100;
 		}
 		void enforce() {
-			this->sender->prestige += 0.0001f;
-			this->receiver->prestige -= 0.0001f;
-			this->sender->budget -= amount;
-			this->receiver->budget += amount;
-			this->days_duration--;
+			sender->prestige += 0.0001f;
+			receiver->prestige -= 0.0001f;
+			sender->budget -= amount;
+			receiver->budget += amount;
+			days_duration--;
 		}
 		bool in_effect() {
-			return (this->days_duration != 0);
+			return (ays_duration != 0);
 		}
 	};
-
+	
+	/**
+	 * Reduces prestige of loser and increments prestige from winner
+	 */
 	class Humiliate : BaseClause {
 		// Amount to reduce prestige to per day
 		float amount;
@@ -69,23 +75,46 @@ namespace TreatyClause {
 		size_t days_duration;
 	public:
 		unsigned cost() {
-			return (this->receiver->prestige * (this->amount * this->days_duration)) / 100;
+			return (receiver->prestige * (amount * days_duration)) / 100;
 		}
 		void enforce() {
-			this->sender->prestige += this->amount;
-			this->receiver->prestige -= this->amount;
-			this->days_duration--;
+			sender->prestige += amount;
+			receiver->prestige -= amount;
+			days_duration--;
 		}
 		bool in_effect() {
-			return (this->days_duration != 0);
+			return (days_duration != 0);
 		}
 	};
-
-	/*class LiberateNation : BaseClause {
-		Nation * nation;
+	
+	/**
+	 * Liberates a nation from another
+	 */
+	class LiberateNation : BaseClause {
+		Nation * liberated;
+		std::vector<Province *> provinces;
+		bool done = false;
 	public:
-
-	};*/
+		unsigned cost() {
+			size_t value = 0;
+			for(const auto& province: provinces) {
+				value += province->budget + province->total_pops();
+			}
+			return value;
+		}
+		void enforce() {
+			// Reduce prestige due to lost lands
+			sender->prestige += cost() * 0.0025f;
+			receiver->prestige -= cost() * 0.005f;
+			
+			// Give provinces to this liberated nation
+			
+			done = true;
+		}
+		bool in_effect() {
+			return done;
+		}
+	};
 };
 
 class Treaty {

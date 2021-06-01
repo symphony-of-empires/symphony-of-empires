@@ -7,8 +7,6 @@ Province::~Province() {
 		delete industry;
 	} for(auto& product: this->products) {
 		delete product;
-	} for(auto& pop: this->pops) {
-		delete pop;
 	}
 }
 
@@ -110,7 +108,7 @@ void Province::remove_industry(World * world, Industry * industry) {
 size_t Province::total_pops(void) const {
 	size_t total = 0;
 	for(const auto& pop: pops) {
-		total += pop->size;
+		total += pop.size;
 	}
 	return total;
 }

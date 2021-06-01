@@ -164,8 +164,8 @@ static void do_info_world_overview_update(UI::Widget *, void *) {
 	float budget_count = 0.f;
 	for(const auto& province: g_world->provinces) {
 		for(const auto& pop: province->pops) {
-			budget_count += pop->budget;
-			pop_count += pop->size;
+			budget_count += pop.budget;
+			pop_count += pop.size;
 		}
 	}
 

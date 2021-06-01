@@ -328,20 +328,20 @@ int LuaAPI::add_province_pop(lua_State * L) {
 
 	Province * province = g_world->provinces[province_id];
 
-	Pop * pop = new Pop();
-	pop->type_id = lua_tonumber(L, 2);
-	pop->culture_id = lua_tonumber(L, 3);
-	pop->religion_id = lua_tonumber(L, 4);
-	pop->size = lua_tonumber(L, 5);
-	pop->literacy = lua_tonumber(L, 6);
+	Pop pop;
+	pop.type_id = lua_tonumber(L, 2);
+	pop.culture_id = lua_tonumber(L, 3);
+	pop.religion_id = lua_tonumber(L, 4);
+	pop.size = lua_tonumber(L, 5);
+	pop.literacy = lua_tonumber(L, 6);
 	
-	if(!pop->size) {
+	if(!pop.size) {
 		print_error(gettext("can't create pops with 0 size"));
 		return 0;
-	} if(pop->culture_id >= g_world->cultures.size()) {
+	} if(pop.culture_id >= g_world->cultures.size()) {
 		print_error(gettext("lua culture_id out of bounds"));
 		return 0;
-	} if(pop->religion_id >= g_world->religions.size()) {
+	} if(pop.religion_id >= g_world->religions.size()) {
 		print_error(gettext("lua religion_id out of bounds"));
 		return 0;
 	}
