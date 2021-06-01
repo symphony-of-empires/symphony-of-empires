@@ -45,6 +45,33 @@ public:
 
 	// Who owns this unit
 	NationId owner_id;
+
+	// Used to "ignore" an unit when doing any check, this allows other units to
+	// attack this unit
+	bool ignore_tag;
+};
+
+/**
+ * A military outpost, on land serves as a "spawn" place for units
+ * When adjacent to a water tile this serves as a shipyard for spawning naval units
+ */
+class Outpost {
+public:
+	// Position of outpost
+	size_t x;
+	size_t y;
+
+	// Determines if this outpost is a shipyard or if it's barracks
+	bool is_naval;
+
+	// Owner of the outpost
+	NationId owner_id;
+
+	// Unit that is currently being built here (nullptr indicates no unit)
+	Unit * working_unit;
+
+	// Remaining ticks until the unit is built
+	uint16_t build_time;
 };
 
 #endif
