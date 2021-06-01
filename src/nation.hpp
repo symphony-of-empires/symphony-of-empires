@@ -224,7 +224,10 @@ public:
 	void increase_relation(const World& world, Nation * target);
 	void decrease_relation(const World& world, Nation * target);
 
-	
+	// Multipliers
+
+	// Multiplier of infamy when fake surrendering
+	float fake_surrender_multiplier;
 };
 
 #endif

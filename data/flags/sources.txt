@@ -11,3 +11,7 @@ france_republic										https://commons.wikimedia.org/wiki/File:Flag_of_France.
 sokoto_monarchy										https://commons.wikimedia.org/wiki/File:Flag_of_the_Sokoto_Caliphate.svg
 bornu_monarchy										https://commons.wikimedia.org/wiki/File:Flag_of_the_Bornu_Empire.svg
 dahomey_monarchy									https://commons.wikimedia.org/wiki/File:Royal_banner_of_B%C3%A9hanzin_of_Dahomey.svg
+hawaii_monarchy										https://commons.wikimedia.org/wiki/File:Flag_of_Hawaii_%281896%29.svg
+orleans_republic									https://commons.wikimedia.org/wiki/File:Flag_of_Orl%C3%A9ans,_France.svg
+saxony_monarchy										https://commons.wikimedia.org/wiki/File:Flag_of_Saxony.svg
+scandinavia_monarchy								https://commons.wikimedia.org/wiki/File:Flag_of_the_Kalmar_Union.svg
