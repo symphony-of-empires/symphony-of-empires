@@ -14,10 +14,10 @@ static void do_build_unit_on_province_on_update(UI::Widget * w, void *) {
 	// Count soldier pops
 	size_t avail_manpower = 0;
 	for(const auto& pop: province->pops) {
-		if(pop->type_id != POP_TYPE_SOLDIER)
+		if(pop.type_id != POP_TYPE_SOLDIER)
 			continue;
 		
-		avail_manpower += pop->size;
+		avail_manpower += pop.size;
 	}
 
 	char * tmpbuf = new char[255];
@@ -54,7 +54,7 @@ static void do_province_pop_overview_on_update(UI::Widget * w, void *) {
 	char * tmpbuf = new char[255];
 	size_t y = 8;
 	for(const auto& pop: province->pops) {
-		sprintf(tmpbuf, "%s %s (%zu) %4.2f", g_world->cultures[pop->culture_id]->name.c_str(), g_world->pop_types[pop->type_id]->name.c_str(), pop->size, pop->budget);
+		sprintf(tmpbuf, "%s %s (%zu) %4.2f", g_world->cultures[pop.culture_id]->name.c_str(), g_world->pop_types[pop.type_id]->name.c_str(), pop.size, pop.budget);
 		UI::Label * lab = new UI::Label(prov_pop_win, 8, y, tmpbuf);
 		y += 24;
 		prov_pop_lab.push_back(lab);

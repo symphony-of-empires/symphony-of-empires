@@ -94,7 +94,8 @@ public:
 template<>
 class Serializer<Pop> {
 public:
-	static inline void serialize(Archive& output, Pop const& obj) {
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& output, const Pop& obj) {
 		::serialize(output, obj.size);
 		::serialize(output, obj.unemployed);
 
@@ -133,6 +134,23 @@ public:
 
 		::deserialize(input, obj.party_loyalties);
 		::deserialize(input, obj.issue_interests);
+	}
+	static inline size_t size(const Pop& obj) {
+		return serialized_size(obj.size)
+			+ serialized_size(obj.unemployed)
+			+ serialized_size(obj.literacy)
+			+ serialized_size(obj.militancy)
+			+ serialized_size(obj.consciousness)
+			+ serialized_size(obj.budget)
+			+ serialized_size(obj.life_needs_met)
+			+ serialized_size(obj.everyday_needs_met)
+			+ serialized_size(obj.luxury_needs_met)
+			+ serialized_size(obj.type_id)
+			+ serialized_size(obj.culture_id)
+			+ serialized_size(obj.religion_id)
+			+ serialized_size(obj.party_loyalties)
+			+ serialized_size(obj.issue_interests)
+		;
 	}
 };
 

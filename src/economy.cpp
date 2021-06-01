@@ -226,9 +226,9 @@ void Economy::do_phase_3(World& world) {
 		// Reset worker pool
 		province->worker_pool = 0;
 		for(size_t i = 0; i < province->pops.size(); i++) {
-			Pop * pop = province->pops[i];
+			Pop& pop = province->pops[i];
 			// If pop is of size 0, then delete it, it's dead :(
-			if(!pop->size) {
+			if(!pop.size) {
 				province->pops.erase(province->pops.begin() + i);
 				i--;
 				continue;
@@ -239,7 +239,7 @@ void Economy::do_phase_3(World& world) {
 			float salary;
 			
 			// TODO: This is very stupid
-			switch(pop->type_id) {
+			switch(pop.type_id) {
 			case POP_TYPE_ENTRPRENEUR:
 				salary = 5.f;
 				break;
@@ -257,8 +257,8 @@ void Economy::do_phase_3(World& world) {
 				break;
 			case POP_TYPE_CLERGYMEN:
 				for(auto& taught_pops: province->pops) {
-					taught_pops->literacy += std::min<float>(1.f, (pop->literacy * pop->size) / 100000.f);
-					taught_pops->literacy = std::min<float>(1.f, taught_pops->literacy);
+					taught_pops.literacy += std::min<float>(1.f, (pop.literacy * pop.size) / 100000.f);
+					taught_pops.literacy = std::min<float>(1.f, taught_pops.literacy);
 				}
 				salary = 0.2f;
 				break;
@@ -283,12 +283,12 @@ void Economy::do_phase_3(World& world) {
 			}
 			
 			// TODO: Make this dynamic
-			pop->budget += salary;
+			pop.budget += salary;
 			
 			size_t alloc_budget;
 			
 			// Use 25% of our budget to buy edibles and life needed stuff
-			alloc_budget = pop->budget / 4;
+			alloc_budget = pop.budget / 4;
 			for(ProductId j = 0; j < province->stockpile.size(); j++) {
 				// Province must have stockpile
 				if(!province->stockpile[j])
@@ -306,7 +306,7 @@ void Economy::do_phase_3(World& world) {
 					continue;
 				
 				// Satisfaction of needs is proportional to bought items
-				pop->life_needs_met += (float)pop->size / (float)bought;
+				pop.life_needs_met += (float)pop.size / (float)bought;
 				
 				// Demand is incremented proportional to items bought
 				world.products[j]->demand += bought;
@@ -317,7 +317,7 @@ void Economy::do_phase_3(World& world) {
 				}
 				
 				// Deduct from budget, and remove item from stockpile
-				pop->budget -= bought * world.products[j]->price;
+				pop.budget -= bought * world.products[j]->price;
 				alloc_budget -= bought * world.products[j]->price;
 				province->stockpile[j] -= bought;
 			}
@@ -325,7 +325,7 @@ void Economy::do_phase_3(World& world) {
 			// Use 10% of our budget for buying uneeded commodities and shit
 			// TODO: Should lower spending with higher literacy, and higher
 			// TODO: Higher the fullfilment per unit with higher literacy
-			alloc_budget = pop->budget / 10;
+			alloc_budget = pop.budget / 10;
 			for(size_t j = 0; j < province->stockpile.size(); j++) {
 				// Province must have stockpile
 				if(!province->stockpile[j])
@@ -343,7 +343,7 @@ void Economy::do_phase_3(World& world) {
 					continue;
 				
 				// Satisfaction of needs is proportional to bought items
-				pop->everyday_needs_met += (float)pop->size / (float)bought;
+				pop.everyday_needs_met += (float)pop.size / (float)bought;
 				
 				// Demand is incremented proportional to items bought
 				world.products[j]->demand += bought;
@@ -354,53 +354,51 @@ void Economy::do_phase_3(World& world) {
 				}
 				
 				// Deduct from budget, and remove item from stockpile
-				pop->budget -= bought * world.products[j]->price;
+				pop.budget -= bought * world.products[j]->price;
 				alloc_budget -= bought * world.products[j]->price;
 				province->stockpile[j] -= bought;
 			}
 			
 			// x1.5 life needs met modifier, that is the max allowed
-			pop->life_needs_met = std::min<float>(1.5f, pop->life_needs_met);
-			pop->life_needs_met = std::max<float>(-1.5f, pop->life_needs_met);
+			pop.life_needs_met = std::min<float>(1.5f, pop.life_needs_met);
+			pop.life_needs_met = std::max<float>(-1.5f, pop.life_needs_met);
 
 			// POPs cannot shrink below 10<
-			if(pop->size <= 10) {
+			if(pop.size <= 10) {
 				// Population cannot be 0
-				pop->size = std::max<size_t>(1, pop->size);
-				pop->size += rand() % std::min<size_t>(500, std::max<size_t>(1, (pop->size / 10000)));
+				pop.size = std::max<size_t>(1, pop.size);
+				pop.size += rand() % std::min<size_t>(500, std::max<size_t>(1, (pop.size / 10000)));
 			} else {
 				// Higher literacy will mean there will be less births due to sex education
 				// and will also mean that - there would be less deaths due to higher knewledge
-				ssize_t growth = pop->life_needs_met / (pop->literacy * 10.f);
-				if(growth < 0 && (size_t)abs(growth) >= pop->size) {
-					pop->size = 1;
+				ssize_t growth = pop.life_needs_met / (pop.literacy * 10.f);
+				if(growth < 0 && (size_t)abs(growth) >= pop.size) {
+					pop.size = 1;
 					continue;
 				} else {
-					pop->size += growth;
+					pop.size += growth;
 				}
 			}
 			
 			// Met life needs means less militancy
-			if(pop->life_needs_met >= 1.f) {
-				pop->life_needs_met = 1.f;
-				if(pop->militancy > 0.f) {
-					pop->militancy -= 0.0002f;
-					pop->consciousness -= 0.0001f;
+			if(pop.life_needs_met >= 1.f) {
+				pop.life_needs_met = 1.f;
+				if(pop.militancy > 0.f) {
+					pop.militancy -= 0.0002f;
+					pop.consciousness -= 0.0001f;
 				}
 			} else {
-				pop->militancy += 0.001f;
-				pop->consciousness += 0.001f;
+				pop.militancy += 0.001f;
+				pop.consciousness += 0.001f;
 			}
 			
-			pop->life_needs_met -= 0.25f * std::min<float>(0.5f, 1.f - pop->literacy);
+			pop.life_needs_met -= 0.25f * std::min<float>(0.5f, 1.f - pop.literacy);
 			
-			province->worker_pool += pop->size;
+			province->worker_pool += pop.size;
 		}
 		
-		// Stockpiles cleaned
-		for(ProductId i = 0; i < province->stockpile.size(); i++) {
-			province->stockpile[i] = 0;
-		}
+		// Stockpiles cleared
+		memset(&province->stockpile[0], 0, province->stockpile.size() * sizeof(province->stockpile[0]));
 	}
 }
 

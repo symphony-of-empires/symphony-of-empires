@@ -66,7 +66,7 @@ public:
  */
 #include <string>
 template<>
-class Serializer<std::string> {
+class Serializer<std::basic_string<char>> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& ar, std::string const& obj) {
@@ -81,6 +81,8 @@ public:
 		ar.expand(len);
 		memcpy(&ar.buffer[ar.ptr], obj.c_str(), len);
 		ar.ptr += len;
+
+		printf("serialized %s\n", obj.c_str());
 	}
 	static inline void deserialize(Archive& ar, std::string& obj) {
 		uint32_t len;
@@ -178,7 +180,7 @@ public:
 			ar.ptr += sizeof(T) * len;
 		} else {
 			for(const auto& obj: obj_group) {
-				Serializer<T>::serializer(ar, obj);
+				Serializer<T>::serialize(ar, obj);
 			}
 		}
 	}
@@ -194,7 +196,7 @@ public:
 		} else {
 			for(size_t i = 0; i < len; i++) {
 				T obj;
-				Serializer<T>::deserializer(ar, obj);
+				Serializer<T>::deserialize(ar, obj);
 				obj_group.push_back(obj);
 			}
 		}
@@ -229,7 +231,7 @@ inline void deserialize(Archive& ar, T& obj) {
 
 template<typename T>
 constexpr inline size_t serialized_size(const T& obj) {
-	return Serializer<T>::size();
+	return Serializer<T>::size(obj);
 }
 
 #endif
