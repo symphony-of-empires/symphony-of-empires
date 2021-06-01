@@ -29,3 +29,15 @@ void Nation::decrease_relation(const World& world, Nation * target) {
 
 	print_info("%s decreases relations with %s", name.c_str(), target->name.c_str());
 }
+
+/**
+ * Automatically relocates the capital of a nation to another province
+ * Use this when a treaty makes a nation lose it's capital
+ */
+void Nation::auto_relocate_capital(void) {
+	auto best_candidate = std::max_element(owned_provinces.begin(), owned_provinces.end(),
+		[] (const auto * lhs, const auto * rhs) {
+			return (lhs->total_pops() < rhs->total_pops());
+		});
+	capital = *best_candidate;
+}

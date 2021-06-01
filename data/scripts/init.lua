@@ -603,25 +603,25 @@ Nation:register(finland)
 local aland = Nation:create{ ref_name = "aland", color = 0x3d83c4, default_flag = "flags/unknown.png" }
 aland.name = _("Åland")
 Nation:register(aland)
-local norway = Nation:create{ ref_name = "norway", color = 0xe64830, default_flag = "flags/unknown.png" }
+local norway = Nation:create{ ref_name = "norway", color = 0xe64830, default_flag = "flags/norway_monarchy.png" }
 norway.name = _("Norway")
 Nation:register(norway)
-local sweden = Nation:create{ ref_name = "sweden", color = 0x4c87e6, default_flag = "flags/unknown.png" }
+local sweden = Nation:create{ ref_name = "sweden", color = 0x4c87e6, default_flag = "flags/sweden_monarchy.png" }
 sweden.name = _("Sweden")
 Nation:register(sweden)
 local haiti = Nation:create{ ref_name = "haiti", color = 0x4c2a9c, default_flag = "flags/unknown.png" }
 haiti.name = _("Haiti")
 Nation:register(haiti)
-local hawai_i = Nation:create{ ref_name = "hawai_i", color = 0x9168a8, default_flag = "flags/unknown.png" }
+local hawai_i = Nation:create{ ref_name = "hawai_i", color = 0x9168a8, default_flag = "flags/hawaii_monarchy.png" }
 hawai_i.name = _("Hawai'i")
 Nation:register(hawai_i)
 local saxony = Nation:create{ ref_name = "saxony", color = 0xb7d2e8, default_flag = "flags/saxony_monarchy.png" }
 saxony.name = _("Saxony")
 Nation:register(saxony)
-local russia = Nation:create{ ref_name = "russia", color = 0x79a888, default_flag = "flags/unknown.png" }
+local russia = Nation:create{ ref_name = "russia", color = 0x79a888, default_flag = "flags/russia_monarchy.png" }
 russia.name = _("Russia")
 Nation:register(russia)
-local czechoslovakia = Nation:create{ ref_name = "czechoslovakia", color = 0x79a899, default_flag = "flags/unknown.png" }
+local czechoslovakia = Nation:create{ ref_name = "czechoslovakia", color = 0x79a899, default_flag = "flags/czechoslovakia_monarchy.png" }
 czechoslovakia.name = _("Czechoslovakia")
 Nation:register(czechoslovakia)
 
@@ -902,6 +902,7 @@ Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, brazil)
 Province:give_to(province, brazil)
+Nation:set_capital(brazil, province)
 
 province = Province:create{ ref_name = "santa_catarina", color = 0xec1881 }
 province.name = _("Santa Catarina")
@@ -1004,6 +1005,7 @@ Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, paraguay)
 Province:give_to(province, paraguay)
+Nation:set_capital(paraguay, province)
 
 province = Province:create{ ref_name = "vila_sacaron", color = 0xB71CFF }
 province.name = _("Vila Sacarón")
@@ -1149,6 +1151,7 @@ Province:add_pop(province, laborer, chilean, catholic, 5000, 0.2)
 Province:add_pop(province, entrepreneur, chilean, catholic, 500, 0.9)
 Province:add_nucleus(province, chile)
 Province:give_to(province, chile)
+Nation:set_capital(chile, province)
 
 province = Province:create{ ref_name = "curico", color = 0xFFE5C1 }
 province.name = _("Curicó")
@@ -1339,6 +1342,7 @@ Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
 Province:give_to(province, bolivia)
+Nation:set_capital(bolivia, province)
 
 province = Province:create{ ref_name = "carvoal", color = 0xFF8168 }
 province.name = _("Carvoal")
@@ -1402,7 +1406,6 @@ Province:add_pop(province, laborer, german, protestant, 5000, 0.2)
 Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, bolivia)
-Province:add_nucleus(province, paraguay)
 
 province = Province:create{ ref_name = "nueva_burdeos", color = 0xFFD149 }
 province.name = _("Nueva Burdeos")
@@ -1535,6 +1538,7 @@ Province:add_pop(province, laborer, argentinian, catholic, 1000, 0.5)
 Province:add_pop(province, entrepreneur, argentinian, catholic, 50, 0.9)
 Province:add_nucleus(province, argentina)
 Province:give_to(province, argentina)
+Nation:set_capital(argentina, province)
 
 province = Province:create{ ref_name = "misiones", color = 0xff9e54 }
 province.name = _("Misiones")
@@ -2609,6 +2613,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 500, 0.9)
 Province:add_pop(province, slave, yankee, protestant, 500, 0.5)
 Province:add_nucleus(province, united_states)
 Province:give_to(province, united_states)
+Nation:set_capital(united_states, province)
 
 province = Province:create{ ref_name = "delaware", color = 0xa372ff }
 province.name = _("Delaware")
@@ -3980,7 +3985,7 @@ Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, gran_colombia)
 Province:give_to(province, gran_colombia)
 
-province = Province:create{ ref_name = "cundinamarca", color = 0xFFD1C8 }
+province = Province:create{ ref_name = "cundinamarca", color = 0xe1ff91 }
 province.name = _("Cundinamarca")
 Province:register(province)
 Province:add_pop(province, artisan, german, protestant, 5000, 0.7)
@@ -3995,6 +4000,7 @@ Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, gran_colombia)
 Province:give_to(province, gran_colombia)
+Nation:set_capital(gran_colombia, province)
 
 province = Province:create{ ref_name = "boyaca", color = 0xFFFF91 }
 province.name = _("Boyacá")
@@ -4256,6 +4262,7 @@ Province:add_pop(province, entrepreneur, german, protestant, 500, 0.9)
 Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, federated_republic_central_america)
 Province:give_to(province, federated_republic_central_america)
+Nation:set_capital(federated_republic_central_america, province)
 
 province = Province:create{ ref_name = "ahuachapan", color = 0xF572FF }
 province.name = _("Ahuachapán")
@@ -4894,6 +4901,7 @@ Province:add_pop(province, laborer, haitian, catholic, 100, 0.2)
 Province:add_pop(province, entrepreneur, haitian, catholic, 100, 0.7)
 Province:add_nucleus(province, haiti)
 Province:give_to(province, haiti)
+Nation:set_capital(haiti, province)
 
 -- Rename to Hincha if conquered by the spanish/dominican republic
 province = Province:create{ ref_name = "hinche", color = 0xBC49FF }
@@ -6244,6 +6252,7 @@ Province:add_pop(province, laborer, polynesian, protestant, 1000, 0.5)
 Province:add_pop(province, entrepreneur, polynesian, protestant, 5, 0.9)
 Province:add_nucleus(province, hawai_i)
 Province:give_to(province, hawai_i)
+Nation:set_capital(hawai_i, province)
 
 --------------------------------------------------------------
 -- Continent: Americas
@@ -6303,6 +6312,7 @@ Province:add_pop(province, laborer, german, protestant, 50000, 0.8)
 Province:add_pop(province, entrepreneur, german, protestant, 800, 0.9)
 Province:add_nucleus(province, saxony)
 Province:give_to(province, saxony)
+Nation:set_capital(saxony, province)
 
 --------------------------------------------------------------
 -- Continent: Europe
@@ -6403,6 +6413,7 @@ Province:add_pop(province, entrepreneur, danish, protestant, 800, 0.9)
 Province:add_nucleus(province, denmark)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, denmark)
+Nation:set_capital(denmark, province)
 
 --------------------------------------------------------------
 -- Continent: Europe
@@ -6535,6 +6546,8 @@ Province:add_pop(province, entrepreneur, swedish, protestant, 800, 0.9)
 Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
+Nation:set_capital(sweden, province)
+Nation:set_capital(scandinavia, province)
 
 province = Province:create{ ref_name = "vastersmaland", color = 0xd400ff }
 province.name = _("Västersmåland")
@@ -6869,6 +6882,7 @@ Province:add_nucleus(province, finland)
 Province:add_nucleus(province, russia)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
+Nation:set_capital(finland, province)
 
 province = Province:create{ ref_name = "vaasa", color = 0x1cff91 }
 province.name = _("Vaasa")
@@ -7019,6 +7033,7 @@ Province:add_pop(province, entrepreneur, norwegian, protestant, 800, 0.9)
 Province:add_nucleus(province, norway)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
+Nation:set_capital(norway, province)
 
 province = Province:create{ ref_name = "agder", color = 0xff5bfc }
 province.name = _("Agder")
@@ -7226,6 +7241,7 @@ Province:add_pop(province, entrepreneur, hungarian, catholic, 800, 0.9)
 Province:add_nucleus(province, austria)
 Province:add_nucleus(province, czechoslovakia)
 Province:give_to(province, austria)
+Nation:set_capital(czechoslovakia, province)
 
 province = Province:create{ ref_name = "north_bohemia", color = 0xff72bd }
 province.name = _("North Bohemia")

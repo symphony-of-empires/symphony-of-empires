@@ -57,6 +57,9 @@ function Nation:get(nation, ref_name)
 	nation.id, nation.ref_name, nation.name, nation.color = get_nation(ref_name)
 	return nation
 end
+function Nation:set_capital(nation, province)
+	set_nation_capital(nation.id, province.id)
+end
 
 Province = { id = 0, name = "", ref_name = "", color = 0, }
 function Province:create(province)

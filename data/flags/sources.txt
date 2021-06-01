@@ -51,3 +51,12 @@ scandinavia_monarchy
 
 germany_monarchy
 	By User:SKopp, User:Madden, and other users - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=343071
+
+czechoslovakia_republic
+	By special commission(of code): SVG version by cs:-xfi-.Colors according to Appendix No. 3 of czech legal Act 3/1993. cs:Zirland. - -xfi-&#039;s file-xfi-&#039;s codeZirland&#039;s codes of colors, Public Domain, https://commons.wikimedia.org/w/index.php?curid=432452
+
+sweden_monarchy
+	By Lokal_Profil - Made by Lokal_Profil. This vector image was created with Inkscape, and then manually edited.Vectorised from: Svensk flagg 1815.png by Roede, Public Domain, https://commons.wikimedia.org/w/index.php?curid=5838067
+
+norway_monarchy
+	By Gutten på Hemsen - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=388300

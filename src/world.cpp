@@ -67,6 +67,7 @@ World::World() {
 	lua_register(this->lua, "add_nation", LuaAPI::add_nation);
 	lua_register(this->lua, "get_nation", LuaAPI::get_nation);
 	lua_register(this->lua, "set_nation_primary_culture", LuaAPI::set_nation_primary_culture);
+	lua_register(this->lua, "set_nation_capital", LuaAPI::set_nation_capital);
 
 	lua_register(this->lua, "add_province", LuaAPI::add_province);
 	lua_register(this->lua, "get_province", LuaAPI::get_province);

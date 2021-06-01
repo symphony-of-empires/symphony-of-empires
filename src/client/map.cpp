@@ -425,15 +425,11 @@ void Map::quad_create(size_t qx, size_t qy) {
 			uint32_t * comp = &tex->buffer[tex->width * (j - off_y) + (i - off_x)];
 				
 			if(elevation > this->world->sea_level + 1) {
-				uint8_t color = 255 - (tile->elevation - this->world->sea_level);
-				*comp = __bswap_32(
-					(color << 24)
-					| (color << 16)
-					| (color << 8)
-					| 0xff);
+				//uint8_t color = 255 - (tile->elevation - this->world->sea_level);
+				*comp = __bswap_32((0xe7d0b0 << 8) | 0xff);
 			} else if(elevation <= this->world->sea_level + 1) {
-				uint8_t color = tile->elevation + 96;
-				*comp = __bswap_32((color << 8) | 0xff);
+				//uint8_t color = tile->elevation + 96;
+				*comp = __bswap_32((0xa3d0e5 << 8) | 0xff);
 			}
 		}
 	}
