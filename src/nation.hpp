@@ -135,7 +135,7 @@ public:
 	float med_flat_tax;
 
 	// Flat tax imposed on the high-wage pops
-	float high_flat_tax;
+	float rich_flat_tax;
 };
 template<>
 class Serializer<Policies> : public SerializerMemcpy<Policies> {};
@@ -216,7 +216,7 @@ public:
 	std::set<Nation *> neighbours;
 
 	// A pointer to a class defining the current policy of this nation
-	Policies * current_policy;
+	Policies current_policy;
 
 	// Inbox of the nation; events that require our attention / should be processed
 	std::queue<Event *> inbox;
