@@ -432,7 +432,7 @@ void World::do_tick() {
 
 	// Do diplomacy
 	for(auto& nation: nations) {
-		
+		// TODO: Do a nation AI that does something
 	}
 
 	// Evaluate units

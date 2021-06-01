@@ -58,29 +58,56 @@ public:
 	size_t worker_pool;
 
 	// The owner of this province
-	Nation* owner = nullptr;
+	Nation * owner = nullptr;
 
 	// List containing all nations who have a nucleus in this province
-	std::set<Nation*> nucleuses;
+	std::set<Nation *> nucleuses;
 
 	// List of all neighbouring provinces (*should* be used for pathfinding)
-	std::set<Province*> neighbours;
+	std::set<Province *> neighbours;
 	
 	// Each element of this list represents the availability of a product, taking as reference the
 	// product list of the world. Indexes are 1:1 with the product list.
 	std::vector<size_t> stockpile;
 	
 	// List of industries in the province
-	std::vector<Industry*> industries;
+	std::vector<Industry *> industries;
 
 	// List of products (produced here by factories) in this industry
-	std::vector<Product*> products;
+	std::vector<Product *> products;
 
 	// List of pops in this province
-    std::vector<Pop*> pops;
+    std::vector<Pop *> pops;
 
 	// Calculates the total number of POPs in this province (total population)
 	size_t total_pops(void) const;
+};
+template<>
+class Serializer<Province> {
+public:
+	static inline void serialize(Archive& output, Province const& obj) {
+		::serialize(output, obj.name);
+		::serialize(output, obj.ref_name);
+
+		::serialize(output, obj.color);
+		::serialize(output, obj.budget);
+		::serialize(output, obj.n_tiles);
+
+		::serialize(output, obj.min_x);
+		::serialize(output, obj.min_y);
+		::serialize(output, obj.max_x);
+		::serialize(output, obj.max_y);
+
+		::serialize(output, obj.supply_limit);
+		::serialize(output, obj.supply_rem);
+		::serialize(output, obj.worker_pool);
+		::serialize(output, obj.owner);
+	}
+	static inline void deserialize(Archive& input, Province& obj) {
+		::deserialize(input, obj.name);
+		::deserialize(input, obj.ref_name);
+
+	}
 };
 
 #endif

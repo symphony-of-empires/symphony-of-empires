@@ -20,6 +20,7 @@ std::atomic<bool> do_start;
 #include <iostream>
 #include <fstream>
 
+#include "serializer.hpp"
 int main(int argc, char ** argv) {
 	setlocale(LC_ALL, "");
 	bindtextdomain("main", Path::get("locale").c_str());
@@ -30,6 +31,10 @@ int main(int argc, char ** argv) {
 	World * world;
 
 	world = new World();
+
+	Archive test;
+	serialize(test, *world);
+	test.to_file("hello_world.v0");
 
 	printf("%s\n", gettext("launching rendering thread"));
 	std::thread t1(rendering_main);

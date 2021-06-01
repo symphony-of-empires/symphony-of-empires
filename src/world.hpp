@@ -90,7 +90,6 @@ public:
 	// ID of the province where the industry (who is sending this) is located in
 	ProvinceId sender_province_id;
 };
-
 template<>
 class Serializer<DeliverGoods> : public SerializerMemcpy<DeliverGoods> {};
 
@@ -264,17 +263,45 @@ public:
 template<>
 class Serializer<World> {
 public:
-	static inline void serialize(uint8_t *& output, World const& obj) {
-		Serializer<size_t>::serialize(output, obj.width);
-		Serializer<size_t>::serialize(output, obj.height);
+	static inline void serialize(Archive& output, World const& obj) {
+		::serialize(output, obj.width);
+		::serialize(output, obj.height);
+		::serialize(output, obj.sea_level);
 
-		//Serializer<std::vector<Nation *>>::serialize(output, obj.nations);
+		::serialize(output, obj.nations);
+		::serialize(output, obj.unit_types);
+		::serialize(output, obj.units);
+		::serialize(output, obj.cultures);
+		::serialize(output, obj.religions);
+		::serialize(output, obj.pop_types);
+		::serialize(output, obj.provinces);
+		::serialize(output, obj.companies);
+		::serialize(output, obj.products);
+		::serialize(output, obj.delivers);
+		::serialize(output, obj.orders);
+		::serialize(output, obj.industry_types);
+		::serialize(output, obj.goods);
+		::serialize(output, obj.events);
 	}
-	static inline void deserialize(uint8_t const *& input, World& obj) {
-		Serializer<size_t>::deserialize(input, obj.width);
-		Serializer<size_t>::deserialize(input, obj.height);
+	static inline void deserialize(Archive& input, World& obj) {
+		::deserialize(input, obj.width);
+		::deserialize(input, obj.height);
+		::deserialize(input, obj.sea_level);
 
-		//Serializer<std::vector<Nation *>>::deserialize(output, obj.nations);
+		::deserialize(input, obj.nations);
+		::deserialize(input, obj.unit_types);
+		::deserialize(input, obj.units);
+		::deserialize(input, obj.cultures);
+		::deserialize(input, obj.religions);
+		::deserialize(input, obj.pop_types);
+		::deserialize(input, obj.provinces);
+		::deserialize(input, obj.companies);
+		::deserialize(input, obj.products);
+		::deserialize(input, obj.delivers);
+		::deserialize(input, obj.orders);
+		::deserialize(input, obj.industry_types);
+		::deserialize(input, obj.goods);
+		::deserialize(input, obj.events);
 	}
 };
 

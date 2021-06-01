@@ -91,5 +91,49 @@ public:
 	std::vector<PartyLoyalty> party_loyalties;
 	std::vector<IssueInterest> issue_interests;
 };
+template<>
+class Serializer<Pop> {
+public:
+	static inline void serialize(Archive& output, Pop const& obj) {
+		::serialize(output, obj.size);
+		::serialize(output, obj.unemployed);
+
+		::serialize(output, obj.literacy);
+		::serialize(output, obj.militancy);
+		::serialize(output, obj.consciousness);
+		::serialize(output, obj.budget);
+
+		::serialize(output, obj.life_needs_met);
+		::serialize(output, obj.everyday_needs_met);
+		::serialize(output, obj.luxury_needs_met);
+
+		::serialize(output, obj.type_id);
+		::serialize(output, obj.culture_id);
+		::serialize(output, obj.religion_id);
+
+		::serialize(output, obj.party_loyalties);
+		::serialize(output, obj.issue_interests);
+	}
+	static inline void deserialize(Archive& input, Pop& obj) {
+		::deserialize(input, obj.size);
+		::deserialize(input, obj.unemployed);
+		
+		::deserialize(input, obj.literacy);
+		::deserialize(input, obj.militancy);
+		::deserialize(input, obj.consciousness);
+		::deserialize(input, obj.budget);
+
+		::deserialize(input, obj.life_needs_met);
+		::deserialize(input, obj.everyday_needs_met);
+		::deserialize(input, obj.luxury_needs_met);
+
+		::deserialize(input, obj.type_id);
+		::deserialize(input, obj.culture_id);
+		::deserialize(input, obj.religion_id);
+
+		::deserialize(input, obj.party_loyalties);
+		::deserialize(input, obj.issue_interests);
+	}
+};
 
 #endif
