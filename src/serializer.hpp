@@ -93,7 +93,10 @@ public:
 
 		// Obtain the string itself
 		char * string = new char[len + 1];
+		
 		memcpy(string, &ar.buffer[ar.ptr], len);
+		string[len] = '\0';
+
 		ar.ptr += len;
 		obj = string;
 		delete[] string;
@@ -210,8 +213,6 @@ public:
  * Contigous container serializers implementations
  */
 #include <vector>
-#include <queue>
-#include <deque>
 template<typename T>
 class Serializer<std::vector<T>> : public SerializerContainer<T, std::vector<T>> {};
 

@@ -121,6 +121,12 @@ public:
 	
 	// Used for faster lookups
 	std::vector<size_t> output_products;
+
+	// The desired quality of a product (otherwise it's not accepted)
+	size_t min_quality;
+
+	// The pay we are willing to give
+	size_t willing_payment;
 };
 
 typedef uint16_t ProductId;
