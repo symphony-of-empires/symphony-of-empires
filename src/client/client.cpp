@@ -71,6 +71,7 @@ extern void do_info_overview(UI::Widget *, void *);
 extern void do_economy_overview(UI::Widget *, void *);
 extern void do_province_overview();
 extern void do_diplomacy_overview(UI::Widget *, void *);
+extern void do_policy_overview(UI::Widget *, void *);
 
 #include <atomic>
 extern std::atomic<int> redraw;
@@ -93,7 +94,7 @@ void do_game_main(UI::Widget *, void *) {
 	//debug_icon->to_opengl();
 	UI::Button * debug_btn = new UI::Button(nullptr, 8, 72 * 2, 64, 64);
 	UI::Image * debug_btn_icon = new UI::Image(debug_btn, 0, 0, 64, 64, nullptr, debug_icon);
-	debug_btn_icon->on_click = &do_diplomacy_overview;
+	debug_btn_icon->on_click = &do_policy_overview;
 
 	const Texture * diplomacy_icon = g_texture_manager->load_texture(Path::get("icons/diplomacy.png"));
 	UI::Button * diplomacy_btn = new UI::Button(nullptr, 8, 72 * 3, 64, 64);

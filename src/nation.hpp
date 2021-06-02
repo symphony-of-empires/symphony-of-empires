@@ -34,69 +34,56 @@ public:
 template<>
 class Serializer<NationRelation> : public SerializerMemcpy<NationRelation> {};
 
+enum AllowancePolicy {
+	// Nobody can enter the country
+	ALLOW_NOBODY,
+
+	// Only accepted cultures can enter the country
+	ALLOW_ACCEPTED_CULTURES,
+
+	// Everyone can enter, but at a cost
+	ALLOW_ALL_PAYMENT,
+
+	// Everyone can exit freely
+	ALLOW_ALL,
+};
+
+enum CensorshipPolicy {
+	// All media censored
+	CENSORSHIP_ALL_CENSORED,
+
+	// Only state run media allowed
+	CENSORSHIP_ONLY_STATE,
+
+	// Only "approved" media is allowed
+	CENSORSHIP_ONLY_APPROVED,
+
+	// All media allowed
+	CENSORSHIP_ALL_ALLOWED,
+};
+
+enum AutoBuildPolicy {
+	// POPs cannot auto build stuff
+	AUTO_BUILD_NONE,
+
+	// POPs can only build with approval
+	AUTO_BUILD_ONLY_APPROVED,
+
+	// All POPs can build freely
+	AUTO_BUILD_ALLOWED,
+};
+
 class Policies {
 public:
-	enum MigrationPolicy {
-		// Nobody can exit the country
-		MIGRATION_NOBODY,
-
-		// Only accepted cultures can exit the country
-		MIGRATION_ACCEPTED_CULTURES,
-
-		// Everyone can exit, but only if they pay
-		MIGRATION_ALL_PAYMENT,
-
-		// Everyone can exit freely
-		MIGRATION_ALL,
-	};
-	MigrationPolicy migration;
-
-	enum ImmigrationPolicy {
-		// Nobody can enter the country
-		IMMIGRATION_NOBODY,
-
-		// Only accepted cultures can enter the country
-		IMMIGRATION_ACCEPTED_CULTURES,
-
-		// Everyone can enter, but at a cost
-		IMMIGRATION_ALL_PAYMENT,
-
-		// Everyone can exit freely
-		IMMIGRATION_ALL,
-	};
-	ImmigrationPolicy immigration;
-
-	enum CensorshipPolicy {
-		// All media censored
-		CENSORSHIP_ALL_CENSORED,
-
-		// Only state run media allowed
-		CENSORSHIP_ONLY_STATE,
-
-		// Only "approved" media is allowed
-		CENSORSHIP_ONLY_APPROVED,
-
-		// All media allowed
-		CENSORSHIP_ALL_ALLOWED,
-	};
+	AllowancePolicy migration;
+	AllowancePolicy immigration;
 	CensorshipPolicy censorship;
 
-	enum AutoBuildPolicy {
-		// POPs cannot auto build stuff
-		AUTO_BUILD_NONE,
-
-		// POPs can only build with approval
-		AUTO_BUILD_ONLY_APPROVED,
-
-		// All POPs can build freely
-		AUTO_BUILD_ALLOWED,
-	};
-
 	// Whetever POPs are able to build infrastructure
-	AutoBuildPolicy auto_build_infrastructure;
+	AutoBuildPolicy build_infrastructure;
 
 	// Whatever POPs are able to build factories
-	AutoBuildPolicy auto_build_factories;
+	AutoBuildPolicy build_factories;
 
 	bool national_id;
 
@@ -121,6 +108,12 @@ public:
 
 	// Is slavery allowed?
 	bool slavery;
+	
+	// Is there a parliament that is needed to approve laws?
+	bool legislative_parliament;
+	
+	// Is there a parliament that is needed to do executive actions?
+	bool executive_parliament;
 
 	// Tax for importing products
 	float import_tax;
