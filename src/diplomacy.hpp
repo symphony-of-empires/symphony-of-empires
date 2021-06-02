@@ -133,8 +133,8 @@ namespace TreatyClause {
 			diff += std::abs(imposed.migration - receiver->current_policy.migration);
 			diff += std::abs(imposed.immigration - receiver->current_policy.immigration);
 			diff += std::abs(imposed.censorship - receiver->current_policy.censorship);
-			diff += std::abs(imposed.auto_build_factories - receiver->current_policy.auto_build_factories);
-			diff += std::abs(imposed.auto_build_infrastructure - receiver->current_policy.auto_build_infrastructure);
+			diff += std::abs(imposed.build_factories - receiver->current_policy.build_factories);
+			diff += std::abs(imposed.build_infrastructure - receiver->current_policy.build_infrastructure);
 			
 			diff += (imposed.national_id != receiver->current_policy.national_id) ? 1 : 0;
 			diff += (imposed.men_suffrage != receiver->current_policy.men_suffrage) ? 1 : 0;

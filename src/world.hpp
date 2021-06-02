@@ -220,7 +220,7 @@ public:
 	 * @tparam C STL-compatible container where the pointer *should* be located in
 	 */
 	template<typename S, typename T, typename C>
-	inline S get_id(T * ptr, C table) const {
+	inline S get_id(const T * ptr, C table) const {
 		typename C::iterator it = std::find(table.begin(), table.end(), ptr);
 		if(it == table.end()) {
 			throw "Element not found";
@@ -228,12 +228,12 @@ public:
 		return (S)std::distance(table.begin(), it);
 	}
 
-	inline NationId get_id(Nation * ptr) const {
+	inline NationId get_id(const Nation * ptr) const {
 		std::unique_lock<std::mutex> lock(nations_mutex);
 		return get_id<NationId>(ptr, nations);
 	}
 
-	inline ProvinceId get_id(Province * ptr) const {
+	inline ProvinceId get_id(const Province * ptr) const {
 		std::unique_lock<std::mutex> lock(provinces_mutex);
 		return get_id<ProvinceId>(ptr, provinces);
 	}

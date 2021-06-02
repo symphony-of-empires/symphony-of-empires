@@ -115,6 +115,9 @@ public:
 	// Is there a parliament that is needed to do executive actions?
 	bool executive_parliament;
 
+	// Do we allow foreign trade?
+	bool foreign_trade;
+
 	// Tax for importing products
 	float import_tax;
 

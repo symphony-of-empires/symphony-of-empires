@@ -78,7 +78,7 @@ void Economy::do_phase_1(World& world) {
 			for(const auto& input: it->inputs) {
 				OrderGoods order;
 				order.quantity = available_manpower / 7;
-				order.payment = 500.f;
+				order.payment = industry->willing_payment;
 				order.good_id = input;
 				order.requester_industry_id = j;
 				order.requester_province_id = i;
@@ -99,7 +99,7 @@ void Economy::do_phase_1(World& world) {
 			for(size_t k = 0; k < it->outputs.size(); k++) {
 				DeliverGoods deliver;
 				deliver.quantity = available_manpower / 8;
-				deliver.payment = 1500.f;
+				deliver.payment = industry->willing_payment;
 				deliver.good_id = it->outputs[k];
 				deliver.sender_industry_id = j;
 				deliver.sender_province_id = i;
@@ -123,6 +123,17 @@ void Economy::do_phase_1(World& world) {
 			}
 		}
 	}
+
+	// Sort on best payment first
+	std::sort(world.delivers.begin(), world.delivers.end(),
+		[](const DeliverGoods& lhs, const DeliverGoods& rhs) {
+		return lhs.payment > rhs.payment;
+	});
+
+	std::sort(world.orders.begin(), world.orders.end(),
+		[](const OrderGoods& lhs, const OrderGoods& rhs) {
+		return lhs.payment > rhs.payment;
+	});
 }
 
 /**
@@ -138,55 +149,94 @@ void Economy::do_phase_2(World& world) {
 			
 			// Check all delivers
 			for(size_t i = 0; i < world.delivers.size(); i++) {
-				DeliverGoods * deliver = &world.delivers[i];
+				DeliverGoods& deliver = world.delivers[i];
 
 				// Is the transport company able to transport from this province?
-				if(!company->in_range(deliver->sender_province_id))
+				if(!company->in_range(deliver.sender_province_id))
 					continue;
 				
+				const Province * deliver_province = world.provinces[deliver.sender_province_id];
+				const Policies& deliver_policy = deliver_province->owner->current_policy;
+				Industry * deliver_industry = deliver_province->industries[deliver.sender_industry_id];
+
 				// Check all orders
 				for(size_t j = 0; j < world.orders.size(); j++) {
-					OrderGoods * order = &world.orders[j];
+					OrderGoods& order = world.orders[j];
 					
 					// Do they want these goods?
-					if(order->good_id != deliver->good_id)
+					if(order.good_id != deliver.good_id)
 						continue;
 					
 					// Is this transport company able to transport to this province?
-					if(!company->in_range(order->requester_province_id))
+					if(!company->in_range(order.requester_province_id))
 						continue;
 					
-					Province * order_province = world.provinces[order->requester_province_id];
+					Province * order_province = world.provinces[order.requester_province_id];
+					const Policies& order_policy = order_province->owner->current_policy;
+					Industry * order_industry = order_province->industries[order.requester_industry_id];
+
+					// If foreign trade is not allowed, then order owner === sender owner
+					if(deliver_policy.foreign_trade == false
+					|| order_policy.foreign_trade == false) {
+						// Trade not allowed
+						if(order_province->owner != deliver_province->owner) {
+							continue;
+						}
+					}
+
+					// Orders payment should also cover the import tax and a deliver payment should also cover the export
+					// tax too. Otherwise we can't deliver
+					const float import_tax = (order_policy.import_tax > 0.f) ? (100.f / order_policy.import_tax) : (order_policy.import_tax / 100.f);
+					const float export_tax = (deliver_policy.export_tax > 0.f) ? (100.f / deliver_policy.export_tax) : (deliver_policy.export_tax / 100.f);
+					
+					const float req_import_payment = world.products[deliver.product_id]->price * import_tax;
+					const float req_export_payment = world.products[deliver.product_id]->price * export_tax;
+					
+					if(order.payment < req_import_payment) {
+						order_industry->willing_payment = req_import_payment;
+						continue;
+					} else if(deliver.payment < req_export_payment) {
+						deliver_industry->willing_payment = req_export_payment;
+						continue;
+					}
+
+					// Must have above minimum quality to be accepted
+					if(world.products[deliver.product_id]->quality < order_industry->min_quality) {
+						continue;
+					}
 					
 					// Province receives a small (military) supply buff from commerce
 					order_province->supply_rem += 5.f;
 					order_province->supply_rem = std::min(order_province->supply_limit, order_province->supply_rem);
 					
 					// Obtain number of goods that we can satisfy
-					size_t count = std::min<size_t>(order->quantity, deliver->quantity);
-					deliver->quantity -= count;
-					order->quantity -= count;
+					size_t count = std::min<size_t>(order.quantity, deliver.quantity);
+					deliver.quantity -= count;
+					order.quantity -= count;
 
 					// Duplicate products and put them into the province's stock (a commerce buff)
-					order_province->industries[order->requester_industry_id]->add_to_stock(world, order->good_id, count);
+					order_industry->add_to_stock(world, order.good_id, count);
 					
 					// Increment demand of the product, and decrement supply when the demand is fullfilled
-					world.products[deliver->product_id]->demand += count;
-					if(world.products[deliver->product_id]->supply) {
-						const size_t satisfied = std::min<size_t>(count, world.products[deliver->product_id]->supply);
-						world.products[deliver->product_id]->supply -= satisfied;
-						world.products[deliver->product_id]->demand += satisfied;
+					world.products[deliver.product_id]->demand += count;
+					if(world.products[deliver.product_id]->supply) {
+						const size_t satisfied = std::min<size_t>(count, world.products[deliver.product_id]->supply);
+						world.products[deliver.product_id]->supply -= satisfied;
+						world.products[deliver.product_id]->demand += satisfied;
 					}
 
 					// Increment the production cost of this industry which is used
 					// so we sell our product at a profit instead  of at a loss
-					order_province->industries[order->requester_industry_id]->production_cost += world.products[deliver->product_id]->price;
+					order_industry->production_cost += world.products[deliver.product_id]->price;
+
+					// Set quality to the max from this product
+					order_industry->min_quality = std::max(order_industry->min_quality, world.products[deliver.product_id]->quality);
 					
 					// Delete this deliver and order tickets from the system since
 					// they are now fullfilled (only delete when no quanity left)
-					if(!order->quantity) {
+					if(!order.quantity) {
 						world.orders.erase(world.orders.begin() + j);
-					} if(!deliver->quantity) {
+					} if(!deliver.quantity) {
 						world.delivers.erase(world.delivers.begin() + i);
 						i--;
 					}
@@ -210,6 +260,9 @@ void Economy::do_phase_2(World& world) {
 			}
 		}
 		world.delivers.clear();
+
+		// Industries who did not got anything will get desesperate
+
 		break;
 	}
 	world.delivers.clear();
