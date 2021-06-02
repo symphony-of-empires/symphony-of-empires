@@ -1,3 +1,9 @@
+# savefiles from the game
+*.v0
+*.v1
+*.v2
+*.v3
+
 # performance stuff
 *.out
 perf.data

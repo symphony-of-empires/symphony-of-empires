@@ -54,7 +54,7 @@ template<typename T>
 class Serializer {
 public:
 	static constexpr bool is_const_size = true;
-	static inline void serialize(Archive& ar, T const& obj);
+	static inline void serialize(Archive& ar, const T& obj);
 	static inline void deserialize(Archive& ar, T& obj);
 	static inline size_t size(const T& obj);
 };
@@ -69,7 +69,7 @@ template<>
 class Serializer<std::basic_string<char>> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& ar, std::string const& obj) {
+	static inline void serialize(Archive& ar, const std::string& obj) {
 		const uint32_t len = obj.length();
 
 		// Put length for later deserialization (since UTF-8/UTF-16 exists)
@@ -112,7 +112,7 @@ template<typename T>
 class SerializerMemcpy {
 public:
 	static constexpr bool is_const_size = true;
-	static inline void serialize(Archive& ar, T const& obj) {
+	static inline void serialize(Archive& ar, const T& obj) {
 		ar.expand(size(obj));
 		memcpy(&ar.buffer[ar.ptr], &obj, sizeof(T));
 		ar.ptr += sizeof(T);
@@ -121,7 +121,7 @@ public:
 		memcpy(&obj, &ar.buffer[ar.ptr], sizeof(T));
 		ar.ptr += sizeof(T);
 	}
-	constexpr static inline size_t size(const T& obj) {
+	constexpr static inline size_t size(const T&) {
 		return sizeof(T);
 	}
 };
@@ -214,10 +214,6 @@ public:
 #include <deque>
 template<typename T>
 class Serializer<std::vector<T>> : public SerializerContainer<T, std::vector<T>> {};
-template<typename T>
-class Serializer<std::queue<T>> : public SerializerContainer<T, std::queue<T>> {};
-template<typename T>
-class Serializer<std::deque<T>> : public SerializerContainer<T, std::deque<T>> {};
 
 template<typename T>
 inline void serialize(Archive& ar, const T& obj) {
