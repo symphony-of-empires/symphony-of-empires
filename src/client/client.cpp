@@ -299,7 +299,7 @@ void select_nation(void) {
 			case SDL_MOUSEBUTTONUP:
 				SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
 				click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
-				if(!click_on_ui) {
+				if(click_on_ui == 0) {
 					if(select_pos.first < 0 || select_pos.first >= g_world->width
 					|| select_pos.second < 0 || select_pos.second >= g_world->height)
 						continue;
