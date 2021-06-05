@@ -544,8 +544,8 @@ print("secondary sector industries")
 local garrison = UnitType:create{ ref_name = "garrison", defense = 5.0, attack = 2.0, health = 100.0 }
 garrison.name = _("Garrison")
 UnitType:register(garrison)
-UnitType:requires_good(infantry, ammunition, 200)
-UnitType:requires_good(infantry, musket, 100)
+UnitType:requires_good(garrison, ammunition, 200)
+UnitType:requires_good(garrison, musket, 100)
 local infantry = UnitType:create{ ref_name = "infantry", defense = 5.0, attack = 2.0, health = 100.0 }
 infantry.name = _("Infantry")
 UnitType:register(infantry)
