@@ -116,7 +116,7 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 		Widget& widget = *widgets[i];
 		if((int)mx >= widget.disp_x && mx <= widget.disp_x + widget.width
 		&& (int)my >= widget.disp_y && my <= widget.disp_y + widget.height
-		&& widget.is_show && widget.type != UI_WIDGET_WINDOW) {
+		&& widget.is_show) {
 			//if(widget->action_textures != nullptr) {
 			//	widget->current_texture = &widget->action_textures->active;
 			//}
