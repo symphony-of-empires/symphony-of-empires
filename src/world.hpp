@@ -186,6 +186,10 @@ public:
 	// List of unit types where units can be created from
 	std::vector<UnitType *> unit_types;
 	mutable std::mutex unit_types_mutex;
+	
+	// List of naval unit types
+	std::vector<BoatType *> boat_types;
+	mutable std::mutex boat_types_mutex;
 
 	// List of registered events
 	std::vector<Event *> events;

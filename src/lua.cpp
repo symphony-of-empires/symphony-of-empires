@@ -711,6 +711,59 @@ int LuaAPI::get_unit_type(lua_State * L) {
 	return 4;
 }
 
+int LuaAPI::add_boat_type(lua_State * L) {
+	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
+		print_error(gettext("lua argument type mismatch"));
+		return 0;
+	}
+
+	BoatType * boat_type = new BoatType();
+
+	boat_type->ref_name = lua_tostring(L, 1);
+	boat_type->name = lua_tostring(L, 2);
+	boat_type->attack = lua_tonumber(L, 3);
+	boat_type->defense = lua_tonumber(L, 4);
+	boat_type->max_health = lua_tonumber(L, 5);
+	boat_type->capacity = lua_tonumber(L, 6);
+
+	printf(gettext("boat_type: %s"), boat_type->ref_name.c_str());
+	printf("\n");
+
+	g_world->boat_types.push_back(boat_type);
+	lua_pushnumber(L, g_world->boat_types.size() - 1);
+	return 1;
+}
+
+int LuaAPI::get_boat_type(lua_State * L) {
+	if(!lua_isstring(L, 1)) {
+		print_error(gettext("lua argument type mismatch"));
+		return 0;
+	}
+
+	std::string ref_name = lua_tostring(L, 1);
+	BoatType * boat_type = nullptr;
+	
+	size_t i;
+	for(i = 0; i < g_world->boat_types.size(); i++) {
+		if(g_world->boat_types[i]->ref_name != ref_name)
+			continue;
+		
+		boat_type = g_world->boat_types[i];
+		break;
+	} if(boat_type == nullptr) {
+		print_error(gettext("boat_type %s not found"), ref_name.c_str());
+		return 0;
+	}
+	lua_pushnumber(L, i);
+	lua_pushstring(L, boat_type->ref_name.c_str());
+	lua_pushstring(L, boat_type->name.c_str());
+	lua_pushnumber(L, boat_type->attack);
+	lua_pushnumber(L, boat_type->defense);
+	lua_pushnumber(L, boat_type->max_health);
+	lua_pushnumber(L, boat_type->capacity);
+	return 4;
+}
+
 int LuaAPI::get_hour(lua_State * L) {
 	lua_pushnumber(L, g_world->time % 24);
 	return 1;

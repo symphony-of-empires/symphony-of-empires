@@ -222,6 +222,14 @@ local infantry = UnitType:create{ ref_name = "infantry", defense = 5.0, attack =
 infantry.name = _("Infantry")
 UnitType:register(infantry)
 
+-- Naval unit types
+local frigate = BoatType:create{ ref_name = "frigate", defense = 3.0, attack = 1.0, health = 50.0, capacity = 1000 }
+frigate.name = _("Frigate")
+BoatType:register(frigate)
+local galleon = BoatType:create{ ref_name = "galleon", defense = 5.0, attack = 10.0, health = 200.0, capacity = 200 }
+galleon.name = _("Galleon")
+BoatType:register(galleon)
+
 -- Good types
 
 -- Farmable stuff
