@@ -259,6 +259,9 @@ public:
 		}
 		return tiles[idx];
 	}
+	
+	// Used by client to update anything each tick (i.e a graph)
+	void (*client_update)(void);
 };
 template<>
 class Serializer<World> {

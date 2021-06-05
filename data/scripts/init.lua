@@ -45,6 +45,12 @@ Culture:register(finnish)
 local norwegian = Culture:create{ ref_name = "norwegian" }
 norwegian.name = _("Norwegian")
 Culture:register(norwegian)
+local turkish = Culture:create{ ref_name = "turkish" }
+turkish.name = _("Turkish")
+Culture:register(turkish)
+local greek = Culture:create{ ref_name = "greek" }
+greek.name = _("Greek")
+Culture:register(greek)
 
 -- American
 local yankee = Culture:create{ ref_name = "yankee" }
@@ -624,6 +630,13 @@ Nation:register(russia)
 local czechoslovakia = Nation:create{ ref_name = "czechoslovakia", color = 0x79a899, default_flag = "flags/czechoslovakia_monarchy.png" }
 czechoslovakia.name = _("Czechoslovakia")
 Nation:register(czechoslovakia)
+
+local turkey = Nation:create{ ref_name = "turkey", color = 0x79a888, default_flag = "flags/turkey_monarchy.png" }
+turkey.name = _("Turkey")
+Nation:register(turkey)
+local greece = Nation:create{ ref_name = "greece", color = 0x79a888, default_flag = "flags/greece_monarchy.png" }
+greece.name = _("Greece")
+Nation:register(greece)
 
 -- Formable nations
 local scandinavia = Nation:create{ ref_name = "scandinavia", color = 0xb7d2e8, default_flag = "flags/scandinavia_monarchy.png" }
@@ -7414,6 +7427,74 @@ Province:add_pop(province, entrepreneur, hungarian, catholic, 800, 0.9)
 Province:add_nucleus(province, austria)
 Province:add_nucleus(province, czechoslovakia)
 Province:give_to(province, austria)
+
+province = Province:create{ ref_name = "thrace", color = rgb(123, 192, 255) }
+province.name = _("Thrace")
+Province:register(province)
+Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
+Province:add_pop(province, farmer, greek, orthodox, 5000, 0.2)
+Province:add_pop(province, soldier, greek, orthodox, 1000, 0.6)
+Province:add_pop(province, craftsmen, greek, orthodox, 1000, 0.4)
+Province:add_pop(province, bureaucrat, greek, orthodox, 1000, 0.8)
+Province:add_pop(province, aristocrat, greek, orthodox, 1000, 0.7)
+Province:add_pop(province, clergymen, greek, orthodox, 1000, 0.6)
+Province:add_pop(province, laborer, greek, orthodox, 1000, 0.4)
+Province:add_pop(province, entrepreneur, greek, orthodox, 1000, 0.9)
+Province:add_pop(province, artisan, greek, catholic, 100, 0.6)
+Province:add_pop(province, farmer, greek, catholic, 5000, 0.2)
+Province:add_pop(province, soldier, greek, catholic, 100, 0.6)
+Province:add_pop(province, craftsmen, greek, catholic, 100, 0.4)
+Province:add_pop(province, bureaucrat, greek, catholic, 100, 0.8)
+Province:add_pop(province, aristocrat, greek, catholic, 100, 0.7)
+Province:add_pop(province, clergymen, greek, catholic, 100, 0.6)
+Province:add_pop(province, laborer, greek, catholic, 100, 0.4)
+Province:add_pop(province, entrepreneur, greek, catholic, 100, 0.9)
+Province:add_pop(province, artisan, turkish, islamic, 50, 0.6)
+Province:add_pop(province, farmer, turkish, islamic, 500, 0.2)
+Province:add_pop(province, soldier, turkish, islamic, 50, 0.6)
+Province:add_pop(province, craftsmen, turkish, islamic, 50, 0.4)
+Province:add_pop(province, bureaucrat, turkish, islamic, 50, 0.8)
+Province:add_pop(province, aristocrat, turkish, islamic, 50, 0.7)
+Province:add_pop(province, clergymen, turkish, islamic, 50, 0.6)
+Province:add_pop(province, laborer, turkish, islamic, 50, 0.4)
+Province:add_pop(province, entrepreneur, turkish, islamic, 10, 0.9)
+Province:add_nucleus(province, turkey)
+Province:add_nucleus(province, greece)
+Province:give_to(province, turkey)
+
+province = Province:create{ ref_name = "kavala", color = rgb(255, 173, 122) }
+province.name = _("Kavala")
+Province:register(province)
+Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
+Province:add_pop(province, farmer, greek, orthodox, 5000, 0.2)
+Province:add_pop(province, soldier, greek, orthodox, 1000, 0.6)
+Province:add_pop(province, craftsmen, greek, orthodox, 1000, 0.4)
+Province:add_pop(province, bureaucrat, greek, orthodox, 1000, 0.8)
+Province:add_pop(province, aristocrat, greek, orthodox, 1000, 0.7)
+Province:add_pop(province, clergymen, greek, orthodox, 1000, 0.6)
+Province:add_pop(province, laborer, greek, orthodox, 1000, 0.4)
+Province:add_pop(province, entrepreneur, greek, orthodox, 1000, 0.9)
+Province:add_pop(province, artisan, greek, catholic, 100, 0.6)
+Province:add_pop(province, farmer, greek, catholic, 5000, 0.2)
+Province:add_pop(province, soldier, greek, catholic, 100, 0.6)
+Province:add_pop(province, craftsmen, greek, catholic, 100, 0.4)
+Province:add_pop(province, bureaucrat, greek, catholic, 100, 0.8)
+Province:add_pop(province, aristocrat, greek, catholic, 100, 0.7)
+Province:add_pop(province, clergymen, greek, catholic, 100, 0.6)
+Province:add_pop(province, laborer, greek, catholic, 100, 0.4)
+Province:add_pop(province, entrepreneur, greek, catholic, 100, 0.9)
+Province:add_pop(province, artisan, turkish, islamic, 50, 0.6)
+Province:add_pop(province, farmer, turkish, islamic, 500, 0.2)
+Province:add_pop(province, soldier, turkish, islamic, 50, 0.6)
+Province:add_pop(province, craftsmen, turkish, islamic, 50, 0.4)
+Province:add_pop(province, bureaucrat, turkish, islamic, 50, 0.8)
+Province:add_pop(province, aristocrat, turkish, islamic, 50, 0.7)
+Province:add_pop(province, clergymen, turkish, islamic, 50, 0.6)
+Province:add_pop(province, laborer, turkish, islamic, 50, 0.4)
+Province:add_pop(province, entrepreneur, turkish, islamic, 10, 0.9)
+Province:add_nucleus(province, turkey)
+Province:add_nucleus(province, greece)
+Province:give_to(province, turkey)
 
 -- THIS IS NOT PART OF THE FINAL MODDING API
 

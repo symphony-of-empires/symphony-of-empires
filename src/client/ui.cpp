@@ -29,38 +29,6 @@ Context::Context() {
 		exit(EXIT_FAILURE);
 	}
 
-	this->arrow.active.from_file("ui/arrow_active.png");
-	this->arrow.hover.from_file("ui/arrow_hover.png");
-	this->arrow.idle.from_file("ui/arrow_idle.png");
-	this->button.active.from_file("ui/button_active.png");
-	this->button.hover.from_file("ui/button_hover.png");
-	this->button.idle.from_file("ui/button_idle.png");
-	this->input.active.from_file("ui/input_active.png");
-	this->input.hover.from_file("ui/input_hover.png");
-	this->input.idle.from_file("ui/input_idle.png");
-	this->scroll_back.from_file("ui/scroll_back.png");
-	this->scroll_bar.from_file("ui/scroll_bar.png");
-	this->checkbox_true.from_file("ui/checkbox_true.png");
-	this->checkbox_false.from_file("ui/checkbox_false.png");
-	this->window.from_file("ui/window.png");
-	this->window_border.from_file("ui/window_border.png");
-	
-	this->arrow.active.to_opengl();
-	this->arrow.hover.to_opengl();
-	this->arrow.idle.to_opengl();
-	this->button.active.to_opengl();
-	this->button.hover.to_opengl();
-	this->button.idle.to_opengl();
-	this->input.active.to_opengl();
-	this->input.hover.to_opengl();
-	this->input.idle.to_opengl();
-	this->scroll_back.to_opengl();
-	this->scroll_bar.to_opengl();
-	this->checkbox_true.to_opengl();
-	this->checkbox_false.to_opengl();
-	this->window.to_opengl();
-	this->window_border.to_opengl();
-
 	this->widgets.clear();
 	this->widgets.reserve(150);
 
@@ -70,7 +38,7 @@ Context::Context() {
 }
 
 void Context::add_widget(Widget * widget) {
-	widget->show = 1;
+	widget->is_show = 1;
 
 	// Not already here
 	if(std::count(this->widgets.begin(), this->widgets.end(), widget))
@@ -81,7 +49,7 @@ void Context::add_widget(Widget * widget) {
 }
 
 void Context::remove_widget(Widget * widget) {
-	widget->show = 0;
+	widget->is_show = 0;
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		if(this->widgets[i] != widget)
 			continue;
@@ -102,26 +70,11 @@ void Context::clear(void) {
 
 void Context::render_all() {
 	for(auto& widget: this->widgets) {
-		// Widget below parent
-		if(widget->parent != nullptr
-		&& (widget->x + widget->width > widget->parent->x + widget->parent->width
-		|| widget->y + widget->height > widget->parent->y + widget->parent->height)) {
-			widget->show = false;
-			continue;
-		}
-		
-		if(widget->parent != nullptr
-		&& (widget->y + widget->width < widget->parent->y
-		|| widget->x + widget->width < widget->parent->x)) {
-			widget->show = false;
-			continue;
-		}
-
-		widget->show = true;
-		if(widget->show) {
+		widget->is_show = true;
+		if(widget->is_show) {
 			widget->on_render();
 			if(widget->on_update != nullptr) {
-				widget->on_update(widget, (void *)this);
+				widget->on_update(*widget, (void *)this);
 			}
 		}
 	}
@@ -129,75 +82,76 @@ void Context::render_all() {
 }
 
 void Context::check_hover(const unsigned mx, const unsigned my) {
-	if(this->is_drag) {
+	if(is_drag) {
 		std::pair<int, int> offset = std::make_pair(mx - this->drag_x, my - this->drag_y);
-		std::pair<int, int> diff = std::make_pair(offset.first - dragged_widget->x, offset.second - dragged_widget->y);
+		std::pair<int, int> diff = std::make_pair(offset.first - dragged_widget->disp_x, offset.second - dragged_widget->disp_y);
 
 		dragged_widget->move_by(diff.first, diff.second);
-
-		//dragged_widget->x = offset.first;
-		//dragged_widget->y = offset.second;
 		return;
 	}
 
 	for(const auto& widget: this->widgets) {
-		if((int)mx >= widget->x && mx <= widget->x + widget->width
-		&& (int)my >= widget->y && my <= widget->y + widget->height
-		&& widget->show) {
-			if(widget->action_textures != nullptr
-			&& widget->current_texture == &widget->action_textures->idle)
-				widget->current_texture = &widget->action_textures->hover;
+		if((int)mx >= widget->disp_x && mx <= widget->disp_x + widget->width
+		&& (int)my >= widget->disp_y && my <= widget->disp_y + widget->height
+		&& widget->is_show) {
+			//if(widget->action_textures != nullptr
+			//&& widget->current_texture == &widget->action_textures->idle)
+			//	widget->current_texture = &widget->action_textures->hover;
 
 			if(widget->on_hover != nullptr)
-				widget->on_hover(widget, widget->user_data);
+				widget->on_hover(*widget, widget->user_data);
 		} else {
-			if(widget->action_textures != nullptr
-			&& widget->current_texture == &widget->action_textures->hover)
-				widget->current_texture = &widget->action_textures->idle;
+			//if(widget->action_textures != nullptr
+			//&& widget->current_texture == &widget->action_textures->hover)
+			//	widget->current_texture = &widget->action_textures->idle;
 		}
 	}
 	return;
 }
 
 int Context::check_click(const unsigned mx, const unsigned my) {
-	const size_t n_widget = this->widgets.size();
-	this->is_drag = false;
+	const size_t n_widget = widgets.size();
+	is_drag = false;
 	for(int i = n_widget - 1; i >= 0; i--) {
-		Widget * widget = this->widgets[i];
-		if((int)mx >= widget->x && mx <= widget->x + widget->width
-		&& (int)my >= widget->y && my <= widget->y + widget->height
-		&& widget->show && widget->type != UI_WIDGET_WINDOW) {
-			if(widget->action_textures != nullptr) {
-				widget->current_texture = &widget->action_textures->active;
-			}
+		Widget& widget = *widgets[i];
+		if((int)mx >= widget.disp_x && mx <= widget.disp_x + widget.width
+		&& (int)my >= widget.disp_y && my <= widget.disp_y + widget.height
+		&& widget.is_show && widget.type != UI_WIDGET_WINDOW) {
+			//if(widget->action_textures != nullptr) {
+			//	widget->current_texture = &widget->action_textures->active;
+			//}
 			
-			if(widget->on_click != nullptr) {
-				widget->on_click(widget, widget->user_data);
+			if(widget.on_click != nullptr) {
+				widget.on_click(widget, widget.user_data);
 			}
 			return 1;
 		} else {
-			if(widget->action_textures != nullptr) {
-				widget->current_texture = &widget->action_textures->idle;
-			}
+			//if(widget->action_textures != nullptr) {
+			//	widget->current_texture = &widget->action_textures->idle;
+			//}
 		}
 	}
 	return 0;
 }
 
 void Context::check_drag(const unsigned mx, const unsigned my) {
-	const size_t n_widget = this->widgets.size();
+	const size_t n_widget = widgets.size();
 
 	for(int i = n_widget - 1; i >= 0; i--) {
-		Widget * widget = this->widgets[i];
+		Widget& widget = *widgets[i];
 
-		if((int)mx >= widget->x && mx <= widget->x + widget->width
-		&& (int)my >= widget->y && my <= widget->y + 24
-		&& widget->is_movable && widget->type == UI_WIDGET_WINDOW) {
-			if(!this->is_drag) {
-				this->drag_x = mx - widget->x;
-				this->drag_y = my - widget->y;
-				this->is_drag = true;
-				dragged_widget = widget;
+		if((int)mx >= widget.disp_x && mx <= widget.disp_x + widget.width
+		&& (int)my >= widget.disp_y && my <= widget.disp_y + 24
+		&& widget.type == UI_WIDGET_WINDOW) {
+			Window& c_widget = dynamic_cast<Window&>(widget);
+			if(!c_widget.is_movable)
+				continue;
+
+			if(!is_drag) {
+				drag_x = mx - widget.disp_x;
+				drag_y = my - widget.disp_y;
+				is_drag = true;
+				dragged_widget = &widget;
 				break;
 			}
 		}
@@ -206,26 +160,21 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 
 void Context::check_text_input(const char * _input) {
 	for(const auto& widget: this->widgets) {
-		if(widget->current_texture == &this->input.active
-		&& widget->type == UI_WIDGET_INPUT
-		&& widget->show) {
-			Input * c_widget = dynamic_cast<Input *>(widget);
-			if(c_widget->on_textinput == nullptr) {
-				continue;
-			}
-			c_widget->on_textinput(c_widget, _input, c_widget->user_data);
+		if(widget->type == UI_WIDGET_INPUT && widget->is_show) {
+			Input& c_widget = dynamic_cast<Input&>(*widget);
+			c_widget.on_textinput(&c_widget, _input, c_widget.user_data);
 		}
 	}
 }
 
 int Context::check_wheel(unsigned mx, unsigned my, int y) {
 	for(const auto& widget: this->widgets) {
-		if((int)mx >= widget->x && mx <= widget->x + widget->width
-		&& (int)my >= widget->y && my <= widget->y + widget->height
-		&& widget->type == UI_WIDGET_WINDOW && widget->show) {
+		if((int)mx >= widget->disp_x && mx <= widget->disp_x + widget->width
+		&& (int)my >= widget->disp_y && my <= widget->disp_y + widget->height
+		&& widget->type == UI_WIDGET_WINDOW && widget->is_show) {
 			for(auto& child: widget->children) {
 				if(!child->is_pinned)
-					child->y += y;
+					child->disp_y += y;
 			}
 			return 1;
 		}
@@ -257,22 +206,6 @@ void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const GLui
 	glEnd();
 }
 
-void Chart::on_render(void) {
-	// Obtain the highest valued element here
-	const float max = *std::max_element(this->data.begin(), this->data.end());
-
-	glLineWidth(1.f);
-	glBegin(GL_LINE_STRIP);
-	glColor3f(1.f, 0.f, 0.f);
-
-	size_t time = 0;
-	for(const auto& node: this->data) {
-		glVertex2f(this->x + (time * (this->width / this->data.size())), (this->y + this->height) - ((node / max) * this->height));
-		time++;
-	}
-	glEnd();
-}
-
 #include <deque>
 void Widget::on_render(void) {
 	if(this->type == UI_WIDGET_WINDOW) {
@@ -281,32 +214,32 @@ void Widget::on_render(void) {
 		glBegin(GL_TRIANGLES);
 		glColor4f(0.f, 0.f, 0.f, 0.5f);
 		glTexCoord2f(0.f, 0.f);
-		glVertex2f(this->x + 16, this->y + 16);
+		glVertex2f(disp_x + 16, disp_y + 16);
 		glTexCoord2f(1.f, 0.f);
-		glVertex2f(this->x + this->width + 16, this->y + 16);
+		glVertex2f(disp_x + this->width + 16, disp_y + 16);
 		glTexCoord2f(1.f, 1.f);
-		glVertex2f(this->x + this->width + 16, this->y + this->height + 16);
+		glVertex2f(disp_x + this->width + 16, disp_y + this->height + 16);
 		glTexCoord2f(1.f, 1.f);
-		glVertex2f(this->x + this->width + 16, this->y + this->height + 16);
+		glVertex2f(disp_x + this->width + 16, disp_y + this->height + 16);
 		glTexCoord2f(0.f, 1.f);
-		glVertex2f(this->x + 16, this->y + this->height + 16);
+		glVertex2f(disp_x + 16, disp_y + this->height + 16);
 		glTexCoord2f(0.f, 0.f);
-		glVertex2f(this->x + 16, this->y + 16);
+		glVertex2f(disp_x + 16, disp_y + 16);
 		glEnd();
 	}
 	
 	glColor3f(1.f, 1.f, 1.f);
 
-	if(this->type == UI_WIDGET_WINDOW) {
-		this->draw_rectangle(
-			this->x, this->y,
-			this->width, 24,
-			g_ui_context->window_border.gl_tex_num
-		);
+	if(this->text_texture != nullptr) {
+		if(!this->text_texture->gl_tex_num) {
+			this->text_texture->to_opengl();
+		}
+	}
 
+	if(this->type == UI_WIDGET_WINDOW) {
 		if(this->current_texture != nullptr && this->current_texture->gl_tex_num) {
 			this->draw_rectangle(
-				this->x, this->y + 24,
+				disp_x, disp_y,
 				this->width, this->height,
 				this->current_texture->gl_tex_num
 			);
@@ -314,7 +247,7 @@ void Widget::on_render(void) {
 	} else {
 		if(this->current_texture != nullptr && this->current_texture->gl_tex_num) {
 			this->draw_rectangle(
-				this->x, this->y,
+				disp_x, disp_y,
 				this->width, this->height,
 				this->current_texture->gl_tex_num
 			);
@@ -322,12 +255,16 @@ void Widget::on_render(void) {
 	}
 
 	if(this->text_texture != nullptr) {
-		if(!this->text_texture->gl_tex_num) {
-			this->text_texture->to_opengl();
-		}
-
+		glColor3f(0.f, 0.f, 0.f);
 		this->draw_rectangle(
-			this->x, this->y,
+			disp_x + 12, disp_y + 8,
+			this->text_texture->width, this->text_texture->height,
+			this->text_texture->gl_tex_num
+		);
+
+		glColor3f(1.f, 1.f, 1.f);
+		this->draw_rectangle(
+			disp_x + 8, disp_y + 4,
 			this->text_texture->width, this->text_texture->height,
 			this->text_texture->gl_tex_num
 		);
@@ -335,137 +272,66 @@ void Widget::on_render(void) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void default_on_text_input(Input * w, const char * input, void * data) {
+void input_ontextinput(Input& w, const char * input, void * data) {
 	size_t len;
 	char must_clear = 0;
 
-	if(w->buffer == nullptr) {
+	if(w.buffer == nullptr) {
 		len = 0;
 		must_clear = 1;
 	} else {
-		len = strlen(w->buffer);
+		len = strlen(w.buffer);
 	}
 
-	for(size_t i = 0; i < strlen(input); i++) {
-		printf("(%x)\n", input[i]);
-	}
-
-	w->buffer = (char *)realloc(w->buffer, len + strlen(input) + 1);
-	if(w->buffer == nullptr) {
+	w.buffer = (char *)realloc(w.buffer, len + strlen(input) + 1);
+	if(w.buffer == nullptr) {
 		perror("out of memory\n");
 		exit(EXIT_FAILURE);
 	}
 	if(must_clear) {
-		memset(w->buffer, 0, 1);
+		memset(w.buffer, 0, 1);
 	}
-	strcat(w->buffer, input);
+	strcat(w.buffer, input);
 
-	w->text(w->buffer);
+	w.text(w.buffer);
 	return;
 }
 
-void default_close_button_on_click(Widget * w, void * data) {
-	delete w->parent;
+void win_close_btn_onclick(Widget& w, void * data) {
+	delete w.parent;
 }
 
-Button::Button(Widget * _parent, int _x, int _y, unsigned w, unsigned h, const char * text, const Texture * tex)
-	: Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON, text, tex) {
-	this->action_textures = &g_ui_context->button;
-	this->current_texture = &g_ui_context->button.idle;
-}
+Widget::Widget(Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type, const Texture * tex)
+	: is_show(1), type(_type), x(_x), y(_y), width(w), height(h), parent(_parent), current_texture(tex) {
 
-Input::Input(Widget * _parent, int _x, int _y, unsigned w, unsigned h)
-	: Widget(_parent, _x, _y, w, h, UI_WIDGET_INPUT, nullptr, nullptr) {
-	this->action_textures = &g_ui_context->input;
-	this->current_texture = &g_ui_context->input.idle;
-	this->on_textinput = &default_on_text_input;
-}
+	disp_x = x;
+	disp_y = y;
 
-Window::Window(Widget * _parent, int _x, int _y, unsigned w, unsigned h, const char * text, const Texture * tex)
-	: Widget(_parent, _x, _y, w, h, UI_WIDGET_WINDOW, text, tex) {
-	this->current_texture = &g_ui_context->window;
-	this->is_movable = true;
+	if(parent != nullptr) {
+		disp_x += parent->disp_x;
+		disp_y += parent->disp_y;
 
-	Button * close_btn;
-	close_btn = new Button(this, this->width - 24, -24, 24, 24, "X");
-	close_btn->on_click = &default_close_button_on_click;
-	close_btn->is_pinned = true;
-}
-
-Image::Image(Widget * _parent, int _x, int _y, unsigned w, unsigned h, const char * text, const Texture * tex)
-	: Widget(_parent, _x, _y, w, h, UI_WIDGET_IMAGE, text, tex) {
-	this->current_texture = tex;
-}
-
-Widget::Widget(Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type,
-	const char * text, const Texture * tex) {
+		parent->add_child(this);
+	}
 	
-	this->show = 1;
-	this->type = _type;
-	this->x = _x;
-	this->y = _y;
-	this->width = w;
-	this->height = h;
-	this->is_movable = false;
-	this->ox = _x;
-	this->oy = _y;
-
-	if(_parent != nullptr) {
-		this->x += _parent->x;
-		this->y += _parent->y;
-
-		if(_parent->type == UI_WIDGET_WINDOW) {
-			this->y += 24;
-		}
-
-		_parent->add_child(this);
-	}
-
-	// Add this widget once the widget is constructed
+	// Add the widget to the context in each construction
 	g_ui_context->add_widget(this);
-
-	// After this we can do some trickery and add any widgets we may need (close buttons, scrollbars, etc)
-	this->action_textures = nullptr;
-	switch(this->type) {
-	case UI_WIDGET_BUTTON:
-		break;
-	case UI_WIDGET_INPUT:
-		break;
-	case UI_WIDGET_WINDOW:
-		break;
-	case UI_WIDGET_IMAGE:
-		break;
-	case UI_WIDGET_LABEL:
-		this->text(text);
-		break;
-	case UI_WIDGET_CHECKBOX:
-		this->current_texture = &g_ui_context->checkbox_false;
-		break;
-	case UI_WIDGET_PIE_CHART:
-		break;
-	default:
-		break;
-	}
-
-	if(text != nullptr) {
-		this->text(text);
-	}
 }
 
 Widget::~Widget() {
-	// Also delete children
+	// Delete the children recursively
 	for(size_t i = 0; i < this->children.size(); i++) {
 		delete this->children[i];
 	}
 	this->children.clear();
 
-	// Hide widget immediately upon destruction :(
+	// Hide widget immediately upon destruction
 	g_ui_context->remove_widget(this);
 }
 
 void Widget::move_by(int _x, int _y) {
-	this->x += _x;
-	this->y += _y;
+	disp_x += _x;
+	disp_y += _y;
 	for(auto& child: this->children) {
 		child->move_by(_x, _y);
 	}
@@ -493,6 +359,8 @@ void Widget::text(const char * text) {
 	this->text_texture = new Texture();
 	this->text_texture->gl_tex_num = 0;
 
+	TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
+
 	surface = TTF_RenderUTF8_Solid(g_ui_context->default_font, text, text_color);
 	if(surface == nullptr) {
 		perror("cannot create text surface\n");
@@ -507,17 +375,139 @@ void Widget::text(const char * text) {
 		for(size_t j = 0; j < (size_t)surface->h; j++) {
 			uint8_t r, g, b, a;
 			uint32_t pixel = ((uint8_t *)surface->pixels)[i + j * surface->pitch];
-			SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
+			SDL_GetRGBA(pixel, surface->format, &a, &b, &g, &r);
 
 			uint32_t final_pixel;
-			if(r == 0xff) {
+			if(a == 0xff) {
 				final_pixel = 0;
 			} else {
-				final_pixel = (a << 24) | (r << 16) | (g << 8) | b;
+				final_pixel = 0xffffffff;
 			}
 			tex->buffer[i + j * tex->width] = final_pixel;
 		}
 	}
 	SDL_FreeSurface(surface);
 	return;
+}
+
+/**
+ * Constructor implementations for the different types of widgets
+ */
+Window::Window(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
+	: Widget(_parent, _x, _y, w, h, UI_WIDGET_WINDOW), is_movable(true) {
+
+}
+
+Button::Button(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
+	: Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON) {
+
+}
+
+Input::Input(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
+	: Widget(_parent, _x, _y, w, h, UI_WIDGET_INPUT) {
+
+}
+
+Image::Image(int _x, int _y, unsigned w, unsigned h, const Texture * tex, Widget * _parent)
+	: Widget(_parent, _x, _y, w, h, UI_WIDGET_IMAGE) {
+	current_texture = tex;
+}
+
+Label::Label(int _x, int _y, const char * _text, Widget * _parent)
+	: Widget(_parent, _x, _y, 0, 0, UI_WIDGET_LABEL) {
+	text(_text);
+	width = text_texture->width;
+	height = text_texture->height;
+}
+
+void Label::on_render(void) {
+	if(this->text_texture != nullptr) {
+		if(!this->text_texture->gl_tex_num) {
+			this->text_texture->to_opengl();
+		}
+	}
+	if(this->text_texture != nullptr) {
+		glColor3f(0.f, 0.f, 0.f);
+		this->draw_rectangle(
+			disp_x + 4, disp_y + 2,
+			this->text_texture->width, this->text_texture->height,
+			this->text_texture->gl_tex_num
+		);
+
+		glColor3f(1.f, 1.f, 1.f);
+		this->draw_rectangle(
+			disp_x, disp_y,
+			this->text_texture->width, this->text_texture->height,
+			this->text_texture->gl_tex_num
+		);
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
+	: Widget(_parent, _x, _y, w, h, UI_WIDGET_LABEL) {
+	
+}
+
+void Chart::on_render(void) {
+	glColor3f(1.f, 1.f, 1.f);
+
+	if(this->text_texture != nullptr) {
+		if(!this->text_texture->gl_tex_num) {
+			this->text_texture->to_opengl();
+		}
+	}
+
+	if(this->type == UI_WIDGET_WINDOW) {
+		if(this->current_texture != nullptr && this->current_texture->gl_tex_num) {
+			this->draw_rectangle(
+				disp_x, disp_y,
+				this->width, this->height,
+				this->current_texture->gl_tex_num
+			);
+		}
+	} else {
+		if(this->current_texture != nullptr && this->current_texture->gl_tex_num) {
+			this->draw_rectangle(
+				disp_x, disp_y,
+				this->width, this->height,
+				this->current_texture->gl_tex_num
+			);
+		}
+	}
+
+	if(this->text_texture != nullptr) {
+		glColor3f(0.f, 0.f, 0.f);
+		this->draw_rectangle(
+			disp_x + 4, disp_y + 2,
+			this->text_texture->width, this->text_texture->height,
+			this->text_texture->gl_tex_num
+		);
+
+		glColor3f(1.f, 1.f, 1.f);
+		this->draw_rectangle(
+			disp_x, disp_y,
+			this->text_texture->width, this->text_texture->height,
+			this->text_texture->gl_tex_num
+		);
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Obtain the highest and lowest values
+	const double max = *std::max_element(this->data.begin(), this->data.end());
+	const double min = *std::min_element(this->data.begin(), this->data.end());
+
+	glLineWidth(1.f);
+	glBegin(GL_LINE_STRIP);
+	glColor3f(1.f, 0.f, 0.f);
+
+	size_t time = 0;
+	for(const auto& node: this->data) {
+		glVertex2f(
+			disp_x + time * (width / data.size()),
+			(disp_y + height) - (((node - min) / (max - min)) * height)
+		);
+		time++;
+	}
+	glEnd();
 }

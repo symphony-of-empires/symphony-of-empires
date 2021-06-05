@@ -104,6 +104,7 @@ public:
 	bool public_healthcare;
 	bool private_healthcare;
 
+	// Goverment pays bought food
 	bool social_security;
 
 	// Is slavery allowed?
@@ -114,6 +115,9 @@ public:
 	
 	// Is there a parliament that is needed to do executive actions?
 	bool executive_parliament;
+
+	// Is there a constitution to limit the power of the leader?
+	bool constitutional;
 
 	// Do we allow foreign trade?
 	bool foreign_trade;
@@ -132,9 +136,22 @@ public:
 
 	// Flat tax imposed on the high-wage pops
 	float rich_flat_tax;
+
+	// Spending done on military (% of budget)
+	float military_spending;
 };
 template<>
 class Serializer<Policies> : public SerializerMemcpy<Policies> {};
+
+enum IdeologyType {
+	// Primary types
+	MONARCHY,
+	ANARCHY,
+	DEMOCRACY,
+	COMMUNISM,
+	FASCISM,
+	REPUBLIC,
+};
 
 #include "event.hpp"
 class Nation {
