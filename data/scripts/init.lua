@@ -286,9 +286,9 @@ Good:register(machinegun)
 local ammunition = Good:create{ ref_name = "ammunition" }
 ammunition.name = _("Ammunition")
 Good:register(ammunition)
-local sails = Good:create{ ref_name = "sails" }
-sails.name = _("Sails")
-Good:register(sails)
+local sail = Good:create{ ref_name = "sail" }
+sail.name = _("Sail")
+Good:register(sail)
 
 -- Minerals
 local copper = Good:create{ ref_name = "copper" }

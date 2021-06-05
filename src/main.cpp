@@ -65,6 +65,8 @@ int main(int argc, char ** argv) {
 		server = new Server(4206);
 		world = new World();
 	}*/
+#else
+	exit(EXIT_SUCCESS);
 #endif
 
 	return 0;
