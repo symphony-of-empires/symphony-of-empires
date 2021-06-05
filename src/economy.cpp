@@ -63,13 +63,16 @@ void Economy::do_phase_1(World& world) {
 			Industry * industry = world.provinces[i]->industries[j];
 			if(!world.provinces[i]->worker_pool) {
 				industry->days_unoperational++;
+				industry->min_quality = 0;
 				continue;
 			}
 
 			industry->days_unoperational = 0;
 
 			size_t available_manpower;
-			available_manpower = std::min<size_t>(1500, world.provinces[i]->worker_pool);
+			size_t needed_manpower = 1500;
+			
+			available_manpower = std::min<size_t>(needed_manpower, world.provinces[i]->worker_pool);
 			world.provinces[i]->worker_pool -= available_manpower;
 			if(!available_manpower)
 				continue;
@@ -77,7 +80,7 @@ void Economy::do_phase_1(World& world) {
 			IndustryType * it = world.industry_types[industry->type_id];
 			for(const auto& input: it->inputs) {
 				OrderGoods order;
-				order.quantity = available_manpower / 7;
+				order.quantity = (available_manpower / needed_manpower) * 1500;
 				order.payment = industry->willing_payment;
 				order.good_id = input;
 				order.requester_industry_id = j;
@@ -98,7 +101,7 @@ void Economy::do_phase_1(World& world) {
 			// Place deliver orders (we are a RGO)
 			for(size_t k = 0; k < it->outputs.size(); k++) {
 				DeliverGoods deliver;
-				deliver.quantity = available_manpower / 8;
+				deliver.quantity = (available_manpower / needed_manpower) * 2000;
 				deliver.payment = industry->willing_payment;
 				deliver.good_id = it->outputs[k];
 				deliver.sender_industry_id = j;
@@ -106,14 +109,14 @@ void Economy::do_phase_1(World& world) {
 				deliver.product_id = industry->output_products[k];
 
 				// Do not overproduce
-				Product * product = world.products[deliver.product_id];
-				if(product->supply > product->demand) {
+				Product& product = *world.products[deliver.product_id];
+				if(product.supply > product.demand) {
 					continue;
 				}
 
 				// Cannot be below production cost, so we can be profitable
-				if(product->price < industry->production_cost * 1.2f) {
-					product->price = industry->production_cost * 1.2f;
+				if(product.price < industry->production_cost * 1.2f) {
+					product.price = industry->production_cost * 1.2f;
 				}
 				
 				if(!deliver.quantity)
@@ -186,17 +189,17 @@ void Economy::do_phase_2(World& world) {
 
 					// Orders payment should also cover the import tax and a deliver payment should also cover the export
 					// tax too. Otherwise we can't deliver
-					const float import_tax = (order_policy.import_tax > 0.f) ? (100.f / order_policy.import_tax) : (order_policy.import_tax / 100.f);
-					const float export_tax = (deliver_policy.export_tax > 0.f) ? (100.f / deliver_policy.export_tax) : (deliver_policy.export_tax / 100.f);
+					const float order_cost = world.products[deliver.product_id]->price * std::min(order.quantity, deliver.quantity);
+					const float deliver_cost = world.products[deliver.product_id]->price * std::min(order.quantity, deliver.quantity);
 					
-					const float req_import_payment = world.products[deliver.product_id]->price * import_tax;
-					const float req_export_payment = world.products[deliver.product_id]->price * export_tax;
+					const float total_order_cost = order_cost * order_policy.import_tax;
+					const float total_deliver_cost = deliver_cost * order_policy.export_tax;
 					
-					if(order.payment < req_import_payment) {
-						order_industry->willing_payment = req_import_payment;
+					if(order.payment < total_order_cost && total_order_cost > 0.f) {
+						order_industry->willing_payment = total_order_cost;
 						continue;
-					} else if(deliver.payment < req_export_payment) {
-						deliver_industry->willing_payment = req_export_payment;
+					} else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
+						deliver_industry->willing_payment = total_deliver_cost;
 						continue;
 					}
 
@@ -204,6 +207,10 @@ void Economy::do_phase_2(World& world) {
 					if(world.products[deliver.product_id]->quality < order_industry->min_quality) {
 						continue;
 					}
+					
+					// Give both goverments their part of the tax (when tax is 1.0< then the goverment pays for it)
+					order_province->owner->budget += (order_cost * order_policy.import_tax) - order_cost;
+					deliver_province->owner->budget += (deliver_cost * deliver_policy.import_tax) - deliver_cost;
 					
 					// Province receives a small (military) supply buff from commerce
 					order_province->supply_rem += 5.f;
@@ -280,14 +287,6 @@ void Economy::do_phase_3(World& world) {
 		province->worker_pool = 0;
 		for(size_t i = 0; i < province->pops.size(); i++) {
 			Pop& pop = province->pops[i];
-			// If pop is of size 0, then delete it, it's dead :(
-			if(!pop.size) {
-				province->pops.erase(province->pops.begin() + i);
-				i--;
-				continue;
-			}
-
-			//printf("%s: %s %zu (%4.f$)\n", province->name.c_str(), this->pop_types[pop->type_id]->name.c_str(), pop->size, pop->budget);
 			
 			float salary;
 			
@@ -310,8 +309,8 @@ void Economy::do_phase_3(World& world) {
 				break;
 			case POP_TYPE_CLERGYMEN:
 				for(auto& taught_pops: province->pops) {
-					taught_pops.literacy += std::min<float>(1.f, (pop.literacy * pop.size) / 100000.f);
-					taught_pops.literacy = std::min<float>(1.f, taught_pops.literacy);
+					taught_pops.literacy += std::min<float>(0.001f, (pop.literacy * pop.size) / 100000.f);
+					taught_pops.literacy = std::min<float>(0.001f, taught_pops.literacy);
 				}
 				salary = 0.2f;
 				break;
@@ -331,7 +330,7 @@ void Economy::do_phase_3(World& world) {
 				salary = 0.01f;
 				break;
 			default:
-				salary = 0.f;
+				salary = 0.5f;
 				break;
 			}
 			
@@ -340,8 +339,8 @@ void Economy::do_phase_3(World& world) {
 			
 			size_t alloc_budget;
 			
-			// Use 25% of our budget to buy edibles and life needed stuff
-			alloc_budget = pop.budget / 4;
+			// Use 33% of our budget to buy edibles and life needed stuff
+			alloc_budget = pop.budget / 3;
 			for(ProductId j = 0; j < province->stockpile.size(); j++) {
 				// Province must have stockpile
 				if(!province->stockpile[j])
@@ -411,10 +410,10 @@ void Economy::do_phase_3(World& world) {
 				alloc_budget -= bought * world.products[j]->price;
 				province->stockpile[j] -= bought;
 			}
-			
+
 			// x1.5 life needs met modifier, that is the max allowed
-			pop.life_needs_met = std::min<float>(1.5f, pop.life_needs_met);
-			pop.life_needs_met = std::max<float>(-1.5f, pop.life_needs_met);
+			pop.life_needs_met = std::min<float>(1.f, pop.life_needs_met);
+			pop.life_needs_met = std::max<float>(-1.f, pop.life_needs_met);
 
 			// POPs cannot shrink below 10<
 			if(pop.size <= 10) {
@@ -441,11 +440,11 @@ void Economy::do_phase_3(World& world) {
 					pop.consciousness -= 0.0001f;
 				}
 			} else {
-				pop.militancy += 0.001f;
-				pop.consciousness += 0.001f;
+				pop.militancy += 0.01f;
+				pop.consciousness += 0.01f;
 			}
 			
-			pop.life_needs_met -= 0.25f * std::min<float>(0.5f, 1.f - pop.literacy);
+			pop.life_needs_met -= 0.7f * std::min<float>(0.5f, 1.f - pop.literacy);
 			
 			province->worker_pool += pop.size;
 		}

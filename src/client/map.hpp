@@ -4,43 +4,25 @@
 #include <stddef.h>
 #include <GL/gl.h>
 #include "world.hpp"
+#include "province.hpp"
 
-class Cloud {
-public:
-	float x;
-	float y;
-	unsigned char type;
-};
-
+class ProvinceShape;
 class Map {
 private:
-	World * world;
 public:
-	Map() {};
-	Map(World * world);
-	
-	void draw(float zoom, bool display_topo);
-	void quad_create(size_t qx, size_t qy);
-	void quad_update_nation();
+	Map(const World& world);
 
-	size_t quad_size;
-	size_t n_horz_quads;
-	size_t n_vert_quads;
-
-	GLuint * provinces_wire;
-	GLuint * provinces_fill;
-
-	GLuint * nations_wire;
-	GLuint * nations_fill;
-
-	GLuint * infrastructure_wire;
-
-	std::vector<Texture *> topo_texture;
-
-	Texture * cloud_textures[4];
-	std::vector<Cloud> clouds;
+	const World& world;
+	std::vector<ProvinceShape> province_shapes;
+	void draw(float zoom);
 };
 
-extern Map map;
+class ProvinceShape {
+public:
+	ProvinceShape(const Map& map, const Province& base);
+	GLuint shape_gl_list;
+};
+
+extern Map * map;
 
 #endif

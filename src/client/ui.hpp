@@ -18,15 +18,9 @@ enum UI_WidgetType {
 };
 
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL.h>
 
 namespace UI {
-	class ActionTextures {
-	public:
-		Texture idle;
-		Texture hover;
-		Texture active;
-	};
-
 	class Widget;
 	class Context {
 		int drag_x;
@@ -49,26 +43,12 @@ namespace UI {
 		TTF_Font * default_font;
 		
 		std::vector<Widget *> widgets;
-
-		ActionTextures arrow;
-		ActionTextures button;
-		ActionTextures input;
-
-		Texture scroll_back;
-		Texture scroll_bar;
-
-		Texture checkbox_true;
-		Texture checkbox_false;
-
-		Texture window;
-		Texture window_border;
 	};
 
 	class Widget {
 	public:
 		Widget() {};
-		Widget(Widget * parent, int x, int y, unsigned w, unsigned h, int type,
-			const char * text = nullptr, const Texture * tex = nullptr);
+		Widget(Widget * parent, int x, int y, unsigned w, unsigned h, int type, const Texture * tex = nullptr);
 		Widget(const Widget&) = default;
 		Widget(Widget&&) noexcept = default;
 		Widget& operator=(const Widget&) = default;
@@ -80,97 +60,106 @@ namespace UI {
 		void text(const char * text);
 		void draw_rectangle(int x, int y, unsigned w, unsigned h, unsigned tex);
 
-		bool is_movable = false;
 		bool is_pinned = false;
+
 		int type;
 
 		int scroll_x = 0;
 		int scroll_y = 0;
 
+		// Display X and Y (also used for mouse)
+		int disp_x = 0;
+		int disp_y = 0;
+
+		// X and Y coordinates
 		int x = 0;
 		int y = 0;
 
-		int ox = 0;
-		int oy = 0;
-		char show;
-
-		bool is_check;
+		// Determines if the widget should be shown or not (all child widgets should be updated accordingly too)
+		bool is_show = true;
 		
 		size_t width = 0;
 		size_t height = 0;
 
-		ActionTextures * action_textures = nullptr;
 		const Texture * current_texture = nullptr;
 		Texture * text_texture = nullptr;
 
 		Widget * parent = nullptr;
 		std::vector<Widget *> children;
+		
 		void * user_data = nullptr;
 
 		virtual void on_render(void);
-		void (*on_update)(Widget *, void *) = nullptr;
-		void (*on_hover)(Widget *, void *) = nullptr;
-		void (*on_click)(Widget *, void *) = nullptr;
+		void (*on_update)(Widget&, void *) = nullptr;
+		void (*on_hover)(Widget&, void *) = nullptr;
+		void (*on_click)(Widget&, void *) = nullptr;
+
+		void below_of(const Widget& rhs) {
+			y = rhs.y + rhs.height;
+			disp_y = rhs.disp_y + rhs.height;
+		}
+
+		void left_side_of(const Widget& rhs) {
+			x = rhs.x - width;
+			disp_x = rhs.disp_x - width;
+		}
+		void right_side_of(const Widget& rhs) {
+			x = rhs.x + rhs.width;
+			disp_x = rhs.disp_x + rhs.width;
+		}
+	};
+
+	class Input : public Widget {
+	public:
+		Input(int x, int y, unsigned w, unsigned h, Widget * parent = nullptr);
+		~Input() {};
+		Input& operator=(const Input&) = default;
+
+		void (*on_textinput)(Input *, const char *, void *) = nullptr;
+		char * buffer = nullptr;
 	};
 
 	class Button : public Widget {
 	public:
-		Button(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
-			const char * text = nullptr, const Texture * tex = nullptr);
-		Button& operator=(const Button&) = default;
+		Button(int x, int y, unsigned w, unsigned h, Widget * parent = nullptr);
 		~Button() {};
+		Button& operator=(const Button&) = default;
 	};
-	class Input : public Widget {
-	public:
-		Input(Widget * _parent, int _x, int _y, unsigned w, unsigned h);
-		Input& operator=(const Input&) = default;
-		~Input() {};
-		void (*on_textinput)(Input *, const char *, void *) = nullptr;
-		char * buffer = nullptr;
-	};
+
 	class Window : public Widget {
 	public:
-		Window(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
-			const char * text = nullptr, const Texture * tex = nullptr);
-		Window& operator=(const Window&) = default;
+		Window(int x, int y, unsigned w, unsigned h, Widget * parent = nullptr);
 		~Window() {};
+		Window& operator=(const Window&) = default;
+
+		bool is_movable = false;
 	};
+	
 	class Image : public Widget {
 	public:
-		Image(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
-			const char * text = nullptr, const Texture * tex = nullptr);
-		Image& operator=(const Image&) = default;
+		Image(int x, int y, unsigned w, unsigned h, const Texture * tex, Widget * parent = nullptr);
 		~Image() {};
+		Image& operator=(const Image&) = default;
 	};
+	
 	class Label : public Widget {
 	public:
-		Label(Widget * _parent, int _x, int _y, const char * text = nullptr)
-			: Widget(_parent, _x, _y, 0, 0, UI_WIDGET_LABEL, text, nullptr) {}
-		Label& operator=(const Label&) = default;
+		Label(int x, int y, const char * text = nullptr, Widget * parent = nullptr);
 		~Label() {};
+		Label& operator=(const Label&) = default;
+		void on_render(void);
 	};
+	
 	class Chart : public Widget {
 	public:
-		Chart(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
-			const char * text = nullptr, const Texture * tex = nullptr)
-			: Widget(_parent, _x, _y, w, h, UI_WIDGET_CHART, text, tex) {}
-		Chart& operator=(const Chart&) = default;
+		Chart(int x, int y, unsigned w, unsigned h, Widget * _parent = nullptr);
 		~Chart() {};
+		Chart& operator=(const Chart&) = default;
 		void on_render(void);
-		std::deque<float> data;
-	};
-	class PieChart : public Widget {
-	public:
-		PieChart(Widget * _parent, int _x, int _y, unsigned w, unsigned h,
-			const char * text = nullptr, const Texture * tex = nullptr)
-			: Widget(_parent, _x, _y, w, h, UI_WIDGET_PIE_CHART, text, tex) {}
-		PieChart& operator=(const PieChart&) = default;
-		~PieChart() {};
-		std::deque<float> data;
+		std::deque<double> data;
 	};
 };
 
-#include <SDL2/SDL.h>
 extern SDL_Color text_color;
 static inline void UI_Widget_TextColor(uint8_t r, uint8_t g, uint8_t b) {
 	text_color.r = r;

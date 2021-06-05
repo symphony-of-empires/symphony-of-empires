@@ -21,6 +21,8 @@ std::atomic<bool> do_start;
 #include <fstream>
 
 #include "serializer.hpp"
+
+std::mutex world_lock;
 int main(int argc, char ** argv) {
 	setlocale(LC_ALL, "");
 	bindtextdomain("main", Path::get("locale").c_str());
@@ -28,24 +30,23 @@ int main(int argc, char ** argv) {
 
 	Client * client;
 	Server * server;
-	World * world;
+	World * world = new World();
 
-	world = new World();
-
-	Archive test;
-	serialize(test, *world);
-	test.to_file("hello_world.v0");
+	//Archive test;
+	//serialize(test, *world);
+	//test.to_file("hello_world.v0");
 
 	printf("%s\n", gettext("launching rendering thread"));
 	std::thread t1(rendering_main);
 
 	while(!do_start);
-		
-	run = true;
+	
 	paused = false;
 	while(run) {
+		std::unique_lock<std::mutex> lock(world_lock);
 		world->do_tick();
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		world->client_update();
+		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 		while(paused);
 	}
