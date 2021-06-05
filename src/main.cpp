@@ -36,6 +36,7 @@ int main(int argc, char ** argv) {
 	//serialize(test, *world);
 	//test.to_file("hello_world.v0");
 
+#ifndef UNIT_TEST
 	printf("%s\n", gettext("launching rendering thread"));
 	std::thread t1(rendering_main);
 
@@ -64,6 +65,7 @@ int main(int argc, char ** argv) {
 		server = new Server(4206);
 		world = new World();
 	}*/
+#endif
 
 	return 0;
 }
