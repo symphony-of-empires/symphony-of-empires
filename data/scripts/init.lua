@@ -214,22 +214,6 @@ local slave = PopType:create{ ref_name = "slave" }
 slave.name = _("Slave")
 PopType:register(slave)
 
--- Unit types
-local garrison = UnitType:create{ ref_name = "garrison", defense = 5.0, attack = 2.0, health = 100.0 }
-garrison.name = _("Garrison")
-UnitType:register(garrison)
-local infantry = UnitType:create{ ref_name = "infantry", defense = 5.0, attack = 2.0, health = 100.0 }
-infantry.name = _("Infantry")
-UnitType:register(infantry)
-
--- Naval unit types
-local frigate = BoatType:create{ ref_name = "frigate", defense = 3.0, attack = 1.0, health = 50.0, capacity = 1000 }
-frigate.name = _("Frigate")
-BoatType:register(frigate)
-local galleon = BoatType:create{ ref_name = "galleon", defense = 5.0, attack = 10.0, health = 200.0, capacity = 200 }
-galleon.name = _("Galleon")
-BoatType:register(galleon)
-
 -- Good types
 
 -- Farmable stuff
@@ -302,6 +286,9 @@ Good:register(machinegun)
 local ammunition = Good:create{ ref_name = "ammunition" }
 ammunition.name = _("Ammunition")
 Good:register(ammunition)
+local sails = Good:create{ ref_name = "sails" }
+sails.name = _("Sails")
+Good:register(sails)
 
 -- Minerals
 local copper = Good:create{ ref_name = "copper" }
@@ -545,7 +532,61 @@ IndustryType:register(ammunition_factory)
 IndustryType:add_input(ammunition_factory, gunpowder)
 IndustryType:add_input(ammunition_factory, coal)
 IndustryType:add_output(ammunition_factory, ammunition)
+
+local sails_factory = IndustryType:create{ ref_name = "sails_factory" }
+sails_factory.name = _("Sails factory")
+IndustryType:register(sails_factory)
+IndustryType:add_input(sails_factory, textile)
+IndustryType:add_output(sails_factory, sail)
 print("secondary sector industries")
+
+-- Unit types
+local garrison = UnitType:create{ ref_name = "garrison", defense = 5.0, attack = 2.0, health = 100.0 }
+garrison.name = _("Garrison")
+UnitType:register(garrison)
+UnitType:requires_good(infantry, ammunition, 200)
+UnitType:requires_good(infantry, musket, 100)
+local infantry = UnitType:create{ ref_name = "infantry", defense = 5.0, attack = 2.0, health = 100.0 }
+infantry.name = _("Infantry")
+UnitType:register(infantry)
+UnitType:requires_good(infantry, ammunition, 200)
+UnitType:requires_good(infantry, musket, 100)
+local cavalry = UnitType:create{ ref_name = "cavalry", defense = 2.0, attack = 15.0, health = 50.0 }
+cavalry.name = _("Cavalry")
+UnitType:register(cavalry)
+UnitType:requires_good(cavalry, ammunition, 200)
+UnitType:requires_good(cavalry, musket, 100)
+local artillery = UnitType:create{ ref_name = "artillery", defense = 2.0, attack = 15.0, health = 50.0 }
+artillery.name = _("Artillery")
+UnitType:register(artillery)
+UnitType:requires_good(artillery, ammunition, 500)
+UnitType:requires_good(artillery, gunpowder, 500)
+
+-- Naval unit types
+local clipper = BoatType:create{ ref_name = "clipper", defense = 10.0, attack = 10.0, health = 100.0, capacity = 4000 }
+clipper.name = _("Clipper")
+BoatType:register(clipper)
+BoatType:requires_good(clipper, wood, 800)
+BoatType:requires_good(clipper, sail, 20)
+BoatType:requires_good(clipper, gunpowder, 200)
+local barque = BoatType:create{ ref_name = "barque", defense = 15.0, attack = 10.0, health = 200.0, capacity = 400 }
+barque.name = _("Barque")
+BoatType:register(barque)
+BoatType:requires_good(barque, wood, 800)
+BoatType:requires_good(barque, sail, 20)
+BoatType:requires_good(barque, gunpowder, 200)
+local sloop_of_war = BoatType:create{ ref_name = "sloop_of_war", defense = 40.0, attack = 20.0, health = 400.0, capacity = 400 }
+sloop_of_war.name = _("Sloop of war")
+BoatType:register(sloop_of_war)
+BoatType:requires_good(sloop_of_war, wood, 1000)
+BoatType:requires_good(sloop_of_war, sail, 20)
+BoatType:requires_good(sloop_of_war, gunpowder, 400)
+local man_of_war = BoatType:create{ ref_name = "man_of_war", defense = 20.0, attack = 20.0, health = 500.0, capacity = 500 }
+man_of_war.name = _("Man of war")
+BoatType:register(man_of_war)
+BoatType:requires_good(man_of_war, wood, 1500)
+BoatType:requires_good(man_of_war, sail, 30)
+BoatType:requires_good(man_of_war, gunpowder, 500)
 
 -- Nations
 local argentina = Nation:create{ ref_name = "argentina", color = 0x00a9ff, default_flag = "flags/argentina_republic.png" }

@@ -711,6 +711,15 @@ int LuaAPI::get_unit_type(lua_State * L) {
 	return 4;
 }
 
+int LuaAPI::add_req_good_unit_type(lua_State * L) {
+	UnitTypeId unit_type_id = lua_tonumber(L, 1);
+	UnitType * unit_type = g_world->unit_types[unit_type_id];
+
+	GoodId good_id = lua_tonumber(L, 2);
+	size_t amount = lua_tonumber(L, 3);
+	unit_type->req_goods.push_back(std::make_pair(good_id, amount));
+}
+
 int LuaAPI::add_boat_type(lua_State * L) {
 	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
@@ -762,6 +771,15 @@ int LuaAPI::get_boat_type(lua_State * L) {
 	lua_pushnumber(L, boat_type->max_health);
 	lua_pushnumber(L, boat_type->capacity);
 	return 4;
+}
+
+int LuaAPI::add_req_good_boat_type(lua_State * L) {
+	BoatTypeId boat_type_id = lua_tonumber(L, 1);
+	BoatType * boat_type = g_world->boat_types[boat_type_id];
+
+	GoodId good_id = lua_tonumber(L, 2);
+	size_t amount = lua_tonumber(L, 3);
+	boat_type->req_goods.push_back(std::make_pair(good_id, amount));
 }
 
 int LuaAPI::get_hour(lua_State * L) {
