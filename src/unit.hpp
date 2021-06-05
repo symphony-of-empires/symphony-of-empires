@@ -14,11 +14,29 @@ class UnitType {
 public:
 	std::string name;
 	std::string ref_name;
+	
 	float supply_consumption;
 	float speed;
 	float max_health;
 	float defense;
 	float attack;
+};
+
+/**
+ * Defines the type of a naval unit
+ */
+class BoatType {
+public:
+	std::string name;
+	std::string ref_name;
+	
+	float speed;
+	float max_health;
+	float defense;
+	float attack;
+	
+	// Capacity of stuff (units) that can be carried here
+	size_t capacity;
 };
 
 #include "nation.hpp"

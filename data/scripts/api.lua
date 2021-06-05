@@ -167,6 +167,18 @@ function UnitType:register(unit_type)
 	unit_type.id = add_unit_type(unit_type.ref_name, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health)
 end
 
+BoatType = { id = 0, ref_name = "", name = "", health = 100.0, defense = 1.0, attack = 1.0, capacity = 100 }
+function BoatType:create(boat_type)
+	boat_type.parent = self
+	return boat_type
+end
+function BoatType:get(boat_type, ref_name)
+	boat_type.id, boat_type.ref_name, boat_type.name, boat_type.attack, boat_type.defense, boat_type.health, boat_type.capacity = get_boat_type(ref_name)
+end
+function BoatType:register(boat_type)
+	boat_type.id = add_boat_type(boat_type.ref_name, boat_type.name, boat_type.attack, boat_type.defense, boat_type.health, boat_type.capacity)
+end
+
 -- For sanity
 function rgb(r, g, b)
 	local color = 0x000000
