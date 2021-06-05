@@ -51,9 +51,11 @@ namespace LuaAPI {
 
 	int add_unit_type(lua_State * L);
 	int get_unit_type(lua_State * L);
+	int add_req_good_unit_type(lua_State * L);
 
 	int add_boat_type(lua_State * L);
 	int get_boat_type(lua_State * L);
+	int add_req_good_boat_type(lua_State * L);
 
 	// Time functions
 	int get_hour(lua_State * L);

@@ -5,11 +5,13 @@
 #include <vector>
 #include <cstdint>
 #include <cstddef>
+#include "economy.hpp"
 
 /**
  * Defines a type of unit, it can be a tank, garrison, infantry, etc
  * this is moddable via a lua script and new unit types can be added
  */
+typedef uint8_t UnitTypeId;
 class UnitType {
 public:
 	std::string name;
@@ -20,11 +22,15 @@ public:
 	float max_health;
 	float defense;
 	float attack;
+
+	// Required goods, first describes the id of the good and the second describes how many
+	std::vector<std::pair<GoodId, size_t>> req_goods;
 };
 
 /**
  * Defines the type of a naval unit
  */
+typedef uint8_t BoatTypeId;
 class BoatType {
 public:
 	std::string name;
@@ -37,6 +43,8 @@ public:
 	
 	// Capacity of stuff (units) that can be carried here
 	size_t capacity;
+
+	std::vector<std::pair<GoodId, size_t>> req_goods;
 };
 
 #include "nation.hpp"
@@ -67,6 +75,8 @@ public:
 	// Used to "ignore" an unit when doing any check, this allows other units to
 	// attack this unit
 	bool ignore_tag;
+
+	std::vector<std::pair<GoodId, size_t>> req_goods;
 };
 
 /**
@@ -90,6 +100,8 @@ public:
 
 	// Remaining ticks until the unit is built
 	uint16_t build_time;
+
+	std::vector<std::pair<GoodId, size_t>> req_goods;
 };
 
 #endif

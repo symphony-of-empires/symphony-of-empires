@@ -166,6 +166,9 @@ end
 function UnitType:register(unit_type)
 	unit_type.id = add_unit_type(unit_type.ref_name, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health)
 end
+function UnitType:requires_good(unit_type, good, amount)
+	add_req_good_unit_type(unit_type.id, good.id, amount)
+end
 
 BoatType = { id = 0, ref_name = "", name = "", health = 100.0, defense = 1.0, attack = 1.0, capacity = 100 }
 function BoatType:create(boat_type)
@@ -177,6 +180,9 @@ function BoatType:get(boat_type, ref_name)
 end
 function BoatType:register(boat_type)
 	boat_type.id = add_boat_type(boat_type.ref_name, boat_type.name, boat_type.attack, boat_type.defense, boat_type.health, boat_type.capacity)
+end
+function BoatType:requires_good(boat_type, good, amount)
+	add_req_good_unit_type(boat_type.id, good.id, amount)
 end
 
 -- For sanity

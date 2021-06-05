@@ -96,9 +96,11 @@ World::World() {
 
 	lua_register(this->lua, "add_unit_type", LuaAPI::add_unit_type);
 	lua_register(this->lua, "get_unit_type", LuaAPI::get_unit_type);
+	lua_register(this->lua, "add_req_good_unit_type", LuaAPI::add_req_good_unit_type);
 
 	lua_register(this->lua, "add_boat_type", LuaAPI::add_boat_type);
 	lua_register(this->lua, "get_boat_type", LuaAPI::get_boat_type);
+	lua_register(this->lua, "add_req_good_boat_type", LuaAPI::add_req_good_boat_type);
 
 	lua_register(this->lua, "get_hour", LuaAPI::get_hour);
 	lua_register(this->lua, "get_day", LuaAPI::get_day);
