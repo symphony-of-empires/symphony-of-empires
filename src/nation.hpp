@@ -181,7 +181,7 @@ public:
 	std::vector<NationRelation> relations;
 
 	// Id of the nation that has us on their sphere of influence
-	size_t spherer_id;
+	NationId spherer_id;
 
 	// Number of diplomacy points available
 	float diplomacy_points;
@@ -238,11 +238,6 @@ public:
 
 	void increase_relation(const World& world, Nation * target);
 	void decrease_relation(const World& world, Nation * target);
-
-	// Multipliers
-
-	// Multiplier of infamy when fake surrendering
-	float fake_surrender_multiplier;
 
 	void auto_relocate_capital(void);
 };

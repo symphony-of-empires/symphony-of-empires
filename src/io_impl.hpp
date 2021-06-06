@@ -78,8 +78,8 @@ public:
 		::serialize(output, obj.culture_id);
 		::serialize(output, obj.religion_id);
 
-		::serialize(output, obj.party_loyalties);
-		::serialize(output, obj.issue_interests);
+		//::serialize(output, obj.party_loyalties);
+		//::serialize(output, obj.issue_interests);
 	}
 	static inline void deserialize(Archive& input, Pop& obj) {
 		::deserialize(input, obj.size);
@@ -98,8 +98,8 @@ public:
 		::deserialize(input, obj.culture_id);
 		::deserialize(input, obj.religion_id);
 
-		::deserialize(input, obj.party_loyalties);
-		::deserialize(input, obj.issue_interests);
+		//::deserialize(input, obj.party_loyalties);
+		//::deserialize(input, obj.issue_interests);
 	}
 	static inline size_t size(const Pop& obj) {
 		return serialized_size(obj.size)
@@ -114,8 +114,8 @@ public:
 			+ serialized_size(obj.type_id)
 			+ serialized_size(obj.culture_id)
 			+ serialized_size(obj.religion_id)
-			+ serialized_size(obj.party_loyalties)
-			+ serialized_size(obj.issue_interests)
+			//+ serialized_size(obj.party_loyalties)
+			//+ serialized_size(obj.issue_interests)
 		;
 	}
 };
@@ -134,16 +134,63 @@ public:
 	static inline void serialize(Archive& output, const Nation& obj) {
 		::serialize(output, obj.name);
 		::serialize(output, obj.ref_name);
+
+		::serialize(output, obj.exists);
+		::serialize(output, obj.controlled_by_ai);
+		::serialize(output, obj.color);
+		::serialize(output, obj.relations);
+		::serialize(output, obj.spherer_id);
+		::serialize(output, obj.diplomacy_points);
+		::serialize(output, obj.prestige);
+
+		::serialize(output, obj.base_literacy);
+		::serialize(output, obj.is_civilized);
+
+		::serialize(output, obj.infamy);
+		::serialize(output, obj.military_score);
+		::serialize(output, obj.naval_score);
+		::serialize(output, obj.economy_score);
+
+		::serialize(output, obj.budget);
+
+		//::serialize(output, obj.primary_culture);
+		//::serialize(output, obj.capital);
+		//::serialize(output, obj.accepted_cultures);
+		//::serialize(output, obj.owned_provinces);
+		//::serialize(output, obj.current_policy);
+		//::serialize(output, obj.inbox);
+		//::serialize(output, obj.diplomatic_timer);
 		
-		// TODO: Rest of fields
+		// TODO: Default flag here
 	}
 	static inline void deserialize(Archive& input, Nation& obj) {
 		// TODO: Rest of fields
 	}
 	static inline size_t size(const Nation& obj) {
 		return
-			serialized_size(obj.name)
-			+ serialized_size(obj.ref_name)
+			serialized_size(obj.name);
+			+ serialized_size(obj.ref_name);
+			+ serialized_size(obj.exists);
+			+ serialized_size(obj.controlled_by_ai);
+			+ serialized_size(obj.color);
+			+ serialized_size(obj.relations);
+			+ serialized_size(obj.spherer_id);
+			+ serialized_size(obj.diplomacy_points);
+			+ serialized_size(obj.prestige);
+			+ serialized_size(obj.base_literacy);
+			+ serialized_size(obj.is_civilized);
+			+ serialized_size(obj.infamy);
+			+ serialized_size(obj.military_score);
+			+ serialized_size(obj.naval_score);
+			+ serialized_size(obj.economy_score);
+			+ serialized_size(obj.budget);
+			//+ serialized_size(obj.primary_culture);
+			//+ serialized_size(obj.capital);
+			//+ serialized_size(obj.accepted_cultures);
+			//+ serialized_size(obj.owned_provinces);
+			//+ serialized_size(obj.current_policy);
+			//+ serialized_size(obj.inbox);
+			//+ serialized_size(obj.diplomatic_timer);
 		;
 		// TODO: Rest of fields
 	}
