@@ -182,7 +182,7 @@ function BoatType:register(boat_type)
 	boat_type.id = add_boat_type(boat_type.ref_name, boat_type.name, boat_type.attack, boat_type.defense, boat_type.health, boat_type.capacity)
 end
 function BoatType:requires_good(boat_type, good, amount)
-	add_req_good_unit_type(boat_type.id, good.id, amount)
+	add_req_good_boat_type(boat_type.id, good.id, amount)
 end
 
 -- For sanity

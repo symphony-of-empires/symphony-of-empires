@@ -2,7 +2,6 @@
 #define EVENT_H
 
 #include <string>
-#include "serializer.hpp"
 
 class Descision {
 public:

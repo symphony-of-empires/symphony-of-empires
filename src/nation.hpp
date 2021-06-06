@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 #include "texture.hpp"
-#include "province.hpp"
 
 typedef uint16_t NationId;
 
@@ -31,8 +30,6 @@ public:
 	bool has_military_access;
 	bool has_market_access;
 };
-template<>
-class Serializer<NationRelation> : public SerializerMemcpy<NationRelation> {};
 
 enum AllowancePolicy {
 	// Nobody can enter the country
@@ -140,8 +137,6 @@ public:
 	// Spending done on military (% of budget)
 	float military_spending;
 };
-template<>
-class Serializer<Policies> : public SerializerMemcpy<Policies> {};
 
 enum IdeologyType {
 	// Primary types
@@ -153,7 +148,8 @@ enum IdeologyType {
 	REPUBLIC,
 };
 
-#include "event.hpp"
+#include "province.hpp"
+class Event;
 class Nation {
 	inline void do_diplomacy();
 	inline bool can_do_diplomacy();
