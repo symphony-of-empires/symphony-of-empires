@@ -14,8 +14,6 @@
 #define MAX_ELEVATION				255
 #define RIVER_ELEVATION(a)			a + 1
 
-#include "serializer.hpp"
-
 /**
  * A single tile unit, contains all needed information for tile-scale wars
  * and other non-war stuff (like province ownership).
@@ -36,8 +34,6 @@ public:
 	// Level of infrastructure in this tile (from 0 to MAX_INFRA_LEVEL)
 	uint8_t infra_level;
 };
-template<>
-class Serializer<Tile> : public SerializerMemcpy<Tile> {};
 
 #include <string>
 #include "province.hpp"
@@ -64,8 +60,6 @@ public:
 	// ID of the province where the industry (who requested this) is located in
 	ProvinceId requester_province_id;
 };
-template<>
-class Serializer<OrderGoods> : public SerializerMemcpy<OrderGoods> {};
 
 /**
  * Represents a delivery, 
@@ -90,8 +84,6 @@ public:
 	// ID of the province where the industry (who is sending this) is located in
 	ProvinceId sender_province_id;
 };
-template<>
-class Serializer<DeliverGoods> : public SerializerMemcpy<DeliverGoods> {};
 
 /**
  * (UNUSED) A commercial convoy that goes from A to B to transport products
@@ -266,50 +258,6 @@ public:
 	
 	// Used by client to update anything each tick (i.e a graph)
 	void (*client_update)(void);
-};
-template<>
-class Serializer<World> {
-public:
-	static inline void serialize(Archive& output, World const& obj) {
-		::serialize(output, obj.width);
-		::serialize(output, obj.height);
-		::serialize(output, obj.sea_level);
-
-		::serialize(output, obj.nations);
-		::serialize(output, obj.unit_types);
-		::serialize(output, obj.units);
-		::serialize(output, obj.cultures);
-		::serialize(output, obj.religions);
-		::serialize(output, obj.pop_types);
-		::serialize(output, obj.provinces);
-		::serialize(output, obj.companies);
-		::serialize(output, obj.products);
-		::serialize(output, obj.delivers);
-		::serialize(output, obj.orders);
-		::serialize(output, obj.industry_types);
-		::serialize(output, obj.goods);
-		::serialize(output, obj.events);
-	}
-	static inline void deserialize(Archive& input, World& obj) {
-		::deserialize(input, obj.width);
-		::deserialize(input, obj.height);
-		::deserialize(input, obj.sea_level);
-
-		::deserialize(input, obj.nations);
-		::deserialize(input, obj.unit_types);
-		::deserialize(input, obj.units);
-		::deserialize(input, obj.cultures);
-		::deserialize(input, obj.religions);
-		::deserialize(input, obj.pop_types);
-		::deserialize(input, obj.provinces);
-		::deserialize(input, obj.companies);
-		::deserialize(input, obj.products);
-		::deserialize(input, obj.delivers);
-		::deserialize(input, obj.orders);
-		::deserialize(input, obj.industry_types);
-		::deserialize(input, obj.goods);
-		::deserialize(input, obj.events);
-	}
 };
 
 extern World * g_world;

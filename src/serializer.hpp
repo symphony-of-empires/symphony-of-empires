@@ -32,6 +32,7 @@ public:
 	// Expands the archive to fit a new serialized object
 	inline void expand(size_t amt) {
 		buffer.resize(buffer.size() + amt);
+		printf("resized archive to %zu\n", buffer.size());
 	}
 
 	// Call when serialization has ended and it's ready to be sent to a fstream
@@ -210,11 +211,67 @@ public:
 };
 
 /**
+ * Non-contigous serializer for STL containers
+ */
+template<typename T, typename C>
+class SerializerNonContigousContainer {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& ar, const C& obj_group) {
+		const uint32_t len = obj_group.size();
+		ar.expand(sizeof(len));
+		memcpy(&ar.buffer[ar.ptr], &len, sizeof(len));
+		ar.ptr += sizeof(len);
+
+		for(const auto& obj: obj_group) {
+			Serializer<T>::serialize(ar, obj);
+		}
+	}
+	static inline void deserialize(Archive& ar, C& obj_group) {
+		uint32_t len;
+		memcpy(&len, &ar.buffer[ar.ptr], sizeof(len));
+		ar.ptr += sizeof(len);
+
+		for(size_t i = 0; i < len; i++) {
+			T obj;
+			Serializer<T>::deserialize(ar, obj);
+			obj_group.insert(obj);
+		}
+	}
+	constexpr static inline size_t size(const C& obj_group) {
+		return sizeof(uint32_t) + (obj_group.size() * sizeof(T));
+	}
+};
+
+/**
+ * Pair serializers
+ */
+template<typename T, typename U>
+class Serializer<std::pair<T, U>> {
+public:
+	static constexpr bool is_const_size = true;
+	static inline void serialize(Archive& ar, const std::pair<T, U>& obj) {
+		Serializer<T>::serialize(ar, obj.first);
+		Serializer<U>::serialize(ar, obj.second);
+	}
+	static inline void deserialize(Archive& ar, std::pair<T, U>& obj) {
+		Serializer<T>::deserialize(ar, obj.first);
+		Serializer<U>::deserialize(ar, obj.second);
+	}
+	constexpr static inline size_t size(const std::pair<T, U>&) {
+		return sizeof(T) + sizeof(U);
+	}
+};
+
+/**
  * Contigous container serializers implementations
  */
 #include <vector>
+#include <set>
 template<typename T>
 class Serializer<std::vector<T>> : public SerializerContainer<T, std::vector<T>> {};
+template<typename T>
+class Serializer<std::set<T>> : public SerializerNonContigousContainer<T, std::set<T>> {};
 
 template<typename T>
 inline void serialize(Archive& ar, const T& obj) {

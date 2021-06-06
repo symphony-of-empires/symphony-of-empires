@@ -312,6 +312,7 @@ void select_nation(void) {
 						break;
 					case MAP_MODE_NORMAL:
 						if(tile.province_id != (ProvinceId)-1) {
+							/*
 							province_view_win = new UI::Window(0, 0, province_view_win_tex.width, province_view_win_tex.height);
 							province_view_win->text("Province information");
 							province_view_win->current_texture = &province_view_win_tex;
@@ -338,6 +339,7 @@ void select_nation(void) {
 							ok_btn->text("OK");
 							ok_btn->current_texture = &button_pvw;
 							ok_btn->below_of(dynamic_cast<const UI::Widget&>(*view_province_owner));
+							*/
 						}
 						break;
 					}

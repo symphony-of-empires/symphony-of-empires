@@ -718,6 +718,7 @@ int LuaAPI::add_req_good_unit_type(lua_State * L) {
 	GoodId good_id = lua_tonumber(L, 2);
 	size_t amount = lua_tonumber(L, 3);
 	unit_type->req_goods.push_back(std::make_pair(good_id, amount));
+	return 0;
 }
 
 int LuaAPI::add_boat_type(lua_State * L) {
@@ -780,6 +781,7 @@ int LuaAPI::add_req_good_boat_type(lua_State * L) {
 	GoodId good_id = lua_tonumber(L, 2);
 	size_t amount = lua_tonumber(L, 3);
 	boat_type->req_goods.push_back(std::make_pair(good_id, amount));
+	return 0;
 }
 
 int LuaAPI::get_hour(lua_State * L) {
