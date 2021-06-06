@@ -159,62 +159,10 @@ template<>
 class Serializer<bool> : public SerializerMemcpy<bool> {};
 
 /**
- * A full STL-container copy, **optimized** to copy many elements from a contigous
- * STL vector
- *
- * Only use on STL containers that are guaranteed to be contigous, otherwise the
- * optimization will be useless and will cause a segfault
- *
- * If the elements of the container are constexpr evaluable (they don't have dynamic sizes)
- * then this will tell the compiler to use a simple memcpy to avoid loops
- */
-template<typename T, typename C>
-class SerializerContainer {
-public:
-	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& ar, const C& obj_group) {
-		const uint32_t len = obj_group.size();
-		ar.expand(sizeof(len));
-		memcpy(&ar.buffer[ar.ptr], &len, sizeof(len));
-		ar.ptr += sizeof(len);
-
-		if constexpr(Serializer<T>::is_const_size) {
-			ar.expand(sizeof(T) * len);
-			memcpy(&ar.buffer[ar.ptr], &obj_group[0], sizeof(T) * len);
-			ar.ptr += sizeof(T) * len;
-		} else {
-			for(const auto& obj: obj_group) {
-				Serializer<T>::serialize(ar, obj);
-			}
-		}
-	}
-	static inline void deserialize(Archive& ar, C& obj_group) {
-		uint32_t len;
-		memcpy(&len, &ar.buffer[ar.ptr], sizeof(len));
-		ar.ptr += sizeof(len);
-
-		if constexpr(Serializer<T>::is_const_size) {
-			obj_group.resize(len);
-			memcpy(&obj_group[0], &ar.buffer[ar.ptr], sizeof(T) * len);
-			ar.ptr += sizeof(T) * len;
-		} else {
-			for(size_t i = 0; i < len; i++) {
-				T obj;
-				Serializer<T>::deserialize(ar, obj);
-				obj_group.push_back(obj);
-			}
-		}
-	}
-	constexpr static inline size_t size(const C& obj_group) {
-		return sizeof(uint32_t) + (obj_group.size() * sizeof(T));
-	}
-};
-
-/**
  * Non-contigous serializer for STL containers
  */
 template<typename T, typename C>
-class SerializerNonContigousContainer {
+class SerializerContainer {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& ar, const C& obj_group) {
@@ -267,11 +215,16 @@ public:
  * Contigous container serializers implementations
  */
 #include <vector>
-#include <set>
 template<typename T>
 class Serializer<std::vector<T>> : public SerializerContainer<T, std::vector<T>> {};
+
+#include <deque>
 template<typename T>
-class Serializer<std::set<T>> : public SerializerNonContigousContainer<T, std::set<T>> {};
+class Serializer<std::deque<T>> : public SerializerContainer<T, std::deque<T>> {};
+
+#include <set>
+template<typename T>
+class Serializer<std::set<T>> : public SerializerContainer<T, std::set<T>> {};
 
 template<typename T>
 inline void serialize(Archive& ar, const T& obj) {
