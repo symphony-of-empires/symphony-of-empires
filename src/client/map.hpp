@@ -23,6 +23,4 @@ public:
 	GLuint shape_gl_list;
 };
 
-extern Map * map;
-
 #endif

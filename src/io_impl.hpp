@@ -9,38 +9,23 @@
 #include "serializer.hpp"
 
 template<>
-class Serializer<Nation *> {
-public:
-	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Nation *& obj) {
-		::serialize(output, g_world->get_id<NationId>(obj, g_world->nations));
-	}
-	static inline void deserialize(Archive& input, Nation *& obj) {
-		NationId nation_id;
-		::deserialize(input, nation_id);
-		obj = g_world->nations[nation_id];
-	}
-	static inline size_t size(const Nation *&) {
-		return sizeof(NationId);
-	}
-};
-
+class Serializer<Province *> : public SerializerMemcpy<Province *> {};
 template<>
-class Serializer<Province *> {
-public:
-	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Province *& obj) {
-		::serialize(output, g_world->get_id<ProvinceId>(obj, g_world->provinces));
-	}
-	static inline void deserialize(Archive& input, Province *& obj) {
-		ProvinceId province_id;
-		::deserialize(input, province_id);
-		obj = g_world->provinces[province_id];
-	}
-	static inline size_t size(const Province *&) {
-		return sizeof(ProvinceId);
-	}
-};
+class Serializer<Nation *> : public SerializerMemcpy<Nation *> {};
+template<>
+class Serializer<Event *> : public SerializerMemcpy<Event *> {};
+template<>
+class Serializer<Product *> : public SerializerMemcpy<Product *> {};
+template<>
+class Serializer<Culture *> : public SerializerMemcpy<Culture *> {};
+template<>
+class Serializer<Industry *> : public SerializerMemcpy<Industry *> {};
+template<>
+class Serializer<Good *> : public SerializerMemcpy<Good *> {};
+template<>
+class Serializer<Company *> : public SerializerMemcpy<Company *> {};
+template<>
+class Serializer<IndustryType *> : public SerializerMemcpy<IndustryType *> {};
 
 template<>
 class Serializer<NationRelation> : public SerializerMemcpy<NationRelation> {};
@@ -78,8 +63,8 @@ public:
 		::serialize(output, obj.culture_id);
 		::serialize(output, obj.religion_id);
 
-		//::serialize(output, obj.party_loyalties);
-		//::serialize(output, obj.issue_interests);
+		::serialize(output, obj.party_loyalties);
+		::serialize(output, obj.issue_interests);
 	}
 	static inline void deserialize(Archive& input, Pop& obj) {
 		::deserialize(input, obj.size);
@@ -97,9 +82,6 @@ public:
 		::deserialize(input, obj.type_id);
 		::deserialize(input, obj.culture_id);
 		::deserialize(input, obj.religion_id);
-
-		//::deserialize(input, obj.party_loyalties);
-		//::deserialize(input, obj.issue_interests);
 	}
 	static inline size_t size(const Pop& obj) {
 		return serialized_size(obj.size)
@@ -114,8 +96,6 @@ public:
 			+ serialized_size(obj.type_id)
 			+ serialized_size(obj.culture_id)
 			+ serialized_size(obj.religion_id)
-			//+ serialized_size(obj.party_loyalties)
-			//+ serialized_size(obj.issue_interests)
 		;
 	}
 };
@@ -153,13 +133,12 @@ public:
 
 		::serialize(output, obj.budget);
 
-		//::serialize(output, obj.primary_culture);
-		//::serialize(output, obj.capital);
-		//::serialize(output, obj.accepted_cultures);
-		//::serialize(output, obj.owned_provinces);
-		//::serialize(output, obj.current_policy);
-		//::serialize(output, obj.inbox);
-		//::serialize(output, obj.diplomatic_timer);
+		::serialize(output, obj.primary_culture);
+		::serialize(output, obj.capital);
+		::serialize(output, obj.accepted_cultures);
+		::serialize(output, obj.owned_provinces);
+		::serialize(output, obj.current_policy);
+		::serialize(output, obj.diplomatic_timer);
 		
 		// TODO: Default flag here
 	}
@@ -168,29 +147,28 @@ public:
 	}
 	static inline size_t size(const Nation& obj) {
 		return
-			serialized_size(obj.name);
-			+ serialized_size(obj.ref_name);
-			+ serialized_size(obj.exists);
-			+ serialized_size(obj.controlled_by_ai);
-			+ serialized_size(obj.color);
-			+ serialized_size(obj.relations);
-			+ serialized_size(obj.spherer_id);
-			+ serialized_size(obj.diplomacy_points);
-			+ serialized_size(obj.prestige);
-			+ serialized_size(obj.base_literacy);
-			+ serialized_size(obj.is_civilized);
-			+ serialized_size(obj.infamy);
-			+ serialized_size(obj.military_score);
-			+ serialized_size(obj.naval_score);
-			+ serialized_size(obj.economy_score);
-			+ serialized_size(obj.budget);
-			//+ serialized_size(obj.primary_culture);
-			//+ serialized_size(obj.capital);
-			//+ serialized_size(obj.accepted_cultures);
-			//+ serialized_size(obj.owned_provinces);
-			//+ serialized_size(obj.current_policy);
-			//+ serialized_size(obj.inbox);
-			//+ serialized_size(obj.diplomatic_timer);
+			serialized_size(obj.name)
+			+ serialized_size(obj.ref_name)
+			+ serialized_size(obj.exists)
+			+ serialized_size(obj.controlled_by_ai)
+			+ serialized_size(obj.color)
+			+ serialized_size(obj.relations)
+			+ serialized_size(obj.spherer_id)
+			+ serialized_size(obj.diplomacy_points)
+			+ serialized_size(obj.prestige)
+			+ serialized_size(obj.base_literacy)
+			+ serialized_size(obj.is_civilized)
+			+ serialized_size(obj.infamy)
+			+ serialized_size(obj.military_score)
+			+ serialized_size(obj.naval_score)
+			+ serialized_size(obj.economy_score)
+			+ serialized_size(obj.budget)
+			+ serialized_size(obj.primary_culture)
+			+ serialized_size(obj.capital)
+			+ serialized_size(obj.accepted_cultures)
+			+ serialized_size(obj.owned_provinces)
+			+ serialized_size(obj.current_policy)
+			+ serialized_size(obj.diplomatic_timer)
 		;
 		// TODO: Rest of fields
 	}
@@ -248,13 +226,13 @@ public:
 		::serialize(output, obj.supply_rem);
 		::serialize(output, obj.worker_pool);
 		
-		//::serialize(output, &obj.owner);
+		::serialize(output, obj.owner);
 		
-		//::serialize(output, obj.nucleuses);
-		//::serialize(output, obj.neighbours);
+		::serialize(output, obj.nucleuses);
+		::serialize(output, obj.neighbours);
 		::serialize(output, obj.stockpile);
-		//::serialize(output, obj.industries);
-		//::serialize(output, obj.products);
+		::serialize(output, obj.industries);
+		::serialize(output, obj.products);
 		::serialize(output, obj.pops);
 	}
 	static inline void deserialize(Archive& input, Province& obj) {
@@ -274,12 +252,12 @@ public:
 			+ serialized_size(obj.supply_limit);
 			+ serialized_size(obj.supply_rem);
 			+ serialized_size(obj.worker_pool);
-			//+ serialized_size(&obj.owner);
-			//+ serialized_size(obj.nucleuses);
-			//+ serialized_size(obj.neighbours);
+			+ serialized_size(obj.owner);
+			+ serialized_size(obj.nucleuses);
+			+ serialized_size(obj.neighbours);
 			+ serialized_size(obj.stockpile);
-			//+ serialized_size(obj.industries);
-			//+ serialized_size(obj.products);
+			+ serialized_size(obj.industries);
+			+ serialized_size(obj.products);
 			+ serialized_size(obj.pops);
 		;
 		// TODO: Rest of fields
@@ -321,8 +299,8 @@ class Serializer<Industry> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Industry& obj) {
-		::serialize(output, obj.owner_id);
-		::serialize(output, obj.type_id);
+		::serialize(output, obj.owner);
+		::serialize(output, obj.type);
 		
 		::serialize(output, obj.days_unoperational);
 		::serialize(output, obj.production_cost);
@@ -338,8 +316,8 @@ public:
 	}
 	static inline size_t size(const Industry& obj) {
 		return
-			serialized_size(obj.owner_id);
-			+ serialized_size(obj.type_id);
+			serialized_size(obj.owner);
+			+ serialized_size(obj.type);
 			+ serialized_size(obj.days_unoperational);
 			+ serialized_size(obj.production_cost);
 			+ serialized_size(obj.stockpile);
@@ -356,10 +334,10 @@ class Serializer<Product> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Product& obj) {
-		::serialize(output, obj.owner_id);
-		::serialize(output, obj.origin_id);
-		::serialize(output, obj.industry_id);
-		::serialize(output, obj.good_id);
+		::serialize(output, obj.owner);
+		::serialize(output, obj.origin);
+		::serialize(output, obj.industry);
+		::serialize(output, obj.good);
 		
 		::serialize(output, obj.price);
 		::serialize(output, obj.price_vel);
@@ -376,10 +354,10 @@ public:
 	}
 	static inline size_t size(const Product& obj) {
 		return
-			serialized_size(obj.owner_id);
-			+ serialized_size(obj.origin_id);
-			+ serialized_size(obj.industry_id);
-			+ serialized_size(obj.good_id);
+			serialized_size(obj.owner);
+			+ serialized_size(obj.origin);
+			+ serialized_size(obj.industry);
+			+ serialized_size(obj.good);
 			+ serialized_size(obj.price);
 			+ serialized_size(obj.price_vel);
 			+ serialized_size(obj.quality);

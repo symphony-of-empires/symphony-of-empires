@@ -5,21 +5,12 @@
 #include "print.hpp"
 #include "pathfinding.hpp"
 
-IndustryId Industry::get_id(const World& world, ProvinceId province_id) {
-	const std::vector<Industry *> * industries = &world.provinces[province_id]->industries;
-	const auto industry = std::find(industries->begin(), industries->end(), this);
-	if(industry != industries->end()) {
-		return std::distance(industries->begin(), industry);
-	}
-	throw "Unable to find industry";
-}
-
 /**
  * Checks if the industry can produce output (if it has enough input)
  */
 bool Industry::can_do_output(const World& world) {
 	// Always can produce if RGO
-	if(!world.industry_types[this->type_id]->inputs.size()) {
+	if(!type->inputs.size()) {
 		return true;
 	}
 
@@ -34,10 +25,10 @@ bool Industry::can_do_output(const World& world) {
 /**
  * Adds a good by id to a industries stockpile
  */
-void Industry::add_to_stock(const World& world, const size_t good_id, const size_t add) {
-	for(size_t i = 0; i < this->stockpile.size(); i++) {
-		if(world.industry_types[this->type_id]->inputs[i] == good_id) {
-			this->stockpile[i] += add;
+void Industry::add_to_stock(const World& world, const Good * good, const size_t add) {
+	for(size_t i = 0; i < stockpile.size(); i++) {
+		if(world.get_id(type->inputs[i]) == world.get_id(good)) {
+			stockpile[i] += add;
 			break;
 		}
 	}
@@ -51,72 +42,71 @@ void Economy::do_phase_1(World& world) {
 
 	// All factories will place their orders for their inputs
 	// All RGOs will do deliver requests
-	for(ProvinceId i = 0; i < n_provinces; i++) {
+	for(auto& province: world.provinces) {
 		// Reset remaining supplies
-		world.provinces[i]->supply_rem = world.provinces[i]->supply_limit;
+		province->supply_rem = province->supply_limit;
 		
 		// This new tick, we will start the chain starting with RGOs producing deliver
 		// orders and the factories that require inputs will put their orders in the
 		// table so they are served by transport companies.
 		// This is the start of the factory chain.
-		for(size_t j = 0; j < world.provinces[i]->industries.size(); j++) {
-			Industry * industry = world.provinces[i]->industries[j];
-			if(!world.provinces[i]->worker_pool) {
-				industry->days_unoperational++;
-				industry->min_quality = 0;
+		for(auto& industry: province->industries) {
+			if(!province->worker_pool) {
+				industry.days_unoperational++;
+				industry.min_quality = 0;
 				continue;
 			}
 
-			industry->days_unoperational = 0;
+			industry.days_unoperational = 0;
 
 			size_t available_manpower;
 			size_t needed_manpower = 1500;
 			
-			available_manpower = std::min<size_t>(needed_manpower, world.provinces[i]->worker_pool);
-			world.provinces[i]->worker_pool -= available_manpower;
+			available_manpower = std::min<size_t>(needed_manpower, province->worker_pool);
+			province->worker_pool -= available_manpower;
 			if(!available_manpower)
 				continue;
 			
-			IndustryType * it = world.industry_types[industry->type_id];
-			for(const auto& input: it->inputs) {
+			const IndustryType& it = *industry.type;
+			for(const auto& input: it.inputs) {
 				OrderGoods order;
 				order.quantity = (available_manpower / needed_manpower) * 1500;
-				order.payment = industry->willing_payment;
-				order.good_id = input;
-				order.requester_industry_id = j;
-				order.requester_province_id = i;
+				order.payment = industry.willing_payment;
+				order.good = input;
+				order.industry = &industry;
+				order.province = province;
 				world.orders.push_back(order);
 			}
 
-			if(industry->can_do_output(world) == false)
+			if(industry.can_do_output(world) == false)
 				continue;
 
 			// Now produce anything as we can!
 			// Take a constant of workers needed for factories, 1.5k workers!
-			available_manpower = std::min<size_t>(1500, world.provinces[i]->worker_pool);
-			world.provinces[i]->worker_pool -= available_manpower;
+			available_manpower = std::min<size_t>(1500, province->worker_pool);
+			province->worker_pool -= available_manpower;
 			if(!available_manpower)
 				continue;
 				
 			// Place deliver orders (we are a RGO)
-			for(size_t k = 0; k < it->outputs.size(); k++) {
+			for(size_t k = 0; k < it.outputs.size(); k++) {
 				DeliverGoods deliver;
 				deliver.quantity = (available_manpower / needed_manpower) * 2000;
-				deliver.payment = industry->willing_payment;
-				deliver.good_id = it->outputs[k];
-				deliver.sender_industry_id = j;
-				deliver.sender_province_id = i;
-				deliver.product_id = industry->output_products[k];
+				deliver.payment = industry.willing_payment;
+				deliver.good = it.outputs[k];
+				deliver.industry = &industry;
+				deliver.province = province;
+				deliver.product = industry.output_products[k];
 
 				// Do not overproduce
-				Product& product = *world.products[deliver.product_id];
+				Product& product = *deliver.product;
 				if(product.supply > product.demand) {
 					continue;
 				}
 
 				// Cannot be below production cost, so we can be profitable
-				if(product.price < industry->production_cost * 1.2f) {
-					product.price = industry->production_cost * 1.2f;
+				if(product.price < industry.production_cost * 1.2f) {
+					product.price = industry.production_cost * 1.2f;
 				}
 				
 				if(!deliver.quantity)
@@ -155,28 +145,28 @@ void Economy::do_phase_2(World& world) {
 				DeliverGoods& deliver = world.delivers[i];
 
 				// Is the transport company able to transport from this province?
-				if(!company->in_range(deliver.sender_province_id))
+				if(!company->in_range(deliver.province))
 					continue;
 				
-				const Province * deliver_province = world.provinces[deliver.sender_province_id];
+				const Province * deliver_province = deliver.province;
 				const Policies& deliver_policy = deliver_province->owner->current_policy;
-				Industry * deliver_industry = deliver_province->industries[deliver.sender_industry_id];
+				Industry * deliver_industry = deliver.industry;
 
 				// Check all orders
 				for(size_t j = 0; j < world.orders.size(); j++) {
 					OrderGoods& order = world.orders[j];
 					
 					// Do they want these goods?
-					if(order.good_id != deliver.good_id)
+					if(order.good != deliver.good)
 						continue;
 					
 					// Is this transport company able to transport to this province?
-					if(!company->in_range(order.requester_province_id))
+					if(!company->in_range(order.province))
 						continue;
 					
-					Province * order_province = world.provinces[order.requester_province_id];
+					Province * order_province = order.province;
 					const Policies& order_policy = order_province->owner->current_policy;
-					Industry * order_industry = order_province->industries[order.requester_industry_id];
+					Industry * order_industry = order.industry;
 
 					// If foreign trade is not allowed, then order owner === sender owner
 					if(deliver_policy.foreign_trade == false
@@ -189,8 +179,8 @@ void Economy::do_phase_2(World& world) {
 
 					// Orders payment should also cover the import tax and a deliver payment should also cover the export
 					// tax too. Otherwise we can't deliver
-					const float order_cost = world.products[deliver.product_id]->price * std::min(order.quantity, deliver.quantity);
-					const float deliver_cost = world.products[deliver.product_id]->price * std::min(order.quantity, deliver.quantity);
+					const float order_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
+					const float deliver_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
 					
 					const float total_order_cost = order_cost * order_policy.import_tax;
 					const float total_deliver_cost = deliver_cost * order_policy.export_tax;
@@ -204,7 +194,7 @@ void Economy::do_phase_2(World& world) {
 					}
 
 					// Must have above minimum quality to be accepted
-					if(world.products[deliver.product_id]->quality < order_industry->min_quality) {
+					if(deliver.product->quality < order_industry->min_quality) {
 						continue;
 					}
 					
@@ -222,22 +212,22 @@ void Economy::do_phase_2(World& world) {
 					order.quantity -= count;
 
 					// Duplicate products and put them into the province's stock (a commerce buff)
-					order_industry->add_to_stock(world, order.good_id, count);
+					order_industry->add_to_stock(world, order.good, count);
 					
 					// Increment demand of the product, and decrement supply when the demand is fullfilled
-					world.products[deliver.product_id]->demand += count;
-					if(world.products[deliver.product_id]->supply) {
-						const size_t satisfied = std::min<size_t>(count, world.products[deliver.product_id]->supply);
-						world.products[deliver.product_id]->supply -= satisfied;
-						world.products[deliver.product_id]->demand += satisfied;
+					deliver.product->demand += count;
+					if(deliver.product->supply) {
+						const size_t satisfied = std::min<size_t>(count, deliver.product->supply);
+						deliver.product->supply -= satisfied;
+						deliver.product->demand += satisfied;
 					}
 
 					// Increment the production cost of this industry which is used
 					// so we sell our product at a profit instead  of at a loss
-					order_industry->production_cost += world.products[deliver.product_id]->price;
+					order_industry->production_cost += deliver.product->price;
 
 					// Set quality to the max from this product
-					order_industry->min_quality = std::max(order_industry->min_quality, world.products[deliver.product_id]->quality);
+					order_industry->min_quality = std::max(order_industry->min_quality, deliver.product->quality);
 					
 					// Delete this deliver and order tickets from the system since
 					// they are now fullfilled (only delete when no quanity left)
@@ -255,10 +245,10 @@ void Economy::do_phase_2(World& world) {
 		// Drop all rejected delivers who didn't got transported
 		for(size_t i = 0; i < world.delivers.size(); i++) {
 			const DeliverGoods * deliver = &world.delivers[i];
-			Product * product = world.products[deliver->product_id];
+			Product * product = deliver->product;
 				
 			// Add up to province stockpile
-			world.provinces[deliver->sender_province_id]->stockpile[deliver->product_id] += deliver->quantity;
+			deliver->province->stockpile[world.get_id(product)] += deliver->quantity;
 				
 			// Increment supply because of incremented stockpile
 			product->supply += deliver->quantity;
@@ -336,79 +326,51 @@ void Economy::do_phase_3(World& world) {
 			
 			// TODO: Make this dynamic
 			pop.budget += salary;
-			
-			size_t alloc_budget;
-			
+
 			// Use 33% of our budget to buy edibles and life needed stuff
-			alloc_budget = pop.budget / 3;
-			for(ProductId j = 0; j < province->stockpile.size(); j++) {
-				// Province must have stockpile
-				if(!province->stockpile[j])
-					continue;
-				
-				// Must be an edible
-				if(world.goods[world.products[j]->good_id]->is_edible != true)
-					continue;
-				
-				// We can only spend our allocated budget
-				// TODO: Base spending on literacy, more literacy == less spending
-				size_t bought = alloc_budget / world.products[j]->price;
-				bought = std::min<float>(bought, province->stockpile[j]);
-				if(!bought)
-					continue;
-				
-				// Satisfaction of needs is proportional to bought items
-				pop.life_needs_met += (float)pop.size / (float)bought;
-				
-				// Demand is incremented proportional to items bought
-				world.products[j]->demand += bought;
-				
-				// Reduce supply
-				if(world.products[j]->supply) {
-					world.products[j]->supply -= std::min<float>(bought, world.products[j]->supply);
-				}
-				
-				// Deduct from budget, and remove item from stockpile
-				pop.budget -= bought * world.products[j]->price;
-				alloc_budget -= bought * world.products[j]->price;
-				province->stockpile[j] -= bought;
-			}
-			
+			float life_alloc_budget = pop.budget / 3;
+
 			// Use 10% of our budget for buying uneeded commodities and shit
 			// TODO: Should lower spending with higher literacy, and higher
 			// TODO: Higher the fullfilment per unit with higher literacy
-			alloc_budget = pop.budget / 10;
-			for(size_t j = 0; j < province->stockpile.size(); j++) {
+			float everyday_alloc_budget = pop.budget / 10;
+			for(const auto& product: world.products) {
 				// Province must have stockpile
-				if(!province->stockpile[j])
+				if(!province->stockpile[world.get_id(product)])
 					continue;
 				
-				// Must be a non-edible; aka. not essential
-				if(world.goods[world.products[j]->good_id]->is_edible != false)
-					continue;
+				size_t bought = 0;
+				if(product->good->is_edible) {
+					// We can only spend our allocated budget
+					// TODO: Base spending on literacy, more literacy == less spending
+					bought = life_alloc_budget / product->price;
+				} else {
+					bought = everyday_alloc_budget / product->price;
+				}
 				
-				// We can only spend our allocated budget
-				// TODO: Base spending on literacy, more literacy == less spending
-				size_t bought = alloc_budget / world.products[j]->price;
-				bought = std::min<float>(bought, province->stockpile[j]);
+				bought = std::min<float>(bought, province->stockpile[world.get_id(product)]);
 				if(!bought)
 					continue;
 				
-				// Satisfaction of needs is proportional to bought items
-				pop.everyday_needs_met += (float)pop.size / (float)bought;
-				
 				// Demand is incremented proportional to items bought
-				world.products[j]->demand += bought;
+				product->demand += bought;
 				
 				// Reduce supply
-				if(world.products[j]->supply) {
-					world.products[j]->supply -= std::min<float>(bought, world.products[j]->supply);
+				if(product->supply) {
+					product->supply -= std::min<float>(bought, product->supply);
 				}
 				
 				// Deduct from budget, and remove item from stockpile
-				pop.budget -= bought * world.products[j]->price;
-				alloc_budget -= bought * world.products[j]->price;
-				province->stockpile[j] -= bought;
+				pop.budget -= bought * product->price;
+				province->stockpile[world.get_id(product)] -= bought;
+
+				if(product->good->is_edible) {
+					life_alloc_budget -= bought * product->price;
+					pop.life_needs_met += (float)pop.size / (float)bought;
+				} else {
+					everyday_alloc_budget -= bought * product->price;
+					pop.everyday_needs_met += (float)pop.size / (float)bought;
+				}
 			}
 
 			// x1.5 life needs met modifier, that is the max allowed
@@ -462,19 +424,14 @@ void Economy::do_phase_4(World& world) {
 	// Preparations for the next tick
 
 	// Reset production costs
-	const ProvinceId n_provinces = world.provinces.size();
-	for(ProvinceId i = 0; i < n_provinces; i++) {
-		const IndustryId n_industries = world.provinces[i]->industries.size();
-		for(IndustryId j = 0; j < n_industries; j++) {
-			Industry * industry = world.provinces[i]->industries[j];
-			industry->production_cost = 0.f;
+	for(const auto& province: world.provinces) {
+		for(auto& industry: province->industries) {
+			industry.production_cost = 0.f;
 		}
 	}
 
 	// Close today's price with a change according to demand - supply
-	const ProductId n_products = world.products.size();
-	for(ProductId i = 0; i < n_products; i++) {
-		Product * product = world.products[i];
+	for(const auto& product: world.products) {
 		if(product->demand > product->supply) {
 			product->price_vel += 0.0001f * (product->demand - product->supply);
 		} else if(product->demand < product->supply) {
@@ -507,7 +464,7 @@ void Economy::do_phase_4(World& world) {
 		// Re-count worldwide supply
 		product->supply = 0;
 		for(const auto& province: world.provinces) {
-			product->supply += province->stockpile[i];
+			product->supply += province->stockpile[world.get_id(product)];
 		}
 		product->demand = 0;
 	}

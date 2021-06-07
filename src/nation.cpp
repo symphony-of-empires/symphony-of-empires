@@ -13,18 +13,18 @@ inline bool Nation::can_do_diplomacy() {
 
 #include "print.hpp"
 void Nation::increase_relation(const World& world, Nation * target) {
-	const NationId t1_idx = world.get_id<NationId>(target, world.nations);
+	const NationId t1_idx = world.get_id(target);
 	this->relations[t1_idx].relation += 5.f;
-	const NationId t2_idx = world.get_id<NationId>(this, world.nations);
+	const NationId t2_idx = world.get_id(this);
 	target->relations[t2_idx].relation += 5.f;
 
 	print_info("%s increases relations with %s", name.c_str(), target->name.c_str());
 }
 
 void Nation::decrease_relation(const World& world, Nation * target) {
-	const NationId t1_idx = world.get_id<NationId>(target, world.nations);
+	const NationId t1_idx = world.get_id(target);
 	this->relations[t1_idx].relation += 5.f;
-	const NationId t2_idx = world.get_id<NationId>(this, world.nations);
+	const NationId t2_idx = world.get_id(this);
 	target->relations[t2_idx].relation += 5.f;
 
 	print_info("%s decreases relations with %s", name.c_str(), target->name.c_str());

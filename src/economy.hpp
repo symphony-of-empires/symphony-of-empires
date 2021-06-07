@@ -21,8 +21,6 @@ namespace Economy {
 	void do_phase_4(World& world);
 }
 
-typedef uint16_t CompanyId;
-
 /**
  * A company that operates one or more factories and is able to build even more factories
  */
@@ -39,23 +37,22 @@ public:
 	bool is_industry;
 
 	// List of province IDs where this company operates (mostly used for transport companies)
-	std::vector<ProvinceId> operating_provinces;
+	std::vector<Province *> operating_provinces;
 
-	inline bool in_range(ProvinceId prov_id) {
-		return (std::find(this->operating_provinces.begin(), this->operating_provinces.end(), prov_id)
-			!= this->operating_provinces.end());
+	inline bool in_range(Province * province) {
+		return (std::find(operating_provinces.begin(), operating_provinces.end(), province)
+			!= operating_provinces.end());
 	}
 
 	void name_gen() {
 		size_t r = (rand() % 12) + 1;
 		for(size_t i = 0; i < r; i++) {
-			this->name += 'a' + (rand() % 25);
+			name += 'a' + (rand() % 25);
 		}
 	}
 };
 
 typedef uint8_t GoodId;
-
 /**
  * A good, mostly serves as a "product type"
  */
@@ -74,7 +71,6 @@ public:
 	Texture * icon = nullptr;
 };
 
-typedef uint8_t IndustryTypeId;
 class IndustryType {
 public:
 	~IndustryType() {
@@ -86,29 +82,28 @@ public:
 
 	Texture * image = nullptr;
 
-	// List of good IDs required to create output
-	std::vector<GoodId> inputs;
+	// List of good required to create output
+	std::vector<Good *> inputs;
 
-	// List of good IDs that this factory type creates
-	std::vector<GoodId> outputs;
+	// List of good that this factory type creates
+	std::vector<Good *> outputs;
 };
-
-typedef uint16_t IndustryId;
 
 #include "nation.hpp"
 class World;
 
+typedef uint16_t IndustryId;
 class Industry {
 public:
 	IndustryId get_id(const World& world, ProvinceId province_id);
 	bool can_do_output(const World& world);
-	void add_to_stock(const World& world, size_t good_id, size_t add);
+	void add_to_stock(const World& world, const Good * good, size_t add);
 
 	// Owner nation of this factory
-	NationId owner_id;
+	Company * owner;
 
 	// Type of factory
-	IndustryTypeId type_id;
+	IndustryType * type;
 
 	// Days that the factory has not been operational
 	size_t days_unoperational;
@@ -120,7 +115,7 @@ public:
 	std::vector<size_t> stockpile;
 	
 	// Used for faster lookups
-	std::vector<size_t> output_products;
+	std::vector<Product *> output_products;
 
 	// The desired quality of a product (otherwise it's not accepted)
 	size_t min_quality;
@@ -130,7 +125,6 @@ public:
 };
 
 typedef uint16_t ProductId;
-
 /**
  * A product (based off a Good) which can be bought by POPs, converted by factories and transported
  * accross the world
@@ -138,16 +132,16 @@ typedef uint16_t ProductId;
 class Product {
 public:
 	// Onwer (companyId) of this product
-	CompanyId owner_id;
+	Company * owner;
 	
 	// Origin province (where this product was made)
-	ProvinceId origin_id;
+	Province * origin;
 	
 	// Industry in province that made this product
-	IndustryId industry_id;
+	Industry * industry;
 	
 	// Good that this product is based on
-	GoodId good_id;
+	Good * good;
 	
 	// Price of the product
 	float price;

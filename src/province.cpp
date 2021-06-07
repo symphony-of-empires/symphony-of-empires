@@ -3,9 +3,7 @@
 #include "world.hpp"
 
 Province::~Province() {
-	for(auto& industry: this->industries) {
-		delete industry;
-	} for(auto& product: this->products) {
+	for(auto& product: this->products) {
 		delete product;
 	}
 }
@@ -26,16 +24,17 @@ ProvinceId Province::get_id(const World& world) {
  * Adds a new industry in the province and adds it's output
  * products into the world accordingly
  */
-void Province::add_industry(World * world, Industry * industry) {
-	IndustryType * type = world->industry_types[industry->type_id];
+void Province::add_industry(World& world, Industry * industry) {
+	IndustryType * type = industry->type;
+	
+	industries.push_back(*industry);
+	
 	for(const auto& output: type->outputs) {
-		const GoodId good_id = output;
-		
 		// Check that product is not already in the province
 		int is_here = 0;
 		const unsigned int n_products = this->products.size();
 		for(ProductId j = 0; j < n_products; j++) {
-			if(this->products[j]->owner_id == industry->owner_id) {
+			if(this->products[j]->owner == industry->owner) {
 				is_here = 1;
 				break;
 			}
@@ -44,63 +43,50 @@ void Province::add_industry(World * world, Industry * industry) {
 			break;
 		
 		// Otherwise add it to the province product list
-		Product * new_product = new Product();
-		new_product->industry_id = this->industries.size();
-		new_product->good_id = good_id;
-		new_product->owner_id = industry->owner_id;
+		this->industries.resize(this->industries.size() + 1);
 
-		// Find id of this province
-		ProvinceId province_id = (ProvinceId)-1;
-		for(ProvinceId i = 0; i < world->provinces.size(); i++) {
-			if(world->provinces[i]->ref_name != this->ref_name)
-				continue;
-			
-			province_id = i;
-			break;
-		}
+		Product * new_product = new Product();
+		new_product->industry = industry;
+		new_product->good = output;
+		new_product->owner = industry->owner;
 
 		new_product->demand_history.clear();
 		new_product->supply_history.clear();
 		new_product->price_history.clear();
 		
 		// Add the product to the world
-		new_product->origin_id = province_id;
-		world->products.push_back(new_product);
+		new_product->origin = this;
+		world.products.push_back(new_product);
 		
-		industry->output_products.push_back(world->products.size() - 1);
+		industry->output_products.push_back(new_product);
 	}
 
 	// We will set inputs_satisfied to same size as inputs
 	// Industries start with 100 of stockpiles
 	industry->stockpile.clear();
-	for(IndustryTypeId i = 0; i < world->industry_types[industry->type_id]->inputs.size(); i++) {
+	for(size_t i = 0; i < industry->type->inputs.size(); i++) {
 		industry->stockpile.push_back(100);
 	}
-
-	this->industries.push_back(industry);
 }
 
 /** Removes an industry and their products from the entire world
   * this is only used when industries go bankrupt!
   */
-void Province::remove_industry(World * world, Industry * industry) {
-	ProvinceId province_id = this->get_id(*world);
-	IndustryId industry_id = industry->get_id(*world, province_id);
-
+void Province::remove_industry(World& world, Industry * industry) {
 	// Remove products of this industry from world market
-	for(ProductId i = 0; i < world->products.size(); i++) {
-		Product * product = world->products[i];
-		if(product->origin_id == province_id
-		&& product->industry_id == industry_id) {
-			delete world->products[i];
-			world->products[i] = nullptr;
+	for(ProductId i = 0; i < world.products.size(); i++) {
+		Product * product = world.products[i];
+		if(product->origin == this
+		&& product->industry == industry) {
+			delete product;
+			world.products[i] = nullptr;
 			continue;
 		}
 	}
 
 	// Remove this industry totally
-	delete this->industries[industry_id];
-	this->industries[industry_id] = nullptr;
+	size_t industry_id = world.get_id(*this, industry);
+	industries.erase(industries.begin() + industry_id);
 
 	// We have removed the industry!
 }

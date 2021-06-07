@@ -7,11 +7,10 @@
 #include "map.hpp"
 #include "path.hpp"
 
-Map * map;
-
 Map::Map(const World& _world) : world(_world) {
 	std::unique_lock<std::mutex> lock(world.provinces_mutex);
 	for(const auto& province: world.provinces) {
+		printf("Rendering %s\n", province->name.c_str());
 		ProvinceShape pr_shape = ProvinceShape(*this, *province);
 		province_shapes.push_back(pr_shape);
 	}
@@ -31,7 +30,9 @@ void Map::draw(float zoom) {
 }
 
 ProvinceShape::ProvinceShape(const Map& map, const Province& base) {
-	ProvinceId province_id = map.world.get_id<ProvinceId>(&base, map.world.provinces);
+	printf("Rendering %s\n", base.name.c_str());
+	
+	ProvinceId province_id = map.world.get_id(&base);
 
 	shape_gl_list = glGenLists(1);
 	glNewList(shape_gl_list, GL_COMPILE);
