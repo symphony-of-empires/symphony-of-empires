@@ -238,7 +238,7 @@ World::World() {
 	for(auto& nation: nations) {
 		for(auto& province: nation->owned_provinces) {
 			print_info("Nation %s owns %s", nation->name.c_str(), province->name.c_str());
-			const ProvinceId province_id = get_id<ProvinceId>(province, provinces);
+			const ProvinceId province_id = get_id(province);
 			for(size_t x = province->min_x; x <= province->max_x; x++) {
 				for(size_t y = province->min_y; y <= province->max_y; y++) {
 					Tile& tile = get_tile(x, y);
@@ -246,7 +246,7 @@ World::World() {
 					if(tile.province_id != province_id)
 						continue;
 
-					const NationId nation_id = get_id<NationId>(province->owner, nations);
+					const NationId nation_id = get_id(province->owner);
 					tile.owner_id = nation_id;
 				}
 			}
@@ -469,7 +469,7 @@ void World::do_tick() {
 		Unit * nearest_friend = nullptr;
 		for(size_t j = 0; j < g_world->units.size(); j++) {
 			Unit * other_unit = g_world->units[j];
-			if(unit->owner_id == other_unit->owner_id) {
+			if(unit->owner == other_unit->owner) {
 				// Only when very close
 				if(std::abs(unit->x - other_unit->x) >= 8.f && std::abs(unit->y - other_unit->y) >= 8.f)
 					continue;
@@ -592,9 +592,9 @@ void World::do_tick() {
 		// Set nearby tiles as owned
 		// TODO: Make it conquer multiple tiles
 		Tile& tile = get_tile(unit->x, unit->y);
-		if(tile.owner_id != unit->owner_id) {
+		if(tile.owner_id != get_id(unit->owner)) {
 			std::unique_lock<std::mutex> lock(nation_changed_tiles_mutex);
-			tile.owner_id = unit->owner_id;
+			tile.owner_id = get_id(unit->owner);
 			nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
 		}
 	}
@@ -602,20 +602,4 @@ void World::do_tick() {
 	LuaAPI::check_events(lua);
 
 	time++;
-}
-
-void World::add_good(Good * good) {
-	goods.push_back(good);
-}
-
-void World::add_industry_type(IndustryType * it) {
-	industry_types.push_back(it);
-}
-
-void World::add_nation(Nation * nation) {
-	nations.push_back(nation);
-}
-
-void World::add_province(Province * province) {
-	provinces.push_back(province);
 }

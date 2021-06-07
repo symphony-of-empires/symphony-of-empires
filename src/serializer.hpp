@@ -30,9 +30,8 @@ public:
 	size_t ptr = 0;
 
 	// Expands the archive to fit a new serialized object
-	inline void expand(size_t amt) {
-		buffer.resize(buffer.size() + amt);
-		printf("resized archive to %zu\n", buffer.size());
+	inline void expand(size_t amount) {
+		buffer.resize(buffer.size() + amount);
 	}
 
 	// Call when serialization has ended and it's ready to be sent to a fstream
@@ -82,8 +81,6 @@ public:
 		ar.expand(len);
 		memcpy(&ar.buffer[ar.ptr], obj.c_str(), len);
 		ar.ptr += len;
-
-		printf("serialized %s\n", obj.c_str());
 	}
 	static inline void deserialize(Archive& ar, std::string& obj) {
 		uint32_t len;
@@ -125,7 +122,7 @@ public:
 		memcpy(&obj, &ar.buffer[ar.ptr], sizeof(T));
 		ar.ptr += sizeof(T);
 	}
-	constexpr static inline size_t size(const T&) {
+	static constexpr size_t size(const T&) {
 		return sizeof(T);
 	}
 };
@@ -186,7 +183,7 @@ public:
 			obj_group.insert(obj);
 		}
 	}
-	constexpr static inline size_t size(const C& obj_group) {
+	static constexpr size_t size(const C& obj_group) {
 		return sizeof(uint32_t) + (obj_group.size() * sizeof(T));
 	}
 };
@@ -206,7 +203,7 @@ public:
 		Serializer<T>::deserialize(ar, obj.first);
 		Serializer<U>::deserialize(ar, obj.second);
 	}
-	constexpr static inline size_t size(const std::pair<T, U>&) {
+	static constexpr size_t size(const std::pair<T, U>&) {
 		return sizeof(T) + sizeof(U);
 	}
 };
@@ -222,6 +219,10 @@ class Serializer<std::vector<T>> : public SerializerContainer<T, std::vector<T>>
 template<typename T>
 class Serializer<std::deque<T>> : public SerializerContainer<T, std::deque<T>> {};
 
+#include <queue>
+template<typename T>
+class Serializer<std::queue<T>> : public SerializerContainer<T, std::queue<T>> {};
+
 #include <set>
 template<typename T>
 class Serializer<std::set<T>> : public SerializerContainer<T, std::set<T>> {};
@@ -236,9 +237,14 @@ inline void deserialize(Archive& ar, T& obj) {
 	Serializer<T>::deserialize(ar, obj);
 }
 
+#include <type_traits>
 template<typename T>
-constexpr inline size_t serialized_size(const T& obj) {
-	return Serializer<T>::size(obj);
+constexpr size_t serialized_size(const T& obj) {
+	if(std::is_pointer<typename std::decay<T>::type>::value == false) {
+		return Serializer<T>::size(obj);
+	} else {
+		return Serializer<T>::size(obj);
+	}
 }
 
 #endif

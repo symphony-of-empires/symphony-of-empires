@@ -24,7 +24,7 @@ public:
 	float attack;
 
 	// Required goods, first describes the id of the good and the second describes how many
-	std::vector<std::pair<GoodId, size_t>> req_goods;
+	std::vector<std::pair<Good *, size_t>> req_goods;
 };
 
 /**
@@ -44,7 +44,7 @@ public:
 	// Capacity of stuff (units) that can be carried here
 	size_t capacity;
 
-	std::vector<std::pair<GoodId, size_t>> req_goods;
+	std::vector<std::pair<Good *, size_t>> req_goods;
 };
 
 #include "nation.hpp"
@@ -56,7 +56,7 @@ class Tile;
 class Unit {
 public:
 	// Type of unit
-	uint8_t type_id;
+	UnitType * type;
 
 	// Size of the unit (soldiers in unit)
 	size_t size;
@@ -70,13 +70,13 @@ public:
 	float y;
 
 	// Who owns this unit
-	NationId owner_id;
+	Nation * owner;
 
 	// Used to "ignore" an unit when doing any check, this allows other units to
 	// attack this unit
 	bool ignore_tag;
 
-	std::vector<std::pair<GoodId, size_t>> req_goods;
+	std::vector<std::pair<Good *, size_t>> req_goods;
 };
 
 /**
@@ -93,7 +93,7 @@ public:
 	bool is_naval;
 
 	// Owner of the outpost
-	NationId owner_id;
+	Nation * owner;
 
 	// Unit that is currently being built here (nullptr indicates no unit)
 	Unit * working_unit;
@@ -101,7 +101,7 @@ public:
 	// Remaining ticks until the unit is built
 	uint16_t build_time;
 
-	std::vector<std::pair<GoodId, size_t>> req_goods;
+	std::vector<std::pair<Good *, size_t>> req_goods;
 };
 
 #endif

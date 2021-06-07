@@ -22,8 +22,8 @@ public:
 	~Province();
 
 	ProvinceId get_id(const World& world);
-	void add_industry(World* world, Industry* industry);
-	void remove_industry(World* world, Industry* industry);
+	void add_industry(World& world, Industry * industry);
+	void remove_industry(World& world, Industry * industry);
 
 	// Name of the province
 	std::string name;
@@ -69,12 +69,12 @@ public:
 	// Each element of this list represents the availability of a product, taking as reference the
 	// product list of the world. Indexes are 1:1 with the product list.
 	std::vector<size_t> stockpile;
-	
-	// List of industries in the province
-	std::vector<Industry *> industries;
 
 	// List of products (produced here by factories) in this industry
 	std::vector<Product *> products;
+
+	// List of industries in the province
+	std::vector<Industry> industries;
 
 	// List of pops in this province
     std::vector<Pop> pops;

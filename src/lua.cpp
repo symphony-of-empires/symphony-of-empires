@@ -132,15 +132,15 @@ int LuaAPI::get_industry_type(lua_State * L) {
 
 int LuaAPI::add_input_to_industry_type(lua_State * L) {
 	IndustryType * industry = g_world->industry_types[lua_tonumber(L, 1)];
-	size_t good_id = lua_tonumber(L, 2);
-	industry->inputs.push_back(good_id);
+	Good * good = g_world->goods[lua_tonumber(L, 2)];
+	industry->inputs.push_back(good);
 	return 0;
 }
 
 int LuaAPI::add_output_to_industry_type(lua_State * L) {
 	IndustryType * industry = g_world->industry_types[lua_tonumber(L, 1)];
-	size_t good_id = lua_tonumber(L, 2);
-	industry->outputs.push_back(good_id);
+	Good * good = g_world->goods[lua_tonumber(L, 2)];
+	industry->outputs.push_back(good);
 	return 0;
 }
 
@@ -251,9 +251,9 @@ int LuaAPI::add_province(lua_State * L) {
 	// TODO: this is NOT good
 	for(size_t i = 0; i < 5; i++) {
 		Industry * industry = new Industry();
-		industry->owner_id = rand() % g_world->companies.size();
-		industry->type_id = rand() % g_world->industry_types.size();
-		g_world->provinces.back()->add_industry(g_world, industry);
+		industry->owner = g_world->companies[rand() % g_world->companies.size()];
+		industry->type = g_world->industry_types[rand() % g_world->industry_types.size()];
+		g_world->provinces.back()->add_industry(*g_world, industry);
 	}
 	lua_pushnumber(L, g_world->provinces.size() - 1);
 	return 1;
@@ -428,12 +428,13 @@ int LuaAPI::add_op_province_to_company(lua_State * L) {
 		return 0;
 	}
 
-	size_t idx = lua_tonumber(L, 1);
+	Company * company = g_world->companies[lua_tonumber(L, 1)];
 	std::string ref_name = lua_tostring(L, 2);
-	for(size_t i = 0; i < g_world->provinces.size(); i++) {
-		if(g_world->provinces[i]->ref_name != ref_name)
+
+	for(const auto& province: g_world->provinces) {
+		if(province->ref_name != ref_name)
 			continue;
-		g_world->companies[idx]->operating_provinces.push_back(i);
+		company->operating_provinces.push_back(province);
 		break;
 	}
 	return 0;
@@ -715,9 +716,9 @@ int LuaAPI::add_req_good_unit_type(lua_State * L) {
 	UnitTypeId unit_type_id = lua_tonumber(L, 1);
 	UnitType * unit_type = g_world->unit_types[unit_type_id];
 
-	GoodId good_id = lua_tonumber(L, 2);
+	Good * good = g_world->goods[lua_tonumber(L, 2)];
 	size_t amount = lua_tonumber(L, 3);
-	unit_type->req_goods.push_back(std::make_pair(good_id, amount));
+	unit_type->req_goods.push_back(std::make_pair(good, amount));
 	return 0;
 }
 
@@ -778,9 +779,9 @@ int LuaAPI::add_req_good_boat_type(lua_State * L) {
 	BoatTypeId boat_type_id = lua_tonumber(L, 1);
 	BoatType * boat_type = g_world->boat_types[boat_type_id];
 
-	GoodId good_id = lua_tonumber(L, 2);
+	Good * good = g_world->goods[lua_tonumber(L, 2)];
 	size_t amount = lua_tonumber(L, 3);
-	boat_type->req_goods.push_back(std::make_pair(good_id, amount));
+	boat_type->req_goods.push_back(std::make_pair(good, amount));
 	return 0;
 }
 

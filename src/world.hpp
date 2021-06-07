@@ -49,16 +49,16 @@ public:
 	float payment;
 
 	// The ID of the required product
-	GoodId good_id;
+	Good * good;
 
 	// Quantity of desired goods
 	size_t quantity;
 
 	// ID of the industry (inside the province) who requested this good
-	IndustryId requester_industry_id;
+	Industry * industry;
 
 	// ID of the province where the industry (who requested this) is located in
-	ProvinceId requester_province_id;
+	Province * province;
 };
 
 /**
@@ -70,19 +70,19 @@ public:
 	float payment;
 
 	// ID of the good we are sending
-	GoodId good_id;
+	Good * good;
 
 	// Quantity available to send
 	size_t quantity;
 
 	// Product ID of the product to be sent
-	ProductId product_id;
+	Product * product;
 
 	// ID of the industry (inside the province) who is sending this product
-	IndustryId sender_industry_id;
+	Industry * industry;
 
 	// ID of the province where the industry (who is sending this) is located in
-	ProvinceId sender_province_id;
+	Province * province;
 };
 
 /**
@@ -111,6 +111,21 @@ class World {
 	// Lua state - for lua scripts, this is only used by the server and should not be
 	// accesible to the client
 	lua_State * lua;
+
+	/**
+	 * Template for obtaining the ID of an element
+	 * @tparam S return index type
+	 * @tparam T type of the element to lookup
+	 * @tparam C STL-compatible container where the pointer *should* be located in
+	 */
+	template<typename S, typename T, typename C>
+	inline S get_id_ptr(const T * ptr, C table) const {
+		typename C::iterator it = std::find(table.begin(), table.end(), ptr);
+		if(it == table.end()) {
+			throw "Element not found";
+		}
+		return (S)std::distance(table.begin(), it);
+	}
 public:
 	World();
 	World& operator=(const World&) = default;
@@ -118,11 +133,6 @@ public:
 
 	// Function that "simulates" the world by an entire tick
 	void do_tick();
-
-	void add_good(Good * good);
-	void add_industry_type(IndustryType * it);
-	void add_nation(Nation * nation);
-	void add_province(Province * province);
 
 	// 2-Dimensional Array of tiles
 	Tile * tiles;
@@ -209,47 +219,47 @@ public:
 	std::vector<Tile *> elevation_changed_tiles;
 	mutable std::mutex elevation_changed_tiles_mutex;
 
-	/**
-	 * Template for obtaining the ID of an element
-	 * @tparam S return index type
-	 * @tparam T type of the element to lookup
-	 * @tparam C STL-compatible container where the pointer *should* be located in
-	 */
-	template<typename S, typename T, typename C>
-	inline S get_id(const T * ptr, C table) const {
-		typename C::iterator it = std::find(table.begin(), table.end(), ptr);
-		if(it == table.end()) {
-			throw "Element not found";
-		}
-		return (S)std::distance(table.begin(), it);
+	NationId get_id(const Nation * ptr) const {
+		std::lock_guard<std::mutex> lock(nations_mutex);
+		return get_id_ptr<NationId>(ptr, nations);
 	}
 
-	inline NationId get_id(const Nation * ptr) const {
-		std::unique_lock<std::mutex> lock(nations_mutex);
-		return get_id<NationId>(ptr, nations);
+	ProvinceId get_id(const Province * ptr) const {
+		//std::lock_guard<std::mutex> lock(provinces_mutex);
+		return get_id_ptr<ProvinceId>(ptr, provinces);
 	}
 
-	inline ProvinceId get_id(const Province * ptr) const {
-		std::unique_lock<std::mutex> lock(provinces_mutex);
-		return get_id<ProvinceId>(ptr, provinces);
+	ProductId get_id(const Product * ptr) const {
+		std::lock_guard<std::mutex> lock(products_mutex);
+		return get_id_ptr<ProductId>(ptr, products);
 	}
 
-	inline size_t get_id(const Tile * ptr) const {
-		std::unique_lock<std::mutex> lock(tiles_mutex);
+	GoodId get_id(const Good * ptr) const {
+		std::lock_guard<std::mutex> lock(goods_mutex);
+		return get_id_ptr<GoodId>(ptr, goods);
+	}
+
+	IndustryId get_id(const Province& province, const Industry * ptr) const {
+		std::lock_guard<std::mutex> lock(provinces_mutex);
+		return ((ptrdiff_t)ptr - (ptrdiff_t)&province.industries[0]) / sizeof(Industry);
+	}
+
+	size_t get_id(const Tile * ptr) const {
+		std::lock_guard<std::mutex> lock(tiles_mutex);
 		return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
 	}
 
 	// Obtains a tile from the world safely, and makes sure that it is in bounds
-	inline Tile& get_tile(size_t x, size_t y) const {
-		std::unique_lock<std::mutex> lock(tiles_mutex);
+	Tile& get_tile(size_t x, size_t y) const {
+		std::lock_guard<std::mutex> lock(tiles_mutex);
 		if(x >= width || y >= height) {
 			throw "Tile out of bounds";
 		}
 		return tiles[x + y * width];
 	}
 
-	inline Tile& get_tile(size_t idx) const {
-		std::unique_lock<std::mutex> lock(tiles_mutex);
+	Tile& get_tile(size_t idx) const {
+		std::lock_guard<std::mutex> lock(tiles_mutex);
 		if(idx >= width * height) {
 			throw "Tile index exceeds boundaries";
 		}

@@ -20,6 +20,8 @@ extern TextureManager * g_texture_manager;
 int width = 1280;
 int height = 800;
 
+static Map * map;
+
 class Camera {
 public:
 	float vx;
@@ -160,10 +162,8 @@ void client_update(void) {
 	if((g_world->time % 48) == 16) {
 		double gdp = 0.f;
 		for(const auto& province: player_nation.owned_provinces) {
-			ProductId product_id = 0;
 			for(const auto& product: g_world->products) {
-				gdp += product->price * province->stockpile[product_id];
-				product_id++;
+				gdp += product->price * province->stockpile[g_world->get_id(product)];
 			}
 		}
 		gdp_chart->data.push_back(gdp);
