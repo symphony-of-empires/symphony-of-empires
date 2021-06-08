@@ -9,23 +9,143 @@
 #include "serializer.hpp"
 
 template<>
-class Serializer<Province *> : public SerializerMemcpy<Province *> {};
+class Serializer<Province *> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& output, const Province * obj) {
+		::serialize(output, g_world->get_id(obj));
+	}
+	static inline void deserialize(Archive& input, Province * obj) {
+		ProvinceId id;
+		::deserialize(input, id);
+		obj = g_world->provinces[id];
+	}
+	static inline size_t size(const Province * obj) {
+		return sizeof(ProvinceId);
+	}
+};
+
 template<>
-class Serializer<Nation *> : public SerializerMemcpy<Nation *> {};
+class Serializer<Nation *> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& output, const Nation * obj) {
+		::serialize(output, g_world->get_id(obj));
+	}
+	static inline void deserialize(Archive& input, Nation * obj) {
+		NationId id;
+		::deserialize(input, id);
+		obj = g_world->nations[id];
+	}
+	static inline size_t size(const Nation * obj) {
+		return sizeof(NationId);
+	}
+};
+
 template<>
-class Serializer<Event *> : public SerializerMemcpy<Event *> {};
+class Serializer<Event *> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& output, const Event * obj) {
+		::serialize(output, g_world->get_id(obj));
+	}
+	static inline void deserialize(Archive& input, Event * obj) {
+		size_t id;
+		::deserialize(input, id);
+		obj = g_world->events[id];
+	}
+	static inline size_t size(const Event * obj) {
+		return sizeof(size_t);
+	}
+};
+
 template<>
-class Serializer<Product *> : public SerializerMemcpy<Product *> {};
+class Serializer<Product *> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& output, const Product * obj) {
+		::serialize(output, g_world->get_id(obj));
+	}
+	static inline void deserialize(Archive& input, Product * obj) {
+		ProductId id;
+		::deserialize(input, id);
+		obj = g_world->products[id];
+	}
+	static inline size_t size(const Product * obj) {
+		return sizeof(ProductId);
+	}
+};
+
 template<>
-class Serializer<Culture *> : public SerializerMemcpy<Culture *> {};
+class Serializer<Culture *> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& output, const Culture * obj) {
+		::serialize(output, g_world->get_id(obj));
+	}
+	static inline void deserialize(Archive& input, Culture * obj) {
+		CultureId id;
+		::deserialize(input, id);
+		obj = g_world->cultures[id];
+	}
+	static inline size_t size(const Culture * obj) {
+		return sizeof(CultureId);
+	}
+};
+
+template<>
+class Serializer<Good *> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& output, const Good * obj) {
+		::serialize(output, g_world->get_id(obj));
+	}
+	static inline void deserialize(Archive& input, Good * obj) {
+		GoodId id;
+		::deserialize(input, id);
+		obj = g_world->goods[id];
+	}
+	static inline size_t size(const Good * obj) {
+		return sizeof(GoodId);
+	}
+};
+
+template<>
+class Serializer<Company *> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& output, const Company * obj) {
+		::serialize(output, g_world->get_id(obj));
+	}
+	static inline void deserialize(Archive& input, Company * obj) {
+		CompanyId id;
+		::deserialize(input, id);
+		obj = g_world->companies[id];
+	}
+	static inline size_t size(const Company * obj) {
+		return sizeof(CompanyId);
+	}
+};
+
+template<>
+class Serializer<IndustryType *> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& output, const IndustryType * obj) {
+		::serialize(output, g_world->get_id(obj));
+	}
+	static inline void deserialize(Archive& input, IndustryType * obj) {
+		size_t id;
+		::deserialize(input, id);
+		obj = g_world->industry_types[id];
+	}
+	static inline size_t size(const IndustryType * obj) {
+		return sizeof(size_t);
+	}
+};
+
 template<>
 class Serializer<Industry *> : public SerializerMemcpy<Industry *> {};
-template<>
-class Serializer<Good *> : public SerializerMemcpy<Good *> {};
-template<>
-class Serializer<Company *> : public SerializerMemcpy<Company *> {};
-template<>
-class Serializer<IndustryType *> : public SerializerMemcpy<IndustryType *> {};
 
 template<>
 class Serializer<NationRelation> : public SerializerMemcpy<NationRelation> {};
