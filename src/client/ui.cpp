@@ -23,7 +23,7 @@ Context::Context() {
 		exit(EXIT_FAILURE);
 	}
 
-	this->default_font = TTF_OpenFont(Path::get("fonts/FreeMono.ttf").c_str(), 24);
+	this->default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 24);
 	if(this->default_font == nullptr){
 		perror("font could not be loaded, exiting\n");
 		exit(EXIT_FAILURE);

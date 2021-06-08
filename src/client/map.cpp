@@ -10,7 +10,6 @@
 Map::Map(const World& _world) : world(_world) {
 	std::unique_lock<std::mutex> lock(world.provinces_mutex);
 	for(const auto& province: world.provinces) {
-		printf("Rendering %s\n", province->name.c_str());
 		ProvinceShape pr_shape = ProvinceShape(*this, *province);
 		province_shapes.push_back(pr_shape);
 	}

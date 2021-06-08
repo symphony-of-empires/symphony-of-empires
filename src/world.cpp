@@ -1,6 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <sys/cdefs.h>
+#include <filesystem>
 #include <cmath>
 #include <set>
 
@@ -126,8 +127,11 @@ World::World() {
 	lua_getglobal(this->lua, "package");
 	lua_getfield(this->lua, -1, "path");
 	std::string curr_path = lua_tostring(this->lua, -1);
+
+	// Add all scripts onto the path (with glob operator '?')
 	curr_path.append(";");
-	curr_path.append(Path::get("scripts/api.lua"));
+	std::string path = Path::get("scripts");
+	curr_path.append(path + "/?.lua");
 	lua_pop(this->lua, 1);
 	lua_pushstring(this->lua, curr_path.c_str());
 	lua_setfield(this->lua, -2, "path");
@@ -159,8 +163,6 @@ World::World() {
 
 	// Translate all div, pol and topo maps onto this single tile array
 	printf("Translate all div, pol and topo maps onto this single tile array\n");
-	const size_t n_nations = this->nations.size();
-	const size_t n_provinces = this->provinces.size();
 	for(size_t i = 0; i < total_size; i++) {
 		// Set coordinates for the tiles
 		this->tiles[i].owner_id = (NationId)-1;
@@ -186,14 +188,21 @@ World::World() {
 		const auto it = std::find_if(provinces.begin(), provinces.end(), [&color](const auto& element) {
 			return (color == element->color);
 		});
-		if(it != provinces.end()) {
-			const ProvinceId province_id = std::distance(provinces.begin(), it);
-			while(div.buffer[i] == (*it)->color) {
-				tiles[i].province_id = province_id;
-				provinces[province_id]->n_tiles++;
-				i++;
-			}
-			i--;
+
+		if(it == provinces.end()) {
+			continue;
+		}
+		const ProvinceId province_id = std::distance(provinces.begin(), it);
+
+		while(div.buffer[i] == (*it)->color) {
+			tiles[i].province_id = province_id;
+			provinces[province_id]->n_tiles++;
+			i++;
+		}
+		i--;
+
+		while(div.buffer[i] == 0xff000000 || div.buffer[i] == 0xffffffff) {
+			i++;
 		}
 	}
 
