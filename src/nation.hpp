@@ -163,7 +163,9 @@ public:
 	// Whetever thet nation exists at all - we cannot add nations in-game
 	// so we just check if the nation "exists" at all, this means that it has
 	// a presence and a goverment, must own atleast 1 province
-	bool exists;
+	inline bool exists() {
+		return owned_provinces.size() > 0;
+	}
 
 	// Whetever this nation is controlled by AI
 	bool controlled_by_ai;

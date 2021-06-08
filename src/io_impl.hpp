@@ -114,8 +114,6 @@ public:
 	static inline void serialize(Archive& output, const Nation& obj) {
 		::serialize(output, obj.name);
 		::serialize(output, obj.ref_name);
-
-		::serialize(output, obj.exists);
 		::serialize(output, obj.controlled_by_ai);
 		::serialize(output, obj.color);
 		::serialize(output, obj.relations);
@@ -149,7 +147,6 @@ public:
 		return
 			serialized_size(obj.name)
 			+ serialized_size(obj.ref_name)
-			+ serialized_size(obj.exists)
 			+ serialized_size(obj.controlled_by_ai)
 			+ serialized_size(obj.color)
 			+ serialized_size(obj.relations)

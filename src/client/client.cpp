@@ -56,10 +56,32 @@ MapMode current_mode = MAP_MODE_COUNTRY_SELECT;
 
 static size_t curr_selected_nation = 0;
 static void change_country(size_t id) {
+	size_t old_id = curr_selected_nation;
+	printf("-> %u\n", curr_selected_nation);
+	
 	curr_selected_nation = id;
 	if(curr_selected_nation >= g_world->nations.size()) {
 		curr_selected_nation = 0;
 	}
+
+	if(g_world->nations[curr_selected_nation]->exists() == false) {
+		if(curr_selected_nation > old_id) {
+			while(g_world->nations[curr_selected_nation]->exists() == false) {
+				curr_selected_nation++;
+				if(curr_selected_nation >= g_world->nations.size()) {
+					curr_selected_nation = 0;
+				}
+			}
+		} else {
+			while(g_world->nations[curr_selected_nation]->exists() == false) {
+				curr_selected_nation--;
+				if(curr_selected_nation >= g_world->nations.size()) {
+					curr_selected_nation = g_world->nations.size() - 1;
+				}
+			}
+		}
+	}
+
 	curr_country_btn->text(g_world->nations[curr_selected_nation]->name.c_str());
 
 	const Province& capital = *g_world->nations[curr_selected_nation]->capital;
@@ -69,11 +91,11 @@ static void change_country(size_t id) {
 }
 
 static void next_nation(UI::Widget&, void *) {
-	change_country(curr_selected_nation++);
+	change_country(curr_selected_nation + 1);
 }
 
 static void prev_nation(UI::Widget&, void *) {
-	change_country(curr_selected_nation--);
+	change_country(curr_selected_nation - 1);
 }
 
 static UI::Window * top_win, * province_view_win;
@@ -312,7 +334,6 @@ void select_nation(void) {
 						break;
 					case MAP_MODE_NORMAL:
 						if(tile.province_id != (ProvinceId)-1) {
-							/*
 							province_view_win = new UI::Window(0, 0, province_view_win_tex.width, province_view_win_tex.height);
 							province_view_win->text("Province information");
 							province_view_win->current_texture = &province_view_win_tex;
@@ -335,11 +356,10 @@ void select_nation(void) {
 							view_province_owner->below_of(dynamic_cast<const UI::Widget&>(*view_province_ind));
 							view_province_owner->user_data = (void *)g_world->provinces[tile.province_id];
 							
-							UI::Button * ok_btn = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
+							UI::CloseButton * ok_btn = new UI::CloseButton(9, 0, button_pvw.width, button_pvw.height, province_view_win);
 							ok_btn->text("OK");
 							ok_btn->current_texture = &button_pvw;
 							ok_btn->below_of(dynamic_cast<const UI::Widget&>(*view_province_owner));
-							*/
 						}
 						break;
 					}
