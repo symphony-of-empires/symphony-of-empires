@@ -29,8 +29,6 @@ void Map::draw(float zoom) {
 }
 
 ProvinceShape::ProvinceShape(const Map& map, const Province& base) {
-	printf("Rendering %s\n", base.name.c_str());
-	
 	ProvinceId province_id = map.world.get_id(&base);
 
 	shape_gl_list = glGenLists(1);

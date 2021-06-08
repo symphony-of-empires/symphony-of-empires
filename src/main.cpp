@@ -32,9 +32,9 @@ int main(int argc, char ** argv) {
 	Server * server;
 	World * world = new World();
 
-	//Archive * test = new Archive();
-	//serialize(*test, *world);
-	//test->to_file("hello_world.v0");
+	Archive * test = new Archive();
+	serialize(*test, *world);
+	test->to_file("hello_world.v0");
 
 #ifndef UNIT_TEST
 	printf("%s\n", gettext("launching rendering thread"));
