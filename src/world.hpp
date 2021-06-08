@@ -220,7 +220,7 @@ public:
 	mutable std::mutex elevation_changed_tiles_mutex;
 
 	NationId get_id(const Nation * ptr) const {
-		std::lock_guard<std::mutex> lock(nations_mutex);
+		//std::lock_guard<std::mutex> lock(nations_mutex);
 		return get_id_ptr<NationId>(ptr, nations);
 	}
 
@@ -230,22 +230,22 @@ public:
 	}
 
 	ProductId get_id(const Product * ptr) const {
-		std::lock_guard<std::mutex> lock(products_mutex);
+		//std::lock_guard<std::mutex> lock(products_mutex);
 		return get_id_ptr<ProductId>(ptr, products);
 	}
 
 	GoodId get_id(const Good * ptr) const {
-		std::lock_guard<std::mutex> lock(goods_mutex);
+		//std::lock_guard<std::mutex> lock(goods_mutex);
 		return get_id_ptr<GoodId>(ptr, goods);
 	}
 
 	IndustryId get_id(const Province& province, const Industry * ptr) const {
-		std::lock_guard<std::mutex> lock(provinces_mutex);
+		//std::lock_guard<std::mutex> lock(provinces_mutex);
 		return ((ptrdiff_t)ptr - (ptrdiff_t)&province.industries[0]) / sizeof(Industry);
 	}
 
 	size_t get_id(const Tile * ptr) const {
-		std::lock_guard<std::mutex> lock(tiles_mutex);
+		//std::lock_guard<std::mutex> lock(tiles_mutex);
 		return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
 	}
 

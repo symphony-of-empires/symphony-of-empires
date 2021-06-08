@@ -98,14 +98,14 @@ static void play_nation(UI::Widget&, void *) {
 	const Texture& top_win_tex = g_texture_manager->load_texture(Path::get("ui/top_win.png"));
 	const Texture& top_win_chart_tex = g_texture_manager->load_texture(Path::get("ui/top_win_chart.png"));
 	
-	const Texture& icon_prestige_tex = g_texture_manager->load_texture(Path::get("icons/prestige.png"));
-	const Texture& icon_economy_score_tex = g_texture_manager->load_texture(Path::get("icons/economy_score.png"));
-	const Texture& icon_militar_score_tex = g_texture_manager->load_texture(Path::get("icons/militar_score.png"));
-	const Texture& icon_naval_score_tex = g_texture_manager->load_texture(Path::get("icons/naval_score.png"));
-	const Texture& icon_money_tex = g_texture_manager->load_texture(Path::get("icons/money.png"));
-	const Texture& icon_militancy_tex = g_texture_manager->load_texture(Path::get("icons/militancy.png"));
-	const Texture& icon_big_brain_tex = g_texture_manager->load_texture(Path::get("icons/big_brain.png"));
-	const Texture& icon_population_tex = g_texture_manager->load_texture(Path::get("icons/population.png"));
+	const Texture& icon_prestige_tex = g_texture_manager->load_texture(Path::get("ui/icons/prestige.png"));
+	const Texture& icon_economy_score_tex = g_texture_manager->load_texture(Path::get("ui/icons/economy_score.png"));
+	const Texture& icon_militar_score_tex = g_texture_manager->load_texture(Path::get("ui/icons/militar_score.png"));
+	const Texture& icon_naval_score_tex = g_texture_manager->load_texture(Path::get("ui/icons/naval_score.png"));
+	const Texture& icon_money_tex = g_texture_manager->load_texture(Path::get("ui/icons/money.png"));
+	const Texture& icon_militancy_tex = g_texture_manager->load_texture(Path::get("ui/icons/militancy.png"));
+	const Texture& icon_big_brain_tex = g_texture_manager->load_texture(Path::get("ui/icons/big_brain.png"));
+	const Texture& icon_population_tex = g_texture_manager->load_texture(Path::get("ui/icons/population.png"));
 	
 	top_win = new UI::Window(0, 0, top_win_tex.width, top_win_tex.height);
 	top_win->text("Overview");
