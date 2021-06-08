@@ -18,7 +18,7 @@ public:
 	static inline void deserialize(Archive& input, Province * obj) {
 		ProvinceId id;
 		::deserialize(input, id);
-		obj = g_world->provinces[id];
+		obj = (id != (ProvinceId)-1) ? g_world->provinces[id] : nullptr;
 	}
 	static inline size_t size(const Province * obj) {
 		return sizeof(ProvinceId);
@@ -35,7 +35,7 @@ public:
 	static inline void deserialize(Archive& input, Nation * obj) {
 		NationId id;
 		::deserialize(input, id);
-		obj = g_world->nations[id];
+		obj = (id != (NationId)-1) ? g_world->nations[id] : nullptr;
 	}
 	static inline size_t size(const Nation * obj) {
 		return sizeof(NationId);
@@ -52,7 +52,7 @@ public:
 	static inline void deserialize(Archive& input, Event * obj) {
 		size_t id;
 		::deserialize(input, id);
-		obj = g_world->events[id];
+		obj = (id != (size_t)-1) ? g_world->events[id] : nullptr;
 	}
 	static inline size_t size(const Event * obj) {
 		return sizeof(size_t);
@@ -69,7 +69,7 @@ public:
 	static inline void deserialize(Archive& input, Product * obj) {
 		ProductId id;
 		::deserialize(input, id);
-		obj = g_world->products[id];
+		obj = (id != (ProductId)-1) ? g_world->products[id] : nullptr;
 	}
 	static inline size_t size(const Product * obj) {
 		return sizeof(ProductId);
@@ -86,7 +86,7 @@ public:
 	static inline void deserialize(Archive& input, Culture * obj) {
 		CultureId id;
 		::deserialize(input, id);
-		obj = g_world->cultures[id];
+		obj = (id != (CultureId)-1) ? g_world->cultures[id] : nullptr;
 	}
 	static inline size_t size(const Culture * obj) {
 		return sizeof(CultureId);
@@ -103,7 +103,7 @@ public:
 	static inline void deserialize(Archive& input, Good * obj) {
 		GoodId id;
 		::deserialize(input, id);
-		obj = g_world->goods[id];
+		obj = (id != (GoodId)-1) ? g_world->goods[id] : nullptr;
 	}
 	static inline size_t size(const Good * obj) {
 		return sizeof(GoodId);
@@ -120,7 +120,7 @@ public:
 	static inline void deserialize(Archive& input, Company * obj) {
 		CompanyId id;
 		::deserialize(input, id);
-		obj = g_world->companies[id];
+		obj = (id != (CompanyId)-1) ? g_world->companies[id] : nullptr;
 	}
 	static inline size_t size(const Company * obj) {
 		return sizeof(CompanyId);
@@ -137,7 +137,7 @@ public:
 	static inline void deserialize(Archive& input, IndustryType * obj) {
 		size_t id;
 		::deserialize(input, id);
-		obj = g_world->industry_types[id];
+		obj = (id != (size_t)-1) ? g_world->industry_types[id] : nullptr;
 	}
 	static inline size_t size(const IndustryType * obj) {
 		return sizeof(size_t);

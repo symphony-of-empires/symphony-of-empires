@@ -122,7 +122,8 @@ class World {
 	inline S get_id_ptr(const T * ptr, C table) const {
 		typename C::iterator it = std::find(table.begin(), table.end(), ptr);
 		if(it == table.end()) {
-			throw "Element not found";
+			// -1 is used as an invalid index
+			return (S)-1;
 		}
 		return (S)std::distance(table.begin(), it);
 	}
