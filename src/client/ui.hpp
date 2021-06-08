@@ -126,6 +126,16 @@ namespace UI {
 		Button& operator=(const Button&) = default;
 	};
 
+	class CloseButton : public Widget {
+		static void on_click_default(Widget& w, void *) {
+			delete w.parent;
+		}
+	public:
+		CloseButton(int x, int y, unsigned w, unsigned h, Widget * parent = nullptr);
+		~CloseButton() {};
+		CloseButton& operator=(const CloseButton&) = default;
+	};
+
 	class Window : public Widget {
 	public:
 		Window(int x, int y, unsigned w, unsigned h, Widget * parent = nullptr);

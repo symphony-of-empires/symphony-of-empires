@@ -403,6 +403,11 @@ Button::Button(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
 
 }
 
+CloseButton::CloseButton(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
+	: Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON) {
+	on_click = &CloseButton::on_click_default;
+}
+
 Input::Input(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
 	: Widget(_parent, _x, _y, w, h, UI_WIDGET_INPUT) {
 

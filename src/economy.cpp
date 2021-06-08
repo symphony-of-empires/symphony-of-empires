@@ -45,6 +45,10 @@ void Economy::do_phase_1(World& world) {
 	for(auto& province: world.provinces) {
 		// Reset remaining supplies
 		province->supply_rem = province->supply_limit;
+
+		if(province->owner == nullptr) {
+			continue;
+		}
 		
 		// This new tick, we will start the chain starting with RGOs producing deliver
 		// orders and the factories that require inputs will put their orders in the
@@ -273,6 +277,10 @@ void Economy::do_phase_3(World& world) {
 	// Now, it's like 1 am here, but i will try to write a very nice economic system
 	// TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
 	for(Province *& province: world.provinces) {
+		if(province->owner == nullptr) {
+			continue;
+		}
+
 		// Reset worker pool
 		province->worker_pool = 0;
 		for(size_t i = 0; i < province->pops.size(); i++) {

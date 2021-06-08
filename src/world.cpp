@@ -261,10 +261,6 @@ World::World() {
 			}
 		}
 		nation_changed_tiles.clear();
-
-		if(!nation->owned_provinces.size()) {
-			nation->exists = false;
-		}
 	}
 
 	// Neighbours
