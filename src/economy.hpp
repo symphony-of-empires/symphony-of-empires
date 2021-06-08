@@ -21,6 +21,7 @@ namespace Economy {
 	void do_phase_4(World& world);
 }
 
+typedef uint16_t CompanyId;
 /**
  * A company that operates one or more factories and is able to build even more factories
  */
@@ -71,6 +72,7 @@ public:
 	Texture * icon = nullptr;
 };
 
+typedef uint8_t IndustryTypeId;
 class IndustryType {
 public:
 	~IndustryType() {
@@ -95,7 +97,6 @@ class World;
 typedef uint16_t IndustryId;
 class Industry {
 public:
-	IndustryId get_id(const World& world, ProvinceId province_id);
 	bool can_do_output(const World& world);
 	void add_to_stock(const World& world, const Good * good, size_t add);
 

@@ -253,6 +253,13 @@ void view_province_pops(void) {
 	UI::Window * view_pops_win = new UI::Window(0, province_view_win->disp_y, 0, 0);
 }
 
+// TODO: We can come with something better than this
+void colonize_province(UI::Widget& w, void * data) {
+	Province * province = (Province *)data;
+	province->owner = g_world->nations[curr_selected_nation];
+	g_world->nations[curr_selected_nation]->budget -= 10000;
+}
+
 void select_nation(void) {
 	g_world->client_update = &client_update;
 	
@@ -360,6 +367,15 @@ void select_nation(void) {
 							ok_btn->text("OK");
 							ok_btn->current_texture = &button_pvw;
 							ok_btn->below_of(dynamic_cast<const UI::Widget&>(*view_province_owner));
+
+							if(g_world->provinces[tile.province_id]->owner == nullptr) {
+								UI::Button * colonize_province_btn = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
+								colonize_province_btn->text("Colonize");
+								colonize_province_btn->current_texture = &button_pvw;
+								colonize_province_btn->below_of(dynamic_cast<const UI::Widget&>(*ok_btn));
+								colonize_province_btn->user_data = (void *)g_world->provinces[tile.province_id];
+								colonize_province_btn->on_click = &colonize_province;
+							}
 						}
 						break;
 					}
