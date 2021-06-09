@@ -246,7 +246,6 @@ World::World() {
 	printf("Give owners the entire provinces\n");
 	for(auto& nation: nations) {
 		for(auto& province: nation->owned_provinces) {
-			print_info("Nation %s owns %s", nation->name.c_str(), province->name.c_str());
 			const ProvinceId province_id = get_id(province);
 			for(size_t x = province->min_x; x <= province->max_x; x++) {
 				for(size_t y = province->min_y; y <= province->max_y; y++) {
