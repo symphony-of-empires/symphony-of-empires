@@ -487,7 +487,7 @@ int LuaAPI::get_event(lua_State * L) {
 }
 
 int LuaAPI::add_event_receivers(lua_State * L) {
-	size_t event_id = lua_tonumber(L, 1);
+	EventId event_id = lua_tonumber(L, 1);
 	if(event_id >= g_world->events.size()) {
 		print_error(gettext("invalid event id %zu"), event_id);
 		return 0;
@@ -508,27 +508,26 @@ int LuaAPI::add_event_receivers(lua_State * L) {
 }
 
 int LuaAPI::add_descision(lua_State * L) {
-	if(!lua_isstring(L, 2) || !lua_isstring(L, 3) || !lua_isstring(L, 4)) {
-		print_error(gettext("lua argument type mismatch"));
+	EventId event_id = lua_tonumber(L, 1);
+	if(event_id >= g_world->events.size()) {
+		print_error(gettext("invalid event id %zu"), event_id);
 		return 0;
 	}
+	Event * event = g_world->events[event_id];
 
-	Event * event = g_world->events[lua_tonumber(L, 1)];
+	Descision descision = Descision();
 
-	Descision * descision = new Descision();
+	descision.ref_name = lua_tostring(L, 2);
+	descision.name = lua_tostring(L, 3);
+	descision.do_descision_function = lua_tostring(L, 4);
+	descision.effects = lua_tostring(L, 5);
 
-	descision->ref_name = lua_tostring(L, 2);
-	descision->name = lua_tostring(L, 3);
-	descision->do_descision_function = lua_tostring(L, 4);
-	descision->effects = lua_tostring(L, 5);
-
-	printf(gettext("descision: %s"), descision->ref_name.c_str());
+	printf(gettext("descision: %s"), descision.ref_name.c_str());
 	printf("\n");
 
 	// Add onto vector
 	event->descisions.push_back(descision);
-	lua_pushnumber(L, event->descisions.size() - 1);
-	return 1;
+	return 0;
 }
 
 int LuaAPI::add_pop_type(lua_State * L) {
