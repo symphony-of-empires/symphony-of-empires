@@ -213,7 +213,20 @@ public:
  */
 #include <vector>
 template<typename T>
-class Serializer<std::vector<T>> : public SerializerContainer<T, std::vector<T>> {};
+class Serializer<std::vector<T>> : public SerializerContainer<T, std::vector<T>> {
+public:
+	static inline void deserialize(Archive& ar, std::vector<T>& obj_group) {
+		uint32_t len;
+		memcpy(&len, &ar.buffer[ar.ptr], sizeof(len));
+		ar.ptr += sizeof(len);
+
+		for(size_t i = 0; i < len; i++) {
+			T obj;
+			Serializer<T>::deserialize(ar, obj);
+			obj_group.push_back(obj);
+		}
+	}
+};
 
 #include <deque>
 template<typename T>

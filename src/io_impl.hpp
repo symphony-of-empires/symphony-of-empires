@@ -8,6 +8,12 @@
 #include "pop.hpp"
 #include "serializer.hpp"
 
+// TODO: Modify the pointer, since we are only passing the pointer as a temporal on the stack
+// tl;dr we need a pointer to a pointer instead of a pointer - if decoding problems happens
+// this is why
+
+// TODO: We should compile a list of "patches" to apply (since some objects may depend on others
+// which are not fully loaded)
 template<>
 class Serializer<Province *> {
 public:
@@ -261,6 +267,32 @@ public:
 		// TODO: Default flag here
 	}
 	static inline void deserialize(Archive& input, Nation& obj) {
+		::deserialize(input, obj.name);
+		::deserialize(input, obj.ref_name);
+		::deserialize(input, obj.controlled_by_ai);
+		::deserialize(input, obj.color);
+		::deserialize(input, obj.relations);
+		::deserialize(input, obj.spherer_id);
+		::deserialize(input, obj.diplomacy_points);
+		::deserialize(input, obj.prestige);
+
+		::deserialize(input, obj.base_literacy);
+		::deserialize(input, obj.is_civilized);
+
+		::deserialize(input, obj.infamy);
+		::deserialize(input, obj.military_score);
+		::deserialize(input, obj.naval_score);
+		::deserialize(input, obj.economy_score);
+
+		::deserialize(input, obj.budget);
+
+		::deserialize(input, obj.primary_culture);
+		::deserialize(input, obj.capital);
+		::deserialize(input, obj.accepted_cultures);
+		::deserialize(input, obj.owned_provinces);
+		::deserialize(input, obj.current_policy);
+		::deserialize(input, obj.diplomatic_timer);
+		
 		// TODO: Rest of fields
 	}
 	static inline size_t size(const Nation& obj) {
@@ -306,7 +338,14 @@ public:
 		::serialize(output, obj.req_goods);
 	}
 	static inline void deserialize(Archive& input, UnitType& obj) {
-		// TODO: Rest of fields
+		::deserialize(input, obj.name);
+		::deserialize(input, obj.ref_name);
+		::deserialize(input, obj.supply_consumption);
+		::deserialize(input, obj.speed);
+		::deserialize(input, obj.max_health);
+		::deserialize(input, obj.defense);
+		::deserialize(input, obj.attack);
+		::deserialize(input, obj.req_goods);
 	}
 	static inline size_t size(const UnitType& obj) {
 		return
@@ -327,7 +366,7 @@ class Serializer<Province> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Province& obj) {
-		//::serialize(output, obj.name);
+		::serialize(output, obj.name);
 		::serialize(output, obj.ref_name);
 		
 		::serialize(output, obj.color);
@@ -353,7 +392,30 @@ public:
 		::serialize(output, obj.pops);
 	}
 	static inline void deserialize(Archive& input, Province& obj) {
-		// TODO: Rest of fields
+		::deserialize(input, obj.name);
+		::deserialize(input, obj.ref_name);
+		
+		::deserialize(input, obj.color);
+		::deserialize(input, obj.budget);
+		::deserialize(input, obj.n_tiles);
+		
+		::deserialize(input, obj.max_x);
+		::deserialize(input, obj.max_y);
+		::deserialize(input, obj.min_x);
+		::deserialize(input, obj.min_y);
+		
+		::deserialize(input, obj.supply_limit);
+		::deserialize(input, obj.supply_rem);
+		::deserialize(input, obj.worker_pool);
+		
+		::deserialize(input, obj.owner);
+		
+		::deserialize(input, obj.nucleuses);
+		::deserialize(input, obj.neighbours);
+		::deserialize(input, obj.stockpile);
+		::deserialize(input, obj.industries);
+		::deserialize(input, obj.products);
+		::deserialize(input, obj.pops);
 	}
 	static inline size_t size(const Province& obj) {
 		return
@@ -396,6 +458,15 @@ public:
 		::serialize(output, obj.operating_provinces);
 	}
 	static inline void deserialize(Archive& input, Company& obj) {
+		::deserialize(input, obj.name);
+		
+		::deserialize(input, obj.money);
+		::deserialize(input, obj.is_transport);
+		::deserialize(input, obj.is_retailer);
+		::deserialize(input, obj.is_industry);
+		
+		::deserialize(input, obj.operating_provinces);
+		
 		// TODO: Rest of fields
 	}
 	static inline size_t size(const Company& obj) {
@@ -429,7 +500,17 @@ public:
 		::serialize(output, obj.willing_payment);
 	}
 	static inline void deserialize(Archive& input, Industry& obj) {
-		// TODO: Rest of fields
+		::deserialize(input, obj.owner);
+		::deserialize(input, obj.type);
+		
+		::deserialize(input, obj.days_unoperational);
+		::deserialize(input, obj.production_cost);
+		
+		::deserialize(input, obj.stockpile);
+		::deserialize(input, obj.output_products);
+		
+		::deserialize(input, obj.min_quality);
+		::deserialize(input, obj.willing_payment);
 	}
 	static inline size_t size(const Industry& obj) {
 		return
@@ -461,13 +542,18 @@ public:
 		::serialize(output, obj.quality);
 		::serialize(output, obj.supply);
 		::serialize(output, obj.demand);
-		
-		//::serialize(output, obj.price_history);
-		//::serialize(output, obj.supply_history);
-		//::serialize(output, obj.demand_history);
 	}
 	static inline void deserialize(Archive& input, Product& obj) {
-		// TODO: Rest of fields
+		::deserialize(input, obj.owner);
+		::deserialize(input, obj.origin);
+		::deserialize(input, obj.industry);
+		::deserialize(input, obj.good);
+		
+		::deserialize(input, obj.price);
+		::deserialize(input, obj.price_vel);
+		::deserialize(input, obj.quality);
+		::deserialize(input, obj.supply);
+		::deserialize(input, obj.demand);
 	}
 	static inline size_t size(const Product& obj) {
 		return
@@ -480,9 +566,6 @@ public:
 			+ serialized_size(obj.quality);
 			+ serialized_size(obj.supply);
 			+ serialized_size(obj.demand);
-			//+ serialized_size(obj.price_history);
-			//+ serialized_size(obj.supply_history);
-			//+ serialized_size(obj.demand_history);
 		;
 		// TODO: Rest of fields
 	}
@@ -502,7 +585,11 @@ public:
 		// TODO: Image texture serialized here
 	}
 	static inline void deserialize(Archive& input, IndustryType& obj) {
-		// TODO: Rest of fields
+		::deserialize(input, obj.name);
+		::deserialize(input, obj.ref_name);
+		
+		::deserialize(input, obj.inputs);
+		::deserialize(input, obj.outputs);
 	}
 	static inline size_t size(const IndustryType& obj) {
 		return
@@ -528,6 +615,11 @@ public:
 		// TODO: Image texture serialized here
 	}
 	static inline void deserialize(Archive& input, Good& obj) {
+		::deserialize(input, obj.name);
+		::deserialize(input, obj.ref_name);
+		
+		::deserialize(input, obj.is_edible);
+		
 		// TODO: Rest of fields
 	}
 	static inline size_t size(const Good& obj) {
@@ -548,11 +640,16 @@ public:
 		::serialize(output, obj.ref_name);
 		::serialize(output, obj.conditions_function);
 		::serialize(output, obj.do_event_function);
-		//::serialize(output, obj.receivers);
+		::serialize(output, obj.receivers);
 		
 		// TODO: Descicions should not be pointers
 	}
 	static inline void deserialize(Archive& input, Event& obj) {
+		::deserialize(input, obj.ref_name);
+		::deserialize(input, obj.conditions_function);
+		::deserialize(input, obj.do_event_function);
+		::deserialize(input, obj.receivers);
+		
 		// TODO: Rest of fields
 	}
 	static inline size_t size(const Event& obj) {
@@ -574,14 +671,23 @@ public:
 		::serialize(output, obj.height);
 		::serialize(output, obj.sea_level);
 		
+		::serialize(output, obj.delivers);
+		::serialize(output, obj.orders);
+		
 		for(size_t i = 0; i < obj.width * obj.height; i++) {
 			::serialize(output, obj.tiles[i]);
 		}
 		
-		const uint32_t n_nations = obj.nations.size();
-		::serialize(output, n_nations);
-		for(const auto& nation: obj.nations) {
-			::serialize(output, *nation);
+		const uint32_t n_goods = obj.goods.size();
+		::serialize(output, n_goods);
+		for(const auto& good: obj.goods) {
+			::serialize(output, *good);
+		}
+		
+		const uint32_t n_industry_types = obj.industry_types.size();
+		::serialize(output, n_industry_types);
+		for(const auto& industry_type: obj.industry_types) {
+			::serialize(output, *industry_type);
 		}
 		
 		const uint32_t n_unit_types = obj.unit_types.size();
@@ -590,22 +696,28 @@ public:
 			::serialize(output, *unit_type);
 		}
 		
-		const uint32_t n_cultures = obj.cultures.size();
-		::serialize(output, n_cultures);
-		for(const auto& culture: obj.cultures) {
-			::serialize(output, *culture);
-		}
-		
 		const uint32_t n_religions = obj.religions.size();
 		::serialize(output, n_religions);
 		for(const auto& religion: obj.religions) {
 			::serialize(output, *religion);
 		}
 		
+		const uint32_t n_cultures = obj.cultures.size();
+		::serialize(output, n_cultures);
+		for(const auto& culture: obj.cultures) {
+			::serialize(output, *culture);
+		}
+		
 		const uint32_t n_pop_types = obj.pop_types.size();
 		::serialize(output, n_pop_types);
 		for(const auto& pop_type: obj.pop_types) {
 			::serialize(output, *pop_type);
+		}
+		
+		const uint32_t n_nations = obj.nations.size();
+		::serialize(output, n_nations);
+		for(const auto& nation: obj.nations) {
+			::serialize(output, *nation);
 		}
 		
 		const uint32_t n_provinces = obj.provinces.size();
@@ -626,21 +738,6 @@ public:
 			::serialize(output, *product);
 		}
 		
-		::serialize(output, obj.delivers);
-		::serialize(output, obj.orders);
-		
-		const uint32_t n_industry_types = obj.industry_types.size();
-		::serialize(output, n_industry_types);
-		for(const auto& industry_type: obj.industry_types) {
-			::serialize(output, *industry_type);
-		}
-		
-		const uint32_t n_goods = obj.goods.size();
-		::serialize(output, n_goods);
-		for(const auto& good: obj.goods) {
-			::serialize(output, *good);
-		}
-		
 		const uint32_t n_events = obj.events.size();
 		::serialize(output, n_events);
 		for(const auto& event: obj.events) {
@@ -652,6 +749,122 @@ public:
 		::deserialize(input, obj.height);
 		::deserialize(input, obj.sea_level);
 		
+		::deserialize(input, obj.delivers);
+		::deserialize(input, obj.orders);
+		
+		obj.tiles = new Tile[obj.width * obj.height];
+		for(size_t i = 0; i < obj.width * obj.height; i++) {
+			::deserialize(input, obj.tiles[i]);
+		}
+		
+		uint32_t n_goods;
+		::deserialize(input, n_goods);
+		for(size_t i = 0; i < n_goods; i++) {
+			Good * sub_obj = new Good();
+			::deserialize(input, *sub_obj);
+			obj.goods.push_back(sub_obj);
+		}
+		
+		uint32_t n_industry_types;
+		::deserialize(input, n_industry_types);
+		for(size_t i = 0; i < n_industry_types; i++) {
+			IndustryType * sub_obj = new IndustryType();
+			::deserialize(input, *sub_obj);
+			obj.industry_types.push_back(sub_obj);
+		}
+		
+		uint32_t n_unit_types;
+		::deserialize(input, n_unit_types);
+		for(size_t i = 0; i < n_unit_types; i++) {
+			UnitType * sub_obj = new UnitType();
+			::deserialize(input, *sub_obj);
+			obj.unit_types.push_back(sub_obj);
+		}
+		
+		uint32_t n_religions;
+		::deserialize(input, n_religions);
+		for(size_t i = 0; i < n_religions; i++) {
+			Religion * sub_obj = new Religion();
+			::deserialize(input, *sub_obj);
+			obj.religions.push_back(sub_obj);
+		}
+		
+		uint32_t n_cultures;
+		::deserialize(input, n_cultures);
+		for(size_t i = 0; i < n_cultures; i++) {
+			Culture * sub_obj = new Culture();
+			::deserialize(input, *sub_obj);
+			obj.cultures.push_back(sub_obj);
+		}
+		
+		uint32_t n_pop_types;
+		::deserialize(input, n_pop_types);
+		for(size_t i = 0; i < n_pop_types; i++) {
+			PopType * sub_obj = new PopType();
+			::deserialize(input, *sub_obj);
+			obj.pop_types.push_back(sub_obj);
+		}
+		
+		uint32_t n_nations;
+		::deserialize(input, n_nations);
+		for(size_t i = 0; i < n_nations; i++) {
+			Nation * sub_obj = new Nation();
+			::deserialize(input, *sub_obj);
+			obj.nations.push_back(sub_obj);
+		}
+		
+		uint32_t n_provinces;
+		::deserialize(input, n_provinces);
+		for(size_t i = 0; i < n_provinces; i++) {
+			Province * sub_obj = new Province();
+			::deserialize(input, *sub_obj);
+			obj.provinces.push_back(sub_obj);
+		}
+		
+		uint32_t n_companies;
+		::deserialize(input, n_companies);
+		for(size_t i = 0; i < n_companies; i++) {
+			Company * sub_obj = new Company();
+			::deserialize(input, *sub_obj);
+			obj.companies.push_back(sub_obj);
+		}
+		
+		uint32_t n_products;
+		::deserialize(input, n_products);
+		for(size_t i = 0; i < n_products; i++) {
+			Product * sub_obj = new Product();
+			::deserialize(input, *sub_obj);
+			obj.products.push_back(sub_obj);
+		}
+		
+		uint32_t n_events;
+		::deserialize(input, n_events);
+		for(size_t i = 0; i < n_events; i++) {
+			Event * sub_obj = new Event();
+			::deserialize(input, *sub_obj);
+			obj.events.push_back(sub_obj);
+		}
+	}
+	static inline size_t size(World const& obj) {
+		return
+			serialized_size(obj.width)
+			+ serialized_size(obj.height)
+			+ serialized_size(obj.sea_level)
+			+ serialized_size(obj.delivers)
+			+ serialized_size(obj.orders)
+			+ (sizeof(Tile) * (obj.width * obj.height))
+			+ (obj.goods.size() * sizeof(Good))
+			+ (obj.industry_types.size() * sizeof(IndustryType))
+			+ (obj.unit_types.size() * sizeof(UnitType))
+			+ (obj.religions.size() * sizeof(Religion))
+			+ (obj.cultures.size() * sizeof(Culture))
+			+ (obj.pop_types.size() * sizeof(PopType))
+			+ (obj.nations.size() * sizeof(Nation))
+			+ (obj.provinces.size() * sizeof(Province))
+			+ (obj.companies.size() * sizeof(Company))
+			+ (obj.products.size() * sizeof(Product))
+			+ (obj.events.size() * sizeof(Event))
+		;
 	}
 };
 
