@@ -94,6 +94,10 @@ namespace UI {
 		void (*on_hover)(Widget&, void *) = nullptr;
 		void (*on_click)(Widget&, void *) = nullptr;
 
+		void above_of(const Widget& rhs) {
+			y = rhs.y - height;
+			disp_y = rhs.disp_y - height;
+		}
 		void below_of(const Widget& rhs) {
 			y = rhs.y + rhs.height;
 			disp_y = rhs.disp_y + rhs.height;

@@ -267,6 +267,7 @@ void select_nation(void) {
 	const Texture& province_view_win_tex = g_texture_manager->load_texture(Path::get("ui/province_view_win.png"));
 	const Texture& nation_view_win_tex = g_texture_manager->load_texture(Path::get("ui/nation_view_win.png"));
 	const Texture& debug_win_tex = g_texture_manager->load_texture(Path::get("ui/debug_win.png"));
+	const Texture& generic_descision = g_texture_manager->load_texture(Path::get("ui/generic_descision_win.png"));
 	
 	const Texture& button_320 = g_texture_manager->load_texture(Path::get("ui/button_320.png"));
 	const Texture& button_256 = g_texture_manager->load_texture(Path::get("ui/button_256.png"));
@@ -274,6 +275,7 @@ void select_nation(void) {
 	const Texture& button_128 = g_texture_manager->load_texture(Path::get("ui/button_128.png"));
 	
 	const Texture& button_pvw = g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
+	const Texture& button_popup = g_texture_manager->load_texture(Path::get("ui/button_popup.png"));
 	
 	cam.x = -100.f;
 	cam.y = 100.f;
@@ -511,8 +513,25 @@ void select_nation(void) {
 		// Put popups
 		if(current_mode == MAP_MODE_NORMAL) {
 			for(auto& msg: g_world->nations[curr_selected_nation]->inbox) {
+				UI::Window * popup_win = new UI::Window(128, 128, generic_descision.width, generic_descision.height);
 				
+				// TODO: Allow titles in events
+				popup_win->text(msg.ref_name.c_str());
+				popup_win->current_texture = &generic_descision;
+
+				// Buttons for descisions
+				const UI::Button * last = nullptr;
+				for(const auto& descision: msg.descisions) {
+					UI::Button * decide_btn = new UI::Button(9, 558 - button_popup.height, button_popup.width, button_popup.height, popup_win);
+					decide_btn->text(descision.name.c_str());
+					decide_btn->current_texture = &button_popup;
+					if(last != nullptr) {
+						decide_btn->above_of(dynamic_cast<const UI::Widget&>(*last));
+					}
+					last = decide_btn;
+				}
 			}
+			g_world->nations[curr_selected_nation]->inbox.clear();
 		}
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

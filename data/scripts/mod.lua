@@ -56,7 +56,7 @@ end
 function cake_event()
 	local title = "Cake"
 	local text = "Sir, a cake has just magically appeared in your desk, what would you like to do?"
-	descision_0 = Descision:create{
+	local descision_0 = Descision:create{
 		ref_name = "cake_descision_0",
 		name = "Very good",
 		descision_fn = "cake_descision_0",
@@ -64,7 +64,7 @@ function cake_event()
 	}
 	Event:add_descision(cake_thing, descision_0)
 	
-	descision_1 = Descision:create{
+	local descision_1 = Descision:create{
 		ref_name = "cake_descision_1",
 		name = "Fuck you",
 		descision_fn = "cake_descision_1",
