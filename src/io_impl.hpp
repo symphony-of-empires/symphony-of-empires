@@ -419,25 +419,25 @@ public:
 	}
 	static inline size_t size(const Province& obj) {
 		return
-			serialized_size(obj.name);
-			+ serialized_size(obj.ref_name);
-			+ serialized_size(obj.color);
-			+ serialized_size(obj.budget);
-			+ serialized_size(obj.n_tiles);
-			+ serialized_size(obj.max_x);
-			+ serialized_size(obj.max_y);
-			+ serialized_size(obj.min_x);
-			+ serialized_size(obj.min_y);
-			+ serialized_size(obj.supply_limit);
-			+ serialized_size(obj.supply_rem);
-			+ serialized_size(obj.worker_pool);
-			+ serialized_size(obj.owner);
-			+ serialized_size(obj.nucleuses);
-			+ serialized_size(obj.neighbours);
-			+ serialized_size(obj.stockpile);
-			+ serialized_size(obj.industries);
-			+ serialized_size(obj.products);
-			+ serialized_size(obj.pops);
+			serialized_size(obj.name)
+			+ serialized_size(obj.ref_name)
+			+ serialized_size(obj.color)
+			+ serialized_size(obj.budget)
+			+ serialized_size(obj.n_tiles)
+			+ serialized_size(obj.max_x)
+			+ serialized_size(obj.max_y)
+			+ serialized_size(obj.min_x)
+			+ serialized_size(obj.min_y)
+			+ serialized_size(obj.supply_limit)
+			+ serialized_size(obj.supply_rem)
+			+ serialized_size(obj.worker_pool)
+			+ serialized_size(obj.owner)
+			+ serialized_size(obj.nucleuses)
+			+ serialized_size(obj.neighbours)
+			+ serialized_size(obj.stockpile)
+			+ serialized_size(obj.industries)
+			+ serialized_size(obj.products)
+			+ serialized_size(obj.pops)
 		;
 		// TODO: Rest of fields
 	}
@@ -471,12 +471,12 @@ public:
 	}
 	static inline size_t size(const Company& obj) {
 		return
-			serialized_size(obj.name);
-			+ serialized_size(obj.money);
-			+ serialized_size(obj.is_transport);
-			+ serialized_size(obj.is_retailer);
-			+ serialized_size(obj.is_industry);
-			+ serialized_size(obj.operating_provinces);
+			serialized_size(obj.name)
+			+ serialized_size(obj.money)
+			+ serialized_size(obj.is_transport)
+			+ serialized_size(obj.is_retailer)
+			+ serialized_size(obj.is_industry)
+			+ serialized_size(obj.operating_provinces)
 		;
 		// TODO: Rest of fields
 	}
@@ -514,14 +514,14 @@ public:
 	}
 	static inline size_t size(const Industry& obj) {
 		return
-			serialized_size(obj.owner);
-			+ serialized_size(obj.type);
-			+ serialized_size(obj.days_unoperational);
-			+ serialized_size(obj.production_cost);
-			+ serialized_size(obj.stockpile);
-			+ serialized_size(obj.output_products);
-			+ serialized_size(obj.min_quality);
-			+ serialized_size(obj.willing_payment);
+			serialized_size(obj.owner)
+			+ serialized_size(obj.type)
+			+ serialized_size(obj.days_unoperational)
+			+ serialized_size(obj.production_cost)
+			+ serialized_size(obj.stockpile)
+			+ serialized_size(obj.output_products)
+			+ serialized_size(obj.min_quality)
+			+ serialized_size(obj.willing_payment)
 		;
 		// TODO: Rest of fields
 	}
@@ -557,15 +557,15 @@ public:
 	}
 	static inline size_t size(const Product& obj) {
 		return
-			serialized_size(obj.owner);
-			+ serialized_size(obj.origin);
-			+ serialized_size(obj.industry);
-			+ serialized_size(obj.good);
-			+ serialized_size(obj.price);
-			+ serialized_size(obj.price_vel);
-			+ serialized_size(obj.quality);
-			+ serialized_size(obj.supply);
-			+ serialized_size(obj.demand);
+			serialized_size(obj.owner)
+			+ serialized_size(obj.origin)
+			+ serialized_size(obj.industry)
+			+ serialized_size(obj.good)
+			+ serialized_size(obj.price)
+			+ serialized_size(obj.price_vel)
+			+ serialized_size(obj.quality)
+			+ serialized_size(obj.supply)
+			+ serialized_size(obj.demand)
 		;
 		// TODO: Rest of fields
 	}
@@ -595,8 +595,8 @@ public:
 		return
 			serialized_size(obj.name)
 			+ serialized_size(obj.ref_name)
-			+ serialized_size(obj.inputs);
-			+ serialized_size(obj.outputs);
+			+ serialized_size(obj.inputs)
+			+ serialized_size(obj.outputs)
 		;
 		// TODO: Rest of fields
 	}
@@ -624,9 +624,9 @@ public:
 	}
 	static inline size_t size(const Good& obj) {
 		return
-			serialized_size(obj.name);
-			+ serialized_size(obj.ref_name);
-			+ serialized_size(obj.is_edible);
+			serialized_size(obj.name)
+			+ serialized_size(obj.ref_name)
+			+ serialized_size(obj.is_edible)
 		;
 		// TODO: Rest of fields
 	}
@@ -654,10 +654,10 @@ public:
 	}
 	static inline size_t size(const Event& obj) {
 		return
-			serialized_size(obj.ref_name);
-			+ serialized_size(obj.conditions_function);
-			+ serialized_size(obj.do_event_function);
-			+ serialized_size(obj.receivers);
+			serialized_size(obj.ref_name)
+			+ serialized_size(obj.conditions_function)
+			+ serialized_size(obj.do_event_function)
+			+ serialized_size(obj.receivers)
 		;
 		// TODO: Rest of fields
 	}
