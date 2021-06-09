@@ -817,6 +817,11 @@ void LuaAPI::check_events(lua_State * L) {
 
 		// Conditions met
 		if(r) {
+			// Copy event into inbox
+			for(auto& nation: event->receivers) {
+				nation->inbox.push(*event);
+			}
+			
 			lua_getglobal(L, event->do_event_function.c_str());
 			lua_call(L, 0, 1);
 			bool multi = lua_tointeger(L, -1);

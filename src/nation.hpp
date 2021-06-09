@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <queue>
+#include <deque>
 #include <set>
 #include <string>
 #include <vector>
@@ -230,7 +231,7 @@ public:
 	Policies current_policy;
 
 	// Inbox of the nation; events that require our attention / should be processed
-	std::queue<Event *> inbox;
+	std::deque<Event> inbox;
 
 	// Default flag texture of the country
 	Texture * default_flag = nullptr;
