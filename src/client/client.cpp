@@ -508,6 +508,13 @@ void select_nation(void) {
 			}
 		}
 		
+		// Put popups
+		if(current_mode == MAP_MODE_NORMAL) {
+			for(auto& msg: g_world->nations[curr_selected_nation]->inbox) {
+				
+			}
+		}
+		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glPushMatrix();
 		glMatrixMode(GL_PROJECTION);
