@@ -80,7 +80,6 @@ function cake_descision_1()
 	print('Why no eat my poisoned cake? i put so much poison in it :(')
 end
 
--- TODO: This causes a segfault for some reason
 cake_thing = Event:create{ ref_name = "cake_thing", conditions_fn = "cake_test", event_fn = "cake_event" }
 Event:register(cake_thing)
 Event:add_receivers(cake_thing, Nation:get({}, "hawai_i"), Nation:get({}, "gran_colombia"), Nation:get({}, "mexico"))
