@@ -211,7 +211,7 @@ public:
 	float budget;
 
 	// Primary culture of this nation, may also be changed via events, otherwise it's permanent
-	Culture * primary_culture;
+	Culture * primary_culture = nullptr;
 
 	// The capital of this nation (can be nullptr)
 	Province * capital;
