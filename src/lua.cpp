@@ -510,7 +510,7 @@ int LuaAPI::add_event_receivers(lua_State * L) {
 int LuaAPI::add_descision(lua_State * L) {
 	EventId event_id = lua_tonumber(L, 1);
 	if(event_id >= g_world->events.size()) {
-		print_error(gettext("invalid event id %zu"), event_id);
+		print_error(gettext("invalid event id %u"), event_id);
 		return 0;
 	}
 	Event * event = g_world->events[event_id];
@@ -522,7 +522,7 @@ int LuaAPI::add_descision(lua_State * L) {
 	descision.do_descision_function = lua_tostring(L, 4);
 	descision.effects = lua_tostring(L, 5);
 
-	printf(gettext("descision: %s"), descision.ref_name.c_str());
+	printf(gettext("descision: %s (to %s)"), descision.ref_name.c_str(), event->ref_name.c_str());
 	printf("\n");
 
 	// Add onto vector
@@ -817,15 +817,18 @@ void LuaAPI::check_events(lua_State * L) {
 
 		// Conditions met
 		if(r) {
-			// Copy event into inbox
-			for(auto& nation: event->receivers) {
-				nation->inbox.push(*event);
-			}
-			
+			// Call the "do event" function
 			lua_getglobal(L, event->do_event_function.c_str());
 			lua_call(L, 0, 1);
 			bool multi = lua_tointeger(L, -1);
 			lua_pop(L, 1);
+
+			print_info("Event triggered! %s (with %zu descisions)", event->ref_name.c_str(), event->descisions.size());
+
+			// Copy event into inbox
+			for(auto& nation: event->receivers) {
+				nation->inbox.push_back(*event);
+			}
 
 			// Event is removed if it's not of multiple occurences
 			if(!multi) {
