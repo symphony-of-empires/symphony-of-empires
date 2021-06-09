@@ -103,9 +103,7 @@ end
 function Event:add_receivers(event, ...)
 	local args = table.pack(...)
 	for i = 1, args.n do
-		print(args[i])
 		args[i] = args[i].id
-		print(args[i])
 	end
 	add_event_receivers(event.id, args.n, table.unpack(args))
 end

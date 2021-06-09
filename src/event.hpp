@@ -19,7 +19,7 @@ public:
 	std::string conditions_function;
 	std::string do_event_function;
 	std::vector<Nation *> receivers;
-	std::vector<Descision *> descisions;
+	std::vector<Descision> descisions;
 };
 
 #endif

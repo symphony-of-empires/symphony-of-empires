@@ -57,7 +57,6 @@ MapMode current_mode = MAP_MODE_COUNTRY_SELECT;
 static size_t curr_selected_nation = 0;
 static void change_country(size_t id) {
 	size_t old_id = curr_selected_nation;
-	printf("-> %u\n", curr_selected_nation);
 	
 	curr_selected_nation = id;
 	if(curr_selected_nation >= g_world->nations.size()) {
@@ -84,10 +83,12 @@ static void change_country(size_t id) {
 
 	curr_country_btn->text(g_world->nations[curr_selected_nation]->name.c_str());
 
-	const Province& capital = *g_world->nations[curr_selected_nation]->capital;
-	cam.x = capital.max_x;
-	cam.y = capital.max_y;
-	cam.x = -cam.x;
+	const Province * capital = g_world->nations[curr_selected_nation]->capital;
+	if(capital != nullptr) {
+		cam.x = capital->max_x;
+		cam.y = capital->max_y;
+		cam.x = -cam.x;
+	}
 }
 
 static void next_nation(UI::Widget&, void *) {
