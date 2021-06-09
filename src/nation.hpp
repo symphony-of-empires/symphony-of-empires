@@ -214,7 +214,7 @@ public:
 	Culture * primary_culture = nullptr;
 
 	// The capital of this nation (can be nullptr)
-	Province * capital;
+	Province * capital = nullptr;
 
 	// Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
 	// owned by this nation
