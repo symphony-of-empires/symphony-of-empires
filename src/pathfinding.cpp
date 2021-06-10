@@ -10,7 +10,7 @@
 /**
  * Checks whether the given coordinates are within bounds for the given world
  */
-static inline constexpr bool coord_in_bounds(const World& world, int x, int y) {
+static constexpr bool coord_in_bounds(const World& world, int x, int y) {
 	return y >= 0 && (size_t)y < world.height;
 }
 
@@ -18,8 +18,10 @@ static inline constexpr bool coord_in_bounds(const World& world, int x, int y) {
  * Calculates the neighbors for a given Tile. The neighbors are the 8 tiles around
  * it, while taking into account the map bounds.
  */
-static std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
+static std::vector<Tile *> generate_neighbors(const World& world, const Nation& nation, Tile * tile) {
 	std::vector<Tile *> result;
+
+	const NationId nation_id = world.get_id(&nation);
 	
 	for(int i = -1; i <= 1; i++) {
 		for(int j = -1; j <= 1; j++) {
@@ -32,7 +34,24 @@ static std::vector<Tile *> generate_neighbors(const World& world, Tile * tile) {
 			const size_t t_y = t_idx / world.width;
 
 			Tile * neighbour = &(world.get_tile(t_x + i, t_y + j));
+
+			// Check that neighbour is above sea level
 			if(neighbour->elevation > world.sea_level) {
+				// Check that we can diplomatically pass thru their lands
+				// Our own lands and lands without owners are automatically passable
+				if(neighbour->owner_id != nation_id && neighbour->owner_id != (NationId)-1) {
+					const NationRelation& relation = world.nations[neighbour->owner_id]->relations[nation_id];
+					
+					// Does not have military acces AND does not have alliance AND is not at war
+					// Means the country is neutral towards us and we can't cross there
+					if(relation.has_military_access != true
+					&& relation.has_alliance != true
+					&& relation.has_war != true) {
+						continue;
+					}
+				}
+
+				// Otherwise we can pass!
 				result.push_back(neighbour);
 			}
 		}
@@ -96,7 +115,7 @@ static inline float tile_cost(const World& world, Tile * t1, Tile * t2) {
 	return river_modifier * infra_modifier * distance;
 }
 
-std::vector<Tile *> find_path(const World& world, Tile * start, Tile * end) {
+std::vector<Tile *> Pathfind::unit_path(const World& world, const Nation& nation, Tile * start, Tile * end) {
 	// We can't go to sea
 	if(start->elevation <= world.sea_level && end->elevation <= world.sea_level) {
 		return std::vector<Tile *>();
@@ -137,7 +156,7 @@ std::vector<Tile *> find_path(const World& world, Tile * start, Tile * end) {
 			break;
 		
 		// Generate neighbours
-		for(const auto neighbor: generate_neighbors(world, current)) {
+		for(const auto neighbor: generate_neighbors(world, nation, current)) {
 			// If the neighbor is visited, we already have the optimal path to it
 			if(visited.count(neighbor))
 				continue;
