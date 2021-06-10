@@ -2,7 +2,7 @@
 #include "world.hpp"
 #include "lua.hpp"
 
-void rendering_main(void);
+extern void rendering_main(void);
 
 #include <chrono>
 #include <thread>
@@ -22,7 +22,7 @@ std::atomic<bool> do_start;
 
 #include "io_impl.hpp"
 
-std::mutex world_lock;
+//extern std::mutex world_lock;
 int main(int argc, char ** argv) {
 	setlocale(LC_ALL, "");
 	bindtextdomain("main", Path::get("locale").c_str());
@@ -44,7 +44,7 @@ int main(int argc, char ** argv) {
 	
 	paused = false;
 	while(run) {
-		std::unique_lock<std::mutex> lock(world_lock);
+		//std::unique_lock<std::mutex> lock(world_lock);
 		world->do_tick();
 		world->client_update();
 		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
