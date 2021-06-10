@@ -261,6 +261,7 @@ void colonize_province(UI::Widget& w, void * data) {
 	g_world->nations[curr_selected_nation]->budget -= 10000;
 }
 
+std::vector<Descision> doable_descisions;
 void select_nation(void) {
 	g_world->client_update = &client_update;
 	
@@ -343,6 +344,7 @@ void select_nation(void) {
 						change_country(tile.owner_id);
 						break;
 					case MAP_MODE_NORMAL:
+						/*
 						if(tile.province_id != (ProvinceId)-1) {
 							province_view_win = new UI::Window(0, 0, province_view_win_tex.width, province_view_win_tex.height);
 							province_view_win->text("Province information");
@@ -382,6 +384,17 @@ void select_nation(void) {
 						}
 						break;
 					}
+					*/
+
+					// TODO: Do not access server
+					Unit * unit = new Unit();
+					unit->owner = g_world->nations[curr_selected_nation];
+					unit->size = 1000;
+					unit->x = select_pos.first;
+					unit->y = select_pos.second;
+					unit->tx = unit->x;
+					unit->ty = unit->y;
+					g_world->units.push_back(unit);
 				}
 				break;
 			case SDL_MOUSEMOTION:
@@ -512,6 +525,7 @@ void select_nation(void) {
 		
 		// Put popups
 		if(current_mode == MAP_MODE_NORMAL) {
+			size_t n_descisions = 0;
 			for(auto& msg: g_world->nations[curr_selected_nation]->inbox) {
 				UI::Window * popup_win = new UI::Window(128, 128, generic_descision.width, generic_descision.height);
 				
@@ -525,9 +539,14 @@ void select_nation(void) {
 					UI::Button * decide_btn = new UI::Button(9, 558 - button_popup.height, button_popup.width, button_popup.height, popup_win);
 					decide_btn->text(descision.name.c_str());
 					decide_btn->current_texture = &button_popup;
+					decide_btn->user_data = (void *)&doable_descisions[n_descisions];
 					if(last != nullptr) {
 						decide_btn->above_of(dynamic_cast<const UI::Widget&>(*last));
 					}
+
+					doable_descisions.push_back(descision);
+					n_descisions++;
+					
 					last = decide_btn;
 				}
 			}
