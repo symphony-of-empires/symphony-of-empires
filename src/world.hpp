@@ -128,7 +128,7 @@ class World {
 		return (S)std::distance(table.begin(), it);
 	}
 public:
-	World();
+	World(bool empty);
 	World& operator=(const World&) = default;
 	~World();
 
@@ -210,7 +210,7 @@ public:
 	std::vector<CommercialConvoy> convoys;
 
 	// Current time (in ticks)
-	uint64_t time;
+	uint64_t time = 0;
 
 	// Array containing a list of tile pointers that have changed owners
 	std::vector<Tile *> nation_changed_tiles;

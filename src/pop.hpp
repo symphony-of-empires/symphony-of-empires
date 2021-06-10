@@ -61,16 +61,16 @@ public:
 class Pop {
 public:
 	size_t size;
-	size_t unemployed;
-
+	size_t unemployed = 0;
 	float literacy;
-	float militancy;
-	float consciousness;
-	float budget;
 	
-	float life_needs_met;
-	float everyday_needs_met;
-	float luxury_needs_met;
+	float militancy = 0.f;
+	float consciousness = 0.f;
+	float budget = 0.f;
+	
+	float life_needs_met = 0.f;
+	float everyday_needs_met = 0.f;
+	float luxury_needs_met = 0.f;
 	
 	PopTypeId type_id;
 	CultureId culture_id;
