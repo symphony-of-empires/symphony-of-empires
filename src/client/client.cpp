@@ -338,11 +338,13 @@ void select_nation(void) {
 						continue;
 					
 					const Tile& tile = g_world->get_tile(select_pos.first, select_pos.second);
+					
 					switch(current_mode) {
 					case MAP_MODE_COUNTRY_SELECT:
 						change_country(tile.owner_id);
 						break;
 					case MAP_MODE_NORMAL:
+						/*
 						if(tile.province_id != (ProvinceId)-1) {
 							province_view_win = new UI::Window(0, 0, province_view_win_tex.width, province_view_win_tex.height);
 							province_view_win->text("Province information");
@@ -380,20 +382,19 @@ void select_nation(void) {
 								colonize_province_btn->on_click = &colonize_province;
 							}
 						}
-						break;
-					default:
+						*/
 						break;
 					}
 
 					// TODO: Do not access server
-					/*Unit * unit = new Unit();
+					Unit * unit = new Unit();
 					unit->owner = g_world->nations[curr_selected_nation];
 					unit->size = 1000;
 					unit->x = select_pos.first;
 					unit->y = select_pos.second;
 					unit->tx = unit->x;
 					unit->ty = unit->y;
-					g_world->units.push_back(unit);*/
+					g_world->units.push_back(unit);
 				}
 				break;
 			case SDL_MOUSEMOTION:
