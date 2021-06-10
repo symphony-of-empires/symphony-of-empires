@@ -20,8 +20,10 @@ World * g_world;
 /**
   * Creates a new world
   */
-World::World() {
+World::World(bool empty) {
 	g_world = this;
+	if(empty)
+		return;
 	
 	Texture topo(Path::get("map_topo.png").c_str());
 	Texture div(Path::get("map_div.png").c_str());
@@ -405,6 +407,8 @@ extern std::deque<size_t> render_province;
 
 #include "economy.hpp"
 void World::do_tick() {
+	print_info("Ticking %lu", time);
+
 	// Each tick == 30 minutes
 	switch(time % (24 * 2)) {
 	// 3:00

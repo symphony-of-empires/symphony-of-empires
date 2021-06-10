@@ -32,7 +32,7 @@ clean:
 	@rm -r bin obj
 
 dirs:
-	mkdir -p bin obj obj/client
+	mkdir -p bin obj obj/client obj/server
 	mkdir -p data/locale/ko/LC_MESSAGES
 	mkdir -p data/locale/es/LC_MESSAGES
 
