@@ -44,6 +44,10 @@ public:
 		fwrite(&buffer[0], 1, buffer.size(), fp);
 		fclose(fp);
 	}
+
+	const void * get_buffer(void) {
+		return (const void *)&buffer[0];
+	}
 };
 
 /**

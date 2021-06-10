@@ -26,7 +26,7 @@ public:
 		::deserialize(input, id);
 		obj = (id != (ProvinceId)-1) ? g_world->provinces[id] : nullptr;
 	}
-	static inline size_t size(const Province * obj) {
+	static inline size_t size(const Province *) {
 		return sizeof(ProvinceId);
 	}
 };
@@ -43,7 +43,7 @@ public:
 		::deserialize(input, id);
 		obj = (id != (NationId)-1) ? g_world->nations[id] : nullptr;
 	}
-	static inline size_t size(const Nation * obj) {
+	static inline size_t size(const Nation *) {
 		return sizeof(NationId);
 	}
 };
@@ -60,7 +60,7 @@ public:
 		::deserialize(input, id);
 		obj = (id != (size_t)-1) ? g_world->events[id] : nullptr;
 	}
-	static inline size_t size(const Event * obj) {
+	static inline size_t size(const Event *) {
 		return sizeof(size_t);
 	}
 };
@@ -77,7 +77,7 @@ public:
 		::deserialize(input, id);
 		obj = (id != (ProductId)-1) ? g_world->products[id] : nullptr;
 	}
-	static inline size_t size(const Product * obj) {
+	static inline size_t size(const Product *) {
 		return sizeof(ProductId);
 	}
 };
@@ -94,7 +94,7 @@ public:
 		::deserialize(input, id);
 		obj = (id != (CultureId)-1) ? g_world->cultures[id] : nullptr;
 	}
-	static inline size_t size(const Culture * obj) {
+	static inline size_t size(const Culture *) {
 		return sizeof(CultureId);
 	}
 };
@@ -111,7 +111,7 @@ public:
 		::deserialize(input, id);
 		obj = (id != (GoodId)-1) ? g_world->goods[id] : nullptr;
 	}
-	static inline size_t size(const Good * obj) {
+	static inline size_t size(const Good *) {
 		return sizeof(GoodId);
 	}
 };
@@ -159,11 +159,65 @@ template<>
 class Serializer<Policies> : public SerializerMemcpy<Policies> {};
 
 template<>
-class Serializer<PopType> : public SerializerMemcpy<PopType> {};
+class Serializer<PopType> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& output, const PopType& obj) {
+		::serialize(output, obj.name);
+		::serialize(output, obj.ref_name);
+		::serialize(output, obj.average_budget);
+	}
+	static inline void deserialize(Archive& input, PopType& obj) {
+		::deserialize(input, obj.name);
+		::deserialize(input, obj.ref_name);
+		::deserialize(input, obj.average_budget);
+	}
+	static inline size_t size(const PopType& obj) {
+		return serialized_size(obj.name)
+			+ serialized_size(obj.ref_name)
+			+ serialized_size(obj.average_budget)
+		;
+	}
+};
+
 template<>
-class Serializer<Culture> : public SerializerMemcpy<Culture> {};
+class Serializer<Culture> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& output, const Culture& obj) {
+		::serialize(output, obj.name);
+		::serialize(output, obj.ref_name);
+	}
+	static inline void deserialize(Archive& input, Culture& obj) {
+		::deserialize(input, obj.name);
+		::deserialize(input, obj.ref_name);
+	}
+	static inline size_t size(const Culture& obj) {
+		return serialized_size(obj.name)
+			+ serialized_size(obj.ref_name)
+		;
+	}
+};
+
 template<>
-class Serializer<Religion> : public SerializerMemcpy<Religion> {};
+class Serializer<Religion> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& output, const Religion& obj) {
+		::serialize(output, obj.name);
+		::serialize(output, obj.ref_name);
+	}
+	static inline void deserialize(Archive& input, Religion& obj) {
+		::deserialize(input, obj.name);
+		::deserialize(input, obj.ref_name);
+	}
+	static inline size_t size(const Religion& obj) {
+		return serialized_size(obj.name)
+			+ serialized_size(obj.ref_name)
+		;
+	}
+};
+
 template<>
 class Serializer<PartyLoyalty> : public SerializerMemcpy<PartyLoyalty> {};
 template<>
@@ -609,18 +663,12 @@ public:
 	static inline void serialize(Archive& output, const Good& obj) {
 		::serialize(output, obj.name);
 		::serialize(output, obj.ref_name);
-		
 		::serialize(output, obj.is_edible);
-		
-		// TODO: Image texture serialized here
 	}
 	static inline void deserialize(Archive& input, Good& obj) {
 		::deserialize(input, obj.name);
 		::deserialize(input, obj.ref_name);
-		
 		::deserialize(input, obj.is_edible);
-		
-		// TODO: Rest of fields
 	}
 	static inline size_t size(const Good& obj) {
 		return
@@ -628,7 +676,6 @@ public:
 			+ serialized_size(obj.ref_name)
 			+ serialized_size(obj.is_edible)
 		;
-		// TODO: Rest of fields
 	}
 };
 
@@ -666,17 +713,19 @@ public:
 template<>
 class Serializer<World> {
 public:
+	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, World const& obj) {
 		::serialize(output, obj.width);
 		::serialize(output, obj.height);
 		::serialize(output, obj.sea_level);
-		
-		::serialize(output, obj.delivers);
-		::serialize(output, obj.orders);
-		
+		::serialize(output, obj.time);
+
 		for(size_t i = 0; i < obj.width * obj.height; i++) {
 			::serialize(output, obj.tiles[i]);
 		}
+		
+		::serialize(output, obj.delivers);
+		::serialize(output, obj.orders);
 		
 		const uint32_t n_goods = obj.goods.size();
 		::serialize(output, n_goods);
@@ -748,14 +797,15 @@ public:
 		::deserialize(input, obj.width);
 		::deserialize(input, obj.height);
 		::deserialize(input, obj.sea_level);
-		
-		::deserialize(input, obj.delivers);
-		::deserialize(input, obj.orders);
-		
+		::deserialize(input, obj.time);
+
 		obj.tiles = new Tile[obj.width * obj.height];
 		for(size_t i = 0; i < obj.width * obj.height; i++) {
 			::deserialize(input, obj.tiles[i]);
 		}
+
+		::deserialize(input, obj.delivers);
+		::deserialize(input, obj.orders);
 		
 		uint32_t n_goods;
 		::deserialize(input, n_goods);
@@ -850,6 +900,7 @@ public:
 			serialized_size(obj.width)
 			+ serialized_size(obj.height)
 			+ serialized_size(obj.sea_level)
+			+ serialized_size(obj.time)
 			+ serialized_size(obj.delivers)
 			+ serialized_size(obj.orders)
 			+ (sizeof(Tile) * (obj.width * obj.height))
