@@ -51,6 +51,9 @@ Server::~Server() {
 	close(fd);
 }
 
+#include "world.hpp"
+#include "io_impl.hpp"
+extern World * g_world;
 void Server::client_loop(void) {
 	while(run) {
 		sockaddr_in client;
@@ -65,24 +68,19 @@ void Server::client_loop(void) {
 
 		print_info("New client connection established");
 
-		unsigned short version;
-
 		Packet * packet;
-		
-		packet = new Packet(conn_fd, &version);
-		packet->compose();
-		delete packet;
-
 		packet = new Packet(conn_fd);
-		packet->decompose();
-		if(!packet->is_ok()) {
-			print_error("Packet is not OK");
-			continue;
-		}
-		delete packet;
 
-		packet = new Packet(conn_fd);
-		packet->compose();
+		print_info("Sending version info");
+		// Send version
+		uint16_t version = 0x0001;
+		packet->send(&version);
+
+		print_info("Sending world snapshot");
+		// Send the whole fucking world
+		Archive ar = Archive();
+		serialize(ar, *g_world);
+		packet->send(ar.get_buffer(), ar.buffer.size());
 
 		print_info("Client connection closed");
 	}

@@ -190,7 +190,7 @@ public:
 	float diplomacy_points;
 
 	// Total number of prestige
-	float prestige;
+	float prestige = 0.1f;
 
 	// Base literacy applied to all pops
 	float base_literacy;
@@ -199,7 +199,7 @@ public:
 	bool is_civilized;
 
 	// Level of infamy
-	float infamy;
+	float infamy = 0.f;
 
 	// 3 key scores used to define a nation's minimum prestige, how willing would the AI
 	// be to challenge this nations and other valuable stuff

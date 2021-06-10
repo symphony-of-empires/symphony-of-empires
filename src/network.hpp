@@ -15,77 +15,85 @@ enum PacketCode {
 	PACKET_ERROR,
 };
 class Packet {
-	unsigned char * data;
-	size_t n_data;
+	uint8_t * bufdata = nullptr;
+	size_t n_data = 0;
 	PacketCode code = PACKET_OK;
 	int fd;
 public:
 	Packet(int _fd, std::string buf) : fd(_fd) {
 		n_data = buf.size();
-		data = new unsigned char[n_data];
+		bufdata = new unsigned char[n_data];
 		for(size_t i = 0; i < n_data; i++) {
-			data[i] = buf[i];
+			bufdata[i] = buf[i];
 		}
 	};
-
-	template<typename T>
-	Packet(int _fd, T * buf) : n_data(sizeof(T)), fd(_fd) {
-		data = new unsigned char[n_data];
-		memcpy(data, buf, n_data);
-	};
-
-	template<typename T, typename S>
-	Packet(int _fd, T * buf, S size) : fd(_fd), n_data(size) {
-		data = new unsigned char[n_data];
-		memcpy(data, buf, n_data);
-	}
 
 	Packet(int _fd) : fd(_fd) {};
 	~Packet() {
-		delete data;
+		delete bufdata;
 	};
 
-	inline void compose(void) {
-		uint32_t net_size = htonl(n_data);
-		uint32_t net_code = htonl(code);
+	void * data(void) {
+		return (void *)bufdata;
+	}
 
-		if(write(fd, &net_size, sizeof(net_size)) == -1) {
-			print_error("Socket write error");
-			return;
-		}
-		if(write(fd, data, n_data) == -1) {
-			print_error("Socket write error");
-			return;
-		}
+	size_t size(void) {
+		return n_data;
+	}
+
+	template<typename T>
+	void send(const T * buf, size_t size = sizeof(T)) {
+		n_data = size;
+		bufdata = (uint8_t *)realloc(bufdata, n_data);
+		memcpy(bufdata, buf, n_data);
+
+		uint32_t net_code = htonl(code);
 		if(write(fd, &net_code, sizeof(net_code)) == -1) {
-			print_error("Socket write error");
+			print_error("Socket write error for packet code");
+			return;
+		}
+
+		uint32_t net_size = htonl(n_data);
+		if(write(fd, &net_size, sizeof(net_size)) == -1) {
+			print_error("Socket write error for size of packet");
+			return;
+		}
+
+		if(write(fd, bufdata, n_data) == -1) {
+			print_error("Socket write error for data in packet");
 			return;
 		}
 	}
-	inline void decompose(void) {
-		uint32_t net_size, net_code;
 
+	template<typename T>
+	void recv(T * buf = nullptr) {
+		uint32_t net_code;
+		if(read(fd, &net_code, sizeof(net_code)) == -1) {
+			print_error("Socket read error for packet code");
+			return;
+		}
+		net_code  = ntohl(net_code);
+		code = (PacketCode)net_code;
+
+		uint32_t net_size;
 		if(read(fd, &net_size, sizeof(net_size)) == -1) {
-			print_error("Socket read error");
+			print_error("Socket read error for size of packet");
 			return;
 		}
 		net_size = ntohl(net_size);
 		n_data = (size_t)net_size;
 
-		data = new unsigned char[n_data];
-		if(read(fd, data, net_size) == -1) {
-			print_error("Socket read error");
+		bufdata = (uint8_t *)realloc(bufdata, n_data);
+		if(read(fd, bufdata, n_data) == -1) {
+			print_error("Socket read error for data in packet");
 			return;
 		}
-		
-		if(read(fd, &net_code, sizeof(net_code)) == -1) {
-			print_error("Socket read error");
-			return;
-		}
-		net_code  = ntohl(net_code);
-		code = (PacketCode)net_code;
+
+		if(buf != nullptr)
+			memcpy(buf, bufdata, n_data);
 	}
-	inline bool is_ok() {
+
+	bool is_ok() {
 		return (code == PACKET_OK);
 	}
 };
@@ -108,6 +116,9 @@ class Client {
 public:
 	Client(std::string host, unsigned port);
 	~Client();
+	int get_fd(void) {
+		return fd;
+	}
 	void client_loop(void);
 };
 

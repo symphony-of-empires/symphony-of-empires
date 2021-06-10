@@ -19,10 +19,6 @@
 #include "economy.hpp"
 #include "print.hpp"
 
-#ifndef SERVER_HEADLESS
-#	include "ui.hpp"
-#endif
-
 #include <libintl.h>
 #include <locale.h>
 #include "path.hpp"

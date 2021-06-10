@@ -343,6 +343,10 @@ void Economy::do_phase_3(World& world) {
 			// TODO: Higher the fullfilment per unit with higher literacy
 			float everyday_alloc_budget = pop.budget / 10;
 			for(const auto& product: world.products) {
+				// Only valid indices
+				if(world.get_id(product) == (ProductId)-1)
+					continue;
+
 				// Province must have stockpile
 				if(!province->stockpile[world.get_id(product)])
 					continue;
