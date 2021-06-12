@@ -112,11 +112,13 @@ static void play_nation(UI::Widget&, void *) {
 	ui_ctx->clear();
 	current_mode = MAP_MODE_NORMAL;
 	
-	const Province& capital = *g_world->nations[curr_selected_nation]->capital;
-	cam.x = capital.max_x;
-	cam.y = capital.max_y;
-	cam.x = -cam.x;
-	cam.z = -100.f;
+	const Province * capital = g_world->nations[curr_selected_nation]->capital;
+	if(capital != nullptr) {
+		cam.x = capital->max_x;
+		cam.y = capital->max_y;
+		cam.x = -cam.x;
+		cam.z = -100.f;
+	}
 	
 	const Texture& top_win_tex = g_texture_manager->load_texture(Path::get("ui/top_win.png"));
 	const Texture& top_win_chart_tex = g_texture_manager->load_texture(Path::get("ui/top_win_chart.png"));
@@ -317,6 +319,7 @@ void select_nation(void) {
 	play_btn->text("Play");
 	play_btn->on_click = &play_nation;
 	
+	Unit * selected_unit = nullptr;
 	while(run) {
 		std::unique_lock<std::mutex> lock(render_lock);
 		
@@ -344,6 +347,47 @@ void select_nation(void) {
 						change_country(tile.owner_id);
 						break;
 					case MAP_MODE_NORMAL:
+						// See untis that have been clicked on
+						if(event.button.button == SDL_BUTTON_LEFT) {
+							selected_unit = nullptr;
+							for(const auto& unit: g_world->units) {
+								const float size = 2.f;
+								if((int)select_pos.first > (int)unit->x - size
+								&& (int)select_pos.first < (int)unit->x + size
+								&& (int)select_pos.second > (int)unit->y - size
+								&& (int)select_pos.second < (int)unit->y + size) {
+									selected_unit = unit;
+									break;
+								}
+							}
+
+							if(selected_unit != nullptr) {
+								break;
+							}
+							Unit * unit = new Unit();
+							unit->owner = g_world->nations[curr_selected_nation];
+							unit->size = 1000;
+							unit->x = select_pos.first;
+							unit->y = select_pos.second;
+							unit->tx = unit->x;
+							unit->ty = unit->y;
+							g_world->units.push_back(unit);
+						} else if(event.button.button == SDL_BUTTON_RIGHT) {
+							if(selected_unit != nullptr) {
+								selected_unit->tx = select_pos.first;
+								selected_unit->ty = select_pos.second;
+								break;
+							}
+							Unit * unit = new Unit();
+							unit->owner = g_world->nations[3];
+							unit->size = 1000;
+							unit->x = select_pos.first;
+							unit->y = select_pos.second;
+							unit->tx = unit->x;
+							unit->ty = unit->y;
+							g_world->units.push_back(unit);
+						}
+
 						/*
 						if(tile.province_id != (ProvinceId)-1) {
 							province_view_win = new UI::Window(0, 0, province_view_win_tex.width, province_view_win_tex.height);
@@ -385,16 +429,6 @@ void select_nation(void) {
 						*/
 						break;
 					}
-
-					// TODO: Do not access server
-					Unit * unit = new Unit();
-					unit->owner = g_world->nations[curr_selected_nation];
-					unit->size = 1000;
-					unit->x = select_pos.first;
-					unit->y = select_pos.second;
-					unit->tx = unit->x;
-					unit->ty = unit->y;
-					g_world->units.push_back(unit);
 				}
 				break;
 			case SDL_MOUSEMOTION:
@@ -567,6 +601,36 @@ void select_nation(void) {
 		glRotatef(cam.z_angle, 0.0f, 0.0f, 1.0f);
 
 		map->draw(cam.z);
+
+		for(const auto& unit: g_world->units) {
+			const float size = 1.f;
+
+			glBindTexture(GL_TEXTURE_2D, unit->owner->default_flag->gl_tex_num);
+			glBegin(GL_QUADS);
+
+			glColor4f(1.f, 1.f, 1.f, 0.8f);
+			glTexCoord2f(0.f, 0.f);
+			glVertex2f(unit->x, unit->y);
+			glTexCoord2f(1.f, 0.f);
+			glVertex2f(unit->x + size, unit->y);
+			glTexCoord2f(1.f, 1.f);
+			glVertex2f(unit->x + size, unit->y + size);
+			glTexCoord2f(0.f, 1.f);
+			glVertex2f(unit->x, unit->y + size);
+
+			glEnd();
+		}
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		if(selected_unit != nullptr) {
+			glBegin(GL_LINE_STRIP);
+			glColor3f(1.f, 0.f, 0.f);
+			glVertex2f(selected_unit->x, selected_unit->y);
+			glVertex2f(selected_unit->x + 1.f, selected_unit->y);
+			glVertex2f(selected_unit->x + 1.f, selected_unit->y + 1.f);
+			glVertex2f(selected_unit->x, selected_unit->y + 1.f);
+			glEnd();
+		}
 
 		glBegin(GL_QUADS);
 		glColor3f(1.f, 1.f, 1.f);

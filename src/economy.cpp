@@ -253,7 +253,7 @@ void Economy::do_phase_2(World& world) {
 				
 			// Add up to province stockpile
 			deliver->province->stockpile[world.get_id(product)] += deliver->quantity;
-				
+			
 			// Increment supply because of incremented stockpile
 			product->supply += deliver->quantity;
 			if(product->demand) {

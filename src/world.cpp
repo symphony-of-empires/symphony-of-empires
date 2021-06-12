@@ -467,9 +467,6 @@ void World::do_tick() {
 			break;
 		}
 		
-		unit->tx = unit->x;
-		unit->ty = unit->y;
-		
 		// Count friends and foes in range (and find nearest foe)
 		size_t n_friends = 0;
 		size_t n_foes = 0;
@@ -479,7 +476,7 @@ void World::do_tick() {
 			Unit * other_unit = g_world->units[j];
 			if(unit->owner == other_unit->owner) {
 				// Only when very close
-				if(std::abs(unit->x - other_unit->x) >= 8.f && std::abs(unit->y - other_unit->y) >= 8.f)
+				if(std::abs(unit->x - other_unit->x) >= 4.f && std::abs(unit->y - other_unit->y) >= 4.f)
 					continue;
 				
 				n_friends++;
@@ -495,7 +492,7 @@ void World::do_tick() {
 				}
 			} else {
 				// Foes from many ranges counts
-				if(std::abs(unit->x - other_unit->x) >= 15 && std::abs(unit->y - other_unit->y) >= 15)
+				if(std::abs(unit->x - other_unit->x) >= 4.f && std::abs(unit->y - other_unit->y) >= 4.f)
 					continue;
 				
 				n_foes++;
@@ -513,14 +510,7 @@ void World::do_tick() {
 		}
 
 		float new_tx, new_ty;
-		
-		// Cant be too close of friends (due to supply limits)
-		if(nearest_friend != nullptr
-		&& std::abs(nearest_friend->x - unit->x) <= 4.f && std::abs(nearest_friend->y - unit->y) <= 4.f) {
-			// Get away away from friend, we can't take too much attrition
-			new_tx = (unit->x < nearest_friend->tx) ? (nearest_friend->tx + 4.f) : (nearest_friend->tx - 4.f);
-			new_ty = (unit->y < nearest_friend->ty) ? (nearest_friend->ty + 4.f) : (nearest_friend->ty - 4.f);
-		}
+
 		// Too much enemies, retreat
 		if(nearest_foe != nullptr && (n_foes / 3) > n_friends) {
 			// Go away from foes
@@ -542,24 +532,14 @@ void World::do_tick() {
 			if(std::abs(unit->x - nearest_foe->x) <= 1.f && std::abs(unit->y - nearest_foe->y) <= 1.f) {
 				nearest_foe->size -= 10;
 			}
-		}
-		// Nothing to do - we just die
-		else {
-			new_tx = unit->x;
-			new_ty = unit->y;
+		} else {
+			new_tx = unit->tx;
+			new_ty = unit->ty;
 		}
 
 		if(new_tx == unit->x && new_ty == unit->y) {
 			continue;
-		} else if(unit->tx != new_tx && unit->ty != new_ty) {
-			// Tiles below sea, as targets, are unacceptable (thus we don't have a target at all!)!
-			if(get_tile(new_tx, new_ty).elevation < sea_level) {
-				continue;
-			}
 		}
-
-		unit->tx = new_tx;
-		unit->ty = new_ty;
 
 		float end_x, end_y;
 		const float speed = 0.1f;
@@ -568,18 +548,18 @@ void World::do_tick() {
 		end_y = unit->y;
 
 		// Move towards target
-		if(unit->x > unit->tx)
+		if(unit->x > new_tx)
 			end_x -= speed;
-		else if(unit->x < unit->tx)
+		else if(unit->x < new_tx)
 			end_x += speed;
 
-		if(unit->y > unit->ty)
+		if(unit->y > new_ty)
 			end_y -= speed;
-		else if(unit->y < unit->ty)
+		else if(unit->y < new_ty)
 			end_y += speed;
 
 		// This code prevents us from stepping onto water tiles (but allows for rivers)
-		if(get_tile(end_x, end_y).elevation < sea_level) {
+		if(get_tile(end_x, end_y).elevation <= sea_level) {
 			continue;
 		}
 
