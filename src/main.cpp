@@ -47,7 +47,7 @@ int main(int argc, char ** argv) {
 		std::unique_lock<std::mutex> lock(world_lock);
 		world->do_tick();
 		world->client_update();
-		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 		while(paused);
 	}
