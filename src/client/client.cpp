@@ -124,7 +124,7 @@ static void pop_view_nation(UI::Widget&, void *) {
 	UI::Button * ok_btn = new UI::Button(9, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
 	ok_btn->text("OK");
 	ok_btn->current_texture = &button_ppv;\
-	ok_btn->on_click = [](UI::Widget&, void *) {
+	ok_btn->on_click = [](UI::Widget& w, void *) {
 		pop_view_nation_win = nullptr;
 		delete w.parent;
 	};
@@ -179,7 +179,7 @@ static void industry_view_nation(UI::Widget&, void *) {
 	UI::Button * ok_btn = new UI::Button(9, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
 	ok_btn->text("OK");
 	ok_btn->current_texture = &button_ppv;\
-	ok_btn->on_click = [](UI::Widget&, void *) {
+	ok_btn->on_click = [](UI::Widget& w, void *) {
 		industry_view_nation_win = nullptr;
 		delete w.parent;
 	};

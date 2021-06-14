@@ -224,72 +224,20 @@ public:
 	std::vector<Descision *> taken_descisions;
 	mutable std::mutex taken_descisions_mutex;
 
-	NationId get_id(const Nation * ptr) const {
-		//std::lock_guard<std::mutex> lock(nations_mutex);
-		return get_id_ptr<NationId>(ptr, nations);
-	}
-
-	ProvinceId get_id(const Province * ptr) const {
-		//std::lock_guard<std::mutex> lock(provinces_mutex);
-		return get_id_ptr<ProvinceId>(ptr, provinces);
-	}
-
-	ProductId get_id(const Product * ptr) const {
-		//std::lock_guard<std::mutex> lock(products_mutex);
-		return get_id_ptr<ProductId>(ptr, products);
-	}
-
-	GoodId get_id(const Good * ptr) const {
-		//std::lock_guard<std::mutex> lock(goods_mutex);
-		return get_id_ptr<GoodId>(ptr, goods);
-	}
-
-	CultureId get_id(const Culture * ptr) const {
-		//std::lock_guard<std::mutex> lock(cultures_mutex);
-		return get_id_ptr<CultureId>(ptr, cultures);
-	}
-
-	CompanyId get_id(const Company * ptr) const {
-		//std::lock_guard<std::mutex> lock(companies_mutex);
-		return get_id_ptr<CompanyId>(ptr, companies);
-	}
-
-	IndustryTypeId get_id(const IndustryType * ptr) const {
-		//std::lock_guard<std::mutex> lock(industry_types_mutex);
-		return get_id_ptr<IndustryTypeId>(ptr, industry_types);
-	}
-
-	IndustryId get_id(const Province& province, const Industry * ptr) const {
-		//std::lock_guard<std::mutex> lock(provinces_mutex);
-		return ((ptrdiff_t)ptr - (ptrdiff_t)&province.industries[0]) / sizeof(Industry);
-	}
-
-	EventId get_id(const Event * ptr) const {
-		//std::lock_guard<std::mutex> lock(events_mutex);
-		return get_id_ptr<EventId>(ptr, events);
-	}
-
-	size_t get_id(const Tile * ptr) const {
-		//std::lock_guard<std::mutex> lock(tiles_mutex);
-		return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
-	}
-
+	NationId get_id(const Nation * ptr) const;
+	ProvinceId get_id(const Province * ptr) const;
+	ProductId get_id(const Product * ptr) const;
+	GoodId get_id(const Good * ptr) const;
+	CultureId get_id(const Culture * ptr) const;
+	CompanyId get_id(const Company * ptr) const;
+	IndustryTypeId get_id(const IndustryType * ptr) const;
+	IndustryId get_id(const Province& province, const Industry * ptr) const;
+	EventId get_id(const Event * ptr) const;
+	size_t get_id(const Tile * ptr) const;
+	
 	// Obtains a tile from the world safely, and makes sure that it is in bounds
-	Tile& get_tile(size_t x, size_t y) const {
-		std::lock_guard<std::mutex> lock(tiles_mutex);
-		if(x >= width || y >= height) {
-			throw "Tile out of bounds";
-		}
-		return tiles[x + y * width];
-	}
-
-	Tile& get_tile(size_t idx) const {
-		std::lock_guard<std::mutex> lock(tiles_mutex);
-		if(idx >= width * height) {
-			throw "Tile index exceeds boundaries";
-		}
-		return tiles[idx];
-	}
+	Tile& get_tile(size_t x, size_t y) const;
+	Tile& get_tile(size_t idx) const;
 	
 	// Used by client to update anything each tick (i.e a graph)
 	void (*client_update)(void);
