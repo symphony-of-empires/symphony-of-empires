@@ -91,14 +91,6 @@ static void change_country(size_t id) {
 	}
 }
 
-static void next_nation(UI::Widget&, void *) {
-	change_country(curr_selected_nation + 1);
-}
-
-static void prev_nation(UI::Widget&, void *) {
-	change_country(curr_selected_nation - 1);
-}
-
 std::pair<int, int> mouse_pos;
 
 static UI::Window * top_win, * province_view_win;
@@ -111,28 +103,6 @@ static UI::Image * money_icon, * prestige_icon, * economy_icon, * big_brain_icon
 
 static UI::Window * pop_view_nation_win = nullptr;
 static uint8_t pop_view_nation_page_num = 0;
-static void pop_view_nation_close(UI::Widget& w, void *) {
-	pop_view_nation_win = nullptr;
-	delete w.parent;
-}
-static void pop_view_nation_next(UI::Widget& w, void *) {
-	char * tmpbuf = new char[255];
-	
-	pop_view_nation_page_num++;
-	sprintf(tmpbuf, "Your province's POPs (page %zu)", pop_view_nation_page_num);
-	pop_view_nation_win->text(tmpbuf);
-	
-	delete[] tmpbuf;
-}
-static void pop_view_nation_prev(UI::Widget& w, void *) {
-	char * tmpbuf = new char[255];
-	
-	pop_view_nation_page_num--;
-	sprintf(tmpbuf, "Your province's POPs (page %zu)", pop_view_nation_page_num);
-	pop_view_nation_win->text(tmpbuf);
-	
-	delete[] tmpbuf;
-}
 static void pop_view_nation(UI::Widget&, void *) {
 	// Do not make duplicate windows
 	if(pop_view_nation_win != nullptr) {
@@ -154,17 +124,32 @@ static void pop_view_nation(UI::Widget&, void *) {
 	UI::Button * ok_btn = new UI::Button(9, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
 	ok_btn->text("OK");
 	ok_btn->current_texture = &button_ppv;\
-	ok_btn->on_click = &pop_view_nation_close;
+	ok_btn->on_click = [](UI::Widget&, void *) {
+		pop_view_nation_win = nullptr;
+		delete w.parent;
+	};
 	
 	UI::Button * prev_btn = new UI::Button(193, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
 	prev_btn->text("Previous");
 	prev_btn->current_texture = &button_ppv;
-	prev_btn->on_click = &pop_view_nation_prev;
+	prev_btn->on_click = [](UI::Widget&, void *) {
+		char * tmpbuf = new char[255];
+		pop_view_nation_page_num--;
+		sprintf(tmpbuf, "Your province's POPs (page %zu)", pop_view_nation_page_num);
+		pop_view_nation_win->text(tmpbuf);
+		delete[] tmpbuf;
+	};
 	
 	UI::Button * next_btn = new UI::Button(377, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
 	next_btn->text("Next");
 	next_btn->current_texture = &button_ppv;
-	next_btn->on_click = &pop_view_nation_next;
+	next_btn->on_click = [](UI::Widget&, void *) {
+		char * tmpbuf = new char[255];
+		pop_view_nation_page_num++;
+		sprintf(tmpbuf, "Your province's POPs (page %zu)", pop_view_nation_page_num);
+		pop_view_nation_win->text(tmpbuf);
+		delete[] tmpbuf;
+	};
 	
 	for(size_t i = 0; i < 12; i++) {
 		UI::Label * lab = new UI::Label(9, 43 + (i * 28), "?", pop_view_nation_win);
@@ -173,28 +158,6 @@ static void pop_view_nation(UI::Widget&, void *) {
 
 static UI::Window * industry_view_nation_win = nullptr;
 static uint8_t industry_view_nation_page_num = 0;
-static void industry_view_nation_close(UI::Widget& w, void *) {
-	industry_view_nation_win = nullptr;
-	delete w.parent;
-}
-static void industry_view_nation_next(UI::Widget& w, void *) {
-	char * tmpbuf = new char[255];
-	
-	industry_view_nation_page_num++;
-	sprintf(tmpbuf, "Your province's industries (page %zu)", industry_view_nation_page_num);
-	industry_view_nation_win->text(tmpbuf);
-	
-	delete[] tmpbuf;
-}
-static void industry_view_nation_prev(UI::Widget& w, void *) {
-	char * tmpbuf = new char[255];
-	
-	industry_view_nation_page_num--;
-	sprintf(tmpbuf, "Your province's industries (page %zu)", industry_view_nation_page_num);
-	industry_view_nation_win->text(tmpbuf);
-	
-	delete[] tmpbuf;
-}
 static void industry_view_nation(UI::Widget&, void *) {
 	// Do not make duplicate windows
 	if(industry_view_nation_win != nullptr) {
@@ -216,17 +179,32 @@ static void industry_view_nation(UI::Widget&, void *) {
 	UI::Button * ok_btn = new UI::Button(9, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
 	ok_btn->text("OK");
 	ok_btn->current_texture = &button_ppv;\
-	ok_btn->on_click = &industry_view_nation_close;
+	ok_btn->on_click = [](UI::Widget&, void *) {
+		industry_view_nation_win = nullptr;
+		delete w.parent;
+	};
 	
 	UI::Button * prev_btn = new UI::Button(193, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
 	prev_btn->text("Previous");
 	prev_btn->current_texture = &button_ppv;
-	prev_btn->on_click = &industry_view_nation_prev;
+	prev_btn->on_click = [](UI::Widget&, void *) {
+		char * tmpbuf = new char[255];
+		industry_view_nation_page_num--;
+		sprintf(tmpbuf, "Your province's industries (page %zu)", industry_view_nation_page_num);
+		industry_view_nation_win->text(tmpbuf);
+		delete[] tmpbuf;
+	};
 	
 	UI::Button * next_btn = new UI::Button(377, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
 	next_btn->text("Next");
 	next_btn->current_texture = &button_ppv;
-	next_btn->on_click = &industry_view_nation_next;
+	next_btn->on_click = [](UI::Widget&, void *) {
+		char * tmpbuf = new char[255];
+		industry_view_nation_page_num++;
+		sprintf(tmpbuf, "Your province's industries (page %zu)", industry_view_nation_page_num);
+		industry_view_nation_win->text(tmpbuf);
+		delete[] tmpbuf;
+	};
 	
 	for(size_t i = 0; i < 12; i++) {
 		UI::Label * lab = new UI::Label(9, 43 + (i * 28), "?", industry_view_nation_win);
@@ -478,13 +456,17 @@ void select_nation(void) {
 	next_country_btn->current_texture = &button_128;
 	next_country_btn->text("Next");
 	next_country_btn->right_side_of(dynamic_cast<const UI::Widget&>(*curr_country_btn));
-	next_country_btn->on_click = &next_nation;
+	next_country_btn->on_click = [](UI::Widget&, void *) {
+		change_country(curr_selected_nation + 1);
+	};
 	UI::Button * prev_country_btn = new UI::Button(0, height - 128, button_128.width, button_128.height);
 	prev_country_btn->current_texture = &button_128;
 	prev_country_btn->text("Prev");
 	prev_country_btn->left_side_of(dynamic_cast<const UI::Widget&>(*curr_country_btn));
-	prev_country_btn->on_click = &prev_nation;
-
+	prev_country_btn->on_click = [](UI::Widget&, void *) {
+		change_country(curr_selected_nation - 1);
+	};
+	
 	UI::Button * play_btn = new UI::Button((width / 2) - (button_320.width / 2), height - button_320.height, button_320.width, button_320.height);
 	play_btn->current_texture = &button_320;
 	play_btn->text("Play");
@@ -748,9 +730,7 @@ void select_nation(void) {
 						// Find event
 						Event * event = nullptr;
 						for(auto& e_event: doable_events) {
-							print_info("tried event %s", e_event.ref_name.c_str());
 							for(const auto& e_descision: e_event.descisions) {
-								print_info("tried %s vs %s", e_descision.ref_name.c_str(), descision->ref_name);
 								if(e_descision.ref_name == descision->ref_name) {
 									event = &e_event;
 									break;
