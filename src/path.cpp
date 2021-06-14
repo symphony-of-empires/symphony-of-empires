@@ -31,7 +31,7 @@ namespace Path {
 		rsult = rsult.substr(0, found);
 		found = rsult.find_last_of("/\\");
 		rsult = rsult.substr(0, found);
-		rsult += "/data/";
+		rsult += "/data/test_only/";
 		rsult += str;
 		return rsult;
 	}

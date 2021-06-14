@@ -99,6 +99,8 @@ static void prev_nation(UI::Widget&, void *) {
 	change_country(curr_selected_nation - 1);
 }
 
+std::pair<int, int> mouse_pos;
+
 static UI::Window * top_win, * province_view_win;
 
 static UI::Chart * gdp_chart, * pop_chart, * hdi_chart;
@@ -106,6 +108,130 @@ static UI::Label * total_pop_lab, * total_prestige_lab, * total_economy_lab;
 
 static UI::Label * money_lab, * prestige_lab, * economy_lab, * big_brain_lab, * militancy_lab, * population_lab;
 static UI::Image * money_icon, * prestige_icon, * economy_icon, * big_brain_icon, * militancy_icon, * population_icon;
+
+static UI::Window * pop_view_nation_win = nullptr;
+static uint8_t pop_view_nation_page_num = 0;
+static void pop_view_nation_close(UI::Widget& w, void *) {
+	pop_view_nation_win = nullptr;
+	delete w.parent;
+}
+static void pop_view_nation_next(UI::Widget& w, void *) {
+	char * tmpbuf = new char[255];
+	
+	pop_view_nation_page_num++;
+	sprintf(tmpbuf, "Your province's POPs (page %zu)", pop_view_nation_page_num);
+	pop_view_nation_win->text(tmpbuf);
+	
+	delete[] tmpbuf;
+}
+static void pop_view_nation_prev(UI::Widget& w, void *) {
+	char * tmpbuf = new char[255];
+	
+	pop_view_nation_page_num--;
+	sprintf(tmpbuf, "Your province's POPs (page %zu)", pop_view_nation_page_num);
+	pop_view_nation_win->text(tmpbuf);
+	
+	delete[] tmpbuf;
+}
+static void pop_view_nation(UI::Widget&, void *) {
+	// Do not make duplicate windows
+	if(pop_view_nation_win != nullptr) {
+		return;
+	}
+	
+	// View the provinces in a country - along with the population in them
+	const Texture& province_pop_view_win = g_texture_manager->load_texture(Path::get("ui/province_pop_view_win.png"));
+	const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_ppv.png"));
+	
+	pop_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, province_pop_view_win.width, province_pop_view_win.height);
+	pop_view_nation_win->current_texture = &province_pop_view_win;
+	
+	char * tmpbuf = new char[255];
+	sprintf(tmpbuf, "Your province's POPs (page %zu)", pop_view_nation_page_num);
+	pop_view_nation_win->text(tmpbuf);
+	delete[] tmpbuf;
+	
+	UI::Button * ok_btn = new UI::Button(9, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
+	ok_btn->text("OK");
+	ok_btn->current_texture = &button_ppv;\
+	ok_btn->on_click = &pop_view_nation_close;
+	
+	UI::Button * prev_btn = new UI::Button(193, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
+	prev_btn->text("Previous");
+	prev_btn->current_texture = &button_ppv;
+	prev_btn->on_click = &pop_view_nation_prev;
+	
+	UI::Button * next_btn = new UI::Button(377, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
+	next_btn->text("Next");
+	next_btn->current_texture = &button_ppv;
+	next_btn->on_click = &pop_view_nation_next;
+	
+	for(size_t i = 0; i < 12; i++) {
+		UI::Label * lab = new UI::Label(9, 43 + (i * 28), "?", pop_view_nation_win);
+	}
+}
+
+static UI::Window * industry_view_nation_win = nullptr;
+static uint8_t industry_view_nation_page_num = 0;
+static void industry_view_nation_close(UI::Widget& w, void *) {
+	industry_view_nation_win = nullptr;
+	delete w.parent;
+}
+static void industry_view_nation_next(UI::Widget& w, void *) {
+	char * tmpbuf = new char[255];
+	
+	industry_view_nation_page_num++;
+	sprintf(tmpbuf, "Your province's industries (page %zu)", industry_view_nation_page_num);
+	industry_view_nation_win->text(tmpbuf);
+	
+	delete[] tmpbuf;
+}
+static void industry_view_nation_prev(UI::Widget& w, void *) {
+	char * tmpbuf = new char[255];
+	
+	industry_view_nation_page_num--;
+	sprintf(tmpbuf, "Your province's industries (page %zu)", industry_view_nation_page_num);
+	industry_view_nation_win->text(tmpbuf);
+	
+	delete[] tmpbuf;
+}
+static void industry_view_nation(UI::Widget&, void *) {
+	// Do not make duplicate windows
+	if(industry_view_nation_win != nullptr) {
+		return;
+	}
+	
+	// View the provinces in a country - along with the population in them
+	const Texture& industry_view_win = g_texture_manager->load_texture(Path::get("ui/province_industry_view_win.png"));
+	const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_ppv.png"));
+	
+	industry_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, industry_view_win.width, industry_view_win.height);
+	industry_view_nation_win->current_texture = &industry_view_win;
+	
+	char * tmpbuf = new char[255];
+	sprintf(tmpbuf, "Your province's industries (page %zu)", pop_view_nation_page_num);
+	industry_view_nation_win->text(tmpbuf);
+	delete[] tmpbuf;
+	
+	UI::Button * ok_btn = new UI::Button(9, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
+	ok_btn->text("OK");
+	ok_btn->current_texture = &button_ppv;\
+	ok_btn->on_click = &industry_view_nation_close;
+	
+	UI::Button * prev_btn = new UI::Button(193, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
+	prev_btn->text("Previous");
+	prev_btn->current_texture = &button_ppv;
+	prev_btn->on_click = &industry_view_nation_prev;
+	
+	UI::Button * next_btn = new UI::Button(377, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
+	next_btn->text("Next");
+	next_btn->current_texture = &button_ppv;
+	next_btn->on_click = &industry_view_nation_next;
+	
+	for(size_t i = 0; i < 12; i++) {
+		UI::Label * lab = new UI::Label(9, 43 + (i * 28), "?", industry_view_nation_win);
+	}
+}
 
 std::mutex render_lock;
 static void play_nation(UI::Widget&, void *) {
@@ -122,7 +248,6 @@ static void play_nation(UI::Widget&, void *) {
 	
 	const Texture& top_win_tex = g_texture_manager->load_texture(Path::get("ui/top_win.png"));
 	const Texture& top_win_chart_tex = g_texture_manager->load_texture(Path::get("ui/top_win_chart.png"));
-	
 	const Texture& icon_prestige_tex = g_texture_manager->load_texture(Path::get("ui/icons/prestige.png"));
 	const Texture& icon_economy_score_tex = g_texture_manager->load_texture(Path::get("ui/icons/economy_score.png"));
 	const Texture& icon_militar_score_tex = g_texture_manager->load_texture(Path::get("ui/icons/militar_score.png"));
@@ -132,6 +257,7 @@ static void play_nation(UI::Widget&, void *) {
 	const Texture& icon_big_brain_tex = g_texture_manager->load_texture(Path::get("ui/icons/big_brain.png"));
 	const Texture& icon_population_tex = g_texture_manager->load_texture(Path::get("ui/icons/population.png"));
 	
+	// General statics of the nation
 	top_win = new UI::Window(0, 0, top_win_tex.width, top_win_tex.height);
 	top_win->text("Overview");
 	top_win->current_texture = &top_win_tex;
@@ -140,16 +266,20 @@ static void play_nation(UI::Widget&, void *) {
 	gdp_chart->text("GDP");
 	gdp_chart->current_texture = &top_win_chart_tex;
 	gdp_chart->data.clear();
+	gdp_chart->on_click = &industry_view_nation;
 	
 	pop_chart = new UI::Chart(504, 120, top_win_chart_tex.width, top_win_chart_tex.height, top_win);
 	pop_chart->text("Population");
 	pop_chart->current_texture = &top_win_chart_tex;
 	pop_chart->data.clear();
+	pop_chart->on_click = &pop_view_nation;
 	
 	hdi_chart = new UI::Chart(504, 197, top_win_chart_tex.width, top_win_chart_tex.height, top_win);
 	hdi_chart->text("HDI");
 	hdi_chart->current_texture = &top_win_chart_tex;
 	hdi_chart->data.clear();
+	
+	pop_view_nation_win = nullptr;
 	
 	UI::Image * current_flag = new UI::Image(9, 43, 188, 87, g_world->nations[curr_selected_nation]->default_flag, top_win);
 	
@@ -181,10 +311,15 @@ static void play_nation(UI::Widget&, void *) {
 }
 
 void client_update(void) {
+	// We are going to update widgets which require real-time feeding
+	// this function **should** be called per tick
+	
 	std::unique_lock<std::mutex> lock(render_lock);
 	
 	const Nation& player_nation = *g_world->nations[curr_selected_nation];
 	if((g_world->time % 48) == 16) {
+		// Charts for the GDP of the nation
+		
 		double gdp = 0.f;
 		for(const auto& province: player_nation.owned_provinces) {
 			for(const auto& product: g_world->products) {
@@ -196,6 +331,8 @@ void client_update(void) {
 			gdp_chart->data.pop_front();
 		}
 	} else if((g_world->time % 48) == 0) {
+		// Charts for population and HDI
+		
 		size_t total_pop = 0;
 		double living_std = 0.f;
 		for(const auto& province: player_nation.owned_provinces) {
@@ -249,6 +386,41 @@ void client_update(void) {
 	sprintf(tmpbuf, " %14zu", total_pop);
 	population_lab->text(tmpbuf);
 	
+	if(pop_view_nation_win != nullptr) {
+		size_t e = pop_view_nation_page_num * 10;
+		size_t i = 3;
+		
+		for(const auto& province: player_nation.owned_provinces) {
+			if(e >= player_nation.owned_provinces.size()) {
+				sprintf(tmpbuf, "?");
+				pop_view_nation_win->children[i]->text(tmpbuf);
+			} else {
+				sprintf(tmpbuf, "%16s %4zu", province->name.c_str(), province->total_pops());
+				pop_view_nation_win->children[i]->text(tmpbuf);
+			}
+			
+			i++;
+			e++;
+		}
+	} if(industry_view_nation_win != nullptr) {
+		size_t e = industry_view_nation_page_num * 12;
+		size_t i = 3;
+		
+		for(const auto& province: player_nation.owned_provinces) {
+			for(const auto& industry: province->industries) {
+				if(e >= 12) {
+					break;
+				} else {
+					sprintf(tmpbuf, "%12s %8s %4.2f", province->name.c_str(), industry.type->name.c_str(), industry.production_cost);
+					industry_view_nation_win->children[i]->text(tmpbuf);
+				}
+				
+				i++;
+				e++;
+			}
+		}
+	}
+	
 	delete[] tmpbuf;
 }
 
@@ -293,7 +465,6 @@ void select_nation(void) {
 	
 	run = true;
 	
-	std::pair<int, int> mouse_pos;
 	std::pair<float, float> select_pos;
 	
 	UI::Button * select_country_btn = new UI::Button((width / 2) - (button_320.width / 2), 8, button_320.width, button_320.height);
@@ -364,6 +535,7 @@ void select_nation(void) {
 							if(selected_unit != nullptr) {
 								break;
 							}
+							/*
 							Unit * unit = new Unit();
 							unit->owner = g_world->nations[curr_selected_nation];
 							unit->size = 1000;
@@ -372,23 +544,15 @@ void select_nation(void) {
 							unit->tx = unit->x;
 							unit->ty = unit->y;
 							g_world->units.push_back(unit);
+							*/
 						} else if(event.button.button == SDL_BUTTON_RIGHT) {
 							if(selected_unit != nullptr) {
 								selected_unit->tx = select_pos.first;
 								selected_unit->ty = select_pos.second;
 								break;
 							}
-							Unit * unit = new Unit();
-							unit->owner = g_world->nations[3];
-							unit->size = 1000;
-							unit->x = select_pos.first;
-							unit->y = select_pos.second;
-							unit->tx = unit->x;
-							unit->ty = unit->y;
-							g_world->units.push_back(unit);
 						}
-
-						/*
+						
 						if(tile.province_id != (ProvinceId)-1) {
 							province_view_win = new UI::Window(0, 0, province_view_win_tex.width, province_view_win_tex.height);
 							province_view_win->text("Province information");
@@ -426,7 +590,6 @@ void select_nation(void) {
 								colonize_province_btn->on_click = &colonize_province;
 							}
 						}
-						*/
 						break;
 					}
 				}

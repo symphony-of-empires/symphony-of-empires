@@ -211,6 +211,9 @@ public:
 	// of all products in the nation, which are volatile unless they are sold
 	float budget;
 
+	// Total GDP of the nation
+	float gdp = 0.f;
+
 	// Primary culture of this nation, may also be changed via events, otherwise it's permanent
 	Culture * primary_culture = nullptr;
 

@@ -74,6 +74,7 @@ World::World(bool empty) {
 
 	lua_register(this->lua, "add_province", LuaAPI::add_province);
 	lua_register(this->lua, "get_province", LuaAPI::get_province);
+	lua_register(this->lua, "add_province_industry", LuaAPI::add_province_industry);
 	lua_register(this->lua, "add_province_pop", LuaAPI::add_province_pop);
 	lua_register(this->lua, "give_province_to", LuaAPI::give_province_to);
 	lua_register(this->lua, "rename_province", LuaAPI::rename_province);
@@ -407,8 +408,6 @@ extern std::deque<size_t> render_province;
 
 #include "economy.hpp"
 void World::do_tick() {
-	print_info("Ticking %lu", time);
-
 	// Each tick == 30 minutes
 	switch(time % (24 * 2)) {
 	// 3:00
@@ -434,13 +433,18 @@ void World::do_tick() {
 	// 12:00
 	case 24:
 		Economy::do_phase_3(*this);
-
-		// Calculate economy score of nations
+		
 		for(auto& nation: this->nations) {
 			float economy_score = 0.f;
 			for(const auto& province: nation->owned_provinces) {
+				// Calculate economy score of nations
 				for(const auto& pop: province->pops) {
 					economy_score += pop.budget;
+				}
+				
+				// Also calculates GDP
+				for(const auto& product: g_world->products) {
+					nation->gdp += product->price * province->stockpile[g_world->get_id(product)];
 				}
 			}
 			nation->economy_score = economy_score / 100.f;
@@ -514,28 +518,27 @@ void World::do_tick() {
 		// Too much enemies, retreat
 		if(nearest_foe != nullptr && (n_foes / 3) > n_friends) {
 			// Go away from foes
-			new_tx = (nearest_foe->x > unit->x) ? nearest_foe->x : nearest_foe->x;
-			new_ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
+			unit->tx = (nearest_foe->x > unit->x) ? nearest_foe->x : nearest_foe->x;
+			unit->ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
 			
 			// Attack nearest foe when possible
 			if(std::abs(unit->x - nearest_foe->x) <= 1.f && std::abs(unit->y - nearest_foe->y) <= 1.f) {
-				nearest_foe->size -= 10;
+				nearest_foe->size -= (unit->type->attack * unit->size) / (nearest_foe->type->defense * nearest_foe->size);
 			}
 		}
 		// The gang is able to attack, so we attack
 		else if(nearest_foe != nullptr) {
 			// Attack enemies
-			new_tx = (nearest_foe->x > unit->x) ? nearest_foe->x : nearest_foe->x;
-			new_ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
+			unit->tx = (nearest_foe->x > unit->x) ? nearest_foe->x : nearest_foe->x;
+			unit->ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
 			
 			// If in distance, do attack
 			if(std::abs(unit->x - nearest_foe->x) <= 1.f && std::abs(unit->y - nearest_foe->y) <= 1.f) {
-				nearest_foe->size -= 10;
+				nearest_foe->size -= (unit->type->attack * unit->size) / (nearest_foe->type->defense * nearest_foe->size);
 			}
-		} else {
-			new_tx = unit->tx;
-			new_ty = unit->ty;
 		}
+		new_tx = unit->tx;
+		new_ty = unit->ty;
 
 		if(new_tx == unit->x && new_ty == unit->y) {
 			continue;

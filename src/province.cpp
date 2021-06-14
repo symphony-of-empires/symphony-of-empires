@@ -28,36 +28,21 @@ void Province::add_industry(World& world, Industry * industry) {
 	IndustryType * type = industry->type;
 	
 	industries.push_back(*industry);
+	printf("Now province %s has industry %zu\n", this->name.c_str(), industries.size());
 	
+	// Add a product for each output
 	for(const auto& output: type->outputs) {
-		// Check that product is not already in the province
-		int is_here = 0;
-		const unsigned int n_products = this->products.size();
-		for(ProductId j = 0; j < n_products; j++) {
-			if(this->products[j]->owner == industry->owner) {
-				is_here = 1;
-				break;
-			}
-		}
-		if(is_here)
-			break;
-		
-		// Otherwise add it to the province product list
-		this->industries.resize(this->industries.size() + 1);
-
 		Product * new_product = new Product();
 		new_product->industry = industry;
 		new_product->good = output;
 		new_product->owner = industry->owner;
-
 		new_product->demand_history.clear();
 		new_product->supply_history.clear();
 		new_product->price_history.clear();
 		
-		// Add the product to the world
 		new_product->origin = this;
-		world.products.push_back(new_product);
 		
+		world.products.push_back(new_product);
 		industry->output_products.push_back(new_product);
 	}
 

@@ -8,6 +8,8 @@
 #include "pop.hpp"
 #include "serializer.hpp"
 
+// TODO: There is a mess regarding references and stuff - we need to fix that
+
 // TODO: Modify the pointer, since we are only passing the pointer as a temporal on the stack
 // tl;dr we need a pointer to a pointer instead of a pointer - if decoding problems happens
 // this is why

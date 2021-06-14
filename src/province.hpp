@@ -77,7 +77,10 @@ public:
 	std::vector<Industry> industries;
 
 	// List of pops in this province
-    std::vector<Pop> pops;
+	std::vector<Pop> pops;
+	
+	// Attractiveness of province
+	float base_attractive = 0.f;
 
 	// Calculates the total number of POPs in this province (total population)
 	size_t total_pops(void) const;

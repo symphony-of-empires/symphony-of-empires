@@ -15,6 +15,8 @@ public:
 	const World& world;
 	std::vector<ProvinceShape> province_shapes;
 	void draw(float zoom);
+	
+	Texture * topo_tex;
 };
 
 class ProvinceShape {
