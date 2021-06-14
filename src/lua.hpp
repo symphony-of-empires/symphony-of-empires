@@ -26,6 +26,7 @@ namespace LuaAPI {
 
 	int add_province(lua_State * L);
 	int get_province(lua_State * L);
+	int add_province_industry(lua_State * L);
 	int give_province_to(lua_State * L);
 	int add_province_pop(lua_State * L);
 	int rename_province(lua_State * L);

@@ -39,9 +39,7 @@ int LuaAPI::add_good(lua_State * L) {
 	path = "icons/goods/" + good->ref_name + ".png";
 	good->icon = new Texture(Path::get(path.c_str()).c_str());
 	g_world->goods.push_back(good);
-
-	printf(gettext("good: %s (%s)\n"), good->name.c_str(), good->ref_name.c_str());
-
+	
 	lua_pushnumber(L, g_world->goods.size() - 1);
 	return 1;
 }
@@ -87,16 +85,11 @@ int LuaAPI::add_industry_type(lua_State * L) {
 	
 	path = "images/" + industry->ref_name + ".png";
 	industry->image = new Texture(Path::get(path.c_str()).c_str());
-	printf("opening %s\n", path.c_str());
 	
 	industry->inputs.clear();
 	industry->outputs.clear();
 	g_world->industry_types.push_back(industry);
-
-	printf(gettext("industry_type: %s (%s)"), industry->name.c_str(), industry->ref_name.c_str());
-	printf("\n");
-	
-	lua_pushnumber(L, g_world->industry_types.size() - 1);
+	lua_pushnumber(L, g_world->get_id(industry));
 	return 1;
 }
 
@@ -170,10 +163,9 @@ int LuaAPI::add_nation(lua_State * L) {
 			return 1;
 		}
 	}
-
-	printf("nation: %s (%s)\n", nation->name.c_str(), nation->ref_name.c_str());
+	
 	g_world->nations.push_back(nation);
-	lua_pushnumber(L, g_world->nations.size() - 1);
+	lua_pushnumber(L, g_world->get_id(nation));
 	return 1;
 }
 
@@ -243,15 +235,7 @@ int LuaAPI::add_province(lua_State * L) {
 	}
 
 	g_world->provinces.push_back(province);
-
-	// TODO: this is NOT good
-	for(size_t i = 0; i < 5; i++) {
-		Industry * industry = new Industry();
-		industry->owner = g_world->companies[rand() % g_world->companies.size()];
-		industry->type = g_world->industry_types[rand() % g_world->industry_types.size()];
-		g_world->provinces.back()->add_industry(*g_world, industry);
-	}
-	lua_pushnumber(L, g_world->provinces.size() - 1);
+	lua_pushnumber(L, g_world->get_id(province));
 	return 1;
 }
 
@@ -278,6 +262,30 @@ int LuaAPI::get_province(lua_State * L) {
 	lua_pushstring(L, province->name.c_str());
 	lua_pushnumber(L, province->color);
 	return 4;
+}
+
+int LuaAPI::add_province_industry(lua_State * L) {
+	if(lua_tonumber(L, 0) >= g_world->provinces.size()) {
+		print_error(gettext("lua province_id out of bounds"));
+		return 0;
+	} if(lua_tonumber(L, 2) >= g_world->industry_types.size()) {
+		print_error(gettext("lua industry_type_id out of bounds"));
+		return 0;
+	}
+	
+	Province *& province = g_world->provinces[lua_tonumber(L, 0)];
+	Industry * industry = new Industry();
+	
+	// Ownerless factory if id is invalid
+	if(lua_tonumber(L, 1) >= g_world->companies.size()) {
+		industry->owner = nullptr;
+	} else {
+		industry->owner = g_world->companies[lua_tonumber(L, 1)];
+	}
+	
+	industry->type = g_world->industry_types[lua_tonumber(L, 2)];
+	province->add_industry(*g_world, industry);
+	return 0;
 }
 
 int LuaAPI::give_province_to(lua_State * L) {
@@ -348,7 +356,7 @@ int LuaAPI::add_province_pop(lua_State * L) {
 int LuaAPI::rename_province(lua_State * L) {
 	size_t province_id = lua_tonumber(L, 1);
 	if(province_id >= g_world->provinces.size()) {
-		print_error(gettext("invalid province id %zu"), province_id);
+		print_error(gettext("lua province_id out of bounds"));
 		return 0;
 	}
 
@@ -410,11 +418,7 @@ int LuaAPI::add_company(lua_State * L) {
 
 	// Add onto vector
 	g_world->companies.push_back(company);
-
-	printf(gettext("company: %s"), company->name.c_str());
-	printf("\n");
-
-	lua_pushnumber(L, g_world->companies.size() - 1);
+	lua_pushnumber(L, g_world->get_id(company));
 	return 1;
 }
 
@@ -447,9 +451,6 @@ int LuaAPI::add_event(lua_State * L) {
 	event->ref_name = lua_tostring(L, 1);
 	event->conditions_function = lua_tostring(L, 2);
 	event->do_event_function = lua_tostring(L, 3);
-
-	printf(gettext("event: %s"), event->ref_name.c_str());
-	printf("\n");
 
 	// Add onto vector
 	g_world->events.push_back(event);
@@ -518,9 +519,6 @@ int LuaAPI::add_descision(lua_State * L) {
 	descision.do_descision_function = lua_tostring(L, 4);
 	descision.effects = lua_tostring(L, 5);
 
-	printf(gettext("descision: %s (to %s)"), descision.ref_name.c_str(), event->ref_name.c_str());
-	printf("\n");
-
 	// Add onto vector
 	event->descisions.push_back(descision);
 	return 0;
@@ -536,9 +534,6 @@ int LuaAPI::add_pop_type(lua_State * L) {
 	
 	pop->ref_name = lua_tostring(L, 1);
 	pop->name = lua_tostring(L, 2);
-	
-	printf(gettext("pop_type: %s"), pop->ref_name.c_str());
-	printf("\n");
 	
 	// Add onto vector
 	g_world->pop_types.push_back(pop);
@@ -581,9 +576,6 @@ int LuaAPI::add_culture(lua_State * L) {
 	culture->ref_name = lua_tostring(L, 1);
 	culture->name = lua_tostring(L, 2);
 
-	printf(gettext("culture: %s"), culture->ref_name.c_str());
-	printf("\n");
-
 	g_world->cultures.push_back(culture);
 	lua_pushnumber(L, g_world->cultures.size() - 1);
 	return 1;
@@ -623,9 +615,6 @@ int LuaAPI::add_religion(lua_State * L) {
 
 	religion->ref_name = lua_tostring(L, 1);
 	religion->name = lua_tostring(L, 2);
-
-	printf(gettext("religion: %s"), religion->ref_name.c_str());
-	printf("\n");
 
 	g_world->religions.push_back(religion);
 	lua_pushnumber(L, g_world->religions.size() - 1);
@@ -669,9 +658,6 @@ int LuaAPI::add_unit_type(lua_State * L) {
 	unit_type->attack = lua_tonumber(L, 3);
 	unit_type->defense = lua_tonumber(L, 4);
 	unit_type->max_health = lua_tonumber(L, 5);
-
-	printf(gettext("unit_type: %s"), unit_type->ref_name.c_str());
-	printf("\n");
 
 	g_world->unit_types.push_back(unit_type);
 	lua_pushnumber(L, g_world->unit_types.size() - 1);
@@ -731,9 +717,6 @@ int LuaAPI::add_boat_type(lua_State * L) {
 	boat_type->defense = lua_tonumber(L, 4);
 	boat_type->max_health = lua_tonumber(L, 5);
 	boat_type->capacity = lua_tonumber(L, 6);
-
-	printf(gettext("boat_type: %s"), boat_type->ref_name.c_str());
-	printf("\n");
 
 	g_world->boat_types.push_back(boat_type);
 	lua_pushnumber(L, g_world->boat_types.size() - 1);

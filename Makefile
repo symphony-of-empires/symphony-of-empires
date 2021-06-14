@@ -5,9 +5,9 @@ CXX=g++
 endif
 CXXFLAGS=-Wall -Wextra -Wshadow -Wfatal-errors -std=c++17 -O3 -mtune=native -iquote src -iquote src/client -g
 ifdef WINDOWS
-LIBS=-lopengl32 -lglu32 -llua -lintl
+LIBS=-lopengl32 -lglu32 -llua -lintl -ltbb
 else
-LIBS=-lGL -lGLU -llua5.4
+LIBS=-lGL -lGLU -llua5.4 -ltbb
 endif
 LIBS:=$(LIBS) -lpng -lSDL2 -lSDL2_ttf -lm -pthread
 

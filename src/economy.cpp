@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <execution>
 
 #include "economy.hpp"
 #include "world.hpp"
@@ -9,10 +10,13 @@
  * Checks if the industry can produce output (if it has enough input)
  */
 bool Industry::can_do_output(const World& world) {
+	// Except when no products are produced at all
+	if(!type->outputs.size() || !this->output_products.size())
+		return false;
+	
 	// Always can produce if RGO
-	if(!type->inputs.size()) {
+	if(!type->inputs.size())
 		return true;
-	}
 
 	// Check that we have enough stockpile
 	for(const auto& stock: this->stockpile) {
@@ -42,12 +46,12 @@ void Economy::do_phase_1(World& world) {
 
 	// All factories will place their orders for their inputs
 	// All RGOs will do deliver requests
-	for(auto& province: world.provinces) {
+	for(const auto& province: world.provinces) {
 		// Reset remaining supplies
 		province->supply_rem = province->supply_limit;
 
 		if(province->owner == nullptr) {
-			continue;
+			return;
 		}
 		
 		// This new tick, we will start the chain starting with RGOs producing deliver
@@ -69,10 +73,13 @@ void Economy::do_phase_1(World& world) {
 			available_manpower = std::min<size_t>(needed_manpower, province->worker_pool);
 			province->worker_pool -= available_manpower;
 			if(!available_manpower)
-				continue;
+				return;
 			
 			const IndustryType& it = *industry.type;
 			for(const auto& input: it.inputs) {
+				if(input == nullptr)
+					continue;
+				
 				OrderGoods order;
 				order.quantity = (available_manpower / needed_manpower) * 1500;
 				order.payment = industry.willing_payment;
@@ -83,14 +90,14 @@ void Economy::do_phase_1(World& world) {
 			}
 
 			if(industry.can_do_output(world) == false)
-				continue;
+				return;
 
 			// Now produce anything as we can!
 			// Take a constant of workers needed for factories, 1.5k workers!
 			available_manpower = std::min<size_t>(1500, province->worker_pool);
 			province->worker_pool -= available_manpower;
 			if(!available_manpower)
-				continue;
+				return;
 				
 			// Place deliver orders (we are a RGO)
 			for(size_t k = 0; k < it.outputs.size(); k++) {
@@ -270,16 +277,48 @@ void Economy::do_phase_2(World& world) {
 	world.orders.clear();
 }
 
+class Emigrated {
+public:
+	Province * target;
+	Pop * emigred;
+	size_t size;
+};
 /**
  * Phase 3 of economy: POPs buy the aforementioned products and take from the province's stockpile
  */
 void Economy::do_phase_3(World& world) {
 	// Now, it's like 1 am here, but i will try to write a very nice economic system
 	// TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
-	for(Province *& province: world.provinces) {
+	
+	std::mutex emigration_lock;
+	std::vector<Emigrated> emigration;
+	emigration.clear();
+	
+	std::for_each(std::execution::par_unseq, world.provinces.begin(), world.provinces.end(),
+	[&emigration_lock, &emigration, &world](auto& province) {
 		if(province->owner == nullptr) {
-			continue;
+			return;
 		}
+		
+		// Vector containing available products in the province (for faster calculations)
+		std::vector<Product *> province_products;
+		province_products.clear();
+		province_products.reserve(world.products.size());
+		for(const auto& product: world.products) {
+			// Only valid indices
+			if(world.get_id(product) == (ProductId)-1)
+				continue;
+
+			// Province must have stockpile
+			if(!province->stockpile[world.get_id(product)])
+				continue;
+			
+			province_products.push_back(product);
+		}
+		
+		float current_attractive = province->base_attractive;
+		current_attractive += province->owner->base_literacy;
+		current_attractive += province->owner->gdp / 1000.f;
 
 		// Reset worker pool
 		province->worker_pool = 0;
@@ -342,14 +381,11 @@ void Economy::do_phase_3(World& world) {
 			// TODO: Should lower spending with higher literacy, and higher
 			// TODO: Higher the fullfilment per unit with higher literacy
 			float everyday_alloc_budget = pop.budget / 10;
-			for(const auto& product: world.products) {
-				// Only valid indices
-				if(world.get_id(product) == (ProductId)-1)
-					continue;
-
+			for(const auto& product: province_products) {
 				// Province must have stockpile
-				if(!province->stockpile[world.get_id(product)])
+				if(!province->stockpile[world.get_id(product)]) {
 					continue;
+				}
 				
 				size_t bought = 0;
 				if(product->good->is_edible) {
@@ -418,6 +454,101 @@ void Economy::do_phase_3(World& world) {
 				pop.consciousness += 0.01f;
 			}
 			
+			// Depending on how much not our life needs are being met is how many we
+			// want to get out of here
+			// And literacy determines "best" spot, for example a low literacy will
+			// choose a slightly less desirable location
+			const float emigration_willing = 10.f / std::max(pop.life_needs_met, 1.0f);
+			size_t emigreers = (float)(((float)pop.size / 1000.f) * emigration_willing);
+			if(emigreers < pop.size && emigreers) {
+				// Find best province
+				Province * best_province = nullptr;
+				for(size_t i = 0; i < world.provinces.size(); i += std::max<size_t>((rand() % (world.provinces.size() - i)) / 10, 1)) {
+					Province * target_province = world.provinces[i];
+					float attractive = 0.f;
+					
+					if(target_province->owner == nullptr) {
+						continue;
+					}
+					
+					// Account for literacy difference
+					attractive -= province->owner->base_literacy;
+					
+					// Account for GDP difference
+					attractive -= province->owner->gdp / 1000.f;
+					
+					// For the lower class, lower taxes is good, and so on for other POPs
+					if(target_province->owner->current_policy.poor_flat_tax < province->owner->current_policy.poor_flat_tax
+					&& (pop.type_id == POP_TYPE_FARMER
+					|| pop.type_id == POP_TYPE_SOLDIER
+					|| pop.type_id == POP_TYPE_LABORER
+					|| pop.type_id == POP_TYPE_SLAVE)) {
+						attractive = target_province->owner->current_policy.poor_flat_tax - province->owner->current_policy.poor_flat_tax;
+					}
+					// For the medium class
+					else if(target_province->owner->current_policy.med_flat_tax < province->owner->current_policy.med_flat_tax
+					&& (pop.type_id == POP_TYPE_ARTISAN
+					|| pop.type_id == POP_TYPE_BUREAUCRAT
+					|| pop.type_id == POP_TYPE_CLERGYMEN
+					|| pop.type_id == POP_TYPE_OFFICER)) {
+						attractive = target_province->owner->current_policy.med_flat_tax - province->owner->current_policy.med_flat_tax;
+					}
+					// For the high class
+					else if(target_province->owner->current_policy.rich_flat_tax < province->owner->current_policy.rich_flat_tax
+					&& (pop.type_id == POP_TYPE_ENTRPRENEUR
+					|| pop.type_id == POP_TYPE_ARISTOCRAT)) {
+						attractive = target_province->owner->current_policy.rich_flat_tax - province->owner->current_policy.rich_flat_tax;
+					}
+					
+					if(attractive > current_attractive) {
+						if(target_province->owner->current_policy.immigration == ALLOW_NOBODY) {
+							// Nobody is allowed in
+							continue;
+						} else if(target_province->owner->current_policy.immigration == ALLOW_ACCEPTED_CULTURES) {
+							// See if we are accepted culture
+							bool is_accepted = false;
+							for(const auto& culture: target_province->owner->accepted_cultures) {
+								if(culture == g_world->cultures[pop.culture_id]) {
+									is_accepted = true;
+									break;
+								}
+							}
+							
+							if(is_accepted == false) {
+								continue;
+							}
+						} else if(target_province->owner->current_policy.immigration == ALLOW_ALL_PAYMENT) {
+							// See if we can afford the tax
+							if(pop.budget < ((pop.budget / 1000.f) * target_province->owner->current_policy.import_tax)) {
+								continue;
+							}
+						} else if(target_province->owner->current_policy.immigration == ALLOW_ALL) {
+							// Everyone is allowed in
+						}
+						
+						current_attractive = attractive;
+						best_province = target_province;
+					}
+				}
+				
+				// If best not found then we don't go to anywhere
+				if(best_province == nullptr) {
+					goto skip_emigration;
+				}
+				
+				printf("Emigrating %s -> %s, about %zu\n", province->name.c_str(), best_province->name.c_str(), emigreers);
+				
+				Emigrated emigrated;
+				emigrated.target = best_province;
+				emigrated.emigred = &pop;
+				emigrated.size = emigreers;
+				
+				emigration_lock.lock();
+				emigration.push_back(emigrated);
+				emigration_lock.unlock();
+			}
+			
+		skip_emigration:
 			pop.life_needs_met -= 0.7f * std::min<float>(0.5f, 1.f - pop.literacy);
 			
 			province->worker_pool += pop.size;
@@ -425,6 +556,36 @@ void Economy::do_phase_3(World& world) {
 		
 		// Stockpiles cleared
 		memset(&province->stockpile[0], 0, province->stockpile.size() * sizeof(province->stockpile[0]));
+	});
+	
+	// Now time to do the emigration
+	for(const auto& target: emigration) {
+		Province * province = target.target;
+		Pop * pop = target.emigred;
+		size_t size = target.size;
+		
+		// Reduce size of POP, so we don't have duplicates
+		pop->size -= size;
+		
+		// A new pop, this is the representation of the POP in the target
+		// province, if no pop of same culture, same religion and same
+		// employment exists then we create a new one
+		Pop * new_pop = nullptr;
+		for(auto& p_pop: province->pops) {
+			if(p_pop.culture_id == pop->culture_id
+			&& p_pop.religion_id == pop->religion_id
+			&& p_pop.type_id == pop->type_id) {
+				new_pop = &p_pop;
+				break;
+			}
+		}
+		
+		// Compatible POP does not exist on target province, so we create
+		// a new one (copy the original POP) and add it to the province
+		if(new_pop == nullptr) {
+			province->pops.push_back(*pop);
+		}
+		new_pop->size += size;
 	}
 }
 

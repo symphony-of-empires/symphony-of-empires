@@ -32,22 +32,26 @@ int main(int argc, char ** argv) {
 	Server * server;
 	World * world = new World(false);
 
+	/*
 	Archive * test = new Archive();
 	serialize(*test, *world);
 	test->to_file("hello_world.v0");
+	*/
 
 #ifndef UNIT_TEST
 	printf("%s\n", gettext("launching rendering thread"));
 	std::thread t1(rendering_main);
 
 	while(!do_start);
+	//do_start = true;
+	//run = true;
 	
 	paused = false;
 	while(run) {
 		std::unique_lock<std::mutex> lock(world_lock);
 		world->do_tick();
 		world->client_update();
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 		while(paused);
 	}
