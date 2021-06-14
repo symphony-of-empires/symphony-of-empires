@@ -435,7 +435,7 @@ void colonize_province(UI::Widget& w, void * data) {
 	g_world->nations[curr_selected_nation]->budget -= 10000;
 }
 
-std::vector<Descision> doable_descisions;
+std::vector<Event> doable_events;
 void select_nation(void) {
 	g_world->client_update = &client_update;
 	
@@ -491,6 +491,8 @@ void select_nation(void) {
 	play_btn->on_click = &play_nation;
 	
 	Unit * selected_unit = nullptr;
+	
+	size_t last_inbox_size = 0;
 	while(run) {
 		std::unique_lock<std::mutex> lock(render_lock);
 		
@@ -730,20 +732,48 @@ void select_nation(void) {
 				popup_win->text(msg.ref_name.c_str());
 				popup_win->current_texture = &generic_descision;
 
+				doable_events.push_back(msg);
+
 				// Buttons for descisions
 				const UI::Button * last = nullptr;
-				for(const auto& descision: msg.descisions) {
+				for(const auto& descision: doable_events.back().descisions) {
 					UI::Button * decide_btn = new UI::Button(9, 558 - button_popup.height, button_popup.width, button_popup.height, popup_win);
 					decide_btn->text(descision.name.c_str());
 					decide_btn->current_texture = &button_popup;
-					decide_btn->user_data = (void *)&doable_descisions[n_descisions];
+					decide_btn->user_data = (void *)&descision;
+					decide_btn->on_click = [](UI::Widget& w, void * data) {
+						// Obtain the descision
+						Descision * descision = (Descision *)data;
+						
+						// Find event
+						Event * event = nullptr;
+						for(auto& e_event: doable_events) {
+							print_info("tried event %s", e_event.ref_name.c_str());
+							for(const auto& e_descision: e_event.descisions) {
+								print_info("tried %s vs %s", e_descision.ref_name.c_str(), descision->ref_name);
+								if(e_descision.ref_name == descision->ref_name) {
+									event = &e_event;
+									break;
+								}
+							}
+							
+							if(event != nullptr)
+								break;
+						}
+						
+						// Event not found
+						if(event == nullptr) {
+							print_error("Event not found, we tried finding by descision %s", descision->name.c_str());
+							return;
+						}
+						
+						event->take_descision(g_world->nations[curr_selected_nation], descision);
+						return;
+					};
+					
 					if(last != nullptr) {
 						decide_btn->above_of(dynamic_cast<const UI::Widget&>(*last));
 					}
-
-					doable_descisions.push_back(descision);
-					n_descisions++;
-					
 					last = decide_btn;
 				}
 			}

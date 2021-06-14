@@ -75,7 +75,6 @@ function Province:get(province, ref_name)
 	return province
 end
 function Province:add_industry(province, industry_type, company)
-	print(company.id)
 	add_province_industry(province.id, company.id, industry_type.id)
 end
 function Province:give_to(province, nation)

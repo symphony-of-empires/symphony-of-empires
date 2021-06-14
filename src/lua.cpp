@@ -265,25 +265,25 @@ int LuaAPI::get_province(lua_State * L) {
 }
 
 int LuaAPI::add_province_industry(lua_State * L) {
-	if(lua_tonumber(L, 0) >= g_world->provinces.size()) {
-		print_error(gettext("lua province_id out of bounds"));
+	ProvinceId province_id = lua_tonumber(L, 1);
+	CompanyId company_id = lua_tonumber(L, 2);
+	IndustryTypeId industry_type_id = lua_tonumber(L, 3);
+	
+	if(province_id >= g_world->provinces.size()) {
+		print_error(gettext("invalid province id %zu"), (size_t)province_id);
 		return 0;
-	} if(lua_tonumber(L, 2) >= g_world->industry_types.size()) {
-		print_error(gettext("lua industry_type_id out of bounds"));
+	} if(company_id >= g_world->companies.size()) {
+		print_error(gettext("invalid company id %zu"), (size_t)company_id);
+		return 0;
+	} if(industry_type_id >= g_world->industry_types.size()) {
+		print_error(gettext("invalid industry type id %zu"), (size_t)industry_type_id);
 		return 0;
 	}
 	
-	Province *& province = g_world->provinces[lua_tonumber(L, 0)];
+	Province *& province = g_world->provinces[province_id];
 	Industry * industry = new Industry();
-	
-	// Ownerless factory if id is invalid
-	if(lua_tonumber(L, 1) >= g_world->companies.size()) {
-		industry->owner = nullptr;
-	} else {
-		industry->owner = g_world->companies[lua_tonumber(L, 1)];
-	}
-	
-	industry->type = g_world->industry_types[lua_tonumber(L, 2)];
+	industry->owner = g_world->companies[company_id];
+	industry->type = g_world->industry_types[industry_type_id];
 	province->add_industry(*g_world, industry);
 	return 0;
 }
@@ -326,7 +326,7 @@ int LuaAPI::give_province_to(lua_State * L) {
 int LuaAPI::add_province_pop(lua_State * L) {
 	size_t province_id = lua_tonumber(L, 1);
 	if(province_id >= g_world->provinces.size()) {
-		print_error(gettext("invalid province id %zu"), province_id);
+		print_error(gettext("invalid province id %zu"), (size_t)province_id);
 		return 0;
 	}
 
@@ -368,13 +368,13 @@ int LuaAPI::rename_province(lua_State * L) {
 int LuaAPI::add_province_nucleus(lua_State * L) {
 	ProvinceId province_id = lua_tonumber(L, 1);
 	if(province_id >= g_world->provinces.size()) {
-		print_error(gettext("invalid province id %zu"), province_id);
+		print_error(gettext("invalid province id %zu"), (size_t)province_id);
 		return 0;
 	}
 
 	NationId nation_id = lua_tonumber(L, 2);
 	if(nation_id >= g_world->nations.size()) {
-		print_error(gettext("invalid nation id %zu"), nation_id);
+		print_error(gettext("invalid nation id %zu"), (size_t)nation_id);
 		return 0;
 	}
 
@@ -385,13 +385,13 @@ int LuaAPI::add_province_nucleus(lua_State * L) {
 int LuaAPI::add_province_owner(lua_State * L) {
 	ProvinceId province_id = lua_tonumber(L, 1);
 	if(province_id >= g_world->provinces.size()) {
-		print_error(gettext("invalid province id %zu"), province_id);
+		print_error(gettext("invalid province id %zu"), (size_t)province_id);
 		return 0;
 	}
 
 	NationId nation_id = lua_tonumber(L, 2);
 	if(nation_id >= g_world->nations.size()) {
-		print_error(gettext("invalid nation id %zu"), nation_id);
+		print_error(gettext("invalid nation id %zu"), (size_t)nation_id);
 		return 0;
 	}
 
@@ -486,7 +486,7 @@ int LuaAPI::get_event(lua_State * L) {
 int LuaAPI::add_event_receivers(lua_State * L) {
 	EventId event_id = lua_tonumber(L, 1);
 	if(event_id >= g_world->events.size()) {
-		print_error(gettext("invalid event id %zu"), event_id);
+		print_error(gettext("invalid event id %zu"), (size_t)event_id);
 		return 0;
 	}
 
@@ -496,7 +496,7 @@ int LuaAPI::add_event_receivers(lua_State * L) {
 	for(size_t i = 0; i < lua_tonumber(L, 2); i++) {
 		size_t nation_id = lua_tonumber(L, 3 + i);
 		if(nation_id >= g_world->nations.size()) {
-			print_error(gettext("invalid nation id %zu"), event_id);
+			print_error(gettext("invalid nation id %zu"), (size_t)event_id);
 			continue;
 		}
 		event->receivers.push_back(g_world->nations[nation_id]);
@@ -507,7 +507,7 @@ int LuaAPI::add_event_receivers(lua_State * L) {
 int LuaAPI::add_descision(lua_State * L) {
 	EventId event_id = lua_tonumber(L, 1);
 	if(event_id >= g_world->events.size()) {
-		print_error(gettext("invalid event id %u"), event_id);
+		print_error(gettext("invalid event id %u"), (size_t)event_id);
 		return 0;
 	}
 	Event * event = g_world->events[event_id];
