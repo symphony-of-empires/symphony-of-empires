@@ -220,6 +220,10 @@ public:
 	std::vector<Tile *> elevation_changed_tiles;
 	mutable std::mutex elevation_changed_tiles_mutex;
 
+	// A list containing descisions taken by countries
+	std::vector<Descision *> taken_descisions;
+	mutable std::mutex taken_descisions_mutex;
+
 	NationId get_id(const Nation * ptr) const {
 		//std::lock_guard<std::mutex> lock(nations_mutex);
 		return get_id_ptr<NationId>(ptr, nations);

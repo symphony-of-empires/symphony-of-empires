@@ -20,6 +20,8 @@ public:
 	std::string do_event_function;
 	std::vector<Nation *> receivers;
 	std::vector<Descision> descisions;
+	
+	void take_descision(Nation * sender, Descision * dec);
 };
 
 #endif
