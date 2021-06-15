@@ -131,6 +131,7 @@ public:
 	}
 };
 
+// Serializers for primitives only require memcpy
 template<>
 class Serializer<uint64_t> : public SerializerMemcpy<uint64_t> {};
 template<>
@@ -219,6 +220,19 @@ public:
 template<typename T>
 class Serializer<std::vector<T>> : public SerializerContainer<T, std::vector<T>> {
 public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& ar, const std::vector<T>& obj_group) {
+		const uint32_t len = obj_group.size();
+		ar.expand(sizeof(len));
+		memcpy(&ar.buffer[ar.ptr], &len, sizeof(len));
+		ar.ptr += sizeof(len);
+
+		for(const auto& obj: obj_group) {
+			Serializer<T>::serialize(ar, obj);
+		}
+		
+		print_info("and serialized stuff %zu\n", len);
+	}
 	static inline void deserialize(Archive& ar, std::vector<T>& obj_group) {
 		uint32_t len;
 		memcpy(&len, &ar.buffer[ar.ptr], sizeof(len));

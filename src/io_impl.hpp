@@ -143,12 +143,12 @@ public:
 		::serialize(output, g_world->get_id(obj));
 	}
 	static inline void deserialize(Archive& input, IndustryType * obj) {
-		size_t id;
+		IndustryTypeId id;
 		::deserialize(input, id);
-		obj = (id != (size_t)-1) ? g_world->industry_types[id] : nullptr;
+		obj = (id != (IndustryTypeId)-1) ? g_world->industry_types[id] : nullptr;
 	}
-	static inline size_t size(const IndustryType * obj) {
-		return sizeof(size_t);
+	static inline size_t size(const IndustryType *) {
+		return sizeof(IndustryTypeId);
 	}
 };
 

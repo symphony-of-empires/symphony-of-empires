@@ -32,11 +32,9 @@ int main(int argc, char ** argv) {
 	Server * server;
 	World * world = new World(false);
 
-	/*
 	Archive * test = new Archive();
 	serialize(*test, *world);
 	test->to_file("hello_world.v0");
-	*/
 
 #ifndef UNIT_TEST
 	printf("%s\n", gettext("launching rendering thread"));
@@ -69,10 +67,9 @@ int main(int argc, char ** argv) {
 		server = new Server(4206);
 		world = new World();
 	}*/
-#else
-	exit(EXIT_SUCCESS);
 #endif
-
+	
+	exit(EXIT_SUCCESS);
 	return 0;
 }
 

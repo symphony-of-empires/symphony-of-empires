@@ -211,6 +211,38 @@ static void industry_view_nation(UI::Widget&, void *) {
 	}
 }
 
+static void reform_policies(UI::Widget&, void *) {
+	const Texture& reform = g_texture_manager->load_texture(Path::get("ui/reform_win.png"));
+	const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_ppv.png"));
+	
+	UI::Window * reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
+	reform_win->current_texture = &reform;
+	
+	UI::Button * borders_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+	borders_btn->text("Borders");
+	borders_btn->current_texture = &button_ppv;
+	
+	UI::Button * goverment_btn = new UI::Button(9, 0, button_ppv.width, button_ppv.height, reform_win);
+	goverment_btn->text("Goverment");
+	goverment_btn->below_of(dynamic_cast<const UI::Widget&>(*borders_btn));
+	goverment_btn->current_texture = &button_ppv;
+	
+	UI::Button * taxes_btn = new UI::Button(9, 0, button_ppv.width, button_ppv.height, reform_win);
+	taxes_btn->text("Taxes");
+	taxes_btn->below_of(dynamic_cast<const UI::Widget&>(*goverment_btn));
+	taxes_btn->current_texture = &button_ppv;
+	
+	UI::Button * property_btn = new UI::Button(9, 0, button_ppv.width, button_ppv.height, reform_win);
+	property_btn->text("Property");
+	property_btn->below_of(dynamic_cast<const UI::Widget&>(*taxes_btn));
+	property_btn->current_texture = &button_ppv;
+	
+	UI::Button * ok_btn = new UI::Button(9, 0, button_ppv.width, button_ppv.height, reform_win);
+	ok_btn->text("OK");
+	ok_btn->below_of(dynamic_cast<const UI::Widget&>(*property_btn));
+	ok_btn->current_texture = &button_ppv;
+}
+
 std::mutex render_lock;
 static void play_nation(UI::Widget&, void *) {
 	ui_ctx->clear();
@@ -256,6 +288,7 @@ static void play_nation(UI::Widget&, void *) {
 	hdi_chart->text("HDI");
 	hdi_chart->current_texture = &top_win_chart_tex;
 	hdi_chart->data.clear();
+	hdi_chart->on_click = &reform_policies;
 	
 	pop_view_nation_win = nullptr;
 	
