@@ -17,6 +17,7 @@ endif
 
 SRCS=$(shell find . -type f -iname '*.cpp')
 OBJS:=$(patsubst ./src/%.cpp,./obj/%.o,$(SRCS))
+DEPS=$(OBJS:%.o=%.d)
 
 ifdef WINDOWS
 CXXFLAGS:=$(CXXFLAGS) -DWIN32
@@ -25,6 +26,10 @@ endif
 ifdef UNIT_TEST
 CXXFLAGS:=$(CXXFLAGS) -DUNIT_TEST
 endif
+
+.PHONY: dirs build clean depend
+
+-include $(DEPS)
 
 build: dirs bin/main data/locale/ko/LC_MESSAGES/main.mo
 
@@ -39,10 +44,8 @@ dirs:
 bin/main: $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LIBS)
 
-obj/%.o: src/%.cpp src/%.hpp
-	$(CXX) $(CXXFLAGS) $< -c -o $@
 obj/%.o: src/%.cpp
-	$(CXX) $(CXXFLAGS) $< -c -o $@
+	$(CXX) $(CXXFLAGS) -MMD $< -c -o $@
 
 data/locale/ko/%.po: data/locale/%.pot
 	msgmerge --update $@ $<
@@ -57,5 +60,3 @@ data/locale/es/LC_MESSAGES/%.mo: data/locale/es/%.po
 	msgfmt --output-file=$@ $<
 data/locale/es/LC_MESSAGES:
 	mkdir -p $@
-
-.PHONY: dirs build clean

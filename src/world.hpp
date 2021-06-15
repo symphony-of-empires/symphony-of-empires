@@ -233,6 +233,7 @@ public:
 	IndustryTypeId get_id(const IndustryType * ptr) const;
 	IndustryId get_id(const Province& province, const Industry * ptr) const;
 	EventId get_id(const Event * ptr) const;
+	
 	size_t get_id(const Tile * ptr) const;
 	
 	// Obtains a tile from the world safely, and makes sure that it is in bounds

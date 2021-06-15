@@ -28,7 +28,6 @@ void Province::add_industry(World& world, Industry * industry) {
 	IndustryType * type = industry->type;
 	
 	industries.push_back(*industry);
-	printf("Now province %s has industry %zu %s\n", this->name.c_str(), industries.size(), industry->type->name.c_str());
 	
 	// Add a product for each output
 	for(const auto& output: type->outputs) {
