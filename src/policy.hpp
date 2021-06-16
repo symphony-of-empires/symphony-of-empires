@@ -77,15 +77,12 @@ public:
 	bool women_labour;
 
 	bool private_property;
-	bool public_property;
 	bool companies_allowed;
 
 	bool public_education;
-	bool private_education;
 	bool secular_education;
 
 	bool public_healthcare;
-	bool private_healthcare;
 
 	// Goverment pays bought food
 	bool social_security;
@@ -136,13 +133,10 @@ public:
 		diff += (rhs.women_suffrage != this->women_suffrage) ? 1 : 0;
 		diff += (rhs.women_labour != this->women_labour) ? 1 : 0;
 		diff += (rhs.private_property != this->private_property) ? 1 : 0;
-		diff += (rhs.public_property != this->public_property) ? 1 : 0;
 		diff += (rhs.companies_allowed != this->companies_allowed) ? 1 : 0;
 		diff += (rhs.public_education != this->public_education) ? 1 : 0;
-		diff += (rhs.private_education != this->private_education) ? 1 : 0;
 		diff += (rhs.secular_education != this->secular_education) ? 1 : 0;
 		diff += (rhs.public_healthcare != this->public_healthcare) ? 1 : 0;
-		diff += (rhs.private_healthcare != this->private_healthcare) ? 1 : 0;
 		diff += (rhs.social_security != this->social_security) ? 1 : 0;
 		diff += (rhs.slavery != this->slavery) ? 1 : 0;
 		diff += std::abs(rhs.import_tax != this->import_tax);
