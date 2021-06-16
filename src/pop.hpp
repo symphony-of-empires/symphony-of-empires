@@ -39,25 +39,7 @@ public:
 	std::string ref_name;
 };
 
-// Placeholder
-class Party;
-
-// Parties themselves will be in a different file
-class PartyLoyalty {
-public:
-	size_t party_id;
-	float loyalty;
-};
-
-class Issue;
-
-// Above applies
-class IssueInterest {
-public:
-	size_t issue_id;
-	float interest;
-};
-
+#include "policy.hpp"
 class Pop {
 public:
 	size_t size;
@@ -75,9 +57,7 @@ public:
 	PopTypeId type_id;
 	CultureId culture_id;
 	ReligionId religion_id;
-
-	std::vector<PartyLoyalty> party_loyalties;
-	std::vector<IssueInterest> issue_interests;
+	Policies policies;
 };
 
 #endif

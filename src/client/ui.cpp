@@ -398,6 +398,11 @@ Window::Window(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
 
 }
 
+Checkbox::Checkbox(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
+	: Widget(_parent, _x, _y, w, h, UI_WIDGET_CHECKBOX) {
+
+}
+
 Button::Button(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
 	: Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON) {
 

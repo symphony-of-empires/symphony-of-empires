@@ -128,40 +128,7 @@ namespace TreatyClause {
 		bool done;
 	public:
 		unsigned cost() {
-			size_t diff = 0;
-			
-			diff += std::abs(imposed.migration - receiver->current_policy.migration);
-			diff += std::abs(imposed.immigration - receiver->current_policy.immigration);
-			diff += std::abs(imposed.censorship - receiver->current_policy.censorship);
-			diff += std::abs(imposed.build_factories - receiver->current_policy.build_factories);
-			diff += std::abs(imposed.build_infrastructure - receiver->current_policy.build_infrastructure);
-			
-			diff += (imposed.national_id != receiver->current_policy.national_id) ? 1 : 0;
-			diff += (imposed.men_suffrage != receiver->current_policy.men_suffrage) ? 1 : 0;
-			diff += (imposed.men_labour != receiver->current_policy.men_labour) ? 1 : 0;
-			diff += (imposed.women_suffrage != receiver->current_policy.women_suffrage) ? 1 : 0;
-			diff += (imposed.women_labour != receiver->current_policy.women_labour) ? 1 : 0;
-			diff += (imposed.private_property != receiver->current_policy.private_property) ? 1 : 0;
-			diff += (imposed.public_property != receiver->current_policy.public_property) ? 1 : 0;
-			diff += (imposed.companies_allowed != receiver->current_policy.companies_allowed) ? 1 : 0;
-			
-			diff += (imposed.public_education != receiver->current_policy.public_education) ? 1 : 0;
-			diff += (imposed.private_education != receiver->current_policy.private_education) ? 1 : 0;
-			diff += (imposed.secular_education != receiver->current_policy.secular_education) ? 1 : 0;
-			
-			diff += (imposed.public_healthcare != receiver->current_policy.public_healthcare) ? 1 : 0;
-			diff += (imposed.private_healthcare != receiver->current_policy.private_healthcare) ? 1 : 0;
-			
-			diff += (imposed.social_security != receiver->current_policy.social_security) ? 1 : 0;
-			diff += (imposed.slavery != receiver->current_policy.slavery) ? 1 : 0;
-			
-			diff += std::abs(imposed.import_tax != receiver->current_policy.import_tax);
-			diff += std::abs(imposed.export_tax != receiver->current_policy.export_tax);
-			diff += std::abs(imposed.poor_flat_tax != receiver->current_policy.poor_flat_tax);
-			diff += std::abs(imposed.med_flat_tax != receiver->current_policy.med_flat_tax);
-			diff += std::abs(imposed.rich_flat_tax != receiver->current_policy.rich_flat_tax);
-			
-			return diff;
+			return imposed.difference(receiver->current_policy);
 		}
 		void enforce() {
 			memcpy(&receiver->current_policy, &imposed, sizeof(Policies));

@@ -123,6 +123,13 @@ namespace UI {
 		char * buffer = nullptr;
 	};
 
+	class Checkbox : public Widget {
+	public:
+		Checkbox(int x, int y, unsigned w, unsigned h, Widget * parent = nullptr);
+		~Checkbox() {};
+		Checkbox& operator=(const Checkbox&) = default;
+	};
+
 	class Button : public Widget {
 	public:
 		Button(int x, int y, unsigned w, unsigned h, Widget * parent = nullptr);
