@@ -507,7 +507,7 @@ int LuaAPI::add_event_receivers(lua_State * L) {
 int LuaAPI::add_descision(lua_State * L) {
 	EventId event_id = lua_tonumber(L, 1);
 	if(event_id >= g_world->events.size()) {
-		print_error(gettext("invalid event id %u"), (size_t)event_id);
+		print_error(gettext("invalid event id %zu"), (size_t)event_id);
 		return 0;
 	}
 	Event * event = g_world->events[event_id];
@@ -802,7 +802,7 @@ void LuaAPI::check_events(lua_State * L) {
 			bool multi = lua_tointeger(L, -1);
 			lua_pop(L, 1);
 
-			print_info("Event triggered! %s (with %zu descisions)", event->ref_name.c_str(), event->descisions.size());
+			print_info("Event triggered! %s (with %zu descisions)", event->ref_name.c_str(), (size_t)event->descisions.size());
 
 			// Copy event into inbox
 			for(auto& nation: event->receivers) {

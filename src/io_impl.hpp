@@ -21,9 +21,14 @@ class Serializer<Province *> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Province * obj) {
+		std::string s("PROVIN_P");
+::serialize(output, s);
+		
 		::serialize(output, g_world->get_id(obj));
 	}
 	static inline void deserialize(Archive& input, Province * obj) {
+		input.ptr += 8;
+		
 		ProvinceId id;
 		::deserialize(input, id);
 		obj = (id != (ProvinceId)-1) ? g_world->provinces[id] : nullptr;
@@ -38,9 +43,14 @@ class Serializer<Nation *> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Nation * obj) {
+		std::string s("NATION_P");
+::serialize(output, s);
+		
 		::serialize(output, g_world->get_id(obj));
 	}
 	static inline void deserialize(Archive& input, Nation * obj) {
+		input.ptr += 8;
+		
 		NationId id;
 		::deserialize(input, id);
 		obj = (id != (NationId)-1) ? g_world->nations[id] : nullptr;
@@ -55,9 +65,14 @@ class Serializer<Event *> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Event * obj) {
+		std::string s("EVENT _P");
+::serialize(output, s);
+		
 		::serialize(output, g_world->get_id(obj));
 	}
 	static inline void deserialize(Archive& input, Event * obj) {
+		input.ptr += 8;
+		
 		size_t id;
 		::deserialize(input, id);
 		obj = (id != (size_t)-1) ? g_world->events[id] : nullptr;
@@ -72,9 +87,14 @@ class Serializer<Product *> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Product * obj) {
+		std::string s("PRODUC_P");
+::serialize(output, s);
+		
 		::serialize(output, g_world->get_id(obj));
 	}
 	static inline void deserialize(Archive& input, Product * obj) {
+		input.ptr += 8;
+		
 		ProductId id;
 		::deserialize(input, id);
 		obj = (id != (ProductId)-1) ? g_world->products[id] : nullptr;
@@ -89,9 +109,14 @@ class Serializer<Culture *> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Culture * obj) {
+		std::string s("CULTUR_P");
+::serialize(output, s);
+		
 		::serialize(output, g_world->get_id(obj));
 	}
 	static inline void deserialize(Archive& input, Culture * obj) {
+		input.ptr += 8;
+		
 		CultureId id;
 		::deserialize(input, id);
 		obj = (id != (CultureId)-1) ? g_world->cultures[id] : nullptr;
@@ -106,6 +131,9 @@ class Serializer<Good *> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Good * obj) {
+		std::string s("GOOD  _P");
+::serialize(output, s);
+		
 		::serialize(output, g_world->get_id(obj));
 	}
 	static inline void deserialize(Archive& input, Good * obj) {
@@ -123,6 +151,9 @@ class Serializer<Company *> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Company * obj) {
+		std::string s("COMPAN_P");
+::serialize(output, s);
+		
 		::serialize(output, g_world->get_id(obj));
 	}
 	static inline void deserialize(Archive& input, Company * obj) {
@@ -140,6 +171,9 @@ class Serializer<IndustryType *> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const IndustryType * obj) {
+		std::string s("IND_TY_P");
+::serialize(output, s);
+		
 		::serialize(output, g_world->get_id(obj));
 	}
 	static inline void deserialize(Archive& input, IndustryType * obj) {
@@ -165,6 +199,9 @@ class Serializer<PopType> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const PopType& obj) {
+		std::string s("POP_TYPE");
+::serialize(output, s);
+		
 		::serialize(output, obj.name);
 		::serialize(output, obj.ref_name);
 		::serialize(output, obj.average_budget);
@@ -187,6 +224,9 @@ class Serializer<Culture> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Culture& obj) {
+		std::string s("CULTURE ");
+::serialize(output, s);
+		
 		::serialize(output, obj.name);
 		::serialize(output, obj.ref_name);
 	}
@@ -206,6 +246,9 @@ class Serializer<Religion> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Religion& obj) {
+		std::string s("RELIGION");
+::serialize(output, s);
+		
 		::serialize(output, obj.name);
 		::serialize(output, obj.ref_name);
 	}
@@ -221,14 +264,13 @@ public:
 };
 
 template<>
-class Serializer<PartyLoyalty> : public SerializerMemcpy<PartyLoyalty> {};
-template<>
-class Serializer<IssueInterest> : public SerializerMemcpy<IssueInterest> {};
-template<>
 class Serializer<Pop> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Pop& obj) {
+		std::string s("POP     ");
+::serialize(output, s);
+		
 		::serialize(output, obj.size);
 		::serialize(output, obj.unemployed);
 
@@ -244,9 +286,6 @@ public:
 		::serialize(output, obj.type_id);
 		::serialize(output, obj.culture_id);
 		::serialize(output, obj.religion_id);
-
-		::serialize(output, obj.party_loyalties);
-		::serialize(output, obj.issue_interests);
 	}
 	static inline void deserialize(Archive& input, Pop& obj) {
 		::deserialize(input, obj.size);
@@ -294,6 +333,9 @@ class Serializer<Nation> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Nation& obj) {
+		std::string s("NATION  ");
+::serialize(output, s);
+		
 		::serialize(output, obj.name);
 		::serialize(output, obj.ref_name);
 		::serialize(output, obj.controlled_by_ai);
@@ -384,6 +426,9 @@ class Serializer<UnitType> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const UnitType& obj) {
+		std::string s("UNI_TYPE");
+::serialize(output, s);
+		
 		::serialize(output, obj.name);
 		::serialize(output, obj.ref_name);
 		::serialize(output, obj.supply_consumption);
@@ -422,6 +467,9 @@ class Serializer<Province> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Province& obj) {
+		std::string s("PROVINCE");
+::serialize(output, s);
+		
 		::serialize(output, obj.name);
 		::serialize(output, obj.ref_name);
 		
@@ -504,6 +552,9 @@ class Serializer<Company> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Company& obj) {
+		std::string s("COMPANY ");
+::serialize(output, s);
+		
 		::serialize(output, obj.name);
 		
 		::serialize(output, obj.money);
@@ -543,6 +594,9 @@ class Serializer<Industry> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Industry& obj) {
+		std::string s("INDUSTRY");
+::serialize(output, s);
+		
 		::serialize(output, obj.owner);
 		::serialize(output, obj.type);
 		
@@ -588,6 +642,9 @@ class Serializer<Product> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Product& obj) {
+		std::string s("PRODUCT ");
+::serialize(output, s);
+		
 		::serialize(output, obj.owner);
 		::serialize(output, obj.origin);
 		::serialize(output, obj.industry);
@@ -632,6 +689,9 @@ class Serializer<IndustryType> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const IndustryType& obj) {
+		std::string s("IND_TYPE");
+::serialize(output, s);
+		
 		::serialize(output, obj.name);
 		::serialize(output, obj.ref_name);
 		
@@ -663,6 +723,9 @@ class Serializer<Good> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Good& obj) {
+		std::string s("GOOD    ");
+::serialize(output, s);
+		
 		::serialize(output, obj.name);
 		::serialize(output, obj.ref_name);
 		::serialize(output, obj.is_edible);
@@ -686,6 +749,9 @@ class Serializer<Event> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, const Event& obj) {
+		std::string s("EVENT   ");
+::serialize(output, s);
+		
 		::serialize(output, obj.ref_name);
 		::serialize(output, obj.conditions_function);
 		::serialize(output, obj.do_event_function);
@@ -717,6 +783,9 @@ class Serializer<World> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& output, World const& obj) {
+		std::string s("WORLD   ");
+::serialize(output, s);
+		
 		::serialize(output, obj.width);
 		::serialize(output, obj.height);
 		::serialize(output, obj.sea_level);

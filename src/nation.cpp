@@ -1,8 +1,6 @@
 #include "nation.hpp"
 #include "world.hpp"
 
-//diplomatic_timer
-
 inline void Nation::do_diplomacy() {
 	diplomatic_timer = (60 * 48) - std::min(10.f * 48.f, prestige / 100.f);
 }
@@ -40,4 +38,16 @@ void Nation::auto_relocate_capital(void) {
 			return (lhs->total_pops() < rhs->total_pops());
 		});
 	capital = *best_candidate;
+}
+
+/**
+ * Enacts a policy on a nation
+ * @return false if policy draft failed to be applied, true if policy passed and is in-effect
+ */
+void Nation::set_policy(Policies& policies) {
+	// TODO: Make parliament (aristocrat POPs) be able to reject policy changes
+	// TODO: Increase militancy on non-agreeing POPs
+	
+	memcpy(&this->current_policy, &policies, sizeof(Policies));
+	return;
 }

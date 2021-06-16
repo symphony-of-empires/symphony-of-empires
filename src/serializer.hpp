@@ -231,7 +231,7 @@ public:
 			Serializer<T>::serialize(ar, obj);
 		}
 		
-		print_info("and serialized stuff %zu\n", len);
+		print_info("and serialized stuff %zu\n", (size_t)len);
 	}
 	static inline void deserialize(Archive& ar, std::vector<T>& obj_group) {
 		uint32_t len;
