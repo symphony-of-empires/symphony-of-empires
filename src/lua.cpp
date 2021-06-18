@@ -817,6 +817,14 @@ void LuaAPI::check_events(lua_State * L) {
 		}
 		// Conditions not met, continue to next event...
 	}
+	
+	// Do descisions taken effects in the queue, then clear it awaiting
+	// other taken descisions :)
+	for(auto& descision: g_world->taken_descisions) {
+		lua_getglobal(L, descision->do_descision_function.c_str());
+		lua_call(L, 0, 1);
+	}
+	g_world->taken_descisions.clear();
 }
 
 int LuaAPI::get_text(lua_State * L) {
