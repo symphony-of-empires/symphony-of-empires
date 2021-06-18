@@ -79,7 +79,7 @@ void Server::client_loop(void) {
 		print_info("Sending world snapshot");
 		// Send the whole fucking world
 		Archive ar = Archive();
-		serialize(ar, *g_world);
+		serialize(ar, g_world);
 		packet->send(ar.get_buffer(), ar.buffer.size());
 
 		print_info("Client connection closed");

@@ -422,8 +422,8 @@ void Economy::do_phase_3(World& world) {
 			}
 
 			// x1.5 life needs met modifier, that is the max allowed
-			pop.life_needs_met = std::min<float>(1.f, pop.life_needs_met);
-			pop.life_needs_met = std::max<float>(-1.f, pop.life_needs_met);
+			pop.life_needs_met = std::min<float>(2.f, pop.life_needs_met);
+			pop.life_needs_met = std::max<float>(-2.f, pop.life_needs_met);
 
 			// POPs cannot shrink below 10<
 			if(pop.size <= 10) {

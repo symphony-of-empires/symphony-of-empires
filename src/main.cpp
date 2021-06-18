@@ -31,10 +31,18 @@ int main(int argc, char ** argv) {
 	Client * client;
 	Server * server;
 	World * world = new World(false);
-
-	Archive * test = new Archive();
-	serialize(*test, *world);
-	test->to_file("hello_world.v0");
+	
+	{
+		Archive * test = new Archive();
+		serialize(*test, world);
+		test->to_file("hello_world.v0");
+	}
+	
+	/*{
+		Archive * test = new Archive();
+		test->from_file("hello_world.v0");
+		::deserialize(*test, world);
+	}*/
 
 #ifndef UNIT_TEST
 	printf("%s\n", gettext("launching rendering thread"));
