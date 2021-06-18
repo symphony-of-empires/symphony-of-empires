@@ -1172,6 +1172,8 @@ void select_nation(void) {
 					decide_btn->current_texture = &button_popup;
 					decide_btn->user_data = (void *)&descision;
 					decide_btn->on_click = [](UI::Widget& w, void * data) {
+						delete w.parent;
+						
 						// Obtain the descision
 						Descision * descision = (Descision *)data;
 						
