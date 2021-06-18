@@ -64,6 +64,7 @@ void Map::draw(float zoom) {
 		glCallList(province_shapes[i].shape_gl_list);
 	}
 	
+	/*
 	glLineWidth(3.f);
 	glColor3f(0.2f, 0.2f, 0.2f);
 	for(size_t x = 1; x < world.width; x++) {
@@ -89,7 +90,9 @@ void Map::draw(float zoom) {
 			}
 		}
 	}
+	*/
 	
+	/*
 	if(zoom >= -200.f) {
 		glLineWidth(4.f);
 		glColor4f(0.2f, 0.2f, 0.2f, 0.5f);
@@ -115,6 +118,7 @@ void Map::draw(float zoom) {
 			}
 		}
 	}
+	*/
 }
 
 ProvinceShape::ProvinceShape(const Map& map, const Province& base) {

@@ -50,6 +50,8 @@ public:
 	float consciousness = 0.f;
 	float budget = 0.f;
 	
+	float savings = 0.f;
+	
 	float life_needs_met = 0.f;
 	float everyday_needs_met = 0.f;
 	float luxury_needs_met = 0.f;
