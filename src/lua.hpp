@@ -23,7 +23,20 @@ namespace LuaAPI {
 	int get_nation(lua_State * L);
 	int set_nation_primary_culture(lua_State * L);
 	int set_nation_capital(lua_State * L);
-
+	int set_industry_output_mod(lua_State * L);
+	int set_industry_input_mod(lua_State * L);
+	int set_workers_needed_mod(lua_State * L);
+	int set_salary_paid_mod(lua_State * L);
+	int set_delivery_cost_mod(lua_State * L);
+	int set_literacy_learn_mod(lua_State * L);
+	int set_reproduction_mod(lua_State * L);
+	int set_death_mod(lua_State * L);
+	int set_militancy_mod(lua_State * L);
+	int set_consciousness_mod(lua_State * L);
+	int set_life_needs_met_mod(lua_State * L);
+	int set_everyday_needs_met_mod(lua_State * L);
+	int set_luxury_needs_met_mod(lua_State * L);
+	
 	int add_province(lua_State * L);
 	int get_province(lua_State * L);
 	int add_province_industry(lua_State * L);

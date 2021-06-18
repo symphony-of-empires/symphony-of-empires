@@ -206,6 +206,84 @@ int LuaAPI::set_nation_capital(lua_State * L) {
 	return 0;
 }
 
+int LuaAPI::set_industry_output_mod(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->industry_output_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
+int LuaAPI::set_industry_input_mod(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->industry_input_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
+int LuaAPI::set_workers_needed_mod(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->workers_needed_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
+int LuaAPI::set_salary_paid_mod(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->salary_paid_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
+int LuaAPI::set_delivery_cost_mod(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->delivery_cost_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
+int LuaAPI::set_literacy_learn_mod(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->literacy_learn_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
+int LuaAPI::set_reproduction_mod(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->reproduction_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
+int LuaAPI::set_death_mod(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->death_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
+int LuaAPI::set_militancy_mod(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->militancy_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
+int LuaAPI::set_consciousness_mod(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->consciousness_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
+int LuaAPI::set_life_needs_met_mod(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->life_needs_met_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
+int LuaAPI::set_everyday_needs_met_mod(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->everyday_needs_met_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
+int LuaAPI::set_luxury_needs_met_mod(lua_State * L) {
+	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->luxury_needs_met_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
 int LuaAPI::add_province(lua_State * L) {
 	if(!lua_isstring(L, 1) || !lua_isnumber(L, 2) || !lua_isstring(L, 3)) {
 		print_error(gettext("lua argument type mismatch"));
