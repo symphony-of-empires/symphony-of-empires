@@ -61,6 +61,46 @@ function Nation:set_capital(nation, province)
 	set_nation_capital(nation.id, province.id)
 end
 
+function Nation:set_industry_output_mod(nation, modifier)
+	set_industry_output_mod(nation.id, modifier)
+end
+function Nation:set_industry_input_mod(nation, modifier)
+	set_industry_input_mod(nation.id, modifier)
+end
+function Nation:set_workers_needed_mod(nation, modifier)
+	set_workers_needed_mod(nation.id, modifier)
+end
+function Nation:set_salary_paid_mod(nation, modifier)
+	set_salary_paid_mod(nation.id, modifier)
+end
+function Nation:set_delivery_cost_mod(nation, modifier)
+	set_delivery_cost_mod(nation.id, modifier)
+end
+function Nation:set_literacy_learn_mod(nation, modifier)
+	set_literacy_learn_mod(nation.id, modifier)
+end
+function Nation:set_reproduction_mod(nation, modifier)
+	set_reproduction_mod(nation.id, modifier)
+end
+function Nation:set_death_mod(nation, modifier)
+	set_death_mod(nation.id, modifier)
+end
+function Nation:set_militancy_mod(nation, modifier)
+	set_militancy_mod(nation.id, modifier)
+end
+function Nation:set_consciousness_mod(nation, modifier)
+	set_consciousness_mod(nation.id, modifier)
+end
+function Nation:set_life_needs_met_mod(nation, modifier)
+	set_life_needs_met_mod(nation.id, modifier)
+end
+function Nation:set_everyday_needs_met_mod(nation, modifier)
+	set_everyday_needs_met_mod(nation.id, modifier)
+end
+function Nation:set_luxury_needs_met_mod(nation, modifier)
+	set_luxury_needs_met_mod(nation.id, modifier)
+end
+
 Province = { id = 0, name = "", ref_name = "", color = 0, }
 function Province:create(province)
 	province.parent = self

@@ -71,7 +71,20 @@ World::World(bool empty) {
 	lua_register(this->lua, "get_nation", LuaAPI::get_nation);
 	lua_register(this->lua, "set_nation_primary_culture", LuaAPI::set_nation_primary_culture);
 	lua_register(this->lua, "set_nation_capital", LuaAPI::set_nation_capital);
-
+	lua_register(this->lua, "set_industry_output_mod", LuaAPI::set_industry_output_mod);
+	lua_register(this->lua, "set_industry_input_mod", LuaAPI::set_industry_input_mod);
+	lua_register(this->lua, "set_workers_needed_mod", LuaAPI::set_workers_needed_mod);
+	lua_register(this->lua, "set_salary_paid_mod", LuaAPI::set_salary_paid_mod);
+	lua_register(this->lua, "set_delivery_cost_mod", LuaAPI::set_delivery_cost_mod);
+	lua_register(this->lua, "set_literacy_learn_mod", LuaAPI::set_literacy_learn_mod);
+	lua_register(this->lua, "set_reproduction_mod", LuaAPI::set_reproduction_mod);
+	lua_register(this->lua, "set_death_mod", LuaAPI::set_death_mod);
+	lua_register(this->lua, "set_militancy_mod", LuaAPI::set_militancy_mod);
+	lua_register(this->lua, "set_consciousness_mod", LuaAPI::set_consciousness_mod);
+	lua_register(this->lua, "set_life_needs_met_mod", LuaAPI::set_life_needs_met_mod);
+	lua_register(this->lua, "set_everyday_needs_met_mod", LuaAPI::set_everyday_needs_met_mod);
+	lua_register(this->lua, "set_luxury_needs_met_mod", LuaAPI::set_luxury_needs_met_mod);
+	
 	lua_register(this->lua, "add_province", LuaAPI::add_province);
 	lua_register(this->lua, "get_province", LuaAPI::get_province);
 	lua_register(this->lua, "add_province_industry", LuaAPI::add_province_industry);
