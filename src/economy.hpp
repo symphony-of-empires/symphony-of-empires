@@ -95,10 +95,10 @@ public:
 	IndustryType * type;
 
 	// Days that the factory has not been operational
-	size_t days_unoperational;
+	size_t days_unoperational = 0;
 
 	// Money needed to produce - helps determine the price of the output products
-	float production_cost;
+	float production_cost = 0.f;
 
 	// Stockpile of inputs in the factory
 	std::vector<size_t> stockpile;
@@ -107,10 +107,13 @@ public:
 	std::vector<Product *> output_products;
 
 	// The desired quality of a product (otherwise it's not accepted)
-	size_t min_quality;
+	float min_quality = 0.f;
 
 	// The pay we are willing to give
 	size_t willing_payment;
+	
+	// How many workers are in the industry
+	size_t workers;
 };
 
 typedef uint16_t ProductId;
@@ -139,7 +142,7 @@ public:
 	float price_vel;
 	
 	// Quality of the product
-	size_t quality;
+	float quality;
 	
 	// Total supply (worldwide) of the product
 	size_t supply;

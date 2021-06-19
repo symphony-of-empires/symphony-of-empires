@@ -17,6 +17,7 @@ public:
 	void draw(float zoom);
 	
 	Texture * topo_tex;
+	GLuint coastline_gl_list;
 };
 
 class ProvinceShape {

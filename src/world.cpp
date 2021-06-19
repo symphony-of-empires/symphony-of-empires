@@ -8,7 +8,7 @@
 #include "province.hpp"
 #include "economy.hpp"
 #include "world.hpp"
-#include "texture.hpp"
+#include "binary_image.hpp"
 #include "lua.hpp"
 #include "path.hpp"
 #include "print.hpp"
@@ -25,9 +25,9 @@ World::World(bool empty) {
 	if(empty)
 		return;
 	
-	Texture topo(Path::get("map_topo.png").c_str());
-	Texture div(Path::get("map_div.png").c_str());
-	Texture infra(Path::get("map_infra.png").c_str());
+	BinaryImage topo(Path::get("map_topo.png").c_str());
+	BinaryImage div(Path::get("map_div.png").c_str());
+	BinaryImage infra(Path::get("map_infra.png").c_str());
 
 	this->width = topo.width;
 	this->height = topo.height;
@@ -208,8 +208,8 @@ World::World(bool empty) {
 		if(it == provinces.end()) {
 			continue;
 		}
+		
 		const ProvinceId province_id = std::distance(provinces.begin(), it);
-
 		while(div.buffer[i] == (*it)->color) {
 			tiles[i].province_id = province_id;
 			provinces[province_id]->n_tiles++;
@@ -219,14 +219,6 @@ World::World(bool empty) {
 
 		while(div.buffer[i] == 0xff000000 || div.buffer[i] == 0xffffffff) {
 			i++;
-		}
-	}
-
-	// Remove provinces with no tiles
-	printf("Remove provinces with no tiles\n");
-	for(auto& province: provinces) {
-		if(!province->n_tiles) {
-			print_error("Province %s has no tiles present on the map", province->ref_name.c_str());
 		}
 	}
 

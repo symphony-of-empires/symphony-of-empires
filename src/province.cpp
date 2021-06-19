@@ -2,12 +2,6 @@
 #include "economy.hpp"
 #include "world.hpp"
 
-Province::~Province() {
-	for(auto& product: this->products) {
-		delete product;
-	}
-}
-
 /**
  * Gets ID from pointer
  */
