@@ -33,7 +33,7 @@ int main(int argc, char ** argv) {
 	World * world = new World(false);
 
 #ifndef UNIT_TEST
-	{
+	/*{
 		Archive * test = new Archive();
 		serialize(*test, world);
 		test->to_file("hello_world.v0");
@@ -46,7 +46,7 @@ int main(int argc, char ** argv) {
 		Archive * test = new Archive();
 		test->from_file("hello_world.v0");
 		::deserialize(*test, world);
-	}
+	}*/
 
 	printf("%s\n", gettext("launching rendering thread"));
 	std::thread t1(rendering_main);

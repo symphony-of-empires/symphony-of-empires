@@ -59,30 +59,18 @@ typedef uint8_t GoodId;
  */
 class Good {
 public:
-	~Good() {
-		delete icon;
-	}
-
 	std::string name;
 	std::string ref_name;
 
 	// Determines if the good can be "eaten", this makes the product fullfill a life need
 	bool is_edible;
-
-	Texture * icon = nullptr;
 };
 
 typedef uint8_t IndustryTypeId;
 class IndustryType {
 public:
-	~IndustryType() {
-		delete image;
-	}
-
 	std::string name;
 	std::string ref_name;
-
-	Texture * image = nullptr;
 
 	// List of good required to create output
 	std::vector<Good *> inputs;
