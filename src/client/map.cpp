@@ -34,6 +34,35 @@ Map::Map(const World& _world) : world(_world) {
 		topo_tex->buffer[i] = (0xff << 24) | (b << 16) | (g << 8) | (r);
 	}
 	topo_tex->to_opengl();
+	
+	coastline_gl_list = glGenLists(1);
+	glNewList(coastline_gl_list, GL_COMPILE);
+	glLineWidth(2.f);
+	glColor3f(0.f, 0.f, 0.f);
+	for(size_t x = 1; x < world.width; x++) {
+		for(size_t y = 1; y < world.height; y++) {
+			const Tile& left_tile = world.get_tile(x - 1, y);
+			const Tile& top_tile = world.get_tile(x, y - 1);
+			const Tile& tile = world.get_tile(x, y);
+			
+			if((left_tile.elevation <= world.sea_level && tile.elevation > world.sea_level)
+			|| (left_tile.elevation > world.sea_level && tile.elevation <= world.sea_level)) {
+				glBegin(GL_LINE_STRIP);
+				glVertex2f(x, y);
+				glVertex2f(x, y + 1.f);
+				glEnd();
+			}
+			
+			if((top_tile.elevation <= world.sea_level && tile.elevation > world.sea_level)
+			|| (top_tile.elevation > world.sea_level && tile.elevation <= world.sea_level)) {
+				glBegin(GL_LINE_STRIP);
+				glVertex2f(x, y);
+				glVertex2f(x + 1.f, y);
+				glEnd();
+			}
+		}
+	}
+	glEndList();
 }
 
 extern TextureManager * g_texture_manager;
@@ -64,33 +93,7 @@ void Map::draw(float zoom) {
 		glCallList(province_shapes[i].shape_gl_list);
 	}
 	
-	/*
-	glLineWidth(3.f);
-	glColor3f(0.2f, 0.2f, 0.2f);
-	for(size_t x = 1; x < world.width; x++) {
-		for(size_t y = 1; y < world.height; y++) {
-			const Tile& left_tile = world.get_tile(x - 1, y);
-			const Tile& top_tile = world.get_tile(x, y - 1);
-			const Tile& tile = world.get_tile(x, y);
-			
-			if((left_tile.elevation <= world.sea_level && tile.elevation > world.sea_level)
-			|| (left_tile.elevation > world.sea_level && tile.elevation <= world.sea_level)) {
-				glBegin(GL_LINE_STRIP);
-				glVertex2f(x, y);
-				glVertex2f(x, y + 1.f);
-				glEnd();
-			}
-			
-			if((top_tile.elevation <= world.sea_level && tile.elevation > world.sea_level)
-			|| (top_tile.elevation > world.sea_level && tile.elevation <= world.sea_level)) {
-				glBegin(GL_LINE_STRIP);
-				glVertex2f(x, y);
-				glVertex2f(x + 1.f, y);
-				glEnd();
-			}
-		}
-	}
-	*/
+	glCallList(coastline_gl_list);
 	
 	/*
 	if(zoom >= -200.f) {

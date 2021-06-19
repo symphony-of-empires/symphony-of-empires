@@ -42,16 +42,14 @@ void Industry::add_to_stock(const World& world, const Good * good, const size_t 
  * Phase 1 of economy: Delivers & Orders are sent from all factories in the world
  */
 void Economy::do_phase_1(World& world) {
-	const size_t n_provinces = world.provinces.size();
-
 	// All factories will place their orders for their inputs
 	// All RGOs will do deliver requests
-	for(const auto& province: world.provinces) {
+	for(auto& province: world.provinces) {
 		// Reset remaining supplies
 		province->supply_rem = province->supply_limit;
 
 		if(province->owner == nullptr) {
-			return;
+			continue;
 		}
 		
 		// This new tick, we will start the chain starting with RGOs producing deliver
@@ -64,16 +62,16 @@ void Economy::do_phase_1(World& world) {
 				industry.min_quality = 0;
 				continue;
 			}
-
-			industry.days_unoperational = 0;
-
-			size_t available_manpower;
-			size_t needed_manpower = 1500;
 			
-			available_manpower = std::min<size_t>(needed_manpower, province->worker_pool);
+			industry.days_unoperational = 0;
+			
+			size_t needed_manpower = 1500;
+			size_t available_manpower = std::min<size_t>(needed_manpower, province->worker_pool);
 			province->worker_pool -= available_manpower;
 			if(!available_manpower)
-				return;
+				continue;
+			
+			industry.workers = available_manpower;
 			
 			const IndustryType& it = *industry.type;
 			for(const auto& input: it.inputs) {
@@ -90,15 +88,9 @@ void Economy::do_phase_1(World& world) {
 			}
 
 			if(industry.can_do_output(world) == false)
-				return;
+				continue;
 
 			// Now produce anything as we can!
-			// Take a constant of workers needed for factories, 1.5k workers!
-			available_manpower = std::min<size_t>(1500, province->worker_pool);
-			province->worker_pool -= available_manpower;
-			if(!available_manpower)
-				return;
-				
 			// Place deliver orders (we are a RGO)
 			for(size_t k = 0; k < it.outputs.size(); k++) {
 				DeliverGoods deliver;
@@ -372,7 +364,7 @@ void Economy::do_phase_3(World& world) {
 			}
 			
 			// TODO: Make this dynamic
-			pop.budget += salary;
+			pop.budget += salary * 90.f;
 
 			// Use 33% of our budget to buy edibles and life needed stuff
 			float life_alloc_budget = pop.budget / 3;
@@ -422,8 +414,8 @@ void Economy::do_phase_3(World& world) {
 			}
 
 			// x1.5 life needs met modifier, that is the max allowed
-			pop.life_needs_met = std::min<float>(2.f, pop.life_needs_met);
-			pop.life_needs_met = std::max<float>(-2.f, pop.life_needs_met);
+			pop.life_needs_met = std::min<float>(0.1f, pop.life_needs_met);
+			pop.life_needs_met = std::max<float>(-0.1f, pop.life_needs_met);
 
 			// POPs cannot shrink below 10<
 			if(pop.size <= 10) {
@@ -458,7 +450,7 @@ void Economy::do_phase_3(World& world) {
 			// want to get out of here
 			// And literacy determines "best" spot, for example a low literacy will
 			// choose a slightly less desirable location
-			const float emigration_willing = 10.f / std::max(pop.life_needs_met, 1.0f);
+			const float emigration_willing = 1.f / std::min(pop.life_needs_met, -1.0f);
 			size_t emigreers = (float)(((float)pop.size / 1000.f) * emigration_willing);
 			if(emigreers < pop.size && emigreers) {
 				// Find best province

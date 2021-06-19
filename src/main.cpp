@@ -59,9 +59,10 @@ int main(int argc, char ** argv) {
 	paused = false;
 	while(run) {
 		std::unique_lock<std::mutex> lock(world_lock);
+		
 		world->do_tick();
 		world->client_update();
-		//std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
 		while(paused);
 	}

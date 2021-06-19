@@ -740,7 +740,7 @@ void client_update(void) {
 	// We are going to update widgets which require real-time feeding
 	// this function **should** be called per tick
 	
-	std::unique_lock<std::mutex> lock(render_lock);
+	render_lock.lock();
 	
 	const Nation& player_nation = *g_world->nations[curr_selected_nation];
 	if((g_world->time % 48) == 16) {
@@ -825,6 +825,9 @@ void client_update(void) {
 				pop_view_nation_win->children[i]->text(tmpbuf);
 			}
 			
+			if(i >= pop_view_nation_win->children.size())
+				break;
+			
 			i++;
 			e++;
 		}
@@ -832,22 +835,36 @@ void client_update(void) {
 		size_t e = industry_view_nation_page_num * 12;
 		size_t i = 3;
 		
+		size_t total_industries = 0;
+		for(const auto& province: player_nation.owned_provinces) {
+			total_industries += province->industries.size();
+		}
+		
 		for(const auto& province: player_nation.owned_provinces) {
 			for(const auto& industry: province->industries) {
-				if(e >= 12) {
-					break;
+				if(e >= total_industries) {
+					sprintf(tmpbuf, "?");
+					industry_view_nation_win->children[i]->text(tmpbuf);
 				} else {
-					sprintf(tmpbuf, "%12s %8s %4.2f", province->name.c_str(), industry.type->name.c_str(), industry.production_cost);
+					sprintf(tmpbuf, "%8s %4.2f %4zu %3zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
 					industry_view_nation_win->children[i]->text(tmpbuf);
 				}
 				
 				i++;
 				e++;
+				
+				if(i >= industry_view_nation_win->children.size())
+					break;
 			}
+			
+			if(i >= industry_view_nation_win->children.size())
+				break;
 		}
 	}
 	
 	delete[] tmpbuf;
+	
+	render_lock.unlock();
 }
 
 void view_province_pops(void) {
@@ -877,6 +894,8 @@ void select_nation(void) {
 	
 	const Texture& button_pvw = g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
 	const Texture& button_popup = g_texture_manager->load_texture(Path::get("ui/button_popup.png"));
+	
+	const Texture& map_overlay = g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
 	
 	cam.x = -100.f;
 	cam.y = 100.f;
@@ -924,8 +943,6 @@ void select_nation(void) {
 	
 	size_t last_inbox_size = 0;
 	while(run) {
-		std::unique_lock<std::mutex> lock(render_lock);
-		
 		SDL_Event event;
 		int click_on_ui;
 		
@@ -990,6 +1007,10 @@ void select_nation(void) {
 							province_view_win->text("Province information");
 							province_view_win->current_texture = &province_view_win_tex;
 							province_view_win->below_of(dynamic_cast<const UI::Widget&>(*top_win));
+							
+							const Texture& province_view_decor = g_texture_manager->load_texture(Path::get("ui/province_view_terrain.png"));
+							UI::Image * view_province_decor = new UI::Image(9, 43, province_view_decor.width, province_view_decor.height, &province_view_decor, province_view_win);
+							view_province_decor->text(g_world->provinces[tile.province_id]->name.c_str());
 							
 							UI::Button * view_province_pops = new UI::Button(9, 193, button_pvw.width, button_pvw.height, province_view_win);
 							view_province_pops->text("Population");
@@ -1152,6 +1173,8 @@ void select_nation(void) {
 			}
 		}
 		
+		render_lock.lock();
+		
 		// Put popups
 		if(current_mode == MAP_MODE_NORMAL) {
 			size_t n_descisions = 0;
@@ -1224,6 +1247,20 @@ void select_nation(void) {
 		glRotatef(cam.z_angle, 0.0f, 0.0f, 1.0f);
 
 		map->draw(cam.z);
+		
+		glBindTexture(GL_TEXTURE_2D, map_overlay.gl_tex_num);
+		glBegin(GL_QUADS);
+		glColor4f(1.f, 1.f, 1.f, 0.8f);
+		glTexCoord2f(0.f, 0.f);
+		glVertex2f(0.f, 0.f);
+		glTexCoord2f(1.f, 0.f);
+		glVertex2f(0.f + g_world->width, 0.f);
+		glTexCoord2f(1.f, 1.f);
+		glVertex2f(0.f + g_world->width, 0.f + g_world->height);
+		glTexCoord2f(0.f, 1.f);
+		glVertex2f(0.f, 0.f + g_world->height);
+		glEnd();
+		glBindTexture(GL_TEXTURE_2D, 0);
 
 		for(const auto& unit: g_world->units) {
 			const float size = 1.f;
@@ -1318,6 +1355,8 @@ void select_nation(void) {
 		cam.x = -std::max(0.f, std::min((float)g_world->width, -cam.x));
 		cam.y = std::max(0.f, std::min((float)g_world->height, cam.y));
 		cam.z = -std::max(0.f, std::min(750.f, -cam.z));
+		
+		render_lock.unlock();
 	}
 	exit(EXIT_FAILURE);
 }
