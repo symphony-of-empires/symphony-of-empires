@@ -28,8 +28,6 @@ int main(int argc, char ** argv) {
 	bindtextdomain("main", Path::get("locale").c_str());
 	textdomain("main");
 
-	Client * client;
-	Server * server;
 	World * world = new World(false);
 
 #ifndef UNIT_TEST
@@ -47,6 +45,9 @@ int main(int argc, char ** argv) {
 		test->from_file("hello_world.v0");
 		::deserialize(*test, world);
 	}*/
+
+	Client * client;
+	Server * server;
 
 	printf("%s\n", gettext("launching rendering thread"));
 	std::thread t1(rendering_main);
