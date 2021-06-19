@@ -18,7 +18,7 @@ jobs:
     - name: "Install dependencies"
       run: |
        sudo apt update
-       sudo apt install libpng-dev libsdl2-dev libsdl2-ttf-dev gettext
+       sudo apt install libpng-dev libsdl2-dev libsdl2-ttf-dev gettext libtbb-dev
        wget http://mirrors.kernel.org/ubuntu/pool/universe/l/lua5.4/liblua5.4-0_5.4.0-2_amd64.deb
        sudo dpkg -i liblua5.4-0_5.4.0-2_amd64.deb
        wget http://mirrors.kernel.org/ubuntu/pool/universe/l/lua5.4/liblua5.4-dev_5.4.0-2_amd64.deb
