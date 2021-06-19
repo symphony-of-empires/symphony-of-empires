@@ -50,12 +50,6 @@ class Nation {
 	inline void do_diplomacy();
 	inline bool can_do_diplomacy();
 public:
-	Nation() {};
-	Nation& operator=(const Nation&) = default;
-	~Nation() {
-		delete default_flag;
-	};
-
 	// Whetever thet nation exists at all - we cannot add nations in-game
 	// so we just check if the nation "exists" at all, this means that it has
 	// a presence and a goverment, must own atleast 1 province
@@ -130,9 +124,6 @@ public:
 
 	// Inbox of the nation; events that require our attention / should be processed
 	std::deque<Event> inbox;
-
-	// Default flag texture of the country
-	Texture * default_flag = nullptr;
 
 	// Time until a diplomatic action can be done
 	uint16_t diplomatic_timer;

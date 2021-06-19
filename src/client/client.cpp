@@ -707,7 +707,7 @@ static void play_nation(UI::Widget&, void *) {
 	
 	pop_view_nation_win = nullptr;
 	
-	UI::Image * current_flag = new UI::Image(9, 43, 188, 87, curr_nation->default_flag, top_win);
+	//UI::Image * current_flag = new UI::Image(9, 43, 188, 87, curr_nation->default_flag, top_win);
 	
 	money_icon = new UI::Image(209, 43 + (28 * 0), icon_money_tex.width, icon_money_tex.height, &icon_money_tex, top_win);
 	money_lab = new UI::Label(0, 43 + (28 * 0), "?", top_win);
@@ -1228,7 +1228,7 @@ void select_nation(void) {
 		for(const auto& unit: g_world->units) {
 			const float size = 1.f;
 
-			glBindTexture(GL_TEXTURE_2D, unit->owner->default_flag->gl_tex_num);
+			//glBindTexture(GL_TEXTURE_2D, unit->owner->default_flag->gl_tex_num);
 			glBegin(GL_QUADS);
 
 			glColor4f(1.f, 1.f, 1.f, 0.8f);
@@ -1346,10 +1346,6 @@ void rendering_main(void) {
 
 	printf("Creating map\n");
 	map = new Map(*g_world);
-	
-	for(auto& nation: g_world->nations) {
-		nation->default_flag->to_opengl();
-	}
 
 	/*std::ifstream file;
 	file.open(Path::get("shaders/test.gl"), std::ios::in);

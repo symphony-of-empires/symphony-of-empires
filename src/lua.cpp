@@ -35,11 +35,7 @@ int LuaAPI::add_good(lua_State * L) {
 	good->name = lua_tostring(L, 2);
 	good->is_edible = lua_toboolean(L, 3);
 
-	std::string path;
-	path = "icons/goods/" + good->ref_name + ".png";
-	good->icon = new Texture(Path::get(path.c_str()).c_str());
 	g_world->goods.push_back(good);
-	
 	lua_pushnumber(L, g_world->goods.size() - 1);
 	return 1;
 }
@@ -80,14 +76,9 @@ int LuaAPI::add_industry_type(lua_State * L) {
 
 	industry->ref_name = lua_tostring(L, 1);
 	industry->name = lua_tostring(L, 2);
-	
-	std::string path;
-	
-	path = "images/" + industry->ref_name + ".png";
-	industry->image = new Texture(Path::get(path.c_str()).c_str());
-	
 	industry->inputs.clear();
 	industry->outputs.clear();
+
 	g_world->industry_types.push_back(industry);
 	lua_pushnumber(L, g_world->get_id(industry));
 	return 1;
@@ -146,10 +137,7 @@ int LuaAPI::add_nation(lua_State * L) {
 	nation->color = bswap_32(lua_tonumber(L, 2));
 	nation->color >>= 8;
 	nation->color |= 0xff000000;
-
-	const char * default_flag = lua_tostring(L, 3);
-	nation->default_flag = new Texture(default_flag);
-
+	
 	nation->name = lua_tostring(L, 4);
 
 	// Check for duplicates
