@@ -64,6 +64,15 @@ public:
 	void * get_buffer(void) {
 		return (void *)&buffer[0];
 	}
+	
+	void set_buffer(void * buf, size_t size) {
+		buffer.resize(size);
+		memcpy(&buffer[0], buf, size);
+	}
+	
+	size_t size(void) {
+		return buffer.size();
+	}
 };
 
 /**

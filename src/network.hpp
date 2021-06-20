@@ -92,6 +92,10 @@ public:
 		if(buf != nullptr)
 			memcpy(buf, bufdata, n_data);
 	}
+	
+	void recv(void) {
+		this->recv<void>();
+	}
 
 	bool is_ok() {
 		return (code == PACKET_OK);

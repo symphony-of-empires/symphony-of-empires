@@ -911,7 +911,6 @@ public:
 		printf("  n_events %zu\n", (size_t)n_events);
 		
 		for(size_t i = 0; i < n_goods; i++) {
-			printf("deserializing %zu %p\n", i, obj->goods[i]);
 			Good * sub_obj = obj->goods[i];
 			::deserialize(input, sub_obj);
 		}

@@ -40,6 +40,7 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 		threads.push_back(std::thread(&Server::client_loop, this));
 	}
 	print_info("Server created sucessfully and listening to %u", port);
+	print_info("Server ready, now people can join!")
 }
 
 Server::~Server() {
@@ -68,19 +69,14 @@ void Server::client_loop(void) {
 
 		print_info("New client connection established");
 
-		Packet * packet;
-		packet = new Packet(conn_fd);
-
-		print_info("Sending version info");
-		// Send version
-		uint16_t version = 0x0001;
-		packet->send(&version);
-
-		print_info("Sending world snapshot");
+		Packet * packet = new Packet(conn_fd);
+		
 		// Send the whole fucking world
 		Archive ar = Archive();
 		serialize(ar, g_world);
-		packet->send(ar.get_buffer(), ar.buffer.size());
+		packet->send(ar.get_buffer(), ar.size());
+		
+		print_info("Defensore %zu\n", ar.size());
 
 		print_info("Client connection closed");
 	}
@@ -103,6 +99,16 @@ Client::Client(std::string host, const unsigned port) {
 		print_error("Cannot connect to server");
 		return;
 	}
+	
+	/* Now the client will receive from server */
+	Packet * packet = new Packet(fd);
+	
+	Archive ar = Archive();
+	packet->recv();
+	ar.set_buffer(packet->data(), packet->size());
+	deserialize(ar, g_world);
+	
+	print_info("Defensore %zu\n", ar.size());
 }
 
 Client::~Client() {
