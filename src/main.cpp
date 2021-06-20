@@ -27,43 +27,41 @@ int main(int argc, char ** argv) {
 	setlocale(LC_ALL, "");
 	bindtextdomain("main", Path::get("locale").c_str());
 	textdomain("main");
-
-	World * world = new World(false);
+	
 #ifndef UNIT_TEST
-	Archive * test;
-	test = new Archive();
-	::serialize(*test, world);
-	test->to_file("hello_world.v0");
-	delete test;
-	delete world;
-	
-	world = new World(true);
-	test = new Archive();
-	test->from_file("hello_world.v0");
-	::deserialize(*test, world);
-	delete test;
-
-	Client * client;
-	Server * server;
-
-	printf("%s\n", gettext("launching rendering thread"));
-	std::thread t1(rendering_main);
-
-	while(!do_start);
-	//do_start = true;
-	//run = true;
-	
-	paused = false;
-	while(run) {
-		std::unique_lock<std::mutex> lock(world_lock);
+	if(!strcmp(argv[1], "server")) {
+		World * world = new World(false);
+		Server * server = new Server(4206);
 		
-		world->do_tick();
-		world->client_update();
-		//std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-		while(paused);
+		Archive * stream;
+		
+		while(!do_start);
+		
+		paused = false;
+		while(run) {
+			std::unique_lock<std::mutex> lock(world_lock);
+			world->do_tick();
+			while(paused);
+		}
+	} else {
+		World * world = new World(true);
+		Client * client = new Client("127.0.0.1", 4206);
+		
+		printf("%s\n", gettext("launching rendering thread"));
+		std::thread t1(rendering_main);
+		
+		while(!do_start);
+		
+		paused = false;
+		while(run) {
+			std::unique_lock<std::mutex> lock(world_lock);
+			world->do_tick();
+			world->client_update();
+			while(paused);
+		}
+		
+		t1.join();
 	}
-	t1.join();
 
 	//if(!strcmp(argv[1], "client")) {
 	//	client = new Client("127.0.0.1", 4206);
@@ -73,10 +71,6 @@ int main(int argc, char ** argv) {
 	//Serializer<World>::serialize(arr, *world);
 	//outfile.write(arr, 16777216);
 	//delete[] arr;
-	/*} else if(!strcmp(argv[1], "server")) {
-		server = new Server(4206);
-		world = new World();
-	}*/
 #endif
 	exit(EXIT_SUCCESS);
 	return 0;
