@@ -90,6 +90,9 @@ Texture::~Texture() {
 void Texture::to_opengl() {
 	glGenTextures(1, &this->gl_tex_num);
 	glBindTexture(GL_TEXTURE_2D, this->gl_tex_num);
+	
+	printf("tex width %zu, height %zu, buffer %p, gl %zu\n", this->width, this->height, this->buffer, (size_t)this->gl_tex_num);
+	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->buffer);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
