@@ -230,12 +230,6 @@ void Widget::on_render(void) {
 	
 	glColor3f(1.f, 1.f, 1.f);
 
-	if(this->text_texture != nullptr) {
-		if(!this->text_texture->gl_tex_num) {
-			this->text_texture->to_opengl();
-		}
-	}
-
 	if(this->type == UI_WIDGET_WINDOW) {
 		if(this->current_texture != nullptr && this->current_texture->gl_tex_num) {
 			this->draw_rectangle(
@@ -387,6 +381,8 @@ void Widget::text(const char * text) {
 		}
 	}
 	SDL_FreeSurface(surface);
+	
+	tex->to_opengl();
 	return;
 }
 
