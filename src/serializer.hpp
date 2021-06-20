@@ -73,7 +73,7 @@ public:
 template<typename T>
 class Serializer {
 public:
-	static constexpr bool is_const_size = true;
+	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& ar, const T* obj);
 	static inline void deserialize(Archive& ar, T* obj);
 	static inline size_t size(const T* obj);
@@ -282,7 +282,6 @@ inline void deserialize(Archive& ar, T * obj) {
 	Serializer<T>::deserialize(ar, obj);
 }
 
-#include <type_traits>
 template<typename T>
 constexpr size_t serialized_size(const T * obj) {
 	return Serializer<T>::size(obj);
