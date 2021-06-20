@@ -723,27 +723,27 @@ public:
 		::serialize(output, &obj->sea_level);
 		::serialize(output, &obj->time);
 		
-		uint32_t n_goods = obj->goods.size();
+		const uint32_t n_goods = obj->goods.size();
 		::serialize(output, &n_goods);
-		uint32_t n_industry_types = obj->industry_types.size();
+		const uint32_t n_industry_types = obj->industry_types.size();
 		::serialize(output, &n_industry_types);
-		uint32_t n_unit_types = obj->unit_types.size();
+		const uint32_t n_unit_types = obj->unit_types.size();
 		::serialize(output, &n_unit_types);
-		uint32_t n_religions = obj->religions.size();
+		const uint32_t n_religions = obj->religions.size();
 		::serialize(output, &n_religions);
-		uint32_t n_cultures = obj->cultures.size();
+		const uint32_t n_cultures = obj->cultures.size();
 		::serialize(output, &n_cultures);
-		uint32_t n_pop_types = obj->pop_types.size();
+		const uint32_t n_pop_types = obj->pop_types.size();
 		::serialize(output, &n_pop_types);
-		uint32_t n_nations = obj->nations.size();
+		const uint32_t n_nations = obj->nations.size();
 		::serialize(output, &n_nations);
-		uint32_t n_provinces = obj->provinces.size();
+		const uint32_t n_provinces = obj->provinces.size();
 		::serialize(output, &n_provinces);
-		uint32_t n_companies = obj->companies.size();
+		const uint32_t n_companies = obj->companies.size();
 		::serialize(output, &n_companies);
-		uint32_t n_products = obj->products.size();
+		const uint32_t n_products = obj->products.size();
 		::serialize(output, &n_products);
-		uint32_t n_events = obj->events.size();
+		const uint32_t n_events = obj->events.size();
 		::serialize(output, &n_events);
 		
 		printf("(SERIALIZER) WORLD INFORMATION\n");
@@ -758,13 +758,6 @@ public:
 		printf("  n_companies %zu\n", (size_t)n_companies);
 		printf("  n_products %zu\n", (size_t)n_products);
 		printf("  n_events %zu\n", (size_t)n_events);
-		
-		for(size_t i = 0; i < obj->width * obj->height; i++) {
-			::serialize(output, &obj->tiles[i]);
-		}
-		
-		::serialize(output, &obj->delivers);
-		::serialize(output, &obj->orders);
 		
 		for(auto& good: obj->goods) {
 			::serialize(output, good);
@@ -809,6 +802,13 @@ public:
 		for(auto& event: obj->events) {
 			::serialize(output, event);
 		}
+		
+		for(size_t i = 0; i < obj->width * obj->height; i++) {
+			::serialize(output, &obj->tiles[i]);
+		}
+		
+		::serialize(output, &obj->delivers);
+		::serialize(output, &obj->orders);
 	}
 	static inline void deserialize(Archive& input, World * obj) {
 		::deserialize(input, &obj->width);
@@ -822,80 +822,80 @@ public:
 		 */
 		uint32_t n_goods;
 		::deserialize(input, &n_goods);
-		/*for(size_t i = 0; i < n_goods; i++) {
+		for(size_t i = 0; i < n_goods; i++) {
 			Good * sub_obj = new Good();
 			obj->goods.push_back(sub_obj);
-		}*/
+		}
 		
 		uint32_t n_industry_types;
 		::deserialize(input, &n_industry_types);
-		/*for(size_t i = 0; i < n_industry_types; i++) {
+		for(size_t i = 0; i < n_industry_types; i++) {
 			IndustryType * sub_obj = new IndustryType();
 			obj->industry_types.push_back(sub_obj);
-		}*/
+		}
 		
 		uint32_t n_unit_types;
 		::deserialize(input, &n_unit_types);
-		/*for(size_t i = 0; i < n_unit_types; i++) {
+		for(size_t i = 0; i < n_unit_types; i++) {
 			UnitType * sub_obj = new UnitType();
 			obj->unit_types.push_back(sub_obj);
-		}*/
+		}
 		
 		uint32_t n_religions;
 		::deserialize(input, &n_religions);
-		/*for(size_t i = 0; i < n_religions; i++) {
+		for(size_t i = 0; i < n_religions; i++) {
 			Religion * sub_obj = new Religion();
 			obj->religions.push_back(sub_obj);
-		}*/
+		}
 		
 		uint32_t n_cultures;
 		::deserialize(input, &n_cultures);
-		/*for(size_t i = 0; i < n_cultures; i++) {
+		for(size_t i = 0; i < n_cultures; i++) {
 			Culture * sub_obj = new Culture();
 			obj->cultures.push_back(sub_obj);
-		}*/
+		}
 		
 		uint32_t n_pop_types;
 		::deserialize(input, &n_pop_types);
-		/*for(size_t i = 0; i < n_pop_types; i++) {
+		for(size_t i = 0; i < n_pop_types; i++) {
 			PopType * sub_obj = new PopType();
 			obj->pop_types.push_back(sub_obj);
-		}*/
+		}
 		
 		uint32_t n_nations;
 		::deserialize(input, &n_nations);
-		/*for(size_t i = 0; i < n_nations; i++) {
+		for(size_t i = 0; i < n_nations; i++) {
 			Nation * sub_obj = new Nation();
 			obj->nations.push_back(sub_obj);
-		}*/
+		}
 		
 		uint32_t n_provinces;
 		::deserialize(input, &n_provinces);
-		/*for(size_t i = 0; i < n_provinces; i++) {
+		for(size_t i = 0; i < n_provinces; i++) {
 			Province * sub_obj = new Province();
 			obj->provinces.push_back(sub_obj);
-		}*/
+		}
 		
 		uint32_t n_companies;
 		::deserialize(input, &n_companies);
-		/*for(size_t i = 0; i < n_companies; i++) {
+		for(size_t i = 0; i < n_companies; i++) {
 			Company * sub_obj = new Company();
 			obj->companies.push_back(sub_obj);
-		}*/
+		}
 		
 		uint32_t n_products;
 		::deserialize(input, &n_products);
-		/*for(size_t i = 0; i < n_products; i++) {
+		for(size_t i = 0; i < n_products; i++) {
 			Product * sub_obj = new Product();
 			obj->products.push_back(sub_obj);
-		}*/
+		}
 		
 		uint32_t n_events;
 		::deserialize(input, &n_events);
-		/*for(size_t i = 0; i < n_events; i++) {
+		for(size_t i = 0; i < n_events; i++) {
 			Event * sub_obj = new Event();
 			obj->events.push_back(sub_obj);
-		}*/
+		}
 		
 		printf("(DESERIALIZED) WORLD INFORMATION\n");
 		printf("  n_goods %zu\n", (size_t)n_goods);
@@ -909,17 +909,9 @@ public:
 		printf("  n_companies %zu\n", (size_t)n_companies);
 		printf("  n_products %zu\n", (size_t)n_products);
 		printf("  n_events %zu\n", (size_t)n_events);
-		return;
-		
-		obj->tiles = new Tile[obj->width * obj->height];
-		for(size_t i = 0; i < obj->width * obj->height; i++) {
-			::deserialize(input, &obj->tiles[i]);
-		}
-		
-		::deserialize(input, &obj->delivers);
-		::deserialize(input, &obj->orders);
 		
 		for(size_t i = 0; i < n_goods; i++) {
+			printf("deserializing %zu %p\n", i, obj->goods[i]);
 			Good * sub_obj = obj->goods[i];
 			::deserialize(input, sub_obj);
 		}
@@ -973,6 +965,14 @@ public:
 			Event * sub_obj = obj->events[i];
 			::deserialize(input, sub_obj);
 		}
+		
+		obj->tiles = new Tile[obj->width * obj->height];
+		for(size_t i = 0; i < obj->width * obj->height; i++) {
+			::deserialize(input, &obj->tiles[i]);
+		}
+		
+		::deserialize(input, &obj->delivers);
+		::deserialize(input, &obj->orders);
 	}
 	static inline size_t size(const World * obj) {
 		return

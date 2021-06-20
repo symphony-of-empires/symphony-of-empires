@@ -59,8 +59,8 @@ typedef uint8_t GoodId;
  */
 class Good {
 public:
-	std::string name;
-	std::string ref_name;
+	std::string name = "default";
+	std::string ref_name = "default";
 
 	// Determines if the good can be "eaten", this makes the product fullfill a life need
 	bool is_edible;
