@@ -29,22 +29,19 @@ int main(int argc, char ** argv) {
 	textdomain("main");
 
 	World * world = new World(false);
-
 #ifndef UNIT_TEST
-	/*{
-		Archive * test = new Archive();
-		serialize(*test, world);
-		test->to_file("hello_world.v0");
-	}
-	
+	Archive * test;
+	test = new Archive();
+	::serialize(*test, world);
+	test->to_file("hello_world.v0");
+	delete test;
 	delete world;
-	world = new World(true);
 	
-	{
-		Archive * test = new Archive();
-		test->from_file("hello_world.v0");
-		::deserialize(*test, world);
-	}*/
+	world = new World(true);
+	test = new Archive();
+	test->from_file("hello_world.v0");
+	::deserialize(*test, world);
+	delete test;
 
 	Client * client;
 	Server * server;
@@ -81,7 +78,6 @@ int main(int argc, char ** argv) {
 		world = new World();
 	}*/
 #endif
-	
 	exit(EXIT_SUCCESS);
 	return 0;
 }
