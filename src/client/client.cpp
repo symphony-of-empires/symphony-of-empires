@@ -740,8 +740,7 @@ static void play_nation(UI::Widget&, void *) {
 void client_update(void) {
 	// We are going to update widgets which require real-time feeding
 	// this function **should** be called per tick
-	
-	render_lock.lock();
+	std::unique_lock<std::mutex> lock(render_lock);
 	
 	const Nation& player_nation = *g_world->nations[curr_selected_nation];
 	if((g_world->time % 48) == 16) {
@@ -864,8 +863,6 @@ void client_update(void) {
 	}
 	
 	delete[] tmpbuf;
-	
-	render_lock.unlock();
 }
 
 void view_province_pops(void) {
@@ -907,7 +904,7 @@ void select_nation(void) {
 	cam.vy = 0.f;
 	cam.vz = 0.f;
 	cam.vz_angle = 0.f;
-	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
+	glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
 	
 	run = true;
 	
@@ -944,6 +941,8 @@ void select_nation(void) {
 	
 	size_t last_inbox_size = 0;
 	while(run) {
+		std::unique_lock<std::mutex> lock(render_lock);
+		
 		SDL_Event event;
 		int click_on_ui;
 		
@@ -1174,8 +1173,6 @@ void select_nation(void) {
 			}
 		}
 		
-		render_lock.lock();
-		
 		// Put popups
 		if(current_mode == MAP_MODE_NORMAL) {
 			size_t n_descisions = 0;
@@ -1356,8 +1353,6 @@ void select_nation(void) {
 		cam.x = -std::max(0.f, std::min((float)g_world->width, -cam.x));
 		cam.y = std::max(0.f, std::min((float)g_world->height, cam.y));
 		cam.z = -std::max(0.f, std::min(750.f, -cam.z));
-		
-		render_lock.unlock();
 	}
 	exit(EXIT_FAILURE);
 }
