@@ -343,28 +343,23 @@ void Widget::add_child(Widget * child) {
 
 void Widget::text(const char * text) {
 	SDL_Surface * surface;
-	Texture * tex;
-
+	
 	if(this->text_texture != nullptr) {
 		glDeleteTextures(1, &this->text_texture->gl_tex_num);
 		delete this->text_texture;
 	}
 
-	this->text_texture = new Texture();
-	this->text_texture->gl_tex_num = 0;
-
 	TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
 
 	surface = TTF_RenderUTF8_Solid(g_ui_context->default_font, text, text_color);
-	if(surface == nullptr) {
-		perror("cannot create text surface\n");
+	if(surface == nullptr || surface->w % 4 != 0) {
+		print_error("cannot create text surface\n");
 		return;
 	}
-
-	tex = this->text_texture;
-	tex->width = surface->w;
-	tex->height = surface->h;
-	tex->buffer = new uint32_t[tex->width * tex->height];
+	
+	this->text_texture = new Texture(surface->w, surface->h);
+	this->text_texture->gl_tex_num = 0;
+	
 	for(size_t i = 0; i < (size_t)surface->w; i++) {
 		for(size_t j = 0; j < (size_t)surface->h; j++) {
 			uint8_t r, g, b, a;
@@ -377,13 +372,12 @@ void Widget::text(const char * text) {
 			} else {
 				final_pixel = 0xffffffff;
 			}
-			tex->buffer[i + j * tex->width] = final_pixel;
+			this->text_texture->buffer[i + j * this->text_texture->width] = final_pixel;
 		}
 	}
 	SDL_FreeSurface(surface);
 	
-	tex->to_opengl();
-	return;
+	this->text_texture->to_opengl();
 }
 
 /**
