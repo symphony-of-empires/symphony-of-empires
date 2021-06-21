@@ -3,10 +3,10 @@
 #include "world.hpp"
 
 /**
- * Gets ID from pointer
+* Gets ID from pointer
  */
 ProvinceId Province::get_id(const World& world) {
-	const std::vector<Province *> * provinces = &world.provinces;
+	const std::vector<Province *>* provinces = &world.provinces;
 	const auto province = std::find(provinces->begin(), provinces->end(), this);
 	if(province != provinces->end()) {
 		return (ProvinceId)std::distance(provinces->begin(), province);
@@ -15,17 +15,17 @@ ProvinceId Province::get_id(const World& world) {
 }
 
 /**
- * Adds a new industry in the province and adds it's output
- * products into the world accordingly
+* Adds a new industry in the province and adds it's output
+* products into the world accordingly
  */
-void Province::add_industry(World& world, Industry * industry) {
-	IndustryType * type = industry->type;
+void Province::add_industry(World& world, Industry* industry) {
+	IndustryType* type = industry->type;
 	
 	industries.push_back(*industry);
 	
 	// Add a product for each output
 	for(const auto& output: type->outputs) {
-		Product * new_product = new Product();
+		Product* new_product = new Product();
 		new_product->industry = industry;
 		new_product->good = output;
 		new_product->owner = industry->owner;
@@ -48,12 +48,12 @@ void Province::add_industry(World& world, Industry * industry) {
 }
 
 /** Removes an industry and their products from the entire world
-  * this is only used when industries go bankrupt!
+ * this is only used when industries go bankrupt!
   */
-void Province::remove_industry(World& world, Industry * industry) {
+void Province::remove_industry(World& world, Industry* industry) {
 	// Remove products of this industry from world market
 	for(ProductId i = 0; i < world.products.size(); i++) {
-		Product * product = world.products[i];
+		Product* product = world.products[i];
 		if(product->origin == this
 		&& product->industry == industry) {
 			delete product;

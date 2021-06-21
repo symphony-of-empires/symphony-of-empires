@@ -26,21 +26,21 @@ namespace UI {
 		int drag_x;
 		int drag_y;
 		bool is_drag;
-		Widget * dragged_widget;
+		Widget* dragged_widget;
 	public:
 		Context();
 		void load_textures();
-		void add_widget(Widget * widget);
-		void remove_widget(Widget * widget);
+		void add_widget(Widget* widget);
+		void remove_widget(Widget* widget);
 		void render_all();
 		void check_hover(unsigned mx, unsigned my);
 		int check_click(unsigned mx, unsigned my);
 		void check_drag(unsigned mx, unsigned my);
 		int check_wheel(unsigned mx, unsigned my, int y);
-		void check_text_input(const char * input);
+		void check_text_input(const char* input);
 		void clear(void);
 
-		TTF_Font * default_font;
+		TTF_Font* default_font;
 		
 		std::vector<Widget *> widgets;
 	};
@@ -48,7 +48,7 @@ namespace UI {
 	class Widget {
 	public:
 		Widget() {};
-		Widget(Widget * parent, int x, int y, unsigned w, unsigned h, int type, const Texture * tex = nullptr);
+		Widget(Widget* parent, int x, int y, unsigned w, unsigned h, int type, const Texture* tex = nullptr);
 		Widget(const Widget&) = default;
 		Widget(Widget&&) noexcept = default;
 		Widget& operator=(const Widget&) = default;
@@ -56,8 +56,8 @@ namespace UI {
 		virtual ~Widget();
 
 		void move_by(int x, int y);
-		void add_child(Widget * child);
-		void text(const char * text);
+		void add_child(Widget* child);
+		void text(const char* text);
 		void draw_rectangle(int x, int y, unsigned w, unsigned h, unsigned tex);
 
 		bool is_pinned = false;
@@ -81,13 +81,13 @@ namespace UI {
 		size_t width = 0;
 		size_t height = 0;
 
-		const Texture * current_texture = nullptr;
-		Texture * text_texture = nullptr;
+		const Texture* current_texture = nullptr;
+		Texture* text_texture = nullptr;
 
-		Widget * parent = nullptr;
+		Widget* parent = nullptr;
 		std::vector<Widget *> children;
 		
-		void * user_data = nullptr;
+		void* user_data = nullptr;
 
 		virtual void on_render(void);
 		void (*on_update)(Widget&, void *) = nullptr;
@@ -115,24 +115,24 @@ namespace UI {
 
 	class Input : public Widget {
 	public:
-		Input(int x, int y, unsigned w, unsigned h, Widget * parent = nullptr);
+		Input(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
 		~Input() {};
 		Input& operator=(const Input&) = default;
 
 		void (*on_textinput)(Input *, const char *, void *) = nullptr;
-		char * buffer = nullptr;
+		char* buffer = nullptr;
 	};
 
 	class Checkbox : public Widget {
 	public:
-		Checkbox(int x, int y, unsigned w, unsigned h, Widget * parent = nullptr);
+		Checkbox(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
 		~Checkbox() {};
 		Checkbox& operator=(const Checkbox&) = default;
 	};
 
 	class Button : public Widget {
 	public:
-		Button(int x, int y, unsigned w, unsigned h, Widget * parent = nullptr);
+		Button(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
 		~Button() {};
 		Button& operator=(const Button&) = default;
 	};
@@ -142,14 +142,14 @@ namespace UI {
 			delete w.parent;
 		}
 	public:
-		CloseButton(int x, int y, unsigned w, unsigned h, Widget * parent = nullptr);
+		CloseButton(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
 		~CloseButton() {};
 		CloseButton& operator=(const CloseButton&) = default;
 	};
 
 	class Window : public Widget {
 	public:
-		Window(int x, int y, unsigned w, unsigned h, Widget * parent = nullptr);
+		Window(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
 		~Window() {};
 		Window& operator=(const Window&) = default;
 
@@ -158,14 +158,14 @@ namespace UI {
 	
 	class Image : public Widget {
 	public:
-		Image(int x, int y, unsigned w, unsigned h, const Texture * tex, Widget * parent = nullptr);
+		Image(int x, int y, unsigned w, unsigned h, const Texture* tex, Widget* parent = nullptr);
 		~Image() {};
 		Image& operator=(const Image&) = default;
 	};
 	
 	class Label : public Widget {
 	public:
-		Label(int x, int y, const char * text = nullptr, Widget * parent = nullptr);
+		Label(int x, int y, const char* text = nullptr, Widget* parent = nullptr);
 		~Label() {};
 		Label& operator=(const Label&) = default;
 		void on_render(void);
@@ -173,7 +173,7 @@ namespace UI {
 	
 	class Chart : public Widget {
 	public:
-		Chart(int x, int y, unsigned w, unsigned h, Widget * _parent = nullptr);
+		Chart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
 		~Chart() {};
 		Chart& operator=(const Chart&) = default;
 		void on_render(void);

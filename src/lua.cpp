@@ -25,11 +25,11 @@
 #include "event.hpp"
 
 // Global world - do not use too much!
-extern World * g_world;
+extern World* g_world;
 extern std::vector<Texture *> g_texture_cache;
 
-int LuaAPI::add_good(lua_State * L) {
-	Good * good = new Good();
+int LuaAPI::add_good(lua_State* L) {
+	Good* good = new Good();
 
 	good->ref_name = lua_tostring(L, 1);
 	good->name = lua_tostring(L, 2);
@@ -40,14 +40,14 @@ int LuaAPI::add_good(lua_State * L) {
 	return 1;
 }
 
-int LuaAPI::get_good(lua_State * L) {
+int LuaAPI::get_good(lua_State* L) {
 	if(!lua_isstring(L, 1)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
 	std::string ref_name = lua_tostring(L, 1);
-	Good * good = nullptr;
+	Good* good = nullptr;
 	
 	size_t i;
 	for(i = 0; i < g_world->goods.size(); i++) {
@@ -66,13 +66,13 @@ int LuaAPI::get_good(lua_State * L) {
 	return 3;
 }
 
-int LuaAPI::add_industry_type(lua_State * L) {
+int LuaAPI::add_industry_type(lua_State* L) {
 	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
-	IndustryType * industry = new IndustryType();
+	IndustryType* industry = new IndustryType();
 
 	industry->ref_name = lua_tostring(L, 1);
 	industry->name = lua_tostring(L, 2);
@@ -84,14 +84,14 @@ int LuaAPI::add_industry_type(lua_State * L) {
 	return 1;
 }
 
-int LuaAPI::get_industry_type(lua_State * L) {
+int LuaAPI::get_industry_type(lua_State* L) {
 	if(!lua_isstring(L, 1)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 	
 	std::string ref_name = lua_tostring(L, 1);
-	IndustryType * industry = nullptr;
+	IndustryType* industry = nullptr;
 	
 	size_t i;
 	for(i = 0; i < g_world->industry_types.size(); i++) {
@@ -110,27 +110,27 @@ int LuaAPI::get_industry_type(lua_State * L) {
 	return 3;
 }
 
-int LuaAPI::add_input_to_industry_type(lua_State * L) {
-	IndustryType * industry = g_world->industry_types[lua_tonumber(L, 1)];
-	Good * good = g_world->goods[lua_tonumber(L, 2)];
+int LuaAPI::add_input_to_industry_type(lua_State* L) {
+	IndustryType* industry = g_world->industry_types[lua_tonumber(L, 1)];
+	Good* good = g_world->goods[lua_tonumber(L, 2)];
 	industry->inputs.push_back(good);
 	return 0;
 }
 
-int LuaAPI::add_output_to_industry_type(lua_State * L) {
-	IndustryType * industry = g_world->industry_types[lua_tonumber(L, 1)];
-	Good * good = g_world->goods[lua_tonumber(L, 2)];
+int LuaAPI::add_output_to_industry_type(lua_State* L) {
+	IndustryType* industry = g_world->industry_types[lua_tonumber(L, 1)];
+	Good* good = g_world->goods[lua_tonumber(L, 2)];
 	industry->outputs.push_back(good);
 	return 0;
 }
 
-int LuaAPI::add_nation(lua_State * L) {
+int LuaAPI::add_nation(lua_State* L) {
 	if(!lua_isstring(L, 1) || !lua_isnumber(L, 2) || !lua_isstring(L, 3) || !lua_isstring(L, 4)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
-	Nation * nation = new Nation();
+	Nation* nation = new Nation();
 
 	nation->ref_name = lua_tostring(L, 1);
 
@@ -157,14 +157,14 @@ int LuaAPI::add_nation(lua_State * L) {
 	return 1;
 }
 
-int LuaAPI::get_nation(lua_State * L) {
+int LuaAPI::get_nation(lua_State* L) {
 	if(!lua_isstring(L, 1)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
 	std::string ref_name = lua_tostring(L, 1);
-	Nation * nation = nullptr;
+	Nation* nation = nullptr;
 	
 	size_t i;
 	for(i = 0; i < g_world->nations.size(); i++) {
@@ -182,103 +182,103 @@ int LuaAPI::get_nation(lua_State * L) {
 	return 4;
 }
 
-int LuaAPI::set_nation_primary_culture(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_nation_primary_culture(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->primary_culture = g_world->cultures[lua_tonumber(L, 2)];
 	return 0;
 }
 
-int LuaAPI::set_nation_capital(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_nation_capital(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->capital = g_world->provinces[lua_tonumber(L, 2)];
 	return 0;
 }
 
-int LuaAPI::set_industry_output_mod(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_industry_output_mod(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->industry_output_mod = lua_tonumber(L, 2);
 	return 0;
 }
 
-int LuaAPI::set_industry_input_mod(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_industry_input_mod(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->industry_input_mod = lua_tonumber(L, 2);
 	return 0;
 }
 
-int LuaAPI::set_workers_needed_mod(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_workers_needed_mod(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->workers_needed_mod = lua_tonumber(L, 2);
 	return 0;
 }
 
-int LuaAPI::set_salary_paid_mod(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_salary_paid_mod(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->salary_paid_mod = lua_tonumber(L, 2);
 	return 0;
 }
 
-int LuaAPI::set_delivery_cost_mod(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_delivery_cost_mod(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->delivery_cost_mod = lua_tonumber(L, 2);
 	return 0;
 }
 
-int LuaAPI::set_literacy_learn_mod(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_literacy_learn_mod(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->literacy_learn_mod = lua_tonumber(L, 2);
 	return 0;
 }
 
-int LuaAPI::set_reproduction_mod(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_reproduction_mod(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->reproduction_mod = lua_tonumber(L, 2);
 	return 0;
 }
 
-int LuaAPI::set_death_mod(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_death_mod(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->death_mod = lua_tonumber(L, 2);
 	return 0;
 }
 
-int LuaAPI::set_militancy_mod(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_militancy_mod(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->militancy_mod = lua_tonumber(L, 2);
 	return 0;
 }
 
-int LuaAPI::set_consciousness_mod(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_consciousness_mod(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->consciousness_mod = lua_tonumber(L, 2);
 	return 0;
 }
 
-int LuaAPI::set_life_needs_met_mod(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_life_needs_met_mod(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->life_needs_met_mod = lua_tonumber(L, 2);
 	return 0;
 }
 
-int LuaAPI::set_everyday_needs_met_mod(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_everyday_needs_met_mod(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->everyday_needs_met_mod = lua_tonumber(L, 2);
 	return 0;
 }
 
-int LuaAPI::set_luxury_needs_met_mod(lua_State * L) {
-	Nation * nation = g_world->nations[lua_tonumber(L, 1)];
+int LuaAPI::set_luxury_needs_met_mod(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->luxury_needs_met_mod = lua_tonumber(L, 2);
 	return 0;
 }
 
-int LuaAPI::add_province(lua_State * L) {
+int LuaAPI::add_province(lua_State* L) {
 	if(!lua_isstring(L, 1) || !lua_isnumber(L, 2) || !lua_isstring(L, 3)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
-	Province * province = new Province();
+	Province* province = new Province();
 
 	province->ref_name = lua_tostring(L, 1);
 	province->color = bswap_32(lua_tonumber(L, 2));
@@ -305,14 +305,14 @@ int LuaAPI::add_province(lua_State * L) {
 	return 1;
 }
 
-int LuaAPI::get_province(lua_State * L) {
+int LuaAPI::get_province(lua_State* L) {
 	if(!lua_isstring(L, 1)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
 	std::string ref_name = lua_tostring(L, 1);
-	Province * province = nullptr;
+	Province* province = nullptr;
 	
 	size_t i;
 	for(i = 0; i < g_world->provinces.size(); i++) {
@@ -330,7 +330,7 @@ int LuaAPI::get_province(lua_State * L) {
 	return 4;
 }
 
-int LuaAPI::add_province_industry(lua_State * L) {
+int LuaAPI::add_province_industry(lua_State* L) {
 	ProvinceId province_id = lua_tonumber(L, 1);
 	CompanyId company_id = lua_tonumber(L, 2);
 	IndustryTypeId industry_type_id = lua_tonumber(L, 3);
@@ -347,14 +347,14 @@ int LuaAPI::add_province_industry(lua_State * L) {
 	}
 	
 	Province *& province = g_world->provinces[province_id];
-	Industry * industry = new Industry();
+	Industry* industry = new Industry();
 	industry->owner = g_world->companies[company_id];
 	industry->type = g_world->industry_types[industry_type_id];
 	province->add_industry(*g_world, industry);
 	return 0;
 }
 
-int LuaAPI::give_province_to(lua_State * L) {
+int LuaAPI::give_province_to(lua_State* L) {
 	if(!lua_isnumber(L, 1) || !lua_isnumber(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
@@ -366,7 +366,7 @@ int LuaAPI::give_province_to(lua_State * L) {
 		return 0;
 	}
 
-	Province * province = g_world->provinces[province_id];
+	Province* province = g_world->provinces[province_id];
 	size_t nation_id = lua_tonumber(L, 2);
 	if(nation_id >= g_world->nations.size()) {
 		print_error(gettext("lua nation_id is out of bounds"));
@@ -389,14 +389,14 @@ int LuaAPI::give_province_to(lua_State * L) {
 	return 0;
 }
 
-int LuaAPI::add_province_pop(lua_State * L) {
+int LuaAPI::add_province_pop(lua_State* L) {
 	size_t province_id = lua_tonumber(L, 1);
 	if(province_id >= g_world->provinces.size()) {
 		print_error(gettext("invalid province id %zu"), (size_t)province_id);
 		return 0;
 	}
 
-	Province * province = g_world->provinces[province_id];
+	Province* province = g_world->provinces[province_id];
 
 	Pop pop;
 	pop.type_id = lua_tonumber(L, 2);
@@ -419,19 +419,19 @@ int LuaAPI::add_province_pop(lua_State * L) {
 	return 0;
 }
 
-int LuaAPI::rename_province(lua_State * L) {
+int LuaAPI::rename_province(lua_State* L) {
 	size_t province_id = lua_tonumber(L, 1);
 	if(province_id >= g_world->provinces.size()) {
 		print_error(gettext("lua province_id out of bounds"));
 		return 0;
 	}
 
-	Province * province = g_world->provinces[province_id];
+	Province* province = g_world->provinces[province_id];
 	province->name = lua_tostring(L, 2);
 	return 0;
 }
 
-int LuaAPI::add_province_nucleus(lua_State * L) {
+int LuaAPI::add_province_nucleus(lua_State* L) {
 	ProvinceId province_id = lua_tonumber(L, 1);
 	if(province_id >= g_world->provinces.size()) {
 		print_error(gettext("invalid province id %zu"), (size_t)province_id);
@@ -448,7 +448,7 @@ int LuaAPI::add_province_nucleus(lua_State * L) {
 	return 0;
 }
 
-int LuaAPI::add_province_owner(lua_State * L) {
+int LuaAPI::add_province_owner(lua_State* L) {
 	ProvinceId province_id = lua_tonumber(L, 1);
 	if(province_id >= g_world->provinces.size()) {
 		print_error(gettext("invalid province id %zu"), (size_t)province_id);
@@ -466,13 +466,13 @@ int LuaAPI::add_province_owner(lua_State * L) {
 	return 0;
 }
 
-int LuaAPI::add_company(lua_State * L) {
+int LuaAPI::add_company(lua_State* L) {
 	if(!lua_isstring(L, 1) || !lua_isnumber(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
-	Company * company = new Company();
+	Company* company = new Company();
 
 	company->name = lua_tostring(L, 1);
 	company->money = lua_tonumber(L, 2);
@@ -488,13 +488,13 @@ int LuaAPI::add_company(lua_State * L) {
 	return 1;
 }
 
-int LuaAPI::add_op_province_to_company(lua_State * L) {
+int LuaAPI::add_op_province_to_company(lua_State* L) {
 	if(!lua_isnumber(L, 1) || !lua_isstring(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
-	Company * company = g_world->companies[lua_tonumber(L, 1)];
+	Company* company = g_world->companies[lua_tonumber(L, 1)];
 	std::string ref_name = lua_tostring(L, 2);
 
 	for(const auto& province: g_world->provinces) {
@@ -506,13 +506,13 @@ int LuaAPI::add_op_province_to_company(lua_State * L) {
 	return 0;
 }
 
-int LuaAPI::add_event(lua_State * L) {
+int LuaAPI::add_event(lua_State* L) {
 	if(!lua_isstring(L, 1) || !lua_isstring(L, 2) || !lua_isstring(L, 3)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
-	Event * event = new Event();
+	Event* event = new Event();
 
 	event->ref_name = lua_tostring(L, 1);
 	event->conditions_function = lua_tostring(L, 2);
@@ -524,14 +524,14 @@ int LuaAPI::add_event(lua_State * L) {
 	return 1;
 }
 
-int LuaAPI::get_event(lua_State * L) {
+int LuaAPI::get_event(lua_State* L) {
 	if(!lua_isstring(L, 1)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
 	std::string ref_name = lua_tostring(L, 1);
-	Event * event = nullptr;
+	Event* event = nullptr;
 	
 	size_t i;
 	for(i = 0; i < g_world->events.size(); i++) {
@@ -549,14 +549,14 @@ int LuaAPI::get_event(lua_State * L) {
 	return 4;
 }
 
-int LuaAPI::add_event_receivers(lua_State * L) {
+int LuaAPI::add_event_receivers(lua_State* L) {
 	EventId event_id = lua_tonumber(L, 1);
 	if(event_id >= g_world->events.size()) {
 		print_error(gettext("invalid event id %zu"), (size_t)event_id);
 		return 0;
 	}
 
-	Event * event = g_world->events[event_id];
+	Event* event = g_world->events[event_id];
 
 	// Add receivers of the event by id
 	for(size_t i = 0; i < lua_tonumber(L, 2); i++) {
@@ -570,13 +570,13 @@ int LuaAPI::add_event_receivers(lua_State * L) {
 	return 0;
 }
 
-int LuaAPI::add_descision(lua_State * L) {
+int LuaAPI::add_descision(lua_State* L) {
 	EventId event_id = lua_tonumber(L, 1);
 	if(event_id >= g_world->events.size()) {
 		print_error(gettext("invalid event id %zu"), (size_t)event_id);
 		return 0;
 	}
-	Event * event = g_world->events[event_id];
+	Event* event = g_world->events[event_id];
 
 	Descision descision = Descision();
 
@@ -590,13 +590,13 @@ int LuaAPI::add_descision(lua_State * L) {
 	return 0;
 }
 
-int LuaAPI::add_pop_type(lua_State * L) {
+int LuaAPI::add_pop_type(lua_State* L) {
 	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 	
-	PopType * pop = new PopType();
+	PopType* pop = new PopType();
 	
 	pop->ref_name = lua_tostring(L, 1);
 	pop->name = lua_tostring(L, 2);
@@ -607,14 +607,14 @@ int LuaAPI::add_pop_type(lua_State * L) {
 	return 1;
 }
 
-int LuaAPI::get_pop_type(lua_State * L) {
+int LuaAPI::get_pop_type(lua_State* L) {
 	if(!lua_isstring(L, 1)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
 	std::string ref_name = lua_tostring(L, 1);
-	PopType * pop_type = nullptr;
+	PopType* pop_type = nullptr;
 	
 	size_t i;
 	for(i = 0; i < g_world->pop_types.size(); i++) {
@@ -631,13 +631,13 @@ int LuaAPI::get_pop_type(lua_State * L) {
 	return 4;
 }
 
-int LuaAPI::add_culture(lua_State * L) {
+int LuaAPI::add_culture(lua_State* L) {
 	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
-	Culture * culture = new Culture();
+	Culture* culture = new Culture();
 
 	culture->ref_name = lua_tostring(L, 1);
 	culture->name = lua_tostring(L, 2);
@@ -647,14 +647,14 @@ int LuaAPI::add_culture(lua_State * L) {
 	return 1;
 }
 
-int LuaAPI::get_culture(lua_State * L) {
+int LuaAPI::get_culture(lua_State* L) {
 	if(!lua_isstring(L, 1)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
 	std::string ref_name = lua_tostring(L, 1);
-	Culture * culture = nullptr;
+	Culture* culture = nullptr;
 	
 	size_t i;
 	for(i = 0; i < g_world->cultures.size(); i++) {
@@ -671,13 +671,13 @@ int LuaAPI::get_culture(lua_State * L) {
 	return 4;
 }
 
-int LuaAPI::add_religion(lua_State * L) {
+int LuaAPI::add_religion(lua_State* L) {
 	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
-	Religion * religion = new Religion();
+	Religion* religion = new Religion();
 
 	religion->ref_name = lua_tostring(L, 1);
 	religion->name = lua_tostring(L, 2);
@@ -687,14 +687,14 @@ int LuaAPI::add_religion(lua_State * L) {
 	return 1;
 }
 
-int LuaAPI::get_religion(lua_State * L) {
+int LuaAPI::get_religion(lua_State* L) {
 	if(!lua_isstring(L, 1)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
 	std::string ref_name = lua_tostring(L, 1);
-	Religion * religion = nullptr;
+	Religion* religion = nullptr;
 	
 	size_t i;
 	for(i = 0; i < g_world->religions.size(); i++) {
@@ -711,13 +711,13 @@ int LuaAPI::get_religion(lua_State * L) {
 	return 4;
 }
 
-int LuaAPI::add_unit_type(lua_State * L) {
+int LuaAPI::add_unit_type(lua_State* L) {
 	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
-	UnitType * unit_type = new UnitType();
+	UnitType* unit_type = new UnitType();
 
 	unit_type->ref_name = lua_tostring(L, 1);
 	unit_type->name = lua_tostring(L, 2);
@@ -730,14 +730,14 @@ int LuaAPI::add_unit_type(lua_State * L) {
 	return 1;
 }
 
-int LuaAPI::get_unit_type(lua_State * L) {
+int LuaAPI::get_unit_type(lua_State* L) {
 	if(!lua_isstring(L, 1)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
 	std::string ref_name = lua_tostring(L, 1);
-	UnitType * unit_type = nullptr;
+	UnitType* unit_type = nullptr;
 	
 	size_t i;
 	for(i = 0; i < g_world->unit_types.size(); i++) {
@@ -759,23 +759,23 @@ int LuaAPI::get_unit_type(lua_State * L) {
 	return 4;
 }
 
-int LuaAPI::add_req_good_unit_type(lua_State * L) {
+int LuaAPI::add_req_good_unit_type(lua_State* L) {
 	UnitTypeId unit_type_id = lua_tonumber(L, 1);
-	UnitType * unit_type = g_world->unit_types[unit_type_id];
+	UnitType* unit_type = g_world->unit_types[unit_type_id];
 
-	Good * good = g_world->goods[lua_tonumber(L, 2)];
+	Good* good = g_world->goods[lua_tonumber(L, 2)];
 	size_t amount = lua_tonumber(L, 3);
 	unit_type->req_goods.push_back(std::make_pair(good, amount));
 	return 0;
 }
 
-int LuaAPI::add_boat_type(lua_State * L) {
+int LuaAPI::add_boat_type(lua_State* L) {
 	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
-	BoatType * boat_type = new BoatType();
+	BoatType* boat_type = new BoatType();
 
 	boat_type->ref_name = lua_tostring(L, 1);
 	boat_type->name = lua_tostring(L, 2);
@@ -789,14 +789,14 @@ int LuaAPI::add_boat_type(lua_State * L) {
 	return 1;
 }
 
-int LuaAPI::get_boat_type(lua_State * L) {
+int LuaAPI::get_boat_type(lua_State* L) {
 	if(!lua_isstring(L, 1)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
 
 	std::string ref_name = lua_tostring(L, 1);
-	BoatType * boat_type = nullptr;
+	BoatType* boat_type = nullptr;
 	
 	size_t i;
 	for(i = 0; i < g_world->boat_types.size(); i++) {
@@ -819,42 +819,42 @@ int LuaAPI::get_boat_type(lua_State * L) {
 	return 4;
 }
 
-int LuaAPI::add_req_good_boat_type(lua_State * L) {
+int LuaAPI::add_req_good_boat_type(lua_State* L) {
 	BoatTypeId boat_type_id = lua_tonumber(L, 1);
-	BoatType * boat_type = g_world->boat_types[boat_type_id];
+	BoatType* boat_type = g_world->boat_types[boat_type_id];
 
-	Good * good = g_world->goods[lua_tonumber(L, 2)];
+	Good* good = g_world->goods[lua_tonumber(L, 2)];
 	size_t amount = lua_tonumber(L, 3);
 	boat_type->req_goods.push_back(std::make_pair(good, amount));
 	return 0;
 }
 
-int LuaAPI::get_hour(lua_State * L) {
+int LuaAPI::get_hour(lua_State* L) {
 	lua_pushnumber(L, g_world->time % 24);
 	return 1;
 }
 
-int LuaAPI::get_day(lua_State * L) {
+int LuaAPI::get_day(lua_State* L) {
 	lua_pushnumber(L, (g_world->time / 24) % 30);
 	return 1;
 }
 
-int LuaAPI::get_month(lua_State * L) {
+int LuaAPI::get_month(lua_State* L) {
 	lua_pushnumber(L, ((g_world->time / 24) / 30) % 12);
 	return 1;
 }
 
-int LuaAPI::get_year(lua_State * L) {
+int LuaAPI::get_year(lua_State* L) {
 	lua_pushnumber(L, ((g_world->time / 24) / 30) / 12);
 	return 1;
 }
 
 // Checks all events and their condition functions
-void LuaAPI::check_events(lua_State * L) {
+void LuaAPI::check_events(lua_State* L) {
 	// Because of the logic of this loop, only 1 event can happen in the world per tick
 	// This is on purpouse ;)
 	for(size_t i = 0; i < g_world->events.size(); i++) {
-		Event * event = g_world->events[i];
+		Event* event = g_world->events[i];
 		lua_getglobal(L, event->conditions_function.c_str());
 		lua_call(L, 0, 1);
 		bool r = lua_toboolean(L, -1);
@@ -893,7 +893,7 @@ void LuaAPI::check_events(lua_State * L) {
 	g_world->taken_descisions.clear();
 }
 
-int LuaAPI::get_text(lua_State * L) {
+int LuaAPI::get_text(lua_State* L) {
 	if(!lua_isstring(L, 1)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;

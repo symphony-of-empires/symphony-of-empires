@@ -15,9 +15,9 @@
 #define RIVER_ELEVATION(a)			a + 1
 
 /**
- * A single tile unit, contains all needed information for tile-scale wars
- * and other non-war stuff (like province ownership).
- * This is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
+* A single tile unit, contains all needed information for tile-scale wars
+* and other non-war stuff (like province ownership).
+* This is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
  */
 class Tile {
 public:
@@ -40,8 +40,8 @@ public:
 #include "unit.hpp"
 
 /**
- * Represents an order, something an industry wants and that should be
- * fullfilled by transport companies
+* Represents an order, something an industry wants and that should be
+* fullfilled by transport companies
  */
 class OrderGoods {
 public:
@@ -49,20 +49,20 @@ public:
 	float payment;
 
 	// The ID of the required product
-	Good * good;
+	Good* good;
 
 	// Quantity of desired goods
 	size_t quantity;
 
 	// ID of the industry (inside the province) who requested this good
-	Industry * industry;
+	Industry* industry;
 
 	// ID of the province where the industry (who requested this) is located in
-	Province * province;
+	Province* province;
 };
 
 /**
- * Represents a delivery, 
+* Represents a delivery, 
  */
 class DeliverGoods {
 public:
@@ -70,23 +70,23 @@ public:
 	float payment;
 
 	// ID of the good we are sending
-	Good * good;
+	Good* good;
 
 	// Quantity available to send
 	size_t quantity;
 
 	// Product ID of the product to be sent
-	Product * product;
+	Product* product;
 
 	// ID of the industry (inside the province) who is sending this product
-	Industry * industry;
+	Industry* industry;
 
 	// ID of the province where the industry (who is sending this) is located in
-	Province * province;
+	Province* province;
 };
 
 /**
- * (UNUSED) A commercial convoy that goes from A to B to transport products
+* (UNUSED) A commercial convoy that goes from A to B to transport products
  */
 class CommercialConvoy {
 public:
@@ -94,10 +94,10 @@ public:
 	std::vector<Tile *> path;
 
 	// Pointer to the (destination) order this convoy is serving
-	OrderGoods * order;
+	OrderGoods* order;
 
 	// Pointer to the (source) deliver this convoy is serving
-	DeliverGoods * deliver;
+	DeliverGoods* deliver;
 };
 
 #include <algorithm>
@@ -105,21 +105,21 @@ public:
 #include "event.hpp"
 
 /**
- * Contains the main world class object, containing all the data relevant for the simulation
+* Contains the main world class object, containing all the data relevant for the simulation
  */
 class World {
 	// Lua state - for lua scripts, this is only used by the server and should not be
 	// accesible to the client
-	lua_State * lua;
+	lua_State* lua;
 
 	/**
-	 * Template for obtaining the ID of an element
-	 * @tparam S return index type
-	 * @tparam T type of the element to lookup
-	 * @tparam C STL-compatible container where the pointer *should* be located in
+	* Template for obtaining the ID of an element
+	* @tparam S return index type
+	* @tparam T type of the element to lookup
+	* @tparam C STL-compatible container where the pointer *should* be located in
 	 */
 	template<typename S, typename T, typename C>
-	inline S get_id_ptr(const T * ptr, C table) const {
+	inline S get_id_ptr(const T* ptr, C table) const {
 		typename C::iterator it = std::find(table.begin(), table.end(), ptr);
 		if(it == table.end()) {
 			// -1 is used as an invalid index
@@ -136,7 +136,7 @@ public:
 	void do_tick();
 
 	// 2-Dimensional Array of tiles
-	Tile * tiles;
+	Tile* tiles;
 	mutable std::mutex tiles_mutex;
 
 	// Level at which sea dissapears, all sea is capped to sea_level - 1, and rivers are at sea_level.
@@ -224,17 +224,17 @@ public:
 	std::vector<Descision *> taken_descisions;
 	mutable std::mutex taken_descisions_mutex;
 
-	NationId get_id(const Nation * ptr) const;
-	ProvinceId get_id(const Province * ptr) const;
-	ProductId get_id(const Product * ptr) const;
-	GoodId get_id(const Good * ptr) const;
-	CultureId get_id(const Culture * ptr) const;
-	CompanyId get_id(const Company * ptr) const;
-	IndustryTypeId get_id(const IndustryType * ptr) const;
-	IndustryId get_id(const Province& province, const Industry * ptr) const;
-	EventId get_id(const Event * ptr) const;
+	NationId get_id(const Nation* ptr) const;
+	ProvinceId get_id(const Province* ptr) const;
+	ProductId get_id(const Product* ptr) const;
+	GoodId get_id(const Good* ptr) const;
+	CultureId get_id(const Culture* ptr) const;
+	CompanyId get_id(const Company* ptr) const;
+	IndustryTypeId get_id(const IndustryType* ptr) const;
+	IndustryId get_id(const Province& province, const Industry* ptr) const;
+	EventId get_id(const Event* ptr) const;
 	
-	size_t get_id(const Tile * ptr) const;
+	size_t get_id(const Tile* ptr) const;
 	
 	// Obtains a tile from the world safely, and makes sure that it is in bounds
 	Tile& get_tile(size_t x, size_t y) const;
@@ -244,6 +244,6 @@ public:
 	void (*client_update)(void);
 };
 
-extern World * g_world;
+extern World* g_world;
 
 #endif

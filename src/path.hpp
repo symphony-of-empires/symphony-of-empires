@@ -4,7 +4,7 @@
 #include <string>
 
 namespace Path {
-	std::string get(const char * str = "");
+	std::string get(const char* str = "");
 };
 
 #endif

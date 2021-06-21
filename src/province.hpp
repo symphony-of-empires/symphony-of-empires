@@ -14,14 +14,14 @@ class Industry;
 class Product;
 
 /**
- * A single province, which is used to simulate economy in a "bulk-tiles" way
- * instead of doing economical operations on every single tile
+* A single province, which is used to simulate economy in a "bulk-tiles" way
+* instead of doing economical operations on every single tile
  */
 class Province {
 public:
 	ProvinceId get_id(const World& world);
-	void add_industry(World& world, Industry * industry);
-	void remove_industry(World& world, Industry * industry);
+	void add_industry(World& world, Industry* industry);
+	void remove_industry(World& world, Industry* industry);
 
 	// Name of the province
 	std::string name;
@@ -56,7 +56,7 @@ public:
 	size_t worker_pool;
 
 	// The owner of this province
-	Nation * owner = nullptr;
+	Nation* owner = nullptr;
 
 	// List containing all nations who have a nucleus in this province
 	std::set<Nation *> nucleuses;

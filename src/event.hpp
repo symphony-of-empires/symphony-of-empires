@@ -21,7 +21,7 @@ public:
 	std::vector<Nation *> receivers;
 	std::vector<Descision> descisions;
 	
-	void take_descision(Nation * sender, Descision * dec);
+	void take_descision(Nation* sender, Descision* dec);
 };
 
 #endif

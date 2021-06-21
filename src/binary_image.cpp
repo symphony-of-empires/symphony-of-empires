@@ -7,11 +7,11 @@
 #include "path.hpp"
 #include "print.hpp"
 
-BinaryImage::BinaryImage(const char * path) {
+BinaryImage::BinaryImage(const char* path) {
 	this->from_file(path);
 }
 
-void BinaryImage::from_file(const char * path) {
+void BinaryImage::from_file(const char* path) {
 	png_image image;
 	
 	// Open initial file
@@ -43,7 +43,7 @@ void BinaryImage::from_file(const char * path) {
 	this->height = (size_t)image.height;
 	
 	// Store information onto buffer
-	this->buffer = new uint32_t[image.width * image.height];
+	this->buffer = new uint32_t[image.width* image.height];
 	if(this->buffer != nullptr && png_image_finish_read(&image, NULL, this->buffer, 0, NULL) != 0) {
 		// Free the image
 		png_image_free(&image);

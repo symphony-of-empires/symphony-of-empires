@@ -15,10 +15,10 @@
 #include "pathfinding.hpp"
 
 // Mostly used by clients and lua API
-World * g_world;
+World* g_world;
 
 /**
-  * Creates a new world
+ * Creates a new world
   */
 World::World(bool empty) {
 	g_world = this;
@@ -42,7 +42,7 @@ World::World(bool empty) {
 		exit(EXIT_FAILURE);
 	}
 
-	const size_t total_size = this->width * this->height;
+	const size_t total_size = this->width* this->height;
 
 	// Sea is	<= sea_level
 	// Rivers	== sea_level + 1
@@ -227,7 +227,7 @@ World::World(bool empty) {
 	printf("Calculate the edges of the province (min and max x and y coordinates)\n");
 	for(size_t i = 0; i < this->width; i++) {
 		for(size_t j = 0; j < this->height; j++) {
-			const Tile * tile = &this->tiles[i + (j * this->width)];
+			const Tile* tile = &this->tiles[i + (j* this->width)];
 			if(tile->province_id == (ProvinceId)-1)
 				continue;
 
@@ -274,10 +274,10 @@ World::World(bool empty) {
 	// Neighbours
 	printf("Neighbours\n");
 	for(size_t i = 0; i < total_size; i++) {
-		const Tile * tile = &this->tiles[i];
-		const Tile * other_tile;
+		const Tile* tile = &this->tiles[i];
+		const Tile* other_tile;
 		if(tile->owner_id != (NationId)-1) {
-			Nation * nation = this->nations[this->tiles[i].owner_id];
+			Nation* nation = this->nations[this->tiles[i].owner_id];
 
 			// Up neighbour
 			if(i > this->width) {
@@ -288,7 +288,7 @@ World::World(bool empty) {
 				}
 			}
 			// Down neighbour
-			if(i < (this->width * this->height) - this->width) {
+			if(i < (this->width* this->height) - this->width) {
 				other_tile = &this->tiles[i + this->width];
 				if(other_tile->owner_id != tile->owner_id
 				&& other_tile->owner_id != (NationId)-1) {
@@ -304,7 +304,7 @@ World::World(bool empty) {
 				}
 			}
 			// Right neighbour
-			if(i < (this->width * this->height) - 1) {
+			if(i < (this->width* this->height) - 1) {
 				other_tile = &this->tiles[i + 1];
 				if(other_tile->owner_id != tile->owner_id
 				&& other_tile->owner_id != (NationId)-1) {
@@ -314,7 +314,7 @@ World::World(bool empty) {
 		}
 		
 		if(tile->province_id != (ProvinceId)-1) {
-			Province * province = this->provinces[this->tiles[i].province_id];
+			Province* province = this->provinces[this->tiles[i].province_id];
 
 			// Up neighbour
 			if(i > this->width) {
@@ -325,7 +325,7 @@ World::World(bool empty) {
 				}
 			}
 			// Down neighbour
-			if(i < (this->width * this->height) - this->width) {
+			if(i < (this->width* this->height) - this->width) {
 				other_tile = &this->tiles[i + this->width];
 				if(other_tile->province_id != tile->province_id
 				&& other_tile->province_id != (ProvinceId)-1) {
@@ -341,7 +341,7 @@ World::World(bool empty) {
 				}
 			}
 			// Right neighbour
-			if(i < (this->width * this->height) - 1) {
+			if(i < (this->width* this->height) - 1) {
 				other_tile = &this->tiles[i + 1];
 				if(other_tile->province_id != tile->province_id
 				&& other_tile->province_id != (ProvinceId)-1) {
@@ -415,7 +415,7 @@ extern std::deque<size_t> render_province;
 #include "economy.hpp"
 void World::do_tick() {
 	// Each tick == 30 minutes
-	switch(time % (24 * 2)) {
+	switch(time % (24* 2)) {
 	// 3:00
 	case 6:
 		Economy::do_phase_1(*this);
@@ -433,7 +433,7 @@ void World::do_tick() {
 
 			// Prestige cannot go below min prestige
 			nation->prestige = std::max<float>(nation->prestige, min_prestige);
-			nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * fmin(fmax(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
+			nation->prestige -= (nation->prestige* (decay_per_cent / 100.f))* fmin(fmax(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
 		}
 		break;
 	// 12:00
@@ -450,7 +450,7 @@ void World::do_tick() {
 				
 				// Also calculates GDP
 				for(const auto& product: g_world->products) {
-					nation->gdp += product->price * province->stockpile[g_world->get_id(product)];
+					nation->gdp += product->price* province->stockpile[g_world->get_id(product)];
 				}
 			}
 			nation->economy_score = economy_score / 100.f;
@@ -471,7 +471,7 @@ void World::do_tick() {
 
 	// Evaluate units
 	for(size_t i = 0; i < units.size(); i++) {
-		Unit * unit = units[i];
+		Unit* unit = units[i];
 		if(unit->size <= 0) {
 			g_world->units.erase(units.begin() + i);
 			break;
@@ -480,10 +480,10 @@ void World::do_tick() {
 		// Count friends and foes in range (and find nearest foe)
 		size_t n_friends = 0;
 		size_t n_foes = 0;
-		Unit * nearest_foe = nullptr;
-		Unit * nearest_friend = nullptr;
+		Unit* nearest_foe = nullptr;
+		Unit* nearest_friend = nullptr;
 		for(size_t j = 0; j < g_world->units.size(); j++) {
-			Unit * other_unit = g_world->units[j];
+			Unit* other_unit = g_world->units[j];
 			if(unit->owner == other_unit->owner) {
 				// Only when very close
 				if(std::abs(unit->x - other_unit->x) >= 4.f && std::abs(unit->y - other_unit->y) >= 4.f)
@@ -529,7 +529,7 @@ void World::do_tick() {
 			
 			// Attack nearest foe when possible
 			if(std::abs(unit->x - nearest_foe->x) <= 1.f && std::abs(unit->y - nearest_foe->y) <= 1.f) {
-				nearest_foe->size -= (unit->type->attack * unit->size) / (nearest_foe->type->defense * nearest_foe->size);
+				nearest_foe->size -= (unit->type->attack* unit->size) / (nearest_foe->type->defense* nearest_foe->size);
 			}
 		}
 		// The gang is able to attack, so we attack
@@ -540,7 +540,7 @@ void World::do_tick() {
 			
 			// If in distance, do attack
 			if(std::abs(unit->x - nearest_foe->x) <= 1.f && std::abs(unit->y - nearest_foe->y) <= 1.f) {
-				nearest_foe->size -= (unit->type->attack * unit->size) / (nearest_foe->type->defense * nearest_foe->size);
+				nearest_foe->size -= (unit->type->attack* unit->size) / (nearest_foe->type->defense* nearest_foe->size);
 			}
 		}
 		new_tx = unit->tx;
@@ -601,52 +601,52 @@ void World::do_tick() {
 	time++;
 }
 
-NationId World::get_id(const Nation * ptr) const {
+NationId World::get_id(const Nation* ptr) const {
 	//std::lock_guard<std::mutex> lock(nations_mutex);
 	return get_id_ptr<NationId>(ptr, nations);
 }
 
-ProvinceId World::get_id(const Province * ptr) const {
+ProvinceId World::get_id(const Province* ptr) const {
 	//std::lock_guard<std::mutex> lock(provinces_mutex);
 	return get_id_ptr<ProvinceId>(ptr, provinces);
 }
 
-ProductId World::get_id(const Product * ptr) const {
+ProductId World::get_id(const Product* ptr) const {
 	//std::lock_guard<std::mutex> lock(products_mutex);
 	return get_id_ptr<ProductId>(ptr, products);
 }
 
-GoodId World::get_id(const Good * ptr) const {
+GoodId World::get_id(const Good* ptr) const {
 	//std::lock_guard<std::mutex> lock(goods_mutex);
 	return get_id_ptr<GoodId>(ptr, goods);
 }
 
-CultureId World::get_id(const Culture * ptr) const {
+CultureId World::get_id(const Culture* ptr) const {
 	//std::lock_guard<std::mutex> lock(cultures_mutex);
 	return get_id_ptr<CultureId>(ptr, cultures);
 }
 
-CompanyId World::get_id(const Company * ptr) const {
+CompanyId World::get_id(const Company* ptr) const {
 	//std::lock_guard<std::mutex> lock(companies_mutex);
 	return get_id_ptr<CompanyId>(ptr, companies);
 }
 
-IndustryTypeId World::get_id(const IndustryType * ptr) const {
+IndustryTypeId World::get_id(const IndustryType* ptr) const {
 	//std::lock_guard<std::mutex> lock(industry_types_mutex);
 	return get_id_ptr<IndustryTypeId>(ptr, industry_types);
 }
 
-IndustryId World::get_id(const Province& province, const Industry * ptr) const {
+IndustryId World::get_id(const Province& province, const Industry* ptr) const {
 	//std::lock_guard<std::mutex> lock(provinces_mutex);
 	return ((ptrdiff_t)ptr - (ptrdiff_t)&province.industries[0]) / sizeof(Industry);
 }
 
-EventId World::get_id(const Event * ptr) const {
+EventId World::get_id(const Event* ptr) const {
 	//std::lock_guard<std::mutex> lock(events_mutex);
 	return get_id_ptr<EventId>(ptr, events);
 }
 
-size_t World::get_id(const Tile * ptr) const {
+size_t World::get_id(const Tile* ptr) const {
 	//std::lock_guard<std::mutex> lock(tiles_mutex);
 	return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
 }
@@ -657,12 +657,12 @@ Tile& World::get_tile(size_t x, size_t y) const {
 	if(x >= width || y >= height) {
 		throw "Tile out of bounds";
 	}
-	return tiles[x + y * width];
+	return tiles[x + y* width];
 }
 
 Tile& World::get_tile(size_t idx) const {
 	std::lock_guard<std::mutex> lock(tiles_mutex);
-	if(idx >= width * height) {
+	if(idx >= width* height) {
 		throw "Tile index exceeds boundaries";
 	}
 	return tiles[idx];

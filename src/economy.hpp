@@ -23,7 +23,7 @@ namespace Economy {
 
 typedef uint16_t CompanyId;
 /**
- * A company that operates one or more factories and is able to build even more factories
+* A company that operates one or more factories and is able to build even more factories
  */
 class Company {
 public:
@@ -40,7 +40,7 @@ public:
 	// List of province IDs where this company operates (mostly used for transport companies)
 	std::vector<Province *> operating_provinces;
 
-	inline bool in_range(Province * province) {
+	inline bool in_range(Province* province) {
 		return (std::find(operating_provinces.begin(), operating_provinces.end(), province)
 			!= operating_provinces.end());
 	}
@@ -55,7 +55,7 @@ public:
 
 typedef uint8_t GoodId;
 /**
- * A good, mostly serves as a "product type"
+* A good, mostly serves as a "product type"
  */
 class Good {
 public:
@@ -86,13 +86,13 @@ typedef uint16_t IndustryId;
 class Industry {
 public:
 	bool can_do_output(const World& world);
-	void add_to_stock(const World& world, const Good * good, size_t add);
+	void add_to_stock(const World& world, const Good* good, size_t add);
 
 	// Owner nation of this factory
-	Company * owner;
+	Company* owner;
 
 	// Type of factory
-	IndustryType * type;
+	IndustryType* type;
 
 	// Days that the factory has not been operational
 	size_t days_unoperational = 0;
@@ -118,22 +118,22 @@ public:
 
 typedef uint16_t ProductId;
 /**
- * A product (based off a Good) which can be bought by POPs, converted by factories and transported
- * accross the world
+* A product (based off a Good) which can be bought by POPs, converted by factories and transported
+* accross the world
  */
 class Product {
 public:
 	// Onwer (companyId) of this product
-	Company * owner;
+	Company* owner;
 	
 	// Origin province (where this product was made)
-	Province * origin;
+	Province* origin;
 	
 	// Industry in province that made this product
-	Industry * industry;
+	Industry* industry;
 	
 	// Good that this product is based on
-	Good * good;
+	Good* good;
 	
 	// Price of the product
 	float price;

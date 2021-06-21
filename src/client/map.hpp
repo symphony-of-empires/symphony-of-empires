@@ -16,7 +16,7 @@ public:
 	std::vector<ProvinceShape> province_shapes;
 	void draw(float zoom);
 	
-	Texture * topo_tex;
+	Texture* topo_tex;
 	GLuint coastline_gl_list;
 };
 

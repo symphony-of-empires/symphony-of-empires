@@ -17,11 +17,11 @@
 #include "ui.hpp"
 #include "map.hpp"
 
-extern TextureManager * g_texture_manager;
+extern TextureManager* g_texture_manager;
 int width = 1280;
 int height = 800;
 
-static Map * map;
+static Map* map;
 
 class Camera {
 public:
@@ -35,7 +35,7 @@ public:
 	float vz_angle;
 };
 static Camera cam;
-UI::Context * ui_ctx;
+UI::Context* ui_ctx;
 
 #include <atomic>
 extern std::atomic<int> redraw;
@@ -45,9 +45,9 @@ extern std::atomic<bool> do_start;
 
 #include "pathfinding.hpp"
 #include "array_ops.hpp"
-SDL_Window * window;
+SDL_Window* window;
 
-static UI::Button * curr_country_btn;
+static UI::Button* curr_country_btn;
 
 enum MapMode {
 	MAP_MODE_COUNTRY_SELECT,
@@ -56,7 +56,7 @@ enum MapMode {
 MapMode current_mode = MAP_MODE_COUNTRY_SELECT;
 
 static NationId curr_selected_nation = 0;
-static Nation * curr_nation = nullptr;
+static Nation* curr_nation = nullptr;
 
 static void change_country(size_t id) {
 	size_t old_id = curr_selected_nation;
@@ -89,7 +89,7 @@ static void change_country(size_t id) {
 
 	curr_country_btn->text(curr_nation->name.c_str());
 
-	const Province * capital = curr_nation->capital;
+	const Province* capital = curr_nation->capital;
 	if(capital != nullptr) {
 		cam.x = capital->max_x;
 		cam.y = capital->max_y;
@@ -99,15 +99,15 @@ static void change_country(size_t id) {
 
 std::pair<int, int> mouse_pos;
 
-static UI::Window * top_win, * province_view_win;
+static UI::Window* top_win,* province_view_win;
 
-static UI::Chart * gdp_chart, * pop_chart, * hdi_chart;
-static UI::Label * total_pop_lab, * total_prestige_lab, * total_economy_lab;
+static UI::Chart* gdp_chart,* pop_chart,* hdi_chart;
+static UI::Label* total_pop_lab,* total_prestige_lab,* total_economy_lab;
 
-static UI::Label * money_lab, * prestige_lab, * economy_lab, * big_brain_lab, * militancy_lab, * population_lab;
-static UI::Image * money_icon, * prestige_icon, * economy_icon, * big_brain_icon, * militancy_icon, * population_icon;
+static UI::Label* money_lab,* prestige_lab,* economy_lab,* big_brain_lab,* militancy_lab,* population_lab;
+static UI::Image* money_icon,* prestige_icon,* economy_icon,* big_brain_icon,* militancy_icon,* population_icon;
 
-static UI::Window * pop_view_nation_win = nullptr;
+static UI::Window* pop_view_nation_win = nullptr;
 static uint8_t pop_view_nation_page_num = 0;
 static void pop_view_nation(UI::Widget&, void *) {
 	// Do not make duplicate windows
@@ -122,12 +122,12 @@ static void pop_view_nation(UI::Widget&, void *) {
 	pop_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, province_pop_view_win.width, province_pop_view_win.height);
 	pop_view_nation_win->current_texture = &province_pop_view_win;
 	
-	char * tmpbuf = new char[255];
+	char* tmpbuf = new char[255];
 	sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
 	pop_view_nation_win->text(tmpbuf);
 	delete[] tmpbuf;
 	
-	UI::Button * ok_btn = new UI::Button(9, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
+	UI::Button* ok_btn = new UI::Button(9, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
 	ok_btn->text("OK");
 	ok_btn->current_texture = &button_ppv;\
 	ok_btn->on_click = [](UI::Widget& w, void *) {
@@ -135,22 +135,22 @@ static void pop_view_nation(UI::Widget&, void *) {
 		delete w.parent;
 	};
 	
-	UI::Button * prev_btn = new UI::Button(193, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
+	UI::Button* prev_btn = new UI::Button(193, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
 	prev_btn->text("Previous");
 	prev_btn->current_texture = &button_ppv;
 	prev_btn->on_click = [](UI::Widget&, void *) {
-		char * tmpbuf = new char[255];
+		char* tmpbuf = new char[255];
 		pop_view_nation_page_num--;
 		sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
 		pop_view_nation_win->text(tmpbuf);
 		delete[] tmpbuf;
 	};
 	
-	UI::Button * next_btn = new UI::Button(377, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
+	UI::Button* next_btn = new UI::Button(377, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
 	next_btn->text("Next");
 	next_btn->current_texture = &button_ppv;
 	next_btn->on_click = [](UI::Widget&, void *) {
-		char * tmpbuf = new char[255];
+		char* tmpbuf = new char[255];
 		pop_view_nation_page_num++;
 		sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
 		pop_view_nation_win->text(tmpbuf);
@@ -158,11 +158,11 @@ static void pop_view_nation(UI::Widget&, void *) {
 	};
 	
 	for(size_t i = 0; i < 12; i++) {
-		UI::Label * lab = new UI::Label(9, 43 + (i * 28), "?", pop_view_nation_win);
+		UI::Label* lab = new UI::Label(9, 43 + (i* 28), "?", pop_view_nation_win);
 	}
 }
 
-static UI::Window * industry_view_nation_win = nullptr;
+static UI::Window* industry_view_nation_win = nullptr;
 static uint8_t industry_view_nation_page_num = 0;
 static void industry_view_nation(UI::Widget&, void *) {
 	// Do not make duplicate windows
@@ -177,12 +177,12 @@ static void industry_view_nation(UI::Widget&, void *) {
 	industry_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, industry_view_win.width, industry_view_win.height);
 	industry_view_nation_win->current_texture = &industry_view_win;
 	
-	char * tmpbuf = new char[255];
+	char* tmpbuf = new char[255];
 	sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)pop_view_nation_page_num);
 	industry_view_nation_win->text(tmpbuf);
 	delete[] tmpbuf;
 	
-	UI::Button * ok_btn = new UI::Button(9, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
+	UI::Button* ok_btn = new UI::Button(9, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
 	ok_btn->text("OK");
 	ok_btn->current_texture = &button_ppv;\
 	ok_btn->on_click = [](UI::Widget& w, void *) {
@@ -190,22 +190,22 @@ static void industry_view_nation(UI::Widget&, void *) {
 		delete w.parent;
 	};
 	
-	UI::Button * prev_btn = new UI::Button(193, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
+	UI::Button* prev_btn = new UI::Button(193, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
 	prev_btn->text("Previous");
 	prev_btn->current_texture = &button_ppv;
 	prev_btn->on_click = [](UI::Widget&, void *) {
-		char * tmpbuf = new char[255];
+		char* tmpbuf = new char[255];
 		industry_view_nation_page_num--;
 		sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)industry_view_nation_page_num);
 		industry_view_nation_win->text(tmpbuf);
 		delete[] tmpbuf;
 	};
 	
-	UI::Button * next_btn = new UI::Button(377, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
+	UI::Button* next_btn = new UI::Button(377, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
 	next_btn->text("Next");
 	next_btn->current_texture = &button_ppv;
 	next_btn->on_click = [](UI::Widget&, void *) {
-		char * tmpbuf = new char[255];
+		char* tmpbuf = new char[255];
 		industry_view_nation_page_num++;
 		sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)industry_view_nation_page_num);
 		industry_view_nation_win->text(tmpbuf);
@@ -213,7 +213,7 @@ static void industry_view_nation(UI::Widget&, void *) {
 	};
 	
 	for(size_t i = 0; i < 12; i++) {
-		UI::Label * lab = new UI::Label(9, 43 + (i * 28), "?", industry_view_nation_win);
+		UI::Label* lab = new UI::Label(9, 43 + (i* 28), "?", industry_view_nation_win);
 	}
 }
 
@@ -221,38 +221,38 @@ static void reform_policies(UI::Widget&, void *) {
 	const Texture& reform = g_texture_manager->load_texture(Path::get("ui/reform_win.png"));
 	const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
 	
-	UI::Window * reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
+	UI::Window* reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
 	reform_win->current_texture = &reform;
 	
-	UI::Button * borders_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+	UI::Button* borders_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 	borders_btn->text("Population control");
 	borders_btn->current_texture = &button_ppv;
 	borders_btn->on_click = [](UI::Widget&, void *) {
 		const Texture& reform = g_texture_manager->load_texture(Path::get("ui/reform_win.png"));
 		const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
 		
-		UI::Window * reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
+		UI::Window* reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
 		reform_win->current_texture = &reform;
 		
-		UI::Button * migration_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+		UI::Button* migration_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 		migration_btn->text("Migration");
 		migration_btn->current_texture = &button_ppv;
 		migration_btn->on_click = [](UI::Widget&, void *) {
 			const Texture& reform = g_texture_manager->load_texture(Path::get("ui/reform_win.png"));
 			const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
 			
-			UI::Window * reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
+			UI::Window* reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
 			reform_win->current_texture = &reform;
 			reform_win->text("Migration");
 			
-			UI::Button * nobody_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* nobody_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			nobody_btn->text("Nobody");
 			nobody_btn->current_texture = &button_ppv;
 			nobody_btn->on_click = [](UI::Widget&, void *) {
 				curr_nation->current_policy.migration = ALLOW_NOBODY;
 			};
 			
-			UI::Button * accepted_only_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* accepted_only_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			accepted_only_btn->text("Accepted culture");
 			accepted_only_btn->below_of(dynamic_cast<const UI::Widget&>(*nobody_btn));
 			accepted_only_btn->current_texture = &button_ppv;
@@ -260,7 +260,7 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.migration = ALLOW_ACCEPTED_CULTURES;
 			};
 			
-			UI::Button * all_payment_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* all_payment_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			all_payment_btn->text("All with payment");
 			all_payment_btn->below_of(dynamic_cast<const UI::Widget&>(*accepted_only_btn));
 			all_payment_btn->current_texture = &button_ppv;
@@ -268,7 +268,7 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.migration = ALLOW_ALL_PAYMENT;
 			};
 			
-			UI::Button * allow_all_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* allow_all_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			allow_all_btn->text("All");
 			allow_all_btn->below_of(dynamic_cast<const UI::Widget&>(*all_payment_btn));
 			allow_all_btn->current_texture = &button_ppv;
@@ -276,13 +276,13 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.migration = ALLOW_ALL;
 			};
 			
-			UI::CloseButton * ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
+			UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
 			ok_btn->text("OK");
 			ok_btn->below_of(dynamic_cast<const UI::Widget&>(*allow_all_btn));
 			ok_btn->current_texture = &button_ppv;
 		};
 		
-		UI::Button * immigration_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+		UI::Button* immigration_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 		immigration_btn->text("Immigration");
 		immigration_btn->below_of(dynamic_cast<const UI::Widget&>(*migration_btn));
 		immigration_btn->current_texture = &button_ppv;
@@ -290,18 +290,18 @@ static void reform_policies(UI::Widget&, void *) {
 			const Texture& reform = g_texture_manager->load_texture(Path::get("ui/reform_win.png"));
 			const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
 			
-			UI::Window * reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
+			UI::Window* reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
 			reform_win->current_texture = &reform;
 			reform_win->text("Immigration");
 			
-			UI::Button * nobody_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* nobody_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			nobody_btn->text("Nobody");
 			nobody_btn->current_texture = &button_ppv;
 			nobody_btn->on_click = [](UI::Widget&, void *) {
 				curr_nation->current_policy.immigration = ALLOW_NOBODY;
 			};
 			
-			UI::Button * accepted_only_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* accepted_only_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			accepted_only_btn->text("Accepted culture");
 			accepted_only_btn->below_of(dynamic_cast<const UI::Widget&>(*nobody_btn));
 			accepted_only_btn->current_texture = &button_ppv;
@@ -309,7 +309,7 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.immigration = ALLOW_ACCEPTED_CULTURES;
 			};
 			
-			UI::Button * all_payment_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* all_payment_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			all_payment_btn->text("All with payment");
 			all_payment_btn->below_of(dynamic_cast<const UI::Widget&>(*accepted_only_btn));
 			all_payment_btn->current_texture = &button_ppv;
@@ -317,7 +317,7 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.immigration = ALLOW_ALL_PAYMENT;
 			};
 			
-			UI::Button * allow_all_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* allow_all_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			allow_all_btn->text("All");
 			allow_all_btn->below_of(dynamic_cast<const UI::Widget&>(*all_payment_btn));
 			allow_all_btn->current_texture = &button_ppv;
@@ -325,13 +325,13 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.immigration = ALLOW_ALL;
 			};
 			
-			UI::CloseButton * ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
+			UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
 			ok_btn->text("OK");
 			ok_btn->below_of(dynamic_cast<const UI::Widget&>(*allow_all_btn));
 			ok_btn->current_texture = &button_ppv;
 		};
 		
-		UI::Button * treatment_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+		UI::Button* treatment_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 		treatment_btn->text("Treatment");
 		treatment_btn->below_of(dynamic_cast<const UI::Widget&>(*immigration_btn));
 		treatment_btn->current_texture = &button_ppv;
@@ -339,18 +339,18 @@ static void reform_policies(UI::Widget&, void *) {
 			const Texture& reform = g_texture_manager->load_texture(Path::get("ui/reform_win.png"));
 			const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
 			
-			UI::Window * reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
+			UI::Window* reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
 			reform_win->current_texture = &reform;
 			reform_win->text("Treatment");
 			
-			UI::Button * everyone_equal_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* everyone_equal_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			everyone_equal_btn->text("Everyone equal");
 			everyone_equal_btn->current_texture = &button_ppv;
 			everyone_equal_btn->on_click = [](UI::Widget&, void *) {
 				curr_nation->current_policy.treatment = TREATMENT_EVERYONE_EQUAL;
 			};
 			
-			UI::Button * only_accepted_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* only_accepted_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			only_accepted_btn->text("Only accepted");
 			only_accepted_btn->below_of(dynamic_cast<const UI::Widget&>(*everyone_equal_btn));
 			only_accepted_btn->current_texture = &button_ppv;
@@ -358,7 +358,7 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.treatment = TREATMENT_ONLY_ACCEPTED;
 			};
 			
-			UI::Button * enslaved_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* enslaved_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			enslaved_btn->text("Enslaved");
 			enslaved_btn->below_of(dynamic_cast<const UI::Widget&>(*only_accepted_btn));
 			enslaved_btn->current_texture = &button_ppv;
@@ -366,7 +366,7 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.treatment = TREATMENT_ENSLAVED;
 			};
 			
-			UI::Button * exterminate_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* exterminate_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			exterminate_btn->text("Exterminate");
 			exterminate_btn->below_of(dynamic_cast<const UI::Widget&>(*enslaved_btn));
 			exterminate_btn->current_texture = &button_ppv;
@@ -374,19 +374,19 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.treatment = TREATMENT_EXTERMINATE;
 			};
 			
-			UI::CloseButton * ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
+			UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
 			ok_btn->text("OK");
 			ok_btn->below_of(dynamic_cast<const UI::Widget&>(*exterminate_btn));
 			ok_btn->current_texture = &button_ppv;
 		};
 		
-		UI::CloseButton * ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
+		UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
 		ok_btn->text("OK");
 		ok_btn->below_of(dynamic_cast<const UI::Widget&>(*treatment_btn));
 		ok_btn->current_texture = &button_ppv;
 	};
 	
-	UI::Button * goverment_btn = new UI::Button(9, 0, button_ppv.width, button_ppv.height, reform_win);
+	UI::Button* goverment_btn = new UI::Button(9, 0, button_ppv.width, button_ppv.height, reform_win);
 	goverment_btn->text("Goverment");
 	goverment_btn->below_of(dynamic_cast<const UI::Widget&>(*borders_btn));
 	goverment_btn->current_texture = &button_ppv;
@@ -397,29 +397,29 @@ static void reform_policies(UI::Widget&, void *) {
 		const Texture& checkbox_ppv_on = g_texture_manager->load_texture(Path::get("ui/checkbox_ppv_on.png"));
 		const Texture& checkbox_ppv_off = g_texture_manager->load_texture(Path::get("ui/checkbox_ppv_off.png"));
 		
-		UI::Window * reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
+		UI::Window* reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
 		reform_win->text("Goverment policies");
 		reform_win->current_texture = &reform;
 		
-		UI::Button * censorship_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+		UI::Button* censorship_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 		censorship_btn->text("Free press");
 		censorship_btn->current_texture = &button_ppv;
 		censorship_btn->on_click = [](UI::Widget&, void *) {
 			const Texture& reform = g_texture_manager->load_texture(Path::get("ui/reform_win.png"));
 			const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
 			
-			UI::Window * reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
+			UI::Window* reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
 			reform_win->text("Free press");
 			reform_win->current_texture = &reform;
 			
-			UI::Button * all_censored_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* all_censored_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			all_censored_btn->text("All censored");
 			all_censored_btn->current_texture = &button_ppv;
 			all_censored_btn->on_click = [](UI::Widget&, void *) {
 				curr_nation->current_policy.censorship = CENSORSHIP_ALL_CENSORED;
 			};
 			
-			UI::Button * only_state_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* only_state_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			only_state_btn->text("State only");
 			only_state_btn->current_texture = &button_ppv;
 			only_state_btn->below_of(dynamic_cast<const UI::Widget&>(*all_censored_btn));
@@ -427,7 +427,7 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.censorship = CENSORSHIP_ONLY_STATE;
 			};
 			
-			UI::Button * only_approved_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* only_approved_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			only_approved_btn->text("Approved only");
 			only_approved_btn->current_texture = &button_ppv;
 			only_approved_btn->below_of(dynamic_cast<const UI::Widget&>(*only_state_btn));
@@ -435,7 +435,7 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.censorship = CENSORSHIP_ONLY_APPROVED;
 			};
 			
-			UI::Button * all_allowed_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* all_allowed_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			all_allowed_btn->text("All allowed");
 			all_allowed_btn->current_texture = &button_ppv;
 			all_allowed_btn->below_of(dynamic_cast<const UI::Widget&>(*only_approved_btn));
@@ -443,13 +443,13 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.censorship = CENSORSHIP_ALL_ALLOWED;
 			};
 			
-			UI::CloseButton * ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
+			UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
 			ok_btn->text("OK");
 			ok_btn->below_of(dynamic_cast<const UI::Widget&>(*all_allowed_btn));
 			ok_btn->current_texture = &button_ppv;
 		};
 		
-		UI::Button * build_infra_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+		UI::Button* build_infra_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 		build_infra_btn->text("Infrastructure");
 		build_infra_btn->below_of(dynamic_cast<const UI::Widget&>(*censorship_btn));
 		build_infra_btn->current_texture = &button_ppv;
@@ -457,18 +457,18 @@ static void reform_policies(UI::Widget&, void *) {
 			const Texture& reform = g_texture_manager->load_texture(Path::get("ui/reform_win.png"));
 			const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
 			
-			UI::Window * reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
+			UI::Window* reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
 			reform_win->text("Infrastructure built by POPs");
 			reform_win->current_texture = &reform;
 			
-			UI::Button * not_allowed_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* not_allowed_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			not_allowed_btn->text("Not allowed");
 			not_allowed_btn->current_texture = &button_ppv;
 			not_allowed_btn->on_click = [](UI::Widget&, void *) {
 				curr_nation->current_policy.build_infrastructure = AUTO_BUILD_NONE;
 			};
 			
-			UI::Button * with_approval_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* with_approval_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			with_approval_btn->text("With approval");
 			with_approval_btn->current_texture = &button_ppv;
 			with_approval_btn->below_of(dynamic_cast<const UI::Widget&>(*not_allowed_btn));
@@ -476,7 +476,7 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.build_infrastructure = AUTO_BUILD_ONLY_APPROVED;
 			};
 			
-			UI::Button * allowed_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* allowed_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			allowed_btn->text("Allowed");
 			allowed_btn->current_texture = &button_ppv;
 			allowed_btn->below_of(dynamic_cast<const UI::Widget&>(*with_approval_btn));
@@ -484,13 +484,13 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.build_infrastructure = AUTO_BUILD_ALLOWED;
 			};
 			
-			UI::CloseButton * ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
+			UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
 			ok_btn->text("OK");
 			ok_btn->below_of(dynamic_cast<const UI::Widget&>(*allowed_btn));
 			ok_btn->current_texture = &button_ppv;
 		};
 		
-		UI::Button * build_factories_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+		UI::Button* build_factories_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 		build_factories_btn->text("Industry");
 		build_factories_btn->below_of(dynamic_cast<const UI::Widget&>(*build_infra_btn));
 		build_factories_btn->current_texture = &button_ppv;
@@ -498,18 +498,18 @@ static void reform_policies(UI::Widget&, void *) {
 			const Texture& reform = g_texture_manager->load_texture(Path::get("ui/reform_win.png"));
 			const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
 			
-			UI::Window * reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
+			UI::Window* reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
 			reform_win->text("Industry built by POPs");
 			reform_win->current_texture = &reform;
 			
-			UI::Button * not_allowed_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* not_allowed_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			not_allowed_btn->text("Not allowed");
 			not_allowed_btn->current_texture = &button_ppv;
 			not_allowed_btn->on_click = [](UI::Widget&, void *) {
 				curr_nation->current_policy.build_factories = AUTO_BUILD_NONE;
 			};
 			
-			UI::Button * with_approval_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* with_approval_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			with_approval_btn->text("With approval");
 			with_approval_btn->current_texture = &button_ppv;
 			with_approval_btn->below_of(dynamic_cast<const UI::Widget&>(*not_allowed_btn));
@@ -517,7 +517,7 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.build_factories = AUTO_BUILD_ONLY_APPROVED;
 			};
 			
-			UI::Button * allowed_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
+			UI::Button* allowed_btn = new UI::Button(9, 43, button_ppv.width, button_ppv.height, reform_win);
 			allowed_btn->text("Allowed");
 			allowed_btn->current_texture = &button_ppv;
 			allowed_btn->below_of(dynamic_cast<const UI::Widget&>(*with_approval_btn));
@@ -525,13 +525,13 @@ static void reform_policies(UI::Widget&, void *) {
 				curr_nation->current_policy.build_factories = AUTO_BUILD_ALLOWED;
 			};
 			
-			UI::CloseButton * ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
+			UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
 			ok_btn->text("OK");
 			ok_btn->below_of(dynamic_cast<const UI::Widget&>(*allowed_btn));
 			ok_btn->current_texture = &button_ppv;
 		};
 		
-		UI::Checkbox * national_id_check = new UI::Checkbox(9, 43, button_ppv.width, button_ppv.height, reform_win);
+		UI::Checkbox* national_id_check = new UI::Checkbox(9, 43, button_ppv.width, button_ppv.height, reform_win);
 		national_id_check->text("National ID");
 		national_id_check->below_of(dynamic_cast<const UI::Widget&>(*build_factories_btn));
 		if(curr_nation->current_policy.national_id) {
@@ -551,13 +551,13 @@ static void reform_policies(UI::Widget&, void *) {
 			}
 		};
 		
-		UI::CloseButton * ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
+		UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
 		ok_btn->text("OK");
 		ok_btn->below_of(dynamic_cast<const UI::Widget&>(*national_id_check));
 		ok_btn->current_texture = &button_ppv;
 	};
 	
-	UI::Button * taxes_btn = new UI::Button(9, 0, button_ppv.width, button_ppv.height, reform_win);
+	UI::Button* taxes_btn = new UI::Button(9, 0, button_ppv.width, button_ppv.height, reform_win);
 	taxes_btn->text("Taxes");
 	taxes_btn->below_of(dynamic_cast<const UI::Widget&>(*goverment_btn));
 	taxes_btn->current_texture = &button_ppv;
@@ -565,7 +565,7 @@ static void reform_policies(UI::Widget&, void *) {
 		// TODO: Actually do something
 	};
 	
-	UI::Button * property_btn = new UI::Button(9, 0, button_ppv.width, button_ppv.height, reform_win);
+	UI::Button* property_btn = new UI::Button(9, 0, button_ppv.width, button_ppv.height, reform_win);
 	property_btn->text("Property");
 	property_btn->below_of(dynamic_cast<const UI::Widget&>(*taxes_btn));
 	property_btn->current_texture = &button_ppv;
@@ -576,11 +576,11 @@ static void reform_policies(UI::Widget&, void *) {
 		const Texture& checkbox_ppv_on = g_texture_manager->load_texture(Path::get("ui/checkbox_ppv_on.png"));
 		const Texture& checkbox_ppv_off = g_texture_manager->load_texture(Path::get("ui/checkbox_ppv_off.png"));
 		
-		UI::Window * reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
+		UI::Window* reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, reform.width, reform.height);
 		reform_win->text("Property policies");
 		reform_win->current_texture = &reform;
 		
-		UI::Checkbox * private_property_check = new UI::Checkbox(9, 43, button_ppv.width, button_ppv.height, reform_win);
+		UI::Checkbox* private_property_check = new UI::Checkbox(9, 43, button_ppv.width, button_ppv.height, reform_win);
 		private_property_check->text("Private property");
 		private_property_check->on_click = [](UI::Widget& w, void *) {
 			curr_nation->current_policy.private_property = !curr_nation->current_policy.private_property;
@@ -594,7 +594,7 @@ static void reform_policies(UI::Widget&, void *) {
 				: &checkbox_ppv_off;
 		};
 
-		UI::Checkbox * companies_check = new UI::Checkbox(9, 43, button_ppv.width, button_ppv.height, reform_win);
+		UI::Checkbox* companies_check = new UI::Checkbox(9, 43, button_ppv.width, button_ppv.height, reform_win);
 		companies_check->text("Companies");
 		companies_check->below_of(dynamic_cast<const UI::Widget&>(*private_property_check));
 		companies_check->on_click = [](UI::Widget& w, void *) {
@@ -609,7 +609,7 @@ static void reform_policies(UI::Widget&, void *) {
 				: &checkbox_ppv_off;
 		};
 
-		UI::Checkbox * public_education_check = new UI::Checkbox(9, 43, button_ppv.width, button_ppv.height, reform_win);
+		UI::Checkbox* public_education_check = new UI::Checkbox(9, 43, button_ppv.width, button_ppv.height, reform_win);
 		public_education_check->text("Public education");
 		public_education_check->below_of(dynamic_cast<const UI::Widget&>(*companies_check));
 		public_education_check->on_click = [](UI::Widget& w, void *) {
@@ -624,7 +624,7 @@ static void reform_policies(UI::Widget&, void *) {
 				: &checkbox_ppv_off;
 		};
 
-		UI::Checkbox * public_healthcare_check = new UI::Checkbox(9, 43, button_ppv.width, button_ppv.height, reform_win);
+		UI::Checkbox* public_healthcare_check = new UI::Checkbox(9, 43, button_ppv.width, button_ppv.height, reform_win);
 		public_healthcare_check->text("Public education");
 		public_healthcare_check->below_of(dynamic_cast<const UI::Widget&>(*companies_check));
 		public_healthcare_check->on_click = [](UI::Widget& w, void *) {
@@ -639,13 +639,13 @@ static void reform_policies(UI::Widget&, void *) {
 				: &checkbox_ppv_off;
 		};
 
-		UI::CloseButton * ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
+		UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
 		ok_btn->text("OK");
 		ok_btn->below_of(dynamic_cast<const UI::Widget&>(*public_healthcare_check));
 		ok_btn->current_texture = &button_ppv;
 	};
 	
-	UI::Button * enact_btn = new UI::Button(9, 0, button_ppv.width, button_ppv.height, reform_win);
+	UI::Button* enact_btn = new UI::Button(9, 0, button_ppv.width, button_ppv.height, reform_win);
 	enact_btn->text("Enact policy");
 	enact_btn->below_of(dynamic_cast<const UI::Widget&>(*property_btn));
 	enact_btn->current_texture = &button_ppv;
@@ -653,7 +653,7 @@ static void reform_policies(UI::Widget&, void *) {
 		// TODO: Actually do something
 	};
 	
-	UI::CloseButton * ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
+	UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_ppv.width, button_ppv.height, reform_win);
 	ok_btn->text("OK");
 	ok_btn->below_of(dynamic_cast<const UI::Widget&>(*enact_btn));
 	ok_btn->current_texture = &button_ppv;
@@ -664,7 +664,7 @@ static void play_nation(UI::Widget&, void *) {
 	ui_ctx->clear();
 	current_mode = MAP_MODE_NORMAL;
 	
-	const Province * capital = curr_nation->capital;
+	const Province* capital = curr_nation->capital;
 	if(capital != nullptr) {
 		cam.x = capital->max_x;
 		cam.y = capital->max_y;
@@ -708,30 +708,30 @@ static void play_nation(UI::Widget&, void *) {
 	
 	pop_view_nation_win = nullptr;
 	
-	//UI::Image * current_flag = new UI::Image(9, 43, 188, 87, curr_nation->default_flag, top_win);
+	//UI::Image* current_flag = new UI::Image(9, 43, 188, 87, curr_nation->default_flag, top_win);
 	
-	money_icon = new UI::Image(209, 43 + (28 * 0), icon_money_tex.width, icon_money_tex.height, &icon_money_tex, top_win);
-	money_lab = new UI::Label(0, 43 + (28 * 0), "?", top_win);
+	money_icon = new UI::Image(209, 43 + (28* 0), icon_money_tex.width, icon_money_tex.height, &icon_money_tex, top_win);
+	money_lab = new UI::Label(0, 43 + (28* 0), "?", top_win);
 	money_lab->right_side_of(dynamic_cast<const UI::Widget&>(*money_icon));
 	
-	prestige_icon = new UI::Image(209, 43 + (28 * 1), icon_prestige_tex.width, icon_prestige_tex.height, &icon_prestige_tex, top_win);
-	prestige_lab = new UI::Label(0, 43 + (28 * 1), "?", top_win);
+	prestige_icon = new UI::Image(209, 43 + (28* 1), icon_prestige_tex.width, icon_prestige_tex.height, &icon_prestige_tex, top_win);
+	prestige_lab = new UI::Label(0, 43 + (28* 1), "?", top_win);
 	prestige_lab->right_side_of(dynamic_cast<const UI::Widget&>(*prestige_icon));
 	
-	economy_icon = new UI::Image(209, 43 + (28 * 2), icon_economy_score_tex.width, icon_economy_score_tex.height, &icon_economy_score_tex, top_win);
-	economy_lab = new UI::Label(0, 43 + (28 * 2), "?", top_win);
+	economy_icon = new UI::Image(209, 43 + (28* 2), icon_economy_score_tex.width, icon_economy_score_tex.height, &icon_economy_score_tex, top_win);
+	economy_lab = new UI::Label(0, 43 + (28* 2), "?", top_win);
 	economy_lab->right_side_of(dynamic_cast<const UI::Widget&>(*economy_icon));
 	
-	big_brain_icon = new UI::Image(209, 43 + (28 * 3), icon_big_brain_tex.width, icon_big_brain_tex.height, &icon_big_brain_tex, top_win);
-	big_brain_lab = new UI::Label(0, 43 + (28 * 3), "?", top_win);
+	big_brain_icon = new UI::Image(209, 43 + (28* 3), icon_big_brain_tex.width, icon_big_brain_tex.height, &icon_big_brain_tex, top_win);
+	big_brain_lab = new UI::Label(0, 43 + (28* 3), "?", top_win);
 	big_brain_lab->right_side_of(dynamic_cast<const UI::Widget&>(*big_brain_icon));
 	
-	militancy_icon = new UI::Image(209, 43 + (28 * 4), icon_militancy_tex.width, icon_militancy_tex.height, &icon_militancy_tex, top_win);
-	militancy_lab = new UI::Label(0, 43 + (28 * 4), "?", top_win);
+	militancy_icon = new UI::Image(209, 43 + (28* 4), icon_militancy_tex.width, icon_militancy_tex.height, &icon_militancy_tex, top_win);
+	militancy_lab = new UI::Label(0, 43 + (28* 4), "?", top_win);
 	militancy_lab->right_side_of(dynamic_cast<const UI::Widget&>(*militancy_icon));
 	
-	population_icon = new UI::Image(209, 43 + (28 * 5), icon_population_tex.width, icon_population_tex.height, &icon_population_tex, top_win);
-	population_lab = new UI::Label(0, 43 + (28 * 5), "?", top_win);
+	population_icon = new UI::Image(209, 43 + (28* 5), icon_population_tex.width, icon_population_tex.height, &icon_population_tex, top_win);
+	population_lab = new UI::Label(0, 43 + (28* 5), "?", top_win);
 	population_lab->right_side_of(dynamic_cast<const UI::Widget&>(*population_icon));
 	
 	do_start = true;
@@ -749,7 +749,7 @@ void client_update(void) {
 		double gdp = 0.f;
 		for(const auto& province: player_nation.owned_provinces) {
 			for(const auto& product: g_world->products) {
-				gdp += product->price * province->stockpile[g_world->get_id(product)];
+				gdp += product->price* province->stockpile[g_world->get_id(product)];
 			}
 		}
 		gdp_chart->data.push_back(gdp);
@@ -792,7 +792,7 @@ void client_update(void) {
 	militancy /= total_pop;
 	consciousness /= total_pop;
 	
-	char * tmpbuf = new char[255];
+	char* tmpbuf = new char[255];
 	
 	sprintf(tmpbuf, " %12.2f", militancy);
 	militancy_lab->text(tmpbuf);
@@ -813,7 +813,7 @@ void client_update(void) {
 	population_lab->text(tmpbuf);
 	
 	if(pop_view_nation_win != nullptr) {
-		size_t e = pop_view_nation_page_num * 10;
+		size_t e = pop_view_nation_page_num* 10;
 		size_t i = 3;
 		
 		for(const auto& province: player_nation.owned_provinces) {
@@ -832,7 +832,7 @@ void client_update(void) {
 			e++;
 		}
 	} if(industry_view_nation_win != nullptr) {
-		size_t e = industry_view_nation_page_num * 12;
+		size_t e = industry_view_nation_page_num* 12;
 		size_t i = 3;
 		
 		size_t total_industries = 0;
@@ -866,12 +866,12 @@ void client_update(void) {
 }
 
 void view_province_pops(void) {
-	UI::Window * view_pops_win = new UI::Window(0, province_view_win->disp_y, 0, 0);
+	UI::Window* view_pops_win = new UI::Window(0, province_view_win->disp_y, 0, 0);
 }
 
 // TODO: We can come with something better than this
-void colonize_province(UI::Widget& w, void * data) {
-	Province * province = (Province *)data;
+void colonize_province(UI::Widget& w, void* data) {
+	Province* province = (Province *)data;
 	province->owner = g_world->nations[curr_selected_nation];
 	curr_nation->budget -= 10000;
 }
@@ -910,21 +910,21 @@ void select_nation(void) {
 	
 	std::pair<float, float> select_pos;
 	
-	UI::Button * select_country_btn = new UI::Button((width / 2) - (button_320.width / 2), 8, button_320.width, button_320.height);
+	UI::Button* select_country_btn = new UI::Button((width / 2) - (button_320.width / 2), 8, button_320.width, button_320.height);
 	select_country_btn->current_texture = &button_320;
 	select_country_btn->text("Select a country");
 
 	curr_country_btn = new UI::Button((width / 2) - (button_320.width / 2), height - 128, button_320.width, button_320.height);
 	curr_country_btn->current_texture = &button_320;
 	curr_country_btn->text("!");
-	UI::Button * next_country_btn = new UI::Button(0, height - 128, button_128.width, button_128.height);
+	UI::Button* next_country_btn = new UI::Button(0, height - 128, button_128.width, button_128.height);
 	next_country_btn->current_texture = &button_128;
 	next_country_btn->text("Next");
 	next_country_btn->right_side_of(dynamic_cast<const UI::Widget&>(*curr_country_btn));
 	next_country_btn->on_click = [](UI::Widget&, void *) {
 		change_country(curr_selected_nation + 1);
 	};
-	UI::Button * prev_country_btn = new UI::Button(0, height - 128, button_128.width, button_128.height);
+	UI::Button* prev_country_btn = new UI::Button(0, height - 128, button_128.width, button_128.height);
 	prev_country_btn->current_texture = &button_128;
 	prev_country_btn->text("Prev");
 	prev_country_btn->left_side_of(dynamic_cast<const UI::Widget&>(*curr_country_btn));
@@ -932,12 +932,12 @@ void select_nation(void) {
 		change_country(curr_selected_nation - 1);
 	};
 	
-	UI::Button * play_btn = new UI::Button((width / 2) - (button_320.width / 2), height - button_320.height, button_320.width, button_320.height);
+	UI::Button* play_btn = new UI::Button((width / 2) - (button_320.width / 2), height - button_320.height, button_320.width, button_320.height);
 	play_btn->current_texture = &button_320;
 	play_btn->text("Play");
 	play_btn->on_click = &play_nation;
 	
-	Unit * selected_unit = nullptr;
+	Unit* selected_unit = nullptr;
 	
 	size_t last_inbox_size = 0;
 	while(run) {
@@ -985,7 +985,7 @@ void select_nation(void) {
 								break;
 							}
 							/*
-							Unit * unit = new Unit();
+							Unit* unit = new Unit();
 							unit->owner = g_world->nations[curr_selected_nation];
 							unit->size = 1000;
 							unit->x = select_pos.first;
@@ -1009,33 +1009,33 @@ void select_nation(void) {
 							province_view_win->below_of(dynamic_cast<const UI::Widget&>(*top_win));
 							
 							const Texture& province_view_decor = g_texture_manager->load_texture(Path::get("ui/province_view_terrain.png"));
-							UI::Image * view_province_decor = new UI::Image(9, 43, province_view_decor.width, province_view_decor.height, &province_view_decor, province_view_win);
+							UI::Image* view_province_decor = new UI::Image(9, 43, province_view_decor.width, province_view_decor.height, &province_view_decor, province_view_win);
 							view_province_decor->text(g_world->provinces[tile.province_id]->name.c_str());
 							
-							UI::Button * view_province_pops = new UI::Button(9, 193, button_pvw.width, button_pvw.height, province_view_win);
+							UI::Button* view_province_pops = new UI::Button(9, 193, button_pvw.width, button_pvw.height, province_view_win);
 							view_province_pops->text("Population");
 							view_province_pops->current_texture = &button_pvw;
 							view_province_pops->user_data = (void *)g_world->provinces[tile.province_id];
 							
-							UI::Button * view_province_ind = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
+							UI::Button* view_province_ind = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
 							view_province_ind->text("Economic activity");
 							view_province_ind->current_texture = &button_pvw;
 							view_province_ind->below_of(dynamic_cast<const UI::Widget&>(*view_province_pops));
 							view_province_ind->user_data = (void *)g_world->provinces[tile.province_id];
 							
-							UI::Button * view_province_owner = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
+							UI::Button* view_province_owner = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
 							view_province_owner->text("Owner info");
 							view_province_owner->current_texture = &button_pvw;
 							view_province_owner->below_of(dynamic_cast<const UI::Widget&>(*view_province_ind));
 							view_province_owner->user_data = (void *)g_world->provinces[tile.province_id];
 							
-							UI::CloseButton * ok_btn = new UI::CloseButton(9, 0, button_pvw.width, button_pvw.height, province_view_win);
+							UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_pvw.width, button_pvw.height, province_view_win);
 							ok_btn->text("OK");
 							ok_btn->current_texture = &button_pvw;
 							ok_btn->below_of(dynamic_cast<const UI::Widget&>(*view_province_owner));
 
 							if(g_world->provinces[tile.province_id]->owner == nullptr) {
-								UI::Button * colonize_province_btn = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
+								UI::Button* colonize_province_btn = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
 								colonize_province_btn->text("Colonize");
 								colonize_province_btn->current_texture = &button_pvw;
 								colonize_province_btn->below_of(dynamic_cast<const UI::Widget&>(*ok_btn));
@@ -1051,15 +1051,15 @@ void select_nation(void) {
 				SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
 				ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
 
-				select_pos.first = (mouse_pos.first - (width / 2.f)) / ((float)width / (-cam.z * 1.33f));
-				select_pos.second = (mouse_pos.second - (height / 2.f)) / ((float)height / (-cam.z * 0.83f));
+				select_pos.first = (mouse_pos.first - (width / 2.f)) / ((float)width / (-cam.z* 1.33f));
+				select_pos.second = (mouse_pos.second - (height / 2.f)) / ((float)height / (-cam.z* 0.83f));
 				select_pos.first -= cam.x;
 				select_pos.second += cam.y;
 				break;
 			case SDL_MOUSEWHEEL:
 				SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
 				ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
-				click_on_ui = ui_ctx->check_wheel(mouse_pos.first, mouse_pos.second, event.wheel.y * 6);
+				click_on_ui = ui_ctx->check_wheel(mouse_pos.first, mouse_pos.second, event.wheel.y* 6);
 				if(!click_on_ui) {
 					cam.vz += event.wheel.y;
 				}
@@ -1070,33 +1070,33 @@ void select_nation(void) {
 			case SDL_KEYDOWN:
 				switch(event.key.keysym.sym) {
 				case SDLK_UP:
-					cam.vy -= std::min(4.f, std::max(0.5f, 0.02f * -cam.z));
+					cam.vy -= std::min(4.f, std::max(0.5f, 0.02f* -cam.z));
 					break;
 				case SDLK_DOWN:
-					cam.vy += std::min(4.f, std::max(0.5f, 0.02f * -cam.z));
+					cam.vy += std::min(4.f, std::max(0.5f, 0.02f* -cam.z));
 					break;
 				case SDLK_LEFT:
-					cam.vx += std::min(4.f, std::max(0.5f, 0.02f * -cam.z));
+					cam.vx += std::min(4.f, std::max(0.5f, 0.02f* -cam.z));
 					break;
 				case SDLK_RIGHT:
-					cam.vx -= std::min(4.f, std::max(0.5f, 0.02f * -cam.z));
+					cam.vx -= std::min(4.f, std::max(0.5f, 0.02f* -cam.z));
 					break;
 				case SDLK_q:
-					cam.vz_angle -= std::min(4.f, std::max(0.01f, 0.02f * -cam.z));
+					cam.vz_angle -= std::min(4.f, std::max(0.01f, 0.02f* -cam.z));
 					break;
 				case SDLK_e:
-					cam.vz_angle += std::min(4.f, std::max(0.01f, 0.02f * -cam.z));
+					cam.vz_angle += std::min(4.f, std::max(0.01f, 0.02f* -cam.z));
 					break;
 				case SDLK_p:
 					paused = !paused;
 					break;
 				case SDLK_d:
-					UI::Window * debug_win = new UI::Window(0, 0, debug_win_tex.width, debug_win_tex.height);
+					UI::Window* debug_win = new UI::Window(0, 0, debug_win_tex.width, debug_win_tex.height);
 					debug_win->text("Debug");
 					debug_win->current_texture = &debug_win_tex;
 					debug_win->below_of(dynamic_cast<const UI::Widget&>(*top_win));
 					
-					UI::Button * overpopulate = new UI::Button(9, 43, button_pvw.width, button_pvw.height, debug_win);
+					UI::Button* overpopulate = new UI::Button(9, 43, button_pvw.width, button_pvw.height, debug_win);
 					overpopulate->text("Spawn humans");
 					overpopulate->current_texture = &button_pvw;
 					overpopulate->on_click = [](UI::Widget&, void *) {
@@ -1107,7 +1107,7 @@ void select_nation(void) {
 						}
 					};
 					
-					UI::Button * underpopulate = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
+					UI::Button* underpopulate = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
 					underpopulate->text("Kill half humans");
 					underpopulate->current_texture = &button_pvw;
 					underpopulate->below_of(dynamic_cast<const UI::Widget&>(*overpopulate));
@@ -1119,7 +1119,7 @@ void select_nation(void) {
 						}
 					};
 					
-					UI::Button * inc_product_price = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
+					UI::Button* inc_product_price = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
 					inc_product_price->text("Increment price");
 					inc_product_price->current_texture = &button_pvw;
 					inc_product_price->below_of(dynamic_cast<const UI::Widget&>(*underpopulate));
@@ -1129,7 +1129,7 @@ void select_nation(void) {
 						}
 					};
 					
-					UI::Button * everyone_rich = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
+					UI::Button* everyone_rich = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
 					everyone_rich->text("Everyone is rich");
 					everyone_rich->current_texture = &button_pvw;
 					everyone_rich->below_of(dynamic_cast<const UI::Widget&>(*inc_product_price));
@@ -1141,7 +1141,7 @@ void select_nation(void) {
 						}
 					};
 					
-					UI::Button * everyone_poor = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
+					UI::Button* everyone_poor = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
 					everyone_poor->text("Everyone is poor");
 					everyone_poor->current_texture = &button_pvw;
 					everyone_poor->below_of(dynamic_cast<const UI::Widget&>(*everyone_rich));
@@ -1153,7 +1153,7 @@ void select_nation(void) {
 						}
 					};
 					
-					UI::Button * destroy_factories = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
+					UI::Button* destroy_factories = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
 					destroy_factories->text("Destroy factories");
 					destroy_factories->current_texture = &button_pvw;
 					destroy_factories->below_of(dynamic_cast<const UI::Widget&>(*everyone_poor));
@@ -1177,7 +1177,7 @@ void select_nation(void) {
 		if(current_mode == MAP_MODE_NORMAL) {
 			size_t n_descisions = 0;
 			for(auto& msg: curr_nation->inbox) {
-				UI::Window * popup_win = new UI::Window(128, 128, generic_descision.width, generic_descision.height);
+				UI::Window* popup_win = new UI::Window(128, 128, generic_descision.width, generic_descision.height);
 				
 				// TODO: Allow titles in events
 				popup_win->text(msg.ref_name.c_str());
@@ -1186,20 +1186,20 @@ void select_nation(void) {
 				doable_events.push_back(msg);
 
 				// Buttons for descisions
-				const UI::Button * last = nullptr;
+				const UI::Button* last = nullptr;
 				for(const auto& descision: doable_events.back().descisions) {
-					UI::Button * decide_btn = new UI::Button(9, 558 - button_popup.height, button_popup.width, button_popup.height, popup_win);
+					UI::Button* decide_btn = new UI::Button(9, 558 - button_popup.height, button_popup.width, button_popup.height, popup_win);
 					decide_btn->text(descision.name.c_str());
 					decide_btn->current_texture = &button_popup;
 					decide_btn->user_data = (void *)&descision;
-					decide_btn->on_click = [](UI::Widget& w, void * data) {
+					decide_btn->on_click = [](UI::Widget& w, void* data) {
 						delete w.parent;
 						
 						// Obtain the descision
-						Descision * descision = (Descision *)data;
+						Descision* descision = (Descision *)data;
 						
 						// Find event
-						Event * event = nullptr;
+						Event* event = nullptr;
 						for(auto& e_event: doable_events) {
 							for(const auto& e_descision: e_event.descisions) {
 								if(e_descision.ref_name == descision->ref_name) {
@@ -1366,7 +1366,7 @@ void rendering_main(void) {
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 	SDL_GL_SetSwapInterval(1); // Enable OpenGL VSYNC
 
-	const GLubyte * version = glGetString(GL_VERSION);
+	const GLubyte* version = glGetString(GL_VERSION);
 	printf("OpenGL Version: %s\n", version);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1391,7 +1391,7 @@ void rendering_main(void) {
 	file.seekg(0, std::ios::end);
 	const size_t len = file.tellg();
 	file.seekg(0, std::ios::beg);
-	char * source = new char[len + 1];
+	char* source = new char[len + 1];
 	source[len] = 0;
 
 	unsigned int i = 0;

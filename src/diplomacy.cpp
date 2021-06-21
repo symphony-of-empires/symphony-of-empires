@@ -1,9 +1,9 @@
 #include "diplomacy.hpp"
 
 namespace Diplomacy {
-    bool is_friend(Nation * us, Nation * them) {
+    bool is_friend(Nation* us, Nation* them) {
 		const NationId idx = g_world->get_id(them);
-		const NationRelation * relation = &us->relations[idx];
+		const NationRelation* relation = &us->relations[idx];
 
 		// A high relation means we are friendly <3
 		if(relation->relation >= 50.f) {
@@ -25,7 +25,7 @@ namespace Diplomacy {
 		}
 	}
 
-    bool is_foe(Nation * us, Nation * them) {
+    bool is_foe(Nation* us, Nation* them) {
         return !is_friend(us, them);
     }
 };

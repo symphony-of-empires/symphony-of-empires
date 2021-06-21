@@ -8,8 +8,8 @@
 #include "economy.hpp"
 
 /**
- * Defines a type of unit, it can be a tank, garrison, infantry, etc
- * this is moddable via a lua script and new unit types can be added
+* Defines a type of unit, it can be a tank, garrison, infantry, etc
+* this is moddable via a lua script and new unit types can be added
  */
 typedef uint8_t UnitTypeId;
 class UnitType {
@@ -28,7 +28,7 @@ public:
 };
 
 /**
- * Defines the type of a naval unit
+* Defines the type of a naval unit
  */
 typedef uint8_t BoatTypeId;
 class BoatType {
@@ -51,12 +51,12 @@ public:
 #include "world.hpp"
 class Tile;
 /**
- * Roughly a batallion, consisting of approximately 500 soldiers each
+* Roughly a batallion, consisting of approximately 500 soldiers each
  */
 class Unit {
 public:
 	// Type of unit
-	UnitType * type;
+	UnitType* type;
 
 	// Size of the unit (soldiers in unit)
 	size_t size;
@@ -70,7 +70,7 @@ public:
 	float y;
 
 	// Who owns this unit
-	Nation * owner;
+	Nation* owner;
 
 	// Used to "ignore" an unit when doing any check, this allows other units to
 	// attack this unit
@@ -80,8 +80,8 @@ public:
 };
 
 /**
- * A military outpost, on land serves as a "spawn" place for units
- * When adjacent to a water tile this serves as a shipyard for spawning naval units
+* A military outpost, on land serves as a "spawn" place for units
+* When adjacent to a water tile this serves as a shipyard for spawning naval units
  */
 class Outpost {
 public:
@@ -93,10 +93,10 @@ public:
 	bool is_naval;
 
 	// Owner of the outpost
-	Nation * owner;
+	Nation* owner;
 
 	// Unit that is currently being built here (nullptr indicates no unit)
-	Unit * working_unit;
+	Unit* working_unit;
 
 	// Remaining ticks until the unit is built
 	uint16_t build_time;
