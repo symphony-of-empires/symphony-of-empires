@@ -186,7 +186,7 @@ namespace TreatyClause {
 			NationId sender_id = g_world->get_id(sender);
 			
 			sender->relations[receiver_id].has_war = false;
-			sender->relations[receiver_id].has_true = true;
+			sender->relations[receiver_id].has_truce = true;
 			
 			receiver->relations[sender_id].has_war = false;
 			receiver->relations[sender_id].has_truce = true;
