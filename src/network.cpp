@@ -109,7 +109,7 @@ Client::Client(std::string host, const unsigned port) {
 	}
 	
 	// Now the client will receive from server
-	std::thread(&Client::client_loop, this)
+	std::thread(&Client::client_loop, this);
 }
 
 void Client::client_loop(void) {
