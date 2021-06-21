@@ -7,14 +7,14 @@
 #include "path.hpp"
 #include "print.hpp"
 
-Texture::Texture(const char * path) {
+Texture::Texture(const char* path) {
 	this->from_file(path);
 }
 
 void Texture::create_dummy() {
 	this->width = 32;
 	this->height = 32;
-	this->buffer = new uint32_t[this->width * this->height];
+	this->buffer = new uint32_t[this->width* this->height];
 	if(this->buffer == nullptr) {
 		print_error("out of memory for dummy texture\n");
 		exit(EXIT_FAILURE);
@@ -22,12 +22,12 @@ void Texture::create_dummy() {
 
 	// Fill in with a pattern
 	// This should be autovectorized by gcc
-	for(size_t i = 0; i < this->width * this->height; i++) {
+	for(size_t i = 0; i < this->width* this->height; i++) {
 		this->buffer[i] = (i % 2) ? 0xff000000 : 0xff00ff00;
 	}
 }
 
-void Texture::from_file(const char * path) {
+void Texture::from_file(const char* path) {
 	png_image image;
 	
 	// Open initial file
@@ -62,7 +62,7 @@ void Texture::from_file(const char * path) {
 	this->height = (size_t)image.height;
 	
 	// Store information onto buffer
-	this->buffer = new uint32_t[image.width * image.height];
+	this->buffer = new uint32_t[image.width* image.height];
 	if(this->buffer != nullptr && png_image_finish_read(&image, NULL, this->buffer, 0, NULL) != 0) {
 		// Free the image
 		png_image_free(&image);
@@ -85,7 +85,7 @@ Texture::~Texture() {
 #include <GL/gl.h>
 
 /**
-  * Converts the texture into a OpenGL texture, and assigns it a number
+ * Converts the texture into a OpenGL texture, and assigns it a number
   */
 void Texture::to_opengl() {
 	glGenTextures(1, &this->gl_tex_num);
@@ -102,10 +102,10 @@ void Texture::to_opengl() {
 }
 
 /**
-  * Deletes the OpenGL representation of this texture
+ * Deletes the OpenGL representation of this texture
   */
 void Texture::delete_opengl() {
 	glDeleteTextures(1, &this->gl_tex_num);
 }
 
-TextureManager * g_texture_manager;
+TextureManager* g_texture_manager;

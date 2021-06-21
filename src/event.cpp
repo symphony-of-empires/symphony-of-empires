@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-void Event::take_descision(Nation * sender, Descision * dec) {
+void Event::take_descision(Nation* sender, Descision* dec) {
 	auto receiver = std::find(receivers.begin(), receivers.end(), sender);
 	
 	// Confirm that the sender is in receiver's list

@@ -15,7 +15,7 @@ enum PacketCode {
 	PACKET_ERROR,
 };
 class Packet {
-	uint8_t * bufdata = nullptr;
+	uint8_t* bufdata = nullptr;
 	size_t n_data = 0;
 	PacketCode code = PACKET_OK;
 	int fd;
@@ -33,7 +33,7 @@ public:
 		delete bufdata;
 	};
 
-	void * data(void) {
+	void* data(void) {
 		return (void *)bufdata;
 	}
 
@@ -42,7 +42,7 @@ public:
 	}
 
 	template<typename T>
-	void send(const T * buf, size_t size = sizeof(T)) {
+	void send(const T* buf, size_t size = sizeof(T)) {
 		n_data = size;
 		bufdata = (uint8_t *)realloc(bufdata, n_data);
 		memcpy(bufdata, buf, n_data);
@@ -73,7 +73,7 @@ public:
 	}
 
 	template<typename T>
-	void recv(T * buf = nullptr) {
+	void recv(T* buf = nullptr) {
 		uint32_t net_code;
 		if(read(fd, &net_code, sizeof(net_code)) == -1) {
 			print_error("Socket read error for packet code");
@@ -142,6 +142,6 @@ public:
 	void client_loop(void);
 };
 
-extern Server * g_server;
+extern Server* g_server;
 
 #endif

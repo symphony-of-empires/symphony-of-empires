@@ -18,7 +18,7 @@ Map::Map(const World& _world) : world(_world) {
 	// Generate the underlying topo map texture, since the topo map
 	// dosen't changes too much we can just do a texture
 	topo_tex = new Texture(world.width, world.height);
-	for(size_t i = 0; i < world.width * world.height; i++) {
+	for(size_t i = 0; i < world.width* world.height; i++) {
 		uint8_t r, g, b;
 		const Tile& tile = world.get_tile(i);
 		
@@ -65,7 +65,7 @@ Map::Map(const World& _world) : world(_world) {
 	glEndList();
 }
 
-extern TextureManager * g_texture_manager;
+extern TextureManager* g_texture_manager;
 void Map::draw(float zoom) {
 	// Topo map texture
 	glBindTexture(GL_TEXTURE_2D, topo_tex->gl_tex_num);

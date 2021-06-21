@@ -8,9 +8,9 @@
 class Texture {
 public:
 	Texture() {};
-	Texture(const char * path);
+	Texture(const char* path);
 	Texture(size_t _width, size_t _height) : width(_width), height(_height) {
-		this->buffer = new uint32_t[this->width * this->height];
+		this->buffer = new uint32_t[this->width* this->height];
 	}
 	Texture(const Texture& tex) {
 		height = tex.height;
@@ -20,12 +20,12 @@ public:
 	Texture& operator=(const Texture&) = default;
 	~Texture();
 
-	uint32_t * buffer;
+	uint32_t* buffer;
 	size_t width;
 	size_t height;
 	GLuint gl_tex_num;
 
-	void from_file(const char * path);
+	void from_file(const char* path);
 	void create_dummy();
 	void to_opengl();
 	void delete_opengl();
@@ -51,7 +51,7 @@ public:
 		}
 
 		// Otherwise texture is not in our control, so we create a new texture
-		Texture * tex = new Texture(path.c_str());
+		Texture* tex = new Texture(path.c_str());
 		tex->to_opengl();
 		this->textures.insert(std::make_pair(tex, path));
 		return *((const Texture *)tex);

@@ -10,7 +10,7 @@
 #include "network.hpp"
 #include "print.hpp"
 
-Server * g_server = nullptr;
+Server* g_server = nullptr;
 
 Server::Server(const unsigned port, const unsigned max_conn) {
 	g_server = this;
@@ -58,7 +58,7 @@ Server::~Server() {
 
 #include "world.hpp"
 #include "io_impl.hpp"
-extern World * g_world;
+extern World* g_world;
 void Server::client_loop(void) {
 	while(run) {
 		sockaddr_in client;
@@ -73,7 +73,7 @@ void Server::client_loop(void) {
 
 		print_info("New client connection established");
 		
-		Packet * packet = new Packet(conn_fd);
+		Packet* packet = new Packet(conn_fd);
 		
 		// Send the whole snapshot of the world
 		Archive ar = Archive();
@@ -113,7 +113,7 @@ Client::Client(std::string host, const unsigned port) {
 }
 
 void Client::client_loop(void) {
-	Packet * packet = new Packet(fd);
+	Packet* packet = new Packet(fd);
 	
 	// Receive the first snapshot of the world 
 	packet->recv();

@@ -12,8 +12,8 @@
 typedef uint16_t NationId;
 
 /**
- * Defines a one side relation between a country
- * This allows for cases where a country A hates country B, but country B loves country A
+* Defines a one side relation between a country
+* This allows for cases where a country A hates country B, but country B loves country A
  */
 class NationRelation {
 public:
@@ -104,10 +104,10 @@ public:
 	float gdp = 0.f;
 
 	// Primary culture of this nation, may also be changed via events, otherwise it's permanent
-	Culture * primary_culture = nullptr;
+	Culture* primary_culture = nullptr;
 
 	// The capital of this nation (can be nullptr)
-	Province * capital = nullptr;
+	Province* capital = nullptr;
 
 	// Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
 	// owned by this nation
@@ -146,8 +146,8 @@ public:
 	float everyday_needs_met_mod = 1.f;
 	float luxury_needs_met_mod = 1.f;
 
-	void increase_relation(const World& world, Nation * target);
-	void decrease_relation(const World& world, Nation * target);
+	void increase_relation(const World& world, Nation* target);
+	void decrease_relation(const World& world, Nation* target);
 
 	void auto_relocate_capital(void);
 	

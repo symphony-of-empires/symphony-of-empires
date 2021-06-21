@@ -13,7 +13,7 @@
 
 using namespace UI;
 
-static Context * g_ui_context = nullptr;
+static Context* g_ui_context = nullptr;
 
 SDL_Color text_color = { 0, 0, 0, 0 };
 
@@ -37,7 +37,7 @@ Context::Context() {
 	return;
 }
 
-void Context::add_widget(Widget * widget) {
+void Context::add_widget(Widget* widget) {
 	widget->is_show = 1;
 
 	// Not already here
@@ -48,7 +48,7 @@ void Context::add_widget(Widget * widget) {
 	return;
 }
 
-void Context::remove_widget(Widget * widget) {
+void Context::remove_widget(Widget* widget) {
 	widget->is_show = 0;
 	for(size_t i = 0; i < this->widgets.size(); i++) {
 		if(this->widgets[i] != widget)
@@ -158,7 +158,7 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 	}
 }
 
-void Context::check_text_input(const char * _input) {
+void Context::check_text_input(const char* _input) {
 	for(const auto& widget: this->widgets) {
 		if(widget->type == UI_WIDGET_INPUT && widget->is_show) {
 			Input& c_widget = dynamic_cast<Input&>(*widget);
@@ -266,7 +266,7 @@ void Widget::on_render(void) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void input_ontextinput(Input& w, const char * input, void * data) {
+void input_ontextinput(Input& w, const char* input, void* data) {
 	size_t len;
 	char must_clear = 0;
 
@@ -291,11 +291,11 @@ void input_ontextinput(Input& w, const char * input, void * data) {
 	return;
 }
 
-void win_close_btn_onclick(Widget& w, void * data) {
+void win_close_btn_onclick(Widget& w, void* data) {
 	delete w.parent;
 }
 
-Widget::Widget(Widget * _parent, int _x, int _y, const unsigned w, const unsigned h, int _type, const Texture * tex)
+Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, int _type, const Texture* tex)
 	: is_show(1), type(_type), x(_x), y(_y), width(w), height(h), parent(_parent), current_texture(tex) {
 
 	disp_x = x;
@@ -331,7 +331,7 @@ void Widget::move_by(int _x, int _y) {
 	}
 }
 
-void Widget::add_child(Widget * child) {
+void Widget::add_child(Widget* child) {
 	// Not already in list
 	if(std::count(this->children.begin(), this->children.end(), child))
 		return;
@@ -341,8 +341,8 @@ void Widget::add_child(Widget * child) {
 	child->parent = this;
 }
 
-void Widget::text(const char * text) {
-	SDL_Surface * surface;
+void Widget::text(const char* text) {
+	SDL_Surface* surface;
 	
 	if(this->text_texture != nullptr) {
 		glDeleteTextures(1, &this->text_texture->gl_tex_num);
@@ -363,7 +363,7 @@ void Widget::text(const char * text) {
 	for(size_t i = 0; i < (size_t)surface->w; i++) {
 		for(size_t j = 0; j < (size_t)surface->h; j++) {
 			uint8_t r, g, b, a;
-			uint32_t pixel = ((uint8_t *)surface->pixels)[i + j * surface->pitch];
+			uint32_t pixel = ((uint8_t *)surface->pixels)[i + j* surface->pitch];
 			SDL_GetRGBA(pixel, surface->format, &a, &b, &g, &r);
 
 			uint32_t final_pixel;
@@ -372,7 +372,7 @@ void Widget::text(const char * text) {
 			} else {
 				final_pixel = 0xffffffff;
 			}
-			this->text_texture->buffer[i + j * this->text_texture->width] = final_pixel;
+			this->text_texture->buffer[i + j* this->text_texture->width] = final_pixel;
 		}
 	}
 	SDL_FreeSurface(surface);
@@ -381,39 +381,39 @@ void Widget::text(const char * text) {
 }
 
 /**
- * Constructor implementations for the different types of widgets
+* Constructor implementations for the different types of widgets
  */
-Window::Window(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
+Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 	: Widget(_parent, _x, _y, w, h, UI_WIDGET_WINDOW), is_movable(true) {
 
 }
 
-Checkbox::Checkbox(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
+Checkbox::Checkbox(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 	: Widget(_parent, _x, _y, w, h, UI_WIDGET_CHECKBOX) {
 
 }
 
-Button::Button(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
+Button::Button(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 	: Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON) {
 
 }
 
-CloseButton::CloseButton(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
+CloseButton::CloseButton(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 	: Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON) {
 	on_click = &CloseButton::on_click_default;
 }
 
-Input::Input(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
+Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 	: Widget(_parent, _x, _y, w, h, UI_WIDGET_INPUT) {
 
 }
 
-Image::Image(int _x, int _y, unsigned w, unsigned h, const Texture * tex, Widget * _parent)
+Image::Image(int _x, int _y, unsigned w, unsigned h, const Texture* tex, Widget* _parent)
 	: Widget(_parent, _x, _y, w, h, UI_WIDGET_IMAGE) {
 	current_texture = tex;
 }
 
-Label::Label(int _x, int _y, const char * _text, Widget * _parent)
+Label::Label(int _x, int _y, const char* _text, Widget* _parent)
 	: Widget(_parent, _x, _y, 0, 0, UI_WIDGET_LABEL) {
 	text(_text);
 	width = text_texture->width;
@@ -444,7 +444,7 @@ void Label::on_render(void) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget * _parent)
+Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 	: Widget(_parent, _x, _y, w, h, UI_WIDGET_LABEL) {
 	
 }
@@ -504,8 +504,8 @@ void Chart::on_render(void) {
 	size_t time = 0;
 	for(const auto& node: this->data) {
 		glVertex2f(
-			disp_x + time * (width / data.size()),
-			(disp_y + height) - (((node - min) / (max - min)) * height)
+			disp_x + time* (width / data.size()),
+			(disp_y + height) - (((node - min) / (max - min))* height)
 		);
 		time++;
 	}

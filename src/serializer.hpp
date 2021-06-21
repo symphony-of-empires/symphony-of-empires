@@ -7,16 +7,16 @@
 #include <numeric>
 
 /**
- * The purpouse of the serializer is to serialize objects onto a byte stream
- * that can be transfered onto the disk or over the network.
+* The purpouse of the serializer is to serialize objects onto a byte stream
+* that can be transfered onto the disk or over the network.
  *
- * Should the object have any pointers - they would need to be converted to
- * indexes accordingly for proper transmission.
+* Should the object have any pointers - they would need to be converted to
+* indexes accordingly for proper transmission.
  */
 
 /**
- * Base class that serves as archiver, stores (in memory) the data required for
- * serialization/deserialization
+* Base class that serves as archiver, stores (in memory) the data required for
+* serialization/deserialization
  */
 #include <vector>
 #include <cstdio>
@@ -40,7 +40,7 @@ public:
 	}
 
 	void to_file(std::string path) {
-		FILE * fp = fopen(path.c_str(), "wb");
+		FILE* fp = fopen(path.c_str(), "wb");
 		fwrite(&buffer[0], 1, buffer.size(), fp);
 		fclose(fp);
 		
@@ -48,7 +48,7 @@ public:
 	}
 	
 	void from_file(std::string path) {
-		FILE * fp = fopen(path.c_str(), "rb");
+		FILE* fp = fopen(path.c_str(), "rb");
 		
 		fseek(fp, 0, SEEK_END);
 		size_t size = ftell(fp);
@@ -61,11 +61,11 @@ public:
 		end_stream();
 	}
 
-	void * get_buffer(void) {
+	void* get_buffer(void) {
 		return (void *)&buffer[0];
 	}
 	
-	void set_buffer(void * buf, size_t size) {
+	void set_buffer(void* buf, size_t size) {
 		buffer.resize(size);
 		memcpy(&buffer[0], buf, size);
 	}
@@ -76,8 +76,8 @@ public:
 };
 
 /**
- * A serializer (base class) which can be used to serialize objects
- * and create per-object optimized classes
+* A serializer (base class) which can be used to serialize objects
+* and create per-object optimized classes
  */
 template<typename T>
 class Serializer {
@@ -89,9 +89,9 @@ public:
 };
 
 /**
- * A serializer specialized in strings
- * The serializer stores the lenght of the string and the string itself
- * this is done so no errors can happen due to null stuff. (UTF-8 especially)
+* A serializer specialized in strings
+* The serializer stores the lenght of the string and the string itself
+* this is done so no errors can happen due to null stuff. (UTF-8 especially)
  */
 #include <string>
 template<>
@@ -119,7 +119,7 @@ public:
 		ar.ptr += sizeof(len);
 
 		// Obtain the string itself
-		char * string = new char[len + 1];
+		char* string = new char[len + 1];
 		
 		memcpy(string, &ar.buffer[ar.ptr], len);
 		string[len] = '\0';
@@ -129,14 +129,14 @@ public:
 		delete[] string;
 	}
 	static inline size_t size(const std::string* obj) {
-		return sizeof(uint32_t) + (obj->length() * sizeof(char));
+		return sizeof(uint32_t) + (obj->length()* sizeof(char));
 	}
 };
 
 /**
- * A serializer optimized to memcpy directly the element into the byte stream
- * use only when the object can be copied without modification (i.e a class full of ints)
- * The elements must have a fixed size for this to work.
+* A serializer optimized to memcpy directly the element into the byte stream
+* use only when the object can be copied without modification (i.e a class full of ints)
+* The elements must have a fixed size for this to work.
  */
 template<typename T>
 class SerializerMemcpy {
@@ -186,7 +186,7 @@ template<>
 class Serializer<bool> : public SerializerMemcpy<bool> {};
 
 /**
- * Non-contigous serializer for STL containers
+* Non-contigous serializer for STL containers
  */
 template<typename T, typename C>
 class SerializerContainer {
@@ -214,12 +214,12 @@ public:
 		}
 	}
 	static constexpr size_t size(const C* obj_group) {
-		return sizeof(uint32_t) + (obj_group->size() * sizeof(T));
+		return sizeof(uint32_t) + (obj_group->size()* sizeof(T));
 	}
 };
 
 /**
- * Pair serializers
+* Pair serializers
  */
 template<typename T, typename U>
 class Serializer<std::pair<T, U>> {
@@ -239,7 +239,7 @@ public:
 };
 
 /**
- * Contigous container serializers implementations
+* Contigous container serializers implementations
  */
 #include <vector>
 template<typename T>
@@ -282,17 +282,17 @@ template<typename T>
 class Serializer<std::set<T>> : public SerializerContainer<T, std::set<T>> {};
 
 template<typename T>
-inline void serialize(Archive& ar, const T * obj) {
+inline void serialize(Archive& ar, const T* obj) {
 	Serializer<T>::serialize(ar, obj);
 }
 
 template<typename T>
-inline void deserialize(Archive& ar, T * obj) {
+inline void deserialize(Archive& ar, T* obj) {
 	Serializer<T>::deserialize(ar, obj);
 }
 
 template<typename T>
-constexpr size_t serialized_size(const T * obj) {
+constexpr size_t serialized_size(const T* obj) {
 	return Serializer<T>::size(obj);
 }
 

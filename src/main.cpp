@@ -30,10 +30,10 @@ int main(int argc, char ** argv) {
 	
 #ifndef UNIT_TEST
 	if(!strcmp(argv[1], "server")) {
-		World * world = new World(false);
-		Server * server = new Server(4206);
+		World* world = new World(false);
+		Server* server = new Server(4206);
 		
-		Archive * stream;
+		Archive* stream;
 		
 		while(!do_start);
 		
@@ -44,8 +44,8 @@ int main(int argc, char ** argv) {
 			while(paused);
 		}
 	} else {
-		World * world = new World(true);
-		Client * client = new Client("127.0.0.1", 4206);
+		World* world = new World(true);
+		Client* client = new Client("127.0.0.1", 4206);
 		
 		printf("%s\n", gettext("launching rendering thread"));
 		std::thread t1(rendering_main);
@@ -66,7 +66,7 @@ int main(int argc, char ** argv) {
 	//if(!strcmp(argv[1], "client")) {
 	//	client = new Client("127.0.0.1", 4206);
 
-	//uint8_t * arr = new uint8_t[16777216];
+	//uint8_t* arr = new uint8_t[16777216];
 	//std::basic_ofstream<uint8_t> outfile("world_cache.wcyz", std::ofstream::out | std::ofstream::binary);
 	//Serializer<World>::serialize(arr, *world);
 	//outfile.write(arr, 16777216);

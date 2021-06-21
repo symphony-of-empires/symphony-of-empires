@@ -22,7 +22,7 @@ namespace Path {
 		exit(EXIT_FAILURE);
 	}
 
-	std::string get(const char * str) {
+	std::string get(const char* str) {
 		if(str[0] == '/' || str[0] == 'C')
 			return str;
 		
