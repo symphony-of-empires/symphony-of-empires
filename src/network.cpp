@@ -10,7 +10,11 @@
 #include "network.hpp"
 #include "print.hpp"
 
+Server * g_server = nullptr;
+
 Server::Server(const unsigned port, const unsigned max_conn) {
+	g_server = this;
+	
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(fd == -1) {
 		print_error("Cannot create server socket");
@@ -71,10 +75,16 @@ void Server::client_loop(void) {
 		
 		Packet * packet = new Packet(conn_fd);
 		
-		// Send the whole fucking world
+		// Send the whole snapshot of the world
 		Archive ar = Archive();
 		serialize(ar, g_world);
 		packet->send(ar.get_buffer(), ar.size());
+		
+		// Now we will send packets from the Packet queue in the server to
+		// this client
+		while(run) {
+			
+		}
 		
 		print_info("Client connection closed");
 	}
@@ -98,14 +108,24 @@ Client::Client(std::string host, const unsigned port) {
 		return;
 	}
 	
-	/* Now the client will receive from server */
+	// Now the client will receive from server
+	std::thread(&Client::client_loop, this)
+}
+
+void Client::client_loop(void) {
 	Packet * packet = new Packet(fd);
 	
+	// Receive the first snapshot of the world 
 	packet->recv();
 	
 	Archive ar = Archive();
 	ar.set_buffer(packet->data(), packet->size());
 	deserialize(ar, g_world);
+	
+	while(run) {
+		packet->recv();
+	}
+	delete packet;
 }
 
 Client::~Client() {

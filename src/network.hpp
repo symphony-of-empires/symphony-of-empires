@@ -126,6 +126,8 @@ public:
 	Server(unsigned port = 1825, unsigned max_conn = 16);
 	~Server();
 	void client_loop(void);
+	
+	std::vector<Packet> packet_queue;
 };
 
 class Client {
@@ -139,5 +141,7 @@ public:
 	}
 	void client_loop(void);
 };
+
+extern Server * g_server;
 
 #endif

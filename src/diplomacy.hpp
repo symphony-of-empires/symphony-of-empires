@@ -170,6 +170,33 @@ namespace TreatyClause {
 			return done;
 		}
 	};
+	
+	/**
+	 * Calls for a ceasefire
+	 */
+	class Ceasefire : BaseClause {
+		// Number of days this clause lasts
+		size_t days_duration;
+	public:
+		unsigned cost() {
+			return receiver->military_score + receiver->naval_score;
+		}
+		void enforce() {
+			NationId receiver_id = g_world->get_id(receiver);
+			NationId sender_id = g_world->get_id(sender);
+			
+			sender->relations[receiver_id].has_war = false;
+			sender->relations[receiver_id].has_true = true;
+			
+			receiver->relations[sender_id].has_war = false;
+			receiver->relations[sender_id].has_truce = true;
+			
+			days_duration--;
+		}
+		bool in_effect() {
+			return (days_duration != 0);
+		}
+	};
 };
 
 class Treaty {
