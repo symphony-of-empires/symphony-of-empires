@@ -68,7 +68,7 @@ void Server::client_loop(void) {
 		}
 
 		print_info("New client connection established");
-
+		
 		Packet * packet = new Packet(conn_fd);
 		
 		// Send the whole fucking world
@@ -76,8 +76,6 @@ void Server::client_loop(void) {
 		serialize(ar, g_world);
 		packet->send(ar.get_buffer(), ar.size());
 		
-		print_info("Defensore %zu\n", ar.size());
-
 		print_info("Client connection closed");
 	}
 }
@@ -103,12 +101,11 @@ Client::Client(std::string host, const unsigned port) {
 	/* Now the client will receive from server */
 	Packet * packet = new Packet(fd);
 	
-	Archive ar = Archive();
 	packet->recv();
+	
+	Archive ar = Archive();
 	ar.set_buffer(packet->data(), packet->size());
 	deserialize(ar, g_world);
-	
-	print_info("Defensore %zu\n", ar.size());
 }
 
 Client::~Client() {

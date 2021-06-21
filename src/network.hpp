@@ -47,22 +47,29 @@ public:
 		bufdata = (uint8_t *)realloc(bufdata, n_data);
 		memcpy(bufdata, buf, n_data);
 
-		uint32_t net_code = htonl(code);
+		const uint32_t net_code = htonl(code);
 		if(write(fd, &net_code, sizeof(net_code)) == -1) {
 			print_error("Socket write error for packet code");
 			return;
 		}
 
-		uint32_t net_size = htonl(n_data);
+		const uint32_t net_size = htonl(n_data);
 		if(write(fd, &net_size, sizeof(net_size)) == -1) {
 			print_error("Socket write error for size of packet");
 			return;
 		}
-
-		if(write(fd, bufdata, n_data) == -1) {
-			print_error("Socket write error for data in packet");
-			return;
+		
+		/* Socket writes can only be done 1024 bytes at a time */
+		for(size_t i = 0; i < n_data; ) {
+			int r = write(fd, bufdata + i, std::min<size_t>(1024, n_data - i));
+			if(r == -1) {
+				print_error("Socket write error for data in packet");
+				return;
+			}
+			i += r;
 		}
+		
+		print_info("packet of size %zu, with code %zu\n", (size_t)n_data, (size_t)net_code);
 	}
 
 	template<typename T>
@@ -80,17 +87,24 @@ public:
 			print_error("Socket read error for size of packet");
 			return;
 		}
-		net_size = ntohl(net_size);
-		n_data = (size_t)net_size;
-
+		
+		n_data = (size_t)ntohl(net_size);
 		bufdata = (uint8_t *)realloc(bufdata, n_data);
-		if(read(fd, bufdata, n_data) == -1) {
-			print_error("Socket read error for data in packet");
-			return;
+		
+		/* Reads can only be done 1024 bytes at a time */
+		for(size_t i = 0; i < n_data; ) {
+			int r = read(fd, bufdata + i, std::min<size_t>(1024, n_data - i));
+			if(r == -1) {
+				print_error("Socket read error for data in packet");
+				return;
+			}
+			i += r;
 		}
-
+		
 		if(buf != nullptr)
 			memcpy(buf, bufdata, n_data);
+		
+		print_info("packet of size %zu, with code %zu\n", (size_t)n_data, (size_t)net_code);
 	}
 	
 	void recv(void) {
