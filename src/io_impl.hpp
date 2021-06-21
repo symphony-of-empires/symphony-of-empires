@@ -723,6 +723,10 @@ public:
 		::serialize(output, &obj->sea_level);
 		::serialize(output, &obj->time);
 		
+		for(size_t i = 0; i < obj->width * obj->height; i++) {
+			::serialize(output, &obj->tiles[i]);
+		}
+		
 		const uint32_t n_goods = obj->goods.size();
 		::serialize(output, &n_goods);
 		const uint32_t n_industry_types = obj->industry_types.size();
@@ -803,10 +807,6 @@ public:
 			::serialize(output, event);
 		}
 		
-		for(size_t i = 0; i < obj->width * obj->height; i++) {
-			::serialize(output, &obj->tiles[i]);
-		}
-		
 		::serialize(output, &obj->delivers);
 		::serialize(output, &obj->orders);
 	}
@@ -815,6 +815,11 @@ public:
 		::deserialize(input, &obj->height);
 		::deserialize(input, &obj->sea_level);
 		::deserialize(input, &obj->time);
+		
+		obj->tiles = new Tile[obj->width * obj->height];
+		for(size_t i = 0; i < obj->width * obj->height; i++) {
+			::deserialize(input, &obj->tiles[i]);
+		}
 		
 		/* In order to avoid post-deserialization relational patcher,
 		 * we will simply allocate everything with "empty" objects,
@@ -963,11 +968,6 @@ public:
 		for(size_t i = 0; i < n_events; i++) {
 			Event * sub_obj = obj->events[i];
 			::deserialize(input, sub_obj);
-		}
-		
-		obj->tiles = new Tile[obj->width * obj->height];
-		for(size_t i = 0; i < obj->width * obj->height; i++) {
-			::deserialize(input, &obj->tiles[i]);
 		}
 		
 		::deserialize(input, &obj->delivers);

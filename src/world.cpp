@@ -22,8 +22,9 @@ World * g_world;
   */
 World::World(bool empty) {
 	g_world = this;
-	if(empty)
+	if(empty == true) {
 		return;
+	}
 	
 	BinaryImage topo(Path::get("map_topo.png").c_str());
 	BinaryImage div(Path::get("map_div.png").c_str());
