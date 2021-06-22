@@ -122,9 +122,6 @@ void Client::client_loop(void) {
 	ar.set_buffer(packet->data(), packet->size());
 	deserialize(ar, g_world);
 	
-	while(run) {
-		packet->recv();
-	}
 	delete packet;
 }
 
