@@ -56,6 +56,7 @@ Server::~Server() {
 	close(fd);
 }
 
+#include "actions.hpp"
 #include "world.hpp"
 #include "io_impl.hpp"
 extern World* g_world;
@@ -83,7 +84,9 @@ void Server::client_loop(void) {
 		// Now we will send packets from the Packet queue in the server to
 		// this client
 		while(run) {
-			
+			enum ActionType action = ACTION_PING;
+			packet->send(&action);
+			print_info("Sent action %zu", (size_t)action);
 		}
 		
 		print_info("Client connection closed");
@@ -109,10 +112,6 @@ Client::Client(std::string host, const unsigned port) {
 	}
 	
 	// Now the client will receive from server
-	std::thread(&Client::client_loop, this);
-}
-
-void Client::client_loop(void) {
 	Packet* packet = new Packet(fd);
 	
 	// Receive the first snapshot of the world 
@@ -120,7 +119,13 @@ void Client::client_loop(void) {
 	
 	Archive ar = Archive();
 	ar.set_buffer(packet->data(), packet->size());
-	deserialize(ar, g_world);
+	::deserialize(ar, g_world);
+
+	while(1) {
+		enum ActionType action;
+		packet->recv(&action);
+		print_info("Received action %zu\n", (size_t)action);
+	}
 	
 	delete packet;
 }
