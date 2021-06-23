@@ -139,7 +139,6 @@ public:
 	int get_fd(void) {
 		return fd;
 	}
-	void client_loop(void);
 };
 
 extern Server* g_server;
