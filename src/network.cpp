@@ -62,31 +62,38 @@ Server::~Server() {
 extern World* g_world;
 void Server::client_loop(void) {
 	while(run) {
-		sockaddr_in client;
-		socklen_t len = sizeof(client);
-		int conn_fd;
+		try {
+			sockaddr_in client;
+			socklen_t len = sizeof(client);
+			int conn_fd;
 
-		conn_fd = accept(fd, (sockaddr *)&client, &len);
-		if(conn_fd < 0) {
-			print_error("Cannot accept client connection");
-			continue;
-		}
+			conn_fd = accept(fd, (sockaddr *)&client, &len);
+			if(conn_fd < 0) {
+				throw "Cannot accept client connection";
+			}
 
-		print_info("New client connection established");
-		
-		Packet* packet = new Packet(conn_fd);
-		
-		// Send the whole snapshot of the world
-		Archive ar = Archive();
-		serialize(ar, g_world);
-		packet->send(ar.get_buffer(), ar.size());
-		
-		// Now we will send packets from the Packet queue in the server to
-		// this client
-		while(run) {
+			print_info("New client connection established");
+			
+			Packet* packet = new Packet(conn_fd);
+			
+			// Send the whole snapshot of the world
+			Archive ar = Archive();
+			serialize(ar, g_world);
+			packet->send(ar.get_buffer(), ar.size());
+			
 			enum ActionType action = ACTION_PING;
 			packet->send(&action);
 			print_info("Sent action %zu", (size_t)action);
+
+			packet->recv(&action);
+			print_info("Received action %zu", (size_t)action);
+
+			// Now we will send packets from the Packet queue in the server to
+			// this client
+			while(run) {
+			}
+		} catch(std::runtime_error& e) {
+			print_error("Except: %s", e.what());
 		}
 		
 		print_info("Client connection closed");
@@ -120,12 +127,6 @@ Client::Client(std::string host, const unsigned port) {
 	Archive ar = Archive();
 	ar.set_buffer(packet->data(), packet->size());
 	::deserialize(ar, g_world);
-
-	while(1) {
-		enum ActionType action;
-		packet->recv(&action);
-		print_info("Received action %zu\n", (size_t)action);
-	}
 	
 	delete packet;
 }

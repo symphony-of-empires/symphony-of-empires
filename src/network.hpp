@@ -1,6 +1,8 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
+#define _XOPEN_SOURCE_EXTENDED 1
+#include <sys/socket.h>
 #include <netinet/in.h>
 
 #include <thread>
@@ -9,6 +11,8 @@
 
 #include <cstring>
 #include <unistd.h>
+#include <stdexcept>
+
 #include "print.hpp"
 enum PacketCode {
 	PACKET_OK,
@@ -49,43 +53,38 @@ public:
 
 		const uint32_t net_code = htonl(code);
 		if(write(fd, &net_code, sizeof(net_code)) == -1) {
-			print_error("Socket write error for packet code");
-			return;
+			throw std::runtime_error("Socket write error for packet code");
 		}
-
+		
 		const uint32_t net_size = htonl(n_data);
 		if(write(fd, &net_size, sizeof(net_size)) == -1) {
-			print_error("Socket write error for size of packet");
-			return;
+			throw std::runtime_error("Socket write error for size of packet");
 		}
 		
 		/* Socket writes can only be done 1024 bytes at a time */
 		for(size_t i = 0; i < n_data; ) {
 			int r = write(fd, bufdata + i, std::min<size_t>(1024, n_data - i));
 			if(r == -1) {
-				print_error("Socket write error for data in packet");
-				return;
+				throw std::runtime_error("Socket write error for data in packet");
 			}
 			i += r;
 		}
 		
-		print_info("packet of size %zu, with code %zu\n", (size_t)n_data, (size_t)net_code);
+		print_info("(host) -> Packet of size %zu, with code %zu\n", (size_t)n_data, (size_t)net_code);
 	}
 
 	template<typename T>
 	void recv(T* buf = nullptr) {
 		uint32_t net_code;
-		if(read(fd, &net_code, sizeof(net_code)) == -1) {
-			print_error("Socket read error for packet code");
-			return;
+		if(::recv(fd, &net_code, sizeof(net_code), MSG_WAITALL) == -1) {
+			throw std::runtime_error("Socket read error for packet code");
 		}
 		net_code  = ntohl(net_code);
 		code = (PacketCode)net_code;
 
 		uint32_t net_size;
-		if(read(fd, &net_size, sizeof(net_size)) == -1) {
-			print_error("Socket read error for size of packet");
-			return;
+		if(::recv(fd, &net_size, sizeof(net_size), MSG_WAITALL) == -1) {
+			throw std::runtime_error("Socket read error for size of packet");
 		}
 		
 		n_data = (size_t)ntohl(net_size);
@@ -93,10 +92,9 @@ public:
 		
 		/* Reads can only be done 1024 bytes at a time */
 		for(size_t i = 0; i < n_data; ) {
-			int r = read(fd, bufdata + i, std::min<size_t>(1024, n_data - i));
+			int r = ::recv(fd, bufdata + i, std::min<size_t>(1024, n_data - i), MSG_WAITALL);
 			if(r == -1) {
-				print_error("Socket read error for data in packet");
-				return;
+				throw std::runtime_error("Socket read error for data in packet");
 			}
 			i += r;
 		}
@@ -104,7 +102,7 @@ public:
 		if(buf != nullptr)
 			memcpy(buf, bufdata, n_data);
 		
-		print_info("packet of size %zu, with code %zu\n", (size_t)n_data, (size_t)net_code);
+		print_info("(host) <- Packet of size %zu, with code %zu\n", (size_t)n_data, (size_t)net_code);
 	}
 	
 	void recv(void) {
@@ -127,7 +125,7 @@ public:
 	~Server();
 	void client_loop(void);
 	
-	std::vector<Packet> packet_queue;
+	std::vector<Packet *> packet_queue;
 };
 
 class Client {
@@ -139,6 +137,8 @@ public:
 	int get_fd(void) {
 		return fd;
 	}
+
+	std::vector<Packet *> packet_queue;
 };
 
 extern Server* g_server;
