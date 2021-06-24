@@ -123,6 +123,8 @@ class Server {
 public:
 	Server(unsigned port = 1825, unsigned max_conn = 16);
 	~Server();
+
+	void recv_loop(int conn_fd);
 	void client_loop(void);
 	
 	std::vector<Packet *> packet_queue;
