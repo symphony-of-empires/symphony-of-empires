@@ -60,6 +60,19 @@ Server::~Server() {
 #include "world.hpp"
 #include "io_impl.hpp"
 extern World* g_world;
+
+void Server::recv_loop(int conn_fd) {
+	Packet packet = Packet(conn_fd);
+	try {
+		while(run) {
+			packet->recv(&action);
+			print_info("Received action %zu", (size_t)action);
+		}
+	} catch(std::runtime_error& e) {
+		print_error("Except: %s", e.what());
+	}
+}
+
 void Server::client_loop(void) {
 	while(run) {
 		try {
@@ -74,19 +87,19 @@ void Server::client_loop(void) {
 
 			print_info("New client connection established");
 			
-			Packet* packet = new Packet(conn_fd);
+			Packet packet = Packet(conn_fd);
 			
 			// Send the whole snapshot of the world
 			Archive ar = Archive();
 			serialize(ar, g_world);
-			packet->send(ar.get_buffer(), ar.size());
+			packet.send(ar.get_buffer(), ar.size());
 			
 			enum ActionType action = ACTION_PING;
-			packet->send(&action);
+			packet.send(&action);
 			print_info("Sent action %zu", (size_t)action);
 
-			packet->recv(&action);
-			print_info("Received action %zu", (size_t)action);
+			// Spawn a new thread dedicated to receiving actions
+			std::thread t1(&Server::recv_loop, this, conn_fd);
 
 			// Now we will send packets from the Packet queue in the server to
 			// this client
