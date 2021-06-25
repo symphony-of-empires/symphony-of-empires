@@ -102,11 +102,17 @@ public:
 	// Do we allow foreign trade?
 	bool foreign_trade;
 
-	// Tax for importing products
+	// Tax % for importing products
 	float import_tax;
 
-	// Tax for exporting products
+	// Tax % for exporting products
 	float export_tax;
+
+	// Tax % for domestic imports
+	float domestic_import_tax;
+	
+	// Tax % for domestic exports
+	float domestic_export_tax;
 
 	// Flat tax rhs on the low-wage pops
 	float poor_flat_tax;

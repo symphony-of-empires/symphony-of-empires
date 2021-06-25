@@ -179,15 +179,25 @@ void Economy::do_phase_2(World& world) {
 							continue;
 						}
 					}
-
+					
+					float order_cost, deliver_cost, total_order_cost, total_deliver_cost;
+					
+					order_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
+					deliver_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
+					
+					// International trade
+					if(order.province->owner != deliver.province->owner) {
+						total_order_cost = order_cost * order_policy.import_tax;
+						total_deliver_cost = deliver_cost * order_policy.export_tax;
+					}
+					// Domestic trade
+					else {
+						total_order_cost = order_cost * order_policy.domestic_import_tax;
+						total_deliver_cost = deliver_cost * order_policy.domestic_export_tax;
+					}
+					
 					// Orders payment should also cover the import tax and a deliver payment should also cover the export
 					// tax too. Otherwise we can't deliver
-					const float order_cost = deliver.product->price* std::min(order.quantity, deliver.quantity);
-					const float deliver_cost = deliver.product->price* std::min(order.quantity, deliver.quantity);
-					
-					const float total_order_cost = order_cost* order_policy.import_tax;
-					const float total_deliver_cost = deliver_cost* order_policy.export_tax;
-					
 					if(order.payment < total_order_cost && total_order_cost > 0.f) {
 						order_industry->willing_payment = total_order_cost;
 						continue;
