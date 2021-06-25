@@ -24,8 +24,10 @@ std::atomic<bool> do_start;
 
 #include "actions.hpp"
 std::mutex world_lock;
+std::string server_addr;
+
 void client_loop_thread(void) {
-	Client* client = new Client("127.0.0.1", 4206);
+	Client* client = new Client(server_addr, 4206);
 	Packet* packet = new Packet(client->get_fd());
 
 	try {
@@ -70,7 +72,8 @@ int main(int argc, char ** argv) {
 	textdomain("main");
 	
 #ifndef UNIT_TEST
-	if(!strcmp(argv[1], "server")) {
+	// Run as a server for servicing multiple clients
+	if(argc > 1 && !strcmp(argv[1], "server")) {
 		World* world = new World(false);
 		Server* server = new Server(4206);
 		
@@ -84,8 +87,18 @@ int main(int argc, char ** argv) {
 			world->do_tick();
 			while(paused);
 		}
-	} else {
+	}
+	// Run as a client, receiving and sending packages to/from a server
+	else {
 		World* world = new World(true);
+
+		if(argc > 1) {
+			server_addr = argv[1];
+		} else {
+			server_addr = "127.0.0.1";
+			print_info("No IP specified, assuming default %s", server_addr.c_str());
+		}
+		print_info("Connecting to server with IP %s", server_addr.c_str());
 
 		std::thread t1(client_loop_thread);
 		
@@ -105,15 +118,6 @@ int main(int argc, char ** argv) {
 		t1.join();
 		t2.join();
 	}
-
-	//if(!strcmp(argv[1], "client")) {
-	//	client = new Client("127.0.0.1", 4206);
-
-	//uint8_t* arr = new uint8_t[16777216];
-	//std::basic_ofstream<uint8_t> outfile("world_cache.wcyz", std::ofstream::out | std::ofstream::binary);
-	//Serializer<World>::serialize(arr, *world);
-	//outfile.write(arr, 16777216);
-	//delete[] arr;
 #endif
 	exit(EXIT_SUCCESS);
 	return 0;

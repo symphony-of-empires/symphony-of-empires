@@ -19,26 +19,23 @@ enum PacketCode {
 	PACKET_ERROR,
 };
 class Packet {
-	uint8_t* bufdata = nullptr;
+	std::vector<uint8_t> bufdata;
 	size_t n_data = 0;
 	PacketCode code = PACKET_OK;
 	int fd;
 public:
 	Packet(int _fd, std::string buf) : fd(_fd) {
 		n_data = buf.size();
-		bufdata = new unsigned char[n_data];
+		bufdata.resize(n_data);
 		for(size_t i = 0; i < n_data; i++) {
 			bufdata[i] = buf[i];
 		}
 	};
 
 	Packet(int _fd) : fd(_fd) {};
-	~Packet() {
-		delete bufdata;
-	};
 
 	void* data(void) {
-		return (void *)bufdata;
+		return (void *)&bufdata[0];
 	}
 
 	size_t size(void) {
@@ -48,8 +45,8 @@ public:
 	template<typename T>
 	void send(const T* buf, size_t size = sizeof(T)) {
 		n_data = size;
-		bufdata = (uint8_t *)realloc(bufdata, n_data);
-		memcpy(bufdata, buf, n_data);
+		bufdata.resize(n_data);
+		memcpy(&bufdata[0], buf, n_data);
 
 		const uint32_t net_code = htonl(code);
 		if(write(fd, &net_code, sizeof(net_code)) == -1) {
@@ -63,14 +60,14 @@ public:
 		
 		/* Socket writes can only be done 1024 bytes at a time */
 		for(size_t i = 0; i < n_data; ) {
-			int r = write(fd, bufdata + i, std::min<size_t>(1024, n_data - i));
+			int r = write(fd, &bufdata[i], std::min<size_t>(1024, n_data - i));
 			if(r == -1) {
 				throw std::runtime_error("Socket write error for data in packet");
 			}
 			i += r;
 		}
 		
-		print_info("(host) -> Packet of size %zu, with code %zu\n", (size_t)n_data, (size_t)net_code);
+		print_info("(host) -> Packet of size %zu, with code %zu", (size_t)n_data, (size_t)net_code);
 	}
 
 	template<typename T>
@@ -88,11 +85,11 @@ public:
 		}
 		
 		n_data = (size_t)ntohl(net_size);
-		bufdata = (uint8_t *)realloc(bufdata, n_data);
+		bufdata.resize(n_data + 1);
 		
 		/* Reads can only be done 1024 bytes at a time */
 		for(size_t i = 0; i < n_data; ) {
-			int r = ::recv(fd, bufdata + i, std::min<size_t>(1024, n_data - i), MSG_WAITALL);
+			int r = ::recv(fd, &bufdata[i], std::min<size_t>(1024, n_data - i), MSG_WAITALL);
 			if(r == -1) {
 				throw std::runtime_error("Socket read error for data in packet");
 			}
@@ -100,9 +97,9 @@ public:
 		}
 		
 		if(buf != nullptr)
-			memcpy(buf, bufdata, n_data);
+			memcpy(buf, &bufdata[0], n_data);
 		
-		print_info("(host) <- Packet of size %zu, with code %zu\n", (size_t)n_data, (size_t)net_code);
+		print_info("(host) <- Packet of size %zu, with code %zu", (size_t)n_data, (size_t)net_code);
 	}
 	
 	void recv(void) {
