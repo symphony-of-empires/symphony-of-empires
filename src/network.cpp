@@ -62,7 +62,9 @@ Server::~Server() {
 extern World* g_world;
 
 void Server::recv_loop(int conn_fd) {
-	Packet packet = Packet(conn_fd);
+	Packet* packet = new Packet(conn_fd);
+	enum ActionType action;
+
 	try {
 		while(run) {
 			packet->recv(&action);
@@ -71,6 +73,7 @@ void Server::recv_loop(int conn_fd) {
 	} catch(std::runtime_error& e) {
 		print_error("Except: %s", e.what());
 	}
+	delete packet;
 }
 
 void Server::client_loop(void) {
@@ -132,16 +135,14 @@ Client::Client(std::string host, const unsigned port) {
 	}
 	
 	// Now the client will receive from server
-	Packet* packet = new Packet(fd);
+	Packet packet = Packet(fd);
 	
 	// Receive the first snapshot of the world 
-	packet->recv();
+	packet.recv();
 	
 	Archive ar = Archive();
-	ar.set_buffer(packet->data(), packet->size());
+	ar.set_buffer(packet.data(), packet.size());
 	::deserialize(ar, g_world);
-	
-	delete packet;
 }
 
 Client::~Client() {
