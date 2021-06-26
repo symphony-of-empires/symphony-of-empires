@@ -5,6 +5,7 @@
 #include <GL/gl.h>
 #include "world.hpp"
 #include "province.hpp"
+#include "texture.hpp"
 
 class ProvinceShape;
 class Map {

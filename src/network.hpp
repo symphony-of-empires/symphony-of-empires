@@ -122,7 +122,7 @@ public:
 	~Server();
 
 	void recv_loop(int conn_fd);
-	void client_loop(void);
+	void send_loop(void);
 	
 	std::vector<Packet *> packet_queue;
 };
@@ -136,7 +136,10 @@ public:
 	int get_fd(void) {
 		return fd;
 	}
-
+	
+	void recv_loop(void);
+	void send_loop(void);
+	
 	std::vector<Packet *> packet_queue;
 };
 

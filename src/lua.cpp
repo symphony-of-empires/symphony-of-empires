@@ -26,7 +26,6 @@
 
 // Global world - do not use too much!
 extern World* g_world;
-extern std::vector<Texture *> g_texture_cache;
 
 int LuaAPI::add_good(lua_State* L) {
 	Good* good = new Good();
