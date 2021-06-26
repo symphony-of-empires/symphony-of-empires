@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <cstddef>
 
-#include "texture.hpp"
 #include "array_ops.hpp"
 #include "province.hpp"
 
@@ -36,6 +35,9 @@ public:
 	bool is_transport;
 	bool is_retailer;
 	bool is_industry;
+
+	// Nation that controls this company, essentially making it a state-controlled company (can be null)
+	Nation* nation = nullptr;
 
 	// List of province IDs where this company operates (mostly used for transport companies)
 	std::vector<Province *> operating_provinces;
@@ -93,6 +95,9 @@ public:
 
 	// Type of factory
 	IndustryType* type;
+
+	// Total money that the factory has
+	float budget;
 
 	// Days that the factory has not been operational
 	size_t days_unoperational = 0;

@@ -7,7 +7,6 @@
 #include <set>
 #include <string>
 #include <vector>
-#include "texture.hpp"
 
 typedef uint16_t NationId;
 
