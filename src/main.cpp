@@ -26,46 +26,6 @@ std::atomic<bool> do_start;
 std::mutex world_lock;
 std::string server_addr;
 
-void client_loop_thread(void) {
-	Client* client = new Client(server_addr, 4206);
-	Packet* packet = new Packet(client->get_fd());
-
-	try {
-		enum ActionType action;
-		Archive ar = Archive();
-
-		while(1) {
-			packet->recv(&action);
-			print_info("Received action %zu", (size_t)action);
-
-			// Ping from server, we should answer with a pong!
-			if(action == ACTION_PING) {
-				action = ACTION_PONG;
-				packet->send(&action);
-			}
-			// Update a province; this action is sent by the server to indicate a
-			// change in the information of a province
-			else if(action == ACTION_UPDATE_PROVINCE) {
-				ProvinceId id;
-				Province up;
-
-				packet->recv();
-
-				ar.set_buffer(packet->data(), packet->size());
-				::deserialize(ar, &id);
-				::deserialize(ar, &up);
-
-				memcpy(g_world->provinces[id], &up, sizeof(Province));
-			}
-		}
-	} catch(std::runtime_error& e) {
-		print_error("Except: %s", e.what());
-	}
-
-	delete packet;
-	delete client;
-}
-
 int main(int argc, char ** argv) {
 	setlocale(LC_ALL, "");
 	bindtextdomain("main", Path::get("locale").c_str());
@@ -99,11 +59,13 @@ int main(int argc, char ** argv) {
 			print_info("No IP specified, assuming default %s", server_addr.c_str());
 		}
 		print_info("Connecting to server with IP %s", server_addr.c_str());
-
-		std::thread t1(client_loop_thread);
+		
+		Client* client = new Client(server_addr, 4206);
+		std::thread t2(&Client::recv_loop, client);
+		std::thread t3(&Client::send_loop, client);
 		
 		printf("%s\n", gettext("launching rendering thread"));
-		std::thread t2(rendering_main);
+		std::thread t1(rendering_main);
 		
 		while(!do_start);
 		
@@ -116,7 +78,6 @@ int main(int argc, char ** argv) {
 		}
 		
 		t1.join();
-		t2.join();
 	}
 #endif
 	exit(EXIT_SUCCESS);

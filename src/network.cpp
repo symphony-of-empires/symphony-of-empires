@@ -41,7 +41,7 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 	print_info("Deploying %u threads for clients", max_conn);
 	threads.reserve(max_conn);
 	for(size_t i = 0; i < max_conn; i++) {
-		threads.push_back(std::thread(&Server::client_loop, this));
+		threads.push_back(std::thread(&Server::send_loop, this));
 	}
 	print_info("Server created sucessfully and listening to %u", port);
 	print_info("Server ready, now people can join!")
@@ -76,7 +76,7 @@ void Server::recv_loop(int conn_fd) {
 	delete packet;
 }
 
-void Server::client_loop(void) {
+void Server::send_loop(void) {
 	while(run) {
 		try {
 			sockaddr_in client;
@@ -133,9 +133,10 @@ Client::Client(std::string host, const unsigned port) {
 		print_error("Cannot connect to server");
 		return;
 	}
-	
-	// Now the client will receive from server
-	Packet packet = Packet(fd);
+}
+
+void Client::recv_loop(void) {
+	Packet packet = Packet(this->get_fd());
 	
 	// Receive the first snapshot of the world 
 	packet.recv();
@@ -143,6 +144,27 @@ Client::Client(std::string host, const unsigned port) {
 	Archive ar = Archive();
 	ar.set_buffer(packet.data(), packet.size());
 	::deserialize(ar, g_world);
+	
+	try {
+		enum ActionType action;
+		
+		while(1) {
+			packet.recv(&action);
+			print_info("Received action %zu", (size_t)action);
+			
+			// Ping from server, we should answer with a pong!
+			if(action == ACTION_PING) {
+				action = ACTION_PONG;
+				packet.send(&action);
+			}
+		}
+	} catch(std::runtime_error& e) {
+		print_error("Except: %s", e.what());
+	}
+}
+
+void Client::send_loop(void) {
+	Packet packet = Packet(fd);
 }
 
 Client::~Client() {
