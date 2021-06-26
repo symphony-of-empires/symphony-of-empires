@@ -1,6 +1,8 @@
 #ifndef POLICY_H
 #define POLICY_H
 
+#include <cmath>
+
 enum AllowancePolicy {
 	// Nobody can enter the country
 	ALLOW_NOBODY,
@@ -123,6 +125,9 @@ public:
 	// Flat tax rhs on the high-wage pops
 	float rich_flat_tax;
 
+	// The tax given to the industrial sector
+	float industry_tax;
+
 	// Spending done on military (% of budget)
 	float military_spending;
 	
@@ -145,11 +150,11 @@ public:
 		diff += (rhs.public_healthcare != this->public_healthcare) ? 1 : 0;
 		diff += (rhs.social_security != this->social_security) ? 1 : 0;
 		diff += (rhs.slavery != this->slavery) ? 1 : 0;
-		diff += std::abs(rhs.import_tax != this->import_tax);
-		diff += std::abs(rhs.export_tax != this->export_tax);
-		diff += std::abs(rhs.poor_flat_tax != this->poor_flat_tax);
-		diff += std::abs(rhs.med_flat_tax != this->med_flat_tax);
-		diff += std::abs(rhs.rich_flat_tax != this->rich_flat_tax);
+		diff += (rhs.import_tax != this->import_tax) ? 1 : 0;
+		diff += (rhs.export_tax != this->export_tax) ? 1 : 0;
+		diff += (rhs.poor_flat_tax != this->poor_flat_tax) ? 1 : 0;
+		diff += (rhs.med_flat_tax != this->med_flat_tax) ? 1 : 0;
+		diff += (rhs.rich_flat_tax != this->rich_flat_tax) ? 1 : 0;
 		return diff;
 	}
 };
