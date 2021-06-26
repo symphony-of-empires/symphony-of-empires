@@ -63,9 +63,9 @@ void Economy::do_phase_1(World& world) {
 
 				// TODO: We should tax industry daily income instead of by it's total budget
 				// Budget of the industry decreases due to taxes, and the goverments keeps those taxes
-				const float loss_by_tax = industry.budget * province->owner.current_policy.industry_tax;
+				const float loss_by_tax = industry.budget * province->owner->current_policy.industry_tax;
 				industry.budget -= loss_by_tax;
-				province->owner.budget += loss_by_tax;
+				province->owner->budget += loss_by_tax;
 				continue;
 			}
 			
@@ -562,7 +562,7 @@ void Economy::do_phase_3(World& world) {
 		skip_emigration:
 			pop.life_needs_met -= 0.7f* std::min<float>(0.5f, 1.f - pop.literacy);
 
-			province->worker_pool += (pop.size / ((pop.militancy * pop.life_needs_met) * pop.consciousness));
+			province->worker_pool += pop.size / (1 + ((pop.militancy * pop.life_needs_met) * pop.consciousness));
 		}
 		
 		// Stockpiles cleared
