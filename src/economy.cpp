@@ -60,6 +60,12 @@ void Economy::do_phase_1(World& world) {
 			if(!province->worker_pool) {
 				industry.days_unoperational++;
 				industry.min_quality = 0;
+
+				// TODO: We should tax industry daily income instead of by it's total budget
+				// Budget of the industry decreases due to taxes, and the goverments keeps those taxes
+				const float loss_by_tax = industry.budget * province->owner.current_policy.industry_tax;
+				industry.budget -= loss_by_tax;
+				province->owner.budget += loss_by_tax;
 				continue;
 			}
 			
@@ -79,7 +85,7 @@ void Economy::do_phase_1(World& world) {
 					continue;
 				
 				OrderGoods order;
-				order.quantity = (available_manpower / needed_manpower)* 1500;
+				order.quantity = (available_manpower / needed_manpower) * 1500;
 				order.payment = industry.willing_payment;
 				order.good = input;
 				order.industry = &industry;
@@ -94,7 +100,7 @@ void Economy::do_phase_1(World& world) {
 			// Place deliver orders (we are a RGO)
 			for(size_t k = 0; k < it.outputs.size(); k++) {
 				DeliverGoods deliver;
-				deliver.quantity = (available_manpower / needed_manpower)* 2000;
+				deliver.quantity = (available_manpower / needed_manpower) * 2000;
 				deliver.payment = industry.willing_payment;
 				deliver.good = it.outputs[k];
 				deliver.industry = &industry;
@@ -108,8 +114,8 @@ void Economy::do_phase_1(World& world) {
 				}
 
 				// Cannot be below production cost, so we can be profitable
-				if(product.price < industry.production_cost* 1.2f) {
-					product.price = industry.production_cost* 1.2f;
+				if(product.price < industry.production_cost * 1.2f) {
+					product.price = industry.production_cost * 1.2f;
 				}
 				
 				if(!deliver.quantity)
@@ -117,6 +123,9 @@ void Economy::do_phase_1(World& world) {
 				
 				world.delivers.push_back(deliver);
 			}
+
+			// Willing payment is made for next day ;)
+			industry.willing_payment = industry.budget / it.inputs.size() + it.outputs.size();
 		}
 	}
 
@@ -180,10 +189,10 @@ void Economy::do_phase_2(World& world) {
 						}
 					}
 					
-					float order_cost, deliver_cost, total_order_cost, total_deliver_cost;
+					const float order_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
+					const float deliver_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
 					
-					order_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
-					deliver_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
+					float total_order_cost, total_deliver_cost;
 					
 					// International trade
 					if(order.province->owner != deliver.province->owner) {
@@ -552,8 +561,8 @@ void Economy::do_phase_3(World& world) {
 			
 		skip_emigration:
 			pop.life_needs_met -= 0.7f* std::min<float>(0.5f, 1.f - pop.literacy);
-			
-			province->worker_pool += pop.size;
+
+			province->worker_pool += (pop.size / ((pop.militancy * pop.life_needs_met) * pop.consciousness));
 		}
 		
 		// Stockpiles cleared
