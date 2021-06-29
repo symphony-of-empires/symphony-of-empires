@@ -4,12 +4,20 @@
 #include "serializer.hpp"
 
 enum ActionType {
-	ACTION_UPDATE_PROVINCE,
-	ACTION_UPDATE_NATION,
-	ACTION_CHANGED_TILE,
-	ACTION_TAKE_DESCISION,
-	ACTION_CHANGE_POLICIES,
-	ACTION_COLONIZE_PROVINCE,
+	ACTION_PROVINCE_UPDATE,
+	ACTION_PROVINCE_ADD,
+	ACTION_PROVINCE_REMOVE,
+	ACTION_PROVINCE_COLONIZE,
+
+	ACTION_NATION_UPADTE,
+	ACTION_NATION_ADD,
+	ACTION_NATION_REMOVE,
+	ACTION_NATION_COLONIZE,
+
+	ACTION_UNIT_UPDATE,
+	ACTION_UNIT_ADD,
+	ACTION_UNIT_REMOVE,
+	ACTION_UNIT_COLONIZE,
 	
 	ACTION_PING,
 	ACTION_PONG,
@@ -23,8 +31,6 @@ public:
 	
 	template<typename T>
 	void send(Archive& ar, const T& data) {
-		// Transform the action onto a uint16_t which can hold all
-		// possible values
 		const uint16_t t16_action = (uint16_t)type;
 		::serialize(ar, &t16_action);
 		::serialize(ar, &data);
