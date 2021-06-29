@@ -61,21 +61,8 @@ Server::~Server() {
 #include "io_impl.hpp"
 extern World* g_world;
 
-void Server::recv_loop(int conn_fd) {
-	Packet* packet = new Packet(conn_fd);
-	enum ActionType action;
-
-	try {
-		while(run) {
-			packet->recv(&action);
-			print_info("Received action %zu", (size_t)action);
-		}
-	} catch(std::runtime_error& e) {
-		print_error("Except: %s", e.what());
-	}
-	delete packet;
-}
-
+#include <chrono>
+#include <thread>
 void Server::send_loop(void) {
 	while(run) {
 		try {
@@ -101,12 +88,15 @@ void Server::send_loop(void) {
 			packet.send(&action);
 			print_info("Sent action %zu", (size_t)action);
 
-			// Spawn a new thread dedicated to receiving actions
-			std::thread t1(&Server::recv_loop, this, conn_fd);
-
-			// Now we will send packets from the Packet queue in the server to
-			// this client
 			while(run) {
+				packet.recv(&action);
+
+				if(action == ACTION_PONG) {
+					action = ACTION_PING;
+					packet.send(&action);
+
+					print_info("Received pong, responding with ping!");
+				}
 			}
 		} catch(std::runtime_error& e) {
 			print_error("Except: %s", e.what());
@@ -150,12 +140,13 @@ void Client::recv_loop(void) {
 		
 		while(1) {
 			packet.recv(&action);
-			print_info("Received action %zu", (size_t)action);
 			
 			// Ping from server, we should answer with a pong!
 			if(action == ACTION_PING) {
 				action = ACTION_PONG;
 				packet.send(&action);
+
+				print_info("Received ping, responding with pong!");
 			}
 		}
 	} catch(std::runtime_error& e) {
@@ -164,7 +155,7 @@ void Client::recv_loop(void) {
 }
 
 void Client::send_loop(void) {
-	Packet packet = Packet(fd);
+	
 }
 
 Client::~Client() {

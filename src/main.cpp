@@ -62,7 +62,8 @@ int main(int argc, char ** argv) {
 		
 		Client* client = new Client(server_addr, 4206);
 		std::thread t2(&Client::recv_loop, client);
-		std::thread t3(&Client::send_loop, client);
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		
 		printf("%s\n", gettext("launching rendering thread"));
 		std::thread t1(rendering_main);
