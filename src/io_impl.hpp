@@ -7,6 +7,7 @@
 #include "economy.hpp"
 #include "pop.hpp"
 #include "serializer.hpp"
+#include <string>
 
 // TODO: There is a mess regarding references and stuff - we need to fix that
 
@@ -20,13 +21,13 @@ template<>
 class Serializer<Province *> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Province* const* obj) {
+	static inline void serialize(Archive& stream, const Province* const* obj) {
 		ProvinceId id = g_world->get_id(*obj);
-		::serialize(output, &id);
+		::serialize(stream, &id);
 	}
-	static inline void deserialize(Archive& input, Province* * obj) {
+	static inline void deserialize(Archive& stream, Province* * obj) {
 		ProvinceId id;
-		::deserialize(input, &id);
+		::deserialize(stream, &id);
 		*obj = (id != (ProvinceId)-1) ? g_world->provinces[id] : nullptr;
 	}
 	static inline size_t size(const Province* const*) {
@@ -38,13 +39,13 @@ template<>
 class Serializer<Nation *> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Nation* const* obj) {
+	static inline void serialize(Archive& stream, const Nation* const* obj) {
 		NationId id = g_world->get_id(*obj);
-		::serialize(output, &id);
+		::serialize(stream, &id);
 	}
-	static inline void deserialize(Archive& input, Nation* * obj) {
+	static inline void deserialize(Archive& stream, Nation* * obj) {
 		NationId id;
-		::deserialize(input, &id);
+		::deserialize(stream, &id);
 		*obj = (id != (NationId)-1) ? g_world->nations[id] : nullptr;
 	}
 	static inline size_t size(const Nation* const*) {
@@ -56,13 +57,13 @@ template<>
 class Serializer<Event *> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Event* const* obj) {
+	static inline void serialize(Archive& stream, const Event* const* obj) {
 		EventId id = g_world->get_id(*obj);
-		::serialize(output, &id);
+		::serialize(stream, &id);
 	}
-	static inline void deserialize(Archive& input, Event* * obj) {
+	static inline void deserialize(Archive& stream, Event* * obj) {
 		EventId id;
-		::deserialize(input, &id);
+		::deserialize(stream, &id);
 		*obj = (id != (EventId)-1) ? g_world->events[id] : nullptr;
 	}
 	static inline size_t size(const Event* const*) {
@@ -74,13 +75,13 @@ template<>
 class Serializer<Product *> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Product* const* obj) {
+	static inline void serialize(Archive& stream, const Product* const* obj) {
 		ProductId id = g_world->get_id(*obj);
-		::serialize(output, &id);
+		::serialize(stream, &id);
 	}
-	static inline void deserialize(Archive& input, Product* * obj) {
+	static inline void deserialize(Archive& stream, Product* * obj) {
 		ProductId id;
-		::deserialize(input, &id);
+		::deserialize(stream, &id);
 		*obj = (id != (ProductId)-1) ? g_world->products[id] : nullptr;
 	}
 	static inline size_t size(const Product* const*) {
@@ -92,13 +93,13 @@ template<>
 class Serializer<Culture *> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Culture* const* obj) {
+	static inline void serialize(Archive& stream, const Culture* const* obj) {
 		CultureId id = g_world->get_id(*obj);
-		::serialize(output, &id);
+		::serialize(stream, &id);
 	}
-	static inline void deserialize(Archive& input, Culture ** obj) {
+	static inline void deserialize(Archive& stream, Culture ** obj) {
 		CultureId id;
-		::deserialize(input, &id);
+		::deserialize(stream, &id);
 		*obj = (id != (CultureId)-1) ? g_world->cultures[id] : nullptr;
 	}
 	static inline size_t size(const Culture* const*) {
@@ -110,13 +111,13 @@ template<>
 class Serializer<Good *> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Good* const* obj) {
+	static inline void serialize(Archive& stream, const Good* const* obj) {
 		GoodId id = g_world->get_id(*obj);
-		::serialize(output, &id);
+		::serialize(stream, &id);
 	}
-	static inline void deserialize(Archive& input, Good* * obj) {
+	static inline void deserialize(Archive& stream, Good* * obj) {
 		GoodId id;
-		::deserialize(input, &id);
+		::deserialize(stream, &id);
 		*obj = (id != (GoodId)-1) ? g_world->goods[id] : nullptr;
 	}
 	static inline size_t size(const Good* const*) {
@@ -128,13 +129,13 @@ template<>
 class Serializer<Company *> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Company* const* obj) {
+	static inline void serialize(Archive& stream, const Company* const* obj) {
 		CompanyId id = g_world->get_id(*obj);
-		::serialize(output, &id);
+		::serialize(stream, &id);
 	}
-	static inline void deserialize(Archive& input, Company ** obj) {
+	static inline void deserialize(Archive& stream, Company ** obj) {
 		CompanyId id;
-		::deserialize(input, &id);
+		::deserialize(stream, &id);
 		*obj = (id != (CompanyId)-1) ? g_world->companies[id] : nullptr;
 	}
 	static inline size_t size(const Company* const*) {
@@ -146,13 +147,13 @@ template<>
 class Serializer<IndustryType *> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const IndustryType* const* obj) {
+	static inline void serialize(Archive& stream, const IndustryType* const* obj) {
 		IndustryTypeId id = g_world->get_id(*obj);
-		::serialize(output, &id);
+		::serialize(stream, &id);
 	}
-	static inline void deserialize(Archive& input, IndustryType* * obj) {
+	static inline void deserialize(Archive& stream, IndustryType* * obj) {
 		IndustryTypeId id;
-		::deserialize(input, &id);
+		::deserialize(stream, &id);
 		*obj = (id != (IndustryTypeId)-1) ? g_world->industry_types[id] : nullptr;
 	}
 	static inline size_t size(const IndustryType* const*) {
@@ -172,15 +173,15 @@ template<>
 class Serializer<PopType> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const PopType* obj) {
-		::serialize(output, &obj->name);
-		::serialize(output, &obj->ref_name);
-		::serialize(output, &obj->average_budget);
+	static inline void serialize(Archive& stream, const PopType* obj) {
+		::serialize(stream, &obj->name);
+		::serialize(stream, &obj->ref_name);
+		::serialize(stream, &obj->average_budget);
 	}
-	static inline void deserialize(Archive& input, PopType* obj) {
-		::deserialize(input, &obj->name);
-		::deserialize(input, &obj->ref_name);
-		::deserialize(input, &obj->average_budget);
+	static inline void deserialize(Archive& stream, PopType* obj) {
+		::deserialize(stream, &obj->name);
+		::deserialize(stream, &obj->ref_name);
+		::deserialize(stream, &obj->average_budget);
 	}
 	static inline size_t size(const PopType* obj) {
 		return serialized_size(&obj->name)
@@ -194,13 +195,13 @@ template<>
 class Serializer<Culture> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Culture* obj) {
-		::serialize(output, &obj->name);
-		::serialize(output, &obj->ref_name);
+	static inline void serialize(Archive& stream, const Culture* obj) {
+		::serialize(stream, &obj->name);
+		::serialize(stream, &obj->ref_name);
 	}
-	static inline void deserialize(Archive& input, Culture* obj) {
-		::deserialize(input, &obj->name);
-		::deserialize(input, &obj->ref_name);
+	static inline void deserialize(Archive& stream, Culture* obj) {
+		::deserialize(stream, &obj->name);
+		::deserialize(stream, &obj->ref_name);
 	}
 	static inline size_t size(const Culture* obj) {
 		return serialized_size(&obj->name)
@@ -213,13 +214,13 @@ template<>
 class Serializer<Religion> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Religion* obj) {
-		::serialize(output, &obj->name);
-		::serialize(output, &obj->ref_name);
+	static inline void serialize(Archive& stream, const Religion* obj) {
+		::serialize(stream, &obj->name);
+		::serialize(stream, &obj->ref_name);
 	}
-	static inline void deserialize(Archive& input, Religion* obj) {
-		::deserialize(input, &obj->name);
-		::deserialize(input, &obj->ref_name);
+	static inline void deserialize(Archive& stream, Religion* obj) {
+		::deserialize(stream, &obj->name);
+		::deserialize(stream, &obj->ref_name);
 	}
 	static inline size_t size(const Religion* obj) {
 		return serialized_size(&obj->name)
@@ -232,39 +233,39 @@ template<>
 class Serializer<Pop> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Pop* obj) {
-		::serialize(output, &obj->size);
-		::serialize(output, &obj->unemployed);
+	static inline void serialize(Archive& stream, const Pop* obj) {
+		::serialize(stream, &obj->size);
+		::serialize(stream, &obj->unemployed);
 
-		::serialize(output, &obj->literacy);
-		::serialize(output, &obj->militancy);
-		::serialize(output, &obj->consciousness);
-		::serialize(output, &obj->budget);
+		::serialize(stream, &obj->literacy);
+		::serialize(stream, &obj->militancy);
+		::serialize(stream, &obj->consciousness);
+		::serialize(stream, &obj->budget);
 
-		::serialize(output, &obj->life_needs_met);
-		::serialize(output, &obj->everyday_needs_met);
-		::serialize(output, &obj->luxury_needs_met);
+		::serialize(stream, &obj->life_needs_met);
+		::serialize(stream, &obj->everyday_needs_met);
+		::serialize(stream, &obj->luxury_needs_met);
 
-		::serialize(output, &obj->type_id);
-		::serialize(output, &obj->culture_id);
-		::serialize(output, &obj->religion_id);
+		::serialize(stream, &obj->type_id);
+		::serialize(stream, &obj->culture_id);
+		::serialize(stream, &obj->religion_id);
 	}
-	static inline void deserialize(Archive& input, Pop* obj) {
-		::deserialize(input, &obj->size);
-		::deserialize(input, &obj->unemployed);
+	static inline void deserialize(Archive& stream, Pop* obj) {
+		::deserialize(stream, &obj->size);
+		::deserialize(stream, &obj->unemployed);
 		
-		::deserialize(input, &obj->literacy);
-		::deserialize(input, &obj->militancy);
-		::deserialize(input, &obj->consciousness);
-		::deserialize(input, &obj->budget);
+		::deserialize(stream, &obj->literacy);
+		::deserialize(stream, &obj->militancy);
+		::deserialize(stream, &obj->consciousness);
+		::deserialize(stream, &obj->budget);
 
-		::deserialize(input, &obj->life_needs_met);
-		::deserialize(input, &obj->everyday_needs_met);
-		::deserialize(input, &obj->luxury_needs_met);
+		::deserialize(stream, &obj->life_needs_met);
+		::deserialize(stream, &obj->everyday_needs_met);
+		::deserialize(stream, &obj->luxury_needs_met);
 
-		::deserialize(input, &obj->type_id);
-		::deserialize(input, &obj->culture_id);
-		::deserialize(input, &obj->religion_id);
+		::deserialize(stream, &obj->type_id);
+		::deserialize(stream, &obj->culture_id);
+		::deserialize(stream, &obj->religion_id);
 	}
 	static inline size_t size(const Pop* obj) {
 		return serialized_size(&obj->size)
@@ -294,61 +295,61 @@ template<>
 class Serializer<Nation> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Nation* obj) {
-		::serialize(output, &obj->name);
-		::serialize(output, &obj->ref_name);
-		::serialize(output, &obj->controlled_by_ai);
-		::serialize(output, &obj->color);
-		::serialize(output, &obj->relations);
-		::serialize(output, &obj->spherer_id);
-		::serialize(output, &obj->diplomacy_points);
-		::serialize(output, &obj->prestige);
+	static inline void serialize(Archive& stream, const Nation* obj) {
+		::serialize(stream, &obj->name);
+		::serialize(stream, &obj->ref_name);
+		::serialize(stream, &obj->controlled_by_ai);
+		::serialize(stream, &obj->color);
+		::serialize(stream, &obj->relations);
+		::serialize(stream, &obj->spherer_id);
+		::serialize(stream, &obj->diplomacy_points);
+		::serialize(stream, &obj->prestige);
 
-		::serialize(output, &obj->base_literacy);
-		::serialize(output, &obj->is_civilized);
+		::serialize(stream, &obj->base_literacy);
+		::serialize(stream, &obj->is_civilized);
 
-		::serialize(output, &obj->infamy);
-		::serialize(output, &obj->military_score);
-		::serialize(output, &obj->naval_score);
-		::serialize(output, &obj->economy_score);
+		::serialize(stream, &obj->infamy);
+		::serialize(stream, &obj->military_score);
+		::serialize(stream, &obj->naval_score);
+		::serialize(stream, &obj->economy_score);
 
-		::serialize(output, &obj->budget);
+		::serialize(stream, &obj->budget);
 
-		::serialize(output, &obj->primary_culture);
-		::serialize(output, &obj->capital);
-		::serialize(output, &obj->accepted_cultures);
-		::serialize(output, &obj->owned_provinces);
-		::serialize(output, &obj->current_policy);
-		::serialize(output, &obj->diplomatic_timer);
+		::serialize(stream, &obj->primary_culture);
+		::serialize(stream, &obj->capital);
+		::serialize(stream, &obj->accepted_cultures);
+		::serialize(stream, &obj->owned_provinces);
+		::serialize(stream, &obj->current_policy);
+		::serialize(stream, &obj->diplomatic_timer);
 		
 		// TODO: Default flag here
 	}
-	static inline void deserialize(Archive& input, Nation* obj) {
-		::deserialize(input, &obj->name);
-		::deserialize(input, &obj->ref_name);
-		::deserialize(input, &obj->controlled_by_ai);
-		::deserialize(input, &obj->color);
-		::deserialize(input, &obj->relations);
-		::deserialize(input, &obj->spherer_id);
-		::deserialize(input, &obj->diplomacy_points);
-		::deserialize(input, &obj->prestige);
+	static inline void deserialize(Archive& stream, Nation* obj) {
+		::deserialize(stream, &obj->name);
+		::deserialize(stream, &obj->ref_name);
+		::deserialize(stream, &obj->controlled_by_ai);
+		::deserialize(stream, &obj->color);
+		::deserialize(stream, &obj->relations);
+		::deserialize(stream, &obj->spherer_id);
+		::deserialize(stream, &obj->diplomacy_points);
+		::deserialize(stream, &obj->prestige);
 
-		::deserialize(input, &obj->base_literacy);
-		::deserialize(input, &obj->is_civilized);
+		::deserialize(stream, &obj->base_literacy);
+		::deserialize(stream, &obj->is_civilized);
 
-		::deserialize(input, &obj->infamy);
-		::deserialize(input, &obj->military_score);
-		::deserialize(input, &obj->naval_score);
-		::deserialize(input, &obj->economy_score);
+		::deserialize(stream, &obj->infamy);
+		::deserialize(stream, &obj->military_score);
+		::deserialize(stream, &obj->naval_score);
+		::deserialize(stream, &obj->economy_score);
 
-		::deserialize(input, &obj->budget);
+		::deserialize(stream, &obj->budget);
 
-		::deserialize(input, &obj->primary_culture);
-		::deserialize(input, &obj->capital);
-		::deserialize(input, &obj->accepted_cultures);
-		::deserialize(input, &obj->owned_provinces);
-		::deserialize(input, &obj->current_policy);
-		::deserialize(input, &obj->diplomatic_timer);
+		::deserialize(stream, &obj->primary_culture);
+		::deserialize(stream, &obj->capital);
+		::deserialize(stream, &obj->accepted_cultures);
+		::deserialize(stream, &obj->owned_provinces);
+		::deserialize(stream, &obj->current_policy);
+		::deserialize(stream, &obj->diplomatic_timer);
 		
 		// TODO: Rest of fields
 	}
@@ -384,25 +385,25 @@ template<>
 class Serializer<UnitType> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const UnitType* obj) {
-		::serialize(output, &obj->name);
-		::serialize(output, &obj->ref_name);
-		::serialize(output, &obj->supply_consumption);
-		::serialize(output, &obj->speed);
-		::serialize(output, &obj->max_health);
-		::serialize(output, &obj->defense);
-		::serialize(output, &obj->attack);
-		::serialize(output, &obj->req_goods);
+	static inline void serialize(Archive& stream, const UnitType* obj) {
+		::serialize(stream, &obj->name);
+		::serialize(stream, &obj->ref_name);
+		::serialize(stream, &obj->supply_consumption);
+		::serialize(stream, &obj->speed);
+		::serialize(stream, &obj->max_health);
+		::serialize(stream, &obj->defense);
+		::serialize(stream, &obj->attack);
+		::serialize(stream, &obj->req_goods);
 	}
-	static inline void deserialize(Archive& input, UnitType* obj) {
-		::deserialize(input, &obj->name);
-		::deserialize(input, &obj->ref_name);
-		::deserialize(input, &obj->supply_consumption);
-		::deserialize(input, &obj->speed);
-		::deserialize(input, &obj->max_health);
-		::deserialize(input, &obj->defense);
-		::deserialize(input, &obj->attack);
-		::deserialize(input, &obj->req_goods);
+	static inline void deserialize(Archive& stream, UnitType* obj) {
+		::deserialize(stream, &obj->name);
+		::deserialize(stream, &obj->ref_name);
+		::deserialize(stream, &obj->supply_consumption);
+		::deserialize(stream, &obj->speed);
+		::deserialize(stream, &obj->max_health);
+		::deserialize(stream, &obj->defense);
+		::deserialize(stream, &obj->attack);
+		::deserialize(stream, &obj->req_goods);
 	}
 	static inline size_t size(const UnitType* obj) {
 		return
@@ -422,57 +423,57 @@ template<>
 class Serializer<Province> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Province* obj) {
-		::serialize(output, &obj->name);
-		::serialize(output, &obj->ref_name);
+	static inline void serialize(Archive& stream, const Province* obj) {
+		::serialize(stream, &obj->name);
+		::serialize(stream, &obj->ref_name);
 		
-		::serialize(output, &obj->color);
-		::serialize(output, &obj->budget);
-		::serialize(output, &obj->n_tiles);
+		::serialize(stream, &obj->color);
+		::serialize(stream, &obj->budget);
+		::serialize(stream, &obj->n_tiles);
 		
-		::serialize(output, &obj->max_x);
-		::serialize(output, &obj->max_y);
-		::serialize(output, &obj->min_x);
-		::serialize(output, &obj->min_y);
+		::serialize(stream, &obj->max_x);
+		::serialize(stream, &obj->max_y);
+		::serialize(stream, &obj->min_x);
+		::serialize(stream, &obj->min_y);
 		
-		::serialize(output, &obj->supply_limit);
-		::serialize(output, &obj->supply_rem);
-		::serialize(output, &obj->worker_pool);
+		::serialize(stream, &obj->supply_limit);
+		::serialize(stream, &obj->supply_rem);
+		::serialize(stream, &obj->worker_pool);
 		
-		::serialize(output, &obj->owner);
+		::serialize(stream, &obj->owner);
 		
-		::serialize(output, &obj->nucleuses);
-		::serialize(output, &obj->neighbours);
-		::serialize(output, &obj->stockpile);
-		::serialize(output, &obj->industries);
-		::serialize(output, &obj->products);
-		::serialize(output, &obj->pops);
+		::serialize(stream, &obj->nucleuses);
+		::serialize(stream, &obj->neighbours);
+		::serialize(stream, &obj->stockpile);
+		::serialize(stream, &obj->industries);
+		::serialize(stream, &obj->products);
+		::serialize(stream, &obj->pops);
 	}
-	static inline void deserialize(Archive& input, Province* obj) {
-		::deserialize(input, &obj->name);
-		::deserialize(input, &obj->ref_name);
+	static inline void deserialize(Archive& stream, Province* obj) {
+		::deserialize(stream, &obj->name);
+		::deserialize(stream, &obj->ref_name);
 		
-		::deserialize(input, &obj->color);
-		::deserialize(input, &obj->budget);
-		::deserialize(input, &obj->n_tiles);
+		::deserialize(stream, &obj->color);
+		::deserialize(stream, &obj->budget);
+		::deserialize(stream, &obj->n_tiles);
 		
-		::deserialize(input, &obj->max_x);
-		::deserialize(input, &obj->max_y);
-		::deserialize(input, &obj->min_x);
-		::deserialize(input, &obj->min_y);
+		::deserialize(stream, &obj->max_x);
+		::deserialize(stream, &obj->max_y);
+		::deserialize(stream, &obj->min_x);
+		::deserialize(stream, &obj->min_y);
 		
-		::deserialize(input, &obj->supply_limit);
-		::deserialize(input, &obj->supply_rem);
-		::deserialize(input, &obj->worker_pool);
+		::deserialize(stream, &obj->supply_limit);
+		::deserialize(stream, &obj->supply_rem);
+		::deserialize(stream, &obj->worker_pool);
 		
-		::deserialize(input, &obj->owner);
+		::deserialize(stream, &obj->owner);
 		
-		::deserialize(input, &obj->nucleuses);
-		::deserialize(input, &obj->neighbours);
-		::deserialize(input, &obj->stockpile);
-		::deserialize(input, &obj->industries);
-		::deserialize(input, &obj->products);
-		::deserialize(input, &obj->pops);
+		::deserialize(stream, &obj->nucleuses);
+		::deserialize(stream, &obj->neighbours);
+		::deserialize(stream, &obj->stockpile);
+		::deserialize(stream, &obj->industries);
+		::deserialize(stream, &obj->products);
+		::deserialize(stream, &obj->pops);
 	}
 	static inline size_t size(const Province* obj) {
 		return
@@ -504,25 +505,25 @@ template<>
 class Serializer<Company> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Company* obj) {
-		::serialize(output, &obj->name);
+	static inline void serialize(Archive& stream, const Company* obj) {
+		::serialize(stream, &obj->name);
 		
-		::serialize(output, &obj->money);
-		::serialize(output, &obj->is_transport);
-		::serialize(output, &obj->is_retailer);
-		::serialize(output, &obj->is_industry);
+		::serialize(stream, &obj->money);
+		::serialize(stream, &obj->is_transport);
+		::serialize(stream, &obj->is_retailer);
+		::serialize(stream, &obj->is_industry);
 		
-		::serialize(output, &obj->operating_provinces);
+		::serialize(stream, &obj->operating_provinces);
 	}
-	static inline void deserialize(Archive& input, Company* obj) {
-		::deserialize(input, &obj->name);
+	static inline void deserialize(Archive& stream, Company* obj) {
+		::deserialize(stream, &obj->name);
 		
-		::deserialize(input, &obj->money);
-		::deserialize(input, &obj->is_transport);
-		::deserialize(input, &obj->is_retailer);
-		::deserialize(input, &obj->is_industry);
+		::deserialize(stream, &obj->money);
+		::deserialize(stream, &obj->is_transport);
+		::deserialize(stream, &obj->is_retailer);
+		::deserialize(stream, &obj->is_industry);
 		
-		::deserialize(input, &obj->operating_provinces);
+		::deserialize(stream, &obj->operating_provinces);
 		
 		// TODO: Rest of fields
 	}
@@ -543,31 +544,31 @@ template<>
 class Serializer<Industry> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Industry* obj) {
-		::serialize(output, &obj->owner);
-		::serialize(output, &obj->type);
+	static inline void serialize(Archive& stream, const Industry* obj) {
+		::serialize(stream, &obj->owner);
+		::serialize(stream, &obj->type);
 		
-		::serialize(output, &obj->days_unoperational);
-		::serialize(output, &obj->production_cost);
+		::serialize(stream, &obj->days_unoperational);
+		::serialize(stream, &obj->production_cost);
 		
-		::serialize(output, &obj->stockpile);
-		::serialize(output, &obj->output_products);
+		::serialize(stream, &obj->stockpile);
+		::serialize(stream, &obj->output_products);
 		
-		::serialize(output, &obj->min_quality);
-		::serialize(output, &obj->willing_payment);
+		::serialize(stream, &obj->min_quality);
+		::serialize(stream, &obj->willing_payment);
 	}
-	static inline void deserialize(Archive& input, Industry* obj) {
-		::deserialize(input, &obj->owner);
-		::deserialize(input, &obj->type);
+	static inline void deserialize(Archive& stream, Industry* obj) {
+		::deserialize(stream, &obj->owner);
+		::deserialize(stream, &obj->type);
 		
-		::deserialize(input, &obj->days_unoperational);
-		::deserialize(input, &obj->production_cost);
+		::deserialize(stream, &obj->days_unoperational);
+		::deserialize(stream, &obj->production_cost);
 		
-		::deserialize(input, &obj->stockpile);
-		::deserialize(input, &obj->output_products);
+		::deserialize(stream, &obj->stockpile);
+		::deserialize(stream, &obj->output_products);
 		
-		::deserialize(input, &obj->min_quality);
-		::deserialize(input, &obj->willing_payment);
+		::deserialize(stream, &obj->min_quality);
+		::deserialize(stream, &obj->willing_payment);
 	}
 	static inline size_t size(const Industry* obj) {
 		return
@@ -588,29 +589,29 @@ template<>
 class Serializer<Product> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Product* obj) {
-		::serialize(output, &obj->owner);
-		::serialize(output, &obj->origin);
-		::serialize(output, &obj->industry);
-		::serialize(output, &obj->good);
+	static inline void serialize(Archive& stream, const Product* obj) {
+		::serialize(stream, &obj->owner);
+		::serialize(stream, &obj->origin);
+		::serialize(stream, &obj->industry);
+		::serialize(stream, &obj->good);
 		
-		::serialize(output, &obj->price);
-		::serialize(output, &obj->price_vel);
-		::serialize(output, &obj->quality);
-		::serialize(output, &obj->supply);
-		::serialize(output, &obj->demand);
+		::serialize(stream, &obj->price);
+		::serialize(stream, &obj->price_vel);
+		::serialize(stream, &obj->quality);
+		::serialize(stream, &obj->supply);
+		::serialize(stream, &obj->demand);
 	}
-	static inline void deserialize(Archive& input, Product* obj) {
-		::deserialize(input, &obj->owner);
-		::deserialize(input, &obj->origin);
-		::deserialize(input, &obj->industry);
-		::deserialize(input, &obj->good);
+	static inline void deserialize(Archive& stream, Product* obj) {
+		::deserialize(stream, &obj->owner);
+		::deserialize(stream, &obj->origin);
+		::deserialize(stream, &obj->industry);
+		::deserialize(stream, &obj->good);
 		
-		::deserialize(input, &obj->price);
-		::deserialize(input, &obj->price_vel);
-		::deserialize(input, &obj->quality);
-		::deserialize(input, &obj->supply);
-		::deserialize(input, &obj->demand);
+		::deserialize(stream, &obj->price);
+		::deserialize(stream, &obj->price_vel);
+		::deserialize(stream, &obj->quality);
+		::deserialize(stream, &obj->supply);
+		::deserialize(stream, &obj->demand);
 	}
 	static inline size_t size(const Product* obj) {
 		return
@@ -632,21 +633,21 @@ template<>
 class Serializer<IndustryType> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const IndustryType* obj) {
-		::serialize(output, &obj->name);
-		::serialize(output, &obj->ref_name);
+	static inline void serialize(Archive& stream, const IndustryType* obj) {
+		::serialize(stream, &obj->name);
+		::serialize(stream, &obj->ref_name);
 		
-		::serialize(output, &obj->inputs);
-		::serialize(output, &obj->outputs);
+		::serialize(stream, &obj->inputs);
+		::serialize(stream, &obj->outputs);
 		
 		// TODO: Image texture serialized here
 	}
-	static inline void deserialize(Archive& input, IndustryType* obj) {
-		::deserialize(input, &obj->name);
-		::deserialize(input, &obj->ref_name);
+	static inline void deserialize(Archive& stream, IndustryType* obj) {
+		::deserialize(stream, &obj->name);
+		::deserialize(stream, &obj->ref_name);
 		
-		::deserialize(input, &obj->inputs);
-		::deserialize(input, &obj->outputs);
+		::deserialize(stream, &obj->inputs);
+		::deserialize(stream, &obj->outputs);
 	}
 	static inline size_t size(const IndustryType* obj) {
 		return
@@ -663,15 +664,15 @@ template<>
 class Serializer<Good> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Good* obj) {
-		::serialize(output, &obj->name);
-		::serialize(output, &obj->ref_name);
-		::serialize(output, &obj->is_edible);
+	static inline void serialize(Archive& stream, const Good* obj) {
+		::serialize(stream, &obj->name);
+		::serialize(stream, &obj->ref_name);
+		::serialize(stream, &obj->is_edible);
 	}
-	static inline void deserialize(Archive& input, Good* obj) {
-		::deserialize(input, &obj->name);
-		::deserialize(input, &obj->ref_name);
-		::deserialize(input, &obj->is_edible);
+	static inline void deserialize(Archive& stream, Good* obj) {
+		::deserialize(stream, &obj->name);
+		::deserialize(stream, &obj->ref_name);
+		::deserialize(stream, &obj->is_edible);
 	}
 	static inline size_t size(const Good* obj) {
 		return
@@ -686,19 +687,19 @@ template<>
 class Serializer<Event> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const Event* obj) {
-		::serialize(output, &obj->ref_name);
-		::serialize(output, &obj->conditions_function);
-		::serialize(output, &obj->do_event_function);
-		::serialize(output, &obj->receivers);
+	static inline void serialize(Archive& stream, const Event* obj) {
+		::serialize(stream, &obj->ref_name);
+		::serialize(stream, &obj->conditions_function);
+		::serialize(stream, &obj->do_event_function);
+		::serialize(stream, &obj->receivers);
 		
 		// TODO: Descicions should not be pointers
 	}
-	static inline void deserialize(Archive& input, Event* obj) {
-		::deserialize(input, &obj->ref_name);
-		::deserialize(input, &obj->conditions_function);
-		::deserialize(input, &obj->do_event_function);
-		::deserialize(input, &obj->receivers);
+	static inline void deserialize(Archive& stream, Event* obj) {
+		::deserialize(stream, &obj->ref_name);
+		::deserialize(stream, &obj->conditions_function);
+		::deserialize(stream, &obj->do_event_function);
+		::deserialize(stream, &obj->receivers);
 		
 		// TODO: Rest of fields
 	}
@@ -717,38 +718,38 @@ template<>
 class Serializer<World> {
 public:
 	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& output, const World* obj) {
-		::serialize(output, &obj->width);
-		::serialize(output, &obj->height);
-		::serialize(output, &obj->sea_level);
-		::serialize(output, &obj->time);
+	static inline void serialize(Archive& stream, const World* obj) {
+		::serialize(stream, &obj->width);
+		::serialize(stream, &obj->height);
+		::serialize(stream, &obj->sea_level);
+		::serialize(stream, &obj->time);
 		
 		for(size_t i = 0; i < obj->width* obj->height; i++) {
-			::serialize(output, &obj->tiles[i]);
+			::serialize(stream, &obj->tiles[i]);
 		}
 		
 		const uint32_t n_goods = obj->goods.size();
-		::serialize(output, &n_goods);
+		::serialize(stream, &n_goods);
 		const uint32_t n_industry_types = obj->industry_types.size();
-		::serialize(output, &n_industry_types);
+		::serialize(stream, &n_industry_types);
 		const uint32_t n_unit_types = obj->unit_types.size();
-		::serialize(output, &n_unit_types);
+		::serialize(stream, &n_unit_types);
 		const uint32_t n_religions = obj->religions.size();
-		::serialize(output, &n_religions);
+		::serialize(stream, &n_religions);
 		const uint32_t n_cultures = obj->cultures.size();
-		::serialize(output, &n_cultures);
+		::serialize(stream, &n_cultures);
 		const uint32_t n_pop_types = obj->pop_types.size();
-		::serialize(output, &n_pop_types);
+		::serialize(stream, &n_pop_types);
 		const uint32_t n_nations = obj->nations.size();
-		::serialize(output, &n_nations);
+		::serialize(stream, &n_nations);
 		const uint32_t n_provinces = obj->provinces.size();
-		::serialize(output, &n_provinces);
+		::serialize(stream, &n_provinces);
 		const uint32_t n_companies = obj->companies.size();
-		::serialize(output, &n_companies);
+		::serialize(stream, &n_companies);
 		const uint32_t n_products = obj->products.size();
-		::serialize(output, &n_products);
+		::serialize(stream, &n_products);
 		const uint32_t n_events = obj->events.size();
-		::serialize(output, &n_events);
+		::serialize(stream, &n_events);
 		
 		printf("(SERIALIZER) WORLD INFORMATION\n");
 		printf("  n_goods %zu\n", (size_t)n_goods);
@@ -764,61 +765,61 @@ public:
 		printf("  n_events %zu\n", (size_t)n_events);
 		
 		for(auto& good: obj->goods) {
-			::serialize(output, good);
+			::serialize(stream, good);
 		}
 		
 		for(auto& industry_type: obj->industry_types) {
-			::serialize(output, industry_type);
+			::serialize(stream, industry_type);
 		}
 		
 		for(auto& unit_type: obj->unit_types) {
-			::serialize(output, unit_type);
+			::serialize(stream, unit_type);
 		}
 		
 		for(auto& religion: obj->religions) {
-			::serialize(output, religion);
+			::serialize(stream, religion);
 		}
 		
 		for(auto& culture: obj->cultures) {
-			::serialize(output, culture);
+			::serialize(stream, culture);
 		}
 		
 		for(auto& pop_type: obj->pop_types) {
-			::serialize(output, pop_type);
+			::serialize(stream, pop_type);
 		}
 		
 		for(auto& nation: obj->nations) {
-			::serialize(output, nation);
+			::serialize(stream, nation);
 		}
 		
 		for(auto& province: obj->provinces) {
-			::serialize(output, province);
+			::serialize(stream, province);
 		}
 		
 		for(auto& company: obj->companies) {
-			::serialize(output, company);
+			::serialize(stream, company);
 		}
 		
 		for(auto& product: obj->products) {
-			::serialize(output, product);
+			::serialize(stream, product);
 		}
 		
 		for(auto& event: obj->events) {
-			::serialize(output, event);
+			::serialize(stream, event);
 		}
 		
-		::serialize(output, &obj->delivers);
-		::serialize(output, &obj->orders);
+		::serialize(stream, &obj->delivers);
+		::serialize(stream, &obj->orders);
 	}
-	static inline void deserialize(Archive& input, World* obj) {
-		::deserialize(input, &obj->width);
-		::deserialize(input, &obj->height);
-		::deserialize(input, &obj->sea_level);
-		::deserialize(input, &obj->time);
+	static inline void deserialize(Archive& stream, World* obj) {
+		::deserialize(stream, &obj->width);
+		::deserialize(stream, &obj->height);
+		::deserialize(stream, &obj->sea_level);
+		::deserialize(stream, &obj->time);
 		
 		obj->tiles = new Tile[obj->width* obj->height];
 		for(size_t i = 0; i < obj->width* obj->height; i++) {
-			::deserialize(input, &obj->tiles[i]);
+			::deserialize(stream, &obj->tiles[i]);
 		}
 		
 		/* In order to avoid post-deserialization relational patcher,
@@ -826,77 +827,77 @@ public:
 		* then we will fill those spots as we deserialize
 		 */
 		uint32_t n_goods;
-		::deserialize(input, &n_goods);
+		::deserialize(stream, &n_goods);
 		for(size_t i = 0; i < n_goods; i++) {
 			Good* sub_obj = new Good();
 			obj->goods.push_back(sub_obj);
 		}
 		
 		uint32_t n_industry_types;
-		::deserialize(input, &n_industry_types);
+		::deserialize(stream, &n_industry_types);
 		for(size_t i = 0; i < n_industry_types; i++) {
 			IndustryType* sub_obj = new IndustryType();
 			obj->industry_types.push_back(sub_obj);
 		}
 		
 		uint32_t n_unit_types;
-		::deserialize(input, &n_unit_types);
+		::deserialize(stream, &n_unit_types);
 		for(size_t i = 0; i < n_unit_types; i++) {
 			UnitType* sub_obj = new UnitType();
 			obj->unit_types.push_back(sub_obj);
 		}
 		
 		uint32_t n_religions;
-		::deserialize(input, &n_religions);
+		::deserialize(stream, &n_religions);
 		for(size_t i = 0; i < n_religions; i++) {
 			Religion* sub_obj = new Religion();
 			obj->religions.push_back(sub_obj);
 		}
 		
 		uint32_t n_cultures;
-		::deserialize(input, &n_cultures);
+		::deserialize(stream, &n_cultures);
 		for(size_t i = 0; i < n_cultures; i++) {
 			Culture* sub_obj = new Culture();
 			obj->cultures.push_back(sub_obj);
 		}
 		
 		uint32_t n_pop_types;
-		::deserialize(input, &n_pop_types);
+		::deserialize(stream, &n_pop_types);
 		for(size_t i = 0; i < n_pop_types; i++) {
 			PopType* sub_obj = new PopType();
 			obj->pop_types.push_back(sub_obj);
 		}
 		
 		uint32_t n_nations;
-		::deserialize(input, &n_nations);
+		::deserialize(stream, &n_nations);
 		for(size_t i = 0; i < n_nations; i++) {
 			Nation* sub_obj = new Nation();
 			obj->nations.push_back(sub_obj);
 		}
 		
 		uint32_t n_provinces;
-		::deserialize(input, &n_provinces);
+		::deserialize(stream, &n_provinces);
 		for(size_t i = 0; i < n_provinces; i++) {
 			Province* sub_obj = new Province();
 			obj->provinces.push_back(sub_obj);
 		}
 		
 		uint32_t n_companies;
-		::deserialize(input, &n_companies);
+		::deserialize(stream, &n_companies);
 		for(size_t i = 0; i < n_companies; i++) {
 			Company* sub_obj = new Company();
 			obj->companies.push_back(sub_obj);
 		}
 		
 		uint32_t n_products;
-		::deserialize(input, &n_products);
+		::deserialize(stream, &n_products);
 		for(size_t i = 0; i < n_products; i++) {
 			Product* sub_obj = new Product();
 			obj->products.push_back(sub_obj);
 		}
 		
 		uint32_t n_events;
-		::deserialize(input, &n_events);
+		::deserialize(stream, &n_events);
 		for(size_t i = 0; i < n_events; i++) {
 			Event* sub_obj = new Event();
 			obj->events.push_back(sub_obj);
@@ -917,61 +918,61 @@ public:
 		
 		for(size_t i = 0; i < n_goods; i++) {
 			Good* sub_obj = obj->goods[i];
-			::deserialize(input, sub_obj);
+			::deserialize(stream, sub_obj);
 		}
 		
 		for(size_t i = 0; i < n_industry_types; i++) {
 			IndustryType* sub_obj = obj->industry_types[i];
-			::deserialize(input, sub_obj);
+			::deserialize(stream, sub_obj);
 		}
 		
 		for(size_t i = 0; i < n_unit_types; i++) {
 			UnitType* sub_obj = obj->unit_types[i];
-			::deserialize(input, sub_obj);
+			::deserialize(stream, sub_obj);
 		}
 		
 		for(size_t i = 0; i < n_religions; i++) {
 			Religion* sub_obj = obj->religions[i];
-			::deserialize(input, sub_obj);
+			::deserialize(stream, sub_obj);
 		}
 		
 		for(size_t i = 0; i < n_cultures; i++) {
 			Culture* sub_obj = obj->cultures[i];
-			::deserialize(input, sub_obj);
+			::deserialize(stream, sub_obj);
 		}
 		
 		for(size_t i = 0; i < n_pop_types; i++) {
 			PopType* sub_obj = obj->pop_types[i];
-			::deserialize(input, sub_obj);
+			::deserialize(stream, sub_obj);
 		}
 		
 		for(size_t i = 0; i < n_nations; i++) {
 			Nation* sub_obj = obj->nations[i];
-			::deserialize(input, sub_obj);
+			::deserialize(stream, sub_obj);
 		}
 		
 		for(size_t i = 0; i < n_provinces; i++) {
 			Province* sub_obj = obj->provinces[i];
-			::deserialize(input, sub_obj);
+			::deserialize(stream, sub_obj);
 		}
 		
 		for(size_t i = 0; i < n_companies; i++) {
 			Company* sub_obj = obj->companies[i];
-			::deserialize(input, sub_obj);
+			::deserialize(stream, sub_obj);
 		}
 		
 		for(size_t i = 0; i < n_products; i++) {
 			Product* sub_obj = obj->products[i];
-			::deserialize(input, sub_obj);
+			::deserialize(stream, sub_obj);
 		}
 		
 		for(size_t i = 0; i < n_events; i++) {
 			Event* sub_obj = obj->events[i];
-			::deserialize(input, sub_obj);
+			::deserialize(stream, sub_obj);
 		}
 		
-		::deserialize(input, &obj->delivers);
-		::deserialize(input, &obj->orders);
+		::deserialize(stream, &obj->delivers);
+		::deserialize(stream, &obj->orders);
 	}
 	static inline size_t size(const World* obj) {
 		return
