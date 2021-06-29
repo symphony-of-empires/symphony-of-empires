@@ -52,11 +52,13 @@ public:
 		if(write(fd, &net_code, sizeof(net_code)) == -1) {
 			throw std::runtime_error("Socket write error for packet code");
 		}
+		print_info("send net_code %zu", (size_t)ntohl(net_code));
 		
 		const uint32_t net_size = htonl(n_data);
 		if(write(fd, &net_size, sizeof(net_size)) == -1) {
 			throw std::runtime_error("Socket write error for size of packet");
 		}
+		print_info("send net_size %zu", (size_t)ntohl(net_size));
 		
 		/* Socket writes can only be done 1024 bytes at a time */
 		for(size_t i = 0; i < n_data; ) {
@@ -78,6 +80,7 @@ public:
 		}
 		net_code  = ntohl(net_code);
 		code = (PacketCode)net_code;
+		print_info("recv net_code %zu", (size_t)net_code);
 
 		uint32_t net_size;
 		if(::recv(fd, &net_size, sizeof(net_size), MSG_WAITALL) == -1) {
@@ -86,6 +89,7 @@ public:
 		
 		n_data = (size_t)ntohl(net_size);
 		bufdata.resize(n_data + 1);
+		print_info("recv n_data %zu", (size_t)n_data);
 		
 		/* Reads can only be done 1024 bytes at a time */
 		for(size_t i = 0; i < n_data; ) {
