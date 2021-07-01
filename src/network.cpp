@@ -116,19 +116,39 @@ void Server::send_loop(void) {
 							*g_world->units[unit_id] = unit;
 						}
 						break;
-					// Nation addition and removals are not allowed by clients
-					// same with provinces
 					case ACTION_NATION_UPDATE:
 						{
 							packet.recv();
-							Unit unit;
-							uint64_t unit_id;
+							Nation nation;
+							NationId nation_id;
 							ar.set_buffer(packet.data(), packet.size());
 							ar.rewind();
-							::deserialize(ar, &unit);
-							::deserialize(ar, &unit_id);
-							*g_world->units[unit_id] = unit;
+							::deserialize(ar, &nation);
+							::deserialize(ar, &nation_id);
+							*g_world->nations[nation_id] = nation;
 						}
+						break;
+					case ACTION_PROVINCE_UPDATE:
+						{
+							packet.recv();
+							Province province;
+							ProvinceId province_id;
+							ar.set_buffer(packet.data(), packet.size());
+							ar.rewind();
+							::deserialize(ar, &province);
+							::deserialize(ar, &province_id);
+							*g_world->provinces[province_id] = province;
+						}
+						break;
+					case ACTION_PROVINCE_COLONIZE:
+						break;
+					// Nation and province addition and removals are not allowed to be done by clients
+					case ACTION_NATION_ADD:
+					case ACTION_NATION_REMOVE:
+					case ACTION_PROVINCE_ADD:
+					case ACTION_PROVINCE_REMOVE:
+						break;
+					default:
 						break;
 					}
 				}
@@ -216,6 +236,8 @@ void Client::recv_loop(void) {
 					::deserialize(ar, &province);
 					*g_world->provinces[province_id] = province;
 				}
+				break;
+			default:
 				break;
 			}
 

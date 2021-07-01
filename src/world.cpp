@@ -651,6 +651,11 @@ UnitTypeId World::get_id(const UnitType* ptr) const {
 	return get_id_ptr<UnitTypeId>(ptr, unit_types);
 }
 
+BoatTypeId World::get_id(const BoatType* ptr) const {
+	//std::lock_guard<std::mutex> lock(boat_types_mutex);
+	return get_id_ptr<BoatTypeId>(ptr, boat_types);
+}
+
 UnitId World::get_id(const Unit* ptr) const {
 	//std::lock_guard<std::mutex> lock(units_mutex);
 	return get_id_ptr<UnitId>(ptr, units);

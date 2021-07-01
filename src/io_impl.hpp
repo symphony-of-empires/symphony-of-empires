@@ -180,6 +180,24 @@ public:
 };
 
 template<>
+class Serializer<BoatType *> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const BoatType* const* obj) {
+		BoatTypeId id = g_world->get_id(*obj);
+		::serialize(stream, &id);
+	}
+	static inline void deserialize(Archive& stream, BoatType* * obj) {
+		BoatTypeId id;
+		::deserialize(stream, &id);
+		*obj = (id != (BoatTypeId)-1) ? g_world->boat_types[id] : nullptr;
+	}
+	static inline size_t size(const BoatType* const*) {
+		return sizeof(BoatTypeId);
+	}
+};
+
+template<>
 class Serializer<Unit *> {
 public:
 	static constexpr bool is_const_size = false;

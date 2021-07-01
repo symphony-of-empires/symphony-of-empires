@@ -234,6 +234,7 @@ public:
 	IndustryId get_id(const Province& province, const Industry* ptr) const;
 	EventId get_id(const Event* ptr) const;
 	UnitTypeId get_id(const UnitType* ptr) const;
+	BoatTypeId get_id(const BoatType* ptr) const;
 	UnitId get_id(const Unit* ptr) const;
 	
 	size_t get_id(const Tile* ptr) const;
