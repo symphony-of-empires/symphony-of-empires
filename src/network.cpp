@@ -1,5 +1,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/ioctl.h>
 #include <netdb.h>
 
 #include <cstring>
@@ -89,13 +90,56 @@ void Server::send_loop(void) {
 			print_info("Sent action %zu", (size_t)action);
 
 			while(run) {
-				packet.recv(&action);
+				int has_pending;
 
-				if(action == ACTION_PONG) {
-					action = ACTION_PING;
-					packet.send(&action);
+				// Read the messages if there is any pending bytes on the tx
+				while(has_pending) {
+					ioctl(conn_fd, FIONREAD, &has_pending);
+					packet.recv(&action);
 
-					print_info("Received pong, responding with ping!");
+					switch(action) {
+					case ACTION_PONG:
+						action = ACTION_PING;
+						packet.send(&action);
+
+						print_info("Received pong, responding with ping!");
+						break;
+					case ACTION_UNIT_UPDATE:
+						{
+							packet.recv();
+							Unit unit;
+							uint64_t unit_id;
+							ar.set_buffer(packet.data(), packet.size());
+							ar.rewind();
+							::deserialize(ar, &unit);
+							::deserialize(ar, &unit_id);
+							*g_world->units[unit_id] = unit;
+						}
+						break;
+					// Nation addition and removals are not allowed by clients
+					// same with provinces
+					case ACTION_NATION_UPDATE:
+						{
+							packet.recv();
+							Unit unit;
+							uint64_t unit_id;
+							ar.set_buffer(packet.data(), packet.size());
+							ar.rewind();
+							::deserialize(ar, &unit);
+							::deserialize(ar, &unit_id);
+							*g_world->units[unit_id] = unit;
+						}
+						break;
+					}
+				}
+
+				// After reading everything we will send our queue appropriately
+				while(!packet_queue.empty()) {
+					Packet* elem;
+					elem = packet_queue.front();
+					packet_queue.pop_front();
+					elem->send();
+					delete elem;
 				}
 			}
 		} catch(std::runtime_error& e) {
@@ -125,6 +169,10 @@ Client::Client(std::string host, const unsigned port) {
 	}
 }
 
+// The server assumes all clients are able to handle all events regardless of anything
+// if the client runs out of memory it needs to disconnect and then reconnect in order
+// to establish a new connection; since the server won't hand out snapshots - wait...
+// if you need snapshots for any reason (like desyncs) you can request with ACTION_SNAPSHOT
 void Client::recv_loop(void) {
 	Packet packet = Packet(this->get_fd());
 	
@@ -139,14 +187,45 @@ void Client::recv_loop(void) {
 		enum ActionType action;
 		
 		while(1) {
+			// Obtain the action from the server
 			packet.recv(&action);
 			
 			// Ping from server, we should answer with a pong!
-			if(action == ACTION_PING) {
-				action = ACTION_PONG;
+			switch(action) {
+			case ACTION_PONG:
 				packet.send(&action);
-
 				print_info("Received ping, responding with pong!");
+				break;
+			// Update/Remove/Add Actions
+			//
+			// These actions all follow the same format they give a specialized ID for the index
+			// where the operated object is or should be; this allows for extreme-level fuckery
+			// like ref-name changes in the middle of a game in the case of updates.
+			//
+			// After the ID the object in question is given in a serialized form, in which the
+			// deserializer will deserialize onto the final object; after this the operation
+			// desired is done.
+			case ACTION_PROVINCE_UPDATE:
+				{
+					packet.recv();
+					Province province;
+					uint64_t province_id;
+					ar.set_buffer(packet.data(), packet.size());
+					ar.rewind();
+					::deserialize(ar, &province_id);
+					::deserialize(ar, &province);
+					*g_world->provinces[province_id] = province;
+				}
+				break;
+			}
+
+			// Client will also flush it's queue to the server
+			while(!packet_queue.empty()) {
+				Packet* elem;
+				elem = packet_queue.front();
+				packet_queue.pop_front();
+				elem->send();
+				delete elem;
 			}
 		}
 	} catch(std::runtime_error& e) {

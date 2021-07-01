@@ -39,6 +39,10 @@ public:
 		buffer.shrink_to_fit();
 	}
 
+	inline void rewind(void) {
+		ptr = 0;
+	}
+
 	void to_file(std::string path) {
 		FILE* fp = fopen(path.c_str(), "wb");
 		fwrite(&buffer[0], 1, buffer.size(), fp);
@@ -52,7 +56,7 @@ public:
 		
 		fseek(fp, 0, SEEK_END);
 		size_t size = ftell(fp);
-		rewind(fp);
+		::rewind(fp);
 		
 		buffer.resize(size);
 		fread(&buffer[0], 1, buffer.size(), fp);
