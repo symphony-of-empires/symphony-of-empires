@@ -162,6 +162,42 @@ public:
 };
 
 template<>
+class Serializer<UnitType *> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const UnitType* const* obj) {
+		UnitTypeId id = g_world->get_id(*obj);
+		::serialize(stream, &id);
+	}
+	static inline void deserialize(Archive& stream, UnitType* * obj) {
+		UnitTypeId id;
+		::deserialize(stream, &id);
+		*obj = (id != (UnitTypeId)-1) ? g_world->unit_types[id] : nullptr;
+	}
+	static inline size_t size(const UnitType* const*) {
+		return sizeof(UnitTypeId);
+	}
+};
+
+template<>
+class Serializer<Unit *> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const Unit* const* obj) {
+		UnitId id = g_world->get_id(*obj);
+		::serialize(stream, &id);
+	}
+	static inline void deserialize(Archive& stream, Unit* * obj) {
+		UnitId id;
+		::deserialize(stream, &id);
+		*obj = (id != (UnitId)-1) ? g_world->units[id] : nullptr;
+	}
+	static inline size_t size(const Unit* const*) {
+		return sizeof(UnitId);
+	}
+};
+
+template<>
 class Serializer<Industry *> : public SerializerMemcpy<Industry *> {};
 
 template<>
@@ -225,6 +261,40 @@ public:
 	static inline size_t size(const Religion* obj) {
 		return serialized_size(&obj->name)
 			+ serialized_size(&obj->ref_name)
+		;
+	}
+};
+
+template<>
+class Serializer<Unit> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const Unit* obj) {
+		::serialize(stream, &obj->type);
+		::serialize(stream, &obj->size);
+		::serialize(stream, &obj->tx);
+		::serialize(stream, &obj->ty);
+		::serialize(stream, &obj->x);
+		::serialize(stream, &obj->y);
+		::serialize(stream, &obj->owner);
+	}
+	static inline void deserialize(Archive& stream, Unit* obj) {
+		::deserialize(stream, &obj->type);
+		::deserialize(stream, &obj->size);
+		::deserialize(stream, &obj->tx);
+		::deserialize(stream, &obj->ty);
+		::deserialize(stream, &obj->x);
+		::deserialize(stream, &obj->y);
+		::deserialize(stream, &obj->owner);
+	}
+	static inline size_t size(const Unit* obj) {
+		return serialized_size(&obj->type)
+			+ serialized_size(&obj->size)
+			+ serialized_size(&obj->tx)
+			+ serialized_size(&obj->ty)
+			+ serialized_size(&obj->x)
+			+ serialized_size(&obj->y)
+			+ serialized_size(&obj->owner)
 		;
 	}
 };

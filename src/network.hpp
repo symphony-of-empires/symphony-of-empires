@@ -43,10 +43,12 @@ public:
 	}
 
 	template<typename T>
-	void send(const T* buf, size_t size = sizeof(T)) {
-		n_data = size;
-		bufdata.resize(n_data);
-		memcpy(&bufdata[0], buf, n_data);
+	void send(const T* buf = nullptr, size_t size = sizeof(T)) {
+		if(buf != nullptr) {
+			n_data = size;
+			bufdata.resize(n_data);
+			memcpy(&bufdata[0], buf, n_data);
+		}
 
 		const uint32_t net_code = htonl(code);
 		if(write(fd, &net_code, sizeof(net_code)) == -1) {
@@ -70,6 +72,10 @@ public:
 		}
 		
 		print_info("(host) -> Packet of size %zu, with code %zu", (size_t)n_data, (size_t)net_code);
+	}
+
+	void send(void) {
+		this->send<void>(nullptr, 0);
 	}
 
 	template<typename T>
@@ -115,6 +121,7 @@ public:
 	}
 };
 
+#include <deque>
 class Server {
 	struct sockaddr_in addr;
 	int fd;
@@ -128,7 +135,7 @@ public:
 	void recv_loop(int conn_fd);
 	void send_loop(void);
 	
-	std::vector<Packet *> packet_queue;
+	std::deque<Packet *> packet_queue;
 };
 
 class Client {
@@ -144,7 +151,7 @@ public:
 	void recv_loop(void);
 	void send_loop(void);
 	
-	std::vector<Packet *> packet_queue;
+	std::deque<Packet *> packet_queue;
 };
 
 extern Server* g_server;

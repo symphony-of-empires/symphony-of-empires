@@ -50,6 +50,7 @@ public:
 #include "nation.hpp"
 #include "world.hpp"
 class Tile;
+typedef uint32_t UnitId;
 /**
 * Roughly a batallion, consisting of approximately 500 soldiers each
  */

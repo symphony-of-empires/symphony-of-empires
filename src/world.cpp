@@ -646,6 +646,16 @@ EventId World::get_id(const Event* ptr) const {
 	return get_id_ptr<EventId>(ptr, events);
 }
 
+UnitTypeId World::get_id(const UnitType* ptr) const {
+	//std::lock_guard<std::mutex> lock(unit_types_mutex);
+	return get_id_ptr<UnitTypeId>(ptr, unit_types);
+}
+
+UnitId World::get_id(const Unit* ptr) const {
+	//std::lock_guard<std::mutex> lock(units_mutex);
+	return get_id_ptr<UnitId>(ptr, units);
+}
+
 size_t World::get_id(const Tile* ptr) const {
 	//std::lock_guard<std::mutex> lock(tiles_mutex);
 	return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
