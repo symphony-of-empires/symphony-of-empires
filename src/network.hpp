@@ -37,6 +37,12 @@ public:
 	void* data(void) {
 		return (void *)&bufdata[0];
 	}
+	
+	void data(void* _bufdata, size_t _n_data) {
+		n_data = _n_data;
+		bufdata.resize(n_data);
+		memcpy(&bufdata[0], _bufdata, n_data);
+	}
 
 	size_t size(void) {
 		return n_data;
