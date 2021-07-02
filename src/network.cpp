@@ -67,7 +67,7 @@ extern World* g_world;
 
 /* This is the handling thread-function for handling a connection to a single client
  * Sending packets will only be received by the other end, when trying to broadcast please
- * put the packets on the send queue, they will be filled accordingly
+ * put the packets on the send queue, they will be sent accordingly
  */
 void Server::send_loop(void) {
 	while(run) {
@@ -100,6 +100,10 @@ void Server::send_loop(void) {
 				// Read the messages if there is any pending bytes on the tx
 				while(has_pending) {
 					ioctl(conn_fd, FIONREAD, &has_pending);
+					if(!has_pending) {
+						break;
+					}
+					
 					packet.recv();
 					
 					ar.set_buffer(packet.data(), packet.size());
@@ -114,8 +118,8 @@ void Server::send_loop(void) {
 						break;
 					case ACTION_UNIT_UPDATE:
 						{
+							UnitId unit_id;
 							Unit unit;
-							uint64_t unit_id;
 							::deserialize(ar, &unit);
 							::deserialize(ar, &unit_id);
 							*g_world->units[unit_id] = unit;
@@ -130,8 +134,8 @@ void Server::send_loop(void) {
 						break;
 					case ACTION_NATION_UPDATE:
 						{
-							Nation nation;
 							NationId nation_id;
+							Nation nation;
 							::deserialize(ar, &nation);
 							::deserialize(ar, &nation_id);
 							*g_world->nations[nation_id] = nation;
@@ -146,8 +150,8 @@ void Server::send_loop(void) {
 						break;
 					case ACTION_PROVINCE_UPDATE:
 						{
-							Province province;
 							ProvinceId province_id;
+							Province province;
 							::deserialize(ar, &province);
 							::deserialize(ar, &province_id);
 							*g_world->provinces[province_id] = province;
@@ -165,8 +169,8 @@ void Server::send_loop(void) {
 					 */
 					case ACTION_PROVINCE_COLONIZE:
 						{
-							ProvinceId province_id;
 							NationId colonizer_id;
+							ProvinceId province_id;
 							::deserialize(ar, &province_id);
 							::deserialize(ar, &colonizer_id);
 							g_world->provinces[province_id]->owner = g_world->nations[colonizer_id];
@@ -245,7 +249,11 @@ void Client::recv_loop(void) {
 		
 		while(1) {
 			// Obtain the action from the server
-			packet.recv(&action);
+			packet.recv();
+			ar.set_buffer(packet.data(), packet.size());
+			ar.rewind();
+			
+			::deserialize(ar, &action);
 			
 			// Ping from server, we should answer with a pong!
 			switch(action) {
@@ -264,14 +272,29 @@ void Client::recv_loop(void) {
 			// desired is done.
 			case ACTION_PROVINCE_UPDATE:
 				{
-					packet.recv();
+					ProvinceId province_id;
 					Province province;
-					uint64_t province_id;
-					ar.set_buffer(packet.data(), packet.size());
-					ar.rewind();
 					::deserialize(ar, &province_id);
 					::deserialize(ar, &province);
 					*g_world->provinces[province_id] = province;
+				}
+				break;
+			case ACTION_NATION_UPDATE:
+				{
+					NationId nation_id;
+					Nation nation;
+					::deserialize(ar, &nation_id);
+					::deserialize(ar, &nation);
+					*g_world->nations[nation_id] = nation;
+				}
+				break;
+			case ACTION_UNIT_UPDATE:
+				{
+					UnitId unit_id;
+					Unit unit;
+					::deserialize(ar, &unit_id);
+					::deserialize(ar, &unit);
+					*g_world->units[unit_id] = unit;
 				}
 				break;
 			default:
