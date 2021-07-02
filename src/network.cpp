@@ -95,22 +95,22 @@ void Server::send_loop(void) {
 				// Read the messages if there is any pending bytes on the tx
 				while(has_pending) {
 					ioctl(conn_fd, FIONREAD, &has_pending);
-					packet.recv(&action);
-
+					packet.recv();
+					
+					ar.set_buffer(packet.data(), packet.size());
+					ar.rewind();
+					::deserialize(ar, &action);
+					
 					switch(action) {
 					case ACTION_PONG:
 						action = ACTION_PING;
 						packet.send(&action);
-
 						print_info("Received pong, responding with ping!");
 						break;
 					case ACTION_UNIT_UPDATE:
 						{
-							packet.recv();
 							Unit unit;
 							uint64_t unit_id;
-							ar.set_buffer(packet.data(), packet.size());
-							ar.rewind();
 							::deserialize(ar, &unit);
 							::deserialize(ar, &unit_id);
 							*g_world->units[unit_id] = unit;
@@ -118,11 +118,8 @@ void Server::send_loop(void) {
 						break;
 					case ACTION_NATION_UPDATE:
 						{
-							packet.recv();
 							Nation nation;
 							NationId nation_id;
-							ar.set_buffer(packet.data(), packet.size());
-							ar.rewind();
 							::deserialize(ar, &nation);
 							::deserialize(ar, &nation_id);
 							*g_world->nations[nation_id] = nation;
@@ -130,11 +127,8 @@ void Server::send_loop(void) {
 						break;
 					case ACTION_PROVINCE_UPDATE:
 						{
-							packet.recv();
 							Province province;
 							ProvinceId province_id;
-							ar.set_buffer(packet.data(), packet.size());
-							ar.rewind();
 							::deserialize(ar, &province);
 							::deserialize(ar, &province_id);
 							*g_world->provinces[province_id] = province;
