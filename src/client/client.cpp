@@ -21,6 +21,7 @@ extern TextureManager* g_texture_manager;
 int width = 1280;
 int height = 800;
 
+std::pair<int, int> mouse_pos;
 static Map* map;
 
 class Camera {
@@ -61,6 +62,12 @@ static Nation* curr_nation = nullptr;
 static void change_country(size_t id) {
 	size_t old_id = curr_selected_nation;
 	
+	if(!g_world->nations.size()) {
+		UI::Window* win = new UI::Window(mouse_pos.first, mouse_pos.second, 512, 32);
+		win->text("No selectable countries!!");
+		return;
+	}
+	
 	curr_selected_nation = id;
 	if(curr_selected_nation >= g_world->nations.size()) {
 		curr_selected_nation = 0;
@@ -96,8 +103,6 @@ static void change_country(size_t id) {
 		cam.x = -cam.x;
 	}
 }
-
-std::pair<int, int> mouse_pos;
 
 static UI::Window* top_win,* province_view_win;
 

@@ -148,6 +148,9 @@ public:
 class Client {
 	struct sockaddr_in addr;
 	int fd;
+	
+	std::thread net_thread;
+	std::atomic<bool> has_snapshot;
 public:
 	Client(std::string host, unsigned port);
 	~Client();
@@ -155,8 +158,8 @@ public:
 		return fd;
 	}
 	
-	void recv_loop(void);
-	void send_loop(void);
+	void net_loop(void);
+	void wait_for_snapshot(void);
 	
 	std::deque<Packet *> packet_queue;
 };

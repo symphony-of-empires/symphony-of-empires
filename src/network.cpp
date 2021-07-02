@@ -95,7 +95,7 @@ void Server::send_loop(void) {
 			print_info("Sent action %zu", (size_t)action);
 
 			while(run) {
-				int has_pending;
+				int has_pending = 1;
 
 				// Read the messages if there is any pending bytes on the tx
 				while(has_pending) {
@@ -183,6 +183,21 @@ void Server::send_loop(void) {
 							packet_queue.push_back(elem);
 						}
 						break;
+					// Gaming chat
+					case ACTION_CHAT_MESSAGE:
+						{
+							std::string msg;
+							::deserialize(ar, &msg);
+							print_info("Message: %s\n", msg);
+						}
+						
+						// Rebroadcast
+						{
+							Packet* elem = new Packet(conn_fd);
+							*elem = packet;
+							packet_queue.push_back(elem);
+						}
+						break;
 					// Nation and province addition and removals are not allowed to be done by clients
 					case ACTION_NATION_ADD:
 					case ACTION_NATION_REMOVE:
@@ -228,14 +243,21 @@ Client::Client(std::string host, const unsigned port) {
 		print_error("Cannot connect to server");
 		return;
 	}
+	
+	// Launch the receive and send thread
+	net_thread = std::thread(&Client::net_loop, this);
+	has_snapshot = false;
 }
 
-// The server assumes all clients are able to handle all events regardless of anything
-// if the client runs out of memory it needs to disconnect and then reconnect in order
-// to establish a new connection; since the server won't hand out snapshots - wait...
-// if you need snapshots for any reason (like desyncs) you can request with ACTION_SNAPSHOT
-void Client::recv_loop(void) {
+/** The server assumes all clients are able to handle all events regardless of anything
+ * if the client runs out of memory it needs to disconnect and then reconnect in order
+ * to establish a new connection; since the server won't hand out snapshots - wait...
+ * if you need snapshots for any reason (like desyncs) you can request with ACTION_SNAPSHOT
+ */
+void Client::net_loop(void) {
 	Packet packet = Packet(this->get_fd());
+	
+	print_info("Launched client thread!");
 	
 	// Receive the first snapshot of the world 
 	packet.recv();
@@ -244,61 +266,72 @@ void Client::recv_loop(void) {
 	ar.set_buffer(packet.data(), packet.size());
 	::deserialize(ar, g_world);
 	
+	has_snapshot = true;
 	try {
 		enum ActionType action;
 		
 		while(1) {
-			// Obtain the action from the server
-			packet.recv();
-			ar.set_buffer(packet.data(), packet.size());
-			ar.rewind();
-			
-			::deserialize(ar, &action);
-			
-			// Ping from server, we should answer with a pong!
-			switch(action) {
-			case ACTION_PONG:
-				packet.send(&action);
-				print_info("Received ping, responding with pong!");
-				break;
-			// Update/Remove/Add Actions
-			//
-			// These actions all follow the same format they give a specialized ID for the index
-			// where the operated object is or should be; this allows for extreme-level fuckery
-			// like ref-name changes in the middle of a game in the case of updates.
-			//
-			// After the ID the object in question is given in a serialized form, in which the
-			// deserializer will deserialize onto the final object; after this the operation
-			// desired is done.
-			case ACTION_PROVINCE_UPDATE:
-				{
-					ProvinceId province_id;
-					Province province;
-					::deserialize(ar, &province_id);
-					::deserialize(ar, &province);
-					*g_world->provinces[province_id] = province;
+			int has_pending = 1;
+
+			// Read the messages if there is any pending bytes on the tx
+			while(has_pending) {
+				ioctl(this->get_fd(), FIONREAD, &has_pending);
+				if(!has_pending) {
+					break;
 				}
-				break;
-			case ACTION_NATION_UPDATE:
-				{
-					NationId nation_id;
-					Nation nation;
-					::deserialize(ar, &nation_id);
-					::deserialize(ar, &nation);
-					*g_world->nations[nation_id] = nation;
+				
+				// Obtain the action from the server
+				packet.recv();
+				ar.set_buffer(packet.data(), packet.size());
+				ar.rewind();
+				
+				::deserialize(ar, &action);
+				
+				// Ping from server, we should answer with a pong!
+				switch(action) {
+				case ACTION_PONG:
+					packet.send(&action);
+					print_info("Received ping, responding with pong!");
+					break;
+				// Update/Remove/Add Actions
+				//
+				// These actions all follow the same format they give a specialized ID for the index
+				// where the operated object is or should be; this allows for extreme-level fuckery
+				// like ref-name changes in the middle of a game in the case of updates.
+				//
+				// After the ID the object in question is given in a serialized form, in which the
+				// deserializer will deserialize onto the final object; after this the operation
+				// desired is done.
+				case ACTION_PROVINCE_UPDATE:
+					{
+						ProvinceId province_id;
+						Province province;
+						::deserialize(ar, &province_id);
+						::deserialize(ar, &province);
+						*g_world->provinces[province_id] = province;
+					}
+					break;
+				case ACTION_NATION_UPDATE:
+					{
+						NationId nation_id;
+						Nation nation;
+						::deserialize(ar, &nation_id);
+						::deserialize(ar, &nation);
+						*g_world->nations[nation_id] = nation;
+					}
+					break;
+				case ACTION_UNIT_UPDATE:
+					{
+						UnitId unit_id;
+						Unit unit;
+						::deserialize(ar, &unit_id);
+						::deserialize(ar, &unit);
+						*g_world->units[unit_id] = unit;
+					}
+					break;
+				default:
+					break;
 				}
-				break;
-			case ACTION_UNIT_UPDATE:
-				{
-					UnitId unit_id;
-					Unit unit;
-					::deserialize(ar, &unit_id);
-					::deserialize(ar, &unit);
-					*g_world->units[unit_id] = unit;
-				}
-				break;
-			default:
-				break;
 			}
 
 			// Client will also flush it's queue to the server
@@ -315,10 +348,15 @@ void Client::recv_loop(void) {
 	}
 }
 
-void Client::send_loop(void) {
-	
+/** Waits to receive the server initial world snapshot
+ */
+void Client::wait_for_snapshot(void) {
+	while(!has_snapshot) {
+		// Just wait...
+	}
 }
 
 Client::~Client() {
+	net_thread.join();
 	close(fd);
 }
