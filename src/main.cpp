@@ -50,8 +50,6 @@ int main(int argc, char ** argv) {
 	}
 	// Run as a client, receiving and sending packages to/from a server
 	else {
-		World* world = new World(true);
-
 		if(argc > 1) {
 			server_addr = argv[1];
 		} else {
@@ -60,10 +58,9 @@ int main(int argc, char ** argv) {
 		}
 		print_info("Connecting to server with IP %s", server_addr.c_str());
 		
+		World* world = new World(true);
 		Client* client = new Client(server_addr, 4206);
-		std::thread t2(&Client::recv_loop, client);
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		client->wait_for_snapshot();
 		
 		printf("%s\n", gettext("launching rendering thread"));
 		std::thread t1(rendering_main);
