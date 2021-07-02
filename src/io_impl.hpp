@@ -7,7 +7,11 @@
 #include "economy.hpp"
 #include "pop.hpp"
 #include "serializer.hpp"
+#include "actions.hpp"
 #include <string>
+
+template<>
+class Serializer<enum ActionType> : public SerializerMemcpy<enum ActionType> {};
 
 // TODO: There is a mess regarding references and stuff - we need to fix that
 

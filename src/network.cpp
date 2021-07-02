@@ -64,6 +64,11 @@ extern World* g_world;
 
 #include <chrono>
 #include <thread>
+
+/* This is the handling thread-function for handling a connection to a single client
+ * Sending packets will only be received by the other end, when trying to broadcast please
+ * put the packets on the send queue, they will be filled accordingly
+ */
 void Server::send_loop(void) {
 	while(run) {
 		try {
@@ -115,6 +120,13 @@ void Server::send_loop(void) {
 							::deserialize(ar, &unit_id);
 							*g_world->units[unit_id] = unit;
 						}
+						
+						// Rebroadcast
+						{
+							Packet* elem = new Packet(conn_fd);
+							*elem = packet;
+							packet_queue.push_back(elem);
+						}
 						break;
 					case ACTION_NATION_UPDATE:
 						{
@@ -123,6 +135,13 @@ void Server::send_loop(void) {
 							::deserialize(ar, &nation);
 							::deserialize(ar, &nation_id);
 							*g_world->nations[nation_id] = nation;
+						}
+						
+						// Rebroadcast
+						{
+							Packet* elem = new Packet(conn_fd);
+							*elem = packet;
+							packet_queue.push_back(elem);
 						}
 						break;
 					case ACTION_PROVINCE_UPDATE:
@@ -133,8 +152,32 @@ void Server::send_loop(void) {
 							::deserialize(ar, &province_id);
 							*g_world->provinces[province_id] = province;
 						}
+						
+						// Rebroadcast
+						{
+							Packet* elem = new Packet(conn_fd);
+							*elem = packet;
+							packet_queue.push_back(elem);
+						}
 						break;
+					/* Action of colonizing a province, this action is then re-broadcasted to all clients
+					 * it's separate from ACTION_PROVINCE_UPDATE by mere convenience for clients(?)
+					 */
 					case ACTION_PROVINCE_COLONIZE:
+						{
+							ProvinceId province_id;
+							NationId colonizer_id;
+							::deserialize(ar, &province_id);
+							::deserialize(ar, &colonizer_id);
+							g_world->provinces[province_id]->owner = g_world->nations[colonizer_id];
+						}
+						
+						// Rebroadcast
+						{
+							Packet* elem = new Packet(conn_fd);
+							*elem = packet;
+							packet_queue.push_back(elem);
+						}
 						break;
 					// Nation and province addition and removals are not allowed to be done by clients
 					case ACTION_NATION_ADD:
@@ -148,9 +191,9 @@ void Server::send_loop(void) {
 				}
 
 				// After reading everything we will send our queue appropriately
+				// TODO: This only supports 1 client, we should keep track of clients connected to the server
 				while(!packet_queue.empty()) {
-					Packet* elem;
-					elem = packet_queue.front();
+					Packet* elem = packet_queue.front();
 					packet_queue.pop_front();
 					elem->send();
 					delete elem;

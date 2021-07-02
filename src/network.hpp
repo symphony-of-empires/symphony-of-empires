@@ -141,6 +141,7 @@ public:
 	void recv_loop(int conn_fd);
 	void send_loop(void);
 	
+	int n_clients;
 	std::deque<Packet *> packet_queue;
 };
 
