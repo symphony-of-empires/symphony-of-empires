@@ -668,6 +668,8 @@ static void reform_policies(UI::Widget&, void *) {
 	ok_btn->current_texture = &button_ppv;
 }
 
+std::vector<const Texture*> nation_flags;
+
 std::mutex render_lock;
 static void play_nation(UI::Widget&, void *) {
 	ui_ctx->clear();
@@ -717,7 +719,7 @@ static void play_nation(UI::Widget&, void *) {
 	
 	pop_view_nation_win = nullptr;
 	
-	//UI::Image* current_flag = new UI::Image(9, 43, 188, 87, curr_nation->default_flag, top_win);
+	//UI::Image* current_flag = new UI::Image(9, 43, 188, 87, nation_flags[g_world->get_id(curr_nation)], top_win);
 	
 	money_icon = new UI::Image(209, 43 + (28* 0), icon_money_tex.width, icon_money_tex.height, &icon_money_tex, top_win);
 	money_lab = new UI::Label(0, 43 + (28* 0), "?", top_win);
@@ -904,6 +906,13 @@ void select_nation(void) {
 	
 	const Texture& map_overlay = g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
 	
+	nation_flags.reserve(g_world->nations.size());
+	for(const auto& nation: g_world->nations) {
+		std::string pt;
+		pt = "ui/flags/" + nation->ref_name + "_communist.png";
+		nation_flags.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+	}
+	
 	// should call on ACTION_WORLD_TICK
 	//world->client_update();
 	
@@ -998,12 +1007,11 @@ void select_nation(void) {
 							}
 							
 							// Send broadcast to server
+							g_client->packet_mutex.lock();
 							Packet packet = Packet(g_client->get_fd());
 							Archive ar = Archive();
-							
 							enum ActionType action = ACTION_UNIT_ADD;
 							::serialize(ar, &action);
-							
 							Unit unit = Unit();
 							unit.owner = g_world->nations[curr_selected_nation];
 							unit.size = 1000;
@@ -1012,16 +1020,26 @@ void select_nation(void) {
 							unit.tx = unit.x;
 							unit.ty = unit.y;
 							::serialize(ar, &unit);
-							
 							packet.data(ar.get_buffer(), ar.size());
-							
-							g_client->packet_mutex.lock();
 							g_client->packet_queue.push_back(packet);
 							g_client->packet_mutex.unlock();
 						} else if(event.button.button == SDL_BUTTON_RIGHT) {
 							if(selected_unit != nullptr) {
 								selected_unit->tx = select_pos.first;
 								selected_unit->ty = select_pos.second;
+								
+								g_client->packet_mutex.lock();
+								Packet packet = Packet(g_client->get_fd());
+								Archive ar = Archive();
+								enum ActionType action = ACTION_UNIT_CHANGE_TARGET;
+								::serialize(ar, &action);
+								UnitId unit_id = g_world->get_id(selected_unit);
+								::serialize(ar, &unit_id);
+								::serialize(ar, &selected_unit->tx);
+								::serialize(ar, &selected_unit->ty);
+								packet.data(ar.get_buffer(), ar.size());
+								g_client->packet_queue.push_back(packet);
+								g_client->packet_mutex.unlock();
 								break;
 							}
 						}
@@ -1288,7 +1306,7 @@ void select_nation(void) {
 		for(const auto& unit: g_world->units) {
 			const float size = 1.f;
 
-			//glBindTexture(GL_TEXTURE_2D, unit->owner->default_flag->gl_tex_num);
+			//glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(unit->owner)]->gl_tex_num);
 			glBegin(GL_QUADS);
 
 			glColor4f(1.f, 1.f, 1.f, 0.8f);

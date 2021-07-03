@@ -129,17 +129,17 @@ void Server::net_loop(int id) {
 						packet.send(&action);
 						print_info("Received pong, responding with ping!");
 						break;
-					case ACTION_UNIT_UPDATE:
+					case ACTION_UNIT_CHANGE_TARGET:
 						{
 							UnitId unit_id;
-							Unit unit;
-							::deserialize(ar, &unit);
 							::deserialize(ar, &unit_id);
-							*g_world->units[unit_id] = unit;
+							
+							Unit* unit = g_world->units[unit_id];
+							::deserialize(ar, &unit->tx);
+							::deserialize(ar, &unit->ty);
+							
+							print_info("Unit %zu changes targets to %zu.%zu", (size_t)unit_id, (size_t)unit->tx, (size_t)unit->ty);
 						}
-						
-						// Rebroadcast
-						broadcast(packet);
 						break;
 					case ACTION_UNIT_ADD:
 						g_world->units_mutex.lock();
@@ -324,8 +324,9 @@ void Client::net_loop(void) {
 				case ACTION_PROVINCE_UPDATE:
 					{
 						ProvinceId province_id;
-						Province province;
 						::deserialize(ar, &province_id);
+						
+						Province province;
 						::deserialize(ar, &province);
 						*g_world->provinces[province_id] = province;
 					}
@@ -333,8 +334,9 @@ void Client::net_loop(void) {
 				case ACTION_NATION_UPDATE:
 					{
 						NationId nation_id;
-						Nation nation;
 						::deserialize(ar, &nation_id);
+						
+						Nation nation;
 						::deserialize(ar, &nation);
 						*g_world->nations[nation_id] = nation;
 					}
@@ -342,10 +344,16 @@ void Client::net_loop(void) {
 				case ACTION_UNIT_UPDATE:
 					{
 						UnitId unit_id;
-						Unit unit;
 						::deserialize(ar, &unit_id);
+						
+						if(unit_id >= g_world->units.size())
+							break;
+						
+						Unit unit;
 						::deserialize(ar, &unit);
 						*g_world->units[unit_id] = unit;
+						
+						print_info("Unit update");
 					}
 					break;
 				case ACTION_UNIT_ADD:
