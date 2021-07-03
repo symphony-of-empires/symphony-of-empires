@@ -22,8 +22,9 @@ class Packet {
 	std::vector<uint8_t> bufdata;
 	size_t n_data = 0;
 	PacketCode code = PACKET_OK;
-	int fd;
 public:
+	int fd;
+	
 	Packet(int _fd, std::string buf) : fd(_fd) {
 		n_data = buf.size();
 		bufdata.resize(n_data);

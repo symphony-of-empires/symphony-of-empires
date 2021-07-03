@@ -226,6 +226,7 @@ void Server::net_loop(int id) {
 				packet_mutexes[id].lock();
 				while(!packet_queues[id].empty()) {
 					Packet elem = packet_queues[id].front();
+					elem.fd = conn_fd;
 					packet_queues[id].pop_front();
 					elem.send();
 				}
