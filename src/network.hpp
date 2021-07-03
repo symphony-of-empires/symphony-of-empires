@@ -60,13 +60,11 @@ public:
 		if(write(fd, &net_code, sizeof(net_code)) == -1) {
 			throw std::runtime_error("Socket write error for packet code");
 		}
-		print_info("send net_code %zu", (size_t)ntohl(net_code));
 		
 		const uint32_t net_size = htonl(n_data);
 		if(write(fd, &net_size, sizeof(net_size)) == -1) {
 			throw std::runtime_error("Socket write error for size of packet");
 		}
-		print_info("send net_size %zu", (size_t)ntohl(net_size));
 		
 		/* Socket writes can only be done 1024 bytes at a time */
 		for(size_t i = 0; i < n_data; ) {
@@ -76,8 +74,6 @@ public:
 			}
 			i += r;
 		}
-		
-		print_info("(host) -> Packet of size %zu, with code %zu", (size_t)n_data, (size_t)net_code);
 	}
 
 	void send(void) {
@@ -101,7 +97,6 @@ public:
 		
 		n_data = (size_t)ntohl(net_size);
 		bufdata.resize(n_data + 1);
-		print_info("recv n_data %zu", (size_t)n_data);
 		
 		/* Reads can only be done 1024 bytes at a time */
 		for(size_t i = 0; i < n_data; ) {
@@ -114,8 +109,6 @@ public:
 		
 		if(buf != nullptr)
 			memcpy(buf, &bufdata[0], n_data);
-		
-		print_info("(host) <- Packet of size %zu, with code %zu", (size_t)n_data, (size_t)net_code);
 	}
 	
 	void recv(void) {
@@ -128,21 +121,25 @@ public:
 };
 
 #include <deque>
+#include <mutex>
 class Server {
 	struct sockaddr_in addr;
 	int fd;
 
 	std::vector<std::thread> threads;
+	
+	std::vector<std::mutex> packet_mutexes;
+	std::vector<std::deque<Packet>> packet_queues;
+	
 	std::atomic<bool> run;
 public:
 	Server(unsigned port = 1825, unsigned max_conn = 16);
 	~Server();
-
-	void recv_loop(int conn_fd);
-	void send_loop(void);
+	
+	void broadcast(Packet& packet);
+	void net_loop(int id);
 	
 	int n_clients;
-	std::deque<Packet *> packet_queue;
 };
 
 class Client {
@@ -161,7 +158,7 @@ public:
 	void net_loop(void);
 	void wait_for_snapshot(void);
 	
-	std::deque<Packet *> packet_queue;
+	std::deque<Packet*> packet_queue;
 };
 
 extern Server* g_server;

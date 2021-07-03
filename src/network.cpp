@@ -42,8 +42,10 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 	print_info("Deploying %u threads for clients", max_conn);
 	threads.reserve(max_conn);
 	for(size_t i = 0; i < max_conn; i++) {
-		threads.push_back(std::thread(&Server::send_loop, this));
+		threads.push_back(std::thread(&Server::net_loop, this, i));
 	}
+	packet_queues.resize(max_conn);
+	
 	print_info("Server created sucessfully and listening to %u", port);
 	print_info("Server ready, now people can join!")
 }
@@ -65,11 +67,19 @@ extern World* g_world;
 #include <chrono>
 #include <thread>
 
+void Server::broadcast(Packet& packet) {
+	for(size_t i = 0; i < threads.size(); i++) {
+		packet_mutexes[i].lock();
+		packet_queues[i].push_back(packet);
+		packet_mutexes[i].unlock();
+	}
+}
+
 /* This is the handling thread-function for handling a connection to a single client
  * Sending packets will only be received by the other end, when trying to broadcast please
  * put the packets on the send queue, they will be sent accordingly
  */
-void Server::send_loop(void) {
+void Server::net_loop(int id) {
 	while(run) {
 		try {
 			sockaddr_in client;
@@ -126,11 +136,7 @@ void Server::send_loop(void) {
 						}
 						
 						// Rebroadcast
-						{
-							Packet* elem = new Packet(conn_fd);
-							*elem = packet;
-							packet_queue.push_back(elem);
-						}
+						broadcast(packet);
 						break;
 					case ACTION_NATION_UPDATE:
 						{
@@ -142,11 +148,7 @@ void Server::send_loop(void) {
 						}
 						
 						// Rebroadcast
-						{
-							Packet* elem = new Packet(conn_fd);
-							*elem = packet;
-							packet_queue.push_back(elem);
-						}
+						broadcast(packet);
 						break;
 					case ACTION_PROVINCE_UPDATE:
 						{
@@ -158,11 +160,7 @@ void Server::send_loop(void) {
 						}
 						
 						// Rebroadcast
-						{
-							Packet* elem = new Packet(conn_fd);
-							*elem = packet;
-							packet_queue.push_back(elem);
-						}
+						broadcast(packet);
 						break;
 					/* Action of colonizing a province, this action is then re-broadcasted to all clients
 					 * it's separate from ACTION_PROVINCE_UPDATE by mere convenience for clients(?)
@@ -177,26 +175,18 @@ void Server::send_loop(void) {
 						}
 						
 						// Rebroadcast
-						{
-							Packet* elem = new Packet(conn_fd);
-							*elem = packet;
-							packet_queue.push_back(elem);
-						}
+						broadcast(packet);
 						break;
 					// Gaming chat
 					case ACTION_CHAT_MESSAGE:
 						{
 							std::string msg;
 							::deserialize(ar, &msg);
-							print_info("Message: %s\n", msg);
+							print_info("Message: %s\n", msg.c_str());
 						}
 						
 						// Rebroadcast
-						{
-							Packet* elem = new Packet(conn_fd);
-							*elem = packet;
-							packet_queue.push_back(elem);
-						}
+						broadcast(packet);
 						break;
 					// Nation and province addition and removals are not allowed to be done by clients
 					case ACTION_NATION_ADD:
@@ -211,17 +201,20 @@ void Server::send_loop(void) {
 
 				// After reading everything we will send our queue appropriately
 				// TODO: This only supports 1 client, we should keep track of clients connected to the server
-				while(!packet_queue.empty()) {
-					Packet* elem = packet_queue.front();
-					packet_queue.pop_front();
-					elem->send();
-					delete elem;
+				packet_mutexes[id].lock();
+				while(!packet_queues[id].empty()) {
+					Packet elem = packet_queues[id].front();
+					packet_queues[id].pop_front();
+					elem.send();
 				}
+				packet_mutexes[id].unlock();
 			}
 		} catch(std::runtime_error& e) {
 			print_error("Except: %s", e.what());
 		}
 		
+		// Unlock mutexes so we don't end up with weird situations... like deadlocks
+		packet_mutexes[id].unlock();
 		print_info("Client connection closed");
 	}
 }

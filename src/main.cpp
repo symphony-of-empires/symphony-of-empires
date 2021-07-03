@@ -26,6 +26,7 @@ std::atomic<bool> do_start;
 std::mutex world_lock;
 std::string server_addr;
 
+#include <iostream>
 int main(int argc, char ** argv) {
 	setlocale(LC_ALL, "");
 	bindtextdomain("main", Path::get("locale").c_str());
@@ -35,7 +36,7 @@ int main(int argc, char ** argv) {
 	// Run as a server for servicing multiple clients
 	if(argc > 1 && !strcmp(argv[1], "server")) {
 		World* world = new World(false);
-		Server* server = new Server(4206);
+		Server* server = new Server(1825);
 		
 		Archive* stream;
 		
@@ -56,10 +57,11 @@ int main(int argc, char ** argv) {
 			server_addr = "127.0.0.1";
 			print_info("No IP specified, assuming default %s", server_addr.c_str());
 		}
+		
 		print_info("Connecting to server with IP %s", server_addr.c_str());
 		
 		World* world = new World(true);
-		Client* client = new Client(server_addr, 4206);
+		Client* client = new Client(server_addr, 1825);
 		client->wait_for_snapshot();
 		
 		printf("%s\n", gettext("launching rendering thread"));
@@ -69,9 +71,6 @@ int main(int argc, char ** argv) {
 		
 		paused = false;
 		while(run) {
-			std::unique_lock<std::mutex> lock(world_lock);
-			world->do_tick();
-			world->client_update();
 			while(paused);
 		}
 		

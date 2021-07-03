@@ -900,6 +900,9 @@ void select_nation(void) {
 	
 	const Texture& map_overlay = g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
 	
+	// should call on ACTION_WORLD_TICK
+	//world->client_update();
+	
 	cam.x = -100.f;
 	cam.y = 100.f;
 	cam.z = -400.f;
