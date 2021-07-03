@@ -109,7 +109,7 @@ void Server::net_loop(int id) {
 
 			while(run) {
 				int has_pending = 1;
-
+				
 				// Read the messages if there is any pending bytes on the tx
 				while(has_pending) {
 					ioctl(conn_fd, FIONREAD, &has_pending);
@@ -147,7 +147,7 @@ void Server::net_loop(int id) {
 							Unit* unit = new Unit();
 							::deserialize(ar, unit);
 							g_world->units.push_back(unit);
-							delete unit;
+							print_info("New unit of %s", unit->owner->name.c_str());
 						}
 						g_world->units_mutex.unlock();
 						
@@ -184,7 +184,6 @@ void Server::net_loop(int id) {
 							Province* province = new Province();
 							::deserialize(ar, province);
 							g_world->provinces.push_back(province);
-							delete province;
 						}
 						g_world->provinces_mutex.unlock();
 						
@@ -222,9 +221,8 @@ void Server::net_loop(int id) {
 						break;
 					}
 				}
-
+				
 				// After reading everything we will send our queue appropriately
-				// TODO: This only supports 1 client, we should keep track of clients connected to the server
 				packet_mutexes[id].lock();
 				while(!packet_queues[id].empty()) {
 					Packet elem = packet_queues[id].front();
@@ -292,7 +290,7 @@ void Client::net_loop(void) {
 		
 		while(1) {
 			int has_pending = 1;
-
+			
 			// Read the messages if there is any pending bytes on the tx
 			while(has_pending) {
 				ioctl(this->get_fd(), FIONREAD, &has_pending);
@@ -355,6 +353,7 @@ void Client::net_loop(void) {
 						Unit* unit = new Unit();
 						::deserialize(ar, unit);
 						g_world->units.push_back(unit);
+						print_info("New unit of %s", unit->owner->name.c_str());
 					}
 					g_world->units_mutex.unlock();
 					break;
@@ -362,7 +361,7 @@ void Client::net_loop(void) {
 					break;
 				}
 			}
-
+			
 			// Client will also flush it's queue to the server
 			packet_mutex.lock();
 			while(!packet_queue.empty()) {
