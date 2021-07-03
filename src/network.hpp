@@ -88,7 +88,6 @@ public:
 		}
 		net_code  = ntohl(net_code);
 		code = (PacketCode)net_code;
-		print_info("recv net_code %zu", (size_t)net_code);
 
 		uint32_t net_size;
 		if(::recv(fd, &net_size, sizeof(net_size), MSG_WAITALL) == -1) {

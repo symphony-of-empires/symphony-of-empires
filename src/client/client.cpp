@@ -1014,7 +1014,10 @@ void select_nation(void) {
 							::serialize(ar, &unit);
 							
 							packet.data(ar.get_buffer(), ar.size());
+							
+							g_client->packet_mutex.lock();
 							g_client->packet_queue.push_back(packet);
+							g_client->packet_mutex.unlock();
 						} else if(event.button.button == SDL_BUTTON_RIGHT) {
 							if(selected_unit != nullptr) {
 								selected_unit->tx = select_pos.first;
