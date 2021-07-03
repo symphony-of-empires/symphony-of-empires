@@ -14,6 +14,10 @@
 #include "print.hpp"
 #include "pathfinding.hpp"
 
+#include "serializer.hpp"
+#include "io_impl.hpp"
+#include "network.hpp"
+
 // Mostly used by clients and lua API
 World* g_world;
 
@@ -463,11 +467,6 @@ void World::do_tick() {
 	default:
 		break;
 	}
-
-	// Do diplomacy
-	for(auto& nation: nations) {
-		// TODO: Do a nation AI that does something
-	}
 	
 	// Evaluate units
 	units_mutex.lock();
@@ -596,6 +595,27 @@ void World::do_tick() {
 			nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
 		}
 	}
+	
+	size_t i = 0;
+	for(const auto& unit: g_world->units) {
+		// Broadcast to clients
+		Packet packet = Packet(0);
+		Archive ar = Archive();
+		
+		enum ActionType action = ACTION_UNIT_UPDATE;
+		::serialize(ar, &action);
+		
+		UnitId unit_id = (UnitId)i;
+		::serialize(ar, &unit_id);
+		
+		::serialize(ar, &unit);
+		
+		packet.data(ar.get_buffer(), ar.size());
+		g_server->broadcast(packet);
+		
+		i++;
+	}
+	
 	units_mutex.unlock();
 	
 	LuaAPI::check_events(lua);
