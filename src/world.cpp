@@ -552,7 +552,7 @@ void World::do_tick() {
 				}
 			} else {
 				// Foes from many ranges counts
-				if(std::abs(unit->x - other_unit->x) >= 4.f && std::abs(unit->y - other_unit->y) >= 4.f)
+				if(std::abs(unit->x - other_unit->x) >= 1.f && std::abs(unit->y - other_unit->y) >= 1.f)
 					continue;
 				
 				n_foes++;
@@ -570,29 +570,6 @@ void World::do_tick() {
 		}
 
 		float new_tx, new_ty;
-
-		// Too much enemies, retreat
-		if(nearest_foe != nullptr && (n_foes / 3) > n_friends) {
-			// Go away from foes
-			unit->tx = (nearest_foe->x > unit->x) ? nearest_foe->x : nearest_foe->x;
-			unit->ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
-			
-			// Attack nearest foe when possible
-			if(std::abs(unit->x - nearest_foe->x) <= 1.f && std::abs(unit->y - nearest_foe->y) <= 1.f) {
-				nearest_foe->size -= (unit->type->attack* unit->size) / (nearest_foe->type->defense* nearest_foe->size);
-			}
-		}
-		// The gang is able to attack, so we attack
-		else if(nearest_foe != nullptr) {
-			// Attack enemies
-			unit->tx = (nearest_foe->x > unit->x) ? nearest_foe->x : nearest_foe->x;
-			unit->ty = (nearest_foe->y > unit->y) ? nearest_foe->y : nearest_foe->y;
-			
-			// If in distance, do attack
-			if(std::abs(unit->x - nearest_foe->x) <= 1.f && std::abs(unit->y - nearest_foe->y) <= 1.f) {
-				nearest_foe->size -= (unit->type->attack* unit->size) / (nearest_foe->type->defense* nearest_foe->size);
-			}
-		}
 		new_tx = unit->tx;
 		new_ty = unit->ty;
 
@@ -616,6 +593,11 @@ void World::do_tick() {
 			end_y -= speed;
 		else if(unit->y < new_ty)
 			end_y += speed;
+		
+		// Make the unit attack automatically
+		if(nearest_foe != nullptr) {
+			nearest_foe->size -= unit->type->attack;
+		}
 
 		// This code prevents us from stepping onto water tiles (but allows for rivers)
 		if(get_tile(end_x, end_y).elevation <= sea_level) {

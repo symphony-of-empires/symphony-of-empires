@@ -581,11 +581,12 @@ void select_nation(void) {
 							::serialize(ar, &action);
 							Unit unit = Unit();
 							unit.owner = g_world->nations[curr_selected_nation];
-							unit.size = 1000;
 							unit.x = select_pos.first;
 							unit.y = select_pos.second;
 							unit.tx = unit.x;
 							unit.ty = unit.y;
+							unit.type = g_world->unit_types[0];
+							unit.size = unit.type->max_health;
 							::serialize(ar, &unit);
 							packet.data(ar.get_buffer(), ar.size());
 							g_client->packet_queue.push_back(packet);
@@ -874,7 +875,7 @@ void select_nation(void) {
 			const float size = 1.f;
 			NationId nation_id = g_world->get_id(unit->owner);
 			
-			/*if(unit->size && unit->type->max_health) {
+			if(unit->size) {
 				glBegin(GL_QUADS);
 				glColor3f(0.f, 1.f, 0.f);
 				glVertex2f(unit->x, unit->y - 1.f);
@@ -883,10 +884,6 @@ void select_nation(void) {
 				glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.25f);
 				glVertex2f(unit->x, unit->y - 1.2f);
 				glEnd();
-			}*/
-			
-			if(unit->owner == nullptr || nation_id == (NationId)-1) {
-				continue;
 			}
 			
 			glBindTexture(GL_TEXTURE_2D, nation_flags[nation_id]->gl_tex_num);

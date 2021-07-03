@@ -10,6 +10,10 @@ extern std::pair<int, int> mouse_pos;
 #include "nation.hpp"
 extern Nation* curr_nation;
 
+#include "serializer.hpp"
+#include "io_impl.hpp"
+#include "network.hpp"
+
 void ui_reform_policies(UI::Widget&, void *) {
 	reform = &g_texture_manager->load_texture(Path::get("ui/reform_win.png"));
 	button_ppv = &g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
@@ -401,7 +405,20 @@ void ui_reform_policies(UI::Widget&, void *) {
 	enact_btn->below_of(dynamic_cast<const UI::Widget&>(*property_btn));
 	enact_btn->current_texture = button_ppv;
 	enact_btn->on_click = [](UI::Widget&, void *) {
-		// TODO: Actually do something
+		g_client->packet_mutex.lock();
+		Packet packet = Packet(g_client->get_fd());
+		Archive ar = Archive();
+		
+		enum ActionType action = ACTION_NATION_ENACT_POLICY;
+		::serialize(ar, &action);
+		
+		NationId nation_id = g_world->get_id(curr_nation);
+		::serialize(ar, &nation_id);
+		::serialize(ar, &curr_nation->current_policy);
+		
+		packet.data(ar.get_buffer(), ar.size());
+		g_client->packet_queue.push_back(packet);
+		g_client->packet_mutex.unlock();
 	};
 	
 	UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_ppv->width, button_ppv->height, reform_win);
