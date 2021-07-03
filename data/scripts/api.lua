@@ -74,6 +74,9 @@ function Province:get(province, ref_name)
 	province.id, province.ref_name, province.name, province.color = get_province(ref_name)
 	return province
 end
+function Province:add_industry(province, industry_type, company)
+	add_province_industry(province.id, company.id, industry_type.id)
+end
 function Province:give_to(province, nation)
 	give_province_to(province.id, nation.id)
 end
