@@ -19,6 +19,9 @@ enum ActionType {
 	ACTION_UNIT_REMOVE,
 	ACTION_UNIT_CHANGE_TARGET,
 
+	// Tell client that a whole tick has been done :D
+	ACTION_WORLD_TICK,
+
 	// Gaming chatting
 	ACTION_CHAT_MESSAGE,
 	ACTION_CHAT_NICKNAME,

@@ -464,6 +464,56 @@ void World::do_tick() {
 	case 36:
 		Economy::do_phase_4(*this);
 		break;
+	// 24:00, this is where clients are sent all information **at once**
+	case 48:
+		{
+			size_t i;
+			
+			i = 0;
+			nations_mutex.lock();
+			for(const auto& nation: g_world->nations) {
+				// Broadcast to clients
+				Packet packet = Packet(0);
+				Archive ar = Archive();
+				
+				enum ActionType action = ACTION_NATION_UPDATE;
+				::serialize(ar, &action);
+				
+				NationId nation_id = (NationId)i;
+				::serialize(ar, &nation_id);
+				
+				::serialize(ar, &nation);
+				
+				packet.data(ar.get_buffer(), ar.size());
+				g_server->broadcast(packet);
+				
+				i++;
+			}
+			nations_mutex.unlock();
+			
+			i = 0;
+			provinces_mutex.lock();
+			for(const auto& province: g_world->provinces) {
+				// Broadcast to clients
+				Packet packet = Packet(0);
+				Archive ar = Archive();
+				
+				enum ActionType action = ACTION_PROVINCE_UPDATE;
+				::serialize(ar, &action);
+				
+				ProvinceId province_id = (ProvinceId)i;
+				::serialize(ar, &province_id);
+				
+				::serialize(ar, &province);
+				
+				packet.data(ar.get_buffer(), ar.size());
+				g_server->broadcast(packet);
+				
+				i++;
+			}
+			provinces_mutex.unlock();
+		}
+		break;
 	default:
 		break;
 	}
@@ -615,8 +665,16 @@ void World::do_tick() {
 		
 		i++;
 	}
-	
 	units_mutex.unlock();
+	
+	// Tell clients that this tick has been done
+	Packet packet = Packet(0);
+	Archive ar = Archive();
+	enum ActionType action = ACTION_WORLD_TICK;
+	::serialize(ar, &action);
+	::serialize(ar, &g_world->time);
+	packet.data(ar.get_buffer(), ar.size());
+	g_server->broadcast(packet);
 	
 	LuaAPI::check_events(lua);
 	

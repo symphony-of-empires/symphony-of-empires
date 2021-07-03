@@ -286,6 +286,8 @@ void Client::net_loop(void) {
 	::deserialize(ar, g_world);
 	
 	has_snapshot = true;
+	
+	extern void client_update(void);
 	try {
 		enum ActionType action;
 		
@@ -365,6 +367,9 @@ void Client::net_loop(void) {
 						print_info("New unit of %s", unit->owner->name.c_str());
 					}
 					g_world->units_mutex.unlock();
+					break;
+				case ACTION_WORLD_TICK:
+					::deserialize(ar, &g_world->time);
 					break;
 				default:
 					break;
