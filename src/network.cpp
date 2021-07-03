@@ -343,6 +343,16 @@ void Client::net_loop(void) {
 						*g_world->nations[nation_id] = nation;
 					}
 					break;
+				case ACTION_NATION_ENACT_POLICY:
+					{
+						NationId nation_id;
+						::deserialize(ar, &nation_id);
+						
+						Policies policy;
+						::deserialize(ar, &policy);
+						g_world->nations[nation_id]->current_policy = policy;
+					}
+					break;
 				case ACTION_UNIT_UPDATE:
 					{
 						UnitId unit_id;
