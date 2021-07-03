@@ -657,8 +657,7 @@ void World::do_tick() {
 		
 		UnitId unit_id = (UnitId)i;
 		::serialize(ar, &unit_id);
-		
-		::serialize(ar, &unit);
+		::serialize(ar, unit);
 		
 		packet.data(ar.get_buffer(), ar.size());
 		g_server->broadcast(packet);

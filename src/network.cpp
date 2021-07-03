@@ -353,9 +353,10 @@ void Client::net_loop(void) {
 						
 						Unit unit;
 						::deserialize(ar, &unit);
-						*g_world->units[unit_id] = unit;
 						
-						print_info("Unit update");
+						g_world->units_mutex.lock();
+						*g_world->units[unit_id] = unit;
+						g_world->units_mutex.unlock();
 					}
 					break;
 				case ACTION_UNIT_ADD:
