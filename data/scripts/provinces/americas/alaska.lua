@@ -17,6 +17,7 @@ Province:add_pop(province, laborer, russian, orthodox, 2700, 0.8)
 Province:add_pop(province, entrepreneur, russian, orthodox, 100, 0.9)
 Province:add_nucleus(province, russia)
 Province:give_to(province, russia)
+Province:
 
 -- Change to Inner Alaska if taken by US or UK
 province = Province:create{ ref_name = "vnutrennyaya_alyaska", color = rgb(212, 198, 255) }
