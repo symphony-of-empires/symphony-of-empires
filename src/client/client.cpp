@@ -753,6 +753,10 @@ void client_update(void) {
 	// this function **should** be called per tick
 	std::unique_lock<std::mutex> lock(render_lock);
 	
+	if(current_mode == MAP_MODE_COUNTRY_SELECT) {
+		return;
+	}
+	
 	const Nation& player_nation = *g_world->nations[curr_selected_nation];
 	if((g_world->time % 48) == 16) {
 		// Charts for the GDP of the nation
@@ -913,9 +917,6 @@ void select_nation(void) {
 		nation_flags.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
 	}
 	
-	// should call on ACTION_WORLD_TICK
-	//world->client_update();
-	
 	cam.x = -100.f;
 	cam.y = 100.f;
 	cam.z = -400.f;
@@ -961,7 +962,13 @@ void select_nation(void) {
 	Unit* selected_unit = nullptr;
 	
 	size_t last_inbox_size = 0;
+	int last_time = 0;
 	while(run) {
+		if(last_time != g_world->time) {
+			last_time = g_world->time;
+			client_update();
+		}
+		
 		std::unique_lock<std::mutex> lock(render_lock);
 		
 		SDL_Event event;
@@ -1285,7 +1292,7 @@ void select_nation(void) {
 		glRotatef(180.f, 1.0f, 0.0f, 0.0f);
 		glRotatef(0.f, 0.0f, 1.0f, 0.0f);
 		glRotatef(cam.z_angle, 0.0f, 0.0f, 1.0f);
-
+		
 		map->draw(cam.z);
 		
 		glBindTexture(GL_TEXTURE_2D, map_overlay.gl_tex_num);
@@ -1305,10 +1312,20 @@ void select_nation(void) {
 		g_world->units_mutex.lock();
 		for(const auto& unit: g_world->units) {
 			const float size = 1.f;
-
-			//glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(unit->owner)]->gl_tex_num);
+			
+			/*
 			glBegin(GL_QUADS);
-
+			glColor3f(0.f, 1.f, 0.f);
+			glVertex2f(unit->x, unit->y - 1.f);
+			glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
+			glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
+			glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.25f);
+			glVertex2f(unit->x, unit->y - 1.2f);
+			glEnd();
+			*/
+			
+			glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(unit->owner)]->gl_tex_num);
+			glBegin(GL_QUADS);
 			glColor4f(1.f, 1.f, 1.f, 0.8f);
 			glTexCoord2f(0.f, 0.f);
 			glVertex2f(unit->x, unit->y);
@@ -1318,7 +1335,6 @@ void select_nation(void) {
 			glVertex2f(unit->x + size, unit->y + size);
 			glTexCoord2f(0.f, 1.f);
 			glVertex2f(unit->x, unit->y + size);
-
 			glEnd();
 		}
 		g_world->units_mutex.unlock();
