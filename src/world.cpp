@@ -468,8 +468,9 @@ void World::do_tick() {
 	for(auto& nation: nations) {
 		// TODO: Do a nation AI that does something
 	}
-
+	
 	// Evaluate units
+	units_mutex.lock();
 	for(size_t i = 0; i < units.size(); i++) {
 		Unit* unit = units[i];
 		if(unit->size <= 0) {
@@ -595,9 +596,10 @@ void World::do_tick() {
 			nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
 		}
 	}
-
+	units_mutex.unlock();
+	
 	LuaAPI::check_events(lua);
-
+	
 	time++;
 }
 

@@ -45,6 +45,7 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 		threads.push_back(std::thread(&Server::net_loop, this, i));
 	}
 	packet_queues.resize(max_conn);
+	packet_mutexes = new std::mutex[max_conn];
 	
 	print_info("Server created sucessfully and listening to %u", port);
 	print_info("Server ready, now people can join!")
@@ -67,6 +68,8 @@ extern World* g_world;
 #include <chrono>
 #include <thread>
 
+/** This will broadcast the given packet to all clients currently on the server
+ */
 void Server::broadcast(Packet& packet) {
 	for(size_t i = 0; i < threads.size(); i++) {
 		packet_mutexes[i].lock();
@@ -75,7 +78,7 @@ void Server::broadcast(Packet& packet) {
 	}
 }
 
-/* This is the handling thread-function for handling a connection to a single client
+/** This is the handling thread-function for handling a connection to a single client
  * Sending packets will only be received by the other end, when trying to broadcast please
  * put the packets on the send queue, they will be sent accordingly
  */
@@ -97,7 +100,7 @@ void Server::net_loop(int id) {
 			
 			// Send the whole snapshot of the world
 			Archive ar = Archive();
-			serialize(ar, g_world);
+			::serialize(ar, g_world);
 			packet.send(ar.get_buffer(), ar.size());
 			
 			enum ActionType action = ACTION_PING;
@@ -138,6 +141,19 @@ void Server::net_loop(int id) {
 						// Rebroadcast
 						broadcast(packet);
 						break;
+					case ACTION_UNIT_ADD:
+						g_world->units_mutex.lock();
+						{
+							Unit* unit = new Unit();
+							::deserialize(ar, unit);
+							g_world->units.push_back(unit);
+							delete unit;
+						}
+						g_world->units_mutex.unlock();
+						
+						// Rebroadcast
+						broadcast(packet);
+						break;
 					case ACTION_NATION_UPDATE:
 						{
 							NationId nation_id;
@@ -158,6 +174,19 @@ void Server::net_loop(int id) {
 							::deserialize(ar, &province_id);
 							*g_world->provinces[province_id] = province;
 						}
+						
+						// Rebroadcast
+						broadcast(packet);
+						break;
+					case ACTION_PROVINCE_ADD:
+						g_world->provinces_mutex.lock();
+						{
+							Province* province = new Province();
+							::deserialize(ar, province);
+							g_world->provinces.push_back(province);
+							delete province;
+						}
+						g_world->provinces_mutex.unlock();
 						
 						// Rebroadcast
 						broadcast(packet);
@@ -189,11 +218,6 @@ void Server::net_loop(int id) {
 						broadcast(packet);
 						break;
 					// Nation and province addition and removals are not allowed to be done by clients
-					case ACTION_NATION_ADD:
-					case ACTION_NATION_REMOVE:
-					case ACTION_PROVINCE_ADD:
-					case ACTION_PROVINCE_REMOVE:
-						break;
 					default:
 						break;
 					}
@@ -220,7 +244,10 @@ void Server::net_loop(int id) {
 }
 
 #include <arpa/inet.h>
+Client* g_client = nullptr;
 Client::Client(std::string host, const unsigned port) {
+	g_client = this;
+	
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(fd < 0) {
 		print_error("Cannot create client socket");
@@ -322,19 +349,28 @@ void Client::net_loop(void) {
 						*g_world->units[unit_id] = unit;
 					}
 					break;
+				case ACTION_UNIT_ADD:
+					g_world->units_mutex.lock();
+					{
+						Unit* unit = new Unit();
+						::deserialize(ar, unit);
+						g_world->units.push_back(unit);
+					}
+					g_world->units_mutex.unlock();
+					break;
 				default:
 					break;
 				}
 			}
 
 			// Client will also flush it's queue to the server
+			packet_mutex.lock();
 			while(!packet_queue.empty()) {
-				Packet* elem;
-				elem = packet_queue.front();
+				Packet elem = packet_queue.front();
 				packet_queue.pop_front();
-				elem->send();
-				delete elem;
+				elem.send();
 			}
+			packet_mutex.unlock();
 		}
 	} catch(std::runtime_error& e) {
 		print_error("Except: %s", e.what());

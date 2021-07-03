@@ -17,6 +17,10 @@
 #include "ui.hpp"
 #include "map.hpp"
 
+#include "network.hpp"
+#include "serializer.hpp"
+#include "io_impl.hpp"
+
 extern TextureManager* g_texture_manager;
 int width = 1280;
 int height = 800;
@@ -992,16 +996,25 @@ void select_nation(void) {
 							if(selected_unit != nullptr) {
 								break;
 							}
-							/*
-							Unit* unit = new Unit();
-							unit->owner = g_world->nations[curr_selected_nation];
-							unit->size = 1000;
-							unit->x = select_pos.first;
-							unit->y = select_pos.second;
-							unit->tx = unit->x;
-							unit->ty = unit->y;
-							g_world->units.push_back(unit);
-							*/
+							
+							// Send broadcast to server
+							Packet packet = Packet(g_client->get_fd());
+							Archive ar = Archive();
+							
+							enum ActionType action = ACTION_UNIT_ADD;
+							::serialize(ar, &action);
+							
+							Unit unit = Unit();
+							unit.owner = g_world->nations[curr_selected_nation];
+							unit.size = 1000;
+							unit.x = select_pos.first;
+							unit.y = select_pos.second;
+							unit.tx = unit.x;
+							unit.ty = unit.y;
+							::serialize(ar, &unit);
+							
+							packet.data(ar.get_buffer(), ar.size());
+							g_client->packet_queue.push_back(packet);
 						} else if(event.button.button == SDL_BUTTON_RIGHT) {
 							if(selected_unit != nullptr) {
 								selected_unit->tx = select_pos.first;
@@ -1267,7 +1280,8 @@ void select_nation(void) {
 		glVertex2f(0.f, 0.f + g_world->height);
 		glEnd();
 		glBindTexture(GL_TEXTURE_2D, 0);
-
+		
+		g_world->units_mutex.lock();
 		for(const auto& unit: g_world->units) {
 			const float size = 1.f;
 
@@ -1286,6 +1300,7 @@ void select_nation(void) {
 
 			glEnd();
 		}
+		g_world->units_mutex.unlock();
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		if(selected_unit != nullptr) {

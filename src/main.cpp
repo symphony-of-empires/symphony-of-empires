@@ -36,7 +36,7 @@ int main(int argc, char ** argv) {
 	// Run as a server for servicing multiple clients
 	if(argc > 1 && !strcmp(argv[1], "server")) {
 		World* world = new World(false);
-		Server* server = new Server(1825);
+		Server* server = new Server(1835);
 		
 		Archive* stream;
 		
@@ -46,6 +46,7 @@ int main(int argc, char ** argv) {
 		while(run) {
 			std::unique_lock<std::mutex> lock(world_lock);
 			world->do_tick();
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 			while(paused);
 		}
 	}
@@ -61,7 +62,7 @@ int main(int argc, char ** argv) {
 		print_info("Connecting to server with IP %s", server_addr.c_str());
 		
 		World* world = new World(true);
-		Client* client = new Client(server_addr, 1825);
+		Client* client = new Client(server_addr, 1835);
 		client->wait_for_snapshot();
 		
 		printf("%s\n", gettext("launching rendering thread"));
