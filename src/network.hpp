@@ -127,9 +127,9 @@ class Server {
 	int fd;
 
 	std::vector<std::thread> threads;
-	
-	std::vector<std::mutex> packet_mutexes;
 	std::vector<std::deque<Packet>> packet_queues;
+	// std::vector hates mutexes because they are not copy-able
+	std::mutex* packet_mutexes;
 	
 	std::atomic<bool> run;
 public:
@@ -158,9 +158,11 @@ public:
 	void net_loop(void);
 	void wait_for_snapshot(void);
 	
-	std::deque<Packet*> packet_queue;
+	std::mutex packet_mutex;
+	std::deque<Packet> packet_queue;
 };
 
 extern Server* g_server;
+extern Client* g_client;
 
 #endif
