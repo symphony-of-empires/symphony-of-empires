@@ -12,6 +12,30 @@ function Good:get(good, ref_name)
 	return good
 end
 
+UnitTrait = {
+	id = 0,
+	ref_name = "",
+	supply_consumption_mod = 1.0,
+	speed_mod = 1.0,
+	max_health_mod = 1.0,
+	defense_mod = 1.0,
+	attack_mod = 1.0
+}
+function UnitTrait:create(unit_trait)
+	unit_trait.parent = self
+	return unit_trait
+end
+function UnitTrait:register(unit_trait)
+	unit_trait.id = add_unit_trait(
+		unit_trait.ref_name,
+		unit_trait.supply_consumption_mod,
+		unit_trait.speed_mod,
+		unit_trait.max_health_mod,
+		unit_trait.defense_mod,
+		unit_trait.attack_mod
+	)
+end
+
 Company = { id = 0, name = "", is_transport = false, is_retailer = false, is_industry = false, money = 0, }
 function Company:create(company)
 	company.parent = self
