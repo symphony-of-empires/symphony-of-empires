@@ -614,6 +614,8 @@ andes_transport = Company:create{ name = "Andes Transport", money = 10000000, is
 Company:register(andes_transport)
 mexico_transport = Company:create{ name = "Mexico Transport", money = 10000000, is_transport = true }
 Company:register(mexico_transport)
+royal_russia_transport = Company:create{ name = "Royal Russia Transport", money = 10000000, is_transport = true }
+Company:register(mexico_transport)
 --------------------------------------------------------------------------------------------------------------------
 
 -- Provinces
