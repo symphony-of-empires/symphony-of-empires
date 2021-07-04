@@ -14,6 +14,7 @@
 typedef uint8_t UnitTypeId;
 class UnitType {
 public:
+	using id = UnitTypeId;
 	std::string name;
 	std::string ref_name;
 	
@@ -33,6 +34,7 @@ public:
 typedef uint8_t BoatTypeId;
 class BoatType {
 public:
+	using id = BoatTypeId;
 	std::string name;
 	std::string ref_name;
 	
@@ -44,7 +46,24 @@ public:
 	// Capacity of stuff (units) that can be carried here
 	size_t capacity;
 
+	// Required goods, first describes the id of the good and the second describes how many
 	std::vector<std::pair<Good *, size_t>> req_goods;
+};
+
+/** A trait for an unit; given randomly per each recruited unit
+ */
+typedef uint8_t UnitTraitId;
+class UnitTrait {
+public:
+	using id = UnitTraitId;
+	
+	std::string ref_name;
+	
+	float supply_consumption_mod;
+	float speed_mod;
+	float max_health_mod;
+	float defense_mod;
+	float attack_mod;
 };
 
 #include "nation.hpp"
@@ -56,6 +75,8 @@ typedef uint32_t UnitId;
  */
 class Unit {
 public:
+	using id = UnitId;
+	
 	// Type of unit
 	UnitType* type;
 
@@ -76,8 +97,8 @@ public:
 	// Used to "ignore" an unit when doing any check, this allows other units to
 	// attack this unit
 	bool ignore_tag;
-
-	std::vector<std::pair<Good *, size_t>> req_goods;
+	
+	std::vector<UnitTrait*> traits;
 };
 
 /**
@@ -102,6 +123,7 @@ public:
 	// Remaining ticks until the unit is built
 	uint16_t build_time;
 
+	// Required goods, first describes the id of the good and the second describes how many
 	std::vector<std::pair<Good *, size_t>> req_goods;
 };
 

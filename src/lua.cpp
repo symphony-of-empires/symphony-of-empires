@@ -27,6 +27,18 @@
 // Global world - do not use too much!
 extern World* g_world;
 
+int LuaAPI::add_unit_trait(lua_State* L) {
+	UnitTrait* unit_trait = new UnitTrait();
+
+	unit_trait->ref_name = lua_tostring(L, 1);
+	unit_trait->supply_consumption_mod = lua_tonumber(L, 2);
+	unit_trait->speed_mod = lua_tonumber(L, 3);
+
+	g_world->unit_traits.push_back(unit_trait);
+	lua_pushnumber(L, g_world->unit_traits.size() - 1);
+	return 1;
+}
+
 int LuaAPI::add_good(lua_State* L) {
 	Good* good = new Good();
 

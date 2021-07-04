@@ -64,6 +64,8 @@ World::World(bool empty) {
 	// Register our API functions
 	lua_register(this->lua, "_", LuaAPI::get_text);
 
+	lua_register(this->lua, "add_unit_trait", LuaAPI::add_unit_trait);
+
 	lua_register(this->lua, "add_good", LuaAPI::add_good);
 	lua_register(this->lua, "get_good", LuaAPI::get_good);
 
@@ -715,6 +717,11 @@ UnitTypeId World::get_id(const UnitType* ptr) const {
 BoatTypeId World::get_id(const BoatType* ptr) const {
 	//std::lock_guard<std::mutex> lock(boat_types_mutex);
 	return get_id_ptr<BoatTypeId>(ptr, boat_types);
+}
+
+UnitTraitId World::get_id(const UnitTrait* ptr) const {
+	//std::lock_guard<std::mutex> lock(unit_traits_mutex);
+	return get_id_ptr<UnitTraitId>(ptr, unit_traits);
 }
 
 UnitId World::get_id(const Unit* ptr) const {
