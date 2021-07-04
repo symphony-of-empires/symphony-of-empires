@@ -33,7 +33,10 @@ int LuaAPI::add_unit_trait(lua_State* L) {
 	unit_trait->ref_name = lua_tostring(L, 1);
 	unit_trait->supply_consumption_mod = lua_tonumber(L, 2);
 	unit_trait->speed_mod = lua_tonumber(L, 3);
-
+	unit_trait->max_health_mod = lua_tonumber(L, 4);
+	unit_trait->defense_mod = lua_tonumber(L, 5);
+	unit_trait->attack_mod = lua_tonumber(L, 6);
+	
 	g_world->unit_traits.push_back(unit_trait);
 	lua_pushnumber(L, g_world->unit_traits.size() - 1);
 	return 1;
