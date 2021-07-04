@@ -97,7 +97,7 @@ public:
 	IndustryType* type;
 
 	// Total money that the factory has
-	float budget;
+	float budget = 0.f;
 
 	// Days that the factory has not been operational
 	size_t days_unoperational = 0;
@@ -115,10 +115,10 @@ public:
 	float min_quality = 0.f;
 
 	// The pay we are willing to give
-	size_t willing_payment;
+	size_t willing_payment = 0;
 	
 	// How many workers are in the industry
-	size_t workers;
+	size_t workers = 0;
 };
 
 typedef uint16_t ProductId;

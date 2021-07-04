@@ -324,6 +324,7 @@ void Client::net_loop(void) {
 				// deserializer will deserialize onto the final object; after this the operation
 				// desired is done.
 				case ACTION_PROVINCE_UPDATE:
+					g_world->provinces_mutex.lock();
 					{
 						ProvinceId province_id;
 						::deserialize(ar, &province_id);
@@ -332,6 +333,7 @@ void Client::net_loop(void) {
 						::deserialize(ar, &province);
 						*g_world->provinces[province_id] = province;
 					}
+					g_world->provinces_mutex.unlock();
 					break;
 				case ACTION_NATION_UPDATE:
 					{
