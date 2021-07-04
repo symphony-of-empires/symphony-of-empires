@@ -391,6 +391,7 @@ void client_update(void) {
 		size_t e = pop_view_nation_page_num* 10;
 		size_t i = 3;
 		
+		g_world->provinces_mutex.lock();
 		for(const auto& province: player_nation.owned_provinces) {
 			if(e >= player_nation.owned_provinces.size()) {
 				sprintf(tmpbuf, "?");
@@ -406,6 +407,7 @@ void client_update(void) {
 			i++;
 			e++;
 		}
+		g_world->provinces_mutex.unlock();
 	} if(industry_view_nation_win != nullptr) {
 		size_t e = industry_view_nation_page_num* 12;
 		size_t i = 3;
@@ -415,6 +417,7 @@ void client_update(void) {
 			total_industries += province->industries.size();
 		}
 		
+		g_world->provinces_mutex.lock();
 		for(const auto& province: player_nation.owned_provinces) {
 			for(const auto& industry: province->industries) {
 				if(e >= total_industries) {
@@ -435,6 +438,7 @@ void client_update(void) {
 			if(i >= industry_view_nation_win->children.size())
 				break;
 		}
+		g_world->provinces_mutex.unlock();
 	}
 	
 	delete[] tmpbuf;
