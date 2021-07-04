@@ -147,52 +147,56 @@ public:
 	size_t width, height;
 
 	// List of units present in the world
-	std::vector<Unit *> units;
+	std::vector<Unit*> units;
 	mutable std::mutex units_mutex;
 
 	// List of goods (product types)
-	std::vector<Good *> goods;
+	std::vector<Good*> goods;
 	mutable std::mutex goods_mutex;
 
 	// List of industry types where industries can be created from
-	std::vector<IndustryType *> industry_types;
+	std::vector<IndustryType*> industry_types;
 	mutable std::mutex industry_types_mutex;
 
 	// List of nations
-	std::vector<Nation *> nations;
+	std::vector<Nation*> nations;
 	mutable std::mutex nations_mutex;
 
 	// List of provinces
-	std::vector<Province *> provinces;
+	std::vector<Province*> provinces;
 	mutable std::mutex provinces_mutex;
 
 	// List of companies
-	std::vector<Company *> companies;
+	std::vector<Company*> companies;
 	mutable std::mutex companies_mutex;
 
 	// List of products
-	std::vector<Product *> products;
+	std::vector<Product*> products;
 	mutable std::mutex products_mutex;
 
 	// List of POPs types
-	std::vector<PopType *> pop_types;
+	std::vector<PopType*> pop_types;
 	mutable std::mutex pop_types_mutex;
 
 	// List of religions
-	std::vector<Religion *> religions;
+	std::vector<Religion*> religions;
 	mutable std::mutex religions_mutex;
 
 	// List of cultures
-	std::vector<Culture *> cultures;
+	std::vector<Culture*> cultures;
 	mutable std::mutex cultures_mutex;
 
 	// List of unit types where units can be created from
-	std::vector<UnitType *> unit_types;
+	std::vector<UnitType*> unit_types;
 	mutable std::mutex unit_types_mutex;
 	
 	// List of naval unit types
-	std::vector<BoatType *> boat_types;
+	std::vector<BoatType*> boat_types;
 	mutable std::mutex boat_types_mutex;
+
+	// List of traits that can be given to units
+	std::vector<UnitTrait*> unit_traits;
+	mutable std::mutex unit_traits_mutex;
 
 	// List of registered events
 	std::vector<Event *> events;
@@ -235,6 +239,7 @@ public:
 	EventId get_id(const Event* ptr) const;
 	UnitTypeId get_id(const UnitType* ptr) const;
 	BoatTypeId get_id(const BoatType* ptr) const;
+	UnitTraitId get_id(const UnitTrait* ptr) const;
 	UnitId get_id(const Unit* ptr) const;
 	
 	size_t get_id(const Tile* ptr) const;
