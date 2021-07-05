@@ -68,13 +68,13 @@ function IndustryType:add_output(industry_type, good)
 	add_output_to_industry_type(industry_type.id, good.id)
 end
 
-Nation = { id = 0, name = "", ref_name = "", color = 0 }
+Nation = { id = 0, name = "", ref_name = "" }
 function Nation:create(nation)
 	nation.parent = self
 	return nation
 end
 function Nation:register(nation)
-	nation.id = add_nation(nation.ref_name, nation.color, nation.name)
+	nation.id = add_nation(nation.ref_name, nation.name)
 end
 function Nation:get(nation, ref_name)
 	nation.parent = self
