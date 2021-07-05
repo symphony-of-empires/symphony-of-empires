@@ -242,7 +242,7 @@ void Server::net_loop(int id) {
 								print_error("Event %s not found", event_ref_name.c_str());
 								break;
 							}
-
+							
 							// Find descision by reference name
 							std::string descision_ref_name;
 							::deserialize(ar, &descision_ref_name);

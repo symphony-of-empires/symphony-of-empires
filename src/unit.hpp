@@ -14,7 +14,7 @@
 typedef uint8_t UnitTypeId;
 class UnitType {
 public:
-	using id = UnitTypeId;
+	using Id = UnitTypeId;
 	std::string name;
 	std::string ref_name;
 	
@@ -34,7 +34,7 @@ public:
 typedef uint8_t BoatTypeId;
 class BoatType {
 public:
-	using id = BoatTypeId;
+	using Id = BoatTypeId;
 	std::string name;
 	std::string ref_name;
 	
@@ -55,7 +55,7 @@ public:
 typedef uint8_t UnitTraitId;
 class UnitTrait {
 public:
-	using id = UnitTraitId;
+	using Id = UnitTraitId;
 	
 	std::string ref_name;
 	
@@ -75,7 +75,7 @@ typedef uint32_t UnitId;
  */
 class Unit {
 public:
-	using id = UnitId;
+	using Id = UnitId;
 	
 	// Type of unit
 	UnitType* type;
@@ -108,7 +108,7 @@ public:
 typedef uint16_t OutpostId;
 class Outpost {
 public:
-	using id = OutpostId;
+	using Id = OutpostId;
 
 	// Position of outpost
 	size_t x;

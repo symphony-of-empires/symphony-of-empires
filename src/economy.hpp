@@ -26,6 +26,8 @@ typedef uint16_t CompanyId;
  */
 class Company {
 public:
+	using Id = CompanyId;
+	
 	// Name of this company
 	std::string name;
 	
@@ -61,6 +63,8 @@ typedef uint8_t GoodId;
  */
 class Good {
 public:
+	using Id = GoodId;
+
 	std::string name = "default";
 	std::string ref_name = "default";
 
@@ -71,6 +75,8 @@ public:
 typedef uint8_t IndustryTypeId;
 class IndustryType {
 public:
+	using Id = IndustryTypeId;
+
 	std::string name;
 	std::string ref_name;
 
@@ -87,6 +93,8 @@ class World;
 typedef uint16_t IndustryId;
 class Industry {
 public:
+	using Id = IndustryId;
+
 	bool can_do_output(const World& world);
 	void add_to_stock(const World& world, const Good* good, size_t add);
 
@@ -111,6 +119,7 @@ public:
 	// Used for faster lookups
 	std::vector<Product *> output_products;
 
+
 	// The desired quality of a product (otherwise it's not accepted)
 	float min_quality = 0.f;
 
@@ -128,6 +137,8 @@ typedef uint16_t ProductId;
  */
 class Product {
 public:
+	using Id = ProductId;
+
 	// Onwer (companyId) of this product
 	Company* owner;
 	

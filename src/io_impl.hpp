@@ -14,29 +14,21 @@
 template<>
 class Serializer<enum ActionType> : public SerializerMemcpy<enum ActionType> {};
 
-// TODO: There is a mess regarding references and stuff - we need to fix that
-
-// TODO: Modify the pointer, since we are only passing the pointer as a temporal on the stack
-// tl;dr we need a pointer to a pointer instead of a pointer - if decoding problems happens
-// this is why
-
-// TODO: We should compile a list of "patches" to apply (since some objects may depend on others
-// which are not fully loaded)
 template<>
 class Serializer<Province*> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& stream, const Province* const* obj) {
-		ProvinceId id = g_world->get_id(*obj);
+		Province::Id id = g_world->get_id(*obj);
 		::serialize(stream, &id);
 	}
 	static inline void deserialize(Archive& stream, Province** obj) {
-		ProvinceId id;
+		Province::Id id;
 		::deserialize(stream, &id);
-		*obj = (id != (ProvinceId)-1) ? g_world->provinces[id] : nullptr;
+		*obj = (id != (Province::Id)-1) ? g_world->provinces[id] : nullptr;
 	}
 	static inline size_t size(const Province* const*) {
-		return sizeof(ProvinceId);
+		return sizeof(Province::Id);
 	}
 };
 
@@ -840,41 +832,40 @@ public:
 	static inline void serialize(Archive& stream, const Industry* obj) {
 		::serialize(stream, &obj->owner);
 		::serialize(stream, &obj->type);
-		
+		::serialize(stream, &obj->budget);
 		::serialize(stream, &obj->days_unoperational);
 		::serialize(stream, &obj->production_cost);
-		
 		::serialize(stream, &obj->stockpile);
 		::serialize(stream, &obj->output_products);
-		
 		::serialize(stream, &obj->min_quality);
 		::serialize(stream, &obj->willing_payment);
+		::serialize(stream, &obj->workers);
 	}
 	static inline void deserialize(Archive& stream, Industry* obj) {
 		::deserialize(stream, &obj->owner);
 		::deserialize(stream, &obj->type);
-		
+		::deserialize(stream, &obj->budget);
 		::deserialize(stream, &obj->days_unoperational);
 		::deserialize(stream, &obj->production_cost);
-		
 		::deserialize(stream, &obj->stockpile);
 		::deserialize(stream, &obj->output_products);
-		
 		::deserialize(stream, &obj->min_quality);
 		::deserialize(stream, &obj->willing_payment);
+		::deserialize(stream, &obj->workers);
 	}
 	static inline size_t size(const Industry* obj) {
 		return
 			serialized_size(&obj->owner)
 			+ serialized_size(&obj->type)
+			+ serialized_size(&obj->budget)
 			+ serialized_size(&obj->days_unoperational)
 			+ serialized_size(&obj->production_cost)
 			+ serialized_size(&obj->stockpile)
 			+ serialized_size(&obj->output_products)
 			+ serialized_size(&obj->min_quality)
 			+ serialized_size(&obj->willing_payment)
+			+ serialized_size(&obj->workers)
 		;
-		// TODO: Rest of fields
 	}
 };
 

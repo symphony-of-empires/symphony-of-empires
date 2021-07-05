@@ -49,6 +49,8 @@ class Nation {
 	inline void do_diplomacy();
 	inline bool can_do_diplomacy();
 public:
+	using Id = NationId;
+	
 	// Whetever thet nation exists at all - we cannot add nations in-game
 	// so we just check if the nation "exists" at all, this means that it has
 	// a presence and a goverment, must own atleast 1 province
