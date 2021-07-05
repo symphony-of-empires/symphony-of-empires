@@ -97,7 +97,6 @@ static void change_country(size_t id) {
 			}
 		}
 	}
-
 	curr_country_btn->text(curr_nation->name.c_str());
 
 	const Province* capital = curr_nation->capital;
