@@ -865,6 +865,9 @@ void LuaAPI::check_events(lua_State* L) {
 	// This is on purpouse ;)
 	for(size_t i = 0; i < g_world->events.size(); i++) {
 		Event* event = g_world->events[i];
+		if(event->checked == true)
+			continue;
+
 		lua_getglobal(L, event->conditions_function.c_str());
 		lua_call(L, 0, 1);
 		bool r = lua_toboolean(L, -1);
@@ -885,9 +888,9 @@ void LuaAPI::check_events(lua_State* L) {
 				nation->inbox.push_back(*event);
 			}
 
-			// Event is removed if it's not of multiple occurences
+			// Event is marked as checked if it's not of multiple occurences
 			if(!multi) {
-				g_world->events.erase(g_world->events.begin() + i);
+				g_world->events[i]->checked = true;
 				break;
 			}
 		}

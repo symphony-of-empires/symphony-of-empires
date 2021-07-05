@@ -13,6 +13,7 @@ enum ActionType {
 	ACTION_NATION_ADD,
 	ACTION_NATION_REMOVE,
 	ACTION_NATION_ENACT_POLICY,
+	ACTION_NATION_TAKE_DESCISION,
 
 	ACTION_UNIT_UPDATE,
 	ACTION_UNIT_ADD,
@@ -21,6 +22,9 @@ enum ActionType {
 
 	// Tell client that a whole tick has been done :D
 	ACTION_WORLD_TICK,
+
+	// Self-explanaitory
+	ACTION_SELECT_NATION,
 
 	// Gaming chatting
 	ACTION_CHAT_MESSAGE,

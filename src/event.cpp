@@ -14,7 +14,6 @@ void Event::take_descision(Nation* sender, Descision* dec) {
 	}
 	
 	// Tell the world that we took a descision
-	print_info("TODO: Serialize this and send it onto the server\n");
 	g_world->taken_descisions.push_back(dec);
 	
 	// Remove from the receivers list so we don't duplicate descisions
