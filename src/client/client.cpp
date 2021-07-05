@@ -108,14 +108,12 @@ static void change_country(size_t id) {
 	}
 }
 
-static UI::Window* top_win,* province_view_win;
-
+UI::Window* top_win;
+static UI::Window* province_view_win;
 static UI::Chart* gdp_chart,* pop_chart,* hdi_chart;
 static UI::Label* total_pop_lab,* total_prestige_lab,* total_economy_lab;
-
 static UI::Label* money_lab,* prestige_lab,* economy_lab,* big_brain_lab,* militancy_lab,* population_lab;
 static UI::Image* money_icon,* prestige_icon,* economy_icon,* big_brain_icon,* militancy_icon,* population_icon;
-
 static UI::Window* pop_view_nation_win = nullptr;
 static uint8_t pop_view_nation_page_num = 0;
 static void pop_view_nation(UI::Widget&, void *) {
@@ -226,7 +224,13 @@ static void industry_view_nation(UI::Widget&, void *) {
 	}
 }
 
+extern void ui_treaty(void);
+
 std::vector<const Texture*> nation_flags;
+
+const Texture& get_nation_flag(Nation& nation) {
+	return *nation_flags[g_world->get_id(&nation)];
+}
 
 std::mutex render_lock;
 static void play_nation(UI::Widget&, void *) {
@@ -402,7 +406,6 @@ void client_update(void) {
 		size_t e = pop_view_nation_page_num* 10;
 		size_t i = 3;
 		
-		g_world->provinces_mutex.lock();
 		for(const auto& province: player_nation.owned_provinces) {
 			if(e >= player_nation.owned_provinces.size()) {
 				sprintf(tmpbuf, "?");
@@ -418,7 +421,6 @@ void client_update(void) {
 			i++;
 			e++;
 		}
-		g_world->provinces_mutex.unlock();
 	} if(industry_view_nation_win != nullptr) {
 		size_t e = industry_view_nation_page_num* 12;
 		size_t i = 3;
@@ -427,8 +429,7 @@ void client_update(void) {
 		for(const auto& province: player_nation.owned_provinces) {
 			total_industries += province->industries.size();
 		}
-		
-		g_world->provinces_mutex.lock();
+
 		for(const auto& province: player_nation.owned_provinces) {
 			for(const auto& industry: province->industries) {
 				if(e >= total_industries) {
@@ -449,9 +450,7 @@ void client_update(void) {
 			if(i >= industry_view_nation_win->children.size())
 				break;
 		}
-		g_world->provinces_mutex.unlock();
 	}
-	
 	delete[] tmpbuf;
 }
 
@@ -631,7 +630,7 @@ void select_nation(void) {
 						
 						if(tile.province_id != (ProvinceId)-1) {
 							province_view_win = new UI::Window(0, 0, province_view_win_tex.width, province_view_win_tex.height);
-							province_view_win->text("Province information");
+							province_view_win->text("Province overview");
 							province_view_win->current_texture = &province_view_win_tex;
 							province_view_win->below_of(dynamic_cast<const UI::Widget&>(*top_win));
 							
@@ -716,6 +715,9 @@ void select_nation(void) {
 					break;
 				case SDLK_p:
 					paused = !paused;
+					break;
+				case SDLK_t:
+					ui_treaty();
 					break;
 				case SDLK_d:
 					UI::Window* debug_win = new UI::Window(0, 0, debug_win_tex.width, debug_win_tex.height);
@@ -820,12 +822,12 @@ void select_nation(void) {
 				// Separate the text line by line
 				const char* buf = msg.text.c_str();
 				char tmpbuf[24];
-				size_t y = 32;
+				size_t y = 38;
 				while(strlen(buf)) {
 					size_t t_len = std::min<size_t>(strlen(buf), 18);
 					memcpy((char*)&tmpbuf, buf, t_len);
 					tmpbuf[t_len] = '\0';
-					new UI::Label(0, y, (const char*)&tmpbuf, popup_win);
+					new UI::Label(8, y, (const char*)&tmpbuf, popup_win);
 					y += 24;
 					buf += t_len;
 				}

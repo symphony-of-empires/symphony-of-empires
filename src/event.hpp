@@ -15,7 +15,7 @@ public:
 typedef uint16_t EventId;
 class Event {
 public:
-	using id = EventId;
+	using Id = EventId;
 	
 	std::string ref_name;
 	std::string conditions_function;
