@@ -352,8 +352,8 @@ void Widget::text(const char* text) {
 	TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
 
 	surface = TTF_RenderUTF8_Solid(g_ui_context->default_font, text, text_color);
-	if(surface == nullptr || surface->w % 4 != 0) {
-		print_error("cannot create text surface\n");
+	if(surface == nullptr) {
+		print_error("Cannot create text surface: %s", TTF_GetError());
 		return;
 	}
 	
