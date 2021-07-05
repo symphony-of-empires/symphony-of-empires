@@ -814,8 +814,21 @@ void select_nation(void) {
 				UI::Window* popup_win = new UI::Window(128, 128, generic_descision.width, generic_descision.height);
 				
 				// TODO: Allow titles in events
-				popup_win->text(msg.ref_name.c_str());
+				popup_win->text(msg.title.c_str());
 				popup_win->current_texture = &generic_descision;
+
+				// Separate the text line by line
+				const char* buf = msg.text.c_str();
+				char tmpbuf[24];
+				size_t y = 32;
+				while(strlen(buf)) {
+					size_t t_len = std::min<size_t>(strlen(buf), 18);
+					memcpy((char*)&tmpbuf, buf, t_len);
+					tmpbuf[t_len] = '\0';
+					new UI::Label(0, y, (const char*)&tmpbuf, popup_win);
+					y += 24;
+					buf += t_len;
+				}
 
 				// Buttons for descisions
 				const UI::Button* last = nullptr;
