@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <functional>
 #include <execution>
+#include <mutex>
 
 #include <GL/gl.h>
 #include <stdlib.h>
@@ -87,7 +88,8 @@ void Map::draw(float zoom) {
 			uint32_t& color = world.provinces[i]->owner->color;
 			glColor4ub(color & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff, 0x80);
 		} else {
-			continue;
+			uint32_t color = 0xffd0d0d0;
+			glColor4ub(color & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff, 0x80);
 		}
 
 		glCallList(province_shapes[i].shape_gl_list);
