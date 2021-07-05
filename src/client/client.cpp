@@ -279,7 +279,7 @@ static void play_nation(UI::Widget&, void *) {
 	
 	pop_view_nation_win = nullptr;
 	
-	//UI::Image* current_flag = new UI::Image(9, 43, 188, 87, nation_flags[g_world->get_id(curr_nation)], top_win);
+	UI::Image* current_flag = new UI::Image(9, 43, 188, 87, nation_flags[g_world->get_id(curr_nation)], top_win);
 	
 	money_icon = new UI::Image(209, 43 + (28* 0), icon_money_tex.width, icon_money_tex.height, &icon_money_tex, top_win);
 	money_lab = new UI::Label(0, 43 + (28* 0), "?", top_win);
@@ -477,7 +477,7 @@ void select_nation(void) {
 	nation_flags.reserve(g_world->nations.size());
 	for(const auto& nation: g_world->nations) {
 		std::string pt;
-		pt = "ui/flags/" + nation->ref_name + "_communist.png";
+		pt = "ui/flags/" + nation->ref_name + "_monarchy.png";
 		nation_flags.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
 	}
 	

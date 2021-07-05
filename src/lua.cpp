@@ -139,7 +139,7 @@ int LuaAPI::add_output_to_industry_type(lua_State* L) {
 }
 
 int LuaAPI::add_nation(lua_State* L) {
-	if(!lua_isstring(L, 1) || !lua_isnumber(L, 2) || !lua_isstring(L, 3)) {
+	if(!lua_isstring(L, 1) || !lua_isstring(L, 2)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
@@ -147,19 +147,12 @@ int LuaAPI::add_nation(lua_State* L) {
 	Nation* nation = new Nation();
 
 	nation->ref_name = lua_tostring(L, 1);
-
-	nation->color = bswap_32(lua_tonumber(L, 2));
-	nation->color >>= 8;
-	nation->color |= 0xff000000;
-	
-	nation->name = lua_tostring(L, 3);
+	nation->name = lua_tostring(L, 2);
+	nation->color = rand();
 
 	// Check for duplicates
 	for(size_t i = 0; i < g_world->nations.size(); i++) {
-		if(nation->color == g_world->nations[i]->color) {
-			print_error(gettext("%s nation has same colour as %s"), nation->name.c_str(), g_world->nations[i]->name.c_str());
-			break;
-		} else if(nation->ref_name == g_world->nations[i]->ref_name) {
+		if(nation->ref_name == g_world->nations[i]->ref_name) {
 			print_error(gettext("%s nation has same ref_name as %s thereby we will return the id of the original nation"), nation->name.c_str(), g_world->nations[i]->name.c_str());
 			lua_pushnumber(L, i);
 			return 1;

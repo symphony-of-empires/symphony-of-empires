@@ -60,3 +60,15 @@ sweden_monarchy
 
 norway_monarchy
 	By Gutten på Hemsen - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=388300
+
+luxembourg_monarchy
+	By Drawn by User:SKopp - Own work http://www.legilux.public.lu/leg/a/archives/1972/0051/a051.pdf#page=2, colors from http://www.legilux.public.lu/leg/a/archives/1993/0731609/0731609.pdf, Public Domain, https://commons.wikimedia.org/w/index.php?curid=343636
+
+two_sicilies_monarchy
+	By F l a n k e rEagle of the Tyrol taken from Image:Tyrol Arms.svg by IpankoninLions and castels taken from Image:Escudo de Castilla y León.svg by Rastrojo &amp; HansenBCN - Image:Flag of the Kingdom of the Two Sicilies 1738.gifwww.realcasadiborbone.itwww.duesicilie.orgwww.cnicg.net, Public Domain, https://commons.wikimedia.org/w/index.php?curid=3505466
+
+piedmont_sardinia_monarchy
+	By FDRMRZUSA - Own work. Based on these sources: Bandiere Stati preunitari italiani: Sardegna and Flags of the World: Kingdom of Sardinia - Part 2 (Italy).This vector image includes elements that have been taken or adapted from this file: Coat of arms of the Kingdom of Sardinia (1815-1831).svg., Public Domain, https://commons.wikimedia.org/w/index.php?curid=79377980
+
+tuscany_monarchy
+	By Flanker, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=3680940
