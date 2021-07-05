@@ -517,7 +517,7 @@ int LuaAPI::add_op_province_to_company(lua_State* L) {
 }
 
 int LuaAPI::add_event(lua_State* L) {
-	if(!lua_isstring(L, 1) || !lua_isstring(L, 2) || !lua_isstring(L, 3)) {
+	if(!lua_isstring(L, 1) || !lua_isstring(L, 2) || !lua_isstring(L, 3) || !lua_isstring(L, 4) || !lua_isstring(L, 5)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
@@ -527,6 +527,8 @@ int LuaAPI::add_event(lua_State* L) {
 	event->ref_name = lua_tostring(L, 1);
 	event->conditions_function = lua_tostring(L, 2);
 	event->do_event_function = lua_tostring(L, 3);
+	event->title = lua_tostring(L, 4);
+	event->text = lua_tostring(L, 5);
 
 	// Add onto vector
 	g_world->events.push_back(event);

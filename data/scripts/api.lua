@@ -117,13 +117,13 @@ function Province:add_nucleus(province, nation)
 	add_province_nucleus(province.id, nation.id)
 end
 
-Event = { ref_name = "", conditions_fn = "", event_fn = "" }
+Event = { ref_name = "", conditions_fn = "", event_fn = "", title = "", text = "" }
 function Event:create(event)
 	event.parent = self
 	return event
 end
 function Event:register(event)
-	event.id = add_event(event.ref_name, event.conditions_fn, event.event_fn)
+	event.id = add_event(event.ref_name, event.conditions_fn, event.event_fn, event.title, event.text)
 end
 function Event:get(event, ref_name)
 	event.parent = self

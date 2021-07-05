@@ -462,6 +462,8 @@ public:
 		::serialize(stream, &obj->do_event_function);
 		::serialize(stream, &obj->receivers);
 		::serialize(stream, &obj->descisions);
+		::serialize(stream, &obj->title);
+		::serialize(stream, &obj->text);
 	}
 	static inline void deserialize(Archive& stream, Event* obj) {
 		::deserialize(stream, &obj->ref_name);
@@ -469,6 +471,8 @@ public:
 		::deserialize(stream, &obj->do_event_function);
 		::deserialize(stream, &obj->receivers);
 		::deserialize(stream, &obj->descisions);
+		::deserialize(stream, &obj->title);
+		::deserialize(stream, &obj->text);
 	}
 	static inline size_t size(const Event* obj) {
 		return
@@ -477,6 +481,8 @@ public:
 			+ serialized_size(&obj->do_event_function)
 			+ serialized_size(&obj->receivers)
 			+ serialized_size(&obj->descisions)
+			+ serialized_size(&obj->title)
+			+ serialized_size(&obj->text)
 		;
 	}
 };

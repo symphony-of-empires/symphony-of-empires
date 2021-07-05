@@ -23,6 +23,9 @@ public:
 	std::vector<Nation *> receivers;
 	std::vector<Descision> descisions;
 
+	std::string text;
+	std::string title;
+
 	bool checked = false;
 	
 	// Takes a descision by a country
