@@ -95,6 +95,7 @@ void Server::net_loop(int id) {
 			}
 
 			print_info("New client connection established");
+			Nation* selected_nation = nullptr;
 			
 			Packet packet = Packet(conn_fd);
 			
@@ -130,6 +131,9 @@ void Server::net_loop(int id) {
 						print_info("Received pong, responding with ping!");
 						break;
 					case ACTION_UNIT_CHANGE_TARGET:
+						if(selected_nation == nullptr)
+							break;
+						
 						{
 							UnitId unit_id;
 							::deserialize(ar, &unit_id);
@@ -142,6 +146,9 @@ void Server::net_loop(int id) {
 						}
 						break;
 					case ACTION_UNIT_ADD:
+						if(selected_nation == nullptr)
+							break;
+						
 						g_world->units_mutex.lock();
 						{
 							Unit* unit = new Unit();
@@ -168,9 +175,9 @@ void Server::net_loop(int id) {
 						break;
 					case ACTION_PROVINCE_UPDATE:
 						{
-							ProvinceId province_id;
 							Province province;
 							::deserialize(ar, &province);
+							ProvinceId province_id;
 							::deserialize(ar, &province_id);
 							*g_world->provinces[province_id] = province;
 						}
@@ -194,6 +201,9 @@ void Server::net_loop(int id) {
 					 * it's separate from ACTION_PROVINCE_UPDATE by mere convenience for clients(?)
 					 */
 					case ACTION_PROVINCE_COLONIZE:
+						if(selected_nation == nullptr)
+							break;
+						
 						{
 							NationId colonizer_id;
 							ProvinceId province_id;
@@ -215,6 +225,51 @@ void Server::net_loop(int id) {
 						
 						// Rebroadcast
 						broadcast(packet);
+						break;
+					case ACTION_NATION_TAKE_DESCISION:
+						if(selected_nation == nullptr)
+							break;
+						
+						{
+							// Find event by reference name
+							std::string event_ref_name;
+							::deserialize(ar, &event_ref_name);
+							auto event = std::find_if(g_world->events.begin(), g_world->events.end(),
+							[&event_ref_name](const Event* e) {
+								return e->ref_name == event_ref_name;
+							});
+							if(event == g_world->events.end()) {
+								print_error("Event %s not found", event_ref_name.c_str());
+								break;
+							}
+
+							// Find descision by reference name
+							std::string descision_ref_name;
+							::deserialize(ar, &descision_ref_name);
+							auto descision = std::find_if((*event)->descisions.begin(), (*event)->descisions.end(),
+							[&descision_ref_name](const Descision& e) {
+								return e.ref_name == descision_ref_name;
+							});
+							if(descision == (*event)->descisions.end()) {
+								print_error("Descision %s not found", event_ref_name.c_str());
+								break;
+							}
+
+							(*event)->take_descision(selected_nation, &(*descision));
+							print_info("Event %s + descision %s taken by %s",
+								event_ref_name.c_str(),
+								descision_ref_name.c_str(),
+								selected_nation->ref_name.c_str()
+							);
+						}
+						break;
+					// The client selects a nation
+					case ACTION_SELECT_NATION:
+						{
+							NationId nation_id;
+							::deserialize(ar, &nation_id);
+							selected_nation = g_world->nations[nation_id];
+						}
 						break;
 					// Nation and province addition and removals are not allowed to be done by clients
 					default:

@@ -24,6 +24,8 @@ enum {
 typedef uint8_t PopTypeId;
 class PopType {
 public:
+	using id = PopTypeId;
+	
 	std::string name;
 	std::string ref_name;
 	float average_budget;
@@ -32,6 +34,8 @@ public:
 typedef uint16_t CultureId;
 class Culture {
 public:
+	using id = CultureId;
+
 	std::string name;
 	std::string ref_name;
 };
@@ -39,6 +43,8 @@ public:
 typedef uint8_t ReligionId;
 class Religion {
 public:
+	using id = ReligionId;
+
 	std::string name;
 	std::string ref_name;
 };

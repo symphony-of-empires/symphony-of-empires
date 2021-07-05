@@ -8,6 +8,7 @@
 #include "pop.hpp"
 #include "serializer.hpp"
 #include "actions.hpp"
+#include "diplomacy.hpp"
 #include <string>
 
 template<>
@@ -426,6 +427,61 @@ public:
 };
 
 template<>
+class Serializer<Descision> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const Descision* obj) {
+		::serialize(stream, &obj->name);
+		::serialize(stream, &obj->ref_name);
+		::serialize(stream, &obj->do_descision_function);
+		::serialize(stream, &obj->effects);
+	}
+	static inline void deserialize(Archive& stream, Descision* obj) {
+		::deserialize(stream, &obj->name);
+		::deserialize(stream, &obj->ref_name);
+		::deserialize(stream, &obj->do_descision_function);
+		::deserialize(stream, &obj->effects);
+	}
+	static inline size_t size(const Descision* obj) {
+		return
+			serialized_size(&obj->name)
+			+ serialized_size(&obj->ref_name)
+			+ serialized_size(&obj->do_descision_function)
+			+ serialized_size(&obj->effects)
+		;
+	}
+};
+
+template<>
+class Serializer<Event> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const Event* obj) {
+		::serialize(stream, &obj->ref_name);
+		::serialize(stream, &obj->conditions_function);
+		::serialize(stream, &obj->do_event_function);
+		::serialize(stream, &obj->receivers);
+		::serialize(stream, &obj->descisions);
+	}
+	static inline void deserialize(Archive& stream, Event* obj) {
+		::deserialize(stream, &obj->ref_name);
+		::deserialize(stream, &obj->conditions_function);
+		::deserialize(stream, &obj->do_event_function);
+		::deserialize(stream, &obj->receivers);
+		::deserialize(stream, &obj->descisions);
+	}
+	static inline size_t size(const Event* obj) {
+		return
+			serialized_size(&obj->ref_name)
+			+ serialized_size(&obj->conditions_function)
+			+ serialized_size(&obj->do_event_function)
+			+ serialized_size(&obj->receivers)
+			+ serialized_size(&obj->descisions)
+		;
+	}
+};
+
+template<>
 class Serializer<Tile> : public SerializerMemcpy<Tile> {};
 template<>
 class Serializer<OrderGoods> : public SerializerMemcpy<OrderGoods> {};
@@ -461,6 +517,8 @@ public:
 		::serialize(stream, &obj->owned_provinces);
 		::serialize(stream, &obj->current_policy);
 		::serialize(stream, &obj->diplomatic_timer);
+
+		::serialize(stream, &obj->inbox);
 	}
 	static inline void deserialize(Archive& stream, Nation* obj) {
 		::deserialize(stream, &obj->name);
@@ -487,6 +545,8 @@ public:
 		::deserialize(stream, &obj->owned_provinces);
 		::deserialize(stream, &obj->current_policy);
 		::deserialize(stream, &obj->diplomatic_timer);
+
+		::deserialize(stream, &obj->inbox);
 	}
 	static inline size_t size(const Nation* obj) {
 		return
@@ -510,8 +570,71 @@ public:
 			+ serialized_size(&obj->owned_provinces)
 			+ serialized_size(&obj->current_policy)
 			+ serialized_size(&obj->diplomatic_timer)
+			+ serialized_size(&obj->inbox)
 		;
-		// TODO: Rest of fields
+	}
+};
+
+template<>
+class Serializer<TreatyClauseType> : public SerializerMemcpy<TreatyClauseType> {};
+template<>
+class Serializer<TreatyClause::BaseClause> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const TreatyClause::BaseClause* obj) {
+		::serialize(stream, &obj->type);
+		::serialize(stream, &obj->sender);
+		::serialize(stream, &obj->receiver);
+		::serialize(stream, &obj->amount);
+		::serialize(stream, &obj->days_duration);
+		::serialize(stream, &obj->liberated);
+		::serialize(stream, &obj->provinces);
+		::serialize(stream, &obj->imposed);
+		::serialize(stream, &obj->done);
+	}
+	static inline void deserialize(Archive& stream, TreatyClause::BaseClause* obj) {
+		::deserialize(stream, &obj->type);
+		::deserialize(stream, &obj->sender);
+		::deserialize(stream, &obj->receiver);
+		::deserialize(stream, &obj->amount);
+		::deserialize(stream, &obj->days_duration);
+		::deserialize(stream, &obj->liberated);
+		::deserialize(stream, &obj->provinces);
+		::deserialize(stream, &obj->imposed);
+		::deserialize(stream, &obj->done);
+	}
+	static inline size_t size(const TreatyClause::BaseClause* obj) {
+		return
+			serialized_size(&obj->type)
+			+ serialized_size(&obj->sender)
+			+ serialized_size(&obj->receiver)
+			+ serialized_size(&obj->amount)
+			+ serialized_size(&obj->days_duration)
+			+ serialized_size(&obj->liberated)
+			+ serialized_size(&obj->provinces)
+			+ serialized_size(&obj->imposed)
+			+ serialized_size(&obj->done)
+		;
+	}
+};
+
+template<>
+class Serializer<Treaty> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const Treaty* obj) {
+		::serialize(stream, &obj->name);
+		::serialize(stream, &obj->clauses);
+	}
+	static inline void deserialize(Archive& stream, Treaty* obj) {
+		::deserialize(stream, &obj->name);
+		::deserialize(stream, &obj->clauses);
+	}
+	static inline size_t size(const Treaty* obj) {
+		return
+			serialized_size(&obj->name)
+			+ serialized_size(&obj->clauses)
+		;
 	}
 };
 
@@ -840,37 +963,6 @@ public:
 			+ serialized_size(&obj->ref_name)
 			+ serialized_size(&obj->is_edible)
 		;
-	}
-};
-
-template<>
-class Serializer<Event> {
-public:
-	static constexpr bool is_const_size = false;
-	static inline void serialize(Archive& stream, const Event* obj) {
-		::serialize(stream, &obj->ref_name);
-		::serialize(stream, &obj->conditions_function);
-		::serialize(stream, &obj->do_event_function);
-		::serialize(stream, &obj->receivers);
-		
-		// TODO: Descicions should not be pointers
-	}
-	static inline void deserialize(Archive& stream, Event* obj) {
-		::deserialize(stream, &obj->ref_name);
-		::deserialize(stream, &obj->conditions_function);
-		::deserialize(stream, &obj->do_event_function);
-		::deserialize(stream, &obj->receivers);
-		
-		// TODO: Rest of fields
-	}
-	static inline size_t size(const Event* obj) {
-		return
-			serialized_size(&obj->ref_name)
-			+ serialized_size(&obj->conditions_function)
-			+ serialized_size(&obj->do_event_function)
-			+ serialized_size(&obj->receivers)
-		;
-		// TODO: Rest of fields
 	}
 };
 

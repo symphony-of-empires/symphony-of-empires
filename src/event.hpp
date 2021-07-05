@@ -15,12 +15,17 @@ public:
 typedef uint16_t EventId;
 class Event {
 public:
+	using id = EventId;
+	
 	std::string ref_name;
 	std::string conditions_function;
 	std::string do_event_function;
 	std::vector<Nation *> receivers;
 	std::vector<Descision> descisions;
+
+	bool checked = false;
 	
+	// Takes a descision by a country
 	void take_descision(Nation* sender, Descision* dec);
 };
 

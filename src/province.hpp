@@ -19,6 +19,8 @@ class Product;
  */
 class Province {
 public:
+	using id = ProvinceId;
+	
 	ProvinceId get_id(const World& world);
 	void add_industry(World& world, Industry* industry);
 	void remove_industry(World& world, Industry* industry);

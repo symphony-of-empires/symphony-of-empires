@@ -275,7 +275,31 @@ public:
 
 #include <deque>
 template<typename T>
-class Serializer<std::deque<T>> : public SerializerContainer<T, std::deque<T>> {};
+class Serializer<std::deque<T>> : public SerializerContainer<T, std::deque<T>> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& ar, const std::deque<T>* obj_group) {
+		uint32_t len = obj_group->size();
+		ar.expand(sizeof(len));
+		memcpy(&ar.buffer[ar.ptr], &len, sizeof(len));
+		ar.ptr += sizeof(len);
+
+		for(auto& obj: *obj_group) {
+			Serializer<T>::serialize(ar, &obj);
+		}
+	}
+	static inline void deserialize(Archive& ar, std::deque<T>* obj_group) {
+		uint32_t len;
+		memcpy(&len, &ar.buffer[ar.ptr], sizeof(len));
+		ar.ptr += sizeof(len);
+
+		for(size_t i = 0; i < len; i++) {
+			T obj;
+			Serializer<T>::deserialize(ar, &obj);
+			obj_group->push_back(obj);
+		}
+	}
+};
 
 #include <queue>
 template<typename T>

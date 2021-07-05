@@ -105,8 +105,11 @@ public:
 * A military outpost, on land serves as a "spawn" place for units
 * When adjacent to a water tile this serves as a shipyard for spawning naval units
  */
+typedef uint16_t OutpostId;
 class Outpost {
 public:
+	using id = OutpostId;
+
 	// Position of outpost
 	size_t x;
 	size_t y;

@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <string>
 
 #include <SDL2/SDL.h>
@@ -305,6 +306,17 @@ static void play_nation(UI::Widget&, void *) {
 	population_lab->right_side_of(dynamic_cast<const UI::Widget&>(*population_icon));
 	
 	do_start = true;
+
+	// Select the nation
+	g_client->packet_mutex.lock();
+	Packet packet = Packet(g_client->get_fd());
+	Archive ar = Archive();
+	enum ActionType action = ACTION_SELECT_NATION;
+	::serialize(ar, &action);
+	::serialize(ar, &curr_selected_nation);
+	packet.data(ar.get_buffer(), ar.size());
+	g_client->packet_queue.push_back(packet);
+	g_client->packet_mutex.unlock();
 }
 
 void client_update(void) {
@@ -454,7 +466,7 @@ void colonize_province(UI::Widget& w, void* data) {
 	curr_nation->budget -= 10000;
 }
 
-std::vector<Event> doable_events;
+std::vector<Event> displayed_events;
 void select_nation(void) {
 	g_world->client_update = &client_update;
 	
@@ -526,6 +538,8 @@ void select_nation(void) {
 	
 	size_t last_inbox_size = 0;
 	uint64_t last_time = 0;
+
+	displayed_events.clear();
 	while(run) {
 		if(last_time != g_world->time) {
 			last_time = g_world->time;
@@ -790,17 +804,22 @@ void select_nation(void) {
 		if(current_mode == MAP_MODE_NORMAL) {
 			size_t n_descisions = 0;
 			for(auto& msg: curr_nation->inbox) {
+				auto iter = std::find_if(displayed_events.begin(), displayed_events.end(), [&msg](Event& e) {
+					return e.ref_name == msg.ref_name;
+				});
+				if(iter != displayed_events.end()) {
+					continue;
+				}
+
 				UI::Window* popup_win = new UI::Window(128, 128, generic_descision.width, generic_descision.height);
 				
 				// TODO: Allow titles in events
 				popup_win->text(msg.ref_name.c_str());
 				popup_win->current_texture = &generic_descision;
 
-				doable_events.push_back(msg);
-
 				// Buttons for descisions
 				const UI::Button* last = nullptr;
-				for(const auto& descision: doable_events.back().descisions) {
+				for(const auto& descision: msg.descisions) {
 					UI::Button* decide_btn = new UI::Button(9, 558 - button_popup.height, button_popup.width, button_popup.height, popup_win);
 					decide_btn->text(descision.name.c_str());
 					decide_btn->current_texture = &button_popup;
@@ -813,7 +832,7 @@ void select_nation(void) {
 						
 						// Find event
 						Event* event = nullptr;
-						for(auto& e_event: doable_events) {
+						for(auto& e_event: displayed_events) {
 							for(const auto& e_descision: e_event.descisions) {
 								if(e_descision.ref_name == descision->ref_name) {
 									event = &e_event;
@@ -831,7 +850,16 @@ void select_nation(void) {
 							return;
 						}
 						
-						event->take_descision(g_world->nations[curr_selected_nation], descision);
+						g_client->packet_mutex.lock();
+						Packet packet = Packet(g_client->get_fd());
+						Archive ar = Archive();
+						enum ActionType action = ACTION_NATION_TAKE_DESCISION;
+						::serialize(ar, &action);
+						::serialize(ar, &event->ref_name);
+						::serialize(ar, &descision->ref_name);
+						packet.data(ar.get_buffer(), ar.size());
+						g_client->packet_queue.push_back(packet);
+						g_client->packet_mutex.unlock();
 						return;
 					};
 					
@@ -840,8 +868,8 @@ void select_nation(void) {
 					}
 					last = decide_btn;
 				}
+				displayed_events.push_back(msg);
 			}
-			curr_nation->inbox.clear();
 		}
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -12,15 +12,19 @@ namespace Diplomacy {
 	bool is_foe(Nation* us, Nation* them);
 };
 
+enum TreatyClauseType {
+	TREATY_CLAUSE_WAR_REPARATIONS,
+	TREATY_CLAUSE_HUMILIATE,
+	TREATY_CLAUSE_LIBERATE_NATION,
+	TREATY_CLAUSE_IMPOSE_POLICIES,
+	TREATY_CLAUSE_ANEXX_PROVINCES,
+	TREATY_CLAUSE_CEASEFIRE,
+};
+
 namespace TreatyClause {
 	class BaseClause {
-	protected:
-		// Nation who created this clause
-		Nation* sender;
-
-		// Nation who should accept/reject this clause
-		Nation* receiver;
 	public:
+		BaseClause() = default;
 		BaseClause(Nation* _sender, Nation* _receiver) {
 			sender = _sender;
 			receiver = _receiver;
@@ -37,17 +41,37 @@ namespace TreatyClause {
 		// Determines whenever the clause is in effect or not, when it is not in effect
 		// then it's removed permanently
 		virtual bool in_effect();
+
+		// Type of clause
+		enum TreatyClauseType type;
+
+		// Nation who created this clause
+		Nation* sender;
+
+		// Nation who should accept/reject this clause
+		Nation* receiver;
+
+		// Amount to pay per day
+		float amount = 0;
+
+		// Number of days this clause lasts
+		size_t days_duration = 0;
+
+		// Applies only to "Liberate nation" clauses
+		Nation* liberated;
+		std::vector<Province *> provinces;
+
+		// For "Impose policy" clauses
+		Policies imposed;
+
+		// Used for 1 time clauses
+		bool done = false;
 	};
 	
 	/**
 	* Makes loser to pay war reparations to the winner
 	 */
 	class WarReparations : BaseClause {
-		// Amount to pay per day
-		float amount;
-
-		// Number of days this clause lasts
-		size_t days_duration;
 	public:
 		unsigned cost() {
 			return (receiver->economy_score* (amount* days_duration)) / 100;
@@ -68,11 +92,6 @@ namespace TreatyClause {
 	* Reduces prestige of loser and increments prestige from winner
 	 */
 	class Humiliate : BaseClause {
-		// Amount to reduce prestige to per day
-		float amount;
-
-		// Number of days this clause lasts
-		size_t days_duration;
 	public:
 		unsigned cost() {
 			return (receiver->prestige* (amount* days_duration)) / 100;
@@ -91,9 +110,6 @@ namespace TreatyClause {
 	* Liberates a nation from another
 	 */
 	class LiberateNation : BaseClause {
-		Nation* liberated;
-		std::vector<Province *> provinces;
-		bool done = false;
 	public:
 		unsigned cost() {
 			size_t value = 0;
@@ -124,15 +140,12 @@ namespace TreatyClause {
 	* Imposes a policy to be put in action on a nation
 	 */
 	class ImposePolicies : BaseClause {
-		Policies imposed;
-		bool done;
 	public:
 		unsigned cost() {
 			return imposed.difference(receiver->current_policy);
 		}
 		void enforce() {
 			memcpy(&receiver->current_policy, &imposed, sizeof(Policies));
-			
 			done = true;
 		}
 		bool in_effect() {
@@ -144,8 +157,6 @@ namespace TreatyClause {
 	* Anexxes territory from the loser
 	 */
 	class AnexxProvince : BaseClause {
-		std::vector<Province *> provinces;
-		bool done = false;
 	public:
 		unsigned cost() {
 			size_t value = 0;
@@ -175,8 +186,6 @@ namespace TreatyClause {
 	* Calls for a ceasefire
 	 */
 	class Ceasefire : BaseClause {
-		// Number of days this clause lasts
-		size_t days_duration;
 	public:
 		unsigned cost() {
 			return receiver->military_score + receiver->naval_score;
@@ -202,7 +211,14 @@ namespace TreatyClause {
 class Treaty {
 public:
 	std::string name;
-	std::vector<TreatyClause::BaseClause *> clauses;
+	std::vector<TreatyClause::BaseClause> clauses;
+};
+
+class War {
+public:
+	std::string name;
+	std::vector<Nation*> attackers;
+	std::vector<Nation*> defenders;
 };
 
 #endif
