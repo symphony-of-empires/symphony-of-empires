@@ -2,6 +2,24 @@
 -- Continent: Americas
 -- Subcontinent: North America
 -- Country: USA
+province = Province:create{ ref_name = "upper_coast", color = 0x70a6ff }
+province.name = _("Upper Coast")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, artisan, yankee, protestant, 500, 0.7)
+Province:add_pop(province, farmer, yankee, protestant, 500, 0.1)
+Province:add_pop(province, soldier, yankee, protestant, 500, 0.2)
+Province:add_pop(province, craftsmen, yankee, protestant, 500, 0.2)
+Province:add_pop(province, bureaucrat, yankee, protestant, 500, 0.7)
+Province:add_pop(province, aristocrat, yankee, protestant, 500, 0.2)
+Province:add_pop(province, clergymen, yankee, protestant, 500, 0.3)
+Province:add_pop(province, laborer, yankee, protestant, 500, 0.2)
+Province:add_pop(province, entrepreneur, yankee, protestant, 500, 0.9)
+Province:add_pop(province, slave, yankee, protestant, 500, 0.5)
+Province:add_nucleus(province, united_states)
+Province:add_nucleus(province, texas)
+Province:give_to(province, united_states)
+
 province = Province:create{ ref_name = "florida", color = 0x70a6ff }
 province.name = _("Florida")
 Province:register(province)

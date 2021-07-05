@@ -35,6 +35,22 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
+province = Province:create{ ref_name = "campico", color = 0x6051ff }
+province.name = _("Campico")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, artisan, mexican, catholic, 2000, 0.8)
+Province:add_pop(province, farmer, mexican, catholic, 8000, 0.5)
+Province:add_pop(province, soldier, mexican, catholic, 1000, 0.6)
+Province:add_pop(province, craftsmen, mexican, catholic, 2000, 0.4)
+Province:add_pop(province, bureaucrat, mexican, catholic, 500, 0.6)
+Province:add_pop(province, aristocrat, mexican, catholic, 100, 0.8)
+Province:add_pop(province, clergymen, mexican, catholic, 1000, 0.5)
+Province:add_pop(province, laborer, mexican, catholic, 1000, 0.5)
+Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
+Province:add_nucleus(province, mexico)
+Province:give_to(province, mexico)
+
 province = Province:create{ ref_name = "coahuila_y_texas", color = 0xff7279 }
 province.name = _("Coahuila")
 Province:register(province)
