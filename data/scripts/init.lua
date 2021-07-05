@@ -36,12 +36,30 @@ Culture:register(dutch)
 danish = Culture:create{ ref_name = "danish" }
 danish.name = _("Danish")
 Culture:register(danish)
+icelandic = Culture:create{ ref_name = "icelandic" }
+icelandic.name = _("Icelandic")
+Culture:register(icelandic)
 irish = Culture:create{ ref_name = "irish" }
 irish.name = _("Irish")
 Culture:register(irish)
+portuguese = Culture:create{ ref_name = "portuguese" }
+portuguese.name = _("Portuguese")
+Culture:register(portuguese)
 spanish = Culture:create{ ref_name = "spanish" }
 spanish.name = _("Spanish")
 Culture:register(spanish)
+basque = Culture:create{ ref_name = "basque" }
+basque.name = _("Basque")
+Culture:register(basque)
+galician = Culture:create{ ref_name = "galician" }
+galician.name = _("Galician")
+Culture:register(galician)
+aragonese = Culture:create{ ref_name = "aragonese" }
+aragonese.name = _("Aragonese")
+Culture:register(aragonese)
+catalan = Culture:create{ ref_name = "catalan" }
+catalan.name = _("catalan")
+Culture:register(catalan)
 czech = Culture:create{ ref_name = "czech" }
 czech.name = _("Czech")
 Culture:register(czech)
@@ -69,6 +87,22 @@ Culture:register(turkish)
 greek = Culture:create{ ref_name = "greek" }
 greek.name = _("Greek")
 Culture:register(greek)
+
+italian = Culture:create{ ref_name = "italian" }
+italian.name = _("Italian")
+Culture:register(italian)
+lithuanian = Culture:create{ ref_name = "lithuanian" }
+lithuanian.name = _("Lithuanian")
+Culture:register(lithuanian)
+latvian = Culture:create{ ref_name = "latvian" }
+latvian.name = _("Latvian")
+Culture:register(latvian)
+estonian = Culture:create{ ref_name = "estonian" }
+estonian.name = _("Estonian")
+Culture:register(estonian)
+polish = Culture:create{ ref_name = "polish" }
+polish.name = _("Polish")
+Culture:register(polish)
 
 -- American
 yankee = Culture:create{ ref_name = "yankee" }
@@ -107,6 +141,9 @@ Culture:register(mexican)
 haitian = Culture:create{ ref_name = "haitian" }
 haitian.name = _("Haitian")
 Culture:register(haitian)
+brazilian = Culture:create{ ref_name = "brazilian" }
+brazilian.name = _("Brazilian")
+Culture:register(brazilian)
 
 -- Native american
 mapuche = Culture:create{ ref_name = "mapuche" }
@@ -117,6 +154,11 @@ Culture:register(mapuche)
 polynesian = Culture:create{ ref_name = "polynesian" }
 polynesian.name = _("Polynesian")
 Culture:register(polynesian)
+
+-- Middle east
+arabic = Culture:create{ ref_name = "arabic" }
+arabic.name = _("Arabic")
+Culture:register(arabic)
 
 -- African
 akan = Culture:create{ ref_name = "akan" }
@@ -606,21 +648,36 @@ BoatType:requires_good(man_of_war, sail, 30)
 BoatType:requires_good(man_of_war, gunpowder, 500)
 
 -- Nations
-sokoto = Nation:create{ ref_name = "sokoto", color = 0x008751, default_flag = "flags/sokoto_monarchy.png" }
+arabia = Nation:create{ ref_name = "arabia", color = 0x008751 }
+arabia.name = _("Arabia")
+Nation:register(arabia)
+Nation:add_accepted_culture(arabia, arabic)
+
+sokoto = Nation:create{ ref_name = "sokoto", color = 0x008751 }
 sokoto.name = _("Sokoto")
 Nation:register(sokoto)
-wadai_empire = Nation:create{ ref_name = "wadai_empire", color = 0xb9bc2a, default_flag = "flags/unknown.png" }
+Nation:add_accepted_culture(sokoto, arabic)
+wadai_empire = Nation:create{ ref_name = "wadai_empire", color = 0xb9bc2a }
 wadai_empire.name = _("Wadai Empire")
 Nation:register(wadai_empire)
-bornu = Nation:create{ ref_name = "bornu", color = 0x5f4b32, default_flag = "flags/bornu_monarchy.png" }
+bornu = Nation:create{ ref_name = "bornu", color = 0x5f4b32 }
 bornu.name = _("Bornu")
 Nation:register(bornu)
-dahomey = Nation:create{ ref_name = "dahomey", color = 0x613478, default_flag = "flags/dahomey_monarchy.png" }
+dahomey = Nation:create{ ref_name = "dahomey", color = 0x613478 }
 dahomey.name = _("Dahomey")
 Nation:register(dahomey)
-hawai_i = Nation:create{ ref_name = "hawai_i", color = 0x9168a8, default_flag = "flags/hawaii_monarchy.png" }
+tunis = Nation:create{ ref_name = "tunis", color = 0x613478 }
+tunis.name = _("Tunis")
+Nation:register(tunis)
+Nation:add_accepted_culture(tunis, arabic)
+algeirs = Nation:create{ ref_name = "algeirs", color = 0x613478 }
+algeirs.name = _("Algeirs")
+Nation:register(algeirs)
+Nation:add_accepted_culture(algeirs, arabic)
+hawai_i = Nation:create{ ref_name = "hawai_i", color = 0x9168a8 }
 hawai_i.name = _("Hawai'i")
 Nation:register(hawai_i)
+Nation:add_accepted_culture(hawai_i, polynesian)
 
 require('nations/america')
 require('nations/europe')
@@ -638,18 +695,20 @@ Company:register(mexico_transport)
 
 -- Provinces
 
+require('provinces/africa/northern')
+
 require('provinces/americas/alaska')
 require('provinces/americas/argentina')
 require('provinces/americas/brazil_and_pantanal')
 require('provinces/americas/canada')
 require('provinces/americas/caribbean')
 require('provinces/americas/central_america')
-require('provinces/americas/chile')
 require('provinces/americas/guianas')
 require('provinces/americas/mexico')
 require('provinces/americas/south_america')
 require('provinces/americas/united_states')
 
+require('provinces/europe/austria')
 require('provinces/europe/bohemia')
 require('provinces/europe/denmark')
 require('provinces/europe/scandinavia')
