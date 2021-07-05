@@ -2,7 +2,7 @@
 -- Continent: Americas
 -- Subcontinent: North America
 -- Country: USA
-province = Province:create{ ref_name = "upper_coast", color = 0x70a6ff }
+province = Province:create{ ref_name = "upper_coast", color = 0xa4dd20 }
 province.name = _("Upper Coast")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
