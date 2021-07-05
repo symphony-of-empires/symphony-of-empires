@@ -648,37 +648,12 @@ BoatType:requires_good(man_of_war, sail, 30)
 BoatType:requires_good(man_of_war, gunpowder, 500)
 
 -- Nations
-arabia = Nation:create{ ref_name = "arabia" }
-arabia.name = _("Arabia")
-Nation:register(arabia)
-Nation:add_accepted_culture(arabia, arabic)
-
-sokoto = Nation:create{ ref_name = "sokoto" }
-sokoto.name = _("Sokoto")
-Nation:register(sokoto)
-Nation:add_accepted_culture(sokoto, arabic)
-wadai_empire = Nation:create{ ref_name = "wadai_empire" }
-wadai_empire.name = _("Wadai Empire")
-Nation:register(wadai_empire)
-bornu = Nation:create{ ref_name = "bornu" }
-bornu.name = _("Bornu")
-Nation:register(bornu)
-dahomey = Nation:create{ ref_name = "dahomey" }
-dahomey.name = _("Dahomey")
-Nation:register(dahomey)
-tunis = Nation:create{ ref_name = "tunis" }
-tunis.name = _("Tunis")
-Nation:register(tunis)
-Nation:add_accepted_culture(tunis, arabic)
-algeirs = Nation:create{ ref_name = "algeirs" }
-algeirs.name = _("Algeirs")
-Nation:register(algeirs)
-Nation:add_accepted_culture(algeirs, arabic)
 hawai_i = Nation:create{ ref_name = "hawai_i" }
 hawai_i.name = _("Hawai'i")
 Nation:register(hawai_i)
 Nation:add_accepted_culture(hawai_i, polynesian)
 
+require('nations/africa')
 require('nations/america')
 require('nations/europe')
 

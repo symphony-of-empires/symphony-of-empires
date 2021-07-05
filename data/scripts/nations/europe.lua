@@ -265,8 +265,8 @@ Nation:register(danzig)
 Nation:add_accepted_culture(danzig, german)
 wurttemberg = Nation:create{ ref_name = "wurttemberg" }
 wurttemberg.name = _("Württemberg")
-Nation:register(danzig)
-Nation:add_accepted_culture(danzig, german)
+Nation:register(wurttemberg)
+Nation:add_accepted_culture(wurttemberg, german)
 piedmont_sardinia = Nation:create{ ref_name = "piedmont_sardinia" }
 piedmont_sardinia.name = _("Piedmont Sardinia")
 Nation:register(piedmont_sardinia)
