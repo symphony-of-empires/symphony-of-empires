@@ -1,3 +1,5 @@
+--------------------------------------------------------------
+-- America
 -- Initial nations
 argentina = Nation:create{ ref_name = "argentina" }
 argentina.name = _("Argentina")
@@ -46,3 +48,9 @@ haiti = Nation:create{ ref_name = "haiti" }
 haiti.name = _("Haiti")
 Nation:register(haiti)
 Nation:add_accepted_culture(haiti, haitian)
+-- Releasable nations
+texas = Nation:create{ ref_name = "texas" }
+texas.name = _("Texas")
+Nation:register(texas)
+Nation:add_accepted_culture(texas, yankee)
+--------------------------------------------------------------
