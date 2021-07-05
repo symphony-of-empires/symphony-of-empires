@@ -456,7 +456,6 @@ public:
 
 		::serialize(stream, &obj->budget);
 
-		::serialize(stream, &obj->primary_culture);
 		::serialize(stream, &obj->capital);
 		::serialize(stream, &obj->accepted_cultures);
 		::serialize(stream, &obj->owned_provinces);
@@ -483,7 +482,6 @@ public:
 
 		::deserialize(stream, &obj->budget);
 
-		::deserialize(stream, &obj->primary_culture);
 		::deserialize(stream, &obj->capital);
 		::deserialize(stream, &obj->accepted_cultures);
 		::deserialize(stream, &obj->owned_provinces);
@@ -507,7 +505,6 @@ public:
 			+ serialized_size(&obj->naval_score)
 			+ serialized_size(&obj->economy_score)
 			+ serialized_size(&obj->budget)
-			+ serialized_size(&obj->primary_culture)
 			+ serialized_size(&obj->capital)
 			+ serialized_size(&obj->accepted_cultures)
 			+ serialized_size(&obj->owned_provinces)

@@ -91,6 +91,7 @@ World::World(bool empty) {
 	lua_register(this->lua, "set_life_needs_met_mod", LuaAPI::set_life_needs_met_mod);
 	lua_register(this->lua, "set_everyday_needs_met_mod", LuaAPI::set_everyday_needs_met_mod);
 	lua_register(this->lua, "set_luxury_needs_met_mod", LuaAPI::set_luxury_needs_met_mod);
+	lua_register(this->lua, "add_nation_accepted_culture", LuaAPI::add_accepted_culture);
 	
 	lua_register(this->lua, "add_province", LuaAPI::add_province);
 	lua_register(this->lua, "get_province", LuaAPI::get_province);

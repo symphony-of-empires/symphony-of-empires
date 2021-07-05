@@ -102,21 +102,18 @@ public:
 	// Total GDP of the nation
 	float gdp = 0.f;
 
-	// Primary culture of this nation, may also be changed via events, otherwise it's permanent
-	Culture* primary_culture = nullptr;
-
 	// The capital of this nation (can be nullptr)
 	Province* capital = nullptr;
 
 	// Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
 	// owned by this nation
-	std::set<Culture *> accepted_cultures;
+	std::set<Culture*> accepted_cultures;
 
 	// List of provinces which are owned by this nation (including partial ownership)
-	std::set<Province *> owned_provinces;
+	std::set<Province*> owned_provinces;
 
 	// List of neighbouring nations
-	std::set<Nation *> neighbours;
+	std::set<Nation*> neighbours;
 
 	// A pointer to a class defining the current policy of this nation
 	Policies current_policy;

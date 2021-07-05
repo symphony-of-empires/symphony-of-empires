@@ -36,7 +36,7 @@ int LuaAPI::add_unit_trait(lua_State* L) {
 	unit_trait->max_health_mod = lua_tonumber(L, 4);
 	unit_trait->defense_mod = lua_tonumber(L, 5);
 	unit_trait->attack_mod = lua_tonumber(L, 6);
-	
+
 	g_world->unit_traits.push_back(unit_trait);
 	lua_pushnumber(L, g_world->unit_traits.size() - 1);
 	return 1;
@@ -139,7 +139,7 @@ int LuaAPI::add_output_to_industry_type(lua_State* L) {
 }
 
 int LuaAPI::add_nation(lua_State* L) {
-	if(!lua_isstring(L, 1) || !lua_isnumber(L, 2) || !lua_isstring(L, 3) || !lua_isstring(L, 4)) {
+	if(!lua_isstring(L, 1) || !lua_isnumber(L, 2) || !lua_isstring(L, 3)) {
 		print_error(gettext("lua argument type mismatch"));
 		return 0;
 	}
@@ -152,7 +152,7 @@ int LuaAPI::add_nation(lua_State* L) {
 	nation->color >>= 8;
 	nation->color |= 0xff000000;
 	
-	nation->name = lua_tostring(L, 4);
+	nation->name = lua_tostring(L, 3);
 
 	// Check for duplicates
 	for(size_t i = 0; i < g_world->nations.size(); i++) {
@@ -192,13 +192,10 @@ int LuaAPI::get_nation(lua_State* L) {
 	lua_pushnumber(L, i);
 	lua_pushstring(L, nation->ref_name.c_str());
 	lua_pushstring(L, nation->name.c_str());
-	lua_pushnumber(L, nation->color);
-	return 4;
+	return 3;
 }
 
 int LuaAPI::set_nation_primary_culture(lua_State* L) {
-	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
-	nation->primary_culture = g_world->cultures[lua_tonumber(L, 2)];
 	return 0;
 }
 
@@ -283,6 +280,12 @@ int LuaAPI::set_everyday_needs_met_mod(lua_State* L) {
 int LuaAPI::set_luxury_needs_met_mod(lua_State* L) {
 	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
 	nation->luxury_needs_met_mod = lua_tonumber(L, 2);
+	return 0;
+}
+
+int LuaAPI::add_accepted_culture(lua_State* L) {
+	Nation* nation = g_world->nations[lua_tonumber(L, 1)];
+	nation->accepted_cultures.insert(g_world->cultures[lua_tonumber(L, 2)]);
 	return 0;
 }
 

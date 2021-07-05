@@ -38,6 +38,7 @@ namespace LuaAPI {
 	int set_life_needs_met_mod(lua_State* L);
 	int set_everyday_needs_met_mod(lua_State* L);
 	int set_luxury_needs_met_mod(lua_State* L);
+	int add_accepted_culture(lua_State* L);
 	
 	int add_province(lua_State* L);
 	int get_province(lua_State* L);
