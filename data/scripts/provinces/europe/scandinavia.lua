@@ -1,4 +1,123 @@
 --------------------------------------------------------------
+-- Continent: Americas
+-- Subcontinent: North America
+-- Country: Denmark (Greenland)
+province = Province:create{ ref_name = "nuuk", color = 0xff8efd }
+province.name = _("Nuuk")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, bureaucrat, danish, protestant, 2, 0.8)
+Province:add_pop(province, clergymen, danish, protestant, 5, 0.8)
+Province:add_pop(province, laborer, danish, protestant, 50, 0.5)
+Province:add_nucleus(province, denmark)
+Province:give_to(province, denmark)
+
+province = Province:create{ ref_name = "qanaaq", color = 0x6bffb0 }
+province.name = _("Qanaaq")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, bureaucrat, danish, protestant, 2, 0.8)
+Province:add_pop(province, clergymen, danish, protestant, 5, 0.8)
+Province:add_pop(province, laborer, danish, protestant, 50, 0.5)
+Province:add_nucleus(province, denmark)
+Province:give_to(province, denmark)
+
+province = Province:create{ ref_name = "tasiilaq", color = 0xffbcbd }
+province.name = _("Tasiilaq")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, bureaucrat, danish, protestant, 2, 0.8)
+Province:add_pop(province, clergymen, danish, protestant, 5, 0.8)
+Province:add_pop(province, laborer, danish, protestant, 50, 0.5)
+Province:add_nucleus(province, denmark)
+Province:give_to(province, denmark)
+
+province = Province:create{ ref_name = "artic_greenland", color = 0x568eff }
+province.name = _("Artic Greenland")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, bureaucrat, danish, protestant, 2, 0.8)
+Province:add_pop(province, clergymen, danish, protestant, 5, 0.8)
+Province:add_pop(province, laborer, danish, protestant, 50, 0.5)
+Province:add_nucleus(province, denmark)
+Province:give_to(province, denmark)
+
+--------------------------------------------------------------
+-- Continent: Europe
+-- Subcontinent: Scandinavia
+-- Country: Iceland
+province = Province:create{ ref_name = "austurland", color = 0x9effae }
+province.name = _("Austurland")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, bureaucrat, icelandic, protestant, 2, 0.8)
+Province:add_pop(province, clergymen, icelandic, protestant, 5, 0.8)
+Province:add_pop(province, laborer, icelandic, protestant, 50, 0.5)
+Province:add_nucleus(province, iceland)
+Province:add_nucleus(province, denmark)
+Province:give_to(province, denmark)
+province = Province:create{ ref_name = "norourland_eystra", color = 0x2723ff }
+province.name = _("Norðurland eystra")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, bureaucrat, icelandic, protestant, 2, 0.8)
+Province:add_pop(province, clergymen, icelandic, protestant, 5, 0.8)
+Province:add_pop(province, laborer, icelandic, protestant, 50, 0.5)
+Province:add_nucleus(province, iceland)
+Province:add_nucleus(province, denmark)
+Province:give_to(province, denmark)
+province = Province:create{ ref_name = "hofouborgarsvaeoio", color = 0xff0720 }
+province.name = _("Höfuðborgarsvæðið")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, bureaucrat, icelandic, protestant, 2, 0.8)
+Province:add_pop(province, clergymen, icelandic, protestant, 5, 0.8)
+Province:add_pop(province, laborer, icelandic, protestant, 50, 0.5)
+Province:add_nucleus(province, iceland)
+Province:add_nucleus(province, denmark)
+Province:give_to(province, denmark)
+province = Province:create{ ref_name = "suorland", color = 0xffb2d6 }
+province.name = _("Suðurland")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, bureaucrat, icelandic, protestant, 2, 0.8)
+Province:add_pop(province, clergymen, icelandic, protestant, 5, 0.8)
+Province:add_pop(province, laborer, icelandic, protestant, 50, 0.5)
+Province:add_nucleus(province, iceland)
+Province:add_nucleus(province, denmark)
+Province:give_to(province, denmark)
+province = Province:create{ ref_name = "vestfiroir", color = 0x87ffda }
+province.name = _("Vestfirðir")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, bureaucrat, icelandic, protestant, 2, 0.8)
+Province:add_pop(province, clergymen, icelandic, protestant, 5, 0.8)
+Province:add_pop(province, laborer, icelandic, protestant, 50, 0.5)
+Province:add_nucleus(province, iceland)
+Province:add_nucleus(province, denmark)
+Province:give_to(province, denmark)
+province = Province:create{ ref_name = "vestfiroir", color = 0x87ffda }
+province.name = _("Vestfirðir")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, bureaucrat, icelandic, protestant, 2, 0.8)
+Province:add_pop(province, clergymen, icelandic, protestant, 5, 0.8)
+Province:add_pop(province, laborer, icelandic, protestant, 50, 0.5)
+Province:add_nucleus(province, iceland)
+Province:add_nucleus(province, denmark)
+Province:give_to(province, denmark)
+province = Province:create{ ref_name = "vesturland", color = 0xba75ff }
+province.name = _("Vesturland")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, bureaucrat, icelandic, protestant, 2, 0.8)
+Province:add_pop(province, clergymen, icelandic, protestant, 5, 0.8)
+Province:add_pop(province, laborer, icelandic, protestant, 50, 0.5)
+Province:add_nucleus(province, iceland)
+Province:add_nucleus(province, denmark)
+Province:give_to(province, denmark)
+
+--------------------------------------------------------------
 -- Continent: Europe
 -- Subcontinent: Scandinavia
 -- Country: Sweden
