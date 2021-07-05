@@ -68,21 +68,24 @@ function IndustryType:add_output(industry_type, good)
 	add_output_to_industry_type(industry_type.id, good.id)
 end
 
-Nation = { id = 0, name = "", ref_name = "", color = 0, default_flag = "", }
+Nation = { id = 0, name = "", ref_name = "", color = 0 }
 function Nation:create(nation)
 	nation.parent = self
 	return nation
 end
 function Nation:register(nation)
-	nation.id = add_nation(nation.ref_name, nation.color, nation.default_flag, nation.name)
+	nation.id = add_nation(nation.ref_name, nation.color, nation.name)
 end
 function Nation:get(nation, ref_name)
 	nation.parent = self
-	nation.id, nation.ref_name, nation.name, nation.color = get_nation(ref_name)
+	nation.id, nation.ref_name, nation.name = get_nation(ref_name)
 	return nation
 end
 function Nation:set_capital(nation, province)
 	set_nation_capital(nation.id, province.id)
+end
+function Nation:add_accepted_culture(nation, culture)
+	add_nation_accepted_culture(nation.id, culture.id)
 end
 
 Province = { id = 0, name = "", ref_name = "", color = 0, }
