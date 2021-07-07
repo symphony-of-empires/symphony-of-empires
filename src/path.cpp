@@ -2,7 +2,7 @@
 #ifndef WIN32
 #	include <unistd.h>
 #else
-#	include <Libloaderapi.h>
+#	include <windows.h>
 #endif
 #include <limits.h>
 

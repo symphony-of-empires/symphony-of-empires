@@ -1,8 +1,8 @@
 #ifndef BINARY_IMAGE_H
 #define BINARY_IMAGE_H
 
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
 
 class BinaryImage {
 public:

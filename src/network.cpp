@@ -1,7 +1,12 @@
-#include <sys/socket.h>
+#ifdef WIN32
+// Winsockets
+#else
+#	include <sys/socket.h>
+#	include <sys/ioctl.h>
+#	include <netdb.h>
+#	include <arpa/inet.h>
+#endif
 #include <sys/types.h>
-#include <sys/ioctl.h>
-#include <netdb.h>
 
 #include <cstring>
 #include <cstdio>
@@ -297,7 +302,6 @@ void Server::net_loop(int id) {
 	}
 }
 
-#include <arpa/inet.h>
 Client* g_client = nullptr;
 Client::Client(std::string host, const unsigned port) {
 	g_client = this;

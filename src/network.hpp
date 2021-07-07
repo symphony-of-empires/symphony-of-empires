@@ -1,9 +1,11 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#define _XOPEN_SOURCE_EXTENDED 1
-#include <sys/socket.h>
-#include <netinet/in.h>
+#ifndef WIN32
+#	define _XOPEN_SOURCE_EXTENDED 1
+#	include <sys/socket.h>
+#	include <netinet/in.h>
+#endif
 
 #include <thread>
 #include <vector>
