@@ -1,7 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include <stddef.h>
+#include <cstddef>
 #include <GL/gl.h>
 #include "world.hpp"
 #include "province.hpp"

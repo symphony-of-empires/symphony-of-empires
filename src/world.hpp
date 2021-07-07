@@ -1,11 +1,11 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stddef.h>
-#include <string.h>
-#include <time.h>
+#include <cstdlib>
+#include <cstdint>
+#include <cstddef>
+#include <cstring>
+#include <ctime>
 #include "nation.hpp"
 #include "economy.hpp"
 #include "lua.hpp"

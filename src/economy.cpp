@@ -474,8 +474,8 @@ void Economy::do_phase_3(World& world) {
 			if(emigreers < pop.size && emigreers) {
 				// Find best province
 				Province* best_province = nullptr;
-				for(size_t i = 0; i < world.provinces.size(); i += std::max<size_t>((rand() % (world.provinces.size() - i)) / 10, 1)) {
-					Province* target_province = world.provinces[i];
+				for(size_t j = 0; j < world.provinces.size(); j += std::max<size_t>((rand() % (world.provinces.size() - j)) / 10, 1)) {
+					Province* target_province = world.provinces[j];
 					float attractive = 0.f;
 					
 					if(target_province->owner == nullptr) {

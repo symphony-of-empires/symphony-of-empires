@@ -1,3 +1,6 @@
+# windows libraries
+windows_libs/
+
 # savefiles from the game
 *.v0
 *.v1
