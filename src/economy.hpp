@@ -119,7 +119,6 @@ public:
 	// Used for faster lookups
 	std::vector<Product *> output_products;
 
-
 	// The desired quality of a product (otherwise it's not accepted)
 	float min_quality = 0.f;
 

@@ -24,6 +24,14 @@ public:
 	float defense;
 	float attack;
 
+	// Max ticks allowed for defensive bonus - this basically prevents an unit from staying 200
+	// years on the same spot and be fucking indestructible
+	uint64_t max_defensive_ticks;
+
+	// The defense provided by the unit each tick for staying on the same position
+	// aka. digging trenches
+	float position_defense;
+
 	// Required goods, first describes the id of the good and the second describes how many
 	std::vector<std::pair<Good *, size_t>> req_goods;
 };
@@ -64,6 +72,7 @@ public:
 	float max_health_mod;
 	float defense_mod;
 	float attack_mod;
+	float morale_mod;
 };
 
 #include "nation.hpp"
@@ -83,6 +92,9 @@ public:
 	// Size of the unit (soldiers in unit)
 	size_t size;
 
+	// Base size of the unit (max size due to anti-attrition)
+	size_t base;
+
 	// Target coordinates of this unit
 	size_t tx;
 	size_t ty;
@@ -94,9 +106,23 @@ public:
 	// Who owns this unit
 	Nation* owner;
 
+	float morale;
+
+	// For perspective, 0.5 is the normal unit (i.e a soldier POP)
+	float experience;
+
 	// Used to "ignore" an unit when doing any check, this allows other units to
 	// attack this unit
 	bool ignore_tag;
+
+	// The ticks the unit has not been moved
+	uint64_t defensive_ticks;
+
+	// Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
+	float supply;
+
+	// Money that the unit has
+	float budget;
 	
 	std::vector<UnitTrait*> traits;
 };

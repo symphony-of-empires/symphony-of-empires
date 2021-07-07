@@ -29,6 +29,9 @@ public:
 	bool has_embassy;
 	bool has_military_access;
 	bool has_market_access;
+
+	// A nation can have free supplies to feed their soldiers
+	bool free_supplies;
 };
 
 #include "policy.hpp"
