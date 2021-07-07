@@ -25,7 +25,8 @@ jobs:
        sudo dpkg -i liblua5.4-dev_5.4.0-2_amd64.deb
     - name: "Build"
       run: |
-       UNIT_TEST=1 make -j
+       cmake -DUNIT_TEST=1 ..
+       make -j
     - name: "Run"
       run: |
        bin/main
