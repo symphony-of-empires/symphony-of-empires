@@ -130,6 +130,10 @@ public:
 
 	// Spending done on military (% of budget)
 	float military_spending;
+
+	// Units can grab anything they want from DOMESTIC provinces
+	// Please notice the DOMESTIC part of this, for foreign "free grab"; check diplomatic relations!!
+	bool free_supplies;
 	
 	int difference(Policies& rhs) {
 		int diff;
@@ -155,6 +159,7 @@ public:
 		diff += (rhs.poor_flat_tax != this->poor_flat_tax) ? 1 : 0;
 		diff += (rhs.med_flat_tax != this->med_flat_tax) ? 1 : 0;
 		diff += (rhs.rich_flat_tax != this->rich_flat_tax) ? 1 : 0;
+		diff += (rhs.free_supplies != this->free_supplies) ? 1 : 0;
 		return diff;
 	}
 };

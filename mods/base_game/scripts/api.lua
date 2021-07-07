@@ -183,16 +183,25 @@ function Religion:register(religion)
 	religion.id = add_religion(religion.ref_name, religion.name)
 end
 
-UnitType = { id = 0, ref_name = "", name = "", health = 100.0, defense = 1.0, attack = 1.0 }
+UnitType = {
+	id = 0,
+	ref_name = "",
+	name = "",
+	health = 100.0,
+	defense = 1.0,
+	attack = 1.0
+	max_defensive_ticks = 25,
+	position_defense = 0.1,
+}
 function UnitType:create(unit_type)
 	unit_type.parent = self
 	return unit_type
 end
 function UnitType:get(unit_type, ref_name)
-	unit_type.id, unit_type.ref_name, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health = get_unit_type(ref_name)
+	unit_type.id, unit_type.ref_name, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health, unit_type.max_defensive_ticks, unit_type.position_defense = get_unit_type(ref_name)
 end
 function UnitType:register(unit_type)
-	unit_type.id = add_unit_type(unit_type.ref_name, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health)
+	unit_type.id = add_unit_type(unit_type.ref_name, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health, unit_type.max_defensive_ticks, unit_type.position_defense)
 end
 function UnitType:requires_good(unit_type, good, amount)
 	add_req_good_unit_type(unit_type.id, good.id, amount)

@@ -598,8 +598,116 @@ void World::do_tick() {
 			end_y += speed;
 		
 		// Make the unit attack automatically
-		if(nearest_foe != nullptr) {
-			nearest_foe->size -= unit->type->attack;
+		// and we must be at war with the owner of this unit to be able to attack the unit
+		if(nearest_foe != nullptr
+		&& unit->owner->relations[get_id(nearest_foe->owner)].has_war == false) {
+			Unit* enemy = nearest_foe;
+
+			// Calculate the attack of our unit
+			float attack_mod = 0.f;
+			for(const auto& trait: unit->traits) {
+				attack_mod *= trait->attack_mod;
+			}
+			const float attack = unit->type->attack * attack_mod;
+
+			// Calculate the defense of the enemy
+			float defense_mod = 0.f;
+			for(const auto& trait: unit->traits) {
+				defense_mod *= trait->defense_mod;
+			}
+			const float enemy_defense = std::max(0.1f, enemy->type->defense * defense_mod
+				* (enemy->defensive_ticks * enemy->type->position_defense))
+			;
+
+			// Calculate the total damage dealt by our unit to the enemy
+			const float damage_dealt = unit->size * std::min(10.f, std::max(.05f, unit->experience))
+				* (attack / std::pow(std::min(0.f, enemy_defense), 2))
+				* std::max(0.1f, unit->morale) * unit->supply
+			;
+			
+			// Deal with the morale loss of the enemy
+			float enemy_fanaticism = 0.f;
+			for(const auto& trait: enemy->traits) {
+				enemy_fanaticism *= trait->morale_mod;
+			}
+			enemy->morale -= 10.f * enemy_fanaticism * damage_dealt / enemy->size;
+
+			// Our unit receives half of the morale
+			unit->morale += 5.f * enemy_fanaticism * damage_dealt / enemy->size;
+
+			// Deal the damage
+			enemy->size -= damage_dealt;
+		}
+
+		// Unit is on a non-wasteland part of the map
+		if(get_tile(unit->x, unit->y).province_id != (Province::Id)-1) {
+			Province* province = provinces[get_tile(unit->x, unit->y).province_id];
+			const Nation* nation = province->owner;
+			bool free_supplies = false;
+
+			// Unit is on domestic soil, so we have to check the domsetic policy for free military supplies
+			if(unit->owner == nation) {
+				// No-cost supplies
+				if(unit->owner->current_policy.free_supplies) {
+					free_supplies = true;
+				}
+			}
+			// Unit is on foreign soil, we check relations to see if we can take free military supplies
+			else {
+				// No-cost supplies
+				if(unit->owner->relations[get_id(nation)].free_supplies) {
+					free_supplies = true;
+				}
+			}
+
+			if(free_supplies == true) {
+				// Take anything you want, it's not needed to fucking pay at all! :)
+				for(size_t i = 0; i < province->stockpile.size(); i++) {
+					if(!province->stockpile[i])
+						continue;
+
+					// We will take your food pleseantly
+					if(products[i]->good->is_edible
+					&& unit->supply <= (unit->type->supply_consumption * 10.f)) {
+						float bought = std::min(unit->size, province->stockpile[i]);
+						province->stockpile[i] -= bought;
+
+						unit->supply += bought / unit->size;
+						unit->morale += bought / unit->size;
+					}
+					// Fuck you, we are also taking your luxury because it's free
+					else {
+						float bought = std::min((rand() + 1) % unit->size, province->stockpile[i]);
+						province->stockpile[i] -= bought;
+
+						// Yes, we are super happy with your voluntary gifts to the honourable
+						// units of some nation
+						unit->morale += bought / unit->size;
+					}
+				}
+			} else {
+				// Buy stuff and what we are able to buy normally
+				for(size_t i = 0; i < province->stockpile.size(); i++) {
+					// Must be edible and there must be stock
+					if(!products[i]->good->is_edible || !province->stockpile[i])
+						continue;
+
+					if(products[i]->price * unit->size <= unit->budget) {
+						size_t bought = std::min(province->stockpile[i], unit->size);
+						province->stockpile[i] -= bought;
+						unit->supply = bought / unit->size;
+
+						// Pay (including taxes)
+						const float paid = (products[i]->price * unit->size) * province->owner->current_policy.med_flat_tax;
+						province->owner->budget += paid;
+						unit->budget -= paid;
+					}
+
+					// We will stop buying if we are satisfied
+					if(unit->supply >= (unit->type->supply_consumption * 1.f))
+						break;
+				}
+			}
 		}
 
 		// This code prevents us from stepping onto water tiles (but allows for rivers)

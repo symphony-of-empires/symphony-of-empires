@@ -737,6 +737,9 @@ int LuaAPI::add_unit_type(lua_State* L) {
 	unit_type->defense = lua_tonumber(L, 4);
 	unit_type->max_health = lua_tonumber(L, 5);
 
+	unit_type->max_defensive_ticks = lua_tonumber(L, 6);
+	unit_type->position_defense = lua_tonumber(L, 7);
+
 	g_world->unit_types.push_back(unit_type);
 	lua_pushnumber(L, g_world->unit_types.size() - 1);
 	return 1;
@@ -768,7 +771,9 @@ int LuaAPI::get_unit_type(lua_State* L) {
 	lua_pushnumber(L, unit_type->attack);
 	lua_pushnumber(L, unit_type->defense);
 	lua_pushnumber(L, unit_type->max_health);
-	return 4;
+	lua_pushnumber(L, unit_type->max_defensive_ticks);
+	lua_pushnumber(L, unit_type->position_defense);
+	return 6;
 }
 
 int LuaAPI::add_req_good_unit_type(lua_State* L) {
