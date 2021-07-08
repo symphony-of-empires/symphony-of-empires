@@ -351,7 +351,10 @@ Client::Client(std::string host, const unsigned port) {
 
 #ifdef windows
 	WSADATA data;
-	WSAStartup(MAKEWORD(2, 2), &data);
+	if(WSAStartup(MAKEWORD(2, 2), &data) != 0) {
+		print_error("WSA code: %u", WSAGetLastError());
+		throw std::runtime_error("Cannot start WSA");
+	}
 #endif
 	
 	struct addrinfo * result = NULL;
@@ -368,30 +371,36 @@ Client::Client(std::string host, const unsigned port) {
 
 	char* tmpbuf = new char[16];
 	sprintf(tmpbuf, "%u", port);
-	if(getaddrinfo(NULL, tmpbuf, &addr, &result) != 0) {
-		print_error("getaddr, WSA code: %u", WSAGetLastError());
+	if(getaddrinfo(host.c_str(), tmpbuf, &addr, &result) != 0) {
+		print_error("WSA code: %u", WSAGetLastError());
 		WSACleanup();
 		return;
 	}
 	delete[] tmpbuf;
-
-	fd = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-#ifdef unix
-	if(fd < 0) {
-#elif defined windows
-	if(fd == INVALID_SOCKET) {
-#endif
-		print_error("Cannot create client socket, WSA Code: %u", WSAGetLastError());
-		return;
-	}
 	
-	if(connect(fd, (sockaddr *)result, sizeof(sockaddr)) != 0) {
-		print_error("Cannot connect to server %s:%u", host.c_str(), port);
+	for(struct addrinfo* ptr = result; ptr != NULL; ptr = ptr->ai_next) {
+		fd = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+		if(fd == INVALID_SOCKET) {
+			print_error("Cannot create client socket, WSA Code: %u", WSAGetLastError());
 #ifdef windows
-		print_error("connect, WSA Code: %u", WSAGetLastError());
+			print_error("WSA Code: %u", WSAGetLastError());
+			WSACleanup();
 #endif
-		return;
+			throw std::runtime_error("Cannot create client socket");
+		}
+		
+		if(connect(fd, ptr->ai_addr, (int)ptr->ai_addrlen) != 0) {
+			print_error("Cannot connect to server %s:%u", host.c_str(), port);
+			close(fd);
+#ifdef windows
+			print_error("WSA Code: %u", WSAGetLastError());
+			closesocket(fd);
+#endif
+			continue;
+		}
+		break;
 	}
+	freeaddrinfo(result);
 	
 	// Launch the receive and send thread
 	net_thread = std::thread(&Client::net_loop, this);
