@@ -105,10 +105,9 @@ public:
 	template<typename T>
 	void recv(T* buf = nullptr) {
 		uint32_t net_code;
-#ifdef windows
-		if(::recv(fd, (char*)&net_code, sizeof(net_code), 0) == -1) {
-#elif defined unix
 		if(::recv(fd, (char*)&net_code, sizeof(net_code), MSG_WAITALL) == -1) {
+#ifdef windows
+			print_error("WSA Code: %u", WSAGetLastError());
 #endif
 			throw std::runtime_error("Socket read error for packet code");
 		}
@@ -116,10 +115,9 @@ public:
 		code = (PacketCode)net_code;
 
 		uint32_t net_size;
-#ifdef windows
-		if(::recv(fd, (char*)&net_size, sizeof(net_size), 0) == -1) {
-#elif defined unix
 		if(::recv(fd, (char*)&net_size, sizeof(net_size), MSG_WAITALL) == -1) {
+#ifdef windows
+			print_error("WSA Code: %u", WSAGetLastError());
 #endif
 			throw std::runtime_error("Socket read error for size of packet");
 		}
@@ -130,12 +128,11 @@ public:
 		/* Reads can only be done 1024 bytes at a time */
 		for(size_t i = 0; i < n_data; ) {
 			int r;
-#ifdef windows
-			r = ::recv(fd, (char*)&bufdata[i], std::min<size_t>(1024, n_data - i), 0);
-#elif defined unix
 			r = ::recv(fd, (char*)&bufdata[i], std::min<size_t>(1024, n_data - i), MSG_WAITALL);
-#endif
 			if(r == -1) {
+#ifdef windows
+				print_error("WSA Code: %u", WSAGetLastError());
+#endif
 				throw std::runtime_error("Socket read error for data in packet");
 			}
 			i += r;
@@ -193,7 +190,7 @@ class Client {
 	std::thread net_thread;
 	std::atomic<bool> has_snapshot;
 public:
-	Client(std::string host, unsigned port);
+	Client(std::string host, const unsigned port);
 	~Client();
 	int get_fd(void) {
 		return fd;
