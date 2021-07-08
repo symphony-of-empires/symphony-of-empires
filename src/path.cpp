@@ -12,7 +12,7 @@ namespace Path {
 	static inline std::string get_exec_path(void) {
 #ifdef windows
 		char buf[PATH_MAX];
-		const auto len = GetCurrentDirectory(sizeof(buf) - 1, buf);
+		const auto len = GetModuleFileNameA(nullptr, buf, sizeof(buf) - 1);
 #else
 		char buf[PATH_MAX];
 		ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
