@@ -8,7 +8,7 @@
 #include <ctime>
 #include "nation.hpp"
 #include "economy.hpp"
-#include "lua.hpp"
+#include "lua_api.hpp"
 
 #define MAX_INFRA_LEVEL 			8
 #define MAX_ELEVATION				255
