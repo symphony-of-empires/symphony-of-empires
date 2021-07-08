@@ -154,11 +154,10 @@ public:
 #include <deque>
 #include <mutex>
 class Server {
-#ifdef unix
 	struct sockaddr_in addr;
+#ifdef unix
 	int fd;
 #elif defined windows
-	struct addrinfo addr;
 	SOCKET fd;
 #endif
 
@@ -179,11 +178,10 @@ public:
 };
 
 class Client {
-#ifdef unix
 	struct sockaddr_in addr;
+#ifdef unix
 	int fd;
 #elif defined windows
-	struct addrinfo addr;
 	SOCKET fd;
 #endif
 	

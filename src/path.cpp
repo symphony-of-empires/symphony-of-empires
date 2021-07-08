@@ -29,10 +29,15 @@ namespace Path {
 			return str;
 		
 		std::string rsult = get_exec_path();
-		
+		size_t found = rsult.find_last_of("/\\");
+		rsult = rsult.substr(0, found);
+		found = rsult.find_last_of("/\\");
+		rsult = rsult.substr(0, found);
 		rsult += "/mods/base_game/";
 		rsult += str;
+#ifdef windows
 		std::replace(rsult.begin(), rsult.end(), '/', '\\');
+#endif
 		return rsult;
 	}
 };

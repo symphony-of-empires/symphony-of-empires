@@ -3,6 +3,9 @@
 #	include <sys/ioctl.h>
 #	include <netdb.h>
 #	include <arpa/inet.h>
+#	ifndef INVALID_SOCKET
+#		define INVALID_SOCKET -1
+#	endif
 #endif
 #include <sys/types.h>
 
@@ -26,51 +29,34 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 
 	struct addrinfo * result = NULL;
 	fd = socket(AF_INET, SOCK_STREAM, 0);
-#ifdef unix
-	if(fd == -1) {
-		print_error("Cannot create server socket");
-		return;
-	}
-#elif defined windows
 	if(fd == INVALID_SOCKET) {
 		print_error("Cannot create server socket");
+#ifdef windows
 		WSACleanup();
-		return;
-	}
 #endif
+		throw std::runtime_error("Cannot create server socket");
+	}
 
 	memset(&addr, 0, sizeof(addr));
-#ifdef unix
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	addr.sin_port = htons(port);
-#elif defined windows
-	addr.ai_family = AF_UNSPEC;
-	addr.ai_protocol = IPPROTO_TCP;
-	addr.ai_socktype = SOCK_STREAM;
-#endif
-	
-	char* tmpbuf = new char[16];
-	sprintf(tmpbuf, "%u", port);
-	if(getaddrinfo(NULL, tmpbuf, &addr, &result) != 0) {
-		print_error("getaddr, WSA code: %u", WSAGetLastError());
-		WSACleanup();
-		return;
-	}
-	delete[] tmpbuf;
 
-	if(bind(fd, (sockaddr *)result, sizeof(addr)) != 0) {
+	if(bind(fd, (sockaddr *)&addr, sizeof(addr)) != 0) {
 		print_error("Cannot bind server on port %u", port);
 #if defined windows
-		print_error("bind, WSA code: %u", WSAGetLastError());
+		print_error("WSA code: %u", WSAGetLastError());
 		WSACleanup();
 #endif
-		return;
+		throw std::runtime_error("Cannot bind server");
 	}
 
 	if(listen(fd, max_conn) != 0) {
 		print_error("Cannot listen on %u connections", max_conn);
+#if defined windows
+		print_error("WSA code: %u", WSAGetLastError());
 		WSACleanup();
+#endif
 		return;
 	}
 
@@ -357,50 +343,31 @@ Client::Client(std::string host, const unsigned port) {
 	}
 #endif
 	
-	struct addrinfo * result = NULL;
 	memset(&addr, 0, sizeof(addr));
-#ifdef unix
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = inet_addr(host.c_str());
 	addr.sin_port = htons(port);
-#elif defined windows
-	addr.ai_family = AF_UNSPEC;
-	addr.ai_protocol = IPPROTO_TCP;
-	addr.ai_socktype = SOCK_STREAM;
-#endif
 
-	char* tmpbuf = new char[16];
-	sprintf(tmpbuf, "%u", port);
-	if(getaddrinfo(host.c_str(), tmpbuf, &addr, &result) != 0) {
-		print_error("WSA code: %u", WSAGetLastError());
+	fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if(fd == INVALID_SOCKET) {
+		print_error("Cannot create client socket");
+#ifdef windows
+		print_error("WSA Code: %u", WSAGetLastError());
 		WSACleanup();
-		return;
-	}
-	delete[] tmpbuf;
-	
-	for(struct addrinfo* ptr = result; ptr != NULL; ptr = ptr->ai_next) {
-		fd = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-		if(fd == INVALID_SOCKET) {
-			print_error("Cannot create client socket, WSA Code: %u", WSAGetLastError());
-#ifdef windows
-			print_error("WSA Code: %u", WSAGetLastError());
-			WSACleanup();
 #endif
-			throw std::runtime_error("Cannot create client socket");
-		}
+		throw std::runtime_error("Cannot create client socket");
+	}
 		
-		if(connect(fd, ptr->ai_addr, (int)ptr->ai_addrlen) != 0) {
-			print_error("Cannot connect to server %s:%u", host.c_str(), port);
-			close(fd);
-#ifdef windows
-			print_error("WSA Code: %u", WSAGetLastError());
-			closesocket(fd);
+	if(connect(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
+		print_error("Cannot connect to server %s:%u", host.c_str(), port);
+#ifdef unix
+		close(fd);
+#elif defined windows
+		print_error("WSA Code: %u", WSAGetLastError());
+		closesocket(fd);
 #endif
-			continue;
-		}
-		break;
+		throw std::runtime_error("Cannot connect to server");
 	}
-	freeaddrinfo(result);
 	
 	// Launch the receive and send thread
 	net_thread = std::thread(&Client::net_loop, this);
