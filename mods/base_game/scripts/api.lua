@@ -189,7 +189,7 @@ UnitType = {
 	name = "",
 	health = 100.0,
 	defense = 1.0,
-	attack = 1.0
+	attack = 1.0,
 	max_defensive_ticks = 25,
 	position_defense = 0.1,
 }

@@ -72,3 +72,18 @@ piedmont_sardinia_monarchy
 
 tuscany_monarchy
 	By Flanker, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=3680940
+
+austria_hungary_monarchy
+	By B1mbo This vector image includes elements that have been taken or adapted from this file: Austrian crown.svg (by B1mbo). This vector image includes elements that have been taken or adapted from this file: Flag of Hungary (1867-1918).svg (by Thommy9). - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=23241127
+
+poland_democracy
+	By See below. - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=16103411
+
+lithuania_democracy
+	By SKopp  The source code of this SVG is valid. This flag was created with a text editor.Previous version had been created with Inkscape (1 930 bytes)  f  now 14.14% of previous sizePlease do not replace the simplified code by another version created with Inkscape or a similar vector graphics editor! - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=343633
+
+latvia_democracy
+	By SKopp - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=343629
+
+estonia_democracy
+	By SKopp, PeepP and others - http://www.riigikantselei.ee/?id=73847, Public Domain, https://commons.wikimedia.org/w/index.php?curid=343044

@@ -9,7 +9,7 @@
 #include "economy.hpp"
 #include "world.hpp"
 #include "binary_image.hpp"
-#include "lua.hpp"
+#include "lua_api.hpp"
 #include "path.hpp"
 #include "print.hpp"
 #include "pathfinding.hpp"
@@ -363,7 +363,7 @@ World::World(bool empty) {
 	for(const auto& nation: this->nations) {
 		// Relations between nations start at 0 (and latter modified by lua scripts)
 		for(size_t i = 0; i < this->nations.size(); i++) {
-			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false, false, true});
+			nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false, false, true, false});
 		}
 	}
 

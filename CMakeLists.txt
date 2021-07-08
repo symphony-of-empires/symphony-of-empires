@@ -1,29 +1,23 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.16.3)
 
 project(SymphonyOfEmpires)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/src)
 set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
-# This is conflicting since we use cmake ..
-#set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/build)
-#set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/build)
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wshadow -std=c++17 -O2 -g -Isrc -Isrc/client -pthread")
-if (WIN32)
+IF(WIN32)
 # Use x86_64-w64-mingw-* toolchain for windows builds on linux
-	set(CMAKE_C_COMPILER "x86_64-w64-mingw32-gcc")
-	set(CMAKE_CXX_COMPILER "x86_64-w64-mingw32-g++")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
+	set(CMAKE_C_COMPILER "x86_64-w64-mingw32-gcc-posix")
+	set(CMAKE_CXX_COMPILER "x86_64-w64-mingw32-g++-posix")
 	
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Iwindows_libs/SDL2_include -Lwindows_libs/SDL2_libs")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Iwindows_libs/PNG_include -Lwindows_libs/PNG_libs")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Iwindows_libs/LUA_include -Lwindows_libs/LUA_libs")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Iwindows_libs/TBB_include -Lwindows_libs/TBB_libs")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Iwindows_libs/ZLIB_include -Lwindows_libs/ZLIB_libs")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Iwindows_libs/INTL_include -Lwindows_libs/INTL_libs")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Iwindows_libs/SDL2T_include -Lwindows_libs/SDL2T_libs")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-expansion-to-defined")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dwindows -mwindows")
+	
+	link_directories(${CMAKE_SOURCE_DIR}/windows_libs/lib)
+	include_directories(${CMAKE_SOURCE_DIR}/windows_libs/include)
+	include_directories(${CMAKE_SOURCE_DIR}/windows_libs/include/SDL2)
 ELSE()
-#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dunix")
 ENDIF()
 
 include_directories("${PROJECT_SOURCE_DIR}")
@@ -32,15 +26,11 @@ link_directories(/usr/local/lib)
 file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/*.cpp")
 file(GLOB CLIENT_SOURCES "${PROJECT_SOURCE_DIR}/client/*.cpp")
 
-add_executable(SymphonyOfEmpires 
-	${MAIN_SOURCES}
-	${CLIENT_SOURCES}
-)
+add_executable(SymphonyOfEmpires ${MAIN_SOURCES} ${CLIENT_SOURCES})
 
-if (WIN32)
-	target_link_libraries(SymphonyOfEmpires PUBLIC opengl32 glu32 lua intl)
+IF(WIN32)
+	target_link_libraries(SymphonyOfEmpires PUBLIC opengl32 glu32 ws2_32 winpthread intl lua)
 ELSE()
-	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLU lua5.4 SDL2main)
+	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLU SDL2main lua5.4)
 ENDIF()
-target_link_libraries(SymphonyOfEmpires PUBLIC png SDL2 SDL2_ttf m tbb)
-target_compile_features(SymphonyOfEmpires PRIVATE cxx_std_17)
+target_link_libraries(SymphonyOfEmpires PUBLIC tbb png SDL2 SDL2_ttf m z)

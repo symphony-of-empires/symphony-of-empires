@@ -1,21 +1,23 @@
 #include "path.hpp"
-#ifndef WIN32
+#ifdef unix
 #	include <unistd.h>
-#else
+#elif defined windows
 #	include <windows.h>
 #endif
 #include <limits.h>
+#include <string>
+#include <algorithm>
 
 namespace Path {
 	static inline std::string get_exec_path(void) {
-	#ifdef WIN32
+#ifdef windows
 		char buf[PATH_MAX];
-		const auto len = GetModuleFileNameA(nullptr, buf, sizeof(buf) - 1);
-	#else
+		const auto len = GetCurrentDirectory(sizeof(buf) - 1, buf);
+#else
 		char buf[PATH_MAX];
 		ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
-	#endif
-		if (len != -1) {
+#endif
+		if(len != -1) {
 			buf[len] = '\0';
 			return std::string(buf);
 		}
@@ -27,12 +29,10 @@ namespace Path {
 			return str;
 		
 		std::string rsult = get_exec_path();
-		size_t found = rsult.find_last_of("/\\");
-		rsult = rsult.substr(0, found);
-		found = rsult.find_last_of("/\\");
-		rsult = rsult.substr(0, found);
+		
 		rsult += "/mods/base_game/";
 		rsult += str;
+		std::replace(rsult.begin(), rsult.end(), '/', '\\');
 		return rsult;
 	}
 };

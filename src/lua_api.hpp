@@ -1,8 +1,13 @@
 #ifndef LUA_H
 #define LUA_H
 
-#ifdef WIN32
+#ifdef windows
+extern "C" {
 #   include <lua.hpp>
+#   include <lua.h>
+#	include <lualib.h>
+#	include <lauxlib.h>
+}
 #else
 #   include <lua5.4/lua.hpp>
 #endif

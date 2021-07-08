@@ -1,10 +1,16 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#ifndef WIN32
+#ifdef unix
 #	define _XOPEN_SOURCE_EXTENDED 1
 #	include <sys/socket.h>
 #	include <netinet/in.h>
+#elif defined windows
+#define WIN32_LEAN_AND_MEAN
+#	include <windows.h>
+#	include <winsock2.h>
+#	include <ws2def.h>
+#	include <ws2tcpip.h>
 #endif
 
 #include <thread>
@@ -25,17 +31,17 @@ class Packet {
 	size_t n_data = 0;
 	PacketCode code = PACKET_OK;
 public:
+#ifdef unix
 	int fd;
-	
-	Packet(int _fd, std::string buf) : fd(_fd) {
-		n_data = buf.size();
-		bufdata.resize(n_data);
-		for(size_t i = 0; i < n_data; i++) {
-			bufdata[i] = buf[i];
-		}
-	};
+#elif defined windows
+	SOCKET fd;
+#endif
 
+#ifdef unix
 	Packet(int _fd) : fd(_fd) {};
+#elif defined windows
+	Packet(SOCKET _fd) : fd(_fd) {};
+#endif
 
 	void* data(void) {
 		return (void *)&bufdata[0];
@@ -60,18 +66,31 @@ public:
 		}
 
 		const uint32_t net_code = htonl(code);
+#ifdef windows
+		if(::send(fd, (const char*)&net_code, sizeof(net_code), 0) == -1) {
+#elif defined unix
 		if(write(fd, &net_code, sizeof(net_code)) == -1) {
+#endif
 			throw std::runtime_error("Socket write error for packet code");
 		}
 		
 		const uint32_t net_size = htonl(n_data);
+#ifdef windows
+		if(::send(fd, (const char*)&net_size, sizeof(net_size), 0) == -1) {
+#elif defined unix
 		if(write(fd, &net_size, sizeof(net_size)) == -1) {
+#endif
 			throw std::runtime_error("Socket write error for size of packet");
 		}
 		
 		/* Socket writes can only be done 1024 bytes at a time */
 		for(size_t i = 0; i < n_data; ) {
-			int r = write(fd, &bufdata[i], std::min<size_t>(1024, n_data - i));
+			int r;
+#ifdef windows
+			r = ::send(fd, (const char*)&bufdata[i], std::min<size_t>(1024, n_data - i), 0);
+#elif defined unix
+			r = write(fd, &bufdata[i], std::min<size_t>(1024, n_data - i));
+#endif
 			if(r == -1) {
 				throw std::runtime_error("Socket write error for data in packet");
 			}
@@ -86,14 +105,22 @@ public:
 	template<typename T>
 	void recv(T* buf = nullptr) {
 		uint32_t net_code;
-		if(::recv(fd, &net_code, sizeof(net_code), MSG_WAITALL) == -1) {
+#ifdef windows
+		if(::recv(fd, (char*)&net_code, sizeof(net_code), 0) == -1) {
+#elif defined unix
+		if(::recv(fd, (char*)&net_code, sizeof(net_code), MSG_WAITALL) == -1) {
+#endif
 			throw std::runtime_error("Socket read error for packet code");
 		}
 		net_code  = ntohl(net_code);
 		code = (PacketCode)net_code;
 
 		uint32_t net_size;
-		if(::recv(fd, &net_size, sizeof(net_size), MSG_WAITALL) == -1) {
+#ifdef windows
+		if(::recv(fd, (char*)&net_size, sizeof(net_size), 0) == -1) {
+#elif defined unix
+		if(::recv(fd, (char*)&net_size, sizeof(net_size), MSG_WAITALL) == -1) {
+#endif
 			throw std::runtime_error("Socket read error for size of packet");
 		}
 		
@@ -102,7 +129,12 @@ public:
 		
 		/* Reads can only be done 1024 bytes at a time */
 		for(size_t i = 0; i < n_data; ) {
-			int r = ::recv(fd, &bufdata[i], std::min<size_t>(1024, n_data - i), MSG_WAITALL);
+			int r;
+#ifdef windows
+			r = ::recv(fd, (char*)&bufdata[i], std::min<size_t>(1024, n_data - i), 0);
+#elif defined unix
+			r = ::recv(fd, (char*)&bufdata[i], std::min<size_t>(1024, n_data - i), MSG_WAITALL);
+#endif
 			if(r == -1) {
 				throw std::runtime_error("Socket read error for data in packet");
 			}
@@ -125,8 +157,13 @@ public:
 #include <deque>
 #include <mutex>
 class Server {
+#ifdef unix
 	struct sockaddr_in addr;
 	int fd;
+#elif defined windows
+	struct addrinfo addr;
+	SOCKET fd;
+#endif
 
 	std::vector<std::thread> threads;
 	std::vector<std::deque<Packet>> packet_queues;
@@ -145,8 +182,13 @@ public:
 };
 
 class Client {
+#ifdef unix
 	struct sockaddr_in addr;
 	int fd;
+#elif defined windows
+	struct addrinfo addr;
+	SOCKET fd;
+#endif
 	
 	std::thread net_thread;
 	std::atomic<bool> has_snapshot;

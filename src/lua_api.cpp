@@ -1,19 +1,21 @@
-#ifdef WIN32
-#	include <lua.hpp>
+#ifdef windows
+extern "C" {
+#	include <lua.h>
+}
 #else
 #	include <lua5.4/lua.hpp>
 #endif
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
-#ifdef WIN32
-#	include <stdlib.h>
+#ifdef windows
+#	include <cstdlib>
 #	define bswap_32(x) _byteswap_ulong(x)
 #	define bswap_64(x) _byteswap_uint64(x)
 #else
 #	include <byteswap.h>
 #endif
-#include "lua.hpp"
+#include "lua_api.hpp"
 #include "world.hpp"
 #include "nation.hpp"
 #include "economy.hpp"
