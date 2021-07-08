@@ -32,6 +32,9 @@ public:
 	// aka. digging trenches
 	float position_defense;
 
+	// Time needed to build
+	size_t build_time;
+
 	// Required goods, first describes the id of the good and the second describes how many
 	std::vector<std::pair<Good *, size_t>> req_goods;
 };
@@ -53,6 +56,9 @@ public:
 	
 	// Capacity of stuff (units) that can be carried here
 	size_t capacity;
+
+	// Time needed to build
+	size_t build_time;
 
 	// Required goods, first describes the id of the good and the second describes how many
 	std::vector<std::pair<Good *, size_t>> req_goods;
@@ -128,6 +134,27 @@ public:
 };
 
 /**
+ * Type for military outposts
+ */
+typedef uint16_t OutpostTypeId;
+class OutpostType {
+public:
+	using Id = OutpostTypeId;
+
+	std::string ref_name;
+
+	bool is_naval;
+	bool is_build_land_units;
+	bool is_build_naval_units;
+
+	// Defensive bonus given to units on the outpost
+	float defense_bonus;
+
+	// Required goods, first describes the id of the good and the second describes how many
+	std::vector<std::pair<Good *, size_t>> req_goods;
+};
+
+/**
 * A military outpost, on land serves as a "spawn" place for units
 * When adjacent to a water tile this serves as a shipyard for spawning naval units
  */
@@ -140,8 +167,7 @@ public:
 	size_t x;
 	size_t y;
 
-	// Determines if this outpost is a shipyard or if it's barracks
-	bool is_naval;
+	OutpostType* type;
 
 	// Owner of the outpost
 	Nation* owner;
@@ -153,6 +179,7 @@ public:
 	uint16_t build_time;
 
 	// Required goods, first describes the id of the good and the second describes how many
+	// this is for the working unit
 	std::vector<std::pair<Good *, size_t>> req_goods;
 };
 

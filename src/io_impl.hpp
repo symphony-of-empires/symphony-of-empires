@@ -231,6 +231,42 @@ public:
 };
 
 template<>
+class Serializer<OutpostType*> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const OutpostType* const* obj) {
+		OutpostType::Id id = g_world->get_id(*obj);
+		::serialize(stream, &id);
+	}
+	static inline void deserialize(Archive& stream, OutpostType* * obj) {
+		OutpostType::Id id;
+		::deserialize(stream, &id);
+		*obj = (id != (OutpostType::Id)-1) ? g_world->outpost_types[id] : nullptr;
+	}
+	static inline size_t size(const OutpostType* const*) {
+		return sizeof(OutpostType::Id);
+	}
+};
+
+template<>
+class Serializer<Outpost*> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const Outpost* const* obj) {
+		Outpost::Id id = g_world->get_id(*obj);
+		::serialize(stream, &id);
+	}
+	static inline void deserialize(Archive& stream, Outpost** obj) {
+		Outpost::Id id;
+		::deserialize(stream, &id);
+		*obj = (id != (Outpost::Id)-1) ? g_world->outposts[id] : nullptr;
+	}
+	static inline size_t size(const Outpost* const*) {
+		return sizeof(Outpost::Id);
+	}
+};
+
+template<>
 class Serializer<Industry *> : public SerializerMemcpy<Industry *> {};
 
 template<>
@@ -648,6 +684,7 @@ public:
 		::serialize(stream, &obj->defense);
 		::serialize(stream, &obj->attack);
 		::serialize(stream, &obj->capacity);
+		::serialize(stream, &obj->build_time);
 	}
 	static inline void deserialize(Archive& stream, BoatType* obj) {
 		::deserialize(stream, &obj->name);
@@ -657,6 +694,7 @@ public:
 		::deserialize(stream, &obj->defense);
 		::deserialize(stream, &obj->attack);
 		::deserialize(stream, &obj->capacity);
+		::deserialize(stream, &obj->build_time);
 	}
 	static inline size_t size(const BoatType* obj) {
 		return
@@ -667,6 +705,7 @@ public:
 			+ serialized_size(&obj->defense)
 			+ serialized_size(&obj->attack)
 			+ serialized_size(&obj->capacity)
+			+ serialized_size(&obj->build_time)
 		;
 	}
 };
@@ -683,6 +722,7 @@ public:
 		::serialize(stream, &obj->max_health);
 		::serialize(stream, &obj->defense);
 		::serialize(stream, &obj->attack);
+		::serialize(stream, &obj->build_time);
 	}
 	static inline void deserialize(Archive& stream, UnitType* obj) {
 		::deserialize(stream, &obj->name);
@@ -692,6 +732,7 @@ public:
 		::deserialize(stream, &obj->max_health);
 		::deserialize(stream, &obj->defense);
 		::deserialize(stream, &obj->attack);
+		::deserialize(stream, &obj->build_time);
 	}
 	static inline size_t size(const UnitType* obj) {
 		return
@@ -703,6 +744,7 @@ public:
 			+ serialized_size(&obj->defense)
 			+ serialized_size(&obj->attack)
 			+ serialized_size(&obj->req_goods)
+			+ serialized_size(&obj->build_time)
 		;
 	}
 };
@@ -786,6 +828,73 @@ public:
 			+ serialized_size(&obj->pops)
 		;
 		// TODO: Rest of fields
+	}
+};
+
+template<>
+class Serializer<OutpostType> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const OutpostType* obj) {
+		::serialize(stream, &obj->ref_name);
+		::serialize(stream, &obj->is_naval);
+		::serialize(stream, &obj->is_build_land_units);
+		::serialize(stream, &obj->is_build_naval_units);
+		::serialize(stream, &obj->defense_bonus);
+		::serialize(stream, &obj->req_goods);
+	}
+	static inline void deserialize(Archive& stream, OutpostType* obj) {
+		::deserialize(stream, &obj->ref_name);
+		::deserialize(stream, &obj->is_naval);
+		::deserialize(stream, &obj->is_build_land_units);
+		::deserialize(stream, &obj->is_build_naval_units);
+		::deserialize(stream, &obj->defense_bonus);
+		::deserialize(stream, &obj->req_goods);
+	}
+	static inline size_t size(const OutpostType* obj) {
+		return
+			serialized_size(&obj->ref_name)
+			+ serialized_size(&obj->is_naval)
+			+ serialized_size(&obj->is_build_land_units)
+			+ serialized_size(&obj->is_build_naval_units)
+			+ serialized_size(&obj->defense_bonus)
+			+ serialized_size(&obj->req_goods)
+		;
+	}
+};
+
+template<>
+class Serializer<Outpost> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const Outpost* obj) {
+		::serialize(stream, &obj->x);
+		::serialize(stream, &obj->y);
+		::serialize(stream, &obj->type);
+		::serialize(stream, &obj->owner);
+		::serialize(stream, &obj->working_unit);
+		::serialize(stream, &obj->build_time);
+		::serialize(stream, &obj->req_goods);
+	}
+	static inline void deserialize(Archive& stream, Outpost* obj) {
+		::deserialize(stream, &obj->x);
+		::deserialize(stream, &obj->y);
+		::deserialize(stream, &obj->type);
+		::deserialize(stream, &obj->owner);
+		::deserialize(stream, &obj->working_unit);
+		::deserialize(stream, &obj->build_time);
+		::deserialize(stream, &obj->req_goods);
+	}
+	static inline size_t size(const Outpost* obj) {
+		return
+			serialized_size(&obj->x)
+			+ serialized_size(&obj->y)
+			+ serialized_size(&obj->type)
+			+ serialized_size(&obj->owner)
+			+ serialized_size(&obj->working_unit)
+			+ serialized_size(&obj->build_time)
+			+ serialized_size(&obj->req_goods)
+		;
 	}
 };
 
