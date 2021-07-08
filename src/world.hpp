@@ -146,6 +146,9 @@ public:
 	// The height and width of the world
 	size_t width, height;
 
+	// Current time (in ticks)
+	uint64_t time = 0;
+
 	// List of units present in the world
 	std::vector<Unit*> units;
 	mutable std::mutex units_mutex;
@@ -213,34 +216,41 @@ public:
 	// List of convoys on the world (unused)
 	std::vector<CommercialConvoy> convoys;
 
-	// Current time (in ticks)
-	uint64_t time = 0;
-
 	// Array containing a list of tile pointers that have changed owners
-	std::vector<Tile *> nation_changed_tiles;
+	std::vector<Tile*> nation_changed_tiles;
 	mutable std::mutex nation_changed_tiles_mutex;
 
 	// Array containing a list of tile pointers that have changed elevation
-	std::vector<Tile *> elevation_changed_tiles;
+	std::vector<Tile*> elevation_changed_tiles;
 	mutable std::mutex elevation_changed_tiles_mutex;
 
 	// A list containing descisions taken by countries
-	std::vector<Descision *> taken_descisions;
+	std::vector<Descision*> taken_descisions;
 	mutable std::mutex taken_descisions_mutex;
 
-	NationId get_id(const Nation* ptr) const;
-	ProvinceId get_id(const Province* ptr) const;
-	ProductId get_id(const Product* ptr) const;
-	GoodId get_id(const Good* ptr) const;
-	CultureId get_id(const Culture* ptr) const;
-	CompanyId get_id(const Company* ptr) const;
-	IndustryTypeId get_id(const IndustryType* ptr) const;
-	IndustryId get_id(const Province& province, const Industry* ptr) const;
-	EventId get_id(const Event* ptr) const;
-	UnitTypeId get_id(const UnitType* ptr) const;
-	BoatTypeId get_id(const BoatType* ptr) const;
-	UnitTraitId get_id(const UnitTrait* ptr) const;
-	UnitId get_id(const Unit* ptr) const;
+	// Dinarray containing types of outposts
+	std::vector<OutpostType*> outpost_types;
+	mutable std::mutex outpost_types_mutex;
+
+	// Dinarray containing all outposts
+	std::vector<Outpost*> outposts;
+	mutable std::mutex outposts_mutex;
+
+	Nation::Id get_id(const Nation* ptr) const;
+	Province::Id get_id(const Province* ptr) const;
+	Product::Id get_id(const Product* ptr) const;
+	Good::Id get_id(const Good* ptr) const;
+	Culture::Id get_id(const Culture* ptr) const;
+	Company::Id get_id(const Company* ptr) const;
+	IndustryType::Id get_id(const IndustryType* ptr) const;
+	Industry::Id get_id(const Province& province, const Industry* ptr) const;
+	Event::Id get_id(const Event* ptr) const;
+	UnitType::Id get_id(const UnitType* ptr) const;
+	BoatType::Id get_id(const BoatType* ptr) const;
+	UnitTrait::Id get_id(const UnitTrait* ptr) const;
+	Unit::Id get_id(const Unit* ptr) const;
+	OutpostType::Id get_id(const OutpostType* ptr) const;
+	Outpost::Id get_id(const Outpost* ptr) const;
 	
 	size_t get_id(const Tile* ptr) const;
 	

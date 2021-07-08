@@ -773,69 +773,81 @@ void World::do_tick() {
 	time++;
 }
 
-NationId World::get_id(const Nation* ptr) const {
+// TODO: Do a template or something to remove code duplication
+
+Nation::Id World::get_id(const Nation* ptr) const {
 	//std::lock_guard<std::mutex> lock(nations_mutex);
-	return get_id_ptr<NationId>(ptr, nations);
+	return get_id_ptr<Nation::Id>(ptr, nations);
 }
 
-ProvinceId World::get_id(const Province* ptr) const {
+Province::Id World::get_id(const Province* ptr) const {
 	//std::lock_guard<std::mutex> lock(provinces_mutex);
-	return get_id_ptr<ProvinceId>(ptr, provinces);
+	return get_id_ptr<Province::Id>(ptr, provinces);
 }
 
-ProductId World::get_id(const Product* ptr) const {
+Product::Id World::get_id(const Product* ptr) const {
 	//std::lock_guard<std::mutex> lock(products_mutex);
-	return get_id_ptr<ProductId>(ptr, products);
+	return get_id_ptr<Product::Id>(ptr, products);
 }
 
-GoodId World::get_id(const Good* ptr) const {
+Good::Id World::get_id(const Good* ptr) const {
 	//std::lock_guard<std::mutex> lock(goods_mutex);
-	return get_id_ptr<GoodId>(ptr, goods);
+	return get_id_ptr<Good::Id>(ptr, goods);
 }
 
-CultureId World::get_id(const Culture* ptr) const {
+Culture::Id World::get_id(const Culture* ptr) const {
 	//std::lock_guard<std::mutex> lock(cultures_mutex);
-	return get_id_ptr<CultureId>(ptr, cultures);
+	return get_id_ptr<Culture::Id>(ptr, cultures);
 }
 
-CompanyId World::get_id(const Company* ptr) const {
+Company::Id World::get_id(const Company* ptr) const {
 	//std::lock_guard<std::mutex> lock(companies_mutex);
-	return get_id_ptr<CompanyId>(ptr, companies);
+	return get_id_ptr<Company::Id>(ptr, companies);
 }
 
-IndustryTypeId World::get_id(const IndustryType* ptr) const {
+IndustryType::Id World::get_id(const IndustryType* ptr) const {
 	//std::lock_guard<std::mutex> lock(industry_types_mutex);
-	return get_id_ptr<IndustryTypeId>(ptr, industry_types);
+	return get_id_ptr<IndustryType::Id>(ptr, industry_types);
 }
 
-IndustryId World::get_id(const Province& province, const Industry* ptr) const {
+Industry::Id World::get_id(const Province& province, const Industry* ptr) const {
 	//std::lock_guard<std::mutex> lock(provinces_mutex);
 	return ((ptrdiff_t)ptr - (ptrdiff_t)&province.industries[0]) / sizeof(Industry);
 }
 
-EventId World::get_id(const Event* ptr) const {
+Event::Id World::get_id(const Event* ptr) const {
 	//std::lock_guard<std::mutex> lock(events_mutex);
-	return get_id_ptr<EventId>(ptr, events);
+	return get_id_ptr<Event::Id>(ptr, events);
 }
 
-UnitTypeId World::get_id(const UnitType* ptr) const {
+UnitType::Id World::get_id(const UnitType* ptr) const {
 	//std::lock_guard<std::mutex> lock(unit_types_mutex);
-	return get_id_ptr<UnitTypeId>(ptr, unit_types);
+	return get_id_ptr<UnitType::Id>(ptr, unit_types);
 }
 
-BoatTypeId World::get_id(const BoatType* ptr) const {
+BoatType::Id World::get_id(const BoatType* ptr) const {
 	//std::lock_guard<std::mutex> lock(boat_types_mutex);
-	return get_id_ptr<BoatTypeId>(ptr, boat_types);
+	return get_id_ptr<BoatType::Id>(ptr, boat_types);
 }
 
-UnitTraitId World::get_id(const UnitTrait* ptr) const {
+UnitTrait::Id World::get_id(const UnitTrait* ptr) const {
 	//std::lock_guard<std::mutex> lock(unit_traits_mutex);
-	return get_id_ptr<UnitTraitId>(ptr, unit_traits);
+	return get_id_ptr<UnitTrait::Id>(ptr, unit_traits);
 }
 
-UnitId World::get_id(const Unit* ptr) const {
+Unit::Id World::get_id(const Unit* ptr) const {
 	//std::lock_guard<std::mutex> lock(units_mutex);
-	return get_id_ptr<UnitId>(ptr, units);
+	return get_id_ptr<Unit::Id>(ptr, units);
+}
+
+OutpostType::Id World::get_id(const OutpostType* ptr) const {
+	//std::lock_guard<std::mutex> lock(outpost_types_mutex);
+	return get_id_ptr<OutpostType::Id>(ptr, outpost_types);
+}
+
+Outpost::Id World::get_id(const Outpost* ptr) const {
+	//std::lock_guard<std::mutex> lock(outposts_mutex);
+	return get_id_ptr<Outpost::Id>(ptr, outposts);
 }
 
 size_t World::get_id(const Tile* ptr) const {
