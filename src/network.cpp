@@ -1,6 +1,4 @@
-#ifdef WIN32
-// Winsockets
-#else
+#ifdef unix
 #	include <sys/socket.h>
 #	include <sys/ioctl.h>
 #	include <netdb.h>
@@ -21,26 +19,58 @@ Server* g_server = nullptr;
 Server::Server(const unsigned port, const unsigned max_conn) {
 	g_server = this;
 	
+#ifdef windows
+	WSADATA data;
+	WSAStartup(MAKEWORD(2, 2), &data);
+#endif
+
+	struct addrinfo * result = NULL;
 	fd = socket(AF_INET, SOCK_STREAM, 0);
+#ifdef unix
 	if(fd == -1) {
 		print_error("Cannot create server socket");
 		return;
 	}
+#elif defined windows
+	if(fd == INVALID_SOCKET) {
+		print_error("Cannot create server socket");
+		WSACleanup();
+		return;
+	}
+#endif
 
-	run = true;
-
-	bzero(&addr, sizeof(addr));
+	memset(&addr, 0, sizeof(addr));
+#ifdef unix
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	addr.sin_port = htons(port);
+#elif defined windows
+	addr.ai_family = AF_UNSPEC;
+	addr.ai_protocol = IPPROTO_TCP;
+	addr.ai_socktype = SOCK_STREAM;
+#endif
+	
+	char* tmpbuf = new char[16];
+	sprintf(tmpbuf, "%u", port);
+	if(getaddrinfo(NULL, tmpbuf, &addr, &result) != 0) {
+		print_error("getaddr, WSA code: %u", WSAGetLastError());
+		WSACleanup();
+		return;
+	}
+	delete[] tmpbuf;
 
-	if(bind(fd, (sockaddr *)&addr, sizeof(addr)) != 0) {
+	if(bind(fd, (sockaddr *)result, sizeof(addr)) != 0) {
 		print_error("Cannot bind server on port %u", port);
+#if defined windows
+		print_error("bind, WSA code: %u", WSAGetLastError());
+		WSACleanup();
+#endif
 		return;
 	}
 
 	if(listen(fd, max_conn) != 0) {
 		print_error("Cannot listen on %u connections", max_conn);
+		WSACleanup();
 		return;
 	}
 
@@ -52,6 +82,7 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 	packet_queues.resize(max_conn);
 	packet_mutexes = new std::mutex[max_conn];
 	
+	run = true;
 	print_info("Server created sucessfully and listening to %u", port);
 	print_info("Server ready, now people can join!")
 }
@@ -62,7 +93,12 @@ Server::~Server() {
 		thread.join();
 	}
 
+#ifdef unix
 	close(fd);
+#elif defined windows
+	closesocket(fd);
+	WSACleanup();
+#endif
 }
 
 #include "actions.hpp"
@@ -100,6 +136,12 @@ void Server::net_loop(int id) {
 			}
 
 			print_info("New client connection established");
+			
+			fd_set fdset;
+			FD_ZERO(&fdset);
+			FD_SET(conn_fd, &fdset);
+			
+			struct timeval time_out;	
 			Nation* selected_nation = nullptr;
 			
 			Packet packet = Packet(conn_fd);
@@ -118,7 +160,8 @@ void Server::net_loop(int id) {
 				
 				// Read the messages if there is any pending bytes on the tx
 				while(has_pending) {
-					ioctl(conn_fd, FIONREAD, &has_pending);
+					memset(&time_out, 0, sizeof(time_out));
+					has_pending = select(conn_fd, &fdset, NULL, NULL, &time_out);
 					if(!has_pending) {
 						break;
 					}
@@ -305,20 +348,48 @@ void Server::net_loop(int id) {
 Client* g_client = nullptr;
 Client::Client(std::string host, const unsigned port) {
 	g_client = this;
-	
-	fd = socket(AF_INET, SOCK_STREAM, 0);
-	if(fd < 0) {
-		print_error("Cannot create client socket");
-		return;
-	}
 
-	bzero(&addr, sizeof(addr));
+#ifdef windows
+	WSADATA data;
+	WSAStartup(MAKEWORD(2, 2), &data);
+#endif
+	
+	struct addrinfo * result = NULL;
+	memset(&addr, 0, sizeof(addr));
+#ifdef unix
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = inet_addr(host.c_str());
 	addr.sin_port = htons(port);
+#elif defined windows
+	addr.ai_family = AF_UNSPEC;
+	addr.ai_protocol = IPPROTO_TCP;
+	addr.ai_socktype = SOCK_STREAM;
+#endif
 
-	if(connect(fd, (sockaddr *)&addr, sizeof(addr)) != 0) {
-		print_error("Cannot connect to server");
+	char* tmpbuf = new char[16];
+	sprintf(tmpbuf, "%u", port);
+	if(getaddrinfo(NULL, tmpbuf, &addr, &result) != 0) {
+		print_error("getaddr, WSA code: %u", WSAGetLastError());
+		WSACleanup();
+		return;
+	}
+	delete[] tmpbuf;
+
+	fd = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+#ifdef unix
+	if(fd < 0) {
+#elif defined windows
+	if(fd == INVALID_SOCKET) {
+#endif
+		print_error("Cannot create client socket, WSA Code: %u", WSAGetLastError());
+		return;
+	}
+	
+	if(connect(fd, (sockaddr *)result, sizeof(sockaddr)) != 0) {
+		print_error("Cannot connect to server %s:%u", host.c_str(), port);
+#ifdef windows
+		print_error("connect, WSA Code: %u", WSAGetLastError());
+#endif
 		return;
 	}
 	
@@ -350,12 +421,19 @@ void Client::net_loop(void) {
 	try {
 		enum ActionType action;
 		
+		fd_set fdset;
+		FD_ZERO(&fdset);
+		FD_SET(fd, &fdset);
+			
+		struct timeval time_out;
 		while(1) {
 			int has_pending = 1;
 			
 			// Read the messages if there is any pending bytes on the tx
 			while(has_pending) {
-				ioctl(this->get_fd(), FIONREAD, &has_pending);
+				//ioctl(this->get_fd(), FIONREAD, &has_pending);
+				memset(&time_out, 0, sizeof(time_out));
+				has_pending = select(fd, &fdset, NULL, NULL, &time_out);
 				if(!has_pending) {
 					break;
 				}

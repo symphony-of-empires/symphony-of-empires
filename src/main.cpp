@@ -1,8 +1,14 @@
 #include <string>
 #include "world.hpp"
-#include "lua.hpp"
+#include "lua_api.hpp"
 
 void rendering_main(void);
+
+#ifdef windows
+const char* gettext(const char* str) {
+	return str;
+}
+#endif
 
 #include <chrono>
 #include <thread>
@@ -12,8 +18,10 @@ std::atomic<bool> run;
 std::atomic<bool> paused;
 std::atomic<bool> do_start;
 
-#include <libintl.h>
-#include <locale.h>
+#ifdef unix
+#	include <libintl.h>
+#	include <locale.h>
+#endif
 #include "path.hpp"
 #include "network.hpp"
 
@@ -28,9 +36,11 @@ std::string server_addr;
 
 #include <iostream>
 int main(int argc, char ** argv) {
+#ifdef unix
 	setlocale(LC_ALL, "");
 	bindtextdomain("main", Path::get("locale").c_str());
 	textdomain("main");
+#endif
 	
 #ifndef UNIT_TEST
 	// Run as a server for servicing multiple clients
@@ -84,7 +94,7 @@ int main(int argc, char ** argv) {
 	return 0;
 }
 
-#ifdef WIN32
+#ifdef windows
 #include <windows.h>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {
 	char* argv[1];
