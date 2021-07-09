@@ -429,7 +429,7 @@ Province:add_pop(province, slave, brazilian, catholic, 500, 0.5)
 Province:add_nucleus(province, brazil)
 Province:give_to(province, brazil)
 
-province = Province:create{ ref_name = "sao_borja", color = 0xD089FF }
+province = Province:create{ ref_name = "sao_borja", color = 0x6fa280 }
 province.name = _("São Borja")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
