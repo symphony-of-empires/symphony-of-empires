@@ -429,6 +429,23 @@ Province:add_pop(province, slave, brazilian, catholic, 500, 0.5)
 Province:add_nucleus(province, brazil)
 Province:give_to(province, brazil)
 
+province = Province:create{ ref_name = "sao_borja", color = 0xD089FF }
+province.name = _("São Borja")
+Province:register(province)
+Province:add_industry(province, wheat_farm, andes_transport)
+Province:add_pop(province, artisan, brazilian, catholic, 5000, 0.7)
+Province:add_pop(province, farmer, brazilian, catholic, 5000, 0.1)
+Province:add_pop(province, soldier, brazilian, catholic, 5000, 0.2)
+Province:add_pop(province, craftsmen, brazilian, catholic, 5000, 0.2)
+Province:add_pop(province, bureaucrat, brazilian, catholic, 5000, 0.7)
+Province:add_pop(province, aristocrat, brazilian, catholic, 5000, 0.2)
+Province:add_pop(province, clergymen, brazilian, catholic, 5000, 0.3)
+Province:add_pop(province, laborer, brazilian, catholic, 5000, 0.2)
+Province:add_pop(province, entrepreneur, brazilian, catholic, 500, 0.9)
+Province:add_pop(province, slave, brazilian, catholic, 500, 0.5)
+Province:add_nucleus(province, brazil)
+Province:give_to(province, brazil)
+
 province = Province:create{ ref_name = "cisplatina", color = 0xFFEA84 }
 province.name = _("Cisplatina")
 Province:register(province)
