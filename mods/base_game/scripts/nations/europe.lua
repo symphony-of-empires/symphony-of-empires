@@ -60,6 +60,9 @@ Nation:register(brittany)
 normandy = Nation:create{ ref_name = "normandy" }
 normandy.name = _("Normandy")
 Nation:register(normandy)
+occitania = Nation:create{ ref_name = "occitania"}
+occitania.name = _("Occitania")
+Nation:register(occitania)
 catalonia = Nation:create{ ref_name = "catalonia" }
 catalonia.name = _("Catalonia")
 Nation:register(catalonia)
