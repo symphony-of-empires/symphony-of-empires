@@ -43,8 +43,15 @@ public:
 * Represents an order, something an industry wants and that should be
 * fullfilled by transport companies
  */
+enum OrderType {
+	ORDER_INDUSTRIAL,
+	ORDER_OUTPOST_BUILD,
+	ORDER_UNIT_BUILD,
+};
 class OrderGoods {
 public:
+	enum OrderType type;
+
 	// How many we are willing to pay for the goods to be sent to us
 	float payment;
 
@@ -54,8 +61,12 @@ public:
 	// Quantity of desired goods
 	size_t quantity;
 
-	// ID of the industry (inside the province) who requested this good
-	Industry* industry;
+	union {
+		// ID of the industry (inside the province) who requested this good
+		Industry* industry;
+		// It can also be a outpost who requests this
+		Outpost* outpost;
+	};
 
 	// ID of the province where the industry (who requested this) is located in
 	Province* province;
