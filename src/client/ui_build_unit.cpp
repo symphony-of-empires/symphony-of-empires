@@ -43,10 +43,8 @@ void ui_build_unit(Outpost* outpost) {
 				enum ActionType action = ACTION_OUTPOST_START_BUILDING_UNIT;
 				::serialize(ar, &action);
 				
-				// OutpostRef
-				::serialize(ar, &g_outpost);
-				// UnitTypeRef
-				::serialize(ar, (const UnitType*)&data);
+				::serialize(ar, &g_outpost); // OutpostRef
+				::serialize(ar, (const UnitType*)&data); // UnitTypeRef
 
 				packet.data(ar.get_buffer(), ar.size());
 				g_client->packet_queue.push_back(packet);
@@ -70,10 +68,8 @@ void ui_build_unit(Outpost* outpost) {
 				enum ActionType action = ACTION_OUTPOST_START_BUILDING_BOAT;
 				::serialize(ar, &action);
 				
-				// OutpostRef
-				::serialize(ar, &g_outpost);
-				// BoatTypeRef
-				::serialize(ar, (const BoatType*)&data);
+				::serialize(ar, &g_outpost); // OutpostRef
+				::serialize(ar, (const BoatType*)&data); // BoatTypeRef
 
 				packet.data(ar.get_buffer(), ar.size());
 				g_client->packet_queue.push_back(packet);

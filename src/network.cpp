@@ -141,15 +141,14 @@ void Server::net_loop(int id) {
 			print_info("Sent action %zu", (size_t)action);
 
 			int has_pending;
-			/*struct pollfd pfd;
-			pfd.fd = fd;
-			pfd.events = POLLIN;
-			pfd.revents = 0;*/
+			//struct pollfd pfd;
+			//pfd.fd = conn_fd;
+			//pfd.events = POLLIN;
 
 			while(run) {
 				// Read the messages if there is any pending bytes on the tx
-				/*poll(&pfd, 1, -1);
-				if(pfd.revents & POLLIN) {*/
+				//poll(&pfd, 1, -1);
+				//if(pfd.revents & POLLIN) {
 				has_pending = 0;
 				ioctl(conn_fd, FIONREAD, &has_pending);
 				if(has_pending) {
@@ -427,16 +426,14 @@ void Client::net_loop(void) {
 	try {
 		enum ActionType action;
 		int has_pending;
-		/*struct pollfd pfd;
-		pfd.fd = fd;
-		pfd.events = POLLIN;
-		pfd.revents = 0;*/
+		//struct pollfd pfd;
+		//pfd.fd = fd;
+		//pfd.events = POLLIN;
 
 		while(1) {
 			// Read the messages if there is any pending bytes on the tx
-			/*poll(&pfd, 1, -1);
-			if(pfd.revents & POLLIN) {*/
-
+			//poll(&pfd, 1, -1);
+			//if(pfd.revents & POLLIN) {
 			has_pending = 0;
 			ioctl(fd, FIONREAD, &has_pending);
 			if(has_pending) {
