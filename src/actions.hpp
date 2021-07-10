@@ -20,6 +20,8 @@ enum ActionType {
 	ACTION_UNIT_REMOVE,
 	ACTION_UNIT_CHANGE_TARGET,
 
+	ACTION_BUILD_OUTPOST,
+
 	// Tell client that a whole tick has been done :D
 	ACTION_WORLD_TICK,
 

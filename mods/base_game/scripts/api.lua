@@ -183,6 +183,22 @@ function Religion:register(religion)
 	religion.id = add_religion(religion.ref_name, religion.name)
 end
 
+OutpostType = {
+	id = 0,
+	ref_name = "",
+	is_naval = false,
+	is_build_land_units = false,
+	is_build_naval_units = false,
+	defense_bonus = 1.0,
+}
+function OutpostType:create(outpost_type)
+	outpost_type.parent = self
+	return outpost_type
+end
+function OutpostType:register(outpost_type)
+	outpost_type.id = add_outpost_type(outpost_type.ref_name, outpost_type.is_naval, outpost_type.is_build_land_units, outpost_type.is_build_naval_units, outpost_type.defense_bonus)
+end
+
 UnitType = {
 	id = 0,
 	ref_name = "",
