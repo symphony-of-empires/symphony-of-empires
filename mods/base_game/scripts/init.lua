@@ -3,20 +3,30 @@ require("api")
 -- Unit traits
 local trait = UnitTrait:create{ ref_name = "fanatic", attack_mod = 1.2 }
 UnitTrait:register(trait)
-local trait = UnitTrait:create{ ref_name = "frugal", supply_consumption_mod = 0.7 }
+trait = UnitTrait:create{ ref_name = "frugal", supply_consumption_mod = 0.7 }
 UnitTrait:register(trait)
-local trait = UnitTrait:create{ ref_name = "stupid", attack_mod = 1.5, defense_mod = 0.8, supply_consumption_mod = 1.4 }
+trait = UnitTrait:create{ ref_name = "stupid", attack_mod = 1.5, defense_mod = 0.8, supply_consumption_mod = 1.4 }
 UnitTrait:register(trait)
-local trait = UnitTrait:create{ ref_name = "heroic", attack_mod = 0.7, defense_mod = 1.5 }
+trait = UnitTrait:create{ ref_name = "heroic", attack_mod = 0.7, defense_mod = 1.5 }
 UnitTrait:register(trait)
-local trait = UnitTrait:create{ ref_name = "iron_teeth", supply_consumption_mod = 0.7 }
+trait = UnitTrait:create{ ref_name = "iron_teeth", supply_consumption_mod = 0.7 }
 UnitTrait:register(trait)
-local trait = UnitTrait:create{ ref_name = "chargers", attack_mod = 2.0 }
+trait = UnitTrait:create{ ref_name = "chargers", attack_mod = 2.0 }
 UnitTrait:register(trait)
-local trait = UnitTrait:create{ ref_name = "zealous", defense_mod = 2.0 }
+trait = UnitTrait:create{ ref_name = "zealous", defense_mod = 2.0 }
 UnitTrait:register(trait)
-local trait = UnitTrait:create{ ref_name = "suicidal", attack_mod = 5.0, defense_mod = 0.1, supply_consumption_mod = 5.0 }
+trait = UnitTrait:create{ ref_name = "suicidal", attack_mod = 5.0, defense_mod = 0.1, supply_consumption_mod = 5.0 }
 UnitTrait:register(trait)
+
+-- Outpost types
+local outpost_type = OutpostType:create{ ref_name = "barracks", is_build_land_units = true, defense_bonus = 1.05 }
+OutpostType:register(outpost_type)
+outpost_type = OutpostType:create{ ref_name = "fort", defense_bonus = 1.45 }
+OutpostType:register(outpost_type)
+outpost_type = OutpostType:create{ ref_name = "seaport", is_build_naval_units = true, defense_bonus = 1.05 }
+OutpostType:register(outpost_type)
+outpost_type = OutpostType:create{ ref_name = "coast_cannons", defense_bonus = 1.01 }
+OutpostType:register(outpost_type)
 
 -- Culture
 

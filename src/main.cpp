@@ -61,6 +61,9 @@ int main(int argc, char ** argv) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			while(paused);
 		}
+
+		delete world;
+		delete server;
 	}
 	// Run as a client, receiving and sending packages to/from a server
 	else {
@@ -88,6 +91,9 @@ int main(int argc, char ** argv) {
 		}
 		
 		t1.join();
+		
+		delete world;
+		delete client;
 	}
 #endif
 	exit(EXIT_SUCCESS);

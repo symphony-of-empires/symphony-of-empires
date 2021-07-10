@@ -44,6 +44,11 @@ void ui_reform_policies(UI::Widget&, void*) {
 			nobody_btn->on_click = [](UI::Widget&, void*) {
 				curr_nation->current_policy.migration = ALLOW_NOBODY;
 			};
+			nobody_btn->on_update = [](UI::Widget& w, void*) {
+				w.current_texture = (curr_nation->current_policy.migration == ALLOW_NOBODY)
+				? checkbox_ppv_on
+				: checkbox_ppv_off;
+			};
 			
 			UI::Button* accepted_only_btn = new UI::Button(9, 43, button_ppv->width, button_ppv->height, reform_win);
 			accepted_only_btn->text("Accepted culture");
@@ -51,6 +56,11 @@ void ui_reform_policies(UI::Widget&, void*) {
 			accepted_only_btn->current_texture = button_ppv;
 			accepted_only_btn->on_click = [](UI::Widget&, void*) {
 				curr_nation->current_policy.migration = ALLOW_ACCEPTED_CULTURES;
+			};
+			accepted_only_btn->on_update = [](UI::Widget& w, void*) {
+				w.current_texture = (curr_nation->current_policy.migration == ALLOW_ACCEPTED_CULTURES)
+				? checkbox_ppv_on
+				: checkbox_ppv_off;
 			};
 			
 			UI::Button* all_payment_btn = new UI::Button(9, 43, button_ppv->width, button_ppv->height, reform_win);
@@ -60,6 +70,11 @@ void ui_reform_policies(UI::Widget&, void*) {
 			all_payment_btn->on_click = [](UI::Widget&, void*) {
 				curr_nation->current_policy.migration = ALLOW_ALL_PAYMENT;
 			};
+			all_payment_btn->on_update = [](UI::Widget& w, void*) {
+				w.current_texture = (curr_nation->current_policy.migration == ALLOW_ALL_PAYMENT)
+				? checkbox_ppv_on
+				: checkbox_ppv_off;
+			};
 			
 			UI::Button* allow_all_btn = new UI::Button(9, 43, button_ppv->width, button_ppv->height, reform_win);
 			allow_all_btn->text("All");
@@ -67,6 +82,11 @@ void ui_reform_policies(UI::Widget&, void*) {
 			allow_all_btn->current_texture = button_ppv;
 			allow_all_btn->on_click = [](UI::Widget&, void*) {
 				curr_nation->current_policy.migration = ALLOW_ALL;
+			};
+			allow_all_btn->on_update = [](UI::Widget& w, void*) {
+				w.current_texture = (curr_nation->current_policy.migration == ALLOW_ALL)
+				? checkbox_ppv_on
+				: checkbox_ppv_off;
 			};
 			
 			UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_ppv->width, button_ppv->height, reform_win);
@@ -345,6 +365,11 @@ void ui_reform_policies(UI::Widget&, void*) {
 			not_allowed_btn->on_click = [](UI::Widget&, void*) {
 				curr_nation->current_policy.build_factories = AUTO_BUILD_NONE;
 			};
+			not_allowed_btn->on_update = [](UI::Widget& w, void*) {
+				w.current_texture = (curr_nation->current_policy.build_factories == AUTO_BUILD_NONE)
+				? checkbox_ppv_on
+				: checkbox_ppv_off;
+			};
 			
 			UI::Button* with_approval_btn = new UI::Button(9, 43, button_ppv->width, button_ppv->height, reform_win);
 			with_approval_btn->text("With approval");
@@ -353,6 +378,11 @@ void ui_reform_policies(UI::Widget&, void*) {
 			with_approval_btn->on_click = [](UI::Widget&, void*) {
 				curr_nation->current_policy.build_factories = AUTO_BUILD_ONLY_APPROVED;
 			};
+			with_approval_btn->on_update = [](UI::Widget& w, void*) {
+				w.current_texture = (curr_nation->current_policy.build_factories == AUTO_BUILD_ONLY_APPROVED)
+				? checkbox_ppv_on
+				: checkbox_ppv_off;
+			};
 			
 			UI::Button* allowed_btn = new UI::Button(9, 43, button_ppv->width, button_ppv->height, reform_win);
 			allowed_btn->text("Allowed");
@@ -360,6 +390,11 @@ void ui_reform_policies(UI::Widget&, void*) {
 			allowed_btn->below_of(dynamic_cast<const UI::Widget&>(*with_approval_btn));
 			allowed_btn->on_click = [](UI::Widget&, void*) {
 				curr_nation->current_policy.build_factories = AUTO_BUILD_ALLOWED;
+			};
+			allowed_btn->on_update = [](UI::Widget& w, void*) {
+				w.current_texture = (curr_nation->current_policy.build_factories == AUTO_BUILD_ALLOWED)
+				? checkbox_ppv_on
+				: checkbox_ppv_off;
 			};
 			
 			UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_ppv->width, button_ppv->height, reform_win);

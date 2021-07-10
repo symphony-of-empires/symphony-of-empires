@@ -6,7 +6,7 @@
 #	include <sys/socket.h>
 #	include <netinet/in.h>
 #elif defined windows
-#define WIN32_LEAN_AND_MEAN
+#	define WIN32_LEAN_AND_MEAN
 #	include <windows.h>
 #	include <winsock2.h>
 #	include <ws2def.h>
@@ -37,6 +37,7 @@ public:
 	SOCKET fd;
 #endif
 
+	Packet() {};
 #ifdef unix
 	Packet(int _fd) : fd(_fd) {};
 #elif defined windows
@@ -66,31 +67,19 @@ public:
 		}
 
 		const uint32_t net_code = htonl(code);
-#ifdef windows
 		if(::send(fd, (const char*)&net_code, sizeof(net_code), 0) == -1) {
-#elif defined unix
-		if(write(fd, &net_code, sizeof(net_code)) == -1) {
-#endif
 			throw std::runtime_error("Socket write error for packet code");
 		}
 		
 		const uint32_t net_size = htonl(n_data);
-#ifdef windows
 		if(::send(fd, (const char*)&net_size, sizeof(net_size), 0) == -1) {
-#elif defined unix
-		if(write(fd, &net_size, sizeof(net_size)) == -1) {
-#endif
 			throw std::runtime_error("Socket write error for size of packet");
 		}
 		
 		/* Socket writes can only be done 1024 bytes at a time */
 		for(size_t i = 0; i < n_data; ) {
 			int r;
-#ifdef windows
 			r = ::send(fd, (const char*)&bufdata[i], std::min<size_t>(1024, n_data - i), 0);
-#elif defined unix
-			r = write(fd, &bufdata[i], std::min<size_t>(1024, n_data - i));
-#endif
 			if(r == -1) {
 				throw std::runtime_error("Socket write error for data in packet");
 			}

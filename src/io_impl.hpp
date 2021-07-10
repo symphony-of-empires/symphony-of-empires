@@ -1112,6 +1112,10 @@ public:
 		::serialize(stream, &n_events);
 		const uint32_t n_unit_traits = obj->unit_traits.size();
 		::serialize(stream, &n_unit_traits);
+		const uint32_t n_outpost_types = obj->outpost_types.size();
+		::serialize(stream, &n_outpost_types);
+		const uint32_t n_outposts = obj->outposts.size();
+		::serialize(stream, &n_outposts);
 		
 		printf("(SERIALIZER) WORLD INFORMATION\n");
 		printf("  n_goods %zu\n", (size_t)n_goods);
@@ -1125,57 +1129,68 @@ public:
 		printf("  n_companies %zu\n", (size_t)n_companies);
 		printf("  n_products %zu\n", (size_t)n_products);
 		printf("  n_events %zu\n", (size_t)n_events);
+		printf("  n_unit_traits %zu\n", (size_t)n_unit_traits);
+		printf("  n_outpost_types %zu\n", (size_t)n_outpost_types);
+		printf("  n_outposts %zu\n", (size_t)n_outposts);
 		
-		for(auto& good: obj->goods) {
-			::serialize(stream, good);
+		for(auto& sub_obj: obj->goods) {
+			::serialize(stream, sub_obj);
 		}
 		
-		for(auto& industry_type: obj->industry_types) {
-			::serialize(stream, industry_type);
+		for(auto& sub_obj: obj->industry_types) {
+			::serialize(stream, sub_obj);
 		}
 		
-		for(auto& unit_type: obj->unit_types) {
-			::serialize(stream, unit_type);
+		for(auto& sub_obj: obj->unit_types) {
+			::serialize(stream, sub_obj);
 		}
 
-		for(auto& boat_type: obj->boat_types) {
-			::serialize(stream, boat_type);
+		for(auto& sub_obj: obj->boat_types) {
+			::serialize(stream, sub_obj);
 		}
 		
-		for(auto& religion: obj->religions) {
-			::serialize(stream, religion);
+		for(auto& sub_obj: obj->religions) {
+			::serialize(stream, sub_obj);
 		}
 		
-		for(auto& culture: obj->cultures) {
-			::serialize(stream, culture);
+		for(auto& sub_obj: obj->cultures) {
+			::serialize(stream, sub_obj);
 		}
 		
-		for(auto& pop_type: obj->pop_types) {
-			::serialize(stream, pop_type);
+		for(auto& sub_obj: obj->pop_types) {
+			::serialize(stream, sub_obj);
 		}
 		
-		for(auto& nation: obj->nations) {
-			::serialize(stream, nation);
+		for(auto& sub_obj: obj->nations) {
+			::serialize(stream, sub_obj);
 		}
 		
-		for(auto& province: obj->provinces) {
-			::serialize(stream, province);
+		for(auto& sub_obj: obj->provinces) {
+			::serialize(stream, sub_obj);
 		}
 		
-		for(auto& company: obj->companies) {
-			::serialize(stream, company);
+		for(auto& sub_obj: obj->companies) {
+			::serialize(stream, sub_obj);
 		}
 		
-		for(auto& product: obj->products) {
-			::serialize(stream, product);
+		for(auto& sub_obj: obj->products) {
+			::serialize(stream, sub_obj);
 		}
 		
-		for(auto& event: obj->events) {
-			::serialize(stream, event);
+		for(auto& sub_obj: obj->events) {
+			::serialize(stream, sub_obj);
 		}
 
-		for(auto& unit_trait: obj->unit_traits) {
-			::serialize(stream, unit_trait);
+		for(auto& sub_obj: obj->unit_traits) {
+			::serialize(stream, sub_obj);
+		}
+
+		for(auto& sub_obj: obj->outpost_types) {
+			::serialize(stream, sub_obj);
+		}
+
+		for(auto& sub_obj: obj->outposts) {
+			::serialize(stream, sub_obj);
 		}
 		
 		::serialize(stream, &obj->delivers);
@@ -1286,8 +1301,22 @@ public:
 			UnitTrait* sub_obj = new UnitTrait();
 			obj->unit_traits.push_back(sub_obj);
 		}
+
+		uint32_t n_outpost_types;
+		::deserialize(stream, &n_outpost_types);
+		for(size_t i = 0; i < n_outpost_types; i++) {
+			OutpostType* sub_obj = new OutpostType();
+			obj->outpost_types.push_back(sub_obj);
+		}
+
+		uint32_t n_outposts;
+		::deserialize(stream, &n_outposts);
+		for(size_t i = 0; i < n_outposts; i++) {
+			Outpost* sub_obj = new Outpost();
+			obj->outposts.push_back(sub_obj);
+		}
 		
-		printf("(DESERIALIZED) WORLD INFORMATION\n");
+		printf("(DESERIALIZER) WORLD INFORMATION\n");
 		printf("  n_goods %zu\n", (size_t)n_goods);
 		printf("  n_industry_types %zu\n", (size_t)n_industry_types);
 		printf("  n_unit_types %zu\n", (size_t)n_unit_types);
@@ -1299,6 +1328,9 @@ public:
 		printf("  n_companies %zu\n", (size_t)n_companies);
 		printf("  n_products %zu\n", (size_t)n_products);
 		printf("  n_events %zu\n", (size_t)n_events);
+		printf("  n_unit_traits %zu\n", (size_t)n_unit_traits);
+		printf("  n_outpost_types %zu\n", (size_t)n_outpost_types);
+		printf("  n_outposts %zu\n", (size_t)n_outposts);
 		
 		for(size_t i = 0; i < n_goods; i++) {
 			Good* sub_obj = obj->goods[i];
@@ -1362,6 +1394,16 @@ public:
 
 		for(size_t i = 0; i < n_unit_traits; i++) {
 			UnitTrait* sub_obj = obj->unit_traits[i];
+			::deserialize(stream, sub_obj);
+		}
+
+		for(size_t i = 0; i < n_outpost_types; i++) {
+			OutpostType* sub_obj = obj->outpost_types[i];
+			::deserialize(stream, sub_obj);
+		}
+
+		for(size_t i = 0; i < n_outposts; i++) {
+			Outpost* sub_obj = obj->outposts[i];
 			::deserialize(stream, sub_obj);
 		}
 		
