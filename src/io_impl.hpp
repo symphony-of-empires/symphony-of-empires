@@ -872,7 +872,8 @@ public:
 		::serialize(stream, &obj->y);
 		::serialize(stream, &obj->type);
 		::serialize(stream, &obj->owner);
-		::serialize(stream, &obj->working_unit);
+		::serialize(stream, &obj->working_unit_type);
+		::serialize(stream, &obj->working_boat_type);
 		::serialize(stream, &obj->build_time);
 		::serialize(stream, &obj->req_goods);
 	}
@@ -881,7 +882,8 @@ public:
 		::deserialize(stream, &obj->y);
 		::deserialize(stream, &obj->type);
 		::deserialize(stream, &obj->owner);
-		::deserialize(stream, &obj->working_unit);
+		::deserialize(stream, &obj->working_unit_type);
+		::deserialize(stream, &obj->working_boat_type);
 		::deserialize(stream, &obj->build_time);
 		::deserialize(stream, &obj->req_goods);
 	}
@@ -891,7 +893,8 @@ public:
 			+ serialized_size(&obj->y)
 			+ serialized_size(&obj->type)
 			+ serialized_size(&obj->owner)
-			+ serialized_size(&obj->working_unit)
+			+ serialized_size(&obj->working_unit_type)
+			+ serialized_size(&obj->working_boat_type)
 			+ serialized_size(&obj->build_time)
 			+ serialized_size(&obj->req_goods)
 		;
