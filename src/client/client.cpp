@@ -466,6 +466,8 @@ void colonize_province(UI::Widget& w, void* data) {
 	curr_nation->budget -= 10000;
 }
 
+extern void ui_build_unit(Outpost* outpost);
+
 std::vector<Event> displayed_events;
 void select_nation(void) {
 	g_world->client_update = &client_update;
@@ -542,6 +544,7 @@ void select_nation(void) {
 	play_btn->on_click = &play_nation;
 	
 	Unit* selected_unit = nullptr;
+	Outpost* selected_outpost = nullptr;
 	
 	size_t last_inbox_size = 0;
 	uint64_t last_time = 0;
@@ -581,6 +584,7 @@ void select_nation(void) {
 					case MAP_MODE_NORMAL:
 						// See untis that have been clicked on
 						if(event.button.button == SDL_BUTTON_LEFT) {
+							// Check if we selected an unit
 							selected_unit = nullptr;
 							for(const auto& unit: g_world->units) {
 								const float size = 2.f;
@@ -592,24 +596,39 @@ void select_nation(void) {
 									break;
 								}
 							}
-
-							if(selected_unit != nullptr) {
+							if(selected_unit != nullptr)
 								break;
+
+							// Check if we selected an outpost
+							selected_outpost = nullptr;
+							for(const auto& outpost: g_world->outposts) {
+								const float size = 2.f;
+								if((int)select_pos.first > (int)outpost->x - size
+								&& (int)select_pos.first < (int)outpost->x + size
+								&& (int)select_pos.second > (int)outpost->y - size
+								&& (int)select_pos.second < (int)outpost->y + size) {
+									selected_outpost = outpost;
+									break;
+								}
 							}
+							if(selected_outpost != nullptr)
+								break;
 							
 							// Tell the server about an action for building an outpost
 							g_client->packet_mutex.lock();
 							Packet packet = Packet();
 							Archive ar = Archive();
-							enum ActionType action = ACTION_BUILD_OUTPOST;
+							enum ActionType action = ACTION_OUTPOST_ADD;
 							::serialize(ar, &action);
 							Outpost outpost = Outpost();
 							outpost.type = g_world->outpost_types[0];
 							outpost.x = select_pos.first;
 							outpost.y = select_pos.second;
+							outpost.working_unit_type = nullptr;
+							outpost.working_boat_type = nullptr;
 							outpost.req_goods = outpost.type->req_goods;
 							outpost.owner = g_world->nations[curr_selected_nation];
-							::serialize(ar, &outpost);
+							::serialize(ar, &outpost); // OutpostObj
 							packet.data(ar.get_buffer(), ar.size());
 							g_client->packet_queue.push_back(packet);
 							g_client->packet_mutex.unlock();
@@ -632,6 +651,8 @@ void select_nation(void) {
 								g_client->packet_queue.push_back(packet);
 								g_client->packet_mutex.unlock();
 								break;
+							} else if(selected_outpost != nullptr) {
+								ui_build_unit(selected_outpost);
 							} else {
 								g_client->packet_mutex.lock();
 								Packet packet = Packet();
