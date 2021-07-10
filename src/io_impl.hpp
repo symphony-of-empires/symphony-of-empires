@@ -25,6 +25,10 @@ public:
 	static inline void deserialize(Archive& stream, Province** obj) {
 		Province::Id id;
 		::deserialize(stream, &id);
+		if(id >= g_world->provinces.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (Province::Id)-1) ? g_world->provinces[id] : nullptr;
 	}
 	static inline size_t size(const Province* const*) {
@@ -43,6 +47,10 @@ public:
 	static inline void deserialize(Archive& stream, Nation** obj) {
 		NationId id;
 		::deserialize(stream, &id);
+		if(id >= g_world->nations.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (NationId)-1) ? g_world->nations[id] : nullptr;
 	}
 	static inline size_t size(const Nation* const*) {
@@ -61,6 +69,10 @@ public:
 	static inline void deserialize(Archive& stream, Event** obj) {
 		EventId id;
 		::deserialize(stream, &id);
+		if(id >= g_world->events.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (EventId)-1) ? g_world->events[id] : nullptr;
 	}
 	static inline size_t size(const Event* const*) {
@@ -79,6 +91,10 @@ public:
 	static inline void deserialize(Archive& stream, Product** obj) {
 		ProductId id;
 		::deserialize(stream, &id);
+		if(id >= g_world->products.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (ProductId)-1) ? g_world->products[id] : nullptr;
 	}
 	static inline size_t size(const Product* const*) {
@@ -97,6 +113,10 @@ public:
 	static inline void deserialize(Archive& stream, Culture** obj) {
 		CultureId id;
 		::deserialize(stream, &id);
+		if(id >= g_world->cultures.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (CultureId)-1) ? g_world->cultures[id] : nullptr;
 	}
 	static inline size_t size(const Culture* const*) {
@@ -115,6 +135,10 @@ public:
 	static inline void deserialize(Archive& stream, Good** obj) {
 		GoodId id;
 		::deserialize(stream, &id);
+		if(id >= g_world->goods.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (GoodId)-1) ? g_world->goods[id] : nullptr;
 	}
 	static inline size_t size(const Good* const*) {
@@ -133,6 +157,10 @@ public:
 	static inline void deserialize(Archive& stream, Company** obj) {
 		CompanyId id;
 		::deserialize(stream, &id);
+		if(id >= g_world->companies.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (CompanyId)-1) ? g_world->companies[id] : nullptr;
 	}
 	static inline size_t size(const Company* const*) {
@@ -151,6 +179,10 @@ public:
 	static inline void deserialize(Archive& stream, IndustryType** obj) {
 		IndustryTypeId id;
 		::deserialize(stream, &id);
+		if(id >= g_world->industry_types.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (IndustryTypeId)-1) ? g_world->industry_types[id] : nullptr;
 	}
 	static inline size_t size(const IndustryType* const*) {
@@ -169,6 +201,10 @@ public:
 	static inline void deserialize(Archive& stream, UnitType** obj) {
 		UnitTypeId id;
 		::deserialize(stream, &id);
+		if(id >= g_world->unit_types.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (UnitTypeId)-1) ? g_world->unit_types[id] : nullptr;
 	}
 	static inline size_t size(const UnitType* const*) {
@@ -187,6 +223,10 @@ public:
 	static inline void deserialize(Archive& stream, BoatType** obj) {
 		BoatTypeId id;
 		::deserialize(stream, &id);
+		if(id >= g_world->boat_types.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (BoatTypeId)-1) ? g_world->boat_types[id] : nullptr;
 	}
 	static inline size_t size(const BoatType* const*) {
@@ -205,6 +245,10 @@ public:
 	static inline void deserialize(Archive& stream, UnitTrait** obj) {
 		UnitTraitId id;
 		::deserialize(stream, &id);
+		if(id >= g_world->unit_traits.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (UnitTraitId)-1) ? g_world->unit_traits[id] : nullptr;
 	}
 	static inline size_t size(const UnitTrait* const*) {
@@ -223,6 +267,10 @@ public:
 	static inline void deserialize(Archive& stream, Unit* * obj) {
 		UnitId id;
 		::deserialize(stream, &id);
+		if(id >= g_world->units.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (UnitId)-1) ? g_world->units[id] : nullptr;
 	}
 	static inline size_t size(const Unit* const*) {
@@ -241,6 +289,10 @@ public:
 	static inline void deserialize(Archive& stream, OutpostType* * obj) {
 		OutpostType::Id id;
 		::deserialize(stream, &id);
+		if(id >= g_world->outpost_types.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (OutpostType::Id)-1) ? g_world->outpost_types[id] : nullptr;
 	}
 	static inline size_t size(const OutpostType* const*) {
@@ -259,6 +311,10 @@ public:
 	static inline void deserialize(Archive& stream, Outpost** obj) {
 		Outpost::Id id;
 		::deserialize(stream, &id);
+		if(id >= g_world->outposts.size()) {
+			*obj = nullptr;
+			return;
+		}
 		*obj = (id != (Outpost::Id)-1) ? g_world->outposts[id] : nullptr;
 	}
 	static inline size_t size(const Outpost* const*) {

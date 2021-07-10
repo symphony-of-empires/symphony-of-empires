@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <execution>
 
+#include "actions.hpp"
 #include "economy.hpp"
 #include "world.hpp"
 #include "print.hpp"
@@ -47,6 +48,7 @@ void Industry::add_to_stock(const World& world, const Good* good, const size_t a
  */
 void Economy::do_phase_1(World& world) {
 	// Outposts who have fullfilled requirements to build stuff will spawna  lil' unit/boat
+	world.outposts_mutex.lock();
 	for(auto& outpost: world.outposts) {
 		bool can_build = true;
 		for(const auto& req: outpost->req_goods_for_unit) {
@@ -55,6 +57,9 @@ void Economy::do_phase_1(World& world) {
 				break;
 			}
 		}
+
+		//if(!can_build)
+		//	break;
 
 		if(outpost->working_unit_type != nullptr) {
 			// Spawn a unit
@@ -73,28 +78,39 @@ void Economy::do_phase_1(World& world) {
 			unit->size = unit->type->max_health;
 			unit->base = unit->size;
 			
-			// Notify all clients of the server about this
+			// Notify all clients of the server about this new unit
 			g_world->units_mutex.lock();
 			g_world->units.push_back(unit);
+
 			Packet packet = Packet();
 			Archive ar = Archive();
 			enum ActionType action = ACTION_UNIT_ADD;
 			::serialize(ar, &action); // ActionInt
-			::serialize(ar, &unit); // UnitRef
+			::serialize(ar, unit); // UnitRef
 			packet.data(ar.get_buffer(), ar.size());
 			g_server->broadcast(packet);
+
 			g_world->units_mutex.unlock();
 
 			outpost->working_unit_type = nullptr;
 		} else if(outpost->working_boat_type != nullptr) {
 			// Spawn a boat
-			/*Boat boat;
-			boat.x = outpost->x;
-			boat.y = outpost->y;*/
+			//Boat boat;
+			//boat.x = outpost->x;
+			//boat.y = outpost->y;
 
 			outpost->working_boat_type = nullptr;
 		}
+
+		// Take opportunity to also send an update about our outposts
+		Packet packet = Packet();
+		Archive ar = Archive();
+		enum ActionType action = ACTION_OUTPOST_UPDATE;
+		::serialize(ar, &outpost); // OutpostObj
+		packet.data(ar.get_buffer(), ar.size());
+		g_server->broadcast(packet);
 	}
+	world.outposts_mutex.unlock();
 
 	// All factories will place their orders for their inputs
 	// All RGOs will do deliver requests

@@ -584,8 +584,10 @@ void select_nation(void) {
 					case MAP_MODE_NORMAL:
 						// See untis that have been clicked on
 						if(event.button.button == SDL_BUTTON_LEFT) {
-							// Check if we selected an unit
 							selected_unit = nullptr;
+							selected_outpost = nullptr;
+
+							// Check if we selected an unit
 							for(const auto& unit: g_world->units) {
 								const float size = 2.f;
 								if((int)select_pos.first > (int)unit->x - size
@@ -600,7 +602,6 @@ void select_nation(void) {
 								break;
 
 							// Check if we selected an outpost
-							selected_outpost = nullptr;
 							for(const auto& outpost: g_world->outposts) {
 								const float size = 2.f;
 								if((int)select_pos.first > (int)outpost->x - size
@@ -653,7 +654,9 @@ void select_nation(void) {
 								break;
 							} else if(selected_outpost != nullptr) {
 								ui_build_unit(selected_outpost);
-							} else {
+								break;
+							}
+							/* else {
 								g_client->packet_mutex.lock();
 								Packet packet = Packet();
 								Archive ar = Archive();
@@ -672,7 +675,7 @@ void select_nation(void) {
 								g_client->packet_queue.push_back(packet);
 								g_client->packet_mutex.unlock();
 								break;
-							}
+							}*/
 						}
 						
 						if(tile.province_id != (ProvinceId)-1) {
@@ -990,6 +993,15 @@ void select_nation(void) {
 			glVertex2f(unit->x, unit->y + size);
 			glEnd();
 		}
+		if(selected_unit != nullptr) {
+			glBegin(GL_LINE_STRIP);
+			glColor3f(1.f, 0.f, 0.f);
+			glVertex2f(selected_unit->x, selected_unit->y);
+			glVertex2f(selected_unit->x + 1.f, selected_unit->y);
+			glVertex2f(selected_unit->x + 1.f, selected_unit->y + 1.f);
+			glVertex2f(selected_unit->x, selected_unit->y + 1.f);
+			glEnd();
+		}
 		g_world->units_mutex.unlock();
 
 		g_world->outposts_mutex.lock();
@@ -1021,18 +1033,17 @@ void select_nation(void) {
 			glVertex2f(outpost->x, outpost->y + size);
 			glEnd();
 		}
-		g_world->outposts_mutex.unlock();
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		if(selected_unit != nullptr) {
+		if(selected_outpost != nullptr) {
 			glBegin(GL_LINE_STRIP);
 			glColor3f(1.f, 0.f, 0.f);
-			glVertex2f(selected_unit->x, selected_unit->y);
-			glVertex2f(selected_unit->x + 1.f, selected_unit->y);
-			glVertex2f(selected_unit->x + 1.f, selected_unit->y + 1.f);
-			glVertex2f(selected_unit->x, selected_unit->y + 1.f);
+			glVertex2f(selected_outpost->x, selected_outpost->y);
+			glVertex2f(selected_outpost->x + 1.f, selected_outpost->y);
+			glVertex2f(selected_outpost->x + 1.f, selected_outpost->y + 1.f);
+			glVertex2f(selected_outpost->x, selected_outpost->y + 1.f);
 			glEnd();
 		}
+		g_world->outposts_mutex.unlock();
+		glBindTexture(GL_TEXTURE_2D, 0);
 
 		glBegin(GL_QUADS);
 		glColor3f(1.f, 1.f, 1.f);
