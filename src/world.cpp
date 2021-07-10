@@ -66,6 +66,8 @@ World::World(bool empty) {
 
 	lua_register(this->lua, "add_unit_trait", LuaAPI::add_unit_trait);
 
+	lua_register(this->lua, "add_outpost_type", LuaAPI::add_outpost_type);
+
 	lua_register(this->lua, "add_good", LuaAPI::add_good);
 	lua_register(this->lua, "get_good", LuaAPI::get_good);
 

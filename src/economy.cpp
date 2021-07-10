@@ -90,6 +90,7 @@ void Economy::do_phase_1(World& world) {
 				order.good = input;
 				order.industry = &industry;
 				order.province = province;
+				order.type = ORDER_INDUSTRIAL;
 				world.orders.push_back(order);
 			}
 
@@ -178,7 +179,6 @@ void Economy::do_phase_2(World& world) {
 					
 					Province* order_province = order.province;
 					const Policies& order_policy = order_province->owner->current_policy;
-					Industry* order_industry = order.industry;
 
 					// If foreign trade is not allowed, then order owner === sender owner
 					if(deliver_policy.foreign_trade == false
@@ -208,7 +208,9 @@ void Economy::do_phase_2(World& world) {
 					// Orders payment should also cover the import tax and a deliver payment should also cover the export
 					// tax too. Otherwise we can't deliver
 					if(order.payment < total_order_cost && total_order_cost > 0.f) {
-						order_industry->willing_payment = total_order_cost;
+						if(order.type == ORDER_INDUSTRIAL) {
+							order.industry->willing_payment = total_order_cost;
+						}
 						continue;
 					} else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
 						deliver_industry->willing_payment = total_deliver_cost;
@@ -216,13 +218,13 @@ void Economy::do_phase_2(World& world) {
 					}
 
 					// Must have above minimum quality to be accepted
-					if(deliver.product->quality < order_industry->min_quality) {
+					if(order.type == ORDER_INDUSTRIAL && deliver.product->quality < order.industry->min_quality) {
 						continue;
 					}
 					
 					// Give both goverments their part of the tax (when tax is 1.0< then the goverment pays for it)
-					order_province->owner->budget += (order_cost* order_policy.import_tax) - order_cost;
-					deliver_province->owner->budget += (deliver_cost* deliver_policy.import_tax) - deliver_cost;
+					order_province->owner->budget += total_order_cost - order_cost;
+					deliver_province->owner->budget += total_deliver_cost - deliver_cost;
 					
 					// Province receives a small (military) supply buff from commerce
 					order_province->supply_rem += 5.f;
@@ -232,9 +234,6 @@ void Economy::do_phase_2(World& world) {
 					size_t count = std::min<size_t>(order.quantity, deliver.quantity);
 					deliver.quantity -= count;
 					order.quantity -= count;
-
-					// Duplicate products and put them into the province's stock (a commerce buff)
-					order_industry->add_to_stock(world, order.good, count);
 					
 					// Increment demand of the product, and decrement supply when the demand is fullfilled
 					deliver.product->demand += count;
@@ -244,12 +243,27 @@ void Economy::do_phase_2(World& world) {
 						deliver.product->demand += satisfied;
 					}
 
-					// Increment the production cost of this industry which is used
-					// so we sell our product at a profit instead  of at a loss
-					order_industry->production_cost += deliver.product->price;
+					if(order.type == ORDER_INDUSTRIAL) {
+						// Duplicate products and put them into the province's stock (a commerce buff)
+						order.industry->add_to_stock(world, order.good, count);
 
-					// Set quality to the max from this product
-					order_industry->min_quality = std::max(order_industry->min_quality, deliver.product->quality);
+						// Increment the production cost of this industry which is used
+						// so we sell our product at a profit instead  of at a loss
+						order.industry->production_cost += deliver.product->price;
+
+						// Set quality to the max from this product
+						order.industry->min_quality = std::max(order.industry->min_quality, deliver.product->quality);
+					} else if(order.type == ORDER_OUTPOST_BUILD) {
+						// The outpost will take the production materials
+						// and use them for building the unit
+						order.outpost->owner->budget -= total_order_cost;
+						for(auto& p: order.outpost->req_goods) {
+							if(p.first != deliver.good) {
+								continue;
+							}
+							p.second -= std::min(deliver.quantity, p.second);
+						}
+					}
 					
 					// Delete this deliver and order tickets from the system since
 					// they are now fullfilled (only delete when no quanity left)

@@ -44,6 +44,20 @@ int LuaAPI::add_unit_trait(lua_State* L) {
 	return 1;
 }
 
+int LuaAPI::add_outpost_type(lua_State* L) {
+	OutpostType* outpost_type = new OutpostType();
+
+	outpost_type->ref_name = lua_tostring(L, 1);
+	outpost_type->is_naval = lua_toboolean(L, 2);
+	outpost_type->is_build_land_units = lua_toboolean(L, 3);
+	outpost_type->is_build_naval_units = lua_toboolean(L, 4);
+	outpost_type->defense_bonus = lua_tonumber(L, 5);
+
+	g_world->outpost_types.push_back(outpost_type);
+	lua_pushnumber(L, g_world->outpost_types.size() - 1);
+	return 1;
+}
+
 int LuaAPI::add_good(lua_State* L) {
 	Good* good = new Good();
 
