@@ -20,6 +20,11 @@ ELSE()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dunix")
 ENDIF()
 
+# Helps github workflows to not die
+IF(UNIT_TEST)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNIT_TEST")
+ENDIF()
+
 include_directories("${PROJECT_SOURCE_DIR}")
 link_directories(/usr/local/lib)
 

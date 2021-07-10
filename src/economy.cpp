@@ -6,6 +6,10 @@
 #include "print.hpp"
 #include "pathfinding.hpp"
 
+#include "serializer.hpp"
+#include "io_impl.hpp"
+#include "network.hpp"
+
 /**
 * Checks if the industry can produce output (if it has enough input)
  */
@@ -42,6 +46,56 @@ void Industry::add_to_stock(const World& world, const Good* good, const size_t a
 * Phase 1 of economy: Delivers & Orders are sent from all factories in the world
  */
 void Economy::do_phase_1(World& world) {
+	// Outposts who have fullfilled requirements to build stuff will spawna  lil' unit/boat
+	for(auto& outpost: world.outposts) {
+		bool can_build = true;
+		for(const auto& req: outpost->req_goods_for_unit) {
+			if(req.second) {
+				can_build = false;
+				break;
+			}
+		}
+
+		if(outpost->working_unit_type != nullptr) {
+			// Spawn a unit
+			Unit* unit = new Unit();
+			unit->x = outpost->x;
+			unit->y = outpost->y;
+			unit->type = outpost->working_unit_type;
+			unit->tx = unit->x;
+			unit->ty = unit->y;
+			unit->owner = outpost->owner;
+			unit->budget = 5000.f;
+			unit->experience = 1.f;
+			unit->morale = 1.f;
+			unit->supply = 1.f;
+			unit->defensive_ticks = 0;
+			unit->size = unit->type->max_health;
+			unit->base = unit->size;
+			
+			// Notify all clients of the server about this
+			g_world->units_mutex.lock();
+			g_world->units.push_back(unit);
+			Packet packet = Packet();
+			Archive ar = Archive();
+			enum ActionType action = ACTION_UNIT_ADD;
+			::serialize(ar, &action); // ActionInt
+			::serialize(ar, &unit); // UnitRef
+			packet.data(ar.get_buffer(), ar.size());
+			g_server->broadcast(packet);
+			g_world->units_mutex.unlock();
+
+			outpost->working_unit_type = nullptr;
+		} else if(outpost->working_boat_type != nullptr) {
+			// Spawn a boat
+			/*Boat boat;
+			boat.x = outpost->x;
+			boat.y = outpost->y;*/
+
+			outpost->working_boat_type = nullptr;
+		}
+	}
+
 	// All factories will place their orders for their inputs
 	// All RGOs will do deliver requests
 	for(auto& province: world.provinces) {
@@ -127,6 +181,40 @@ void Economy::do_phase_1(World& world) {
 
 			// Willing payment is made for next day ;)
 			industry.willing_payment = industry.budget / it.inputs.size() + it.outputs.size();
+		}
+	}
+
+	// Outposts working on units and boats will also request materials
+	for(const auto& outpost: world.outposts) {
+		// Building the outpost itself
+		for(const auto& good: outpost->req_goods) {
+			if(!good.second)
+				continue;
+
+			OrderGoods order;
+			order.quantity = good.second;
+			// TODO: Make this dynamic
+			order.payment = good.second * 5.f;
+			order.good = good.first;
+			order.outpost = outpost;
+			order.type = ORDER_OUTPOST_BUILD;
+			world.orders.push_back(order);
+		}
+
+		// TODO: We should deduct and set willing payment from military spendings
+		// Building the unit
+		for(const auto& good: outpost->req_goods_for_unit) {
+			if(!good.second)
+				continue;
+
+			OrderGoods order;
+			order.quantity = good.second;
+			// TODO: Make this dynamic
+			order.payment = good.second * 5.f;
+			order.good = good.first;
+			order.outpost = outpost;
+			order.type = ORDER_UNIT_BUILD;
+			world.orders.push_back(order);
 		}
 	}
 
@@ -256,6 +344,15 @@ void Economy::do_phase_2(World& world) {
 					} else if(order.type == ORDER_OUTPOST_BUILD) {
 						// The outpost will take the production materials
 						// and use them for building the unit
+						order.outpost->owner->budget -= total_order_cost;
+						for(auto& p: order.outpost->req_goods) {
+							if(p.first != deliver.good) {
+								continue;
+							}
+							p.second -= std::min(deliver.quantity, p.second);
+						}
+					} else if(order.type == ORDER_UNIT_BUILD) {
+						// TODO: We should deduct and set willing payment from military spendings
 						order.outpost->owner->budget -= total_order_cost;
 						for(auto& p: order.outpost->req_goods) {
 							if(p.first != deliver.good) {
