@@ -632,6 +632,25 @@ void select_nation(void) {
 								g_client->packet_queue.push_back(packet);
 								g_client->packet_mutex.unlock();
 								break;
+							} else {
+								g_client->packet_mutex.lock();
+								Packet packet = Packet();
+								Archive ar = Archive();
+								enum ActionType action = ACTION_UNIT_ADD;
+								::serialize(ar, &action);
+								Unit unit = Unit();
+								unit.type = g_world->unit_types[0];
+								unit.x = select_pos.first;
+								unit.y = select_pos.second;
+								unit.tx = unit.x;
+								unit.ty = unit.y;
+								unit.owner = g_world->nations[curr_selected_nation];
+								unit.size = unit.type->max_health;
+								::serialize(ar, &unit);
+								packet.data(ar.get_buffer(), ar.size());
+								g_client->packet_queue.push_back(packet);
+								g_client->packet_mutex.unlock();
+								break;
 							}
 						}
 						
