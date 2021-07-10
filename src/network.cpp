@@ -168,9 +168,6 @@ void Server::net_loop(int id) {
 						print_info("Received pong, responding with ping!");
 						break;
 					case ACTION_UNIT_CHANGE_TARGET:
-						if(selected_nation == nullptr)
-							break;
-						
 						{
 							UnitId unit_id;
 							::deserialize(ar, &unit_id);
@@ -182,7 +179,7 @@ void Server::net_loop(int id) {
 							print_info("Unit %zu changes targets to %zu.%zu", (size_t)unit_id, (size_t)unit->tx, (size_t)unit->ty);
 						}
 						break;
-					case ACTION_UNIT_ADD:
+					/*case ACTION_UNIT_ADD:
 						if(selected_nation == nullptr)
 							break;
 						
@@ -198,11 +195,34 @@ void Server::net_loop(int id) {
 						
 						// Rebroadcast
 						broadcast(packet);
+						break;*/
+					case ACTION_OUTPOST_START_BUILDING_UNIT:
+						{
+							Outpost* outpost = new Outpost();
+							::deserialize(ar, &outpost);
+							UnitType* unit_type = new UnitType();
+							::deserialize(ar, &unit_type);
+
+							// Tell the outpost to build this specific unit type
+							outpost->working_unit_type = unit_type;
+							outpost->req_goods_for_unit = unit_type->req_goods;
+							print_info("New order for building on outpost; build unit %s", unit_type->name.c_str());
+						}
 						break;
-					case ACTION_BUILD_OUTPOST:
-						if(selected_nation == nullptr)
-							break;
-						
+					case ACTION_OUTPOST_START_BUILDING_BOAT:
+						{
+							Outpost* outpost = new Outpost();
+							::deserialize(ar, &outpost);
+							BoatType* boat_type = new BoatType();
+							::deserialize(ar, &boat_type);
+
+							// Tell the outpost to build this specific unit type
+							outpost->working_boat_type = boat_type;
+							outpost->req_goods_for_unit = boat_type->req_goods;
+							print_info("New order for building on outpost; build boat %s", boat_type->name.c_str());
+						}
+						break;
+					case ACTION_OUTPOST_ADD:
 						g_world->outposts_mutex.lock();
 						{
 							Outpost* outpost = new Outpost();
@@ -255,9 +275,6 @@ void Server::net_loop(int id) {
 					 * it's separate from ACTION_PROVINCE_UPDATE by mere convenience for clients(?)
 					 */
 					case ACTION_PROVINCE_COLONIZE:
-						if(selected_nation == nullptr)
-							break;
-						
 						{
 							NationId colonizer_id;
 							ProvinceId province_id;
@@ -281,9 +298,6 @@ void Server::net_loop(int id) {
 						broadcast(packet);
 						break;
 					case ACTION_NATION_TAKE_DESCISION:
-						if(selected_nation == nullptr)
-							break;
-						
 						{
 							// Find event by reference name
 							std::string event_ref_name;
@@ -506,8 +520,7 @@ void Client::net_loop(void) {
 					}
 					g_world->units_mutex.unlock();
 					break;
-				// A "build outpost" event, basically ACTION_OUTPOST_ADD
-				case ACTION_BUILD_OUTPOST:
+				case ACTION_OUTPOST_ADD:
 					g_world->outposts_mutex.lock();
 					{
 						Outpost* outpost = new Outpost();
