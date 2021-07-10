@@ -1,3 +1,4 @@
+#include <mutex>
 #ifdef unix
 #	include <sys/socket.h>
 #	include <sys/ioctl.h>
@@ -121,14 +122,8 @@ void Server::net_loop(int id) {
 			}
 
 			print_info("New client connection established");
-			
-			fd_set fdset;
-			FD_ZERO(&fdset);
-			FD_SET(conn_fd, &fdset);
-			
-			struct timeval time_out;	
+
 			Nation* selected_nation = nullptr;
-			
 			Packet packet = Packet(conn_fd);
 			
 			// Send the whole snapshot of the world
@@ -141,24 +136,20 @@ void Server::net_loop(int id) {
 			print_info("Sent action %zu", (size_t)action);
 
 			int has_pending;
-			//struct pollfd pfd;
-			//pfd.fd = conn_fd;
-			//pfd.events = POLLIN;
-
 			while(run) {
 				// Read the messages if there is any pending bytes on the tx
-				//poll(&pfd, 1, -1);
-				//if(pfd.revents & POLLIN) {
 				has_pending = 0;
 				ioctl(conn_fd, FIONREAD, &has_pending);
 				if(has_pending) {
-					print_info("Network: receiving packet");
-
 					packet.recv();
 					
 					ar.set_buffer(packet.data(), packet.size());
 					ar.rewind();
 					::deserialize(ar, &action);
+
+					if(selected_nation == nullptr &&
+					(action != ACTION_PONG || action != ACTION_CHAT_MESSAGE || action != ACTION_SELECT_NATION))
+						throw std::runtime_error("Unallowed operation without selected nation");
 					
 					switch(action) {
 					case ACTION_PONG:
@@ -168,39 +159,45 @@ void Server::net_loop(int id) {
 						break;
 					case ACTION_UNIT_CHANGE_TARGET:
 						{
-							UnitId unit_id;
-							::deserialize(ar, &unit_id);
+							std::lock_guard<std::mutex> lock1(g_world->units_mutex);
+
+							Unit* unit;
+							::deserialize(ar, &unit);
+							if(unit == nullptr)
+								throw std::runtime_error("Unknown unit");
+
+							// Must control unit
+							if(selected_nation != unit->owner)
+								throw std::runtime_error("Nation does not control unit");
 							
-							Unit* unit = g_world->units[unit_id];
 							::deserialize(ar, &unit->tx);
 							::deserialize(ar, &unit->ty);
+
+							if(unit->tx >= g_world->width || unit->ty >= g_world->height)
+								throw std::runtime_error("Coordinates out of range for unit");
 							
-							print_info("Unit %zu changes targets to %zu.%zu", (size_t)unit_id, (size_t)unit->tx, (size_t)unit->ty);
+							print_info("Unit changes targets to %zu.%zu", (size_t)unit->tx, (size_t)unit->ty);
 						}
 						break;
-					/*case ACTION_UNIT_ADD:
-						if(selected_nation == nullptr)
-							break;
-						
-						g_world->units_mutex.lock();
-						{
-							Unit* unit = new Unit();
-							::deserialize(ar, unit);
-							unit->owner = selected_nation;
-							g_world->units.push_back(unit);
-							print_info("New unit of %s", unit->owner->name.c_str());
-						}
-						g_world->units_mutex.unlock();
-						
-						// Rebroadcast
-						broadcast(packet);
-						break;*/
 					case ACTION_OUTPOST_START_BUILDING_UNIT:
 						{
+							std::lock_guard<std::mutex> lock1(g_world->outposts_mutex);
+							std::lock_guard<std::mutex> lock2(g_world->unit_types_mutex);
+
 							Outpost* outpost = new Outpost();
 							::deserialize(ar, &outpost);
+							if(outpost == nullptr)
+								throw std::runtime_error("Unknown outpost");
 							UnitType* unit_type = new UnitType();
 							::deserialize(ar, &unit_type);
+							if(unit_type == nullptr)
+								throw std::runtime_error("Unknown unit type");
+							
+							// Must control outpost
+							if(outpost->owner != selected_nation)
+								throw std::runtime_error("Nation does not control outpost");
+							
+							// TODO: Check nation can build this unit
 
 							// Tell the outpost to build this specific unit type
 							outpost->working_unit_type = unit_type;
@@ -210,10 +207,21 @@ void Server::net_loop(int id) {
 						break;
 					case ACTION_OUTPOST_START_BUILDING_BOAT:
 						{
+							std::lock_guard<std::mutex> lock1(g_world->outposts_mutex);
+							std::lock_guard<std::mutex> lock2(g_world->boat_types_mutex);
+
 							Outpost* outpost = new Outpost();
 							::deserialize(ar, &outpost);
+							if(outpost == nullptr)
+								throw std::runtime_error("Unknown outpost");
 							BoatType* boat_type = new BoatType();
 							::deserialize(ar, &boat_type);
+							if(boat_type == nullptr)
+								throw std::runtime_error("Unknown boat type");
+							
+							// Must control outpost
+							if(outpost->owner != selected_nation)
+								throw std::runtime_error("Nation does not control outpost");
 
 							// Tell the outpost to build this specific unit type
 							outpost->working_boat_type = boat_type;
@@ -222,51 +230,36 @@ void Server::net_loop(int id) {
 						}
 						break;
 					case ACTION_OUTPOST_ADD:
-						g_world->outposts_mutex.lock();
 						{
+							std::lock_guard<std::mutex> lock(g_world->outposts_mutex);
+
 							Outpost* outpost = new Outpost();
 							::deserialize(ar, outpost);
+							if(outpost->type == nullptr)
+								throw std::runtime_error("Unknown outpost type");
+
+							// Modify the serialized outpost
+							ar.ptr -= ::serialized_size(outpost);
+							outpost->owner = selected_nation;
+
+							// Check that it's not out of bounds
+							if(outpost->x >= g_world->width || outpost->y >= g_world->height)
+								throw std::runtime_error("Outpost out of range");
+							
+							// Outposts can only be built on owned land
+							if(g_world->nations[g_world->get_tile(outpost->x, outpost->y).owner_id] != selected_nation)
+								throw std::runtime_error("Outpost cannot be built on foreign land");
+
+							outpost->working_unit_type = nullptr;
+							outpost->working_boat_type = nullptr;
+							outpost->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
+							outpost->req_goods = std::vector<std::pair<Good*, size_t>>();
+							::serialize(ar, outpost);
+
 							g_world->outposts.push_back(outpost);
 							print_info("New outpost of %s", outpost->owner->name.c_str());
 						}
-						g_world->outposts_mutex.unlock();
-						
-						// Rebroadcast
-						broadcast(packet);
-						break;
-					case ACTION_NATION_UPDATE:
-						{
-							NationId nation_id;
-							Nation nation;
-							::deserialize(ar, &nation);
-							::deserialize(ar, &nation_id);
-							*g_world->nations[nation_id] = nation;
-						}
-						
-						// Rebroadcast
-						broadcast(packet);
-						break;
-					case ACTION_PROVINCE_UPDATE:
-						{
-							Province province;
-							::deserialize(ar, &province);
-							ProvinceId province_id;
-							::deserialize(ar, &province_id);
-							*g_world->provinces[province_id] = province;
-						}
-						
-						// Rebroadcast
-						broadcast(packet);
-						break;
-					case ACTION_PROVINCE_ADD:
-						g_world->provinces_mutex.lock();
-						{
-							Province* province = new Province();
-							::deserialize(ar, province);
-							g_world->provinces.push_back(province);
-						}
-						g_world->provinces_mutex.unlock();
-						
+
 						// Rebroadcast
 						broadcast(packet);
 						break;
@@ -275,11 +268,20 @@ void Server::net_loop(int id) {
 					 */
 					case ACTION_PROVINCE_COLONIZE:
 						{
-							NationId colonizer_id;
-							ProvinceId province_id;
-							::deserialize(ar, &province_id);
-							::deserialize(ar, &colonizer_id);
-							g_world->provinces[province_id]->owner = g_world->nations[colonizer_id];
+							std::lock_guard<std::mutex> lock1(g_world->nations_mutex);
+							std::lock_guard<std::mutex> lock2(g_world->provinces_mutex);
+
+							Province* province;
+							::deserialize(ar, &province);
+
+							if(province == nullptr)
+								throw std::runtime_error("Unknown province");
+
+							// Must not be already owned
+							if(province->owner != nullptr)
+								throw std::runtime_error("Province already has an owner");
+
+							province->owner = selected_nation;
 						}
 						
 						// Rebroadcast
@@ -298,6 +300,8 @@ void Server::net_loop(int id) {
 						break;
 					case ACTION_NATION_TAKE_DESCISION:
 						{
+							std::lock_guard<std::mutex> lock1(g_world->events_mutex);
+
 							// Find event by reference name
 							std::string event_ref_name;
 							::deserialize(ar, &event_ref_name);
@@ -306,8 +310,7 @@ void Server::net_loop(int id) {
 								return e->ref_name == event_ref_name;
 							});
 							if(event == g_world->events.end()) {
-								print_error("Event %s not found", event_ref_name.c_str());
-								break;
+								throw std::runtime_error("Event not found");
 							}
 							
 							// Find descision by reference name
@@ -318,8 +321,7 @@ void Server::net_loop(int id) {
 								return e.ref_name == descision_ref_name;
 							});
 							if(descision == (*event)->descisions.end()) {
-								print_error("Descision %s not found", event_ref_name.c_str());
-								break;
+								throw std::runtime_error("Descision not found");
 							}
 
 							(*event)->take_descision(selected_nation, &(*descision));
@@ -333,9 +335,13 @@ void Server::net_loop(int id) {
 					// The client selects a nation
 					case ACTION_SELECT_NATION:
 						{
-							NationId nation_id;
-							::deserialize(ar, &nation_id);
-							selected_nation = g_world->nations[nation_id];
+							std::unique_lock<std::mutex> lock(g_world->nations_mutex);
+
+							Nation* nation;
+							::deserialize(ar, &nation);
+							if(nation == nullptr)
+								throw std::runtime_error("Unknown nation");
+							selected_nation = nation;
 						}
 						print_info("Nation %s selected by client %zu", selected_nation->name.c_str(), (size_t)id);
 						break;
@@ -357,6 +363,7 @@ void Server::net_loop(int id) {
 			}
 		} catch(std::runtime_error& e) {
 			print_error("Except: %s", e.what());
+			print_info("Client disconnected");
 		}
 		
 		// Unlock mutexes so we don't end up with weird situations... like deadlocks
@@ -426,14 +433,8 @@ void Client::net_loop(void) {
 	try {
 		enum ActionType action;
 		int has_pending;
-		//struct pollfd pfd;
-		//pfd.fd = fd;
-		//pfd.events = POLLIN;
-
 		while(1) {
 			// Read the messages if there is any pending bytes on the tx
-			//poll(&pfd, 1, -1);
-			//if(pfd.revents & POLLIN) {
 			has_pending = 0;
 			ioctl(fd, FIONREAD, &has_pending);
 			if(has_pending) {
@@ -460,72 +461,75 @@ void Client::net_loop(void) {
 				// deserializer will deserialize onto the final object; after this the operation
 				// desired is done.
 				case ACTION_PROVINCE_UPDATE:
-					g_world->provinces_mutex.lock();
 					{
-						ProvinceId province_id;
-						::deserialize(ar, &province_id);
-						
-						Province province;
+						std::lock_guard<std::mutex> lock(g_world->provinces_mutex);
+
+						Province* province;
 						::deserialize(ar, &province);
-						*g_world->provinces[province_id] = province;
+						if(province == nullptr)
+							throw std::runtime_error("Unknown province");
+						
+						::deserialize(ar, province);
 					}
-					g_world->provinces_mutex.unlock();
 					break;
 				case ACTION_NATION_UPDATE:
 					{
-						NationId nation_id;
-						::deserialize(ar, &nation_id);
-						
-						Nation nation;
+						std::lock_guard<std::mutex> lock(g_world->nations_mutex);
+
+						Nation* nation;
 						::deserialize(ar, &nation);
-						*g_world->nations[nation_id] = nation;
+						if(nation == nullptr)
+							throw std::runtime_error("Unknown nation");
+						
+						::deserialize(ar, nation);
 					}
 					break;
 				case ACTION_NATION_ENACT_POLICY:
 					{
-						NationId nation_id;
-						::deserialize(ar, &nation_id);
+						std::lock_guard<std::mutex> lock(g_world->nations_mutex);
+
+						Nation* nation;
+						::deserialize(ar, &nation);
+						if(nation == nullptr)
+							throw std::runtime_error("Unknown nation");
 						
 						Policies policy;
 						::deserialize(ar, &policy);
-						g_world->nations[nation_id]->current_policy = policy;
+						nation->current_policy = policy;
 					}
 					break;
 				case ACTION_UNIT_UPDATE:
 					{
-						UnitId unit_id;
-						::deserialize(ar, &unit_id);
-						
-						if(unit_id >= g_world->units.size())
-							break;
-						
-						Unit unit;
+						std::lock_guard<std::mutex> lock(g_world->units_mutex);
+
+						Unit* unit;
 						::deserialize(ar, &unit);
 						
-						g_world->units_mutex.lock();
-						*g_world->units[unit_id] = unit;
-						g_world->units_mutex.unlock();
+						if(unit == nullptr)
+							throw std::runtime_error("Unknown unit");
+						
+						::deserialize(ar, unit);
 					}
 					break;
 				case ACTION_UNIT_ADD:
-					g_world->units_mutex.lock();
 					{
+						std::lock_guard<std::mutex> lock(g_world->units_mutex);
+
 						Unit* unit = new Unit();
 						::deserialize(ar, unit);
 						g_world->units.push_back(unit);
 						print_info("New unit of %s", unit->owner->name.c_str());
 					}
-					g_world->units_mutex.unlock();
 					break;
 				case ACTION_OUTPOST_ADD:
-					g_world->outposts_mutex.lock();
 					{
+						std::lock_guard<std::mutex> lock(g_world->outposts_mutex);
+
 						Outpost* outpost = new Outpost();
 						::deserialize(ar, outpost);
 						g_world->outposts.push_back(outpost);
 						print_info("New outpost of %s", outpost->owner->name.c_str());
 					}
-					g_world->outposts_mutex.unlock();
 					break;
 				case ACTION_WORLD_TICK:
 					::deserialize(ar, &g_world->time);

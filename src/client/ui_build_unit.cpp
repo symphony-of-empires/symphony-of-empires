@@ -27,13 +27,13 @@ void ui_build_unit(Outpost* outpost) {
 	UI::Button* build_type_btn = nullptr,* prev_btn = nullptr;
 
 	if(outpost->type->is_build_land_units) {
-		for(const auto& unit_type: g_world->unit_types) {
+		for(auto& unit_type: g_world->unit_types) {
 			if(build_type_btn != nullptr)
 				prev_btn = build_type_btn;
 			build_type_btn = new UI::Button(0, 0, button_pvw->width, button_pvw->height, build_win);
 			build_type_btn->current_texture = button_pvw;
 			build_type_btn->text(unit_type->ref_name.c_str());
-			build_type_btn->user_data = (void*)unit_type;
+			build_type_btn->user_data = &unit_type;
 			if(prev_btn != nullptr)
 				build_type_btn->below_of(dynamic_cast<const UI::Widget&>(*prev_btn));
 			build_type_btn->on_click = [](UI::Widget&, void* data) {
@@ -44,7 +44,7 @@ void ui_build_unit(Outpost* outpost) {
 				::serialize(ar, &action);
 				
 				::serialize(ar, &g_outpost); // OutpostRef
-				::serialize(ar, (const UnitType*)&data); // UnitTypeRef
+				::serialize(ar, (UnitType**)data); // UnitTypeRef
 
 				packet.data(ar.get_buffer(), ar.size());
 				g_client->packet_queue.push_back(packet);
@@ -52,13 +52,13 @@ void ui_build_unit(Outpost* outpost) {
 			};
 		}
 	} else if(outpost->type->is_build_naval_units) {
-		for(const auto& boat_type: g_world->boat_types) {
+		for(auto& boat_type: g_world->boat_types) {
 			if(build_type_btn != nullptr)
 				prev_btn = build_type_btn;
 			build_type_btn = new UI::Button(0, 0, button_pvw->width, button_pvw->height, build_win);
 			build_type_btn->current_texture = button_pvw;
 			build_type_btn->text(boat_type->ref_name.c_str());
-			build_type_btn->user_data = (void*)boat_type;
+			build_type_btn->user_data = &boat_type;
 			if(prev_btn != nullptr)
 				build_type_btn->below_of(dynamic_cast<const UI::Widget&>(*prev_btn));
 			build_type_btn->on_click = [](UI::Widget&, void* data) {
@@ -69,7 +69,7 @@ void ui_build_unit(Outpost* outpost) {
 				::serialize(ar, &action);
 				
 				::serialize(ar, &g_outpost); // OutpostRef
-				::serialize(ar, (const BoatType*)&data); // BoatTypeRef
+				::serialize(ar, (BoatType**)data); // BoatTypeRef
 
 				packet.data(ar.get_buffer(), ar.size());
 				g_client->packet_queue.push_back(packet);

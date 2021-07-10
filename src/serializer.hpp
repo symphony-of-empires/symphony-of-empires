@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <numeric>
+#include <stdexcept>
 
 /**
 * The purpouse of the serializer is to serialize objects onto a byte stream
@@ -103,7 +104,12 @@ class Serializer<std::string> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& ar, const std::string* obj) {
-		uint32_t len = obj->length();
+		uint16_t len = obj->length();
+
+		// Truncate lenght
+		if(len >= 1024) {
+			len = 1024;
+		}
 
 		// Put length for later deserialization (since UTF-8/UTF-16 exists)
 		ar.expand(sizeof(len));
@@ -116,11 +122,14 @@ public:
 		ar.ptr += len;
 	}
 	static inline void deserialize(Archive& ar, std::string* obj) {
-		uint32_t len;
+		uint16_t len;
 
 		// Obtain the lenght of the string to be read
 		memcpy(&len, &ar.buffer[ar.ptr], sizeof(len));
 		ar.ptr += sizeof(len);
+
+		if(len >= 1024)
+			throw std::runtime_error("String is too lenghty");
 
 		// Obtain the string itself
 		char* string = new char[len + 1];
