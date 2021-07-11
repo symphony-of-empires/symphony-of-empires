@@ -30,8 +30,9 @@ link_directories(/usr/local/lib)
 
 file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/*.cpp")
 file(GLOB CLIENT_SOURCES "${PROJECT_SOURCE_DIR}/client/*.cpp")
+file(GLOB AI_SOURCES "${PROJECT_SOURCE_DIR}/simple_ai/*.cpp")
 
-add_executable(SymphonyOfEmpires ${MAIN_SOURCES} ${CLIENT_SOURCES})
+add_executable(SymphonyOfEmpires ${MAIN_SOURCES} ${CLIENT_SOURCES} ${AI_SOURCES})
 
 IF(WIN32)
 	target_link_libraries(SymphonyOfEmpires PUBLIC opengl32 glu32 ws2_32 winpthread intl lua)
