@@ -511,10 +511,7 @@ void ui_reform_policies(UI::Widget&, void*) {
 		
 		enum ActionType action = ACTION_NATION_ENACT_POLICY;
 		::serialize(ar, &action);
-		
-		NationId nation_id = g_world->get_id(curr_nation);
-		::serialize(ar, &nation_id);
-		::serialize(ar, &curr_nation->current_policy);
+		::serialize(ar, &curr_nation->current_policy); // PoliciesObj
 		
 		packet.data(ar.get_buffer(), ar.size());
 		g_client->packet_queue.push_back(packet);

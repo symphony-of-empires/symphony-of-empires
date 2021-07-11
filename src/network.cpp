@@ -157,6 +157,18 @@ void Server::net_loop(int id) {
 						packet.send(&action);
 						print_info("Received pong, responding with ping!");
 						break;
+					case ACTION_NATION_ENACT_POLICY:
+						{
+							std::lock_guard<std::recursive_mutex> lock1(g_world->nations_mutex);
+
+							Policies policies;
+							::deserialize(ar, &policies);
+
+							// TODO: Do parliament checks and stuff
+
+							selected_nation->current_policy = policies;
+						}
+						break;
 					case ACTION_UNIT_CHANGE_TARGET:
 						{
 							std::lock_guard<std::recursive_mutex> lock1(g_world->units_mutex);
@@ -298,6 +310,7 @@ void Server::net_loop(int id) {
 						// Rebroadcast
 						broadcast(packet);
 						break;
+					// Events & Descisions
 					case ACTION_NATION_TAKE_DESCISION:
 						{
 							std::lock_guard<std::recursive_mutex> lock1(g_world->events_mutex);
