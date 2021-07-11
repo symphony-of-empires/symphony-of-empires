@@ -148,7 +148,7 @@ public:
 
 	// 2-Dimensional Array of tiles
 	Tile* tiles;
-	mutable std::mutex tiles_mutex;
+	mutable std::recursive_mutex tiles_mutex;
 
 	// Level at which sea dissapears, all sea is capped to sea_level - 1, and rivers are at sea_level.
 	// Anything above is considered land
@@ -162,90 +162,90 @@ public:
 
 	// List of units present in the world
 	std::vector<Unit*> units;
-	mutable std::mutex units_mutex;
+	mutable std::recursive_mutex units_mutex;
 
 	// List of goods (product types)
 	std::vector<Good*> goods;
-	mutable std::mutex goods_mutex;
+	mutable std::recursive_mutex goods_mutex;
 
 	// List of industry types where industries can be created from
 	std::vector<IndustryType*> industry_types;
-	mutable std::mutex industry_types_mutex;
+	mutable std::recursive_mutex industry_types_mutex;
 
 	// List of nations
 	std::vector<Nation*> nations;
-	mutable std::mutex nations_mutex;
+	mutable std::recursive_mutex nations_mutex;
 
 	// List of provinces
 	std::vector<Province*> provinces;
-	mutable std::mutex provinces_mutex;
+	mutable std::recursive_mutex provinces_mutex;
 
 	// List of companies
 	std::vector<Company*> companies;
-	mutable std::mutex companies_mutex;
+	mutable std::recursive_mutex companies_mutex;
 
 	// List of products
 	std::vector<Product*> products;
-	mutable std::mutex products_mutex;
+	mutable std::recursive_mutex products_mutex;
 
 	// List of POPs types
 	std::vector<PopType*> pop_types;
-	mutable std::mutex pop_types_mutex;
+	mutable std::recursive_mutex pop_types_mutex;
 
 	// List of religions
 	std::vector<Religion*> religions;
-	mutable std::mutex religions_mutex;
+	mutable std::recursive_mutex religions_mutex;
 
 	// List of cultures
 	std::vector<Culture*> cultures;
-	mutable std::mutex cultures_mutex;
+	mutable std::recursive_mutex cultures_mutex;
 
 	// List of unit types where units can be created from
 	std::vector<UnitType*> unit_types;
-	mutable std::mutex unit_types_mutex;
+	mutable std::recursive_mutex unit_types_mutex;
 	
 	// List of naval unit types
 	std::vector<BoatType*> boat_types;
-	mutable std::mutex boat_types_mutex;
+	mutable std::recursive_mutex boat_types_mutex;
 
 	// List of traits that can be given to units
 	std::vector<UnitTrait*> unit_traits;
-	mutable std::mutex unit_traits_mutex;
+	mutable std::recursive_mutex unit_traits_mutex;
 
 	// List of registered events
 	std::vector<Event *> events;
-	mutable std::mutex events_mutex;
+	mutable std::recursive_mutex events_mutex;
 
 	// A list of orders (what factories want to be sent to them)
 	std::vector<OrderGoods> orders;
-	mutable std::mutex orders_mutex;
+	mutable std::recursive_mutex orders_mutex;
 
 	// A deliver list (what factories need to send)
 	std::vector<DeliverGoods> delivers;
-	mutable std::mutex delivers_mutex;
+	mutable std::recursive_mutex delivers_mutex;
 
 	// List of convoys on the world (unused)
 	std::vector<CommercialConvoy> convoys;
 
 	// Array containing a list of tile pointers that have changed owners
 	std::vector<Tile*> nation_changed_tiles;
-	mutable std::mutex nation_changed_tiles_mutex;
+	mutable std::recursive_mutex nation_changed_tiles_mutex;
 
 	// Array containing a list of tile pointers that have changed elevation
 	std::vector<Tile*> elevation_changed_tiles;
-	mutable std::mutex elevation_changed_tiles_mutex;
+	mutable std::recursive_mutex elevation_changed_tiles_mutex;
 
 	// A list containing descisions taken by countries
 	std::vector<Descision*> taken_descisions;
-	mutable std::mutex taken_descisions_mutex;
+	mutable std::recursive_mutex taken_descisions_mutex;
 
 	// Dinarray containing types of outposts
 	std::vector<OutpostType*> outpost_types;
-	mutable std::mutex outpost_types_mutex;
+	mutable std::recursive_mutex outpost_types_mutex;
 
 	// Dinarray containing all outposts
 	std::vector<Outpost*> outposts;
-	mutable std::mutex outposts_mutex;
+	mutable std::recursive_mutex outposts_mutex;
 
 	Nation::Id get_id(const Nation* ptr) const;
 	Province::Id get_id(const Province* ptr) const;

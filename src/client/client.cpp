@@ -318,16 +318,17 @@ static void play_nation(UI::Widget&, void *) {
 	Archive ar = Archive();
 	enum ActionType action = ACTION_SELECT_NATION;
 	::serialize(ar, &action);
-	::serialize(ar, &curr_selected_nation);
+	::serialize(ar, &curr_nation);
 	packet.data(ar.get_buffer(), ar.size());
 	g_client->packet_queue.push_back(packet);
 	g_client->packet_mutex.unlock();
+	print_info("Selected nation %s", curr_nation->ref_name.c_str());
 }
 
 void client_update(void) {
 	// We are going to update widgets which require real-time feeding
 	// this function **should** be called per tick
-	std::unique_lock<std::mutex> lock(render_lock);
+	std::lock_guard<std::mutex> lock(render_lock);
 	
 	if(current_mode == MAP_MODE_COUNTRY_SELECT) {
 		return;

@@ -33,7 +33,7 @@ void ui_build_unit(Outpost* outpost) {
 			build_type_btn = new UI::Button(0, 0, button_pvw->width, button_pvw->height, build_win);
 			build_type_btn->current_texture = button_pvw;
 			build_type_btn->text(unit_type->ref_name.c_str());
-			build_type_btn->user_data = &unit_type;
+			build_type_btn->user_data = unit_type;
 			if(prev_btn != nullptr)
 				build_type_btn->below_of(dynamic_cast<const UI::Widget&>(*prev_btn));
 			build_type_btn->on_click = [](UI::Widget&, void* data) {
@@ -44,7 +44,7 @@ void ui_build_unit(Outpost* outpost) {
 				::serialize(ar, &action);
 				
 				::serialize(ar, &g_outpost); // OutpostRef
-				::serialize(ar, (UnitType**)data); // UnitTypeRef
+				::serialize(ar, (UnitType**)&data); // UnitTypeRef
 
 				packet.data(ar.get_buffer(), ar.size());
 				g_client->packet_queue.push_back(packet);
@@ -58,7 +58,7 @@ void ui_build_unit(Outpost* outpost) {
 			build_type_btn = new UI::Button(0, 0, button_pvw->width, button_pvw->height, build_win);
 			build_type_btn->current_texture = button_pvw;
 			build_type_btn->text(boat_type->ref_name.c_str());
-			build_type_btn->user_data = &boat_type;
+			build_type_btn->user_data = boat_type;
 			if(prev_btn != nullptr)
 				build_type_btn->below_of(dynamic_cast<const UI::Widget&>(*prev_btn));
 			build_type_btn->on_click = [](UI::Widget&, void* data) {
@@ -69,7 +69,7 @@ void ui_build_unit(Outpost* outpost) {
 				::serialize(ar, &action);
 				
 				::serialize(ar, &g_outpost); // OutpostRef
-				::serialize(ar, (BoatType**)data); // BoatTypeRef
+				::serialize(ar, (BoatType**)&data); // BoatTypeRef
 
 				packet.data(ar.get_buffer(), ar.size());
 				g_client->packet_queue.push_back(packet);

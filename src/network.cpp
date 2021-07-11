@@ -148,7 +148,7 @@ void Server::net_loop(int id) {
 					::deserialize(ar, &action);
 
 					if(selected_nation == nullptr &&
-					(action != ACTION_PONG || action != ACTION_CHAT_MESSAGE || action != ACTION_SELECT_NATION))
+					(action != ACTION_PONG && action != ACTION_CHAT_MESSAGE && action != ACTION_SELECT_NATION))
 						throw std::runtime_error("Unallowed operation without selected nation");
 					
 					switch(action) {
@@ -159,7 +159,7 @@ void Server::net_loop(int id) {
 						break;
 					case ACTION_UNIT_CHANGE_TARGET:
 						{
-							std::lock_guard<std::mutex> lock1(g_world->units_mutex);
+							std::lock_guard<std::recursive_mutex> lock1(g_world->units_mutex);
 
 							Unit* unit;
 							::deserialize(ar, &unit);
@@ -181,8 +181,8 @@ void Server::net_loop(int id) {
 						break;
 					case ACTION_OUTPOST_START_BUILDING_UNIT:
 						{
-							std::lock_guard<std::mutex> lock1(g_world->outposts_mutex);
-							std::lock_guard<std::mutex> lock2(g_world->unit_types_mutex);
+							std::lock_guard<std::recursive_mutex> lock1(g_world->outposts_mutex);
+							std::lock_guard<std::recursive_mutex> lock2(g_world->unit_types_mutex);
 
 							Outpost* outpost = new Outpost();
 							::deserialize(ar, &outpost);
@@ -207,8 +207,8 @@ void Server::net_loop(int id) {
 						break;
 					case ACTION_OUTPOST_START_BUILDING_BOAT:
 						{
-							std::lock_guard<std::mutex> lock1(g_world->outposts_mutex);
-							std::lock_guard<std::mutex> lock2(g_world->boat_types_mutex);
+							std::lock_guard<std::recursive_mutex> lock1(g_world->outposts_mutex);
+							std::lock_guard<std::recursive_mutex> lock2(g_world->boat_types_mutex);
 
 							Outpost* outpost = new Outpost();
 							::deserialize(ar, &outpost);
@@ -231,7 +231,7 @@ void Server::net_loop(int id) {
 						break;
 					case ACTION_OUTPOST_ADD:
 						{
-							std::lock_guard<std::mutex> lock(g_world->outposts_mutex);
+							std::lock_guard<std::recursive_mutex> lock(g_world->outposts_mutex);
 
 							Outpost* outpost = new Outpost();
 							::deserialize(ar, outpost);
@@ -268,8 +268,8 @@ void Server::net_loop(int id) {
 					 */
 					case ACTION_PROVINCE_COLONIZE:
 						{
-							std::lock_guard<std::mutex> lock1(g_world->nations_mutex);
-							std::lock_guard<std::mutex> lock2(g_world->provinces_mutex);
+							std::lock_guard<std::recursive_mutex> lock1(g_world->nations_mutex);
+							std::lock_guard<std::recursive_mutex> lock2(g_world->provinces_mutex);
 
 							Province* province;
 							::deserialize(ar, &province);
@@ -300,7 +300,7 @@ void Server::net_loop(int id) {
 						break;
 					case ACTION_NATION_TAKE_DESCISION:
 						{
-							std::lock_guard<std::mutex> lock1(g_world->events_mutex);
+							std::lock_guard<std::recursive_mutex> lock1(g_world->events_mutex);
 
 							// Find event by reference name
 							std::string event_ref_name;
@@ -335,7 +335,7 @@ void Server::net_loop(int id) {
 					// The client selects a nation
 					case ACTION_SELECT_NATION:
 						{
-							std::unique_lock<std::mutex> lock(g_world->nations_mutex);
+							std::lock_guard<std::recursive_mutex> lock(g_world->nations_mutex);
 
 							Nation* nation;
 							::deserialize(ar, &nation);
@@ -462,7 +462,7 @@ void Client::net_loop(void) {
 				// desired is done.
 				case ACTION_PROVINCE_UPDATE:
 					{
-						std::lock_guard<std::mutex> lock(g_world->provinces_mutex);
+						std::lock_guard<std::recursive_mutex> lock(g_world->provinces_mutex);
 
 						Province* province;
 						::deserialize(ar, &province);
@@ -474,7 +474,7 @@ void Client::net_loop(void) {
 					break;
 				case ACTION_NATION_UPDATE:
 					{
-						std::lock_guard<std::mutex> lock(g_world->nations_mutex);
+						std::lock_guard<std::recursive_mutex> lock(g_world->nations_mutex);
 
 						Nation* nation;
 						::deserialize(ar, &nation);
@@ -486,7 +486,7 @@ void Client::net_loop(void) {
 					break;
 				case ACTION_NATION_ENACT_POLICY:
 					{
-						std::lock_guard<std::mutex> lock(g_world->nations_mutex);
+						std::lock_guard<std::recursive_mutex> lock(g_world->nations_mutex);
 
 						Nation* nation;
 						::deserialize(ar, &nation);
@@ -500,7 +500,7 @@ void Client::net_loop(void) {
 					break;
 				case ACTION_UNIT_UPDATE:
 					{
-						std::lock_guard<std::mutex> lock(g_world->units_mutex);
+						std::lock_guard<std::recursive_mutex> lock(g_world->units_mutex);
 
 						Unit* unit;
 						::deserialize(ar, &unit);
@@ -513,7 +513,7 @@ void Client::net_loop(void) {
 					break;
 				case ACTION_UNIT_ADD:
 					{
-						std::lock_guard<std::mutex> lock(g_world->units_mutex);
+						std::lock_guard<std::recursive_mutex> lock(g_world->units_mutex);
 
 						Unit* unit = new Unit();
 						::deserialize(ar, unit);
@@ -523,7 +523,7 @@ void Client::net_loop(void) {
 					break;
 				case ACTION_OUTPOST_ADD:
 					{
-						std::lock_guard<std::mutex> lock(g_world->outposts_mutex);
+						std::lock_guard<std::recursive_mutex> lock(g_world->outposts_mutex);
 
 						Outpost* outpost = new Outpost();
 						::deserialize(ar, outpost);
