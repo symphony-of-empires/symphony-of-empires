@@ -4,80 +4,51 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <exception>
 #include <numeric>
-#include <stdexcept>
+#include <string>
 
 /**
-* The purpouse of the serializer is to serialize objects onto a byte stream
-* that can be transfered onto the disk or over the network.
+ * The purpouse of the serializer is to serialize objects onto a byte stream
+ * that can be transfered onto the disk or over the network.
  *
-* Should the object have any pointers - they would need to be converted to
-* indexes accordingly for proper transmission.
+ * Should the object have any pointers - they would need to be converted to
+ * indexes accordingly for proper transmission.
  */
 
+class SerializerException : public std::exception {
+	std::string buffer;
+public:
+	SerializerException(std::string msg) {
+		buffer = msg;
+	};
+	const char* what(void) {
+		return buffer.c_str();
+	};
+};
+
 /**
-* Base class that serves as archiver, stores (in memory) the data required for
-* serialization/deserialization
+ * Base class that serves as archiver, stores (in memory) the data required for
+ * serialization/deserialization
  */
 #include <vector>
 #include <cstdio>
 #include <string>
 class Archive {
 public:
-	Archive() {};
-	~Archive() {};
-
 	std::vector<uint8_t> buffer;
 	size_t ptr = 0;
 
-	// Expands the archive to fit a new serialized object
-	inline void expand(size_t amount) {
-		buffer.resize(buffer.size() + amount);
-	}
-
-	// Call when serialization has ended and it's ready to be sent to a fstream
-	inline void end_stream(void) {
-		buffer.shrink_to_fit();
-	}
-
-	inline void rewind(void) {
-		ptr = 0;
-	}
-
-	void to_file(std::string path) {
-		FILE* fp = fopen(path.c_str(), "wb");
-		fwrite(&buffer[0], 1, buffer.size(), fp);
-		fclose(fp);
-		
-		end_stream();
-	}
-	
-	void from_file(std::string path) {
-		FILE* fp = fopen(path.c_str(), "rb");
-		
-		fseek(fp, 0, SEEK_END);
-		size_t size = ftell(fp);
-		::rewind(fp);
-		
-		buffer.resize(size);
-		fread(&buffer[0], 1, buffer.size(), fp);
-		fclose(fp);
-		
-		end_stream();
-	}
-
-	void* get_buffer(void) {
-		return (void *)&buffer[0];
-	}
-	
-	void set_buffer(void* buf, size_t size) {
-		buffer.resize(size);
-		memcpy(&buffer[0], buf, size);
-	}
-	
-	size_t size(void) {
-		return buffer.size();
-	}
+	Archive() {};
+	~Archive() {};
+	void expand(size_t amount);
+	void end_stream(void);
+	void rewind(void);
+	void to_file(std::string path);
+	void from_file(std::string path);
+	void* get_buffer(void);
+	void set_buffer(void* buf, size_t size);
+	size_t size(void);
 };
 
 /**
@@ -129,7 +100,7 @@ public:
 		ar.ptr += sizeof(len);
 
 		if(len >= 1024)
-			throw std::runtime_error("String is too lenghty");
+			throw SerializerException("String is too lenghty");
 
 		// Obtain the string itself
 		char* string = new char[len + 1];
@@ -246,8 +217,8 @@ public:
 		Serializer<T>::deserialize(ar, &obj->first);
 		Serializer<U>::deserialize(ar, &obj->second);
 	}
-	static constexpr size_t size(const std::pair<T, U>*) {
-		return sizeof(T) + sizeof(U);
+	static constexpr size_t size(const std::pair<T, U>* obj) {
+		return Serializer<T>::size(obj->first) + Serializer<T>::size(obj->second);
 	}
 };
 

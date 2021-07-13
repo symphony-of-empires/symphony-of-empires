@@ -21,6 +21,12 @@
 // Mostly used by clients and lua API
 World* g_world;
 
+extern "C" {
+#   include <lua5.4/lua.h>
+#   include <lua5.4/lualib.h>
+#   include <lua5.4/lauxlib.h>
+};
+
 /**
  * Creates a new world
   */
@@ -30,20 +36,18 @@ World::World(bool empty) {
 		return;
 	}
 	
-	BinaryImage topo(Path::get("map_topo.png").c_str());
-	BinaryImage div(Path::get("map_div.png").c_str());
-	BinaryImage infra(Path::get("map_infra.png").c_str());
+	BinaryImage topo(Path::get("map_topo.png"));
+	BinaryImage div(Path::get("map_div.png"));
+	BinaryImage infra(Path::get("map_infra.png"));
 
 	this->width = topo.width;
 	this->height = topo.height;
 
 	// Check that size of all maps match
 	if(topo.width != this->width || topo.height != this->height) {
-		print_error("topographic map size mismatch");
-		exit(EXIT_FAILURE);
+		throw std::runtime_error("Topographic map size mismatch");
 	} else if(div.width != this->width || div.height != this->height) {
-		print_error("province map size mismatch");
-		exit(EXIT_FAILURE);
+		throw std::runtime_error("Province map size mismatch");
 	}
 
 	const size_t total_size = this->width* this->height;
@@ -54,8 +58,7 @@ World::World(bool empty) {
 	this->sea_level = 126;
 	this->tiles = new Tile[total_size];
 	if(this->tiles == nullptr) {
-		perror("out of mem\n");
-		exit(EXIT_FAILURE);
+		throw std::runtime_error("Out of memory");
 	}
 
 	this->lua = luaL_newstate();
@@ -165,8 +168,7 @@ World::World(bool empty) {
 
 	int ret = luaL_dofile(this->lua, Path::get("scripts/init.lua").c_str());
 	if(ret) {
-		print_error("lua error %s", lua_tostring(this->lua, -1));
-		exit(EXIT_FAILURE);
+		throw std::runtime_error(lua_tostring(this->lua, -1));
 	}
 
 	// Shrink normally-not-resized vectors to give back memory to the OS
@@ -371,8 +373,7 @@ World::World(bool empty) {
 
 	ret = luaL_dofile(this->lua, Path::get("scripts/mod.lua").c_str());
 	if(ret) {
-		print_error("lua error %s", lua_tostring(this->lua, -1));
-		exit(EXIT_FAILURE);
+		throw std::runtime_error(lua_tostring(this->lua, -1));
 	}
 	
 	// Default init

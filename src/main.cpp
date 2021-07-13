@@ -75,7 +75,7 @@ int main(int argc, char ** argv) {
 		}
 		
 		print_info("Connecting to server with IP %s", server_addr.c_str());
-		
+
 		World* world = new World(true);
 		Client* client = new Client(server_addr, 1836);
 		client->wait_for_snapshot();
@@ -93,7 +93,7 @@ int main(int argc, char ** argv) {
 		t1.join();
 		
 		delete world;
-		delete client;
+		//delete client;
 	}
 #endif
 	exit(EXIT_SUCCESS);

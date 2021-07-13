@@ -5,18 +5,17 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <algorithm>
-#include "array_ops.hpp"
 
 /**
-* Checks whether the given coordinates are within bounds for the given world
+ * Checks whether the given coordinates are within bounds for the given world
  */
 static constexpr bool coord_in_bounds(const World& world, int x, int y) {
 	return y >= 0 && (size_t)y < world.height;
 }
 
 /**
-* Calculates the neighbors for a given Tile. The neighbors are the 8 tiles around
-* it, while taking into account the map bounds.
+ * Calculates the neighbors for a given Tile. The neighbors are the 8 tiles around
+ * it, while taking into account the map bounds.
  */
 static std::vector<Tile *> generate_neighbors(const World& world, const Nation& nation, Tile* tile) {
 	std::vector<Tile *> result;
@@ -60,8 +59,8 @@ static std::vector<Tile *> generate_neighbors(const World& world, const Nation& 
 }
 
 /**
-* Calculates the euclidean distance between the two tiles
-* considering only x and y (ignoring elevation)
+ * Calculates the euclidean distance between the two tiles
+ * considering only x and y (ignoring elevation)
  */
 static inline float euclidean_distance(const World& world, Tile* t1, Tile* t2) {
 	const size_t t1_idx = world.get_id(t1);
@@ -78,8 +77,8 @@ static inline float euclidean_distance(const World& world, Tile* t1, Tile* t2) {
 }
 
 /**
-* Calculates the cost accrued by moving from one tile to another, taking into
-* account elevation and infrastructure.
+ * Calculates the cost accrued by moving from one tile to another, taking into
+ * account elevation and infrastructure.
  */
 static inline float tile_cost(const World& world, Tile* t1, Tile* t2) {
 	const size_t t1_idx = world.get_id(t1);
@@ -115,6 +114,10 @@ static inline float tile_cost(const World& world, Tile* t1, Tile* t2) {
 	return river_modifier* infra_modifier* distance;
 }
 
+/**
+ * Finds the path between the given start and end tiles with the given world configuration
+ * Implements the A* algorithm with euclidean distance as heuristic.
+ */
 std::vector<Tile *> Pathfind::unit_path(const World& world, const Nation& nation, Tile* start, Tile* end) {
 	// We can't go to sea
 	if(start->elevation <= world.sea_level && end->elevation <= world.sea_level) {

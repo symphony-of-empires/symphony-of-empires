@@ -1,4 +1,5 @@
 #include "path.hpp"
+#include <stdexcept>
 #ifdef unix
 #	include <unistd.h>
 #elif defined windows
@@ -21,10 +22,10 @@ namespace Path {
 			buf[len] = '\0';
 			return std::string(buf);
 		}
-		exit(EXIT_FAILURE);
+		throw std::runtime_error("Error reading exec path");
 	}
 
-	std::string get(const char* str) {
+	std::string get(std::string str) {
 		if(str[0] == '/' || str[0] == 'C')
 			return str;
 		

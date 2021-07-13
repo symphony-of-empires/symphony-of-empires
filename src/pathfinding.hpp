@@ -7,11 +7,10 @@
 #include "world.hpp"
 #include "nation.hpp"
 
+/**
+ * This is not used by the server due to architectural reasons, however it may be useful for AI clients
+ */
 namespace Pathfind {
-	/**
-	* Finds the path between the given start and end tiles with the given world configuration
-	* Implements the A* algorithm with euclidean distance as heuristic.
-	 */
 	std::vector<Tile *> unit_path(const World& world, const Nation& nation, Tile* start, Tile* end);
 };
 
