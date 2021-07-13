@@ -20,8 +20,34 @@
 
 #include <poll.h>
 
-Server* g_server = nullptr;
+void SocketStream::write(const void* data, size_t size) {
+	for(size_t i = 0; i < size; ) {
+		int r = ::send(fd, (const char*)data, std::min<size_t>(max_read_size, size - i), 0);
+		if(r == -1) {
+#ifdef windows
+			print_error("WSA Code: %u", WSAGetLastError());
+#endif
+			throw std::runtime_error("Socket write error for data in packet");
+		}
+		i += r;
+	}
+}
 
+void SocketStream::read(const void* data, size_t size) {
+	for(size_t i = 0; i < size; ) {
+		int r = ::recv(fd, (char*)data, std::min<size_t>(max_write_size, size - i), MSG_WAITALL);
+		if(r == -1) {
+#ifdef windows
+			print_error("WSA Code: %u", WSAGetLastError());
+#endif
+			throw std::runtime_error("Socket read error for data in packet");
+		}
+		i += r;
+	}
+}
+
+#include <signal.h>
+Server* g_server = nullptr;
 Server::Server(const unsigned port, const unsigned max_conn) {
 	g_server = this;
 	
@@ -66,10 +92,13 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 	}
 	packet_queues.resize(max_conn);
 	packet_mutexes = new std::mutex[max_conn];
+
+	// We need to ignore pipe signals since any client disconnecting **will** crash the server
+	signal(SIGPIPE, SIG_IGN);
 	
 	run = true;
 	print_info("Server created sucessfully and listening to %u", port);
-	print_info("Server ready, now people can join!")
+	print_info("Server ready, now people can join!");
 }
 
 Server::~Server() {
@@ -111,14 +140,14 @@ void Server::broadcast(Packet& packet) {
  */
 void Server::net_loop(int id) {
 	while(run) {
+		int conn_fd = 0;
 		try {
 			sockaddr_in client;
 			socklen_t len = sizeof(client);
-			int conn_fd;
 
 			conn_fd = accept(fd, (sockaddr *)&client, &len);
 			if(conn_fd == INVALID_SOCKET) {
-				throw "Cannot accept client connection";
+				throw std::runtime_error("Cannot accept client connection");
 			}
 
 			print_info("New client connection established");
@@ -368,7 +397,7 @@ void Server::net_loop(int id) {
 				packet_mutexes[id].lock();
 				while(!packet_queues[id].empty()) {
 					Packet elem = packet_queues[id].front();
-					elem.fd = conn_fd;
+					elem.stream = SocketStream(conn_fd);
 					packet_queues[id].pop_front();
 					elem.send();
 				}
@@ -379,6 +408,12 @@ void Server::net_loop(int id) {
 			print_info("Client disconnected");
 		}
 		
+#ifdef windows
+		shutdown(conn_fd, SD_BOTH);
+#elif defined unix
+		shutdown(conn_fd, SHUT_RDWR);
+#endif
+
 		// Unlock mutexes so we don't end up with weird situations... like deadlocks
 		packet_mutexes[id].unlock();
 		print_info("Client connection closed");
@@ -559,7 +594,7 @@ void Client::net_loop(void) {
 				Packet elem = packet_queue.front();
 				packet_queue.pop_front();
 
-				elem.fd = fd;
+				elem.stream = SocketStream(fd);
 				elem.send();
 			}
 			packet_mutex.unlock();

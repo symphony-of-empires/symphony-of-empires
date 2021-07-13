@@ -11,7 +11,7 @@
 void ai_main(void) {
     print_info("Hello!, I'm SimpleAI");
 
-    while(run) {
+    while(1) {
         // TODO: An actual AI
     }
 }

@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <cstddef>
 
-#include "array_ops.hpp"
 #include "province.hpp"
 
 // Functions that do a economy simulation in various steps, divided to reduce

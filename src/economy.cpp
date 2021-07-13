@@ -417,6 +417,7 @@ void Economy::do_phase_2(World& world) {
 
 class Emigrated {
 public:
+	Emigrated() {};
 	Province* target;
 	Pop* emigred;
 	size_t size;
