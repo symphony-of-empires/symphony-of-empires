@@ -1,6 +1,7 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
+#include <exception>
 #ifdef unix
 #	define _XOPEN_SOURCE_EXTENDED 1
 #	include <sys/socket.h>
@@ -16,10 +17,33 @@
 #include <thread>
 #include <vector>
 #include <atomic>
+#include <string>
 
 #include <cstring>
 #include <unistd.h>
 #include <stdexcept>
+
+class SocketException : std::exception {
+	std::string buffer;
+public:
+	SocketException(std::string msg) {
+		buffer = msg;
+	}
+	const char* what(void) {
+		return buffer.c_str();
+	}
+};
+
+class ServerException : std::exception {
+	std::string buffer;
+public:
+	ServerException(std::string msg) {
+		buffer = msg;
+	}
+	const char* what(void) {
+		return buffer.c_str();
+	}
+};
 
 class SocketStream {
 	static constexpr size_t max_read_size = 1024;

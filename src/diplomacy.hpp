@@ -1,7 +1,6 @@
 #ifndef DIPLOMACY_H
 #define DIPLOMACY_H
 
-#include "world.hpp"
 #include "nation.hpp"
 
 namespace Diplomacy {
@@ -24,24 +23,6 @@ enum TreatyClauseType {
 namespace TreatyClause {
 	class BaseClause {
 	public:
-		BaseClause() = default;
-		BaseClause(Nation* _sender, Nation* _receiver) {
-			sender = _sender;
-			receiver = _receiver;
-		};
-		virtual ~BaseClause() {};
-
-		// Function to determine the "political" cost of this clause, and how much willing the AI
-		// is to accept this clause, this is only used by the AI
-		virtual unsigned cost() { return 0; };
-
-		// Function to enforce the policy per day (or higher time spans)
-		virtual void enforce() {};
-
-		// Determines whenever the clause is in effect or not, when it is not in effect
-		// then it's removed permanently
-		virtual bool in_effect() { return false; };
-
 		// Type of clause
 		enum TreatyClauseType type;
 
@@ -66,6 +47,24 @@ namespace TreatyClause {
 
 		// Used for 1 time clauses
 		bool done = false;
+
+		BaseClause() = default;
+		BaseClause(Nation* _sender, Nation* _receiver) {
+			sender = _sender;
+			receiver = _receiver;
+		};
+		virtual ~BaseClause() {};
+
+		// Function to determine the "political" cost of this clause, and how much willing the AI
+		// is to accept this clause, this is only used by the AI
+		virtual unsigned cost(void) { return 0; };
+
+		// Function to enforce the policy per day (or higher time spans)
+		virtual void enforce(void) {};
+
+		// Determines whenever the clause is in effect or not, when it is not in effect
+		// then it's removed permanently
+		virtual bool in_effect(void) { return false; };
 	};
 	
 	/**
@@ -73,19 +72,11 @@ namespace TreatyClause {
 	 */
 	class WarReparations : BaseClause {
 	public:
-		unsigned cost() {
-			return (receiver->economy_score* (amount* days_duration)) / 100;
-		}
-		void enforce() {
-			sender->prestige += 0.0001f;
-			receiver->prestige -= 0.0001f;
-			sender->budget -= amount;
-			receiver->budget += amount;
-			days_duration--;
-		}
-		bool in_effect() {
-			return (days_duration != 0);
-		}
+		enum TreatyClauseType type = TREATY_CLAUSE_WAR_REPARATIONS;
+
+		unsigned cost(void);
+		void enforce(void);
+		bool in_effect(void);
 	};
 	
 	/**
@@ -93,17 +84,11 @@ namespace TreatyClause {
 	 */
 	class Humiliate : BaseClause {
 	public:
-		unsigned cost() {
-			return (receiver->prestige* (amount* days_duration)) / 100;
-		}
-		void enforce() {
-			sender->prestige += amount;
-			receiver->prestige -= amount;
-			days_duration--;
-		}
-		bool in_effect() {
-			return (days_duration != 0);
-		}
+		enum TreatyClauseType type = TREATY_CLAUSE_HUMILIATE;
+
+		unsigned cost(void);
+		void enforce(void);
+		bool in_effect(void);
 	};
 	
 	/**
@@ -111,29 +96,11 @@ namespace TreatyClause {
 	 */
 	class LiberateNation : BaseClause {
 	public:
-		unsigned cost() {
-			size_t value = 0;
-			for(const auto& province: provinces) {
-				value += province->budget* province->total_pops();
-			}
-			return value* 0.00001f;
-		}
-		void enforce() {
-			// Reduce prestige due to lost lands
-			sender->prestige += cost()* 0.0000025f;
-			receiver->prestige -= cost()* 0.000005f;
-			
-			// Give provinces to this liberated nation
-			for(auto& province: provinces) {
-				province->owner = liberated;
-			}
-			
-			// One-time clause
-			done = true;
-		}
-		bool in_effect() {
-			return done;
-		}
+		enum TreatyClauseType type = TREATY_CLAUSE_LIBERATE_NATION;
+
+		unsigned cost(void);
+		void enforce(void);
+		bool in_effect(void);
 	};
 	
 	/**
@@ -141,16 +108,11 @@ namespace TreatyClause {
 	 */
 	class ImposePolicies : BaseClause {
 	public:
-		unsigned cost() {
-			return imposed.difference(receiver->current_policy);
-		}
-		void enforce() {
-			memcpy(&receiver->current_policy, &imposed, sizeof(Policies));
-			done = true;
-		}
-		bool in_effect() {
-			return done;
-		}
+		enum TreatyClauseType type = TREATY_CLAUSE_IMPOSE_POLICIES;
+
+		unsigned cost(void);
+		void enforce(void);
+		bool in_effect(void);
 	};
 	
 	/**
@@ -158,28 +120,11 @@ namespace TreatyClause {
 	 */
 	class AnexxProvince : BaseClause {
 	public:
-		unsigned cost() {
-			size_t value = 0;
-			for(const auto& province: provinces) {
-				value += province->budget + province->total_pops();
-			}
-			return value* 0.000001f;
-		}
-		void enforce() {
-			sender->prestige += cost()* 0.0000025f;
-			receiver->prestige -= cost()* 0.000005f;
-			
-			// Give provinces to the winner
-			for(auto& province: provinces) {
-				province->owner = sender;
-			}
-			
-			// One-time clause
-			done = true;
-		}
-		bool in_effect() {
-			return done;
-		}
+		enum TreatyClauseType type = TREATY_CLAUSE_ANEXX_PROVINCES;
+
+		unsigned cost(void);
+		void enforce(void);
+		bool in_effect(void);
 	};
 	
 	/**
@@ -187,31 +132,33 @@ namespace TreatyClause {
 	 */
 	class Ceasefire : BaseClause {
 	public:
-		unsigned cost() {
-			return receiver->military_score + receiver->naval_score;
-		}
-		void enforce() {
-			NationId receiver_id = g_world->get_id(receiver);
-			NationId sender_id = g_world->get_id(sender);
-			
-			sender->relations[receiver_id].has_war = false;
-			sender->relations[receiver_id].has_truce = true;
-			
-			receiver->relations[sender_id].has_war = false;
-			receiver->relations[sender_id].has_truce = true;
-			
-			days_duration--;
-		}
-		bool in_effect() {
-			return (days_duration != 0);
-		}
+		enum TreatyClauseType type = TREATY_CLAUSE_CEASEFIRE;
+
+		unsigned cost(void);
+		void enforce(void);
+		bool in_effect(void);
 	};
 };
 
+enum TreatyApproval {
+	TREATY_APPROVAL_UNDECIDED,
+	TREATY_APPROVAL_ACCEPTED,
+	TREATY_APPROVAL_DENIED,
+	TREATY_APPROVAL_ABSENT,
+};
+
+typedef uint32_t TreatyId;
 class Treaty {
 public:
+	using Id = TreatyId;
+	
 	std::string name;
 	std::vector<TreatyClause::BaseClause> clauses;
+
+	Nation* receiver,* sender;
+
+	// List of who are involved in the treaty
+	std::vector<std::pair<Nation*, TreatyApproval>> approval_status;
 };
 
 class War {

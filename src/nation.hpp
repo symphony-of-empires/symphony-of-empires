@@ -35,6 +35,8 @@ public:
 };
 
 #include "policy.hpp"
+#include "province.hpp"
+#include "diplomacy.hpp"
 
 enum IdeologyType {
 	// Primary types
@@ -46,7 +48,6 @@ enum IdeologyType {
 	REPUBLIC,
 };
 
-#include "province.hpp"
 class Event;
 class Nation {
 	inline void do_diplomacy();
@@ -123,9 +124,6 @@ public:
 	// A pointer to a class defining the current policy of this nation
 	Policies current_policy;
 
-	// Inbox of the nation; events that require our attention / should be processed
-	std::deque<Event> inbox;
-
 	// Time until a diplomatic action can be done
 	uint16_t diplomatic_timer;
 
@@ -146,6 +144,9 @@ public:
 	float life_needs_met_mod = 1.f;
 	float everyday_needs_met_mod = 1.f;
 	float luxury_needs_met_mod = 1.f;
+
+	// Inbox of the nation; events that require our attention / should be processed
+	std::deque<Event> inbox;
 
 	void increase_relation(const World& world, Nation* target);
 	void decrease_relation(const World& world, Nation* target);

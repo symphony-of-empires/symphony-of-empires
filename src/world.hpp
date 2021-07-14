@@ -114,6 +114,7 @@ public:
 #include <algorithm>
 #include <mutex>
 #include "event.hpp"
+#include "diplomacy.hpp"
 
 /**
 * Contains the main world class object, containing all the data relevant for the simulation
@@ -247,6 +248,9 @@ public:
 	std::vector<Outpost*> outposts;
 	mutable std::recursive_mutex outposts_mutex;
 
+	std::vector<Treaty*> treaties;
+	mutable std::recursive_mutex treaties_mutex;
+
 	Nation::Id get_id(const Nation* ptr) const;
 	Province::Id get_id(const Province* ptr) const;
 	Product::Id get_id(const Product* ptr) const;
@@ -262,6 +266,7 @@ public:
 	Unit::Id get_id(const Unit* ptr) const;
 	OutpostType::Id get_id(const OutpostType* ptr) const;
 	Outpost::Id get_id(const Outpost* ptr) const;
+	Treaty::Id get_id(const Treaty* ptr) const;
 	
 	size_t get_id(const Tile* ptr) const;
 	

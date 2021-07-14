@@ -147,7 +147,7 @@ void Server::net_loop(int id) {
 
 			conn_fd = accept(fd, (sockaddr *)&client, &len);
 			if(conn_fd == INVALID_SOCKET) {
-				throw std::runtime_error("Cannot accept client connection");
+				throw SocketException("Cannot accept client connection");
 			}
 
 			print_info("New client connection established");
@@ -178,14 +178,16 @@ void Server::net_loop(int id) {
 
 					if(selected_nation == nullptr &&
 					(action != ACTION_PONG && action != ACTION_CHAT_MESSAGE && action != ACTION_SELECT_NATION))
-						throw std::runtime_error("Unallowed operation without selected nation");
+						throw ServerException("Unallowed operation without selected nation");
 					
 					switch(action) {
+					/// - Used to test connections between server and client
 					case ACTION_PONG:
 						action = ACTION_PING;
 						packet.send(&action);
 						print_info("Received pong, responding with ping!");
 						break;
+					/// - Client tells server to enact a new policy for it's nation
 					case ACTION_NATION_ENACT_POLICY:
 						{
 							std::lock_guard<std::recursive_mutex> lock1(g_world->nations_mutex);
@@ -198,6 +200,7 @@ void Server::net_loop(int id) {
 							selected_nation->current_policy = policies;
 						}
 						break;
+					/// - Client tells server to change target of unit
 					case ACTION_UNIT_CHANGE_TARGET:
 						{
 							std::lock_guard<std::recursive_mutex> lock1(g_world->units_mutex);
@@ -205,21 +208,26 @@ void Server::net_loop(int id) {
 							Unit* unit;
 							::deserialize(ar, &unit);
 							if(unit == nullptr)
-								throw std::runtime_error("Unknown unit");
+								throw ServerException("Unknown unit");
 
 							// Must control unit
 							if(selected_nation != unit->owner)
-								throw std::runtime_error("Nation does not control unit");
+								throw ServerException("Nation does not control unit");
 							
 							::deserialize(ar, &unit->tx);
 							::deserialize(ar, &unit->ty);
 
 							if(unit->tx >= g_world->width || unit->ty >= g_world->height)
-								throw std::runtime_error("Coordinates out of range for unit");
+								throw ServerException("Coordinates out of range for unit");
 							
 							print_info("Unit changes targets to %zu.%zu", (size_t)unit->tx, (size_t)unit->ty);
 						}
 						break;
+					/**
+					 * Client tells the server about the construction of a new unit, note that this will
+					 * only make the outpost submit "construction tickets" to obtain materials to build
+					 * the unit can only be created by the server, not by the clients
+					 */
 					case ACTION_OUTPOST_START_BUILDING_UNIT:
 						{
 							std::lock_guard<std::recursive_mutex> lock1(g_world->outposts_mutex);
@@ -228,15 +236,15 @@ void Server::net_loop(int id) {
 							Outpost* outpost = new Outpost();
 							::deserialize(ar, &outpost);
 							if(outpost == nullptr)
-								throw std::runtime_error("Unknown outpost");
+								throw ServerException("Unknown outpost");
 							UnitType* unit_type = new UnitType();
 							::deserialize(ar, &unit_type);
 							if(unit_type == nullptr)
-								throw std::runtime_error("Unknown unit type");
+								throw ServerException("Unknown unit type");
 							
 							// Must control outpost
 							if(outpost->owner != selected_nation)
-								throw std::runtime_error("Nation does not control outpost");
+								throw ServerException("Nation does not control outpost");
 							
 							// TODO: Check nation can build this unit
 
@@ -246,6 +254,7 @@ void Server::net_loop(int id) {
 							print_info("New order for building on outpost; build unit %s", unit_type->name.c_str());
 						}
 						break;
+					// - Same as before but with boats
 					case ACTION_OUTPOST_START_BUILDING_BOAT:
 						{
 							std::lock_guard<std::recursive_mutex> lock1(g_world->outposts_mutex);
@@ -254,15 +263,15 @@ void Server::net_loop(int id) {
 							Outpost* outpost = new Outpost();
 							::deserialize(ar, &outpost);
 							if(outpost == nullptr)
-								throw std::runtime_error("Unknown outpost");
+								throw ServerException("Unknown outpost");
 							BoatType* boat_type = new BoatType();
 							::deserialize(ar, &boat_type);
 							if(boat_type == nullptr)
-								throw std::runtime_error("Unknown boat type");
+								throw ServerException("Unknown boat type");
 							
 							// Must control outpost
 							if(outpost->owner != selected_nation)
-								throw std::runtime_error("Nation does not control outpost");
+								throw ServerException("Nation does not control outpost");
 
 							// Tell the outpost to build this specific unit type
 							outpost->working_boat_type = boat_type;
@@ -270,6 +279,10 @@ void Server::net_loop(int id) {
 							print_info("New order for building on outpost; build boat %s", boat_type->name.c_str());
 						}
 						break;
+					/**
+					 * Client tells server to build new outpost, the location (& type) is provided by
+					 * the client and the rest of the fields are filled by the server
+					 */
 					case ACTION_OUTPOST_ADD:
 						{
 							std::lock_guard<std::recursive_mutex> lock(g_world->outposts_mutex);
@@ -277,7 +290,7 @@ void Server::net_loop(int id) {
 							Outpost* outpost = new Outpost();
 							::deserialize(ar, outpost);
 							if(outpost->type == nullptr)
-								throw std::runtime_error("Unknown outpost type");
+								throw ServerException("Unknown outpost type");
 
 							// Modify the serialized outpost
 							ar.ptr -= ::serialized_size(outpost);
@@ -285,11 +298,11 @@ void Server::net_loop(int id) {
 
 							// Check that it's not out of bounds
 							if(outpost->x >= g_world->width || outpost->y >= g_world->height)
-								throw std::runtime_error("Outpost out of range");
+								throw ServerException("Outpost out of range");
 							
 							// Outposts can only be built on owned land
 							if(g_world->nations[g_world->get_tile(outpost->x, outpost->y).owner_id] != selected_nation)
-								throw std::runtime_error("Outpost cannot be built on foreign land");
+								throw ServerException("Outpost cannot be built on foreign land");
 
 							outpost->working_unit_type = nullptr;
 							outpost->working_boat_type = nullptr;
@@ -304,8 +317,9 @@ void Server::net_loop(int id) {
 						// Rebroadcast
 						broadcast(packet);
 						break;
-					/* Action of colonizing a province, this action is then re-broadcasted to all clients
-					 * it's separate from ACTION_PROVINCE_UPDATE by mere convenience for clients(?)
+					/* 
+					 * Client tells server that it wants to colonize a province, this can be rejected
+					 * or accepted, client should check via the next PROVINCE_UPDATE action
 					 */
 					case ACTION_PROVINCE_COLONIZE:
 						{
@@ -316,11 +330,11 @@ void Server::net_loop(int id) {
 							::deserialize(ar, &province);
 
 							if(province == nullptr)
-								throw std::runtime_error("Unknown province");
+								throw ServerException("Unknown province");
 
 							// Must not be already owned
 							if(province->owner != nullptr)
-								throw std::runtime_error("Province already has an owner");
+								throw ServerException("Province already has an owner");
 
 							province->owner = selected_nation;
 						}
@@ -328,7 +342,7 @@ void Server::net_loop(int id) {
 						// Rebroadcast
 						broadcast(packet);
 						break;
-					// Gaming chat
+					// Simple IRC-like chat messaging system
 					case ACTION_CHAT_MESSAGE:
 						{
 							std::string msg;
@@ -339,7 +353,86 @@ void Server::net_loop(int id) {
 						// Rebroadcast
 						broadcast(packet);
 						break;
-					// Events & Descisions
+					// Client changes it's approval on certain treaty
+					case ACTION_CHANGE_TREATY_APPROVAL:
+						{
+							std::lock_guard<std::recursive_mutex> lock1(g_world->nations_mutex);
+							std::lock_guard<std::recursive_mutex> lock1(g_world->treaties_mutex);
+
+							Treaty* treaty;
+							::deserialize(ar, &treaty);
+							if(treaty == nullptr)
+								throw ServerException("Treaty not found");
+							
+							// Check that the nation participates in the treaty
+							bool does_participate = false;
+							for(auto& status: treaty->approval_status) {
+								if(status.first == selected_nation) {
+									// Alright, then change approval
+									enum TreatyApproval approval;
+									::deserialize(ar, &approval);
+									status.second = approval;
+
+									does_participate = true;
+									break;	
+								}
+							}
+
+							if(!does_participate)
+								throw ServerException("Nation does not participate in treaty");
+						}
+
+						// Rebroadcast
+						broadcast(packet);
+						break;
+					// Client sends a treaty to someone
+					case ACTION_DRAFT_TREATY:
+						{
+							std::lock_guard<std::recursive_mutex> lock1(g_world->nations_mutex);
+							std::lock_guard<std::recursive_mutex> lock2(g_world->treaties_mutex);
+
+							Treaty* treaty = new Treaty();
+							::deserialize(ar, &treaty->clauses);
+							::deserialize(ar, &treaty->name);
+							::deserialize(ar, &treaty->receiver);
+							::deserialize(ar, &treaty->sender);
+
+							// Validate data
+							if(!treaty->clauses.size())
+								throw ServerException("Clause-less treaty");
+							if(treaty->sender == nullptr || treaty->receiver == nullptr)
+								throw ServerException("Treaty has invalid ends");
+							
+							// Obtain participants of the treaty
+							std::set<Nation*> approver_nations = std::set<Nation*>();
+							for(auto& clause: treaty->clauses) {
+								if(clause.receiver == nullptr || clause.sender == nullptr)
+									throw ServerException("Invalid clause receiver/sender");
+								
+								approver_nations.insert(clause.receiver);
+								approver_nations.insert(clause.sender);
+							}
+
+							// Then fill
+							for(auto& nation: approver_nations) {
+								treaty->approval_status.push_back(std::make_pair(nation, TREATY_APPROVAL_UNDECIDED));
+							}
+
+							// The sender automatically accepts the treaty (they are the ones who drafted it)
+							for(auto& status: treaty->approval_status) {
+								if(status.first == selected_nation) {
+									status.second = TREATY_APPROVAL_ACCEPTED;
+									break;
+								}
+							}
+
+							g_world->treaties.push_back(treaty);
+						}
+
+						// Rebroadcast
+						broadcast(packet);
+						break;
+					// Client takes a descision
 					case ACTION_NATION_TAKE_DESCISION:
 						{
 							std::lock_guard<std::recursive_mutex> lock1(g_world->events_mutex);
@@ -352,7 +445,7 @@ void Server::net_loop(int id) {
 								return e->ref_name == event_ref_name;
 							});
 							if(event == g_world->events.end()) {
-								throw std::runtime_error("Event not found");
+								throw ServerException("Event not found");
 							}
 							
 							// Find descision by reference name
@@ -363,7 +456,7 @@ void Server::net_loop(int id) {
 								return e.ref_name == descision_ref_name;
 							});
 							if(descision == (*event)->descisions.end()) {
-								throw std::runtime_error("Descision not found");
+								throw ServerException("Descision not found");
 							}
 
 							(*event)->take_descision(selected_nation, &(*descision));
@@ -382,7 +475,7 @@ void Server::net_loop(int id) {
 							Nation* nation;
 							::deserialize(ar, &nation);
 							if(nation == nullptr)
-								throw std::runtime_error("Unknown nation");
+								throw ServerException("Unknown nation");
 							selected_nation = nation;
 						}
 						print_info("Nation %s selected by client %zu", selected_nation->name.c_str(), (size_t)id);
@@ -403,10 +496,12 @@ void Server::net_loop(int id) {
 				}
 				packet_mutexes[id].unlock();
 			}
-		} catch(std::runtime_error& e) {
-			print_error("Except: %s", e.what());
-			print_info("Client disconnected");
+		} catch(ServerExceptionr& e) {
+			print_error("ServerExceptionr: %s", e.what());
+		} catch(SocketException& e) {
+			print_error("SocketException: %s", e.what());
 		}
+		print_info("Client disconnected");
 		
 #ifdef windows
 		shutdown(conn_fd, SD_BOTH);
@@ -499,15 +594,14 @@ void Client::net_loop(void) {
 					packet.send(&action);
 					print_info("Received ping, responding with pong!");
 					break;
-				// Update/Remove/Add Actions
-				//
-				// These actions all follow the same format they give a specialized ID for the index
-				// where the operated object is or should be; this allows for extreme-level fuckery
-				// like ref-name changes in the middle of a game in the case of updates.
-				//
-				// After the ID the object in question is given in a serialized form, in which the
-				// deserializer will deserialize onto the final object; after this the operation
-				// desired is done.
+				/** Update/Remove/Add Actions
+				 * These actions all follow the same format they give a specialized ID for the index
+				 * where the operated object is or should be; this allows for extreme-level fuckery
+				 * like ref-name changes in the middle of a game in the case of updates.
+				 *
+				 * After the ID the object in question is given in a serialized form, in which the
+				 * deserializer will deserialize onto the final object; after this the operation
+				 * desired is done. */
 				case ACTION_PROVINCE_UPDATE:
 					{
 						std::lock_guard<std::recursive_mutex> lock(g_world->provinces_mutex);

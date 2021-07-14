@@ -854,6 +854,11 @@ Outpost::Id World::get_id(const Outpost* ptr) const {
 	return get_id_ptr<Outpost::Id>(ptr, outposts);
 }
 
+Treaty::Id World::get_id(const Treaty* ptr) const {
+	std::lock_guard<std::recursive_mutex> lock(treaties_mutex);
+	return get_id_ptr<Treaty::Id>(ptr, treaties);
+}
+
 size_t World::get_id(const Tile* ptr) const {
 	std::lock_guard<std::recursive_mutex> lock(tiles_mutex);
 	return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
