@@ -27,6 +27,7 @@ class Texture : public BinaryImage {
 public:
 	Texture() {};
 	Texture(std::string path) : BinaryImage(path) {};
+	Texture(size_t _width, size_t _height) : BinaryImage(_width, _height) {};
 
 	GLuint gl_tex_num;
 	void create_dummy();

@@ -50,7 +50,6 @@ extern std::atomic<bool> paused;
 extern std::atomic<bool> do_start;
 
 #include "pathfinding.hpp"
-#include "array_ops.hpp"
 SDL_Window* window;
 
 static UI::Button* curr_country_btn;
