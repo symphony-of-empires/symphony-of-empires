@@ -357,7 +357,7 @@ void Server::net_loop(int id) {
 					case ACTION_CHANGE_TREATY_APPROVAL:
 						{
 							std::lock_guard<std::recursive_mutex> lock1(g_world->nations_mutex);
-							std::lock_guard<std::recursive_mutex> lock1(g_world->treaties_mutex);
+							std::lock_guard<std::recursive_mutex> lock2(g_world->treaties_mutex);
 
 							Treaty* treaty;
 							::deserialize(ar, &treaty);
@@ -496,8 +496,8 @@ void Server::net_loop(int id) {
 				}
 				packet_mutexes[id].unlock();
 			}
-		} catch(ServerExceptionr& e) {
-			print_error("ServerExceptionr: %s", e.what());
+		} catch(ServerException& e) {
+			print_error("ServerException: %s", e.what());
 		} catch(SocketException& e) {
 			print_error("SocketException: %s", e.what());
 		}
