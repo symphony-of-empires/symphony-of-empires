@@ -33,14 +33,14 @@ namespace TreatyClause {
 
 		// Function to determine the "political" cost of this clause, and how much willing the AI
 		// is to accept this clause, this is only used by the AI
-		virtual unsigned cost();
+		virtual unsigned cost() { return 0; };
 
 		// Function to enforce the policy per day (or higher time spans)
-		virtual void enforce();
+		virtual void enforce() {};
 
 		// Determines whenever the clause is in effect or not, when it is not in effect
 		// then it's removed permanently
-		virtual bool in_effect();
+		virtual bool in_effect() { return false; };
 
 		// Type of clause
 		enum TreatyClauseType type;

@@ -75,7 +75,7 @@ void ui_treaty(void) {
 	new_clause->current_texture = button_pvw;
 	new_clause->text("Add new clause");
 	new_clause->on_click = [](UI::Widget&, void*) {
-		UI::Window new_clause_win = new UI::Window(0, 0, treaty_win_tex->width, treaty_win_tex->height);
+		UI::Window* new_clause_win = new UI::Window(0, 0, treaty_win_tex->width, treaty_win_tex->height);
 		new_clause_win->text("Add new clause");
 		new_clause_win->current_texture = treaty_win_tex;
 
@@ -86,13 +86,12 @@ void ui_treaty(void) {
 		list_btn->current_texture = button_pvw;
 		list_btn->text("TREATY_CLAUSE_WAR_REPARATIONS");
 		list_btn->on_click = [](UI::Widget&, void* data) {
-			TreatyClause::BaseClause* clause;
+			TreatyClause::BaseClause clause;
 			clause.type = TREATY_CLAUSE_WAR_REPARATIONS;
 			clause.sender = curr_nation;
 			clause.receiver = recv_nation;
 			clause.amount = 5000.f;
 			clause.days_duration = 365;
-
 			g_treaty_draft.clauses.push_back(clause);
 		};
 		y += button_pvw->height + 2;
@@ -124,16 +123,16 @@ void ui_treaty(void) {
 		list_btn = new UI::Button(9, y, button_pvw->width, button_pvw->height, new_clause_win);
 		list_btn->current_texture = button_pvw;
 		list_btn->text("TREATY_CLAUSE_ANEXX_PROVINCES");
-		list_btn->on_click = [](UI::Widget&, void* data) {
-			UI::Window per_clause_win = new UI::Window(0, 0, treaty_win_tex->width, treaty_win_tex->height);
+		list_btn->on_click = [](UI::Widget& w, void* data) {
+			UI::Window* per_clause_win = new UI::Window(0, 0, treaty_win_tex->width, treaty_win_tex->height);
 			per_clause_win->text("Add new clause");
 			per_clause_win->current_texture = treaty_win_tex;
 
 			int another_y = 0;
 			for(size_t i = 0; i < recv_nation->owned_provinces.size(); i++) {
-				list_btn = new UI::Button(9, another_y, button_pvw->width, button_pvw->height, new_clause_win);
+				UI::Button* list_btn = new UI::Button(9, another_y, button_pvw->width, button_pvw->height, (&w)->parent);
 				list_btn->current_texture = button_pvw;
-				list_btn->text(recv_nation->owned_provinces[i]->ref_name.c_str());
+				list_btn->text("PROVINCE NAME");
 				list_btn->on_click = [](UI::Widget&, void* data) {
 					
 				};
@@ -154,9 +153,10 @@ void ui_treaty(void) {
 		ok_btn->current_texture = button_pvw;
 	};
 
-	UI::Button* ok_btn = new UI::CloseButton(9, y, button_pvw->width, button_pvw->height, new_clause_win);
+	UI::Button* ok_btn = new UI::Button(9, 0, button_pvw->width, button_pvw->height, treaty_win);
 	ok_btn->text("OK");
 	ok_btn->current_texture = button_pvw;
+	ok_btn->below_of(dynamic_cast<const UI::Widget&>(*recv_nation_lab));
 	ok_btn->on_click = [](UI::Widget&, void* data) {
 		// Send draft to server
 		
