@@ -81,6 +81,28 @@ public:
 };
 
 template<>
+class Serializer<Treaty*> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const Treaty* const* obj) {
+		Treaty::Id id = g_world->get_id(*obj);
+		::serialize(stream, &id);
+	}
+	static inline void deserialize(Archive& stream, Treaty** obj) {
+		Treaty::Id id;
+		::deserialize(stream, &id);
+		if(id >= g_world->treaties.size()) {
+			*obj = nullptr;
+			return;
+		}
+		*obj = (id != (Treaty::Id)-1) ? g_world->treaties[id] : nullptr;
+	}
+	static inline size_t size(const Treaty* const*) {
+		return sizeof(Treaty::Id);
+	}
+};
+
+template<>
 class Serializer<Product*> {
 public:
 	static constexpr bool is_const_size = false;
@@ -709,21 +731,32 @@ public:
 };
 
 template<>
+class Serializer<enum TreatyApproval> : public SerializerMemcpy<enum TreatyApproval> {};
+template<>
 class Serializer<Treaty> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& stream, const Treaty* obj) {
 		::serialize(stream, &obj->name);
 		::serialize(stream, &obj->clauses);
+		::serialize(stream, &obj->receiver);
+		::serialize(stream, &obj->sender);
+		::serialize(stream, &obj->approval_status);
 	}
 	static inline void deserialize(Archive& stream, Treaty* obj) {
 		::deserialize(stream, &obj->name);
 		::deserialize(stream, &obj->clauses);
+		::deserialize(stream, &obj->receiver);
+		::deserialize(stream, &obj->sender);
+		::deserialize(stream, &obj->approval_status);
 	}
 	static inline size_t size(const Treaty* obj) {
 		return
 			serialized_size(&obj->name)
 			+ serialized_size(&obj->clauses)
+			+ serialized_size(&obj->receiver)
+			+ serialized_size(&obj->sender)
+			+ serialized_size(&obj->approval_status)
 		;
 	}
 };
@@ -1175,6 +1208,8 @@ public:
 		::serialize(stream, &n_outpost_types);
 		const uint32_t n_outposts = obj->outposts.size();
 		::serialize(stream, &n_outposts);
+		const uint32_t n_treaties = obj->treaties.size();
+		::serialize(stream, &n_treaties);
 		
 		printf("(SERIALIZER) WORLD INFORMATION\n");
 		printf("  n_goods %zu\n", (size_t)n_goods);
@@ -1249,6 +1284,10 @@ public:
 		}
 
 		for(auto& sub_obj: obj->outposts) {
+			::serialize(stream, sub_obj);
+		}
+
+		for(auto& sub_obj: obj->treaties) {
 			::serialize(stream, sub_obj);
 		}
 		
@@ -1374,6 +1413,13 @@ public:
 			Outpost* sub_obj = new Outpost();
 			obj->outposts.push_back(sub_obj);
 		}
+
+		uint32_t n_treaties;
+		::deserialize(stream, &n_treaties);
+		for(size_t i = 0; i < n_treaties; i++) {
+			Treaty* sub_obj = new Treaty();
+			obj->treaties.push_back(sub_obj);
+		}
 		
 		printf("(DESERIALIZER) WORLD INFORMATION\n");
 		printf("  n_goods %zu\n", (size_t)n_goods);
@@ -1465,6 +1511,11 @@ public:
 			Outpost* sub_obj = obj->outposts[i];
 			::deserialize(stream, sub_obj);
 		}
+
+		for(size_t i = 0; i < n_treaties; i++) {
+			Treaty* sub_obj = obj->treaties[i];
+			::deserialize(stream, sub_obj);
+		}
 		
 		::deserialize(stream, &obj->delivers);
 		::deserialize(stream, &obj->orders);
@@ -1477,20 +1528,23 @@ public:
 			+ serialized_size(&obj->time)
 			+ serialized_size(&obj->delivers)
 			+ serialized_size(&obj->orders)
-			+ (sizeof(Tile)* (obj->width* obj->height))
-			+ (obj->goods.size()* sizeof(Good))
-			+ (obj->industry_types.size()* sizeof(IndustryType))
-			+ (obj->unit_types.size()* sizeof(UnitType))
-			+ (obj->boat_types.size()* sizeof(BoatType))
-			+ (obj->religions.size()* sizeof(Religion))
-			+ (obj->cultures.size()* sizeof(Culture))
-			+ (obj->pop_types.size()* sizeof(PopType))
-			+ (obj->nations.size()* sizeof(Nation))
-			+ (obj->provinces.size()* sizeof(Province))
-			+ (obj->companies.size()* sizeof(Company))
-			+ (obj->products.size()* sizeof(Product))
-			+ (obj->events.size()* sizeof(Event))
-			+ (obj->unit_traits.size()* sizeof(UnitTrait))
+			+ (sizeof(Tile) * (obj->width* obj->height))
+			+ (obj->goods.size() * sizeof(Good))
+			+ (obj->industry_types.size() * sizeof(IndustryType))
+			+ (obj->unit_types.size() * sizeof(UnitType))
+			+ (obj->boat_types.size() * sizeof(BoatType))
+			+ (obj->religions.size() * sizeof(Religion))
+			+ (obj->cultures.size() * sizeof(Culture))
+			+ (obj->pop_types.size() * sizeof(PopType))
+			+ (obj->nations.size() * sizeof(Nation))
+			+ (obj->provinces.size() * sizeof(Province))
+			+ (obj->companies.size() * sizeof(Company))
+			+ (obj->products.size() * sizeof(Product))
+			+ (obj->events.size() * sizeof(Event))
+			+ (obj->unit_traits.size() * sizeof(UnitTrait))
+			+ (obj->outpost_types.size() * sizeof(OutpostType))
+			+ (obj->outposts.size() * sizeof(Outpost))
+			+ (obj->treaties.size() * sizeof(Treaty))
 		;
 	}
 };
