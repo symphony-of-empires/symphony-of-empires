@@ -93,21 +93,27 @@ namespace UI {
 		void (*on_update)(Widget&, void *) = nullptr;
 		void (*on_hover)(Widget&, void *) = nullptr;
 		void (*on_click)(Widget&, void *) = nullptr;
-
-		void above_of(const Widget& rhs) {
+		
+		template<typename T>
+		void above_of(const T& rhs) {
 			y = rhs.y - height;
 			disp_y = rhs.disp_y - height;
 		}
-		void below_of(const Widget& rhs) {
+		
+		template<typename T>
+		void below_of(const T& rhs) {
 			y = rhs.y + rhs.height;
 			disp_y = rhs.disp_y + rhs.height;
 		}
-
-		void left_side_of(const Widget& rhs) {
+		
+		template<typename T>
+		void left_side_of(const T& rhs) {
 			x = rhs.x - width;
 			disp_x = rhs.disp_x - width;
 		}
-		void right_side_of(const Widget& rhs) {
+		
+		template<typename T>
+		void right_side_of(const T& rhs) {
 			x = rhs.x + rhs.width;
 			disp_x = rhs.disp_x + rhs.width;
 		}

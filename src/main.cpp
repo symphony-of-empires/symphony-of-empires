@@ -2,7 +2,7 @@
 #include "world.hpp"
 #include "lua_api.hpp"
 
-void rendering_main(void);
+void client_main(void);
 
 #ifdef windows
 const char* gettext(const char* str) {
@@ -15,8 +15,6 @@ const char* gettext(const char* str) {
 
 #include <atomic>
 std::atomic<bool> run;
-std::atomic<bool> paused;
-std::atomic<bool> do_start;
 
 #ifdef unix
 #	include <libintl.h>
@@ -48,20 +46,13 @@ int main(int argc, char ** argv) {
 		World* world = new World(false);
 		Server* server = new Server(1836);
 		
-		Archive* stream;
-		
-		do_start = true;
-		while(!do_start);
-		
 		run = true;
-		paused = false;
 		while(run) {
 			std::unique_lock<std::mutex> lock(world_lock);
 			world->do_tick();
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			while(paused);
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		}
-
+		
 		delete world;
 		delete server;
 	}
@@ -73,27 +64,15 @@ int main(int argc, char ** argv) {
 			server_addr = "127.0.0.1";
 			print_info("No IP specified, assuming default %s", server_addr.c_str());
 		}
-		
 		print_info("Connecting to server with IP %s", server_addr.c_str());
-
+		
 		World* world = new World(true);
 		Client* client = new Client(server_addr, 1836);
 		client->wait_for_snapshot();
-		
-		printf("%s\n", gettext("launching rendering thread"));
-		std::thread t1(rendering_main);
-		
-		while(!do_start);
-		
-		paused = false;
-		while(run) {
-			while(paused);
-		}
-		
-		t1.join();
+		client_main();
 		
 		delete world;
-		//delete client;
+		delete client;
 	}
 #endif
 	exit(EXIT_SUCCESS);

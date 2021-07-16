@@ -29,25 +29,13 @@ int height = 800;
 std::pair<int, int> mouse_pos;
 static Map* map;
 
-class Camera {
-public:
-	float vx;
-	float vy;
-	float vz;
-	float x;
-	float y;
-	float z;
-	float z_angle;
-	float vz_angle;
-};
+#include "camera.hpp"
 static Camera cam;
 UI::Context* ui_ctx;
 
 #include <atomic>
 extern std::atomic<int> redraw;
 extern std::atomic<bool> run;
-extern std::atomic<bool> paused;
-extern std::atomic<bool> do_start;
 
 #include "pathfinding.hpp"
 SDL_Window* window;
@@ -287,30 +275,28 @@ static void play_nation(UI::Widget&, void *) {
 	
 	money_icon = new UI::Image(209, 43 + (28* 0), icon_money_tex.width, icon_money_tex.height, &icon_money_tex, top_win);
 	money_lab = new UI::Label(0, 43 + (28* 0), "?", top_win);
-	money_lab->right_side_of(dynamic_cast<const UI::Widget&>(*money_icon));
+	money_lab->right_side_of((*money_icon));
 	
 	prestige_icon = new UI::Image(209, 43 + (28* 1), icon_prestige_tex.width, icon_prestige_tex.height, &icon_prestige_tex, top_win);
 	prestige_lab = new UI::Label(0, 43 + (28* 1), "?", top_win);
-	prestige_lab->right_side_of(dynamic_cast<const UI::Widget&>(*prestige_icon));
+	prestige_lab->right_side_of((*prestige_icon));
 	
 	economy_icon = new UI::Image(209, 43 + (28* 2), icon_economy_score_tex.width, icon_economy_score_tex.height, &icon_economy_score_tex, top_win);
 	economy_lab = new UI::Label(0, 43 + (28* 2), "?", top_win);
-	economy_lab->right_side_of(dynamic_cast<const UI::Widget&>(*economy_icon));
+	economy_lab->right_side_of((*economy_icon));
 	
 	big_brain_icon = new UI::Image(209, 43 + (28* 3), icon_big_brain_tex.width, icon_big_brain_tex.height, &icon_big_brain_tex, top_win);
 	big_brain_lab = new UI::Label(0, 43 + (28* 3), "?", top_win);
-	big_brain_lab->right_side_of(dynamic_cast<const UI::Widget&>(*big_brain_icon));
+	big_brain_lab->right_side_of((*big_brain_icon));
 	
 	militancy_icon = new UI::Image(209, 43 + (28* 4), icon_militancy_tex.width, icon_militancy_tex.height, &icon_militancy_tex, top_win);
 	militancy_lab = new UI::Label(0, 43 + (28* 4), "?", top_win);
-	militancy_lab->right_side_of(dynamic_cast<const UI::Widget&>(*militancy_icon));
+	militancy_lab->right_side_of((*militancy_icon));
 	
 	population_icon = new UI::Image(209, 43 + (28* 5), icon_population_tex.width, icon_population_tex.height, &icon_population_tex, top_win);
 	population_lab = new UI::Label(0, 43 + (28* 5), "?", top_win);
-	population_lab->right_side_of(dynamic_cast<const UI::Widget&>(*population_icon));
+	population_lab->right_side_of((*population_icon));
 	
-	do_start = true;
-
 	// Select the nation
 	g_client->packet_mutex.lock();
 	Packet packet = Packet();
@@ -526,14 +512,14 @@ void select_nation(void) {
 	UI::Button* next_country_btn = new UI::Button(0, height - 128, button_128.width, button_128.height);
 	next_country_btn->current_texture = &button_128;
 	next_country_btn->text("Next");
-	next_country_btn->right_side_of(dynamic_cast<const UI::Widget&>(*curr_country_btn));
+	next_country_btn->right_side_of((*curr_country_btn));
 	next_country_btn->on_click = [](UI::Widget&, void *) {
 		change_country(curr_selected_nation + 1);
 	};
 	UI::Button* prev_country_btn = new UI::Button(0, height - 128, button_128.width, button_128.height);
 	prev_country_btn->current_texture = &button_128;
 	prev_country_btn->text("Prev");
-	prev_country_btn->left_side_of(dynamic_cast<const UI::Widget&>(*curr_country_btn));
+	prev_country_btn->left_side_of((*curr_country_btn));
 	prev_country_btn->on_click = [](UI::Widget&, void *) {
 		change_country(curr_selected_nation - 1);
 	};
@@ -682,7 +668,7 @@ void select_nation(void) {
 							province_view_win = new UI::Window(0, 0, province_view_win_tex.width, province_view_win_tex.height);
 							province_view_win->text("Province overview");
 							province_view_win->current_texture = &province_view_win_tex;
-							province_view_win->below_of(dynamic_cast<const UI::Widget&>(*top_win));
+							province_view_win->below_of((*top_win));
 							
 							const Texture& province_view_decor = g_texture_manager->load_texture(Path::get("ui/province_view_terrain.png"));
 							UI::Image* view_province_decor = new UI::Image(9, 43, province_view_decor.width, province_view_decor.height, &province_view_decor, province_view_win);
@@ -696,25 +682,25 @@ void select_nation(void) {
 							UI::Button* view_province_ind = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
 							view_province_ind->text("Economic activity");
 							view_province_ind->current_texture = &button_pvw;
-							view_province_ind->below_of(dynamic_cast<const UI::Widget&>(*view_province_pops));
+							view_province_ind->below_of((*view_province_pops));
 							view_province_ind->user_data = (void *)g_world->provinces[tile.province_id];
 							
 							UI::Button* view_province_owner = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
 							view_province_owner->text("Owner info");
 							view_province_owner->current_texture = &button_pvw;
-							view_province_owner->below_of(dynamic_cast<const UI::Widget&>(*view_province_ind));
+							view_province_owner->below_of((*view_province_ind));
 							view_province_owner->user_data = (void *)g_world->provinces[tile.province_id];
 							
 							UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_pvw.width, button_pvw.height, province_view_win);
 							ok_btn->text("OK");
 							ok_btn->current_texture = &button_pvw;
-							ok_btn->below_of(dynamic_cast<const UI::Widget&>(*view_province_owner));
+							ok_btn->below_of((*view_province_owner));
 
 							if(g_world->provinces[tile.province_id]->owner == nullptr) {
 								UI::Button* colonize_province_btn = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
 								colonize_province_btn->text("Colonize");
 								colonize_province_btn->current_texture = &button_pvw;
-								colonize_province_btn->below_of(dynamic_cast<const UI::Widget&>(*ok_btn));
+								colonize_province_btn->below_of((*ok_btn));
 								colonize_province_btn->user_data = (void *)g_world->provinces[tile.province_id];
 								colonize_province_btn->on_click = &colonize_province;
 							}
@@ -763,9 +749,6 @@ void select_nation(void) {
 				case SDLK_e:
 					cam.vz_angle += std::min(4.f, std::max(0.01f, 0.02f* -cam.z));
 					break;
-				case SDLK_p:
-					paused = !paused;
-					break;
 				case SDLK_t:
 					ui_treaty();
 					break;
@@ -773,7 +756,7 @@ void select_nation(void) {
 					UI::Window* debug_win = new UI::Window(0, 0, debug_win_tex.width, debug_win_tex.height);
 					debug_win->text("Debug");
 					debug_win->current_texture = &debug_win_tex;
-					debug_win->below_of(dynamic_cast<const UI::Widget&>(*top_win));
+					debug_win->below_of((*top_win));
 					
 					UI::Button* overpopulate = new UI::Button(9, 43, button_pvw.width, button_pvw.height, debug_win);
 					overpopulate->text("Spawn humans");
@@ -789,7 +772,7 @@ void select_nation(void) {
 					UI::Button* underpopulate = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
 					underpopulate->text("Kill half humans");
 					underpopulate->current_texture = &button_pvw;
-					underpopulate->below_of(dynamic_cast<const UI::Widget&>(*overpopulate));
+					underpopulate->below_of((*overpopulate));
 					underpopulate->on_click = [](UI::Widget&, void *) {
 						for(const auto& province: g_world->provinces) {
 							for(auto& pop: province->pops) {
@@ -801,7 +784,7 @@ void select_nation(void) {
 					UI::Button* inc_product_price = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
 					inc_product_price->text("Increment price");
 					inc_product_price->current_texture = &button_pvw;
-					inc_product_price->below_of(dynamic_cast<const UI::Widget&>(*underpopulate));
+					inc_product_price->below_of((*underpopulate));
 					inc_product_price->on_click = [](UI::Widget&, void *) {
 						for(auto& product: g_world->products) {
 							product->price *= 2;
@@ -811,7 +794,7 @@ void select_nation(void) {
 					UI::Button* everyone_rich = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
 					everyone_rich->text("Everyone is rich");
 					everyone_rich->current_texture = &button_pvw;
-					everyone_rich->below_of(dynamic_cast<const UI::Widget&>(*inc_product_price));
+					everyone_rich->below_of((*inc_product_price));
 					everyone_rich->on_click = [](UI::Widget&, void *) {
 						for(const auto& province: g_world->provinces) {
 							for(auto& pop: province->pops) {
@@ -823,7 +806,7 @@ void select_nation(void) {
 					UI::Button* everyone_poor = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
 					everyone_poor->text("Everyone is poor");
 					everyone_poor->current_texture = &button_pvw;
-					everyone_poor->below_of(dynamic_cast<const UI::Widget&>(*everyone_rich));
+					everyone_poor->below_of((*everyone_rich));
 					everyone_poor->on_click = [](UI::Widget&, void *) {
 						for(const auto& province: g_world->provinces) {
 							for(auto& pop: province->pops) {
@@ -835,7 +818,7 @@ void select_nation(void) {
 					UI::Button* destroy_factories = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
 					destroy_factories->text("Destroy factories");
 					destroy_factories->current_texture = &button_pvw;
-					destroy_factories->below_of(dynamic_cast<const UI::Widget&>(*everyone_poor));
+					destroy_factories->below_of((*everyone_poor));
 					destroy_factories->on_click = [](UI::Widget&, void *) {
 						for(auto& province: g_world->provinces) {
 							province->industries.clear();
@@ -929,7 +912,7 @@ void select_nation(void) {
 					};
 					
 					if(last != nullptr) {
-						decide_btn->above_of(dynamic_cast<const UI::Widget&>(*last));
+						decide_btn->above_of((*last));
 					}
 					last = decide_btn;
 				}
@@ -1068,52 +1051,12 @@ void select_nation(void) {
 		glRasterPos2f(-3.0f, -2.0f);
 		SDL_GL_SwapWindow(window);
 
-		cam.vx = std::min(16.f, cam.vx);
-		cam.vy = std::min(16.f, cam.vy);
-		cam.vz = std::min(16.f, cam.vz);
-
-		if(cam.vx >= 0.9f)
-			cam.vx -= 0.8f;
-		else if(cam.vx <= -0.9f)
-			cam.vx += 0.8f;
-		else
-			cam.vx = 0.f;
-		
-		if(cam.vy >= 0.9f)
-			cam.vy -= 0.8f;
-		else if(cam.vy <= -0.9f)
-			cam.vy += 0.8f;
-		else
-			cam.vy = 0.f;
-		
-		if(cam.vz >= 0.9f)
-			cam.vz -= 0.8f;
-		else if(cam.vz <= -0.9f)
-			cam.vz += 0.8f;
-		else
-			cam.vz = 0.f;
-		
-		if(cam.vz_angle >= 0.9f)
-			cam.vz_angle -= 0.8f;
-		else if(cam.vz_angle <= -0.9f)
-			cam.vz_angle += 0.8f;
-		else
-			cam.vz_angle = 0.f;
-
-		cam.x += cam.vx;
-		cam.y += cam.vy;
-		cam.z += cam.vz;
-		cam.z_angle += cam.vz_angle;
-
-		cam.x = -std::max(0.f, std::min((float)g_world->width, -cam.x));
-		cam.y = std::max(0.f, std::min((float)g_world->height, cam.y));
-		cam.z = -std::max(0.f, std::min(750.f, -cam.z));
+		cam.update();
 	}
-	exit(EXIT_FAILURE);
 }
 
 #include <fstream>
-void rendering_main(void) {
+void client_main(void) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 	
@@ -1136,33 +1079,6 @@ void rendering_main(void) {
 
 	printf("Creating map\n");
 	map = new Map(*g_world);
-
-	/*std::ifstream file;
-	file.open(Path::get("shaders/test.gl"), std::ios::in);
-	if(!file) {
-		print_error("Cannot bind shader");
-	}
-	const size_t ps = file.tellg();
-	file.seekg(0, std::ios::end);
-	const size_t len = file.tellg();
-	file.seekg(0, std::ios::beg);
-	char* source = new char[len + 1];
-	source[len] = 0;
-
-	unsigned int i = 0;
-	while(file.good()) {
-		source[i] = file.get();
-		if(!file.eof()) {
-			i++;
-		}
-	}
-	source[i] = 0;
-
-	GLuint vertex_shader, fragment_shader;
-	vertex_shader = glCreateShaderARB(GL_VERTEX_SHADER);
-	fragment_shader = glCreateShaderARB(GL_FRAGMENT_SHADER);
-
-	file.close();*/
 
 	printf("Client ready\n");
 	select_nation();
