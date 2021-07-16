@@ -1,7 +1,7 @@
 #include "serializer.hpp"
 
 void Archive::copy_to(void* ptr, size_t size) {
-	if(size >= buffer.size() - ptr)
+	if(size > buffer.size() - this->ptr)
 		throw SerializerException("Buffer too small");
 	
 	memcpy(ptr, &buffer[this->ptr], size);
@@ -9,7 +9,7 @@ void Archive::copy_to(void* ptr, size_t size) {
 }
 
 void Archive::copy_from(const void* ptr, size_t size) {
-	if(size >= buffer.size() - ptr)
+	if(size > buffer.size() - this->ptr)
 		throw SerializerException("Buffer too small");
 	
 	memcpy(&buffer[this->ptr], ptr, size);

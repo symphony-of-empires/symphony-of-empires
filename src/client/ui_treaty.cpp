@@ -177,6 +177,10 @@ void ui_treaty(void) {
 		list_btn->current_texture = button_pvw;
 		list_btn->text("TREATY_CLAUSE_ANEXX_PROVINCES");
 		list_btn->on_click = [](UI::Widget& w, void* data) {
+			if(recv_nation->owned_provinces.empty()) {
+				return;
+			}
+			
 			UI::Window* per_clause_win = new UI::Window(0, 0, treaty_win_tex->width, treaty_win_tex->height);
 			per_clause_win->text("Add new clause");
 			per_clause_win->current_texture = treaty_win_tex;
@@ -186,11 +190,18 @@ void ui_treaty(void) {
 				if(province == nullptr)
 					continue;
 				
-				UI::Button* list_btn = new UI::Button(9, another_y, button_pvw->width, button_pvw->height, w.parent);
+				UI::Button* list_btn = new UI::Button(9, another_y, button_pvw->width, button_pvw->height, per_clause_win);
 				list_btn->current_texture = button_pvw;
 				list_btn->text(province->name.c_str());
-				list_btn->on_click = [](UI::Widget&, void* data) {
-					
+				list_btn->user_data = (void*)province;
+				list_btn->on_click = [](UI::Widget& w, void* data) {
+					TreatyClause::BaseClause clause;
+					clause.type = TREATY_CLAUSE_ANEXX_PROVINCES;
+					clause.provinces.push_back((Province*)w.user_data);
+					clause.sender = curr_nation;
+					clause.receiver = recv_nation;
+					clause.days_duration = 0;
+					g_treaty_draft.clauses.push_back(clause);
 				};
 				another_y += button_pvw->height + 4;
 			}
@@ -224,6 +235,21 @@ void ui_treaty(void) {
 	ok_btn->below_of(*reset_btn);
 	ok_btn->on_click = [](UI::Widget&, void* data) {
 		// Send draft to server
+		g_client->packet_mutex.lock();
+		Packet packet = Packet(g_client->get_fd());
+		Archive ar = Archive();
+		enum ActionType action = ACTION_DRAFT_TREATY;
+		::serialize(ar, &action);
+		::serialize(ar, &g_treaty_draft.clauses);
+		::serialize(ar, &g_treaty_draft.name);
+		::serialize(ar, &g_treaty_draft.receiver);
+		::serialize(ar, &g_treaty_draft.sender);
+		packet.data(ar.get_buffer(), ar.size());
+		g_client->packet_queue.push_back(packet);
+		g_client->packet_mutex.unlock();
+		
+		// Clear everything
+		g_treaty_draft.clauses.clear();
 	};
 	
 	UI::Label* treaty_desc_lab = new UI::Label(9, 0, "...", treaty_win);
