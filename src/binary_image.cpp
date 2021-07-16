@@ -13,10 +13,15 @@ BinaryImage::BinaryImage(std::string path) {
 	from_file(path);
 }
 
-BinaryImage::BinaryImage(const BinaryImage& tex) noexcept {
+BinaryImage::BinaryImage(size_t _width, size_t _height) : width(_width), height(_height) {
+	buffer = new uint32_t[width * height];
+}
+
+BinaryImage::BinaryImage(const BinaryImage& tex) {
 	height = tex.height;
 	width = tex.width;
-	buffer = tex.buffer;
+	buffer = new uint32_t[width * height];
+	memcpy(buffer, tex.buffer, sizeof(uint32_t) * (width * height));
 }
 
 void BinaryImage::from_file(std::string path) {
