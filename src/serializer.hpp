@@ -42,8 +42,8 @@ public:
 	Archive() {};
 	~Archive() {};
 	
-	void copy_to(const void* ptr, size_t size);
-	void copy_from(void* ptr, size_t size);
+	void copy_to(void* ptr, size_t size);
+	void copy_from(const void* ptr, size_t size);
 	void expand(size_t amount);
 	void end_stream(void);
 	void rewind(void);
