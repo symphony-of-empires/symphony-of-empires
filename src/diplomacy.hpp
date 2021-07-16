@@ -70,7 +70,7 @@ namespace TreatyClause {
 	/**
 	* Makes loser to pay war reparations to the winner
 	 */
-	class WarReparations : BaseClause {
+	class WarReparations : public BaseClause {
 	public:
 		enum TreatyClauseType type = TREATY_CLAUSE_WAR_REPARATIONS;
 
@@ -82,7 +82,7 @@ namespace TreatyClause {
 	/**
 	* Reduces prestige of loser and increments prestige from winner
 	 */
-	class Humiliate : BaseClause {
+	class Humiliate : public BaseClause {
 	public:
 		enum TreatyClauseType type = TREATY_CLAUSE_HUMILIATE;
 
@@ -94,7 +94,7 @@ namespace TreatyClause {
 	/**
 	* Liberates a nation from another
 	 */
-	class LiberateNation : BaseClause {
+	class LiberateNation : public BaseClause {
 	public:
 		enum TreatyClauseType type = TREATY_CLAUSE_LIBERATE_NATION;
 
@@ -106,7 +106,7 @@ namespace TreatyClause {
 	/**
 	* Imposes a policy to be put in action on a nation
 	 */
-	class ImposePolicies : BaseClause {
+	class ImposePolicies : public BaseClause {
 	public:
 		enum TreatyClauseType type = TREATY_CLAUSE_IMPOSE_POLICIES;
 
@@ -118,7 +118,7 @@ namespace TreatyClause {
 	/**
 	* Anexxes territory from the loser
 	 */
-	class AnexxProvince : BaseClause {
+	class AnexxProvince : public BaseClause {
 	public:
 		enum TreatyClauseType type = TREATY_CLAUSE_ANEXX_PROVINCES;
 
@@ -130,7 +130,7 @@ namespace TreatyClause {
 	/**
 	* Calls for a ceasefire
 	 */
-	class Ceasefire : BaseClause {
+	class Ceasefire : public BaseClause {
 	public:
 		enum TreatyClauseType type = TREATY_CLAUSE_CEASEFIRE;
 
