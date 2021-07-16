@@ -41,6 +41,9 @@ public:
 
 	Archive() {};
 	~Archive() {};
+	
+	void copy_to(const void* ptr, size_t size);
+	void copy_from(void* ptr, size_t size);
 	void expand(size_t amount);
 	void end_stream(void);
 	void rewind(void);
@@ -84,20 +87,17 @@ public:
 
 		// Put length for later deserialization (since UTF-8/UTF-16 exists)
 		ar.expand(sizeof(len));
-		memcpy(&ar.buffer[ar.ptr], &len, sizeof(len));
-		ar.ptr += sizeof(len);
+		ar.copy_from(&len, sizeof(len));
 
 		// Copy the string into the output
 		ar.expand(len);
-		memcpy(&ar.buffer[ar.ptr], obj->c_str(), len);
-		ar.ptr += len;
+		ar.copy_from(obj->c_str(), len);
 	}
 	static inline void deserialize(Archive& ar, std::string* obj) {
 		uint16_t len;
 
 		// Obtain the lenght of the string to be read
-		memcpy(&len, &ar.buffer[ar.ptr], sizeof(len));
-		ar.ptr += sizeof(len);
+		ar.copy_to(&len, sizeof(len));
 
 		if(len >= 1024)
 			throw SerializerException("String is too lenghty");
@@ -105,10 +105,9 @@ public:
 		// Obtain the string itself
 		char* string = new char[len + 1];
 		
-		memcpy(string, &ar.buffer[ar.ptr], len);
+		ar.copy_to(string, len);
 		string[len] = '\0';
-
-		ar.ptr += len;
+		
 		*obj = string;
 		delete[] string;
 	}
@@ -128,12 +127,10 @@ public:
 	static constexpr bool is_const_size = true;
 	static inline void serialize(Archive& ar, const T* obj) {
 		ar.expand(size(obj));
-		memcpy(&ar.buffer[ar.ptr], obj, sizeof(T));
-		ar.ptr += sizeof(T);
+		ar.copy_from(obj, sizeof(T));
 	}
 	static inline void deserialize(Archive& ar, T* obj) {
-		memcpy(obj, &ar.buffer[ar.ptr], sizeof(T));
-		ar.ptr += sizeof(T);
+		ar.copy_to(obj, sizeof(T));
 	}
 	static constexpr size_t size(const T*) {
 		return sizeof(T);
@@ -179,8 +176,7 @@ public:
 	static inline void serialize(Archive& ar, const C* obj_group) {
 		uint32_t len = obj_group->size();
 		ar.expand(sizeof(len));
-		memcpy(&ar.buffer[ar.ptr], &len, sizeof(len));
-		ar.ptr += sizeof(len);
+		ar.copy_from(&len, sizeof(len));
 
 		for(auto& obj: *obj_group) {
 			Serializer<T>::serialize(ar, &obj);
@@ -188,8 +184,7 @@ public:
 	}
 	static inline void deserialize(Archive& ar, C* obj_group) {
 		uint32_t len;
-		memcpy(&len, &ar.buffer[ar.ptr], sizeof(len));
-		ar.ptr += sizeof(len);
+		ar.copy_to(&len, sizeof(len));
 
 		for(size_t i = 0; i < len; i++) {
 			T obj;
@@ -233,18 +228,14 @@ public:
 	static inline void serialize(Archive& ar, const std::vector<T>* obj_group) {
 		uint32_t len = obj_group->size();
 		ar.expand(sizeof(len));
-		memcpy(&ar.buffer[ar.ptr], &len, sizeof(len));
-		ar.ptr += sizeof(len);
-
+		ar.copy_from(&len, sizeof(len));
 		for(auto& obj: *obj_group) {
 			Serializer<T>::serialize(ar, &obj);
 		}
 	}
 	static inline void deserialize(Archive& ar, std::vector<T>* obj_group) {
 		uint32_t len;
-		memcpy(&len, &ar.buffer[ar.ptr], sizeof(len));
-		ar.ptr += sizeof(len);
-
+		ar.copy_to(&len, sizeof(len));
 		for(size_t i = 0; i < len; i++) {
 			T obj;
 			Serializer<T>::deserialize(ar, &obj);
@@ -261,8 +252,7 @@ public:
 	static inline void serialize(Archive& ar, const std::deque<T>* obj_group) {
 		uint32_t len = obj_group->size();
 		ar.expand(sizeof(len));
-		memcpy(&ar.buffer[ar.ptr], &len, sizeof(len));
-		ar.ptr += sizeof(len);
+		ar.copy_from(&len, sizeof(len));
 
 		for(auto& obj: *obj_group) {
 			Serializer<T>::serialize(ar, &obj);
@@ -270,8 +260,7 @@ public:
 	}
 	static inline void deserialize(Archive& ar, std::deque<T>* obj_group) {
 		uint32_t len;
-		memcpy(&len, &ar.buffer[ar.ptr], sizeof(len));
-		ar.ptr += sizeof(len);
+		ar.copy_to(&len, sizeof(len));
 
 		for(size_t i = 0; i < len; i++) {
 			T obj;
