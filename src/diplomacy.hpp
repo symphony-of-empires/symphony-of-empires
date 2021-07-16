@@ -39,7 +39,7 @@ namespace TreatyClause {
 		size_t days_duration = 0;
 
 		// Applies only to "Liberate nation" clauses
-		Nation* liberated;
+		Nation* liberated = nullptr;
 		std::vector<Province *> provinces;
 
 		// For "Impose policy" clauses

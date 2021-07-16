@@ -22,16 +22,67 @@ Nation* recv_nation = nullptr;
 extern const Texture& get_nation_flag(Nation& nation);
 
 enum TreatyClauseType g_clause_type;
+
+#include <mutex>
 Treaty g_treaty_draft;
+std::mutex g_treaty_draft_mutex;
+
+std::string treaty_to_text(Treaty& treaty) {
+	std::lock_guard<std::mutex> lock(g_treaty_draft_mutex);
+	std::string str;
+	
+	str = "";
+	str += "Treaty";
+	str += treaty.name.c_str();
+	for(const auto& clause: treaty.clauses) {
+		switch(clause.type) {
+		case TREATY_CLAUSE_WAR_REPARATIONS:
+			str += "war reparations from ";
+			str += clause.receiver->name.c_str();
+			break;
+		case TREATY_CLAUSE_HUMILIATE:
+			str += "humiliate ";
+			str += clause.receiver->name.c_str();
+			break;
+		case TREATY_CLAUSE_LIBERATE_NATION:
+			str += "liberate ";
+			str += clause.liberated->name.c_str();
+			break;
+		case TREATY_CLAUSE_IMPOSE_POLICIES:
+			str += "impose policies ";
+			break;
+		case TREATY_CLAUSE_ANEXX_PROVINCES:
+			str += "anexx province ";
+			for(const auto& province: clause.provinces) {
+				str += province->name.c_str();
+				str += ", ";
+			}
+			str += "from ";
+			str += clause.receiver->name.c_str();
+			break;
+		case TREATY_CLAUSE_CEASEFIRE:
+			str += "generous ceasefire to ";
+			str += clause.receiver->name.c_str();
+			break;
+		default:
+			str += "unknown";
+			break;
+		}
+		str += ", ";
+	}
+	return str;
+}
 
 void ui_treaty(void) {
+	g_treaty_draft.clauses.clear();
+	
 	treaty_win_tex = &g_texture_manager->load_texture(Path::get("ui/debug_win.png"));
 	button_pvw = &g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
 
 	UI::Window* treaty_win = new UI::Window(0, 0, treaty_win_tex->width, treaty_win_tex->height);
 	treaty_win->text("Draft Treaty");
 	treaty_win->current_texture = treaty_win_tex;
-	treaty_win->below_of(dynamic_cast<const UI::Widget&>(*top_win));
+	treaty_win->below_of((*top_win));
 
 	UI::Button* select_receiver_btn = new UI::Button(9, 43, button_pvw->width, button_pvw->height, treaty_win);
 	select_receiver_btn->current_texture = button_pvw;
@@ -56,7 +107,7 @@ void ui_treaty(void) {
 	};
 
 	recv_nation_lab = new UI::Label(64, 44, "...", treaty_win);
-	recv_nation_lab->below_of(dynamic_cast<const UI::Widget&>(*select_receiver_btn));
+	recv_nation_lab->below_of((*select_receiver_btn));
 	recv_nation_lab->on_update = [](UI::Widget& w, void*) {
 		if(recv_nation == nullptr)
 			return;
@@ -71,7 +122,7 @@ void ui_treaty(void) {
 	};
 
 	UI::Button* new_clause = new UI::Button(9, 0, button_pvw->width, button_pvw->height, treaty_win);
-	new_clause->below_of(dynamic_cast<const UI::Widget&>(*recv_nation_lab));
+	new_clause->below_of((*recv_nation_lab));
 	new_clause->current_texture = button_pvw;
 	new_clause->text("Add new clause");
 	new_clause->on_click = [](UI::Widget&, void*) {
@@ -81,11 +132,13 @@ void ui_treaty(void) {
 
 		UI::Button* list_btn;
 		int y = 0;
-
+		
+		y += 24;
 		list_btn = new UI::Button(9, y, button_pvw->width, button_pvw->height, new_clause_win);
 		list_btn->current_texture = button_pvw;
 		list_btn->text("TREATY_CLAUSE_WAR_REPARATIONS");
 		list_btn->on_click = [](UI::Widget&, void* data) {
+			std::lock_guard<std::mutex> lock(g_treaty_draft_mutex);
 			TreatyClause::BaseClause clause;
 			clause.type = TREATY_CLAUSE_WAR_REPARATIONS;
 			clause.sender = curr_nation;
@@ -129,13 +182,17 @@ void ui_treaty(void) {
 			per_clause_win->current_texture = treaty_win_tex;
 
 			int another_y = 0;
-			for(size_t i = 0; i < recv_nation->owned_provinces.size(); i++) {
-				UI::Button* list_btn = new UI::Button(9, another_y, button_pvw->width, button_pvw->height, (&w)->parent);
+			for(const auto& province: recv_nation->owned_provinces) {
+				if(province == nullptr)
+					continue;
+				
+				UI::Button* list_btn = new UI::Button(9, another_y, button_pvw->width, button_pvw->height, w.parent);
 				list_btn->current_texture = button_pvw;
-				list_btn->text("PROVINCE NAME");
+				list_btn->text(province->name.c_str());
 				list_btn->on_click = [](UI::Widget&, void* data) {
 					
 				};
+				another_y += button_pvw->height + 4;
 			}
 		};
 		y += button_pvw->height + 2;
@@ -152,13 +209,27 @@ void ui_treaty(void) {
 		ok_btn->text("OK");
 		ok_btn->current_texture = button_pvw;
 	};
-
+	
+	UI::Button* reset_btn = new UI::Button(9, 0, button_pvw->width, button_pvw->height, treaty_win);
+	reset_btn->text("RESET");
+	reset_btn->current_texture = button_pvw;
+	reset_btn->below_of(*new_clause);
+	reset_btn->on_click = [](UI::Widget&, void* data) {
+		g_treaty_draft.clauses.clear();
+	};
+	
 	UI::Button* ok_btn = new UI::Button(9, 0, button_pvw->width, button_pvw->height, treaty_win);
 	ok_btn->text("OK");
 	ok_btn->current_texture = button_pvw;
-	ok_btn->below_of(dynamic_cast<const UI::Widget&>(*recv_nation_lab));
+	ok_btn->below_of(*reset_btn);
 	ok_btn->on_click = [](UI::Widget&, void* data) {
 		// Send draft to server
-		
+	};
+	
+	UI::Label* treaty_desc_lab = new UI::Label(9, 0, "...", treaty_win);
+	treaty_desc_lab->current_texture = button_pvw;
+	treaty_desc_lab->below_of(*ok_btn);
+	treaty_desc_lab->on_update = [](UI::Widget& w, void* data) {
+		w.text(treaty_to_text(g_treaty_draft).c_str());
 	};
 }

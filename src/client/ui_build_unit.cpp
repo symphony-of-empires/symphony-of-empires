@@ -23,7 +23,7 @@ void ui_build_unit(Outpost* outpost) {
 	UI::Window* build_win = new UI::Window(0, 0, build_win_tex->width, build_win_tex->height);
 	build_win->text("Build unit in outpost");
 	build_win->current_texture = build_win_tex;
-	build_win->below_of(dynamic_cast<const UI::Widget&>(*top_win));
+	build_win->below_of((*top_win));
 	UI::Button* build_type_btn = nullptr,* prev_btn = nullptr;
 
 	if(outpost->type->is_build_land_units) {
@@ -35,7 +35,7 @@ void ui_build_unit(Outpost* outpost) {
 			build_type_btn->text(unit_type->ref_name.c_str());
 			build_type_btn->user_data = unit_type;
 			if(prev_btn != nullptr)
-				build_type_btn->below_of(dynamic_cast<const UI::Widget&>(*prev_btn));
+				build_type_btn->below_of((*prev_btn));
 			build_type_btn->on_click = [](UI::Widget&, void* data) {
 				g_client->packet_mutex.lock();
 				Packet packet = Packet();
@@ -60,7 +60,7 @@ void ui_build_unit(Outpost* outpost) {
 			build_type_btn->text(boat_type->ref_name.c_str());
 			build_type_btn->user_data = boat_type;
 			if(prev_btn != nullptr)
-				build_type_btn->below_of(dynamic_cast<const UI::Widget&>(*prev_btn));
+				build_type_btn->below_of((*prev_btn));
 			build_type_btn->on_click = [](UI::Widget&, void* data) {
 				g_client->packet_mutex.lock();
 				Packet packet = Packet();
@@ -79,6 +79,6 @@ void ui_build_unit(Outpost* outpost) {
 	}
 	UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_pvw->width, button_pvw->height, build_win);
 	ok_btn->text("OK");
-	ok_btn->below_of(dynamic_cast<const UI::Widget&>(*build_type_btn));
+	ok_btn->below_of((*build_type_btn));
 	ok_btn->current_texture = button_pvw;
 }

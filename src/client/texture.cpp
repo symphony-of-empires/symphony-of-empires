@@ -74,7 +74,14 @@ const Texture& TextureManager::load_texture(std::string path) {
 	print_info("Loaded and cached texture %s", path.c_str());
 
 	// Otherwise texture is not in our control, so we create a new texture
-	Texture* tex = new Texture(path);
+	Texture* tex;
+	try {
+		tex = new Texture(path);
+	} catch(BinaryImageException&) {
+		tex = new Texture();
+		tex->create_dummy();
+	}
+	
 	tex->to_opengl();
 	this->textures.insert(std::make_pair(tex, path));
 	return *((const Texture *)tex);

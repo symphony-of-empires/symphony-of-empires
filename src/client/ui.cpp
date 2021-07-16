@@ -19,14 +19,12 @@ SDL_Color text_color = { 0, 0, 0, 0 };
 
 Context::Context() {
 	if(g_ui_context != nullptr) {
-		print_error("UI context already constructed\n");
-		exit(EXIT_FAILURE);
+		throw std::runtime_error("UI context already constructed");
 	}
 
 	this->default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 24);
 	if(this->default_font == nullptr){
-		perror("font could not be loaded, exiting\n");
-		exit(EXIT_FAILURE);
+		throw std::runtime_error("Font could not be loaded, exiting");
 	}
 
 	this->widgets.clear();
@@ -71,6 +69,13 @@ void Context::clear(void) {
 void Context::render_all() {
 	for(auto& widget: this->widgets) {
 		widget->is_show = true;
+		
+		if(widget->parent != nullptr
+		&& (widget->disp_x < widget->parent->disp_x || widget->disp_x > widget->parent->disp_x + widget->parent->width
+		|| widget->disp_y < widget->parent->disp_y || widget->disp_y > widget->parent->disp_y + widget->parent->height)) {
+			widget->is_show = false;
+		}
+		
 		if(widget->is_show) {
 			widget->on_render();
 			if(widget->on_update != nullptr) {
@@ -208,7 +213,8 @@ void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const GLui
 
 #include <deque>
 void Widget::on_render(void) {
-	if(this->type == UI_WIDGET_WINDOW) {
+	if(type == UI_WIDGET_WINDOW
+	|| type == UI_WIDGET_BUTTON) {
 		// Shadow
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBegin(GL_TRIANGLES);
