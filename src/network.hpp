@@ -20,7 +20,6 @@
 #include <string>
 
 #include <cstring>
-#include <unistd.h>
 #include <stdexcept>
 
 class SocketException : std::exception {
@@ -46,14 +45,13 @@ public:
 };
 
 class SocketStream {
-	static constexpr size_t max_read_size = 1024;
-	static constexpr size_t max_write_size = 1024;
-	int fd;
 public:
+	int fd;
+
 	SocketStream() {};
 	SocketStream(int _fd) : fd(_fd) {};
 	void write(const void* data, size_t size);
-	void read(const void* data, size_t size);
+	void read(void* data, size_t size);
 };
 
 #include "print.hpp"
@@ -94,31 +92,66 @@ public:
 		}
 
 		const uint32_t net_code = htonl(code);
-		stream.write(&net_code, sizeof(net_code));
+		if(::send(stream.fd, (const char*)&net_code, sizeof(net_code), 0) == -1) {
+			throw SocketException("Socket write error for packet code");
+		}
+		
 		const uint32_t net_size = htonl(n_data);
-		stream.write(&net_size, sizeof(net_size));
-		stream.write(&bufdata[0], n_data);
+		if(::send(stream.fd, (const char*)&net_size, sizeof(net_size), 0) == -1) {
+			throw SocketException("Socket write error for size of packet");
+		}
+		
+		/* Socket writes can only be done 1024 bytes at a time */
+		for(size_t i = 0; i < n_data; ) {
+			int r;
+			r = ::send(stream.fd, (const char*)&bufdata[i], std::min<size_t>(1024, n_data - i), 0);
+			if(r == -1) {
+				throw std::runtime_error("Socket write error for data in packet");
+			}
+			i += r;
+		}
 	}
 
 	void send(void) {
-		send<void>(nullptr, 0);
+		this->send<void>(nullptr, 0);
 	}
 
 	template<typename T>
 	void recv(T* buf = nullptr) {
 		uint32_t net_code;
-		stream.read(&net_code, sizeof(net_code));
+		if(::recv(stream.fd, (char*)&net_code, sizeof(net_code), MSG_WAITALL) == -1) {
+#ifdef windows
+			print_error("WSA Code: %u", WSAGetLastError());
+#endif
+			throw SocketException("Socket read error for packet code");
+		}
 		net_code  = ntohl(net_code);
 		code = (PacketCode)net_code;
 
 		uint32_t net_size;
-		stream.read(&net_size, sizeof(net_size));
+		if(::recv(stream.fd, (char*)&net_size, sizeof(net_size), MSG_WAITALL) == -1) {
+#ifdef windows
+			print_error("WSA Code: %u", WSAGetLastError());
+#endif
+			throw SocketException("Socket read error for size of packet");
+		}
 		
 		n_data = (size_t)ntohl(net_size);
 		bufdata.resize(n_data + 1);
 		
-		stream.read(&bufdata[0], n_data);
-
+		/* Reads can only be done 1024 bytes at a time */
+		for(size_t i = 0; i < n_data; ) {
+			int r;
+			r = ::recv(stream.fd, (char*)&bufdata[i], std::min<size_t>(1024, n_data - i), MSG_WAITALL);
+			if(r == -1) {
+#ifdef windows
+				print_error("WSA Code: %u", WSAGetLastError());
+#endif
+				throw SocketException("Socket read error for data in packet");
+			}
+			i += r;
+		}
+		
 		if(buf != nullptr)
 			memcpy(buf, &bufdata[0], n_data);
 	}

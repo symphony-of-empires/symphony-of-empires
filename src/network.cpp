@@ -1,13 +1,23 @@
 #include <mutex>
+
 #ifdef unix
+#	define _XOPEN_SOURCE_EXTENDED 1
 #	include <sys/socket.h>
 #	include <sys/ioctl.h>
 #	include <netdb.h>
 #	include <arpa/inet.h>
+#	include <netinet/in.h>
 #	ifndef INVALID_SOCKET
 #		define INVALID_SOCKET -1
 #	endif
+#elif defined windows
+#	define WIN32_LEAN_AND_MEAN
+#	include <windows.h>
+#	include <winsock2.h>
+#	include <ws2def.h>
+#	include <ws2tcpip.h>
 #endif
+
 #include <sys/types.h>
 
 #include <cstring>
@@ -22,27 +32,27 @@
 
 void SocketStream::write(const void* data, size_t size) {
 	for(size_t i = 0; i < size; ) {
-		int r = ::send(fd, (const char*)data, std::min<size_t>(max_read_size, size - i), 0);
+		int r = ::send(fd, (const char*)data, std::min<size_t>(1024, size - i), 0);
 		if(r == -1) {
 #ifdef windows
 			print_error("WSA Code: %u", WSAGetLastError());
 #endif
-			throw std::runtime_error("Socket write error for data in packet");
+			throw SocketException("Socket write error for data in packet");
 		}
-		i += r;
+		i += (size_t)r;
 	}
 }
 
-void SocketStream::read(const void* data, size_t size) {
+void SocketStream::read(void* data, size_t size) {
 	for(size_t i = 0; i < size; ) {
-		int r = ::recv(fd, (char*)data, std::min<size_t>(max_write_size, size - i), MSG_WAITALL);
+		int r = ::recv(fd, (char*)data, std::min<size_t>(1024, size - i), MSG_WAITALL);
 		if(r == -1) {
 #ifdef windows
 			print_error("WSA Code: %u", WSAGetLastError());
 #endif
-			throw std::runtime_error("Socket read error for data in packet");
+			throw SocketException("Socket read error for data in packet");
 		}
-		i += r;
+		i += (size_t)r;
 	}
 }
 
@@ -66,7 +76,7 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 #ifdef windows
 		WSACleanup();
 #endif
-		throw std::runtime_error("Cannot create server socket");
+		throw SocketException("Cannot create server socket");
 	}
 
 	if(bind(fd, (sockaddr *)&addr, sizeof(addr)) != 0) {
@@ -74,7 +84,7 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 		print_error("WSA code: %u", WSAGetLastError());
 		WSACleanup();
 #endif
-		throw std::runtime_error("Cannot bind server");
+		throw SocketException("Cannot bind server");
 	}
 
 	if(listen(fd, max_conn) != 0) {
@@ -82,7 +92,7 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 		print_error("WSA code: %u", WSAGetLastError());
 		WSACleanup();
 #endif
-		throw std::runtime_error("Cannot listen in specified number of concurrent connections");
+		throw SocketException("Cannot listen in specified number of concurrent connections");
 	}
 
 	print_info("Deploying %u threads for clients", max_conn);

@@ -32,12 +32,10 @@ class BinaryImage {
 public:
 	BinaryImage() {};
 	BinaryImage(std::string path);
-	BinaryImage(size_t _width, size_t _height) : width(_width), height(_height) {
-		buffer = new uint32_t[width * height];
-	}
-	BinaryImage(const BinaryImage& tex) noexcept;
+	BinaryImage(size_t _width, size_t _height);
+	BinaryImage(const BinaryImage& tex);
 	BinaryImage& operator=(const BinaryImage&) = default;
-	~BinaryImage();
+	virtual ~BinaryImage();
 	
 	uint32_t* buffer;
 	size_t width;
