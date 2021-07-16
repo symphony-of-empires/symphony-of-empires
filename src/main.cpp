@@ -65,10 +65,13 @@ int main(int argc, char ** argv) {
 			print_info("No IP specified, assuming default %s", server_addr.c_str());
 		}
 		print_info("Connecting to server with IP %s", server_addr.c_str());
-		
+		print_info("Initializing empty world");
 		World* world = new World(true);
+		print_info("Creating client");
 		Client* client = new Client(server_addr, 1836);
+		print_info("Waiting for snapshot");
 		client->wait_for_snapshot();
+		print_info("Running main client");
 		client_main();
 		
 		delete world;

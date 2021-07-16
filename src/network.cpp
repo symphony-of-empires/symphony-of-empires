@@ -529,6 +529,7 @@ Client* g_client = nullptr;
 Client::Client(std::string host, const unsigned port) {
 	g_client = this;
 
+	// Initialize WSA
 #ifdef windows
 	WSADATA data;
 	if(WSAStartup(MAKEWORD(2, 2), &data) != 0) {
@@ -550,7 +551,7 @@ Client::Client(std::string host, const unsigned port) {
 #endif
 		throw std::runtime_error("Cannot create client socket");
 	}
-		
+	
 	if(connect(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
 #ifdef unix
 		close(fd);
