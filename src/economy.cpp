@@ -106,7 +106,8 @@ void Economy::do_phase_1(World& world) {
 		Packet packet = Packet();
 		Archive ar = Archive();
 		enum ActionType action = ACTION_OUTPOST_UPDATE;
-		::serialize(ar, &outpost); // OutpostObj
+		::serialize(ar, &outpost); // OutpostRef
+		::serialize(ar, outpost); // OutpostObj
 		packet.data(ar.get_buffer(), ar.size());
 		g_server->broadcast(packet);
 	}

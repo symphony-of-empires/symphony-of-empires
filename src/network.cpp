@@ -602,6 +602,7 @@ void Client::net_loop(void) {
 				// Ping from server, we should answer with a pong!
 				switch(action) {
 				case ACTION_PONG:
+				print_info("ACTION_PONG");
 					packet.send(&action);
 					print_info("Received ping, responding with pong!");
 					break;
@@ -614,6 +615,7 @@ void Client::net_loop(void) {
 				 * deserializer will deserialize onto the final object; after this the operation
 				 * desired is done. */
 				case ACTION_PROVINCE_UPDATE:
+				print_info("ACTION_PROVINCE_UPDATE");
 					{
 						std::lock_guard<std::recursive_mutex> lock(g_world->provinces_mutex);
 
@@ -621,11 +623,11 @@ void Client::net_loop(void) {
 						::deserialize(ar, &province);
 						if(province == nullptr)
 							throw std::runtime_error("Unknown province");
-						
 						::deserialize(ar, province);
 					}
 					break;
 				case ACTION_NATION_UPDATE:
+				print_info("ACTION_NATION_UPDATE");
 					{
 						std::lock_guard<std::recursive_mutex> lock(g_world->nations_mutex);
 
@@ -633,11 +635,23 @@ void Client::net_loop(void) {
 						::deserialize(ar, &nation);
 						if(nation == nullptr)
 							throw std::runtime_error("Unknown nation");
-						
 						::deserialize(ar, nation);
 					}
 					break;
+				case ACTION_OUTPOST_UPDATE:
+				print_info("ACTION_OUTPOST_UPDATE");
+					{
+						std::lock_guard<std::recursive_mutex> lock(g_world->outposts_mutex);
+
+						Outpost* outpost;
+						::deserialize(ar, &outpost);
+						if(outpost == nullptr)
+							throw std::runtime_error("Unknown outpost");
+						::deserialize(ar, outpost);
+					}
+					break;
 				case ACTION_NATION_ENACT_POLICY:
+				print_info("ACTION_NATION_ENACT_POLICY");
 					{
 						std::lock_guard<std::recursive_mutex> lock(g_world->nations_mutex);
 
@@ -652,19 +666,19 @@ void Client::net_loop(void) {
 					}
 					break;
 				case ACTION_UNIT_UPDATE:
+				print_info("ACTION_UNIT_UPDATE");
 					{
 						std::lock_guard<std::recursive_mutex> lock(g_world->units_mutex);
 
 						Unit* unit;
 						::deserialize(ar, &unit);
-						
 						if(unit == nullptr)
 							throw std::runtime_error("Unknown unit");
-						
 						::deserialize(ar, unit);
 					}
 					break;
 				case ACTION_UNIT_ADD:
+				print_info("ACTION_UNIT_ADD");
 					{
 						std::lock_guard<std::recursive_mutex> lock(g_world->units_mutex);
 
@@ -675,6 +689,7 @@ void Client::net_loop(void) {
 					}
 					break;
 				case ACTION_OUTPOST_ADD:
+				print_info("ACTION_OUTPOST_ADD");
 					{
 						std::lock_guard<std::recursive_mutex> lock(g_world->outposts_mutex);
 
@@ -685,6 +700,7 @@ void Client::net_loop(void) {
 					}
 					break;
 				case ACTION_WORLD_TICK:
+				print_info("ACTION_WORLD_TICK");
 					::deserialize(ar, &g_world->time);
 					break;
 				default:

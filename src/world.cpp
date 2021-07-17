@@ -471,29 +471,24 @@ void World::do_tick() {
 		Economy::do_phase_4(*this);
 		break;
 	// 24:00, this is where clients are sent all information **at once**
-	case 48:
+	case 47:
 		{
 			size_t i;
 			
-			i = 0;
 			nations_mutex.lock();
 			for(const auto& nation: g_world->nations) {
 				// Broadcast to clients
-				Packet packet = Packet(0);
+				Packet packet = Packet();
 				Archive ar = Archive();
 				
 				enum ActionType action = ACTION_NATION_UPDATE;
 				::serialize(ar, &action);
-				
-				NationId nation_id = (NationId)i;
-				::serialize(ar, &nation_id);
-				
-				::serialize(ar, &nation);
+
+				::serialize(ar, &nation); // NationRef
+				::serialize(ar, nation); // NationObj
 				
 				packet.data(ar.get_buffer(), ar.size());
 				g_server->broadcast(packet);
-				
-				i++;
 			}
 			nations_mutex.unlock();
 			
@@ -501,16 +496,14 @@ void World::do_tick() {
 			provinces_mutex.lock();
 			for(const auto& province: g_world->provinces) {
 				// Broadcast to clients
-				Packet packet = Packet(0);
+				Packet packet = Packet();
 				Archive ar = Archive();
 				
 				enum ActionType action = ACTION_PROVINCE_UPDATE;
 				::serialize(ar, &action);
-				
-				ProvinceId province_id = (ProvinceId)i;
-				::serialize(ar, &province_id);
-				
-				::serialize(ar, &province);
+
+				::serialize(ar, &province); // ProvinceRef
+				::serialize(ar, province); // ProvinceObj
 				
 				packet.data(ar.get_buffer(), ar.size());
 				g_server->broadcast(packet);
@@ -665,23 +658,23 @@ void World::do_tick() {
 
 			if(free_supplies == true) {
 				// Take anything you want, it's not needed to fucking pay at all! :)
-				for(size_t i = 0; i < province->stockpile.size(); i++) {
-					if(!province->stockpile[i])
+				for(size_t j = 0; j < province->stockpile.size(); j++) {
+					if(!province->stockpile[j])
 						continue;
 
 					// We will take your food pleseantly
-					if(products[i]->good->is_edible
+					if(products[j]->good->is_edible
 					&& unit->supply <= (unit->type->supply_consumption * 10.f)) {
-						float bought = std::min(unit->size, province->stockpile[i]);
-						province->stockpile[i] -= bought;
+						float bought = std::min(unit->size, province->stockpile[j]);
+						province->stockpile[j] -= bought;
 
 						unit->supply += bought / unit->size;
 						unit->morale += bought / unit->size;
 					}
 					// Fuck you, we are also taking your luxury because it's free
 					else {
-						float bought = std::min((rand() + 1) % unit->size, province->stockpile[i]);
-						province->stockpile[i] -= bought;
+						float bought = std::min((rand() + 1) % unit->size, province->stockpile[j]);
+						province->stockpile[j] -= bought;
 
 						// Yes, we are super happy with your voluntary gifts to the honourable
 						// units of some nation
@@ -690,18 +683,18 @@ void World::do_tick() {
 				}
 			} else {
 				// Buy stuff and what we are able to buy normally
-				for(size_t i = 0; i < province->stockpile.size(); i++) {
+				for(size_t j = 0; j < province->stockpile.size(); j++) {
 					// Must be edible and there must be stock
-					if(!products[i]->good->is_edible || !province->stockpile[i])
+					if(!products[j]->good->is_edible || !province->stockpile[j])
 						continue;
 
-					if(products[i]->price * unit->size <= unit->budget) {
-						size_t bought = std::min(province->stockpile[i], unit->size);
-						province->stockpile[i] -= bought;
+					if(products[j]->price * unit->size <= unit->budget) {
+						size_t bought = std::min(province->stockpile[j], unit->size);
+						province->stockpile[j] -= bought;
 						unit->supply = bought / unit->size;
 
 						// Pay (including taxes)
-						const float paid = (products[i]->price * unit->size) * province->owner->current_policy.med_flat_tax;
+						const float paid = (products[j]->price * unit->size) * province->owner->current_policy.med_flat_tax;
 						province->owner->budget += paid;
 						unit->budget -= paid;
 					}
@@ -752,8 +745,7 @@ void World::do_tick() {
 		enum ActionType action = ACTION_UNIT_UPDATE;
 		::serialize(ar, &action);
 		
-		UnitId unit_id = (UnitId)i;
-		::serialize(ar, &unit_id);
+		::serialize(ar, &unit);
 		::serialize(ar, unit);
 		
 		packet.data(ar.get_buffer(), ar.size());
