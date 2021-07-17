@@ -16,7 +16,7 @@
  * indexes accordingly for proper transmission.
  */
 
-class SerializerException : public std::exception {
+class SerializerException{
 	std::string buffer;
 public:
 	SerializerException(std::string msg) {

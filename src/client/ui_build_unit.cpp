@@ -16,6 +16,9 @@ extern Nation* curr_nation;
 
 Outpost* g_outpost;
 void ui_build_unit(Outpost* outpost) {
+	if(outpost->type == nullptr)
+		throw std::runtime_error("UNKNOWN OUTPOST TYPE?");
+
 	build_win_tex = &g_texture_manager->load_texture(Path::get("ui/debug_win.png"));
 	button_pvw = &g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
 

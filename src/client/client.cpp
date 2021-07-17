@@ -320,9 +320,7 @@ void client_update(void) {
 	}
 	
 	const Nation& player_nation = *g_world->nations[curr_selected_nation];
-	if((g_world->time % 48) == 16) {
-		// Charts for the GDP of the nation
-		
+	if(!(g_world->time % 48)) {
 		double gdp = 0.f;
 		for(const auto& province: player_nation.owned_provinces) {
 			for(const auto& product: g_world->products) {
@@ -330,12 +328,9 @@ void client_update(void) {
 			}
 		}
 		gdp_chart->data.push_back(gdp);
-		if(gdp_chart->data.size() >= 30) {
+		if(gdp_chart->data.size() >= 30)
 			gdp_chart->data.pop_front();
-		}
-	} else if((g_world->time % 48) == 0) {
-		// Charts for population and HDI
-		
+
 		size_t total_pop = 0;
 		double living_std = 0.f;
 		for(const auto& province: player_nation.owned_provinces) {
@@ -346,14 +341,12 @@ void client_update(void) {
 		}
 		
 		pop_chart->data.push_back(total_pop);
-		if(pop_chart->data.size() >= 30) {
+		if(pop_chart->data.size() >= 30)
 			pop_chart->data.pop_front();
-		}
 		
 		hdi_chart->data.push_back(living_std / total_pop);
-		if(hdi_chart->data.size() >= 30) {
+		if(hdi_chart->data.size() >= 30)
 			hdi_chart->data.pop_front();
-		}
 	}
 	
 	size_t total_pop = 0;
@@ -751,79 +744,6 @@ void select_nation(void) {
 					break;
 				case SDLK_t:
 					ui_treaty();
-					break;
-				case SDLK_d:
-					UI::Window* debug_win = new UI::Window(0, 0, debug_win_tex.width, debug_win_tex.height);
-					debug_win->text("Debug");
-					debug_win->current_texture = &debug_win_tex;
-					debug_win->below_of((*top_win));
-					
-					UI::Button* overpopulate = new UI::Button(9, 43, button_pvw.width, button_pvw.height, debug_win);
-					overpopulate->text("Spawn humans");
-					overpopulate->current_texture = &button_pvw;
-					overpopulate->on_click = [](UI::Widget&, void *) {
-						for(const auto& province: g_world->provinces) {
-							for(auto& pop: province->pops) {
-								pop.size *= 2;
-							}
-						}
-					};
-					
-					UI::Button* underpopulate = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
-					underpopulate->text("Kill half humans");
-					underpopulate->current_texture = &button_pvw;
-					underpopulate->below_of((*overpopulate));
-					underpopulate->on_click = [](UI::Widget&, void *) {
-						for(const auto& province: g_world->provinces) {
-							for(auto& pop: province->pops) {
-								pop.size /= 2;
-							}
-						}
-					};
-					
-					UI::Button* inc_product_price = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
-					inc_product_price->text("Increment price");
-					inc_product_price->current_texture = &button_pvw;
-					inc_product_price->below_of((*underpopulate));
-					inc_product_price->on_click = [](UI::Widget&, void *) {
-						for(auto& product: g_world->products) {
-							product->price *= 2;
-						}
-					};
-					
-					UI::Button* everyone_rich = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
-					everyone_rich->text("Everyone is rich");
-					everyone_rich->current_texture = &button_pvw;
-					everyone_rich->below_of((*inc_product_price));
-					everyone_rich->on_click = [](UI::Widget&, void *) {
-						for(const auto& province: g_world->provinces) {
-							for(auto& pop: province->pops) {
-								pop.budget = 1000000.f;
-							}
-						}
-					};
-					
-					UI::Button* everyone_poor = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
-					everyone_poor->text("Everyone is poor");
-					everyone_poor->current_texture = &button_pvw;
-					everyone_poor->below_of((*everyone_rich));
-					everyone_poor->on_click = [](UI::Widget&, void *) {
-						for(const auto& province: g_world->provinces) {
-							for(auto& pop: province->pops) {
-								pop.budget = 0.f;
-							}
-						}
-					};
-					
-					UI::Button* destroy_factories = new UI::Button(9, 0, button_pvw.width, button_pvw.height, debug_win);
-					destroy_factories->text("Destroy factories");
-					destroy_factories->current_texture = &button_pvw;
-					destroy_factories->below_of((*everyone_poor));
-					destroy_factories->on_click = [](UI::Widget&, void *) {
-						for(auto& province: g_world->provinces) {
-							province->industries.clear();
-						}
-					};
 					break;
 				}
 				break;
