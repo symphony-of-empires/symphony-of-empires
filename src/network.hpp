@@ -106,7 +106,7 @@ public:
 			int r;
 			r = ::send(stream.fd, (const char*)&bufdata[i], std::min<size_t>(1024, n_data - i), 0);
 			if(r == -1) {
-				throw std::runtime_error("Socket write error for data in packet");
+				throw SocketException("Socket write error for data in packet");
 			}
 			i += r;
 		}
@@ -177,6 +177,8 @@ class Server {
 
 	std::vector<std::thread> threads;
 	std::vector<std::deque<Packet>> packet_queues;
+	std::vector<bool> is_connected;
+	
 	// std::vector hates mutexes because they are not copy-able
 	std::mutex* packet_mutexes;
 	
