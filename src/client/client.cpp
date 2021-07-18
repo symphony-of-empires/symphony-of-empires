@@ -324,7 +324,7 @@ void client_update(void) {
 		double gdp = 0.f;
 		for(const auto& province: player_nation.owned_provinces) {
 			for(const auto& product: g_world->products) {
-				gdp += product->price* province->stockpile[g_world->get_id(product)];
+				gdp += product->price * province->stockpile[g_world->get_id(product)];
 			}
 		}
 		gdp_chart->data.push_back(gdp);
@@ -631,7 +631,7 @@ void select_nation(void) {
 								g_client->packet_queue.push_back(packet);
 								g_client->packet_mutex.unlock();
 								break;
-							} else if(selected_outpost != nullptr) {
+							} if(selected_outpost != nullptr) {
 								ui_build_unit(selected_outpost);
 								break;
 							}

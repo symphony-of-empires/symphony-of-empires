@@ -58,8 +58,8 @@ void Economy::do_phase_1(World& world) {
 			}
 		}
 
-		//if(!can_build)
-		//	break;
+		if(!can_build)
+			break;
 
 		if(outpost->working_unit_type != nullptr) {
 			// Spawn a unit
@@ -81,6 +81,7 @@ void Economy::do_phase_1(World& world) {
 			// Notify all clients of the server about this new unit
 			g_world->units_mutex.lock();
 			g_world->units.push_back(unit);
+			g_world->units_mutex.unlock();
 
 			Packet packet = Packet();
 			Archive ar = Archive();
@@ -89,8 +90,6 @@ void Economy::do_phase_1(World& world) {
 			::serialize(ar, unit); // UnitRef
 			packet.data(ar.get_buffer(), ar.size());
 			g_server->broadcast(packet);
-
-			g_world->units_mutex.unlock();
 
 			outpost->working_unit_type = nullptr;
 		} else if(outpost->working_boat_type != nullptr) {
@@ -141,6 +140,7 @@ void Economy::do_phase_1(World& world) {
 			}
 			
 			industry.days_unoperational = 0;
+			industry.workers = 0;
 			
 			size_t needed_manpower = 1500;
 			size_t available_manpower = std::min<size_t>(needed_manpower, province->worker_pool);
@@ -409,7 +409,6 @@ void Economy::do_phase_2(World& world) {
 		world.delivers.clear();
 
 		// Industries who did not got anything will get desesperate
-
 		break;
 	}
 	world.delivers.clear();

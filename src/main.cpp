@@ -50,7 +50,7 @@ int main(int argc, char ** argv) {
 		while(run) {
 			std::unique_lock<std::mutex> lock(world_lock);
 			world->do_tick();
-			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 		
 		delete world;
@@ -74,8 +74,8 @@ int main(int argc, char ** argv) {
 		print_info("Running main client");
 		client_main();
 		
-		delete world;
 		delete client;
+		delete world;
 	}
 #endif
 	exit(EXIT_SUCCESS);

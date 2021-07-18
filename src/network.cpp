@@ -100,9 +100,11 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 	for(size_t i = 0; i < max_conn; i++) {
 		threads.push_back(std::thread(&Server::net_loop, this, i));
 	}
+	
 	packet_queues.resize(max_conn);
+	is_connected.resize(max_conn, false);
 	packet_mutexes = new std::mutex[max_conn];
-
+	
 	// We need to ignore pipe signals since any client disconnecting **will** crash the server
 	signal(SIGPIPE, SIG_IGN);
 	
@@ -137,6 +139,9 @@ extern World* g_world;
  */
 void Server::broadcast(Packet& packet) {
 	for(size_t i = 0; i < threads.size(); i++) {
+		if(is_connected[i] == false)
+			continue;
+		
 		packet_mutexes[i].lock();
 		packet_queues[i].push_back(packet);
 		packet_mutexes[i].unlock();
@@ -144,6 +149,8 @@ void Server::broadcast(Packet& packet) {
 }
 
 #include <sys/ioctl.h>
+#include <poll.h>
+
 /** This is the handling thread-function for handling a connection to a single client
  * Sending packets will only be received by the other end, when trying to broadcast please
  * put the packets on the send queue, they will be sent accordingly
@@ -159,6 +166,7 @@ void Server::net_loop(int id) {
 			if(conn_fd == INVALID_SOCKET) {
 				throw SocketException("Cannot accept client connection");
 			}
+			is_connected[id] = true;
 
 			print_info("New client connection established");
 
@@ -173,13 +181,18 @@ void Server::net_loop(int id) {
 			enum ActionType action = ACTION_PING;
 			packet.send(&action);
 			print_info("Sent action %zu", (size_t)action);
-
-			int has_pending;
+			
+			struct pollfd pfd;
+			pfd.fd = conn_fd;
+			pfd.events = POLLIN;
 			while(run) {
 				// Read the messages if there is any pending bytes on the tx
-				has_pending = 0;
-				ioctl(conn_fd, FIONREAD, &has_pending);
-				if(has_pending) {
+				
+				int has_pending = poll(&pfd, 1, 10);
+				if(pfd.revents & POLLIN || has_pending) {
+				//has_pending = 0;
+				//ioctl(conn_fd, FIONREAD, &has_pending);
+				//if(has_pending) {
 					packet.recv();
 					
 					ar.set_buffer(packet.data(), packet.size());
@@ -511,6 +524,9 @@ void Server::net_loop(int id) {
 		} catch(SocketException& e) {
 			print_error("SocketException: %s", e.what());
 		}
+		
+		is_connected[id] = false;
+		packet_queues[id].clear();
 		print_info("Client disconnected");
 		
 #ifdef windows
@@ -586,12 +602,17 @@ void Client::net_loop(void) {
 	
 	try {
 		enum ActionType action;
-		int has_pending;
+		
+		struct pollfd pfd;
+		pfd.fd = fd;
+		pfd.events = POLLIN;
 		while(1) {
 			// Read the messages if there is any pending bytes on the tx
-			has_pending = 0;
-			ioctl(fd, FIONREAD, &has_pending);
-			if(has_pending) {
+			int has_pending = poll(&pfd, 1, 10);
+			if(pfd.revents & POLLIN || has_pending) {
+			//has_pending = 0;
+			//ioctl(fd, FIONREAD, &has_pending);
+			//if(has_pending) {
 				// Obtain the action from the server
 				packet.recv();
 				ar.set_buffer(packet.data(), packet.size());
@@ -718,6 +739,7 @@ void Client::net_loop(void) {
 				elem.stream = SocketStream(fd);
 				elem.send();
 			}
+			packet_queue.clear();
 			packet_mutex.unlock();
 		}
 	} catch(std::runtime_error& e) {
