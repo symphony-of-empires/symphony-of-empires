@@ -23,7 +23,7 @@ public:
 		buffer += message;
 	};
 
-	virtual const char* what(void) {
+	virtual const char* what(void) const noexcept {
 		return buffer.c_str();
 	};
 };

@@ -28,7 +28,16 @@
 #include "network.hpp"
 #include "print.hpp"
 
-#include <poll.h>
+#ifdef unix
+#	include <poll.h>
+#elif defined windows
+typedef struct pollfd {
+	SOCKET fd;
+	SHORT events;
+	SHORT revents;
+} WSAPOLLFD, *PWSAPOLLFD, FAR *LPWSAPOLLFD;
+WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout);
+#endif
 
 void SocketStream::write(const void* data, size_t size) {
 	for(size_t i = 0; i < size; ) {
@@ -105,8 +114,10 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 	is_connected.resize(max_conn, false);
 	packet_mutexes = new std::mutex[max_conn];
 	
+#ifdef unix
 	// We need to ignore pipe signals since any client disconnecting **will** crash the server
 	signal(SIGPIPE, SIG_IGN);
+#endif
 	
 	run = true;
 	print_info("Server created sucessfully and listening to %u", port);
@@ -148,9 +159,6 @@ void Server::broadcast(Packet& packet) {
 	}
 }
 
-#include <sys/ioctl.h>
-#include <poll.h>
-
 /** This is the handling thread-function for handling a connection to a single client
  * Sending packets will only be received by the other end, when trying to broadcast please
  * put the packets on the send queue, they will be sent accordingly
@@ -182,17 +190,24 @@ void Server::net_loop(int id) {
 			packet.send(&action);
 			print_info("Sent action %zu", (size_t)action);
 			
+#ifdef unix
 			struct pollfd pfd;
-			pfd.fd = conn_fd;
+			pfd.fd = fd;
 			pfd.events = POLLIN;
+#endif
 			while(run) {
 				// Read the messages if there is any pending bytes on the tx
-				
+#ifdef unix
 				int has_pending = poll(&pfd, 1, 10);
+#elif defined windows
+				u_long has_pending = 0;
+				ioctlsocket(fd, FIONREAD, &has_pending);
+#endif
+#ifdef unix
 				if(pfd.revents & POLLIN || has_pending) {
-				//has_pending = 0;
-				//ioctl(conn_fd, FIONREAD, &has_pending);
-				//if(has_pending) {
+#elif defined windows
+				if(has_pending) {
+#endif
 					packet.recv();
 					
 					ar.set_buffer(packet.data(), packet.size());
@@ -603,16 +618,24 @@ void Client::net_loop(void) {
 	try {
 		enum ActionType action;
 		
+#ifdef unix
 		struct pollfd pfd;
 		pfd.fd = fd;
 		pfd.events = POLLIN;
+#endif
 		while(1) {
 			// Read the messages if there is any pending bytes on the tx
+#ifdef unix
 			int has_pending = poll(&pfd, 1, 10);
+#elif defined windows
+			u_long has_pending = 0;
+			ioctlsocket(fd, FIONREAD, &has_pending);
+#endif
+#ifdef unix
 			if(pfd.revents & POLLIN || has_pending) {
-			//has_pending = 0;
-			//ioctl(fd, FIONREAD, &has_pending);
-			//if(has_pending) {
+#elif defined windows
+			if(has_pending) {
+#endif
 				// Obtain the action from the server
 				packet.recv();
 				ar.set_buffer(packet.data(), packet.size());
