@@ -7,8 +7,8 @@ set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wshadow -std=c++17 -O2 -g -Isrc -Isrc/client -pthread")
 IF(WIN32)
 # Use x86_64-w64-mingw-* toolchain for windows builds on linux
-	set(CMAKE_C_COMPILER "x86_64-w64-mingw32-gcc-posix")
-	set(CMAKE_CXX_COMPILER "x86_64-w64-mingw32-g++-posix")
+	set(CMAKE_C_COMPILER "i686-w64-mingw32-gcc-posix")
+	set(CMAKE_CXX_COMPILER "i686-w64-mingw32-g++-posix")
 	
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-expansion-to-defined")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dwindows -mwindows")

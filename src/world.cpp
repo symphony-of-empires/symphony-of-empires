@@ -21,12 +21,6 @@
 // Mostly used by clients and lua API
 World* g_world;
 
-extern "C" {
-#   include <lua5.4/lua.h>
-#   include <lua5.4/lualib.h>
-#   include <lua5.4/lauxlib.h>
-};
-
 /**
  * Creates a new world
   */
