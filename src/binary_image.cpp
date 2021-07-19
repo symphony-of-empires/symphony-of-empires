@@ -1,10 +1,9 @@
 #include <sstream>
 #include <stdexcept>
-#include <string.h>
+#include <cstring>
 #include <string>
 #include <errno.h>
 #include <png.h>
-#include <zlib.h>
 #include "binary_image.hpp"
 #include "path.hpp"
 #include "print.hpp"
