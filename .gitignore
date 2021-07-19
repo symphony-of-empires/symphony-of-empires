@@ -31,9 +31,16 @@ obj/
 compile_commands.json
 .cache/
 
-# vs stuff
+# visual studio stuff
 .vs/
 x64/
+Debug/
+packages.config
+packages/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
 
 # cmake stuff
 CMakeFiles/

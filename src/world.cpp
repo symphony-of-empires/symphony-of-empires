@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <cmath>
 #include <set>
-#ifdef _MSC_VER
+#ifndef _MSC_VER
 #	include <sys/cdefs.h>
 #endif
 
