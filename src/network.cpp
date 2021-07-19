@@ -22,12 +22,15 @@
 #ifdef unix
 #	include <poll.h>
 #elif defined windows
-typedef struct pollfd {
-	SOCKET fd;
-	SHORT events;
-	SHORT revents;
-} WSAPOLLFD, *PWSAPOLLFD, FAR *LPWSAPOLLFD;
-WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout);
+/* MingW does not behave well with pollfd structures, however MSVC does */
+#	ifndef _MSC_VER
+	typedef struct pollfd {
+		SOCKET fd;
+		SHORT events;
+		SHORT revents;
+	} WSAPOLLFD, *PWSAPOLLFD, FAR *LPWSAPOLLFD;
+	WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout);
+#	endif
 #endif
 
 void SocketStream::write(const void* data, size_t size) {
@@ -562,6 +565,11 @@ Client::Client(std::string host, const unsigned port) {
 	
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
+	
+/* Allow us to use inet_addr on visual studio */
+#ifdef _MSC_VER
+#	define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
 	addr.sin_addr.s_addr = inet_addr(host.c_str());
 	addr.sin_port = htons(port);
 	
@@ -771,5 +779,10 @@ void Client::wait_for_snapshot(void) {
 
 Client::~Client() {
 	net_thread.join();
+#ifdef windows
+	closesocket(fd);
+	WSACleanup();
+#else
 	close(fd);
+#endif
 }
