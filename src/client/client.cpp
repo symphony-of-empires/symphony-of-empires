@@ -19,7 +19,11 @@
 
 #ifdef _MSC_VER
 /* required before GL/gl.h */
-#	include <windows.h>
+#	ifndef _WINDOWS_
+#		define WIN32_LEAN_AND_MEAN 1
+#		include <windows.h>
+#		undef WIN32_LEAN_AND_MEAN
+#	endif
 #endif
 #include <GL/glext.h>
 #include <GL/glu.h>

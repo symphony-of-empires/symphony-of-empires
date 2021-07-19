@@ -15,9 +15,10 @@
 #include <cstdint>
 #include <cstddef>
 #include <string>
-#ifdef _MSC_VER
-/* required before GL/gl.h */
+#ifndef _WINDOWS_
+#	define WIN32_LEAN_AND_MEAN 1
 #	include <windows.h>
+#	undef WIN32_LEAN_AND_MEAN
 #endif
 #include <GL/gl.h>
 #include "binary_image.hpp"
