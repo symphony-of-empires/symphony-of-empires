@@ -11,7 +11,7 @@ public:
 	std::string effects;
 };
 
-#include "nation.hpp"
+class Nation;
 typedef uint16_t EventId;
 class Event {
 public:

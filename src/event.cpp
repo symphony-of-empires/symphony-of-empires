@@ -1,8 +1,9 @@
+#include <algorithm>
+
 #include "event.hpp"
 #include "world.hpp"
 #include "print.hpp"
-
-#include <algorithm>
+#include "nation.hpp"
 
 void Event::take_descision(Nation* sender, Descision* dec) {
 	auto receiver = std::find(receivers.begin(), receivers.end(), sender);

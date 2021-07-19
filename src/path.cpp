@@ -13,6 +13,11 @@
 #include <algorithm>
 #include "path.hpp"
 
+/* Visual Studio is not posix so we have to define PATH_MAX ourselves */
+#ifdef _MSC_VER
+#	define PATH_MAX 255
+#endif
+
 namespace Path {
 	static inline std::string get_exec_path(void) {
 #ifdef windows
