@@ -1,11 +1,15 @@
-#include <GL/gl.h>
 #include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_ttf.h>
-#include <immintrin.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <string>
 #include <algorithm>
+#ifdef _MSC_VER
+/* required before GL/gl.h */
+#	include <windows.h>
+#endif
+#include <GL/gl.h>
+
 #include "texture.hpp"
 #include "ui.hpp"
 #include "path.hpp"

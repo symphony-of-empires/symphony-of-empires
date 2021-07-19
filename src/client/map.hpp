@@ -2,6 +2,10 @@
 #define MAP_H
 
 #include <cstddef>
+#ifdef _MSC_VER
+/* required before GL/gl.h */
+#	include <windows.h>
+#endif
 #include <GL/gl.h>
 #include "world.hpp"
 #include "province.hpp"
