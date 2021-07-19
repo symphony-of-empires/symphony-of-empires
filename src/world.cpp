@@ -1,9 +1,11 @@
 #include <cstdio>
 #include <cstdlib>
-#include <sys/cdefs.h>
 #include <filesystem>
 #include <cmath>
 #include <set>
+#ifdef _MSC_VER
+#	include <sys/cdefs.h>
+#endif
 
 #include "province.hpp"
 #include "economy.hpp"
