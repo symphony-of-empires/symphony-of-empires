@@ -22,8 +22,6 @@ void Texture::create_dummy() {
 	}
 }
 
-#include <GL/gl.h>
-
 /**
  * Converts the texture into a OpenGL texture, and assigns it a number
   */

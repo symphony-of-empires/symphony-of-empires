@@ -14,8 +14,12 @@
 
 #include <cstdint>
 #include <cstddef>
-#include <GL/gl.h>
 #include <string>
+#ifdef _MSC_VER
+/* required before GL/gl.h */
+#	include <windows.h>
+#endif
+#include <GL/gl.h>
 #include "binary_image.hpp"
 
 class TextureException : public BinaryImageException {

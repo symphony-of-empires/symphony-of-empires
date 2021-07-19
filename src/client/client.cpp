@@ -7,6 +7,11 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_mouse.h>
+
+#ifdef _MSC_VER
+/* required before GL/gl.h */
+#	include <windows.h>
+#endif
 #include <GL/glext.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
