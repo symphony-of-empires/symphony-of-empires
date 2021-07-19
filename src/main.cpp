@@ -84,9 +84,14 @@ int main(int argc, char ** argv) {
 
 #ifdef windows
 #include <windows.h>
+#include <cstring>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {
 	char* argv[1];
-	argv[0] = "/";
+	argv[0] = new char[2];
+	strcpy((char*)argv[0], "/");
+	
 	main(1, argv);
+	
+	free(argv[0]);
 }
 #endif
