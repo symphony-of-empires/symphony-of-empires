@@ -2,7 +2,7 @@
 #define PRINT_HPP
 
 #include <sstream>
-#include <stdio.h>
+#include <cstdio>
 
 /* mscvc does not support this extension of PRETTY_FUNCTION */
 #ifdef _MSC_VER
@@ -10,7 +10,6 @@
 	printf("%6s: %i: ", __FILE__, __LINE__);											\
 	printf(__VA_ARGS__);																\
 	printf("\n");
-
 #	define print_info(...)																\
 	printf("%6s: %i: ", __FILE__, __LINE__);											\
 	printf(__VA_ARGS__);																\
