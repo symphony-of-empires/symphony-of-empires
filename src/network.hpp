@@ -6,9 +6,15 @@
 #	define _XOPEN_SOURCE_EXTENDED 1
 #	include <sys/socket.h>
 #	include <netinet/in.h>
+#	ifndef INVALID_SOCKET
+#		define INVALID_SOCKET -1
+#	endif
 #elif defined windows
-#	define WIN32_LEAN_AND_MEAN
-#	include <windows.h>
+#	ifndef _WINDOWS_
+#		define WIN32_LEAN_AND_MEAN 1
+#		include <windows.h>
+#		undef WIN32_LEAN_AND_MEAN
+#	endif
 #	include <winsock2.h>
 #	include <ws2def.h>
 #	include <ws2tcpip.h>

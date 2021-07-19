@@ -1,13 +1,18 @@
-#include "path.hpp"
 #include <stdexcept>
 #ifdef unix
 #	include <unistd.h>
 #elif defined windows
-#	include <windows.h>
+#	ifndef _WINDOWS_
+#		define WIN32_LEAN_AND_MEAN 1
+#		include <windows.h>
+#		undef WIN32_LEAN_AND_MEAN
+#	endif
 #endif
 #include <limits.h>
 #include <string>
 #include <algorithm>
+
+#include "path.hpp"
 
 namespace Path {
 	static inline std::string get_exec_path(void) {
