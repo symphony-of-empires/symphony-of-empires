@@ -1,5 +1,3 @@
-#include <mutex>
-
 #ifdef unix
 #	define _XOPEN_SOURCE_EXTENDED 1
 #	include <netdb.h>
@@ -11,11 +9,16 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include <mutex>
 /* Visual Studio does not know about UNISTD.H, Mingw does through */
 #ifndef _MSC_VER
 #	include <unistd.h>
 #endif
 
+/* Allow us to use inet_addr on visual studio */
+#ifdef _MSC_VER
+#	define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
 #include "network.hpp"
 #include "print.hpp"
 
@@ -565,11 +568,6 @@ Client::Client(std::string host, const unsigned port) {
 	
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
-	
-/* Allow us to use inet_addr on visual studio */
-#ifdef _MSC_VER
-#	define _WINSOCK_DEPRECATED_NO_WARNINGS
-#endif
 	addr.sin_addr.s_addr = inet_addr(host.c_str());
 	addr.sin_port = htons(port);
 	
