@@ -11,6 +11,11 @@
 #include "io_impl.hpp"
 #include "network.hpp"
 
+/* Visual Studio does not define ssize_t because it's POSIX */
+#ifdef _MSC_VER
+typedef signed int ssize_t;
+#endif
+
 /**
 * Checks if the industry can produce output (if it has enough input)
  */
