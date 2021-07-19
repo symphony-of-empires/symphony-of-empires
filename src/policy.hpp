@@ -136,7 +136,8 @@ public:
 	bool free_supplies;
 	
 	int difference(Policies& rhs) {
-		int diff;
+		int diff = 0;
+		
 		diff += std::abs(rhs.migration - this->migration);
 		diff += std::abs(rhs.immigration - this->immigration);
 		diff += std::abs(rhs.censorship - this->censorship);
