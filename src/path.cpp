@@ -8,10 +8,9 @@
 #		undef WIN32_LEAN_AND_MEAN
 #	endif
 #endif
-#include <limits.h>
+#include <climits>
 #include <string>
 #include <algorithm>
-
 #include "path.hpp"
 
 namespace Path {

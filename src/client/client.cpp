@@ -16,7 +16,6 @@
 #	include <SDL2/SDL_keycode.h>
 #	include <SDL2/SDL_mouse.h>
 #endif
-
 #ifdef _MSC_VER
 /* required before GL/gl.h */
 #	ifndef _WINDOWS_
@@ -28,14 +27,12 @@
 #include <GL/glext.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
-
 #include "world.hpp"
 #include "economy.hpp"
 #include "texture.hpp"
 #include "path.hpp"
 #include "ui.hpp"
 #include "map.hpp"
-
 #include "network.hpp"
 #include "serializer.hpp"
 #include "io_impl.hpp"
