@@ -2,11 +2,9 @@
 #define LUA_H
 
 #ifdef windows
-extern "C" {
-#   include <lua.hpp>
-};
+#	include <lua.hpp>
 #else
-#   include <lua5.4/lua.hpp>
+#	include <lua5.4/lua.hpp>
 #endif
 #include <string>
 #include <vector>
