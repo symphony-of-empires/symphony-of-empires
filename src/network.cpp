@@ -11,7 +11,10 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
-#include <unistd.h>
+/* Visual Studio does not know about UNISTD.H, Mingw does through */
+#ifndef _MSC_VER
+#	include <unistd.h>
+#endif
 
 #include "network.hpp"
 #include "print.hpp"

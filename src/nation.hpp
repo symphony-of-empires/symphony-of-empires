@@ -8,6 +8,11 @@
 #include <string>
 #include <vector>
 
+#include "policy.hpp"
+#include "province.hpp"
+#include "diplomacy.hpp"
+#include "event.hpp"
+
 typedef uint16_t NationId;
 
 /**
@@ -34,10 +39,6 @@ public:
 	bool free_supplies;
 };
 
-#include "policy.hpp"
-#include "province.hpp"
-#include "diplomacy.hpp"
-
 enum IdeologyType {
 	// Primary types
 	MONARCHY,
@@ -48,7 +49,6 @@ enum IdeologyType {
 	REPUBLIC,
 };
 
-class Event;
 class Nation {
 	inline void do_diplomacy();
 	inline bool can_do_diplomacy();
