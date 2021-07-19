@@ -24,7 +24,10 @@
 #		undef WIN32_LEAN_AND_MEAN
 #	endif
 #endif
-#include <GL/glext.h>
+/* msvsc does not know about glext, mingw does so we just use this ifdef */
+#ifndef _MSC_VER
+#	include <GL/glext.h>
+#endif
 #include <GL/glu.h>
 #include <GL/gl.h>
 #include "world.hpp"
