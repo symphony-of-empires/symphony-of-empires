@@ -19,12 +19,10 @@
 #	include <ws2def.h>
 #	include <ws2tcpip.h>
 #endif
-
 #include <thread>
 #include <vector>
 #include <atomic>
 #include <string>
-
 #include <cstring>
 #include <stdexcept>
 
