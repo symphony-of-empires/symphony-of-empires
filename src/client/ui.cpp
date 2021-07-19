@@ -1,9 +1,8 @@
-#include <SDL2/SDL_surface.h>
-#include <SDL2/SDL_ttf.h>
 #include <cstdlib>
 #include <cstring>
 #include <string>
 #include <algorithm>
+
 #ifdef _MSC_VER
 /* required before GL/gl.h */
 #	include <windows.h>

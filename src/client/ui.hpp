@@ -4,6 +4,15 @@
 #include <vector>
 #include <deque>
 #include <cstddef>
+
+#ifdef _MSC_VER
+#	include <SDL_surface.h>
+#	include <SDL_ttf.h>
+#else
+#	include <SDL2/SDL_surface.h>
+#	include <SDL2/SDL_ttf.h>
+#endif
+
 #include "texture.hpp"
 
 enum UI_WidgetType {
@@ -16,9 +25,6 @@ enum UI_WidgetType {
 	UI_WIDGET_CHECKBOX,
 	UI_WIDGET_PIE_CHART,
 };
-
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL.h>
 
 namespace UI {
 	class Widget;
