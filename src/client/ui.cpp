@@ -2,7 +2,7 @@
 #include <cstring>
 #include <string>
 #include <algorithm>
-#ifdef _MSC_VER
+#ifdef windows
 #	ifndef _WINDOWS_
 #		define WIN32_LEAN_AND_MEAN 1
 #		include <windows.h>

@@ -58,7 +58,10 @@ namespace UI {
 		Widget(const Widget&) = default;
 		Widget(Widget&&) noexcept = default;
 		Widget& operator=(const Widget&) = default;
+/* MSVSC hates multiple definitions for movables */
+#ifndef _MSC_VER
 		Widget& operator=(Widget&) noexcept = default;
+#endif
 		virtual ~Widget();
 
 		void move_by(int x, int y);
