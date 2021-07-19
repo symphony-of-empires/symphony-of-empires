@@ -127,26 +127,23 @@ namespace UI {
 
 	class Input : public Widget {
 	public:
-		Input(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-		~Input() {};
-		Input& operator=(const Input&) = default;
-
 		void (*on_textinput)(Input *, const char *, void *) = nullptr;
 		char* buffer = nullptr;
+		
+		Input(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
+		~Input() {};
 	};
 
 	class Checkbox : public Widget {
 	public:
 		Checkbox(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
 		~Checkbox() {};
-		Checkbox& operator=(const Checkbox&) = default;
 	};
 
 	class Button : public Widget {
 	public:
 		Button(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
 		~Button() {};
-		Button& operator=(const Button&) = default;
 	};
 
 	class CloseButton : public Widget {
@@ -156,40 +153,36 @@ namespace UI {
 	public:
 		CloseButton(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
 		~CloseButton() {};
-		CloseButton& operator=(const CloseButton&) = default;
 	};
 
 	class Window : public Widget {
 	public:
+		bool is_movable = false;
+		
 		Window(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
 		~Window() {};
-		Window& operator=(const Window&) = default;
-
-		bool is_movable = false;
 	};
 	
 	class Image : public Widget {
 	public:
 		Image(int x, int y, unsigned w, unsigned h, const Texture* tex, Widget* parent = nullptr);
 		~Image() {};
-		Image& operator=(const Image&) = default;
 	};
 	
 	class Label : public Widget {
 	public:
 		Label(int x, int y, const char* text = nullptr, Widget* parent = nullptr);
 		~Label() {};
-		Label& operator=(const Label&) = default;
 		void on_render(void);
 	};
 	
 	class Chart : public Widget {
 	public:
+		std::deque<double> data;
+		
 		Chart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
 		~Chart() {};
-		Chart& operator=(const Chart&) = default;
 		void on_render(void);
-		std::deque<double> data;
 	};
 };
 
