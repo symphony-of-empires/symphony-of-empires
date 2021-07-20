@@ -233,6 +233,8 @@ extern void ui_treaty(void);
 
 std::vector<const Texture*> nation_flags;
 std::vector<const Texture*> outpost_type_icons;
+std::vector<const Texture*> boat_type_icons;
+std::vector<const Texture*> unit_type_icons;
 
 const Texture& get_nation_flag(Nation& nation) {
 	return *nation_flags[g_world->get_id(&nation)];
@@ -486,16 +488,26 @@ void select_nation(void) {
 	
 	nation_flags.reserve(g_world->nations.size());
 	for(const auto& nation: g_world->nations) {
-		std::string pt;
-		pt = "ui/flags/" + nation->ref_name + "_monarchy.png";
+		std::string pt = "ui/flags/" + nation->ref_name + "_monarchy.png";
 		nation_flags.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
 	}
 
-	outpost_type_icons.reserve(g_world->nations.size());
+	outpost_type_icons.reserve(g_world->outpost_types.size());
 	for(const auto& outpost_type: g_world->outpost_types) {
-		std::string pt;
-		pt = "ui/icons/outpost_types/" + outpost_type->ref_name + ".png";
+		std::string pt = "ui/icons/outpost_types/" + outpost_type->ref_name + ".png";
 		outpost_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+	}
+
+	boat_type_icons.reserve(g_world->boat_types.size());
+	for(const auto& boat_type: g_world->boat_types) {
+		std::string pt = "ui/icons/boat_types/" + boat_type->ref_name + ".png";
+		boat_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+	}
+
+	unit_type_icons.reserve(g_world->unit_types.size());
+	for(const auto& unit_type: g_world->unit_types) {
+		std::string pt = "ui/icons/unit_types/" + unit_type->ref_name + ".png";
+		unit_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
 	}
 	
 	cam.x = -100.f;
@@ -915,12 +927,25 @@ void select_nation(void) {
 				glVertex2f(boat->x, boat->y - 1.f);
 				glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
 				glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
-				glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.25f);
+				/*glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.25f);
 				glVertex2f(boat->x, boat->y - 1.2f);
+				glVertex2f(boat->x, boat->y - 1.f);*/
 				glEnd();
 			}
 			
 			glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(boat->owner)]->gl_tex_num);
+			glBegin(GL_QUADS);
+			glColor4f(1.f, 1.f, 1.f, 0.8f);
+			glTexCoord2f(0.f, 0.f);
+			glVertex2f(boat->x, boat->y);
+			glTexCoord2f(1.f, 0.f);
+			glVertex2f(boat->x + 0.2f, boat->y);
+			glTexCoord2f(1.f, 1.f);
+			glVertex2f(boat->x + 0.2f, boat->y + 0.2f);
+			glTexCoord2f(0.f, 1.f);
+			glVertex2f(boat->x, boat->y + 0.2f);
+			glEnd();
+			glBindTexture(GL_TEXTURE_2D, boat_type_icons[g_world->get_id(boat->type)]->gl_tex_num);
 			glBegin(GL_QUADS);
 			glColor4f(1.f, 1.f, 1.f, 0.8f);
 			glTexCoord2f(0.f, 0.f);
@@ -953,12 +978,25 @@ void select_nation(void) {
 				glVertex2f(unit->x, unit->y - 1.f);
 				glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
 				glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
-				glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.25f);
+				/*glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.25f);
 				glVertex2f(unit->x, unit->y - 1.2f);
+				glVertex2f(unit->x, unit->y - 1.f);*/
 				glEnd();
 			}
 			
 			glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(unit->owner)]->gl_tex_num);
+			glBegin(GL_QUADS);
+			glColor4f(1.f, 1.f, 1.f, 0.8f);
+			glTexCoord2f(0.f, 0.f);
+			glVertex2f(unit->x, unit->y);
+			glTexCoord2f(1.f, 0.f);
+			glVertex2f(unit->x + 0.2f, unit->y);
+			glTexCoord2f(1.f, 1.f);
+			glVertex2f(unit->x + 0.2f, unit->y + 0.2f);
+			glTexCoord2f(0.f, 1.f);
+			glVertex2f(unit->x, unit->y + 0.2f);
+			glEnd();
+			glBindTexture(GL_TEXTURE_2D, unit_type_icons[g_world->get_id(unit->type)]->gl_tex_num);
 			glBegin(GL_QUADS);
 			glColor4f(1.f, 1.f, 1.f, 0.8f);
 			glTexCoord2f(0.f, 0.f);
