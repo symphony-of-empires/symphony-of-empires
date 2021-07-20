@@ -1,1 +1,2 @@
 %~dp0SymphonyOfEmpires
+pause
