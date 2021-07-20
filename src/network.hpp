@@ -16,6 +16,8 @@
 #		include <windows.h>
 #		undef WIN32_LEAN_AND_MEAN
 #	endif
+/* Allow us to use deprecated functions like inet_addr */
+#	define _WINSOCK_DEPRECATED_NO_WARNINGS
 #	include <winsock2.h>
 #	include <ws2def.h>
 #	include <ws2tcpip.h>
@@ -42,6 +44,17 @@ class ServerException : std::exception {
 	std::string buffer;
 public:
 	ServerException(std::string msg) {
+		buffer = msg;
+	}
+	virtual const char* what(void) const noexcept {
+		return buffer.c_str();
+	}
+};
+
+class ClientException : std::exception {
+	std::string buffer;
+public:
+	ClientException(std::string msg) {
 		buffer = msg;
 	}
 	virtual const char* what(void) const noexcept {

@@ -512,6 +512,165 @@ void World::do_tick() {
 	default:
 		break;
 	}
+
+	// Evaluate boats
+	boats_mutex.lock();
+	for(size_t i = 0; i < boats.size(); i++) {
+		Boat* unit = boats[i];
+		if(unit->size <= 0) {
+			g_world->boats.erase(boats.begin() + i);
+			break;
+		}
+		
+		// Count friends and foes in range (and find nearest foe)
+		size_t n_friends = 0;
+		size_t n_foes = 0;
+		Boat* nearest_foe = nullptr;
+		Boat* nearest_friend = nullptr;
+		for(size_t j = 0; j < g_world->boats.size(); j++) {
+			Boat* other_unit = g_world->boats[j];
+			if(unit->owner == other_unit->owner) {
+				// Only when very close
+				if(std::abs(unit->x - other_unit->x) >= 4.f && std::abs(unit->y - other_unit->y) >= 4.f)
+					continue;
+				
+				n_friends++;
+				
+				if(nearest_friend == nullptr) {
+					nearest_friend = other_unit;
+				}
+				
+				// Find nearest friend
+				if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_friend->x)
+				&& std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_friend->y)) {
+					nearest_friend = other_unit;
+				}
+			} else {
+				// Foes from many ranges counts
+				if(std::abs(unit->x - other_unit->x) >= 1.f && std::abs(unit->y - other_unit->y) >= 1.f)
+					continue;
+				
+				n_foes++;
+				
+				if(nearest_foe == nullptr) {
+					nearest_foe = other_unit;
+				}
+
+				// Find nearest foe
+				if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_foe->x)
+				&& std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_foe->y)) {
+					nearest_foe = other_unit;
+				}
+			}
+		}
+
+		float new_tx, new_ty;
+		new_tx = unit->tx;
+		new_ty = unit->ty;
+
+		if(new_tx == unit->x && new_ty == unit->y) {
+			continue;
+		}
+
+		float end_x, end_y;
+		const float speed = 0.1f;
+
+		end_x = unit->x;
+		end_y = unit->y;
+
+		// Move towards target
+		if(unit->x > new_tx)
+			end_x -= speed;
+		else if(unit->x < new_tx)
+			end_x += speed;
+
+		if(unit->y > new_ty)
+			end_y -= speed;
+		else if(unit->y < new_ty)
+			end_y += speed;
+		
+		// Make the unit attack automatically
+		// and we must be at war with the owner of this unit to be able to attack the unit
+		if(nearest_foe != nullptr
+		&& unit->owner->relations[get_id(nearest_foe->owner)].has_war == false) {
+			Boat* enemy = nearest_foe;
+
+			// Calculate the attack of our unit
+			float attack_mod = 0.f;
+			for(const auto& trait: unit->traits) {
+				attack_mod *= trait->attack_mod;
+			}
+			const float attack = unit->type->attack * attack_mod;
+
+			// Calculate the defense of the enemy
+			float defense_mod = 0.f;
+			for(const auto& trait: unit->traits) {
+				defense_mod *= trait->defense_mod;
+			}
+			const float enemy_defense = std::max(0.1f, enemy->type->defense * defense_mod);
+
+			// Calculate the total damage dealt by our unit to the enemy
+			const float damage_dealt = unit->size * std::min(10.f, std::max(.05f, unit->experience))
+				* (attack / std::pow(std::min(0.f, enemy_defense), 2))
+				* std::max(0.1f, unit->morale) * unit->supply
+			;
+			
+			// Deal with the morale loss of the enemy
+			float enemy_fanaticism = 0.f;
+			for(const auto& trait: enemy->traits) {
+				enemy_fanaticism *= trait->morale_mod;
+			}
+			enemy->morale -= 10.f * enemy_fanaticism * damage_dealt / enemy->size;
+
+			// Our unit receives half of the morale
+			unit->morale += 5.f * enemy_fanaticism * damage_dealt / enemy->size;
+
+			// Deal the damage
+			enemy->size -= damage_dealt;
+		}
+
+		// Boats cannot go on land
+		if(get_tile(end_x, end_y).elevation > sea_level) {
+			continue;
+		}
+
+		unit->x = end_x;
+		unit->y = end_y;
+
+		// North and south do not wrap
+		unit->y = std::max<float>(0.f, unit->y);
+		unit->y = std::min<float>(height, unit->y);
+
+		// West and east do wrap
+		if(unit->x <= 0.f) {
+			unit->x = width - 1.f;
+		} else if(unit->x >= width) {
+			unit->x = 0.f;
+		}
+
+		// Set nearby tiles as owned
+		// TODO: Make it conquer multiple tiles
+		Tile& tile = get_tile(unit->x, unit->y);
+		if(tile.owner_id != get_id(unit->owner)) {
+			tile.owner_id = get_id(unit->owner);
+
+			std::lock_guard<std::recursive_mutex> lock(nation_changed_tiles_mutex);
+			nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
+		}
+	}
+	
+	for(const auto& boat: g_world->boats) {
+		// Broadcast to clients
+		Packet packet = Packet(0);
+		Archive ar = Archive();
+		enum ActionType action = ACTION_BOAT_UPDATE;
+		::serialize(ar, &action);
+		::serialize(ar, &boat);
+		::serialize(ar, boat);
+		packet.data(ar.get_buffer(), ar.size());
+		g_server->broadcast(packet);
+	}
+	boats_mutex.unlock();
 	
 	// Evaluate units
 	units_mutex.lock();
@@ -732,22 +891,16 @@ void World::do_tick() {
 		}
 	}
 	
-	size_t i = 0;
 	for(const auto& unit: g_world->units) {
 		// Broadcast to clients
 		Packet packet = Packet(0);
 		Archive ar = Archive();
-		
 		enum ActionType action = ACTION_UNIT_UPDATE;
 		::serialize(ar, &action);
-		
 		::serialize(ar, &unit);
 		::serialize(ar, unit);
-		
 		packet.data(ar.get_buffer(), ar.size());
 		g_server->broadcast(packet);
-		
-		i++;
 	}
 	units_mutex.unlock();
 	
@@ -830,6 +983,11 @@ UnitTrait::Id World::get_id(const UnitTrait* ptr) const {
 Unit::Id World::get_id(const Unit* ptr) const {
 	std::lock_guard<std::recursive_mutex> lock(units_mutex);
 	return get_id_ptr<Unit::Id>(ptr, units);
+}
+
+Boat::Id World::get_id(const Boat* ptr) const {
+	std::lock_guard<std::recursive_mutex> lock(boats_mutex);
+	return get_id_ptr<Boat::Id>(ptr, boats);
 }
 
 OutpostType::Id World::get_id(const OutpostType* ptr) const {

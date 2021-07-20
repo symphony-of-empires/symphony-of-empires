@@ -102,12 +102,10 @@ public:
 	size_t base;
 
 	// Target coordinates of this unit
-	size_t tx;
-	size_t ty;
+	size_t tx, ty;
 
 	// Current position
-	float x;
-	float y;
+	float x, y;
 
 	// Who owns this unit
 	Nation* owner;
@@ -129,6 +127,49 @@ public:
 
 	// Money that the unit has
 	float budget;
+	
+	std::vector<UnitTrait*> traits;
+};
+
+/**
+ * A ship
+ */
+class Boat {
+public:
+	using Id = uint16_t;
+	
+	// Type of unit
+	BoatType* type;
+
+	// Size of the unit (soldiers in unit)
+	size_t size;
+
+	// Base size of the unit (max size due to anti-attrition)
+	size_t base;
+
+	// Target coordinates of this unit
+	size_t tx, ty;
+
+	// Current position
+	float x, y;
+
+	// Who owns this unit
+	Nation* owner;
+
+	float morale;
+
+	// For perspective, 0.5 is the normal unit (i.e a soldier POP)
+	float experience;
+
+	// Used to "ignore" an unit when doing any check, this allows other units to
+	// attack this unit
+	bool ignore_tag;
+
+	// The ticks the unit has not been moved
+	uint64_t defensive_ticks;
+
+	// Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
+	float supply;
 	
 	std::vector<UnitTrait*> traits;
 };

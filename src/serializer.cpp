@@ -53,7 +53,7 @@ void Archive::from_file(std::string path) {
 }
 
 void* Archive::get_buffer(void) {
-	return (void *)&buffer[0];
+	return (void*)&buffer[0];
 }
 	
 void Archive::set_buffer(void* buf, size_t size) {
