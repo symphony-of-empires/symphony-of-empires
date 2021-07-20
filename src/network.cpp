@@ -15,26 +15,22 @@
 #	include <unistd.h>
 #endif
 
-/* Allow us to use inet_addr on visual studio */
-#ifdef _MSC_VER
-#	define _WINSOCK_DEPRECATED_NO_WARNINGS
-#endif
-#include "network.hpp"
-#include "print.hpp"
-
 #ifdef unix
 #	include <poll.h>
 #elif defined windows
 /* MingW does not behave well with pollfd structures, however MSVC does */
 #	ifndef _MSC_VER
-	typedef struct pollfd {
-		SOCKET fd;
-		SHORT events;
-		SHORT revents;
-	} WSAPOLLFD, *PWSAPOLLFD, FAR *LPWSAPOLLFD;
-	WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout);
+typedef struct pollfd {
+	SOCKET fd;
+	SHORT events;
+	SHORT revents;
+} WSAPOLLFD, *PWSAPOLLFD, FAR *LPWSAPOLLFD;
+WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout);
 #	endif
 #endif
+
+#include "network.hpp"
+#include "print.hpp"
 
 void SocketStream::write(const void* data, size_t size) {
 	for(size_t i = 0; i < size; ) {
@@ -189,17 +185,19 @@ void Server::net_loop(int id) {
 			
 #ifdef unix
 			struct pollfd pfd;
-			pfd.fd = fd;
+			pfd.fd = conn_fd;
 			pfd.events = POLLIN;
 #endif
 			while(run) {
-				// Read the messages if there is any pending bytes on the tx
+				// Check if we need to read stuff
 #ifdef unix
 				int has_pending = poll(&pfd, 1, 10);
 #elif defined windows
 				u_long has_pending = 0;
 				ioctlsocket(fd, FIONREAD, &has_pending);
 #endif
+
+				// Conditional of above statements
 #ifdef unix
 				if(pfd.revents & POLLIN || has_pending) {
 #elif defined windows
@@ -256,6 +254,29 @@ void Server::net_loop(int id) {
 								throw ServerException("Coordinates out of range for unit");
 							
 							print_info("Unit changes targets to %zu.%zu", (size_t)unit->tx, (size_t)unit->ty);
+						}
+						break;
+					/// - Client tells server to change target of boat
+					case ACTION_BOAT_CHANGE_TARGET:
+						{
+							std::lock_guard<std::recursive_mutex> lock1(g_world->boats_mutex);
+
+							Boat* boat;
+							::deserialize(ar, &boat);
+							if(boat == nullptr)
+								throw ServerException("Unknown boat");
+
+							// Must control boat
+							if(selected_nation != boat->owner)
+								throw ServerException("Nation does not control boat");
+							
+							::deserialize(ar, &boat->tx);
+							::deserialize(ar, &boat->ty);
+
+							if(boat->tx >= g_world->width || boat->ty >= g_world->height)
+								throw ServerException("Coordinates out of range for boat");
+							
+							print_info("Boat changes targets to %zu.%zu", (size_t)boat->tx, (size_t)boat->ty);
 						}
 						break;
 					/**
@@ -335,8 +356,9 @@ void Server::net_loop(int id) {
 							if(outpost->x >= g_world->width || outpost->y >= g_world->height)
 								throw ServerException("Outpost out of range");
 							
-							// Outposts can only be built on owned land
-							if(g_world->nations[g_world->get_tile(outpost->x, outpost->y).owner_id] != selected_nation)
+							// Outposts can only be built on owned land or on shores
+							if(g_world->nations[g_world->get_tile(outpost->x, outpost->y).owner_id] != selected_nation
+							&& g_world->get_tile(outpost->x, outpost->y).elevation > g_world->sea_level)
 								throw ServerException("Outpost cannot be built on foreign land");
 
 							outpost->working_unit_type = nullptr;
@@ -601,11 +623,9 @@ Client::Client(std::string host, const unsigned port) {
  * if you need snapshots for any reason (like desyncs) you can request with ACTION_SNAPSHOT
  */
 void Client::net_loop(void) {
+	// Receive the first snapshot of the world
 	Packet packet = Packet(fd);
-	
-	// Receive the first snapshot of the world 
 	packet.recv();
-	
 	Archive ar = Archive();
 	ar.set_buffer(packet.data(), packet.size());
 	::deserialize(ar, g_world);
@@ -621,13 +641,15 @@ void Client::net_loop(void) {
 		pfd.events = POLLIN;
 #endif
 		while(1) {
-			// Read the messages if there is any pending bytes on the tx
+			// Check if we need to read packets
 #ifdef unix
 			int has_pending = poll(&pfd, 1, 10);
 #elif defined windows
 			u_long has_pending = 0;
 			ioctlsocket(fd, FIONREAD, &has_pending);
 #endif
+
+			// Conditional of above statements
 #ifdef unix
 			if(pfd.revents & POLLIN || has_pending) {
 #elif defined windows
@@ -663,8 +685,8 @@ void Client::net_loop(void) {
 						Province* province;
 						::deserialize(ar, &province);
 						if(province == nullptr)
-							throw std::runtime_error("Unknown province");
-						::deserialize(ar, province);
+							throw ClientException("Unknown province");
+						//::deserialize(ar, province);
 					}
 					break;
 				case ACTION_NATION_UPDATE:
@@ -675,7 +697,7 @@ void Client::net_loop(void) {
 						Nation* nation;
 						::deserialize(ar, &nation);
 						if(nation == nullptr)
-							throw std::runtime_error("Unknown nation");
+							throw ClientException("Unknown nation");
 						::deserialize(ar, nation);
 					}
 					break;
@@ -687,7 +709,7 @@ void Client::net_loop(void) {
 						Outpost* outpost;
 						::deserialize(ar, &outpost);
 						if(outpost == nullptr)
-							throw std::runtime_error("Unknown outpost");
+							throw ClientException("Unknown outpost");
 						::deserialize(ar, outpost);
 					}
 					break;
@@ -699,7 +721,7 @@ void Client::net_loop(void) {
 						Nation* nation;
 						::deserialize(ar, &nation);
 						if(nation == nullptr)
-							throw std::runtime_error("Unknown nation");
+							throw ClientException("Unknown nation");
 						
 						Policies policy;
 						::deserialize(ar, &policy);
@@ -714,7 +736,7 @@ void Client::net_loop(void) {
 						Unit* unit;
 						::deserialize(ar, &unit);
 						if(unit == nullptr)
-							throw std::runtime_error("Unknown unit");
+							throw ClientException("Unknown unit");
 						::deserialize(ar, unit);
 					}
 					break;
@@ -727,6 +749,29 @@ void Client::net_loop(void) {
 						::deserialize(ar, unit);
 						g_world->units.push_back(unit);
 						print_info("New unit of %s", unit->owner->name.c_str());
+					}
+					break;
+				case ACTION_BOAT_UPDATE:
+				print_info("ACTION_BOAT_UPDATE");
+					{
+						std::lock_guard<std::recursive_mutex> lock(g_world->boats_mutex);
+
+						Boat* boat;
+						::deserialize(ar, &boat);
+						if(boat == nullptr)
+							throw ClientException("Unknown boat");
+						::deserialize(ar, boat);
+					}
+					break;
+				case ACTION_BOAT_ADD:
+				print_info("ACTION_BOAT_ADD");
+					{
+						std::lock_guard<std::recursive_mutex> lock(g_world->boats_mutex);
+
+						Boat* boat = new Boat();
+						::deserialize(ar, boat);
+						g_world->boats.push_back(boat);
+						print_info("New boat of %s", boat->owner->name.c_str());
 					}
 					break;
 				case ACTION_OUTPOST_ADD:
@@ -762,7 +807,7 @@ void Client::net_loop(void) {
 			packet_queue.clear();
 			packet_mutex.unlock();
 		}
-	} catch(std::runtime_error& e) {
+	} catch(ClientException& e) {
 		print_error("Except: %s", e.what());
 	}
 }

@@ -107,20 +107,20 @@ class Serializer<Product*> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& stream, const Product* const* obj) {
-		ProductId id = g_world->get_id(*obj);
+		Product::Id id = g_world->get_id(*obj);
 		::serialize(stream, &id);
 	}
 	static inline void deserialize(Archive& stream, Product** obj) {
-		ProductId id;
+		Product::Id id;
 		::deserialize(stream, &id);
 		if(id >= g_world->products.size()) {
 			*obj = nullptr;
 			return;
 		}
-		*obj = (id != (ProductId)-1) ? g_world->products[id] : nullptr;
+		*obj = (id != (Product::Id)-1) ? g_world->products[id] : nullptr;
 	}
 	static inline size_t size(const Product* const*) {
-		return sizeof(ProductId);
+		return sizeof(Product::Id);
 	}
 };
 
@@ -129,20 +129,20 @@ class Serializer<Culture*> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& stream, const Culture* const* obj) {
-		CultureId id = g_world->get_id(*obj);
+		Culture::Id id = g_world->get_id(*obj);
 		::serialize(stream, &id);
 	}
 	static inline void deserialize(Archive& stream, Culture** obj) {
-		CultureId id;
+		Culture::Id id;
 		::deserialize(stream, &id);
 		if(id >= g_world->cultures.size()) {
 			*obj = nullptr;
 			return;
 		}
-		*obj = (id != (CultureId)-1) ? g_world->cultures[id] : nullptr;
+		*obj = (id != (Culture::Id)-1) ? g_world->cultures[id] : nullptr;
 	}
 	static inline size_t size(const Culture* const*) {
-		return sizeof(CultureId);
+		return sizeof(Culture::Id);
 	}
 };
 
@@ -151,20 +151,20 @@ class Serializer<Good*> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& stream, const Good* const* obj) {
-		GoodId id = g_world->get_id(*obj);
+		Good::Id id = g_world->get_id(*obj);
 		::serialize(stream, &id);
 	}
 	static inline void deserialize(Archive& stream, Good** obj) {
-		GoodId id;
+		Good::Id id;
 		::deserialize(stream, &id);
 		if(id >= g_world->goods.size()) {
 			*obj = nullptr;
 			return;
 		}
-		*obj = (id != (GoodId)-1) ? g_world->goods[id] : nullptr;
+		*obj = (id != (Good::Id)-1) ? g_world->goods[id] : nullptr;
 	}
 	static inline size_t size(const Good* const*) {
-		return sizeof(GoodId);
+		return sizeof(Good::Id);
 	}
 };
 
@@ -173,20 +173,20 @@ class Serializer<Company*> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& stream, const Company* const* obj) {
-		CompanyId id = g_world->get_id(*obj);
+		Company::Id id = g_world->get_id(*obj);
 		::serialize(stream, &id);
 	}
 	static inline void deserialize(Archive& stream, Company** obj) {
-		CompanyId id;
+		Company::Id id;
 		::deserialize(stream, &id);
 		if(id >= g_world->companies.size()) {
 			*obj = nullptr;
 			return;
 		}
-		*obj = (id != (CompanyId)-1) ? g_world->companies[id] : nullptr;
+		*obj = (id != (Company::Id)-1) ? g_world->companies[id] : nullptr;
 	}
 	static inline size_t size(const Company* const*) {
-		return sizeof(CompanyId);
+		return sizeof(Company::Id);
 	}
 };
 
@@ -195,20 +195,20 @@ class Serializer<IndustryType*> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& stream, const IndustryType* const* obj) {
-		IndustryTypeId id = g_world->get_id(*obj);
+		IndustryType::Id id = g_world->get_id(*obj);
 		::serialize(stream, &id);
 	}
 	static inline void deserialize(Archive& stream, IndustryType** obj) {
-		IndustryTypeId id;
+		IndustryType::Id id;
 		::deserialize(stream, &id);
 		if(id >= g_world->industry_types.size()) {
 			*obj = nullptr;
 			return;
 		}
-		*obj = (id != (IndustryTypeId)-1) ? g_world->industry_types[id] : nullptr;
+		*obj = (id != (IndustryType::Id)-1) ? g_world->industry_types[id] : nullptr;
 	}
 	static inline size_t size(const IndustryType* const*) {
-		return sizeof(IndustryTypeId);
+		return sizeof(IndustryType::Id);
 	}
 };
 
@@ -217,20 +217,20 @@ class Serializer<UnitType*> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& stream, const UnitType* const* obj) {
-		UnitTypeId id = g_world->get_id(*obj);
+		UnitType::Id id = g_world->get_id(*obj);
 		::serialize(stream, &id);
 	}
 	static inline void deserialize(Archive& stream, UnitType** obj) {
-		UnitTypeId id;
+		UnitType::Id id;
 		::deserialize(stream, &id);
 		if(id >= g_world->unit_types.size()) {
 			*obj = nullptr;
 			return;
 		}
-		*obj = (id != (UnitTypeId)-1) ? g_world->unit_types[id] : nullptr;
+		*obj = (id != (UnitType::Id)-1) ? g_world->unit_types[id] : nullptr;
 	}
 	static inline size_t size(const UnitType* const*) {
-		return sizeof(UnitTypeId);
+		return sizeof(UnitType::Id);
 	}
 };
 
@@ -239,20 +239,20 @@ class Serializer<BoatType*> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& stream, const BoatType* const* obj) {
-		BoatTypeId id = g_world->get_id(*obj);
+		BoatType::Id id = g_world->get_id(*obj);
 		::serialize(stream, &id);
 	}
 	static inline void deserialize(Archive& stream, BoatType** obj) {
-		BoatTypeId id;
+		BoatType::Id id;
 		::deserialize(stream, &id);
 		if(id >= g_world->boat_types.size()) {
 			*obj = nullptr;
 			return;
 		}
-		*obj = (id != (BoatTypeId)-1) ? g_world->boat_types[id] : nullptr;
+		*obj = (id != (BoatType::Id)-1) ? g_world->boat_types[id] : nullptr;
 	}
 	static inline size_t size(const BoatType* const*) {
-		return sizeof(BoatTypeId);
+		return sizeof(BoatType::Id);
 	}
 };
 
@@ -261,20 +261,20 @@ class Serializer<UnitTrait*> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& stream, const UnitTrait* const* obj) {
-		UnitTraitId id = g_world->get_id(*obj);
+		UnitTrait::Id id = g_world->get_id(*obj);
 		::serialize(stream, &id);
 	}
 	static inline void deserialize(Archive& stream, UnitTrait** obj) {
-		UnitTraitId id;
+		UnitTrait::Id id;
 		::deserialize(stream, &id);
 		if(id >= g_world->unit_traits.size()) {
 			*obj = nullptr;
 			return;
 		}
-		*obj = (id != (UnitTraitId)-1) ? g_world->unit_traits[id] : nullptr;
+		*obj = (id != (UnitTrait::Id)-1) ? g_world->unit_traits[id] : nullptr;
 	}
 	static inline size_t size(const UnitTrait* const*) {
-		return sizeof(UnitId);
+		return sizeof(UnitTrait::Id);
 	}
 };
 
@@ -283,20 +283,42 @@ class Serializer<Unit*> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& stream, const Unit* const* obj) {
-		UnitId id = g_world->get_id(*obj);
+		Unit::Id id = g_world->get_id(*obj);
 		::serialize(stream, &id);
 	}
 	static inline void deserialize(Archive& stream, Unit* * obj) {
-		UnitId id;
+		Unit::Id id;
 		::deserialize(stream, &id);
 		if(id >= g_world->units.size()) {
 			*obj = nullptr;
 			return;
 		}
-		*obj = (id != (UnitId)-1) ? g_world->units[id] : nullptr;
+		*obj = (id != (Unit::Id)-1) ? g_world->units[id] : nullptr;
 	}
 	static inline size_t size(const Unit* const*) {
-		return sizeof(UnitId);
+		return sizeof(Unit::Id);
+	}
+};
+
+template<>
+class Serializer<Boat*> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const Boat* const* obj) {
+		Boat::Id id = g_world->get_id(*obj);
+		::serialize(stream, &id);
+	}
+	static inline void deserialize(Archive& stream, Boat* * obj) {
+		Boat::Id id;
+		::deserialize(stream, &id);
+		if(id >= g_world->boats.size()) {
+			*obj = nullptr;
+			return;
+		}
+		*obj = (id != (Boat::Id)-1) ? g_world->boats[id] : nullptr;
+	}
+	static inline size_t size(const Unit* const*) {
+		return sizeof(Boat::Id);
 	}
 };
 
@@ -465,6 +487,43 @@ public:
 		::deserialize(stream, &obj->traits);
 	}
 	static inline size_t size(const Unit* obj) {
+		return serialized_size(&obj->type)
+			+ serialized_size(&obj->size)
+			+ serialized_size(&obj->tx)
+			+ serialized_size(&obj->ty)
+			+ serialized_size(&obj->x)
+			+ serialized_size(&obj->y)
+			+ serialized_size(&obj->owner)
+			+ serialized_size(&obj->traits)
+		;
+	}
+};
+
+template<>
+class Serializer<Boat> {
+public:
+	static constexpr bool is_const_size = false;
+	static inline void serialize(Archive& stream, const Boat* obj) {
+		::serialize(stream, &obj->type);
+		::serialize(stream, &obj->size);
+		::serialize(stream, &obj->tx);
+		::serialize(stream, &obj->ty);
+		::serialize(stream, &obj->x);
+		::serialize(stream, &obj->y);
+		::serialize(stream, &obj->owner);
+		::serialize(stream, &obj->traits);
+	}
+	static inline void deserialize(Archive& stream, Boat* obj) {
+		::deserialize(stream, &obj->type);
+		::deserialize(stream, &obj->size);
+		::deserialize(stream, &obj->tx);
+		::deserialize(stream, &obj->ty);
+		::deserialize(stream, &obj->x);
+		::deserialize(stream, &obj->y);
+		::deserialize(stream, &obj->owner);
+		::deserialize(stream, &obj->traits);
+	}
+	static inline size_t size(const Boat* obj) {
 		return serialized_size(&obj->type)
 			+ serialized_size(&obj->size)
 			+ serialized_size(&obj->tx)
@@ -1174,7 +1233,7 @@ public:
 		::serialize(stream, &obj->sea_level);
 		::serialize(stream, &obj->time);
 		
-		for(size_t i = 0; i < obj->width* obj->height; i++) {
+		for(size_t i = 0; i < obj->width * obj->height; i++) {
 			::serialize(stream, &obj->tiles[i]);
 		}
 		
@@ -1210,6 +1269,8 @@ public:
 		::serialize(stream, &n_outposts);
 		const uint32_t n_treaties = obj->treaties.size();
 		::serialize(stream, &n_treaties);
+		const uint32_t n_boats = obj->boats.size();
+		::serialize(stream, &n_boats);
 		
 		printf("(SERIALIZER) WORLD INFORMATION\n");
 		printf("  n_goods %zu\n", (size_t)n_goods);
@@ -1290,6 +1351,10 @@ public:
 		for(auto& sub_obj: obj->treaties) {
 			::serialize(stream, sub_obj);
 		}
+
+		for(auto& sub_obj: obj->boats) {
+			::serialize(stream, sub_obj);
+		}
 		
 		::serialize(stream, &obj->delivers);
 		::serialize(stream, &obj->orders);
@@ -1300,8 +1365,8 @@ public:
 		::deserialize(stream, &obj->sea_level);
 		::deserialize(stream, &obj->time);
 		
-		obj->tiles = new Tile[obj->width* obj->height];
-		for(size_t i = 0; i < obj->width* obj->height; i++) {
+		obj->tiles = new Tile[obj->width * obj->height];
+		for(size_t i = 0; i < obj->width * obj->height; i++) {
 			::deserialize(stream, &obj->tiles[i]);
 		}
 		
@@ -1420,6 +1485,13 @@ public:
 			Treaty* sub_obj = new Treaty();
 			obj->treaties.push_back(sub_obj);
 		}
+
+		uint32_t n_boats;
+		::deserialize(stream, &n_boats);
+		for(size_t i = 0; i < n_boats; i++) {
+			Boat* sub_obj = new Boat();
+			obj->boats.push_back(sub_obj);
+		}
 		
 		printf("(DESERIALIZER) WORLD INFORMATION\n");
 		printf("  n_goods %zu\n", (size_t)n_goods);
@@ -1516,6 +1588,11 @@ public:
 			Treaty* sub_obj = obj->treaties[i];
 			::deserialize(stream, sub_obj);
 		}
+
+		for(size_t i = 0; i < n_boats; i++) {
+			Boat* sub_obj = obj->boats[i];
+			::deserialize(stream, sub_obj);
+		}
 		
 		::deserialize(stream, &obj->delivers);
 		::deserialize(stream, &obj->orders);
@@ -1545,6 +1622,7 @@ public:
 			+ (obj->outpost_types.size() * sizeof(OutpostType))
 			+ (obj->outposts.size() * sizeof(Outpost))
 			+ (obj->treaties.size() * sizeof(Treaty))
+			+ (obj->boats.size() * sizeof(Boat))
 		;
 	}
 };

@@ -540,6 +540,7 @@ void select_nation(void) {
 	play_btn->text("Play");
 	play_btn->on_click = &play_nation;
 	
+	Boat* selected_boat = nullptr;
 	Unit* selected_unit = nullptr;
 	Outpost* selected_outpost = nullptr;
 	
@@ -581,9 +582,24 @@ void select_nation(void) {
 					case MAP_MODE_NORMAL:
 						// See untis that have been clicked on
 						if(event.button.button == SDL_BUTTON_LEFT) {
+							selected_boat = nullptr;
 							selected_unit = nullptr;
 							selected_outpost = nullptr;
 
+							// Check if we selected a boat
+							for(const auto& boat: g_world->boats) {
+								const float size = 2.f;
+								if((int)select_pos.first > (int)boat->x - size
+								&& (int)select_pos.first < (int)boat->x + size
+								&& (int)select_pos.second > (int)boat->y - size
+								&& (int)select_pos.second < (int)boat->y + size) {
+									selected_boat = boat;
+									break;
+								}
+							}
+							if(selected_boat != nullptr)
+								break;
+							
 							// Check if we selected an unit
 							for(const auto& unit: g_world->units) {
 								const float size = 2.f;
@@ -619,7 +635,15 @@ void select_nation(void) {
 							enum ActionType action = ACTION_OUTPOST_ADD;
 							::serialize(ar, &action);
 							Outpost outpost = Outpost();
-							outpost.type = g_world->outpost_types[0];
+
+							if(g_world->get_tile(select_pos.first + 0, select_pos.second + 0).elevation <= g_world->sea_level) {
+								// Seaport if on bordering water
+								outpost.type = g_world->outpost_types[2];
+							} else {
+								// Barracks if on land
+								outpost.type = g_world->outpost_types[0];
+							}
+
 							outpost.x = select_pos.first;
 							outpost.y = select_pos.second;
 							outpost.working_unit_type = nullptr;
@@ -641,10 +665,25 @@ void select_nation(void) {
 								Archive ar = Archive();
 								enum ActionType action = ACTION_UNIT_CHANGE_TARGET;
 								::serialize(ar, &action);
-								UnitId unit_id = g_world->get_id(selected_unit);
-								::serialize(ar, &unit_id);
+								::serialize(ar, &selected_unit);
 								::serialize(ar, &selected_unit->tx);
 								::serialize(ar, &selected_unit->ty);
+								packet.data(ar.get_buffer(), ar.size());
+								g_client->packet_queue.push_back(packet);
+								g_client->packet_mutex.unlock();
+								break;
+							} if(selected_boat != nullptr) {
+								selected_boat->tx = select_pos.first;
+								selected_boat->ty = select_pos.second;
+								
+								g_client->packet_mutex.lock();
+								Packet packet = Packet();
+								Archive ar = Archive();
+								enum ActionType action = ACTION_BOAT_CHANGE_TARGET;
+								::serialize(ar, &action);
+								::serialize(ar, &selected_boat);
+								::serialize(ar, &selected_boat->tx);
+								::serialize(ar, &selected_boat->ty);
 								packet.data(ar.get_buffer(), ar.size());
 								g_client->packet_queue.push_back(packet);
 								g_client->packet_mutex.unlock();
@@ -653,26 +692,6 @@ void select_nation(void) {
 								ui_build_unit(selected_outpost);
 								break;
 							}
-							/* else {
-								g_client->packet_mutex.lock();
-								Packet packet = Packet();
-								Archive ar = Archive();
-								enum ActionType action = ACTION_UNIT_ADD;
-								::serialize(ar, &action);
-								Unit unit = Unit();
-								unit.type = g_world->unit_types[0];
-								unit.x = select_pos.first;
-								unit.y = select_pos.second;
-								unit.tx = unit.x;
-								unit.ty = unit.y;
-								unit.owner = g_world->nations[curr_selected_nation];
-								unit.size = unit.type->max_health;
-								::serialize(ar, &unit);
-								packet.data(ar.get_buffer(), ar.size());
-								g_client->packet_queue.push_back(packet);
-								g_client->packet_mutex.unlock();
-								break;
-							}*/
 						}
 						
 						if(tile.province_id != (ProvinceId)-1) {
@@ -886,6 +905,44 @@ void select_nation(void) {
 		glVertex2f(0.f, 0.f + g_world->height);
 		glEnd();
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		g_world->boats_mutex.lock();
+		for(const auto& boat: g_world->boats) {
+			const float size = 1.f;
+			if(boat->size) {
+				glBegin(GL_QUADS);
+				glColor3f(0.f, 1.f, 0.f);
+				glVertex2f(boat->x, boat->y - 1.f);
+				glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
+				glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
+				glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.25f);
+				glVertex2f(boat->x, boat->y - 1.2f);
+				glEnd();
+			}
+			
+			glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(boat->owner)]->gl_tex_num);
+			glBegin(GL_QUADS);
+			glColor4f(1.f, 1.f, 1.f, 0.8f);
+			glTexCoord2f(0.f, 0.f);
+			glVertex2f(boat->x, boat->y);
+			glTexCoord2f(1.f, 0.f);
+			glVertex2f(boat->x + size, boat->y);
+			glTexCoord2f(1.f, 1.f);
+			glVertex2f(boat->x + size, boat->y + size);
+			glTexCoord2f(0.f, 1.f);
+			glVertex2f(boat->x, boat->y + size);
+			glEnd();
+		}
+		if(selected_boat != nullptr) {
+			glBegin(GL_LINE_STRIP);
+			glColor3f(1.f, 0.f, 0.f);
+			glVertex2f(selected_boat->x, selected_boat->y);
+			glVertex2f(selected_boat->x + 1.f, selected_boat->y);
+			glVertex2f(selected_boat->x + 1.f, selected_boat->y + 1.f);
+			glVertex2f(selected_boat->x, selected_boat->y + 1.f);
+			glEnd();
+		}
+		g_world->boats_mutex.unlock();
 		
 		g_world->units_mutex.lock();
 		for(const auto& unit: g_world->units) {

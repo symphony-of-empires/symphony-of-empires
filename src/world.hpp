@@ -165,6 +165,9 @@ public:
 	std::vector<Unit*> units;
 	mutable std::recursive_mutex units_mutex;
 
+	std::vector<Boat*> boats;
+	mutable std::recursive_mutex boats_mutex;
+
 	// List of goods (product types)
 	std::vector<Good*> goods;
 	mutable std::recursive_mutex goods_mutex;
@@ -264,6 +267,7 @@ public:
 	BoatType::Id get_id(const BoatType* ptr) const;
 	UnitTrait::Id get_id(const UnitTrait* ptr) const;
 	Unit::Id get_id(const Unit* ptr) const;
+	Boat::Id get_id(const Boat* ptr) const;
 	OutpostType::Id get_id(const OutpostType* ptr) const;
 	Outpost::Id get_id(const Outpost* ptr) const;
 	Treaty::Id get_id(const Treaty* ptr) const;

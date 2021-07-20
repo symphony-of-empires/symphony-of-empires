@@ -63,8 +63,9 @@ void Economy::do_phase_1(World& world) {
 			}
 		}
 
-		if(!can_build)
-			break;
+#warning "TODO: Properly do the can_build part"
+		//if(!can_build)
+		//	break;
 
 		if(outpost->working_unit_type != nullptr) {
 			// Spawn a unit
@@ -92,16 +93,39 @@ void Economy::do_phase_1(World& world) {
 			Archive ar = Archive();
 			enum ActionType action = ACTION_UNIT_ADD;
 			::serialize(ar, &action); // ActionInt
-			::serialize(ar, unit); // UnitRef
+			::serialize(ar, unit); // UnitObj
 			packet.data(ar.get_buffer(), ar.size());
 			g_server->broadcast(packet);
 
 			outpost->working_unit_type = nullptr;
 		} else if(outpost->working_boat_type != nullptr) {
 			// Spawn a boat
-			//Boat boat;
-			//boat.x = outpost->x;
-			//boat.y = outpost->y;
+			Boat* boat = new Boat();
+			boat->x = outpost->x;
+			boat->y = outpost->y;
+			boat->type = outpost->working_boat_type;
+			boat->tx = boat->x;
+			boat->ty = boat->y;
+			boat->owner = outpost->owner;
+			boat->experience = 1.f;
+			boat->morale = 1.f;
+			boat->supply = 1.f;
+			boat->defensive_ticks = 0;
+			boat->size = boat->type->max_health;
+			boat->base = boat->size;
+
+			// Notify all clients of the server about this new boat
+			g_world->boats_mutex.lock();
+			g_world->boats.push_back(boat);
+			g_world->boats_mutex.unlock();
+
+			Packet packet = Packet();
+			Archive ar = Archive();
+			enum ActionType action = ACTION_BOAT_ADD;
+			::serialize(ar, &action); // ActionInt
+			::serialize(ar, boat); // BoatObj
+			packet.data(ar.get_buffer(), ar.size());
+			g_server->broadcast(packet);
 
 			outpost->working_boat_type = nullptr;
 		}
