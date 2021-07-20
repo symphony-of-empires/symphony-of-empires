@@ -15,6 +15,9 @@
 #	include <unistd.h>
 #endif
 
+#include "network.hpp"
+#include "print.hpp"
+
 #ifdef unix
 #	include <poll.h>
 #elif defined windows
@@ -28,9 +31,6 @@ typedef struct pollfd {
 WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout);
 #	endif
 #endif
-
-#include "network.hpp"
-#include "print.hpp"
 
 void SocketStream::write(const void* data, size_t size) {
 	for(size_t i = 0; i < size; ) {
