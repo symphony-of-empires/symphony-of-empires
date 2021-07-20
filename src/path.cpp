@@ -14,24 +14,24 @@
 #include "path.hpp"
 
 /* Visual Studio is not posix so we have to define PATH_MAX ourselves */
-#ifdef _MSC_VER
-#	define PATH_MAX 255
+#ifndef MAX_PATH
+#	define MAX_PATH 255
 #endif
 
 namespace Path {
 	static inline std::string get_exec_path(void) {
 #ifdef windows
-		char buf[PATH_MAX];
-		const auto len = GetModuleFileNameA(nullptr, buf, sizeof(buf) - 1);
+		char buf[MAX_PATH];
+		const auto len = GetModuleFileNameA(nullptr, buf, MAX_PATH);
 #else
 		char buf[PATH_MAX];
 		ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
 #endif
-		if(len != -1) {
-			buf[len] = '\0';
-			return std::string(buf);
-		}
-		throw std::runtime_error("Error reading exec path");
+		if(len < 0)
+			throw std::runtime_error("Error reading exec path");
+		
+		buf[len] = '\0';
+		return std::string(buf);
 	}
 
 	std::string get(std::string str) {
