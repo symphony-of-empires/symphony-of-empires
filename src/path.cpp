@@ -19,35 +19,35 @@
 #endif
 
 namespace Path {
-	static inline std::string get_exec_path(void) {
+    static inline std::string get_exec_path(void) {
 #ifdef windows
-		char buf[MAX_PATH];
-		const auto len = GetModuleFileNameA(nullptr, buf, MAX_PATH);
+        char buf[MAX_PATH];
+        const auto len = GetModuleFileNameA(nullptr, buf, MAX_PATH);
 #else
-		char buf[PATH_MAX];
-		ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+        char buf[PATH_MAX];
+        ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
 #endif
-		if(len < 0)
-			throw std::runtime_error("Error reading exec path");
-		
-		buf[len] = '\0';
-		return std::string(buf);
-	}
+        if(len < 0)
+            throw std::runtime_error("Error reading exec path");
+        
+        buf[len] = '\0';
+        return std::string(buf);
+    }
 
-	std::string get(std::string str) {
-		if(str[0] == '/' || str[0] == 'C')
-			return str;
-		
-		std::string rsult = get_exec_path();
-		size_t found = rsult.find_last_of("/\\");
-		rsult = rsult.substr(0, found);
-		found = rsult.find_last_of("/\\");
-		rsult = rsult.substr(0, found);
-		rsult += "/mods/base_game/";
-		rsult += str;
+    std::string get(std::string str) {
+        if(str[0] == '/' || str[0] == 'C')
+            return str;
+        
+        std::string rsult = get_exec_path();
+        size_t found = rsult.find_last_of("/\\");
+        rsult = rsult.substr(0, found);
+        found = rsult.find_last_of("/\\");
+        rsult = rsult.substr(0, found);
+        rsult += "/mods/base_game/";
+        rsult += str;
 #ifdef windows
-		std::replace(rsult.begin(), rsult.end(), '/', '\\');
+        std::replace(rsult.begin(), rsult.end(), '/', '\\');
 #endif
-		return rsult;
-	}
+        return rsult;
+    }
 };
