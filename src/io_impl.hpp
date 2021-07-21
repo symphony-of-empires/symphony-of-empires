@@ -41,20 +41,20 @@ class Serializer<Nation*> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& stream, const Nation* const* obj) {
-		NationId id = g_world->get_id(*obj);
+		Nation::Id id = g_world->get_id(*obj);
 		::serialize(stream, &id);
 	}
 	static inline void deserialize(Archive& stream, Nation** obj) {
-		NationId id;
+		Nation::Id id;
 		::deserialize(stream, &id);
 		if(id >= g_world->nations.size()) {
 			*obj = nullptr;
 			return;
 		}
-		*obj = (id != (NationId)-1) ? g_world->nations[id] : nullptr;
+		*obj = (id != (Nation::Id)-1) ? g_world->nations[id] : nullptr;
 	}
 	static inline size_t size(const Nation* const*) {
-		return sizeof(NationId);
+		return sizeof(Nation::Id);
 	}
 };
 
@@ -63,20 +63,20 @@ class Serializer<Event*> {
 public:
 	static constexpr bool is_const_size = false;
 	static inline void serialize(Archive& stream, const Event* const* obj) {
-		EventId id = g_world->get_id(*obj);
+		Event::Id id = g_world->get_id(*obj);
 		::serialize(stream, &id);
 	}
 	static inline void deserialize(Archive& stream, Event** obj) {
-		EventId id;
+		Event::Id id;
 		::deserialize(stream, &id);
 		if(id >= g_world->events.size()) {
 			*obj = nullptr;
 			return;
 		}
-		*obj = (id != (EventId)-1) ? g_world->events[id] : nullptr;
+		*obj = (id != (Event::Id)-1) ? g_world->events[id] : nullptr;
 	}
 	static inline size_t size(const Event* const*) {
-		return sizeof(EventId);
+		return sizeof(Event::Id);
 	}
 };
 

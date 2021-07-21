@@ -18,7 +18,7 @@
 using namespace UI;
 
 static Context* g_ui_context = nullptr;
-
+extern TextureManager* g_texture_manager;
 SDL_Color text_color = { 0, 0, 0, 0 };
 
 Context::Context() {
@@ -26,16 +26,19 @@ Context::Context() {
 		throw std::runtime_error("UI context already constructed");
 	}
 
-	this->default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 24);
-	if(this->default_font == nullptr){
+	default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 24);
+	if(default_font == nullptr){
 		throw std::runtime_error("Font could not be loaded, exiting");
 	}
 
-	this->widgets.clear();
-	this->widgets.reserve(150);
+	widgets.clear();
+	widgets.reserve(150);
+
+	background = &g_texture_manager->load_texture(Path::get("ui/background.png"));
+	window_top = &g_texture_manager->load_texture(Path::get("ui/window_top.png"));
 
 	g_ui_context = this;
-	this->is_drag = false;
+	is_drag = false;
 	return;
 }
 
@@ -81,7 +84,7 @@ void Context::render_all() {
 		}
 		
 		if(widget->is_show) {
-			widget->on_render();
+			widget->on_render(*this);
 			if(widget->on_update != nullptr) {
 				widget->on_update(*widget, (void *)this);
 			}
@@ -191,14 +194,9 @@ int Context::check_wheel(unsigned mx, unsigned my, int y) {
 	return 0;
 }
 
-static GLuint latest_tex = 0;
 void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const GLuint tex) {
 	// Texture switching in OpenGL is expensive
-	if(latest_tex != tex) {
-		glBindTexture(GL_TEXTURE_2D, tex);
-		latest_tex = tex;
-	}
-
+	glBindTexture(GL_TEXTURE_2D, tex);
 	glBegin(GL_TRIANGLES);
 	glTexCoord2f(0.f, 0.f);
 	glVertex2f(_x, _y);
@@ -216,9 +214,9 @@ void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const GLui
 }
 
 #include <deque>
-void Widget::on_render(void) {
-	if(type == UI_WIDGET_WINDOW
-	|| type == UI_WIDGET_BUTTON) {
+void Widget::on_render(Context& ctx) {
+	// Shadows
+	if(type == UI_WIDGET_WINDOW || type == UI_WIDGET_BUTTON) {
 		// Shadow
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBegin(GL_TRIANGLES);
@@ -226,51 +224,69 @@ void Widget::on_render(void) {
 		glTexCoord2f(0.f, 0.f);
 		glVertex2f(disp_x + 16, disp_y + 16);
 		glTexCoord2f(1.f, 0.f);
-		glVertex2f(disp_x + this->width + 16, disp_y + 16);
+		glVertex2f(disp_x + width + 16, disp_y + 16);
 		glTexCoord2f(1.f, 1.f);
-		glVertex2f(disp_x + this->width + 16, disp_y + this->height + 16);
+		glVertex2f(disp_x + width + 16, disp_y + height + 16);
 		glTexCoord2f(1.f, 1.f);
-		glVertex2f(disp_x + this->width + 16, disp_y + this->height + 16);
+		glVertex2f(disp_x + width + 16, disp_y + height + 16);
 		glTexCoord2f(0.f, 1.f);
-		glVertex2f(disp_x + 16, disp_y + this->height + 16);
+		glVertex2f(disp_x + 16, disp_y + height + 16);
 		glTexCoord2f(0.f, 0.f);
 		glVertex2f(disp_x + 16, disp_y + 16);
 		glEnd();
 	}
-	
+
 	glColor3f(1.f, 1.f, 1.f);
 
-	if(this->type == UI_WIDGET_WINDOW) {
-		if(this->current_texture != nullptr && this->current_texture->gl_tex_num) {
-			this->draw_rectangle(
-				disp_x, disp_y,
-				this->width, this->height,
-				this->current_texture->gl_tex_num
-			);
-		}
-	} else {
-		if(this->current_texture != nullptr && this->current_texture->gl_tex_num) {
-			this->draw_rectangle(
-				disp_x, disp_y,
-				this->width, this->height,
-				this->current_texture->gl_tex_num
-			);
-		}
+	// Background (tile) display
+	if(type != UI_WIDGET_IMAGE && type != UI_WIDGET_LABEL) {
+		glBindTexture(GL_TEXTURE_2D, ctx.background->gl_tex_num);
+		glBegin(GL_TRIANGLES);
+		glTexCoord2f(0.f, 0.f);
+		glVertex2f(disp_x, disp_y);
+		glTexCoord2f(width / ctx.background->width, 0.f);
+		glVertex2f(disp_x + width, disp_y);
+		glTexCoord2f(width / ctx.background->width, height / ctx.background->height);
+		glVertex2f(disp_x + width, disp_y + height);
+		glTexCoord2f(width / ctx.background->width, height / ctx.background->height);
+		glVertex2f(disp_x + width, disp_y + height);
+		glTexCoord2f(0.f, height / ctx.background->height);
+		glVertex2f(disp_x, disp_y + height);
+		glTexCoord2f(0.f, 0.f);
+		glVertex2f(disp_x, disp_y);
+		glEnd();
 	}
 
-	if(this->text_texture != nullptr) {
+	// Top bar of windows display
+	if(type == UI_WIDGET_WINDOW) {
+		draw_rectangle(
+			disp_x, disp_y,
+			width, 32,
+			ctx.window_top->gl_tex_num
+		);
+	}
+
+	if(current_texture != nullptr) {
+		draw_rectangle(
+			disp_x, disp_y,
+			width, height,
+			current_texture->gl_tex_num
+		);
+	}
+
+	if(text_texture != nullptr) {
 		glColor3f(0.f, 0.f, 0.f);
-		this->draw_rectangle(
+		draw_rectangle(
 			disp_x + 12, disp_y + 8,
-			this->text_texture->width, this->text_texture->height,
-			this->text_texture->gl_tex_num
+			text_texture->width, text_texture->height,
+			text_texture->gl_tex_num
 		);
 
 		glColor3f(1.f, 1.f, 1.f);
-		this->draw_rectangle(
+		draw_rectangle(
 			disp_x + 8, disp_y + 4,
-			this->text_texture->width, this->text_texture->height,
-			this->text_texture->gl_tex_num
+			text_texture->width, text_texture->height,
+			text_texture->gl_tex_num
 		);
 	}
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -430,7 +446,7 @@ Label::Label(int _x, int _y, const char* _text, Widget* _parent)
 	height = text_texture->height;
 }
 
-void Label::on_render(void) {
+void Label::on_render(Context& ctx) {
 	if(this->text_texture != nullptr) {
 		if(!this->text_texture->gl_tex_num) {
 			this->text_texture->to_opengl();
@@ -459,7 +475,7 @@ Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 	
 }
 
-void Chart::on_render(void) {
+void Chart::on_render(Context& ctx) {
 	glColor3f(1.f, 1.f, 1.f);
 
 	if(this->text_texture != nullptr) {

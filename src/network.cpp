@@ -289,11 +289,11 @@ void Server::net_loop(int id) {
 							std::lock_guard<std::recursive_mutex> lock1(g_world->outposts_mutex);
 							std::lock_guard<std::recursive_mutex> lock2(g_world->unit_types_mutex);
 
-							Outpost* outpost = new Outpost();
+							Outpost* outpost;
 							::deserialize(ar, &outpost);
 							if(outpost == nullptr)
 								throw ServerException("Unknown outpost");
-							UnitType* unit_type = new UnitType();
+							UnitType* unit_type;
 							::deserialize(ar, &unit_type);
 							if(unit_type == nullptr)
 								throw ServerException("Unknown unit type");
@@ -316,11 +316,11 @@ void Server::net_loop(int id) {
 							std::lock_guard<std::recursive_mutex> lock1(g_world->outposts_mutex);
 							std::lock_guard<std::recursive_mutex> lock2(g_world->boat_types_mutex);
 
-							Outpost* outpost = new Outpost();
+							Outpost* outpost;
 							::deserialize(ar, &outpost);
 							if(outpost == nullptr)
 								throw ServerException("Unknown outpost");
-							BoatType* boat_type = new BoatType();
+							BoatType* boat_type;
 							::deserialize(ar, &boat_type);
 							if(boat_type == nullptr)
 								throw ServerException("Unknown boat type");
@@ -686,7 +686,7 @@ void Client::net_loop(void) {
 						::deserialize(ar, &province);
 						if(province == nullptr)
 							throw ClientException("Unknown province");
-						//::deserialize(ar, province);
+						::deserialize(ar, province);
 					}
 					break;
 				case ACTION_NATION_UPDATE:
@@ -722,7 +722,6 @@ void Client::net_loop(void) {
 						::deserialize(ar, &nation);
 						if(nation == nullptr)
 							throw ClientException("Unknown nation");
-						
 						Policies policy;
 						::deserialize(ar, &policy);
 						nation->current_policy = policy;
