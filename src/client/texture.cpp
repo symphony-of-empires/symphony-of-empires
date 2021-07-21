@@ -8,39 +8,39 @@
  * visual aid of errors
  */
 void Texture::create_dummy() {
-	width = 16;
-	height = 16;
-	buffer = new uint32_t[width * height];
-	if(buffer == nullptr) {
-		throw TextureException("Dummy", "Out of memory for dummy texture");
-	}
+    width = 16;
+    height = 16;
+    buffer = new uint32_t[width * height];
+    if(buffer == nullptr) {
+        throw TextureException("Dummy", "Out of memory for dummy texture");
+    }
 
-	// Fill in with a pattern of pink and black
-	// This should be autovectorized by gcc
-	for(size_t i = 0; i < width * height; i++) {
-		buffer[i] = (i % 2) ? 0xff000000 : 0xff808000;
-	}
+    // Fill in with a pattern of pink and black
+    // This should be autovectorized by gcc
+    for(size_t i = 0; i < width * height; i++) {
+        buffer[i] = (i % 2) ? 0xff000000 : 0xff808000;
+    }
 }
 
 /**
  * Converts the texture into a OpenGL texture, and assigns it a number
   */
 void Texture::to_opengl() {
-	glGenTextures(1, &gl_tex_num);
-	glBindTexture(GL_TEXTURE_2D, gl_tex_num);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	return;
+    glGenTextures(1, &gl_tex_num);
+    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    return;
 }
 
 /**
  * Deletes the OpenGL representation of this texture
   */
 void Texture::delete_opengl() {
-	glDeleteTextures(1, &gl_tex_num);
+    glDeleteTextures(1, &gl_tex_num);
 }
 
 #include <algorithm>
@@ -59,28 +59,28 @@ TextureManager* g_texture_manager;
  * them.
  */
 const Texture& TextureManager::load_texture(std::string path) {
-	// Find texture when wanting to be loaded
-	auto it = std::find_if(this->textures.begin(), this->textures.end(), [&path](const std::pair<Texture *, std::string>& element) {
-		return (element.second == path);
-	});
+    // Find texture when wanting to be loaded
+    auto it = std::find_if(this->textures.begin(), this->textures.end(), [&path](const std::pair<Texture *, std::string>& element) {
+        return (element.second == path);
+    });
 
-	// Load texture from cached texture list
-	if(it != this->textures.end()) {
-		return *((*it).first);
-	}
+    // Load texture from cached texture list
+    if(it != this->textures.end()) {
+        return *((*it).first);
+    }
 
-	print_info("Loaded and cached texture %s", path.c_str());
+    print_info("Loaded and cached texture %s", path.c_str());
 
-	// Otherwise texture is not in our control, so we create a new texture
-	Texture* tex;
-	try {
-		tex = new Texture(path);
-	} catch(BinaryImageException&) {
-		tex = new Texture();
-		tex->create_dummy();
-	}
-	
-	tex->to_opengl();
-	this->textures.insert(std::make_pair(tex, path));
-	return *((const Texture *)tex);
+    // Otherwise texture is not in our control, so we create a new texture
+    Texture* tex;
+    try {
+        tex = new Texture(path);
+    } catch(BinaryImageException&) {
+        tex = new Texture();
+        tex->create_dummy();
+    }
+    
+    tex->to_opengl();
+    this->textures.insert(std::make_pair(tex, path));
+    return *((const Texture *)tex);
 }
