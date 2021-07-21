@@ -46,9 +46,10 @@ namespace UI {
 		void check_text_input(const char* input);
 		void clear(void);
 
+		const Texture* background,* window_top;
 		TTF_Font* default_font;
 		
-		std::vector<Widget *> widgets;
+		std::vector<Widget*> widgets;
 	};
 
 	class Widget {
@@ -98,7 +99,7 @@ namespace UI {
 		
 		void* user_data = nullptr;
 
-		virtual void on_render(void);
+		virtual void on_render(Context&);
 		void (*on_update)(Widget&, void *) = nullptr;
 		void (*on_hover)(Widget&, void *) = nullptr;
 		void (*on_click)(Widget&, void *) = nullptr;
@@ -176,7 +177,7 @@ namespace UI {
 	public:
 		Label(int x, int y, const char* text = nullptr, Widget* parent = nullptr);
 		~Label() {};
-		void on_render(void);
+		void on_render(Context& ctx);
 	};
 	
 	class Chart : public Widget {
@@ -185,7 +186,7 @@ namespace UI {
 		
 		Chart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
 		~Chart() {};
-		void on_render(void);
+		void on_render(Context& ctx);
 	};
 };
 

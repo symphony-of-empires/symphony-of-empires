@@ -3,7 +3,6 @@
 #include "path.hpp"
 
 extern TextureManager* g_texture_manager;
-const Texture* button_pvw,* treaty_win_tex;
 extern UI::Window* top_win;
 extern std::pair<int, int> mouse_pos;
 
@@ -75,34 +74,27 @@ std::string treaty_to_text(Treaty& treaty) {
 
 void ui_treaty(void) {
 	g_treaty_draft.clauses.clear();
-	
-	treaty_win_tex = &g_texture_manager->load_texture(Path::get("ui/debug_win.png"));
-	button_pvw = &g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
 
-	UI::Window* treaty_win = new UI::Window(0, 0, treaty_win_tex->width, treaty_win_tex->height);
+	UI::Window* treaty_win = new UI::Window(0, 0, 320, 425);
 	treaty_win->text("Draft Treaty");
-	treaty_win->current_texture = treaty_win_tex;
 	treaty_win->below_of((*top_win));
 
-	UI::Button* select_receiver_btn = new UI::Button(9, 43, button_pvw->width, button_pvw->height, treaty_win);
-	select_receiver_btn->current_texture = button_pvw;
+	UI::Button* select_receiver_btn = new UI::Button(9, 43, 303, 38, treaty_win);
 	select_receiver_btn->text("Select nation");
 	select_receiver_btn->on_click = [](UI::Widget&, void*) {
-		select_win = new UI::Window(0, 0, treaty_win_tex->width, treaty_win_tex->height);
+		select_win = new UI::Window(0, 0, 320, 425);
 		select_win->text("Select nation");
-		select_win->current_texture = treaty_win_tex;
 
 		int y = 0;
 		for(const auto& nation: g_world->nations) {
-			UI::Button* select_receiver_btn = new UI::Button(9, y, button_pvw->width, button_pvw->height, select_win);
-			select_receiver_btn->current_texture = button_pvw;
+			UI::Button* select_receiver_btn = new UI::Button(9, y, 303, 38, select_win);
 			select_receiver_btn->text(nation->name.c_str());
 			select_receiver_btn->user_data = (void*)nation;
 			select_receiver_btn->on_click = [](UI::Widget&, void* data) {
 				recv_nation = (Nation*)data;
 				delete select_win;
 			};
-			y += button_pvw->height + 2;
+			y += 38 + 2;
 		}
 	};
 
@@ -121,21 +113,18 @@ void ui_treaty(void) {
 		w.current_texture = &get_nation_flag(*recv_nation);
 	};
 
-	UI::Button* new_clause = new UI::Button(9, 0, button_pvw->width, button_pvw->height, treaty_win);
+	UI::Button* new_clause = new UI::Button(9, 0, 303, 38, treaty_win);
 	new_clause->below_of((*recv_nation_lab));
-	new_clause->current_texture = button_pvw;
 	new_clause->text("Add new clause");
 	new_clause->on_click = [](UI::Widget&, void*) {
-		UI::Window* new_clause_win = new UI::Window(0, 0, treaty_win_tex->width, treaty_win_tex->height);
+		UI::Window* new_clause_win = new UI::Window(0, 0, 320, 425);
 		new_clause_win->text("Add new clause");
-		new_clause_win->current_texture = treaty_win_tex;
 
 		UI::Button* list_btn;
 		int y = 0;
 		
 		y += 24;
-		list_btn = new UI::Button(9, y, button_pvw->width, button_pvw->height, new_clause_win);
-		list_btn->current_texture = button_pvw;
+		list_btn = new UI::Button(9, y, 303, 38, new_clause_win);
 		list_btn->text("TREATY_CLAUSE_WAR_REPARATIONS");
 		list_btn->on_click = [](UI::Widget&, void* data) {
 			std::lock_guard<std::mutex> lock(g_treaty_draft_mutex);
@@ -147,51 +136,45 @@ void ui_treaty(void) {
 			clause.days_duration = 365;
 			g_treaty_draft.clauses.push_back(clause);
 		};
-		y += button_pvw->height + 2;
+		y += 38 + 2;
 
-		list_btn = new UI::Button(9, y, button_pvw->width, button_pvw->height, new_clause_win);
-		list_btn->current_texture = button_pvw;
+		list_btn = new UI::Button(9, y, 303, 38, new_clause_win);
 		list_btn->text("TREATY_CLAUSE_HUMILIATE");
 		list_btn->on_click = [](UI::Widget&, void* data) {
 			
 		};
-		y += button_pvw->height + 2;
+		y += 38 + 2;
 
-		list_btn = new UI::Button(9, y, button_pvw->width, button_pvw->height, new_clause_win);
-		list_btn->current_texture = button_pvw;
+		list_btn = new UI::Button(9, y, 303, 38, new_clause_win);
 		list_btn->text("TREATY_CLAUSE_LIBERATE_NATION");
 		list_btn->on_click = [](UI::Widget&, void* data) {
 			
 		};
-		y += button_pvw->height + 2;
+		y += 38 + 2;
 
-		list_btn = new UI::Button(9, y, button_pvw->width, button_pvw->height, new_clause_win);
-		list_btn->current_texture = button_pvw;
+		list_btn = new UI::Button(9, y, 303, 38, new_clause_win);
 		list_btn->text("TREATY_CLAUSE_IMPOSE_POLICIES");
 		list_btn->on_click = [](UI::Widget&, void* data) {
 			
 		};
-		y += button_pvw->height + 2;
+		y += 38 + 2;
 
-		list_btn = new UI::Button(9, y, button_pvw->width, button_pvw->height, new_clause_win);
-		list_btn->current_texture = button_pvw;
+		list_btn = new UI::Button(9, y, 303, 38, new_clause_win);
 		list_btn->text("TREATY_CLAUSE_ANEXX_PROVINCES");
 		list_btn->on_click = [](UI::Widget& w, void* data) {
 			if(recv_nation->owned_provinces.empty()) {
 				return;
 			}
 			
-			UI::Window* per_clause_win = new UI::Window(0, 0, treaty_win_tex->width, treaty_win_tex->height);
+			UI::Window* per_clause_win = new UI::Window(0, 0, 320, 425);
 			per_clause_win->text("Add new clause");
-			per_clause_win->current_texture = treaty_win_tex;
 
 			int another_y = 0;
 			for(const auto& province: recv_nation->owned_provinces) {
 				if(province == nullptr)
 					continue;
 				
-				UI::Button* list_btn = new UI::Button(9, another_y, button_pvw->width, button_pvw->height, per_clause_win);
-				list_btn->current_texture = button_pvw;
+				UI::Button* list_btn = new UI::Button(9, another_y, 303, 38, per_clause_win);
 				list_btn->text(province->name.c_str());
 				list_btn->user_data = (void*)province;
 				list_btn->on_click = [](UI::Widget& w, void* data) {
@@ -203,35 +186,31 @@ void ui_treaty(void) {
 					clause.days_duration = 0;
 					g_treaty_draft.clauses.push_back(clause);
 				};
-				another_y += button_pvw->height + 4;
+				another_y += 38 + 4;
 			}
 		};
-		y += button_pvw->height + 2;
+		y += 38 + 2;
 
-		list_btn = new UI::Button(9, y, button_pvw->width, button_pvw->height, new_clause_win);
-		list_btn->current_texture = button_pvw;
+		list_btn = new UI::Button(9, y, 303, 38, new_clause_win);
 		list_btn->text("TREATY_CLAUSE_CEASEFIRE");
 		list_btn->on_click = [](UI::Widget&, void* data) {
 			
 		};
-		y += button_pvw->height + 2;
+		y += 38 + 2;
 
-		UI::CloseButton* ok_btn = new UI::CloseButton(9, y, button_pvw->width, button_pvw->height, new_clause_win);
+		UI::CloseButton* ok_btn = new UI::CloseButton(9, y, 303, 38, new_clause_win);
 		ok_btn->text("OK");
-		ok_btn->current_texture = button_pvw;
 	};
 	
-	UI::Button* reset_btn = new UI::Button(9, 0, button_pvw->width, button_pvw->height, treaty_win);
-	reset_btn->text("RESET");
-	reset_btn->current_texture = button_pvw;
+	UI::Button* reset_btn = new UI::Button(9, 0, 303, 38, treaty_win);
+	reset_btn->text("Reset");
 	reset_btn->below_of(*new_clause);
 	reset_btn->on_click = [](UI::Widget&, void* data) {
 		g_treaty_draft.clauses.clear();
 	};
 	
-	UI::Button* ok_btn = new UI::Button(9, 0, button_pvw->width, button_pvw->height, treaty_win);
+	UI::Button* ok_btn = new UI::Button(9, 0, 303, 38, treaty_win);
 	ok_btn->text("OK");
-	ok_btn->current_texture = button_pvw;
 	ok_btn->below_of(*reset_btn);
 	ok_btn->on_click = [](UI::Widget&, void* data) {
 		// Send draft to server
@@ -253,7 +232,6 @@ void ui_treaty(void) {
 	};
 	
 	UI::Label* treaty_desc_lab = new UI::Label(9, 0, "...", treaty_win);
-	treaty_desc_lab->current_texture = button_pvw;
 	treaty_desc_lab->below_of(*ok_btn);
 	treaty_desc_lab->on_update = [](UI::Widget& w, void* data) {
 		w.text(treaty_to_text(g_treaty_draft).c_str());

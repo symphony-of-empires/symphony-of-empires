@@ -86,6 +86,7 @@ public:
 
 	Packet() {};
 	Packet(int _fd) { stream = SocketStream(_fd); };
+	~Packet() {};
 
 	void* data(void) {
 		return (void *)&bufdata[0];

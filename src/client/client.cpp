@@ -403,7 +403,7 @@ void client_update(void) {
 	population_lab->text(tmpbuf);
 	
 	if(pop_view_nation_win != nullptr) {
-		size_t e = pop_view_nation_page_num* 10;
+		size_t e = pop_view_nation_page_num * 12;
 		size_t i = 3;
 		
 		for(const auto& province: player_nation.owned_provinces) {
@@ -415,14 +415,14 @@ void client_update(void) {
 				pop_view_nation_win->children[i]->text(tmpbuf);
 			}
 			
-			if(i >= pop_view_nation_win->children.size())
-				break;
-			
 			i++;
 			e++;
+
+			if(i >= pop_view_nation_win->children.size())
+				break;
 		}
 	} if(industry_view_nation_win != nullptr) {
-		size_t e = industry_view_nation_page_num* 12;
+		size_t e = industry_view_nation_page_num * 12;
 		size_t i = 3;
 		
 		size_t total_industries = 0;
