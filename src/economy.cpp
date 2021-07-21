@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstdio>
 #include <execution>
 
 #include "actions.hpp"
@@ -20,10 +21,10 @@ typedef signed int ssize_t;
 * Checks if the industry can produce output (if it has enough input)
  */
 bool Industry::can_do_output(const World& world) {
-    // Except when no products are produced at all
-    if(!type->outputs.size() || !this->output_products.size())
+    // No output products?
+    if(!type->outputs.size() || !output_products.size())
         return false;
-    
+
     // Always can produce if RGO
     if(!type->inputs.size())
         return true;
@@ -153,8 +154,7 @@ void Economy::do_phase_1(World& world) {
         
         // This new tick, we will start the chain starting with RGOs producing deliver
         // orders and the factories that require inputs will put their orders in the
-        // table so they are served by transport companies.
-        // This is the start of the factory chain.
+        // table so they are served by transport companies
         for(auto& industry: province->industries) {
             if(!province->worker_pool) {
                 industry.days_unoperational++;
@@ -169,23 +169,18 @@ void Economy::do_phase_1(World& world) {
             }
             
             industry.days_unoperational = 0;
-            industry.workers = 0;
             
             size_t needed_manpower = 1500;
             size_t available_manpower = std::min<size_t>(needed_manpower, province->worker_pool);
             province->worker_pool -= available_manpower;
-            if(!available_manpower)
-                continue;
-            
             industry.workers = available_manpower;
             
             const IndustryType& it = *industry.type;
             for(const auto& input: it.inputs) {
-                if(input == nullptr)
-                    continue;
-                
                 OrderGoods order;
                 order.quantity = (available_manpower / needed_manpower) * 1500;
+                if(!order.quantity)
+                    continue;
                 order.payment = industry.willing_payment;
                 order.good = input;
                 order.industry = &industry;
@@ -194,33 +189,27 @@ void Economy::do_phase_1(World& world) {
                 world.orders.push_back(order);
             }
 
-            if(industry.can_do_output(world) == false)
+            if(!industry.can_do_output(world))
                 continue;
-
+            
             // Now produce anything as we can!
             // Place deliver orders (we are a RGO)
             for(size_t k = 0; k < it.outputs.size(); k++) {
                 DeliverGoods deliver;
                 deliver.quantity = (available_manpower / needed_manpower) * 2000;
+                if(!deliver.quantity)
+                    continue;
                 deliver.payment = industry.willing_payment;
                 deliver.good = it.outputs[k];
                 deliver.industry = &industry;
                 deliver.province = province;
                 deliver.product = industry.output_products[k];
 
-                // Do not overproduce
-                Product& product = *deliver.product;
-                if(product.supply > product.demand) {
-                    continue;
+                // Cannot be below production cost, so we can be profitable and we need
+                // to raise prices
+                if(deliver.product->price < industry.production_cost * 1.2f) {
+                    deliver.product->price = industry.production_cost * 1.2f;
                 }
-
-                // Cannot be below production cost, so we can be profitable
-                if(product.price < industry.production_cost * 1.2f) {
-                    product.price = industry.production_cost * 1.2f;
-                }
-                
-                if(!deliver.quantity)
-                    continue;
                 
                 world.delivers.push_back(deliver);
             }
@@ -420,7 +409,13 @@ void Economy::do_phase_2(World& world) {
                 }
             }
         }
-        
+
+        // Industries who did not got anything will get desesperate
+        break;
+    }
+
+    // The remaining delivers gets dropped and just simply add up the province's stockpile
+    if(world.delivers.size()) {
         // Drop all rejected delivers who didn't got transported
         for(size_t i = 0; i < world.delivers.size(); i++) {
             const DeliverGoods* deliver = &world.delivers[i];
@@ -436,12 +431,18 @@ void Economy::do_phase_2(World& world) {
             }
         }
         world.delivers.clear();
-
-        // Industries who did not got anything will get desesperate
-        break;
     }
-    world.delivers.clear();
     world.orders.clear();
+
+    // Uncomment to see stockpiles
+    /*for(const auto& province: world.provinces) {
+        for(size_t i = 0; i < province->stockpile.size(); i++) {
+            if(!province->stockpile[i])
+                continue;
+                
+            printf("%zu of %s produced in %s - stockpiled by %s\n", province->stockpile[i], world.products[i]->good->name.c_str(), world.products[i]->origin->name.c_str(), province->name.c_str());
+        }
+    }*/
 }
 
 class Emigrated {
@@ -514,7 +515,7 @@ void Economy::do_phase_3(World& world) {
                 break;
             case POP_TYPE_CLERGYMEN:
                 for(auto& taught_pops: province->pops) {
-                    taught_pops.literacy += std::min<float>(0.001f, (pop.literacy* pop.size) / 100000.f);
+                    taught_pops.literacy += std::min<float>(0.001f, (pop.literacy * pop.size) / 100000.f);
                     taught_pops.literacy = std::min<float>(0.001f, taught_pops.literacy);
                 }
                 salary = 0.2f;
@@ -540,7 +541,7 @@ void Economy::do_phase_3(World& world) {
             }
             
             // TODO: Make this dynamic
-            pop.budget += salary* 90.f;
+            pop.budget += salary * 90.f;
 
             // Use 33% of our budget to buy edibles and life needed stuff
             float life_alloc_budget = pop.budget / 3;
@@ -580,11 +581,14 @@ void Economy::do_phase_3(World& world) {
                 pop.budget -= bought* product->price;
                 province->stockpile[world.get_id(product)] -= bought;
 
+                // Uncomment to see buyers
+                //printf("Pop with budget %f bought %zu quantity of %s\n", pop.budget, (size_t)bought, product->good->name.c_str());
+
                 if(product->good->is_edible) {
-                    life_alloc_budget -= bought* product->price;
+                    life_alloc_budget -= bought * product->price;
                     pop.life_needs_met += (float)pop.size / (float)bought;
                 } else {
-                    everyday_alloc_budget -= bought* product->price;
+                    everyday_alloc_budget -= bought * product->price;
                     pop.everyday_needs_met += (float)pop.size / (float)bought;
                 }
             }
@@ -592,6 +596,9 @@ void Economy::do_phase_3(World& world) {
             // x1.5 life needs met modifier, that is the max allowed
             pop.life_needs_met = std::min<float>(0.1f, pop.life_needs_met);
             pop.life_needs_met = std::max<float>(-0.1f, pop.life_needs_met);
+
+            pop.everyday_needs_met = std::min<float>(0.1f, pop.everyday_needs_met);
+            pop.everyday_needs_met = std::max<float>(-0.1f, pop.everyday_needs_met);
 
             // POPs cannot shrink below 10<
             if(pop.size <= 10) {
@@ -627,8 +634,8 @@ void Economy::do_phase_3(World& world) {
             // And literacy determines "best" spot, for example a low literacy will
             // choose a slightly less desirable location
             const float emigration_willing = 1.f / std::min(pop.life_needs_met, -1.0f);
-            size_t emigreers = (float)(((float)pop.size / 1000.f)* emigration_willing);
-            if(emigreers < pop.size && emigreers) {
+            size_t emigreers = (float)(((float)pop.size / 1000.f) * emigration_willing);
+            if(emigreers) {
                 // Find best province
                 Province* best_province = nullptr;
                 for(size_t j = 0; j < world.provinces.size(); j += std::max<size_t>((rand() % (world.provinces.size() - j)) / 10, 1)) {
