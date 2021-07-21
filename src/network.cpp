@@ -677,18 +677,6 @@ void Client::net_loop(void) {
                  * After the ID the object in question is given in a serialized form, in which the
                  * deserializer will deserialize onto the final object; after this the operation
                  * desired is done. */
-                case ACTION_PROVINCE_UPDATE:
-                print_info("ACTION_PROVINCE_UPDATE");
-                    {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->provinces_mutex);
-
-                        Province* province;
-                        ::deserialize(ar, &province);
-                        if(province == nullptr)
-                            throw ClientException("Unknown province");
-                        ::deserialize(ar, province);
-                    }
-                    break;
                 case ACTION_NATION_UPDATE:
                 print_info("ACTION_NATION_UPDATE");
                     {
@@ -699,18 +687,6 @@ void Client::net_loop(void) {
                         if(nation == nullptr)
                             throw ClientException("Unknown nation");
                         ::deserialize(ar, nation);
-                    }
-                    break;
-                case ACTION_OUTPOST_UPDATE:
-                print_info("ACTION_OUTPOST_UPDATE");
-                    {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->outposts_mutex);
-
-                        Outpost* outpost;
-                        ::deserialize(ar, &outpost);
-                        if(outpost == nullptr)
-                            throw ClientException("Unknown outpost");
-                        ::deserialize(ar, outpost);
                     }
                     break;
                 case ACTION_NATION_ENACT_POLICY:
@@ -725,6 +701,18 @@ void Client::net_loop(void) {
                         Policies policy;
                         ::deserialize(ar, &policy);
                         nation->current_policy = policy;
+                    }
+                    break;
+                case ACTION_PROVINCE_UPDATE:
+                print_info("ACTION_PROVINCE_UPDATE");
+                    {
+                        std::lock_guard<std::recursive_mutex> lock(g_world->provinces_mutex);
+
+                        Province* province;
+                        ::deserialize(ar, &province);
+                        if(province == nullptr)
+                            throw ClientException("Unknown province");
+                        ::deserialize(ar, province);
                     }
                     break;
                 case ACTION_UNIT_UPDATE:
@@ -771,6 +759,18 @@ void Client::net_loop(void) {
                         ::deserialize(ar, boat);
                         g_world->boats.push_back(boat);
                         print_info("New boat of %s", boat->owner->name.c_str());
+                    }
+                    break;
+                case ACTION_OUTPOST_UPDATE:
+                print_info("ACTION_OUTPOST_UPDATE");
+                    {
+                        std::lock_guard<std::recursive_mutex> lock(g_world->outposts_mutex);
+
+                        Outpost* outpost;
+                        ::deserialize(ar, &outpost);
+                        if(outpost == nullptr)
+                            throw ClientException("Unknown outpost");
+                        ::deserialize(ar, outpost);
                     }
                     break;
                 case ACTION_OUTPOST_ADD:

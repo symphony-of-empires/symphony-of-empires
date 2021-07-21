@@ -20,9 +20,7 @@ ProvinceId Province::get_id(const World& world) {
  */
 void Province::add_industry(World& world, Industry* industry) {
     IndustryType* type = industry->type;
-    
-    industries.push_back(*industry);
-    
+
     // Add a product for each output
     for(const auto& output: type->outputs) {
         Product* new_product = new Product();
@@ -32,11 +30,10 @@ void Province::add_industry(World& world, Industry* industry) {
         new_product->demand_history.clear();
         new_product->supply_history.clear();
         new_product->price_history.clear();
-        
         new_product->origin = this;
-        
-        world.products.push_back(new_product);
+
         industry->output_products.push_back(new_product);
+        world.products.push_back(new_product);
     }
 
     // We will set inputs_satisfied to same size as inputs
@@ -45,6 +42,8 @@ void Province::add_industry(World& world, Industry* industry) {
     for(size_t i = 0; i < industry->type->inputs.size(); i++) {
         industry->stockpile.push_back(100);
     }
+
+    industries.push_back(*industry);
 }
 
 /** Removes an industry and their products from the entire world

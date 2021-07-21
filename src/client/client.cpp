@@ -370,8 +370,7 @@ void client_update(void) {
     }
     
     size_t total_pop = 0;
-    double militancy = 0.f;
-    double consciousness = 0.f;
+    double militancy = 0.f, consciousness = 0.f;
     for(const auto& province: player_nation.owned_provinces) {
         for(const auto& pop: province->pops) {
             total_pop += pop.size;
@@ -383,22 +382,16 @@ void client_update(void) {
     consciousness /= total_pop;
     
     char* tmpbuf = new char[255];
-    
     sprintf(tmpbuf, " %12.2f", militancy);
     militancy_lab->text(tmpbuf);
-    
     sprintf(tmpbuf, " %12.2f", consciousness);
     big_brain_lab->text(tmpbuf);
-    
     sprintf(tmpbuf, " %12.2f", player_nation.prestige);
     prestige_lab->text(tmpbuf);
-    
     sprintf(tmpbuf, " %12.2f", player_nation.economy_score);
     economy_lab->text(tmpbuf);
-    
     sprintf(tmpbuf, " %12.2f", player_nation.budget);
     money_lab->text(tmpbuf);
-    
     sprintf(tmpbuf, " %14zu", (size_t)total_pop);
     population_lab->text(tmpbuf);
     
