@@ -375,6 +375,7 @@ int LuaAPI::add_province_industry(lua_State* L) {
     Province *& province = g_world->provinces[province_id];
     Industry* industry = new Industry();
     industry->owner = g_world->companies[company_id];
+    industry->owner->operating_provinces.insert(province);
     industry->type = g_world->industry_types[industry_type_id];
     province->add_industry(*g_world, industry);
     return 0;
@@ -521,14 +522,8 @@ int LuaAPI::add_op_province_to_company(lua_State* L) {
     }
 
     Company* company = g_world->companies[lua_tonumber(L, 1)];
-    std::string ref_name = lua_tostring(L, 2);
-
-    for(const auto& province: g_world->provinces) {
-        if(province->ref_name != ref_name)
-            continue;
-        company->operating_provinces.push_back(province);
-        break;
-    }
+    //std::string ref_name = lua_tostring(L, 2);
+    //company->operating_provinces.insert(province);
     return 0;
 }
 
