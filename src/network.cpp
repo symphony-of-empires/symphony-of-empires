@@ -557,6 +557,8 @@ void Server::net_loop(int id) {
             print_error("ServerException: %s", e.what());
         } catch(SocketException& e) {
             print_error("SocketException: %s", e.what());
+        } catch(SerializerException& e) {
+            print_error("SerializerException: %s", e.what());
         }
         
         is_connected[id] = false;

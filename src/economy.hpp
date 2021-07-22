@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <set>
 #include <deque>
 #include <cstdint>
 #include <cstddef>
@@ -41,7 +42,7 @@ public:
     Nation* nation = nullptr;
 
     // List of province IDs where this company operates (mostly used for transport companies)
-    std::vector<Province *> operating_provinces;
+    std::set<Province *> operating_provinces;
 
     inline bool in_range(Province* province) {
         return (std::find(operating_provinces.begin(), operating_provinces.end(), province)

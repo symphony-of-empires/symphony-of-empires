@@ -112,7 +112,7 @@ public:
         delete[] string;
     }
     static inline size_t size(const std::string* obj) {
-        return sizeof(uint32_t) + (obj->length()* sizeof(char));
+        return sizeof(uint32_t) + (obj->length() * sizeof(char));
     }
 };
 
@@ -185,7 +185,7 @@ public:
     static inline void deserialize(Archive& ar, C* obj_group) {
         uint32_t len;
         ar.copy_to(&len, sizeof(len));
-
+        obj_group->clear();
         for(size_t i = 0; i < len; i++) {
             T obj;
             Serializer<T>::deserialize(ar, &obj);
@@ -236,6 +236,7 @@ public:
     static inline void deserialize(Archive& ar, std::vector<T>* obj_group) {
         uint32_t len;
         ar.copy_to(&len, sizeof(len));
+        obj_group->clear();
         for(size_t i = 0; i < len; i++) {
             T obj;
             Serializer<T>::deserialize(ar, &obj);
@@ -261,7 +262,7 @@ public:
     static inline void deserialize(Archive& ar, std::deque<T>* obj_group) {
         uint32_t len;
         ar.copy_to(&len, sizeof(len));
-
+        obj_group->clear();
         for(size_t i = 0; i < len; i++) {
             T obj;
             Serializer<T>::deserialize(ar, &obj);

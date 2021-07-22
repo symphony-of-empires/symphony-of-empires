@@ -514,10 +514,10 @@ void Economy::do_phase_3(World& world) {
                 salary = 0.6f;
                 break;
             case POP_TYPE_CLERGYMEN:
-                for(auto& taught_pops: province->pops) {
+                /*for(auto& taught_pops: province->pops) {
                     taught_pops.literacy += std::min<float>(0.001f, (pop.literacy * pop.size) / 100000.f);
                     taught_pops.literacy = std::min<float>(0.001f, taught_pops.literacy);
-                }
+                }*/
                 salary = 0.2f;
                 break;
             case POP_TYPE_FARMER:
@@ -594,11 +594,11 @@ void Economy::do_phase_3(World& world) {
             }
 
             // x1.5 life needs met modifier, that is the max allowed
-            pop.life_needs_met = std::min<float>(0.1f, pop.life_needs_met);
-            pop.life_needs_met = std::max<float>(-0.1f, pop.life_needs_met);
+            pop.life_needs_met = std::min<float>(1.5f, pop.life_needs_met);
+            pop.life_needs_met = std::max<float>(-1.5f, pop.life_needs_met);
 
-            pop.everyday_needs_met = std::min<float>(0.1f, pop.everyday_needs_met);
-            pop.everyday_needs_met = std::max<float>(-0.1f, pop.everyday_needs_met);
+            pop.everyday_needs_met = std::min<float>(1.5f, pop.everyday_needs_met);
+            pop.everyday_needs_met = std::max<float>(-1.5f, pop.everyday_needs_met);
 
             // POPs cannot shrink below 10<
             if(pop.size <= 10) {
@@ -608,7 +608,7 @@ void Economy::do_phase_3(World& world) {
             } else {
                 // Higher literacy will mean there will be less births due to sex education
                 // and will also mean that - there would be less deaths due to higher knewledge
-                ssize_t growth = pop.life_needs_met / (pop.literacy* 10.f);
+                int growth = pop.life_needs_met / (pop.literacy * 10.f);
                 if(growth < 0 && (size_t)abs(growth) >= pop.size) {
                     pop.size = 1;
                     continue;
@@ -724,7 +724,7 @@ void Economy::do_phase_3(World& world) {
             }
             
         skip_emigration:
-            pop.life_needs_met -= 0.7f* std::min<float>(0.5f, 1.f - pop.literacy);
+            pop.life_needs_met -= 1.2f * std::max<float>(0.f, 1.f - pop.literacy);
 
             province->worker_pool += pop.size / (1 + ((pop.militancy * pop.life_needs_met) * pop.consciousness));
         }
