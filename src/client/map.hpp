@@ -33,6 +33,7 @@ class ProvinceShape {
 public:
     ProvinceShape(const Map& map, const Province& base);
     GLuint shape_gl_list;
+    GLuint outline_gl_list;
 };
 
 #endif

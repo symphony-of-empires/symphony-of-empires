@@ -6,18 +6,22 @@
 #include <string.h>
 #include "map.hpp"
 #include "path.hpp"
+#include "print.hpp"
 
 Map::Map(const World& _world) : world(_world) {
     std::lock_guard<std::recursive_mutex> lock(world.provinces_mutex);
+
+    print_info("Creating province meshes");
     for(const auto& province: world.provinces) {
         ProvinceShape pr_shape = ProvinceShape(*this, *province);
         province_shapes.push_back(pr_shape);
     }
     
+    print_info("Creating topo map");
     // Generate the underlying topo map texture, since the topo map
     // dosen't changes too much we can just do a texture
     topo_tex = new Texture(world.width, world.height);
-    for(size_t i = 0; i < world.width* world.height; i++) {
+    for(size_t i = 0; i < world.width * world.height; i++) {
         uint8_t r, g, b;
         const Tile& tile = world.get_tile(i);
         
@@ -33,35 +37,6 @@ Map::Map(const World& _world) : world(_world) {
         topo_tex->buffer[i] = (0xff << 24) | (b << 16) | (g << 8) | (r);
     }
     topo_tex->to_opengl();
-    
-    coastline_gl_list = glGenLists(1);
-    glNewList(coastline_gl_list, GL_COMPILE);
-    glLineWidth(2.f);
-    glColor3f(0.f, 0.f, 0.f);
-    for(size_t x = 1; x < world.width; x++) {
-        for(size_t y = 1; y < world.height; y++) {
-            const Tile& left_tile = world.get_tile(x - 1, y);
-            const Tile& top_tile = world.get_tile(x, y - 1);
-            const Tile& tile = world.get_tile(x, y);
-            
-            if((left_tile.elevation <= world.sea_level && tile.elevation > world.sea_level)
-            || (left_tile.elevation > world.sea_level && tile.elevation <= world.sea_level)) {
-                glBegin(GL_LINE_STRIP);
-                glVertex2f(x, y);
-                glVertex2f(x, y + 1.f);
-                glEnd();
-            }
-            
-            if((top_tile.elevation <= world.sea_level && tile.elevation > world.sea_level)
-            || (top_tile.elevation > world.sea_level && tile.elevation <= world.sea_level)) {
-                glBegin(GL_LINE_STRIP);
-                glVertex2f(x, y);
-                glVertex2f(x + 1.f, y);
-                glEnd();
-            }
-        }
-    }
-    glEndList();
 }
 
 extern TextureManager* g_texture_manager;
@@ -91,6 +66,9 @@ void Map::draw(float zoom) {
         }
 
         glCallList(province_shapes[i].shape_gl_list);
+
+        glColor4f(0.f, 0.f, 0.f, 0.5f);
+        glCallList(province_shapes[i].outline_gl_list);
     }
     
     glCallList(coastline_gl_list);
@@ -129,27 +107,68 @@ ProvinceShape::ProvinceShape(const Map& map, const Province& base) {
 
     shape_gl_list = glGenLists(1);
     glNewList(shape_gl_list, GL_COMPILE);
-    for(size_t y = base.min_y; y <= base.max_y; y++) {
-        for(size_t x = base.min_x; x <= base.max_x; x++) {
+
+    const size_t min_x = std::min(base.min_x, map.world.width - 1);
+    const size_t min_y = std::min(base.min_y, map.world.height - 1);
+    const size_t max_x = std::min(base.max_x, map.world.width - 1);
+    const size_t max_y = std::min(base.max_y + 1, map.world.height - 1);
+    for(size_t y = min_y; y < max_y; y++) {
+        for(size_t x = min_x; x < max_x; x++) {
             Tile& tile = map.world.get_tile(x, y);
             if(tile.province_id != province_id)
                 continue;
             
             std::pair<size_t, size_t> start = std::make_pair(x, y);
-            size_t len = 0;
-            while(tile.province_id == province_id && x <= base.max_x) {
+            size_t len = 1;
+            while(x < max_x) {
+                if(tile.province_id != province_id) {
+                    len--;
+                    x--;
+                    break;
+                }
                 len++;
                 x++;
                 tile = map.world.get_tile(x, y);
             }
-            x--;
-            
+
             glBegin(GL_QUADS);
             glVertex2f(start.first, start.second);
             glVertex2f(start.first, start.second + 1.f);
             glVertex2f(start.first + len, start.second + 1.f);
             glVertex2f(start.first + len, start.second);
             glEnd();
+        }
+    }
+    glEndList();
+
+    outline_gl_list = glGenLists(1);
+    glNewList(outline_gl_list, GL_COMPILE);
+    for(size_t y = min_y; y < max_y; y++) {
+        if(y == 0) {
+            continue;
+        }
+        for(size_t x = min_x; x < max_x; x++) {
+            if(x == 0) {
+                continue;
+            }
+
+            const Tile& left_tile = map.world.get_tile(x - 1, y);
+            const Tile& top_tile = map.world.get_tile(x, y - 1);
+            const Tile& tile = map.world.get_tile(x, y);
+                
+            if(left_tile.province_id != tile.province_id) {
+                glBegin(GL_LINE_STRIP);
+                glVertex2f(x, y);
+                glVertex2f(x, y + 1.f);
+                glEnd();
+            }
+                
+            if(top_tile.province_id != tile.province_id) {
+                glBegin(GL_LINE_STRIP);
+                glVertex2f(x, y);
+                glVertex2f(x + 1.f, y);
+                glEnd();
+            }
         }
     }
     glEndList();
