@@ -33,6 +33,8 @@ enum ActionType {
     ACTION_CHANGE_TREATY_APPROVAL,
     ACTION_DRAFT_TREATY,
 
+    ACTION_TREATY_ADD,
+
     // Tell client that a whole tick has been done :D
     ACTION_WORLD_TICK,
 

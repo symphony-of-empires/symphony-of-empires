@@ -26,7 +26,7 @@ enum TreatyClauseType g_clause_type;
 Treaty g_treaty_draft;
 std::mutex g_treaty_draft_mutex;
 
-std::string treaty_to_text(Treaty& treaty) {
+std::string treaty_to_text(const Treaty& treaty) {
     std::lock_guard<std::mutex> lock(g_treaty_draft_mutex);
     std::string str;
     
@@ -219,10 +219,9 @@ void ui_treaty(void) {
         Archive ar = Archive();
         enum ActionType action = ACTION_DRAFT_TREATY;
         ::serialize(ar, &action);
-        ::serialize(ar, &g_treaty_draft.clauses);
-        ::serialize(ar, &g_treaty_draft.name);
-        ::serialize(ar, &g_treaty_draft.receiver);
-        ::serialize(ar, &g_treaty_draft.sender);
+        ::serialize(ar, &g_treaty_draft.clauses); // ClausesRefList
+        ::serialize(ar, &g_treaty_draft.name); // StringObj
+        ::serialize(ar, &curr_nation); // Sender - NationRef
         packet.data(ar.get_buffer(), ar.size());
         g_client->packet_queue.push_back(packet);
         g_client->packet_mutex.unlock();

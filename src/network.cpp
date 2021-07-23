@@ -451,13 +451,12 @@ void Server::net_loop(int id) {
                             Treaty* treaty = new Treaty();
                             ::deserialize(ar, &treaty->clauses);
                             ::deserialize(ar, &treaty->name);
-                            ::deserialize(ar, &treaty->receiver);
                             ::deserialize(ar, &treaty->sender);
 
                             // Validate data
                             if(!treaty->clauses.size())
                                 throw ServerException("Clause-less treaty");
-                            if(treaty->sender == nullptr || treaty->receiver == nullptr)
+                            if(treaty->sender == nullptr)
                                 throw ServerException("Treaty has invalid ends");
                             
                             // Obtain participants of the treaty
@@ -470,7 +469,7 @@ void Server::net_loop(int id) {
                                 approver_nations.insert(clause.sender);
                             }
 
-                            // Then fill
+                            // Then fill as undecided (and ask nations to sign this treaty)
                             for(auto& nation: approver_nations) {
                                 treaty->approval_status.push_back(std::make_pair(nation, TREATY_APPROVAL_UNDECIDED));
                             }
@@ -484,10 +483,16 @@ void Server::net_loop(int id) {
                             }
 
                             g_world->treaties.push_back(treaty);
-                        }
 
-                        // Rebroadcast
-                        broadcast(packet);
+                            // Rebroadcast to client
+                            // We are going to add a treaty to the client
+                            Archive tmp_ar = Archive();
+                            action = ACTION_TREATY_ADD;
+                            ::serialize(tmp_ar, &action);
+                            ::serialize(tmp_ar, treaty);
+                            packet.data(tmp_ar.get_buffer(), tmp_ar.size());
+                            broadcast(packet);
+                        }
                         break;
                     // Client takes a descision
                     case ACTION_NATION_TAKE_DESCISION:
@@ -784,6 +789,20 @@ void Client::net_loop(void) {
                         ::deserialize(ar, outpost);
                         g_world->outposts.push_back(outpost);
                         print_info("New outpost of %s", outpost->owner->name.c_str());
+                    }
+                    break;
+                case ACTION_TREATY_ADD:
+                print_info("ACTION_TREATY_ADD");
+                    {
+                        std::lock_guard<std::recursive_mutex> lock(g_world->treaties_mutex);
+
+                        Treaty* treaty = new Treaty();
+                        ::deserialize(ar, treaty);
+                        g_world->treaties.push_back(treaty);
+                        print_info("New treaty from %s", treaty->sender->name.c_str());
+                        for(const auto& status: treaty->approval_status) {
+                            print_info("- %s", status.first->name.c_str());
+                        }
                     }
                     break;
                 case ACTION_WORLD_TICK:

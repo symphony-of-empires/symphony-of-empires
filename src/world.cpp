@@ -1,5 +1,7 @@
+#include "policy.hpp"
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <filesystem>
 #include <cmath>
 #include <set>
@@ -26,112 +28,84 @@ World* g_world;
 /**
  * Creates a new world
   */
-World::World(bool empty) {
+World::World() {
     g_world = this;
-    if(empty == true) {
-        return;
-    }
-    
-    BinaryImage topo(Path::get("map_topo.png"));
-    BinaryImage div(Path::get("map_div.png"));
-    BinaryImage infra(Path::get("map_infra.png"));
 
-    this->width = topo.width;
-    this->height = topo.height;
-
-    // Check that size of all maps match
-    if(topo.width != this->width || topo.height != this->height) {
-        throw std::runtime_error("Topographic map size mismatch");
-    } else if(div.width != this->width || div.height != this->height) {
-        throw std::runtime_error("Province map size mismatch");
-    }
-
-    const size_t total_size = this->width* this->height;
-
-    // Sea is	<= sea_level
-    // Rivers	== sea_level + 1
-    // Land is	> sea_level + 1
-    this->sea_level = 126;
-    this->tiles = new Tile[total_size];
-    if(this->tiles == nullptr) {
-        throw std::runtime_error("Out of memory");
-    }
-
-    this->lua = luaL_newstate();
-    luaL_openlibs(this->lua);
+    lua = luaL_newstate();
+    luaL_openlibs(lua);
 
     // Register our API functions
-    lua_register(this->lua, "_", LuaAPI::get_text);
+    lua_register(lua, "_", LuaAPI::get_text);
 
-    lua_register(this->lua, "add_unit_trait", LuaAPI::add_unit_trait);
+    lua_register(lua, "add_unit_trait", LuaAPI::add_unit_trait);
 
-    lua_register(this->lua, "add_outpost_type", LuaAPI::add_outpost_type);
+    lua_register(lua, "add_outpost_type", LuaAPI::add_outpost_type);
 
-    lua_register(this->lua, "add_good", LuaAPI::add_good);
-    lua_register(this->lua, "get_good", LuaAPI::get_good);
+    lua_register(lua, "add_good", LuaAPI::add_good);
+    lua_register(lua, "get_good", LuaAPI::get_good);
 
-    lua_register(this->lua, "add_industry_type", LuaAPI::add_industry_type);
-    lua_register(this->lua, "get_industry_type", LuaAPI::get_industry_type);
-    lua_register(this->lua, "add_input_to_industry_type", LuaAPI::add_input_to_industry_type);
-    lua_register(this->lua, "add_output_to_industry_type", LuaAPI::add_output_to_industry_type);
+    lua_register(lua, "add_industry_type", LuaAPI::add_industry_type);
+    lua_register(lua, "get_industry_type", LuaAPI::get_industry_type);
+    lua_register(lua, "add_input_to_industry_type", LuaAPI::add_input_to_industry_type);
+    lua_register(lua, "add_output_to_industry_type", LuaAPI::add_output_to_industry_type);
 
-    lua_register(this->lua, "add_nation", LuaAPI::add_nation);
-    lua_register(this->lua, "get_nation", LuaAPI::get_nation);
-    lua_register(this->lua, "set_nation_primary_culture", LuaAPI::set_nation_primary_culture);
-    lua_register(this->lua, "set_nation_capital", LuaAPI::set_nation_capital);
-    lua_register(this->lua, "set_industry_output_mod", LuaAPI::set_industry_output_mod);
-    lua_register(this->lua, "set_industry_input_mod", LuaAPI::set_industry_input_mod);
-    lua_register(this->lua, "set_workers_needed_mod", LuaAPI::set_workers_needed_mod);
-    lua_register(this->lua, "set_salary_paid_mod", LuaAPI::set_salary_paid_mod);
-    lua_register(this->lua, "set_delivery_cost_mod", LuaAPI::set_delivery_cost_mod);
-    lua_register(this->lua, "set_literacy_learn_mod", LuaAPI::set_literacy_learn_mod);
-    lua_register(this->lua, "set_reproduction_mod", LuaAPI::set_reproduction_mod);
-    lua_register(this->lua, "set_death_mod", LuaAPI::set_death_mod);
-    lua_register(this->lua, "set_militancy_mod", LuaAPI::set_militancy_mod);
-    lua_register(this->lua, "set_consciousness_mod", LuaAPI::set_consciousness_mod);
-    lua_register(this->lua, "set_life_needs_met_mod", LuaAPI::set_life_needs_met_mod);
-    lua_register(this->lua, "set_everyday_needs_met_mod", LuaAPI::set_everyday_needs_met_mod);
-    lua_register(this->lua, "set_luxury_needs_met_mod", LuaAPI::set_luxury_needs_met_mod);
-    lua_register(this->lua, "add_nation_accepted_culture", LuaAPI::add_accepted_culture);
+    lua_register(lua, "add_nation", LuaAPI::add_nation);
+    lua_register(lua, "get_nation", LuaAPI::get_nation);
+    lua_register(lua, "set_nation_primary_culture", LuaAPI::set_nation_primary_culture);
+    lua_register(lua, "set_nation_capital", LuaAPI::set_nation_capital);
+    lua_register(lua, "set_industry_output_mod", LuaAPI::set_industry_output_mod);
+    lua_register(lua, "set_industry_input_mod", LuaAPI::set_industry_input_mod);
+    lua_register(lua, "set_workers_needed_mod", LuaAPI::set_workers_needed_mod);
+    lua_register(lua, "set_salary_paid_mod", LuaAPI::set_salary_paid_mod);
+    lua_register(lua, "set_delivery_cost_mod", LuaAPI::set_delivery_cost_mod);
+    lua_register(lua, "set_literacy_learn_mod", LuaAPI::set_literacy_learn_mod);
+    lua_register(lua, "set_reproduction_mod", LuaAPI::set_reproduction_mod);
+    lua_register(lua, "set_death_mod", LuaAPI::set_death_mod);
+    lua_register(lua, "set_militancy_mod", LuaAPI::set_militancy_mod);
+    lua_register(lua, "set_consciousness_mod", LuaAPI::set_consciousness_mod);
+    lua_register(lua, "set_life_needs_met_mod", LuaAPI::set_life_needs_met_mod);
+    lua_register(lua, "set_everyday_needs_met_mod", LuaAPI::set_everyday_needs_met_mod);
+    lua_register(lua, "set_luxury_needs_met_mod", LuaAPI::set_luxury_needs_met_mod);
+    lua_register(lua, "add_nation_accepted_culture", LuaAPI::add_accepted_culture);
     
-    lua_register(this->lua, "add_province", LuaAPI::add_province);
-    lua_register(this->lua, "get_province", LuaAPI::get_province);
-    lua_register(this->lua, "add_province_industry", LuaAPI::add_province_industry);
-    lua_register(this->lua, "add_province_pop", LuaAPI::add_province_pop);
-    lua_register(this->lua, "give_province_to", LuaAPI::give_province_to);
-    lua_register(this->lua, "rename_province", LuaAPI::rename_province);
-    lua_register(this->lua, "add_province_nucleus", LuaAPI::add_province_nucleus);
-    lua_register(this->lua, "add_province_owner", LuaAPI::add_province_owner);
+    lua_register(lua, "add_province", LuaAPI::add_province);
+    lua_register(lua, "get_province", LuaAPI::get_province);
+    lua_register(lua, "add_province_industry", LuaAPI::add_province_industry);
+    lua_register(lua, "add_province_pop", LuaAPI::add_province_pop);
+    lua_register(lua, "give_province_to", LuaAPI::give_province_to);
+    lua_register(lua, "rename_province", LuaAPI::rename_province);
+    lua_register(lua, "add_province_nucleus", LuaAPI::add_province_nucleus);
+    lua_register(lua, "add_province_owner", LuaAPI::add_province_owner);
 
-    lua_register(this->lua, "add_company", LuaAPI::add_company);
+    lua_register(lua, "add_company", LuaAPI::add_company);
 
-    lua_register(this->lua, "add_event", LuaAPI::add_event);
-    lua_register(this->lua, "get_event", LuaAPI::get_event);
-    lua_register(this->lua, "add_event_receivers", LuaAPI::add_event_receivers);
+    lua_register(lua, "add_event", LuaAPI::add_event);
+    lua_register(lua, "get_event", LuaAPI::get_event);
+    lua_register(lua, "add_event_receivers", LuaAPI::add_event_receivers);
 
-    lua_register(this->lua, "add_descision", LuaAPI::add_descision);
+    lua_register(lua, "add_descision", LuaAPI::add_descision);
 
-    lua_register(this->lua, "add_pop_type", LuaAPI::add_pop_type);
-    lua_register(this->lua, "get_pop_type", LuaAPI::get_pop_type);
+    lua_register(lua, "add_pop_type", LuaAPI::add_pop_type);
+    lua_register(lua, "get_pop_type", LuaAPI::get_pop_type);
 
-    lua_register(this->lua, "add_culture", LuaAPI::add_culture);
-    lua_register(this->lua, "get_culture", LuaAPI::get_culture);
+    lua_register(lua, "add_culture", LuaAPI::add_culture);
+    lua_register(lua, "get_culture", LuaAPI::get_culture);
 
-    lua_register(this->lua, "add_religion", LuaAPI::add_religion);
-    lua_register(this->lua, "get_religion", LuaAPI::get_religion);
+    lua_register(lua, "add_religion", LuaAPI::add_religion);
+    lua_register(lua, "get_religion", LuaAPI::get_religion);
 
-    lua_register(this->lua, "add_unit_type", LuaAPI::add_unit_type);
-    lua_register(this->lua, "get_unit_type", LuaAPI::get_unit_type);
-    lua_register(this->lua, "add_req_good_unit_type", LuaAPI::add_req_good_unit_type);
+    lua_register(lua, "add_unit_type", LuaAPI::add_unit_type);
+    lua_register(lua, "get_unit_type", LuaAPI::get_unit_type);
+    lua_register(lua, "add_req_good_unit_type", LuaAPI::add_req_good_unit_type);
 
-    lua_register(this->lua, "add_boat_type", LuaAPI::add_boat_type);
-    lua_register(this->lua, "get_boat_type", LuaAPI::get_boat_type);
-    lua_register(this->lua, "add_req_good_boat_type", LuaAPI::add_req_good_boat_type);
+    lua_register(lua, "add_boat_type", LuaAPI::add_boat_type);
+    lua_register(lua, "get_boat_type", LuaAPI::get_boat_type);
+    lua_register(lua, "add_req_good_boat_type", LuaAPI::add_req_good_boat_type);
 
-    lua_register(this->lua, "get_hour", LuaAPI::get_hour);
-    lua_register(this->lua, "get_day", LuaAPI::get_day);
-    lua_register(this->lua, "get_month", LuaAPI::get_month);
-    lua_register(this->lua, "get_year", LuaAPI::get_year);
+    lua_register(lua, "get_hour", LuaAPI::get_hour);
+    lua_register(lua, "get_day", LuaAPI::get_day);
+    lua_register(lua, "get_month", LuaAPI::get_month);
+    lua_register(lua, "get_year", LuaAPI::get_year);
 
     // Constants for ease of readability
     lua_pushboolean(lua, true);
@@ -149,36 +123,90 @@ World::World(bool empty) {
 
     // Set path for `require` statements in lua, this will allow us to require
     // without using data/scripts
-    lua_getglobal(this->lua, "package");
-    lua_getfield(this->lua, -1, "path");
-    std::string curr_path = lua_tostring(this->lua, -1);
+    lua_getglobal(lua, "package");
+    lua_getfield(lua, -1, "path");
+    std::string curr_path = lua_tostring(lua, -1);
 
     // Add all scripts onto the path (with glob operator '?')
     curr_path.append(";");
     std::string path = Path::get("scripts");
     curr_path.append(path + "/?.lua");
-    lua_pop(this->lua, 1);
-    lua_pushstring(this->lua, curr_path.c_str());
-    lua_setfield(this->lua, -2, "path");
-    lua_pop(this->lua, 1);
+    lua_pop(lua, 1);
+    lua_pushstring(lua, curr_path.c_str());
+    lua_setfield(lua, -2, "path");
+    lua_pop(lua, 1);
+}
 
+World::~World() {
+    lua_close(lua);
+    delete[] tiles;
+
+    for(auto& religion: religions) {
+        delete religion;
+    } for(auto& unit_type: unit_types) {
+        delete unit_type;
+    } for(auto& event: events) {
+        delete event;
+    } for(auto& industry_type: industry_types) {
+        delete industry_type;
+    } for(auto& company: companies) {
+        delete company;
+    } for(auto& pop_type: pop_types) {
+        delete pop_type;
+    } for(auto& culture: cultures) {
+        delete culture;
+    } for(auto& good: goods) {
+        delete good;
+    } for(auto& province: provinces) {
+        delete province;
+    } for(auto& nation: nations) {
+        delete nation;
+    }
+}
+
+void World::load_mod(void) {
+    BinaryImage topo(Path::get("map_topo.png"));
+    BinaryImage div(Path::get("map_div.png"));
+    BinaryImage infra(Path::get("map_infra.png"));
+
+    width = topo.width;
+    height = topo.height;
+
+    // Check that size of all maps match
+    if(topo.width != width || topo.height != height) {
+        throw std::runtime_error("Topographic map size mismatch");
+    } else if(div.width != width || div.height != height) {
+        throw std::runtime_error("Province map size mismatch");
+    }
+
+    const size_t total_size = width * height;
+
+    // Sea is	<= sea_level
+    // Rivers	== sea_level + 1
+    // Land is	> sea_level + 1
+    sea_level = 126;
+    tiles = new Tile[total_size];
+    if(tiles == nullptr) {
+        throw std::runtime_error("Out of memory");
+    }
+    
     int ret = luaL_dofile(this->lua, Path::get("scripts/init.lua").c_str());
     if(ret) {
-        throw std::runtime_error(lua_tostring(this->lua, -1));
+        throw std::runtime_error(lua_tostring(lua, -1));
     }
 
     // Shrink normally-not-resized vectors to give back memory to the OS
     printf("Shrink normally-not-resized vectors to give back memory to the OS\n");
-    this->provinces.shrink_to_fit();
-    this->nations.shrink_to_fit();
-    this->goods.shrink_to_fit();
-    this->industry_types.shrink_to_fit();
-    this->unit_types.shrink_to_fit();
-    this->cultures.shrink_to_fit();
-    this->religions.shrink_to_fit();
-    this->pop_types.shrink_to_fit();
+    provinces.shrink_to_fit();
+    nations.shrink_to_fit();
+    goods.shrink_to_fit();
+    industry_types.shrink_to_fit();
+    unit_types.shrink_to_fit();
+    cultures.shrink_to_fit();
+    religions.shrink_to_fit();
+    pop_types.shrink_to_fit();
 
-    for(auto& province: this->provinces) {
+    for(auto& province: provinces) {
         province->max_x = 0;
         province->max_y = 0;
         province->min_x = UINT32_MAX;
@@ -189,27 +217,36 @@ World::World(bool empty) {
     printf("Translate all div, pol and topo maps onto this single tile array\n");
     for(size_t i = 0; i < total_size; i++) {
         // Set coordinates for the tiles
-        this->tiles[i].owner_id = (NationId)-1;
-        this->tiles[i].province_id = (ProvinceId)-1;
-        this->tiles[i].elevation = topo.buffer[i] & 0x000000ff;
+        tiles[i].owner_id = (NationId)-1;
+        tiles[i].province_id = (ProvinceId)-1;
+        tiles[i].elevation = topo.buffer[i] & 0x000000ff;
         if(topo.buffer[i] == 0xffff0000) {
-            this->tiles[i].elevation = this->sea_level + 1;
+            tiles[i].elevation = sea_level + 1;
         }
 
         // Set infrastructure level
         if(infra.buffer[i] == 0xffffffff
         || infra.buffer[i] == 0xff000000) {
-            this->tiles[i].infra_level = 0;
+            tiles[i].infra_level = 0;
         } else {
-            this->tiles[i].infra_level = 1;
+            tiles[i].infra_level = 1;
         }
     }
 
     // Associate tiles with provinces
-    printf("Associate tiles with provinces\n");
+
+    // Build a lookup table for super fast speed on finding provinces
+    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
+    print_info("Building province lookup table");
+    ProvinceId* color_province_rel_table = new ProvinceId[16777216];
+    memset(color_province_rel_table, 0xff, sizeof(ProvinceId) * 16777216);
+    for(const auto& province: provinces) {
+        color_province_rel_table[province->color & 0xffffff] = get_id(province);
+    }
 
     // Uncomment this and see a bit more below
     //std::set<uint32_t> colors_found;
+    print_info("Associate tiles with provinces");
     for(size_t i = 0; i < total_size; i++) {
         const uint32_t color = div.buffer[i];
 
@@ -219,19 +256,14 @@ World::World(bool empty) {
             ++i;
         }
 
-        // TODO: Could we further speed this up with a contigous lookup table?
-        const auto it = std::find_if(provinces.begin(), provinces.end(), [&color](const auto& element) {
-            return (color == element->color);
-        });
-
-        if(it == provinces.end()) {
+        const ProvinceId province_id = color_province_rel_table[div.buffer[i] & 0xffffff];
+        if(province_id == (ProvinceId)-1) {
             // Uncomment this and see below
             //colors_found.insert(color);
             continue;
         }
-        
-        const ProvinceId province_id = std::distance(provinces.begin(), it);
-        const uint32_t rel_color = (*it)->color;
+
+        const uint32_t rel_color = provinces[province_id]->color;
         while(div.buffer[i] == rel_color) {
             tiles[i].province_id = province_id;
             provinces[province_id]->n_tiles++;
@@ -243,6 +275,7 @@ World::World(bool empty) {
             i++;
         }
     }
+    delete[] color_province_rel_table;
 
     /* Uncomment this for auto-generating lua code for unregistered provinces */
     /*for(const auto& color_raw: colors_found) {
@@ -263,10 +296,10 @@ World::World(bool empty) {
     }*/
 
     // Calculate the edges of the province (min and max x and y coordinates)
-    printf("Calculate the edges of the province (min and max x and y coordinates)\n");
-    for(size_t i = 0; i < this->width; i++) {
-        for(size_t j = 0; j < height; j++) {
-            const Tile& tile = get_tile(i, j);
+    print_info("Calculate the edges of the province (min and max x and y coordinates)");
+    for(size_t j = 0; j < height; j++) {
+        for(size_t i = 0; i < width; i++) {
+            Tile& tile = get_tile(i, j);
             if(tile.province_id == (ProvinceId)-1)
                 continue;
 
@@ -279,7 +312,7 @@ World::World(bool empty) {
     }
 
     // Correct stuff from provinces
-    printf("Correcting values for provinces\n");
+    print_info("Correcting values for provinces");
     for(auto& province: provinces) {
         province->max_x = std::min(width, province->max_x);
         province->max_y = std::min(height, province->max_y);
@@ -291,7 +324,7 @@ World::World(bool empty) {
     }
 
     // Give owners the entire provinces
-    printf("Give owners the entire provinces\n");
+    print_info("Give owners the entire provinces");
     for(auto& nation: nations) {
         for(auto& province: nation->owned_provinces) {
             const ProvinceId province_id = get_id(province);
@@ -311,7 +344,7 @@ World::World(bool empty) {
     }
 
     // Neighbours
-    printf("Neighbours\n");
+    print_info("Creating neighbours for provinces");
     for(size_t i = 0; i < total_size; i++) {
         const Tile* tile = &this->tiles[i];
         const Tile* other_tile;
@@ -391,7 +424,7 @@ World::World(bool empty) {
     }
 
     // Create diplomatic relations between nations
-    printf("Creating diplomatic relations\n");
+    print_info("Creating diplomatic relations");
     for(const auto& nation: this->nations) {
         // Relations between nations start at 0 (and latter modified by lua scripts)
         for(size_t i = 0; i < this->nations.size(); i++) {
@@ -404,45 +437,25 @@ World::World(bool empty) {
         throw std::runtime_error(lua_tostring(this->lua, -1));
     }
     
-    // Default init
+    // Default init for policies
     for(auto& nation: this->nations) {
         nation->budget = 10000.f;
         
         Policies& policy = nation->current_policy;
-        
-        policy.import_tax = 1.2f;
-        policy.export_tax = 1.2f;
+        policy.import_tax = 0.1f;
+        policy.export_tax = 0.1f;
+        policy.domestic_export_tax = 0.1f;
+        policy.domestic_import_tax = 0.1f;
+        policy.med_flat_tax = 0.1f;
+        policy.poor_flat_tax = 0.1f;
+        policy.rich_flat_tax = 0.1f;
+        policy.private_property = true;
+        policy.immigration = ALLOW_ALL;
+        policy.migration = ALLOW_ALL;
+        policy.industry_tax = 0.1f;
         policy.foreign_trade = true;
     }
-
-    printf("World fully intiialized\n");
-}
-
-World::~World() {
-    lua_close(this->lua);
-    delete[] this->tiles;
-
-    for(auto& religion: this->religions) {
-        delete religion;
-    } for(auto& unit_type: this->unit_types) {
-        delete unit_type;
-    } for(auto& event: this->events) {
-        delete event;
-    } for(auto& industry_type: this->industry_types) {
-        delete industry_type;
-    } for(auto& company: this->companies) {
-        delete company;
-    } for(auto& pop_type: this->pop_types) {
-        delete pop_type;
-    } for(auto& culture: this->cultures) {
-        delete culture;
-    } for(auto& good: this->goods) {
-        delete good;
-    } for(auto& province: this->provinces) {
-        delete province;
-    } for(auto& nation: this->nations) {
-        delete nation;
-    }
+    print_info("World fully intiialized");
 }
 
 #include <deque>
