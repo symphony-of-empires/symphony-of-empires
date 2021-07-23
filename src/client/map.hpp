@@ -14,6 +14,7 @@
 #include "world.hpp"
 #include "province.hpp"
 #include "texture.hpp"
+#include "camera.hpp"
 
 class ProvinceShape;
 class Map {
@@ -23,9 +24,10 @@ public:
 
     const World& world;
     std::vector<ProvinceShape> province_shapes;
-    void draw(float zoom);
+    void draw(Camera& cam, const int width, const int height);
     
     Texture* topo_tex;
+    const Texture* overlay_tex;
     GLuint coastline_gl_list;
 };
 

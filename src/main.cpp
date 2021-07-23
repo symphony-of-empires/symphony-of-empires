@@ -43,7 +43,8 @@ int main(int argc, char ** argv) {
 #ifndef UNIT_TEST
     // Run as a server for servicing multiple clients
     if(argc > 1 && !strcmp(argv[1], "server")) {
-        World* world = new World(false);
+        World* world = new World();
+        world->load_mod();
         Server* server = new Server(1836);
         
         run = true;
@@ -66,7 +67,7 @@ int main(int argc, char ** argv) {
         }
         print_info("Connecting to server with IP %s", server_addr.c_str());
         print_info("Initializing empty world");
-        World* world = new World(true);
+        World* world = new World();
         print_info("Creating client");
         Client* client = new Client(server_addr, 1836);
         print_info("Waiting for snapshot");

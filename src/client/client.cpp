@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <cstdio>
 #include <string>
 
@@ -521,6 +522,7 @@ void colonize_province(UI::Widget& w, void* data) {
 extern void ui_build_unit(Outpost* outpost);
 
 std::vector<Event> displayed_events;
+std::vector<Treaty*> displayed_treaties;
 void select_nation(void) {
     g_world->client_update = &client_update;
     
@@ -536,8 +538,6 @@ void select_nation(void) {
     
     const Texture& button_pvw = g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
     const Texture& button_popup = g_texture_manager->load_texture(Path::get("ui/button_popup.png"));
-    
-    const Texture& map_overlay = g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
     
     nation_flags.reserve(g_world->nations.size());
     for(const auto& nation: g_world->nations) {
@@ -862,9 +862,9 @@ void select_nation(void) {
         
         // Put popups
         if(current_mode == MAP_MODE_NORMAL) {
-            size_t n_descisions = 0;
+            // Event + Descision popups
             for(auto& msg: curr_nation->inbox) {
-                auto iter = std::find_if(displayed_events.begin(), displayed_events.end(), [&msg](Event& e) {
+                auto iter = std::find_if(displayed_events.begin(), displayed_events.end(), [&msg](const auto& e) {
                     return e.ref_name == msg.ref_name;
                 });
                 if(iter != displayed_events.end()) {
@@ -943,8 +943,73 @@ void select_nation(void) {
                 }
                 displayed_events.push_back(msg);
             }
+
+            // Treaties popups
+            extern std::string treaty_to_text(const Treaty& treaty);
+            for(auto& treaty: g_world->treaties) {
+                // Only show treaties we haven't decided on yet and that we have participation on
+                if(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [&curr_nation](const auto& e) {
+                    return (curr_nation == e.first) && (e.second == TREATY_APPROVAL_UNDECIDED);
+                }) == treaty->approval_status.end())
+                    continue;
+                
+                // Must not be already shown
+                if(std::find_if(displayed_treaties.begin(), displayed_treaties.end(), [&treaty](const auto& e) {
+                    return treaty == e;
+                }) != displayed_treaties.end())
+                    continue;
+
+                UI::Window* popup_win = new UI::Window(128, 128, generic_descision.width, generic_descision.height);
+                
+                // TODO: Allow titles in events
+                popup_win->text("Treaty offer");
+                popup_win->current_texture = &generic_descision;
+
+                // Separate the text line by line
+                new UI::Label(8, 0, treaty_to_text(*treaty).c_str(), popup_win);
+
+                UI::Button* approve_btn = new UI::Button(9, 24, button_popup.width, button_popup.height, popup_win);
+                approve_btn->text("Approve");
+                approve_btn->current_texture = &button_popup;
+                approve_btn->user_data = (void*)&treaty;
+                approve_btn->on_click = [](UI::Widget& w, void* data) {
+                    delete w.parent;
+                    g_client->packet_mutex.lock();
+                    Packet packet = Packet(g_client->get_fd());
+                    Archive ar = Archive();
+                    enum ActionType action = ACTION_CHANGE_TREATY_APPROVAL;
+                    ::serialize(ar, (Treaty**)data);
+                    enum TreatyApproval approval = TREATY_APPROVAL_ACCEPTED;
+                    ::serialize(ar, &approval);
+                    packet.data(ar.get_buffer(), ar.size());
+                    g_client->packet_queue.push_back(packet);
+                    g_client->packet_mutex.unlock();
+                };
+
+                UI::Button* deny_btn = new UI::Button(9, 0, button_popup.width, button_popup.height, popup_win);
+                deny_btn->text("Reject");
+                deny_btn->current_texture = &button_popup;
+                deny_btn->user_data = (void*)&treaty;
+                deny_btn->below_of(*approve_btn);
+                deny_btn->on_click = [](UI::Widget& w, void* data) {
+                    delete w.parent;
+                    g_client->packet_mutex.lock();
+                    Packet packet = Packet(g_client->get_fd());
+                    Archive ar = Archive();
+                    enum ActionType action = ACTION_CHANGE_TREATY_APPROVAL;
+                    ::serialize(ar, (Treaty**)data);
+                    enum TreatyApproval approval = TREATY_APPROVAL_DENIED;
+                    ::serialize(ar, &approval);
+                    packet.data(ar.get_buffer(), ar.size());
+                    g_client->packet_queue.push_back(packet);
+                    g_client->packet_mutex.unlock();
+                };
+
+                // Buttons for descisions
+                displayed_treaties.push_back(treaty);
+            }
         }
-        
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glPushMatrix();
         glMatrixMode(GL_PROJECTION);
@@ -958,21 +1023,7 @@ void select_nation(void) {
         glRotatef(0.f, 0.0f, 1.0f, 0.0f);
         glRotatef(cam.z_angle, 0.0f, 0.0f, 1.0f);
         
-        map->draw(cam.z);
-        
-        glBindTexture(GL_TEXTURE_2D, map_overlay.gl_tex_num);
-        glBegin(GL_QUADS);
-        glColor4f(1.f, 1.f, 1.f, 0.8f);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glTexCoord2f(1.f, 0.f);
-        glVertex2f(0.f + g_world->width, 0.f);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(0.f + g_world->width, 0.f + g_world->height);
-        glTexCoord2f(0.f, 1.f);
-        glVertex2f(0.f, 0.f + g_world->height);
-        glEnd();
-        glBindTexture(GL_TEXTURE_2D, 0);
+        map->draw(cam, width, height);
 
         g_world->boats_mutex.lock();
         for(const auto& boat: g_world->boats) {

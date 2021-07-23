@@ -140,12 +140,37 @@ class World {
         return (S)std::distance(table.begin(), it);
     }
 public:
-    World(bool empty);
+    World();
     World& operator=(const World&) = default;
     ~World();
 
     // Function that "simulates" the world by an entire tick
-    void do_tick();
+    void do_tick(void);
+    void load_mod(void);
+
+    Nation::Id get_id(const Nation* ptr) const;
+    Province::Id get_id(const Province* ptr) const;
+    Product::Id get_id(const Product* ptr) const;
+    Good::Id get_id(const Good* ptr) const;
+    Culture::Id get_id(const Culture* ptr) const;
+    Company::Id get_id(const Company* ptr) const;
+    IndustryType::Id get_id(const IndustryType* ptr) const;
+    Industry::Id get_id(const Province& province, const Industry* ptr) const;
+    Event::Id get_id(const Event* ptr) const;
+    UnitType::Id get_id(const UnitType* ptr) const;
+    BoatType::Id get_id(const BoatType* ptr) const;
+    UnitTrait::Id get_id(const UnitTrait* ptr) const;
+    Unit::Id get_id(const Unit* ptr) const;
+    Boat::Id get_id(const Boat* ptr) const;
+    OutpostType::Id get_id(const OutpostType* ptr) const;
+    Outpost::Id get_id(const Outpost* ptr) const;
+    Treaty::Id get_id(const Treaty* ptr) const;
+    
+    size_t get_id(const Tile* ptr) const;
+    
+    // Obtains a tile from the world safely, and makes sure that it is in bounds
+    Tile& get_tile(size_t x, size_t y) const;
+    Tile& get_tile(size_t idx) const;
 
     // 2-Dimensional Array of tiles
     Tile* tiles;
@@ -253,30 +278,6 @@ public:
 
     std::vector<Treaty*> treaties;
     mutable std::recursive_mutex treaties_mutex;
-
-    Nation::Id get_id(const Nation* ptr) const;
-    Province::Id get_id(const Province* ptr) const;
-    Product::Id get_id(const Product* ptr) const;
-    Good::Id get_id(const Good* ptr) const;
-    Culture::Id get_id(const Culture* ptr) const;
-    Company::Id get_id(const Company* ptr) const;
-    IndustryType::Id get_id(const IndustryType* ptr) const;
-    Industry::Id get_id(const Province& province, const Industry* ptr) const;
-    Event::Id get_id(const Event* ptr) const;
-    UnitType::Id get_id(const UnitType* ptr) const;
-    BoatType::Id get_id(const BoatType* ptr) const;
-    UnitTrait::Id get_id(const UnitTrait* ptr) const;
-    Unit::Id get_id(const Unit* ptr) const;
-    Boat::Id get_id(const Boat* ptr) const;
-    OutpostType::Id get_id(const OutpostType* ptr) const;
-    Outpost::Id get_id(const Outpost* ptr) const;
-    Treaty::Id get_id(const Treaty* ptr) const;
-    
-    size_t get_id(const Tile* ptr) const;
-    
-    // Obtains a tile from the world safely, and makes sure that it is in bounds
-    Tile& get_tile(size_t x, size_t y) const;
-    Tile& get_tile(size_t idx) const;
     
     // Used by client to update anything each tick (i.e a graph)
     void (*client_update)(void);

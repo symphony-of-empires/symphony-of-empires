@@ -2,12 +2,15 @@
 #include <functional>
 #include <execution>
 #include <mutex>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
+#include <GL/glu.h>
+
 #include "map.hpp"
 #include "path.hpp"
 #include "print.hpp"
 
+extern TextureManager* g_texture_manager;
 Map::Map(const World& _world) : world(_world) {
     std::lock_guard<std::recursive_mutex> lock(world.provinces_mutex);
 
@@ -16,6 +19,8 @@ Map::Map(const World& _world) : world(_world) {
         ProvinceShape pr_shape = ProvinceShape(*this, *province);
         province_shapes.push_back(pr_shape);
     }
+
+    overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
     
     print_info("Creating topo map");
     // Generate the underlying topo map texture, since the topo map
@@ -40,11 +45,11 @@ Map::Map(const World& _world) : world(_world) {
 }
 
 extern TextureManager* g_texture_manager;
-void Map::draw(float zoom) {
+void Map::draw(Camera& cam, const int width, const int height) {
     // Topo map texture
     glBindTexture(GL_TEXTURE_2D, topo_tex->gl_tex_num);
-    glBegin(GL_QUADS);
     glColor3f(1.f, 1.f, 1.f);
+    glBegin(GL_QUADS);
     glTexCoord2f(0.f, 0.f);
     glVertex2f(0.f, 0.f);
     glTexCoord2f(1.f, 0.f);
@@ -70,36 +75,21 @@ void Map::draw(float zoom) {
         glColor4f(0.f, 0.f, 0.f, 0.5f);
         glCallList(province_shapes[i].outline_gl_list);
     }
-    
     glCallList(coastline_gl_list);
-    
-    /*
-    if(zoom >= -200.f) {
-        glLineWidth(4.f);
-        glColor4f(0.2f, 0.2f, 0.2f, 0.5f);
-        for(size_t x = 1; x < world.width; x++) {
-            for(size_t y = 1; y < world.height; y++) {
-                const Tile& left_tile = world.get_tile(x - 1, y);
-                const Tile& top_tile = world.get_tile(x, y - 1);
-                const Tile& tile = world.get_tile(x, y);
-                
-                if(left_tile.province_id != tile.province_id) {
-                    glBegin(GL_LINE_STRIP);
-                    glVertex2f(x, y);
-                    glVertex2f(x, y + 1.f);
-                    glEnd();
-                }
-                
-                if(top_tile.province_id != tile.province_id) {
-                    glBegin(GL_LINE_STRIP);
-                    glVertex2f(x, y);
-                    glVertex2f(x + 1.f, y);
-                    glEnd();
-                }
-            }
-        }
-    }
-    */
+
+    glBindTexture(GL_TEXTURE_2D, overlay_tex->gl_tex_num);
+    glBegin(GL_QUADS);
+    glColor4f(1.f, 1.f, 1.f, 0.8f);
+    glTexCoord2f(0.f, 0.f);
+    glVertex2f(0.f, 0.f);
+    glTexCoord2f(1.f, 0.f);
+    glVertex2f(0.f + world.width, 0.f);
+    glTexCoord2f(1.f, 1.f);
+    glVertex2f(0.f + world.width, 0.f + world.height);
+    glTexCoord2f(0.f, 1.f);
+    glVertex2f(0.f, 0.f + world.height);
+    glEnd();
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 ProvinceShape::ProvinceShape(const Map& map, const Province& base) {
