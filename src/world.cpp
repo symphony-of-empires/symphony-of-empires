@@ -207,21 +207,35 @@ World::World(bool empty) {
 
     // Associate tiles with provinces
     printf("Associate tiles with provinces\n");
+
+    // Uncomment this and see a bit more below
+    //std::set<uint32_t> colors_found;
     for(size_t i = 0; i < total_size; i++) {
         const uint32_t color = div.buffer[i];
+
+        // This "skip the empty stuff" technique works!
+        while(div.buffer[i] == 0xffffffff
+        || div.buffer[i] == 0xff000000) {
+            ++i;
+        }
+
+        // TODO: Could we further speed this up with a contigous lookup table?
         const auto it = std::find_if(provinces.begin(), provinces.end(), [&color](const auto& element) {
             return (color == element->color);
         });
 
         if(it == provinces.end()) {
+            // Uncomment this and see below
+            //colors_found.insert(color);
             continue;
         }
         
         const ProvinceId province_id = std::distance(provinces.begin(), it);
-        while(div.buffer[i] == (*it)->color) {
+        const uint32_t rel_color = (*it)->color;
+        while(div.buffer[i] == rel_color) {
             tiles[i].province_id = province_id;
             provinces[province_id]->n_tiles++;
-            i++;
+            ++i;
         }
         i--;
 
@@ -230,15 +244,33 @@ World::World(bool empty) {
         }
     }
 
+    /* Uncomment this for auto-generating lua code for unregistered provinces */
+    /*for(const auto& color_raw: colors_found) {
+        uint32_t color = color_raw << 8;
+
+        printf("province = Province:create{ ref_name = \"province_%x\", color = 0x%06x }\n", __bswap_32(color), __bswap_32(color));
+        printf("province.name = _(\"Province_%x\")\n", __bswap_32(color));
+        printf("Province:register(province)\n");
+        printf("Province:add_pop(province, artisan, arabic, islamic, 1000, 0.5)\n");
+        printf("Province:add_pop(province, farmer, arabic, islamic, 1000, 0.5)\n");
+        printf("Province:add_pop(province, soldier, arabic, islamic, 1000, 0.5)\n");
+        printf("Province:add_pop(province, craftsmen, arabic, islamic, 1000, 0.5)\n");
+        printf("Province:add_pop(province, bureaucrat, arabic, islamic, 1000, 0.5)\n");
+        printf("Province:add_pop(province, aristocrat, arabic, islamic, 1000, 0.5)\n");
+        printf("Province:add_pop(province, clergymen, arabic, islamic, 1000, 0.5)\n");
+        printf("Province:add_pop(province, laborer, arabic, islamic, 1000, 0.5)\n");
+        printf("Province:add_pop(province, entrepreneur, arabic, islamic, 1000, 0.5)\n");
+    }*/
+
     // Calculate the edges of the province (min and max x and y coordinates)
     printf("Calculate the edges of the province (min and max x and y coordinates)\n");
     for(size_t i = 0; i < this->width; i++) {
-        for(size_t j = 0; j < this->height; j++) {
-            const Tile* tile = &this->tiles[i + (j* this->width)];
-            if(tile->province_id == (ProvinceId)-1)
+        for(size_t j = 0; j < height; j++) {
+            const Tile& tile = get_tile(i, j);
+            if(tile.province_id == (ProvinceId)-1)
                 continue;
 
-            Province* province = this->provinces[tile->province_id];
+            Province* province = provinces[tile.province_id];
             province->max_x = std::max(province->max_x, i);
             province->max_y = std::max(province->max_y, j);
             province->min_x = std::min(province->min_x, i);
@@ -248,12 +280,12 @@ World::World(bool empty) {
 
     // Correct stuff from provinces
     printf("Correcting values for provinces\n");
-    for(auto& province: this->provinces) {
-        province->max_x = std::min(this->width, province->max_x);
-        province->max_y = std::min(this->height, province->max_y);
+    for(auto& province: provinces) {
+        province->max_x = std::min(width, province->max_x);
+        province->max_y = std::min(height, province->max_y);
 
         // Add stockpile
-        for(size_t i = 0; i < this->products.size(); i++) {
+        for(size_t i = 0; i < products.size(); i++) {
             province->stockpile.push_back(0);
         }
     }
@@ -1010,19 +1042,19 @@ size_t World::get_id(const Tile* ptr) const {
     return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
 }
 
-    // Obtains a tile from the world safely, and makes sure that it is in bounds
+// Obtains a tile from the world safely, and makes sure that it is in bounds
 Tile& World::get_tile(size_t x, size_t y) const {
     std::lock_guard<std::recursive_mutex> lock(tiles_mutex);
     if(x >= width || y >= height) {
-        throw "Tile out of bounds";
+        throw std::runtime_error("Tile out of bounds");
     }
-    return tiles[x + y* width];
+    return tiles[x + y * width];
 }
 
 Tile& World::get_tile(size_t idx) const {
     std::lock_guard<std::recursive_mutex> lock(tiles_mutex);
-    if(idx >= width* height) {
-        throw "Tile index exceeds boundaries";
+    if(idx >= width * height) {
+        throw std::runtime_error("Tile index exceeds boundaries");
     }
     return tiles[idx];
 }
