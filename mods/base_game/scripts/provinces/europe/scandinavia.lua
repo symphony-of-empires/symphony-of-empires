@@ -207,22 +207,6 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "skane", color = 0xc870ff }
-province.name = _("Skåne")
-Province:register(province)
-Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
-Province:add_pop(province, farmer, swedish, protestant, 40000, 0.8)
-Province:add_pop(province, soldier, swedish, protestant, 8000, 0.8)
-Province:add_pop(province, craftsmen, swedish, protestant, 5000, 0.9)
-Province:add_pop(province, bureaucrat, swedish, protestant, 5000, 0.9)
-Province:add_pop(province, aristocrat, swedish, protestant, 5000, 0.9)
-Province:add_pop(province, clergymen, swedish, protestant, 5000, 0.9)
-Province:add_pop(province, laborer, swedish, protestant, 50000, 0.8)
-Province:add_pop(province, entrepreneur, swedish, protestant, 800, 0.9)
-Province:add_nucleus(province, sweden)
-Province:add_nucleus(province, scandinavia)
-Province:give_to(province, sweden)
-
 province = Province:create{ ref_name = "smaland", color = 0xa3fff4 }
 province.name = _("Småland")
 Province:register(province)

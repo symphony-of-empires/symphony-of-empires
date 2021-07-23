@@ -175,6 +175,26 @@ novgorod.name = _("Novgorod")
 Nation:register(novgorod)
 Nation:add_accepted_culture(novgorod, russian)
 Nation:add_accepted_culture(novgorod, finnish)
+nogai_horde = Nation:create{ ref_name = "nogai_horde" }
+nogai_horde.name = _("Nogai Horde")
+Nation:register(nogai_horde)
+Nation:add_accepted_culture(nogai_horde, nogai)
+uzbekistan = Nation:create{ ref_name = "uzbekistan" }
+uzbekistan.name = _("Uzbekistan")
+Nation:register(uzbekistan)
+Nation:add_accepted_culture(uzbekistan, uzbek)
+kazakhistan = Nation:create{ ref_name = "kazakhistan" }
+kazakhistan.name = _("Kazakhistan")
+Nation:register(kazakhistan)
+Nation:add_accepted_culture(kazakhistan, kazakh)
+kyrgyztan = Nation:create{ ref_name = "kyrgyztan" }
+kyrgyztan.name = _("Kyrgyztan")
+Nation:register(kyrgyztan)
+Nation:add_accepted_culture(kyrgyztan, kyrgyz)
+afghanistan = Nation:create{ ref_name = "afghanistan" }
+afghanistan.name = _("Afghanistan")
+Nation:register(afghanistan)
+Nation:add_accepted_culture(afghanistan, afghan)
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------

@@ -1,6 +1,7 @@
 require("api")
 
 -- Unit traits
+-- TODO: Probably generals have them
 local trait = UnitTrait:create{ ref_name = "fanatic", attack_mod = 1.2 }
 UnitTrait:register(trait)
 trait = UnitTrait:create{ ref_name = "frugal", supply_consumption_mod = 0.7 }
@@ -97,7 +98,6 @@ Culture:register(turkish)
 greek = Culture:create{ ref_name = "greek" }
 greek.name = _("Greek")
 Culture:register(greek)
-
 italian = Culture:create{ ref_name = "italian" }
 italian.name = _("Italian")
 Culture:register(italian)
@@ -113,6 +113,28 @@ Culture:register(estonian)
 polish = Culture:create{ ref_name = "polish" }
 polish.name = _("Polish")
 Culture:register(polish)
+
+-- Eurasia and West Asia
+nogai = Culture:create{ ref_name = "nogai" }
+nogai.name = _("Nogai")
+Culture:register(nogai)
+
+-- Central Asia
+kazakh = Culture:create{ ref_name = "kazakh" }
+kazakh.name = _("Kazakh")
+Culture:register(kazakh)
+uzbek = Culture:create{ ref_name = "uzbek" }
+uzbek.name = _("Uzbek")
+Culture:register(uzbek)
+tajik = Culture:create{ ref_name = "tajik" }
+tajik.name = _("Tajik")
+Culture:register(tajik)
+kyrgyz = Culture:create{ ref_name = "kyrgyz" }
+kyrgyz.name = _("Kyrgyz")
+Culture:register(kyrgyz)
+afghan = Culture:create{ ref_name = "afghan" }
+afghan.name = _("Afghan")
+Culture:register(afghan)
 
 -- American
 yankee = Culture:create{ ref_name = "yankee" }
@@ -285,7 +307,6 @@ slave.name = _("Slave")
 PopType:register(slave)
 
 -- Good types
-
 -- Farmable stuff
 wheat = Good:create{ ref_name = "wheat" }
 wheat.name = _("Wheat")
@@ -457,7 +478,6 @@ Good:register(opium)
 spices = Good:create{ ref_name = "spices" }
 spices.name = _("Spices")
 Good:register(spices)
-print("good types")
 
 -- Industry types
 
@@ -526,7 +546,6 @@ titanium_mine = IndustryType:create{ ref_name = "titanium_mine" }
 titanium_mine.name = _("Titanium mine")
 IndustryType:register(titanium_mine)
 IndustryType:add_output(titanium_mine, titanium)
-print("primary sector industries")
 
 -- Secondary sector industries (now the fun begins)
 chair_manufacturer = IndustryType:create{ ref_name = "chair_manufacturer" }
@@ -607,7 +626,6 @@ sails_factory.name = _("Sails factory")
 IndustryType:register(sails_factory)
 IndustryType:add_input(sails_factory, textile)
 IndustryType:add_output(sails_factory, sail)
-print("secondary sector industries")
 
 -- Unit types
 garrison = UnitType:create{ ref_name = "garrison", defense = 5.0, attack = 2.0, health = 100.0 }
@@ -679,9 +697,7 @@ Company:register(mexico_transport)
 --------------------------------------------------------------------------------------------------------------------
 
 -- Provinces
-
 require('provinces/africa/northern')
-
 require('provinces/americas/alaska')
 require('provinces/americas/argentina')
 require('provinces/americas/brazil_and_pantanal')
@@ -692,14 +708,13 @@ require('provinces/americas/guianas')
 require('provinces/americas/mexico')
 require('provinces/americas/south_america')
 require('provinces/americas/united_states')
-
 require('provinces/europe/austria')
 require('provinces/europe/bohemia')
 require('provinces/europe/denmark')
 require('provinces/europe/france')
 require('provinces/europe/scandinavia')
-
 require('provinces/oceania/hawaii')
+require('provinces/unknown')
 
 --------------------------------------------------------------
 -- Continent: Europe
