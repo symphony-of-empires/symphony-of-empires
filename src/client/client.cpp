@@ -693,6 +693,10 @@ void select_nation(void) {
                             if(selected_outpost != nullptr)
                                 break;
                             
+                            // Server will reject outpost build request if it's not in our territory (and it's not being built on water either)
+                            if(g_world->get_tile(select_pos.first, select_pos.second).owner_id != g_world->get_id(curr_nation) && g_world->get_tile(select_pos.first, select_pos.second).owner_id != (NationId)-1)
+                                break;
+                            
                             // Tell the server about an action for building an outpost
                             g_client->packet_mutex.lock();
                             Packet packet = Packet();
@@ -966,9 +970,9 @@ void select_nation(void) {
                 popup_win->current_texture = &generic_descision;
 
                 // Separate the text line by line
-                new UI::Label(8, 0, treaty_to_text(*treaty).c_str(), popup_win);
+                new UI::Label(8, 32, treaty_to_text(*treaty).c_str(), popup_win);
 
-                UI::Button* approve_btn = new UI::Button(9, 24, button_popup.width, button_popup.height, popup_win);
+                UI::Button* approve_btn = new UI::Button(9, 64, button_popup.width, button_popup.height, popup_win);
                 approve_btn->text("Approve");
                 approve_btn->current_texture = &button_popup;
                 approve_btn->user_data = (void*)&treaty;
