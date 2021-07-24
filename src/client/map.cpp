@@ -72,8 +72,8 @@ void Map::draw(Camera& cam, const int width, const int height) {
 
         glCallList(province_shapes[i].shape_gl_list);
 
-        glColor4f(0.f, 0.f, 0.f, 0.5f);
-        glCallList(province_shapes[i].outline_gl_list);
+        //glColor4f(0.f, 0.f, 0.f, 0.5f);
+        //glCallList(province_shapes[i].outline_gl_list);
     }
     glCallList(coastline_gl_list);
 
