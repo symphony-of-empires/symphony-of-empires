@@ -34,34 +34,34 @@ std::string treaty_to_text(const Treaty& treaty) {
     str += "Treaty";
     str += treaty.name.c_str();
     for(const auto& clause: treaty.clauses) {
-        switch(clause.type) {
+        switch(clause->type) {
         case TREATY_CLAUSE_WAR_REPARATIONS:
             str += "war reparations from ";
-            str += clause.receiver->name.c_str();
+            str += clause->receiver->name.c_str();
             break;
         case TREATY_CLAUSE_HUMILIATE:
             str += "humiliate ";
-            str += clause.receiver->name.c_str();
+            str += clause->receiver->name.c_str();
             break;
         case TREATY_CLAUSE_LIBERATE_NATION:
             str += "liberate ";
-            str += clause.liberated->name.c_str();
+            str += ((TreatyClause::LiberateNation*)clause)->liberated->name.c_str();
             break;
         case TREATY_CLAUSE_IMPOSE_POLICIES:
             str += "impose policies ";
             break;
         case TREATY_CLAUSE_ANEXX_PROVINCES:
             str += "anexx province ";
-            for(const auto& province: clause.provinces) {
+            for(const auto& province: ((TreatyClause::AnexxProvince*)clause)->provinces) {
                 str += province->name.c_str();
                 str += ", ";
             }
             str += "from ";
-            str += clause.receiver->name.c_str();
+            str += clause->receiver->name.c_str();
             break;
         case TREATY_CLAUSE_CEASEFIRE:
             str += "generous ceasefire to ";
-            str += clause.receiver->name.c_str();
+            str += clause->receiver->name.c_str();
             break;
         default:
             str += "unknown";
@@ -128,12 +128,11 @@ void ui_treaty(void) {
         list_btn->text("TREATY_CLAUSE_WAR_REPARATIONS");
         list_btn->on_click = [](UI::Widget&, void* data) {
             std::lock_guard<std::mutex> lock(g_treaty_draft_mutex);
-            TreatyClause::BaseClause clause;
-            clause.type = TREATY_CLAUSE_WAR_REPARATIONS;
-            clause.sender = curr_nation;
-            clause.receiver = recv_nation;
-            clause.amount = 5000.f;
-            clause.days_duration = 365;
+            TreatyClause::WarReparations* clause = new TreatyClause::WarReparations();
+            clause->sender = curr_nation;
+            clause->receiver = recv_nation;
+            clause->amount = 5000.f;
+            clause->days_duration = 365;
             g_treaty_draft.clauses.push_back(clause);
         };
         y += 38 + 2;
@@ -178,12 +177,12 @@ void ui_treaty(void) {
                 list_btn->text(province->name.c_str());
                 list_btn->user_data = (void*)province;
                 list_btn->on_click = [](UI::Widget& w, void* data) {
-                    TreatyClause::BaseClause clause;
-                    clause.type = TREATY_CLAUSE_ANEXX_PROVINCES;
-                    clause.provinces.push_back((Province*)w.user_data);
-                    clause.sender = curr_nation;
-                    clause.receiver = recv_nation;
-                    clause.days_duration = 0;
+                    std::lock_guard<std::mutex> lock(g_treaty_draft_mutex);
+                    TreatyClause::AnexxProvince* clause = new TreatyClause::AnexxProvince();
+                    clause->provinces.push_back((Province*)w.user_data);
+                    clause->sender = curr_nation;
+                    clause->receiver = recv_nation;
+                    clause->days_duration = 0;
                     g_treaty_draft.clauses.push_back(clause);
                 };
                 another_y += 38 + 4;

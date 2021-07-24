@@ -1,3 +1,4 @@
+#include "diplomacy.hpp"
 #include "policy.hpp"
 #include <cstdio>
 #include <cstdlib>
@@ -269,11 +270,7 @@ void World::load_mod(void) {
             provinces[province_id]->n_tiles++;
             ++i;
         }
-        i--;
-
-        while(div.buffer[i] == 0xff000000 || div.buffer[i] == 0xffffffff) {
-            i++;
-        }
+        --i;
     }
     delete[] color_province_rel_table;
 
@@ -936,7 +933,7 @@ void World::do_tick() {
         }
     }
     
-    for(const auto& unit: g_world->units) {
+    for(const auto& unit: units) {
         // Broadcast to clients
         Packet packet = Packet(0);
         Archive ar = Archive();
@@ -948,6 +945,33 @@ void World::do_tick() {
         g_server->broadcast(packet);
     }
     units_mutex.unlock();
+
+    // Do the treaties clauses
+    treaties_mutex.lock();
+    for(const auto& treaty: treaties) {
+        // Check that the treaty is agreed by all parties before enforcing it
+        bool is_on_effect = true;
+        for(const auto& status: treaty->approval_status) {
+            if(status.second != TREATY_APPROVAL_ACCEPTED) {
+                is_on_effect = false;
+                break;
+            }
+        }
+
+        if(!is_on_effect)
+            continue;
+        
+        // Treaties clauses now will be enforced
+        for(auto& clause: treaty->clauses) {
+            // Only clauses that are still in effect will be enforced
+            if(!clause->in_effect())
+                continue;
+            
+            // This function now depends ona  clause-type basis
+            clause->enforce();
+        }
+    }
+    treaties_mutex.unlock();
     
     // Tell clients that this tick has been done
     Packet packet = Packet(0);

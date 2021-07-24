@@ -462,11 +462,11 @@ void Server::net_loop(int id) {
                             // Obtain participants of the treaty
                             std::set<Nation*> approver_nations = std::set<Nation*>();
                             for(auto& clause: treaty->clauses) {
-                                if(clause.receiver == nullptr || clause.sender == nullptr)
+                                if(clause->receiver == nullptr || clause->sender == nullptr)
                                     throw ServerException("Invalid clause receiver/sender");
                                 
-                                approver_nations.insert(clause.receiver);
-                                approver_nations.insert(clause.sender);
+                                approver_nations.insert(clause->receiver);
+                                approver_nations.insert(clause->sender);
                             }
 
                             // Then fill as undecided (and ask nations to sign this treaty)

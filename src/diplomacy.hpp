@@ -32,18 +32,8 @@ namespace TreatyClause {
         // Nation who should accept/reject this clause
         Nation* receiver;
 
-        // Amount to pay per day
-        float amount = 0;
-
         // Number of days this clause lasts
         size_t days_duration = 0;
-
-        // Applies only to "Liberate nation" clauses
-        Nation* liberated = nullptr;
-        std::vector<Province *> provinces;
-
-        // For "Impose policy" clauses
-        Policies imposed;
 
         // Used for 1 time clauses
         bool done = false;
@@ -77,6 +67,8 @@ namespace TreatyClause {
         unsigned cost(void);
         void enforce(void);
         bool in_effect(void);
+
+        float amount = 0.f;
     };
     
     /**
@@ -89,6 +81,8 @@ namespace TreatyClause {
         unsigned cost(void);
         void enforce(void);
         bool in_effect(void);
+
+        float amount = 0.f;
     };
     
     /**
@@ -101,6 +95,9 @@ namespace TreatyClause {
         unsigned cost(void);
         void enforce(void);
         bool in_effect(void);
+
+        Nation* liberated = nullptr;
+        std::vector<Province *> provinces;
     };
     
     /**
@@ -113,6 +110,8 @@ namespace TreatyClause {
         unsigned cost(void);
         void enforce(void);
         bool in_effect(void);
+
+        Policies imposed;
     };
     
     /**
@@ -125,6 +124,8 @@ namespace TreatyClause {
         unsigned cost(void);
         void enforce(void);
         bool in_effect(void);
+
+        std::vector<Province *> provinces;
     };
     
     /**
@@ -153,7 +154,7 @@ public:
     using Id = TreatyId;
     
     std::string name;
-    std::vector<TreatyClause::BaseClause> clauses;
+    std::vector<TreatyClause::BaseClause*> clauses;
 
     Nation* receiver,* sender;
 
