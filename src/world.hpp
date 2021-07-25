@@ -73,7 +73,17 @@ public:
 };
 
 /**
-* Represents a delivery, 
+ * A job request
+ */
+class JobRequest {
+public:
+    size_t amount;
+    Province* province;
+    Pop* pop;
+};
+
+/**
+ * Represents a delivery, 
  */
 class DeliverGoods {
 public:
@@ -248,10 +258,12 @@ public:
     // A list of orders (what factories want to be sent to them)
     std::vector<OrderGoods> orders;
     mutable std::recursive_mutex orders_mutex;
-
     // A deliver list (what factories need to send)
     std::vector<DeliverGoods> delivers;
     mutable std::recursive_mutex delivers_mutex;
+    // A list of jobs required
+    std::vector<JobRequest> job_requests;
+    mutable std::recursive_mutex job_requests_mutex;
 
     // List of convoys on the world (unused)
     std::vector<CommercialConvoy> convoys;
