@@ -422,22 +422,22 @@ void Server::net_loop(int id) {
                             if(treaty == nullptr)
                                 throw ServerException("Treaty not found");
                             
+                            enum TreatyApproval approval;
+                            ::deserialize(ar, &approval);
+
+                            print_info("%s approves treaty %s? %s", selected_nation->name.c_str(), treaty->name.c_str(), (approval == TREATY_APPROVAL_ACCEPTED) ? "YES" : "NO");
+                            
                             // Check that the nation participates in the treaty
                             bool does_participate = false;
                             for(auto& status: treaty->approval_status) {
                                 if(status.first == selected_nation) {
                                     // Alright, then change approval
-                                    enum TreatyApproval approval;
-                                    ::deserialize(ar, &approval);
                                     status.second = approval;
-
-                                    print_info("%s approves treaty %s? %s", status.first->name.c_str(), treaty->name.c_str(), (status.second == TREATY_APPROVAL_ACCEPTED) ? "YES" : "NO");
 
                                     does_participate = true;
                                     break;	
                                 }
                             }
-
                             if(!does_participate)
                                 throw ServerException("Nation does not participate in treaty");
                         }
@@ -472,9 +472,11 @@ void Server::net_loop(int id) {
                                 approver_nations.insert(clause->sender);
                             }
 
+                            print_info("Participants of treaty %s", treaty->name.c_str())
                             // Then fill as undecided (and ask nations to sign this treaty)
                             for(auto& nation: approver_nations) {
                                 treaty->approval_status.push_back(std::make_pair(nation, TREATY_APPROVAL_UNDECIDED));
+                                print_info("- %s", nation->name.c_str());
                             }
 
                             // The sender automatically accepts the treaty (they are the ones who drafted it)

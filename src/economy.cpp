@@ -64,9 +64,8 @@ void Economy::do_phase_1(World& world) {
             }
         }
 
-#warning "TODO: Properly do the can_build part"
-        //if(!can_build)
-        //	break;
+        if(!can_build)
+        	break;
 
         if(outpost->working_unit_type != nullptr) {
             // Spawn a unit
@@ -156,7 +155,31 @@ void Economy::do_phase_1(World& world) {
         // orders and the factories that require inputs will put their orders in the
         // table so they are served by transport companies
         for(auto& industry: province->industries) {
-            if(!province->worker_pool) {
+            size_t needed_manpower = 1500;
+            size_t available_manpower = 0;
+            // Find job requests which are for this province
+            for(size_t i = 0; i < world.job_requests.size(); i++) {
+                JobRequest& job_request = world.job_requests[i];
+                if(job_request.province != province)
+                    continue;
+                
+                available_manpower += std::min(needed_manpower, job_request.amount);
+                job_request.amount -= std::min(needed_manpower, job_request.amount);
+
+                // Give pay to the POP
+                job_request.pop->budget += 10.f;
+
+                // Delete job request when it has 0 amount
+                if(!job_request.amount) {
+                    world.job_requests.erase(world.job_requests.begin() + i);
+                    i--;
+                    continue;
+                }
+            }
+
+            print_info("Industry of %s in %s has %zu workers", industry.type->name.c_str(), province->name.c_str(), available_manpower);
+
+            if(!available_manpower) {
                 industry.days_unoperational++;
                 industry.min_quality = 0;
 
@@ -169,10 +192,6 @@ void Economy::do_phase_1(World& world) {
             }
             
             industry.days_unoperational = 0;
-            
-            size_t needed_manpower = 1500;
-            size_t available_manpower = std::min<size_t>(needed_manpower, province->worker_pool);
-            province->worker_pool -= available_manpower;
             industry.workers = available_manpower;
             
             const IndustryType& it = *industry.type;
@@ -435,14 +454,14 @@ void Economy::do_phase_2(World& world) {
     world.orders.clear();
 
     // Uncomment to see stockpiles
-    /*for(const auto& province: world.provinces) {
+    for(const auto& province: world.provinces) {
         for(size_t i = 0; i < province->stockpile.size(); i++) {
             if(!province->stockpile[i])
                 continue;
                 
-            printf("%zu of %s produced in %s - stockpiled by %s\n", province->stockpile[i], world.products[i]->good->name.c_str(), world.products[i]->origin->name.c_str(), province->name.c_str());
+            print_info("%zu of %s produced in %s - stockpiled by %s\n", province->stockpile[i], world.products[i]->good->name.c_str(), world.products[i]->origin->name.c_str(), province->name.c_str());
         }
-    }*/
+    }
 }
 
 class Emigrated {
@@ -458,7 +477,9 @@ public:
 void Economy::do_phase_3(World& world) {
     // Now, it's like 1 am here, but i will try to write a very nice economic system
     // TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
-    
+
+    world.job_requests.clear();
+
     std::mutex emigration_lock;
     std::vector<Emigrated> emigration;
     emigration.clear();
@@ -493,55 +514,6 @@ void Economy::do_phase_3(World& world) {
         province->worker_pool = 0;
         for(size_t i = 0; i < province->pops.size(); i++) {
             Pop& pop = province->pops[i];
-            
-            float salary;
-            
-            // TODO: This is very stupid
-            switch(pop.type_id) {
-            case POP_TYPE_ENTRPRENEUR:
-                salary = 5.f;
-                break;
-            case POP_TYPE_ARTISAN:
-                salary = 0.4f;
-                break;
-            case POP_TYPE_CRAFTSMEN:
-                salary = 0.2f;
-                break;
-            case POP_TYPE_BUREAUCRAT:
-                salary = 0.1f;
-                break;
-            case POP_TYPE_ARISTOCRAT:
-                salary = 0.6f;
-                break;
-            case POP_TYPE_CLERGYMEN:
-                /*for(auto& taught_pops: province->pops) {
-                    taught_pops.literacy += std::min<float>(0.001f, (pop.literacy * pop.size) / 100000.f);
-                    taught_pops.literacy = std::min<float>(0.001f, taught_pops.literacy);
-                }*/
-                salary = 0.2f;
-                break;
-            case POP_TYPE_FARMER:
-                salary = 0.7f;
-                break;
-            case POP_TYPE_SOLDIER:
-                salary = 0.3f;
-                break;
-            case POP_TYPE_OFFICER:
-                salary = 0.7f;
-                break;
-            case POP_TYPE_LABORER:
-                salary = 0.2f;
-                break;
-            case POP_TYPE_SLAVE:
-                salary = 0.01f;
-                break;
-            default:
-                salary = 0.5f;
-                break;
-            }
-            
-            // TODO: Make this dynamic
-            pop.budget += salary * 90.f;
 
             // Use 33% of our budget to buy edibles and life needed stuff
             float life_alloc_budget = pop.budget / 3;
@@ -725,8 +697,6 @@ void Economy::do_phase_3(World& world) {
             
         skip_emigration:
             pop.life_needs_met -= 1.2f * std::max<float>(0.f, 1.f - pop.literacy);
-
-            province->worker_pool += pop.size / (1 + ((pop.militancy * pop.life_needs_met) * pop.consciousness));
         }
         
         // Stockpiles cleared
@@ -761,6 +731,19 @@ void Economy::do_phase_3(World& world) {
             province->pops.push_back(*pop);
         }
         new_pop->size += size;
+    }
+
+    // Please do not modify the POPs vector in provinces after this, otherwise the pointers
+    // can get invalidated which would result in disaster
+    for(const auto& province: world.provinces) {
+        for(auto& pop: province->pops) {
+            // Post a job request
+            JobRequest request;
+            request.amount = pop.size;
+            request.pop = &pop;
+            request.province = province;
+            world.job_requests.push_back(request);
+        }
     }
 }
 
