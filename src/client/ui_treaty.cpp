@@ -212,6 +212,11 @@ void ui_treaty(void) {
     ok_btn->text("OK");
     ok_btn->below_of(*reset_btn);
     ok_btn->on_click = [](UI::Widget&, void* data) {
+        // Name the treaty somethign random
+        // TODO: Let the user rename treaties and name treaties after cities
+        g_treaty_draft.name = "Treaty of ";
+        g_treaty_draft.name += curr_nation->name.c_str();
+
         // Send draft to server
         g_client->packet_mutex.lock();
         Packet packet = Packet(g_client->get_fd());
