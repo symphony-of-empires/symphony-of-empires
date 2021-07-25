@@ -66,6 +66,35 @@ void Economy::do_phase_1(World& world) {
 
         if(!can_build)
         	break;
+        
+        size_t needed_manpower = 1500;
+        size_t available_manpower = 0;
+        for(size_t i = 0; i < world.job_requests.size(); i++) {
+            JobRequest& job_request = world.job_requests[i];
+            // Outposts on water-desertland
+            if(world.get_tile(outpost->x, outpost->y).province_id == (ProvinceId)-1) {
+                // Accept anything
+            }
+            // Outposts on land
+            else if(job_request.province != world.provinces[world.get_tile(outpost->x, outpost->y).province_id]) {
+                // If province not equal to province of outpost then dont accept
+                continue;
+            }
+
+            // Give pay to the POP
+            job_request.pop->budget += 10.f;
+            outpost->owner->budget -= 10.f * job_request.amount;
+                
+            available_manpower += std::min(needed_manpower, job_request.amount);
+            job_request.amount -= std::min(needed_manpower, job_request.amount);
+
+            // Delete job request when it has 0 amount
+            if(!job_request.amount) {
+                world.job_requests.erase(world.job_requests.begin() + i);
+                i--;
+                continue;
+            }
+        }
 
         if(outpost->working_unit_type != nullptr) {
             // Spawn a unit
@@ -168,6 +197,7 @@ void Economy::do_phase_1(World& world) {
 
                 // Give pay to the POP
                 job_request.pop->budget += 10.f;
+                industry.budget -= 10.f;
 
                 // Delete job request when it has 0 amount
                 if(!job_request.amount) {
