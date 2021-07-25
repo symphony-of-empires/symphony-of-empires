@@ -157,6 +157,7 @@ void Server::broadcast(Packet& packet) {
  * put the packets on the send queue, they will be sent accordingly
  */
 void Server::net_loop(int id) {
+    run = true;
     while(run) {
         int conn_fd = 0;
         try {
@@ -429,6 +430,8 @@ void Server::net_loop(int id) {
                                     enum TreatyApproval approval;
                                     ::deserialize(ar, &approval);
                                     status.second = approval;
+
+                                    print_info("%s approves treaty %s? %s", status.first->name.c_str(), treaty->name.c_str(), (status.second == TREATY_APPROVAL_ACCEPTED) ? "YES" : "NO");
 
                                     does_participate = true;
                                     break;	
