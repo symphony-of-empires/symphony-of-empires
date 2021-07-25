@@ -962,13 +962,63 @@ void World::do_tick() {
             continue;
         
         // Treaties clauses now will be enforced
+        print_info("Enforcing treaty");
         for(auto& clause: treaty->clauses) {
-            // Only clauses that are still in effect will be enforced
-            if(!clause->in_effect())
-                continue;
-            
-            // This function now depends ona  clause-type basis
-            clause->enforce();
+            switch(clause->type) {
+            case TREATY_CLAUSE_WAR_REPARATIONS:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::WarReparations*>(clause);
+                    if(!dyn_clause->in_effect())
+                        goto next_iter;
+                    dyn_clause->enforce();
+                }
+                break;
+            case TREATY_CLAUSE_ANEXX_PROVINCES:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::AnexxProvince*>(clause);
+                    if(!dyn_clause->in_effect())
+                        goto next_iter;
+                    dyn_clause->enforce();
+                }
+                break;
+            case TREATY_CLAUSE_LIBERATE_NATION:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::LiberateNation*>(clause);
+                    if(!dyn_clause->in_effect())
+                        goto next_iter;
+                    dyn_clause->enforce();
+                }
+                break;
+            case TREATY_CLAUSE_HUMILIATE:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::Humiliate*>(clause);
+                    if(!dyn_clause->in_effect())
+                        goto next_iter;
+                    dyn_clause->enforce();
+                }
+                break;
+            case TREATY_CLAUSE_IMPOSE_POLICIES:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::ImposePolicies*>(clause);
+                    if(!dyn_clause->in_effect())
+                        goto next_iter;
+                    dyn_clause->enforce();
+                }
+                break;
+            case TREATY_CLAUSE_CEASEFIRE:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::Ceasefire*>(clause);
+                    if(!dyn_clause->in_effect())
+                        goto next_iter;
+                    dyn_clause->enforce();
+                }
+                break;
+            default:
+                break;
+            }
+        
+        next_iter:
+            ;
         }
     }
     treaties_mutex.unlock();
