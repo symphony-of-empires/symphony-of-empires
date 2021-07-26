@@ -12,7 +12,7 @@
 #include "io_impl.hpp"
 #include "network.hpp"
 
-/* Visual Studio does not define ssize_t because it's POSIX */
+/* Visual Studio does not define ssize_t because it's a POSIX-only type */
 #ifdef _MSC_VER
 typedef signed int ssize_t;
 #endif
@@ -184,6 +184,7 @@ void Economy::do_phase_1(World& world) {
         // orders and the factories that require inputs will put their orders in the
         // table so they are served by transport companies
         for(auto& industry: province->industries) {
+            // TODO: Needed manpower be calculated by total priority of outputs?
             size_t needed_manpower = 1500;
             size_t available_manpower = 0;
             // Find job requests which are for this province
@@ -245,14 +246,16 @@ void Economy::do_phase_1(World& world) {
             // Place deliver orders (we are a RGO)
             for(size_t k = 0; k < it.outputs.size(); k++) {
                 DeliverGoods deliver;
-                deliver.quantity = (available_manpower / needed_manpower) * 2000;
-                if(!deliver.quantity)
-                    continue;
+                
                 deliver.payment = industry.willing_payment;
                 deliver.good = it.outputs[k];
                 deliver.industry = &industry;
                 deliver.province = province;
                 deliver.product = industry.output_products[k];
+                // Produce more of a product when it has a lot of demand
+                deliver.quantity = (available_manpower / needed_manpower) * ((deliver.product->demand - deliver.product->supply) / 1000.f);
+                if(!deliver.quantity)
+                    continue;
 
                 // Cannot be below production cost, so we can be profitable and we need
                 // to raise prices
@@ -494,11 +497,14 @@ void Economy::do_phase_2(World& world) {
     }
 }
 
+/**
+ * Structure that represents a person emigrating from a province to another
+ */
 class Emigrated {
 public:
     Emigrated() {};
     Province* target;
-    Pop* emigred;
+    Pop emigred;
     size_t size;
 };
 /**
@@ -630,14 +636,38 @@ void Economy::do_phase_3(World& world) {
                 pop.militancy += 0.01f;
                 pop.consciousness += 0.01f;
             }
+
+            pop.life_needs_met -= 1.2f * std::max<float>(0.f, 1.f - pop.literacy);
             
             // Depending on how much not our life needs are being met is how many we
             // want to get out of here
             // And literacy determines "best" spot, for example a low literacy will
             // choose a slightly less desirable location
-            const float emigration_willing = 1.f / std::min(pop.life_needs_met, -1.0f);
-            size_t emigreers = (float)(((float)pop.size / 1000.f) * emigration_willing);
-            if(emigreers) {
+            const float emigration_willing = 1.f / std::min(pop.life_needs_met, 0.f);
+            long long int emigreers = (pop.size * emigration_willing) + rand() % pop.size;
+            if(emigreers > 0) {
+                // Check that laws on the province we are in allows for emigration
+                if(province->owner->current_policy.migration == ALLOW_NOBODY) {
+                    goto skip_emigration;
+                } else if(province->owner->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
+                    bool is_accepted = false;
+
+                    for(const auto& culture: province->owner->accepted_cultures) {
+                        if(pop.culture_id == world.get_id(culture)) {
+                            is_accepted = true;
+                            break;
+                        }
+                    }
+
+                    if(!is_accepted)
+                        goto skip_emigration;
+                } else if(province->owner->current_policy.migration == ALLOW_ALL_PAYMENT) {
+                    // See if we can afford the tax
+                    if(pop.budget < ((pop.budget / 1000.f) * province->owner->current_policy.import_tax)) {
+                        continue;
+                    }
+                }
+
                 // Find best province
                 Province* best_province = nullptr;
                 for(size_t j = 0; j < world.provinces.size(); j += std::max<size_t>((rand() % (world.provinces.size() - j)) / 10, 1)) {
@@ -685,7 +715,7 @@ void Economy::do_phase_3(World& world) {
                             // See if we are accepted culture
                             bool is_accepted = false;
                             for(const auto& culture: target_province->owner->accepted_cultures) {
-                                if(culture == g_world->cultures[pop.culture_id]) {
+                                if(pop.culture_id == world.get_id(culture)) {
                                     is_accepted = true;
                                     break;
                                 }
@@ -696,7 +726,7 @@ void Economy::do_phase_3(World& world) {
                             }
                         } else if(target_province->owner->current_policy.immigration == ALLOW_ALL_PAYMENT) {
                             // See if we can afford the tax
-                            if(pop.budget < ((pop.budget / 1000.f)* target_province->owner->current_policy.import_tax)) {
+                            if(pop.budget < ((pop.budget / 1000.f) * target_province->owner->current_policy.import_tax)) {
                                 continue;
                             }
                         } else if(target_province->owner->current_policy.immigration == ALLOW_ALL) {
@@ -710,46 +740,47 @@ void Economy::do_phase_3(World& world) {
                 
                 // If best not found then we don't go to anywhere
                 if(best_province == nullptr) {
-                    goto skip_emigration;
+                    // Or we do, but just randomly
+                    best_province = world.provinces[rand() % world.provinces.size()];
+                    //goto skip_emigration;
                 }
                 
-                printf("Emigrating %s -> %s, about %zu\n", province->name.c_str(), best_province->name.c_str(), emigreers);
+                print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
                 
                 Emigrated emigrated;
                 emigrated.target = best_province;
-                emigrated.emigred = &pop;
+                emigrated.emigred = pop;
                 emigrated.size = emigreers;
                 
                 emigration_lock.lock();
                 emigration.push_back(emigrated);
                 emigration_lock.unlock();
             }
-            
         skip_emigration:
-            pop.life_needs_met -= 1.2f * std::max<float>(0.f, 1.f - pop.literacy);
+            ;
         }
         
         // Stockpiles cleared
         memset(&province->stockpile[0], 0, province->stockpile.size()* sizeof(province->stockpile[0]));
     });
     
+    // TODO: We are duplicating population when emigrating!!! This is bad and we need
+    // to substract from the original POP!!!
+
     // Now time to do the emigration
     for(const auto& target: emigration) {
         Province* province = target.target;
-        Pop* pop = target.emigred;
+        Pop pop = target.emigred;
         size_t size = target.size;
-        
-        // Reduce size of POP, so we don't have duplicates
-        pop->size -= size;
         
         // A new pop, this is the representation of the POP in the target
         // province, if no pop of same culture, same religion and same
         // employment exists then we create a new one
         Pop* new_pop = nullptr;
         for(auto& p_pop: province->pops) {
-            if(p_pop.culture_id == pop->culture_id
-            && p_pop.religion_id == pop->religion_id
-            && p_pop.type_id == pop->type_id) {
+            if(p_pop.culture_id == pop.culture_id
+            && p_pop.religion_id == pop.religion_id
+            && p_pop.type_id == pop.type_id) {
                 new_pop = &p_pop;
                 break;
             }
@@ -758,7 +789,8 @@ void Economy::do_phase_3(World& world) {
         // Compatible POP does not exist on target province, so we create
         // a new one (copy the original POP) and add it to the province
         if(new_pop == nullptr) {
-            province->pops.push_back(*pop);
+            province->pops.push_back(pop);
+            new_pop = &*province->pops.end();
         }
         new_pop->size += size;
     }

@@ -168,8 +168,8 @@ int Context::check_click(const unsigned mx, const unsigned my) {
     const size_t n_widget = widgets.size();
     is_drag = false;
     for(int i = n_widget - 1; i >= 0; i--) {
-        Widget& widget = *widgets[i];
-        int r = check_click_recursive(widget, mx, my, 0, 0);
+        Widget* widget = widgets[i];
+        int r = check_click_recursive(*widget, mx, my, 0, 0);
         if(r > 0) {
             return 1;
         }
@@ -370,8 +370,10 @@ Widget::~Widget() {
     }
     children.clear();
 
-    // Hide widget immediately upon destruction
-    g_ui_context->remove_widget(this);
+    if(parent == nullptr) {
+        // Hide widget immediately upon destruction
+        g_ui_context->remove_widget(this);
+    }
 }
 
 void Widget::move_by(int _x, int _y) {
@@ -424,7 +426,6 @@ void Widget::text(const char* text) {
         }
     }
     SDL_FreeSurface(surface);
-    
     text_texture->to_opengl();
 }
 
