@@ -218,8 +218,8 @@ void World::load_mod(void) {
     printf("Translate all div, pol and topo maps onto this single tile array\n");
     for(size_t i = 0; i < total_size; i++) {
         // Set coordinates for the tiles
-        tiles[i].owner_id = (NationId)-1;
-        tiles[i].province_id = (ProvinceId)-1;
+        tiles[i].owner_id = (Nation::Id)-1;
+        tiles[i].province_id = (Province::Id)-1;
         tiles[i].elevation = topo.buffer[i] & 0x000000ff;
         if(topo.buffer[i] == 0xffff0000) {
             tiles[i].elevation = sea_level + 1;
@@ -239,8 +239,8 @@ void World::load_mod(void) {
     // Build a lookup table for super fast speed on finding provinces
     // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
     print_info("Building province lookup table");
-    ProvinceId* color_province_rel_table = new ProvinceId[16777216];
-    memset(color_province_rel_table, 0xff, sizeof(ProvinceId) * 16777216);
+    Province::Id* color_province_rel_table = new Province::Id[16777216];
+    memset(color_province_rel_table, 0xff, sizeof(Province::Id) * 16777216);
     for(const auto& province: provinces) {
         color_province_rel_table[province->color & 0xffffff] = get_id(province);
     }
@@ -257,8 +257,8 @@ void World::load_mod(void) {
             ++i;
         }
 
-        const ProvinceId province_id = color_province_rel_table[div.buffer[i] & 0xffffff];
-        if(province_id == (ProvinceId)-1) {
+        const Province::Id province_id = color_province_rel_table[div.buffer[i] & 0xffffff];
+        if(province_id == (Province::Id)-1) {
             // Uncomment this and see below
             //colors_found.insert(color);
             continue;
@@ -297,7 +297,7 @@ void World::load_mod(void) {
     for(size_t j = 0; j < height; j++) {
         for(size_t i = 0; i < width; i++) {
             Tile& tile = get_tile(i, j);
-            if(tile.province_id == (ProvinceId)-1)
+            if(tile.province_id == (Province::Id)-1)
                 continue;
 
             Province* province = provinces[tile.province_id];
@@ -324,7 +324,7 @@ void World::load_mod(void) {
     print_info("Give owners the entire provinces");
     for(auto& nation: nations) {
         for(auto& province: nation->owned_provinces) {
-            const ProvinceId province_id = get_id(province);
+            const Province::Id province_id = get_id(province);
             for(size_t x = province->min_x; x <= province->max_x; x++) {
                 for(size_t y = province->min_y; y <= province->max_y; y++) {
                     Tile& tile = get_tile(x, y);
@@ -332,7 +332,7 @@ void World::load_mod(void) {
                     if(tile.province_id != province_id)
                         continue;
 
-                    const NationId nation_id = get_id(province->owner);
+                    const Nation::Id nation_id = get_id(province->owner);
                     tile.owner_id = nation_id;
                 }
             }
@@ -345,14 +345,14 @@ void World::load_mod(void) {
     for(size_t i = 0; i < total_size; i++) {
         const Tile* tile = &this->tiles[i];
         const Tile* other_tile;
-        if(tile->owner_id != (NationId)-1) {
+        if(tile->owner_id != (Nation::Id)-1) {
             Nation* nation = this->nations[this->tiles[i].owner_id];
 
             // Up neighbour
             if(i > this->width) {
                 other_tile = &this->tiles[i - this->width];
                 if(other_tile->owner_id != tile->owner_id
-                && other_tile->owner_id != (NationId)-1) {
+                && other_tile->owner_id != (Nation::Id)-1) {
                     nation->neighbours.insert(this->nations[other_tile->owner_id]);
                 }
             }
@@ -360,7 +360,7 @@ void World::load_mod(void) {
             if(i < (this->width* this->height) - this->width) {
                 other_tile = &this->tiles[i + this->width];
                 if(other_tile->owner_id != tile->owner_id
-                && other_tile->owner_id != (NationId)-1) {
+                && other_tile->owner_id != (Nation::Id)-1) {
                     nation->neighbours.insert(this->nations[other_tile->owner_id]);
                 }
             }
@@ -368,7 +368,7 @@ void World::load_mod(void) {
             if(i > 1) {
                 other_tile = &this->tiles[i - 1];
                 if(other_tile->owner_id != tile->owner_id
-                && other_tile->owner_id != (NationId)-1) {
+                && other_tile->owner_id != (Nation::Id)-1) {
                     nation->neighbours.insert(this->nations[other_tile->owner_id]);
                 }
             }
@@ -376,20 +376,20 @@ void World::load_mod(void) {
             if(i < (this->width* this->height) - 1) {
                 other_tile = &this->tiles[i + 1];
                 if(other_tile->owner_id != tile->owner_id
-                && other_tile->owner_id != (NationId)-1) {
+                && other_tile->owner_id != (Nation::Id)-1) {
                     nation->neighbours.insert(this->nations[other_tile->owner_id]);
                 }
             }
         }
         
-        if(tile->province_id != (ProvinceId)-1) {
+        if(tile->province_id != (Province::Id)-1) {
             Province* province = this->provinces[this->tiles[i].province_id];
 
             // Up neighbour
             if(i > this->width) {
                 other_tile = &this->tiles[i - this->width];
                 if(other_tile->province_id != tile->province_id
-                && other_tile->province_id != (ProvinceId)-1) {
+                && other_tile->province_id != (Province::Id)-1) {
                     province->neighbours.insert(this->provinces[other_tile->province_id]);
                 }
             }
@@ -397,7 +397,7 @@ void World::load_mod(void) {
             if(i < (this->width* this->height) - this->width) {
                 other_tile = &this->tiles[i + this->width];
                 if(other_tile->province_id != tile->province_id
-                && other_tile->province_id != (ProvinceId)-1) {
+                && other_tile->province_id != (Province::Id)-1) {
                     province->neighbours.insert(this->provinces[other_tile->province_id]);
                 }
             }
@@ -405,7 +405,7 @@ void World::load_mod(void) {
             if(i > 1) {
                 other_tile = &this->tiles[i - 1];
                 if(other_tile->province_id != tile->province_id
-                && other_tile->province_id != (ProvinceId)-1) {
+                && other_tile->province_id != (Province::Id)-1) {
                     province->neighbours.insert(this->provinces[other_tile->province_id]);
                 }
             }
@@ -413,7 +413,7 @@ void World::load_mod(void) {
             if(i < (this->width* this->height) - 1) {
                 other_tile = &this->tiles[i + 1];
                 if(other_tile->province_id != tile->province_id
-                && other_tile->province_id != (ProvinceId)-1) {
+                && other_tile->province_id != (Province::Id)-1) {
                     province->neighbours.insert(this->provinces[other_tile->province_id]);
                 }
             }

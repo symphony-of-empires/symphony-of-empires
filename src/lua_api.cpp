@@ -357,9 +357,9 @@ int LuaAPI::get_province(lua_State* L) {
 }
 
 int LuaAPI::add_province_industry(lua_State* L) {
-    ProvinceId province_id = lua_tonumber(L, 1);
-    CompanyId company_id = lua_tonumber(L, 2);
-    IndustryTypeId industry_type_id = lua_tonumber(L, 3);
+    Province::Id province_id = lua_tonumber(L, 1);
+    Company::Id company_id = lua_tonumber(L, 2);
+    IndustryType::Id industry_type_id = lua_tonumber(L, 3);
     
     if(province_id >= g_world->provinces.size()) {
         print_error(gettext("invalid province id %zu"), (size_t)province_id);
@@ -459,13 +459,13 @@ int LuaAPI::rename_province(lua_State* L) {
 }
 
 int LuaAPI::add_province_nucleus(lua_State* L) {
-    ProvinceId province_id = lua_tonumber(L, 1);
+    Province::Id province_id = lua_tonumber(L, 1);
     if(province_id >= g_world->provinces.size()) {
         print_error(gettext("invalid province id %zu"), (size_t)province_id);
         return 0;
     }
 
-    NationId nation_id = lua_tonumber(L, 2);
+    Nation::Id nation_id = lua_tonumber(L, 2);
     if(nation_id >= g_world->nations.size()) {
         print_error(gettext("invalid nation id %zu"), (size_t)nation_id);
         return 0;
@@ -476,13 +476,13 @@ int LuaAPI::add_province_nucleus(lua_State* L) {
 }
 
 int LuaAPI::add_province_owner(lua_State* L) {
-    ProvinceId province_id = lua_tonumber(L, 1);
+    Province::Id province_id = lua_tonumber(L, 1);
     if(province_id >= g_world->provinces.size()) {
         print_error(gettext("invalid province id %zu"), (size_t)province_id);
         return 0;
     }
 
-    NationId nation_id = lua_tonumber(L, 2);
+    Nation::Id nation_id = lua_tonumber(L, 2);
     if(nation_id >= g_world->nations.size()) {
         print_error(gettext("invalid nation id %zu"), (size_t)nation_id);
         return 0;
@@ -573,7 +573,7 @@ int LuaAPI::get_event(lua_State* L) {
 }
 
 int LuaAPI::add_event_receivers(lua_State* L) {
-    EventId event_id = lua_tonumber(L, 1);
+    Event::Id event_id = lua_tonumber(L, 1);
     if(event_id >= g_world->events.size()) {
         print_error(gettext("invalid event id %zu"), (size_t)event_id);
         return 0;
@@ -594,7 +594,7 @@ int LuaAPI::add_event_receivers(lua_State* L) {
 }
 
 int LuaAPI::add_descision(lua_State* L) {
-    EventId event_id = lua_tonumber(L, 1);
+    Event::Id event_id = lua_tonumber(L, 1);
     if(event_id >= g_world->events.size()) {
         print_error(gettext("invalid event id %zu"), (size_t)event_id);
         return 0;
@@ -788,7 +788,7 @@ int LuaAPI::get_unit_type(lua_State* L) {
 }
 
 int LuaAPI::add_req_good_unit_type(lua_State* L) {
-    UnitTypeId unit_type_id = lua_tonumber(L, 1);
+    UnitType::Id unit_type_id = lua_tonumber(L, 1);
     UnitType* unit_type = g_world->unit_types[unit_type_id];
 
     Good* good = g_world->goods[lua_tonumber(L, 2)];
@@ -848,7 +848,7 @@ int LuaAPI::get_boat_type(lua_State* L) {
 }
 
 int LuaAPI::add_req_good_boat_type(lua_State* L) {
-    BoatTypeId boat_type_id = lua_tonumber(L, 1);
+    BoatType::Id boat_type_id = lua_tonumber(L, 1);
     BoatType* boat_type = g_world->boat_types[boat_type_id];
 
     Good* good = g_world->goods[lua_tonumber(L, 2)];

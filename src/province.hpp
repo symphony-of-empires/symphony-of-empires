@@ -6,8 +6,6 @@
 #include <string>
 #include "pop.hpp"
 
-typedef uint16_t ProvinceId;
-
 class World;
 class Nation;
 class Industry;
@@ -19,9 +17,9 @@ class Product;
  */
 class Province {
 public:
-    using Id = ProvinceId;
+    using Id = uint16_t;
     
-    ProvinceId get_id(const World& world);
+    Province::Id get_id(const World& world);
     void add_industry(World& world, Industry* industry);
     void remove_industry(World& world, Industry* industry);
 

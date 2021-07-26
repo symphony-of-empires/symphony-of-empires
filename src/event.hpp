@@ -13,10 +13,9 @@ public:
 };
 
 class Nation;
-typedef uint16_t EventId;
 class Event {
 public:
-    using Id = EventId;
+    using Id = uint16_t;
     
     std::string ref_name;
     std::string conditions_function;

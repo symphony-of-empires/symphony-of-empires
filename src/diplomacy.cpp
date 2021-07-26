@@ -3,7 +3,7 @@
 
 namespace Diplomacy {
     bool is_friend(Nation* us, Nation* them) {
-        const NationId idx = g_world->get_id(them);
+        const Nation::Id idx = g_world->get_id(them);
         const NationRelation* relation = &us->relations[idx];
 
         // A high relation means we are friendly <3
@@ -120,8 +120,8 @@ unsigned Ceasefire::cost() {
     return receiver->military_score + receiver->naval_score;
 }
 void Ceasefire::enforce() {
-    NationId receiver_id = g_world->get_id(receiver);
-    NationId sender_id = g_world->get_id(sender);
+    Nation::Id receiver_id = g_world->get_id(receiver);
+    Nation::Id sender_id = g_world->get_id(sender);
     
     sender->relations[receiver_id].has_war = false;
     sender->relations[receiver_id].has_truce = true;
