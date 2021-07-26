@@ -11,10 +11,9 @@
 * Defines a type of unit, it can be a tank, garrison, infantry, etc
 * this is moddable via a lua script and new unit types can be added
  */
-typedef uint8_t UnitTypeId;
 class UnitType {
 public:
-    using Id = UnitTypeId;
+    using Id = uint16_t;
     std::string name;
     std::string ref_name;
     
@@ -42,10 +41,9 @@ public:
 /**
 * Defines the type of a naval unit
  */
-typedef uint8_t BoatTypeId;
 class BoatType {
 public:
-    using Id = BoatTypeId;
+    using Id = uint16_t;
     std::string name;
     std::string ref_name;
     
@@ -66,10 +64,9 @@ public:
 
 /** A trait for an unit; given randomly per each recruited unit
  */
-typedef uint8_t UnitTraitId;
 class UnitTrait {
 public:
-    using Id = UnitTraitId;
+    using Id = uint16_t;
     
     std::string ref_name;
     
@@ -84,13 +81,12 @@ public:
 #include "nation.hpp"
 #include "world.hpp"
 class Tile;
-typedef uint32_t UnitId;
 /**
 * Roughly a batallion, consisting of approximately 500 soldiers each
  */
 class Unit {
 public:
-    using Id = UnitId;
+    using Id = uint32_t;
     
     // Type of unit
     UnitType* type;
@@ -136,7 +132,7 @@ public:
  */
 class Boat {
 public:
-    using Id = uint16_t;
+    using Id = uint32_t;
     
     // Type of unit
     BoatType* type;
@@ -177,10 +173,9 @@ public:
 /**
  * Type for military outposts
  */
-typedef uint16_t OutpostTypeId;
 class OutpostType {
 public:
-    using Id = OutpostTypeId;
+    using Id = uint8_t;
 
     std::string ref_name;
 
@@ -199,10 +194,9 @@ public:
 * A military outpost, on land serves as a "spawn" place for units
 * When adjacent to a water tile this serves as a shipyard for spawning naval units
  */
-typedef uint16_t OutpostId;
 class Outpost {
 public:
-    using Id = OutpostId;
+    using Id = uint8_t;
 
     // Position of outpost
     size_t x;

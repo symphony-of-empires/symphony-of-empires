@@ -5,13 +5,13 @@
 /**
 * Gets ID from pointer
  */
-ProvinceId Province::get_id(const World& world) {
+Province::Id Province::get_id(const World& world) {
     const std::vector<Province *>* provinces = &world.provinces;
     const auto province = std::find(provinces->begin(), provinces->end(), this);
     if(province != provinces->end()) {
-        return (ProvinceId)std::distance(provinces->begin(), province);
+        return (Province::Id)std::distance(provinces->begin(), province);
     }
-    return (ProvinceId)-1;
+    return (Province::Id)-1;
 }
 
 /**

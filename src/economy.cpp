@@ -72,7 +72,7 @@ void Economy::do_phase_1(World& world) {
         for(size_t i = 0; i < world.job_requests.size(); i++) {
             JobRequest& job_request = world.job_requests[i];
             // Outposts on water-desertland
-            if(world.get_tile(outpost->x, outpost->y).province_id == (ProvinceId)-1) {
+            if(world.get_tile(outpost->x, outpost->y).province_id == (Province::Id)-1) {
                 // Accept anything
             }
             // Outposts on land
@@ -489,7 +489,7 @@ void Economy::do_phase_2(World& world) {
             if(!province->stockpile[i])
                 continue;
                 
-            print_info("%zu of %s produced in %s - stockpiled by %s\n", province->stockpile[i], world.products[i]->good->name.c_str(), world.products[i]->origin->name.c_str(), province->name.c_str());
+            print_info("%zu of %s produced in %s - stockpiled by %s", province->stockpile[i], world.products[i]->good->name.c_str(), world.products[i]->origin->name.c_str(), province->name.c_str());
         }
     }
 }

@@ -22,10 +22,10 @@
 class Tile {
 public:
     // ID of the nation who owns this tile
-    NationId owner_id;
+    Nation::Id owner_id;
 
     // ID of the province where this tile belongs to
-    ProvinceId province_id;
+    Province::Id province_id;
 
     // Elevation level of this tile (from 0 to 255), take in account that
     // the sea level of the world can change the meaning of this value drastically

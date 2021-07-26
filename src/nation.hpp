@@ -13,8 +13,6 @@
 #include "diplomacy.hpp"
 #include "event.hpp"
 
-typedef uint16_t NationId;
-
 /**
 * Defines a one side relation between a country
 * This allows for cases where a country A hates country B, but country B loves country A
@@ -53,7 +51,7 @@ class Nation {
     inline void do_diplomacy();
     inline bool can_do_diplomacy();
 public:
-    using Id = NationId;
+    using Id = uint16_t;
     
     // Whetever thet nation exists at all - we cannot add nations in-game
     // so we just check if the nation "exists" at all, this means that it has
@@ -78,7 +76,7 @@ public:
     std::vector<NationRelation> relations;
 
     // Id of the nation that has us on their sphere of influence
-    NationId spherer_id;
+    Nation::Id spherer_id;
 
     // Number of diplomacy points available
     float diplomacy_points;

@@ -20,7 +20,7 @@ static constexpr bool coord_in_bounds(const World& world, int x, int y) {
 static std::vector<Tile *> generate_neighbors(const World& world, const Nation& nation, Tile* tile) {
     std::vector<Tile *> result;
 
-    const NationId nation_id = world.get_id(&nation);
+    const Nation::Id nation_id = world.get_id(&nation);
     
     for(int i = -1; i <= 1; i++) {
         for(int j = -1; j <= 1; j++) {
@@ -38,7 +38,7 @@ static std::vector<Tile *> generate_neighbors(const World& world, const Nation& 
             if(neighbour->elevation > world.sea_level) {
                 // Check that we can diplomatically pass thru their lands
                 // Our own lands and lands without owners are automatically passable
-                if(neighbour->owner_id != nation_id && neighbour->owner_id != (NationId)-1) {
+                if(neighbour->owner_id != nation_id && neighbour->owner_id != (Nation::Id)-1) {
                     const NationRelation& relation = world.nations[neighbour->owner_id]->relations[nation_id];
                     
                     // Does not have military acces AND does not have alliance AND is not at war
