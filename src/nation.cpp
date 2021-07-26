@@ -51,3 +51,55 @@ void Nation::set_policy(Policies& policies) {
     memcpy(&this->current_policy, &policies, sizeof(Policies));
     return;
 }
+
+/**
+ * Checks if a POP is part of one of our accepted cultures
+*/
+bool Nation::is_accepted_culture(const Pop& pop) const {
+    for(const auto& culture: accepted_cultures) {
+        if(pop.culture_id == g_world->get_id(culture)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Gets the total tax applied to a POP depending on their "wealth"
+ * (not exactly like that, more like by their type/status)
+*/
+float Nation::get_tax(const Pop& pop) const {
+    float base_tax = 1.f;
+
+    // Advanced discrimination mechanics ;)
+
+    // Only-accepted POPs policy should impose higher prices to non-accepted POPs
+    // We are not an accepted-culture POP
+    if(is_accepted_culture(pop) != true) {
+        if(current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
+            base_tax += 1.5f;
+        } else if(current_policy.treatment == TREATMENT_EXTERMINATE) {
+            // Fuck you
+            base_tax += 1000.f;
+        }
+    }
+
+    if(pop.type_id == POP_TYPE_FARMER
+    || pop.type_id == POP_TYPE_SOLDIER
+    || pop.type_id == POP_TYPE_LABORER
+    || pop.type_id == POP_TYPE_SLAVE) {
+        return current_policy.poor_flat_tax * base_tax;
+    }
+    // For the medium class
+    else if(pop.type_id == POP_TYPE_ARTISAN
+    || pop.type_id == POP_TYPE_BUREAUCRAT
+    || pop.type_id == POP_TYPE_CLERGYMEN
+    || pop.type_id == POP_TYPE_OFFICER) {
+        return current_policy.med_flat_tax * base_tax;
+    }
+    // For the high class
+    else if(pop.type_id == POP_TYPE_ENTRPRENEUR
+    || pop.type_id == POP_TYPE_ARISTOCRAT) {
+        return current_policy.rich_flat_tax * base_tax;
+    }
+}

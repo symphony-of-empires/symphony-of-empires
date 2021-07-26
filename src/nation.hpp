@@ -152,6 +152,8 @@ public:
     void auto_relocate_capital(void);
     
     void set_policy(Policies& policies);
+    bool is_accepted_culture(const Pop& pop) const;
+    float get_tax(const Pop& pop) const;
 };
 
 #endif
