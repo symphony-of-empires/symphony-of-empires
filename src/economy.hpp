@@ -26,7 +26,7 @@ typedef uint16_t CompanyId;
  */
 class Company {
 public:
-    using Id = CompanyId;
+    using Id = uint16_t;
     
     // Name of this company
     std::string name;
@@ -63,7 +63,7 @@ typedef uint8_t GoodId;
  */
 class Good {
 public:
-    using Id = GoodId;
+    using Id = uint16_t;
 
     std::string name = "default";
     std::string ref_name = "default";
@@ -75,7 +75,7 @@ public:
 typedef uint8_t IndustryTypeId;
 class IndustryType {
 public:
-    using Id = IndustryTypeId;
+    using Id = uint16_t;
 
     std::string name;
     std::string ref_name;
@@ -93,7 +93,7 @@ class World;
 typedef uint16_t IndustryId;
 class Industry {
 public:
-    using Id = IndustryId;
+    using Id = uint16_t;
 
     bool can_do_output(const World& world);
     void add_to_stock(const World& world, const Good* good, size_t add);
@@ -136,7 +136,7 @@ typedef uint16_t ProductId;
  */
 class Product {
 public:
-    using Id = ProductId;
+    using Id = uint16_t;
 
     // Onwer (companyId) of this product
     Company* owner;
