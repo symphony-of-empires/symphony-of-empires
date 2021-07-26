@@ -93,7 +93,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
 }
 
 ProvinceShape::ProvinceShape(const Map& map, const Province& base) {
-    ProvinceId province_id = map.world.get_id(&base);
+    Province::Id province_id = map.world.get_id(&base);
 
     shape_gl_list = glGenLists(1);
     glNewList(shape_gl_list, GL_COMPILE);

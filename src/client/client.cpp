@@ -67,7 +67,7 @@ enum MapMode {
 };
 MapMode current_mode = MAP_MODE_COUNTRY_SELECT;
 
-static NationId curr_selected_nation = 0;
+static Nation::Id curr_selected_nation = 0;
 Nation* curr_nation = nullptr;
 
 static void change_country(size_t id) {
@@ -108,9 +108,9 @@ static void change_country(size_t id) {
 
     const Province* capital = curr_nation->capital;
     if(capital != nullptr) {
-        cam.x = capital->max_x;
-        cam.y = capital->max_y;
-        cam.x = -cam.x;
+        cam.position.x = capital->max_x;
+        cam.position.y = capital->max_y;
+        cam.position.x = -cam.position.x;
     }
 }
 
@@ -171,7 +171,7 @@ static void pop_view_nation(UI::Widget&, void *) {
     };
     
     for(size_t i = 0; i < 12; i++) {
-        UI::Label* lab = new UI::Label(9, 43 + (i* 28), "?", pop_view_nation_win);
+        UI::Label* lab = new UI::Label(9, 43 + (i * 28), "?", pop_view_nation_win);
     }
 }
 
@@ -303,10 +303,10 @@ static void play_nation(UI::Widget&, void *) {
     
     const Province* capital = curr_nation->capital;
     if(capital != nullptr) {
-        cam.x = capital->max_x;
-        cam.y = capital->max_y;
-        cam.x = -cam.x;
-        cam.z = -100.f;
+        cam.position.x = capital->max_x;
+        cam.position.y = capital->max_y;
+        cam.position.x = -cam.position.x;
+        cam.position.z = -100.f;
     }
     
     const Texture& top_win_tex = g_texture_manager->load_texture(Path::get("ui/top_win.png"));
@@ -509,7 +509,7 @@ void client_update(void) {
 }
 
 void view_province_pops(void) {
-    UI::Window* view_pops_win = new UI::Window(0, province_view_win->disp_y, 0, 0);
+    UI::Window* view_pops_win = new UI::Window(0, province_view_win->y, 0, 0);
 }
 
 // TODO: We can come with something better than this
@@ -563,14 +563,14 @@ void select_nation(void) {
         unit_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
     }
     
-    cam.x = -100.f;
-    cam.y = 100.f;
-    cam.z = -400.f;
+    cam.position.x = -100.f;
+    cam.position.y = 100.f;
+    cam.position.z = -400.f;
     cam.z_angle = 0.f;
     
-    cam.vx = 0.f;
-    cam.vy = 0.f;
-    cam.vz = 0.f;
+    cam.velocity.x = 0.f;
+    cam.velocity.y = 0.f;
+    cam.velocity.z = 0.f;
     cam.vz_angle = 0.f;
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
     
@@ -694,7 +694,7 @@ void select_nation(void) {
                                 break;
                             
                             // Server will reject outpost build request if it's not in our territory (and it's not being built on water either)
-                            if(g_world->get_tile(select_pos.first, select_pos.second).owner_id != g_world->get_id(curr_nation) && g_world->get_tile(select_pos.first, select_pos.second).owner_id != (NationId)-1)
+                            if(g_world->get_tile(select_pos.first, select_pos.second).owner_id != g_world->get_id(curr_nation) && g_world->get_tile(select_pos.first, select_pos.second).owner_id != (Nation::Id)-1)
                                 break;
                             
                             // Tell the server about an action for building an outpost
@@ -763,7 +763,7 @@ void select_nation(void) {
                             }
                         }
                         
-                        if(tile.province_id != (ProvinceId)-1) {
+                        if(tile.province_id != (Province::Id)-1) {
                             province_view_win = new UI::Window(0, 0, province_view_win_tex.width, province_view_win_tex.height);
                             province_view_win->text("Province overview");
                             province_view_win->current_texture = &province_view_win_tex;
@@ -812,17 +812,17 @@ void select_nation(void) {
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
                 ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
 
-                select_pos.first = (mouse_pos.first - (width / 2.f)) / ((float)width / (-cam.z* 1.33f));
-                select_pos.second = (mouse_pos.second - (height / 2.f)) / ((float)height / (-cam.z* 0.83f));
-                select_pos.first -= cam.x;
-                select_pos.second += cam.y;
+                select_pos.first = (mouse_pos.first - (width / 2.f)) / ((float)width / (-cam.position.z * 1.33f));
+                select_pos.second = (mouse_pos.second - (height / 2.f)) / ((float)height / (-cam.position.z * 0.83f));
+                select_pos.first -= cam.position.x;
+                select_pos.second += cam.position.y;
                 break;
             case SDL_MOUSEWHEEL:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
                 ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
-                click_on_ui = ui_ctx->check_wheel(mouse_pos.first, mouse_pos.second, event.wheel.y* 6);
+                click_on_ui = ui_ctx->check_wheel(mouse_pos.first, mouse_pos.second, event.wheel.y * 6);
                 if(!click_on_ui) {
-                    cam.vz += event.wheel.y;
+                    cam.velocity.z += event.wheel.y;
                 }
                 break;
             case SDL_TEXTINPUT:
@@ -831,22 +831,22 @@ void select_nation(void) {
             case SDL_KEYDOWN:
                 switch(event.key.keysym.sym) {
                 case SDLK_UP:
-                    cam.vy -= std::min(4.f, std::max(0.5f, 0.02f* -cam.z));
+                    cam.velocity.y -= std::min(4.f, std::max(0.5f, 0.02f * -cam.position.z));
                     break;
                 case SDLK_DOWN:
-                    cam.vy += std::min(4.f, std::max(0.5f, 0.02f* -cam.z));
+                    cam.velocity.y += std::min(4.f, std::max(0.5f, 0.02f * -cam.position.z));
                     break;
                 case SDLK_LEFT:
-                    cam.vx += std::min(4.f, std::max(0.5f, 0.02f* -cam.z));
+                    cam.velocity.x += std::min(4.f, std::max(0.5f, 0.02f * -cam.position.z));
                     break;
                 case SDLK_RIGHT:
-                    cam.vx -= std::min(4.f, std::max(0.5f, 0.02f* -cam.z));
+                    cam.velocity.x -= std::min(4.f, std::max(0.5f, 0.02f * -cam.position.z));
                     break;
                 case SDLK_q:
-                    cam.vz_angle -= std::min(4.f, std::max(0.01f, 0.02f* -cam.z));
+                    cam.vz_angle -= std::min(4.f, std::max(0.01f, 0.02f * -cam.position.z));
                     break;
                 case SDLK_e:
-                    cam.vz_angle += std::min(4.f, std::max(0.01f, 0.02f* -cam.z));
+                    cam.vz_angle += std::min(4.f, std::max(0.01f, 0.02f * -cam.position.z));
                     break;
                 case SDLK_t:
                     ui_treaty();
@@ -1020,7 +1020,7 @@ void select_nation(void) {
         glLoadIdentity();
         gluPerspective(45.0, (float)width / (float)height, 1.0f, 1024.0f);
         glViewport(0, 0, width, height);
-        glTranslatef(cam.x, cam.y, cam.z);
+        glTranslatef(cam.position.x, cam.position.y, cam.position.z);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         glRotatef(180.f, 1.0f, 0.0f, 0.0f);
