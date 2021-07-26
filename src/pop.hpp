@@ -15,7 +15,6 @@ enum {
     POP_TYPE_OFFICER = 8,
     POP_TYPE_LABORER = 9,
     POP_TYPE_SLAVE = 10,
-
     POP_TYPE_WOMAN = 11,
     POP_TYPE_CHILDREN = 12,
     POP_TYPE_AGED = 13,
@@ -24,31 +23,15 @@ enum {
 typedef uint8_t PopTypeId;
 class PopType {
 public:
-    using Id = PopTypeId;
+    using Id = uint8_t;
     
     std::string name;
     std::string ref_name;
     float average_budget;
 };
 
-typedef uint16_t CultureId;
-class Culture {
-public:
-    using Id = CultureId;
-
-    std::string name;
-    std::string ref_name;
-};
-
-typedef uint8_t ReligionId;
-class Religion {
-public:
-    using Id = ReligionId;
-
-    std::string name;
-    std::string ref_name;
-};
-
+#include "culture.hpp"
+#include "religion.hpp"
 #include "policy.hpp"
 class Pop {
 public:
@@ -66,9 +49,9 @@ public:
     float everyday_needs_met = 0.f;
     float luxury_needs_met = 0.f;
     
-    PopTypeId type_id;
-    CultureId culture_id;
-    ReligionId religion_id;
+    PopType::Id type_id;
+    Culture::Id culture_id;
+    Religion::Id religion_id;
     Policies policies;
 };
 
