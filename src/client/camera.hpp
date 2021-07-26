@@ -1,42 +1,39 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
+#include <glm/vec3.hpp>
+
 class Camera {
 public:
-    float vx;
-    float vy;
-    float vz;
-    float x;
-    float y;
-    float z;
-    float z_angle;
-    float vz_angle;
+    glm::vec3 position;
+    glm::vec3 velocity;
+    float z_angle, vz_angle;
     
     void update(void) {
-        vx = std::min(16.f, vx);
-        vy = std::min(16.f, vy);
-        vz = std::min(16.f, vz);
+        velocity.x = std::min(16.f, velocity.x);
+        velocity.y = std::min(16.f, velocity.y);
+        velocity.z = std::min(16.f, velocity.z);
 
-        if(vx >= 0.9f)
-            vx -= 0.8f;
-        else if(vx <= -0.9f)
-            vx += 0.8f;
+        if(velocity.x >= 0.9f)
+            velocity.x -= 0.8f;
+        else if(velocity.x <= -0.9f)
+            velocity.x += 0.8f;
         else
-            vx = 0.f;
+            velocity.x = 0.f;
         
-        if(vy >= 0.9f)
-            vy -= 0.8f;
-        else if(vy <= -0.9f)
-            vy += 0.8f;
+        if(velocity.y >= 0.9f)
+            velocity.y -= 0.8f;
+        else if(velocity.y <= -0.9f)
+            velocity.y += 0.8f;
         else
-            vy = 0.f;
+            velocity.y = 0.f;
         
-        if(vz >= 0.9f)
-            vz -= 0.8f;
-        else if(vz <= -0.9f)
-            vz += 0.8f;
+        if(velocity.z >= 0.9f)
+            velocity.z -= 0.8f;
+        else if(velocity.z <= -0.9f)
+            velocity.z += 0.8f;
         else
-            vz = 0.f;
+            velocity.z = 0.f;
         
         if(vz_angle >= 0.9f)
             vz_angle -= 0.8f;
@@ -45,14 +42,14 @@ public:
         else
             vz_angle = 0.f;
 
-        x += vx;
-        y += vy;
-        z += vz;
+        position.x += velocity.x;
+        position.y += velocity.y;
+        position.z += velocity.z;
         z_angle += vz_angle;
 
-        x = -std::max(0.f, std::min((float)g_world->width, -x));
-        y = std::max(0.f, std::min((float)g_world->height, y));
-        z = -std::max(0.f, std::min(750.f, -z));
+        position.x = -std::max(0.f, std::min((float)g_world->width, -position.x));
+        position.y = std::max(0.f, std::min((float)g_world->height, position.y));
+        position.z = -std::max(0.f, std::min(750.f, -position.z));
     };
 };
 
