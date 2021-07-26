@@ -952,7 +952,7 @@ void select_nation(void) {
             extern std::string treaty_to_text(const Treaty& treaty);
             for(auto& treaty: g_world->treaties) {
                 // Only show treaties we haven't decided on yet and that we have participation on
-                if(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [&curr_nation](const auto& e) {
+                if(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](const auto& e) {
                     return (curr_nation == e.first) && (e.second == TREATY_APPROVAL_UNDECIDED);
                 }) == treaty->approval_status.end())
                     continue;
@@ -1182,15 +1182,7 @@ void select_nation(void) {
 
         glPopMatrix();
         
-        glPushMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0.f, (float)width, (float)height, 0.f, 0.0f, 1.f);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glTranslatef(0.f, 0.f, 0.f);
-        ui_ctx->render_all();
-        glPopMatrix();
+        ui_ctx->render_all(width, height);
         glLoadIdentity();
         glRasterPos2f(-3.0f, -2.0f);
         SDL_GL_SwapWindow(window);
@@ -1204,7 +1196,7 @@ void client_main(void) {
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
     
-    window = SDL_CreateWindow("Symphony of Empires", 0, 0, width, height, SDL_WINDOW_OPENGL);
+    window = SDL_CreateWindow("Symphony of Empires", 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_SetSwapInterval(1); // Enable OpenGL VSYNC
 

@@ -503,6 +503,7 @@ void Economy::do_phase_2(World& world) {
 class Emigrated {
 public:
     Emigrated() {};
+    Province* origin;
     Province* target;
     Pop emigred;
     size_t size;
@@ -751,6 +752,7 @@ void Economy::do_phase_3(World& world) {
                 emigrated.target = best_province;
                 emigrated.emigred = pop;
                 emigrated.size = emigreers;
+                emigrated.origin = province;
                 
                 emigration_lock.lock();
                 emigration.push_back(emigrated);
@@ -761,7 +763,7 @@ void Economy::do_phase_3(World& world) {
         }
         
         // Stockpiles cleared
-        memset(&province->stockpile[0], 0, province->stockpile.size()* sizeof(province->stockpile[0]));
+        memset(&province->stockpile[0], 0, province->stockpile.size() * sizeof(province->stockpile[0]));
     });
     
     // TODO: We are duplicating population when emigrating!!! This is bad and we need
@@ -769,28 +771,28 @@ void Economy::do_phase_3(World& world) {
 
     // Now time to do the emigration
     for(const auto& target: emigration) {
-        Province* province = target.target;
         size_t size = target.size;
 
-        Pop* pop = nullptr;
         // Find POP in province
-        for(auto& p_pop: target.target->pops) {
-            if(p_pop.culture_id == pop->culture_id
-            && p_pop.religion_id == pop->religion_id
-            && p_pop.type_id == pop->type_id) {
+        Pop* pop = nullptr;
+        for(auto& p_pop: target.origin->pops) {
+            if(p_pop.culture_id == target.emigred.culture_id
+            && p_pop.religion_id == target.emigred.religion_id
+            && p_pop.type_id == target.emigred.type_id) {
                 pop = &p_pop;
                 break;
             }
         }
-
         if(pop == nullptr)
             throw std::runtime_error("Pop not found even tho it was needed in emgiration!?");
         
-        // A new pop, this is the representation of the POP in the target
-        // province, if no pop of same culture, same religion and same
-        // employment exists then we create a new one
+        pop->size -= size;
+        
+        // A new pop, this is the representation of the POP in the target province.
+        // We will check if we have a POP of same religion, culture and type and add up to
+        // that one instead of creating a new one - otherwise we create a new one
         Pop* new_pop = nullptr;
-        for(auto& p_pop: province->pops) {
+        for(auto& p_pop: target.target->pops) {
             if(p_pop.culture_id == pop->culture_id
             && p_pop.religion_id == pop->religion_id
             && p_pop.type_id == pop->type_id) {
@@ -802,13 +804,12 @@ void Economy::do_phase_3(World& world) {
         // Compatible POP does not exist on target province, so we create
         // a new one (copy the original POP) and add it to the province
         if(new_pop == nullptr) {
-            province->pops.push_back(*pop);
-            new_pop = &*province->pops.end();
+            target.target->pops.push_back(*pop);
+            new_pop = &*target.target->pops.end();
         }
-
-        pop->size -= size;
         new_pop->size += size;
     }
+    emigration.clear();
 
     // Please do not modify the POPs vector in provinces after this, otherwise the pointers
     // can get invalidated which would result in disaster
