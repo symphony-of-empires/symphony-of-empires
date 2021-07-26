@@ -98,10 +98,18 @@ void Context::render_recursive(Widget& w, int x_off, int y_off) {
     }
 }
 
-void Context::render_all() {
+void Context::render_all(const int width, const int height) {
+    glPushMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0.f, (float)width, (float)height, 0.f, 0.0f, 1.f);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslatef(0.f, 0.f, 0.f);
     for(auto& widget: this->widgets) {
         render_recursive(*widget, 0, 0);
     }
+    glPopMatrix();
     return;
 }
 

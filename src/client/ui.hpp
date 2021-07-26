@@ -40,7 +40,7 @@ namespace UI {
         void remove_widget(Widget* widget);
 
         void render_recursive(Widget& widget, int x_off, int y_off);
-        void render_all();
+        void render_all(const int width, const int height);
         void check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         void check_hover(unsigned mx, unsigned my);
         int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
