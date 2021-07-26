@@ -1,3 +1,6 @@
+#ifndef THREAD_POOL_HPP
+#define THREAD_POOL_HPP
+
 #include <functional>
 #include <thread>
 #include <atomic>
@@ -25,3 +28,5 @@ public:
     void add_job(std::function<void()> job);
     void thread_loop(void);
 };
+
+#endif
