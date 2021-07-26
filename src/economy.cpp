@@ -172,13 +172,34 @@ void Economy::do_phase_1(World& world) {
 
     // All factories will place their orders for their inputs
     // All RGOs will do deliver requests
-    for(auto& province: world.provinces) {
+    std::for_each(std::execution::par_unseq, world.provinces.begin(), world.provinces.end(),
+    [&world](auto& province) {
         // Reset remaining supplies
         province->supply_rem = province->supply_limit;
 
+        // Do not evaluate provinces without owners
         if(province->owner == nullptr) {
-            continue;
+            return;
         }
+
+        // Create a vector listing all the jobs for this exact province
+        // This will help to amortize the time used to find job requests for a certain
+        // province, and provinces with multiple factories will love this
+        // We will also remove job requests as they are found so latter provinces
+        // will run faster
+        std::vector<JobRequest> province_job_requests;
+        world.job_requests_mutex.lock();
+        for(size_t i = 0; i < world.job_requests.size(); i++) {
+            JobRequest& job_request = world.job_requests[i];
+            if(job_request.province != province)
+                continue;
+
+            // Add to province's list and remove from the world
+            province_job_requests.push_back(job_request);
+            world.job_requests.erase(world.job_requests.begin() + i);
+            i--;
+        }
+        world.job_requests_mutex.unlock();
         
         // This new tick, we will start the chain starting with RGOs producing deliver
         // orders and the factories that require inputs will put their orders in the
@@ -188,8 +209,8 @@ void Economy::do_phase_1(World& world) {
             size_t needed_manpower = 1500;
             size_t available_manpower = 0;
             // Find job requests which are for this province
-            for(size_t i = 0; i < world.job_requests.size(); i++) {
-                JobRequest& job_request = world.job_requests[i];
+            for(size_t i = 0; i < province_job_requests.size() && available_manpower < needed_manpower; i++) {
+                JobRequest& job_request = province_job_requests[i];
                 if(job_request.province != province)
                     continue;
                 
@@ -202,7 +223,7 @@ void Economy::do_phase_1(World& world) {
 
                 // Delete job request when it has 0 amount
                 if(!job_request.amount) {
-                    world.job_requests.erase(world.job_requests.begin() + i);
+                    province_job_requests.erase(province_job_requests.begin() + i);
                     i--;
                     continue;
                 }
@@ -225,6 +246,7 @@ void Economy::do_phase_1(World& world) {
             industry.days_unoperational = 0;
             industry.workers = available_manpower;
             
+            world.orders_mutex.lock();
             const IndustryType& it = *industry.type;
             for(const auto& input: it.inputs) {
                 OrderGoods order;
@@ -238,12 +260,14 @@ void Economy::do_phase_1(World& world) {
                 order.type = ORDER_INDUSTRIAL;
                 world.orders.push_back(order);
             }
+            world.orders_mutex.unlock();
 
             if(!industry.can_do_output(world))
                 continue;
             
             // Now produce anything as we can!
             // Place deliver orders (we are a RGO)
+            world.delivers_mutex.lock();
             for(size_t k = 0; k < it.outputs.size(); k++) {
                 DeliverGoods deliver;
                 
@@ -265,11 +289,12 @@ void Economy::do_phase_1(World& world) {
                 
                 world.delivers.push_back(deliver);
             }
+            world.delivers_mutex.unlock();
 
             // Willing payment is made for next day ;)
             industry.willing_payment = industry.budget / it.inputs.size() + it.outputs.size();
         }
-    }
+    });
 
     // Outposts working on units and boats will also request materials
     for(const auto& outpost: world.outposts) {
@@ -568,10 +593,14 @@ void Economy::do_phase_3(World& world) {
                 size_t bought = 0;
                 if(product->good->is_edible) {
                     // We can only spend our allocated budget
-                    // TODO: Base spending on literacy, more literacy == less spending
                     bought = life_alloc_budget / product->price;
                 } else {
                     bought = everyday_alloc_budget / product->price;
+
+                    // Slaves cannot buy commodities
+                    if(pop.type_id == POP_TYPE_SLAVE) {
+                        continue;
+                    }
                 }
                 
                 bought = std::min<float>(bought, province->stockpile[world.get_id(product)]);
@@ -585,9 +614,18 @@ void Economy::do_phase_3(World& world) {
                 if(product->supply) {
                     product->supply -= std::min<float>(bought, product->supply);
                 }
+
+                float cost_of_transaction = bought * product->price;
+
+                // Add the taxes collected to the national treasury
+                // TODO: Have somethign affect tax efficiency! - complexity at it's finest :)
+                province->owner->budget += (cost_of_transaction * province->owner->get_tax(pop)) - cost_of_transaction;
+
+                // Add taxes
+                cost_of_transaction *= province->owner->get_tax(pop);
                 
                 // Deduct from budget, and remove item from stockpile
-                pop.budget -= bought* product->price;
+                pop.budget -= cost_of_transaction;
                 province->stockpile[world.get_id(product)] -= bought;
 
                 // Uncomment to see buyers
@@ -651,20 +689,13 @@ void Economy::do_phase_3(World& world) {
                 if(province->owner->current_policy.migration == ALLOW_NOBODY) {
                     goto skip_emigration;
                 } else if(province->owner->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
-                    bool is_accepted = false;
-
-                    for(const auto& culture: province->owner->accepted_cultures) {
-                        if(pop.culture_id == world.get_id(culture)) {
-                            is_accepted = true;
-                            break;
-                        }
-                    }
-
-                    if(!is_accepted)
+                    bool is_accepted = province->owner->is_accepted_culture(pop);
+                    if(!is_accepted) {
                         goto skip_emigration;
+                    }
                 } else if(province->owner->current_policy.migration == ALLOW_ALL_PAYMENT) {
                     // See if we can afford the tax
-                    if(pop.budget < ((pop.budget / 1000.f) * province->owner->current_policy.import_tax)) {
+                    if(pop.budget < ((pop.budget / 1000.f) * province->owner->current_policy.export_tax)) {
                         continue;
                     }
                 }
@@ -675,8 +706,16 @@ void Economy::do_phase_3(World& world) {
                     Province* target_province = world.provinces[j];
                     float attractive = 0.f;
                     
+                    // Don't go to owner-less provinces
                     if(target_province->owner == nullptr) {
                         continue;
+                    }
+
+                    // We dont want to be exterminated or enslaved... do we?
+                    if(target_province->owner->current_policy.treatment == TREATMENT_ENSLAVED) {
+                        attractive -= 2.5f;
+                    } else if(target_province->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
+                        attractive -= 5.f;
                     }
                     
                     // Account for literacy difference
@@ -714,15 +753,8 @@ void Economy::do_phase_3(World& world) {
                             continue;
                         } else if(target_province->owner->current_policy.immigration == ALLOW_ACCEPTED_CULTURES) {
                             // See if we are accepted culture
-                            bool is_accepted = false;
-                            for(const auto& culture: target_province->owner->accepted_cultures) {
-                                if(pop.culture_id == world.get_id(culture)) {
-                                    is_accepted = true;
-                                    break;
-                                }
-                            }
-                            
-                            if(is_accepted == false) {
+                            bool is_accepted = target_province->owner->is_accepted_culture(pop);
+                            if(!is_accepted) {
                                 continue;
                             }
                         } else if(target_province->owner->current_policy.immigration == ALLOW_ALL_PAYMENT) {
@@ -765,7 +797,7 @@ void Economy::do_phase_3(World& world) {
         // Stockpiles cleared
         memset(&province->stockpile[0], 0, province->stockpile.size() * sizeof(province->stockpile[0]));
     });
-    
+
     // Now time to do the emigration
     for(const auto& target: emigration) {
         size_t size = target.size;
