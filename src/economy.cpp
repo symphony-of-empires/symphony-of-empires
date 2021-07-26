@@ -766,9 +766,6 @@ void Economy::do_phase_3(World& world) {
         memset(&province->stockpile[0], 0, province->stockpile.size() * sizeof(province->stockpile[0]));
     });
     
-    // TODO: We are duplicating population when emigrating!!! This is bad and we need
-    // to substract from the original POP!!!
-
     // Now time to do the emigration
     for(const auto& target: emigration) {
         size_t size = target.size;
