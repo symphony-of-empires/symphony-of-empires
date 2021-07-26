@@ -38,8 +38,12 @@ namespace UI {
         void load_textures();
         void add_widget(Widget* widget);
         void remove_widget(Widget* widget);
+
+        void render_recursive(Widget& widget, int x_off, int y_off);
         void render_all();
+        void check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         void check_hover(unsigned mx, unsigned my);
+        int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         int check_click(unsigned mx, unsigned my);
         void check_drag(unsigned mx, unsigned my);
         int check_wheel(unsigned mx, unsigned my, int y);
@@ -74,16 +78,8 @@ namespace UI {
 
         int type;
 
-        int scroll_x = 0;
-        int scroll_y = 0;
-
-        // Display X and Y (also used for mouse)
-        int disp_x = 0;
-        int disp_y = 0;
-
-        // X and Y coordinates
-        int x = 0;
-        int y = 0;
+        int scroll_x = 0, scroll_y = 0;
+        int x = 0, y = 0;
 
         // Determines if the widget should be shown or not (all child widgets should be updated accordingly too)
         bool is_show = true;
@@ -94,8 +90,8 @@ namespace UI {
         const Texture* current_texture = nullptr;
         Texture* text_texture = nullptr;
 
-        Widget* parent = nullptr;
-        std::vector<Widget *> children;
+        Widget* parent;
+        std::vector<Widget*> children;
         
         void* user_data = nullptr;
 
@@ -107,25 +103,21 @@ namespace UI {
         template<typename T>
         void above_of(const T& rhs) {
             y = rhs.y - height;
-            disp_y = rhs.disp_y - height;
         }
         
         template<typename T>
         void below_of(const T& rhs) {
             y = rhs.y + rhs.height;
-            disp_y = rhs.disp_y + rhs.height;
         }
         
         template<typename T>
         void left_side_of(const T& rhs) {
             x = rhs.x - width;
-            disp_x = rhs.disp_x - width;
         }
         
         template<typename T>
         void right_side_of(const T& rhs) {
             x = rhs.x + rhs.width;
-            disp_x = rhs.disp_x + rhs.width;
         }
     };
 
