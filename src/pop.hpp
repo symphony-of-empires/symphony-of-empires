@@ -20,7 +20,6 @@ enum {
     POP_TYPE_AGED = 13,
 };
 
-typedef uint8_t PopTypeId;
 class PopType {
 public:
     using Id = uint8_t;

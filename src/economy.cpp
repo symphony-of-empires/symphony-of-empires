@@ -539,12 +539,8 @@ public:
 void Economy::do_phase_3(World& world) {
     // Now, it's like 1 am here, but i will try to write a very nice economic system
     // TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
-
-    world.job_requests.clear();
-
     std::mutex emigration_lock;
-    std::vector<Emigrated> emigration;
-    emigration.clear();
+    std::vector<Emigrated> emigration = std::vector<Emigrated>();
     
     std::for_each(std::execution::par_unseq, world.provinces.begin(), world.provinces.end(),
     [&emigration_lock, &emigration, &world](auto& province) {
@@ -842,6 +838,8 @@ void Economy::do_phase_3(World& world) {
 
     // Please do not modify the POPs vector in provinces after this, otherwise the pointers
     // can get invalidated which would result in disaster
+    world.job_requests_mutex.lock();
+    world.job_requests.clear();
     for(const auto& province: world.provinces) {
         for(auto& pop: province->pops) {
             // Post a job request
@@ -852,6 +850,7 @@ void Economy::do_phase_3(World& world) {
             world.job_requests.push_back(request);
         }
     }
+    world.job_requests_mutex.unlock();
 }
 
 /**

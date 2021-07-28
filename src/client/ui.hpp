@@ -50,7 +50,7 @@ namespace UI {
         void check_text_input(const char* input);
         void clear(void);
 
-        const Texture* background,* window_top;
+        const Texture* background,* window_top,* button;
         TTF_Font* default_font;
         
         std::vector<Widget*> widgets;
@@ -83,9 +83,9 @@ namespace UI {
 
         // Determines if the widget should be shown or not (all child widgets should be updated accordingly too)
         bool is_show = true;
+        bool is_hover = false;
         
-        size_t width = 0;
-        size_t height = 0;
+        size_t width = 0, height = 0;
 
         const Texture* current_texture = nullptr;
         Texture* text_texture = nullptr;

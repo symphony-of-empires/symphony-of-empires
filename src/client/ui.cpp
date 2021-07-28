@@ -36,6 +36,7 @@ Context::Context() {
 
     background = &g_texture_manager->load_texture(Path::get("ui/background.png"));
     window_top = &g_texture_manager->load_texture(Path::get("ui/window_top.png"));
+    button = &g_texture_manager->load_texture(Path::get("ui/button.png"));
 
     g_ui_context = this;
     is_drag = false;
@@ -117,17 +118,21 @@ void Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
     x_off += w.x;
     y_off += w.y;
 
-    for(auto& child: w.children) {
-        if(!child->is_show)
-            continue;
+    w.is_hover = false;
 
-        if((int)mx >= x_off + child->x && mx <= x_off + child->x + child->width
-        && (int)my >= y_off + child->y && my <= y_off + child->y + child->height) {
-            if(child->on_hover != nullptr)
-                child->on_hover(*child, child->user_data);
-            
-            check_hover_recursive(*child, mx, my, x_off + child->x, y_off + child->y);
+    if(!w.is_show)
+        return;
+
+    if((int)mx >= x_off && mx <= x_off + w.width
+    && (int)my >= y_off && my <= y_off + w.height) {
+        w.is_hover = true;
+        if(w.on_hover != nullptr) {
+            w.on_hover(w, w.user_data);
         }
+    }
+
+    for(auto& child: w.children) {
+        check_hover_recursive(*child, mx, my, x_off, y_off);
     }
 }
 
@@ -140,13 +145,8 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
         return;
     }
 
-    for(const auto& widget: this->widgets) {
-        if((int)mx >= widget->x && mx <= widget->x + widget->width
-        && (int)my >= widget->y && my <= widget->y + widget->height
-        && widget->is_show) {
-            if(widget->on_hover != nullptr)
-                widget->on_hover(*widget, widget->user_data);
-        }
+    for(const auto& widget: widgets) {
+        check_hover_recursive(*widget, mx, my, 0, 0);
     }
     return;
 }
@@ -173,11 +173,9 @@ int Context::check_click_recursive(Widget& w, const unsigned int mx, const unsig
 }
 
 int Context::check_click(const unsigned mx, const unsigned my) {
-    const size_t n_widget = widgets.size();
     is_drag = false;
-    for(int i = n_widget - 1; i >= 0; i--) {
-        Widget* widget = widgets[i];
-        int r = check_click_recursive(*widget, mx, my, 0, 0);
+    for(int i = widgets.size() - 1; i >= 0; i--) {
+        int r = check_click_recursive(*widgets[i], mx, my, 0, 0);
         if(r > 0) {
             return 1;
         }
@@ -186,10 +184,8 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 }
 
 void Context::check_drag(const unsigned mx, const unsigned my) {
-    const size_t n_widget = widgets.size();
-    for(int i = n_widget - 1; i >= 0; i--) {
+    for(int i = widgets.size() - 1; i >= 0; i--) {
         Widget& widget = *widgets[i];
-
         if(widget.type != UI_WIDGET_WINDOW)
             continue;
 
@@ -256,10 +252,10 @@ void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const GLui
 #include <deque>
 void Widget::on_render(Context& ctx) {
     // Shadows
-    if(type == UI_WIDGET_WINDOW || type == UI_WIDGET_BUTTON) {
+    if(type == UI_WIDGET_WINDOW) {
         // Shadow
         glBindTexture(GL_TEXTURE_2D, 0);
-        glColor4f(0.f, 0.f, 0.f, 0.5f);
+        glColor4f(0.f, 0.f, 0.f, 0.75f);
         glBegin(GL_TRIANGLES);
             glTexCoord2f(0.f, 0.f);
             glVertex2f(16, 16);
@@ -277,6 +273,9 @@ void Widget::on_render(Context& ctx) {
     }
 
     glColor3f(1.f, 1.f, 1.f);
+    if(on_click != nullptr && is_hover) {
+        glColor3f(0.5f, 0.5f, 0.5f);
+    }
 
     // Background (tile) display
     if(type != UI_WIDGET_IMAGE && type != UI_WIDGET_LABEL) {
@@ -297,6 +296,7 @@ void Widget::on_render(Context& ctx) {
         glEnd();
     }
 
+    glColor3f(1.f, 1.f, 1.f);
     // Top bar of windows display
     if(type == UI_WIDGET_WINDOW) {
         draw_rectangle(
@@ -314,17 +314,57 @@ void Widget::on_render(Context& ctx) {
         );
     }
 
+    if(type == UI_WIDGET_BUTTON) {
+        const size_t padding = 8;
+        // Put a "grey" inner background
+        glBindTexture(GL_TEXTURE_2D, ctx.button->gl_tex_num);
+        glBegin(GL_TRIANGLES);
+            glTexCoord2f(0.f, 0.f);
+            glVertex2f(padding, padding);
+            glTexCoord2f(width / ctx.button->width, 0.f);
+            glVertex2f(width - padding, padding);
+            glTexCoord2f(width / ctx.button->width, height / ctx.button->height);
+            glVertex2f(width - padding, height - padding);
+            glTexCoord2f(width / ctx.button->width, height / ctx.button->height);
+            glVertex2f(width - padding, height - padding);
+            glTexCoord2f(0.f, height / ctx.button->height);
+            glVertex2f(padding, height - padding);
+            glTexCoord2f(0.f, 0.f);
+            glVertex2f(padding, padding);
+        glEnd();
+    }
+
+    glLineWidth(3.f);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glColor3f(0.f, 0.f, 0.f);
+    if(type != UI_WIDGET_WINDOW && type != UI_WIDGET_IMAGE && type != UI_WIDGET_PIE_CHART) {
+        const size_t padding = 8;
+        // Inner black border
+        glBegin(GL_LINE_STRIP);
+            glVertex2f(padding, padding);
+            glVertex2f(width - padding, padding);
+            glVertex2f(width - padding, height - padding);
+            glVertex2f(padding, height - padding);
+            glVertex2f(padding, padding);
+        glEnd();
+    }
+
+    if(1) {
+        const size_t padding = 8;
+        // Outer black border
+        glBegin(GL_LINE_STRIP);
+            glVertex2f(0, 0);
+            glVertex2f(width, 0);
+            glVertex2f(width, height);
+            glVertex2f(0, height);
+            glVertex2f(0, 0);
+        glEnd();
+    }
+
     if(text_texture != nullptr) {
         glColor3f(0.f, 0.f, 0.f);
         draw_rectangle(
-            12, 8,
-            text_texture->width, text_texture->height,
-            text_texture->gl_tex_num
-        );
-
-        glColor3f(1.f, 1.f, 1.f);
-        draw_rectangle(
-            8, 4,
+            12, 6,
             text_texture->width, text_texture->height,
             text_texture->gl_tex_num
         );
@@ -345,8 +385,7 @@ void input_ontextinput(Input& w, const char* input, void* data) {
 
     w.buffer = (char *)realloc(w.buffer, len + strlen(input) + 1);
     if(w.buffer == nullptr) {
-        perror("out of memory\n");
-        exit(EXIT_FAILURE);
+        throw std::runtime_error("Out of memory");
     }
     if(must_clear) {
         memset(w.buffer, 0, 1);
@@ -354,7 +393,6 @@ void input_ontextinput(Input& w, const char* input, void* data) {
     strcat(w.buffer, input);
 
     w.text(w.buffer);
-    return;
 }
 
 void win_close_btn_onclick(Widget& w, void* data) {
@@ -490,13 +528,6 @@ void Label::on_render(Context& ctx) {
             text_texture->width, text_texture->height,
             text_texture->gl_tex_num
         );
-
-        glColor3f(1.f, 1.f, 1.f);
-        draw_rectangle(
-            0, 0,
-            text_texture->width, text_texture->height,
-            text_texture->gl_tex_num
-        );
     }
     glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -530,13 +561,6 @@ void Chart::on_render(Context& ctx) {
             text_texture->width, text_texture->height,
             text_texture->gl_tex_num
         );
-
-        glColor3f(1.f, 1.f, 1.f);
-        draw_rectangle(
-            0, 0,
-            text_texture->width, text_texture->height,
-            text_texture->gl_tex_num
-        );
     }
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -551,7 +575,7 @@ void Chart::on_render(Context& ctx) {
     size_t time = 0;
     for(const auto& node: data) {
         glVertex2f(
-            time * (width / data.size()),
+            time * (width / (data.size() - 1)),
             height - (((node - min) / (max - min)) * height)
         );
         time++;

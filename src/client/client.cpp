@@ -72,7 +72,6 @@ Nation* curr_nation = nullptr;
 
 static void change_country(size_t id) {
     size_t old_id = curr_selected_nation;
-    
     if(!g_world->nations.size()) {
         UI::Window* win = new UI::Window(mouse_pos.first, mouse_pos.second, 512, 32);
         win->text("No selectable countries!!");
@@ -129,28 +128,22 @@ static void pop_view_nation(UI::Widget&, void *) {
     }
     
     // View the provinces in a country - along with the population in them
-    const Texture& province_pop_view_win = g_texture_manager->load_texture(Path::get("ui/province_pop_view_win.png"));
-    const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_ppv.png"));
-    
-    pop_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, province_pop_view_win.width, province_pop_view_win.height);
-    pop_view_nation_win->current_texture = &province_pop_view_win;
+    pop_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, 609, 476);
     
     char* tmpbuf = new char[255];
     sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
     pop_view_nation_win->text(tmpbuf);
     delete[] tmpbuf;
     
-    UI::Button* ok_btn = new UI::Button(9, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
+    UI::Button* ok_btn = new UI::Button(9, 413, 173, 51, pop_view_nation_win);
     ok_btn->text("OK");
-    ok_btn->current_texture = &button_ppv;\
     ok_btn->on_click = [](UI::Widget& w, void *) {
         pop_view_nation_win = nullptr;
         delete w.parent;
     };
     
-    UI::Button* prev_btn = new UI::Button(193, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
+    UI::Button* prev_btn = new UI::Button(193, 413, 173, 51, pop_view_nation_win);
     prev_btn->text("Previous");
-    prev_btn->current_texture = &button_ppv;
     prev_btn->on_click = [](UI::Widget&, void *) {
         char* tmpbuf = new char[255];
         pop_view_nation_page_num--;
@@ -159,9 +152,8 @@ static void pop_view_nation(UI::Widget&, void *) {
         delete[] tmpbuf;
     };
     
-    UI::Button* next_btn = new UI::Button(377, 413, button_ppv.width, button_ppv.height, pop_view_nation_win);
+    UI::Button* next_btn = new UI::Button(377, 413, 173, 51, pop_view_nation_win);
     next_btn->text("Next");
-    next_btn->current_texture = &button_ppv;
     next_btn->on_click = [](UI::Widget&, void *) {
         char* tmpbuf = new char[255];
         pop_view_nation_page_num++;
@@ -184,28 +176,22 @@ static void industry_view_nation(UI::Widget&, void *) {
     }
     
     // View the provinces in a country - along with the population in them
-    const Texture& industry_view_win = g_texture_manager->load_texture(Path::get("ui/province_industry_view_win.png"));
-    const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_ppv.png"));
-    
-    industry_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, industry_view_win.width, industry_view_win.height);
-    industry_view_nation_win->current_texture = &industry_view_win;
+    industry_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, 609, 476);
     
     char* tmpbuf = new char[255];
     sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)industry_view_nation_page_num);
     industry_view_nation_win->text(tmpbuf);
     delete[] tmpbuf;
     
-    UI::Button* ok_btn = new UI::Button(9, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
+    UI::Button* ok_btn = new UI::Button(9, 413, 173, 51, industry_view_nation_win);
     ok_btn->text("OK");
-    ok_btn->current_texture = &button_ppv;\
     ok_btn->on_click = [](UI::Widget& w, void *) {
         industry_view_nation_win = nullptr;
         delete w.parent;
     };
     
-    UI::Button* prev_btn = new UI::Button(193, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
+    UI::Button* prev_btn = new UI::Button(193, 413, 173, 51, industry_view_nation_win);
     prev_btn->text("Previous");
-    prev_btn->current_texture = &button_ppv;
     prev_btn->on_click = [](UI::Widget&, void *) {
         char* tmpbuf = new char[255];
         industry_view_nation_page_num--;
@@ -214,9 +200,8 @@ static void industry_view_nation(UI::Widget&, void *) {
         delete[] tmpbuf;
     };
     
-    UI::Button* next_btn = new UI::Button(377, 413, button_ppv.width, button_ppv.height, industry_view_nation_win);
+    UI::Button* next_btn = new UI::Button(377, 413, 173, 51, industry_view_nation_win);
     next_btn->text("Next");
-    next_btn->current_texture = &button_ppv;
     next_btn->on_click = [](UI::Widget&, void *) {
         char* tmpbuf = new char[255];
         industry_view_nation_page_num++;
@@ -239,28 +224,22 @@ static void products_view_world(void) {
     }
     
     // View the provinces in a country - along with the population in them
-    const Texture& industry_view_win = g_texture_manager->load_texture(Path::get("ui/province_industry_view_win.png"));
-    const Texture& button_ppv = g_texture_manager->load_texture(Path::get("ui/button_ppv.png"));
-    
-    products_view_win = new UI::Window(mouse_pos.first, mouse_pos.second, industry_view_win.width, industry_view_win.height);
-    products_view_win->current_texture = &industry_view_win;
+    products_view_win = new UI::Window(mouse_pos.first, mouse_pos.second, 609, 476);
     
     char* tmpbuf = new char[255];
     sprintf(tmpbuf, "Your province's products (page %zu)", (size_t)products_view_page_num);
     products_view_win->text(tmpbuf);
     delete[] tmpbuf;
     
-    UI::Button* ok_btn = new UI::Button(9, 413, button_ppv.width, button_ppv.height, products_view_win);
+    UI::Button* ok_btn = new UI::Button(9, 413, 173, 51, products_view_win);
     ok_btn->text("OK");
-    ok_btn->current_texture = &button_ppv;\
     ok_btn->on_click = [](UI::Widget& w, void *) {
         products_view_win = nullptr;
         delete w.parent;
     };
     
-    UI::Button* prev_btn = new UI::Button(193, 413, button_ppv.width, button_ppv.height, products_view_win);
+    UI::Button* prev_btn = new UI::Button(193, 413, 173, 51, products_view_win);
     prev_btn->text("Previous");
-    prev_btn->current_texture = &button_ppv;
     prev_btn->on_click = [](UI::Widget&, void *) {
         char* tmpbuf = new char[255];
         products_view_page_num--;
@@ -269,9 +248,8 @@ static void products_view_world(void) {
         delete[] tmpbuf;
     };
     
-    UI::Button* next_btn = new UI::Button(377, 413, button_ppv.width, button_ppv.height, products_view_win);
+    UI::Button* next_btn = new UI::Button(377, 413, 173, 51, products_view_win);
     next_btn->text("Next");
-    next_btn->current_texture = &button_ppv;
     next_btn->on_click = [](UI::Widget&, void *) {
         char* tmpbuf = new char[255];
         products_view_page_num++;
@@ -309,7 +287,6 @@ static void play_nation(UI::Widget&, void *) {
         cam.position.z = -100.f;
     }
     
-    const Texture& top_win_tex = g_texture_manager->load_texture(Path::get("ui/top_win.png"));
     const Texture& top_win_chart_tex = g_texture_manager->load_texture(Path::get("ui/top_win_chart.png"));
     const Texture& icon_prestige_tex = g_texture_manager->load_texture(Path::get("ui/icons/prestige.png"));
     const Texture& icon_economy_score_tex = g_texture_manager->load_texture(Path::get("ui/icons/economy_score.png"));
@@ -321,9 +298,8 @@ static void play_nation(UI::Widget&, void *) {
     const Texture& icon_population_tex = g_texture_manager->load_texture(Path::get("ui/icons/population.png"));
     
     // General statics of the nation
-    top_win = new UI::Window(0, 0, top_win_tex.width, top_win_tex.height);
+    top_win = new UI::Window(0, 0, 800, 275);
     top_win->text("Overview");
-    top_win->current_texture = &top_win_tex;
     
     gdp_chart = new UI::Chart(504, 43, top_win_chart_tex.width, top_win_chart_tex.height, top_win);
     gdp_chart->text("GDP");
@@ -526,17 +502,9 @@ std::vector<Treaty*> displayed_treaties;
 void select_nation(void) {
     g_world->client_update = &client_update;
     
-    const Texture& province_view_win_tex = g_texture_manager->load_texture(Path::get("ui/province_view_win.png"));
     const Texture& nation_view_win_tex = g_texture_manager->load_texture(Path::get("ui/nation_view_win.png"));
     const Texture& debug_win_tex = g_texture_manager->load_texture(Path::get("ui/debug_win.png"));
     const Texture& generic_descision = g_texture_manager->load_texture(Path::get("ui/generic_descision_win.png"));
-    
-    const Texture& button_320 = g_texture_manager->load_texture(Path::get("ui/button_320.png"));
-    const Texture& button_256 = g_texture_manager->load_texture(Path::get("ui/button_256.png"));
-    const Texture& button_196 = g_texture_manager->load_texture(Path::get("ui/button_196.png"));
-    const Texture& button_128 = g_texture_manager->load_texture(Path::get("ui/button_128.png"));
-    
-    const Texture& button_pvw = g_texture_manager->load_texture(Path::get("ui/button_pvw.png"));
     const Texture& button_popup = g_texture_manager->load_texture(Path::get("ui/button_popup.png"));
     
     nation_flags.reserve(g_world->nations.size());
@@ -578,30 +546,25 @@ void select_nation(void) {
     
     std::pair<float, float> select_pos;
     
-    UI::Button* select_country_btn = new UI::Button((width / 2) - (button_320.width / 2), 8, button_320.width, button_320.height);
-    select_country_btn->current_texture = &button_320;
+    UI::Button* select_country_btn = new UI::Button((width / 2) - (320 / 2), 8, 320, 38);
     select_country_btn->text("Select a country");
 
-    curr_country_btn = new UI::Button((width / 2) - (button_320.width / 2), height - 128, button_320.width, button_320.height);
-    curr_country_btn->current_texture = &button_320;
+    curr_country_btn = new UI::Button((width / 2) - (320 / 2), height - 128, 320, 38);
     curr_country_btn->text("!");
-    UI::Button* next_country_btn = new UI::Button(0, height - 128, button_128.width, button_128.height);
-    next_country_btn->current_texture = &button_128;
+    UI::Button* next_country_btn = new UI::Button(0, height - 128, 128, 38);
     next_country_btn->text("Next");
-    next_country_btn->right_side_of((*curr_country_btn));
+    next_country_btn->right_side_of(*curr_country_btn);
     next_country_btn->on_click = [](UI::Widget&, void *) {
         change_country(curr_selected_nation + 1);
     };
-    UI::Button* prev_country_btn = new UI::Button(0, height - 128, button_128.width, button_128.height);
-    prev_country_btn->current_texture = &button_128;
+    UI::Button* prev_country_btn = new UI::Button(0, height - 128, 128, 38);
     prev_country_btn->text("Prev");
-    prev_country_btn->left_side_of((*curr_country_btn));
+    prev_country_btn->left_side_of(*curr_country_btn);
     prev_country_btn->on_click = [](UI::Widget&, void *) {
         change_country(curr_selected_nation - 1);
     };
     
-    UI::Button* play_btn = new UI::Button((width / 2) - (button_320.width / 2), height - button_320.height, button_320.width, button_320.height);
-    play_btn->current_texture = &button_320;
+    UI::Button* play_btn = new UI::Button((width / 2) - (320 / 2), height - 38, 320, 38);
     play_btn->text("Play");
     play_btn->on_click = &play_nation;
     
@@ -764,42 +727,36 @@ void select_nation(void) {
                         }
                         
                         if(tile.province_id != (Province::Id)-1) {
-                            province_view_win = new UI::Window(0, 0, province_view_win_tex.width, province_view_win_tex.height);
+                            province_view_win = new UI::Window(0, 0, 320, 425);
                             province_view_win->text("Province overview");
-                            province_view_win->current_texture = &province_view_win_tex;
-                            province_view_win->below_of((*top_win));
+                            province_view_win->below_of(*top_win);
                             
                             const Texture& province_view_decor = g_texture_manager->load_texture(Path::get("ui/province_view_terrain.png"));
                             UI::Image* view_province_decor = new UI::Image(9, 43, province_view_decor.width, province_view_decor.height, &province_view_decor, province_view_win);
                             view_province_decor->text(g_world->provinces[tile.province_id]->name.c_str());
                             
-                            UI::Button* view_province_pops = new UI::Button(9, 193, button_pvw.width, button_pvw.height, province_view_win);
+                            UI::Button* view_province_pops = new UI::Button(9, 193, 303, 38, province_view_win);
                             view_province_pops->text("Population");
-                            view_province_pops->current_texture = &button_pvw;
                             view_province_pops->user_data = (void *)g_world->provinces[tile.province_id];
                             
-                            UI::Button* view_province_ind = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
+                            UI::Button* view_province_ind = new UI::Button(9, 0, 303, 38, province_view_win);
                             view_province_ind->text("Economic activity");
-                            view_province_ind->current_texture = &button_pvw;
-                            view_province_ind->below_of((*view_province_pops));
+                            view_province_ind->below_of(*view_province_pops);
                             view_province_ind->user_data = (void *)g_world->provinces[tile.province_id];
                             
-                            UI::Button* view_province_owner = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
+                            UI::Button* view_province_owner = new UI::Button(9, 0, 303, 38, province_view_win);
                             view_province_owner->text("Owner info");
-                            view_province_owner->current_texture = &button_pvw;
-                            view_province_owner->below_of((*view_province_ind));
+                            view_province_owner->below_of(*view_province_ind);
                             view_province_owner->user_data = (void *)g_world->provinces[tile.province_id];
                             
-                            UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, button_pvw.width, button_pvw.height, province_view_win);
+                            UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, 303, 38, province_view_win);
                             ok_btn->text("OK");
-                            ok_btn->current_texture = &button_pvw;
-                            ok_btn->below_of((*view_province_owner));
+                            ok_btn->below_of(*view_province_owner);
 
                             if(g_world->provinces[tile.province_id]->owner == nullptr) {
-                                UI::Button* colonize_province_btn = new UI::Button(9, 0, button_pvw.width, button_pvw.height, province_view_win);
+                                UI::Button* colonize_province_btn = new UI::Button(9, 0, 303, 38, province_view_win);
                                 colonize_province_btn->text("Colonize");
-                                colonize_province_btn->current_texture = &button_pvw;
-                                colonize_province_btn->below_of((*ok_btn));
+                                colonize_province_btn->below_of(*ok_btn);
                                 colonize_province_btn->user_data = (void *)g_world->provinces[tile.province_id];
                                 colonize_province_btn->on_click = &colonize_province;
                             }
@@ -875,11 +832,10 @@ void select_nation(void) {
                     continue;
                 }
 
-                UI::Window* popup_win = new UI::Window(128, 128, generic_descision.width, generic_descision.height);
+                UI::Window* popup_win = new UI::Window(128, 128, 320, 570);
                 
                 // TODO: Allow titles in events
                 popup_win->text(msg.title.c_str());
-                popup_win->current_texture = &generic_descision;
 
                 // Separate the text line by line
                 const char* buf = msg.text.c_str();
@@ -897,9 +853,8 @@ void select_nation(void) {
                 // Buttons for descisions
                 const UI::Button* last = nullptr;
                 for(const auto& descision: msg.descisions) {
-                    UI::Button* decide_btn = new UI::Button(9, 558 - button_popup.height, button_popup.width, button_popup.height, popup_win);
+                    UI::Button* decide_btn = new UI::Button(9, 558 - 38, 303, 38, popup_win);
                     decide_btn->text(descision.name.c_str());
-                    decide_btn->current_texture = &button_popup;
                     decide_btn->user_data = (void *)&descision;
                     decide_btn->on_click = [](UI::Widget& w, void* data) {
                         delete w.parent;
@@ -963,18 +918,16 @@ void select_nation(void) {
                 }) != displayed_treaties.end())
                     continue;
 
-                UI::Window* popup_win = new UI::Window(128, 128, generic_descision.width, generic_descision.height);
+                UI::Window* popup_win = new UI::Window(128, 128, 320, 570);
                 
                 // TODO: Allow titles in events
                 popup_win->text("Treaty offer");
-                popup_win->current_texture = &generic_descision;
 
                 // Separate the text line by line
                 new UI::Label(8, 32, treaty_to_text(*treaty).c_str(), popup_win);
 
-                UI::Button* approve_btn = new UI::Button(9, 64, button_popup.width, button_popup.height, popup_win);
+                UI::Button* approve_btn = new UI::Button(9, 64, 303, 38, popup_win);
                 approve_btn->text("Approve");
-                approve_btn->current_texture = &button_popup;
                 approve_btn->user_data = (void*)&treaty;
                 approve_btn->on_click = [](UI::Widget& w, void* data) {
                     delete w.parent;
