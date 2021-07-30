@@ -162,6 +162,14 @@ World::~World() {
         delete province;
     } for(auto& nation: nations) {
         delete nation;
+    } for(auto& outpost_type: outpost_types) {
+        delete outpost_type;
+    } for(auto& unit_trait: unit_traits) {
+        delete unit_trait;
+    } for(auto& boat_type: boat_types) {
+        delete boat_type;
+    } for(auto& product: products) {
+        delete product;
     }
 }
 
@@ -252,10 +260,12 @@ void World::load_mod(void) {
         const uint32_t color = div.buffer[i];
 
         // This "skip the empty stuff" technique works!
-        while(div.buffer[i] == 0xffffffff
-        || div.buffer[i] == 0xff000000) {
+        while((div.buffer[i] == 0xffffffff
+        || div.buffer[i] == 0xff000000) && i < total_size) {
             ++i;
         }
+        if(!(i < total_size))
+            break;
 
         const Province::Id province_id = color_province_rel_table[div.buffer[i] & 0xffffff];
         if(province_id == (Province::Id)-1) {
