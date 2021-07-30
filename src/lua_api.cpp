@@ -373,11 +373,11 @@ int LuaAPI::add_province_industry(lua_State* L) {
     }
     
     Province *& province = g_world->provinces[province_id];
-    Industry* industry = new Industry();
-    industry->owner = g_world->companies[company_id];
-    industry->owner->operating_provinces.insert(province);
-    industry->type = g_world->industry_types[industry_type_id];
-    province->add_industry(*g_world, industry);
+    Industry industry = Industry();
+    industry.owner = g_world->companies[company_id];
+    industry.owner->operating_provinces.insert(province);
+    industry.type = g_world->industry_types[industry_type_id];
+    province->add_industry(*g_world, &industry);
     return 0;
 }
 
