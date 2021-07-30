@@ -129,6 +129,7 @@ Server::~Server() {
     for(auto& thread: threads) {
         thread.join();
     }
+    delete[] packet_mutexes;
 }
 
 #include "actions.hpp"
@@ -143,10 +144,10 @@ extern World* g_world;
  */
 void Server::broadcast(Packet& packet) {
     for(size_t i = 0; i < threads.size(); i++) {
+        packet_mutexes[i].lock();
         if(is_connected[i] == false)
             continue;
         
-        packet_mutexes[i].lock();
         packet_queues[i].push_back(packet);
         packet_mutexes[i].unlock();
     }
@@ -172,6 +173,7 @@ void Server::net_loop(int id) {
                     if(conn_fd == INVALID_SOCKET) {
                         throw SocketException("Cannot accept client connection");
                     }
+                    break;
                 } catch(SocketException& e) {
                     std::this_thread::sleep_for(std::chrono::seconds(1));
                 }
@@ -179,10 +181,9 @@ void Server::net_loop(int id) {
             if(!run) {
                 throw SocketException("Close client");
             }
+            print_info("New client connection established");
 
             is_connected[id] = true;
-
-            print_info("New client connection established");
 
             Nation* selected_nation = nullptr;
             Packet packet = Packet(conn_fd);
@@ -563,16 +564,21 @@ void Server::net_loop(int id) {
                         break;
                     }
                 }
+
+                ar.buffer.clear();
+                ar.rewind();
                 
                 // After reading everything we will send our queue appropriately
-                packet_mutexes[id].lock();
-                while(!packet_queues[id].empty()) {
-                    Packet elem = packet_queues[id].front();
-                    elem.stream = SocketStream(conn_fd);
-                    packet_queues[id].pop_front();
-                    elem.send();
+                {
+                    std::lock_guard<std::mutex> l(packet_mutexes[id]);
+                    while(!packet_queues[id].empty()) {
+                        Packet elem = packet_queues[id].front();
+                        packet_queues[id].pop_front();
+
+                        elem.stream = SocketStream(conn_fd);
+                        elem.send();
+                    }
                 }
-                packet_mutexes[id].unlock();
             }
         } catch(ServerException& e) {
             print_error("ServerException: %s", e.what());
@@ -582,11 +588,11 @@ void Server::net_loop(int id) {
             print_error("SerializerException: %s", e.what());
         }
         
-        is_connected[id] = false;
-        
         // Unlock mutexes so we don't end up with weird situations... like deadlocks
-        packet_mutexes[id].unlock();
+        packet_mutexes[id].lock();
+        is_connected[id] = false;
         packet_queues[id].clear();
+        packet_mutexes[id].unlock();
         print_info("Client disconnected");
         
 #ifdef windows
@@ -853,11 +859,11 @@ void Client::wait_for_snapshot(void) {
 }
 
 Client::~Client() {
-    net_thread.join();
 #ifdef windows
     closesocket(fd);
     WSACleanup();
 #else
     close(fd);
 #endif
+    net_thread.join();
 }

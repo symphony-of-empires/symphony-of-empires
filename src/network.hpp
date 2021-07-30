@@ -141,9 +141,6 @@ public:
     void recv(T* buf = nullptr) {
         uint32_t net_code;
         if(::recv(stream.fd, (char*)&net_code, sizeof(net_code), MSG_WAITALL) == -1) {
-#ifdef windows
-            print_error("WSA Code: %u", WSAGetLastError());
-#endif
             throw SocketException("Socket read error for packet code");
         }
         net_code  = ntohl(net_code);
@@ -151,9 +148,6 @@ public:
 
         uint32_t net_size;
         if(::recv(stream.fd, (char*)&net_size, sizeof(net_size), MSG_WAITALL) == -1) {
-#ifdef windows
-            print_error("WSA Code: %u", WSAGetLastError());
-#endif
             throw SocketException("Socket read error for size of packet");
         }
         
@@ -165,9 +159,6 @@ public:
             int r;
             r = ::recv(stream.fd, (char*)&bufdata[i], std::min<size_t>(1024, n_data - i), MSG_WAITALL);
             if(r == -1) {
-#ifdef windows
-                print_error("WSA Code: %u", WSAGetLastError());
-#endif
                 throw SocketException("Socket read error for data in packet");
             }
             i += r;
