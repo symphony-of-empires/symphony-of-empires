@@ -46,7 +46,9 @@ void Archive::from_file(std::string path) {
     ::rewind(fp);
     
     buffer.resize(size);
-    fread(&buffer[0], 1, buffer.size(), fp);
+    if(fread(&buffer[0], 1, buffer.size(), fp) != buffer.size())
+        throw SerializerException("Cannot read");
+    
     fclose(fp);
     
     end_stream();

@@ -276,7 +276,6 @@ const Texture& get_nation_flag(Nation& nation) {
 
 std::mutex render_lock;
 static void play_nation(UI::Widget&, void *) {
-    ui_ctx->clear();
     current_mode = MAP_MODE_NORMAL;
     
     const Province* capital = curr_nation->capital;
@@ -581,6 +580,7 @@ void select_nation(void) {
         
         SDL_Event event;
         int click_on_ui;
+        enum MapMode old_mode = current_mode;
         
         while(SDL_PollEvent(&event)) {
             switch(event.type) {
@@ -590,7 +590,11 @@ void select_nation(void) {
                 break;
             case SDL_MOUSEBUTTONUP:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+
                 click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
+                if(old_mode != current_mode)
+                    ui_ctx->clear();
+
                 if(click_on_ui == 0) {
                     if(select_pos.first < 0 || select_pos.first >= g_world->width
                     || select_pos.second < 0 || select_pos.second >= g_world->height)

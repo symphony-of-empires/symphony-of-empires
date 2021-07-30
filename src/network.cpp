@@ -35,12 +35,8 @@ WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeo
 void SocketStream::write(const void* data, size_t size) {
     for(size_t i = 0; i < size; ) {
         int r = ::send(fd, (const char*)data, std::min<size_t>(1024, size - i), 0);
-        if(r == -1) {
-#ifdef windows
-            print_error("WSA Code: %u", WSAGetLastError());
-#endif
+        if(r < 0)
             throw SocketException("Socket write error for data in packet");
-        }
         i += (size_t)r;
     }
 }
@@ -48,17 +44,14 @@ void SocketStream::write(const void* data, size_t size) {
 void SocketStream::read(void* data, size_t size) {
     for(size_t i = 0; i < size; ) {
         int r = ::recv(fd, (char*)data, std::min<size_t>(1024, size - i), MSG_WAITALL);
-        if(r == -1) {
-#ifdef windows
-            print_error("WSA Code: %u", WSAGetLastError());
-#endif
+        if(r < 0)
             throw SocketException("Socket read error for data in packet");
-        }
         i += (size_t)r;
     }
 }
 
 #include <signal.h>
+#include <fcntl.h>
 Server* g_server = nullptr;
 Server::Server(const unsigned port, const unsigned max_conn) {
     g_server = this;
@@ -76,31 +69,21 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(fd == INVALID_SOCKET) {
-#ifdef windows
-        WSACleanup();
-#endif
         throw SocketException("Cannot create server socket");
     }
 
     if(bind(fd, (sockaddr *)&addr, sizeof(addr)) != 0) {
-#if defined windows
-        print_error("WSA code: %u", WSAGetLastError());
-        WSACleanup();
-#endif
         throw SocketException("Cannot bind server");
     }
 
     if(listen(fd, max_conn) != 0) {
-#if defined windows
-        print_error("WSA code: %u", WSAGetLastError());
-        WSACleanup();
-#endif
         throw SocketException("Cannot listen in specified number of concurrent connections");
     }
+    fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0) | O_NONBLOCK);
 
     print_info("Deploying %u threads for clients", max_conn);
     packet_queues.resize(max_conn);
-    is_connected.resize(max_conn, false);
+    is_connected = new std::atomic<bool>[max_conn];
     packet_mutexes = new std::mutex[max_conn];
 
     threads.reserve(max_conn);
@@ -113,8 +96,7 @@ Server::Server(const unsigned port, const unsigned max_conn) {
     signal(SIGPIPE, SIG_IGN);
 #endif
     
-    print_info("Server created sucessfully and listening to %u", port);
-    print_info("Server ready, now people can join!");
+    print_info("Server created sucessfully and listening to %u; now invite people!", port);
 }
 
 Server::~Server() {
@@ -129,6 +111,7 @@ Server::~Server() {
     for(auto& thread: threads) {
         thread.join();
     }
+    delete[] is_connected;
     delete[] packet_mutexes;
 }
 
@@ -144,35 +127,28 @@ extern World* g_world;
  */
 void Server::broadcast(Packet& packet) {
     for(size_t i = 0; i < threads.size(); i++) {
-        packet_mutexes[i].lock();
-        if(is_connected[i] == false)
-            continue;
-        
-        packet_queues[i].push_back(packet);
-        packet_mutexes[i].unlock();
+        std::lock_guard<std::mutex> l(packet_mutexes[i]);
+        if(is_connected[i]) {
+            packet_queues[i].push_back(packet);
+        }
     }
 }
 
-#include <fcntl.h>
 /** This is the handling thread-function for handling a connection to a single client
  * Sending packets will only be received by the other end, when trying to broadcast please
  * put the packets on the send queue, they will be sent accordingly
  */
 void Server::net_loop(int id) {
-    fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0) | O_NONBLOCK);
-
     while(run) {
-        int conn_fd = 0;
+        int conn_fd;
         try {
             sockaddr_in client;
             socklen_t len = sizeof(client);
-
             while(run) {
                 try {
                     conn_fd = accept(fd, (sockaddr *)&client, &len);
-                    if(conn_fd == INVALID_SOCKET) {
+                    if(conn_fd == INVALID_SOCKET)
                         throw SocketException("Cannot accept client connection");
-                    }
                     break;
                 } catch(SocketException& e) {
                     std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -205,17 +181,13 @@ void Server::net_loop(int id) {
                 // Check if we need to read stuff
 #ifdef unix
                 int has_pending = poll(&pfd, 1, 10);
+                if(pfd.revents & POLLIN || has_pending)
 #elif defined windows
                 u_long has_pending = 0;
                 ioctlsocket(fd, FIONREAD, &has_pending);
+                if(has_pending)
 #endif
-
-                // Conditional of above statements
-#ifdef unix
-                if(pfd.revents & POLLIN || has_pending) {
-#elif defined windows
-                if(has_pending) {
-#endif
+                {
                     packet.recv();
                     
                     ar.set_buffer(packet.data(), packet.size());
@@ -568,7 +540,7 @@ void Server::net_loop(int id) {
                 ar.buffer.clear();
                 ar.rewind();
                 
-                // After reading everything we will send our queue appropriately
+                // After reading everything we will send our queue appropriately to the client
                 {
                     std::lock_guard<std::mutex> l(packet_mutexes[id]);
                     while(!packet_queues[id].empty()) {
