@@ -2,7 +2,7 @@
 #include "world.hpp"
 #include "lua_api.hpp"
 
-void client_main(void);
+void client_main(int argc, char** argv);
 
 #ifdef windows
 const char* gettext(const char* str) {
@@ -30,10 +30,18 @@ std::atomic<bool> run;
 
 #include "actions.hpp"
 std::mutex world_lock;
-std::string server_addr;
+
+std::string async_get_input(void) {
+    std::cout << "server> ";
+
+    std::string cmd;
+    std::cin >> cmd;
+    return cmd;
+}
 
 #include <iostream>
-int main(int argc, char ** argv) {
+#include <future>
+int main(int argc, char** argv) {
 #ifdef unix
     setlocale(LC_ALL, "");
     bindtextdomain("main", Path::get("locale").c_str());
@@ -46,37 +54,48 @@ int main(int argc, char ** argv) {
         World* world = new World();
         world->load_mod();
         Server* server = new Server(1836);
-        
+
+        std::future<std::string> future = std::async(std::launch::async, async_get_input);
+
         run = true;
         while(run) {
             std::unique_lock<std::mutex> lock(world_lock);
             world->do_tick();
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+            if(future.wait_for(std::chrono::milliseconds(10)) == std::future_status::ready) {
+                std::string r = future.get();
+
+                if(r == "brick") {
+                    std::cout << "Bricking! :D" << std::endl;
+                    for(auto& province: world->provinces) {
+                        for(auto& pop: province->pops) {
+                            pop.militancy = 1.f;
+                            pop.life_needs_met = 0.f;
+                            pop.budget = 0.f;
+                        }
+                    }
+                    break;
+                } else if(r == "exit") {
+                    std::cout << "Quitting..." << std::endl;
+                    run = false;
+                    break;
+                } else {
+                    std::cout << "Unknown command" << std::endl;
+                }
+                future = std::async(std::launch::async, async_get_input);
+            }
+            
+            //std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
         
+        print_info("Destroying world");
         delete world;
+        print_info("Destroying server");
         delete server;
     }
     // Run as a client, receiving and sending packages to/from a server
     else {
-        if(argc > 1) {
-            server_addr = argv[1];
-        } else {
-            server_addr = "127.0.0.1";
-            print_info("No IP specified, assuming default %s", server_addr.c_str());
-        }
-        print_info("Connecting to server with IP %s", server_addr.c_str());
-        print_info("Initializing empty world");
-        World* world = new World();
-        print_info("Creating client");
-        Client* client = new Client(server_addr, 1836);
-        print_info("Waiting for snapshot");
-        client->wait_for_snapshot();
-        print_info("Running main client");
-        client_main();
-        
-        delete client;
-        delete world;
+        client_main(argc, argv);
     }
 #endif
     exit(EXIT_SUCCESS);

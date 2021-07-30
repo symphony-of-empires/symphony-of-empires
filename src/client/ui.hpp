@@ -29,8 +29,7 @@ enum UI_WidgetType {
 namespace UI {
     class Widget;
     class Context {
-        int drag_x;
-        int drag_y;
+        int drag_x, drag_y;
         bool is_drag;
         Widget* dragged_widget;
     public:

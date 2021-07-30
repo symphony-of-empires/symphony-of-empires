@@ -502,11 +502,6 @@ std::vector<Treaty*> displayed_treaties;
 void select_nation(void) {
     g_world->client_update = &client_update;
     
-    const Texture& nation_view_win_tex = g_texture_manager->load_texture(Path::get("ui/nation_view_win.png"));
-    const Texture& debug_win_tex = g_texture_manager->load_texture(Path::get("ui/debug_win.png"));
-    const Texture& generic_descision = g_texture_manager->load_texture(Path::get("ui/generic_descision_win.png"));
-    const Texture& button_popup = g_texture_manager->load_texture(Path::get("ui/button_popup.png"));
-    
     nation_flags.reserve(g_world->nations.size());
     for(const auto& nation: g_world->nations) {
         std::string pt = "ui/flags/" + nation->ref_name + "_monarchy.png";
@@ -943,9 +938,8 @@ void select_nation(void) {
                     g_client->packet_mutex.unlock();
                 };
 
-                UI::Button* deny_btn = new UI::Button(9, 0, button_popup.width, button_popup.height, popup_win);
+                UI::Button* deny_btn = new UI::Button(9, 0, 303, 38, popup_win);
                 deny_btn->text("Reject");
-                deny_btn->current_texture = &button_popup;
                 deny_btn->user_data = (void*)&treaty;
                 deny_btn->below_of(*approve_btn);
                 deny_btn->on_click = [](UI::Widget& w, void* data) {
@@ -1145,7 +1139,7 @@ void select_nation(void) {
 }
 
 #include <fstream>
-void client_main(void) {
+void client_main(int argc, char** argv) {
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
     
@@ -1166,11 +1160,24 @@ void client_main(void) {
     g_texture_manager = new TextureManager();
     ui_ctx = new UI::Context();
 
-    printf("Creating map\n");
-    map = new Map(*g_world);
+    std::string server_addr;
+    if(argc > 1) {
+        server_addr = argv[1];
+    } else {
+        server_addr = "127.0.0.1";
+        print_info("No IP specified, assuming default %s", server_addr.c_str());
+    }
+    print_info("Connecting to server with IP %s", server_addr.c_str());
 
-    printf("Client ready\n");
+    World* world = new World();
+    Client* client = new Client(server_addr, 1836);
+    client->wait_for_snapshot();
+
+    map = new Map(*g_world);
     select_nation();
+
+    delete client;
+    delete world;
 
     TTF_Quit();
     SDL_Quit();

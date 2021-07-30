@@ -31,13 +31,13 @@ Map::Map(const World& _world) : world(_world) {
         const Tile& tile = world.get_tile(i);
         
         if(tile.elevation <= world.sea_level) {
-            r = 16;
-            g = 16;
-            b = tile.elevation + 32;
+            r = 8;
+            g = 8;
+            b = 128;
         } else {
-            r = 256 - (tile.elevation - world.sea_level);
-            g = 256 - (tile.elevation - world.sea_level);
-            b = 256 - (tile.elevation - world.sea_level);
+            r = 8;
+            g = tile.elevation;
+            b = 8;
         }
         topo_tex->buffer[i] = (0xff << 24) | (b << 16) | (g << 8) | (r);
     }
@@ -64,10 +64,9 @@ void Map::draw(Camera& cam, const int width, const int height) {
     for(size_t i = 0; i < world.provinces.size(); i++) {
         if(world.provinces[i]->owner != nullptr) {
             uint32_t& color = world.provinces[i]->owner->color;
-            glColor4ub(color & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff, 0x80);
+            glColor4ub(color & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff, 0xc0);
         } else {
-            uint32_t color = 0xffd0d0d0;
-            glColor4ub(color & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff, 0x80);
+            glColor4ub(0x80, 0x80, 0x80, 0xc0);
         }
 
         glCallList(province_shapes[i].shape_gl_list);
@@ -77,7 +76,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     }
     glCallList(coastline_gl_list);
 
-    glBindTexture(GL_TEXTURE_2D, overlay_tex->gl_tex_num);
+    /*glBindTexture(GL_TEXTURE_2D, overlay_tex->gl_tex_num);
     glBegin(GL_QUADS);
     glColor4f(1.f, 1.f, 1.f, 0.8f);
     glTexCoord2f(0.f, 0.f);
@@ -88,7 +87,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     glVertex2f(0.f + world.width, 0.f + world.height);
     glTexCoord2f(0.f, 1.f);
     glVertex2f(0.f, 0.f + world.height);
-    glEnd();
+    glEnd();*/
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
