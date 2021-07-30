@@ -63,11 +63,13 @@ public:
 };
 
 class SocketStream {
+    bool is_server_stream = false;
 public:
     int fd;
 
     SocketStream() {};
     SocketStream(int _fd) : fd(_fd) {};
+
     void write(const void* data, size_t size);
     void read(void* data, size_t size);
 };

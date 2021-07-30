@@ -229,7 +229,7 @@ void Economy::do_phase_1(World& world) {
                 }
             }
 
-            print_info("Industry of %s in %s has %zu workers", industry.type->name.c_str(), province->name.c_str(), available_manpower);
+            //print_info("Industry of %s in %s has %zu workers", industry.type->name.c_str(), province->name.c_str(), available_manpower);
 
             if(!available_manpower) {
                 industry.days_unoperational++;
@@ -512,14 +512,14 @@ void Economy::do_phase_2(World& world) {
     world.orders.clear();
 
     // Uncomment to see stockpiles
-    for(const auto& province: world.provinces) {
+    /*for(const auto& province: world.provinces) {
         for(size_t i = 0; i < province->stockpile.size(); i++) {
             if(!province->stockpile[i])
                 continue;
                 
             print_info("%zu of %s produced in %s - stockpiled by %s", province->stockpile[i], world.products[i]->good->name.c_str(), world.products[i]->origin->name.c_str(), province->name.c_str());
         }
-    }
+    }*/
 }
 
 /**
@@ -774,7 +774,7 @@ void Economy::do_phase_3(World& world) {
                     //goto skip_emigration;
                 }
                 
-                print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
+                //print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
                 
                 Emigrated emigrated;
                 emigrated.target = best_province;
@@ -830,7 +830,7 @@ void Economy::do_phase_3(World& world) {
         // a new one (copy the original POP) and add it to the province
         if(new_pop == nullptr) {
             target.target->pops.push_back(*pop);
-            new_pop = &*target.target->pops.end();
+            new_pop = &target.target->pops.back();
         }
         new_pop->size += size;
     }

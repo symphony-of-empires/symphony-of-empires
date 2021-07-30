@@ -25,14 +25,12 @@ Context::Context() {
     if(g_ui_context != nullptr) {
         throw std::runtime_error("UI context already constructed");
     }
-
     default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 24);
     if(default_font == nullptr) {
         throw std::runtime_error("Font could not be loaded, exiting");
     }
 
-    widgets.clear();
-    widgets.reserve(150);
+    widgets.reserve(255);
 
     background = &g_texture_manager->load_texture(Path::get("ui/background.png"));
     window_top = &g_texture_manager->load_texture(Path::get("ui/window_top.png"));
@@ -40,7 +38,6 @@ Context::Context() {
 
     g_ui_context = this;
     is_drag = false;
-    return;
 }
 
 void Context::add_widget(Widget* widget) {
@@ -51,11 +48,9 @@ void Context::add_widget(Widget* widget) {
         return;
 
     widgets.push_back(widget);
-    return;
 }
 
 void Context::remove_widget(Widget* widget) {
-    widget->is_show = 0;
     for(size_t i = 0; i < widgets.size(); i++) {
         if(widgets[i] != widget)
             continue;
@@ -63,13 +58,12 @@ void Context::remove_widget(Widget* widget) {
         widgets.erase(widgets.begin() + i);
         break;
     }
-    return;
 }
 
 void Context::clear(void) {
     // Remove all widgets
-    for(size_t i = 0; i < widgets.size(); i++) {
-        delete widgets[i];
+    for(auto& widget: widgets) {
+        delete widget;
     }
     widgets.clear();
 }
@@ -95,6 +89,7 @@ void Context::render_recursive(Widget& w, int x_off, int y_off) {
 
         if(!child->is_show)
             continue;
+        
         render_recursive(*child, x_off, y_off);
     }
 }
@@ -111,7 +106,6 @@ void Context::render_all(const int width, const int height) {
         render_recursive(*widget, 0, 0);
     }
     glPopMatrix();
-    return;
 }
 
 void Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
@@ -395,10 +389,6 @@ void input_ontextinput(Input& w, const char* input, void* data) {
     w.text(w.buffer);
 }
 
-void win_close_btn_onclick(Widget& w, void* data) {
-    delete w.parent;
-}
-
 Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, int _type, const Texture* tex)
     : is_show(1), type(_type), x(_x), y(_y), width(w), height(h), parent(_parent), current_texture(tex) {
     if(parent != nullptr) {
@@ -411,8 +401,8 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
 
 Widget::~Widget() {
     // Delete the children recursively
-    for(size_t i = 0; i < children.size(); i++) {
-        delete children[i];
+    for(auto& child: children) {
+        delete child;
     }
     children.clear();
 
@@ -581,4 +571,19 @@ void Chart::on_render(Context& ctx) {
         time++;
     }
     glEnd();
+
+    glLineWidth(3.f);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glColor3f(0.f, 0.f, 0.f);
+    if(type != UI_WIDGET_WINDOW && type != UI_WIDGET_IMAGE && type != UI_WIDGET_PIE_CHART) {
+        const size_t padding = 8;
+        // Inner black border
+        glBegin(GL_LINE_STRIP);
+            glVertex2f(0, 0);
+            glVertex2f(width, 0);
+            glVertex2f(width, height);
+            glVertex2f(0, height);
+            glVertex2f(0, 0);
+        glEnd();
+    }
 }

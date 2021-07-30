@@ -62,7 +62,8 @@ void SocketStream::read(void* data, size_t size) {
 Server* g_server = nullptr;
 Server::Server(const unsigned port, const unsigned max_conn) {
     g_server = this;
-    
+
+    run = true;
 #ifdef windows
     WSADATA data;
     WSAStartup(MAKEWORD(2, 2), &data);
@@ -98,37 +99,36 @@ Server::Server(const unsigned port, const unsigned max_conn) {
     }
 
     print_info("Deploying %u threads for clients", max_conn);
+    packet_queues.resize(max_conn);
+    is_connected.resize(max_conn, false);
+    packet_mutexes = new std::mutex[max_conn];
+
     threads.reserve(max_conn);
     for(size_t i = 0; i < max_conn; i++) {
         threads.push_back(std::thread(&Server::net_loop, this, i));
     }
     
-    packet_queues.resize(max_conn);
-    is_connected.resize(max_conn, false);
-    packet_mutexes = new std::mutex[max_conn];
-    
 #ifdef unix
-    // We need to ignore pipe signals since any client disconnecting **will** crash the server
+    // We need to ignore pipe signals since any client disconnecting **will** kill the server
     signal(SIGPIPE, SIG_IGN);
 #endif
     
-    run = true;
     print_info("Server created sucessfully and listening to %u", port);
     print_info("Server ready, now people can join!");
 }
 
 Server::~Server() {
-    run = true;
-    for(auto& thread: threads) {
-        thread.join();
-    }
-
+    run = false;
 #ifdef unix
     close(fd);
 #elif defined windows
     closesocket(fd);
     WSACleanup();
 #endif
+
+    for(auto& thread: threads) {
+        thread.join();
+    }
 }
 
 #include "actions.hpp"
@@ -152,22 +152,34 @@ void Server::broadcast(Packet& packet) {
     }
 }
 
+#include <fcntl.h>
 /** This is the handling thread-function for handling a connection to a single client
  * Sending packets will only be received by the other end, when trying to broadcast please
  * put the packets on the send queue, they will be sent accordingly
  */
 void Server::net_loop(int id) {
-    run = true;
+    fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0) | O_NONBLOCK);
+
     while(run) {
         int conn_fd = 0;
         try {
             sockaddr_in client;
             socklen_t len = sizeof(client);
 
-            conn_fd = accept(fd, (sockaddr *)&client, &len);
-            if(conn_fd == INVALID_SOCKET) {
-                throw SocketException("Cannot accept client connection");
+            while(run) {
+                try {
+                    conn_fd = accept(fd, (sockaddr *)&client, &len);
+                    if(conn_fd == INVALID_SOCKET) {
+                        throw SocketException("Cannot accept client connection");
+                    }
+                } catch(SocketException& e) {
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                }
             }
+            if(!run) {
+                throw SocketException("Close client");
+            }
+
             is_connected[id] = true;
 
             print_info("New client connection established");
@@ -183,7 +195,6 @@ void Server::net_loop(int id) {
             enum ActionType action = ACTION_PING;
             packet.send(&action);
             print_info("Sent action %zu", (size_t)action);
-            
 #ifdef unix
             struct pollfd pfd;
             pfd.fd = conn_fd;
@@ -572,6 +583,9 @@ void Server::net_loop(int id) {
         }
         
         is_connected[id] = false;
+        
+        // Unlock mutexes so we don't end up with weird situations... like deadlocks
+        packet_mutexes[id].unlock();
         packet_queues[id].clear();
         print_info("Client disconnected");
         
@@ -580,10 +594,6 @@ void Server::net_loop(int id) {
 #elif defined unix
         shutdown(conn_fd, SHUT_RDWR);
 #endif
-
-        // Unlock mutexes so we don't end up with weird situations... like deadlocks
-        packet_mutexes[id].unlock();
-        print_info("Client connection closed");
     }
 }
 
@@ -690,7 +700,6 @@ void Client::net_loop(void) {
                  * deserializer will deserialize onto the final object; after this the operation
                  * desired is done. */
                 case ACTION_NATION_UPDATE:
-                print_info("ACTION_NATION_UPDATE");
                     {
                         std::lock_guard<std::recursive_mutex> lock(g_world->nations_mutex);
 
@@ -716,7 +725,6 @@ void Client::net_loop(void) {
                     }
                     break;
                 case ACTION_PROVINCE_UPDATE:
-                print_info("ACTION_PROVINCE_UPDATE");
                     {
                         std::lock_guard<std::recursive_mutex> lock(g_world->provinces_mutex);
 
@@ -811,7 +819,6 @@ void Client::net_loop(void) {
                     }
                     break;
                 case ACTION_WORLD_TICK:
-                print_info("ACTION_WORLD_TICK");
                     ::deserialize(ar, &g_world->time);
                     break;
                 default:
