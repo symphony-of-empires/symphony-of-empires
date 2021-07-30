@@ -123,9 +123,9 @@ public:
         }
         
         /* Socket writes can only be done 1024 bytes at a time */
+        //stream.write(&bufdata, n_data);
         for(size_t i = 0; i < n_data; ) {
-            int r;
-            r = ::send(stream.fd, (const char*)&bufdata[i], std::min<size_t>(1024, n_data - i), 0);
+            int r = ::send(stream.fd, (const char*)&bufdata[i], std::min<size_t>(1024, n_data - i), 0);
             if(r == -1) {
                 throw SocketException("Socket write error for data in packet");
             }
@@ -156,8 +156,7 @@ public:
         
         /* Reads can only be done 1024 bytes at a time */
         for(size_t i = 0; i < n_data; ) {
-            int r;
-            r = ::recv(stream.fd, (char*)&bufdata[i], std::min<size_t>(1024, n_data - i), MSG_WAITALL);
+            int r = ::recv(stream.fd, (char*)&bufdata[i], std::min<size_t>(1024, n_data - i), MSG_WAITALL);
             if(r == -1) {
                 throw SocketException("Socket read error for data in packet");
             }
@@ -189,7 +188,7 @@ class Server {
 
     std::vector<std::thread> threads;
     std::vector<std::deque<Packet>> packet_queues;
-    std::vector<bool> is_connected;
+    std::atomic<bool>* is_connected;
     
     // std::vector hates mutexes because they are not copy-able
     std::mutex* packet_mutexes;

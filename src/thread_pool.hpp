@@ -27,6 +27,19 @@ public:
     ~ThreadPool();
     void add_job(std::function<void()> job);
     void thread_loop(void);
+
+    template<typename I, typename F>
+    static void for_each(I first, I last, F func) {
+        const size_t n_threads = (size_t)std::thread::hardware_concurrency();
+        if(!std::distance<I>(first, last))
+            return;
+
+        const size_t iterators_per_thread = std::distance<I>(first, last) / n_threads;
+        
+        for(; first != last; first++) {
+            func(*first);
+        }
+    }
 };
 
 #endif

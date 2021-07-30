@@ -6,12 +6,10 @@ This is an Opensource RTS game engine; created to be very mod-friendly.
 
 Required to build:
 
-* libSDL2
-* libSDL2-ttf
-* liblua 5.4
-* libGL 1.4 (+ GL Utility library)
-* libTBB
-* libPNG
+* SDL2 and SDL2-ttf
+* lua 5.4
+* GL and GLU
+* libpng
 
 ## Build (Linux)
 Install all dependencies with this command:

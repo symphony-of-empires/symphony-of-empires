@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <cstdio>
-#include <execution>
 
 #include "actions.hpp"
 #include "economy.hpp"
@@ -11,6 +10,7 @@
 #include "serializer.hpp"
 #include "io_impl.hpp"
 #include "network.hpp"
+#include "thread_pool.hpp"
 
 /* Visual Studio does not define ssize_t because it's a POSIX-only type */
 #ifdef _MSC_VER
@@ -172,8 +172,8 @@ void Economy::do_phase_1(World& world) {
 
     // All factories will place their orders for their inputs
     // All RGOs will do deliver requests
-    std::for_each(std::execution::par_unseq, world.provinces.begin(), world.provinces.end(),
-    [&world](auto& province) {
+    //std::for_each(std::execution::par_unseq, world.provinces.begin(), world.provinces.end(),
+    ThreadPool::for_each(world.provinces.begin(), world.provinces.end(), [&world](auto& province) {
         // Reset remaining supplies
         province->supply_rem = province->supply_limit;
 
@@ -542,8 +542,7 @@ void Economy::do_phase_3(World& world) {
     std::mutex emigration_lock;
     std::vector<Emigrated> emigration = std::vector<Emigrated>();
     
-    std::for_each(std::execution::par_unseq, world.provinces.begin(), world.provinces.end(),
-    [&emigration_lock, &emigration, &world](auto& province) {
+    ThreadPool::for_each(world.provinces.begin(), world.provinces.end(), [&emigration_lock, &emigration, &world](auto& province) {
         if(province->owner == nullptr) {
             return;
         }
