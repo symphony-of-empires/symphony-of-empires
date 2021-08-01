@@ -87,6 +87,10 @@ Server::Server(const unsigned port, const unsigned max_conn) {
     print_info("Deploying %u threads for clients", max_conn);
     packet_queues.resize(max_conn);
     is_connected = new std::atomic<bool>[max_conn];
+    for(size_t i = 0; i < max_conn; i++) {
+        is_connected[i] = false;
+    }
+
     packet_mutexes = new std::mutex[max_conn];
 
     threads.reserve(max_conn);
@@ -131,8 +135,14 @@ extern World* g_world;
 void Server::broadcast(Packet& packet) {
     for(size_t i = 0; i < threads.size(); i++) {
         std::lock_guard<std::mutex> l(packet_mutexes[i]);
-        if(is_connected[i]) {
+        if(is_connected[i] == true) {
             packet_queues[i].push_back(packet);
+
+            // Disconnect the client if we have too much packets on the queue
+            // we cannot save your packets buddy!
+            if(packet_queues[i].size() >= 2048) {
+                is_connected[i] = false;
+            }
         }
     }
 }
@@ -143,10 +153,12 @@ void Server::broadcast(Packet& packet) {
  */
 void Server::net_loop(int id) {
     while(run) {
-        int conn_fd;
+        int conn_fd = 0;
         try {
             sockaddr_in client;
             socklen_t len = sizeof(client);
+
+            is_connected[id] = false;
             while(run) {
                 try {
                     conn_fd = accept(fd, (sockaddr *)&client, &len);
@@ -180,7 +192,7 @@ void Server::net_loop(int id) {
             pfd.fd = conn_fd;
             pfd.events = POLLIN;
 #endif
-            while(run) {
+            while(run && is_connected[id] == true) {
                 // Check if we need to read stuff
 #ifdef unix
                 int has_pending = poll(&pfd, 1, 10);
