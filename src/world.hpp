@@ -130,10 +130,6 @@ public:
 * Contains the main world class object, containing all the data relevant for the simulation
  */
 class World {
-    // Lua state - for lua scripts, this is only used by the server and should not be
-    // accesible to the client
-    lua_State* lua;
-
     /**
     * Template for obtaining the ID of an element
     * @tparam S return index type
@@ -181,6 +177,10 @@ public:
     // Obtains a tile from the world safely, and makes sure that it is in bounds
     Tile& get_tile(size_t x, size_t y) const;
     Tile& get_tile(size_t idx) const;
+
+    // Lua state - for lua scripts, this is only used by the server and should not be
+    // accesible to the client
+    lua_State* lua;
 
     // 2-Dimensional Array of tiles
     Tile* tiles;

@@ -80,7 +80,11 @@ int main(int argc, char** argv) {
                     run = false;
                     break;
                 } else {
-                    std::cout << "Unknown command" << std::endl;
+                    int ret = luaL_loadstring(world->lua, r.c_str());
+                    if(ret) {
+                        throw std::runtime_error(lua_tostring(world->lua, -1));
+                    }
+                    lua_pcall(world->lua, 0, 0, 0);
                 }
                 future = std::async(std::launch::async, async_get_input);
             }
