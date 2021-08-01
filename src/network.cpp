@@ -79,7 +79,10 @@ Server::Server(const unsigned port, const unsigned max_conn) {
     if(listen(fd, max_conn) != 0) {
         throw SocketException("Cannot listen in specified number of concurrent connections");
     }
+
+#ifdef unix
     fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0) | O_NONBLOCK);
+#endif
 
     print_info("Deploying %u threads for clients", max_conn);
     packet_queues.resize(max_conn);

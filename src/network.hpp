@@ -12,7 +12,9 @@
 #elif defined windows
 #	ifndef _WINDOWS_
 #		define WIN32_LEAN_AND_MEAN 1
-#		define NOMINMAX
+#       ifndef NOMINMAX
+#		    define NOMINMAX 1
+#       endif
 #		include <windows.h>
 #		undef WIN32_LEAN_AND_MEAN
 #	endif
