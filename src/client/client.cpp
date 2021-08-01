@@ -592,8 +592,12 @@ void select_nation(void) {
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
 
                 click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
-                if(old_mode != current_mode)
-                    ui_ctx->clear();
+                if(old_mode != current_mode) {
+                    delete next_country_btn;
+                    delete prev_country_btn;
+                    delete play_btn;
+                    delete curr_country_btn;
+                }
 
                 if(click_on_ui == 0) {
                     if(select_pos.first < 0 || select_pos.first >= g_world->width
