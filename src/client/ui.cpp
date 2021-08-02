@@ -557,6 +557,9 @@ void Chart::on_render(Context& ctx) {
     }
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    if(data.size() <= 1)
+        return;
+
     // Obtain the highest and lowest values
     const double max = *std::max_element(data.begin(), data.end());
     const double min = *std::min_element(data.begin(), data.end());
