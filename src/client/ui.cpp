@@ -556,8 +556,11 @@ void Chart::on_render(Context& ctx) {
 
         // Works on zero-only graphs
         if(max == min) {
-            max += 0.1f;
+            max += 1.f;
         }
+
+        // Do not allow graph lines to be on the "border" black thing
+        size_t real_height = height - 3;
 
         size_t time = 0;
         glBegin(GL_LINE_STRIP);
@@ -566,7 +569,7 @@ void Chart::on_render(Context& ctx) {
         for(const auto& node: data) {
             glVertex2f(
                 time * (width / (data.size() - 1)),
-                (height - (((node - min) / (max - min)) * height)) + 2.f
+                (real_height - (((node - min) / (max - min)) * real_height)) + 2.f
             );
             time++;
         }
@@ -578,7 +581,7 @@ void Chart::on_render(Context& ctx) {
         for(const auto& node: data) {
             glVertex2f(
                 time * (width / (data.size() - 1)),
-                height - (((node - min) / (max - min)) * height)
+                real_height - (((node - min) / (max - min)) * real_height)
             );
             time++;
         }
