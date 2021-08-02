@@ -550,8 +550,13 @@ void Chart::on_render(Context& ctx) {
 
     if(data.size() > 1) {
         // Obtain the highest and lowest values
-        const double max = *std::max_element(data.begin(), data.end());
-        const double min = *std::min_element(data.begin(), data.end());
+        double max = *std::max_element(data.begin(), data.end());
+        double min = *std::min_element(data.begin(), data.end());
+        if(max == min) {
+            max += 0.1f;
+            min -= 0.1f;
+        }
+
         size_t time = 0;
 
         glLineWidth(2.f);
