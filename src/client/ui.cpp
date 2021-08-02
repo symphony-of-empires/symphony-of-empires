@@ -532,7 +532,6 @@ Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 
 void Chart::on_render(Context& ctx) {
     glColor3f(1.f, 1.f, 1.f);
-
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {
             text_texture->to_opengl();
@@ -549,17 +548,18 @@ void Chart::on_render(Context& ctx) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     if(data.size() > 1) {
+        glLineWidth(2.f);
+
         // Obtain the highest and lowest values
         double max = *std::max_element(data.begin(), data.end());
         double min = *std::min_element(data.begin(), data.end());
+
+        // Works on zero-only graphs
         if(max == min) {
             max += 0.1f;
-            min -= 0.1f;
         }
 
         size_t time = 0;
-
-        glLineWidth(2.f);
         glBegin(GL_LINE_STRIP);
         glColor3f(0.f, 0.f, 0.f);
         time = 0;
