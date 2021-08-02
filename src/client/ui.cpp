@@ -69,6 +69,9 @@ void Context::clear(void) {
 }
 
 void Context::render_recursive(Widget& w, int x_off, int y_off) {
+    if(!w.width || !w.height)
+        return;
+    
     x_off += w.x;
     y_off += w.y;
 
