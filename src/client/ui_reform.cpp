@@ -400,7 +400,126 @@ void ui_reform_policies(UI::Widget&, void*) {
     taxes_btn->text("Taxes");
     taxes_btn->below_of(*goverment_btn);
     taxes_btn->on_click = [](UI::Widget&, void*) {
-        // TODO: Actually do something
+        UI::Window* reform_win = new UI::Window(mouse_pos.first, mouse_pos.second, 320, 425);
+        reform_win->text("Taxing");
+        
+        UI::Button* inc_export_tax = new UI::Button(9, 43, 303, 38, reform_win);
+        inc_export_tax->text("Export taxes +1%");
+        inc_export_tax->on_click = [](UI::Widget&, void*) {
+            draft_policy.export_tax += 0.01f;
+        };
+
+        UI::Button* dec_export_tax = new UI::Button(9, 43, 303, 38, reform_win);
+        dec_export_tax->below_of(*inc_export_tax);
+        dec_export_tax->text("Export taxes -1%");
+        dec_export_tax->on_click = [](UI::Widget&, void*) {
+            draft_policy.export_tax -= 0.01f;
+        };
+
+        UI::Label* disp_export_tax = new UI::Label(9, 43, "?", reform_win);
+        disp_export_tax->below_of(*dec_export_tax);
+        disp_export_tax->on_update = [](UI::Widget& w, void*) {
+            char* tmpbuf = new char[255];
+            sprintf(tmpbuf, "%8.2f%%", draft_policy.export_tax * 100.f);
+            w.text(tmpbuf);
+            delete[] tmpbuf;
+        };
+
+        UI::Button* inc_import_tax = new UI::Button(9, 43, 303, 38, reform_win);
+        inc_import_tax->below_of(*disp_export_tax);
+        inc_import_tax->text("Import taxes +1%");
+        inc_import_tax->on_click = [](UI::Widget&, void*) {
+            draft_policy.import_tax += 0.01f;
+        };
+
+        UI::Button* dec_import_tax = new UI::Button(9, 43, 303, 38, reform_win);
+        dec_import_tax->below_of(*inc_import_tax);
+        dec_import_tax->text("Import taxes -1%");
+        dec_import_tax->on_click = [](UI::Widget&, void*) {
+            draft_policy.import_tax -= 0.01f;
+        };
+
+        UI::Label* disp_import_tax = new UI::Label(9, 43, "?", reform_win);
+        disp_import_tax->below_of(*dec_import_tax);
+        disp_import_tax->on_update = [](UI::Widget& w, void*) {
+            char* tmpbuf = new char[255];
+            sprintf(tmpbuf, "%8.2f%%", draft_policy.import_tax * 100.f);
+            w.text(tmpbuf);
+            delete[] tmpbuf;
+        };
+
+        UI::Button* inc_poor_flat_tax = new UI::Button(9, 43, 303, 38, reform_win);
+        inc_poor_flat_tax->below_of(*disp_import_tax);
+        inc_poor_flat_tax->text("Poor flat taxes +1%");
+        inc_poor_flat_tax->on_click = [](UI::Widget&, void*) {
+            draft_policy.poor_flat_tax += 0.01f;
+        };
+
+        UI::Button* dec_poor_flat_tax = new UI::Button(9, 43, 303, 38, reform_win);
+        dec_poor_flat_tax->below_of(*inc_poor_flat_tax);
+        dec_poor_flat_tax->text("Poor flat taxes -1%");
+        dec_poor_flat_tax->on_click = [](UI::Widget&, void*) {
+            draft_policy.poor_flat_tax -= 0.01f;
+        };
+
+        UI::Label* disp_poor_flat_tax = new UI::Label(9, 43, "?", reform_win);
+        disp_poor_flat_tax->below_of(*dec_poor_flat_tax);
+        disp_poor_flat_tax->on_update = [](UI::Widget& w, void*) {
+            char* tmpbuf = new char[255];
+            sprintf(tmpbuf, "%8.2f%%", draft_policy.poor_flat_tax * 100.f);
+            w.text(tmpbuf);
+            delete[] tmpbuf;
+        };
+
+        UI::Button* inc_med_flat_tax = new UI::Button(9, 43, 303, 38, reform_win);
+        inc_med_flat_tax->below_of(*disp_poor_flat_tax);
+        inc_med_flat_tax->text("Med. flat taxes +1%");
+        inc_med_flat_tax->on_click = [](UI::Widget&, void*) {
+            draft_policy.med_flat_tax += 0.01f;
+        };
+
+        UI::Button* dec_med_flat_tax = new UI::Button(9, 43, 303, 38, reform_win);
+        dec_med_flat_tax->below_of(*inc_med_flat_tax);
+        dec_med_flat_tax->text("Med. flat taxes -1%");
+        dec_med_flat_tax->on_click = [](UI::Widget&, void*) {
+            draft_policy.med_flat_tax -= 0.01f;
+        };
+
+        UI::Label* disp_med_flat_tax = new UI::Label(9, 43, "?", reform_win);
+        disp_med_flat_tax->below_of(*dec_med_flat_tax);
+        disp_med_flat_tax->on_update = [](UI::Widget& w, void*) {
+            char* tmpbuf = new char[255];
+            sprintf(tmpbuf, "%8.2f%%", draft_policy.med_flat_tax * 100.f);
+            w.text(tmpbuf);
+            delete[] tmpbuf;
+        };
+
+        UI::Button* inc_rich_flat_tax = new UI::Button(9, 43, 303, 38, reform_win);
+        inc_rich_flat_tax->below_of(*disp_med_flat_tax);
+        inc_rich_flat_tax->text("Rich flat taxes +1%");
+        inc_rich_flat_tax->on_click = [](UI::Widget&, void*) {
+            draft_policy.rich_flat_tax += 0.01f;
+        };
+
+        UI::Button* dec_rich_flat_tax = new UI::Button(9, 43, 303, 38, reform_win);
+        dec_rich_flat_tax->below_of(*inc_rich_flat_tax);
+        dec_rich_flat_tax->text("Rich flat taxes -1%");
+        dec_rich_flat_tax->on_click = [](UI::Widget&, void*) {
+            draft_policy.rich_flat_tax -= 0.01f;
+        };
+
+        UI::Label* disp_rich_flat_tax = new UI::Label(9, 43, "?", reform_win);
+        disp_rich_flat_tax->below_of(*dec_rich_flat_tax);
+        disp_rich_flat_tax->on_update = [](UI::Widget& w, void*) {
+            char* tmpbuf = new char[255];
+            sprintf(tmpbuf, "%8.2f%%", draft_policy.rich_flat_tax * 100.f);
+            w.text(tmpbuf);
+            delete[] tmpbuf;
+        };
+
+        UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, 303, 38, reform_win);
+        ok_btn->text("OK");
+        ok_btn->below_of(*disp_rich_flat_tax);
     };
     
     UI::Button* property_btn = new UI::Button(9, 0, 303, 38, reform_win);
