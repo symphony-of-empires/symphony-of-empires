@@ -563,12 +563,24 @@ void Chart::on_render(Context& ctx) {
     // Obtain the highest and lowest values
     const double max = *std::max_element(data.begin(), data.end());
     const double min = *std::min_element(data.begin(), data.end());
+    size_t time = 0;
 
-    glLineWidth(1.f);
+    glLineWidth(2.f);
+    glBegin(GL_LINE_STRIP);
+    glColor3f(0.f, 0.f, 0.f);
+    time = 0;
+    for(const auto& node: data) {
+        glVertex2f(
+            time * (width / (data.size() - 1)),
+            (height - (((node - min) / (max - min)) * height)) + 2.f
+        );
+        time++;
+    }
+    glEnd();
+
     glBegin(GL_LINE_STRIP);
     glColor3f(1.f, 0.f, 0.f);
-
-    size_t time = 0;
+    time = 0;
     for(const auto& node: data) {
         glVertex2f(
             time * (width / (data.size() - 1)),
