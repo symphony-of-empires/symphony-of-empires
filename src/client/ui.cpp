@@ -546,6 +546,39 @@ void Chart::on_render(Context& ctx) {
             current_texture->gl_tex_num
         );
     }
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    if(data.size() > 1) {
+        // Obtain the highest and lowest values
+        const double max = *std::max_element(data.begin(), data.end());
+        const double min = *std::min_element(data.begin(), data.end());
+        size_t time = 0;
+
+        glLineWidth(2.f);
+        glBegin(GL_LINE_STRIP);
+        glColor3f(0.f, 0.f, 0.f);
+        time = 0;
+        for(const auto& node: data) {
+            glVertex2f(
+                time * (width / (data.size() - 1)),
+                (height - (((node - min) / (max - min)) * height)) + 2.f
+            );
+            time++;
+        }
+        glEnd();
+
+        glBegin(GL_LINE_STRIP);
+        glColor3f(1.f, 0.f, 0.f);
+        time = 0;
+        for(const auto& node: data) {
+            glVertex2f(
+                time * (width / (data.size() - 1)),
+                height - (((node - min) / (max - min)) * height)
+            );
+            time++;
+        }
+        glEnd();
+    }
 
     if(text_texture != nullptr) {
         glColor3f(0.f, 0.f, 0.f);
@@ -555,40 +588,6 @@ void Chart::on_render(Context& ctx) {
             text_texture->gl_tex_num
         );
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    if(data.size() <= 1)
-        return;
-
-    // Obtain the highest and lowest values
-    const double max = *std::max_element(data.begin(), data.end());
-    const double min = *std::min_element(data.begin(), data.end());
-    size_t time = 0;
-
-    glLineWidth(2.f);
-    glBegin(GL_LINE_STRIP);
-    glColor3f(0.f, 0.f, 0.f);
-    time = 0;
-    for(const auto& node: data) {
-        glVertex2f(
-            time * (width / (data.size() - 1)),
-            (height - (((node - min) / (max - min)) * height)) + 2.f
-        );
-        time++;
-    }
-    glEnd();
-
-    glBegin(GL_LINE_STRIP);
-    glColor3f(1.f, 0.f, 0.f);
-    time = 0;
-    for(const auto& node: data) {
-        glVertex2f(
-            time * (width / (data.size() - 1)),
-            height - (((node - min) / (max - min)) * height)
-        );
-        time++;
-    }
-    glEnd();
 
     glLineWidth(3.f);
     glBindTexture(GL_TEXTURE_2D, 0);
