@@ -177,15 +177,14 @@ static void pop_view_nation(UI::Widget&, void *) {
                     continue;
                 }
 
-                if(e >= total_pops) {
-                    sprintf(tmpbuf, "?");
-                    w.children[i]->text(tmpbuf);
-                } else {
+                if(e < total_pops) {
                     sprintf(tmpbuf, "%s %zu %s %s %s %.2f$ %2.2f", province->name.c_str(), pop.size, g_world->cultures[pop.culture_id]->name.c_str(), g_world->religions[pop.religion_id]->name.c_str(), g_world->pop_types[pop.type_id]->name.c_str(), pop.budget, pop.life_needs_met);
                     w.children[i]->text(tmpbuf);
+                } else {
+                    sprintf(tmpbuf, " ");
+                    w.children[i]->text(tmpbuf);
                 }
-                i++;
-                e++;
+                e++; i++;
                 if(i >= w.children.size())
                     break;
             }
@@ -220,16 +219,16 @@ static void industry_view_nation(UI::Widget&, void *) {
                     continue;
                 }
 
-                if(e >= total_industries) {
-                    sprintf(tmpbuf, "?");
-                    w.children[i]->text(tmpbuf);
-                } else {
+                if(e < total_industries) {
                     sprintf(tmpbuf, "%s %4.2f %zu %zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
                     w.children[i]->text(tmpbuf);
                     w.children[i]->user_data = &industry;
+                } else {
+                    sprintf(tmpbuf, " ");
+                    w.children[i]->text(tmpbuf);
+                    w.children[i]->user_data = nullptr;
                 }
-                i++;
-                e++;
+                e++; i++;
                 if(i >= w.children.size())
                     break;
             }
@@ -275,6 +274,9 @@ static void industry_view_nation(UI::Widget&, void *) {
             UI::Chart* industry_info_workers = new UI::Chart(0, 32, 120, 64, industry_info_win);
             industry_info_workers->user_data = data;
             industry_info_workers->on_update = ([](UI::Widget& w, void* data) {
+                if(data == nullptr)
+                    return;
+                
                 UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
                 if(g_world->time % 48 == 35) {
                     wc.data.push_back(((Industry*)data)->workers);
@@ -301,22 +303,22 @@ static void products_view_world(void) {
         if(g_world->time % 48 == 35) {
             std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
 
-            size_t e = products_view_page_num * 8, i = 3;
-            while(i < w.children.size()) {
-                if(g_world->products[e]->origin->owner != curr_nation)
-                    continue;
+            size_t e = products_view_page_num * 8;
+            for(size_t i = 3; i < w.children.size(); i++) {
+                while(e < g_world->products.size() && g_world->products[e]->origin->owner != curr_nation) {
+                    e++;
+                }
 
-                if(e >= g_world->products.size()) {
-                    sprintf(tmpbuf, "?");
-                    w.children[i]->text(tmpbuf);
-                    w.children[i]->user_data = nullptr;
-                } else {
-                    Product& product = *g_world->products[e];
-                    sprintf(tmpbuf, "%zu %zu %.2f$ %.2f%% %s %s", product.supply, product.demand, product.price, product.price_vel, product.origin->name.c_str(), product.good->name.c_str());
+                if(e < g_world->products.size()) {
+                    const Product* product = g_world->products[e];
+                    sprintf(tmpbuf, "%zu %zu %.2f$ %.2f%% %s %s", product->supply, product->demand, product->price, product->price_vel, product->origin->name.c_str(), product->good->name.c_str());
                     w.children[i]->text(tmpbuf);
                     w.children[i]->user_data = &product;
+                } else {
+                    sprintf(tmpbuf, " ");
+                    w.children[i]->text(tmpbuf);
+                    w.children[i]->user_data = nullptr;
                 }
-                i++;
                 e++;
             }
         }
@@ -351,61 +353,76 @@ static void products_view_world(void) {
     for(size_t i = 0; i < 8; i++) {
         UI::Button* elem = new UI::Button(9, 43 + (i * 38), products_view_win->width, 38, products_view_win);
         elem->on_click = ([](UI::Widget& w, void* data) {
+            Product* product = (Product*)data;
             if(data == nullptr)
                 return;
 
-            UI::Window* product_info_win = new UI::Window(0, 0, 320, 200);
-            product_info_win->text("Product info");
+            UI::Window* info_win = new UI::Window(0, 0, 320, 200);
+            info_win->text("Product info");
 
-            UI::Chart* product_info_supply = new UI::Chart(0, 32, 120, 64, product_info_win);
-            product_info_supply->user_data = data;
-            product_info_supply->text("Supply");
-            product_info_supply->on_update = ([](UI::Widget& w, void* data) {
+            UI::Chart* supply_graph = new UI::Chart(0, 32, 120, 64, info_win);
+            supply_graph->user_data = product;
+            supply_graph->text("Supply");
+            supply_graph->on_update = ([](UI::Widget& w, void* data) {
                 std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
+                Product* product = (Product*)data;
                 
                 UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
-                if(g_world->time % 48 == 35) {
+                if(g_world->time % 48 == 32) {
                     std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
 
-                    wc.data.push_back(((Product*)data)->supply);
+                    wc.data.push_back(product->supply);
                     if(wc.data.size() >= 30)
                         wc.data.pop_front();
                 }
             });
 
-            UI::Chart* product_info_demand = new UI::Chart(0, 32, 120, 64, product_info_win);
-            product_info_demand->below_of(*product_info_supply);
-            product_info_demand->user_data = data;
-            product_info_demand->text("Demand");
-            product_info_demand->on_update = ([](UI::Widget& w, void* data) {
+            UI::Chart* demand_graph = new UI::Chart(0, 32, 120, 64, info_win);
+            demand_graph->below_of(*supply_graph);
+            demand_graph->user_data = product;
+            demand_graph->text("Demand");
+            demand_graph->on_update = ([](UI::Widget& w, void* data) {
                 std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
+                Product* product = (Product*)data;
 
                 UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
-                if(g_world->time % 48 == 35) {
+                if(g_world->time % 48 == 32) {
                     std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
 
-                    wc.data.push_back(((Product*)data)->demand);
+                    wc.data.push_back(product->demand);
                     if(wc.data.size() >= 30)
                         wc.data.pop_front();
                 }
             });
 
-            UI::Chart* product_info_price = new UI::Chart(0, 32, 120, 64, product_info_win);
-            product_info_price->below_of(*product_info_demand);
-            product_info_price->user_data = data;
-            product_info_price->text("Price");
-            product_info_price->on_update = ([](UI::Widget& w, void* data) {
+            UI::Chart* price_graph = new UI::Chart(0, 32, 120, 64, info_win);
+            price_graph->below_of(*demand_graph);
+            price_graph->user_data = data;
+            price_graph->text("Price");
+            price_graph->on_update = ([](UI::Widget& w, void* data) {
                 std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
+                Product* product = (Product*)data;
 
                 UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
-                if(g_world->time % 48 == 35) {
+                if(g_world->time % 48 == 32) {
                     std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
 
-                    wc.data.push_back(((Product*)data)->price);
+                    wc.data.push_back(product->price);
                     if(wc.data.size() >= 30)
                         wc.data.pop_front();
                 }
             });
+
+            UI::Label* good_name_text = new UI::Label(128, 32, " ", info_win);
+            good_name_text->text(product->good->name.c_str());
+
+            UI::Label* province_name_text = new UI::Label(128, 32, " ", info_win);
+            province_name_text->below_of(*good_name_text);
+            province_name_text->text(product->origin->name.c_str());
+
+            UI::Label* company_name_text = new UI::Label(128, 32, " ", info_win);
+            company_name_text->below_of(*province_name_text);
+            company_name_text->text(product->industry->owner->name.c_str());
         });
     }
 }
@@ -656,8 +673,6 @@ void select_nation(void) {
     Boat* selected_boat = nullptr;
     Unit* selected_unit = nullptr;
     Outpost* selected_outpost = nullptr;
-    
-    size_t last_inbox_size = 0;
     uint64_t last_time = 0;
 
     displayed_events.clear();
@@ -933,13 +948,12 @@ void select_nation(void) {
 
                 // Separate the text line by line
                 const char* buf = msg.text.c_str();
-                char tmpbuf[24];
                 size_t y = 38;
                 while(strlen(buf)) {
                     size_t t_len = std::min<size_t>(strlen(buf), 18);
-                    memcpy((char*)&tmpbuf, buf, t_len);
+                    memcpy(tmpbuf, buf, t_len);
                     tmpbuf[t_len] = '\0';
-                    new UI::Label(8, y, (const char*)&tmpbuf, popup_win);
+                    new UI::Label(8, y, tmpbuf, popup_win);
                     y += 24;
                     buf += t_len;
                 }
@@ -952,26 +966,23 @@ void select_nation(void) {
                     decide_btn->user_data = (void *)&descision;
                     decide_btn->on_click = [](UI::Widget& w, void* data) {
                         delete w.parent;
-                        
-                        // Obtain the descision
+
                         Descision* descision = (Descision *)data;
-                        
-                        // Find event
-                        Event* event = nullptr;
+                        Event* decide_event = nullptr;
                         for(auto& e_event: displayed_events) {
                             for(const auto& e_descision: e_event.descisions) {
                                 if(e_descision.ref_name == descision->ref_name) {
-                                    event = &e_event;
+                                    decide_event = &e_event;
                                     break;
                                 }
                             }
                             
-                            if(event != nullptr)
+                            if(decide_event != nullptr)
                                 break;
                         }
                         
                         // Event not found
-                        if(event == nullptr) {
+                        if(decide_event == nullptr) {
                             print_error("Event not found, we tried finding by descision %s", descision->name.c_str());
                             return;
                         }
@@ -981,7 +992,7 @@ void select_nation(void) {
                         Archive ar = Archive();
                         enum ActionType action = ACTION_NATION_TAKE_DESCISION;
                         ::serialize(ar, &action);
-                        ::serialize(ar, &event->ref_name);
+                        ::serialize(ar, &decide_event->ref_name);
                         ::serialize(ar, &descision->ref_name);
                         packet.data(ar.get_buffer(), ar.size());
                         g_client->packet_queue.push_back(packet);
@@ -1029,6 +1040,7 @@ void select_nation(void) {
                     Packet packet = Packet(g_client->get_fd());
                     Archive ar = Archive();
                     enum ActionType action = ACTION_CHANGE_TREATY_APPROVAL;
+                    ::serialize(ar, &action);
                     ::serialize(ar, (Treaty**)data);
                     enum TreatyApproval approval = TREATY_APPROVAL_ACCEPTED;
                     ::serialize(ar, &approval);
@@ -1047,6 +1059,7 @@ void select_nation(void) {
                     Packet packet = Packet(g_client->get_fd());
                     Archive ar = Archive();
                     enum ActionType action = ACTION_CHANGE_TREATY_APPROVAL;
+                    ::serialize(ar, &action);
                     ::serialize(ar, (Treaty**)data);
                     enum TreatyApproval approval = TREATY_APPROVAL_DENIED;
                     ::serialize(ar, &approval);

@@ -239,6 +239,7 @@ void Economy::do_phase_1(World& world) {
                     job_request.amount -= std::min(needed_entrepreneurs, job_request.amount);
                 } else {
                     // Do not accept anyone else
+                    job_request.pop->budget += 1.f;
                     continue;
                 }
 
@@ -276,9 +277,9 @@ void Economy::do_phase_1(World& world) {
 
                 // Farmers can only work with edibles and laborers can only work for edibles
                 if(input->is_edible) {
-                    order.quantity = (available_farmers / needed_farmers) * 500;
+                    order.quantity = (available_farmers / needed_farmers) * 5000;
                 } else {
-                    order.quantity = (available_laborers / needed_laborers) * 500;
+                    order.quantity = (available_laborers / needed_laborers) * 5000;
                 }
                 if(!order.quantity)
                     continue;
@@ -307,9 +308,9 @@ void Economy::do_phase_1(World& world) {
                 deliver.product = industry.output_products[k];
 
                 if(deliver.good->is_edible) {
-                    deliver.quantity = (available_farmers / needed_farmers) * 500;
+                    deliver.quantity = (available_farmers / needed_farmers) * 5000;
                 } else {
-                    deliver.quantity = (available_laborers / needed_laborers) * 500;
+                    deliver.quantity = (available_laborers / needed_laborers) * 5000;
                 }
                 if(!deliver.quantity)
                     continue;
