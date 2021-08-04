@@ -69,6 +69,7 @@ MapMode current_mode = MAP_MODE_COUNTRY_SELECT;
 
 static Nation::Id curr_selected_nation = 0;
 Nation* curr_nation = nullptr;
+char* tmpbuf;
 
 static void change_country(size_t id) {
     size_t old_id = curr_selected_nation;
@@ -129,11 +130,9 @@ static void pop_view_nation(UI::Widget&, void *) {
     
     // View the provinces in a country - along with the population in them
     pop_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, 609, 476);
-    
-    char* tmpbuf = new char[255];
+
     sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
     pop_view_nation_win->text(tmpbuf);
-    delete[] tmpbuf;
     
     UI::Button* ok_btn = new UI::Button(9, 413, 173, 51, pop_view_nation_win);
     ok_btn->text("OK");
@@ -145,26 +144,39 @@ static void pop_view_nation(UI::Widget&, void *) {
     UI::Button* prev_btn = new UI::Button(193, 413, 173, 51, pop_view_nation_win);
     prev_btn->text("Previous");
     prev_btn->on_click = [](UI::Widget&, void *) {
-        char* tmpbuf = new char[255];
         pop_view_nation_page_num--;
         sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
         pop_view_nation_win->text(tmpbuf);
-        delete[] tmpbuf;
     };
     
     UI::Button* next_btn = new UI::Button(377, 413, 173, 51, pop_view_nation_win);
     next_btn->text("Next");
     next_btn->on_click = [](UI::Widget&, void *) {
-        char* tmpbuf = new char[255];
         pop_view_nation_page_num++;
         sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
         pop_view_nation_win->text(tmpbuf);
-        delete[] tmpbuf;
     };
     
     for(size_t i = 0; i < 12; i++) {
         UI::Label* lab = new UI::Label(9, 43 + (i * 28), "?", pop_view_nation_win);
     }
+
+    pop_view_nation_win->on_update = ([](UI::Widget& w, void*) {
+        size_t e = pop_view_nation_page_num * 12, i = 3;
+        for(const auto& province: curr_nation->owned_provinces) {
+            if(e >= curr_nation->owned_provinces.size()) {
+                sprintf(tmpbuf, "?");
+                w.children[i]->text(tmpbuf);
+            } else {
+                sprintf(tmpbuf, "%8s %zu", province->name.c_str(), (size_t)province->total_pops());
+                w.children[i]->text(tmpbuf);
+            }
+            i++;
+            e++;
+            if(i >= w.children.size())
+                break;
+        }
+    });
 }
 
 static UI::Window* industry_view_nation_win = nullptr;
@@ -177,11 +189,34 @@ static void industry_view_nation(UI::Widget&, void *) {
     
     // View the provinces in a country - along with the population in them
     industry_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, 609, 476);
+    industry_view_nation_win->on_update = ([](UI::Widget& w, void*) {
+        size_t e = industry_view_nation_page_num * 12, i = 3;
+        size_t total_industries = 0;
+        for(const auto& province: curr_nation->owned_provinces) {
+            total_industries += province->industries.size();
+        }
+
+        for(const auto& province: curr_nation->owned_provinces) {
+            for(const auto& industry: province->industries) {
+                if(e >= total_industries) {
+                    sprintf(tmpbuf, "?");
+                    w.children[i]->text(tmpbuf);
+                } else {
+                    sprintf(tmpbuf, "%8s %4.2f %zu %zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
+                    w.children[i]->text(tmpbuf);
+                }
+                i++;
+                e++;
+                if(i >= w.children.size())
+                    break;
+            }
+            if(i >= w.children.size())
+                break;
+        }
+    });
     
-    char* tmpbuf = new char[255];
     sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)industry_view_nation_page_num);
     industry_view_nation_win->text(tmpbuf);
-    delete[] tmpbuf;
     
     UI::Button* ok_btn = new UI::Button(9, 413, 173, 51, industry_view_nation_win);
     ok_btn->text("OK");
@@ -193,21 +228,17 @@ static void industry_view_nation(UI::Widget&, void *) {
     UI::Button* prev_btn = new UI::Button(193, 413, 173, 51, industry_view_nation_win);
     prev_btn->text("Previous");
     prev_btn->on_click = [](UI::Widget&, void *) {
-        char* tmpbuf = new char[255];
         industry_view_nation_page_num--;
         sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)industry_view_nation_page_num);
         industry_view_nation_win->text(tmpbuf);
-        delete[] tmpbuf;
     };
     
     UI::Button* next_btn = new UI::Button(377, 413, 173, 51, industry_view_nation_win);
     next_btn->text("Next");
     next_btn->on_click = [](UI::Widget&, void *) {
-        char* tmpbuf = new char[255];
         industry_view_nation_page_num++;
         sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)industry_view_nation_page_num);
         industry_view_nation_win->text(tmpbuf);
-        delete[] tmpbuf;
     };
     
     for(size_t i = 0; i < 12; i++) {
@@ -225,11 +256,24 @@ static void products_view_world(void) {
     
     // View the provinces in a country - along with the population in them
     products_view_win = new UI::Window(mouse_pos.first, mouse_pos.second, 609, 476);
+    products_view_win->on_update = ([](UI::Widget& w, void*) {
+        size_t e = products_view_page_num * 12, i = 3;
+        while(i < w.children.size()) {
+            if(e >= g_world->products.size()) {
+                sprintf(tmpbuf, "?");
+                w.children[i]->text(tmpbuf);
+            } else {
+                const Product& product = *g_world->products[e];
+                sprintf(tmpbuf, "%8ld %8ld %4.2f$ %s %s", product.supply, product.demand, product.price, product.origin->name.c_str(), product.good->name.c_str());
+                w.children[i]->text(tmpbuf);
+            }
+            i++;
+            e++;
+        }
+    });
     
-    char* tmpbuf = new char[255];
     sprintf(tmpbuf, "Your province's products (page %zu)", (size_t)products_view_page_num);
     products_view_win->text(tmpbuf);
-    delete[] tmpbuf;
     
     UI::Button* ok_btn = new UI::Button(9, 413, 173, 51, products_view_win);
     ok_btn->text("OK");
@@ -241,21 +285,17 @@ static void products_view_world(void) {
     UI::Button* prev_btn = new UI::Button(193, 413, 173, 51, products_view_win);
     prev_btn->text("Previous");
     prev_btn->on_click = [](UI::Widget&, void *) {
-        char* tmpbuf = new char[255];
         products_view_page_num--;
         sprintf(tmpbuf, "Your province's products (page %zu)", (size_t)products_view_page_num);
         products_view_win->text(tmpbuf);
-        delete[] tmpbuf;
     };
     
     UI::Button* next_btn = new UI::Button(377, 413, 173, 51, products_view_win);
     next_btn->text("Next");
     next_btn->on_click = [](UI::Widget&, void *) {
-        char* tmpbuf = new char[255];
         products_view_page_num++;
         sprintf(tmpbuf, "Your province's products (page %zu)", (size_t)products_view_page_num);
         products_view_win->text(tmpbuf);
-        delete[] tmpbuf;
     };
     
     for(size_t i = 0; i < 12; i++) {
@@ -411,8 +451,7 @@ void client_update(void) {
     }
     militancy /= total_pop;
     consciousness /= total_pop;
-    
-    char* tmpbuf = new char[255];
+
     sprintf(tmpbuf, " %10.3f", militancy);
     militancy_lab->text(tmpbuf);
     sprintf(tmpbuf, " %10.3f", consciousness);
@@ -425,62 +464,6 @@ void client_update(void) {
     money_lab->text(tmpbuf);
     sprintf(tmpbuf, " %14zu", (size_t)total_pop);
     population_lab->text(tmpbuf);
-    
-    if(pop_view_nation_win != nullptr) {
-        size_t e = pop_view_nation_page_num * 12, i = 3;
-        for(const auto& province: player_nation.owned_provinces) {
-            if(e >= player_nation.owned_provinces.size()) {
-                sprintf(tmpbuf, "?");
-                pop_view_nation_win->children[i]->text(tmpbuf);
-            } else {
-                sprintf(tmpbuf, "%8s %zu", province->name.c_str(), (size_t)province->total_pops());
-                pop_view_nation_win->children[i]->text(tmpbuf);
-            }
-            i++;
-            e++;
-            if(i >= pop_view_nation_win->children.size())
-                break;
-        }
-    } if(industry_view_nation_win != nullptr) {
-        size_t e = industry_view_nation_page_num * 12, i = 3;
-        size_t total_industries = 0;
-        for(const auto& province: player_nation.owned_provinces) {
-            total_industries += province->industries.size();
-        }
-
-        for(const auto& province: player_nation.owned_provinces) {
-            for(const auto& industry: province->industries) {
-                if(e >= total_industries) {
-                    sprintf(tmpbuf, "?");
-                    industry_view_nation_win->children[i]->text(tmpbuf);
-                } else {
-                    sprintf(tmpbuf, "%8s %4.2f %zu %zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
-                    industry_view_nation_win->children[i]->text(tmpbuf);
-                }
-                i++;
-                e++;
-                if(i >= industry_view_nation_win->children.size())
-                    break;
-            }
-            if(i >= industry_view_nation_win->children.size())
-                break;
-        }
-    } if(products_view_win != nullptr) {
-        size_t e = products_view_page_num * 12, i = 3;
-        while(i < products_view_win->children.size()) {
-            if(e >= g_world->products.size()) {
-                sprintf(tmpbuf, "?");
-                products_view_win->children[i]->text(tmpbuf);
-            } else {
-                const Product& product = *g_world->products[e];
-                sprintf(tmpbuf, "%8ld %8ld %4.2f$ %s %s", product.supply, product.demand, product.price, product.origin->name.c_str(), product.good->name.c_str());
-                products_view_win->children[i]->text(tmpbuf);
-            }
-            i++;
-            e++;
-        }
-    }
-    delete[] tmpbuf;
 }
 
 void view_province_pops(void) {
@@ -1167,6 +1150,7 @@ void client_main(int argc, char** argv) {
 
     g_texture_manager = new TextureManager();
     ui_ctx = new UI::Context();
+    tmpbuf = new char[512];
 
     std::string server_addr;
     if(argc > 1) {
@@ -1189,6 +1173,8 @@ void client_main(int argc, char** argv) {
 
     TTF_Quit();
     SDL_Quit();
+
+    delete[] tmpbuf;
     delete ui_ctx;
     return;
 }
