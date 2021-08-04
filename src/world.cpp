@@ -497,6 +497,23 @@ void World::do_tick() {
     // 12:00
     case 24:
         Economy::do_phase_3(*this);
+
+        products_mutex.lock();
+        for(const auto& product: g_world->products) {
+            // Broadcast to clients
+            Packet packet = Packet();
+            Archive ar = Archive();
+                
+            enum ActionType action = ACTION_PRODUCT_UPDATE;
+            ::serialize(ar, &action);
+
+            ::serialize(ar, &product); // ProductRef
+            ::serialize(ar, product); // ProductObj
+                
+            packet.data(ar.get_buffer(), ar.size());
+            g_server->broadcast(packet);
+        }
+        products_mutex.unlock();
         
         for(auto& nation: this->nations) {
             float economy_score = 0.f;

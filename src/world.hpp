@@ -195,6 +195,7 @@ public:
 
     // Current time (in ticks)
     uint64_t time = 0;
+    mutable std::recursive_mutex time_mutex;
 
     // List of units present in the world
     std::vector<Unit*> units;
