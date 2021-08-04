@@ -5,8 +5,8 @@
 
 class Camera {
 public:
-    glm::vec3 position;
-    glm::vec3 velocity;
+    glm::vec3 position, velocity;
+
     float z_angle, vz_angle;
     
     void update(void) {
