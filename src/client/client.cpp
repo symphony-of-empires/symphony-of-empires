@@ -276,7 +276,7 @@ static void industry_view_nation(UI::Widget&, void *) {
             industry_info_workers->user_data = data;
             industry_info_workers->on_update = ([](UI::Widget& w, void* data) {
                 UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
-                if(!(g_world->time % 48)) {
+                if(g_world->time % 48 == 35) {
                     wc.data.push_back(((Industry*)data)->workers);
                     if(wc.data.size() >= 30)
                         wc.data.pop_front();
@@ -297,19 +297,28 @@ static void products_view_world(void) {
     // View the provinces in a country - along with the population in them
     products_view_win = new UI::Window(mouse_pos.first, mouse_pos.second, 609, 476);
     products_view_win->on_update = ([](UI::Widget& w, void*) {
-        size_t e = products_view_page_num * 8, i = 3;
-        while(i < w.children.size()) {
-            if(e >= g_world->products.size()) {
-                sprintf(tmpbuf, "?");
-                w.children[i]->text(tmpbuf);
-            } else {
-                Product& product = *g_world->products[e];
-                sprintf(tmpbuf, "%zu %zu %.2f$ %s %s", product.supply, product.demand, product.price, product.origin->name.c_str(), product.good->name.c_str());
-                w.children[i]->text(tmpbuf);
-                w.children[i]->user_data = &product;
+        std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
+        if(g_world->time % 48 == 35) {
+            std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
+
+            size_t e = products_view_page_num * 8, i = 3;
+            while(i < w.children.size()) {
+                if(g_world->products[e]->origin->owner != curr_nation)
+                    continue;
+
+                if(e >= g_world->products.size()) {
+                    sprintf(tmpbuf, "?");
+                    w.children[i]->text(tmpbuf);
+                    w.children[i]->user_data = nullptr;
+                } else {
+                    Product& product = *g_world->products[e];
+                    sprintf(tmpbuf, "%zu %zu %.2f$ %.2f%% %s %s", product.supply, product.demand, product.price, product.price_vel, product.origin->name.c_str(), product.good->name.c_str());
+                    w.children[i]->text(tmpbuf);
+                    w.children[i]->user_data = &product;
+                }
+                i++;
+                e++;
             }
-            i++;
-            e++;
         }
     });
     
@@ -342,6 +351,9 @@ static void products_view_world(void) {
     for(size_t i = 0; i < 8; i++) {
         UI::Button* elem = new UI::Button(9, 43 + (i * 38), products_view_win->width, 38, products_view_win);
         elem->on_click = ([](UI::Widget& w, void* data) {
+            if(data == nullptr)
+                return;
+
             UI::Window* product_info_win = new UI::Window(0, 0, 320, 200);
             product_info_win->text("Product info");
 
@@ -349,8 +361,12 @@ static void products_view_world(void) {
             product_info_supply->user_data = data;
             product_info_supply->text("Supply");
             product_info_supply->on_update = ([](UI::Widget& w, void* data) {
+                std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
+                
                 UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
-                if((g_world->time % 48) == 24) {
+                if(g_world->time % 48 == 35) {
+                    std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
+
                     wc.data.push_back(((Product*)data)->supply);
                     if(wc.data.size() >= 30)
                         wc.data.pop_front();
@@ -362,8 +378,12 @@ static void products_view_world(void) {
             product_info_demand->user_data = data;
             product_info_demand->text("Demand");
             product_info_demand->on_update = ([](UI::Widget& w, void* data) {
+                std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
+
                 UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
-                if((g_world->time % 48) == 0) {
+                if(g_world->time % 48 == 35) {
+                    std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
+
                     wc.data.push_back(((Product*)data)->demand);
                     if(wc.data.size() >= 30)
                         wc.data.pop_front();
@@ -375,8 +395,12 @@ static void products_view_world(void) {
             product_info_price->user_data = data;
             product_info_price->text("Price");
             product_info_price->on_update = ([](UI::Widget& w, void* data) {
+                std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
+
                 UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
-                if((g_world->time % 48) == 24) {
+                if(g_world->time % 48 == 35) {
+                    std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
+
                     wc.data.push_back(((Product*)data)->price);
                     if(wc.data.size() >= 30)
                         wc.data.pop_front();
@@ -487,12 +511,12 @@ static void play_nation(UI::Widget&, void *) {
 void client_update(void) {
     // We are going to update widgets which require real-time feeding
     // this function **should** be called per tick
-    std::lock_guard<std::mutex> lock(render_lock);
+    std::lock_guard<std::mutex> l1(render_lock);
     
-    if(current_mode == MAP_MODE_COUNTRY_SELECT) {
+    if(current_mode == MAP_MODE_COUNTRY_SELECT)
         return;
-    }
     
+    std::lock_guard<std::recursive_mutex> l2(g_world->time_mutex);
     const Nation& player_nation = *g_world->nations[curr_selected_nation];
     if(!(g_world->time % 48)) {
         double gdp = 0.f;
