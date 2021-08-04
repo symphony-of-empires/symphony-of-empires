@@ -122,6 +122,7 @@ static UI::Label* money_lab,* prestige_lab,* economy_lab,* big_brain_lab,* milit
 static UI::Image* money_icon,* prestige_icon,* economy_icon,* big_brain_icon,* militancy_icon,* population_icon;
 static UI::Window* pop_view_nation_win = nullptr;
 static uint8_t pop_view_nation_page_num = 0;
+
 static void pop_view_nation(UI::Widget&, void *) {
     // Do not make duplicate windows
     if(pop_view_nation_win != nullptr) {
@@ -157,22 +158,37 @@ static void pop_view_nation(UI::Widget&, void *) {
         pop_view_nation_win->text(tmpbuf);
     };
     
-    for(size_t i = 0; i < 12; i++) {
-        UI::Label* lab = new UI::Label(9, 43 + (i * 28), "?", pop_view_nation_win);
+    for(size_t i = 0; i < 8; i++) {
+        UI::Button* elem = new UI::Button(9, 43 + (i * 38), pop_view_nation_win->width, 38, pop_view_nation_win);
     }
 
     pop_view_nation_win->on_update = ([](UI::Widget& w, void*) {
-        size_t e = pop_view_nation_page_num * 12, i = 3;
+        size_t e = pop_view_nation_page_num * 8, i = 3;
+        size_t cnt = 0;
+        size_t total_pops = 0;
         for(const auto& province: curr_nation->owned_provinces) {
-            if(e >= curr_nation->owned_provinces.size()) {
-                sprintf(tmpbuf, "?");
-                w.children[i]->text(tmpbuf);
-            } else {
-                sprintf(tmpbuf, "%8s %zu", province->name.c_str(), (size_t)province->total_pops());
-                w.children[i]->text(tmpbuf);
+            total_pops += province->pops.size();
+        }
+
+        for(const auto& province: curr_nation->owned_provinces) {
+            for(const auto& pop: province->pops) {
+                if(cnt < pop_view_nation_page_num * 8) {
+                    cnt++;
+                    continue;
+                }
+
+                if(e >= total_pops) {
+                    sprintf(tmpbuf, "?");
+                    w.children[i]->text(tmpbuf);
+                } else {
+                    sprintf(tmpbuf, "%s %zu %s %s %s %.2f$ %2.2f", province->name.c_str(), pop.size, g_world->cultures[pop.culture_id]->name.c_str(), g_world->religions[pop.religion_id]->name.c_str(), g_world->pop_types[pop.type_id]->name.c_str(), pop.budget, pop.life_needs_met);
+                    w.children[i]->text(tmpbuf);
+                }
+                i++;
+                e++;
+                if(i >= w.children.size())
+                    break;
             }
-            i++;
-            e++;
             if(i >= w.children.size())
                 break;
         }
@@ -190,20 +206,27 @@ static void industry_view_nation(UI::Widget&, void *) {
     // View the provinces in a country - along with the population in them
     industry_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, 609, 476);
     industry_view_nation_win->on_update = ([](UI::Widget& w, void*) {
-        size_t e = industry_view_nation_page_num * 12, i = 3;
+        size_t e = industry_view_nation_page_num * 8, i = 3;
+        size_t cnt = 0;
         size_t total_industries = 0;
         for(const auto& province: curr_nation->owned_provinces) {
             total_industries += province->industries.size();
         }
 
         for(const auto& province: curr_nation->owned_provinces) {
-            for(const auto& industry: province->industries) {
+            for(auto& industry: province->industries) {
+                if(cnt < industry_view_nation_page_num * 8) {
+                    cnt++;
+                    continue;
+                }
+
                 if(e >= total_industries) {
                     sprintf(tmpbuf, "?");
                     w.children[i]->text(tmpbuf);
                 } else {
-                    sprintf(tmpbuf, "%8s %4.2f %zu %zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
+                    sprintf(tmpbuf, "%s %4.2f %zu %zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
                     w.children[i]->text(tmpbuf);
+                    w.children[i]->user_data = &industry;
                 }
                 i++;
                 e++;
@@ -241,8 +264,25 @@ static void industry_view_nation(UI::Widget&, void *) {
         industry_view_nation_win->text(tmpbuf);
     };
     
-    for(size_t i = 0; i < 12; i++) {
-        UI::Label* lab = new UI::Label(9, 43 + (i* 28), "?", industry_view_nation_win);
+    // TODO: When a province resizes the industry vector it will break havoc!
+    // TODO: Make the industries vector be a pointer instead!
+    for(size_t i = 0; i < 8; i++) {
+        UI::Button* elem = new UI::Button(9, 43 + (i * 38), industry_view_nation_win->width, 38, industry_view_nation_win);
+        elem->on_click = ([](UI::Widget& w, void* data) {
+            UI::Window* industry_info_win = new UI::Window(0, 0, 320, 200);
+            industry_info_win->text("Industry info");
+
+            UI::Chart* industry_info_workers = new UI::Chart(0, 32, 120, 64, industry_info_win);
+            industry_info_workers->user_data = data;
+            industry_info_workers->on_update = ([](UI::Widget& w, void* data) {
+                UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
+                if(!(g_world->time % 48)) {
+                    wc.data.push_back(((Industry*)data)->workers);
+                    if(wc.data.size() >= 30)
+                        wc.data.pop_front();
+                }
+            });
+        });
     }
 }
 
@@ -257,15 +297,16 @@ static void products_view_world(void) {
     // View the provinces in a country - along with the population in them
     products_view_win = new UI::Window(mouse_pos.first, mouse_pos.second, 609, 476);
     products_view_win->on_update = ([](UI::Widget& w, void*) {
-        size_t e = products_view_page_num * 12, i = 3;
+        size_t e = products_view_page_num * 8, i = 3;
         while(i < w.children.size()) {
             if(e >= g_world->products.size()) {
                 sprintf(tmpbuf, "?");
                 w.children[i]->text(tmpbuf);
             } else {
-                const Product& product = *g_world->products[e];
-                sprintf(tmpbuf, "%8ld %8ld %4.2f$ %s %s", product.supply, product.demand, product.price, product.origin->name.c_str(), product.good->name.c_str());
+                Product& product = *g_world->products[e];
+                sprintf(tmpbuf, "%zu %zu %.2f$ %s %s", product.supply, product.demand, product.price, product.origin->name.c_str(), product.good->name.c_str());
                 w.children[i]->text(tmpbuf);
+                w.children[i]->user_data = &product;
             }
             i++;
             e++;
@@ -298,8 +339,50 @@ static void products_view_world(void) {
         products_view_win->text(tmpbuf);
     };
     
-    for(size_t i = 0; i < 12; i++) {
-        UI::Label* lab = new UI::Label(9, 43 + (i* 28), "?", products_view_win);
+    for(size_t i = 0; i < 8; i++) {
+        UI::Button* elem = new UI::Button(9, 43 + (i * 38), products_view_win->width, 38, products_view_win);
+        elem->on_click = ([](UI::Widget& w, void* data) {
+            UI::Window* product_info_win = new UI::Window(0, 0, 320, 200);
+            product_info_win->text("Product info");
+
+            UI::Chart* product_info_supply = new UI::Chart(0, 32, 120, 64, product_info_win);
+            product_info_supply->user_data = data;
+            product_info_supply->text("Supply");
+            product_info_supply->on_update = ([](UI::Widget& w, void* data) {
+                UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
+                if((g_world->time % 48) == 24) {
+                    wc.data.push_back(((Product*)data)->supply);
+                    if(wc.data.size() >= 30)
+                        wc.data.pop_front();
+                }
+            });
+
+            UI::Chart* product_info_demand = new UI::Chart(0, 32, 120, 64, product_info_win);
+            product_info_demand->below_of(*product_info_supply);
+            product_info_demand->user_data = data;
+            product_info_demand->text("Demand");
+            product_info_demand->on_update = ([](UI::Widget& w, void* data) {
+                UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
+                if((g_world->time % 48) == 0) {
+                    wc.data.push_back(((Product*)data)->demand);
+                    if(wc.data.size() >= 30)
+                        wc.data.pop_front();
+                }
+            });
+
+            UI::Chart* product_info_price = new UI::Chart(0, 32, 120, 64, product_info_win);
+            product_info_price->below_of(*product_info_demand);
+            product_info_price->user_data = data;
+            product_info_price->text("Price");
+            product_info_price->on_update = ([](UI::Widget& w, void* data) {
+                UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
+                if((g_world->time % 48) == 24) {
+                    wc.data.push_back(((Product*)data)->price);
+                    if(wc.data.size() >= 30)
+                        wc.data.pop_front();
+                }
+            });
+        });
     }
 }
 
@@ -422,12 +505,13 @@ void client_update(void) {
         if(gdp_chart->data.size() >= 30)
             gdp_chart->data.pop_front();
 
-        size_t total_pop = 0;
+        size_t total_pop = 0, n_pops = 0;
         double living_std = 0.f;
         for(const auto& province: player_nation.owned_provinces) {
             for(const auto& pop: province->pops) {
                 total_pop += pop.size;
                 living_std += pop.life_needs_met;
+                n_pops++;
             }
         }
         
@@ -435,7 +519,7 @@ void client_update(void) {
         if(pop_chart->data.size() >= 30)
             pop_chart->data.pop_front();
         
-        hdi_chart->data.push_back(living_std / total_pop);
+        hdi_chart->data.push_back(living_std / n_pops);
         if(hdi_chart->data.size() >= 30)
             hdi_chart->data.pop_front();
     }
