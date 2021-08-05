@@ -58,16 +58,24 @@ void Economy::do_phase_1(World& world) {
     for(auto& outpost: world.outposts) {
         bool can_build = true;
         for(const auto& req: outpost->req_goods_for_unit) {
+            // Increment demand for all products with same required good type
+            for(auto& product: world.products) {
+                if(product->good != req.first)
+                    continue;
+                
+                // Government-required supplies are super important for companies
+                product->demand += req.second * 1.5f;
+            }
+
             if(req.second) {
                 can_build = false;
-                break;
             }
         }
 
         if(!can_build)
         	break;
         
-        size_t needed_manpower = 1500;
+        size_t needed_manpower = 1000;
         size_t available_manpower = 0;
         for(size_t i = 0; i < world.job_requests.size(); i++) {
             JobRequest& job_request = world.job_requests[i];
@@ -211,21 +219,27 @@ void Economy::do_phase_1(World& world) {
             size_t needed_laborers = 0, available_laborers = 0;
             size_t needed_farmers = 0, available_farmers = 0;
             size_t needed_entrepreneurs = 0, available_entrepreneurs = 0;
+
+            // Each output adds a required farmer or laborer depending on the type
+            // of output, it also requires entrepreneurs to "manage" the operations
+            // of the factory
             for(const auto& output: it.outputs) {
                 if(output->is_edible) {
-                    needed_farmers += 500;
+                    needed_farmers += 1000;
                 } else {
-                    needed_laborers += 500;
+                    needed_laborers += 1000;
                 }
-                needed_entrepreneurs += 2;
+                needed_entrepreneurs += 100;
             }
             
             // Search through all the job requests
             for(size_t i = 0; i < province_job_requests.size(); i++) {
                 JobRequest& job_request = province_job_requests[i];
-                if(job_request.province != province)
-                    continue;
-                
+
+                // Industries require 2 (or 3) types of POPs to correctly function
+                // - Laborers: They are needed to produce non-edible food
+                // - Farmers: They are needed to produce edibles
+                // - Entrepreneur: They help "organize" the factory
                 if(available_laborers < needed_farmers && (job_request.pop->type_id == POP_TYPE_LABORER
                 || job_request.pop->type_id == POP_TYPE_SLAVE)) {
                     available_laborers += std::min(needed_laborers, job_request.amount);
@@ -289,6 +303,15 @@ void Economy::do_phase_1(World& world) {
                 order.province = province;
                 order.type = ORDER_INDUSTRIAL;
                 world.orders.push_back(order);
+
+                // Increase demand for all products with same good type as ordered
+                // (incentivizing companies to create more of this)
+                for(auto& product: world.products) {
+                    if(product->good != order.good)
+                        continue;
+                    
+                    product->demand += order.quantity;
+                }
             }
             world.orders_mutex.unlock();
 

@@ -1207,6 +1207,8 @@ public:
             break;
         }
 
+        // This statements must not be before the switch above, since the polymorphic
+        // trans-serializer is not going to handle this well (see deserializer)
         ::serialize(stream, &(*obj)->sender);
         ::serialize(stream, &(*obj)->receiver);
         ::serialize(stream, &(*obj)->days_duration);
@@ -1214,11 +1216,11 @@ public:
     }
     static inline void deserialize(Archive& stream, TreatyClause::BaseClause** obj) {
         *obj = new TreatyClause::BaseClause();
-        ::deserialize(stream, &(*obj)->type);
-        
+
         // We will also need to destroy the original pointer and allocate a new
-        // one to accomodate the polymorphism stuff, if we dont destroy-then-construct
+        // one to accomodate the polymorphic stuff, if we dont destroy-then-construct
         // we will have serious SIGSEGV
+        ::deserialize(stream, &(*obj)->type);
         switch((*obj)->type) {
         case TREATY_CLAUSE_ANEXX_PROVINCES:
             {
@@ -1315,6 +1317,7 @@ public:
         default:
             break;
         }
+
         total += ::serialized_size(&(*obj)->receiver);
         total += ::serialized_size(&(*obj)->sender);
         total += ::serialized_size(&(*obj)->days_duration);
