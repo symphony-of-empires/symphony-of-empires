@@ -11,15 +11,16 @@ class Camera {
 public:
     glm::vec3 position;
     glm::vec3 velocity;
-        float fov = 45.0f;
-        float near_plane = 1.0f;  
-        float far_plane = 1024.0f;
-        glm::vec2 screen_size;
+    float fov = 45.0f;
+    float near_plane = 1.0f;  
+    float far_plane = 1024.0f;
+    glm::vec2 screen_size;
+    glm::vec3 position, velocity;
     float z_angle, vz_angle;
 
-        Camera(int width, int height) {
-            screen_size = glm::vec2(width, height);
-        }
+    Camera(int width, int height) {
+        screen_size = glm::vec2(width, height);
+    }
     
     void update(void) {
         velocity.x = std::min(16.f, velocity.x);
