@@ -671,12 +671,18 @@ void select_nation(void) {
     Outpost* selected_outpost = nullptr;
     uint64_t last_time = 0;
 
+    float wind_osc = 0.f;
+
     displayed_events.clear();
     while(run) {
         if(last_time != g_world->time) {
             last_time = g_world->time;
             client_update();
         }
+
+        wind_osc += 0.1f;
+        if(wind_osc >= 180.f)
+            wind_osc = -180.f;
         
         std::unique_lock<std::mutex> lock(render_lock);
         
