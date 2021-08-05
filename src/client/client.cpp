@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <string>
 
+#include <GL/glew.h>
 #ifdef _MSC_VER
 #	include <SDL.h>
 #	include <SDL_ttf.h>
@@ -49,7 +50,7 @@ std::pair<int, int> mouse_pos;
 static Map* map;
 
 #include "camera.hpp"
-static Camera cam;
+static Camera cam{width, height};
 UI::Context* ui_ctx;
 
 #include <atomic>
@@ -110,7 +111,6 @@ static void change_country(size_t id) {
     if(capital != nullptr) {
         cam.position.x = capital->max_x;
         cam.position.y = capital->max_y;
-        cam.position.x = -cam.position.x;
     }
 }
 
@@ -448,7 +448,6 @@ static void play_nation(UI::Widget&, void *) {
     if(capital != nullptr) {
         cam.position.x = capital->max_x;
         cam.position.y = capital->max_y;
-        cam.position.x = -cam.position.x;
         cam.position.z = -100.f;
     }
     
@@ -635,8 +634,8 @@ void select_nation(void) {
         unit_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
     }
     
-    cam.position.x = -100.f;
-    cam.position.y = 100.f;
+    cam.position.x = 0.f;
+    cam.position.y = 0.f;
     cam.position.z = -400.f;
     cam.z_angle = 0.f;
     
@@ -649,6 +648,8 @@ void select_nation(void) {
     run = true;
     
     std::pair<float, float> select_pos;
+        bool middle_mouse_down = false;
+        std::pair<float, float> last_camera_drag_pos;
     
     UI::Button* select_country_btn = new UI::Button((width / 2) - (320 / 2), 8, 320, 38);
     select_country_btn->text("Select a country");
@@ -695,9 +696,17 @@ void select_nation(void) {
             case SDL_MOUSEBUTTONDOWN:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
                 ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
+                if(event.button.button == SDL_BUTTON_MIDDLE) {
+                    middle_mouse_down = true;
+                    last_camera_drag_pos = cam.get_map_pos(mouse_pos);
+                }
                 break;
             case SDL_MOUSEBUTTONUP:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+                if(event.button.button == SDL_BUTTON_MIDDLE) {
+                    middle_mouse_down = false;
+                    break;
+                }
 
                 click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
                 if(old_mode != current_mode) {
@@ -879,18 +888,19 @@ void select_nation(void) {
             case SDL_MOUSEMOTION:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
                 ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
-
-                select_pos.first = (mouse_pos.first - (width / 2.f)) / ((float)width / (-cam.position.z * 1.33f));
-                select_pos.second = (mouse_pos.second - (height / 2.f)) / ((float)height / (-cam.position.z * 0.83f));
-                select_pos.first -= cam.position.x;
-                select_pos.second += cam.position.y;
+                if(middle_mouse_down) { // Drag the map with middlemouse
+                    std::pair<float, float> map_pos = cam.get_map_pos(mouse_pos);
+                    cam.position.x += last_camera_drag_pos.first - map_pos.first; 
+                    cam.position.y += last_camera_drag_pos.second - map_pos.second; 
+                }
+                select_pos = cam.get_map_pos(mouse_pos);
                 break;
             case SDL_MOUSEWHEEL:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
                 ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
                 click_on_ui = ui_ctx->check_wheel(mouse_pos.first, mouse_pos.second, event.wheel.y * 6);
                 if(!click_on_ui) {
-                    cam.velocity.z += event.wheel.y;
+                    cam.velocity.z += event.wheel.y * 2.0f;
                 }
                 break;
             case SDL_TEXTINPUT:
@@ -905,10 +915,10 @@ void select_nation(void) {
                     cam.velocity.y += std::min(4.f, std::max(0.5f, 0.02f * -cam.position.z));
                     break;
                 case SDLK_LEFT:
-                    cam.velocity.x += std::min(4.f, std::max(0.5f, 0.02f * -cam.position.z));
+                    cam.velocity.x -= std::min(4.f, std::max(0.5f, 0.02f * -cam.position.z));
                     break;
                 case SDLK_RIGHT:
-                    cam.velocity.x -= std::min(4.f, std::max(0.5f, 0.02f * -cam.position.z));
+                    cam.velocity.x += std::min(4.f, std::max(0.5f, 0.02f * -cam.position.z));
                     break;
                 case SDLK_q:
                     cam.vz_angle -= std::min(4.f, std::max(0.01f, 0.02f * -cam.position.z));
@@ -1078,16 +1088,11 @@ void select_nation(void) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glPushMatrix();
         glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        gluPerspective(45.0, (float)width / (float)height, 1.0f, 1024.0f);
+        glLoadMatrixf(glm::value_ptr(cam.get_projection()));
         glViewport(0, 0, width, height);
-        glTranslatef(cam.position.x, cam.position.y, cam.position.z);
         glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glRotatef(180.f, 1.0f, 0.0f, 0.0f);
-        glRotatef(0.f, 0.0f, 1.0f, 0.0f);
-        glRotatef(cam.z_angle, 0.0f, 0.0f, 1.0f);
-        
+        glLoadMatrixf(glm::value_ptr(cam.get_view()));
+
         map->draw(cam, width, height);
 
         g_world->boats_mutex.lock();
@@ -1274,6 +1279,16 @@ void client_main(int argc, char** argv) {
     g_texture_manager = new TextureManager();
     ui_ctx = new UI::Context();
     tmpbuf = new char[512];
+
+    GLenum err = glewInit();
+    if(err != GLEW_OK)
+        throw std::runtime_error("Failed to init GLEW");
+
+    if(glewIsSupported("GL_VERSION_3_0")) {
+        printf("SHADER READY HARDWARE");
+        unsigned int vertexShader;
+        vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    }
 
     std::string server_addr;
     if(argc > 1) {
