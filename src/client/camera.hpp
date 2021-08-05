@@ -9,11 +9,7 @@
 
 class Camera {
 public:
-    glm::vec3 position;
-    glm::vec3 velocity;
-    float fov = 45.0f;
-    float near_plane = 1.0f;  
-    float far_plane = 1024.0f;
+    float fov = 45.0f, near_plane = 1.0f, far_plane = 1024.0f;
     glm::vec2 screen_size;
     glm::vec3 position, velocity;
     float z_angle, vz_angle;
