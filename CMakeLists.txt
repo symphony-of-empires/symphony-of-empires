@@ -33,6 +33,6 @@ add_executable(SymphonyOfEmpires ${MAIN_SOURCES} ${CLIENT_SOURCES} ${AI_SOURCES}
 IF(WIN32)
 	target_link_libraries(SymphonyOfEmpires PUBLIC opengl32 glu32 ws2_32 winpthread intl lua)
 ELSE()
-	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLU SDL2main lua5.4 stdc++)
+	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLEW GLU SDL2main lua5.4 stdc++)
 ENDIF()
 target_link_libraries(SymphonyOfEmpires PUBLIC png SDL2 SDL2_ttf m z)
