@@ -44,6 +44,38 @@ Map::Map(const World& _world) : world(_world) {
     topo_tex->to_opengl();
 }
 
+void Map::draw_flag(const Texture* flag, int x, int y) {
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBegin(GL_LINE_STRIP);
+        glColor3f(1.f, 1.f, 1.f);
+        glVertex3f(x, y, 0.f);
+        glVertex3f(x, y, -2.f);
+    glEnd();
+
+    // Draw a flag that "waves" with some cheap wind effects it
+    // looks nice and it's super cheap to make - only using sine
+    const float n_steps = 8.f; // Resolution of flag in one side (in vertices)
+    const float step = 90.f; // Steps per vertice
+    glBindTexture(GL_TEXTURE_2D, flag->gl_tex_num);
+
+    // sin_r - Sin'ed iterator along with the wind oscillator
+    glBegin(GL_TRIANGLE_STRIP);
+    for(float r = 0.f; r <= (n_steps * step); r += step) {
+        float sin_r;
+
+        sin_r = sin(r + wind_osc) / 24.f;
+        glColor3f((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f);
+        glTexCoord2f((r / step) / n_steps, 1.f);
+        glVertex3f(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -2.f);
+
+        sin_r = sin(r + wind_osc + 245.f) / 24.f;
+        glColor3f((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f);
+        glTexCoord2f((r / step) / n_steps, 0.f);
+        glVertex3f(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -1.f);
+    }
+    glEnd();
+}
+
 extern TextureManager* g_texture_manager;
 void Map::draw(Camera& cam, const int width, const int height) {
     // Topo map texture

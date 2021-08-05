@@ -515,6 +515,7 @@ void World::do_tick() {
         }
         products_mutex.unlock();
         
+        nations_mutex.lock();
         for(auto& nation: this->nations) {
             float economy_score = 0.f;
             for(const auto& province: nation->owned_provinces) {
@@ -530,6 +531,7 @@ void World::do_tick() {
             }
             nation->economy_score = economy_score / 100.f;
         }
+        nations_mutex.unlock();
         break;
     // 18:00
     case 36:

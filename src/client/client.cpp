@@ -678,12 +678,18 @@ void select_nation(void) {
     Outpost* selected_outpost = nullptr;
     uint64_t last_time = 0;
 
+    float wind_osc = 0.f;
+
     displayed_events.clear();
     while(run) {
         if(last_time != g_world->time) {
             last_time = g_world->time;
             client_update();
         }
+
+        wind_osc += 0.1f;
+        if(wind_osc >= 180.f)
+            wind_osc = -180.f;
         
         std::unique_lock<std::mutex> lock(render_lock);
         
@@ -1199,18 +1205,38 @@ void select_nation(void) {
 
         g_world->outposts_mutex.lock();
         for(const auto& outpost: g_world->outposts) {
-            glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(outpost->owner)]->gl_tex_num);
-            glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(outpost->x, outpost->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(outpost->x + 0.2f, outpost->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(outpost->x + 0.2f, outpost->y + 0.2f);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(outpost->x, outpost->y + 0.2f);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glBegin(GL_LINE_STRIP);
+            glColor3f(1.f, 1.f, 1.f);
+            glVertex3f(outpost->x, outpost->y, 0.f);
+            glVertex3f(outpost->x, outpost->y, -2.f);
             glEnd();
+
+            // TODO: Don't render at high zoom levels
+            if(1) {
+                // Draw a flag that "waves" with some cheap wind effects it
+                // looks nice and it's super cheap to make - only using sine
+                const float n_steps = 8.f; // Resolution of flag in one side (in vertices)
+                const float step = 90.f; // Steps per vertice
+                glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(outpost->owner)]->gl_tex_num);
+
+                // sin_r - Sin'ed iterator along with the wind oscillator
+                glBegin(GL_TRIANGLE_STRIP);
+                for(float r = 0.f; r <= (n_steps * step); r += step) {
+                    float sin_r;
+
+                    sin_r = sin(r + wind_osc) / 24.f;
+                    glColor3f((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f);
+                    glTexCoord2f((r / step) / n_steps, 1.f);
+                    glVertex3f(outpost->x + (((r / step) / n_steps) * 1.5f), outpost->y + sin_r, -2.f);
+
+                    sin_r = sin(r + wind_osc + 245.f) / 24.f;
+                    glColor3f((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f);
+                    glTexCoord2f((r / step) / n_steps, 0.f);
+                    glVertex3f(outpost->x + (((r / step) / n_steps) * 1.5f), outpost->y + sin_r, -1.f);
+                }
+                glEnd();
+            }
 
             const float size = 1.f;
             glBindTexture(GL_TEXTURE_2D, outpost_type_icons[g_world->get_id(outpost->type)]->gl_tex_num);
