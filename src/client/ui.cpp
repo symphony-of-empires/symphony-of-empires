@@ -35,6 +35,7 @@ Context::Context() {
     background = &g_texture_manager->load_texture(Path::get("ui/background.png"));
     window_top = &g_texture_manager->load_texture(Path::get("ui/window_top.png"));
     button = &g_texture_manager->load_texture(Path::get("ui/button.png"));
+    tooltip = &g_texture_manager->load_texture(Path::get("ui/tooltip.png"));
 
     g_ui_context = this;
     is_drag = false;
@@ -111,26 +112,27 @@ void Context::render_all(const int width, const int height) {
     glPopMatrix();
 }
 
-void Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
+int Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
     x_off += w.x;
     y_off += w.y;
 
     w.is_hover = false;
 
     if(!w.is_show)
-        return;
-
-    if((int)mx >= x_off && mx <= x_off + w.width
-    && (int)my >= y_off && my <= y_off + w.height) {
-        w.is_hover = true;
-        if(w.on_hover != nullptr) {
-            w.on_hover(w, w.user_data);
-        }
-    }
+        return 0;
+    
+    if(!((int)mx >= x_off && mx <= x_off + w.width
+    && (int)my >= y_off && my <= y_off + w.height))
+        return 0;
+    
+    w.is_hover = true;
+    if(w.on_hover != nullptr)
+        w.on_hover(w, w.user_data);
 
     for(auto& child: w.children) {
         check_hover_recursive(*child, mx, my, x_off, y_off);
     }
+    return 1;
 }
 
 void Context::check_hover(const unsigned mx, const unsigned my) {
@@ -142,8 +144,8 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
         return;
     }
 
-    for(const auto& widget: widgets) {
-        check_hover_recursive(*widget, mx, my, 0, 0);
+    for(int i = widgets.size() - 1; i >= 0; i--) {
+        check_hover_recursive(*widgets[i], mx, my, 0, 0);
     }
     return;
 }
@@ -254,17 +256,11 @@ void Widget::on_render(Context& ctx) {
         glBindTexture(GL_TEXTURE_2D, 0);
         glColor4f(0.f, 0.f, 0.f, 0.75f);
         glBegin(GL_TRIANGLES);
-            glTexCoord2f(0.f, 0.f);
             glVertex2f(16, 16);
-            glTexCoord2f(1.f, 0.f);
             glVertex2f(width + 16, 16);
-            glTexCoord2f(1.f, 1.f);
             glVertex2f(width + 16, height + 16);
-            glTexCoord2f(1.f, 1.f);
             glVertex2f(width + 16, height + 16);
-            glTexCoord2f(0.f, 1.f);
             glVertex2f(16, height + 16);
-            glTexCoord2f(0.f, 0.f);
             glVertex2f(16, 16);
         glEnd();
     }
@@ -331,8 +327,8 @@ void Widget::on_render(Context& ctx) {
         glEnd();
     }
 
-    glLineWidth(3.f);
     glBindTexture(GL_TEXTURE_2D, 0);
+    glLineWidth(3.f);
     glColor3f(0.f, 0.f, 0.f);
     if(type != UI_WIDGET_WINDOW && type != UI_WIDGET_IMAGE && type != UI_WIDGET_PIE_CHART) {
         const size_t padding = 8;
@@ -366,7 +362,6 @@ void Widget::on_render(Context& ctx) {
             text_texture->gl_tex_num
         );
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void input_ontextinput(Input& w, const char* input, void* data) {
@@ -430,7 +425,7 @@ void Widget::add_child(Widget* child) {
     child->parent = this;
 }
 
-void Widget::text(const char* text) {
+void Widget::text(const char* _text) {
     SDL_Surface* surface;
     
     if(text_texture != nullptr) {
@@ -440,7 +435,7 @@ void Widget::text(const char* text) {
 
     TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
 
-    surface = TTF_RenderUTF8_Solid(g_ui_context->default_font, text, text_color);
+    surface = TTF_RenderUTF8_Solid(g_ui_context->default_font, _text, text_color);
     if(surface == nullptr) {
         print_error("Cannot create text surface: %s", TTF_GetError());
         return;
@@ -522,7 +517,6 @@ void Label::on_render(Context& ctx) {
             text_texture->gl_tex_num
         );
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
@@ -545,9 +539,9 @@ void Chart::on_render(Context& ctx) {
             current_texture->gl_tex_num
         );
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     if(data.size() > 1) {
+        glBindTexture(GL_TEXTURE_2D, 0);
         glLineWidth(2.f);
 
         // Obtain the highest and lowest values
@@ -597,8 +591,8 @@ void Chart::on_render(Context& ctx) {
         );
     }
 
-    glLineWidth(3.f);
     glBindTexture(GL_TEXTURE_2D, 0);
+    glLineWidth(3.f);
     glColor3f(0.f, 0.f, 0.f);
     if(type != UI_WIDGET_WINDOW && type != UI_WIDGET_IMAGE && type != UI_WIDGET_PIE_CHART) {
         const size_t padding = 8;

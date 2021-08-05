@@ -40,7 +40,7 @@ namespace UI {
 
         void render_recursive(Widget& widget, int x_off, int y_off);
         void render_all(const int width, const int height);
-        void check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
+        int check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         void check_hover(unsigned mx, unsigned my);
         int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         int check_click(unsigned mx, unsigned my);
@@ -49,7 +49,7 @@ namespace UI {
         void check_text_input(const char* input);
         void clear(void);
 
-        const Texture* background,* window_top,* button;
+        const Texture* background,* window_top,* button,* tooltip;
         TTF_Font* default_font;
         
         std::vector<Widget*> widgets;
@@ -88,6 +88,8 @@ namespace UI {
 
         const Texture* current_texture = nullptr;
         Texture* text_texture = nullptr;
+
+        std::string tooltip_text = "";
 
         Widget* parent;
         std::vector<Widget*> children;
