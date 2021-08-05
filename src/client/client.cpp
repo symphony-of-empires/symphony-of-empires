@@ -135,7 +135,7 @@ static void pop_view_nation(UI::Widget&, void *) {
     sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
     pop_view_nation_win->text(tmpbuf);
     
-    UI::Button* ok_btn = new UI::Button(9, 413, 173, 51, pop_view_nation_win);
+    UI::Button* ok_btn = new UI::Button(0, 413, 173, 51, pop_view_nation_win);
     ok_btn->text("OK");
     ok_btn->on_click = [](UI::Widget& w, void *) {
         pop_view_nation_win = nullptr;
@@ -159,7 +159,7 @@ static void pop_view_nation(UI::Widget&, void *) {
     };
     
     for(size_t i = 0; i < 8; i++) {
-        UI::Button* elem = new UI::Button(9, 43 + (i * 38), pop_view_nation_win->width, 38, pop_view_nation_win);
+        UI::Button* elem = new UI::Button(0, 32 + (i * 38), pop_view_nation_win->width, 38, pop_view_nation_win);
     }
 
     pop_view_nation_win->on_update = ([](UI::Widget& w, void*) {
@@ -240,7 +240,7 @@ static void industry_view_nation(UI::Widget&, void *) {
     sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)industry_view_nation_page_num);
     industry_view_nation_win->text(tmpbuf);
     
-    UI::Button* ok_btn = new UI::Button(9, 413, 173, 51, industry_view_nation_win);
+    UI::Button* ok_btn = new UI::Button(0, 413, 173, 51, industry_view_nation_win);
     ok_btn->text("OK");
     ok_btn->on_click = [](UI::Widget& w, void *) {
         industry_view_nation_win = nullptr;
@@ -266,7 +266,7 @@ static void industry_view_nation(UI::Widget&, void *) {
     // TODO: When a province resizes the industry vector it will break havoc!
     // TODO: Make the industries vector be a pointer instead!
     for(size_t i = 0; i < 8; i++) {
-        UI::Button* elem = new UI::Button(9, 43 + (i * 38), industry_view_nation_win->width, 38, industry_view_nation_win);
+        UI::Button* elem = new UI::Button(0, 32 + (i * 38), industry_view_nation_win->width, 38, industry_view_nation_win);
         elem->on_click = ([](UI::Widget& w, void* data) {
             UI::Window* industry_info_win = new UI::Window(0, 0, 320, 200);
             industry_info_win->text("Industry info");
@@ -302,16 +302,18 @@ static void products_view_world(void) {
         std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
         if(g_world->time % 48 == 35) {
             std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
-
-            size_t e = products_view_page_num * 8;
+            size_t list_idx = products_view_page_num * 8;
             for(size_t i = 3; i < w.children.size(); i++) {
-                while(e < g_world->products.size() && g_world->products[e]->origin->owner != curr_nation) {
-                    e++;
-                }
+                if(list_idx < g_world->products.size()) {
+                    // Skip products that are not from our country
+                    while(g_world->products[list_idx]->origin->owner != curr_nation) {
+                        list_idx++;
+                        if(list_idx >= g_world->products.size())
+                            break;
+                    }
 
-                if(e < g_world->products.size()) {
-                    const Product* product = g_world->products[e];
-                    sprintf(tmpbuf, "%zu %zu %.2f$ %.2f%% %s %s", product->supply, product->demand, product->price, product->price_vel, product->origin->name.c_str(), product->good->name.c_str());
+                    const Product* product = g_world->products[list_idx];
+                    sprintf(tmpbuf, "%zu %zu %.2f$ %.2f%% %s %s", product->supply, product->demand, product->price, product->price_vel * 100.f, product->origin->name.c_str(), product->good->name.c_str());
                     w.children[i]->text(tmpbuf);
                     w.children[i]->user_data = &product;
                 } else {
@@ -319,7 +321,7 @@ static void products_view_world(void) {
                     w.children[i]->text(tmpbuf);
                     w.children[i]->user_data = nullptr;
                 }
-                e++;
+                list_idx++;
             }
         }
     });
@@ -327,7 +329,7 @@ static void products_view_world(void) {
     sprintf(tmpbuf, "Your province's products (page %zu)", (size_t)products_view_page_num);
     products_view_win->text(tmpbuf);
     
-    UI::Button* ok_btn = new UI::Button(9, 413, 173, 51, products_view_win);
+    UI::Button* ok_btn = new UI::Button(0, 413, 173, 51, products_view_win);
     ok_btn->text("OK");
     ok_btn->on_click = [](UI::Widget& w, void *) {
         products_view_win = nullptr;
@@ -351,7 +353,7 @@ static void products_view_world(void) {
     };
     
     for(size_t i = 0; i < 8; i++) {
-        UI::Button* elem = new UI::Button(9, 43 + (i * 38), products_view_win->width, 38, products_view_win);
+        UI::Button* elem = new UI::Button(0, 32 + (i * 38), products_view_win->width, 38, products_view_win);
         elem->on_click = ([](UI::Widget& w, void* data) {
             Product* product = (Product*)data;
             if(data == nullptr)

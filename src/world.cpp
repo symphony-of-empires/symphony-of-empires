@@ -987,9 +987,59 @@ void World::do_tick() {
 
         if(!is_on_effect)
             continue;
+
+        // And also check that there is atleast 1 clause that is on effect
+        for(const auto& clause: treaty->clauses) {
+            switch(clause->type) {
+            case TREATY_CLAUSE_WAR_REPARATIONS:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::WarReparations*>(clause);
+                    is_on_effect = dyn_clause->in_effect();
+                }
+                break;
+            case TREATY_CLAUSE_ANEXX_PROVINCES:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::AnexxProvince*>(clause);
+                    is_on_effect = dyn_clause->in_effect();
+                }
+                break;
+            case TREATY_CLAUSE_LIBERATE_NATION:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::LiberateNation*>(clause);
+                    is_on_effect = dyn_clause->in_effect();
+                }
+                break;
+            case TREATY_CLAUSE_HUMILIATE:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::Humiliate*>(clause);
+                    is_on_effect = dyn_clause->in_effect();
+                }
+                break;
+            case TREATY_CLAUSE_IMPOSE_POLICIES:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::ImposePolicies*>(clause);
+                    is_on_effect = dyn_clause->in_effect();
+                }
+                break;
+            case TREATY_CLAUSE_CEASEFIRE:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::Ceasefire*>(clause);
+                    is_on_effect = dyn_clause->in_effect();
+                }
+                break;
+            default:
+                break;
+            }
+
+            if(is_on_effect) {
+                break;
+            }
+        }
+        if(!is_on_effect)
+            continue;
         
         // Treaties clauses now will be enforced
-        print_info("Enforcing treaty");
+        print_info("Enforcing treaty %s", treaty->name.c_str());
         for(auto& clause: treaty->clauses) {
             switch(clause->type) {
             case TREATY_CLAUSE_WAR_REPARATIONS:
