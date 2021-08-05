@@ -487,7 +487,7 @@ static void play_nation(UI::Widget&, void *) {
     
     pop_view_nation_win = nullptr;
     
-    UI::Image* current_flag = new UI::Image(9, 43, 188, 87, nation_flags[g_world->get_id(curr_nation)], top_win);
+    UI::Image* current_flag = new UI::Image(9, 43, 188, 87, map->nation_flags[g_world->get_id(curr_nation)], top_win);
     
     money_icon = new UI::Image(209, 43 + (28* 0), icon_money_tex.width, icon_money_tex.height, &icon_money_tex, top_win);
     money_lab = new UI::Label(0, 43 + (28* 0), "?", top_win);
@@ -609,29 +609,22 @@ std::vector<Event> displayed_events;
 std::vector<Treaty*> displayed_treaties;
 void select_nation(void) {
     g_world->client_update = &client_update;
-    
-    nation_flags.reserve(g_world->nations.size());
+
     for(const auto& nation: g_world->nations) {
         std::string pt = "ui/flags/" + nation->ref_name + "_monarchy.png";
-        nation_flags.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+        map->nation_flags.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
     }
-
-    outpost_type_icons.reserve(g_world->outpost_types.size());
     for(const auto& outpost_type: g_world->outpost_types) {
         std::string pt = "ui/icons/outpost_types/" + outpost_type->ref_name + ".png";
-        outpost_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+        map->outpost_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
     }
-
-    boat_type_icons.reserve(g_world->boat_types.size());
     for(const auto& boat_type: g_world->boat_types) {
         std::string pt = "ui/icons/boat_types/" + boat_type->ref_name + ".png";
-        boat_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+        map->boat_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
     }
-
-    unit_type_icons.reserve(g_world->unit_types.size());
     for(const auto& unit_type: g_world->unit_types) {
         std::string pt = "ui/icons/unit_types/" + unit_type->ref_name + ".png";
-        unit_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+        map->unit_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
     }
     
     cam.position.x = 0.f;
@@ -648,8 +641,8 @@ void select_nation(void) {
     run = true;
     
     std::pair<float, float> select_pos;
-        bool middle_mouse_down = false;
-        std::pair<float, float> last_camera_drag_pos;
+    bool middle_mouse_down = false;
+    std::pair<float, float> last_camera_drag_pos;
     
     UI::Button* select_country_btn = new UI::Button((width / 2) - (320 / 2), 8, 320, 38);
     select_country_btn->text("Select a country");
@@ -1096,154 +1089,48 @@ void select_nation(void) {
         map->draw(cam, width, height);
 
         g_world->boats_mutex.lock();
-        for(const auto& boat: g_world->boats) {
-            const float size = 1.f;
-            if(boat->size) {
-                glBegin(GL_QUADS);
-                glColor3f(0.f, 1.f, 0.f);
-                glVertex2f(boat->x, boat->y - 1.f);
-                glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
-                glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
-                /*glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.25f);
-                glVertex2f(boat->x, boat->y - 1.2f);
-                glVertex2f(boat->x, boat->y - 1.f);*/
-                glEnd();
-            }
-            
-            glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(boat->owner)]->gl_tex_num);
-            glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(boat->x, boat->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(boat->x + 0.2f, boat->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(boat->x + 0.2f, boat->y + 0.2f);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(boat->x, boat->y + 0.2f);
-            glEnd();
-            glBindTexture(GL_TEXTURE_2D, boat_type_icons[g_world->get_id(boat->type)]->gl_tex_num);
-            glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(boat->x, boat->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(boat->x + size, boat->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(boat->x + size, boat->y + size);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(boat->x, boat->y + size);
-            glEnd();
-        }
         if(selected_boat != nullptr) {
             glBegin(GL_LINE_STRIP);
-            glColor3f(1.f, 0.f, 0.f);
-            glVertex2f(selected_boat->x, selected_boat->y);
-            glVertex2f(selected_boat->x + 1.f, selected_boat->y);
-            glVertex2f(selected_boat->x + 1.f, selected_boat->y + 1.f);
-            glVertex2f(selected_boat->x, selected_boat->y + 1.f);
+                glColor3f(1.f, 0.f, 0.f);
+                glVertex2f(selected_boat->x, selected_boat->y);
+                glVertex2f(selected_boat->x + 1.f, selected_boat->y);
+                glVertex2f(selected_boat->x + 1.f, selected_boat->y + 1.f);
+                glVertex2f(selected_boat->x, selected_boat->y + 1.f);
             glEnd();
         }
         g_world->boats_mutex.unlock();
         
         g_world->units_mutex.lock();
-        for(const auto& unit: g_world->units) {
-            const float size = 1.f;
-            if(unit->size) {
-                glBegin(GL_QUADS);
-                glColor3f(0.f, 1.f, 0.f);
-                glVertex2f(unit->x, unit->y - 1.f);
-                glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
-                glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
-                /*glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.25f);
-                glVertex2f(unit->x, unit->y - 1.2f);
-                glVertex2f(unit->x, unit->y - 1.f);*/
-                glEnd();
-            }
-            
-            glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(unit->owner)]->gl_tex_num);
-            glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(unit->x, unit->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(unit->x + 0.2f, unit->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(unit->x + 0.2f, unit->y + 0.2f);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(unit->x, unit->y + 0.2f);
-            glEnd();
-            glBindTexture(GL_TEXTURE_2D, unit_type_icons[g_world->get_id(unit->type)]->gl_tex_num);
-            glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(unit->x, unit->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(unit->x + size, unit->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(unit->x + size, unit->y + size);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(unit->x, unit->y + size);
-            glEnd();
-        }
         if(selected_unit != nullptr) {
             glBegin(GL_LINE_STRIP);
-            glColor3f(1.f, 0.f, 0.f);
-            glVertex2f(selected_unit->x, selected_unit->y);
-            glVertex2f(selected_unit->x + 1.f, selected_unit->y);
-            glVertex2f(selected_unit->x + 1.f, selected_unit->y + 1.f);
-            glVertex2f(selected_unit->x, selected_unit->y + 1.f);
+                glColor3f(1.f, 0.f, 0.f);
+                glVertex2f(selected_unit->x, selected_unit->y);
+                glVertex2f(selected_unit->x + 1.f, selected_unit->y);
+                glVertex2f(selected_unit->x + 1.f, selected_unit->y + 1.f);
+                glVertex2f(selected_unit->x, selected_unit->y + 1.f);
             glEnd();
         }
         g_world->units_mutex.unlock();
 
         g_world->outposts_mutex.lock();
-        for(const auto& outpost: g_world->outposts) {
-            glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(outpost->owner)]->gl_tex_num);
-            glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(outpost->x, outpost->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(outpost->x + 0.2f, outpost->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(outpost->x + 0.2f, outpost->y + 0.2f);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(outpost->x, outpost->y + 0.2f);
-            glEnd();
-
-            const float size = 1.f;
-            glBindTexture(GL_TEXTURE_2D, outpost_type_icons[g_world->get_id(outpost->type)]->gl_tex_num);
-            glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(outpost->x, outpost->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(outpost->x + size, outpost->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(outpost->x + size, outpost->y + size);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(outpost->x, outpost->y + size);
-            glEnd();
-        }
         if(selected_outpost != nullptr) {
             glBegin(GL_LINE_STRIP);
-            glColor3f(1.f, 0.f, 0.f);
-            glVertex2f(selected_outpost->x, selected_outpost->y);
-            glVertex2f(selected_outpost->x + 1.f, selected_outpost->y);
-            glVertex2f(selected_outpost->x + 1.f, selected_outpost->y + 1.f);
-            glVertex2f(selected_outpost->x, selected_outpost->y + 1.f);
+                glColor3f(1.f, 0.f, 0.f);
+                glVertex2f(selected_outpost->x, selected_outpost->y);
+                glVertex2f(selected_outpost->x + 1.f, selected_outpost->y);
+                glVertex2f(selected_outpost->x + 1.f, selected_outpost->y + 1.f);
+                glVertex2f(selected_outpost->x, selected_outpost->y + 1.f);
             glEnd();
         }
         g_world->outposts_mutex.unlock();
-        glBindTexture(GL_TEXTURE_2D, 0);
 
+        glBindTexture(GL_TEXTURE_2D, 0);
         glBegin(GL_QUADS);
-        glColor3f(1.f, 1.f, 1.f);
-        glVertex2f(select_pos.first, select_pos.second);
-        glVertex2f(select_pos.first + 1.f, select_pos.second);
-        glVertex2f(select_pos.first + 1.f, select_pos.second + 1.f);
-        glVertex2f(select_pos.first, select_pos.second + 1.f);
+            glColor3f(1.f, 1.f, 1.f);
+            glVertex2f(select_pos.first, select_pos.second);
+            glVertex2f(select_pos.first + 1.f, select_pos.second);
+            glVertex2f(select_pos.first + 1.f, select_pos.second + 1.f);
+            glVertex2f(select_pos.first, select_pos.second + 1.f);
         glEnd();
 
         glPopMatrix();
