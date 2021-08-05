@@ -181,6 +181,9 @@ void Economy::do_phase_1(World& world) {
     // All factories will place their orders for their inputs
     // All RGOs will do deliver requests
     //std::for_each(std::execution::par_unseq, world.provinces.begin(), world.provinces.end(),
+    std::lock_guard l1(world.products_mutex);
+    std::lock_guard l2(world.nations_mutex);
+    std::lock_guard l3(world.provinces_mutex);
     ThreadPool::for_each(world.provinces.begin(), world.provinces.end(), [&world](auto& province) {
         // Reset remaining supplies
         province->supply_rem = province->supply_limit;
@@ -404,6 +407,10 @@ void Economy::do_phase_1(World& world) {
 * be ready for POPs to buy
  */
 void Economy::do_phase_2(World& world) {
+    std::lock_guard l1(world.products_mutex);
+    std::lock_guard l2(world.nations_mutex);
+    std::lock_guard l3(world.provinces_mutex);
+
     while(world.delivers.size() && world.orders.size()) {
         // We will check all transport companies; they will transport in a first-come first-serve fashion
         for(auto& company: world.companies) {
@@ -592,7 +599,9 @@ void Economy::do_phase_3(World& world) {
     std::vector<Emigrated> emigration = std::vector<Emigrated>();
 
     srand(time(NULL));
-    
+
+    std::lock_guard l1(world.provinces_mutex);
+    std::lock_guard l2(world.products_mutex);
     ThreadPool::for_each(world.provinces.begin(), world.provinces.end(), [&emigration_lock, &emigration, &world](auto& province) {
         if(province->owner == nullptr) {
             return;
@@ -897,6 +906,7 @@ void Economy::do_phase_3(World& world) {
     // We will now post a job request so the next economic tick will be able to "link industries"
     // with their workers and make a somewhat realistic economy
     world.job_requests_mutex.lock();
+    std::lock_guard l3(world.job_requests_mutex);
     world.job_requests.clear();
     for(const auto& province: world.provinces) {
         for(auto& pop: province->pops) {
@@ -933,6 +943,7 @@ void Economy::do_phase_4(World& world) {
     // Preparations for the next tick
 
     // Reset production costs
+    std::lock_guard l1(world.provinces_mutex);
     for(const auto& province: world.provinces) {
         for(auto& industry: province->industries) {
             industry.production_cost = 0.f;
@@ -940,6 +951,7 @@ void Economy::do_phase_4(World& world) {
     }
 
     // Close today's price with a change according to demand - supply
+    std::lock_guard l2(world.products_mutex);
     for(const auto& product: world.products) {
         // Uncomment to see supply-demand
         //if(product->price_vel)
