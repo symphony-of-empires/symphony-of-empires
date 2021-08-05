@@ -728,6 +728,17 @@ void Client::net_loop(void) {
                         ::deserialize(ar, province);
                     }
                     break;
+                case ACTION_PRODUCT_UPDATE:
+                    {
+                        std::lock_guard<std::recursive_mutex> lock(g_world->products_mutex);
+
+                        Product* product;
+                        ::deserialize(ar, &product);
+                        if(product == nullptr)
+                            throw ClientException("Unknown product");
+                        ::deserialize(ar, product);
+                    }
+                    break;
                 case ACTION_UNIT_UPDATE:
                 print_info("ACTION_UNIT_UPDATE");
                     {
@@ -812,7 +823,10 @@ void Client::net_loop(void) {
                     }
                     break;
                 case ACTION_WORLD_TICK:
-                    ::deserialize(ar, &g_world->time);
+                    {
+                        std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
+                        ::deserialize(ar, &g_world->time);
+                    }
                     break;
                 default:
                     break;

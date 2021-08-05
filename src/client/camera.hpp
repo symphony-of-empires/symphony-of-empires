@@ -9,11 +9,20 @@
 
 class Camera {
 public:
+<<<<<<< HEAD
     glm::vec3 position, velocity;
+=======
+    glm::vec3 position;
+    glm::vec3 velocity;
+>>>>>>> 74206895404c8a264b574d89a5b17ce3511c2d07
     float fov = 45.0f;
     float near_plane = 1.0f;  
     float far_plane = 1024.0f;
     glm::vec2 screen_size;
+<<<<<<< HEAD
+=======
+    glm::vec3 position, velocity;
+>>>>>>> 74206895404c8a264b574d89a5b17ce3511c2d07
     float z_angle, vz_angle;
 
     Camera(int width, int height) {
