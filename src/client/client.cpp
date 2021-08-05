@@ -538,8 +538,8 @@ void select_nation(void) {
     run = true;
     
     std::pair<float, float> select_pos;
-		bool middle_mouse_down = false;
-		std::pair<float, float> last_camera_drag_pos;
+        bool middle_mouse_down = false;
+        std::pair<float, float> last_camera_drag_pos;
     
     UI::Button* select_country_btn = new UI::Button((width / 2) - (320 / 2), 8, 320, 38);
     select_country_btn->text("Select a country");
@@ -588,17 +588,18 @@ void select_nation(void) {
             case SDL_MOUSEBUTTONDOWN:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
                 ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
-								if (event.button.button == SDL_BUTTON_MIDDLE) {
-									middle_mouse_down = true;
-									last_camera_drag_pos = cam.get_map_pos(mouse_pos);
-								}
+                if(event.button.button == SDL_BUTTON_MIDDLE) {
+                    middle_mouse_down = true;
+                    last_camera_drag_pos = cam.get_map_pos(mouse_pos);
+                }
                 break;
             case SDL_MOUSEBUTTONUP:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-								if (event.button.button == SDL_BUTTON_MIDDLE) {
-									middle_mouse_down = false;
-									break;
-								}
+                if(event.button.button == SDL_BUTTON_MIDDLE) {
+                    middle_mouse_down = false;
+                    break;
+                }
+
                 click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
                 if(old_mode != current_mode) {
                     delete next_country_btn;
@@ -779,13 +780,12 @@ void select_nation(void) {
             case SDL_MOUSEMOTION:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
                 ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
-								if (middle_mouse_down) { // Drag the map with middlemouse
-									std::pair<float, float> map_pos = cam.get_map_pos(mouse_pos);
-									cam.position.x += last_camera_drag_pos.first - map_pos.first; 
-									cam.position.y += last_camera_drag_pos.second - map_pos.second; 
-								}
-
-								select_pos = cam.get_map_pos(mouse_pos);
+                if(middle_mouse_down) { // Drag the map with middlemouse
+                    std::pair<float, float> map_pos = cam.get_map_pos(mouse_pos);
+                    cam.position.x += last_camera_drag_pos.first - map_pos.first; 
+                    cam.position.y += last_camera_drag_pos.second - map_pos.second; 
+                }
+                select_pos = cam.get_map_pos(mouse_pos);
                 break;
             case SDL_MOUSEWHEEL:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -982,10 +982,10 @@ void select_nation(void) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glPushMatrix();
         glMatrixMode(GL_PROJECTION);
-				glLoadMatrixf(glm::value_ptr(cam.get_projection()));
+        glLoadMatrixf(glm::value_ptr(cam.get_projection()));
         glViewport(0, 0, width, height);
         glMatrixMode(GL_MODELVIEW);
-				glLoadMatrixf(glm::value_ptr(cam.get_view()));
+        glLoadMatrixf(glm::value_ptr(cam.get_view()));
 
         map->draw(cam, width, height);
 
@@ -1173,15 +1173,15 @@ void client_main(int argc, char** argv) {
     g_texture_manager = new TextureManager();
     ui_ctx = new UI::Context();
 
-		GLenum err = glewInit();
-		if (err != GLEW_OK)
-      throw std::runtime_error("Failed to init GLEW");
+    GLenum err = glewInit();
+    if(err != GLEW_OK)
+        throw std::runtime_error("Failed to init GLEW");
 
-		if (glewIsSupported("GL_VERSION_3_0")) {
-			printf("SHADER READY HARDWARE");
-			unsigned int vertexShader;
-			vertexShader = glCreateShader(GL_VERTEX_SHADER);
-		}
+    if(glewIsSupported("GL_VERSION_3_0")) {
+        printf("SHADER READY HARDWARE");
+        unsigned int vertexShader;
+        vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    }
 
     std::string server_addr;
     if(argc > 1) {
