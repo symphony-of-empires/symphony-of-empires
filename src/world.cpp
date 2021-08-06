@@ -170,6 +170,10 @@ World::~World() {
         delete boat_type;
     } for(auto& product: products) {
         delete product;
+    } for(auto& boat: boats) {
+        delete boat;
+    } for(auto& unit: units) {
+        delete unit;
     }
 }
 
@@ -497,7 +501,25 @@ void World::do_tick() {
     // 12:00
     case 24:
         Economy::do_phase_3(*this);
+
+        products_mutex.lock();
+        for(const auto& product: g_world->products) {
+            // Broadcast to clients
+            Packet packet = Packet();
+            Archive ar = Archive();
+                
+            enum ActionType action = ACTION_PRODUCT_UPDATE;
+            ::serialize(ar, &action);
+
+            ::serialize(ar, &product); // ProductRef
+            ::serialize(ar, product); // ProductObj
+                
+            packet.data(ar.get_buffer(), ar.size());
+            g_server->broadcast(packet);
+        }
+        products_mutex.unlock();
         
+        nations_mutex.lock();
         for(auto& nation: this->nations) {
             float economy_score = 0.f;
             for(const auto& province: nation->owned_provinces) {
@@ -513,6 +535,7 @@ void World::do_tick() {
             }
             nation->economy_score = economy_score / 100.f;
         }
+        nations_mutex.unlock();
         break;
     // 18:00
     case 36:
@@ -616,30 +639,34 @@ void World::do_tick() {
             }
         }
 
-        float new_tx, new_ty;
-        new_tx = unit->tx;
-        new_ty = unit->ty;
+        // This code stops the "wiggly" movement due to floating point differences
+        if((unit->x != unit->tx || unit->y != unit->ty)
+        && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
+            float end_x, end_y;
+            const float speed = 0.1f;
 
-        if(new_tx == unit->x && new_ty == unit->y) {
-            continue;
+            end_x = unit->x;
+            end_y = unit->y;
+            
+            // Move towards target
+            if(unit->x > unit->tx)
+                end_x -= speed;
+            else if(unit->x < unit->tx)
+                end_x += speed;
+
+            if(unit->y > unit->ty)
+                end_y -= speed;
+            else if(unit->y < unit->ty)
+                end_y += speed;
+            
+            // Boats cannot go on land
+            if(get_tile(end_x, end_y).elevation > sea_level) {
+                continue;
+            }
+
+            unit->x = end_x;
+            unit->y = end_y;
         }
-
-        float end_x, end_y;
-        const float speed = 0.1f;
-
-        end_x = unit->x;
-        end_y = unit->y;
-
-        // Move towards target
-        if(unit->x > new_tx)
-            end_x -= speed;
-        else if(unit->x < new_tx)
-            end_x += speed;
-
-        if(unit->y > new_ty)
-            end_y -= speed;
-        else if(unit->y < new_ty)
-            end_y += speed;
         
         // Make the unit attack automatically
         // and we must be at war with the owner of this unit to be able to attack the unit
@@ -680,14 +707,6 @@ void World::do_tick() {
             // Deal the damage
             enemy->size -= damage_dealt;
         }
-
-        // Boats cannot go on land
-        if(get_tile(end_x, end_y).elevation > sea_level) {
-            continue;
-        }
-
-        unit->x = end_x;
-        unit->y = end_y;
 
         // North and south do not wrap
         unit->y = std::max<float>(0.f, unit->y);
@@ -775,30 +794,33 @@ void World::do_tick() {
             }
         }
 
-        float new_tx, new_ty;
-        new_tx = unit->tx;
-        new_ty = unit->ty;
+        if((unit->x != unit->tx || unit->y != unit->ty)
+        && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
+            float end_x, end_y;
+            const float speed = 0.1f;
 
-        if(new_tx == unit->x && new_ty == unit->y) {
-            continue;
+            end_x = unit->x;
+            end_y = unit->y;
+
+            // Move towards target
+            if(unit->x > unit->tx)
+                end_x -= speed;
+            else if(unit->x < unit->tx)
+                end_x += speed;
+
+            if(unit->y > unit->ty)
+                end_y -= speed;
+            else if(unit->y < unit->ty)
+                end_y += speed;
+            
+            // This code prevents us from stepping onto water tiles (but allows for rivers)
+            if(get_tile(end_x, end_y).elevation <= sea_level) {
+                continue;
+            }
+
+            unit->x = end_x;
+            unit->y = end_y;
         }
-
-        float end_x, end_y;
-        const float speed = 0.1f;
-
-        end_x = unit->x;
-        end_y = unit->y;
-
-        // Move towards target
-        if(unit->x > new_tx)
-            end_x -= speed;
-        else if(unit->x < new_tx)
-            end_x += speed;
-
-        if(unit->y > new_ty)
-            end_y -= speed;
-        else if(unit->y < new_ty)
-            end_y += speed;
         
         // Make the unit attack automatically
         // and we must be at war with the owner of this unit to be able to attack the unit
@@ -913,14 +935,6 @@ void World::do_tick() {
             }
         }
 
-        // This code prevents us from stepping onto water tiles (but allows for rivers)
-        if(get_tile(end_x, end_y).elevation <= sea_level) {
-            continue;
-        }
-
-        unit->x = end_x;
-        unit->y = end_y;
-
         // North and south do not wrap
         unit->y = std::max<float>(0.f, unit->y);
         unit->y = std::min<float>(height, unit->y);
@@ -970,9 +984,59 @@ void World::do_tick() {
 
         if(!is_on_effect)
             continue;
+
+        // And also check that there is atleast 1 clause that is on effect
+        for(const auto& clause: treaty->clauses) {
+            switch(clause->type) {
+            case TREATY_CLAUSE_WAR_REPARATIONS:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::WarReparations*>(clause);
+                    is_on_effect = dyn_clause->in_effect();
+                }
+                break;
+            case TREATY_CLAUSE_ANEXX_PROVINCES:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::AnexxProvince*>(clause);
+                    is_on_effect = dyn_clause->in_effect();
+                }
+                break;
+            case TREATY_CLAUSE_LIBERATE_NATION:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::LiberateNation*>(clause);
+                    is_on_effect = dyn_clause->in_effect();
+                }
+                break;
+            case TREATY_CLAUSE_HUMILIATE:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::Humiliate*>(clause);
+                    is_on_effect = dyn_clause->in_effect();
+                }
+                break;
+            case TREATY_CLAUSE_IMPOSE_POLICIES:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::ImposePolicies*>(clause);
+                    is_on_effect = dyn_clause->in_effect();
+                }
+                break;
+            case TREATY_CLAUSE_CEASEFIRE:
+                {
+                    auto dyn_clause = dynamic_cast<TreatyClause::Ceasefire*>(clause);
+                    is_on_effect = dyn_clause->in_effect();
+                }
+                break;
+            default:
+                break;
+            }
+
+            if(is_on_effect) {
+                break;
+            }
+        }
+        if(!is_on_effect)
+            continue;
         
         // Treaties clauses now will be enforced
-        print_info("Enforcing treaty");
+        print_info("Enforcing treaty %s", treaty->name.c_str());
         for(auto& clause: treaty->clauses) {
             switch(clause->type) {
             case TREATY_CLAUSE_WAR_REPARATIONS:
@@ -1142,16 +1206,14 @@ size_t World::get_id(const Tile* ptr) const {
 // Obtains a tile from the world safely, and makes sure that it is in bounds
 Tile& World::get_tile(size_t x, size_t y) const {
     std::lock_guard<std::recursive_mutex> lock(tiles_mutex);
-    if(x >= width || y >= height) {
+    if(x >= width || y >= height)
         throw std::runtime_error("Tile out of bounds");
-    }
     return tiles[x + y * width];
 }
 
 Tile& World::get_tile(size_t idx) const {
     std::lock_guard<std::recursive_mutex> lock(tiles_mutex);
-    if(idx >= width * height) {
+    if(idx >= width * height)
         throw std::runtime_error("Tile index exceeds boundaries");
-    }
     return tiles[idx];
 }

@@ -88,7 +88,6 @@ int main(int argc, char** argv) {
                 }
                 future = std::async(std::launch::async, async_get_input);
             }
-            
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
         

@@ -125,10 +125,11 @@ void ui_treaty(void) {
         
         y += 24;
         list_btn = new UI::Button(9, y, 303, 38, new_clause_win);
-        list_btn->text("TREATY_CLAUSE_WAR_REPARATIONS");
+        list_btn->text("War reparations");
         list_btn->on_click = [](UI::Widget&, void* data) {
             std::lock_guard<std::mutex> lock(g_treaty_draft_mutex);
             TreatyClause::WarReparations* clause = new TreatyClause::WarReparations();
+            clause->type = TREATY_CLAUSE_WAR_REPARATIONS;
             clause->sender = curr_nation;
             clause->receiver = recv_nation;
             clause->amount = 5000.f;
@@ -138,32 +139,31 @@ void ui_treaty(void) {
         y += 38 + 2;
 
         list_btn = new UI::Button(9, y, 303, 38, new_clause_win);
-        list_btn->text("TREATY_CLAUSE_HUMILIATE");
+        list_btn->text("Humiliate");
         list_btn->on_click = [](UI::Widget&, void* data) {
             
         };
         y += 38 + 2;
 
         list_btn = new UI::Button(9, y, 303, 38, new_clause_win);
-        list_btn->text("TREATY_CLAUSE_LIBERATE_NATION");
+        list_btn->text("Liberate nation");
         list_btn->on_click = [](UI::Widget&, void* data) {
             
         };
         y += 38 + 2;
 
         list_btn = new UI::Button(9, y, 303, 38, new_clause_win);
-        list_btn->text("TREATY_CLAUSE_IMPOSE_POLICIES");
+        list_btn->text("Impose policies");
         list_btn->on_click = [](UI::Widget&, void* data) {
             
         };
         y += 38 + 2;
 
         list_btn = new UI::Button(9, y, 303, 38, new_clause_win);
-        list_btn->text("TREATY_CLAUSE_ANEXX_PROVINCES");
+        list_btn->text("Annex provinces");
         list_btn->on_click = [](UI::Widget& w, void* data) {
-            if(recv_nation->owned_provinces.empty()) {
+            if(recv_nation->owned_provinces.empty())
                 return;
-            }
             
             UI::Window* per_clause_win = new UI::Window(0, 0, 320, 425);
             per_clause_win->text("Add new clause");
@@ -178,7 +178,9 @@ void ui_treaty(void) {
                 list_btn->user_data = (void*)province;
                 list_btn->on_click = [](UI::Widget& w, void* data) {
                     std::lock_guard<std::mutex> lock(g_treaty_draft_mutex);
+
                     TreatyClause::AnexxProvince* clause = new TreatyClause::AnexxProvince();
+                    clause->type = TREATY_CLAUSE_ANEXX_PROVINCES;
                     clause->provinces.push_back((Province*)w.user_data);
                     clause->sender = curr_nation;
                     clause->receiver = recv_nation;
@@ -191,7 +193,7 @@ void ui_treaty(void) {
         y += 38 + 2;
 
         list_btn = new UI::Button(9, y, 303, 38, new_clause_win);
-        list_btn->text("TREATY_CLAUSE_CEASEFIRE");
+        list_btn->text("Ceasefire");
         list_btn->on_click = [](UI::Widget&, void* data) {
             
         };

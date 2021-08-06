@@ -33,7 +33,7 @@ namespace Diplomacy {
 
 using namespace TreatyClause;
 unsigned WarReparations::cost(void) {
-    return (receiver->economy_score* (amount* days_duration)) / 100;
+    return (receiver->economy_score * (amount* days_duration)) / 100;
 }
 void WarReparations::enforce(void) {
     sender->prestige += 0.0001f;
@@ -47,7 +47,7 @@ bool WarReparations::in_effect(void) {
 }
 
 unsigned Humiliate::cost(void) {
-    return (receiver->prestige* (amount* days_duration)) / 100;
+    return (receiver->prestige * (amount* days_duration)) / 100;
 }
 void Humiliate::enforce(void) {
     sender->prestige += amount;
@@ -63,12 +63,12 @@ unsigned LiberateNation::cost(void) {
     for(const auto& province: provinces) {
         value += province->budget* province->total_pops();
     }
-    return value* 0.00001f;
+    return value * 0.00001f;
 }
 void LiberateNation::enforce(void) {
     // Reduce prestige due to lost lands
-    sender->prestige += cost()* 0.0000025f;
-    receiver->prestige -= cost()* 0.000005f;
+    sender->prestige += cost() * 0.0000025f;
+    receiver->prestige -= cost() * 0.000005f;
     
     // Give provinces to this liberated nation
     for(auto& province: provinces) {
@@ -79,7 +79,7 @@ void LiberateNation::enforce(void) {
     done = true;
 }
 bool LiberateNation::in_effect(void) {
-    return done;
+    return !done;
 }
 
 unsigned ImposePolicies::cost(void) {
@@ -90,30 +90,41 @@ void ImposePolicies::enforce(void) {
     done = true;
 }
 bool ImposePolicies::in_effect(void) {
-    return done;
+    return !done;
 }
 
+#include "print.hpp"
 unsigned AnexxProvince::cost(void) {
     size_t value = 0;
     for(const auto& province: provinces) {
         value += province->budget + province->total_pops();
     }
-    return value* 0.000001f;
+    return value * 0.000001f;
 }
 void AnexxProvince::enforce(void) {
-    sender->prestige += cost()* 0.0000025f;
-    receiver->prestige -= cost()* 0.000005f;
+    sender->prestige += cost() * 0.0000025f;
+    receiver->prestige -= cost() * 0.000005f;
     
     // Give provinces to the winner
     for(auto& province: provinces) {
+        print_info("Giving %s to %s (originally from %s)", province->name.c_str(), sender->name.c_str(), receiver->name.c_str());
+
         province->owner = sender;
+
+        // Add to sender's owned provinces list and remove from
+        // original owner
+        sender->owned_provinces.insert(province);
+        const auto it = receiver->owned_provinces.find(province);
+        if(it != receiver->owned_provinces.end()) {
+            receiver->owned_provinces.erase(it);
+        }
     }
     
     // One-time clause
     done = true;
 }
 bool AnexxProvince::in_effect(void) {
-    return done;
+    return !done;
 }
 
 unsigned Ceasefire::cost() {
