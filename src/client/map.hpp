@@ -37,7 +37,7 @@ public:
     const Texture* overlay_tex;
     GLuint coastline_gl_list;
 
-    void draw_flag(const Nation* nation, int x, int y);
+    void draw_flag(const Nation* nation, float x, float y);
     void draw(Camera& cam, const int width, const int height);
 };
 

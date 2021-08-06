@@ -44,7 +44,7 @@ Map::Map(const World& _world) : world(_world) {
     topo_tex->to_opengl();
 }
 
-void Map::draw_flag(const Nation* nation, int x, int y) {
+void Map::draw_flag(const Nation* nation, float x, float y) {
     glBindTexture(GL_TEXTURE_2D, 0);
     glBegin(GL_LINE_STRIP);
         glColor3f(1.f, 1.f, 1.f);
