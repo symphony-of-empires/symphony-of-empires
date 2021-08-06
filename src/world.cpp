@@ -635,30 +635,34 @@ void World::do_tick() {
             }
         }
 
-        float new_tx, new_ty;
-        new_tx = unit->tx;
-        new_ty = unit->ty;
+        // This code stops the "wiggly" movement due to floating point differences
+        if((unit->x != unit->tx || unit->y != unit->ty)
+        && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
+            float end_x, end_y;
+            const float speed = 0.1f;
 
-        if(new_tx == unit->x && new_ty == unit->y) {
-            continue;
+            end_x = unit->x;
+            end_y = unit->y;
+            
+            // Move towards target
+            if(unit->x > unit->tx)
+                end_x -= speed;
+            else if(unit->x < unit->tx)
+                end_x += speed;
+
+            if(unit->y > unit->ty)
+                end_y -= speed;
+            else if(unit->y < unit->ty)
+                end_y += speed;
+            
+            // Boats cannot go on land
+            if(get_tile(end_x, end_y).elevation > sea_level) {
+                continue;
+            }
+
+            unit->x = end_x;
+            unit->y = end_y;
         }
-
-        float end_x, end_y;
-        const float speed = 0.1f;
-
-        end_x = unit->x;
-        end_y = unit->y;
-
-        // Move towards target
-        if(unit->x > new_tx)
-            end_x -= speed;
-        else if(unit->x < new_tx)
-            end_x += speed;
-
-        if(unit->y > new_ty)
-            end_y -= speed;
-        else if(unit->y < new_ty)
-            end_y += speed;
         
         // Make the unit attack automatically
         // and we must be at war with the owner of this unit to be able to attack the unit
@@ -699,14 +703,6 @@ void World::do_tick() {
             // Deal the damage
             enemy->size -= damage_dealt;
         }
-
-        // Boats cannot go on land
-        if(get_tile(end_x, end_y).elevation > sea_level) {
-            continue;
-        }
-
-        unit->x = end_x;
-        unit->y = end_y;
 
         // North and south do not wrap
         unit->y = std::max<float>(0.f, unit->y);
@@ -794,30 +790,33 @@ void World::do_tick() {
             }
         }
 
-        float new_tx, new_ty;
-        new_tx = unit->tx;
-        new_ty = unit->ty;
+        if((unit->x != unit->tx || unit->y != unit->ty)
+        && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
+            float end_x, end_y;
+            const float speed = 0.1f;
 
-        if(new_tx == unit->x && new_ty == unit->y) {
-            continue;
+            end_x = unit->x;
+            end_y = unit->y;
+
+            // Move towards target
+            if(unit->x > unit->tx)
+                end_x -= speed;
+            else if(unit->x < unit->tx)
+                end_x += speed;
+
+            if(unit->y > unit->ty)
+                end_y -= speed;
+            else if(unit->y < unit->ty)
+                end_y += speed;
+            
+            // This code prevents us from stepping onto water tiles (but allows for rivers)
+            if(get_tile(end_x, end_y).elevation <= sea_level) {
+                continue;
+            }
+
+            unit->x = end_x;
+            unit->y = end_y;
         }
-
-        float end_x, end_y;
-        const float speed = 0.1f;
-
-        end_x = unit->x;
-        end_y = unit->y;
-
-        // Move towards target
-        if(unit->x > new_tx)
-            end_x -= speed;
-        else if(unit->x < new_tx)
-            end_x += speed;
-
-        if(unit->y > new_ty)
-            end_y -= speed;
-        else if(unit->y < new_ty)
-            end_y += speed;
         
         // Make the unit attack automatically
         // and we must be at war with the owner of this unit to be able to attack the unit
@@ -931,14 +930,6 @@ void World::do_tick() {
                 }
             }
         }
-
-        // This code prevents us from stepping onto water tiles (but allows for rivers)
-        if(get_tile(end_x, end_y).elevation <= sea_level) {
-            continue;
-        }
-
-        unit->x = end_x;
-        unit->y = end_y;
 
         // North and south do not wrap
         unit->y = std::max<float>(0.f, unit->y);
