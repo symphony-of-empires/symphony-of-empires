@@ -612,20 +612,33 @@ void select_nation(void) {
     g_world->client_update = &client_update;
 
     for(const auto& nation: g_world->nations) {
-        std::string pt = "ui/flags/" + nation->ref_name + "_monarchy.png";
-        map->nation_flags.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+        std::string path = Path::get("ui/flags/" + nation->ref_name + "_monarchy.png");
+        FILE* fp;
+
+        // try monarchy
+        fp = fopen(path.c_str(), "rb");
+        if(fp == NULL) {
+            // try democracy
+            path = Path::get("ui/flags/" + nation->ref_name + "_democracy.png");
+            fp = fopen(path.c_str(), "rb");
+            if(fp == NULL) {
+                // fail
+            }
+        }
+
+        map->nation_flags.push_back(&g_texture_manager->load_texture(path.c_str()));
     }
     for(const auto& outpost_type: g_world->outpost_types) {
-        std::string pt = "ui/icons/outpost_types/" + outpost_type->ref_name + ".png";
-        map->outpost_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+        std::string path = Path::get("ui/icons/outpost_types/" + outpost_type->ref_name + ".png");
+        map->outpost_type_icons.push_back(&g_texture_manager->load_texture(path.c_str()));
     }
     for(const auto& boat_type: g_world->boat_types) {
-        std::string pt = "ui/icons/boat_types/" + boat_type->ref_name + ".png";
-        map->boat_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+        std::string path = Path::get("ui/icons/boat_types/" + boat_type->ref_name + ".png");
+        map->boat_type_icons.push_back(&g_texture_manager->load_texture(path.c_str()));
     }
     for(const auto& unit_type: g_world->unit_types) {
-        std::string pt = "ui/icons/unit_types/" + unit_type->ref_name + ".png";
-        map->unit_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+        std::string path = Path::get("ui/icons/unit_types/" + unit_type->ref_name + ".png");
+        map->unit_type_icons.push_back(&g_texture_manager->load_texture(path.c_str()));
     }
     
     cam.position.x = 0.f;
