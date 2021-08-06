@@ -726,6 +726,7 @@ void select_nation(void) {
                     delete next_country_btn;
                     delete prev_country_btn;
                     delete play_btn;
+                    delete select_country_btn;
                     delete curr_country_btn;
                 }
 
