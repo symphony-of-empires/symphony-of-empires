@@ -170,6 +170,10 @@ World::~World() {
         delete boat_type;
     } for(auto& product: products) {
         delete product;
+    } for(auto& boat: boats) {
+        delete boat;
+    } for(auto& unit: units) {
+        delete unit;
     }
 }
 
