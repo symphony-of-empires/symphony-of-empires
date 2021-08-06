@@ -1206,16 +1206,14 @@ size_t World::get_id(const Tile* ptr) const {
 // Obtains a tile from the world safely, and makes sure that it is in bounds
 Tile& World::get_tile(size_t x, size_t y) const {
     std::lock_guard<std::recursive_mutex> lock(tiles_mutex);
-    if(x >= width || y >= height) {
+    if(x >= width || y >= height)
         throw std::runtime_error("Tile out of bounds");
-    }
     return tiles[x + y * width];
 }
 
 Tile& World::get_tile(size_t idx) const {
     std::lock_guard<std::recursive_mutex> lock(tiles_mutex);
-    if(idx >= width * height) {
+    if(idx >= width * height)
         throw std::runtime_error("Tile index exceeds boundaries");
-    }
     return tiles[idx];
 }

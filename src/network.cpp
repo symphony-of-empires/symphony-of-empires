@@ -357,7 +357,7 @@ void Server::net_loop(int id) {
                                 throw ServerException("Outpost out of range");
                             
                             // Outposts can only be built on owned land or on shores
-                            if(g_world->nations[g_world->get_tile(outpost->x, outpost->y).owner_id] != selected_nation
+                            if(g_world->get_tile(outpost->x, outpost->y).owner_id != g_world->get_id(selected_nation)
                             && g_world->get_tile(outpost->x, outpost->y).elevation > g_world->sea_level)
                                 throw ServerException("Outpost cannot be built on foreign land");
 
