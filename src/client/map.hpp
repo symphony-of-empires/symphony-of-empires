@@ -22,23 +22,23 @@ private:
 public:
     Map(const World& world);
 
-    const World& world;
-    std::vector<ProvinceShape> province_shapes;
-
     std::vector<const Texture*> unit_type_icons;
     std::vector<const Texture*> boat_type_icons;
     std::vector<const Texture*> outpost_type_icons;
     std::vector<const Texture*> nation_flags;
 
-    void draw_flag(const Texture* flag, int x, int y);
-    void draw(Camera& cam, const int width, const int height);
-
     // Wind oscillator (for flags)
     float wind_osc;
+
+    const World& world;
+    std::vector<ProvinceShape> province_shapes;
     
     Texture* topo_tex;
     const Texture* overlay_tex;
     GLuint coastline_gl_list;
+
+    void draw_flag(const Nation* nation, int x, int y);
+    void draw(Camera& cam, const int width, const int height);
 };
 
 class ProvinceShape {
