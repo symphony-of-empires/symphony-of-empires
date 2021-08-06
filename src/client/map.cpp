@@ -68,7 +68,7 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
         glTexCoord2f((r / step) / n_steps, 0.f);
         glVertex3f(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -2.f);
 
-        sin_r = sin(r + wind_osc + 245.f) / 24.f;
+        sin_r = sin(r + wind_osc + 90.f) / 24.f;
         glColor3f((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f);
         glTexCoord2f((r / step) / n_steps, 1.f);
         glVertex3f(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -1.f);
@@ -78,7 +78,7 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
 
 extern TextureManager* g_texture_manager;
 void Map::draw(Camera& cam, const int width, const int height) {
-    wind_osc += 0.2f;
+    wind_osc += 0.1f;
     if(wind_osc >= 180.f)
         wind_osc = 0.f;
 
@@ -128,7 +128,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
         }
         glBindTexture(GL_TEXTURE_2D, boat_type_icons[world.get_id(boat->type)]->gl_tex_num);
         glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
+            glColor3f(1.f, 1.f, 1.f);
             glTexCoord2f(0.f, 0.f);
             glVertex2f(boat->x, boat->y);
             glTexCoord2f(1.f, 0.f);
@@ -160,7 +160,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
 
         glBindTexture(GL_TEXTURE_2D, unit_type_icons[world.get_id(unit->type)]->gl_tex_num);
         glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
+            glColor3f(1.f, 1.f, 1.f);
             glTexCoord2f(0.f, 0.f);
             glVertex2f(unit->x, unit->y);
             glTexCoord2f(1.f, 0.f);
@@ -180,7 +180,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
         const float size = 1.f;
         glBindTexture(GL_TEXTURE_2D, outpost_type_icons[world.get_id(outpost->type)]->gl_tex_num);
         glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
+            glColor3f(1.f, 1.f, 1.f);
             glTexCoord2f(0.f, 0.f);
             glVertex2f(outpost->x, outpost->y);
             glTexCoord2f(1.f, 0.f);
