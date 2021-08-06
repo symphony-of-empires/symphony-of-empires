@@ -28,7 +28,7 @@ public:
     std::vector<const Texture*> nation_flags;
 
     // Wind oscillator (for flags)
-    float wind_osc;
+    float wind_osc = 0.f;
 
     const World& world;
     std::vector<ProvinceShape> province_shapes;

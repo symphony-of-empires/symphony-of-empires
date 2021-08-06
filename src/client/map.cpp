@@ -78,7 +78,9 @@ void Map::draw_flag(const Nation* nation, int x, int y) {
 
 extern TextureManager* g_texture_manager;
 void Map::draw(Camera& cam, const int width, const int height) {
-    wind_osc += 0.05f;
+    wind_osc += 0.2f;
+    if(wind_osc >= 180.f)
+        wind_osc = 0.f;
 
     // Topo map texture
     glBindTexture(GL_TEXTURE_2D, topo_tex->gl_tex_num);

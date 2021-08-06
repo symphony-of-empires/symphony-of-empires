@@ -196,6 +196,7 @@ static void pop_view_nation(UI::Widget&, void *) {
 
 static UI::Window* industry_view_nation_win = nullptr;
 static uint8_t industry_view_nation_page_num = 0;
+
 static void industry_view_nation(UI::Widget&, void *) {
     // Do not make duplicate windows
     if(industry_view_nation_win != nullptr) {
