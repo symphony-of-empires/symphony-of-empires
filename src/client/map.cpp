@@ -65,12 +65,12 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
 
         sin_r = sin(r + wind_osc) / 24.f;
         glColor3f((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f);
-        glTexCoord2f((r / step) / n_steps, 1.f);
+        glTexCoord2f((r / step) / n_steps, 0.f);
         glVertex3f(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -2.f);
 
         sin_r = sin(r + wind_osc + 245.f) / 24.f;
         glColor3f((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f);
-        glTexCoord2f((r / step) / n_steps, 0.f);
+        glTexCoord2f((r / step) / n_steps, 1.f);
         glVertex3f(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -1.f);
     }
     glEnd();
