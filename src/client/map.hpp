@@ -25,10 +25,16 @@ private:
 public:
     Map(const World& world);
 
+    std::vector<const Texture*> unit_type_icons;
+    std::vector<const Texture*> boat_type_icons;
+    std::vector<const Texture*> outpost_type_icons;
+    std::vector<const Texture*> nation_flags;
+
+    // Wind oscillator (for flags)
+    float wind_osc = 0.f;
+
     const World& world;
     std::vector<ProvinceShape> province_shapes;
-    void draw(Camera& cam, const int width, const int height);
-    void draw_old(Camera& cam, const int width, const int height);
     
     Texture* div_topo_tex;
     Quad* map_quad;
@@ -37,6 +43,10 @@ public:
     const Texture* terrain_sheet_tex;
     const Texture* overlay_tex;
     GLuint coastline_gl_list;
+
+    void draw_flag(const Nation* nation, float x, float y);
+    void draw(Camera& cam, const int width, const int height);
+    void draw_old(Camera& cam, const int width, const int height);
 };
 
 class ProvinceShape {

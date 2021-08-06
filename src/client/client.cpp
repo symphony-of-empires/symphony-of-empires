@@ -70,6 +70,7 @@ MapMode current_mode = MAP_MODE_COUNTRY_SELECT;
 
 static Nation::Id curr_selected_nation = 0;
 Nation* curr_nation = nullptr;
+char* tmpbuf;
 
 static void change_country(size_t id) {
     size_t old_id = curr_selected_nation;
@@ -121,6 +122,7 @@ static UI::Label* money_lab,* prestige_lab,* economy_lab,* big_brain_lab,* milit
 static UI::Image* money_icon,* prestige_icon,* economy_icon,* big_brain_icon,* militancy_icon,* population_icon;
 static UI::Window* pop_view_nation_win = nullptr;
 static uint8_t pop_view_nation_page_num = 0;
+
 static void pop_view_nation(UI::Widget&, void *) {
     // Do not make duplicate windows
     if(pop_view_nation_win != nullptr) {
@@ -129,13 +131,11 @@ static void pop_view_nation(UI::Widget&, void *) {
     
     // View the provinces in a country - along with the population in them
     pop_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, 609, 476);
-    
-    char* tmpbuf = new char[255];
+
     sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
     pop_view_nation_win->text(tmpbuf);
-    delete[] tmpbuf;
     
-    UI::Button* ok_btn = new UI::Button(9, 413, 173, 51, pop_view_nation_win);
+    UI::Button* ok_btn = new UI::Button(0, 413, 173, 51, pop_view_nation_win);
     ok_btn->text("OK");
     ok_btn->on_click = [](UI::Widget& w, void *) {
         pop_view_nation_win = nullptr;
@@ -145,30 +145,58 @@ static void pop_view_nation(UI::Widget&, void *) {
     UI::Button* prev_btn = new UI::Button(193, 413, 173, 51, pop_view_nation_win);
     prev_btn->text("Previous");
     prev_btn->on_click = [](UI::Widget&, void *) {
-        char* tmpbuf = new char[255];
         pop_view_nation_page_num--;
         sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
         pop_view_nation_win->text(tmpbuf);
-        delete[] tmpbuf;
     };
     
     UI::Button* next_btn = new UI::Button(377, 413, 173, 51, pop_view_nation_win);
     next_btn->text("Next");
     next_btn->on_click = [](UI::Widget&, void *) {
-        char* tmpbuf = new char[255];
         pop_view_nation_page_num++;
         sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
         pop_view_nation_win->text(tmpbuf);
-        delete[] tmpbuf;
     };
     
-    for(size_t i = 0; i < 12; i++) {
-        UI::Label* lab = new UI::Label(9, 43 + (i * 28), "?", pop_view_nation_win);
+    for(size_t i = 0; i < 8; i++) {
+        UI::Button* elem = new UI::Button(0, 32 + (i * 38), pop_view_nation_win->width, 38, pop_view_nation_win);
     }
+
+    pop_view_nation_win->on_update = ([](UI::Widget& w, void*) {
+        size_t e = pop_view_nation_page_num * 8, i = 3;
+        size_t cnt = 0;
+        size_t total_pops = 0;
+        for(const auto& province: curr_nation->owned_provinces) {
+            total_pops += province->pops.size();
+        }
+
+        for(const auto& province: curr_nation->owned_provinces) {
+            for(const auto& pop: province->pops) {
+                if(cnt < pop_view_nation_page_num * 8) {
+                    cnt++;
+                    continue;
+                }
+
+                if(e < total_pops) {
+                    sprintf(tmpbuf, "%s %zu %s %s %s %.2f$ %2.2f", province->name.c_str(), pop.size, g_world->cultures[pop.culture_id]->name.c_str(), g_world->religions[pop.religion_id]->name.c_str(), g_world->pop_types[pop.type_id]->name.c_str(), pop.budget, pop.life_needs_met);
+                    w.children[i]->text(tmpbuf);
+                } else {
+                    sprintf(tmpbuf, " ");
+                    w.children[i]->text(tmpbuf);
+                }
+                e++; i++;
+                if(i >= w.children.size())
+                    break;
+            }
+            if(i >= w.children.size())
+                break;
+        }
+    });
 }
 
 static UI::Window* industry_view_nation_win = nullptr;
 static uint8_t industry_view_nation_page_num = 0;
+
 static void industry_view_nation(UI::Widget&, void *) {
     // Do not make duplicate windows
     if(industry_view_nation_win != nullptr) {
@@ -177,13 +205,43 @@ static void industry_view_nation(UI::Widget&, void *) {
     
     // View the provinces in a country - along with the population in them
     industry_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, 609, 476);
+    industry_view_nation_win->on_update = ([](UI::Widget& w, void*) {
+        size_t e = industry_view_nation_page_num * 8, i = 3;
+        size_t cnt = 0;
+        size_t total_industries = 0;
+        for(const auto& province: curr_nation->owned_provinces) {
+            total_industries += province->industries.size();
+        }
+
+        for(const auto& province: curr_nation->owned_provinces) {
+            for(auto& industry: province->industries) {
+                if(cnt < industry_view_nation_page_num * 8) {
+                    cnt++;
+                    continue;
+                }
+
+                if(e < total_industries) {
+                    sprintf(tmpbuf, "%s %4.2f %zu %zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
+                    w.children[i]->text(tmpbuf);
+                    w.children[i]->user_data = &industry;
+                } else {
+                    sprintf(tmpbuf, " ");
+                    w.children[i]->text(tmpbuf);
+                    w.children[i]->user_data = nullptr;
+                }
+                e++; i++;
+                if(i >= w.children.size())
+                    break;
+            }
+            if(i >= w.children.size())
+                break;
+        }
+    });
     
-    char* tmpbuf = new char[255];
     sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)industry_view_nation_page_num);
     industry_view_nation_win->text(tmpbuf);
-    delete[] tmpbuf;
     
-    UI::Button* ok_btn = new UI::Button(9, 413, 173, 51, industry_view_nation_win);
+    UI::Button* ok_btn = new UI::Button(0, 413, 173, 51, industry_view_nation_win);
     ok_btn->text("OK");
     ok_btn->on_click = [](UI::Widget& w, void *) {
         industry_view_nation_win = nullptr;
@@ -193,25 +251,41 @@ static void industry_view_nation(UI::Widget&, void *) {
     UI::Button* prev_btn = new UI::Button(193, 413, 173, 51, industry_view_nation_win);
     prev_btn->text("Previous");
     prev_btn->on_click = [](UI::Widget&, void *) {
-        char* tmpbuf = new char[255];
         industry_view_nation_page_num--;
         sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)industry_view_nation_page_num);
         industry_view_nation_win->text(tmpbuf);
-        delete[] tmpbuf;
     };
     
     UI::Button* next_btn = new UI::Button(377, 413, 173, 51, industry_view_nation_win);
     next_btn->text("Next");
     next_btn->on_click = [](UI::Widget&, void *) {
-        char* tmpbuf = new char[255];
         industry_view_nation_page_num++;
         sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)industry_view_nation_page_num);
         industry_view_nation_win->text(tmpbuf);
-        delete[] tmpbuf;
     };
     
-    for(size_t i = 0; i < 12; i++) {
-        UI::Label* lab = new UI::Label(9, 43 + (i* 28), "?", industry_view_nation_win);
+    // TODO: When a province resizes the industry vector it will break havoc!
+    // TODO: Make the industries vector be a pointer instead!
+    for(size_t i = 0; i < 8; i++) {
+        UI::Button* elem = new UI::Button(0, 32 + (i * 38), industry_view_nation_win->width, 38, industry_view_nation_win);
+        elem->on_click = ([](UI::Widget& w, void* data) {
+            UI::Window* industry_info_win = new UI::Window(0, 0, 320, 200);
+            industry_info_win->text("Industry info");
+
+            UI::Chart* industry_info_workers = new UI::Chart(0, 32, 120, 64, industry_info_win);
+            industry_info_workers->user_data = data;
+            industry_info_workers->on_update = ([](UI::Widget& w, void* data) {
+                if(data == nullptr)
+                    return;
+                
+                UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
+                if(g_world->time % 48 == 35) {
+                    wc.data.push_back(((Industry*)data)->workers);
+                    if(wc.data.size() >= 30)
+                        wc.data.pop_front();
+                }
+            });
+        });
     }
 }
 
@@ -225,13 +299,38 @@ static void products_view_world(void) {
     
     // View the provinces in a country - along with the population in them
     products_view_win = new UI::Window(mouse_pos.first, mouse_pos.second, 609, 476);
+    products_view_win->on_update = ([](UI::Widget& w, void*) {
+        std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
+        if(g_world->time % 48 == 35) {
+            std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
+            size_t list_idx = products_view_page_num * 8;
+            for(size_t i = 3; i < w.children.size(); i++) {
+                if(list_idx < g_world->products.size()) {
+                    // Skip products that are not from our country
+                    while(g_world->products[list_idx]->origin->owner != curr_nation) {
+                        list_idx++;
+                        if(list_idx >= g_world->products.size())
+                            break;
+                    }
+
+                    const Product* product = g_world->products[list_idx];
+                    sprintf(tmpbuf, "%zu %zu %.2f$ %.2f%% %s %s", product->supply, product->demand, product->price, product->price_vel * 100.f, product->origin->name.c_str(), product->good->name.c_str());
+                    w.children[i]->text(tmpbuf);
+                    w.children[i]->user_data = &product;
+                } else {
+                    sprintf(tmpbuf, " ");
+                    w.children[i]->text(tmpbuf);
+                    w.children[i]->user_data = nullptr;
+                }
+                list_idx++;
+            }
+        }
+    });
     
-    char* tmpbuf = new char[255];
     sprintf(tmpbuf, "Your province's products (page %zu)", (size_t)products_view_page_num);
     products_view_win->text(tmpbuf);
-    delete[] tmpbuf;
     
-    UI::Button* ok_btn = new UI::Button(9, 413, 173, 51, products_view_win);
+    UI::Button* ok_btn = new UI::Button(0, 413, 173, 51, products_view_win);
     ok_btn->text("OK");
     ok_btn->on_click = [](UI::Widget& w, void *) {
         products_view_win = nullptr;
@@ -241,25 +340,93 @@ static void products_view_world(void) {
     UI::Button* prev_btn = new UI::Button(193, 413, 173, 51, products_view_win);
     prev_btn->text("Previous");
     prev_btn->on_click = [](UI::Widget&, void *) {
-        char* tmpbuf = new char[255];
         products_view_page_num--;
         sprintf(tmpbuf, "Your province's products (page %zu)", (size_t)products_view_page_num);
         products_view_win->text(tmpbuf);
-        delete[] tmpbuf;
     };
     
     UI::Button* next_btn = new UI::Button(377, 413, 173, 51, products_view_win);
     next_btn->text("Next");
     next_btn->on_click = [](UI::Widget&, void *) {
-        char* tmpbuf = new char[255];
         products_view_page_num++;
         sprintf(tmpbuf, "Your province's products (page %zu)", (size_t)products_view_page_num);
         products_view_win->text(tmpbuf);
-        delete[] tmpbuf;
     };
     
-    for(size_t i = 0; i < 12; i++) {
-        UI::Label* lab = new UI::Label(9, 43 + (i* 28), "?", products_view_win);
+    for(size_t i = 0; i < 8; i++) {
+        UI::Button* elem = new UI::Button(0, 32 + (i * 38), products_view_win->width, 38, products_view_win);
+        elem->on_click = ([](UI::Widget& w, void* data) {
+            Product* product = (Product*)data;
+            if(data == nullptr)
+                return;
+
+            UI::Window* info_win = new UI::Window(0, 0, 320, 200);
+            info_win->text("Product info");
+
+            UI::Chart* supply_graph = new UI::Chart(0, 32, 120, 64, info_win);
+            supply_graph->user_data = product;
+            supply_graph->text("Supply");
+            supply_graph->on_update = ([](UI::Widget& w, void* data) {
+                std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
+                Product* product = (Product*)data;
+                
+                UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
+                if(g_world->time % 48 == 32) {
+                    std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
+
+                    wc.data.push_back(product->supply);
+                    if(wc.data.size() >= 30)
+                        wc.data.pop_front();
+                }
+            });
+
+            UI::Chart* demand_graph = new UI::Chart(0, 32, 120, 64, info_win);
+            demand_graph->below_of(*supply_graph);
+            demand_graph->user_data = product;
+            demand_graph->text("Demand");
+            demand_graph->on_update = ([](UI::Widget& w, void* data) {
+                std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
+                Product* product = (Product*)data;
+
+                UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
+                if(g_world->time % 48 == 32) {
+                    std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
+
+                    wc.data.push_back(product->demand);
+                    if(wc.data.size() >= 30)
+                        wc.data.pop_front();
+                }
+            });
+
+            UI::Chart* price_graph = new UI::Chart(0, 32, 120, 64, info_win);
+            price_graph->below_of(*demand_graph);
+            price_graph->user_data = data;
+            price_graph->text("Price");
+            price_graph->on_update = ([](UI::Widget& w, void* data) {
+                std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
+                Product* product = (Product*)data;
+
+                UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
+                if(g_world->time % 48 == 32) {
+                    std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
+
+                    wc.data.push_back(product->price);
+                    if(wc.data.size() >= 30)
+                        wc.data.pop_front();
+                }
+            });
+
+            UI::Label* good_name_text = new UI::Label(128, 32, " ", info_win);
+            good_name_text->text(product->good->name.c_str());
+
+            UI::Label* province_name_text = new UI::Label(128, 32, " ", info_win);
+            province_name_text->below_of(*good_name_text);
+            province_name_text->text(product->origin->name.c_str());
+
+            UI::Label* company_name_text = new UI::Label(128, 32, " ", info_win);
+            company_name_text->below_of(*province_name_text);
+            company_name_text->text(product->industry->owner->name.c_str());
+        });
     }
 }
 
@@ -321,7 +488,7 @@ static void play_nation(UI::Widget&, void *) {
     
     pop_view_nation_win = nullptr;
     
-    UI::Image* current_flag = new UI::Image(9, 43, 188, 87, nation_flags[g_world->get_id(curr_nation)], top_win);
+    UI::Image* current_flag = new UI::Image(9, 43, 188, 87, map->nation_flags[g_world->get_id(curr_nation)], top_win);
     
     money_icon = new UI::Image(209, 43 + (28* 0), icon_money_tex.width, icon_money_tex.height, &icon_money_tex, top_win);
     money_lab = new UI::Label(0, 43 + (28* 0), "?", top_win);
@@ -363,12 +530,12 @@ static void play_nation(UI::Widget&, void *) {
 void client_update(void) {
     // We are going to update widgets which require real-time feeding
     // this function **should** be called per tick
-    std::lock_guard<std::mutex> lock(render_lock);
+    std::lock_guard<std::mutex> l1(render_lock);
     
-    if(current_mode == MAP_MODE_COUNTRY_SELECT) {
+    if(current_mode == MAP_MODE_COUNTRY_SELECT)
         return;
-    }
     
+    std::lock_guard<std::recursive_mutex> l2(g_world->time_mutex);
     const Nation& player_nation = *g_world->nations[curr_selected_nation];
     if(!(g_world->time % 48)) {
         double gdp = 0.f;
@@ -381,12 +548,13 @@ void client_update(void) {
         if(gdp_chart->data.size() >= 30)
             gdp_chart->data.pop_front();
 
-        size_t total_pop = 0;
+        size_t total_pop = 0, n_pops = 0;
         double living_std = 0.f;
         for(const auto& province: player_nation.owned_provinces) {
             for(const auto& pop: province->pops) {
                 total_pop += pop.size;
                 living_std += pop.life_needs_met;
+                n_pops++;
             }
         }
         
@@ -394,7 +562,7 @@ void client_update(void) {
         if(pop_chart->data.size() >= 30)
             pop_chart->data.pop_front();
         
-        hdi_chart->data.push_back(living_std / total_pop);
+        hdi_chart->data.push_back(living_std / n_pops);
         if(hdi_chart->data.size() >= 30)
             hdi_chart->data.pop_front();
     }
@@ -410,8 +578,7 @@ void client_update(void) {
     }
     militancy /= total_pop;
     consciousness /= total_pop;
-    
-    char* tmpbuf = new char[255];
+
     sprintf(tmpbuf, " %10.3f", militancy);
     militancy_lab->text(tmpbuf);
     sprintf(tmpbuf, " %10.3f", consciousness);
@@ -424,62 +591,6 @@ void client_update(void) {
     money_lab->text(tmpbuf);
     sprintf(tmpbuf, " %14zu", (size_t)total_pop);
     population_lab->text(tmpbuf);
-    
-    if(pop_view_nation_win != nullptr) {
-        size_t e = pop_view_nation_page_num * 12, i = 3;
-        for(const auto& province: player_nation.owned_provinces) {
-            if(e >= player_nation.owned_provinces.size()) {
-                sprintf(tmpbuf, "?");
-                pop_view_nation_win->children[i]->text(tmpbuf);
-            } else {
-                sprintf(tmpbuf, "%8s %zu", province->name.c_str(), (size_t)province->total_pops());
-                pop_view_nation_win->children[i]->text(tmpbuf);
-            }
-            i++;
-            e++;
-            if(i >= pop_view_nation_win->children.size())
-                break;
-        }
-    } if(industry_view_nation_win != nullptr) {
-        size_t e = industry_view_nation_page_num * 12, i = 3;
-        size_t total_industries = 0;
-        for(const auto& province: player_nation.owned_provinces) {
-            total_industries += province->industries.size();
-        }
-
-        for(const auto& province: player_nation.owned_provinces) {
-            for(const auto& industry: province->industries) {
-                if(e >= total_industries) {
-                    sprintf(tmpbuf, "?");
-                    industry_view_nation_win->children[i]->text(tmpbuf);
-                } else {
-                    sprintf(tmpbuf, "%8s %4.2f %zu %zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
-                    industry_view_nation_win->children[i]->text(tmpbuf);
-                }
-                i++;
-                e++;
-                if(i >= industry_view_nation_win->children.size())
-                    break;
-            }
-            if(i >= industry_view_nation_win->children.size())
-                break;
-        }
-    } if(products_view_win != nullptr) {
-        size_t e = products_view_page_num * 12, i = 3;
-        while(i < products_view_win->children.size()) {
-            if(e >= g_world->products.size()) {
-                sprintf(tmpbuf, "?");
-                products_view_win->children[i]->text(tmpbuf);
-            } else {
-                const Product& product = *g_world->products[e];
-                sprintf(tmpbuf, "%8ld %8ld %4.2f$ %s %s", product.supply, product.demand, product.price, product.origin->name.c_str(), product.good->name.c_str());
-                products_view_win->children[i]->text(tmpbuf);
-            }
-            i++;
-            e++;
-        }
-    }
-    delete[] tmpbuf;
 }
 
 void view_province_pops(void) {
@@ -499,29 +610,41 @@ std::vector<Event> displayed_events;
 std::vector<Treaty*> displayed_treaties;
 void select_nation(void) {
     g_world->client_update = &client_update;
-    
-    nation_flags.reserve(g_world->nations.size());
+
     for(const auto& nation: g_world->nations) {
-        std::string pt = "ui/flags/" + nation->ref_name + "_monarchy.png";
-        nation_flags.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
-    }
+        std::string path;
+        FILE* fp;
 
-    outpost_type_icons.reserve(g_world->outpost_types.size());
+        // try socialist
+        path = Path::get("ui/flags/" + nation->ref_name + "_socialist.png");
+        fp = fopen(path.c_str(), "rb");
+        if(fp == NULL) {
+            // try monarchy
+            path = Path::get("ui/flags/" + nation->ref_name + "_monarchy.png");
+            fp = fopen(path.c_str(), "rb");
+            if(fp == NULL) {
+                // try democracy
+                path = Path::get("ui/flags/" + nation->ref_name + "_democracy.png");
+                fp = fopen(path.c_str(), "rb");
+                if(fp == NULL) {
+                    // fail
+                }
+            }
+        }
+
+        map->nation_flags.push_back(&g_texture_manager->load_texture(path.c_str()));
+    }
     for(const auto& outpost_type: g_world->outpost_types) {
-        std::string pt = "ui/icons/outpost_types/" + outpost_type->ref_name + ".png";
-        outpost_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+        std::string path = Path::get("ui/icons/outpost_types/" + outpost_type->ref_name + ".png");
+        map->outpost_type_icons.push_back(&g_texture_manager->load_texture(path.c_str()));
     }
-
-    boat_type_icons.reserve(g_world->boat_types.size());
     for(const auto& boat_type: g_world->boat_types) {
-        std::string pt = "ui/icons/boat_types/" + boat_type->ref_name + ".png";
-        boat_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+        std::string path = Path::get("ui/icons/boat_types/" + boat_type->ref_name + ".png");
+        map->boat_type_icons.push_back(&g_texture_manager->load_texture(path.c_str()));
     }
-
-    unit_type_icons.reserve(g_world->unit_types.size());
     for(const auto& unit_type: g_world->unit_types) {
-        std::string pt = "ui/icons/unit_types/" + unit_type->ref_name + ".png";
-        unit_type_icons.push_back(&g_texture_manager->load_texture(Path::get(pt.c_str())));
+        std::string path = Path::get("ui/icons/unit_types/" + unit_type->ref_name + ".png");
+        map->unit_type_icons.push_back(&g_texture_manager->load_texture(path.c_str()));
     }
     
     cam.position.x = 0.f;
@@ -538,8 +661,8 @@ void select_nation(void) {
     run = true;
     
     std::pair<float, float> select_pos;
-		bool middle_mouse_down = false;
-		std::pair<float, float> last_camera_drag_pos;
+    bool middle_mouse_down = false;
+    std::pair<float, float> last_camera_drag_pos;
     
     UI::Button* select_country_btn = new UI::Button((width / 2) - (320 / 2), 8, 320, 38);
     select_country_btn->text("Select a country");
@@ -566,9 +689,9 @@ void select_nation(void) {
     Boat* selected_boat = nullptr;
     Unit* selected_unit = nullptr;
     Outpost* selected_outpost = nullptr;
-    
-    size_t last_inbox_size = 0;
     uint64_t last_time = 0;
+
+    float wind_osc = 0.f;
 
     displayed_events.clear();
     while(run) {
@@ -576,6 +699,10 @@ void select_nation(void) {
             last_time = g_world->time;
             client_update();
         }
+
+        wind_osc += 0.1f;
+        if(wind_osc >= 180.f)
+            wind_osc = -180.f;
         
         std::unique_lock<std::mutex> lock(render_lock);
         
@@ -588,22 +715,24 @@ void select_nation(void) {
             case SDL_MOUSEBUTTONDOWN:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
                 ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
-								if (event.button.button == SDL_BUTTON_MIDDLE) {
-									middle_mouse_down = true;
-									last_camera_drag_pos = cam.get_map_pos(mouse_pos);
-								}
+                if(event.button.button == SDL_BUTTON_MIDDLE) {
+                    middle_mouse_down = true;
+                    last_camera_drag_pos = cam.get_map_pos(mouse_pos);
+                }
                 break;
             case SDL_MOUSEBUTTONUP:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-								if (event.button.button == SDL_BUTTON_MIDDLE) {
-									middle_mouse_down = false;
-									break;
-								}
+                if(event.button.button == SDL_BUTTON_MIDDLE) {
+                    middle_mouse_down = false;
+                    break;
+                }
+
                 click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
                 if(old_mode != current_mode) {
                     delete next_country_btn;
                     delete prev_country_btn;
                     delete play_btn;
+                    delete select_country_btn;
                     delete curr_country_btn;
                 }
 
@@ -779,13 +908,12 @@ void select_nation(void) {
             case SDL_MOUSEMOTION:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
                 ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
-								if (middle_mouse_down) { // Drag the map with middlemouse
-									std::pair<float, float> map_pos = cam.get_map_pos(mouse_pos);
-									cam.position.x += last_camera_drag_pos.first - map_pos.first; 
-									cam.position.y += last_camera_drag_pos.second - map_pos.second; 
-								}
-
-								select_pos = cam.get_map_pos(mouse_pos);
+                if(middle_mouse_down) { // Drag the map with middlemouse
+                    std::pair<float, float> map_pos = cam.get_map_pos(mouse_pos);
+                    cam.position.x += last_camera_drag_pos.first - map_pos.first; 
+                    cam.position.y += last_camera_drag_pos.second - map_pos.second; 
+                }
+                select_pos = cam.get_map_pos(mouse_pos);
                 break;
             case SDL_MOUSEWHEEL:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -852,13 +980,12 @@ void select_nation(void) {
 
                 // Separate the text line by line
                 const char* buf = msg.text.c_str();
-                char tmpbuf[24];
                 size_t y = 38;
                 while(strlen(buf)) {
                     size_t t_len = std::min<size_t>(strlen(buf), 18);
-                    memcpy((char*)&tmpbuf, buf, t_len);
+                    memcpy(tmpbuf, buf, t_len);
                     tmpbuf[t_len] = '\0';
-                    new UI::Label(8, y, (const char*)&tmpbuf, popup_win);
+                    new UI::Label(8, y, tmpbuf, popup_win);
                     y += 24;
                     buf += t_len;
                 }
@@ -871,26 +998,23 @@ void select_nation(void) {
                     decide_btn->user_data = (void *)&descision;
                     decide_btn->on_click = [](UI::Widget& w, void* data) {
                         delete w.parent;
-                        
-                        // Obtain the descision
+
                         Descision* descision = (Descision *)data;
-                        
-                        // Find event
-                        Event* event = nullptr;
+                        Event* decide_event = nullptr;
                         for(auto& e_event: displayed_events) {
                             for(const auto& e_descision: e_event.descisions) {
                                 if(e_descision.ref_name == descision->ref_name) {
-                                    event = &e_event;
+                                    decide_event = &e_event;
                                     break;
                                 }
                             }
                             
-                            if(event != nullptr)
+                            if(decide_event != nullptr)
                                 break;
                         }
                         
                         // Event not found
-                        if(event == nullptr) {
+                        if(decide_event == nullptr) {
                             print_error("Event not found, we tried finding by descision %s", descision->name.c_str());
                             return;
                         }
@@ -900,7 +1024,7 @@ void select_nation(void) {
                         Archive ar = Archive();
                         enum ActionType action = ACTION_NATION_TAKE_DESCISION;
                         ::serialize(ar, &action);
-                        ::serialize(ar, &event->ref_name);
+                        ::serialize(ar, &decide_event->ref_name);
                         ::serialize(ar, &descision->ref_name);
                         packet.data(ar.get_buffer(), ar.size());
                         g_client->packet_queue.push_back(packet);
@@ -948,6 +1072,7 @@ void select_nation(void) {
                     Packet packet = Packet(g_client->get_fd());
                     Archive ar = Archive();
                     enum ActionType action = ACTION_CHANGE_TREATY_APPROVAL;
+                    ::serialize(ar, &action);
                     ::serialize(ar, (Treaty**)data);
                     enum TreatyApproval approval = TREATY_APPROVAL_ACCEPTED;
                     ::serialize(ar, &approval);
@@ -966,6 +1091,7 @@ void select_nation(void) {
                     Packet packet = Packet(g_client->get_fd());
                     Archive ar = Archive();
                     enum ActionType action = ACTION_CHANGE_TREATY_APPROVAL;
+                    ::serialize(ar, &action);
                     ::serialize(ar, (Treaty**)data);
                     enum TreatyApproval approval = TREATY_APPROVAL_DENIED;
                     ::serialize(ar, &approval);
@@ -982,162 +1108,56 @@ void select_nation(void) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glPushMatrix();
         glMatrixMode(GL_PROJECTION);
-				glLoadMatrixf(glm::value_ptr(cam.get_projection()));
+        glLoadMatrixf(glm::value_ptr(cam.get_projection()));
         glViewport(0, 0, width, height);
         glMatrixMode(GL_MODELVIEW);
-				glLoadMatrixf(glm::value_ptr(cam.get_view()));
+        glLoadMatrixf(glm::value_ptr(cam.get_view()));
 
         map->draw(cam, width, height);
 
         g_world->boats_mutex.lock();
-        for(const auto& boat: g_world->boats) {
-            const float size = 1.f;
-            if(boat->size) {
-                glBegin(GL_QUADS);
-                glColor3f(0.f, 1.f, 0.f);
-                glVertex2f(boat->x, boat->y - 1.f);
-                glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
-                glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
-                /*glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.25f);
-                glVertex2f(boat->x, boat->y - 1.2f);
-                glVertex2f(boat->x, boat->y - 1.f);*/
-                glEnd();
-            }
-            
-            glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(boat->owner)]->gl_tex_num);
-            glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(boat->x, boat->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(boat->x + 0.2f, boat->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(boat->x + 0.2f, boat->y + 0.2f);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(boat->x, boat->y + 0.2f);
-            glEnd();
-            glBindTexture(GL_TEXTURE_2D, boat_type_icons[g_world->get_id(boat->type)]->gl_tex_num);
-            glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(boat->x, boat->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(boat->x + size, boat->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(boat->x + size, boat->y + size);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(boat->x, boat->y + size);
-            glEnd();
-        }
         if(selected_boat != nullptr) {
             glBegin(GL_LINE_STRIP);
-            glColor3f(1.f, 0.f, 0.f);
-            glVertex2f(selected_boat->x, selected_boat->y);
-            glVertex2f(selected_boat->x + 1.f, selected_boat->y);
-            glVertex2f(selected_boat->x + 1.f, selected_boat->y + 1.f);
-            glVertex2f(selected_boat->x, selected_boat->y + 1.f);
+                glColor3f(1.f, 0.f, 0.f);
+                glVertex2f(selected_boat->x, selected_boat->y);
+                glVertex2f(selected_boat->x + 1.f, selected_boat->y);
+                glVertex2f(selected_boat->x + 1.f, selected_boat->y + 1.f);
+                glVertex2f(selected_boat->x, selected_boat->y + 1.f);
             glEnd();
         }
         g_world->boats_mutex.unlock();
         
         g_world->units_mutex.lock();
-        for(const auto& unit: g_world->units) {
-            const float size = 1.f;
-            if(unit->size) {
-                glBegin(GL_QUADS);
-                glColor3f(0.f, 1.f, 0.f);
-                glVertex2f(unit->x, unit->y - 1.f);
-                glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
-                glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
-                /*glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.25f);
-                glVertex2f(unit->x, unit->y - 1.2f);
-                glVertex2f(unit->x, unit->y - 1.f);*/
-                glEnd();
-            }
-            
-            glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(unit->owner)]->gl_tex_num);
-            glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(unit->x, unit->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(unit->x + 0.2f, unit->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(unit->x + 0.2f, unit->y + 0.2f);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(unit->x, unit->y + 0.2f);
-            glEnd();
-            glBindTexture(GL_TEXTURE_2D, unit_type_icons[g_world->get_id(unit->type)]->gl_tex_num);
-            glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(unit->x, unit->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(unit->x + size, unit->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(unit->x + size, unit->y + size);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(unit->x, unit->y + size);
-            glEnd();
-        }
         if(selected_unit != nullptr) {
             glBegin(GL_LINE_STRIP);
-            glColor3f(1.f, 0.f, 0.f);
-            glVertex2f(selected_unit->x, selected_unit->y);
-            glVertex2f(selected_unit->x + 1.f, selected_unit->y);
-            glVertex2f(selected_unit->x + 1.f, selected_unit->y + 1.f);
-            glVertex2f(selected_unit->x, selected_unit->y + 1.f);
+                glColor3f(1.f, 0.f, 0.f);
+                glVertex2f(selected_unit->x, selected_unit->y);
+                glVertex2f(selected_unit->x + 1.f, selected_unit->y);
+                glVertex2f(selected_unit->x + 1.f, selected_unit->y + 1.f);
+                glVertex2f(selected_unit->x, selected_unit->y + 1.f);
             glEnd();
         }
         g_world->units_mutex.unlock();
 
         g_world->outposts_mutex.lock();
-        for(const auto& outpost: g_world->outposts) {
-            glBindTexture(GL_TEXTURE_2D, nation_flags[g_world->get_id(outpost->owner)]->gl_tex_num);
-            glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(outpost->x, outpost->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(outpost->x + 0.2f, outpost->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(outpost->x + 0.2f, outpost->y + 0.2f);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(outpost->x, outpost->y + 0.2f);
-            glEnd();
-
-            const float size = 1.f;
-            glBindTexture(GL_TEXTURE_2D, outpost_type_icons[g_world->get_id(outpost->type)]->gl_tex_num);
-            glBegin(GL_QUADS);
-            glColor4f(1.f, 1.f, 1.f, 0.8f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(outpost->x, outpost->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(outpost->x + size, outpost->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(outpost->x + size, outpost->y + size);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(outpost->x, outpost->y + size);
-            glEnd();
-        }
         if(selected_outpost != nullptr) {
             glBegin(GL_LINE_STRIP);
-            glColor3f(1.f, 0.f, 0.f);
-            glVertex2f(selected_outpost->x, selected_outpost->y);
-            glVertex2f(selected_outpost->x + 1.f, selected_outpost->y);
-            glVertex2f(selected_outpost->x + 1.f, selected_outpost->y + 1.f);
-            glVertex2f(selected_outpost->x, selected_outpost->y + 1.f);
+                glColor3f(1.f, 0.f, 0.f);
+                glVertex2f(selected_outpost->x, selected_outpost->y);
+                glVertex2f(selected_outpost->x + 1.f, selected_outpost->y);
+                glVertex2f(selected_outpost->x + 1.f, selected_outpost->y + 1.f);
+                glVertex2f(selected_outpost->x, selected_outpost->y + 1.f);
             glEnd();
         }
         g_world->outposts_mutex.unlock();
-        glBindTexture(GL_TEXTURE_2D, 0);
 
+        glBindTexture(GL_TEXTURE_2D, 0);
         glBegin(GL_QUADS);
-        glColor3f(1.f, 1.f, 1.f);
-        glVertex2f(select_pos.first, select_pos.second);
-        glVertex2f(select_pos.first + 1.f, select_pos.second);
-        glVertex2f(select_pos.first + 1.f, select_pos.second + 1.f);
-        glVertex2f(select_pos.first, select_pos.second + 1.f);
+            glColor3f(1.f, 1.f, 1.f);
+            glVertex2f(select_pos.first, select_pos.second);
+            glVertex2f(select_pos.first + 1.f, select_pos.second);
+            glVertex2f(select_pos.first + 1.f, select_pos.second + 1.f);
+            glVertex2f(select_pos.first, select_pos.second + 1.f);
         glEnd();
 
         glPopMatrix();
@@ -1172,10 +1192,11 @@ void client_main(int argc, char** argv) {
 
     g_texture_manager = new TextureManager();
     ui_ctx = new UI::Context();
+    tmpbuf = new char[512];
 
-		GLenum err = glewInit();
-		if (err != GLEW_OK)
-      throw std::runtime_error("Failed to init GLEW");
+    GLenum err = glewInit();
+    if(err != GLEW_OK)
+        throw std::runtime_error("Failed to init GLEW");
 
     std::string server_addr;
     if(argc > 1) {
@@ -1198,6 +1219,8 @@ void client_main(int argc, char** argv) {
 
     TTF_Quit();
     SDL_Quit();
+
+    delete[] tmpbuf;
     delete ui_ctx;
     return;
 }

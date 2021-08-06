@@ -47,14 +47,18 @@ namespace TreatyClause {
 
         // Function to determine the "political" cost of this clause, and how much willing the AI
         // is to accept this clause, this is only used by the AI
-        virtual unsigned cost(void) { return 0; };
+        virtual unsigned cost(void) {
+            return 0;
+        };
 
         // Function to enforce the policy per day (or higher time spans)
         virtual void enforce(void) {};
 
         // Determines whenever the clause is in effect or not, when it is not in effect
         // then it's removed permanently
-        virtual bool in_effect(void) { return false; };
+        virtual bool in_effect(void) {
+            return false;
+        };
     };
     
     /**
@@ -62,8 +66,9 @@ namespace TreatyClause {
      */
     class WarReparations : public BaseClause {
     public:
-        enum TreatyClauseType type = TREATY_CLAUSE_WAR_REPARATIONS;
-
+        WarReparations() : BaseClause() {
+            type = TREATY_CLAUSE_WAR_REPARATIONS;
+        };
         unsigned cost(void);
         void enforce(void);
         bool in_effect(void);
@@ -76,8 +81,9 @@ namespace TreatyClause {
      */
     class Humiliate : public BaseClause {
     public:
-        enum TreatyClauseType type = TREATY_CLAUSE_HUMILIATE;
-
+        Humiliate() : BaseClause() {
+            type = TREATY_CLAUSE_HUMILIATE;
+        };
         unsigned cost(void);
         void enforce(void);
         bool in_effect(void);
@@ -90,8 +96,9 @@ namespace TreatyClause {
      */
     class LiberateNation : public BaseClause {
     public:
-        enum TreatyClauseType type = TREATY_CLAUSE_LIBERATE_NATION;
-
+        LiberateNation() : BaseClause() {
+            type = TREATY_CLAUSE_LIBERATE_NATION;
+        };
         unsigned cost(void);
         void enforce(void);
         bool in_effect(void);
@@ -105,8 +112,9 @@ namespace TreatyClause {
      */
     class ImposePolicies : public BaseClause {
     public:
-        enum TreatyClauseType type = TREATY_CLAUSE_IMPOSE_POLICIES;
-
+        ImposePolicies() : BaseClause() {
+            type = TREATY_CLAUSE_IMPOSE_POLICIES;
+        };
         unsigned cost(void);
         void enforce(void);
         bool in_effect(void);
@@ -119,8 +127,9 @@ namespace TreatyClause {
      */
     class AnexxProvince : public BaseClause {
     public:
-        enum TreatyClauseType type = TREATY_CLAUSE_ANEXX_PROVINCES;
-
+        AnexxProvince() : BaseClause() {
+            type = TREATY_CLAUSE_ANEXX_PROVINCES;
+        };
         unsigned cost(void);
         void enforce(void);
         bool in_effect(void);
@@ -133,8 +142,9 @@ namespace TreatyClause {
      */
     class Ceasefire : public BaseClause {
     public:
-        enum TreatyClauseType type = TREATY_CLAUSE_CEASEFIRE;
-
+        Ceasefire() : BaseClause() {
+            type = TREATY_CLAUSE_CEASEFIRE;
+        };
         unsigned cost(void);
         void enforce(void);
         bool in_effect(void);
