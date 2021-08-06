@@ -612,17 +612,23 @@ void select_nation(void) {
     g_world->client_update = &client_update;
 
     for(const auto& nation: g_world->nations) {
-        std::string path = Path::get("ui/flags/" + nation->ref_name + "_monarchy.png");
+        std::string path;
         FILE* fp;
 
-        // try monarchy
+        // try socialist
+        path = Path::get("ui/flags/" + nation->ref_name + "_socialist.png");
         fp = fopen(path.c_str(), "rb");
         if(fp == NULL) {
-            // try democracy
-            path = Path::get("ui/flags/" + nation->ref_name + "_democracy.png");
+            // try monarchy
+            path = Path::get("ui/flags/" + nation->ref_name + "_monarchy.png");
             fp = fopen(path.c_str(), "rb");
             if(fp == NULL) {
-                // fail
+                // try democracy
+                path = Path::get("ui/flags/" + nation->ref_name + "_democracy.png");
+                fp = fopen(path.c_str(), "rb");
+                if(fp == NULL) {
+                    // fail
+                }
             }
         }
 
