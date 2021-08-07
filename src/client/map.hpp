@@ -16,8 +16,8 @@
 #include "province.hpp"
 #include "texture.hpp"
 #include "camera.hpp"
-#include "quad.hpp"
-#include "shader.hpp"
+#include "render/primitive.hpp"
+#include "render/shader.hpp"
 
 class ProvinceShape;
 class Map {
@@ -25,10 +25,7 @@ private:
 public:
     Map(const World& world);
 
-    std::vector<const Texture*> unit_type_icons;
-    std::vector<const Texture*> boat_type_icons;
-    std::vector<const Texture*> outpost_type_icons;
-    std::vector<const Texture*> nation_flags;
+    std::vector<const Texture*> unit_type_icons, boat_type_icons, outpost_type_icons, nation_flags;
 
     // Wind oscillator (for flags)
     float wind_osc = 0.f;
@@ -37,8 +34,8 @@ public:
     std::vector<ProvinceShape> province_shapes;
     
     Texture* div_topo_tex;
-    Quad* map_quad;
-    Shader* map_shader;
+    UnifiedRender::OpenGl::PrimitiveSquare* map_quad;
+    UnifiedRender::OpenGl::Program* map_shader;
     const Texture* terrain_map_tex;
     const Texture* terrain_sheet_tex;
     const Texture* overlay_tex;
