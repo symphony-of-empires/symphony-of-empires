@@ -450,7 +450,7 @@ void Server::net_loop(int id) {
                                 approver_nations.insert(clause->sender);
                             }
 
-                            print_info("Participants of treaty %s", treaty->name.c_str())
+                            print_info("Participants of treaty %s", treaty->name.c_str());
                             // Then fill as undecided (and ask nations to sign this treaty)
                             for(auto& nation: approver_nations) {
                                 treaty->approval_status.push_back(std::make_pair(nation, TREATY_APPROVAL_UNDECIDED));

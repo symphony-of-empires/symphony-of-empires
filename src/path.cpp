@@ -70,7 +70,7 @@ namespace Path {
             rsult += str;
             if(file_exists(rsult) == true) {
                 end_path += rsult;
-                print_info("Path '%s' exists\n", end_path.c_str());
+                print_info("Path '%s' exists", end_path.c_str());
                 break;
             }
         }
