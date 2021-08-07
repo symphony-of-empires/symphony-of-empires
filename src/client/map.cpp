@@ -26,11 +26,15 @@ Map::Map(const World& _world) : world(_world) {
     if (glewIsSupported("GL_VERSION_3_0")) {
         // terrain_map_tex = &g_texture_manager->load_texture(Path::get("map_terrain.png"));
         // terrain_sheet_tex = &g_texture_manager->load_texture(Path::get("terrain_sheet.png"));
-        map_quad = new  Quad(0, 0, world.width, world.height);
-        map_shader = new Shader("shaders/map.vs", "shaders/map.fs");
+        map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0, 0, world.width, world.height);
+
+        auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
+        auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/map.fs");
+        map_shader = new UnifiedRender::OpenGl::Program(vs, fs);
     }
 
     print_info("creating topo map");
+    
     // generate the underlying topo map texture, since the topo map
     // dosen't changes too much we can just do a texture
     div_topo_tex = new Texture(world.width, world.height);
@@ -105,7 +109,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     glm::mat4 view_proj = cam.get_projection() * cam.get_view();
 
     map_shader->use();
-    map_shader->setMat4("viewProj", view_proj);
+    map_shader->set_uniform("view_proj", view_proj);
     glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
     map_quad->draw();
     glUseProgram(0);
