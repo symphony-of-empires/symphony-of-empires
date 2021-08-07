@@ -72,8 +72,8 @@ void Economy::do_phase_1(World& world) {
             }
         }
 
-        if(!can_build)
-        	break;
+        /*if(!can_build)
+        	break;*/
         
         size_t needed_manpower = 1000;
         size_t available_manpower = 0;
@@ -909,6 +909,10 @@ void Economy::do_phase_3(World& world) {
     std::lock_guard l3(world.job_requests_mutex);
     world.job_requests.clear();
     for(const auto& province: world.provinces) {
+        // Province must have an owner
+        if(province->owner == nullptr)
+            continue;
+        
         for(auto& pop: province->pops) {
             // Post a job request
             JobRequest request;
