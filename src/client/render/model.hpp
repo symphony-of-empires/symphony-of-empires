@@ -76,6 +76,9 @@ namespace UnifiedRender::OpenGl {
         
         PackedModel(GLint _mode) : mode(_mode) {};
         ~PackedModel() {};
+        PackedModel(const PackedModel&) = default;
+        PackedModel(PackedModel&&) noexcept = default;
+        PackedModel& operator=(const PackedModel&) = default;
 
         virtual void draw(void) {
             vao.bind();

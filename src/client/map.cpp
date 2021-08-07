@@ -100,7 +100,8 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
             // Texcoord
             glm::vec2((r / step) / n_steps, 0.f),
             // Colour
-            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)));
+            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f))
+        );
 
         model.buffer.push_back(UnifiedRender::OpenGl::PackedData(
             // Vert
@@ -108,7 +109,8 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
             // Texcoord
             glm::vec2((r / step) / n_steps, 0.f),
             // Colour
-            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)));
+            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f))
+        );
     }
     model.vao.bind();
     model.vbo.bind(GL_ARRAY_BUFFER);
