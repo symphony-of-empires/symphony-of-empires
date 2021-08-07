@@ -130,7 +130,7 @@ World::World() {
 
     // Add all scripts onto the path (with glob operator '?')
     curr_path.append(";");
-    std::string path = Path::get("scripts");
+    std::string path = Path::get_dir("scripts");
     curr_path.append(path + "/?.lua");
     lua_pop(lua, 1);
     lua_pushstring(lua, curr_path.c_str());

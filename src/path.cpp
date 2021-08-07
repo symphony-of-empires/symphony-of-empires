@@ -11,6 +11,7 @@
 #include <climits>
 #include <string>
 #include <algorithm>
+#include <fstream>
 #include "path.hpp"
 
 /* Visual Studio is not posix so we have to define PATH_MAX ourselves */
@@ -18,8 +19,15 @@
 #	define MAX_PATH 255
 #endif
 
+static std::vector<std::string> mod_paths;
+
 namespace Path {
-    static inline std::string get_exec_path(void) {
+    static inline bool file_exists(const std::string& str) {
+        std::ifstream f(str.c_str());
+        return f.good();
+    }
+
+    std::string get_full(void) {
 #ifdef windows
         char buf[MAX_PATH];
         const auto len = GetModuleFileNameA(nullptr, buf, MAX_PATH);
@@ -31,19 +39,52 @@ namespace Path {
             throw std::runtime_error("Error reading exec path");
         
         buf[len] = '\0';
-        return std::string(buf);
+
+        std::string rsult = buf;
+        size_t found = rsult.find_last_of("/\\");
+        rsult = rsult.substr(0, found);
+        found = rsult.find_last_of("/\\");
+        rsult = rsult.substr(0, found);
+        return rsult;
+    }
+
+    
+    void add_path(const std::string& path) {
+        std::string end_path;
+        end_path += "/mods/";
+        end_path += path;
+        end_path += "/";
+
+        mod_paths.push_back(end_path);
     }
 
     std::string get(std::string str) {
         if(str[0] == '/' || str[0] == 'C')
             return str;
         
-        std::string rsult = get_exec_path();
-        size_t found = rsult.find_last_of("/\\");
-        rsult = rsult.substr(0, found);
-        found = rsult.find_last_of("/\\");
-        rsult = rsult.substr(0, found);
-        rsult += "/mods/test/";
+        std::string end_path;
+        for(const auto& path: mod_paths) {
+            std::string rsult = get_full();
+            rsult += path;
+            rsult += str;
+            if(file_exists(rsult) == true) {
+                end_path += rsult;
+                printf("%s exists", end_path);
+                break;
+            }
+        }
+#ifdef windows
+        std::replace(end_path.begin(), end_path.end(), '/', '\\');
+#endif
+        return end_path;
+    }
+
+    std::string get_dir(const std::string& str) {
+        if(str[0] == '/' || str[0] == 'C')
+            return str;
+        
+        std::string rsult = get_full();
+        rsult += mod_paths[0];
         rsult += str;
 #ifdef windows
         std::replace(rsult.begin(), rsult.end(), '/', '\\');
