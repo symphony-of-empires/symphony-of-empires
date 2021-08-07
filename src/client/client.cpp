@@ -967,8 +967,17 @@ void select_nation(void) {
             case SDL_WINDOWEVENT:
                 if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
                     SDL_Window* tmpwin = SDL_GetWindowFromID(event.window.windowID);
+
+                    std::pair old_size = std::make_pair(width, height);
                     SDL_GetWindowSize(tmpwin, &width, &height);
                     cam.set_screen(width, height);
+
+                    // Resize/recenter UI according to screen change
+                    std::pair size_diff = std::make_pair(old_size.first / width, old_size.second / height);
+                    for(auto& widget: ui_ctx->widgets) {
+                        widget.x += size_diff.x;
+                        widget.y += size_diff.y;
+                    }
                 }
                 break;
             default:
