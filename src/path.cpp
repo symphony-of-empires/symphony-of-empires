@@ -69,7 +69,7 @@ namespace Path {
             rsult += str;
             if(file_exists(rsult) == true) {
                 end_path += rsult;
-                printf("%s exists", end_path);
+                printf("Path '%s' exists\n", end_path.c_str());
                 break;
             }
         }
