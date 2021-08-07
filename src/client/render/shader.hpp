@@ -15,30 +15,26 @@
 
 namespace UnifiedRender::OpenGl {
     class Shader {
-    protected:
+    private:        
+        void compile(GLuint type);
         std::string buffer;
         GLuint id;
     public:
-        Shader(const std::string& path);
+        Shader(const std::string& path, GLuint type);
         ~Shader();
 
-        virtual void compile(void);
         std::string get_status(void);
         GLuint get_id(void) const;
     };
 
     class VertexShader : public Shader {
-        static const GLuint type = GL_VERTEX_SHADER;
     public:
-        VertexShader(const std::string& path) : Shader(path) {};
-        virtual void compile(void);
+        VertexShader(const std::string& path) : Shader(path, GL_VERTEX_SHADER) {};
     };
 
     class FragmentShader : public Shader {
-        static const GLuint type = GL_FRAGMENT_SHADER;
     public:
-        FragmentShader(const std::string& path) : Shader(path) {};
-        virtual void compile(void);
+        FragmentShader(const std::string& path) : Shader(path, GL_FRAGMENT_SHADER) {};
     };
 
     class Program {
@@ -47,6 +43,8 @@ namespace UnifiedRender::OpenGl {
         Program(const VertexShader* vertex, const FragmentShader* fragment);
         void use(void) const;
         void set_uniform(const std::string& name, glm::mat4 uniform) const;
+        void set_uniform(const std::string& name, float uniform) const;
+        void set_uniform(const std::string& name, int uniform) const;
         GLuint get_id(void) const;
     };
 };

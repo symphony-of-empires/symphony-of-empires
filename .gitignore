@@ -23,6 +23,9 @@ perf.data
 bin/
 obj/
 
+# test stuff
+mods/test
+
 # compiled translation files
 *.mo
 
