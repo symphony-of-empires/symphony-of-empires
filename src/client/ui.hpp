@@ -13,7 +13,7 @@
 #	include <SDL2/SDL_ttf.h>
 #endif
 
-#include "texture.hpp"
+#include "render/texture.hpp"
 
 enum UI_WidgetType {
     UI_WIDGET_BUTTON,

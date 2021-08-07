@@ -34,7 +34,7 @@
 #include <GL/gl.h>
 #include "world.hpp"
 #include "economy.hpp"
-#include "texture.hpp"
+#include "render/texture.hpp"
 #include "path.hpp"
 #include "ui.hpp"
 #include "map.hpp"

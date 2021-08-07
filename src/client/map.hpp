@@ -14,7 +14,7 @@
 #include <GL/gl.h>
 #include "world.hpp"
 #include "province.hpp"
-#include "texture.hpp"
+#include "render/texture.hpp"
 #include "camera.hpp"
 #include "render/primitive.hpp"
 #include "render/shader.hpp"

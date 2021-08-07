@@ -24,7 +24,7 @@ namespace UnifiedRender::OpenGl {
 
         virtual void compile(void);
         std::string get_status(void);
-        inline GLuint get_id(void) const;
+        GLuint get_id(void) const;
     };
 
     class VertexShader : public Shader {
@@ -47,7 +47,7 @@ namespace UnifiedRender::OpenGl {
         Program(const VertexShader* vertex, const FragmentShader* fragment);
         void use(void) const;
         void set_uniform(const std::string& name, glm::mat4 uniform) const;
-        inline GLuint get_id(void) const;
+        GLuint get_id(void) const;
     };
 };
 
