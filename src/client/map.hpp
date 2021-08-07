@@ -10,11 +10,14 @@
 #		undef WIN32_LEAN_AND_MEAN
 #	endif
 #endif
+#include <GL/glew.h>
 #include <GL/gl.h>
 #include "world.hpp"
 #include "province.hpp"
 #include "texture.hpp"
 #include "camera.hpp"
+#include "quad.hpp"
+#include "shader.hpp"
 
 class ProvinceShape;
 class Map {
@@ -33,12 +36,17 @@ public:
     const World& world;
     std::vector<ProvinceShape> province_shapes;
     
-    Texture* topo_tex;
+    Texture* div_topo_tex;
+    Quad* map_quad;
+    Shader* map_shader;
+    const Texture* terrain_map_tex;
+    const Texture* terrain_sheet_tex;
     const Texture* overlay_tex;
     GLuint coastline_gl_list;
 
     void draw_flag(const Nation* nation, float x, float y);
     void draw(Camera& cam, const int width, const int height);
+    void draw_old(Camera& cam, const int width, const int height);
 };
 
 class ProvinceShape {
