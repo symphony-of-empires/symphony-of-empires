@@ -51,8 +51,7 @@ World::World(void) {
 World::~World() {};
 
 extern TextureManager* g_texture_manager;
-int width = 1280;
-int height = 800;
+int width = 1280, height = 800;
 
 std::pair<int, int> mouse_pos;
 static Map* map;
@@ -964,6 +963,13 @@ void select_nation(void) {
                 break;
             case SDL_QUIT:
                 run = false;
+                break;
+            case SDL_WINDOWEVENT:
+                if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                    SDL_Window* tmpwin = SDL_GetWindowFromID(event.window.windowID);
+                    SDL_GetWindowSize(tmpwin, &width, &height);
+                    cam.set_screen(width, height);
+                }
                 break;
             default:
                 break;

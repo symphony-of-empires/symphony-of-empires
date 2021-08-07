@@ -27,7 +27,6 @@ void Shader::compile(GLuint type) {
     id = glCreateShader(type);
     glShaderSource(id, 1, &c_code, NULL);
     glCompileShader(id);
-
     print_info("Status: %s", get_status().c_str());
 }
 
@@ -71,12 +70,13 @@ void Program::use(void) const {
 }
 
 void Program::set_uniform(const std::string& name, glm::mat4 uniform) const {
-    GLuint loc = glGetUniformLocation(id, name.c_str());
-    glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(uniform));
+    glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(uniform));
 }
+
 void Program::set_uniform(const std::string& name, float value) const {
     glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 }
+
 void Program::set_uniform(const std::string& name, int value) const {
     glUniform1i(glGetUniformLocation(id, name.c_str()), value);
 }
