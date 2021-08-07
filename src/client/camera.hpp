@@ -15,6 +15,10 @@ public:
     float z_angle, vz_angle;
 
     Camera(int width, int height) {
+        set_screen(width, height);
+    }
+
+    void set_screen(const int width, const int height) {
         screen_size = glm::vec2(width, height);
     }
     
