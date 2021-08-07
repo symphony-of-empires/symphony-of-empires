@@ -84,10 +84,11 @@ int main(int argc, char** argv) {
                     break;
                 } else {
                     int ret = luaL_loadstring(world->lua, r.c_str());
-                    if(ret) {
-                        throw std::runtime_error(lua_tostring(world->lua, -1));
+                    if (ret == 0) {
+                        lua_pcall(world->lua, 0, 0, 0);
+                    } else {
+                    	print_error("Failed to load lua from input string.");
                     }
-                    lua_pcall(world->lua, 0, 0, 0);
                 }
                 future = std::async(std::launch::async, async_get_input);
             }
