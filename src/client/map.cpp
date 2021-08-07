@@ -110,15 +110,15 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
             // Colour
             glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)));
     }
-    glBindVertexArray(model.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, model.vbo);
+    model.vao.bind();
+    model.vbo.bind(GL_ARRAY_BUFFER);
     glBufferData(GL_ARRAY_BUFFER, model.buffer.size() * sizeof(model.buffer[0]), &model.buffer[0], GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)0);  // Vertices
-    glEnableVertexArrayAttrib(model.vao, 0);
+    glEnableVertexArrayAttrib(model.vao.get_id(), 0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)(3 * sizeof(float)));  // Texcoords
-    glEnableVertexArrayAttrib(model.vao, 1);
+    glEnableVertexArrayAttrib(model.vao.get_id(), 1);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)(5 * sizeof(float)));  // Colours
-    glEnableVertexArrayAttrib(model.vao, 2);
+    glEnableVertexArrayAttrib(model.vao.get_id(), 2);
 
     glBindTexture(GL_TEXTURE_2D, nation_flags[world.get_id(nation)]->gl_tex_num);
     map_shader->use();

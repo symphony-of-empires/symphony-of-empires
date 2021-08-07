@@ -6,6 +6,48 @@
 #include <glm/vec2.hpp>
 
 namespace UnifiedRender::OpenGl {
+    class VAO {
+        GLuint id;
+    public:
+        VAO(void) {
+            glGenVertexArrays(1, &id);
+        };
+        ~VAO() {
+            glDeleteVertexArrays(1, &id);
+        };
+        VAO(const VAO&) = default;
+        VAO(VAO&&) noexcept = default;
+        VAO& operator=(const VAO&) = default;
+
+        inline void bind(void) {
+            glBindVertexArray(id);
+        };
+        inline GLuint get_id(void) {
+            return id;
+        };
+    };
+
+    class VBO {
+        GLuint id;
+    public:
+        VBO(void) {
+            glGenBuffers(1, &id);
+        };
+        ~VBO() {
+            glDeleteBuffers(1, &id);
+        };
+        VBO(const VBO&) = default;
+        VBO(VBO&&) noexcept = default;
+        VBO& operator=(const VBO&) = default;
+
+        inline void bind(GLenum target = GL_ARRAY_BUFFER) {
+            glBindBuffer(target, id);
+        };
+        inline GLuint get_id(void) {
+            return id;
+        };
+    };
+
     template<typename V, typename T, typename C>
     class PackedData {
     public:
@@ -28,21 +70,15 @@ namespace UnifiedRender::OpenGl {
     class PackedModel {
     public:
         std::vector<PackedData<V, T, C>> buffer;
-        GLuint vbo, vao;
+        VAO vao;
+        VBO vbo;
         GLint mode;
         
-        PackedModel(GLint _mode) : mode(_mode) {
-            glGenVertexArrays(1, &vao);
-            glGenBuffers(1, &vbo);
-        };
-
-        ~PackedModel() {
-            glDeleteBuffers(1, &vbo);
-            glDeleteVertexArrays(1, &vao);
-        };
+        PackedModel(GLint _mode) : mode(_mode) {};
+        ~PackedModel() {};
 
         virtual void draw(void) {
-            glBindVertexArray(vao);
+            vao.bind();
             glDrawArrays(mode, 0, buffer.size());
         };
     };
