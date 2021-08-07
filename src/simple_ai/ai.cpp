@@ -3,15 +3,12 @@
 #include <string>
 
 #include "world.hpp"
-#include "economy.hpp"
 #include "path.hpp"
-#include "network.hpp"
+#include "client/network.hpp"
 #include "serializer.hpp"
 #include "io_impl.hpp"
 
-extern World* g_world;
 Nation* selected_nation;
-
 void ai_fix_taxes(void) {
     std::lock_guard<std::recursive_mutex> lock(g_world->provinces_mutex);
 
