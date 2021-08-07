@@ -3,7 +3,11 @@ extern "C" {
 #	include <lua.h>
 }
 #else
-#	include <lua5.4/lua.hpp>
+#  ifdef LUA53
+#    include <lua5.3/lua.hpp>
+#  else
+#    include <lua5.4/lua.hpp>
+#  endif
 #endif
 #include <cstring>
 #include <cstdlib>

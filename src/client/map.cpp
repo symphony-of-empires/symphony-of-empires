@@ -7,6 +7,7 @@
 #include <cstring>
 #include <execution>
 #include <functional>
+#include <iostream>
 #include <mutex>
 
 #include "path.hpp"
@@ -23,17 +24,10 @@ Map::Map(const World& _world) : world(_world) {
     }
 
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
-    if(glewIsSupported("GL_VERSION_3_0")) {
+    if (glewIsSupported("GL_VERSION_3_0")) {
         // terrain_map_tex = &g_texture_manager->load_texture(Path::get("map_terrain.png"));
         // terrain_sheet_tex = &g_texture_manager->load_texture(Path::get("terrain_sheet.png"));
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0, 0, world.width, world.height);
-        glBindVertexArray(map_quad->vao);
-        glBindBuffer(GL_ARRAY_BUFFER, map_quad->vbo);
-        glBufferData(GL_ARRAY_BUFFER, map_quad->buffer.size() * sizeof(map_quad->buffer[0]), &map_quad->buffer[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(map_quad->buffer[0]), (void*)0); // Vertices
-        glEnableVertexArrayAttrib(map_quad->vao, 0);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(map_quad->buffer[0]), (void*)(2 * sizeof(float))); // Texcoords
-        glEnableVertexArrayAttrib(map_quad->vao, 1);
 
         auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
         auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/map.fs");
@@ -41,11 +35,15 @@ Map::Map(const World& _world) : world(_world) {
     }
 
     print_info("creating topo map");
-    
+
     // generate the underlying topo map texture, since the topo map
     // dosen't changes too much we can just do a texture
     div_topo_tex = new Texture(world.width, world.height);
-    if (glewIsSupported("gl_version_3_0")) {
+    if (glewIsSupported("GL_VERSION_3_0")) {
+        div_sheet_tex = new Texture(256, 256);
+        for (size_t i = 0; i < 256 * 256; i++) {
+            div_sheet_tex->buffer[i] = 0x00000000;
+        }
         for (size_t i = 0; i < world.width * world.height; i++) {
             uint8_t r, g, b;
             const Tile& tile = world.get_tile(i);
@@ -53,7 +51,13 @@ Map::Map(const World& _world) : world(_world) {
             g = (tile.province_id / 256) % 256;
             b = tile.elevation;
             div_topo_tex->buffer[i] = (0xff << 24) | (b << 16) | (g << 8) | (r);
+            if (tile.owner_id < world.nations.size()) {
+                const Nation* owner = world.nations.at(tile.owner_id);
+                uint32_t color = owner->color;
+                div_sheet_tex->buffer[r + g * 256] =  (0xff << 24) | color;
+            }
         }
+        div_sheet_tex->to_opengl();
     } else {
         for (size_t i = 0; i < world.width * world.height; i++) {
             uint8_t r, g, b;
@@ -76,18 +80,18 @@ Map::Map(const World& _world) : world(_world) {
 void Map::draw_flag(const Nation* nation, float x, float y) {
     glBindTexture(GL_TEXTURE_2D, 0);
     glBegin(GL_LINE);
-        glColor3f(1.f, 1.f, 1.f);
-        glVertex3f(x, y, 0.f);
-        glVertex3f(x, y, -2.f);
+    glColor3f(1.f, 1.f, 1.f);
+    glVertex3f(x, y, 0.f);
+    glVertex3f(x, y, -2.f);
     glEnd();
 
     // Draw a flag that "waves" with some cheap wind effects it
     // looks nice and it's super cheap to make - only using sine
-    const float n_steps = 8.f; // Resolution of flag in one side (in vertices)
-    const float step = 90.f; // Steps per vertice
+    const float n_steps = 8.f;  // Resolution of flag in one side (in vertices)
+    const float step = 90.f;    // Steps per vertice
 
     auto model = UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3>(GL_TRIANGLE_STRIP);
-    for(float r = 0.f; r <= (n_steps * step); r += step) {
+    for (float r = 0.f; r <= (n_steps * step); r += step) {
         float sin_r = sin(r + wind_osc) / 24.f;
 
         model.buffer.push_back(UnifiedRender::OpenGl::PackedData(
@@ -96,8 +100,7 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
             // Texcoord
             glm::vec2((r / step) / n_steps, 0.f),
             // Colour
-            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)
-        ));
+            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)));
 
         model.buffer.push_back(UnifiedRender::OpenGl::PackedData(
             // Vert
@@ -105,17 +108,16 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
             // Texcoord
             glm::vec2((r / step) / n_steps, 0.f),
             // Colour
-            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)
-        ));
+            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)));
     }
     glBindVertexArray(model.vao);
     glBindBuffer(GL_ARRAY_BUFFER, model.vbo);
     glBufferData(GL_ARRAY_BUFFER, model.buffer.size() * sizeof(model.buffer[0]), &model.buffer[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)0); // Vertices
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)0);  // Vertices
     glEnableVertexArrayAttrib(model.vao, 0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)(3 * sizeof(float))); // Texcoords
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)(3 * sizeof(float)));  // Texcoords
     glEnableVertexArrayAttrib(model.vao, 1);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)(5 * sizeof(float))); // Colours
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)(5 * sizeof(float)));  // Colours
     glEnableVertexArrayAttrib(model.vao, 2);
 
     glBindTexture(GL_TEXTURE_2D, nation_flags[world.get_id(nation)]->gl_tex_num);
@@ -146,25 +148,31 @@ extern TextureManager* g_texture_manager;
 void Map::draw(Camera& cam, const int width, const int height) {
     glActiveTexture(GL_TEXTURE0);
     // Draw with the old method for old hardware
-    if(glewIsSupported("GL_VERSION_3_0")) {
+    if (!glewIsSupported("GL_VERSION_3_0")) {
         draw_old(cam, width, height);
         return;
     }
 
     glm::mat4 view_proj = cam.get_projection() * cam.get_view();
-    glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
     map_shader->use();
     map_shader->set_uniform("view_proj", view_proj);
-    glUniform1i(glGetUniformLocation(map_shader->get_id(), "terrain_texture"), div_topo_tex->gl_tex_num);
+    map_shader->set_uniform("terrain_texture", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
+    map_shader->set_uniform("terrain_sheet", 1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, div_sheet_tex->gl_tex_num);
     map_quad->draw();
+    // Resets the shader and texture
     glUseProgram(0);
+    glActiveTexture(GL_TEXTURE0);
 }
 
 void Map::draw_old(Camera& cam, const int width, const int height) {
     wind_osc += 0.1f;
-    if(wind_osc >= 180.f)
+    if (wind_osc >= 180.f)
         wind_osc = 0.f;
-  
+
     // Topo map texture
     {
         glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
@@ -185,46 +193,46 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
     glCallList(coastline_gl_list);
 
     world.boats_mutex.lock();
-    for(const auto& boat: world.boats) {
+    for (const auto& boat : world.boats) {
         const float size = 1.f;
-        if(boat->size) {
+        if (boat->size) {
             glBegin(GL_QUADS);
-                glColor3f(0.f, 1.f, 0.f);
-                glVertex2f(boat->x, boat->y - 1.f);
-                glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
-                glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
-                /*glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.25f);
+            glColor3f(0.f, 1.f, 0.f);
+            glVertex2f(boat->x, boat->y - 1.f);
+            glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
+            glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
+            /*glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.25f);
                 glVertex2f(boat->x, boat->y - 1.2f);
                 glVertex2f(boat->x, boat->y - 1.f);*/
             glEnd();
         }
         glBindTexture(GL_TEXTURE_2D, boat_type_icons[world.get_id(boat->type)]->gl_tex_num);
         glBegin(GL_QUADS);
-            glColor3f(1.f, 1.f, 1.f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(boat->x, boat->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(boat->x + size, boat->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(boat->x + size, boat->y + size);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(boat->x, boat->y + size);
+        glColor3f(1.f, 1.f, 1.f);
+        glTexCoord2f(0.f, 0.f);
+        glVertex2f(boat->x, boat->y);
+        glTexCoord2f(1.f, 0.f);
+        glVertex2f(boat->x + size, boat->y);
+        glTexCoord2f(1.f, 1.f);
+        glVertex2f(boat->x + size, boat->y + size);
+        glTexCoord2f(0.f, 1.f);
+        glVertex2f(boat->x, boat->y + size);
         glEnd();
 
         draw_flag(boat->owner, boat->x, boat->y);
     }
     world.boats_mutex.unlock();
-        
+
     world.units_mutex.lock();
-    for(const auto& unit: world.units) {
+    for (const auto& unit : world.units) {
         const float size = 1.f;
-        if(unit->size) {
+        if (unit->size) {
             glBegin(GL_QUADS);
-                glColor3f(0.f, 1.f, 0.f);
-                glVertex2f(unit->x, unit->y - 1.f);
-                glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
-                glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
-                /*glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.25f);
+            glColor3f(0.f, 1.f, 0.f);
+            glVertex2f(unit->x, unit->y - 1.f);
+            glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
+            glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
+            /*glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.25f);
                 glVertex2f(unit->x, unit->y - 1.2f);
                 glVertex2f(unit->x, unit->y - 1.f);*/
             glEnd();
@@ -232,15 +240,15 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
 
         glBindTexture(GL_TEXTURE_2D, unit_type_icons[world.get_id(unit->type)]->gl_tex_num);
         glBegin(GL_QUADS);
-            glColor3f(1.f, 1.f, 1.f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(unit->x, unit->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(unit->x + size, unit->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(unit->x + size, unit->y + size);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(unit->x, unit->y + size);
+        glColor3f(1.f, 1.f, 1.f);
+        glTexCoord2f(0.f, 0.f);
+        glVertex2f(unit->x, unit->y);
+        glTexCoord2f(1.f, 0.f);
+        glVertex2f(unit->x + size, unit->y);
+        glTexCoord2f(1.f, 1.f);
+        glVertex2f(unit->x + size, unit->y + size);
+        glTexCoord2f(0.f, 1.f);
+        glVertex2f(unit->x, unit->y + size);
         glEnd();
 
         draw_flag(unit->owner, unit->x, unit->y);
@@ -248,19 +256,19 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
     world.units_mutex.unlock();
 
     world.outposts_mutex.lock();
-    for(const auto& outpost: world.outposts) {
+    for (const auto& outpost : world.outposts) {
         const float size = 1.f;
         glBindTexture(GL_TEXTURE_2D, outpost_type_icons[world.get_id(outpost->type)]->gl_tex_num);
         glBegin(GL_QUADS);
-            glColor3f(1.f, 1.f, 1.f);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(outpost->x, outpost->y);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(outpost->x + size, outpost->y);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(outpost->x + size, outpost->y + size);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(outpost->x, outpost->y + size);
+        glColor3f(1.f, 1.f, 1.f);
+        glTexCoord2f(0.f, 0.f);
+        glVertex2f(outpost->x, outpost->y);
+        glTexCoord2f(1.f, 0.f);
+        glVertex2f(outpost->x + size, outpost->y);
+        glTexCoord2f(1.f, 1.f);
+        glVertex2f(outpost->x + size, outpost->y + size);
+        glTexCoord2f(0.f, 1.f);
+        glVertex2f(outpost->x, outpost->y + size);
         glEnd();
 
         draw_flag(outpost->owner, outpost->x, outpost->y);
