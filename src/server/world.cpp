@@ -181,11 +181,10 @@ void World::load_mod(void) {
     height = topo.height;
 
     // Check that size of all maps match
-    if(topo.width != width || topo.height != height) {
+    if(topo.width != width || topo.height != height)
         throw std::runtime_error("Topographic map size mismatch");
-    } else if(div.width != width || div.height != height) {
+    else if(div.width != width || div.height != height)
         throw std::runtime_error("Province map size mismatch");
-    }
 
     const size_t total_size = width * height;
 
@@ -194,14 +193,12 @@ void World::load_mod(void) {
     // Land is	> sea_level + 1
     sea_level = 126;
     tiles = new Tile[total_size];
-    if(tiles == nullptr) {
+    if(tiles == nullptr)
         throw std::runtime_error("Out of memory");
-    }
     
     int ret = luaL_dofile(this->lua, Path::get("scripts/init.lua").c_str());
-    if(ret) {
+    if(ret)
         throw std::runtime_error(lua_tostring(lua, -1));
-    }
 
     // Shrink normally-not-resized vectors to give back memory to the OS
     printf("Shrink normally-not-resized vectors to give back memory to the OS\n");
@@ -233,8 +230,7 @@ void World::load_mod(void) {
         }
 
         // Set infrastructure level
-        if(infra.buffer[i] == 0xffffffff
-        || infra.buffer[i] == 0xff000000) {
+        if(infra.buffer[i] == 0xffffffff || infra.buffer[i] == 0xff000000) {
             tiles[i].infra_level = 0;
         } else {
             tiles[i].infra_level = 1;
