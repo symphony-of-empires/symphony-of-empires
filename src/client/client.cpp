@@ -921,6 +921,8 @@ void select_nation(void) {
                     cam.position.y += last_camera_drag_pos.second - map_pos.second; 
                 }
                 select_pos = cam.get_map_pos(mouse_pos);
+                select_pos.first = (int) select_pos.first; 
+                select_pos.second = (int)select_pos.second; 
                 break;
             case SDL_MOUSEWHEEL:
                 SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
