@@ -1198,6 +1198,12 @@ void client_main(int argc, char** argv) {
     if(err != GLEW_OK)
         throw std::runtime_error("Failed to init GLEW");
 
+    if(glewIsSupported("GL_VERSION_3_0")) {
+        printf("SHADER READY HARDWARE");
+        unsigned int vertexShader;
+        vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    }
+
     std::string server_addr;
     if(argc > 1) {
         server_addr = argv[1];

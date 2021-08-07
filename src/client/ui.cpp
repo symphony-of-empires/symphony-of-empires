@@ -9,7 +9,6 @@
 #		undef WIN32_LEAN_AND_MEAN
 #	endif
 #endif
-#include <GL/glew.h>
 #include <GL/gl.h>
 #include "texture.hpp"
 #include "ui.hpp"
