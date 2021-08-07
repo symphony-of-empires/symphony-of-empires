@@ -15,6 +15,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <string>
+#include <GL/glew.h>
 #ifdef windows
 #	ifndef _WINDOWS_
 #		define WIN32_LEAN_AND_MEAN 1
