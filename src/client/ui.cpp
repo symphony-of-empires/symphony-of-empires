@@ -11,7 +11,6 @@
 #endif
 #include <GL/glew.h>
 #include <GL/gl.h>
-#include "texture.hpp"
 #include "ui.hpp"
 #include "path.hpp"
 #include "print.hpp"

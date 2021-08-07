@@ -23,10 +23,17 @@ Map::Map(const World& _world) : world(_world) {
     }
 
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
-    if (glewIsSupported("GL_VERSION_3_0")) {
+    if(glewIsSupported("GL_VERSION_3_0")) {
         // terrain_map_tex = &g_texture_manager->load_texture(Path::get("map_terrain.png"));
         // terrain_sheet_tex = &g_texture_manager->load_texture(Path::get("terrain_sheet.png"));
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0, 0, world.width, world.height);
+        glBindVertexArray(map_quad->vao);
+        glBindBuffer(GL_ARRAY_BUFFER, map_quad->vbo);
+        glBufferData(GL_ARRAY_BUFFER, map_quad->buffer.size() * sizeof(map_quad->buffer[0]), &map_quad->buffer[0], GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(map_quad->buffer[0]), (void*)0); // Vertices
+        glEnableVertexArrayAttrib(map_quad->vao, 0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(map_quad->buffer[0]), (void*)(2 * sizeof(float))); // Texcoords
+        glEnableVertexArrayAttrib(map_quad->vao, 1);
 
         auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
         auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/map.fs");
@@ -68,7 +75,7 @@ Map::Map(const World& _world) : world(_world) {
 
 void Map::draw_flag(const Nation* nation, float x, float y) {
     glBindTexture(GL_TEXTURE_2D, 0);
-    glBegin(GL_LINE_STRIP);
+    glBegin(GL_LINE);
         glColor3f(1.f, 1.f, 1.f);
         glVertex3f(x, y, 0.f);
         glVertex3f(x, y, -2.f);
@@ -78,10 +85,47 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
     // looks nice and it's super cheap to make - only using sine
     const float n_steps = 8.f; // Resolution of flag in one side (in vertices)
     const float step = 90.f; // Steps per vertice
+
+    auto model = UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3>(GL_TRIANGLE_STRIP);
+    for(float r = 0.f; r <= (n_steps * step); r += step) {
+        float sin_r = sin(r + wind_osc) / 24.f;
+
+        model.buffer.push_back(UnifiedRender::OpenGl::PackedData(
+            // Vert
+            glm::vec3(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -2.f),
+            // Texcoord
+            glm::vec2((r / step) / n_steps, 0.f),
+            // Colour
+            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)
+        ));
+
+        model.buffer.push_back(UnifiedRender::OpenGl::PackedData(
+            // Vert
+            glm::vec3(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -1.f),
+            // Texcoord
+            glm::vec2((r / step) / n_steps, 0.f),
+            // Colour
+            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)
+        ));
+    }
+    glBindVertexArray(model.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, model.vbo);
+    glBufferData(GL_ARRAY_BUFFER, model.buffer.size() * sizeof(model.buffer[0]), &model.buffer[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)0); // Vertices
+    glEnableVertexArrayAttrib(model.vao, 0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)(3 * sizeof(float))); // Texcoords
+    glEnableVertexArrayAttrib(model.vao, 1);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)(5 * sizeof(float))); // Colours
+    glEnableVertexArrayAttrib(model.vao, 2);
+
     glBindTexture(GL_TEXTURE_2D, nation_flags[world.get_id(nation)]->gl_tex_num);
+    map_shader->use();
+    glUniform1i(glGetUniformLocation(map_shader->get_id(), "terrain_texture"), nation_flags[world.get_id(nation)]->gl_tex_num);
+    model.draw();
+    glUseProgram(0);
 
     // sin_r - Sin'ed iterator along with the wind oscillator
-    glBegin(GL_TRIANGLE_STRIP);
+    /*glBegin(GL_TRIANGLE_STRIP);
     for(float r = 0.f; r <= (n_steps * step); r += step) {
         float sin_r;
 
@@ -95,11 +139,12 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
         glTexCoord2f((r / step) / n_steps, 1.f);
         glVertex3f(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -1.f);
     }
-    glEnd();
+    glEnd();*/
 }
 
 extern TextureManager* g_texture_manager;
 void Map::draw(Camera& cam, const int width, const int height) {
+    glActiveTexture(GL_TEXTURE0);
     // Draw with the old method for old hardware
     if(glewIsSupported("GL_VERSION_3_0")) {
         draw_old(cam, width, height);
@@ -107,10 +152,10 @@ void Map::draw(Camera& cam, const int width, const int height) {
     }
 
     glm::mat4 view_proj = cam.get_projection() * cam.get_view();
-
+    glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
     map_shader->use();
     map_shader->set_uniform("view_proj", view_proj);
-    glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
+    glUniform1i(glGetUniformLocation(map_shader->get_id(), "terrain_texture"), div_topo_tex->gl_tex_num);
     map_quad->draw();
     glUseProgram(0);
 }
@@ -121,19 +166,12 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
         wind_osc = 0.f;
   
     // Topo map texture
-    glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
-    glColor3f(1.f, 1.f, 1.f);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.f, 0.f);
-    glVertex2f(0.f, 0.f);
-    glTexCoord2f(1.f, 0.f);
-    glVertex2f(0.f + world.width, 0.f);
-    glTexCoord2f(1.f, 1.f);
-    glVertex2f(0.f + world.width, 0.f + world.height);
-    glTexCoord2f(0.f, 1.f);
-    glVertex2f(0.f, 0.f + world.height);
-    glEnd();
-    glBindTexture(GL_TEXTURE_2D, 0);
+    {
+        glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
+        auto topo_map_plane = UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
+        topo_map_plane.draw();
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
 
     for (size_t i = 0; i < world.provinces.size(); i++) {
         if (world.provinces[i]->owner != nullptr) {
@@ -142,11 +180,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
         } else {
             glColor4ub(0x80, 0x80, 0x80, 0xc0);
         }
-
         glCallList(province_shapes[i].shape_gl_list);
-
-        //glColor4f(0.f, 0.f, 0.f, 0.5f);
-        //glCallList(province_shapes[i].outline_gl_list);
     }
     glCallList(coastline_gl_list);
 
