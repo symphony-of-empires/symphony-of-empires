@@ -49,6 +49,9 @@ int main(int argc, char** argv) {
 #endif
     
 #ifndef UNIT_TEST
+    Path::add_path("test");
+    Path::add_path("base_game");
+
     // Run as a server for servicing multiple clients
     if(argc > 1 && !strcmp(argv[1], "server")) {
         World* world = new World();
