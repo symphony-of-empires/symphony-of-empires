@@ -25,8 +25,10 @@ Map::Map(const World& _world) : world(_world) {
 
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
     if (glewIsSupported("GL_VERSION_3_0")) {
-        // terrain_map_tex = &g_texture_manager->load_texture(Path::get("map_terrain.png"));
-        // terrain_sheet_tex = &g_texture_manager->load_texture(Path::get("terrain_sheet.png"));
+        water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), 
+            GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), 
+            GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0, 0, world.width, world.height);
 
         auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
@@ -162,6 +164,12 @@ void Map::draw(Camera& cam, const int width, const int height) {
     map_shader->set_uniform("terrain_sheet", 1);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, div_sheet_tex->gl_tex_num);
+    map_shader->set_uniform("water_texture", 2);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, water_tex->gl_tex_num);
+    map_shader->set_uniform("noise_texture", 3);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, noise_tex->gl_tex_num);
     map_quad->draw();
     // Resets the shader and texture
     glUseProgram(0);
