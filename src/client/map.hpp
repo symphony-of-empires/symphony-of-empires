@@ -35,10 +35,10 @@ public:
     
     Texture* div_topo_tex;
     Texture* div_sheet_tex;
+    const Texture* water_tex;
+    const Texture* noise_tex;
     UnifiedRender::OpenGl::PrimitiveSquare* map_quad;
     UnifiedRender::OpenGl::Program* map_shader;
-    const Texture* terrain_map_tex;
-    const Texture* terrain_sheet_tex;
     const Texture* overlay_tex;
     GLuint coastline_gl_list;
 
