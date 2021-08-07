@@ -5,7 +5,7 @@
 #include <vector>
 #include <cstdint>
 #include <cstddef>
-#include "economy.hpp"
+#include "good.hpp"
 
 /**
 * Defines a type of unit, it can be a tank, garrison, infantry, etc
@@ -79,8 +79,6 @@ public:
 };
 
 #include "nation.hpp"
-#include "world.hpp"
-class Tile;
 /**
 * Roughly a batallion, consisting of approximately 500 soldiers each
  */

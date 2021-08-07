@@ -1,6 +1,9 @@
 #include "province.hpp"
-#include "economy.hpp"
 #include "world.hpp"
+#include "product.hpp"
+#include "industry.hpp"
+#include "good.hpp"
+#include "company.hpp"
 
 /**
 * Gets ID from pointer

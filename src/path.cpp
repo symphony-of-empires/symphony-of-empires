@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <fstream>
 #include "path.hpp"
+#include "print.hpp"
 
 /* Visual Studio is not posix so we have to define PATH_MAX ourselves */
 #ifndef MAX_PATH
@@ -69,7 +70,7 @@ namespace Path {
             rsult += str;
             if(file_exists(rsult) == true) {
                 end_path += rsult;
-                printf("%s exists", end_path);
+                print_info("Path '%s' exists", end_path.c_str());
                 break;
             }
         }
