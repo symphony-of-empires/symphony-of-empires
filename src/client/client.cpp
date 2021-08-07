@@ -975,8 +975,8 @@ void select_nation(void) {
                     // Resize/recenter UI according to screen change
                     std::pair size_diff = std::make_pair(old_size.first / width, old_size.second / height);
                     for(auto& widget: ui_ctx->widgets) {
-                        widget->x += size_diff.x;
-                        widget->y += size_diff.y;
+                        widget->x += size_diff.first;
+                        widget->y += size_diff.second;
                     }
                 }
                 break;
