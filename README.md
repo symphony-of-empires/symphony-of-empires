@@ -17,6 +17,13 @@ Install all dependencies with this command:
 sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.4-dev libtbb-dev
 ```
 
+The build with these commands once all the dependencies are met:
+```
+mkdir build && cd build
+cmake ..
+make -j
+```
+
 If Lua5.4 is not available you can alternatively obtain both normal and development libraries directly:
 ```
 wget http://mirrors.kernel.org/ubuntu/pool/universe/l/lua5.4/liblua5.4-0_5.4.0-2_amd64.deb
@@ -25,12 +32,7 @@ wget http://mirrors.kernel.org/ubuntu/pool/universe/l/lua5.4/liblua5.4-dev_5.4.0
 sudo dpkg -i liblua5.4-dev_5.4.0-2_amd64.deb
 ```
 
-Then these commands will build the project once all dependencies are met
-```
-mkdir build && cd build
-cmake ..
-make -j
-```
+Alternatively, you can call `cmake` with the flag `-Dlua53:BOOL=ON` to compile with Lua 5.3 instead.
 
 ## Build (Linux, MinGW)
 Using mingw-w64 on linux it is possible to cross compile for Windows builds, simply run the following commands:

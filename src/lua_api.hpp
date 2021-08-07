@@ -2,9 +2,13 @@
 #define LUA_H
 
 #ifdef windows
-#	include <lua.hpp>
+#  include <lua.hpp>
 #else
-#	include <lua5.4/lua.hpp>
+#  ifdef LUA53
+#    include <lua5.3/lua.hpp>
+#  else
+#    include <lua5.4/lua.hpp>
+#  endif
 #endif
 #include <string>
 #include <vector>

@@ -34,6 +34,16 @@ add_executable(SymphonyOfEmpires ${MAIN_SOURCES} ${CLIENT_SOURCES} ${AI_SOURCES}
 IF(WIN32)
 	target_link_libraries(SymphonyOfEmpires PUBLIC opengl32 glu32 ws2_32 winpthread intl lua)
 ELSE()
-	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLEW GLU SDL2main lua5.4 stdc++)
+	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLEW GLU SDL2main stdc++)
 ENDIF()
+
+IF(lua53)
+	target_link_libraries(SymphonyOfEmpires PUBLIC lua5.3)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLUA53")
+	message("Making with Lua 5.3")
+ELSE()
+	target_link_libraries(SymphonyOfEmpires PUBLIC lua5.4)
+	message("Making with Lua 5.4")
+ENDIF()
+
 target_link_libraries(SymphonyOfEmpires PUBLIC png SDL2 SDL2_ttf m z)
