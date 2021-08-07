@@ -12,34 +12,38 @@
  * intended to be used in rendering cases only
  */
 
-#include <cstdint>
-#include <cstddef>
-#include <string>
 #include <GL/glew.h>
+
+#include <cstddef>
+#include <cstdint>
+#include <string>
 #ifdef windows
-#	ifndef _WINDOWS_
-#		define WIN32_LEAN_AND_MEAN 1
-#		include <windows.h>
-#		undef WIN32_LEAN_AND_MEAN
-#	endif
+#ifndef _WINDOWS_
+#define WIN32_LEAN_AND_MEAN 1
+#include <windows.h>
+#undef WIN32_LEAN_AND_MEAN
+#endif
 #endif
 #include <GL/gl.h>
+
 #include "binary_image.hpp"
 
 class TextureException : public BinaryImageException {
-public:
-    TextureException(std::string filename, std::string message) : BinaryImageException(filename, message) {};
+   public:
+    TextureException(std::string filename, std::string message) : BinaryImageException(filename, message){};
 };
 
 class Texture : public BinaryImage {
-public:
-    Texture() {};
-    Texture(std::string path) : BinaryImage(path) {};
-    Texture(size_t _width, size_t _height) : BinaryImage(_width, _height) {};
+   public:
+    Texture(){};
+    Texture(std::string path) : BinaryImage(path){};
+    Texture(size_t _width, size_t _height) : BinaryImage(_width, _height){};
 
     GLuint gl_tex_num;
     void create_dummy();
-    void to_opengl();
+    void to_opengl(GLuint wrapp = GL_REPEAT,
+                   GLuint min_filter = GL_NEAREST,
+                   GLuint mag_filter = GL_NEAREST);
     void delete_opengl();
     void guillotine(const Texture& map, int x, int y, int w, int h);
 };
@@ -50,10 +54,15 @@ public:
  */
 #include <set>
 class TextureManager {
-private:
+   private:
     std::set<std::pair<Texture*, std::string>> textures;
-public:
-    const Texture& load_texture(std::string path);
+
+   public:
+    const Texture& load_texture(
+        std::string path,
+        GLuint wrapp = GL_REPEAT,
+        GLuint min_filter = GL_NEAREST,
+        GLuint mag_filter = GL_NEAREST);
 };
 
 #endif

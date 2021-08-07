@@ -1,5 +1,7 @@
-#include <string>
 #include "texture.hpp"
+
+#include <string>
+
 #include "path.hpp"
 #include "print.hpp"
 
@@ -11,13 +13,13 @@ void Texture::create_dummy() {
     width = 16;
     height = 16;
     buffer = new uint32_t[width * height];
-    if(buffer == nullptr) {
+    if (buffer == nullptr) {
         throw TextureException("Dummy", "Out of memory for dummy texture");
     }
 
     // Fill in with a pattern of pink and black
     // This should be autovectorized by gcc
-    for(size_t i = 0; i < width * height; i++) {
+    for (size_t i = 0; i < width * height; i++) {
         buffer[i] = (i % 2) ? 0xff000000 : 0xff808000;
     }
 }
@@ -25,20 +27,20 @@ void Texture::create_dummy() {
 /**
  * Converts the texture into a OpenGL texture, and assigns it a number
   */
-void Texture::to_opengl() {
+void Texture::to_opengl(GLuint wrap, GLuint min_filter, GLuint mag_filter) {
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    
-    if(glewIsSupported("GL_VERSION_3_0"))
+
+    if (glewIsSupported("GL_VERSION_3_0"))
         glGenerateMipmap(GL_TEXTURE_2D);
-    else 
+    else
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
     return;
 }
 
@@ -64,14 +66,14 @@ TextureManager* g_texture_manager;
  * on the disk, and our main point is to mirror loaded textures from the disk - not modify
  * them.
  */
-const Texture& TextureManager::load_texture(std::string path) {
+const Texture& TextureManager::load_texture( std::string path, GLuint wrap, GLuint min_filter, GLuint mag_filter) {
     // Find texture when wanting to be loaded
-    auto it = std::find_if(this->textures.begin(), this->textures.end(), [&path](const std::pair<Texture *, std::string>& element) {
+    auto it = std::find_if(this->textures.begin(), this->textures.end(), [&path](const std::pair<Texture*, std::string>& element) {
         return (element.second == path);
     });
 
     // Load texture from cached texture list
-    if(it != this->textures.end()) {
+    if (it != this->textures.end()) {
         return *((*it).first);
     }
 
@@ -81,12 +83,12 @@ const Texture& TextureManager::load_texture(std::string path) {
     Texture* tex;
     try {
         tex = new Texture(path);
-    } catch(BinaryImageException&) {
+    } catch (BinaryImageException&) {
         tex = new Texture();
         tex->create_dummy();
     }
-    
-    tex->to_opengl();
+
+    tex->to_opengl(wrap, min_filter, mag_filter);
     this->textures.insert(std::make_pair(tex, path));
-    return *((const Texture *)tex);
+    return *((const Texture*)tex);
 }
