@@ -121,10 +121,7 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
     glEnableVertexArrayAttrib(model.vao.get_id(), 2);
 
     glBindTexture(GL_TEXTURE_2D, nation_flags[world.get_id(nation)]->gl_tex_num);
-    map_shader->use();
-    glUniform1i(glGetUniformLocation(map_shader->get_id(), "terrain_texture"), nation_flags[world.get_id(nation)]->gl_tex_num);
     model.draw();
-    glUseProgram(0);
 
     // sin_r - Sin'ed iterator along with the wind oscillator
     /*glBegin(GL_TRIANGLE_STRIP);
@@ -196,28 +193,19 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
     for (const auto& boat : world.boats) {
         const float size = 1.f;
         if (boat->size) {
-            glBegin(GL_QUADS);
+            glBegin(GL_TRIANGLES);
             glColor3f(0.f, 1.f, 0.f);
             glVertex2f(boat->x, boat->y - 1.f);
             glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
             glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
-            /*glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.25f);
-                glVertex2f(boat->x, boat->y - 1.2f);
-                glVertex2f(boat->x, boat->y - 1.f);*/
+            glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.25f);
+            glVertex2f(boat->x, boat->y - 1.2f);
+            glVertex2f(boat->x, boat->y - 1.f);
             glEnd();
         }
+        auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(boat->x, boat->y, boat->x + size, boat->y + size);
         glBindTexture(GL_TEXTURE_2D, boat_type_icons[world.get_id(boat->type)]->gl_tex_num);
-        glBegin(GL_QUADS);
-        glColor3f(1.f, 1.f, 1.f);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(boat->x, boat->y);
-        glTexCoord2f(1.f, 0.f);
-        glVertex2f(boat->x + size, boat->y);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(boat->x + size, boat->y + size);
-        glTexCoord2f(0.f, 1.f);
-        glVertex2f(boat->x, boat->y + size);
-        glEnd();
+        sprite_plane.draw();
 
         draw_flag(boat->owner, boat->x, boat->y);
     }
@@ -227,29 +215,20 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
     for (const auto& unit : world.units) {
         const float size = 1.f;
         if (unit->size) {
-            glBegin(GL_QUADS);
+            glBegin(GL_TRIANGLES);
             glColor3f(0.f, 1.f, 0.f);
             glVertex2f(unit->x, unit->y - 1.f);
             glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
             glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
-            /*glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.25f);
-                glVertex2f(unit->x, unit->y - 1.2f);
-                glVertex2f(unit->x, unit->y - 1.f);*/
+            glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.25f);
+            glVertex2f(unit->x, unit->y - 1.2f);
+            glVertex2f(unit->x, unit->y - 1.f);
             glEnd();
         }
 
+        auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(unit->x, unit->y, unit->x + size, unit->y + size);
         glBindTexture(GL_TEXTURE_2D, unit_type_icons[world.get_id(unit->type)]->gl_tex_num);
-        glBegin(GL_QUADS);
-        glColor3f(1.f, 1.f, 1.f);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(unit->x, unit->y);
-        glTexCoord2f(1.f, 0.f);
-        glVertex2f(unit->x + size, unit->y);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(unit->x + size, unit->y + size);
-        glTexCoord2f(0.f, 1.f);
-        glVertex2f(unit->x, unit->y + size);
-        glEnd();
+        sprite_plane.draw();
 
         draw_flag(unit->owner, unit->x, unit->y);
     }
@@ -258,18 +237,9 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
     world.outposts_mutex.lock();
     for (const auto& outpost : world.outposts) {
         const float size = 1.f;
+        auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(outpost->x, outpost->y, outpost->x + size, outpost->y + size);
         glBindTexture(GL_TEXTURE_2D, outpost_type_icons[world.get_id(outpost->type)]->gl_tex_num);
-        glBegin(GL_QUADS);
-        glColor3f(1.f, 1.f, 1.f);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(outpost->x, outpost->y);
-        glTexCoord2f(1.f, 0.f);
-        glVertex2f(outpost->x + size, outpost->y);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(outpost->x + size, outpost->y + size);
-        glTexCoord2f(0.f, 1.f);
-        glVertex2f(outpost->x, outpost->y + size);
-        glEnd();
+        sprite_plane.draw();
 
         draw_flag(outpost->owner, outpost->x, outpost->y);
     }
