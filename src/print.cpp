@@ -4,7 +4,7 @@
 
 #include "print.hpp"
 
-std::mutex print_mutex;
+static std::mutex print_mutex;
 
 void print_error(const char* str, ...) {
 	print_mutex.lock();
@@ -27,7 +27,7 @@ void print_error(const char* str, ...) {
 }
 
 void print_info(const char* str, ...) {
-		print_mutex.lock();
+	print_mutex.lock();
 	
 	va_list args;
 	va_start(args, str);
