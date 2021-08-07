@@ -2,15 +2,17 @@
 #include <cstdio>
 
 #include "actions.hpp"
-#include "economy.hpp"
+#include "server/economy.hpp"
 #include "world.hpp"
 #include "print.hpp"
-#include "pathfinding.hpp"
-
 #include "serializer.hpp"
 #include "io_impl.hpp"
-#include "network.hpp"
+#include "server/network.hpp"
 #include "thread_pool.hpp"
+#include "product.hpp"
+#include "industry.hpp"
+#include "good.hpp"
+#include "company.hpp"
 
 /* Visual Studio does not define ssize_t because it's a POSIX-only type */
 #ifdef _MSC_VER

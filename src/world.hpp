@@ -7,8 +7,11 @@
 #include <cstring>
 #include <ctime>
 #include "nation.hpp"
-#include "economy.hpp"
-#include "lua_api.hpp"
+#include "product.hpp"
+#include "industry.hpp"
+#include "good.hpp"
+#include "company.hpp"
+#include "server/lua_api.hpp"
 
 #define MAX_INFRA_LEVEL 			8
 #define MAX_ELEVATION				255

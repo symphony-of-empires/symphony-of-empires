@@ -7,27 +7,22 @@ extern "C" {
 #endif
 #include <cstring>
 #include <cstdlib>
-
 #ifdef windows
-#	include <cstdlib>
 #	define bswap_32(x) _byteswap_ulong(x)
 #	define bswap_64(x) _byteswap_uint64(x)
 #else
 #	include <byteswap.h>
 #endif
-#include "lua_api.hpp"
-#include "world.hpp"
-#include "nation.hpp"
-#include "economy.hpp"
-#include "print.hpp"
-
 #include <libintl.h>
 #include <locale.h>
+
+#include "server/lua_api.hpp"
+#include "world.hpp"
+#include "nation.hpp"
+#include "server/economy.hpp"
+#include "print.hpp"
 #include "path.hpp"
 #include "event.hpp"
-
-// Global world - do not use too much!
-extern World* g_world;
 
 int LuaAPI::add_unit_trait(lua_State* L) {
     UnitTrait* unit_trait = new UnitTrait();

@@ -33,7 +33,10 @@
 #include <GL/glu.h>
 #include <GL/gl.h>
 #include "world.hpp"
-#include "economy.hpp"
+#include "product.hpp"
+#include "company.hpp"
+#include "industry.hpp"
+#include "good.hpp"
 #include "render/texture.hpp"
 #include "path.hpp"
 #include "ui.hpp"
@@ -41,6 +44,11 @@
 #include "network.hpp"
 #include "serializer.hpp"
 #include "io_impl.hpp"
+
+World::World(void) {
+    g_world = this;
+};
+World::~World() {};
 
 extern TextureManager* g_texture_manager;
 int width = 1280;

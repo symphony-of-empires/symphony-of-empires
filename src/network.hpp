@@ -24,9 +24,7 @@
 #	include <ws2def.h>
 #	include <ws2tcpip.h>
 #endif
-#include <thread>
 #include <vector>
-#include <atomic>
 #include <string>
 #include <cstring>
 #include <stdexcept>
@@ -177,60 +175,5 @@ public:
         return (code == PACKET_OK);
     }
 };
-
-#include <deque>
-#include <mutex>
-class Server {
-    struct sockaddr_in addr;
-#ifdef unix
-    int fd;
-#elif defined windows
-    SOCKET fd;
-#endif
-
-    std::vector<std::thread> threads;
-    std::vector<std::deque<Packet>> packet_queues;
-    std::atomic<bool>* is_connected;
-    
-    // std::vector hates mutexes because they are not copy-able
-    std::mutex* packet_mutexes;
-    
-    std::atomic<bool> run;
-public:
-    Server(unsigned port = 1825, unsigned max_conn = 16);
-    ~Server();
-    
-    void broadcast(Packet& packet);
-    void net_loop(int id);
-    
-    int n_clients;
-};
-
-class Client {
-    struct sockaddr_in addr;
-#ifdef unix
-    int fd;
-#elif defined windows
-    SOCKET fd;
-#endif
-    
-    std::thread net_thread;
-    std::atomic<bool> has_snapshot;
-public:
-    Client(std::string host, const unsigned port);
-    ~Client();
-    int get_fd(void) {
-        return fd;
-    }
-    
-    void net_loop(void);
-    void wait_for_snapshot(void);
-    
-    std::mutex packet_mutex;
-    std::deque<Packet> packet_queue;
-};
-
-extern Server* g_server;
-extern Client* g_client;
 
 #endif
