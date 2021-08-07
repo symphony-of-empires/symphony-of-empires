@@ -34,6 +34,7 @@ public:
     std::vector<ProvinceShape> province_shapes;
     
     Texture* div_topo_tex;
+    Texture* div_sheet_tex;
     UnifiedRender::OpenGl::PrimitiveSquare* map_quad;
     UnifiedRender::OpenGl::Program* map_shader;
     const Texture* terrain_map_tex;
