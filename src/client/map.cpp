@@ -92,11 +92,11 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
     const float n_steps = 8.f;  // Resolution of flag in one side (in vertices)
     const float step = 90.f;    // Steps per vertice
 
-    auto model = UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3>(GL_TRIANGLE_STRIP);
+    auto flag = UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3>(GL_TRIANGLE_STRIP);
     for (float r = 0.f; r <= (n_steps * step); r += step) {
         float sin_r = sin(r + wind_osc) / 24.f;
 
-        model.buffer.push_back(UnifiedRender::OpenGl::PackedData(
+        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData(
             // Vert
             glm::vec3(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -2.f),
             // Texcoord
@@ -105,7 +105,7 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
             glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f))
         );
 
-        model.buffer.push_back(UnifiedRender::OpenGl::PackedData(
+        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData(
             // Vert
             glm::vec3(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -1.f),
             // Texcoord
@@ -114,18 +114,18 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
             glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f))
         );
     }
-    model.vao.bind();
-    model.vbo.bind(GL_ARRAY_BUFFER);
-    glBufferData(GL_ARRAY_BUFFER, model.buffer.size() * sizeof(model.buffer[0]), &model.buffer[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)0);  // Vertices
-    glEnableVertexArrayAttrib(model.vao.get_id(), 0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)(3 * sizeof(float)));  // Texcoords
-    glEnableVertexArrayAttrib(model.vao.get_id(), 1);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(model.buffer[0]), (void*)(5 * sizeof(float)));  // Colours
-    glEnableVertexArrayAttrib(model.vao.get_id(), 2);
 
-    glBindTexture(GL_TEXTURE_2D, nation_flags[world.get_id(nation)]->gl_tex_num);
-    model.draw();
+    flag.vao.bind();
+    flag.vbo.bind(GL_ARRAY_BUFFER);
+    glBufferData(GL_ARRAY_BUFFER, flag.buffer.size() * sizeof(flag.buffer[0]), &flag.buffer[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)0);  // Vertices
+    glEnableVertexArrayAttrib(flag.vao.get_id(), 0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)(3 * sizeof(float)));  // Texcoords
+    glEnableVertexArrayAttrib(flag.vao.get_id(), 1);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)(5 * sizeof(float)));  // Colours
+    glEnableVertexArrayAttrib(flag.vao.get_id(), 2);
+    nation_flags[world.get_id(nation)]->bind();
+    flag.draw();
 
     // sin_r - Sin'ed iterator along with the wind oscillator
     /*glBegin(GL_TRIANGLE_STRIP);
@@ -182,7 +182,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
 
     // Topo map texture
     {
-        glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
+        div_topo_tex->bind();
         auto topo_map_plane = UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
         topo_map_plane.draw();
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -214,7 +214,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
             glEnd();
         }
         auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(boat->x, boat->y, boat->x + size, boat->y + size);
-        glBindTexture(GL_TEXTURE_2D, boat_type_icons[world.get_id(boat->type)]->gl_tex_num);
+        boat_type_icons[world.get_id(boat->type)]->bind();
         sprite_plane.draw();
 
         draw_flag(boat->owner, boat->x, boat->y);
@@ -237,7 +237,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
         }
 
         auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(unit->x, unit->y, unit->x + size, unit->y + size);
-        glBindTexture(GL_TEXTURE_2D, unit_type_icons[world.get_id(unit->type)]->gl_tex_num);
+        unit_type_icons[world.get_id(unit->type)]->bind();
         sprite_plane.draw();
 
         draw_flag(unit->owner, unit->x, unit->y);
@@ -248,7 +248,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
     for (const auto& outpost : world.outposts) {
         const float size = 1.f;
         auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(outpost->x, outpost->y, outpost->x + size, outpost->y + size);
-        glBindTexture(GL_TEXTURE_2D, outpost_type_icons[world.get_id(outpost->type)]->gl_tex_num);
+        outpost_type_icons[world.get_id(outpost->type)]->bind();
         sprite_plane.draw();
 
         draw_flag(outpost->owner, outpost->x, outpost->y);

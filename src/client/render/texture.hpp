@@ -41,9 +41,8 @@ class Texture : public BinaryImage {
 
     GLuint gl_tex_num;
     void create_dummy();
-    void to_opengl(GLuint wrapp = GL_REPEAT,
-                   GLuint min_filter = GL_NEAREST,
-                   GLuint mag_filter = GL_NEAREST);
+    void to_opengl(GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
+    void bind(void) const;
     void delete_opengl();
     void guillotine(const Texture& map, int x, int y, int w, int h);
 };
