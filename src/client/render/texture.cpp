@@ -13,9 +13,8 @@ void Texture::create_dummy() {
     width = 16;
     height = 16;
     buffer = new uint32_t[width * height];
-    if (buffer == nullptr) {
+    if (buffer == nullptr)
         throw TextureException("Dummy", "Out of memory for dummy texture");
-    }
 
     // Fill in with a pattern of pink and black
     // This should be autovectorized by gcc
@@ -41,7 +40,13 @@ void Texture::to_opengl(GLuint wrap, GLuint min_filter, GLuint mag_filter) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
-    return;
+}
+
+/**
+ * Binds the texture to the current OpenGL context
+ */
+void Texture::bind(void) const {
+    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
 }
 
 /**
@@ -73,9 +78,8 @@ const Texture& TextureManager::load_texture( std::string path, GLuint wrap, GLui
     });
 
     // Load texture from cached texture list
-    if (it != this->textures.end()) {
+    if (it != this->textures.end())
         return *((*it).first);
-    }
 
     print_info("Loaded and cached texture %s", path.c_str());
 
