@@ -17,11 +17,11 @@ extern TextureManager* g_texture_manager;
 Map::Map(const World& _world) : world(_world) {
     std::lock_guard<std::recursive_mutex> lock(world.provinces_mutex);
 
-    print_info("Creating province meshes");
-    for (const auto& province : world.provinces) {
-        ProvinceShape pr_shape = ProvinceShape(*this, *province);
-        province_shapes.push_back(pr_shape);
-    }
+    // print_info("Creating province meshes");
+    // for (const auto& province : world.provinces) {
+    //     ProvinceShape pr_shape = ProvinceShape(*this, *province);
+    //     province_shapes.push_back(pr_shape);
+    // }
 
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
     if (glewIsSupported("GL_VERSION_3_0")) {
