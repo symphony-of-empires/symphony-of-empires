@@ -41,11 +41,11 @@ float sum(vec3 v)
 float getBorder(vec2 texcoord)
 {
 	// Pixel size on map texture
-	float xx = 1 / 1350.0;
-	float yy = 1 / 675.0;
-	vec2 pix = vec2(xx, yy);
+	const float xx = 1 / 1350.0;
+	const float yy = 1 / 675.0;
+	const vec2 pix = vec2(xx, yy);
 
-	vec2 mPos = texcoord - mod(texcoord + pix * 0.5, pix);
+	vec2 mPos = texcoord - mod(texcoord + 0.5 * pix, pix);
 	vec4 provience = texture(terrain_texture, texcoord);
 	vec3 provienceLU = texture(terrain_texture, mPos + pix * vec2(0.25, 0.25)).xyz;
 	vec3 provienceLD = texture(terrain_texture, mPos + pix * vec2(0.25, 0.75)).xyz;
@@ -56,30 +56,31 @@ float getBorder(vec2 texcoord)
 	float y0 = sum(provienceLU - provienceLD);
 	float y1 = sum(provienceRU - provienceRD);
 	vec2 scaling = mod(texcoord + 0.5 * pix, pix) / pix;
-	float xBorder = mix(x0, x1, scaling.y);
-	float yBorder = mix(y0, y1, scaling.x);
+	// float xBorder = mix(x0, x1, scaling.y);
+	float xBorder = mix(x0, x1, step(0.5, scaling.y));
+	// float yBorder = mix(y0, y1, scaling.x);
+	float yBorder = mix(y0, y1, step(0.5, scaling.x));
 	vec2 scalingE = mod(texcoord, pix) / pix;
 	vec2 test = min(scalingE, vec2(1., 1.) - scalingE);
 	test = 1. - 2. * test;
 
-	float diff = x0 * y0 + y0 * x1 + x1 * y1 + y1 * x0;
-	diff = step(3, mod(diff + 2, 4));
+	// float diff = x0 * y0 + y0 * x1 + x1 * y1 + y1 * x0;
+	// diff = step(3, mod(diff + 2, 4));
 
-	float border = xBorder * test.x + yBorder * test.y;
-	float borderDiag = min((xBorder + yBorder) - 1.0, 2. - (xBorder + yBorder));
-	border = mix(border, borderDiag * 2., diff);
+	float border = max(xBorder * test.x ,yBorder * test.y);
+	// float borderDiag = min((xBorder + yBorder) - 1.0, 2. - (xBorder + yBorder));
+	// border = mix(border, borderDiag * 2., diff);
 
 	border = clamp(border, 0., 1.);
-	border *= border * 0.7;
-	border = clamp(border, 0., 1.);
+	border *= border * 0.5;
 
 	return border;
 }
 
 void main()
 {
-    vec4 land = vec4(0., 0.7, 0., 1.);
-    vec4 border = vec4(0., 0., 0., 1.);
+    const vec4 land = vec4(0., 0.7, 0., 1.);
+    const vec4 border = vec4(0., 0., 0., 1.);
 
     vec4 water = noTiling(water_texture, 50. * TexCoord);
     water.rgb = water.rgb * 1.2 - 0.4;
