@@ -142,44 +142,45 @@ static void pop_view_nation(UI::Widget&, void *) {
     sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
     pop_view_nation_win->text(tmpbuf);
     
-    UI::Button* ok_btn = new UI::Button(0, 413, 173, 51, pop_view_nation_win);
+    UI::Button* ok_btn = new UI::Button(0, 32 + (16 * 24), 196, 24, pop_view_nation_win);
     ok_btn->text("OK");
     ok_btn->on_click = [](UI::Widget& w, void *) {
         pop_view_nation_win = nullptr;
         delete w.parent;
     };
     
-    UI::Button* prev_btn = new UI::Button(193, 413, 173, 51, pop_view_nation_win);
+    UI::Button* prev_btn = new UI::Button(0, 32 + (16 * 24), 196, 24, pop_view_nation_win);
     prev_btn->text("Previous");
+    prev_btn->right_side_of(*ok_btn);
     prev_btn->on_click = [](UI::Widget&, void *) {
         pop_view_nation_page_num--;
         sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
         pop_view_nation_win->text(tmpbuf);
     };
     
-    UI::Button* next_btn = new UI::Button(377, 413, 173, 51, pop_view_nation_win);
+    UI::Button* next_btn = new UI::Button(0, 32 + (16 * 24), 196, 24, pop_view_nation_win);
     next_btn->text("Next");
+    next_btn->right_side_of(*prev_btn);
     next_btn->on_click = [](UI::Widget&, void *) {
         pop_view_nation_page_num++;
         sprintf(tmpbuf, "Your province's POPs (page %zu)", (size_t)pop_view_nation_page_num);
         pop_view_nation_win->text(tmpbuf);
     };
     
-    for(size_t i = 0; i < 8; i++) {
-        UI::Button* elem = new UI::Button(0, 32 + (i * 38), pop_view_nation_win->width, 38, pop_view_nation_win);
+    for(size_t i = 0; i < 14; i++) {
+        UI::Button* elem = new UI::Button(0, 32 + (i * 24), pop_view_nation_win->width, 24, pop_view_nation_win);
     }
 
     pop_view_nation_win->on_update = ([](UI::Widget& w, void*) {
-        size_t e = pop_view_nation_page_num * 8, i = 3;
-        size_t cnt = 0;
-        size_t total_pops = 0;
+        size_t e = pop_view_nation_page_num * 16, i = 3;
+        size_t cnt = 0, total_pops = 0;
         for(const auto& province: curr_nation->owned_provinces) {
             total_pops += province->pops.size();
         }
 
         for(const auto& province: curr_nation->owned_provinces) {
             for(const auto& pop: province->pops) {
-                if(cnt < pop_view_nation_page_num * 8) {
+                if(cnt < pop_view_nation_page_num * 16) {
                     cnt++;
                     continue;
                 }
@@ -213,16 +214,15 @@ static void industry_view_nation(UI::Widget&, void *) {
     // View the provinces in a country - along with the population in them
     industry_view_nation_win = new UI::Window(mouse_pos.first, mouse_pos.second, 609, 476);
     industry_view_nation_win->on_update = ([](UI::Widget& w, void*) {
-        size_t e = industry_view_nation_page_num * 8, i = 3;
-        size_t cnt = 0;
-        size_t total_industries = 0;
+        size_t e = industry_view_nation_page_num * 16, i = 3;
+        size_t cnt = 0, total_industries = 0;
         for(const auto& province: curr_nation->owned_provinces) {
             total_industries += province->industries.size();
         }
 
         for(const auto& province: curr_nation->owned_provinces) {
             for(auto& industry: province->industries) {
-                if(cnt < industry_view_nation_page_num * 8) {
+                if(cnt < industry_view_nation_page_num * 16) {
                     cnt++;
                     continue;
                 }
@@ -248,23 +248,25 @@ static void industry_view_nation(UI::Widget&, void *) {
     sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)industry_view_nation_page_num);
     industry_view_nation_win->text(tmpbuf);
     
-    UI::Button* ok_btn = new UI::Button(0, 413, 173, 51, industry_view_nation_win);
+    UI::Button* ok_btn = new UI::Button(0, 32 + (16 * 24), 196, 24, industry_view_nation_win);
     ok_btn->text("OK");
     ok_btn->on_click = [](UI::Widget& w, void *) {
         industry_view_nation_win = nullptr;
         delete w.parent;
     };
     
-    UI::Button* prev_btn = new UI::Button(193, 413, 173, 51, industry_view_nation_win);
+    UI::Button* prev_btn = new UI::Button(0, 32 + (16 * 24), 196, 24, industry_view_nation_win);
     prev_btn->text("Previous");
+    prev_btn->right_side_of(*ok_btn);
     prev_btn->on_click = [](UI::Widget&, void *) {
         industry_view_nation_page_num--;
         sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)industry_view_nation_page_num);
         industry_view_nation_win->text(tmpbuf);
     };
     
-    UI::Button* next_btn = new UI::Button(377, 413, 173, 51, industry_view_nation_win);
+    UI::Button* next_btn = new UI::Button(0, 32 + (16 * 24), 196, 24, industry_view_nation_win);
     next_btn->text("Next");
+    next_btn->right_side_of(*prev_btn);
     next_btn->on_click = [](UI::Widget&, void *) {
         industry_view_nation_page_num++;
         sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)industry_view_nation_page_num);
@@ -273,8 +275,8 @@ static void industry_view_nation(UI::Widget&, void *) {
     
     // TODO: When a province resizes the industry vector it will break havoc!
     // TODO: Make the industries vector be a pointer instead!
-    for(size_t i = 0; i < 8; i++) {
-        UI::Button* elem = new UI::Button(0, 32 + (i * 38), industry_view_nation_win->width, 38, industry_view_nation_win);
+    for(size_t i = 0; i < 16; i++) {
+        UI::Button* elem = new UI::Button(0, 32 + (i * 24), industry_view_nation_win->width, 24, industry_view_nation_win);
         elem->on_click = ([](UI::Widget& w, void* data) {
             UI::Window* industry_info_win = new UI::Window(0, 0, 320, 200);
             industry_info_win->text("Industry info");
@@ -310,7 +312,7 @@ static void products_view_world(void) {
         std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
         if(g_world->time % 48 == 35) {
             std::lock_guard<std::recursive_mutex> l2(g_world->products_mutex);
-            size_t list_idx = products_view_page_num * 8;
+            size_t list_idx = products_view_page_num * 16;
             for(size_t i = 3; i < w.children.size(); i++) {
                 if(list_idx < g_world->products.size()) {
                     // Skip products that are not from our country
@@ -337,31 +339,33 @@ static void products_view_world(void) {
     sprintf(tmpbuf, "Your province's products (page %zu)", (size_t)products_view_page_num);
     products_view_win->text(tmpbuf);
     
-    UI::Button* ok_btn = new UI::Button(0, 413, 173, 51, products_view_win);
+    UI::Button* ok_btn = new UI::Button(0, 32 + (16 * 24), 196, 24, products_view_win);
     ok_btn->text("OK");
     ok_btn->on_click = [](UI::Widget& w, void *) {
         products_view_win = nullptr;
         delete w.parent;
     };
     
-    UI::Button* prev_btn = new UI::Button(193, 413, 173, 51, products_view_win);
+    UI::Button* prev_btn = new UI::Button(0, 32 + (16 * 24), 196, 24, products_view_win);
     prev_btn->text("Previous");
+    prev_btn->right_side_of(*ok_btn);
     prev_btn->on_click = [](UI::Widget&, void *) {
         products_view_page_num--;
         sprintf(tmpbuf, "Your province's products (page %zu)", (size_t)products_view_page_num);
         products_view_win->text(tmpbuf);
     };
     
-    UI::Button* next_btn = new UI::Button(377, 413, 173, 51, products_view_win);
+    UI::Button* next_btn = new UI::Button(0, 32 + (16 * 24), 196, 24, products_view_win);
     next_btn->text("Next");
+    next_btn->right_side_of(*prev_btn);
     next_btn->on_click = [](UI::Widget&, void *) {
         products_view_page_num++;
         sprintf(tmpbuf, "Your province's products (page %zu)", (size_t)products_view_page_num);
         products_view_win->text(tmpbuf);
     };
     
-    for(size_t i = 0; i < 8; i++) {
-        UI::Button* elem = new UI::Button(0, 32 + (i * 38), products_view_win->width, 38, products_view_win);
+    for(size_t i = 0; i < 16; i++) {
+        UI::Button* elem = new UI::Button(0, 32 + (i * 24), products_view_win->width, 24, products_view_win);
         elem->on_click = ([](UI::Widget& w, void* data) {
             Product* product = (Product*)data;
             if(data == nullptr)
@@ -970,16 +974,17 @@ void select_nation(void) {
                 if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
                     SDL_Window* tmpwin = SDL_GetWindowFromID(event.window.windowID);
 
-                    std::pair old_size = std::make_pair(width, height);
+                    std::pair size_diff = std::make_pair<float, float>(width, height);
                     SDL_GetWindowSize(tmpwin, &width, &height);
                     cam.set_screen(width, height);
 
                     // Resize/recenter UI according to screen change
-                    std::pair size_diff = std::make_pair(old_size.first / width, old_size.second / height);
+                    /*size_diff.first /= width;
+                    size_diff.second /= height;
                     for(auto& widget: ui_ctx->widgets) {
-                        widget->x += size_diff.first;
-                        widget->y += size_diff.second;
-                    }
+                        widget->x *= size_diff.first;
+                        widget->y *= size_diff.second;
+                    }*/
                 }
                 break;
             default:

@@ -24,6 +24,7 @@ enum UI_WidgetType {
     UI_WIDGET_CHART,
     UI_WIDGET_CHECKBOX,
     UI_WIDGET_PIE_CHART,
+    UI_WIDGET_SLIDER,
 };
 
 namespace UI {
@@ -73,6 +74,27 @@ namespace UI {
         void text(const char* text);
         void draw_rectangle(int x, int y, unsigned w, unsigned h, unsigned tex);
 
+        template<typename T>
+        void above_of(const T& rhs) {
+            y = rhs.y - height;
+        }
+        
+        template<typename T>
+        void below_of(const T& rhs) {
+            y = rhs.y + rhs.height;
+        }
+        
+        template<typename T>
+        void left_side_of(const T& rhs) {
+            x = rhs.x - width;
+        }
+        
+        template<typename T>
+        void right_side_of(const T& rhs) {
+            x = rhs.x + rhs.width;
+        }
+        virtual void on_render(Context&);
+
         bool is_pinned = false;
 
         int type;
@@ -96,39 +118,18 @@ namespace UI {
         
         void* user_data = nullptr;
 
-        virtual void on_render(Context&);
         void (*on_update)(Widget&, void *) = nullptr;
         void (*on_hover)(Widget&, void *) = nullptr;
         void (*on_click)(Widget&, void *) = nullptr;
-        
-        template<typename T>
-        void above_of(const T& rhs) {
-            y = rhs.y - height;
-        }
-        
-        template<typename T>
-        void below_of(const T& rhs) {
-            y = rhs.y + rhs.height;
-        }
-        
-        template<typename T>
-        void left_side_of(const T& rhs) {
-            x = rhs.x - width;
-        }
-        
-        template<typename T>
-        void right_side_of(const T& rhs) {
-            x = rhs.x + rhs.width;
-        }
     };
 
     class Input : public Widget {
     public:
-        void (*on_textinput)(Input *, const char *, void *) = nullptr;
-        char* buffer = nullptr;
-        
         Input(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         ~Input() {};
+
+        void (*on_textinput)(Input *, const char *, void *) = nullptr;
+        char* buffer = nullptr;
     };
 
     class Checkbox : public Widget {
@@ -170,16 +171,23 @@ namespace UI {
     public:
         Label(int x, int y, const char* text = nullptr, Widget* parent = nullptr);
         ~Label() {};
-        void on_render(Context& ctx);
+        virtual void on_render(Context& ctx);
     };
     
     class Chart : public Widget {
     public:
-        std::deque<double> data;
-        
         Chart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
         ~Chart() {};
-        void on_render(Context& ctx);
+        virtual void on_render(Context& ctx);
+        std::deque<double> data;
+    };
+
+    class Slider : public Widget {
+    public:
+        Slider(int x, int y, unsigned w, unsigned h, float min, float max, Widget* _parent = nullptr);
+        ~Slider() {};
+        virtual void on_render(Context& ctx);
+        float max, min, value;
     };
 };
 

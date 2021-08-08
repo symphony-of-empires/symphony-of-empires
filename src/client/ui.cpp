@@ -25,7 +25,7 @@ Context::Context() {
     if(g_ui_context != nullptr) {
         throw std::runtime_error("UI context already constructed");
     }
-    default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 24);
+    default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 16);
     if(default_font == nullptr) {
         throw std::runtime_error("Font could not be loaded, exiting");
     }
@@ -162,6 +162,16 @@ int Context::check_click_recursive(Widget& w, const unsigned int mx, const unsig
     if(!((int)mx >= x_off && mx <= x_off + w.width
     && (int)my >= y_off && my <= y_off + w.height))
         return 0;
+    
+    switch(w.type) {
+    case UI_WIDGET_SLIDER: {
+            Slider* wc = (Slider*)&w;
+            wc->value = ((float)std::abs((int)mx - x_off) / (float)wc->width) * wc->max;
+        }
+        break;
+    default:
+        break;
+    }
 
     if(w.on_click != nullptr)
         w.on_click(w, w.user_data);
@@ -294,7 +304,7 @@ void Widget::on_render(Context& ctx) {
     if(type == UI_WIDGET_WINDOW) {
         draw_rectangle(
             0, 0,
-            width, 32,
+            width, 24,
             ctx.window_top->gl_tex_num
         );
     }
@@ -308,7 +318,7 @@ void Widget::on_render(Context& ctx) {
     }
 
     if(type == UI_WIDGET_BUTTON) {
-        const size_t padding = 8;
+        const size_t padding = 4;
         // Put a "grey" inner background
         glBindTexture(GL_TEXTURE_2D, ctx.button->gl_tex_num);
         glBegin(GL_TRIANGLES);
@@ -330,20 +340,7 @@ void Widget::on_render(Context& ctx) {
     glBindTexture(GL_TEXTURE_2D, 0);
     glLineWidth(3.f);
     glColor3f(0.f, 0.f, 0.f);
-    if(type != UI_WIDGET_WINDOW && type != UI_WIDGET_IMAGE && type != UI_WIDGET_PIE_CHART) {
-        const size_t padding = 8;
-        // Inner black border
-        glBegin(GL_LINE_STRIP);
-            glVertex2f(padding, padding);
-            glVertex2f(width - padding, padding);
-            glVertex2f(width - padding, height - padding);
-            glVertex2f(padding, height - padding);
-            glVertex2f(padding, padding);
-        glEnd();
-    }
-
     if(1) {
-        const size_t padding = 8;
         // Outer black border
         glBegin(GL_LINE_STRIP);
             glVertex2f(0, 0);
@@ -357,7 +354,7 @@ void Widget::on_render(Context& ctx) {
     if(text_texture != nullptr) {
         glColor3f(0.f, 0.f, 0.f);
         draw_rectangle(
-            12, 6,
+            4, 4,
             text_texture->width, text_texture->height,
             text_texture->gl_tex_num
         );
@@ -594,15 +591,62 @@ void Chart::on_render(Context& ctx) {
     glBindTexture(GL_TEXTURE_2D, 0);
     glLineWidth(3.f);
     glColor3f(0.f, 0.f, 0.f);
-    if(type != UI_WIDGET_WINDOW && type != UI_WIDGET_IMAGE && type != UI_WIDGET_PIE_CHART) {
-        const size_t padding = 8;
-        // Inner black border
-        glBegin(GL_LINE_STRIP);
-            glVertex2f(0, 0);
-            glVertex2f(width, 0);
-            glVertex2f(width, height);
-            glVertex2f(0, height);
-            glVertex2f(0, 0);
-        glEnd();
+
+    // Inner black border
+    glBegin(GL_LINE_STRIP);
+        glVertex2f(0, 0);
+        glVertex2f(width, 0);
+        glVertex2f(width, height);
+        glVertex2f(0, height);
+        glVertex2f(0, 0);
+    glEnd();
+}
+
+Slider::Slider(int _x, int _y, unsigned w, unsigned h, const float _min, const float _max, Widget* _parent)
+    : Widget(_parent, _x, _y, w, h, UI_WIDGET_SLIDER), max(_max), min(_min) {
+    
+}
+
+void Slider::on_render(Context& ctx) {
+    glColor3f(1.f, 1.f, 1.f);
+    if(text_texture != nullptr) {
+        if(!text_texture->gl_tex_num) {
+            text_texture->to_opengl();
+        }
     }
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    const float end_x = (value / max) * width;
+    glBegin(GL_POLYGON);
+        glColor3f(0.f, 0.f, 0.7f);
+        glVertex2f(0.f, 0.f);
+        glVertex2f(end_x, 0.f);
+        glColor3f(0.f, 0.f, 0.4f);
+        glVertex2f(end_x, height);
+        glVertex2f(0.f, height);
+        glColor3f(0.f, 0.f, 0.7f);
+        glVertex2f(0.f, 0.f);
+    glEnd();
+
+    if(text_texture != nullptr) {
+        glColor3f(0.f, 0.f, 0.f);
+        draw_rectangle(
+            4, 2,
+            text_texture->width, text_texture->height,
+            text_texture->gl_tex_num
+        );
+    }
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glLineWidth(3.f);
+    glColor3f(0.f, 0.f, 0.f);
+
+    // Inner black border
+    glBegin(GL_LINE_STRIP);
+        glVertex2f(0, 0);
+        glVertex2f(width, 0);
+        glVertex2f(width, height);
+        glVertex2f(0, height);
+        glVertex2f(0, 0);
+    glEnd();
 }
