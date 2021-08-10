@@ -34,6 +34,10 @@ file(GLOB CLIENT_SOURCES "${PROJECT_SOURCE_DIR}/client/*.cpp")
 file(GLOB RENDER_SOURCES "${PROJECT_SOURCE_DIR}/client/render/*.cpp")
 add_executable(SymphonyOfEmpiresClient ${MAIN_SOURCES} ${CLIENT_SOURCES} ${AI_SOURCES} ${RENDER_SOURCES})
 
+IF(UNIT_TEST)
+	target_link_libraries(SymphonyOfEmpiresClient PUBLIC tbb)
+ENDIF()
+
 IF(WIN32)
 	target_link_libraries(SymphonyOfEmpiresClient PUBLIC opengl32 glu32 ws2_32 winpthread intl lua)
 ELSE()
