@@ -20,25 +20,26 @@ sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.4-dev libtbb-
 The build with these commands once all the dependencies are met:
 ```
 mkdir build && cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Debug ..
 make -j
 ```
 
-If Lua5.4 is not available you can alternatively obtain both normal and development libraries directly:
+Use this code to install Lua5.4
 ```
 wget http://mirrors.kernel.org/ubuntu/pool/universe/l/lua5.4/liblua5.4-0_5.4.0-2_amd64.deb
 sudo dpkg -i liblua5.4-0_5.4.0-2_amd64.deb
 wget http://mirrors.kernel.org/ubuntu/pool/universe/l/lua5.4/liblua5.4-dev_5.4.0-2_amd64.deb
 sudo dpkg -i liblua5.4-dev_5.4.0-2_amd64.deb
 ```
-
 Alternatively, you can call `cmake` with the flag `-Dlua53:BOOL=ON` to compile with Lua 5.3 instead.
+
+The project can also be built using clang.
 
 ## Build (Linux, MinGW)
 Using mingw-w64 on linux it is possible to cross compile for Windows builds, simply run the following commands:
 ```
 mkdir build && cd build
-cmake -DWIN32=1 ..
+cmake -DWIN32=1 -DCMAKE_BUILD_TYPE=Debug ..
 make -j
 ```
 
@@ -49,11 +50,11 @@ Builds can be built using Visual C compiler. The trick is to create a new soluti
 
 In order to run the game you need to first start the server, this server manages the world state and does the economic simulation:
 ```
-./SymphonyOfEmpires server
+./SymphonyOfEmpiresServer
 ```
 
 After that you may want to initialize the client so you can interact with the server - this is done as follows:
 ```
-./SymphonyOfEmpires [optional IP address]
+./SymphonyOfEmpiresClient [optional IP address]
 ```
 Not specifying a IP address will automatically connect the client to the localhost server - all servers use the port 1825.
