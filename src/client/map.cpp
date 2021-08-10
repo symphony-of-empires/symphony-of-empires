@@ -25,10 +25,8 @@ Map::Map(const World& _world) : world(_world) {
 
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
     if (glewIsSupported("GL_VERSION_3_0")) {
-        water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), 
-            GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
-        noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), 
-            GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0, 0, world.width, world.height);
 
         auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
@@ -235,7 +233,6 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
             glVertex2f(unit->x, unit->y - 1.f);
             glEnd();
         }
-
         auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(unit->x, unit->y, unit->x + size, unit->y + size);
         unit_type_icons[world.get_id(unit->type)]->bind();
         sprite_plane.draw();

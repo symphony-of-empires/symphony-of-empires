@@ -13,19 +13,18 @@
 #include <sstream>
 #include <string>
 
-class BinaryImageException : public std::exception {
-public:
+class BinaryImageException : std::exception {
     std::string buffer;
+public:
     BinaryImageException(std::string filename, std::string message) {
         buffer = "";
         buffer += filename;
         buffer += ": ";
         buffer += message;
-    };
-
+    }
     virtual const char* what(void) const noexcept {
         return buffer.c_str();
-    };
+    }
 };
 
 class BinaryImage {
