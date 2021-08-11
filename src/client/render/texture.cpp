@@ -9,7 +9,7 @@
  * This dummy texture helps to avoid crashes due to missing buffers or so, and also gives
  * visual aid of errors
  */
-void Texture::create_dummy() {
+void UnifiedRender::Texture::create_dummy() {
     width = 16;
     height = 16;
     buffer = new uint32_t[width * height];
@@ -26,7 +26,7 @@ void Texture::create_dummy() {
 /**
  * Converts the texture into a OpenGL texture, and assigns it a number
   */
-void Texture::to_opengl(GLuint wrap, GLuint min_filter, GLuint mag_filter) {
+void UnifiedRender::Texture::to_opengl(GLuint wrap, GLuint min_filter, GLuint mag_filter) {
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
@@ -45,19 +45,18 @@ void Texture::to_opengl(GLuint wrap, GLuint min_filter, GLuint mag_filter) {
 /**
  * Binds the texture to the current OpenGL context
  */
-void Texture::bind(void) const {
+void UnifiedRender::Texture::bind(void) const {
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
 }
 
 /**
  * Deletes the OpenGL representation of this texture
   */
-void Texture::delete_opengl() {
+void UnifiedRender::Texture::delete_opengl() {
     glDeleteTextures(1, &gl_tex_num);
 }
 
 #include <algorithm>
-TextureManager* g_texture_manager;
 
 /**
  * Finds a texture in the list of a texture manager
@@ -71,9 +70,9 @@ TextureManager* g_texture_manager;
  * on the disk, and our main point is to mirror loaded textures from the disk - not modify
  * them.
  */
-const Texture& TextureManager::load_texture( std::string path, GLuint wrap, GLuint min_filter, GLuint mag_filter) {
+const UnifiedRender::Texture& UnifiedRender::TextureManager::load_texture( std::string path, GLuint wrap, GLuint min_filter, GLuint mag_filter) {
     // Find texture when wanting to be loaded
-    auto it = std::find_if(this->textures.begin(), this->textures.end(), [&path](const std::pair<Texture*, std::string>& element) {
+    auto it = std::find_if(this->textures.begin(), this->textures.end(), [&path](const std::pair<UnifiedRender::Texture*, std::string>& element) {
         return (element.second == path);
     });
 
@@ -84,11 +83,11 @@ const Texture& TextureManager::load_texture( std::string path, GLuint wrap, GLui
     print_info("Loaded and cached texture %s", path.c_str());
 
     // Otherwise texture is not in our control, so we create a new texture
-    Texture* tex;
+    UnifiedRender::Texture* tex;
     try {
-        tex = new Texture(path);
+        tex = new UnifiedRender::Texture(path);
     } catch (BinaryImageException&) {
-        tex = new Texture();
+        tex = new UnifiedRender::Texture();
         tex->create_dummy();
     }
 
@@ -96,3 +95,5 @@ const Texture& TextureManager::load_texture( std::string path, GLuint wrap, GLui
     this->textures.insert(std::make_pair(tex, path));
     return *((const Texture*)tex);
 }
+
+UnifiedRender::TextureManager* g_texture_manager;

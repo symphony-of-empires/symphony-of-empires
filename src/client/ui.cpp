@@ -18,7 +18,6 @@
 using namespace UI;
 
 static Context* g_ui_context = nullptr;
-extern TextureManager* g_texture_manager;
 SDL_Color text_color = { 0, 0, 0, 0 };
 
 Context::Context() {
@@ -384,7 +383,7 @@ void input_ontextinput(Input& w, const char* input, void* data) {
     w.text(w.buffer);
 }
 
-Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, int _type, const Texture* tex)
+Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, int _type, const UnifiedRender::Texture* tex)
     : is_show(1), type(_type), x(_x), y(_y), width(w), height(h), parent(_parent), current_texture(tex) {
     if(parent != nullptr) {
         parent->add_child(this);
@@ -438,7 +437,7 @@ void Widget::text(const char* _text) {
         return;
     }
     
-    text_texture = new Texture(surface->w, surface->h);
+    text_texture = new UnifiedRender::Texture(surface->w, surface->h);
     text_texture->gl_tex_num = 0;
 
     for(size_t i = 0; i < (size_t)surface->w; i++) {
@@ -488,7 +487,7 @@ Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 
 }
 
-Image::Image(int _x, int _y, unsigned w, unsigned h, const Texture* tex, Widget* _parent)
+Image::Image(int _x, int _y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI_WIDGET_IMAGE) {
     current_texture = tex;
 }

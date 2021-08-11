@@ -2,7 +2,6 @@
 #include "ui.hpp"
 #include "path.hpp"
 
-extern TextureManager* g_texture_manager;
 extern UI::Window* top_win;
 extern std::pair<int, int> mouse_pos;
 

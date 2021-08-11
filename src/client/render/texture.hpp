@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <set>
 #ifdef windows
 #ifndef _WINDOWS_
 #define WIN32_LEAN_AND_MEAN 1
@@ -28,40 +29,37 @@
 
 #include "binary_image.hpp"
 
-class TextureException : public BinaryImageException {
-   public:
-    TextureException(std::string filename, std::string message) : BinaryImageException(filename, message){};
+namespace UnifiedRender {
+    class TextureException : public BinaryImageException {
+    public:
+        TextureException(std::string filename, std::string message) : BinaryImageException(filename, message){};
+    };
+
+    class Texture : public BinaryImage {
+    public:
+        Texture(){};
+        Texture(std::string path) : BinaryImage(path){};
+        Texture(size_t _width, size_t _height) : BinaryImage(_width, _height){};
+
+        GLuint gl_tex_num;
+        void create_dummy();
+        void to_opengl(GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
+        void bind(void) const;
+        void delete_opengl();
+        void guillotine(const UnifiedRender::Texture& map, int x, int y, int w, int h);
+    };
+
+    /**
+     * This texture manager helps to cache textures instead of loading them of the disk each time they are used
+     * and also acts as a "texture loader"
+     */
+    class TextureManager {
+    private:
+        std::set<std::pair<UnifiedRender::Texture*, std::string>> textures;
+    public:
+        const Texture& load_texture(std::string path, GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
+    };
 };
-
-class Texture : public BinaryImage {
-   public:
-    Texture(){};
-    Texture(std::string path) : BinaryImage(path){};
-    Texture(size_t _width, size_t _height) : BinaryImage(_width, _height){};
-
-    GLuint gl_tex_num;
-    void create_dummy();
-    void to_opengl(GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
-    void bind(void) const;
-    void delete_opengl();
-    void guillotine(const Texture& map, int x, int y, int w, int h);
-};
-
-/**
- * This texture manager helps to cache textures instead of loading them of the disk each time they are used
- * and also acts as a "texture loader"
- */
-#include <set>
-class TextureManager {
-   private:
-    std::set<std::pair<Texture*, std::string>> textures;
-
-   public:
-    const Texture& load_texture(
-        std::string path,
-        GLuint wrapp = GL_REPEAT,
-        GLuint min_filter = GL_NEAREST,
-        GLuint mag_filter = GL_NEAREST);
-};
+extern UnifiedRender::TextureManager* g_texture_manager;
 
 #endif

@@ -2,8 +2,7 @@
 #include "ui.hpp"
 #include "path.hpp"
 
-extern TextureManager* g_texture_manager;
-const Texture* checkbox_ppv_on,* checkbox_ppv_off;
+const UnifiedRender::Texture* checkbox_ppv_on,* checkbox_ppv_off;
 
 extern std::pair<int, int> mouse_pos;
 
