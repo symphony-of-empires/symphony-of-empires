@@ -152,9 +152,12 @@ void Map::draw(Camera& cam, const int width, const int height) {
         return;
     }
 
-    glm::mat4 view_proj = cam.get_projection() * cam.get_view();
+    // Map should have no "model" matrix since it's always static
     map_shader->use();
-    map_shader->set_uniform("view_proj", view_proj);
+    glm::mat4 view = cam.get_view();
+    map_shader->set_uniform("view", view);
+    glm::mat4 projection = cam.get_projection();
+    map_shader->set_uniform("projection", projection);
     map_shader->set_uniform("terrain_texture", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
