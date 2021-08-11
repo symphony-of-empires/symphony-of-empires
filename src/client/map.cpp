@@ -13,6 +13,8 @@
 #include "path.hpp"
 #include "print.hpp"
 
+#include "render/model.hpp"
+
 Map::Map(const World& _world) : world(_world) {
     std::lock_guard<std::recursive_mutex> lock(world.provinces_mutex);
 
@@ -23,7 +25,7 @@ Map::Map(const World& _world) : world(_world) {
     // }
 
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
-    if (glewIsSupported("GL_VERSION_3_0")) {
+    if(glewIsSupported("GL_VERSION_2_1")) {
         water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0, 0, world.width, world.height);
@@ -33,12 +35,12 @@ Map::Map(const World& _world) : world(_world) {
         map_shader = new UnifiedRender::OpenGl::Program(vs, fs);
     }
 
-    print_info("creating topo map");
+    print_info("Creating topo map");
 
     // generate the underlying topo map texture, since the topo map
     // dosen't changes too much we can just do a texture
     div_topo_tex = new UnifiedRender::Texture(world.width, world.height);
-    if (glewIsSupported("GL_VERSION_3_0")) {
+    if(glewIsSupported("GL_VERSION_2_1")) {
         div_sheet_tex = new UnifiedRender::Texture(256, 256);
         for (size_t i = 0; i < 256 * 256; i++) {
             div_sheet_tex->buffer[i] = 0x00000000;
@@ -145,7 +147,7 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
 void Map::draw(Camera& cam, const int width, const int height) {
     glActiveTexture(GL_TEXTURE0);
     // Draw with the old method for old hardware
-    if (!glewIsSupported("GL_VERSION_3_0")) {
+    if(!glewIsSupported("GL_VERSION_2_1")) {
         draw_old(cam, width, height);
         return;
     }

@@ -14,20 +14,20 @@ namespace UnifiedRender::OpenGl {
     public:
         VAO(void) {
             glGenVertexArrays(1, &id);
-        };
+        }
         ~VAO() {
             glDeleteVertexArrays(1, &id);
-        };
+        }
         VAO(const VAO&) = default;
         VAO(VAO&&) noexcept = default;
         VAO& operator=(const VAO&) = default;
 
-        inline void bind(void) {
+        void bind(void) const {
             glBindVertexArray(id);
-        };
-        inline GLuint get_id(void) {
+        }
+        GLuint get_id(void) const {
             return id;
-        };
+        }
     };
 
     class VBO {
@@ -35,20 +35,20 @@ namespace UnifiedRender::OpenGl {
     public:
         VBO(void) {
             glGenBuffers(1, &id);
-        };
+        }
         ~VBO() {
             glDeleteBuffers(1, &id);
-        };
+        }
         VBO(const VBO&) = default;
         VBO(VBO&&) noexcept = default;
         VBO& operator=(const VBO&) = default;
 
-        inline void bind(GLenum target = GL_ARRAY_BUFFER) {
+        void bind(GLenum target = GL_ARRAY_BUFFER) const {
             glBindBuffer(target, id);
-        };
-        inline GLuint get_id(void) {
+        }
+        GLuint get_id(void) const {
             return id;
-        };
+        }
     };
 
     template<typename V, typename T, typename C>
@@ -83,10 +83,10 @@ namespace UnifiedRender::OpenGl {
         PackedModel(PackedModel&&) noexcept = default;
         PackedModel& operator=(const PackedModel&) = default;
 
-        virtual void draw(void) {
+        virtual void draw(void) const {
             vao.bind();
             glDrawArrays(mode, 0, buffer.size());
-        };
+        }
     };
 }
 
@@ -96,29 +96,32 @@ namespace UnifiedRender {
      * A simple object - use these to store "simple" objects that MAY repeat
      * TODO: We should use instancing tricks on simple objects
      */
-    class SimpleModel : OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3> {
+    class SimpleModel : public OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3> {
     public:
-        SimpleModel(GLint _mode) : PackedModel(_mode) {};
+        SimpleModel(GLint _mode);
         ~SimpleModel() {};
         SimpleModel(const SimpleModel&) = default;
         SimpleModel(SimpleModel&&) noexcept = default;
         SimpleModel& operator=(const SimpleModel&) = default;
 
-        const Material *material;
+        const Material* material;
+
+        void upload();
     };
 
     /**
      * A complex object being composed by many simple objects
      */
-    class ComplexModel : OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3> {
+    class ComplexModel {
     public:
-        ComplexModel(GLint _mode) : PackedModel(_mode) {};
+        ComplexModel(void);
         ~ComplexModel() {};
         ComplexModel(const ComplexModel&) = default;
         ComplexModel(ComplexModel&&) noexcept = default;
         ComplexModel& operator=(const ComplexModel&) = default;
 
-        std::vector<const SimpleModel *> simple_models;
+        std::vector<const SimpleModel*> simple_models;
+        virtual void draw(void) const;
     };
 }
 
@@ -129,6 +132,8 @@ namespace UnifiedRender {
     private:
         std::set<std::pair<SimpleModel*, std::string>> simple_models;
         std::set<std::pair<ComplexModel*, std::string>> complex_models;
+
+        const UnifiedRender::ComplexModel& load_wavefront_obj(std::string path);
     public:
         const SimpleModel& load_simple(std::string path);
         const ComplexModel& load_complex(std::string path);
