@@ -102,4 +102,5 @@ float Nation::get_tax(const Pop& pop) const {
     || pop.type_id == POP_TYPE_ARISTOCRAT) {
         return current_policy.rich_flat_tax * base_tax;
     }
+    return base_tax;
 }
