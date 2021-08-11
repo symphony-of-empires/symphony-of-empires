@@ -31,7 +31,7 @@ void UnifiedRender::Texture::to_opengl(GLuint wrap, GLuint min_filter, GLuint ma
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
-    if (glewIsSupported("GL_VERSION_3_0"))
+    if(glewIsSupported("GL_VERSION_2_1"))
         glGenerateMipmap(GL_TEXTURE_2D);
     else
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -77,7 +77,7 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load_texture( std::
     });
 
     // Load texture from cached texture list
-    if (it != this->textures.end())
+    if(it != this->textures.end())
         return *((*it).first);
 
     print_info("Loaded and cached texture %s", path.c_str());
