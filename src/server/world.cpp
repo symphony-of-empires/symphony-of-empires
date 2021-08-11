@@ -255,8 +255,7 @@ void World::load_mod(void) {
         const uint32_t color = div.buffer[i];
 
         // This "skip the empty stuff" technique works!
-        while((div.buffer[i] == 0xffffffff
-        || div.buffer[i] == 0xff000000) && i < total_size) {
+        while(i < total_size && (div.buffer[i] == 0xffffffff || div.buffer[i] == 0xff000000)) {
             ++i;
         }
         if(!(i < total_size))
