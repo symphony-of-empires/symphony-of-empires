@@ -4,6 +4,9 @@
 #include <vector>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
+#include <GL/glew.h>
+#include <GL/glu.h>
+#include <GL/gl.h>
 
 namespace UnifiedRender::OpenGl {
     class VAO {
@@ -86,5 +89,51 @@ namespace UnifiedRender::OpenGl {
         };
     };
 }
+
+class Material;
+namespace UnifiedRender {
+    /**
+     * A simple object - use these to store "simple" objects that MAY repeat
+     * TODO: We should use instancing tricks on simple objects
+     */
+    class SimpleModel : OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3> {
+    public:
+        SimpleModel(GLint _mode) : PackedModel(_mode) {};
+        ~SimpleModel() {};
+        SimpleModel(const SimpleModel&) = default;
+        SimpleModel(SimpleModel&&) noexcept = default;
+        SimpleModel& operator=(const SimpleModel&) = default;
+
+        const Material *material;
+    };
+
+    /**
+     * A complex object being composed by many simple objects
+     */
+    class ComplexModel : OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3> {
+    public:
+        ComplexModel(GLint _mode) : PackedModel(_mode) {};
+        ~ComplexModel() {};
+        ComplexModel(const ComplexModel&) = default;
+        ComplexModel(ComplexModel&&) noexcept = default;
+        ComplexModel& operator=(const ComplexModel&) = default;
+
+        std::vector<const SimpleModel *> simple_models;
+    };
+}
+
+#include <string>
+#include <set>
+namespace UnifiedRender {
+    class ModelManager {
+    private:
+        std::set<std::pair<SimpleModel*, std::string>> simple_models;
+        std::set<std::pair<ComplexModel*, std::string>> complex_models;
+    public:
+        const SimpleModel& load_simple(std::string path);
+        const ComplexModel& load_complex(std::string path);
+    };
+}
+extern UnifiedRender::ModelManager* g_model_manager;
 
 #endif

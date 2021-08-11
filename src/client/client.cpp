@@ -44,13 +44,15 @@
 #include "network.hpp"
 #include "serializer.hpp"
 #include "io_impl.hpp"
+#include "render/model.hpp"
+#include "render/material.hpp"
 
 World::World(void) {
     g_world = this;
 };
 World::~World() {};
 
-extern TextureManager* g_texture_manager;
+extern UnifiedRender::TextureManager* g_texture_manager;
 int width = 1280, height = 800;
 
 std::pair<int, int> mouse_pos;
@@ -443,12 +445,12 @@ static void products_view_world(void) {
 
 extern void ui_treaty(void);
 
-std::vector<const Texture*> nation_flags;
-std::vector<const Texture*> outpost_type_icons;
-std::vector<const Texture*> boat_type_icons;
-std::vector<const Texture*> unit_type_icons;
+std::vector<const UnifiedRender::Texture*> nation_flags;
+std::vector<const UnifiedRender::Texture*> outpost_type_icons;
+std::vector<const UnifiedRender::Texture*> boat_type_icons;
+std::vector<const UnifiedRender::Texture*> unit_type_icons;
 
-const Texture& get_nation_flag(Nation& nation) {
+const UnifiedRender::Texture& get_nation_flag(Nation& nation) {
     return *nation_flags[g_world->get_id(&nation)];
 }
 
@@ -463,15 +465,15 @@ static void play_nation(UI::Widget&, void *) {
         cam.position.z = -100.f;
     }
     
-    const Texture& top_win_chart_tex = g_texture_manager->load_texture(Path::get("ui/top_win_chart.png"));
-    const Texture& icon_prestige_tex = g_texture_manager->load_texture(Path::get("ui/icons/prestige.png"));
-    const Texture& icon_economy_score_tex = g_texture_manager->load_texture(Path::get("ui/icons/economy_score.png"));
-    const Texture& icon_militar_score_tex = g_texture_manager->load_texture(Path::get("ui/icons/militar_score.png"));
-    const Texture& icon_naval_score_tex = g_texture_manager->load_texture(Path::get("ui/icons/naval_score.png"));
-    const Texture& icon_money_tex = g_texture_manager->load_texture(Path::get("ui/icons/money.png"));
-    const Texture& icon_militancy_tex = g_texture_manager->load_texture(Path::get("ui/icons/militancy.png"));
-    const Texture& icon_big_brain_tex = g_texture_manager->load_texture(Path::get("ui/icons/big_brain.png"));
-    const Texture& icon_population_tex = g_texture_manager->load_texture(Path::get("ui/icons/population.png"));
+    const UnifiedRender::Texture& top_win_chart_tex = g_texture_manager->load_texture(Path::get("ui/top_win_chart.png"));
+    const UnifiedRender::Texture& icon_prestige_tex = g_texture_manager->load_texture(Path::get("ui/icons/prestige.png"));
+    const UnifiedRender::Texture& icon_economy_score_tex = g_texture_manager->load_texture(Path::get("ui/icons/economy_score.png"));
+    const UnifiedRender::Texture& icon_militar_score_tex = g_texture_manager->load_texture(Path::get("ui/icons/militar_score.png"));
+    const UnifiedRender::Texture& icon_naval_score_tex = g_texture_manager->load_texture(Path::get("ui/icons/naval_score.png"));
+    const UnifiedRender::Texture& icon_money_tex = g_texture_manager->load_texture(Path::get("ui/icons/money.png"));
+    const UnifiedRender::Texture& icon_militancy_tex = g_texture_manager->load_texture(Path::get("ui/icons/militancy.png"));
+    const UnifiedRender::Texture& icon_big_brain_tex = g_texture_manager->load_texture(Path::get("ui/icons/big_brain.png"));
+    const UnifiedRender::Texture& icon_population_tex = g_texture_manager->load_texture(Path::get("ui/icons/population.png"));
     
     // General statics of the nation
     top_win = new UI::Window(0, 0, 800, 275);
@@ -882,7 +884,7 @@ void select_nation(void) {
                             province_view_win->text("Province overview");
                             province_view_win->below_of(*top_win);
                             
-                            const Texture& province_view_decor = g_texture_manager->load_texture(Path::get("ui/province_view_terrain.png"));
+                            const UnifiedRender::Texture& province_view_decor = g_texture_manager->load_texture(Path::get("ui/province_view_terrain.png"));
                             UI::Image* view_province_decor = new UI::Image(9, 43, province_view_decor.width, province_view_decor.height, &province_view_decor, province_view_win);
                             view_province_decor->text(g_world->provinces[tile.province_id]->name.c_str());
                             
@@ -1220,7 +1222,10 @@ void client_main(int argc, char** argv) {
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    g_texture_manager = new TextureManager();
+    g_texture_manager = new UnifiedRender::TextureManager();
+    g_material_manager = new UnifiedRender::MaterialManager();
+    g_model_manager = new UnifiedRender::ModelManager();
+
     ui_ctx = new UI::Context();
     tmpbuf = new char[512];
 

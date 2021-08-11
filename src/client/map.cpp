@@ -13,7 +13,6 @@
 #include "path.hpp"
 #include "print.hpp"
 
-extern TextureManager* g_texture_manager;
 Map::Map(const World& _world) : world(_world) {
     std::lock_guard<std::recursive_mutex> lock(world.provinces_mutex);
 
@@ -38,9 +37,9 @@ Map::Map(const World& _world) : world(_world) {
 
     // generate the underlying topo map texture, since the topo map
     // dosen't changes too much we can just do a texture
-    div_topo_tex = new Texture(world.width, world.height);
+    div_topo_tex = new UnifiedRender::Texture(world.width, world.height);
     if (glewIsSupported("GL_VERSION_3_0")) {
-        div_sheet_tex = new Texture(256, 256);
+        div_sheet_tex = new UnifiedRender::Texture(256, 256);
         for (size_t i = 0; i < 256 * 256; i++) {
             div_sheet_tex->buffer[i] = 0x00000000;
         }
@@ -143,7 +142,6 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
     glEnd();*/
 }
 
-extern TextureManager* g_texture_manager;
 void Map::draw(Camera& cam, const int width, const int height) {
     glActiveTexture(GL_TEXTURE0);
     // Draw with the old method for old hardware

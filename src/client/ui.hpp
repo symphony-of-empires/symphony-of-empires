@@ -50,7 +50,7 @@ namespace UI {
         void check_text_input(const char* input);
         void clear(void);
 
-        const Texture* background,* window_top,* button,* tooltip;
+        const UnifiedRender::Texture* background,* window_top,* button,* tooltip;
         TTF_Font* default_font;
         
         std::vector<Widget*> widgets;
@@ -59,7 +59,7 @@ namespace UI {
     class Widget {
     public:
         Widget() {};
-        Widget(Widget* parent, int x, int y, unsigned w, unsigned h, int type, const Texture* tex = nullptr);
+        Widget(Widget* parent, int x, int y, unsigned w, unsigned h, int type, const UnifiedRender::Texture* tex = nullptr);
         Widget(const Widget&) = default;
         Widget(Widget&&) noexcept = default;
         Widget& operator=(const Widget&) = default;
@@ -108,8 +108,8 @@ namespace UI {
         
         size_t width = 0, height = 0;
 
-        const Texture* current_texture = nullptr;
-        Texture* text_texture = nullptr;
+        const UnifiedRender::Texture* current_texture = nullptr;
+        UnifiedRender::Texture* text_texture = nullptr;
 
         std::string tooltip_text = "";
 
@@ -163,7 +163,7 @@ namespace UI {
     
     class Image : public Widget {
     public:
-        Image(int x, int y, unsigned w, unsigned h, const Texture* tex, Widget* parent = nullptr);
+        Image(int x, int y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* parent = nullptr);
         ~Image() {};
     };
     

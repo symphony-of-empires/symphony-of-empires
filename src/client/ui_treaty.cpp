@@ -2,7 +2,6 @@
 #include "ui.hpp"
 #include "path.hpp"
 
-extern TextureManager* g_texture_manager;
 extern UI::Window* top_win;
 extern std::pair<int, int> mouse_pos;
 
@@ -18,8 +17,7 @@ UI::Image* recv_nation_flag;
 UI::Window* select_win;
 Nation* recv_nation = nullptr;
 
-extern const Texture& get_nation_flag(Nation& nation);
-
+extern const UnifiedRender::Texture& get_nation_flag(Nation& nation);
 enum TreatyClauseType g_clause_type;
 
 #include <mutex>
