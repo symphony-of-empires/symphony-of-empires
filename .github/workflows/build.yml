@@ -25,12 +25,8 @@ jobs:
        sudo dpkg -i liblua5.4-dev_5.4.0-2_amd64.deb
     - name: "Build"
       run: |
-       mkdir -p build && cd build
        cmake -DUNIT_TEST=1 ..
        make -j
-       cd ..
     - name: "Run"
       run: |
-       cd build
        ./SymphonyOfEmpiresServer
-       cd ..

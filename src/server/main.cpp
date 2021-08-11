@@ -51,14 +51,13 @@ int main(int argc, char** argv) {
     Path::add_path("test");
     Path::add_path("base_game");
 
+#ifndef UNIT_TEST
     // Run as a server for servicing multiple clients
     World* world = new World();
     world->load_mod();
     Server* server = new Server(1836);
 
     std::future<std::string> future = std::async(std::launch::async, async_get_input);
-
-#ifndef UNIT_TEST
     run = true;
     while(run) {
         std::unique_lock<std::mutex> lock(world_lock);
@@ -91,15 +90,16 @@ int main(int argc, char** argv) {
             }
             future = std::async(std::launch::async, async_get_input);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-#endif
         
     print_info("Destroying world");
     delete world;
     print_info("Destroying server");
     delete server;
+#else
     exit(EXIT_SUCCESS);
+#endif
     return 0;
 }
 
