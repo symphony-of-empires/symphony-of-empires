@@ -60,6 +60,7 @@ public:
 const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront_obj(std::string path) {
     std::ifstream file(path);
     std::string line;
+    file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
     // Recollect all data from the .OBJ file
     std::vector<WavefrontObj> objects;
@@ -180,7 +181,12 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_complex(std
     
     // Wavefront OBJ loader
     if(1) {
-        return load_wavefront_obj(path);
+        try {
+            return load_wavefront_obj(path);
+        } catch(std::ifstream::failure& e) {
+            print_error("%s not found", path.c_str());
+            return *((const UnifiedRender::ComplexModel *)NULL);
+        }
     }
 }
 
