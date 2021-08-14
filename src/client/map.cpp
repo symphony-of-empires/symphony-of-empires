@@ -30,9 +30,17 @@ Map::Map(const World& _world) : world(_world) {
         noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0, 0, world.width, world.height);
 
-        auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
-        auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/map.fs");
-        map_shader = new UnifiedRender::OpenGl::Program(vs, fs);
+        {
+            auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
+            auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/map.fs");
+            map_shader = new UnifiedRender::OpenGl::Program(vs, fs);
+        }
+
+        {
+            auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/simple_model.fs");
+            auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/simple_model.vs");
+            obj_shader = new UnifiedRender::OpenGl::Program(vs, fs);
+        }
     }
 
     print_info("Creating topo map");
@@ -152,11 +160,13 @@ void Map::draw(Camera& cam, const int width, const int height) {
         return;
     }
 
+    glm::mat4 view, projection;
+
     // Map should have no "model" matrix since it's always static
     map_shader->use();
-    glm::mat4 view = cam.get_view();
+    view = cam.get_view();
     map_shader->set_uniform("view", view);
-    glm::mat4 projection = cam.get_projection();
+    projection = cam.get_projection();
     map_shader->set_uniform("projection", projection);
     map_shader->set_uniform("terrain_texture", 0);
     glActiveTexture(GL_TEXTURE0);
@@ -171,6 +181,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, noise_tex->gl_tex_num);
     map_quad->draw();
+    
     // Resets the shader and texture
     glUseProgram(0);
     glActiveTexture(GL_TEXTURE0);
@@ -214,10 +225,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
             glVertex2f(boat->x, boat->y - 1.f);
             glEnd();
         }
-        auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(boat->x, boat->y, boat->x + size, boat->y + size);
-        boat_type_icons[world.get_id(boat->type)]->bind();
-        sprite_plane.draw();
-
+        boat_type_icons[world.get_id(boat->type)]->draw();
         draw_flag(boat->owner, boat->x, boat->y);
     }
     world.boats_mutex.unlock();
@@ -236,10 +244,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
             glVertex2f(unit->x, unit->y - 1.f);
             glEnd();
         }
-        auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(unit->x, unit->y, unit->x + size, unit->y + size);
-        unit_type_icons[world.get_id(unit->type)]->bind();
-        sprite_plane.draw();
-
+        unit_type_icons[world.get_id(unit->type)]->draw();
         draw_flag(unit->owner, unit->x, unit->y);
     }
     world.units_mutex.unlock();
@@ -248,9 +253,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
     for (const auto& outpost : world.outposts) {
         const float size = 1.f;
         auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(outpost->x, outpost->y, outpost->x + size, outpost->y + size);
-        outpost_type_icons[world.get_id(outpost->type)]->bind();
-        sprite_plane.draw();
-
+        outpost_type_icons[world.get_id(outpost->type)]->draw();
         draw_flag(outpost->owner, outpost->x, outpost->y);
     }
     world.outposts_mutex.unlock();

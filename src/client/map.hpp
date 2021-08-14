@@ -25,7 +25,8 @@ private:
 public:
     Map(const World& world);
 
-    std::vector<const UnifiedRender::Texture*> unit_type_icons, boat_type_icons, outpost_type_icons, nation_flags;
+    std::vector<const UnifiedRender::ComplexModel*> unit_type_icons, boat_type_icons, outpost_type_icons;
+    std::vector<const UnifiedRender::Texture*> nation_flags;
 
     // Wind oscillator (for flags)
     float wind_osc = 0.f;
@@ -38,7 +39,7 @@ public:
     const UnifiedRender::Texture* water_tex;
     const UnifiedRender::Texture* noise_tex;
     UnifiedRender::OpenGl::PrimitiveSquare* map_quad;
-    UnifiedRender::OpenGl::Program* map_shader;
+    UnifiedRender::OpenGl::Program* map_shader,* obj_shader;
     const UnifiedRender::Texture* overlay_tex;
     GLuint coastline_gl_list;
 
