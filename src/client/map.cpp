@@ -1,6 +1,7 @@
 #include "map.hpp"
 
 #include <GL/glu.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <algorithm>
 #include <cstdlib>
@@ -181,6 +182,43 @@ void Map::draw(Camera& cam, const int width, const int height) {
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, noise_tex->gl_tex_num);
     map_quad->draw();
+
+    // TODO: We need to better this
+    obj_shader->use();
+    view = cam.get_view();
+    obj_shader->set_uniform("view", view);
+    projection = cam.get_projection();
+    obj_shader->set_uniform("projection", projection);
+    obj_shader->set_uniform("texture", 0);
+    world.outposts_mutex.lock();
+    for(const auto& outpost: world.outposts) {
+        glm::mat4 model(1.f);
+        model = glm::translate(model, glm::vec3(outpost->x, outpost->y, 0.f));
+        model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
+        obj_shader->set_uniform("model", model);
+        outpost_type_icons[world.get_id(outpost->type)]->draw();
+    }
+    world.outposts_mutex.unlock();
+
+    world.units_mutex.lock();
+    for(const auto& unit: world.units) {
+        glm::mat4 model(1.f);
+        model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
+        model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
+        obj_shader->set_uniform("model", model);
+        unit_type_icons[world.get_id(unit->type)]->draw();
+    }
+    world.units_mutex.unlock();
+
+    world.boats_mutex.lock();
+    for(const auto& boat: world.boats) {
+        glm::mat4 model(1.f);
+        model = glm::translate(model, glm::vec3(boat->x, boat->y, 0.f));
+        model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
+        obj_shader->set_uniform("model", model);
+        boat_type_icons[world.get_id(boat->type)]->draw();
+    }
+    world.boats_mutex.unlock();
     
     // Resets the shader and texture
     glUseProgram(0);

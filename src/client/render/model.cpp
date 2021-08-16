@@ -5,7 +5,16 @@
 #include "path.hpp"
 
 UnifiedRender::SimpleModel::SimpleModel(GLint _mode) : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3>(_mode) {
-    
+
+}
+
+void UnifiedRender::SimpleModel::draw(void) const {
+    glActiveTexture(GL_TEXTURE0);
+    if(material != nullptr && material->texture != nullptr) {
+        material->texture->bind();
+    }
+    vao.bind();
+    glDrawArrays(mode, 0, buffer.size());
 }
 
 void UnifiedRender::SimpleModel::upload(void) {
@@ -56,13 +65,12 @@ public:
 
     std::vector<WavefrontFace> faces;
     std::vector<glm::vec3> vertices, texcoords, normals;
-    const UnifiedRender::Material* material;
+    const UnifiedRender::Material* material = nullptr;
 };
 
 const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(const std::string& path) {
     std::ifstream file(path);
     std::string line;
-    file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
     // Recollect all data from the .OBJ file
     std::vector<WavefrontObj> objects;
@@ -188,9 +196,7 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_complex(con
     
     // Wavefront OBJ loader
     try {
-        if(1) {
-            return load_wavefront(path);
-        }
+        return load_wavefront(path);
     } catch(std::ifstream::failure& e) {
         print_error("Model %s not found", path.c_str());
 
