@@ -54,12 +54,14 @@ Map::Map(const World& _world) : world(_world) {
             div_sheet_tex->buffer[i] = 0x00000000;
         }
         for (size_t i = 0; i < world.width * world.height; i++) {
-            uint8_t r, g, b;
+            uint8_t r, g, b, a;
             const Tile& tile = world.get_tile(i);
             r = tile.province_id % 256;
             g = (tile.province_id / 256) % 256;
-            b = tile.elevation;
-            div_topo_tex->buffer[i] = (0xff << 24) | (b << 16) | (g << 8) | (r);
+            b = tile.owner_id % 256;
+            a = (tile.owner_id / 256) % 256;
+            a = tile.elevation == 0 ? 255 : a;
+            div_topo_tex->buffer[i] = (a << 24) | (b << 16) | (g << 8) | (r);
             if (tile.owner_id < world.nations.size()) {
                 const Nation* owner = world.nations.at(tile.owner_id);
                 uint32_t color = owner->color;
@@ -84,6 +86,17 @@ Map::Map(const World& _world) : world(_world) {
         }
     }
     div_topo_tex->to_opengl();
+
+    // This can be put into unified render
+    // I leave it for now since I havn't been able to test the code
+    glGenFramebuffers(1, &frame_buffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, div_topo_tex->gl_tex_num, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        print_info("Frame buffer error");
 }
 
 void Map::draw_flag(const Nation* nation, float x, float y) {
@@ -148,6 +161,31 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
         glVertex3f(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -1.f);
     }
     glEnd();*/
+}
+
+// Updates the tiles texture with the changed tiles
+void Map::update(World& world) {
+    std::lock_guard<std::recursive_mutex> lock(g_world->changed_tiles_coords_mutex);
+    if (world.changed_tile_coords.size() > 0) {
+        glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
+        glViewport(0, 0, div_topo_tex->width, div_topo_tex->height);
+
+        glBegin(GL_POINTS);
+        for (const auto& coords : world.changed_tile_coords) {
+            uint8_t r, g, b, a;
+            Tile tile = world.get_tile(coords.first, coords.second);
+            r = tile.province_id % 256;
+            g = (tile.province_id / 256) % 256;
+            b = tile.owner_id % 256;
+            a = (tile.owner_id / 256) % 256;
+            a = tile.elevation == 0 ? 255 : a;
+            glColor4ui(r, g, b, a);
+            glVertex2i(coords.first, coords.second);
+        }
+        glEnd();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        world.changed_tile_coords.clear();
+    }
 }
 
 void Map::draw(Camera& cam, const int width, const int height) {

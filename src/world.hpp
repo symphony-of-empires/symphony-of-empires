@@ -272,6 +272,10 @@ public:
     // List of convoys on the world (unused)
     std::vector<CommercialConvoy> convoys;
 
+    // Array containing a list of tile coord that have changed owners
+    std::vector<std::pair<u_int, uint>> changed_tile_coords;
+    mutable std::recursive_mutex changed_tiles_coords_mutex;
+
     // Array containing a list of tile pointers that have changed owners
     std::vector<Tile*> nation_changed_tiles;
     mutable std::recursive_mutex nation_changed_tiles_mutex;
