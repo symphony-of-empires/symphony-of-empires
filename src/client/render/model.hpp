@@ -106,8 +106,9 @@ namespace UnifiedRender {
         SimpleModel(SimpleModel&&) noexcept = default;
         SimpleModel& operator=(const SimpleModel&) = default;
 
-        const Material* material;
+        const Material* material = nullptr;
 
+        virtual void draw(void) const;
         void upload();
     };
 

@@ -14,7 +14,7 @@ namespace UnifiedRender {
      */
     class Material {
     public:
-        const Texture *texture;
+        const Texture* texture = nullptr;
         glm::vec3 colour;
 
         glm::vec3 ambient_colour, diffuse_colour, specular_colour;
