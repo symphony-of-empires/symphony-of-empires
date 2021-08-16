@@ -5,6 +5,7 @@ out vec4 f_frag_colour;
 in vec2 v_texcoord;
 in vec3 v_colour;
 
+uniform vec2 map_size;
 uniform sampler2D terrain_texture;
 uniform sampler2D terrain_sheet;
 uniform sampler2D water_texture;
@@ -39,9 +40,10 @@ float sum(vec3 v) {
 
 float getBorder(vec2 texcoord) {
 	// Pixel size on map texture
-	const float xx = 1 / 1350.0;
-	const float yy = 1 / 675.0;
-	const vec2 pix = vec2(xx, yy);
+	// float xx = 1 / map_size.x;
+	// float yy = 1 / map_size.y;
+	// vec2 pix = vec2(xx, yy);
+	vec2 pix = vec2(1.0) / map_size;
 
 	vec2 mPos = texcoord - mod(texcoord + 0.5 * pix, pix);
 	vec4 provience = texture(terrain_texture, texcoord);
@@ -64,8 +66,10 @@ float getBorder(vec2 texcoord) {
 
 	// float diff = x0 * y0 + y0 * x1 + x1 * y1 + y1 * x0;
 	// diff = step(3, mod(diff + 2, 4));
+	float middle = step(0.5, x0 + y0 + x1 + y1) * min(test.x, test.y);
 
 	float border = max(xBorder * test.x ,yBorder * test.y);
+	border = max(border, middle);
 	// float borderDiag = min((xBorder + yBorder) - 1.0, 2. - (xBorder + yBorder));
 	// border = mix(border, borderDiag * 2., diff);
 
