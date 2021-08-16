@@ -8,6 +8,8 @@
 #include <GL/glu.h>
 #include <GL/gl.h>
 
+#include "material.hpp"
+
 namespace UnifiedRender::OpenGl {
     class VAO {
         GLuint id;
@@ -133,7 +135,7 @@ namespace UnifiedRender {
         std::set<std::pair<SimpleModel*, std::string>> simple_models;
         std::set<std::pair<ComplexModel*, std::string>> complex_models;
 
-        const UnifiedRender::ComplexModel& load_wavefront_obj(std::string path);
+        const UnifiedRender::ComplexModel& load_wavefront(std::string path);
     public:
         const SimpleModel& load_simple(std::string path);
         const ComplexModel& load_complex(std::string path);
