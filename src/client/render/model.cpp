@@ -34,7 +34,7 @@ void UnifiedRender::ComplexModel::draw(void) const {
     }
 }
 
-const UnifiedRender::SimpleModel& UnifiedRender::ModelManager::load_simple(std::string path) {
+const UnifiedRender::SimpleModel& UnifiedRender::ModelManager::load_simple(const std::string& path) {
     return *((const UnifiedRender::SimpleModel *)NULL);
 }
 
@@ -59,7 +59,7 @@ public:
     const UnifiedRender::Material* material;
 };
 
-const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(std::string path) {
+const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(const std::string& path) {
     std::ifstream file(path);
     std::string line;
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -179,7 +179,7 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(s
     return *final_model;
 }
 
-const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_complex(std::string path) {
+const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_complex(const std::string& path) {
     auto it = std::find_if(complex_models.begin(), complex_models.end(), [&path](const std::pair<UnifiedRender::ComplexModel*, std::string>& element) {
         return (element.second == path);
     });
@@ -187,13 +187,16 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_complex(std
         return *((*it).first);
     
     // Wavefront OBJ loader
-    if(1) {
-        try {
+    try {
+        if(1) {
             return load_wavefront(path);
-        } catch(std::ifstream::failure& e) {
-            print_error("%s not found", path.c_str());
-            return *((const UnifiedRender::ComplexModel *)NULL);
         }
+    } catch(std::ifstream::failure& e) {
+        print_error("Model %s not found", path.c_str());
+
+        UnifiedRender::ComplexModel* complex = new UnifiedRender::ComplexModel();
+        complex_models.insert(std::make_pair(complex, path));
+        return *(const UnifiedRender::ComplexModel*)complex;
     }
 }
 

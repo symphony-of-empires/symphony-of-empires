@@ -26,8 +26,8 @@ namespace UnifiedRender {
     private:
         std::set<std::pair<Material*, std::string>> materials;
     public:
-        std::vector<std::pair<Material*, std::string>> load_wavefront(std::string path);
-        const Material& load_material(std::string path);
+        std::vector<std::pair<Material*, std::string>> load_wavefront(const std::string& path);
+        const Material& load_material(const std::string& path);
     };
 }
 extern UnifiedRender::MaterialManager* g_material_manager;

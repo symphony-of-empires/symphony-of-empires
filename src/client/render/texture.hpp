@@ -57,7 +57,7 @@ namespace UnifiedRender {
     private:
         std::set<std::pair<UnifiedRender::Texture*, std::string>> textures;
     public:
-        const Texture& load_texture(std::string path, GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
+        const Texture& load_texture(const std::string& path, GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
     };
 };
 extern UnifiedRender::TextureManager* g_texture_manager;
