@@ -42,7 +42,9 @@ public:
     UnifiedRender::OpenGl::Program* map_shader,* obj_shader;
     const UnifiedRender::Texture* overlay_tex;
     GLuint coastline_gl_list;
+    GLuint frame_buffer;
 
+    void update(World& world);
     void draw_flag(const Nation* nation, float x, float y);
     void draw(Camera& cam, const int width, const int height);
     void draw_old(Camera& cam, const int width, const int height);
