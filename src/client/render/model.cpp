@@ -2,6 +2,7 @@
 #include <fstream>
 #include "model.hpp"
 #include "print.hpp"
+#include "path.hpp"
 
 UnifiedRender::SimpleModel::SimpleModel(GLint _mode) : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3>(_mode) {
     
@@ -55,9 +56,10 @@ public:
 
     std::vector<WavefrontFace> faces;
     std::vector<glm::vec3> vertices, texcoords, normals;
+    const UnifiedRender::Material* material;
 };
 
-const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront_obj(std::string path) {
+const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(std::string path) {
     std::ifstream file(path);
     std::string line;
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -81,13 +83,17 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront_o
         sline >> cmd;
 
         if(cmd == "mtllib") {
-            print_info("TODO: mtllib (use Path::get for path resolution!, also use MaterialManager for this job!)");
+            std::string name;
+            sline >> name;
+            g_material_manager->load_wavefront(Path::get(name));
         } else if(cmd == "usemtl") {
-            print_info("TODO: usemtl");
+            std::string name;
+            sline >> name;
+            objects.front().material = &g_material_manager->load_material(name);
         } else if(cmd == "o") {
-            std::string obj_name;
-            sline >> obj_name;
-            objects.push_back(WavefrontObj(obj_name));
+            std::string name;
+            sline >> name;
+            objects.push_back(WavefrontObj(name));
         } else if(cmd == "v") {
             glm::vec3 vert;
             sline >> vert.x >> vert.y >> vert.z;
@@ -163,6 +169,7 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront_o
                 ));
             }
         }
+        model->material = obj.material;
         model->upload();
 
         simple_models.insert(std::pair(model, obj.name));
@@ -182,7 +189,7 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_complex(std
     // Wavefront OBJ loader
     if(1) {
         try {
-            return load_wavefront_obj(path);
+            return load_wavefront(path);
         } catch(std::ifstream::failure& e) {
             print_error("%s not found", path.c_str());
             return *((const UnifiedRender::ComplexModel *)NULL);
