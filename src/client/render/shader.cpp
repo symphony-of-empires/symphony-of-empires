@@ -73,6 +73,10 @@ void Program::set_uniform(const std::string& name, glm::mat4 uniform) const {
     glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(uniform));
 }
 
+void Program::set_uniform(const std::string& name, float value1, float value2) const {
+    glUniform2f(glGetUniformLocation(id, name.c_str()), value1, value2);
+}
+
 void Program::set_uniform(const std::string& name, float value) const {
     glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 }
