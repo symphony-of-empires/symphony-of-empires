@@ -186,7 +186,7 @@ void Economy::do_phase_1(World& world) {
     std::lock_guard l1(world.products_mutex);
     std::lock_guard l2(world.nations_mutex);
     std::lock_guard l3(world.provinces_mutex);
-    ThreadPool::for_each(world.provinces.begin(), world.provinces.end(), [&world](auto& province) {
+    std::for_each(std::world.provinces.begin(), world.provinces.end(), [&world](auto& province) {
         // Reset remaining supplies
         province->supply_rem = province->supply_limit;
 
@@ -604,7 +604,7 @@ void Economy::do_phase_3(World& world) {
 
     std::lock_guard l1(world.provinces_mutex);
     std::lock_guard l2(world.products_mutex);
-    ThreadPool::for_each(world.provinces.begin(), world.provinces.end(), [&emigration_lock, &emigration, &world](auto& province) {
+    std::for_each(world.provinces.begin(), world.provinces.end(), [&emigration_lock, &emigration, &world](auto& province) {
         if(province->owner == nullptr) {
             return;
         }
