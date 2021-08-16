@@ -149,7 +149,6 @@ void Client::net_loop(void) {
                     }
                     break;
                 case ACTION_NATION_ENACT_POLICY:
-                print_info("ACTION_NATION_ENACT_POLICY");
                     {
                         std::lock_guard<std::recursive_mutex> lock(g_world->nations_mutex);
 
@@ -185,7 +184,6 @@ void Client::net_loop(void) {
                     }
                     break;
                 case ACTION_UNIT_UPDATE:
-                print_info("ACTION_UNIT_UPDATE");
                     {
                         std::lock_guard<std::recursive_mutex> lock(g_world->units_mutex);
 
@@ -197,7 +195,6 @@ void Client::net_loop(void) {
                     }
                     break;
                 case ACTION_UNIT_ADD:
-                print_info("ACTION_UNIT_ADD");
                     {
                         std::lock_guard<std::recursive_mutex> lock(g_world->units_mutex);
 
@@ -208,7 +205,6 @@ void Client::net_loop(void) {
                     }
                     break;
                 case ACTION_BOAT_UPDATE:
-                print_info("ACTION_BOAT_UPDATE");
                     {
                         std::lock_guard<std::recursive_mutex> lock(g_world->boats_mutex);
 
@@ -220,7 +216,6 @@ void Client::net_loop(void) {
                     }
                     break;
                 case ACTION_BOAT_ADD:
-                print_info("ACTION_BOAT_ADD");
                     {
                         std::lock_guard<std::recursive_mutex> lock(g_world->boats_mutex);
 
@@ -231,7 +226,6 @@ void Client::net_loop(void) {
                     }
                     break;
                 case ACTION_OUTPOST_UPDATE:
-                print_info("ACTION_OUTPOST_UPDATE");
                     {
                         std::lock_guard<std::recursive_mutex> lock(g_world->outposts_mutex);
 
@@ -243,7 +237,6 @@ void Client::net_loop(void) {
                     }
                     break;
                 case ACTION_OUTPOST_ADD:
-                print_info("ACTION_OUTPOST_ADD");
                     {
                         std::lock_guard<std::recursive_mutex> lock(g_world->outposts_mutex);
 
@@ -254,7 +247,6 @@ void Client::net_loop(void) {
                     }
                     break;
                 case ACTION_TREATY_ADD:
-                print_info("ACTION_TREATY_ADD");
                     {
                         std::lock_guard<std::recursive_mutex> lock(g_world->treaties_mutex);
 
@@ -271,6 +263,15 @@ void Client::net_loop(void) {
                     {
                         std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
                         ::deserialize(ar, &g_world->time);
+                    }
+                    break;
+                case ACTION_TILE_UPDATE:
+                    {
+                        std::lock_guard<std::recursive_mutex> lock(g_world->tiles_mutex);
+                        std::pair<size_t, size_t> coord;
+                        ::deserialize(ar, &coord.first);
+                        ::deserialize(ar, &coord.second);
+                        ::deserialize(ar, &g_world->get_tile(coord.first, coord.second));
                     }
                     break;
                 default:

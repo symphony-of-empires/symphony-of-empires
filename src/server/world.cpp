@@ -944,6 +944,19 @@ void World::do_tick() {
 
             std::lock_guard<std::recursive_mutex> lock(nation_changed_tiles_mutex);
             nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
+            {
+                std::pair<size_t, size_t> coord = std::make_pair((size_t)unit->x, (size_t)unit->y);
+                // Broadcast to clients
+                Packet packet = Packet(0);
+                Archive ar = Archive();
+                enum ActionType action = ACTION_TILE_UPDATE;
+                ::serialize(ar, &action);
+                ::serialize(ar, &coord.first);
+                ::serialize(ar, &coord.second);
+                ::serialize(ar, &tile);
+                packet.data(ar.get_buffer(), ar.size());
+                g_server->broadcast(packet);
+            }
         }
     }
     
