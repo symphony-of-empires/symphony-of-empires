@@ -138,21 +138,24 @@ void Server::net_loop(int id) {
             socklen_t len = sizeof(client);
 
             is_connected[id] = false;
-            while(run) {
+            while(!is_connected[id]) {
                 try {
                     conn_fd = accept(fd, (sockaddr *)&client, &len);
                     if(conn_fd == INVALID_SOCKET)
                         throw SocketException("Cannot accept client connection");
+
+                    // At this point the client's connection was accepted - so we only have to check
+                    // Then we check if the server is running and we throw accordingly
+                    is_connected[id] = true;
                     break;
                 } catch(SocketException& e) {
-                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                    // Do something
+                    if(run == false)
+                        throw SocketException("Close client");
                 }
-            }
-            if(!run) {
-                throw SocketException("Close client");
+                std::this_thread::sleep_for(std::chrono::seconds(1));
             }
             print_info("New client connection established");
-
             is_connected[id] = true;
 
             Nation* selected_nation = nullptr;
@@ -174,14 +177,13 @@ void Server::net_loop(int id) {
             while(run && is_connected[id] == true) {
                 // Check if we need to read stuff
 #ifdef unix
-                int has_pending = poll(&pfd, 1, 10);
-                if(pfd.revents & POLLIN || has_pending)
+                int has_pending = poll(&pfd, 1, 0);
+                if(pfd.revents & POLLIN || has_pending) {
 #elif defined windows
                 u_long has_pending = 0;
                 ioctlsocket(fd, FIONREAD, &has_pending);
-                if(has_pending)
+                if(has_pending) {
 #endif
-                {
                     packet.recv();
                     
                     ar.set_buffer(packet.data(), packet.size());
@@ -208,7 +210,6 @@ void Server::net_loop(int id) {
                             ::deserialize(ar, &policies);
 
                             // TODO: Do parliament checks and stuff
-
                             selected_nation->current_policy = policies;
                         }
                         break;
@@ -413,7 +414,7 @@ void Server::net_loop(int id) {
                                     status.second = approval;
 
                                     does_participate = true;
-                                    break;	
+                                    break;
                                 }
                             }
                             if(!does_participate)

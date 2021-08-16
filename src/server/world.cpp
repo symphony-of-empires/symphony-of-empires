@@ -1097,6 +1097,7 @@ void World::do_tick() {
     g_server->broadcast(packet);
     
     LuaAPI::check_events(lua);
-    
+
+    print_info("Tick %zu done", (size_t)time);
     time++;
 }

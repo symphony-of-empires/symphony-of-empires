@@ -31,20 +31,22 @@ WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeo
 #	endif
 #endif
 
-void SocketStream::write(const void* data, size_t size) {
+void SocketStream::send(const void* data, size_t size) {
+    const char* c_data = (const char*)data;
     for(size_t i = 0; i < size; ) {
-        int r = ::send(fd, (const char*)data, std::min<size_t>(1024, size - i), 0);
-        if(r < 0)
-            throw SocketException("Socket write error for data in packet");
+        int r = ::send(fd, &c_data[i], std::min<size_t>(1024, size - i), 0);
+        if(r <= 0)
+            throw SocketException("Can't send data of packet");
         i += (size_t)r;
     }
 }
 
-void SocketStream::read(void* data, size_t size) {
+void SocketStream::recv(void* data, size_t size) {
+    char* c_data = (char*)data;
     for(size_t i = 0; i < size; ) {
-        int r = ::recv(fd, (char*)data, std::min<size_t>(1024, size - i), MSG_WAITALL);
-        if(r < 0)
-            throw SocketException("Socket read error for data in packet");
+        int r = ::recv(fd, &c_data[i], std::min<size_t>(1024, size - i), MSG_WAITALL);
+        if(r <= 0)
+            throw SocketException("Can't receive data of packet");
         i += (size_t)r;
     }
 }
