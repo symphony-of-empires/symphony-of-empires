@@ -70,7 +70,7 @@ void UnifiedRender::Texture::delete_opengl() {
  * on the disk, and our main point is to mirror loaded textures from the disk - not modify
  * them.
  */
-const UnifiedRender::Texture& UnifiedRender::TextureManager::load_texture( std::string path, GLuint wrap, GLuint min_filter, GLuint mag_filter) {
+const UnifiedRender::Texture& UnifiedRender::TextureManager::load_texture(const std::string& path, GLuint wrap, GLuint min_filter, GLuint mag_filter) {
     // Find texture when wanting to be loaded
     auto it = std::find_if(this->textures.begin(), this->textures.end(), [&path](const std::pair<UnifiedRender::Texture*, std::string>& element) {
         return (element.second == path);

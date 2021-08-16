@@ -645,19 +645,19 @@ void select_nation(void) {
             }
         }
 
-        map->nation_flags.push_back(&g_texture_manager->load_texture(path.c_str()));
+        map->nation_flags.push_back(&g_texture_manager->load_texture(path));
     }
     for(const auto& outpost_type: g_world->outpost_types) {
         std::string path = Path::get("3d/outpost_types/" + outpost_type->ref_name + ".obj");
-        map->outpost_type_icons.push_back(&g_model_manager->load_complex(path.c_str()));
+        map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
     }
     for(const auto& boat_type: g_world->boat_types) {
         std::string path = Path::get("3d/boat_types/" + boat_type->ref_name + ".obj");
-        map->boat_type_icons.push_back(&g_model_manager->load_complex(path.c_str()));
+        map->boat_type_icons.push_back(&g_model_manager->load_complex(path));
     }
     for(const auto& unit_type: g_world->unit_types) {
         std::string path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
-        map->unit_type_icons.push_back(&g_model_manager->load_complex(path.c_str()));
+        map->unit_type_icons.push_back(&g_model_manager->load_complex(path));
     }
     
     cam.position.x = 0.f;

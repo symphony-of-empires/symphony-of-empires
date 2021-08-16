@@ -135,10 +135,10 @@ namespace UnifiedRender {
         std::set<std::pair<SimpleModel*, std::string>> simple_models;
         std::set<std::pair<ComplexModel*, std::string>> complex_models;
 
-        const UnifiedRender::ComplexModel& load_wavefront(std::string path);
+        const UnifiedRender::ComplexModel& load_wavefront(const std::string& path);
     public:
-        const SimpleModel& load_simple(std::string path);
-        const ComplexModel& load_complex(std::string path);
+        const SimpleModel& load_simple(const std::string& path);
+        const ComplexModel& load_complex(const std::string& path);
     };
 }
 extern UnifiedRender::ModelManager* g_model_manager;
