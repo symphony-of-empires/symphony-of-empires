@@ -70,8 +70,8 @@ public:
     SocketStream() {};
     SocketStream(int _fd) : fd(_fd) {};
 
-    void write(const void* data, size_t size);
-    void read(void* data, size_t size);
+    void send(const void* data, size_t size);
+    void recv(void* data, size_t size);
 };
 
 #include "print.hpp"
@@ -113,24 +113,13 @@ public:
         }
 
         const uint32_t net_code = htonl(code);
-        if(::send(stream.fd, (const char*)&net_code, sizeof(net_code), 0) == -1) {
-            throw SocketException("Socket write error for packet code");
-        }
+        stream.send(&net_code, sizeof(net_code));
         
         const uint32_t net_size = htonl(n_data);
-        if(::send(stream.fd, (const char*)&net_size, sizeof(net_size), 0) == -1) {
-            throw SocketException("Socket write error for size of packet");
-        }
+        stream.send(&net_size, sizeof(net_size));
         
         /* Socket writes can only be done 1024 bytes at a time */
-        //stream.write(&bufdata, n_data);
-        for(size_t i = 0; i < n_data; ) {
-            int r = ::send(stream.fd, (const char*)&bufdata[i], std::min<size_t>(1024, n_data - i), 0);
-            if(r == -1) {
-                throw SocketException("Socket write error for data in packet");
-            }
-            i += r;
-        }
+        stream.send(&bufdata[0], n_data);
     }
 
     void send(void) {
@@ -140,29 +129,18 @@ public:
     template<typename T>
     void recv(T* buf = nullptr) {
         uint32_t net_code;
-        if(::recv(stream.fd, (char*)&net_code, sizeof(net_code), MSG_WAITALL) == -1) {
-            throw SocketException("Socket read error for packet code");
-        }
+        stream.recv(&net_code, sizeof(net_code));
         net_code  = ntohl(net_code);
         code = (PacketCode)net_code;
 
         uint32_t net_size;
-        if(::recv(stream.fd, (char*)&net_size, sizeof(net_size), MSG_WAITALL) == -1) {
-            throw SocketException("Socket read error for size of packet");
-        }
+        stream.recv(&net_size, sizeof(net_size));
         
         n_data = (size_t)ntohl(net_size);
         bufdata.resize(n_data + 1);
         
         /* Reads can only be done 1024 bytes at a time */
-        for(size_t i = 0; i < n_data; ) {
-            int r = ::recv(stream.fd, (char*)&bufdata[i], std::min<size_t>(1024, n_data - i), MSG_WAITALL);
-            if(r == -1) {
-                throw SocketException("Socket read error for data in packet");
-            }
-            i += r;
-        }
-        
+        stream.recv(&bufdata[0], n_data);
         if(buf != nullptr)
             memcpy(buf, &bufdata[0], n_data);
     }
