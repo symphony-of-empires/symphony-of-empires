@@ -38,8 +38,8 @@ Map::Map(const World& _world) : world(_world) {
         }
 
         {
-            auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/simple_model.fs");
-            auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/simple_model.vs");
+            auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/simple_model.vs");
+            auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/simple_model.fs");
             obj_shader = new UnifiedRender::OpenGl::Program(vs, fs);
         }
     }
@@ -164,7 +164,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     glm::mat4 view, projection;
 
     // Map should have no "model" matrix since it's always static
-    map_shader->use();
+    /*map_shader->use();
     view = cam.get_view();
     map_shader->set_uniform("view", view);
     projection = cam.get_projection();
@@ -181,7 +181,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     map_shader->set_uniform("noise_texture", 3);
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, noise_tex->gl_tex_num);
-    map_quad->draw();
+    map_quad->draw();*/
 
     // TODO: We need to better this
     obj_shader->use();
@@ -189,12 +189,12 @@ void Map::draw(Camera& cam, const int width, const int height) {
     obj_shader->set_uniform("view", view);
     projection = cam.get_projection();
     obj_shader->set_uniform("projection", projection);
-    obj_shader->set_uniform("texture", 0);
+    obj_shader->set_uniform("map_diffusion", 0);
     world.outposts_mutex.lock();
     for(const auto& outpost: world.outposts) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(outpost->x, outpost->y, 0.f));
-        model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
+        model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
         outpost_type_icons[world.get_id(outpost->type)]->draw();
     }
@@ -204,7 +204,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     for(const auto& unit: world.units) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
-        model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
+        model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
         unit_type_icons[world.get_id(unit->type)]->draw();
     }
@@ -214,7 +214,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     for(const auto& boat: world.boats) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(boat->x, boat->y, 0.f));
-        model = glm::rotate(model, glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
+        model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
         boat_type_icons[world.get_id(boat->type)]->draw();
     }
