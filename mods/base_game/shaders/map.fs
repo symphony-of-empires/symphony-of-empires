@@ -1,9 +1,9 @@
 #version 330 compatibility
 
-out vec4 FragColor;
+out vec4 f_frag_colour;
   
-in vec2 TexCoord;
-in vec3 Color;
+in vec2 v_texcoord;
+in vec3 v_colour;
 
 uniform sampler2D terrain_texture;
 uniform sampler2D terrain_sheet;
@@ -11,35 +11,33 @@ uniform sampler2D water_texture;
 uniform sampler2D noise_texture;
 
 // https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
-vec4 noTiling(sampler2D tex, vec2 uv)
-{
-    float k = texture( noise_texture, 0.005*uv ).x; // cheap (cache friendly) lookup
+vec4 noTiling(sampler2D tex, vec2 uv) {
+    float k = texture(noise_texture, 0.005 * uv).x; // cheap (cache friendly) lookup
     float v = 1.;
     
-    vec2 duvdx = dFdx( uv );
-    vec2 duvdy = dFdx( uv );
+    vec2 duvdx = dFdx(uv);
+    vec2 duvdy = dFdx(uv);
     
-    float l = k*8.0;
+    float l = k * 8.0;
     float f = fract(l);
     
     float ia = floor(l); // my method
     float ib = ia + 1.0;
     
-    vec2 offa = sin(vec2(3.0,7.0)*ia); // can replace with any other hash
-    vec2 offb = sin(vec2(3.0,7.0)*ib); // can replace with any other hash
+    vec2 offa = sin(vec2(3.0, 7.0) * ia); // can replace with any other hash
+    vec2 offb = sin(vec2(3.0, 7.0) * ib); // can replace with any other hash
 
-    vec4 cola = textureGrad( tex, uv + v*offa, duvdx, duvdy );
-    vec4 colb = textureGrad( tex, uv + v*offb, duvdx, duvdy );
+    vec4 cola = textureGrad(tex, uv + v * offa, duvdx, duvdy);
+    vec4 colb = textureGrad(tex, uv + v * offb, duvdx, duvdy);
     vec4 diff = cola - colb;
-    return mix( cola, colb, smoothstep(0.2,0.8,f-0.1*(diff.x + diff.y + diff.z)) );
+    return mix(cola, colb, smoothstep(0.2, 0.8, f - 0.1 * (diff.x + diff.y + diff.z)));
 }
 
-float sum(vec3 v)
-{
+float sum(vec3 v) {
 	return min((abs(v.x) + abs(v.y) ) * 255., 1.0);
 }
-float getBorder(vec2 texcoord)
-{
+
+float getBorder(vec2 texcoord) {
 	// Pixel size on map texture
 	const float xx = 1 / 1350.0;
 	const float yy = 1 / 675.0;
@@ -73,21 +71,19 @@ float getBorder(vec2 texcoord)
 
 	border = clamp(border, 0., 1.);
 	border *= border * 0.5;
-
 	return border;
 }
 
-void main()
-{
+void main() {
     const vec4 land = vec4(0., 0.7, 0., 1.);
     const vec4 border = vec4(0., 0., 0., 1.);
 
-    vec4 water = noTiling(water_texture, 50. * TexCoord);
+    vec4 water = noTiling(water_texture, 50. * v_texcoord);
     water.rgb = water.rgb * 1.2 - 0.4;
 
-    vec3 coord = texture(terrain_texture, TexCoord).rgb;
+    vec3 coord = texture(terrain_texture, v_texcoord).rgb;
     vec4 ground = mix(water, land, step(0.5, coord.b));
-    vec4 provColor = texture(terrain_sheet, coord.rg);
-    vec4 outColor = mix(ground, provColor, step(0.001, coord.b) * provColor.a);
-    FragColor = mix(outColor, border, getBorder(TexCoord));
+    vec4 prov_colour = texture(terrain_sheet, coord.rg);
+    vec4 out_colour = mix(ground, prov_colour, step(0.001, coord.b) * prov_colour.a);
+    f_frag_colour = mix(out_colour, border, getBorder(v_texcoord));
 }
