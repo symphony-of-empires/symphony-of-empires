@@ -1,10 +1,13 @@
 #version 330 compatibility
 
-out vec4 FragColor;
+out vec4 frag_colour;
   
-in vec2 TexCoord;
-in vec3 Color;
+in vec2 v_texcoord;
+in vec3 v_colour;
+
+uniform sampler2D texture;
 
 void main() {
-    FragColor = Color;
+    //FragColor = texture(texture, TexCoord);
+    frag_colour = vec4(colour, 0.0);
 }
