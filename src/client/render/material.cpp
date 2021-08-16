@@ -69,8 +69,10 @@ find:
     });
     if(it != materials.end())
         return *((*it).first);
-    
-    materials.insert(std::make_pair(new Material(), path));
+
+    Material* mat = new Material();
+    mat->texture = &g_texture_manager->load_texture(Path::get("default.png"));
+    materials.insert(std::make_pair(mat, path));
     goto find;
 }
 

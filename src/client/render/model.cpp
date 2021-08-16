@@ -161,7 +161,7 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
     ComplexModel* final_model = new ComplexModel();
     for(const auto& obj: objects) {
         // Register each simple object to the model manager
-        SimpleModel* model = new SimpleModel(GL_LINES);
+        SimpleModel* model = new SimpleModel(GL_TRIANGLES);
         for(const auto& face: obj.faces) {
             for(size_t i = 0; i < face.vertices.size(); i++) {
                 // The faces dictate indices for the vertices and stuff and we

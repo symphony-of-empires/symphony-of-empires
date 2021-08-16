@@ -50,6 +50,10 @@ GLuint Shader::get_id(void) const {
 
 Program::Program(const VertexShader* vertex, const FragmentShader* fragment) {
     id = glCreateProgram();
+    glBindAttribLocation(id, 0, "m_pos");
+    glBindAttribLocation(id, 1, "m_texcoord");
+    glBindAttribLocation(id, 2, "m_colour");
+
     glAttachShader(id, vertex->get_id());
     glAttachShader(id, fragment->get_id());
     glLinkProgram(id);
