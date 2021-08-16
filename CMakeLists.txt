@@ -43,7 +43,7 @@ IF(WIN32)
 ELSE()
 	target_link_libraries(SymphonyOfEmpiresClient PUBLIC GL GLEW GLU SDL2main stdc++)
 ENDIF()
-target_link_libraries(SymphonyOfEmpiresClient PUBLIC png SDL2 SDL2_ttf m z)
+target_link_libraries(SymphonyOfEmpiresClient PUBLIC png SDL2 SDL2_ttf m z tbb)
 
 file(GLOB SERVER_SOURCES "${PROJECT_SOURCE_DIR}/server/*.cpp")
 add_executable(SymphonyOfEmpiresServer ${MAIN_SOURCES} ${SERVER_SOURCES})
