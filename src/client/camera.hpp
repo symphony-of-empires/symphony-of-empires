@@ -99,7 +99,7 @@ public:
         glm::vec3 ray_direction = world_space_far - world_space_near;
 
         float distance = 0.f;
-        bool intersection = glm::intersectRayPlane(world_space_near, ray_direction, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), distance);
+        glm::intersectRayPlane(world_space_near, ray_direction, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), distance);
             
         glm::vec3 intersection_point = world_space_near + ray_direction * distance;
         return std::pair<float, float> (intersection_point.x, intersection_point.y);

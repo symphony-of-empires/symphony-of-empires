@@ -18,6 +18,7 @@
 #include "camera.hpp"
 #include "render/primitive.hpp"
 #include "render/shader.hpp"
+#include "render/texture_array.hpp"
 
 class ProvinceShape;
 class Map {
@@ -38,11 +39,17 @@ public:
     UnifiedRender::Texture* div_sheet_tex;
     const UnifiedRender::Texture* water_tex;
     const UnifiedRender::Texture* noise_tex;
+    const UnifiedRender::Texture* topo_tex;
+    const UnifiedRender::Texture* terrain_tex;
+    // const UnifiedRender::Texture* terrain_sheet;
+    UnifiedRender::TextureArray* terrain_sheet;
     UnifiedRender::OpenGl::PrimitiveSquare* map_quad;
     UnifiedRender::OpenGl::Program* map_shader,* obj_shader;
     const UnifiedRender::Texture* overlay_tex;
     GLuint coastline_gl_list;
+    GLuint frame_buffer;
 
+    void update(World& world);
     void draw_flag(const Nation* nation, float x, float y);
     void draw(Camera& cam, const int width, const int height);
     void draw_old(Camera& cam, const int width, const int height);

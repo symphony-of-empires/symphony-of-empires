@@ -1,19 +1,18 @@
 #include "map.hpp"
 
 #include <GL/glu.h>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <execution>
 #include <functional>
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <mutex>
 
 #include "path.hpp"
 #include "print.hpp"
-
 #include "render/model.hpp"
 
 Map::Map(const World& _world) : world(_world) {
@@ -26,9 +25,13 @@ Map::Map(const World& _world) : world(_world) {
     // }
 
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
-    if(glewIsSupported("GL_VERSION_2_1")) {
+    if (glewIsSupported("GL_VERSION_2_1")) {
         water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        topo_tex = &g_texture_manager->load_texture(Path::get("map_topo.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
+        terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
+        terrain_sheet->to_opengl();
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0, 0, world.width, world.height);
 
         {
@@ -49,22 +52,24 @@ Map::Map(const World& _world) : world(_world) {
     // generate the underlying topo map texture, since the topo map
     // dosen't changes too much we can just do a texture
     div_topo_tex = new UnifiedRender::Texture(world.width, world.height);
-    if(glewIsSupported("GL_VERSION_2_1")) {
+    if (glewIsSupported("GL_VERSION_2_1")) {
         div_sheet_tex = new UnifiedRender::Texture(256, 256);
         for (size_t i = 0; i < 256 * 256; i++) {
             div_sheet_tex->buffer[i] = 0x00000000;
         }
         for (size_t i = 0; i < world.width * world.height; i++) {
-            uint8_t r, g, b;
+            uint8_t r, g, b, a;
             const Tile& tile = world.get_tile(i);
             r = tile.province_id % 256;
             g = (tile.province_id / 256) % 256;
-            b = tile.elevation;
-            div_topo_tex->buffer[i] = (0xff << 24) | (b << 16) | (g << 8) | (r);
+            b = tile.owner_id % 256;
+            a = (tile.owner_id / 256) % 256;
+            // a = tile.elevation == 0 ? 255 : a;
+            div_topo_tex->buffer[i] = (a << 24) | (b << 16) | (g << 8) | (r);
             if (tile.owner_id < world.nations.size()) {
                 const Nation* owner = world.nations.at(tile.owner_id);
                 uint32_t color = owner->color;
-                div_sheet_tex->buffer[r + g * 256] =  (0xff << 24) | color;
+                div_sheet_tex->buffer[r + g * 256] = (0xff << 24) | color;
             }
         }
         div_sheet_tex->to_opengl();
@@ -85,6 +90,17 @@ Map::Map(const World& _world) : world(_world) {
         }
     }
     div_topo_tex->to_opengl();
+
+    // This can be put into unified render
+    // I leave it for now since I havn't been able to test the code
+    glGenFramebuffers(1, &frame_buffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, div_topo_tex->gl_tex_num, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        print_info("Frame buffer error");
 }
 
 void Map::draw_flag(const Nation* nation, float x, float y) {
@@ -110,8 +126,7 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
             // Texcoord
             glm::vec2((r / step) / n_steps, 0.f),
             // Colour
-            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f))
-        );
+            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)));
 
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData(
             // Vert
@@ -119,8 +134,7 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
             // Texcoord
             glm::vec2((r / step) / n_steps, 0.f),
             // Colour
-            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f))
-        );
+            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)));
     }
 
     flag.vao.bind();
@@ -153,10 +167,34 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
     glEnd();*/
 }
 
+// Updates the tiles texture with the changed tiles
+void Map::update(World& world) {
+    std::lock_guard<std::recursive_mutex> lock(g_world->changed_tiles_coords_mutex);
+    if (world.changed_tile_coords.size() > 0) {
+        glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
+        glViewport(0, 0, div_topo_tex->width, div_topo_tex->height);
+
+        glBegin(GL_POINTS);
+        for (const auto& coords : world.changed_tile_coords) {
+            uint8_t r, g, b, a;
+            Tile tile = world.get_tile(coords.first, coords.second);
+            r = tile.province_id % 256;
+            g = (tile.province_id / 256) % 256;
+            b = tile.owner_id % 256;
+            a = (tile.owner_id / 256) % 256;
+            // a = tile.elevation == 0 ? 255 : a;
+            glColor4ui(r, g, b, a);
+            glVertex2i(coords.first, coords.second);
+        }
+        glEnd();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        world.changed_tile_coords.clear();
+    }
+}
+
 void Map::draw(Camera& cam, const int width, const int height) {
-    glActiveTexture(GL_TEXTURE0);
     // Draw with the old method for old hardware
-    if(!glewIsSupported("GL_VERSION_2_1")) {
+    if (!glewIsSupported("GL_VERSION_2_1")) {
         draw_old(cam, width, height);
         return;
     }
@@ -164,15 +202,16 @@ void Map::draw(Camera& cam, const int width, const int height) {
     glm::mat4 view, projection;
 
     // Map should have no "model" matrix since it's always static
-    /*map_shader->use();
+    map_shader->use();
     view = cam.get_view();
     map_shader->set_uniform("view", view);
     projection = cam.get_projection();
     map_shader->set_uniform("projection", projection);
-    map_shader->set_uniform("terrain_texture", 0);
+    map_shader->set_uniform("map_size", (float)world.width, (float)world.height);
+    map_shader->set_uniform("tile_map", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
-    map_shader->set_uniform("terrain_sheet", 1);
+    map_shader->set_uniform("tile_sheet", 1);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, div_sheet_tex->gl_tex_num);
     map_shader->set_uniform("water_texture", 2);
@@ -181,7 +220,16 @@ void Map::draw(Camera& cam, const int width, const int height) {
     map_shader->set_uniform("noise_texture", 3);
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, noise_tex->gl_tex_num);
-    map_quad->draw();*/
+    map_shader->set_uniform("topo_texture", 4);
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, topo_tex->gl_tex_num);
+    map_shader->set_uniform("terrain_texture", 5);
+    glActiveTexture(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_2D, terrain_tex->gl_tex_num);
+    map_shader->set_uniform("terrain_sheet", 6);
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, terrain_sheet->gl_tex_num);
+    map_quad->draw();
 
     // TODO: We need to better this
     obj_shader->use();
@@ -191,7 +239,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     obj_shader->set_uniform("projection", projection);
     obj_shader->set_uniform("map_diffusion", 0);
     world.outposts_mutex.lock();
-    for(const auto& outpost: world.outposts) {
+    for (const auto& outpost : world.outposts) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(outpost->x, outpost->y, 0.f));
         model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
@@ -201,7 +249,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     world.outposts_mutex.unlock();
 
     world.units_mutex.lock();
-    for(const auto& unit: world.units) {
+    for (const auto& unit : world.units) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
         model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
@@ -211,7 +259,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     world.units_mutex.unlock();
 
     world.boats_mutex.lock();
-    for(const auto& boat: world.boats) {
+    for (const auto& boat : world.boats) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(boat->x, boat->y, 0.f));
         model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
@@ -219,7 +267,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
         boat_type_icons[world.get_id(boat->type)]->draw();
     }
     world.boats_mutex.unlock();
-    
+
     // Resets the shader and texture
     glUseProgram(0);
     glActiveTexture(GL_TEXTURE0);
