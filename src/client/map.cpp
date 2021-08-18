@@ -28,6 +28,10 @@ Map::Map(const World& _world) : world(_world) {
     if (glewIsSupported("GL_VERSION_2_1")) {
         water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        topo_tex = &g_texture_manager->load_texture(Path::get("map_topo.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
+        terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
+        terrain_sheet->to_opengl();
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0, 0, world.width, world.height);
 
         {
@@ -60,7 +64,7 @@ Map::Map(const World& _world) : world(_world) {
             g = (tile.province_id / 256) % 256;
             b = tile.owner_id % 256;
             a = (tile.owner_id / 256) % 256;
-            a = tile.elevation == 0 ? 255 : a;
+            // a = tile.elevation == 0 ? 255 : a;
             div_topo_tex->buffer[i] = (a << 24) | (b << 16) | (g << 8) | (r);
             if (tile.owner_id < world.nations.size()) {
                 const Nation* owner = world.nations.at(tile.owner_id);
@@ -178,7 +182,7 @@ void Map::update(World& world) {
             g = (tile.province_id / 256) % 256;
             b = tile.owner_id % 256;
             a = (tile.owner_id / 256) % 256;
-            a = tile.elevation == 0 ? 255 : a;
+            // a = tile.elevation == 0 ? 255 : a;
             glColor4ui(r, g, b, a);
             glVertex2i(coords.first, coords.second);
         }
@@ -198,16 +202,16 @@ void Map::draw(Camera& cam, const int width, const int height) {
     glm::mat4 view, projection;
 
     // Map should have no "model" matrix since it's always static
-    /*map_shader->use();
+    map_shader->use();
     view = cam.get_view();
     map_shader->set_uniform("view", view);
     projection = cam.get_projection();
     map_shader->set_uniform("projection", projection);
     map_shader->set_uniform("map_size", (float)world.width, (float)world.height);
-    map_shader->set_uniform("terrain_texture", 0);
+    map_shader->set_uniform("tile_map", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
-    map_shader->set_uniform("terrain_sheet", 1);
+    map_shader->set_uniform("tile_sheet", 1);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, div_sheet_tex->gl_tex_num);
     map_shader->set_uniform("water_texture", 2);
@@ -216,7 +220,16 @@ void Map::draw(Camera& cam, const int width, const int height) {
     map_shader->set_uniform("noise_texture", 3);
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, noise_tex->gl_tex_num);
-    map_quad->draw();*/
+    map_shader->set_uniform("topo_texture", 4);
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, topo_tex->gl_tex_num);
+    map_shader->set_uniform("terrain_texture", 5);
+    glActiveTexture(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_2D, terrain_tex->gl_tex_num);
+    map_shader->set_uniform("terrain_sheet", 6);
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, terrain_sheet->gl_tex_num);
+    map_quad->draw();
 
     // TODO: We need to better this
     obj_shader->use();
