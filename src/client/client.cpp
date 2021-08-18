@@ -604,6 +604,8 @@ void client_update(void) {
     money_lab->text(tmpbuf);
     sprintf(tmpbuf, " %14zu", (size_t)total_pop);
     population_lab->text(tmpbuf);
+
+    map->update(*g_world);
 }
 
 void view_province_pops(void) {

@@ -267,11 +267,13 @@ void Client::net_loop(void) {
                     break;
                 case ACTION_TILE_UPDATE:
                     {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->tiles_mutex);
+                        // get_tile is already mutexed
                         std::pair<size_t, size_t> coord;
                         ::deserialize(ar, &coord.first);
                         ::deserialize(ar, &coord.second);
                         ::deserialize(ar, &g_world->get_tile(coord.first, coord.second));
+                        std::lock_guard<std::recursive_mutex> lock(g_world->changed_tiles_coords_mutex);
+                        g_world->nation_changed_tiles.push_back(&g_world->get_tile(coord.first, coord.second));
                     }
                     break;
                 default:
