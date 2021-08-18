@@ -1,0 +1,5 @@
+water_tex:
+	http://www.cadhatch.com/terms-of-use/4588167704
+
+terrain_sheet:
+	http://howintheworld.com/textures/
