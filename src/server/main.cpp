@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
     textdomain("main");
 #endif
 
-    Path::add_path("test");
+    // Path::add_path("test");
     Path::add_path("base_game");
 
 #ifndef UNIT_TEST
