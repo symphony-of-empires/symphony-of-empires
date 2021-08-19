@@ -242,7 +242,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     for (const auto& outpost : world.outposts) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(outpost->x, outpost->y, 0.f));
-        model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+        model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
         outpost_type_icons[world.get_id(outpost->type)]->draw();
     }
@@ -252,7 +252,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     for (const auto& unit : world.units) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
-        model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+        model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
         unit_type_icons[world.get_id(unit->type)]->draw();
     }
@@ -262,7 +262,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     for (const auto& boat : world.boats) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(boat->x, boat->y, 0.f));
-        model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+        model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
         boat_type_icons[world.get_id(boat->type)]->draw();
     }
