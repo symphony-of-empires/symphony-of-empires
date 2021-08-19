@@ -93,6 +93,7 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
         if(cmd == "mtllib") {
             std::string name;
             sline >> name;
+            name = "3d/" + name;
             g_material_manager->load_wavefront(Path::get(name));
         } else if(cmd == "usemtl") {
             std::string name;
