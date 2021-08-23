@@ -466,7 +466,7 @@ int LuaAPI::multiply_province_con_global(lua_State* L) {
 
     double factor = lua_tonumber(L, 2);
     for(auto& pop: province->pops) {
-        pop.con *= factor;
+        pop.consciousness *= factor;
     }
     return 0;
 }
@@ -480,7 +480,7 @@ int LuaAPI::multiply_province_con_by_culture(lua_State* L) {
         if(pop.culture_id != lua_tonumber(L, 2)) {
             continue;
         }
-        pop.con *= factor;
+        pop.consciousness *= factor;
     }
     return 0;
 }
@@ -494,7 +494,7 @@ int LuaAPI::multiply_province_con_by_religion(lua_State* L) {
         if(pop.religion_id != lua_tonumber(L, 2)) {
             continue;
         }
-        pop.con *= factor;
+        pop.consciousness *= factor;
     }
     return 0;
 }
