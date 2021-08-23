@@ -2,7 +2,6 @@
 #include "ui.hpp"
 #include "path.hpp"
 
-extern UI::Window* top_win;
 extern std::pair<int, int> mouse_pos;
 
 #include "nation.hpp"
@@ -13,7 +12,7 @@ extern Nation* curr_nation;
 #include "network.hpp"
 
 Outpost* g_outpost;
-void ui_build_unit(Outpost* outpost) {
+void ui_build_unit(Outpost* outpost, UI::Window* top_win) {
     if(outpost->type == nullptr)
         throw std::runtime_error("UNKNOWN OUTPOST TYPE?");
     

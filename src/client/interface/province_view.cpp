@@ -1,21 +1,27 @@
+#include "province_view.hpp"
+
 #include "../render/texture.hpp"
+#include "../game_state.hpp"
 #include "../ui.hpp"
-#include "world.hpp"
-#include "path.hpp"
-
 #include "nation.hpp"
-extern Nation::Id curr_selected_nation;
+#include "path.hpp"
+#include "world.hpp"
+// extern Nation::Id curr_selected_nation;
 
-void colonize_province(UI::Widget& w, void* data) {
-	Province* province = (Province *)data;
-	province->owner = g_world->nations[curr_selected_nation];
-	curr_nation->budget -= 10000;
+void ProvinceView::colonize_province_cb(UI::Widget& w, ProvinceView* data) {
+    size_t& curr_selected_nation = data->gs.select_nation->curr_selected_nation;
+    data->selected_province->owner = data->gs.world->nations[curr_selected_nation];
+    data->gs.curr_nation->budget -= 10000;
 }
 
-static void add_province_view(World const* world, UI::Window* top_win, const Tile& tile) {
+ProvinceView::ProvinceView(GameState& _gs, UI::Window* top_win, const Tile& tile) : gs{_gs} {
+    World* world = gs.world;
+
     UI::Window* province_view_win = new UI::Window(0, 0, 320, 425);
     province_view_win->text("province overview");
     province_view_win->below_of(*top_win);
+
+    selected_province = world->provinces[tile.province_id];
 
     const UnifiedRender::Texture& province_view_decor = g_texture_manager->load_texture(Path::get("ui/province_view_terrain.png"));
     UI::Image* view_province_decor = new UI::Image(9, 43, province_view_decor.width, province_view_decor.height, &province_view_decor, province_view_win);
@@ -43,7 +49,7 @@ static void add_province_view(World const* world, UI::Window* top_win, const Til
         UI::Button* colonize_province_btn = new UI::Button(9, 0, 303, 38, province_view_win);
         colonize_province_btn->text("colonize");
         colonize_province_btn->below_of(*ok_btn);
-        colonize_province_btn->user_data = (void*)world->provinces[tile.province_id];
-        colonize_province_btn->on_click = &colonize_province;
+        colonize_province_btn->user_data = this;
+        colonize_province_btn->on_click = (UI::Callback)colonize_province_cb;
     }
 }

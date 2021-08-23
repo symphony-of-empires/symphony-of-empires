@@ -1,7 +1,7 @@
 #include <string>
 #include "world.hpp"
 
-void client_main(int argc, char** argv);
+void start_client(int argc, char** argv);
 
 #ifdef windows
 const char* gettext(const char* str) {
@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
     // Path::add_path("test");
     Path::add_path("base_game");
     
-    client_main(argc, argv);
+    start_client(argc, argv);
 #endif
     exit(EXIT_SUCCESS);
     return 0;

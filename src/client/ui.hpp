@@ -29,6 +29,7 @@ enum UI_WidgetType {
 
 namespace UI {
     class Widget;
+    typedef void(*Callback)(Widget&, void *); 
     class Context {
         int drag_x, drag_y;
         bool is_drag;
