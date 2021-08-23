@@ -5,7 +5,7 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/src)
 set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wshadow -Isrc -Isrc/client -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -Isrc -Isrc/client -pthread")
 IF(WIN32)
 # Use x86_64-w64-mingw-* toolchain for windows builds on linux
 	set(CMAKE_C_COMPILER "i686-w64-mingw32-gcc-posix")
@@ -32,7 +32,8 @@ file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/*.cpp")
 file(GLOB AI_SOURCES "${PROJECT_SOURCE_DIR}/simple_ai/*.cpp")
 file(GLOB CLIENT_SOURCES "${PROJECT_SOURCE_DIR}/client/*.cpp")
 file(GLOB RENDER_SOURCES "${PROJECT_SOURCE_DIR}/client/render/*.cpp")
-add_executable(SymphonyOfEmpiresClient ${MAIN_SOURCES} ${CLIENT_SOURCES} ${AI_SOURCES} ${RENDER_SOURCES})
+file(GLOB INTERFACE_SOURCES "${PROJECT_SOURCE_DIR}/client/interface/*.cpp")
+add_executable(SymphonyOfEmpiresClient ${MAIN_SOURCES} ${CLIENT_SOURCES} ${AI_SOURCES} ${RENDER_SOURCES} ${INTERFACE_SOURCES})
 
 IF(UNIT_TEST)
 	target_link_libraries(SymphonyOfEmpiresClient PUBLIC tbb)
