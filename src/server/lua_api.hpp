@@ -54,6 +54,9 @@ namespace LuaAPI {
     int multiply_province_militancy_global(lua_State* L);
     int multiply_province_militancy_by_culture(lua_State* L);
     int multiply_province_militancy_by_religion(lua_State* L);
+    int multiply_province_con_global(lua_State* L);
+    int multiply_province_con_by_culture(lua_State* L);
+    int multiply_province_con_by_religion(lua_State* L);
 
     int add_province_pop(lua_State* L);
     int rename_province(lua_State* L);
