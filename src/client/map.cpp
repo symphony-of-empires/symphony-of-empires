@@ -244,7 +244,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
         model = glm::translate(model, glm::vec3(outpost->x, outpost->y, 0.f));
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
-        outpost_type_icons[world.get_id(outpost->type)]->draw();
+        outpost_type_icons[world.get_id(outpost->type)]->draw(obj_shader);
     }
     world.outposts_mutex.unlock();
 
@@ -254,7 +254,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
-        unit_type_icons[world.get_id(unit->type)]->draw();
+        unit_type_icons[world.get_id(unit->type)]->draw(obj_shader);
     }
     world.units_mutex.unlock();
 
@@ -264,7 +264,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
         model = glm::translate(model, glm::vec3(boat->x, boat->y, 0.f));
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
-        boat_type_icons[world.get_id(boat->type)]->draw();
+        boat_type_icons[world.get_id(boat->type)]->draw(obj_shader);
     }
     world.boats_mutex.unlock();
 
@@ -311,7 +311,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
             glVertex2f(boat->x, boat->y - 1.f);
             glEnd();
         }
-        boat_type_icons[world.get_id(boat->type)]->draw();
+        boat_type_icons[world.get_id(boat->type)]->draw(nullptr);
         draw_flag(boat->owner, boat->x, boat->y);
     }
     world.boats_mutex.unlock();
@@ -330,7 +330,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
             glVertex2f(unit->x, unit->y - 1.f);
             glEnd();
         }
-        unit_type_icons[world.get_id(unit->type)]->draw();
+        unit_type_icons[world.get_id(unit->type)]->draw(nullptr);
         draw_flag(unit->owner, unit->x, unit->y);
     }
     world.units_mutex.unlock();
@@ -339,7 +339,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
     for (const auto& outpost : world.outposts) {
         const float size = 1.f;
         auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(outpost->x, outpost->y, outpost->x + size, outpost->y + size);
-        outpost_type_icons[world.get_id(outpost->type)]->draw();
+        outpost_type_icons[world.get_id(outpost->type)]->draw(nullptr);
         draw_flag(outpost->owner, outpost->x, outpost->y);
     }
     world.outposts_mutex.unlock();
