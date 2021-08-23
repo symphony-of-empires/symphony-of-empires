@@ -461,6 +461,44 @@ int LuaAPI::multiply_province_militancy_by_religion(lua_State* L) {
     return 0;
 }
 
+int LuaAPI::multiply_province_con_global(lua_State* L) {
+    Province* province = g_world->provinces[lua_tonumber(L, 1)];
+
+    double factor = lua_tonumber(L, 2);
+    for(auto& pop: province->pops) {
+        pop.con *= factor;
+    }
+    return 0;
+}
+
+int LuaAPI::multiply_province_con_by_culture(lua_State* L) {
+    Province* province = g_world->provinces[lua_tonumber(L, 1)];
+    Culture* culture = g_world->cultures[lua_tonumber(L, 2)];
+    
+    double factor = lua_tonumber(L, 3);
+    for(auto& pop: province->pops) {
+        if(pop.culture_id != lua_tonumber(L, 2)) {
+            continue;
+        }
+        pop.con *= factor;
+    }
+    return 0;
+}
+
+int LuaAPI::multiply_province_con_by_religion(lua_State* L) {
+    Province* province = g_world->provinces[lua_tonumber(L, 1)];
+    Religion* religion = g_world->religions[lua_tonumber(L, 2)];
+    
+    double factor = lua_tonumber(L, 3);
+    for(auto& pop: province->pops) {
+        if(pop.religion_id != lua_tonumber(L, 2)) {
+            continue;
+        }
+        pop.con *= factor;
+    }
+    return 0;
+}
+
 int LuaAPI::add_province_pop(lua_State* L) {
     size_t province_id = lua_tonumber(L, 1);
     if(province_id >= g_world->provinces.size()) {
