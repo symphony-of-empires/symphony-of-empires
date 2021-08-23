@@ -44,6 +44,7 @@ namespace UnifiedRender::OpenGl {
         void use(void) const;
         void set_uniform(const std::string& name, glm::mat4 uniform) const;
         void set_uniform(const std::string& name, float value1, float value2) const;
+        void set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const;
         void set_uniform(const std::string& name, float uniform) const;
         void set_uniform(const std::string& name, int uniform) const;
         GLuint get_id(void) const;
