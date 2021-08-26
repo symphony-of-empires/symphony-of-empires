@@ -16,9 +16,9 @@ class PopViewNation {
     void show();
     GameState& gs;
 
-   private:
     uint8_t page_nr;
     static void on_update(UI::Widget& w, PopViewNation* data);
+   private:
 };
 
 #endif

@@ -15,6 +15,10 @@
 #include "interface/pop_view_nation.hpp"
 #include "interface/industry_view_nation.hpp"
 
+enum MapMode {
+    MAP_MODE_COUNTRY_SELECT,
+    MAP_MODE_NORMAL,
+};
 struct Input {
     std::pair<float, float> select_pos;
     bool middle_mouse_down = false;
@@ -36,6 +40,7 @@ class GameState {
    public:
     GameState(Camera _cam) : cam{_cam} {};
 	// TODO add deconstructor
+    void play_nation();
 
     // The ui will mostly need to read the world state
     World* world;
@@ -46,6 +51,7 @@ class GameState {
     Camera cam;
     Input input;
 	int width, height;
+    MapMode current_mode = MapMode::MAP_MODE_COUNTRY_SELECT;
 
     UI::Context* ui_ctx;
 
@@ -67,6 +73,6 @@ class GameState {
 };
 
 // Run world tick and pending commands
-void main_loop(GameState);
+void main_loop(GameState&);
 void start_client(int argc, char** argv);
 #endif

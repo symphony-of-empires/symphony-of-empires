@@ -6,17 +6,23 @@
 
 class GameState;
 class SelectNation {
-public:
-	SelectNation(GameState& gs);
-	~SelectNation() {};
+   public:
+    SelectNation(GameState& gs);
+    ~SelectNation(){};
 
-	void change_nation(size_t id);
+    void change_nation(size_t id);
     static void next_nation_cb(UI::Widget& w, SelectNation* data);
     static void prev_nation_cb(UI::Widget& w, SelectNation* data);
-	size_t curr_selected_nation = 0;		
-private:
-	GameState& gs;
-	UI::Button* curr_country_btn;
+    static void play_nation_cb(UI::Widget& w, SelectNation* data);
+    size_t curr_selected_nation;
+
+   private:
+    GameState& gs;
+    UI::Button* curr_country_btn;
+    UI::Button* select_country_btn;
+    UI::Button* next_country_btn;
+    UI::Button* prev_country_btn;
+    UI::Button* play_btn;
 };
 
 #endif

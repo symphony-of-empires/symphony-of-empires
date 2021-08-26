@@ -1,6 +1,6 @@
 #include "top_window.hpp"
 
-TopWindow::TopWindow(GameState& gs) {
+TopWindow::TopWindow(GameState& _gs) : gs{_gs} {
     const UnifiedRender::Texture& top_win_chart_tex = g_texture_manager->load_texture(Path::get("ui/top_win_chart.png"));
     const UnifiedRender::Texture& icon_prestige_tex = g_texture_manager->load_texture(Path::get("ui/icons/prestige.png"));
     const UnifiedRender::Texture& icon_economy_score_tex = g_texture_manager->load_texture(Path::get("ui/icons/economy_score.png"));
@@ -12,7 +12,6 @@ TopWindow::TopWindow(GameState& gs) {
     const UnifiedRender::Texture& icon_population_tex = g_texture_manager->load_texture(Path::get("ui/icons/population.png"));
 
     top_win = new UI::Window(0, 0, 800, 275);
-    UI::Window* top_win = new UI::Window(0, 0, 800, 275);
     top_win->text("Overview");
 
     gdp_chart = new UI::Chart(504, 43, top_win_chart_tex.width, top_win_chart_tex.height, top_win);
@@ -65,6 +64,12 @@ TopWindow::TopWindow(GameState& gs) {
     population_lab->right_side_of((*population_icon));
 }
 
-void TopWindow::show_industry_cb(UI::Widget& w, TopWindow* data) {}
-void TopWindow::show_pops_cb(UI::Widget& w, TopWindow* data) {}
-void TopWindow::show_reforms_cb(UI::Widget& w, TopWindow* data) {}
+void TopWindow::show_industry_cb(UI::Widget& w, TopWindow* data) {
+    data->gs.industry_view_nation->show();
+}
+void TopWindow::show_pops_cb(UI::Widget& w, TopWindow* data) {
+    data->gs.pop_view_nation->show();
+}
+void TopWindow::show_reforms_cb(UI::Widget& w, TopWindow* data) {
+    // data->gs.->show();
+}

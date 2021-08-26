@@ -58,17 +58,12 @@
 #include "ui.hpp"
 #include "world.hpp"
 
-enum MapMode {
-    MAP_MODE_COUNTRY_SELECT,
-    MAP_MODE_NORMAL,
-};
-
-void play_nation(GameState& gs, UI::Widget&, void*) {
+void GameState::play_nation() {
     // TODO add this to action
-    // current_mode = MAP_MODE_NORMAL;
+    current_mode = MAP_MODE_NORMAL;
 
-    Camera& cam = gs.cam;
-    const Province* capital = gs.curr_nation->capital;
+    Camera& cam = cam;
+    const Province* capital = curr_nation->capital;
     if (capital != nullptr) {
         cam.position.x = capital->max_x;
         cam.position.y = capital->max_y;
@@ -78,7 +73,7 @@ void play_nation(GameState& gs, UI::Widget&, void*) {
     // General statics of the nation
 
     // Make topwindow
-    gs.top_win = new TopWindow(gs);
+    top_win = new TopWindow(*this);
 
     // Select the nation
     // TODO put in action
@@ -87,13 +82,12 @@ void play_nation(GameState& gs, UI::Widget&, void*) {
     Archive ar = Archive();
     enum ActionType action = ACTION_SELECT_NATION;
     ::serialize(ar, &action);
-    ::serialize(ar, &gs.curr_nation);
+    ::serialize(ar, &curr_nation);
     packet.data(ar.get_buffer(), ar.size());
     g_client->packet_queue.push_back(packet);
     g_client->packet_mutex.unlock();
-    print_info("Selected nation %s", gs.curr_nation->ref_name.c_str());
+    print_info("Selected nation %s", curr_nation->ref_name.c_str());
 }
-
 
 std::vector<const UnifiedRender::Texture*> nation_flags;
 const UnifiedRender::Texture& get_nation_flag(Nation& nation) {
@@ -102,7 +96,7 @@ const UnifiedRender::Texture& get_nation_flag(Nation& nation) {
 
 extern void ui_treaty(UI::Window* top_win);
 extern void ui_build_unit(Outpost* outpost, UI::Window* top_win);
-void handle_event(Input& input, GameState& gs, MapMode& current_mode) {
+void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
     SDL_Event event;
     int click_on_ui;
     std::pair<int, int>& mouse_pos = input.mouse_pos;
@@ -133,14 +127,6 @@ void handle_event(Input& input, GameState& gs, MapMode& current_mode) {
                 }
 
                 click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
-                // TODO delete
-                // if (old_mode != current_mode) {
-                //     delete next_country_btn;
-                //     delete prev_country_btn;
-                //     delete play_btn;
-                //     delete select_country_btn;
-                //     delete curr_country_btn;
-                // }
 
                 if (click_on_ui == 0) {
                     if (input.select_pos.first < 0 ||
@@ -152,10 +138,10 @@ void handle_event(Input& input, GameState& gs, MapMode& current_mode) {
 
                     const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
 
-                    switch (current_mode) {
+                    switch (gs.current_mode) {
                         case MAP_MODE_COUNTRY_SELECT:
                             // TODO add call to functions from here
-                            // change_country(tile.owner_id);
+                            gs.select_nation->change_nation(tile.owner_id);
                             break;
                         case MAP_MODE_NORMAL:
                             // See untis that have been clicked on
@@ -333,8 +319,7 @@ void handle_event(Input& input, GameState& gs, MapMode& current_mode) {
                 }
                 break;
             case SDL_QUIT:
-                // TODO event
-                //run = false;
+                run = false;
                 break;
             case SDL_WINDOWEVENT:
                 if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
@@ -357,6 +342,7 @@ void handle_event(Input& input, GameState& gs, MapMode& current_mode) {
                 break;
         }
     }
+    ui_ctx->clear_dead();
 }
 
 void client_update() {
@@ -587,7 +573,7 @@ void handle_popups(std::vector<Event> displayed_events,
     }
 }
 
-void init_client(GameState gs) {
+void init_client(GameState& gs) {
     Map* map = gs.map;
     int& width = gs.width;
     int& height = gs.height;
@@ -632,7 +618,7 @@ void init_client(GameState gs) {
     gs.select_nation = new SelectNation(gs);
 }
 
-void main_loop(GameState gs, SDL_Window* window) {
+void main_loop(GameState& gs, SDL_Window* window) {
     gs.industry_view_nation = new IndustryViewNation(gs);
     gs.products_view_world = new ProductsViewWorld(gs);
     gs.pop_view_nation = new PopViewNation(gs);
@@ -640,7 +626,6 @@ void main_loop(GameState gs, SDL_Window* window) {
     std::atomic<bool> run = true;
     Nation* curr_nation = nullptr;
 
-    MapMode current_mode = MAP_MODE_COUNTRY_SELECT;
     Map* map = gs.map;
 
     gs.world->client_update = &client_update;
@@ -663,8 +648,8 @@ void main_loop(GameState gs, SDL_Window* window) {
 
         std::unique_lock<std::mutex> lock(render_lock);
 
-        handle_event(input, gs, current_mode);
-        if (current_mode == MAP_MODE_NORMAL) {
+        handle_event(input, gs, run);
+        if (gs.current_mode == MAP_MODE_NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
         }
         render(gs, input, window);

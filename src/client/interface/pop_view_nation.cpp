@@ -1,8 +1,9 @@
 #include "pop_view_nation.hpp"
+
 #include "../game_state.hpp"
-  
+
 extern char* tmpbuf;
-PopViewNation::PopViewNation(GameState& _gs) : gs{_gs} {
+PopViewNation::PopViewNation(GameState& _gs) : gs{_gs}, pop_view_nation_win{nullptr} {
 }
 
 void PopViewNation::show() {
@@ -50,6 +51,7 @@ void PopViewNation::show() {
         UI::Button* elem = new UI::Button(0, 32 + (i * 24), pop_view_nation_win->width, 24, pop_view_nation_win);
     }
 
+    pop_view_nation_win->user_data = (void*)this;
     pop_view_nation_win->on_update = (UI::Callback)on_update;
 }
 
