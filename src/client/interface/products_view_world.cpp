@@ -4,7 +4,7 @@
 #include "nation.hpp"
 
 extern char* tmpbuf;
-ProductsViewWorld::ProductsViewWorld(GameState& _gs) : gs{_gs} {
+ProductsViewWorld::ProductsViewWorld(GameState& _gs) : gs{_gs}, products_view_win{nullptr} {
 }
 
 void ProductsViewWorld::show() {
@@ -12,13 +12,14 @@ void ProductsViewWorld::show() {
         return;
     }
 
+    // View the provinces in a country - along with the population in them
+    products_view_win = new UI::Window(gs.input.mouse_pos.first, gs.input.mouse_pos.second, 609, 476);
+
     const size_t buttons_nr = 16;
     for (size_t i = 0; i < 16; i++) {
         buttons.push_back(ProductsViewWorldButton(gs, products_view_win, i));
     }
 
-    // View the provinces in a country - along with the population in them
-    products_view_win = new UI::Window(gs.input.mouse_pos.first, gs.input.mouse_pos.second, 609, 476);
     products_view_win->user_data = this;
     products_view_win->on_update = ([](UI::Widget& w, void* data) {
         ProductsViewWorld* pvw = (ProductsViewWorld*)data;
@@ -141,7 +142,7 @@ ProductsViewWorldButton::ProductsViewWorldButton(GameState& _gs, UI::Window* par
         UI::Chart* price_graph = new UI::Chart(0, 32, 120, 64, info_win);
         price_graph->below_of(*demand_graph);
         price_graph->text("Price");
-        demand_graph->user_data = data;
+        price_graph->user_data = data;
         price_graph->on_update = ([](UI::Widget& w, void* data) {
             ProductsViewWorldButton* state = (ProductsViewWorldButton*)data;
             const Product* product = state->product;

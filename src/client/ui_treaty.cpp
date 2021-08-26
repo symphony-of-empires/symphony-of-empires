@@ -242,7 +242,7 @@ void ui_treaty(UI::Window* top_win) {}
     
 //     UI::Label* treaty_desc_lab = new UI::Label(9, 0, "...", treaty_win);
 //     treaty_desc_lab->below_of(*ok_btn);
-//     treaty_desc_lab->on_update = [](UI::Widget& w, void* data) {
+//     treaty_desc_lab->on_update = [](UI::Widget& w, void*) {
 //         w.text(treaty_to_text(g_treaty_draft).c_str());
 //     };
 // }

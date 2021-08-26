@@ -5,9 +5,20 @@
 #include "../ui.hpp"
 #include "industry.hpp"
 #include "nation.hpp"
-#include "world.hpp"
+#include "../../world.hpp"
+
+#include <memory>
 
 class GameState;
+
+class IndustryViewNationChart {
+   public:
+    IndustryViewNationChart(GameState& gs, Industry* industry);
+    ~IndustryViewNationChart() {};
+    GameState& gs;
+    Industry* industry;
+};
+
 class IndustryViewNationButton {
    public:
     IndustryViewNationButton(GameState& gs, UI::Window* parent, size_t index);
@@ -22,11 +33,12 @@ class IndustryViewNation {
     void show();
     void hide();
     UI::Window* industry_view_nation_win;
-    std::vector<IndustryViewNationButton> buttons;
+    std::vector<std::unique_ptr<IndustryViewNationButton>> buttons;
     GameState& gs;
 
    private:
-    uint8_t page_nr;
+
+    size_t page_nr = 0;
 };
 
 #endif

@@ -9,6 +9,7 @@ class GameState;
 class TopWindow {
    public:
     TopWindow(GameState& gs);
+    GameState& gs;
     UI::Window* top_win;
     UI::Chart *gdp_chart, *pop_chart, *hdi_chart;
     UI::Label *money_lab, *prestige_lab, *economy_lab, *big_brain_lab, *militancy_lab, *population_lab;

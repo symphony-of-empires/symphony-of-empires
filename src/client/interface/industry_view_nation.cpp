@@ -1,13 +1,16 @@
 #include "industry_view_nation.hpp"
 
+#include <memory>
+
 #include "../game_state.hpp"
 #include "../ui.hpp"
 #include "industry.hpp"
 #include "nation.hpp"
 #include "world.hpp"
+
 extern char* tmpbuf;
 
-IndustryViewNation::IndustryViewNation(GameState& _gs) : gs{_gs} {
+IndustryViewNation::IndustryViewNation(GameState& _gs) : gs{_gs}, industry_view_nation_win{nullptr}, page_nr{0} {
 }
 
 void IndustryViewNation::show() {
@@ -15,15 +18,16 @@ void IndustryViewNation::show() {
         return;
     }
 
+    // View the provinces in a country - along with the population in them
+    industry_view_nation_win = new UI::Window(gs.input.mouse_pos.first, gs.input.mouse_pos.second, 609, 476);
+
     // TODO: When a province resizes the industry vector it will break havoc!
     // TODO: Make the industries vector be a pointer instead!
     const size_t buttons_nr = 16;
     for (size_t i = 0; i < buttons_nr; i++) {
-        buttons.push_back(IndustryViewNationButton(gs, industry_view_nation_win, i));
+        buttons.push_back(std::make_unique<IndustryViewNationButton>(gs, industry_view_nation_win, i));
     }
 
-    // View the provinces in a country - along with the population in them
-    industry_view_nation_win = new UI::Window(gs.input.mouse_pos.first, gs.input.mouse_pos.second, 609, 476);
     industry_view_nation_win->user_data = this;
     industry_view_nation_win->on_update = ([](UI::Widget& w, void* data) {
         IndustryViewNation* ivn = (IndustryViewNation*)data;
@@ -43,11 +47,12 @@ void IndustryViewNation::show() {
                 if (e < total_industries) {
                     sprintf(tmpbuf, "%s %4.2f %zu %zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
 
-                    ivn->buttons[i].text = std::string(tmpbuf);
-                    ivn->buttons[i].industry = &industry;
+                    print_error(tmpbuf);
+                    ivn->buttons[i]->text = std::string(tmpbuf);
+                    ivn->buttons[i]->industry = &industry;
                 } else {
-                    ivn->buttons[i].text = std::string(" ");
-                    ivn->buttons[i].industry = nullptr;
+                    ivn->buttons[i]->text = std::string(" ");
+                    ivn->buttons[i]->industry = nullptr;
                 }
                 e++;
                 i++;
@@ -89,30 +94,52 @@ void IndustryViewNation::show() {
     next_btn->user_data = this;
     next_btn->on_click = [](UI::Widget&, void* data) {
         IndustryViewNation* ivn = (IndustryViewNation*)data;
+        if (ivn->gs.world == nullptr) {
+            print_error("ERR");
+        }
         ivn->page_nr++;
         sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)ivn->page_nr);
         ivn->industry_view_nation_win->text(tmpbuf);
     };
 };
 
-IndustryViewNationButton::IndustryViewNationButton(GameState& _gs, UI::Window* parent, size_t index) : gs{_gs} {
+IndustryViewNationButton::IndustryViewNationButton(GameState& _gs, UI::Window* parent, size_t index) : gs{_gs}, industry{nullptr}, text{std::string()} {
     UI::Button* elem = new UI::Button(0, 32 + (index * 24), parent->width, 24, parent);
     elem->user_data = this;
-    elem->on_click = ([](UI::Widget& w, void* data) {
-        IndustryViewNationButton* ivnb = (IndustryViewNationButton*)data;
+    elem->on_update = ([](UI::Widget& w, void* data) {
+        IndustryViewNationButton* state = (IndustryViewNationButton*)data;
+        // w.text(state->text.c_str());
+    });
+    elem->on_click = ([](UI::Widget&, void* data) {
+        IndustryViewNationButton* state = (IndustryViewNationButton*)data;
+        new IndustryViewNationChart(state->gs, state->industry);
+    });
+}
+
+IndustryViewNationChart::IndustryViewNationChart(GameState& _gs, Industry* _industry) : gs{_gs}, industry{_industry} {
+    UI::Window* industry_info_win = new UI::Window(0, 0, 320, 200);
+    industry_info_win->text("Industry info");
+
+    UI::Chart* industry_info_workers = new UI::Chart(0, 32, 120, 64, industry_info_win);
+    industry_info_workers->user_data = this;
+    industry_info_workers->on_update = ([](UI::Widget& w2, void* data) {
+        IndustryViewNationChart* state = (IndustryViewNationChart*)data;
+        if (state->industry == nullptr)
+            return;
+
         UI::Window* industry_info_win = new UI::Window(0, 0, 320, 200);
         industry_info_win->text("Industry info");
 
         UI::Chart* industry_info_workers = new UI::Chart(0, 32, 120, 64, industry_info_win);
-        industry_info_workers->user_data = data;
-        industry_info_workers->on_update = ([](UI::Widget& w, void* data) {
-            IndustryViewNationButton* ivnb = (IndustryViewNationButton*)data;
-            if (ivnb->industry == nullptr)
+        industry_info_workers->user_data = state;
+        industry_info_workers->on_update = ([](UI::Widget& w2, void* data) {
+            IndustryViewNationChart* state = (IndustryViewNationChart*)data;
+            if (state->industry == nullptr)
                 return;
 
-            UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
-            if (ivnb->gs.world->time % 48 == 35) {
-                wc.data.push_back((ivnb->industry)->workers);
+            UI::Chart& wc = dynamic_cast<UI::Chart&>(w2);
+            if (state->gs.world->time % 48 == 35) {
+                wc.data.push_back((state->industry)->workers);
                 if (wc.data.size() >= 30)
                     wc.data.pop_front();
             }
