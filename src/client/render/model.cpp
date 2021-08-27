@@ -3,16 +3,19 @@
 #include "model.hpp"
 #include "print.hpp"
 #include "path.hpp"
+#include "shader.hpp"
 
 UnifiedRender::SimpleModel::SimpleModel(GLint _mode) : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3>(_mode) {
 
 }
 
-void UnifiedRender::SimpleModel::draw(void) const {
+void UnifiedRender::SimpleModel::draw(UnifiedRender::OpenGl::Program* shader) const {
     glActiveTexture(GL_TEXTURE0);
     if(material != nullptr && material->texture != nullptr) {
         material->texture->bind();
     }
+    // Change color if material wants it
+    shader->set_uniform("color", 1.f, 1.f, 1.f, 1.f);
     vao.bind();
     glDrawArrays(mode, 0, buffer.size());
 }
@@ -37,9 +40,9 @@ UnifiedRender::ComplexModel::ComplexModel(void) {
 
 }
 
-void UnifiedRender::ComplexModel::draw(void) const {
+void UnifiedRender::ComplexModel::draw(UnifiedRender::OpenGl::Program* shader) const {
     for(auto& model: simple_models) {
-        model->draw();
+        model->draw(shader);
     }
 }
 
@@ -93,6 +96,7 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
         if(cmd == "mtllib") {
             std::string name;
             sline >> name;
+            name = "3d/" + name;
             g_material_manager->load_wavefront(Path::get(name));
         } else if(cmd == "usemtl") {
             std::string name;

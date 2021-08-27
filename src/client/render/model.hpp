@@ -9,6 +9,7 @@
 #include <GL/gl.h>
 
 #include "material.hpp"
+#include "shader.hpp"
 
 namespace UnifiedRender::OpenGl {
     class VAO {
@@ -108,7 +109,7 @@ namespace UnifiedRender {
 
         const Material* material = nullptr;
 
-        virtual void draw(void) const;
+        virtual void draw(UnifiedRender::OpenGl::Program* shader) const;
         void upload();
     };
 
@@ -124,7 +125,7 @@ namespace UnifiedRender {
         ComplexModel& operator=(const ComplexModel&) = default;
 
         std::vector<const SimpleModel*> simple_models;
-        virtual void draw(void) const;
+        virtual void draw(UnifiedRender::OpenGl::Program* shader) const;
     };
 }
 

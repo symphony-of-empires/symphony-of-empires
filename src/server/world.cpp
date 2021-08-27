@@ -69,6 +69,13 @@ World::World() {
     lua_register(lua, "add_province_industry", LuaAPI::add_province_industry);
     lua_register(lua, "add_province_pop", LuaAPI::add_province_pop);
     lua_register(lua, "give_province_to", LuaAPI::give_province_to);
+    lua_register(lua, "get_province_owner", LuaAPI::get_province_owner);
+    lua_register(lua, "multiply_province_militancy_global", LuaAPI::multiply_province_militancy_global);
+    lua_register(lua, "multiply_province_militancy_by_culture", LuaAPI::multiply_province_militancy_by_culture);
+    lua_register(lua, "multiply_province_militancy_by_religion", LuaAPI::multiply_province_militancy_by_religion);
+    lua_register(lua, "multiply_province_con_global", LuaAPI::multiply_province_con_global);
+    lua_register(lua, "multiply_province_con_by_culture", LuaAPI::multiply_province_con_by_culture);
+    lua_register(lua, "multiply_province_con_by_religion", LuaAPI::multiply_province_con_by_religion);
     lua_register(lua, "rename_province", LuaAPI::rename_province);
     lua_register(lua, "add_province_nucleus", LuaAPI::add_province_nucleus);
     lua_register(lua, "add_province_owner", LuaAPI::add_province_owner);

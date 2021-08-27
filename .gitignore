@@ -16,7 +16,7 @@ perf.data
 *.o
 
 # windows obj files
-*.obj
+#*.obj
 *.exe
 
 # output folders
