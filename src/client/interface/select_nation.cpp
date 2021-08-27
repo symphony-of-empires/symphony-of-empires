@@ -38,11 +38,7 @@ void SelectNation::prev_nation_cb(UI::Widget& w, SelectNation* data) {
 
 void SelectNation::play_nation_cb(UI::Widget& w, SelectNation* data) {
     if (data->gs.curr_nation != nullptr) {
-        // delete data->next_country_btn;
-        // delete data->prev_country_btn;
-        // delete data->play_btn;
-        // delete data->select_country_btn;
-        // delete data->curr_country_btn;
+        // Didn't seem to be able to delete them in a callback so this will do
         data->next_country_btn->kill();
         data->next_country_btn = nullptr;
         data->prev_country_btn->kill();

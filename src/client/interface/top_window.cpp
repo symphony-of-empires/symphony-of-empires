@@ -71,5 +71,5 @@ void TopWindow::show_pops_cb(UI::Widget& w, TopWindow* data) {
     data->gs.pop_view_nation->show();
 }
 void TopWindow::show_reforms_cb(UI::Widget& w, TopWindow* data) {
-    // data->gs.->show();
+    data->gs.ui_reform->show();
 }

@@ -14,6 +14,7 @@
 #include "interface/products_view_world.hpp"
 #include "interface/pop_view_nation.hpp"
 #include "interface/industry_view_nation.hpp"
+#include "interface/ui_reform.hpp"
 
 enum MapMode {
     MAP_MODE_COUNTRY_SELECT,
@@ -36,6 +37,7 @@ class SelectNation;
 class IndustryViewNation;
 class PopViewNation;
 class ProductsViewWorld;
+class UIReform;
 class GameState {
    public:
     GameState(Camera _cam) : cam{_cam} {};
@@ -55,13 +57,13 @@ class GameState {
 
     UI::Context* ui_ctx;
 
-    ProvinceView* province_view;
-    TopWindow* top_win;
-
     SelectNation* select_nation;
+    TopWindow* top_win;
+    ProvinceView* province_view;
     ProductsViewWorld* products_view_world;
     IndustryViewNation* industry_view_nation;
     PopViewNation* pop_view_nation;
+    UIReform* ui_reform;
 
 
     // Ui calls add_command to set world state

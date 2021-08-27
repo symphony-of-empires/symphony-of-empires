@@ -46,6 +46,7 @@
 #include "interface/province_view.hpp"
 #include "interface/select_nation.hpp"
 #include "interface/top_window.hpp"
+#include "interface/ui_reform.hpp"
 #include "io_impl.hpp"
 #include "map.hpp"
 #include "network.hpp"
@@ -622,6 +623,7 @@ void main_loop(GameState& gs, SDL_Window* window) {
     gs.industry_view_nation = new IndustryViewNation(gs);
     gs.products_view_world = new ProductsViewWorld(gs);
     gs.pop_view_nation = new PopViewNation(gs);
+    gs.ui_reform = new UIReform(gs);
 
     std::atomic<bool> run = true;
     Nation* curr_nation = nullptr;

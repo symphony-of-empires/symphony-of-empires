@@ -31,12 +31,15 @@ void IndustryViewNation::show() {
     industry_view_nation_win->user_data = this;
     industry_view_nation_win->on_update = ([](UI::Widget& w, void* data) {
         IndustryViewNation* ivn = (IndustryViewNation*)data;
-        size_t e = ivn->page_nr * 16, i = 0;
         size_t cnt = 0, total_industries = 0;
         for (const auto& province : ivn->gs.curr_nation->owned_provinces) {
             total_industries += province->industries.size();
         }
+        for (size_t i = 0; i < buttons_nr; i++) {
+            ivn->buttons[i]->industry = nullptr;
+        }
 
+        size_t i = 0;
         for (const auto& province : ivn->gs.curr_nation->owned_provinces) {
             for (auto& industry : province->industries) {
                 if (cnt < ivn->page_nr * 16) {
@@ -44,17 +47,7 @@ void IndustryViewNation::show() {
                     continue;
                 }
 
-                if (e < total_industries) {
-                    sprintf(tmpbuf, "%s %4.2f %zu %zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
-
-                    print_error(tmpbuf);
-                    ivn->buttons[i]->text = std::string(tmpbuf);
-                    ivn->buttons[i]->industry = &industry;
-                } else {
-                    ivn->buttons[i]->text = std::string(" ");
-                    ivn->buttons[i]->industry = nullptr;
-                }
-                e++;
+                ivn->buttons[i]->industry = &industry;
                 i++;
                 if (i >= buttons_nr)
                     break;
@@ -103,12 +96,18 @@ void IndustryViewNation::show() {
     };
 };
 
-IndustryViewNationButton::IndustryViewNationButton(GameState& _gs, UI::Window* parent, size_t index) : gs{_gs}, industry{nullptr}, text{std::string()} {
+IndustryViewNationButton::IndustryViewNationButton(GameState& _gs, UI::Window* _parent, size_t index) : gs{_gs}, parent{_parent}, industry{nullptr}, text{std::string()} {
     UI::Button* elem = new UI::Button(0, 32 + (index * 24), parent->width, 24, parent);
     elem->user_data = this;
     elem->on_update = ([](UI::Widget& w, void* data) {
         IndustryViewNationButton* state = (IndustryViewNationButton*)data;
-        // w.text(state->text.c_str());
+        if (state->industry != nullptr) {
+            Industry& industry = *(state->industry);
+            sprintf(tmpbuf, "%s %4.2f %zu %zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
+            w.text(tmpbuf);
+        } else {
+            w.text(" ");
+        }
     });
     elem->on_click = ([](UI::Widget&, void* data) {
         IndustryViewNationButton* state = (IndustryViewNationButton*)data;
