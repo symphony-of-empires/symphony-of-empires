@@ -9,8 +9,10 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
     std::ifstream file(path);
     std::string line;
 
+    print_info("Loading material file %s", path.c_str());
+
     std::vector<std::pair<Material*, std::string>> tmp_mat;
-    Material* curr_mat;
+    Material* curr_mat = nullptr;
     while(std::getline(file, line)) {
         // Skip whitespace
         size_t len = line.find_first_not_of(" \t");
@@ -25,6 +27,9 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
         std::istringstream sline(line);
         std::string cmd;
         sline >> cmd;
+
+        if(cmd != "newmtl" && curr_mat == nullptr)
+            continue;
 
         if(cmd == "newmtl") {
             std::string name;

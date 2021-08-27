@@ -107,6 +107,27 @@ end
 function Province:give_to(province, nation)
 	give_province_to(province.id, nation.id)
 end
+function Province:get_owner(province)
+	Nation:get({}, get_province_owner(province.id))
+end
+function Province:mul_militancy_global(province, factor)
+	multiply_province_militancy_global(province.id, factor)
+end
+function Province:mul_militancy_by_culture(province, culture, factor)
+	multiply_province_militancy_by_culture(province.id, culture.id, factor)
+end
+function Province:mul_militancy_by_religion(province, religion, factor)
+	multiply_province_militancy_by_religion(province.id, religion.id, factor)
+end
+function Province:mul_con_global(province, factor)
+	multiply_province_con_global(province.id, factor)
+end
+function Province:mul_con_by_culture(province, culture, factor)
+	multiply_province_con_by_culture(province.id, culture.id, factor)
+end
+function Province:mul_con_by_religion(province, religion, factor)
+	multiply_province_con_by_religion(province.id, religion.id, factor)
+end
 function Province:add_pop(province, pop_type, culture, religion, size, literacy)
 	add_province_pop(province.id, pop_type.id, culture.id, religion.id, size, literacy)
 end
