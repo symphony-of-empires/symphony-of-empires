@@ -1,7 +1,7 @@
 #include "province_view.hpp"
 
-#include "../render/texture.hpp"
 #include "../game_state.hpp"
+#include "../render/texture.hpp"
 #include "../ui.hpp"
 #include "nation.hpp"
 #include "path.hpp"
@@ -13,6 +13,11 @@ void ProvinceView::colonize_province_cb(UI::Widget& w, ProvinceView* data) {
     data->selected_province->owner = data->gs.world->nations[curr_selected_nation];
     data->gs.curr_nation->budget -= 10000;
 }
+
+class ProvinceViewState {
+public:
+    Province* selected_province;
+};
 
 ProvinceView::ProvinceView(GameState& _gs, UI::Window* top_win, const Tile& tile) : gs{_gs} {
     World* world = gs.world;

@@ -11,10 +11,9 @@
 
 class GameState;
 
-class IndustryViewNationChart {
+class IndustryViewNationChart : public UI::Widget {
    public:
     IndustryViewNationChart(GameState& gs, Industry* industry);
-    ~IndustryViewNationChart() {};
     GameState& gs;
     Industry* industry;
 };
@@ -22,6 +21,7 @@ class IndustryViewNationChart {
 class IndustryViewNationButton {
    public:
     IndustryViewNationButton(GameState& gs, UI::Window* parent, size_t index);
+    UI::Window* parent;
     GameState& gs;
     Industry* industry;
     std::string text;

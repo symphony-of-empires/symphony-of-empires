@@ -27,7 +27,7 @@
 #endif
 #include <GL/gl.h>
 
-#include "binary_image.hpp"
+#include "../../binary_image.hpp"
 
 namespace UnifiedRender {
     class TextureException : public BinaryImageException {
