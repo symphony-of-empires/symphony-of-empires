@@ -2,11 +2,11 @@
 #include <mutex>
 #include <string>
 
-#include "world.hpp"
-#include "path.hpp"
-#include "client/network.hpp"
-#include "serializer.hpp"
-#include "io_impl.hpp"
+#include "../world.hpp"
+#include "../path.hpp"
+#include "../client/client_network.hpp"
+#include "../serializer.hpp"
+#include "../io_impl.hpp"
 
 Nation* selected_nation;
 void ai_fix_taxes(void) {
