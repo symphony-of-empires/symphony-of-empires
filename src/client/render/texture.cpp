@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "path.hpp"
-#include "print.hpp"
+#include "../../path.hpp"
+#include "../../print.hpp"
 
 /**
  * This dummy texture helps to avoid crashes due to missing buffers or so, and also gives

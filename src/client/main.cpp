@@ -1,5 +1,5 @@
 #include <string>
-#include "world.hpp"
+#include "../world.hpp"
 
 void start_client(int argc, char** argv);
 
@@ -20,10 +20,10 @@ std::atomic<bool> run;
 #	include <libintl.h>
 #	include <locale.h>
 #endif
-#include "path.hpp"
-#include "network.hpp"
-#include "io_impl.hpp"
-#include "actions.hpp"
+#include "../path.hpp"
+#include "../network.hpp"
+#include "../io_impl.hpp"
+#include "../actions.hpp"
 std::mutex world_lock;
 
 std::string async_get_input(void) {

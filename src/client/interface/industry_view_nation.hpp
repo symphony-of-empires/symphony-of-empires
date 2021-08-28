@@ -3,8 +3,8 @@
 
 #include "../game_state.hpp"
 #include "../ui.hpp"
-#include "industry.hpp"
-#include "nation.hpp"
+#include "../../industry.hpp"
+#include "../../nation.hpp"
 #include "../../world.hpp"
 
 #include <memory>
@@ -33,6 +33,7 @@ class IndustryViewNation {
     void show();
     void hide();
     UI::Window* industry_view_nation_win;
+    const size_t buttons_nr = 16;
     std::vector<std::unique_ptr<IndustryViewNationButton>> buttons;
     GameState& gs;
 

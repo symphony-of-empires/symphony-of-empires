@@ -1,15 +1,15 @@
 #include "render/texture.hpp"
 #include "ui.hpp"
-#include "path.hpp"
+#include "../path.hpp"
 
 extern std::pair<int, int> mouse_pos;
 
-#include "nation.hpp"
+#include "../nation.hpp"
 extern Nation* curr_nation;
 
-#include "serializer.hpp"
-#include "io_impl.hpp"
-#include "network.hpp"
+#include "../serializer.hpp"
+#include "../io_impl.hpp"
+#include "client_network.hpp"
 
 Outpost* g_outpost;
 void ui_build_unit(Outpost* outpost, UI::Window* top_win) {

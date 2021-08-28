@@ -17,11 +17,11 @@ PrimitiveSquare::PrimitiveSquare(float start_x, float start_y, float end_x, floa
 
     // Vertices
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
-    glEnableVertexArrayAttrib(vao.get_id(), 0);
+    glEnableVertexAttribArray(0);
     // Texcoords
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)(3 * sizeof(float)));
-    glEnableVertexArrayAttrib(vao.get_id(), 1);
+    glEnableVertexAttribArray(1);
     // Colors
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)(5 * sizeof(float)));
-    glEnableVertexArrayAttrib(vao.get_id(), 2);
+    glEnableVertexAttribArray(2);
 }

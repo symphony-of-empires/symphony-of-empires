@@ -11,8 +11,8 @@
 #include <iostream>
 #include <mutex>
 
-#include "path.hpp"
-#include "print.hpp"
+#include "../path.hpp"
+#include "../print.hpp"
 #include "render/model.hpp"
 
 Map::Map(const World& _world) : world(_world) {
@@ -141,11 +141,11 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
     flag.vbo.bind(GL_ARRAY_BUFFER);
     glBufferData(GL_ARRAY_BUFFER, flag.buffer.size() * sizeof(flag.buffer[0]), &flag.buffer[0], GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)0);  // Vertices
-    glEnableVertexArrayAttrib(flag.vao.get_id(), 0);
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)(3 * sizeof(float)));  // Texcoords
-    glEnableVertexArrayAttrib(flag.vao.get_id(), 1);
+    glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)(5 * sizeof(float)));  // Colours
-    glEnableVertexArrayAttrib(flag.vao.get_id(), 2);
+    glEnableVertexAttribArray(2);
     nation_flags[world.get_id(nation)]->bind();
     flag.draw();
 

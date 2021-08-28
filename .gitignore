@@ -35,15 +35,14 @@ compile_commands.json
 .cache/
 
 # visual studio stuff
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+# Visual Studio 2015/2017 cache/options directory
 .vs/
-x64/
-Debug/
-packages.config
-packages/
-*.sln
-*.vcxproj
-*.vcxproj.filters
-*.vcxproj.user
 
 # cmake stuff
 CMakeFiles/

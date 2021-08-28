@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\GLEW-static.2.1.0.3\build\native\GLEW-static.props" Condition="Exists('packages\GLEW-static.2.1.0.3\build\native\GLEW-static.props')" />
+  <Import Project="packages\libpng-v142.1.6.37.2\build\native\libpng-v142.props" Condition="Exists('packages\libpng-v142.1.6.37.2\build\native\libpng-v142.props')" />
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{925600f2-8e7b-4a46-b2fe-47ea4b488484}</ProjectGuid>
+    <RootNamespace>client</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    <OutDir>$(SolutionDir)client_$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)out\client_$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;windows;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="client_packages.config" />
+    <CopyFileToFolders Include="packages\libpng-v142.1.6.37.2\build\native\bin\Win32\v142\Debug\libpng16.dll">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="packages\freetype.redist.2.6.2.1\build\native\bin\Win32\v140\dynamic\Debug\freetype262d.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\actions.hpp" />
+    <ClInclude Include="src\binary_image.hpp" />
+    <ClInclude Include="src\branch.hpp" />
+    <ClInclude Include="src\client\camera.hpp" />
+    <ClInclude Include="src\client\client_network.hpp" />
+    <ClInclude Include="src\client\command.hpp" />
+    <ClInclude Include="src\client\game_state.hpp" />
+    <ClInclude Include="src\client\interface\descision.hpp" />
+    <ClInclude Include="src\client\interface\industry_view_nation.hpp" />
+    <ClInclude Include="src\client\interface\pop_view_nation.hpp" />
+    <ClInclude Include="src\client\interface\products_view_world.hpp" />
+    <ClInclude Include="src\client\interface\province_view.hpp" />
+    <ClInclude Include="src\client\interface\select_nation.hpp" />
+    <ClInclude Include="src\client\interface\top_window.hpp" />
+    <ClInclude Include="src\client\interface\ui_reform.hpp" />
+    <ClInclude Include="src\client\map.hpp" />
+    <ClInclude Include="src\client\pathfinding.hpp" />
+    <ClInclude Include="src\client\render\material.hpp" />
+    <ClInclude Include="src\client\render\model.hpp" />
+    <ClInclude Include="src\client\render\primitive.hpp" />
+    <ClInclude Include="src\client\render\shader.hpp" />
+    <ClInclude Include="src\client\render\texture.hpp" />
+    <ClInclude Include="src\client\render\texture_array.hpp" />
+    <ClInclude Include="src\client\ui.hpp" />
+    <ClInclude Include="src\company.hpp" />
+    <ClInclude Include="src\culture.hpp" />
+    <ClInclude Include="src\diplomacy.hpp" />
+    <ClInclude Include="src\event.hpp" />
+    <ClInclude Include="src\good.hpp" />
+    <ClInclude Include="src\industry.hpp" />
+    <ClInclude Include="src\io_impl.hpp" />
+    <ClInclude Include="src\nation.hpp" />
+    <ClInclude Include="src\network.hpp" />
+    <ClInclude Include="src\path.hpp" />
+    <ClInclude Include="src\policy.hpp" />
+    <ClInclude Include="src\pop.hpp" />
+    <ClInclude Include="src\print.hpp" />
+    <ClInclude Include="src\product.hpp" />
+    <ClInclude Include="src\province.hpp" />
+    <ClInclude Include="src\religion.hpp" />
+    <ClInclude Include="src\serializer.hpp" />
+    <ClInclude Include="src\thread_pool.hpp" />
+    <ClInclude Include="src\unit.hpp" />
+    <ClInclude Include="src\world.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\binary_image.cpp" />
+    <ClCompile Include="src\client\client.cpp" />
+    <ClCompile Include="src\client\client_network.cpp" />
+    <ClCompile Include="src\client\command.cpp" />
+    <ClCompile Include="src\client\game_state.cpp" />
+    <ClCompile Include="src\client\interface\descision.cpp" />
+    <ClCompile Include="src\client\interface\industry_view_nation.cpp" />
+    <ClCompile Include="src\client\interface\pop_view_nation.cpp" />
+    <ClCompile Include="src\client\interface\products_view_world.cpp" />
+    <ClCompile Include="src\client\interface\province_view.cpp" />
+    <ClCompile Include="src\client\interface\select_nation.cpp" />
+    <ClCompile Include="src\client\interface\top_window.cpp" />
+    <ClCompile Include="src\client\interface\ui_reform.cpp" />
+    <ClCompile Include="src\client\main.cpp" />
+    <ClCompile Include="src\client\map.cpp" />
+    <ClCompile Include="src\client\pathfinding.cpp" />
+    <ClCompile Include="src\client\render\material.cpp" />
+    <ClCompile Include="src\client\render\model.cpp" />
+    <ClCompile Include="src\client\render\primitive.cpp" />
+    <ClCompile Include="src\client\render\shader.cpp" />
+    <ClCompile Include="src\client\render\texture.cpp" />
+    <ClCompile Include="src\client\render\texture_array.cpp" />
+    <ClCompile Include="src\client\ui.cpp" />
+    <ClCompile Include="src\client\ui_build_unit.cpp" />
+    <ClCompile Include="src\client\ui_treaty.cpp" />
+    <ClCompile Include="src\diplomacy.cpp" />
+    <ClCompile Include="src\event.cpp" />
+    <ClCompile Include="src\nation.cpp" />
+    <ClCompile Include="src\network.cpp" />
+    <ClCompile Include="src\path.cpp" />
+    <ClCompile Include="src\print.cpp" />
+    <ClCompile Include="src\province.cpp" />
+    <ClCompile Include="src\serializer.cpp" />
+    <ClCompile Include="src\thread_pool.cpp" />
+    <ClCompile Include="src\world.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\sdl2.redist.2.0.5\build\native\sdl2.redist.targets" Condition="Exists('packages\sdl2.redist.2.0.5\build\native\sdl2.redist.targets')" />
+    <Import Project="packages\sdl2.2.0.5\build\native\sdl2.targets" Condition="Exists('packages\sdl2.2.0.5\build\native\sdl2.targets')" />
+    <Import Project="packages\glm.0.9.9.800\build\native\glm.targets" Condition="Exists('packages\glm.0.9.9.800\build\native\glm.targets')" />
+    <Import Project="packages\lua.5.4.3\build\native\Lua.targets" Condition="Exists('packages\lua.5.4.3\build\native\Lua.targets')" />
+    <Import Project="packages\freetype.redist.2.6.2.1\build\native\freetype.redist.targets" Condition="Exists('packages\freetype.redist.2.6.2.1\build\native\freetype.redist.targets')" />
+    <Import Project="packages\sdl2.v140.redist.2.0.4\build\native\sdl2.v140.redist.targets" Condition="Exists('packages\sdl2.v140.redist.2.0.4\build\native\sdl2.v140.redist.targets')" />
+    <Import Project="packages\sdl2_ttf.v140.redist.2.0.14\build\native\sdl2_ttf.v140.redist.targets" Condition="Exists('packages\sdl2_ttf.v140.redist.2.0.14\build\native\sdl2_ttf.v140.redist.targets')" />
+    <Import Project="packages\sdl2_ttf.v140.2.0.14\build\native\sdl2_ttf.v140.targets" Condition="Exists('packages\sdl2_ttf.v140.2.0.14\build\native\sdl2_ttf.v140.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\sdl2.redist.2.0.5\build\native\sdl2.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\sdl2.redist.2.0.5\build\native\sdl2.redist.targets'))" />
+    <Error Condition="!Exists('packages\sdl2.2.0.5\build\native\sdl2.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\sdl2.2.0.5\build\native\sdl2.targets'))" />
+    <Error Condition="!Exists('packages\glm.0.9.9.800\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glm.0.9.9.800\build\native\glm.targets'))" />
+    <Error Condition="!Exists('packages\libpng-v142.1.6.37.2\build\native\libpng-v142.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\libpng-v142.1.6.37.2\build\native\libpng-v142.props'))" />
+    <Error Condition="!Exists('packages\lua.5.4.3\build\native\Lua.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\lua.5.4.3\build\native\Lua.targets'))" />
+    <Error Condition="!Exists('packages\freetype.redist.2.6.2.1\build\native\freetype.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\freetype.redist.2.6.2.1\build\native\freetype.redist.targets'))" />
+    <Error Condition="!Exists('packages\sdl2.v140.redist.2.0.4\build\native\sdl2.v140.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\sdl2.v140.redist.2.0.4\build\native\sdl2.v140.redist.targets'))" />
+    <Error Condition="!Exists('packages\sdl2_ttf.v140.redist.2.0.14\build\native\sdl2_ttf.v140.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\sdl2_ttf.v140.redist.2.0.14\build\native\sdl2_ttf.v140.redist.targets'))" />
+    <Error Condition="!Exists('packages\sdl2_ttf.v140.2.0.14\build\native\sdl2_ttf.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\sdl2_ttf.v140.2.0.14\build\native\sdl2_ttf.v140.targets'))" />
+    <Error Condition="!Exists('packages\GLEW-static.2.1.0.3\build\native\GLEW-static.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\GLEW-static.2.1.0.3\build\native\GLEW-static.props'))" />
+  </Target>
+</Project>

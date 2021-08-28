@@ -3,9 +3,9 @@
 #include "../game_state.hpp"
 #include "../render/texture.hpp"
 #include "../ui.hpp"
-#include "nation.hpp"
-#include "path.hpp"
-#include "world.hpp"
+#include "../../nation.hpp"
+#include "../../path.hpp"
+#include "../../world.hpp"
 // extern Nation::Id curr_selected_nation;
 
 void ProvinceView::colonize_province_cb(UI::Widget& w, ProvinceView* data) {

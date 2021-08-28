@@ -1,18 +1,18 @@
 #include <algorithm>
 #include <cstdio>
 
-#include "actions.hpp"
-#include "server/economy.hpp"
-#include "world.hpp"
-#include "print.hpp"
-#include "serializer.hpp"
-#include "io_impl.hpp"
-#include "server/network.hpp"
-#include "thread_pool.hpp"
-#include "product.hpp"
-#include "industry.hpp"
-#include "good.hpp"
-#include "company.hpp"
+#include "../actions.hpp"
+#include "economy.hpp"
+#include "../world.hpp"
+#include "../print.hpp"
+#include "../serializer.hpp"
+#include "../io_impl.hpp"
+#include "server_network.hpp"
+#include "../thread_pool.hpp"
+#include "../product.hpp"
+#include "../industry.hpp"
+#include "../good.hpp"
+#include "../company.hpp"
 
 /* Visual Studio does not define ssize_t because it's a POSIX-only type */
 #ifdef _MSC_VER
@@ -715,10 +715,10 @@ void Economy::do_phase_3(World& world) {
                 } else {
                     // Neither literacy nor anything else can save humans from
                     // dying due starvation
-                    growth = -(rand() % pop.size);
+                    growth = -((int)(rand() % pop.size));
                 }
                 if(growth < 0 && (size_t)abs(growth) > pop.size) {
-                    growth = -pop.size;
+                    growth = -((int)pop.size);
                 }
                 pop.size += growth;
             }

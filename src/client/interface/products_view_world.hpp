@@ -3,9 +3,9 @@
 
 #include "../game_state.hpp"
 #include "../ui.hpp"
-#include "industry.hpp"
-#include "nation.hpp"
-#include "world.hpp"
+#include "../../industry.hpp"
+#include "../../nation.hpp"
+#include "../../world.hpp"
 
 class GameState;
 
@@ -24,6 +24,7 @@ class ProductsViewWorld {
     GameState& gs;
     UI::Window* products_view_win;
     std::vector<ProductsViewWorldButton> buttons;
+    const size_t buttons_nr = 16;
     void show();
 
    private:

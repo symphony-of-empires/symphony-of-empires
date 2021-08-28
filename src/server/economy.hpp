@@ -1,7 +1,7 @@
 #ifndef ECONOMY_H
 #define ECONOMY_H
 
-#include "world.hpp"
+#include "../world.hpp"
 
 // Functions that do a economy simulation in various steps, divided to reduce
 // overhead, they are distributed accross 48 ticks

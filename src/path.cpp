@@ -11,6 +11,7 @@
 #include <climits>
 #include <string>
 #include <algorithm>
+#include <vector>
 #include <fstream>
 #include "path.hpp"
 #include "print.hpp"

@@ -4,9 +4,9 @@
 
 #include "../game_state.hpp"
 #include "../ui.hpp"
-#include "industry.hpp"
-#include "nation.hpp"
-#include "world.hpp"
+#include "../../industry.hpp"
+#include "../../nation.hpp"
+#include "../../world.hpp"
 
 extern char* tmpbuf;
 
@@ -35,7 +35,7 @@ void IndustryViewNation::show() {
         for (const auto& province : ivn->gs.curr_nation->owned_provinces) {
             total_industries += province->industries.size();
         }
-        for (size_t i = 0; i < buttons_nr; i++) {
+        for (size_t i = 0; i < ivn->buttons_nr; i++) {
             ivn->buttons[i]->industry = nullptr;
         }
 
@@ -49,10 +49,10 @@ void IndustryViewNation::show() {
 
                 ivn->buttons[i]->industry = &industry;
                 i++;
-                if (i >= buttons_nr)
+                if (i >= ivn->buttons_nr)
                     break;
             }
-            if (i >= buttons_nr)
+            if (i >= ivn->buttons_nr)
                 break;
         }
     });
