@@ -600,9 +600,10 @@ void init_client(GameState& gs) {
 
         map->nation_flags.push_back(&g_texture_manager->load_texture(path));
     }
+
     for (const auto& outpost_type : gs.world->outpost_types) {
         std::string path = Path::get("3d/outpost_types/" + outpost_type->ref_name + ".obj");
-        //map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
+        map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
     }
     for (const auto& boat_type : gs.world->boat_types) {
         std::string path = Path::get("3d/boat_types/" + boat_type->ref_name + ".obj");
