@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "binary_image.hpp"
+#include "../../binary_image.hpp"
 
 namespace UnifiedRender {
 class TextureArray : public BinaryImage {

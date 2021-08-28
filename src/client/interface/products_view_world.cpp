@@ -1,7 +1,7 @@
 #include "products_view_world.hpp"
 
 #include "../ui.hpp"
-#include "nation.hpp"
+#include "../../nation.hpp"
 
 extern char* tmpbuf;
 ProductsViewWorld::ProductsViewWorld(GameState& _gs) : gs{_gs}, products_view_win{nullptr} {
@@ -15,7 +15,6 @@ void ProductsViewWorld::show() {
     // View the provinces in a country - along with the population in them
     products_view_win = new UI::Window(gs.input.mouse_pos.first, gs.input.mouse_pos.second, 609, 476);
 
-    const size_t buttons_nr = 16;
     for (size_t i = 0; i < 16; i++) {
         buttons.push_back(ProductsViewWorldButton(gs, products_view_win, i));
     }
@@ -29,7 +28,7 @@ void ProductsViewWorld::show() {
         if (world->time % 48 == 35) {
             std::lock_guard<std::recursive_mutex> l2(world->products_mutex);
             size_t list_idx = pvw->page_nr * 16;
-            for (size_t i = 0; i < buttons_nr; i++) {
+            for (size_t i = 0; i < pvw->buttons_nr; i++) {
                 if (list_idx < world->products.size()) {
                     // Skip products that are not from our country
                     while (world->products[list_idx]->origin->owner != curr_nation) {

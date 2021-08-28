@@ -3,8 +3,6 @@
 
 #include "../game_state.hpp"
 #include "../ui.hpp"
-#include "nation.hpp"
-#include "world.hpp"
 
 class GameState;
 // View the provinces in a country - along with the population in them

@@ -20,13 +20,13 @@ extern "C" {
 #include <libintl.h>
 #include <locale.h>
 
-#include "server/lua_api.hpp"
-#include "world.hpp"
-#include "nation.hpp"
-#include "server/economy.hpp"
-#include "print.hpp"
-#include "path.hpp"
-#include "event.hpp"
+#include "lua_api.hpp"
+#include "../world.hpp"
+#include "../nation.hpp"
+#include "economy.hpp"
+#include "../print.hpp"
+#include "../path.hpp"
+#include "../event.hpp"
 
 int LuaAPI::add_unit_trait(lua_State* L) {
     UnitTrait* unit_trait = new UnitTrait();

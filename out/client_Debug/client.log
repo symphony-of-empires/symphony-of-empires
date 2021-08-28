@@ -1,0 +1,103 @@
+﻿  game_state.cpp
+C:\Users\temp\source\repos\soe\src\serializer.hpp(81,1): warning C4267: 'initializing': conversion from 'size_t' to 'uint16_t', possible loss of data
+C:\Users\temp\source\repos\soe\src\client\camera.hpp(75,23): warning C4244: 'initializing': conversion from '_Ty1' to 'float', possible loss of data
+          with
+          [
+              _Ty1=int
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(68,33): warning C4244: '=': conversion from 'const size_t' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(69,33): warning C4244: '=': conversion from 'const size_t' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(139,99): warning C4244: 'argument': conversion from '_Ty2' to 'size_t', possible loss of data
+          with
+          [
+              _Ty2=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(139,75): warning C4244: 'argument': conversion from '_Ty1' to 'size_t', possible loss of data
+          with
+          [
+              _Ty1=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(196,84): warning C4244: 'argument': conversion from '_Ty2' to 'size_t', possible loss of data
+          with
+          [
+              _Ty2=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(196,66): warning C4244: 'argument': conversion from '_Ty1' to 'size_t', possible loss of data
+          with
+          [
+              _Ty1=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(197,84): warning C4244: 'argument': conversion from '_Ty2' to 'size_t', possible loss of data
+          with
+          [
+              _Ty2=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(197,66): warning C4244: 'argument': conversion from '_Ty1' to 'size_t', possible loss of data
+          with
+          [
+              _Ty1=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(208,96): warning C4244: 'argument': conversion from '_Ty2' to 'size_t', possible loss of data
+          with
+          [
+              _Ty2=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(208,73): warning C4244: 'argument': conversion from '_Ty1' to 'size_t', possible loss of data
+          with
+          [
+              _Ty1=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(216,55): warning C4244: '=': conversion from '_Ty1' to 'size_t', possible loss of data
+          with
+          [
+              _Ty1=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(217,55): warning C4244: '=': conversion from '_Ty2' to 'size_t', possible loss of data
+          with
+          [
+              _Ty2=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(230,67): warning C4244: '=': conversion from '_Ty1' to 'size_t', possible loss of data
+          with
+          [
+              _Ty1=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(231,67): warning C4244: '=': conversion from '_Ty2' to 'size_t', possible loss of data
+          with
+          [
+              _Ty2=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(247,67): warning C4244: '=': conversion from '_Ty1' to 'size_t', possible loss of data
+          with
+          [
+              _Ty1=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(248,67): warning C4244: '=': conversion from '_Ty2' to 'size_t', possible loss of data
+          with
+          [
+              _Ty2=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(285,63): warning C4244: '=': conversion from 'int' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty1=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(286,64): warning C4244: '=': conversion from 'int' to '_Ty2', possible loss of data
+          with
+          [
+              _Ty2=float
+          ]
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(465,57): warning C4244: 'argument': conversion from 'size_t' to 'GLfloat', possible loss of data
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(465,36): warning C4244: 'argument': conversion from 'size_t' to 'GLfloat', possible loss of data
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(466,63): warning C4244: 'argument': conversion from 'size_t' to 'GLfloat', possible loss of data
+C:\Users\temp\source\repos\soe\src\client\game_state.cpp(468,36): warning C4244: 'argument': conversion from 'size_t' to 'GLfloat', possible loss of data
+glew32sd.lib(glew.obj) : warning LNK4099: PDB 'glew_static.pdb' was not found with 'glew32sd.lib(glew.obj)' or at 'C:\Users\temp\source\repos\soe\client_Debug\glew_static.pdb'; linking object as if no debug info
+  client.vcxproj -> C:\Users\temp\source\repos\soe\client_Debug\client.exe

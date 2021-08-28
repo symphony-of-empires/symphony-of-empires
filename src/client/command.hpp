@@ -1,8 +1,8 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#include "actions.hpp"
-#include "world.hpp"
+#include "../actions.hpp"
+#include "../world.hpp"
 
 class Command {
    public:

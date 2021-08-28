@@ -3,9 +3,9 @@
 
 #include "../ui.hpp"
 #include "../game_state.hpp"
-#include "industry.hpp"
-#include "nation.hpp"
-#include "world.hpp"
+#include "../../industry.hpp"
+#include "../../nation.hpp"
+#include "../../world.hpp"
 
 class GameState;
 class ProvinceView {

@@ -1,6 +1,6 @@
 #include "texture_array.hpp"
 
-#include "print.hpp"
+#include "../../print.hpp"
 
 UnifiedRender::TextureArray::TextureArray(std::string path, size_t _tiles_x, size_t _tiles_y)
     : BinaryImage(path), tiles_x(_tiles_x), tiles_y(_tiles_y) {}

@@ -14,8 +14,10 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include "ui.hpp"
-#include "path.hpp"
-#include "print.hpp"
+#include "../path.hpp"
+#include "../print.hpp"
+
+#define NOMINMAX
 
 using namespace UI;
 
@@ -611,7 +613,7 @@ void Chart::on_render(Context& ctx) {
 }
 
 Slider::Slider(int _x, int _y, unsigned w, unsigned h, const float _min, const float _max, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI_WIDGET_SLIDER), max(_max), min(_min) {
+    : max{ _max }, min{ _min }, Widget(_parent, _x, _y, w, h, UI_WIDGET_SLIDER) {
 }
 
 void Slider::on_render(Context& ctx) {

@@ -1,8 +1,8 @@
 #include <algorithm>
 #include <fstream>
 #include "model.hpp"
-#include "print.hpp"
-#include "path.hpp"
+#include "../../print.hpp"
+#include "../../path.hpp"
 #include "shader.hpp"
 
 UnifiedRender::SimpleModel::SimpleModel(GLint _mode) : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3>(_mode) {
@@ -27,13 +27,13 @@ void UnifiedRender::SimpleModel::upload(void) {
     glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
     // Vertices
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
-    glEnableVertexArrayAttrib(vao.get_id(), 0);
+    glEnableVertexAttribArray(0);
     // Texcoords
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)(3 * sizeof(float)));
-    glEnableVertexArrayAttrib(vao.get_id(), 1);
+    glEnableVertexAttribArray(1);
     // Colours
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)(5 * sizeof(float)));
-    glEnableVertexArrayAttrib(vao.get_id(), 2);
+    glEnableVertexAttribArray(2);
 }
 
 UnifiedRender::ComplexModel::ComplexModel(void) {

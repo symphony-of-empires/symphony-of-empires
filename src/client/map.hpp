@@ -12,8 +12,8 @@
 #endif
 #include <GL/glew.h>
 #include <GL/gl.h>
-#include "world.hpp"
-#include "province.hpp"
+#include "../world.hpp"
+#include "../province.hpp"
 #include "render/texture.hpp"
 #include "camera.hpp"
 #include "render/primitive.hpp"
