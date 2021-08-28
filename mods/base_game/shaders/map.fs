@@ -120,9 +120,11 @@ void main() {
 	const vec4 province_border = vec4(0., 0., 0., 1.);
 	const vec4 country_border = vec4(0.8, 0., 0., 1.);
 	const vec4 mountain = vec4(0., 0., 0., 1.);
+	const vec4 water_col = vec4(0.06, 0.39, 0.75, 1.);
 
 	vec4 water = noTiling(water_texture, 50. * v_texcoord);
-	water.rgb = water.rgb * 1.2 - 0.4;
+	water = mix(water, water_col * 0.7, 0.7);
+	// water.rgb = water.rgb * 1.2 - 0.4;
 
 	vec4 terrain_color = get_terrain_mix(v_texcoord);
 
