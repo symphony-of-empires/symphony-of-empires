@@ -23,7 +23,9 @@ void UnifiedRender::SimpleModel::draw(UnifiedRender::OpenGl::Program* shader) co
 void UnifiedRender::SimpleModel::upload(void) {
     vao.bind();
     vbo.bind(GL_ARRAY_BUFFER);
-
+    
+    if (buffer.size() == 0)
+        return;
     glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
     // Vertices
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
@@ -172,10 +174,10 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
                 // will also subtract 1 because the indexing is 0 based
                 model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
                     glm::vec3(obj.vertices[
-                        std::min<size_t>(obj.vertices.size(), face.vertices[i] - 1)
+                        std::min<size_t>(obj.vertices.size() - 1, face.vertices[i] - 1)
                     ]),
                     glm::vec2(obj.texcoords[
-                        std::min<size_t>(obj.texcoords.size(), face.texcoords[i] - 1)
+                        std::min<size_t>(obj.texcoords.size() - 1, face.texcoords[i] - 1)
                     ]),
                     glm::vec3(1.f, 1.f, 1.f)
                 ));
