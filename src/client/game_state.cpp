@@ -35,10 +35,16 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "camera.hpp"
 #include "../company.hpp"
 #include "../good.hpp"
 #include "../industry.hpp"
+#include "../io_impl.hpp"
+#include "../path.hpp"
+#include "../product.hpp"
+#include "../serializer.hpp"
+#include "../world.hpp"
+#include "camera.hpp"
+#include "client_network.hpp"
 #include "interface/descision.hpp"
 #include "interface/industry_view_nation.hpp"
 #include "interface/pop_view_nation.hpp"
@@ -47,17 +53,11 @@
 #include "interface/select_nation.hpp"
 #include "interface/top_window.hpp"
 #include "interface/ui_reform.hpp"
-#include "../io_impl.hpp"
 #include "map.hpp"
-#include "client_network.hpp"
-#include "../path.hpp"
-#include "../product.hpp"
 #include "render/material.hpp"
 #include "render/model.hpp"
 #include "render/texture.hpp"
-#include "../serializer.hpp"
 #include "ui.hpp"
-#include "../world.hpp"
 
 void GameState::play_nation() {
     // TODO add this to action
@@ -602,15 +602,22 @@ void init_client(GameState& gs) {
     }
     for (const auto& outpost_type : gs.world->outpost_types) {
         std::string path = Path::get("3d/outpost_types/" + outpost_type->ref_name + ".obj");
-        //map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
+        // FIX: Below code only works on linux
+#ifdef unix
+        map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
+#endif
     }
     for (const auto& boat_type : gs.world->boat_types) {
         std::string path = Path::get("3d/boat_types/" + boat_type->ref_name + ".obj");
-        //map->boat_type_icons.push_back(&g_model_manager->load_complex(path));
+#ifdef unix
+        map->boat_type_icons.push_back(&g_model_manager->load_complex(path));
+#endif
     }
     for (const auto& unit_type : gs.world->unit_types) {
         std::string path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
-        //map->unit_type_icons.push_back(&g_model_manager->load_complex(path));
+#ifdef unix
+        map->unit_type_icons.push_back(&g_model_manager->load_complex(path));
+#endif
     }
 
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);

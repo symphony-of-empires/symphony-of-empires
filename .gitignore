@@ -43,6 +43,11 @@ compile_commands.json
 *.sln.docstates
 # Visual Studio 2015/2017 cache/options directory
 .vs/
+out/
+client_Debug/
+client_Release/
+server_Debug/
+server_Release/
 
 # cmake stuff
 CMakeFiles/
