@@ -50,9 +50,9 @@ void BinaryImage::from_file(const std::string& path) {
 
         uint8_t *c_buffer = (uint8_t *)buffer;
         for(size_t i = 0, j = 0; i < (width * height) * i_channels && j < (width * height); i += i_channels, j++) {
-            uint32_t colour = (uint32_t)c_buffer[i + 2]
+            uint32_t colour = (uint32_t)c_buffer[i + 0]
                 | ((uint32_t)c_buffer[i + 1] << 8)
-                | ((uint32_t)c_buffer[i + 0] << 16)
+                | ((uint32_t)c_buffer[i + 2] << 16)
                 | ((uint32_t)0xff << 24);
             second_buffer[j] = colour;
         }
