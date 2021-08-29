@@ -8,7 +8,10 @@
 #include "path.hpp"
 #include "print.hpp"
 
-BinaryImage::BinaryImage(std::string path) {
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+BinaryImage::BinaryImage(const std::string& path) {
     from_file(path);
 }
 
@@ -23,46 +26,38 @@ BinaryImage::BinaryImage(const BinaryImage& tex) {
     memcpy(buffer, tex.buffer, sizeof(uint32_t) * (width * height));
 }
 
-void BinaryImage::from_file(std::string path) {
-    png_image image;
-    
-    // Open initial file
-    memset(&image, 0, sizeof(png_image));
-    image.version = PNG_IMAGE_VERSION;
-    if(!png_image_begin_read_from_file(&image, Path::get(path).c_str())) {
-        throw BinaryImageException(path, image.message);
-    }
-    
-    // Convert onto RGBA so it can be easily read
-    image.format = PNG_FORMAT_RGBA;
-
-    // We cannot allow images bigger than our integers (we are avoiding overflows!)
-    if(image.width >= UINT16_MAX || image.height >= UINT16_MAX) {
-        png_image_free(&image);
-        throw BinaryImageException(path, "Texture too big");
+void BinaryImage::from_file(const std::string& path) {
+    int i_width, i_height, i_channels;
+    buffer = (uint32_t *)stbi_load(Path::get(path).c_str(), &i_width, &i_height, &i_channels, 0);
+    if(buffer == NULL) {
+        throw BinaryImageException(path, "Image load error");
     }
 
-    // We can't allow images with 0 size either
-    if(!image.width || !image.height) {
-        png_image_free(&image);
-        throw BinaryImageException(path, "Texture too small");
-    }
+    width = (size_t)i_width;
+    height = (size_t)i_height;
 
-    width = (size_t)image.width;
-    height = (size_t)image.height;
-    
-    // Store information onto buffer
-    buffer = new uint32_t[image.width* image.height];
-    if(buffer != nullptr && png_image_finish_read(&image, NULL, buffer, 0, NULL) != 0) {
-        // Free the image
-        png_image_free(&image);
-    } else {
-        if(buffer == nullptr) {
-            png_image_free(&image);
-        } else {
-            delete[] buffer;
+    if(i_channels != 4) {
+        if(i_channels < 3) {
+            throw BinaryImageException(path, "Image must be RGB");
         }
-        throw BinaryImageException(path, "Allocation error");
+
+        // Extend the image to RGBA
+        print_info("Extending non-RGBA image to RGBA");
+        uint32_t *second_buffer = new uint32_t[width * height];
+        if(second_buffer == NULL) {
+            throw BinaryImageException(path, "Out of memory");
+        }
+
+        uint8_t *c_buffer = (uint8_t *)buffer;
+        for(size_t i = 0, j = 0; i < (width * height) * i_channels && j < (width * height); i += i_channels, j++) {
+            uint32_t colour = (uint32_t)c_buffer[i + 2]
+                | ((uint32_t)c_buffer[i + 1] << 8)
+                | ((uint32_t)c_buffer[i + 0] << 16)
+                | ((uint32_t)0xff << 24);
+            second_buffer[j] = colour;
+        }
+        free(buffer);
+        buffer = second_buffer;
     }
 }
 

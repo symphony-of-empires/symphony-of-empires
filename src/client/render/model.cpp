@@ -95,6 +95,9 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
         std::string cmd;
         sline >> cmd;
 
+        if(cmd.empty())
+            continue;
+
         if(cmd == "mtllib") {
             std::string name;
             sline >> name;
@@ -172,7 +175,7 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
             for(size_t i = 0; i < face.vertices.size(); i++) {
                 // The faces dictate indices for the vertices and stuff and we
                 // will also subtract 1 because the indexing is 0 based
-                model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
+                model->buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2, glm::vec3>(
                     glm::vec3(obj.vertices[
                         std::min<size_t>(obj.vertices.size() - 1, face.vertices[i] - 1)
                     ]),
@@ -186,10 +189,10 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
         model->material = obj.material;
         model->upload();
 
-        simple_models.insert(std::pair(model, obj.name));
+        simple_models.insert(std::make_pair(model, obj.name));
         final_model->simple_models.push_back(model);
     }
-    complex_models.insert(std::pair(final_model, path));
+    complex_models.insert(std::make_pair(final_model, path));
     return *final_model;
 }
 

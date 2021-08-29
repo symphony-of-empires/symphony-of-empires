@@ -32,14 +32,14 @@
 namespace UnifiedRender {
     class TextureException : public BinaryImageException {
     public:
-        TextureException(std::string filename, std::string message) : BinaryImageException(filename, message){};
+        TextureException(const std::string& filename, const std::string& message) : BinaryImageException(filename, message){};
     };
 
     class Texture : public BinaryImage {
     public:
-        Texture(){};
-        Texture(std::string path) : BinaryImage(path){};
-        Texture(size_t _width, size_t _height) : BinaryImage(_width, _height){};
+        Texture() {};
+        Texture(const std::string& path) : BinaryImage(path) {};
+        Texture(size_t _width, size_t _height) : BinaryImage(_width, _height) {};
 
         GLuint gl_tex_num;
         void create_dummy();

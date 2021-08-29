@@ -1,7 +1,6 @@
 #include "world.hpp"
 #include <cstdlib>
 #include <cstring>
-#include <filesystem>
 #include <cmath>
 #include <set>
 #ifndef _MSC_VER
