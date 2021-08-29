@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
-#include <execution>
 #include <functional>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
@@ -26,14 +25,13 @@ Map::Map(const World& _world) : world(_world) {
 
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
     if (glewIsSupported("GL_VERSION_2_1")) {
+        map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
         water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         topo_tex = &g_texture_manager->load_texture(Path::get("map_topo.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
         terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
         terrain_sheet->to_opengl();
-        map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0, 0, world.width, world.height);
-
         {
             auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
             auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/map.fs");
@@ -120,7 +118,7 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
     for (float r = 0.f; r <= (n_steps * step); r += step) {
         float sin_r = sin(r + wind_osc) / 24.f;
 
-        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData(
+        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2, glm::vec3>(
             // Vert
             glm::vec3(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -2.f),
             // Texcoord
@@ -128,7 +126,7 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
             // Colour
             glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)));
 
-        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData(
+        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2, glm::vec3>(
             // Vert
             glm::vec3(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -1.f),
             // Texcoord

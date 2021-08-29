@@ -626,7 +626,8 @@ void main_loop(GameState& gs, SDL_Window* window) {
     gs.pop_view_nation = new PopViewNation(gs);
     gs.ui_reform = new UIReform(gs);
 
-    std::atomic<bool> run = true;
+    std::atomic<bool> run;
+    run = true;
     Nation* curr_nation = nullptr;
 
     Map* map = gs.map;

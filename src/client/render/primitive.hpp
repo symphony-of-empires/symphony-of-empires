@@ -12,12 +12,14 @@
 
 #include "model.hpp"
 
-namespace UnifiedRender::OpenGl {
-    // A square on the z=0 plane
-    class PrimitiveSquare : public PackedModel<glm::vec3, glm::vec2, glm::vec3> {
-    public:
-        PrimitiveSquare(float start_x, float start_y, float end_x, float end_y);
-    };
+namespace UnifiedRender {
+    namespace OpenGl {
+        // A square on the z=0 plane
+        class PrimitiveSquare : public PackedModel<glm::vec3, glm::vec2, glm::vec3> {
+        public:
+            PrimitiveSquare(float start_x, float start_y, float end_x, float end_y);
+        };
+    }
 }
 
 #endif

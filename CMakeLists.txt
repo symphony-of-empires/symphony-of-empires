@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.16.3)
+cmake_minimum_required(VERSION 3.5.1)
 
 project(SymphonyOfEmpires)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/src)
 set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -Isrc -Isrc/client -pthread")
+#set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Isrc -Isrc/client -pthread")
 IF(WIN32)
 # Use x86_64-w64-mingw-* toolchain for windows builds on linux
 	set(CMAKE_C_COMPILER "i686-w64-mingw32-gcc-posix")
@@ -44,11 +44,11 @@ IF(WIN32)
 ELSE()
 	target_link_libraries(SymphonyOfEmpiresClient PUBLIC GL GLEW GLU SDL2main stdc++)
 ENDIF()
-target_link_libraries(SymphonyOfEmpiresClient PUBLIC png SDL2 SDL2_ttf m z tbb)
+target_link_libraries(SymphonyOfEmpiresClient PUBLIC SDL2 SDL2_ttf m z tbb)
 
 file(GLOB SERVER_SOURCES "${PROJECT_SOURCE_DIR}/server/*.cpp")
 add_executable(SymphonyOfEmpiresServer ${MAIN_SOURCES} ${SERVER_SOURCES})
-target_link_libraries(SymphonyOfEmpiresServer PUBLIC lua5.4 stdc++ png m z)
+target_link_libraries(SymphonyOfEmpiresServer PUBLIC stdc++ m z)
 IF(lua53)
 	target_link_libraries(SymphonyOfEmpiresServer PUBLIC lua5.3)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLUA53")
