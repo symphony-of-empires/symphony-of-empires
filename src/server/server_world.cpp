@@ -43,6 +43,7 @@ World::World() {
     lua_register(lua, "get_industry_type", LuaAPI::get_industry_type);
     lua_register(lua, "add_input_to_industry_type", LuaAPI::add_input_to_industry_type);
     lua_register(lua, "add_output_to_industry_type", LuaAPI::add_output_to_industry_type);
+    lua_register(lua, "add_req_good_to_industry_type", LuaAPI::add_req_good_to_industry_type);
 
     lua_register(lua, "add_nation", LuaAPI::add_nation);
     lua_register(lua, "get_nation", LuaAPI::get_nation);
@@ -202,9 +203,38 @@ void World::load_mod(void) {
     if(tiles == nullptr)
         throw std::runtime_error("Out of memory");
     
-    int ret = luaL_dofile(this->lua, Path::get("scripts/init.lua").c_str());
+    int ret;
+    
+    std::string final_buf = "require('api')\n\n";
+    std::vector<std::string> files_text;
+
+    files_text = Path::get_data("scripts/unit_traits.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/outpost_types.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/cultures.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/religions.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/pop_types.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/good_types.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/industry_types.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/unit_types.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/boat_types.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/nations.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/init.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+
+    ret = luaL_loadstring(lua, final_buf.c_str());
     if(ret)
         throw std::runtime_error(lua_tostring(lua, -1));
+    lua_pcall(lua, 0, 0, 0);
 
     // Shrink normally-not-resized vectors to give back memory to the OS
     printf("Shrink normally-not-resized vectors to give back memory to the OS\n");
@@ -439,10 +469,15 @@ void World::load_mod(void) {
         }
     }
 
-    ret = luaL_dofile(this->lua, Path::get("scripts/mod.lua").c_str());
-    if(ret) {
-        throw std::runtime_error(lua_tostring(this->lua, -1));
-    }
+    final_buf = "require('api')\n\n";
+    files_text = Path::get_data("scripts/mod.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+
+    printf("\n[%s]\n", final_buf.c_str());
+    ret = luaL_loadstring(lua, final_buf.c_str());
+    if(ret)
+        throw std::runtime_error(lua_tostring(lua, -1));
+    lua_pcall(lua, 0, 0, 0);
     
     // Default init for policies
     for(auto& nation: this->nations) {

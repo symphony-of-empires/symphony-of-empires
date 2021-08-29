@@ -26,6 +26,7 @@ namespace LuaAPI {
     int get_industry_type(lua_State* L);
     int add_input_to_industry_type(lua_State* L);
     int add_output_to_industry_type(lua_State* L);
+    int add_req_good_to_industry_type(lua_State* L);
 
     int add_nation(lua_State* L);
     int get_nation(lua_State* L);

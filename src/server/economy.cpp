@@ -83,8 +83,8 @@ void Economy::do_phase_1(World& world) {
             }
         }
 
-        /*if(!can_build)
-        	break;*/
+        if(!can_build)
+        	break;
         
         size_t needed_manpower = 1000;
         size_t available_manpower = 0;
