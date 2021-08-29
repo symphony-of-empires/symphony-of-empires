@@ -83,6 +83,9 @@ namespace Path {
         std::vector<std::string> files_text;
         for(const auto& path: mod_paths) {
             std::string rsult = get_full() + path + str;
+#ifdef windows
+            std::replace(rsult.begin(), rsult.end(), '/', '\\');
+#endif
             if(file_exists(rsult) == true) {
                 std::ifstream ifs(rsult.c_str());
                 std::string content;
@@ -105,9 +108,7 @@ namespace Path {
         if(str[0] == '/' || str[0] == 'C')
             return str;
         
-        std::string rsult = get_full();
-        rsult += mod_paths[0];
-        rsult += str;
+        std::string rsult = get_full() + mod_paths[0] + str;
 #ifdef windows
         std::replace(rsult.begin(), rsult.end(), '/', '\\');
 #endif
