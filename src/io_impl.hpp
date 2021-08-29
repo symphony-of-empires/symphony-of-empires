@@ -1035,6 +1035,7 @@ public:
         ::serialize(stream, &obj->min_quality);
         ::serialize(stream, &obj->willing_payment);
         ::serialize(stream, &obj->workers);
+        ::serialize(stream, &obj->req_goods);
     }
     static inline void deserialize(Archive& stream, Industry* obj) {
         ::deserialize(stream, &obj->owner);
@@ -1047,6 +1048,7 @@ public:
         ::deserialize(stream, &obj->min_quality);
         ::deserialize(stream, &obj->willing_payment);
         ::deserialize(stream, &obj->workers);
+        ::deserialize(stream, &obj->req_goods);
     }
     static inline size_t size(const Industry* obj) {
         return
@@ -1060,6 +1062,7 @@ public:
             + serialized_size(&obj->min_quality)
             + serialized_size(&obj->willing_payment)
             + serialized_size(&obj->workers)
+            + serialized_size(&obj->req_goods)
         ;
     }
 };
@@ -1117,6 +1120,7 @@ public:
         
         ::serialize(stream, &obj->inputs);
         ::serialize(stream, &obj->outputs);
+        ::serialize(stream, &obj->req_goods);
     }
     static inline void deserialize(Archive& stream, IndustryType* obj) {
         ::deserialize(stream, &obj->name);
@@ -1124,6 +1128,7 @@ public:
         
         ::deserialize(stream, &obj->inputs);
         ::deserialize(stream, &obj->outputs);
+        ::deserialize(stream, &obj->req_goods);
     }
     static inline size_t size(const IndustryType* obj) {
         return
@@ -1131,6 +1136,7 @@ public:
             + serialized_size(&obj->ref_name)
             + serialized_size(&obj->inputs)
             + serialized_size(&obj->outputs)
+            + serialized_size(&obj->req_goods)
         ;
     }
 };

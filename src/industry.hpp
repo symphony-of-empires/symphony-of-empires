@@ -13,11 +13,14 @@ public:
     std::string name;
     std::string ref_name;
 
-    // List of good required to create output
+    // List of goods required to create output
     std::vector<Good *> inputs;
 
-    // List of good that this factory type creates
+    // List of goods that this factory type creates
     std::vector<Good *> outputs;
+
+    // Required goods, first describes the id of the good and the second describes how many
+    std::vector<std::pair<Good *, size_t>> req_goods;
 };
 
 class World;
@@ -59,6 +62,10 @@ public:
     
     // How many workers are in the industry
     size_t workers = 0;
+
+    // Required goods for building this industry
+    // first describes the id of the good and the second describes how many
+    std::vector<std::pair<Good *, size_t>> req_goods;
 };
 
 #endif
