@@ -668,7 +668,14 @@ char* tmpbuf;
 World::World(void) {
     g_world = this;
 };
-World::~World(){};
+World::~World() {};
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 void start_client(int argc, char** argv) {
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();

@@ -55,15 +55,14 @@ namespace UnifiedRender {
             }
         };
 
-        template<typename V, typename T, typename C>
+        template<typename V, typename T>
         class PackedData {
         public:
             V vert;
             T tex;
-            C colour;
 
             PackedData(void) {};
-            PackedData(V _vert, T _tex, C _colour) : vert(_vert), tex(_tex), colour(_colour) {};
+            PackedData(V _vert, T _tex) : vert(_vert), tex(_tex) {};
             ~PackedData() {};
             PackedData(const PackedData&) = default;
             PackedData(PackedData&&) noexcept = default;
@@ -73,10 +72,10 @@ namespace UnifiedRender {
         /**
         * Packed model - packs both vertices and texcoords into the same buffer
         */
-        template<typename V, typename T, typename C>
+        template<typename V, typename T>
         class PackedModel {
         public:
-            std::vector<PackedData<V, T, C>> buffer;
+            std::vector<PackedData<V, T>> buffer;
             VAO vao;
             VBO vbo;
             GLint mode;
@@ -101,7 +100,7 @@ namespace UnifiedRender {
      * A simple object - use these to store "simple" objects that MAY repeat
      * TODO: We should use instancing tricks on simple objects
      */
-    class SimpleModel : public OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3> {
+    class SimpleModel : public OpenGl::PackedModel<glm::vec3, glm::vec2> {
     public:
         SimpleModel(GLint _mode);
         ~SimpleModel() {};
