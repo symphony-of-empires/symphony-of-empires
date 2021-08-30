@@ -70,7 +70,7 @@ Client::Client(std::string host, const unsigned port) {
         print_error("WSA Code: %u", WSAGetLastError());
         WSACleanup();
 #endif
-        throw std::runtime_error("Cannot create client socket");
+        throw SocketException("Cannot create client socket");
     }
     
     if(connect(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
@@ -80,7 +80,7 @@ Client::Client(std::string host, const unsigned port) {
         print_error("WSA Code: %u", WSAGetLastError());
         closesocket(fd);
 #endif
-        throw std::runtime_error("Cannot connect to server");
+        throw SocketException("Cannot connect to server");
     }
     
     // Launch the receive and send thread
