@@ -14,6 +14,7 @@
 #include "diplomacy.hpp"
 #include <string>
 
+// TODO: Endianess compatibility
 template<>
 class Serializer<enum ActionType> : public SerializerMemcpy<enum ActionType> {};
 
@@ -369,13 +370,132 @@ public:
     }
 };
 
+// TODO: Properly do this ffs
 template<>
 class Serializer<Industry *> : public SerializerMemcpy<Industry *> {};
 
 template<>
-class Serializer<NationRelation> : public SerializerMemcpy<NationRelation> {};
+class Serializer<NationRelation> : public SerializerMemcpy<NationRelation> {
+public:
+    static constexpr bool is_const_size = false;
+    static inline void serialize(Archive& stream, const NationRelation* obj) {
+        ::serialize(stream, &obj->free_supplies);
+        ::serialize(stream, &obj->has_alliance);
+        ::serialize(stream, &obj->has_defensive_pact);
+        ::serialize(stream, &obj->has_embargo);
+        ::serialize(stream, &obj->has_embassy);
+        ::serialize(stream, &obj->has_market_access);
+        ::serialize(stream, &obj->has_military_access);
+        ::serialize(stream, &obj->has_truce);
+        ::serialize(stream, &obj->has_war);
+        ::serialize(stream, &obj->interest);
+        ::serialize(stream, &obj->relation);
+    }
+    static inline void deserialize(Archive& stream, NationRelation* obj) {
+        ::deserialize(stream, &obj->free_supplies);
+        ::deserialize(stream, &obj->has_alliance);
+        ::deserialize(stream, &obj->has_defensive_pact);
+        ::deserialize(stream, &obj->has_embargo);
+        ::deserialize(stream, &obj->has_embassy);
+        ::deserialize(stream, &obj->has_market_access);
+        ::deserialize(stream, &obj->has_military_access);
+        ::deserialize(stream, &obj->has_truce);
+        ::deserialize(stream, &obj->has_war);
+        ::deserialize(stream, &obj->interest);
+        ::deserialize(stream, &obj->relation);
+    }
+    static inline size_t size(const NationRelation* obj) {
+        return serialized_size(&obj->free_supplies)
+            + serialized_size(&obj->has_alliance)
+            + serialized_size(&obj->has_defensive_pact)
+            + serialized_size(&obj->has_embargo)
+            + serialized_size(&obj->has_embassy)
+            + serialized_size(&obj->has_market_access)
+            + serialized_size(&obj->has_military_access)
+            + serialized_size(&obj->has_truce)
+            + serialized_size(&obj->has_war)
+            + serialized_size(&obj->interest)
+            + serialized_size(&obj->relation)
+        ;
+    }
+};
 template<>
-class Serializer<Policies> : public SerializerMemcpy<Policies> {};
+class Serializer<Policies> {
+    static constexpr bool is_const_size = false;
+    static inline void serialize(Archive& stream, const Policies* obj) {
+        ::serialize(stream, &obj->free_supplies);
+        ::serialize(stream, &obj->immigration);
+        ::serialize(stream, &obj->import_tax);
+        ::serialize(stream, &obj->industry_tax);
+        ::serialize(stream, &obj->legislative_parliament);
+        ::serialize(stream, &obj->med_flat_tax);
+        ::serialize(stream, &obj->men_labour);
+        ::serialize(stream, &obj->men_suffrage);
+        ::serialize(stream, &obj->migration);
+        ::serialize(stream, &obj->military_spending);
+        ::serialize(stream, &obj->national_id);
+        ::serialize(stream, &obj->poor_flat_tax);
+        ::serialize(stream, &obj->private_property);
+        ::serialize(stream, &obj->public_education);
+        ::serialize(stream, &obj->public_healthcare);
+        ::serialize(stream, &obj->rich_flat_tax);
+        ::serialize(stream, &obj->secular_education);
+        ::serialize(stream, &obj->slavery);
+        ::serialize(stream, &obj->social_security);
+        ::serialize(stream, &obj->treatment);
+        ::serialize(stream, &obj->women_labour);
+        ::serialize(stream, &obj->women_suffrage);
+    }
+    static inline void deserialize(Archive& stream, Policies* obj) {
+        ::deserialize(stream, &obj->free_supplies);
+        ::deserialize(stream, &obj->immigration);
+        ::deserialize(stream, &obj->import_tax);
+        ::deserialize(stream, &obj->industry_tax);
+        ::deserialize(stream, &obj->legislative_parliament);
+        ::deserialize(stream, &obj->med_flat_tax);
+        ::deserialize(stream, &obj->men_labour);
+        ::deserialize(stream, &obj->men_suffrage);
+        ::deserialize(stream, &obj->migration);
+        ::deserialize(stream, &obj->military_spending);
+        ::deserialize(stream, &obj->national_id);
+        ::deserialize(stream, &obj->poor_flat_tax);
+        ::deserialize(stream, &obj->private_property);
+        ::deserialize(stream, &obj->public_education);
+        ::deserialize(stream, &obj->public_healthcare);
+        ::deserialize(stream, &obj->rich_flat_tax);
+        ::deserialize(stream, &obj->secular_education);
+        ::deserialize(stream, &obj->slavery);
+        ::deserialize(stream, &obj->social_security);
+        ::deserialize(stream, &obj->treatment);
+        ::deserialize(stream, &obj->women_labour);
+        ::deserialize(stream, &obj->women_suffrage);
+    }
+    static inline size_t size(const Policies* obj) {
+        return serialized_size(&obj->free_supplies)
+            + serialized_size(&obj->immigration)
+            + serialized_size(&obj->import_tax)
+            + serialized_size(&obj->industry_tax)
+            + serialized_size(&obj->legislative_parliament)
+            + serialized_size(&obj->med_flat_tax)
+            + serialized_size(&obj->men_labour)
+            + serialized_size(&obj->men_suffrage)
+            + serialized_size(&obj->migration)
+            + serialized_size(&obj->military_spending)
+            + serialized_size(&obj->national_id)
+            + serialized_size(&obj->poor_flat_tax)
+            + serialized_size(&obj->private_property)
+            + serialized_size(&obj->public_education)
+            + serialized_size(&obj->public_healthcare)
+            + serialized_size(&obj->rich_flat_tax)
+            + serialized_size(&obj->secular_education)
+            + serialized_size(&obj->slavery)
+            + serialized_size(&obj->social_security)
+            + serialized_size(&obj->treatment)
+            + serialized_size(&obj->women_labour)
+            + serialized_size(&obj->women_suffrage)
+        ;
+    }
+};
 
 template<>
 class Serializer<PopType> {
@@ -656,11 +776,95 @@ public:
 };
 
 template<>
-class Serializer<Tile> : public SerializerMemcpy<Tile> {};
+class Serializer<Tile> {
+public:
+    static constexpr bool is_const_size = false;
+    static inline void serialize(Archive& stream, const Tile* obj) {
+        ::serialize(stream, &obj->elevation);
+        ::serialize(stream, &obj->infra_level);
+        ::serialize(stream, &obj->owner_id);
+        ::serialize(stream, &obj->province_id);
+    }
+    static inline void deserialize(Archive& stream, Tile* obj) {
+        ::deserialize(stream, &obj->elevation);
+        ::deserialize(stream, &obj->infra_level);
+        ::deserialize(stream, &obj->owner_id);
+        ::deserialize(stream, &obj->province_id);
+    }
+    static inline size_t size(const Tile* obj) {
+        return
+            serialized_size(&obj->elevation)
+            + serialized_size(&obj->infra_level)
+            + serialized_size(&obj->owner_id)
+            + serialized_size(&obj->province_id)
+        ;
+    }
+};
 template<>
-class Serializer<OrderGoods> : public SerializerMemcpy<OrderGoods> {};
+class Serializer<OrderGoods> {
+public:
+    static constexpr bool is_const_size = false;
+    static inline void serialize(Archive& stream, const OrderGoods* obj) {
+        ::serialize(stream, &obj->good);
+        ::serialize(stream, &obj->industry);
+        ::serialize(stream, &obj->outpost);
+        ::serialize(stream, &obj->payment);
+        ::serialize(stream, &obj->province);
+        ::serialize(stream, &obj->quantity);
+        ::serialize(stream, &obj->type);
+    }
+    static inline void deserialize(Archive& stream, OrderGoods* obj) {
+        ::deserialize(stream, &obj->good);
+        ::deserialize(stream, &obj->industry);
+        ::deserialize(stream, &obj->outpost);
+        ::deserialize(stream, &obj->payment);
+        ::deserialize(stream, &obj->province);
+        ::deserialize(stream, &obj->quantity);
+        ::deserialize(stream, &obj->type);
+    }
+    static inline size_t size(const OrderGoods* obj) {
+        return
+            serialized_size(&obj->good)
+            + serialized_size(&obj->industry)
+            + serialized_size(&obj->outpost)
+            + serialized_size(&obj->payment)
+            + serialized_size(&obj->province)
+            + serialized_size(&obj->quantity)
+            + serialized_size(&obj->type)
+        ;
+    }
+};
 template<>
-class Serializer<DeliverGoods> : public SerializerMemcpy<DeliverGoods> {};
+class Serializer<DeliverGoods> {
+public:
+    static constexpr bool is_const_size = false;
+    static inline void serialize(Archive& stream, const DeliverGoods* obj) {
+        ::serialize(stream, &obj->good);
+        ::serialize(stream, &obj->industry);
+        ::serialize(stream, &obj->payment);
+        ::serialize(stream, &obj->product);
+        ::serialize(stream, &obj->province);
+        ::serialize(stream, &obj->quantity);
+    }
+    static inline void deserialize(Archive& stream, DeliverGoods* obj) {
+        ::deserialize(stream, &obj->good);
+        ::deserialize(stream, &obj->industry);
+        ::deserialize(stream, &obj->payment);
+        ::deserialize(stream, &obj->product);
+        ::deserialize(stream, &obj->province);
+        ::deserialize(stream, &obj->quantity);
+    }
+    static inline size_t size(const DeliverGoods* obj) {
+        return
+            serialized_size(&obj->good)
+            + serialized_size(&obj->industry)
+            + serialized_size(&obj->payment)
+            + serialized_size(&obj->product)
+            + serialized_size(&obj->province)
+            + serialized_size(&obj->quantity)
+        ;
+    }
+};
 
 template<>
 class Serializer<Nation> {
@@ -1076,7 +1280,6 @@ public:
         ::serialize(stream, &obj->origin);
         ::serialize(stream, &obj->industry);
         ::serialize(stream, &obj->good);
-        
         ::serialize(stream, &obj->price);
         ::serialize(stream, &obj->price_vel);
         ::serialize(stream, &obj->quality);
@@ -1088,7 +1291,6 @@ public:
         ::deserialize(stream, &obj->origin);
         ::deserialize(stream, &obj->industry);
         ::deserialize(stream, &obj->good);
-        
         ::deserialize(stream, &obj->price);
         ::deserialize(stream, &obj->price_vel);
         ::deserialize(stream, &obj->quality);
@@ -1117,7 +1319,6 @@ public:
     static inline void serialize(Archive& stream, const IndustryType* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
-        
         ::serialize(stream, &obj->inputs);
         ::serialize(stream, &obj->outputs);
         ::serialize(stream, &obj->req_goods);
@@ -1125,7 +1326,6 @@ public:
     static inline void deserialize(Archive& stream, IndustryType* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
-        
         ::deserialize(stream, &obj->inputs);
         ::deserialize(stream, &obj->outputs);
         ::deserialize(stream, &obj->req_goods);
