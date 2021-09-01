@@ -18,6 +18,43 @@ Province::Id Province::get_id(const World& world) {
 }
 
 /**
+ * Obtains the country that currently has a larger number of
+ * tiles controlled from this province
+ */
+Nation& Province::get_occupation_controller(const World& world) const {
+    std::vector<Nation::Id> nations_cnt;
+    std::set<Nation::Id> unique_nations;
+
+    for(size_t x = min_x; x < max_x; x++) {
+        for(size_t y = min_y; y < max_y; y++) {
+            nations_cnt.push_back(world.get_tile(x, y).owner_id);
+        }
+    }
+
+    //unique_nations.insert(nations_cnt);
+    for(const auto& nation_id: nations_cnt) {
+        unique_nations.insert(nation_id);
+    }
+
+    Nation::Id nation_id = world.get_id(owner);
+    size_t max_tiles_cnt = 0;
+    for(const auto& curr_nation_id: unique_nations) {
+        size_t tiles_cnt = 0;
+        for(const auto& tile_owner: nations_cnt) {
+            if(tile_owner == curr_nation_id) {
+                tiles_cnt++;
+            }
+        }
+
+        if(tiles_cnt > max_tiles_cnt) {
+            max_tiles_cnt = tiles_cnt;
+            nation_id = curr_nation_id;
+        }
+    }
+    return *world.nations[nation_id];
+}
+
+/**
 * Adds a new industry in the province and adds it's output
 * products into the world accordingly
  */
