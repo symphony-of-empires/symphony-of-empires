@@ -1,18 +1,27 @@
 #include <algorithm>
 #include <cstdio>
 
-#include "actions.hpp"
-#include "server/economy.hpp"
-#include "world.hpp"
-#include "print.hpp"
-#include "serializer.hpp"
-#include "io_impl.hpp"
-#include "server/network.hpp"
-#include "thread_pool.hpp"
-#include "product.hpp"
-#include "industry.hpp"
-#include "good.hpp"
-#include "company.hpp"
+#include "../actions.hpp"
+#include "economy.hpp"
+#include "../world.hpp"
+#include "../print.hpp"
+#include "../serializer.hpp"
+#include "../io_impl.hpp"
+#include "server_network.hpp"
+#include "../thread_pool.hpp"
+#include "../product.hpp"
+#include "../industry.hpp"
+#include "../good.hpp"
+#include "../company.hpp"
+
+#if (__cplusplus < 201703L)
+namespace std {
+    template<typename T>
+    T clamp(T n, T min, T max) {
+        return std::min<T>(max, std::max<T>(n, min));
+    }
+}
+#endif
 
 /* Visual Studio does not define ssize_t because it's a POSIX-only type */
 #ifdef _MSC_VER
@@ -74,8 +83,8 @@ void Economy::do_phase_1(World& world) {
             }
         }
 
-        /*if(!can_build)
-        	break;*/
+        if(!can_build)
+        	break;
         
         size_t needed_manpower = 1000;
         size_t available_manpower = 0;
@@ -183,9 +192,9 @@ void Economy::do_phase_1(World& world) {
     // All factories will place their orders for their inputs
     // All RGOs will do deliver requests
     //std::for_each(std::execution::par_unseq, world.provinces.begin(), world.provinces.end(),
-    std::lock_guard l1(world.products_mutex);
-    std::lock_guard l2(world.nations_mutex);
-    std::lock_guard l3(world.provinces_mutex);
+    std::lock_guard<std::recursive_mutex> l1(world.products_mutex);
+    std::lock_guard<std::recursive_mutex> l2(world.nations_mutex);
+    std::lock_guard<std::recursive_mutex> l3(world.provinces_mutex);
     std::for_each(world.provinces.begin(), world.provinces.end(), [&world](auto& province) {
         // Reset remaining supplies
         province->supply_rem = province->supply_limit;
@@ -409,9 +418,9 @@ void Economy::do_phase_1(World& world) {
 * be ready for POPs to buy
  */
 void Economy::do_phase_2(World& world) {
-    std::lock_guard l1(world.products_mutex);
-    std::lock_guard l2(world.nations_mutex);
-    std::lock_guard l3(world.provinces_mutex);
+    std::lock_guard<std::recursive_mutex> l1(world.products_mutex);
+    std::lock_guard<std::recursive_mutex> l2(world.nations_mutex);
+    std::lock_guard<std::recursive_mutex> l3(world.provinces_mutex);
 
     while(world.delivers.size() && world.orders.size()) {
         // We will check all transport companies; they will transport in a first-come first-serve fashion
@@ -602,8 +611,8 @@ void Economy::do_phase_3(World& world) {
 
     srand(time(NULL));
 
-    std::lock_guard l1(world.provinces_mutex);
-    std::lock_guard l2(world.products_mutex);
+    std::lock_guard<std::recursive_mutex> l1(world.provinces_mutex);
+    std::lock_guard<std::recursive_mutex> l2(world.products_mutex);
     std::for_each(world.provinces.begin(), world.provinces.end(), [&emigration_lock, &emigration, &world](auto& province) {
         if(province->owner == nullptr) {
             return;
@@ -715,10 +724,10 @@ void Economy::do_phase_3(World& world) {
                 } else {
                     // Neither literacy nor anything else can save humans from
                     // dying due starvation
-                    growth = -(rand() % pop.size);
+                    growth = -((int)(rand() % pop.size));
                 }
                 if(growth < 0 && (size_t)abs(growth) > pop.size) {
-                    growth = -pop.size;
+                    growth = -((int)pop.size);
                 }
                 pop.size += growth;
             }
@@ -908,7 +917,7 @@ void Economy::do_phase_3(World& world) {
     // We will now post a job request so the next economic tick will be able to "link industries"
     // with their workers and make a somewhat realistic economy
     world.job_requests_mutex.lock();
-    std::lock_guard l3(world.job_requests_mutex);
+    std::lock_guard<std::recursive_mutex> l3(world.job_requests_mutex);
     world.job_requests.clear();
     for(const auto& province: world.provinces) {
         // Province must have an owner
@@ -949,7 +958,7 @@ void Economy::do_phase_4(World& world) {
     // Preparations for the next tick
 
     // Reset production costs
-    std::lock_guard l1(world.provinces_mutex);
+    std::lock_guard<std::recursive_mutex> l1(world.provinces_mutex);
     for(const auto& province: world.provinces) {
         for(auto& industry: province->industries) {
             industry.production_cost = 0.f;
@@ -957,7 +966,7 @@ void Economy::do_phase_4(World& world) {
     }
 
     // Close today's price with a change according to demand - supply
-    std::lock_guard l2(world.products_mutex);
+    std::lock_guard<std::recursive_mutex> l2(world.products_mutex);
     for(const auto& product: world.products) {
         // Uncomment to see supply-demand
         //if(product->price_vel)

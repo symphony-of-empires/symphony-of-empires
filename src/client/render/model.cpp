@@ -1,21 +1,29 @@
 #include <algorithm>
 #include <fstream>
 #include "model.hpp"
-#include "print.hpp"
-#include "path.hpp"
+#include "../../print.hpp"
+#include "../../path.hpp"
 #include "shader.hpp"
 
-UnifiedRender::SimpleModel::SimpleModel(GLint _mode) : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3>(_mode) {
+UnifiedRender::SimpleModel::SimpleModel(GLint _mode) : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(_mode) {
 
 }
 
 void UnifiedRender::SimpleModel::draw(UnifiedRender::OpenGl::Program* shader) const {
-    glActiveTexture(GL_TEXTURE0);
-    if(material != nullptr && material->texture != nullptr) {
-        material->texture->bind();
-    }
     // Change color if material wants it
-    shader->set_uniform("color", 1.f, 1.f, 1.f, 1.f);
+    if(material != nullptr) {
+        if(material->texture != nullptr) {
+            material->texture->bind();
+            shader->set_uniform("colour", 1.f, 1.f, 1.f, 1.f);
+        } else {
+            glBindTexture(GL_TEXTURE_2D, 0);
+            shader->set_uniform("colour", material->colour.r, material->colour.g, material->colour.b, 1.f);
+        }
+    } else {
+        glBindTexture(GL_TEXTURE_2D, 0);
+        shader->set_uniform("colour", 1.f, 1.f, 1.f, 1.f);
+    }
+
     vao.bind();
     glDrawArrays(mode, 0, buffer.size());
 }
@@ -23,17 +31,17 @@ void UnifiedRender::SimpleModel::draw(UnifiedRender::OpenGl::Program* shader) co
 void UnifiedRender::SimpleModel::upload(void) {
     vao.bind();
     vbo.bind(GL_ARRAY_BUFFER);
-
+    
+    if (buffer.size() == 0)
+        return;
+    
     glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
     // Vertices
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
-    glEnableVertexArrayAttrib(vao.get_id(), 0);
+    glEnableVertexAttribArray(0);
     // Texcoords
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)(3 * sizeof(float)));
-    glEnableVertexArrayAttrib(vao.get_id(), 1);
-    // Colours
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)(5 * sizeof(float)));
-    glEnableVertexArrayAttrib(vao.get_id(), 2);
+    glEnableVertexAttribArray(1);
 }
 
 UnifiedRender::ComplexModel::ComplexModel(void) {
@@ -41,7 +49,7 @@ UnifiedRender::ComplexModel::ComplexModel(void) {
 }
 
 void UnifiedRender::ComplexModel::draw(UnifiedRender::OpenGl::Program* shader) const {
-    for(auto& model: simple_models) {
+    for(const auto& model: simple_models) {
         model->draw(shader);
     }
 }
@@ -92,6 +100,9 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
         std::istringstream sline(line);
         std::string cmd;
         sline >> cmd;
+
+        if(cmd.empty())
+            continue;
 
         if(cmd == "mtllib") {
             std::string name;
@@ -170,24 +181,23 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
             for(size_t i = 0; i < face.vertices.size(); i++) {
                 // The faces dictate indices for the vertices and stuff and we
                 // will also subtract 1 because the indexing is 0 based
-                model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
+                model->buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
                     glm::vec3(obj.vertices[
-                        std::min<size_t>(obj.vertices.size(), face.vertices[i] - 1)
+                        std::min<size_t>(obj.vertices.size() - 1, face.vertices[i] - 1)
                     ]),
                     glm::vec2(obj.texcoords[
-                        std::min<size_t>(obj.texcoords.size(), face.texcoords[i] - 1)
-                    ]),
-                    glm::vec3(1.f, 1.f, 1.f)
+                        std::min<size_t>(obj.texcoords.size() - 1, face.texcoords[i] - 1)
+                    ])
                 ));
             }
         }
         model->material = obj.material;
         model->upload();
 
-        simple_models.insert(std::pair(model, obj.name));
+        simple_models.insert(std::make_pair(model, obj.name));
         final_model->simple_models.push_back(model);
     }
-    complex_models.insert(std::pair(final_model, path));
+    complex_models.insert(std::make_pair(final_model, path));
     return *final_model;
 }
 

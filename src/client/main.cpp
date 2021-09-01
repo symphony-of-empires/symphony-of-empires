@@ -1,7 +1,7 @@
 #include <string>
-#include "world.hpp"
+#include "../world.hpp"
 
-void client_main(int argc, char** argv);
+void start_client(int argc, char** argv);
 
 #ifdef windows
 const char* gettext(const char* str) {
@@ -20,10 +20,10 @@ std::atomic<bool> run;
 #	include <libintl.h>
 #	include <locale.h>
 #endif
-#include "path.hpp"
-#include "network.hpp"
-#include "io_impl.hpp"
-#include "actions.hpp"
+#include "../path.hpp"
+#include "../network.hpp"
+#include "../io_impl.hpp"
+#include "../actions.hpp"
 std::mutex world_lock;
 
 std::string async_get_input(void) {
@@ -44,12 +44,12 @@ int main(int argc, char** argv) {
 #endif
     
 #ifndef UNIT_TEST
-    // Path::add_path("test");
+    Path::add_path("test");
     Path::add_path("base_game");
     
-    client_main(argc, argv);
-#endif
+    start_client(argc, argv);
     exit(EXIT_SUCCESS);
+#endif
     return 0;
 }
 

@@ -30,6 +30,9 @@ typedef struct pollfd {
 WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout);
 #	endif
 #endif
+#ifdef windows
+#include <winsock2.h>
+#endif
 
 void SocketStream::send(const void* data, size_t size) {
     const char* c_data = (const char*)data;

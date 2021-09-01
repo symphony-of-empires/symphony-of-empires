@@ -5,14 +5,13 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
-#include <execution>
 #include <functional>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <mutex>
 
-#include "path.hpp"
-#include "print.hpp"
+#include "../path.hpp"
+#include "../print.hpp"
 #include "render/model.hpp"
 
 Map::Map(const World& _world) : world(_world) {
@@ -26,14 +25,13 @@ Map::Map(const World& _world) : world(_world) {
 
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
     if (glewIsSupported("GL_VERSION_2_1")) {
+        map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
         water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         topo_tex = &g_texture_manager->load_texture(Path::get("map_topo.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
         terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
         terrain_sheet->to_opengl();
-        map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0, 0, world.width, world.height);
-
         {
             auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
             auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/map.fs");
@@ -103,12 +101,12 @@ Map::Map(const World& _world) : world(_world) {
         print_info("Frame buffer error");
 }
 
-void Map::draw_flag(const Nation* nation, float x, float y) {
+void Map::draw_flag(const Nation* nation) {
     glBindTexture(GL_TEXTURE_2D, 0);
     glBegin(GL_LINE);
     glColor3f(1.f, 1.f, 1.f);
-    glVertex3f(x, y, 0.f);
-    glVertex3f(x, y, -2.f);
+    glVertex3f(0.f, 0.f, 0.f);
+    glVertex3f(0.f, 0.f, -2.f);
     glEnd();
 
     // Draw a flag that "waves" with some cheap wind effects it
@@ -116,36 +114,28 @@ void Map::draw_flag(const Nation* nation, float x, float y) {
     const float n_steps = 8.f;  // Resolution of flag in one side (in vertices)
     const float step = 90.f;    // Steps per vertice
 
-    auto flag = UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2, glm::vec3>(GL_TRIANGLE_STRIP);
+    auto flag = UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(GL_TRIANGLE_STRIP);
     for (float r = 0.f; r <= (n_steps * step); r += step) {
         float sin_r = sin(r + wind_osc) / 24.f;
 
-        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData(
-            // Vert
-            glm::vec3(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -2.f),
-            // Texcoord
-            glm::vec2((r / step) / n_steps, 0.f),
-            // Colour
-            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)));
+        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
+            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f), // Vert
+            glm::vec2((r / step) / n_steps, 0.f) // Texcoord
+        ));
 
-        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData(
-            // Vert
-            glm::vec3(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -1.f),
-            // Texcoord
-            glm::vec2((r / step) / n_steps, 0.f),
-            // Colour
-            glm::vec3((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f)));
+        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
+            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f), // Vert
+            glm::vec2((r / step) / n_steps, 0.f) // Texcoord
+        ));
     }
 
     flag.vao.bind();
     flag.vbo.bind(GL_ARRAY_BUFFER);
     glBufferData(GL_ARRAY_BUFFER, flag.buffer.size() * sizeof(flag.buffer[0]), &flag.buffer[0], GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)0);  // Vertices
-    glEnableVertexArrayAttrib(flag.vao.get_id(), 0);
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)(3 * sizeof(float)));  // Texcoords
-    glEnableVertexArrayAttrib(flag.vao.get_id(), 1);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)(5 * sizeof(float)));  // Colours
-    glEnableVertexArrayAttrib(flag.vao.get_id(), 2);
+    glEnableVertexAttribArray(1);
     nation_flags[world.get_id(nation)]->bind();
     flag.draw();
 
@@ -238,13 +228,23 @@ void Map::draw(Camera& cam, const int width, const int height) {
     projection = cam.get_projection();
     obj_shader->set_uniform("projection", projection);
     obj_shader->set_uniform("map_diffusion", 0);
+
+    glActiveTexture(GL_TEXTURE0);
+    obj_shader->set_uniform("tex", 0);
+
     world.outposts_mutex.lock();
     for (const auto& outpost : world.outposts) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(outpost->x, outpost->y, 0.f));
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
+
         outpost_type_icons[world.get_id(outpost->type)]->draw(obj_shader);
+
+        // Reverse rotation
+        model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
+        obj_shader->set_uniform("model", model);
+        draw_flag(outpost->owner);
     }
     world.outposts_mutex.unlock();
 
@@ -254,7 +254,13 @@ void Map::draw(Camera& cam, const int width, const int height) {
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
+
         unit_type_icons[world.get_id(unit->type)]->draw(obj_shader);
+
+        // Reverse rotation
+        model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
+        obj_shader->set_uniform("model", model);
+        draw_flag(unit->owner);
     }
     world.units_mutex.unlock();
 
@@ -264,20 +270,26 @@ void Map::draw(Camera& cam, const int width, const int height) {
         model = glm::translate(model, glm::vec3(boat->x, boat->y, 0.f));
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
+
         boat_type_icons[world.get_id(boat->type)]->draw(obj_shader);
+
+        // Reverse rotation
+        model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
+        obj_shader->set_uniform("model", model);
+        draw_flag(boat->owner);
     }
     world.boats_mutex.unlock();
 
     // Resets the shader and texture
     glUseProgram(0);
     glActiveTexture(GL_TEXTURE0);
+
+    wind_osc += 1.f;
+    if (wind_osc >= 180.f)
+        wind_osc = 0.f;
 }
 
 void Map::draw_old(Camera& cam, const int width, const int height) {
-    wind_osc += 0.1f;
-    if (wind_osc >= 180.f)
-        wind_osc = 0.f;
-
     // Topo map texture
     {
         div_topo_tex->bind();
@@ -312,7 +324,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
             glEnd();
         }
         boat_type_icons[world.get_id(boat->type)]->draw(nullptr);
-        draw_flag(boat->owner, boat->x, boat->y);
+        //draw_flag(boat->owner, boat->x, boat->y);
     }
     world.boats_mutex.unlock();
 
@@ -331,7 +343,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
             glEnd();
         }
         unit_type_icons[world.get_id(unit->type)]->draw(nullptr);
-        draw_flag(unit->owner, unit->x, unit->y);
+        //draw_flag(unit->owner, unit->x, unit->y);
     }
     world.units_mutex.unlock();
 
@@ -340,10 +352,14 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
         const float size = 1.f;
         auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(outpost->x, outpost->y, outpost->x + size, outpost->y + size);
         outpost_type_icons[world.get_id(outpost->type)]->draw(nullptr);
-        draw_flag(outpost->owner, outpost->x, outpost->y);
+        //draw_flag(outpost->owner, outpost->x, outpost->y);
     }
     world.outposts_mutex.unlock();
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    wind_osc += 0.1f;
+    if (wind_osc >= 180.f)
+        wind_osc = 0.f;
 }
 
 ProvinceShape::ProvinceShape(const Map& map, const Province& base) {

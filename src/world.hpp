@@ -17,6 +17,7 @@
 #define MAX_ELEVATION				255
 #define RIVER_ELEVATION(a)			a + 1
 
+typedef unsigned int	uint;
 /**
 * A single tile unit, contains all needed information for tile-scale wars
 * and other non-war stuff (like province ownership).
@@ -273,7 +274,7 @@ public:
     std::vector<CommercialConvoy> convoys;
 
     // Array containing a list of tile coord that have changed owners
-    std::vector<std::pair<u_int, uint>> changed_tile_coords;
+    std::vector<std::pair<uint, uint>> changed_tile_coords;
     mutable std::recursive_mutex changed_tiles_coords_mutex;
 
     // Array containing a list of tile pointers that have changed owners

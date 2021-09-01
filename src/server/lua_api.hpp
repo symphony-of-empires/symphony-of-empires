@@ -12,7 +12,7 @@
 #endif
 #include <string>
 #include <vector>
-#include "nation.hpp"
+#include "../nation.hpp"
 
 namespace LuaAPI {
     int add_unit_trait(lua_State* L);
@@ -26,6 +26,7 @@ namespace LuaAPI {
     int get_industry_type(lua_State* L);
     int add_input_to_industry_type(lua_State* L);
     int add_output_to_industry_type(lua_State* L);
+    int add_req_good_to_industry_type(lua_State* L);
 
     int add_nation(lua_State* L);
     int get_nation(lua_State* L);

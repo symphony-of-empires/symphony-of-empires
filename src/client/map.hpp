@@ -12,8 +12,8 @@
 #endif
 #include <GL/glew.h>
 #include <GL/gl.h>
-#include "world.hpp"
-#include "province.hpp"
+#include "../world.hpp"
+#include "../province.hpp"
 #include "render/texture.hpp"
 #include "camera.hpp"
 #include "render/primitive.hpp"
@@ -50,7 +50,7 @@ public:
     GLuint frame_buffer;
 
     void update(World& world);
-    void draw_flag(const Nation* nation, float x, float y);
+    void draw_flag(const Nation* nation);
     void draw(Camera& cam, const int width, const int height);
     void draw_old(Camera& cam, const int width, const int height);
 };

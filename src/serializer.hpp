@@ -16,10 +16,10 @@
  * indexes accordingly for proper transmission.
  */
 
-class SerializerException : std::exception {
+class SerializerException : public std::exception {
     std::string buffer;
 public:
-    SerializerException(std::string msg) {
+    SerializerException(const std::string& msg) {
         buffer = msg;
     };
     virtual const char* what(void) const noexcept {
