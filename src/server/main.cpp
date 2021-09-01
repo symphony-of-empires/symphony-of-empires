@@ -47,8 +47,8 @@ int main(int argc, char** argv) {
     bindtextdomain("main", Path::get("locale").c_str());
     textdomain("main");
 #endif
-    Path::add_path("test");
-    //Path::add_path("base_game");
+    //Path::add_path("test");
+    Path::add_path("base_game");
 
 #ifndef UNIT_TEST
     // Run as a server for servicing multiple clients
