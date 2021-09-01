@@ -74,6 +74,8 @@ void Province::add_industry(World& world, Industry* industry) {
 
         industry->output_products.push_back(new_product);
         world.products.push_back(new_product);
+
+        industry->employees_needed_per_output.push_back(500);
     }
 
     // We will set inputs_satisfied to same size as inputs
@@ -91,17 +93,23 @@ void Province::add_industry(World& world, Industry* industry) {
   */
 void Province::remove_industry(World& world, Industry* industry) {
     // Remove products of this industry from world market
-    for(ProductId i = 0; i < world.products.size(); i++) {
-        Product* product = world.products[i];
-        if(product->origin == this
-        && product->industry == industry) {
-            delete product;
-            world.products[i] = nullptr;
-            continue;
+    for(size_t i = 0; i < industry->output_products.size(); i++) {
+        Product* product = industry->output_products[i];
+        Product::Id product_id = world.get_id(product);
+
+        // Delete from province stockpiles
+        for(auto& province: world.provinces) {
+            province->stockpile.erase(province->stockpile.begin() + product_id);
         }
+
+        // Delete product from the world list
+        delete product;
+        world.products.erase(world.products.begin() + product_id);
     }
 
-    // Remove this industry totally
+    // TODO: Remove from province's product list
+
+    // Remove this industry totally from the list of industries
     size_t industry_id = world.get_id(*this, industry);
     industries.erase(industries.begin() + industry_id);
 

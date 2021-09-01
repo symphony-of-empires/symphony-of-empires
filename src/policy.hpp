@@ -134,6 +134,9 @@ public:
     // Units can grab anything they want from DOMESTIC provinces
     // Please notice the DOMESTIC part of this, for foreign "free grab"; check diplomatic relations!!
     bool free_supplies;
+
+    // Minimum wage
+    float minimum_wage;
     
     int difference(Policies& rhs) {
         int diff = 0;
@@ -161,6 +164,7 @@ public:
         diff += (rhs.med_flat_tax != this->med_flat_tax) ? 1 : 0;
         diff += (rhs.rich_flat_tax != this->rich_flat_tax) ? 1 : 0;
         diff += (rhs.free_supplies != this->free_supplies) ? 1 : 0;
+        diff += std::abs(rhs.minimum_wage - this->minimum_wage);
         return diff;
     }
 };

@@ -222,7 +222,21 @@ void Economy::do_phase_1(World& world) {
             i--;
         }
         world.job_requests_mutex.unlock();
-        
+
+        // Close the factories which have negative budget
+        // TODO: Do not close factories on planned economy countries or such
+        // TODO: Also do not close them when they have a negative budget but a positive flow
+        // TODO: Do not close state-controlled factories when `pop_no_build_factory` is true
+        // TODO: Do not close subsidized factories IN NON-LAISSEZ FAIRE ENVIRONMENTS!!!
+        for(size_t i = 0; i < province->industries.size(); i++) {
+            Industry* industry = &province->industries[i];
+            if(industry->budget < 0.f) {
+                province->remove_industry(world, industry);
+                --i;
+                continue;
+            }
+        }
+
         // This new tick, we will start the chain starting with RGOs producing deliver
         // orders and the factories that require inputs will put their orders in the
         // table so they are served by transport companies
@@ -237,18 +251,25 @@ void Economy::do_phase_1(World& world) {
             // Each output adds a required farmer or laborer depending on the type
             // of output, it also requires entrepreneurs to "manage" the operations
             // of the factory
-            for(const auto& output: it.outputs) {
-                if(output->is_edible) {
-                    needed_farmers += 1000;
+            size_t i = 0;
+            for(const auto& output: industry.output_products) {
+                // 100 minimum workers per output
+                const size_t employed = std::max<size_t>(powf(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), 100);
+                industry.employees_needed_per_output[i] = employed;
+
+                if(output->good->is_edible) {
+                    needed_farmers += employed;
                 } else {
-                    needed_laborers += 1000;
+                    needed_laborers += employed;
                 }
-                needed_entrepreneurs += 100;
+                needed_entrepreneurs += employed / 100;
+                ++i;
             }
             
             // Search through all the job requests
             for(size_t i = 0; i < province_job_requests.size(); i++) {
                 JobRequest& job_request = province_job_requests[i];
+                size_t employed;
 
                 // Industries require 2 (or 3) types of POPs to correctly function
                 // - Laborers: They are needed to produce non-edible food
@@ -256,24 +277,25 @@ void Economy::do_phase_1(World& world) {
                 // - Entrepreneur: They help "organize" the factory
                 if(available_laborers < needed_farmers && (job_request.pop->type_id == POP_TYPE_LABORER
                 || job_request.pop->type_id == POP_TYPE_SLAVE)) {
-                    available_laborers += std::min(needed_laborers, job_request.amount);
-                    job_request.amount -= std::min(needed_laborers, job_request.amount);
+                    employed = std::min(needed_laborers, job_request.amount);
+                    available_laborers += employed;
                 } else if(available_farmers < needed_farmers && (job_request.pop->type_id == POP_TYPE_FARMER
                 || job_request.pop->type_id == POP_TYPE_SLAVE)) {
-                    available_farmers += std::min(needed_farmers, job_request.amount);
-                    job_request.amount -= std::min(needed_farmers, job_request.amount);
+                    employed = std::min(needed_farmers, job_request.amount);
+                    available_farmers += employed;
                 } else if(available_entrepreneurs < needed_entrepreneurs && job_request.pop->type_id == POP_TYPE_ENTRPRENEUR) {
-                    available_entrepreneurs += std::min(needed_entrepreneurs, job_request.amount);
-                    job_request.amount -= std::min(needed_entrepreneurs, job_request.amount);
+                    employed = std::min(needed_entrepreneurs, job_request.amount);
+                    available_entrepreneurs += employed;
                 } else {
                     // Do not accept anyone else
-                    job_request.pop->budget += 1.f;
                     continue;
                 }
 
                 // Give pay to the POP
-                job_request.pop->budget += 10.f;
-                industry.budget -= 10.f;
+                float payment = employed * province->owner->current_policy.minimum_wage;
+                job_request.pop->budget += payment;
+                industry.budget -= payment;
+                job_request.amount -= employed;
 
                 // Delete job request when it has 0 amount
                 if(!job_request.amount) {
