@@ -96,6 +96,9 @@
     <ClInclude Include="..\symphony-of-empires\winbuild\libintl\include\libintl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\binary_image.cpp">
@@ -148,14 +151,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="..\symphony-of-empires\winbuild\libintl\lib\libintl.def">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="packages\libpng-v142.1.6.37.2\build\native\bin\Win32\v142\Debug\libpng16.dll" />
-    <CopyFileToFolders Include="winbuild\libintl\bin\libintl3.dll" />
     <CopyFileToFolders Include="winbuild\libiconv\libiconv2.dll" />
+    <CopyFileToFolders Include="winbuild\libintl\libfiles\libintl3.dll" />
   </ItemGroup>
 </Project>
