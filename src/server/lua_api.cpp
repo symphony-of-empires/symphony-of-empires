@@ -358,6 +358,14 @@ int LuaAPI::get_province(lua_State* L) {
     return 3;
 }
 
+int LuaAPI::get_province_by_id(lua_State* L) {
+    Province* province = g_world->provinces[lua_tonumber(L, 1)];
+    lua_pushstring(L, province->ref_name.c_str());
+    lua_pushstring(L, province->name.c_str());
+    lua_pushnumber(L, province->color);
+    return 3;
+}
+
 int LuaAPI::add_province_industry(lua_State* L) {
     Province::Id province_id = lua_tonumber(L, 1);
     Company::Id company_id = lua_tonumber(L, 2);
@@ -422,6 +430,30 @@ int LuaAPI::give_province_to(lua_State* L) {
 int LuaAPI::get_province_owner(lua_State* L) {
     Province* province = g_world->provinces[lua_tonumber(L, 1)];
     lua_pushstring(L, province->owner->ref_name.c_str());
+    return 1;
+}
+
+/** Get the country who owms a larger chunk of the province - this is not the same as owner */
+int LuaAPI::get_province_controller(lua_State* L) {
+    Province* province = g_world->provinces[lua_tonumber(L, 1)];
+
+    Nation& nation = province->get_occupation_controller(*g_world);
+    lua_pushnumber(L, g_world->get_id(&nation));
+    return 1;
+}
+
+/** Obtains the neighbours of a province (by ID) */
+int LuaAPI::get_province_neighbours(lua_State* L) {
+    Province* province = g_world->provinces[lua_tonumber(L, 1)];
+
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& neighbour: province->neighbours) {
+        lua_pushnumber(L, g_world->get_id(neighbour));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
     return 1;
 }
 

@@ -20,8 +20,12 @@ public:
     using Id = uint16_t;
     
     Province::Id get_id(const World& world);
+    Nation& get_occupation_controller(const World& world) const;
     void add_industry(World& world, Industry* industry);
     void remove_industry(World& world, Industry* industry);
+
+    // Calculates the total number of POPs in this province (total population)
+    size_t total_pops(void) const;
 
     // Name of the province
     std::string name;
@@ -79,9 +83,6 @@ public:
     
     // Attractiveness of province
     float base_attractive = 0.f;
-
-    // Calculates the total number of POPs in this province (total population)
-    size_t total_pops(void) const;
 };
 
 #endif

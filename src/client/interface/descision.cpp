@@ -22,55 +22,53 @@ void create_descision(UI::Context* ui_ctx, Event& msg, std::vector<Event>& displ
         buf += t_len;
     }
 
-    // TODO FIX
+    // TODO: Fix
     // Buttons for descisions
-    // const UI::Button* last = nullptr;
-    // for (const auto& descision : msg.descisions) {
-    //     UI::Button* decide_btn = new UI::Button(9, 558 - 38, 303, 38, popup_win);
-    //     decide_btn->text(descision.name.c_str());
-    //     decide_btn->user_data = (void*)&descision;
-    //     int i = 5;
-    //     decide_btn->on_click = [](UI::Widget& w, void* data) {
-    //         delete w.parent;
+    /*const UI::Button* last = nullptr;
+    for (const auto& descision : msg.descisions) {
+        UI::Button* decide_btn = new UI::Button(9, 558 - 38, 303, 38, popup_win);
+        decide_btn->text(descision.name.c_str());
+        decide_btn->user_data = (void*)&descision;
+        int i = 5;
+        decide_btn->on_click = [](UI::Widget& w, void* data) {
+            delete w.parent;
 
-    //         Descision* descision = (Descision*)data;
-    //         Event* decide_event = nullptr;
-    //         // TODO fix
-    //         // for (auto& e_event : displayed_events) {
-    //         //     for (const auto& e_descision : e_event.descisions) {
-    //         //         if (e_descision.ref_name == descision->ref_name) {
-    //         //             decide_event = &e_event;
-    //         //             break;
-    //         //         }
-    //         //     }
+            Descision* descision = (Descision*)data;
+            Event* decide_event = nullptr;
+            for (auto& e_event : displayed_events) {
+               for (const auto& e_descision : e_event.descisions) {
+                    if (e_descision.ref_name == descision->ref_name) {
+                        decide_event = &e_event;
+                        break;
+                    }
+                }
 
-    //         //     if (decide_event != nullptr)
-    //         //         break;
-    //         // }
+                if (decide_event != nullptr)
+                    break;
+            }
 
-    //         // Event not found
-    //         if (decide_event == nullptr) {
-    //             print_error("Event not found, we tried finding by descision %s", descision->name.c_str());
-    //             return;
-    //         }
+            // Event not found
+            if (decide_event == nullptr) {
+                print_error("Event not found, we tried finding by descision %s", descision->name.c_str());
+                return;
+            }
 
-    //         g_client->packet_mutex.lock();
-    //         Packet packet = Packet(g_client->get_fd());
-    //         Archive ar = Archive();
-    //         enum ActionType action = ACTION_NATION_TAKE_DESCISION;
-    //         ::serialize(ar, &action);
-    //         ::serialize(ar, &decide_event->ref_name);
-    //         ::serialize(ar, &descision->ref_name);
-    //         packet.data(ar.get_buffer(), ar.size());
-    //         g_client->packet_queue.push_back(packet);
-    //         g_client->packet_mutex.unlock();
-    //         return;
-    //     };
+            g_client->packet_mutex.lock();
+            Packet packet = Packet(g_client->get_fd());
+            Archive ar = Archive();
+            enum ActionType action = ACTION_NATION_TAKE_DESCISION;
+            ::serialize(ar, &action);
+            ::serialize(ar, &decide_event->ref_name);
+            ::serialize(ar, &descision->ref_name);
+            packet.data(ar.get_buffer(), ar.size());
+            g_client->packet_queue.push_back(packet);
+            g_client->packet_mutex.unlock();
+            return;
+        };
 
-    //     if (last != nullptr) {
-    //         decide_btn->above_of((*last));
-    //     }
-    //     last = decide_btn;
-    // }
-
+        if (last != nullptr) {
+            decide_btn->above_of((*last));
+        }
+        last = decide_btn;
+    }*/
 }
