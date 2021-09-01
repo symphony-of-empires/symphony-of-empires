@@ -17,6 +17,8 @@
 // TODO: Endianess compatibility
 template<>
 class Serializer<enum ActionType> : public SerializerMemcpy<enum ActionType> {};
+template<>
+class Serializer<enum OrderType> : public SerializerMemcpy<enum OrderType> {};
 
 template<>
 class Serializer<Province*> {
@@ -419,8 +421,19 @@ public:
         ;
     }
 };
+
+template<>
+class Serializer<enum AllowancePolicy> : public SerializerMemcpy<enum AllowancePolicy> {};
+template<>
+class Serializer<enum CensorshipPolicy> : public SerializerMemcpy<enum CensorshipPolicy> {};
+template<>
+class Serializer<enum AutoBuildPolicy> : public SerializerMemcpy<enum AutoBuildPolicy> {};
+template<>
+class Serializer<enum TreatmentPolicy> : public SerializerMemcpy<enum TreatmentPolicy> {};
+
 template<>
 class Serializer<Policies> {
+public:
     static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Policies* obj) {
         ::serialize(stream, &obj->free_supplies);
