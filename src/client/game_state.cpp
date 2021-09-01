@@ -13,6 +13,7 @@
 #include <SDL_opengl.h>
 #include <SDL_ttf.h>
 #else
+#include <sys/wait.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keycode.h>
@@ -668,9 +669,7 @@ World::~World() {};
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 void start_client(int argc, char** argv) {
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
