@@ -11,12 +11,9 @@ class SelectNation {
     ~SelectNation(){};
 
     void change_nation(size_t id);
-    static void next_nation_cb(UI::Widget& w, SelectNation* data);
-    static void prev_nation_cb(UI::Widget& w, SelectNation* data);
-    static void play_nation_cb(UI::Widget& w, SelectNation* data);
     size_t curr_selected_nation;
 
-   private:
+private:
     GameState& gs;
     UI::Button* curr_country_btn;
     UI::Button* select_country_btn;
