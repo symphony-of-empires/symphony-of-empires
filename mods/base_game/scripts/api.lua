@@ -119,6 +119,12 @@ end
 function Province:get_owner(self)
 	Nation:get({}, get_province_owner(self.id))
 end
+function Province:get_controller(self)
+	Nation:get({}, get_province_controller(self.id))
+end
+function Province:get_neighbours_id(self)
+	return get_province_neighbours(self.id)
+end
 
 -- Increments militancy for all POPs
 function Province:multiply_militancy(self, factor)

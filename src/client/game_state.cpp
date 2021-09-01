@@ -127,7 +127,6 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 }
 
                 click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
-
                 if (click_on_ui == 0) {
                     if (input.select_pos.first < 0 ||
                         input.select_pos.first >= gs.world->width ||
@@ -323,19 +322,15 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 break;
             case SDL_WINDOWEVENT:
                 if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                    SDL_Window* tmpwin = SDL_GetWindowFromID(event.window.windowID);
-
-                    //std::pair size_diff = std::make_pair<float, float>(width, height);
-                    SDL_GetWindowSize(tmpwin, &width, &height);
+                    std::pair<float, float> old_size = std::make_pair(width, height);
+                    SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height);
                     gs.cam.set_screen(width, height);
 
                     // Resize/recenter UI according to screen change
-                    /*size_diff.first /= width;
-                    size_diff.second /= height;
                     for(auto& widget: ui_ctx->widgets) {
-                        widget->x *= size_diff.first;
-                        widget->y *= size_diff.second;
-                    }*/
+                        widget->x *= width / old_size.first;
+                        widget->y *= height / old_size.second;
+                    }
                 }
                 break;
             default:

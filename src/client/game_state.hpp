@@ -20,6 +20,7 @@ enum MapMode {
     MAP_MODE_COUNTRY_SELECT,
     MAP_MODE_NORMAL,
 };
+
 struct Input {
     std::pair<float, float> select_pos;
     bool middle_mouse_down = false;
@@ -29,6 +30,7 @@ struct Input {
     Unit* selected_unit = nullptr;
     Outpost* selected_outpost = nullptr;
 };
+
 // The all encompassing client state
 // This is the state we could pass down to all the ui widgets
 class ProvinceView;
@@ -39,7 +41,7 @@ class PopViewNation;
 class ProductsViewWorld;
 class UIReform;
 class GameState {
-   public:
+public:
     GameState(Camera _cam) : cam{_cam} {};
 	// TODO add deconstructor
     void play_nation();
@@ -65,12 +67,11 @@ class GameState {
     PopViewNation* pop_view_nation;
     UIReform* ui_reform;
 
-
     // Ui calls add_command to set world state
     // Commands like set budget and move troops
     void add_command(Command* command);
 
-   private:
+private:
     std::queue<Command*> pending_commands;
 };
 
