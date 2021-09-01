@@ -53,6 +53,7 @@ namespace LuaAPI {
     int add_province_industry(lua_State* L);
     int give_province_to(lua_State* L);
     int get_province_owner(lua_State* L);
+    int get_province_controller(lua_State* L);
     int get_province_neighbours(lua_State* L);
     int multiply_province_militancy_global(lua_State* L);
     int multiply_province_militancy_by_culture(lua_State* L);
