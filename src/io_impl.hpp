@@ -458,6 +458,7 @@ public:
         ::serialize(stream, &obj->treatment);
         ::serialize(stream, &obj->women_labour);
         ::serialize(stream, &obj->women_suffrage);
+        ::serialize(stream, &obj->minimum_wage);
     }
     static inline void deserialize(Archive& stream, Policies* obj) {
         ::deserialize(stream, &obj->free_supplies);
@@ -482,6 +483,7 @@ public:
         ::deserialize(stream, &obj->treatment);
         ::deserialize(stream, &obj->women_labour);
         ::deserialize(stream, &obj->women_suffrage);
+        ::deserialize(stream, &obj->minimum_wage);
     }
     static inline size_t size(const Policies* obj) {
         return serialized_size(&obj->free_supplies)
@@ -506,6 +508,7 @@ public:
             + serialized_size(&obj->treatment)
             + serialized_size(&obj->women_labour)
             + serialized_size(&obj->women_suffrage)
+            + serialized_size(&obj->minimum_wage);
         ;
     }
 };

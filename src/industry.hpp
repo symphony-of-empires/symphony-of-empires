@@ -54,6 +54,9 @@ public:
     // Used for faster lookups
     std::vector<Product *> output_products;
 
+    // The employees needed per output
+    std::vector<size_t> employees_needed_per_output;
+
     // The desired quality of a product (otherwise it's not accepted)
     float min_quality = 0.f;
 
