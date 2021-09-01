@@ -13,10 +13,10 @@
 #include <sstream>
 #include <string>
 
-class BinaryImageException : std::exception {
+class BinaryImageException : public std::exception {
     std::string buffer;
 public:
-    BinaryImageException(std::string filename, std::string message) {
+    BinaryImageException(const std::string& filename, const std::string& message) {
         buffer = "";
         buffer += filename;
         buffer += ": ";
@@ -30,7 +30,7 @@ public:
 class BinaryImage {
 public:
     BinaryImage() {};
-    BinaryImage(std::string path);
+    BinaryImage(const std::string& path);
     BinaryImage(size_t _width, size_t _height);
     BinaryImage(const BinaryImage& tex);
     BinaryImage& operator=(const BinaryImage&) = default;
@@ -40,7 +40,7 @@ public:
     size_t width;
     size_t height;
     
-    virtual void from_file(std::string path);
+    virtual void from_file(const std::string& path);
 };
 
 #endif

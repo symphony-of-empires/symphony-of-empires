@@ -1,5 +1,5 @@
 #include <string>
-#include "world.hpp"
+#include "../world.hpp"
 #include "lua_api.hpp"
 
 void client_main(int argc, char** argv);
@@ -20,15 +20,15 @@ std::atomic<bool> run;
 #	include <libintl.h>
 #	include <locale.h>
 #endif
-#include "path.hpp"
-#include "network.hpp"
+#include "../path.hpp"
+#include "server_network.hpp"
 
 #include <iostream>
 #include <fstream>
 
-#include "io_impl.hpp"
+#include "../io_impl.hpp"
 
-#include "actions.hpp"
+#include "../actions.hpp"
 std::mutex world_lock;
 
 std::string async_get_input(void) {
@@ -47,9 +47,8 @@ int main(int argc, char** argv) {
     bindtextdomain("main", Path::get("locale").c_str());
     textdomain("main");
 #endif
-
-    // Path::add_path("test");
-    Path::add_path("base_game");
+    Path::add_path("test");
+    //Path::add_path("base_game");
 
 #ifndef UNIT_TEST
     // Run as a server for servicing multiple clients

@@ -12,10 +12,11 @@ public:
     float fov = 45.0f, near_plane = 1.0f, far_plane = 1024.0f;
     glm::vec2 screen_size;
     glm::vec3 position, velocity;
-    float z_angle, vz_angle;
 
     Camera(int width, int height) {
         set_screen(width, height);
+        position = glm::vec3(400, 200, -400.f);
+        velocity = glm::vec3(0);
     }
 
     void set_screen(const int width, const int height) {
@@ -47,18 +48,10 @@ public:
             velocity.z += 0.8f;
         else
             velocity.z = 0.f;
-        
-        if(vz_angle >= 0.9f)
-            vz_angle -= 0.8f;
-        else if(vz_angle <= -0.9f)
-            vz_angle += 0.8f;
-        else
-            vz_angle = 0.f;
 
         position.x += velocity.x;
         position.y += velocity.y;
         position.z += velocity.z;
-        z_angle += vz_angle;
 
         position.x = std::max(0.f, std::min((float)g_world->width, position.x));
         position.y = std::max(0.f, std::min((float)g_world->height, position.y));

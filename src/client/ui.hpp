@@ -29,6 +29,7 @@ enum UI_WidgetType {
 
 namespace UI {
     class Widget;
+    typedef void(*Callback)(Widget&, void *); 
     class Context {
         int drag_x, drag_y;
         bool is_drag;
@@ -49,6 +50,7 @@ namespace UI {
         int check_wheel(unsigned mx, unsigned my, int y);
         void check_text_input(const char* input);
         void clear(void);
+        void clear_dead();
 
         const UnifiedRender::Texture* background,* window_top,* button,* tooltip;
         TTF_Font* default_font;
@@ -117,10 +119,12 @@ namespace UI {
         std::vector<Widget*> children;
         
         void* user_data = nullptr;
+        void kill() { dead = true; };
 
         void (*on_update)(Widget&, void *) = nullptr;
         void (*on_hover)(Widget&, void *) = nullptr;
         void (*on_click)(Widget&, void *) = nullptr;
+        bool dead = false;
     };
 
     class Input : public Widget {

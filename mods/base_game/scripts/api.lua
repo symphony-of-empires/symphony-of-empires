@@ -6,9 +6,10 @@ end
 function Good:register(good)
 	good.id = add_good(good.ref_name, good.name, good.is_edible)
 end
-function Good:get(good, ref_name)
+function Good:get(ref_name)
 	good.parent = self
-	good.id, good.ref_name, good.name = get_good(ref_name)
+	good.id, good.name = get_good(ref_name)
+	good.ref_name = ref_name
 	return good
 end
 
@@ -41,11 +42,13 @@ function Company:create(company)
 	company.parent = self
 	return company
 end
-function Company:register(company)
-	company.id = add_company(company.name, company.money, company.is_transport, company.is_retailer, company.is_industry)
+function Company:register(self)
+	self.id = add_company(self.name, self.money, self.is_transport, self.is_retailer, self.is_industry)
 end
-function Company:add_province(company, province)
-	add_op_province_to_company(company.id, province.id)
+
+-- Add a province to the list of operational provinces
+function Company:add_province(self, province)
+	add_op_province_to_company(self.id, province.id)
 end
 
 IndustryType = { id = 0, name = "", ref_name = "" }
@@ -53,19 +56,23 @@ function IndustryType:create(industry_type)
 	industry_type.parent = self
 	return industry_type
 end
-function IndustryType:register(industry_type)
-	industry_type.id = add_industry_type(industry_type.ref_name, industry_type.name)
+function IndustryType:register(self)
+	self.id = add_industry_type(self.ref_name, self.name)
 end
 function IndustryType:get(industry_type, ref_name)
 	industry_type.parent = self
-	industry_type.id, industry_type.ref_name, industry_type.name = get_industry_type(ref_name)
+	industry_type.id, industry_type.name = get_industry_type(ref_name)
+	industry_type.ref_name = ref_name
 	return industry_type
 end
-function IndustryType:add_input(industry_type, good)
-	add_input_to_industry_type(industry_type.id, good.id)
+function IndustryType:add_input(self, good)
+	add_input_to_industry_type(self.id, good.id)
 end
-function IndustryType:add_output(industry_type, good)
-	add_output_to_industry_type(industry_type.id, good.id)
+function IndustryType:add_output(self, good)
+	add_output_to_industry_type(self.id, good.id)
+end
+function IndustryType:requires_good(self, good, amount)
+	add_req_good_to_industry_type(self.id, good.id, amount)
 end
 
 Nation = { id = 0, name = "", ref_name = "" }
@@ -73,22 +80,23 @@ function Nation:create(nation)
 	nation.parent = self
 	return nation
 end
-function Nation:register(nation)
-	nation.id = add_nation(nation.ref_name, nation.name)
+function Nation:register(self)
+	self.id = add_nation(self.ref_name, self.name)
 end
 function Nation:get(nation, ref_name)
 	nation.parent = self
-	nation.id, nation.ref_name, nation.name = get_nation(ref_name)
+	nation.id, nation.name = get_nation(ref_name)
+	nation.ref_name = ref_name
 	return nation
 end
-function Nation:set_capital(nation, province)
-	set_nation_capital(nation.id, province.id)
+function Nation:set_capital(self, province)
+	set_nation_capital(self.id, province.id)
 end
-function Nation:add_accepted_culture(nation, culture)
-	add_nation_accepted_culture(nation.id, culture.id)
+function Nation:add_accepted_culture(self, culture)
+	add_nation_accepted_culture(self.id, culture.id)
 end
 
-Province = { id = 0, name = "", ref_name = "", color = 0, }
+Province = { id = 0, name = "", ref_name = "", color = 0 }
 function Province:create(province)
 	province.parent = self
 	return province
@@ -98,44 +106,58 @@ function Province:register(province)
 end
 function Province:get(province, ref_name)
 	province.parent = self
-	province.id, province.ref_name, province.name, province.color = get_province(ref_name)
+	province.id, province.name, province.color = get_province(ref_name)
+	province.ref_name = ref_name
 	return province
 end
-function Province:add_industry(province, industry_type, company)
-	add_province_industry(province.id, company.id, industry_type.id)
+function Province:add_industry(self, industry_type, company)
+	add_province_industry(self.id, company.id, industry_type.id)
 end
-function Province:give_to(province, nation)
-	give_province_to(province.id, nation.id)
+function Province:give_to(self, nation)
+	give_province_to(self.id, nation.id)
 end
-function Province:get_owner(province)
-	Nation:get({}, get_province_owner(province.id))
+function Province:get_owner(self)
+	Nation:get({}, get_province_owner(self.id))
 end
-function Province:mul_militancy_global(province, factor)
-	multiply_province_militancy_global(province.id, factor)
+
+-- Increments militancy for all POPs
+function Province:multiply_militancy(self, factor)
+	multiply_province_militancy_global(self.id, factor)
 end
-function Province:mul_militancy_by_culture(province, culture, factor)
-	multiply_province_militancy_by_culture(province.id, culture.id, factor)
+
+
+function Province:multiply_militancy_by_culture(self, culture, factor)
+	multiply_province_militancy_by_culture(self.id, culture.id, factor)
 end
-function Province:mul_militancy_by_religion(province, religion, factor)
-	multiply_province_militancy_by_religion(province.id, religion.id, factor)
+function Province:multiply_militancy_by_religion(self, religion, factor)
+	multiply_province_militancy_by_religion(self.id, religion.id, factor)
 end
-function Province:mul_con_global(province, factor)
-	multiply_province_con_global(province.id, factor)
+
+-- Increments consciousness for all POPs
+function Province:multiply_consciousness_global(self, factor)
+	multiply_province_consciousness_global(self.id, factor)
 end
-function Province:mul_con_by_culture(province, culture, factor)
-	multiply_province_con_by_culture(province.id, culture.id, factor)
+function Province:multiply_consciousness_by_culture(self, culture, factor)
+	multiply_province_consciousness_by_culture(self.id, culture.id, factor)
 end
-function Province:mul_con_by_religion(province, religion, factor)
-	multiply_province_con_by_religion(province.id, religion.id, factor)
+
+function Province:multiply_consciousness_by_religion(self, religion, factor)
+	multiply_province_consciousness_by_religion(self.id, religion.id, factor)
 end
-function Province:add_pop(province, pop_type, culture, religion, size, literacy)
-	add_province_pop(province.id, pop_type.id, culture.id, religion.id, size, literacy)
+
+-- Adds a POP to the province
+function Province:add_pop(self, pop_type, culture, religion, size, literacy)
+	add_province_pop(self.id, pop_type.id, culture.id, religion.id, size, literacy)
 end
-function Province:rename(province, new_name)
-	rename_province(province.id, new_name)
+
+-- Rename a province
+function Province:rename(self, new_name)
+	rename_province(self.id, new_name)
 end
-function Province:add_nucleus(province, nation)
-	add_province_nucleus(province.id, nation.id)
+
+-- Adds a country to the nucleus list of a province
+function Province:add_nucleus(self, nation)
+	add_province_nucleus(self.id, nation.id)
 end
 
 Event = { ref_name = "", conditions_fn = "", event_fn = "", title = "", text = "" }
@@ -148,18 +170,19 @@ function Event:register(event)
 end
 function Event:get(event, ref_name)
 	event.parent = self
-	event.id, event.ref_name, event.conditions_fn, event.event_fn = get_event(ref_name)
+	event.id, event.conditions_fn, event.event_fn = get_event(ref_name)
+	event.ref_name = ref_name
 	return event
 end
-function Event:add_receivers(event, ...)
+function Event:add_receivers(self, ...)
 	local args = table.pack(...)
 	for i = 1, args.n do
 		args[i] = args[i].id
 	end
-	add_event_receivers(event.id, args.n, table.unpack(args))
+	add_event_receivers(self.id, args.n, table.unpack(args))
 end
-function Event:add_descision(event, descision)
-	add_descision(event.id, descision.ref_name, descision.name, descision.descision_fn, descision.effects)
+function Event:add_descision(self, descision)
+	add_descision(self.id, descision.ref_name, descision.name, descision.descision_fn, descision.effects)
 end
 
 Descision = { ref_name = "", descision_fn = "", name = "", effects = "" }
@@ -174,10 +197,13 @@ function PopType:create(pop_type)
 	return pop_type
 end
 function PopType:get(pop_type, ref_name)
-	pop_type.id, pop_type.ref_name, pop_type.name = get_pop_type(ref_name)
+	pop_type.parent = self
+	pop_type.id, pop_type.name = get_pop_type(ref_name)
+	pop_type.ref_name = ref_name
+	return pop_type
 end
-function PopType:register(pop_type)
-	pop_type.id = add_pop_type(pop_type.ref_name, pop_type.name)
+function PopType:register(self)
+	self.id = add_pop_type(self.ref_name, self.name)
 end
 
 Culture = { id = 0, ref_name = "", name = "" }
@@ -186,10 +212,12 @@ function Culture:create(culture)
 	return culture
 end
 function Culture:get(culture, ref_name)
+	culture.parent = self
 	culture.id, culture.ref_name, culture.name = get_culture(ref_name)
+	return culture
 end
 function Culture:register(culture)
-	culture.id = add_culture(culture.ref_name, culture.name)
+	self.id = add_culture(self.ref_name, self.name)
 end
 
 Religion = { id = 0, ref_name = "", name = "" }
@@ -198,10 +226,12 @@ function Religion:create(religion)
 	return religion
 end
 function Religion:get(religion, ref_name)
+	religion.parent = self
 	religion.id, religion.ref_name, religion.name = get_religion(ref_name)
+	return religion
 end
-function Religion:register(religion)
-	religion.id = add_religion(religion.ref_name, religion.name)
+function Religion:register(self)
+	self.id = add_religion(self.ref_name, self.name)
 end
 
 OutpostType = {
@@ -216,8 +246,8 @@ function OutpostType:create(outpost_type)
 	outpost_type.parent = self
 	return outpost_type
 end
-function OutpostType:register(outpost_type)
-	outpost_type.id = add_outpost_type(outpost_type.ref_name, outpost_type.is_naval, outpost_type.is_build_land_units, outpost_type.is_build_naval_units, outpost_type.defense_bonus)
+function OutpostType:register(self)
+	self.id = add_outpost_type(self.ref_name, self.is_naval, self.is_build_land_units, self.is_build_naval_units, self.defense_bonus)
 end
 
 UnitType = {
@@ -235,13 +265,15 @@ function UnitType:create(unit_type)
 	return unit_type
 end
 function UnitType:get(unit_type, ref_name)
+	unit_type.parent = self
 	unit_type.id, unit_type.ref_name, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health, unit_type.max_defensive_ticks, unit_type.position_defense = get_unit_type(ref_name)
+	return unit_type
 end
-function UnitType:register(unit_type)
-	unit_type.id = add_unit_type(unit_type.ref_name, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health, unit_type.max_defensive_ticks, unit_type.position_defense)
+function UnitType:register(self)
+	self.id = add_unit_type(self.ref_name, self.name, self.attack, self.defense, self.health, self.max_defensive_ticks, self.position_defense)
 end
-function UnitType:requires_good(unit_type, good, amount)
-	add_req_good_unit_type(unit_type.id, good.id, amount)
+function UnitType:requires_good(self, good, amount)
+	add_req_good_unit_type(self.id, good.id, amount)
 end
 
 BoatType = { id = 0, ref_name = "", name = "", health = 100.0, defense = 1.0, attack = 1.0, capacity = 100 }
@@ -250,13 +282,15 @@ function BoatType:create(boat_type)
 	return boat_type
 end
 function BoatType:get(boat_type, ref_name)
+	boat_type.parent = self
 	boat_type.id, boat_type.ref_name, boat_type.name, boat_type.attack, boat_type.defense, boat_type.health, boat_type.capacity = get_boat_type(ref_name)
+	return boat_type
 end
-function BoatType:register(boat_type)
-	boat_type.id = add_boat_type(boat_type.ref_name, boat_type.name, boat_type.attack, boat_type.defense, boat_type.health, boat_type.capacity)
+function BoatType:register(self)
+	self.id = add_boat_type(self.ref_name, self.name, self.attack, self.defense, self.health, self.capacity)
 end
-function BoatType:requires_good(boat_type, good, amount)
-	add_req_good_boat_type(boat_type.id, good.id, amount)
+function BoatType:requires_good(self, good, amount)
+	add_req_good_boat_type(self.id, good.id, amount)
 end
 
 -- For sanity

@@ -1,6 +1,6 @@
+#include "world.hpp"
 #include <cstdlib>
 #include <cstring>
-#include <filesystem>
 #include <cmath>
 #include <set>
 #ifndef _MSC_VER
@@ -8,12 +8,11 @@
 #endif
 
 #include "province.hpp"
-#include "world.hpp"
 #include "binary_image.hpp"
 #include "path.hpp"
 #include "print.hpp"
 #include "serializer.hpp"
-#include "server/network.hpp"
+#include "server/server_network.hpp"
 #include "diplomacy.hpp"
 #include "policy.hpp"
 

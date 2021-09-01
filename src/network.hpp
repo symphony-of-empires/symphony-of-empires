@@ -29,10 +29,10 @@
 #include <cstring>
 #include <stdexcept>
 
-class SocketException : std::exception {
+class SocketException : public std::exception {
     std::string buffer;
 public:
-    SocketException(std::string msg) {
+    SocketException(const std::string& msg) {
         buffer = msg;
     }
     virtual const char* what(void) const noexcept {
@@ -40,10 +40,10 @@ public:
     }
 };
 
-class ServerException : std::exception {
+class ServerException : public std::exception {
     std::string buffer;
 public:
-    ServerException(std::string msg) {
+    ServerException(const std::string& msg) {
         buffer = msg;
     }
     virtual const char* what(void) const noexcept {
@@ -51,10 +51,10 @@ public:
     }
 };
 
-class ClientException : std::exception {
+class ClientException : public std::exception {
     std::string buffer;
 public:
-    ClientException(std::string msg) {
+    ClientException(const std::string& msg) {
         buffer = msg;
     }
     virtual const char* what(void) const noexcept {

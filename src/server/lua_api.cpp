@@ -20,13 +20,13 @@ extern "C" {
 #include <libintl.h>
 #include <locale.h>
 
-#include "server/lua_api.hpp"
-#include "world.hpp"
-#include "nation.hpp"
-#include "server/economy.hpp"
-#include "print.hpp"
-#include "path.hpp"
-#include "event.hpp"
+#include "lua_api.hpp"
+#include "../world.hpp"
+#include "../nation.hpp"
+#include "economy.hpp"
+#include "../print.hpp"
+#include "../path.hpp"
+#include "../event.hpp"
 
 int LuaAPI::add_unit_trait(lua_State* L) {
     UnitTrait* unit_trait = new UnitTrait();
@@ -90,9 +90,8 @@ int LuaAPI::get_good(lua_State* L) {
         return 0;
     }
     lua_pushnumber(L, i);
-    lua_pushstring(L, good->ref_name.c_str());
     lua_pushstring(L, good->name.c_str());
-    return 3;
+    return 2;
 }
 
 int LuaAPI::add_industry_type(lua_State* L) {
@@ -134,9 +133,8 @@ int LuaAPI::get_industry_type(lua_State* L) {
         return 0;
     }
     lua_pushnumber(L, i);
-    lua_pushstring(L, industry->ref_name.c_str());
     lua_pushstring(L, industry->name.c_str());
-    return 3;
+    return 2;
 }
 
 int LuaAPI::add_input_to_industry_type(lua_State* L) {
@@ -150,6 +148,13 @@ int LuaAPI::add_output_to_industry_type(lua_State* L) {
     IndustryType* industry = g_world->industry_types[lua_tonumber(L, 1)];
     Good* good = g_world->goods[lua_tonumber(L, 2)];
     industry->outputs.push_back(good);
+    return 0;
+}
+
+int LuaAPI::add_req_good_to_industry_type(lua_State* L) {
+    IndustryType* industry = g_world->industry_types[lua_tonumber(L, 1)];
+    Good* good = g_world->goods[lua_tonumber(L, 2)];
+    industry->req_goods.push_back(std::make_pair(good, lua_tonumber(L, 3)));
     return 0;
 }
 
@@ -198,9 +203,8 @@ int LuaAPI::get_nation(lua_State* L) {
         return 0;
     }
     lua_pushnumber(L, i);
-    lua_pushstring(L, nation->ref_name.c_str());
     lua_pushstring(L, nation->name.c_str());
-    return 3;
+    return 2;
 }
 
 int LuaAPI::set_nation_primary_culture(lua_State* L) {
@@ -349,10 +353,9 @@ int LuaAPI::get_province(lua_State* L) {
         return 0;
     }
     lua_pushnumber(L, i);
-    lua_pushstring(L, province->ref_name.c_str());
     lua_pushstring(L, province->name.c_str());
     lua_pushnumber(L, province->color);
-    return 4;
+    return 3;
 }
 
 int LuaAPI::add_province_industry(lua_State* L) {
@@ -649,10 +652,9 @@ int LuaAPI::get_event(lua_State* L) {
         return 0;
     }
     lua_pushnumber(L, i);
-    lua_pushstring(L, event->ref_name.c_str());
     lua_pushstring(L, event->conditions_function.c_str());
     lua_pushstring(L, event->do_event_function.c_str());
-    return 4;
+    return 3;
 }
 
 int LuaAPI::add_event_receivers(lua_State* L) {
@@ -732,9 +734,8 @@ int LuaAPI::get_pop_type(lua_State* L) {
         return 0;
     }
     lua_pushnumber(L, i);
-    lua_pushstring(L, pop_type->ref_name.c_str());
     lua_pushstring(L, pop_type->name.c_str());
-    return 4;
+    return 2;
 }
 
 int LuaAPI::add_culture(lua_State* L) {

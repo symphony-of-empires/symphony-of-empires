@@ -1,9 +1,9 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
-#include "path.hpp"
+#include "../../path.hpp"
 #include "material.hpp"
-#include "print.hpp"
+#include "../../print.hpp"
 
 std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::MaterialManager::load_wavefront(const std::string& path) {
     std::ifstream file(path);

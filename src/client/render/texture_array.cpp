@@ -1,8 +1,8 @@
 #include "texture_array.hpp"
 
-#include "print.hpp"
+#include "../../print.hpp"
 
-UnifiedRender::TextureArray::TextureArray(std::string path, size_t _tiles_x, size_t _tiles_y)
+UnifiedRender::TextureArray::TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y)
     : BinaryImage(path), tiles_x(_tiles_x), tiles_y(_tiles_y) {}
 
 void UnifiedRender::TextureArray::to_opengl(GLuint wrapp, GLuint min_filter, GLuint mag_filter) {
