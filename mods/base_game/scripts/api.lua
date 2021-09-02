@@ -110,6 +110,12 @@ function Province:get(province, ref_name)
 	province.ref_name = ref_name
 	return province
 end
+function Province:get_by_id(province, id)
+	province.parent = self
+	province.ref_name, province.name, province.color = get_province_by_id(id)
+	province.id = id
+	return province
+end
 function Province:add_industry(self, industry_type, company)
 	add_province_industry(self.id, company.id, industry_type.id)
 end
@@ -219,7 +225,8 @@ function Culture:create(culture)
 end
 function Culture:get(culture, ref_name)
 	culture.parent = self
-	culture.id, culture.ref_name, culture.name = get_culture(ref_name)
+	culture.id, culture.name = get_culture(ref_name)
+	culture.ref_name = ref_name
 	return culture
 end
 function Culture:register(culture)
@@ -233,7 +240,8 @@ function Religion:create(religion)
 end
 function Religion:get(religion, ref_name)
 	religion.parent = self
-	religion.id, religion.ref_name, religion.name = get_religion(ref_name)
+	religion.id, religion.name = get_religion(ref_name)
+	religion.ref_name = ref_name
 	return religion
 end
 function Religion:register(self)
@@ -272,7 +280,8 @@ function UnitType:create(unit_type)
 end
 function UnitType:get(unit_type, ref_name)
 	unit_type.parent = self
-	unit_type.id, unit_type.ref_name, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health, unit_type.max_defensive_ticks, unit_type.position_defense = get_unit_type(ref_name)
+	unit_type.id, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health, unit_type.max_defensive_ticks, unit_type.position_defense = get_unit_type(ref_name)
+	unit_type.ref_name = ref_name
 	return unit_type
 end
 function UnitType:register(self)
@@ -289,7 +298,8 @@ function BoatType:create(boat_type)
 end
 function BoatType:get(boat_type, ref_name)
 	boat_type.parent = self
-	boat_type.id, boat_type.ref_name, boat_type.name, boat_type.attack, boat_type.defense, boat_type.health, boat_type.capacity = get_boat_type(ref_name)
+	boat_type.id, boat_type.name, boat_type.attack, boat_type.defense, boat_type.health, boat_type.capacity = get_boat_type(ref_name)
+	boat_type.ref_name = ref_name
 	return boat_type
 end
 function BoatType:register(self)

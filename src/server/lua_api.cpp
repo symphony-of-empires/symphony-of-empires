@@ -805,9 +805,8 @@ int LuaAPI::get_culture(lua_State* L) {
         return 0;
     }
     lua_pushnumber(L, i);
-    lua_pushstring(L, culture->ref_name.c_str());
     lua_pushstring(L, culture->name.c_str());
-    return 4;
+    return 2;
 }
 
 int LuaAPI::add_religion(lua_State* L) {
@@ -845,9 +844,8 @@ int LuaAPI::get_religion(lua_State* L) {
         return 0;
     }
     lua_pushnumber(L, i);
-    lua_pushstring(L, religion->ref_name.c_str());
     lua_pushstring(L, religion->name.c_str());
-    return 4;
+    return 2;
 }
 
 int LuaAPI::add_unit_type(lua_State* L) {
@@ -893,14 +891,13 @@ int LuaAPI::get_unit_type(lua_State* L) {
         return 0;
     }
     lua_pushnumber(L, i);
-    lua_pushstring(L, unit_type->ref_name.c_str());
     lua_pushstring(L, unit_type->name.c_str());
     lua_pushnumber(L, unit_type->attack);
     lua_pushnumber(L, unit_type->defense);
     lua_pushnumber(L, unit_type->max_health);
     lua_pushnumber(L, unit_type->max_defensive_ticks);
     lua_pushnumber(L, unit_type->position_defense);
-    return 6;
+    return 7;
 }
 
 int LuaAPI::add_req_good_unit_type(lua_State* L) {
@@ -954,13 +951,12 @@ int LuaAPI::get_boat_type(lua_State* L) {
         return 0;
     }
     lua_pushnumber(L, i);
-    lua_pushstring(L, boat_type->ref_name.c_str());
     lua_pushstring(L, boat_type->name.c_str());
     lua_pushnumber(L, boat_type->attack);
     lua_pushnumber(L, boat_type->defense);
     lua_pushnumber(L, boat_type->max_health);
     lua_pushnumber(L, boat_type->capacity);
-    return 4;
+    return 6;
 }
 
 int LuaAPI::add_req_good_boat_type(lua_State* L) {
