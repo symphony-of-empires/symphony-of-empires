@@ -782,8 +782,7 @@ void Economy::do_phase_3(World& world) {
                 if(province->owner->current_policy.migration == ALLOW_NOBODY) {
                     goto skip_emigration;
                 } else if(province->owner->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
-                    bool is_accepted = province->owner->is_accepted_culture(pop);
-                    if(!is_accepted) {
+                    if(province->owner->is_accepted_culture(pop) == false) {
                         goto skip_emigration;
                     }
                 } else if(province->owner->current_policy.migration == ALLOW_ALL_PAYMENT) {
@@ -891,45 +890,22 @@ void Economy::do_phase_3(World& world) {
         memset(&province->stockpile[0], 0, province->stockpile.size() * sizeof(province->stockpile[0]));
     });
 
-    // Now time to do the emigration
+    // Now time to do the emigration - we will create a new POP on the province
+    // if a POP with similar culture, religion and type does not exist - and we
+    // will also subtract the amount of emigrated from the original POP to not
+    // create clones
     for(const auto& target: emigration) {
-        size_t size = target.size;
+        Pop* pop = &*std::find(target.origin->pops.begin(), target.origin->pops.end(), target);
+        pop->size -= target.size;
 
-        // Find POP in province
-        Pop* pop = nullptr;
-        for(auto& p_pop: target.origin->pops) {
-            if(p_pop.culture_id == target.emigred.culture_id
-            && p_pop.religion_id == target.emigred.religion_id
-            && p_pop.type_id == target.emigred.type_id) {
-                pop = &p_pop;
-                break;
-            }
-        }
-        if(pop == nullptr)
-            throw std::runtime_error("Pop not found even tho it was needed in emgiration!?");
-        
-        pop->size -= size;
-        
-        // A new pop, this is the representation of the POP in the target province.
-        // We will check if we have a POP of same religion, culture and type and add up to
-        // that one instead of creating a new one - otherwise we create a new one
-        Pop* new_pop = nullptr;
-        for(auto& p_pop: target.target->pops) {
-            if(p_pop.culture_id == pop->culture_id
-            && p_pop.religion_id == pop->religion_id
-            && p_pop.type_id == pop->type_id) {
-                new_pop = &p_pop;
-                break;
-            }
-        }
-        
-        // Compatible POP does not exist on target province, so we create
-        // a new one (copy the original POP) and add it to the province
-        if(new_pop == nullptr) {
+        auto new_pop = std::find(target.target->pops.begin(), target.target->pops.end(), *pop);
+        if(new_pop == target.target->pops.end()) {
             target.target->pops.push_back(*pop);
-            new_pop = &target.target->pops.back();
+            new_pop = target.target->pops.back();
+            new_pop->size = target.size;
+        } else {
+            new_pop->size += target.size;
         }
-        new_pop->size += size;
     }
     emigration.clear();
 
