@@ -52,6 +52,12 @@ public:
     Culture::Id culture_id;
     Religion::Id religion_id;
     Policies policies;
+
+    bool operator==(const Pop& rhs) {
+        return (this->culture_id == rhs.culture_id
+            && this->religion_id == rhs.religion_id
+            && this->type_id == rhs.type_id);
+    }
 };
 
 #endif
