@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 #endif
     
 #ifndef UNIT_TEST
-    Path::add_path("test");
+//    Path::add_path("test");
     Path::add_path("base_game");
     
     start_client(argc, argv);
