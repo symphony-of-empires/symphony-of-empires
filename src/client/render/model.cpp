@@ -14,11 +14,8 @@ void UnifiedRender::SimpleModel::draw(UnifiedRender::OpenGl::Program* shader) co
     if(material != nullptr) {
         if(material->texture != nullptr) {
             material->texture->bind();
-            shader->set_uniform("colour", 1.f, 1.f, 1.f, 1.f);
-        } else {
-            glBindTexture(GL_TEXTURE_2D, 0);
-            shader->set_uniform("colour", material->colour.r, material->colour.g, material->colour.b, 1.f);
         }
+        shader->set_uniform("colour", material->ambient_colour.r, material->ambient_colour.g, material->ambient_colour.b, 1.f);
     } else {
         glBindTexture(GL_TEXTURE_2D, 0);
         shader->set_uniform("colour", 1.f, 1.f, 1.f, 1.f);
@@ -94,15 +91,12 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
         }
 
         // Comment
-        if(line[0] == '#')
+        if(line[0] == '#' || line.empty())
             continue;
         
         std::istringstream sline(line);
         std::string cmd;
         sline >> cmd;
-
-        if(cmd.empty())
-            continue;
 
         if(cmd == "mtllib") {
             std::string name;
@@ -179,6 +173,12 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
         SimpleModel* model = new SimpleModel(GL_TRIANGLES);
         for(const auto& face: obj.faces) {
             for(size_t i = 0; i < face.vertices.size(); i++) {
+                if(i >= 3) {
+                    const size_t last_idx = model->buffer.size() - 1;
+                    model->buffer.push_back(model->buffer[last_idx - 1]);
+                    model->buffer.push_back(model->buffer[last_idx - 0]);
+                }
+
                 // The faces dictate indices for the vertices and stuff and we
                 // will also subtract 1 because the indexing is 0 based
                 model->buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
