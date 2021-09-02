@@ -139,6 +139,7 @@ namespace UnifiedRender {
         std::set<std::pair<ComplexModel*, std::string>> complex_models;
 
         const UnifiedRender::ComplexModel& load_wavefront(const std::string& path);
+        const UnifiedRender::ComplexModel& load_stl(const std::string& path);
     public:
         const SimpleModel& load_simple(const std::string& path);
         const ComplexModel& load_complex(const std::string& path);
