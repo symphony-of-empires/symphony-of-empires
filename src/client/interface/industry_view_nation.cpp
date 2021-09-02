@@ -103,7 +103,7 @@ IndustryViewNationButton::IndustryViewNationButton(GameState& _gs, UI::Window* _
         IndustryViewNationButton* state = (IndustryViewNationButton*)data;
         if (state->industry != nullptr) {
             Industry& industry = *(state->industry);
-            sprintf(tmpbuf, "%s %4.2f %zu %zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
+            sprintf(tmpbuf, "%s %4.2f %zu %zu %zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
             w.text(tmpbuf);
         } else {
             w.text(" ");
