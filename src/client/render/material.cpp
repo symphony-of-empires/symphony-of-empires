@@ -16,18 +16,16 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
     while(std::getline(file, line)) {
         // Skip whitespace
         size_t len = line.find_first_not_of(" \t");
-        if(len != std::string::npos) {
+        if(len != std::string::npos)
             line = line.substr(len, line.length() - len);
-        }
 
         // Comment
-        if(line[0] == '#')
+        if(line[0] == '#' || line.empty())
             continue;
         
         std::istringstream sline(line);
         std::string cmd;
         sline >> cmd;
-
         if(cmd != "newmtl" && curr_mat == nullptr)
             continue;
 
@@ -55,6 +53,10 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
         } else if(cmd == "map_Kd") {
             std::string map_path;
             sline >> map_path;
+
+            if(map_path[0] == '.')
+                continue;
+
             curr_mat->texture = &g_texture_manager->load_texture(Path::get("3d/" + map_path));
         } else {
             print_info("Command %s not implemented", cmd.c_str());
@@ -74,7 +76,8 @@ find:
     });
     if(it != materials.end())
         return *((*it).first);
-
+    
+    // Create a new material
     Material* mat = new Material();
     mat->texture = &g_texture_manager->load_texture(Path::get("default.png"));
     materials.insert(std::make_pair(mat, path));
