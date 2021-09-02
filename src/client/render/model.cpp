@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <fstream>
+#include <vector>
+#include <iterator>
 #include "model.hpp"
 #include "../../print.hpp"
 #include "../../path.hpp"
@@ -201,6 +203,41 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
     return *final_model;
 }
 
+const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_stl(const std::string& path) {
+    std::ifstream file(path, std::ios::binary);
+    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(file), {});
+
+    ComplexModel* final_model = new ComplexModel();
+    SimpleModel* model = new SimpleModel(GL_TRIANGLES);
+
+    // TODO: This needs more work
+    // 1. we need little endian reading
+    uint32_t n_triangles;
+    memcpy(&n_triangles, &buffer[80], sizeof(uint32_t));
+
+    for(uint32_t i = 0; i < n_triangles; i++) {
+        glm::vec3 vert;
+
+        // TODO: We need to guarantee 2 things:
+        // 1. that the floating point is 32-bits
+        // 2. little endian
+        // 3. ieee787 floating point
+        memcpy(&vert.x, &buffer[84 + i * (sizeof(float) * 3)], sizeof(float));
+        memcpy(&vert.y, &buffer[88 + i * (sizeof(float) * 3)], sizeof(float));
+        memcpy(&vert.z, &buffer[92 + i * (sizeof(float) * 3)], sizeof(float));
+
+        model->buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
+            glm::vec3(vert),
+            glm::vec2(0.f, 0.f)
+        ));
+    }
+
+    simple_models.insert(std::make_pair(model, path));
+    final_model->simple_models.push_back(model);
+    complex_models.insert(std::make_pair(final_model, path));
+    return *final_model;
+}
+
 const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_complex(const std::string& path) {
     auto it = std::find_if(complex_models.begin(), complex_models.end(), [&path](const std::pair<UnifiedRender::ComplexModel*, std::string>& element) {
         return (element.second == path);
@@ -210,7 +247,14 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_complex(con
     
     // Wavefront OBJ loader
     try {
-        return load_wavefront(path);
+        // TODO: This is too horrible, we need a better solution
+        if(path[path.length() - 3] == 's'
+        && path[path.length() - 2] == 't'
+        && path[path.length() - 1] == 'l') {
+            return load_stl(path);
+        } else {
+            return load_wavefront(path);
+        }
     } catch(std::ifstream::failure& e) {
         print_error("Model %s not found", path.c_str());
 
