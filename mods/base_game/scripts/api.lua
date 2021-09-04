@@ -229,7 +229,7 @@ function Culture:get(culture, ref_name)
 	culture.ref_name = ref_name
 	return culture
 end
-function Culture:register(culture)
+function Culture:register(self)
 	self.id = add_culture(self.ref_name, self.name)
 end
 
