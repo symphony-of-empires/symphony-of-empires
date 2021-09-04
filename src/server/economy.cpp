@@ -895,13 +895,13 @@ void Economy::do_phase_3(World& world) {
     // will also subtract the amount of emigrated from the original POP to not
     // create clones
     for(const auto& target: emigration) {
-        Pop* pop = &*std::find(target.origin->pops.begin(), target.origin->pops.end(), target);
+        Pop* pop = &*std::find(target.origin->pops.begin(), target.origin->pops.end(), target.emigred);
         pop->size -= target.size;
 
         auto new_pop = std::find(target.target->pops.begin(), target.target->pops.end(), *pop);
         if(new_pop == target.target->pops.end()) {
             target.target->pops.push_back(*pop);
-            new_pop = target.target->pops.back();
+            new_pop = target.target->pops.end();
             new_pop->size = target.size;
         } else {
             new_pop->size += target.size;
