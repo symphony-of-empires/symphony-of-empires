@@ -138,3 +138,55 @@ kalmar_union_evhdl = Event:create{
     text = "The Kalmar Union was a country that covered the whole scandinavia - now with the newly aquired provinces in your power we may be able to recreate this nation"
 }
 --Event:register(kalmar_union_evhdl)
+
+-- The minas crash was a car crash occuring on the brazilian province of minas
+function the_minas_crash_test()
+    local year = get_year()
+    if year >= 1900 and year <= 1950 and math.random(0, 100) == 0 then
+        -- Get the current owner of the minas province
+        local nation = Province:get_owner(Province:get({}, "minas_gerais"))
+        Event:add_receivers(the_minas_crash, nation)
+        return EVENT_CONDITIONS_MET
+    end
+	return EVENT_CONDITIONS_UNMET
+end
+function the_minas_crash_event()
+	descision = Descision:create{
+		ref_name = "the_minas_crash_descision_0",
+		name = "I'm deeply sad for such tragedy",
+		descision_fn = "the_minas_crash_descision_0",
+		effects = "None"
+	}
+	Event:add_descision(the_minas_crash, descision)
+    descision = Descision:create{
+		ref_name = "the_minas_crash_descision_1",
+		name = "Well yeah they should be held accountable!",
+		descision_fn = "the_minas_crash_descision_1",
+		effects = "None"
+	}
+	Event:add_descision(the_minas_crash, descision)
+    descision = Descision:create{
+		ref_name = "the_minas_crash_descision_2",
+		name = "Not my problem",
+		descision_fn = "the_minas_crash_descision_2",
+		effects = "None"
+	}
+	Event:add_descision(the_minas_crash, descision)
+	return EVENT_DO_ONE_TIME
+end
+function the_minas_crash_descision_0()
+end
+function the_minas_crash_descision_1()
+end
+function the_minas_crash_descision_2()
+end
+the_minas_crash = Event:create{
+	ref_name = "the_minas_crash",
+	conditions_fn = "the_minas_crash_test",
+	event_fn = "the_minas_crash_event",
+    title = "The minas crash",
+	text = "2 cars have been circulating on the minas province recently where they collided with each other on a catastrophic event"
+}
+Event:register(the_minas_crash)
+
+math.randomseed(os.time())
