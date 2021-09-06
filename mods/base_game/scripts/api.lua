@@ -123,10 +123,10 @@ function Province:give_to(self, nation)
 	give_province_to(self.id, nation.id)
 end
 function Province:get_owner(self)
-	Nation:get({}, get_province_owner(self.id))
+	return Nation:get({}, get_province_owner(self.id))
 end
 function Province:get_controller(self)
-	Nation:get({}, get_province_controller(self.id))
+	return Nation:get({}, get_province_controller(self.id))
 end
 function Province:get_neighbours_id(self)
 	return get_province_neighbours(self.id)
