@@ -8,21 +8,23 @@ This is an Opensource RTS game engine; created to be very mod-friendly.
 Required to build:
 
 * SDL2 and SDL2-ttf
-* lua 5.4 (or 5.3)
+* lua 5.3 (or 5.4)
 * GL and GLU
 
 ## Build (Linux)
 Install all dependencies with this command:
 ```
-sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.4-dev libtbb-dev
+sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.3-dev libtbb-dev
 ```
 
 The build with these commands once all the dependencies are met:
 ```
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Debug ..
-make -j
+make
 ```
+
+Specifying `-j` to make will freeze systems, use `-j$(nproc)` instead, if a multithreaded compilation is desired.
 
 Use this code to install Lua5.4
 ```
