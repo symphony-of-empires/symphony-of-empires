@@ -23,35 +23,26 @@ Province::Id Province::get_id(const World& world) {
  */
 Nation& Province::get_occupation_controller(const World& world) const {
     std::vector<Nation::Id> nations_cnt;
-    std::set<Nation::Id> unique_nations;
-
     for(size_t x = min_x; x < max_x; x++) {
         for(size_t y = min_y; y < max_y; y++) {
             nations_cnt.push_back(world.get_tile(x, y).owner_id);
         }
     }
 
-    //unique_nations.insert(nations_cnt);
-    for(const auto& nation_id: nations_cnt) {
-        unique_nations.insert(nation_id);
-    }
-
+    // We are going to obtain all nations who have a foothold on this province
+    // then we are going to obtain the one with the highest tile count
+    std::set<Nation::Id> unique_nations(nations_cnt.begin(), nations_cnt.end());
     Nation::Id nation_id = world.get_id(owner);
     size_t max_tiles_cnt = 0;
     for(const auto& curr_nation_id: unique_nations) {
-        size_t tiles_cnt = 0;
-        for(const auto& tile_owner: nations_cnt) {
-            if(tile_owner == curr_nation_id) {
-                tiles_cnt++;
-            }
-        }
-
+        // This will count the tiles for this nation
+        const size_t tiles_cnt = std::count(nations_cnt.begin(), nations_cnt.end(), curr_nation_id);
         if(tiles_cnt > max_tiles_cnt) {
             max_tiles_cnt = tiles_cnt;
             nation_id = curr_nation_id;
         }
     }
-    return *world.nations[nation_id];
+    return (*world.nations[nation_id]);
 }
 
 /**
@@ -67,9 +58,6 @@ void Province::add_industry(World& world, Industry* industry) {
         new_product->industry = industry;
         new_product->good = output;
         new_product->owner = industry->owner;
-        new_product->demand_history.clear();
-        new_product->supply_history.clear();
-        new_product->price_history.clear();
         new_product->origin = this;
 
         industry->output_products.push_back(new_product);
@@ -80,11 +68,9 @@ void Province::add_industry(World& world, Industry* industry) {
 
     // We will set inputs_satisfied to same size as inputs
     // Industries start with 100 of stockpiles
-    industry->stockpile.clear();
-    for(size_t i = 0; i < industry->type->inputs.size(); i++) {
-        industry->stockpile.push_back(100);
-    }
+    industry->stockpile.insert(industry->stockpile.begin(), industry->type->inputs.size(), 100);
 
+    // Finally add the industry to the province's vector
     industries.push_back(*industry);
 }
 

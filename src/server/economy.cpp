@@ -17,7 +17,7 @@
 #if (__cplusplus < 201703L)
 namespace std {
     template<typename T>
-    T clamp(T n, T min, T max) {
+    constexpr inline T clamp(T n, T min, T max) {
         return std::min<T>(max, std::max<T>(n, min));
     }
 }
@@ -33,11 +33,11 @@ typedef signed int ssize_t;
  */
 bool Industry::can_do_output(const World& world) {
     // No output products?
-    if(!type->outputs.size() || !output_products.size())
+    if(type->outputs.empty() || output_products.empty())
         return false;
 
     // Always can produce if RGO
-    if(!type->inputs.size())
+    if(type->inputs.empty())
         return true;
 
     // Check that we have enough stockpile
@@ -254,7 +254,7 @@ void Economy::do_phase_1(World& world) {
             size_t i = 0;
             for(const auto& output: industry.output_products) {
                 // 100 minimum workers per output
-                const size_t employed = std::max<size_t>(powf(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), 100);
+                const size_t employed = std::max<size_t>(std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), 100);
                 industry.employees_needed_per_output[i] = employed;
 
                 if(output->good->is_edible) {
@@ -300,7 +300,7 @@ void Economy::do_phase_1(World& world) {
                 // Delete job request when it has 0 amount
                 if(!job_request.amount) {
                     province_job_requests.erase(province_job_requests.begin() + i);
-                    i--;
+                    --i;
                     continue;
                 }
             }
@@ -423,14 +423,11 @@ void Economy::do_phase_1(World& world) {
         }
     }
 
-    // Sort on best payment first
-    std::sort(world.delivers.begin(), world.delivers.end(),
-        [](const DeliverGoods& lhs, const DeliverGoods& rhs) {
+    // Sort on best payment first for orders and delivers
+    std::sort(world.delivers.begin(), world.delivers.end(), [](const DeliverGoods& lhs, const DeliverGoods& rhs) {
         return lhs.payment > rhs.payment;
     });
-
-    std::sort(world.orders.begin(), world.orders.end(),
-        [](const OrderGoods& lhs, const OrderGoods& rhs) {
+    std::sort(world.orders.begin(), world.orders.end(), [](const OrderGoods& lhs, const OrderGoods& rhs) {
         return lhs.payment > rhs.payment;
     });
 }
@@ -617,6 +614,7 @@ void Economy::do_phase_2(World& world) {
 class Emigrated {
 public:
     Emigrated() {};
+    ~Emigrated() {};
     Province* origin;
     Province* target;
     Pop emigred;
@@ -631,18 +629,16 @@ void Economy::do_phase_3(World& world) {
     std::mutex emigration_lock;
     std::vector<Emigrated> emigration = std::vector<Emigrated>();
 
-    srand(time(NULL));
+    std::srand(std::time(nullptr));
 
     std::lock_guard<std::recursive_mutex> l1(world.provinces_mutex);
     std::lock_guard<std::recursive_mutex> l2(world.products_mutex);
     std::for_each(world.provinces.begin(), world.provinces.end(), [&emigration_lock, &emigration, &world](auto& province) {
-        if(province->owner == nullptr) {
+        if(province->owner == nullptr)
             return;
-        }
         
         // Vector containing available products in the province (for faster calculations)
         std::vector<Product *> province_products;
-        province_products.clear();
         province_products.reserve(world.products.size());
         for(const auto& product: world.products) {
             // Only valid indices
@@ -710,7 +706,7 @@ void Economy::do_phase_3(World& world) {
 
                 // Demand is incremented proportional to items bought and remove item from stockpile
                 // we will also add some "randomness" factor to simulate a pseudo-imperfect economy
-                float errdata = fmod((float)(rand() + 1) / 1000.f, 2.f) + 1.f;
+                float errdata = std::fmod((float)(std::rand() + 1) / 1000.f, 2.f) + 1.f;
                 product->demand += bought * 2.5f * errdata;
                 province->stockpile[world.get_id(product)] -= std::min<size_t>(province->stockpile[world.get_id(product)], bought);
 
@@ -730,8 +726,8 @@ void Economy::do_phase_3(World& world) {
             pop.life_needs_met -= 0.01f;
 
             // x2.5 life needs met modifier, that is the max allowed
-            pop.life_needs_met = std::min<float>(5.f, std::max<float>(pop.life_needs_met, -3.f));
-            pop.everyday_needs_met = std::min<float>(5.f, std::max<float>(pop.everyday_needs_met, -3.f));
+            pop.life_needs_met = std::clamp<float>(pop.life_needs_met, -3.f, 5.f);
+            pop.everyday_needs_met = std::clamp<float>(pop.everyday_needs_met, -3.f, 5.f);
 
             // POPs cannot shrink below 10<
             if(pop.size <= 10) {
@@ -746,9 +742,9 @@ void Economy::do_phase_3(World& world) {
                 } else {
                     // Neither literacy nor anything else can save humans from
                     // dying due starvation
-                    growth = -((int)(rand() % pop.size));
+                    growth = -((int)(std::rand() % pop.size));
                 }
-                if(growth < 0 && (size_t)abs(growth) > pop.size) {
+                if(growth < 0 && (size_t)std::abs(growth) > pop.size) {
                     growth = -((int)pop.size);
                 }
                 pop.size += growth;
@@ -776,7 +772,7 @@ void Economy::do_phase_3(World& world) {
             // And literacy determines "best" spot, for example a low literacy will
             // choose a slightly less desirable location
             const float emigration_willing = 1.f / std::min(pop.life_needs_met, 0.f);
-            long long int emigreers = (pop.size * emigration_willing) + rand() % pop.size;
+            long long int emigreers = (pop.size * emigration_willing) + std::rand() % pop.size;
             if(emigreers > 0) {
                 // Check that laws on the province we are in allows for emigration
                 if(province->owner->current_policy.migration == ALLOW_NOBODY) {
@@ -794,7 +790,7 @@ void Economy::do_phase_3(World& world) {
 
                 // Find best province
                 Province* best_province = nullptr;
-                for(size_t j = 0; j < world.provinces.size(); j += std::max<size_t>((rand() % (world.provinces.size() - j)) / 10, 1)) {
+                for(size_t j = 0; j < world.provinces.size(); j += std::max<size_t>((std::rand() % (world.provinces.size() - j)) / 10, 1)) {
                     Province* target_province = world.provinces[j];
                     float attractive = 0.f;
                     
@@ -866,13 +862,13 @@ void Economy::do_phase_3(World& world) {
                 // If best not found then we don't go to anywhere
                 if(best_province == nullptr) {
                     // Or we do, but just randomly
-                    best_province = world.provinces[rand() % world.provinces.size()];
+                    best_province = world.provinces[std::rand() % world.provinces.size()];
                     //goto skip_emigration;
                 }
                 
                 //print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
                 
-                Emigrated emigrated;
+                Emigrated emigrated = {};
                 emigrated.target = best_province;
                 emigrated.emigred = pop;
                 emigrated.size = emigreers;
@@ -885,9 +881,8 @@ void Economy::do_phase_3(World& world) {
         skip_emigration:
             ;
         }
-        
-        // Stockpiles cleared
-        memset(&province->stockpile[0], 0, province->stockpile.size() * sizeof(province->stockpile[0]));
+
+        std::fill(province->stockpile.begin(), province->stockpile.end(), 0);
     });
 
     // Now time to do the emigration - we will create a new POP on the province
@@ -895,7 +890,7 @@ void Economy::do_phase_3(World& world) {
     // will also subtract the amount of emigrated from the original POP to not
     // create clones
     for(const auto& target: emigration) {
-        Pop* pop = &*std::find(target.origin->pops.begin(), target.origin->pops.end(), target.emigred);
+        auto pop = std::find(target.origin->pops.begin(), target.origin->pops.end(), target.emigred);
         pop->size -= target.size;
 
         auto new_pop = std::find(target.target->pops.begin(), target.target->pops.end(), *pop);
@@ -914,7 +909,6 @@ void Economy::do_phase_3(World& world) {
 
     // We will now post a job request so the next economic tick will be able to "link industries"
     // with their workers and make a somewhat realistic economy
-    world.job_requests_mutex.lock();
     std::lock_guard<std::recursive_mutex> l3(world.job_requests_mutex);
     world.job_requests.clear();
     for(const auto& province: world.provinces) {
@@ -924,7 +918,7 @@ void Economy::do_phase_3(World& world) {
         
         for(auto& pop: province->pops) {
             // Post a job request
-            JobRequest request;
+            JobRequest request = {};
             request.amount = pop.size;
             request.pop = &pop;
             request.province = province;
@@ -938,14 +932,13 @@ void Economy::do_phase_3(World& world) {
             } else if(province->owner->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
                 // Same as above except we roll a dice
                 if(province->owner->is_accepted_culture(pop) == false) {
-                    request.amount /= (size_t)fmod((float)rand() + 1.f, 32.f) + 1;
+                    request.amount /= (size_t)std::fmod(std::rand() + 1.f, 32.f) + 1;
                 }
             }
 
             world.job_requests.push_back(request);
         }
     }
-    world.job_requests_mutex.unlock();
 }
 
 /**

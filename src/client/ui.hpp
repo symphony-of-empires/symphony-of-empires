@@ -4,6 +4,7 @@
 #include <vector>
 #include <deque>
 #include <cstddef>
+#include <functional>
 
 #ifdef _MSC_VER
 #	include <SDL_surface.h>
@@ -121,9 +122,9 @@ namespace UI {
         void* user_data = nullptr;
         void kill() { dead = true; };
 
-        void (*on_update)(Widget&, void *) = nullptr;
-        void (*on_hover)(Widget&, void *) = nullptr;
-        void (*on_click)(Widget&, void *) = nullptr;
+        std::function<void(Widget&, void *)> on_update;
+        std::function<void(Widget&, void *)> on_hover;
+        std::function<void(Widget&, void *)> on_click;
         bool dead = false;
     };
 
