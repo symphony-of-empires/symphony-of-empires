@@ -97,7 +97,7 @@ public:
     void data(void* _bufdata, size_t _n_data) {
         n_data = _n_data;
         bufdata.resize(n_data);
-        memcpy(&bufdata[0], _bufdata, n_data);
+        std::memcpy(&bufdata[0], _bufdata, n_data);
     }
 
     size_t size(void) {
@@ -109,7 +109,7 @@ public:
         if(buf != nullptr) {
             n_data = size;
             bufdata.resize(n_data);
-            memcpy(&bufdata[0], buf, n_data);
+            std::memcpy(&bufdata[0], buf, n_data);
         }
 
         const uint32_t net_code = htonl(code);

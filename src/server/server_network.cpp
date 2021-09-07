@@ -88,7 +88,6 @@ Server::Server(const unsigned port, const unsigned max_conn) {
     }
 
     packet_mutexes = new std::mutex[max_conn];
-
     threads.reserve(max_conn);
     for(size_t i = 0; i < max_conn; i++) {
         threads.push_back(std::thread(&Server::net_loop, this, i));
@@ -179,7 +178,7 @@ void Server::net_loop(int id) {
             packet.send(&action);
             print_info("Sent action %zu", (size_t)action);
 #ifdef unix
-            struct pollfd pfd;
+            struct pollfd pfd = {0};
             pfd.fd = conn_fd;
             pfd.events = POLLIN;
 #endif

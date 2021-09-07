@@ -109,7 +109,7 @@ void Context::render_recursive(Widget& w, int x_off, int y_off) {
     glPushMatrix();
     glTranslatef(x_off, y_off, 0.f);
     w.on_render(*this);
-    if (w.on_update != nullptr) {
+    if (w.on_update) {
         w.on_update(w, w.user_data);
     }
     glPopMatrix();
@@ -154,7 +154,7 @@ int Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsig
         return 0;
 
     w.is_hover = true;
-    if (w.on_hover != nullptr)
+    if (w.on_hover)
         w.on_hover(w, w.user_data);
 
     for (auto& child : w.children) {
@@ -199,7 +199,7 @@ int Context::check_click_recursive(Widget& w, const unsigned int mx, const unsig
             break;
     }
 
-    if (w.on_click != nullptr)
+    if (w.on_click)
         w.on_click(w, w.user_data);
 
     for (auto& child : w.children)
@@ -299,7 +299,7 @@ void Widget::on_render(Context& ctx) {
     }
 
     glColor3f(1.f, 1.f, 1.f);
-    if (on_click != nullptr && is_hover) {
+    if (on_click && is_hover) {
         glColor3f(0.5f, 0.5f, 0.5f);
     }
 

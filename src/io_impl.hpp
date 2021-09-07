@@ -12,6 +12,7 @@
 #include "serializer.hpp"
 #include "actions.hpp"
 #include "diplomacy.hpp"
+#include "print.hpp"
 #include <string>
 
 // TODO: Endianess compatibility
@@ -1629,21 +1630,21 @@ public:
         const uint32_t n_boats = obj->boats.size();
         ::serialize(stream, &n_boats);
         
-        printf("(SERIALIZER) WORLD INFORMATION\n");
-        printf("  n_goods %zu\n", (size_t)n_goods);
-        printf("  n_industry_types %zu\n", (size_t)n_industry_types);
-        printf("  n_unit_types %zu\n", (size_t)n_unit_types);
-        printf("  n_religions %zu\n", (size_t)n_religions);
-        printf("  n_cultures %zu\n", (size_t)n_cultures);
-        printf("  n_pop_types %zu\n", (size_t)n_pop_types);
-        printf("  n_nations %zu\n", (size_t)n_nations);
-        printf("  n_provinces %zu\n", (size_t)n_provinces);
-        printf("  n_companies %zu\n", (size_t)n_companies);
-        printf("  n_products %zu\n", (size_t)n_products);
-        printf("  n_events %zu\n", (size_t)n_events);
-        printf("  n_unit_traits %zu\n", (size_t)n_unit_traits);
-        printf("  n_outpost_types %zu\n", (size_t)n_outpost_types);
-        printf("  n_outposts %zu\n", (size_t)n_outposts);
+        print_info("(SERIALIZER) WORLD INFORMATION\n");
+        print_info("  n_goods %zu\n", (size_t)n_goods);
+        print_info("  n_industry_types %zu\n", (size_t)n_industry_types);
+        print_info("  n_unit_types %zu\n", (size_t)n_unit_types);
+        print_info("  n_religions %zu\n", (size_t)n_religions);
+        print_info("  n_cultures %zu\n", (size_t)n_cultures);
+        print_info("  n_pop_types %zu\n", (size_t)n_pop_types);
+        print_info("  n_nations %zu\n", (size_t)n_nations);
+        print_info("  n_provinces %zu\n", (size_t)n_provinces);
+        print_info("  n_companies %zu\n", (size_t)n_companies);
+        print_info("  n_products %zu\n", (size_t)n_products);
+        print_info("  n_events %zu\n", (size_t)n_events);
+        print_info("  n_unit_traits %zu\n", (size_t)n_unit_traits);
+        print_info("  n_outpost_types %zu\n", (size_t)n_outpost_types);
+        print_info("  n_outposts %zu\n", (size_t)n_outposts);
         
         for(auto& sub_obj: obj->goods) {
             ::serialize(stream, sub_obj);
@@ -1850,21 +1851,21 @@ public:
             obj->boats.push_back(sub_obj);
         }
         
-        printf("(DESERIALIZER) WORLD INFORMATION\n");
-        printf("  n_goods %zu\n", (size_t)n_goods);
-        printf("  n_industry_types %zu\n", (size_t)n_industry_types);
-        printf("  n_unit_types %zu\n", (size_t)n_unit_types);
-        printf("  n_religions %zu\n", (size_t)n_religions);
-        printf("  n_cultures %zu\n", (size_t)n_cultures);
-        printf("  n_pop_types %zu\n", (size_t)n_pop_types);
-        printf("  n_nations %zu\n", (size_t)n_nations);
-        printf("  n_provinces %zu\n", (size_t)n_provinces);
-        printf("  n_companies %zu\n", (size_t)n_companies);
-        printf("  n_products %zu\n", (size_t)n_products);
-        printf("  n_events %zu\n", (size_t)n_events);
-        printf("  n_unit_traits %zu\n", (size_t)n_unit_traits);
-        printf("  n_outpost_types %zu\n", (size_t)n_outpost_types);
-        printf("  n_outposts %zu\n", (size_t)n_outposts);
+        print_info("(DESERIALIZER) WORLD INFORMATION\n");
+        print_info("  n_goods %zu\n", (size_t)n_goods);
+        print_info("  n_industry_types %zu\n", (size_t)n_industry_types);
+        print_info("  n_unit_types %zu\n", (size_t)n_unit_types);
+        print_info("  n_religions %zu\n", (size_t)n_religions);
+        print_info("  n_cultures %zu\n", (size_t)n_cultures);
+        print_info("  n_pop_types %zu\n", (size_t)n_pop_types);
+        print_info("  n_nations %zu\n", (size_t)n_nations);
+        print_info("  n_provinces %zu\n", (size_t)n_provinces);
+        print_info("  n_companies %zu\n", (size_t)n_companies);
+        print_info("  n_products %zu\n", (size_t)n_products);
+        print_info("  n_events %zu\n", (size_t)n_events);
+        print_info("  n_unit_traits %zu\n", (size_t)n_unit_traits);
+        print_info("  n_outpost_types %zu\n", (size_t)n_outpost_types);
+        print_info("  n_outposts %zu\n", (size_t)n_outposts);
         
         for(size_t i = 0; i < n_goods; i++) {
             Good* sub_obj = obj->goods[i];

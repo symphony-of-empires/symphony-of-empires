@@ -35,6 +35,7 @@ using namespace TreatyClause;
 unsigned WarReparations::cost(void) {
     return (receiver->economy_score * (amount* days_duration)) / 100;
 }
+
 void WarReparations::enforce(void) {
     sender->prestige += 0.0001f;
     receiver->prestige -= 0.0001f;
@@ -42,6 +43,7 @@ void WarReparations::enforce(void) {
     receiver->budget += amount;
     days_duration--;
 }
+
 bool WarReparations::in_effect(void) {
     return (days_duration != 0);
 }
@@ -49,11 +51,13 @@ bool WarReparations::in_effect(void) {
 unsigned Humiliate::cost(void) {
     return (receiver->prestige * (amount* days_duration)) / 100;
 }
+
 void Humiliate::enforce(void) {
     sender->prestige += amount;
     receiver->prestige -= amount;
     days_duration--;
 }
+
 bool Humiliate::in_effect(void) {
     return (days_duration != 0);
 }
@@ -61,10 +65,11 @@ bool Humiliate::in_effect(void) {
 unsigned LiberateNation::cost(void) {
     size_t value = 0;
     for(const auto& province: provinces) {
-        value += province->budget* province->total_pops();
+        value += province->budget * province->total_pops();
     }
     return value * 0.00001f;
 }
+
 void LiberateNation::enforce(void) {
     // Reduce prestige due to lost lands
     sender->prestige += cost() * 0.0000025f;
@@ -85,10 +90,12 @@ bool LiberateNation::in_effect(void) {
 unsigned ImposePolicies::cost(void) {
     return imposed.difference(receiver->current_policy);
 }
+
 void ImposePolicies::enforce(void) {
-    memcpy(&receiver->current_policy, &imposed, sizeof(Policies));
+    receiver->current_policy = imposed;
     done = true;
 }
+
 bool ImposePolicies::in_effect(void) {
     return !done;
 }
@@ -101,6 +108,7 @@ unsigned AnexxProvince::cost(void) {
     }
     return value * 0.000001f;
 }
+
 void AnexxProvince::enforce(void) {
     sender->prestige += cost() * 0.0000025f;
     receiver->prestige -= cost() * 0.000005f;
@@ -123,6 +131,7 @@ void AnexxProvince::enforce(void) {
     // One-time clause
     done = true;
 }
+
 bool AnexxProvince::in_effect(void) {
     return !done;
 }
@@ -130,6 +139,7 @@ bool AnexxProvince::in_effect(void) {
 unsigned Ceasefire::cost() {
     return receiver->military_score + receiver->naval_score;
 }
+
 void Ceasefire::enforce() {
     Nation::Id receiver_id = g_world->get_id(receiver);
     Nation::Id sender_id = g_world->get_id(sender);
@@ -142,6 +152,7 @@ void Ceasefire::enforce() {
     
     days_duration--;
 }
+
 bool Ceasefire::in_effect() {
     return (days_duration != 0);
 }
