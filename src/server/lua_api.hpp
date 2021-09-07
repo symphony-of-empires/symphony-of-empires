@@ -4,10 +4,10 @@
 #ifdef windows
 #  include <lua.hpp>
 #else
-#  ifdef LUA53
-#    include <lua5.3/lua.hpp>
-#  else
+#  ifdef LUA54
 #    include <lua5.4/lua.hpp>
+#  else
+#    include <lua5.3/lua.hpp>
 #  endif
 #endif
 #include <string>

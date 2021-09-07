@@ -320,6 +320,7 @@ void Widget::on_render(Context& ctx) {
         glTexCoord2f(0.f, 0.f);
         glVertex2f(0.f, 0.f);
         glEnd();
+        
     }
 
     glColor3f(1.f, 1.f, 1.f);
