@@ -80,10 +80,10 @@ enum PacketCode {
     PACKET_ERROR,
 };
 class Packet {
-    std::vector<uint8_t> bufdata;
     size_t n_data = 0;
     PacketCode code = PACKET_OK;
 public:
+    std::vector<uint8_t> buffer;
     SocketStream stream;
 
     Packet() {};
@@ -91,13 +91,13 @@ public:
     ~Packet() {};
 
     void* data(void) {
-        return (void *)&bufdata[0];
+        return (void *)&buffer[0];
     }
     
-    void data(void* _bufdata, size_t _n_data) {
-        n_data = _n_data;
-        bufdata.resize(n_data);
-        std::memcpy(&bufdata[0], _bufdata, n_data);
+    void data(void* buf, size_t size) {
+        n_data = size;
+        buffer.resize(n_data);
+        std::memcpy(&buffer[0], buf, size);
     }
 
     size_t size(void) {
@@ -108,8 +108,8 @@ public:
     void send(const T* buf = nullptr, size_t size = sizeof(T)) {
         if(buf != nullptr) {
             n_data = size;
-            bufdata.resize(n_data);
-            std::memcpy(&bufdata[0], buf, n_data);
+            buffer.resize(n_data);
+            std::memcpy(&buffer[0], buf, n_data);
         }
 
         const uint32_t net_code = htonl(code);
@@ -119,7 +119,7 @@ public:
         stream.send(&net_size, sizeof(net_size));
         
         /* Socket writes can only be done 1024 bytes at a time */
-        stream.send(&bufdata[0], n_data);
+        stream.send(&buffer[0], n_data);
     }
 
     void send(void) {
@@ -137,12 +137,12 @@ public:
         stream.recv(&net_size, sizeof(net_size));
         
         n_data = (size_t)ntohl(net_size);
-        bufdata.resize(n_data + 1);
+        buffer.resize(n_data + 1);
         
         /* Reads can only be done 1024 bytes at a time */
-        stream.recv(&bufdata[0], n_data);
+        stream.recv(&buffer[0], n_data);
         if(buf != nullptr)
-            memcpy(buf, &bufdata[0], n_data);
+            memcpy(buf, &buffer[0], n_data);
     }
     
     void recv(void) {
