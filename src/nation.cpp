@@ -2,7 +2,9 @@
 #include "world.hpp"
 
 inline void Nation::do_diplomacy() {
-    diplomatic_timer = (60* 48) - std::min(10.f* 48.f, prestige / 100.f);
+    // TODO: Fix this formula which is currently broken
+    //diplomatic_timer = std::max((60 * 48) - std::min(10.f * 48.f, prestige / 100.f), 4.f);
+    diplomatic_timer = 48;
 }
 
 inline bool Nation::can_do_diplomacy() {
@@ -11,21 +13,29 @@ inline bool Nation::can_do_diplomacy() {
 
 #include "print.hpp"
 void Nation::increase_relation(const World& world, Nation* target) {
+    if(!can_do_diplomacy())
+        return;
+    
     const Nation::Id t1_idx = world.get_id(target);
     this->relations[t1_idx].relation += 5.f;
     const Nation::Id t2_idx = world.get_id(this);
     target->relations[t2_idx].relation += 5.f;
 
     print_info("%s increases relations with %s", name.c_str(), target->name.c_str());
+    do_diplomacy();
 }
 
 void Nation::decrease_relation(const World& world, Nation* target) {
+    if(!can_do_diplomacy())
+        return;
+
     const Nation::Id t1_idx = world.get_id(target);
     this->relations[t1_idx].relation += 5.f;
     const Nation::Id t2_idx = world.get_id(this);
     target->relations[t2_idx].relation += 5.f;
 
     print_info("%s decreases relations with %s", name.c_str(), target->name.c_str());
+    do_diplomacy();
 }
 
 /**
