@@ -143,6 +143,8 @@ public:
     float everyday_needs_met_mod = 1.f;
     float luxury_needs_met_mod = 1.f;
 
+    bool is_ai = true;
+
     // Inbox of the nation; events that require our attention / should be processed
     std::deque<Event> inbox;
 
