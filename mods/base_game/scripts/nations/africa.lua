@@ -9,6 +9,18 @@ algeirs = Nation:create{ ref_name = "algeirs" }
 algeirs.name = _("Algeirs")
 Nation:register(algeirs)
 Nation:add_accepted_culture(algeirs, arabic)
+abbyssina = Nation:create{ ref_name = "abbyssina" }
+abbyssina.name = _("Abbyssina")
+Nation:register(abbyssina)
+egypt = Nation:create{ ref_name = "egypt" }
+egypt.name = _("Egypt")
+Nation:register(egypt)
+tripolitania = Nation:create{ ref_name = "tripolitania" }
+tripolitania.name = _("Tripolitania")
+Nation:register(tripolitania)
+ashantee = Nation:create{ ref_name = "ashantee" }
+ashantee.name = _("Ashantee")
+Nation:register(ashantee)
 -- Formable nations
 arabia = Nation:create{ ref_name = "arabia" }
 arabia.name = _("Arabia")
