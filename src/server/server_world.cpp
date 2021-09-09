@@ -20,6 +20,15 @@
 #include "../io_impl.hpp"
 #include "server_network.hpp"
 
+#if (__cplusplus < 201703L)
+namespace std {
+    template<typename T>
+    constexpr inline T clamp(T n, T min, T max) {
+        return std::min<T>(max, std::max<T>(n, min));
+    }
+}
+#endif
+
 /**
  * Creates a new world
   */
@@ -508,8 +517,139 @@ void World::load_mod(void) {
 extern std::mutex render_province_mutex;
 extern std::deque<size_t> render_province;
 
+#include "../actions.hpp"
 #include "economy.hpp"
 void World::do_tick() {
+    // AI and stuff
+    // Just random shit to make the world be like more alive
+    nations_mutex.lock();
+    provinces_mutex.lock();
+    tiles_mutex.lock();
+    for(const auto& nation: g_world->nations) {
+        if(nation->exists() == false)
+            continue;
+
+        if(rand() % 100 > 98.f) {
+            Nation *target = nullptr;
+            while(target == nullptr || target->exists() == false) {
+                target = g_world->nations[rand() % g_world->nations.size()];
+            }
+            nation->increase_relation(*this, target);
+        } else if(rand() % 100 > 98.f) {
+            Nation *target = nullptr;
+            while(target == nullptr || target->exists() == false) {
+                target = g_world->nations[rand() % g_world->nations.size()];
+            }
+            nation->decrease_relation(*this, target);
+        }
+
+        // Rarely nations will change policies
+        if(rand() % 100 > 50.f) {
+            Policies new_policy = nation->current_policy;
+
+            if(rand() % 100 > 50.f) {
+                new_policy.import_tax += 0.1f * (rand() % 10);
+            } else if(rand() % 100 > 50.f) {
+                new_policy.import_tax -= 0.1f * (rand() % 10);
+            }
+
+            if(rand() % 100 > 50.f) {
+                new_policy.export_tax += 0.1f * (rand() % 10);
+            } else if(rand() % 100 > 50.f) {
+                new_policy.export_tax -= 0.1f * (rand() % 10);
+            }
+
+            if(rand() % 100 > 50.f) {
+                new_policy.domestic_export_tax += 0.1f * (rand() % 10);
+            } else if(rand() % 100 > 50.f) {
+                new_policy.domestic_export_tax -= 0.1f * (rand() % 10);
+            }
+
+            if(rand() % 100 > 50.f) {
+                new_policy.domestic_import_tax += 0.1f * (rand() % 10);
+            } else if(rand() % 100 > 50.f) {
+                new_policy.domestic_import_tax -= 0.1f * (rand() % 10);
+            }
+
+            if(rand() % 100 > 50.f) {
+                new_policy.industry_tax += 0.1f * (rand() % 10);
+            } else if(rand() % 100 > 50.f) {
+                new_policy.industry_tax -= 0.1f * (rand() % 10);
+            }
+
+            nation->set_policy(new_policy);
+        }
+
+        if(nation->diplomatic_timer != 0) {
+            nation->diplomatic_timer--;
+        }
+
+        // Build an outpost randomly?
+        if(rand() % 10000 > 9950.f) {
+            bool can_build = false;
+            for(const auto& province: nation->owned_provinces) {
+                if(get_id(&province->get_occupation_controller(*this)) != g_world->get_id(nation)) {
+                    can_build = true;
+                    break;
+                }
+            }
+
+            if(!can_build) {
+                continue;
+            }
+
+            // Select random province
+            Province *target = nullptr;
+            while(target == nullptr || get_id(&target->get_occupation_controller(*this)) != g_world->get_id(nation)) {
+                auto it = std::begin(nation->owned_provinces);
+                std::advance(it, rand() % nation->owned_provinces.size());
+                target = *it;
+            }
+
+            Tile *tile = nullptr;
+            int x_coord, y_coord;
+            while(tile == nullptr) {
+                x_coord = std::clamp<size_t>(rand(), target->min_x, target->max_x);
+                y_coord = std::clamp<size_t>(rand(), target->min_y, target->max_y);
+                tile = &get_tile(x_coord, y_coord);
+
+                if(tile->elevation > sea_level
+                && (tile->province_id != get_id(target)
+                || tile->owner_id != get_id(nation))) {
+                    tile = nullptr;
+                }
+            }
+
+            // Now build the outpost
+            outposts_mutex.lock();
+            Outpost* outpost = new Outpost();
+            outpost->owner = nation;
+            outpost->working_unit_type = nullptr;
+            outpost->working_boat_type = nullptr;
+            outpost->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
+            outpost->req_goods = std::vector<std::pair<Good*, size_t>>();
+            outpost->type = outpost_types[rand() % outpost_types.size()];
+
+            // Broadcast the addition of the outpost to the clients
+            {
+                Packet packet = Packet();
+                Archive ar = Archive();
+                enum ActionType action = ACTION_OUTPOST_ADD;
+                ::serialize(ar, &action);
+                ::serialize(ar, outpost);
+                packet.data(ar.get_buffer(), ar.size());
+                g_server->broadcast(packet);
+            }
+            g_world->outposts.push_back(outpost);
+            outposts_mutex.unlock();
+
+            printf("Building outpust of %s on %s\n", nation->name.c_str(), target->name.c_str());
+        }
+    }
+    tiles_mutex.unlock();
+    provinces_mutex.unlock();
+    nations_mutex.unlock();
+
     // Each tick == 30 minutes
     switch(time % (24* 2)) {
     // 3:00
@@ -544,7 +684,6 @@ void World::do_tick() {
                 
             enum ActionType action = ACTION_PRODUCT_UPDATE;
             ::serialize(ar, &action);
-
             ::serialize(ar, &product); // ProductRef
             ::serialize(ar, product); // ProductObj
                 
@@ -578,8 +717,6 @@ void World::do_tick() {
     // 24:00, this is where clients are sent all information **at once**
     case 47:
         {
-            size_t i;
-            
             nations_mutex.lock();
             for(const auto& nation: g_world->nations) {
                 // Broadcast to clients
@@ -596,8 +733,6 @@ void World::do_tick() {
                 g_server->broadcast(packet);
             }
             nations_mutex.unlock();
-            
-            i = 0;
             provinces_mutex.lock();
             for(const auto& province: g_world->provinces) {
                 // Broadcast to clients
@@ -612,8 +747,6 @@ void World::do_tick() {
                 
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
-                
-                i++;
             }
             provinces_mutex.unlock();
         }
