@@ -4,7 +4,7 @@ void Archive::copy_to(void* ptr, size_t size) {
     if(size > buffer.size() - this->ptr)
         throw SerializerException("Buffer too small");
     
-    memcpy(ptr, &buffer[this->ptr], size);
+    std::memcpy(ptr, &buffer[this->ptr], size);
     this->ptr += size;
 }
 
@@ -12,7 +12,7 @@ void Archive::copy_from(const void* ptr, size_t size) {
     if(size > buffer.size() - this->ptr)
         throw SerializerException("Buffer too small");
     
-    memcpy(&buffer[this->ptr], ptr, size);
+    std::memcpy(&buffer[this->ptr], ptr, size);
     this->ptr += size;
 }
 
@@ -34,7 +34,6 @@ void Archive::to_file(std::string path) {
     FILE* fp = fopen(path.c_str(), "wb");
     fwrite(&buffer[0], 1, buffer.size(), fp);
     fclose(fp);
-        
     end_stream();
 }
 
@@ -50,7 +49,6 @@ void Archive::from_file(std::string path) {
         throw SerializerException("Cannot read");
     
     fclose(fp);
-    
     end_stream();
 }
 
@@ -60,7 +58,7 @@ void* Archive::get_buffer(void) {
     
 void Archive::set_buffer(void* buf, size_t size) {
     buffer.resize(size);
-    memcpy(&buffer[0], buf, size);
+    std::memcpy(&buffer[0], buf, size);
 }
     
 size_t Archive::size(void) {
