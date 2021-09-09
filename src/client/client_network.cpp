@@ -130,9 +130,8 @@ void Client::net_loop(void) {
                 packet.recv();
                 ar.set_buffer(packet.data(), packet.size());
                 ar.rewind();
-                
                 ::deserialize(ar, &action);
-                
+
                 // Ping from server, we should answer with a pong!
                 switch(action) {
                 case ACTION_PONG:
@@ -172,6 +171,8 @@ void Client::net_loop(void) {
                         nation->current_policy = policy;
                     }
                     break;
+                // TODO: There is a problem with this
+                // TODO: It throws serializer errors but idk where, maybe the server?
                 case ACTION_PROVINCE_UPDATE:
                     {
                         std::lock_guard<std::recursive_mutex> lock(g_world->provinces_mutex);
@@ -291,7 +292,7 @@ void Client::net_loop(void) {
                     break;
                 }
             }
-            
+
             // Client will also flush it's queue to the server
             packet_mutex.lock();
             while(!packet_queue.empty()) {

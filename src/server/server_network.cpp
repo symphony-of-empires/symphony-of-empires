@@ -122,13 +122,22 @@ Server::~Server() {
 void Server::broadcast(Packet& packet) {
     for(size_t i = 0; i < threads.size(); i++) {
         std::lock_guard<std::mutex> l(packet_mutexes[i]);
+
         if(is_connected[i] == true) {
             packet_queues[i].push_back(packet);
 
             // Disconnect the client if we have too much packets on the queue
             // we cannot save your packets buddy!
-            if(packet_queues[i].size() >= 2048) {
+            size_t total_size = 0;
+            for(const auto& packet_q: packet_queues[i]) {
+                total_size += packet_q.buffer.size();
+            }
+
+            // Disconnect the client when more than 200 MB is used
+            if(total_size >= 200 * 1000000) {
                 is_connected[i] = false;
+                packet_queues[i].clear();
+                print_error("Client %zu has exceeded max quota! - It has used %zu bytes!", i, total_size);
             }
         }
     }
@@ -178,7 +187,7 @@ void Server::net_loop(int id) {
             packet.send(&action);
             print_info("Sent action %zu", (size_t)action);
 #ifdef unix
-            struct pollfd pfd = {0};
+            struct pollfd pfd = {};
             pfd.fd = conn_fd;
             pfd.events = POLLIN;
 #endif
@@ -193,7 +202,6 @@ void Server::net_loop(int id) {
                 if(has_pending) {
 #endif
                     packet.recv();
-                    
                     ar.set_buffer(packet.data(), packet.size());
                     ar.rewind();
                     ::deserialize(ar, &action);
@@ -358,7 +366,7 @@ void Server::net_loop(int id) {
                             g_world->outposts.push_back(outpost);
                             print_info("New outpost of %s", outpost->owner->name.c_str());
                         }
-
+                        
                         // Rebroadcast
                         broadcast(packet);
                         break;
@@ -399,39 +407,36 @@ void Server::net_loop(int id) {
                         broadcast(packet);
                         break;
                     // Client changes it's approval on certain treaty
-                    case ACTION_CHANGE_TREATY_APPROVAL:
-                        {
-                            std::lock_guard<std::recursive_mutex> lock1(g_world->nations_mutex);
-                            std::lock_guard<std::recursive_mutex> lock2(g_world->treaties_mutex);
+                    case ACTION_CHANGE_TREATY_APPROVAL: {
+                        std::lock_guard<std::recursive_mutex> lock1(g_world->nations_mutex);
+                        std::lock_guard<std::recursive_mutex> lock2(g_world->treaties_mutex);
 
-                            Treaty* treaty;
-                            ::deserialize(ar, &treaty);
-                            if(treaty == nullptr)
-                                throw ServerException("Treaty not found");
+                        Treaty* treaty;
+                        ::deserialize(ar, &treaty);
+                        if(treaty == nullptr)
+                            throw ServerException("Treaty not found");
                             
-                            enum TreatyApproval approval;
-                            ::deserialize(ar, &approval);
+                        enum TreatyApproval approval;
+                        ::deserialize(ar, &approval);
 
-                            print_info("%s approves treaty %s? %s", selected_nation->name.c_str(), treaty->name.c_str(), (approval == TREATY_APPROVAL_ACCEPTED) ? "YES" : "NO");
+                        print_info("%s approves treaty %s? %s", selected_nation->name.c_str(), treaty->name.c_str(), (approval == TREATY_APPROVAL_ACCEPTED) ? "YES" : "NO");
                             
-                            // Check that the nation participates in the treaty
-                            bool does_participate = false;
-                            for(auto& status: treaty->approval_status) {
-                                if(status.first == selected_nation) {
-                                    // Alright, then change approval
-                                    status.second = approval;
-
-                                    does_participate = true;
-                                    break;
-                                }
+                        // Check that the nation participates in the treaty
+                        bool does_participate = false;
+                        for(auto& status: treaty->approval_status) {
+                            if(status.first == selected_nation) {
+                                // Alright, then change approval
+                                status.second = approval;
+                                does_participate = true;
+                                break;
                             }
-                            if(!does_participate)
-                                throw ServerException("Nation does not participate in treaty");
                         }
-
+                        if(!does_participate)
+                            throw ServerException("Nation does not participate in treaty");
+                        
                         // Rebroadcast
                         broadcast(packet);
-                        break;
+                    } break;
                     // Client sends a treaty to someone
                     case ACTION_DRAFT_TREATY:
                         {
@@ -531,6 +536,7 @@ void Server::net_loop(int id) {
                             if(nation == nullptr)
                                 throw ServerException("Unknown nation");
                             selected_nation = nation;
+                            selected_nation->is_ai = false;
                         }
                         print_info("Nation %s selected by client %zu", selected_nation->name.c_str(), (size_t)id);
                         break;
