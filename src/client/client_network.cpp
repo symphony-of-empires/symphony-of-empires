@@ -288,6 +288,17 @@ void Client::net_loop(void) {
                         g_world->nation_changed_tiles.push_back(&g_world->get_tile(coord.first, coord.second));
                     }
                     break;
+                case ACTION_PROVINCE_COLONIZE:
+                    {
+                        std::lock_guard<std::recursive_mutex> lock(g_world->provinces_mutex);
+
+                        Province* province;
+                        ::deserialize(ar, &province);
+                        if(province == nullptr)
+                            throw ClientException("Unknown province");
+                        ::deserialize(ar, province);
+                    }
+                    break;
                 default:
                     break;
                 }

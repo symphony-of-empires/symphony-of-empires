@@ -525,20 +525,39 @@ void World::do_tick() {
     nations_mutex.lock();
     provinces_mutex.lock();
     tiles_mutex.lock();
-    for(const auto& nation: g_world->nations) {
+    for(const auto& nation: nations) {
         if(nation->exists() == false)
             continue;
+        
+        if(rand() % 100 > 1.f) {
+            Province *target = provinces[rand() % provinces.size()];
+            if(target->owner == nullptr) {
+                {
+                    Packet packet = Packet();
+                    Archive ar = Archive();
+                    enum ActionType action = ACTION_PROVINCE_COLONIZE;
+                    ::serialize(ar, &action);
+                    ::serialize(ar, &target);
+                    ::serialize(ar, target);
+                    packet.data(ar.get_buffer(), ar.size());
+                    g_server->broadcast(packet);
+                }
+
+                nation->give_province(*this, *target);
+                printf("Conquering %s for %s\n", target->name.c_str(), nation->name.c_str());
+            }
+        }
 
         if(rand() % 100 > 98.f) {
             Nation *target = nullptr;
             while(target == nullptr || target->exists() == false) {
-                target = g_world->nations[rand() % g_world->nations.size()];
+                target = nations[rand() % nations.size()];
             }
             nation->increase_relation(*this, target);
         } else if(rand() % 100 > 98.f) {
             Nation *target = nullptr;
             while(target == nullptr || target->exists() == false) {
-                target = g_world->nations[rand() % g_world->nations.size()];
+                target = nations[rand() % nations.size()];
             }
             nation->decrease_relation(*this, target);
         }

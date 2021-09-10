@@ -114,3 +114,23 @@ float Nation::get_tax(const Pop& pop) const {
     }
     return base_tax;
 }
+
+void Nation::give_province(World& world, Province& province) {
+    Nation::Id nation_id = world.get_id(this);
+    Province::Id province_id = world.get_id(&province);
+
+    for(size_t i = province.min_x; i < province.max_x; i++) {
+        for(size_t j = province.min_y; j < province.max_y; j++) {
+            Tile& tile = world.get_tile(i, j);
+            if(tile.province_id != province_id)
+                continue;
+            
+            tile.owner_id = nation_id;
+            world.nation_changed_tiles.push_back(&tile);
+        }
+    }
+
+    world.nations[nation_id]->owned_provinces.insert(world.provinces[province_id]);
+    world.provinces[province_id]->owner = world.nations[nation_id];
+    return;
+}

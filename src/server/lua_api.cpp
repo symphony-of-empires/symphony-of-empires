@@ -410,19 +410,7 @@ int LuaAPI::give_province_to(lua_State* L) {
         return 0;
     }
 
-    for(size_t i = province->min_x; i < province->max_x; i++) {
-        for(size_t j = province->min_y; j < province->max_y; j++) {
-            Tile& tile = g_world->get_tile(i, j);
-            if(tile.province_id != province_id)
-                continue;
-            
-            tile.owner_id = nation_id;
-            g_world->nation_changed_tiles.push_back(&tile);
-        }
-    }
-
-    g_world->nations[nation_id]->owned_provinces.insert(g_world->provinces[province_id]);
-    g_world->provinces[province_id]->owner = g_world->nations[nation_id];
+    g_world->nations[nation_id]->give_province(*g_world, *province);
     return 0;
 }
 

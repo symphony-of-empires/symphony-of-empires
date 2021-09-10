@@ -156,6 +156,9 @@ public:
     void set_policy(Policies& policies);
     bool is_accepted_culture(const Pop& pop) const;
     float get_tax(const Pop& pop) const;
+
+    // Gives this nation a specified province (for example on a treaty)
+    void give_province(World& world, Province& province);
 };
 
 #endif
