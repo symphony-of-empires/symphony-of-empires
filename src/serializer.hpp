@@ -61,7 +61,6 @@ public:
 template<typename T>
 class Serializer {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& ar, const T* obj);
     static inline void deserialize(Archive& ar, T* obj);
     static inline size_t size(const T* obj);
@@ -76,7 +75,6 @@ public:
 template<>
 class Serializer<std::string> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& ar, const std::string* obj) {
         uint16_t len = obj->length();
 
@@ -124,7 +122,6 @@ public:
 template<typename T>
 class SerializerMemcpy {
 public:
-    static constexpr bool is_const_size = true;
     static inline void serialize(Archive& ar, const T* obj) {
         ar.expand(size(obj));
         ar.copy_from(obj, sizeof(T));
@@ -174,7 +171,6 @@ class Serializer<bool> : public SerializerMemcpy<bool> {};
 template<typename T, typename C>
 class SerializerContainer {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& ar, const C* obj_group) {
         uint32_t len = obj_group->size();
         ar.expand(sizeof(len));
@@ -205,7 +201,6 @@ public:
 template<typename T, typename U>
 class Serializer<std::pair<T, U>> {
 public:
-    static constexpr bool is_const_size = true;
     static inline void serialize(Archive& ar, const std::pair<T, U>* obj) {
         Serializer<T>::serialize(ar, &obj->first);
         Serializer<U>::serialize(ar, &obj->second);
@@ -226,7 +221,6 @@ public:
 template<typename T>
 class Serializer<std::vector<T>> : public SerializerContainer<T, std::vector<T>> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& ar, const std::vector<T>* obj_group) {
         uint32_t len = obj_group->size();
         ar.expand(sizeof(len));
@@ -251,7 +245,6 @@ public:
 template<typename T>
 class Serializer<std::deque<T>> : public SerializerContainer<T, std::deque<T>> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& ar, const std::deque<T>* obj_group) {
         uint32_t len = obj_group->size();
         ar.expand(sizeof(len));
