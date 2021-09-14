@@ -47,16 +47,16 @@ public:
     void expand(size_t amount);
     void end_stream(void);
     void rewind(void);
-    void to_file(std::string path);
-    void from_file(std::string path);
+    void to_file(const std::string& path);
+    void from_file(const std::string& path);
     void* get_buffer(void);
     void set_buffer(void* buf, size_t size);
     size_t size(void);
 };
 
 /**
-* A serializer (base class) which can be used to serialize objects
-* and create per-object optimized classes
+ * A serializer (base class) which can be used to serialize objects
+ * and create per-object optimized classes
  */
 template<typename T>
 class Serializer {
@@ -165,6 +165,8 @@ class Serializer<float> : public SerializerMemcpy<float> {};
 
 template<>
 class Serializer<bool> : public SerializerMemcpy<bool> {};
+
+// TODO: Vector serializers do not like different endianess
 
 /**
 * Non-contigous serializer for STL containers
