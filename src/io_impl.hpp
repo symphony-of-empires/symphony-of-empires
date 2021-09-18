@@ -21,357 +21,63 @@ class Serializer<enum ActionType> : public SerializerMemcpy<enum ActionType> {};
 template<>
 class Serializer<enum OrderType> : public SerializerMemcpy<enum OrderType> {};
 
-template<>
-class Serializer<Province*> {
+// Used as a template for serializable objects (pointers mostly) which should be
+// treated as a reference instead of the object itself
+template<typename W, typename T>
+class SerializerReference {
 public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const Province* const* obj) {
-        Province::Id id = g_world->get_id(*obj);
+    static inline void serialize(Archive& stream, const T* const* obj) {
+        typename T::Id id = W::get_instance().get_id(*obj);
         ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, Province** obj) {
-        Province::Id id;
+    };
+
+    static inline void deserialize(Archive& stream, T** obj) {
+        typename T::Id id;
         ::deserialize(stream, &id);
-        if(id >= g_world->provinces.size()) {
+        if(id >= W::get_instance().get_list(*obj).size()) {
             *obj = nullptr;
             return;
         }
-        *obj = (id != (Province::Id)-1) ? g_world->provinces[id] : nullptr;
-    }
-    static inline size_t size(const Province* const*) {
-        return sizeof(Province::Id);
-    }
+        *obj = (id != (typename T::Id)-1) ? W::get_instance().get_list(*obj).at(id) : nullptr;
+    };
+
+    static inline size_t size(const T* const*) {
+        return sizeof(typename T::Id);
+    };
 };
 
 template<>
-class Serializer<Nation*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const Nation* const* obj) {
-        Nation::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, Nation** obj) {
-        Nation::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->nations.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (Nation::Id)-1) ? g_world->nations[id] : nullptr;
-    }
-    static inline size_t size(const Nation* const*) {
-        return sizeof(Nation::Id);
-    }
-};
-
+class Serializer<Province*> : public SerializerReference<World, Province> {};
 template<>
-class Serializer<Event*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const Event* const* obj) {
-        Event::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, Event** obj) {
-        Event::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->events.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (Event::Id)-1) ? g_world->events[id] : nullptr;
-    }
-    static inline size_t size(const Event* const*) {
-        return sizeof(Event::Id);
-    }
-};
-
+class Serializer<Nation*> : public SerializerReference<World, Nation> {};
 template<>
-class Serializer<Treaty*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const Treaty* const* obj) {
-        Treaty::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, Treaty** obj) {
-        Treaty::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->treaties.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (Treaty::Id)-1) ? g_world->treaties[id] : nullptr;
-    }
-    static inline size_t size(const Treaty* const*) {
-        return sizeof(Treaty::Id);
-    }
-};
-
+class Serializer<Event*> : public SerializerReference<World, Event> {};
 template<>
-class Serializer<Product*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const Product* const* obj) {
-        Product::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, Product** obj) {
-        Product::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->products.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (Product::Id)-1) ? g_world->products[id] : nullptr;
-    }
-    static inline size_t size(const Product* const*) {
-        return sizeof(Product::Id);
-    }
-};
-
+class Serializer<Treaty*> : public SerializerReference<World, Treaty> {};
 template<>
-class Serializer<Culture*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const Culture* const* obj) {
-        Culture::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, Culture** obj) {
-        Culture::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->cultures.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (Culture::Id)-1) ? g_world->cultures[id] : nullptr;
-    }
-    static inline size_t size(const Culture* const*) {
-        return sizeof(Culture::Id);
-    }
-};
-
+class Serializer<Product*> : public SerializerReference<World, Product> {};
 template<>
-class Serializer<Good*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const Good* const* obj) {
-        Good::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, Good** obj) {
-        Good::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->goods.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (Good::Id)-1) ? g_world->goods[id] : nullptr;
-    }
-    static inline size_t size(const Good* const*) {
-        return sizeof(Good::Id);
-    }
-};
-
+class Serializer<Culture*> : public SerializerReference<World, Culture> {};
 template<>
-class Serializer<Company*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const Company* const* obj) {
-        Company::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, Company** obj) {
-        Company::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->companies.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (Company::Id)-1) ? g_world->companies[id] : nullptr;
-    }
-    static inline size_t size(const Company* const*) {
-        return sizeof(Company::Id);
-    }
-};
-
+class Serializer<Good*> : public SerializerReference<World, Good> {};
 template<>
-class Serializer<IndustryType*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const IndustryType* const* obj) {
-        IndustryType::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, IndustryType** obj) {
-        IndustryType::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->industry_types.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (IndustryType::Id)-1) ? g_world->industry_types[id] : nullptr;
-    }
-    static inline size_t size(const IndustryType* const*) {
-        return sizeof(IndustryType::Id);
-    }
-};
-
+class Serializer<Company*> : public SerializerReference<World, Company> {};
 template<>
-class Serializer<UnitType*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const UnitType* const* obj) {
-        UnitType::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, UnitType** obj) {
-        UnitType::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->unit_types.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (UnitType::Id)-1) ? g_world->unit_types[id] : nullptr;
-    }
-    static inline size_t size(const UnitType* const*) {
-        return sizeof(UnitType::Id);
-    }
-};
-
+class Serializer<IndustryType*> : public SerializerReference<World, IndustryType> {};
 template<>
-class Serializer<BoatType*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const BoatType* const* obj) {
-        BoatType::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, BoatType** obj) {
-        BoatType::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->boat_types.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (BoatType::Id)-1) ? g_world->boat_types[id] : nullptr;
-    }
-    static inline size_t size(const BoatType* const*) {
-        return sizeof(BoatType::Id);
-    }
-};
-
+class Serializer<UnitType*> : public SerializerReference<World, UnitType> {};
 template<>
-class Serializer<UnitTrait*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const UnitTrait* const* obj) {
-        UnitTrait::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, UnitTrait** obj) {
-        UnitTrait::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->unit_traits.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (UnitTrait::Id)-1) ? g_world->unit_traits[id] : nullptr;
-    }
-    static inline size_t size(const UnitTrait* const*) {
-        return sizeof(UnitTrait::Id);
-    }
-};
-
+class Serializer<BoatType*> : public SerializerReference<World, BoatType> {};
 template<>
-class Serializer<Unit*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const Unit* const* obj) {
-        Unit::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, Unit** obj) {
-        Unit::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->units.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (Unit::Id)-1) ? g_world->units[id] : nullptr;
-    }
-    static inline size_t size(const Unit* const*) {
-        return sizeof(Unit::Id);
-    }
-};
-
+class Serializer<UnitTrait*> : public SerializerReference<World, UnitTrait> {};
 template<>
-class Serializer<Boat*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const Boat* const* obj) {
-        Boat::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, Boat** obj) {
-        Boat::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->boats.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (Boat::Id)-1) ? g_world->boats[id] : nullptr;
-    }
-    static inline size_t size(const Unit* const*) {
-        return sizeof(Boat::Id);
-    }
-};
-
+class Serializer<Unit*> : public SerializerReference<World, Unit> {};
 template<>
-class Serializer<OutpostType*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const OutpostType* const* obj) {
-        OutpostType::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, OutpostType** obj) {
-        OutpostType::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->outpost_types.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (OutpostType::Id)-1) ? g_world->outpost_types[id] : nullptr;
-    }
-    static inline size_t size(const OutpostType* const*) {
-        return sizeof(OutpostType::Id);
-    }
-};
-
+class Serializer<Boat*> : public SerializerReference<World, Boat> {};
 template<>
-class Serializer<Outpost*> {
-public:
-    static constexpr bool is_const_size = false;
-    static inline void serialize(Archive& stream, const Outpost* const* obj) {
-        Outpost::Id id = g_world->get_id(*obj);
-        ::serialize(stream, &id);
-    }
-    static inline void deserialize(Archive& stream, Outpost** obj) {
-        Outpost::Id id;
-        ::deserialize(stream, &id);
-        if(id >= g_world->outposts.size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (Outpost::Id)-1) ? g_world->outposts[id] : nullptr;
-    }
-    static inline size_t size(const Outpost* const*) {
-        return sizeof(Outpost::Id);
-    }
-};
+class Serializer<OutpostType*> : public SerializerReference<World, OutpostType> {};
+template<>
+class Serializer<Outpost*> : public SerializerReference<World, Outpost> {};
 
 // TODO: Properly do this ffs
 template<>
@@ -380,7 +86,6 @@ class Serializer<Industry *> : public SerializerMemcpy<Industry *> {};
 template<>
 class Serializer<NationRelation> : public SerializerMemcpy<NationRelation> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const NationRelation* obj) {
         ::serialize(stream, &obj->free_supplies);
         ::serialize(stream, &obj->has_alliance);
@@ -435,7 +140,6 @@ class Serializer<enum TreatmentPolicy> : public SerializerMemcpy<enum TreatmentP
 template<>
 class Serializer<Policies> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Policies* obj) {
         ::serialize(stream, &obj->free_supplies);
         ::serialize(stream, &obj->immigration);
@@ -517,7 +221,6 @@ public:
 template<>
 class Serializer<PopType> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const PopType* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
@@ -539,7 +242,6 @@ public:
 template<>
 class Serializer<Culture> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Culture* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
@@ -558,7 +260,6 @@ public:
 template<>
 class Serializer<Religion> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Religion* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
@@ -577,7 +278,6 @@ public:
 template<>
 class Serializer<UnitTrait> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const UnitTrait* obj) {
         ::serialize(stream, &obj->ref_name);
         ::serialize(stream, &obj->defense_mod);
@@ -605,7 +305,6 @@ public:
 template<>
 class Serializer<Unit> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Unit* obj) {
         ::serialize(stream, &obj->type);
         ::serialize(stream, &obj->size);
@@ -642,7 +341,6 @@ public:
 template<>
 class Serializer<Boat> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Boat* obj) {
         ::serialize(stream, &obj->type);
         ::serialize(stream, &obj->size);
@@ -679,7 +377,6 @@ public:
 template<>
 class Serializer<Pop> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Pop* obj) {
         ::serialize(stream, &obj->size);
         ::serialize(stream, &obj->unemployed);
@@ -734,7 +431,6 @@ public:
 template<>
 class Serializer<Descision> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Descision* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
@@ -760,7 +456,6 @@ public:
 template<>
 class Serializer<Event> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Event* obj) {
         ::serialize(stream, &obj->ref_name);
         ::serialize(stream, &obj->conditions_function);
@@ -795,7 +490,6 @@ public:
 template<>
 class Serializer<Tile> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Tile* obj) {
         ::serialize(stream, &obj->elevation);
         ::serialize(stream, &obj->infra_level);
@@ -820,7 +514,6 @@ public:
 template<>
 class Serializer<OrderGoods> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const OrderGoods* obj) {
         ::serialize(stream, &obj->good);
         ::serialize(stream, &obj->industry);
@@ -854,7 +547,6 @@ public:
 template<>
 class Serializer<DeliverGoods> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const DeliverGoods* obj) {
         ::serialize(stream, &obj->good);
         ::serialize(stream, &obj->industry);
@@ -886,7 +578,6 @@ public:
 template<>
 class Serializer<Nation> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Nation* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
@@ -979,7 +670,6 @@ class Serializer<enum TreatyApproval> : public SerializerMemcpy<enum TreatyAppro
 template<>
 class Serializer<BoatType> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const BoatType* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
@@ -1017,7 +707,6 @@ public:
 template<>
 class Serializer<UnitType> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const UnitType* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
@@ -1056,7 +745,6 @@ public:
 template<>
 class Serializer<Province> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Province* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
@@ -1138,7 +826,6 @@ public:
 template<>
 class Serializer<OutpostType> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const OutpostType* obj) {
         ::serialize(stream, &obj->ref_name);
         ::serialize(stream, &obj->is_naval);
@@ -1170,7 +857,6 @@ public:
 template<>
 class Serializer<Outpost> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Outpost* obj) {
         ::serialize(stream, &obj->x);
         ::serialize(stream, &obj->y);
@@ -1208,7 +894,6 @@ public:
 template<>
 class Serializer<Company> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Company* obj) {
         ::serialize(stream, &obj->name);
         
@@ -1244,7 +929,6 @@ public:
 template<>
 class Serializer<Industry> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Industry* obj) {
         ::serialize(stream, &obj->owner);
         ::serialize(stream, &obj->type);
@@ -1291,7 +975,6 @@ public:
 template<>
 class Serializer<Product> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Product* obj) {
         ::serialize(stream, &obj->owner);
         ::serialize(stream, &obj->origin);
@@ -1332,7 +1015,6 @@ public:
 template<>
 class Serializer<IndustryType> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const IndustryType* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
@@ -1361,7 +1043,6 @@ public:
 template<>
 class Serializer<Good> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Good* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
@@ -1384,7 +1065,6 @@ public:
 template<>
 class Serializer<TreatyClause::BaseClause*> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const TreatyClause::BaseClause* const* obj) {
         ::serialize(stream, &(*obj)->type);
         switch((*obj)->type) {
@@ -1555,7 +1235,6 @@ public:
 template<>
 class Serializer<Treaty> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const Treaty* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->receiver);
@@ -1584,7 +1263,6 @@ public:
 template<>
 class Serializer<World> {
 public:
-    static constexpr bool is_const_size = false;
     static inline void serialize(Archive& stream, const World* obj) {
         ::serialize(stream, &obj->width);
         ::serialize(stream, &obj->height);
@@ -1717,6 +1395,7 @@ public:
         ::serialize(stream, &obj->delivers);
         ::serialize(stream, &obj->orders);
     }
+
     static inline void deserialize(Archive& stream, World* obj) {
         ::deserialize(stream, &obj->width);
         ::deserialize(stream, &obj->height);
@@ -1955,6 +1634,7 @@ public:
         ::deserialize(stream, &obj->delivers);
         ::deserialize(stream, &obj->orders);
     }
+
     static inline size_t size(const World* obj) {
         return
             serialized_size(&obj->width)
