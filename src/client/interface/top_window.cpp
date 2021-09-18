@@ -21,7 +21,7 @@ TopWindow::TopWindow(GameState& _gs) : gs{_gs} {
     gdp_chart->user_data = (void*)this;
     gdp_chart->on_click = (UI::Callback)([](UI::Widget& w, void* data) {
         TopWindow* d = (TopWindow*)data;
-        d->gs.industry_view_nation->show();
+        d->gs.industry_view_nation = new IndustryViewNation(d->gs);
     });
 
     pop_chart = new UI::Chart(504, 120, top_win_chart_tex.width, top_win_chart_tex.height, top_win);

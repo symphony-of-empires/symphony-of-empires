@@ -24,51 +24,6 @@ enum TreatyClauseType g_clause_type;
 Treaty g_treaty_draft;
 std::mutex g_treaty_draft_mutex;
 
-std::string treaty_to_text(const Treaty& treaty) {
-    std::lock_guard<std::mutex> lock(g_treaty_draft_mutex);
-    std::string str;
-    
-    str = "";
-    str += "Treaty";
-    str += treaty.name.c_str();
-    for(const auto& clause: treaty.clauses) {
-        switch(clause->type) {
-        case TREATY_CLAUSE_WAR_REPARATIONS:
-            str += "war reparations from ";
-            str += clause->receiver->name.c_str();
-            break;
-        case TREATY_CLAUSE_HUMILIATE:
-            str += "humiliate ";
-            str += clause->receiver->name.c_str();
-            break;
-        case TREATY_CLAUSE_LIBERATE_NATION:
-            str += "liberate ";
-            str += ((TreatyClause::LiberateNation*)clause)->liberated->name.c_str();
-            break;
-        case TREATY_CLAUSE_IMPOSE_POLICIES:
-            str += "impose policies ";
-            break;
-        case TREATY_CLAUSE_ANEXX_PROVINCES:
-            str += "anexx province ";
-            for(const auto& province: ((TreatyClause::AnexxProvince*)clause)->provinces) {
-                str += province->name.c_str();
-                str += ", ";
-            }
-            str += "from ";
-            str += clause->receiver->name.c_str();
-            break;
-        case TREATY_CLAUSE_CEASEFIRE:
-            str += "generous ceasefire to ";
-            str += clause->receiver->name.c_str();
-            break;
-        default:
-            str += "unknown";
-            break;
-        }
-        str += ", ";
-    }
-    return str;
-}
 
 void ui_treaty(UI::Window* top_win) {}
 
