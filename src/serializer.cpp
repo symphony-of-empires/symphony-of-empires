@@ -30,26 +30,20 @@ void Archive::rewind(void) {
     ptr = 0;
 }
 
-void Archive::to_file(std::string path) {
+void Archive::to_file(const std::string& path) {
     FILE* fp = fopen(path.c_str(), "wb");
     fwrite(&buffer[0], 1, buffer.size(), fp);
     fclose(fp);
-    end_stream();
 }
 
-void Archive::from_file(std::string path) {
-    FILE* fp = fopen(path.c_str(), "rb");
-    
-    fseek(fp, 0, SEEK_END);
-    size_t size = ftell(fp);
-    ::rewind(fp);
-    
-    buffer.resize(size);
-    if(fread(&buffer[0], 1, buffer.size(), fp) != buffer.size())
-        throw SerializerException("Cannot read");
-    
-    fclose(fp);
-    end_stream();
+#include <fstream>
+#include <iterator>
+#include <cstdint>
+void Archive::from_file(const std::string& path) {
+    std::ifstream ifs(path, std::ios::binary);
+    std::vector<uint8_t> tmpbuf(std::istreambuf_iterator<char>(ifs), {});
+    buffer = tmpbuf;
+    buffer.shrink_to_fit();
 }
 
 void* Archive::get_buffer(void) {

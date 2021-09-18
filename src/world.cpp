@@ -18,6 +18,10 @@
 
 World* g_world;
 
+World& World::get_instance(void) {
+    return *g_world;
+}
+
 // TODO: Do a template or something to remove code duplication
 Nation::Id World::get_id(const Nation* ptr) const {
     std::lock_guard<std::recursive_mutex> lock(nations_mutex);

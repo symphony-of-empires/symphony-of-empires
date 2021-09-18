@@ -154,6 +154,8 @@ public:
     World& operator=(const World&) = default;
     ~World();
 
+    static World& get_instance(void);
+
     // Function that "simulates" the world by an entire tick
     void do_tick(void);
     void load_mod(void);
@@ -175,6 +177,70 @@ public:
     OutpostType::Id get_id(const OutpostType* ptr) const;
     Outpost::Id get_id(const Outpost* ptr) const;
     Treaty::Id get_id(const Treaty* ptr) const;
+
+    std::vector<Nation*>& get_list(const Nation* ptr) {
+        return nations;
+    };
+
+    std::vector<Province*>& get_list(const Province* ptr) {
+        return provinces;
+    };
+
+    std::vector<Product*>& get_list(const Product* ptr) {
+        return products;
+    };
+
+    std::vector<Good*>& get_list(const Good* ptr) {
+        return goods;
+    };
+
+    std::vector<Culture*>& get_list(const Culture* ptr) {
+        return cultures;
+    };
+
+    std::vector<Company*>& get_list(const Company* ptr) {
+        return companies;
+    };
+
+    std::vector<IndustryType*>& get_list(const IndustryType* ptr) {
+        return industry_types;
+    };
+
+    std::vector<Outpost*>& get_list(const Outpost* ptr) {
+        return outposts;
+    };
+
+    std::vector<Event*>& get_list(const Event* ptr) {
+        return events;
+    };
+
+    std::vector<UnitType*>& get_list(const UnitType* ptr) {
+        return unit_types;
+    };
+
+    std::vector<BoatType*>& get_list(const BoatType* ptr) {
+        return boat_types;
+    };
+
+    std::vector<UnitTrait*>& get_list(const UnitTrait* ptr) {
+        return unit_traits;
+    };
+
+    std::vector<Unit*>& get_list(const Unit* ptr) {
+        return units;
+    };
+
+    std::vector<Boat*>& get_list(const Boat* ptr) {
+        return boats;
+    };
+
+    std::vector<OutpostType*>& get_list(const OutpostType* ptr) {
+        return outpost_types;
+    };
+
+    std::vector<Treaty*>& get_list(const Treaty* ptr) {
+        return treaties;
+    };
     
     size_t get_id(const Tile* ptr) const;
     
@@ -257,7 +323,7 @@ public:
     mutable std::recursive_mutex unit_traits_mutex;
 
     // List of registered events
-    std::vector<Event *> events;
+    std::vector<Event*> events;
     mutable std::recursive_mutex events_mutex;
 
     // A list of orders (what factories want to be sent to them)
