@@ -2,14 +2,84 @@
 #define COMMAND_H
 
 #include "../actions.hpp"
+#include "../nation.hpp"
+#include "../province.hpp"
 #include "../world.hpp"
+#include "client_network.hpp"
+#include "../diplomacy.hpp"
 
 class Command {
    public:
-    Action action;
+    Action* action;
     virtual ~Command(){};
     // Change world state and send command to server
-    virtual void run_command(World& ws) = 0;
+    virtual void run_command(World& ws, Client* client) = 0;
+};
+
+class SelectNationCommand : public Command {
+   public:
+    SelectNationCommand(Nation::Id nation) : id{nation} {};
+    virtual ~SelectNationCommand(){};
+    void run_command(World& ws, Client* client) override;
+
+   private:
+    Nation::Id id;
+};
+
+class ColonizeProvinceCommand : public Command {
+   public:
+    ColonizeProvinceCommand(Province::Id province) : id{province} {};
+    virtual ~ColonizeProvinceCommand(){};
+    void run_command(World& ws, Client* client) override;
+
+   private:
+    Province::Id id;
+};
+
+class DescisionCommand : public Command {
+   public:
+    DescisionCommand(const Descision& _descision, Event& _event) : descision{_descision}, event{_event} {};
+    virtual ~DescisionCommand(){};
+    void run_command(World& ws, Client* client) override;
+
+   private:
+    const Descision& descision;
+    Event& event;
+};
+
+class TreatySendCommand : public Command {
+   public:
+    TreatySendCommand(Treaty* _treaty, Nation* _curr_nation) : treaty{_treaty}, curr_nation{_curr_nation} {};
+    virtual ~TreatySendCommand(){};
+    void run_command(World& ws, Client* client) override;
+
+   private:
+    Treaty* treaty;
+    Nation* curr_nation;
+};
+
+class TreatyAcceptCommand : public Command {
+   public:
+    TreatyAcceptCommand(Treaty* _treaty, bool _accepts) : treaty{_treaty}, accepts{_accepts} {};
+    virtual ~TreatyAcceptCommand(){};
+    void run_command(World& ws, Client* client) override;
+
+   private:
+    Treaty* treaty;
+    bool accepts;
+};
+
+class BuildUnitCommand : public Command {
+   public:
+    BuildUnitCommand(Outpost* _outpost, UnitType* _unitType) : outpost{_outpost}, unitType{_unitType} {};
+    BuildUnitCommand(Outpost* _outpost, BoatType* _boatType) : outpost{_outpost}, boatType{_boatType} {};
+    virtual ~BuildUnitCommand(){};
+    void run_command(World& ws, Client* client) override;
+
+   private:
+    Outpost* outpost;
+    UnitType* unitType = nullptr;
+    BoatType* boatType = nullptr;
 };
 
 #endif
