@@ -5,7 +5,7 @@
 // Whetever the nation exists at all - we cannot add nations in-game so we just check
 // if the nation "exists" at all, this means that it has a presence and a goverment
 // must own atleast 1 province
-inline bool exists() {
+bool Nation::exists(void) {
     return owned_provinces.size() > 0;
 }
 
@@ -135,7 +135,7 @@ void Nation::give_province(World& world, Province& province) {
     return;
 }
 
-const NationClientHint& get_client_hint(void) const {
+const NationClientHint& Nation::get_client_hint(void) const {
     // Find match
     for(const auto& hint: client_hints) {
         if(hint.ideology == ideology) {

@@ -65,13 +65,16 @@ class Nation {
     inline bool can_do_diplomacy();
 public:
     using Id = uint16_t;
-    
-    // Whetever thet nation exists at all - we cannot add nations in-game
-    // so we just check if the nation "exists" at all, this means that it has
-    // a presence and a goverment, must own atleast 1 province
-    inline bool exists() {
-        return owned_provinces.size() > 0;
-    }
+
+    bool exists(void);
+    void increase_relation(const World& world, Nation* target);
+    void decrease_relation(const World& world, Nation* target);
+    void auto_relocate_capital(void);
+    void set_policy(Policies& policies);
+    bool is_accepted_culture(const Pop& pop) const;
+    float get_tax(const Pop& pop) const;
+    void give_province(World& world, Province& province);
+    const NationClientHint& get_client_hint(void) const;
 
     // Whetever this nation is controlled by AI
     bool controlled_by_ai;
@@ -123,24 +126,6 @@ public:
     std::vector<NationClientHint> client_hints;
     Ideology* ideology = nullptr;
 
-    const NationClientHint& get_client_hint(void) const {
-        // Find match
-        for(const auto& hint: client_hints) {
-            if(hint.ideology == ideology) {
-                return hint;
-            }
-        }
-
-        // 2nd search: Find a hint that is fallback
-        for(const auto& hint: client_hints) {
-            if(hint.ideology == nullptr) {
-                return hint;
-            }
-        }
-        
-        return client_hints.at(0);
-    };
-
     // Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
     // owned by this nation
     std::set<Culture*> accepted_cultures;
@@ -179,18 +164,6 @@ public:
 
     // Inbox of the nation; events that require our attention / should be processed
     std::deque<Event> inbox;
-
-    void increase_relation(const World& world, Nation* target);
-    void decrease_relation(const World& world, Nation* target);
-
-    void auto_relocate_capital(void);
-    
-    void set_policy(Policies& policies);
-    bool is_accepted_culture(const Pop& pop) const;
-    float get_tax(const Pop& pop) const;
-
-    // Gives this nation a specified province (for example on a treaty)
-    void give_province(World& world, Province& province);
 };
 
 #endif

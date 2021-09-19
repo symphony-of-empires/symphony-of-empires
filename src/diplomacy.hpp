@@ -5,10 +5,10 @@
 
 namespace Diplomacy {
     // Determines if the other nation is a friendly potential ally
-    bool is_friend(Nation* us, Nation* them);
+    inline bool is_friend(Nation* us, Nation* them);
 
     // Determines if the other nation is an enemy and potential rival
-    bool is_foe(Nation* us, Nation* them);
+    inline bool is_foe(Nation* us, Nation* them);
 };
 
 enum TreatyClauseType {
