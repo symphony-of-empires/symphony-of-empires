@@ -169,16 +169,19 @@ void Server::net_loop(int id) {
             Packet packet = Packet(conn_fd);
             
             // Send the whole snapshot of the world
-            Archive ar = Archive();
-            ::serialize(ar, g_world);
-            packet.send(ar.get_buffer(), ar.size());
+            {
+                std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
+                Archive ar = Archive();
+                ::serialize(ar, g_world);
+                packet.send(ar.get_buffer(), ar.size());
+            }
 
             // Tell all other clients about the connection of this new client
             {
-                Archive tmp_ar = Archive();
+                Archive ar = Archive();
                 enum ActionType action = ACTION_CONNECT;
-                ::serialize(tmp_ar, &action);
-                packet.data(tmp_ar.get_buffer(), tmp_ar.size());
+                ::serialize(ar, &action);
+                packet.data(ar.get_buffer(), ar.size());
                 broadcast(packet);
             }
             
@@ -190,7 +193,11 @@ void Server::net_loop(int id) {
             pfd.fd = conn_fd;
             pfd.events = POLLIN;
 #endif
+
+            Archive ar = Archive();
             while(run && cl.is_connected == true) {
+                std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
+
                 // Check if we need to read stuff
 #ifdef unix
                 int has_pending = poll(&pfd, 1, 0);
@@ -219,8 +226,6 @@ void Server::net_loop(int id) {
                     /// - Client tells server to enact a new policy for it's nation
                     case ACTION_NATION_ENACT_POLICY:
                         {
-                            std::lock_guard<std::recursive_mutex> lock1(g_world->nations_mutex);
-
                             Policies policies;
                             ::deserialize(ar, &policies);
 
@@ -231,8 +236,6 @@ void Server::net_loop(int id) {
                     /// - Client tells server to change target of unit
                     case ACTION_UNIT_CHANGE_TARGET:
                         {
-                            std::lock_guard<std::recursive_mutex> lock1(g_world->units_mutex);
-
                             Unit* unit;
                             ::deserialize(ar, &unit);
                             if(unit == nullptr)
@@ -254,8 +257,6 @@ void Server::net_loop(int id) {
                     /// - Client tells server to change target of boat
                     case ACTION_BOAT_CHANGE_TARGET:
                         {
-                            std::lock_guard<std::recursive_mutex> lock1(g_world->boats_mutex);
-
                             Boat* boat;
                             ::deserialize(ar, &boat);
                             if(boat == nullptr)
@@ -274,16 +275,11 @@ void Server::net_loop(int id) {
                             print_info("Boat changes targets to %zu.%zu", (size_t)boat->tx, (size_t)boat->ty);
                         }
                         break;
-                    /**
-                     * Client tells the server about the construction of a new unit, note that this will
-                     * only make the outpost submit "construction tickets" to obtain materials to build
-                     * the unit can only be created by the server, not by the clients
-                     */
+                    // Client tells the server about the construction of a new unit, note that this will
+                    // only make the outpost submit "construction tickets" to obtain materials to build
+                    // the unit can only be created by the server, not by the clients
                     case ACTION_OUTPOST_START_BUILDING_UNIT:
                         {
-                            std::lock_guard<std::recursive_mutex> lock1(g_world->outposts_mutex);
-                            std::lock_guard<std::recursive_mutex> lock2(g_world->unit_types_mutex);
-
                             Outpost* outpost;
                             ::deserialize(ar, &outpost);
                             if(outpost == nullptr)
@@ -308,9 +304,6 @@ void Server::net_loop(int id) {
                     // - Same as before but with boats
                     case ACTION_OUTPOST_START_BUILDING_BOAT:
                         {
-                            std::lock_guard<std::recursive_mutex> lock1(g_world->outposts_mutex);
-                            std::lock_guard<std::recursive_mutex> lock2(g_world->boat_types_mutex);
-
                             Outpost* outpost;
                             ::deserialize(ar, &outpost);
                             if(outpost == nullptr)
@@ -334,8 +327,6 @@ void Server::net_loop(int id) {
                     // the client and the rest of the fields are filled by the server
                     case ACTION_OUTPOST_ADD:
                         {
-                            std::lock_guard<std::recursive_mutex> lock(g_world->outposts_mutex);
-
                             Outpost* outpost = new Outpost();
                             ::deserialize(ar, outpost);
                             if(outpost->type == nullptr)
@@ -371,9 +362,6 @@ void Server::net_loop(int id) {
                     // or accepted, client should check via the next PROVINCE_UPDATE action
                     case ACTION_PROVINCE_COLONIZE:
                         {
-                            std::lock_guard<std::recursive_mutex> lock1(g_world->nations_mutex);
-                            std::lock_guard<std::recursive_mutex> lock2(g_world->provinces_mutex);
-
                             Province* province;
                             ::deserialize(ar, &province);
 
@@ -403,9 +391,6 @@ void Server::net_loop(int id) {
                         break;
                     // Client changes it's approval on certain treaty
                     case ACTION_CHANGE_TREATY_APPROVAL: {
-                        std::lock_guard<std::recursive_mutex> lock1(g_world->nations_mutex);
-                        std::lock_guard<std::recursive_mutex> lock2(g_world->treaties_mutex);
-
                         Treaty* treaty;
                         ::deserialize(ar, &treaty);
                         if(treaty == nullptr)
@@ -435,9 +420,6 @@ void Server::net_loop(int id) {
                     // Client sends a treaty to someone
                     case ACTION_DRAFT_TREATY:
                         {
-                            std::lock_guard<std::recursive_mutex> lock1(g_world->nations_mutex);
-                            std::lock_guard<std::recursive_mutex> lock2(g_world->treaties_mutex);
-
                             Treaty* treaty = new Treaty();
                             ::deserialize(ar, &treaty->clauses);
                             ::deserialize(ar, &treaty->name);
@@ -489,8 +471,6 @@ void Server::net_loop(int id) {
                     // Client takes a descision
                     case ACTION_NATION_TAKE_DESCISION:
                         {
-                            std::lock_guard<std::recursive_mutex> lock1(g_world->events_mutex);
-
                             // Find event by reference name
                             std::string event_ref_name;
                             ::deserialize(ar, &event_ref_name);
@@ -524,8 +504,6 @@ void Server::net_loop(int id) {
                     // The client selects a nation
                     case ACTION_SELECT_NATION:
                         {
-                            std::lock_guard<std::recursive_mutex> lock(g_world->nations_mutex);
-
                             Nation* nation;
                             ::deserialize(ar, &nation);
                             if(nation == nullptr)
@@ -571,10 +549,10 @@ void Server::net_loop(int id) {
         // Tell the remaining clients about the disconnection
         {
             Packet packet;
-            Archive tmp_ar = Archive();
+            Archive ar = Archive();
             enum ActionType action = ACTION_DISCONNECT;
-            ::serialize(tmp_ar, &action);
-            packet.data(tmp_ar.get_buffer(), tmp_ar.size());
+            ::serialize(ar, &action);
+            packet.data(ar.get_buffer(), ar.size());
             broadcast(packet);
         }
 

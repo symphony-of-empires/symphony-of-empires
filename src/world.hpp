@@ -271,73 +271,32 @@ public:
 
     // Current time (in ticks)
     uint64_t time = 0;
-    mutable std::recursive_mutex time_mutex;
 
-    // List of units present in the world
     std::vector<Unit*> units;
-    mutable std::recursive_mutex units_mutex;
-
     std::vector<Boat*> boats;
-    mutable std::recursive_mutex boats_mutex;
-
-    // List of goods (product types)
     std::vector<Good*> goods;
-    mutable std::recursive_mutex goods_mutex;
-
-    // List of industry types where industries can be created from
     std::vector<IndustryType*> industry_types;
-    mutable std::recursive_mutex industry_types_mutex;
-
-    // List of nations
     std::vector<Nation*> nations;
-    mutable std::recursive_mutex nations_mutex;
-
-    // List of provinces
     std::vector<Province*> provinces;
-    mutable std::recursive_mutex provinces_mutex;
-
-    // List of companies
     std::vector<Company*> companies;
-    mutable std::recursive_mutex companies_mutex;
-
-    // List of products
     std::vector<Product*> products;
-    mutable std::recursive_mutex products_mutex;
-
-    // List of POPs types
     std::vector<PopType*> pop_types;
-    mutable std::recursive_mutex pop_types_mutex;
-
-    // List of religions
     std::vector<Religion*> religions;
-    mutable std::recursive_mutex religions_mutex;
-
-    // List of cultures
     std::vector<Culture*> cultures;
-    mutable std::recursive_mutex cultures_mutex;
-
-    // List of unit types where units can be created from
     std::vector<UnitType*> unit_types;
-    mutable std::recursive_mutex unit_types_mutex;
-    
-    // List of naval unit types
     std::vector<BoatType*> boat_types;
-    mutable std::recursive_mutex boat_types_mutex;
-
-    // List of traits that can be given to units
     std::vector<UnitTrait*> unit_traits;
-    mutable std::recursive_mutex unit_traits_mutex;
-
-    // List of registered events
     std::vector<Event*> events;
-    mutable std::recursive_mutex events_mutex;
+    mutable std::recursive_mutex world_mutex;
 
     // A list of orders (what factories want to be sent to them)
     std::vector<OrderGoods> orders;
     mutable std::recursive_mutex orders_mutex;
+
     // A deliver list (what factories need to send)
     std::vector<DeliverGoods> delivers;
     mutable std::recursive_mutex delivers_mutex;
+
     // A list of jobs required
     std::vector<JobRequest> job_requests;
     mutable std::recursive_mutex job_requests_mutex;
@@ -359,21 +318,10 @@ public:
 
     // A list containing descisions taken by countries
     std::vector<Descision*> taken_descisions;
-    mutable std::recursive_mutex taken_descisions_mutex;
-
-    // Dinarray containing types of outposts
     std::vector<OutpostType*> outpost_types;
-    mutable std::recursive_mutex outpost_types_mutex;
-
-    // Dinarray containing all outposts
     std::vector<Outpost*> outposts;
-    mutable std::recursive_mutex outposts_mutex;
-
     std::vector<Treaty*> treaties;
-    mutable std::recursive_mutex treaties_mutex;
-
     std::vector<Ideology*> ideologies;
-    mutable std::recursive_mutex ideologies_mutex;
     
     // Used by client to update anything each tick (i.e a graph)
     void (*client_update)(void);

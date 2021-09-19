@@ -15,8 +15,6 @@
 #include "render/model.hpp"
 
 Map::Map(const World& _world) : world(_world) {
-    std::lock_guard<std::recursive_mutex> lock(world.provinces_mutex);
-
     // print_info("Creating province meshes");
     // for (const auto& province : world.provinces) {
     //     ProvinceShape pr_shape = ProvinceShape(*this, *province);
@@ -232,7 +230,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     glActiveTexture(GL_TEXTURE0);
     obj_shader->set_uniform("tex", 0);
 
-    world.outposts_mutex.lock();
+    world.world_mutex.lock();
     for (const auto& outpost : world.outposts) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(outpost->x, outpost->y, 0.f));
@@ -246,9 +244,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
         obj_shader->set_uniform("model", model);
         draw_flag(outpost->owner);
     }
-    world.outposts_mutex.unlock();
 
-    world.units_mutex.lock();
     for (const auto& unit : world.units) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
@@ -262,9 +258,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
         obj_shader->set_uniform("model", model);
         draw_flag(unit->owner);
     }
-    world.units_mutex.unlock();
 
-    world.boats_mutex.lock();
     for (const auto& boat : world.boats) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(boat->x, boat->y, 0.f));
@@ -278,7 +272,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
         obj_shader->set_uniform("model", model);
         draw_flag(boat->owner);
     }
-    world.boats_mutex.unlock();
+    world.world_mutex.unlock();
 
     // Resets the shader and texture
     glUseProgram(0);
@@ -309,7 +303,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
     }
     glCallList(coastline_gl_list);
 
-    world.boats_mutex.lock();
+    world.world_mutex.lock();
     for (const auto& boat : world.boats) {
         const float size = 1.f;
         if (boat->size) {
@@ -326,9 +320,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
         boat_type_icons[world.get_id(boat->type)]->draw(nullptr);
         //draw_flag(boat->owner, boat->x, boat->y);
     }
-    world.boats_mutex.unlock();
 
-    world.units_mutex.lock();
     for (const auto& unit : world.units) {
         const float size = 1.f;
         if (unit->size) {
@@ -345,16 +337,14 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
         unit_type_icons[world.get_id(unit->type)]->draw(nullptr);
         //draw_flag(unit->owner, unit->x, unit->y);
     }
-    world.units_mutex.unlock();
-
-    world.outposts_mutex.lock();
+    
     for (const auto& outpost : world.outposts) {
         const float size = 1.f;
         auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(outpost->x, outpost->y, outpost->x + size, outpost->y + size);
         outpost_type_icons[world.get_id(outpost->type)]->draw(nullptr);
         //draw_flag(outpost->owner, outpost->x, outpost->y);
     }
-    world.outposts_mutex.unlock();
+    world.world_mutex.unlock();
     glBindTexture(GL_TEXTURE_2D, 0);
 
     wind_osc += 0.1f;
