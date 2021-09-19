@@ -1,6 +1,8 @@
 #ifndef GOOD_HPP
 #define GOOD_HPP
 
+#include <string>
+
 typedef uint8_t GoodId;
 /**
 * A good, mostly serves as a "product type"

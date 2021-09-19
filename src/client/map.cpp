@@ -66,7 +66,7 @@ Map::Map(const World& _world) : world(_world) {
             div_topo_tex->buffer[i] = (a << 24) | (b << 16) | (g << 8) | (r);
             if (tile.owner_id < world.nations.size()) {
                 const Nation* owner = world.nations.at(tile.owner_id);
-                uint32_t color = owner->color;
+                uint32_t color = owner->get_client_hint().colour;
                 div_sheet_tex->buffer[r + g * 256] = (0xff << 24) | color;
             }
         }
@@ -300,7 +300,7 @@ void Map::draw_old(Camera& cam, const int width, const int height) {
 
     for (size_t i = 0; i < world.provinces.size(); i++) {
         if (world.provinces[i]->owner != nullptr) {
-            uint32_t& color = world.provinces[i]->owner->color;
+            uint32_t color = world.provinces[i]->owner->get_client_hint().colour;
             glColor4ub(color & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff, 0xc0);
         } else {
             glColor4ub(0x80, 0x80, 0x80, 0xc0);

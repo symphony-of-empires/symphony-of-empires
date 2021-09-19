@@ -11,6 +11,7 @@
 #include "industry.hpp"
 #include "good.hpp"
 #include "company.hpp"
+#include "ideology.hpp"
 #include "server/lua_api.hpp"
 
 #define MAX_INFRA_LEVEL 			8
@@ -177,6 +178,7 @@ public:
     OutpostType::Id get_id(const OutpostType* ptr) const;
     Outpost::Id get_id(const Outpost* ptr) const;
     Treaty::Id get_id(const Treaty* ptr) const;
+    Ideology::Id get_id(const Ideology* ptr) const;
 
     std::vector<Nation*>& get_list(const Nation* ptr) {
         return nations;
@@ -240,6 +242,10 @@ public:
 
     std::vector<Treaty*>& get_list(const Treaty* ptr) {
         return treaties;
+    };
+
+    std::vector<Ideology*>& get_list(const Ideology* ptr) {
+        return ideologies;
     };
     
     size_t get_id(const Tile* ptr) const;
@@ -365,6 +371,9 @@ public:
 
     std::vector<Treaty*> treaties;
     mutable std::recursive_mutex treaties_mutex;
+
+    std::vector<Ideology*> ideologies;
+    mutable std::recursive_mutex ideologies_mutex;
     
     // Used by client to update anything each tick (i.e a graph)
     void (*client_update)(void);
