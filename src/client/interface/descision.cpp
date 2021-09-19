@@ -1,12 +1,11 @@
 #include "descision.hpp"
+
 #include "../../event.hpp"
 #include "../ui.hpp"
 
-void create_descision(UI::Context* ui_ctx, Event& msg, std::vector<Event>& displayed_events) {
-    UI::Window* popup_win = new UI::Window(128, 128, 320, 570);
-
+DescisionWindow::DescisionWindow(GameState& gs, Event& msg) : UI::Window(128, 128, 320, 570) {
     // TODO: Allow titles in events
-    popup_win->text(msg.title.c_str());
+    text(msg.title.c_str());
 
     // Separate the text line by line
     const char* buf = msg.text.c_str();
@@ -17,58 +16,31 @@ void create_descision(UI::Context* ui_ctx, Event& msg, std::vector<Event>& displ
         size_t t_len = std::min<size_t>(strlen(buf), 18);
         memcpy(tmpbuf, buf, t_len);
         tmpbuf[t_len] = '\0';
-        new UI::Label(8, y, tmpbuf, popup_win);
+        new UI::Label(8, y, tmpbuf, this);
         y += 24;
         buf += t_len;
     }
 
-    // TODO: Fix
     // Buttons for descisions
-    /*const UI::Button* last = nullptr;
+    const DescisionButton* last = nullptr;
     for (const auto& descision : msg.descisions) {
-        UI::Button* decide_btn = new UI::Button(9, 558 - 38, 303, 38, popup_win);
-        decide_btn->text(descision.name.c_str());
-        decide_btn->user_data = (void*)&descision;
-        int i = 5;
-        decide_btn->on_click = [](UI::Widget& w, void* data) {
-            delete w.parent;
-
-            Descision* descision = (Descision*)data;
-            Event* decide_event = nullptr;
-            for (auto& e_event : displayed_events) {
-               for (const auto& e_descision : e_event.descisions) {
-                    if (e_descision.ref_name == descision->ref_name) {
-                        decide_event = &e_event;
-                        break;
-                    }
-                }
-
-                if (decide_event != nullptr)
-                    break;
-            }
-
-            // Event not found
-            if (decide_event == nullptr) {
-                print_error("Event not found, we tried finding by descision %s", descision->name.c_str());
-                return;
-            }
-
-            g_client->packet_mutex.lock();
-            Packet packet = Packet(g_client->get_fd());
-            Archive ar = Archive();
-            enum ActionType action = ACTION_NATION_TAKE_DESCISION;
-            ::serialize(ar, &action);
-            ::serialize(ar, &decide_event->ref_name);
-            ::serialize(ar, &descision->ref_name);
-            packet.data(ar.get_buffer(), ar.size());
-            g_client->packet_queue.push_back(packet);
-            g_client->packet_mutex.unlock();
-            return;
-        };
-
+        DescisionButton* decide_btn = new DescisionButton(this, gs, descision, msg);
         if (last != nullptr) {
             decide_btn->above_of((*last));
         }
         last = decide_btn;
-    }*/
+    }
+}
+
+DescisionButton::DescisionButton(UI::Window* parent, GameState& _gs, const Descision& _descision, Event& msg)
+    : gs{_gs}, descision{_descision}, event{msg}, UI::Button(9, 558 - 38, 303, 38, parent) {
+    text(descision.name.c_str());
+    user_data = (void*)&descision;
+    on_click = [](UI::Widget& w, void* data) {
+        DescisionButton& state = dynamic_cast<DescisionButton&>(w);
+
+        Command* command = new DescisionCommand(state.descision, state.event);
+        state.gs.add_command(command);
+        delete w.parent;
+    };
 }

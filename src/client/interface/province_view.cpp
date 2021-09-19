@@ -1,25 +1,22 @@
 #include "province_view.hpp"
 
-#include "../game_state.hpp"
-#include "../render/texture.hpp"
-#include "../ui.hpp"
 #include "../../nation.hpp"
 #include "../../path.hpp"
 #include "../../world.hpp"
-// extern Nation::Id curr_selected_nation;
+#include "../game_state.hpp"
+#include "../command.hpp"
+#include "../render/texture.hpp"
+#include "../ui.hpp"
 
 void ProvinceView::colonize_province_cb(UI::Widget& w, ProvinceView* data) {
-    size_t& curr_selected_nation = data->gs.select_nation->curr_selected_nation;
-    data->selected_province->owner = data->gs.world->nations[curr_selected_nation];
-    data->gs.curr_nation->budget -= 10000;
+    Command* command = new ColonizeProvinceCommand(data->provinceId);
+    data->gs.add_command(command);
+    // size_t& curr_selected_nation = data->gs.select_nation->curr_selected_nation;
+    // data->selected_province->owner = data->gs.world->nations[curr_selected_nation];
+    // data->gs.curr_nation->budget -= 10000;
 }
 
-class ProvinceViewState {
-public:
-    Province* selected_province;
-};
-
-ProvinceView::ProvinceView(GameState& _gs, UI::Window* top_win, const Tile& tile) : gs{_gs} {
+ProvinceView::ProvinceView(GameState& _gs, UI::Window* top_win, const Tile& tile) : gs{_gs}, provinceId{tile.province_id} {
     World* world = gs.world;
 
     UI::Window* province_view_win = new UI::Window(0, 0, 320, 425);
