@@ -3,7 +3,7 @@
 
 using namespace Diplomacy;
 
-inline bool is_friend(Nation* us, Nation* them) {
+inline bool Diplomacy::is_friend(Nation* us, Nation* them) {
     const Nation::Id idx = g_world->get_id(them);
     const NationRelation* relation = &us->relations[idx];
 
@@ -27,7 +27,7 @@ inline bool is_friend(Nation* us, Nation* them) {
     }
 }
 
-inline bool is_foe(Nation* us, Nation* them) {
+inline bool Diplomacy::is_foe(Nation* us, Nation* them) {
     return !is_friend(us, them);
 }
 
