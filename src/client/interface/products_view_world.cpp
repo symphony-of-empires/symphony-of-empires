@@ -24,9 +24,8 @@ void ProductsViewWorld::show() {
         ProductsViewWorld* pvw = (ProductsViewWorld*)data;
         World* world = pvw->gs.world;
         Nation* curr_nation = pvw->gs.curr_nation;
-        std::lock_guard<std::recursive_mutex> l1(world->time_mutex);
+        std::lock_guard<std::recursive_mutex> lock(world->world_mutex);
         if (world->time % 48 == 35) {
-            std::lock_guard<std::recursive_mutex> l2(world->products_mutex);
             size_t list_idx = pvw->page_nr * 16;
             for (size_t i = 0; i < pvw->buttons_nr; i++) {
                 if (list_idx < world->products.size()) {
@@ -106,12 +105,10 @@ ProductsViewWorldButton::ProductsViewWorldButton(GameState& _gs, UI::Window* par
             ProductsViewWorldButton* state = (ProductsViewWorldButton*)data;
             const Product* product = state->product;
             World* world = state->gs.world;
-            std::lock_guard<std::recursive_mutex> l1(world->time_mutex);
+            std::lock_guard<std::recursive_mutex> lock(world->world_mutex);
 
             UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
             if (world->time % 48 == 32) {
-                std::lock_guard<std::recursive_mutex> l2(world->products_mutex);
-
                 wc.data.push_back(product->supply);
                 if (wc.data.size() >= 30)
                     wc.data.pop_front();
@@ -126,12 +123,10 @@ ProductsViewWorldButton::ProductsViewWorldButton(GameState& _gs, UI::Window* par
             ProductsViewWorldButton* state = (ProductsViewWorldButton*)data;
             const Product* product = state->product;
             World* world = state->gs.world;
-            std::lock_guard<std::recursive_mutex> l1(world->time_mutex);
+            std::lock_guard<std::recursive_mutex> lock(world->world_mutex);
 
             UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
             if (world->time % 48 == 32) {
-                std::lock_guard<std::recursive_mutex> l2(world->products_mutex);
-
                 wc.data.push_back(product->demand);
                 if (wc.data.size() >= 30)
                     wc.data.pop_front();
@@ -146,12 +141,10 @@ ProductsViewWorldButton::ProductsViewWorldButton(GameState& _gs, UI::Window* par
             ProductsViewWorldButton* state = (ProductsViewWorldButton*)data;
             const Product* product = state->product;
             World* world = state->gs.world;
-            std::lock_guard<std::recursive_mutex> l1(world->time_mutex);
+            std::lock_guard<std::recursive_mutex> lock(world->world_mutex);
 
             UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
             if (world->time % 48 == 32) {
-                std::lock_guard<std::recursive_mutex> l2(world->products_mutex);
-
                 wc.data.push_back(product->price);
                 if (wc.data.size() >= 30)
                     wc.data.pop_front();

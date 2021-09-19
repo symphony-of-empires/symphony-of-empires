@@ -65,7 +65,6 @@ void Industry::add_to_stock(const World& world, const Good* good, const size_t a
  */
 void Economy::do_phase_1(World& world) {
     // Outposts who have fullfilled requirements to build stuff will spawna  lil' unit/boat
-    world.outposts_mutex.lock();
     for(auto& outpost: world.outposts) {
         bool can_build = true;
         for(const auto& req: outpost->req_goods_for_unit) {
@@ -133,9 +132,7 @@ void Economy::do_phase_1(World& world) {
             unit->base = unit->size;
             
             // Notify all clients of the server about this new unit
-            g_world->units_mutex.lock();
             g_world->units.push_back(unit);
-            g_world->units_mutex.unlock();
 
             Packet packet = Packet();
             Archive ar = Archive();
@@ -163,9 +160,7 @@ void Economy::do_phase_1(World& world) {
             boat->base = boat->size;
 
             // Notify all clients of the server about this new boat
-            g_world->boats_mutex.lock();
             g_world->boats.push_back(boat);
-            g_world->boats_mutex.unlock();
 
             Packet packet = Packet();
             Archive ar = Archive();
@@ -187,14 +182,10 @@ void Economy::do_phase_1(World& world) {
         packet.data(ar.get_buffer(), ar.size());
         g_server->broadcast(packet);
     }
-    world.outposts_mutex.unlock();
 
     // All factories will place their orders for their inputs
     // All RGOs will do deliver requests
     //std::for_each(std::execution::par_unseq, world.provinces.begin(), world.provinces.end(),
-    std::lock_guard<std::recursive_mutex> l1(world.products_mutex);
-    std::lock_guard<std::recursive_mutex> l2(world.nations_mutex);
-    std::lock_guard<std::recursive_mutex> l3(world.provinces_mutex);
     std::for_each(world.provinces.begin(), world.provinces.end(), [&world](auto& province) {
         // Reset remaining supplies
         province->supply_rem = province->supply_limit;
@@ -435,10 +426,6 @@ void Economy::do_phase_1(World& world) {
 // Phase 2 of the economy: Goods are transported all around the world, generating commerce and making them
 // be ready for POPs to buy
 void Economy::do_phase_2(World& world) {
-    std::lock_guard<std::recursive_mutex> l1(world.products_mutex);
-    std::lock_guard<std::recursive_mutex> l2(world.nations_mutex);
-    std::lock_guard<std::recursive_mutex> l3(world.provinces_mutex);
-
     while(world.delivers.size() && world.orders.size()) {
         // We will check all transport companies; they will transport in a first-come first-serve fashion
         for(auto& company: world.companies) {
@@ -625,9 +612,6 @@ void Economy::do_phase_3(World& world) {
     std::mutex emigration_lock;
 
     std::srand(std::time(nullptr));
-
-    std::lock_guard<std::recursive_mutex> l1(world.provinces_mutex);
-    std::lock_guard<std::recursive_mutex> l2(world.products_mutex);
     std::for_each(world.provinces.begin(), world.provinces.end(), [&emigration_lock, &emigration, &world](auto& province) {
         if(province->owner == nullptr)
             return;
@@ -891,7 +875,6 @@ void Economy::do_phase_3(World& world) {
 
     // We will now post a job request so the next economic tick will be able to "link industries"
     // with their workers and make a somewhat realistic economy
-    std::lock_guard<std::recursive_mutex> l3(world.job_requests_mutex);
     world.job_requests.clear();
     for(const auto& province: world.provinces) {
         // Province must have an owner
@@ -931,7 +914,6 @@ void Economy::do_phase_4(World& world) {
     // Preparations for the next tick
 
     // Reset production costs
-    std::lock_guard<std::recursive_mutex> l1(world.provinces_mutex);
     for(const auto& province: world.provinces) {
         for(auto& industry: province->industries) {
             industry.production_cost = 0.f;
@@ -939,7 +921,6 @@ void Economy::do_phase_4(World& world) {
     }
 
     // Close today's price with a change according to demand - supply
-    std::lock_guard<std::recursive_mutex> l2(world.products_mutex);
     for(const auto& product: world.products) {
         // Uncomment to see supply-demand
         //if(product->price_vel)

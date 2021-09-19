@@ -427,7 +427,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
 
     map->draw(cam, width, height);
 
-    gs.world->boats_mutex.lock();
+    gs.world->world_mutex.lock();
     if (selected_boat != nullptr) {
         glBegin(GL_LINE_STRIP);
         glColor3f(1.f, 0.f, 0.f);
@@ -437,9 +437,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glVertex2f(selected_boat->x, selected_boat->y + 1.f);
         glEnd();
     }
-    gs.world->boats_mutex.unlock();
 
-    gs.world->units_mutex.lock();
     if (selected_unit != nullptr) {
         glBegin(GL_LINE_STRIP);
         glColor3f(1.f, 0.f, 0.f);
@@ -449,9 +447,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glVertex2f(selected_unit->x, selected_unit->y + 1.f);
         glEnd();
     }
-    gs.world->units_mutex.unlock();
 
-    gs.world->outposts_mutex.lock();
     if (selected_outpost != nullptr) {
         glBegin(GL_LINE_STRIP);
         glColor3f(1.f, 0.f, 0.f);
@@ -461,7 +457,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glVertex2f(selected_outpost->x, selected_outpost->y + 1.f);
         glEnd();
     }
-    gs.world->outposts_mutex.unlock();
+    gs.world->world_mutex.unlock();
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glBegin(GL_QUADS);

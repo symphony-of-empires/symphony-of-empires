@@ -3,7 +3,6 @@
 #	include <netdb.h>
 #	include <arpa/inet.h>
 #endif
-
 #include <sys/types.h>
 #include <cstring>
 #include <cstdio>
@@ -45,6 +44,9 @@ WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeo
 #include "../diplomacy.hpp"
 #include "../world.hpp"
 #include "../io_impl.hpp"
+
+#include <chrono>
+#include <thread>
 
 Client* g_client = nullptr;
 Client::Client(std::string host, const unsigned port) {
@@ -111,6 +113,8 @@ void Client::net_loop(void) {
         pfd.events = POLLIN;
 #endif
         while(1) {
+            std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
+
             // Check if we need to read packets
 #ifdef unix
             int has_pending = poll(&pfd, 1, 10);
@@ -148,8 +152,6 @@ void Client::net_loop(void) {
                 // desired is done.
                 case ACTION_NATION_UPDATE:
                     {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->nations_mutex);
-
                         Nation* nation;
                         ::deserialize(ar, &nation);
                         if(nation == nullptr)
@@ -159,8 +161,6 @@ void Client::net_loop(void) {
                     break;
                 case ACTION_NATION_ENACT_POLICY:
                     {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->nations_mutex);
-
                         Nation* nation;
                         ::deserialize(ar, &nation);
                         if(nation == nullptr)
@@ -174,8 +174,6 @@ void Client::net_loop(void) {
                 // TODO: It throws serializer errors but idk where, maybe the server?
                 case ACTION_PROVINCE_UPDATE:
                     {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->provinces_mutex);
-
                         Province* province;
                         ::deserialize(ar, &province);
                         if(province == nullptr)
@@ -185,8 +183,6 @@ void Client::net_loop(void) {
                     break;
                 case ACTION_PRODUCT_UPDATE:
                     {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->products_mutex);
-
                         Product* product;
                         ::deserialize(ar, &product);
                         if(product == nullptr)
@@ -196,8 +192,6 @@ void Client::net_loop(void) {
                     break;
                 case ACTION_UNIT_UPDATE:
                     {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->units_mutex);
-
                         Unit* unit;
                         ::deserialize(ar, &unit);
                         if(unit == nullptr)
@@ -207,8 +201,6 @@ void Client::net_loop(void) {
                     break;
                 case ACTION_UNIT_ADD:
                     {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->units_mutex);
-
                         Unit* unit = new Unit();
                         ::deserialize(ar, unit);
                         g_world->units.push_back(unit);
@@ -217,8 +209,6 @@ void Client::net_loop(void) {
                     break;
                 case ACTION_BOAT_UPDATE:
                     {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->boats_mutex);
-
                         Boat* boat;
                         ::deserialize(ar, &boat);
                         if(boat == nullptr)
@@ -228,8 +218,6 @@ void Client::net_loop(void) {
                     break;
                 case ACTION_BOAT_ADD:
                     {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->boats_mutex);
-
                         Boat* boat = new Boat();
                         ::deserialize(ar, boat);
                         g_world->boats.push_back(boat);
@@ -238,8 +226,6 @@ void Client::net_loop(void) {
                     break;
                 case ACTION_OUTPOST_UPDATE:
                     {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->outposts_mutex);
-
                         Outpost* outpost;
                         ::deserialize(ar, &outpost);
                         if(outpost == nullptr)
@@ -249,8 +235,6 @@ void Client::net_loop(void) {
                     break;
                 case ACTION_OUTPOST_ADD:
                     {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->outposts_mutex);
-
                         Outpost* outpost = new Outpost();
                         ::deserialize(ar, outpost);
                         g_world->outposts.push_back(outpost);
@@ -259,8 +243,6 @@ void Client::net_loop(void) {
                     break;
                 case ACTION_TREATY_ADD:
                     {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->treaties_mutex);
-
                         Treaty* treaty = new Treaty();
                         ::deserialize(ar, treaty);
                         g_world->treaties.push_back(treaty);
@@ -272,7 +254,6 @@ void Client::net_loop(void) {
                     break;
                 case ACTION_WORLD_TICK:
                     {
-                        std::lock_guard<std::recursive_mutex> l1(g_world->time_mutex);
                         ::deserialize(ar, &g_world->time);
                     }
                     break;
@@ -289,8 +270,6 @@ void Client::net_loop(void) {
                     break;
                 case ACTION_PROVINCE_COLONIZE:
                     {
-                        std::lock_guard<std::recursive_mutex> lock(g_world->provinces_mutex);
-
                         Province* province;
                         ::deserialize(ar, &province);
                         if(province == nullptr)
@@ -302,6 +281,8 @@ void Client::net_loop(void) {
                     break;
                 }
             }
+
+            g_world->world_mutex.unlock();
 
             // Client will also flush it's queue to the server
             packet_mutex.lock();
@@ -315,6 +296,9 @@ void Client::net_loop(void) {
             }
             packet_queue.clear();
             packet_mutex.unlock();
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            g_world->world_mutex.lock();
         }
     } catch(ClientException& e) {
         print_error("Except: %s", e.what());

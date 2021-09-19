@@ -523,18 +523,13 @@ void World::load_mod(void) {
     print_info(gettext("World fully intiialized"));
 }
 
-#include <deque>
-#include <mutex>
-extern std::mutex render_province_mutex;
-extern std::deque<size_t> render_province;
-
 #include "../actions.hpp"
 #include "economy.hpp"
 void World::do_tick() {
+    std::lock_guard<std::recursive_mutex> lock(world_mutex);
+
     // AI and stuff
     // Just random shit to make the world be like more alive
-    nations_mutex.lock();
-    provinces_mutex.lock();
     tiles_mutex.lock();
     for(const auto& nation: nations) {
         if(nation->exists() == false)
@@ -651,7 +646,6 @@ void World::do_tick() {
             }
 
             // Now build the outpost
-            outposts_mutex.lock();
             Outpost* outpost = new Outpost();
             outpost->owner = nation;
             outpost->working_unit_type = nullptr;
@@ -671,14 +665,11 @@ void World::do_tick() {
                 g_server->broadcast(packet);
             }
             g_world->outposts.push_back(outpost);
-            outposts_mutex.unlock();
 
             printf("Building outpust of %s on %s\n", nation->name.c_str(), target->name.c_str());
         }
     }
     tiles_mutex.unlock();
-    provinces_mutex.unlock();
-    nations_mutex.unlock();
 
     // Each tick == 30 minutes
     switch(time % (24* 2)) {
@@ -705,8 +696,6 @@ void World::do_tick() {
     // 12:00
     case 24:
         Economy::do_phase_3(*this);
-
-        products_mutex.lock();
         for(const auto& product: g_world->products) {
             // Broadcast to clients
             Packet packet = Packet();
@@ -720,9 +709,7 @@ void World::do_tick() {
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
         }
-        products_mutex.unlock();
-        
-        nations_mutex.lock();
+
         for(auto& nation: this->nations) {
             float economy_score = 0.f;
             for(const auto& province: nation->owned_provinces) {
@@ -738,7 +725,6 @@ void World::do_tick() {
             }
             nation->economy_score = economy_score / 100.f;
         }
-        nations_mutex.unlock();
         break;
     // 18:00
     case 36:
@@ -747,7 +733,6 @@ void World::do_tick() {
     // 24:00, this is where clients are sent all information **at once**
     case 47:
         {
-            nations_mutex.lock();
             for(const auto& nation: g_world->nations) {
                 // Broadcast to clients
                 Packet packet = Packet();
@@ -762,8 +747,7 @@ void World::do_tick() {
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
             }
-            nations_mutex.unlock();
-            provinces_mutex.lock();
+
             for(const auto& province: g_world->provinces) {
                 // Broadcast to clients
                 Packet packet = Packet();
@@ -778,7 +762,6 @@ void World::do_tick() {
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
             }
-            provinces_mutex.unlock();
         }
         break;
     default:
@@ -786,7 +769,6 @@ void World::do_tick() {
     }
 
     // Evaluate boats
-    boats_mutex.lock();
     for(size_t i = 0; i < boats.size(); i++) {
         Boat* unit = boats[i];
         if(unit->size <= 0) {
@@ -938,10 +920,8 @@ void World::do_tick() {
         packet.data(ar.get_buffer(), ar.size());
         g_server->broadcast(packet);
     }
-    boats_mutex.unlock();
     
     // Evaluate units
-    units_mutex.lock();
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
         if(unit->size <= 0) {
@@ -1177,10 +1157,8 @@ void World::do_tick() {
         packet.data(ar.get_buffer(), ar.size());
         g_server->broadcast(packet);
     }
-    units_mutex.unlock();
 
     // Do the treaties clauses
-    treaties_mutex.lock();
     for(const auto& treaty: treaties) {
         // Check that the treaty is agreed by all parties before enforcing it
         bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TREATY_APPROVAL_ACCEPTED); }) != treaty->approval_status.end());
@@ -1255,7 +1233,6 @@ void World::do_tick() {
             ;
         }
     }
-    treaties_mutex.unlock();
     
     // Tell clients that this tick has been done
     Packet packet = Packet(0);
