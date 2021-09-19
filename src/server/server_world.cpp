@@ -8,6 +8,8 @@
 #ifndef _MSC_VER
 #	include <sys/cdefs.h>
 #endif
+#include <libintl.h>
+#include <locale.h>
 
 #include "../province.hpp"
 #include "economy.hpp"
@@ -72,6 +74,8 @@ World::World() {
     lua_register(lua, "set_everyday_needs_met_mod", LuaAPI::set_everyday_needs_met_mod);
     lua_register(lua, "set_luxury_needs_met_mod", LuaAPI::set_luxury_needs_met_mod);
     lua_register(lua, "add_nation_accepted_culture", LuaAPI::add_accepted_culture);
+    lua_register(lua, "add_nation_client_hint", LuaAPI::add_nation_client_hint);
+    lua_register(lua, "get_nation_policies", LuaAPI::get_nation_policies);
     
     lua_register(lua, "add_province", LuaAPI::add_province);
     lua_register(lua, "get_province", LuaAPI::get_province);
@@ -115,6 +119,9 @@ World::World() {
     lua_register(lua, "add_boat_type", LuaAPI::add_boat_type);
     lua_register(lua, "get_boat_type", LuaAPI::get_boat_type);
     lua_register(lua, "add_req_good_boat_type", LuaAPI::add_req_good_boat_type);
+
+    lua_register(lua, "add_ideology", LuaAPI::add_ideology);
+    lua_register(lua, "get_ideology", LuaAPI::get_ideology);
 
     lua_register(lua, "get_hour", LuaAPI::get_hour);
     lua_register(lua, "get_day", LuaAPI::get_day);
@@ -187,6 +194,8 @@ World::~World() {
         delete boat;
     } for(auto& unit: units) {
         delete unit;
+    } for(auto& ideology: ideologies) {
+        delete ideology;
     }
 }
 
@@ -199,10 +208,11 @@ void World::load_mod(void) {
     height = topo.height;
 
     // Check that size of all maps match
-    if(topo.width != width || topo.height != height)
+    if(topo.width != width || topo.height != height) {
         throw std::runtime_error("Topographic map size mismatch");
-    else if(div.width != width || div.height != height)
+    } else if(div.width != width || div.height != height) {
         throw std::runtime_error("Province map size mismatch");
+    }
 
     const size_t total_size = width * height;
 
@@ -211,8 +221,9 @@ void World::load_mod(void) {
     // Land is	> sea_level + 1
     sea_level = 126;
     tiles = new Tile[total_size];
-    if(tiles == nullptr)
+    if(tiles == nullptr) {
         throw std::runtime_error("Out of memory");
+    }
     
     int ret;
     
@@ -224,6 +235,8 @@ void World::load_mod(void) {
     files_text = Path::get_data("scripts/outpost_types.lua");
     for(const auto& text: files_text) { final_buf += text; }
     files_text = Path::get_data("scripts/cultures.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/ideology.lua");
     for(const auto& text: files_text) { final_buf += text; }
     files_text = Path::get_data("scripts/religions.lua");
     for(const auto& text: files_text) { final_buf += text; }
@@ -242,13 +255,12 @@ void World::load_mod(void) {
     files_text = Path::get_data("scripts/init.lua");
     for(const auto& text: files_text) { final_buf += text; }
 
-    ret = luaL_loadstring(lua, final_buf.c_str());
-    if(ret)
+    if(luaL_loadstring(lua, final_buf.c_str()) != LUA_OK || lua_pcall(lua, 0, 0, 0) != LUA_OK) {
         throw std::runtime_error(lua_tostring(lua, -1));
-    lua_pcall(lua, 0, 0, 0);
+    }
 
     // Shrink normally-not-resized vectors to give back memory to the OS
-    printf("Shrink normally-not-resized vectors to give back memory to the OS\n");
+    print_info(gettext("Shrink normally-not-resized vectors to give back memory to the OS"));
     provinces.shrink_to_fit();
     nations.shrink_to_fit();
     goods.shrink_to_fit();
@@ -266,7 +278,7 @@ void World::load_mod(void) {
     }
 
     // Translate all div, pol and topo maps onto this single tile array
-    printf("Translate all div, pol and topo maps onto this single tile array\n");
+    print_info(gettext("Translate all div, pol and topo maps onto this single tile array"));
     for(size_t i = 0; i < total_size; i++) {
         // Set coordinates for the tiles
         tiles[i].owner_id = (Nation::Id)-1;
@@ -288,7 +300,7 @@ void World::load_mod(void) {
 
     // Build a lookup table for super fast speed on finding provinces
     // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-    print_info("Building province lookup table");
+    print_info(gettext("Building the province lookup table"));
     Province::Id* color_province_rel_table = new Province::Id[16777216];
     memset(color_province_rel_table, 0xff, sizeof(Province::Id) * 16777216);
     for(const auto& province: provinces) {
@@ -297,7 +309,7 @@ void World::load_mod(void) {
 
     // Uncomment this and see a bit more below
     //std::set<uint32_t> colors_found;
-    print_info("Associate tiles with provinces");
+    print_info(gettext("Associate tiles with provinces"));
     for(size_t i = 0; i < total_size; i++) {
         const uint32_t color = div.buffer[i];
 
@@ -345,7 +357,7 @@ void World::load_mod(void) {
     }*/
 
     // Calculate the edges of the province (min and max x and y coordinates)
-    print_info("Calculate the edges of the province (min and max x and y coordinates)");
+    print_info(gettext("Calculate the edges of the province (min and max x and y coordinates)"));
     for(size_t j = 0; j < height; j++) {
         for(size_t i = 0; i < width; i++) {
             Tile& tile = get_tile(i, j);
@@ -361,7 +373,7 @@ void World::load_mod(void) {
     }
 
     // Correct stuff from provinces
-    print_info("Correcting values for provinces");
+    print_info(gettext("Correcting values for provinces"));
     for(auto& province: provinces) {
         province->max_x = std::min(width, province->max_x);
         province->max_y = std::min(height, province->max_y);
@@ -373,7 +385,7 @@ void World::load_mod(void) {
     }
 
     // Give owners the entire provinces
-    print_info("Give owners the entire provinces");
+    print_info(gettext("Give owners the entire provinces"));
     for(auto& nation: nations) {
         for(auto& province: nation->owned_provinces) {
             const Province::Id province_id = get_id(province);
@@ -393,7 +405,7 @@ void World::load_mod(void) {
     }
 
     // Neighbours
-    print_info("Creating neighbours for provinces");
+    print_info(gettext("Creating neighbours for provinces"));
     for(size_t i = 0; i < total_size; i++) {
         const Tile* tile = &this->tiles[i];
         const Tile* other_tile;
@@ -473,7 +485,7 @@ void World::load_mod(void) {
     }
 
     // Create diplomatic relations between nations
-    print_info("Creating diplomatic relations");
+    print_info(gettext("Creating diplomatic relations"));
     for(const auto& nation: this->nations) {
         // Relations between nations start at 0 (and latter modified by lua scripts)
         for(size_t i = 0; i < this->nations.size(); i++) {
@@ -486,10 +498,9 @@ void World::load_mod(void) {
     for(const auto& text: files_text) { final_buf += text; }
 
     printf("\n[%s]\n", final_buf.c_str());
-    ret = luaL_loadstring(lua, final_buf.c_str());
-    if(ret)
+    if(luaL_loadstring(lua, final_buf.c_str()) != LUA_OK || lua_pcall(lua, 0, 0, 0) != LUA_OK) {
         throw std::runtime_error(lua_tostring(lua, -1));
-    lua_pcall(lua, 0, 0, 0);
+    }
     
     // Default init for policies
     for(auto& nation: this->nations) {
@@ -509,7 +520,7 @@ void World::load_mod(void) {
         policy.industry_tax = 0.1f;
         policy.foreign_trade = true;
     }
-    print_info("World fully intiialized");
+    print_info(gettext("World fully intiialized"));
 }
 
 #include <deque>

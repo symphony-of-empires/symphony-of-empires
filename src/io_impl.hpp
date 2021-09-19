@@ -78,8 +78,10 @@ template<>
 class Serializer<OutpostType*> : public SerializerReference<World, OutpostType> {};
 template<>
 class Serializer<Outpost*> : public SerializerReference<World, Outpost> {};
+template<>
+class Serializer<Ideology*> : public SerializerReference<World, Ideology> {};
 
-// TODO: Properly do this ffs
+// TODO: Properly do this ffs - this is dangereous and **will** create bugs!
 template<>
 class Serializer<Industry *> : public SerializerMemcpy<Industry *> {};
 
@@ -544,6 +546,7 @@ public:
         ;
     }
 };
+
 template<>
 class Serializer<DeliverGoods> {
 public:
@@ -576,13 +579,34 @@ public:
 };
 
 template<>
+class Serializer<NationClientHint> {
+public:
+    static inline void serialize(Archive& stream, const NationClientHint* obj) {
+        ::serialize(stream, &obj->colour);
+        ::serialize(stream, &obj->alt_name);
+        ::serialize(stream, &obj->ideology);
+    }
+    static inline void deserialize(Archive& stream, NationClientHint* obj) {
+        ::deserialize(stream, &obj->colour);
+        ::deserialize(stream, &obj->alt_name);
+        ::deserialize(stream, &obj->ideology);
+    }
+    static inline size_t size(const NationClientHint* obj) {
+        return
+            serialized_size(&obj->colour)
+            + serialized_size(&obj->alt_name)
+            + serialized_size(&obj->ideology)
+        ;
+    }
+};
+
+template<>
 class Serializer<Nation> {
 public:
     static inline void serialize(Archive& stream, const Nation* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
         ::serialize(stream, &obj->controlled_by_ai);
-        ::serialize(stream, &obj->color);
         ::serialize(stream, &obj->relations);
         ::serialize(stream, &obj->spherer_id);
         ::serialize(stream, &obj->diplomacy_points);
@@ -605,12 +629,13 @@ public:
         ::serialize(stream, &obj->diplomatic_timer);
 
         ::serialize(stream, &obj->inbox);
+        ::serialize(stream, &obj->client_hints);
+        ::serialize(stream, &obj->ideology);
     }
     static inline void deserialize(Archive& stream, Nation* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
         ::deserialize(stream, &obj->controlled_by_ai);
-        ::deserialize(stream, &obj->color);
         ::deserialize(stream, &obj->relations);
         ::deserialize(stream, &obj->spherer_id);
         ::deserialize(stream, &obj->diplomacy_points);
@@ -633,13 +658,14 @@ public:
         ::deserialize(stream, &obj->diplomatic_timer);
 
         ::deserialize(stream, &obj->inbox);
+        ::deserialize(stream, &obj->client_hints);
+        ::deserialize(stream, &obj->ideology);
     }
     static inline size_t size(const Nation* obj) {
         return
             serialized_size(&obj->name)
             + serialized_size(&obj->ref_name)
             + serialized_size(&obj->controlled_by_ai)
-            + serialized_size(&obj->color)
             + serialized_size(&obj->relations)
             + serialized_size(&obj->spherer_id)
             + serialized_size(&obj->diplomacy_points)
@@ -657,6 +683,8 @@ public:
             + serialized_size(&obj->current_policy)
             + serialized_size(&obj->diplomatic_timer)
             + serialized_size(&obj->inbox)
+            + serialized_size(&obj->client_hints)
+            + serialized_size(&obj->ideology)
         ;
     }
 };
@@ -1261,6 +1289,28 @@ public:
 };
 
 template<>
+class Serializer<Ideology> {
+public:
+    static inline void serialize(Archive& stream, const Ideology* obj) {
+        ::serialize(stream, &obj->ref_name);
+        ::serialize(stream, &obj->name);
+        ::serialize(stream, &obj->check_policies_fn);
+    }
+    static inline void deserialize(Archive& stream, Ideology* obj) {
+        ::deserialize(stream, &obj->ref_name);
+        ::deserialize(stream, &obj->name);
+        ::deserialize(stream, &obj->check_policies_fn);
+    }
+    static inline size_t size(const Ideology* obj) {
+        return
+            serialized_size(&obj->ref_name)
+            + serialized_size(&obj->name)
+            + serialized_size(&obj->check_policies_fn)
+        ;
+    }
+};
+
+template<>
 class Serializer<World> {
 public:
     static inline void serialize(Archive& stream, const World* obj) {
@@ -1307,6 +1357,8 @@ public:
         ::serialize(stream, &n_treaties);
         const uint32_t n_boats = obj->boats.size();
         ::serialize(stream, &n_boats);
+        const uint32_t n_ideologies = obj->ideologies.size();
+        ::serialize(stream, &n_ideologies);
         
         print_info("(SERIALIZER) WORLD INFORMATION\n");
         print_info("  n_goods %zu\n", (size_t)n_goods);
@@ -1323,6 +1375,9 @@ public:
         print_info("  n_unit_traits %zu\n", (size_t)n_unit_traits);
         print_info("  n_outpost_types %zu\n", (size_t)n_outpost_types);
         print_info("  n_outposts %zu\n", (size_t)n_outposts);
+        print_info("  n_treaties %zu\n", (size_t)n_treaties);
+        print_info("  n_boats %zu\n", (size_t)n_boats);
+        print_info("  n_ideologies %zu\n", (size_t)n_ideologies);
         
         for(auto& sub_obj: obj->goods) {
             ::serialize(stream, sub_obj);
@@ -1389,6 +1444,10 @@ public:
         }
 
         for(auto& sub_obj: obj->boats) {
+            ::serialize(stream, sub_obj);
+        }
+
+        for(auto& sub_obj: obj->ideologies) {
             ::serialize(stream, sub_obj);
         }
         
@@ -1529,6 +1588,13 @@ public:
             Boat* sub_obj = new Boat();
             obj->boats.push_back(sub_obj);
         }
+
+        uint32_t n_ideologies;
+        ::deserialize(stream, &n_ideologies);
+        for(size_t i = 0; i < n_ideologies; i++) {
+            Ideology* sub_obj = new Ideology();
+            obj->ideologies.push_back(sub_obj);
+        }
         
         print_info("(DESERIALIZER) WORLD INFORMATION\n");
         print_info("  n_goods %zu\n", (size_t)n_goods);
@@ -1545,6 +1611,9 @@ public:
         print_info("  n_unit_traits %zu\n", (size_t)n_unit_traits);
         print_info("  n_outpost_types %zu\n", (size_t)n_outpost_types);
         print_info("  n_outposts %zu\n", (size_t)n_outposts);
+        print_info("  n_treaties %zu\n", (size_t)n_treaties);
+        print_info("  n_boats %zu\n", (size_t)n_boats);
+        print_info("  n_ideologies %zu\n", (size_t)n_ideologies);
         
         for(size_t i = 0; i < n_goods; i++) {
             Good* sub_obj = obj->goods[i];
@@ -1630,6 +1699,11 @@ public:
             Boat* sub_obj = obj->boats[i];
             ::deserialize(stream, sub_obj);
         }
+
+        for(size_t i = 0; i < n_ideologies; i++) {
+            Ideology* sub_obj = obj->ideologies.at(i);
+            ::deserialize(stream, sub_obj);
+        }
         
         ::deserialize(stream, &obj->delivers);
         ::deserialize(stream, &obj->orders);
@@ -1661,6 +1735,7 @@ public:
             + (obj->outposts.size() * sizeof(Outpost))
             + (obj->treaties.size() * sizeof(Treaty))
             + (obj->boats.size() * sizeof(Boat))
+            + (obj->ideologies.size() * sizeof(Ideology))
         ;
     }
 };

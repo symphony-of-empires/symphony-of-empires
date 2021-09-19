@@ -47,6 +47,19 @@ enum IdeologyType {
     REPUBLIC,
 };
 
+// Hints for the client on how to display the nation
+#include "ideology.hpp"
+class NationClientHint {
+public:
+    uint32_t colour;
+
+    // Alternate name, for example communist Russia would be called USSR
+    std::string alt_name;
+
+    // Ideology to which this hint applies to (nullptr = default fallback)
+    Ideology* ideology;
+};
+
 class Nation {
     inline void do_diplomacy();
     inline bool can_do_diplomacy();
@@ -68,9 +81,6 @@ public:
 
     // Default reference name
     std::string ref_name;
-
-    // Default color of the country
-    uint32_t color;
 
     // A list with relations with all other nations, mapped 1:1 to the Nation list in the world
     std::vector<NationRelation> relations;
@@ -108,6 +118,28 @@ public:
 
     // The capital of this nation (can be nullptr)
     Province* capital = nullptr;
+
+    // Hints for the client on how to draw a nation :)
+    std::vector<NationClientHint> client_hints;
+    Ideology* ideology = nullptr;
+
+    const NationClientHint& get_client_hint(void) const {
+        // Find match
+        for(const auto& hint: client_hints) {
+            if(hint.ideology == ideology) {
+                return hint;
+            }
+        }
+
+        // 2nd search: Find a hint that is fallback
+        for(const auto& hint: client_hints) {
+            if(hint.ideology == nullptr) {
+                return hint;
+            }
+        }
+        
+        return client_hints.at(0);
+    };
 
     // Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
     // owned by this nation

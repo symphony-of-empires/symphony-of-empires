@@ -1,3 +1,63 @@
+Ideology = {
+	id = 0,
+	ref_name = "",
+	name = "",
+	check_policies_fn = ""
+}
+function Ideology:create(ideology)
+	ideology.parent = self
+	return ideology
+end
+function Ideology:register(ideology)
+	ideology.id = add_ideology(ideology.ref_name, ideology.name, ideology.check_policies_fn)
+end
+function Ideology:get(ideology, ref_name)
+	ideology.parent = self
+	ideology.id, ideology.name = get_ideology(ref_name)
+	ideology.ref_name = ref_name
+	return ideology
+end
+
+Policies = {
+	treatment = 0,
+    migration = 0,
+    immigration = 0,
+    censorship = 0,
+    build_infrastructure = 0,
+    build_factories = 0,
+    national_id = true,
+    men_suffrage = true,
+    men_labour = true,
+    women_suffrage = true,
+    women_labour = true,
+    private_property = true,
+    companies_allowed = true,
+    public_education = true,
+    secular_education = true,
+    public_healthcare = true,
+    social_security = true,
+    slavery = true,
+    legislative_parliament = true,
+    executive_parliament = true,
+    constitutional = true,
+    foreign_trade = true,
+    import_tax = 0.0,
+    export_tax = 0.0,
+    domestic_import_tax = 0.0,
+    domestic_export_tax = 0.0,
+    poor_flat_tax = 0.0,
+    med_flat_tax = 0.0,
+    rich_flat_tax = 0.0,
+    industry_tax = 0.0,
+    military_spending = 0.0,
+    free_supplies = true,
+    minimum_wage = 0.0
+}
+function Policies:create(policies)
+	policies.parent = self
+	return policies
+end
+
 Good = { id = 0, name = "", ref_name = "", is_edible = false }
 function Good:create(good)
 	good.parent = self
@@ -6,7 +66,7 @@ end
 function Good:register(good)
 	good.id = add_good(good.ref_name, good.name, good.is_edible)
 end
-function Good:get(ref_name)
+function Good:get(good, ref_name)
 	good.parent = self
 	good.id, good.name = get_good(ref_name)
 	good.ref_name = ref_name
@@ -94,6 +154,16 @@ function Nation:set_capital(self, province)
 end
 function Nation:add_accepted_culture(self, culture)
 	add_nation_accepted_culture(self.id, culture.id)
+end
+function Nation:get_policies(self)
+	policies = Policies:create{}
+
+	-- If someone knows a better way to do this please do a PR
+	policies.treatment, policies.migration, policies.immigration, policies.censorship, policies.build_infrastructure, policies.build_factories, policies.national_id, policies.men_suffrage, policies.men_labour, policies.women_suffrage, policies.women_labour, policies.private_property, policies.companies_allowed, policies.public_education, policies.secular_education, policies.public_healthcare, policies.social_security, policies.slavery, policies.legislative_parliament, policies.executive_parliament, policies.constitutional, policies.foreign_trade, policies.import_tax, policies.export_tax, policies.domestic_import_tax, policies.domestic_export_tax, policies.poor_flat_tax, policies.med_flat_tax, policies.rich_flat_tax, policies.industry_tax, policies.military_spending, policies.free_supplies, policies.minimum_wage = get_nation_policies(self.id)
+	return policies
+end
+function Nation:add_client_hint(self, ideology, alt_name, colour)
+	add_nation_client_hint(self.id, ideology.id, alt_name, colour)
 end
 
 Province = { id = 0, name = "", ref_name = "", color = 0 }

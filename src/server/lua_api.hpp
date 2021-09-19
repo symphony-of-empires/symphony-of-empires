@@ -46,6 +46,8 @@ namespace LuaAPI {
     int set_everyday_needs_met_mod(lua_State* L);
     int set_luxury_needs_met_mod(lua_State* L);
     int add_accepted_culture(lua_State* L);
+    int add_nation_client_hint(lua_State* L);
+    int get_nation_policies(lua_State* L);
     
     int add_province(lua_State* L);
     int get_province(lua_State* L);
@@ -91,6 +93,9 @@ namespace LuaAPI {
     int add_boat_type(lua_State* L);
     int get_boat_type(lua_State* L);
     int add_req_good_boat_type(lua_State* L);
+
+    int add_ideology(lua_State* L);
+    int get_ideology(lua_State* L);
 
     // Time functions
     int get_hour(lua_State* L);
