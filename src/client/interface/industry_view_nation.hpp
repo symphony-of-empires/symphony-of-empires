@@ -11,14 +11,14 @@
 
 class GameState;
 
-class IndustryViewNationChart : public UI::Widget {
+class IndustryViewNationChart : public UI::Window {
    public:
     IndustryViewNationChart(GameState& gs, Industry* industry);
     GameState& gs;
     Industry* industry;
 };
 
-class IndustryViewNationButton {
+class IndustryViewNationButton : public UI::Button {
    public:
     IndustryViewNationButton(GameState& gs, UI::Window* parent, size_t index);
     UI::Window* parent;
@@ -27,14 +27,11 @@ class IndustryViewNationButton {
     std::string text;
 };
 
-class IndustryViewNation {
+class IndustryViewNation : public UI::Window {
    public:
     IndustryViewNation(GameState& gs);
-    void show();
-    void hide();
-    UI::Window* industry_view_nation_win;
     const size_t buttons_nr = 16;
-    std::vector<std::unique_ptr<IndustryViewNationButton>> buttons;
+    std::vector<IndustryViewNationButton*> buttons;
     GameState& gs;
 
    private:

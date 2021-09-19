@@ -13,13 +13,13 @@
 #include <SDL_opengl.h>
 #include <SDL_ttf.h>
 #else
-#include <sys/wait.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_mouse.h>
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_ttf.h>
+#include <sys/wait.h>
 #endif
 #ifdef _MSC_VER
 /* required before GL/gl.h */
@@ -53,7 +53,9 @@
 #include "interface/province_view.hpp"
 #include "interface/select_nation.hpp"
 #include "interface/top_window.hpp"
+#include "interface/treaty_window.hpp"
 #include "interface/ui_reform.hpp"
+#include "interface/build_unit_window.hpp"
 #include "map.hpp"
 #include "render/material.hpp"
 #include "render/model.hpp"
@@ -70,8 +72,6 @@ void GameState::play_nation() {
         cam.position.y = capital->max_y;
         cam.position.z = -100.f;
     }
-
-    // General statics of the nation
 
     // Make topwindow
     top_win = new TopWindow(*this);
@@ -90,13 +90,10 @@ void GameState::play_nation() {
     print_info("Selected nation %s", curr_nation->ref_name.c_str());
 }
 
-std::vector<const UnifiedRender::Texture*> nation_flags;
-const UnifiedRender::Texture& get_nation_flag(Nation& nation) {
+const UnifiedRender::Texture& GameState::get_nation_flag(Nation& nation) {
     return *nation_flags[g_world->get_id(&nation)];
 }
 
-extern void ui_treaty(UI::Window* top_win);
-extern void ui_build_unit(Outpost* outpost, UI::Window* top_win);
 void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
     SDL_Event event;
     int click_on_ui;
@@ -261,7 +258,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                                     break;
                                 }
                                 if (selected_outpost != nullptr) {
-                                    ui_build_unit(selected_outpost, gs.top_win->top_win);
+                                    new BuildUnitWindow(gs, selected_outpost, gs.top_win->top_win);
                                     break;
                                 }
                             }
@@ -311,7 +308,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                         gs.cam.velocity.x += std::min(4.f, std::max(0.5f, 0.02f * -gs.cam.position.z));
                         break;
                     case SDLK_t:
-                        ui_treaty(gs.top_win->top_win);
+                        new TreatyWindow(gs, gs.top_win->top_win);
                         break;
                     case SDLK_p:
                         gs.products_view_world->show();
@@ -328,7 +325,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                     gs.cam.set_screen(width, height);
 
                     // Resize/recenter UI according to screen change
-                    for(auto& widget: ui_ctx->widgets) {
+                    for (auto& widget : ui_ctx->widgets) {
                         widget->x *= width / old_size.first;
                         widget->y *= height / old_size.second;
                     }
@@ -485,8 +482,8 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     cam.update();
 }
 
-void handle_popups(std::vector<Event> displayed_events,
-                   std::vector<Treaty*> displayed_treaties,
+void handle_popups(std::vector<Event>& displayed_events,
+                   std::vector<Treaty*>& displayed_treaties,
                    GameState& gs) {
     // Put popups
     // Event + Descision popups
@@ -498,14 +495,14 @@ void handle_popups(std::vector<Event> displayed_events,
             continue;
         }
 
-        // create_descision(msg, displayed_events);
+        new DescisionWindow(gs, msg);
 
         displayed_events.push_back(msg);
     }
 
     // Treaties popups
     extern std::string treaty_to_text(const Treaty& treaty);
-    for (auto& treaty : gs.world->treaties) {
+    for (auto treaty : gs.world->treaties) {
         // Only show treaties we haven't decided on yet and that we have participation on
         // TODO FIX
         // if (std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](const auto& e) {
@@ -519,50 +516,7 @@ void handle_popups(std::vector<Event> displayed_events,
             }) != displayed_treaties.end())
             continue;
 
-        UI::Window* popup_win = new UI::Window(128, 128, 320, 570);
-
-        // TODO: Allow titles in events
-        popup_win->text("Treaty offer");
-
-        // Separate the text line by line
-        new UI::Label(8, 32, treaty_to_text(*treaty).c_str(), popup_win);
-
-        UI::Button* approve_btn = new UI::Button(9, 64, 303, 38, popup_win);
-        approve_btn->text("Approve");
-        approve_btn->user_data = (void*)&treaty;
-        approve_btn->on_click = [](UI::Widget& w, void* data) {
-            delete w.parent;
-            g_client->packet_mutex.lock();
-            Packet packet = Packet(g_client->get_fd());
-            Archive ar = Archive();
-            enum ActionType action = ACTION_CHANGE_TREATY_APPROVAL;
-            ::serialize(ar, &action);
-            ::serialize(ar, (Treaty**)data);
-            enum TreatyApproval approval = TREATY_APPROVAL_ACCEPTED;
-            ::serialize(ar, &approval);
-            packet.data(ar.get_buffer(), ar.size());
-            g_client->packet_queue.push_back(packet);
-            g_client->packet_mutex.unlock();
-        };
-
-        UI::Button* deny_btn = new UI::Button(9, 0, 303, 38, popup_win);
-        deny_btn->text("Reject");
-        deny_btn->user_data = (void*)&treaty;
-        deny_btn->below_of(*approve_btn);
-        deny_btn->on_click = [](UI::Widget& w, void* data) {
-            delete w.parent;
-            g_client->packet_mutex.lock();
-            Packet packet = Packet(g_client->get_fd());
-            Archive ar = Archive();
-            enum ActionType action = ACTION_CHANGE_TREATY_APPROVAL;
-            ::serialize(ar, &action);
-            ::serialize(ar, (Treaty**)data);
-            enum TreatyApproval approval = TREATY_APPROVAL_DENIED;
-            ::serialize(ar, &approval);
-            packet.data(ar.get_buffer(), ar.size());
-            g_client->packet_queue.push_back(packet);
-            g_client->packet_mutex.unlock();
-        };
+        new TreatyPopup(gs, treaty);
 
         // Buttons for descisions
         displayed_treaties.push_back(treaty);
@@ -600,7 +554,6 @@ void init_client(GameState& gs) {
     for (const auto& outpost_type : gs.world->outpost_types) {
         std::string path = Path::get("3d/outpost_types/" + outpost_type->ref_name + ".obj");
         map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
-
     }
     for (const auto& boat_type : gs.world->boat_types) {
         std::string path = Path::get("3d/boat_types/" + boat_type->ref_name + ".obj");
@@ -616,8 +569,11 @@ void init_client(GameState& gs) {
     gs.select_nation = new SelectNation(gs);
 }
 
-void main_loop(GameState& gs, SDL_Window* window) {
-    gs.industry_view_nation = new IndustryViewNation(gs);
+void GameState::add_command(Command* command) {
+    pending_commands.push(command);
+}
+
+void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     gs.products_view_world = new ProductsViewWorld(gs);
     gs.pop_view_nation = new PopViewNation(gs);
     gs.ui_reform = new UIReform(gs);
@@ -639,7 +595,6 @@ void main_loop(GameState& gs, SDL_Window* window) {
     std::mutex render_lock;
     std::vector<Event> displayed_events;
     std::vector<Treaty*> displayed_treaties;
-    displayed_events.clear();
     while (run) {
         if (last_time != gs.world->time) {
             last_time = gs.world->time;
@@ -651,6 +606,12 @@ void main_loop(GameState& gs, SDL_Window* window) {
         handle_event(input, gs, run);
         if (gs.current_mode == MAP_MODE_NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
+        }
+
+        while (!gs.pending_commands.empty()) {
+            Command* cmd = gs.pending_commands.front();
+            cmd->run_command(*gs.world, client);
+            gs.pending_commands.pop();
         }
         render(gs, input, window);
     }
@@ -664,7 +625,7 @@ char* tmpbuf;
 World::World(void) {
     g_world = this;
 };
-World::~World() {};
+World::~World(){};
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -721,7 +682,7 @@ void start_client(int argc, char** argv) {
     gs.width = width;
     gs.height = height;
     gs.map = new Map(*gs.world);
-    main_loop(gs, window);
+    main_loop(gs, client, window);
 
     delete client;
 
