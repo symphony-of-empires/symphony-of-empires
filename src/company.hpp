@@ -5,10 +5,8 @@
 #include <algorithm>
 #include "nation.hpp"
 #include "province.hpp"
-typedef uint16_t CompanyId;
-/**
-* A company that operates one or more factories and is able to build even more factories
- */
+
+// A company that operates one or more factories and is able to build even more factories
 class Company {
 public:
     using Id = uint16_t;

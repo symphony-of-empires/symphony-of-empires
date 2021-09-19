@@ -1,12 +1,5 @@
 #ifndef BINARY_IMAGE_H
 #define BINARY_IMAGE_H
-
-/**
- * This binary image class helps load images and visual resources from the disk; the
- * binary image IS NOT a texture, it is intended to be used in contextes which are
- * NOT rendering - for rendering purpouses see texture class from client's implementation
- */
-
 #include <cstdint>
 #include <cstddef>
 #include <exception>
@@ -27,6 +20,9 @@ public:
     }
 };
 
+// This binary image class helps load images and visual resources from the disk; the
+// binary image IS NOT a texture, it is intended to be used in contextes which are
+// NOT rendering - for rendering purpouses see texture class from client's implementation
 class BinaryImage {
 public:
     BinaryImage() {};

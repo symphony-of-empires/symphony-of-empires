@@ -5,9 +5,7 @@
 #include "good.hpp"
 #include "company.hpp"
 
-/**
-* Gets ID from pointer
- */
+// Gets ID from pointer
 Province::Id Province::get_id(const World& world) {
     const std::vector<Province *>* provinces = &world.provinces;
     const auto province = std::find(provinces->begin(), provinces->end(), this);
@@ -17,10 +15,8 @@ Province::Id Province::get_id(const World& world) {
     return (Province::Id)-1;
 }
 
-/**
- * Obtains the country that currently has a larger number of
- * tiles controlled from this province
- */
+// Obtains the country that currently has a larger number of
+// tiles controlled from this province
 Nation& Province::get_occupation_controller(const World& world) const {
     std::vector<Nation::Id> nations_cnt;
     for(size_t x = min_x; x < max_x; x++) {
@@ -45,10 +41,8 @@ Nation& Province::get_occupation_controller(const World& world) const {
     return (*world.nations[nation_id]);
 }
 
-/**
-* Adds a new industry in the province and adds it's output
-* products into the world accordingly
- */
+// Adds a new industry in the province and adds it's output
+// products into the world accordingly
 void Province::add_industry(World& world, Industry* industry) {
     IndustryType* type = industry->type;
 
@@ -74,9 +68,8 @@ void Province::add_industry(World& world, Industry* industry) {
     industries.push_back(*industry);
 }
 
-/** Removes an industry and their products from the entire world
- * this is only used when industries go bankrupt!
-  */
+// Removes an industry and their products from the entire world
+// this is only used when industries go bankrupt!
 void Province::remove_industry(World& world, Industry* industry) {
     // Remove products of this industry from world market
     for(size_t i = 0; i < industry->output_products.size(); i++) {
@@ -93,19 +86,41 @@ void Province::remove_industry(World& world, Industry* industry) {
         world.products.erase(world.products.begin() + product_id);
     }
 
-    // TODO: Remove from province's product list
+    // TODO: Remove outputs from province's product list
 
     // Remove this industry totally from the list of industries
     size_t industry_id = world.get_id(*this, industry);
     industries.erase(industries.begin() + industry_id);
-
-    // We have removed the industry!
+    return;
 }
 
+// Calculates the total number of POPs in this province (total population)
 size_t Province::total_pops(void) const {
     size_t total = 0;
     for(const auto& pop: pops) {
         total += pop.size;
     }
     return total;
+}
+
+// Create a vector containing a list of all products available on this province
+std::vector<Product*> Province::get_products(const World& world) const {
+    std::vector<Product *> products;
+    products.reserve(world.products.size());
+    for(const auto& product: world.products) {
+        Product::Id product_id = world.get_id(product);
+
+        // Only valid indices
+        if(product_id == (Product::Id)-1) {
+            continue;
+        }
+
+        // Province must have stockpile
+        if(!stockpile.at(product_id)) {
+            continue;
+        }
+           
+        products.push_back(product);
+    }
+    return products;
 }

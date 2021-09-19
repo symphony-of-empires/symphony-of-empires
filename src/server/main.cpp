@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
             std::string r = future.get();
 
             if(r == "brick") {
-                std::cout << "Bricking! :D" << std::endl;
+                std::cout << gettext("Bricking! :D") << std::endl;
                 for(auto& province: world->provinces) {
                     for(auto& pop: province->pops) {
                         pop.militancy = 1.f;
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
                 }
                 break;
             } else if(r == "exit") {
-                std::cout << "Quitting..." << std::endl;
+                std::cout << gettext("Quitting...") << std::endl;
                 run = false;
                 break;
             } else {
@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
                 if (ret == 0) {
                     lua_pcall(world->lua, 0, 0, 0);
                 } else {
-                    print_error("Failed to load lua from input string.");
+                    print_error(gettext("Failed to load lua from input string"));
                 }
             }
             future = std::async(std::launch::async, async_get_input);
@@ -92,9 +92,9 @@ int main(int argc, char** argv) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
         
-    print_info("Destroying world");
+    print_info(gettext("Destroying world"));
     delete world;
-    print_info("Destroying server");
+    print_info(gettext("Destroying server"));
     delete server;
 #else
     exit(EXIT_SUCCESS);
@@ -110,7 +110,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument,
     argv[0] = new char[2];
     strcpy((char*)argv[0], "/");
     
-    main(1, argv);
+    try {
+        main(1, argv);
+    } catch(const std::exception& e) {
+        print_error("%s", e.what());
+    }
     
     free(argv[0]);
 }
