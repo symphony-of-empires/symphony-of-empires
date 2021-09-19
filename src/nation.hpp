@@ -12,6 +12,7 @@
 #include "province.hpp"
 #include "diplomacy.hpp"
 #include "event.hpp"
+#include "ideology.hpp"
 
 /**
 * Defines a one side relation between a country
@@ -37,18 +38,7 @@ public:
     bool free_supplies;
 };
 
-enum IdeologyType {
-    // Primary types
-    MONARCHY,
-    ANARCHY,
-    DEMOCRACY,
-    COMMUNISM,
-    FASCISM,
-    REPUBLIC,
-};
-
 // Hints for the client on how to display the nation
-#include "ideology.hpp"
 class NationClientHint {
 public:
     uint32_t colour;

@@ -1,7 +1,7 @@
 #ifndef PROVINCE_H
 #define PROVINCE_H
-
 #include <cstdint>
+#include <vector>
 #include <set>
 #include <string>
 #include "pop.hpp"

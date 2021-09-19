@@ -49,7 +49,7 @@ WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeo
 #include "../io_impl.hpp"
 
 Server* g_server = nullptr;
-Server::Server(const unsigned port, const unsigned max_conn) {
+Server::Server(const unsigned port, const unsigned max_conn) : n_clients(max_conn) {
     g_server = this;
 
     run = true;
@@ -81,16 +81,10 @@ Server::Server(const unsigned port, const unsigned max_conn) {
 #endif
 
     print_info("Deploying %u threads for clients", max_conn);
-    packet_queues.resize(max_conn);
-    is_connected = new std::atomic<bool>[max_conn];
+    clients = new ServerClient[max_conn];
     for(size_t i = 0; i < max_conn; i++) {
-        is_connected[i] = false;
-    }
-
-    packet_mutexes = new std::mutex[max_conn];
-    threads.reserve(max_conn);
-    for(size_t i = 0; i < max_conn; i++) {
-        threads.push_back(std::thread(&Server::net_loop, this, i));
+        clients[i].is_connected = false;
+        clients[i].thread = std::thread(&Server::net_loop, this, i);
     }
     
 #ifdef unix
@@ -109,34 +103,29 @@ Server::~Server() {
     closesocket(fd);
     WSACleanup();
 #endif
-
-    for(auto& thread: threads) {
-        thread.join();
-    }
-    delete[] is_connected;
-    delete[] packet_mutexes;
+    delete[] clients;
 }
 
 /** This will broadcast the given packet to all clients currently on the server
  */
 void Server::broadcast(Packet& packet) {
-    for(size_t i = 0; i < threads.size(); i++) {
-        std::lock_guard<std::mutex> l(packet_mutexes[i]);
+    for(size_t i = 0; i < n_clients; i++) {
+        std::lock_guard<std::mutex> l(clients[i].packets_mutex);
 
-        if(is_connected[i] == true) {
-            packet_queues[i].push_back(packet);
+        if(clients[i].is_connected == true) {
+            clients[i].packets.push_back(packet);
 
             // Disconnect the client if we have too much packets on the queue
             // we cannot save your packets buddy!
             size_t total_size = 0;
-            for(const auto& packet_q: packet_queues[i]) {
+            for(const auto& packet_q: clients[i].packets) {
                 total_size += packet_q.buffer.size();
             }
 
             // Disconnect the client when more than 200 MB is used
             if(total_size >= 200 * 1000000) {
-                is_connected[i] = false;
-                packet_queues[i].clear();
+                clients[i].is_connected = false;
+                clients[i].packets.clear();
                 print_error("Client %zu has exceeded max quota! - It has used %zu bytes!", i, total_size);
             }
         }
@@ -148,14 +137,15 @@ void Server::broadcast(Packet& packet) {
  * put the packets on the send queue, they will be sent accordingly
  */
 void Server::net_loop(int id) {
+    ServerClient& cl = clients[id];
     while(run) {
         int conn_fd = 0;
         try {
             sockaddr_in client;
             socklen_t len = sizeof(client);
 
-            is_connected[id] = false;
-            while(!is_connected[id]) {
+            cl.is_connected = false;
+            while(!cl.is_connected) {
                 try {
                     conn_fd = accept(fd, (sockaddr *)&client, &len);
                     if(conn_fd == INVALID_SOCKET)
@@ -163,7 +153,7 @@ void Server::net_loop(int id) {
 
                     // At this point the client's connection was accepted - so we only have to check
                     // Then we check if the server is running and we throw accordingly
-                    is_connected[id] = true;
+                    cl.is_connected = true;
                     break;
                 } catch(SocketException& e) {
                     // Do something
@@ -173,7 +163,7 @@ void Server::net_loop(int id) {
                 std::this_thread::sleep_for(std::chrono::seconds(1));
             }
             print_info("New client connection established");
-            is_connected[id] = true;
+            cl.is_connected = true;
 
             Nation* selected_nation = nullptr;
             Packet packet = Packet(conn_fd);
@@ -182,6 +172,15 @@ void Server::net_loop(int id) {
             Archive ar = Archive();
             ::serialize(ar, g_world);
             packet.send(ar.get_buffer(), ar.size());
+
+            // Tell all other clients about the connection of this new client
+            {
+                Archive tmp_ar = Archive();
+                enum ActionType action = ACTION_CONNECT;
+                ::serialize(tmp_ar, &action);
+                packet.data(tmp_ar.get_buffer(), tmp_ar.size());
+                broadcast(packet);
+            }
             
             enum ActionType action = ACTION_PING;
             packet.send(&action);
@@ -191,7 +190,7 @@ void Server::net_loop(int id) {
             pfd.fd = conn_fd;
             pfd.events = POLLIN;
 #endif
-            while(run && is_connected[id] == true) {
+            while(run && cl.is_connected == true) {
                 // Check if we need to read stuff
 #ifdef unix
                 int has_pending = poll(&pfd, 1, 0);
@@ -331,10 +330,8 @@ void Server::net_loop(int id) {
                             print_info("New order for building on outpost; build boat %s", boat_type->name.c_str());
                         }
                         break;
-                    /**
-                     * Client tells server to build new outpost, the location (& type) is provided by
-                     * the client and the rest of the fields are filled by the server
-                     */
+                    // Client tells server to build new outpost, the location (& type) is provided by
+                    // the client and the rest of the fields are filled by the server
                     case ACTION_OUTPOST_ADD:
                         {
                             std::lock_guard<std::recursive_mutex> lock(g_world->outposts_mutex);
@@ -370,10 +367,8 @@ void Server::net_loop(int id) {
                         // Rebroadcast
                         broadcast(packet);
                         break;
-                    /* 
-                     * Client tells server that it wants to colonize a province, this can be rejected
-                     * or accepted, client should check via the next PROVINCE_UPDATE action
-                     */
+                    // Client tells server that it wants to colonize a province, this can be rejected
+                    // or accepted, client should check via the next PROVINCE_UPDATE action
                     case ACTION_PROVINCE_COLONIZE:
                         {
                             std::lock_guard<std::recursive_mutex> lock1(g_world->nations_mutex);
@@ -550,15 +545,13 @@ void Server::net_loop(int id) {
                 ar.rewind();
                 
                 // After reading everything we will send our queue appropriately to the client
-                {
-                    std::lock_guard<std::mutex> l(packet_mutexes[id]);
-                    while(!packet_queues[id].empty()) {
-                        Packet elem = packet_queues[id].front();
-                        packet_queues[id].pop_front();
+                std::lock_guard<std::mutex> l(cl.packets_mutex);
+                while(!cl.packets.empty()) {
+                    Packet elem = cl.packets.front();
+                    cl.packets.pop_front();
 
-                        elem.stream = SocketStream(conn_fd);
-                        elem.send();
-                    }
+                    elem.stream = SocketStream(conn_fd);
+                    elem.send();
                 }
             }
         } catch(ServerException& e) {
@@ -570,12 +563,22 @@ void Server::net_loop(int id) {
         }
         
         // Unlock mutexes so we don't end up with weird situations... like deadlocks
-        packet_mutexes[id].lock();
-        is_connected[id] = false;
-        packet_queues[id].clear();
-        packet_mutexes[id].unlock();
+        cl.packets_mutex.lock();
+        cl.is_connected = false;
+        cl.packets.clear();
+        cl.packets_mutex.unlock();
+
+        // Tell the remaining clients about the disconnection
+        {
+            Packet packet;
+            Archive tmp_ar = Archive();
+            enum ActionType action = ACTION_DISCONNECT;
+            ::serialize(tmp_ar, &action);
+            packet.data(tmp_ar.get_buffer(), tmp_ar.size());
+            broadcast(packet);
+        }
+
         print_info("Client disconnected");
-        
 #ifdef windows
         shutdown(conn_fd, SD_BOTH);
 #elif defined unix

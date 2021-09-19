@@ -1,5 +1,6 @@
 #ifndef RELIGION_HPP
 #define RELIGION_HPP
+#include <string>
 
 typedef uint8_t ReligionId;
 class Religion {

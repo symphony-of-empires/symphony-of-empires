@@ -46,6 +46,8 @@ enum ActionType {
     ACTION_SELECT_NATION,
 
     // Gaming chatting
+    ACTION_CONNECT,
+    ACTION_DISCONNECT,
     ACTION_CHAT_MESSAGE,
     ACTION_CHAT_NICKNAME,
 
