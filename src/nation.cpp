@@ -1,5 +1,13 @@
 #include "nation.hpp"
 #include "world.hpp"
+#include "print.hpp"
+
+// Whetever the nation exists at all - we cannot add nations in-game so we just check
+// if the nation "exists" at all, this means that it has a presence and a goverment
+// must own atleast 1 province
+inline bool exists() {
+    return owned_provinces.size() > 0;
+}
 
 inline void Nation::do_diplomacy() {
     // TODO: Fix this formula which is currently broken
@@ -11,7 +19,6 @@ inline bool Nation::can_do_diplomacy() {
     return diplomatic_timer == 0;
 }
 
-#include "print.hpp"
 void Nation::increase_relation(const World& world, Nation* target) {
     if(!can_do_diplomacy())
         return;
@@ -38,10 +45,8 @@ void Nation::decrease_relation(const World& world, Nation* target) {
     do_diplomacy();
 }
 
-/**
-* Automatically relocates the capital of a nation to another province
-* Use this when a treaty makes a nation lose it's capital
- */
+// Automatically relocates the capital of a nation to another province
+// Use this when a treaty makes a nation lose it's capital
 void Nation::auto_relocate_capital(void) {
     auto best_candidate = std::max_element(owned_provinces.begin(), owned_provinces.end(),
         [] (const auto* lhs, const auto* rhs) {
@@ -50,10 +55,8 @@ void Nation::auto_relocate_capital(void) {
     capital = *best_candidate;
 }
 
-/**
-* Enacts a policy on a nation
-* @return false if policy draft failed to be applied, true if policy passed and is in-effect
- */
+// Enacts a policy on a nation
+// @return false if policy draft failed to be applied, true if policy passed and is in-effect
 void Nation::set_policy(Policies& policies) {
     // TODO: Make parliament (aristocrat POPs) be able to reject policy changes
     // TODO: Increase militancy on non-agreeing POPs
@@ -62,9 +65,7 @@ void Nation::set_policy(Policies& policies) {
     return;
 }
 
-/**
- * Checks if a POP is part of one of our accepted cultures
-*/
+// Checks if a POP is part of one of our accepted cultures
 bool Nation::is_accepted_culture(const Pop& pop) const {
     for(const auto& culture: accepted_cultures) {
         if(pop.culture_id == g_world->get_id(culture)) {
@@ -74,10 +75,8 @@ bool Nation::is_accepted_culture(const Pop& pop) const {
     return false;
 }
 
-/**
- * Gets the total tax applied to a POP depending on their "wealth"
- * (not exactly like that, more like by their type/status)
-*/
+// Gets the total tax applied to a POP depending on their "wealth"
+// (not exactly like that, more like by their type/status)
 float Nation::get_tax(const Pop& pop) const {
     float base_tax = 1.f;
 
@@ -115,6 +114,7 @@ float Nation::get_tax(const Pop& pop) const {
     return base_tax;
 }
 
+// Gives this nation a specified province (for example on a treaty)
 void Nation::give_province(World& world, Province& province) {
     Nation::Id nation_id = world.get_id(this);
     Province::Id province_id = world.get_id(&province);
@@ -133,4 +133,22 @@ void Nation::give_province(World& world, Province& province) {
     world.nations[nation_id]->owned_provinces.insert(world.provinces[province_id]);
     world.provinces[province_id]->owner = world.nations[nation_id];
     return;
+}
+
+const NationClientHint& get_client_hint(void) const {
+    // Find match
+    for(const auto& hint: client_hints) {
+        if(hint.ideology == ideology) {
+            return hint;
+        }
+    }
+
+    // 2nd search: Find a hint that is fallback
+    for(const auto& hint: client_hints) {
+        if(hint.ideology == nullptr) {
+            return hint;
+        }
+    }
+    
+    return client_hints.at(0);
 }

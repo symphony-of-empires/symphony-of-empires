@@ -3,10 +3,7 @@
 
 #include <string>
 
-typedef uint8_t GoodId;
-/**
-* A good, mostly serves as a "product type"
- */
+// A good, mostly serves as a "product type"
 class Good {
 public:
     using Id = uint16_t;

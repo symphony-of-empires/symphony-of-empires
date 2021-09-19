@@ -1,11 +1,9 @@
 #ifndef INDUSTRY_HPP
 #define INDUSTRY_HPP
-
 #include "company.hpp"
 #include "nation.hpp"
 #include "good.hpp"
 
-typedef uint8_t IndustryTypeId;
 class IndustryType {
 public:
     using Id = uint16_t;
@@ -24,8 +22,6 @@ public:
 };
 
 class World;
-
-typedef uint16_t IndustryId;
 class Industry {
 public:
     using Id = uint16_t;

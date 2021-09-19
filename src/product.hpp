@@ -1,15 +1,12 @@
 #ifndef PRODUCT_H
 #define PRODUCT_H
-
 #include "company.hpp"
 #include "province.hpp"
 #include "industry.hpp"
 #include "good.hpp"
-typedef uint16_t ProductId;
-/**
-* A product (based off a Good) which can be bought by POPs, converted by factories and transported
-* accross the world
- */
+
+// A product (based off a Good) which can be bought by POPs, converted by factories and transported
+// accross the world
 class Product {
 public:
     using Id = uint16_t;

@@ -10,11 +10,8 @@ class World;
 class Nation;
 class Industry;
 class Product;
-
-/**
-* A single province, which is used to simulate economy in a "bulk-tiles" way
-* instead of doing economical operations on every single tile
- */
+// A single province, which is used to simulate economy in a "bulk-tiles" way
+// instead of doing economical operations on every single tile
 class Province {
 public:
     using Id = uint16_t;
@@ -23,9 +20,8 @@ public:
     Nation& get_occupation_controller(const World& world) const;
     void add_industry(World& world, Industry* industry);
     void remove_industry(World& world, Industry* industry);
-
-    // Calculates the total number of POPs in this province (total population)
     size_t total_pops(void) const;
+    std::vector<Product*> get_products(const World& world) const;
 
     // Name of the province
     std::string name;

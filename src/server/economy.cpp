@@ -53,8 +53,8 @@ bool Industry::can_do_output(const World& world) {
  */
 void Industry::add_to_stock(const World& world, const Good* good, const size_t add) {
     for(size_t i = 0; i < stockpile.size(); i++) {
-        if(world.get_id(type->inputs[i]) == world.get_id(good)) {
-            stockpile[i] += add;
+        if(world.get_id(type->inputs.at(i)) == world.get_id(good)) {
+            stockpile.at(i) += add;
             break;
         }
     }
@@ -89,7 +89,7 @@ void Economy::do_phase_1(World& world) {
         size_t needed_manpower = 1000;
         size_t available_manpower = 0;
         for(size_t i = 0; i < world.job_requests.size(); i++) {
-            JobRequest& job_request = world.job_requests[i];
+            JobRequest& job_request = world.job_requests.at(i);
             // Outposts on water-desertland
             if(world.get_tile(outpost->x, outpost->y).province_id == (Province::Id)-1) {
                 // Accept anything
@@ -212,7 +212,7 @@ void Economy::do_phase_1(World& world) {
         std::vector<JobRequest> province_job_requests;
         world.job_requests_mutex.lock();
         for(size_t i = 0; i < world.job_requests.size(); i++) {
-            JobRequest& job_request = world.job_requests[i];
+            JobRequest& job_request = world.job_requests.at(i);
             if(job_request.province != province)
                 continue;
 
@@ -229,7 +229,7 @@ void Economy::do_phase_1(World& world) {
         // TODO: Do not close state-controlled factories when `pop_no_build_factory` is true
         // TODO: Do not close subsidized factories IN NON-LAISSEZ FAIRE ENVIRONMENTS!!!
         for(size_t i = 0; i < province->industries.size(); i++) {
-            Industry* industry = &province->industries[i];
+            Industry* industry = &province->industries.at(i);
             if(industry->budget < 0.f) {
                 province->remove_industry(world, industry);
                 --i;
@@ -255,7 +255,7 @@ void Economy::do_phase_1(World& world) {
             for(const auto& output: industry.output_products) {
                 // 100 minimum workers per output
                 const size_t employed = std::max<size_t>(std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), 100);
-                industry.employees_needed_per_output[i] = employed;
+                industry.employees_needed_per_output.at(i) = employed;
 
                 if(output->good->is_edible) {
                     needed_farmers += employed;
@@ -268,7 +268,7 @@ void Economy::do_phase_1(World& world) {
             
             // Search through all the job requests
             for(size_t i = 0; i < province_job_requests.size(); i++) {
-                JobRequest& job_request = province_job_requests[i];
+                JobRequest& job_request = province_job_requests.at(i);
                 size_t employed;
 
                 // Industries require 2 (or 3) types of POPs to correctly function
@@ -432,10 +432,8 @@ void Economy::do_phase_1(World& world) {
     });
 }
 
-/**
-* Phase 2 of the economy: Goods are transported all around the world, generating commerce and making them
-* be ready for POPs to buy
- */
+// Phase 2 of the economy: Goods are transported all around the world, generating commerce and making them
+// be ready for POPs to buy
 void Economy::do_phase_2(World& world) {
     std::lock_guard<std::recursive_mutex> l1(world.products_mutex);
     std::lock_guard<std::recursive_mutex> l2(world.nations_mutex);
@@ -449,7 +447,7 @@ void Economy::do_phase_2(World& world) {
             
             // Check all delivers
             for(size_t i = 0; i < world.delivers.size(); i++) {
-                DeliverGoods& deliver = world.delivers[i];
+                DeliverGoods& deliver = world.delivers.at(i);
 
                 // Is the transport company able to transport from this province?
                 if(!company->in_range(deliver.province))
@@ -461,7 +459,7 @@ void Economy::do_phase_2(World& world) {
 
                 // Check all orders
                 for(size_t j = 0; j < world.orders.size(); j++) {
-                    OrderGoods& order = world.orders[j];
+                    OrderGoods& order = world.orders.at(j);
                     
                     // Do they want these goods?
                     if(order.good != deliver.good)
@@ -585,7 +583,7 @@ void Economy::do_phase_2(World& world) {
     // The remaining delivers gets dropped and just simply add up the province's stockpile
     // Drop all rejected delivers who didn't got transported
     for(size_t i = 0; i < world.delivers.size(); i++) {
-        const DeliverGoods* deliver = &world.delivers[i];
+        const DeliverGoods* deliver = &world.delivers.at(i);
         Product* product = deliver->product;
                 
         // Add up to province stockpile
@@ -600,17 +598,15 @@ void Economy::do_phase_2(World& world) {
     // Uncomment to see stockpiles
     /*for(const auto& province: world.provinces) {
         for(size_t i = 0; i < province->stockpile.size(); i++) {
-            if(!province->stockpile[i])
+            if(!province->stockpile.at(i))
                 continue;
                 
-            print_info("%zu of %s produced in %s - stockpiled by %s", province->stockpile[i], world.products[i]->good->name.c_str(), world.products[i]->origin->name.c_str(), province->name.c_str());
+            print_info("%zu of %s produced in %s - stockpiled by %s", province->stockpile.at(i), world.products.at(i)->good->name.c_str(), world.products.at(i)->origin->name.c_str(), province->name.c_str());
         }
     }*/
 }
 
-/**
- * Structure that represents a person emigrating from a province to another
- */
+// Structure that represents a person emigrating from a province to another
 class Emigrated {
 public:
     Emigrated() {};
@@ -620,14 +616,13 @@ public:
     Pop emigred;
     size_t size;
 };
-/**
-* Phase 3 of economy: POPs buy the aforementioned products and take from the province's stockpile
- */
+
+// Phase 3 of economy: POPs buy the aforementioned products and take from the province's stockpile
 void Economy::do_phase_3(World& world) {
     // Now, it's like 1 am here, but i will try to write a very nice economic system
     // TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
-    std::mutex emigration_lock;
     std::vector<Emigrated> emigration = std::vector<Emigrated>();
+    std::mutex emigration_lock;
 
     std::srand(std::time(nullptr));
 
@@ -637,20 +632,7 @@ void Economy::do_phase_3(World& world) {
         if(province->owner == nullptr)
             return;
         
-        // Vector containing available products in the province (for faster calculations)
-        std::vector<Product *> province_products;
-        province_products.reserve(world.products.size());
-        for(const auto& product: world.products) {
-            // Only valid indices
-            if(world.get_id(product) == (ProductId)-1)
-                continue;
-
-            // Province must have stockpile
-            if(!province->stockpile[world.get_id(product)])
-                continue;
-            
-            province_products.push_back(product);
-        }
+        std::vector<Product *> province_products = province->get_products(world);
         
         float current_attractive = province->base_attractive;
         current_attractive += province->owner->base_literacy;
@@ -659,7 +641,7 @@ void Economy::do_phase_3(World& world) {
         // Reset worker pool
         province->worker_pool = 0;
         for(size_t i = 0; i < province->pops.size(); i++) {
-            Pop& pop = province->pops[i];
+            Pop& pop = province->pops.at(i);
 
             // Use 33% of our budget to buy edibles and life needed stuff
             float life_alloc_budget = pop.budget / 3;
@@ -791,7 +773,7 @@ void Economy::do_phase_3(World& world) {
                 // Find best province
                 Province* best_province = nullptr;
                 for(size_t j = 0; j < world.provinces.size(); j += std::max<size_t>((std::rand() % (world.provinces.size() - j)) / 10, 1)) {
-                    Province* target_province = world.provinces[j];
+                    Province* target_province = world.provinces.at(j);
                     float attractive = 0.f;
                     
                     // Don't go to owner-less provinces
