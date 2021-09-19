@@ -7,15 +7,14 @@
 #include <exception>
 #include <numeric>
 #include <string>
+#include <vector>
+#include <cstdio>
 
-/**
- * The purpouse of the serializer is to serialize objects onto a byte stream
- * that can be transfered onto the disk or over the network.
- *
- * Should the object have any pointers - they would need to be converted to
- * indexes accordingly for proper transmission.
- */
-
+// The purpouse of the serializer is to serialize objects onto a byte stream
+// that can be transfered onto the disk or over the network.
+//
+// Should the object have any pointers - they would need to be converted to
+// indexes accordingly for proper transmission.
 class SerializerException : public std::exception {
     std::string buffer;
 public:
@@ -27,13 +26,8 @@ public:
     };
 };
 
-/**
- * Base class that serves as archiver, stores (in memory) the data required for
- * serialization/deserialization
- */
-#include <vector>
-#include <cstdio>
-#include <string>
+// Base class that serves as archiver, stores (in memory) the data required for
+// serialization/deserialization
 class Archive {
 public:
     std::vector<uint8_t> buffer;
@@ -54,10 +48,8 @@ public:
     size_t size(void);
 };
 
-/**
- * A serializer (base class) which can be used to serialize objects
- * and create per-object optimized classes
- */
+// A serializer (base class) which can be used to serialize objects
+// and create per-object optimized classes
 template<typename T>
 class Serializer {
 public:
@@ -66,12 +58,9 @@ public:
     static inline size_t size(const T* obj);
 };
 
-/**
-* A serializer specialized in strings
-* The serializer stores the lenght of the string and the string itself
-* this is done so no errors can happen due to null stuff. (UTF-8 especially)
- */
-#include <string>
+// A serializer specialized in strings
+// The serializer stores the lenght of the string and the string itself
+// this is done so no errors can happen due to null stuff. (UTF-8 especially)
 template<>
 class Serializer<std::string> {
 public:
@@ -114,11 +103,9 @@ public:
     }
 };
 
-/**
-* A serializer optimized to memcpy directly the element into the byte stream
-* use only when the object can be copied without modification (i.e a class full of ints)
-* The elements must have a fixed size for this to work.
- */
+// A serializer optimized to memcpy directly the element into the byte stream
+// use only when the object can be copied without modification (i.e a class full of ints)
+// The elements must have a fixed size for this to work.
 template<typename T>
 class SerializerMemcpy {
 public:
@@ -165,9 +152,7 @@ class Serializer<bool> : public SerializerMemcpy<bool> {};
 
 // TODO: Vector serializers do not like different endianess
 
-/**
-* Non-contigous serializer for STL containers
- */
+// Non-contigous serializer for STL containers
 template<typename T, typename C>
 class SerializerContainer {
 public:
@@ -195,9 +180,7 @@ public:
     }
 };
 
-/**
-* Pair serializers
- */
+// Pair serializers
 template<typename T, typename U>
 class Serializer<std::pair<T, U>> {
 public:
@@ -214,9 +197,7 @@ public:
     }
 };
 
-/**
-* Contigous container serializers implementations
- */
+// Contigous container serializers implementations
 #include <vector>
 template<typename T>
 class Serializer<std::vector<T>> : public SerializerContainer<T, std::vector<T>> {

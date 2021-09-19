@@ -1,5 +1,6 @@
 #ifndef CULTURE_HPP
 #define CULTURE_HPP
+#include <string>
 
 class Culture {
 public:

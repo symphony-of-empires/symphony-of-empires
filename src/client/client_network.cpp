@@ -59,7 +59,7 @@ Client::Client(std::string host, const unsigned port) {
     }
 #endif
     
-    memset(&addr, 0, sizeof(addr));
+    std::memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = inet_addr(host.c_str());
     addr.sin_port = htons(port);
@@ -88,11 +88,10 @@ Client::Client(std::string host, const unsigned port) {
     has_snapshot = false;
 }
 
-/** The server assumes all clients are able to handle all events regardless of anything
- * if the client runs out of memory it needs to disconnect and then reconnect in order
- * to establish a new connection; since the server won't hand out snapshots - wait...
- * if you need snapshots for any reason (like desyncs) you can request with ACTION_SNAPSHOT
- */
+// The server assumes all clients are able to handle all events regardless of anything
+// if the client runs out of memory it needs to disconnect and then reconnect in order
+// to establish a new connection; since the server won't hand out snapshots - wait...
+// if you need snapshots for any reason (like desyncs) you can request with ACTION_SNAPSHOT
 void Client::net_loop(void) {
     // Receive the first snapshot of the world
     Packet packet = Packet(fd);
@@ -139,14 +138,14 @@ void Client::net_loop(void) {
                     packet.send(&action);
                     print_info("Received ping, responding with pong!");
                     break;
-                /** Update/Remove/Add Actions
-                 * These actions all follow the same format they give a specialized ID for the index
-                 * where the operated object is or should be; this allows for extreme-level fuckery
-                 * like ref-name changes in the middle of a game in the case of updates.
-                 *
-                 * After the ID the object in question is given in a serialized form, in which the
-                 * deserializer will deserialize onto the final object; after this the operation
-                 * desired is done. */
+                // Update/Remove/Add Actions
+                // These actions all follow the same format they give a specialized ID for the index
+                // where the operated object is or should be; this allows for extreme-level fuckery
+                // like ref-name changes in the middle of a game in the case of updates.
+                //
+                // After the ID the object in question is given in a serialized form, in which the
+                // deserializer will deserialize onto the final object; after this the operation
+                // desired is done.
                 case ACTION_NATION_UPDATE:
                     {
                         std::lock_guard<std::recursive_mutex> lock(g_world->nations_mutex);
@@ -322,8 +321,7 @@ void Client::net_loop(void) {
     }
 }
 
-/** Waits to receive the server initial world snapshot
- */
+// Waits to receive the server initial world snapshot
 void Client::wait_for_snapshot(void) {
     while(!has_snapshot) {
         // Just wait...

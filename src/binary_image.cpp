@@ -2,8 +2,6 @@
 #include <stdexcept>
 #include <cstring>
 #include <string>
-#include <errno.h>
-#include <png.h>
 #include "binary_image.hpp"
 #include "path.hpp"
 #include "print.hpp"
@@ -23,7 +21,7 @@ BinaryImage::BinaryImage(const BinaryImage& tex) {
     height = tex.height;
     width = tex.width;
     buffer = new uint32_t[width * height];
-    memcpy(buffer, tex.buffer, sizeof(uint32_t) * (width * height));
+    std::memcpy(buffer, tex.buffer, sizeof(uint32_t) * (width * height));
 }
 
 void BinaryImage::from_file(const std::string& path) {

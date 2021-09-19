@@ -12,6 +12,20 @@
 #include <winsock2.h>
 #endif
 
+class ServerClient {
+public:
+    ServerClient() {};
+    ~ServerClient(void) {
+        thread.join();
+    };
+
+    std::thread thread;
+    std::atomic<bool> is_connected;
+
+    std::deque<Packet> packets;
+    std::mutex packets_mutex;
+};
+
 class Server {
     struct sockaddr_in addr;
 #ifdef unix
@@ -19,14 +33,7 @@ class Server {
 #elif defined windows
     SOCKET fd;
 #endif
-
-    std::vector<std::thread> threads;
-    std::vector<std::deque<Packet>> packet_queues;
-    std::atomic<bool>* is_connected;
-    
-    // std::vector hates mutexes because they are not copy-able
-    std::mutex* packet_mutexes;
-    
+    ServerClient* clients;
     std::atomic<bool> run;
 public:
     Server(unsigned port = 1825, unsigned max_conn = 16);

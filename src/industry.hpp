@@ -1,5 +1,6 @@
 #ifndef INDUSTRY_HPP
 #define INDUSTRY_HPP
+#include <string>
 #include "company.hpp"
 #include "nation.hpp"
 #include "good.hpp"

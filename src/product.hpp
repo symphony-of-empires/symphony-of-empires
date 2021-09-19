@@ -1,5 +1,6 @@
 #ifndef PRODUCT_H
 #define PRODUCT_H
+#include <string>
 #include "company.hpp"
 #include "province.hpp"
 #include "industry.hpp"

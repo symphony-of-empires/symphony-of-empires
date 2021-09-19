@@ -1,6 +1,6 @@
 #ifndef COMPANY_HPP
 #define COMPANY_HPP
-
+#include <string>
 #include <set>
 #include <algorithm>
 #include "nation.hpp"

@@ -74,14 +74,13 @@ public:
     void recv(void* data, size_t size);
 };
 
-#include "print.hpp"
-enum PacketCode {
-    PACKET_OK,
-    PACKET_ERROR,
+enum class PacketCode {
+    OK,
+    ERROR,
 };
 class Packet {
     size_t n_data = 0;
-    PacketCode code = PACKET_OK;
+    PacketCode code = PacketCode::OK;
 public:
     std::vector<uint8_t> buffer;
     SocketStream stream;
@@ -112,14 +111,17 @@ public:
             std::memcpy(&buffer[0], buf, n_data);
         }
 
-        const uint32_t net_code = htonl(code);
+        const uint32_t net_code = htonl(static_cast<uint32_t>(code));
         stream.send(&net_code, sizeof(net_code));
         
         const uint32_t net_size = htonl(n_data);
         stream.send(&net_size, sizeof(net_size));
         
-        /* Socket writes can only be done 1024 bytes at a time */
+        // Socket writes can only be done 1024 bytes at a time
         stream.send(&buffer[0], n_data);
+
+        const uint16_t eof_marker = htons(0xE0F);
+        stream.send(&eof_marker, sizeof(eof_marker));
     }
 
     void send(void) {
@@ -131,18 +133,22 @@ public:
         uint32_t net_code;
         stream.recv(&net_code, sizeof(net_code));
         net_code  = ntohl(net_code);
-        code = (PacketCode)net_code;
+        code = static_cast<PacketCode>(net_code);
 
         uint32_t net_size;
         stream.recv(&net_size, sizeof(net_size));
-        
         n_data = (size_t)ntohl(net_size);
         buffer.resize(n_data + 1);
         
-        /* Reads can only be done 1024 bytes at a time */
+        // Reads can only be done 1024 bytes at a time
         stream.recv(&buffer[0], n_data);
         if(buf != nullptr)
-            memcpy(buf, &buffer[0], n_data);
+            std::memcpy(buf, &buffer[0], n_data);
+        
+        uint16_t eof_marker;
+        stream.recv(&eof_marker, sizeof(eof_marker));
+        if(ntohs(eof_marker) != 0xE0F)
+            throw SocketException("Packet with invalid EOF");
     }
     
     void recv(void) {
@@ -150,7 +156,7 @@ public:
     }
 
     bool is_ok() {
-        return (code == PACKET_OK);
+        return (code == PacketCode::OK);
     }
 };
 

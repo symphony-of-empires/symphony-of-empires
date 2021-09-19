@@ -540,7 +540,7 @@ void World::do_tick() {
         if(nation->exists() == false)
             continue;
         
-        if(rand() % 100 > 1.f) {
+        if(rand() % 10000 > 9990.f) {
             Province *target = provinces[rand() % provinces.size()];
             if(target->owner == nullptr) {
                 {
@@ -615,7 +615,7 @@ void World::do_tick() {
         }
 
         // Build an outpost randomly?
-        if(rand() % 10000 > 9950.f) {
+        if(rand() % 10000 > 9990.f) {
             bool can_build = false;
             for(const auto& province: nation->owned_provinces) {
                 if(get_id(&province->get_occupation_controller(*this)) != g_world->get_id(nation)) {
@@ -1268,6 +1268,6 @@ void World::do_tick() {
     
     LuaAPI::check_events(lua);
 
-    print_info("Tick %zu done", (size_t)time);
+    //print_info("Tick %zu done", (size_t)time);
     time++;
 }
