@@ -81,7 +81,7 @@ void GameState::play_nation() {
     g_client->packet_mutex.lock();
     Packet packet = Packet();
     Archive ar = Archive();
-    enum ActionType action = ACTION_SELECT_NATION;
+    ActionType action = ActionType::SELECT_NATION;
     ::serialize(ar, &action);
     ::serialize(ar, &curr_nation);
     packet.data(ar.get_buffer(), ar.size());
@@ -101,7 +101,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
     std::pair<float, float>& select_pos = input.select_pos;
     Boat* selected_boat = input.selected_boat;
     Unit* selected_unit = input.selected_unit;
-    Outpost* selected_outpost = input.selected_outpost;
+    Building* selected_building = input.selected_building;
 
     UI::Context* ui_ctx = gs.ui_ctx;
 
@@ -145,7 +145,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                             if (event.button.button == SDL_BUTTON_LEFT) {
                                 selected_boat = nullptr;
                                 selected_unit = nullptr;
-                                selected_outpost = nullptr;
+                                selected_building = nullptr;
 
                                 // Check if we selected a boat
                                 for (const auto& boat : gs.world->boats) {
@@ -175,49 +175,49 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                                 if (selected_unit != nullptr)
                                     break;
 
-                                // Check if we selected an outpost
-                                for (const auto& outpost : gs.world->outposts) {
+                                // Check if we selected an building
+                                for (const auto& building : gs.world->buildings) {
                                     const float size = 2.f;
-                                    if ((int)select_pos.first > (int)outpost->x - size &&
-                                        (int)select_pos.first < (int)outpost->x + size &&
-                                        (int)select_pos.second > (int)outpost->y - size &&
-                                        (int)select_pos.second < (int)outpost->y + size) {
-                                        selected_outpost = outpost;
+                                    if ((int)select_pos.first > (int)building->x - size &&
+                                        (int)select_pos.first < (int)building->x + size &&
+                                        (int)select_pos.second > (int)building->y - size &&
+                                        (int)select_pos.second < (int)building->y + size) {
+                                        selected_building = building;
                                         break;
                                     }
                                 }
-                                if (selected_outpost != nullptr)
+                                if (selected_building != nullptr)
                                     break;
 
-                                // Server will reject outpost build request if it's not in our territory (and it's not being built on water either)
+                                // Server will reject building build request if it's not in our territory (and it's not being built on water either)
                                 if (gs.world->get_tile(select_pos.first, select_pos.second).owner_id != gs.world->get_id(gs.curr_nation) &&
                                     gs.world->get_tile(select_pos.first, select_pos.second).owner_id != (Nation::Id)-1)
                                     break;
 
-                                // Tell the server about an action for building an outpost
+                                // Tell the server about an action for building an building
                                 g_client->packet_mutex.lock();
                                 Packet packet = Packet();
                                 Archive ar = Archive();
-                                enum ActionType action = ACTION_OUTPOST_ADD;
+                                ActionType action = ActionType::BUILDING_ADD;
                                 ::serialize(ar, &action);
-                                Outpost outpost = Outpost();
+                                Building building = Building();
 
                                 if (gs.world->get_tile(select_pos.first + 0, select_pos.second + 0).elevation <= gs.world->sea_level) {
                                     // Seaport if on bordering water
-                                    outpost.type = gs.world->outpost_types[2];
+                                    building.type = gs.world->building_types[2];
                                 } else {
                                     // Barracks if on land
-                                    outpost.type = gs.world->outpost_types[0];
+                                    building.type = gs.world->building_types[0];
                                 }
 
-                                outpost.x = select_pos.first;
-                                outpost.y = select_pos.second;
-                                outpost.working_unit_type = nullptr;
-                                outpost.working_boat_type = nullptr;
-                                outpost.req_goods = outpost.type->req_goods;
+                                building.x = select_pos.first;
+                                building.y = select_pos.second;
+                                building.working_unit_type = nullptr;
+                                building.working_boat_type = nullptr;
+                                building.req_goods = building.type->req_goods;
                                 // TODO FIX
-                                outpost.owner = gs.world->nations[gs.select_nation->curr_selected_nation];
-                                ::serialize(ar, &outpost);  // OutpostObj
+                                building.owner = gs.world->nations[gs.select_nation->curr_selected_nation];
+                                ::serialize(ar, &building);  // BuildingObj
                                 packet.data(ar.get_buffer(), ar.size());
                                 g_client->packet_queue.push_back(packet);
                                 g_client->packet_mutex.unlock();
@@ -230,7 +230,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                                     g_client->packet_mutex.lock();
                                     Packet packet = Packet();
                                     Archive ar = Archive();
-                                    enum ActionType action = ACTION_UNIT_CHANGE_TARGET;
+                                    ActionType action = ActionType::UNIT_CHANGE_TARGET;
                                     ::serialize(ar, &action);
                                     ::serialize(ar, &selected_unit);
                                     ::serialize(ar, &selected_unit->tx);
@@ -247,7 +247,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                                     g_client->packet_mutex.lock();
                                     Packet packet = Packet();
                                     Archive ar = Archive();
-                                    enum ActionType action = ACTION_BOAT_CHANGE_TARGET;
+                                    ActionType action = ActionType::BOAT_CHANGE_TARGET;
                                     ::serialize(ar, &action);
                                     ::serialize(ar, &selected_boat);
                                     ::serialize(ar, &selected_boat->tx);
@@ -257,8 +257,8 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                                     g_client->packet_mutex.unlock();
                                     break;
                                 }
-                                if (selected_outpost != nullptr) {
-                                    new BuildUnitWindow(gs, selected_outpost, gs.top_win->top_win);
+                                if (selected_building != nullptr) {
+                                    new BuildUnitWindow(gs, selected_building, gs.top_win->top_win);
                                     break;
                                 }
                             }
@@ -415,7 +415,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     std::pair<float, float>& select_pos = input.select_pos;
     Boat* selected_boat = input.selected_boat;
     Unit* selected_unit = input.selected_unit;
-    Outpost* selected_outpost = input.selected_outpost;
+    Building* selected_building = input.selected_building;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPushMatrix();
@@ -448,13 +448,13 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glEnd();
     }
 
-    if (selected_outpost != nullptr) {
+    if (selected_building != nullptr) {
         glBegin(GL_LINE_STRIP);
         glColor3f(1.f, 0.f, 0.f);
-        glVertex2f(selected_outpost->x, selected_outpost->y);
-        glVertex2f(selected_outpost->x + 1.f, selected_outpost->y);
-        glVertex2f(selected_outpost->x + 1.f, selected_outpost->y + 1.f);
-        glVertex2f(selected_outpost->x, selected_outpost->y + 1.f);
+        glVertex2f(selected_building->x, selected_building->y);
+        glVertex2f(selected_building->x + 1.f, selected_building->y);
+        glVertex2f(selected_building->x + 1.f, selected_building->y + 1.f);
+        glVertex2f(selected_building->x, selected_building->y + 1.f);
         glEnd();
     }
     gs.world->world_mutex.unlock();
@@ -547,8 +547,8 @@ void init_client(GameState& gs) {
         map->nation_flags.push_back(&g_texture_manager->load_texture(path));
     }
 
-    for (const auto& outpost_type : gs.world->outpost_types) {
-        std::string path = Path::get("3d/outpost_types/" + outpost_type->ref_name + ".obj");
+    for (const auto& building_type : gs.world->building_types) {
+        std::string path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
         map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
     }
     for (const auto& boat_type : gs.world->boat_types) {

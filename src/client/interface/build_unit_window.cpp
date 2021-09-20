@@ -1,15 +1,15 @@
 #include "build_unit_window.hpp"
 
-BuildUnitWindow::BuildUnitWindow(GameState& _gs, Outpost* _outpost, UI::Window* top_win)
-    : gs{_gs}, outpost{_outpost}, UI::Window(0, 0, 320, 501) {
-    if (outpost->type == nullptr)
-        throw std::runtime_error("UNKNOWN OUTPOST TYPE?");
+BuildUnitWindow::BuildUnitWindow(GameState& _gs, Building* _building, UI::Window* top_win)
+    : gs{_gs}, building{_building}, UI::Window(0, 0, 320, 501) {
+    if (building->type == nullptr)
+        throw std::runtime_error("Unknown building type?");
 
-    text("Build unit in outpost");
+    text("Build unit in building");
     below_of(*top_win);
 
     UI::Button *build_type_btn = nullptr, *prev_btn = nullptr;
-    if (outpost->type->is_build_land_units) {
+    if (building->type->is_build_land_units) {
         for (auto& unit_type : gs.world->unit_types) {
             if (build_type_btn != nullptr)
                 prev_btn = build_type_btn;
@@ -23,11 +23,11 @@ BuildUnitWindow::BuildUnitWindow(GameState& _gs, Outpost* _outpost, UI::Window* 
                 BuildUnitWindow* state = (BuildUnitWindow*)w.parent;
 				UnitType* unitType = (UnitType*)data;
 				
-				Command* command = new BuildUnitCommand(state->outpost, unitType);
+				Command* command = new BuildUnitCommand(state->building, unitType);
 				state->gs.add_command(command);
             };
         }
-    } else if (outpost->type->is_build_naval_units) {
+    } else if (building->type->is_build_naval_units) {
         for (auto& boat_type : gs.world->boat_types) {
             if (build_type_btn != nullptr)
                 prev_btn = build_type_btn;
@@ -41,7 +41,7 @@ BuildUnitWindow::BuildUnitWindow(GameState& _gs, Outpost* _outpost, UI::Window* 
                 BuildUnitWindow* state = (BuildUnitWindow*)w.parent;
 				BoatType* boatType = (BoatType*)data;
 				
-				Command* command = new BuildUnitCommand(state->outpost, boatType);
+				Command* command = new BuildUnitCommand(state->building, boatType);
 				state->gs.add_command(command);
             };
         }

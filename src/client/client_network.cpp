@@ -93,7 +93,7 @@ Client::Client(std::string host, const unsigned port) {
 // The server assumes all clients are able to handle all events regardless of anything
 // if the client runs out of memory it needs to disconnect and then reconnect in order
 // to establish a new connection; since the server won't hand out snapshots - wait...
-// if you need snapshots for any reason (like desyncs) you can request with ACTION_SNAPSHOT
+// if you need snapshots for any reason (like desyncs) you can request with ActionType::SNAPSHOT
 void Client::net_loop(void) {
     // Receive the first snapshot of the world
     g_world->world_mutex.lock();
@@ -138,8 +138,8 @@ void Client::net_loop(void) {
                 // Ping from server, we should answer with a pong!
                 std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
                 switch(action) {
-                case ACTION_PONG: {
-                print_info("ACTION_PONG");
+                case ActionType::PONG: {
+                print_info("ActionType::PONG");
                     packet.send(&action);
                     print_info("Received ping, responding with pong!");
                 } break;
@@ -151,14 +151,14 @@ void Client::net_loop(void) {
                 // After the ID the object in question is given in a serialized form, in which the
                 // deserializer will deserialize onto the final object; after this the operation
                 // desired is done.
-                case ACTION_NATION_UPDATE: {
+                case ActionType::NATION_UPDATE: {
                     Nation* nation;
                     ::deserialize(ar, &nation);
                     if(nation == nullptr)
                         throw ClientException("Unknown nation");
                     ::deserialize(ar, nation);
                 } break;
-                case ACTION_NATION_ENACT_POLICY: {
+                case ActionType::NATION_ENACT_POLICY: {
                     Nation* nation;
                     ::deserialize(ar, &nation);
                     if(nation == nullptr)
@@ -169,60 +169,60 @@ void Client::net_loop(void) {
                 } break;
                 // TODO: There is a problem with this
                 // TODO: It throws serializer errors but idk where, maybe the server?
-                case ACTION_PROVINCE_UPDATE: {
+                case ActionType::PROVINCE_UPDATE: {
                     Province* province;
                     ::deserialize(ar, &province);
                     if(province == nullptr)
                         throw ClientException("Unknown province");
                     ::deserialize(ar, province);
                 } break;
-                case ACTION_PRODUCT_UPDATE: {
+                case ActionType::PRODUCT_UPDATE: {
                     Product* product;
                     ::deserialize(ar, &product);
                     if(product == nullptr)
                         throw ClientException("Unknown product");
                     ::deserialize(ar, product);
                 } break;
-                case ACTION_UNIT_UPDATE: {
+                case ActionType::UNIT_UPDATE: {
                     Unit* unit;
                     ::deserialize(ar, &unit);
                     if(unit == nullptr)
                         throw ClientException("Unknown unit");
                     ::deserialize(ar, unit);
                 } break;
-                case ACTION_UNIT_ADD: {
+                case ActionType::UNIT_ADD: {
                     Unit* unit = new Unit();
                     ::deserialize(ar, unit);
                     g_world->units.push_back(unit);
                     print_info("New unit of %s", unit->owner->name.c_str());
                 } break;
-                case ACTION_BOAT_UPDATE: {
+                case ActionType::BOAT_UPDATE: {
                     Boat* boat;
                     ::deserialize(ar, &boat);
                     if(boat == nullptr)
                         throw ClientException("Unknown boat");
                     ::deserialize(ar, boat);
                 } break;
-                case ACTION_BOAT_ADD: {
+                case ActionType::BOAT_ADD: {
                     Boat* boat = new Boat();
                     ::deserialize(ar, boat);
                     g_world->boats.push_back(boat);
                     print_info("New boat of %s", boat->owner->name.c_str());
                 } break;
-                case ACTION_OUTPOST_UPDATE: {
-                    Outpost* outpost;
-                    ::deserialize(ar, &outpost);
-                    if(outpost == nullptr)
-                        throw ClientException("Unknown outpost");
-                    ::deserialize(ar, outpost);
+                case ActionType::BUILDING_UPDATE: {
+                    Building* building;
+                    ::deserialize(ar, &building);
+                    if(building == nullptr)
+                        throw ClientException("Unknown building");
+                    ::deserialize(ar, building);
                 } break;
-                case ACTION_OUTPOST_ADD: {
-                    Outpost* outpost = new Outpost();
-                    ::deserialize(ar, outpost);
-                    g_world->outposts.push_back(outpost);
-                    print_info("New outpost of %s", outpost->owner->name.c_str());
+                case ActionType::BUILDING_ADD: {
+                    Building* building = new Building();
+                    ::deserialize(ar, building);
+                    g_world->buildings.push_back(building);
+                    print_info("New building of %s", building->owner->name.c_str());
                 } break;
-                case ACTION_TREATY_ADD: {
+                case ActionType::TREATY_ADD: {
                     Treaty* treaty = new Treaty();
                     ::deserialize(ar, treaty);
                     g_world->treaties.push_back(treaty);
@@ -231,10 +231,10 @@ void Client::net_loop(void) {
                         print_info("- %s", status.first->name.c_str());
                     }
                 } break;
-                case ACTION_WORLD_TICK: {
+                case ActionType::WORLD_TICK: {
                     ::deserialize(ar, &g_world->time);
                 } break;
-                case ACTION_TILE_UPDATE: {
+                case ActionType::TILE_UPDATE: {
                     // get_tile is already mutexed
                     std::pair<size_t, size_t> coord;
                     ::deserialize(ar, &coord.first);
@@ -244,7 +244,7 @@ void Client::net_loop(void) {
                     std::lock_guard<std::recursive_mutex> lock(g_world->changed_tiles_coords_mutex);
                     g_world->nation_changed_tiles.push_back(&g_world->get_tile(coord.first, coord.second));
                 } break;
-                case ACTION_PROVINCE_COLONIZE: {
+                case ActionType::PROVINCE_COLONIZE: {
                     Province* province;
                     ::deserialize(ar, &province);
                     if(province == nullptr)

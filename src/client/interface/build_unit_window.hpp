@@ -9,9 +9,9 @@
 
 class BuildUnitWindow : public UI::Window {
    public:
-    BuildUnitWindow(GameState& _gs, Outpost* _outpost, UI::Window* top_win);
+    BuildUnitWindow(GameState& _gs, Building* _building, UI::Window* top_win);
 
-    Outpost* outpost;
+    Building* building;
     GameState& gs;
 };
 

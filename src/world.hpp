@@ -10,6 +10,8 @@
 #include "product.hpp"
 #include "industry.hpp"
 #include "good.hpp"
+#include "technology.hpp"
+#include "building.hpp"
 #include "company.hpp"
 #include "ideology.hpp"
 #include "server/lua_api.hpp"
@@ -48,10 +50,10 @@ public:
 * Represents an order, something an industry wants and that should be
 * fullfilled by transport companies
  */
-enum OrderType {
-    ORDER_INDUSTRIAL,
-    ORDER_OUTPOST_BUILD,
-    ORDER_UNIT_BUILD,
+enum class OrderType {
+    INDUSTRIAL,
+    BUILDING,
+    UNIT,
 };
 class OrderGoods {
 public:
@@ -69,8 +71,8 @@ public:
     union {
         // ID of the industry (inside the province) who requested this good
         Industry* industry;
-        // It can also be a outpost who requests this
-        Outpost* outpost;
+        // It can also be a building who requests this
+        Building* building;
     };
 
     // ID of the province where the industry (who requested this) is located in
@@ -214,11 +216,11 @@ public:
         return industry_types;
     };
 
-    inline const std::vector<Outpost*>& get_list(const Outpost* ptr) const {
-        return outposts;
+    inline const std::vector<Building*>& get_list(const Building* ptr) const {
+        return buildings;
     };
-    inline std::vector<Outpost*>& get_list(const Outpost* ptr) {
-        return outposts;
+    inline std::vector<Building*>& get_list(const Building* ptr) {
+        return buildings;
     };
 
     inline const std::vector<Event*>& get_list(const Event* ptr) const {
@@ -263,11 +265,11 @@ public:
         return boats;
     };
 
-    inline const std::vector<OutpostType*>& get_list(const OutpostType* ptr) const {
-        return outpost_types;
+    inline const std::vector<BuildingType*>& get_list(const BuildingType* ptr) const {
+        return building_types;
     };
-    inline std::vector<OutpostType*>& get_list(const OutpostType* ptr) {
-        return outpost_types;
+    inline std::vector<BuildingType*>& get_list(const BuildingType* ptr) {
+        return building_types;
     };
 
     inline const std::vector<Treaty*>& get_list(const Treaty* ptr) const {
@@ -373,8 +375,8 @@ public:
 
     // A list containing descisions taken by countries
     std::vector<Descision*> taken_descisions;
-    std::vector<OutpostType*> outpost_types;
-    std::vector<Outpost*> outposts;
+    std::vector<BuildingType*> building_types;
+    std::vector<Building*> buildings;
     std::vector<Treaty*> treaties;
     std::vector<Ideology*> ideologies;
     

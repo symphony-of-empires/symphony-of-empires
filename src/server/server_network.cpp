@@ -180,13 +180,13 @@ void Server::net_loop(int id) {
             // Tell all other clients about the connection of this new client
             {
                 Archive ar = Archive();
-                enum ActionType action = ACTION_CONNECT;
+                ActionType action = ActionType::CONNECT;
                 ::serialize(ar, &action);
                 packet.data(ar.get_buffer(), ar.size());
                 broadcast(packet);
             }
             
-            enum ActionType action = ACTION_PING;
+            ActionType action = ActionType::PING;
             packet.send(&action);
             print_info("Sent action %zu", (size_t)action);
 #ifdef unix
@@ -212,19 +212,19 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, &action);
 
                     if(selected_nation == nullptr &&
-                    (action != ACTION_PONG && action != ACTION_CHAT_MESSAGE && action != ACTION_SELECT_NATION))
+                    (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                         throw ServerException("Unallowed operation without selected nation");
                     
                     std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
                     switch(action) {
                     /// - Used to test connections between server and client
-                    case ACTION_PONG:
-                        action = ACTION_PING;
+                    case ActionType::PONG:
+                        action = ActionType::PING;
                         packet.send(&action);
                         print_info("Received pong, responding with ping!");
                         break;
                     /// - Client tells server to enact a new policy for it's nation
-                    case ACTION_NATION_ENACT_POLICY: {
+                    case ActionType::NATION_ENACT_POLICY: {
                         Policies policies;
                         ::deserialize(ar, &policies);
 
@@ -232,7 +232,7 @@ void Server::net_loop(int id) {
                         selected_nation->current_policy = policies;
                     } break;
                     /// - Client tells server to change target of unit
-                    case ACTION_UNIT_CHANGE_TARGET: {
+                    case ActionType::UNIT_CHANGE_TARGET: {
                         Unit* unit;
                         ::deserialize(ar, &unit);
                         if(unit == nullptr)
@@ -251,7 +251,7 @@ void Server::net_loop(int id) {
                         print_info("Unit changes targets to %zu.%zu", (size_t)unit->tx, (size_t)unit->ty);
                     } break;
                     /// - Client tells server to change target of boat
-                    case ACTION_BOAT_CHANGE_TARGET: {
+                    case ActionType::BOAT_CHANGE_TARGET: {
                         Boat* boat;
                         ::deserialize(ar, &boat);
                         if(boat == nullptr)
@@ -270,86 +270,86 @@ void Server::net_loop(int id) {
                         print_info("Boat changes targets to %zu.%zu", (size_t)boat->tx, (size_t)boat->ty);
                     } break;
                     // Client tells the server about the construction of a new unit, note that this will
-                    // only make the outpost submit "construction tickets" to obtain materials to build
+                    // only make the building submit "construction tickets" to obtain materials to build
                     // the unit can only be created by the server, not by the clients
-                    case ACTION_OUTPOST_START_BUILDING_UNIT: {
-                        Outpost* outpost;
-                        ::deserialize(ar, &outpost);
-                        if(outpost == nullptr)
-                            throw ServerException("Unknown outpost");
+                    case ActionType::BUILDING_START_BUILDING_UNIT: {
+                        Building* building;
+                        ::deserialize(ar, &building);
+                        if(building == nullptr)
+                            throw ServerException("Unknown building");
                         
                         UnitType* unit_type;
                         ::deserialize(ar, &unit_type);
                         if(unit_type == nullptr)
                             throw ServerException("Unknown unit type");
                         
-                        // Must control outpost
-                        if(outpost->owner != selected_nation)
-                            throw ServerException("Nation does not control outpost");
+                        // Must control building
+                        if(building->owner != selected_nation)
+                            throw ServerException("Nation does not control building");
                         
                         // TODO: Check nation can build this unit
 
-                        // Tell the outpost to build this specific unit type
-                        outpost->working_unit_type = unit_type;
-                        outpost->req_goods_for_unit = unit_type->req_goods;
-                        print_info("New order for building on outpost; build unit %s", unit_type->name.c_str());
+                        // Tell the building to build this specific unit type
+                        building->working_unit_type = unit_type;
+                        building->req_goods_for_unit = unit_type->req_goods;
+                        print_info("New order for building on building; build unit %s", unit_type->name.c_str());
                     } break;
                     // - Same as before but with boats
-                    case ACTION_OUTPOST_START_BUILDING_BOAT: {
-                        Outpost* outpost;
-                        ::deserialize(ar, &outpost);
-                        if(outpost == nullptr)
-                            throw ServerException("Unknown outpost");
+                    case ActionType::BUILDING_START_BUILDING_BOAT: {
+                        Building* building;
+                        ::deserialize(ar, &building);
+                        if(building == nullptr)
+                            throw ServerException("Unknown building");
                         
                         BoatType* boat_type;
                         ::deserialize(ar, &boat_type);
                         if(boat_type == nullptr)
                             throw ServerException("Unknown boat type");
                         
-                        // Must control outpost
-                        if(outpost->owner != selected_nation)
-                            throw ServerException("Nation does not control outpost");
+                        // Must control building
+                        if(building->owner != selected_nation)
+                            throw ServerException("Nation does not control building");
 
-                        // Tell the outpost to build this specific unit type
-                        outpost->working_boat_type = boat_type;
-                        outpost->req_goods_for_unit = boat_type->req_goods;
-                        print_info("New order for building on outpost; build boat %s", boat_type->name.c_str());
+                        // Tell the building to build this specific unit type
+                        building->working_boat_type = boat_type;
+                        building->req_goods_for_unit = boat_type->req_goods;
+                        print_info("New order for building on building; build boat %s", boat_type->name.c_str());
                     } break;
                     // Client tells server to build new outpost, the location (& type) is provided by
                     // the client and the rest of the fields are filled by the server
-                    case ACTION_OUTPOST_ADD: {
-                        Outpost* outpost = new Outpost();
-                        ::deserialize(ar, outpost);
-                        if(outpost->type == nullptr)
-                            throw ServerException("Unknown outpost type");
+                    case ActionType::BUILDING_ADD: {
+                        Building* building = new Building();
+                        ::deserialize(ar, building);
+                        if(building->type == nullptr)
+                            throw ServerException("Unknown building type");
 
-                        // Modify the serialized outpost
-                        ar.ptr -= ::serialized_size(outpost);
-                        outpost->owner = selected_nation;
+                        // Modify the serialized building
+                        ar.ptr -= ::serialized_size(building);
+                        building->owner = selected_nation;
 
                         // Check that it's not out of bounds
-                        if(outpost->x >= g_world->width || outpost->y >= g_world->height)
-                            throw ServerException("Outpost out of range");
+                        if(building->x >= g_world->width || building->y >= g_world->height)
+                            throw ServerException("building out of range");
                         
-                        // Outposts can only be built on owned land or on shores
-                        if(g_world->get_tile(outpost->x, outpost->y).owner_id != g_world->get_id(selected_nation)
-                        && g_world->get_tile(outpost->x, outpost->y).elevation > g_world->sea_level)
-                            throw ServerException("Outpost cannot be built on foreign land");
+                        // Building can only be built on owned land or on shores
+                        if(g_world->get_tile(building->x, building->y).owner_id != g_world->get_id(selected_nation)
+                        && g_world->get_tile(building->x, building->y).elevation > g_world->sea_level)
+                            throw ServerException("Building cannot be built on foreign land");
 
-                        outpost->working_unit_type = nullptr;
-                        outpost->working_boat_type = nullptr;
-                        outpost->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
-                        outpost->req_goods = std::vector<std::pair<Good*, size_t>>();
-                        ::serialize(ar, outpost);
+                        building->working_unit_type = nullptr;
+                        building->working_boat_type = nullptr;
+                        building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
+                        building->req_goods = std::vector<std::pair<Good*, size_t>>();
+                        ::serialize(ar, building);
 
-                        g_world->outposts.push_back(outpost);
-                        print_info("New outpost of %s", outpost->owner->name.c_str());
+                        g_world->buildings.push_back(building);
+                        print_info("New building of %s", building->owner->name.c_str());
                         // Rebroadcast
                         broadcast(packet);
                     } break;
                     // Client tells server that it wants to colonize a province, this can be rejected
                     // or accepted, client should check via the next PROVINCE_UPDATE action
-                    case ACTION_PROVINCE_COLONIZE: {
+                    case ActionType::PROVINCE_COLONIZE: {
                         Province* province;
                         ::deserialize(ar, &province);
 
@@ -366,7 +366,7 @@ void Server::net_loop(int id) {
                         broadcast(packet);
                     } break;
                     // Simple IRC-like chat messaging system
-                    case ACTION_CHAT_MESSAGE: {
+                    case ActionType::CHAT_MESSAGE: {
                         std::string msg;
                         ::deserialize(ar, &msg);
                         print_info("Message: %s\n", msg.c_str());
@@ -375,7 +375,7 @@ void Server::net_loop(int id) {
                         broadcast(packet);
                     } break;
                     // Client changes it's approval on certain treaty
-                    case ACTION_CHANGE_TREATY_APPROVAL: {
+                    case ActionType::CHANGE_TREATY_APPROVAL: {
                         Treaty* treaty;
                         ::deserialize(ar, &treaty);
                         if(treaty == nullptr)
@@ -403,7 +403,7 @@ void Server::net_loop(int id) {
                         broadcast(packet);
                     } break;
                     // Client sends a treaty to someone
-                    case ACTION_DRAFT_TREATY: {
+                    case ActionType::DRAFT_TREATY: {
                         Treaty* treaty = new Treaty();
                         ::deserialize(ar, &treaty->clauses);
                         ::deserialize(ar, &treaty->name);
@@ -445,14 +445,14 @@ void Server::net_loop(int id) {
                         // Rebroadcast to client
                         // We are going to add a treaty to the client
                         Archive tmp_ar = Archive();
-                        action = ACTION_TREATY_ADD;
+                        action = ActionType::TREATY_ADD;
                         ::serialize(tmp_ar, &action);
                         ::serialize(tmp_ar, treaty);
                         packet.data(tmp_ar.get_buffer(), tmp_ar.size());
                         broadcast(packet);
                     } break;
                     // Client takes a descision
-                    case ACTION_NATION_TAKE_DESCISION: {
+                    case ActionType::NATION_TAKE_DESCISION: {
                         // Find event by reference name
                         std::string event_ref_name;
                         ::deserialize(ar, &event_ref_name);
@@ -483,7 +483,7 @@ void Server::net_loop(int id) {
                         );
                     } break;
                     // The client selects a nation
-                    case ACTION_SELECT_NATION: {
+                    case ActionType::SELECT_NATION: {
                         Nation* nation;
                         ::deserialize(ar, &nation);
                         if(nation == nullptr)
@@ -529,7 +529,7 @@ void Server::net_loop(int id) {
         {
             Packet packet;
             Archive ar = Archive();
-            enum ActionType action = ACTION_DISCONNECT;
+            ActionType action = ActionType::DISCONNECT;
             ::serialize(ar, &action);
             packet.data(ar.get_buffer(), ar.size());
             broadcast(packet);

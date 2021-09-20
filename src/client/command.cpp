@@ -21,7 +21,7 @@ void DescisionCommand::run_command(World& ws, Client* client) {
     client->packet_mutex.lock();
     Packet packet = Packet(g_client->get_fd());
     Archive ar = Archive();
-    enum ActionType action = ACTION_NATION_TAKE_DESCISION;
+    ActionType action = ActionType::NATION_TAKE_DESCISION;
     ::serialize(ar, &action);
     ::serialize(ar, &event.ref_name);
     ::serialize(ar, &descision.ref_name);
@@ -34,7 +34,7 @@ void TreatyAcceptCommand::run_command(World& ws, Client* client) {
     client->packet_mutex.lock();
     Packet packet = Packet(g_client->get_fd());
     Archive ar = Archive();
-    enum ActionType action = ACTION_CHANGE_TREATY_APPROVAL;
+    ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
     // ::serialize(ar, &action);
     // ::serialize(ar, treaty);
     // enum TreatyApproval approval = accepts ? TREATY_APPROVAL_ACCEPTED : TREATY_APPROVAL_DENIED;
@@ -48,7 +48,7 @@ void TreatySendCommand::run_command(World& ws, Client* client) {
     client->packet_mutex.lock();
     Packet packet = Packet(g_client->get_fd());
     Archive ar = Archive();
-    enum ActionType action = ACTION_DRAFT_TREATY;
+    ActionType action = ActionType::DRAFT_TREATY;
     ::serialize(ar, &action);
     ::serialize(ar, &treaty->clauses);  // ClausesRefList
     ::serialize(ar, &treaty->name);     // StringObj
@@ -63,17 +63,16 @@ void BuildUnitCommand::run_command(World& ws, Client* client) {
     Packet packet = Packet(g_client->get_fd());
     Archive ar = Archive();
     if (unitType != nullptr) {
-        enum ActionType action = ACTION_OUTPOST_START_BUILDING_UNIT;
+        enum ActionType action = ActionType::BUILDING_START_BUILDING_UNIT;
         ::serialize(ar, &action);
 
-        ::serialize(ar, &outpost);  // OutpostRef
-        ::serialize(ar, unitType);  // UnitTypeRef
+        ::serialize(ar, &building); // BuildingRef
+        ::serialize(ar, unitType); // UnitTypeRef
     } else {
-        enum ActionType action = ACTION_OUTPOST_START_BUILDING_BOAT;
+        enum ActionType action = ActionType::BUILDING_START_BUILDING_BOAT;
         ::serialize(ar, &action);
-
-        ::serialize(ar, &outpost);  // OutpostRef
-        ::serialize(ar, boatType);  // BoatTypeRef
+        ::serialize(ar, &building); // BuildingRef
+        ::serialize(ar, boatType); // BoatTypeRef
     }
     packet.data(ar.get_buffer(), ar.size());
     client->packet_queue.push_back(packet);

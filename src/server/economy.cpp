@@ -64,10 +64,10 @@ void Industry::add_to_stock(const World& world, const Good* good, const size_t a
 * Phase 1 of economy: Delivers & Orders are sent from all factories in the world
  */
 void Economy::do_phase_1(World& world) {
-    // Outposts who have fullfilled requirements to build stuff will spawna  lil' unit/boat
-    for(auto& outpost: world.outposts) {
+    // Buildings who have fullfilled requirements to build stuff will spawna  lil' unit/boat
+    for(auto& building: world.buildings) {
         bool can_build = true;
-        for(const auto& req: outpost->req_goods_for_unit) {
+        for(const auto& req: building->req_goods_for_unit) {
             // Increment demand for all products with same required good type
             for(auto& product: world.products) {
                 if(product->good != req.first)
@@ -89,19 +89,19 @@ void Economy::do_phase_1(World& world) {
         size_t available_manpower = 0;
         for(size_t i = 0; i < world.job_requests.size(); i++) {
             JobRequest& job_request = world.job_requests.at(i);
-            // Outposts on water-desertland
-            if(world.get_tile(outpost->x, outpost->y).province_id == (Province::Id)-1) {
+            // Buildings on water-desertland
+            if(world.get_tile(building->x, building->y).province_id == (Province::Id)-1) {
                 // Accept anything
             }
-            // Outposts on land
-            else if(job_request.province != world.provinces[world.get_tile(outpost->x, outpost->y).province_id]) {
-                // If province not equal to province of outpost then dont accept
+            // Buildings on land
+            else if(job_request.province != world.provinces[world.get_tile(building->x, building->y).province_id]) {
+                // If province not equal to province of building then dont accept
                 continue;
             }
 
             // Give pay to the POP
             job_request.pop->budget += 10.f;
-            outpost->owner->budget -= 10.f * job_request.amount;
+            building->owner->budget -= 10.f * job_request.amount;
                 
             available_manpower += std::min(needed_manpower, job_request.amount);
             job_request.amount -= std::min(needed_manpower, job_request.amount);
@@ -114,15 +114,15 @@ void Economy::do_phase_1(World& world) {
             }
         }
 
-        if(outpost->working_unit_type != nullptr) {
+        if(building->working_unit_type != nullptr) {
             // Spawn a unit
             Unit* unit = new Unit();
-            unit->x = outpost->x;
-            unit->y = outpost->y;
-            unit->type = outpost->working_unit_type;
+            unit->x = building->x;
+            unit->y = building->y;
+            unit->type = building->working_unit_type;
             unit->tx = unit->x;
             unit->ty = unit->y;
-            unit->owner = outpost->owner;
+            unit->owner = building->owner;
             unit->budget = 5000.f;
             unit->experience = 1.f;
             unit->morale = 1.f;
@@ -136,22 +136,22 @@ void Economy::do_phase_1(World& world) {
 
             Packet packet = Packet();
             Archive ar = Archive();
-            enum ActionType action = ACTION_UNIT_ADD;
+            ActionType action = ActionType::UNIT_ADD;
             ::serialize(ar, &action); // ActionInt
             ::serialize(ar, unit); // UnitObj
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
 
-            outpost->working_unit_type = nullptr;
-        } else if(outpost->working_boat_type != nullptr) {
+            building->working_unit_type = nullptr;
+        } else if(building->working_boat_type != nullptr) {
             // Spawn a boat
             Boat* boat = new Boat();
-            boat->x = outpost->x;
-            boat->y = outpost->y;
-            boat->type = outpost->working_boat_type;
+            boat->x = building->x;
+            boat->y = building->y;
+            boat->type = building->working_boat_type;
             boat->tx = boat->x;
             boat->ty = boat->y;
-            boat->owner = outpost->owner;
+            boat->owner = building->owner;
             boat->experience = 1.f;
             boat->morale = 1.f;
             boat->supply = 1.f;
@@ -164,21 +164,21 @@ void Economy::do_phase_1(World& world) {
 
             Packet packet = Packet();
             Archive ar = Archive();
-            enum ActionType action = ACTION_BOAT_ADD;
+            ActionType action = ActionType::BOAT_ADD;
             ::serialize(ar, &action); // ActionInt
             ::serialize(ar, boat); // BoatObj
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
 
-            outpost->working_boat_type = nullptr;
+            building->working_boat_type = nullptr;
         }
 
-        // Take opportunity to also send an update about our outposts
+        // Take opportunity to also send an update about our buildings
         Packet packet = Packet();
         Archive ar = Archive();
-        enum ActionType action = ACTION_OUTPOST_UPDATE;
-        ::serialize(ar, &outpost); // OutpostRef
-        ::serialize(ar, outpost); // OutpostObj
+        enum ActionType action = ActionType::BUILDING_UPDATE;
+        ::serialize(ar, &building); // BuildingRef
+        ::serialize(ar, building); // BuildingObj
         packet.data(ar.get_buffer(), ar.size());
         g_server->broadcast(packet);
     }
@@ -222,6 +222,7 @@ void Economy::do_phase_1(World& world) {
         for(size_t i = 0; i < province->industries.size(); i++) {
             Industry* industry = &province->industries.at(i);
             if(industry->budget < 0.f) {
+                print_info("Industry of %s in %s has closed down!", industry->type->name.c_str(), province->name.c_str());
                 province->remove_industry(world, industry);
                 --i;
                 continue;
@@ -304,7 +305,6 @@ void Economy::do_phase_1(World& world) {
                 industry.min_quality = 0;
 
                 // TODO: We should tax industry daily income instead of by it's total budget
-                // Budget of the industry decreases due to taxes, and the goverments keeps those taxes
                 const float loss_by_tax = industry.budget * province->owner->current_policy.industry_tax;
                 industry.budget -= loss_by_tax;
                 province->owner->budget += loss_by_tax;
@@ -328,7 +328,7 @@ void Economy::do_phase_1(World& world) {
                 order.good = input;
                 order.industry = &industry;
                 order.province = province;
-                order.type = ORDER_INDUSTRIAL;
+                order.type = OrderType::INDUSTRIAL;
                 world.orders.push_back(order);
 
                 // Increase demand for all products with same good type as ordered
@@ -380,10 +380,10 @@ void Economy::do_phase_1(World& world) {
         }
     });
 
-    // Outposts working on units and boats will also request materials
-    for(const auto& outpost: world.outposts) {
-        // Building the outpost itself
-        for(const auto& good: outpost->req_goods) {
+    // Buildings working on units and boats will also request materials
+    for(const auto& building: world.buildings) {
+        // Building the building itself
+        for(const auto& good: building->req_goods) {
             if(!good.second)
                 continue;
 
@@ -392,14 +392,14 @@ void Economy::do_phase_1(World& world) {
             // TODO: Make this dynamic
             order.payment = good.second * 5.f;
             order.good = good.first;
-            order.outpost = outpost;
-            order.type = ORDER_OUTPOST_BUILD;
+            order.building = building;
+            order.type = OrderType::BUILDING;
             world.orders.push_back(order);
         }
 
         // TODO: We should deduct and set willing payment from military spendings
         // Building the unit
-        for(const auto& good: outpost->req_goods_for_unit) {
+        for(const auto& good: building->req_goods_for_unit) {
             if(!good.second)
                 continue;
 
@@ -408,8 +408,8 @@ void Economy::do_phase_1(World& world) {
             // TODO: Make this dynamic
             order.payment = good.second * 5.f;
             order.good = good.first;
-            order.outpost = outpost;
-            order.type = ORDER_UNIT_BUILD;
+            order.building = building;
+            order.type = OrderType::UNIT;
             world.orders.push_back(order);
         }
     }
@@ -487,7 +487,7 @@ void Economy::do_phase_2(World& world) {
                     // Orders payment should also cover the import tax and a deliver payment should also cover the export
                     // tax too. Otherwise we can't deliver
                     if(order.payment < total_order_cost && total_order_cost > 0.f) {
-                        if(order.type == ORDER_INDUSTRIAL) {
+                        if(order.type == OrderType::INDUSTRIAL) {
                             order.industry->willing_payment = total_order_cost;
                         }
                         continue;
@@ -497,7 +497,7 @@ void Economy::do_phase_2(World& world) {
                     }
 
                     // Must have above minimum quality to be accepted
-                    if(order.type == ORDER_INDUSTRIAL && deliver.product->quality < order.industry->min_quality) {
+                    if(order.type == OrderType::INDUSTRIAL && deliver.product->quality < order.industry->min_quality) {
                         continue;
                     }
                     
@@ -519,7 +519,7 @@ void Economy::do_phase_2(World& world) {
                     // Increment demand of the product, and decrement supply when the demand is fullfilled
                     deliver.product->demand += count;
 
-                    if(order.type == ORDER_INDUSTRIAL) {
+                    if(order.type == OrderType::INDUSTRIAL) {
                         // Duplicate products and put them into the province's stock (a commerce buff)
                         order.industry->add_to_stock(world, order.good, count);
 
@@ -529,19 +529,19 @@ void Economy::do_phase_2(World& world) {
 
                         // Set quality to the max from this product
                         order.industry->min_quality = std::max(order.industry->min_quality, deliver.product->quality);
-                    } else if(order.type == ORDER_OUTPOST_BUILD) {
-                        // The outpost will take the production materials
+                    } else if(order.type == OrderType::BUILDING) {
+                        // The building will take the production materials
                         // and use them for building the unit
-                        order.outpost->owner->budget -= total_order_cost;
-                        for(auto& p: order.outpost->req_goods) {
+                        order.building->owner->budget -= total_order_cost;
+                        for(auto& p: order.building->req_goods) {
                             if(p.first != deliver.good)
                                 continue;
                             p.second -= std::min(deliver.quantity, p.second);
                         }
-                    } else if(order.type == ORDER_UNIT_BUILD) {
+                    } else if(order.type == OrderType::UNIT) {
                         // TODO: We should deduct and set willing payment from military spendings
-                        order.outpost->owner->budget -= total_order_cost;
-                        for(auto& p: order.outpost->req_goods) {
+                        order.building->owner->budget -= total_order_cost;
+                        for(auto& p: order.building->req_goods) {
                             if(p.first != deliver.good)
                                 continue;
                             p.second -= std::min(deliver.quantity, p.second);
@@ -638,7 +638,7 @@ void Economy::do_phase_3(World& world) {
             for(const auto& product: province_products) {
                 // Province must have stockpile
                 if(!province->stockpile[world.get_id(product)]) {
-                    // Desesperation leads to higher demand
+                    // Desesperation for food leads to higher demand
                     if(product->good->is_edible && pop.life_needs_met <= 0.f) {
                         product->demand += pop.size * 5.f;
                     }
@@ -717,7 +717,7 @@ void Economy::do_phase_3(World& world) {
             }
 
             // Add some RNG to shake things up and make gameplay more dynamic and less deterministic :)
-            pop.size += rand() % std::min<size_t>(5, std::max<size_t>(1, (pop.size / 10000)));
+            pop.size += std::rand() % std::min<size_t>(5, std::max<size_t>(1, (pop.size / 10000)));
 
             // Population cannot be 0
             pop.size = std::max<size_t>(1, pop.size);
