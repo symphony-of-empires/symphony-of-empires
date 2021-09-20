@@ -2,7 +2,7 @@
 -- Continent: Oceania
 -- Subcontinent: Polynesia
 -- Country: Hawai'i
-province = Province:create{ ref_name = "papahānaumokuākea", color = 0xcea3ff }
+province = Province:new{ ref_name = "papahānaumokuākea", color = 0xcea3ff }
 province.name = _("Papahānaumokuākea")
 Province:register(province)
 Province:add_pop(province, artisan, polynesian, protestant, 10, 0.6)
@@ -17,7 +17,7 @@ Province:add_pop(province, entrepreneur, polynesian, protestant, 5, 0.9)
 Province:add_nucleus(province, hawai_i)
 Province:give_to(province, hawai_i)
 
-province = Province:create{ ref_name = "kaua_i", color = 0x0f6bff }
+province = Province:new{ ref_name = "kaua_i", color = 0x0f6bff }
 province.name = _("Kaua'i")
 Province:register(province)
 Province:add_pop(province, artisan, polynesian, protestant, 10, 0.6)
@@ -32,7 +32,7 @@ Province:add_pop(province, entrepreneur, polynesian, protestant, 5, 0.9)
 Province:add_nucleus(province, hawai_i)
 Province:give_to(province, hawai_i)
 
-province = Province:create{ ref_name = "o_ahu_maui", color = 0xff7247 }
+province = Province:new{ ref_name = "o_ahu_maui", color = 0xff7247 }
 province.name = _("O'ahu-Maui")
 Province:register(province)
 Province:add_pop(province, artisan, polynesian, protestant, 10, 0.6)
@@ -48,7 +48,7 @@ Province:add_nucleus(province, hawai_i)
 Province:give_to(province, hawai_i)
 
 -- Whoever did this please fix!!!!
-province = Province:create{ ref_name = "hawai_i", color = 0xff54a1 }
+province = Province:new{ ref_name = "hawai_i", color = 0xff54a1 }
 province.name = _("Hawai'i")
 Province:register(province)
 Province:add_pop(province, artisan, polynesian, protestant, 10, 0.6)

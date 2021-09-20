@@ -2,7 +2,7 @@
 -- Continent: Americas
 -- Subcontinent: Caribbean/Central America
 -- Country: Kingdom of Spain
-province = Province:create{ ref_name = "la_habana", color = 0xFFAEA0 }
+province = Province:new{ ref_name = "la_habana", color = 0xFFAEA0 }
 province.name = _("Havana")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -19,7 +19,7 @@ Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, spain)
 Province:give_to(province, spain)
 
-province = Province:create{ ref_name = "camaguey", color = 0x795BFF }
+province = Province:new{ ref_name = "camaguey", color = 0x795BFF }
 province.name = _("Camagüey")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -36,7 +36,7 @@ Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, spain)
 Province:give_to(province, spain)
 
-province = Province:create{ ref_name = "santiago_de_cuba", color = 0xFF2197 }
+province = Province:new{ ref_name = "santiago_de_cuba", color = 0xFF2197 }
 province.name = _("Santiago de Cuba")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -54,7 +54,7 @@ Province:add_nucleus(province, spain)
 Province:give_to(province, spain)
 
 -- Change to Guantánamo Bay when US occupies it 
-province = Province:create{ ref_name = "bahia_de_guantanamo", color = 0x7C83FF }
+province = Province:new{ ref_name = "bahia_de_guantanamo", color = 0x7C83FF }
 province.name = _("Bahía de Guantánamo")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -71,7 +71,7 @@ Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, spain)
 Province:give_to(province, spain)
 
-province = Province:create{ ref_name = "puerto_rico", color = 0xA8FDFF }
+province = Province:new{ ref_name = "puerto_rico", color = 0xA8FDFF }
 province.name = _("Puerto Rico")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -94,7 +94,7 @@ Province:give_to(province, spain)
 -- Country: Kingdom of Denmark 
 
 -- Rename to Saint Croix if US or France occupies, and Santa Cruz if spain occupies
-province = Province:create{ ref_name = "sankt_croix", color = 0x8e2bff }
+province = Province:new{ ref_name = "sankt_croix", color = 0x8e2bff }
 province.name = _("Sankt Croix")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -116,7 +116,7 @@ Province:give_to(province, denmark)
 -- Subcontinent: Caribbean/Central America
 -- Country: Gran Colombia/Colombia & Venezuela respectively
 
-province = Province:create{ ref_name = "san_andres_y_providencia", color = 0xD87FFF }
+province = Province:new{ ref_name = "san_andres_y_providencia", color = 0xD87FFF }
 province.name = _("San Andrés y Providencia")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -133,7 +133,7 @@ Province:add_pop(province, slave, german, protestant, 500, 0.5)
 Province:add_nucleus(province, gran_colombia)
 Province:give_to(province, gran_colombia)
 
-province = Province:create{ ref_name = "isla_de_margerita", color = 0xFF54D9 }
+province = Province:new{ ref_name = "isla_de_margerita", color = 0xFF54D9 }
 province.name = _("Isla de Margerita")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -155,7 +155,7 @@ Province:give_to(province, gran_colombia)
 -- Subcontinent: Caribbean/Central America
 -- Country: British Empire
 
-province = Province:create{ ref_name = "jamaica", color = 0x72E9FF }
+province = Province:new{ ref_name = "jamaica", color = 0x72E9FF }
 province.name = _("Jamaica")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -171,7 +171,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "bahamas", color = 0x66ADFF }
+province = Province:new{ ref_name = "bahamas", color = 0x66ADFF }
 province.name = _("Bahamas")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -187,7 +187,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "inagua and long islands", color = 0xFFE2D8 }
+province = Province:new{ ref_name = "inagua and long islands", color = 0xFFE2D8 }
 province.name = _("Inagua and Long Islands")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -203,7 +203,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "cayman_islands", color = 0x8CC5FF }
+province = Province:new{ ref_name = "cayman_islands", color = 0x8CC5FF }
 province.name = _("Cayman Islands")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -219,7 +219,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "turks_and_caicos_islands", color = 0xFF5E89 }
+province = Province:new{ ref_name = "turks_and_caicos_islands", color = 0xFF5E89 }
 province.name = _("Turks and Caicos Islands")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -235,7 +235,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "virgin_islands", color = 0xFFD8E3 }
+province = Province:new{ ref_name = "virgin_islands", color = 0xFFD8E3 }
 province.name = _("Virgin Islands")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -251,7 +251,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "anguilla", color = 0xded1af }
+province = Province:new{ ref_name = "anguilla", color = 0xded1af }
 province.name = _("Anguilla")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -267,7 +267,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "antigua_and_barbuda", color = 0xFF5EB1 }
+province = Province:new{ ref_name = "antigua_and_barbuda", color = 0xFF5EB1 }
 province.name = _("Antigua and Barbuda")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -283,7 +283,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "saint_kitts_and_nevis", color = 0x99FFCD }
+province = Province:new{ ref_name = "saint_kitts_and_nevis", color = 0x99FFCD }
 province.name = _("Saint Kitts and Nevis")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -299,7 +299,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "dominica", color = 0xFF3AE8 }
+province = Province:new{ ref_name = "dominica", color = 0xFF3AE8 }
 province.name = _("Dominica")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -315,7 +315,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "saint_lucia", color = 0xffb7e1 }
+province = Province:new{ ref_name = "saint_lucia", color = 0xffb7e1 }
 province.name = _("Saint Lucia")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -331,7 +331,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "saint_vicent_and_the_grenadines", color = 0x87ffd5 }
+province = Province:new{ ref_name = "saint_vicent_and_the_grenadines", color = 0x87ffd5 }
 province.name = _("Saint Vincent & The Grenadies")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -347,7 +347,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "grenada", color = 0xFF3932 }
+province = Province:new{ ref_name = "grenada", color = 0xFF3932 }
 province.name = _("Grenada")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -363,7 +363,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "barbados", color = 0xFF8EBB }
+province = Province:new{ ref_name = "barbados", color = 0xFF8EBB }
 province.name = _("Barbados")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -379,7 +379,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "tobago", color = 0xFFBFF7 }
+province = Province:new{ ref_name = "tobago", color = 0xFFBFF7 }
 province.name = _("Tobago")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -395,7 +395,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 10, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "trinidad", color = 0x35FF6E }
+province = Province:new{ ref_name = "trinidad", color = 0x35FF6E }
 province.name = _("Trinidad")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -416,7 +416,7 @@ Province:give_to(province, united_kingdom)
 -- Subcontinet: Caribbean/Central America
 -- Country: Haiti
 
-province = Province:create{ ref_name = "haiti", color = 0x72E2FF }
+province = Province:new{ ref_name = "haiti", color = 0x72E2FF }
 province.name = _("Haiti")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -434,7 +434,7 @@ Province:give_to(province, haiti)
 Nation:set_capital(haiti, province)
 
 -- Rename to Hincha if conquered by the spanish/dominican republic
-province = Province:create{ ref_name = "hinche", color = 0xBC49FF }
+province = Province:new{ ref_name = "hinche", color = 0xBC49FF }
 province.name = _("Hincha")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -450,7 +450,7 @@ Province:add_pop(province, entrepreneur, haitian, catholic, 100, 0.7)
 Province:add_nucleus(province, haiti)
 Province:give_to(province, haiti)
 
-province = Province:create{ ref_name = "santo_domingo", color = 0xFF63B6 }
+province = Province:new{ ref_name = "santo_domingo", color = 0xFF63B6 }
 province.name = _("Santo Domingo")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -471,7 +471,7 @@ Province:give_to(province, haiti)
 -- Subcontinent: Caribbean/Central America
 -- Country: French Republic
 
-province = Province:create{ ref_name = "saint_martin", color = 0xF9EED2 }
+province = Province:new{ ref_name = "saint_martin", color = 0xF9EED2 }
 province.name = _("Saint-Martin")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -487,7 +487,7 @@ Province:add_pop(province, entrepreneur, french, catholic, 100, 0.9)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "guadeloupe", color = 0x99FFAD }
+province = Province:new{ ref_name = "guadeloupe", color = 0x99FFAD }
 province.name = _("Guadeloupe")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -503,7 +503,7 @@ Province:add_pop(province, entrepreneur, french, catholic, 100, 0.9)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "martinique", color = 0xFF3F92 }
+province = Province:new{ ref_name = "martinique", color = 0xFF3F92 }
 province.name = _("Martinique")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -524,7 +524,7 @@ Province:give_to(province, france)
 -- Subcontinent: Caribbean/Central America
 -- Country: Kingdom of the Netherlands
 
-province = Province:create{ ref_name = "sint_maarten", color = 0xC491FF }
+province = Province:new{ ref_name = "sint_maarten", color = 0xC491FF }
 province.name = _("Sint Maarten")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -540,7 +540,7 @@ Province:add_pop(province, entrepreneur, dutch, catholic, 100, 0.9)
 Province:add_nucleus(province, netherlands)
 Province:give_to(province, netherlands)
 
-province = Province:create{ ref_name = "saba", color = 0xBD4CFF }
+province = Province:new{ ref_name = "saba", color = 0xBD4CFF }
 province.name = _("Saba")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -556,7 +556,7 @@ Province:add_pop(province, entrepreneur, dutch, catholic, 100, 0.9)
 Province:add_nucleus(province, netherlands)
 Province:give_to(province, netherlands)
 
-province = Province:create{ ref_name = "bonaire", color = 0xffcb30 }
+province = Province:new{ ref_name = "bonaire", color = 0xffcb30 }
 province.name = _("Bonaire")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -572,7 +572,7 @@ Province:add_pop(province, entrepreneur, dutch, catholic, 100, 0.9)
 Province:add_nucleus(province, netherlands)
 Province:give_to(province, netherlands)
 
-province = Province:create{ ref_name = "curacao", color = 0x8CC4FF }
+province = Province:new{ ref_name = "curacao", color = 0x8CC4FF }
 province.name = _("Curaçao")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -588,7 +588,7 @@ Province:add_pop(province, entrepreneur, dutch, catholic, 100, 0.9)
 Province:add_nucleus(province, netherlands)
 Province:give_to(province, netherlands)
 
-province = Province:create{ ref_name = "aruba", color = 0xCEFFFA }
+province = Province:new{ ref_name = "aruba", color = 0xCEFFFA }
 province.name = _("Aruba")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -610,7 +610,7 @@ Province:give_to(province, netherlands)
 -- Country: Kingdom of Sweden
 
 -- Change to saint barthélemy when taken by french
-province = Province:create{ ref_name = "sankt_barthélemy", color = 0xFF545F }
+province = Province:new{ ref_name = "sankt_barthélemy", color = 0xFF545F }
 province.name = _("Sankt Barthélemy")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)

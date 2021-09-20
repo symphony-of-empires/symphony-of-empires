@@ -3,7 +3,7 @@
 -- Subcontinent: North America
 -- Country: Mexico
 
-province = Province:create{ ref_name = "yucatan", color = 0x567bff }
+province = Province:new{ ref_name = "yucatan", color = 0x567bff }
 province.name = _("Yucatán")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -19,7 +19,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "veracruz", color = 0xff758e }
+province = Province:new{ ref_name = "veracruz", color = 0xff758e }
 province.name = _("Veracruz")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -35,7 +35,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "campico", color = 0x6051ff }
+province = Province:new{ ref_name = "campico", color = 0x6051ff }
 province.name = _("Campico")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -51,7 +51,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "coahuila_y_texas", color = 0xff7279 }
+province = Province:new{ ref_name = "coahuila_y_texas", color = 0xff7279 }
 province.name = _("Coahuila")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -67,7 +67,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "chihuahua", color = 0x38daff }
+province = Province:new{ ref_name = "chihuahua", color = 0x38daff }
 province.name = _("Chihuahua")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -83,7 +83,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "alta_california", color = 0xc6cbff }
+province = Province:new{ ref_name = "alta_california", color = 0xc6cbff }
 province.name = _("Alta California")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -99,7 +99,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "baja_california", color = 0xff38e7 }
+province = Province:new{ ref_name = "baja_california", color = 0xff38e7 }
 province.name = _("Baja California")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -115,7 +115,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "tamaulipas", color = 0xff87bd }
+province = Province:new{ ref_name = "tamaulipas", color = 0xff87bd }
 province.name = _("Tamaulipas")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -131,7 +131,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "nuevo_leon", color = 0xbfffce }
+province = Province:new{ ref_name = "nuevo_leon", color = 0xbfffce }
 province.name = _("Nuevo León")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -147,7 +147,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "sonora", color = 0x9bffe9 }
+province = Province:new{ ref_name = "sonora", color = 0x9bffe9 }
 province.name = _("Sonora")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -163,7 +163,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "sinaloa", color = 0xffad87 }
+province = Province:new{ ref_name = "sinaloa", color = 0xffad87 }
 province.name = _("Sinaloa")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -179,7 +179,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "jalisco", color = 0x361cff }
+province = Province:new{ ref_name = "jalisco", color = 0x361cff }
 province.name = _("Jalisco")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -195,7 +195,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "durango", color = 0x92ff60 }
+province = Province:new{ ref_name = "durango", color = 0x92ff60 }
 province.name = _("Durango")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -211,7 +211,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "zacatecas", color = 0xff93a0 }
+province = Province:new{ ref_name = "zacatecas", color = 0xff93a0 }
 province.name = _("Zacatecas")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -227,7 +227,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "san_luis_potosi", color = 0x3fffe8 }
+province = Province:new{ ref_name = "san_luis_potosi", color = 0x3fffe8 }
 province.name = _("San Luis Potosi")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -243,7 +243,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "guanajuato", color = 0xf70fff }
+province = Province:new{ ref_name = "guanajuato", color = 0xf70fff }
 province.name = _("Guanajuato")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -259,7 +259,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "colima", color = 0xff7e5e }
+province = Province:new{ ref_name = "colima", color = 0xff7e5e }
 province.name = _("Colima")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -275,7 +275,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "michoacan", color = 0xc4ffc4 }
+province = Province:new{ ref_name = "michoacan", color = 0xc4ffc4 }
 province.name = _("Michoacán")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -291,7 +291,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "queretaro", color = 0xbbb2ff }
+province = Province:new{ ref_name = "queretaro", color = 0xbbb2ff }
 province.name = _("Querétaro")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -307,7 +307,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "mexico", color = 0xff32e3 }
+province = Province:new{ ref_name = "mexico", color = 0xff32e3 }
 province.name = _("México")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -323,7 +323,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "puebla", color = 0x927aff }
+province = Province:new{ ref_name = "puebla", color = 0x927aff }
 province.name = _("Puebla")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -339,7 +339,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "tlaxcala", color = 0x89ffe1 }
+province = Province:new{ ref_name = "tlaxcala", color = 0x89ffe1 }
 province.name = _("Tlaxcala")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -355,7 +355,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "oaxaca", color = 0x8effa8 }
+province = Province:new{ ref_name = "oaxaca", color = 0x8effa8 }
 province.name = _("Oaxaca")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -371,7 +371,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "chiapas", color = 0xbf72ff }
+province = Province:new{ ref_name = "chiapas", color = 0xbf72ff }
 province.name = _("Chiapas")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -387,7 +387,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "nuevo_mexico", color = 0x56ffb8 }
+province = Province:new{ ref_name = "nuevo_mexico", color = 0x56ffb8 }
 province.name = _("Nuevo México")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -403,7 +403,7 @@ Province:add_pop(province, entrepreneur, mexican, catholic, 50, 0.9)
 Province:add_nucleus(province, mexico)
 Province:give_to(province, mexico)
 
-province = Province:create{ ref_name = "south_new_mexico", color = 0x91a1ff }
+province = Province:new{ ref_name = "south_new_mexico", color = 0x91a1ff }
 province.name = _("South New Mexico")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)

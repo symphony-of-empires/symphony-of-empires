@@ -2,7 +2,7 @@
 -- Continent: Europe
 -- Subcontinent: Balkans
 -- Country: Austrian Empire
-province = Province:create{ ref_name = "prague", color = 0xf460ff }
+province = Province:new{ ref_name = "prague", color = 0xf460ff }
 province.name = _("Prague")
 Province:register(province)
 Province:add_pop(province, artisan, czech, catholic, 50000, 0.9)
@@ -46,7 +46,7 @@ Province:add_nucleus(province, czechoslovakia)
 Province:give_to(province, austria)
 Nation:set_capital(czechoslovakia, province)
 
-province = Province:create{ ref_name = "north_bohemia", color = 0xff72bd }
+province = Province:new{ ref_name = "north_bohemia", color = 0xff72bd }
 province.name = _("North Bohemia")
 Province:register(province)
 Province:add_pop(province, artisan, czech, catholic, 5000, 0.9)
@@ -89,7 +89,7 @@ Province:add_nucleus(province, austria)
 Province:add_nucleus(province, czechoslovakia)
 Province:give_to(province, austria)
 
-province = Province:create{ ref_name = "south_moravia", color = 0xff9b87 }
+province = Province:new{ ref_name = "south_moravia", color = 0xff9b87 }
 province.name = _("South Moravia")
 Province:register(province)
 Province:add_pop(province, artisan, czech, catholic, 5000, 0.9)
@@ -132,7 +132,7 @@ Province:add_nucleus(province, austria)
 Province:add_nucleus(province, czechoslovakia)
 Province:give_to(province, austria)
 
-province = Province:create{ ref_name = "moravia", color = 0x6e42ff }
+province = Province:new{ ref_name = "moravia", color = 0x6e42ff }
 province.name = _("Moravia")
 Province:register(province)
 Province:add_pop(province, artisan, czech, catholic, 5000, 0.9)
@@ -175,7 +175,7 @@ Province:add_nucleus(province, austria)
 Province:add_nucleus(province, czechoslovakia)
 Province:give_to(province, austria)
 
-province = Province:create{ ref_name = "north_moravia", color = 0xff6df0 }
+province = Province:new{ ref_name = "north_moravia", color = 0xff6df0 }
 province.name = _("North Moravia")
 Province:register(province)
 Province:add_pop(province, artisan, czech, catholic, 5000, 0.9)

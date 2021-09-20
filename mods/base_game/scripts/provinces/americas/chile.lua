@@ -3,7 +3,7 @@
 -- Subcontinent: South America
 -- Country: Chile + Patagonian Chile + Ex-Bolivian territory
 
-province = Province:create{ ref_name = "iquique", color = 0xFF7856 }
+province = Province:new{ ref_name = "iquique", color = 0xFF7856 }
 province.name = _("Iquique")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -20,7 +20,7 @@ Province:add_nucleus(province, chile)
 Province:add_nucleus(province, bolivia)
 Province:give_to(province, bolivia)
 
-province = Province:create{ ref_name = "calama", color = 0x5157FF }
+province = Province:new{ ref_name = "calama", color = 0x5157FF }
 province.name = _("Calama")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -37,7 +37,7 @@ Province:add_nucleus(province, chile)
 Province:add_nucleus(province, bolivia)
 Province:give_to(province, bolivia)
 
-province = Province:create{ ref_name = "antofagasta", color = 0xF2FFD8 }
+province = Province:new{ ref_name = "antofagasta", color = 0xF2FFD8 }
 province.name = _("Antofagasta")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -54,7 +54,7 @@ Province:add_nucleus(province, chile)
 Province:add_nucleus(province, bolivia)
 Province:give_to(province, chile)
 
-province = Province:create{ ref_name = "copiapo", color = 0x9849FF }
+province = Province:new{ ref_name = "copiapo", color = 0x9849FF }
 province.name = _("Copiapó")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -70,7 +70,7 @@ Province:add_pop(province, entrepreneur, chilean, catholic, 500, 0.9)
 Province:add_nucleus(province, chile)
 Province:give_to(province, chile)
 
-province = Province:create{ ref_name = "coquimbo", color = 0x8C4FFF }
+province = Province:new{ ref_name = "coquimbo", color = 0x8C4FFF }
 province.name = _("Coquimbo")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -86,7 +86,7 @@ Province:add_pop(province, entrepreneur, chilean, catholic, 500, 0.9)
 Province:add_nucleus(province, chile)
 Province:give_to(province, chile)
 
-province = Province:create{ ref_name = "illapel", color = 0x49F5FF }
+province = Province:new{ ref_name = "illapel", color = 0x49F5FF }
 province.name = _("Illapel")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -102,7 +102,7 @@ Province:add_pop(province, entrepreneur, chilean, catholic, 500, 0.9)
 Province:add_nucleus(province, chile)
 Province:give_to(province, chile)
 
-province = Province:create{ ref_name = "santiago", color = 0xCB23FF }
+province = Province:new{ ref_name = "santiago", color = 0xCB23FF }
 province.name = _("Santiago")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -119,7 +119,7 @@ Province:add_nucleus(province, chile)
 Province:give_to(province, chile)
 Nation:set_capital(chile, province)
 
-province = Province:create{ ref_name = "curico", color = 0xFFE5C1 }
+province = Province:new{ ref_name = "curico", color = 0xFFE5C1 }
 province.name = _("Curicó")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -135,7 +135,7 @@ Province:add_pop(province, entrepreneur, chilean, catholic, 500, 0.9)
 Province:add_nucleus(province, chile)
 Province:give_to(province, chile)
 
-province = Province:create{ ref_name = "chillan", color = 0x1691FF }
+province = Province:new{ ref_name = "chillan", color = 0x1691FF }
 province.name = _("Chillán")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -151,7 +151,7 @@ Province:add_pop(province, entrepreneur, chilean, catholic, 500, 0.9)
 Province:add_nucleus(province, chile)
 Province:give_to(province, chile)
 
-province = Province:create{ ref_name = "concepcion", color = 0xFF4D3D }
+province = Province:new{ ref_name = "concepcion", color = 0xFF4D3D }
 province.name = _("Concepción")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -167,7 +167,7 @@ Province:add_pop(province, entrepreneur, chilean, catholic, 500, 0.9)
 Province:add_nucleus(province, chile)
 Province:give_to(province, chile)
 
-province = Province:create{ ref_name = "valdivia", color = 0xA2FF00 }
+province = Province:new{ ref_name = "valdivia", color = 0xA2FF00 }
 province.name = _("Valdivia")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -181,7 +181,7 @@ Province:add_pop(province, clergymen, mapuche, animist, 500, 0.3)
 Province:add_pop(province, laborer, mapuche, animist, 500, 0.2)
 Province:add_nucleus(province, chile)
 
-province = Province:create{ ref_name = "osorno", color = 0xFFE554 }
+province = Province:new{ ref_name = "osorno", color = 0xFFE554 }
 province.name = _("Osorno")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -195,7 +195,7 @@ Province:add_pop(province, clergymen, mapuche, animist, 500, 0.3)
 Province:add_pop(province, laborer, mapuche, animist, 500, 0.2)
 Province:add_nucleus(province, chile)
 
-province = Province:create{ ref_name = "chiloe", color = 0xFF00E5 }
+province = Province:new{ ref_name = "chiloe", color = 0xFF00E5 }
 province.name = _("Chiloé")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -209,7 +209,7 @@ Province:add_pop(province, clergymen, mapuche, animist, 500, 0.3)
 Province:add_pop(province, laborer, mapuche, animist, 500, 0.2)
 Province:add_nucleus(province, chile)
 
-province = Province:create{ ref_name = "aysen", color = 0x0090FF }
+province = Province:new{ ref_name = "aysen", color = 0x0090FF }
 province.name = _("Aysén")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -223,7 +223,7 @@ Province:add_pop(province, clergymen, mapuche, animist, 500, 0.3)
 Province:add_pop(province, laborer, mapuche, animist, 500, 0.2)
 Province:add_nucleus(province, chile)
 
-province = Province:create{ ref_name = "punta_arenas", color = 0x3F3B39 }
+province = Province:new{ ref_name = "punta_arenas", color = 0x3F3B39 }
 province.name = _("Punta Arenas")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -238,7 +238,7 @@ Province:add_pop(province, laborer, mapuche, animist, 500, 0.2)
 Province:add_nucleus(province, chile)
 Province:add_nucleus(province, argentina)
 
-province = Province:create{ ref_name = "san_gregorio", color = 0xFFD800 }
+province = Province:new{ ref_name = "san_gregorio", color = 0xFFD800 }
 province.name = _("San Gregorio")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -253,7 +253,7 @@ Province:add_pop(province, laborer, mapuche, animist, 500, 0.2)
 Province:add_nucleus(province, chile)
 Province:add_nucleus(province, argentina)
 
-province = Province:create{ ref_name = "puerto_porvenir", color = 0x0f145d }
+province = Province:new{ ref_name = "puerto_porvenir", color = 0x0f145d }
 province.name = _("Puerto Porvenir")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -268,7 +268,7 @@ Province:add_pop(province, laborer, mapuche, animist, 500, 0.2)
 Province:add_nucleus(province, chile)
 Province:add_nucleus(province, argentina)
 
-province = Province:create{ ref_name = "los_rios", color = 0xb6ff50 }
+province = Province:new{ ref_name = "los_rios", color = 0xb6ff50 }
 province.name = _("Los Rios")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -287,7 +287,7 @@ Province:add_nucleus(province, argentina)
 -- Continent: Americas
 -- Subcontinent: South America
 -- Country: United Kingdom
-province = Province:create{ ref_name = "falkland_islands", color = 0x078689 }
+province = Province:new{ ref_name = "falkland_islands", color = 0x078689 }
 province.name = _("Falkland Islands")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)

@@ -2,7 +2,7 @@
 -- Continent: Americas
 -- Subcontinent: North America
 -- Country: The British Empire (Canada + bermuda)
-province = Province:create{ ref_name = "inner_baffin", color = rgb(236, 153, 255) }
+province = Province:new{ ref_name = "inner_baffin", color = rgb(236, 153, 255) }
 province.name = _("Inner Baffin")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -26,7 +26,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "outer_baffin", color = rgb(175, 255, 219) }
+province = Province:new{ ref_name = "outer_baffin", color = rgb(175, 255, 219) }
 province.name = _("Outer Baffin")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -51,7 +51,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "arctic_islands", color = rgb(214, 206, 255) }
+province = Province:new{ ref_name = "arctic_islands", color = rgb(214, 206, 255) }
 province.name = _("Arctic Islands")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -75,7 +75,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "north_yukon", color = rgb(255, 66, 198) }
+province = Province:new{ ref_name = "north_yukon", color = rgb(255, 66, 198) }
 province.name = _("North Yukon")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -99,7 +99,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "south_yukon", color = rgb(86, 246, 255) }
+province = Province:new{ ref_name = "south_yukon", color = rgb(86, 246, 255) }
 province.name = _("South Yukon")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -123,7 +123,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "fort_resolution", color = rgb(255, 253, 181) }
+province = Province:new{ ref_name = "fort_resolution", color = rgb(255, 253, 181) }
 province.name = _("Fort Resolution")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -147,7 +147,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "southern_arctic", color = rgb(255, 84, 137) }
+province = Province:new{ ref_name = "southern_arctic", color = rgb(255, 84, 137) }
 province.name = _("Southern Arctic")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -171,7 +171,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "rankin_inlet", color = rgb(142, 176, 255) }
+province = Province:new{ ref_name = "rankin_inlet", color = rgb(142, 176, 255) }
 province.name = _("Rankin Inlet")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -195,7 +195,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "eastern_northwestern_territories", color = rgb(255, 162, 155) }
+province = Province:new{ ref_name = "eastern_northwestern_territories", color = rgb(255, 162, 155) }
 province.name = _("Eastern Northwestern Territories")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -219,7 +219,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "hudson_bay_islands", color = rgb(255, 71, 255) }
+province = Province:new{ ref_name = "hudson_bay_islands", color = rgb(255, 71, 255) }
 province.name = _("Hudson Bay Islands")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -243,7 +243,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "north_quebec", color = rgb(188, 112, 255) }
+province = Province:new{ ref_name = "north_quebec", color = rgb(188, 112, 255) }
 province.name = _("North Quebec")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -267,7 +267,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "south_quebec", color = rgb(255, 95, 84) }
+province = Province:new{ ref_name = "south_quebec", color = rgb(255, 95, 84) }
 province.name = _("South Quebec")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -292,7 +292,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "labrador", color = rgb(168, 237, 255) }
+province = Province:new{ ref_name = "labrador", color = rgb(168, 237, 255) }
 province.name = _("Labrador")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -317,7 +317,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "newfoundland", color = rgb(91, 255, 148) }
+province = Province:new{ ref_name = "newfoundland", color = rgb(91, 255, 148) }
 province.name = _("Newfoundland")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -342,7 +342,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "prince_edward_island", color = rgb(104, 174, 255) }
+province = Province:new{ ref_name = "prince_edward_island", color = rgb(104, 174, 255) }
 province.name = _("Prince Edward Island")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -367,7 +367,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "nova_scotia", color = rgb(196, 255, 225) }
+province = Province:new{ ref_name = "nova_scotia", color = rgb(196, 255, 225) }
 province.name = _("Nova Scotia")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -392,7 +392,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "new_brunswick", color = rgb(153, 99, 255) }
+province = Province:new{ ref_name = "new_brunswick", color = rgb(153, 99, 255) }
 province.name = _("New Brunswick")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -417,7 +417,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "temiscouata", color = rgb(255, 126, 119) }
+province = Province:new{ ref_name = "temiscouata", color = rgb(255, 126, 119) }
 province.name = _("Temiscouata")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -442,7 +442,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "madawaska", color = rgb(204, 255, 228) }
+province = Province:new{ ref_name = "madawaska", color = rgb(204, 255, 228) }
 province.name = _("Madawaska")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -467,7 +467,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "ontario", color = rgb(255, 124, 153) }
+province = Province:new{ ref_name = "ontario", color = rgb(255, 124, 153) }
 province.name = _("Ontario")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -492,7 +492,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "north_ontario", color = rgb(142, 182, 255) }
+province = Province:new{ ref_name = "north_ontario", color = rgb(142, 182, 255) }
 province.name = _("North Ontario")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -516,7 +516,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "thunder_bay", color = rgb(211, 255, 240) }
+province = Province:new{ ref_name = "thunder_bay", color = rgb(211, 255, 240) }
 province.name = _("Thunder Bay")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -541,7 +541,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "kenora", color = rgb(255, 99, 231) }
+province = Province:new{ ref_name = "kenora", color = rgb(255, 99, 231) }
 province.name = _("Kenora")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -566,7 +566,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "port_nelson", color = rgb(114, 255, 252) }
+province = Province:new{ ref_name = "port_nelson", color = rgb(114, 255, 252) }
 province.name = _("Port Nelson")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -590,7 +590,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "winnipeg", color = rgb(255, 138, 130) }
+province = Province:new{ ref_name = "winnipeg", color = rgb(255, 138, 130) }
 province.name = _("Winnipeg")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -614,7 +614,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "athabasca", color = rgb(255, 252, 130) }
+province = Province:new{ ref_name = "athabasca", color = rgb(255, 252, 130) }
 province.name = _("Athabasca")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -639,7 +639,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
 -- Change name to Saskatchewan after 1905
-province = Province:create{ ref_name = "eastern_prairies", color = rgb(142, 204, 255) }
+province = Province:new{ ref_name = "eastern_prairies", color = rgb(142, 204, 255) }
 province.name = _("Eastern Prairies")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -663,7 +663,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "western_prairies", color = rgb(177, 114, 255) }
+province = Province:new{ ref_name = "western_prairies", color = rgb(177, 114, 255) }
 province.name = _("Western Prairies")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -687,7 +687,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "boreal_plains", color = rgb(255, 66, 85) }
+province = Province:new{ ref_name = "boreal_plains", color = rgb(255, 66, 85) }
 province.name = _("Boreal Plains")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -711,7 +711,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "northern_canadian_rockies", color = rgb(102, 203, 255) }
+province = Province:new{ ref_name = "northern_canadian_rockies", color = rgb(102, 203, 255) }
 province.name = _("Northern Canadian Rockies")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -735,7 +735,7 @@ Province:add_pop(province, laborer, yankee, protestant, 2700, 0.8)
 Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 
-province = Province:create{ ref_name = "southern_canadian_rockies", color = rgb(255, 94, 230) }
+province = Province:new{ ref_name = "southern_canadian_rockies", color = rgb(255, 94, 230) }
 province.name = _("Southern Canadian Rockies")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -760,7 +760,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "north_vancouver", color = rgb(137, 233, 255) }
+province = Province:new{ ref_name = "north_vancouver", color = rgb(137, 233, 255) }
 province.name = _("North Vancouver")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -785,7 +785,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "south_vancouver", color = 0xffb5a0 }
+province = Province:new{ ref_name = "south_vancouver", color = 0xffb5a0 }
 province.name = _("South Vancouver")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -810,7 +810,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "queen_charlotte_islands", color = rgb(255, 168, 253) }
+province = Province:new{ ref_name = "queen_charlotte_islands", color = rgb(255, 168, 253) }
 province.name = _("Queen Charlotte Islands")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -835,7 +835,7 @@ Province:add_pop(province, entrepreneur, yankee, protestant, 100, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "bermuda", color = rgb(232, 61, 255) }
+province = Province:new{ ref_name = "bermuda", color = rgb(232, 61, 255) }
 province.name = _("Bermuda")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)

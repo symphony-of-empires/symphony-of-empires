@@ -3,7 +3,7 @@
 -- Subcontinent: South America
 -- Country: British Empire
 
-province = Province:create{ ref_name = "essequibo", color = 0x99FFC8 }
+province = Province:new{ ref_name = "essequibo", color = 0x99FFC8 }
 province.name = _("Essequibo")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -19,7 +19,7 @@ Province:add_pop(province, entrepreneur, british, protestant, 500, 0.9)
 Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
-province = Province:create{ ref_name = "demerara", color = 0xcc0a37 }
+province = Province:new{ ref_name = "demerara", color = 0xcc0a37 }
 province.name = _("Demerara")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -36,7 +36,7 @@ Province:add_nucleus(province, united_kingdom)
 Province:give_to(province, united_kingdom)
 
 --if taken by suriname rename it to corantijn
-province = Province:create{ ref_name = "corentyne", color = 0x56ffa5 }
+province = Province:new{ ref_name = "corentyne", color = 0x56ffa5 }
 province.name = _("Corentyne")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -57,7 +57,7 @@ Province:give_to(province, united_kingdom)
 -- Subcontinent: South America
 -- Country: Kingdom of the Netherlands
 
-province = Province:create{ ref_name = "suriname", color = 0xFF42AD }
+province = Province:new{ ref_name = "suriname", color = 0xFF42AD }
 province.name = _("Suriname")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -79,7 +79,7 @@ Province:give_to(province, netherlands)
 -- Subcontinent: South America
 -- Country: France
 
-province = Province:create{ ref_name = "cayenne", color = 0x552804 }
+province = Province:new{ ref_name = "cayenne", color = 0x552804 }
 province.name = _("Cayenne")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -97,7 +97,7 @@ Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
 -- if taken by suriname, rename it to Marowijne
-province = Province:create{ ref_name = "maroni", color = 0xe7ffa5 }
+province = Province:new{ ref_name = "maroni", color = 0xe7ffa5 }
 province.name = _("Maroni")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)

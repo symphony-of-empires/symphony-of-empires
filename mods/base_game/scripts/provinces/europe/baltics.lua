@@ -2,7 +2,7 @@
 -- Continent: Europe
 -- Subcontinent: Baltics
 -- Country: Estonia
-province = Province:create{ ref_name = "saare", color = 0xfff06d }
+province = Province:new{ ref_name = "saare", color = 0xfff06d }
 province.name = _("Saare")
 Province:register(province)
 Province:add_pop(province, artisan, estonian, orthodox, 5000, 0.9)
@@ -18,7 +18,7 @@ Province:add_nucleus(province, estonia)
 Province:add_nucleus(province, russia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "hiiu", color = 0xff4fe4 }
+province = Province:new{ ref_name = "hiiu", color = 0xff4fe4 }
 province.name = _("Hiiu")
 Province:register(province)
 Province:add_pop(province, artisan, estonian, orthodox, 5000, 0.9)
@@ -34,7 +34,7 @@ Province:add_nucleus(province, estonia)
 Province:add_nucleus(province, russia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "harju", color = 0x70ffe0 }
+province = Province:new{ ref_name = "harju", color = 0x70ffe0 }
 province.name = _("Harju")
 Province:register(province)
 Province:add_pop(province, artisan, estonian, orthodox, 5000, 0.9)
@@ -50,7 +50,7 @@ Province:add_nucleus(province, estonia)
 Province:add_nucleus(province, russia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "laane", color = 0x3a7cff }
+province = Province:new{ ref_name = "laane", color = 0x3a7cff }
 province.name = _("Lääne")
 Province:register(province)
 Province:add_pop(province, artisan, estonian, orthodox, 5000, 0.9)
@@ -66,7 +66,7 @@ Province:add_nucleus(province, estonia)
 Province:add_nucleus(province, russia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "parnu", color = 0x5effae }
+province = Province:new{ ref_name = "parnu", color = 0x5effae }
 province.name = _("Pärnu")
 Province:register(province)
 Province:add_pop(province, artisan, estonian, orthodox, 5000, 0.9)
@@ -82,7 +82,7 @@ Province:add_nucleus(province, estonia)
 Province:add_nucleus(province, russia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "viljandi", color = 0x8132ff }
+province = Province:new{ ref_name = "viljandi", color = 0x8132ff }
 province.name = _("Viljandi")
 Province:register(province)
 Province:add_pop(province, artisan, estonian, orthodox, 5000, 0.9)
@@ -98,7 +98,7 @@ Province:add_nucleus(province, estonia)
 Province:add_nucleus(province, russia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "jarva", color = 0xff6b86 }
+province = Province:new{ ref_name = "jarva", color = 0xff6b86 }
 province.name = _("Järva")
 Province:register(province)
 Province:add_pop(province, artisan, estonian, orthodox, 5000, 0.9)

@@ -2,7 +2,7 @@
 -- Continent: Europe
 -- Subcontinent: Balkan
 -- Country: Greece
-province = Province:create{ ref_name = "cyclades", color = 0xef42ff }
+province = Province:new{ ref_name = "cyclades", color = 0xef42ff }
 province.name = _("Cyclades")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -36,7 +36,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "evia", color = 0x3fff62 }
+province = Province:new{ ref_name = "evia", color = 0x3fff62 }
 province.name = _("Evia")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -70,7 +70,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "dodecanese", color = 0xff3a5e }
+province = Province:new{ ref_name = "dodecanese", color = 0xff3a5e }
 province.name = _("Dodecanese")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -104,7 +104,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "skopelos", color = 0xff7a83 }
+province = Province:new{ ref_name = "skopelos", color = 0xff7a83 }
 province.name = _("Skopelos")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -138,7 +138,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "plomari", color = 0x4cffff }
+province = Province:new{ ref_name = "plomari", color = 0x4cffff }
 province.name = _("Plomari")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -172,7 +172,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "attika", color = 0x5842ff }
+province = Province:new{ ref_name = "attika", color = 0x5842ff }
 province.name = _("Attika")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -206,7 +206,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "korinthia", color = 0xeff400 }
+province = Province:new{ ref_name = "korinthia", color = 0xeff400 }
 province.name = _("Korinthia")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -240,7 +240,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "thives", color = 0xc58cff }
+province = Province:new{ ref_name = "thives", color = 0xc58cff }
 province.name = _("Thives")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -274,7 +274,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "valtos", color = 0xff2b7c }
+province = Province:new{ ref_name = "valtos", color = 0xff2b7c }
 province.name = _("Valtos")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -308,7 +308,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "zakynthos", color = 0xeeff56 }
+province = Province:new{ ref_name = "zakynthos", color = 0xeeff56 }
 province.name = _("Zakynthos")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -342,7 +342,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "korfu", color = 0xf882ff }
+province = Province:new{ ref_name = "korfu", color = 0xf882ff }
 province.name = _("Korfu")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -376,7 +376,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "sami", color = 0xff8572 }
+province = Province:new{ ref_name = "sami", color = 0xff8572 }
 province.name = _("Sami")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -410,7 +410,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "chalkidi", color = 0x554cff }
+province = Province:new{ ref_name = "chalkidi", color = 0x554cff }
 province.name = _("Chalkidi")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -444,7 +444,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "tyrnavos", color = 0xff4261 }
+province = Province:new{ ref_name = "tyrnavos", color = 0xff4261 }
 province.name = _("Tyrnavos")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -478,7 +478,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "pieria", color = 0xcdff87 }
+province = Province:new{ ref_name = "pieria", color = 0xcdff87 }
 province.name = _("Pieria")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -512,7 +512,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "kythira", color = 0x7cbbff }
+province = Province:new{ ref_name = "kythira", color = 0x7cbbff }
 province.name = _("Kythira")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -546,7 +546,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, greece)
 
-province = Province:create{ ref_name = "kalymnos", color = 0xbdff7f }
+province = Province:new{ ref_name = "kalymnos", color = 0xbdff7f }
 province.name = _("Kalymnos")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -580,7 +580,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "ikaria", color = 0x9763ff }
+province = Province:new{ ref_name = "ikaria", color = 0x9763ff }
 province.name = _("Ikaria")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -614,7 +614,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "samos", color = 0xff5f56 }
+province = Province:new{ ref_name = "samos", color = 0xff5f56 }
 province.name = _("Samos")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -648,7 +648,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "thasos", color = 0xff30b6 }
+province = Province:new{ ref_name = "thasos", color = 0xff30b6 }
 province.name = _("Thasos")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -682,7 +682,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "lakedemona", color = 0x70ff9d }
+province = Province:new{ ref_name = "lakedemona", color = 0x70ff9d }
 province.name = _("Lakedemona")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -716,7 +716,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, greece)
 
-province = Province:create{ ref_name = "patras", color = 0xff42c9 }
+province = Province:new{ ref_name = "patras", color = 0xff42c9 }
 province.name = _("Patras")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -750,7 +750,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, greece)
 
-province = Province:create{ ref_name = "thessaly", color = 0xd5ffb7 }
+province = Province:new{ ref_name = "thessaly", color = 0xd5ffb7 }
 province.name = _("Thessaly")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -784,7 +784,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "thessaly", color = 0xd5ffb7 }
+province = Province:new{ ref_name = "thessaly", color = 0xd5ffb7 }
 province.name = _("Thessaly")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -818,7 +818,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "lefkada", color = 0xff7587 }
+province = Province:new{ ref_name = "lefkada", color = 0xff7587 }
 province.name = _("Lefkada")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -852,7 +852,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "dodoni", color = 0xad6bff }
+province = Province:new{ ref_name = "dodoni", color = 0xad6bff }
 province.name = _("Dodoni")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -886,7 +886,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "thessalonki", color = 0xfffdce }
+province = Province:new{ ref_name = "thessalonki", color = 0xfffdce }
 province.name = _("Thessalonki")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -920,7 +920,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "drama", color = 0xffad7a }
+province = Province:new{ ref_name = "drama", color = 0xffad7a }
 province.name = _("Drama")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -954,7 +954,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "grevena", color = 0xffe0f4 }
+province = Province:new{ ref_name = "grevena", color = 0xffe0f4 }
 province.name = _("Grevena")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -988,7 +988,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "florina", color = 0x7fffee }
+province = Province:new{ ref_name = "florina", color = 0x7fffee }
 province.name = _("Florina")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)
@@ -1022,7 +1022,7 @@ Province:add_nucleus(province, turkey)
 Province:add_nucleus(province, greece)
 Province:give_to(province, turkey)
 
-province = Province:create{ ref_name = "agio_oros", color = 0x9bd3ff }
+province = Province:new{ ref_name = "agio_oros", color = 0x9bd3ff }
 province.name = _("Agio Oros")
 Province:register(province)
 Province:add_pop(province, artisan, greek, orthodox, 1000, 0.6)

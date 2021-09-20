@@ -2,7 +2,7 @@
 -- Continent: Africa
 -- Subcontinent: Northern Africa
 -- Country: Tunis/Tunisia/French North Africa
-province = Province:create{ ref_name = "nabeul", color = 0x7d7140 }
+province = Province:new{ ref_name = "nabeul", color = 0x7d7140 }
 province.name = _("Nabeul")
 Province:register(province)
 Province:add_pop(province, artisan, arabic, islamic, 10, 0.6)
@@ -18,7 +18,7 @@ Province:add_nucleus(province, arabia)
 Province:add_nucleus(province, tunis)
 Province:give_to(province, tunis)
 
-province = Province:create{ ref_name = "monastir", color = 0x32cd60 }
+province = Province:new{ ref_name = "monastir", color = 0x32cd60 }
 province.name = _("Monastir")
 Province:register(province)
 Province:add_pop(province, artisan, arabic, islamic, 10, 0.6)
@@ -34,7 +34,7 @@ Province:add_nucleus(province, arabia)
 Province:add_nucleus(province, tunis)
 Province:give_to(province, tunis)
 
-province = Province:create{ ref_name = "sfax", color = 0xee1d00 }
+province = Province:new{ ref_name = "sfax", color = 0xee1d00 }
 province.name = _("Sfax")
 Province:register(province)
 Province:add_pop(province, artisan, arabic, islamic, 10, 0.6)
@@ -50,7 +50,7 @@ Province:add_nucleus(province, arabia)
 Province:add_nucleus(province, tunis)
 Province:give_to(province, tunis)
 
-province = Province:create{ ref_name = "soghuan", color = 0x46aac0 }
+province = Province:new{ ref_name = "soghuan", color = 0x46aac0 }
 province.name = _("Soghuan")
 Province:register(province)
 Province:add_pop(province, artisan, arabic, islamic, 10, 0.6)
@@ -66,7 +66,7 @@ Province:add_nucleus(province, arabia)
 Province:add_nucleus(province, tunis)
 Province:give_to(province, tunis)
 
-province = Province:create{ ref_name = "kasserine", color = 0xfb3dff }
+province = Province:new{ ref_name = "kasserine", color = 0xfb3dff }
 province.name = _("Kasserine")
 Province:register(province)
 Province:add_pop(province, artisan, arabic, islamic, 10, 0.6)
@@ -82,7 +82,7 @@ Province:add_nucleus(province, arabia)
 Province:add_nucleus(province, tunis)
 Province:give_to(province, tunis)
 
-province = Province:create{ ref_name = "bizerte", color = 0x083bc0 }
+province = Province:new{ ref_name = "bizerte", color = 0x083bc0 }
 province.name = _("Bizerte")
 Province:register(province)
 Province:add_pop(province, artisan, arabic, islamic, 10, 0.6)
@@ -98,7 +98,7 @@ Province:add_nucleus(province, arabia)
 Province:add_nucleus(province, tunis)
 Province:give_to(province, tunis)
 
-province = Province:create{ ref_name = "gabes", color = 0x7930c0 }
+province = Province:new{ ref_name = "gabes", color = 0x7930c0 }
 province.name = _("Gabès")
 Province:register(province)
 Province:add_pop(province, artisan, arabic, islamic, 10, 0.6)
@@ -114,7 +114,7 @@ Province:add_nucleus(province, arabia)
 Province:add_nucleus(province, tunis)
 Province:give_to(province, tunis)
 
-province = Province:create{ ref_name = "tatouine", color = 0xa45260 }
+province = Province:new{ ref_name = "tatouine", color = 0xa45260 }
 province.name = _("Tatouine")
 Province:register(province)
 Province:add_pop(province, artisan, arabic, islamic, 10, 0.6)
@@ -130,7 +130,7 @@ Province:add_nucleus(province, arabia)
 Province:add_nucleus(province, tunis)
 Province:give_to(province, tunis)
 
-province = Province:create{ ref_name = "tozeur", color = 0xe27980 }
+province = Province:new{ ref_name = "tozeur", color = 0xe27980 }
 province.name = _("Tozeur")
 Province:register(province)
 Province:add_pop(province, artisan, arabic, islamic, 10, 0.6)
@@ -146,7 +146,7 @@ Province:add_nucleus(province, arabia)
 Province:add_nucleus(province, tunis)
 Province:give_to(province, tunis)
 
-province = Province:create{ ref_name = "sidi_bouzid", color = 0x39e5c0 }
+province = Province:new{ ref_name = "sidi_bouzid", color = 0x39e5c0 }
 province.name = _("Sidi Bouzid")
 Province:register(province)
 Province:add_pop(province, artisan, arabic, islamic, 10, 0.6)
@@ -162,7 +162,7 @@ Province:add_nucleus(province, arabia)
 Province:add_nucleus(province, tunis)
 Province:give_to(province, tunis)
 
-province = Province:create{ ref_name = "beja", color = 0xa9b7a0 }
+province = Province:new{ ref_name = "beja", color = 0xa9b7a0 }
 province.name = _("Béja")
 Province:register(province)
 Province:add_pop(province, artisan, arabic, islamic, 10, 0.6)
@@ -178,7 +178,7 @@ Province:add_nucleus(province, arabia)
 Province:add_nucleus(province, tunis)
 Province:give_to(province, tunis)
 
-province = Province:create{ ref_name = "kairouan", color = 0xa772c0 }
+province = Province:new{ ref_name = "kairouan", color = 0xa772c0 }
 province.name = _("Kairouan")
 Province:register(province)
 Province:add_pop(province, artisan, arabic, islamic, 10, 0.6)
@@ -194,7 +194,7 @@ Province:add_nucleus(province, arabia)
 Province:add_nucleus(province, tunis)
 Province:give_to(province, tunis)
 
-province = Province:create{ ref_name = "kebili", color = 0x9f7e20 }
+province = Province:new{ ref_name = "kebili", color = 0x9f7e20 }
 province.name = _("Kebili")
 Province:register(province)
 Province:add_pop(province, artisan, arabic, islamic, 10, 0.6)
