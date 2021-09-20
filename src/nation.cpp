@@ -2,6 +2,26 @@
 #include "world.hpp"
 #include "print.hpp"
 
+bool Nation::is_ally(const Nation& nation) {
+    const World& world = World::get_instance();
+
+    if(nation.relations[world.get_id(this)].has_war == true
+    || this->relations[world.get_id(&nation)].has_war == true) {
+        return false;
+    }
+    return true;
+}
+
+bool Nation::is_enemy(const Nation& nation) {
+    const World& world = World::get_instance();
+    
+    if(nation.relations[world.get_id(this)].has_war == true
+    || this->relations[world.get_id(&nation)].has_war == true) {
+        return true;
+    }
+    return false;
+}
+
 // Whetever the nation exists at all - we cannot add nations in-game so we just check
 // if the nation "exists" at all, this means that it has a presence and a goverment
 // must own atleast 1 province
@@ -19,29 +39,31 @@ inline bool Nation::can_do_diplomacy() {
     return diplomatic_timer == 0;
 }
 
-void Nation::increase_relation(const World& world, Nation* target) {
+void Nation::increase_relation(Nation& target) {
     if(!can_do_diplomacy())
         return;
     
-    const Nation::Id t1_idx = world.get_id(target);
+    const World& world = World::get_instance();
+    const Nation::Id t1_idx = world.get_id(&target);
     this->relations[t1_idx].relation += 5.f;
     const Nation::Id t2_idx = world.get_id(this);
-    target->relations[t2_idx].relation += 5.f;
+    target.relations[t2_idx].relation += 5.f;
 
-    print_info("%s increases relations with %s", name.c_str(), target->name.c_str());
+    print_info("%s increases relations with %s", name.c_str(), target.name.c_str());
     do_diplomacy();
 }
 
-void Nation::decrease_relation(const World& world, Nation* target) {
+void Nation::decrease_relation(Nation& target) {
     if(!can_do_diplomacy())
         return;
-
-    const Nation::Id t1_idx = world.get_id(target);
+    
+    const World& world = World::get_instance();
+    const Nation::Id t1_idx = world.get_id(&target);
     this->relations[t1_idx].relation += 5.f;
     const Nation::Id t2_idx = world.get_id(this);
-    target->relations[t2_idx].relation += 5.f;
+    target.relations[t2_idx].relation += 5.f;
 
-    print_info("%s decreases relations with %s", name.c_str(), target->name.c_str());
+    print_info("%s decreases relations with %s", name.c_str(), target.name.c_str());
     do_diplomacy();
 }
 
@@ -60,8 +82,7 @@ void Nation::auto_relocate_capital(void) {
 void Nation::set_policy(Policies& policies) {
     // TODO: Make parliament (aristocrat POPs) be able to reject policy changes
     // TODO: Increase militancy on non-agreeing POPs
-    
-    memcpy(&this->current_policy, &policies, sizeof(Policies));
+    std::memcpy(&this->current_policy, &policies, sizeof(Policies));
     return;
 }
 
