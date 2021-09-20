@@ -28,7 +28,7 @@ struct Input {
     std::pair<int, int> mouse_pos;
     Boat* selected_boat = nullptr;
     Unit* selected_unit = nullptr;
-    Outpost* selected_outpost = nullptr;
+    Building* selected_building = nullptr;
 };
 
 // The all encompassing client state

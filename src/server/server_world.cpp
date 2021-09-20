@@ -45,7 +45,7 @@ World::World() {
 
     lua_register(lua, "add_unit_trait", LuaAPI::add_unit_trait);
 
-    lua_register(lua, "add_outpost_type", LuaAPI::add_outpost_type);
+    lua_register(lua, "add_building_type", LuaAPI::add_building_type);
 
     lua_register(lua, "add_good", LuaAPI::add_good);
     lua_register(lua, "get_good", LuaAPI::get_good);
@@ -60,19 +60,6 @@ World::World() {
     lua_register(lua, "get_nation", LuaAPI::get_nation);
     lua_register(lua, "set_nation_primary_culture", LuaAPI::set_nation_primary_culture);
     lua_register(lua, "set_nation_capital", LuaAPI::set_nation_capital);
-    lua_register(lua, "set_industry_output_mod", LuaAPI::set_industry_output_mod);
-    lua_register(lua, "set_industry_input_mod", LuaAPI::set_industry_input_mod);
-    lua_register(lua, "set_workers_needed_mod", LuaAPI::set_workers_needed_mod);
-    lua_register(lua, "set_salary_paid_mod", LuaAPI::set_salary_paid_mod);
-    lua_register(lua, "set_delivery_cost_mod", LuaAPI::set_delivery_cost_mod);
-    lua_register(lua, "set_literacy_learn_mod", LuaAPI::set_literacy_learn_mod);
-    lua_register(lua, "set_reproduction_mod", LuaAPI::set_reproduction_mod);
-    lua_register(lua, "set_death_mod", LuaAPI::set_death_mod);
-    lua_register(lua, "set_militancy_mod", LuaAPI::set_militancy_mod);
-    lua_register(lua, "set_consciousness_mod", LuaAPI::set_consciousness_mod);
-    lua_register(lua, "set_life_needs_met_mod", LuaAPI::set_life_needs_met_mod);
-    lua_register(lua, "set_everyday_needs_met_mod", LuaAPI::set_everyday_needs_met_mod);
-    lua_register(lua, "set_luxury_needs_met_mod", LuaAPI::set_luxury_needs_met_mod);
     lua_register(lua, "add_nation_accepted_culture", LuaAPI::add_accepted_culture);
     lua_register(lua, "add_nation_client_hint", LuaAPI::add_nation_client_hint);
     lua_register(lua, "get_nation_policies", LuaAPI::get_nation_policies);
@@ -128,6 +115,57 @@ World::World() {
     lua_register(lua, "get_month", LuaAPI::get_month);
     lua_register(lua, "get_year", LuaAPI::get_year);
 
+    /*
+    const struct luaL_Reg ideology_meta[] = {
+        { "__gc", [](lua_State* L) {
+            return 0;
+        }},
+        { "__index", [](lua_State* L) {
+            print_info("__index?");
+            return 0;
+        }},
+        { "__newindex", [](lua_State* L) {
+            Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
+            std::string member = luaL_checkstring(L, 2);
+            if(member == "ref_name") {
+                ideology->ref_name = luaL_checkstring(L, 3);
+            } else if(member == "name") {
+                ideology->name = luaL_checkstring(L, 3);
+            }
+            print_info("__newindex?");
+            return 0;
+        }},
+        { NULL, NULL }
+    };
+    const luaL_Reg ideology_methods[] = {
+        { "new", [](lua_State* L) {
+            Ideology* ideology = (Ideology*)lua_newuserdata(L, sizeof(Ideology));
+            ideology->ref_name = luaL_checkstring(L, 1);
+            ideology->name = luaL_checkstring(L, 2);
+            return 1;
+        }},
+        { "register", [](lua_State* L) {
+            Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
+            Ideology* new_ideology = new Ideology(*ideology);
+            g_world->ideologies.push_back(new_ideology);
+            return 0;
+        }},
+        { "get", [](lua_State* L) {
+            std::string ref_name = lua_tostring(L, 2);
+            auto result = std::find_if(g_world->ideologies.begin(), g_world->ideologies.end(),
+            [&ref_name](const auto& o) { return (o->ref_name == ref_name); });
+            if(result == g_world->ideologies.end())
+                throw LuaAPI::Exception("Ideology " + ref_name + " not found");
+            
+            Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
+            *ideology = **result;
+            return 0;
+        }},
+        { NULL, NULL }
+    };
+    LuaAPI::register_new_table(lua, "Ideology", ideology_meta, ideology_methods);
+    */
+
     // Constants for ease of readability
     lua_pushboolean(lua, true);
     lua_setglobal(lua, "EVENT_CONDITIONS_MET");
@@ -182,8 +220,8 @@ World::~World() {
         delete province;
     } for(auto& nation: nations) {
         delete nation;
-    } for(auto& outpost_type: outpost_types) {
-        delete outpost_type;
+    } for(auto& building_type: building_types) {
+        delete building_type;
     } for(auto& unit_trait: unit_traits) {
         delete unit_trait;
     } for(auto& boat_type: boat_types) {
@@ -232,7 +270,7 @@ void World::load_mod(void) {
 
     files_text = Path::get_data("scripts/unit_traits.lua");
     for(const auto& text: files_text) { final_buf += text; }
-    files_text = Path::get_data("scripts/outpost_types.lua");
+    files_text = Path::get_data("scripts/building_types.lua");
     for(const auto& text: files_text) { final_buf += text; }
     files_text = Path::get_data("scripts/cultures.lua");
     for(const auto& text: files_text) { final_buf += text; }
@@ -251,6 +289,10 @@ void World::load_mod(void) {
     files_text = Path::get_data("scripts/boat_types.lua");
     for(const auto& text: files_text) { final_buf += text; }
     files_text = Path::get_data("scripts/nations.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/companies.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/provinces.lua");
     for(const auto& text: files_text) { final_buf += text; }
     files_text = Path::get_data("scripts/init.lua");
     for(const auto& text: files_text) { final_buf += text; }
@@ -543,7 +585,7 @@ void World::do_tick() {
                 {
                     Packet packet = Packet();
                     Archive ar = Archive();
-                    enum ActionType action = ACTION_PROVINCE_COLONIZE;
+                    enum ActionType action = ActionType::PROVINCE_COLONIZE;
                     ::serialize(ar, &action);
                     ::serialize(ar, &target);
                     ::serialize(ar, target);
@@ -561,13 +603,13 @@ void World::do_tick() {
             while(target == nullptr || target->exists() == false) {
                 target = nations[rand() % nations.size()];
             }
-            nation->increase_relation(*this, target);
+            nation->increase_relation(*target);
         } else if(rand() % 100 > 98.f) {
             Nation *target = nullptr;
             while(target == nullptr || target->exists() == false) {
                 target = nations[rand() % nations.size()];
             }
-            nation->decrease_relation(*this, target);
+            nation->decrease_relation(*target);
         }
 
         // Rarely nations will change policies
@@ -611,7 +653,7 @@ void World::do_tick() {
             nation->diplomatic_timer--;
         }
 
-        // Build an outpost randomly?
+        // Build an building randomly?
         if(rand() % 10000 > 9990.f) {
             bool can_build = false;
             for(const auto& province: nation->owned_provinces) {
@@ -647,28 +689,27 @@ void World::do_tick() {
                 }
             }
 
-            // Now build the outpost
-            Outpost* outpost = new Outpost();
-            outpost->owner = nation;
-            outpost->working_unit_type = nullptr;
-            outpost->working_boat_type = nullptr;
-            outpost->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
-            outpost->req_goods = std::vector<std::pair<Good*, size_t>>();
-            outpost->type = outpost_types[rand() % outpost_types.size()];
+            // Now build the building
+            Building* building = new Building();
+            building->owner = nation;
+            building->working_unit_type = nullptr;
+            building->working_boat_type = nullptr;
+            building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
+            building->req_goods = std::vector<std::pair<Good*, size_t>>();
+            building->type = building_types[rand() % building_types.size()];
 
-            // Broadcast the addition of the outpost to the clients
+            // Broadcast the addition of the building to the clients
             {
                 Packet packet = Packet();
                 Archive ar = Archive();
-                enum ActionType action = ACTION_OUTPOST_ADD;
+                enum ActionType action = ActionType::BUILDING_ADD;
                 ::serialize(ar, &action);
-                ::serialize(ar, outpost);
+                ::serialize(ar, building);
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
             }
-            g_world->outposts.push_back(outpost);
-
-            print_info("Building outpust of %s on %s", nation->name.c_str(), target->name.c_str());
+            g_world->buildings.push_back(building);
+            print_info("Building of %s on %s", nation->name.c_str(), target->name.c_str());
         }
     }
 
@@ -702,7 +743,7 @@ void World::do_tick() {
             Packet packet = Packet();
             Archive ar = Archive();
                 
-            enum ActionType action = ACTION_PRODUCT_UPDATE;
+            enum ActionType action = ActionType::PRODUCT_UPDATE;
             ::serialize(ar, &action);
             ::serialize(ar, &product); // ProductRef
             ::serialize(ar, product); // ProductObj
@@ -739,7 +780,7 @@ void World::do_tick() {
                 Packet packet = Packet();
                 Archive ar = Archive();
                 
-                enum ActionType action = ACTION_NATION_UPDATE;
+                enum ActionType action = ActionType::NATION_UPDATE;
                 ::serialize(ar, &action);
 
                 ::serialize(ar, &nation); // NationRef
@@ -754,7 +795,7 @@ void World::do_tick() {
                 Packet packet = Packet();
                 Archive ar = Archive();
                 
-                enum ActionType action = ACTION_PROVINCE_UPDATE;
+                enum ActionType action = ActionType::PROVINCE_UPDATE;
                 ::serialize(ar, &action);
 
                 ::serialize(ar, &province); // ProvinceRef
@@ -852,7 +893,7 @@ void World::do_tick() {
         // and we must be at war with the owner of this unit to be able to attack the unit
         if(nearest_foe != nullptr
         && unit->owner->relations[get_id(nearest_foe->owner)].has_war == false) {
-            unit->attack(nearest_foe);
+            unit->attack(*nearest_foe);
         }
 
         // North and south do not wrap
@@ -881,7 +922,7 @@ void World::do_tick() {
         // Broadcast to clients
         Packet packet = Packet(0);
         Archive ar = Archive();
-        enum ActionType action = ACTION_BOAT_UPDATE;
+        enum ActionType action = ActionType::BOAT_UPDATE;
         ::serialize(ar, &action);
         ::serialize(ar, &boat);
         ::serialize(ar, boat);
@@ -969,9 +1010,8 @@ void World::do_tick() {
         
         // Make the unit attack automatically
         // and we must be at war with the owner of this unit to be able to attack the unit
-        if(nearest_foe != nullptr
-        && unit->owner->relations[get_id(nearest_foe->owner)].has_war == false) {
-            unit->attack(nearest_foe);
+        if(nearest_foe != nullptr && unit->owner->is_enemy(*nearest_foe->owner)) {
+            unit->attack(*nearest_foe);
         }
 
         // Unit is on a non-wasteland part of the map
@@ -1068,7 +1108,7 @@ void World::do_tick() {
                 // Broadcast to clients
                 Packet packet = Packet(0);
                 Archive ar = Archive();
-                enum ActionType action = ACTION_TILE_UPDATE;
+                enum ActionType action = ActionType::TILE_UPDATE;
                 ::serialize(ar, &action);
                 ::serialize(ar, &coord.first);
                 ::serialize(ar, &coord.second);
@@ -1083,7 +1123,7 @@ void World::do_tick() {
         // Broadcast to clients
         Packet packet = Packet(0);
         Archive ar = Archive();
-        enum ActionType action = ACTION_UNIT_UPDATE;
+        enum ActionType action = ActionType::UNIT_UPDATE;
         ::serialize(ar, &action);
         ::serialize(ar, &unit);
         ::serialize(ar, unit);
@@ -1175,7 +1215,7 @@ void World::do_tick() {
     // Tell clients that this tick has been done
     Packet packet = Packet(0);
     Archive ar = Archive();
-    enum ActionType action = ACTION_WORLD_TICK;
+    enum ActionType action = ActionType::WORLD_TICK;
     ::serialize(ar, &action);
     ::serialize(ar, &g_world->time);
     packet.data(ar.get_buffer(), ar.size());

@@ -71,13 +71,13 @@ class TreatyAcceptCommand : public Command {
 
 class BuildUnitCommand : public Command {
    public:
-    BuildUnitCommand(Outpost* _outpost, UnitType* _unitType) : outpost{_outpost}, unitType{_unitType} {};
-    BuildUnitCommand(Outpost* _outpost, BoatType* _boatType) : outpost{_outpost}, boatType{_boatType} {};
+    BuildUnitCommand(Building* _building, UnitType* _unitType) : building{_building}, unitType{_unitType} {};
+    BuildUnitCommand(Building* _building, BoatType* _boatType) : building{_building}, boatType{_boatType} {};
     virtual ~BuildUnitCommand(){};
     void run_command(World& ws, Client* client) override;
 
    private:
-    Outpost* outpost;
+    Building* building;
     UnitType* unitType = nullptr;
     BoatType* boatType = nullptr;
 };

@@ -75,9 +75,9 @@ class Serializer<Unit*> : public SerializerReference<World, Unit> {};
 template<>
 class Serializer<Boat*> : public SerializerReference<World, Boat> {};
 template<>
-class Serializer<OutpostType*> : public SerializerReference<World, OutpostType> {};
+class Serializer<BuildingType*> : public SerializerReference<World, BuildingType> {};
 template<>
-class Serializer<Outpost*> : public SerializerReference<World, Outpost> {};
+class Serializer<Building*> : public SerializerReference<World, Building> {};
 template<>
 class Serializer<Ideology*> : public SerializerReference<World, Ideology> {};
 
@@ -519,7 +519,7 @@ public:
     static inline void serialize(Archive& stream, const OrderGoods* obj) {
         ::serialize(stream, &obj->good);
         ::serialize(stream, &obj->industry);
-        ::serialize(stream, &obj->outpost);
+        ::serialize(stream, &obj->building);
         ::serialize(stream, &obj->payment);
         ::serialize(stream, &obj->province);
         ::serialize(stream, &obj->quantity);
@@ -528,7 +528,7 @@ public:
     static inline void deserialize(Archive& stream, OrderGoods* obj) {
         ::deserialize(stream, &obj->good);
         ::deserialize(stream, &obj->industry);
-        ::deserialize(stream, &obj->outpost);
+        ::deserialize(stream, &obj->building);
         ::deserialize(stream, &obj->payment);
         ::deserialize(stream, &obj->province);
         ::deserialize(stream, &obj->quantity);
@@ -538,7 +538,7 @@ public:
         return
             serialized_size(&obj->good)
             + serialized_size(&obj->industry)
-            + serialized_size(&obj->outpost)
+            + serialized_size(&obj->building)
             + serialized_size(&obj->payment)
             + serialized_size(&obj->province)
             + serialized_size(&obj->quantity)
@@ -852,9 +852,9 @@ public:
 };
 
 template<>
-class Serializer<OutpostType> {
+class Serializer<BuildingType> {
 public:
-    static inline void serialize(Archive& stream, const OutpostType* obj) {
+    static inline void serialize(Archive& stream, const BuildingType* obj) {
         ::serialize(stream, &obj->ref_name);
         ::serialize(stream, &obj->is_naval);
         ::serialize(stream, &obj->is_build_land_units);
@@ -862,7 +862,7 @@ public:
         ::serialize(stream, &obj->defense_bonus);
         ::serialize(stream, &obj->req_goods);
     }
-    static inline void deserialize(Archive& stream, OutpostType* obj) {
+    static inline void deserialize(Archive& stream, BuildingType* obj) {
         ::deserialize(stream, &obj->ref_name);
         ::deserialize(stream, &obj->is_naval);
         ::deserialize(stream, &obj->is_build_land_units);
@@ -870,7 +870,7 @@ public:
         ::deserialize(stream, &obj->defense_bonus);
         ::deserialize(stream, &obj->req_goods);
     }
-    static inline size_t size(const OutpostType* obj) {
+    static inline size_t size(const BuildingType* obj) {
         return
             serialized_size(&obj->ref_name)
             + serialized_size(&obj->is_naval)
@@ -883,9 +883,9 @@ public:
 };
 
 template<>
-class Serializer<Outpost> {
+class Serializer<Building> {
 public:
-    static inline void serialize(Archive& stream, const Outpost* obj) {
+    static inline void serialize(Archive& stream, const Building* obj) {
         ::serialize(stream, &obj->x);
         ::serialize(stream, &obj->y);
         ::serialize(stream, &obj->type);
@@ -895,7 +895,7 @@ public:
         ::serialize(stream, &obj->build_time);
         ::serialize(stream, &obj->req_goods);
     }
-    static inline void deserialize(Archive& stream, Outpost* obj) {
+    static inline void deserialize(Archive& stream, Building* obj) {
         ::deserialize(stream, &obj->x);
         ::deserialize(stream, &obj->y);
         ::deserialize(stream, &obj->type);
@@ -905,7 +905,7 @@ public:
         ::deserialize(stream, &obj->build_time);
         ::deserialize(stream, &obj->req_goods);
     }
-    static inline size_t size(const Outpost* obj) {
+    static inline size_t size(const Building* obj) {
         return
             serialized_size(&obj->x)
             + serialized_size(&obj->y)
@@ -1349,10 +1349,10 @@ public:
         ::serialize(stream, &n_events);
         const uint32_t n_unit_traits = obj->unit_traits.size();
         ::serialize(stream, &n_unit_traits);
-        const uint32_t n_outpost_types = obj->outpost_types.size();
-        ::serialize(stream, &n_outpost_types);
-        const uint32_t n_outposts = obj->outposts.size();
-        ::serialize(stream, &n_outposts);
+        const uint32_t n_building_types = obj->building_types.size();
+        ::serialize(stream, &n_building_types);
+        const uint32_t n_buildings = obj->buildings.size();
+        ::serialize(stream, &n_buildings);
         const uint32_t n_treaties = obj->treaties.size();
         ::serialize(stream, &n_treaties);
         const uint32_t n_boats = obj->boats.size();
@@ -1373,8 +1373,8 @@ public:
         print_info("  n_products %zu", obj->products.size());
         print_info("  n_events %zu", obj->events.size());
         print_info("  n_unit_traits %zu", obj->unit_traits.size());
-        print_info("  n_outpost_types %zu", obj->outpost_types.size());
-        print_info("  n_outposts %zu", obj->outposts.size());
+        print_info("  n_outpost_types %zu", obj->building_types.size());
+        print_info("  n_outposts %zu", obj->buildings.size());
         print_info("  n_treaties %zu", obj->treaties.size());
         print_info("  n_boats %zu", obj->boats.size());
         print_info("  n_ideologies %zu", obj->ideologies.size());
@@ -1431,11 +1431,11 @@ public:
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj: obj->outpost_types) {
+        for(auto& sub_obj: obj->building_types) {
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj: obj->outposts) {
+        for(auto& sub_obj: obj->buildings) {
             ::serialize(stream, sub_obj);
         }
 
@@ -1560,18 +1560,18 @@ public:
             obj->unit_traits.push_back(sub_obj);
         }
 
-        uint32_t n_outpost_types;
-        ::deserialize(stream, &n_outpost_types);
-        for(size_t i = 0; i < n_outpost_types; i++) {
-            OutpostType* sub_obj = new OutpostType();
-            obj->outpost_types.push_back(sub_obj);
+        uint32_t n_building_types;
+        ::deserialize(stream, &n_building_types);
+        for(size_t i = 0; i < n_building_types; i++) {
+            BuildingType* sub_obj = new BuildingType();
+            obj->building_types.push_back(sub_obj);
         }
 
-        uint32_t n_outposts;
-        ::deserialize(stream, &n_outposts);
-        for(size_t i = 0; i < n_outposts; i++) {
-            Outpost* sub_obj = new Outpost();
-            obj->outposts.push_back(sub_obj);
+        uint32_t n_buildings;
+        ::deserialize(stream, &n_buildings);
+        for(size_t i = 0; i < n_buildings; i++) {
+            Building* sub_obj = new Building();
+            obj->buildings.push_back(sub_obj);
         }
 
         uint32_t n_treaties;
@@ -1608,8 +1608,8 @@ public:
         print_info("  n_products %zu", obj->products.size());
         print_info("  n_events %zu", obj->events.size());
         print_info("  n_unit_traits %zu", obj->unit_traits.size());
-        print_info("  n_outpost_types %zu", obj->outpost_types.size());
-        print_info("  n_outposts %zu", obj->outposts.size());
+        print_info("  n_outpost_types %zu", obj->building_types.size());
+        print_info("  n_outposts %zu", obj->buildings.size());
         print_info("  n_treaties %zu", obj->treaties.size());
         print_info("  n_boats %zu", obj->boats.size());
         print_info("  n_ideologies %zu", obj->ideologies.size());
@@ -1679,13 +1679,13 @@ public:
             ::deserialize(stream, sub_obj);
         }
 
-        for(size_t i = 0; i < n_outpost_types; i++) {
-            OutpostType* sub_obj = obj->outpost_types[i];
+        for(size_t i = 0; i < n_building_types; i++) {
+            BuildingType* sub_obj = obj->building_types[i];
             ::deserialize(stream, sub_obj);
         }
 
-        for(size_t i = 0; i < n_outposts; i++) {
-            Outpost* sub_obj = obj->outposts[i];
+        for(size_t i = 0; i < n_buildings; i++) {
+            Building* sub_obj = obj->buildings[i];
             ::deserialize(stream, sub_obj);
         }
 
@@ -1730,8 +1730,8 @@ public:
             + (obj->products.size() * sizeof(Product))
             + (obj->events.size() * sizeof(Event))
             + (obj->unit_traits.size() * sizeof(UnitTrait))
-            + (obj->outpost_types.size() * sizeof(OutpostType))
-            + (obj->outposts.size() * sizeof(Outpost))
+            + (obj->building_types.size() * sizeof(BuildingType))
+            + (obj->buildings.size() * sizeof(Building))
             + (obj->treaties.size() * sizeof(Treaty))
             + (obj->boats.size() * sizeof(Boat))
             + (obj->ideologies.size() * sizeof(Ideology))

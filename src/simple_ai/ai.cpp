@@ -28,7 +28,7 @@ void ai_fix_taxes(void) {
     g_client->packet_mutex.lock();
     Packet packet = Packet();
     Archive ar = Archive();
-    enum ActionType action = ACTION_NATION_ENACT_POLICY;
+    ActionType action = ActionType::NATION_ENACT_POLICY;
     ::serialize(ar, &action);
     ::serialize(ar, &draft_policy); // PoliciesObj
     packet.data(ar.get_buffer(), ar.size());
@@ -42,11 +42,11 @@ void ai_main(void) {
     print_info("Hello!, I'm SimpleAI");
 
     // Tells the server about our chosen nation
-    selected_nation = g_world->nations[0];
+    selected_nation = g_world->nations.at(0);
     g_client->packet_mutex.lock();
     Packet packet = Packet();
     Archive ar = Archive();
-    enum ActionType action = ACTION_SELECT_NATION;
+    ActionType action = ActionType::SELECT_NATION;
     ::serialize(ar, &action);
     ::serialize(ar, &selected_nation);
     packet.data(ar.get_buffer(), ar.size());

@@ -27,9 +27,11 @@ namespace LuaAPI {
         }
     };
 
+    int register_new_table(lua_State* L, const std::string& name, const luaL_Reg meta[], const luaL_Reg methods[]);
+
     int add_unit_trait(lua_State* L);
 
-    int add_outpost_type(lua_State* L);
+    int add_building_type(lua_State* L);
 
     int add_good(lua_State* L);
     int get_good(lua_State* L);
@@ -44,19 +46,6 @@ namespace LuaAPI {
     int get_nation(lua_State* L);
     int set_nation_primary_culture(lua_State* L);
     int set_nation_capital(lua_State* L);
-    int set_industry_output_mod(lua_State* L);
-    int set_industry_input_mod(lua_State* L);
-    int set_workers_needed_mod(lua_State* L);
-    int set_salary_paid_mod(lua_State* L);
-    int set_delivery_cost_mod(lua_State* L);
-    int set_literacy_learn_mod(lua_State* L);
-    int set_reproduction_mod(lua_State* L);
-    int set_death_mod(lua_State* L);
-    int set_militancy_mod(lua_State* L);
-    int set_consciousness_mod(lua_State* L);
-    int set_life_needs_met_mod(lua_State* L);
-    int set_everyday_needs_met_mod(lua_State* L);
-    int set_luxury_needs_met_mod(lua_State* L);
     int add_accepted_culture(lua_State* L);
     int add_nation_client_hint(lua_State* L);
     int get_nation_policies(lua_State* L);
