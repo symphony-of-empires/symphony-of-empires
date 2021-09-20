@@ -4,6 +4,25 @@
 #include "serializer.hpp"
 
 enum class ActionType {
+    // Errors
+    BAD,
+
+    // Tell client that a whole tick has been done
+    WORLD_TICK,
+
+    // Self-explanaitory
+    SELECT_NATION,
+
+    // Gaming chatting
+    CONNECT,
+    DISCONNECT,
+    CHAT_MESSAGE,
+    CHAT_NICKNAME,
+
+    // Testing
+    PING,
+    PONG,
+
     PROVINCE_UPDATE,
     PROVINCE_ADD,
     PROVINCE_REMOVE,
@@ -37,25 +56,6 @@ enum class ActionType {
     CHANGE_TREATY_APPROVAL,
     DRAFT_TREATY,
     TREATY_ADD,
-
-    // Tell client that a whole tick has been done :D
-    WORLD_TICK,
-
-    // Self-explanaitory
-    SELECT_NATION,
-
-    // Gaming chatting
-    CONNECT,
-    DISCONNECT,
-    CHAT_MESSAGE,
-    CHAT_NICKNAME,
-
-    // Testing
-    PING,
-    PONG,
-
-    // Errors
-    BAD,
 };
 
 class Action {
