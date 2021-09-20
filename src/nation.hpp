@@ -50,15 +50,41 @@ public:
     Ideology* ideology;
 };
 
+class NationModifier {
+public:
+    std::string ref_name;
+    std::string name;
+
+    // Modifiers for a nation, which increases/decreases certain stuff
+    // They should never be 0, a modifier of 1.0 is equal to no modifer at
+    // all. And a modifier of 0.5 would cause a 1/2. Similar to a 2 which
+    // would make a x2
+    float industry_output_mod = 1.f;
+    float industry_input_mod = 1.f;
+    float workers_needed_mod = 1.f;
+    float salary_paid_mod = 1.f;
+    float delivery_cost_mod = 1.f;
+    float literacy_learn_mod = 1.f;
+    float reproduction_mod = 1.f;
+    float death_mod = 1.f;
+    float militancy_mod = 1.f;
+    float consciousness_mod = 1.f;
+    float life_needs_met_mod = 1.f;
+    float everyday_needs_met_mod = 1.f;
+    float luxury_needs_met_mod = 1.f;
+};
+
 class Nation {
     inline void do_diplomacy();
     inline bool can_do_diplomacy();
 public:
     using Id = uint16_t;
 
+    bool is_ally(const Nation& nation);
+    bool is_enemy(const Nation& nation);
     bool exists(void);
-    void increase_relation(const World& world, Nation* target);
-    void decrease_relation(const World& world, Nation* target);
+    void increase_relation(Nation& target);
+    void decrease_relation(Nation& target);
     void auto_relocate_capital(void);
     void set_policy(Policies& policies);
     bool is_accepted_culture(const Pop& pop) const;
@@ -132,23 +158,7 @@ public:
     // Time until a diplomatic action can be done
     uint16_t diplomatic_timer;
 
-    // Modifiers for a nation, which increases/decreases certain stuff
-    // They should never be 0, a modifier of 1.0 is equal to no modifer at
-    // all. And a modifier of 0.5 would cause a 1/2. Similar to a 2 which
-    // would make a x2
-    float industry_output_mod = 1.f;
-    float industry_input_mod = 1.f;
-    float workers_needed_mod = 1.f;
-    float salary_paid_mod = 1.f;
-    float delivery_cost_mod = 1.f;
-    float literacy_learn_mod = 1.f;
-    float reproduction_mod = 1.f;
-    float death_mod = 1.f;
-    float militancy_mod = 1.f;
-    float consciousness_mod = 1.f;
-    float life_needs_met_mod = 1.f;
-    float everyday_needs_met_mod = 1.f;
-    float luxury_needs_met_mod = 1.f;
+    std::vector<NationModifier> modifiers;
 
     bool is_ai = true;
 
