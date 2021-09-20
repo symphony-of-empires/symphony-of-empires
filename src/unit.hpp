@@ -85,6 +85,41 @@ public:
 class Unit {
 public:
     using Id = uint32_t;
+
+    void attack(Unit& enemy) {
+        // Calculate the attack of our unit
+        float attack_mod = 0.f;
+        for(const auto& trait: this->traits) {
+            attack_mod *= trait->attack_mod;
+        }
+        const float attack = this->type->attack * attack_mod;
+
+        // Calculate the defense of the enemy
+        float defense_mod = 0.f;
+        for(const auto& trait: this->traits) {
+            defense_mod *= trait->defense_mod;
+        }
+        const float enemy_defense = std::max(0.1f, enemy.type->defense * defense_mod);
+
+        // Calculate the total damage dealt by our unit to the enemy
+        const float damage_dealt = this->size * std::min(10.f, std::max(.05f, this->experience))
+            * (attack / std::pow(std::min(0.f, enemy_defense), 2))
+            * std::max(0.1f, this->morale) * this->supply
+        ;
+        
+        // Deal with the morale loss of the enemy
+        float enemy_fanaticism = 0.f;
+        for(const auto& trait: enemy.traits) {
+            enemy_fanaticism *= trait->morale_mod;
+        }
+        enemy.morale -= 10.f * enemy_fanaticism * damage_dealt / enemy.size;
+
+        // Our unit receives half of the morale
+        this->morale += 5.f * enemy_fanaticism * damage_dealt / enemy.size;
+
+        // Deal the damage
+        enemy.size -= damage_dealt;
+    };
     
     // Type of unit
     UnitType* type;
@@ -131,6 +166,41 @@ public:
 class Boat {
 public:
     using Id = uint32_t;
+
+    void attack(Unit& enemy) {
+        // Calculate the attack of our unit
+        float attack_mod = 0.f;
+        for(const auto& trait: this->traits) {
+            attack_mod *= trait->attack_mod;
+        }
+        const float attack = this->type->attack * attack_mod;
+
+        // Calculate the defense of the enemy
+        float defense_mod = 0.f;
+        for(const auto& trait: this->traits) {
+            defense_mod *= trait->defense_mod;
+        }
+        const float enemy_defense = std::max(0.1f, enemy.type->defense * defense_mod);
+
+        // Calculate the total damage dealt by our unit to the enemy
+        const float damage_dealt = this->size * std::min(10.f, std::max(.05f, this->experience))
+            * (attack / std::pow(std::min(0.f, enemy_defense), 2))
+            * std::max(0.1f, this->morale) * this->supply
+        ;
+        
+        // Deal with the morale loss of the enemy
+        float enemy_fanaticism = 0.f;
+        for(const auto& trait: enemy.traits) {
+            enemy_fanaticism *= trait->morale_mod;
+        }
+        enemy.morale -= 10.f * enemy_fanaticism * damage_dealt / enemy.size;
+
+        // Our unit receives half of the morale
+        this->morale += 5.f * enemy_fanaticism * damage_dealt / enemy.size;
+
+        // Deal the damage
+        enemy.size -= damage_dealt;
+    };
     
     // Type of unit
     BoatType* type;

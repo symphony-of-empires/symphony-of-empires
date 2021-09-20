@@ -162,6 +162,9 @@ function Nation:get_policies(self)
 	policies.treatment, policies.migration, policies.immigration, policies.censorship, policies.build_infrastructure, policies.build_factories, policies.national_id, policies.men_suffrage, policies.men_labour, policies.women_suffrage, policies.women_labour, policies.private_property, policies.companies_allowed, policies.public_education, policies.secular_education, policies.public_healthcare, policies.social_security, policies.slavery, policies.legislative_parliament, policies.executive_parliament, policies.constitutional, policies.foreign_trade, policies.import_tax, policies.export_tax, policies.domestic_import_tax, policies.domestic_export_tax, policies.poor_flat_tax, policies.med_flat_tax, policies.rich_flat_tax, policies.industry_tax, policies.military_spending, policies.free_supplies, policies.minimum_wage = get_nation_policies(self.id)
 	return policies
 end
+function Nation:set_policies(self, policies)
+	set_nation_policies(self.id, policies.treatment, policies.migration, policies.immigration, policies.censorship, policies.build_infrastructure, policies.build_factories, policies.national_id, policies.men_suffrage, policies.men_labour, policies.women_suffrage, policies.women_labour, policies.private_property, policies.companies_allowed, policies.public_education, policies.secular_education, policies.public_healthcare, policies.social_security, policies.slavery, policies.legislative_parliament, policies.executive_parliament, policies.constitutional, policies.foreign_trade, policies.import_tax, policies.export_tax, policies.domestic_import_tax, policies.domestic_export_tax, policies.poor_flat_tax, policies.med_flat_tax, policies.rich_flat_tax, policies.industry_tax, policies.military_spending, policies.free_supplies, policies.minimum_wage)
+end
 function Nation:add_client_hint(self, ideology, alt_name, colour)
 	add_nation_client_hint(self.id, ideology.id, alt_name, colour)
 end
@@ -201,20 +204,16 @@ end
 function Province:get_neighbours_id(self)
 	return get_province_neighbours(self.id)
 end
-
 -- Increments militancy for all POPs
 function Province:multiply_militancy(self, factor)
 	multiply_province_militancy_global(self.id, factor)
 end
-
-
 function Province:multiply_militancy_by_culture(self, culture, factor)
 	multiply_province_militancy_by_culture(self.id, culture.id, factor)
 end
 function Province:multiply_militancy_by_religion(self, religion, factor)
 	multiply_province_militancy_by_religion(self.id, religion.id, factor)
 end
-
 -- Increments consciousness for all POPs
 function Province:multiply_consciousness_global(self, factor)
 	multiply_province_consciousness_global(self.id, factor)
@@ -226,17 +225,14 @@ end
 function Province:multiply_consciousness_by_religion(self, religion, factor)
 	multiply_province_consciousness_by_religion(self.id, religion.id, factor)
 end
-
 -- Adds a POP to the province
 function Province:add_pop(self, pop_type, culture, religion, size, literacy)
 	add_province_pop(self.id, pop_type.id, culture.id, religion.id, size, literacy)
 end
-
 -- Rename a province
 function Province:rename(self, new_name)
 	rename_province(self.id, new_name)
 end
-
 -- Adds a country to the nucleus list of a province
 function Province:add_nucleus(self, nation)
 	add_province_nucleus(self.id, nation.id)

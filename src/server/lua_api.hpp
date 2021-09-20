@@ -12,9 +12,21 @@
 #endif
 #include <string>
 #include <vector>
+#include <exception>
 #include "../nation.hpp"
 
 namespace LuaAPI {
+    class Exception : public std::exception {
+        std::string buffer;
+    public:
+        Exception(const std::string& message) {
+            buffer = message;
+        }
+        virtual const char* what(void) const noexcept {
+            return buffer.c_str();
+        }
+    };
+
     int add_unit_trait(lua_State* L);
 
     int add_outpost_type(lua_State* L);
@@ -48,6 +60,7 @@ namespace LuaAPI {
     int add_accepted_culture(lua_State* L);
     int add_nation_client_hint(lua_State* L);
     int get_nation_policies(lua_State* L);
+    int set_nation_policies(lua_State* L);
     
     int add_province(lua_State* L);
     int get_province(lua_State* L);

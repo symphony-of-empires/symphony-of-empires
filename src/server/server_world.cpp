@@ -255,8 +255,9 @@ void World::load_mod(void) {
     files_text = Path::get_data("scripts/init.lua");
     for(const auto& text: files_text) { final_buf += text; }
 
-    if(luaL_loadstring(lua, final_buf.c_str()) != LUA_OK || lua_pcall(lua, 0, 0, 0) != LUA_OK) {
-        throw std::runtime_error(lua_tostring(lua, -1));
+    if(luaL_loadstring(lua, final_buf.c_str()) != LUA_OK
+    || lua_pcall(lua, 0, 0, 0) != LUA_OK) {
+        throw LuaAPI::Exception(lua_tostring(lua, -1));
     }
 
     // Shrink normally-not-resized vectors to give back memory to the OS
@@ -498,8 +499,9 @@ void World::load_mod(void) {
     for(const auto& text: files_text) { final_buf += text; }
 
     printf("\n[%s]\n", final_buf.c_str());
-    if(luaL_loadstring(lua, final_buf.c_str()) != LUA_OK || lua_pcall(lua, 0, 0, 0) != LUA_OK) {
-        throw std::runtime_error(lua_tostring(lua, -1));
+    if(luaL_loadstring(lua, final_buf.c_str()) != LUA_OK
+    || lua_pcall(lua, 0, 0, 0) != LUA_OK) {
+        throw LuaAPI::Exception(lua_tostring(lua, -1));
     }
     
     // Default init for policies
@@ -527,10 +529,10 @@ void World::load_mod(void) {
 #include "economy.hpp"
 void World::do_tick() {
     std::lock_guard<std::recursive_mutex> lock(world_mutex);
+    std::lock_guard<std::recursive_mutex> lock2(tiles_mutex);
 
     // AI and stuff
     // Just random shit to make the world be like more alive
-    tiles_mutex.lock();
     for(const auto& nation: nations) {
         if(nation->exists() == false)
             continue;
@@ -550,7 +552,7 @@ void World::do_tick() {
                 }
 
                 nation->give_province(*this, *target);
-                printf("Conquering %s for %s\n", target->name.c_str(), nation->name.c_str());
+                print_info("Conquering %s for %s", target->name.c_str(), nation->name.c_str());
             }
         }
 
@@ -666,10 +668,9 @@ void World::do_tick() {
             }
             g_world->outposts.push_back(outpost);
 
-            printf("Building outpust of %s on %s\n", nation->name.c_str(), target->name.c_str());
+            print_info("Building outpust of %s on %s", nation->name.c_str(), target->name.c_str());
         }
     }
-    tiles_mutex.unlock();
 
     // Each tick == 30 minutes
     switch(time % (24* 2)) {
@@ -851,40 +852,7 @@ void World::do_tick() {
         // and we must be at war with the owner of this unit to be able to attack the unit
         if(nearest_foe != nullptr
         && unit->owner->relations[get_id(nearest_foe->owner)].has_war == false) {
-            Boat* enemy = nearest_foe;
-
-            // Calculate the attack of our unit
-            float attack_mod = 0.f;
-            for(const auto& trait: unit->traits) {
-                attack_mod *= trait->attack_mod;
-            }
-            const float attack = unit->type->attack * attack_mod;
-
-            // Calculate the defense of the enemy
-            float defense_mod = 0.f;
-            for(const auto& trait: unit->traits) {
-                defense_mod *= trait->defense_mod;
-            }
-            const float enemy_defense = std::max(0.1f, enemy->type->defense * defense_mod);
-
-            // Calculate the total damage dealt by our unit to the enemy
-            const float damage_dealt = unit->size * std::min(10.f, std::max(.05f, unit->experience))
-                * (attack / std::pow(std::min(0.f, enemy_defense), 2))
-                * std::max(0.1f, unit->morale) * unit->supply
-            ;
-            
-            // Deal with the morale loss of the enemy
-            float enemy_fanaticism = 0.f;
-            for(const auto& trait: enemy->traits) {
-                enemy_fanaticism *= trait->morale_mod;
-            }
-            enemy->morale -= 10.f * enemy_fanaticism * damage_dealt / enemy->size;
-
-            // Our unit receives half of the morale
-            unit->morale += 5.f * enemy_fanaticism * damage_dealt / enemy->size;
-
-            // Deal the damage
-            enemy->size -= damage_dealt;
+            unit->attack(nearest_foe);
         }
 
         // North and south do not wrap
@@ -1003,42 +971,7 @@ void World::do_tick() {
         // and we must be at war with the owner of this unit to be able to attack the unit
         if(nearest_foe != nullptr
         && unit->owner->relations[get_id(nearest_foe->owner)].has_war == false) {
-            Unit* enemy = nearest_foe;
-
-            // Calculate the attack of our unit
-            float attack_mod = 0.f;
-            for(const auto& trait: unit->traits) {
-                attack_mod *= trait->attack_mod;
-            }
-            const float attack = unit->type->attack * attack_mod;
-
-            // Calculate the defense of the enemy
-            float defense_mod = 0.f;
-            for(const auto& trait: unit->traits) {
-                defense_mod *= trait->defense_mod;
-            }
-            const float enemy_defense = std::max(0.1f, enemy->type->defense * defense_mod
-                * (enemy->defensive_ticks * enemy->type->position_defense))
-            ;
-
-            // Calculate the total damage dealt by our unit to the enemy
-            const float damage_dealt = unit->size * std::min(10.f, std::max(.05f, unit->experience))
-                * (attack / std::pow(std::min(0.f, enemy_defense), 2))
-                * std::max(0.1f, unit->morale) * unit->supply
-            ;
-            
-            // Deal with the morale loss of the enemy
-            float enemy_fanaticism = 0.f;
-            for(const auto& trait: enemy->traits) {
-                enemy_fanaticism *= trait->morale_mod;
-            }
-            enemy->morale -= 10.f * enemy_fanaticism * damage_dealt / enemy->size;
-
-            // Our unit receives half of the morale
-            unit->morale += 5.f * enemy_fanaticism * damage_dealt / enemy->size;
-
-            // Deal the damage
-            enemy->size -= damage_dealt;
+            unit->attack(nearest_foe);
         }
 
         // Unit is on a non-wasteland part of the map
@@ -1233,6 +1166,11 @@ void World::do_tick() {
             ;
         }
     }
+
+    LuaAPI::check_events(lua);
+
+    //print_info("Tick %zu done", (size_t)time);
+    time++;
     
     // Tell clients that this tick has been done
     Packet packet = Packet(0);
@@ -1242,9 +1180,4 @@ void World::do_tick() {
     ::serialize(ar, &g_world->time);
     packet.data(ar.get_buffer(), ar.size());
     g_server->broadcast(packet);
-    
-    LuaAPI::check_events(lua);
-
-    //print_info("Tick %zu done", (size_t)time);
-    time++;
 }

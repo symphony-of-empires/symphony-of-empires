@@ -135,20 +135,17 @@ public:
 * Contains the main world class object, containing all the data relevant for the simulation
  */
 class World {
-    /**
-    * Template for obtaining the ID of an element
-    * @tparam S return index type
-    * @tparam T type of the element to lookup
-    * @tparam C STL-compatible container where the pointer *should* be located in
-     */
-    template<typename S, typename T, typename C>
-    inline S get_id_ptr(const T* ptr, C table) const {
+    // Template for obtaining the ID of an element from a vector
+    // @tparam T type of the element to lookup
+    // @tparam C STL-compatible container where the pointer *should* be located in
+    template<typename T, typename C>
+    inline typename T::Id get_id_from_pvector(const T* ptr, C table) const {
         typename C::iterator it = std::find(table.begin(), table.end(), ptr);
         if(it == table.end()) {
             // -1 is used as an invalid index
-            return (S)-1;
+            return (typename T::Id)-1;
         }
-        return (S)std::distance(table.begin(), it);
+        return (typename T::Id)std::distance(table.begin(), it);
     }
 public:
     World();
@@ -161,94 +158,152 @@ public:
     void do_tick(void);
     void load_mod(void);
 
-    Nation::Id get_id(const Nation* ptr) const;
-    Province::Id get_id(const Province* ptr) const;
-    Product::Id get_id(const Product* ptr) const;
-    Good::Id get_id(const Good* ptr) const;
-    Culture::Id get_id(const Culture* ptr) const;
-    Company::Id get_id(const Company* ptr) const;
-    IndustryType::Id get_id(const IndustryType* ptr) const;
-    Industry::Id get_id(const Province& province, const Industry* ptr) const;
-    Event::Id get_id(const Event* ptr) const;
-    UnitType::Id get_id(const UnitType* ptr) const;
-    BoatType::Id get_id(const BoatType* ptr) const;
-    UnitTrait::Id get_id(const UnitTrait* ptr) const;
-    Unit::Id get_id(const Unit* ptr) const;
-    Boat::Id get_id(const Boat* ptr) const;
-    OutpostType::Id get_id(const OutpostType* ptr) const;
-    Outpost::Id get_id(const Outpost* ptr) const;
-    Treaty::Id get_id(const Treaty* ptr) const;
-    Ideology::Id get_id(const Ideology* ptr) const;
-
-    std::vector<Nation*>& get_list(const Nation* ptr) {
+    inline const std::vector<Nation*>& get_list(const Nation* ptr) const {
+        return nations;
+    };
+    inline std::vector<Nation*>& get_list(const Nation* ptr) {
         return nations;
     };
 
-    std::vector<Province*>& get_list(const Province* ptr) {
+    inline const std::vector<Province*>& get_list(const Province* ptr) const {
+        return provinces;
+    };
+    inline std::vector<Province*>& get_list(const Province* ptr) {
         return provinces;
     };
 
-    std::vector<Product*>& get_list(const Product* ptr) {
+    inline const std::vector<Product*>& get_list(const Product* ptr) const {
+        return products;
+    };
+    inline std::vector<Product*>& get_list(const Product* ptr) {
         return products;
     };
 
-    std::vector<Good*>& get_list(const Good* ptr) {
+    inline const std::vector<Good*>& get_list(const Good* ptr) const {
+        return goods;
+    };
+    inline std::vector<Good*>& get_list(const Good* ptr) {
         return goods;
     };
 
-    std::vector<Culture*>& get_list(const Culture* ptr) {
+    inline const std::vector<Culture*>& get_list(const Culture* ptr) const {
+        return cultures;
+    };
+    inline std::vector<Culture*>& get_list(const Culture* ptr) {
         return cultures;
     };
 
-    std::vector<Company*>& get_list(const Company* ptr) {
+    inline const std::vector<Company*>& get_list(const Company* ptr) const {
+        return companies;
+    };
+    inline std::vector<Company*>& get_list(const Company* ptr) {
         return companies;
     };
 
-    std::vector<IndustryType*>& get_list(const IndustryType* ptr) {
+    inline const std::vector<PopType*>& get_list(const PopType* ptr) const {
+        return pop_types;
+    };
+    inline std::vector<PopType*>& get_list(const PopType* ptr) {
+        return pop_types;
+    };
+
+    inline const std::vector<IndustryType*>& get_list(const IndustryType* ptr) const {
+        return industry_types;
+    };
+    inline std::vector<IndustryType*>& get_list(const IndustryType* ptr) {
         return industry_types;
     };
 
-    std::vector<Outpost*>& get_list(const Outpost* ptr) {
+    inline const std::vector<Outpost*>& get_list(const Outpost* ptr) const {
+        return outposts;
+    };
+    inline std::vector<Outpost*>& get_list(const Outpost* ptr) {
         return outposts;
     };
 
-    std::vector<Event*>& get_list(const Event* ptr) {
+    inline const std::vector<Event*>& get_list(const Event* ptr) const {
+        return events;
+    };
+    inline std::vector<Event*>& get_list(const Event* ptr) {
         return events;
     };
 
-    std::vector<UnitType*>& get_list(const UnitType* ptr) {
+    inline const std::vector<UnitType*>& get_list(const UnitType* ptr) const {
+        return unit_types;
+    };
+    inline std::vector<UnitType*>& get_list(const UnitType* ptr) {
         return unit_types;
     };
 
-    std::vector<BoatType*>& get_list(const BoatType* ptr) {
+    inline const std::vector<BoatType*>& get_list(const BoatType* ptr) const {
+        return boat_types;
+    };
+    inline std::vector<BoatType*>& get_list(const BoatType* ptr) {
         return boat_types;
     };
 
-    std::vector<UnitTrait*>& get_list(const UnitTrait* ptr) {
+    inline const std::vector<UnitTrait*>& get_list(const UnitTrait* ptr) const {
+        return unit_traits;
+    };
+    inline std::vector<UnitTrait*>& get_list(const UnitTrait* ptr) {
         return unit_traits;
     };
 
-    std::vector<Unit*>& get_list(const Unit* ptr) {
+    inline const std::vector<Unit*>& get_list(const Unit* ptr) const {
+        return units;
+    };
+    inline std::vector<Unit*>& get_list(const Unit* ptr) {
         return units;
     };
 
-    std::vector<Boat*>& get_list(const Boat* ptr) {
+    inline const std::vector<Boat*>& get_list(const Boat* ptr) const {
+        return boats;
+    };
+    inline std::vector<Boat*>& get_list(const Boat* ptr) {
         return boats;
     };
 
-    std::vector<OutpostType*>& get_list(const OutpostType* ptr) {
+    inline const std::vector<OutpostType*>& get_list(const OutpostType* ptr) const {
+        return outpost_types;
+    };
+    inline std::vector<OutpostType*>& get_list(const OutpostType* ptr) {
         return outpost_types;
     };
 
-    std::vector<Treaty*>& get_list(const Treaty* ptr) {
+    inline const std::vector<Treaty*>& get_list(const Treaty* ptr) const {
+        return treaties;
+    };
+    inline std::vector<Treaty*>& get_list(const Treaty* ptr) {
         return treaties;
     };
 
-    std::vector<Ideology*>& get_list(const Ideology* ptr) {
+    inline const std::vector<Ideology*>& get_list(const Ideology* ptr) const {
         return ideologies;
     };
+    inline std::vector<Ideology*>& get_list(const Ideology* ptr) {
+        return ideologies;
+    };
+
+    inline const std::vector<Religion*>& get_list(const Religion* ptr) const {
+        return religions;
+    };
+    inline std::vector<Religion*>& get_list(const Religion* ptr) {
+        return religions;
+    };
+
+    inline Industry::Id get_id(const Province& province, const Industry* ptr) const {
+        return ((ptrdiff_t)ptr - (ptrdiff_t)&province.industries[0]) / sizeof(Industry);
+    };
     
-    size_t get_id(const Tile* ptr) const;
+    inline size_t get_id(const Tile* ptr) const {
+        std::lock_guard<std::recursive_mutex> lock(tiles_mutex);
+        return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
+    };
+
+    template<typename T>
+    inline typename T::Id get_id(const T* ptr) const {
+        return get_id_from_pvector<T>(ptr, get_list(ptr));
+    };
     
     // Obtains a tile from the world safely, and makes sure that it is in bounds
     Tile& get_tile(size_t x, size_t y) const;
@@ -324,7 +379,7 @@ public:
     std::vector<Ideology*> ideologies;
     
     // Used by client to update anything each tick (i.e a graph)
-    void (*client_update)(void);
+    std::function<void(void)> client_update;
 };
 
 extern World* g_world;
