@@ -1,15 +1,36 @@
+Technology = {
+	id = 0,
+	ref_name = "",
+	name = "",
+	description = "",
+	cost = 1.0
+}
+function Technology:new(technology)
+	technology.parent = self
+	return technology
+end
+function Technology:register(self)
+	self.id = add_technology(self.ref_name, self.name, self.description)
+end
+function Technology:get(technology, ref_name)
+	technology.parent = self
+	technology.id, technology.name, technology.description = get_technology(ref_name)
+	technology.ref_name = ref_name
+	return technology
+end
+
 Ideology = {
 	id = 0,
 	ref_name = "",
 	name = "",
 	check_policies_fn = ""
 }
-function Ideology:create(ideology)
+function Ideology:new(ideology)
 	ideology.parent = self
 	return ideology
 end
-function Ideology:register(ideology)
-	ideology.id = add_ideology(ideology.ref_name, ideology.name, ideology.check_policies_fn)
+function Ideology:register(self)
+	self.id = add_ideology(self.ref_name, self.name, self.check_policies_fn)
 end
 function Ideology:get(ideology, ref_name)
 	ideology.parent = self
@@ -53,18 +74,18 @@ Policies = {
     free_supplies = true,
     minimum_wage = 0.0
 }
-function Policies:create(policies)
+function Policies:new(policies)
 	policies.parent = self
 	return policies
 end
 
 Good = { id = 0, name = "", ref_name = "", is_edible = false }
-function Good:create(good)
+function Good:new(good)
 	good.parent = self
 	return good
 end
-function Good:register(good)
-	good.id = add_good(good.ref_name, good.name, good.is_edible)
+function Good:register(self)
+	self.id = add_good(self.ref_name, self.name, self.is_edible)
 end
 function Good:get(good, ref_name)
 	good.parent = self
@@ -82,23 +103,16 @@ UnitTrait = {
 	defense_mod = 1.0,
 	attack_mod = 1.0
 }
-function UnitTrait:create(unit_trait)
+function UnitTrait:new(unit_trait)
 	unit_trait.parent = self
 	return unit_trait
 end
-function UnitTrait:register(unit_trait)
-	unit_trait.id = add_unit_trait(
-		unit_trait.ref_name,
-		unit_trait.supply_consumption_mod,
-		unit_trait.speed_mod,
-		unit_trait.max_health_mod,
-		unit_trait.defense_mod,
-		unit_trait.attack_mod
-	)
+function UnitTrait:register(self)
+	self.id = add_unit_trait(self.ref_name, self.supply_consumption_mod, self.speed_mod, self.max_health_mod, self.defense_mod, self.attack_mod)
 end
 
 Company = { id = 0, name = "", is_transport = false, is_retailer = false, is_industry = false, money = 0, }
-function Company:create(company)
+function Company:new(company)
 	company.parent = self
 	return company
 end
@@ -112,7 +126,7 @@ function Company:add_province(self, province)
 end
 
 IndustryType = { id = 0, name = "", ref_name = "" }
-function IndustryType:create(industry_type)
+function IndustryType:new(industry_type)
 	industry_type.parent = self
 	return industry_type
 end
@@ -136,7 +150,7 @@ function IndustryType:requires_good(self, good, amount)
 end
 
 Nation = { id = 0, name = "", ref_name = "" }
-function Nation:create(nation)
+function Nation:new(nation)
 	nation.parent = self
 	return nation
 end
@@ -156,7 +170,7 @@ function Nation:add_accepted_culture(self, culture)
 	add_nation_accepted_culture(self.id, culture.id)
 end
 function Nation:get_policies(self)
-	policies = Policies:create{}
+	policies = Policies:new{}
 
 	-- If someone knows a better way to do this please do a PR
 	policies.treatment, policies.migration, policies.immigration, policies.censorship, policies.build_infrastructure, policies.build_factories, policies.national_id, policies.men_suffrage, policies.men_labour, policies.women_suffrage, policies.women_labour, policies.private_property, policies.companies_allowed, policies.public_education, policies.secular_education, policies.public_healthcare, policies.social_security, policies.slavery, policies.legislative_parliament, policies.executive_parliament, policies.constitutional, policies.foreign_trade, policies.import_tax, policies.export_tax, policies.domestic_import_tax, policies.domestic_export_tax, policies.poor_flat_tax, policies.med_flat_tax, policies.rich_flat_tax, policies.industry_tax, policies.military_spending, policies.free_supplies, policies.minimum_wage = get_nation_policies(self.id)
@@ -170,12 +184,14 @@ function Nation:add_client_hint(self, ideology, alt_name, colour)
 end
 
 Province = { id = 0, name = "", ref_name = "", color = 0 }
-function Province:create(province)
-	province.parent = self
+function Province:new(province)
+	province = province or {}
+	setmetatable(province, self)
+	province.__index = self
 	return province
 end
-function Province:register(province)
-	province.id = add_province(province.ref_name, province.color, province.name)
+function Province:register(self)
+	self.id = add_province(self.ref_name, self.color, self.name)
 end
 function Province:get(province, ref_name)
 	province.parent = self
@@ -221,7 +237,6 @@ end
 function Province:multiply_consciousness_by_culture(self, culture, factor)
 	multiply_province_consciousness_by_culture(self.id, culture.id, factor)
 end
-
 function Province:multiply_consciousness_by_religion(self, religion, factor)
 	multiply_province_consciousness_by_religion(self.id, religion.id, factor)
 end
@@ -239,12 +254,12 @@ function Province:add_nucleus(self, nation)
 end
 
 Event = { ref_name = "", conditions_fn = "", event_fn = "", title = "", text = "" }
-function Event:create(event)
+function Event:new(event)
 	event.parent = self
 	return event
 end
-function Event:register(event)
-	event.id = add_event(event.ref_name, event.conditions_fn, event.event_fn, event.title, event.text)
+function Event:register(self)
+	self.id = add_event(self.ref_name, self.conditions_fn, self.event_fn, self.title, self.text)
 end
 function Event:get(event, ref_name)
 	event.parent = self
@@ -264,13 +279,13 @@ function Event:add_descision(self, descision)
 end
 
 Descision = { ref_name = "", descision_fn = "", name = "", effects = "" }
-function Descision:create(descision)
+function Descision:new(descision)
 	descision.parent = self
 	return descision
 end
 
 PopType = { id = 0, ref_name = "", name = "" }
-function PopType:create(pop_type)
+function PopType:new(pop_type)
 	pop_type.parent = self
 	return pop_type
 end
@@ -285,7 +300,7 @@ function PopType:register(self)
 end
 
 Culture = { id = 0, ref_name = "", name = "" }
-function Culture:create(culture)
+function Culture:new(culture)
 	culture.parent = self
 	return culture
 end
@@ -300,7 +315,7 @@ function Culture:register(self)
 end
 
 Religion = { id = 0, ref_name = "", name = "" }
-function Religion:create(religion)
+function Religion:new(religion)
 	religion.parent = self
 	return religion
 end
@@ -314,7 +329,7 @@ function Religion:register(self)
 	self.id = add_religion(self.ref_name, self.name)
 end
 
-OutpostType = {
+BuildingType = {
 	id = 0,
 	ref_name = "",
 	is_naval = false,
@@ -322,12 +337,12 @@ OutpostType = {
 	is_build_naval_units = false,
 	defense_bonus = 1.0,
 }
-function OutpostType:create(outpost_type)
-	outpost_type.parent = self
-	return outpost_type
+function BuildingType:new(building_type)
+	building_type.parent = self
+	return building_type
 end
-function OutpostType:register(self)
-	self.id = add_outpost_type(self.ref_name, self.is_naval, self.is_build_land_units, self.is_build_naval_units, self.defense_bonus)
+function BuildingType:register(self)
+	self.id = add_building_type(self.ref_name, self.is_naval, self.is_build_land_units, self.is_build_naval_units, self.defense_bonus)
 end
 
 UnitType = {
@@ -340,7 +355,7 @@ UnitType = {
 	max_defensive_ticks = 25,
 	position_defense = 0.1,
 }
-function UnitType:create(unit_type)
+function UnitType:new(unit_type)
 	unit_type.parent = self
 	return unit_type
 end
@@ -358,7 +373,7 @@ function UnitType:requires_good(self, good, amount)
 end
 
 BoatType = { id = 0, ref_name = "", name = "", health = 100.0, defense = 1.0, attack = 1.0, capacity = 100 }
-function BoatType:create(boat_type)
+function BoatType:new(boat_type)
 	boat_type.parent = self
 	return boat_type
 end

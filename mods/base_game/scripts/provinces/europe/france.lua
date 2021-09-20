@@ -3,7 +3,7 @@
 -- Subcontinent: Middle Europe
 -- Country: France
 
-province = Province:create{ ref_name = "finistere", color = 0x979939 }
+province = Province:new{ ref_name = "finistere", color = 0x979939 }
 province.name = _("Finistère")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -19,7 +19,7 @@ Province:add_nucleus(province, brittany)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "cotes_d_armor", color = 0xcf3be0 }
+province = Province:new{ ref_name = "cotes_d_armor", color = 0xcf3be0 }
 province.name = _("Côtes d' Armor")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -35,7 +35,7 @@ Province:add_nucleus(province, brittany)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "morbihan", color = 0x592dc0 }
+province = Province:new{ ref_name = "morbihan", color = 0x592dc0 }
 province.name = _("Morbihan")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -51,7 +51,7 @@ Province:add_nucleus(province, brittany)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "ille_et_vilaine", color = 0x487f80 }
+province = Province:new{ ref_name = "ille_et_vilaine", color = 0x487f80 }
 province.name = _("Ille et Vilaine")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -67,7 +67,7 @@ Province:add_nucleus(province, brittany)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "manche", color = 0x9f1da0 }
+province = Province:new{ ref_name = "manche", color = 0x9f1da0 }
 province.name = _("Manche")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -83,7 +83,7 @@ Province:add_nucleus(province, normandy)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "calvados", color = 0x301ec0 }
+province = Province:new{ ref_name = "calvados", color = 0x301ec0 }
 province.name = _("Calvados")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -99,7 +99,7 @@ Province:add_nucleus(province, normandy)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "orne", color = 0x994be1 }
+province = Province:new{ ref_name = "orne", color = 0x994be1 }
 province.name = _("Orne")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -115,7 +115,7 @@ Province:add_nucleus(province, normandy)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "eure", color = 0xca19c0 }
+province = Province:new{ ref_name = "eure", color = 0xca19c0 }
 province.name = _("Eure")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -131,7 +131,7 @@ Province:add_nucleus(province, normandy)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "seine_maritime", color = 0x349ba0 }
+province = Province:new{ ref_name = "seine_maritime", color = 0x349ba0 }
 province.name = _("Seine Maritime")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -150,7 +150,7 @@ Province:give_to(province, france)
 --------------------------------------------------------------
 -- Region: Southern France
 
-province = Province:create{ ref_name = "alpes_maritimes", color = 0x469360 }
+province = Province:new{ ref_name = "alpes_maritimes", color = 0x469360 }
 province.name = _("Alpes Maritimes")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -166,7 +166,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "alpes_de_haute_provence", color = 0xa39b00 }
+province = Province:new{ ref_name = "alpes_de_haute_provence", color = 0xa39b00 }
 province.name = _("Alpes de Haute Provence")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -182,7 +182,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "hautes_alpes", color = 0x2349a0 }
+province = Province:new{ ref_name = "hautes_alpes", color = 0x2349a0 }
 province.name = _("Hautes Alpes")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -198,7 +198,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "var", color = 0xa8bcc0 }
+province = Province:new{ ref_name = "var", color = 0xa8bcc0 }
 province.name = _("Var")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -214,7 +214,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "cannes", color = 0x372d00 }
+province = Province:new{ ref_name = "cannes", color = 0x372d00 }
 province.name = _("Cannes")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -230,7 +230,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "bouches_du_rhone", color = 0x3493e0 }
+province = Province:new{ ref_name = "bouches_du_rhone", color = 0x3493e0 }
 province.name = _("Bouches du Rhône")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -246,7 +246,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "vaucluse", color = 0x1905a0 }
+province = Province:new{ ref_name = "vaucluse", color = 0x1905a0 }
 province.name = _("Vaucluse")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -262,7 +262,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "gard", color = 0xb300c0 }
+province = Province:new{ ref_name = "gard", color = 0xb300c0 }
 province.name = _("Gard")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -278,7 +278,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "heraut", color = 0x2722c0 }
+province = Province:new{ ref_name = "heraut", color = 0x2722c0 }
 province.name = _("Hérault")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -294,7 +294,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "lozere", color = 0xc6e420 }
+province = Province:new{ ref_name = "lozere", color = 0xc6e420 }
 province.name = _("Lozère")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -310,7 +310,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "aveyron", color = 0x1a61cc }
+province = Province:new{ ref_name = "aveyron", color = 0x1a61cc }
 province.name = _("Aveyron")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -326,7 +326,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "tarn", color = 0x3c4f20 }
+province = Province:new{ ref_name = "tarn", color = 0x3c4f20 }
 province.name = _("Tarn")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -342,7 +342,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "lot", color = 0x8a95a0 }
+province = Province:new{ ref_name = "lot", color = 0x8a95a0 }
 province.name = _("Lot")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -358,7 +358,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "tarn_et_garonne", color = 0x20b880 }
+province = Province:new{ ref_name = "tarn_et_garonne", color = 0x20b880 }
 province.name = _("Tarn et Garonne")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -374,7 +374,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "gers", color = 0xb59200 }
+province = Province:new{ ref_name = "gers", color = 0xb59200 }
 province.name = _("Gers")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -390,7 +390,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "hautes_pyrenees", color = 0xdc10a0 }
+province = Province:new{ ref_name = "hautes_pyrenees", color = 0xdc10a0 }
 province.name = _("Hautes Pyrénées")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -406,7 +406,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "haute_garonne", color = 0x391a00 }
+province = Province:new{ ref_name = "haute_garonne", color = 0x391a00 }
 province.name = _("Haute_Garonne")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -422,7 +422,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "ariege", color = 0x69dd20 }
+province = Province:new{ ref_name = "ariege", color = 0x69dd20 }
 province.name = _("Ariège")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -438,7 +438,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "aude", color = 0xe50ba0 }
+province = Province:new{ ref_name = "aude", color = 0xe50ba0 }
 province.name = _("Aude")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -454,7 +454,7 @@ Province:add_nucleus(province, occitania)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "pyrenees_orientales", color = 0x4f8e40 }
+province = Province:new{ ref_name = "pyrenees_orientales", color = 0x4f8e40 }
 province.name = _("Pyrénées Orientales")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -469,7 +469,7 @@ Province:add_pop(province, entrepreneur, french, catholic, 800, 0.9)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "savoie", color = 0x4e45e0 }
+province = Province:new{ ref_name = "savoie", color = 0x4e45e0 }
 province.name = _("Savoie")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)
@@ -484,7 +484,7 @@ Province:add_pop(province, entrepreneur, french, catholic, 800, 0.9)
 Province:add_nucleus(province, france)
 Province:give_to(province, france)
 
-province = Province:create{ ref_name = "haute_savoie", color = 0xb96b20 }
+province = Province:new{ ref_name = "haute_savoie", color = 0xb96b20 }
 province.name = _("Haute Savoie")
 Province:register(province)
 Province:add_pop(province, artisan, french, catholic, 5000, 0.9)

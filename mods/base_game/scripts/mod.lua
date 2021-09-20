@@ -5,7 +5,7 @@ end
 function cake_event()
 	local title = "Cake"
 	local text = "Sir, a cake has just magically appeared in your desk, what would you like to do?"
-	descision = Descision:create{
+	descision = Descision:new{
 		ref_name = "cake_descision_0",
 		name = "I think i will eat it",
 		descision_fn = "cake_descision_0",
@@ -13,7 +13,7 @@ function cake_event()
 	}
 	Event:add_descision(cake_thing, descision)
 	
-	descision = Descision:create{
+	descision = Descision:new{
 		ref_name = "cake_descision_1",
 		name = "Fuck you",
 		descision_fn = "cake_descision_1",
@@ -21,7 +21,7 @@ function cake_event()
 	}
 	Event:add_descision(cake_thing, descision)
 
-	descision = Descision:create{
+	descision = Descision:new{
 		ref_name = "cake_descision_2",
 		name = "Cake!?",
 		descision_fn = "cake_descision_2",
@@ -29,7 +29,7 @@ function cake_event()
 	}
 	Event:add_descision(cake_thing, descision)
 
-	descision = Descision:create{
+	descision = Descision:new{
 		ref_name = "cake_descision_3",
 		name = "Britain, we have a problem",
 		descision_fn = "cake_descision_3",
@@ -50,7 +50,7 @@ end
 function cake_descision_3()
 	print('Britain converted the cake into tea')
 end
-cake_thing = Event:create{
+cake_thing = Event:new{
 	ref_name = "cake_thing",
 	conditions_fn = "cake_test",
 	event_fn = "cake_event",
@@ -107,7 +107,7 @@ function kalmar_union_test()
     return EVENT_CONDITIONS_UNMET
 end
 function kalmar_union_event()
-    descision = Descision:create{
+    descision = Descision:new{
         ref_name = "kalmar_union_descision_0",
         name = "Unify scandinavia once again",
         descision_fn = "kalmar_union_descision_0",
@@ -115,7 +115,7 @@ function kalmar_union_event()
     }
     Event:add_descision(kalmar_union_evhdl, descision)
 
-    descision = Descision:create{
+    descision = Descision:new{
         ref_name = "kalmar_union_descision_1",
         name = "We don't need the others, right?",
         descision_fn = "kalmar_union_descision_1",
@@ -130,12 +130,12 @@ end
 function kalmar_union_descision_1()
 
 end
-kalmar_union_evhdl = Event:create{
+kalmar_union_evhdl = Event:new{
     ref_name = "kalmar_union_evhdl",
     conditions_fn = "kalmar_union_test",
     event_fn = "kalmar_union_event",
     title = "Kalmar Union",
-    text = "The Kalmar Union was a country that covered the whole scandinavia - now with the newly aquired provinces in your power we may be able to recreate this nation"
+    text = "The Kalmar Union was a country that covered the whole scandinavia - now with the newly aquired provinces in your power we may be able to renew this nation"
 }
 --Event:register(kalmar_union_evhdl)
 
@@ -151,21 +151,21 @@ function the_minas_crash_test()
 	return EVENT_CONDITIONS_UNMET
 end
 function the_minas_crash_event()
-	descision = Descision:create{
+	descision = Descision:new{
 		ref_name = "the_minas_crash_descision_0",
 		name = "I'm deeply sad for such tragedy",
 		descision_fn = "the_minas_crash_descision_0",
 		effects = "None"
 	}
 	Event:add_descision(the_minas_crash, descision)
-    descision = Descision:create{
+    descision = Descision:new{
 		ref_name = "the_minas_crash_descision_1",
 		name = "Well yeah they should be held accountable!",
 		descision_fn = "the_minas_crash_descision_1",
 		effects = "None"
 	}
 	Event:add_descision(the_minas_crash, descision)
-    descision = Descision:create{
+    descision = Descision:new{
 		ref_name = "the_minas_crash_descision_2",
 		name = "Not my problem",
 		descision_fn = "the_minas_crash_descision_2",
@@ -180,7 +180,7 @@ function the_minas_crash_descision_1()
 end
 function the_minas_crash_descision_2()
 end
-the_minas_crash = Event:create{
+the_minas_crash = Event:new{
 	ref_name = "the_minas_crash",
 	conditions_fn = "the_minas_crash_test",
 	event_fn = "the_minas_crash_event",

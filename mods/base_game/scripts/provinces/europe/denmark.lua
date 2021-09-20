@@ -2,7 +2,7 @@
 -- Continent: Europe
 -- Subcontinent: Middle Europe
 -- Country: Denmark
-province = Province:create{ ref_name = "nordjylland", color = 0x7cb7ff }
+province = Province:new{ ref_name = "nordjylland", color = 0x7cb7ff }
 province.name = _("Nordjylland")
 Province:register(province)
 Province:add_pop(province, artisan, danish, protestant, 5000, 0.9)
@@ -18,7 +18,7 @@ Province:add_nucleus(province, denmark)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, denmark)
 
-province = Province:create{ ref_name = "midtjylland", color = 0xc972ff }
+province = Province:new{ ref_name = "midtjylland", color = 0xc972ff }
 province.name = _("Midtjylland")
 Province:register(province)
 Province:add_pop(province, artisan, danish, protestant, 5000, 0.9)
@@ -34,7 +34,7 @@ Province:add_nucleus(province, denmark)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, denmark)
 
-province = Province:create{ ref_name = "hedensted", color = 0xdcb2ff }
+province = Province:new{ ref_name = "hedensted", color = 0xdcb2ff }
 province.name = _("Hedensted")
 Province:register(province)
 Province:add_pop(province, artisan, danish, protestant, 5000, 0.9)
@@ -50,7 +50,7 @@ Province:add_nucleus(province, denmark)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, denmark)
 
-province = Province:create{ ref_name = "syddanmark", color = 0xa3ddff }
+province = Province:new{ ref_name = "syddanmark", color = 0xa3ddff }
 province.name = _("Syddanmark")
 Province:register(province)
 Province:add_pop(province, artisan, danish, protestant, 5000, 0.9)
@@ -66,7 +66,7 @@ Province:add_nucleus(province, denmark)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, denmark)
 
-province = Province:create{ ref_name = "odense", color = 0x84eeff }
+province = Province:new{ ref_name = "odense", color = 0x84eeff }
 province.name = _("Odense")
 Province:register(province)
 Province:add_pop(province, artisan, danish, protestant, 5000, 0.9)
@@ -82,7 +82,7 @@ Province:add_nucleus(province, denmark)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, denmark)
 
-province = Province:create{ ref_name = "frederiksborg", color = 0x00d0ff }
+province = Province:new{ ref_name = "frederiksborg", color = 0x00d0ff }
 province.name = _("Frederiksborg")
 Province:register(province)
 Province:add_pop(province, artisan, danish, protestant, 5000, 0.9)

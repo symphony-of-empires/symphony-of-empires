@@ -2,7 +2,7 @@
 -- Continent: Americas
 -- Subcontinent: North America
 -- Country: Denmark (Greenland)
-province = Province:create{ ref_name = "nuuk", color = 0xff8efd }
+province = Province:new{ ref_name = "nuuk", color = 0xff8efd }
 province.name = _("Nuuk")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -12,7 +12,7 @@ Province:add_pop(province, laborer, danish, protestant, 50, 0.5)
 Province:add_nucleus(province, denmark)
 Province:give_to(province, denmark)
 
-province = Province:create{ ref_name = "qanaaq", color = 0x6bffb0 }
+province = Province:new{ ref_name = "qanaaq", color = 0x6bffb0 }
 province.name = _("Qanaaq")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -22,7 +22,7 @@ Province:add_pop(province, laborer, danish, protestant, 50, 0.5)
 Province:add_nucleus(province, denmark)
 Province:give_to(province, denmark)
 
-province = Province:create{ ref_name = "tasiilaq", color = 0xffbcbd }
+province = Province:new{ ref_name = "tasiilaq", color = 0xffbcbd }
 province.name = _("Tasiilaq")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -32,7 +32,7 @@ Province:add_pop(province, laborer, danish, protestant, 50, 0.5)
 Province:add_nucleus(province, denmark)
 Province:give_to(province, denmark)
 
-province = Province:create{ ref_name = "artic_greenland", color = 0x568eff }
+province = Province:new{ ref_name = "artic_greenland", color = 0x568eff }
 province.name = _("Artic Greenland")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -46,7 +46,7 @@ Province:give_to(province, denmark)
 -- Continent: Europe
 -- Subcontinent: Scandinavia
 -- Country: Iceland
-province = Province:create{ ref_name = "austurland", color = 0x9effae }
+province = Province:new{ ref_name = "austurland", color = 0x9effae }
 province.name = _("Austurland")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -56,7 +56,7 @@ Province:add_pop(province, laborer, icelandic, protestant, 50, 0.5)
 Province:add_nucleus(province, iceland)
 Province:add_nucleus(province, denmark)
 Province:give_to(province, denmark)
-province = Province:create{ ref_name = "norourland_eystra", color = 0x2723ff }
+province = Province:new{ ref_name = "norourland_eystra", color = 0x2723ff }
 province.name = _("Norðurland eystra")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -66,7 +66,7 @@ Province:add_pop(province, laborer, icelandic, protestant, 50, 0.5)
 Province:add_nucleus(province, iceland)
 Province:add_nucleus(province, denmark)
 Province:give_to(province, denmark)
-province = Province:create{ ref_name = "hofouborgarsvaeoio", color = 0xff0720 }
+province = Province:new{ ref_name = "hofouborgarsvaeoio", color = 0xff0720 }
 province.name = _("Höfuðborgarsvæðið")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -76,7 +76,7 @@ Province:add_pop(province, laborer, icelandic, protestant, 50, 0.5)
 Province:add_nucleus(province, iceland)
 Province:add_nucleus(province, denmark)
 Province:give_to(province, denmark)
-province = Province:create{ ref_name = "suorland", color = 0xffb2d6 }
+province = Province:new{ ref_name = "suorland", color = 0xffb2d6 }
 province.name = _("Suðurland")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -86,7 +86,7 @@ Province:add_pop(province, laborer, icelandic, protestant, 50, 0.5)
 Province:add_nucleus(province, iceland)
 Province:add_nucleus(province, denmark)
 Province:give_to(province, denmark)
-province = Province:create{ ref_name = "vestfiroir", color = 0x87ffda }
+province = Province:new{ ref_name = "vestfiroir", color = 0x87ffda }
 province.name = _("Vestfirðir")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -96,7 +96,7 @@ Province:add_pop(province, laborer, icelandic, protestant, 50, 0.5)
 Province:add_nucleus(province, iceland)
 Province:add_nucleus(province, denmark)
 Province:give_to(province, denmark)
-province = Province:create{ ref_name = "vesturland", color = 0xba75ff }
+province = Province:new{ ref_name = "vesturland", color = 0xba75ff }
 province.name = _("Vesturland")
 Province:register(province)
 Province:add_industry(province, wheat_farm, andes_transport)
@@ -111,7 +111,7 @@ Province:give_to(province, denmark)
 -- Continent: Europe
 -- Subcontinent: Scandinavia
 -- Country: Sweden
-province = Province:create{ ref_name = "lappland", color = 0x0cdaff }
+province = Province:new{ ref_name = "lappland", color = 0x0cdaff }
 province.name = _("Lappland")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -127,7 +127,7 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "vasterbotten", color = 0xff6bc3 }
+province = Province:new{ ref_name = "vasterbotten", color = 0xff6bc3 }
 province.name = _("Västerbotten")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -143,7 +143,7 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "halsingland", color = 0xecffaf }
+province = Province:new{ ref_name = "halsingland", color = 0xecffaf }
 province.name = _("Hälsingland")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -159,7 +159,7 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "uppland", color = 0xea82ff }
+province = Province:new{ ref_name = "uppland", color = 0xea82ff }
 province.name = _("Uppland")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -175,7 +175,7 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "gotland", color = 0x00ff26 }
+province = Province:new{ ref_name = "gotland", color = 0x00ff26 }
 province.name = _("Gotland")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -191,7 +191,7 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "oland", color = 0x622dff }
+province = Province:new{ ref_name = "oland", color = 0x622dff }
 province.name = _("Öland")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -207,7 +207,7 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "smaland", color = 0xa3fff4 }
+province = Province:new{ ref_name = "smaland", color = 0xa3fff4 }
 province.name = _("Småland")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -225,7 +225,7 @@ Province:give_to(province, sweden)
 Nation:set_capital(sweden, province)
 Nation:set_capital(scandinavia, province)
 
-province = Province:create{ ref_name = "vastersmaland", color = 0xd400ff }
+province = Province:new{ ref_name = "vastersmaland", color = 0xd400ff }
 province.name = _("Västersmåland")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -241,7 +241,7 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "bohusland", color = 0xceb2ff }
+province = Province:new{ ref_name = "bohusland", color = 0xceb2ff }
 province.name = _("Bohuslän")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -257,7 +257,7 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "vastergotland", color = 0x1000ff }
+province = Province:new{ ref_name = "vastergotland", color = 0x1000ff }
 province.name = _("Västergötland")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -273,7 +273,7 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "varmland", color = 0xff7fdd }
+province = Province:new{ ref_name = "varmland", color = 0xff7fdd }
 province.name = _("Värmland")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -289,7 +289,7 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "dalarna", color = 0x7ae6ff }
+province = Province:new{ ref_name = "dalarna", color = 0x7ae6ff }
 province.name = _("Dalarna")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -305,7 +305,7 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "jamtland", color = 0x82abff }
+province = Province:new{ ref_name = "jamtland", color = 0x82abff }
 province.name = _("Jämtland")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -321,7 +321,7 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "skane", color = 0xff5b84 }
+province = Province:new{ ref_name = "skane", color = 0xff5b84 }
 province.name = _("Skåne")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -338,7 +338,7 @@ Province:add_nucleus(province, sweden)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "blekinge", color = 0x84ff92 }
+province = Province:new{ ref_name = "blekinge", color = 0x84ff92 }
 province.name = _("Blekinge")
 Province:register(province)
 Province:add_pop(province, artisan, swedish, protestant, 5000, 0.9)
@@ -359,7 +359,7 @@ Province:give_to(province, sweden)
 -- Continent: Europe
 -- Subcontinent: Scandinavia
 -- Country: Finland (Russia)
-province = Province:create{ ref_name = "uusimaa", color = 0x70d1ff }
+province = Province:new{ ref_name = "uusimaa", color = 0x70d1ff }
 province.name = _("Uusimaa")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -385,7 +385,7 @@ Province:add_nucleus(province, russia)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "kymi", color = 0x00ffb2 }
+province = Province:new{ ref_name = "kymi", color = 0x00ffb2 }
 province.name = _("Kymi")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -411,7 +411,7 @@ Province:add_nucleus(province, russia)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "north_karelia", color = 0xe5ff75 }
+province = Province:new{ ref_name = "north_karelia", color = 0xe5ff75 }
 province.name = _("North Karelia")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -437,7 +437,7 @@ Province:add_nucleus(province, russia)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "mikkeli", color = 0xf95bff }
+province = Province:new{ ref_name = "mikkeli", color = 0xf95bff }
 province.name = _("Mikkeli")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -463,7 +463,7 @@ Province:add_nucleus(province, russia)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "kuopio", color = 0x91ffc6 }
+province = Province:new{ ref_name = "kuopio", color = 0x91ffc6 }
 province.name = _("Kuopio")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -489,7 +489,7 @@ Province:add_nucleus(province, russia)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "hame", color = 0xa3fff1 }
+province = Province:new{ ref_name = "hame", color = 0xa3fff1 }
 province.name = _("Häme")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -515,7 +515,7 @@ Province:add_nucleus(province, russia)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "central finland", color = 0x8c49ff }
+province = Province:new{ ref_name = "central finland", color = 0x8c49ff }
 province.name = _("Central Finland")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -541,7 +541,7 @@ Province:add_nucleus(province, russia)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "turku", color = 0x3aff5e }
+province = Province:new{ ref_name = "turku", color = 0x3aff5e }
 province.name = _("Turku")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -567,7 +567,7 @@ Province:add_nucleus(province, russia)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "helsinki", color = 0xffc942 }
+province = Province:new{ ref_name = "helsinki", color = 0xffc942 }
 province.name = _("Helsinki")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -594,7 +594,7 @@ Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
 Nation:set_capital(finland, province)
 
-province = Province:create{ ref_name = "vaasa", color = 0x1cff91 }
+province = Province:new{ ref_name = "vaasa", color = 0x1cff91 }
 province.name = _("Vaasa")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -620,7 +620,7 @@ Province:add_nucleus(province, russia)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "oulu", color = 0xff42e8 }
+province = Province:new{ ref_name = "oulu", color = 0xff42e8 }
 province.name = _("Oulu")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -646,7 +646,7 @@ Province:add_nucleus(province, russia)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "east_oulu", color = 0xe6d8ff }
+province = Province:new{ ref_name = "east_oulu", color = 0xe6d8ff }
 province.name = _("East Oulu")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -672,7 +672,7 @@ Province:add_nucleus(province, russia)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "lapland", color = 0xcd91ff }
+province = Province:new{ ref_name = "lapland", color = 0xcd91ff }
 province.name = _("Lapland")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -698,7 +698,7 @@ Province:add_nucleus(province, russia)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, russia)
 
-province = Province:create{ ref_name = "aland", color = 0x2dffd1 }
+province = Province:new{ ref_name = "aland", color = 0x2dffd1 }
 province.name = _("Åland")
 Province:register(province)
 Province:add_pop(province, artisan, russian, orthodox, 5000, 0.9)
@@ -730,7 +730,7 @@ Province:give_to(province, russia)
 -- Continent: Europe
 -- Subcontinent: Scandinavia
 -- Country: Norway
-province = Province:create{ ref_name = "oslo", color = 0x2bffb4 }
+province = Province:new{ ref_name = "oslo", color = 0x2bffb4 }
 province.name = _("Oslo")
 Province:register(province)
 Province:add_pop(province, artisan, norwegian, protestant, 5000, 0.9)
@@ -747,7 +747,7 @@ Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 Nation:set_capital(norway, province)
 
-province = Province:create{ ref_name = "agder", color = 0xff5bfc }
+province = Province:new{ ref_name = "agder", color = 0xff5bfc }
 province.name = _("Agder")
 Province:register(province)
 Province:add_pop(province, artisan, norwegian, protestant, 5000, 0.9)
@@ -763,7 +763,7 @@ Province:add_nucleus(province, norway)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "vestfold_og_telemark", color = 0x729fff }
+province = Province:new{ ref_name = "vestfold_og_telemark", color = 0x729fff }
 province.name = _("Vestfold og telemark")
 Province:register(province)
 Province:add_pop(province, artisan, norwegian, protestant, 5000, 0.9)
@@ -779,7 +779,7 @@ Province:add_nucleus(province, norway)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "rogaland", color = 0xd154ff }
+province = Province:new{ ref_name = "rogaland", color = 0xd154ff }
 province.name = _("Rogaland")
 Province:register(province)
 Province:add_pop(province, artisan, norwegian, protestant, 5000, 0.9)
@@ -795,7 +795,7 @@ Province:add_nucleus(province, norway)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "nordland", color = 0x5005ff }
+province = Province:new{ ref_name = "nordland", color = 0x5005ff }
 province.name = _("Nordland")
 Province:register(province)
 Province:add_pop(province, artisan, norwegian, protestant, 5000, 0.9)
@@ -811,7 +811,7 @@ Province:add_nucleus(province, norway)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "trondelag", color = 0x947fff }
+province = Province:new{ ref_name = "trondelag", color = 0x947fff }
 province.name = _("Trøndelag")
 Province:register(province)
 Province:add_pop(province, artisan, norwegian, protestant, 5000, 0.9)
@@ -827,7 +827,7 @@ Province:add_nucleus(province, norway)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "vestland", color = 0x9000ff }
+province = Province:new{ ref_name = "vestland", color = 0x9000ff }
 province.name = _("Vestland")
 Province:register(province)
 Province:add_pop(province, artisan, norwegian, protestant, 5000, 0.9)
@@ -843,7 +843,7 @@ Province:add_nucleus(province, norway)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "hedmark", color = 0xff001d }
+province = Province:new{ ref_name = "hedmark", color = 0xff001d }
 province.name = _("Hedmark")
 Province:register(province)
 Province:add_pop(province, artisan, norwegian, protestant, 5000, 0.9)
@@ -859,7 +859,7 @@ Province:add_nucleus(province, norway)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "oppland", color = 0xb5ffc6 }
+province = Province:new{ ref_name = "oppland", color = 0xb5ffc6 }
 province.name = _("Oppland")
 Province:register(province)
 Province:add_pop(province, artisan, norwegian, protestant, 5000, 0.9)
@@ -875,7 +875,7 @@ Province:add_nucleus(province, norway)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "troms", color = 0x00ffbf }
+province = Province:new{ ref_name = "troms", color = 0x00ffbf }
 province.name = _("Troms")
 Province:register(province)
 Province:add_pop(province, artisan, norwegian, protestant, 5000, 0.9)
@@ -891,7 +891,7 @@ Province:add_nucleus(province, norway)
 Province:add_nucleus(province, scandinavia)
 Province:give_to(province, sweden)
 
-province = Province:create{ ref_name = "ostfold", color = 0x8cfcff }
+province = Province:new{ ref_name = "ostfold", color = 0x8cfcff }
 province.name = _("Østfold")
 Province:register(province)
 Province:add_pop(province, artisan, norwegian, protestant, 5000, 0.9)
