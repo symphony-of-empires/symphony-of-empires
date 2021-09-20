@@ -89,22 +89,22 @@ public:
     Packet(int _fd) { stream = SocketStream(_fd); };
     ~Packet() {};
 
-    void* data(void) {
+    inline void* data(void) {
         return (void *)&buffer[0];
     }
     
-    void data(void* buf, size_t size) {
+    inline void data(void* buf, size_t size) {
         n_data = size;
         buffer.resize(n_data);
         std::memcpy(&buffer[0], buf, size);
     }
 
-    size_t size(void) {
+    inline size_t size(void) {
         return n_data;
     }
 
     template<typename T>
-    void send(const T* buf = nullptr, size_t size = sizeof(T)) {
+    inline void send(const T* buf = nullptr, size_t size = sizeof(T)) {
         if(buf != nullptr) {
             n_data = size;
             buffer.resize(n_data);
@@ -124,12 +124,12 @@ public:
         stream.send(&eof_marker, sizeof(eof_marker));
     }
 
-    void send(void) {
+    inline void send(void) {
         this->send<void>(nullptr, 0);
     }
 
     template<typename T>
-    void recv(T* buf = nullptr) {
+    inline void recv(T* buf = nullptr) {
         uint32_t net_code;
         stream.recv(&net_code, sizeof(net_code));
         net_code  = ntohl(net_code);
@@ -151,11 +151,11 @@ public:
             throw SocketException("Packet with invalid EOF");
     }
     
-    void recv(void) {
+    inline void recv(void) {
         this->recv<void>();
     }
 
-    bool is_ok() {
+    inline bool is_ok() {
         return (code == PacketCode::OK);
     }
 };

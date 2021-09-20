@@ -138,7 +138,7 @@ public:
     // Minimum wage
     float minimum_wage;
     
-    int difference(Policies& rhs) {
+    inline int difference(Policies& rhs) {
         int diff = 0;
         
         diff += std::abs(rhs.migration - this->migration);
@@ -166,7 +166,7 @@ public:
         diff += (rhs.free_supplies != this->free_supplies) ? 1 : 0;
         diff += std::abs(rhs.minimum_wage - this->minimum_wage);
         return diff;
-    }
+    };
 };
 
 #endif

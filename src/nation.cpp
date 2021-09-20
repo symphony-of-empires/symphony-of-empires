@@ -149,6 +149,5 @@ const NationClientHint& Nation::get_client_hint(void) const {
             return hint;
         }
     }
-    
     return client_hints.at(0);
 }

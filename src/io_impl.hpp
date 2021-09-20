@@ -1361,23 +1361,23 @@ public:
         ::serialize(stream, &n_ideologies);
         
         print_info("(SERIALIZER) WORLD INFORMATION\n");
-        print_info("  n_goods %zu\n", (size_t)n_goods);
-        print_info("  n_industry_types %zu\n", (size_t)n_industry_types);
-        print_info("  n_unit_types %zu\n", (size_t)n_unit_types);
-        print_info("  n_religions %zu\n", (size_t)n_religions);
-        print_info("  n_cultures %zu\n", (size_t)n_cultures);
-        print_info("  n_pop_types %zu\n", (size_t)n_pop_types);
-        print_info("  n_nations %zu\n", (size_t)n_nations);
-        print_info("  n_provinces %zu\n", (size_t)n_provinces);
-        print_info("  n_companies %zu\n", (size_t)n_companies);
-        print_info("  n_products %zu\n", (size_t)n_products);
-        print_info("  n_events %zu\n", (size_t)n_events);
-        print_info("  n_unit_traits %zu\n", (size_t)n_unit_traits);
-        print_info("  n_outpost_types %zu\n", (size_t)n_outpost_types);
-        print_info("  n_outposts %zu\n", (size_t)n_outposts);
-        print_info("  n_treaties %zu\n", (size_t)n_treaties);
-        print_info("  n_boats %zu\n", (size_t)n_boats);
-        print_info("  n_ideologies %zu\n", (size_t)n_ideologies);
+        print_info("  n_goods %zu", obj->goods.size());
+        print_info("  n_industry_types %zu", obj->industry_types.size());
+        print_info("  n_unit_types %zu", obj->unit_types.size());
+        print_info("  n_religions %zu", obj->religions.size());
+        print_info("  n_cultures %zu", obj->cultures.size());
+        print_info("  n_pop_types %zu", obj->pop_types.size());
+        print_info("  n_nations %zu", obj->nations.size());
+        print_info("  n_provinces %zu", obj->provinces.size());
+        print_info("  n_companies %zu", obj->companies.size());
+        print_info("  n_products %zu", obj->products.size());
+        print_info("  n_events %zu", obj->events.size());
+        print_info("  n_unit_traits %zu", obj->unit_traits.size());
+        print_info("  n_outpost_types %zu", obj->outpost_types.size());
+        print_info("  n_outposts %zu", obj->outposts.size());
+        print_info("  n_treaties %zu", obj->treaties.size());
+        print_info("  n_boats %zu", obj->boats.size());
+        print_info("  n_ideologies %zu", obj->ideologies.size());
         
         for(auto& sub_obj: obj->goods) {
             ::serialize(stream, sub_obj);
@@ -1466,10 +1466,9 @@ public:
             ::deserialize(stream, &obj->tiles[i]);
         }
         
-        /* In order to avoid post-deserialization relational patcher,
-        * we will simply allocate everything with "empty" objects,
-        * then we will fill those spots as we deserialize
-         */
+        // In order to avoid post-deserialization relational patcher,
+        // we will simply allocate everything with "empty" objects,
+        // then we will fill those spots as we deserialize
         uint32_t n_goods;
         ::deserialize(stream, &n_goods);
         for(size_t i = 0; i < n_goods; i++) {
@@ -1597,23 +1596,23 @@ public:
         }
         
         print_info("(DESERIALIZER) WORLD INFORMATION\n");
-        print_info("  n_goods %zu\n", (size_t)n_goods);
-        print_info("  n_industry_types %zu\n", (size_t)n_industry_types);
-        print_info("  n_unit_types %zu\n", (size_t)n_unit_types);
-        print_info("  n_religions %zu\n", (size_t)n_religions);
-        print_info("  n_cultures %zu\n", (size_t)n_cultures);
-        print_info("  n_pop_types %zu\n", (size_t)n_pop_types);
-        print_info("  n_nations %zu\n", (size_t)n_nations);
-        print_info("  n_provinces %zu\n", (size_t)n_provinces);
-        print_info("  n_companies %zu\n", (size_t)n_companies);
-        print_info("  n_products %zu\n", (size_t)n_products);
-        print_info("  n_events %zu\n", (size_t)n_events);
-        print_info("  n_unit_traits %zu\n", (size_t)n_unit_traits);
-        print_info("  n_outpost_types %zu\n", (size_t)n_outpost_types);
-        print_info("  n_outposts %zu\n", (size_t)n_outposts);
-        print_info("  n_treaties %zu\n", (size_t)n_treaties);
-        print_info("  n_boats %zu\n", (size_t)n_boats);
-        print_info("  n_ideologies %zu\n", (size_t)n_ideologies);
+        print_info("  n_goods %zu", obj->goods.size());
+        print_info("  n_industry_types %zu", obj->industry_types.size());
+        print_info("  n_unit_types %zu", obj->unit_types.size());
+        print_info("  n_religions %zu", obj->religions.size());
+        print_info("  n_cultures %zu", obj->cultures.size());
+        print_info("  n_pop_types %zu", obj->pop_types.size());
+        print_info("  n_nations %zu", obj->nations.size());
+        print_info("  n_provinces %zu", obj->provinces.size());
+        print_info("  n_companies %zu", obj->companies.size());
+        print_info("  n_products %zu", obj->products.size());
+        print_info("  n_events %zu", obj->events.size());
+        print_info("  n_unit_traits %zu", obj->unit_traits.size());
+        print_info("  n_outpost_types %zu", obj->outpost_types.size());
+        print_info("  n_outposts %zu", obj->outposts.size());
+        print_info("  n_treaties %zu", obj->treaties.size());
+        print_info("  n_boats %zu", obj->boats.size());
+        print_info("  n_ideologies %zu", obj->ideologies.size());
         
         for(size_t i = 0; i < n_goods; i++) {
             Good* sub_obj = obj->goods[i];
