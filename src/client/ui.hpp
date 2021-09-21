@@ -122,9 +122,9 @@ namespace UI {
         void* user_data = nullptr;
         void kill() { dead = true; };
 
-        std::function<void(Widget&, void *)> on_update;
-        std::function<void(Widget&, void *)> on_hover;
-        std::function<void(Widget&, void *)> on_click;
+        std::function<void(Widget&, void*)> on_update;
+        std::function<void(Widget&, void*)> on_hover;
+        std::function<void(Widget&, void*)> on_click;
         bool dead = false;
     };
 
