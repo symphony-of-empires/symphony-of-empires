@@ -141,7 +141,6 @@ void Client::net_loop(void) {
                 std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
                 switch(action) {
                 case ActionType::PONG: {
-                print_info("ActionType::PONG");
                     packet.send(&action);
                     print_info("Received ping, responding with pong!");
                 } break;
@@ -234,7 +233,7 @@ void Client::net_loop(void) {
                     }
                 } break;
                 case ActionType::WORLD_TICK: {
-                    ::deserialize(ar, &g_world->time);
+                    g_world->time++;
                 } break;
                 case ActionType::TILE_UPDATE: {
                     // get_tile is already mutexed

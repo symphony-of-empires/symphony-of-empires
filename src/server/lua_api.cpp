@@ -328,6 +328,12 @@ int LuaAPI::set_nation_policies(lua_State* L) {
     return 0;
 }
 
+int LuaAPI::set_nation_ideology(lua_State* L) {
+    Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
+    nation->ideology = g_world->ideologies.at(lua_tonumber(L, 2));
+    return 0;
+}
+
 int LuaAPI::add_province(lua_State* L) {
     Province* province = new Province();
 
