@@ -134,7 +134,6 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                     }
 
                     const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-
                     switch (gs.current_mode) {
                         case MAP_MODE_COUNTRY_SELECT:
                             // TODO add call to functions from here
@@ -338,15 +337,14 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
     ui_ctx->clear_dead();
 }
 
-void client_update() {
-    // // We are going to update widgets which require real-time feeding
-    // // this function **should** be called per tick
-    // std::lock_guard<std::mutex> l1(render_lock);
+void client_update(const GameState& gs) {
+    std::lock_guard<std::recursive_mutex> lock(gs.world->world_mutex);
+    
+    if (gs.current_mode == MAP_MODE_COUNTRY_SELECT)
+        return;
+    
+    char* tmpbuf = new char[512];
 
-    // if (current_mode == MAP_MODE_COUNTRY_SELECT)
-    //     return;
-
-    // std::lock_guard<std::recursive_mutex> l2(g_world->time_mutex);
     // const Nation& player_nation = *g_world->nations[curr_selected_nation];
     // if (!(g_world->time % 48)) {
     //     double gdp = 0.f;
@@ -378,32 +376,65 @@ void client_update() {
     //         hdi_chart->data.pop_front();
     // }
 
-    // size_t total_pop = 0;
-    // double militancy = 0.f, consciousness = 0.f;
-    // for (const auto& province : player_nation.owned_provinces) {
-    //     for (const auto& pop : province->pops) {
-    //         total_pop += pop.size;
-    //         militancy += pop.militancy;
-    //         consciousness += pop.consciousness;
-    //     }
-    // }
-    // militancy /= total_pop;
-    // consciousness /= total_pop;
+    if(gs.top_win) {
+        // TODO: We should make this be called directly on the tick update
+        // since this depends that the client is fast enough to respond to a tick change
+        if (g_world->time % 48 == 0) {
+            size_t total_pop = 0, n_pops = 0;
+            double living_std = 0.f, gdp = 0.f;
+            for (const auto& province : gs.curr_nation->owned_provinces) {
+                for (const auto& product : g_world->products) {
+                    gdp += product->price * province->stockpile.at(g_world->get_id(product));
+                }
 
-    // sprintf(tmpbuf, " %10.3f", militancy);
-    // militancy_lab->text(tmpbuf);
-    // sprintf(tmpbuf, " %10.3f", consciousness);
-    // big_brain_lab->text(tmpbuf);
-    // sprintf(tmpbuf, " %10.3f", player_nation.prestige);
-    // prestige_lab->text(tmpbuf);
-    // sprintf(tmpbuf, " %10.3f", player_nation.economy_score);
-    // economy_lab->text(tmpbuf);
-    // sprintf(tmpbuf, " %10.3f", player_nation.budget);
-    // money_lab->text(tmpbuf);
-    // sprintf(tmpbuf, " %14zu", (size_t)total_pop);
-    // population_lab->text(tmpbuf);
+                for (const auto& pop : province->pops) {
+                    total_pop += pop.size;
+                    living_std += pop.life_needs_met;
+                    n_pops++;
+                }
+            }
+
+            gs.top_win->gdp_chart->data.push_back(gdp);
+            if(gs.top_win->gdp_chart->data.size() >= 30)
+                gs.top_win->gdp_chart->data.pop_front();
+            
+            gs.top_win->pop_chart->data.push_back(total_pop);
+            if(gs.top_win->pop_chart->data.size() >= 30)
+                gs.top_win->pop_chart->data.pop_front();
+            
+            gs.top_win->hdi_chart->data.push_back(living_std);
+            if(gs.top_win->hdi_chart->data.size() >= 30)
+                gs.top_win->hdi_chart->data.pop_front();
+        }
+
+        size_t total_pop = 0;
+        double militancy = 0.f, consciousness = 0.f;
+        for (const auto& province : gs.curr_nation->owned_provinces) {
+            for (const auto& pop : province->pops) {
+                total_pop += pop.size;
+                militancy += pop.militancy;
+                consciousness += pop.consciousness;
+            }
+        }
+        militancy /= total_pop;
+        consciousness /= total_pop;
+
+        sprintf(tmpbuf, " %10.3f", militancy);
+        gs.top_win->militancy_lab->text(tmpbuf);
+        sprintf(tmpbuf, " %10.3f", consciousness);
+        gs.top_win->big_brain_lab->text(tmpbuf);
+        sprintf(tmpbuf, " %10.3f", gs.curr_nation->prestige);
+        gs.top_win->prestige_lab->text(tmpbuf);
+        sprintf(tmpbuf, " %10.3f", gs.curr_nation->economy_score);
+        gs.top_win->economy_lab->text(tmpbuf);
+        sprintf(tmpbuf, " %10.3f", gs.curr_nation->budget);
+        gs.top_win->money_lab->text(tmpbuf);
+        sprintf(tmpbuf, " %14zu", (size_t)total_pop);
+        gs.top_win->population_lab->text(tmpbuf);
+    }
 
     // map->update(*g_world);
+    delete[] tmpbuf;
 }
 
 void render(GameState& gs, Input& input, SDL_Window* window) {
@@ -484,9 +515,8 @@ void handle_popups(std::vector<Event>& displayed_events,
     // Put popups
     // Event + Descision popups
     for (auto& msg : gs.curr_nation->inbox) {
-        auto iter = std::find_if(displayed_events.begin(), displayed_events.end(), [&msg](const auto& e) {
-            return e.ref_name == msg.ref_name;
-        });
+        auto iter = std::find_if(displayed_events.begin(), displayed_events.end(),
+        [&msg](const auto& e) { return e.ref_name == msg.ref_name; });
         if (iter != displayed_events.end()) {
             continue;
         }
@@ -528,20 +558,12 @@ void init_client(GameState& gs) {
         FILE* fp;
 
         // try socialist
-        path = Path::get("ui/flags/" + nation->ref_name + "_socialist.png");
+        path = Path::get("ui/flags/" + nation->ref_name + "_" +
+            ((nation->ideology == nullptr) ? "none" : nation->ideology->ref_name) + ".png"
+        );
         fp = fopen(path.c_str(), "rb");
         if (fp == NULL) {
-            // try monarchy
-            path = Path::get("ui/flags/" + nation->ref_name + "_monarchy.png");
-            fp = fopen(path.c_str(), "rb");
-            if (fp == NULL) {
-                // try democracy
-                path = Path::get("ui/flags/" + nation->ref_name + "_democracy.png");
-                fp = fopen(path.c_str(), "rb");
-                if (fp == NULL) {
-                    // fail
-                }
-            }
+            // fail
         }
 
         map->nation_flags.push_back(&g_texture_manager->load_texture(path));
@@ -561,7 +583,6 @@ void init_client(GameState& gs) {
     }
 
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
-
     gs.select_nation = new SelectNation(gs);
 }
 
@@ -580,7 +601,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 
     Map* map = gs.map;
 
-    gs.world->client_update = &client_update;
+    gs.client_update_fns.push_back(&client_update);
 
     gs.input = Input{};
     Input& input = gs.input;
@@ -593,8 +614,10 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     std::vector<Treaty*> displayed_treaties;
     while (run) {
         if (last_time != gs.world->time) {
+            for(const auto& client_update_fn: gs.client_update_fns) {
+                client_update_fn(gs);
+            }
             last_time = gs.world->time;
-            client_update();
         }
 
         std::unique_lock<std::mutex> lock(render_lock);

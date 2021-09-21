@@ -401,9 +401,6 @@ public:
     std::vector<Building*> buildings;
     std::vector<Treaty*> treaties;
     std::vector<Ideology*> ideologies;
-    
-    // Used by client to update anything each tick (i.e a graph)
-    std::function<void(void)> client_update;
 };
 
 extern World* g_world;

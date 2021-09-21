@@ -67,6 +67,9 @@ class GameState {
     PopViewNation* pop_view_nation;
     UIReform* ui_reform;
 
+    // Used by client to update anything each tick (i.e a graph)
+    std::vector<std::function<void(const GameState&)>> client_update_fns;
+
     std::vector<const UnifiedRender::Texture*> nation_flags;
     const UnifiedRender::Texture& get_nation_flag(Nation& nation);
 
