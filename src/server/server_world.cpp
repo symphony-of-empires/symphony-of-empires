@@ -43,6 +43,10 @@ World::World() {
     // Register our API functions
     lua_register(lua, "_", LuaAPI::get_text);
 
+    lua_register(lua, "add_technology", LuaAPI::add_technology);
+    lua_register(lua, "get_technology", LuaAPI::get_technology);
+    lua_register(lua, "add_req_tech_to_tech", LuaAPI::add_req_tech_to_tech);
+
     lua_register(lua, "add_unit_trait", LuaAPI::add_unit_trait);
 
     lua_register(lua, "add_building_type", LuaAPI::add_building_type);
@@ -275,6 +279,8 @@ void World::load_mod(void) {
     files_text = Path::get_data("scripts/cultures.lua");
     for(const auto& text: files_text) { final_buf += text; }
     files_text = Path::get_data("scripts/ideology.lua");
+    for(const auto& text: files_text) { final_buf += text; }
+    files_text = Path::get_data("scripts/technology.lua");
     for(const auto& text: files_text) { final_buf += text; }
     files_text = Path::get_data("scripts/religions.lua");
     for(const auto& text: files_text) { final_buf += text; }

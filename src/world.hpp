@@ -45,6 +45,7 @@ public:
 #include <string>
 #include "province.hpp"
 #include "unit.hpp"
+#include "technology.hpp"
 
 /**
 * Represents an order, something an industry wants and that should be
@@ -293,6 +294,27 @@ public:
         return religions;
     };
 
+    inline const std::vector<Technology*>& get_list(const Technology* ptr) const {
+        return technologies;
+    };
+    inline std::vector<Technology*>& get_list(const Technology* ptr) {
+        return technologies;
+    };
+    
+    inline const std::vector<Invention*>& get_list(const Invention* ptr) const {
+        return inventions;
+    };
+    inline std::vector<Invention*>& get_list(const Invention* ptr) {
+        return inventions;
+    };
+
+    inline const std::vector<NationModifier*>& get_list(const NationModifier* ptr) const {
+        return nation_modifiers;
+    };
+    inline std::vector<NationModifier*>& get_list(const NationModifier* ptr) {
+        return nation_modifiers;
+    };
+
     inline Industry::Id get_id(const Province& province, const Industry* ptr) const {
         return ((ptrdiff_t)ptr - (ptrdiff_t)&province.industries[0]) / sizeof(Industry);
     };
@@ -344,6 +366,9 @@ public:
     std::vector<BoatType*> boat_types;
     std::vector<UnitTrait*> unit_traits;
     std::vector<Event*> events;
+    std::vector<Technology*> technologies;
+    std::vector<Invention*> inventions;
+    std::vector<NationModifier*> nation_modifiers;
     mutable std::recursive_mutex world_mutex;
 
     // A list of orders (what factories want to be sent to them)
@@ -357,9 +382,6 @@ public:
     // A list of jobs required
     std::vector<JobRequest> job_requests;
     mutable std::recursive_mutex job_requests_mutex;
-
-    // List of convoys on the world (unused)
-    std::vector<CommercialConvoy> convoys;
 
     // Array containing a list of tile coord that have changed owners
     std::vector<std::pair<uint, uint>> changed_tile_coords;

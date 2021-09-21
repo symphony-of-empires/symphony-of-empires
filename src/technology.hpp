@@ -6,11 +6,12 @@
 class Invention {
 public:
     using Id = uint8_t;
+
     std::string ref_name;
     std::string name;
     std::string description;
-
-    NationModifier& mod;
+    
+    NationModifier* mod;
 };
 
 class Technology {
@@ -21,6 +22,9 @@ public:
     std::string name;
     std::string description;
     float cost;
+
+    std::vector<Technology*> req_technologies;
+    std::vector<Invention*> inventions;
 };
 
 #endif

@@ -1,10 +1,4 @@
-Technology = {
-	id = 0,
-	ref_name = "",
-	name = "",
-	description = "",
-	cost = 1.0
-}
+Technology = { id = 0, ref_name = "", name = "", description = "", cost = 1.0 }
 function Technology:new(technology)
 	technology.parent = self
 	return technology
@@ -17,6 +11,9 @@ function Technology:get(technology, ref_name)
 	technology.id, technology.name, technology.description = get_technology(ref_name)
 	technology.ref_name = ref_name
 	return technology
+end
+function Technology:requires_technology(self, technology)
+	add_req_tech_to_tech(self.id, technology.id)
 end
 
 Ideology = {

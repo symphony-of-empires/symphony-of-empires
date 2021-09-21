@@ -52,6 +52,8 @@ public:
 
 class NationModifier {
 public:
+    using Id = uint16_t;
+
     std::string ref_name;
     std::string name;
 

@@ -30,6 +30,41 @@ extern "C" {
 #include "../building.hpp"
 
 int LuaAPI::register_new_table(lua_State* L, const std::string& name, const luaL_Reg meta[], const luaL_Reg methods[]) {
+    
+    return 0;
+}
+
+int LuaAPI::add_technology(lua_State* L) {
+    Technology* technology = new Technology();
+
+    technology->ref_name = luaL_checkstring(L, 1);
+    technology->name = luaL_checkstring(L, 2);
+    technology->description = luaL_checkstring(L, 3);
+
+    g_world->technologies.push_back(technology);
+    lua_pushnumber(L, g_world->technologies.size() - 1);
+    return 1;
+}
+
+int LuaAPI::get_technology(lua_State* L) {
+    std::string ref_name = luaL_checkstring(L, 1);
+    auto result = std::find_if(g_world->technologies.begin(), g_world->technologies.end(), [&ref_name](const auto& o) {
+        return (o->ref_name == ref_name);
+    });
+    if(result == g_world->technologies.end()) {
+        throw LuaAPI::Exception("Technology " + ref_name + " not found");
+    }
+    const Technology* technology = *result;
+
+    lua_pushnumber(L, g_world->get_id(technology));
+    lua_pushstring(L, technology->name.c_str());
+    lua_pushstring(L, technology->description.c_str());
+    return 3;
+}
+
+int LuaAPI::add_req_tech_to_tech(lua_State* L) {
+    Technology* technology = g_world->technologies.at(lua_tonumber(L, 1));
+    technology->req_technologies.push_back(g_world->technologies.at(lua_tonumber(L, 2)));
     return 0;
 }
 
