@@ -1,6 +1,9 @@
 #ifndef IO_IMPL_HPP
 #define IO_IMPL_HPP
 
+#include <cstdint>
+#include <string>
+#include "actions.hpp"
 #include "world.hpp"
 #include "province.hpp"
 #include "nation.hpp"
@@ -13,13 +16,12 @@
 #include "actions.hpp"
 #include "diplomacy.hpp"
 #include "print.hpp"
-#include <string>
 
 // TODO: Endianess compatibility
 template<>
-class Serializer<enum ActionType> : public SerializerMemcpy<enum ActionType> {};
+class Serializer<ActionType> : public SerializerMemcpy<ActionType> {};
 template<>
-class Serializer<enum OrderType> : public SerializerMemcpy<enum OrderType> {};
+class Serializer<OrderType> : public SerializerMemcpy<OrderType> {};
 
 // Used as a template for serializable objects (pointers mostly) which should be
 // treated as a reference instead of the object itself
@@ -45,7 +47,6 @@ public:
         return sizeof(typename T::Id);
     };
 };
-
 template<>
 class Serializer<Province*> : public SerializerReference<World, Province> {};
 template<>
@@ -80,10 +81,68 @@ template<>
 class Serializer<Building*> : public SerializerReference<World, Building> {};
 template<>
 class Serializer<Ideology*> : public SerializerReference<World, Ideology> {};
+template<>
+class Serializer<Invention*> : public SerializerReference<World, Invention> {};
+template<>
+class Serializer<Technology*> : public SerializerReference<World, Technology> {};
+template<>
+class Serializer<NationModifier*> : public SerializerReference<World, NationModifier> {};
 
 // TODO: Properly do this ffs - this is dangereous and **will** create bugs!
 template<>
 class Serializer<Industry *> : public SerializerMemcpy<Industry *> {};
+
+template<>
+class Serializer<NationModifier> {
+public:
+    static inline void serialize(Archive& stream, const NationModifier* obj) {
+        ::serialize(stream, &obj->name);
+        ::serialize(stream, &obj->ref_name);
+        ::serialize(stream, &obj->consciousness_mod);
+        ::serialize(stream, &obj->death_mod);
+        ::serialize(stream, &obj->delivery_cost_mod);
+        ::serialize(stream, &obj->everyday_needs_met_mod);
+        ::serialize(stream, &obj->life_needs_met_mod);
+        ::serialize(stream, &obj->literacy_learn_mod);
+        ::serialize(stream, &obj->luxury_needs_met_mod);
+        ::serialize(stream, &obj->militancy_mod);
+        ::serialize(stream, &obj->reproduction_mod);
+        ::serialize(stream, &obj->salary_paid_mod);
+        ::serialize(stream, &obj->workers_needed_mod);
+    }
+    static inline void deserialize(Archive& stream, NationModifier* obj) {
+        ::deserialize(stream, &obj->name);
+        ::deserialize(stream, &obj->ref_name);
+        ::deserialize(stream, &obj->consciousness_mod);
+        ::deserialize(stream, &obj->death_mod);
+        ::deserialize(stream, &obj->delivery_cost_mod);
+        ::deserialize(stream, &obj->everyday_needs_met_mod);
+        ::deserialize(stream, &obj->life_needs_met_mod);
+        ::deserialize(stream, &obj->literacy_learn_mod);
+        ::deserialize(stream, &obj->luxury_needs_met_mod);
+        ::deserialize(stream, &obj->militancy_mod);
+        ::deserialize(stream, &obj->reproduction_mod);
+        ::deserialize(stream, &obj->salary_paid_mod);
+        ::deserialize(stream, &obj->workers_needed_mod);
+    }
+    static inline size_t size(const NationModifier* obj) {
+        return
+            serialized_size(&obj->name)
+            + serialized_size(&obj->ref_name)
+            + serialized_size(&obj->consciousness_mod)
+            + serialized_size(&obj->death_mod)
+            + serialized_size(&obj->delivery_cost_mod)
+            + serialized_size(&obj->everyday_needs_met_mod)
+            + serialized_size(&obj->life_needs_met_mod)
+            + serialized_size(&obj->literacy_learn_mod)
+            + serialized_size(&obj->luxury_needs_met_mod)
+            + serialized_size(&obj->militancy_mod)
+            + serialized_size(&obj->reproduction_mod)
+            + serialized_size(&obj->salary_paid_mod)
+            + serialized_size(&obj->workers_needed_mod)
+        ;
+    }
+};
 
 template<>
 class Serializer<NationRelation> : public SerializerMemcpy<NationRelation> {
@@ -776,22 +835,17 @@ public:
     static inline void serialize(Archive& stream, const Province* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
-        
         ::serialize(stream, &obj->color);
         ::serialize(stream, &obj->budget);
         ::serialize(stream, &obj->n_tiles);
-        
         ::serialize(stream, &obj->max_x);
         ::serialize(stream, &obj->max_y);
         ::serialize(stream, &obj->min_x);
         ::serialize(stream, &obj->min_y);
-        
         ::serialize(stream, &obj->supply_limit);
         ::serialize(stream, &obj->supply_rem);
         ::serialize(stream, &obj->worker_pool);
-        
         ::serialize(stream, &obj->owner);
-        
         ::serialize(stream, &obj->nucleuses);
         ::serialize(stream, &obj->neighbours);
         ::serialize(stream, &obj->stockpile);
@@ -802,22 +856,17 @@ public:
     static inline void deserialize(Archive& stream, Province* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
-        
         ::deserialize(stream, &obj->color);
         ::deserialize(stream, &obj->budget);
         ::deserialize(stream, &obj->n_tiles);
-        
         ::deserialize(stream, &obj->max_x);
         ::deserialize(stream, &obj->max_y);
         ::deserialize(stream, &obj->min_x);
         ::deserialize(stream, &obj->min_y);
-        
         ::deserialize(stream, &obj->supply_limit);
         ::deserialize(stream, &obj->supply_rem);
         ::deserialize(stream, &obj->worker_pool);
-        
         ::deserialize(stream, &obj->owner);
-        
         ::deserialize(stream, &obj->nucleuses);
         ::deserialize(stream, &obj->neighbours);
         ::deserialize(stream, &obj->stockpile);
@@ -1036,6 +1085,62 @@ public:
             + serialized_size(&obj->quality)
             + serialized_size(&obj->supply)
             + serialized_size(&obj->demand)
+        ;
+    }
+};
+
+template<>
+class Serializer<Invention> {
+public:
+    static inline void serialize(Archive& stream, const Invention* obj) {
+        ::serialize(stream, &obj->name);
+        ::serialize(stream, &obj->ref_name);
+        ::serialize(stream, &obj->description);
+        ::serialize(stream, &obj->mod);
+    }
+    static inline void deserialize(Archive& stream, Invention* obj) {
+        ::deserialize(stream, &obj->name);
+        ::deserialize(stream, &obj->ref_name);
+        ::deserialize(stream, &obj->description);
+        ::deserialize(stream, &obj->mod);
+    }
+    static inline size_t size(const Invention* obj) {
+        return
+            serialized_size(&obj->name)
+            + serialized_size(&obj->ref_name)
+            + serialized_size(&obj->description)
+            + serialized_size(&obj->mod)
+        ;
+    }
+};
+
+template<>
+class Serializer<Technology> {
+public:
+    static inline void serialize(Archive& stream, const Technology* obj) {
+        ::serialize(stream, &obj->name);
+        ::serialize(stream, &obj->ref_name);
+        ::serialize(stream, &obj->description);
+        ::serialize(stream, &obj->cost);
+        ::serialize(stream, &obj->req_technologies);
+        ::serialize(stream, &obj->inventions);
+    }
+    static inline void deserialize(Archive& stream, Technology* obj) {
+        ::deserialize(stream, &obj->name);
+        ::deserialize(stream, &obj->ref_name);
+        ::deserialize(stream, &obj->description);
+        ::deserialize(stream, &obj->cost);
+        ::deserialize(stream, &obj->req_technologies);
+        ::deserialize(stream, &obj->inventions);
+    }
+    static inline size_t size(const Technology* obj) {
+        return
+            serialized_size(&obj->name)
+            + serialized_size(&obj->ref_name)
+            + serialized_size(&obj->description)
+            + serialized_size(&obj->cost)
+            + serialized_size(&obj->req_technologies)
+            + serialized_size(&obj->inventions)
         ;
     }
 };
@@ -1313,6 +1418,17 @@ public:
 template<>
 class Serializer<World> {
 public:
+    template<typename T>
+    static inline typename T::Id deserialize_and_create_list(Archive& stream, World* obj) {
+        typename T::Id n_elems;
+        ::deserialize(stream, &n_elems);
+        for(size_t i = 0; i < n_elems; i++) {
+            T* sub_obj = new T();
+            obj->get_list(sub_obj).push_back(sub_obj);
+        }
+        return n_elems;
+    }
+
     static inline void serialize(Archive& stream, const World* obj) {
         ::serialize(stream, &obj->width);
         ::serialize(stream, &obj->height);
@@ -1323,44 +1439,50 @@ public:
             ::serialize(stream, &obj->tiles[i]);
         }
         
-        const uint32_t n_goods = obj->goods.size();
+        const Good::Id n_goods = obj->goods.size();
         ::serialize(stream, &n_goods);
-        const uint32_t n_industry_types = obj->industry_types.size();
+        const IndustryType::Id n_industry_types = obj->industry_types.size();
         ::serialize(stream, &n_industry_types);
-        const uint32_t n_unit_types = obj->unit_types.size();
+        const UnitType::Id n_unit_types = obj->unit_types.size();
         ::serialize(stream, &n_unit_types);
-        const uint32_t n_boat_types = obj->boat_types.size();
+        const BoatType::Id n_boat_types = obj->boat_types.size();
         ::serialize(stream, &n_boat_types);
-        const uint32_t n_religions = obj->religions.size();
+        const Religion::Id n_religions = obj->religions.size();
         ::serialize(stream, &n_religions);
-        const uint32_t n_cultures = obj->cultures.size();
+        const Culture::Id n_cultures = obj->cultures.size();
         ::serialize(stream, &n_cultures);
-        const uint32_t n_pop_types = obj->pop_types.size();
+        const PopType::Id n_pop_types = obj->pop_types.size();
         ::serialize(stream, &n_pop_types);
-        const uint32_t n_nations = obj->nations.size();
+        const Nation::Id n_nations = obj->nations.size();
         ::serialize(stream, &n_nations);
-        const uint32_t n_provinces = obj->provinces.size();
+        const Province::Id n_provinces = obj->provinces.size();
         ::serialize(stream, &n_provinces);
-        const uint32_t n_companies = obj->companies.size();
+        const Company::Id n_companies = obj->companies.size();
         ::serialize(stream, &n_companies);
-        const uint32_t n_products = obj->products.size();
+        const Product::Id n_products = obj->products.size();
         ::serialize(stream, &n_products);
-        const uint32_t n_events = obj->events.size();
+        const Event::Id n_events = obj->events.size();
         ::serialize(stream, &n_events);
-        const uint32_t n_unit_traits = obj->unit_traits.size();
+        const UnitTrait::Id n_unit_traits = obj->unit_traits.size();
         ::serialize(stream, &n_unit_traits);
-        const uint32_t n_building_types = obj->building_types.size();
+        const BuildingType::Id n_building_types = obj->building_types.size();
         ::serialize(stream, &n_building_types);
-        const uint32_t n_buildings = obj->buildings.size();
+        const Building::Id n_buildings = obj->buildings.size();
         ::serialize(stream, &n_buildings);
-        const uint32_t n_treaties = obj->treaties.size();
+        const Treaty::Id n_treaties = obj->treaties.size();
         ::serialize(stream, &n_treaties);
-        const uint32_t n_boats = obj->boats.size();
+        const Boat::Id n_boats = obj->boats.size();
         ::serialize(stream, &n_boats);
-        const uint32_t n_ideologies = obj->ideologies.size();
+        const Ideology::Id n_ideologies = obj->ideologies.size();
         ::serialize(stream, &n_ideologies);
+        const Invention::Id n_inventions = obj->inventions.size();
+        ::serialize(stream, &n_inventions);
+        const Technology::Id n_technologies = obj->technologies.size();
+        ::serialize(stream, &n_technologies);
+        const NationModifier::Id n_nation_modifiers = obj->nation_modifiers.size();
+        ::serialize(stream, &n_nation_modifiers);
         
-        print_info("(SERIALIZER) WORLD INFORMATION\n");
+        print_info("(SERIALIZER) World");
         print_info("  n_goods %zu", obj->goods.size());
         print_info("  n_industry_types %zu", obj->industry_types.size());
         print_info("  n_unit_types %zu", obj->unit_types.size());
@@ -1450,6 +1572,18 @@ public:
         for(auto& sub_obj: obj->ideologies) {
             ::serialize(stream, sub_obj);
         }
+
+        for(auto& sub_obj: obj->inventions) {
+            ::serialize(stream, sub_obj);
+        }
+
+        for(auto& sub_obj: obj->technologies) {
+            ::serialize(stream, sub_obj);
+        }
+
+        for(auto& sub_obj: obj->nation_modifiers) {
+            ::serialize(stream, sub_obj);
+        }
         
         ::serialize(stream, &obj->delivers);
         ::serialize(stream, &obj->orders);
@@ -1469,133 +1603,29 @@ public:
         // In order to avoid post-deserialization relational patcher,
         // we will simply allocate everything with "empty" objects,
         // then we will fill those spots as we deserialize
-        uint32_t n_goods;
-        ::deserialize(stream, &n_goods);
-        for(size_t i = 0; i < n_goods; i++) {
-            Good* sub_obj = new Good();
-            obj->goods.push_back(sub_obj);
-        }
+        Good::Id n_goods = deserialize_and_create_list<Good>(stream, obj);
+        IndustryType::Id n_industry_types = deserialize_and_create_list<IndustryType>(stream, obj);
+        UnitType::Id n_unit_types = deserialize_and_create_list<UnitType>(stream, obj);
+        BoatType::Id n_boat_types = deserialize_and_create_list<BoatType>(stream, obj);
+        Religion::Id n_religions = deserialize_and_create_list<Religion>(stream, obj);
+        Culture::Id n_cultures = deserialize_and_create_list<Culture>(stream, obj);
+        PopType::Id n_pop_types = deserialize_and_create_list<PopType>(stream, obj);
+        Nation::Id n_nations = deserialize_and_create_list<Nation>(stream, obj);
+        Province::Id n_provinces = deserialize_and_create_list<Province>(stream, obj);
+        Company::Id n_companies = deserialize_and_create_list<Company>(stream, obj);
+        Product::Id n_products = deserialize_and_create_list<Product>(stream, obj);
+        Event::Id n_events = deserialize_and_create_list<Event>(stream, obj);
+        UnitTrait::Id n_unit_traits = deserialize_and_create_list<UnitTrait>(stream, obj);
+        BuildingType::Id n_building_types = deserialize_and_create_list<BuildingType>(stream, obj);
+        Building::Id n_buildings = deserialize_and_create_list<Building>(stream, obj);
+        Treaty::Id n_treaties = deserialize_and_create_list<Treaty>(stream, obj);
+        Boat::Id n_boats = deserialize_and_create_list<Boat>(stream, obj);
+        Ideology::Id n_ideologies = deserialize_and_create_list<Ideology>(stream, obj);
+        Invention::Id n_inventions = deserialize_and_create_list<Invention>(stream, obj);
+        Technology::Id n_technologies = deserialize_and_create_list<Technology>(stream, obj);
+        NationModifier::Id n_nation_modifiers = deserialize_and_create_list<NationModifier>(stream, obj);
         
-        uint32_t n_industry_types;
-        ::deserialize(stream, &n_industry_types);
-        for(size_t i = 0; i < n_industry_types; i++) {
-            IndustryType* sub_obj = new IndustryType();
-            obj->industry_types.push_back(sub_obj);
-        }
-        
-        uint32_t n_unit_types;
-        ::deserialize(stream, &n_unit_types);
-        for(size_t i = 0; i < n_unit_types; i++) {
-            UnitType* sub_obj = new UnitType();
-            obj->unit_types.push_back(sub_obj);
-        }
-
-        uint32_t n_boat_types;
-        ::deserialize(stream, &n_boat_types);
-        for(size_t i = 0; i < n_boat_types; i++) {
-            BoatType* sub_obj = new BoatType();
-            obj->boat_types.push_back(sub_obj);
-        }
-        
-        uint32_t n_religions;
-        ::deserialize(stream, &n_religions);
-        for(size_t i = 0; i < n_religions; i++) {
-            Religion* sub_obj = new Religion();
-            obj->religions.push_back(sub_obj);
-        }
-        
-        uint32_t n_cultures;
-        ::deserialize(stream, &n_cultures);
-        for(size_t i = 0; i < n_cultures; i++) {
-            Culture* sub_obj = new Culture();
-            obj->cultures.push_back(sub_obj);
-        }
-        
-        uint32_t n_pop_types;
-        ::deserialize(stream, &n_pop_types);
-        for(size_t i = 0; i < n_pop_types; i++) {
-            PopType* sub_obj = new PopType();
-            obj->pop_types.push_back(sub_obj);
-        }
-        
-        uint32_t n_nations;
-        ::deserialize(stream, &n_nations);
-        for(size_t i = 0; i < n_nations; i++) {
-            Nation* sub_obj = new Nation();
-            obj->nations.push_back(sub_obj);
-        }
-        
-        uint32_t n_provinces;
-        ::deserialize(stream, &n_provinces);
-        for(size_t i = 0; i < n_provinces; i++) {
-            Province* sub_obj = new Province();
-            obj->provinces.push_back(sub_obj);
-        }
-        
-        uint32_t n_companies;
-        ::deserialize(stream, &n_companies);
-        for(size_t i = 0; i < n_companies; i++) {
-            Company* sub_obj = new Company();
-            obj->companies.push_back(sub_obj);
-        }
-        
-        uint32_t n_products;
-        ::deserialize(stream, &n_products);
-        for(size_t i = 0; i < n_products; i++) {
-            Product* sub_obj = new Product();
-            obj->products.push_back(sub_obj);
-        }
-        
-        uint32_t n_events;
-        ::deserialize(stream, &n_events);
-        for(size_t i = 0; i < n_events; i++) {
-            Event* sub_obj = new Event();
-            obj->events.push_back(sub_obj);
-        }
-
-        uint32_t n_unit_traits;
-        ::deserialize(stream, &n_unit_traits);
-        for(size_t i = 0; i < n_unit_traits; i++) {
-            UnitTrait* sub_obj = new UnitTrait();
-            obj->unit_traits.push_back(sub_obj);
-        }
-
-        uint32_t n_building_types;
-        ::deserialize(stream, &n_building_types);
-        for(size_t i = 0; i < n_building_types; i++) {
-            BuildingType* sub_obj = new BuildingType();
-            obj->building_types.push_back(sub_obj);
-        }
-
-        uint32_t n_buildings;
-        ::deserialize(stream, &n_buildings);
-        for(size_t i = 0; i < n_buildings; i++) {
-            Building* sub_obj = new Building();
-            obj->buildings.push_back(sub_obj);
-        }
-
-        uint32_t n_treaties;
-        ::deserialize(stream, &n_treaties);
-        for(size_t i = 0; i < n_treaties; i++) {
-            Treaty* sub_obj = new Treaty();
-            obj->treaties.push_back(sub_obj);
-        }
-
-        uint32_t n_boats;
-        ::deserialize(stream, &n_boats);
-        for(size_t i = 0; i < n_boats; i++) {
-            Boat* sub_obj = new Boat();
-            obj->boats.push_back(sub_obj);
-        }
-
-        uint32_t n_ideologies;
-        ::deserialize(stream, &n_ideologies);
-        for(size_t i = 0; i < n_ideologies; i++) {
-            Ideology* sub_obj = new Ideology();
-            obj->ideologies.push_back(sub_obj);
-        }
-        
-        print_info("(DESERIALIZER) WORLD INFORMATION\n");
+        print_info("(DESERIALIZER) World");
         print_info("  n_goods %zu", obj->goods.size());
         print_info("  n_industry_types %zu", obj->industry_types.size());
         print_info("  n_unit_types %zu", obj->unit_types.size());
@@ -1613,6 +1643,8 @@ public:
         print_info("  n_treaties %zu", obj->treaties.size());
         print_info("  n_boats %zu", obj->boats.size());
         print_info("  n_ideologies %zu", obj->ideologies.size());
+        print_info("  n_inventions %zu", obj->inventions.size());
+        print_info("  n_technologies %zu", obj->technologies.size());
         
         for(size_t i = 0; i < n_goods; i++) {
             Good* sub_obj = obj->goods[i];
@@ -1703,6 +1735,21 @@ public:
             Ideology* sub_obj = obj->ideologies.at(i);
             ::deserialize(stream, sub_obj);
         }
+
+        for(size_t i = 0; i < n_inventions; i++) {
+            Invention* sub_obj = obj->inventions.at(i);
+            ::deserialize(stream, sub_obj);
+        }
+
+        for(size_t i = 0; i < n_technologies; i++) {
+            Technology* sub_obj = obj->technologies.at(i);
+            ::deserialize(stream, sub_obj);
+        }
+
+        for(size_t i = 0; i < n_inventions; i++) {
+            NationModifier* sub_obj = obj->nation_modifiers.at(i);
+            ::deserialize(stream, sub_obj);
+        }
         
         ::deserialize(stream, &obj->delivers);
         ::deserialize(stream, &obj->orders);
@@ -1735,6 +1782,9 @@ public:
             + (obj->treaties.size() * sizeof(Treaty))
             + (obj->boats.size() * sizeof(Boat))
             + (obj->ideologies.size() * sizeof(Ideology))
+            + (obj->inventions.size() * sizeof(Invention))
+            + (obj->technologies.size() * sizeof(Technology))
+            + (obj->nation_modifiers.size() * sizeof(NationModifier))
         ;
     }
 };
