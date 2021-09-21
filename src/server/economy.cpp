@@ -133,6 +133,7 @@ void Economy::do_phase_1(World& world) {
             
             // Notify all clients of the server about this new unit
             g_world->units.push_back(unit);
+            building->working_unit_type = nullptr;
 
             Packet packet = Packet();
             Archive ar = Archive();
@@ -141,9 +142,9 @@ void Economy::do_phase_1(World& world) {
             ::serialize(ar, unit); // UnitObj
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
-
-            building->working_unit_type = nullptr;
-        } else if(building->working_boat_type != nullptr) {
+        }
+        
+        if(building->working_boat_type != nullptr) {
             // Spawn a boat
             Boat* boat = new Boat();
             boat->x = building->x;
@@ -161,6 +162,7 @@ void Economy::do_phase_1(World& world) {
 
             // Notify all clients of the server about this new boat
             g_world->boats.push_back(boat);
+            building->working_boat_type = nullptr;
 
             Packet packet = Packet();
             Archive ar = Archive();
@@ -169,14 +171,13 @@ void Economy::do_phase_1(World& world) {
             ::serialize(ar, boat); // BoatObj
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
-
-            building->working_boat_type = nullptr;
         }
-
+        
         // Take opportunity to also send an update about our buildings
         Packet packet = Packet();
         Archive ar = Archive();
-        enum ActionType action = ActionType::BUILDING_UPDATE;
+        ActionType action = ActionType::BUILDING_UPDATE;
+        ::serialize(ar, &action); // ActionInt
         ::serialize(ar, &building); // BuildingRef
         ::serialize(ar, building); // BuildingObj
         packet.data(ar.get_buffer(), ar.size());
