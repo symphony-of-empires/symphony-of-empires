@@ -29,6 +29,9 @@ namespace LuaAPI {
 
     int register_new_table(lua_State* L, const std::string& name, const luaL_Reg meta[], const luaL_Reg methods[]);
 
+    int add_invention(lua_State* L);
+    int get_invention(lua_State* L);
+
     int add_technology(lua_State* L);
     int get_technology(lua_State* L);
     int add_req_tech_to_tech(lua_State* L);
