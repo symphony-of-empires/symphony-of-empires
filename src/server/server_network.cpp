@@ -115,14 +115,20 @@ void Server::broadcast(Packet& packet) {
         if(clients[i].is_connected == true) {
             clients[i].packets.push_back(packet);
 
-            // Disconnect the client if we have too much packets on the queue
-            // we cannot save your packets buddy!
+            {
+                Archive tmp_ar = Archive();
+                tmp_ar.buffer = packet.buffer;
+                ActionType tmp_action;
+                ::deserialize(tmp_ar, &tmp_action);
+                print_info("Packet [%zu] -> [%i]", i, (int)tmp_action);
+            }
+
+            // Disconnect the client when more than 200 MB is used
+            // we can't save your packets buddy - other clients need their stuff too!
             size_t total_size = 0;
             for(const auto& packet_q: clients[i].packets) {
                 total_size += packet_q.buffer.size();
             }
-
-            // Disconnect the client when more than 200 MB is used
             if(total_size >= 200 * 1000000) {
                 clients[i].is_connected = false;
                 clients[i].packets.clear();
@@ -171,9 +177,9 @@ void Server::net_loop(int id) {
             // Send the whole snapshot of the world
             {
                 Archive ar = Archive();
-                
-                std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
+                g_world->world_mutex.lock();
                 ::serialize(ar, g_world);
+                g_world->world_mutex.unlock();
                 packet.send(ar.get_buffer(), ar.size());
             }
 
@@ -200,11 +206,11 @@ void Server::net_loop(int id) {
                 // Check if we need to read stuff
 #ifdef unix
                 int has_pending = poll(&pfd, 1, 0);
-                if(pfd.revents & POLLIN || has_pending) {
+                if(pfd.revents & POLLIN || has_pending && g_world->world_mutex.try_lock() == true) {
 #elif defined windows
                 u_long has_pending = 0;
                 ioctlsocket(fd, FIONREAD, &has_pending);
-                if(has_pending) {
+                if(has_pending && g_world->world_mutex.try_lock() == true) {
 #endif
                     packet.recv();
                     ar.set_buffer(packet.data(), packet.size());
@@ -520,7 +526,6 @@ void Server::net_loop(int id) {
         }
         
         // Unlock mutexes so we don't end up with weird situations... like deadlocks
-        cl.packets_mutex.lock();
         cl.is_connected = false;
         cl.packets.clear();
         cl.packets_mutex.unlock();

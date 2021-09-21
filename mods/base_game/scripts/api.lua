@@ -191,6 +191,9 @@ end
 function Nation:set_policies(self, policies)
 	set_nation_policies(self.id, policies.treatment, policies.migration, policies.immigration, policies.censorship, policies.build_infrastructure, policies.build_factories, policies.national_id, policies.men_suffrage, policies.men_labour, policies.women_suffrage, policies.women_labour, policies.private_property, policies.companies_allowed, policies.public_education, policies.secular_education, policies.public_healthcare, policies.social_security, policies.slavery, policies.legislative_parliament, policies.executive_parliament, policies.constitutional, policies.foreign_trade, policies.import_tax, policies.export_tax, policies.domestic_import_tax, policies.domestic_export_tax, policies.poor_flat_tax, policies.med_flat_tax, policies.rich_flat_tax, policies.industry_tax, policies.military_spending, policies.free_supplies, policies.minimum_wage)
 end
+function Nation:set_ideology(self, ideology)
+	set_nation_ideology(self.id, ideology.id)
+end
 function Nation:add_client_hint(self, ideology, alt_name, colour)
 	add_nation_client_hint(self.id, ideology.id, alt_name, colour)
 end

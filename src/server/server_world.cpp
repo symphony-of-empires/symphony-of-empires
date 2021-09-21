@@ -67,6 +67,8 @@ World::World() {
     lua_register(lua, "add_nation_accepted_culture", LuaAPI::add_accepted_culture);
     lua_register(lua, "add_nation_client_hint", LuaAPI::add_nation_client_hint);
     lua_register(lua, "get_nation_policies", LuaAPI::get_nation_policies);
+    lua_register(lua, "set_nation_policies", LuaAPI::set_nation_policies);
+    lua_register(lua, "set_nation_ideology", LuaAPI::set_nation_ideology);
     
     lua_register(lua, "add_province", LuaAPI::add_province);
     lua_register(lua, "get_province", LuaAPI::get_province);
@@ -585,19 +587,17 @@ void World::do_tick() {
         if(nation->exists() == false)
             continue;
         
-        if(rand() % 10000 > 9990.f) {
+        if(rand() % 10000 > 9950.f) {
             Province *target = provinces[rand() % provinces.size()];
             if(target->owner == nullptr) {
-                {
-                    Packet packet = Packet();
-                    Archive ar = Archive();
-                    enum ActionType action = ActionType::PROVINCE_COLONIZE;
-                    ::serialize(ar, &action);
-                    ::serialize(ar, &target);
-                    ::serialize(ar, target);
-                    packet.data(ar.get_buffer(), ar.size());
-                    g_server->broadcast(packet);
-                }
+                Packet packet = Packet();
+                Archive ar = Archive();
+                ActionType action = ActionType::PROVINCE_COLONIZE;
+                ::serialize(ar, &action);
+                ::serialize(ar, &target);
+                ::serialize(ar, target);
+                packet.data(ar.get_buffer(), ar.size());
+                g_server->broadcast(packet);
 
                 nation->give_province(*this, *target);
                 print_info("Conquering %s for %s", target->name.c_str(), nation->name.c_str());
@@ -660,7 +660,7 @@ void World::do_tick() {
         }
 
         // Build an building randomly?
-        if(rand() % 10000 > 9990.f) {
+        if(rand() % 10000 > 9950.f) {
             bool can_build = false;
             for(const auto& province: nation->owned_provinces) {
                 if(get_id(&province->get_occupation_controller(*this)) != g_world->get_id(nation)) {
@@ -703,24 +703,24 @@ void World::do_tick() {
             building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
             building->req_goods = std::vector<std::pair<Good*, size_t>>();
             building->type = building_types[rand() % building_types.size()];
+            g_world->buildings.push_back(building);
 
             // Broadcast the addition of the building to the clients
             {
                 Packet packet = Packet();
                 Archive ar = Archive();
-                enum ActionType action = ActionType::BUILDING_ADD;
+                ActionType action = ActionType::BUILDING_ADD;
                 ::serialize(ar, &action);
                 ::serialize(ar, building);
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
             }
-            g_world->buildings.push_back(building);
             print_info("Building of %s on %s", nation->name.c_str(), target->name.c_str());
         }
     }
 
     // Each tick == 30 minutes
-    switch(time % (24* 2)) {
+    switch(time % (24 * 2)) {
     // 3:00
     case 6:
         Economy::do_phase_1(*this);
@@ -748,12 +748,10 @@ void World::do_tick() {
             // Broadcast to clients
             Packet packet = Packet();
             Archive ar = Archive();
-                
-            enum ActionType action = ActionType::PRODUCT_UPDATE;
+            ActionType action = ActionType::PRODUCT_UPDATE;
             ::serialize(ar, &action);
             ::serialize(ar, &product); // ProductRef
             ::serialize(ar, product); // ProductObj
-                
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
         }
@@ -785,13 +783,10 @@ void World::do_tick() {
                 // Broadcast to clients
                 Packet packet = Packet();
                 Archive ar = Archive();
-                
-                enum ActionType action = ActionType::NATION_UPDATE;
+                ActionType action = ActionType::NATION_UPDATE;
                 ::serialize(ar, &action);
-
                 ::serialize(ar, &nation); // NationRef
                 ::serialize(ar, nation); // NationObj
-                
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
             }
@@ -800,13 +795,10 @@ void World::do_tick() {
                 // Broadcast to clients
                 Packet packet = Packet();
                 Archive ar = Archive();
-                
-                enum ActionType action = ActionType::PROVINCE_UPDATE;
+                ActionType action = ActionType::PROVINCE_UPDATE;
                 ::serialize(ar, &action);
-
                 ::serialize(ar, &province); // ProvinceRef
                 ::serialize(ar, province); // ProvinceObj
-                
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
             }
@@ -926,16 +918,16 @@ void World::do_tick() {
     
     for(const auto& boat: g_world->boats) {
         // Broadcast to clients
-        Packet packet = Packet(0);
+        Packet packet = Packet();
         Archive ar = Archive();
-        enum ActionType action = ActionType::BOAT_UPDATE;
+        ActionType action = ActionType::BOAT_UPDATE;
         ::serialize(ar, &action);
         ::serialize(ar, &boat);
         ::serialize(ar, boat);
         packet.data(ar.get_buffer(), ar.size());
         g_server->broadcast(packet);
     }
-    
+
     // Evaluate units
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
@@ -1114,11 +1106,13 @@ void World::do_tick() {
                 // Broadcast to clients
                 Packet packet = Packet(0);
                 Archive ar = Archive();
-                enum ActionType action = ActionType::TILE_UPDATE;
+                
+                ActionType action = ActionType::TILE_UPDATE;
                 ::serialize(ar, &action);
                 ::serialize(ar, &coord.first);
                 ::serialize(ar, &coord.second);
                 ::serialize(ar, &tile);
+                
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
             }
@@ -1127,12 +1121,14 @@ void World::do_tick() {
     
     for(const auto& unit: units) {
         // Broadcast to clients
-        Packet packet = Packet(0);
+        Packet packet = Packet();
         Archive ar = Archive();
-        enum ActionType action = ActionType::UNIT_UPDATE;
+        
+        ActionType action = ActionType::UNIT_UPDATE;
         ::serialize(ar, &action);
         ::serialize(ar, &unit);
         ::serialize(ar, unit);
+        
         packet.data(ar.get_buffer(), ar.size());
         g_server->broadcast(packet);
     }
@@ -1221,9 +1217,8 @@ void World::do_tick() {
     // Tell clients that this tick has been done
     Packet packet = Packet(0);
     Archive ar = Archive();
-    enum ActionType action = ActionType::WORLD_TICK;
+    ActionType action = ActionType::WORLD_TICK;
     ::serialize(ar, &action);
-    ::serialize(ar, &g_world->time);
     packet.data(ar.get_buffer(), ar.size());
     g_server->broadcast(packet);
 }
