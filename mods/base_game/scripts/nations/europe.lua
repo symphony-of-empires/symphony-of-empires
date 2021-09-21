@@ -60,7 +60,8 @@ Nation:add_accepted_culture(european_union, british)
 Nation:add_accepted_culture(european_union, irish)
 Nation:add_accepted_culture(european_union, portuguese)
 Nation:add_accepted_culture(european_union, hungarian)
-Nation:add_client_hint(european_union, monarchy, _("European People's Union"), 0x060666)
+Nation:add_client_hint(european_union, democracy, _("European Union"), 0x060666)
+Nation:add_client_hint(european_union, communism, _("European Commune"), 0x060666)
 
 iberia = Nation:new{ ref_name = "iberia" }
 iberia.name = _("Iberia")
@@ -185,39 +186,40 @@ russia.name = _("Russia")
 Nation:register(russia)
 Nation:set_ideology(russia, monarchy)
 Nation:add_accepted_culture(russia, russian)
-Nation:add_client_hint(russia, communism, _("USSR"), 0x808000)
+Nation:add_client_hint(russia, monarchy, _("Russian Empire"), 0x318c23)
+Nation:add_client_hint(russia, communism, _("Russian SFSR"), 0xbf0000)
 
 krakow = Nation:new{ ref_name = "krakow" }
 krakow.name = _("Krakow")
 Nation:register(krakow)
 Nation:set_ideology(krakow, monarchy)
 Nation:add_accepted_culture(krakow, polish)
-Nation:add_client_hint(krakow, communism, _("Krakow"), 0x808000)
+Nation:add_client_hint(krakow, communism, _("Krakow"), 0xe6f4f7)
 -- Releasable nations
 -- Poland can be formed by krakow
 poland = Nation:new{ ref_name = "poland" }
 poland.name = _("Poland")
 Nation:register(poland)
 Nation:add_accepted_culture(poland, polish)
-Nation:add_client_hint(poland, communism, _("Poland"), 0x808000)
+Nation:add_client_hint(poland, communism, _("Poland"), 0xbf85d6)
 
 lithuania = Nation:new{ ref_name = "lithuania" }
 lithuania.name = _("Lithuania")
 Nation:register(lithuania)
 Nation:add_accepted_culture(lithuania, lithuanian)
-Nation:add_client_hint(lithuania, communism, _("Lithuania"), 0x808000)
+Nation:add_client_hint(lithuania, communism, _("Lithuania"), 0x598c42)
 
 estonia = Nation:new{ ref_name = "estonia" }
 estonia.name = _("Estonia")
 Nation:register(estonia)
 Nation:add_accepted_culture(estonia, estonian)
-Nation:add_client_hint(estonia, communism, _("Estonia"), 0x808000)
+Nation:add_client_hint(estonia, communism, _("Estonia"), 0x4c8ed4)
 
 latvia = Nation:new{ ref_name = "latvia" }
 latvia.name = _("Latvia")
 Nation:register(latvia)
 Nation:add_accepted_culture(latvia, latvian)
-Nation:add_client_hint(latvia, communism, _("Latvia"), 0x808000)
+Nation:add_client_hint(latvia, communism, _("Latvia"), 0x962820)
 
 -- Lovonia can be formed by either latvia, estonia or lithuania
 livonia = Nation:new{ ref_name = "livonia" }
@@ -263,7 +265,7 @@ kazakhistan = Nation:new{ ref_name = "kazakhistan" }
 kazakhistan.name = _("Kazakhistan")
 Nation:register(kazakhistan)
 Nation:add_accepted_culture(kazakhistan, kazakh)
-Nation:add_client_hint(kazakhistan, communism, _("Kazakhistan"), 0x808000)
+Nation:add_client_hint(kazakhistan, monarchy, _("Kazakhistan"), 0x2276b3)
 
 kyrgyztan = Nation:new{ ref_name = "kyrgyztan" }
 kyrgyztan.name = _("Kyrgyztan")
