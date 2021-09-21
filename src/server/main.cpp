@@ -41,14 +41,29 @@ std::string async_get_input(void) {
 
 #include <iostream>
 #include <future>
+
+#define _XOPEN_SOURCE 700
+#include <cstdio>
+#include <dirent.h>
+#include <sys/types.h>
 int main(int argc, char** argv) {
 #ifdef unix
     setlocale(LC_ALL, "");
     bindtextdomain("main", Path::get("locale").c_str());
     textdomain("main");
 #endif
-//    Path::add_path("test");
-    Path::add_path("base_game");
+    DIR *dir = opendir(Path::get_full().c_str());
+    if(dir != NULL) {
+        struct dirent *de;
+        while(de = readdir(dir)) {
+            if(de->d_name[0] == '.')
+                continue;
+            
+            if(de->d_type == DT_DIR) {
+                Path::add_path(de->d_name);
+            }
+        }
+    }
 
 #ifndef UNIT_TEST
     // Run as a server for servicing multiple clients

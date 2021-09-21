@@ -47,13 +47,14 @@ namespace Path {
         rsult = rsult.substr(0, found);
         found = rsult.find_last_of("/\\");
         rsult = rsult.substr(0, found);
+
+        rsult += "/mods/";
         return rsult;
     }
 
     
     void add_path(const std::string& path) {
         std::string end_path;
-        end_path += "/mods/";
         end_path += path;
         end_path += "/";
 
