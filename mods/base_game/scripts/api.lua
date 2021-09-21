@@ -4,7 +4,7 @@ function Technology:new(technology)
 	return technology
 end
 function Technology:register(self)
-	self.id = add_technology(self.ref_name, self.name, self.description)
+	self.id = add_technology(self.ref_name, self.name, self.description, self.cost)
 end
 function Technology:get(technology, ref_name)
 	technology.parent = self
@@ -14,6 +14,21 @@ function Technology:get(technology, ref_name)
 end
 function Technology:requires_technology(self, technology)
 	add_req_tech_to_tech(self.id, technology.id)
+end
+
+Invention = { id = 0, ref_name = "", name = "", description = "" }
+function Invention:new(invention)
+	invention.parent = self
+	return invention
+end
+function Invention:register(self)
+	self.id = add_invention(self.ref_name, self.name, self.description)
+end
+function Invention:get(invention, ref_name)
+	invention.parent = self
+	invention.id, invention.name, invention.description = get_invention(ref_name)
+	invention.ref_name = ref_name
+	return invention
 end
 
 Ideology = {
