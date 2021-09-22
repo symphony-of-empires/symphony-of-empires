@@ -38,7 +38,6 @@
 
 #include "../company.hpp"
 #include "../good.hpp"
-#include "../industry.hpp"
 #include "../io_impl.hpp"
 #include "../path.hpp"
 #include "../product.hpp"

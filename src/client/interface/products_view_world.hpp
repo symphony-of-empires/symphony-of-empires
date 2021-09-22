@@ -3,7 +3,6 @@
 
 #include "../game_state.hpp"
 #include "../ui.hpp"
-#include "../../industry.hpp"
 #include "../../nation.hpp"
 #include "../../world.hpp"
 

@@ -298,7 +298,7 @@ void Server::net_loop(int id) {
                         // Tell the building to build this specific unit type
                         building->working_unit_type = unit_type;
                         building->req_goods_for_unit = unit_type->req_goods;
-                        print_info("New order for building on building; build unit %s", unit_type->name.c_str());
+                        print_info("New order for building; build unit %s", unit_type->name.c_str());
                     } break;
                     // - Same as before but with boats
                     case ActionType::BUILDING_START_BUILDING_BOAT: {
@@ -318,8 +318,8 @@ void Server::net_loop(int id) {
 
                         // Tell the building to build this specific unit type
                         building->working_boat_type = boat_type;
-                        building->req_goods_for_unit = boat_type->req_goods;
-                        print_info("New order for building on building; build boat %s", boat_type->name.c_str());
+                        building->req_goods_for_boat = boat_type->req_goods;
+                        print_info("New order for building; build boat %s", boat_type->name.c_str());
                     } break;
                     // Client tells server to build new outpost, the location (& type) is provided by
                     // the client and the rest of the fields are filled by the server
