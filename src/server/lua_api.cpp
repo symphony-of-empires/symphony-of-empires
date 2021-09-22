@@ -214,6 +214,43 @@ int LuaAPI::get_nation(lua_State* L) {
     return 2;
 }
 
+int LuaAPI::get_provinces_owned_by_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& province: nation->owned_provinces) {
+        lua_pushnumber(L, g_world->get_id(province));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
+}
+
+int LuaAPI::get_provinces_with_nucleus_by_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& province: g_world->provinces) {
+        bool is_nuclei = false;
+        for(const auto& nuclei: province->nucleuses) {
+            if(nuclei == nation) {
+                is_nuclei = true;
+                break;
+            }
+        }
+        if(is_nuclei == false) {
+            continue;
+        }
+
+        lua_pushnumber(L, g_world->get_id(province));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
+}
+
 int LuaAPI::set_nation_primary_culture(lua_State* L) {
     return 0;
 }

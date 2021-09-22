@@ -189,4 +189,7 @@ the_minas_crash = Event:new{
 }
 Event:register(the_minas_crash)
 
+-- Province:get_neighbours(Province:get({}, "minas_gerais"))
+local cond = Nation:is_owns_nuclei_from(Nation:get({}, "hawai_i"), Nation:get({}, "russia"))
+
 math.randomseed(os.time())

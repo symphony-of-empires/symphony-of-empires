@@ -197,15 +197,52 @@ end
 function Nation:add_client_hint(self, ideology, alt_name, colour)
 	add_nation_client_hint(self.id, ideology.id, alt_name, colour)
 end
+function Nation:get_owned_provinces(self)
+	local table = get_provinces_owned_by_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Province:get_by_id({}, v)
+	end
+	return new_table
+end
+function Nation:get_nuclei_provinces(self)
+	local table = get_provinces_with_nucleus_by_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Province:get_by_id({}, v)
+	end
+	return new_table
+end
+function Nation:is_owns_nuclei_from(self, other)
+	local owned_table = Nation:get_owned_provinces(self)
+	local nuclei_table = Nation:get_nuclei_provinces(other)
 
-Province = { id = 0, name = "", ref_name = "", color = 0 }
+	-- Expected size from total counting
+	local nucleuses_cont = 0
+	for _ in pairs(nuclei_table) do nucleuses_cont = nucleuses_cont + 1 end
+	
+	local total_eq_cont = 0
+	for k1, v1 in pairs(owned_table) do
+		for k2, v2 in pairs(nuclei_table) do
+			if v1.ref_name == v2.ref_name then
+				total_eq_cont = total_eq_cont + 1
+			end
+		end
+	end
+	return (total_eq_cont == nucleuses_cont)
+end
+
+Province = {
+	id = 0,
+	name = "",
+	ref_name = "",
+	color = 0
+}
 function Province:new(province)
-	province = province or {}
-	setmetatable(province, self)
-	province.__index = self
+	province.parent = self
 	return province
 end
-function Province:register(self)
+function Province:register()
 	self.id = add_province(self.ref_name, self.color, self.name)
 end
 function Province:get(province, ref_name)
@@ -232,8 +269,13 @@ end
 function Province:get_controller(self)
 	return Nation:get({}, get_province_controller(self.id))
 end
-function Province:get_neighbours_id(self)
-	return get_province_neighbours(self.id)
+function Province:get_neighbours(self)
+	local table = get_province_neighbours(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Province:get_by_id({}, v)
+	end
+	return new_table
 end
 -- Increments militancy for all POPs
 function Province:multiply_militancy(self, factor)
