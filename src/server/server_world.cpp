@@ -62,6 +62,8 @@ World::World() {
 
     lua_register(lua, "add_nation", LuaAPI::add_nation);
     lua_register(lua, "get_nation", LuaAPI::get_nation);
+    lua_register(lua, "get_provinces_owned_by_nation", LuaAPI::get_provinces_owned_by_nation);
+    lua_register(lua, "get_provinces_with_nucleus_by_nation", LuaAPI::get_provinces_with_nucleus_by_nation);
     lua_register(lua, "set_nation_primary_culture", LuaAPI::set_nation_primary_culture);
     lua_register(lua, "set_nation_capital", LuaAPI::set_nation_capital);
     lua_register(lua, "add_nation_accepted_culture", LuaAPI::add_accepted_culture);
@@ -72,6 +74,7 @@ World::World() {
     
     lua_register(lua, "add_province", LuaAPI::add_province);
     lua_register(lua, "get_province", LuaAPI::get_province);
+    lua_register(lua, "get_province_by_id", LuaAPI::get_province_by_id);
     lua_register(lua, "add_province_industry", LuaAPI::add_province_industry);
     lua_register(lua, "add_province_pop", LuaAPI::add_province_pop);
     lua_register(lua, "give_province_to", LuaAPI::give_province_to);
@@ -587,7 +590,7 @@ void World::do_tick() {
         if(nation->exists() == false)
             continue;
         
-        if(rand() % 10000 > 9950.f) {
+        if(rand() % 10000 > 9998.f) {
             Province *target = provinces[rand() % provinces.size()];
             if(target->owner == nullptr) {
                 Packet packet = Packet();
@@ -660,7 +663,7 @@ void World::do_tick() {
         }
 
         // Build an building randomly?
-        if(rand() % 10000 > 9950.f) {
+        if(rand() % 10000 > 9998.f) {
             bool can_build = false;
             for(const auto& province: nation->owned_provinces) {
                 if(get_id(&province->get_occupation_controller(*this)) != g_world->get_id(nation)) {
