@@ -1,7 +1,6 @@
 #ifndef PROVINCE_VIEW_H
 #define PROVINCE_VIEW_H
 
-#include "../../industry.hpp"
 #include "../../nation.hpp"
 #include "../../world.hpp"
 #include "../game_state.hpp"
