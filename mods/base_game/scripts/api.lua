@@ -242,7 +242,7 @@ function Province:new(province)
 	province.parent = self
 	return province
 end
-function Province:register()
+function Province:register(self)
 	self.id = add_province(self.ref_name, self.color, self.name)
 end
 function Province:get(province, ref_name)
