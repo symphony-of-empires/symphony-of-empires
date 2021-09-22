@@ -160,6 +160,6 @@ ProductsViewWorldButton::ProductsViewWorldButton(GameState& _gs, UI::Window* par
 
         UI::Label* company_name_text = new UI::Label(128, 32, " ", info_win);
         company_name_text->below_of(*province_name_text);
-        company_name_text->text(product->industry->owner->name.c_str());
+        company_name_text->text(product->building->owner->name.c_str());
     });
 }

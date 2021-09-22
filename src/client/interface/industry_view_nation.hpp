@@ -12,7 +12,7 @@ class GameState;
 
 class IndustryViewNationChart : public UI::Window {
    public:
-    IndustryViewNationChart(GameState& gs, Industry* industry);
+    IndustryViewNationChart(GameState& gs, Building* industry);
     GameState& gs;
     Building* industry;
 };

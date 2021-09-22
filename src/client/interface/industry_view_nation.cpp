@@ -1,12 +1,9 @@
 #include "industry_view_nation.hpp"
-
-#include <memory>
-
-#include "../../industry.hpp"
 #include "../../nation.hpp"
 #include "../../world.hpp"
 #include "../game_state.hpp"
 #include "../ui.hpp"
+#include <memory>
 
 extern char* tmpbuf;
 
@@ -24,26 +21,19 @@ IndustryViewNation::IndustryViewNation(GameState& _gs)
     on_update = ([](UI::Widget& w, void* data) {
         IndustryViewNation& state = dynamic_cast<IndustryViewNation&>(w);
         size_t cnt = 0, total_industries = 0;
-        for (const auto& province : state.gs.curr_nation->owned_provinces) {
-            total_industries += province->industries.size();
-        }
         for (size_t i = 0; i < state.buttons_nr; i++) {
             state.buttons[i]->industry = nullptr;
         }
 
         size_t i = 0;
-        for (const auto& province : state.gs.curr_nation->owned_provinces) {
-            for (auto& industry : province->industries) {
-                if (cnt < state.page_nr * 16) {
-                    cnt++;
-                    continue;
-                }
-
-                state.buttons[i]->industry = &industry;
-                i++;
-                if (i >= state.buttons_nr)
-                    break;
+        for (auto& industry : state.gs.world->buildings) {
+            if (cnt < state.page_nr * 16 || industry->type->is_factory == false) {
+                cnt++;
+                continue;
             }
+
+            state.buttons[i]->industry = industry;
+            i++;
             if (i >= state.buttons_nr)
                 break;
         }
@@ -97,8 +87,8 @@ IndustryViewNationButton::IndustryViewNationButton(GameState& _gs, UI::Window* p
     on_update = ([](UI::Widget& w, void* data) {
         IndustryViewNationButton& state = dynamic_cast<IndustryViewNationButton&>(w);
         if (state.industry != nullptr) {
-            Industry& industry = *(state.industry);
-            sprintf(tmpbuf, "%s %4.2f %zu %zu %zu", industry.type->name.c_str(), industry.production_cost, industry.workers);
+            Building* industry = state.industry;
+            sprintf(tmpbuf, "%s %4.2f %zu %zu %zu", industry->type->name.c_str(), industry->production_cost, industry->workers);
             w.text(tmpbuf);
         } else {
             w.text(" ");
@@ -111,7 +101,7 @@ IndustryViewNationButton::IndustryViewNationButton(GameState& _gs, UI::Window* p
     });
 }
 
-IndustryViewNationChart::IndustryViewNationChart(GameState& _gs, Industry* _industry)
+IndustryViewNationChart::IndustryViewNationChart(GameState& _gs, Building* _industry)
     : gs{_gs},
       industry{_industry},
       UI::Window(0, 0, 320, 200) {

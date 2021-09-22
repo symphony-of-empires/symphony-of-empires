@@ -1,7 +1,5 @@
 #ifndef DESCISION_H
 #define DESCISION_H
-
-#include "../../industry.hpp"
 #include "../../nation.hpp"
 #include "../../world.hpp"
 #include "../game_state.hpp"
