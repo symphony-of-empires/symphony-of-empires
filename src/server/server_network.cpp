@@ -115,14 +115,6 @@ void Server::broadcast(Packet& packet) {
         if(clients[i].is_connected == true) {
             clients[i].packets.push_back(packet);
 
-            {
-                Archive tmp_ar = Archive();
-                tmp_ar.buffer = packet.buffer;
-                ActionType tmp_action;
-                ::deserialize(tmp_ar, &tmp_action);
-                print_info("Packet [%zu] -> [%i]", i, (int)tmp_action);
-            }
-
             // Disconnect the client when more than 200 MB is used
             // we can't save your packets buddy - other clients need their stuff too!
             size_t total_size = 0;
@@ -194,7 +186,6 @@ void Server::net_loop(int id) {
             
             ActionType action = ActionType::PING;
             packet.send(&action);
-            print_info("Sent action %zu", (size_t)action);
 #ifdef unix
             struct pollfd pfd = {};
             pfd.fd = conn_fd;

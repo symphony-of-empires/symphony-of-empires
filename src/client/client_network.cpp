@@ -135,8 +135,6 @@ void Client::net_loop(void) {
                 ar.rewind();
                 ::deserialize(ar, &action);
 
-                print_info("ActionType %i", action);
-
                 // Ping from server, we should answer with a pong!
                 std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
                 switch(action) {
