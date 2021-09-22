@@ -1,7 +1,6 @@
 #include "province.hpp"
 #include "world.hpp"
 #include "product.hpp"
-#include "industry.hpp"
 #include "good.hpp"
 #include "company.hpp"
 
@@ -39,59 +38,6 @@ Nation& Province::get_occupation_controller(const World& world) const {
         }
     }
     return (*world.nations[nation_id]);
-}
-
-// Adds a new industry in the province and adds it's output
-// products into the world accordingly
-void Province::add_industry(World& world, Industry* industry) {
-    IndustryType* type = industry->type;
-
-    // Add a product for each output
-    for(const auto& output: type->outputs) {
-        Product* new_product = new Product();
-        new_product->industry = industry;
-        new_product->good = output;
-        new_product->owner = industry->owner;
-        new_product->origin = this;
-
-        industry->output_products.push_back(new_product);
-        world.products.push_back(new_product);
-
-        industry->employees_needed_per_output.push_back(500);
-    }
-
-    // We will set inputs_satisfied to same size as inputs
-    // Industries start with 100 of stockpiles
-    industry->stockpile.insert(industry->stockpile.begin(), industry->type->inputs.size(), 100);
-
-    // Finally add the industry to the province's vector
-    industries.push_back(*industry);
-}
-
-// Removes an industry and their products from the entire world
-// this is only used when industries go bankrupt!
-void Province::remove_industry(World& world, Industry* industry) {
-    // Remove products of this industry from world market
-    for(size_t i = 0; i < industry->output_products.size(); i++) {
-        Product* product = industry->output_products[i];
-        Product::Id product_id = world.get_id(product);
-
-        // Delete from province stockpiles
-        for(auto& province: world.provinces) {
-            province->stockpile.erase(province->stockpile.begin() + product_id);
-        }
-
-        // Delete product from the world list
-        delete product;
-        world.products.erase(world.products.begin() + product_id);
-    }
-
-    // TODO: Remove outputs from province's product list
-
-    // Remove this industry totally from the list of industries
-    size_t industry_id = world.get_id(*this, industry);
-    industries.erase(industries.begin() + industry_id);
-    return;
 }
 
 // Calculates the total number of POPs in this province (total population)

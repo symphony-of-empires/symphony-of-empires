@@ -215,8 +215,6 @@ World::~World() {
         delete unit_type;
     } for(auto& event: events) {
         delete event;
-    } for(auto& industry_type: industry_types) {
-        delete industry_type;
     } for(auto& company: companies) {
         delete company;
     } for(auto& pop_type: pop_types) {
@@ -318,7 +316,6 @@ void World::load_mod(void) {
     provinces.shrink_to_fit();
     nations.shrink_to_fit();
     goods.shrink_to_fit();
-    industry_types.shrink_to_fit();
     unit_types.shrink_to_fit();
     cultures.shrink_to_fit();
     religions.shrink_to_fit();
@@ -550,8 +547,7 @@ void World::load_mod(void) {
     final_buf = "require('api')\n\n";
     files_text = Path::get_data("scripts/mod.lua");
     for(const auto& text: files_text) { final_buf += text; }
-
-    printf("\n[%s]\n", final_buf.c_str());
+    
     if(luaL_loadstring(lua, final_buf.c_str()) != LUA_OK
     || lua_pcall(lua, 0, 0, 0) != LUA_OK) {
         throw LuaAPI::Exception(lua_tostring(lua, -1));
@@ -663,7 +659,7 @@ void World::do_tick() {
         }
 
         // Build an building randomly?
-        if(rand() % 10000 > 9998.f) {
+        if(rand() % 10000 > 9000.f) {
             bool can_build = false;
             for(const auto& province: nation->owned_provinces) {
                 if(get_id(&province->get_occupation_controller(*this)) != g_world->get_id(nation)) {
@@ -680,7 +676,7 @@ void World::do_tick() {
             Province *target = nullptr;
             while(target == nullptr || get_id(&target->get_occupation_controller(*this)) != g_world->get_id(nation)) {
                 auto it = std::begin(nation->owned_provinces);
-                std::advance(it, rand() % nation->owned_provinces.size());
+                std::advance(it, std::rand() % nation->owned_provinces.size());
                 target = *it;
             }
 
@@ -705,8 +701,35 @@ void World::do_tick() {
             building->working_boat_type = nullptr;
             building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
             building->req_goods = std::vector<std::pair<Good*, size_t>>();
-            building->type = building_types[rand() % building_types.size()];
+            building->type = building_types.at(std::rand() % building_types.size());
             g_world->buildings.push_back(building);
+
+            if(building->type->is_factory == true) {
+                building->budget = 100.f;
+                
+                // Add a product for each output
+                for(const auto& output: building->type->outputs) {
+                    Product* new_product = new Product();
+                    new_product->building = building;
+                    new_product->good = output;
+                    new_product->owner = building->corporate_owner;
+                    new_product->origin = building->get_province(*this);
+
+                    building->output_products.push_back(new_product);
+                    products.push_back(new_product);
+
+                    building->employees_needed_per_output.push_back(500);
+
+                    // Add an element representing this product on all the province's stockpile
+                    for(auto& province: provinces) {
+                        province->stockpile.push_back(0);
+                    }
+                }
+
+                // We will set inputs_satisfied to same size as inputs
+                // Industries start with 100 of stockpiles
+                building->stockpile.insert(building->stockpile.begin(), building->type->inputs.size(), 100);
+            }
 
             // Broadcast the addition of the building to the clients
             {

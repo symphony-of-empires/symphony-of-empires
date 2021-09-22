@@ -8,7 +8,6 @@
 #include <ctime>
 #include "nation.hpp"
 #include "product.hpp"
-#include "industry.hpp"
 #include "good.hpp"
 #include "technology.hpp"
 #include "building.hpp"
@@ -69,12 +68,8 @@ public:
     // Quantity of desired goods
     size_t quantity;
 
-    union {
-        // ID of the industry (inside the province) who requested this good
-        Industry* industry;
-        // It can also be a building who requests this
-        Building* building;
-    };
+    // A building who requests materials
+    Building* building;
 
     // ID of the province where the industry (who requested this) is located in
     Province* province;
@@ -108,25 +103,10 @@ public:
     Product* product;
 
     // ID of the industry (inside the province) who is sending this product
-    Industry* industry;
+    Building* building;
 
     // ID of the province where the industry (who is sending this) is located in
     Province* province;
-};
-
-/**
-* (UNUSED) A commercial convoy that goes from A to B to transport products
- */
-class CommercialConvoy {
-public:
-    // Path that this convoy should follow to reach it's destination
-    std::vector<Tile *> path;
-
-    // Pointer to the (destination) order this convoy is serving
-    OrderGoods* order;
-
-    // Pointer to the (source) deliver this convoy is serving
-    DeliverGoods* deliver;
 };
 
 #include <algorithm>
@@ -208,13 +188,6 @@ public:
     };
     inline std::vector<PopType*>& get_list(const PopType* ptr) {
         return pop_types;
-    };
-
-    inline const std::vector<IndustryType*>& get_list(const IndustryType* ptr) const {
-        return industry_types;
-    };
-    inline std::vector<IndustryType*>& get_list(const IndustryType* ptr) {
-        return industry_types;
     };
 
     inline const std::vector<Building*>& get_list(const Building* ptr) const {
@@ -314,10 +287,6 @@ public:
     inline std::vector<NationModifier*>& get_list(const NationModifier* ptr) {
         return nation_modifiers;
     };
-
-    inline Industry::Id get_id(const Province& province, const Industry* ptr) const {
-        return ((ptrdiff_t)ptr - (ptrdiff_t)&province.industries[0]) / sizeof(Industry);
-    };
     
     inline size_t get_id(const Tile* ptr) const {
         std::lock_guard<std::recursive_mutex> lock(tiles_mutex);
@@ -354,7 +323,6 @@ public:
     std::vector<Unit*> units;
     std::vector<Boat*> boats;
     std::vector<Good*> goods;
-    std::vector<IndustryType*> industry_types;
     std::vector<Nation*> nations;
     std::vector<Province*> provinces;
     std::vector<Company*> companies;

@@ -116,7 +116,7 @@ int LuaAPI::add_building_type(lua_State* L) {
     BuildingType* building_type = new BuildingType();
 
     building_type->ref_name = luaL_checkstring(L, 1);
-    building_type->is_naval = lua_toboolean(L, 2);
+    building_type->is_plot_on_sea = lua_toboolean(L, 2);
     building_type->is_build_land_units = lua_toboolean(L, 3);
     building_type->is_build_naval_units = lua_toboolean(L, 4);
     building_type->defense_bonus = lua_tonumber(L, 5);
@@ -147,44 +147,45 @@ int LuaAPI::get_good(lua_State* L) {
 }
 
 int LuaAPI::add_industry_type(lua_State* L) {
-    IndustryType* industry = new IndustryType();
+    BuildingType* industry_type = new BuildingType();
+    industry_type->is_factory = true;
 
-    industry->ref_name = luaL_checkstring(L, 1);
-    industry->name = luaL_checkstring(L, 2);
-    industry->inputs.clear();
-    industry->outputs.clear();
+    industry_type->ref_name = luaL_checkstring(L, 1);
+    industry_type->name = luaL_checkstring(L, 2);
+    industry_type->inputs.clear();
+    industry_type->outputs.clear();
 
-    g_world->industry_types.push_back(industry);
-    lua_pushnumber(L, g_world->get_id(industry));
+    g_world->building_types.push_back(industry_type);
+    lua_pushnumber(L, g_world->get_id(industry_type));
     return 1;
 }
 
 int LuaAPI::get_industry_type(lua_State* L) {
-    const auto* industry = find_or_throw<IndustryType>(luaL_checkstring(L, 1));
+    const auto* industry_type = find_or_throw<BuildingType>(luaL_checkstring(L, 1));
     
-    lua_pushnumber(L, g_world->get_id(industry));
-    lua_pushstring(L, industry->name.c_str());
+    lua_pushnumber(L, g_world->get_id(industry_type));
+    lua_pushstring(L, industry_type->name.c_str());
     return 2;
 }
 
 int LuaAPI::add_input_to_industry_type(lua_State* L) {
-    IndustryType* industry = g_world->industry_types.at(lua_tonumber(L, 1));
+    BuildingType* industry_type = g_world->building_types.at(lua_tonumber(L, 1));
     Good* good = g_world->goods.at(lua_tonumber(L, 2));
-    industry->inputs.push_back(good);
+    industry_type->inputs.push_back(good);
     return 0;
 }
 
 int LuaAPI::add_output_to_industry_type(lua_State* L) {
-    IndustryType* industry = g_world->industry_types.at(lua_tonumber(L, 1));
+    BuildingType* industry_type = g_world->building_types.at(lua_tonumber(L, 1));
     Good* good = g_world->goods.at(lua_tonumber(L, 2));
-    industry->outputs.push_back(good);
+    industry_type->outputs.push_back(good);
     return 0;
 }
 
 int LuaAPI::add_req_good_to_industry_type(lua_State* L) {
-    IndustryType* industry = g_world->industry_types.at(lua_tonumber(L, 1));
+    BuildingType* industry_type = g_world->building_types.at(lua_tonumber(L, 1));
     Good* good = g_world->goods.at(lua_tonumber(L, 2));
-    industry->req_goods.push_back(std::make_pair(good, lua_tonumber(L, 3)));
+    industry_type->req_goods.push_back(std::make_pair(good, lua_tonumber(L, 3)));
     return 0;
 }
 
@@ -415,11 +416,12 @@ int LuaAPI::get_province_by_id(lua_State* L) {
 
 int LuaAPI::add_province_industry(lua_State* L) {
     Province *& province = g_world->provinces.at(lua_tonumber(L, 1));
-    Industry industry = Industry();
-    industry.owner = g_world->companies.at(lua_tonumber(L, 2));
-    industry.owner->operating_provinces.insert(province);
-    industry.type = g_world->industry_types.at(lua_tonumber(L, 3));
-    province->add_industry(*g_world, &industry);
+    Building* building = new Building();
+    building->corporate_owner = g_world->companies.at(lua_tonumber(L, 2));
+    building->corporate_owner->operating_provinces.insert(province);
+    building->type = g_world->building_types.at(lua_tonumber(L, 3));
+    
+    //province->add_industry(*g_world, &industry);
     return 0;
 }
 

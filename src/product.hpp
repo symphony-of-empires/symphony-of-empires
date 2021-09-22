@@ -3,8 +3,8 @@
 #include <string>
 #include "company.hpp"
 #include "province.hpp"
-#include "industry.hpp"
 #include "good.hpp"
+#include "building.hpp"
 
 // A product (based off a Good) which can be bought by POPs, converted by factories and transported
 // accross the world
@@ -18,8 +18,8 @@ public:
     // Origin province (where this product was made)
     Province* origin;
     
-    // Industry in province that made this product
-    Industry* industry;
+    // Building that made this product
+    Building* building;
     
     // Good that this product is based on
     Good* good;

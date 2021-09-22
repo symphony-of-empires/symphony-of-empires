@@ -10,7 +10,6 @@
 #include "server_network.hpp"
 #include "../thread_pool.hpp"
 #include "../product.hpp"
-#include "../industry.hpp"
 #include "../good.hpp"
 #include "../company.hpp"
 
@@ -29,9 +28,9 @@ typedef signed int ssize_t;
 #endif
 
 /**
-* Checks if the industry can produce output (if it has enough input)
+* Checks if the building can produce output (if it has enough input)
  */
-bool Industry::can_do_output(const World& world) {
+bool Building::can_do_output(const World& world) {
     // No output products?
     if(type->outputs.empty() || output_products.empty())
         return false;
@@ -49,9 +48,9 @@ bool Industry::can_do_output(const World& world) {
 }
 
 /**
-* Adds a good by id to a industries stockpile
+* Adds a good by id to a building stockpile
  */
-void Industry::add_to_stock(const World& world, const Good* good, const size_t add) {
+void Building::add_to_stock(const World& world, const Good* good, const size_t add) {
     for(size_t i = 0; i < stockpile.size(); i++) {
         if(world.get_id(type->inputs.at(i)) == world.get_id(good)) {
             stockpile.at(i) += add;
@@ -60,12 +59,22 @@ void Industry::add_to_stock(const World& world, const Good* good, const size_t a
     }
 }
 
+Province* Building::get_province(const World& world) {
+    if(this->type->is_plot_on_land == false) {
+        return nullptr;
+    }
+    return world.provinces.at(world.get_tile(this->x, this->y).province_id);
+}
+
 /**
 * Phase 1 of economy: Delivers & Orders are sent from all factories in the world
  */
 void Economy::do_phase_1(World& world) {
     // Buildings who have fullfilled requirements to build stuff will spawna  lil' unit/boat
-    for(auto& building: world.buildings) {
+    for(size_t i = 0; i < world.buildings.size(); i++) {
+        auto& building = world.buildings.at(i);
+        auto province = building->get_province(world);
+
         bool can_build = true;
         for(const auto& req: building->req_goods_for_unit) {
             // Increment demand for all products with same required good type
@@ -87,15 +96,14 @@ void Economy::do_phase_1(World& world) {
         
         size_t needed_manpower = 1000;
         size_t available_manpower = 0;
-        for(size_t i = 0; i < world.job_requests.size(); i++) {
-            JobRequest& job_request = world.job_requests.at(i);
+        for(size_t j = 0; j < world.job_requests.size(); j++) {
+            JobRequest& job_request = world.job_requests.at(j);
             // Buildings on water-desertland
-            if(world.get_tile(building->x, building->y).province_id == (Province::Id)-1) {
+            if(province == nullptr) {
                 // Accept anything
             }
-            // Buildings on land
-            else if(job_request.province != world.provinces[world.get_tile(building->x, building->y).province_id]) {
-                // If province not equal to province of building then dont accept
+            // Buildings on land must have same province as the job request
+            else if(job_request.province != province) {
                 continue;
             }
 
@@ -108,8 +116,8 @@ void Economy::do_phase_1(World& world) {
 
             // Delete job request when it has 0 amount
             if(!job_request.amount) {
-                world.job_requests.erase(world.job_requests.begin() + i);
-                i--;
+                world.job_requests.erase(world.job_requests.begin() + j);
+                j--;
                 continue;
             }
         }
@@ -143,7 +151,6 @@ void Economy::do_phase_1(World& world) {
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
         }
-        
         if(building->working_boat_type != nullptr) {
             // Spawn a boat
             Boat* boat = new Boat();
@@ -172,70 +179,16 @@ void Economy::do_phase_1(World& world) {
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
         }
-        
-        // Take opportunity to also send an update about our buildings
-        Packet packet = Packet();
-        Archive ar = Archive();
-        ActionType action = ActionType::BUILDING_UPDATE;
-        ::serialize(ar, &action); // ActionInt
-        ::serialize(ar, &building); // BuildingRef
-        ::serialize(ar, building); // BuildingObj
-        packet.data(ar.get_buffer(), ar.size());
-        g_server->broadcast(packet);
-    }
+        if(building->type->is_factory == true && province != nullptr) {
+            if(building->budget < 0.f) {
+                print_info("Building of %s in %s has closed down!", building->type->name.c_str(), province->name.c_str());
 
-    // All factories will place their orders for their inputs
-    // All RGOs will do deliver requests
-    //std::for_each(std::execution::par_unseq, world.provinces.begin(), world.provinces.end(),
-    std::for_each(world.provinces.begin(), world.provinces.end(), [&world](auto& province) {
-        // Reset remaining supplies
-        province->supply_rem = province->supply_limit;
 
-        // Do not evaluate provinces without owners
-        if(province->owner == nullptr) {
-            return;
-        }
 
-        // Create a vector listing all the jobs for this exact province
-        // This will help to amortize the time used to find job requests for a certain
-        // province, and provinces with multiple factories will love this
-        // We will also remove job requests as they are found so latter provinces
-        // will run faster
-        std::vector<JobRequest> province_job_requests;
-        world.job_requests_mutex.lock();
-        for(size_t i = 0; i < world.job_requests.size(); i++) {
-            JobRequest& job_request = world.job_requests.at(i);
-            if(job_request.province != province)
-                continue;
-
-            // Add to province's list and remove from the world
-            province_job_requests.push_back(job_request);
-            world.job_requests.erase(world.job_requests.begin() + i);
-            i--;
-        }
-        world.job_requests_mutex.unlock();
-
-        // Close the factories which have negative budget
-        // TODO: Do not close factories on planned economy countries or such
-        // TODO: Also do not close them when they have a negative budget but a positive flow
-        // TODO: Do not close state-controlled factories when `pop_no_build_factory` is true
-        // TODO: Do not close subsidized factories IN NON-LAISSEZ FAIRE ENVIRONMENTS!!!
-        for(size_t i = 0; i < province->industries.size(); i++) {
-            Industry* industry = &province->industries.at(i);
-            if(industry->budget < 0.f) {
-                print_info("Industry of %s in %s has closed down!", industry->type->name.c_str(), province->name.c_str());
-                province->remove_industry(world, industry);
                 --i;
                 continue;
             }
-        }
 
-        // This new tick, we will start the chain starting with RGOs producing deliver
-        // orders and the factories that require inputs will put their orders in the
-        // table so they are served by transport companies
-        for(auto& industry: province->industries) {
-            const IndustryType& it = *industry.type;
-            
             // TODO: Needed manpower be calculated by total priority of outputs?
             size_t needed_laborers = 0, available_laborers = 0;
             size_t needed_farmers = 0, available_farmers = 0;
@@ -245,10 +198,10 @@ void Economy::do_phase_1(World& world) {
             // of output, it also requires entrepreneurs to "manage" the operations
             // of the factory
             size_t i = 0;
-            for(const auto& output: industry.output_products) {
+            for(const auto& output: building->output_products) {
                 // 100 minimum workers per output
                 const size_t employed = std::max<size_t>(std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), 100);
-                industry.employees_needed_per_output.at(i) = employed;
+                building->employees_needed_per_output.at(i) = employed;
 
                 if(output->good->is_edible) {
                     needed_farmers += employed;
@@ -260,8 +213,9 @@ void Economy::do_phase_1(World& world) {
             }
             
             // Search through all the job requests
-            for(size_t i = 0; i < province_job_requests.size(); i++) {
-                JobRequest& job_request = province_job_requests.at(i);
+            world.job_requests_mutex.lock();
+            for(size_t i = 0; i < world.job_requests.size(); i++) {
+                JobRequest& job_request = world.job_requests.at(i);
                 size_t employed;
 
                 // Industries require 2 (or 3) types of POPs to correctly function
@@ -287,34 +241,35 @@ void Economy::do_phase_1(World& world) {
                 // Give pay to the POP
                 float payment = employed * province->owner->current_policy.minimum_wage;
                 job_request.pop->budget += payment;
-                industry.budget -= payment;
+                building->budget -= payment;
                 job_request.amount -= employed;
 
                 // Delete job request when it has 0 amount
                 if(!job_request.amount) {
-                    province_job_requests.erase(province_job_requests.begin() + i);
+                    world.job_requests.erase(world.job_requests.begin() + i);
                     --i;
                     continue;
                 }
             }
+            world.job_requests_mutex.unlock();
 
-            //print_info("Industry of %s in %s has %zu workers", industry.type->name.c_str(), province->name.c_str(), available_manpower);
+            print_info("Building of %s in %s has %zu workers", building->type->name.c_str(), province->name.c_str(), available_manpower);
 
-            industry.workers = available_farmers + available_entrepreneurs;
-            if(!industry.workers) {
-                industry.days_unoperational++;
-                industry.min_quality = 0;
+            building->workers = available_farmers + available_entrepreneurs;
+            if(!building->workers) {
+                building->days_unoperational++;
+                building->min_quality = 0;
 
-                // TODO: We should tax industry daily income instead of by it's total budget
-                const float loss_by_tax = industry.budget * province->owner->current_policy.industry_tax;
-                industry.budget -= loss_by_tax;
+                // TODO: We should tax building daily income instead of by it's total budget
+                const float loss_by_tax = building->budget * province->owner->current_policy.industry_tax;
+                building->budget -= loss_by_tax;
                 province->owner->budget += loss_by_tax;
                 continue;
             }
-            industry.days_unoperational = 0;
+            building->days_unoperational = 0;
             
             world.orders_mutex.lock();
-            for(const auto& input: it.inputs) {
+            for(const auto& input: building->type->inputs) {
                 OrderGoods order;
 
                 // Farmers can only work with edibles and laborers can only work for edibles
@@ -325,9 +280,9 @@ void Economy::do_phase_1(World& world) {
                 }
                 if(!order.quantity)
                     continue;
-                order.payment = industry.willing_payment;
+                order.payment = building->willing_payment;
                 order.good = input;
-                order.industry = &industry;
+                order.building = building;
                 order.province = province;
                 order.type = OrderType::INDUSTRIAL;
                 world.orders.push_back(order);
@@ -343,20 +298,20 @@ void Economy::do_phase_1(World& world) {
             }
             world.orders_mutex.unlock();
 
-            if(!industry.can_do_output(world))
+            if(!building->can_do_output(world))
                 continue;
             
             // Now produce anything as we can!
             // Place deliver orders (we are a RGO)
             world.delivers_mutex.lock();
-            for(size_t k = 0; k < it.outputs.size(); k++) {
+            for(size_t k = 0; k < building->type->outputs.size(); k++) {
                 DeliverGoods deliver;
                 
-                deliver.payment = industry.willing_payment;
-                deliver.good = it.outputs[k];
-                deliver.industry = &industry;
+                deliver.payment = building->willing_payment;
+                deliver.good = building->type->outputs[k];
+                deliver.building = building;
                 deliver.province = province;
-                deliver.product = industry.output_products[k];
+                deliver.product = building->output_products[k];
 
                 if(deliver.good->is_edible) {
                     deliver.quantity = (available_farmers / needed_farmers) * 5000;
@@ -368,8 +323,8 @@ void Economy::do_phase_1(World& world) {
 
                 // Cannot be below production cost, so we can be profitable and we need
                 // to raise prices
-                if(deliver.product->price < industry.production_cost * 1.2f) {
-                    deliver.product->price = industry.production_cost * 1.2f;
+                if(deliver.product->price < building->production_cost * 1.2f) {
+                    deliver.product->price = building->production_cost * 1.2f;
                 }
                 
                 world.delivers.push_back(deliver);
@@ -377,12 +332,9 @@ void Economy::do_phase_1(World& world) {
             world.delivers_mutex.unlock();
 
             // Willing payment is made for next day ;)
-            industry.willing_payment = industry.budget / it.inputs.size() + it.outputs.size();
+            building->willing_payment = building->budget / building->type->inputs.size() + building->type->outputs.size();
         }
-    });
 
-    // Buildings working on units and boats will also request materials
-    for(const auto& building: world.buildings) {
         // Building the building itself
         for(const auto& good: building->req_goods) {
             if(!good.second)
@@ -399,7 +351,7 @@ void Economy::do_phase_1(World& world) {
         }
 
         // TODO: We should deduct and set willing payment from military spendings
-        // Building the unit
+        // Building an unit
         for(const auto& good: building->req_goods_for_unit) {
             if(!good.second)
                 continue;
@@ -413,6 +365,30 @@ void Economy::do_phase_1(World& world) {
             order.type = OrderType::UNIT;
             world.orders.push_back(order);
         }
+        // And also for boats :)
+        for(const auto& good: building->req_goods_for_boat) {
+            if(!good.second)
+                continue;
+
+            OrderGoods order;
+            order.quantity = good.second;
+            // TODO: Make this dynamic
+            order.payment = good.second * 5.f;
+            order.good = good.first;
+            order.building = building;
+            order.type = OrderType::UNIT;
+            world.orders.push_back(order);
+        }
+        
+        // Take opportunity to also send an update about our buildings
+        Packet packet = Packet();
+        Archive ar = Archive();
+        ActionType action = ActionType::BUILDING_UPDATE;
+        ::serialize(ar, &action); // ActionInt
+        ::serialize(ar, &building); // BuildingRef
+        ::serialize(ar, building); // BuildingObj
+        packet.data(ar.get_buffer(), ar.size());
+        g_server->broadcast(packet);
     }
 
     // Sort on best payment first for orders and delivers
@@ -443,7 +419,7 @@ void Economy::do_phase_2(World& world) {
                 
                 const Province* deliver_province = deliver.province;
                 const Policies& deliver_policy = deliver_province->owner->current_policy;
-                Industry* deliver_industry = deliver.industry;
+                Building* deliver_building = deliver.building;
 
                 // Check all orders
                 for(size_t j = 0; j < world.orders.size(); j++) {
@@ -489,16 +465,16 @@ void Economy::do_phase_2(World& world) {
                     // tax too. Otherwise we can't deliver
                     if(order.payment < total_order_cost && total_order_cost > 0.f) {
                         if(order.type == OrderType::INDUSTRIAL) {
-                            order.industry->willing_payment = total_order_cost;
+                            order.building->willing_payment = total_order_cost;
                         }
                         continue;
                     } else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
-                        deliver_industry->willing_payment = total_deliver_cost;
+                        deliver.building->willing_payment = total_deliver_cost;
                         continue;
                     }
 
                     // Must have above minimum quality to be accepted
-                    if(order.type == OrderType::INDUSTRIAL && deliver.product->quality < order.industry->min_quality) {
+                    if(order.type == OrderType::INDUSTRIAL && deliver.product->quality < order.building->min_quality) {
                         continue;
                     }
                     
@@ -522,14 +498,14 @@ void Economy::do_phase_2(World& world) {
 
                     if(order.type == OrderType::INDUSTRIAL) {
                         // Duplicate products and put them into the province's stock (a commerce buff)
-                        order.industry->add_to_stock(world, order.good, count);
+                        order.building->add_to_stock(world, order.good, count);
 
-                        // Increment the production cost of this industry which is used
+                        // Increment the production cost of this building which is used
                         // so we sell our product at a profit instead  of at a loss
-                        order.industry->production_cost += deliver.product->price;
+                        order.building->production_cost += deliver.product->price;
 
                         // Set quality to the max from this product
-                        order.industry->min_quality = std::max(order.industry->min_quality, deliver.product->quality);
+                        order.building->min_quality = std::max(order.building->min_quality, deliver.product->quality);
                     } else if(order.type == OrderType::BUILDING) {
                         // The building will take the production materials
                         // and use them for building the unit
@@ -584,14 +560,14 @@ void Economy::do_phase_2(World& world) {
     world.orders.clear();
 
     // Uncomment to see stockpiles
-    /*for(const auto& province: world.provinces) {
+    for(const auto& province: world.provinces) {
         for(size_t i = 0; i < province->stockpile.size(); i++) {
             if(!province->stockpile.at(i))
                 continue;
                 
             print_info("%zu of %s produced in %s - stockpiled by %s", province->stockpile.at(i), world.products.at(i)->good->name.c_str(), world.products.at(i)->origin->name.c_str(), province->name.c_str());
         }
-    }*/
+    }
 }
 
 // Structure that represents a person emigrating from a province to another
@@ -874,7 +850,7 @@ void Economy::do_phase_3(World& world) {
     // Please do not modify the POPs vector in provinces after this, otherwise the pointers
     // can get invalidated which would result in disaster
 
-    // We will now post a job request so the next economic tick will be able to "link industries"
+    // We will now post a job request so the next economic tick will be able to "link buildings"
     // with their workers and make a somewhat realistic economy
     world.job_requests.clear();
     for(const auto& province: world.provinces) {
@@ -915,17 +891,18 @@ void Economy::do_phase_4(World& world) {
     // Preparations for the next tick
 
     // Reset production costs
-    for(const auto& province: world.provinces) {
-        for(auto& industry: province->industries) {
-            industry.production_cost = 0.f;
-        }
+    for(auto& building: world.buildings) {
+        building->production_cost = 0.f;
     }
 
     // Close today's price with a change according to demand - supply
     for(const auto& product: world.products) {
+        if(product == nullptr)
+            continue;
+
         // Uncomment to see supply-demand
-        //if(product->price_vel)
-        //    print_info("%s in %s; Supply: %zu, Demand: %zu, Price %.2f", product->origin->name.c_str(), product->good->name.c_str(), product->supply, product->demand, product->price);
+        if(product->price_vel && product->price > 0.01f)
+            print_info("%s; Supply: %zu, Demand: %zu, Price %.2f", product->good->name.c_str(), product->supply, product->demand, product->price);
 
         if(product->demand > product->supply) {
             product->price_vel += 0.0001f * (product->demand - product->supply);

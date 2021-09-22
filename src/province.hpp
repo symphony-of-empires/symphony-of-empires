@@ -18,8 +18,6 @@ public:
     
     Province::Id get_id(const World& world);
     Nation& get_occupation_controller(const World& world) const;
-    void add_industry(World& world, Industry* industry);
-    void remove_industry(World& world, Industry* industry);
     size_t total_pops(void) const;
     std::vector<Product*> get_products(const World& world) const;
 
@@ -70,9 +68,6 @@ public:
 
     // List of products (produced here by factories) in this industry
     std::vector<Product *> products;
-
-    // List of industries in the province
-    std::vector<Industry> industries;
 
     // List of pops in this province
     std::vector<Pop> pops;
