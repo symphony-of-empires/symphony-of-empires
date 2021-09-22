@@ -3,7 +3,6 @@
 
 #include "../game_state.hpp"
 #include "../ui.hpp"
-#include "../../industry.hpp"
 #include "../../nation.hpp"
 #include "../../world.hpp"
 
@@ -15,7 +14,7 @@ class IndustryViewNationChart : public UI::Window {
    public:
     IndustryViewNationChart(GameState& gs, Industry* industry);
     GameState& gs;
-    Industry* industry;
+    Building* industry;
 };
 
 class IndustryViewNationButton : public UI::Button {
@@ -23,7 +22,7 @@ class IndustryViewNationButton : public UI::Button {
     IndustryViewNationButton(GameState& gs, UI::Window* parent, size_t index);
     UI::Window* parent;
     GameState& gs;
-    Industry* industry;
+    Building* industry;
     std::string text;
 };
 
