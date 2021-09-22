@@ -344,38 +344,6 @@ void client_update(const GameState& gs) {
         return;
     
     char* tmpbuf = new char[512];
-
-    // const Nation& player_nation = *g_world->nations[curr_selected_nation];
-    // if (!(g_world->time % 48)) {
-    //     double gdp = 0.f;
-    //     for (const auto& province : player_nation.owned_provinces) {
-    //         for (const auto& product : g_world->products) {
-    //             gdp += product->price * province->stockpile[g_world->get_id(product)];
-    //         }
-    //     }
-    //     gdp_chart->data.push_back(gdp);
-    //     if (gdp_chart->data.size() >= 30)
-    //         gdp_chart->data.pop_front();
-
-    //     size_t total_pop = 0, n_pops = 0;
-    //     double living_std = 0.f;
-    //     for (const auto& province : player_nation.owned_provinces) {
-    //         for (const auto& pop : province->pops) {
-    //             total_pop += pop.size;
-    //             living_std += pop.life_needs_met;
-    //             n_pops++;
-    //         }
-    //     }
-
-    //     pop_chart->data.push_back(total_pop);
-    //     if (pop_chart->data.size() >= 30)
-    //         pop_chart->data.pop_front();
-
-    //     hdi_chart->data.push_back(living_std / n_pops);
-    //     if (hdi_chart->data.size() >= 30)
-    //         hdi_chart->data.pop_front();
-    // }
-
     if(gs.top_win) {
         // TODO: We should make this be called directly on the tick update
         // since this depends that the client is fast enough to respond to a tick change
@@ -433,7 +401,7 @@ void client_update(const GameState& gs) {
         gs.top_win->population_lab->text(tmpbuf);
     }
 
-    // map->update(*g_world);
+    //gs.map->update(*g_world);
     delete[] tmpbuf;
 }
 
