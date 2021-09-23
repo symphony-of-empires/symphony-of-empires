@@ -39,7 +39,7 @@ IndustryViewNation::IndustryViewNation(GameState& _gs)
         }
     });
 
-    sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)page_nr);
+    sprintf(tmpbuf, "Your nation's industries (page %zu)", (size_t)page_nr);
     text(tmpbuf);
 
     UI::Button* ok_btn = new UI::Button(0, 32 + (16 * 24), 196, 24, this);
@@ -59,7 +59,7 @@ IndustryViewNation::IndustryViewNation(GameState& _gs)
     prev_btn->on_click = [](UI::Widget&, void* data) {
         IndustryViewNation* ivn = (IndustryViewNation*)data;
         ivn->page_nr--;
-        sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)ivn->page_nr);
+        sprintf(tmpbuf, "Your nation's industries (page %zu)", (size_t)ivn->page_nr);
         ivn->text(tmpbuf);
     };
 
@@ -73,7 +73,7 @@ IndustryViewNation::IndustryViewNation(GameState& _gs)
             print_error("ERR");
         }
         ivn->page_nr++;
-        sprintf(tmpbuf, "Your province's industries (page %zu)", (size_t)ivn->page_nr);
+        sprintf(tmpbuf, "Your nation's industries (page %zu)", (size_t)ivn->page_nr);
         ivn->text(tmpbuf);
     };
 };
