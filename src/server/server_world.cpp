@@ -272,39 +272,39 @@ void World::load_mod(void) {
     
     int ret;
     
-    std::string final_buf = "require('api')\n\n";
+    std::string final_buf = "require('api')\n";
     std::vector<std::string> files_text;
 
     files_text = Path::get_data("scripts/unit_traits.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/building_types.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/cultures.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/ideology.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/technology.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/religions.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/pop_types.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/good_types.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/industry_types.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/unit_types.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/boat_types.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/nations.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/companies.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/provinces.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
     files_text = Path::get_data("scripts/init.lua");
-    for(const auto& text: files_text) { final_buf += text; }
+    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
 
     if(luaL_loadstring(lua, final_buf.c_str()) != LUA_OK
     || lua_pcall(lua, 0, 0, 0) != LUA_OK) {
@@ -586,7 +586,7 @@ void World::do_tick() {
         if(nation->exists() == false)
             continue;
         
-        if(rand() % 10000 > 9998.f) {
+        if(rand() % 1000 > 990) {
             Province *target = provinces[rand() % provinces.size()];
             if(target->owner == nullptr) {
                 Packet packet = Packet();
@@ -618,7 +618,7 @@ void World::do_tick() {
         }
 
         // Rarely nations will change policies
-        if(rand() % 100 > 50.f) {
+        if(rand() % 100 > 50) {
             Policies new_policy = nation->current_policy;
 
             if(rand() % 100 > 50.f) {
@@ -658,8 +658,30 @@ void World::do_tick() {
             nation->diplomatic_timer--;
         }
 
+        // Accepting/rejecting treaties
+        if(std::rand() % 1000 > 10) {
+            for(auto& treaty: treaties) {
+                for(auto& part: treaty->approval_status) {
+                    if(part.first == nation) {
+                        if(part.second == TreatyApproval::TREATY_APPROVAL_ACCEPTED
+                        || part.second == TreatyApproval::TREATY_APPROVAL_DENIED) {
+                            break;
+                        }
+
+                        if(std::rand() % 50 >= 25) {
+                            print_info("We, %s, deny the treaty of %s", treaty->name.c_str());
+                            part.second = TreatyApproval::TREATY_APPROVAL_DENIED;
+                        } else {
+                            print_info("We, %s, accept the treaty of %s", treaty->name.c_str());
+                            part.second = TreatyApproval::TREATY_APPROVAL_ACCEPTED;
+                        }
+                    }
+                }
+            }
+        }
+
         // Build an building randomly?
-        if(rand() % 10000 > 9000.f) {
+        if(std::rand() % 1000 > 990) {
             bool can_build = false;
             for(const auto& province: nation->owned_provinces) {
                 if(get_id(&province->get_occupation_controller(*this)) != g_world->get_id(nation)) {
@@ -702,10 +724,10 @@ void World::do_tick() {
             building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
             building->req_goods = std::vector<std::pair<Good*, size_t>>();
             building->type = building_types.at(std::rand() % building_types.size());
-            g_world->buildings.push_back(building);
-
             if(building->type->is_factory == true) {
                 building->budget = 100.f;
+                building->corporate_owner = companies.at(std::rand() % companies.size());
+                building->corporate_owner->operating_provinces.insert(building->get_province(*this));
                 
                 // Add a product for each output
                 for(const auto& output: building->type->outputs) {
@@ -730,6 +752,7 @@ void World::do_tick() {
                 // Industries start with 100 of stockpiles
                 building->stockpile.insert(building->stockpile.begin(), building->type->inputs.size(), 100);
             }
+            g_world->buildings.push_back(building);
 
             // Broadcast the addition of the building to the clients
             {
@@ -741,7 +764,7 @@ void World::do_tick() {
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
             }
-            print_info("Building of %s on %s", nation->name.c_str(), target->name.c_str());
+            print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)get_id(building->type), nation->name.c_str(), target->name.c_str());
         }
     }
 
