@@ -615,48 +615,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     }
 }
 
-class MainMenuConnectServer : public UI::Window {
-public:
-    MainMenuConnectServer(GameState& gs);
-    GameState& gs;
-    bool in_game;
-
-    UI::Input* ip_addr_inp;
-    UI::Button* conn_btn;
-private:
-    size_t page_nr = 0;
-};
-
-MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
-    : gs{_gs},
-      in_game{false},
-      UI::Window(0, 0, 512, 128) {
-    
-    text("Connect to a server");
-
-    ip_addr_inp = new UI::Input(0, 24, 512, 24, this);
-    ip_addr_inp->text("Type IP address...");
-
-    conn_btn = new UI::Button(0, 48, 128, 24, this);
-    conn_btn->user_data = this;
-    conn_btn->text("Connect");
-    conn_btn->on_click = ([](UI::Widget& w, void* data) {
-        MainMenuConnectServer* state = (MainMenuConnectServer*)data;
-
-        std::string server_addr = state->ip_addr_inp->buffer;
-
-        print_info("Okey, connecting to [%s]", server_addr.c_str());
-
-        GameState& gs = state->gs;
-        gs.world = new World();
-        gs.client = new Client(server_addr, 1836);
-        gs.client->wait_for_snapshot();
-        gs.map = new Map(*gs.world);
-        state->in_game = true;
-
-        delete w.parent;
-    });
-}
+#include "interface/main_menu.hpp"
 
 void main_menu_loop(GameState& gs, SDL_Window* window) {
     std::atomic<bool> run;
@@ -702,7 +661,7 @@ void start_client(int argc, char** argv) {
     window = SDL_CreateWindow("Symphony of Empires", 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_SetSwapInterval(1);  // Enable OpenGL VSYNC
-    printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+    print_info("OpenGL Version: %s", glGetString(GL_VERSION));
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);

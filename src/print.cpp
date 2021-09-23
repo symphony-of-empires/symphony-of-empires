@@ -5,6 +5,15 @@
 #include "print.hpp"
 
 static std::mutex print_mutex;
+static bool allow_debug = false;
+
+void print_enable_debug(void) {
+	allow_debug = true;
+}
+
+void print_disable_debug(void) {
+	allow_debug = true;
+}
 
 void print_error(const char* str, ...) {
 	print_mutex.lock();
@@ -27,6 +36,10 @@ void print_error(const char* str, ...) {
 }
 
 void print_info(const char* str, ...) {
+	if(allow_debug == false) {
+		return;
+	}
+
 	print_mutex.lock();
 	
 	va_list args;

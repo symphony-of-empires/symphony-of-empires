@@ -241,7 +241,7 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 }
 
 void check_text_input_recursive(Widget& widget, const char* _input) {
-    if (widget.type == UI_WIDGET_INPUT) {
+    if (widget.type == UI_WIDGET_INPUT && widget.is_hover) {
         Input& c_widget = dynamic_cast<Input&>(widget);
         c_widget.on_textinput(c_widget, _input, c_widget.user_data);
     }
@@ -407,37 +407,16 @@ void Widget::on_render(Context& ctx) {
 }
 
 void input_ontextinput(Input& w, const char* input, void* data) {
-    size_t len;
-    char must_clear = 0;
-
-    if (w.buffer == nullptr) {
-        len = 0;
-        must_clear = 1;
-    } else {
-        len = strlen(w.buffer);
-    }
-
-    if (input != nullptr)
-        len += strlen(input);
-
-    w.buffer = (char*)realloc(w.buffer, len + 1);
-    if (w.buffer == nullptr)
-        throw std::runtime_error("Out of memory");
-    
-    if (must_clear) {
-        std::memset(w.buffer, 0, 1);
-    }
-
     if (input != nullptr) {
-        strcat(w.buffer, input);
+        w.buffer += input;
     }
 
-    if (strlen(w.buffer) > 0) {
+    if (w.buffer.length() > 0) {
         if (input == nullptr) {
-            w.buffer[len - 1] = '\0';
+            w.buffer.resize(w.buffer.length() - 1);
         }
 
-        if (strlen(w.buffer) == 0) {
+        if (w.buffer.length() == 0) {
             w.text(" ");
         } else {
             w.text(w.buffer);
@@ -483,7 +462,7 @@ void Widget::add_child(Widget* child) {
     child->parent = this;
 }
 
-void Widget::text(const char* _text) {
+void Widget::text(const std::string& _text) {
     SDL_Surface* surface;
 
     if (text_texture != nullptr) {
@@ -493,7 +472,7 @@ void Widget::text(const char* _text) {
 
     TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
 
-    surface = TTF_RenderUTF8_Solid(g_ui_context->default_font, _text, text_color);
+    surface = TTF_RenderUTF8_Solid(g_ui_context->default_font, _text.c_str(), text_color);
     if (surface == nullptr) {
         print_error("Cannot create text surface: %s", TTF_GetError());
         return;

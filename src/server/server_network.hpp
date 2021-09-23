@@ -24,6 +24,8 @@ public:
 
     std::deque<Packet> packets;
     std::mutex packets_mutex;
+
+    std::string username;
 };
 
 class Server {
@@ -33,9 +35,11 @@ class Server {
 #elif defined windows
     SOCKET fd;
 #endif
-    ServerClient* clients;
+
     std::atomic<bool> run;
 public:
+    ServerClient* clients;
+
     Server(unsigned port = 1825, unsigned max_conn = 16);
     ~Server();
     

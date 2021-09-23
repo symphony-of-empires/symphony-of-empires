@@ -18,6 +18,8 @@ class Client {
     std::thread net_thread;
     std::atomic<bool> has_snapshot;
 public:
+    std::string username;
+
     Client(std::string host, const unsigned port);
     ~Client();
     int get_fd(void) {
