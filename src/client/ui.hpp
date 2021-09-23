@@ -74,7 +74,7 @@ namespace UI {
 
         void move_by(int x, int y);
         void add_child(Widget* child);
-        void text(const char* text);
+        void text(const std::string& text);
         void draw_rectangle(int x, int y, unsigned w, unsigned h, unsigned tex);
 
         template<typename T>
@@ -134,7 +134,7 @@ namespace UI {
         ~Input() {};
 
         std::function<void(Input&, const char *, void *)> on_textinput;
-        char* buffer = nullptr;
+        std::string buffer = "";
     };
 
     class Checkbox : public Widget {

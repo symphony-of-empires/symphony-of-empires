@@ -96,18 +96,32 @@ Client::Client(std::string host, const unsigned port) {
 // if you need snapshots for any reason (like desyncs) you can request with ActionType::SNAPSHOT
 void Client::net_loop(void) {
     // Receive the first snapshot of the world
-    g_world->world_mutex.lock();
-    Packet packet = Packet(fd);
-    packet.recv();
-    Archive ar = Archive();
-    ar.set_buffer(packet.data(), packet.size());
-    ::deserialize(ar, g_world);
-    g_world->world_mutex.unlock();
+    {
+        g_world->world_mutex.lock();
+        Packet packet = Packet(fd);
+        packet.recv();
+        Archive ar = Archive();
+        ar.set_buffer(packet.data(), packet.size());
+        ::deserialize(ar, g_world);
+        g_world->world_mutex.unlock();
+    }
+
+    {
+        Archive ar = Archive();
+
+        ActionType action = ActionType::CONNECT;
+        ::serialize(ar, &action);
+        ::serialize(ar, &username);
+
+        Packet packet = Packet(fd);
+        packet.data(ar.get_buffer(), ar.size());
+        packet.send();
+    }
     
     has_snapshot = true;
     
     try {
-        enum ActionType action;
+        ActionType action;
         
 #ifdef unix
         struct pollfd pfd;
@@ -129,6 +143,9 @@ void Client::net_loop(void) {
 #elif defined windows
             if(has_pending) {
 #endif
+                Packet packet = Packet(fd);
+                Archive ar = Archive();
+
                 // Obtain the action from the server
                 packet.recv();
                 ar.set_buffer(packet.data(), packet.size());

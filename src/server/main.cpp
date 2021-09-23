@@ -71,17 +71,53 @@ int main(int argc, char** argv) {
     world->load_mod();
     Server* server = new Server(1836);
 
+    std::cout << "Type start to start the simulation or help to view all the commands" << std::endl;
+
     std::future<std::string> future = std::async(std::launch::async, async_get_input);
     run = true;
+
+    bool paused = true;
     while(run) {
-        std::unique_lock<std::mutex> lock(world_lock);
-        world->do_tick();
+        if(!paused) {
+            std::unique_lock<std::mutex> lock(world_lock);
+            world->do_tick();
+        }
 
         if(future.wait_for(std::chrono::milliseconds(10)) == std::future_status::ready) {
             std::string r = future.get();
 
-            if(r == "brick") {
-                std::cout << gettext("Bricking! :D") << std::endl;
+            if(r == "help" || r == "info") {
+                std::cout << "start: Start the simulation" << std::endl;
+                std::cout << "stop: Pause the simulation" << std::endl;
+                std::cout << "resetp: Reset all POPs" << std::endl;
+                std::cout << "gvsch: Generate a graphviz of the supply chain" << std::endl;
+                std::cout << "quit: Quit the server" << std::endl;
+                std::cout << "lsc: List all clients" << std::endl;
+                std::cout << "debugen: Enable debug" << std::endl;
+                std::cout << "debugdis: Disable debug" << std::endl;
+            }
+            else if(r == "debugen") {
+                print_enable_debug();
+            }
+            else if(r == "debugdis") {
+                print_disable_debug();
+            }
+            else if(r == "lsc") {
+                for(size_t i = 0; i < server->n_clients; i++) {
+                    ServerClient& cl = server->clients[i];
+                    
+                    if(cl.is_connected == true) {
+                        std::cout << i << " " << cl.username << std::endl;
+                    }
+                }
+            }
+            else if(r == "start" || r == "unpause") {
+                paused = false;
+            }
+            else if(r == "stop" || r == "pause" || r == "halt") {
+                paused = true;
+            }
+            else if(r == "resetp") {
                 for(auto& province: world->provinces) {
                     for(auto& pop: province->pops) {
                         pop.militancy = 1.f;
@@ -89,7 +125,6 @@ int main(int argc, char** argv) {
                         pop.budget = 0.f;
                     }
                 }
-                break;
             }
             // generate a graphviz of the supply chain (abstract, just using industry types and goods)
             else if(r == "gvsch") {
@@ -106,7 +141,6 @@ int main(int argc, char** argv) {
                         std::cout << "  " << good.first->ref_name << " -> " << unit_type->ref_name << ";" << std::endl;
                     }
                 }
-
                 for(const auto& boat_type: world->boat_types) {
                     std::cout << "  " << boat_type->ref_name << " [ label = \""
                         << boat_type->name
@@ -148,7 +182,7 @@ int main(int argc, char** argv) {
                 }
                 std::cout << "}" << std::endl;
             // generate a graphviz detailing supply chain 
-            } else if(r == "exit") {
+            } else if(r == "exit" || r == "quit") {
                 std::cout << gettext("Quitting...") << std::endl;
                 run = false;
                 break;
