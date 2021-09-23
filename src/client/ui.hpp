@@ -133,7 +133,7 @@ namespace UI {
         Input(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         ~Input() {};
 
-        void (*on_textinput)(Input *, const char *, void *) = nullptr;
+        std::function<void(Input&, const char *, void *)> on_textinput;
         char* buffer = nullptr;
     };
 
