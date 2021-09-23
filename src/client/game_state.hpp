@@ -41,6 +41,7 @@ class IndustryViewNation;
 class PopViewNation;
 class ProductsViewWorld;
 class UIReform;
+class Map;
 class GameState {
    public:
     GameState(Camera _cam) : cam{_cam} {};

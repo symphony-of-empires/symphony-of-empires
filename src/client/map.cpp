@@ -12,15 +12,12 @@
 
 #include "../path.hpp"
 #include "../print.hpp"
+#include "game_state.hpp"
 #include "render/model.hpp"
+#include "interface/build_unit_window.hpp"
+#include "../io_impl.hpp"
 
 Map::Map(const World& _world) : world(_world) {
-    // print_info("Creating province meshes");
-    // for (const auto& province : world.provinces) {
-    //     ProvinceShape pr_shape = ProvinceShape(*this, *province);
-    //     province_shapes.push_back(pr_shape);
-    // }
-
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
     if (glewIsSupported("GL_VERSION_2_1")) {
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
@@ -117,14 +114,14 @@ void Map::draw_flag(const Nation* nation) {
         float sin_r = (sin(r + wind_osc) / 24.f);
 
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
-            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f), // Vert
-            glm::vec2((r / step) / n_steps, 0.f) // Texcoord
-        ));
+            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),  // Vert
+            glm::vec2((r / step) / n_steps, 0.f)                    // Texcoord
+            ));
 
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
-            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f), // Vert
-            glm::vec2((r / step) / n_steps, 0.f) // Texcoord
-        ));
+            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),  // Vert
+            glm::vec2((r / step) / n_steps, 0.f)                    // Texcoord
+            ));
     }
 
     flag.vao.bind();
@@ -155,6 +152,156 @@ void Map::draw_flag(const Nation* nation) {
     glEnd();*/
 }
 
+void Map::handle_click(GameState& gs, SDL_Event event) {
+    Input& input = gs.input;
+    if (input.select_pos.first < 0 ||
+        input.select_pos.first >= gs.world->width ||
+        input.select_pos.second < 0 ||
+        input.select_pos.second >= gs.world->height) {
+        return;
+    }
+    Boat* selected_boat = input.selected_boat;
+    Unit* selected_unit = input.selected_unit;
+    Building* selected_building = input.selected_building;
+    std::pair<float, float>& select_pos = input.select_pos;
+
+    if (event.button.button == SDL_BUTTON_LEFT) {
+        selected_boat = nullptr;
+        selected_unit = nullptr;
+        selected_building = nullptr;
+
+        // Check if we selected a boat
+        for (const auto& boat : gs.world->boats) {
+            const float size = 2.f;
+            if ((int)select_pos.first > (int)boat->x - size &&
+                (int)select_pos.first < (int)boat->x + size &&
+                (int)select_pos.second > (int)boat->y - size &&
+                (int)select_pos.second < (int)boat->y + size) {
+                selected_boat = boat;
+                break;
+            }
+        }
+        if (selected_boat != nullptr)
+            return;
+
+        // Check if we selected an unit
+        for (const auto& unit : gs.world->units) {
+            const float size = 2.f;
+            if ((int)select_pos.first > (int)unit->x - size &&
+                (int)select_pos.first < (int)unit->x + size &&
+                (int)select_pos.second > (int)unit->y - size &&
+                (int)select_pos.second < (int)unit->y + size) {
+                selected_unit = unit;
+                break;
+            }
+        }
+        if (selected_unit != nullptr)
+            return;
+
+        // Check if we selected an building
+        for (const auto& building : gs.world->buildings) {
+            const float size = 2.f;
+            if ((int)select_pos.first > (int)building->x - size &&
+                (int)select_pos.first < (int)building->x + size &&
+                (int)select_pos.second > (int)building->y - size &&
+                (int)select_pos.second < (int)building->y + size) {
+                selected_building = building;
+                break;
+            }
+        }
+        if (selected_building != nullptr)
+            return;
+
+        // Server will reject building build request if it's not in our territory (and it's not being built on water either)
+        if (gs.world->get_tile(select_pos.first, select_pos.second).owner_id != gs.world->get_id(gs.curr_nation) &&
+            gs.world->get_tile(select_pos.first, select_pos.second).owner_id != (Nation::Id)-1)
+            return;
+
+        // Tell the server about an action for building an building
+        gs.client->packet_mutex.lock();
+        Packet packet = Packet();
+        Archive ar = Archive();
+        ActionType action = ActionType::BUILDING_ADD;
+        ::serialize(ar, &action);
+        Building building = Building();
+
+        if (gs.world->get_tile(select_pos.first + 0, select_pos.second + 0).elevation <= gs.world->sea_level) {
+            // Seaport if on bordering water
+            building.type = gs.world->building_types[2];
+        } else {
+            // Barracks if on land
+            building.type = gs.world->building_types[0];
+        }
+
+        building.x = select_pos.first;
+        building.y = select_pos.second;
+        building.working_unit_type = nullptr;
+        building.working_boat_type = nullptr;
+        building.req_goods = building.type->req_goods;
+        // TODO FIX
+        building.owner = gs.world->nations[gs.select_nation->curr_selected_nation];
+        ::serialize(ar, &building);  // BuildingObj
+        packet.data(ar.get_buffer(), ar.size());
+        gs.client->packet_queue.push_back(packet);
+        gs.client->packet_mutex.unlock();
+        return;
+    } else if (event.button.button == SDL_BUTTON_RIGHT) {
+        if (selected_unit != nullptr) {
+            selected_unit->tx = select_pos.first;
+            selected_unit->ty = select_pos.second;
+
+            gs.client->packet_mutex.lock();
+            Packet packet = Packet();
+            Archive ar = Archive();
+            ActionType action = ActionType::UNIT_CHANGE_TARGET;
+            ::serialize(ar, &action);
+            ::serialize(ar, &selected_unit);
+            ::serialize(ar, &selected_unit->tx);
+            ::serialize(ar, &selected_unit->ty);
+            packet.data(ar.get_buffer(), ar.size());
+            gs.client->packet_queue.push_back(packet);
+            gs.client->packet_mutex.unlock();
+            return;
+        }
+        if (selected_boat != nullptr) {
+            selected_boat->tx = select_pos.first;
+            selected_boat->ty = select_pos.second;
+
+            gs.client->packet_mutex.lock();
+            Packet packet = Packet();
+            Archive ar = Archive();
+            ActionType action = ActionType::BOAT_CHANGE_TARGET;
+            ::serialize(ar, &action);
+            ::serialize(ar, &selected_boat);
+            ::serialize(ar, &selected_boat->tx);
+            ::serialize(ar, &selected_boat->ty);
+            packet.data(ar.get_buffer(), ar.size());
+            gs.client->packet_queue.push_back(packet);
+            gs.client->packet_mutex.unlock();
+            return;
+        }
+        if (selected_building != nullptr) {
+            new BuildUnitWindow(gs, selected_building, gs.top_win->top_win);
+            return;
+        }
+    }
+
+    const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+    switch (gs.current_mode) {
+        case MapMode::COUNTRY_SELECT:
+            // TODO add call to functions from here
+            gs.select_nation->change_nation(tile.owner_id);
+            break;
+        case MapMode::NORMAL:
+            // See untis that have been clicked on
+
+            if (tile.province_id != (Province::Id)-1) {
+                gs.province_view = new ProvinceView(gs, gs.top_win->top_win, tile);
+            }
+            break;
+    }
+}
+
 // Updates the tiles texture with the changed tiles
 void Map::update(World& world) {
     std::lock_guard<std::recursive_mutex> lock(g_world->changed_tiles_coords_mutex);
@@ -181,12 +328,6 @@ void Map::update(World& world) {
 }
 
 void Map::draw(Camera& cam, const int width, const int height) {
-    // Draw with the old method for old hardware
-    if (!glewIsSupported("GL_VERSION_2_1")) {
-        draw_old(cam, width, height);
-        return;
-    }
-
     glm::mat4 view, projection;
 
     // Map should have no "model" matrix since it's always static
@@ -281,145 +422,4 @@ void Map::draw(Camera& cam, const int width, const int height) {
     wind_osc += 1.f;
     if (wind_osc >= 180.f)
         wind_osc = 0.f;
-}
-
-void Map::draw_old(Camera& cam, const int width, const int height) {
-    // Topo map texture
-    {
-        div_topo_tex->bind();
-        auto topo_map_plane = UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
-        topo_map_plane.draw();
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-
-    for (size_t i = 0; i < world.provinces.size(); i++) {
-        if (world.provinces[i]->owner != nullptr) {
-            uint32_t color = world.provinces[i]->owner->get_client_hint().colour;
-            glColor4ub(color & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff, 0xc0);
-        } else {
-            glColor4ub(0x80, 0x80, 0x80, 0xc0);
-        }
-        glCallList(province_shapes[i].shape_gl_list);
-    }
-    glCallList(coastline_gl_list);
-
-    world.world_mutex.lock();
-    for (const auto& boat : world.boats) {
-        const float size = 1.f;
-        if (boat->size) {
-            glBegin(GL_TRIANGLES);
-            glColor3f(0.f, 1.f, 0.f);
-            glVertex2f(boat->x, boat->y - 1.f);
-            glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
-            glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.f);
-            glVertex2f(boat->x + (boat->size / boat->type->max_health), boat->y - 1.25f);
-            glVertex2f(boat->x, boat->y - 1.2f);
-            glVertex2f(boat->x, boat->y - 1.f);
-            glEnd();
-        }
-        boat_type_icons.at(world.get_id(boat->type))->draw(nullptr);
-        //draw_flag(boat->owner, boat->x, boat->y);
-    }
-
-    for (const auto& unit : world.units) {
-        const float size = 1.f;
-        if (unit->size) {
-            glBegin(GL_TRIANGLES);
-            glColor3f(0.f, 1.f, 0.f);
-            glVertex2f(unit->x, unit->y - 1.f);
-            glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
-            glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.f);
-            glVertex2f(unit->x + (unit->size / unit->type->max_health), unit->y - 1.25f);
-            glVertex2f(unit->x, unit->y - 1.2f);
-            glVertex2f(unit->x, unit->y - 1.f);
-            glEnd();
-        }
-        unit_type_icons.at(world.get_id(unit->type))->draw(nullptr);
-        //draw_flag(unit->owner, unit->x, unit->y);
-    }
-    
-    for (const auto& building : world.buildings) {
-        const float size = 1.f;
-        auto sprite_plane = UnifiedRender::OpenGl::PrimitiveSquare(building->x, building->y, building->x + size, building->y + size);
-        outpost_type_icons.at(world.get_id(building->type))->draw(nullptr);
-        //draw_flag(building->owner, building->x, building->y);
-    }
-    world.world_mutex.unlock();
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    wind_osc += 0.1f;
-    if (wind_osc >= 180.f)
-        wind_osc = 0.f;
-}
-
-ProvinceShape::ProvinceShape(const Map& map, const Province& base) {
-    Province::Id province_id = map.world.get_id(&base);
-
-    shape_gl_list = glGenLists(1);
-    glNewList(shape_gl_list, GL_COMPILE);
-
-    const size_t min_x = std::min(base.min_x, map.world.width - 1);
-    const size_t min_y = std::min(base.min_y, map.world.height - 1);
-    const size_t max_x = std::min(base.max_x, map.world.width - 1);
-    const size_t max_y = std::min(base.max_y + 1, map.world.height - 1);
-    for (size_t y = min_y; y < max_y; y++) {
-        for (size_t x = min_x; x < max_x; x++) {
-            Tile& tile = map.world.get_tile(x, y);
-            if (tile.province_id != province_id)
-                continue;
-
-            std::pair<size_t, size_t> start = std::make_pair(x, y);
-            size_t len = 1;
-            while (x < max_x) {
-                if (tile.province_id != province_id) {
-                    len--;
-                    x--;
-                    break;
-                }
-                len++;
-                x++;
-                tile = map.world.get_tile(x, y);
-            }
-
-            glBegin(GL_QUADS);
-            glVertex2f(start.first, start.second);
-            glVertex2f(start.first, start.second + 1.f);
-            glVertex2f(start.first + len, start.second + 1.f);
-            glVertex2f(start.first + len, start.second);
-            glEnd();
-        }
-    }
-    glEndList();
-
-    outline_gl_list = glGenLists(1);
-    glNewList(outline_gl_list, GL_COMPILE);
-    for (size_t y = min_y; y < max_y; y++) {
-        if (y == 0) {
-            continue;
-        }
-        for (size_t x = min_x; x < max_x; x++) {
-            if (x == 0) {
-                continue;
-            }
-
-            const Tile& left_tile = map.world.get_tile(x - 1, y);
-            const Tile& top_tile = map.world.get_tile(x, y - 1);
-            const Tile& tile = map.world.get_tile(x, y);
-
-            if (left_tile.province_id != tile.province_id) {
-                glBegin(GL_LINE_STRIP);
-                glVertex2f(x, y);
-                glVertex2f(x, y + 1.f);
-                glEnd();
-            }
-
-            if (top_tile.province_id != tile.province_id) {
-                glBegin(GL_LINE_STRIP);
-                glVertex2f(x, y);
-                glVertex2f(x + 1.f, y);
-                glEnd();
-            }
-        }
-    }
-    glEndList();
 }

@@ -19,8 +19,8 @@
 #include "render/primitive.hpp"
 #include "render/shader.hpp"
 #include "render/texture_array.hpp"
+#include "game_state.hpp"
 
-class ProvinceShape;
 class Map {
 private:
 public:
@@ -33,7 +33,6 @@ public:
     float wind_osc = 0.f;
 
     const World& world;
-    std::vector<ProvinceShape> province_shapes;
     
     UnifiedRender::Texture* div_topo_tex;
     UnifiedRender::Texture* div_sheet_tex;
@@ -52,14 +51,7 @@ public:
     void update(World& world);
     void draw_flag(const Nation* nation);
     void draw(Camera& cam, const int width, const int height);
-    void draw_old(Camera& cam, const int width, const int height);
-};
-
-class ProvinceShape {
-public:
-    ProvinceShape(const Map& map, const Province& base);
-    GLuint shape_gl_list;
-    GLuint outline_gl_list;
+    void handle_click(GameState& gs, SDL_Event event);
 };
 
 #endif
