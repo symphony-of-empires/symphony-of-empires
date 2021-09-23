@@ -74,6 +74,8 @@ void Economy::do_phase_1(World& world) {
     // Buildings who have fullfilled requirements to build stuff will spawna  lil' unit/boat
     for(size_t j = 0; j < world.buildings.size(); j++) {
         auto& building = world.buildings.at(j);
+        if(building == nullptr)
+            continue;
 
         /*
         bool can_build = true;
@@ -231,6 +233,15 @@ void Economy::do_phase_1(World& world) {
         if(building->type->is_factory == true) {
             if(building->budget < 0.f) {
                 print_info("Building of %s in %s has closed down!", building->type->name.c_str(), province->name.c_str());
+
+                for(const auto& product: building->output_products) {
+                    Product::Id product_id = world.get_id(product);
+
+                    province->stockpile.erase(province->stockpile.begin() + product_id);
+                    world.products.erase(world.products.begin() + product_id);
+                }
+
+                world.buildings.erase(world.buildings.begin() + j);
                 --j;
                 continue;
             }
@@ -265,6 +276,7 @@ void Economy::do_phase_1(World& world) {
                 }
                 if(!order.quantity)
                     continue;
+                
                 order.payment = building->willing_payment;
                 order.good = input;
                 order.building = building;
