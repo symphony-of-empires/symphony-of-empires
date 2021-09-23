@@ -30,16 +30,16 @@ ProvinceView::ProvinceView(GameState& _gs, UI::Window* top_win, const Tile& tile
     view_province_decor->text(world->provinces[tile.province_id]->name.c_str());
 
     UI::Button* view_province_pops = new UI::Button(9, 193, 303, 38, province_view_win);
-    view_province_pops->text("population");
+    view_province_pops->text("Population");
     view_province_pops->user_data = (void*)world->provinces[tile.province_id];
 
     UI::Button* view_province_ind = new UI::Button(9, 0, 303, 38, province_view_win);
-    view_province_ind->text("economic activity");
+    view_province_ind->text("Economic activity");
     view_province_ind->below_of(*view_province_pops);
     view_province_ind->user_data = (void*)world->provinces[tile.province_id];
 
     UI::Button* view_province_owner = new UI::Button(9, 0, 303, 38, province_view_win);
-    view_province_owner->text("owner info");
+    view_province_owner->text("Owner info");
     view_province_owner->below_of(*view_province_ind);
     view_province_owner->user_data = (void*)world->provinces[tile.province_id];
 
@@ -49,7 +49,7 @@ ProvinceView::ProvinceView(GameState& _gs, UI::Window* top_win, const Tile& tile
 
     if (world->provinces[tile.province_id]->owner == nullptr) {
         UI::Button* colonize_province_btn = new UI::Button(9, 0, 303, 38, province_view_win);
-        colonize_province_btn->text("colonize");
+        colonize_province_btn->text("Colonize");
         colonize_province_btn->below_of(*ok_btn);
         colonize_province_btn->user_data = this;
         colonize_province_btn->on_click = (UI::Callback)colonize_province_cb;
