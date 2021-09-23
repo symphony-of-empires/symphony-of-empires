@@ -191,7 +191,11 @@ void Server::net_loop(int id) {
             pfd.fd = conn_fd;
             pfd.events = POLLIN;
 #endif
-
+            // TODO: The world mutex is not properly unlocked when an exception occours
+            // this allows clients to abruptly disconnect and softlock a server
+            // so we did this little trick of manually unlocking - but this is a bad idea
+            // we need to use RAII to just unlock the thing on destruction *(specifically when
+            // an exception is thrown), since we are using C++
             Archive ar = Archive();
             while(run && cl.is_connected == true) {
                 // Check if we need to read stuff
@@ -512,8 +516,10 @@ void Server::net_loop(int id) {
             print_error("ServerException: %s", e.what());
         } catch(SocketException& e) {
             print_error("SocketException: %s", e.what());
+            g_world->world_mutex.unlock();
         } catch(SerializerException& e) {
             print_error("SerializerException: %s", e.what());
+            g_world->world_mutex.unlock();
         }
         
         // Unlock mutexes so we don't end up with weird situations... like deadlocks
