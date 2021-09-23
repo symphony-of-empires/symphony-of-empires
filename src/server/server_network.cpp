@@ -175,6 +175,17 @@ void Server::net_loop(int id) {
                 packet.send(ar.get_buffer(), ar.size());
             }
 
+            // Read the data from client
+            {
+                Archive ar = Archive();
+                packet.recv();
+                ar.set_buffer(packet.data(), packet.size());
+
+                ActionType action;
+                ::deserialize(ar, &action);
+                ::deserialize(ar, &cl.username);
+            }
+
             // Tell all other clients about the connection of this new client
             {
                 Archive ar = Archive();

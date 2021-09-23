@@ -52,15 +52,16 @@ bool Building::can_do_output(const World& world) {
  */
 void Building::add_to_stock(const World& world, const Good* good, const size_t add) {
     for(size_t i = 0; i < stockpile.size(); i++) {
-        if(world.get_id(type->inputs.at(i)) == world.get_id(good)) {
-            stockpile.at(i) += add;
-            break;
+        if(world.get_id(type->inputs.at(i)) != world.get_id(good)) {
+            continue;
         }
+        stockpile.at(i) += add;
+        break;
     }
 }
 
 Province* Building::get_province(const World& world) {
-    if(this->type->is_plot_on_land == false) {
+    if(world.get_tile(this->x, this->y).province_id == (Province::Id)-1) {
         return nullptr;
     }
     return world.provinces.at(world.get_tile(this->x, this->y).province_id);
@@ -71,10 +72,10 @@ Province* Building::get_province(const World& world) {
  */
 void Economy::do_phase_1(World& world) {
     // Buildings who have fullfilled requirements to build stuff will spawna  lil' unit/boat
-    for(size_t i = 0; i < world.buildings.size(); i++) {
-        auto& building = world.buildings.at(i);
-        auto province = building->get_province(world);
+    for(size_t j = 0; j < world.buildings.size(); j++) {
+        auto& building = world.buildings.at(j);
 
+        /*
         bool can_build = true;
         for(const auto& req: building->req_goods_for_unit) {
             // Increment demand for all products with same required good type
@@ -93,34 +94,80 @@ void Economy::do_phase_1(World& world) {
 
         if(!can_build)
         	break;
+        */
+
+        auto province = building->get_province(world);
+        if(province == nullptr || province->owner == nullptr)
+            continue;
         
-        size_t needed_manpower = 1000;
-        size_t available_manpower = 0;
-        for(size_t j = 0; j < world.job_requests.size(); j++) {
-            JobRequest& job_request = world.job_requests.at(j);
-            // Buildings on water-desertland
-            if(province == nullptr) {
-                // Accept anything
+        size_t needed_laborers = 0, available_laborers = 0;
+        size_t needed_farmers = 0, available_farmers = 0;
+        size_t needed_entrepreneurs = 0, available_entrepreneurs = 0;
+        if(building->type->is_factory) {
+            // Each output adds a required farmer or laborer depending on the type
+            // of output, it also requires entrepreneurs to "manage" the operations
+            // of the factory
+            size_t i = 0;
+            for(const auto& output: building->output_products) {
+                // The minimum amount of workers needed is given by the employees_needed_per_output vector :)
+                const size_t employed = std::max<size_t>(
+                    std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2),
+                    building->employees_needed_per_output.at(i));
+
+                if(output->good->is_edible) {
+                    needed_farmers += employed;
+                } else {
+                    needed_laborers += employed;
+                }
+                needed_entrepreneurs += employed / 100;
+                ++i;
             }
-            // Buildings on land must have same province as the job request
-            else if(job_request.province != province) {
+        } else {
+            needed_laborers = 50;
+            needed_farmers = 50;
+            needed_entrepreneurs = 50;
+        }
+
+        // Search through all the job requests
+        world.job_requests_mutex.lock();
+        for(size_t i = 0; i < world.job_requests.size(); i++) {
+            JobRequest& job_request = world.job_requests.at(i);
+            size_t employed;
+
+            // Industries require 2 (or 3) types of POPs to correctly function
+            // - Laborers: They are needed to produce non-edible food
+            // - Farmers: They are needed to produce edibles
+            // - Entrepreneur: They help "organize" the factory
+            if(available_laborers < needed_farmers && (job_request.pop->type_id == POP_TYPE_LABORER
+            || job_request.pop->type_id == POP_TYPE_SLAVE)) {
+                employed = std::min(needed_laborers, job_request.amount);
+                available_laborers += employed;
+            } else if(available_farmers < needed_farmers && (job_request.pop->type_id == POP_TYPE_FARMER
+            || job_request.pop->type_id == POP_TYPE_SLAVE)) {
+                employed = std::min(needed_farmers, job_request.amount);
+                available_farmers += employed;
+            } else if(available_entrepreneurs < needed_entrepreneurs && job_request.pop->type_id == POP_TYPE_ENTRPRENEUR) {
+                employed = std::min(needed_entrepreneurs, job_request.amount);
+                available_entrepreneurs += employed;
+            } else {
+                // Do not accept anyone else
                 continue;
             }
 
             // Give pay to the POP
-            job_request.pop->budget += 10.f;
-            building->owner->budget -= 10.f * job_request.amount;
-                
-            available_manpower += std::min(needed_manpower, job_request.amount);
-            job_request.amount -= std::min(needed_manpower, job_request.amount);
+            float payment = employed * province->owner->current_policy.minimum_wage;
+            job_request.pop->budget += payment;
+            building->budget -= payment;
+            job_request.amount -= employed;
 
             // Delete job request when it has 0 amount
             if(!job_request.amount) {
-                world.job_requests.erase(world.job_requests.begin() + j);
-                j--;
+                world.job_requests.erase(world.job_requests.begin() + i);
+                --i;
                 continue;
             }
         }
+        world.job_requests_mutex.unlock();
 
         if(building->working_unit_type != nullptr) {
             // Spawn a unit
@@ -151,6 +198,7 @@ void Economy::do_phase_1(World& world) {
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
         }
+
         if(building->working_boat_type != nullptr) {
             // Spawn a boat
             Boat* boat = new Boat();
@@ -179,83 +227,16 @@ void Economy::do_phase_1(World& world) {
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
         }
-        if(building->type->is_factory == true && province != nullptr) {
+
+        if(building->type->is_factory == true) {
             if(building->budget < 0.f) {
                 print_info("Building of %s in %s has closed down!", building->type->name.c_str(), province->name.c_str());
-
-
-
-                --i;
+                --j;
                 continue;
             }
 
-            // TODO: Needed manpower be calculated by total priority of outputs?
-            size_t needed_laborers = 0, available_laborers = 0;
-            size_t needed_farmers = 0, available_farmers = 0;
-            size_t needed_entrepreneurs = 0, available_entrepreneurs = 0;
-
-            // Each output adds a required farmer or laborer depending on the type
-            // of output, it also requires entrepreneurs to "manage" the operations
-            // of the factory
-            size_t i = 0;
-            for(const auto& output: building->output_products) {
-                // 100 minimum workers per output
-                const size_t employed = std::max<size_t>(std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), 100);
-                building->employees_needed_per_output.at(i) = employed;
-
-                if(output->good->is_edible) {
-                    needed_farmers += employed;
-                } else {
-                    needed_laborers += employed;
-                }
-                needed_entrepreneurs += employed / 100;
-                ++i;
-            }
-            
-            // Search through all the job requests
-            world.job_requests_mutex.lock();
-            for(size_t i = 0; i < world.job_requests.size(); i++) {
-                JobRequest& job_request = world.job_requests.at(i);
-                size_t employed;
-
-                // Industries require 2 (or 3) types of POPs to correctly function
-                // - Laborers: They are needed to produce non-edible food
-                // - Farmers: They are needed to produce edibles
-                // - Entrepreneur: They help "organize" the factory
-                if(available_laborers < needed_farmers && (job_request.pop->type_id == POP_TYPE_LABORER
-                || job_request.pop->type_id == POP_TYPE_SLAVE)) {
-                    employed = std::min(needed_laborers, job_request.amount);
-                    available_laborers += employed;
-                } else if(available_farmers < needed_farmers && (job_request.pop->type_id == POP_TYPE_FARMER
-                || job_request.pop->type_id == POP_TYPE_SLAVE)) {
-                    employed = std::min(needed_farmers, job_request.amount);
-                    available_farmers += employed;
-                } else if(available_entrepreneurs < needed_entrepreneurs && job_request.pop->type_id == POP_TYPE_ENTRPRENEUR) {
-                    employed = std::min(needed_entrepreneurs, job_request.amount);
-                    available_entrepreneurs += employed;
-                } else {
-                    // Do not accept anyone else
-                    continue;
-                }
-
-                // Give pay to the POP
-                float payment = employed * province->owner->current_policy.minimum_wage;
-                job_request.pop->budget += payment;
-                building->budget -= payment;
-                job_request.amount -= employed;
-
-                // Delete job request when it has 0 amount
-                if(!job_request.amount) {
-                    world.job_requests.erase(world.job_requests.begin() + i);
-                    --i;
-                    continue;
-                }
-            }
-            world.job_requests_mutex.unlock();
-
-            print_info("Building of %s in %s has %zu workers", building->type->name.c_str(), province->name.c_str(), available_manpower);
-
             building->workers = available_farmers + available_entrepreneurs;
+            print_info("Building of %s in %s has %zu workers", building->type->name.c_str(), province->name.c_str(), building->workers);
             if(!building->workers) {
                 building->days_unoperational++;
                 building->min_quality = 0;
@@ -270,13 +251,17 @@ void Economy::do_phase_1(World& world) {
             
             world.orders_mutex.lock();
             for(const auto& input: building->type->inputs) {
-                OrderGoods order;
+                OrderGoods order = {};
 
                 // Farmers can only work with edibles and laborers can only work for edibles
                 if(input->is_edible) {
-                    order.quantity = (available_farmers / needed_farmers) * 5000;
+                    if(available_farmers > 0) {
+                        order.quantity = (available_farmers / needed_farmers) * 5000;
+                    }
                 } else {
-                    order.quantity = (available_laborers / needed_laborers) * 5000;
+                    if(available_laborers > 0) {
+                        order.quantity = (available_laborers / needed_laborers) * 5000;
+                    }
                 }
                 if(!order.quantity)
                     continue;
@@ -567,6 +552,12 @@ void Economy::do_phase_2(World& world) {
                 
             print_info("%zu of %s produced in %s - stockpiled by %s", province->stockpile.at(i), world.products.at(i)->good->name.c_str(), world.products.at(i)->origin->name.c_str(), province->name.c_str());
         }
+
+        size_t pop_count = 0;
+        for(const auto& pop: province->pops) {
+            pop_count += pop.size;
+        }
+        print_info("%s has %zu people", province->name.c_str(), pop_count);
     }
 }
 
@@ -809,7 +800,7 @@ void Economy::do_phase_3(World& world) {
                     //goto skip_emigration;
                 }
                 
-                //print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
+                print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
                 
                 Emigrated emigrated = {};
                 emigrated.target = best_province;
