@@ -16,9 +16,10 @@
 #include "map.hpp"
 #include "ui.hpp"
 
-enum MapMode {
-    MAP_MODE_COUNTRY_SELECT,
-    MAP_MODE_NORMAL,
+enum class MapMode {
+    COUNTRY_SELECT,
+    NORMAL,
+    NO_MAP,
 };
 
 struct Input {
@@ -46,8 +47,10 @@ class GameState {
     // TODO add deconstructor
     void play_nation();
 
+    Client* client = nullptr;
+
     // The ui will mostly need to read the world state
-    World* world;
+    World* world = nullptr;
     // Nation::Id curr_nation
     Nation* curr_nation;
     Map* map;
@@ -55,7 +58,7 @@ class GameState {
     Camera cam;
     Input input;
     int width, height;
-    MapMode current_mode = MapMode::MAP_MODE_COUNTRY_SELECT;
+    MapMode current_mode = MapMode::NO_MAP;
 
     UI::Context* ui_ctx;
 
