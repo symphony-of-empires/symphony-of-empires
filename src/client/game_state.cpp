@@ -124,7 +124,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             }
 
             click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
-            if (click_on_ui == 0) {
+            if (click_on_ui == 0 && gs.current_mode != MapMode::NO_MAP) {
                 if (input.select_pos.first < 0 ||
                     input.select_pos.first >= gs.world->width ||
                     input.select_pos.second < 0 ||
