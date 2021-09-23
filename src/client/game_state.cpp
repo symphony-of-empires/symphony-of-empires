@@ -94,18 +94,15 @@ const UnifiedRender::Texture& GameState::get_nation_flag(Nation& nation) {
 }
 
 void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
-    SDL_Event event;
     int click_on_ui;
     std::pair<int, int>& mouse_pos = input.mouse_pos;
     std::pair<float, float>& select_pos = input.select_pos;
-    Boat* selected_boat = input.selected_boat;
-    Unit* selected_unit = input.selected_unit;
-    Building* selected_building = input.selected_building;
 
     UI::Context* ui_ctx = gs.ui_ctx;
 
     int& width = gs.width;
     int& height = gs.height;
+    SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
         case SDL_MOUSEBUTTONDOWN:
@@ -125,147 +122,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
 
             click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
             if (click_on_ui == 0 && gs.current_mode != MapMode::NO_MAP) {
-                if (input.select_pos.first < 0 ||
-                    input.select_pos.first >= gs.world->width ||
-                    input.select_pos.second < 0 ||
-                    input.select_pos.second >= gs.world->height) {
-                    continue;
-                }
-
-                const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-                switch (gs.current_mode) {
-                case MapMode::COUNTRY_SELECT:
-                    // TODO add call to functions from here
-                    gs.select_nation->change_nation(tile.owner_id);
-                    break;
-                case MapMode::NORMAL:
-                    // See untis that have been clicked on
-                    if (event.button.button == SDL_BUTTON_LEFT) {
-                        selected_boat = nullptr;
-                        selected_unit = nullptr;
-                        selected_building = nullptr;
-
-                        // Check if we selected a boat
-                        for (const auto& boat : gs.world->boats) {
-                            const float size = 2.f;
-                            if ((int)select_pos.first > (int)boat->x - size &&
-                                (int)select_pos.first < (int)boat->x + size &&
-                                (int)select_pos.second > (int)boat->y - size &&
-                                (int)select_pos.second < (int)boat->y + size) {
-                                selected_boat = boat;
-                                break;
-                            }
-                        }
-                        if (selected_boat != nullptr)
-                            break;
-
-                        // Check if we selected an unit
-                        for (const auto& unit : gs.world->units) {
-                            const float size = 2.f;
-                            if ((int)select_pos.first > (int)unit->x - size &&
-                                (int)select_pos.first < (int)unit->x + size &&
-                                (int)select_pos.second > (int)unit->y - size &&
-                                (int)select_pos.second < (int)unit->y + size) {
-                                selected_unit = unit;
-                                break;
-                            }
-                        }
-                        if (selected_unit != nullptr)
-                            break;
-
-                        // Check if we selected an building
-                        for (const auto& building : gs.world->buildings) {
-                            const float size = 2.f;
-                            if ((int)select_pos.first > (int)building->x - size &&
-                                (int)select_pos.first < (int)building->x + size &&
-                                (int)select_pos.second > (int)building->y - size &&
-                                (int)select_pos.second < (int)building->y + size) {
-                                selected_building = building;
-                                break;
-                            }
-                        }
-                        if (selected_building != nullptr)
-                            break;
-
-                        // Server will reject building build request if it's not in our territory (and it's not being built on water either)
-                        if (gs.world->get_tile(select_pos.first, select_pos.second).owner_id != gs.world->get_id(gs.curr_nation) &&
-                            gs.world->get_tile(select_pos.first, select_pos.second).owner_id != (Nation::Id)-1)
-                            break;
-
-                        // Tell the server about an action for building an building
-                        g_client->packet_mutex.lock();
-                        Packet packet = Packet();
-                        Archive ar = Archive();
-                        ActionType action = ActionType::BUILDING_ADD;
-                        ::serialize(ar, &action);
-                        Building building = Building();
-
-                        if (gs.world->get_tile(select_pos.first + 0, select_pos.second + 0).elevation <= gs.world->sea_level) {
-                            // Seaport if on bordering water
-                            building.type = gs.world->building_types[2];
-                        } else {
-                            // Barracks if on land
-                            building.type = gs.world->building_types[0];
-                        }
-
-                        building.x = select_pos.first;
-                        building.y = select_pos.second;
-                        building.working_unit_type = nullptr;
-                        building.working_boat_type = nullptr;
-                        building.req_goods = building.type->req_goods;
-                        // TODO FIX
-                        building.owner = gs.world->nations[gs.select_nation->curr_selected_nation];
-                        ::serialize(ar, &building);  // BuildingObj
-                        packet.data(ar.get_buffer(), ar.size());
-                        g_client->packet_queue.push_back(packet);
-                        g_client->packet_mutex.unlock();
-                        break;
-                    } else if (event.button.button == SDL_BUTTON_RIGHT) {
-                        if (selected_unit != nullptr) {
-                            selected_unit->tx = select_pos.first;
-                            selected_unit->ty = select_pos.second;
-
-                            g_client->packet_mutex.lock();
-                            Packet packet = Packet();
-                            Archive ar = Archive();
-                            ActionType action = ActionType::UNIT_CHANGE_TARGET;
-                            ::serialize(ar, &action);
-                            ::serialize(ar, &selected_unit);
-                            ::serialize(ar, &selected_unit->tx);
-                            ::serialize(ar, &selected_unit->ty);
-                            packet.data(ar.get_buffer(), ar.size());
-                            g_client->packet_queue.push_back(packet);
-                            g_client->packet_mutex.unlock();
-                            break;
-                        }
-                        if (selected_boat != nullptr) {
-                            selected_boat->tx = select_pos.first;
-                            selected_boat->ty = select_pos.second;
-
-                            g_client->packet_mutex.lock();
-                            Packet packet = Packet();
-                            Archive ar = Archive();
-                            ActionType action = ActionType::BOAT_CHANGE_TARGET;
-                            ::serialize(ar, &action);
-                            ::serialize(ar, &selected_boat);
-                            ::serialize(ar, &selected_boat->tx);
-                            ::serialize(ar, &selected_boat->ty);
-                            packet.data(ar.get_buffer(), ar.size());
-                            g_client->packet_queue.push_back(packet);
-                            g_client->packet_mutex.unlock();
-                            break;
-                        }
-                        if (selected_building != nullptr) {
-                            new BuildUnitWindow(gs, selected_building, gs.top_win->top_win);
-                            break;
-                        }
-                    }
-
-                    if (tile.province_id != (Province::Id)-1) {
-                        gs.province_view = new ProvinceView(gs, gs.top_win->top_win, tile);
-                    }
-                    break;
-                }
+                // gs.map->handle_click(gs, event);
             }
             break;
         case SDL_MOUSEMOTION:
@@ -631,6 +488,7 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
 
         if (mm_conn->in_game == true) {
             run = false;
+            mm_conn->kill();
         }
     }
 }
