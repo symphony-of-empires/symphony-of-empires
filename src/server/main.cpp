@@ -90,6 +90,64 @@ int main(int argc, char** argv) {
                     }
                 }
                 break;
+            }
+            // generate a graphviz of the supply chain (abstract, just using industry types and goods)
+            else if(r == "gvsch") {
+                std::cout << "digraph {" << std::endl;
+                for(const auto& unit_type: world->unit_types) {
+                    std::cout << "  " << unit_type->ref_name << " [ label = \""
+                        << unit_type->name
+                        << "\", color = \"yellow\""
+                        << "];"
+                        << std::endl;
+                    
+
+                    for(const auto& good: unit_type->req_goods) {
+                        std::cout << "  " << good.first->ref_name << " -> " << unit_type->ref_name << ";" << std::endl;
+                    }
+                }
+
+                for(const auto& boat_type: world->boat_types) {
+                    std::cout << "  " << boat_type->ref_name << " [ label = \""
+                        << boat_type->name
+                        << "\", color = \"yellow\""
+                        << "];"
+                        << std::endl;
+                    
+                    for(const auto& good: boat_type->req_goods) {
+                        std::cout << "  " << good.first->ref_name << " -> " << boat_type->ref_name << ";" << std::endl;
+                    }
+                }
+
+                for(const auto& good: world->goods) {
+                    std::cout << "  " << good->ref_name << " [ label = \""
+                        << good->name
+                        << "\", color = \"blue\""
+                        << "];"
+                        << std::endl;
+                }
+
+                for(const auto& industry_type: world->building_types) {
+                    if(industry_type->is_factory == false) {
+                        continue;
+                    }
+
+                    std::cout << "  " << industry_type->ref_name
+                        << " [ label = \""
+                        << industry_type->name
+                        << "\", color = \"red\""
+                        << "];"
+                        << std::endl;
+
+                    for(const auto& output: industry_type->outputs) {
+                        std::cout << "  " << industry_type->ref_name << " -> " << output->ref_name << ";" << std::endl;
+                    }
+                    for(const auto& input: industry_type->inputs) {
+                        std::cout << "  " << input->ref_name << " -> " << industry_type->ref_name << ";" << std::endl;
+                    }
+                }
+                std::cout << "}" << std::endl;
+            // generate a graphviz detailing supply chain 
             } else if(r == "exit") {
                 std::cout << gettext("Quitting...") << std::endl;
                 run = false;
