@@ -240,12 +240,20 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
     }
 }
 
+void check_text_input_recursive(Widget& widget, const char* _input) {
+    if (widget.type == UI_WIDGET_INPUT) {
+        Input& c_widget = dynamic_cast<Input&>(widget);
+        c_widget.on_textinput(c_widget, _input, c_widget.user_data);
+    }
+    
+    for (const auto& children : widget.children) {
+        check_text_input_recursive(*children, _input);
+    }
+}
+
 void Context::check_text_input(const char* _input) {
-    for (const auto& widget : widgets) {
-        if (widget->type == UI_WIDGET_INPUT) {
-            Input& c_widget = dynamic_cast<Input&>(*widget);
-            c_widget.on_textinput(&c_widget, _input, c_widget.user_data);
-        }
+    for (const auto& widget: widgets) {
+        check_text_input_recursive(*widget, _input);
     }
 }
 
@@ -304,7 +312,19 @@ void Widget::on_render(Context& ctx) {
     }
 
     // Background (tile) display
-    if (type != UI_WIDGET_IMAGE && type != UI_WIDGET_LABEL) {
+    if (type == UI_WIDGET_INPUT) {
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        glColor3f(0.f, 0.f, 1.f);
+        glBegin(GL_TRIANGLES);
+        glVertex2f(0.f, 0.f);
+        glVertex2f(width, 0.f);
+        glVertex2f(width, height);
+        glVertex2f(width, height);
+        glVertex2f(0.f, height);
+        glVertex2f(0.f, 0.f);
+        glEnd();
+    } else if (type != UI_WIDGET_IMAGE && type != UI_WIDGET_LABEL) {
         glBindTexture(GL_TEXTURE_2D, ctx.background->gl_tex_num);
         glBegin(GL_TRIANGLES);
         glTexCoord2f(0.f, 0.f);
@@ -320,7 +340,6 @@ void Widget::on_render(Context& ctx) {
         glTexCoord2f(0.f, 0.f);
         glVertex2f(0.f, 0.f);
         glEnd();
-        
     }
 
     glColor3f(1.f, 1.f, 1.f);
@@ -361,7 +380,12 @@ void Widget::on_render(Context& ctx) {
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glLineWidth(3.f);
-    glColor3f(0.f, 0.f, 0.f);
+
+    if(type == UI_WIDGET_INPUT) {
+        glColor3f(1.f, 1.f, 1.f);
+    } else {
+        glColor3f(0.f, 0.f, 0.f);
+    }
     if (1) {
         // Outer black border
         glBegin(GL_LINE_STRIP);
@@ -393,16 +417,32 @@ void input_ontextinput(Input& w, const char* input, void* data) {
         len = strlen(w.buffer);
     }
 
-    w.buffer = (char*)realloc(w.buffer, len + strlen(input) + 1);
-    if (w.buffer == nullptr) {
-        throw std::runtime_error("Out of memory");
-    }
-    if (must_clear) {
-        memset(w.buffer, 0, 1);
-    }
-    strcat(w.buffer, input);
+    if (input != nullptr)
+        len += strlen(input);
 
-    w.text(w.buffer);
+    w.buffer = (char*)realloc(w.buffer, len + 1);
+    if (w.buffer == nullptr)
+        throw std::runtime_error("Out of memory");
+    
+    if (must_clear) {
+        std::memset(w.buffer, 0, 1);
+    }
+
+    if (input != nullptr) {
+        strcat(w.buffer, input);
+    }
+
+    if (strlen(w.buffer) > 0) {
+        if (input == nullptr) {
+            w.buffer[len - 1] = '\0';
+        }
+
+        if (strlen(w.buffer) == 0) {
+            w.text(" ");
+        } else {
+            w.text(w.buffer);
+        }
+    }
 }
 
 Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, int _type, const UnifiedRender::Texture* tex)
@@ -503,6 +543,8 @@ CloseButton::CloseButton(int _x, int _y, unsigned w, unsigned h, Widget* _parent
 
 Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI_WIDGET_INPUT) {
+    
+    this->on_textinput = input_ontextinput;
 }
 
 Image::Image(int _x, int _y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* _parent)
