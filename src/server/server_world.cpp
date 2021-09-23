@@ -681,7 +681,7 @@ void World::do_tick() {
         }
 
         // Build an building randomly?
-        if(std::rand() % 1000 > 990) {
+        if(std::rand() % 1000 > 950) {
             bool can_build = false;
             for(const auto& province: nation->owned_provinces) {
                 if(get_id(&province->get_occupation_controller(*this)) != g_world->get_id(nation)) {
@@ -705,19 +705,21 @@ void World::do_tick() {
             Tile *tile = nullptr;
             int x_coord, y_coord;
             while(tile == nullptr) {
-                x_coord = std::clamp<size_t>(rand(), target->min_x, target->max_x);
-                y_coord = std::clamp<size_t>(rand(), target->min_y, target->max_y);
+                x_coord = std::clamp<size_t>((std::rand() % (target->max_x - target->min_x)) + target->min_x, target->min_x, target->max_x);
+                y_coord = std::clamp<size_t>((std::rand() % (target->max_y - target->min_y)) + target->min_y, target->min_y, target->max_y);
                 tile = &get_tile(x_coord, y_coord);
 
+                // If tile is land AND NOT part of target province OR NOT of ownership of nation
                 if(tile->elevation > sea_level
-                && (tile->province_id != get_id(target)
-                || tile->owner_id != get_id(nation))) {
+                && (tile->province_id != get_id(target) || tile->owner_id != get_id(nation))) {
                     tile = nullptr;
                 }
             }
 
             // Now build the building
             Building* building = new Building();
+            building->x = x_coord;
+            building->y = y_coord;
             building->owner = nation;
             building->working_unit_type = nullptr;
             building->working_boat_type = nullptr;

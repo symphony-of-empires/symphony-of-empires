@@ -149,6 +149,10 @@ int LuaAPI::get_good(lua_State* L) {
 int LuaAPI::add_industry_type(lua_State* L) {
     BuildingType* industry_type = new BuildingType();
     industry_type->is_factory = true;
+    industry_type->is_plot_on_land = true;
+    industry_type->is_plot_on_sea = false;
+    industry_type->is_build_land_units = false;
+    industry_type->is_build_naval_units = false;
 
     industry_type->ref_name = luaL_checkstring(L, 1);
     industry_type->name = luaL_checkstring(L, 2);
