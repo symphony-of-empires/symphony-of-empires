@@ -705,8 +705,8 @@ void World::do_tick() {
             Tile *tile = nullptr;
             int x_coord, y_coord;
             while(tile == nullptr) {
-                x_coord = std::clamp<size_t>(std::rand(), target->min_x, target->max_x);
-                y_coord = std::clamp<size_t>(std::rand(), target->min_y, target->max_y);
+                x_coord = std::clamp<size_t>((std::rand() % (target->max_x - target->min_x + 1)) + target->min_x, target->min_x, target->max_x);
+                y_coord = std::clamp<size_t>((std::rand() % (target->max_y - target->min_y + 1)) + target->min_y, target->min_y, target->max_y);
                 tile = &get_tile(x_coord, y_coord);
 
                 // If tile is land AND NOT part of target province OR NOT of ownership of nation
