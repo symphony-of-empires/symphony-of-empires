@@ -95,8 +95,8 @@ IndustryType:add_output(gunpowder_mixer, gunpowder)
 stainless_steel_smelter = IndustryType:new{ ref_name = "stainless_steel_smelter" }
 stainless_steel_smelter.name = _("Stainless steel smelter")
 IndustryType:register(stainless_steel_smelter)
-IndustryType:add_input(stainless_steel_smelter, steel)
-IndustryType:add_input(stainless_steel_smelter, coal)
+IndustryType:add_input(stainless_steel_smelter, iron)
+IndustryType:add_input(stainless_steel_smelter, chromium)
 IndustryType:add_output(stainless_steel_smelter, stainless_steel)
 
 brass_smelter = IndustryType:new{ ref_name = "brass_smelter" }

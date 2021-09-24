@@ -25,6 +25,12 @@ silk.name = _("Silk")
 Good:register(silk)
 
 -- Industrial materials
+fuel = Good:new{ ref_name = "fuel" }
+fuel.name = _("Fuel")
+Good:register(fuel)
+glass = Good:new{ ref_name = "glass" }
+glass.name = _("Glass")
+Good:register(glass)
 fabric = Good:new{ ref_name = "fabric" }
 fabric.name = _("Fabric")
 Good:register(fabric)
@@ -125,6 +131,15 @@ Good:register(timber)
 coal = Good:new{ ref_name = "coal" }
 coal.name = _("Coal")
 Good:register(coal)
+zinc = Good:new{ ref_name = "zinc" }
+zinc.name = _("Zinc")
+Good:register(zinc)
+copper = Good:new{ ref_name = "copper" }
+copper.name = _("Copper")
+Good:register(copper)
+chromium = Good:new{ ref_name = "chromium" }
+chromium.name = _("Chromium")
+Good:register(chromium)
 brass = Good:new{ ref_name = "brass" }
 brass.name = _("Brass")
 Good:register(brass)
@@ -136,9 +151,6 @@ stainless_steel.name = _("Stainless steel")
 Good:register(stainless_steel)
 
 -- Food
-glass = Good:new{ ref_name = "glass" }
-glass.name = _("Glass")
-Good:register(glass)
 bread = Good:new{ ref_name = "bread" }
 bread.name = _("Bread")
 bread.is_edible = true
@@ -147,6 +159,10 @@ salt = Good:new{ ref_name = "salt" }
 salt.name = _("Salt")
 salt.is_edible = true
 Good:register(salt)
+alcohol = Good:new{ ref_name = "alcohol" }
+alcohol.name = _("Alcohol")
+alcohol.is_edible = true
+Good:register(alcohol)
 
 -- Commodities
 window = Good:new{ ref_name = "window" }
