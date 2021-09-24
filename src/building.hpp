@@ -60,6 +60,8 @@ public:
     bool can_do_output(const World& world);
     void add_to_stock(const World& world, const Good* good, size_t add);
     Province* get_province(const World& world);
+    void create_factory(World& world);
+    void delete_factory(World& world);
 
     // Corporate owner of this building
     Company* corporate_owner;
