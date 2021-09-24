@@ -14,7 +14,7 @@ Required to build:
 ## Build (Linux)
 Install all dependencies with this command:
 ```
-sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.3-dev libtbb-dev
+sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.3-dev libtbb-dev libglew-dev libglm-dev
 ```
 
 The build with these commands once all the dependencies are met:
