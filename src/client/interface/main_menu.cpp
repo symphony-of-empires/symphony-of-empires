@@ -32,7 +32,5 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
         gs.client->wait_for_snapshot();
         gs.map = new Map(*gs.world);
         state->in_game = true;
-
-        delete w.parent;
     });
 }
