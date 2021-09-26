@@ -2,6 +2,8 @@ name: Build
 
 on:
   push:
+    branches:
+      - main
   pull_request:
   release:
 
@@ -37,6 +39,8 @@ jobs:
       uses: crazy-max/ghaction-chocolatey@v1
       with:
         args: install cmake
+    - name: "Install MSBuild"
+      uses: microsoft/setup-msbuild
     - name: "Build"
       run: |
         MSBuild.exe SoE.sln
