@@ -39,6 +39,4 @@ jobs:
         args: install cmake
     - name: "Build"
       run: |
-        mkdir build
-        cmake -S . -B build -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DCMAKE_TOOLCHAIN_FILE=x64-windows -G "Visual Studio 16 2019"
-        cmake --build build --config ${{ matrix.config }}
+        MSBuild.exe SoE.sln
