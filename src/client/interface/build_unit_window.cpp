@@ -1,4 +1,7 @@
 #include "build_unit_window.hpp"
+#include "../../serializer.hpp"
+#include "../../actions.hpp"
+#include "../../io_impl.hpp"
 
 BuildUnitWindow::BuildUnitWindow(GameState& _gs, Building* _building, UI::Window* top_win)
     : gs{_gs}, building{_building}, UI::Window(0, 0, 320, 501) {
@@ -21,10 +24,14 @@ BuildUnitWindow::BuildUnitWindow(GameState& _gs, Building* _building, UI::Window
 
             build_type_btn->on_click = [](UI::Widget& w, void* data) {
                 BuildUnitWindow* state = (BuildUnitWindow*)w.parent;
-				UnitType* unitType = (UnitType*)data;
-				
-				Command* command = new BuildUnitCommand(state->building, unitType);
-				state->gs.add_command(command);
+                UnitType* unitType = (UnitType*)data;
+
+                Archive ar = Archive();
+                enum ActionType action = ActionType::BUILDING_START_BUILDING_UNIT;
+                ::serialize(ar, &action);
+                ::serialize(ar, &state->building);  // BuildingRef
+                ::serialize(ar, unitType);          // UnitTypeRef
+                state->gs.send_command(ar);
             };
         }
     } else if (building->type->is_build_naval_units) {
@@ -39,10 +46,14 @@ BuildUnitWindow::BuildUnitWindow(GameState& _gs, Building* _building, UI::Window
 
             build_type_btn->on_click = [](UI::Widget& w, void* data) {
                 BuildUnitWindow* state = (BuildUnitWindow*)w.parent;
-				BoatType* boatType = (BoatType*)data;
-				
-				Command* command = new BuildUnitCommand(state->building, boatType);
-				state->gs.add_command(command);
+                BoatType* boatType = (BoatType*)data;
+
+                Archive ar = Archive();
+                enum ActionType action = ActionType::BUILDING_START_BUILDING_BOAT;
+                ::serialize(ar, &action);
+                ::serialize(ar, &state->building);  // BuildingRef
+                ::serialize(ar, boatType);   // BoatTypeRef
+                state->gs.send_command(ar);
             };
         }
     }

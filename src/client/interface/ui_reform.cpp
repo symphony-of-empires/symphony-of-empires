@@ -4,15 +4,13 @@
 #include "../../nation.hpp"
 #include "../../network.hpp"
 #include "../../path.hpp"
-#include "../render/texture.hpp"
 #include "../../serializer.hpp"
+#include "../render/texture.hpp"
 #include "../ui.hpp"
 
 extern char* tmpbuf;
 
-UIReform::UIReform(GameState& _gs) : gs{_gs} {
-
-};
+UIReform::UIReform(GameState& _gs) : gs{_gs} {};
 
 void UIReform::show() {
     draft_policy = gs.curr_nation->current_policy;
@@ -82,7 +80,7 @@ void UIReform::show() {
             UIReform* state = (UIReform*)data;
             state->draft_policy.migration = ALLOW_ALL;
         };
-        allow_all_btn->on_update = [](UI::Widget& w, void* data) {            
+        allow_all_btn->on_update = [](UI::Widget& w, void* data) {
             UIReform* state = (UIReform*)data;
 
             w.current_texture = (state->draft_policy.migration == ALLOW_ALL)
@@ -614,3 +612,19 @@ void UIReform::show() {
         ok_btn->right_side_of(*enact_btn);
     }
 }
+
+// void UIReform::create_slider(int x_off, int y_off, unsigned w, unsigned h, float min, float max, std::string text) {
+//     UI::Slider* slider = new UI::Slider(x_off, y_off, w, h, min, max, reform_win);
+//     if (last_elem) {
+//         slider->below_of(*last_elem);
+//         last_elem = slider;
+//     }
+//     slider->value = 50.f;
+//     slider->on_click = ([](UI::Widget& w, void* data) {
+//         UI::Slider& wc = dynamic_cast<UI::Slider&>(w);
+//         UIReform* state = dynamic_cast<UI::Slider*>(wc.parent);
+//         state->draft_policy.rich_flat_tax = wc.value - 100.f;
+//         sprintf(tmpbuf, "Rich flat tax (%.2f%%)", state->draft_policy.rich_flat_tax);
+//         w.text(tmpbuf);
+//     });
+// }

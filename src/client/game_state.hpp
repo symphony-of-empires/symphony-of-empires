@@ -5,7 +5,6 @@
 
 #include "../nation.hpp"
 #include "../world.hpp"
-#include "command.hpp"
 #include "interface/industry_view_nation.hpp"
 #include "interface/pop_view_nation.hpp"
 #include "interface/products_view_world.hpp"
@@ -13,8 +12,10 @@
 #include "interface/select_nation.hpp"
 #include "interface/top_window.hpp"
 #include "interface/ui_reform.hpp"
+#include "../serializer.hpp"
 #include "map.hpp"
 #include "ui.hpp"
+#include "client_network.hpp"
 
 enum class MapMode {
     COUNTRY_SELECT,
@@ -77,11 +78,8 @@ class GameState {
     std::vector<const UnifiedRender::Texture*> nation_flags;
     const UnifiedRender::Texture& get_nation_flag(Nation& nation);
 
-    // Ui calls add_command to set world state
-    // Commands like set budget and move troops
-    void add_command(Command* command);
+    void send_command(Archive& archive);
 
-    std::queue<Command*> pending_commands;
    private:
 };
 

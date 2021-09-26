@@ -2,6 +2,9 @@
 
 #include "../../event.hpp"
 #include "../ui.hpp"
+#include "../../serializer.hpp"
+#include "../../actions.hpp"
+#include "../../io_impl.hpp"
 
 DescisionWindow::DescisionWindow(GameState& gs, Event& msg) : UI::Window(128, 128, 320, 570) {
     // TODO: Allow titles in events
@@ -39,8 +42,13 @@ DescisionButton::DescisionButton(UI::Window* parent, GameState& _gs, const Desci
     on_click = [](UI::Widget& w, void* data) {
         DescisionButton& state = dynamic_cast<DescisionButton&>(w);
 
-        Command* command = new DescisionCommand(state.descision, state.event);
-        state.gs.add_command(command);
+        Archive ar = Archive();
+        ActionType action = ActionType::NATION_TAKE_DESCISION;
+        ::serialize(ar, &action);
+        ::serialize(ar, &state.event.ref_name);
+        ::serialize(ar, &state.descision.ref_name);
+        state.gs.send_command(ar);
+
         delete w.parent;
     };
 }
