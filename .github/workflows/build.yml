@@ -2,7 +2,6 @@ name: Build
 
 on:
   push:
-  pull_request:
   release:
 
 jobs:
@@ -38,7 +37,7 @@ jobs:
       with:
         args: install cmake
     - name: "Install MSBuild"
-      uses: microsoft/setup-msbuild
+      uses: microsoft/setup-msbuild@v1.0.3
     - name: "Build"
       run: |
         MSBuild.exe SoE.sln
