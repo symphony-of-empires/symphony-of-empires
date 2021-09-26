@@ -35,8 +35,8 @@ jobs:
         fetch-depth: 0
     - name: "Install dependencies"
       uses: crazy-max/ghaction-chocolatey@v1
-      run: |
-        chocho install cmake
+      with:
+        args: install cmake
     - name: "Build"
       run: |
         mkdir build
