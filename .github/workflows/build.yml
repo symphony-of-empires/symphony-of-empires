@@ -2,11 +2,8 @@ name: Build
 
 on:
   push:
-    branches:
-      - main
   pull_request:
-    branches:
-      - main
+  release:
 
 jobs:
   build_linux:
@@ -21,8 +18,27 @@ jobs:
        sudo apt install libpng-dev libsdl2-dev libsdl2-ttf-dev gettext libtbb-dev libglm-dev libglew-dev libtbb-dev liblua5.3-dev
     - name: "Build"
       run: |
-       cmake -DUNIT_TEST=1 .
+       cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release .
        make -j
     - name: "Run"
       run: |
        ./SymphonyOfEmpiresServer
+  
+  build-windows:
+    strategy:
+      matrix:
+        config: [Release, Debug]
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: "Install dependencies"
+      uses: crazy-max/ghaction-chocolatey@v1
+      run: |
+        chocho install cmake
+    - name: "Build"
+      run: |
+        mkdir build
+        cmake -S . -B build -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DCMAKE_TOOLCHAIN_FILE=x64-windows -G "Visual Studio 16 2019"
+        cmake --build build --config ${{ matrix.config }}

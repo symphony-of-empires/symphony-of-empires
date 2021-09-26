@@ -729,30 +729,7 @@ void World::do_tick() {
             if(building->type->is_factory == true) {
                 building->budget = 100.f;
                 building->corporate_owner = companies.at(std::rand() % companies.size());
-                building->corporate_owner->operating_provinces.insert(building->get_province(*this));
-                
-                // Add a product for each output
-                for(const auto& output: building->type->outputs) {
-                    Product* new_product = new Product();
-                    new_product->building = building;
-                    new_product->good = output;
-                    new_product->owner = building->corporate_owner;
-                    new_product->origin = building->get_province(*this);
-
-                    building->output_products.push_back(new_product);
-                    products.push_back(new_product);
-
-                    building->employees_needed_per_output.push_back(500);
-
-                    // Add an element representing this product on all the province's stockpile
-                    for(auto& province: provinces) {
-                        province->stockpile.push_back(0);
-                    }
-                }
-
-                // We will set inputs_satisfied to same size as inputs
-                // Industries start with 100 of stockpiles
-                building->stockpile.insert(building->stockpile.begin(), building->type->inputs.size(), 100);
+                building->create_factory(*this);
             }
             g_world->buildings.push_back(building);
 
