@@ -253,10 +253,10 @@ void World::load_mod(void) {
     height = topo.height;
 
     // Check that size of all maps match
-    if(topo.width != width || topo.height != height) {
-        throw std::runtime_error("Topographic map size mismatch");
+    if(infra.width != width || infra.height != height) {
+        throw std::runtime_error("Infrastructure map size mismatch with topographic map");
     } else if(div.width != width || div.height != height) {
-        throw std::runtime_error("Province map size mismatch");
+        throw std::runtime_error("Province map size mismatch with topographic map");
     }
 
     const size_t total_size = width * height;

@@ -9,7 +9,7 @@
 
 class Camera {
 public:
-    float fov = 45.0f, near_plane = 1.0f, far_plane = 1024.0f;
+    float fov = 45.0f, near_plane = 1.0f, far_plane = 20000.0f;
     glm::vec2 screen_size;
     glm::vec3 position, velocity;
 
@@ -55,7 +55,7 @@ public:
 
         position.x = std::max(0.f, std::min((float)g_world->width, position.x));
         position.y = std::max(0.f, std::min((float)g_world->height, position.y));
-        position.z = -std::max(10.f, std::min(750.f, -position.z));
+        position.z = -std::max(10.f, std::min((float)g_world->width / 2.f, -position.z));
     };
 
     glm::mat4 get_projection() {

@@ -90,7 +90,8 @@ void GameState::play_nation() {
 }
 
 const UnifiedRender::Texture& GameState::get_nation_flag(Nation& nation) {
-    return *nation_flags[g_world->get_id(&nation)];
+    Nation::Id id = world->get_id(&nation);
+    return *map->nation_flags[id];
 }
 
 void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
@@ -122,7 +123,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
 
             click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
             if (click_on_ui == 0 && gs.current_mode != MapMode::NO_MAP) {
-                // gs.map->handle_click(gs, event);
+                gs.map->handle_click(gs, event);
             }
             break;
         case SDL_MOUSEMOTION:
@@ -266,6 +267,14 @@ void client_update(const GameState& gs) {
 
     //gs.map->update(*g_world);
     delete[] tmpbuf;
+}
+
+void GameState::send_command(Archive& archive) {
+    client->packet_mutex.lock();
+    Packet packet = Packet(g_client->get_fd());
+    packet.data(archive.get_buffer(), archive.size());
+    client->packet_queue.push_back(packet);
+    client->packet_mutex.unlock();
 }
 
 void render(GameState& gs, Input& input, SDL_Window* window) {
@@ -421,10 +430,6 @@ void init_client(GameState& gs) {
     gs.select_nation = new SelectNation(gs);
 }
 
-void GameState::add_command(Command* command) {
-    pending_commands.push(command);
-}
-
 void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     gs.products_view_world = new ProductsViewWorld(gs);
     gs.pop_view_nation = new PopViewNation(gs);
@@ -463,11 +468,6 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
             handle_popups(displayed_events, displayed_treaties, gs);
         }
 
-        while (!gs.pending_commands.empty()) {
-            Command* cmd = gs.pending_commands.front();
-            cmd->run_command(*gs.world, client);
-            gs.pending_commands.pop();
-        }
         render(gs, input, window);
     }
 }
