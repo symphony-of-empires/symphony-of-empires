@@ -34,9 +34,10 @@ jobs:
       with:
         fetch-depth: 0
     - name: "Install dependencies"
-      chocho install cmake
+      run: |
+        chocho install cmake
     - name: "Build"
-    - run: |
-      mkdir build
-      cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DCMAKE_TOOLCHAIN_FILE=x64-windows -G "Visual Studio 16 2019"
-      cmake --build build --config ${{ matrix.config }}
+      run: |
+        mkdir build
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DCMAKE_TOOLCHAIN_FILE=x64-windows -G "Visual Studio 16 2019"
+        cmake --build build --config ${{ matrix.config }}
