@@ -396,7 +396,7 @@ void Server::net_loop(int id) {
                         enum TreatyApproval approval;
                         ::deserialize(ar, &approval);
 
-                        print_info("%s approves treaty %s? %s", selected_nation->name.c_str(), treaty->name.c_str(), (approval == TREATY_APPROVAL_ACCEPTED) ? "YES" : "NO");
+                        print_info("%s approves treaty %s? %s", selected_nation->name.c_str(), treaty->name.c_str(), (approval == TreatyApproval::ACCEPTED) ? "YES" : "NO");
                             
                         // Check that the nation participates in the treaty
                         bool does_participate = false;
@@ -440,14 +440,14 @@ void Server::net_loop(int id) {
                         print_info("Participants of treaty %s", treaty->name.c_str());
                         // Then fill as undecided (and ask nations to sign this treaty)
                         for(auto& nation: approver_nations) {
-                            treaty->approval_status.push_back(std::make_pair(nation, TREATY_APPROVAL_UNDECIDED));
+                            treaty->approval_status.push_back(std::make_pair(nation, TreatyApproval::UNDECIDED));
                             print_info("- %s", nation->name.c_str());
                         }
 
                         // The sender automatically accepts the treaty (they are the ones who drafted it)
                         for(auto& status: treaty->approval_status) {
                             if(status.first == selected_nation) {
-                                status.second = TREATY_APPROVAL_ACCEPTED;
+                                status.second = TreatyApproval::ACCEPTED;
                                 break;
                             }
                         }
