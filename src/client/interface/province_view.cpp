@@ -4,13 +4,11 @@
 #include "../../path.hpp"
 #include "../../world.hpp"
 #include "../game_state.hpp"
-#include "../command.hpp"
 #include "../render/texture.hpp"
 #include "../ui.hpp"
 
 void ProvinceView::colonize_province_cb(UI::Widget& w, ProvinceView* data) {
-    Command* command = new ColonizeProvinceCommand(data->provinceId);
-    data->gs.add_command(command);
+    // TODO send package
     // size_t& curr_selected_nation = data->gs.select_nation->curr_selected_nation;
     // data->selected_province->owner = data->gs.world->nations[curr_selected_nation];
     // data->gs.curr_nation->budget -= 10000;
