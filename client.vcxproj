@@ -160,7 +160,6 @@
     <ClInclude Include="src\branch.hpp" />
     <ClInclude Include="src\client\camera.hpp" />
     <ClInclude Include="src\client\client_network.hpp" />
-    <ClInclude Include="src\client\command.hpp" />
     <ClInclude Include="src\client\game_state.hpp" />
     <ClInclude Include="src\client\interface\descision.hpp" />
     <ClInclude Include="src\client\interface\industry_view_nation.hpp" />

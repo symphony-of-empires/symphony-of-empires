@@ -1,7 +1,7 @@
 #include "treaty_window.hpp"
 
 #include "../../diplomacy.hpp"
-#include "../command.hpp"
+#include "../../io_impl.hpp"
 #include "../game_state.hpp"
 #include "../ui.hpp"
 
@@ -36,13 +36,12 @@ TreatyPerClauseWindow::TreatyPerClauseWindow(TreatyWindow* treaty_window) : trea
         list_btn->user_data = (void*)province;
         list_btn->on_click = [](UI::Widget& w, void* data) {
             TreatyPerClauseWindow* state = (TreatyPerClauseWindow*)w.parent;
-            // std::lock_guard<std::mutex> lock(g_treaty_draft_mutex);
 
             TreatyClause::AnexxProvince* clause = new TreatyClause::AnexxProvince();
             clause->type = TreatyClauseType::ANEXX_PROVINCES;
             clause->provinces.push_back((Province*)w.user_data);
-            // TODO FIX
-            // clause->sender = curr_nation;
+
+            clause->sender = state->treaty_win->gs.curr_nation;
             clause->receiver = state->treaty_win->recv_nation;
             clause->days_duration = 0;
             state->treaty_win->treaty_draft.clauses.push_back(clause);
@@ -62,11 +61,9 @@ TreatyClauseWindow::TreatyClauseWindow(TreatyWindow* _treaty_win) : treaty_win{_
     list_btn->text("War reparations");
     list_btn->on_click = [](UI::Widget& w, void* data) {
         TreatyClauseWindow* state = (TreatyClauseWindow*)w.parent;
-        // std::lock_guard<std::mutex> lock(state->treaty_win->treaty_draft_mutex);
         TreatyClause::WarReparations* clause = new TreatyClause::WarReparations();
         clause->type = TreatyClauseType::WAR_REPARATIONS;
-        // TODO FIX
-        // clause->sender = curr_nation;
+        clause->sender = state->treaty_win->gs.curr_nation;
         clause->receiver = state->treaty_win->recv_nation;
         clause->amount = 5000.f;
         clause->days_duration = 365;
@@ -130,7 +127,7 @@ TreatyWindow::TreatyWindow(GameState& _gs, UI::Window* top_win) : gs{_gs}, UI::W
         state->select_win = new TreatySelectNation(state);
     };
 
-    recv_nation_lab = new UI::Label(64, 44, "...", this);
+    recv_nation_lab = new UI::Label(64, 10, "...", this);
     recv_nation_lab->below_of((*select_receiver_btn));
     recv_nation_lab->on_update = [](UI::Widget& w, void*) {
         TreatyWindow* state = (TreatyWindow*)w.parent;
@@ -139,7 +136,8 @@ TreatyWindow::TreatyWindow(GameState& _gs, UI::Window* top_win) : gs{_gs}, UI::W
         w.text(state->recv_nation->name.c_str());
     };
 
-    recv_nation_flag = new UI::Image(0, recv_nation_lab->y, 58, 24, nullptr, this);
+    recv_nation_flag = new UI::Image(9, 10, 58, 24, nullptr, this);
+    recv_nation_flag->below_of((*select_receiver_btn));
     recv_nation_flag->on_update = [](UI::Widget& w, void*) {
         TreatyWindow* state = (TreatyWindow*)w.parent;
         if (state->recv_nation == nullptr)
@@ -147,8 +145,8 @@ TreatyWindow::TreatyWindow(GameState& _gs, UI::Window* top_win) : gs{_gs}, UI::W
         w.current_texture = &state->gs.get_nation_flag(*state->recv_nation);
     };
 
-    UI::Button* new_clause = new UI::Button(9, 0, 303, 38, this);
-    new_clause->below_of((*recv_nation_lab));
+    UI::Button* new_clause = new UI::Button(9, 10, 303, 38, this);
+    new_clause->below_of((*recv_nation_flag));
     new_clause->text("Add new clause");
     new_clause->on_click = [](UI::Widget& w, void*) {
         TreatyWindow* state = (TreatyWindow*)w.parent;
@@ -164,7 +162,7 @@ TreatyWindow::TreatyWindow(GameState& _gs, UI::Window* top_win) : gs{_gs}, UI::W
     };
 
     UI::Button* ok_btn = new UI::Button(9, 0, 303, 38, this);
-    ok_btn->text("OK");
+    ok_btn->text("Send");
     ok_btn->below_of(*reset_btn);
     ok_btn->on_click = [](UI::Widget& w, void* data) {
         TreatyWindow* state = (TreatyWindow*)w.parent;
@@ -172,9 +170,14 @@ TreatyWindow::TreatyWindow(GameState& _gs, UI::Window* top_win) : gs{_gs}, UI::W
         // TODO: Let the user rename treaties and name treaties after cities
         state->treaty_draft.name = "Treaty of ";
         state->treaty_draft.name += state->gs.curr_nation->name.c_str();
-    
-        Command* command = new TreatySendCommand(&state->treaty_draft, state->gs.curr_nation);
-        state->gs.add_command(command);
+
+        Archive ar = Archive();
+        ActionType action = ActionType::DRAFT_TREATY;
+        ::serialize(ar, &action);
+        ::serialize(ar, &state->treaty_draft.clauses);
+        ::serialize(ar, &state->treaty_draft.name);
+        ::serialize(ar, &state->gs.curr_nation);
+        state->gs.send_command(ar);
 
         // Clear everything
         state->treaty_draft.clauses.clear();
@@ -185,6 +188,13 @@ TreatyWindow::TreatyWindow(GameState& _gs, UI::Window* top_win) : gs{_gs}, UI::W
     treaty_desc_lab->on_update = [](UI::Widget& w, void*) {
         TreatyWindow* state = (TreatyWindow*)w.parent;
         w.text(treaty_to_text(state->treaty_draft).c_str());
+    };
+
+    UI::Button* close_button = new UI::Button(9, 10, 303, 38, this);
+    close_button->text("Close");
+    close_button->below_of(*treaty_desc_lab);
+    close_button->on_click = [](UI::Widget& w, void* data) {
+        w.parent->kill();
     };
 }
 
@@ -201,8 +211,14 @@ TreatyPopup::TreatyPopup(GameState& _gs, Treaty* _treaty) : gs{_gs}, treaty{_tre
     approve_btn->on_click = [](UI::Widget& w, void* data) {
         TreatyPopup* state = (TreatyPopup*)data;
 
-        Command* command = new TreatyAcceptCommand(state->treaty, true);
-        state->gs.add_command(command);
+        Archive ar = Archive();
+        ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
+        ::serialize(ar, &action);
+        ::serialize(ar, state->treaty);
+        enum TreatyApproval approval = TREATY_APPROVAL_ACCEPTED;
+        ::serialize(ar, &approval);
+        state->gs.send_command(ar);
+
         delete w.parent;
     };
 
@@ -213,8 +229,14 @@ TreatyPopup::TreatyPopup(GameState& _gs, Treaty* _treaty) : gs{_gs}, treaty{_tre
     deny_btn->on_click = [](UI::Widget& w, void* data) {
         TreatyPopup* state = (TreatyPopup*)data;
 
-        Command* command = new TreatyAcceptCommand(state->treaty, false);
-        state->gs.add_command(command);
+        Archive ar = Archive();
+        ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
+        ::serialize(ar, &action);
+        ::serialize(ar, state->treaty);
+        enum TreatyApproval approval = TREATY_APPROVAL_DENIED;
+        ::serialize(ar, &approval);
+        state->gs.send_command(ar);
+
         delete w.parent;
     };
 }
