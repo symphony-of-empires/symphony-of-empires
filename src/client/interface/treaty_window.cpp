@@ -39,7 +39,7 @@ TreatyPerClauseWindow::TreatyPerClauseWindow(TreatyWindow* treaty_window) : trea
             // std::lock_guard<std::mutex> lock(g_treaty_draft_mutex);
 
             TreatyClause::AnexxProvince* clause = new TreatyClause::AnexxProvince();
-            clause->type = TREATY_CLAUSE_ANEXX_PROVINCES;
+            clause->type = TreatyClauseType::ANEXX_PROVINCES;
             clause->provinces.push_back((Province*)w.user_data);
             // TODO FIX
             // clause->sender = curr_nation;
@@ -64,7 +64,7 @@ TreatyClauseWindow::TreatyClauseWindow(TreatyWindow* _treaty_win) : treaty_win{_
         TreatyClauseWindow* state = (TreatyClauseWindow*)w.parent;
         // std::lock_guard<std::mutex> lock(state->treaty_win->treaty_draft_mutex);
         TreatyClause::WarReparations* clause = new TreatyClause::WarReparations();
-        clause->type = TREATY_CLAUSE_WAR_REPARATIONS;
+        clause->type = TreatyClauseType::WAR_REPARATIONS;
         // TODO FIX
         // clause->sender = curr_nation;
         clause->receiver = state->treaty_win->recv_nation;
@@ -227,22 +227,22 @@ std::string treaty_to_text(const Treaty& treaty) {
     str += treaty.name.c_str();
     for (const auto& clause : treaty.clauses) {
         switch (clause->type) {
-            case TREATY_CLAUSE_WAR_REPARATIONS:
+            case TreatyClauseType::WAR_REPARATIONS:
                 str += "war reparations from ";
                 str += clause->receiver->name.c_str();
                 break;
-            case TREATY_CLAUSE_HUMILIATE:
+            case TreatyClauseType::HUMILIATE:
                 str += "humiliate ";
                 str += clause->receiver->name.c_str();
                 break;
-            case TREATY_CLAUSE_LIBERATE_NATION:
+            case TreatyClauseType::LIBERATE_NATION:
                 str += "liberate ";
                 str += ((TreatyClause::LiberateNation*)clause)->liberated->name.c_str();
                 break;
-            case TREATY_CLAUSE_IMPOSE_POLICIES:
+            case TreatyClauseType::IMPOSE_POLICIES:
                 str += "impose policies ";
                 break;
-            case TREATY_CLAUSE_ANEXX_PROVINCES:
+            case TreatyClauseType::ANEXX_PROVINCES:
                 str += "anexx province ";
                 for (const auto& province : ((TreatyClause::AnexxProvince*)clause)->provinces) {
                     str += province->name.c_str();
@@ -251,7 +251,7 @@ std::string treaty_to_text(const Treaty& treaty) {
                 str += "from ";
                 str += clause->receiver->name.c_str();
                 break;
-            case TREATY_CLAUSE_CEASEFIRE:
+            case TreatyClauseType::CEASEFIRE:
                 str += "generous ceasefire to ";
                 str += clause->receiver->name.c_str();
                 break;
