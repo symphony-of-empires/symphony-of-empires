@@ -75,6 +75,7 @@ int LuaAPI::add_technology(lua_State* L) {
     technology->name = luaL_checkstring(L, 2);
     technology->description = luaL_checkstring(L, 3);
     technology->cost = lua_tonumber(L, 4);
+    technology->type = (TechnologyType)((int)lua_tonumber(L, 5));
 
     g_world->technologies.push_back(technology);
     lua_pushnumber(L, g_world->technologies.size() - 1);
@@ -88,7 +89,8 @@ int LuaAPI::get_technology(lua_State* L) {
     lua_pushstring(L, technology->name.c_str());
     lua_pushstring(L, technology->description.c_str());
     lua_pushnumber(L, technology->cost);
-    return 4;
+    lua_pushnumber(L, technology->type);
+    return 5;
 }
 
 int LuaAPI::add_req_tech_to_tech(lua_State* L) {

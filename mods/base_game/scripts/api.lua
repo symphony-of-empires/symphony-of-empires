@@ -1,14 +1,14 @@
-Technology = { id = 0, ref_name = "", name = "", description = "", cost = 1.0 }
+Technology = { id = 0, ref_name = "", name = "", description = "", cost = 1.0, type = TECH_STRATEGIC }
 function Technology:new(technology)
 	technology.parent = self
 	return technology
 end
 function Technology:register(self)
-	self.id = add_technology(self.ref_name, self.name, self.description, self.cost)
+	self.id = add_technology(self.ref_name, self.name, self.description, self.cost, self.type)
 end
 function Technology:get(technology, ref_name)
 	technology.parent = self
-	technology.id, technology.name, technology.description = get_technology(ref_name)
+	technology.id, technology.name, technology.description, technology.type = get_technology(ref_name)
 	technology.ref_name = ref_name
 	return technology
 end

@@ -186,6 +186,20 @@ World::World() {
     lua_pushboolean(lua, false);
     lua_setglobal(lua, "EVENT_DO_ONE_TIME");
 
+    // Technology types
+    lua_pushnumber(lua, TechnologyType::STRATEGIC);
+    lua_setglobal(lua, "TECH_STRATEGIC");
+    lua_pushnumber(lua, TechnologyType::MILITARY);
+    lua_setglobal(lua, "TECH_MILITARY");
+    lua_pushnumber(lua, TechnologyType::NAVY);
+    lua_setglobal(lua, "TECH_NAVY");
+    lua_pushnumber(lua, TechnologyType::SOCIAL);
+    lua_setglobal(lua, "TECH_SOCIAL");
+    lua_pushnumber(lua, TechnologyType::ECONOMIC);
+    lua_setglobal(lua, "TECH_ECONOMIC");
+    lua_pushnumber(lua, TechnologyType::POLITICS);
+    lua_setglobal(lua, "TECH_POLITICS");
+
     // TODO: The. name. is. fucking. long.
     lua_register(lua, "add_op_province_to_company", LuaAPI::add_op_province_to_company);
 
