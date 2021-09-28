@@ -215,7 +215,7 @@ TreatyPopup::TreatyPopup(GameState& _gs, Treaty* _treaty) : gs{_gs}, treaty{_tre
         ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
         ::serialize(ar, &action);
         ::serialize(ar, state->treaty);
-        enum TreatyApproval approval = TREATY_APPROVAL_ACCEPTED;
+        TreatyApproval approval = TreatyApproval::ACCEPTED;
         ::serialize(ar, &approval);
         state->gs.send_command(ar);
 
@@ -233,7 +233,7 @@ TreatyPopup::TreatyPopup(GameState& _gs, Treaty* _treaty) : gs{_gs}, treaty{_tre
         ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
         ::serialize(ar, &action);
         ::serialize(ar, state->treaty);
-        enum TreatyApproval approval = TREATY_APPROVAL_DENIED;
+        TreatyApproval approval = TreatyApproval::DENIED;
         ::serialize(ar, &approval);
         state->gs.send_command(ar);
 
