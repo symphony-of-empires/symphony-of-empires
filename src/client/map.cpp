@@ -296,7 +296,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             // See untis that have been clicked on
 
             if (tile.province_id != (Province::Id)-1) {
-                gs.province_view = new ProvinceView(gs, gs.top_win->top_win, tile);
+                gs.province_view = new ProvinceView(gs, tile);
             }
             break;
     }
