@@ -84,6 +84,7 @@ Server::Server(const unsigned port, const unsigned max_conn) : n_clients(max_con
     clients = new ServerClient[max_conn];
     for(size_t i = 0; i < max_conn; i++) {
         clients[i].is_connected = false;
+        clients[i].packets_mutex.unlock();
         clients[i].thread = std::thread(&Server::net_loop, this, i);
     }
     
@@ -106,13 +107,11 @@ Server::~Server() {
     delete[] clients;
 }
 
-/** This will broadcast the given packet to all clients currently on the server
- */
+// This will broadcast the given packet to all clients currently on the server
 void Server::broadcast(Packet& packet) {
     for(size_t i = 0; i < n_clients; i++) {
-        std::lock_guard<std::mutex> lock(clients[i].packets_mutex);
-
         if(clients[i].is_connected == true) {
+            const std::lock_guard<std::mutex> lock(clients[i].packets_mutex);
             clients[i].packets.push_back(packet);
 
             // Disconnect the client when more than 200 MB is used
@@ -227,7 +226,7 @@ void Server::net_loop(int id) {
                     (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                         throw ServerException("Unallowed operation without selected nation");
                     
-                    std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
+                    const std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
                     switch(action) {
                     /// - Used to test connections between server and client
                     case ActionType::PONG:
@@ -393,7 +392,7 @@ void Server::net_loop(int id) {
                         if(treaty == nullptr)
                             throw ServerException("Treaty not found");
                             
-                        enum TreatyApproval approval;
+                        TreatyApproval approval;
                         ::deserialize(ar, &approval);
 
                         print_info("%s approves treaty %s? %s", selected_nation->name.c_str(), treaty->name.c_str(), (approval == TreatyApproval::ACCEPTED) ? "YES" : "NO");
@@ -514,13 +513,12 @@ void Server::net_loop(int id) {
                 ar.rewind();
                 
                 // After reading everything we will send our queue appropriately to the client
-                std::lock_guard<std::mutex> lock(cl.packets_mutex);
-                while(!cl.packets.empty()) {
+                const std::lock_guard<std::mutex> lock(cl.packets_mutex);
+                while(cl.packets.empty() == false) {
                     Packet elem = cl.packets.front();
-                    cl.packets.pop_front();
-
                     elem.stream = SocketStream(conn_fd);
                     elem.send();
+                    cl.packets.pop_front();
                 }
             }
         } catch(ServerException& e) {
