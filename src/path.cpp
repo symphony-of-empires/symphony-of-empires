@@ -105,6 +105,18 @@ namespace Path {
         return files_text;
     }
 
+    std::vector<std::string> get_paths(void) {
+        std::vector<std::string> p_list;
+        for(const auto& path: mod_paths) {
+            std::string rsult = get_full() + path;
+#ifdef windows
+            std::replace(rsult.begin(), rsult.end(), '/', '\\');
+#endif
+            p_list.push_back(rsult);
+        }
+        return p_list;
+    }
+
     std::string get_dir(const std::string& str) {
         if(str[0] == '/' || str[0] == 'C')
             return str;
