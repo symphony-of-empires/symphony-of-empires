@@ -3,19 +3,22 @@
 #include <string>
 
 #ifdef _MSC_VER
-#	ifndef _WINDOWS_
-#		define WIN32_LEAN_AND_MEAN 1
-#		include <windows.h>
-#		undef WIN32_LEAN_AND_MEAN
-#	endif
+#ifndef _WINDOWS_
+#define WIN32_LEAN_AND_MEAN 1
+#include <windows.h>
+#undef WIN32_LEAN_AND_MEAN
+#endif
 #endif
 
-#include <algorithm>
 #include <GL/glew.h>
 #include <GL/gl.h>
-#include "ui.hpp"
+#include <math.h>
+
+#include <algorithm>
+
 #include "../path.hpp"
 #include "../print.hpp"
+#include "ui.hpp"
 
 #define NOMINMAX
 
@@ -39,6 +42,7 @@ Context::Context() {
     window_top = &g_texture_manager->load_texture(Path::get("ui/window_top.png"));
     button = &g_texture_manager->load_texture(Path::get("ui/button.png"));
     tooltip = &g_texture_manager->load_texture(Path::get("ui/tooltip.png"));
+    piechart_overlay = &g_texture_manager->load_texture(Path::get("ui/piechart.png"));
 
     g_ui_context = this;
     is_drag = false;
@@ -48,7 +52,7 @@ void Context::add_widget(Widget* widget) {
     widget->is_show = 1;
 
     // Not already here
-    if(std::count(widgets.begin(), widgets.end(), widget))
+    if (std::count(widgets.begin(), widgets.end(), widget))
         return;
 
     widgets.push_back(widget);
@@ -245,14 +249,14 @@ void check_text_input_recursive(Widget& widget, const char* _input) {
         Input& c_widget = dynamic_cast<Input&>(widget);
         c_widget.on_textinput(c_widget, _input, c_widget.user_data);
     }
-    
+
     for (const auto& children : widget.children) {
         check_text_input_recursive(*children, _input);
     }
 }
 
 void Context::check_text_input(const char* _input) {
-    for (const auto& widget: widgets) {
+    for (const auto& widget : widgets) {
         check_text_input_recursive(*widget, _input);
     }
 }
@@ -381,7 +385,7 @@ void Widget::on_render(Context& ctx) {
     glBindTexture(GL_TEXTURE_2D, 0);
     glLineWidth(3.f);
 
-    if(type == UI_WIDGET_INPUT) {
+    if (type == UI_WIDGET_INPUT) {
         glColor3f(1.f, 1.f, 1.f);
     } else {
         glColor3f(0.f, 0.f, 0.f);
@@ -522,7 +526,6 @@ CloseButton::CloseButton(int _x, int _y, unsigned w, unsigned h, Widget* _parent
 
 Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI_WIDGET_INPUT) {
-    
     this->on_textinput = input_ontextinput;
 }
 
@@ -635,7 +638,7 @@ void Chart::on_render(Context& ctx) {
 }
 
 Slider::Slider(int _x, int _y, unsigned w, unsigned h, const float _min, const float _max, Widget* _parent)
-    : max{ _max }, min{ _min }, Widget(_parent, _x, _y, w, h, UI_WIDGET_SLIDER) {
+    : max{_max}, min{_min}, Widget(_parent, _x, _y, w, h, UI_WIDGET_SLIDER) {
 }
 
 void Slider::on_render(Context& ctx) {
@@ -678,5 +681,68 @@ void Slider::on_render(Context& ctx) {
     glVertex2f(width, height);
     glVertex2f(0, height);
     glVertex2f(0, 0);
+    glEnd();
+}
+
+PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, std::vector<ChartData> _data, Widget* _parent)
+    : data{_data}, Widget(_parent, _x, _y, w, h, UI_WIDGET_PIE_CHART) {
+    max = 0;
+    for (auto& slice : data) {
+        max += slice.num;
+    }
+}
+
+void PieChart::set_data(std::vector<ChartData> new_data) {
+    data = new_data;
+    for (auto& slice : data) {
+        max += slice.num;
+    }
+}
+
+void PieChart::draw_triangle(float start_ratio, float end_ratio, Color color) {
+    float x_center = x + width / 2.f;
+    float y_center = y + height / 2.f;
+    float radius = std::min(width, height) * 0.5;
+    float x_offset, y_offset, scale;
+
+    glColor3f(color.r, color.g, color.b);
+    x_offset = cos((start_ratio - 0.25f) * 2 * M_PI);
+    y_offset = sin((start_ratio - 0.25f) * 2 * M_PI);
+    scale = std::min(1.f / abs(x_offset), 1.f / abs(y_offset));
+    x_offset *= scale;
+    y_offset *= scale;
+    glTexCoord2f(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f);
+    glVertex2f(x_center + x_offset * radius, y_center + y_offset * radius);
+
+    glTexCoord2f(0.5f, 0.5f);
+    glVertex2f(x_center, y_center);
+
+    x_offset = cos((end_ratio - 0.25f) * 2 * M_PI);
+    y_offset = sin((end_ratio - 0.25f) * 2 * M_PI);
+    scale = std::min(1.f / abs(x_offset), 1.f / abs(y_offset));
+    x_offset *= scale;
+    y_offset *= scale;
+    glTexCoord2f(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f);
+    glVertex2f(x_center + x_offset * radius, y_center + y_offset * radius);
+}
+
+void PieChart::on_render(Context& ctx) {
+    glBindTexture(GL_TEXTURE_2D, ctx.piechart_overlay->gl_tex_num);
+    glBegin(GL_TRIANGLES);
+    float counter = 0;
+    float last_corner = -0.125f;
+    float last_ratio = 0;
+
+    for (auto& slice : data) {
+        counter += slice.num;
+        float ratio = counter / max;
+        while (ratio > last_corner + 0.25f) {
+            last_corner += 0.25f;
+            draw_triangle(last_ratio, last_corner, slice.color);
+            last_ratio = last_corner;
+        }
+        draw_triangle(last_ratio, ratio, slice.color);
+        last_ratio = ratio;
+    }
     glEnd();
 }
