@@ -1,6 +1,7 @@
 #ifndef BUILDING_HPP
 #define BUILDING_HPP
 #include "unit.hpp"
+#include "company.hpp"
 
 // Type for military outposts
 class BuildingType {

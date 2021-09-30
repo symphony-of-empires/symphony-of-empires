@@ -38,7 +38,7 @@ TreatyPerClauseWindow::TreatyPerClauseWindow(TreatyWindow* treaty_window) : trea
             TreatyPerClauseWindow* state = (TreatyPerClauseWindow*)w.parent;
 
             TreatyClause::AnexxProvince* clause = new TreatyClause::AnexxProvince();
-            clause->type = TREATY_CLAUSE_ANEXX_PROVINCES;
+            clause->type = TreatyClauseType::ANEXX_PROVINCES;
             clause->provinces.push_back((Province*)w.user_data);
 
             clause->sender = state->treaty_win->gs.curr_nation;
@@ -62,7 +62,7 @@ TreatyClauseWindow::TreatyClauseWindow(TreatyWindow* _treaty_win) : treaty_win{_
     list_btn->on_click = [](UI::Widget& w, void* data) {
         TreatyClauseWindow* state = (TreatyClauseWindow*)w.parent;
         TreatyClause::WarReparations* clause = new TreatyClause::WarReparations();
-        clause->type = TREATY_CLAUSE_WAR_REPARATIONS;
+        clause->type = TreatyClauseType::WAR_REPARATIONS;
         clause->sender = state->treaty_win->gs.curr_nation;
         clause->receiver = state->treaty_win->recv_nation;
         clause->amount = 5000.f;
@@ -215,7 +215,7 @@ TreatyPopup::TreatyPopup(GameState& _gs, Treaty* _treaty) : gs{_gs}, treaty{_tre
         ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
         ::serialize(ar, &action);
         ::serialize(ar, state->treaty);
-        enum TreatyApproval approval = TREATY_APPROVAL_ACCEPTED;
+        TreatyApproval approval = TreatyApproval::ACCEPTED;
         ::serialize(ar, &approval);
         state->gs.send_command(ar);
 
@@ -233,7 +233,7 @@ TreatyPopup::TreatyPopup(GameState& _gs, Treaty* _treaty) : gs{_gs}, treaty{_tre
         ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
         ::serialize(ar, &action);
         ::serialize(ar, state->treaty);
-        enum TreatyApproval approval = TREATY_APPROVAL_DENIED;
+        TreatyApproval approval = TreatyApproval::DENIED;
         ::serialize(ar, &approval);
         state->gs.send_command(ar);
 
@@ -249,22 +249,22 @@ std::string treaty_to_text(const Treaty& treaty) {
     str += treaty.name.c_str();
     for (const auto& clause : treaty.clauses) {
         switch (clause->type) {
-            case TREATY_CLAUSE_WAR_REPARATIONS:
+            case TreatyClauseType::WAR_REPARATIONS:
                 str += "war reparations from ";
                 str += clause->receiver->name.c_str();
                 break;
-            case TREATY_CLAUSE_HUMILIATE:
+            case TreatyClauseType::HUMILIATE:
                 str += "humiliate ";
                 str += clause->receiver->name.c_str();
                 break;
-            case TREATY_CLAUSE_LIBERATE_NATION:
+            case TreatyClauseType::LIBERATE_NATION:
                 str += "liberate ";
                 str += ((TreatyClause::LiberateNation*)clause)->liberated->name.c_str();
                 break;
-            case TREATY_CLAUSE_IMPOSE_POLICIES:
+            case TreatyClauseType::IMPOSE_POLICIES:
                 str += "impose policies ";
                 break;
-            case TREATY_CLAUSE_ANEXX_PROVINCES:
+            case TreatyClauseType::ANEXX_PROVINCES:
                 str += "anexx province ";
                 for (const auto& province : ((TreatyClause::AnexxProvince*)clause)->provinces) {
                     str += province->name.c_str();
@@ -273,7 +273,7 @@ std::string treaty_to_text(const Treaty& treaty) {
                 str += "from ";
                 str += clause->receiver->name.c_str();
                 break;
-            case TREATY_CLAUSE_CEASEFIRE:
+            case TreatyClauseType::CEASEFIRE:
                 str += "generous ceasefire to ";
                 str += clause->receiver->name.c_str();
                 break;
