@@ -186,6 +186,20 @@ World::World() {
     lua_pushboolean(lua, false);
     lua_setglobal(lua, "EVENT_DO_ONE_TIME");
 
+    // Technology types
+    lua_pushnumber(lua, TechnologyType::STRATEGIC);
+    lua_setglobal(lua, "TECH_STRATEGIC");
+    lua_pushnumber(lua, TechnologyType::MILITARY);
+    lua_setglobal(lua, "TECH_MILITARY");
+    lua_pushnumber(lua, TechnologyType::NAVY);
+    lua_setglobal(lua, "TECH_NAVY");
+    lua_pushnumber(lua, TechnologyType::SOCIAL);
+    lua_setglobal(lua, "TECH_SOCIAL");
+    lua_pushnumber(lua, TechnologyType::ECONOMIC);
+    lua_setglobal(lua, "TECH_ECONOMIC");
+    lua_pushnumber(lua, TechnologyType::POLITICS);
+    lua_setglobal(lua, "TECH_POLITICS");
+
     // TODO: The. name. is. fucking. long.
     lua_register(lua, "add_op_province_to_company", LuaAPI::add_op_province_to_company);
 
@@ -663,17 +677,17 @@ void World::do_tick() {
             for(auto& treaty: treaties) {
                 for(auto& part: treaty->approval_status) {
                     if(part.first == nation) {
-                        if(part.second == TreatyApproval::TREATY_APPROVAL_ACCEPTED
-                        || part.second == TreatyApproval::TREATY_APPROVAL_DENIED) {
+                        if(part.second == TreatyApproval::ACCEPTED
+                        || part.second == TreatyApproval::DENIED) {
                             break;
                         }
 
                         if(std::rand() % 50 >= 25) {
                             print_info("We, %s, deny the treaty of %s", treaty->name.c_str());
-                            part.second = TreatyApproval::TREATY_APPROVAL_DENIED;
+                            part.second = TreatyApproval::DENIED;
                         } else {
                             print_info("We, %s, accept the treaty of %s", treaty->name.c_str());
-                            part.second = TreatyApproval::TREATY_APPROVAL_ACCEPTED;
+                            part.second = TreatyApproval::ACCEPTED;
                         }
                     }
                 }
@@ -1164,29 +1178,29 @@ void World::do_tick() {
     // Do the treaties clauses
     for(const auto& treaty: treaties) {
         // Check that the treaty is agreed by all parties before enforcing it
-        bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TREATY_APPROVAL_ACCEPTED); }) != treaty->approval_status.end());
+        bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty->approval_status.end());
         if(!on_effect)
             continue;
 
         // And also check that there is atleast 1 clause that is on effect
         bool is_on_effect = false;
         for(const auto& clause: treaty->clauses) {
-            if(clause->type == TREATY_CLAUSE_WAR_REPARATIONS) {
+            if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
                 auto dyn_clause = dynamic_cast<TreatyClause::WarReparations*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TREATY_CLAUSE_ANEXX_PROVINCES) {
+            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = dynamic_cast<TreatyClause::AnexxProvince*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TREATY_CLAUSE_LIBERATE_NATION) {
+            } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = dynamic_cast<TreatyClause::LiberateNation*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TREATY_CLAUSE_HUMILIATE) {
+            } else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = dynamic_cast<TreatyClause::Humiliate*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TREATY_CLAUSE_IMPOSE_POLICIES) {
+            } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = dynamic_cast<TreatyClause::ImposePolicies*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TREATY_CLAUSE_CEASEFIRE) {
+            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = dynamic_cast<TreatyClause::Ceasefire*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
@@ -1200,32 +1214,32 @@ void World::do_tick() {
         // Treaties clauses now will be enforced
         print_info("Enforcing treaty %s", treaty->name.c_str());
         for(auto& clause: treaty->clauses) {
-            if(clause->type == TREATY_CLAUSE_WAR_REPARATIONS) {
+            if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
                 auto dyn_clause = dynamic_cast<TreatyClause::WarReparations*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
-            } else if(clause->type == TREATY_CLAUSE_ANEXX_PROVINCES) {
+            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = dynamic_cast<TreatyClause::AnexxProvince*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
-            } else if(clause->type == TREATY_CLAUSE_LIBERATE_NATION) {
+            } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = dynamic_cast<TreatyClause::LiberateNation*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
-            } else if(clause->type == TREATY_CLAUSE_HUMILIATE) {
+            } else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = dynamic_cast<TreatyClause::Humiliate*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
-            } else if(clause->type == TREATY_CLAUSE_IMPOSE_POLICIES) {
+            } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = dynamic_cast<TreatyClause::ImposePolicies*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
-            } else if(clause->type == TREATY_CLAUSE_CEASEFIRE) {
+            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = dynamic_cast<TreatyClause::Ceasefire*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;

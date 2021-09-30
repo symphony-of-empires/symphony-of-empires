@@ -3,6 +3,15 @@
 #include <string>
 #include "nation.hpp"
 
+enum TechnologyType {
+    STRATEGIC,
+    MILITARY,
+    NAVY,
+    SOCIAL,
+    ECONOMIC,
+    POLITICS,
+};
+
 class Invention {
 public:
     using Id = uint8_t;
@@ -22,6 +31,8 @@ public:
     std::string name;
     std::string description;
     float cost;
+
+    TechnologyType type;
 
     std::vector<Technology*> req_technologies;
     std::vector<Invention*> inventions;

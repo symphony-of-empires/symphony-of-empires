@@ -11,13 +11,13 @@ namespace Diplomacy {
     inline bool is_foe(Nation* us, Nation* them);
 };
 
-enum TreatyClauseType {
-    TREATY_CLAUSE_WAR_REPARATIONS,
-    TREATY_CLAUSE_HUMILIATE,
-    TREATY_CLAUSE_LIBERATE_NATION,
-    TREATY_CLAUSE_IMPOSE_POLICIES,
-    TREATY_CLAUSE_ANEXX_PROVINCES,
-    TREATY_CLAUSE_CEASEFIRE,
+enum class TreatyClauseType {
+    WAR_REPARATIONS,
+    HUMILIATE,
+    LIBERATE_NATION,
+    IMPOSE_POLICIES,
+    ANEXX_PROVINCES,
+    CEASEFIRE,
 };
 
 namespace TreatyClause {
@@ -67,7 +67,7 @@ namespace TreatyClause {
     class WarReparations : public BaseClause {
     public:
         WarReparations() : BaseClause() {
-            type = TREATY_CLAUSE_WAR_REPARATIONS;
+            type = TreatyClauseType::WAR_REPARATIONS;
         };
         unsigned cost(void);
         void enforce(void);
@@ -82,7 +82,7 @@ namespace TreatyClause {
     class Humiliate : public BaseClause {
     public:
         Humiliate() : BaseClause() {
-            type = TREATY_CLAUSE_HUMILIATE;
+            type = TreatyClauseType::HUMILIATE;
         };
         unsigned cost(void);
         void enforce(void);
@@ -97,7 +97,7 @@ namespace TreatyClause {
     class LiberateNation : public BaseClause {
     public:
         LiberateNation() : BaseClause() {
-            type = TREATY_CLAUSE_LIBERATE_NATION;
+            type = TreatyClauseType::LIBERATE_NATION;
         };
         unsigned cost(void);
         void enforce(void);
@@ -113,7 +113,7 @@ namespace TreatyClause {
     class ImposePolicies : public BaseClause {
     public:
         ImposePolicies() : BaseClause() {
-            type = TREATY_CLAUSE_IMPOSE_POLICIES;
+            type = TreatyClauseType::IMPOSE_POLICIES;
         };
         unsigned cost(void);
         void enforce(void);
@@ -128,7 +128,7 @@ namespace TreatyClause {
     class AnexxProvince : public BaseClause {
     public:
         AnexxProvince() : BaseClause() {
-            type = TREATY_CLAUSE_ANEXX_PROVINCES;
+            type = TreatyClauseType::ANEXX_PROVINCES;
         };
         unsigned cost(void);
         void enforce(void);
@@ -143,7 +143,7 @@ namespace TreatyClause {
     class Ceasefire : public BaseClause {
     public:
         Ceasefire() : BaseClause() {
-            type = TREATY_CLAUSE_CEASEFIRE;
+            type = TreatyClauseType::CEASEFIRE;
         };
         unsigned cost(void);
         void enforce(void);
@@ -151,11 +151,11 @@ namespace TreatyClause {
     };
 };
 
-enum TreatyApproval {
-    TREATY_APPROVAL_UNDECIDED,
-    TREATY_APPROVAL_ACCEPTED,
-    TREATY_APPROVAL_DENIED,
-    TREATY_APPROVAL_ABSENT,
+enum class TreatyApproval {
+    UNDECIDED,
+    ACCEPTED,
+    DENIED,
+    ABSENT,
 };
 
 typedef uint32_t TreatyId;

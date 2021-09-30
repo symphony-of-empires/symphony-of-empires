@@ -236,7 +236,18 @@ void Client::net_loop(void) {
                     Building* building = new Building();
                     ::deserialize(ar, building);
                     g_world->buildings.push_back(building);
-                    print_info("New building of %s", building->owner->name.c_str());
+                    print_info("New building property of %s", building->owner->name.c_str());
+                } break;
+                case ActionType::BUILDING_REMOVE: {
+                    Building* building;
+                    ::deserialize(ar, &building);
+                    print_info("Remove building property of %s", building->owner->name.c_str());
+
+                    if(building->type->is_factory == true) {
+                        building->delete_factory(*g_world);
+                    }
+                    delete building;
+                    g_world->buildings.erase(g_world->buildings.begin() + g_world->get_id(building));
                 } break;
                 case ActionType::TREATY_ADD: {
                     Treaty* treaty = new Treaty();

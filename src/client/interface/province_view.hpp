@@ -7,14 +7,22 @@
 #include "../ui.hpp"
 
 class GameState;
-class ProvinceView {
-   public:
-    ProvinceView(GameState& gs, UI::Window* top_win, const Tile& tile);
+class ProvinceView : public UI::Window {
+public:
+    ProvinceView(GameState& gs, const Tile& tile);
 
     GameState& gs;
-    Province* selected_province;
+    Province* province;
+
     static void colonize_province_cb(UI::Widget& w, ProvinceView* data);
-    Province::Id provinceId;
+};
+
+class ProvinceViewEconomic : public UI::Window {
+public:
+    ProvinceViewEconomic(GameState& gs, Province* province);
+
+    GameState& gs;
+    Province* province;
 };
 
 #endif
