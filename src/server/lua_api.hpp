@@ -31,6 +31,7 @@ namespace LuaAPI {
 
     int add_invention(lua_State* L);
     int get_invention(lua_State* L);
+    int set_nation_mod_to_invention(lua_State* L);
 
     int add_technology(lua_State* L);
     int get_technology(lua_State* L);
