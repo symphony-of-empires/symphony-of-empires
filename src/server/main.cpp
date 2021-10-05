@@ -142,12 +142,12 @@ int main(int argc, char** argv) {
                     }
                     std::cout << std::endl;
                 }
-                std::cout << "  }" << std::endl;
+                std::cout << "  }," << std::endl;
 
                 i = 0;
                 std::cout << "  \"provinces_reverse\": {" << std::endl;
                 for(const auto& province: world->provinces) {
-                    std::cout << "    \"" << province->name << "\":\"" << (size_t)province->color << "\"";
+                    std::cout << "    \"" << province->name << "\":" << (size_t)province->color << "";
 
                     i++;
                     if(i < world->provinces.size()) {

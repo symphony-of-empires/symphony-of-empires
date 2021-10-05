@@ -303,6 +303,7 @@ void Economy::do_phase_1(World& world) {
                 } else {
                     deliver.quantity = (available_laborers / needed_laborers) * 5000;
                 }
+                //deliver.quantity *= building->get_province()->owner.get();
                 if(!deliver.quantity)
                     continue;
 
