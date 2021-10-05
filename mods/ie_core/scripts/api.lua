@@ -1,19 +1,19 @@
 NationMod = {
 	id = 0,
 	name = "",
-	industry_output = 1.f,
-	industry_input = 1.f,
-	workers_needed = 1.f,
-	salary_paid = 1.f,
-	delivery_cost = 1.f,
-	literacy_learn = 1.f,
-	reproduction = 1.f,
-	death = 1.f,
-	militancy = 1.f,
-	consciousness = 1.f,
-	life_needs_met = 1.f,
-	everyday_needs_met = 1.f,
-	luxury_needs_met = 1.f
+	industry_output = 1.0,
+	industry_input = 1.0,
+	workers_needed = 1.0,
+	salary_paid = 1.0,
+	delivery_cost = 1.0,
+	literacy_learn = 1.0,
+	reproduction = 1.0,
+	death = 1.0,
+	militancy = 1.0,
+	consciousness = 1.0,
+	life_needs_met = 1.0,
+	everyday_needs_met = 1.0,
+	luxury_needs_met = 1.0
 }
 function NationMod:new(nation_mod)
 	nation_mod.parent = self
