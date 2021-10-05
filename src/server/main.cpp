@@ -126,6 +126,45 @@ int main(int argc, char** argv) {
                     }
                 }
             }
+            // CDCS JSON format
+            else if(r == "cdcs_json") {
+                size_t i;
+                std::cout << "{" << std::endl;
+                
+                i = 0;
+                std::cout << "  \"provinces\": {" << std::endl;
+                for(const auto& province: world->provinces) {
+                    std::cout << "    \"" << (size_t)province->color << "\":\"" << province->name << "\"";
+
+                    i++;
+                    if(i < world->provinces.size()) {
+                        std::cout << ",";
+                    }
+                    std::cout << std::endl;
+                }
+                std::cout << "  }" << std::endl;
+
+                i = 0;
+                std::cout << "  \"provinces_reverse\": {" << std::endl;
+                for(const auto& province: world->provinces) {
+                    std::cout << "    \"" << province->name << "\":\"" << (size_t)province->color << "\"";
+
+                    i++;
+                    if(i < world->provinces.size()) {
+                        std::cout << ",";
+                    }
+                    std::cout << std::endl;
+                }
+                std::cout << "  }" << std::endl;
+
+                std::cout << "}" << std::endl;
+            }
+            // Original CDCS file format
+            else if(r == "cdcs_orig") {
+                for(const auto& province: world->provinces) {
+                    std::cout << "(" << province->name << ", " << province->name << ", " << (size_t)((province->total_pops() + 1) / 1000.f) << ")" << std::endl;
+                }
+            }
             // generate a graphviz of the supply chain (abstract, just using industry types and goods)
             else if(r == "gvsch") {
                 std::cout << "digraph {" << std::endl;
