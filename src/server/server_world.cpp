@@ -47,6 +47,10 @@ World::World() {
     lua_register(lua, "get_technology", LuaAPI::get_technology);
     lua_register(lua, "add_req_tech_to_tech", LuaAPI::add_req_tech_to_tech);
 
+    lua_register(lua, "add_invention", LuaAPI::add_invention);
+    lua_register(lua, "get_invention", LuaAPI::get_invention);
+    lua_register(lua, "set_nation_mod_to_invention", LuaAPI::set_nation_mod_to_invention);
+
     lua_register(lua, "add_unit_trait", LuaAPI::add_unit_trait);
 
     lua_register(lua, "add_building_type", LuaAPI::add_building_type);

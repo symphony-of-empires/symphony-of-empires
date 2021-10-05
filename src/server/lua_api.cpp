@@ -68,6 +68,12 @@ int LuaAPI::get_invention(lua_State* L) {
     return 3;
 }
 
+int LuaAPI::set_nation_mod_to_invention(lua_State* L) {
+    Invention* invention = g_world->inventions.at(lua_tonumber(L, 1));
+    invention->mod = g_world->nation_modifiers.at(lua_tonumber(L, 2));
+    return 0;
+}
+
 int LuaAPI::add_technology(lua_State* L) {
     Technology* technology = new Technology();
 

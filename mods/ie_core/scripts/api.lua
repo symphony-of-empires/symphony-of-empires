@@ -54,7 +54,12 @@ function Technology:requires_technology(self, technology)
 	add_req_tech_to_tech(self.id, technology.id)
 end
 
-Invention = { id = 0, ref_name = "", name = "", description = "" }
+Invention = {
+	id = 0,
+	ref_name = "",
+	name = "",
+	description = ""
+}
 function Invention:new(invention)
 	invention.parent = self
 	return invention
@@ -67,6 +72,9 @@ function Invention:get(invention, ref_name)
 	invention.id, invention.name, invention.description = get_invention(ref_name)
 	invention.ref_name = ref_name
 	return invention
+end
+function Invention:set_nation_modifier(self, mod)
+	set_nation_mod_to_invention(self.id, mod.id)
 end
 
 Ideology = {
@@ -129,7 +137,12 @@ function Policies:new(policies)
 	return policies
 end
 
-Good = { id = 0, name = "", ref_name = "", is_edible = false }
+Good = {
+	id = 0,
+	name = "",
+	ref_name = "",
+	is_edible = false
+}
 function Good:new(good)
 	good.parent = self
 	return good
@@ -161,7 +174,14 @@ function UnitTrait:register(self)
 	self.id = add_unit_trait(self.ref_name, self.supply_consumption_mod, self.speed_mod, self.max_health_mod, self.defense_mod, self.attack_mod)
 end
 
-Company = { id = 0, name = "", is_transport = false, is_retailer = false, is_industry = false, money = 0, }
+Company = {
+	id = 0,
+	name = "",
+	is_transport = false,
+	is_retailer = false,
+	is_industry = false,
+	money = 0,
+}
 function Company:new(company)
 	company.parent = self
 	return company
@@ -175,7 +195,11 @@ function Company:add_province(self, province)
 	add_op_province_to_company(self.id, province.id)
 end
 
-IndustryType = { id = 0, name = "", ref_name = "" }
+IndustryType = {
+	id = 0,
+	name = "",
+	ref_name = ""
+}
 function IndustryType:new(industry_type)
 	industry_type.parent = self
 	return industry_type
@@ -199,7 +223,11 @@ function IndustryType:requires_good(self, good, amount)
 	add_req_good_to_industry_type(self.id, good.id, amount)
 end
 
-Nation = { id = 0, name = "", ref_name = "" }
+Nation = {
+	id = 0,
+	name = "",
+	ref_name = ""
+}
 function Nation:new(nation)
 	nation.parent = self
 	return nation
@@ -373,13 +401,22 @@ function Event:add_descision(self, descision)
 	add_descision(self.id, descision.ref_name, descision.name, descision.descision_fn, descision.effects)
 end
 
-Descision = { ref_name = "", descision_fn = "", name = "", effects = "" }
+Descision = {
+	ref_name = "",
+	descision_fn = "",
+	name = "",
+	effects = ""
+}
 function Descision:new(descision)
 	descision.parent = self
 	return descision
 end
 
-PopType = { id = 0, ref_name = "", name = "" }
+PopType = {
+	id = 0,
+	ref_name = "",
+	name = ""
+}
 function PopType:new(pop_type)
 	pop_type.parent = self
 	return pop_type
@@ -394,7 +431,11 @@ function PopType:register(self)
 	self.id = add_pop_type(self.ref_name, self.name)
 end
 
-Culture = { id = 0, ref_name = "", name = "" }
+Culture = {
+	id = 0,
+	ref_name = "",
+	name = ""
+}
 function Culture:new(culture)
 	culture.parent = self
 	return culture
@@ -409,7 +450,11 @@ function Culture:register(self)
 	self.id = add_culture(self.ref_name, self.name)
 end
 
-Religion = { id = 0, ref_name = "", name = "" }
+Religion = {
+	id = 0,
+	ref_name = "",
+	name = ""
+}
 function Religion:new(religion)
 	religion.parent = self
 	return religion
@@ -467,7 +512,15 @@ function UnitType:requires_good(self, good, amount)
 	add_req_good_unit_type(self.id, good.id, amount)
 end
 
-BoatType = { id = 0, ref_name = "", name = "", health = 100.0, defense = 1.0, attack = 1.0, capacity = 100 }
+BoatType = {
+	id = 0,
+	ref_name = "",
+	name = "",
+	health = 100.0,
+	defense = 1.0,
+	attack = 1.0,
+	capacity = 100
+}
 function BoatType:new(boat_type)
 	boat_type.parent = self
 	return boat_type
