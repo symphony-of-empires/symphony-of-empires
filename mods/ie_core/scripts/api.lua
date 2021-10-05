@@ -1,4 +1,42 @@
-Technology = { id = 0, ref_name = "", name = "", description = "", cost = 1.0, type = TECH_STRATEGIC }
+NationMod = {
+	id = 0,
+	name = "",
+	industry_output = 1.f,
+	industry_input = 1.f,
+	workers_needed = 1.f,
+	salary_paid = 1.f,
+	delivery_cost = 1.f,
+	literacy_learn = 1.f,
+	reproduction = 1.f,
+	death = 1.f,
+	militancy = 1.f,
+	consciousness = 1.f,
+	life_needs_met = 1.f,
+	everyday_needs_met = 1.f,
+	luxury_needs_met = 1.f
+}
+function NationMod:new(nation_mod)
+	nation_mod.parent = self
+	return nation_mod
+end
+function NationMod:register(self)
+	self.id = add_nation_mod(self.ref_name, self.name, self.industry_output, self.industry_input, self.workers_needed, self.salary_paid, self.delivery_cost, self.literacy_learn, self.reproduction, self.death, self.militancy, self.consciousness, self.life_needs_met, self.everyday_needs_met, self.luxury_needs_met)
+end
+function NationMod:get(nation_mod, ref_name)
+	nation_mod.parent = self
+	nation_mod.id, nation_mod.name, nation_mod.industry_output, nation_mod.industry_input, nation_mod.workers_needed, nation_mod.salary_paid, nation_mod.delivery_cost, nation_mod.literacy_learn, nation_mod.reproduction, nation_mod.death, nation_mod.militancy, nation_mod.consciousness, nation_mod.life_needs_met, nation_mod.everyday_needs_met, nation_mod.luxury_needs_met = get_nation_mod(ref_name)
+	nation_mod.ref_name = ref_name
+	return nation_mod
+end
+
+Technology = {
+	id = 0,
+	ref_name = "",
+	name = "",
+	description = "",
+	cost = 1.0,
+	type = TECH_STRATEGIC
+}
 function Technology:new(technology)
 	technology.parent = self
 	return technology

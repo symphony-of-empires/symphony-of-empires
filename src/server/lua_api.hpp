@@ -60,6 +60,9 @@ namespace LuaAPI {
     int get_nation_policies(lua_State* L);
     int set_nation_policies(lua_State* L);
     int set_nation_ideology(lua_State* L);
+
+    int add_nation_mod(lua_State* L);
+    int get_nation_mod(lua_State* L);
     
     int add_province(lua_State* L);
     int get_province(lua_State* L);

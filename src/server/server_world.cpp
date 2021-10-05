@@ -71,6 +71,9 @@ World::World() {
     lua_register(lua, "get_nation_policies", LuaAPI::get_nation_policies);
     lua_register(lua, "set_nation_policies", LuaAPI::set_nation_policies);
     lua_register(lua, "set_nation_ideology", LuaAPI::set_nation_ideology);
+
+    lua_register(lua, "add_nation_mod", LuaAPI::add_nation_mod);
+    lua_register(lua, "get_nation_mod", LuaAPI::get_nation_mod);
     
     lua_register(lua, "add_province", LuaAPI::add_province);
     lua_register(lua, "get_province", LuaAPI::get_province);
