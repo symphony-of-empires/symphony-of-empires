@@ -752,6 +752,16 @@ void World::do_tick() {
                 building->budget = 100.f;
                 building->corporate_owner = companies.at(std::rand() % companies.size());
                 building->create_factory(*this);
+
+                for(const auto& product: building->output_products) {
+                    Packet packet = Packet();
+                    Archive ar = Archive();
+                    ActionType action = ActionType::PRODUCT_ADD;
+                    ::serialize(ar, &action);
+                    ::serialize(ar, product);
+                    packet.data(ar.get_buffer(), ar.size());
+                    g_server->broadcast(packet);
+                }
             }
             g_world->buildings.push_back(building);
 

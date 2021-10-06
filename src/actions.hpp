@@ -52,6 +52,8 @@ enum class ActionType {
 
     TILE_UPDATE,
 
+    PRODUCT_ADD,
+    PRODUCT_REMOVE,
     PRODUCT_UPDATE,
 
     CHANGE_TREATY_APPROVAL,

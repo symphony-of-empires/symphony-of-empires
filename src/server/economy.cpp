@@ -222,6 +222,16 @@ void Economy::do_phase_1(World& world) {
                     g_server->broadcast(packet);
                 }
 
+                for(const auto& product: building->output_products) {
+                    Packet packet = Packet();
+                    Archive ar = Archive();
+                    ActionType action = ActionType::PRODUCT_REMOVE;
+                    ::serialize(ar, &action);
+                    ::serialize(ar, &product);
+                    packet.data(ar.get_buffer(), ar.size());
+                    g_server->broadcast(packet);
+                }
+
                 print_info("Building of %s in %s has closed down!", building->type->name.c_str(), province->name.c_str());
                 
                 if(building->type->is_factory == true) {

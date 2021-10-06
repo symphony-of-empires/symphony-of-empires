@@ -192,12 +192,23 @@ void Client::net_loop(void) {
                         throw ClientException("Unknown province");
                     ::deserialize(ar, province);
                 } break;
+                case ActionType::PRODUCT_ADD: {
+                    Product* product = new Product();
+                    ::deserialize(ar, product);
+                    g_world->products.push_back(product);
+                    print_info("New product of good type %s", product->good->name.c_str());
+                } break;
                 case ActionType::PRODUCT_UPDATE: {
                     Product* product;
                     ::deserialize(ar, &product);
                     if(product == nullptr)
                         throw ClientException("Unknown product");
                     ::deserialize(ar, product);
+                } break;
+                case ActionType::PRODUCT_REMOVE: {
+                    Product* product;
+                    ::deserialize(ar, &product);
+                    g_world->products.erase(g_world->products.begin() + g_world->get_id(product));
                 } break;
                 case ActionType::UNIT_UPDATE: {
                     Unit* unit;
