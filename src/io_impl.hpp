@@ -3,6 +3,9 @@
 
 #include <cstdint>
 #include <string>
+
+#include "serializer.hpp"
+
 #include "actions.hpp"
 #include "world.hpp"
 #include "province.hpp"
@@ -11,7 +14,6 @@
 #include "good.hpp"
 #include "company.hpp"
 #include "pop.hpp"
-#include "serializer.hpp"
 #include "actions.hpp"
 #include "diplomacy.hpp"
 #include "print.hpp"
@@ -22,30 +24,6 @@ class Serializer<ActionType> : public SerializerMemcpy<ActionType> {};
 template<>
 class Serializer<OrderType> : public SerializerMemcpy<OrderType> {};
 
-// Used as a template for serializable objects (pointers mostly) which should be
-// treated as a reference instead of the object itself
-template<typename W, typename T>
-class SerializerReference {
-public:
-    static inline void serialize(Archive& stream, const T* const* obj) {
-        typename T::Id id = (*obj == nullptr) ? (typename T::Id)-1 : W::get_instance().get_id(*obj);
-        ::serialize(stream, &id);
-    };
-
-    static inline void deserialize(Archive& stream, T** obj) {
-        typename T::Id id;
-        ::deserialize(stream, &id);
-        if(id >= W::get_instance().get_list(*obj).size()) {
-            *obj = nullptr;
-            return;
-        }
-        *obj = (id != (typename T::Id)-1) ? W::get_instance().get_list(*obj).at(id) : nullptr;
-    };
-
-    static inline size_t size(const T* const*) {
-        return sizeof(typename T::Id);
-    };
-};
 template<>
 class Serializer<Province*> : public SerializerReference<World, Province> {};
 template<>
