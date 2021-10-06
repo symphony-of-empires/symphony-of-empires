@@ -68,9 +68,8 @@ public:
         uint16_t len = obj->length();
 
         // Truncate lenght
-        if(len >= 1024) {
+        if(len >= 1024)
             len = 1024;
-        }
 
         // Put length for later deserialization (since UTF-8/UTF-16 exists)
         ar.expand(sizeof(len));
@@ -255,17 +254,42 @@ class Serializer<std::queue<T>> : public SerializerContainer<T, std::queue<T>> {
 template<typename T>
 class Serializer<std::set<T>> : public SerializerContainer<T, std::set<T>> {};
 
-template<typename T>
+// Used as a template for serializable objects (pointers mostly) which should be
+// treated as a reference instead of the object itself
+template<typename W, typename T>
+class SerializerReference {
+public:
+    static inline void serialize(Archive& stream, const T* const* obj) {
+        typename T::Id id = (*obj == nullptr) ? (typename T::Id)-1 : W::get_instance().get_id(*obj);
+        Serializer<typename T::Id>::serialize(stream, &id);
+    };
+
+    static inline void deserialize(Archive& stream, T** obj) {
+        typename T::Id id;
+        Serializer<typename T::Id>::deserialize(stream, &id);
+        if(id >= W::get_instance().get_list(*obj).size()) {
+            *obj = nullptr;
+            return;
+        }
+        *obj = (id != (typename T::Id)-1) ? W::get_instance().get_list(*obj).at(id) : nullptr;
+    };
+
+    static inline size_t size(const T* const*) {
+        return sizeof(typename T::Id);
+    };
+};
+
+template<typename T, typename ... Targs>
 inline void serialize(Archive& ar, const T* obj) {
     Serializer<T>::serialize(ar, obj);
 }
 
-template<typename T>
+template<typename T, typename ... Targs>
 inline void deserialize(Archive& ar, T* obj) {
     Serializer<T>::deserialize(ar, obj);
 }
 
-template<typename T>
+template<typename T, typename ... Targs>
 constexpr size_t serialized_size(const T* obj) {
     return Serializer<T>::size(obj);
 }
