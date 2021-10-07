@@ -58,6 +58,60 @@ public:
     static inline size_t size(const T* obj);
 };
 
+// A serializer optimized to memcpy directly the element into the byte stream
+// use only when the object can be copied without modification (i.e a class full of ints)
+// The elements must have a fixed size for this to work.
+template<typename T>
+class SerializerMemcpy {
+public:
+    static inline void serialize(Archive& ar, const T* obj) {
+        ar.expand(size(obj));
+        ar.copy_from(obj, sizeof(T));
+    }
+    static inline void deserialize(Archive& ar, T* obj) {
+        ar.copy_to(obj, sizeof(T));
+    }
+    static constexpr size_t size(const T*) {
+        return sizeof(T);
+    }
+};
+
+
+// TODO: On some compilers a boolean can be something not a uint8_t, we should
+// explicitly recast this boolean into a uint8_t to avoid problems
+template<>
+class Serializer<bool> : public SerializerMemcpy<bool> {};
+
+// A class more focused on numbers :)
+template<typename T>
+class SerializerNumber : public SerializerMemcpy<T> {};
+
+// Serializers for primitives only require memcpy
+template<>
+class Serializer<uint64_t> : public SerializerNumber<uint64_t> {};
+template<>
+class Serializer<uint32_t> : public SerializerNumber<uint32_t> {};
+template<>
+class Serializer<uint16_t> : public SerializerNumber<uint16_t> {};
+template<>
+class Serializer<uint8_t> : public SerializerNumber<uint8_t> {};
+
+template<>
+class Serializer<int64_t> : public SerializerNumber<int64_t> {};
+template<>
+class Serializer<int32_t> : public SerializerNumber<int32_t> {};
+template<>
+class Serializer<int16_t> : public SerializerNumber<int16_t> {};
+template<>
+class Serializer<int8_t> : public SerializerNumber<int8_t> {};
+
+template<>
+class Serializer<long double> : public SerializerNumber<long double> {};
+template<>
+class Serializer<double> : public SerializerNumber<double> {};
+template<>
+class Serializer<float> : public SerializerNumber<float> {};
+
 // A serializer specialized in strings
 // The serializer stores the lenght of the string and the string itself
 // this is done so no errors can happen due to null stuff. (UTF-8 especially)
@@ -102,56 +156,8 @@ public:
     }
 };
 
-// A serializer optimized to memcpy directly the element into the byte stream
-// use only when the object can be copied without modification (i.e a class full of ints)
-// The elements must have a fixed size for this to work.
-template<typename T>
-class SerializerMemcpy {
-public:
-    static inline void serialize(Archive& ar, const T* obj) {
-        ar.expand(size(obj));
-        ar.copy_from(obj, sizeof(T));
-    }
-    static inline void deserialize(Archive& ar, T* obj) {
-        ar.copy_to(obj, sizeof(T));
-    }
-    static constexpr size_t size(const T*) {
-        return sizeof(T);
-    }
-};
-
-// Serializers for primitives only require memcpy
-template<>
-class Serializer<uint64_t> : public SerializerMemcpy<uint64_t> {};
-template<>
-class Serializer<uint32_t> : public SerializerMemcpy<uint32_t> {};
-template<>
-class Serializer<uint16_t> : public SerializerMemcpy<uint16_t> {};
-template<>
-class Serializer<uint8_t> : public SerializerMemcpy<uint8_t> {};
-
-template<>
-class Serializer<int64_t> : public SerializerMemcpy<int64_t> {};
-template<>
-class Serializer<int32_t> : public SerializerMemcpy<int32_t> {};
-template<>
-class Serializer<int16_t> : public SerializerMemcpy<int16_t> {};
-template<>
-class Serializer<int8_t> : public SerializerMemcpy<int8_t> {};
-
-template<>
-class Serializer<long double> : public SerializerMemcpy<long double> {};
-template<>
-class Serializer<double> : public SerializerMemcpy<double> {};
-template<>
-class Serializer<float> : public SerializerMemcpy<float> {};
-
-template<>
-class Serializer<bool> : public SerializerMemcpy<bool> {};
-
-// TODO: Vector serializers do not like different endianess
-
 // Non-contigous serializer for STL containers
+// This serializer class works primarly with containers whose memory is contiguous
 template<typename T, typename C>
 class SerializerContainer {
 public:

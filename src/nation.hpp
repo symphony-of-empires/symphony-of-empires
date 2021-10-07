@@ -126,9 +126,7 @@ public:
 
     // 3 key scores used to define a nation's minimum prestige, how willing would the AI
     // be to challenge this nations and other valuable stuff
-    float military_score = 0.f;
-    float naval_score = 0.f;
-    float economy_score = 0.f;
+    float military_score = 0.f, naval_score = 0.f, economy_score = 0.f;
 
     // Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
     // of all products in the nation, which are volatile unless they are sold
