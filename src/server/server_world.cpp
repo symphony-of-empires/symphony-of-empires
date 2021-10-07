@@ -298,7 +298,19 @@ void World::load_mod(void) {
                 throw LuaAPI::Exception(lua_tostring(lua, -1));
             }*/
 
-            mod_buf += "f = loadfile(\"" + path + "\")\n";
+#ifdef windows
+            std::string m_path;
+            for(auto& c: path) {
+                if(c == '\\') {
+                    m_path += "\\\\";
+                } else {
+                    m_path += c;
+                }
+            }
+#else
+            std::string m_path = path;
+#endif
+            mod_buf += "f = loadfile(\"" + m_path + "\")\n";
             mod_buf += "f()\n";
         }
         //mod_buf += "require(\"" + lua_file + "\")\n";
