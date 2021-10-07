@@ -57,9 +57,7 @@ World::World() {
 
     lua_register(lua, "add_good", LuaAPI::add_good);
     lua_register(lua, "get_good", LuaAPI::get_good);
-
-    lua_register(lua, "add_industry_type", LuaAPI::add_industry_type);
-    lua_register(lua, "get_industry_type", LuaAPI::get_industry_type);
+    
     lua_register(lua, "add_input_to_industry_type", LuaAPI::add_input_to_industry_type);
     lua_register(lua, "add_output_to_industry_type", LuaAPI::add_output_to_industry_type);
     lua_register(lua, "add_req_good_to_industry_type", LuaAPI::add_req_good_to_industry_type);
@@ -118,10 +116,6 @@ World::World() {
     lua_register(lua, "add_unit_type", LuaAPI::add_unit_type);
     lua_register(lua, "get_unit_type", LuaAPI::get_unit_type);
     lua_register(lua, "add_req_good_unit_type", LuaAPI::add_req_good_unit_type);
-
-    lua_register(lua, "add_boat_type", LuaAPI::add_boat_type);
-    lua_register(lua, "get_boat_type", LuaAPI::get_boat_type);
-    lua_register(lua, "add_req_good_boat_type", LuaAPI::add_req_good_boat_type);
 
     lua_register(lua, "add_ideology", LuaAPI::add_ideology);
     lua_register(lua, "get_ideology", LuaAPI::get_ideology);
@@ -253,12 +247,8 @@ World::~World() {
         delete building_type;
     } for(auto& unit_trait: unit_traits) {
         delete unit_trait;
-    } for(auto& boat_type: boat_types) {
-        delete boat_type;
     } for(auto& product: products) {
         delete product;
-    } for(auto& boat: boats) {
-        delete boat;
     } for(auto& unit: units) {
         delete unit;
     } for(auto& ideology: ideologies) {
@@ -744,7 +734,6 @@ void World::do_tick() {
             building->y = y_coord;
             building->owner = nation;
             building->working_unit_type = nullptr;
-            building->working_boat_type = nullptr;
             building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
             building->req_goods = std::vector<std::pair<Good*, size_t>>();
             building->type = building_types.at(std::rand() % building_types.size());
@@ -866,126 +855,6 @@ void World::do_tick() {
         break;
     default:
         break;
-    }
-
-    // Evaluate boats
-    for(size_t i = 0; i < boats.size(); i++) {
-        Boat* unit = boats[i];
-        if(unit->size <= 0) {
-            g_world->boats.erase(boats.begin() + i);
-            break;
-        }
-        
-        // Count friends and foes in range (and find nearest foe)
-        size_t n_friends = 0;
-        size_t n_foes = 0;
-        Boat* nearest_foe = nullptr;
-        Boat* nearest_friend = nullptr;
-        for(size_t j = 0; j < g_world->boats.size(); j++) {
-            Boat* other_unit = g_world->boats[j];
-            if(unit->owner == other_unit->owner) {
-                // Only when very close
-                if(std::abs(unit->x - other_unit->x) >= 4.f && std::abs(unit->y - other_unit->y) >= 4.f)
-                    continue;
-                
-                n_friends++;
-                
-                if(nearest_friend == nullptr) {
-                    nearest_friend = other_unit;
-                }
-                
-                // Find nearest friend
-                if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_friend->x)
-                && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_friend->y)) {
-                    nearest_friend = other_unit;
-                }
-            } else {
-                // Foes from many ranges counts
-                if(std::abs(unit->x - other_unit->x) >= 1.f && std::abs(unit->y - other_unit->y) >= 1.f)
-                    continue;
-                
-                n_foes++;
-                
-                if(nearest_foe == nullptr) {
-                    nearest_foe = other_unit;
-                }
-
-                // Find nearest foe
-                if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_foe->x)
-                && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_foe->y)) {
-                    nearest_foe = other_unit;
-                }
-            }
-        }
-
-        // This code stops the "wiggly" movement due to floating point differences
-        if((unit->x != unit->tx || unit->y != unit->ty)
-        && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
-            float end_x, end_y;
-            const float speed = 0.1f;
-
-            end_x = unit->x;
-            end_y = unit->y;
-            
-            // Move towards target
-            if(unit->x > unit->tx)
-                end_x -= speed;
-            else if(unit->x < unit->tx)
-                end_x += speed;
-
-            if(unit->y > unit->ty)
-                end_y -= speed;
-            else if(unit->y < unit->ty)
-                end_y += speed;
-            
-            // Boats cannot go on land
-            if(get_tile(end_x, end_y).elevation > sea_level) {
-                continue;
-            }
-
-            unit->x = end_x;
-            unit->y = end_y;
-        }
-        
-        // Make the unit attack automatically
-        // and we must be at war with the owner of this unit to be able to attack the unit
-        if(nearest_foe != nullptr
-        && unit->owner->relations[get_id(nearest_foe->owner)].has_war == false) {
-            unit->attack(*nearest_foe);
-        }
-
-        // North and south do not wrap
-        unit->y = std::max<float>(0.f, unit->y);
-        unit->y = std::min<float>(height, unit->y);
-
-        // West and east do wrap
-        if(unit->x <= 0.f) {
-            unit->x = width - 1.f;
-        } else if(unit->x >= width) {
-            unit->x = 0.f;
-        }
-
-        // Set nearby tiles as owned
-        // TODO: Make it conquer multiple tiles
-        Tile& tile = get_tile(unit->x, unit->y);
-        if(tile.owner_id != get_id(unit->owner)) {
-            tile.owner_id = get_id(unit->owner);
-
-            std::lock_guard<std::recursive_mutex> lock(nation_changed_tiles_mutex);
-            nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
-        }
-    }
-    
-    for(const auto& boat: g_world->boats) {
-        // Broadcast to clients
-        Packet packet = Packet();
-        Archive ar = Archive();
-        ActionType action = ActionType::BOAT_UPDATE;
-        ::serialize(ar, &action);
-        ::serialize(ar, &boat);
-        ::serialize(ar, boat);
-        packet.data(ar.get_buffer(), ar.size());
-        g_server->broadcast(packet);
     }
 
     // Evaluate units

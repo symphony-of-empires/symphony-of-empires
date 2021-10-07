@@ -135,7 +135,6 @@
 
 // std::vector<const UnifiedRender::Texture*> nation_flags;
 // std::vector<const UnifiedRender::Texture*> outpost_type_icons;
-// std::vector<const UnifiedRender::Texture*> boat_type_icons;
 // std::vector<const UnifiedRender::Texture*> unit_type_icons;
 
 // const UnifiedRender::Texture& get_nation_flag(Nation& nation) {
@@ -346,10 +345,6 @@
 //         std::string path = Path::get("3d/outpost_types/" + outpost_type->ref_name + ".obj");
 //         map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
 //     }
-//     for (const auto& boat_type : g_world->boat_types) {
-//         std::string path = Path::get("3d/boat_types/" + boat_type->ref_name + ".obj");
-//         map->boat_type_icons.push_back(&g_model_manager->load_complex(path));
-//     }
 //     for (const auto& unit_type : g_world->unit_types) {
 //         std::string path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
 //         map->unit_type_icons.push_back(&g_model_manager->load_complex(path));
@@ -384,8 +379,6 @@
 //     UI::Button* play_btn = new UI::Button((width / 2) - (320 / 2), height - 38, 320, 38);
 //     play_btn->text("Play");
 //     play_btn->on_click = &play_nation;
-
-//     Boat* selected_boat = nullptr;
 //     Unit* selected_unit = nullptr;
 //     Outpost* selected_outpost = nullptr;
 //     uint64_t last_time = 0;
@@ -448,20 +441,8 @@
 //                             case MAP_MODE_NORMAL:
 //                                 // See untis that have been clicked on
 //                                 if (event.button.button == SDL_BUTTON_LEFT) {
-//                                     selected_boat = nullptr;
 //                                     selected_unit = nullptr;
 //                                     selected_outpost = nullptr;
-
-//                                     // Check if we selected a boat
-//                                     for (const auto& boat : g_world->boats) {
-//                                         const float size = 2.f;
-//                                         if ((int)select_pos.first > (int)boat->x - size && (int)select_pos.first < (int)boat->x + size && (int)select_pos.second > (int)boat->y - size && (int)select_pos.second < (int)boat->y + size) {
-//                                             selected_boat = boat;
-//                                             break;
-//                                         }
-//                                     }
-//                                     if (selected_boat != nullptr)
-//                                         break;
 
 //                                     // Check if we selected an unit
 //                                     for (const auto& unit : g_world->units) {
@@ -508,7 +489,6 @@
 //                                     outpost.x = select_pos.first;
 //                                     outpost.y = select_pos.second;
 //                                     outpost.working_unit_type = nullptr;
-//                                     outpost.working_boat_type = nullptr;
 //                                     outpost.req_goods = outpost.type->req_goods;
 //                                     outpost.owner = g_world->nations[curr_selected_nation];
 //                                     ::serialize(ar, &outpost);  // OutpostObj
@@ -529,23 +509,6 @@
 //                                         ::serialize(ar, &selected_unit);
 //                                         ::serialize(ar, &selected_unit->tx);
 //                                         ::serialize(ar, &selected_unit->ty);
-//                                         packet.data(ar.get_buffer(), ar.size());
-//                                         g_client->packet_queue.push_back(packet);
-//                                         g_client->packet_mutex.unlock();
-//                                         break;
-//                                     }
-//                                     if (selected_boat != nullptr) {
-//                                         selected_boat->tx = select_pos.first;
-//                                         selected_boat->ty = select_pos.second;
-
-//                                         g_client->packet_mutex.lock();
-//                                         Packet packet = Packet();
-//                                         Archive ar = Archive();
-//                                         enum ActionType action = ACTION_BOAT_CHANGE_TARGET;
-//                                         ::serialize(ar, &action);
-//                                         ::serialize(ar, &selected_boat);
-//                                         ::serialize(ar, &selected_boat->tx);
-//                                         ::serialize(ar, &selected_boat->ty);
 //                                         packet.data(ar.get_buffer(), ar.size());
 //                                         g_client->packet_queue.push_back(packet);
 //                                         g_client->packet_mutex.unlock();
@@ -786,18 +749,6 @@
 //         glLoadMatrixf(glm::value_ptr(cam.get_view()));
 
 //         map->draw(cam, width, height);
-
-//         g_world->boats_mutex.lock();
-//         if (selected_boat != nullptr) {
-//             glBegin(GL_LINE_STRIP);
-//             glColor3f(1.f, 0.f, 0.f);
-//             glVertex2f(selected_boat->x, selected_boat->y);
-//             glVertex2f(selected_boat->x + 1.f, selected_boat->y);
-//             glVertex2f(selected_boat->x + 1.f, selected_boat->y + 1.f);
-//             glVertex2f(selected_boat->x, selected_boat->y + 1.f);
-//             glEnd();
-//         }
-//         g_world->boats_mutex.unlock();
 
 //         g_world->units_mutex.lock();
 //         if (selected_unit != nullptr) {

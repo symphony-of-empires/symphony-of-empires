@@ -46,30 +46,6 @@ void ui_build_unit(Building* building, UI::Window* top_win) {
                 g_client->packet_mutex.unlock();
             };
         }
-    } else if(building->type->is_build_naval_units) {
-        for(auto& boat_type: g_world->boat_types) {
-            if(build_type_btn != nullptr)
-                prev_btn = build_type_btn;
-            build_type_btn = new UI::Button(0, 0, 303, 38, build_win);
-            build_type_btn->text(boat_type->ref_name.c_str());
-            build_type_btn->user_data = boat_type;
-            if(prev_btn != nullptr)
-                build_type_btn->below_of(*prev_btn);
-            build_type_btn->on_click = [](UI::Widget&, void* data) {
-                g_client->packet_mutex.lock();
-                Packet packet = Packet();
-                Archive ar = Archive();
-                ActionType action = ActionType::BUILDING_START_BUILDING_BOAT;
-                ::serialize(ar, &action);
-                
-                ::serialize(ar, &g_building); // BuildingRef
-                ::serialize(ar, (BoatType**)&data); // BoatTypeRef
-
-                packet.data(ar.get_buffer(), ar.size());
-                g_client->packet_queue.push_back(packet);
-                g_client->packet_mutex.unlock();
-            };
-        }
     }
     UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, 303, 38, build_win);
     ok_btn->text("OK");

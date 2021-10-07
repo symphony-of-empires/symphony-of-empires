@@ -51,7 +51,7 @@ bool Building::can_do_output(const World& world) {
 * Phase 1 of economy: Delivers & Orders are sent from all factories in the world
  */
 void Economy::do_phase_1(World& world) {
-    // Buildings who have fullfilled requirements to build stuff will spawna  lil' unit/boat
+    // Buildings who have fullfilled requirements to build stuff will spawn a unit
     for(size_t j = 0; j < world.buildings.size(); j++) {
         auto& building = world.buildings.at(j);
         if(building == nullptr)
@@ -177,35 +177,6 @@ void Economy::do_phase_1(World& world) {
             ActionType action = ActionType::UNIT_ADD;
             ::serialize(ar, &action); // ActionInt
             ::serialize(ar, unit); // UnitObj
-            packet.data(ar.get_buffer(), ar.size());
-            g_server->broadcast(packet);
-        }
-
-        if(building->working_boat_type != nullptr) {
-            // Spawn a boat
-            Boat* boat = new Boat();
-            boat->x = building->x;
-            boat->y = building->y;
-            boat->type = building->working_boat_type;
-            boat->tx = boat->x;
-            boat->ty = boat->y;
-            boat->owner = building->owner;
-            boat->experience = 1.f;
-            boat->morale = 1.f;
-            boat->supply = 1.f;
-            boat->defensive_ticks = 0;
-            boat->size = boat->type->max_health;
-            boat->base = boat->size;
-
-            // Notify all clients of the server about this new boat
-            g_world->boats.push_back(boat);
-            building->working_boat_type = nullptr;
-
-            Packet packet = Packet();
-            Archive ar = Archive();
-            ActionType action = ActionType::BOAT_ADD;
-            ::serialize(ar, &action); // ActionInt
-            ::serialize(ar, boat); // BoatObj
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
         }
@@ -349,20 +320,6 @@ void Economy::do_phase_1(World& world) {
         // TODO: We should deduct and set willing payment from military spendings
         // Building an unit
         for(const auto& good: building->req_goods_for_unit) {
-            if(!good.second)
-                continue;
-
-            OrderGoods order;
-            order.quantity = good.second;
-            // TODO: Make this dynamic
-            order.payment = good.second * 5.f;
-            order.good = good.first;
-            order.building = building;
-            order.type = OrderType::UNIT;
-            world.orders.push_back(order);
-        }
-        // And also for boats :)
-        for(const auto& good: building->req_goods_for_boat) {
             if(!good.second)
                 continue;
 

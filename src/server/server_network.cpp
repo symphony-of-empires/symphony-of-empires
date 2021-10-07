@@ -261,25 +261,6 @@ void Server::net_loop(int id) {
                         
                         print_info("Unit changes targets to %zu.%zu", (size_t)unit->tx, (size_t)unit->ty);
                     } break;
-                    /// - Client tells server to change target of boat
-                    case ActionType::BOAT_CHANGE_TARGET: {
-                        Boat* boat;
-                        ::deserialize(ar, &boat);
-                        if(boat == nullptr)
-                            throw ServerException("Unknown boat");
-
-                        // Must control boat
-                        if(selected_nation != boat->owner)
-                            throw ServerException("Nation does not control boat");
-                        
-                        ::deserialize(ar, &boat->tx);
-                        ::deserialize(ar, &boat->ty);
-
-                        if(boat->tx >= g_world->width || boat->ty >= g_world->height)
-                            throw ServerException("Coordinates out of range for boat");
-                        
-                        print_info("Boat changes targets to %zu.%zu", (size_t)boat->tx, (size_t)boat->ty);
-                    } break;
                     // Client tells the server about the construction of a new unit, note that this will
                     // only make the building submit "construction tickets" to obtain materials to build
                     // the unit can only be created by the server, not by the clients
@@ -305,27 +286,6 @@ void Server::net_loop(int id) {
                         building->req_goods_for_unit = unit_type->req_goods;
                         print_info("New order for building; build unit %s", unit_type->name.c_str());
                     } break;
-                    // - Same as before but with boats
-                    case ActionType::BUILDING_START_BUILDING_BOAT: {
-                        Building* building;
-                        ::deserialize(ar, &building);
-                        if(building == nullptr)
-                            throw ServerException("Unknown building");
-                        
-                        BoatType* boat_type;
-                        ::deserialize(ar, &boat_type);
-                        if(boat_type == nullptr)
-                            throw ServerException("Unknown boat type");
-                        
-                        // Must control building
-                        if(building->owner != selected_nation)
-                            throw ServerException("Nation does not control building");
-
-                        // Tell the building to build this specific unit type
-                        building->working_boat_type = boat_type;
-                        building->req_goods_for_boat = boat_type->req_goods;
-                        print_info("New order for building; build boat %s", boat_type->name.c_str());
-                    } break;
                     // Client tells server to build new outpost, the location (& type) is provided by
                     // the client and the rest of the fields are filled by the server
                     case ActionType::BUILDING_ADD: {
@@ -348,7 +308,6 @@ void Server::net_loop(int id) {
                             throw ServerException("Building cannot be built on foreign land");
 
                         building->working_unit_type = nullptr;
-                        building->working_boat_type = nullptr;
                         building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
                         building->req_goods = std::vector<std::pair<Good*, size_t>>();
                         ::serialize(ar, building);

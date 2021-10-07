@@ -28,7 +28,6 @@ struct Input {
     bool middle_mouse_down = false;
     std::pair<float, float> last_camera_drag_pos;
     std::pair<int, int> mouse_pos;
-    Boat* selected_boat = nullptr;
     Unit* selected_unit = nullptr;
     Building* selected_building = nullptr;
 };

@@ -26,7 +26,7 @@ private:
 public:
     Map(const World& world);
 
-    std::vector<const UnifiedRender::ComplexModel*> unit_type_icons, boat_type_icons, outpost_type_icons;
+    std::vector<const UnifiedRender::ComplexModel*> unit_type_icons, outpost_type_icons;
     std::vector<const UnifiedRender::Texture*> nation_flags;
 
     // Wind oscillator (for flags)

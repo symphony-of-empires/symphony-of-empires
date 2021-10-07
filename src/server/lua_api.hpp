@@ -43,9 +43,7 @@ namespace LuaAPI {
 
     int add_good(lua_State* L);
     int get_good(lua_State* L);
-
-    int add_industry_type(lua_State* L);
-    int get_industry_type(lua_State* L);
+    
     int add_input_to_industry_type(lua_State* L);
     int add_output_to_industry_type(lua_State* L);
     int add_req_good_to_industry_type(lua_State* L);
@@ -105,10 +103,6 @@ namespace LuaAPI {
     int add_unit_type(lua_State* L);
     int get_unit_type(lua_State* L);
     int add_req_good_unit_type(lua_State* L);
-
-    int add_boat_type(lua_State* L);
-    int get_boat_type(lua_State* L);
-    int add_req_good_boat_type(lua_State* L);
 
     int add_ideology(lua_State* L);
     int get_ideology(lua_State* L);

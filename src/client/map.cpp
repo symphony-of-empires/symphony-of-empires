@@ -160,29 +160,13 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         input.select_pos.second >= gs.world->height) {
         return;
     }
-    Boat* selected_boat = input.selected_boat;
     Unit* selected_unit = input.selected_unit;
     Building* selected_building = input.selected_building;
     std::pair<float, float>& select_pos = input.select_pos;
 
     if (event.button.button == SDL_BUTTON_LEFT) {
-        selected_boat = nullptr;
         selected_unit = nullptr;
         selected_building = nullptr;
-
-        // Check if we selected a boat
-        for (const auto& boat : gs.world->boats) {
-            const float size = 2.f;
-            if ((int)select_pos.first > (int)boat->x - size &&
-                (int)select_pos.first < (int)boat->x + size &&
-                (int)select_pos.second > (int)boat->y - size &&
-                (int)select_pos.second < (int)boat->y + size) {
-                selected_boat = boat;
-                break;
-            }
-        }
-        if (selected_boat != nullptr)
-            return;
 
         // Check if we selected an unit
         for (const auto& unit : gs.world->units) {
@@ -236,7 +220,6 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         building.x = select_pos.first;
         building.y = select_pos.second;
         building.working_unit_type = nullptr;
-        building.working_boat_type = nullptr;
         building.req_goods = building.type->req_goods;
         // TODO FIX
         building.owner = gs.world->nations[gs.select_nation->curr_selected_nation];
@@ -258,23 +241,6 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             ::serialize(ar, &selected_unit);
             ::serialize(ar, &selected_unit->tx);
             ::serialize(ar, &selected_unit->ty);
-            packet.data(ar.get_buffer(), ar.size());
-            gs.client->packet_queue.push_back(packet);
-            gs.client->packet_mutex.unlock();
-            return;
-        }
-        if (selected_boat != nullptr) {
-            selected_boat->tx = select_pos.first;
-            selected_boat->ty = select_pos.second;
-
-            gs.client->packet_mutex.lock();
-            Packet packet = Packet();
-            Archive ar = Archive();
-            ActionType action = ActionType::BOAT_CHANGE_TARGET;
-            ::serialize(ar, &action);
-            ::serialize(ar, &selected_boat);
-            ::serialize(ar, &selected_boat->tx);
-            ::serialize(ar, &selected_boat->ty);
             packet.data(ar.get_buffer(), ar.size());
             gs.client->packet_queue.push_back(packet);
             gs.client->packet_mutex.unlock();
@@ -398,20 +364,6 @@ void Map::draw(Camera& cam, const int width, const int height) {
         model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
         draw_flag(unit->owner);
-    }
-
-    for (const auto& boat : world.boats) {
-        glm::mat4 model(1.f);
-        model = glm::translate(model, glm::vec3(boat->x, boat->y, 0.f));
-        model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
-        obj_shader->set_uniform("model", model);
-
-        boat_type_icons[world.get_id(boat->type)]->draw(obj_shader);
-
-        // Reverse rotation
-        model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
-        obj_shader->set_uniform("model", model);
-        draw_flag(boat->owner);
     }
     world.world_mutex.unlock();
 

@@ -128,6 +128,7 @@ int LuaAPI::add_building_type(lua_State* L) {
     building_type->is_build_land_units = lua_toboolean(L, 3);
     building_type->is_build_naval_units = lua_toboolean(L, 4);
     building_type->defense_bonus = lua_tonumber(L, 5);
+    building_type->is_factory = lua_toboolean(L, 6);
 
     g_world->building_types.push_back(building_type);
     lua_pushnumber(L, g_world->building_types.size() - 1);
@@ -151,32 +152,6 @@ int LuaAPI::get_good(lua_State* L) {
 
     lua_pushnumber(L, g_world->get_id(good));
     lua_pushstring(L, good->name.c_str());
-    return 2;
-}
-
-int LuaAPI::add_industry_type(lua_State* L) {
-    BuildingType* industry_type = new BuildingType();
-    industry_type->is_factory = true;
-    industry_type->is_plot_on_land = true;
-    industry_type->is_plot_on_sea = false;
-    industry_type->is_build_land_units = false;
-    industry_type->is_build_naval_units = false;
-
-    industry_type->ref_name = luaL_checkstring(L, 1);
-    industry_type->name = luaL_checkstring(L, 2);
-    industry_type->inputs.clear();
-    industry_type->outputs.clear();
-
-    g_world->building_types.push_back(industry_type);
-    lua_pushnumber(L, g_world->get_id(industry_type));
-    return 1;
-}
-
-int LuaAPI::get_industry_type(lua_State* L) {
-    const auto* industry_type = find_or_throw<BuildingType>(luaL_checkstring(L, 1));
-    
-    lua_pushnumber(L, g_world->get_id(industry_type));
-    lua_pushstring(L, industry_type->name.c_str());
     return 2;
 }
 
@@ -784,6 +759,9 @@ int LuaAPI::add_unit_type(lua_State* L) {
     unit_type->max_defensive_ticks = lua_tonumber(L, 6);
     unit_type->position_defense = lua_tonumber(L, 7);
 
+    unit_type->is_ground = lua_toboolean(L, 8);
+    unit_type->is_naval = lua_toboolean(L, 9);
+
     g_world->unit_types.push_back(unit_type);
     lua_pushnumber(L, g_world->unit_types.size() - 1);
     return 1;
@@ -799,7 +777,9 @@ int LuaAPI::get_unit_type(lua_State* L) {
     lua_pushnumber(L, unit_type->max_health);
     lua_pushnumber(L, unit_type->max_defensive_ticks);
     lua_pushnumber(L, unit_type->position_defense);
-    return 7;
+    lua_pushboolean(L, unit_type->is_ground);
+    lua_pushboolean(L, unit_type->is_naval);
+    return 9;
 }
 
 int LuaAPI::add_req_good_unit_type(lua_State* L) {
@@ -809,33 +789,6 @@ int LuaAPI::add_req_good_unit_type(lua_State* L) {
     size_t amount = lua_tonumber(L, 3);
     unit_type->req_goods.push_back(std::make_pair(good, amount));
     return 0;
-}
-
-int LuaAPI::add_boat_type(lua_State* L) {
-    BoatType* boat_type = new BoatType();
-
-    boat_type->ref_name = luaL_checkstring(L, 1);
-    boat_type->name = luaL_checkstring(L, 2);
-    boat_type->attack = lua_tonumber(L, 3);
-    boat_type->defense = lua_tonumber(L, 4);
-    boat_type->max_health = lua_tonumber(L, 5);
-    boat_type->capacity = lua_tonumber(L, 6);
-
-    g_world->boat_types.push_back(boat_type);
-    lua_pushnumber(L, g_world->boat_types.size() - 1);
-    return 1;
-}
-
-int LuaAPI::get_boat_type(lua_State* L) {
-    const auto* boat_type = find_or_throw<BoatType>(luaL_checkstring(L, 1));
-    
-    lua_pushnumber(L, g_world->get_id(boat_type));
-    lua_pushstring(L, boat_type->name.c_str());
-    lua_pushnumber(L, boat_type->attack);
-    lua_pushnumber(L, boat_type->defense);
-    lua_pushnumber(L, boat_type->max_health);
-    lua_pushnumber(L, boat_type->capacity);
-    return 6;
 }
 
 int LuaAPI::add_ideology(lua_State* L) {
@@ -856,15 +809,6 @@ int LuaAPI::get_ideology(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(ideology));
     lua_pushstring(L, ideology->name.c_str());
     return 2;
-}
-
-int LuaAPI::add_req_good_boat_type(lua_State* L) {
-    BoatType* boat_type = g_world->boat_types.at(lua_tonumber(L, 1));
-
-    Good* good = g_world->goods.at(lua_tonumber(L, 2));
-    size_t amount = lua_tonumber(L, 3);
-    boat_type->req_goods.push_back(std::make_pair(good, amount));
-    return 0;
 }
 
 int LuaAPI::get_hour(lua_State* L) {
