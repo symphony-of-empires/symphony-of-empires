@@ -114,6 +114,16 @@ public:
 #include "event.hpp"
 #include "diplomacy.hpp"
 
+// Create a new list from a type, with helper functions
+#define LIST_FOR_TYPE(type, list, list_type)\
+    inline const list_type<type*>& get_list(const type* ptr) const {\
+        return list;\
+    };\
+    inline list_type<type*>& get_list(const type* ptr) {\
+        return list;\
+    };\
+    list_type<type*> list;\
+
 /**
 * Contains the main world class object, containing all the data relevant for the simulation
  */
@@ -141,158 +151,35 @@ public:
     void do_tick(void);
     void load_mod(void);
 
-    inline const std::vector<Nation*>& get_list(const Nation* ptr) const {
-        return nations;
-    };
-    inline std::vector<Nation*>& get_list(const Nation* ptr) {
-        return nations;
-    };
-
-    inline const std::vector<Province*>& get_list(const Province* ptr) const {
-        return provinces;
-    };
-    inline std::vector<Province*>& get_list(const Province* ptr) {
-        return provinces;
-    };
-
-    inline const std::vector<Product*>& get_list(const Product* ptr) const {
-        return products;
-    };
-    inline std::vector<Product*>& get_list(const Product* ptr) {
-        return products;
-    };
-
-    inline const std::vector<Good*>& get_list(const Good* ptr) const {
-        return goods;
-    };
-    inline std::vector<Good*>& get_list(const Good* ptr) {
-        return goods;
-    };
-
-    inline const std::vector<Culture*>& get_list(const Culture* ptr) const {
-        return cultures;
-    };
-    inline std::vector<Culture*>& get_list(const Culture* ptr) {
-        return cultures;
-    };
-
-    inline const std::vector<Company*>& get_list(const Company* ptr) const {
-        return companies;
-    };
-    inline std::vector<Company*>& get_list(const Company* ptr) {
-        return companies;
-    };
-
-    inline const std::vector<PopType*>& get_list(const PopType* ptr) const {
-        return pop_types;
-    };
-    inline std::vector<PopType*>& get_list(const PopType* ptr) {
-        return pop_types;
-    };
-
-    inline const std::vector<Building*>& get_list(const Building* ptr) const {
-        return buildings;
-    };
-    inline std::vector<Building*>& get_list(const Building* ptr) {
-        return buildings;
-    };
-
-    inline const std::vector<Event*>& get_list(const Event* ptr) const {
-        return events;
-    };
-    inline std::vector<Event*>& get_list(const Event* ptr) {
-        return events;
-    };
-
-    inline const std::vector<UnitType*>& get_list(const UnitType* ptr) const {
-        return unit_types;
-    };
-    inline std::vector<UnitType*>& get_list(const UnitType* ptr) {
-        return unit_types;
-    };
-
-    inline const std::vector<BoatType*>& get_list(const BoatType* ptr) const {
-        return boat_types;
-    };
-    inline std::vector<BoatType*>& get_list(const BoatType* ptr) {
-        return boat_types;
-    };
-
-    inline const std::vector<UnitTrait*>& get_list(const UnitTrait* ptr) const {
-        return unit_traits;
-    };
-    inline std::vector<UnitTrait*>& get_list(const UnitTrait* ptr) {
-        return unit_traits;
-    };
-
-    inline const std::vector<Unit*>& get_list(const Unit* ptr) const {
-        return units;
-    };
-    inline std::vector<Unit*>& get_list(const Unit* ptr) {
-        return units;
-    };
-
-    inline const std::vector<Boat*>& get_list(const Boat* ptr) const {
-        return boats;
-    };
-    inline std::vector<Boat*>& get_list(const Boat* ptr) {
-        return boats;
-    };
-
-    inline const std::vector<BuildingType*>& get_list(const BuildingType* ptr) const {
-        return building_types;
-    };
-    inline std::vector<BuildingType*>& get_list(const BuildingType* ptr) {
-        return building_types;
-    };
-
-    inline const std::vector<Treaty*>& get_list(const Treaty* ptr) const {
-        return treaties;
-    };
-    inline std::vector<Treaty*>& get_list(const Treaty* ptr) {
-        return treaties;
-    };
-
-    inline const std::vector<Ideology*>& get_list(const Ideology* ptr) const {
-        return ideologies;
-    };
-    inline std::vector<Ideology*>& get_list(const Ideology* ptr) {
-        return ideologies;
-    };
-
-    inline const std::vector<Religion*>& get_list(const Religion* ptr) const {
-        return religions;
-    };
-    inline std::vector<Religion*>& get_list(const Religion* ptr) {
-        return religions;
-    };
-
-    inline const std::vector<Technology*>& get_list(const Technology* ptr) const {
-        return technologies;
-    };
-    inline std::vector<Technology*>& get_list(const Technology* ptr) {
-        return technologies;
-    };
-    
-    inline const std::vector<Invention*>& get_list(const Invention* ptr) const {
-        return inventions;
-    };
-    inline std::vector<Invention*>& get_list(const Invention* ptr) {
-        return inventions;
-    };
-
-    inline const std::vector<NationModifier*>& get_list(const NationModifier* ptr) const {
-        return nation_modifiers;
-    };
-    inline std::vector<NationModifier*>& get_list(const NationModifier* ptr) {
-        return nation_modifiers;
-    };
+    LIST_FOR_TYPE(Nation, nations, std::vector)
+    LIST_FOR_TYPE(Province, provinces, std::vector)
+    LIST_FOR_TYPE(Product, products, std::vector)
+    LIST_FOR_TYPE(Good, goods, std::vector)
+    LIST_FOR_TYPE(Culture, cultures, std::vector)
+    LIST_FOR_TYPE(Company, companies, std::vector)
+    LIST_FOR_TYPE(PopType, pop_types, std::vector)
+    LIST_FOR_TYPE(Building, buildings, std::vector)
+    LIST_FOR_TYPE(Event, events, std::vector)
+    LIST_FOR_TYPE(UnitType, unit_types, std::vector)
+    LIST_FOR_TYPE(BoatType, boat_types, std::vector)
+    LIST_FOR_TYPE(UnitTrait, unit_traits, std::vector)
+    LIST_FOR_TYPE(Unit, units, std::vector)
+    LIST_FOR_TYPE(Boat, boats, std::vector)
+    LIST_FOR_TYPE(BuildingType, building_types, std::vector)
+    LIST_FOR_TYPE(Treaty, treaties, std::vector)
+    LIST_FOR_TYPE(Ideology, ideologies, std::vector)
+    LIST_FOR_TYPE(Religion, religions, std::vector)
+    LIST_FOR_TYPE(Technology, technologies, std::vector)
+    LIST_FOR_TYPE(Invention, inventions, std::vector)
+    LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector)
     
     inline size_t get_id(const Tile* ptr) const {
         std::lock_guard<std::recursive_mutex> lock(tiles_mutex);
         return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
     };
 
+    // Template for all types except for tiles (we can do this because we can
+    // obtain the list from the type) with get_list helper functions
     template<typename T>
     inline typename T::Id get_id(const T* ptr) const {
         return get_id_from_pvector<T>(ptr, get_list(ptr));
@@ -320,23 +207,6 @@ public:
     // Current time (in ticks)
     uint64_t time = 0;
 
-    std::vector<Unit*> units;
-    std::vector<Boat*> boats;
-    std::vector<Good*> goods;
-    std::vector<Nation*> nations;
-    std::vector<Province*> provinces;
-    std::vector<Company*> companies;
-    std::vector<Product*> products;
-    std::vector<PopType*> pop_types;
-    std::vector<Religion*> religions;
-    std::vector<Culture*> cultures;
-    std::vector<UnitType*> unit_types;
-    std::vector<BoatType*> boat_types;
-    std::vector<UnitTrait*> unit_traits;
-    std::vector<Event*> events;
-    std::vector<Technology*> technologies;
-    std::vector<Invention*> inventions;
-    std::vector<NationModifier*> nation_modifiers;
     mutable std::recursive_mutex world_mutex;
 
     // A list of orders (what factories want to be sent to them)
@@ -363,12 +233,7 @@ public:
     std::vector<Tile*> elevation_changed_tiles;
     mutable std::recursive_mutex elevation_changed_tiles_mutex;
 
-    // A list containing descisions taken by countries
     std::vector<Descision*> taken_descisions;
-    std::vector<BuildingType*> building_types;
-    std::vector<Building*> buildings;
-    std::vector<Treaty*> treaties;
-    std::vector<Ideology*> ideologies;
 };
 
 extern World* g_world;

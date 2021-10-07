@@ -3,10 +3,12 @@
 
 #include <vector>
 
-template<typename T, typename I>
+// Generic manager for any resource type, the manager will call "load" if an element
+// with the same ident already exists
+template<typename T, typename I, typename L = std::vector<std::pair<T*, I>>>
 class Manager {
 private:
-    std::vector<std::pair<T *, I>> elems;
+    L elems;
 public:
     // Global manager object
     static Manager<T, I> *singleton;
