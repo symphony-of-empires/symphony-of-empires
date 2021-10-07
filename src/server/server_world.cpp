@@ -281,44 +281,32 @@ void World::load_mod(void) {
     if(tiles == nullptr) {
         throw std::runtime_error("Out of memory");
     }
-    
-    int ret;
-    
-    std::string final_buf = "require('api')\n";
-    std::vector<std::string> files_text;
 
-    files_text = Path::get_data("scripts/unit_traits.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/building_types.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/cultures.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/ideology.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/technology.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/religions.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/pop_types.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/good_types.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/industry_types.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/unit_types.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/boat_types.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/nations.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/companies.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/provinces.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
-    files_text = Path::get_data("scripts/init.lua");
-    for(const auto& text: files_text) { final_buf += text; final_buf += "\n"; }
+    std::string mod_buf = std::string("");
+    mod_buf += "require(\"api\")\n";
+    const std::string lua_files[] = {
+        "ideologies", "cultures", "nations",  "unit_traits", "building_types",
+        "technology", "religions", "pop_types", "good_types", "industry_types",
+        "unit_types", "boat_types", "companies", "provinces", "init"
+    };
+    for(const auto& lua_file: lua_files) {
+        std::vector<std::string> paths = Path::get_all("scripts/" + lua_file + ".lua");
+        for(const auto& path: paths) {
+            /*luaL_dofile(lua, path.c_str());
 
-    if(luaL_loadstring(lua, final_buf.c_str()) != LUA_OK
+            if(luaL_dofile(lua, path.c_str()) != LUA_OK) {
+                throw LuaAPI::Exception(lua_tostring(lua, -1));
+            }*/
+
+            mod_buf += "f = loadfile(\"" + path + "\")\n";
+            mod_buf += "f()\n";
+        }
+        //mod_buf += "require(\"" + lua_file + "\")\n";
+    }
+
+    print_info("mod_buf: [%s]\n", mod_buf.c_str());
+
+    if(luaL_loadstring(lua, mod_buf.c_str()) != LUA_OK
     || lua_pcall(lua, 0, 0, 0) != LUA_OK) {
         throw LuaAPI::Exception(lua_tostring(lua, -1));
     }
@@ -555,12 +543,8 @@ void World::load_mod(void) {
             nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false, false, true, false});
         }
     }
-
-    final_buf = "require('api')\n\n";
-    files_text = Path::get_data("scripts/mod.lua");
-    for(const auto& text: files_text) { final_buf += text; }
     
-    if(luaL_loadstring(lua, final_buf.c_str()) != LUA_OK
+    if(luaL_loadfile(lua, Path::get("scripts/mod.lua").c_str()) != LUA_OK
     || lua_pcall(lua, 0, 0, 0) != LUA_OK) {
         throw LuaAPI::Exception(lua_tostring(lua, -1));
     }

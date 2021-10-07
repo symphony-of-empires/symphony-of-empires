@@ -80,6 +80,25 @@ namespace Path {
         return end_path;
     }
 
+    // Gets all paths where a file with this name exists
+    std::vector<std::string> get_all(const std::string& str) {
+        std::vector<std::string> list;
+        if(str[0] == '/' || str[0] == 'C')
+            return list;
+        
+        for(const auto& path: mod_paths) {
+            std::string end_path = get_full() + path + str;
+            if(file_exists(end_path) == true) {
+#ifdef windows
+                std::replace(end_path.begin(), end_path.end(), '/', '\\');
+#endif
+                print_info("Path '%s' exists", end_path.c_str());
+                list.push_back(end_path);
+            }
+        }
+        return list;
+    }
+
     std::vector<std::string> get_data(const std::string& str) {
         std::vector<std::string> files_text;
         for(const auto& path: mod_paths) {
