@@ -59,9 +59,7 @@ cake_thing = Event:new{
 	text = "Sir, a cake has just magically appeared in your desk, what would you like to do?"
 }
 Event:register(cake_thing)
-Event:add_receivers(cake_thing,
-	Nation:get({}, "hawai_i")
-)
+Event:add_receivers(cake_thing, Nation:get({}, "hawai_i"))
 
 function kalmar_union_test()
     local needed_provinces = {

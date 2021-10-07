@@ -47,14 +47,12 @@ public:
 
     // Unit that is currently being built here (nullptr indicates no unit)
     UnitType* working_unit_type;
-    BoatType* working_boat_type;
 
     // Remaining ticks until the unit is built
     uint16_t build_time;
 
     // Required goods for building the working unit
     std::vector<std::pair<Good *, size_t>> req_goods_for_unit;
-    std::vector<std::pair<Good *, size_t>> req_goods_for_boat;
     // Required goods for building this, or repairing this after a military attack
     std::vector<std::pair<Good *, size_t>> req_goods;
 

@@ -180,17 +180,6 @@ int main(int argc, char** argv) {
                         std::cout << "  " << good.first->ref_name << " -> " << unit_type->ref_name << ";" << std::endl;
                     }
                 }
-                for(const auto& boat_type: world->boat_types) {
-                    std::cout << "  " << boat_type->ref_name << " [ label = \""
-                        << boat_type->name
-                        << "\", color = \"yellow\""
-                        << "];"
-                        << std::endl;
-                    
-                    for(const auto& good: boat_type->req_goods) {
-                        std::cout << "  " << good.first->ref_name << " -> " << boat_type->ref_name << ";" << std::endl;
-                    }
-                }
 
                 for(const auto& good: world->goods) {
                     std::cout << "  " << good->ref_name << " [ label = \""

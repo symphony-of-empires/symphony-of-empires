@@ -34,28 +34,6 @@ BuildUnitWindow::BuildUnitWindow(GameState& _gs, Building* _building, UI::Window
                 state->gs.send_command(ar);
             };
         }
-    } else if (building->type->is_build_naval_units) {
-        for (auto& boat_type : gs.world->boat_types) {
-            if (build_type_btn != nullptr)
-                prev_btn = build_type_btn;
-            build_type_btn = new UI::Button(0, 0, 303, 38, this);
-            build_type_btn->text(boat_type->ref_name.c_str());
-            build_type_btn->user_data = boat_type;
-            if (prev_btn != nullptr)
-                build_type_btn->below_of(*prev_btn);
-
-            build_type_btn->on_click = [](UI::Widget& w, void* data) {
-                BuildUnitWindow* state = (BuildUnitWindow*)w.parent;
-                BoatType* boatType = (BoatType*)data;
-
-                Archive ar = Archive();
-                enum ActionType action = ActionType::BUILDING_START_BUILDING_BOAT;
-                ::serialize(ar, &action);
-                ::serialize(ar, &state->building);  // BuildingRef
-                ::serialize(ar, boatType);   // BoatTypeRef
-                state->gs.send_command(ar);
-            };
-        }
     }
     UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, 303, 38, this);
     ok_btn->text("OK");

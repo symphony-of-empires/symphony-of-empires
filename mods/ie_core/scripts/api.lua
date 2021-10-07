@@ -195,34 +195,6 @@ function Company:add_province(self, province)
 	add_op_province_to_company(self.id, province.id)
 end
 
-IndustryType = {
-	id = 0,
-	name = "",
-	ref_name = ""
-}
-function IndustryType:new(industry_type)
-	industry_type.parent = self
-	return industry_type
-end
-function IndustryType:register(self)
-	self.id = add_industry_type(self.ref_name, self.name)
-end
-function IndustryType:get(industry_type, ref_name)
-	industry_type.parent = self
-	industry_type.id, industry_type.name = get_industry_type(ref_name)
-	industry_type.ref_name = ref_name
-	return industry_type
-end
-function IndustryType:add_input(self, good)
-	add_input_to_industry_type(self.id, good.id)
-end
-function IndustryType:add_output(self, good)
-	add_output_to_industry_type(self.id, good.id)
-end
-function IndustryType:requires_good(self, good, amount)
-	add_req_good_to_industry_type(self.id, good.id, amount)
-end
-
 Nation = {
 	id = 0,
 	name = "",
@@ -376,7 +348,13 @@ function Province:add_nucleus(self, nation)
 	add_province_nucleus(self.id, nation.id)
 end
 
-Event = { ref_name = "", conditions_fn = "", event_fn = "", title = "", text = "" }
+Event = {
+	ref_name = "",
+	conditions_fn = "",
+	event_fn = "",
+	title = "",
+	text = ""
+}
 function Event:new(event)
 	event.parent = self
 	return event
@@ -476,13 +454,26 @@ BuildingType = {
 	is_build_land_units = false,
 	is_build_naval_units = false,
 	defense_bonus = 1.0,
+	is_factory = true,
 }
 function BuildingType:new(building_type)
 	building_type.parent = self
 	return building_type
 end
 function BuildingType:register(self)
-	self.id = add_building_type(self.ref_name, self.is_naval, self.is_build_land_units, self.is_build_naval_units, self.defense_bonus)
+	self.id = add_building_type(self.ref_name, self.is_naval, self.is_build_land_units, self.is_build_naval_units, self.defense_bonus, self.is_factory)
+end
+
+IndustryType = BuildingType
+IndustryType.is_factory = true
+function IndustryType:add_input(self, good)
+	add_input_to_industry_type(self.id, good.id)
+end
+function IndustryType:add_output(self, good)
+	add_output_to_industry_type(self.id, good.id)
+end
+function IndustryType:requires_good(self, good, amount)
+	add_req_good_to_industry_type(self.id, good.id, amount)
 end
 
 UnitType = {
@@ -494,6 +485,8 @@ UnitType = {
 	attack = 1.0,
 	max_defensive_ticks = 25,
 	position_defense = 0.1,
+	is_ground = false,
+	is_naval = false
 }
 function UnitType:new(unit_type)
 	unit_type.parent = self
@@ -501,42 +494,24 @@ function UnitType:new(unit_type)
 end
 function UnitType:get(unit_type, ref_name)
 	unit_type.parent = self
-	unit_type.id, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health, unit_type.max_defensive_ticks, unit_type.position_defense = get_unit_type(ref_name)
+	unit_type.id, unit_type.name, unit_type.attack, unit_type.defense, unit_type.health, unit_type.max_defensive_ticks, unit_type.position_defense, unit_type.is_ground, unit_type.is_naval = get_unit_type(ref_name)
 	unit_type.ref_name = ref_name
 	return unit_type
 end
 function UnitType:register(self)
-	self.id = add_unit_type(self.ref_name, self.name, self.attack, self.defense, self.health, self.max_defensive_ticks, self.position_defense)
+	self.id = add_unit_type(self.ref_name, self.name, self.attack, self.defense, self.health, self.max_defensive_ticks, self.position_defense, self.is_ground, self.is_naval)
 end
 function UnitType:requires_good(self, good, amount)
 	add_req_good_unit_type(self.id, good.id, amount)
 end
 
-BoatType = {
-	id = 0,
-	ref_name = "",
-	name = "",
-	health = 100.0,
-	defense = 1.0,
-	attack = 1.0,
-	capacity = 100
-}
-function BoatType:new(boat_type)
-	boat_type.parent = self
-	return boat_type
-end
-function BoatType:get(boat_type, ref_name)
-	boat_type.parent = self
-	boat_type.id, boat_type.name, boat_type.attack, boat_type.defense, boat_type.health, boat_type.capacity = get_boat_type(ref_name)
-	boat_type.ref_name = ref_name
-	return boat_type
-end
-function BoatType:register(self)
-	self.id = add_boat_type(self.ref_name, self.name, self.attack, self.defense, self.health, self.capacity)
-end
-function BoatType:requires_good(self, good, amount)
-	add_req_good_boat_type(self.id, good.id, amount)
-end
+BoatType = UnitType
+BoatType.is_ground = false
+BoatType.is_naval = true
+
+AirplaneType = UnitType
+AirplaneType.is_ground = true
+AirplaneType.is_naval = true
 
 -- For sanity
 function rgb(r, g, b)

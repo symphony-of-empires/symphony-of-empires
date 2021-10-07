@@ -41,15 +41,11 @@ class Serializer<Good*> : public SerializerReference<World, Good> {};
 template<>
 class Serializer<Company*> : public SerializerReference<World, Company> {};
 template<>
-class Serializer<UnitType*> : public SerializerReference<World, UnitType> {};
-template<>
-class Serializer<BoatType*> : public SerializerReference<World, BoatType> {};
-template<>
-class Serializer<UnitTrait*> : public SerializerReference<World, UnitTrait> {};
-template<>
 class Serializer<Unit*> : public SerializerReference<World, Unit> {};
 template<>
-class Serializer<Boat*> : public SerializerReference<World, Boat> {};
+class Serializer<UnitType*> : public SerializerReference<World, UnitType> {};
+template<>
+class Serializer<UnitTrait*> : public SerializerReference<World, UnitTrait> {};
 template<>
 class Serializer<BuildingType*> : public SerializerReference<World, BuildingType> {};
 template<>
@@ -358,42 +354,6 @@ public:
         ::deserialize(stream, &obj->traits);
     }
     static inline size_t size(const Unit* obj) {
-        return serialized_size(&obj->type)
-            + serialized_size(&obj->size)
-            + serialized_size(&obj->tx)
-            + serialized_size(&obj->ty)
-            + serialized_size(&obj->x)
-            + serialized_size(&obj->y)
-            + serialized_size(&obj->owner)
-            + serialized_size(&obj->traits)
-        ;
-    }
-};
-
-template<>
-class Serializer<Boat> {
-public:
-    static inline void serialize(Archive& stream, const Boat* obj) {
-        ::serialize(stream, &obj->type);
-        ::serialize(stream, &obj->size);
-        ::serialize(stream, &obj->tx);
-        ::serialize(stream, &obj->ty);
-        ::serialize(stream, &obj->x);
-        ::serialize(stream, &obj->y);
-        ::serialize(stream, &obj->owner);
-        ::serialize(stream, &obj->traits);
-    }
-    static inline void deserialize(Archive& stream, Boat* obj) {
-        ::deserialize(stream, &obj->type);
-        ::deserialize(stream, &obj->size);
-        ::deserialize(stream, &obj->tx);
-        ::deserialize(stream, &obj->ty);
-        ::deserialize(stream, &obj->x);
-        ::deserialize(stream, &obj->y);
-        ::deserialize(stream, &obj->owner);
-        ::deserialize(stream, &obj->traits);
-    }
-    static inline size_t size(const Boat* obj) {
         return serialized_size(&obj->type)
             + serialized_size(&obj->size)
             + serialized_size(&obj->tx)
@@ -723,43 +683,6 @@ template<>
 class Serializer<enum TreatyApproval> : public SerializerMemcpy<enum TreatyApproval> {};
 
 template<>
-class Serializer<BoatType> {
-public:
-    static inline void serialize(Archive& stream, const BoatType* obj) {
-        ::serialize(stream, &obj->name);
-        ::serialize(stream, &obj->ref_name);
-        ::serialize(stream, &obj->speed);
-        ::serialize(stream, &obj->max_health);
-        ::serialize(stream, &obj->defense);
-        ::serialize(stream, &obj->attack);
-        ::serialize(stream, &obj->capacity);
-        ::serialize(stream, &obj->build_time);
-    }
-    static inline void deserialize(Archive& stream, BoatType* obj) {
-        ::deserialize(stream, &obj->name);
-        ::deserialize(stream, &obj->ref_name);
-        ::deserialize(stream, &obj->speed);
-        ::deserialize(stream, &obj->max_health);
-        ::deserialize(stream, &obj->defense);
-        ::deserialize(stream, &obj->attack);
-        ::deserialize(stream, &obj->capacity);
-        ::deserialize(stream, &obj->build_time);
-    }
-    static inline size_t size(const BoatType* obj) {
-        return
-            serialized_size(&obj->name)
-            + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->speed)
-            + serialized_size(&obj->max_health)
-            + serialized_size(&obj->defense)
-            + serialized_size(&obj->attack)
-            + serialized_size(&obj->capacity)
-            + serialized_size(&obj->build_time)
-        ;
-    }
-};
-
-template<>
 class Serializer<UnitType> {
 public:
     static inline void serialize(Archive& stream, const UnitType* obj) {
@@ -771,6 +694,8 @@ public:
         ::serialize(stream, &obj->defense);
         ::serialize(stream, &obj->attack);
         ::serialize(stream, &obj->build_time);
+        ::serialize(stream, &obj->is_ground);
+        ::serialize(stream, &obj->is_naval);
     }
     static inline void deserialize(Archive& stream, UnitType* obj) {
         ::deserialize(stream, &obj->name);
@@ -781,6 +706,8 @@ public:
         ::deserialize(stream, &obj->defense);
         ::deserialize(stream, &obj->attack);
         ::deserialize(stream, &obj->build_time);
+        ::deserialize(stream, &obj->is_ground);
+        ::deserialize(stream, &obj->is_naval);
     }
     static inline size_t size(const UnitType* obj) {
         return
@@ -793,6 +720,8 @@ public:
             + serialized_size(&obj->attack)
             + serialized_size(&obj->req_goods)
             + serialized_size(&obj->build_time)
+            + serialized_size(&obj->is_ground)
+            + serialized_size(&obj->is_naval)
         ;
     }
 };
@@ -908,7 +837,6 @@ public:
         ::serialize(stream, &obj->type);
         ::serialize(stream, &obj->owner);
         ::serialize(stream, &obj->working_unit_type);
-        ::serialize(stream, &obj->working_boat_type);
         ::serialize(stream, &obj->build_time);
         ::serialize(stream, &obj->corporate_owner);
         ::serialize(stream, &obj->budget);
@@ -927,7 +855,6 @@ public:
         ::deserialize(stream, &obj->type);
         ::deserialize(stream, &obj->owner);
         ::deserialize(stream, &obj->working_unit_type);
-        ::deserialize(stream, &obj->working_boat_type);
         ::deserialize(stream, &obj->build_time);
         ::deserialize(stream, &obj->corporate_owner);
         ::deserialize(stream, &obj->budget);
@@ -947,7 +874,6 @@ public:
             + serialized_size(&obj->type)
             + serialized_size(&obj->owner)
             + serialized_size(&obj->working_unit_type)
-            + serialized_size(&obj->working_boat_type)
             + serialized_size(&obj->build_time)
             + serialized_size(&obj->corporate_owner)
             + serialized_size(&obj->budget)
@@ -1364,8 +1290,6 @@ public:
         ::serialize(stream, &n_goods);
         const UnitType::Id n_unit_types = obj->unit_types.size();
         ::serialize(stream, &n_unit_types);
-        const BoatType::Id n_boat_types = obj->boat_types.size();
-        ::serialize(stream, &n_boat_types);
         const Religion::Id n_religions = obj->religions.size();
         ::serialize(stream, &n_religions);
         const Culture::Id n_cultures = obj->cultures.size();
@@ -1390,8 +1314,6 @@ public:
         ::serialize(stream, &n_buildings);
         const Treaty::Id n_treaties = obj->treaties.size();
         ::serialize(stream, &n_treaties);
-        const Boat::Id n_boats = obj->boats.size();
-        ::serialize(stream, &n_boats);
         const Ideology::Id n_ideologies = obj->ideologies.size();
         ::serialize(stream, &n_ideologies);
         const Invention::Id n_inventions = obj->inventions.size();
@@ -1416,7 +1338,6 @@ public:
         print_info("  n_outpost_types %zu", obj->building_types.size());
         print_info("  n_outposts %zu", obj->buildings.size());
         print_info("  n_treaties %zu", obj->treaties.size());
-        print_info("  n_boats %zu", obj->boats.size());
         print_info("  n_ideologies %zu", obj->ideologies.size());
         
         for(auto& sub_obj: obj->goods) {
@@ -1424,10 +1345,6 @@ public:
         }
         
         for(auto& sub_obj: obj->unit_types) {
-            ::serialize(stream, sub_obj);
-        }
-
-        for(auto& sub_obj: obj->boat_types) {
             ::serialize(stream, sub_obj);
         }
         
@@ -1479,10 +1396,6 @@ public:
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj: obj->boats) {
-            ::serialize(stream, sub_obj);
-        }
-
         for(auto& sub_obj: obj->ideologies) {
             ::serialize(stream, sub_obj);
         }
@@ -1519,7 +1432,6 @@ public:
         // then we will fill those spots as we deserialize
         Good::Id n_goods = deserialize_and_create_list<Good>(stream, obj);
         UnitType::Id n_unit_types = deserialize_and_create_list<UnitType>(stream, obj);
-        BoatType::Id n_boat_types = deserialize_and_create_list<BoatType>(stream, obj);
         Religion::Id n_religions = deserialize_and_create_list<Religion>(stream, obj);
         Culture::Id n_cultures = deserialize_and_create_list<Culture>(stream, obj);
         PopType::Id n_pop_types = deserialize_and_create_list<PopType>(stream, obj);
@@ -1532,7 +1444,6 @@ public:
         BuildingType::Id n_building_types = deserialize_and_create_list<BuildingType>(stream, obj);
         Building::Id n_buildings = deserialize_and_create_list<Building>(stream, obj);
         Treaty::Id n_treaties = deserialize_and_create_list<Treaty>(stream, obj);
-        Boat::Id n_boats = deserialize_and_create_list<Boat>(stream, obj);
         Ideology::Id n_ideologies = deserialize_and_create_list<Ideology>(stream, obj);
         Invention::Id n_inventions = deserialize_and_create_list<Invention>(stream, obj);
         Technology::Id n_technologies = deserialize_and_create_list<Technology>(stream, obj);
@@ -1553,7 +1464,6 @@ public:
         print_info("  n_outpost_types %zu", obj->building_types.size());
         print_info("  n_outposts %zu", obj->buildings.size());
         print_info("  n_treaties %zu", obj->treaties.size());
-        print_info("  n_boats %zu", obj->boats.size());
         print_info("  n_ideologies %zu", obj->ideologies.size());
         print_info("  n_inventions %zu", obj->inventions.size());
         print_info("  n_technologies %zu", obj->technologies.size());
@@ -1565,11 +1475,6 @@ public:
         
         for(size_t i = 0; i < n_unit_types; i++) {
             UnitType* sub_obj = obj->unit_types[i];
-            ::deserialize(stream, sub_obj);
-        }
-
-        for(size_t i = 0; i < n_boat_types; i++) {
-            BoatType* sub_obj = obj->boat_types[i];
             ::deserialize(stream, sub_obj);
         }
         
@@ -1633,11 +1538,6 @@ public:
             ::deserialize(stream, sub_obj);
         }
 
-        for(size_t i = 0; i < n_boats; i++) {
-            Boat* sub_obj = obj->boats[i];
-            ::deserialize(stream, sub_obj);
-        }
-
         for(size_t i = 0; i < n_ideologies; i++) {
             Ideology* sub_obj = obj->ideologies.at(i);
             ::deserialize(stream, sub_obj);
@@ -1673,7 +1573,6 @@ public:
             + (sizeof(Tile) * (obj->width* obj->height))
             + (obj->goods.size() * sizeof(Good))
             + (obj->unit_types.size() * sizeof(UnitType))
-            + (obj->boat_types.size() * sizeof(BoatType))
             + (obj->religions.size() * sizeof(Religion))
             + (obj->cultures.size() * sizeof(Culture))
             + (obj->pop_types.size() * sizeof(PopType))
@@ -1686,7 +1585,6 @@ public:
             + (obj->building_types.size() * sizeof(BuildingType))
             + (obj->buildings.size() * sizeof(Building))
             + (obj->treaties.size() * sizeof(Treaty))
-            + (obj->boats.size() * sizeof(Boat))
             + (obj->ideologies.size() * sizeof(Ideology))
             + (obj->inventions.size() * sizeof(Invention))
             + (obj->technologies.size() * sizeof(Technology))

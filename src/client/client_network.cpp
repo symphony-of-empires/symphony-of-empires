@@ -223,19 +223,6 @@ void Client::net_loop(void) {
                     g_world->units.push_back(unit);
                     print_info("New unit of %s", unit->owner->name.c_str());
                 } break;
-                case ActionType::BOAT_UPDATE: {
-                    Boat* boat;
-                    ::deserialize(ar, &boat);
-                    if(boat == nullptr)
-                        throw ClientException("Unknown boat");
-                    ::deserialize(ar, boat);
-                } break;
-                case ActionType::BOAT_ADD: {
-                    Boat* boat = new Boat();
-                    ::deserialize(ar, boat);
-                    g_world->boats.push_back(boat);
-                    print_info("New boat of %s", boat->owner->name.c_str());
-                } break;
                 case ActionType::BUILDING_UPDATE: {
                     Building* building;
                     ::deserialize(ar, &building);

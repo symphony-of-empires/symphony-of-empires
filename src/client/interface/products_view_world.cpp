@@ -5,6 +5,7 @@
 
 extern char* tmpbuf;
 ProductsViewWorld::ProductsViewWorld(GameState& _gs) : gs{_gs}, products_view_win{nullptr} {
+    page_nr = 0;
 }
 
 void ProductsViewWorld::show() {
@@ -24,13 +25,15 @@ void ProductsViewWorld::show() {
         ProductsViewWorld* pvw = (ProductsViewWorld*)data;
         World* world = pvw->gs.world;
         Nation* curr_nation = pvw->gs.curr_nation;
+        
         std::lock_guard<std::recursive_mutex> lock(world->world_mutex);
         if (world->time % 48 == 35) {
             size_t list_idx = pvw->page_nr * 16;
             for (size_t i = 0; i < pvw->buttons_nr; i++) {
                 if (list_idx < world->products.size()) {
                     // Skip products that are not from our country
-                    while (world->products[list_idx]->origin->owner != curr_nation) {
+                    while (world->products[list_idx]->origin == nullptr
+                        || world->products[list_idx]->origin->owner != curr_nation) {
                         list_idx++;
                         if (list_idx >= world->products.size())
                             break;

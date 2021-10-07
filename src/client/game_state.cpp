@@ -282,7 +282,6 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     int& height = gs.height;
 
     std::pair<float, float>& select_pos = input.select_pos;
-    Boat* selected_boat = input.selected_boat;
     Unit* selected_unit = input.selected_unit;
     Building* selected_building = input.selected_building;
 
@@ -302,16 +301,6 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         map->draw(cam, width, height);
 
         gs.world->world_mutex.lock();
-        if (selected_boat != nullptr) {
-            glBegin(GL_LINE_STRIP);
-            glColor3f(1.f, 0.f, 0.f);
-            glVertex2f(selected_boat->x, selected_boat->y);
-            glVertex2f(selected_boat->x + 1.f, selected_boat->y);
-            glVertex2f(selected_boat->x + 1.f, selected_boat->y + 1.f);
-            glVertex2f(selected_boat->x, selected_boat->y + 1.f);
-            glEnd();
-        }
-
         if (selected_unit != nullptr) {
             glBegin(GL_LINE_STRIP);
             glColor3f(1.f, 0.f, 0.f);
@@ -416,10 +405,6 @@ void init_client(GameState& gs) {
     for (const auto& building_type : gs.world->building_types) {
         std::string path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
         map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
-    }
-    for (const auto& boat_type : gs.world->boat_types) {
-        std::string path = Path::get("3d/boat_types/" + boat_type->ref_name + ".obj");
-        map->boat_type_icons.push_back(&g_model_manager->load_complex(path));
     }
     for (const auto& unit_type : gs.world->unit_types) {
         std::string path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
