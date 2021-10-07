@@ -130,7 +130,7 @@ public:
         ar.copy_from(&len, sizeof(len));
 
         // Copy the string into the output
-        if (len) {
+        if(len) {
             ar.expand(len);
             ar.copy_from(obj->c_str(), len);
         }
@@ -146,8 +146,8 @@ public:
 
         // Obtain the string itself
         char* string = new char[len + 1];
-
-        if (len) {
+        
+        if(len) {
             ar.copy_to(string, len);
         }
         string[len] = '\0';

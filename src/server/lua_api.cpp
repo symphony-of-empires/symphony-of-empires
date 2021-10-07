@@ -79,7 +79,7 @@ int LuaAPI::add_technology(lua_State* L) {
 
     technology->ref_name = luaL_checkstring(L, 1);
     technology->name = luaL_checkstring(L, 2);
-    technology->description = luaL_checkstring(L, 3);
+    technology->description = lua_tostring(L, 3);
     technology->cost = lua_tonumber(L, 4);
     technology->type = (TechnologyType)((int)lua_tonumber(L, 5));
 
