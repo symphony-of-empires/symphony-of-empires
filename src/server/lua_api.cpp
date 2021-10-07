@@ -52,7 +52,7 @@ int LuaAPI::add_invention(lua_State* L) {
 
     invention->ref_name = luaL_checkstring(L, 1);
     invention->name = luaL_checkstring(L, 2);
-    invention->description = luaL_checkstring(L, 3);
+    invention->description = lua_tostring(L, 3);
 
     g_world->inventions.push_back(invention);
     lua_pushnumber(L, g_world->inventions.size() - 1);
@@ -79,7 +79,7 @@ int LuaAPI::add_technology(lua_State* L) {
 
     technology->ref_name = luaL_checkstring(L, 1);
     technology->name = luaL_checkstring(L, 2);
-    technology->description = luaL_checkstring(L, 3);
+    technology->description = lua_tostring(L, 3);
     technology->cost = lua_tonumber(L, 4);
     technology->type = (TechnologyType)((int)lua_tonumber(L, 5));
 
