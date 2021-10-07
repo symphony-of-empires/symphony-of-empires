@@ -300,16 +300,16 @@ void World::load_mod(void) {
 
 #ifdef windows
             std::string m_path;
-            for (auto& c : path) {
-                if (c == '\\') {
+            for(auto& c: path) {
+                if(c == '\\') {
                     m_path += "\\\\";
-                }
-                else {
+                } else {
                     m_path += c;
                 }
             }
+#else
+            std::string m_path = path;
 #endif
-
             mod_buf += "f = loadfile(\"" + m_path + "\")\n";
             mod_buf += "f()\n";
         }
@@ -693,6 +693,7 @@ void World::do_tick() {
         }
 
         // Build an building randomly?
+        //if(std::rand() % 1000 > 950) {
         if(0) {
             bool can_build = false;
             for(const auto& province: nation->owned_provinces) {
