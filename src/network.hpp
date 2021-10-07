@@ -76,7 +76,7 @@ public:
 
 enum class PacketCode {
     OK,
-    ERROR,
+    PACKET_ERROR,
 };
 class Packet {
     size_t n_data = 0;

@@ -702,13 +702,13 @@ void PieChart::set_data(std::vector<ChartData> new_data) {
 void PieChart::draw_triangle(float start_ratio, float end_ratio, Color color) {
     float x_center = x + width / 2.f;
     float y_center = y + height / 2.f;
-    float radius = std::min(width, height) * 0.5;
+    float radius = std::min<float>(width, height) * 0.5;
     float x_offset, y_offset, scale;
 
     glColor3f(color.r, color.g, color.b);
     x_offset = cos((start_ratio - 0.25f) * 2 * M_PI);
     y_offset = sin((start_ratio - 0.25f) * 2 * M_PI);
-    scale = std::min(1.f / abs(x_offset), 1.f / abs(y_offset));
+    scale = std::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
     x_offset *= scale;
     y_offset *= scale;
     glTexCoord2f(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f);
@@ -719,7 +719,7 @@ void PieChart::draw_triangle(float start_ratio, float end_ratio, Color color) {
 
     x_offset = cos((end_ratio - 0.25f) * 2 * M_PI);
     y_offset = sin((end_ratio - 0.25f) * 2 * M_PI);
-    scale = std::min(1.f / abs(x_offset), 1.f / abs(y_offset));
+    scale = std::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
     x_offset *= scale;
     y_offset *= scale;
     glTexCoord2f(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f);

@@ -91,9 +91,10 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;windows;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LUA54;_CRT_SECURE_NO_WARNINGS;windows;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)winbuild\dirent\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -120,7 +121,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LUA54;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -158,16 +159,20 @@
     <ClInclude Include="src\actions.hpp" />
     <ClInclude Include="src\binary_image.hpp" />
     <ClInclude Include="src\branch.hpp" />
+    <ClInclude Include="src\building.hpp" />
     <ClInclude Include="src\client\camera.hpp" />
     <ClInclude Include="src\client\client_network.hpp" />
     <ClInclude Include="src\client\game_state.hpp" />
+    <ClInclude Include="src\client\interface\build_unit_window.hpp" />
     <ClInclude Include="src\client\interface\descision.hpp" />
     <ClInclude Include="src\client\interface\industry_view_nation.hpp" />
+    <ClInclude Include="src\client\interface\main_menu.hpp" />
     <ClInclude Include="src\client\interface\pop_view_nation.hpp" />
     <ClInclude Include="src\client\interface\products_view_world.hpp" />
     <ClInclude Include="src\client\interface\province_view.hpp" />
     <ClInclude Include="src\client\interface\select_nation.hpp" />
     <ClInclude Include="src\client\interface\top_window.hpp" />
+    <ClInclude Include="src\client\interface\treaty_window.hpp" />
     <ClInclude Include="src\client\interface\ui_reform.hpp" />
     <ClInclude Include="src\client\map.hpp" />
     <ClInclude Include="src\client\pathfinding.hpp" />
@@ -183,8 +188,10 @@
     <ClInclude Include="src\diplomacy.hpp" />
     <ClInclude Include="src\event.hpp" />
     <ClInclude Include="src\good.hpp" />
+    <ClInclude Include="src\ideology.hpp" />
     <ClInclude Include="src\industry.hpp" />
     <ClInclude Include="src\io_impl.hpp" />
+    <ClInclude Include="src\manager.hpp" />
     <ClInclude Include="src\nation.hpp" />
     <ClInclude Include="src\network.hpp" />
     <ClInclude Include="src\path.hpp" />
@@ -195,23 +202,28 @@
     <ClInclude Include="src\province.hpp" />
     <ClInclude Include="src\religion.hpp" />
     <ClInclude Include="src\serializer.hpp" />
+    <ClInclude Include="src\stb_image.h" />
+    <ClInclude Include="src\technology.hpp" />
     <ClInclude Include="src\thread_pool.hpp" />
     <ClInclude Include="src\unit.hpp" />
     <ClInclude Include="src\world.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\binary_image.cpp" />
+    <ClCompile Include="src\building.cpp" />
     <ClCompile Include="src\client\client.cpp" />
     <ClCompile Include="src\client\client_network.cpp" />
-    <ClCompile Include="src\client\command.cpp" />
     <ClCompile Include="src\client\game_state.cpp" />
+    <ClCompile Include="src\client\interface\build_unit_window.cpp" />
     <ClCompile Include="src\client\interface\descision.cpp" />
     <ClCompile Include="src\client\interface\industry_view_nation.cpp" />
+    <ClCompile Include="src\client\interface\main_menu.cpp" />
     <ClCompile Include="src\client\interface\pop_view_nation.cpp" />
     <ClCompile Include="src\client\interface\products_view_world.cpp" />
     <ClCompile Include="src\client\interface\province_view.cpp" />
     <ClCompile Include="src\client\interface\select_nation.cpp" />
     <ClCompile Include="src\client\interface\top_window.cpp" />
+    <ClCompile Include="src\client\interface\treaty_window.cpp" />
     <ClCompile Include="src\client\interface\ui_reform.cpp" />
     <ClCompile Include="src\client\main.cpp" />
     <ClCompile Include="src\client\map.cpp" />

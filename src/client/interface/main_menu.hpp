@@ -1,6 +1,6 @@
 #ifndef MAIN_MENU_HPP
 #define MAIN_MENU_HPP
-#include "client/game_state.hpp"
+#include "../game_state.hpp"
 #include "../ui.hpp"
 
 class MainMenuConnectServer : public UI::Window {

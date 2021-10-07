@@ -84,7 +84,7 @@ Server::Server(const unsigned port, const unsigned max_conn) : n_clients(max_con
     clients = new ServerClient[max_conn];
     for(size_t i = 0; i < max_conn; i++) {
         clients[i].is_connected = false;
-        clients[i].packets_mutex.unlock();
+        //clients[i].packets_mutex.unlock();
         clients[i].thread = std::thread(&Server::net_loop, this, i);
     }
     

@@ -48,6 +48,7 @@ client_Debug/
 client_Release/
 server_Debug/
 server_Release/
+packages/
 
 # cmake stuff
 CMakeFiles/

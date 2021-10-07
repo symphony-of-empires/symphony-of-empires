@@ -91,10 +91,10 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;windows;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LUA54;_CRT_SECURE_NO_WARNINGS;windows;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)packages\libpng-v142.1.6.37.2\build\native\include;$(SolutionDir)winbuild\libintl\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)packages\libpng-v142.1.6.37.2\build\native\include;$(SolutionDir)winbuild\libintl\include;$(SolutionDir)winbuild\dirent\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -123,7 +123,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LUA54;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -152,13 +152,16 @@
     <ClInclude Include="src\actions.hpp" />
     <ClInclude Include="src\binary_image.hpp" />
     <ClInclude Include="src\branch.hpp" />
+    <ClInclude Include="src\building.hpp" />
     <ClInclude Include="src\company.hpp" />
     <ClInclude Include="src\culture.hpp" />
     <ClInclude Include="src\diplomacy.hpp" />
     <ClInclude Include="src\event.hpp" />
     <ClInclude Include="src\good.hpp" />
+    <ClInclude Include="src\ideology.hpp" />
     <ClInclude Include="src\industry.hpp" />
     <ClInclude Include="src\io_impl.hpp" />
+    <ClInclude Include="src\manager.hpp" />
     <ClInclude Include="src\nation.hpp" />
     <ClInclude Include="src\network.hpp" />
     <ClInclude Include="src\path.hpp" />
@@ -173,12 +176,14 @@
     <ClInclude Include="src\server\lua_api.hpp" />
     <ClInclude Include="src\server\server_network.hpp" />
     <ClInclude Include="src\stb_image.h" />
+    <ClInclude Include="src\technology.hpp" />
     <ClInclude Include="src\thread_pool.hpp" />
     <ClInclude Include="src\unit.hpp" />
     <ClInclude Include="src\world.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\binary_image.cpp" />
+    <ClCompile Include="src\building.cpp" />
     <ClCompile Include="src\diplomacy.cpp" />
     <ClCompile Include="src\event.cpp" />
     <ClCompile Include="src\nation.cpp" />
