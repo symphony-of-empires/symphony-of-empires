@@ -1,4 +1,4 @@
-#include "client/interface/main_menu.hpp"
+#include "main_menu.hpp"
 #include "../../print.hpp"
 
 MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)

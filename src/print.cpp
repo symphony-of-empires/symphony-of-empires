@@ -5,7 +5,7 @@
 #include "print.hpp"
 
 static std::mutex print_mutex;
-static bool allow_debug = false;
+static bool allow_debug = true;
 
 void print_enable_debug(void) {
 	allow_debug = true;

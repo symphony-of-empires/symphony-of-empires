@@ -31,7 +31,7 @@ extern "C" {
 
 template<typename T>
 const T* find_or_throw(const std::string& ref_name) {
-    const T* invention;
+    const T* invention = nullptr;
 
     const auto& list = World::get_instance().get_list(invention);
     const auto result = std::find_if(list.begin(), list.end(),
@@ -52,7 +52,7 @@ int LuaAPI::add_invention(lua_State* L) {
 
     invention->ref_name = luaL_checkstring(L, 1);
     invention->name = luaL_checkstring(L, 2);
-    invention->description = luaL_checkstring(L, 3);
+    invention->description = lua_tostring(L, 3);
 
     g_world->inventions.push_back(invention);
     lua_pushnumber(L, g_world->inventions.size() - 1);

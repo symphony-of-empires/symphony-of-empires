@@ -402,14 +402,14 @@ void init_client(GameState& gs) {
         map->nation_flags.push_back(&g_texture_manager->load_texture(path));
     }
 
-    for (const auto& building_type : gs.world->building_types) {
+    /*for (const auto& building_type : gs.world->building_types) {
         std::string path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
         map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
     }
     for (const auto& unit_type : gs.world->unit_types) {
         std::string path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
         map->unit_type_icons.push_back(&g_model_manager->load_complex(path));
-    }
+    }*/
 
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
     gs.select_nation = new SelectNation(gs);

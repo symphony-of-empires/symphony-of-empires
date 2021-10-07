@@ -83,12 +83,12 @@ public:
         for(const auto& trait: this->traits) {
             defense_mod *= trait->defense_mod;
         }
-        const float enemy_defense = std::max(0.1f, enemy.type->defense * defense_mod);
+        const float enemy_defense = std::max<float>(0.1f, enemy.type->defense * defense_mod);
 
         // Calculate the total damage dealt by our unit to the enemy
-        const float damage_dealt = this->size * std::min(10.f, std::max(.05f, this->experience))
-            * (attack / std::pow(std::min(0.f, enemy_defense), 2))
-            * std::max(0.1f, this->morale) * this->supply
+        const float damage_dealt = this->size * std::min<float>(10.f, std::max<float>(.05f, this->experience))
+            * (attack / std::pow(std::min<float>(0.f, enemy_defense), 2))
+            * std::max<float>(0.1f, this->morale) * this->supply
         ;
         
         // Deal with the morale loss of the enemy

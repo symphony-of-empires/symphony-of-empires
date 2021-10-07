@@ -289,25 +289,39 @@ void World::load_mod(void) {
         "technology", "religions", "pop_types", "good_types", "industry_types",
         "unit_types", "boat_types", "companies", "provinces", "init"
     };
-    for(const auto& lua_file: lua_files) {
+    for (const auto& lua_file : lua_files) {
         std::vector<std::string> paths = Path::get_all("scripts/" + lua_file + ".lua");
-        for(const auto& path: paths) {
+        for (const auto& path : paths) {
             /*luaL_dofile(lua, path.c_str());
 
             if(luaL_dofile(lua, path.c_str()) != LUA_OK) {
                 throw LuaAPI::Exception(lua_tostring(lua, -1));
             }*/
 
-            mod_buf += "f = loadfile(\"" + path + "\")\n";
+#ifdef windows
+            std::string m_path;
+            for (auto& c : path) {
+                if (c == '\\') {
+                    m_path += "\\\\";
+                }
+                else {
+                    m_path += c;
+                }
+            }
+#endif
+
+            mod_buf += "f = loadfile(\"" + m_path + "\")\n";
             mod_buf += "f()\n";
         }
         //mod_buf += "require(\"" + lua_file + "\")\n";
     }
 
+
     print_info("mod_buf: [%s]\n", mod_buf.c_str());
 
     if(luaL_loadstring(lua, mod_buf.c_str()) != LUA_OK
     || lua_pcall(lua, 0, 0, 0) != LUA_OK) {
+        print_info(lua_tostring(lua, -1));
         throw LuaAPI::Exception(lua_tostring(lua, -1));
     }
 
@@ -578,7 +592,9 @@ void World::do_tick() {
 
     // AI and stuff
     // Just random shit to make the world be like more alive
+    int i = 0;
     for(const auto& nation: nations) {
+        print_info("%d", i++);
         if(nation->exists() == false)
             continue;
         
@@ -677,7 +693,7 @@ void World::do_tick() {
         }
 
         // Build an building randomly?
-        if(std::rand() % 1000 > 950) {
+        if(0) {
             bool can_build = false;
             for(const auto& province: nation->owned_provinces) {
                 if(get_id(&province->get_occupation_controller(*this)) != g_world->get_id(nation)) {
@@ -701,8 +717,8 @@ void World::do_tick() {
             Tile *tile = nullptr;
             int x_coord, y_coord;
             while(tile == nullptr) {
-                x_coord = std::clamp<size_t>((std::rand() % (target->max_x - target->min_x + 1)) + target->min_x, target->min_x, target->max_x);
-                y_coord = std::clamp<size_t>((std::rand() % (target->max_y - target->min_y + 1)) + target->min_y, target->min_y, target->max_y);
+                x_coord = std::min<size_t>(target->max_x, std::max<size_t>((std::rand() % (target->max_x - target->min_x + 1)) + target->min_x, target->min_x));
+                y_coord = std::min<size_t>(target->max_y, std::max<size_t>((std::rand() % (target->max_y - target->min_y + 1)) + target->min_y, target->min_y));
                 tile = &get_tile(x_coord, y_coord);
 
                 // If tile is land AND NOT part of target province OR NOT of ownership of nation
