@@ -117,6 +117,12 @@ int main(int argc, char** argv) {
             else if(r == "stop" || r == "pause" || r == "halt") {
                 paused = true;
             }
+            else if(r == "reload" || r == "reset" || r == "retest") {
+                paused = true;
+                delete world;
+                world = new World();
+                world->load_mod();
+            }
             else if(r == "resetp") {
                 for(auto& province: world->provinces) {
                     for(auto& pop: province->pops) {
