@@ -84,7 +84,6 @@ Server::Server(const unsigned port, const unsigned max_conn) : n_clients(max_con
     clients = new ServerClient[max_conn];
     for(size_t i = 0; i < max_conn; i++) {
         clients[i].is_connected = false;
-        clients[i].packets_mutex.unlock();
         clients[i].thread = std::thread(&Server::net_loop, this, i);
     }
     
@@ -168,9 +167,8 @@ void Server::net_loop(int id) {
             // Send the whole snapshot of the world
             {
                 Archive ar = Archive();
-                g_world->world_mutex.lock();
+                const std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
                 ::serialize(ar, g_world);
-                g_world->world_mutex.unlock();
                 packet.send(ar.get_buffer(), ar.size());
             }
 
@@ -484,16 +482,13 @@ void Server::net_loop(int id) {
             print_error("ServerException: %s", e.what());
         } catch(SocketException& e) {
             print_error("SocketException: %s", e.what());
-            g_world->world_mutex.unlock();
         } catch(SerializerException& e) {
             print_error("SerializerException: %s", e.what());
-            g_world->world_mutex.unlock();
         }
         
         // Unlock mutexes so we don't end up with weird situations... like deadlocks
         cl.is_connected = false;
         cl.packets.clear();
-        cl.packets_mutex.unlock();
 
         // Tell the remaining clients about the disconnection
         {
