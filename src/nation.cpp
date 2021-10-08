@@ -89,7 +89,7 @@ void Nation::set_policy(Policies& policies) {
 // Checks if a POP is part of one of our accepted cultures
 bool Nation::is_accepted_culture(const Pop& pop) const {
     for(const auto& culture: accepted_cultures) {
-        if(pop.culture_id == g_world->get_id(culture)) {
+        if(pop.culture == culture) {
             return true;
         }
     }
@@ -114,22 +114,15 @@ float Nation::get_tax(const Pop& pop) const {
         }
     }
 
-    if(pop.type_id == POP_TYPE_FARMER
-    || pop.type_id == POP_TYPE_SOLDIER
-    || pop.type_id == POP_TYPE_LABORER
-    || pop.type_id == POP_TYPE_SLAVE) {
+    if(pop.type->social_value <= 1.f) {
         return current_policy.poor_flat_tax * base_tax;
     }
     // For the medium class
-    else if(pop.type_id == POP_TYPE_ARTISAN
-    || pop.type_id == POP_TYPE_BUREAUCRAT
-    || pop.type_id == POP_TYPE_CLERGYMEN
-    || pop.type_id == POP_TYPE_OFFICER) {
+    else if(pop.type->social_value <= 2.f) {
         return current_policy.med_flat_tax * base_tax;
     }
     // For the high class
-    else if(pop.type_id == POP_TYPE_ENTRPRENEUR
-    || pop.type_id == POP_TYPE_ARISTOCRAT) {
+    else if(pop.type->social_value <= 3.f) {
         return current_policy.rich_flat_tax * base_tax;
     }
     return base_tax;

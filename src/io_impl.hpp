@@ -57,6 +57,10 @@ class Serializer<Invention*> : public SerializerReference<World, Invention> {};
 template<>
 class Serializer<Technology*> : public SerializerReference<World, Technology> {};
 template<>
+class Serializer<PopType*> : public SerializerReference<World, PopType> {};
+template<>
+class Serializer<Religion*> : public SerializerReference<World, Religion> {};
+template<>
 class Serializer<NationModifier*> : public SerializerReference<World, NationModifier> {};
 
 template<>
@@ -252,17 +256,29 @@ public:
     static inline void serialize(Archive& stream, const PopType* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
-        ::serialize(stream, &obj->average_budget);
+        ::serialize(stream, &obj->social_value);
+        ::serialize(stream, &obj->is_entrepreneur);
+        ::serialize(stream, &obj->is_slave);
+        ::serialize(stream, &obj->is_farmer);
+        ::serialize(stream, &obj->is_laborer);
     }
     static inline void deserialize(Archive& stream, PopType* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
-        ::deserialize(stream, &obj->average_budget);
+        ::deserialize(stream, &obj->social_value);
+        ::deserialize(stream, &obj->is_entrepreneur);
+        ::deserialize(stream, &obj->is_slave);
+        ::deserialize(stream, &obj->is_farmer);
+        ::deserialize(stream, &obj->is_laborer);
     }
     static inline size_t size(const PopType* obj) {
         return serialized_size(&obj->name)
             + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->average_budget)
+            + serialized_size(&obj->social_value)
+            + serialized_size(&obj->is_entrepreneur)
+            + serialized_size(&obj->is_slave)
+            + serialized_size(&obj->is_farmer)
+            + serialized_size(&obj->is_laborer)
         ;
     }
 };
@@ -382,9 +398,9 @@ public:
         ::serialize(stream, &obj->everyday_needs_met);
         ::serialize(stream, &obj->luxury_needs_met);
 
-        ::serialize(stream, &obj->type_id);
-        ::serialize(stream, &obj->culture_id);
-        ::serialize(stream, &obj->religion_id);
+        ::serialize(stream, &obj->type);
+        ::serialize(stream, &obj->culture);
+        ::serialize(stream, &obj->religion);
     }
     static inline void deserialize(Archive& stream, Pop* obj) {
         ::deserialize(stream, &obj->size);
@@ -399,9 +415,9 @@ public:
         ::deserialize(stream, &obj->everyday_needs_met);
         ::deserialize(stream, &obj->luxury_needs_met);
 
-        ::deserialize(stream, &obj->type_id);
-        ::deserialize(stream, &obj->culture_id);
-        ::deserialize(stream, &obj->religion_id);
+        ::deserialize(stream, &obj->type);
+        ::deserialize(stream, &obj->culture);
+        ::deserialize(stream, &obj->religion);
     }
     static inline size_t size(const Pop* obj) {
         return serialized_size(&obj->size)
@@ -413,9 +429,9 @@ public:
             + serialized_size(&obj->life_needs_met)
             + serialized_size(&obj->everyday_needs_met)
             + serialized_size(&obj->luxury_needs_met)
-            + serialized_size(&obj->type_id)
-            + serialized_size(&obj->culture_id)
-            + serialized_size(&obj->religion_id)
+            + serialized_size(&obj->type)
+            + serialized_size(&obj->culture)
+            + serialized_size(&obj->religion)
         ;
     }
 };

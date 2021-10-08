@@ -114,24 +114,26 @@ void Economy::do_phase_1(World& world) {
         world.job_requests_mutex.lock();
         for(size_t i = 0; i < world.job_requests.size(); i++) {
             JobRequest& job_request = world.job_requests.at(i);
-            size_t employed;
+            size_t employed = 0;
 
             // Industries require 2 (or 3) types of POPs to correctly function
             // - Laborers: They are needed to produce non-edible food
             // - Farmers: They are needed to produce edibles
             // - Entrepreneur: They help "organize" the factory
-            if(available_laborers < needed_farmers && (job_request.pop->type_id == POP_TYPE_LABORER
-            || job_request.pop->type_id == POP_TYPE_SLAVE)) {
-                employed = std::min(needed_laborers, job_request.amount);
+            if(available_laborers < needed_farmers && (job_request.pop->type->is_laborer || job_request.pop->type->is_slave)) {
+                employed = std::min(needed_laborers, job_request.amount - employed);
                 available_laborers += employed;
-            } else if(available_farmers < needed_farmers && (job_request.pop->type_id == POP_TYPE_FARMER
-            || job_request.pop->type_id == POP_TYPE_SLAVE)) {
-                employed = std::min(needed_farmers, job_request.amount);
+            }
+            if(available_farmers < needed_farmers && (job_request.pop->type->is_farmer || job_request.pop->type->is_slave)) {
+                employed = std::min(needed_farmers, job_request.amount - employed);
                 available_farmers += employed;
-            } else if(available_entrepreneurs < needed_entrepreneurs && job_request.pop->type_id == POP_TYPE_ENTRPRENEUR) {
-                employed = std::min(needed_entrepreneurs, job_request.amount);
+            }
+            if(available_entrepreneurs < needed_entrepreneurs && job_request.pop->type->is_entrepreneur) {
+                employed = std::min(needed_entrepreneurs, job_request.amount - employed);
                 available_entrepreneurs += employed;
-            } else {
+            }
+            
+            if(!employed) {
                 // Do not accept anyone else
                 continue;
             }
@@ -589,7 +591,7 @@ void Economy::do_phase_3(World& world) {
                     bought = everyday_alloc_budget / product->price;
 
                     // Slaves cannot buy commodities
-                    if(pop.type_id == POP_TYPE_SLAVE) {
+                    if(pop.type->is_slave) {
                         continue;
                     }
                 }
@@ -716,24 +718,17 @@ void Economy::do_phase_3(World& world) {
                     
                     // For the lower class, lower taxes is good, and so on for other POPs
                     if(target_province->owner->current_policy.poor_flat_tax < province->owner->current_policy.poor_flat_tax
-                    && (pop.type_id == POP_TYPE_FARMER
-                    || pop.type_id == POP_TYPE_SOLDIER
-                    || pop.type_id == POP_TYPE_LABORER
-                    || pop.type_id == POP_TYPE_SLAVE)) {
+                    && pop.type->social_value <= 1.f) {
                         attractive = target_province->owner->current_policy.poor_flat_tax - province->owner->current_policy.poor_flat_tax;
                     }
                     // For the medium class
                     else if(target_province->owner->current_policy.med_flat_tax < province->owner->current_policy.med_flat_tax
-                    && (pop.type_id == POP_TYPE_ARTISAN
-                    || pop.type_id == POP_TYPE_BUREAUCRAT
-                    || pop.type_id == POP_TYPE_CLERGYMEN
-                    || pop.type_id == POP_TYPE_OFFICER)) {
+                    && pop.type->social_value <= 2.f) {
                         attractive = target_province->owner->current_policy.med_flat_tax - province->owner->current_policy.med_flat_tax;
                     }
                     // For the high class
                     else if(target_province->owner->current_policy.rich_flat_tax < province->owner->current_policy.rich_flat_tax
-                    && (pop.type_id == POP_TYPE_ENTRPRENEUR
-                    || pop.type_id == POP_TYPE_ARISTOCRAT)) {
+                    && pop.type->social_value <= 3.f) {
                         attractive = target_province->owner->current_policy.rich_flat_tax - province->owner->current_policy.rich_flat_tax;
                     }
                     

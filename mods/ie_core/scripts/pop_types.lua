@@ -1,34 +1,67 @@
 -- Pop types
-entrepreneur = PopType:new{ ref_name = "entrepreneur" }
-entrepreneur.name = _("Entrepreneur")
+entrepreneur = PopType:new{
+    name = _("Entrepreneur"),
+    ref_name = "entrepreneur",
+    social_value = 3.0,
+    is_entrepreneur = true
+}
 PopType:register(entrepreneur)
-artisan = PopType:new{ ref_name = "artisan" }
-artisan.name = _("Artisan")
+
+artisan = PopType:new{
+    name = _("Artisan"),
+    ref_name = "artisan",
+    social_value = 1.0
+}
 PopType:register(artisan)
-craftsmen = PopType:new{ ref_name = "craftsmen" }
-craftsmen.name = _("Craftsmen")
-PopType:register(craftsmen)
-bureaucrat = PopType:new{ ref_name = "bureaucrat" }
-bureaucrat.name = _("Bureaucrat")
+
+bureaucrat = PopType:new{
+    name = _("Bureaucrat"),
+    ref_name = "bureaucrat",
+    social_value = 2.5
+}
 PopType:register(bureaucrat)
-aristocrat = PopType:new{ ref_name = "aristocrat" }
-aristocrat.name = _("Aristocrat")
+
+aristocrat = PopType:new{
+    name = _("Aristocrat"),
+    ref_name = "aristocrat",
+    social_value = 2.0
+}
 PopType:register(aristocrat)
-clergymen = PopType:new{ ref_name = "clergymen" }
-clergymen.name = _("Clergymen")
+
+clergymen = PopType:new{
+    name = _("Instructor"),
+    ref_name = "instructor",
+    social_value = 2.5
+}
 PopType:register(clergymen)
-farmer = PopType:new{ ref_name = "farmer" }
-farmer.name = _("Farmer")
-PopType:register(farmer)
-soldier = PopType:new{ ref_name = "soldier" }
-soldier.name = _("Soldier")
+
+soldier = PopType:new{
+    name = _("Soldier"),
+    ref_name = "soldier",
+    social_value = 1.5
+}
 PopType:register(soldier)
-officer = PopType:new{ ref_name = "officer" }
-officer.name = _("Officer")
-PopType:register(officer)
-laborer = PopType:new{ ref_name = "laborer" }
-laborer.name = _("Laborer")
+
+farmer = PopType:new{
+    name = _("Farmer"),
+    ref_name = "farmer",
+    social_value = 1.0,
+    is_farmer = true
+}
+PopType:register(farmer)
+
+laborer = PopType:new{
+    name = _("Laborer"),
+    ref_name = "laborer",
+    social_value = 1.0,
+    is_laborer = true
+}
 PopType:register(laborer)
-slave = PopType:new{ ref_name = "slave" }
-slave.name = _("Slave")
+
+slave = PopType:new{
+    name = _("Slave"),
+    ref_name = "slave",
+    social_value = 0.1,
+    is_slave = true
+}
 PopType:register(slave)
