@@ -511,7 +511,7 @@ int LuaAPI::multiply_province_militancy_by_culture(lua_State* L) {
     
     double factor = lua_tonumber(L, 3);
     for(auto& pop: province->pops) {
-        if(pop.culture_id != lua_tonumber(L, 2)) {
+        if(pop.culture != g_world->cultures.at(lua_tonumber(L, 2))) {
             continue;
         }
         pop.militancy *= factor;
@@ -525,7 +525,7 @@ int LuaAPI::multiply_province_militancy_by_religion(lua_State* L) {
     
     double factor = lua_tonumber(L, 3);
     for(auto& pop: province->pops) {
-        if(pop.religion_id != lua_tonumber(L, 2)) {
+        if(pop.religion != g_world->religions.at(lua_tonumber(L, 2))) {
             continue;
         }
         pop.militancy *= factor;
@@ -549,7 +549,7 @@ int LuaAPI::multiply_province_con_by_culture(lua_State* L) {
     
     double factor = lua_tonumber(L, 3);
     for(auto& pop: province->pops) {
-        if(pop.culture_id != lua_tonumber(L, 2)) {
+        if(pop.culture != g_world->cultures.at(lua_tonumber(L, 2))) {
             continue;
         }
         pop.consciousness *= factor;
@@ -563,7 +563,7 @@ int LuaAPI::multiply_province_con_by_religion(lua_State* L) {
     
     double factor = lua_tonumber(L, 3);
     for(auto& pop: province->pops) {
-        if(pop.religion_id != lua_tonumber(L, 2)) {
+        if(pop.religion != g_world->religions.at(lua_tonumber(L, 2))) {
             continue;
         }
         pop.consciousness *= factor;
@@ -575,18 +575,14 @@ int LuaAPI::add_province_pop(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
 
     Pop pop;
-    pop.type_id = lua_tonumber(L, 2);
-    pop.culture_id = lua_tonumber(L, 3);
-    pop.religion_id = lua_tonumber(L, 4);
+    pop.type = g_world->pop_types.at(lua_tonumber(L, 2));
+    pop.culture = g_world->cultures.at(lua_tonumber(L, 3));
+    pop.religion = g_world->religions.at(lua_tonumber(L, 4));
     pop.size = lua_tonumber(L, 5);
     pop.literacy = lua_tonumber(L, 6);
     
-    if(!pop.size) {
+    if(pop.size == 0) {
         throw LuaAPI::Exception("Can't create pops with 0 size");
-    } if(pop.culture_id >= g_world->cultures.size()) {
-        throw LuaAPI::Exception("Lua culture_id out of bounds");
-    } if(pop.religion_id >= g_world->religions.size()) {
-        throw LuaAPI::Exception("Lua religion_id out of bounds");
     }
     province->pops.push_back(pop);
     return 0;
@@ -694,6 +690,11 @@ int LuaAPI::add_pop_type(lua_State* L) {
     
     pop->ref_name = luaL_checkstring(L, 1);
     pop->name = luaL_checkstring(L, 2);
+    pop->social_value = lua_tonumber(L, 3);
+    pop->is_entrepreneur = lua_toboolean(L, 4);
+    pop->is_slave = lua_toboolean(L, 5);
+    pop->is_farmer = lua_toboolean(L, 6);
+    pop->is_laborer = lua_toboolean(L, 7);
     
     // Add onto vector
     g_world->pop_types.push_back(pop);
@@ -706,7 +707,12 @@ int LuaAPI::get_pop_type(lua_State* L) {
     
     lua_pushnumber(L, g_world->get_id(pop_type));
     lua_pushstring(L, pop_type->name.c_str());
-    return 2;
+    lua_pushnumber(L, pop_type->social_value);
+    lua_pushboolean(L, pop_type->is_entrepreneur);
+    lua_pushboolean(L, pop_type->is_slave);
+    lua_pushboolean(L, pop_type->is_farmer);
+    lua_pushboolean(L, pop_type->is_laborer);
+    return 7;
 }
 
 int LuaAPI::add_culture(lua_State* L) {

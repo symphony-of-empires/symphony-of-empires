@@ -70,7 +70,7 @@ void PopViewNation::on_update(UI::Widget& w, PopViewNation* data) {
             }
 
             if (e < total_pops) {
-                sprintf(tmpbuf, "%s %zu %s %s %s %.2f$ %2.2f", province->name.c_str(), pop.size, g_world->cultures[pop.culture_id]->name.c_str(), g_world->religions[pop.religion_id]->name.c_str(), g_world->pop_types[pop.type_id]->name.c_str(), pop.budget, pop.life_needs_met);
+                sprintf(tmpbuf, "%s %zu %s %s %s %.2f$ %2.2f", province->name.c_str(), pop.size, pop.culture->name.c_str(), pop.religion->name.c_str(), pop.type->name.c_str(), pop.budget, pop.life_needs_met);
                 w.children[i]->text(tmpbuf);
             } else {
                 sprintf(tmpbuf, " ");

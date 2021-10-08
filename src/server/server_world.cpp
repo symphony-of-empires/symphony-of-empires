@@ -594,7 +594,7 @@ void World::do_tick() {
     // Just random shit to make the world be like more alive
     int i = 0;
     for(const auto& nation: nations) {
-        print_info("%d", i++);
+        //print_info("%d", i++);
         if(nation->exists() == false)
             continue;
         

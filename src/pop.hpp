@@ -3,30 +3,19 @@
 #include <vector>
 #include <string>
 
-enum {
-    POP_TYPE_ENTRPRENEUR = 0,
-    POP_TYPE_ARTISAN = 1,
-    POP_TYPE_CRAFTSMEN = 2,
-    POP_TYPE_BUREAUCRAT = 3,
-    POP_TYPE_ARISTOCRAT = 4,
-    POP_TYPE_CLERGYMEN = 5,
-    POP_TYPE_FARMER = 6,
-    POP_TYPE_SOLDIER = 7,
-    POP_TYPE_OFFICER = 8,
-    POP_TYPE_LABORER = 9,
-    POP_TYPE_SLAVE = 10,
-    POP_TYPE_WOMAN = 11,
-    POP_TYPE_CHILDREN = 12,
-    POP_TYPE_AGED = 13,
-};
-
 class PopType {
 public:
     using Id = uint8_t;
     
     std::string name;
     std::string ref_name;
-    float average_budget;
+    
+    float social_value;
+
+    bool is_entrepreneur;
+    bool is_slave;
+    bool is_farmer;
+    bool is_laborer;
 };
 
 #include "culture.hpp"
@@ -48,15 +37,15 @@ public:
     float everyday_needs_met = 0.f;
     float luxury_needs_met = 0.f;
     
-    PopType::Id type_id;
-    Culture::Id culture_id;
-    Religion::Id religion_id;
+    PopType *type;
+    Culture *culture;
+    Religion *religion;
     Policies policies;
 
     bool operator==(const Pop& rhs) {
-        return (this->culture_id == rhs.culture_id
-            && this->religion_id == rhs.religion_id
-            && this->type_id == rhs.type_id);
+        return (this->culture == rhs.culture
+            && this->religion == rhs.religion
+            && this->type == rhs.type);
     }
 };
 
