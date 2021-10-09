@@ -149,6 +149,7 @@ void Nation::give_province(World& world, Province& province) {
     return;
 }
 
+NationClientHint tmp_hint;
 const NationClientHint& Nation::get_client_hint(void) const {
     // Find match
     for(const auto& hint: client_hints) {
@@ -163,5 +164,18 @@ const NationClientHint& Nation::get_client_hint(void) const {
             return hint;
         }
     }
+
+    if(client_hints.empty()) {
+        tmp_hint.colour = rand();
+        tmp_hint.alt_name = "No ClientHint defined";
+        tmp_hint.ideology = World::get_instance().ideologies.at(0);
+        return tmp_hint;
+    }
     return client_hints.at(0);
 }
+
+/*float Nation::get_industry_output_rate() {
+    for(const auto& p: techs) {
+        
+    }
+}*/
