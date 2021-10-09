@@ -29,8 +29,8 @@ aristocrat = PopType:new{
 PopType:register(aristocrat)
 
 clergymen = PopType:new{
-    name = _("Instructor"),
-    ref_name = "instructor",
+    name = _("Clergymen"),
+    ref_name = "clergymen",
     social_value = 2.5
 }
 PopType:register(clergymen)
@@ -65,3 +65,18 @@ slave = PopType:new{
     is_slave = true
 }
 PopType:register(slave)
+
+-- TODO: Remove these, because they are deprecated
+officer = PopType:new{
+    name = _("Officer"),
+    ref_name = "officer",
+    social_value = 1.5
+}
+PopType:register(officer)
+
+craftsmen = PopType:new{
+    name = _("Craftsmen"),
+    ref_name = "craftsmen",
+    social_value = 1.5
+}
+PopType:register(craftsmen)
