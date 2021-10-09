@@ -46,15 +46,11 @@
 #include "camera.hpp"
 #include "client_network.hpp"
 #include "interface/descision.hpp"
-#include "interface/industry_view_nation.hpp"
-#include "interface/pop_view_nation.hpp"
-#include "interface/products_view_world.hpp"
 #include "interface/province_view.hpp"
 #include "interface/select_nation.hpp"
 #include "interface/top_window.hpp"
-#include "interface/treaty_window.hpp"
-#include "interface/ui_reform.hpp"
-#include "interface/build_unit_window.hpp"
+#include "interface/province_view.hpp"
+#include "interface/treaty.hpp"
 #include "map.hpp"
 #include "render/material.hpp"
 #include "render/model.hpp"
@@ -66,14 +62,14 @@ void GameState::play_nation() {
     current_mode = MapMode::NORMAL;
 
     const Province* capital = curr_nation->capital;
-    if (capital != nullptr) {
+    if(capital != nullptr) {
         cam.position.x = capital->max_x;
         cam.position.y = capital->max_y;
         cam.position.z = -100.f;
     }
 
     // Make topwindow
-    top_win = new TopWindow(*this);
+    top_win = new Interface::TopWindow(*this);
 
     // Select the nation
     // TODO put in action
@@ -104,32 +100,32 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
     int& width = gs.width;
     int& height = gs.height;
     SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        switch (event.type) {
+    while(SDL_PollEvent(&event)) {
+        switch(event.type) {
         case SDL_MOUSEBUTTONDOWN:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
-            if (event.button.button == SDL_BUTTON_MIDDLE) {
+            if(event.button.button == SDL_BUTTON_MIDDLE) {
                 input.middle_mouse_down = true;
                 input.last_camera_drag_pos = gs.cam.get_map_pos(mouse_pos);
             }
             break;
         case SDL_MOUSEBUTTONUP:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-            if (event.button.button == SDL_BUTTON_MIDDLE) {
+            if(event.button.button == SDL_BUTTON_MIDDLE) {
                 input.middle_mouse_down = false;
                 break;
             }
 
             click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
-            if (click_on_ui == 0 && gs.current_mode != MapMode::NO_MAP) {
+            if(click_on_ui == 0 && gs.current_mode != MapMode::NO_MAP) {
                 gs.map->handle_click(gs, event);
             }
             break;
         case SDL_MOUSEMOTION:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
-            if (input.middle_mouse_down) {  // Drag the map with middlemouse
+            if(input.middle_mouse_down) {  // Drag the map with middlemouse
                 std::pair<float, float> map_pos = gs.cam.get_map_pos(mouse_pos);
                 gs.cam.position.x += input.last_camera_drag_pos.first - map_pos.first;
                 gs.cam.position.y += input.last_camera_drag_pos.second - map_pos.second;
@@ -142,7 +138,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
             click_on_ui = ui_ctx->check_wheel(mouse_pos.first, mouse_pos.second, event.wheel.y * 6);
-            if (!click_on_ui) {
+            if(!click_on_ui) {
                 gs.cam.velocity.z += event.wheel.y * 2.0f;
             }
             break;
@@ -150,7 +146,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             ui_ctx->check_text_input((const char*)&event.text.text);
             break;
         case SDL_KEYDOWN:
-            switch (event.key.keysym.sym) {
+            switch(event.key.keysym.sym) {
             case SDLK_UP:
                 gs.cam.velocity.y -= std::min(4.f, std::max(0.5f, 0.02f * -gs.cam.position.z));
                 break;
@@ -164,13 +160,13 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 gs.cam.velocity.x += std::min(4.f, std::max(0.5f, 0.02f * -gs.cam.position.z));
                 break;
             case SDLK_t:
-                if (gs.current_mode != MapMode::NO_MAP) {
-                    new TreatyWindow(gs, gs.top_win->top_win);
+                if(gs.current_mode != MapMode::NO_MAP) {
+                    //new TreatyWindow(gs, gs.top_win->top_win);
                 }
                 break;
             case SDLK_p:
-                if (gs.current_mode != MapMode::NO_MAP) {
-                    gs.products_view_world->show();
+                if(gs.current_mode != MapMode::NO_MAP) {
+                    //gs.products_view_world->show();
                 }
                 break;
             case SDLK_BACKSPACE:
@@ -182,13 +178,13 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             run = false;
             break;
         case SDL_WINDOWEVENT:
-            if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+            if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
                 std::pair<float, float> old_size = std::make_pair(width, height);
                 SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height);
                 gs.cam.set_screen(width, height);
 
                 // Resize/recenter UI according to screen change
-                for (auto& widget : ui_ctx->widgets) {
+                for(auto& widget : ui_ctx->widgets) {
                     widget->x *= width / old_size.first;
                     widget->y *= height / old_size.second;
                 }
@@ -203,77 +199,19 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
 
 void client_update(const GameState& gs) {
     std::lock_guard<std::recursive_mutex> lock(gs.world->world_mutex);
-    
-    if (gs.current_mode == MapMode::COUNTRY_SELECT)
-        return;
-    
-    char* tmpbuf = new char[512];
-    if(gs.top_win) {
-        // TODO: We should make this be called directly on the tick update
-        // since this depends that the client is fast enough to respond to a tick change
-        if (g_world->time % 48 == 0) {
-            size_t total_pop = 0, n_pops = 0;
-            double living_std = 0.f, gdp = 0.f;
-            for (const auto& province : gs.curr_nation->owned_provinces) {
-                for (const auto& product : g_world->products) {
-                    gdp += product->price * province->stockpile.at(g_world->get_id(product));
-                }
 
-                for (const auto& pop : province->pops) {
-                    total_pop += pop.size;
-                    living_std += pop.life_needs_met;
-                    n_pops++;
-                }
-            }
-
-            gs.top_win->gdp_chart->data.push_back(gdp);
-            if(gs.top_win->gdp_chart->data.size() >= 30)
-                gs.top_win->gdp_chart->data.pop_front();
-            
-            gs.top_win->pop_chart->data.push_back(total_pop);
-            if(gs.top_win->pop_chart->data.size() >= 30)
-                gs.top_win->pop_chart->data.pop_front();
-            
-            gs.top_win->hdi_chart->data.push_back(living_std);
-            if(gs.top_win->hdi_chart->data.size() >= 30)
-                gs.top_win->hdi_chart->data.pop_front();
-        }
-
-        size_t total_pop = 0;
-        double militancy = 0.f, consciousness = 0.f;
-        for (const auto& province : gs.curr_nation->owned_provinces) {
-            for (const auto& pop : province->pops) {
-                total_pop += pop.size;
-                militancy += pop.militancy;
-                consciousness += pop.consciousness;
-            }
-        }
-        militancy /= total_pop;
-        consciousness /= total_pop;
-
-        sprintf(tmpbuf, " %10.3f", militancy);
-        gs.top_win->militancy_lab->text(tmpbuf);
-        sprintf(tmpbuf, " %10.3f", consciousness);
-        gs.top_win->big_brain_lab->text(tmpbuf);
-        sprintf(tmpbuf, " %10.3f", gs.curr_nation->prestige);
-        gs.top_win->prestige_lab->text(tmpbuf);
-        sprintf(tmpbuf, " %10.3f", gs.curr_nation->economy_score);
-        gs.top_win->economy_lab->text(tmpbuf);
-        sprintf(tmpbuf, " %10.3f", gs.curr_nation->budget);
-        gs.top_win->money_lab->text(tmpbuf);
-        sprintf(tmpbuf, " %14zu", (size_t)total_pop);
-        gs.top_win->population_lab->text(tmpbuf);
-    }
+    gs.ui_ctx->do_tick();
 
     //gs.map->update(*g_world);
-    delete[] tmpbuf;
 }
 
 void GameState::send_command(Archive& archive) {
     client->packet_mutex.lock();
+
     Packet packet = Packet(g_client->get_fd());
     packet.data(archive.get_buffer(), archive.size());
     client->packet_queue.push_back(packet);
+
     client->packet_mutex.unlock();
 }
 
@@ -301,7 +239,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         map->draw(cam, width, height);
 
         gs.world->world_mutex.lock();
-        if (selected_unit != nullptr) {
+        if(selected_unit != nullptr) {
             glBegin(GL_LINE_STRIP);
             glColor3f(1.f, 0.f, 0.f);
             glVertex2f(selected_unit->x, selected_unit->y);
@@ -311,7 +249,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
             glEnd();
         }
 
-        if (selected_building != nullptr) {
+        if(selected_building != nullptr) {
             glBegin(GL_LINE_STRIP);
             glColor3f(1.f, 0.f, 0.f);
             glVertex2f(selected_building->x, selected_building->y);
@@ -342,42 +280,32 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     SDL_GL_SwapWindow(window);
 }
 
-void handle_popups(std::vector<Event>& displayed_events,
-                   std::vector<Treaty*>& displayed_treaties,
-                   GameState& gs) {
+void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& displayed_treaties, GameState& gs) {
     // Put popups
     // Event + Descision popups
-    for (auto& msg : gs.curr_nation->inbox) {
+    for(auto& msg : gs.curr_nation->inbox) {
+        // Check that the event is not already displayed to the user
         auto iter = std::find_if(displayed_events.begin(), displayed_events.end(),
-        [&msg](const auto& e) { return e.ref_name == msg.ref_name; });
-        if (iter != displayed_events.end()) {
+            [&msg](const auto& e) { return e->ref_name == msg->ref_name; });
+        if(iter != displayed_events.end()) {
             continue;
         }
 
-        new DescisionWindow(gs, msg);
-
+        new Interface::DescisionWindow(gs, *msg);
         displayed_events.push_back(msg);
     }
 
-    // Treaties popups
-    extern std::string treaty_to_text(const Treaty& treaty);
-    for (auto treaty : gs.world->treaties) {
-        // Only show treaties we haven't decided on yet and that we have participation on
-        // TODO FIX
-        // if (std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](const auto& e) {
-        //         return (gs.curr_nation == e.first) && (e.second == TREATY_APPROVAL_UNDECIDED);
-        //     }) == treaty->approval_status.end())
-        //     continue;
-
-        // Must not be already shown
-        if (std::find_if(displayed_treaties.begin(), displayed_treaties.end(), [&treaty](const auto& e) {
-                return treaty == e;
-            }) != displayed_treaties.end())
+    for(auto& treaty : gs.world->treaties) {
+        // Check that the treaty is not already displayed
+        auto iter = std::find_if(displayed_treaties.begin(), displayed_treaties.end(),
+            [&treaty](const auto& e) { return e == treaty; });
+        if(iter != displayed_treaties.end()) {
             continue;
+        }
 
-        new TreatyPopup(gs, treaty);
+        // Must participate in treaty
 
-        // Buttons for descisions
+        new Interface::TreatyChooseWindow(gs, treaty);
         displayed_treaties.push_back(treaty);
     }
 }
@@ -386,7 +314,7 @@ void init_client(GameState& gs) {
     Map* map = gs.map;
     int& width = gs.width;
     int& height = gs.height;
-    for (const auto& nation : gs.world->nations) {
+    for(const auto& nation : gs.world->nations) {
         std::string path;
         FILE* fp;
 
@@ -395,7 +323,7 @@ void init_client(GameState& gs) {
             ((nation->ideology == nullptr) ? "none" : nation->ideology->ref_name) + ".png"
         );
         fp = fopen(path.c_str(), "rb");
-        if (fp == NULL) {
+        if(fp == NULL) {
             // fail
         }
 
@@ -412,13 +340,13 @@ void init_client(GameState& gs) {
     }*/
 
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
-    gs.select_nation = new SelectNation(gs);
+    gs.select_nation = new Interface::SelectNation(gs);
 }
 
 void main_loop(GameState& gs, Client* client, SDL_Window* window) {
-    gs.products_view_world = new ProductsViewWorld(gs);
-    gs.pop_view_nation = new PopViewNation(gs);
-    gs.ui_reform = new UIReform(gs);
+    //gs.products_view_world = new ProductsViewWorld(gs);
+    //gs.pop_view_nation = new PopViewNation(gs);
+    //gs.ui_reform = new UIReform(gs);
 
     std::atomic<bool> run;
     run = true;
@@ -436,11 +364,11 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     init_client(gs);
 
     std::mutex render_lock;
-    std::vector<Event> displayed_events;
+    std::vector<Event*> displayed_events;
     std::vector<Treaty*> displayed_treaties;
-    while (run) {
-        if (last_time != gs.world->time) {
-            for(const auto& client_update_fn: gs.client_update_fns) {
+    while(run) {
+        if(last_time != gs.world->time) {
+            for(const auto& client_update_fn : gs.client_update_fns) {
                 client_update_fn(gs);
             }
             last_time = gs.world->time;
@@ -449,7 +377,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
         std::unique_lock<std::mutex> lock(render_lock);
 
         handle_event(input, gs, run);
-        if (gs.current_mode == MapMode::NORMAL) {
+        if(gs.current_mode == MapMode::NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
         }
 
@@ -467,11 +395,11 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
 
     gs.input = Input{};
     Input& input = gs.input;
-    while (run) {
+    while(run) {
         handle_event(input, gs, run);
         render(gs, input, window);
 
-        if (mm_conn->in_game == true) {
+        if(mm_conn->in_game == true) {
             run = false;
             mm_conn->kill();
         }
@@ -499,7 +427,7 @@ void start_client(int argc, char** argv) {
     // globals
     SDL_Window* window;
     int width = 1280, height = 800;
-    GameState gs{Camera(width, height)};
+    GameState gs{ Camera(width, height) };
 
     window = SDL_CreateWindow("Symphony of Empires", 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext context = SDL_GL_CreateContext(window);
@@ -519,9 +447,9 @@ void start_client(int argc, char** argv) {
 
     tmpbuf = new char[512];
     GLenum err = glewInit();
-    if (err != GLEW_OK)
+    if(err != GLEW_OK)
         throw std::runtime_error("Failed to init GLEW");
-    
+
     gs.width = width;
     gs.height = height;
     main_menu_loop(gs, window);

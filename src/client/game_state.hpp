@@ -5,13 +5,8 @@
 
 #include "../nation.hpp"
 #include "../world.hpp"
-#include "interface/industry_view_nation.hpp"
-#include "interface/pop_view_nation.hpp"
-#include "interface/products_view_world.hpp"
-#include "interface/province_view.hpp"
 #include "interface/select_nation.hpp"
 #include "interface/top_window.hpp"
-#include "interface/ui_reform.hpp"
 #include "../serializer.hpp"
 #include "map.hpp"
 #include "ui.hpp"
@@ -23,24 +18,19 @@ enum class MapMode {
     NO_MAP,
 };
 
-struct Input {
+class Input {
+public:
     std::pair<float, float> select_pos;
     bool middle_mouse_down = false;
     std::pair<float, float> last_camera_drag_pos;
     std::pair<int, int> mouse_pos;
+
     Unit* selected_unit = nullptr;
     Building* selected_building = nullptr;
 };
 
 // The all encompassing client state
 // This is the state we could pass down to all the ui widgets
-class ProvinceView;
-class TopWindow;
-class SelectNation;
-class IndustryViewNation;
-class PopViewNation;
-class ProductsViewWorld;
-class UIReform;
 class Map;
 class GameState {
    public:
@@ -63,13 +53,8 @@ class GameState {
 
     UI::Context* ui_ctx;
 
-    SelectNation* select_nation;
-    TopWindow* top_win;
-    ProvinceView* province_view;
-    ProductsViewWorld* products_view_world;
-    IndustryViewNation* industry_view_nation;
-    PopViewNation* pop_view_nation;
-    UIReform* ui_reform;
+    Interface::SelectNation* select_nation;
+    Interface::TopWindow* top_win;
 
     // Used by client to update anything each tick (i.e a graph)
     std::vector<std::function<void(const GameState&)>> client_update_fns;

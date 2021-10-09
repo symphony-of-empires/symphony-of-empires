@@ -3,7 +3,7 @@
 #include "../game_state.hpp"
 #include "../ui.hpp"
 
-class MainMenuConnectServer : public UI::Window {
+class MainMenuConnectServer: public UI::Window {
 public:
     MainMenuConnectServer(GameState& gs);
 

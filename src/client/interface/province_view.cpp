@@ -1,81 +1,128 @@
 #include "province_view.hpp"
 
-#include "../../nation.hpp"
-#include "../../path.hpp"
-#include "../../world.hpp"
 #include "../game_state.hpp"
-#include "../render/texture.hpp"
-#include "../ui.hpp"
+#include "../../nation.hpp"
+#include "../../world.hpp"
 
-void ProvinceView::colonize_province_cb(UI::Widget& w, ProvinceView* data) {
-    // TODO send package
-    // size_t& curr_selected_nation = data->gs.select_nation->curr_selected_nation;
-    // data->selected_province->owner = data->gs.world->nations[curr_selected_nation];
-    // data->gs.curr_nation->budget -= 10000;
-}
+using namespace Interface;
 
-ProvinceView::ProvinceView(GameState& _gs, const Tile& tile)
-    : gs{_gs},
-      UI::Window(0, 0, 320, 400) {
-    
-    World& world = *gs.world;
+ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
+    : gs{ _gs },
+    province{ _province },
+    UI::Group(x, y, _parent->width - x, _parent->height, _parent)
+{
+    this->text(province->name);
 
-    province = world.provinces[tile.province_id];
-    text(province->name.c_str());
+    this->cultures_pie = new UI::PieChart(0, 0, 64, 64);
+    this->cultures_pie->parent = this;
 
-    const UnifiedRender::Texture& province_view_decor = g_texture_manager->load_texture(Path::get("ui/province_view_terrain.png"));
-    UI::Image* view_province_decor = new UI::Image(9, 43, province_view_decor.width, province_view_decor.height, &province_view_decor, this);
-    view_province_decor->text(province->name.c_str());
+    this->religions_pie = new UI::PieChart(64, 0, 64, 64);
+    this->religions_pie->parent = this;
 
-    UI::Button* view_province_pops = new UI::Button(9, 193, 303, 38, this);
-    view_province_pops->text("Population");
-    view_province_pops->user_data = (void*)province;
+    this->pop_types_pie = new UI::PieChart(64 * 2, 0, 64, 64);
+    this->pop_types_pie->parent = this;
 
-    UI::Button* view_province_ind = new UI::Button(9, 0, 303, 38, this);
-    view_province_ind->text("Economic activity");
-    view_province_ind->below_of(*view_province_pops);
-    view_province_ind->user_data = (void*)this;
-    view_province_ind->on_click = (UI::Callback)([](UI::Widget& w, void *data) {
-        ProvinceView *state = (ProvinceView*)data;
-        new ProvinceViewEconomic(state->gs, state->province);
+    this->on_each_tick = ([](UI::Widget& w, void*) {
+        auto& o = dynamic_cast<ProvincePopulationTab&>(w);
+
+        // Obtain population information
+        std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
+        for(const auto& pop : o.province->pops) {
+            cultures_data.push_back(UI::ChartData(pop.size, pop.culture->name,
+                UI::Color(rand(), rand(), rand())));
+            religions_data.push_back(UI::ChartData(pop.size, pop.religion->name,
+                UI::Color(rand(), rand(), rand())));
+            pop_types_data.push_back(UI::ChartData(pop.size, pop.type->name,
+                UI::Color(rand(), rand(), rand())));
+        }
+
+        o.cultures_pie->set_data(cultures_data);
+        o.religions_pie->set_data(religions_data);
+        o.pop_types_pie->set_data(pop_types_data);
+
+        if(o.pop_infos.size() < o.province->pops.size()) {
+            for(size_t i = o.pop_infos.size(); i < o.province->pops.size(); i++) {
+                PopInfo* info = new PopInfo(o.gs, 0, (i * 24) + 24, o.province, i, &o);
+                o.pop_infos.push_back(info);
+            }
+        } else if(o.pop_infos.size() > o.province->pops.size()) {
+            for(size_t i = o.province->pops.size(); i < o.pop_infos.size(); i++) {
+                o.pop_infos[i]->kill();
+            }
+            o.pop_infos.erase(o.pop_infos.begin() + o.province->pops.size(), o.pop_infos.end());
+        }
     });
 
-    UI::Button* view_province_owner = new UI::Button(9, 0, 303, 38, this);
-    view_province_owner->text("Owner info");
-    view_province_owner->below_of(*view_province_ind);
-    view_province_owner->user_data = (void*)province;
-
-    UI::CloseButton* ok_btn = new UI::CloseButton(9, 0, 303, 38, this);
-    ok_btn->text("ok");
-    ok_btn->below_of(*view_province_owner);
-
-    if (world.provinces[tile.province_id]->owner == nullptr) {
-        UI::Button* colonize_province_btn = new UI::Button(9, 0, 303, 38, this);
-        colonize_province_btn->text("Colonize");
-        colonize_province_btn->below_of(*ok_btn);
-        colonize_province_btn->user_data = this;
-        colonize_province_btn->on_click = (UI::Callback)colonize_province_cb;
+    // Add the initial POPs infoboxes, we can later add/remove as needed on each tick update
+    int i = 0;
+    for(const auto& pop : this->province->pops) {
+        PopInfo* info = new PopInfo(this->gs, 0, (i * 24) + 24, this->province, i, this);
+        this->pop_infos.push_back(info);
+        i++;
     }
 }
 
-ProvinceViewEconomic::ProvinceViewEconomic(GameState& _gs, Province* _province)
-    : gs{_gs},
-      province{_province},
-      UI::Window(0, 0, 320, 400) {
-    
-    UI::CloseButton* ok_btn = new UI::CloseButton(9, 24, 303, 38, this);
-    ok_btn->text("ok");
+ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
+    : gs{ _gs },
+    province{ _province },
+    UI::Group(x, y, _parent->width - 128, _parent->height, _parent)
+{
+    this->text(province->name);
 
-    UI::Chart* pop_chart = new UI::Chart(0, 32, 120, 64, this);
-    pop_chart->below_of(*ok_btn);
-    pop_chart->user_data = this;
-    pop_chart->on_update = (UI::Callback)([](UI::Widget& w, void* data) {
-        ProvinceViewEconomic *state = (ProvinceViewEconomic*)data;
-        UI::Chart& wc = dynamic_cast<UI::Chart&>(w);
-        if (state->gs.world->time % 48 == 35) {
-            wc.data.push_back(state->province->total_pops());
-            if (wc.data.size() >= 30)
-                wc.data.pop_front();
+    this->products_pie = new UI::PieChart(0, 0, 64, 64);
+    this->products_pie->parent = this;
+
+    this->on_each_tick = ([](UI::Widget& w, void*) {
+        auto& o = dynamic_cast<ProvinceEconomyTab&>(w);
+
+        // Obtain demand, supply and other information about the goods
+        std::vector<UI::ChartData> goods_data, products_data;
+        for(const auto& product : o.gs.world->products) {
+            if(product->origin != o.province) {
+                continue;
+            }
+
+            UI::ChartData data = UI::ChartData(
+                product->demand,
+                product->owner->name + "'s " + product->good->name,
+                UI::Color(rand(), rand(), rand())
+            );
+            products_data.push_back(data);
         }
     });
+}
+
+ProvinceView::ProvinceView(GameState& _gs, Province* _province)
+    : gs{ _gs },
+    province{ _province },
+    UI::Window(0, 0, 512, 512)
+{
+    this->text(province->name);
+
+    this->pop_tab = new ProvincePopulationTab(gs, 0, 24, _province, this);
+    this->pop_tab->is_render = true;
+
+    this->pop_btn = new UI::Button(0, 0, 128, 24, this);
+    this->pop_btn->text("Population");
+    this->pop_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = dynamic_cast<ProvinceView&>(*w.parent);
+
+        o.pop_tab->is_render = true;
+        o.econ_tab->is_render = false;
+    });
+
+    this->econ_tab = new ProvinceEconomyTab(gs, 0, 24, _province, this);
+    this->econ_tab->is_render = false;
+
+    this->econ_btn = new UI::Button(0, 24, 128, 24, this);
+    this->econ_btn->text("Economy");
+    this->econ_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = dynamic_cast<ProvinceView&>(*w.parent);
+
+        o.pop_tab->is_render = false;
+        o.econ_tab->is_render = true;
+    });
+
+    this->close_btn = new UI::CloseButton(0, 24 * 2, 128, 24, this);
+    this->close_btn->text("Close");
 }
