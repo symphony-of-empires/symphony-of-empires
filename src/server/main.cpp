@@ -236,6 +236,7 @@ int main(int argc, char** argv) {
         }
     } catch(const std::exception& e) {
         print_error(e.what());
+        throw;
     }
         
     print_info(gettext("Destroying world"));
