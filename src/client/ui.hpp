@@ -222,9 +222,13 @@ class Slider : public Widget {
 };
 
 class Text : public Widget {
+    std::vector<UI::Label*> labels;
   public:
-    Text(int x, int y, unsigned w, unsigned h, const std::string& text = " ");
+    Text(int x, int y, unsigned w, unsigned h, Widget* parent);
     ~Text(void);
+
+    virtual void on_render(Context& ctx);
+    virtual void text(const std::string& text);
 };
 
 struct Color {

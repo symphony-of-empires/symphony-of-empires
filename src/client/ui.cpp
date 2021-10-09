@@ -585,6 +585,37 @@ void Label::on_render(Context& ctx) {
     }
 }
 
+Text::Text(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
+    : Widget(_parent, _x, _y, w, h, UI_WIDGET_GROUP) {
+    
+}
+
+void Text::on_render(Context& ctx) {
+    // Do nothing!
+}
+
+void Text::text(const std::string& text) {
+    // Delete old labels in vector (if any)
+    for(auto& lab: labels) {
+        delete lab;
+    }
+    labels.clear();
+
+    // Separate the text in multiple labels
+    size_t pos = 0;
+    size_t y = 38;
+    while (pos < text.length()) {
+        size_t t_len = std::min<size_t>(text.length(), (this->w / 12));
+        std::string tmpbuf = text.substr(pos, t_len);
+        
+        UI::Label* lab = new UI::Label(8, y, tmpbuf, this);
+        labels.push_back(lab);
+
+        y += 24;
+        pos += t_len;
+    }
+}
+
 Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI_WIDGET_LABEL) {
 }
