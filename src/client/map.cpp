@@ -354,7 +354,9 @@ void Map::draw(Camera& cam, const int width, const int height) {
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
 
-        outpost_type_icons.at(world.get_id(building->type))->draw(obj_shader);
+        if(world.get_id(building->type) < outpost_type_icons.size()) {
+            outpost_type_icons.at(world.get_id(building->type))->draw(obj_shader);
+        }
 
         // Reverse rotation
         model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
@@ -368,7 +370,9 @@ void Map::draw(Camera& cam, const int width, const int height) {
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
 
-        unit_type_icons[world.get_id(unit->type)]->draw(obj_shader);
+        if(world.get_id(unit->type) < unit_type_icons.size()) {
+            unit_type_icons[world.get_id(unit->type)]->draw(obj_shader);
+        }
 
         // Reverse rotation
         model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
