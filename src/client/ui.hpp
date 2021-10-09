@@ -26,6 +26,7 @@ enum UI_WidgetType {
     UI_WIDGET_CHECKBOX,
     UI_WIDGET_PIE_CHART,
     UI_WIDGET_SLIDER,
+    UI_WIDGET_GROUP,
 };
 
 namespace UI {
@@ -44,13 +45,22 @@ class Context {
 
     void render_recursive(Widget& widget, int x_off, int y_off);
     void render_all(const int width, const int height);
+    
     int check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
     void check_hover(unsigned mx, unsigned my);
+    
     int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
     int check_click(unsigned mx, unsigned my);
+
+    int do_tick_recursive(Widget& w);
+    void do_tick(void);
+    
     void check_drag(unsigned mx, unsigned my);
+    
     int check_wheel(unsigned mx, unsigned my, int y);
+    
     void check_text_input(const char* input);
+
     void clear(void);
     void clear_dead();
 
@@ -75,8 +85,10 @@ class Widget {
 
     void move_by(int x, int y);
     void add_child(Widget* child);
-    void text(const std::string& text);
     void draw_rectangle(int x, int y, unsigned w, unsigned h, unsigned tex);
+
+    virtual void on_render(Context&);
+    virtual void text(const std::string& text);
 
     template <typename T>
     void above_of(const T& rhs) {
@@ -97,7 +109,6 @@ class Widget {
     void right_side_of(const T& rhs) {
         x = rhs.x + rhs.width;
     }
-    virtual void on_render(Context&);
 
     bool is_pinned = false;
 
@@ -121,12 +132,25 @@ class Widget {
     std::vector<Widget*> children;
 
     void* user_data = nullptr;
-    void kill() { dead = true; };
+    void kill() {
+        dead = true;
+    };
 
     std::function<void(Widget&, void*)> on_update;
     std::function<void(Widget&, void*)> on_hover;
     std::function<void(Widget&, void*)> on_click;
+
+    std::function<void(Widget&, void*)> on_each_tick;
+
     bool dead = false;
+};
+
+class Group : public Widget {
+  public:
+    Group(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
+    ~Group(){};
+
+    virtual void on_render(Context& ctx);
 };
 
 class Input : public Widget {
@@ -176,7 +200,7 @@ class Image : public Widget {
 
 class Label : public Widget {
    public:
-    Label(int x, int y, const char* text = nullptr, Widget* parent = nullptr);
+    Label(int x, int y, const std::string& text = " ", Widget* parent = nullptr);
     ~Label(){};
     virtual void on_render(Context& ctx);
 };
@@ -197,18 +221,24 @@ class Slider : public Widget {
     float max, min, value;
 };
 
-struct Color {
-    Color(uint8_t red, uint8_t green, uint8_t blue) : r{red / 256.f}, g{green / 256.f}, b{blue / 256.f} {}
-    float r;
-    float g;
-    float b;
+class Text : public Widget {
+  public:
+    Text(int x, int y, unsigned w, unsigned h, const std::string& text = " ");
+    ~Text(void);
 };
+
+struct Color {
+    Color(uint8_t red, uint8_t green, uint8_t blue) : r{red / 256.f}, g{green / 256.f}, b{blue / 256.f} {};
+    float r, g, b;
+};
+
 struct ChartData {
     ChartData(float _num, std::string _info, Color _color) : num{_num}, info{_info}, color{_color} {}
     float num;
     std::string info;  // Used for tooltips
     Color color;
 };
+
 // Example
 // std::vector<UI::ChartData> data;
 // data.push_back(UI::ChartData(24.f, std::string(), UI::Color(56, 97, 140)));
@@ -217,7 +247,7 @@ struct ChartData {
 // UI::PieChart* pie_chart = new UI::PieChart(9, 43, 303, 100, data, nullptr);
 class PieChart : public Widget {
    public:
-    PieChart(int x, int y, unsigned w, unsigned h, std::vector<ChartData> data, Widget* _parent = nullptr);
+    PieChart(int x, int y, unsigned w, unsigned h, std::vector<ChartData> data = std::vector<ChartData>(), Widget* _parent = nullptr);
     ~PieChart(){};
     virtual void on_render(Context& ctx);
     void set_data(std::vector<ChartData> data);

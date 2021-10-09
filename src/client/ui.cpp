@@ -274,6 +274,27 @@ int Context::check_wheel(unsigned mx, unsigned my, int y) {
     return 0;
 }
 
+// These functions are called on each world tick - this is to allow to update widgets on
+// each world tick, and are also framerate independent and thus more reliable than doing
+// the usual `if (tick % 48 == 24) {}`, which can cause issues on slow PCs or very fast hosts
+void Context::do_tick(void) {
+    for (int i = widgets.size() - 1; i >= 0; i--) {
+        do_tick_recursive(*widgets[i]);
+    }
+    return;
+}
+
+int Context::do_tick_recursive(Widget& w) {
+    if (w.on_each_tick)
+        w.on_each_tick(w, w.user_data);
+
+    for (auto& child : w.children) {
+        do_tick_recursive(*child);
+    }
+    return 1;
+}
+
+// Draw a simple quad
 void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const GLuint tex) {
     // Texture switching in OpenGL is expensive
     glBindTexture(GL_TEXTURE_2D, tex);
@@ -515,6 +536,14 @@ Checkbox::Checkbox(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI_WIDGET_CHECKBOX) {
 }
 
+Group::Group(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
+    : Widget(_parent, _x, _y, w, h, UI_WIDGET_GROUP) {
+}
+
+void Group::on_render(Context& ctx) {
+    // Do nothing!
+}
+
 Button::Button(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON) {
 }
@@ -534,7 +563,7 @@ Image::Image(int _x, int _y, unsigned w, unsigned h, const UnifiedRender::Textur
     current_texture = tex;
 }
 
-Label::Label(int _x, int _y, const char* _text, Widget* _parent)
+Label::Label(int _x, int _y, const std::string& _text, Widget* _parent)
     : Widget(_parent, _x, _y, 0, 0, UI_WIDGET_LABEL) {
     text(_text);
     width = text_texture->width;
