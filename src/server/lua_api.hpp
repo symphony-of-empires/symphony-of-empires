@@ -16,7 +16,7 @@
 #include "../nation.hpp"
 
 namespace LuaAPI {
-    class Exception : public std::exception {
+    class Exception: public std::exception {
         std::string buffer;
     public:
         Exception(const std::string& message) {
@@ -43,7 +43,7 @@ namespace LuaAPI {
 
     int add_good(lua_State* L);
     int get_good(lua_State* L);
-    
+
     int add_input_to_industry_type(lua_State* L);
     int add_output_to_industry_type(lua_State* L);
     int add_req_good_to_industry_type(lua_State* L);
@@ -62,7 +62,7 @@ namespace LuaAPI {
 
     int add_nation_mod(lua_State* L);
     int get_nation_mod(lua_State* L);
-    
+
     int add_province(lua_State* L);
     int get_province(lua_State* L);
     int get_province_by_id(lua_State* L);

@@ -6,7 +6,7 @@
 #include <sstream>
 #include <string>
 
-class BinaryImageException : public std::exception {
+class BinaryImageException: public std::exception {
     std::string buffer;
 public:
     BinaryImageException(const std::string& filename, const std::string& message) {
@@ -31,11 +31,11 @@ public:
     BinaryImage(const BinaryImage& tex);
     BinaryImage& operator=(const BinaryImage&) = default;
     virtual ~BinaryImage();
-    
+
     uint32_t* buffer;
     size_t width;
     size_t height;
-    
+
     virtual void from_file(const std::string& path);
 };
 

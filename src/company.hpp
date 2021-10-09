@@ -10,10 +10,10 @@
 class Company {
 public:
     using Id = uint16_t;
-    
+
     // Name of this company
     std::string name;
-    
+
     // How many money this company has
     float money;
 
@@ -25,7 +25,7 @@ public:
     Nation* nation = nullptr;
 
     // List of province IDs where this company operates (mostly used for transport companies)
-    std::set<Province *> operating_provinces;
+    std::set<Province*> operating_provinces;
 
     inline bool in_range(Province* province) {
         return (std::find(operating_provinces.begin(), operating_provinces.end(), province)

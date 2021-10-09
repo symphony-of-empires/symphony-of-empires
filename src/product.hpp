@@ -14,28 +14,28 @@ public:
 
     // Onwer (companyId) of this product
     Company* owner;
-    
+
     // Origin province (where this product was made)
     Province* origin;
-    
+
     // Building that made this product
     Building* building;
-    
+
     // Good that this product is based on
     Good* good;
-    
+
     // Price of the product
     float price;
-    
+
     // Velocity of change of price of the product
     float price_vel;
-    
+
     // Quality of the product
     float quality;
-    
+
     // Total supply (worldwide) of the product
     size_t supply;
-    
+
     // Total demand (worldwide) of the product
     size_t demand;
 

@@ -29,7 +29,7 @@
 #include <cstring>
 #include <stdexcept>
 
-class SocketException : public std::exception {
+class SocketException: public std::exception {
     std::string buffer;
 public:
     SocketException(const std::string& msg) {
@@ -40,7 +40,7 @@ public:
     }
 };
 
-class ServerException : public std::exception {
+class ServerException: public std::exception {
     std::string buffer;
 public:
     ServerException(const std::string& msg) {
@@ -51,7 +51,7 @@ public:
     }
 };
 
-class ClientException : public std::exception {
+class ClientException: public std::exception {
     std::string buffer;
 public:
     ClientException(const std::string& msg) {
@@ -68,7 +68,7 @@ public:
     int fd;
 
     SocketStream() {};
-    SocketStream(int _fd) : fd(_fd) {};
+    SocketStream(int _fd): fd(_fd) {};
 
     void send(const void* data, size_t size);
     void recv(void* data, size_t size);
@@ -90,9 +90,9 @@ public:
     ~Packet() {};
 
     inline void* data(void) {
-        return (void *)&buffer[0];
+        return (void*)&buffer[0];
     }
-    
+
     inline void data(void* buf, size_t size) {
         n_data = size;
         buffer.resize(n_data);
@@ -113,10 +113,10 @@ public:
 
         const uint32_t net_code = htonl(static_cast<uint32_t>(code));
         stream.send(&net_code, sizeof(net_code));
-        
+
         const uint32_t net_size = htonl(n_data);
         stream.send(&net_size, sizeof(net_size));
-        
+
         // Socket writes can only be done 1024 bytes at a time
         stream.send(&buffer[0], n_data);
 
@@ -139,18 +139,18 @@ public:
         stream.recv(&net_size, sizeof(net_size));
         n_data = (size_t)ntohl(net_size);
         buffer.resize(n_data + 1);
-        
+
         // Reads can only be done 1024 bytes at a time
         stream.recv(&buffer[0], n_data);
         if(buf != nullptr)
             std::memcpy(buf, &buffer[0], n_data);
-        
+
         uint16_t eof_marker;
         stream.recv(&eof_marker, sizeof(eof_marker));
         if(ntohs(eof_marker) != 0xE0F)
             throw SocketException("Packet with invalid EOF");
     }
-    
+
     inline void recv(void) {
         this->recv<void>();
     }
