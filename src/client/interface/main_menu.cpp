@@ -2,18 +2,18 @@
 #include "../../print.hpp"
 
 MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
-    : gs{_gs},
-      in_game{false},
-      UI::Window(0, 0, 512, 128) {
-    
-    text("Connect to a server");
+    : gs{ _gs },
+    in_game{ false },
+    UI::Window(0, 0, 512, 128)
+{
+    this->text("Connect to a server");
 
     ip_addr_inp = new UI::Input(0, 24, 512, 24, this);
     ip_addr_inp->buffer = "127.0.0.1";
     ip_addr_inp->text(ip_addr_inp->buffer);
 
     username_inp = new UI::Input(0, 48, 512, 24, this);
-    username_inp->buffer = "Playername";
+    username_inp->buffer = "Default";
     username_inp->text(username_inp->buffer);
 
     conn_btn = new UI::Button(0, 72, 128, 24, this);

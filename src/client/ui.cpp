@@ -125,7 +125,7 @@ void Context::render_recursive(Widget& w, int x_off, int y_off) {
             child->is_show = false;
         }
 
-        if(!child->is_show)
+        if(!child->is_show || !child->is_render)
             continue;
 
         render_recursive(*child, x_off, y_off);
@@ -529,6 +529,22 @@ void Widget::text(const std::string& _text) {
     }
     SDL_FreeSurface(surface);
     text_texture->to_opengl();
+}
+
+Color::Color(uint8_t red, uint8_t green, uint8_t blue)
+    : r{ red / 256.f },
+    g{ green / 256.f },
+    b{ blue / 256.f }
+{
+
+}
+
+Color::Color(uint32_t rgb)
+    : r{ ((rgb >> 16) & 0xff) / 256.f },
+    g{ ((rgb >> 8) & 0xff) / 256.f },
+    b{ (rgb & 0xff) / 256.f }
+{
+
 }
 
 /**
