@@ -256,6 +256,39 @@ World::~World() {
     }
 }
 
+static void lua_exec_all_of(World& world, const std::vector<std::string> files) {
+    std::string files_buf = "require(\"api\")\n\n";
+    for (const auto& file : files) {
+        std::vector<std::string> paths = Path::get_all("scripts/" + file + ".lua");
+        for (const auto& path : paths) {
+            /*luaL_dofile(lua, path.c_str());
+
+            if(luaL_dofile(lua, path.c_str()) != LUA_OK) {
+                throw LuaAPI::Exception(lua_tostring(lua, -1));
+            }*/
+#ifdef windows
+            std::string m_path;
+            for(auto& c: path) {
+                if(c == '\\') {
+                    m_path += "\\\\";
+                } else {
+                    m_path += c;
+                }
+            }
+#else
+            std::string m_path = path;
+#endif
+            files_buf += "f = loadfile(\"" + m_path + "\")\n";
+            files_buf += "f()\n";
+        }
+    }
+    print_info("files_buf: [%s]\n", files_buf.c_str());
+
+    if(luaL_loadstring(world.lua, files_buf.c_str()) != LUA_OK || lua_pcall(world.lua, 0, 0, 0) != LUA_OK) {
+        throw LuaAPI::Exception(lua_tostring(world.lua, -1));
+    }
+}
+
 void World::load_mod(void) {
     BinaryImage topo(Path::get("map_topo.png"));
     BinaryImage div(Path::get("map_div.png"));
@@ -282,48 +315,12 @@ void World::load_mod(void) {
         throw std::runtime_error("Out of memory");
     }
 
-    std::string mod_buf = std::string("");
-    mod_buf += "require(\"api\")\n";
-    const std::string lua_files[] = {
+    const std::vector<std::string> init_files = {
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "good_types", "industry_types",
         "unit_types", "boat_types", "companies", "provinces", "init"
     };
-    for (const auto& lua_file : lua_files) {
-        std::vector<std::string> paths = Path::get_all("scripts/" + lua_file + ".lua");
-        for (const auto& path : paths) {
-            /*luaL_dofile(lua, path.c_str());
-
-            if(luaL_dofile(lua, path.c_str()) != LUA_OK) {
-                throw LuaAPI::Exception(lua_tostring(lua, -1));
-            }*/
-
-#ifdef windows
-            std::string m_path;
-            for(auto& c: path) {
-                if(c == '\\') {
-                    m_path += "\\\\";
-                } else {
-                    m_path += c;
-                }
-            }
-#else
-            std::string m_path = path;
-#endif
-            mod_buf += "f = loadfile(\"" + m_path + "\")\n";
-            mod_buf += "f()\n";
-        }
-        //mod_buf += "require(\"" + lua_file + "\")\n";
-    }
-
-
-    print_info("mod_buf: [%s]\n", mod_buf.c_str());
-
-    if(luaL_loadstring(lua, mod_buf.c_str()) != LUA_OK
-    || lua_pcall(lua, 0, 0, 0) != LUA_OK) {
-        print_info(lua_tostring(lua, -1));
-        throw LuaAPI::Exception(lua_tostring(lua, -1));
-    }
+    lua_exec_all_of(*this, init_files);
 
     // Shrink normally-not-resized vectors to give back memory to the OS
     print_info(gettext("Shrink normally-not-resized vectors to give back memory to the OS"));
@@ -558,10 +555,10 @@ void World::load_mod(void) {
         }
     }
     
-    if(luaL_loadfile(lua, Path::get("scripts/mod.lua").c_str()) != LUA_OK
-    || lua_pcall(lua, 0, 0, 0) != LUA_OK) {
-        throw LuaAPI::Exception(lua_tostring(lua, -1));
-    }
+    const std::vector<std::string> mod_files = {
+        "mod", "postinit"
+    };
+    lua_exec_all_of(*this, mod_files);
     
     // Default init for policies
     for(auto& nation: this->nations) {
