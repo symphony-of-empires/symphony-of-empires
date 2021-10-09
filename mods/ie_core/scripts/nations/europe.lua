@@ -230,6 +230,12 @@ Nation:add_accepted_culture(livonia, latvian)
 Nation:add_accepted_culture(livonia, estonian)
 Nation:add_client_hint(livonia, communism, _("Livonia"), 0x808000)
 
+bulgaria = Nation:new{ ref_name = "bulgaria" }
+bulgaria.name = _("Bulgaria")
+Nation:register(bulgaria)
+Nation:add_accepted_culture(bulgaria, bulgarian)
+Nation:add_client_hint(bulgaria, communism, _("Bulgaria"), 0x808000)
+
 muscovy = Nation:new{ ref_name = "muscovy" }
 muscovy.name = _("Muscovy")
 Nation:register(muscovy)
@@ -519,7 +525,7 @@ greece.name = _("Greece")
 Nation:register(greece)
 Nation:set_ideology(greece, monarchy)
 Nation:add_accepted_culture(greece, greek)
-Nation:add_client_hint(chile, monarchy, _("Greece"), 0xaac4e6)
+Nation:add_client_hint(greece, monarchy, _("Greece"), 0xaac4e6)
 
 -- Releasable nations
 kosovo = Nation:new{ ref_name = "kosovo" }

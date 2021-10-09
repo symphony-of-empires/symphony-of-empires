@@ -82,6 +82,9 @@ Culture:register(estonian)
 polish = Culture:new{ ref_name = "polish" }
 polish.name = _("Polish")
 Culture:register(polish)
+bulgarian = Culture:new{ ref_name = "bulgarian" }
+bulgarian.name = _("Bulgarian")
+Culture:register(bulgarian)
 
 -- Eurasia and West Asia
 nogai = Culture:new{ ref_name = "nogai" }

@@ -1,3 +1,5 @@
+math.randomseed(os.time())
+
 function cake_test()
 	-- Requirements
 	return EVENT_CONDITIONS_MET
@@ -64,13 +66,13 @@ Event:add_receivers(cake_thing, Nation:get({}, "hawai_i"))
 function kalmar_union_test()
     local needed_provinces = {
         -- Finish key provinces
-        "aland", "helsinki", "oulu", "east_oulu", "turku", "jamtland",
+        "aland", "helsinki", "oulu", "east_oulu", "turku",
         -- Swedish key provinces
-        "gotland", "oland", "varmland", "jamtland", "smaland",
+        "gotland", "oland", "varmland", "smaland", "jamtland",
         -- Norwegian key provinces
         "oslo"
     }
-    local n_needed_provinces = 12
+    local n_needed_provinces = 11
 
     -- Only these countries can form Scandinavia
     local sweden = Nation:get({}, "sweden")
@@ -79,8 +81,8 @@ function kalmar_union_test()
     local n_finland_provinces = 0
     local norway = Nation:get({}, "norway")
     local n_norway_provinces = 0
-    for k in needed_provinces do
-        province = Province:get({}, k)
+    for k, v in pairs(needed_provinces) do
+        province = Province:get({}, v)
 
         if province.owner_id == sweden.id then
             n_sweden_provinces = n_sweden_provinces + 1
@@ -101,7 +103,6 @@ function kalmar_union_test()
         Event:add_receivers(kalmar_union_evhdl, Nation:get({}, "norway"))
         return EVENT_CONDITIONS_MET
     end
-
     return EVENT_CONDITIONS_UNMET
 end
 function kalmar_union_event()
@@ -135,7 +136,7 @@ kalmar_union_evhdl = Event:new{
     title = "Kalmar Union",
     text = "The Kalmar Union was a country that covered the whole scandinavia - now with the newly aquired provinces in your power we may be able to renew this nation"
 }
---Event:register(kalmar_union_evhdl)
+Event:register(kalmar_union_evhdl)
 
 -- The minas crash was a car crash occuring on the brazilian province of minas
 function the_minas_crash_test()
@@ -151,7 +152,7 @@ end
 function the_minas_crash_event()
 	descision = Descision:new{
 		ref_name = "the_minas_crash_descision_0",
-		name = "I'm deeply sad for such tragedy",
+		name = "I'm sorry for such tragedy",
 		descision_fn = "the_minas_crash_descision_0",
 		effects = "None"
 	}
@@ -163,20 +164,11 @@ function the_minas_crash_event()
 		effects = "None"
 	}
 	Event:add_descision(the_minas_crash, descision)
-    descision = Descision:new{
-		ref_name = "the_minas_crash_descision_2",
-		name = "Not my problem",
-		descision_fn = "the_minas_crash_descision_2",
-		effects = "None"
-	}
-	Event:add_descision(the_minas_crash, descision)
 	return EVENT_DO_ONE_TIME
 end
 function the_minas_crash_descision_0()
 end
 function the_minas_crash_descision_1()
-end
-function the_minas_crash_descision_2()
 end
 the_minas_crash = Event:new{
 	ref_name = "the_minas_crash",
@@ -186,8 +178,3 @@ the_minas_crash = Event:new{
 	text = "2 cars have been circulating on the minas province recently where they collided with each other on a catastrophic event"
 }
 Event:register(the_minas_crash)
-
--- Province:get_neighbours(Province:get({}, "minas_gerais"))
-local cond = Nation:is_owns_nuclei_from(Nation:get({}, "hawai_i"), Nation:get({}, "russia"))
-
-math.randomseed(os.time())

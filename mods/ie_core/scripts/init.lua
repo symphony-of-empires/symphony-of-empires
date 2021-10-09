@@ -1,2 +1,0 @@
--- Init code
-print('Done!')
