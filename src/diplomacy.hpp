@@ -60,13 +60,13 @@ namespace TreatyClause {
             return false;
         };
     };
-    
+
     /**
     * Makes loser to pay war reparations to the winner
      */
-    class WarReparations : public BaseClause {
+    class WarReparations: public BaseClause {
     public:
-        WarReparations() : BaseClause() {
+        WarReparations(): BaseClause() {
             type = TreatyClauseType::WAR_REPARATIONS;
         };
         unsigned cost(void);
@@ -75,13 +75,13 @@ namespace TreatyClause {
 
         float amount = 0.f;
     };
-    
+
     /**
     * Reduces prestige of loser and increments prestige from winner
      */
-    class Humiliate : public BaseClause {
+    class Humiliate: public BaseClause {
     public:
-        Humiliate() : BaseClause() {
+        Humiliate(): BaseClause() {
             type = TreatyClauseType::HUMILIATE;
         };
         unsigned cost(void);
@@ -90,13 +90,13 @@ namespace TreatyClause {
 
         float amount = 0.f;
     };
-    
+
     /**
     * Liberates a nation from another
      */
-    class LiberateNation : public BaseClause {
+    class LiberateNation: public BaseClause {
     public:
-        LiberateNation() : BaseClause() {
+        LiberateNation(): BaseClause() {
             type = TreatyClauseType::LIBERATE_NATION;
         };
         unsigned cost(void);
@@ -104,15 +104,15 @@ namespace TreatyClause {
         bool in_effect(void);
 
         Nation* liberated = nullptr;
-        std::vector<Province *> provinces;
+        std::vector<Province*> provinces;
     };
-    
+
     /**
     * Imposes a policy to be put in action on a nation
      */
-    class ImposePolicies : public BaseClause {
+    class ImposePolicies: public BaseClause {
     public:
-        ImposePolicies() : BaseClause() {
+        ImposePolicies(): BaseClause() {
             type = TreatyClauseType::IMPOSE_POLICIES;
         };
         unsigned cost(void);
@@ -121,28 +121,28 @@ namespace TreatyClause {
 
         Policies imposed;
     };
-    
+
     /**
     * Anexxes territory from the loser
      */
-    class AnexxProvince : public BaseClause {
+    class AnexxProvince: public BaseClause {
     public:
-        AnexxProvince() : BaseClause() {
+        AnexxProvince(): BaseClause() {
             type = TreatyClauseType::ANEXX_PROVINCES;
         };
         unsigned cost(void);
         void enforce(void);
         bool in_effect(void);
 
-        std::vector<Province *> provinces;
+        std::vector<Province*> provinces;
     };
-    
+
     /**
     * Calls for a ceasefire
      */
-    class Ceasefire : public BaseClause {
+    class Ceasefire: public BaseClause {
     public:
-        Ceasefire() : BaseClause() {
+        Ceasefire(): BaseClause() {
             type = TreatyClauseType::CEASEFIRE;
         };
         unsigned cost(void);
@@ -158,15 +158,16 @@ enum class TreatyApproval {
     ABSENT,
 };
 
-typedef uint32_t TreatyId;
 class Treaty {
 public:
-    using Id = TreatyId;
-    
+    using Id = uint32_t;
+
+    bool does_participate(Nation* nation);
+
     std::string name;
     std::vector<TreatyClause::BaseClause*> clauses;
 
-    Nation* receiver,* sender;
+    Nation* receiver, * sender;
 
     // List of who are involved in the treaty
     std::vector<std::pair<Nation*, TreatyApproval>> approval_status;
@@ -174,6 +175,8 @@ public:
 
 class War {
 public:
+    using Id = uint32_t;
+
     std::string name;
     std::vector<Nation*> attackers;
     std::vector<Nation*> defenders;

@@ -57,7 +57,7 @@ World::World() {
 
     lua_register(lua, "add_good", LuaAPI::add_good);
     lua_register(lua, "get_good", LuaAPI::get_good);
-    
+
     lua_register(lua, "add_input_to_industry_type", LuaAPI::add_input_to_industry_type);
     lua_register(lua, "add_output_to_industry_type", LuaAPI::add_output_to_industry_type);
     lua_register(lua, "add_req_good_to_industry_type", LuaAPI::add_req_good_to_industry_type);
@@ -76,7 +76,7 @@ World::World() {
 
     lua_register(lua, "add_nation_mod", LuaAPI::add_nation_mod);
     lua_register(lua, "get_nation_mod", LuaAPI::get_nation_mod);
-    
+
     lua_register(lua, "add_province", LuaAPI::add_province);
     lua_register(lua, "get_province", LuaAPI::get_province);
     lua_register(lua, "get_province_by_id", LuaAPI::get_province_by_id);
@@ -166,7 +166,7 @@ World::World() {
             [&ref_name](const auto& o) { return (o->ref_name == ref_name); });
             if(result == g_world->ideologies.end())
                 throw LuaAPI::Exception("Ideology " + ref_name + " not found");
-            
+
             Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
             *ideology = **result;
             return 0;
@@ -212,7 +212,7 @@ World::World() {
 
     // Add all scripts onto the path (with glob operator '?')
     std::vector<std::string> mod_paths = Path::get_paths();
-    for(const auto& path: mod_paths) {
+    for(const auto& path : mod_paths) {
         curr_path.append(";" + path + "scripts/?.lua");
     }
     lua_pop(lua, 1);
@@ -225,42 +225,42 @@ World::~World() {
     lua_close(lua);
     delete[] tiles;
 
-    for(auto& religion: religions) {
+    for(auto& religion : religions) {
         delete religion;
-    } for(auto& unit_type: unit_types) {
+    } for(auto& unit_type : unit_types) {
         delete unit_type;
-    } for(auto& event: events) {
+    } for(auto& event : events) {
         delete event;
-    } for(auto& company: companies) {
+    } for(auto& company : companies) {
         delete company;
-    } for(auto& pop_type: pop_types) {
+    } for(auto& pop_type : pop_types) {
         delete pop_type;
-    } for(auto& culture: cultures) {
+    } for(auto& culture : cultures) {
         delete culture;
-    } for(auto& good: goods) {
+    } for(auto& good : goods) {
         delete good;
-    } for(auto& province: provinces) {
+    } for(auto& province : provinces) {
         delete province;
-    } for(auto& nation: nations) {
+    } for(auto& nation : nations) {
         delete nation;
-    } for(auto& building_type: building_types) {
+    } for(auto& building_type : building_types) {
         delete building_type;
-    } for(auto& unit_trait: unit_traits) {
+    } for(auto& unit_trait : unit_traits) {
         delete unit_trait;
-    } for(auto& product: products) {
+    } for(auto& product : products) {
         delete product;
-    } for(auto& unit: units) {
+    } for(auto& unit : units) {
         delete unit;
-    } for(auto& ideology: ideologies) {
+    } for(auto& ideology : ideologies) {
         delete ideology;
     }
 }
 
 static void lua_exec_all_of(World& world, const std::vector<std::string> files) {
     std::string files_buf = "require(\"api\")\n\n";
-    for (const auto& file : files) {
+    for(const auto& file : files) {
         std::vector<std::string> paths = Path::get_all("scripts/" + file + ".lua");
-        for (const auto& path : paths) {
+        for(const auto& path : paths) {
             /*luaL_dofile(lua, path.c_str());
 
             if(luaL_dofile(lua, path.c_str()) != LUA_OK) {
@@ -268,10 +268,11 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files) 
             }*/
 #ifdef windows
             std::string m_path;
-            for(auto& c: path) {
+            for(auto& c : path) {
                 if(c == '\\') {
                     m_path += "\\\\";
-                } else {
+                }
+                else {
                     m_path += c;
                 }
             }
@@ -300,7 +301,8 @@ void World::load_mod(void) {
     // Check that size of all maps match
     if(infra.width != width || infra.height != height) {
         throw std::runtime_error("Infrastructure map size mismatch with topographic map");
-    } else if(div.width != width || div.height != height) {
+    }
+    else if(div.width != width || div.height != height) {
         throw std::runtime_error("Province map size mismatch with topographic map");
     }
 
@@ -315,7 +317,7 @@ void World::load_mod(void) {
         throw std::runtime_error("Out of memory");
     }
 
-    const std::vector<std::string> init_files = {
+    const std::vector<std::string> init_files ={
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "good_types", "industry_types",
         "unit_types", "boat_types", "companies", "provinces", "init"
@@ -332,7 +334,7 @@ void World::load_mod(void) {
     religions.shrink_to_fit();
     pop_types.shrink_to_fit();
 
-    for(auto& province: provinces) {
+    for(auto& province : provinces) {
         province->max_x = 0;
         province->max_y = 0;
         province->min_x = UINT32_MAX;
@@ -353,7 +355,8 @@ void World::load_mod(void) {
         // Set infrastructure level
         if(infra.buffer[i] == 0xffffffff || infra.buffer[i] == 0xff000000) {
             tiles[i].infra_level = 0;
-        } else {
+        }
+        else {
             tiles[i].infra_level = 1;
         }
     }
@@ -365,7 +368,7 @@ void World::load_mod(void) {
     print_info(gettext("Building the province lookup table"));
     Province::Id* color_province_rel_table = new Province::Id[16777216];
     memset(color_province_rel_table, 0xff, sizeof(Province::Id) * 16777216);
-    for(const auto& province: provinces) {
+    for(const auto& province : provinces) {
         color_province_rel_table[province->color & 0xffffff] = get_id(province);
     }
 
@@ -436,7 +439,7 @@ void World::load_mod(void) {
 
     // Correct stuff from provinces
     print_info(gettext("Correcting values for provinces"));
-    for(auto& province: provinces) {
+    for(auto& province : provinces) {
         province->max_x = std::min(width, province->max_x);
         province->max_y = std::min(height, province->max_y);
 
@@ -448,8 +451,8 @@ void World::load_mod(void) {
 
     // Give owners the entire provinces
     print_info(gettext("Give owners the entire provinces"));
-    for(auto& nation: nations) {
-        for(auto& province: nation->owned_provinces) {
+    for(auto& nation : nations) {
+        for(auto& province : nation->owned_provinces) {
             const Province::Id province_id = get_id(province);
             for(size_t x = province->min_x; x <= province->max_x; x++) {
                 for(size_t y = province->min_y; y <= province->max_y; y++) {
@@ -478,15 +481,15 @@ void World::load_mod(void) {
             if(i > this->width) {
                 other_tile = &this->tiles[i - this->width];
                 if(other_tile->owner_id != tile->owner_id
-                && other_tile->owner_id != (Nation::Id)-1) {
+                    && other_tile->owner_id != (Nation::Id)-1) {
                     nation->neighbours.insert(this->nations[other_tile->owner_id]);
                 }
             }
             // Down neighbour
-            if(i < (this->width* this->height) - this->width) {
+            if(i < (this->width * this->height) - this->width) {
                 other_tile = &this->tiles[i + this->width];
                 if(other_tile->owner_id != tile->owner_id
-                && other_tile->owner_id != (Nation::Id)-1) {
+                    && other_tile->owner_id != (Nation::Id)-1) {
                     nation->neighbours.insert(this->nations[other_tile->owner_id]);
                 }
             }
@@ -494,20 +497,20 @@ void World::load_mod(void) {
             if(i > 1) {
                 other_tile = &this->tiles[i - 1];
                 if(other_tile->owner_id != tile->owner_id
-                && other_tile->owner_id != (Nation::Id)-1) {
+                    && other_tile->owner_id != (Nation::Id)-1) {
                     nation->neighbours.insert(this->nations[other_tile->owner_id]);
                 }
             }
             // Right neighbour
-            if(i < (this->width* this->height) - 1) {
+            if(i < (this->width * this->height) - 1) {
                 other_tile = &this->tiles[i + 1];
                 if(other_tile->owner_id != tile->owner_id
-                && other_tile->owner_id != (Nation::Id)-1) {
+                    && other_tile->owner_id != (Nation::Id)-1) {
                     nation->neighbours.insert(this->nations[other_tile->owner_id]);
                 }
             }
         }
-        
+
         if(tile->province_id != (Province::Id)-1) {
             Province* province = this->provinces[this->tiles[i].province_id];
 
@@ -515,15 +518,15 @@ void World::load_mod(void) {
             if(i > this->width) {
                 other_tile = &this->tiles[i - this->width];
                 if(other_tile->province_id != tile->province_id
-                && other_tile->province_id != (Province::Id)-1) {
+                    && other_tile->province_id != (Province::Id)-1) {
                     province->neighbours.insert(this->provinces[other_tile->province_id]);
                 }
             }
             // Down neighbour
-            if(i < (this->width* this->height) - this->width) {
+            if(i < (this->width * this->height) - this->width) {
                 other_tile = &this->tiles[i + this->width];
                 if(other_tile->province_id != tile->province_id
-                && other_tile->province_id != (Province::Id)-1) {
+                    && other_tile->province_id != (Province::Id)-1) {
                     province->neighbours.insert(this->provinces[other_tile->province_id]);
                 }
             }
@@ -531,15 +534,15 @@ void World::load_mod(void) {
             if(i > 1) {
                 other_tile = &this->tiles[i - 1];
                 if(other_tile->province_id != tile->province_id
-                && other_tile->province_id != (Province::Id)-1) {
+                    && other_tile->province_id != (Province::Id)-1) {
                     province->neighbours.insert(this->provinces[other_tile->province_id]);
                 }
             }
             // Right neighbour
-            if(i < (this->width* this->height) - 1) {
+            if(i < (this->width * this->height) - 1) {
                 other_tile = &this->tiles[i + 1];
                 if(other_tile->province_id != tile->province_id
-                && other_tile->province_id != (Province::Id)-1) {
+                    && other_tile->province_id != (Province::Id)-1) {
                     province->neighbours.insert(this->provinces[other_tile->province_id]);
                 }
             }
@@ -548,22 +551,22 @@ void World::load_mod(void) {
 
     // Create diplomatic relations between nations
     print_info(gettext("Creating diplomatic relations"));
-    for(const auto& nation: this->nations) {
+    for(const auto& nation : this->nations) {
         // Relations between nations start at 0 (and latter modified by lua scripts)
         for(size_t i = 0; i < this->nations.size(); i++) {
-            nation->relations.push_back(NationRelation{0.f, false, false, false, false, false, false, false, false, true, false});
+            nation->relations.push_back(NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
         }
     }
-    
-    const std::vector<std::string> mod_files = {
+
+    const std::vector<std::string> mod_files ={
         "mod", "postinit"
     };
     lua_exec_all_of(*this, mod_files);
-    
+
     // Default init for policies
-    for(auto& nation: this->nations) {
+    for(auto& nation : this->nations) {
         nation->budget = 10000.f;
-        
+
         Policies& policy = nation->current_policy;
         policy.import_tax = 0.1f;
         policy.export_tax = 0.1f;
@@ -590,13 +593,13 @@ void World::do_tick() {
     // AI and stuff
     // Just random shit to make the world be like more alive
     int i = 0;
-    for(const auto& nation: nations) {
+    for(const auto& nation : nations) {
         //print_info("%d", i++);
         if(nation->exists() == false)
             continue;
-        
+
         if(rand() % 1000 > 990) {
-            Province *target = provinces[rand() % provinces.size()];
+            Province* target = provinces[rand() % provinces.size()];
             if(target->owner == nullptr) {
                 Packet packet = Packet();
                 Archive ar = Archive();
@@ -613,13 +616,14 @@ void World::do_tick() {
         }
 
         if(rand() % 100 > 98.f) {
-            Nation *target = nullptr;
+            Nation* target = nullptr;
             while(target == nullptr || target->exists() == false) {
                 target = nations[rand() % nations.size()];
             }
             nation->increase_relation(*target);
-        } else if(rand() % 100 > 98.f) {
-            Nation *target = nullptr;
+        }
+        else if(rand() % 100 > 98.f) {
+            Nation* target = nullptr;
             while(target == nullptr || target->exists() == false) {
                 target = nations[rand() % nations.size()];
             }
@@ -632,31 +636,36 @@ void World::do_tick() {
 
             if(rand() % 100 > 50.f) {
                 new_policy.import_tax += 0.1f * (rand() % 10);
-            } else if(rand() % 100 > 50.f) {
+            }
+            else if(rand() % 100 > 50.f) {
                 new_policy.import_tax -= 0.1f * (rand() % 10);
             }
 
             if(rand() % 100 > 50.f) {
                 new_policy.export_tax += 0.1f * (rand() % 10);
-            } else if(rand() % 100 > 50.f) {
+            }
+            else if(rand() % 100 > 50.f) {
                 new_policy.export_tax -= 0.1f * (rand() % 10);
             }
 
             if(rand() % 100 > 50.f) {
                 new_policy.domestic_export_tax += 0.1f * (rand() % 10);
-            } else if(rand() % 100 > 50.f) {
+            }
+            else if(rand() % 100 > 50.f) {
                 new_policy.domestic_export_tax -= 0.1f * (rand() % 10);
             }
 
             if(rand() % 100 > 50.f) {
                 new_policy.domestic_import_tax += 0.1f * (rand() % 10);
-            } else if(rand() % 100 > 50.f) {
+            }
+            else if(rand() % 100 > 50.f) {
                 new_policy.domestic_import_tax -= 0.1f * (rand() % 10);
             }
 
             if(rand() % 100 > 50.f) {
                 new_policy.industry_tax += 0.1f * (rand() % 10);
-            } else if(rand() % 100 > 50.f) {
+            }
+            else if(rand() % 100 > 50.f) {
                 new_policy.industry_tax -= 0.1f * (rand() % 10);
             }
 
@@ -669,18 +678,19 @@ void World::do_tick() {
 
         // Accepting/rejecting treaties
         if(std::rand() % 1000 > 10) {
-            for(auto& treaty: treaties) {
-                for(auto& part: treaty->approval_status) {
+            for(auto& treaty : treaties) {
+                for(auto& part : treaty->approval_status) {
                     if(part.first == nation) {
                         if(part.second == TreatyApproval::ACCEPTED
-                        || part.second == TreatyApproval::DENIED) {
+                            || part.second == TreatyApproval::DENIED) {
                             break;
                         }
 
                         if(std::rand() % 50 >= 25) {
                             print_info("We, %s, deny the treaty of %s", treaty->name.c_str());
                             part.second = TreatyApproval::DENIED;
-                        } else {
+                        }
+                        else {
                             print_info("We, %s, accept the treaty of %s", treaty->name.c_str());
                             part.second = TreatyApproval::ACCEPTED;
                         }
@@ -693,7 +703,7 @@ void World::do_tick() {
         //if(std::rand() % 1000 > 950) {
         if(0) {
             bool can_build = false;
-            for(const auto& province: nation->owned_provinces) {
+            for(const auto& province : nation->owned_provinces) {
                 if(get_id(&province->get_occupation_controller(*this)) != g_world->get_id(nation)) {
                     can_build = true;
                     break;
@@ -705,14 +715,14 @@ void World::do_tick() {
             }
 
             // Select random province
-            Province *target = nullptr;
+            Province* target = nullptr;
             while(target == nullptr || get_id(&target->get_occupation_controller(*this)) != g_world->get_id(nation)) {
                 auto it = std::begin(nation->owned_provinces);
                 std::advance(it, std::rand() % nation->owned_provinces.size());
                 target = *it;
             }
 
-            Tile *tile = nullptr;
+            Tile* tile = nullptr;
             int x_coord, y_coord;
             while(tile == nullptr) {
                 x_coord = std::min<size_t>(target->max_x, std::max<size_t>((std::rand() % (target->max_x - target->min_x + 1)) + target->min_x, target->min_x));
@@ -721,7 +731,7 @@ void World::do_tick() {
 
                 // If tile is land AND NOT part of target province OR NOT of ownership of nation
                 if(tile->elevation > sea_level
-                && (tile->province_id != get_id(target) || tile->owner_id != get_id(nation))) {
+                    && (tile->province_id != get_id(target) || tile->owner_id != get_id(nation))) {
                     tile = nullptr;
                 }
             }
@@ -740,7 +750,7 @@ void World::do_tick() {
                 building->corporate_owner = companies.at(std::rand() % companies.size());
                 building->create_factory(*this);
 
-                for(const auto& product: building->output_products) {
+                for(const auto& product : building->output_products) {
                     Packet packet = Packet();
                     Archive ar = Archive();
                     ActionType action = ActionType::PRODUCT_ADD;
@@ -768,30 +778,30 @@ void World::do_tick() {
 
     // Each tick == 30 minutes
     switch(time % (24 * 2)) {
-    // 3:00
+        // 3:00
     case 6:
         Economy::do_phase_1(*this);
         break;
-    // 7:30
-    // Busy hour, newspapers come out and people get mad
+        // 7:30
+        // Busy hour, newspapers come out and people get mad
     case 15:
         Economy::do_phase_2(*this);
 
         // Calculate prestige for today (newspapers come out!)
-        for(auto& nation: this->nations) {
+        for(auto& nation : this->nations) {
             const float decay_per_cent = 5.f;
             const float max_modifier = 10.f;
             const float min_prestige = std::max<float>(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
 
             // Prestige cannot go below min prestige
             nation->prestige = std::max<float>(nation->prestige, min_prestige);
-            nation->prestige -= (nation->prestige* (decay_per_cent / 100.f))* fmin(fmax(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
+            nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * fmin(fmax(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
         }
         break;
-    // 12:00
+        // 12:00
     case 24:
         Economy::do_phase_3(*this);
-        for(const auto& product: g_world->products) {
+        for(const auto& product : g_world->products) {
             // Broadcast to clients
             Packet packet = Packet();
             Archive ar = Archive();
@@ -803,54 +813,54 @@ void World::do_tick() {
             g_server->broadcast(packet);
         }
 
-        for(auto& nation: this->nations) {
+        for(auto& nation : this->nations) {
             float economy_score = 0.f;
-            for(const auto& province: nation->owned_provinces) {
+            for(const auto& province : nation->owned_provinces) {
                 // Calculate economy score of nations
-                for(const auto& pop: province->pops) {
+                for(const auto& pop : province->pops) {
                     economy_score += pop.budget;
                 }
-                
+
                 // Also calculates GDP
-                for(const auto& product: g_world->products) {
-                    nation->gdp += product->price* province->stockpile[g_world->get_id(product)];
+                for(const auto& product : g_world->products) {
+                    nation->gdp += product->price * province->stockpile[g_world->get_id(product)];
                 }
             }
             nation->economy_score = economy_score / 100.f;
         }
         break;
-    // 18:00
+        // 18:00
     case 36:
         Economy::do_phase_4(*this);
         break;
-    // 24:00, this is where clients are sent all information **at once**
+        // 24:00, this is where clients are sent all information **at once**
     case 47:
-        {
-            for(const auto& nation: g_world->nations) {
-                // Broadcast to clients
-                Packet packet = Packet();
-                Archive ar = Archive();
-                ActionType action = ActionType::NATION_UPDATE;
-                ::serialize(ar, &action);
-                ::serialize(ar, &nation); // NationRef
-                ::serialize(ar, nation); // NationObj
-                packet.data(ar.get_buffer(), ar.size());
-                g_server->broadcast(packet);
-            }
-
-            for(const auto& province: g_world->provinces) {
-                // Broadcast to clients
-                Packet packet = Packet();
-                Archive ar = Archive();
-                ActionType action = ActionType::PROVINCE_UPDATE;
-                ::serialize(ar, &action);
-                ::serialize(ar, &province); // ProvinceRef
-                ::serialize(ar, province); // ProvinceObj
-                packet.data(ar.get_buffer(), ar.size());
-                g_server->broadcast(packet);
-            }
+    {
+        for(const auto& nation : g_world->nations) {
+            // Broadcast to clients
+            Packet packet = Packet();
+            Archive ar = Archive();
+            ActionType action = ActionType::NATION_UPDATE;
+            ::serialize(ar, &action);
+            ::serialize(ar, &nation); // NationRef
+            ::serialize(ar, nation); // NationObj
+            packet.data(ar.get_buffer(), ar.size());
+            g_server->broadcast(packet);
         }
-        break;
+
+        for(const auto& province : g_world->provinces) {
+            // Broadcast to clients
+            Packet packet = Packet();
+            Archive ar = Archive();
+            ActionType action = ActionType::PROVINCE_UPDATE;
+            ::serialize(ar, &action);
+            ::serialize(ar, &province); // ProvinceRef
+            ::serialize(ar, province); // ProvinceObj
+            packet.data(ar.get_buffer(), ar.size());
+            g_server->broadcast(packet);
+        }
+    }
+    break;
     default:
         break;
     }
@@ -862,7 +872,7 @@ void World::do_tick() {
             g_world->units.erase(units.begin() + i);
             break;
         }
-        
+
         // Count friends and foes in range (and find nearest foe)
         size_t n_friends = 0;
         size_t n_foes = 0;
@@ -874,39 +884,40 @@ void World::do_tick() {
                 // Only when very close
                 if(std::abs(unit->x - other_unit->x) >= 4.f && std::abs(unit->y - other_unit->y) >= 4.f)
                     continue;
-                
+
                 n_friends++;
-                
+
                 if(nearest_friend == nullptr) {
                     nearest_friend = other_unit;
                 }
-                
+
                 // Find nearest friend
                 if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_friend->x)
-                && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_friend->y)) {
+                    && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_friend->y)) {
                     nearest_friend = other_unit;
                 }
-            } else {
+            }
+            else {
                 // Foes from many ranges counts
                 if(std::abs(unit->x - other_unit->x) >= 1.f && std::abs(unit->y - other_unit->y) >= 1.f)
                     continue;
-                
+
                 n_foes++;
-                
+
                 if(nearest_foe == nullptr) {
                     nearest_foe = other_unit;
                 }
 
                 // Find nearest foe
                 if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_foe->x)
-                && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_foe->y)) {
+                    && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_foe->y)) {
                     nearest_foe = other_unit;
                 }
             }
         }
 
         if((unit->x != unit->tx || unit->y != unit->ty)
-        && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
+            && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
             float end_x, end_y;
             const float speed = 0.1f;
 
@@ -923,7 +934,7 @@ void World::do_tick() {
                 end_y -= speed;
             else if(unit->y < unit->ty)
                 end_y += speed;
-            
+
             // This code prevents us from stepping onto water tiles (but allows for rivers)
             if(get_tile(end_x, end_y).elevation <= sea_level) {
                 continue;
@@ -932,7 +943,7 @@ void World::do_tick() {
             unit->x = end_x;
             unit->y = end_y;
         }
-        
+
         // Make the unit attack automatically
         // and we must be at war with the owner of this unit to be able to attack the unit
         if(nearest_foe != nullptr && unit->owner->is_enemy(*nearest_foe->owner)) {
@@ -984,7 +995,8 @@ void World::do_tick() {
                         unit->morale += bought / unit->size;
                     }
                 }
-            } else {
+            }
+            else {
                 // Buy stuff and what we are able to buy normally
                 for(size_t j = 0; j < province->stockpile.size(); j++) {
                     // Must be edible and there must be stock
@@ -1016,7 +1028,8 @@ void World::do_tick() {
         // West and east do wrap
         if(unit->x <= 0.f) {
             unit->x = width - 1.f;
-        } else if(unit->x >= width) {
+        }
+        else if(unit->x >= width) {
             unit->x = 0.f;
         }
 
@@ -1033,35 +1046,35 @@ void World::do_tick() {
                 // Broadcast to clients
                 Packet packet = Packet(0);
                 Archive ar = Archive();
-                
+
                 ActionType action = ActionType::TILE_UPDATE;
                 ::serialize(ar, &action);
                 ::serialize(ar, &coord.first);
                 ::serialize(ar, &coord.second);
                 ::serialize(ar, &tile);
-                
+
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
             }
         }
     }
-    
-    for(const auto& unit: units) {
+
+    for(const auto& unit : units) {
         // Broadcast to clients
         Packet packet = Packet();
         Archive ar = Archive();
-        
+
         ActionType action = ActionType::UNIT_UPDATE;
         ::serialize(ar, &action);
         ::serialize(ar, &unit);
         ::serialize(ar, unit);
-        
+
         packet.data(ar.get_buffer(), ar.size());
         g_server->broadcast(packet);
     }
 
     // Do the treaties clauses
-    for(const auto& treaty: treaties) {
+    for(const auto& treaty : treaties) {
         // Check that the treaty is agreed by all parties before enforcing it
         bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty->approval_status.end());
         if(!on_effect)
@@ -1069,23 +1082,28 @@ void World::do_tick() {
 
         // And also check that there is atleast 1 clause that is on effect
         bool is_on_effect = false;
-        for(const auto& clause: treaty->clauses) {
+        for(const auto& clause : treaty->clauses) {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
                 auto dyn_clause = dynamic_cast<TreatyClause::WarReparations*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
+            }
+            else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = dynamic_cast<TreatyClause::AnexxProvince*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+            }
+            else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = dynamic_cast<TreatyClause::LiberateNation*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TreatyClauseType::HUMILIATE) {
+            }
+            else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = dynamic_cast<TreatyClause::Humiliate*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+            }
+            else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = dynamic_cast<TreatyClause::ImposePolicies*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
+            }
+            else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = dynamic_cast<TreatyClause::Ceasefire*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
@@ -1095,42 +1113,47 @@ void World::do_tick() {
         }
         if(!is_on_effect)
             continue;
-        
+
         // Treaties clauses now will be enforced
         print_info("Enforcing treaty %s", treaty->name.c_str());
-        for(auto& clause: treaty->clauses) {
+        for(auto& clause : treaty->clauses) {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
                 auto dyn_clause = dynamic_cast<TreatyClause::WarReparations*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
+            }
+            else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = dynamic_cast<TreatyClause::AnexxProvince*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+            }
+            else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = dynamic_cast<TreatyClause::LiberateNation*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::HUMILIATE) {
+            }
+            else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = dynamic_cast<TreatyClause::Humiliate*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+            }
+            else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = dynamic_cast<TreatyClause::ImposePolicies*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
+            }
+            else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = dynamic_cast<TreatyClause::Ceasefire*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
             }
-        
+
         next_iter:
             ;
         }
@@ -1140,7 +1163,7 @@ void World::do_tick() {
 
     //print_info("Tick %zu done", (size_t)time);
     time++;
-    
+
     // Tell clients that this tick has been done
     Packet packet = Packet(0);
     Archive ar = Archive();

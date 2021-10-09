@@ -6,7 +6,7 @@
 
 // Gets ID from pointer
 Province::Id Province::get_id(const World& world) {
-    const std::vector<Province *>* provinces = &world.provinces;
+    const std::vector<Province*>* provinces = &world.provinces;
     const auto province = std::find(provinces->begin(), provinces->end(), this);
     if(province != provinces->end()) {
         return (Province::Id)std::distance(provinces->begin(), province);
@@ -29,7 +29,7 @@ Nation& Province::get_occupation_controller(const World& world) const {
     std::set<Nation::Id> unique_nations(nations_cnt.begin(), nations_cnt.end());
     Nation::Id nation_id = world.get_id(owner);
     size_t max_tiles_cnt = 0;
-    for(const auto& curr_nation_id: unique_nations) {
+    for(const auto& curr_nation_id : unique_nations) {
         // This will count the tiles for this nation
         const size_t tiles_cnt = std::count(nations_cnt.begin(), nations_cnt.end(), curr_nation_id);
         if(tiles_cnt > max_tiles_cnt) {
@@ -43,7 +43,7 @@ Nation& Province::get_occupation_controller(const World& world) const {
 // Calculates the total number of POPs in this province (total population)
 size_t Province::total_pops(void) const {
     size_t total = 0;
-    for(const auto& pop: pops) {
+    for(const auto& pop : pops) {
         total += pop.size;
     }
     return total;
@@ -51,9 +51,9 @@ size_t Province::total_pops(void) const {
 
 // Create a vector containing a list of all products available on this province
 std::vector<Product*> Province::get_products(const World& world) const {
-    std::vector<Product *> products;
+    std::vector<Product*> products;
     products.reserve(world.products.size());
-    for(const auto& product: world.products) {
+    for(const auto& product : world.products) {
         Product::Id product_id = world.get_id(product);
 
         // Only valid indices
@@ -65,7 +65,7 @@ std::vector<Product*> Province::get_products(const World& world) const {
         if(!stockpile.at(product_id)) {
             continue;
         }
-           
+
         products.push_back(product);
     }
     return products;

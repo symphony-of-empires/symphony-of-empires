@@ -20,48 +20,48 @@
 
 // TODO: Endianess compatibility
 template<>
-class Serializer<ActionType> : public SerializerMemcpy<ActionType> {};
+class Serializer<ActionType>: public SerializerMemcpy<ActionType> {};
 template<>
-class Serializer<OrderType> : public SerializerMemcpy<OrderType> {};
+class Serializer<OrderType>: public SerializerMemcpy<OrderType> {};
 
 template<>
-class Serializer<Province*> : public SerializerReference<World, Province> {};
+class Serializer<Province*>: public SerializerReference<World, Province> {};
 template<>
-class Serializer<Nation*> : public SerializerReference<World, Nation> {};
+class Serializer<Nation*>: public SerializerReference<World, Nation> {};
 template<>
-class Serializer<Event*> : public SerializerReference<World, Event> {};
+class Serializer<Event*>: public SerializerReference<World, Event> {};
 template<>
-class Serializer<Treaty*> : public SerializerReference<World, Treaty> {};
+class Serializer<Treaty*>: public SerializerReference<World, Treaty> {};
 template<>
-class Serializer<Product*> : public SerializerReference<World, Product> {};
+class Serializer<Product*>: public SerializerReference<World, Product> {};
 template<>
-class Serializer<Culture*> : public SerializerReference<World, Culture> {};
+class Serializer<Culture*>: public SerializerReference<World, Culture> {};
 template<>
-class Serializer<Good*> : public SerializerReference<World, Good> {};
+class Serializer<Good*>: public SerializerReference<World, Good> {};
 template<>
-class Serializer<Company*> : public SerializerReference<World, Company> {};
+class Serializer<Company*>: public SerializerReference<World, Company> {};
 template<>
-class Serializer<Unit*> : public SerializerReference<World, Unit> {};
+class Serializer<Unit*>: public SerializerReference<World, Unit> {};
 template<>
-class Serializer<UnitType*> : public SerializerReference<World, UnitType> {};
+class Serializer<UnitType*>: public SerializerReference<World, UnitType> {};
 template<>
-class Serializer<UnitTrait*> : public SerializerReference<World, UnitTrait> {};
+class Serializer<UnitTrait*>: public SerializerReference<World, UnitTrait> {};
 template<>
-class Serializer<BuildingType*> : public SerializerReference<World, BuildingType> {};
+class Serializer<BuildingType*>: public SerializerReference<World, BuildingType> {};
 template<>
-class Serializer<Building*> : public SerializerReference<World, Building> {};
+class Serializer<Building*>: public SerializerReference<World, Building> {};
 template<>
-class Serializer<Ideology*> : public SerializerReference<World, Ideology> {};
+class Serializer<Ideology*>: public SerializerReference<World, Ideology> {};
 template<>
-class Serializer<Invention*> : public SerializerReference<World, Invention> {};
+class Serializer<Invention*>: public SerializerReference<World, Invention> {};
 template<>
-class Serializer<Technology*> : public SerializerReference<World, Technology> {};
+class Serializer<Technology*>: public SerializerReference<World, Technology> {};
 template<>
-class Serializer<PopType*> : public SerializerReference<World, PopType> {};
+class Serializer<PopType*>: public SerializerReference<World, PopType> {};
 template<>
-class Serializer<Religion*> : public SerializerReference<World, Religion> {};
+class Serializer<Religion*>: public SerializerReference<World, Religion> {};
 template<>
-class Serializer<NationModifier*> : public SerializerReference<World, NationModifier> {};
+class Serializer<NationModifier*>: public SerializerReference<World, NationModifier> {};
 
 template<>
 class Serializer<NationModifier> {
@@ -111,12 +111,12 @@ public:
             + serialized_size(&obj->reproduction_mod)
             + serialized_size(&obj->salary_paid_mod)
             + serialized_size(&obj->workers_needed_mod)
-        ;
+            ;
     }
 };
 
 template<>
-class Serializer<NationRelation> : public SerializerMemcpy<NationRelation> {
+class Serializer<NationRelation>: public SerializerMemcpy<NationRelation> {
 public:
     static inline void serialize(Archive& stream, const NationRelation* obj) {
         ::serialize(stream, &obj->free_supplies);
@@ -156,18 +156,18 @@ public:
             + serialized_size(&obj->has_war)
             + serialized_size(&obj->interest)
             + serialized_size(&obj->relation)
-        ;
+            ;
     }
 };
 
 template<>
-class Serializer<enum AllowancePolicy> : public SerializerMemcpy<enum AllowancePolicy> {};
+class Serializer<enum AllowancePolicy>: public SerializerMemcpy<enum AllowancePolicy> {};
 template<>
-class Serializer<enum CensorshipPolicy> : public SerializerMemcpy<enum CensorshipPolicy> {};
+class Serializer<enum CensorshipPolicy>: public SerializerMemcpy<enum CensorshipPolicy> {};
 template<>
-class Serializer<enum AutoBuildPolicy> : public SerializerMemcpy<enum AutoBuildPolicy> {};
+class Serializer<enum AutoBuildPolicy>: public SerializerMemcpy<enum AutoBuildPolicy> {};
 template<>
-class Serializer<enum TreatmentPolicy> : public SerializerMemcpy<enum TreatmentPolicy> {};
+class Serializer<enum TreatmentPolicy>: public SerializerMemcpy<enum TreatmentPolicy> {};
 
 template<>
 class Serializer<Policies> {
@@ -279,7 +279,7 @@ public:
             + serialized_size(&obj->is_slave)
             + serialized_size(&obj->is_farmer)
             + serialized_size(&obj->is_laborer)
-        ;
+            ;
     }
 };
 
@@ -297,7 +297,7 @@ public:
     static inline size_t size(const Culture* obj) {
         return serialized_size(&obj->name)
             + serialized_size(&obj->ref_name)
-        ;
+            ;
     }
 };
 
@@ -315,7 +315,7 @@ public:
     static inline size_t size(const Religion* obj) {
         return serialized_size(&obj->name)
             + serialized_size(&obj->ref_name)
-        ;
+            ;
     }
 };
 
@@ -342,7 +342,7 @@ public:
             + serialized_size(&obj->attack_mod)
             + serialized_size(&obj->supply_consumption_mod)
             + serialized_size(&obj->speed_mod)
-        ;
+            ;
     }
 };
 
@@ -378,7 +378,7 @@ public:
             + serialized_size(&obj->y)
             + serialized_size(&obj->owner)
             + serialized_size(&obj->traits)
-        ;
+            ;
     }
 };
 
@@ -405,7 +405,7 @@ public:
     static inline void deserialize(Archive& stream, Pop* obj) {
         ::deserialize(stream, &obj->size);
         ::deserialize(stream, &obj->unemployed);
-        
+
         ::deserialize(stream, &obj->literacy);
         ::deserialize(stream, &obj->militancy);
         ::deserialize(stream, &obj->consciousness);
@@ -432,7 +432,7 @@ public:
             + serialized_size(&obj->type)
             + serialized_size(&obj->culture)
             + serialized_size(&obj->religion)
-        ;
+            ;
     }
 };
 
@@ -457,7 +457,7 @@ public:
             + serialized_size(&obj->ref_name)
             + serialized_size(&obj->do_descision_function)
             + serialized_size(&obj->effects)
-        ;
+            ;
     }
 };
 
@@ -491,7 +491,7 @@ public:
             + serialized_size(&obj->descisions)
             + serialized_size(&obj->title)
             + serialized_size(&obj->text)
-        ;
+            ;
     }
 };
 
@@ -516,7 +516,7 @@ public:
             + serialized_size(&obj->infra_level)
             + serialized_size(&obj->owner_id)
             + serialized_size(&obj->province_id)
-        ;
+            ;
     }
 };
 template<>
@@ -546,7 +546,7 @@ public:
             + serialized_size(&obj->province)
             + serialized_size(&obj->quantity)
             + serialized_size(&obj->type)
-        ;
+            ;
     }
 };
 
@@ -577,7 +577,7 @@ public:
             + serialized_size(&obj->product)
             + serialized_size(&obj->province)
             + serialized_size(&obj->quantity)
-        ;
+            ;
     }
 };
 
@@ -599,7 +599,7 @@ public:
             serialized_size(&obj->colour)
             + serialized_size(&obj->alt_name)
             + serialized_size(&obj->ideology)
-        ;
+            ;
     }
 };
 
@@ -688,15 +688,15 @@ public:
             + serialized_size(&obj->inbox)
             + serialized_size(&obj->client_hints)
             + serialized_size(&obj->ideology)
-        ;
+            ;
     }
 };
 
 template<>
-class Serializer<TreatyClauseType> : public SerializerMemcpy<TreatyClauseType> {};
+class Serializer<TreatyClauseType>: public SerializerMemcpy<TreatyClauseType> {};
 
 template<>
-class Serializer<enum TreatyApproval> : public SerializerMemcpy<enum TreatyApproval> {};
+class Serializer<enum TreatyApproval>: public SerializerMemcpy<enum TreatyApproval> {};
 
 template<>
 class Serializer<UnitType> {
@@ -738,7 +738,7 @@ public:
             + serialized_size(&obj->build_time)
             + serialized_size(&obj->is_ground)
             + serialized_size(&obj->is_naval)
-        ;
+            ;
     }
 };
 
@@ -805,7 +805,7 @@ public:
             + serialized_size(&obj->stockpile)
             + serialized_size(&obj->products)
             + serialized_size(&obj->pops)
-        ;
+            ;
         // TODO: Rest of fields
     }
 };
@@ -840,7 +840,7 @@ public:
             + serialized_size(&obj->is_build_naval_units)
             + serialized_size(&obj->defense_bonus)
             + serialized_size(&obj->req_goods)
-        ;
+            ;
     }
 };
 
@@ -901,7 +901,7 @@ public:
             + serialized_size(&obj->willing_payment)
             + serialized_size(&obj->workers)
             + serialized_size(&obj->req_goods)
-        ;
+            ;
     }
 };
 
@@ -910,22 +910,22 @@ class Serializer<Company> {
 public:
     static inline void serialize(Archive& stream, const Company* obj) {
         ::serialize(stream, &obj->name);
-        
+
         ::serialize(stream, &obj->money);
         ::serialize(stream, &obj->is_transport);
         ::serialize(stream, &obj->is_retailer);
         ::serialize(stream, &obj->is_industry);
-        
+
         ::serialize(stream, &obj->operating_provinces);
     }
     static inline void deserialize(Archive& stream, Company* obj) {
         ::deserialize(stream, &obj->name);
-        
+
         ::deserialize(stream, &obj->money);
         ::deserialize(stream, &obj->is_transport);
         ::deserialize(stream, &obj->is_retailer);
         ::deserialize(stream, &obj->is_industry);
-        
+
         ::deserialize(stream, &obj->operating_provinces);
     }
     static inline size_t size(const Company* obj) {
@@ -936,7 +936,7 @@ public:
             + serialized_size(&obj->is_retailer)
             + serialized_size(&obj->is_industry)
             + serialized_size(&obj->operating_provinces)
-        ;
+            ;
     }
 };
 
@@ -976,7 +976,7 @@ public:
             + serialized_size(&obj->quality)
             + serialized_size(&obj->supply)
             + serialized_size(&obj->demand)
-        ;
+            ;
     }
 };
 
@@ -1001,7 +1001,7 @@ public:
             + serialized_size(&obj->ref_name)
             + serialized_size(&obj->description)
             + serialized_size(&obj->mod)
-        ;
+            ;
     }
 };
 
@@ -1032,7 +1032,7 @@ public:
             + serialized_size(&obj->cost)
             + serialized_size(&obj->req_technologies)
             + serialized_size(&obj->inventions)
-        ;
+            ;
     }
 };
 
@@ -1054,7 +1054,7 @@ public:
             serialized_size(&obj->name)
             + serialized_size(&obj->ref_name)
             + serialized_size(&obj->is_edible)
-        ;
+            ;
     }
 };
 
@@ -1065,46 +1065,46 @@ public:
         ::serialize(stream, &(*obj)->type);
         switch((*obj)->type) {
         case TreatyClauseType::ANEXX_PROVINCES:
-            {
-                const auto dyn_clause = dynamic_cast<const TreatyClause::AnexxProvince*>(*obj);
-                if(dyn_clause == nullptr)
-                    throw SerializerException("Dynamic cast failed for TreatyClause::AnexxProvince");
-                ::serialize(stream, &dyn_clause->provinces);
-            }
-            break;
+        {
+            const auto dyn_clause = dynamic_cast<const TreatyClause::AnexxProvince*>(*obj);
+            if(dyn_clause == nullptr)
+                throw SerializerException("Dynamic cast failed for TreatyClause::AnexxProvince");
+            ::serialize(stream, &dyn_clause->provinces);
+        }
+        break;
         case TreatyClauseType::LIBERATE_NATION:
-            {
-                const auto dyn_clause = dynamic_cast<const TreatyClause::LiberateNation*>(*obj);
-                if(dyn_clause == nullptr)
-                    throw SerializerException("Dynamic cast failed for TreatyClause::LiberateNation");
-                ::serialize(stream, &dyn_clause->provinces);
-                ::serialize(stream, &dyn_clause->liberated);
-            }
-            break;
+        {
+            const auto dyn_clause = dynamic_cast<const TreatyClause::LiberateNation*>(*obj);
+            if(dyn_clause == nullptr)
+                throw SerializerException("Dynamic cast failed for TreatyClause::LiberateNation");
+            ::serialize(stream, &dyn_clause->provinces);
+            ::serialize(stream, &dyn_clause->liberated);
+        }
+        break;
         case TreatyClauseType::IMPOSE_POLICIES:
-            {
-                const auto dyn_clause = dynamic_cast<const TreatyClause::ImposePolicies*>(*obj);
-                if(dyn_clause == nullptr)
-                    throw SerializerException("Dynamic cast failed for TreatyClause::ImposePolicies");
-                ::serialize(stream, &dyn_clause->imposed);
-            }
-            break;
+        {
+            const auto dyn_clause = dynamic_cast<const TreatyClause::ImposePolicies*>(*obj);
+            if(dyn_clause == nullptr)
+                throw SerializerException("Dynamic cast failed for TreatyClause::ImposePolicies");
+            ::serialize(stream, &dyn_clause->imposed);
+        }
+        break;
         case TreatyClauseType::WAR_REPARATIONS:
-            {
-                const auto dyn_clause = dynamic_cast<const TreatyClause::WarReparations*>(*obj);
-                if(dyn_clause == nullptr)
-                    throw SerializerException("Dynamic cast failed for TreatyClause::WarReparations");
-                ::serialize(stream, &dyn_clause->amount);
-            }
-            break;
+        {
+            const auto dyn_clause = dynamic_cast<const TreatyClause::WarReparations*>(*obj);
+            if(dyn_clause == nullptr)
+                throw SerializerException("Dynamic cast failed for TreatyClause::WarReparations");
+            ::serialize(stream, &dyn_clause->amount);
+        }
+        break;
         case TreatyClauseType::HUMILIATE:
-            {
-                const auto dyn_clause = dynamic_cast<const TreatyClause::Humiliate*>(*obj);
-                if(dyn_clause == nullptr)
-                    throw SerializerException("Dynamic cast failed for TreatyClause::Humiliate");
-                ::serialize(stream, &dyn_clause->amount);
-            }
-            break;
+        {
+            const auto dyn_clause = dynamic_cast<const TreatyClause::Humiliate*>(*obj);
+            if(dyn_clause == nullptr)
+                throw SerializerException("Dynamic cast failed for TreatyClause::Humiliate");
+            ::serialize(stream, &dyn_clause->amount);
+        }
+        break;
         default:
             break;
         }
@@ -1125,53 +1125,53 @@ public:
         ::deserialize(stream, &(*obj)->type);
         switch((*obj)->type) {
         case TreatyClauseType::ANEXX_PROVINCES:
-            {
-                delete *obj;
-                *obj = new TreatyClause::AnexxProvince();
-                auto dyn_clause = (TreatyClause::AnexxProvince*)*obj;
-                ::deserialize(stream, &dyn_clause->provinces);
-            }
-            break;
+        {
+            delete* obj;
+            *obj = new TreatyClause::AnexxProvince();
+            auto dyn_clause = (TreatyClause::AnexxProvince*)*obj;
+            ::deserialize(stream, &dyn_clause->provinces);
+        }
+        break;
         case TreatyClauseType::LIBERATE_NATION:
-            {
-                delete *obj;
-                *obj = new TreatyClause::LiberateNation();
-                auto dyn_clause = (TreatyClause::LiberateNation*)*obj;
-                ::deserialize(stream, &dyn_clause->provinces);
-                ::deserialize(stream, &dyn_clause->liberated);
-            }
-            break;
+        {
+            delete* obj;
+            *obj = new TreatyClause::LiberateNation();
+            auto dyn_clause = (TreatyClause::LiberateNation*)*obj;
+            ::deserialize(stream, &dyn_clause->provinces);
+            ::deserialize(stream, &dyn_clause->liberated);
+        }
+        break;
         case TreatyClauseType::IMPOSE_POLICIES:
-            {
-                delete *obj;
-                *obj = new TreatyClause::ImposePolicies();
-                auto dyn_clause = (TreatyClause::ImposePolicies*)*obj;
-                ::deserialize(stream, &dyn_clause->imposed);
-            }
-            break;
+        {
+            delete* obj;
+            *obj = new TreatyClause::ImposePolicies();
+            auto dyn_clause = (TreatyClause::ImposePolicies*)*obj;
+            ::deserialize(stream, &dyn_clause->imposed);
+        }
+        break;
         case TreatyClauseType::WAR_REPARATIONS:
-            {
-                delete *obj;
-                *obj = new TreatyClause::WarReparations();
-                auto dyn_clause = (TreatyClause::WarReparations*)*obj;
-                ::deserialize(stream, &dyn_clause->amount);
-            }
-            break;
+        {
+            delete* obj;
+            *obj = new TreatyClause::WarReparations();
+            auto dyn_clause = (TreatyClause::WarReparations*)*obj;
+            ::deserialize(stream, &dyn_clause->amount);
+        }
+        break;
         case TreatyClauseType::HUMILIATE:
-            {
-                delete *obj;
-                *obj = new TreatyClause::Humiliate();
-                auto dyn_clause = (TreatyClause::Humiliate*)*obj;
-                ::deserialize(stream, &dyn_clause->amount);
-            }
-            break;
+        {
+            delete* obj;
+            *obj = new TreatyClause::Humiliate();
+            auto dyn_clause = (TreatyClause::Humiliate*)*obj;
+            ::deserialize(stream, &dyn_clause->amount);
+        }
+        break;
         case TreatyClauseType::CEASEFIRE:
-            {
-                delete *obj;
-                *obj = new TreatyClause::Ceasefire();
-                auto dyn_clause = (TreatyClause::Ceasefire*)*obj;
-            }
-            break;
+        {
+            delete* obj;
+            *obj = new TreatyClause::Ceasefire();
+            auto dyn_clause = (TreatyClause::Ceasefire*)*obj;
+        }
+        break;
         default:
             break;
         }
@@ -1186,36 +1186,36 @@ public:
         total += ::serialized_size(&(*obj)->type);
         switch((*obj)->type) {
         case TreatyClauseType::ANEXX_PROVINCES:
-            {
-                const auto dyn_clause = dynamic_cast<const TreatyClause::AnexxProvince*>(*obj);
-                total += ::serialized_size(&dyn_clause->provinces);
-            }
-            break;
+        {
+            const auto dyn_clause = dynamic_cast<const TreatyClause::AnexxProvince*>(*obj);
+            total += ::serialized_size(&dyn_clause->provinces);
+        }
+        break;
         case TreatyClauseType::LIBERATE_NATION:
-            {
-                const auto dyn_clause = dynamic_cast<const TreatyClause::LiberateNation*>(*obj);
-                total += ::serialized_size(&dyn_clause->provinces);
-                total += ::serialized_size(&dyn_clause->liberated);
-            }
-            break;
+        {
+            const auto dyn_clause = dynamic_cast<const TreatyClause::LiberateNation*>(*obj);
+            total += ::serialized_size(&dyn_clause->provinces);
+            total += ::serialized_size(&dyn_clause->liberated);
+        }
+        break;
         case TreatyClauseType::IMPOSE_POLICIES:
-            {
-                const auto dyn_clause = dynamic_cast<const TreatyClause::ImposePolicies*>(*obj);
-                total += ::serialized_size(&dyn_clause->imposed);
-            }
-            break;
+        {
+            const auto dyn_clause = dynamic_cast<const TreatyClause::ImposePolicies*>(*obj);
+            total += ::serialized_size(&dyn_clause->imposed);
+        }
+        break;
         case TreatyClauseType::WAR_REPARATIONS:
-            {
-                const auto dyn_clause = dynamic_cast<const TreatyClause::WarReparations*>(*obj);
-                total += ::serialized_size(&dyn_clause->amount);
-            }
-            break;
+        {
+            const auto dyn_clause = dynamic_cast<const TreatyClause::WarReparations*>(*obj);
+            total += ::serialized_size(&dyn_clause->amount);
+        }
+        break;
         case TreatyClauseType::HUMILIATE:
-            {
-                const auto dyn_clause = dynamic_cast<const TreatyClause::Humiliate*>(*obj);
-                total += ::serialized_size(&dyn_clause->amount);
-            }
-            break;
+        {
+            const auto dyn_clause = dynamic_cast<const TreatyClause::Humiliate*>(*obj);
+            total += ::serialized_size(&dyn_clause->amount);
+        }
+        break;
         default:
             break;
         }
@@ -1252,7 +1252,7 @@ public:
             + serialized_size(&obj->sender)
             + serialized_size(&obj->approval_status)
             + serialized_size(&obj->clauses)
-        ;
+            ;
     }
 };
 
@@ -1274,7 +1274,7 @@ public:
             serialized_size(&obj->ref_name)
             + serialized_size(&obj->name)
             + serialized_size(&obj->check_policies_fn)
-        ;
+            ;
     }
 };
 
@@ -1297,11 +1297,11 @@ public:
         ::serialize(stream, &obj->height);
         ::serialize(stream, &obj->sea_level);
         ::serialize(stream, &obj->time);
-        
+
         for(size_t i = 0; i < obj->width * obj->height; i++) {
             ::serialize(stream, &obj->tiles[i]);
         }
-        
+
         const Good::Id n_goods = obj->goods.size();
         ::serialize(stream, &n_goods);
         const UnitType::Id n_unit_types = obj->unit_types.size();
@@ -1338,7 +1338,7 @@ public:
         ::serialize(stream, &n_technologies);
         const NationModifier::Id n_nation_modifiers = obj->nation_modifiers.size();
         ::serialize(stream, &n_nation_modifiers);
-        
+
         print_info("(SERIALIZER) World");
         print_info("  n_goods %zu", obj->goods.size());
         print_info("  n_unit_types %zu", obj->unit_types.size());
@@ -1355,79 +1355,79 @@ public:
         print_info("  n_outposts %zu", obj->buildings.size());
         print_info("  n_treaties %zu", obj->treaties.size());
         print_info("  n_ideologies %zu", obj->ideologies.size());
-        
-        for(auto& sub_obj: obj->goods) {
-            ::serialize(stream, sub_obj);
-        }
-        
-        for(auto& sub_obj: obj->unit_types) {
-            ::serialize(stream, sub_obj);
-        }
-        
-        for(auto& sub_obj: obj->religions) {
-            ::serialize(stream, sub_obj);
-        }
-        
-        for(auto& sub_obj: obj->cultures) {
-            ::serialize(stream, sub_obj);
-        }
-        
-        for(auto& sub_obj: obj->pop_types) {
-            ::serialize(stream, sub_obj);
-        }
-        
-        for(auto& sub_obj: obj->nations) {
-            ::serialize(stream, sub_obj);
-        }
-        
-        for(auto& sub_obj: obj->provinces) {
-            ::serialize(stream, sub_obj);
-        }
-        
-        for(auto& sub_obj: obj->companies) {
-            ::serialize(stream, sub_obj);
-        }
-        
-        for(auto& sub_obj: obj->products) {
-            ::serialize(stream, sub_obj);
-        }
-        
-        for(auto& sub_obj: obj->events) {
+
+        for(auto& sub_obj : obj->goods) {
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj: obj->unit_traits) {
+        for(auto& sub_obj : obj->unit_types) {
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj: obj->building_types) {
+        for(auto& sub_obj : obj->religions) {
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj: obj->buildings) {
+        for(auto& sub_obj : obj->cultures) {
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj: obj->treaties) {
+        for(auto& sub_obj : obj->pop_types) {
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj: obj->ideologies) {
+        for(auto& sub_obj : obj->nations) {
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj: obj->inventions) {
+        for(auto& sub_obj : obj->provinces) {
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj: obj->technologies) {
+        for(auto& sub_obj : obj->companies) {
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj: obj->nation_modifiers) {
+        for(auto& sub_obj : obj->products) {
             ::serialize(stream, sub_obj);
         }
-        
+
+        for(auto& sub_obj : obj->events) {
+            ::serialize(stream, sub_obj);
+        }
+
+        for(auto& sub_obj : obj->unit_traits) {
+            ::serialize(stream, sub_obj);
+        }
+
+        for(auto& sub_obj : obj->building_types) {
+            ::serialize(stream, sub_obj);
+        }
+
+        for(auto& sub_obj : obj->buildings) {
+            ::serialize(stream, sub_obj);
+        }
+
+        for(auto& sub_obj : obj->treaties) {
+            ::serialize(stream, sub_obj);
+        }
+
+        for(auto& sub_obj : obj->ideologies) {
+            ::serialize(stream, sub_obj);
+        }
+
+        for(auto& sub_obj : obj->inventions) {
+            ::serialize(stream, sub_obj);
+        }
+
+        for(auto& sub_obj : obj->technologies) {
+            ::serialize(stream, sub_obj);
+        }
+
+        for(auto& sub_obj : obj->nation_modifiers) {
+            ::serialize(stream, sub_obj);
+        }
+
         ::serialize(stream, &obj->delivers);
         ::serialize(stream, &obj->orders);
     }
@@ -1437,12 +1437,12 @@ public:
         ::deserialize(stream, &obj->height);
         ::deserialize(stream, &obj->sea_level);
         ::deserialize(stream, &obj->time);
-        
+
         obj->tiles = new Tile[obj->width * obj->height];
         for(size_t i = 0; i < obj->width * obj->height; i++) {
             ::deserialize(stream, &obj->tiles[i]);
         }
-        
+
         // In order to avoid post-deserialization relational patcher,
         // we will simply allocate everything with "empty" objects,
         // then we will fill those spots as we deserialize
@@ -1464,7 +1464,7 @@ public:
         Invention::Id n_inventions = deserialize_and_create_list<Invention>(stream, obj);
         Technology::Id n_technologies = deserialize_and_create_list<Technology>(stream, obj);
         NationModifier::Id n_nation_modifiers = deserialize_and_create_list<NationModifier>(stream, obj);
-        
+
         print_info("(DESERIALIZER) World");
         print_info("  n_goods %zu", obj->goods.size());
         print_info("  n_unit_types %zu", obj->unit_types.size());
@@ -1483,52 +1483,52 @@ public:
         print_info("  n_ideologies %zu", obj->ideologies.size());
         print_info("  n_inventions %zu", obj->inventions.size());
         print_info("  n_technologies %zu", obj->technologies.size());
-        
+
         for(size_t i = 0; i < n_goods; i++) {
             Good* sub_obj = obj->goods[i];
             ::deserialize(stream, sub_obj);
         }
-        
+
         for(size_t i = 0; i < n_unit_types; i++) {
             UnitType* sub_obj = obj->unit_types[i];
             ::deserialize(stream, sub_obj);
         }
-        
+
         for(size_t i = 0; i < n_religions; i++) {
             Religion* sub_obj = obj->religions[i];
             ::deserialize(stream, sub_obj);
         }
-        
+
         for(size_t i = 0; i < n_cultures; i++) {
             Culture* sub_obj = obj->cultures[i];
             ::deserialize(stream, sub_obj);
         }
-        
+
         for(size_t i = 0; i < n_pop_types; i++) {
             PopType* sub_obj = obj->pop_types[i];
             ::deserialize(stream, sub_obj);
         }
-        
+
         for(size_t i = 0; i < n_nations; i++) {
             Nation* sub_obj = obj->nations[i];
             ::deserialize(stream, sub_obj);
         }
-        
+
         for(size_t i = 0; i < n_provinces; i++) {
             Province* sub_obj = obj->provinces[i];
             ::deserialize(stream, sub_obj);
         }
-        
+
         for(size_t i = 0; i < n_companies; i++) {
             Company* sub_obj = obj->companies[i];
             ::deserialize(stream, sub_obj);
         }
-        
+
         for(size_t i = 0; i < n_products; i++) {
             Product* sub_obj = obj->products[i];
             ::deserialize(stream, sub_obj);
         }
-        
+
         for(size_t i = 0; i < n_events; i++) {
             Event* sub_obj = obj->events[i];
             ::deserialize(stream, sub_obj);
@@ -1573,7 +1573,7 @@ public:
             NationModifier* sub_obj = obj->nation_modifiers.at(i);
             ::deserialize(stream, sub_obj);
         }
-        
+
         ::deserialize(stream, &obj->delivers);
         ::deserialize(stream, &obj->orders);
     }
@@ -1586,7 +1586,7 @@ public:
             + serialized_size(&obj->time)
             + serialized_size(&obj->delivers)
             + serialized_size(&obj->orders)
-            + (sizeof(Tile) * (obj->width* obj->height))
+            + (sizeof(Tile) * (obj->width * obj->height))
             + (obj->goods.size() * sizeof(Good))
             + (obj->unit_types.size() * sizeof(UnitType))
             + (obj->religions.size() * sizeof(Religion))
@@ -1605,7 +1605,7 @@ public:
             + (obj->inventions.size() * sizeof(Invention))
             + (obj->technologies.size() * sizeof(Technology))
             + (obj->nation_modifiers.size() * sizeof(NationModifier))
-        ;
+            ;
     }
 };
 

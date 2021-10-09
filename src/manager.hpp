@@ -11,7 +11,7 @@ private:
     L elems;
 public:
     // Global manager object
-    static Manager<T, I> *singleton;
+    static Manager<T, I>* singleton;
 
     // Singleton pattern ;)
     static Manager<T, I>& get_instance(void) {
@@ -25,15 +25,15 @@ public:
     // construct which accepts ident
     virtual const T& get(const I& ident) {
         // TODO: How do we remove this duplicate code? :/
-        for(const auto& o: elems) {
+        for(const auto& o : elems) {
             if(o.second == ident) {
                 return *(o.first);
             }
         }
 
         load(ident);
-        
-        for(const auto& o: elems) {
+
+        for(const auto& o : elems) {
             if(o.second == ident) {
                 return *(o.first);
             }
