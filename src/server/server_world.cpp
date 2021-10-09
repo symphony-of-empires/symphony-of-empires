@@ -700,8 +700,8 @@ void World::do_tick() {
         }
 
         // Build an building randomly?
-        //if(std::rand() % 1000 > 950) {
-        if(0) {
+        if(std::rand() % 1000 > 950) {
+        //if(0) {
             bool can_build = false;
             for(const auto& province : nation->owned_provinces) {
                 if(get_id(&province->get_occupation_controller(*this)) != g_world->get_id(nation)) {
