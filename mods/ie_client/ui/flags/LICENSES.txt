@@ -111,3 +111,18 @@ galicia_monarchy
 
 basque_monarchy
 	By Daniele Schirmo aka Frankie688, CC BY-SA 2.5, https://commons.wikimedia.org/w/index.php?curid=437465
+
+spain_monarchy
+	By RelShot 263, Echando una mano - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=99805564
+
+portugal_republic
+	By Columbano Bordalo Pinheiro (1910; generic design)Vítor Luís Rodrigues; António Martins-Tuválkin (2004; this specific vector set: see sources) - http://jorgesampaio.arquivo.presidencia.pt/pt/republica/simbolos/bandeiras/index.html#imgssee construction sheet., Public Domain, https://commons.wikimedia.org/w/index.php?curid=433235
+
+austria_republic
+	By Bundesministerium für Landesverteidigung - Dekorationen, Insignien und Hoheitszeichen in Verbindung mit / in conjunction with Grundsätzliche Bestimmungen über Verwendung des Hoheitszeichens sowie über die Fahnenordnung des Österreichischen Bundesheeres. Erlass vom 14. Mai 2018, GZ S93592/3-MFW/2018., Public Domain, https://commons.wikimedia.org/w/index.php?curid=342954
+
+bulgaria_republic
+	By SKopp - The flag of Bulgaria. The colors are specified at http://www.government.bg/cgi-bin/e-cms/vis/vis.pl?s=001&amp;p=0034&amp;n=000005&amp;g= as:White: Pantone SafeGreen: 17-5936 (Green TC) [textile color] [1]Red: 18-1664 (Fiery Red TC) [2], Public Domain, https://commons.wikimedia.org/w/index.php?curid=342993
+
+bulgaria_communism
+	By Scroch - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=4838692
