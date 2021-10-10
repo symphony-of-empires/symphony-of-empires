@@ -90,15 +90,6 @@
     <ClInclude Include="src\client\interface\descision.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\client\interface\industry_view_nation.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\client\interface\pop_view_nation.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\client\interface\products_view_world.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\client\interface\province_view.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -106,9 +97,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\client\interface\top_window.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\client\interface\ui_reform.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\client\render\material.hpp">
@@ -162,13 +150,13 @@
     <ClInclude Include="src\technology.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\client\interface\build_unit_window.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\client\interface\main_menu.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\client\interface\treaty_window.hpp">
+    <ClInclude Include="src\client\interface\common.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\client\interface\treaty.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -209,15 +197,6 @@
     <ClCompile Include="src\client\interface\descision.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\client\interface\industry_view_nation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\client\interface\pop_view_nation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\client\interface\products_view_world.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\client\interface\province_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -225,9 +204,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\client\interface\top_window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\client\interface\ui_reform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\client\render\material.cpp">
@@ -269,22 +245,16 @@
     <ClCompile Include="src\client\ui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\client\ui_build_unit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\client\ui_treaty.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\building.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\client\interface\build_unit_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\client\interface\main_menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\client\interface\treaty_window.cpp">
+    <ClCompile Include="src\client\interface\common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\client\interface\treaty.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
