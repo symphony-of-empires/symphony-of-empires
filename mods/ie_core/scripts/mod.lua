@@ -13,7 +13,7 @@ function cake_event()
 		descision_fn = "cake_descision_0",
 		effects = "You will consume cake"
 	}
-	Event:add_descision(cake_thing, descision)
+	cake_thing:add_descision(descision)
 	
 	descision = Descision:new{
 		ref_name = "cake_descision_1",
@@ -21,7 +21,7 @@ function cake_event()
 		descision_fn = "cake_descision_1",
 		effects = "You will consume cake anyways"
 	}
-	Event:add_descision(cake_thing, descision)
+	cake_thing:add_descision(descision)
 
 	descision = Descision:new{
 		ref_name = "cake_descision_2",
@@ -29,7 +29,7 @@ function cake_event()
 		descision_fn = "cake_descision_2",
 		effects = "Your compulsory desire for cake has began to grow"
 	}
-	Event:add_descision(cake_thing, descision)
+	cake_thing:add_descision(descision)
 
 	descision = Descision:new{
 		ref_name = "cake_descision_3",
@@ -37,7 +37,7 @@ function cake_event()
 		descision_fn = "cake_descision_3",
 		effects = "What the fuck is britain gonna do, invade us?"
 	}
-	Event:add_descision(cake_thing, descision)
+	cake_thing:add_descision(descision)
 	return EVENT_DO_ONE_TIME
 end
 function cake_descision_0()
@@ -60,8 +60,8 @@ cake_thing = Event:new{
 	title = "Cake",
 	text = "Sir, a cake has just magically appeared in your desk, what would you like to do?"
 }
-Event:register(cake_thing)
-Event:add_receivers(cake_thing, Nation:get({}, "hawai_i"))
+cake_thing:register()
+cake_thing:add_receivers(Nation:get("hawai_i"))
 
 function kalmar_union_test()
     local needed_provinces = {
@@ -75,14 +75,14 @@ function kalmar_union_test()
     local n_needed_provinces = 11
 
     -- Only these countries can form Scandinavia
-    local sweden = Nation:get({}, "sweden")
+    local sweden = Nation:get("sweden")
     local n_sweden_provinces = 0
-    local finland = Nation:get({}, "finland")
+    local finland = Nation:get("finland")
     local n_finland_provinces = 0
-    local norway = Nation:get({}, "norway")
+    local norway = Nation:get("norway")
     local n_norway_provinces = 0
     for k, v in pairs(needed_provinces) do
-        province = Province:get({}, v)
+        province = Province:get(v)
 
         if province.owner_id == sweden.id then
             n_sweden_provinces = n_sweden_provinces + 1
@@ -94,13 +94,13 @@ function kalmar_union_test()
     end
 
     if n_sweden_provinces >= n_needed_provinces then
-        Event:add_receivers(kalmar_union_evhdl, Nation:get({}, "sweden"))
+        kalmar_union_evhdl:add_receivers(Nation:get("sweden"))
         return EVENT_CONDITIONS_MET
     elseif n_finland_provinces >= n_needed_provinces then
-        Event:add_receivers(kalmar_union_evhdl, Nation:get({}, "finland"))
+        kalmar_union_evhdl:add_receivers(Nation:get("finland"))
         return EVENT_CONDITIONS_MET
     elseif n_norway_provinces >= n_needed_provinces then
-        Event:add_receivers(kalmar_union_evhdl, Nation:get({}, "norway"))
+        kalmar_union_evhdl:add_receivers(Nation:get("norway"))
         return EVENT_CONDITIONS_MET
     end
     return EVENT_CONDITIONS_UNMET
@@ -112,7 +112,7 @@ function kalmar_union_event()
         descision_fn = "kalmar_union_descision_0",
         effects = "Become Kalmar Union"
     }
-    Event:add_descision(kalmar_union_evhdl, descision)
+    kalmar_union_evhdl:add_descision(descision)
 
     descision = Descision:new{
         ref_name = "kalmar_union_descision_1",
@@ -120,7 +120,7 @@ function kalmar_union_event()
         descision_fn = "kalmar_union_descision_1",
         effects = "No Kalmar Union"
     }
-    Event:add_descision(kalmar_union_evhdl, descision)
+    kalmar_union_evhdl:add_descision(descision)
     return EVENT_DO_ONE_TIME
 end
 function kalmar_union_descision_0()
@@ -136,15 +136,15 @@ kalmar_union_evhdl = Event:new{
     title = "Kalmar Union",
     text = "The Kalmar Union was a country that covered the whole scandinavia - now with the newly aquired provinces in your power we may be able to renew this nation"
 }
-Event:register(kalmar_union_evhdl)
+kalmar_union_evhdl:register()
 
 -- The minas crash was a car crash occuring on the brazilian province of minas
 function the_minas_crash_test()
     local year = get_year()
     if year >= 1900 and year <= 1950 and math.random(0, 100) == 0 then
         -- Get the current owner of the minas province
-        local nation = Province:get_owner(Province:get({}, "minas_gerais"))
-        Event:add_receivers(the_minas_crash, nation)
+        local nation = Province:get_owner(Province:get("minas_gerais"))
+        the_minas_crash:add_receivers(nation)
         return EVENT_CONDITIONS_MET
     end
 	return EVENT_CONDITIONS_UNMET
@@ -156,14 +156,14 @@ function the_minas_crash_event()
 		descision_fn = "the_minas_crash_descision_0",
 		effects = "None"
 	}
-	Event:add_descision(the_minas_crash, descision)
+	the_minas_crash:add_descision(descision)
     descision = Descision:new{
 		ref_name = "the_minas_crash_descision_1",
 		name = "Well yeah they should be held accountable!",
 		descision_fn = "the_minas_crash_descision_1",
 		effects = "None"
 	}
-	Event:add_descision(the_minas_crash, descision)
+	the_minas_crash:add_descision(descision)
 	return EVENT_DO_ONE_TIME
 end
 function the_minas_crash_descision_0()
@@ -177,4 +177,4 @@ the_minas_crash = Event:new{
     title = "The minas crash",
 	text = "2 cars have been circulating on the minas province recently where they collided with each other on a catastrophic event"
 }
-Event:register(the_minas_crash)
+the_minas_crash:register()

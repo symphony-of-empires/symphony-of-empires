@@ -6,7 +6,7 @@ mechanical_theory_i = Technology:new{
     cost = 10.0,
     type = TECH_ECONOMIC
 }
-Technology:register(mechanical_theory_i)
+mechanical_theory_i:register()
 
 mechanical_theory_ii = Technology:new{
     ref_name = "mechanical_theory_ii",
@@ -15,8 +15,8 @@ mechanical_theory_ii = Technology:new{
     cost = 1800.0,
     type = TECH_ECONOMIC
 }
-Technology:register(mechanical_theory_ii)
-Technology:requires_technology(mechanical_theory_ii, mechanical_theory_i)
+mechanical_theory_ii:register()
+mechanical_theory_ii:requires_technology(mechanical_theory_i)
 
 mechanical_theory_iii = Technology:new{
     ref_name = "mechanical_theory_iii",
@@ -25,8 +25,8 @@ mechanical_theory_iii = Technology:new{
     cost = 1800.0,
     type = TECH_ECONOMIC
 }
-Technology:register(mechanical_theory_iii)
-Technology:requires_technology(mechanical_theory_iii, mechanical_theory_ii)
+mechanical_theory_iii:register()
+mechanical_theory_iii:requires_technology(mechanical_theory_ii)
 
 voltaic_pile = Technology:new{
     ref_name = "voltaic_pile",
@@ -35,7 +35,7 @@ voltaic_pile = Technology:new{
     cost = 15.0,
     type = TECH_ECONOMIC
 }
-Technology:register(voltaic_pile)
+voltaic_pile:register()
 
 combustion_engine = Technology:new{
     ref_name = "combustion_engine",
@@ -44,7 +44,7 @@ combustion_engine = Technology:new{
     cost = 50.0,
     type = TECH_ECONOMIC
 }
-Technology:register(combustion_engine)
+combustion_engine:register()
 
 steam_locomotive = Technology:new{
     ref_name = "steam_locomotive",
@@ -53,7 +53,7 @@ steam_locomotive = Technology:new{
     cost = 100.0,
     type = TECH_ECONOMIC
 }
-Technology:register(steam_locomotive)
+steam_locomotive:register()
 
 assembly_line = Technology:new{
     ref_name = "assembly_line",
@@ -62,8 +62,8 @@ assembly_line = Technology:new{
     cost = 100.0,
     type = TECH_ECONOMIC
 }
-Technology:register(assembly_line)
-Technology:requires_technology(assembly_line, mechanical_theory_iii)
+assembly_line:register()
+assembly_line:requires_technology(mechanical_theory_iii)
 
 napoleonic_tought = Technology:new{
     ref_name = "napoleonic_tought",
@@ -72,7 +72,7 @@ napoleonic_tought = Technology:new{
     cost = 10.0,
     type = TECH_STRATEGIC
 }
-Technology:register(napoleonic_tought)
+napoleonic_tought:register()
 
 trench_warfare = Technology:new{
     ref_name = "trench_warfare",
@@ -81,4 +81,4 @@ trench_warfare = Technology:new{
     cost = 1500.0,
     type = TECH_STRATEGIC
 }
-Technology:register(trench_warfare)
+trench_warfare:register()
