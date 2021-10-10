@@ -8,14 +8,16 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
     index{ _index },
     UI::Group(x, y, parent->width - x, 24, parent)
 {
-    x = 0;
-    this->size_btn = new UI::Button(x, 0, 96, 24, this);
-    x += 96;
-    this->budget_btn = new UI::Button(x, 0, 96, 24, this);
-    x += 96;
-    this->religion_btn = new UI::Button(x, 0, 96, 24, this);
-    x += 96;
-    this->culture_btn = new UI::Button(x, 0, 96, 24, this);
+    this->size_btn = new UI::Button(0, 0, 96, 24, this);
+
+    this->budget_btn = new UI::Button(0, 0, 96, 24, this);
+    this->budget_btn->right_side_of(*this->size_btn);
+
+    this->religion_btn = new UI::Button(0, 0, 96, 24, this);
+    this->religion_btn->right_side_of(*this->budget_btn);
+
+    this->culture_btn = new UI::Button(0, 0, 96, 24, this);
+    this->culture_btn->right_side_of(*this->religion_btn);
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         PopInfo& o = dynamic_cast<PopInfo&>(w);
@@ -37,17 +39,19 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
     product{ _product },
     UI::Group(x, y, parent->width - x, 24, parent)
 {
-    x = 0;
-    this->company_btn = new UI::Button(x, 0, 96, 24, this);
+    this->company_btn = new UI::Button(0, 0, 96, 24, this);
     this->company_btn->text(product->owner->name);
-    x += 96;
-    this->price_rate_btn = new UI::Button(x, 0, 96, 24, this);
+
+    this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
     this->price_rate_btn->text(std::to_string(product->price_vel));
-    x += 96;
-    this->price_btn = new UI::Button(x, 0, 96, 24, this);
+    this->price_rate_btn->right_side_of(*this->company_btn);
+
+    this->price_btn = new UI::Button(0, 0, 96, 24, this);
     this->price_btn->text(std::to_string(product->price_vel));
-    x += 96;
-    this->price_chart = new UI::Chart(x, 0, 96, 24, this);
+    this->price_btn->right_side_of(*this->price_rate_btn);
+
+    this->price_chart = new UI::Chart(0, 0, 96, 24, this);
+    this->price_chart->right_side_of(*this->price_btn);
     
     this->on_each_tick = ([](UI::Widget& w, void*) {
         ProductInfo& o = dynamic_cast<ProductInfo&>(w);

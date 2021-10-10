@@ -29,6 +29,8 @@ namespace Interface {
         UI::PieChart* company_share_pie;
         UI::PieChart* products_pie;
         UI::PieChart* goods_pie;
+
+        std::vector<ProductInfo*> product_infos;
     public:
         ProvinceEconomyTab(GameState& gs, int x, int y, Province* province, UI::Widget* _parent);
 
