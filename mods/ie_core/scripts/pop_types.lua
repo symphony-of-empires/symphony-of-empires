@@ -5,42 +5,42 @@ entrepreneur = PopType:new{
     social_value = 3.0,
     is_entrepreneur = true
 }
-PopType:register(entrepreneur)
+entrepreneur:register()
 
 artisan = PopType:new{
     name = _("Artisan"),
     ref_name = "artisan",
     social_value = 1.0
 }
-PopType:register(artisan)
+artisan:register()
 
 bureaucrat = PopType:new{
     name = _("Bureaucrat"),
     ref_name = "bureaucrat",
     social_value = 2.5
 }
-PopType:register(bureaucrat)
+bureaucrat:register()
 
 aristocrat = PopType:new{
     name = _("Aristocrat"),
     ref_name = "aristocrat",
     social_value = 2.0
 }
-PopType:register(aristocrat)
+aristocrat:register()
 
 clergymen = PopType:new{
     name = _("Clergymen"),
     ref_name = "clergymen",
     social_value = 2.5
 }
-PopType:register(clergymen)
+clergymen:register()
 
 soldier = PopType:new{
     name = _("Soldier"),
     ref_name = "soldier",
     social_value = 1.5
 }
-PopType:register(soldier)
+soldier:register()
 
 farmer = PopType:new{
     name = _("Farmer"),
@@ -48,7 +48,7 @@ farmer = PopType:new{
     social_value = 1.0,
     is_farmer = true
 }
-PopType:register(farmer)
+farmer:register()
 
 laborer = PopType:new{
     name = _("Laborer"),
@@ -56,7 +56,7 @@ laborer = PopType:new{
     social_value = 1.0,
     is_laborer = true
 }
-PopType:register(laborer)
+laborer:register()
 
 slave = PopType:new{
     name = _("Slave"),
@@ -64,7 +64,7 @@ slave = PopType:new{
     social_value = 0.1,
     is_slave = true
 }
-PopType:register(slave)
+slave:register()
 
 -- TODO: Remove these, because they are deprecated
 officer = PopType:new{
@@ -72,11 +72,11 @@ officer = PopType:new{
     ref_name = "officer",
     social_value = 1.5
 }
-PopType:register(officer)
+officer:register()
 
 craftsmen = PopType:new{
     name = _("Craftsmen"),
     ref_name = "craftsmen",
     social_value = 1.5
 }
-PopType:register(craftsmen)
+craftsmen:register()
