@@ -9,7 +9,7 @@ using namespace Interface;
 ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
     : gs{ _gs },
     province{ _province },
-    UI::Group(x, y, _parent->width - x, _parent->height, _parent)
+    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
 {
     this->text(province->name);
 
@@ -17,9 +17,11 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->cultures_pie->parent = this;
 
     this->religions_pie = new UI::PieChart(64, 0, 64, 64);
+    this->religions_pie->right_side_of(*this->cultures_pie);
     this->religions_pie->parent = this;
 
-    this->pop_types_pie = new UI::PieChart(64 * 2, 0, 64, 64);
+    this->pop_types_pie = new UI::PieChart(0, 0, 64, 64);
+    this->pop_types_pie->right_side_of(*this->religions_pie);
     this->pop_types_pie->parent = this;
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
@@ -56,7 +58,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     // Add the initial POPs infoboxes, we can later add/remove as needed on each tick update
     int i = 0;
     for(const auto& pop : this->province->pops) {
-        PopInfo* info = new PopInfo(this->gs, 0, (i * 24) + 24, this->province, i, this);
+        PopInfo* info = new PopInfo(this->gs, 0, (i * 24) + 64, this->province, i, this);
         this->pop_infos.push_back(info);
         i++;
     }
@@ -65,11 +67,11 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
 ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
     : gs{ _gs },
     province{ _province },
-    UI::Group(x, y, _parent->width - 128, _parent->height, _parent)
+    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
 {
     this->text(province->name);
 
-    this->products_pie = new UI::PieChart(0, 0, 64, 64);
+    this->products_pie = new UI::PieChart(0, 24, 64, 64);
     this->products_pie->parent = this;
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
@@ -90,6 +92,18 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
             products_data.push_back(data);
         }
     });
+
+    // Initial product info
+    int i = 0;
+    for(const auto& product : this->gs.world->products) {
+        if(product->origin != this->province) {
+            continue;
+        }
+
+        ProductInfo* info = new ProductInfo(this->gs, 0, (i * 24) + 64, product, this);
+        this->product_infos.push_back(info);
+        i++;
+    }
 }
 
 ProvinceView::ProvinceView(GameState& _gs, Province* _province)
@@ -99,10 +113,13 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 {
     this->text(province->name);
 
-    this->pop_tab = new ProvincePopulationTab(gs, 0, 24, _province, this);
+    this->pop_tab = new ProvincePopulationTab(gs, 128, 24, _province, this);
     this->pop_tab->is_render = true;
 
-    this->pop_btn = new UI::Button(0, 0, 128, 24, this);
+    this->econ_tab = new ProvinceEconomyTab(gs, 128, 24, _province, this);
+    this->econ_tab->is_render = false;
+
+    this->pop_btn = new UI::Button(0, 24, 128, 24, this);
     this->pop_btn->text("Population");
     this->pop_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = dynamic_cast<ProvinceView&>(*w.parent);
@@ -111,10 +128,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.econ_tab->is_render = false;
     });
 
-    this->econ_tab = new ProvinceEconomyTab(gs, 0, 24, _province, this);
-    this->econ_tab->is_render = false;
-
-    this->econ_btn = new UI::Button(0, 24, 128, 24, this);
+    this->econ_btn = new UI::Button(0, 0, 128, 24, this);
+    this->econ_btn->below_of(*this->pop_btn);
     this->econ_btn->text("Economy");
     this->econ_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = dynamic_cast<ProvinceView&>(*w.parent);
@@ -123,6 +138,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.econ_tab->is_render = true;
     });
 
-    this->close_btn = new UI::CloseButton(0, 24 * 2, 128, 24, this);
+    this->close_btn = new UI::CloseButton(0, 0, 128, 24, this);
+    this->close_btn->below_of(*this->econ_btn);
     this->close_btn->text("Close");
 }
