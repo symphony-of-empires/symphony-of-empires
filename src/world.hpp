@@ -25,6 +25,7 @@ typedef unsigned int	uint;
 * and other non-war stuff (like province ownership).
 * This is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
  */
+class World;
 class Tile {
 public:
     // ID of the nation who owns this tile
@@ -39,6 +40,8 @@ public:
 
     // Level of infrastructure in this tile (from 0 to MAX_INFRA_LEVEL)
     uint8_t infra_level;
+
+    const std::vector<const Tile*> get_neighbours(const World& world) const;
 };
 
 #include <string>

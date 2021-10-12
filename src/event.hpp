@@ -1,28 +1,23 @@
 #ifndef EVENT_H
 #define EVENT_H
 
+#include "entity.hpp"
 #include <string>
 #include <vector>
 
-class Descision {
+class Descision : public RefnameEntity<uint8_t> {
 public:
-    std::string name;
-    std::string ref_name;
     std::string do_descision_function;
     std::string effects;
 };
 
 class Nation;
-class Event {
+class Event : public RefnameEntity<uint16_t> {
 public:
-    using Id = uint16_t;
-    
-    std::string ref_name;
     std::string conditions_function;
     std::string do_event_function;
     std::vector<Nation *> receivers;
     std::vector<Descision> descisions;
-
     std::string text;
     std::string title;
 

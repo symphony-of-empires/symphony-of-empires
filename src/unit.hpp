@@ -7,16 +7,14 @@
 #include <cstddef>
 #include "good.hpp"
 
+#include "entity.hpp"
+
 /**
 * Defines a type of unit, it can be a tank, garrison, infantry, etc
 * this is moddable via a lua script and new unit types can be added
  */
-class UnitType {
+class UnitType : public RefnameEntity<uint8_t> {
 public:
-    using Id = uint16_t;
-    std::string name;
-    std::string ref_name;
-    
     float supply_consumption;
     float speed;
     float max_health;
@@ -49,11 +47,8 @@ public:
 
 /** A trait for an unit; given randomly per each recruited unit
  */
-class UnitTrait {
+class UnitTrait : public RefnameEntity<uint8_t> {
 public:
-    using Id = uint16_t;
-    std::string ref_name;
-    
     float supply_consumption_mod;
     float speed_mod;
     float max_health_mod;
@@ -66,10 +61,8 @@ public:
 /**
 * Roughly a batallion, consisting of approximately 500 soldiers each
  */
-class Unit {
+class Unit : public IdEntity<uint16_t> {
 public:
-    using Id = uint32_t;
-
     void attack(Unit& enemy) {
         // Calculate the attack of our unit
         float attack_mod = 0.f;

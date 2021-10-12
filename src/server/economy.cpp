@@ -558,33 +558,34 @@ void Economy::do_phase_3(World& world) {
     std::vector<Emigrated> emigration = std::vector<Emigrated>();
     std::mutex emigration_lock;
 
-    std::srand(std::time(nullptr));
     std::for_each(world.provinces.begin(), world.provinces.end(), [&emigration_lock, &emigration, &world](auto& province) {
-        if(province->owner == nullptr)
-            return;
+        if(province->owner == nullptr) return;
 
         std::vector<Product*> province_products = province->get_products(world);
+
+        // Randomness factor to emulate a pseudo-imperfect economy
+        const float fuzz = std::fmod((float)(std::rand() + 1) / 1000.f, 2.f) + 1.f;
 
         float current_attractive = province->base_attractive;
         current_attractive += province->owner->base_literacy;
         current_attractive += province->owner->gdp / 1000.f;
 
-        // Reset worker pool
-        province->worker_pool = 0;
         for(size_t i = 0; i < province->pops.size(); i++) {
             Pop& pop = province->pops.at(i);
 
             // Use 33% of our budget to buy edibles and life needed stuff
-            float life_alloc_budget = pop.budget / 3;
+            float life_alloc_budget = pop.budget / 3.f;
 
             // Use 10% of our budget for buying uneeded commodities and shit
             // TODO: Should lower spending with higher literacy, and higher
             // TODO: Higher the fullfilment per unit with higher literacy
             // TODO: Should sort "product" by priority (i.e with highest quality and best marketing)
-            float everyday_alloc_budget = pop.budget / 10;
+            float everyday_alloc_budget = pop.budget / 10.f;
             for(const auto& product : province_products) {
+                const Product::Id product_id = world.get_id(product);
+
                 // Province must have stockpile
-                if(!province->stockpile[world.get_id(product)]) {
+                if(!province->stockpile[product_id]) {
                     // Desesperation for food leads to higher demand
                     if(product->good->is_edible && pop.life_needs_met <= 0.f) {
                         product->demand += pop.size * 5.f;
@@ -601,14 +602,11 @@ void Economy::do_phase_3(World& world) {
                     bought = everyday_alloc_budget / product->price;
 
                     // Slaves cannot buy commodities
-                    if(pop.type->is_slave) {
-                        continue;
-                    }
+                    if(pop.type->is_slave) continue;
                 }
 
-                bought = std::min<float>(bought, province->stockpile[world.get_id(product)]);
-                if(!bought)
-                    continue;
+                bought = std::min<float>(bought, province->stockpile[product_id]);
+                if(!bought) continue;
 
                 float cost_of_transaction = bought * product->price;
 
@@ -619,10 +617,8 @@ void Economy::do_phase_3(World& world) {
                 pop.budget -= cost_of_transaction;
 
                 // Demand is incremented proportional to items bought and remove item from stockpile
-                // we will also add some "randomness" factor to simulate a pseudo-imperfect economy
-                float errdata = std::fmod((float)(std::rand() + 1) / 1000.f, 2.f) + 1.f;
-                product->demand += bought * 2.5f * errdata;
-                province->stockpile[world.get_id(product)] -= std::min<size_t>(province->stockpile[world.get_id(product)], bought);
+                product->demand += bought * 2.5f * fuzz;
+                province->stockpile[product_id] -= std::min<size_t>(province->stockpile[product_id], bought);
 
                 // Uncomment to see buyers
                 //print_info("Pop with budget %f bought %zu %s", pop.budget, (size_t)bought, product->good->name.c_str());
@@ -644,11 +640,10 @@ void Economy::do_phase_3(World& world) {
             pop.life_needs_met = std::min<float>(5.f, std::max<float>(pop.life_needs_met, -3.f));
             pop.everyday_needs_met = std::min<float>(5.f, std::max<float>(pop.everyday_needs_met, -3.f));
 
-            // POPs cannot shrink below 10<
+            // POPs cannot shrink below 10
             if(pop.size <= 10) {
                 pop.size = 1;
-            }
-            else {
+            } else {
                 // Higher literacy will mean there will be less births due to sex education
                 // and will also mean that - there would be less deaths due to higher knewledge
                 int growth;
@@ -669,8 +664,6 @@ void Economy::do_phase_3(World& world) {
 
             // Add some RNG to shake things up and make gameplay more dynamic and less deterministic :)
             pop.size += std::rand() % std::min<size_t>(5, std::max<size_t>(1, (pop.size / 10000)));
-
-            // Population cannot be 0
             pop.size = std::max<size_t>(1, pop.size);
 
             // Met life needs means less militancy
@@ -715,9 +708,7 @@ void Economy::do_phase_3(World& world) {
                     float attractive = 0.f;
 
                     // Don't go to owner-less provinces
-                    if(target_province->owner == nullptr) {
-                        continue;
-                    }
+                    if(target_province->owner == nullptr) continue;
 
                     // We dont want to be exterminated or enslaved... do we?
                     if(target_province->owner->current_policy.treatment == TREATMENT_ENSLAVED) {
@@ -791,9 +782,8 @@ void Economy::do_phase_3(World& world) {
                 emigrated.size = emigreers;
                 emigrated.origin = province;
 
-                emigration_lock.lock();
+                std::lock_guard<std::mutex> l(emigration_lock);
                 emigration.push_back(emigrated);
-                emigration_lock.unlock();
             }
         skip_emigration:
             ;

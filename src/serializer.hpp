@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <cstdio>
+#include <type_traits>
 
 // The purpouse of the serializer is to serialize objects onto a byte stream
 // that can be transfered onto the disk or over the network.
@@ -57,6 +58,21 @@ public:
     static inline void deserialize(Archive& ar, T* obj);
     static inline size_t size(const T* obj);
 };
+
+template<typename T, typename ... Targs>
+inline void serialize(Archive& ar, const T* obj) {
+    Serializer<T>::serialize(ar, obj);
+}
+
+template<typename T, typename ... Targs>
+inline void deserialize(Archive& ar, T* obj) {
+    Serializer<T>::deserialize(ar, obj);
+}
+
+template<typename T, typename ... Targs>
+constexpr size_t serialized_size(const T* obj) {
+    return Serializer<T>::size(obj);
+}
 
 // A serializer optimized to memcpy directly the element into the byte stream
 // use only when the object can be copied without modification (i.e a class full of ints)
@@ -126,8 +142,7 @@ public:
             len = 1024;
 
         // Put length for later deserialization (since UTF-8/UTF-16 exists)
-        ar.expand(sizeof(len));
-        ar.copy_from(&len, sizeof(len));
+        ::serialize(ar, &len);
 
         // Copy the string into the output
         if(len) {
@@ -139,8 +154,7 @@ public:
         uint16_t len;
 
         // Obtain the lenght of the string to be read
-        ar.copy_to(&len, sizeof(len));
-
+        ::deserialize(ar, &len);
         if (len >= 1024)
             throw SerializerException("String is too lenghty");
 
@@ -167,16 +181,14 @@ class SerializerContainer {
 public:
     static inline void serialize(Archive& ar, const C* obj_group) {
         uint32_t len = obj_group->size();
-        ar.expand(sizeof(len));
-        ar.copy_from(&len, sizeof(len));
-
+        ::serialize(ar, &len);
         for(auto& obj: *obj_group) {
             Serializer<T>::serialize(ar, &obj);
         }
     }
     static inline void deserialize(Archive& ar, C* obj_group) {
         uint32_t len;
-        ar.copy_to(&len, sizeof(len));
+        ::deserialize(ar, &len);
         obj_group->clear();
         for(size_t i = 0; i < len; i++) {
             T obj;
@@ -185,7 +197,7 @@ public:
         }
     }
     static constexpr size_t size(const C* obj_group) {
-        return sizeof(uint32_t) + (obj_group->size()* sizeof(T));
+        return sizeof(uint32_t) + (obj_group->size() * sizeof(T));
     }
 };
 
@@ -194,15 +206,15 @@ template<typename T, typename U>
 class Serializer<std::pair<T, U>> {
 public:
     static inline void serialize(Archive& ar, const std::pair<T, U>* obj) {
-        Serializer<T>::serialize(ar, &obj->first);
-        Serializer<U>::serialize(ar, &obj->second);
+        ::serialize(ar, &obj->first);
+        ::serialize(ar, &obj->second);
     }
     static inline void deserialize(Archive& ar, std::pair<T, U>* obj) {
-        Serializer<T>::deserialize(ar, &obj->first);
-        Serializer<U>::deserialize(ar, &obj->second);
+        ::deserialize(ar, &obj->first);
+        ::deserialize(ar, &obj->second);
     }
     static constexpr size_t size(const std::pair<T, U>* obj) {
-        return Serializer<T>::size(obj->first) + Serializer<T>::size(obj->second);
+        return ::serialized_size(obj->first) + ::serialized_size(obj->second);
     }
 };
 
@@ -213,19 +225,18 @@ class Serializer<std::vector<T>> : public SerializerContainer<T, std::vector<T>>
 public:
     static inline void serialize(Archive& ar, const std::vector<T>* obj_group) {
         uint32_t len = obj_group->size();
-        ar.expand(sizeof(len));
-        ar.copy_from(&len, sizeof(len));
+        ::serialize(ar, &len);
         for(auto& obj: *obj_group) {
-            Serializer<T>::serialize(ar, &obj);
+            ::serialize(ar, &obj);
         }
     }
     static inline void deserialize(Archive& ar, std::vector<T>* obj_group) {
         uint32_t len;
-        ar.copy_to(&len, sizeof(len));
+        ::deserialize(ar, &len);
         obj_group->clear();
         for(size_t i = 0; i < len; i++) {
             T obj;
-            Serializer<T>::deserialize(ar, &obj);
+           ::deserialize(ar, &obj);
             obj_group->push_back(obj);
         }
     }
@@ -237,20 +248,18 @@ class Serializer<std::deque<T>> : public SerializerContainer<T, std::deque<T>> {
 public:
     static inline void serialize(Archive& ar, const std::deque<T>* obj_group) {
         uint32_t len = obj_group->size();
-        ar.expand(sizeof(len));
-        ar.copy_from(&len, sizeof(len));
-
+        ::serialize(ar, &len);
         for(auto& obj: *obj_group) {
-            Serializer<T>::serialize(ar, &obj);
+            ::serialize(ar, &obj);
         }
     }
     static inline void deserialize(Archive& ar, std::deque<T>* obj_group) {
         uint32_t len;
-        ar.copy_to(&len, sizeof(len));
+        ::deserialize(ar, &len);
         obj_group->clear();
         for(size_t i = 0; i < len; i++) {
             T obj;
-            Serializer<T>::deserialize(ar, &obj);
+            ::deserialize(ar, &obj);
             obj_group->push_back(obj);
         }
     }
@@ -271,12 +280,12 @@ class SerializerReference {
 public:
     static inline void serialize(Archive& stream, const T* const* obj) {
         typename T::Id id = (*obj == nullptr) ? (typename T::Id)-1 : W::get_instance().get_id(*obj);
-        Serializer<typename T::Id>::serialize(stream, &id);
+        ::serialize(stream, &id);
     };
 
     static inline void deserialize(Archive& stream, T** obj) {
         typename T::Id id;
-        Serializer<typename T::Id>::deserialize(stream, &id);
+        ::deserialize(stream, &id);
         if(id >= W::get_instance().get_list(*obj).size()) {
             *obj = nullptr;
             return;
@@ -289,19 +298,6 @@ public:
     };
 };
 
-template<typename T, typename ... Targs>
-inline void serialize(Archive& ar, const T* obj) {
-    Serializer<T>::serialize(ar, obj);
-}
-
-template<typename T, typename ... Targs>
-inline void deserialize(Archive& ar, T* obj) {
-    Serializer<T>::deserialize(ar, obj);
-}
-
-template<typename T, typename ... Targs>
-constexpr size_t serialized_size(const T* obj) {
-    return Serializer<T>::size(obj);
-}
+// TODO: Template for entities
 
 #endif

@@ -33,8 +33,7 @@ public:
     virtual ~BinaryImage();
 
     uint32_t* buffer;
-    size_t width;
-    size_t height;
+    size_t width, height;
 
     virtual void from_file(const std::string& path);
 };

@@ -2,13 +2,11 @@
 #define RELIGION_HPP
 #include <string>
 
-typedef uint8_t ReligionId;
-class Religion {
-public:
-    using Id = uint8_t;
+#include "entity.hpp"
 
-    std::string name;
-    std::string ref_name;
+class Religion : public RefnameEntity<uint8_t> {
+public:
+
 };
 
 #endif

@@ -334,12 +334,14 @@ void World::load_mod(void) {
     cultures.shrink_to_fit();
     religions.shrink_to_fit();
     pop_types.shrink_to_fit();
+    ideologies.shrink_to_fit();
+    building_types.shrink_to_fit();
 
     for(auto& province : provinces) {
-        province->max_x = 0;
-        province->max_y = 0;
-        province->min_x = UINT32_MAX;
-        province->min_y = UINT32_MAX;
+        province->max_x = std::numeric_limits<uint32_t>::min();
+        province->max_y = std::numeric_limits<uint32_t>::min();
+        province->min_x = std::numeric_limits<uint32_t>::max();
+        province->min_y = std::numeric_limits<uint32_t>::max();
     }
 
     // Translate all div, pol and topo maps onto this single tile array
@@ -367,10 +369,11 @@ void World::load_mod(void) {
     // Build a lookup table for super fast speed on finding provinces
     // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
     print_info(gettext("Building the province lookup table"));
-    Province::Id* color_province_rel_table = new Province::Id[16777216];
-    memset(color_province_rel_table, 0xff, sizeof(Province::Id) * 16777216);
+
+    std::vector<Province::Id> province_color_table(16777216, 0);
+    std::fill(province_color_table.begin(), province_color_table.end(), (Province::Id)-1);
     for(const auto& province : provinces) {
-        color_province_rel_table[province->color & 0xffffff] = get_id(province);
+        province_color_table[province->color & 0xffffff] = this->get_id(province);
     }
 
     // Uncomment this and see a bit more below
@@ -387,7 +390,7 @@ void World::load_mod(void) {
         if(!(i < total_size))
             break;
 
-        const Province::Id province_id = color_province_rel_table[div.buffer[i] & 0xffffff];
+        const Province::Id province_id = province_color_table[div.buffer[i] & 0xffffff];
         if(province_id == (Province::Id)-1) {
             // Uncomment this and see below
             //colors_found.insert(color);
@@ -402,7 +405,6 @@ void World::load_mod(void) {
         }
         --i;
     }
-    delete[] color_province_rel_table;
 
     /* Uncomment this for auto-generating lua code for unregistered provinces */
     /*for(const auto& color_raw: colors_found) {
@@ -444,10 +446,8 @@ void World::load_mod(void) {
         province->max_x = std::min(width, province->max_x);
         province->max_y = std::min(height, province->max_y);
 
-        // Add stockpile
-        for(size_t i = 0; i < products.size(); i++) {
-            province->stockpile.push_back(0);
-        }
+        // Create default stockpile of 0
+        province->stockpile.resize(products.size(), 0);
     }
 
     // Give owners the entire provinces
@@ -467,8 +467,8 @@ void World::load_mod(void) {
                 }
             }
         }
-        nation_changed_tiles.clear();
     }
+    nation_changed_tiles.clear();
 
     // Neighbours
     print_info(gettext("Creating neighbours for provinces"));
@@ -477,74 +477,22 @@ void World::load_mod(void) {
         const Tile* other_tile;
         if(tile->owner_id != (Nation::Id)-1) {
             Nation* nation = this->nations[this->tiles[i].owner_id];
+            const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
 
-            // Up neighbour
-            if(i > this->width) {
-                other_tile = &this->tiles[i - this->width];
-                if(other_tile->owner_id != tile->owner_id
-                    && other_tile->owner_id != (Nation::Id)-1) {
-                    nation->neighbours.insert(this->nations[other_tile->owner_id]);
-                }
-            }
-            // Down neighbour
-            if(i < (this->width * this->height) - this->width) {
-                other_tile = &this->tiles[i + this->width];
-                if(other_tile->owner_id != tile->owner_id
-                    && other_tile->owner_id != (Nation::Id)-1) {
-                    nation->neighbours.insert(this->nations[other_tile->owner_id]);
-                }
-            }
-            // Left neighbour
-            if(i > 1) {
-                other_tile = &this->tiles[i - 1];
-                if(other_tile->owner_id != tile->owner_id
-                    && other_tile->owner_id != (Nation::Id)-1) {
-                    nation->neighbours.insert(this->nations[other_tile->owner_id]);
-                }
-            }
-            // Right neighbour
-            if(i < (this->width * this->height) - 1) {
-                other_tile = &this->tiles[i + 1];
-                if(other_tile->owner_id != tile->owner_id
-                    && other_tile->owner_id != (Nation::Id)-1) {
-                    nation->neighbours.insert(this->nations[other_tile->owner_id]);
+            for(const auto& other_tile: tiles) {
+                if(other_tile->owner_id != tile->owner_id && other_tile->owner_id != (Nation::Id)-1) {
+                    nation->neighbours.insert(this->nations.at(other_tile->owner_id));
                 }
             }
         }
 
         if(tile->province_id != (Province::Id)-1) {
             Province* province = this->provinces[this->tiles[i].province_id];
+            const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
 
-            // Up neighbour
-            if(i > this->width) {
-                other_tile = &this->tiles[i - this->width];
-                if(other_tile->province_id != tile->province_id
-                    && other_tile->province_id != (Province::Id)-1) {
-                    province->neighbours.insert(this->provinces[other_tile->province_id]);
-                }
-            }
-            // Down neighbour
-            if(i < (this->width * this->height) - this->width) {
-                other_tile = &this->tiles[i + this->width];
-                if(other_tile->province_id != tile->province_id
-                    && other_tile->province_id != (Province::Id)-1) {
-                    province->neighbours.insert(this->provinces[other_tile->province_id]);
-                }
-            }
-            // Left neighbour
-            if(i > 1) {
-                other_tile = &this->tiles[i - 1];
-                if(other_tile->province_id != tile->province_id
-                    && other_tile->province_id != (Province::Id)-1) {
-                    province->neighbours.insert(this->provinces[other_tile->province_id]);
-                }
-            }
-            // Right neighbour
-            if(i < (this->width * this->height) - 1) {
-                other_tile = &this->tiles[i + 1];
-                if(other_tile->province_id != tile->province_id
-                    && other_tile->province_id != (Province::Id)-1) {
-                    province->neighbours.insert(this->provinces[other_tile->province_id]);
+            for(const auto& other_tile: tiles) {
+                if(other_tile->province_id != tile->province_id && other_tile->province_id != (Province::Id)-1) {
+                    province->neighbours.insert(this->provinces.at(other_tile->province_id));
                 }
             }
         }
@@ -554,9 +502,7 @@ void World::load_mod(void) {
     print_info(gettext("Creating diplomatic relations"));
     for(const auto& nation : this->nations) {
         // Relations between nations start at 0 (and latter modified by lua scripts)
-        for(size_t i = 0; i < this->nations.size(); i++) {
-            nation->relations.push_back(NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
-        }
+        nation->relations.resize(this->nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
     }
 
     const std::vector<std::string> mod_files ={
@@ -1224,7 +1170,7 @@ void World::do_tick() {
         print_info("%i/%i/%i", time / 12 / 30 / 48, (time / 30 / 48 % 12) + 1, (time / 48 % 30) + 1);
     }
 
-    //print_info("Tick %zu done", (size_t)time);
+    //print_info("Tick %i done", time);
     time++;
 
     // Tell clients that this tick has been done

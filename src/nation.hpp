@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include "entity.hpp"
+
 #include "policy.hpp"
 #include "province.hpp"
 #include "diplomacy.hpp"
@@ -50,13 +52,8 @@ public:
     Ideology* ideology;
 };
 
-class NationModifier {
+class NationModifier : public RefnameEntity<uint16_t> {
 public:
-    using Id = uint16_t;
-
-    std::string ref_name;
-    std::string name;
-
     // Modifiers for a nation, which increases/decreases certain stuff
     // They should never be 0, a modifier of 1.0 is equal to no modifer at
     // all. And a modifier of 0.5 would cause a 1/2. Similar to a 2 which
@@ -76,12 +73,10 @@ public:
     float luxury_needs_met_mod = 1.f;
 };
 
-class Nation {
+class Nation : public RefnameEntity<uint16_t> {
     inline void do_diplomacy();
     inline bool can_do_diplomacy();
 public:
-    using Id = uint16_t;
-
     bool is_ally(const Nation& nation);
     bool is_enemy(const Nation& nation);
     bool exists(void);
@@ -96,12 +91,6 @@ public:
 
     // Whetever this nation is controlled by AI
     bool controlled_by_ai;
-
-    // Default transleted/display name
-    std::string name;
-
-    // Default reference name
-    std::string ref_name;
 
     // A list with relations with all other nations, mapped 1:1 to the Nation list in the world
     std::vector<NationRelation> relations;
