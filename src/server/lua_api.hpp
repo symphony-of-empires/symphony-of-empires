@@ -112,6 +112,7 @@ namespace LuaAPI {
     int get_day(lua_State* L);
     int get_month(lua_State* L);
     int get_year(lua_State* L);
+    int set_date(lua_State* L);
 
     // Beta functions that exist
     int add_op_province_to_company(lua_State* L);

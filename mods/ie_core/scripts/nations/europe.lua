@@ -93,7 +93,7 @@ occitania:add_client_hint(communism, _("Occitania"), 0x808000)
 catalonia = Nation:new{ ref_name = "catalonia" }
 catalonia.name = _("Catalonia")
 catalonia:register()
-catalonia:add_client_hint(communism, _("Catalonia"), 0x808000)
+catalonia:add_client_hint(republic, _("Catalonia"), 0xeda65a)
 
 catalonia:add_accepted_culture(catalan)
 basque_country = Nation:new{ ref_name = "basque" }
@@ -120,7 +120,7 @@ czechoslovakia.name = _("Czechoslovakia")
 czechoslovakia:register()
 czechoslovakia:add_accepted_culture(slovakian)
 czechoslovakia:add_accepted_culture(czech)
-czechoslovakia:add_client_hint(communism, _("Czechoslovakia"), 0x808000)
+czechoslovakia:add_client_hint(communism, _("Czechoslovakia"), 0x384a8a)
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
@@ -149,33 +149,33 @@ scandinavia:add_accepted_culture(finnish)
 scandinavia:add_accepted_culture(norwegian)
 scandinavia:add_accepted_culture(swedish)
 scandinavia:add_accepted_culture(danish)
-scandinavia:add_client_hint(communism, _("Scandinavia"), 0x808000)
+scandinavia:add_client_hint(monarchy, _("Scandinavia"), 0x3a739e)
 
 -- Releasable nations
 finland = Nation:new{ ref_name = "finland" }
 finland.name = _("Finland")
 finland:register()
 finland:add_accepted_culture(finnish)
-finland:add_client_hint(communism, _("Finland"), 0x808000)
+finland:add_client_hint(monarchy, _("Finland"), 0xb9ebeb)
 
 norway = Nation:new{ ref_name = "norway" }
 norway.name = _("Norway")
 norway:register()
 norway:add_accepted_culture(norwegian)
-norway:add_client_hint(communism, _("Norway"), 0x808000)
+norway:add_client_hint(monarchy, _("Norway"), 0xab1659)
 
 aland = Nation:new{ ref_name = "aland" }
 aland.name = _("Åland")
 aland:register()
 aland:add_accepted_culture(finnish)
 aland:add_accepted_culture(swedish)
-aland:add_client_hint(communism, _("Åland"), 0x808000)
+aland:add_client_hint(monarchy, _("Åland"), 0xe6dd45)
 
 iceland = Nation:new{ ref_name = "iceland" }
 iceland.name = _("Iceland")
 iceland:register()
 iceland:add_accepted_culture(icelandic)
-iceland:add_client_hint(communism, _("Iceland"), 0x808000)
+iceland:add_client_hint(monarchy, _("Iceland"), 0x8293d1)
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
@@ -195,6 +195,7 @@ krakow:register()
 krakow:set_ideology(monarchy)
 krakow:add_accepted_culture(polish)
 krakow:add_client_hint(communism, _("Krakow"), 0xe6f4f7)
+
 -- Releasable nations
 -- Poland can be formed by krakow
 poland = Nation:new{ ref_name = "poland" }
@@ -202,24 +203,29 @@ poland.name = _("Poland")
 poland:register()
 poland:add_accepted_culture(polish)
 poland:add_client_hint(communism, _("Poland"), 0xbf85d6)
+poland:add_client_hint(monarchy, _("Poland"), 0xbf85d6)
+poland:add_client_hint(republic, _("Poland"), 0xbf85d6)
 
 lithuania = Nation:new{ ref_name = "lithuania" }
 lithuania.name = _("Lithuania")
 lithuania:register()
 lithuania:add_accepted_culture(lithuanian)
-lithuania:add_client_hint(communism, _("Lithuania"), 0x598c42)
+lithuania:add_client_hint(republic, _("Lithuania"), 0x598c42)
+lithuania:add_client_hint(monarchy, _("Lithuania SFSR"), 0x598c42)
 
 estonia = Nation:new{ ref_name = "estonia" }
 estonia.name = _("Estonia")
 estonia:register()
 estonia:add_accepted_culture(estonian)
-estonia:add_client_hint(communism, _("Estonia"), 0x4c8ed4)
+estonia:add_client_hint(republic, _("Estonia"), 0x4c8ed4)
+estonia:add_client_hint(monarchy, _("Estonia SFSR"), 0x4c8ed4)
 
 latvia = Nation:new{ ref_name = "latvia" }
 latvia.name = _("Latvia")
 latvia:register()
 latvia:add_accepted_culture(latvian)
-latvia:add_client_hint(communism, _("Latvia"), 0x962820)
+latvia:add_client_hint(republic, _("Latvia"), 0x962820)
+latvia:add_client_hint(monarchy, _("Latvia SFSR"), 0x962820)
 
 -- Lovonia can be formed by either latvia, estonia or lithuania
 livonia = Nation:new{ ref_name = "livonia" }
@@ -469,6 +475,7 @@ austria:register()
 austria:set_ideology(democracy)
 austria:add_accepted_culture(german)
 austria:add_client_hint(monarchy, _("Austria"), 0xe8ebe8)
+austria:add_client_hint(republic, _("Austria"), 0xe8ebe8)
 
 -- Formable nations
 greater_prussia = Nation:new{ ref_name = "greater_prussia" }
