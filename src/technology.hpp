@@ -2,6 +2,7 @@
 #define TECHNOLOGY_H
 #include <string>
 #include "nation.hpp"
+#include "entity.hpp"
 
 enum TechnologyType {
     STRATEGIC,
@@ -12,23 +13,14 @@ enum TechnologyType {
     POLITICS,
 };
 
-class Invention {
+class Invention : public RefnameEntity<uint8_t> {
 public:
-    using Id = uint8_t;
-
-    std::string ref_name;
-    std::string name;
     std::string description;
-    
     NationModifier* mod;
 };
 
-class Technology {
+class Technology : public RefnameEntity<uint16_t> {
 public:
-    using Id = uint16_t;
-    
-    std::string ref_name;
-    std::string name;
     std::string description;
     float cost;
 

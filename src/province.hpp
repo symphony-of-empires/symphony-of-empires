@@ -6,26 +6,20 @@
 #include <string>
 #include "pop.hpp"
 
+#include "entity.hpp"
+
 class World;
 class Nation;
 class Industry;
 class Product;
 // A single province, which is used to simulate economy in a "bulk-tiles" way
 // instead of doing economical operations on every single tile
-class Province {
+class Province : public RefnameEntity<uint16_t> {
 public:
-    using Id = uint16_t;
-
     Province::Id get_id(const World& world);
     Nation& get_occupation_controller(const World& world) const;
     size_t total_pops(void) const;
     std::vector<Product*> get_products(const World& world) const;
-
-    // Name of the province
-    std::string name;
-
-    // Reference name of the province
-    std::string ref_name;
 
     // Color of the province, used for mapping the province's shape from the map_div.png file
     uint32_t color;

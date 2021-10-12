@@ -1,5 +1,7 @@
 #ifndef COMPANY_HPP
 #define COMPANY_HPP
+
+#include "entity.hpp"
 #include <string>
 #include <set>
 #include <algorithm>
@@ -7,10 +9,8 @@
 #include "province.hpp"
 
 // A company that operates one or more factories and is able to build even more factories
-class Company {
+class Company : public IdEntity<uint16_t> {
 public:
-    using Id = uint16_t;
-
     // Name of this company
     std::string name;
 

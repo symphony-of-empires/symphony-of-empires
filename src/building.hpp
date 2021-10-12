@@ -1,16 +1,13 @@
 #ifndef BUILDING_HPP
 #define BUILDING_HPP
+
+#include "entity.hpp"
 #include "unit.hpp"
 #include "company.hpp"
 
 // Type for military outposts
-class BuildingType {
+class BuildingType : public RefnameEntity<uint8_t> {
 public:
-    using Id = uint8_t;
-
-    std::string name;
-    std::string ref_name;
-
     bool is_plot_on_sea;
     bool is_plot_on_land;
     bool is_build_land_units;
@@ -32,10 +29,8 @@ public:
 
 // A military outpost, on land serves as a "spawn" place for units
 // When adjacent to a water tile this serves as a shipyard for spawning naval units
-class Building {
+class Building : public IdEntity<uint16_t> {
 public:
-    using Id = uint16_t;
-
     // Position of outpost
     size_t x;
     size_t y;
