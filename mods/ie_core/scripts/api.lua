@@ -499,7 +499,7 @@ function BuildingType:new(o)
 	return o
 end
 function BuildingType:register()
-	self.id = add_building_type(self.ref_name, self.is_naval, self.is_build_land_units, self.is_build_naval_units, self.defense_bonus, self.is_factory)
+	self.id = add_building_type(self.ref_name, self.name, self.is_naval, self.is_build_land_units, self.is_build_naval_units, self.defense_bonus, self.is_factory)
 end
 function BuildingType:add_input(good)
 	add_input_to_industry_type(self.id, good.id)

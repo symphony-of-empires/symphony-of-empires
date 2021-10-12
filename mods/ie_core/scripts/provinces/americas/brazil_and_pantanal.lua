@@ -7,6 +7,7 @@ local province = Province:new{ ref_name = "ceara", color = 0x00FFFF }
 province.name = _("Ceará")
 province:register()
 province:add_industry(wheat_farm, andes_transport)
+province:add_industry(bakery, andes_transport)
 province:add_pop(artisan, brazilian, catholic, 5000, 0.7)
 province:add_pop(farmer, brazilian, catholic, 5000, 0.1)
 province:add_pop(soldier, brazilian, catholic, 5000, 0.2)

@@ -280,7 +280,7 @@ void Server::net_loop(int id) {
                             throw ServerException("Unknown unit type");
 
                         // Must control building
-                        if(building->owner != selected_nation)
+                        if(building->get_owner(*g_world) != selected_nation)
                             throw ServerException("Nation does not control building");
 
                         // TODO: Check nation can build this unit
@@ -301,7 +301,6 @@ void Server::net_loop(int id) {
 
                         // Modify the serialized building
                         ar.ptr -= ::serialized_size(building);
-                        building->owner = selected_nation;
 
                         // Check that it's not out of bounds
                         if(building->x >= g_world->width || building->y >= g_world->height)
@@ -318,7 +317,7 @@ void Server::net_loop(int id) {
                         ::serialize(ar, building);
 
                         g_world->buildings.push_back(building);
-                        print_info("New building of %s", building->owner->name.c_str());
+                        print_info("%s: Has built a %s on %i x %i", selected_nation->name.c_str(), building->type->name.c_str(), building->x, building->y);
                         // Rebroadcast
                         broadcast(packet);
                     } break;

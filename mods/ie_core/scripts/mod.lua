@@ -178,3 +178,9 @@ the_minas_crash = Event:new{
 	text = "2 cars have been circulating on the minas province recently where they collided with each other on a catastrophic event"
 }
 the_minas_crash:register()
+
+set_date(1825, 0, 0)
+print("********************************************************************************")
+print("Industrial era mod")
+print("Date: ", get_year(), "/", get_month(), "/", get_day())
+print("********************************************************************************")
