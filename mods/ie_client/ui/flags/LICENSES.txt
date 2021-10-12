@@ -126,3 +126,7 @@ bulgaria_republic
 
 bulgaria_communism
 	By Scroch - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=4838692
+
+catalonia_republic
+	By Huhsunqu, CC BY-SA 2.5, https://commons.wikimedia.org/w/index.php?curid=739696
+
