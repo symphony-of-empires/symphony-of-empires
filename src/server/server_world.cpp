@@ -124,6 +124,7 @@ World::World() {
     lua_register(lua, "get_day", LuaAPI::get_day);
     lua_register(lua, "get_month", LuaAPI::get_month);
     lua_register(lua, "get_year", LuaAPI::get_year);
+    lua_register(lua, "set_date", LuaAPI::set_date);
 
     /*
     const struct luaL_Reg ideology_meta[] = {
@@ -409,16 +410,16 @@ void World::load_mod(void) {
 
         printf("province = Province:create{ ref_name = \"province_%x\", color = 0x%06x }\n", __bswap_32(color), __bswap_32(color));
         printf("province.name = _(\"Province_%x\")\n", __bswap_32(color));
-        printf("Province:register(province)\n");
-        printf("Province:add_pop(province, artisan, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, farmer, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, soldier, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, craftsmen, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, bureaucrat, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, aristocrat, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, clergymen, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, laborer, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, entrepreneur, arabic, islamic, 1000, 0.5)\n");
+        printf("province:register()\n");
+        printf("province:add_pop(artisan, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(farmer, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(soldier, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(craftsmen, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(bureaucrat, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(aristocrat, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(clergymen, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(laborer, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(entrepreneur, arabic, islamic, 1000, 0.5)\n");
     }*/
 
     // Calculate the edges of the province (min and max x and y coordinates)
@@ -598,40 +599,28 @@ void World::do_tick() {
         if(nation->exists() == false)
             continue;
 
-        if(rand() % 1000 > 990) {
-            Province* target = provinces[rand() % provinces.size()];
-            if(target->owner == nullptr) {
-                Packet packet = Packet();
-                Archive ar = Archive();
-                ActionType action = ActionType::PROVINCE_COLONIZE;
-                ::serialize(ar, &action);
-                ::serialize(ar, &target);
-                ::serialize(ar, target);
-                packet.data(ar.get_buffer(), ar.size());
-                g_server->broadcast(packet);
-
-                nation->give_province(*this, *target);
-                print_info("Conquering %s for %s", target->name.c_str(), nation->name.c_str());
-            }
+        if(nation->diplomatic_timer != 0) {
+            nation->diplomatic_timer--;
         }
 
-        if(rand() % 100 > 98.f) {
+        // Increase relations
+        if(!(std::rand() % 10000)) {
             Nation* target = nullptr;
             while(target == nullptr || target->exists() == false) {
                 target = nations[rand() % nations.size()];
             }
             nation->increase_relation(*target);
         }
-        else if(rand() % 100 > 98.f) {
+        // Decrease relations
+        else if(!(std::rand() % 10000)) {
             Nation* target = nullptr;
             while(target == nullptr || target->exists() == false) {
                 target = nations[rand() % nations.size()];
             }
             nation->decrease_relation(*target);
         }
-
         // Rarely nations will change policies
-        if(rand() % 100 > 50) {
+        else if(!(std::rand() % 10000)) {
             Policies new_policy = nation->current_policy;
 
             if(rand() % 100 > 50.f) {
@@ -671,13 +660,25 @@ void World::do_tick() {
 
             nation->set_policy(new_policy);
         }
+        // Colonize a province
+        else if(!(std::rand() % 10000)) {
+            Province* target = provinces[rand() % provinces.size()];
+            if(target->owner == nullptr) {
+                Packet packet = Packet();
+                Archive ar = Archive();
+                ActionType action = ActionType::PROVINCE_COLONIZE;
+                ::serialize(ar, &action);
+                ::serialize(ar, &target);
+                ::serialize(ar, target);
+                packet.data(ar.get_buffer(), ar.size());
+                g_server->broadcast(packet);
 
-        if(nation->diplomatic_timer != 0) {
-            nation->diplomatic_timer--;
+                nation->give_province(*this, *target);
+                print_info("Conquering %s for %s", target->name.c_str(), nation->name.c_str());
+            }
         }
-
         // Accepting/rejecting treaties
-        if(std::rand() % 1000 > 10) {
+        else if(!(std::rand() % 10000)) {
             for(auto& treaty : treaties) {
                 for(auto& part : treaty->approval_status) {
                     if(part.first == nation) {
@@ -698,57 +699,115 @@ void World::do_tick() {
                 }
             }
         }
+        // Build defenses
+        else if(!(std::rand() % 10000)) {
 
-        // Build an building randomly?
-        if(std::rand() % 1000 > 950) {
-        //if(0) {
-            bool can_build = false;
-            for(const auto& province : nation->owned_provinces) {
-                if(get_id(&province->get_occupation_controller(*this)) != g_world->get_id(nation)) {
-                    can_build = true;
-                    break;
+        }
+        // Build a commercially related building
+        else if(!(std::rand() % 2500)) {
+            print_info("%s: Analyzing the market for potential industries", nation->name.c_str());
+
+            // Analyze the market probability of sucess of a product
+            // this is determined by (demand * price), we calculate
+            // this from the average of all products on our provinces we currently own
+
+            // Obtain the average probability of profitability per good
+            // we will only however, take in account products which are produced on provinces
+            // we own, hereafter we can obtain the average of the national good industry
+
+            // So our formula would be:
+            // Sucess = Sum(Demand / (Supply + 1) * Price)
+            std::vector<float> avg_prob = std::vector<float>(this->goods.size(), 0.f);
+            for(const auto& product: this->products) {
+                if(product->origin->owner != nation) {
+                    continue;
+                }
+
+                avg_prob[this->get_id(product->good)] += product->demand / (product->supply + 1) * product->price;
+            }
+
+            // Now, we will take in account 2 factors:
+            // - First, an industry which takes-in a good with high sucess and outputs something
+            // should have that something have a sucess probability equal or higher to the taked
+            // good
+            // - Second, we preferably want the A.I to complete the supply chain of all industries
+            // so doing the method described above should increase the priority for filling out higher
+            // level industries
+            for(const auto& building: this->buildings) {
+                const Province* province = building->get_province(*this);
+                if(province == nullptr || province->owner != nation) {
+                    continue;
+                }
+
+                // We will only take in account industrial buildings
+                // TODO: Take in account other buildings as well
+                if(building->type->is_factory == false) {
+                    continue;
+                }
+
+                for(const auto& input: building->type->inputs) {
+                    // Apply the higher-probability with outputs of this factory
+                    for(const auto& output: building->type->outputs) {
+                        avg_prob[this->get_id(output)] += avg_prob[this->get_id(input)];
+                    }
                 }
             }
 
-            if(!can_build) {
+            for(size_t i = 0; i < this->goods.size(); i++) {
+                print_info("%s: Good %s has %f probability", nation->name.c_str(), this->goods[i]->name.c_str(), avg_prob[i]);
+            }
+
+            // Obtain the index of the highest element (the one with more sucess rate)
+            int highest_idx = std::distance(avg_prob.begin(), std::max_element(avg_prob.begin(), avg_prob.end()));
+
+            // Find an industry type which outputs this good
+            BuildingType* type = nullptr;
+            for(const auto& building_type: this->building_types) {
+                if(building_type->is_factory == false) {
+                    continue;
+                }
+
+                for(const auto& input: building_type->inputs) {
+                    if(this->get_id(input) == highest_idx) {
+                        type = (BuildingType*)building_type;
+                        break;
+                    }
+                }
+
+                for(const auto& output: building_type->outputs) {
+                    if(this->get_id(output) == highest_idx) {
+                        type = (BuildingType*)building_type;
+                        break;
+                    }
+                }
+            }
+
+            print_info("%s: Good %s seems to be on a high-trend - building industry %s which makes that good", nation->name.c_str(), this->goods[highest_idx]->name.c_str(), type->name.c_str());
+
+            // Otherwise -- do not build anything since the highest valued good cannot be produced
+            if(type == nullptr) {
                 continue;
-            }
-
-            // Select random province
-            Province* target = nullptr;
-            while(target == nullptr || get_id(&target->get_occupation_controller(*this)) != g_world->get_id(nation)) {
-                auto it = std::begin(nation->owned_provinces);
-                std::advance(it, std::rand() % nation->owned_provinces.size());
-                target = *it;
-            }
-
-            Tile* tile = nullptr;
-            int x_coord, y_coord;
-            while(tile == nullptr) {
-                x_coord = std::min<size_t>(target->max_x, std::max<size_t>((std::rand() % (target->max_x - target->min_x + 1)) + target->min_x, target->min_x));
-                y_coord = std::min<size_t>(target->max_y, std::max<size_t>((std::rand() % (target->max_y - target->min_y + 1)) + target->min_y, target->min_y));
-                tile = &get_tile(x_coord, y_coord);
-
-                // If tile is land AND NOT part of target province OR NOT of ownership of nation
-                if(tile->elevation > sea_level
-                    && (tile->province_id != get_id(target) || tile->owner_id != get_id(nation))) {
-                    tile = nullptr;
-                }
             }
 
             // Now build the building
             Building* building = new Building();
-            building->x = x_coord;
-            building->y = y_coord;
-            building->owner = nation;
+
+            // We need something better tbh
+            while(building->get_province(*this) == nullptr) {
+                building->x = rand() % this->width;
+                building->y = rand() % this->height;
+            }
+            
             building->working_unit_type = nullptr;
             building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
             building->req_goods = std::vector<std::pair<Good*, size_t>>();
-            building->type = building_types.at(std::rand() % building_types.size());
+            building->type = type;
             if(building->type->is_factory == true) {
                 building->budget = 100.f;
                 building->corporate_owner = companies.at(std::rand() % companies.size());
                 building->create_factory(*this);
+
+                building->corporate_owner->operating_provinces.insert(building->get_province(*this));
 
                 for(const auto& product : building->output_products) {
                     Packet packet = Packet();
@@ -760,7 +819,7 @@ void World::do_tick() {
                     g_server->broadcast(packet);
                 }
             }
-            g_world->buildings.push_back(building);
+            this->buildings.push_back(building);
 
             // Broadcast the addition of the building to the clients
             {
@@ -772,7 +831,7 @@ void World::do_tick() {
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
             }
-            print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)get_id(building->type), nation->name.c_str(), target->name.c_str());
+            print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)this->get_id(building->type), nation->name.c_str(), building->get_province(*this)->name.c_str());
         }
     }
 
@@ -1160,6 +1219,10 @@ void World::do_tick() {
     }
 
     LuaAPI::check_events(lua);
+
+    if(time % 48 == 0) {
+        print_info("%i/%i/%i", time / 12 / 30 / 48, (time / 30 / 48 % 12) + 1, (time / 48 % 30) + 1);
+    }
 
     //print_info("Tick %zu done", (size_t)time);
     time++;

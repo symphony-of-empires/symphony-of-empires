@@ -851,7 +851,6 @@ public:
         ::serialize(stream, &obj->x);
         ::serialize(stream, &obj->y);
         ::serialize(stream, &obj->type);
-        ::serialize(stream, &obj->owner);
         ::serialize(stream, &obj->working_unit_type);
         ::serialize(stream, &obj->build_time);
         ::serialize(stream, &obj->corporate_owner);
@@ -869,7 +868,6 @@ public:
         ::deserialize(stream, &obj->x);
         ::deserialize(stream, &obj->y);
         ::deserialize(stream, &obj->type);
-        ::deserialize(stream, &obj->owner);
         ::deserialize(stream, &obj->working_unit_type);
         ::deserialize(stream, &obj->build_time);
         ::deserialize(stream, &obj->corporate_owner);
@@ -888,7 +886,6 @@ public:
             serialized_size(&obj->x)
             + serialized_size(&obj->y)
             + serialized_size(&obj->type)
-            + serialized_size(&obj->owner)
             + serialized_size(&obj->working_unit_type)
             + serialized_size(&obj->build_time)
             + serialized_size(&obj->corporate_owner)

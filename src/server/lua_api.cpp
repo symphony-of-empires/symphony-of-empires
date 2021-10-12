@@ -124,11 +124,12 @@ int LuaAPI::add_building_type(lua_State* L) {
     BuildingType* building_type = new BuildingType();
 
     building_type->ref_name = luaL_checkstring(L, 1);
-    building_type->is_plot_on_sea = lua_toboolean(L, 2);
-    building_type->is_build_land_units = lua_toboolean(L, 3);
-    building_type->is_build_naval_units = lua_toboolean(L, 4);
-    building_type->defense_bonus = lua_tonumber(L, 5);
-    building_type->is_factory = lua_toboolean(L, 6);
+    building_type->name = luaL_checkstring(L, 2);
+    building_type->is_plot_on_sea = lua_toboolean(L, 3);
+    building_type->is_build_land_units = lua_toboolean(L, 4);
+    building_type->is_build_naval_units = lua_toboolean(L, 5);
+    building_type->defense_bonus = lua_tonumber(L, 6);
+    building_type->is_factory = lua_toboolean(L, 7);
 
     g_world->building_types.push_back(building_type);
     lua_pushnumber(L, g_world->building_types.size() - 1);
@@ -456,7 +457,21 @@ int LuaAPI::add_province_industry(lua_State* L) {
     building->corporate_owner->operating_provinces.insert(province);
     building->type = g_world->building_types.at(lua_tonumber(L, 3));
 
-    //province->add_industry(*g_world, &industry);
+    // We need something better tbh
+    while(building->get_province(*g_world) == nullptr) {
+        building->x = province->min_x + (rand() % (province->max_x - province->min_x));
+        building->y = province->min_y + (rand() % (province->max_y - province->min_y));
+    }
+
+    building->working_unit_type = nullptr;
+    building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
+    building->req_goods = std::vector<std::pair<Good*, size_t>>();
+    if(building->type->is_factory == true) {
+        building->budget = 100.f;
+        building->create_factory(*g_world);
+        building->corporate_owner->operating_provinces.insert(building->get_province(*g_world));
+    }
+    g_world->buildings.push_back(building);
     return 0;
 }
 
@@ -819,22 +834,30 @@ int LuaAPI::get_ideology(lua_State* L) {
 }
 
 int LuaAPI::get_hour(lua_State* L) {
-    lua_pushnumber(L, g_world->time % 24);
+    lua_pushnumber(L, 1 + (g_world->time % 48));
     return 1;
 }
 
 int LuaAPI::get_day(lua_State* L) {
-    lua_pushnumber(L, (g_world->time / 24) % 30);
+    lua_pushnumber(L, 1 + (g_world->time / 48 % 30));
     return 1;
 }
 
 int LuaAPI::get_month(lua_State* L) {
-    lua_pushnumber(L, ((g_world->time / 24) / 30) % 12);
+    lua_pushnumber(L, 1 + (g_world->time / 48 / 30 % 12));
     return 1;
 }
 
 int LuaAPI::get_year(lua_State* L) {
-    lua_pushnumber(L, ((g_world->time / 24) / 30) / 12);
+    lua_pushnumber(L, g_world->time / 48 / 30 / 12);
+    return 1;
+}
+
+int LuaAPI::set_date(lua_State* L) {
+    const int year = lua_tonumber(L, 1) * 12 * 30 * 48;
+    const int month = lua_tonumber(L, 2) * 30 * 48;
+    const int day = lua_tonumber(L, 3) * 48;
+    g_world->time = year + month + day;
     return 1;
 }
 
