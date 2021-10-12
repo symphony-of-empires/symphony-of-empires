@@ -37,7 +37,7 @@ rice_farm:add_output(rice)
 cotton_farm = IndustryType:new{ ref_name = "cotton_farm" }
 cotton_farm.name = _("Cotton farm")
 cotton_farm:register()
-cotton_farm:add_output(wheat)
+cotton_farm:add_output(cotton)
 
 -- Mines can new stuff from thin air, but don't worry because this is
 -- not abuse-ble
@@ -45,6 +45,16 @@ diamond_mine = IndustryType:new{ ref_name = "diamond_mine" }
 diamond_mine.name = _("Diamond mine")
 diamond_mine:register()
 diamond_mine:add_output(diamond)
+
+zinc_mine = IndustryType:new{ ref_name = "zinc_mine" }
+zinc_mine.name = _("Zinc mine")
+zinc_mine:register()
+zinc_mine:add_output(zinc)
+
+copper_mine = IndustryType:new{ ref_name = "copper_mine" }
+copper_mine.name = _("Copper mine")
+copper_mine:register()
+copper_mine:add_output(copper)
 
 iron_mine = IndustryType:new{ ref_name = "iron_mine" }
 iron_mine.name = _("Iron mine")
@@ -102,9 +112,8 @@ stainless_steel_smelter:add_output(stainless_steel)
 brass_smelter = IndustryType:new{ ref_name = "brass_smelter" }
 brass_smelter.name = _("Brass smelter")
 brass_smelter:register()
-brass_smelter:add_input(stainless_steel)
-brass_smelter:add_input(iron)
-brass_smelter:add_input(coal)
+brass_smelter:add_input(copper)
+brass_smelter:add_input(zinc)
 brass_smelter:add_output(brass)
 
 iron_smelter = IndustryType:new{ ref_name = "iron_smelter" }
@@ -145,3 +154,10 @@ sails_factory.name = _("Sails factory")
 sails_factory:register()
 sails_factory:add_input(textile)
 sails_factory:add_output(sail)
+
+-- Food factories
+bakery = IndustryType:new{ ref_name = "bakery" }
+bakery.name = _("Bakery")
+bakery:register()
+bakery:add_input(wheat)
+bakery:add_output(bread)
