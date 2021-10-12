@@ -16,10 +16,19 @@ void Building::add_to_stock(const World& world, const Good* good, const size_t a
 }
 
 Province* Building::get_province(const World& world) {
+    const Tile& tile = world.get_tile(this->x, this->y);
     if(world.get_tile(this->x, this->y).province_id == (Province::Id)-1) {
         return nullptr;
     }
     return world.provinces.at(world.get_tile(this->x, this->y).province_id);
+}
+
+Nation* Building::get_owner(const World& world) {
+    const Tile& tile = world.get_tile(this->x, this->y);
+    if(tile.owner_id == (Nation::Id)-1) {
+        return nullptr;
+    }
+    return world.nations.at(world.get_tile(this->x, this->y).owner_id);
 }
 
 void Building::create_factory(World& world) {

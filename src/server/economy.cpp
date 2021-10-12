@@ -53,7 +53,7 @@ bool Building::can_do_output(const World& world) {
 void Economy::do_phase_1(World& world) {
     // Buildings who have fullfilled requirements to build stuff will spawn a unit
     for(size_t j = 0; j < world.buildings.size(); j++) {
-        auto& building = world.buildings.at(j);
+        auto& building = world.buildings[j];
         if(building == nullptr)
             continue;
 
@@ -81,7 +81,7 @@ void Economy::do_phase_1(World& world) {
         auto province = building->get_province(world);
         if(province == nullptr || province->owner == nullptr)
             continue;
-
+        
         size_t needed_laborers = 0, available_laborers = 0;
         size_t needed_farmers = 0, available_farmers = 0;
         size_t needed_entrepreneurs = 0, available_entrepreneurs = 0;
@@ -163,7 +163,7 @@ void Economy::do_phase_1(World& world) {
             unit->type = building->working_unit_type;
             unit->tx = unit->x;
             unit->ty = unit->y;
-            unit->owner = building->owner;
+            unit->owner = building->get_owner(world);
             unit->budget = 5000.f;
             unit->experience = 1.f;
             unit->morale = 1.f;
@@ -470,7 +470,7 @@ void Economy::do_phase_2(World& world) {
                     else if(order.type == OrderType::BUILDING) {
                         // The building will take the production materials
                         // and use them for building the unit
-                        order.building->owner->budget -= total_order_cost;
+                        order.building->get_owner(world)->budget -= total_order_cost;
                         for(auto& p : order.building->req_goods) {
                             if(p.first != deliver.good)
                                 continue;
@@ -479,7 +479,7 @@ void Economy::do_phase_2(World& world) {
                     }
                     else if(order.type == OrderType::UNIT) {
                         // TODO: We should deduct and set willing payment from military spendings
-                        order.building->owner->budget -= total_order_cost;
+                        order.building->get_owner(world)->budget -= total_order_cost;
                         for(auto& p : order.building->req_goods) {
                             if(p.first != deliver.good)
                                 continue;
@@ -530,11 +530,13 @@ void Economy::do_phase_2(World& world) {
             print_info("%zu of %s produced in %s - stockpiled by %s", province->stockpile.at(i), world.products.at(i)->good->name.c_str(), world.products.at(i)->origin->name.c_str(), province->name.c_str());
         }
 
+        /*
         size_t pop_count = 0;
         for(const auto& pop : province->pops) {
             pop_count += pop.size;
         }
         print_info("%s has %zu people", province->name.c_str(), pop_count);
+        */
     }
 }
 
