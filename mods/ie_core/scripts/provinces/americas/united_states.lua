@@ -206,7 +206,7 @@ province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
 province:add_pop(slave, yankee, protestant, 500, 0.5)
 province:add_nucleus(united_states)
 province:give_to(united_states)
-Nation:set_capital(united_states, province)
+united_states:set_capital(province)
 
 province = Province:new{ ref_name = "delaware", color = 0xa372ff }
 province.name = _("Delaware")

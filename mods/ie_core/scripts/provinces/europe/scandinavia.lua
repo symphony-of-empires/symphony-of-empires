@@ -222,8 +222,8 @@ province:add_pop(entrepreneur, swedish, protestant, 800, 0.9)
 province:add_nucleus(sweden)
 province:add_nucleus(scandinavia)
 province:give_to(sweden)
-Nation:set_capital(sweden, province)
-Nation:set_capital(scandinavia, province)
+sweden:set_capital(province)
+scandinavia:set_capital(province)
 
 province = Province:new{ ref_name = "vastersmaland", color = 0xd400ff }
 province.name = _("Västersmåland")
@@ -592,7 +592,7 @@ province:add_nucleus(finland)
 province:add_nucleus(russia)
 province:add_nucleus(scandinavia)
 province:give_to(russia)
-Nation:set_capital(finland, province)
+finland:set_capital(province)
 
 province = Province:new{ ref_name = "vaasa", color = 0x1cff91 }
 province.name = _("Vaasa")
@@ -745,7 +745,7 @@ province:add_pop(entrepreneur, norwegian, protestant, 800, 0.9)
 province:add_nucleus(norway)
 province:add_nucleus(scandinavia)
 province:give_to(sweden)
-Nation:set_capital(norway, province)
+norway:set_capital(province)
 
 province = Province:new{ ref_name = "agder", color = 0xff5bfc }
 province.name = _("Agder")

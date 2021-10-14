@@ -121,7 +121,7 @@ province:add_pop(entrepreneur, german, protestant, 500, 0.9)
 province:add_pop(slave, german, protestant, 500, 0.5)
 province:add_nucleus(gran_colombia)
 province:give_to(gran_colombia)
-Nation:set_capital(gran_colombia, province)
+gran_colombia:set_capital(province)
 
 province = Province:new{ ref_name = "boyaca", color = 0xFFFF91 }
 province.name = _("Boyacá")

@@ -343,7 +343,7 @@ province:add_pop(entrepreneur, brazilian, catholic, 500, 0.9)
 province:add_pop(slave, brazilian, catholic, 500, 0.5)
 province:add_nucleus(brazil)
 province:give_to(brazil)
-Nation:set_capital(brazil, province)
+brazil:set_capital(province)
 
 province = Province:new{ ref_name = "santa_catarina", color = 0xec1881 }
 province.name = _("Santa Catarina")
@@ -486,7 +486,7 @@ province:add_pop(entrepreneur, paraguayan, catholic, 500, 0.9)
 province:add_pop(slave, paraguayan, catholic, 500, 0.5)
 province:add_nucleus(paraguay)
 province:give_to(paraguay)
-Nation:set_capital(paraguay, province)
+paraguay:set_capital(province)
 
 province = Province:new{ ref_name = "vila_sacaron", color = 0xB71CFF }
 province.name = _("Vila Sacarón")
@@ -560,7 +560,7 @@ province:add_pop(entrepreneur, german, catholic, 500, 0.9)
 province:add_pop(slave, german, catholic, 500, 0.5)
 province:add_nucleus(bolivia)
 province:give_to(bolivia)
-Nation:set_capital(bolivia, province)
+bolivia:set_capital(province)
 
 province = Province:new{ ref_name = "carvoal", color = 0xFF8168 }
 province.name = _("Carvoal")

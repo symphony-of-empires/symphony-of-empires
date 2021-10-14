@@ -21,7 +21,7 @@ province:add_pop(laborer, argentinian, catholic, 1000, 0.5)
 province:add_pop(entrepreneur, argentinian, catholic, 50, 0.9)
 province:add_nucleus(argentina)
 province:give_to(argentina)
-Nation:set_capital(argentina, province)
+argentina:set_capital(province)
 
 province = Province:new{ ref_name = "misiones", color = 0xff9e54 }
 province.name = _("Misiones")
