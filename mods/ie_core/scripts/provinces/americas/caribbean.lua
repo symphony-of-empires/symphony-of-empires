@@ -431,7 +431,7 @@ province:add_pop(laborer, haitian, catholic, 100, 0.2)
 province:add_pop(entrepreneur, haitian, catholic, 100, 0.7)
 province:add_nucleus(haiti)
 province:give_to(haiti)
-Nation:set_capital(haiti, province)
+haiti:set_capital(province)
 
 -- Rename to Hincha if conquered by the spanish/dominican republic
 province = Province:new{ ref_name = "hinche", color = 0xBC49FF }

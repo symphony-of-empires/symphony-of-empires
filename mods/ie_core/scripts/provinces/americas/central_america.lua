@@ -181,7 +181,7 @@ province:add_pop(entrepreneur, german, protestant, 500, 0.9)
 province:add_pop(slave, german, protestant, 500, 0.5)
 province:add_nucleus(upca)
 province:give_to(upca)
-Nation:set_capital(upca, province)
+upca:set_capital(province)
 
 province = Province:new{ ref_name = "ahuachapan", color = 0xF572FF }
 province.name = _("Ahuachapán")

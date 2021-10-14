@@ -117,7 +117,7 @@ province:add_pop(laborer, chilean, catholic, 5000, 0.2)
 province:add_pop(entrepreneur, chilean, catholic, 500, 0.9)
 province:add_nucleus(chile)
 province:give_to(chile)
-Nation:set_capital(chile, province)
+chile:set_capital(province)
 
 province = Province:new{ ref_name = "curico", color = 0xFFE5C1 }
 province.name = _("Curicó")

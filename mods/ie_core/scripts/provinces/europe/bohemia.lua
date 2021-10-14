@@ -44,7 +44,7 @@ province:add_pop(entrepreneur, hungarian, catholic, 800, 0.9)
 province:add_nucleus(austria)
 province:add_nucleus(czechoslovakia)
 province:give_to(austria)
-Nation:set_capital(czechoslovakia, province)
+czechoslovakia:set_capital(province)
 
 province = Province:new{ ref_name = "north_bohemia", color = 0xff72bd }
 province.name = _("North Bohemia")
