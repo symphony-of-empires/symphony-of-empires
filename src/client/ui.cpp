@@ -773,17 +773,21 @@ PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, std::vector<ChartData
         max += slice.num;
     }
 }
+PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
+    : data{ std::vector<ChartData>() }, max{ 0 }, Widget(_parent, _x, _y, w, h, UI_WIDGET_PIE_CHART) {
+}
 
 void PieChart::set_data(std::vector<ChartData> new_data) {
     data = new_data;
+    max = 0;
     for(const auto& slice : data) {
         max += slice.num;
     }
 }
 
 void PieChart::draw_triangle(float start_ratio, float end_ratio, Color color) {
-    float x_center = x + width / 2.f;
-    float y_center = y + height / 2.f;
+    float x_center = width / 2.f;
+    float y_center = height / 2.f;
     float radius = std::min<float>(width, height) * 0.5;
     float x_offset, y_offset, scale;
 
