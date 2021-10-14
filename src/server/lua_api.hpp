@@ -55,6 +55,7 @@ namespace LuaAPI {
     int set_nation_primary_culture(lua_State* L);
     int set_nation_capital(lua_State* L);
     int add_accepted_culture(lua_State* L);
+    int add_accepted_religion(lua_State* L);
     int add_nation_client_hint(lua_State* L);
     int get_nation_policies(lua_State* L);
     int set_nation_policies(lua_State* L);

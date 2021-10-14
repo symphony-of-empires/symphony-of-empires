@@ -627,6 +627,7 @@ public:
 
         ::serialize(stream, &obj->capital);
         ::serialize(stream, &obj->accepted_cultures);
+        ::serialize(stream, &obj->accepted_religions);
         ::serialize(stream, &obj->owned_provinces);
         ::serialize(stream, &obj->current_policy);
         ::serialize(stream, &obj->diplomatic_timer);
@@ -656,6 +657,7 @@ public:
 
         ::deserialize(stream, &obj->capital);
         ::deserialize(stream, &obj->accepted_cultures);
+        ::deserialize(stream, &obj->accepted_religions);
         ::deserialize(stream, &obj->owned_provinces);
         ::deserialize(stream, &obj->current_policy);
         ::deserialize(stream, &obj->diplomatic_timer);
@@ -682,6 +684,7 @@ public:
             + serialized_size(&obj->budget)
             + serialized_size(&obj->capital)
             + serialized_size(&obj->accepted_cultures)
+            + serialized_size(&obj->accepted_religions)
             + serialized_size(&obj->owned_provinces)
             + serialized_size(&obj->current_policy)
             + serialized_size(&obj->diplomatic_timer)
