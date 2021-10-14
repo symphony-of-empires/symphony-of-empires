@@ -259,6 +259,7 @@ namespace UI {
     class PieChart: public Widget {
     public:
         PieChart(int x, int y, unsigned w, unsigned h, std::vector<ChartData> data = std::vector<ChartData>(), Widget* _parent = nullptr);
+        PieChart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
         ~PieChart(){};
         virtual void on_render(Context& ctx);
         void set_data(std::vector<ChartData> data);

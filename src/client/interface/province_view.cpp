@@ -13,16 +13,14 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
 {
     this->text(province->name);
 
-    this->cultures_pie = new UI::PieChart(0, 0, 64, 64);
-    this->cultures_pie->parent = this;
 
-    this->religions_pie = new UI::PieChart(64, 0, 64, 64);
+    this->cultures_pie = new UI::PieChart(0, 0, 64, 64, this);
+
+    this->religions_pie = new UI::PieChart(64, 0, 64, 64, this);
     this->religions_pie->right_side_of(*this->cultures_pie);
-    this->religions_pie->parent = this;
 
-    this->pop_types_pie = new UI::PieChart(0, 0, 64, 64);
+    this->pop_types_pie = new UI::PieChart(0, 0, 64, 64, this);
     this->pop_types_pie->right_side_of(*this->religions_pie);
-    this->pop_types_pie->parent = this;
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = dynamic_cast<ProvincePopulationTab&>(w);
@@ -47,7 +45,8 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
                 PopInfo* info = new PopInfo(o.gs, 0, (i * 24) + 24, o.province, i, &o);
                 o.pop_infos.push_back(info);
             }
-        } else if(o.pop_infos.size() > o.province->pops.size()) {
+        }
+        else if(o.pop_infos.size() > o.province->pops.size()) {
             for(size_t i = o.province->pops.size(); i < o.pop_infos.size(); i++) {
                 o.pop_infos[i]->kill();
             }
@@ -71,8 +70,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
 {
     this->text(province->name);
 
-    this->products_pie = new UI::PieChart(0, 24, 64, 64);
-    this->products_pie->parent = this;
+    this->products_pie = new UI::PieChart(0, 24, 64, 64, this);
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = dynamic_cast<ProvinceEconomyTab&>(w);
