@@ -250,12 +250,6 @@ namespace UI {
         virtual void text(const std::string& text);
     };
 
-    // Example
-    // std::vector<UI::ChartData> data;
-    // data.push_back(UI::ChartData(24.f, std::string(), UI::Color(56, 97, 140)));
-    // data.push_back(UI::ChartData(15.f, std::string(), UI::Color(251, 231, 76)));
-    // data.push_back(UI::ChartData(8.f, std::string(), UI::Color(255, 89, 100)));
-    // UI::PieChart* pie_chart = new UI::PieChart(9, 43, 303, 100, data, nullptr);
     class PieChart: public Widget {
     public:
         PieChart(int x, int y, unsigned w, unsigned h, std::vector<ChartData> data = std::vector<ChartData>(), Widget* _parent = nullptr);
