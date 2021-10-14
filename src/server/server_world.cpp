@@ -69,6 +69,7 @@ World::World() {
     lua_register(lua, "set_nation_primary_culture", LuaAPI::set_nation_primary_culture);
     lua_register(lua, "set_nation_capital", LuaAPI::set_nation_capital);
     lua_register(lua, "add_nation_accepted_culture", LuaAPI::add_accepted_culture);
+    lua_register(lua, "add_nation_accepted_religion", LuaAPI::add_accepted_religion);
     lua_register(lua, "add_nation_client_hint", LuaAPI::add_nation_client_hint);
     lua_register(lua, "get_nation_policies", LuaAPI::get_nation_policies);
     lua_register(lua, "set_nation_policies", LuaAPI::set_nation_policies);

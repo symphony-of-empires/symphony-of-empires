@@ -237,6 +237,9 @@ end
 function Nation:add_accepted_culture(culture)
 	add_nation_accepted_culture(self.id, culture.id)
 end
+function Nation:add_accepted_religion(religion)
+	add_nation_accepted_religion(self.id, religion.id)
+end
 function Nation:get_policies()
 	o = Policies:new()
 

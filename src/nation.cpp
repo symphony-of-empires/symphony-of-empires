@@ -96,6 +96,16 @@ bool Nation::is_accepted_culture(const Pop& pop) const {
     return false;
 }
 
+// Same as above but with religion
+bool Nation::is_accepted_religion(const Pop& pop) const {
+    for(const auto& religion : accepted_religions) {
+        if(pop.religion == religion) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Gets the total tax applied to a POP depending on their "wealth"
 // (not exactly like that, more like by their type/status)
 float Nation::get_tax(const Pop& pop) const {

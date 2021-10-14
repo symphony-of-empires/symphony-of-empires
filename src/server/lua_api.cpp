@@ -256,6 +256,12 @@ int LuaAPI::add_accepted_culture(lua_State* L) {
     return 0;
 }
 
+int LuaAPI::add_accepted_religion(lua_State* L) {
+    Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
+    nation->accepted_religions.insert(g_world->religions.at(lua_tonumber(L, 2)));
+    return 0;
+}
+
 int LuaAPI::add_nation_client_hint(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
 

@@ -85,6 +85,7 @@ public:
     void auto_relocate_capital(void);
     void set_policy(Policies& policies);
     bool is_accepted_culture(const Pop& pop) const;
+    bool is_accepted_religion(const Pop& pop) const;
     float get_tax(const Pop& pop) const;
     void give_province(World& world, Province& province);
     const NationClientHint& get_client_hint(void) const;
@@ -134,6 +135,7 @@ public:
     // Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
     // owned by this nation
     std::set<Culture*> accepted_cultures;
+    std::set<Religion*> accepted_religions;
 
     // List of provinces which are owned by this nation (including partial ownership)
     std::set<Province*> owned_provinces;
