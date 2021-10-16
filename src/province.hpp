@@ -20,6 +20,7 @@ public:
     Nation& get_occupation_controller(const World& world) const;
     size_t total_pops(void) const;
     std::vector<Product*> get_products(const World& world) const;
+    float get_attractive(const Pop& pop) const;
 
     // Color of the province, used for mapping the province's shape from the map_div.png file
     uint32_t color;

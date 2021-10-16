@@ -21,7 +21,6 @@
 #include "../serializer.hpp"
 #include "../io_impl.hpp"
 #include "server_network.hpp"
-#include "ai/ai.cpp"
 
 #if (__cplusplus < 201703L)
 namespace std {
@@ -31,6 +30,8 @@ namespace std {
     }
 }
 #endif
+
+void ai_do_tick(Nation* nation, World* world);
 
 /**
  * Creates a new world
@@ -541,7 +542,6 @@ void World::do_tick() {
 
     // AI and stuff
     // Just random shit to make the world be like more alive
-    int i = 0;
     for(const auto& nation : nations) {
         ai_do_tick(nation, this);
     }
