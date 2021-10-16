@@ -134,7 +134,7 @@ void Map::draw_flag(const Nation* nation) {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)(3 * sizeof(float)));  // Texcoords
     glEnableVertexAttribArray(1);
-    nation_flags[world.get_id(nation)]->bind();
+    nation_flags.at(world.get_id(nation))->bind();
     flag.draw();
 
     // sin_r - Sin'ed iterator along with the wind oscillator

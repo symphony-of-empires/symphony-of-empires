@@ -316,17 +316,12 @@ void init_client(GameState& gs) {
     int& height = gs.height;
     for(const auto& nation : gs.world->nations) {
         std::string path;
-        FILE* fp;
-
-        // try socialist
+        
         path = Path::get("ui/flags/" + nation->ref_name + "_" +
-            ((nation->ideology == nullptr) ? "none" : nation->ideology->ref_name) + ".png"
+            ((nation->ideology == nullptr)
+            ? "none"
+            : nation->ideology->ref_name) + ".png"
         );
-        fp = fopen(path.c_str(), "rb");
-        if(fp == NULL) {
-            // fail
-        }
-
         map->nation_flags.push_back(&g_texture_manager->load_texture(path));
     }
 

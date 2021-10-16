@@ -10,6 +10,8 @@
 // accross the world
 class Product : public IdEntity<uint16_t> {
 public:
+    void close_market(void);
+
     // Onwer (companyId) of this product
     Company* owner;
 

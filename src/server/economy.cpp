@@ -566,10 +566,6 @@ void Economy::do_phase_3(World& world) {
         // Randomness factor to emulate a pseudo-imperfect economy
         const float fuzz = std::fmod((float)(std::rand() + 1) / 1000.f, 2.f) + 1.f;
 
-        float current_attractive = province->base_attractive;
-        current_attractive += province->owner->base_literacy;
-        current_attractive += province->owner->gdp / 1000.f;
-
         for(size_t i = 0; i < province->pops.size(); i++) {
             Pop& pop = province->pops.at(i);
 
@@ -585,7 +581,7 @@ void Economy::do_phase_3(World& world) {
                 const Product::Id product_id = world.get_id(product);
 
                 // Province must have stockpile
-                if(!province->stockpile[product_id]) {
+                if(!province->stockpile.at(product_id)) {
                     // Desesperation for food leads to higher demand
                     if(product->good->is_edible && pop.life_needs_met <= 0.f) {
                         product->demand += pop.size * 5.f;
@@ -605,7 +601,8 @@ void Economy::do_phase_3(World& world) {
                     if(pop.type->is_slave) continue;
                 }
 
-                bought = std::min<float>(bought, province->stockpile[product_id]);
+                // Only buy the needed stuff
+                bought = std::min<float>(bought, province->stockpile.at(product_id));
                 if(!bought) continue;
 
                 float cost_of_transaction = bought * product->price;
@@ -618,7 +615,7 @@ void Economy::do_phase_3(World& world) {
 
                 // Demand is incremented proportional to items bought and remove item from stockpile
                 product->demand += bought * 2.5f * fuzz;
-                province->stockpile[product_id] -= std::min<size_t>(province->stockpile[product_id], bought);
+                province->stockpile.at(product_id) -= std::min<size_t>(province->stockpile.at(product_id), bought);
 
                 // Uncomment to see buyers
                 //print_info("Pop with budget %f bought %zu %s", pop.budget, (size_t)bought, product->good->name.c_str());
@@ -626,8 +623,7 @@ void Economy::do_phase_3(World& world) {
                 if(product->good->is_edible) {
                     life_alloc_budget -= bought * product->price;
                     pop.life_needs_met += (float)pop.size / (float)bought;
-                }
-                else {
+                } else {
                     everyday_alloc_budget -= bought * product->price;
                     pop.everyday_needs_met += (float)pop.size / (float)bought;
                 }
@@ -683,8 +679,10 @@ void Economy::do_phase_3(World& world) {
             // And literacy determines "best" spot, for example a low literacy will
             // choose a slightly less desirable location
             const float emigration_willing = 1.f / std::min(pop.life_needs_met, 0.f);
-            long long int emigreers = (pop.size * emigration_willing) + std::rand() % pop.size;
+            const long long int emigreers = (pop.size * emigration_willing) + std::rand() % pop.size;
             if(emigreers > 0) {
+                float current_attractive = province->get_attractive(pop);
+
                 // Check that laws on the province we are in allows for emigration
                 if(province->owner->current_policy.migration == ALLOW_NOBODY) {
                     goto skip_emigration;
@@ -705,40 +703,11 @@ void Economy::do_phase_3(World& world) {
                 Province* best_province = nullptr;
                 for(size_t j = 0; j < world.provinces.size(); j += std::max<size_t>((std::rand() % (world.provinces.size() - j)) / 10, 1)) {
                     Province* target_province = world.provinces.at(j);
-                    float attractive = 0.f;
 
                     // Don't go to owner-less provinces
                     if(target_province->owner == nullptr) continue;
 
-                    // We dont want to be exterminated or enslaved... do we?
-                    if(target_province->owner->current_policy.treatment == TREATMENT_ENSLAVED) {
-                        attractive -= 2.5f;
-                    }
-                    else if(target_province->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
-                        attractive -= 5.f;
-                    }
-
-                    // Account for literacy difference
-                    attractive -= province->owner->base_literacy;
-
-                    // Account for GDP difference
-                    attractive -= province->owner->gdp / 1000.f;
-
-                    // For the lower class, lower taxes is good, and so on for other POPs
-                    if(target_province->owner->current_policy.poor_flat_tax < province->owner->current_policy.poor_flat_tax
-                        && pop.type->social_value <= 1.f) {
-                        attractive = target_province->owner->current_policy.poor_flat_tax - province->owner->current_policy.poor_flat_tax;
-                    }
-                    // For the medium class
-                    else if(target_province->owner->current_policy.med_flat_tax < province->owner->current_policy.med_flat_tax
-                        && pop.type->social_value <= 2.f) {
-                        attractive = target_province->owner->current_policy.med_flat_tax - province->owner->current_policy.med_flat_tax;
-                    }
-                    // For the high class
-                    else if(target_province->owner->current_policy.rich_flat_tax < province->owner->current_policy.rich_flat_tax
-                        && pop.type->social_value <= 3.f) {
-                        attractive = target_province->owner->current_policy.rich_flat_tax - province->owner->current_policy.rich_flat_tax;
-                    }
+                    const float attractive = target_province->get_attractive(pop);
 
                     if(attractive > current_attractive) {
                         if(target_province->owner->current_policy.immigration == ALLOW_NOBODY) {
@@ -776,7 +745,7 @@ void Economy::do_phase_3(World& world) {
 
                 print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
 
-                Emigrated emigrated ={};
+                Emigrated emigrated = {};
                 emigrated.target = best_province;
                 emigrated.emigred = pop;
                 emigrated.size = emigreers;
@@ -868,40 +837,7 @@ void Economy::do_phase_4(World& world) {
         if(product->price_vel && product->price > 0.01f)
             print_info("%s; Supply: %zu, Demand: %zu, Price %.2f", product->good->name.c_str(), product->supply, product->demand, product->price);
 
-        if(product->demand > product->supply) {
-            product->price_vel += 0.0001f * (product->demand - product->supply);
-        }
-        else if(product->demand < product->supply) {
-            product->price_vel -= 0.0001f * (product->supply - product->demand);
-        }
-        else {
-            // Gravitate towards absolute zero due to volatility decay
-            // (i.e, product price becomes stable without market activity)
-            if(product->price_vel > 0.1f) {
-                product->price_vel -= 0.001f;
-            }
-            else if(product->price_vel < -0.1f) {
-                product->price_vel += 0.001f;
-            }
-            else {
-                product->price_vel = -0.001f;
-            }
-        }
-        product->price += product->price_vel;
-        product->price = std::max<float>(0.01f, product->price);
-
-        // Save prices and stuff onto history (for the charts!)
-        product->demand_history.push_back(product->demand);
-        if(product->demand_history.size() > 60)
-            product->demand_history.pop_front();
-
-        product->supply_history.push_back(product->supply);
-        if(product->supply_history.size() > 60)
-            product->supply_history.pop_front();
-
-        product->price_history.push_back(product->price);
-        if(product->price_history.size() > 60)
-            product->price_history.pop_front();
+        product->close_market();
 
         // Re-count worldwide supply
         product->supply = 0;
