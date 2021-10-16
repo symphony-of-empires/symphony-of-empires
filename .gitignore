@@ -1,6 +1,11 @@
 # windows libraries
 windows_libs/
 
+# Doxygen docs
+docs/
+html/
+latex/
+
 # savefiles from the game
 *.v0
 *.v1
