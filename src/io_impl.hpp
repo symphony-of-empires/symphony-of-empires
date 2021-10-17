@@ -866,6 +866,7 @@ public:
         ::serialize(stream, &obj->willing_payment);
         ::serialize(stream, &obj->workers);
         ::serialize(stream, &obj->req_goods);
+        ::serialize(stream, &obj->owner);
     }
     static inline void deserialize(Archive& stream, Building* obj) {
         ::deserialize(stream, &obj->x);
@@ -883,6 +884,7 @@ public:
         ::deserialize(stream, &obj->willing_payment);
         ::deserialize(stream, &obj->workers);
         ::deserialize(stream, &obj->req_goods);
+        ::deserialize(stream, &obj->owner);
     }
     static inline size_t size(const Building* obj) {
         return
@@ -901,6 +903,7 @@ public:
             + serialized_size(&obj->willing_payment)
             + serialized_size(&obj->workers)
             + serialized_size(&obj->req_goods)
+            + serialized_size(&obj->owner)
             ;
     }
 };

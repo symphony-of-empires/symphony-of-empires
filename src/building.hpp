@@ -55,6 +55,8 @@ public:
     void create_factory(World& world);
     void delete_factory(World& world);
 
+    // Nation owner of this building
+    Nation* owner;
     // Corporate owner of this building
     Company* corporate_owner;
     // Total money that the factory has
