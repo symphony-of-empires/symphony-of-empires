@@ -2,9 +2,7 @@
 #include "product.hpp"
 #include "world.hpp"
 
-/**
-* Adds a good by id to a building stockpile
- */
+// Adds a good by id to a building stockpile
 void Building::add_to_stock(const World& world, const Good* good, const size_t add) {
     for(size_t i = 0; i < stockpile.size(); i++) {
         if(world.get_id(type->inputs.at(i)) != world.get_id(good)) {
@@ -24,11 +22,12 @@ Province* Building::get_province(const World& world) {
 }
 
 Nation* Building::get_owner(const World& world) {
-    const Tile& tile = world.get_tile(this->x, this->y);
-    if(tile.owner_id == (Nation::Id)-1) {
-        return nullptr;
-    }
-    return world.nations.at(world.get_tile(this->x, this->y).owner_id);
+    //const Tile& tile = world.get_tile(this->x, this->y);
+    //if(tile.owner_id == (Nation::Id)-1) {
+    //    return nullptr;
+    //}
+    //return world.nations.at(world.get_tile(this->x, this->y).owner_id);
+    return this->owner;
 }
 
 void Building::create_factory(World& world) {

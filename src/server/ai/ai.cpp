@@ -226,6 +226,8 @@ void ai_do_tick(Nation* nation, World* world) {
 		// Now build the building
 		Building* building = new Building();
 
+		building->owner = nation;
+
 		// We need something better tbh
 		while(building->get_province(*world) == nullptr) {
 			building->x = rand() % world->width;

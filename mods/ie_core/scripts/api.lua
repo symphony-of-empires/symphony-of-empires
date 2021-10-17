@@ -318,8 +318,8 @@ function Province:get_by_id(id)
 	o.id = id
 	return o
 end
-function Province:add_industry(industry_type, company)
-	add_province_industry(self.id, company.id, industry_type.id)
+function Province:add_industry(industry_type, nation, company)
+	add_province_industry(self.id, company.id, industry_type.id, nation.id)
 end
 function Province:give_to(nation)
 	give_province_to(self.id, nation.id)

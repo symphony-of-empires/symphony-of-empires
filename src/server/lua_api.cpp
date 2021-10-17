@@ -462,6 +462,7 @@ int LuaAPI::add_province_industry(lua_State* L) {
     building->corporate_owner = g_world->companies.at(lua_tonumber(L, 2));
     building->corporate_owner->operating_provinces.insert(province);
     building->type = g_world->building_types.at(lua_tonumber(L, 3));
+    building->owner = g_world->nations.at(lua_tonumber(L, 4));
 
     // We need something better tbh
     while(building->get_province(*g_world) == nullptr) {
