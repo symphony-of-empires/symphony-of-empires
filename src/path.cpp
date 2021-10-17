@@ -96,6 +96,11 @@ namespace Path {
                 list.push_back(end_path);
             }
         }
+
+        if(list.empty()) {
+            print_info("File '%s' does not exist", str.c_str());
+        }
+
         return list;
     }
 

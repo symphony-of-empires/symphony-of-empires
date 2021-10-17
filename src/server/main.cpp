@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
                         }
                     }
                 }
-                else if(r == "start" || r == "unpause") {
+                else if(r == "start" || r == "unpause" || r == "ipl 1b9") {
                     paused = false;
                 }
                 else if(r == "stop" || r == "pause" || r == "halt") {
