@@ -130,3 +130,6 @@ bulgaria_communism
 catalonia_republic
 	By Huhsunqu, CC BY-SA 2.5, https://commons.wikimedia.org/w/index.php?curid=739696
 
+romania_monarchy
+	By AdiJapan - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=432748
+
