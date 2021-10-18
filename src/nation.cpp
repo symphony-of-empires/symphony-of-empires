@@ -179,10 +179,10 @@ const NationClientHint& Nation::get_client_hint(void) const {
     if(client_hints.empty()) {
         tmp_hint.colour = rand();
         tmp_hint.alt_name = "No ClientHint defined";
-        tmp_hint.ideology = World::get_instance().ideologies.at(0);
+        tmp_hint.ideology = World::get_instance().ideologies[0];
         return tmp_hint;
     }
-    return client_hints.at(0);
+    return client_hints[0];
 }
 
 /*float Nation::get_industry_output_rate() {

@@ -161,7 +161,7 @@ World::World() {
         { "register", [](lua_State* L) {
             Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
             Ideology* new_ideology = new Ideology(*ideology);
-            g_world->ideologies.push_back(new_ideology);
+            g_world->insert(new_ideology);
             return 0;
         }},
         { "get", [](lua_State* L) {
@@ -639,7 +639,7 @@ void World::do_tick() {
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
         if(unit->size <= 0) {
-            g_world->units.erase(units.begin() + i);
+            g_world->remove(unit);
             break;
         }
 
@@ -775,6 +775,7 @@ void World::do_tick() {
 
                     if(products[j]->price * unit->size <= unit->budget) {
                         size_t bought = std::min(province->stockpile[j], unit->size);
+                        
                         province->stockpile[j] -= bought;
                         unit->supply = bought / unit->size;
 

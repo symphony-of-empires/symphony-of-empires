@@ -195,7 +195,13 @@ void Client::net_loop(void) {
                 case ActionType::PRODUCT_ADD: {
                     Product* product = new Product();
                     ::deserialize(ar, product);
-                    g_world->products.push_back(product);
+                    g_world->insert(product);
+
+                    // NOTE: The stockpile will later be synchronized on a PROVINCE_UPDATE
+                    // to the actual value by the server
+                    for(auto& province: g_world->provinces) {
+                        province->stockpile.push_back(0);
+                    }
                     print_info("New product of good type %s", product->good->name.c_str());
                 } break;
                 case ActionType::PRODUCT_UPDATE: {
@@ -208,7 +214,7 @@ void Client::net_loop(void) {
                 case ActionType::PRODUCT_REMOVE: {
                     Product* product;
                     ::deserialize(ar, &product);
-                    g_world->products.erase(g_world->products.begin() + g_world->get_id(product));
+                    g_world->remove(product);
                 } break;
                 case ActionType::UNIT_UPDATE: {
                     Unit* unit;
@@ -220,7 +226,7 @@ void Client::net_loop(void) {
                 case ActionType::UNIT_ADD: {
                     Unit* unit = new Unit();
                     ::deserialize(ar, unit);
-                    g_world->units.push_back(unit);
+                    g_world->insert(unit);
                     print_info("New unit of %s", unit->owner->name.c_str());
                 } break;
                 case ActionType::BUILDING_UPDATE: {
@@ -233,7 +239,7 @@ void Client::net_loop(void) {
                 case ActionType::BUILDING_ADD: {
                     Building* building = new Building();
                     ::deserialize(ar, building);
-                    g_world->buildings.push_back(building);
+                    g_world->insert(building);
 
                     if(building->get_owner(*g_world) != nullptr) {
                         print_info("New building property of %s", building->get_owner(*g_world)->name.c_str());
@@ -250,8 +256,9 @@ void Client::net_loop(void) {
                     if(building->type->is_factory == true) {
                         building->delete_factory(*g_world);
                     }
+                    
+                    g_world->remove(building);
                     delete building;
-                    g_world->buildings.erase(g_world->buildings.begin() + g_world->get_id(building));
                 } break;
                 case ActionType::TREATY_ADD: {
                     Treaty* treaty = new Treaty();
