@@ -45,13 +45,13 @@ enum AutoBuildPolicy {
 enum TreatmentPolicy {
     // Everyone is equal
     TREATMENT_EVERYONE_EQUAL,
-    
+
     // Only accepted POPs are treated
     TREATMENT_ONLY_ACCEPTED,
-    
+
     // Non-accepted are enslaved
     TREATMENT_ENSLAVED,
-    
+
     // Exterminate
     TREATMENT_EXTERMINATE,
 };
@@ -59,7 +59,7 @@ enum TreatmentPolicy {
 class Policies {
 public:
     TreatmentPolicy treatment;
-    
+
     AllowancePolicy migration;
     AllowancePolicy immigration;
     CensorshipPolicy censorship;
@@ -74,7 +74,7 @@ public:
 
     bool men_suffrage;
     bool men_labour;
-    
+
     bool women_suffrage;
     bool women_labour;
 
@@ -91,10 +91,10 @@ public:
 
     // Is slavery allowed?
     bool slavery;
-    
+
     // Is there a parliament that is needed to approve laws?
     bool legislative_parliament;
-    
+
     // Is there a parliament that is needed to do executive actions?
     bool executive_parliament;
 
@@ -112,7 +112,7 @@ public:
 
     // Tax % for domestic imports
     float domestic_import_tax;
-    
+
     // Tax % for domestic exports
     float domestic_export_tax;
 
@@ -137,10 +137,10 @@ public:
 
     // Minimum wage
     float minimum_wage;
-    
+
     inline int difference(Policies& rhs) {
         int diff = 0;
-        
+
         diff += std::abs(rhs.migration - this->migration);
         diff += std::abs(rhs.immigration - this->immigration);
         diff += std::abs(rhs.censorship - this->censorship);

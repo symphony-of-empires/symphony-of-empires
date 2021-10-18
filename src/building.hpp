@@ -22,12 +22,12 @@ public:
     // Is this a factory?
     bool is_factory;
     // List of goods required to create output
-    std::vector<Good *> inputs;
+    std::vector<Good*> inputs;
     // List of goods that this factory type creates
-    std::vector<Good *> outputs;
+    std::vector<Good*> outputs;
 
     // Required goods, first describes the id of the good and the second describes how many
-    std::vector<std::pair<Good *, size_t>> req_goods;
+    std::vector<std::pair<Good*, size_t>> req_goods;
 };
 
 // A military outpost, on land serves as a "spawn" place for units
@@ -52,9 +52,9 @@ public:
     uint16_t build_time;
 
     // Required goods for building the working unit
-    std::vector<std::pair<Good *, size_t>> req_goods_for_unit;
+    std::vector<std::pair<Good*, size_t>> req_goods_for_unit;
     // Required goods for building this, or repairing this after a military attack
-    std::vector<std::pair<Good *, size_t>> req_goods;
+    std::vector<std::pair<Good*, size_t>> req_goods;
 
     bool can_do_output(const World& world);
     void add_to_stock(const World& world, const Good* good, size_t add);
@@ -73,7 +73,7 @@ public:
     // Stockpile of inputs in the factory
     std::vector<size_t> stockpile;
     // Used for faster lookups
-    std::vector<Product *> output_products;
+    std::vector<Product*> output_products;
     // The employees needed per output
     std::vector<size_t> employees_needed_per_output;
     // The desired quality of a product (otherwise it's not accepted)

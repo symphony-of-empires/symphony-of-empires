@@ -158,12 +158,13 @@ public:
     // Time until a diplomatic action can be done
     uint16_t diplomatic_timer;
 
+    //std::vector<std::pair<Technology*, float>> techs;
     std::vector<NationModifier> modifiers;
 
     bool is_ai = true;
 
     // Inbox of the nation; events that require our attention / should be processed
-    std::deque<Event> inbox;
+    std::deque<Event*> inbox;
 };
 
 #endif

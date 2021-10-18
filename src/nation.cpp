@@ -6,7 +6,7 @@ bool Nation::is_ally(const Nation& nation) {
     const World& world = World::get_instance();
 
     if(nation.relations[world.get_id(this)].has_war == true
-    || this->relations[world.get_id(&nation)].has_war == true) {
+        || this->relations[world.get_id(&nation)].has_war == true) {
         return false;
     }
     return true;
@@ -14,9 +14,9 @@ bool Nation::is_ally(const Nation& nation) {
 
 bool Nation::is_enemy(const Nation& nation) {
     const World& world = World::get_instance();
-    
+
     if(nation.relations[world.get_id(this)].has_war == true
-    || this->relations[world.get_id(&nation)].has_war == true) {
+        || this->relations[world.get_id(&nation)].has_war == true) {
         return true;
     }
     return false;
@@ -42,7 +42,7 @@ inline bool Nation::can_do_diplomacy() {
 void Nation::increase_relation(Nation& target) {
     if(!can_do_diplomacy())
         return;
-    
+
     const World& world = World::get_instance();
     const Nation::Id t1_idx = world.get_id(&target);
     this->relations[t1_idx].relation += 5.f;
@@ -56,7 +56,7 @@ void Nation::increase_relation(Nation& target) {
 void Nation::decrease_relation(Nation& target) {
     if(!can_do_diplomacy())
         return;
-    
+
     const World& world = World::get_instance();
     const Nation::Id t1_idx = world.get_id(&target);
     this->relations[t1_idx].relation += 5.f;
@@ -71,9 +71,9 @@ void Nation::decrease_relation(Nation& target) {
 // Use this when a treaty makes a nation lose it's capital
 void Nation::auto_relocate_capital(void) {
     auto best_candidate = std::max_element(owned_provinces.begin(), owned_provinces.end(),
-        [] (const auto* lhs, const auto* rhs) {
-            return (lhs->total_pops() < rhs->total_pops());
-        });
+        [](const auto* lhs, const auto* rhs) {
+        return (lhs->total_pops() < rhs->total_pops());
+    });
     capital = *best_candidate;
 }
 
@@ -88,7 +88,7 @@ void Nation::set_policy(Policies& policies) {
 
 // Checks if a POP is part of one of our accepted cultures
 bool Nation::is_accepted_culture(const Pop& pop) const {
-    for(const auto& culture: accepted_cultures) {
+    for(const auto& culture : accepted_cultures) {
         if(pop.culture == culture) {
             return true;
         }
@@ -108,7 +108,8 @@ float Nation::get_tax(const Pop& pop) const {
     if(is_accepted_culture(pop) != true) {
         if(current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
             base_tax += 1.5f;
-        } else if(current_policy.treatment == TREATMENT_EXTERMINATE) {
+        }
+        else if(current_policy.treatment == TREATMENT_EXTERMINATE) {
             // Fuck you
             base_tax += 1000.f;
         }
@@ -138,7 +139,7 @@ void Nation::give_province(World& world, Province& province) {
             Tile& tile = world.get_tile(i, j);
             if(tile.province_id != province_id)
                 continue;
-            
+
             tile.owner_id = nation_id;
             world.nation_changed_tiles.push_back(&tile);
         }
@@ -152,14 +153,14 @@ void Nation::give_province(World& world, Province& province) {
 NationClientHint tmp_hint;
 const NationClientHint& Nation::get_client_hint(void) const {
     // Find match
-    for(const auto& hint: client_hints) {
+    for(const auto& hint : client_hints) {
         if(hint.ideology == ideology) {
             return hint;
         }
     }
 
     // 2nd search: Find a hint that is fallback
-    for(const auto& hint: client_hints) {
+    for(const auto& hint : client_hints) {
         if(hint.ideology == nullptr) {
             return hint;
         }
@@ -176,6 +177,6 @@ const NationClientHint& Nation::get_client_hint(void) const {
 
 /*float Nation::get_industry_output_rate() {
     for(const auto& p: techs) {
-        
+
     }
 }*/

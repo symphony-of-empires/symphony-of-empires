@@ -15,7 +15,7 @@ class Product;
 class Province {
 public:
     using Id = uint16_t;
-    
+
     Province::Id get_id(const World& world);
     Nation& get_occupation_controller(const World& world) const;
     size_t total_pops(void) const;
@@ -43,13 +43,13 @@ public:
     size_t min_y = 65532;
     size_t max_x = 0;
     size_t max_y = 0;
-    
+
     // The (military) supply limit of the province, the max number of supplies there can be per tick
     float supply_limit;
 
     // The number of remaining (military) supplies in the province
     float supply_rem;
-    
+
     // Number of workers available to work on a domestic factory
     size_t worker_pool;
 
@@ -57,21 +57,21 @@ public:
     Nation* owner = nullptr;
 
     // List containing all nations who have a nucleus in this province
-    std::set<Nation *> nucleuses;
+    std::set<Nation*> nucleuses;
 
     // List of all neighbouring provinces (*should* be used for pathfinding)
-    std::set<Province *> neighbours;
-    
+    std::set<Province*> neighbours;
+
     // Each element of this list represents the availability of a product, taking as reference the
     // product list of the world. Indexes are 1:1 with the product list.
     std::vector<size_t> stockpile;
 
     // List of products (produced here by factories) in this industry
-    std::vector<Product *> products;
+    std::vector<Product*> products;
 
     // List of pops in this province
     std::vector<Pop> pops;
-    
+
     // Attractiveness of province
     float base_attractive = 0.f;
 };

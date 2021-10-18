@@ -42,10 +42,10 @@ public:
 
     Server(unsigned port = 1825, unsigned max_conn = 16);
     ~Server();
-    
+
     void broadcast(Packet& packet);
     void net_loop(int id);
-    
+
     int n_clients;
 };
 extern Server* g_server;

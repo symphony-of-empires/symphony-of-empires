@@ -26,7 +26,7 @@ typedef struct pollfd {
     SOCKET fd;
     SHORT events;
     SHORT revents;
-} WSAPOLLFD, *PWSAPOLLFD, FAR *LPWSAPOLLFD;
+} WSAPOLLFD, * PWSAPOLLFD, FAR* LPWSAPOLLFD;
 WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout);
 #	endif
 #endif

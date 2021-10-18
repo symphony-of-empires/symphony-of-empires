@@ -23,7 +23,7 @@ typedef struct pollfd {
     SOCKET fd;
     SHORT events;
     SHORT revents;
-} WSAPOLLFD, *PWSAPOLLFD, FAR *LPWSAPOLLFD;
+} WSAPOLLFD, * PWSAPOLLFD, FAR* LPWSAPOLLFD;
 WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout);
 #	endif
 #endif
@@ -49,7 +49,7 @@ WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeo
 #include "../io_impl.hpp"
 
 Server* g_server = nullptr;
-Server::Server(const unsigned port, const unsigned max_conn) : n_clients(max_conn) {
+Server::Server(const unsigned port, const unsigned max_conn): n_clients(max_conn) {
     g_server = this;
 
     run = true;
@@ -68,7 +68,7 @@ Server::Server(const unsigned port, const unsigned max_conn) : n_clients(max_con
         throw SocketException("Cannot create server socket");
     }
 
-    if(bind(fd, (sockaddr *)&addr, sizeof(addr)) != 0) {
+    if(bind(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
         throw SocketException("Cannot bind server");
     }
 
@@ -86,12 +86,12 @@ Server::Server(const unsigned port, const unsigned max_conn) : n_clients(max_con
         clients[i].is_connected = false;
         clients[i].thread = std::thread(&Server::net_loop, this, i);
     }
-    
+
 #ifdef unix
     // We need to ignore pipe signals since any client disconnecting **will** kill the server
     signal(SIGPIPE, SIG_IGN);
 #endif
-    
+
     print_info("Server created sucessfully and listening to %u; now invite people!", port);
 }
 
@@ -116,7 +116,7 @@ void Server::broadcast(Packet& packet) {
             // Disconnect the client when more than 200 MB is used
             // we can't save your packets buddy - other clients need their stuff too!
             size_t total_size = 0;
-            for(const auto& packet_q: clients[i].packets) {
+            for(const auto& packet_q : clients[i].packets) {
                 total_size += packet_q.buffer.size();
             }
             if(total_size >= 200 * 1000000) {
@@ -143,7 +143,7 @@ void Server::net_loop(int id) {
             cl.is_connected = false;
             while(!cl.is_connected) {
                 try {
-                    conn_fd = accept(fd, (sockaddr *)&client, &len);
+                    conn_fd = accept(fd, (sockaddr*)&client, &len);
                     if(conn_fd == INVALID_SOCKET)
                         throw SocketException("Cannot accept client connection");
 
@@ -151,7 +151,8 @@ void Server::net_loop(int id) {
                     // Then we check if the server is running and we throw accordingly
                     cl.is_connected = true;
                     break;
-                } catch(SocketException& e) {
+                }
+                catch(SocketException& e) {
                     // Do something
                     if(run == false)
                         throw SocketException("Close client");
@@ -163,7 +164,7 @@ void Server::net_loop(int id) {
 
             Nation* selected_nation = nullptr;
             Packet packet = Packet(conn_fd);
-            
+
             // Send the whole snapshot of the world
             {
                 Archive ar = Archive();
@@ -191,11 +192,11 @@ void Server::net_loop(int id) {
                 packet.data(ar.get_buffer(), ar.size());
                 broadcast(packet);
             }
-            
+
             ActionType action = ActionType::PING;
             packet.send(&action);
 #ifdef unix
-            struct pollfd pfd = {};
+            struct pollfd pfd ={};
             pfd.fd = conn_fd;
             pfd.events = POLLIN;
 #endif
@@ -209,30 +210,33 @@ void Server::net_loop(int id) {
                 // Check if we need to read stuff
 #ifdef unix
                 int has_pending = poll(&pfd, 1, 0);
-                if(pfd.revents & POLLIN || has_pending && g_world->world_mutex.try_lock() == true) {
+                if(pfd.revents & POLLIN || has_pending && g_world->world_mutex.try_lock() == true)
 #elif defined windows
                 u_long has_pending = 0;
                 ioctlsocket(fd, FIONREAD, &has_pending);
-                if(has_pending && g_world->world_mutex.try_lock() == true) {
+                if(has_pending && g_world->world_mutex.try_lock() == true)
 #endif
+                {
                     packet.recv();
                     ar.set_buffer(packet.data(), packet.size());
                     ar.rewind();
                     ::deserialize(ar, &action);
 
                     if(selected_nation == nullptr &&
-                    (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
+                        (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                         throw ServerException("Unallowed operation without selected nation");
-                    
+
                     const std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
                     switch(action) {
-                    /// - Used to test connections between server and client
+
+                        // - Used to test connections between server and client
                     case ActionType::PONG:
                         action = ActionType::PING;
                         packet.send(&action);
                         print_info("Received pong, responding with ping!");
                         break;
-                    /// - Client tells server to enact a new policy for it's nation
+
+                        // - Client tells server to enact a new policy for it's nation
                     case ActionType::NATION_ENACT_POLICY: {
                         Policies policies;
                         ::deserialize(ar, &policies);
@@ -240,7 +244,8 @@ void Server::net_loop(int id) {
                         // TODO: Do parliament checks and stuff
                         selected_nation->current_policy = policies;
                     } break;
-                    /// - Client tells server to change target of unit
+
+                        // - Client tells server to change target of unit
                     case ActionType::UNIT_CHANGE_TARGET: {
                         Unit* unit;
                         ::deserialize(ar, &unit);
@@ -250,33 +255,34 @@ void Server::net_loop(int id) {
                         // Must control unit
                         if(selected_nation != unit->owner)
                             throw ServerException("Nation does not control unit");
-                        
+
                         ::deserialize(ar, &unit->tx);
                         ::deserialize(ar, &unit->ty);
 
                         if(unit->tx >= g_world->width || unit->ty >= g_world->height)
                             throw ServerException("Coordinates out of range for unit");
-                        
+
                         print_info("Unit changes targets to %zu.%zu", (size_t)unit->tx, (size_t)unit->ty);
                     } break;
-                    // Client tells the server about the construction of a new unit, note that this will
-                    // only make the building submit "construction tickets" to obtain materials to build
-                    // the unit can only be created by the server, not by the clients
+
+                        // Client tells the server about the construction of a new unit, note that this will
+                        // only make the building submit "construction tickets" to obtain materials to build
+                        // the unit can only be created by the server, not by the clients
                     case ActionType::BUILDING_START_BUILDING_UNIT: {
                         Building* building;
                         ::deserialize(ar, &building);
                         if(building == nullptr)
                             throw ServerException("Unknown building");
-                        
+
                         UnitType* unit_type;
                         ::deserialize(ar, &unit_type);
                         if(unit_type == nullptr)
                             throw ServerException("Unknown unit type");
-                        
+
                         // Must control building
                         if(building->owner != selected_nation)
                             throw ServerException("Nation does not control building");
-                        
+
                         // TODO: Check nation can build this unit
 
                         // Tell the building to build this specific unit type
@@ -284,8 +290,9 @@ void Server::net_loop(int id) {
                         building->req_goods_for_unit = unit_type->req_goods;
                         print_info("New order for building; build unit %s", unit_type->name.c_str());
                     } break;
-                    // Client tells server to build new outpost, the location (& type) is provided by
-                    // the client and the rest of the fields are filled by the server
+
+                        // Client tells server to build new outpost, the location (& type) is provided by
+                        // the client and the rest of the fields are filled by the server
                     case ActionType::BUILDING_ADD: {
                         Building* building = new Building();
                         ::deserialize(ar, building);
@@ -299,10 +306,10 @@ void Server::net_loop(int id) {
                         // Check that it's not out of bounds
                         if(building->x >= g_world->width || building->y >= g_world->height)
                             throw ServerException("building out of range");
-                        
+
                         // Building can only be built on owned land or on shores
                         if(g_world->get_tile(building->x, building->y).owner_id != g_world->get_id(selected_nation)
-                        && g_world->get_tile(building->x, building->y).elevation > g_world->sea_level)
+                            && g_world->get_tile(building->x, building->y).elevation > g_world->sea_level)
                             throw ServerException("Building cannot be built on foreign land");
 
                         building->working_unit_type = nullptr;
@@ -315,8 +322,9 @@ void Server::net_loop(int id) {
                         // Rebroadcast
                         broadcast(packet);
                     } break;
-                    // Client tells server that it wants to colonize a province, this can be rejected
-                    // or accepted, client should check via the next PROVINCE_UPDATE action
+
+                        // Client tells server that it wants to colonize a province, this can be rejected
+                        // or accepted, client should check via the next PROVINCE_UPDATE action
                     case ActionType::PROVINCE_COLONIZE: {
                         Province* province;
                         ::deserialize(ar, &province);
@@ -329,11 +337,12 @@ void Server::net_loop(int id) {
                             throw ServerException("Province already has an owner");
 
                         province->owner = selected_nation;
-                        
+
                         // Rebroadcast
                         broadcast(packet);
                     } break;
-                    // Simple IRC-like chat messaging system
+
+                        // Simple IRC-like chat messaging system
                     case ActionType::CHAT_MESSAGE: {
                         std::string msg;
                         ::deserialize(ar, &msg);
@@ -342,21 +351,22 @@ void Server::net_loop(int id) {
                         // Rebroadcast
                         broadcast(packet);
                     } break;
-                    // Client changes it's approval on certain treaty
+
+                        // Client changes it's approval on certain treaty
                     case ActionType::CHANGE_TREATY_APPROVAL: {
                         Treaty* treaty;
                         ::deserialize(ar, &treaty);
                         if(treaty == nullptr)
                             throw ServerException("Treaty not found");
-                            
+
                         TreatyApproval approval;
                         ::deserialize(ar, &approval);
 
                         print_info("%s approves treaty %s? %s", selected_nation->name.c_str(), treaty->name.c_str(), (approval == TreatyApproval::ACCEPTED) ? "YES" : "NO");
-                            
+
                         // Check that the nation participates in the treaty
                         bool does_participate = false;
-                        for(auto& status: treaty->approval_status) {
+                        for(auto& status : treaty->approval_status) {
                             if(status.first == selected_nation) {
                                 // Alright, then change approval
                                 status.second = approval;
@@ -366,11 +376,12 @@ void Server::net_loop(int id) {
                         }
                         if(!does_participate)
                             throw ServerException("Nation does not participate in treaty");
-                        
+
                         // Rebroadcast
                         broadcast(packet);
                     } break;
-                    // Client sends a treaty to someone
+
+                        // Client sends a treaty to someone
                     case ActionType::DRAFT_TREATY: {
                         Treaty* treaty = new Treaty();
                         ::deserialize(ar, &treaty->clauses);
@@ -382,26 +393,26 @@ void Server::net_loop(int id) {
                             throw ServerException("Clause-less treaty");
                         if(treaty->sender == nullptr)
                             throw ServerException("Treaty has invalid ends");
-                        
+
                         // Obtain participants of the treaty
                         std::set<Nation*> approver_nations = std::set<Nation*>();
-                        for(auto& clause: treaty->clauses) {
+                        for(auto& clause : treaty->clauses) {
                             if(clause->receiver == nullptr || clause->sender == nullptr)
                                 throw ServerException("Invalid clause receiver/sender");
-                            
+
                             approver_nations.insert(clause->receiver);
                             approver_nations.insert(clause->sender);
                         }
 
                         print_info("Participants of treaty %s", treaty->name.c_str());
                         // Then fill as undecided (and ask nations to sign this treaty)
-                        for(auto& nation: approver_nations) {
+                        for(auto& nation : approver_nations) {
                             treaty->approval_status.push_back(std::make_pair(nation, TreatyApproval::UNDECIDED));
                             print_info("- %s", nation->name.c_str());
                         }
 
                         // The sender automatically accepts the treaty (they are the ones who drafted it)
-                        for(auto& status: treaty->approval_status) {
+                        for(auto& status : treaty->approval_status) {
                             if(status.first == selected_nation) {
                                 status.second = TreatyApproval::ACCEPTED;
                                 break;
@@ -419,28 +430,29 @@ void Server::net_loop(int id) {
                         packet.data(tmp_ar.get_buffer(), tmp_ar.size());
                         broadcast(packet);
                     } break;
-                    // Client takes a descision
+
+                        // Client takes a descision
                     case ActionType::NATION_TAKE_DESCISION: {
                         // Find event by reference name
                         std::string event_ref_name;
                         ::deserialize(ar, &event_ref_name);
                         auto event = std::find_if(g_world->events.begin(), g_world->events.end(),
-                        [&event_ref_name](const Event* e) {
+                            [&event_ref_name](const Event* e) {
                             return e->ref_name == event_ref_name;
                         });
                         if(event == g_world->events.end()) {
                             throw ServerException("Event not found");
                         }
-                        
+
                         // Find descision by reference name
                         std::string descision_ref_name;
                         ::deserialize(ar, &descision_ref_name);
                         auto descision = std::find_if((*event)->descisions.begin(), (*event)->descisions.end(),
-                        [&descision_ref_name](const Descision& e) {
-                            return e.ref_name == descision_ref_name;
+                            [&descision_ref_name](const Descision& d) {
+                            return d.ref_name == descision_ref_name;
                         });
                         if(descision == (*event)->descisions.end()) {
-                            throw ServerException("Descision not found");
+                            throw ServerException("Descision " + descision_ref_name + " not found");
                         }
 
                         (*event)->take_descision(selected_nation, &(*descision));
@@ -450,7 +462,8 @@ void Server::net_loop(int id) {
                             selected_nation->ref_name.c_str()
                         );
                     } break;
-                    // The client selects a nation
+
+                        // The client selects a nation
                     case ActionType::SELECT_NATION: {
                         Nation* nation;
                         ::deserialize(ar, &nation);
@@ -460,15 +473,16 @@ void Server::net_loop(int id) {
                         selected_nation->is_ai = false;
                         print_info("Nation %s selected by client %zu", selected_nation->name.c_str(), (size_t)id);
                     } break;
-                    // Nation and province addition and removals are not allowed to be done by clients
-                    default:
-                        break;
+
+                        // Nation and province addition and removals are not allowed to be done by clients
+                    default: {
+                    } break;
                     }
                 }
 
                 ar.buffer.clear();
                 ar.rewind();
-                
+
                 // After reading everything we will send our queue appropriately to the client
                 const std::lock_guard<std::mutex> lock(cl.packets_mutex);
                 while(cl.packets.empty() == false) {
@@ -478,16 +492,20 @@ void Server::net_loop(int id) {
                     cl.packets.pop_front();
                 }
             }
-        } catch(ServerException& e) {
+        }
+        catch(ServerException& e) {
             print_error("ServerException: %s", e.what());
-        } catch(SocketException& e) {
+        }
+        catch(SocketException& e) {
             print_error("SocketException: %s", e.what());
-        } catch(SerializerException& e) {
+        }
+        catch(SerializerException& e) {
             print_error("SerializerException: %s", e.what());
         }
-        
+
         // Unlock mutexes so we don't end up with weird situations... like deadlocks
         cl.is_connected = false;
+        cl.packets_mutex.unlock();
         cl.packets.clear();
 
         // Tell the remaining clients about the disconnection

@@ -39,7 +39,7 @@ namespace Path {
 #endif
         if(len < 0)
             throw std::runtime_error("Error reading exec path");
-        
+
         buf[len] = '\0';
 
         std::string rsult = buf;
@@ -52,7 +52,7 @@ namespace Path {
         return rsult;
     }
 
-    
+
     void add_path(const std::string& path) {
         std::string end_path;
         end_path += path;
@@ -64,9 +64,9 @@ namespace Path {
     std::string get(const std::string& str) {
         if(str[0] == '/' || str[0] == 'C')
             return str;
-        
+
         std::string end_path;
-        for(const auto& path: mod_paths) {
+        for(const auto& path : mod_paths) {
             std::string rsult = get_full() + path + str;
             if(file_exists(rsult) == true) {
                 end_path += rsult;
@@ -85,8 +85,8 @@ namespace Path {
         std::vector<std::string> list;
         if(str[0] == '/' || str[0] == 'C')
             return list;
-        
-        for(const auto& path: mod_paths) {
+
+        for(const auto& path : mod_paths) {
             std::string end_path = get_full() + path + str;
             if(file_exists(end_path) == true) {
 #ifdef windows
@@ -101,7 +101,7 @@ namespace Path {
 
     std::vector<std::string> get_data(const std::string& str) {
         std::vector<std::string> files_text;
-        for(const auto& path: mod_paths) {
+        for(const auto& path : mod_paths) {
             std::string rsult = get_full() + path + str;
 #ifdef windows
             std::replace(rsult.begin(), rsult.end(), '/', '\\');
@@ -117,7 +117,8 @@ namespace Path {
 
                 files_text.push_back(content);
                 print_info("Path '%s' exists (added to string list)", rsult.c_str());
-            } else {
+            }
+            else {
                 print_info("Path '%s' does not exist so not added", rsult.c_str());
             }
         }
@@ -126,7 +127,7 @@ namespace Path {
 
     std::vector<std::string> get_paths(void) {
         std::vector<std::string> p_list;
-        for(const auto& path: mod_paths) {
+        for(const auto& path : mod_paths) {
             std::string rsult = get_full() + path;
 #ifdef windows
             std::replace(rsult.begin(), rsult.end(), '/', '\\');
@@ -139,7 +140,7 @@ namespace Path {
     std::string get_dir(const std::string& str) {
         if(str[0] == '/' || str[0] == 'C')
             return str;
-        
+
         std::string rsult = get_full() + mod_paths[0] + str;
 #ifdef windows
         std::replace(rsult.begin(), rsult.end(), '/', '\\');

@@ -24,9 +24,9 @@ Province* Building::get_province(const World& world) {
 
 void Building::create_factory(World& world) {
     corporate_owner->operating_provinces.insert(get_province(world));
-    
+
     // Add a product for each output
-    for(const auto& output: type->outputs) {
+    for(const auto& output : type->outputs) {
         Product* new_product = new Product();
         new_product->building = this;
         new_product->good = output;
@@ -39,7 +39,7 @@ void Building::create_factory(World& world) {
         employees_needed_per_output.push_back(500);
 
         // Add an element representing this product on all the province's stockpile
-        for(auto& province: world.provinces) {
+        for(auto& province : world.provinces) {
             province->stockpile.push_back(0);
         }
     }
@@ -52,10 +52,10 @@ void Building::create_factory(World& world) {
 // Helper method to delete a factory
 void Building::delete_factory(World& world) {
     // Remove output products from all province's stockpiles and from the world
-    for(const auto& product: output_products) {
+    for(const auto& product : output_products) {
         Product::Id product_id = world.get_id(product);
 
-        for(auto& province: world.provinces) {
+        for(auto& province : world.provinces) {
             province->stockpile.erase(province->stockpile.begin() + product_id);
         }
 
