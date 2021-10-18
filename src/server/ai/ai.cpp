@@ -87,7 +87,7 @@ void ai_do_tick(Nation* nation, World* world) {
 	}
 
 	// Increase relations
-	if(!(std::rand() % 500)) {
+	if(!(std::rand() % 5000)) {
 		Nation* target = nullptr;
 		while(target == nullptr || target->exists() == false) {
 			target = world->nations[rand() % world->nations.size()];
@@ -95,7 +95,7 @@ void ai_do_tick(Nation* nation, World* world) {
 		nation->increase_relation(*target);
 	}
 	// Decrease relations
-	if(!(std::rand() % 500)) {
+	if(!(std::rand() % 5000)) {
 		Nation* target = nullptr;
 		while(target == nullptr || target->exists() == false) {
 			target = world->nations[rand() % world->nations.size()];
@@ -103,7 +103,7 @@ void ai_do_tick(Nation* nation, World* world) {
 		nation->decrease_relation(*target);
 	}
 	// Rarely nations will change policies
-	if(!(std::rand() % 500)) {
+	if(!(std::rand() % 5000)) {
 		Policies new_policy = nation->current_policy;
 
 		if(rand() % 100 > 50.f) {
@@ -144,7 +144,7 @@ void ai_do_tick(Nation* nation, World* world) {
 		nation->set_policy(new_policy);
 	}
 	// Colonize a province
-	if(!(std::rand() % 500)) {
+	if(!(std::rand() % 5000)) {
 		Province* target = world->provinces[rand() % world->provinces.size()];
 		if(target->owner == nullptr) {
 			Packet packet = Packet();
@@ -161,7 +161,7 @@ void ai_do_tick(Nation* nation, World* world) {
 		}
 	}
 	// Accepting/rejecting treaties
-	 if(!(std::rand() % 500)) {
+	 if(!(std::rand() % 5000)) {
 		for(auto& treaty : world->treaties) {
 			for(auto& part : treaty->approval_status) {
 				if(part.first == nation) {
@@ -183,11 +183,11 @@ void ai_do_tick(Nation* nation, World* world) {
 		}
 	}
 	// Build defenses
-	if(!(std::rand() % 500)) {
+	if(!(std::rand() % 5000)) {
 
 	}
 	// Build a commercially related building
-	if(std::rand() % 50 == 0) {
+	if(std::rand() % 5000 == 0) {
 		Good *target_good;
 		target_good = ai_get_potential_good(nation, world);
 		if(target_good == nullptr) return;
@@ -255,7 +255,7 @@ void ai_do_tick(Nation* nation, World* world) {
 				g_server->broadcast(packet);
 			}
 		}
-		world->buildings.push_back(building);
+		world->insert(building);
 
 		// Broadcast the addition of the building to the clients
 		{

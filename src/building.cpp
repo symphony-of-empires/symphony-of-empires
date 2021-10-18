@@ -5,20 +5,21 @@
 // Adds a good by id to a building stockpile
 void Building::add_to_stock(const World& world, const Good* good, const size_t add) {
     for(size_t i = 0; i < stockpile.size(); i++) {
-        if(world.get_id(type->inputs.at(i)) != world.get_id(good)) {
+        if(world.get_id(type->inputs[i]) != world.get_id(good)) {
             continue;
         }
-        stockpile.at(i) += add;
+
+        stockpile[i] += add;
         break;
     }
 }
 
 Province* Building::get_province(const World& world) {
     const Tile& tile = world.get_tile(this->x, this->y);
-    if(world.get_tile(this->x, this->y).province_id == (Province::Id)-1) {
+    if(tile.province_id == (Province::Id)-1) {
         return nullptr;
     }
-    return world.provinces.at(world.get_tile(this->x, this->y).province_id);
+    return world.provinces[tile.province_id];
 }
 
 Nation* Building::get_owner(const World& world) {
@@ -26,7 +27,7 @@ Nation* Building::get_owner(const World& world) {
     //if(tile.owner_id == (Nation::Id)-1) {
     //    return nullptr;
     //}
-    //return world.nations.at(world.get_tile(this->x, this->y).owner_id);
+    //return world.nations[tile.owner_id];
     return this->owner;
 }
 
@@ -61,13 +62,29 @@ void Building::create_factory(World& world) {
 void Building::delete_factory(World& world) {
     // Remove output products from all province's stockpiles and from the world
     for(const auto& product : output_products) {
-        Product::Id product_id = world.get_id(product);
-
         for(auto& province : world.provinces) {
-            province->stockpile.erase(province->stockpile.begin() + product_id);
+            province->stockpile.erase(province->stockpile.begin() + world.get_id(product));
         }
-
+        
+        world.remove(product);
         delete product;
-        world.products.erase(world.products.begin() + product_id);
     }
+}
+
+// Checks if the building can produce output (if it has enough input)
+bool Building::can_do_output(const World& world) {
+    // No output products?
+    if(type->outputs.empty() || output_products.empty())
+        return false;
+
+    // Always can produce if RGO
+    if(type->inputs.empty())
+        return true;
+
+    // Check that we have enough stockpile
+    for(const auto& stock : this->stockpile) {
+        if(!stock)
+            return false;
+    }
+    return true;
 }

@@ -2,14 +2,10 @@
 #define POP_H
 #include <vector>
 #include <string>
+#include "entity.hpp"
 
-class PopType {
+class PopType : public RefnameEntity<uint8_t> {
 public:
-    using Id = uint8_t;
-    
-    std::string name;
-    std::string ref_name;
-    
     float social_value;
 
     bool is_entrepreneur;

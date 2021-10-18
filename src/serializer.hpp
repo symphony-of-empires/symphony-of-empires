@@ -290,7 +290,7 @@ public:
             *obj = nullptr;
             return;
         }
-        *obj = (id != (typename T::Id)-1) ? W::get_instance().get_list(*obj).at(id) : nullptr;
+        *obj = (id != (typename T::Id)-1) ? W::get_instance().get_list(*obj)[id] : nullptr;
     };
 
     static inline size_t size(const T* const*) {

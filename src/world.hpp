@@ -136,13 +136,22 @@ class World {
     // @tparam C STL-compatible container where the pointer *should* be located in
     template<typename T, typename C>
     inline typename T::Id get_id_from_pvector(const T* ptr, C table) const {
+        // Use the cached Id of the object for faster 1-element lookups
+        if(ptr->cached_id != (typename T::Id)-1) {
+            return ptr->cached_id;
+        }
+        
+        // Do a full traverse of the list and cache the Id once found
+        // so sucessive lookups are faster
         typename C::iterator it = std::find(table.begin(), table.end(), ptr);
         if(it == table.end()) {
             // -1 is used as an invalid index
             return (typename T::Id)-1;
         }
-        return (typename T::Id)std::distance(table.begin(), it);
+        ptr->cached_id = (typename T::Id)std::distance(table.begin(), it);
+        return ptr->cached_id;
     }
+
 public:
     World();
     World& operator=(const World&) = default;
@@ -173,6 +182,24 @@ public:
     LIST_FOR_TYPE(Technology, technologies, std::vector)
     LIST_FOR_TYPE(Invention, inventions, std::vector)
     LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector)
+
+    template<typename T>
+    inline void insert(T* ptr) {
+        auto& list = this->get_list(ptr);
+        list.push_back(ptr);
+    };
+
+    template<typename T>
+    inline void remove(T* ptr) {
+        auto& list = this->get_list(ptr);
+
+        // Decrease the cache_id counter for the elements
+        // after the removed element
+        typename T::Id cached_id = this->get_id<T>(ptr);
+        for(typename T::Id i = cached_id; i < list.size(); i++) {
+            list[i]->cached_id = (typename T::Id)-1;
+        }
+    };
     
     inline size_t get_id(const Tile* ptr) const {
         std::lock_guard<std::recursive_mutex> lock(tiles_mutex);

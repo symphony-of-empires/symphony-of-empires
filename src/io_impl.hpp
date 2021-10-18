@@ -1290,7 +1290,7 @@ public:
         ::deserialize(stream, &n_elems);
         for(size_t i = 0; i < n_elems; i++) {
             T* sub_obj = new T();
-            obj->get_list(sub_obj).push_back(sub_obj);
+            obj->insert(sub_obj);
         }
         return n_elems;
     }
@@ -1558,22 +1558,22 @@ public:
         }
 
         for(size_t i = 0; i < n_ideologies; i++) {
-            Ideology* sub_obj = obj->ideologies.at(i);
+            Ideology* sub_obj = obj->ideologies[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_inventions; i++) {
-            Invention* sub_obj = obj->inventions.at(i);
+            Invention* sub_obj = obj->inventions[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_technologies; i++) {
-            Technology* sub_obj = obj->technologies.at(i);
+            Technology* sub_obj = obj->technologies[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_inventions; i++) {
-            NationModifier* sub_obj = obj->nation_modifiers.at(i);
+            NationModifier* sub_obj = obj->nation_modifiers[i];
             ::deserialize(stream, sub_obj);
         }
 

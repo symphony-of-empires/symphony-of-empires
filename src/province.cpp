@@ -62,7 +62,7 @@ std::vector<Product*> Province::get_products(const World& world) const {
         }
 
         // Province must have stockpile
-        if(!stockpile.at(product_id)) {
+        if(!stockpile[product_id]) {
             continue;
         }
 
