@@ -10,6 +10,7 @@
 #include <iostream>
 #include <mutex>
 
+#include "../io_impl.hpp"
 #include "../path.hpp"
 #include "../print.hpp"
 #include "game_state.hpp"
@@ -97,6 +98,97 @@ Map::Map(const World& _world): world(_world) {
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         print_info("Frame buffer error");
+}
+
+std::vector<std::pair<Province::Id, uint32_t>> population_map_mode(std::vector<Province*> provinces, World* world) {
+    std::vector<std::pair<Province::Id, uint32_t>> province_amounts;
+    uint32_t max_amount = 0;
+    for(auto const& province : provinces) {
+        uint32_t color;
+        uint32_t amount = 0;
+        for(auto const& pop : province->pops) {
+            amount += pop.size;
+        }
+        max_amount = std::max<size_t>(amount, max_amount);
+        province_amounts.push_back(std::make_pair(province->get_id(*world), amount));
+    }
+    max_amount = std::max<uint32_t>(1, max_amount);
+    uint8_t max_r = 255;
+    uint8_t max_g = 229;
+    uint8_t max_b = 217;
+    uint8_t min_r = 220;
+    uint8_t min_g = 46;
+    uint8_t min_b = 35;
+    std::vector<std::pair<Province::Id, uint32_t>> province_color;
+    for(auto const& prov_amount : province_amounts) {
+        Province::Id prov_id = prov_amount.first;
+        uint32_t amount = prov_amount.first;
+        float ratio = ((float)amount) / max_amount;
+        uint8_t prov_r = (uint8_t)(min_r * (1 - ratio) + max_r * ratio);
+        uint8_t prov_g = (uint8_t)(min_g * (1 - ratio) + max_g * ratio);
+        uint8_t prov_b = (uint8_t)(min_b * (1 - ratio) + max_b * ratio);
+        uint32_t color = (0xff << 24) | (prov_b << 16) | (prov_g << 8) | (prov_r);
+        province_color.push_back(std::make_pair(prov_id, color));
+    }
+    return province_color;
+}
+
+void Map::set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_colors) {
+    // Max amout of provinces are limited to 256 * 256
+    div_sheet_tex->delete_opengl();
+    div_sheet_tex = new UnifiedRender::Texture(256, 256);
+    for(size_t i = 0; i < 256 * 256; i++) {
+        div_sheet_tex->buffer[i] = 0x00000000;
+    }
+    for(auto const& province_color : province_colors) {
+        Province::Id prov_id = province_color.first;
+        u_int32_t color = province_color.second;
+        uint8_t r = prov_id % 256;
+        uint8_t g = (prov_id / 256) % 256;
+        size_t id = r + g * 256;
+
+        div_topo_tex->buffer[id] = (0xff << 24) | color;
+    }
+    div_sheet_tex->to_opengl();
+}
+
+void Map::update_borders() {
+    int step = 256;
+    bool readingAttach0 = true;
+    GLenum buffersA[] ={ GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    GLenum buffersB[] ={ GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+    // Jump flooding iterations
+    while(step >= 1) {
+
+        border_shader->set_uniform("step", (float)step);
+
+        if(readingAttach0 == true) {
+            // Set rendering destination to second set of buffers
+        //     glDrawBuffers(2, buffersB);
+        //     glUniform1i(uTex0Loc, 0);
+        //     glUniform1i(uTex1Loc, 1);
+        // }
+        // else {
+        //     // Set rendering destination to first set of buffers
+        //     glDrawBuffers(2, buffersA);
+        //     glUniform1i(uTex0Loc, 2);
+        //     glUniform1i(uTex1Loc, 3);
+        }
+
+        // Draw a plane over the entire screen to invoke shaders
+        glBegin(GL_QUADS);
+        glVertex2f(0.0f, 0.0f);
+        glVertex2f(0.0f, 1.0f);
+        glVertex2f(1.0f, 1.0f);
+        glVertex2f(1.0f, 0.0f);
+        glEnd();
+
+        // Halve the step
+        step /= 2;
+
+        // Swap read/write buffers
+        readingAttach0 = !readingAttach0;
+    }
 }
 
 void Map::draw_flag(const Nation* nation) {
