@@ -57,24 +57,37 @@ public:
 
     // Nation owner of this building
     Nation* owner;
+    
+    // Province that "supplies" this building
+    Province* province;
+    
     // Corporate owner of this building
     Company* corporate_owner;
+
     // Total money that the factory has
     float budget = 0.f;
+    
     // Days that the factory has not been operational
     size_t days_unoperational = 0;
+    
     // Money needed to produce - helps determine the price of the output products
     float production_cost = 0.f;
+    
     // Stockpile of inputs in the factory
     std::vector<size_t> stockpile;
+    
     // Used for faster lookups
     std::vector<Product*> output_products;
+    
     // The employees needed per output
     std::vector<size_t> employees_needed_per_output;
+    
     // The desired quality of a product (otherwise it's not accepted)
     float min_quality = 0.f;
+    
     // The pay we are willing to give
     size_t willing_payment = 0;
+    
     // How many workers are in the industry
     size_t workers = 0;
 };
