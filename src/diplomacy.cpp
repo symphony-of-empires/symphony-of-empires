@@ -10,7 +10,8 @@ inline bool Diplomacy::is_friend(Nation* us, Nation* them) {
     // A high relation means we are friendly <3
     if(relation->relation >= 50.f) {
         return true;
-    } else {
+    }
+    else {
         // Well, but maybe our interest is able to determine our friendliness towards them?
         if(relation->interest >= relation->relation) {
             // We cannot be friendly with negative relations
@@ -33,7 +34,7 @@ inline bool Diplomacy::is_foe(Nation* us, Nation* them) {
 
 using namespace TreatyClause;
 unsigned WarReparations::cost(void) {
-    return (receiver->economy_score * (amount* days_duration)) / 100;
+    return (receiver->economy_score * (amount * days_duration)) / 100;
 }
 
 void WarReparations::enforce(void) {
@@ -49,7 +50,7 @@ bool WarReparations::in_effect(void) {
 }
 
 unsigned Humiliate::cost(void) {
-    return (receiver->prestige * (amount* days_duration)) / 100;
+    return (receiver->prestige * (amount * days_duration)) / 100;
 }
 
 void Humiliate::enforce(void) {
@@ -64,7 +65,7 @@ bool Humiliate::in_effect(void) {
 
 unsigned LiberateNation::cost(void) {
     size_t value = 0;
-    for(const auto& province: provinces) {
+    for(const auto& province : provinces) {
         value += province->budget * province->total_pops();
     }
     return value * 0.00001f;
@@ -74,12 +75,12 @@ void LiberateNation::enforce(void) {
     // Reduce prestige due to lost lands
     sender->prestige += cost() * 0.0000025f;
     receiver->prestige -= cost() * 0.000005f;
-    
+
     // Give provinces to this liberated nation
-    for(auto& province: provinces) {
+    for(auto& province : provinces) {
         province->owner = liberated;
     }
-    
+
     // One-time clause
     done = true;
 }
@@ -103,7 +104,7 @@ bool ImposePolicies::in_effect(void) {
 #include "print.hpp"
 unsigned AnexxProvince::cost(void) {
     size_t value = 0;
-    for(const auto& province: provinces) {
+    for(const auto& province : provinces) {
         value += province->budget + province->total_pops();
     }
     return value * 0.000001f;
@@ -112,9 +113,9 @@ unsigned AnexxProvince::cost(void) {
 void AnexxProvince::enforce(void) {
     sender->prestige += cost() * 0.0000025f;
     receiver->prestige -= cost() * 0.000005f;
-    
+
     // Give provinces to the winner
-    for(auto& province: provinces) {
+    for(auto& province : provinces) {
         print_info("Giving %s to %s (originally from %s)", province->name.c_str(), sender->name.c_str(), receiver->name.c_str());
 
         province->owner = sender;
@@ -127,7 +128,7 @@ void AnexxProvince::enforce(void) {
             receiver->owned_provinces.erase(it);
         }
     }
-    
+
     // One-time clause
     done = true;
 }
@@ -143,16 +144,26 @@ unsigned Ceasefire::cost() {
 void Ceasefire::enforce() {
     Nation::Id receiver_id = g_world->get_id(receiver);
     Nation::Id sender_id = g_world->get_id(sender);
-    
+
     sender->relations[receiver_id].has_war = false;
     sender->relations[receiver_id].has_truce = true;
-    
+
     receiver->relations[sender_id].has_war = false;
     receiver->relations[sender_id].has_truce = true;
-    
+
     days_duration--;
 }
 
 bool Ceasefire::in_effect() {
     return (days_duration != 0);
+}
+
+bool Treaty::does_participate(Nation* nation) {
+    bool does_participate = false;
+    for(auto& status : this->approval_status) {
+        if(status.first == nation) {
+            return true;
+        }
+    }
+    return false;
 }

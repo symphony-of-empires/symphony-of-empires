@@ -22,7 +22,6 @@
 #include "game_state.hpp"
 
 class Map {
-private:
 public:
     Map(const World& world);
 

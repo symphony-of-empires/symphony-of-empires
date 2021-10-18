@@ -13,7 +13,7 @@ BinaryImage::BinaryImage(const std::string& path) {
     from_file(path);
 }
 
-BinaryImage::BinaryImage(size_t _width, size_t _height) : width(_width), height(_height) {
+BinaryImage::BinaryImage(size_t _width, size_t _height): width(_width), height(_height) {
     buffer = new uint32_t[width * height];
 }
 
@@ -28,7 +28,7 @@ void BinaryImage::from_file(const std::string& path) {
     int i_width, i_height, i_channels;
 
     // stbi can do the conversion to RGBA for us ;)
-    buffer = (uint32_t *)stbi_load(Path::get(path).c_str(), &i_width, &i_height, &i_channels, 4);
+    buffer = (uint32_t*)stbi_load(Path::get(path).c_str(), &i_width, &i_height, &i_channels, 4);
     if(buffer == NULL) {
         throw BinaryImageException(path, "Image load error");
     }

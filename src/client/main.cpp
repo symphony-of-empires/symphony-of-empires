@@ -61,7 +61,11 @@ int main(int argc, char** argv) {
     }
     
 #ifndef UNIT_TEST
-    start_client(argc, argv);
+    try {
+        start_client(argc, argv);
+    } catch(const std::exception& e) {
+        print_error(e.what());
+    }
     exit(EXIT_SUCCESS);
 #endif
     return 0;

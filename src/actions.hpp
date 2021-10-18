@@ -58,7 +58,7 @@ enum class ActionType {
 class Action {
 public:
     ActionType type;
-    Action(ActionType _type) : type(_type) {};
+    Action(ActionType _type): type(_type) {};
 };
 
 #endif
