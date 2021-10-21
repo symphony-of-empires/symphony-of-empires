@@ -15,7 +15,7 @@
 #include "ideology.hpp"
 #include "server/lua_api.hpp"
 
-#define MAX_INFRA_LEVEL 			8
+#define MAX_INFRA_LEVEL 			4
 #define MAX_ELEVATION				255
 #define RIVER_ELEVATION(a)			a + 1
 
@@ -40,6 +40,9 @@ public:
 
     // Level of infrastructure in this tile (from 0 to MAX_INFRA_LEVEL)
     uint8_t infra_level;
+
+    // Terrain type
+    
 
     const std::vector<const Tile*> get_neighbours(const World& world) const;
 };

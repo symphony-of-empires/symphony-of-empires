@@ -48,6 +48,11 @@ const T* find_or_throw(const std::string& ref_name) {
 }
 
 int LuaAPI::register_new_table(lua_State* L, const std::string& name, const luaL_Reg meta[], const luaL_Reg methods[]) {
+    luaL_newlib(L, methods);
+    luaL_newmetatable(L, name.c_str());
+    luaL_setfuncs(L, methods, 0);
+    lua_setmetatable(L, -2);
+    lua_setglobal(L, name.c_str());
     return 0;
 }
 
@@ -205,6 +210,105 @@ int LuaAPI::get_nation(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(nation));
     lua_pushstring(L, nation->name.c_str());
     return 2;
+}
+
+// TODO: Make wars be dynamically named with cassus bellis??
+/*int LuaAPI::set_war_of_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    const auto* other_nation = g_world->nations.at(lua_tonumber(L, 2));
+
+    const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
+    return 0;
+}*/
+
+int LuaAPI::get_friends_of_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& friend_nation : g_world->nations) {
+        const NationRelation& relation = nation->relations[g_world->get_id(friend_nation)];
+        if(relation.relation < 50.f) {
+            continue;
+        }
+
+        lua_pushnumber(L, g_world->get_id(friend_nation));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
+}
+
+int LuaAPI::get_enemies_of_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& other_nation : g_world->nations) {
+        const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
+        if(relation.relation > -50.f) {
+            continue;
+        }
+
+        lua_pushnumber(L, g_world->get_id(other_nation));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
+}
+
+int LuaAPI::get_allies_of_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& other_nation : g_world->nations) {
+        const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
+        if(!relation.has_alliance) {
+            continue;
+        }
+
+        lua_pushnumber(L, g_world->get_id(other_nation));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
+}
+
+int LuaAPI::get_warenemies_of_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& other_nation : g_world->nations) {
+        const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
+        if(!relation.has_war) {
+            continue;
+        }
+
+        lua_pushnumber(L, g_world->get_id(other_nation));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
+}
+
+int LuaAPI::get_embargoed_of_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& other_nation : g_world->nations) {
+        const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
+        if(!relation.has_embargo) {
+            continue;
+        }
+
+        lua_pushnumber(L, g_world->get_id(other_nation));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
 }
 
 int LuaAPI::get_provinces_owned_by_nation(lua_State* L) {
@@ -676,6 +780,7 @@ int LuaAPI::add_event(lua_State* L) {
     event->do_event_function = luaL_checkstring(L, 3);
     event->title = luaL_checkstring(L, 4);
     event->text = luaL_checkstring(L, 5);
+    event->checked = lua_toboolean(L, 6);
 
     // Add onto vector
     g_world->insert(event);
@@ -689,7 +794,10 @@ int LuaAPI::get_event(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(event));
     lua_pushstring(L, event->conditions_function.c_str());
     lua_pushstring(L, event->do_event_function.c_str());
-    return 3;
+    lua_pushstring(L, event->title.c_str());
+    lua_pushstring(L, event->text.c_str());
+    lua_pushboolean(L, event->checked);
+    return 6;
 }
 
 int LuaAPI::add_event_receivers(lua_State* L) {
@@ -892,23 +1000,23 @@ void LuaAPI::check_events(lua_State* L) {
 
         // Conditions met
         if(r) {
-            // Call the "do event" function
-            lua_getglobal(L, event->do_event_function.c_str());
-            lua_call(L, 0, 1);
-            bool multi = lua_tointeger(L, -1);
-            lua_pop(L, 1);
-
             print_info("Event triggered! %s (with %zu descisions)", event->ref_name.c_str(), (size_t)event->descisions.size());
 
             // Place event into inbox
             for(auto& nation : event->receivers) {
-                nation->inbox.push_back(event);
-            }
+                // Call the "do event" function
+                lua_getglobal(L, event->do_event_function.c_str());
+                lua_call(L, 0, 1);
+                lua_pushnumber(L, g_world->get_id(nation));
+                bool multi = lua_tointeger(L, -1);
+                lua_pop(L, 1);
 
-            // Event is marked as checked if it's not of multiple occurences
-            if(!multi) {
-                g_world->events[i]->checked = true;
-                break;
+                nation->inbox.push_back(event);
+
+                // Event is marked as checked if it's not of multiple occurences
+                if(!multi) {
+                    g_world->events[i]->checked = true;
+                }
             }
         }
         // Conditions not met, continue to next event...

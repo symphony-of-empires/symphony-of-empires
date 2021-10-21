@@ -165,8 +165,7 @@ void ai_do_tick(Nation* nation, World* world) {
 		for(auto& treaty : world->treaties) {
 			for(auto& part : treaty->approval_status) {
 				if(part.first == nation) {
-					if(part.second == TreatyApproval::ACCEPTED
-						|| part.second == TreatyApproval::DENIED) {
+					if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) {
 						break;
 					}
 
@@ -223,11 +222,14 @@ void ai_do_tick(Nation* nation, World* world) {
 			return;
 		}
 
+		Province* province = g_world->provinces[rand() % g_world->provinces.size()];
+		if(province->max_x == province->min_x
+		|| province->max_y == province->min_y) {
+			return;
+		}
+
 		// Now build the building
 		Building* building = new Building();
-
-		Province* province = g_world->provinces[rand() % g_world->provinces.size()];
-
 		building->owner = nation;
 
 		// Randomly place in any part of the province
