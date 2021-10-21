@@ -263,7 +263,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
         selected_unit = nullptr;
         selected_building = nullptr;
-        
+
         const Tile& tile = gs.world->get_tile(select_pos.first, select_pos.second);
         switch(gs.current_mode) {
         case MapMode::COUNTRY_SELECT:
@@ -302,7 +302,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             }
             break;
         }
-        
+
         // TODO: We should instead make it so you can build stuff in a "building" mode
         /*
 
@@ -402,6 +402,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     map_shader->use();
     view = cam.get_view();
     map_shader->set_uniform("view", view);
+    map_shader->set_uniform("view_pos", cam.position.x, cam.position.y, cam.position.z);
     projection = cam.get_projection();
     map_shader->set_uniform("projection", projection);
     map_shader->set_uniform("map_size", (float)world.width, (float)world.height);

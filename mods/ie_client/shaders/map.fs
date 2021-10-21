@@ -3,8 +3,10 @@
 out vec4 f_frag_colour;
 
 in vec2 v_texcoord;
-in vec3 v_colour;
+in vec3 v_view_pos;
+in vec3 v_frag_pos;
 
+uniform vec3 view_pos;
 uniform vec2 map_size;
 uniform sampler2D tile_map;
 uniform sampler2D tile_sheet;
@@ -39,7 +41,7 @@ vec4 noTiling(sampler2D tex, vec2 uv) {
 
 vec4 get_terrain(vec2 coord, vec2 offset) {
 	float index = texture(terrain_texture, coord).b;
-	index = trunc(index*16.);
+	index = trunc(index * 16.);
 	return texture(terrain_sheet, vec3(offset.x, offset.y, index));
 }
 
@@ -50,7 +52,7 @@ vec4 get_terrain_mix(vec2 tex_coord) {
 	vec2 scaling = mod(tex_coord + 0.5 * pix, pix) / pix;
 
 	vec2 offset = 80. * tex_coord;
-	offset.y *= xx/yy;
+	offset.y *= xx / yy;
 
 	vec4 color_00 = get_terrain(tex_coord + 0.5 * vec2(-xx, -yy), offset);
 	vec4 color_01 = get_terrain(tex_coord + 0.5 * vec2(-xx, yy), offset);
@@ -77,7 +79,6 @@ vec2 getBorder(vec2 texcoord) {
 	// float x = texture(noise_texture, (1./4.) * (1./256.) * texcoord * map_size).x; // cheap (cache friendly) lookup
 	// float y = texture(noise_texture, (1./4.) * (1./256.) * -texcoord * map_size).x; // cheap (cache friendly) lookup
 	// texcoord += (0.5 - vec2(x, y)) * 0.5 * pix;
-
 
 	vec2 mPos = texcoord - mod(texcoord + 0.5 * pix, pix);
 	vec4 provienceLU = texture(tile_map, mPos + pix * vec2(0.25, 0.25)).xyzw;
@@ -115,6 +116,46 @@ vec2 getBorder(vec2 texcoord) {
 	return border;
 }
 
+vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
+	// number of depth layers
+	const float minLayers = 8;
+	const float maxLayers = 32;
+	float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), view_dir)));  
+    // calculate the size of each layer
+	float layerDepth = 1.0 / numLayers;
+    // depth of current layer
+	float currentLayerDepth = 0.0;
+    // the amount to shift the texture coordinates per layer (from vector P)
+	vec2 P = view_dir.xy / view_dir.z * 0.005;
+	vec2 deltaTexCoords = P / numLayers;
+
+    // get initial values
+	vec2 currentTexCoords = tex_coords;
+	float currentDepthMapValue = texture(topo_texture, tex_coords).x;
+
+	while(currentLayerDepth < currentDepthMapValue) {
+        // shift texture coordinates along direction of P
+		currentTexCoords -= deltaTexCoords;
+        // get depthmap value at current texture coordinates
+		currentDepthMapValue = texture(topo_texture, currentTexCoords).x;  
+        // get depth of next layer
+		currentLayerDepth += layerDepth;
+	}
+
+	// get texture coordinates before collision (reverse operations)
+	vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
+
+	// get depth after and before collision for linear interpolation
+	float afterDepth = currentDepthMapValue - currentLayerDepth;
+	float beforeDepth = texture(topo_texture, prevTexCoords).x - currentLayerDepth + layerDepth;
+
+	// interpolation of texture coordinates
+	float weight = afterDepth / (afterDepth - beforeDepth);
+	vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
+
+	return finalTexCoords;
+}
+
 void main() {
 	const vec4 land = vec4(0., 0.7, 0., 1.);
 	const vec4 province_border = vec4(0., 0., 0., 1.);
@@ -122,22 +163,50 @@ void main() {
 	const vec4 mountain = vec4(0., 0., 0., 1.);
 	const vec4 water_col = vec4(0.06, 0.39, 0.75, 1.);
 
-	vec4 water = noTiling(water_texture, 50. * v_texcoord);
+	vec3 view_dir = normalize(view_pos - v_frag_pos);
+	vec2 tex_coords = parallax_map(v_texcoord, view_dir);
+	// vec2 tex_coords = v_texcoord;
+	if(tex_coords.x > 1.0 || tex_coords.y > 1.0 || tex_coords.x < 0.0 || tex_coords.y < 0.0)
+		discard;
+
+	vec4 water = noTiling(water_texture, 50. * tex_coords);
 	water = mix(water, water_col * 0.7, 0.7);
 	// water.rgb = water.rgb * 1.2 - 0.4;
 
-	vec4 terrain_color = get_terrain_mix(v_texcoord);
+	vec4 terrain_color = get_terrain_mix(tex_coords);
 
-	float height = texture(topo_texture, v_texcoord).x;
+	float height = texture(topo_texture, tex_coords).x;
 
-	vec4 coord = texture(tile_map, v_texcoord).rgba;
+	vec4 coord = texture(tile_map, tex_coords).rgba;
 	vec4 ground = mix(water, terrain_color, step(0.08, height));
 	vec4 prov_colour = texture(tile_sheet, coord.rg);
 	vec4 out_colour = mix(ground, prov_colour, 0.8 * step(coord.a, 0.01) * prov_colour.a);
 	out_colour = mix(out_colour, mountain, height * height * 1.5 + 0.2);
 
-	vec2 borders = getBorder(v_texcoord);
+	vec2 borders = getBorder(tex_coords);
 	out_colour = mix(out_colour, province_border, borders.x);
 	out_colour = mix(out_colour, country_border, borders.y);
-	f_frag_colour = out_colour;
+
+	const vec2 size = vec2(2.0, 0.0);
+	const ivec3 off = ivec3(-1, 0, 1);
+
+	float steep = 4.;
+	// tex_coords = v_texcoord;
+	vec4 wave = texture(topo_texture, tex_coords);
+	float s11 = steep * wave.x;
+	float s01 = steep * textureOffset(topo_texture, tex_coords, off.xy).x;
+	float s21 = steep * textureOffset(topo_texture, tex_coords, off.zy).x;
+	float s10 = steep * textureOffset(topo_texture, tex_coords, off.yx).x;
+	float s12 = steep * textureOffset(topo_texture, tex_coords, off.yz).x;
+	vec3 va = normalize(vec3(size.xy, s21 - s01));
+	vec3 vb = normalize(vec3(size.yx, s12 - s10));
+	vec4 bump = vec4(cross(va, vb), s11);
+	// vec3 normal = normalize(bump.xyz * 2.0 - 1.0);
+
+	vec3 lightDir = normalize(vec3(0, 1, 4));
+	float diff = max(dot(lightDir, bump.xyz), 0.0);
+	vec3 diffuse = diff * out_colour.xyz;
+	vec3 ambient = 0.1 * out_colour.xyz;
+
+	f_frag_colour = vec4(diffuse + ambient, 1.);
 }
