@@ -462,17 +462,21 @@ int LuaAPI::get_province_by_id(lua_State* L) {
 
 int LuaAPI::add_province_industry(lua_State* L) {
     Province*& province = g_world->provinces.at(lua_tonumber(L, 1));
+
     Building* building = new Building();
+
     building->corporate_owner = g_world->companies.at(lua_tonumber(L, 2));
-    building->corporate_owner->operating_provinces.insert(province);
     building->type = g_world->building_types.at(lua_tonumber(L, 3));
     building->owner = g_world->nations.at(lua_tonumber(L, 4));
 
-    // We need something better tbh
-    while(building->get_province(*g_world) == nullptr) {
-        building->x = province->min_x + (rand() % (province->max_x - province->min_x));
-        building->y = province->min_y + (rand() % (province->max_y - province->min_y));
-    }
+    // Randomly place in any part of the province
+    // TODO: This will create some funny situations where coal factories will appear on
+    // the fucking pacific ocean - we need to fix that
+    building->x = province->min_x + (rand() % (province->max_x - province->min_x));
+    building->y = province->min_y + (rand() % (province->max_y - province->min_y));
+    building->x = std::min(building->x, g_world->width - 1);
+    building->y = std::min(building->y, g_world->height - 1);
+    building->province = province;
 
     building->working_unit_type = nullptr;
     building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
