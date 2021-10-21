@@ -256,6 +256,97 @@ end
 function Nation:add_client_hint(ideology, alt_name, colour)
 	add_nation_client_hint(self.id, ideology.id, alt_name, colour)
 end
+
+function Nation:get_friends()
+	local table = get_friends_of_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
+end
+function Nation:is_friend(nation)
+	local table = Nation:get_friends(self)
+	for k, v in pairs(table) do
+		if v.id == nation.id then
+			return true
+		end
+	end
+	return false
+end
+
+function Nation:get_enemies()
+	local table = get_enemies_of_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
+end
+function Nation:is_enemy(nation)
+	local table = Nation:get_enemies(self)
+	for k, v in pairs(table) do
+		if v.id == nation.id then
+			return true
+		end
+	end
+	return false
+end
+
+function Nation:get_allies()
+	local table = get_allies_of_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
+end
+function Nation:is_ally(nation)
+	local table = Nation:get_allies(self)
+	for k, v in pairs(table) do
+		if v.id == nation.id then
+			return true
+		end
+	end
+	return false
+end
+
+function Nation:get_war_enemies()
+	local table = get_warenemies_of_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
+end
+function Nation:is_war_enemy(nation)
+	local table = Nation:get_war_enemies(self)
+	for k, v in pairs(table) do
+		if v.id == nation.id then
+			return true
+		end
+	end
+	return false
+end
+
+function Nation:get_embargoed()
+	local table = get_embargoed_of_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
+end
+function Nation:is_embargoed(nation)
+	local table = Nation:get_embargoed(self)
+	for k, v in pairs(table) do
+		if v.id == nation.id then
+			return true
+		end
+	end
+	return false
+end
+
 function Nation:get_owned_provinces()
 	local table = get_provinces_owned_by_nation(self.id)
 	local new_table = {}
@@ -376,7 +467,8 @@ Event = {
 	conditions_fn = "",
 	event_fn = "",
 	title = "",
-	text = ""
+	text = "",
+	checked = false
 }
 function Event:new(o)
 	o = o or {}
@@ -385,11 +477,11 @@ function Event:new(o)
 	return o
 end
 function Event:register()
-	self.id = add_event(self.ref_name, self.conditions_fn, self.event_fn, self.title, self.text)
+	self.id = add_event(self.ref_name, self.conditions_fn, self.event_fn, self.title, self.text, self.checked)
 end
-function Event:get(o, ref_name)
+function Event:get(ref_name)
 	o = Event:new()
-	o.id, o.conditions_fn, o.event_fn = get_event(ref_name)
+	o.id, o.conditions_fn, o.event_fn, o.title, o.text, o.checked = get_event(ref_name)
 	o.ref_name = ref_name
 	return o
 end

@@ -66,6 +66,13 @@ World::World() {
 
     lua_register(lua, "add_nation", LuaAPI::add_nation);
     lua_register(lua, "get_nation", LuaAPI::get_nation);
+
+    lua_register(lua, "get_friends_of_nation", LuaAPI::get_friends_of_nation);
+    lua_register(lua, "get_enemies_of_nation", LuaAPI::get_enemies_of_nation);
+    lua_register(lua, "get_allies_of_nation", LuaAPI::get_allies_of_nation);
+    lua_register(lua, "get_warenemies_of_nation", LuaAPI::get_warenemies_of_nation);
+    lua_register(lua, "get_embargoed_of_nation", LuaAPI::get_embargoed_of_nation);
+
     lua_register(lua, "get_provinces_owned_by_nation", LuaAPI::get_provinces_owned_by_nation);
     lua_register(lua, "get_provinces_with_nucleus_by_nation", LuaAPI::get_provinces_with_nucleus_by_nation);
     lua_register(lua, "set_nation_primary_culture", LuaAPI::set_nation_primary_culture);
@@ -129,22 +136,29 @@ World::World() {
     lua_register(lua, "get_year", LuaAPI::get_year);
     lua_register(lua, "set_date", LuaAPI::set_date);
 
-    /*
     const struct luaL_Reg ideology_meta[] = {
         { "__gc", [](lua_State* L) {
+            print_info("__gc?");
             return 0;
         }},
         { "__index", [](lua_State* L) {
-            print_info("__index?");
-            return 0;
-        }},
-        { "__newindex", [](lua_State* L) {
-            Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
+            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
             std::string member = luaL_checkstring(L, 2);
             if(member == "ref_name") {
-                ideology->ref_name = luaL_checkstring(L, 3);
+                lua_pushstring(L, (*ideology)->ref_name.c_str());
             } else if(member == "name") {
-                ideology->name = luaL_checkstring(L, 3);
+                lua_pushstring(L, (*ideology)->name.c_str());
+            }
+            print_info("__index?");
+            return 1;
+        }},
+        { "__newindex", [](lua_State* L) {
+            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
+            std::string member = luaL_checkstring(L, 2);
+            if(member == "ref_name") {
+                (*ideology)->ref_name = luaL_checkstring(L, 3);
+            } else if(member == "name") {
+                (*ideology)->name = luaL_checkstring(L, 3);
             }
             print_info("__newindex?");
             return 0;
@@ -153,32 +167,41 @@ World::World() {
     };
     const luaL_Reg ideology_methods[] = {
         { "new", [](lua_State* L) {
-            Ideology* ideology = (Ideology*)lua_newuserdata(L, sizeof(Ideology));
-            ideology->ref_name = luaL_checkstring(L, 1);
-            ideology->name = luaL_checkstring(L, 2);
+            Ideology** ideology = (Ideology**)lua_newuserdata(L, sizeof(Ideology*));
+            *ideology = new Ideology();
+            luaL_setmetatable(L, "Ideology");
+
+            (*ideology)->ref_name = luaL_checkstring(L, 1);
+            (*ideology)->name = luaL_optstring(L, 2, (*ideology)->ref_name.c_str());
+
+            print_info("__new?");
             return 1;
         }},
         { "register", [](lua_State* L) {
-            Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
-            Ideology* new_ideology = new Ideology(*ideology);
-            g_world->insert(new_ideology);
+            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
+            g_world->insert(*ideology);
+            print_info("New ideology %s", (*ideology)->ref_name.c_str());
+
+            print_info("__register?");
             return 0;
         }},
         { "get", [](lua_State* L) {
-            std::string ref_name = lua_tostring(L, 2);
+            const std::string ref_name = lua_tostring(L, 1);
             auto result = std::find_if(g_world->ideologies.begin(), g_world->ideologies.end(),
             [&ref_name](const auto& o) { return (o->ref_name == ref_name); });
             if(result == g_world->ideologies.end())
                 throw LuaAPI::Exception("Ideology " + ref_name + " not found");
 
-            Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
-            *ideology = **result;
-            return 0;
+            Ideology** ideology = (Ideology**)lua_newuserdata(L, sizeof(Ideology*));
+            *ideology = *result;
+            luaL_setmetatable(L, "Ideology");
+
+            print_info("__get?");
+            return 1;
         }},
         { NULL, NULL }
     };
-    LuaAPI::register_new_table(lua, "Ideology", ideology_meta, ideology_methods);
-    */
+    //LuaAPI::register_new_table(lua, "Ideology", ideology_meta, ideology_methods);
 
     // Constants for ease of readability
     lua_pushboolean(lua, true);

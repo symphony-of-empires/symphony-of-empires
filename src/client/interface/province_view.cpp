@@ -14,18 +14,20 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->text(province->name);
 
 
-    this->cultures_pie = new UI::PieChart(0, 0, 64, 64, this);
+    this->cultures_pie = new UI::PieChart(0, 0, 128, 128, this);
 
-    this->religions_pie = new UI::PieChart(64, 0, 64, 64, this);
+    this->religions_pie = new UI::PieChart(0, 0, 128, 128, this);
     this->religions_pie->right_side_of(*this->cultures_pie);
 
-    this->pop_types_pie = new UI::PieChart(0, 0, 64, 64, this);
+    this->pop_types_pie = new UI::PieChart(0, 0, 128, 128, this);
     this->pop_types_pie->right_side_of(*this->religions_pie);
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = dynamic_cast<ProvincePopulationTab&>(w);
 
         // Obtain population information
+        // TODO: This is not correct!! - we are calculating per each pop, we are supposed
+        // to merge pops from same culture/religion/type into a single dataset
         std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
         for(const auto& pop : o.province->pops) {
             cultures_data.push_back(UI::ChartData(pop.size, pop.culture->name,
@@ -57,7 +59,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     // Add the initial POPs infoboxes, we can later add/remove as needed on each tick update
     int i = 0;
     for(const auto& pop : this->province->pops) {
-        PopInfo* info = new PopInfo(this->gs, 0, (i * 24) + 64, this->province, i, this);
+        PopInfo* info = new PopInfo(this->gs, 0, (i * 24) + 128, this->province, i, this);
         this->pop_infos.push_back(info);
         i++;
     }
@@ -70,7 +72,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
 {
     this->text(province->name);
 
-    this->products_pie = new UI::PieChart(0, 24, 64, 64, this);
+    this->products_pie = new UI::PieChart(0, 24, 128, 128, this);
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = dynamic_cast<ProvinceEconomyTab&>(w);
@@ -98,7 +100,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
             continue;
         }
 
-        ProductInfo* info = new ProductInfo(this->gs, 0, (i * 24) + 64, product, this);
+        ProductInfo* info = new ProductInfo(this->gs, 0, (i * 24) + 128, product, this);
         this->product_infos.push_back(info);
         i++;
     }

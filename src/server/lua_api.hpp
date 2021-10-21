@@ -50,6 +50,13 @@ namespace LuaAPI {
 
     int add_nation(lua_State* L);
     int get_nation(lua_State* L);
+
+    int get_friends_of_nation(lua_State* L);
+    int get_enemies_of_nation(lua_State* L);
+    int get_allies_of_nation(lua_State* L);
+    int get_warenemies_of_nation(lua_State* L);
+    int get_embargoed_of_nation(lua_State* L);
+
     int get_provinces_owned_by_nation(lua_State* L);
     int get_provinces_with_nucleus_by_nation(lua_State* L);
     int set_nation_primary_culture(lua_State* L);

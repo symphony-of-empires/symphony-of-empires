@@ -102,4 +102,6 @@ float Province::get_attractive(const Pop& pop) const {
     else if(pop.type->social_value <= 3.f || pop.type->social_value >= 3.f) {
         attractive += -(this->owner->current_policy.rich_flat_tax);
     }
+
+    return attractive;
 }

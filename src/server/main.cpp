@@ -66,12 +66,12 @@ int main(int argc, char** argv) {
     }
 
 #ifndef UNIT_TEST
-    // Run as a server for servicing multiple clients
-    World* world = new World();
-    world->load_mod();
-    Server* server = new Server(1836);
-
     try {
+        // Run as a server for servicing multiple clients
+        World* world = new World();
+        world->load_mod();
+        Server* server = new Server(1836);
+
         std::cout << "Type start to start the simulation or help to view all the commands" << std::endl;
 
         std::future<std::string> future = std::async(std::launch::async, async_get_input);
@@ -234,15 +234,19 @@ int main(int argc, char** argv) {
             }
             //std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
+
+        print_info(gettext("Destroying world"));
+        delete world;
+        print_info(gettext("Destroying server"));
+        delete server;
+    } catch(const LuaAPI::Exception& e) {
+        luaL_traceback(g_world->lua, g_world->lua, e.what(), 0);
+        print_error(lua_tostring(g_world->lua, -1));
+        throw;
     } catch(const std::exception& e) {
         print_error(e.what());
         throw;
     }
-        
-    print_info(gettext("Destroying world"));
-    delete world;
-    print_info(gettext("Destroying server"));
-    delete server;
 #else
     exit(EXIT_SUCCESS);
 #endif

@@ -57,7 +57,6 @@ namespace Interface {
     class ProvinceBrief : public UI::Window {
         UI::PieChart* cultures_pie;
         UI::Chart* economy_chart;
-        
     public:
         ProvinceBrief(GameState& gs, Province* province);
     };

@@ -338,6 +338,15 @@ void init_client(GameState& gs) {
     gs.select_nation = new Interface::SelectNation(gs);
 }
 
+GameState* ext_gs;
+void client_update_on_tick(void) {
+    GameState& gs = *ext_gs;
+    for(const auto& client_update_fn : gs.client_update_fns) {
+        client_update_fn(gs);
+    }
+    return;
+}
+
 void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     //gs.products_view_world = new ProductsViewWorld(gs);
     //gs.pop_view_nation = new PopViewNation(gs);
@@ -362,13 +371,6 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     std::vector<Event*> displayed_events;
     std::vector<Treaty*> displayed_treaties;
     while(run) {
-        if(last_time != gs.world->time) {
-            for(const auto& client_update_fn : gs.client_update_fns) {
-                client_update_fn(gs);
-            }
-            last_time = gs.world->time;
-        }
-
         std::unique_lock<std::mutex> lock(render_lock);
 
         handle_event(input, gs, run);
@@ -423,6 +425,7 @@ void start_client(int argc, char** argv) {
     SDL_Window* window;
     int width = 1280, height = 800;
     GameState gs{ Camera(width, height) };
+    ext_gs = &gs;
 
     window = SDL_CreateWindow("Symphony of Empires", 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext context = SDL_GL_CreateContext(window);

@@ -44,6 +44,7 @@ WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeo
 #include "../diplomacy.hpp"
 #include "../world.hpp"
 #include "../io_impl.hpp"
+#include "game_state.hpp"
 
 #include <chrono>
 #include <thread>
@@ -270,6 +271,8 @@ void Client::net_loop(void) {
                     }
                 } break;
                 case ActionType::WORLD_TICK: {
+                    extern void client_update_on_tick(void);
+                    client_update_on_tick();
                     g_world->time++;
                 } break;
                 case ActionType::TILE_UPDATE: {
