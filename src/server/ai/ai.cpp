@@ -226,13 +226,18 @@ void ai_do_tick(Nation* nation, World* world) {
 		// Now build the building
 		Building* building = new Building();
 
+		Province* province = g_world->provinces[rand() % g_world->provinces.size()];
+
 		building->owner = nation;
 
-		// We need something better tbh
-		while(building->get_province(*world) == nullptr) {
-			building->x = rand() % world->width;
-			building->y = rand() % world->height;
-		}
+		// Randomly place in any part of the province
+		// TODO: This will create some funny situations where coal factories will appear on
+		// the fucking pacific ocean - we need to fix that
+		building->x = province->min_x + ((rand() + 1) % (province->max_x - province->min_x));
+		building->y = province->min_y + ((rand() + 1) % (province->max_y - province->min_y));
+		building->x = std::min(building->x, g_world->width - 1);
+		building->y = std::min(building->y, g_world->height - 1);
+		building->province = province;
 
 		building->working_unit_type = nullptr;
 		building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
@@ -242,9 +247,7 @@ void ai_do_tick(Nation* nation, World* world) {
 			building->budget = 100.f;
 			building->corporate_owner = world->companies.at(std::rand() % world->companies.size());
 			building->create_factory(*world);
-
 			building->corporate_owner->operating_provinces.insert(building->get_province(*world));
-
 			for(const auto& product : building->output_products) {
 				Packet packet = Packet();
 				Archive ar = Archive();

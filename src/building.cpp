@@ -15,11 +15,12 @@ void Building::add_to_stock(const World& world, const Good* good, const size_t a
 }
 
 Province* Building::get_province(const World& world) {
-    const Tile& tile = world.get_tile(this->x, this->y);
-    if(tile.province_id == (Province::Id)-1) {
-        return nullptr;
-    }
-    return world.provinces[tile.province_id];
+    //const Tile& tile = world.get_tile(this->x, this->y);
+    //if(tile.province_id == (Province::Id)-1) {
+    //    return nullptr;
+    //}
+    //return world.provinces[tile.province_id];
+    return this->province;
 }
 
 Nation* Building::get_owner(const World& world) {
