@@ -2,6 +2,38 @@
 #include "world.hpp"
 #include "print.hpp"
 
+// Declare war
+void Nation::declare_war(Nation& nation) {
+    World& world = World::get_instance();
+    auto* war = new War();
+
+    // Recollect offenders
+    // - Those who are allied to us
+    for(size_t i = 0; i < this->relations.size(); i++) {
+        const auto& relation = this->relations[i];
+
+        if(relation.has_alliance == true) {
+            war->attackers.push_back(world.nations[i]);
+        }
+    }
+    war->attackers.push_back(this);
+
+    // Recollect defenders
+    // - Those who are on a defensive pact with the target
+    // - Those who are allied with the target
+    for(size_t i = 0; i < nation.relations.size(); i++) {
+        const auto& relation = nation.relations[i];
+
+        if(relation.has_alliance == true
+        || relation.has_defensive_pact == true) {
+            war->defenders.push_back(world.nations[i]);
+        }
+    }
+    war->defenders.push_back(&nation);
+
+    war->name = "War by " + this->name + " against " + nation.name;
+}
+
 bool Nation::is_ally(const Nation& nation) {
     const World& world = World::get_instance();
 
@@ -140,7 +172,8 @@ float Nation::get_tax(const Pop& pop) const {
 }
 
 // Gives this nation a specified province (for example on a treaty)
-void Nation::give_province(World& world, Province& province) {
+void Nation::give_province(Province& province) {
+    World& world = World::get_instance();
     Nation::Id nation_id = world.get_id(this);
     Province::Id province_id = world.get_id(&province);
 

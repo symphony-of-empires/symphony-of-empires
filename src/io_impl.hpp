@@ -609,9 +609,8 @@ public:
     static inline void serialize(Archive& stream, const Nation* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
-        ::serialize(stream, &obj->controlled_by_ai);
         ::serialize(stream, &obj->relations);
-        ::serialize(stream, &obj->spherer_id);
+        ::serialize(stream, &obj->spherer);
         ::serialize(stream, &obj->diplomacy_points);
         ::serialize(stream, &obj->prestige);
 
@@ -639,9 +638,8 @@ public:
     static inline void deserialize(Archive& stream, Nation* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
-        ::deserialize(stream, &obj->controlled_by_ai);
         ::deserialize(stream, &obj->relations);
-        ::deserialize(stream, &obj->spherer_id);
+        ::deserialize(stream, &obj->spherer);
         ::deserialize(stream, &obj->diplomacy_points);
         ::deserialize(stream, &obj->prestige);
 
@@ -670,9 +668,8 @@ public:
         return
             serialized_size(&obj->name)
             + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->controlled_by_ai)
             + serialized_size(&obj->relations)
-            + serialized_size(&obj->spherer_id)
+            + serialized_size(&obj->spherer)
             + serialized_size(&obj->diplomacy_points)
             + serialized_size(&obj->prestige)
             + serialized_size(&obj->base_literacy)

@@ -361,7 +361,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
         // Reverse rotation
         model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
-        draw_flag(building->get_owner(world));
+        draw_flag(building->get_owner());
     }
 
     for(const auto& unit : world.units) {

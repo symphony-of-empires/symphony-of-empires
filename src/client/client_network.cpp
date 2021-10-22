@@ -242,20 +242,20 @@ void Client::net_loop(void) {
                     ::deserialize(ar, building);
                     g_world->insert(building);
 
-                    if(building->get_owner(*g_world) != nullptr) {
-                        print_info("New building property of %s", building->get_owner(*g_world)->name.c_str());
+                    if(building->get_owner() != nullptr) {
+                        print_info("New building property of %s", building->get_owner()->name.c_str());
                     }
                 } break;
                 case ActionType::BUILDING_REMOVE: {
                     Building* building;
                     ::deserialize(ar, &building);
 
-                    if(building->get_owner(*g_world) != nullptr) {
-                        print_info("Remove building property of %s", building->get_owner(*g_world)->name.c_str());
+                    if(building->get_owner() != nullptr) {
+                        print_info("Remove building property of %s", building->get_owner()->name.c_str());
                     }
 
                     if(building->type->is_factory == true) {
-                        building->delete_factory(*g_world);
+                        building->delete_factory();
                     }
                     
                     g_world->remove(building);

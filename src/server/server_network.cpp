@@ -280,7 +280,7 @@ void Server::net_loop(int id) {
                             throw ServerException("Unknown unit type");
 
                         // Must control building
-                        if(building->get_owner(*g_world) != selected_nation)
+                        if(building->get_owner() != selected_nation)
                             throw ServerException("Nation does not control building");
 
                         // TODO: Check nation can build this unit

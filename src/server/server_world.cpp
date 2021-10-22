@@ -43,8 +43,6 @@ World::World() {
     luaL_openlibs(lua);
 
     // Register our API functions
-    lua_register(lua, "_", LuaAPI::get_text);
-
     lua_register(lua, "add_technology", LuaAPI::add_technology);
     lua_register(lua, "get_technology", LuaAPI::get_technology);
     lua_register(lua, "add_req_tech_to_tech", LuaAPI::add_req_tech_to_tech);
@@ -130,11 +128,35 @@ World::World() {
     lua_register(lua, "add_ideology", LuaAPI::add_ideology);
     lua_register(lua, "get_ideology", LuaAPI::get_ideology);
 
-    lua_register(lua, "get_hour", LuaAPI::get_hour);
-    lua_register(lua, "get_day", LuaAPI::get_day);
-    lua_register(lua, "get_month", LuaAPI::get_month);
-    lua_register(lua, "get_year", LuaAPI::get_year);
-    lua_register(lua, "set_date", LuaAPI::set_date);
+    lua_register(lua, "get_hour", [](lua_State* L) {
+        lua_pushnumber(L, 1 + (g_world->time % 48));
+        return 1;
+    });
+    lua_register(lua, "get_day", [](lua_State* L) {
+        lua_pushnumber(L, 1 + (g_world->time / 48 % 30));
+        return 1;
+    });
+    lua_register(lua, "get_month", [](lua_State* L) {
+        lua_pushnumber(L, 1 + (g_world->time / 48 / 30 % 12));
+        return 1;
+    });
+    lua_register(lua, "get_year", [](lua_State* L) {
+        lua_pushnumber(L, g_world->time / 48 / 30 / 12);
+        return 1;
+    });
+    lua_register(lua, "set_date", [](lua_State* L) {
+        const int year = lua_tonumber(L, 1) * 12 * 30 * 48;
+        const int month = lua_tonumber(L, 2) * 30 * 48;
+        const int day = lua_tonumber(L, 3) * 48;
+        g_world->time = year + month + day;
+        return 1;
+    });
+    lua_register(lua, "_", [](lua_State* L) {
+        std::string msgid = luaL_checkstring(L, 1);
+        std::string end_msg = gettext(msgid.c_str());
+        lua_pushstring(L, end_msg.c_str());
+        return 1;
+    });
 
     const struct luaL_Reg ideology_meta[] = {
         { "__gc", [](lua_State* L) {
