@@ -10,7 +10,7 @@ NationMod = {
 	reproduction = 1.0,
 	death = 1.0,
 	militancy = 1.0,
-	consciousness = 1.0,
+	con = 1.0,
 	life_needs_met = 1.0,
 	everyday_needs_met = 1.0,
 	luxury_needs_met = 1.0
@@ -22,11 +22,11 @@ function NationMod:new(o)
 	return o
 end
 function NationMod:register()
-	self.id = add_nation_mod(self.ref_name, self.name, self.industry_output, self.industry_input, self.workers_needed, self.salary_paid, self.delivery_cost, self.literacy_learn, self.reproduction, self.death, self.militancy, self.consciousness, self.life_needs_met, self.everyday_needs_met, self.luxury_needs_met)
+	self.id = add_nation_mod(self.ref_name, self.name, self.industry_output, self.industry_input, self.workers_needed, self.salary_paid, self.delivery_cost, self.literacy_learn, self.reproduction, self.death, self.militancy, self.con, self.life_needs_met, self.everyday_needs_met, self.luxury_needs_met)
 end
 function NationMod:get(ref_name)
 	o = NationMod:new()
-	o.id, o.name, o.industry_output, o.industry_input, o.workers_needed, o.salary_paid, o.delivery_cost, o.literacy_learn, o.reproduction, o.death, o.militancy, o.consciousness, o.life_needs_met, o.everyday_needs_met, o.luxury_needs_met = get_nation_mod(ref_name)
+	o.id, o.name, o.industry_output, o.industry_input, o.workers_needed, o.salary_paid, o.delivery_cost, o.literacy_learn, o.reproduction, o.death, o.militancy, o.con, o.life_needs_met, o.everyday_needs_met, o.luxury_needs_met = get_nation_mod(ref_name)
 	o.ref_name = ref_name
 	return o
 end
@@ -439,15 +439,15 @@ end
 function Province:multiply_militancy_by_religion(religion, factor)
 	multiply_province_militancy_by_religion(self.id, religion.id, factor)
 end
--- Increments consciousness for all POPs
-function Province:multiply_consciousness_global(factor)
-	multiply_province_consciousness_global(self.id, factor)
+-- Increments con for all POPs
+function Province:multiply_con_global(factor)
+	multiply_province_con_global(self.id, factor)
 end
-function Province:multiply_consciousness_by_culture(culture, factor)
-	multiply_province_consciousness_by_culture(self.id, culture.id, factor)
+function Province:multiply_con_by_culture(culture, factor)
+	multiply_province_con_by_culture(self.id, culture.id, factor)
 end
-function Province:multiply_consciousness_by_religion(religion, factor)
-	multiply_province_consciousness_by_religion(self.id, religion.id, factor)
+function Province:multiply_con_by_religion(religion, factor)
+	multiply_province_con_by_religion(self.id, religion.id, factor)
 end
 -- Adds a POP to the province
 function Province:add_pop(pop_type, culture, religion, size, literacy)

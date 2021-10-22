@@ -171,7 +171,7 @@ function catholic_relief_act_of_1829_descision_1()
     local prov = Nation:get_owned_provinces()
     for k, v in pairs(prov) do
         k:multiply_militancy_by_religion(catholic, 100.0)
-        k:multiply_consciousness_by_religion(catholic, 100.0)
+        k:multiply_con_by_religion(catholic, 100.0)
     end
 end
 catholic_relief_act_of_1829 = Event:new{

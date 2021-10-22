@@ -14,6 +14,9 @@ namespace Interface {
         UI::PieChart* ideology_pie;
         UI::Chart* militancy_chart;
         UI::Chart* con_chart;
+
+        UI::Button* enact_btn;
+        Policies new_policy;
     public:
         PoliciesScreen(GameState& gs);
     };

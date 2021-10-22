@@ -489,7 +489,7 @@ int LuaAPI::add_nation_mod(lua_State* L) {
     mod->reproduction_mod = lua_tonumber(L, 9);
     mod->death_mod = lua_tonumber(L, 10);
     mod->militancy_mod = lua_tonumber(L, 11);
-    mod->consciousness_mod = lua_tonumber(L, 12);
+    mod->con_mod = lua_tonumber(L, 12);
     mod->life_needs_met_mod = lua_tonumber(L, 13);
     mod->everyday_needs_met_mod = lua_tonumber(L, 14);
     mod->luxury_needs_met_mod = lua_tonumber(L, 15);
@@ -514,7 +514,7 @@ int LuaAPI::get_nation_mod(lua_State* L) {
     lua_pushnumber(L, mod->reproduction_mod);
     lua_pushnumber(L, mod->death_mod);
     lua_pushnumber(L, mod->militancy_mod);
-    lua_pushnumber(L, mod->consciousness_mod);
+    lua_pushnumber(L, mod->con_mod);
     lua_pushnumber(L, mod->life_needs_met_mod);
     lua_pushnumber(L, mod->everyday_needs_met_mod);
     lua_pushnumber(L, mod->luxury_needs_met_mod);
@@ -673,7 +673,7 @@ int LuaAPI::multiply_province_con_global(lua_State* L) {
 
     double factor = lua_tonumber(L, 2);
     for(auto& pop : province->pops) {
-        pop.consciousness *= factor;
+        pop.con *= factor;
     }
     return 0;
 }
@@ -687,7 +687,7 @@ int LuaAPI::multiply_province_con_by_culture(lua_State* L) {
         if(pop.culture != g_world->cultures.at(lua_tonumber(L, 2))) {
             continue;
         }
-        pop.consciousness *= factor;
+        pop.con *= factor;
     }
     return 0;
 }
@@ -701,7 +701,7 @@ int LuaAPI::multiply_province_con_by_religion(lua_State* L) {
         if(pop.religion != g_world->religions.at(lua_tonumber(L, 2))) {
             continue;
         }
-        pop.consciousness *= factor;
+        pop.con *= factor;
     }
     return 0;
 }
@@ -715,6 +715,9 @@ int LuaAPI::add_province_pop(lua_State* L) {
     pop.religion = g_world->religions.at(lua_tonumber(L, 4));
     pop.size = lua_tonumber(L, 5);
     pop.literacy = lua_tonumber(L, 6);
+
+    // TODO: Make ideology NOT be random
+    pop.ideology = g_world->ideologies[rand() % g_world->ideologies.size()];
 
     if(pop.size == 0) {
         throw LuaAPI::Exception("Can't create pops with 0 size");

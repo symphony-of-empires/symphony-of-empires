@@ -27,7 +27,7 @@ public:
     float literacy;
     
     float militancy = 0.f;
-    float consciousness = 0.f;
+    float con = 0.f;
     float budget = 0.f;
     
     float savings = 0.f;

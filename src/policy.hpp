@@ -138,7 +138,10 @@ public:
     // Minimum wage
     float minimum_wage;
 
-    inline int difference(Policies& rhs) {
+    // Minimum social value for people to be accounted on the parliament
+    float min_sv_for_parliament;
+
+    inline int difference(const Policies& rhs) {
         int diff = 0;
 
         diff += std::abs(rhs.migration - this->migration);
@@ -165,6 +168,7 @@ public:
         diff += (rhs.rich_flat_tax != this->rich_flat_tax) ? 1 : 0;
         diff += (rhs.free_supplies != this->free_supplies) ? 1 : 0;
         diff += std::abs(rhs.minimum_wage - this->minimum_wage);
+        diff += std::abs(rhs.min_sv_for_parliament - this->min_sv_for_parliament);
         return diff;
     };
 };
