@@ -195,7 +195,7 @@ public:
         ::serialize(stream, &obj->treatment);
         ::serialize(stream, &obj->women_labour);
         ::serialize(stream, &obj->women_suffrage);
-        ::serialize(stream, &obj->minimum_wage);
+        ::serialize(stream, &obj->min_wage);
         ::serialize(stream, &obj->min_sv_for_parliament);
     }
     static inline void deserialize(Archive& stream, Policies* obj) {
@@ -221,7 +221,7 @@ public:
         ::deserialize(stream, &obj->treatment);
         ::deserialize(stream, &obj->women_labour);
         ::deserialize(stream, &obj->women_suffrage);
-        ::deserialize(stream, &obj->minimum_wage);
+        ::deserialize(stream, &obj->min_wage);
         ::deserialize(stream, &obj->min_sv_for_parliament);
     }
     static inline size_t size(const Policies* obj) {
@@ -247,7 +247,7 @@ public:
             + serialized_size(&obj->treatment)
             + serialized_size(&obj->women_labour)
             + serialized_size(&obj->women_suffrage)
-            + serialized_size(&obj->minimum_wage)
+            + serialized_size(&obj->min_wage)
             + serialized_size(&obj->min_sv_for_parliament)
         ;
     }
