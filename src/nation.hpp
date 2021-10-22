@@ -67,7 +67,7 @@ public:
     float reproduction_mod = 1.f;
     float death_mod = 1.f;
     float militancy_mod = 1.f;
-    float consciousness_mod = 1.f;
+    float con_mod = 1.f;
     float life_needs_met_mod = 1.f;
     float everyday_needs_met_mod = 1.f;
     float luxury_needs_met_mod = 1.f;

@@ -69,7 +69,7 @@ public:
     static inline void serialize(Archive& stream, const NationModifier* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
-        ::serialize(stream, &obj->consciousness_mod);
+        ::serialize(stream, &obj->con_mod);
         ::serialize(stream, &obj->death_mod);
         ::serialize(stream, &obj->delivery_cost_mod);
         ::serialize(stream, &obj->everyday_needs_met_mod);
@@ -84,7 +84,7 @@ public:
     static inline void deserialize(Archive& stream, NationModifier* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
-        ::deserialize(stream, &obj->consciousness_mod);
+        ::deserialize(stream, &obj->con_mod);
         ::deserialize(stream, &obj->death_mod);
         ::deserialize(stream, &obj->delivery_cost_mod);
         ::deserialize(stream, &obj->everyday_needs_met_mod);
@@ -100,7 +100,7 @@ public:
         return
             serialized_size(&obj->name)
             + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->consciousness_mod)
+            + serialized_size(&obj->con_mod)
             + serialized_size(&obj->death_mod)
             + serialized_size(&obj->delivery_cost_mod)
             + serialized_size(&obj->everyday_needs_met_mod)
@@ -196,6 +196,7 @@ public:
         ::serialize(stream, &obj->women_labour);
         ::serialize(stream, &obj->women_suffrage);
         ::serialize(stream, &obj->minimum_wage);
+        ::serialize(stream, &obj->min_sv_for_parliament);
     }
     static inline void deserialize(Archive& stream, Policies* obj) {
         ::deserialize(stream, &obj->free_supplies);
@@ -221,6 +222,7 @@ public:
         ::deserialize(stream, &obj->women_labour);
         ::deserialize(stream, &obj->women_suffrage);
         ::deserialize(stream, &obj->minimum_wage);
+        ::deserialize(stream, &obj->min_sv_for_parliament);
     }
     static inline size_t size(const Policies* obj) {
         return serialized_size(&obj->free_supplies)
@@ -245,7 +247,8 @@ public:
             + serialized_size(&obj->treatment)
             + serialized_size(&obj->women_labour)
             + serialized_size(&obj->women_suffrage)
-            + serialized_size(&obj->minimum_wage);
+            + serialized_size(&obj->minimum_wage)
+            + serialized_size(&obj->min_sv_for_parliament)
         ;
     }
 };
@@ -391,7 +394,7 @@ public:
 
         ::serialize(stream, &obj->literacy);
         ::serialize(stream, &obj->militancy);
-        ::serialize(stream, &obj->consciousness);
+        ::serialize(stream, &obj->con);
         ::serialize(stream, &obj->budget);
 
         ::serialize(stream, &obj->life_needs_met);
@@ -408,7 +411,7 @@ public:
 
         ::deserialize(stream, &obj->literacy);
         ::deserialize(stream, &obj->militancy);
-        ::deserialize(stream, &obj->consciousness);
+        ::deserialize(stream, &obj->con);
         ::deserialize(stream, &obj->budget);
 
         ::deserialize(stream, &obj->life_needs_met);
@@ -424,7 +427,7 @@ public:
             + serialized_size(&obj->unemployed)
             + serialized_size(&obj->literacy)
             + serialized_size(&obj->militancy)
-            + serialized_size(&obj->consciousness)
+            + serialized_size(&obj->con)
             + serialized_size(&obj->budget)
             + serialized_size(&obj->life_needs_met)
             + serialized_size(&obj->everyday_needs_met)

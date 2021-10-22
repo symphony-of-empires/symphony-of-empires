@@ -1,5 +1,9 @@
 #include "policies.hpp"
 
+#include "../client_network.hpp"
+#include "../../serializer.hpp"
+#include "../../io_impl.hpp"
+
 using namespace Interface;
 
 PoliciesScreen::PoliciesScreen(GameState& _gs)
@@ -16,6 +20,22 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     this->con_chart = new UI::Chart(0, 0, 128, 128, this);
     this->con_chart->text("Conciousness");
     this->con_chart->right_side_of(*militancy_chart);
+
+    this->enact_btn = new UI::Button(0, 0, 128, 24, this);
+    this->enact_btn->below_of(*ideology_pie);
+    this->enact_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = dynamic_cast<PoliciesScreen&>(w);
+
+        g_client->packet_mutex.lock();
+        Packet packet = Packet();
+        Archive ar = Archive();
+        ActionType action = ActionType::NATION_ENACT_POLICY;
+        ::serialize(ar, &action);
+        ::serialize(ar, &o.new_policy); // PoliciesObj
+        packet.data(ar.get_buffer(), ar.size());
+        g_client->packet_queue.push_back(packet);
+        g_client->packet_mutex.unlock(); 
+    });
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = dynamic_cast<PoliciesScreen&>(w);
@@ -36,7 +56,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
             for(const auto& pop : province->pops) {
                 ideology_data[world.get_id(pop.ideology)].num += pop.size;
                 militancy += pop.militancy;
-                con += pop.consciousness;
+                con += pop.con;
             }
         }
 

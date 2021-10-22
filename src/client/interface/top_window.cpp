@@ -81,7 +81,7 @@ TopWindow::TopWindow(GameState& _gs)
         }
 
         size_t total_pop = 0, n_pops = 0;
-        double living_std = 0.f, gdp = 0.f, militancy = 0.f, consciousness = 0.f;
+        double living_std = 0.f, gdp = 0.f, militancy = 0.f, con = 0.f;
         for(const auto& province : o.gs.curr_nation->owned_provinces) {
             for(const auto& product : g_world->products) {
                 gdp += product->price * province->stockpile.at(g_world->get_id(product));
@@ -90,13 +90,13 @@ TopWindow::TopWindow(GameState& _gs)
             for(const auto& pop : province->pops) {
                 total_pop += pop.size;
                 militancy += pop.militancy;
-                consciousness += pop.consciousness;
+                con += pop.con;
                 living_std += pop.life_needs_met;
                 n_pops++;
             }
         }
         militancy /= total_pop;
-        consciousness /= total_pop;
+        con /= total_pop;
 
         o.gdp_chart->data.push_back(gdp);
         if(o.gdp_chart->data.size() >= 30)
@@ -111,7 +111,7 @@ TopWindow::TopWindow(GameState& _gs)
             o.hdi_chart->data.pop_front();
         
         o.militancy_lab->text(std::to_string(militancy));
-        o.big_brain_lab->text(std::to_string(consciousness));
+        o.big_brain_lab->text(std::to_string(con));
         o.prestige_lab->text(std::to_string(o.gs.curr_nation->prestige));
         o.economy_lab->text(std::to_string(o.gs.curr_nation->economy_score));
         o.money_lab->text(std::to_string(o.gs.curr_nation->budget));

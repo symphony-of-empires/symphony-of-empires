@@ -276,20 +276,20 @@
 //     }
 
 //     size_t total_pop = 0;
-//     double militancy = 0.f, consciousness = 0.f;
+//     double militancy = 0.f, con = 0.f;
 //     for (const auto& province : player_nation.owned_provinces) {
 //         for (const auto& pop : province->pops) {
 //             total_pop += pop.size;
 //             militancy += pop.militancy;
-//             consciousness += pop.consciousness;
+//             con += pop.con;
 //         }
 //     }
 //     militancy /= total_pop;
-//     consciousness /= total_pop;
+//     con /= total_pop;
 
 //     sprintf(tmpbuf, " %10.3f", militancy);
 //     militancy_lab->text(tmpbuf);
-//     sprintf(tmpbuf, " %10.3f", consciousness);
+//     sprintf(tmpbuf, " %10.3f", con);
 //     big_brain_lab->text(tmpbuf);
 //     sprintf(tmpbuf, " %10.3f", player_nation.prestige);
 //     prestige_lab->text(tmpbuf);

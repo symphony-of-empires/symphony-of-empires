@@ -643,12 +643,12 @@ void Economy::do_phase_3(World& world) {
             if(pop.life_needs_met >= 1.f) {
                 if(pop.militancy > 0.f) {
                     pop.militancy -= 0.0002f;
-                    pop.consciousness -= 0.0001f;
+                    pop.con -= 0.0001f;
                 }
             }
             else {
                 pop.militancy += 0.01f;
-                pop.consciousness += 0.01f;
+                pop.con += 0.01f;
             }
 
             // Depending on how much not our life needs are being met is how many we
