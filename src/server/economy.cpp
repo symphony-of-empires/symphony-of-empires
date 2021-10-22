@@ -116,7 +116,7 @@ void Economy::do_phase_1(World& world) {
             }
 
             // Give pay to the POP
-            float payment = employed * province->owner->current_policy.minimum_wage;
+            float payment = employed * province->owner->current_policy.min_wage;
             job_request.pop->budget += payment;
             building->budget -= payment;
             job_request.amount -= employed;

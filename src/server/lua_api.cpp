@@ -422,8 +422,9 @@ int LuaAPI::get_nation_policies(lua_State* L) {
     lua_pushnumber(L, policy.industry_tax);
     lua_pushnumber(L, policy.military_spending);
     lua_pushboolean(L, policy.free_supplies);
-    lua_pushnumber(L, policy.minimum_wage);
-    return 33;
+    lua_pushnumber(L, policy.min_wage);
+    lua_pushnumber(L, policy.min_sv_for_parliament);
+    return 34;
 }
 
 int LuaAPI::set_nation_policies(lua_State* L) {
@@ -464,7 +465,8 @@ int LuaAPI::set_nation_policies(lua_State* L) {
     policy.industry_tax = lua_tonumber(L, 30);
     policy.military_spending = lua_tonumber(L, 31);
     policy.free_supplies = lua_toboolean(L, 32);
-    policy.minimum_wage = lua_tonumber(L, 33);
+    policy.min_wage = lua_tonumber(L, 33);
+    policy.min_sv_for_parliament = lua_tonumber(L, 34);
     return 0;
 }
 
