@@ -115,18 +115,8 @@ namespace LuaAPI {
     int add_ideology(lua_State* L);
     int get_ideology(lua_State* L);
 
-    // Time functions
-    int get_hour(lua_State* L);
-    int get_day(lua_State* L);
-    int get_month(lua_State* L);
-    int get_year(lua_State* L);
-    int set_date(lua_State* L);
-
     // Beta functions that exist
     int add_op_province_to_company(lua_State* L);
-
-    // Translation stuff
-    int get_text(lua_State* L);
 
     // Functions not part of the API
     void check_events(lua_State* L);

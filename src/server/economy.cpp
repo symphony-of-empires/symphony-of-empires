@@ -54,7 +54,7 @@ void Economy::do_phase_1(World& world) {
         if(!can_build)
             break;
 
-        auto province = building->get_province(world);
+        auto province = building->get_province();
         if(province == nullptr || province->owner == nullptr)
             continue;
         
@@ -138,7 +138,7 @@ void Economy::do_phase_1(World& world) {
             unit->type = building->working_unit_type;
             unit->tx = unit->x;
             unit->ty = unit->y;
-            unit->owner = building->get_owner(world);
+            unit->owner = building->get_owner();
             unit->budget = 5000.f;
             unit->experience = 1.f;
             unit->morale = 1.f;
@@ -185,7 +185,7 @@ void Economy::do_phase_1(World& world) {
                 print_info("Building of %s in %s has closed down!", building->type->name.c_str(), province->name.c_str());
 
                 if(building->type->is_factory == true) {
-                    building->delete_factory(world);
+                    building->delete_factory();
                 }
                 world.remove(world.buildings[j]);
                 delete building;
@@ -243,7 +243,7 @@ void Economy::do_phase_1(World& world) {
             }
             world.orders_mutex.unlock();
 
-            if(!building->can_do_output(world))
+            if(!building->can_do_output())
                 continue;
 
             // Now produce anything as we can!
@@ -433,7 +433,7 @@ void Economy::do_phase_2(World& world) {
 
                     if(order.type == OrderType::INDUSTRIAL) {
                         // Duplicate products and put them into the province's stock (a commerce buff)
-                        order.building->add_to_stock(world, order.good, count);
+                        order.building->add_to_stock(order.good, count);
 
                         // Increment the production cost of this building which is used
                         // so we sell our product at a profit instead  of at a loss
@@ -445,7 +445,7 @@ void Economy::do_phase_2(World& world) {
                     else if(order.type == OrderType::BUILDING) {
                         // The building will take the production materials
                         // and use them for building the unit
-                        order.building->get_owner(world)->budget -= total_order_cost;
+                        order.building->get_owner()->budget -= total_order_cost;
                         for(auto& p : order.building->req_goods) {
                             if(p.first != deliver.good)
                                 continue;
@@ -454,7 +454,7 @@ void Economy::do_phase_2(World& world) {
                     }
                     else if(order.type == OrderType::UNIT) {
                         // TODO: We should deduct and set willing payment from military spendings
-                        order.building->get_owner(world)->budget -= total_order_cost;
+                        order.building->get_owner()->budget -= total_order_cost;
                         for(auto& p : order.building->req_goods) {
                             if(p.first != deliver.good)
                                 continue;
@@ -536,7 +536,7 @@ void Economy::do_phase_3(World& world) {
     std::for_each(world.provinces.begin(), world.provinces.end(), [&emigration_lock, &emigration, &world](auto& province) {
         if(province->owner == nullptr) return;
 
-        std::vector<Product*> province_products = province->get_products(world);
+        std::vector<Product*> province_products = province->get_products();
 
         // Randomness factor to emulate a pseudo-imperfect economy
         const float fuzz = std::fmod((float)(std::rand() + 1) / 1000.f, 2.f) + 1.f;

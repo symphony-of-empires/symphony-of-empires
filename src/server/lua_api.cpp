@@ -587,8 +587,8 @@ int LuaAPI::add_province_industry(lua_State* L) {
     building->req_goods = std::vector<std::pair<Good*, size_t>>();
     if(building->type->is_factory == true) {
         building->budget = 100.f;
-        building->create_factory(*g_world);
-        building->corporate_owner->operating_provinces.insert(building->get_province(*g_world));
+        building->create_factory();
+        building->corporate_owner->operating_provinces.insert(building->get_province());
     }
     g_world->insert(building);
     return 0;
@@ -596,7 +596,7 @@ int LuaAPI::add_province_industry(lua_State* L) {
 
 int LuaAPI::give_province_to(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-    g_world->nations.at(lua_tonumber(L, 2))->give_province(*g_world, *province);
+    g_world->nations.at(lua_tonumber(L, 2))->give_province(*province);
     return 0;
 }
 
@@ -610,7 +610,7 @@ int LuaAPI::get_province_owner(lua_State* L) {
 /** Get the country who owms a larger chunk of the province - this is not the same as owner */
 int LuaAPI::get_province_controller(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-    Nation& nation = province->get_occupation_controller(*g_world);
+    Nation& nation = province->get_occupation_controller();
     lua_pushnumber(L, g_world->get_id(&nation));
     return 1;
 }
@@ -956,34 +956,6 @@ int LuaAPI::get_ideology(lua_State* L) {
     return 2;
 }
 
-int LuaAPI::get_hour(lua_State* L) {
-    lua_pushnumber(L, 1 + (g_world->time % 48));
-    return 1;
-}
-
-int LuaAPI::get_day(lua_State* L) {
-    lua_pushnumber(L, 1 + (g_world->time / 48 % 30));
-    return 1;
-}
-
-int LuaAPI::get_month(lua_State* L) {
-    lua_pushnumber(L, 1 + (g_world->time / 48 / 30 % 12));
-    return 1;
-}
-
-int LuaAPI::get_year(lua_State* L) {
-    lua_pushnumber(L, g_world->time / 48 / 30 / 12);
-    return 1;
-}
-
-int LuaAPI::set_date(lua_State* L) {
-    const int year = lua_tonumber(L, 1) * 12 * 30 * 48;
-    const int month = lua_tonumber(L, 2) * 30 * 48;
-    const int day = lua_tonumber(L, 3) * 48;
-    g_world->time = year + month + day;
-    return 1;
-}
-
 // Checks all events and their condition functions
 void LuaAPI::check_events(lua_State* L) {
     // Because of the logic of this loop, only 1 event can happen in the world per tick
@@ -1029,11 +1001,4 @@ void LuaAPI::check_events(lua_State* L) {
         lua_call(L, 0, 1);
     }
     g_world->taken_descisions.clear();
-}
-
-int LuaAPI::get_text(lua_State* L) {
-    std::string msgid = luaL_checkstring(L, 1);
-    std::string end_msg = gettext(msgid.c_str());
-    lua_pushstring(L, end_msg.c_str());
-    return 1;
 }

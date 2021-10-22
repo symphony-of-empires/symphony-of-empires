@@ -50,7 +50,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 	// so doing the method described above should increase the priority for filling out higher
 	// level industries
 	for(const auto& building : world->buildings) {
-		const Province* province = building->get_province(*world);
+		const Province* province = building->get_province();
 		if(province == nullptr || province->owner != nation) {
 			continue;
 		}
@@ -156,7 +156,7 @@ void ai_do_tick(Nation* nation, World* world) {
 			packet.data(ar.get_buffer(), ar.size());
 			g_server->broadcast(packet);
 
-			nation->give_province(*world, *target);
+			nation->give_province(*target);
 			print_info("Conquering %s for %s", target->name.c_str(), nation->name.c_str());
 		}
 	}
@@ -248,8 +248,8 @@ void ai_do_tick(Nation* nation, World* world) {
 		if(building->type->is_factory == true) {
 			building->budget = 100.f;
 			building->corporate_owner = world->companies.at(std::rand() % world->companies.size());
-			building->create_factory(*world);
-			building->corporate_owner->operating_provinces.insert(building->get_province(*world));
+			building->create_factory();
+			building->corporate_owner->operating_provinces.insert(building->get_province());
 			for(const auto& product : building->output_products) {
 				Packet packet = Packet();
 				Archive ar = Archive();
@@ -272,6 +272,6 @@ void ai_do_tick(Nation* nation, World* world) {
 			packet.data(ar.get_buffer(), ar.size());
 			g_server->broadcast(packet);
 		}
-		print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)world->get_id(building->type), nation->name.c_str(), building->get_province(*world)->name.c_str());
+		print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)world->get_id(building->type), nation->name.c_str(), building->get_province()->name.c_str());
 	}
 }

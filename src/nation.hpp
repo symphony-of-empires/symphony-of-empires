@@ -77,6 +77,7 @@ class Nation : public RefnameEntity<uint16_t> {
     inline void do_diplomacy();
     inline bool can_do_diplomacy();
 public:
+    void declare_war(Nation& nation);
     bool is_ally(const Nation& nation);
     bool is_enemy(const Nation& nation);
     bool exists(void);
@@ -87,17 +88,16 @@ public:
     bool is_accepted_culture(const Pop& pop) const;
     bool is_accepted_religion(const Pop& pop) const;
     float get_tax(const Pop& pop) const;
-    void give_province(World& world, Province& province);
+    void give_province(Province& province);
     const NationClientHint& get_client_hint(void) const;
 
-    // Whetever this nation is controlled by AI
-    bool controlled_by_ai;
+    // Nation that has us on their sphere of influence
+    // This value is equal to the nation with highest influence on us in the
+    // relations vector
+    Nation* spherer;
 
     // A list with relations with all other nations, mapped 1:1 to the Nation list in the world
     std::vector<NationRelation> relations;
-
-    // Id of the nation that has us on their sphere of influence
-    Nation::Id spherer_id;
 
     // Number of diplomacy points available
     float diplomacy_points;
@@ -152,10 +152,10 @@ public:
     //std::vector<std::pair<Technology*, float>> techs;
     std::vector<NationModifier> modifiers;
 
-    bool is_ai = true;
-
     // Inbox of the nation; events that require our attention / should be processed
     std::deque<Event*> inbox;
+
+    bool is_ai = true;
 };
 
 #endif
