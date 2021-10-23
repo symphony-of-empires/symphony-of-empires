@@ -781,7 +781,7 @@ void Economy::do_phase_3(World& world) {
         }
 
         // Roll a dice! (more probability with more anger!)
-        if(fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) == 0) {
+        if(fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) <= 1.f) {
             // Choose the ideology with most "anger" (the one more probable to coup d'
             // etat) - amgry radicals will surely throw off the current administration
             // while peaceful people won't
