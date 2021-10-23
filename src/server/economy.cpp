@@ -195,7 +195,7 @@ void Economy::do_phase_1(World& world) {
             }
 
             building->workers = available_farmers + available_entrepreneurs;
-            print_info("Building of %s in %s has %zu workers", building->type->name.c_str(), province->name.c_str(), building->workers);
+            //print_info("Building of %s in %s has %zu workers", building->type->name.c_str(), province->name.c_str(), building->workers);
             if(!building->workers) {
                 building->days_unoperational++;
                 building->min_quality = 0;
@@ -502,7 +502,7 @@ void Economy::do_phase_2(World& world) {
             if(!province->stockpile[i])
                 continue;
 
-            print_info("%zu of %s produced in %s - stockpiled by %s", province->stockpile[i], world.products[i]->good->name.c_str(), world.products[i]->origin->name.c_str(), province->name.c_str());
+            //print_info("%zu of %s produced in %s - stockpiled by %s", province->stockpile[i], world.products[i]->good->name.c_str(), world.products[i]->origin->name.c_str(), province->name.c_str());
         }
 
         /*
@@ -760,6 +760,52 @@ void Economy::do_phase_3(World& world) {
     }
     emigration.clear();
 
+    // Chances of a coup increment for the global militancy
+    for(auto& nation : world.nations) {
+        // Total anger in population (global)
+        float total_anger = 0.f;
+        // Anger per ideology (how much we hate the current ideology)
+        std::vector<float> ideology_anger(world.ideologies.size(), 0.f);
+        const float coup_chances = 1000.f;
+
+        for(const auto& province : nation->owned_provinces) {
+            for(const auto& pop : province->pops) {
+                // TODO: Ok, look, the justification is that educated people
+                // almost never do coups - in comparasion to uneducated
+                // peseants, rich people don't need to protest!
+                const float anger = (pop.militancy * pop.con) / std::max(pop.literacy, 1.f) / std::max(pop.life_needs_met, 0.f);
+
+                total_anger += anger;
+                ideology_anger[world.get_id(pop.ideology)] += anger;
+            }
+        }
+
+        // Roll a dice! (more probability with more anger!)
+        if(fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) == 0) {
+            // Choose the ideology with most "anger" (the one more probable to coup d'
+            // etat) - amgry radicals will surely throw off the current administration
+            // while peaceful people won't
+            int idx = std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()));
+
+            // Ideology_anger and ideologies are mapped 1:1 - so we just pick up the associated ideology
+            // Apply the policies of the ideology
+            nation->current_policy = world.ideologies[idx]->policies;
+
+            // Switch ideologies of nation
+            nation->ideology = world.ideologies[idx];
+
+            // People who are aligned to the ideology are VERY happy now
+            for(const auto& province : nation->owned_provinces) {
+                for(auto& pop : province->pops) {
+                    pop.militancy = -50.f;
+                }
+            }
+
+            print_info("Coup d' etat on %s! %s has taken over!", nation->name.c_str(), nation->ideology->name.c_str());
+        }
+    }
+
+
     // Please do not modify the POPs vector in provinces after this, otherwise the pointers
     // can get invalidated which would result in disaster
 
@@ -813,8 +859,8 @@ void Economy::do_phase_4(World& world) {
             continue;
 
         // Uncomment to see supply-demand
-        if(product->price_vel && product->price > 0.01f)
-            print_info("%s; Supply: %zu, Demand: %zu, Price %.2f", product->good->name.c_str(), product->supply, product->demand, product->price);
+        //if(product->price_vel && product->price > 0.01f)
+        //    print_info("%s; Supply: %zu, Demand: %zu, Price %.2f", product->good->name.c_str(), product->supply, product->demand, product->price);
 
         product->close_market();
 

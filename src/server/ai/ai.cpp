@@ -70,7 +70,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 	}
 
 	for(size_t i = 0; i < world->goods.size(); i++) {
-		print_info("%s: Good %s has %f probability", nation->name.c_str(), world->goods[i]->name.c_str(), avg_prob[i]);
+		//print_info("%s: Good %s has %f probability", nation->name.c_str(), world->goods[i]->name.c_str(), avg_prob[i]);
 	}
 
 	// Obtain the index of the highest element (the one with more sucess rate)

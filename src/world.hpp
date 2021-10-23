@@ -202,6 +202,9 @@ public:
         for(typename T::Id i = cached_id; i < list.size(); i++) {
             list[i]->cached_id = (typename T::Id)-1;
         }
+
+        // Remove the element itself
+        list.erase(list.begin() + cached_id);
     };
     
     inline size_t get_id(const Tile* ptr) const {
