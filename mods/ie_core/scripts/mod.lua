@@ -155,6 +155,7 @@ function catholic_relief_act_of_1829_event()
 		effects = "None"
 	}
 	catholic_relief_act_of_1829:add_descision(descision)
+	
     descision = Descision:new{
 		ref_name = "catholic_relief_act_of_1829_descision_1",
 		name = "No, the church and the state must remain separate",
