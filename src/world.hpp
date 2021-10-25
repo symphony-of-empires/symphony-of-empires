@@ -88,7 +88,7 @@ class JobRequest {
 public:
     size_t amount;
     Province* province;
-    Pop* pop;
+    Pop pop;
 };
 
 /**
@@ -128,7 +128,7 @@ public:
     inline list_type<type*>& get_list(const type* ptr) {\
         return list;\
     };\
-    list_type<type*> list;\
+    list_type<type*> list;
 
 /**
 * Contains the main world class object, containing all the data relevant for the simulation
