@@ -91,21 +91,32 @@ void Economy::do_phase_1(World& world) {
         world.job_requests_mutex.lock();
         for(size_t i = 0; i < world.job_requests.size(); i++) {
             JobRequest& job_request = world.job_requests[i];
+
+            Pop* job_pop = nullptr;
+            for(auto& pop : job_request.province->pops) {
+                if(pop == job_request.pop) {
+                    job_pop = &pop;
+                    break;
+                }
+            }
+            if(job_pop == nullptr)
+                throw std::runtime_error("Pop on job_request does not exist!");
+
             size_t employed = 0;
 
             // Industries require 2 (or 3) types of POPs to correctly function
             // - Laborers: They are needed to produce non-edible food
             // - Farmers: They are needed to produce edibles
             // - Entrepreneur: They help "organize" the factory
-            if(available_laborers < needed_farmers && (job_request.pop->type->is_laborer || job_request.pop->type->is_slave)) {
+            if(available_laborers < needed_farmers && (job_pop->type->is_laborer || job_pop->type->is_slave)) {
                 employed = std::min(needed_laborers, job_request.amount - employed);
                 available_laborers += employed;
             }
-            if(available_farmers < needed_farmers && (job_request.pop->type->is_farmer || job_request.pop->type->is_slave)) {
+            if(available_farmers < needed_farmers && (job_pop->type->is_farmer || job_pop->type->is_slave)) {
                 employed = std::min(needed_farmers, job_request.amount - employed);
                 available_farmers += employed;
             }
-            if(available_entrepreneurs < needed_entrepreneurs && job_request.pop->type->is_entrepreneur) {
+            if(available_entrepreneurs < needed_entrepreneurs && job_pop->type->is_entrepreneur) {
                 employed = std::min(needed_entrepreneurs, job_request.amount - employed);
                 available_entrepreneurs += employed;
             }
@@ -117,7 +128,7 @@ void Economy::do_phase_1(World& world) {
 
             // Give pay to the POP
             float payment = employed * province->owner->current_policy.min_wage;
-            job_request.pop->budget += payment;
+            job_pop->budget += payment;
             building->budget -= payment;
             job_request.amount -= employed;
 
@@ -804,11 +815,7 @@ void Economy::do_phase_3(World& world) {
             print_info("Coup d' etat on %s! %s has taken over!", nation->name.c_str(), nation->ideology->name.c_str());
         }
     }
-
-
-    // Please do not modify the POPs vector in provinces after this, otherwise the pointers
-    // can get invalidated which would result in disaster
-
+    
     // We will now post a job request so the next economic tick will be able to "link buildings"
     // with their workers and make a somewhat realistic economy
     world.job_requests.clear();
@@ -821,7 +828,7 @@ void Economy::do_phase_3(World& world) {
             // Post a job request
             JobRequest request = {};
             request.amount = pop.size;
-            request.pop = &pop;
+            request.pop = pop;
             request.province = province;
 
             // Are there any discriminative policies?
