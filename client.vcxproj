@@ -166,6 +166,7 @@
     <ClInclude Include="src\client\interface\common.hpp" />
     <ClInclude Include="src\client\interface\descision.hpp" />
     <ClInclude Include="src\client\interface\main_menu.hpp" />
+    <ClInclude Include="src\client\interface\policies.hpp" />
     <ClInclude Include="src\client\interface\province_view.hpp" />
     <ClInclude Include="src\client\interface\select_nation.hpp" />
     <ClInclude Include="src\client\interface\top_window.hpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="src\company.hpp" />
     <ClInclude Include="src\culture.hpp" />
     <ClInclude Include="src\diplomacy.hpp" />
+    <ClInclude Include="src\entity.hpp" />
     <ClInclude Include="src\event.hpp" />
     <ClInclude Include="src\good.hpp" />
     <ClInclude Include="src\ideology.hpp" />
@@ -200,6 +202,7 @@
     <ClInclude Include="src\serializer.hpp" />
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\technology.hpp" />
+    <ClInclude Include="src\terrain.hpp" />
     <ClInclude Include="src\thread_pool.hpp" />
     <ClInclude Include="src\unit.hpp" />
     <ClInclude Include="src\world.hpp" />
@@ -213,6 +216,7 @@
     <ClCompile Include="src\client\interface\common.cpp" />
     <ClCompile Include="src\client\interface\descision.cpp" />
     <ClCompile Include="src\client\interface\main_menu.cpp" />
+    <ClCompile Include="src\client\interface\policies.cpp" />
     <ClCompile Include="src\client\interface\province_view.cpp" />
     <ClCompile Include="src\client\interface\select_nation.cpp" />
     <ClCompile Include="src\client\interface\top_window.cpp" />
@@ -233,6 +237,7 @@
     <ClCompile Include="src\network.cpp" />
     <ClCompile Include="src\path.cpp" />
     <ClCompile Include="src\print.cpp" />
+    <ClCompile Include="src\product.cpp" />
     <ClCompile Include="src\province.cpp" />
     <ClCompile Include="src\serializer.cpp" />
     <ClCompile Include="src\thread_pool.cpp" />

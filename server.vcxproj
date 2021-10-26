@@ -156,6 +156,7 @@
     <ClInclude Include="src\company.hpp" />
     <ClInclude Include="src\culture.hpp" />
     <ClInclude Include="src\diplomacy.hpp" />
+    <ClInclude Include="src\entity.hpp" />
     <ClInclude Include="src\event.hpp" />
     <ClInclude Include="src\good.hpp" />
     <ClInclude Include="src\ideology.hpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="src\server\server_network.hpp" />
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\technology.hpp" />
+    <ClInclude Include="src\terrain.hpp" />
     <ClInclude Include="src\thread_pool.hpp" />
     <ClInclude Include="src\unit.hpp" />
     <ClInclude Include="src\world.hpp" />
@@ -190,8 +192,10 @@
     <ClCompile Include="src\network.cpp" />
     <ClCompile Include="src\path.cpp" />
     <ClCompile Include="src\print.cpp" />
+    <ClCompile Include="src\product.cpp" />
     <ClCompile Include="src\province.cpp" />
     <ClCompile Include="src\serializer.cpp" />
+    <ClCompile Include="src\server\ai\ai.cpp" />
     <ClCompile Include="src\server\economy.cpp" />
     <ClCompile Include="src\server\lua_api.cpp" />
     <ClCompile Include="src\server\main.cpp" />

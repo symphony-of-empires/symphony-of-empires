@@ -159,6 +159,15 @@
     <ClInclude Include="src\client\interface\treaty.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\entity.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\client\interface\policies.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\binary_image.cpp">
@@ -255,6 +264,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\client\interface\treaty.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\product.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\client\interface\policies.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

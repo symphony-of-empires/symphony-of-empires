@@ -111,6 +111,12 @@
     <ClInclude Include="src\technology.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\entity.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\binary_image.cpp">
@@ -162,6 +168,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\building.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\product.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\server\ai\ai.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
