@@ -1,5 +1,5 @@
-#ifndef TECHNOLOGY_H
-#define TECHNOLOGY_H
+#pragma once
+
 #include <string>
 #include "nation.hpp"
 #include "entity.hpp"
@@ -29,5 +29,3 @@ public:
     std::vector<Technology*> req_technologies;
     std::vector<Invention*> inventions;
 };
-
-#endif

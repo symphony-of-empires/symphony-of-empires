@@ -253,10 +253,6 @@ void Client::net_loop(void) {
                     if(building->get_owner() != nullptr) {
                         print_info("Remove building property of %s", building->get_owner()->name.c_str());
                     }
-
-                    if(building->type->is_factory == true) {
-                        building->delete_factory();
-                    }
                     
                     g_world->remove(building);
                     delete building;

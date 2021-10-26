@@ -1,5 +1,4 @@
-#ifndef SERIALIZER_H
-#define SERIALIZER_H
+#pragma once
 
 #include <cstddef>
 #include <cstdint>
@@ -299,5 +298,3 @@ public:
 };
 
 // TODO: Template for entities
-
-#endif

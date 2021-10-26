@@ -1,6 +1,7 @@
-#ifndef PRODUCT_H
-#define PRODUCT_H
+#pragma once
+
 #include <string>
+#include <deque>
 #include "company.hpp"
 #include "province.hpp"
 #include "good.hpp"
@@ -44,5 +45,3 @@ public:
     std::deque<size_t> supply_history;
     std::deque<size_t> demand_history;
 };
-
-#endif

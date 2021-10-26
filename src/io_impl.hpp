@@ -1,5 +1,4 @@
-#ifndef IO_IMPL_HPP
-#define IO_IMPL_HPP
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -1611,5 +1610,3 @@ public:
             ;
     }
 };
-
-#endif

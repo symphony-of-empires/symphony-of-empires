@@ -1,5 +1,4 @@
-#ifndef INTERFACE_DESCISION_HPP
-#define INTERFACE_DESCISION_HPP
+#pragma once
 
 #include "../../nation.hpp"
 #include "../../world.hpp"
@@ -21,5 +20,3 @@ namespace Interface {
         DescisionWindow(GameState& gs, Event& msg);
     };
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef PROVINCE_VIEW_HPP
-#define PROVINCE_VIEW_HPP
+#pragma once
 
 #include "../../nation.hpp"
 #include "../../world.hpp"
@@ -21,5 +20,3 @@ namespace Interface {
         PoliciesScreen(GameState& gs);
     };
 };
-
-#endif

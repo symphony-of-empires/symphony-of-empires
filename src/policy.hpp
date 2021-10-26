@@ -1,5 +1,4 @@
-#ifndef POLICY_H
-#define POLICY_H
+#pragma once
 
 #include <cmath>
 
@@ -172,5 +171,3 @@ public:
         return diff;
     };
 };
-
-#endif

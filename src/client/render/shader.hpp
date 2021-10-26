@@ -1,5 +1,4 @@
-#ifndef SHADER_HPP
-#define SHADER_HPP
+#pragma once
 
 #include <GL/glew.h>
 #include "../../path.hpp"
@@ -52,5 +51,3 @@ namespace UnifiedRender {
         };
     }
 }
-
-#endif

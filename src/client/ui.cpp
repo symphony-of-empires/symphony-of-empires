@@ -230,7 +230,7 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
             continue;
 
         if((int)mx >= widget.x && mx <= widget.x + widget.width && (int)my >= widget.y && my <= widget.y + 24) {
-            Window& c_widget = dynamic_cast<Window&>(widget);
+            auto& c_widget = static_cast<Window&>(widget);
             if(!c_widget.is_movable)
                 continue;
 
@@ -247,7 +247,7 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 
 void check_text_input_recursive(Widget& widget, const char* _input) {
     if(widget.type == UI_WIDGET_INPUT && widget.is_hover) {
-        Input& c_widget = dynamic_cast<Input&>(widget);
+        auto& c_widget = static_cast<Input&>(widget);
         c_widget.on_textinput(c_widget, _input, c_widget.user_data);
     }
 

@@ -1,5 +1,4 @@
-#ifndef DIPLOMACY_H
-#define DIPLOMACY_H
+#pragma once
 
 #include "nation.hpp"
 
@@ -177,5 +176,3 @@ public:
     std::vector<Nation*> attackers;
     std::vector<Nation*> defenders;
 };
-
-#endif

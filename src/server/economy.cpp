@@ -195,12 +195,8 @@ void Economy::do_phase_1(World& world) {
 
                 print_info("Building of %s in %s has closed down!", building->type->name.c_str(), province->name.c_str());
 
-                if(building->type->is_factory == true) {
-                    building->delete_factory();
-                }
-                world.remove(world.buildings[j]);
+                world.remove(building);
                 delete building;
-
                 --j;
                 continue;
             }
@@ -381,8 +377,7 @@ void Economy::do_phase_2(World& world) {
                     const Policies& order_policy = order_province->owner->current_policy;
 
                     // If foreign trade is not allowed, then order owner === sender owner
-                    if(deliver_policy.foreign_trade == false
-                        || order_policy.foreign_trade == false) {
+                    if(deliver_policy.foreign_trade == false || order_policy.foreign_trade == false) {
                         // Trade not allowed
                         if(order_province->owner != deliver_province->owner) {
                             continue;
@@ -531,6 +526,7 @@ class Emigrated {
 public:
     Emigrated() {};
     ~Emigrated() {};
+
     Province* origin;
     Province* target;
     Pop emigred;
@@ -691,39 +687,31 @@ void Economy::do_phase_3(World& world) {
 
                 // Find best province
                 Province* best_province = nullptr;
-                for(size_t j = 0; j < world.provinces.size(); j += std::max<size_t>((std::rand() % (world.provinces.size() - j)) / 10, 1)) {
-                    Province* target_province = world.provinces[j];
-
+                for(auto target_province : world.provinces) {
                     // Don't go to owner-less provinces
                     if(target_province->owner == nullptr) continue;
 
                     const float attractive = target_province->get_attractive(pop);
+                    if(attractive < current_attractive) continue;
 
-                    if(attractive > current_attractive) {
-                        if(target_province->owner->current_policy.immigration == ALLOW_NOBODY) {
-                            // Nobody is allowed in
+                    // Nobody is allowed in
+                    if(target_province->owner->current_policy.immigration == ALLOW_NOBODY) {
+                        continue;
+                    }
+                    // Only if we are accepted culture/religion
+                    else if(target_province->owner->current_policy.immigration == ALLOW_ACCEPTED_CULTURES) {
+                        if(!target_province->owner->is_accepted_culture(pop)) continue;
+                    }
+                    // Allowed but only if we have money (and we are treated as "imported" good)
+                    else if(target_province->owner->current_policy.immigration == ALLOW_ALL_PAYMENT) {
+                        if(pop.budget < ((pop.budget / 1000.f) * target_province->owner->current_policy.import_tax)) {
                             continue;
                         }
-                        else if(target_province->owner->current_policy.immigration == ALLOW_ACCEPTED_CULTURES) {
-                            // See if we are accepted culture
-                            bool is_accepted = target_province->owner->is_accepted_culture(pop);
-                            if(!is_accepted) {
-                                continue;
-                            }
-                        }
-                        else if(target_province->owner->current_policy.immigration == ALLOW_ALL_PAYMENT) {
-                            // See if we can afford the tax
-                            if(pop.budget < ((pop.budget / 1000.f) * target_province->owner->current_policy.import_tax)) {
-                                continue;
-                            }
-                        }
-                        else if(target_province->owner->current_policy.immigration == ALLOW_ALL) {
-                            // Everyone is allowed in
-                        }
-
-                        current_attractive = attractive;
-                        best_province = target_province;
                     }
+                    // Otherwise everyone is allowed in
+
+                    current_attractive = attractive;
+                    best_province = target_province;
                 }
 
                 // If best not found then we don't go to anywhere
@@ -748,7 +736,7 @@ void Economy::do_phase_3(World& world) {
             ;
         }
 
-        std::fill(province->stockpile.begin(), province->stockpile.end(), 0);
+        //std::fill(province->stockpile.begin(), province->stockpile.end(), 0);
     });
 
     // Now time to do the emigration - we will create a new POP on the province
@@ -821,8 +809,7 @@ void Economy::do_phase_3(World& world) {
     world.job_requests.clear();
     for(const auto& province : world.provinces) {
         // Province must have an owner
-        if(province->owner == nullptr)
-            continue;
+        if(province->owner == nullptr) continue;
 
         for(auto& pop : province->pops) {
             // Post a job request
@@ -834,9 +821,7 @@ void Economy::do_phase_3(World& world) {
             // Are there any discriminative policies?
             if(province->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
                 // POPs of non-accepted cultures on exterminate mode cannot get jobs
-                if(province->owner->is_accepted_culture(pop) == false) {
-                    continue;
-                }
+                if(province->owner->is_accepted_culture(pop) == false) continue;
             }
             else if(province->owner->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
                 // Same as above except we roll a dice
