@@ -40,14 +40,11 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
     UI::Group(x, y, parent->width - x, 24, parent)
 {
     this->company_btn = new UI::Button(0, 0, 96, 24, this);
-    this->company_btn->text(product->owner->name);
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
-    this->price_rate_btn->text(std::to_string(product->price_vel));
     this->price_rate_btn->right_side_of(*this->company_btn);
 
     this->price_btn = new UI::Button(0, 0, 96, 24, this);
-    this->price_btn->text(std::to_string(product->price_vel));
     this->price_btn->right_side_of(*this->price_rate_btn);
 
     this->price_chart = new UI::Chart(0, 0, 96, 24, this);
@@ -57,13 +54,15 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
         auto& o = static_cast<ProductInfo&>(w);
 
         // Only update every 48 ticks
-        if(o.gs.world->time % 48) {
-            return;
-        }
+        if(o.gs.world->time % 48) return;
         
         if(o.price_chart->data.size() >= 30) {
             o.price_chart->data.pop_back();
         }
+
+        o.company_btn->text(o.product->owner->name);
         o.price_chart->data.push_back(o.product->price);
+        o.price_rate_btn->text(std::to_string(o.product->price_vel));
+        o.price_btn->text(std::to_string(o.product->price_vel));
     });
 }

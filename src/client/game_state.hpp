@@ -1,6 +1,8 @@
 #pragma once
 
 #include <queue>
+#include <mutex>
+#include <vector>
 
 #include "../nation.hpp"
 #include "../world.hpp"
@@ -9,7 +11,6 @@
 #include "../serializer.hpp"
 #include "map.hpp"
 #include "ui.hpp"
-#include "client_network.hpp"
 
 enum class MapMode {
     COUNTRY_SELECT,
@@ -31,11 +32,15 @@ public:
 // The all encompassing client state
 // This is the state we could pass down to all the ui widgets
 class Map;
+class Client;
 class GameState {
-   public:
+public:
     GameState(Camera _cam) : cam{_cam} {};
-    // TODO add deconstructor
+    // TODO: add deconstructor
+
     void play_nation();
+    void send_command(Archive& archive);
+    void update_on_tick(void);
 
     Client* client = nullptr;
 
@@ -55,15 +60,11 @@ class GameState {
     Interface::SelectNation* select_nation;
     Interface::TopWindow* top_win;
 
-    // Used by client to update anything each tick (i.e a graph)
-    std::vector<std::function<void(const GameState&)>> client_update_fns;
-
     std::vector<const UnifiedRender::Texture*> nation_flags;
     const UnifiedRender::Texture& get_nation_flag(Nation& nation);
 
-    void send_command(Archive& archive);
-
-   private:
+    // Used for synchronization between the networking client and the rendering thread
+    std::mutex render_lock;
 };
 
 // Run world tick and pending commands
