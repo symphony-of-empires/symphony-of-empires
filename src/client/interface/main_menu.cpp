@@ -1,4 +1,5 @@
 #include "main_menu.hpp"
+#include "../client_network.hpp"
 #include "../../print.hpp"
 
 MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
@@ -27,7 +28,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 
         GameState& gs = state->gs;
         gs.world = new World();
-        gs.client = new Client(server_addr, 1836);
+        gs.client = new Client(gs, server_addr, 1836);
         gs.client->username = state->username_inp->buffer;
         gs.client->wait_for_snapshot();
         gs.map = new Map(*gs.world);

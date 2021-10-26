@@ -197,14 +197,6 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
     ui_ctx->clear_dead();
 }
 
-void client_update(const GameState& gs) {
-    std::lock_guard<std::recursive_mutex> lock(gs.world->world_mutex);
-
-    gs.ui_ctx->do_tick();
-
-    //gs.map->update(*g_world);
-}
-
 void GameState::send_command(Archive& archive) {
     client->packet_mutex.lock();
 
@@ -310,75 +302,53 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
     }
 }
 
-void init_client(GameState& gs) {
-    Map* map = gs.map;
-    int& width = gs.width;
-    int& height = gs.height;
+// NOTE: gs.world.world_mutex should already be locked since this
+// function is called by the client networking thread and not by the rendering one
+// so we implicilt locked the world_mutex - please do not lock it again or the entire
+// game will hang
+void GameState::update_on_tick(void) {
+    ui_ctx->do_tick();
+}
+
+void main_loop(GameState& gs, Client* client, SDL_Window* window) {
+    gs.current_mode = MapMode::COUNTRY_SELECT;
+    gs.input = Input{};
+
+    // Query the initial nation flags
     for(const auto& nation : gs.world->nations) {
         std::string path;
-        
         path = Path::get("ui/flags/" + nation->ref_name + "_" +
             ((nation->ideology == nullptr)
             ? "none"
             : nation->ideology->ref_name) + ".png"
         );
-        map->nation_flags.push_back(&g_texture_manager->load_texture(path));
+        gs.map->nation_flags.push_back(&g_texture_manager->load_texture(path));
     }
 
     /*for (const auto& building_type : gs.world->building_types) {
         std::string path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
-        map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
+        gs.map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
     }
     for (const auto& unit_type : gs.world->unit_types) {
         std::string path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
-        map->unit_type_icons.push_back(&g_model_manager->load_complex(path));
+        gs.map->unit_type_icons.push_back(&g_model_manager->load_complex(path));
     }*/
 
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
     gs.select_nation = new Interface::SelectNation(gs);
-}
 
-GameState* ext_gs;
-void client_update_on_tick(void) {
-    GameState& gs = *ext_gs;
-    for(const auto& client_update_fn : gs.client_update_fns) {
-        client_update_fn(gs);
-    }
-    return;
-}
-
-void main_loop(GameState& gs, Client* client, SDL_Window* window) {
-    //gs.products_view_world = new ProductsViewWorld(gs);
-    //gs.pop_view_nation = new PopViewNation(gs);
-    //gs.ui_reform = new UIReform(gs);
+    std::vector<Event*> displayed_events;
+    std::vector<Treaty*> displayed_treaties;
 
     std::atomic<bool> run;
     run = true;
-    Nation* curr_nation = nullptr;
-
-    Map* map = gs.map;
-    gs.current_mode = MapMode::COUNTRY_SELECT;
-
-    gs.client_update_fns.push_back(&client_update);
-
-    gs.input = Input{};
-    Input& input = gs.input;
-    uint64_t last_time = 0;
-
-    init_client(gs);
-
-    std::mutex render_lock;
-    std::vector<Event*> displayed_events;
-    std::vector<Treaty*> displayed_treaties;
     while(run) {
-        std::unique_lock<std::mutex> lock(render_lock);
-
-        handle_event(input, gs, run);
+        std::lock_guard<std::mutex> lock(gs.render_lock);
+        handle_event(gs.input, gs, run);
         if(gs.current_mode == MapMode::NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
         }
-
-        render(gs, input, window);
+        render(gs, gs.input, window);
     }
 }
 
@@ -388,8 +358,8 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
     std::atomic<bool> run;
     run = true;
 
+    // Connect to server prompt
     MainMenuConnectServer* mm_conn = new MainMenuConnectServer(gs);
-
     gs.input = Input{};
     Input& input = gs.input;
     while(run) {
@@ -425,7 +395,6 @@ void start_client(int argc, char** argv) {
     SDL_Window* window;
     int width = 1280, height = 800;
     GameState gs{ Camera(width, height) };
-    ext_gs = &gs;
 
     window = SDL_CreateWindow("Symphony of Empires", 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext context = SDL_GL_CreateContext(window);

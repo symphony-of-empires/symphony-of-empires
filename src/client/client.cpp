@@ -396,7 +396,7 @@
 //         if (wind_osc >= 180.f)
 //             wind_osc = -180.f;
 
-//         std::unique_lock<std::mutex> lock(render_lock);
+//         std::lock_guard<std::mutex> lock(render_lock);
 
 //         SDL_Event event;
 //         int click_on_ui;

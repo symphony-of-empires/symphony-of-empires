@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
         bool paused = true;
         while(run) {
             if(!paused) {
-                std::unique_lock<std::mutex> lock(world_lock);
+                std::lock_guard<std::mutex> lock(world_lock);
                 world->do_tick();
             }
 

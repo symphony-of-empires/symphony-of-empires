@@ -8,6 +8,8 @@ WarDeclarePrompt::WarDeclarePrompt(GameState& _gs, Nation* nation)
     nation{ _nation },
     UI::Window(0, 0, 256, 512)
 {
+    this->is_scroll = false;
+
     this->body_txt = new UI::Text(0, 24, this->width, 24, this);
     this->body_txt->text("TODO: add cassus bellis");
 
@@ -16,8 +18,6 @@ WarDeclarePrompt::WarDeclarePrompt(GameState& _gs, Nation* nation)
     this->approve_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TreatyChooseWindow&>(*w.parent);
 
-        
-
         delete w.parent;
     });
 
@@ -25,7 +25,6 @@ WarDeclarePrompt::WarDeclarePrompt(GameState& _gs, Nation* nation)
     this->deny_btn->text("Nevermind");
     this->deny_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TreatyChooseWindow&>(*w.parent);
-
 
         delete w.parent;
     });

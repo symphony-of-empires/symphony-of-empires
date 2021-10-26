@@ -5,6 +5,7 @@
 #include <thread>
 #include <atomic>
 #include "../network.hpp"
+#include "game_state.hpp"
 
 class Client {
     struct sockaddr_in addr;
@@ -16,10 +17,11 @@ class Client {
     
     std::thread net_thread;
     std::atomic<bool> has_snapshot;
+    GameState& gs;
 public:
     std::string username;
 
-    Client(std::string host, const unsigned port);
+    Client(GameState& gs, std::string host, const unsigned port);
     ~Client();
     int get_fd(void) {
         return fd;
