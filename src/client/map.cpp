@@ -280,7 +280,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
 // Updates the tiles texture with the changed tiles
 void Map::update(World& world) {
-    std::lock_guard<std::recursive_mutex> lock(g_world->changed_tiles_coords_mutex);
+    std::lock_guard lock(g_world->changed_tiles_coords_mutex);
     if(world.changed_tile_coords.size() > 0) {
         glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
         glViewport(0, 0, div_topo_tex->width, div_topo_tex->height);
@@ -346,7 +346,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
 
     glActiveTexture(GL_TEXTURE0);
     obj_shader->set_uniform("tex", 0);
-
+    
     world.world_mutex.lock();
     for(const auto& building : world.buildings) {
         glm::mat4 model(1.f);

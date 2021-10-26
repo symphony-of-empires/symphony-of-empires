@@ -207,7 +207,6 @@ public:
     };
     
     inline size_t get_id(const Tile* ptr) const {
-        std::lock_guard<std::recursive_mutex> lock(tiles_mutex);
         return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
     };
 

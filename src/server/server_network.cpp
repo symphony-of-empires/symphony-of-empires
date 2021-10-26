@@ -100,7 +100,7 @@ Server::~Server() {
 void Server::broadcast(Packet& packet) {
     for(size_t i = 0; i < n_clients; i++) {
         if(clients[i].is_connected == true) {
-            const std::lock_guard<std::mutex> lock(clients[i].packets_mutex);
+            const std::lock_guard lock(clients[i].packets_mutex);
             clients[i].packets.push_back(packet);
 
             // Disconnect the client when more than 200 MB is used
@@ -158,7 +158,7 @@ void Server::net_loop(int id) {
             // Send the whole snapshot of the world
             {
                 Archive ar = Archive();
-                const std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
+                const std::lock_guard lock(g_world->world_mutex);
                 ::serialize(ar, g_world);
                 packet.send(ar.get_buffer(), ar.size());
             }
@@ -216,7 +216,7 @@ void Server::net_loop(int id) {
                         (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                         throw ServerException("Unallowed operation without selected nation");
 
-                    const std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
+                    const std::lock_guard lock(g_world->world_mutex);
                     switch(action) {
 
                         // - Used to test connections between server and client
@@ -473,7 +473,7 @@ void Server::net_loop(int id) {
                 ar.rewind();
 
                 // After reading everything we will send our queue appropriately to the client
-                const std::lock_guard<std::mutex> lock(cl.packets_mutex);
+                const std::lock_guard lock(cl.packets_mutex);
                 while(cl.packets.empty() == false) {
                     Packet elem = cl.packets.front();
                     elem.stream = SocketStream(conn_fd);
