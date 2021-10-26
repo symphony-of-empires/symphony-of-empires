@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
         bool paused = true;
         while(run) {
             if(!paused) {
-                std::lock_guard<std::mutex> lock(world_lock);
+                std::lock_guard lock(world_lock);
                 world->do_tick();
             }
 
@@ -232,7 +232,7 @@ int main(int argc, char** argv) {
                 }
                 future = std::async(std::launch::async, async_get_input);
             }
-            //std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(150));
         }
 
         print_info(gettext("Destroying world"));

@@ -143,7 +143,7 @@ void Client::net_loop(void) {
                 ::deserialize(ar, &action);
 
                 // Ping from server, we should answer with a pong!
-                std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
+                std::lock_guard lock(world.world_mutex);
                 switch(action) {
                 case ActionType::PONG: {
                     packet.send(&action);
@@ -252,7 +252,10 @@ void Client::net_loop(void) {
                         print_info("- %s", status.first->name.c_str());
                 } break;
                 case ActionType::WORLD_TICK: {
+                    // Give up the world mutex for now
+                    world.world_mutex.unlock();
                     gs.update_on_tick();
+                    world.world_mutex.lock();
                     world.time++;
                 } break;
                 case ActionType::TILE_UPDATE: {
@@ -262,7 +265,7 @@ void Client::net_loop(void) {
                     ::deserialize(ar, &coord.second);
                     ::deserialize(ar, &world.get_tile(coord.first, coord.second));
 
-                    std::lock_guard<std::recursive_mutex> lock(world.changed_tiles_coords_mutex);
+                    std::lock_guard lock(world.changed_tiles_coords_mutex);
                     world.nation_changed_tiles.push_back(&world.get_tile(coord.first, coord.second));
                 } break;
                 case ActionType::PROVINCE_COLONIZE: {
@@ -278,7 +281,7 @@ void Client::net_loop(void) {
             }
 
             // Client will also flush it's queue to the server
-            std::lock_guard<std::mutex> lock(packet_mutex);
+            std::lock_guard lock(packet_mutex);
             while(!packet_queue.empty()) {
                 print_info("Network: sending packet");
                 Packet elem = packet_queue.front();

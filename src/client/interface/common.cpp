@@ -21,12 +21,9 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PopInfo&>(w);
-        if(o.index >= o.province->pops.size()) {
-            return;
-        }
+        if(o.index >= o.province->pops.size()) return;
 
         const Pop& pop = o.province->pops[o.index];
-
         o.size_btn->text(std::to_string(pop.size));
         o.budget_btn->text(std::to_string(pop.budget));
         o.religion_btn->text(pop.religion->name);
@@ -56,9 +53,8 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
         // Only update every 48 ticks
         if(o.gs.world->time % 48) return;
         
-        if(o.price_chart->data.size() >= 30) {
+        if(o.price_chart->data.size() >= 30)
             o.price_chart->data.pop_back();
-        }
 
         o.company_btn->text(o.product->owner->name);
         o.price_chart->data.push_back(o.product->price);

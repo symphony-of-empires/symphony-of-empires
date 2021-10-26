@@ -582,8 +582,8 @@ void World::load_mod(void) {
 #include "../actions.hpp"
 #include "economy.hpp"
 void World::do_tick() {
-    std::lock_guard<std::recursive_mutex> lock(world_mutex);
-    std::lock_guard<std::recursive_mutex> lock2(tiles_mutex);
+    std::lock_guard lock(world_mutex);
+    std::lock_guard lock2(tiles_mutex);
 
     // AI and stuff
     // Just random shit to make the world be like more alive
@@ -855,7 +855,7 @@ void World::do_tick() {
         if(tile.owner_id != get_id(unit->owner)) {
             tile.owner_id = get_id(unit->owner);
 
-            std::lock_guard<std::recursive_mutex> lock(nation_changed_tiles_mutex);
+            std::lock_guard lock(nation_changed_tiles_mutex);
             nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
             {
                 std::pair<size_t, size_t> coord = std::make_pair((size_t)unit->x, (size_t)unit->y);

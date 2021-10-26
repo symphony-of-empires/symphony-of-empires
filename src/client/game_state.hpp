@@ -64,7 +64,7 @@ public:
     const UnifiedRender::Texture& get_nation_flag(Nation& nation);
 
     // Used for synchronization between the networking client and the rendering thread
-    std::mutex render_lock;
+    std::recursive_mutex render_lock;
 };
 
 // Run world tick and pending commands

@@ -729,7 +729,7 @@ void Economy::do_phase_3(World& world) {
                 emigrated.size = emigreers;
                 emigrated.origin = province;
 
-                std::lock_guard<std::mutex> l(emigration_lock);
+                std::lock_guard l(emigration_lock);
                 emigration.push_back(emigrated);
             }
         skip_emigration:

@@ -302,12 +302,10 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
     }
 }
 
-// NOTE: gs.world.world_mutex should already be locked since this
-// function is called by the client networking thread and not by the rendering one
-// so we implicilt locked the world_mutex - please do not lock it again or the entire
-// game will hang
 void GameState::update_on_tick(void) {
+    //render_lock.lock();
     ui_ctx->do_tick();
+    //render_lock.lock();
 }
 
 void main_loop(GameState& gs, Client* client, SDL_Window* window) {
@@ -343,7 +341,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     std::atomic<bool> run;
     run = true;
     while(run) {
-        std::lock_guard<std::mutex> lock(gs.render_lock);
+        std::lock_guard lock(gs.render_lock);
         handle_event(gs.input, gs, run);
         if(gs.current_mode == MapMode::NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
