@@ -15,7 +15,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
     this->approve_btn = new UI::Button(0, 24 * 2, this->width, 24, this);
     this->approve_btn->text("Approve");
     this->approve_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = dynamic_cast<TreatyChooseWindow&>(*w.parent);
+        auto& o = static_cast<TreatyChooseWindow&>(*w.parent);
 
         Archive ar = Archive();
         ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
@@ -33,7 +33,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
     this->deny_btn = new UI::Button(0, 24 * 3, this->width, 24, this);
     this->deny_btn->text("Deny it!");
     this->deny_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = dynamic_cast<TreatyChooseWindow&>(*w.parent);
+        auto& o = static_cast<TreatyChooseWindow&>(*w.parent);
 
         Archive ar = Archive();
         ActionType action = ActionType::CHANGE_TREATY_APPROVAL;

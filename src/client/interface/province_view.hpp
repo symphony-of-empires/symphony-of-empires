@@ -1,5 +1,4 @@
-#ifndef PROVINCE_VIEW_H
-#define PROVINCE_VIEW_H
+#pragma once
 
 #include "../../nation.hpp"
 #include "../../world.hpp"
@@ -61,5 +60,3 @@ namespace Interface {
         ProvinceBrief(GameState& gs, Province* province);
     };
 };
-
-#endif

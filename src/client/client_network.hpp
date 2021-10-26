@@ -1,5 +1,4 @@
-#ifndef NETWORK_CLIENT_HPP
-#define NETWORK_CLIENT_HPP
+#pragma once
 
 #include <mutex>
 #include <deque>
@@ -32,6 +31,5 @@ public:
     std::mutex packet_mutex;
     std::deque<Packet> packet_queue;
 };
-extern Client* g_client;
 
-#endif
+extern Client* g_client;

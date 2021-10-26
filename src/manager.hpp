@@ -1,5 +1,4 @@
-#ifndef MANAGER_HPP
-#define MANAGER_HPP
+#pragma once
 
 #include <vector>
 
@@ -41,5 +40,3 @@ public:
         return *o;
     };
 };
-
-#endif

@@ -20,7 +20,7 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
     this->culture_btn->right_side_of(*this->religion_btn);
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
-        PopInfo& o = dynamic_cast<PopInfo&>(w);
+        auto& o = static_cast<PopInfo&>(w);
         if(o.index >= o.province->pops.size()) {
             return;
         }
@@ -54,7 +54,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
     this->price_chart->right_side_of(*this->price_btn);
     
     this->on_each_tick = ([](UI::Widget& w, void*) {
-        ProductInfo& o = dynamic_cast<ProductInfo&>(w);
+        auto& o = static_cast<ProductInfo&>(w);
 
         // Only update every 48 ticks
         if(o.gs.world->time % 48) {

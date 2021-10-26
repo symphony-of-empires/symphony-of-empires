@@ -1,5 +1,4 @@
-#ifndef WORLD_H
-#define WORLD_H
+#pragma once
 
 #include <cstdlib>
 #include <cstdint>
@@ -271,5 +270,3 @@ public:
 };
 
 extern World* g_world;
-
-#endif

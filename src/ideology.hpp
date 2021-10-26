@@ -1,5 +1,4 @@
-#ifndef IDEOLOGY_HPP
-#define IDEOLOGY_HPP
+#pragma once
 
 #include "entity.hpp"
 #include "policy.hpp"
@@ -13,5 +12,3 @@ public:
 
     Policies policies;
 };
-
-#endif

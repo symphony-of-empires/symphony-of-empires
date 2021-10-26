@@ -1,5 +1,4 @@
-#ifndef NATION_H
-#define NATION_H
+#pragma once
 
 #include <cstdint>
 #include <queue>
@@ -157,5 +156,3 @@ public:
 
     bool is_ai = true;
 };
-
-#endif

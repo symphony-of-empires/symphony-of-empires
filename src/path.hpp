@@ -1,5 +1,4 @@
-#ifndef PATH_H_
-#define PATH_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -14,5 +13,3 @@ namespace Path {
     std::vector<std::string> get_paths(void);
     std::string get_dir(const std::string& str);
 };
-
-#endif

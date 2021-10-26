@@ -13,7 +13,6 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
 {
     this->text(province->name);
 
-
     this->cultures_pie = new UI::PieChart(0, 0, 128, 128, this);
 
     this->religions_pie = new UI::PieChart(0, 0, 128, 128, this);
@@ -23,19 +22,48 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->pop_types_pie->right_side_of(*this->religions_pie);
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
-        auto& o = dynamic_cast<ProvincePopulationTab&>(w);
+        auto& o = static_cast<ProvincePopulationTab&>(w);
 
         // Obtain population information
         // TODO: This is not correct!! - we are calculating per each pop, we are supposed
         // to merge pops from same culture/religion/type into a single dataset
         std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
         for(const auto& pop : o.province->pops) {
-            cultures_data.push_back(UI::ChartData(pop.size, pop.culture->name,
-                UI::Color(rand(), rand(), rand())));
-            religions_data.push_back(UI::ChartData(pop.size, pop.religion->name,
-                UI::Color(rand(), rand(), rand())));
-            pop_types_data.push_back(UI::ChartData(pop.size, pop.type->name,
-                UI::Color(rand(), rand(), rand())));
+            const auto culture_col = UI::Color(
+                o.gs.world->get_id(pop.culture),
+                o.gs.world->get_id(pop.culture) * 4,
+                o.gs.world->get_id(pop.culture) * 8
+            );
+
+            const auto religion_col = UI::Color(
+                o.gs.world->get_id(pop.religion),
+                o.gs.world->get_id(pop.religion) * 4,
+                o.gs.world->get_id(pop.religion) * 8
+            );
+
+            const auto type_col = UI::Color(
+                o.gs.world->get_id(pop.type),
+                o.gs.world->get_id(pop.type) * 4,
+                o.gs.world->get_id(pop.type) * 8
+            );
+
+            cultures_data.push_back(UI::ChartData(
+                pop.size,
+                pop.culture->name,
+                culture_col
+            ));
+
+            religions_data.push_back(UI::ChartData(
+                pop.size,
+                pop.religion->name,
+                religion_col
+            ));
+            
+            pop_types_data.push_back(UI::ChartData(
+                pop.size,
+                pop.type->name,
+                type_col
+            ));
         }
 
         o.cultures_pie->set_data(cultures_data);
@@ -75,7 +103,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
     this->products_pie = new UI::PieChart(0, 24, 128, 128, this);
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
-        auto& o = dynamic_cast<ProvinceEconomyTab&>(w);
+        auto& o = static_cast<ProvinceEconomyTab&>(w);
 
         // Obtain demand, supply and other information about the goods
         std::vector<UI::ChartData> goods_data, products_data;
@@ -84,12 +112,17 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
                 continue;
             }
 
-            UI::ChartData data = UI::ChartData(
+            const auto product_col = UI::Color(
+                o.gs.world->get_id(product),
+                o.gs.world->get_id(product) * 4,
+                o.gs.world->get_id(product) * 8
+            );
+
+            products_data.push_back(UI::ChartData(
                 product->demand,
                 product->owner->name + "'s " + product->good->name,
-                UI::Color(rand(), rand(), rand())
-            );
-            products_data.push_back(data);
+                product_col
+            ));
         }
     });
 
@@ -122,7 +155,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->pop_btn = new UI::Button(0, 24, 128, 24, this);
     this->pop_btn->text("Population");
     this->pop_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = dynamic_cast<ProvinceView&>(*w.parent);
+        auto& o = static_cast<ProvinceView&>(*w.parent);
 
         o.pop_tab->is_render = true;
         o.econ_tab->is_render = false;
@@ -132,7 +165,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->econ_btn->below_of(*this->pop_btn);
     this->econ_btn->text("Economy");
     this->econ_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = dynamic_cast<ProvinceView&>(*w.parent);
+        auto& o = static_cast<ProvinceView&>(*w.parent);
 
         o.pop_tab->is_render = false;
         o.econ_tab->is_render = true;

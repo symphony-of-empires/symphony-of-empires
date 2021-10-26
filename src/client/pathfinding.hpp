@@ -1,5 +1,4 @@
-#ifndef PATHFINDING_H
-#define PATHFINDING_H
+#pragma once
 
 #include <utility>
 #include <vector>
@@ -13,5 +12,3 @@
 namespace Pathfind {
     std::vector<Tile *> unit_path(const World& world, const Nation& nation, Tile* start, Tile* end);
 };
-
-#endif

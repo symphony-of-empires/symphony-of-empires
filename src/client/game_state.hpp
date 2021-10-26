@@ -1,5 +1,4 @@
-#ifndef GAME_STATE_H
-#define GAME_STATE_H
+#pragma once
 
 #include <queue>
 
@@ -70,4 +69,3 @@ class GameState {
 // Run world tick and pending commands
 void main_loop(GameState&, Client*, SDL_Window*);
 void start_client(int argc, char** argv);
-#endif

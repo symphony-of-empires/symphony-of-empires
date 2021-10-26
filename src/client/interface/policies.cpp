@@ -24,7 +24,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     this->enact_btn = new UI::Button(0, 0, 128, 24, this);
     this->enact_btn->below_of(*ideology_pie);
     this->enact_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = dynamic_cast<PoliciesScreen&>(w);
+        auto& o = static_cast<PoliciesScreen&>(w);
 
         g_client->packet_mutex.lock();
         Packet packet = Packet();
@@ -38,7 +38,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     });
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
-        auto& o = dynamic_cast<PoliciesScreen&>(w);
+        auto& o = static_cast<PoliciesScreen&>(w);
         const World& world = *(o.gs.world);
 
         std::vector<UI::ChartData> ideology_data;

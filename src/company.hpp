@@ -1,5 +1,4 @@
-#ifndef COMPANY_HPP
-#define COMPANY_HPP
+#pragma once
 
 #include "entity.hpp"
 #include <string>
@@ -39,5 +38,3 @@ public:
         }
     }
 };
-
-#endif

@@ -35,7 +35,7 @@ DescisionButton::DescisionButton(UI::Window* parent, GameState& _gs, const Desci
     this->text(descision.name);
     this->user_data = this;
     this->on_click = [](UI::Widget& w, void* data) {
-        DescisionButton& state = dynamic_cast<DescisionButton&>(w);
+        auto& state = static_cast<DescisionButton&>(w);
 
         Archive ar = Archive();
         ActionType action = ActionType::NATION_TAKE_DESCISION;

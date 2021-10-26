@@ -1,5 +1,4 @@
-#ifndef NETWORK_H
-#define NETWORK_H
+#pragma once
 
 #include <exception>
 #ifdef unix
@@ -160,5 +159,3 @@ public:
         return (code == PacketCode::OK);
     }
 };
-
-#endif

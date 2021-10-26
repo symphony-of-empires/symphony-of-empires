@@ -1,5 +1,5 @@
-#ifndef MAIN_MENU_HPP
-#define MAIN_MENU_HPP
+#pragma once
+
 #include "../game_state.hpp"
 #include "../ui.hpp"
 
@@ -14,5 +14,3 @@ public:
     UI::Input* username_inp;
     UI::Button* conn_btn;
 };
-
-#endif

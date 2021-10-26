@@ -1,5 +1,4 @@
-#ifndef COMMON_H
-#define COMMON_H
+#pragma once
 
 #include "../../nation.hpp"
 #include "../../world.hpp"
@@ -30,5 +29,3 @@ namespace Interface {
         ProductInfo(GameState& gs, int x, int y, Product* product, UI::Widget* parent);
     };
 };
-
-#endif

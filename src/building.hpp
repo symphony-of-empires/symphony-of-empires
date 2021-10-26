@@ -1,5 +1,4 @@
-#ifndef BUILDING_HPP
-#define BUILDING_HPP
+#pragma once
 
 #include "entity.hpp"
 #include "unit.hpp"
@@ -54,6 +53,7 @@ public:
     Nation* get_owner(void);
     void create_factory(void);
     void delete_factory(void);
+    ~Building();
 
     // Nation owner of this building
     Nation* owner;
@@ -91,5 +91,3 @@ public:
     // How many workers are in the industry
     size_t workers = 0;
 };
-
-#endif

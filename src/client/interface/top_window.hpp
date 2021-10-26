@@ -1,5 +1,4 @@
-#ifndef TOP_WINDOW
-#define TOP_WINDOW
+#pragma once
 
 #include "../ui.hpp"
 
@@ -15,5 +14,3 @@ namespace Interface {
         UI::Image *money_icon, *prestige_icon, *economy_icon, *big_brain_icon, *militancy_icon, *population_icon;
     };
 };
-
-#endif

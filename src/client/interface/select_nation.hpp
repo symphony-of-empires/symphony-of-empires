@@ -1,5 +1,4 @@
-#ifndef SELECT_NATION_H
-#define SELECT_NATION_H
+#pragma once
 
 #include "../ui.hpp"
 
@@ -21,5 +20,3 @@ namespace Interface {
         UI::Button* prev_country_btn;
     };
 };
-
-#endif

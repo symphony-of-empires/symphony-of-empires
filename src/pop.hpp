@@ -1,5 +1,5 @@
-#ifndef POP_H
-#define POP_H
+#pragma once
+
 #include <vector>
 #include <string>
 #include "entity.hpp"
@@ -50,5 +50,3 @@ public:
             && this->ideology == rhs.ideology);
     }
 };
-
-#endif

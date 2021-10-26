@@ -94,3 +94,10 @@ bool Building::can_do_output(void) {
     }
     return true;
 }
+
+Building::~Building() {
+    // Delete factory (products related to the factory must be destroyed too)
+    if(this->type != nullptr && this->type->is_factory == true) {
+        this->delete_factory();
+    }
+}

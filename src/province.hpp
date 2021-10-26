@@ -1,5 +1,5 @@
-#ifndef PROVINCE_H
-#define PROVINCE_H
+#pragma once
+
 #include <cstdint>
 #include <vector>
 #include <set>
@@ -66,5 +66,3 @@ public:
     // Attractiveness of province
     float base_attractive = 0.f;
 };
-
-#endif

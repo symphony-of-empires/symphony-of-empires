@@ -1,5 +1,4 @@
-#ifndef LUA_H
-#define LUA_H
+#pragma once
 
 #ifdef windows
 #  include <lua.hpp>
@@ -121,5 +120,3 @@ namespace LuaAPI {
     // Functions not part of the API
     void check_events(lua_State* L);
 };
-
-#endif

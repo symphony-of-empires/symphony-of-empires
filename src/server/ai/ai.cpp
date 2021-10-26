@@ -161,7 +161,7 @@ void ai_do_tick(Nation* nation, World* world) {
 		}
 	}
 	// Accepting/rejecting treaties
-	 if(!(std::rand() % 5000)) {
+	if(!(std::rand() % 5000)) {
 		for(auto& treaty : world->treaties) {
 			for(auto& part : treaty->approval_status) {
 				if(part.first == nation) {

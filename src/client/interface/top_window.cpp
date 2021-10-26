@@ -25,7 +25,7 @@ TopWindow::TopWindow(GameState& _gs)
     gdp_chart->current_texture = &top_win_chart_tex;
     gdp_chart->data.clear();
     gdp_chart->on_click = (UI::Callback)([](UI::Widget& w, void*) {
-        TopWindow& twin = dynamic_cast<TopWindow&>(*w.parent);
+        TopWindow& twin = static_cast<TopWindow&>(*w.parent);
         
     });
 
@@ -34,7 +34,7 @@ TopWindow::TopWindow(GameState& _gs)
     pop_chart->current_texture = &top_win_chart_tex;
     pop_chart->data.clear();
     pop_chart->on_click = (UI::Callback)([](UI::Widget& w, void*) {
-        TopWindow& twin = dynamic_cast<TopWindow&>(*w.parent);
+        TopWindow& twin = static_cast<TopWindow&>(*w.parent);
         
     });
 
@@ -43,7 +43,7 @@ TopWindow::TopWindow(GameState& _gs)
     hdi_chart->current_texture = &top_win_chart_tex;
     hdi_chart->data.clear();
     hdi_chart->on_click = (UI::Callback)([](UI::Widget& w, void*) {
-        TopWindow& twin = dynamic_cast<TopWindow&>(*w.parent);
+        TopWindow& twin = static_cast<TopWindow&>(*w.parent);
         
     });
 
@@ -74,7 +74,7 @@ TopWindow::TopWindow(GameState& _gs)
     population_lab->right_side_of(*population_icon);
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
-        auto& o = dynamic_cast<TopWindow&>(w);
+        auto& o = static_cast<TopWindow&>(w);
 
         if(g_world->time % 48) {
             return;
