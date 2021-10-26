@@ -75,7 +75,7 @@ public:
 
 enum class PacketCode {
     OK,
-    ERROR,
+    PACKET_ERROR,
 };
 
 class Packet {
