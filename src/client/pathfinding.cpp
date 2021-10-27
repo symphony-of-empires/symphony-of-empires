@@ -34,25 +34,25 @@ static std::vector<Tile *> generate_neighbors(const World& world, const Nation& 
 
             Tile* neighbour = &(world.get_tile(t_x + i, t_y + j));
 
-            // Check that neighbour is above sea level
-            if(neighbour->elevation > world.sea_level) {
-                // Check that we can diplomatically pass thru their lands
-                // Our own lands and lands without owners are automatically passable
-                if(neighbour->owner_id != nation_id && neighbour->owner_id != (Nation::Id)-1) {
-                    const NationRelation& relation = world.nations[neighbour->owner_id]->relations[nation_id];
-                    
-                    // Does not have military acces AND does not have alliance AND is not at war
-                    // Means the country is neutral towards us and we can't cross there
-                    if(relation.has_military_access != true
-                    && relation.has_alliance != true
-                    && relation.has_war != true) {
-                        continue;
-                    }
-                }
+            // TODO: Check that this unit can pass
+            //if(unit_can_pass)
 
-                // Otherwise we can pass!
-                result.push_back(neighbour);
+            // Check that we can diplomatically pass thru their lands
+            // Our own lands and lands without owners are automatically passable
+            if(neighbour->owner_id != nation_id && neighbour->owner_id != (Nation::Id)-1) {
+                const NationRelation& relation = world.nations[neighbour->owner_id]->relations[nation_id];
+                
+                // Does not have military acces AND does not have alliance AND is not at war
+                // Means the country is neutral towards us and we can't cross there
+                if(relation.has_military_access != true
+                && relation.has_alliance != true
+                && relation.has_war != true) {
+                    continue;
+                }
             }
+
+            // Otherwise we can pass!
+            result.push_back(neighbour);
         }
     }
     return result;
@@ -91,9 +91,15 @@ static inline float tile_cost(const World& world, Tile* t1, Tile* t2) {
 
     const int x_diff = t1_x - t2_x;
     const int y_diff = t1_y - t2_y;
-    
-    // Maximum elevation difference accounts to same cost as one jump in x or y direction (1.0)
-    const float elev_diff = ((int)t1->elevation - (int)t2->elevation) / 128.f;
+
+    // TODO: Terrain penalties apply PER UNIT TYPE
+    // a boat can pass thru water but for an army it will have a horrible cost!
+
+    // Maximum penalties difference accounts to same cost as one jump in x or y direction (1.0)
+    const float elev_diff = (
+        (int)world.terrain_types[t1->terrain_type_id]->movement_penalty
+        - (int)world.terrain_types[t2->terrain_type_id]->movement_penalty)
+        / 128.f;
     
     // Base distance is euclidean distance in x, y and elevation
     const float distance = std::sqrt(x_diff* x_diff + y_diff* y_diff + elev_diff* elev_diff);
@@ -106,12 +112,8 @@ static inline float tile_cost(const World& world, Tile* t1, Tile* t2) {
     // NOTE: Make sure that the infrastructure modifier is always larger than 1 for bad infra
     // (rather than <1 for good infra), or the heuristic will no longer be admissible
     // and A* will no longer be optimal
-    const float infra_modifier = 1.f + 4.f* (1.f - avg_infra / 8.f); 
-    
-    // Rivers double the cost
-    const float river_modifier = (t1->elevation == 127 || t2->elevation == 127) ? 2.f : 1.f;
-    
-    return river_modifier* infra_modifier* distance;
+    const float infra_modifier = 1.f + 4.f * (1.f - avg_infra / 8.f);
+    return infra_modifier * distance;
 }
 
 /**
@@ -120,9 +122,9 @@ static inline float tile_cost(const World& world, Tile* t1, Tile* t2) {
  */
 std::vector<Tile *> Pathfind::unit_path(const World& world, const Nation& nation, Tile* start, Tile* end) {
     // We can't go to sea
-    if(start->elevation <= world.sea_level && end->elevation <= world.sea_level) {
-        return std::vector<Tile *>();
-    }
+    //if(start->elevation <= world.sea_level && end->elevation <= world.sea_level) {
+    //    return std::vector<Tile *>();
+    //}
     
     // Keeps track of the costs so far
     std::unordered_map<Tile *, float> cost_map;

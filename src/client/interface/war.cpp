@@ -16,7 +16,7 @@ WarDeclarePrompt::WarDeclarePrompt(GameState& _gs, Nation* _nation)
     this->approve_btn = new UI::Button(0, 24 * 2, this->width, 24, this);
     this->approve_btn->text("Declare war");
     this->approve_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<TreatyChooseWindow&>(*w.parent);
+        auto& o = static_cast<WarDeclarePrompt&>(*w.parent);
 
         delete w.parent;
     });
@@ -24,7 +24,7 @@ WarDeclarePrompt::WarDeclarePrompt(GameState& _gs, Nation* _nation)
     this->deny_btn = new UI::Button(0, 24 * 3, this->width, 24, this);
     this->deny_btn->text("Nevermind");
     this->deny_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<TreatyChooseWindow&>(*w.parent);
+        auto& o = static_cast<WarDeclarePrompt&>(*w.parent);
 
         delete w.parent;
     });
