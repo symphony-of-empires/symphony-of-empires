@@ -3,15 +3,17 @@
 // "Close" the product for this specific day, which means the equilibrium of price
 // will change according to the changes in the market
 void Product::close_market(void) {
+    // Increase price with more demand
     if(this->demand > this->supply) {
         this->price_vel += 0.0001f * (this->demand - this->supply);
     }
+    // Increase supply with more demand
     else if(this->demand < this->supply) {
         this->price_vel -= 0.0001f * (this->supply - this->demand);
     }
+    // Gravitate towards absolute zero due to volatility decay
+    // (i.e, product price becomes stable without market activity)
     else {
-        // Gravitate towards absolute zero due to volatility decay
-        // (i.e, product price becomes stable without market activity)
         if(this->price_vel > 0.1f) {
             this->price_vel -= 0.001f;
         }

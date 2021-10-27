@@ -22,6 +22,7 @@
 #include "../../io_impl.hpp"
 #include "../server_network.hpp"
 
+// Obtain best potential good
 Good* ai_get_potential_good(Nation* nation, World* world) {
 	// Analyze the market probability of sucess of a product
 	// this is determined by (demand * price), we calculate
@@ -69,12 +70,61 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 		}
 	}
 
-	for(size_t i = 0; i < world->goods.size(); i++) {
-		//print_info("%s: Good %s has %f probability", nation->name.c_str(), world->goods[i]->name.c_str(), avg_prob[i]);
-	}
+	//for(size_t i = 0; i < world->goods.size(); i++) {
+	//	print_info("%s: Good %s has %f probability", nation->name.c_str(), world->goods[i]->name.c_str(), avg_prob[i]);
+	//}
 
 	// Obtain the index of the highest element (the one with more sucess rate)
 	return world->goods.at(std::distance(avg_prob.begin(), std::max_element(avg_prob.begin(), avg_prob.end())));
+}
+
+void ai_reform(Nation* nation) {
+	Policies new_policy = nation->current_policy;
+
+	if(rand() % 100 > 50.f) {
+		new_policy.import_tax += 0.1f * (rand() % 10);
+	} else if(rand() % 100 > 50.f) {
+		new_policy.import_tax -= 0.1f * (rand() % 10);
+	}
+
+	if(rand() % 100 > 50.f) {
+		new_policy.export_tax += 0.1f * (rand() % 10);
+	} else if(rand() % 100 > 50.f) {
+		new_policy.export_tax -= 0.1f * (rand() % 10);
+	}
+
+	if(rand() % 100 > 50.f) {
+		new_policy.domestic_export_tax += 0.1f * (rand() % 10);
+	} else if(rand() % 100 > 50.f) {
+		new_policy.domestic_export_tax -= 0.1f * (rand() % 10);
+	}
+
+	if(rand() % 100 > 50.f) {
+		new_policy.domestic_import_tax += 0.1f * (rand() % 10);
+	} else if(rand() % 100 > 50.f) {
+		new_policy.domestic_import_tax -= 0.1f * (rand() % 10);
+	}
+
+	if(rand() % 100 > 50.f) {
+		new_policy.industry_tax += 0.1f * (rand() % 10);
+	} else if(rand() % 100 > 50.f) {
+		new_policy.industry_tax -= 0.1f * (rand() % 10);
+	}
+
+	new_policy.public_healthcare = (rand() % 100 > 50.f) ? true : false;
+	new_policy.public_education = (rand() % 100 > 50.f) ? true : false;
+	new_policy.private_property = (rand() % 100 > 50.f) ? true : false;
+	new_policy.executive_parliament = (rand() % 100 > 50.f) ? true : false;
+	new_policy.legislative_parliament = (rand() % 100 > 50.f) ? true : false;
+	new_policy.foreign_trade = (rand() % 100 > 50.f) ? true : false;
+
+	if(rand() % 100 > 50.f) {
+		new_policy.min_sv_for_parliament += 0.1f * (rand() % 10);
+	} else if(rand() % 100 > 50.f) {
+		new_policy.min_sv_for_parliament -= 0.1f * (rand() % 10);
+	}
+
+	nation->set_policy(new_policy);
 }
 
 void ai_do_tick(Nation* nation, World* world) {
@@ -104,44 +154,7 @@ void ai_do_tick(Nation* nation, World* world) {
 	}
 	// Rarely nations will change policies
 	if(!(std::rand() % 5000)) {
-		Policies new_policy = nation->current_policy;
-
-		if(rand() % 100 > 50.f) {
-			new_policy.import_tax += 0.1f * (rand() % 10);
-		}
-		else if(rand() % 100 > 50.f) {
-			new_policy.import_tax -= 0.1f * (rand() % 10);
-		}
-
-		if(rand() % 100 > 50.f) {
-			new_policy.export_tax += 0.1f * (rand() % 10);
-		}
-		else if(rand() % 100 > 50.f) {
-			new_policy.export_tax -= 0.1f * (rand() % 10);
-		}
-
-		if(rand() % 100 > 50.f) {
-			new_policy.domestic_export_tax += 0.1f * (rand() % 10);
-		}
-		else if(rand() % 100 > 50.f) {
-			new_policy.domestic_export_tax -= 0.1f * (rand() % 10);
-		}
-
-		if(rand() % 100 > 50.f) {
-			new_policy.domestic_import_tax += 0.1f * (rand() % 10);
-		}
-		else if(rand() % 100 > 50.f) {
-			new_policy.domestic_import_tax -= 0.1f * (rand() % 10);
-		}
-
-		if(rand() % 100 > 50.f) {
-			new_policy.industry_tax += 0.1f * (rand() % 10);
-		}
-		else if(rand() % 100 > 50.f) {
-			new_policy.industry_tax -= 0.1f * (rand() % 10);
-		}
-
-		nation->set_policy(new_policy);
+		
 	}
 	// Colonize a province
 	if(!(std::rand() % 5000)) {

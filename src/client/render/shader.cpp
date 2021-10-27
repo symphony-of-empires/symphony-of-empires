@@ -13,7 +13,7 @@ Shader::Shader(const std::string& path, GLuint type) {
 
         buffer = stream.str();
         compile(type);
-    } catch (std::ifstream::failure& e) {
+    } catch(std::ifstream::failure& e) {
         print_error("Cannot load shader %s", path.c_str());
     }
 }
