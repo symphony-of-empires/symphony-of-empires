@@ -343,6 +343,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files) 
 
 void World::load_mod(void) {
     BinaryImage terrain(Path::get("map_terrain.png"));
+    BinaryImage topo(Path::get("map_topo.png"));
     BinaryImage div(Path::get("map_div.png"));
     BinaryImage infra(Path::get("map_infra.png"));
 
@@ -350,12 +351,12 @@ void World::load_mod(void) {
     height = terrain.height;
 
     // Check that size of all maps match
-    if(infra.width != width || infra.height != height) {
-        throw std::runtime_error("Infrastructure map size mismatch with topographic map");
-    }
-    else if(div.width != width || div.height != height) {
-        throw std::runtime_error("Province map size mismatch with topographic map");
-    }
+    if(topo.width != width || topo.height != height)
+        throw std::runtime_error("Topographic map size mismatch");
+    else if(infra.width != width || infra.height != height)
+        throw std::runtime_error("Infrastructure map size mismatch");
+    else if(div.width != width || div.height != height)
+        throw std::runtime_error("Province map size mismatch");
 
     const size_t total_size = width * height;
 
@@ -368,7 +369,7 @@ void World::load_mod(void) {
         throw std::runtime_error("Out of memory");
     }
 
-    const std::vector<std::string> init_files ={
+    const std::vector<std::string> init_files = {
         "terrain_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "good_types", "industry_types",
@@ -417,6 +418,7 @@ void World::load_mod(void) {
         // Set coordinates for the tiles
         tiles[i].owner_id = (Nation::Id)-1;
         tiles[i].province_id = (Province::Id)-1;
+        tiles[i].elevation = topo.buffer[i] & 0xff;
         tiles[i].terrain_type_id = terrain_color_table[terrain.buffer[i] & 0xffffff];
 
         // Set infrastructure level

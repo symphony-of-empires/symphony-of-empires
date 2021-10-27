@@ -37,6 +37,9 @@ public:
     // Level of infrastructure in this tile (from 0 to MAX_INFRA_LEVEL)
     uint8_t infra_level;
 
+    // Elevation
+    uint8_t elevation;
+
     // Terrain type
     uint8_t terrain_type_id;
 
