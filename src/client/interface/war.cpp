@@ -3,7 +3,7 @@
 
 using namespace Interface;
 
-WarDeclarePrompt::WarDeclarePrompt(GameState& _gs, Nation* nation)
+WarDeclarePrompt::WarDeclarePrompt(GameState& _gs, Nation* _nation)
     : gs{ _gs },
     nation{ _nation },
     UI::Window(0, 0, 256, 512)

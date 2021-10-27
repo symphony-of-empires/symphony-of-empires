@@ -6,13 +6,13 @@
 #include "../ui.hpp"
 
 namespace Interface {
-    class TreatyChooseWindow : public UI::Window {
+    class WarDeclarePrompt : public UI::Window {
         GameState& gs;
-        Treaty* treaty;
+        Nation* nation;
 
         UI::Text* body_txt;
         UI::Button* approve_btn,* deny_btn;
     public:
-        TreatyChooseWindow(GameState& gs, Treaty* treaty);
+        WarDeclarePrompt(GameState& gs, Nation* nation);
     };
 };
