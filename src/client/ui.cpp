@@ -32,9 +32,8 @@ Context::Context() {
         throw std::runtime_error("UI context already constructed");
     }
     default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 16);
-    if(default_font == nullptr) {
-        throw std::runtime_error("Font could not be loaded, exiting");
-    }
+    if(default_font == nullptr)
+        throw std::runtime_error(std::string() + "Font could not be loaded: " + TTF_GetError() + ", exiting");
 
     widgets.reserve(255);
 
@@ -526,10 +525,8 @@ void Widget::text(const std::string& _text) {
 
     TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
     surface = TTF_RenderUTF8_Solid(g_ui_context->default_font, _text.c_str(), text_color);
-    if(surface == nullptr) {
-        print_error("Cannot create text surface: %s", TTF_GetError());
-        return;
-    }
+    if(surface == nullptr)
+        throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
 
     text_texture = new UnifiedRender::Texture(surface->w, surface->h);
     text_texture->gl_tex_num = 0;

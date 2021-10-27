@@ -41,7 +41,7 @@ The project can also be built using clang.
 Using mingw-w64 on linux it is possible to cross compile for Windows builds, simply run the following commands:
 ```
 mkdir build && cd build
-cmake -DWIN32=1 -DCMAKE_BUILD_TYPE=Debug ..
+cmake -DWIN32=1 -DCMAKE_BUILD_TYPE:String=RelWithDebInfo ..
 make -j
 ```
 

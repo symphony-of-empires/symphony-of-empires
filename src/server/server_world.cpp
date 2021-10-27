@@ -403,13 +403,21 @@ void World::load_mod(void) {
         province->min_y = std::numeric_limits<uint32_t>::max();
     }
 
+    // Do the same lookup table technique but with terrain types
+    print_info(gettext("Building the terrain_type lookup table"));
+    std::vector<TerrainType::Id> terrain_color_table(16777216, 0);
+    std::fill(terrain_color_table.begin(), terrain_color_table.end(), (TerrainType::Id)-1);
+    for(const auto& terrain_type : terrain_types) {
+        terrain_color_table[terrain_type->color & 0xffffff] = this->get_id(terrain_type);
+    }
+
     // Translate all div, pol and topo maps onto this single tile array
     print_info(gettext("Translate all div, pol and topo maps onto this single tile array"));
     for(size_t i = 0; i < total_size; i++) {
         // Set coordinates for the tiles
         tiles[i].owner_id = (Nation::Id)-1;
         tiles[i].province_id = (Province::Id)-1;
-        tiles[i].terrain_type_id = terrain.buffer[i] & 0x000000ff;
+        tiles[i].terrain_type_id = terrain_color_table[terrain.buffer[i] & 0xffffff];
 
         // Set infrastructure level
         if(infra.buffer[i] == 0xffffffff || infra.buffer[i] == 0xff000000) {

@@ -37,8 +37,10 @@ vec4 noTiling(sampler2D tex, vec2 uv) {
 }
 
 vec4 get_terrain(vec2 coord, vec2 offset) {
+	const float size = 16.;
 	float index = texture(terrain_texture, coord).b;
-	index = trunc(index * 16.);
+
+	index = trunc(index * size);
 	return texture(terrain_sheet, vec3(offset.x, offset.y, index));
 }
 
