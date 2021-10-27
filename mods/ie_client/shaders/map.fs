@@ -135,7 +135,7 @@ void main() {
 	vec4 out_colour = mix(ground, prov_colour, 0.8 * step(coord.a, 0.01) * prov_colour.a);
 	out_colour = mix(out_colour, mountain, height * height * 1.5 + 0.2);
 
-	vec2 borders = getBorder(v_texcoord);
+	vec2 borders = get_border(v_texcoord);
 	out_colour = mix(out_colour, province_border, borders.x);
 	out_colour = mix(out_colour, country_border, borders.y);
 	f_frag_colour = out_colour;
