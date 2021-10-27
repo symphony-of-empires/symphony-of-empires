@@ -297,8 +297,7 @@ void Server::net_loop(int id) {
                             throw ServerException("building out of range");
 
                         // Building can only be built on owned land or on shores
-                        if(g_world->get_tile(building->x, building->y).owner_id != g_world->get_id(selected_nation)
-                            && g_world->get_tile(building->x, building->y).elevation > g_world->sea_level)
+                        if(g_world->get_tile(building->x, building->y).owner_id != g_world->get_id(selected_nation))
                             throw ServerException("Building cannot be built on foreign land");
 
                         building->working_unit_type = nullptr;

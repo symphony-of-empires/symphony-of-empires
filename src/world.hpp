@@ -12,6 +12,7 @@
 #include "building.hpp"
 #include "company.hpp"
 #include "ideology.hpp"
+#include "terrain.hpp"
 #include "server/lua_api.hpp"
 
 #define MAX_INFRA_LEVEL 			4
@@ -33,15 +34,11 @@ public:
     // ID of the province where this tile belongs to
     Province::Id province_id;
 
-    // Elevation level of this tile (from 0 to 255), take in account that
-    // the sea level of the world can change the meaning of this value drastically
-    uint8_t elevation;
-
     // Level of infrastructure in this tile (from 0 to MAX_INFRA_LEVEL)
     uint8_t infra_level;
 
     // Terrain type
-    
+    uint8_t terrain_type_id;
 
     const std::vector<const Tile*> get_neighbours(const World& world) const;
 };
@@ -184,6 +181,7 @@ public:
     LIST_FOR_TYPE(Technology, technologies, std::vector)
     LIST_FOR_TYPE(Invention, inventions, std::vector)
     LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector)
+    LIST_FOR_TYPE(TerrainType, terrain_types, std::vector)
 
     template<typename T>
     inline void insert(T* ptr) {

@@ -616,6 +616,23 @@ function IndustryType:new(o)
 	return o
 end
 
+TerrainType = {
+	id = 0,
+	name = "",
+	ref_name = "",
+	color = 0x000000,
+	movement_penalty = 0.0
+}
+function TerrainType:new(o)
+	o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function TerrainType:register()
+	self.id = add_terrain_type(self.ref_name, self.name, self.color, self.movement_penalty)
+end
+
 UnitType = {
 	id = 0,
 	ref_name = "",

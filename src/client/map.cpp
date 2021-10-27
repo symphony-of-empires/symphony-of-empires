@@ -25,7 +25,16 @@ Map::Map(const World& _world): world(_world) {
         water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         topo_tex = &g_texture_manager->load_texture(Path::get("map_topo.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
-        terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
+        
+        //terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
+        topo_tex = new UnifiedRender::Texture(world.width, world.height);
+
+        terrain_tex = new UnifiedRender::Texture(world.width, world.height);
+        for(size_t i = 0; i < world.width * world.height; i++) {
+            terrain_tex->buffer[i] = world.tiles[i].terrain_type_id;
+            topo_tex->buffer[i] = world.tiles[i].terrain_type_id;
+        }
+        
         terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
         terrain_sheet->to_opengl();
         {
@@ -58,13 +67,14 @@ Map::Map(const World& _world): world(_world) {
             g = (tile.province_id / 256) % 256;
             b = tile.owner_id % 256;
             a = (tile.owner_id / 256) % 256;
-            // a = tile.elevation == 0 ? 255 : a;
             div_topo_tex->buffer[i] = (a << 24) | (b << 16) | (g << 8) | (r);
-            if(tile.owner_id < world.nations.size()) {
-                const Nation* owner = world.nations.at(tile.owner_id);
-                uint32_t color = owner->get_client_hint().colour;
-                div_sheet_tex->buffer[r + g * 256] = (0xff << 24) | color;
-            }
+
+            // Only "paint" valid owners
+            if(tile.owner_id == (Nation::Id)-1) continue;
+            
+            const Nation* owner = world.nations.at(tile.owner_id);
+            uint32_t color = owner->get_client_hint().colour;
+            div_sheet_tex->buffer[r + g * 256] = (0xff << 24) | color;
         }
         div_sheet_tex->to_opengl();
     }
@@ -72,14 +82,14 @@ Map::Map(const World& _world): world(_world) {
         for(size_t i = 0; i < world.width * world.height; i++) {
             uint8_t r, g, b;
             const Tile& tile = world.get_tile(i);
-            if(tile.elevation <= world.sea_level) {
+
+            if(tile.terrain_type_id <= 1) {
                 r = 8;
                 g = 8;
                 b = 128;
-            }
-            else {
+            } else {
                 r = 8;
-                g = tile.elevation;
+                g = 255;
                 b = 8;
             }
             div_topo_tex->buffer[i] = (0xff << 24) | (b << 16) | (g << 8) | (r);
@@ -111,7 +121,7 @@ void Map::draw_flag(const Nation* nation) {
     // looks nice and it's super cheap to make - only using sine
     const float n_steps = 8.f;  // Resolution of flag in one side (in vertices)
     const float step = 90.f;    // Steps per vertice
-
+    
     auto flag = UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(GL_TRIANGLE_STRIP);
     for(float r = 0.f; r <= (n_steps * step); r += step) {
         float sin_r = (sin(r + wind_osc) / 24.f);
@@ -134,6 +144,7 @@ void Map::draw_flag(const Nation* nation) {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)(3 * sizeof(float)));  // Texcoords
     glEnableVertexAttribArray(1);
+
     nation_flags.at(world.get_id(nation))->bind();
     flag.draw();
 
@@ -145,12 +156,12 @@ void Map::draw_flag(const Nation* nation) {
         sin_r = sin(r + wind_osc) / 24.f;
         glColor3f((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f);
         glTexCoord2f((r / step) / n_steps, 0.f);
-        glVertex3f(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -2.f);
+        glVertex3f(((r / step) / n_steps) * 1.5f, sin_r, -2.f);
 
         sin_r = sin(r + wind_osc + 90.f) / 24.f;
         glColor3f((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f);
         glTexCoord2f((r / step) / n_steps, 1.f);
-        glVertex3f(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -1.f);
+        glVertex3f(((r / step) / n_steps) * 1.5f, sin_r, -1.f);
     }
     glEnd();*/
 }
@@ -311,29 +322,35 @@ void Map::draw(Camera& cam, const int width, const int height) {
     view = cam.get_view();
     map_shader->set_uniform("view", view);
     projection = cam.get_projection();
+    
     map_shader->set_uniform("projection", projection);
+    
     map_shader->set_uniform("map_size", (float)world.width, (float)world.height);
+    
     map_shader->set_uniform("tile_map", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
+
     map_shader->set_uniform("tile_sheet", 1);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, div_sheet_tex->gl_tex_num);
+
     map_shader->set_uniform("water_texture", 2);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, water_tex->gl_tex_num);
+
     map_shader->set_uniform("noise_texture", 3);
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, noise_tex->gl_tex_num);
-    map_shader->set_uniform("topo_texture", 4);
+
+    map_shader->set_uniform("terrain_texture", 4);
     glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, topo_tex->gl_tex_num);
-    map_shader->set_uniform("terrain_texture", 5);
-    glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_2D, terrain_tex->gl_tex_num);
-    map_shader->set_uniform("terrain_sheet", 6);
-    glActiveTexture(GL_TEXTURE6);
+
+    map_shader->set_uniform("terrain_sheet", 5);
+    glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_2D_ARRAY, terrain_sheet->gl_tex_num);
+
     map_quad->draw();
 
     // TODO: We need to better this

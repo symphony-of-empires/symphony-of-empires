@@ -10,7 +10,6 @@ uniform sampler2D tile_map;
 uniform sampler2D tile_sheet;
 uniform sampler2D water_texture;
 uniform sampler2D noise_texture;
-uniform sampler2D topo_texture;
 uniform sampler2D terrain_texture;
 uniform sampler2DArray terrain_sheet;
 
@@ -39,7 +38,7 @@ vec4 noTiling(sampler2D tex, vec2 uv) {
 
 vec4 get_terrain(vec2 coord, vec2 offset) {
 	float index = texture(terrain_texture, coord).b;
-	index = trunc(index*16.);
+	index = trunc(index * 16.);
 	return texture(terrain_sheet, vec3(offset.x, offset.y, index));
 }
 
@@ -50,7 +49,7 @@ vec4 get_terrain_mix(vec2 tex_coord) {
 	vec2 scaling = mod(tex_coord + 0.5 * pix, pix) / pix;
 
 	vec2 offset = 80. * tex_coord;
-	offset.y *= xx/yy;
+	offset.y *= xx / yy;
 
 	vec4 color_00 = get_terrain(tex_coord + 0.5 * vec2(-xx, -yy), offset);
 	vec4 color_01 = get_terrain(tex_coord + 0.5 * vec2(-xx, yy), offset);
@@ -69,7 +68,7 @@ vec2 sum(vec4 v) {
 	return vec2(provinceDiff, countryDiff);
 }
 
-vec2 getBorder(vec2 texcoord) {
+vec2 get_border(vec2 texcoord) {
 	// Pixel size on map texture
 	vec2 pix = vec2(1.0) / map_size;
 
@@ -77,7 +76,6 @@ vec2 getBorder(vec2 texcoord) {
 	// float x = texture(noise_texture, (1./4.) * (1./256.) * texcoord * map_size).x; // cheap (cache friendly) lookup
 	// float y = texture(noise_texture, (1./4.) * (1./256.) * -texcoord * map_size).x; // cheap (cache friendly) lookup
 	// texcoord += (0.5 - vec2(x, y)) * 0.5 * pix;
-
 
 	vec2 mPos = texcoord - mod(texcoord + 0.5 * pix, pix);
 	vec4 provienceLU = texture(tile_map, mPos + pix * vec2(0.25, 0.25)).xyzw;
@@ -128,7 +126,8 @@ void main() {
 
 	vec4 terrain_color = get_terrain_mix(v_texcoord);
 
-	float height = texture(topo_texture, v_texcoord).x;
+	//float height = texture(topo_texture, v_texcoord).x;
+	const float height = 0.;
 
 	vec4 coord = texture(tile_map, v_texcoord).rgba;
 	vec4 ground = mix(water, terrain_color, step(0.08, height));

@@ -43,6 +43,8 @@ World::World() {
     luaL_openlibs(lua);
 
     // Register our API functions
+    lua_register(lua, "add_terrain_type", LuaAPI::add_terrain_type);
+
     lua_register(lua, "add_technology", LuaAPI::add_technology);
     lua_register(lua, "get_technology", LuaAPI::get_technology);
     lua_register(lua, "add_req_tech_to_tech", LuaAPI::add_req_tech_to_tech);
@@ -340,12 +342,12 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files) 
 }
 
 void World::load_mod(void) {
-    BinaryImage topo(Path::get("map_topo.png"));
+    BinaryImage terrain(Path::get("map_terrain.png"));
     BinaryImage div(Path::get("map_div.png"));
     BinaryImage infra(Path::get("map_infra.png"));
 
-    width = topo.width;
-    height = topo.height;
+    width = terrain.width;
+    height = terrain.height;
 
     // Check that size of all maps match
     if(infra.width != width || infra.height != height) {
@@ -367,6 +369,7 @@ void World::load_mod(void) {
     }
 
     const std::vector<std::string> init_files ={
+        "terrain_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "good_types", "industry_types",
         "unit_types", "boat_types", "companies", "provinces", "init"
@@ -385,7 +388,15 @@ void World::load_mod(void) {
     ideologies.shrink_to_fit();
     building_types.shrink_to_fit();
 
+    // Build a lookup table for super fast speed on finding provinces
+    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
+    print_info(gettext("Building the province lookup table"));
+    std::vector<Province::Id> province_color_table(16777216, 0);
+    std::fill(province_color_table.begin(), province_color_table.end(), (Province::Id)-1);
     for(auto& province : provinces) {
+        province_color_table[province->color & 0xffffff] = this->get_id(province);
+
+        // Also take the opportunity to set stuff
         province->max_x = std::numeric_limits<uint32_t>::min();
         province->max_y = std::numeric_limits<uint32_t>::min();
         province->min_x = std::numeric_limits<uint32_t>::max();
@@ -398,10 +409,7 @@ void World::load_mod(void) {
         // Set coordinates for the tiles
         tiles[i].owner_id = (Nation::Id)-1;
         tiles[i].province_id = (Province::Id)-1;
-        tiles[i].elevation = topo.buffer[i] & 0x000000ff;
-        if(topo.buffer[i] == 0xffff0000) {
-            tiles[i].elevation = sea_level + 1;
-        }
+        tiles[i].terrain_type_id = terrain.buffer[i] & 0x000000ff;
 
         // Set infrastructure level
         if(infra.buffer[i] == 0xffffffff || infra.buffer[i] == 0xff000000) {
@@ -413,16 +421,6 @@ void World::load_mod(void) {
     }
 
     // Associate tiles with provinces
-
-    // Build a lookup table for super fast speed on finding provinces
-    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-    print_info(gettext("Building the province lookup table"));
-
-    std::vector<Province::Id> province_color_table(16777216, 0);
-    std::fill(province_color_table.begin(), province_color_table.end(), (Province::Id)-1);
-    for(const auto& province : provinces) {
-        province_color_table[province->color & 0xffffff] = this->get_id(province);
-    }
 
     // Uncomment this and see a bit more below
     //std::set<uint32_t> colors_found;
@@ -749,11 +747,12 @@ void World::do_tick() {
                 end_y -= speed;
             else if(unit->y < unit->ty)
                 end_y += speed;
-
+            
+            // TODO: Disallow unit from crossing on certain stuff
             // This code prevents us from stepping onto water tiles (but allows for rivers)
-            if(get_tile(end_x, end_y).elevation <= sea_level) {
-                continue;
-            }
+            //if(get_tile(end_x, end_y).elevation <= sea_level) {
+            //    continue;
+            //}
 
             unit->x = end_x;
             unit->y = end_y;

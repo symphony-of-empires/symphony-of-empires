@@ -56,6 +56,20 @@ int LuaAPI::register_new_table(lua_State* L, const std::string& name, const luaL
     return 0;
 }
 
+int LuaAPI::add_terrain_type(lua_State* L) {
+    auto* terrain_type = new TerrainType();
+
+    terrain_type->ref_name = luaL_checkstring(L, 1);
+    terrain_type->name = luaL_checkstring(L, 2);
+    terrain_type->color = bswap_32(lua_tonumber(L, 3)) >> 8;
+    terrain_type->color |= 0xff000000;
+    terrain_type->movement_penalty = lua_tonumber(L, 4);
+
+    g_world->insert(terrain_type);
+    lua_pushnumber(L, g_world->terrain_types.size() - 1);
+    return 1;
+}
+
 int LuaAPI::add_invention(lua_State* L) {
     Invention* invention = new Invention();
 
@@ -376,8 +390,7 @@ int LuaAPI::add_nation_client_hint(lua_State* L) {
     NationClientHint hint;
     hint.ideology = g_world->ideologies.at(lua_tonumber(L, 2));
     hint.alt_name = luaL_checkstring(L, 3);
-    hint.colour = bswap_32(lua_tonumber(L, 4));
-    hint.colour >>= 8;
+    hint.colour = bswap_32(lua_tonumber(L, 4)) >> 8;
     hint.colour |= 0xff000000;
 
     nation->client_hints.push_back(hint);
@@ -527,10 +540,9 @@ int LuaAPI::add_province(lua_State* L) {
     Province* province = new Province();
 
     province->ref_name = luaL_checkstring(L, 1);
-    province->color = bswap_32(lua_tonumber(L, 2));
-    province->color >>= 8;
+    province->color = bswap_32(lua_tonumber(L, 2)) >> 8;
     province->color |= 0xff000000;
-
+    
     province->name = luaL_checkstring(L, 3);
     province->budget = 500.f;
 
