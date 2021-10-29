@@ -686,7 +686,7 @@ end
 
 -- For sanity
 function rgb(r, g, b)
-	local color = 0x000000
+	local color = 0
 	color = color | (r << 16)
 	color = color | (g << 8)
 	color = color | (b << 0)

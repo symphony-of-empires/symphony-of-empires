@@ -168,8 +168,30 @@ int main(int argc, char** argv) {
                 }
                 // Original CDCS file format
                 else if(r == "cdcs_orig") {
-                    for(const auto& province: world->provinces) {
+                    for(const auto& province : world->provinces) {
                         std::cout << "(" << province->name << ", " << province->name << ", " << (size_t)((province->total_pops() + 1) / 1000.f) << ")" << std::endl;
+                    }
+                }
+                // generate for lua lists
+                else if(r == "array_gen") {
+                    for(const auto& province : world->provinces) {
+                        uint32_t color = __bswap_32(province->color) >> 8;
+                        uint8_t r, g, b;
+                        r = (color >> 16) & 0xff;
+                        g = (color >> 8) & 0xff;
+                        b = (color >> 0) & 0xff;
+
+                        std::cout << "    "
+                            << "{ "
+                            << "ref_name = \"" << province->ref_name << "\", "
+                            << "name = _(\"" << province->name << "\"), "
+                            << "color = rgb("
+                                << std::to_string(r) << ", "
+                                << std::to_string(g) << ", "
+                                << std::to_string(b) << ")"
+                            << " }"
+                            << std::endl
+                        ;
                     }
                 }
                 // generate a graphviz of the supply chain (abstract, just using industry types and goods)
