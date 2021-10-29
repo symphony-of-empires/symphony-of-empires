@@ -256,7 +256,6 @@ void Client::net_loop(void) {
                     world.world_mutex.unlock();
                     //gs.update_on_tick();
                     gs.update_tick = true;
-                    
                     world.world_mutex.lock();
                     world.time++;
                 } break;
