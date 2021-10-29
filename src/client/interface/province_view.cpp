@@ -1,4 +1,5 @@
 #include "province_view.hpp"
+#include "nation_view.hpp"
 
 #include "../game_state.hpp"
 #include "../../nation.hpp"
@@ -30,21 +31,21 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
         std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
         for(const auto& pop : o.province->pops) {
             const auto culture_col = UI::Color(
-                o.gs.world->get_id(pop.culture),
-                o.gs.world->get_id(pop.culture) * 4,
-                o.gs.world->get_id(pop.culture) * 8
+                o.gs.world->get_id(pop.culture) * 12,
+                o.gs.world->get_id(pop.culture) * 31,
+                o.gs.world->get_id(pop.culture) * 97
             );
 
             const auto religion_col = UI::Color(
-                o.gs.world->get_id(pop.religion),
-                o.gs.world->get_id(pop.religion) * 4,
-                o.gs.world->get_id(pop.religion) * 8
+                o.gs.world->get_id(pop.religion) * 12,
+                o.gs.world->get_id(pop.religion) * 31,
+                o.gs.world->get_id(pop.religion) * 97
             );
 
             const auto type_col = UI::Color(
-                o.gs.world->get_id(pop.type),
-                o.gs.world->get_id(pop.type) * 4,
-                o.gs.world->get_id(pop.type) * 8
+                o.gs.world->get_id(pop.type) * 12,
+                o.gs.world->get_id(pop.type) * 31,
+                o.gs.world->get_id(pop.type) * 97
             );
 
             cultures_data.push_back(UI::ChartData(
@@ -113,9 +114,9 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
             }
 
             const auto product_col = UI::Color(
-                o.gs.world->get_id(product),
-                o.gs.world->get_id(product) * 4,
-                o.gs.world->get_id(product) * 8
+                o.gs.world->get_id(product) * 12,
+                o.gs.world->get_id(product) * 31,
+                o.gs.world->get_id(product) * 97
             );
 
             products_data.push_back(UI::ChartData(
@@ -144,6 +145,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     province{ _province },
     UI::Window(0, 0, 720, 300)
 {
+    this->is_scroll = false;
     this->text(province->name);
 
     this->pop_tab = new ProvincePopulationTab(gs, 128, 24, _province, this);
@@ -171,7 +173,18 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.econ_tab->is_render = true;
     });
 
+    this->nation_btn = new UI::Button(0, 0, 128, 24, this);
+    this->nation_btn->below_of(*this->econ_btn);
+    this->nation_btn->text("Nation");
+    this->nation_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<ProvinceView&>(*w.parent);
+
+        // View the nation info only if the province has a valid owner
+        if(o.province->owner == nullptr) return;
+        auto* nview = new NationView(o.gs, o.province->owner);
+    });
+
     this->close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    this->close_btn->below_of(*this->econ_btn);
+    this->close_btn->below_of(*this->nation_btn);
     this->close_btn->text("Close");
 }
