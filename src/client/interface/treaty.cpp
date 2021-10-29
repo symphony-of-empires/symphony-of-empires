@@ -9,6 +9,8 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
     treaty{ _treaty },
     UI::Window(0, 0, 256, 512)
 {
+    this->is_scroll = false;
+    
     this->body_txt = new UI::Text(0, 24, this->width, 24, this);
     this->body_txt->text("[insert the treaty description here]");
 

@@ -8,6 +8,8 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
     index{ _index },
     UI::Group(x, y, parent->width - x, 24, parent)
 {
+    this->is_scroll = false;
+    
     this->size_btn = new UI::Button(0, 0, 96, 24, this);
 
     this->budget_btn = new UI::Button(0, 0, 96, 24, this);
@@ -36,6 +38,8 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
     product{ _product },
     UI::Group(x, y, parent->width - x, 24, parent)
 {
+    this->is_scroll = false;
+
     this->company_btn = new UI::Button(0, 0, 96, 24, this);
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);

@@ -7,6 +7,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     in_game{ false },
     UI::Window(0, 0, 512, 128)
 {
+    this->is_scroll = false;
     this->text("Connect to a server");
 
     ip_addr_inp = new UI::Input(0, 24, 512, 24, this);
