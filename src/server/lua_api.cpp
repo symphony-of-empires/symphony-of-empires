@@ -729,13 +729,12 @@ int LuaAPI::add_province_pop(lua_State* L) {
     pop.religion = g_world->religions.at(lua_tonumber(L, 4));
     pop.size = lua_tonumber(L, 5);
     pop.literacy = lua_tonumber(L, 6);
+    pop.budget = 10.f;
 
     // TODO: Make ideology NOT be random
     pop.ideology = g_world->ideologies[rand() % g_world->ideologies.size()];
 
-    if(pop.size == 0) {
-        throw LuaAPI::Exception("Can't create pops with 0 size");
-    }
+    if(!pop.size) throw LuaAPI::Exception("Can't create pops with 0 size");
     province->pops.push_back(pop);
     return 0;
 }
