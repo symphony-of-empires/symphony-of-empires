@@ -3,6 +3,7 @@
 #include <queue>
 #include <mutex>
 #include <vector>
+#include <atomic>
 
 #include "../nation.hpp"
 #include "../world.hpp"
@@ -43,6 +44,8 @@ public:
     void update_on_tick(void);
 
     Client* client = nullptr;
+
+    std::atomic<bool> update_tick;
 
     // The ui will mostly need to read the world state
     World* world = nullptr;
