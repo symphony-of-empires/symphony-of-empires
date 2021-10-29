@@ -254,7 +254,9 @@ void Client::net_loop(void) {
                 case ActionType::WORLD_TICK: {
                     // Give up the world mutex for now
                     world.world_mutex.unlock();
-                    gs.update_on_tick();
+                    //gs.update_on_tick();
+                    gs.update_tick = true;
+                    
                     world.world_mutex.lock();
                     world.time++;
                 } break;

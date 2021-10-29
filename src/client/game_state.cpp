@@ -338,6 +338,8 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     std::vector<Event*> displayed_events;
     std::vector<Treaty*> displayed_treaties;
 
+    gs.update_tick = false;
+
     std::atomic<bool> run;
     run = true;
     while(run) {
@@ -346,6 +348,12 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
         if(gs.current_mode == MapMode::NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
         }
+
+        if(gs.update_tick == true) {
+            gs.update_on_tick();
+            gs.update_tick = false;
+        }
+
         render(gs, gs.input, window);
     }
 }
