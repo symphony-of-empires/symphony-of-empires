@@ -125,16 +125,18 @@ void Map::draw_flag(const Nation* nation) {
     auto flag = UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(GL_TRIANGLE_STRIP);
     for(float r = 0.f; r <= (n_steps * step); r += step) {
         float sin_r = (sin(r + wind_osc) / 24.f);
-
+    
+        sin_r = sin(r + wind_osc) / 24.f;
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),  // Vert
             glm::vec2((r / step) / n_steps, 0.f)                    // Texcoord
-            ));
+        ));
 
+        sin_r = sin(r + wind_osc + 90.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),  // Vert
-            glm::vec2((r / step) / n_steps, 0.f)                    // Texcoord
-            ));
+            glm::vec2((r / step) / n_steps, 1.f)                    // Texcoord
+        ));
     }
 
     flag.vao.bind();
@@ -368,12 +370,10 @@ void Map::draw(Camera& cam, const int width, const int height) {
     for(const auto& building : world.buildings) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
+        
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
-
-        if(world.get_id(building->type) < outpost_type_icons.size()) {
-            outpost_type_icons.at(world.get_id(building->type))->draw(obj_shader);
-        }
+        outpost_type_icons.at(world.get_id(building->type))->draw(obj_shader);
 
         // Reverse rotation
         model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
@@ -384,12 +384,10 @@ void Map::draw(Camera& cam, const int width, const int height) {
     for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
+
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
-
-        if(world.get_id(unit->type) < unit_type_icons.size()) {
-            unit_type_icons[world.get_id(unit->type)]->draw(obj_shader);
-        }
+        unit_type_icons[world.get_id(unit->type)]->draw(obj_shader);
 
         // Reverse rotation
         model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
