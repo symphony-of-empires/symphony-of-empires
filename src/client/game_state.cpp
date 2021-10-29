@@ -344,6 +344,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     run = true;
     while(run) {
         std::lock_guard lock(gs.render_lock);
+        
         handle_event(gs.input, gs, run);
         if(gs.current_mode == MapMode::NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
