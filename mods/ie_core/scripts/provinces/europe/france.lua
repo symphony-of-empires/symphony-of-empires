@@ -15,7 +15,7 @@ local france_provinces_list = {
     { ref_name = "seine_maritime", name = _("Seine Maritime"), color = rgb(52, 155, 160) },
     { ref_name = "alpes_maritimes", name = _("Alpes Maritimes"), color = rgb(70, 147, 96) },
     { ref_name = "alpes_de_haute_provence", name = _("Alpes de Haute Provence"), color = rgb(163, 155, 0) },
-    { ref_name = "hautes_alpes", name = _("Hautes Alpes"), color = rgb(35, 73, 160) }
+    { ref_name = "hautes_alpes", name = _("Hautes Alpes"), color = rgb(35, 73, 160) },
     { ref_name = "var", name = _("Var"), color = rgb(168, 188, 192) },
     { ref_name = "cannes", name = _("Cannes"), color = rgb(55, 45, 0) },
     { ref_name = "bouches_du_rhone", name = _("Bouches du Rhône"), color = rgb(52, 147, 224) },
@@ -36,19 +36,19 @@ local france_provinces_list = {
     { ref_name = "pyrenees_orientales", name = _("Pyrénées Orientales"), color = rgb(79, 142, 64) },
     { ref_name = "savoie", name = _("Savoie"), color = rgb(78, 69, 224) },
     { ref_name = "haute_savoie", name = _("Haute Savoie"), color = rgb(185, 107, 32) },
-    { ref_name = "pyrenees_atlantiques", name = _("Pyrénées Atlantiques") color = 0x402880 },
+    { ref_name = "pyrenees_atlantiques", name = _("Pyrénées Atlantiques"), color = 0x402880 },
     
     { ref_name = "landes", name = _("Landes"), color = 0xc788a0 },
     { ref_name = "gironde", name = _("Gironde"), color = 0x417120 },
     { ref_name = "lotet_garonne", name = _("Lotet Garonne"), color = 0xcfdfc0 },
-    { ref_name = "dordogne", name = _("Dordogne"), color = 0x8a95a0 },
+    { ref_name = "dordogne", name = _("Dordogne"), color = 0x7f81b9 },
     { ref_name = "correze", name = _("Corrèze"), color = 0xbb6dcd },
     { ref_name = "creuse", name = _("Creuse"), color = 0xb1b840 },
     { ref_name = "haute_vienne", name = _("Haute Vienne"), color = 0x45ef20 },
     { ref_name = "charente", name = _("Charente"), color = 0x5bbec0 },
     { ref_name = "charente_maritime", name = _("Charente Maritime"), color = 0xeeaba0 },
     { ref_name = "deux_sevres", name = _("Deux Sèvres"), color = 0xa1ae40 },
-    { ref_name = "vienne", name = _("Vienne"), color = 0x3baa60 },
+    { ref_name = "vienne", name = _("Vienne"), color = 0x3baa60 }
 }
 
 for k, v in pairs(france_provinces_list) do
