@@ -1,21 +1,21 @@
 #pragma once
 
-#include "../../nation.hpp"
+#include "../../good.hpp"
 #include "../../world.hpp"
 #include "../game_state.hpp"
 #include "../ui.hpp"
 
 namespace Interface {
-    class NationView : public UI::Window {
+    class GoodView : public UI::Window {
         GameState& gs;
-        Nation* nation;
+        Good* good;
 
-        UI::Image* flag_img;
+        UI::Image* icon_img;
         UI::Label* name_lab;
-        UI::Label* ideology_lab;
-        
+        UI::PieChart *sellers_pie;
+
         UI::CloseButton* close_btn;
     public:
-        NationView(GameState& gs, Nation* nation);
+        GoodView(GameState& gs, Good* good);
     };
 };
