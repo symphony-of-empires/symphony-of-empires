@@ -523,7 +523,7 @@ void Widget::text(const std::string& _text) {
         delete text_texture;
     }
 
-    TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
+    //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
     surface = TTF_RenderUTF8_Solid(g_ui_context->default_font, _text.c_str(), text_color);
     if(surface == nullptr)
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
@@ -540,15 +540,8 @@ void Widget::text(const std::string& _text) {
             if(a == 0xff) {
                 pixel = 0;
             } else {
-                pixel = 0xffffffff;
+                pixel = ((~a) << 24) | 0xffffff;
             }
-
-            /*uint32_t final_pixel;
-            if(a == 0xff) {
-                final_pixel = 0;
-            } else {
-                final_pixel = pixel | 0xff000000;
-            }*/
 
             text_texture->buffer[i + j * text_texture->width] = pixel;
         }

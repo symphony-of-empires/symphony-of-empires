@@ -30,11 +30,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         w.text(o.nation->get_client_hint().ideology->name);
     });
 
-    this->close_btn = new UI::Button(0, 0 * 3, this->width, 24, this);
+    this->close_btn = new UI::CloseButton(0, 0 * 3, this->width, 24, this);
     this->close_btn->text("Close");
     this->close_btn->below_of(*this->ideology_lab);
-    this->close_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<NationView&>(*w.parent);
-        delete w.parent;
-    });
 }
