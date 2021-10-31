@@ -1,4 +1,5 @@
 #include "common.hpp"
+#include "good_view.hpp"
 
 using namespace Interface;
 
@@ -42,8 +43,16 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
 
     this->company_btn = new UI::Button(0, 0, 96, 24, this);
 
+    this->good_btn = new UI::Button(0, 0, 96, 24, this);
+    this->good_btn->text(product->good->name);
+    this->good_btn->right_side_of(*this->company_btn);
+    this->good_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<ProductInfo&>(*w.parent);
+        new GoodView(o.gs, o.product->good);
+    });
+
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
-    this->price_rate_btn->right_side_of(*this->company_btn);
+    this->price_rate_btn->right_side_of(*this->good_btn);
 
     this->price_btn = new UI::Button(0, 0, 96, 24, this);
     this->price_btn->right_side_of(*this->price_rate_btn);
