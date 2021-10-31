@@ -110,13 +110,6 @@ Map::Map(const World& _world): world(_world) {
 }
 
 void Map::draw_flag(const Nation* nation) {
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBegin(GL_LINE);
-    glColor3f(1.f, 1.f, 1.f);
-    glVertex3f(0.f, 0.f, 0.f);
-    glVertex3f(0.f, 0.f, -2.f);
-    glEnd();
-
     // Draw a flag that "waves" with some cheap wind effects it
     // looks nice and it's super cheap to make - only using sine
     const float n_steps = 8.f;  // Resolution of flag in one side (in vertices)
@@ -149,23 +142,6 @@ void Map::draw_flag(const Nation* nation) {
 
     nation_flags.at(world.get_id(nation))->bind();
     flag.draw();
-
-    // sin_r - Sin'ed iterator along with the wind oscillator
-    /*glBegin(GL_TRIANGLE_STRIP);
-    for(float r = 0.f; r <= (n_steps * step); r += step) {
-        float sin_r;
-
-        sin_r = sin(r + wind_osc) / 24.f;
-        glColor3f((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f);
-        glTexCoord2f((r / step) / n_steps, 0.f);
-        glVertex3f(((r / step) / n_steps) * 1.5f, sin_r, -2.f);
-
-        sin_r = sin(r + wind_osc + 90.f) / 24.f;
-        glColor3f((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f);
-        glTexCoord2f((r / step) / n_steps, 1.f);
-        glVertex3f(((r / step) / n_steps) * 1.5f, sin_r, -1.f);
-    }
-    glEnd();*/
 }
 
 void Map::handle_click(GameState& gs, SDL_Event event) {
@@ -195,22 +171,22 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             // Check if we selected an unit
             for(const auto& unit : gs.world->units) {
                 const float size = 2.f;
-                if((int)select_pos.first > (int)unit->x - size &&
-                    (int)select_pos.first < (int)unit->x + size &&
-                    (int)select_pos.second >(int)unit->y - size &&
-                    (int)select_pos.second < (int)unit->y + size) {
+                if((int)select_pos.first > (int)unit->x - size
+                && (int)select_pos.first < (int)unit->x + size
+                && (int)select_pos.second >(int)unit->y - size
+                && (int)select_pos.second < (int)unit->y + size) {
                     selected_unit = unit;
                     return;
                 }
             }
 
-            // Check if we selected an building
+            // Check if we selected a building
             for(const auto& building : gs.world->buildings) {
                 const float size = 2.f;
-                if((int)select_pos.first > (int)building->x - size &&
-                    (int)select_pos.first < (int)building->x + size &&
-                    (int)select_pos.second >(int)building->y - size &&
-                    (int)select_pos.second < (int)building->y + size) {
+                if((int)select_pos.first > (int)building->x - size
+                && (int)select_pos.first < (int)building->x + size
+                && (int)select_pos.second >(int)building->y - size
+                && (int)select_pos.second < (int)building->y + size) {
                     selected_building = building;
                     return;
                 }
@@ -221,6 +197,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 new Interface::ProvinceView(gs, gs.world->provinces.at(tile.province_id));
                 return;
             }
+            break;
+        default:
             break;
         }
         
@@ -240,14 +218,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         ::serialize(ar, &action);
         Building building = Building();
 
-        if(gs.world->get_tile(select_pos.first + 0, select_pos.second + 0).elevation <= gs.world->sea_level) {
-            // Seaport if on bordering water
-            building.type = gs.world->building_types[2];
-        }
-        else {
-            // Barracks if on land
-            building.type = gs.world->building_types[0];
-        }
+        building.type = gs.world->building_types[0];
 
         building.x = select_pos.first;
         building.y = select_pos.second;
