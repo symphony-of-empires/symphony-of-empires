@@ -31,6 +31,8 @@ namespace std {
 }
 #endif
 
+void ai_do_tick(Nation* nation, World* world);
+
 /**
  * Creates a new world
   */
@@ -41,7 +43,7 @@ World::World() {
     luaL_openlibs(lua);
 
     // Register our API functions
-    lua_register(lua, "_", LuaAPI::get_text);
+    lua_register(lua, "add_terrain_type", LuaAPI::add_terrain_type);
 
     lua_register(lua, "add_technology", LuaAPI::add_technology);
     lua_register(lua, "get_technology", LuaAPI::get_technology);
@@ -64,11 +66,19 @@ World::World() {
 
     lua_register(lua, "add_nation", LuaAPI::add_nation);
     lua_register(lua, "get_nation", LuaAPI::get_nation);
+
+    lua_register(lua, "get_friends_of_nation", LuaAPI::get_friends_of_nation);
+    lua_register(lua, "get_enemies_of_nation", LuaAPI::get_enemies_of_nation);
+    lua_register(lua, "get_allies_of_nation", LuaAPI::get_allies_of_nation);
+    lua_register(lua, "get_warenemies_of_nation", LuaAPI::get_warenemies_of_nation);
+    lua_register(lua, "get_embargoed_of_nation", LuaAPI::get_embargoed_of_nation);
+
     lua_register(lua, "get_provinces_owned_by_nation", LuaAPI::get_provinces_owned_by_nation);
     lua_register(lua, "get_provinces_with_nucleus_by_nation", LuaAPI::get_provinces_with_nucleus_by_nation);
     lua_register(lua, "set_nation_primary_culture", LuaAPI::set_nation_primary_culture);
     lua_register(lua, "set_nation_capital", LuaAPI::set_nation_capital);
     lua_register(lua, "add_nation_accepted_culture", LuaAPI::add_accepted_culture);
+    lua_register(lua, "add_nation_accepted_religion", LuaAPI::add_accepted_religion);
     lua_register(lua, "add_nation_client_hint", LuaAPI::add_nation_client_hint);
     lua_register(lua, "get_nation_policies", LuaAPI::get_nation_policies);
     lua_register(lua, "set_nation_policies", LuaAPI::set_nation_policies);
@@ -120,27 +130,59 @@ World::World() {
     lua_register(lua, "add_ideology", LuaAPI::add_ideology);
     lua_register(lua, "get_ideology", LuaAPI::get_ideology);
 
-    lua_register(lua, "get_hour", LuaAPI::get_hour);
-    lua_register(lua, "get_day", LuaAPI::get_day);
-    lua_register(lua, "get_month", LuaAPI::get_month);
-    lua_register(lua, "get_year", LuaAPI::get_year);
+    lua_register(lua, "get_hour", [](lua_State* L) {
+        lua_pushnumber(L, 1 + (g_world->time % 48));
+        return 1;
+    });
+    lua_register(lua, "get_day", [](lua_State* L) {
+        lua_pushnumber(L, 1 + (g_world->time / 48 % 30));
+        return 1;
+    });
+    lua_register(lua, "get_month", [](lua_State* L) {
+        lua_pushnumber(L, 1 + (g_world->time / 48 / 30 % 12));
+        return 1;
+    });
+    lua_register(lua, "get_year", [](lua_State* L) {
+        lua_pushnumber(L, g_world->time / 48 / 30 / 12);
+        return 1;
+    });
+    lua_register(lua, "set_date", [](lua_State* L) {
+        const int year = lua_tonumber(L, 1) * 12 * 30 * 48;
+        const int month = lua_tonumber(L, 2) * 30 * 48;
+        const int day = lua_tonumber(L, 3) * 48;
+        g_world->time = year + month + day;
+        return 1;
+    });
+    lua_register(lua, "_", [](lua_State* L) {
+        std::string msgid = luaL_checkstring(L, 1);
+        std::string end_msg = gettext(msgid.c_str());
+        lua_pushstring(L, end_msg.c_str());
+        return 1;
+    });
 
-    /*
     const struct luaL_Reg ideology_meta[] = {
         { "__gc", [](lua_State* L) {
+            print_info("__gc?");
             return 0;
         }},
         { "__index", [](lua_State* L) {
-            print_info("__index?");
-            return 0;
-        }},
-        { "__newindex", [](lua_State* L) {
-            Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
+            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
             std::string member = luaL_checkstring(L, 2);
             if(member == "ref_name") {
-                ideology->ref_name = luaL_checkstring(L, 3);
+                lua_pushstring(L, (*ideology)->ref_name.c_str());
             } else if(member == "name") {
-                ideology->name = luaL_checkstring(L, 3);
+                lua_pushstring(L, (*ideology)->name.c_str());
+            }
+            print_info("__index?");
+            return 1;
+        }},
+        { "__newindex", [](lua_State* L) {
+            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
+            std::string member = luaL_checkstring(L, 2);
+            if(member == "ref_name") {
+                (*ideology)->ref_name = luaL_checkstring(L, 3);
+            } else if(member == "name") {
+                (*ideology)->name = luaL_checkstring(L, 3);
             }
             print_info("__newindex?");
             return 0;
@@ -149,32 +191,41 @@ World::World() {
     };
     const luaL_Reg ideology_methods[] = {
         { "new", [](lua_State* L) {
-            Ideology* ideology = (Ideology*)lua_newuserdata(L, sizeof(Ideology));
-            ideology->ref_name = luaL_checkstring(L, 1);
-            ideology->name = luaL_checkstring(L, 2);
+            Ideology** ideology = (Ideology**)lua_newuserdata(L, sizeof(Ideology*));
+            *ideology = new Ideology();
+            luaL_setmetatable(L, "Ideology");
+
+            (*ideology)->ref_name = luaL_checkstring(L, 1);
+            (*ideology)->name = luaL_optstring(L, 2, (*ideology)->ref_name.c_str());
+
+            print_info("__new?");
             return 1;
         }},
         { "register", [](lua_State* L) {
-            Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
-            Ideology* new_ideology = new Ideology(*ideology);
-            g_world->ideologies.push_back(new_ideology);
+            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
+            g_world->insert(*ideology);
+            print_info("New ideology %s", (*ideology)->ref_name.c_str());
+
+            print_info("__register?");
             return 0;
         }},
         { "get", [](lua_State* L) {
-            std::string ref_name = lua_tostring(L, 2);
+            const std::string ref_name = lua_tostring(L, 1);
             auto result = std::find_if(g_world->ideologies.begin(), g_world->ideologies.end(),
             [&ref_name](const auto& o) { return (o->ref_name == ref_name); });
             if(result == g_world->ideologies.end())
                 throw LuaAPI::Exception("Ideology " + ref_name + " not found");
 
-            Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
-            *ideology = **result;
-            return 0;
+            Ideology** ideology = (Ideology**)lua_newuserdata(L, sizeof(Ideology*));
+            *ideology = *result;
+            luaL_setmetatable(L, "Ideology");
+
+            print_info("__get?");
+            return 1;
         }},
         { NULL, NULL }
     };
-    LuaAPI::register_new_table(lua, "Ideology", ideology_meta, ideology_methods);
-    */
+    //LuaAPI::register_new_table(lua, "Ideology", ideology_meta, ideology_methods);
 
     // Constants for ease of readability
     lua_pushboolean(lua, true);
@@ -291,20 +342,21 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files) 
 }
 
 void World::load_mod(void) {
+    BinaryImage terrain(Path::get("map_terrain.png"));
     BinaryImage topo(Path::get("map_topo.png"));
     BinaryImage div(Path::get("map_div.png"));
     BinaryImage infra(Path::get("map_infra.png"));
 
-    width = topo.width;
-    height = topo.height;
+    width = terrain.width;
+    height = terrain.height;
 
     // Check that size of all maps match
-    if(infra.width != width || infra.height != height) {
-        throw std::runtime_error("Infrastructure map size mismatch with topographic map");
-    }
-    else if(div.width != width || div.height != height) {
-        throw std::runtime_error("Province map size mismatch with topographic map");
-    }
+    if(topo.width != width || topo.height != height)
+        throw std::runtime_error("Topographic map size mismatch");
+    else if(infra.width != width || infra.height != height)
+        throw std::runtime_error("Infrastructure map size mismatch");
+    else if(div.width != width || div.height != height)
+        throw std::runtime_error("Province map size mismatch");
 
     const size_t total_size = width * height;
 
@@ -317,7 +369,8 @@ void World::load_mod(void) {
         throw std::runtime_error("Out of memory");
     }
 
-    const std::vector<std::string> init_files ={
+    const std::vector<std::string> init_files = {
+        "terrain_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "good_types", "industry_types",
         "unit_types", "boat_types", "companies", "provinces", "init"
@@ -333,12 +386,30 @@ void World::load_mod(void) {
     cultures.shrink_to_fit();
     religions.shrink_to_fit();
     pop_types.shrink_to_fit();
+    ideologies.shrink_to_fit();
+    building_types.shrink_to_fit();
 
+    // Build a lookup table for super fast speed on finding provinces
+    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
+    print_info(gettext("Building the province lookup table"));
+    std::vector<Province::Id> province_color_table(16777216, 0);
+    std::fill(province_color_table.begin(), province_color_table.end(), (Province::Id)-1);
     for(auto& province : provinces) {
-        province->max_x = 0;
-        province->max_y = 0;
-        province->min_x = UINT32_MAX;
-        province->min_y = UINT32_MAX;
+        province_color_table[province->color & 0xffffff] = this->get_id(province);
+
+        // Also take the opportunity to set stuff
+        province->max_x = std::numeric_limits<uint32_t>::min();
+        province->max_y = std::numeric_limits<uint32_t>::min();
+        province->min_x = std::numeric_limits<uint32_t>::max();
+        province->min_y = std::numeric_limits<uint32_t>::max();
+    }
+
+    // Do the same lookup table technique but with terrain types
+    print_info(gettext("Building the terrain_type lookup table"));
+    std::vector<TerrainType::Id> terrain_color_table(16777216, 0);
+    std::fill(terrain_color_table.begin(), terrain_color_table.end(), (TerrainType::Id)-1);
+    for(const auto& terrain_type : terrain_types) {
+        terrain_color_table[terrain_type->color & 0xffffff] = this->get_id(terrain_type);
     }
 
     // Translate all div, pol and topo maps onto this single tile array
@@ -347,10 +418,8 @@ void World::load_mod(void) {
         // Set coordinates for the tiles
         tiles[i].owner_id = (Nation::Id)-1;
         tiles[i].province_id = (Province::Id)-1;
-        tiles[i].elevation = topo.buffer[i] & 0x000000ff;
-        if(topo.buffer[i] == 0xffff0000) {
-            tiles[i].elevation = sea_level + 1;
-        }
+        tiles[i].elevation = topo.buffer[i] & 0xff;
+        tiles[i].terrain_type_id = terrain_color_table[terrain.buffer[i] & 0xffffff];
 
         // Set infrastructure level
         if(infra.buffer[i] == 0xffffffff || infra.buffer[i] == 0xff000000) {
@@ -362,15 +431,6 @@ void World::load_mod(void) {
     }
 
     // Associate tiles with provinces
-
-    // Build a lookup table for super fast speed on finding provinces
-    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-    print_info(gettext("Building the province lookup table"));
-    Province::Id* color_province_rel_table = new Province::Id[16777216];
-    memset(color_province_rel_table, 0xff, sizeof(Province::Id) * 16777216);
-    for(const auto& province : provinces) {
-        color_province_rel_table[province->color & 0xffffff] = get_id(province);
-    }
 
     // Uncomment this and see a bit more below
     //std::set<uint32_t> colors_found;
@@ -386,7 +446,7 @@ void World::load_mod(void) {
         if(!(i < total_size))
             break;
 
-        const Province::Id province_id = color_province_rel_table[div.buffer[i] & 0xffffff];
+        const Province::Id province_id = province_color_table[div.buffer[i] & 0xffffff];
         if(province_id == (Province::Id)-1) {
             // Uncomment this and see below
             //colors_found.insert(color);
@@ -401,7 +461,6 @@ void World::load_mod(void) {
         }
         --i;
     }
-    delete[] color_province_rel_table;
 
     /* Uncomment this for auto-generating lua code for unregistered provinces */
     /*for(const auto& color_raw: colors_found) {
@@ -409,16 +468,16 @@ void World::load_mod(void) {
 
         printf("province = Province:create{ ref_name = \"province_%x\", color = 0x%06x }\n", __bswap_32(color), __bswap_32(color));
         printf("province.name = _(\"Province_%x\")\n", __bswap_32(color));
-        printf("Province:register(province)\n");
-        printf("Province:add_pop(province, artisan, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, farmer, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, soldier, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, craftsmen, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, bureaucrat, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, aristocrat, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, clergymen, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, laborer, arabic, islamic, 1000, 0.5)\n");
-        printf("Province:add_pop(province, entrepreneur, arabic, islamic, 1000, 0.5)\n");
+        printf("province:register()\n");
+        printf("province:add_pop(artisan, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(farmer, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(soldier, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(craftsmen, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(bureaucrat, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(aristocrat, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(clergymen, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(laborer, arabic, islamic, 1000, 0.5)\n");
+        printf("province:add_pop(entrepreneur, arabic, islamic, 1000, 0.5)\n");
     }*/
 
     // Calculate the edges of the province (min and max x and y coordinates)
@@ -443,10 +502,8 @@ void World::load_mod(void) {
         province->max_x = std::min(width, province->max_x);
         province->max_y = std::min(height, province->max_y);
 
-        // Add stockpile
-        for(size_t i = 0; i < products.size(); i++) {
-            province->stockpile.push_back(0);
-        }
+        // Create default stockpile of 0
+        province->stockpile.resize(products.size(), 0);
     }
 
     // Give owners the entire provinces
@@ -466,8 +523,8 @@ void World::load_mod(void) {
                 }
             }
         }
-        nation_changed_tiles.clear();
     }
+    nation_changed_tiles.clear();
 
     // Neighbours
     print_info(gettext("Creating neighbours for provinces"));
@@ -476,74 +533,22 @@ void World::load_mod(void) {
         const Tile* other_tile;
         if(tile->owner_id != (Nation::Id)-1) {
             Nation* nation = this->nations[this->tiles[i].owner_id];
+            const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
 
-            // Up neighbour
-            if(i > this->width) {
-                other_tile = &this->tiles[i - this->width];
-                if(other_tile->owner_id != tile->owner_id
-                    && other_tile->owner_id != (Nation::Id)-1) {
-                    nation->neighbours.insert(this->nations[other_tile->owner_id]);
-                }
-            }
-            // Down neighbour
-            if(i < (this->width * this->height) - this->width) {
-                other_tile = &this->tiles[i + this->width];
-                if(other_tile->owner_id != tile->owner_id
-                    && other_tile->owner_id != (Nation::Id)-1) {
-                    nation->neighbours.insert(this->nations[other_tile->owner_id]);
-                }
-            }
-            // Left neighbour
-            if(i > 1) {
-                other_tile = &this->tiles[i - 1];
-                if(other_tile->owner_id != tile->owner_id
-                    && other_tile->owner_id != (Nation::Id)-1) {
-                    nation->neighbours.insert(this->nations[other_tile->owner_id]);
-                }
-            }
-            // Right neighbour
-            if(i < (this->width * this->height) - 1) {
-                other_tile = &this->tiles[i + 1];
-                if(other_tile->owner_id != tile->owner_id
-                    && other_tile->owner_id != (Nation::Id)-1) {
-                    nation->neighbours.insert(this->nations[other_tile->owner_id]);
+            for(const auto& other_tile: tiles) {
+                if(other_tile->owner_id != tile->owner_id && other_tile->owner_id != (Nation::Id)-1) {
+                    nation->neighbours.insert(this->nations.at(other_tile->owner_id));
                 }
             }
         }
 
         if(tile->province_id != (Province::Id)-1) {
             Province* province = this->provinces[this->tiles[i].province_id];
+            const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
 
-            // Up neighbour
-            if(i > this->width) {
-                other_tile = &this->tiles[i - this->width];
-                if(other_tile->province_id != tile->province_id
-                    && other_tile->province_id != (Province::Id)-1) {
-                    province->neighbours.insert(this->provinces[other_tile->province_id]);
-                }
-            }
-            // Down neighbour
-            if(i < (this->width * this->height) - this->width) {
-                other_tile = &this->tiles[i + this->width];
-                if(other_tile->province_id != tile->province_id
-                    && other_tile->province_id != (Province::Id)-1) {
-                    province->neighbours.insert(this->provinces[other_tile->province_id]);
-                }
-            }
-            // Left neighbour
-            if(i > 1) {
-                other_tile = &this->tiles[i - 1];
-                if(other_tile->province_id != tile->province_id
-                    && other_tile->province_id != (Province::Id)-1) {
-                    province->neighbours.insert(this->provinces[other_tile->province_id]);
-                }
-            }
-            // Right neighbour
-            if(i < (this->width * this->height) - 1) {
-                other_tile = &this->tiles[i + 1];
-                if(other_tile->province_id != tile->province_id
-                    && other_tile->province_id != (Province::Id)-1) {
-                    province->neighbours.insert(this->provinces[other_tile->province_id]);
+            for(const auto& other_tile: tiles) {
+                if(other_tile->province_id != tile->province_id && other_tile->province_id != (Province::Id)-1) {
+                    province->neighbours.insert(this->provinces.at(other_tile->province_id));
                 }
             }
         }
@@ -553,9 +558,7 @@ void World::load_mod(void) {
     print_info(gettext("Creating diplomatic relations"));
     for(const auto& nation : this->nations) {
         // Relations between nations start at 0 (and latter modified by lua scripts)
-        for(size_t i = 0; i < this->nations.size(); i++) {
-            nation->relations.push_back(NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
-        }
+        nation->relations.resize(this->nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
     }
 
     const std::vector<std::string> mod_files ={
@@ -587,193 +590,13 @@ void World::load_mod(void) {
 #include "../actions.hpp"
 #include "economy.hpp"
 void World::do_tick() {
-    std::lock_guard<std::recursive_mutex> lock(world_mutex);
-    std::lock_guard<std::recursive_mutex> lock2(tiles_mutex);
+    std::lock_guard lock(world_mutex);
+    std::lock_guard lock2(tiles_mutex);
 
     // AI and stuff
     // Just random shit to make the world be like more alive
-    int i = 0;
     for(const auto& nation : nations) {
-        //print_info("%d", i++);
-        if(nation->exists() == false)
-            continue;
-
-        if(rand() % 1000 > 990) {
-            Province* target = provinces[rand() % provinces.size()];
-            if(target->owner == nullptr) {
-                Packet packet = Packet();
-                Archive ar = Archive();
-                ActionType action = ActionType::PROVINCE_COLONIZE;
-                ::serialize(ar, &action);
-                ::serialize(ar, &target);
-                ::serialize(ar, target);
-                packet.data(ar.get_buffer(), ar.size());
-                g_server->broadcast(packet);
-
-                nation->give_province(*this, *target);
-                print_info("Conquering %s for %s", target->name.c_str(), nation->name.c_str());
-            }
-        }
-
-        if(rand() % 100 > 98.f) {
-            Nation* target = nullptr;
-            while(target == nullptr || target->exists() == false) {
-                target = nations[rand() % nations.size()];
-            }
-            nation->increase_relation(*target);
-        }
-        else if(rand() % 100 > 98.f) {
-            Nation* target = nullptr;
-            while(target == nullptr || target->exists() == false) {
-                target = nations[rand() % nations.size()];
-            }
-            nation->decrease_relation(*target);
-        }
-
-        // Rarely nations will change policies
-        if(rand() % 100 > 50) {
-            Policies new_policy = nation->current_policy;
-
-            if(rand() % 100 > 50.f) {
-                new_policy.import_tax += 0.1f * (rand() % 10);
-            }
-            else if(rand() % 100 > 50.f) {
-                new_policy.import_tax -= 0.1f * (rand() % 10);
-            }
-
-            if(rand() % 100 > 50.f) {
-                new_policy.export_tax += 0.1f * (rand() % 10);
-            }
-            else if(rand() % 100 > 50.f) {
-                new_policy.export_tax -= 0.1f * (rand() % 10);
-            }
-
-            if(rand() % 100 > 50.f) {
-                new_policy.domestic_export_tax += 0.1f * (rand() % 10);
-            }
-            else if(rand() % 100 > 50.f) {
-                new_policy.domestic_export_tax -= 0.1f * (rand() % 10);
-            }
-
-            if(rand() % 100 > 50.f) {
-                new_policy.domestic_import_tax += 0.1f * (rand() % 10);
-            }
-            else if(rand() % 100 > 50.f) {
-                new_policy.domestic_import_tax -= 0.1f * (rand() % 10);
-            }
-
-            if(rand() % 100 > 50.f) {
-                new_policy.industry_tax += 0.1f * (rand() % 10);
-            }
-            else if(rand() % 100 > 50.f) {
-                new_policy.industry_tax -= 0.1f * (rand() % 10);
-            }
-
-            nation->set_policy(new_policy);
-        }
-
-        if(nation->diplomatic_timer != 0) {
-            nation->diplomatic_timer--;
-        }
-
-        // Accepting/rejecting treaties
-        if(std::rand() % 1000 > 10) {
-            for(auto& treaty : treaties) {
-                for(auto& part : treaty->approval_status) {
-                    if(part.first == nation) {
-                        if(part.second == TreatyApproval::ACCEPTED
-                            || part.second == TreatyApproval::DENIED) {
-                            break;
-                        }
-
-                        if(std::rand() % 50 >= 25) {
-                            print_info("We, %s, deny the treaty of %s", treaty->name.c_str());
-                            part.second = TreatyApproval::DENIED;
-                        }
-                        else {
-                            print_info("We, %s, accept the treaty of %s", treaty->name.c_str());
-                            part.second = TreatyApproval::ACCEPTED;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Build an building randomly?
-        //if(std::rand() % 1000 > 950) {
-        if(0) {
-            bool can_build = false;
-            for(const auto& province : nation->owned_provinces) {
-                if(get_id(&province->get_occupation_controller(*this)) != g_world->get_id(nation)) {
-                    can_build = true;
-                    break;
-                }
-            }
-
-            if(!can_build) {
-                continue;
-            }
-
-            // Select random province
-            Province* target = nullptr;
-            while(target == nullptr || get_id(&target->get_occupation_controller(*this)) != g_world->get_id(nation)) {
-                auto it = std::begin(nation->owned_provinces);
-                std::advance(it, std::rand() % nation->owned_provinces.size());
-                target = *it;
-            }
-
-            Tile* tile = nullptr;
-            int x_coord, y_coord;
-            while(tile == nullptr) {
-                x_coord = std::min<size_t>(target->max_x, std::max<size_t>((std::rand() % (target->max_x - target->min_x + 1)) + target->min_x, target->min_x));
-                y_coord = std::min<size_t>(target->max_y, std::max<size_t>((std::rand() % (target->max_y - target->min_y + 1)) + target->min_y, target->min_y));
-                tile = &get_tile(x_coord, y_coord);
-
-                // If tile is land AND NOT part of target province OR NOT of ownership of nation
-                if(tile->elevation > sea_level
-                    && (tile->province_id != get_id(target) || tile->owner_id != get_id(nation))) {
-                    tile = nullptr;
-                }
-            }
-
-            // Now build the building
-            Building* building = new Building();
-            building->x = x_coord;
-            building->y = y_coord;
-            building->owner = nation;
-            building->working_unit_type = nullptr;
-            building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
-            building->req_goods = std::vector<std::pair<Good*, size_t>>();
-            building->type = building_types.at(std::rand() % building_types.size());
-            if(building->type->is_factory == true) {
-                building->budget = 100.f;
-                building->corporate_owner = companies.at(std::rand() % companies.size());
-                building->create_factory(*this);
-
-                for(const auto& product : building->output_products) {
-                    Packet packet = Packet();
-                    Archive ar = Archive();
-                    ActionType action = ActionType::PRODUCT_ADD;
-                    ::serialize(ar, &action);
-                    ::serialize(ar, product);
-                    packet.data(ar.get_buffer(), ar.size());
-                    g_server->broadcast(packet);
-                }
-            }
-            g_world->buildings.push_back(building);
-
-            // Broadcast the addition of the building to the clients
-            {
-                Packet packet = Packet();
-                Archive ar = Archive();
-                ActionType action = ActionType::BUILDING_ADD;
-                ::serialize(ar, &action);
-                ::serialize(ar, building);
-                packet.data(ar.get_buffer(), ar.size());
-                g_server->broadcast(packet);
-            }
-            print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)get_id(building->type), nation->name.c_str(), target->name.c_str());
-        }
+        ai_do_tick(nation, this);
     }
 
     // Each tick == 30 minutes
@@ -869,7 +692,7 @@ void World::do_tick() {
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
         if(unit->size <= 0) {
-            g_world->units.erase(units.begin() + i);
+            g_world->remove(unit);
             break;
         }
 
@@ -934,11 +757,12 @@ void World::do_tick() {
                 end_y -= speed;
             else if(unit->y < unit->ty)
                 end_y += speed;
-
+            
+            // TODO: Disallow unit from crossing on certain stuff
             // This code prevents us from stepping onto water tiles (but allows for rivers)
-            if(get_tile(end_x, end_y).elevation <= sea_level) {
-                continue;
-            }
+            //if(get_tile(end_x, end_y).elevation <= sea_level) {
+            //    continue;
+            //}
 
             unit->x = end_x;
             unit->y = end_y;
@@ -1005,6 +829,7 @@ void World::do_tick() {
 
                     if(products[j]->price * unit->size <= unit->budget) {
                         size_t bought = std::min(province->stockpile[j], unit->size);
+                        
                         province->stockpile[j] -= bought;
                         unit->supply = bought / unit->size;
 
@@ -1039,7 +864,7 @@ void World::do_tick() {
         if(tile.owner_id != get_id(unit->owner)) {
             tile.owner_id = get_id(unit->owner);
 
-            std::lock_guard<std::recursive_mutex> lock(nation_changed_tiles_mutex);
+            std::lock_guard lock(nation_changed_tiles_mutex);
             nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
             {
                 std::pair<size_t, size_t> coord = std::make_pair((size_t)unit->x, (size_t)unit->y);
@@ -1084,27 +909,27 @@ void World::do_tick() {
         bool is_on_effect = false;
         for(const auto& clause : treaty->clauses) {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
-                auto dyn_clause = dynamic_cast<TreatyClause::WarReparations*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
             else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
-                auto dyn_clause = dynamic_cast<TreatyClause::AnexxProvince*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
             else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
-                auto dyn_clause = dynamic_cast<TreatyClause::LiberateNation*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
             else if(clause->type == TreatyClauseType::HUMILIATE) {
-                auto dyn_clause = dynamic_cast<TreatyClause::Humiliate*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
             else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
-                auto dyn_clause = dynamic_cast<TreatyClause::ImposePolicies*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
             else if(clause->type == TreatyClauseType::CEASEFIRE) {
-                auto dyn_clause = dynamic_cast<TreatyClause::Ceasefire*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
 
@@ -1118,37 +943,37 @@ void World::do_tick() {
         print_info("Enforcing treaty %s", treaty->name.c_str());
         for(auto& clause : treaty->clauses) {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
-                auto dyn_clause = dynamic_cast<TreatyClause::WarReparations*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
             }
             else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
-                auto dyn_clause = dynamic_cast<TreatyClause::AnexxProvince*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
             }
             else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
-                auto dyn_clause = dynamic_cast<TreatyClause::LiberateNation*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
             }
             else if(clause->type == TreatyClauseType::HUMILIATE) {
-                auto dyn_clause = dynamic_cast<TreatyClause::Humiliate*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
             }
             else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
-                auto dyn_clause = dynamic_cast<TreatyClause::ImposePolicies*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
             }
             else if(clause->type == TreatyClauseType::CEASEFIRE) {
-                auto dyn_clause = dynamic_cast<TreatyClause::Ceasefire*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
@@ -1161,7 +986,11 @@ void World::do_tick() {
 
     LuaAPI::check_events(lua);
 
-    //print_info("Tick %zu done", (size_t)time);
+    if(time % 48 == 0) {
+        print_info("%i/%i/%i", time / 12 / 30 / 48, (time / 30 / 48 % 12) + 1, (time / 48 % 30) + 1);
+    }
+
+    //print_info("Tick %i done", time);
     time++;
 
     // Tell clients that this tick has been done

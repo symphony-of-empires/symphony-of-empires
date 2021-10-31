@@ -1,5 +1,4 @@
-#ifndef NETWORK_SERVER_HPP
-#define NETWORK_SERVER_HPP
+#pragma once
 
 #include <deque>
 #include <mutex>
@@ -48,6 +47,5 @@ public:
 
     int n_clients;
 };
-extern Server* g_server;
 
-#endif
+extern Server* g_server;

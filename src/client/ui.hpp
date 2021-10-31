@@ -37,6 +37,9 @@ namespace UI {
         bool is_drag;
         Widget* dragged_widget;
 
+        int check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
+        int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
+        int check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y);
     public:
         Context();
         void load_textures();
@@ -46,20 +49,14 @@ namespace UI {
         void render_recursive(Widget& widget, int x_off, int y_off);
         void render_all(const int width, const int height);
 
-        int check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         void check_hover(unsigned mx, unsigned my);
-
-        int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         int check_click(unsigned mx, unsigned my);
+        void check_drag(unsigned mx, unsigned my);
+        int check_wheel(unsigned mx, unsigned my, int y);
+        void check_text_input(const char* input);
 
         int do_tick_recursive(Widget& w);
         void do_tick(void);
-
-        void check_drag(unsigned mx, unsigned my);
-
-        int check_wheel(unsigned mx, unsigned my, int y);
-
-        void check_text_input(const char* input);
 
         void clear(void);
         void clear_dead();
@@ -111,15 +108,18 @@ namespace UI {
         }
 
         bool is_pinned = false;
+        bool is_render = true;
+
+        bool is_scroll = true;
+
+        // Used internally for managing widgets outside of window bounds
+        bool is_show = true;
+        bool is_hover = false;
 
         int type;
 
         int scroll_x = 0, scroll_y = 0;
         int x = 0, y = 0;
-
-        // Determines if the widget should be shown or not (all child widgets should be updated accordingly too)
-        bool is_show = true;
-        bool is_hover = false;
 
         size_t width = 0, height = 0;
 
@@ -143,6 +143,23 @@ namespace UI {
         std::function<void(Widget&, void*)> on_each_tick;
 
         bool dead = false;
+
+        friend class Context;
+    };
+
+    class Color {
+    public:
+        Color(uint8_t red, uint8_t green, uint8_t blue);
+        Color(uint32_t rgb);
+        float r, g, b;
+    };
+
+    class ChartData {
+    public:
+        ChartData(float _num, std::string _info, Color _color): num{ _num }, info{ _info }, color{ _color } {}
+        float num;
+        std::string info; // Used for tooltips
+        Color color;
     };
 
     class Group: public Widget {
@@ -178,7 +195,6 @@ namespace UI {
         static void on_click_default(Widget& w, void*) {
             delete w.parent;
         }
-
     public:
         CloseButton(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         ~CloseButton(){};
@@ -233,27 +249,10 @@ namespace UI {
         virtual void text(const std::string& text);
     };
 
-    struct Color {
-        Color(uint8_t red, uint8_t green, uint8_t blue): r{ red / 256.f }, g{ green / 256.f }, b{ blue / 256.f } {};
-        float r, g, b;
-    };
-
-    struct ChartData {
-        ChartData(float _num, std::string _info, Color _color): num{ _num }, info{ _info }, color{ _color } {}
-        float num;
-        std::string info;  // Used for tooltips
-        Color color;
-    };
-
-    // Example
-    // std::vector<UI::ChartData> data;
-    // data.push_back(UI::ChartData(24.f, std::string(), UI::Color(56, 97, 140)));
-    // data.push_back(UI::ChartData(15.f, std::string(), UI::Color(251, 231, 76)));
-    // data.push_back(UI::ChartData(8.f, std::string(), UI::Color(255, 89, 100)));
-    // UI::PieChart* pie_chart = new UI::PieChart(9, 43, 303, 100, data, nullptr);
     class PieChart: public Widget {
     public:
         PieChart(int x, int y, unsigned w, unsigned h, std::vector<ChartData> data = std::vector<ChartData>(), Widget* _parent = nullptr);
+        PieChart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
         ~PieChart(){};
         virtual void on_render(Context& ctx);
         void set_data(std::vector<ChartData> data);

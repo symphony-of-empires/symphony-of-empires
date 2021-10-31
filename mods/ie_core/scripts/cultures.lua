@@ -3,222 +3,222 @@
 -- European
 german = Culture:new{ ref_name = "german" }
 german.name = _("German")
-Culture:register(german)
+german:register()
 french = Culture:new{ ref_name = "french" }
 french.name = _("French")
-Culture:register(french)
+french:register()
 british = Culture:new{ ref_name = "british" }
 british.name = _("British")
-Culture:register(british)
+british:register()
 dutch = Culture:new{ ref_name = "dutch" }
 dutch.name = _("Dutch")
-Culture:register(dutch)
+dutch:register()
 danish = Culture:new{ ref_name = "danish" }
 danish.name = _("Danish")
-Culture:register(danish)
+danish:register()
 icelandic = Culture:new{ ref_name = "icelandic" }
 icelandic.name = _("Icelandic")
-Culture:register(icelandic)
+icelandic:register()
 irish = Culture:new{ ref_name = "irish" }
 irish.name = _("Irish")
-Culture:register(irish)
+irish:register()
 portuguese = Culture:new{ ref_name = "portuguese" }
 portuguese.name = _("Portuguese")
-Culture:register(portuguese)
+portuguese:register()
 spanish = Culture:new{ ref_name = "spanish" }
 spanish.name = _("Spanish")
-Culture:register(spanish)
+spanish:register()
 basque = Culture:new{ ref_name = "basque" }
 basque.name = _("Basque")
-Culture:register(basque)
+basque:register()
 galician = Culture:new{ ref_name = "galician" }
 galician.name = _("Galician")
-Culture:register(galician)
+galician:register()
 aragonese = Culture:new{ ref_name = "aragonese" }
 aragonese.name = _("Aragonese")
-Culture:register(aragonese)
+aragonese:register()
 catalan = Culture:new{ ref_name = "catalan" }
 catalan.name = _("catalan")
-Culture:register(catalan)
+catalan:register()
 czech = Culture:new{ ref_name = "czech" }
 czech.name = _("Czech")
-Culture:register(czech)
+czech:register()
 slovakian = Culture:new{ ref_name = "slovakian" }
 slovakian.name = _("Slovakian")
-Culture:register(slovakian)
+slovakian:register()
 hungarian = Culture:new{ ref_name = "hungarian" }
 hungarian.name = _("Hungarian")
-Culture:register(hungarian)
+hungarian:register()
 russian = Culture:new{ ref_name = "russian" }
 russian.name = _("Russian")
-Culture:register(russian)
+russian:register()
 swedish = Culture:new{ ref_name = "swedish" }
 swedish.name = _("Swedish")
-Culture:register(swedish)
+swedish:register()
 finnish = Culture:new{ ref_name = "finnish" }
 finnish.name = _("Finnish")
-Culture:register(finnish)
+finnish:register()
 norwegian = Culture:new{ ref_name = "norwegian" }
 norwegian.name = _("Norwegian")
-Culture:register(norwegian)
+norwegian:register()
 turkish = Culture:new{ ref_name = "turkish" }
 turkish.name = _("Turkish")
-Culture:register(turkish)
+turkish:register()
 greek = Culture:new{ ref_name = "greek" }
 greek.name = _("Greek")
-Culture:register(greek)
+greek:register()
 italian = Culture:new{ ref_name = "italian" }
 italian.name = _("Italian")
-Culture:register(italian)
+italian:register()
 lithuanian = Culture:new{ ref_name = "lithuanian" }
 lithuanian.name = _("Lithuanian")
-Culture:register(lithuanian)
+lithuanian:register()
 latvian = Culture:new{ ref_name = "latvian" }
 latvian.name = _("Latvian")
-Culture:register(latvian)
+latvian:register()
 estonian = Culture:new{ ref_name = "estonian" }
 estonian.name = _("Estonian")
-Culture:register(estonian)
+estonian:register()
 polish = Culture:new{ ref_name = "polish" }
 polish.name = _("Polish")
-Culture:register(polish)
+polish:register()
 bulgarian = Culture:new{ ref_name = "bulgarian" }
 bulgarian.name = _("Bulgarian")
-Culture:register(bulgarian)
+bulgarian:register()
 
 -- Eurasia and West Asia
 nogai = Culture:new{ ref_name = "nogai" }
 nogai.name = _("Nogai")
-Culture:register(nogai)
+nogai:register()
 
 -- Central Asia
 kazakh = Culture:new{ ref_name = "kazakh" }
 kazakh.name = _("Kazakh")
-Culture:register(kazakh)
+kazakh:register()
 uzbek = Culture:new{ ref_name = "uzbek" }
 uzbek.name = _("Uzbek")
-Culture:register(uzbek)
+uzbek:register()
 tajik = Culture:new{ ref_name = "tajik" }
 tajik.name = _("Tajik")
-Culture:register(tajik)
+tajik:register()
 kyrgyz = Culture:new{ ref_name = "kyrgyz" }
 kyrgyz.name = _("Kyrgyz")
-Culture:register(kyrgyz)
+kyrgyz:register()
 afghan = Culture:new{ ref_name = "afghan" }
 afghan.name = _("Afghan")
-Culture:register(afghan)
+afghan:register()
 
 -- American
 yankee = Culture:new{ ref_name = "yankee" }
 yankee.name = _("Yankee")
-Culture:register(yankee)
+yankee:register()
 chilean = Culture:new{ ref_name = "chilean" }
 chilean.name = _("Chilean")
-Culture:register(chilean)
+chilean:register()
 cisplatinian = Culture:new{ ref_name = "cisplatinian" }
 cisplatinian.name = _("Cisplatinian")
-Culture:register(cisplatinian)
+cisplatinian:register()
 argentinian = Culture:new{ ref_name = "argentinian" }
 argentinian.name = _("Argentinian")
-Culture:register(argentinian)
+argentinian:register()
 bolivian = Culture:new{ ref_name = "bolivian" }
 bolivian.name = _("Bolivian")
-Culture:register(bolivian)
+bolivian:register()
 paraguayan = Culture:new{ ref_name = "paraguayan" }
 paraguayan.name = _("Paraguayan")
-Culture:register(paraguayan)
+paraguayan:register()
 colombian = Culture:new{ ref_name = "colombian" }
 colombian.name = _("Colombian")
-Culture:register(colombian)
+colombian:register()
 venezuelan = Culture:new{ ref_name = "venezuelan" }
 venezuelan.name = _("Venezuelan")
-Culture:register(venezuelan)
+venezuelan:register()
 ecuadorian = Culture:new{ ref_name = "ecuadorian" }
 ecuadorian.name = _("Ecuadorian")
-Culture:register(ecuadorian)
+ecuadorian:register()
 peruvian = Culture:new{ ref_name = "peruvian" }
 peruvian.name = _("Peruvian")
-Culture:register(peruvian)
+peruvian:register()
 mexican = Culture:new{ ref_name = "mexican" }
 mexican.name = _("Mexican")
-Culture:register(mexican)
+mexican:register()
 haitian = Culture:new{ ref_name = "haitian" }
 haitian.name = _("Haitian")
-Culture:register(haitian)
+haitian:register()
 brazilian = Culture:new{ ref_name = "brazilian" }
 brazilian.name = _("Brazilian")
-Culture:register(brazilian)
+brazilian:register()
 
 -- Native american
 mapuche = Culture:new{ ref_name = "mapuche" }
 mapuche.name = _("Mapuche")
-Culture:register(mapuche)
+mapuche:register()
 
 -- Oceanic cultures
 polynesian = Culture:new{ ref_name = "polynesian" }
 polynesian.name = _("Polynesian")
-Culture:register(polynesian)
+polynesian:register()
 
 -- Middle east
 arabic = Culture:new{ ref_name = "arabic" }
 arabic.name = _("Arabic")
-Culture:register(arabic)
+arabic:register()
 
 -- African
 akan = Culture:new{ ref_name = "akan" }
 akan.name = _("Akan")
-Culture:register(akan)
+akan:register()
 abyssinian = Culture:new{ ref_name = "abyssinian" }
 abyssinian.name = _("Abyssinian")
-Culture:register(abyssinian)
+abyssinian:register()
 amhara = Culture:new{ ref_name = "amhara" }
 amhara.name = _("Amhara")
-Culture:register(amhara)
+amhara:register()
 chewa = Culture:new{ ref_name = "chewa" }
 chewa.name = _("Chewa")
-Culture:register(chewa)
+chewa:register()
 fulani = Culture:new{ ref_name = "fulani" }
 fulani.name = _("Fulani")
-Culture:register(fulani)
+fulani:register()
 hausa = Culture:new{ ref_name = "hausa" }
 hausa.name = _("Hausa")
-Culture:register(hausa)
+hausa:register()
 hutu = Culture:new{ ref_name = "hutu" }
 hutu.name = _("Hutu")
-Culture:register(hutu)
+hutu:register()
 igbo = Culture:new{ ref_name = "igbo" }
 igbo.name = _("Igbo")
-Culture:register(igbo)
+igbo:register()
 kanuri = Culture:new{ ref_name = "kanuri" }
 kanuri.name = _("Kanuri")
-Culture:register(kanuri)
+kanuri:register()
 kongo = Culture:new{ ref_name = "kongo" }
 kongo.name = _("Kongo")
-Culture:register(kongo)
+kongo:register()
 luba = Culture:new{ ref_name = "luba" }
 luba.name = _("Luba")
-Culture:register(luba)
+luba:register()
 maghrebis = Culture:new{ ref_name = "maghrebis" }
 maghrebis.name = _("Maghrebis")
-Culture:register(maghrebis)
+maghrebis:register()
 mongo = Culture:new{ ref_name = "mongo" }
 mongo.name = _("Mongo")
-Culture:register(mongo)
+mongo:register()
 nilotes = Culture:new{ ref_name = "nilotes" }
 nilotes.name = _("Nilotes")
-Culture:register(nilotes)
+nilotes:register()
 oromo = Culture:new{ ref_name = "oromo" }
 oromo.name = _("Oromo")
-Culture:register(oromo)
+oromo:register()
 shona = Culture:new{ ref_name = "shona" }
 shona.name = _("Shona")
-Culture:register(shona)
+shona:register()
 somali = Culture:new{ ref_name = "somali" }
 somali.name = _("Somali")
-Culture:register(somali)
+somali:register()
 yoruba = Culture:new{ ref_name = "yoruba" }
 yoruba.name = _("Yoruba")
-Culture:register(yoruba)
+yoruba:register()
 zulu = Culture:new{ ref_name = "zulu" }
 zulu.name = _("Zulu")
-Culture:register(zulu)
+zulu:register()

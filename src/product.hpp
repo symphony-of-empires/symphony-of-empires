@@ -1,6 +1,7 @@
-#ifndef PRODUCT_H
-#define PRODUCT_H
+#pragma once
+
 #include <string>
+#include <deque>
 #include "company.hpp"
 #include "province.hpp"
 #include "good.hpp"
@@ -8,9 +9,9 @@
 
 // A product (based off a Good) which can be bought by POPs, converted by factories and transported
 // accross the world
-class Product {
+class Product : public IdEntity<uint16_t> {
 public:
-    using Id = uint16_t;
+    void close_market(void);
 
     // Onwer (companyId) of this product
     Company* owner;
@@ -44,5 +45,3 @@ public:
     std::deque<size_t> supply_history;
     std::deque<size_t> demand_history;
 };
-
-#endif

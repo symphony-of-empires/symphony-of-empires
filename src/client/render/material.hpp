@@ -1,5 +1,4 @@
-#ifndef MATERIAL_HPP
-#define MATERIAL_HPP
+#pragma once
 
 #include "texture.hpp"
 #include <string>
@@ -30,6 +29,5 @@ namespace UnifiedRender {
         const Material& load_material(const std::string& path);
     };
 }
-extern UnifiedRender::MaterialManager* g_material_manager;
 
-#endif
+extern UnifiedRender::MaterialManager* g_material_manager;

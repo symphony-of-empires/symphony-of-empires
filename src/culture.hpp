@@ -1,13 +1,9 @@
-#ifndef CULTURE_HPP
-#define CULTURE_HPP
+#pragma once
+
+#include "entity.hpp"
 #include <string>
 
-class Culture {
+class Culture : public RefnameEntity<uint16_t> {
 public:
-    using Id = uint16_t;
-
-    std::string name;
-    std::string ref_name;
+    
 };
-
-#endif

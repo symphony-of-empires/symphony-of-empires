@@ -27,37 +27,13 @@ namespace std {
 typedef signed int ssize_t;
 #endif
 
-/**
-* Checks if the building can produce output (if it has enough input)
- */
-bool Building::can_do_output(const World& world) {
-    // No output products?
-    if(type->outputs.empty() || output_products.empty())
-        return false;
-
-    // Always can produce if RGO
-    if(type->inputs.empty())
-        return true;
-
-    // Check that we have enough stockpile
-    for(const auto& stock : this->stockpile) {
-        if(!stock)
-            return false;
-    }
-    return true;
-}
-
-/**
-* Phase 1 of economy: Delivers & Orders are sent from all factories in the world
- */
+// Phase 1 of economy: Delivers & Orders are sent from all factories in the world
 void Economy::do_phase_1(World& world) {
     // Buildings who have fullfilled requirements to build stuff will spawn a unit
     for(size_t j = 0; j < world.buildings.size(); j++) {
-        auto& building = world.buildings.at(j);
-        if(building == nullptr)
-            continue;
-
-        /*
+        auto& building = world.buildings[j];
+        if(building == nullptr) continue;
+        
         bool can_build = true;
         for(const auto& req: building->req_goods_for_unit) {
             // Increment demand for all products with same required good type
@@ -69,19 +45,14 @@ void Economy::do_phase_1(World& world) {
                 product->demand += req.second * 1.5f;
             }
 
-            if(req.second) {
-                can_build = false;
-            }
+            if(req.second) can_build = false;
         }
 
-        if(!can_build)
-            break;
-        */
+        if(!can_build) break;
 
-        auto province = building->get_province(world);
-        if(province == nullptr || province->owner == nullptr)
-            continue;
-
+        auto province = building->get_province();
+        if(province == nullptr || province->owner == nullptr) continue;
+        
         size_t needed_laborers = 0, available_laborers = 0;
         size_t needed_farmers = 0, available_farmers = 0;
         size_t needed_entrepreneurs = 0, available_entrepreneurs = 0;
@@ -94,7 +65,7 @@ void Economy::do_phase_1(World& world) {
                 // The minimum amount of workers needed is given by the employees_needed_per_output vector :)
                 const size_t employed = std::max<size_t>(
                     std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2),
-                    building->employees_needed_per_output.at(i));
+                    building->employees_needed_per_output[i]);
 
                 if(output->good->is_edible) {
                     needed_farmers += employed;
@@ -105,8 +76,7 @@ void Economy::do_phase_1(World& world) {
                 needed_entrepreneurs += employed / 100;
                 ++i;
             }
-        }
-        else {
+        } else {
             needed_laborers = 50;
             needed_farmers = 50;
             needed_entrepreneurs = 50;
@@ -115,34 +85,44 @@ void Economy::do_phase_1(World& world) {
         // Search through all the job requests
         world.job_requests_mutex.lock();
         for(size_t i = 0; i < world.job_requests.size(); i++) {
-            JobRequest& job_request = world.job_requests.at(i);
+            JobRequest& job_request = world.job_requests[i];
+
+            Pop* job_pop = nullptr;
+            for(auto& pop : job_request.province->pops) {
+                if(pop == job_request.pop) {
+                    job_pop = &pop;
+                    break;
+                }
+            }
+
+            if(job_pop == nullptr)
+                throw std::runtime_error("Pop on job_request does not exist!");
+
             size_t employed = 0;
 
             // Industries require 2 (or 3) types of POPs to correctly function
             // - Laborers: They are needed to produce non-edible food
             // - Farmers: They are needed to produce edibles
             // - Entrepreneur: They help "organize" the factory
-            if(available_laborers < needed_farmers && (job_request.pop->type->is_laborer || job_request.pop->type->is_slave)) {
+            if(available_laborers < needed_farmers && (job_pop->type->is_laborer || job_pop->type->is_slave)) {
                 employed = std::min(needed_laborers, job_request.amount - employed);
                 available_laborers += employed;
             }
-            if(available_farmers < needed_farmers && (job_request.pop->type->is_farmer || job_request.pop->type->is_slave)) {
+            if(available_farmers < needed_farmers && (job_pop->type->is_farmer || job_pop->type->is_slave)) {
                 employed = std::min(needed_farmers, job_request.amount - employed);
                 available_farmers += employed;
             }
-            if(available_entrepreneurs < needed_entrepreneurs && job_request.pop->type->is_entrepreneur) {
+            if(available_entrepreneurs < needed_entrepreneurs && job_pop->type->is_entrepreneur) {
                 employed = std::min(needed_entrepreneurs, job_request.amount - employed);
                 available_entrepreneurs += employed;
             }
 
-            if(!employed) {
-                // Do not accept anyone else
-                continue;
-            }
+            // Do not accept anyone else
+            if(!employed) continue;
 
             // Give pay to the POP
-            float payment = employed * province->owner->current_policy.minimum_wage;
-            job_request.pop->budget += payment;
+            float payment = employed * province->owner->current_policy.min_wage;
+            job_pop->budget += payment;
             building->budget -= payment;
             job_request.amount -= employed;
 
@@ -163,7 +143,7 @@ void Economy::do_phase_1(World& world) {
             unit->type = building->working_unit_type;
             unit->tx = unit->x;
             unit->ty = unit->y;
-            unit->owner = building->owner;
+            unit->owner = building->get_owner();
             unit->budget = 5000.f;
             unit->experience = 1.f;
             unit->morale = 1.f;
@@ -173,7 +153,7 @@ void Economy::do_phase_1(World& world) {
             unit->base = unit->size;
 
             // Notify all clients of the server about this new unit
-            g_world->units.push_back(unit);
+            g_world->insert(unit);
             building->working_unit_type = nullptr;
 
             Packet packet = Packet();
@@ -209,18 +189,14 @@ void Economy::do_phase_1(World& world) {
 
                 print_info("Building of %s in %s has closed down!", building->type->name.c_str(), province->name.c_str());
 
-                if(building->type->is_factory == true) {
-                    building->delete_factory(world);
-                }
+                world.remove(building);
                 delete building;
-                world.buildings.erase(world.buildings.begin() + j);
-
                 --j;
                 continue;
             }
 
             building->workers = available_farmers + available_entrepreneurs;
-            print_info("Building of %s in %s has %zu workers", building->type->name.c_str(), province->name.c_str(), building->workers);
+            //print_info("Building of %s in %s has %zu workers", building->type->name.c_str(), province->name.c_str(), building->workers);
             if(!building->workers) {
                 building->days_unoperational++;
                 building->min_quality = 0;
@@ -235,21 +211,20 @@ void Economy::do_phase_1(World& world) {
 
             world.orders_mutex.lock();
             for(const auto& input : building->type->inputs) {
-                OrderGoods order ={};
+                OrderGoods order = {};
 
                 // Farmers can only work with edibles and laborers can only work for edibles
                 if(input->is_edible) {
-                    if(available_farmers > 0) {
+                    if(available_farmers) {
                         order.quantity = (available_farmers / needed_farmers) * 5000;
                     }
-                }
-                else {
-                    if(available_laborers > 0) {
+                } else {
+                    if(available_laborers) {
                         order.quantity = (available_laborers / needed_laborers) * 5000;
                     }
                 }
-                if(!order.quantity)
-                    continue;
+
+                if(!order.quantity) continue;
 
                 order.payment = building->willing_payment;
                 order.good = input;
@@ -261,16 +236,14 @@ void Economy::do_phase_1(World& world) {
                 // Increase demand for all products with same good type as ordered
                 // (incentivizing companies to create more of this)
                 for(auto& product : world.products) {
-                    if(product->good != order.good)
-                        continue;
+                    if(product->good != order.good) continue;
 
                     product->demand += order.quantity;
                 }
             }
             world.orders_mutex.unlock();
 
-            if(!building->can_do_output(world))
-                continue;
+            if(!building->can_do_output()) continue;
 
             // Now produce anything as we can!
             // Place deliver orders (we are a RGO)
@@ -291,8 +264,7 @@ void Economy::do_phase_1(World& world) {
                     deliver.quantity = (available_laborers / needed_laborers) * 5000;
                 }
                 //deliver.quantity *= building->get_province()->owner.get();
-                if(!deliver.quantity)
-                    continue;
+                if(!deliver.quantity) continue;
 
                 // Cannot be below production cost, so we can be profitable and we need
                 // to raise prices
@@ -310,8 +282,7 @@ void Economy::do_phase_1(World& world) {
 
         // Building the building itself
         for(const auto& good : building->req_goods) {
-            if(!good.second)
-                continue;
+            if(!good.second) continue;
 
             OrderGoods order;
             order.quantity = good.second;
@@ -326,8 +297,7 @@ void Economy::do_phase_1(World& world) {
         // TODO: We should deduct and set willing payment from military spendings
         // Building an unit
         for(const auto& good : building->req_goods_for_unit) {
-            if(!good.second)
-                continue;
+            if(!good.second) continue;
 
             OrderGoods order;
             order.quantity = good.second;
@@ -365,16 +335,14 @@ void Economy::do_phase_2(World& world) {
     while(world.delivers.size() && world.orders.size()) {
         // We will check all transport companies; they will transport in a first-come first-serve fashion
         for(auto& company : world.companies) {
-            if(!company->is_transport)
-                continue;
+            if(!company->is_transport) continue;
 
             // Check all delivers
             for(size_t i = 0; i < world.delivers.size(); i++) {
-                DeliverGoods& deliver = world.delivers.at(i);
+                DeliverGoods& deliver = world.delivers[i];
 
                 // Is the transport company able to transport from this province?
-                if(!company->in_range(deliver.province))
-                    continue;
+                if(!company->in_range(deliver.province)) continue;
 
                 const Province* deliver_province = deliver.province;
                 const Policies& deliver_policy = deliver_province->owner->current_policy;
@@ -382,22 +350,19 @@ void Economy::do_phase_2(World& world) {
 
                 // Check all orders
                 for(size_t j = 0; j < world.orders.size(); j++) {
-                    OrderGoods& order = world.orders.at(j);
+                    OrderGoods& order = world.orders[j];
 
                     // Do they want these goods?
-                    if(order.good != deliver.good)
-                        continue;
+                    if(order.good != deliver.good) continue;
 
                     // Is this transport company able to transport to this province?
-                    if(!company->in_range(order.province))
-                        continue;
+                    if(!company->in_range(order.province)) continue;
 
                     Province* order_province = order.province;
                     const Policies& order_policy = order_province->owner->current_policy;
 
                     // If foreign trade is not allowed, then order owner === sender owner
-                    if(deliver_policy.foreign_trade == false
-                        || order_policy.foreign_trade == false) {
+                    if(deliver_policy.foreign_trade == false || order_policy.foreign_trade == false) {
                         // Trade not allowed
                         if(order_province->owner != deliver_province->owner) {
                             continue;
@@ -447,9 +412,10 @@ void Economy::do_phase_2(World& world) {
                     order_province->supply_rem = std::min(order_province->supply_limit, order_province->supply_rem);
 
                     // Obtain number of goods that we can satisfy
-                    size_t count = std::min<size_t>(order.quantity, deliver.quantity);
+                    const size_t count = std::min<size_t>(order.quantity, deliver.quantity);
                     // Add to stockpile (duplicate items) to the province at each transporting
                     order.province->stockpile[world.get_id(deliver.product)] += count;
+
                     deliver.quantity -= count;
                     order.quantity -= count;
 
@@ -458,7 +424,7 @@ void Economy::do_phase_2(World& world) {
 
                     if(order.type == OrderType::INDUSTRIAL) {
                         // Duplicate products and put them into the province's stock (a commerce buff)
-                        order.building->add_to_stock(world, order.good, count);
+                        order.building->add_to_stock(order.good, count);
 
                         // Increment the production cost of this building which is used
                         // so we sell our product at a profit instead  of at a loss
@@ -470,19 +436,17 @@ void Economy::do_phase_2(World& world) {
                     else if(order.type == OrderType::BUILDING) {
                         // The building will take the production materials
                         // and use them for building the unit
-                        order.building->owner->budget -= total_order_cost;
+                        order.building->get_owner()->budget -= total_order_cost;
                         for(auto& p : order.building->req_goods) {
-                            if(p.first != deliver.good)
-                                continue;
+                            if(p.first != deliver.good) continue;
                             p.second -= std::min(deliver.quantity, p.second);
                         }
                     }
                     else if(order.type == OrderType::UNIT) {
                         // TODO: We should deduct and set willing payment from military spendings
-                        order.building->owner->budget -= total_order_cost;
+                        order.building->get_owner()->budget -= total_order_cost;
                         for(auto& p : order.building->req_goods) {
-                            if(p.first != deliver.good)
-                                continue;
+                            if(p.first != deliver.good) continue;
                             p.second -= std::min(deliver.quantity, p.second);
                         }
                     }
@@ -509,12 +473,12 @@ void Economy::do_phase_2(World& world) {
     // The remaining delivers gets dropped and just simply add up the province's stockpile
     // Drop all rejected delivers who didn't got transported
     for(size_t i = 0; i < world.delivers.size(); i++) {
-        const DeliverGoods* deliver = &world.delivers.at(i);
+        const DeliverGoods* deliver = &world.delivers[i];
         Product* product = deliver->product;
 
         // Add up to province stockpile
         deliver->province->stockpile[world.get_id(product)] += deliver->quantity;
-
+        
         // Increment supply because of incremented stockpile
         product->supply += deliver->quantity;
     }
@@ -523,18 +487,16 @@ void Economy::do_phase_2(World& world) {
 
     // Uncomment to see stockpiles
     for(const auto& province : world.provinces) {
-        for(size_t i = 0; i < province->stockpile.size(); i++) {
-            if(!province->stockpile.at(i))
-                continue;
+        //for(size_t i = 0; i < province->stockpile.size(); i++) {
+        //    if(!province->stockpile[i]) continue;
+        //    print_info("%zu of %s produced in %s - stockpiled by %s", province->stockpile[i], world.products[i]->good->name.c_str(), world.products[i]->origin->name.c_str(), province->name.c_str());
+        //}
 
-            print_info("%zu of %s produced in %s - stockpiled by %s", province->stockpile.at(i), world.products.at(i)->good->name.c_str(), world.products.at(i)->origin->name.c_str(), province->name.c_str());
-        }
-
-        size_t pop_count = 0;
-        for(const auto& pop : province->pops) {
-            pop_count += pop.size;
-        }
-        print_info("%s has %zu people", province->name.c_str(), pop_count);
+        //size_t pop_count = 0;
+        //for(const auto& pop : province->pops) {
+        //    pop_count += pop.size;
+        //}
+        //print_info("%s has %zu people", province->name.c_str(), pop_count);
     }
 }
 
@@ -543,6 +505,7 @@ class Emigrated {
 public:
     Emigrated() {};
     ~Emigrated() {};
+
     Province* origin;
     Province* target;
     Pop emigred;
@@ -556,33 +519,30 @@ void Economy::do_phase_3(World& world) {
     std::vector<Emigrated> emigration = std::vector<Emigrated>();
     std::mutex emigration_lock;
 
-    std::srand(std::time(nullptr));
     std::for_each(world.provinces.begin(), world.provinces.end(), [&emigration_lock, &emigration, &world](auto& province) {
-        if(province->owner == nullptr)
-            return;
+        if(province->owner == nullptr) return;
 
-        std::vector<Product*> province_products = province->get_products(world);
+        std::vector<Product*> province_products = province->get_products();
 
-        float current_attractive = province->base_attractive;
-        current_attractive += province->owner->base_literacy;
-        current_attractive += province->owner->gdp / 1000.f;
+        // Randomness factor to emulate a pseudo-imperfect economy
+        const float fuzz = std::fmod((float)(std::rand() + 1) / 1000.f, 2.f) + 1.f;
 
-        // Reset worker pool
-        province->worker_pool = 0;
         for(size_t i = 0; i < province->pops.size(); i++) {
-            Pop& pop = province->pops.at(i);
+            Pop& pop = province->pops[i];
 
             // Use 33% of our budget to buy edibles and life needed stuff
-            float life_alloc_budget = pop.budget / 3;
+            float life_alloc_budget = pop.budget / 3.f;
 
             // Use 10% of our budget for buying uneeded commodities and shit
             // TODO: Should lower spending with higher literacy, and higher
             // TODO: Higher the fullfilment per unit with higher literacy
             // TODO: Should sort "product" by priority (i.e with highest quality and best marketing)
-            float everyday_alloc_budget = pop.budget / 10;
+            float everyday_alloc_budget = pop.budget / 10.f;
             for(const auto& product : province_products) {
+                const Product::Id product_id = world.get_id(product);
+
                 // Province must have stockpile
-                if(!province->stockpile[world.get_id(product)]) {
+                if(!province->stockpile[product_id]) {
                     // Desesperation for food leads to higher demand
                     if(product->good->is_edible && pop.life_needs_met <= 0.f) {
                         product->demand += pop.size * 5.f;
@@ -594,19 +554,19 @@ void Economy::do_phase_3(World& world) {
                 if(product->good->is_edible) {
                     // We can only spend our allocated budget
                     bought = life_alloc_budget / product->price;
+                    if(life_alloc_budget <= 0.f) continue;
                 }
                 else {
                     bought = everyday_alloc_budget / product->price;
 
                     // Slaves cannot buy commodities
-                    if(pop.type->is_slave) {
-                        continue;
-                    }
+                    if(pop.type->is_slave) continue;
+                    if(everyday_alloc_budget <= 0.f) continue;
                 }
 
-                bought = std::min<float>(bought, province->stockpile[world.get_id(product)]);
-                if(!bought)
-                    continue;
+                // Only buy the needed stuff
+                bought = std::min<float>(bought, province->stockpile[product_id]);
+                if(!bought) continue;
 
                 float cost_of_transaction = bought * product->price;
 
@@ -617,10 +577,8 @@ void Economy::do_phase_3(World& world) {
                 pop.budget -= cost_of_transaction;
 
                 // Demand is incremented proportional to items bought and remove item from stockpile
-                // we will also add some "randomness" factor to simulate a pseudo-imperfect economy
-                float errdata = std::fmod((float)(std::rand() + 1) / 1000.f, 2.f) + 1.f;
-                product->demand += bought * 2.5f * errdata;
-                province->stockpile[world.get_id(product)] -= std::min<size_t>(province->stockpile[world.get_id(product)], bought);
+                product->demand += bought * 2.5f * fuzz;
+                province->stockpile[product_id] -= std::min<size_t>(province->stockpile[product_id], bought);
 
                 // Uncomment to see buyers
                 //print_info("Pop with budget %f bought %zu %s", pop.budget, (size_t)bought, product->good->name.c_str());
@@ -628,8 +586,7 @@ void Economy::do_phase_3(World& world) {
                 if(product->good->is_edible) {
                     life_alloc_budget -= bought * product->price;
                     pop.life_needs_met += (float)pop.size / (float)bought;
-                }
-                else {
+                } else {
                     everyday_alloc_budget -= bought * product->price;
                     pop.everyday_needs_met += (float)pop.size / (float)bought;
                 }
@@ -639,24 +596,23 @@ void Economy::do_phase_3(World& world) {
             pop.life_needs_met -= 0.01f;
 
             // x2.5 life needs met modifier, that is the max allowed
-            pop.life_needs_met = std::min<float>(5.f, std::max<float>(pop.life_needs_met, -3.f));
-            pop.everyday_needs_met = std::min<float>(5.f, std::max<float>(pop.everyday_needs_met, -3.f));
+            pop.life_needs_met = std::min<float>(15.f, std::max<float>(pop.life_needs_met, -3.f));
+            pop.everyday_needs_met = std::min<float>(15.f, std::max<float>(pop.everyday_needs_met, -3.f));
 
-            // POPs cannot shrink below 10<
+            // POPs cannot shrink below 10
             if(pop.size <= 10) {
                 pop.size = 1;
-            }
-            else {
+            } else {
                 // Higher literacy will mean there will be less births due to sex education
                 // and will also mean that - there would be less deaths due to higher knewledge
                 int growth;
-                if(pop.life_needs_met >= -0.15f) {
+                if(pop.life_needs_met >= -2.5f) {
                     // Starvation in -1 or 0 or >1 are amortized by literacy
                     growth = pop.life_needs_met / (pop.literacy * 0.01f);
                 }
+                // Neither literacy nor anything else can save humans from
+                // dying due starvation
                 else {
-                    // Neither literacy nor anything else can save humans from
-                    // dying due starvation
                     growth = -((int)(std::rand() % pop.size));
                 }
                 if(growth < 0 && (size_t)std::abs(growth) > pop.size) {
@@ -667,20 +623,18 @@ void Economy::do_phase_3(World& world) {
 
             // Add some RNG to shake things up and make gameplay more dynamic and less deterministic :)
             pop.size += std::rand() % std::min<size_t>(5, std::max<size_t>(1, (pop.size / 10000)));
-
-            // Population cannot be 0
             pop.size = std::max<size_t>(1, pop.size);
 
             // Met life needs means less militancy
             if(pop.life_needs_met >= 1.f) {
                 if(pop.militancy > 0.f) {
                     pop.militancy -= 0.0002f;
-                    pop.consciousness -= 0.0001f;
+                    pop.con -= 0.0001f;
                 }
             }
             else {
                 pop.militancy += 0.01f;
-                pop.consciousness += 0.01f;
+                pop.con += 0.01f;
             }
 
             // Depending on how much not our life needs are being met is how many we
@@ -688,8 +642,10 @@ void Economy::do_phase_3(World& world) {
             // And literacy determines "best" spot, for example a low literacy will
             // choose a slightly less desirable location
             const float emigration_willing = 1.f / std::min(pop.life_needs_met, 0.f);
-            long long int emigreers = (pop.size * emigration_willing) + std::rand() % pop.size;
+            const long long int emigreers = (pop.size * emigration_willing) + std::rand() % pop.size;
             if(emigreers > 0) {
+                float current_attractive = province->get_attractive(pop);
+
                 // Check that laws on the province we are in allows for emigration
                 if(province->owner->current_policy.migration == ALLOW_NOBODY) {
                     goto skip_emigration;
@@ -706,72 +662,35 @@ void Economy::do_phase_3(World& world) {
                     }
                 }
 
+                print_info("%zu pops wanting to emigrate!", emigreers);
+
                 // Find best province
                 Province* best_province = nullptr;
-                for(size_t j = 0; j < world.provinces.size(); j += std::max<size_t>((std::rand() % (world.provinces.size() - j)) / 10, 1)) {
-                    Province* target_province = world.provinces.at(j);
-                    float attractive = 0.f;
-
+                for(auto target_province : world.provinces) {
                     // Don't go to owner-less provinces
-                    if(target_province->owner == nullptr) {
+                    if(target_province->owner == nullptr) continue;
+
+                    const float attractive = target_province->get_attractive(pop);
+                    if(attractive < current_attractive) continue;
+
+                    // Nobody is allowed in
+                    if(target_province->owner->current_policy.immigration == ALLOW_NOBODY) {
                         continue;
                     }
-
-                    // We dont want to be exterminated or enslaved... do we?
-                    if(target_province->owner->current_policy.treatment == TREATMENT_ENSLAVED) {
-                        attractive -= 2.5f;
+                    // Only if we are accepted culture/religion
+                    else if(target_province->owner->current_policy.immigration == ALLOW_ACCEPTED_CULTURES) {
+                        if(!target_province->owner->is_accepted_culture(pop)) continue;
                     }
-                    else if(target_province->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
-                        attractive -= 5.f;
-                    }
-
-                    // Account for literacy difference
-                    attractive -= province->owner->base_literacy;
-
-                    // Account for GDP difference
-                    attractive -= province->owner->gdp / 1000.f;
-
-                    // For the lower class, lower taxes is good, and so on for other POPs
-                    if(target_province->owner->current_policy.poor_flat_tax < province->owner->current_policy.poor_flat_tax
-                        && pop.type->social_value <= 1.f) {
-                        attractive = target_province->owner->current_policy.poor_flat_tax - province->owner->current_policy.poor_flat_tax;
-                    }
-                    // For the medium class
-                    else if(target_province->owner->current_policy.med_flat_tax < province->owner->current_policy.med_flat_tax
-                        && pop.type->social_value <= 2.f) {
-                        attractive = target_province->owner->current_policy.med_flat_tax - province->owner->current_policy.med_flat_tax;
-                    }
-                    // For the high class
-                    else if(target_province->owner->current_policy.rich_flat_tax < province->owner->current_policy.rich_flat_tax
-                        && pop.type->social_value <= 3.f) {
-                        attractive = target_province->owner->current_policy.rich_flat_tax - province->owner->current_policy.rich_flat_tax;
-                    }
-
-                    if(attractive > current_attractive) {
-                        if(target_province->owner->current_policy.immigration == ALLOW_NOBODY) {
-                            // Nobody is allowed in
+                    // Allowed but only if we have money (and we are treated as "imported" good)
+                    else if(target_province->owner->current_policy.immigration == ALLOW_ALL_PAYMENT) {
+                        if(pop.budget < ((pop.budget / 1000.f) * target_province->owner->current_policy.import_tax)) {
                             continue;
                         }
-                        else if(target_province->owner->current_policy.immigration == ALLOW_ACCEPTED_CULTURES) {
-                            // See if we are accepted culture
-                            bool is_accepted = target_province->owner->is_accepted_culture(pop);
-                            if(!is_accepted) {
-                                continue;
-                            }
-                        }
-                        else if(target_province->owner->current_policy.immigration == ALLOW_ALL_PAYMENT) {
-                            // See if we can afford the tax
-                            if(pop.budget < ((pop.budget / 1000.f) * target_province->owner->current_policy.import_tax)) {
-                                continue;
-                            }
-                        }
-                        else if(target_province->owner->current_policy.immigration == ALLOW_ALL) {
-                            // Everyone is allowed in
-                        }
-
-                        current_attractive = attractive;
-                        best_province = target_province;
                     }
+                    // Otherwise everyone is allowed in
+
+                    current_attractive = attractive;
+                    best_province = target_province;
                 }
 
                 // If best not found then we don't go to anywhere
@@ -783,21 +702,20 @@ void Economy::do_phase_3(World& world) {
 
                 print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
 
-                Emigrated emigrated ={};
+                Emigrated emigrated = {};
                 emigrated.target = best_province;
                 emigrated.emigred = pop;
                 emigrated.size = emigreers;
                 emigrated.origin = province;
 
-                emigration_lock.lock();
+                std::lock_guard l(emigration_lock);
                 emigration.push_back(emigrated);
-                emigration_lock.unlock();
             }
         skip_emigration:
             ;
         }
 
-        std::fill(province->stockpile.begin(), province->stockpile.end(), 0);
+        //std::fill(province->stockpile.begin(), province->stockpile.end(), 0);
     });
 
     // Now time to do the emigration - we will create a new POP on the province
@@ -820,30 +738,69 @@ void Economy::do_phase_3(World& world) {
     }
     emigration.clear();
 
-    // Please do not modify the POPs vector in provinces after this, otherwise the pointers
-    // can get invalidated which would result in disaster
+    // Chances of a coup increment for the global militancy
+    for(auto& nation : world.nations) {
+        // Total anger in population (global)
+        float total_anger = 0.f;
+        // Anger per ideology (how much we hate the current ideology)
+        std::vector<float> ideology_anger(world.ideologies.size(), 0.f);
+        const float coup_chances = 1000.f;
 
+        for(const auto& province : nation->owned_provinces) {
+            for(const auto& pop : province->pops) {
+                // TODO: Ok, look, the justification is that educated people
+                // almost never do coups - in comparasion to uneducated
+                // peseants, rich people don't need to protest!
+                const float anger = (pop.militancy * pop.con) / std::max(pop.literacy, 1.f) / std::max(pop.life_needs_met, 0.f);
+
+                total_anger += anger;
+                ideology_anger[world.get_id(pop.ideology)] += anger;
+            }
+        }
+
+        // Roll a dice! (more probability with more anger!)
+        if(fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) <= 1.f) {
+            // Choose the ideology with most "anger" (the one more probable to coup d'
+            // etat) - amgry radicals will surely throw off the current administration
+            // while peaceful people won't
+            int idx = std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()));
+
+            // Ideology_anger and ideologies are mapped 1:1 - so we just pick up the associated ideology
+            // Apply the policies of the ideology
+            nation->current_policy = world.ideologies[idx]->policies;
+
+            // Switch ideologies of nation
+            nation->ideology = world.ideologies[idx];
+
+            // People who are aligned to the ideology are VERY happy now
+            for(const auto& province : nation->owned_provinces) {
+                for(auto& pop : province->pops) {
+                    pop.militancy = -50.f;
+                }
+            }
+
+            print_info("Coup d' etat on %s! %s has taken over!", nation->name.c_str(), nation->ideology->name.c_str());
+        }
+    }
+    
     // We will now post a job request so the next economic tick will be able to "link buildings"
     // with their workers and make a somewhat realistic economy
     world.job_requests.clear();
     for(const auto& province : world.provinces) {
         // Province must have an owner
-        if(province->owner == nullptr)
-            continue;
+        if(province->owner == nullptr) continue;
 
         for(auto& pop : province->pops) {
             // Post a job request
-            JobRequest request ={};
+            JobRequest request = {};
             request.amount = pop.size;
-            request.pop = &pop;
+            request.pop = pop;
             request.province = province;
 
             // Are there any discriminative policies?
             if(province->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
                 // POPs of non-accepted cultures on exterminate mode cannot get jobs
-                if(province->owner->is_accepted_culture(pop) == false) {
-                    continue;
-                }
+                if(province->owner->is_accepted_culture(pop) == false) continue;
             }
             else if(province->owner->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
                 // Same as above except we roll a dice
@@ -869,47 +826,13 @@ void Economy::do_phase_4(World& world) {
 
     // Close today's price with a change according to demand - supply
     for(const auto& product : world.products) {
-        if(product == nullptr)
-            continue;
+        if(product == nullptr) continue;
 
         // Uncomment to see supply-demand
-        if(product->price_vel && product->price > 0.01f)
-            print_info("%s; Supply: %zu, Demand: %zu, Price %.2f", product->good->name.c_str(), product->supply, product->demand, product->price);
+        //if(product->price_vel && product->price > 0.01f)
+        //    print_info("%s; Supply: %zu, Demand: %zu, Price %.2f", product->good->name.c_str(), product->supply, product->demand, product->price);
 
-        if(product->demand > product->supply) {
-            product->price_vel += 0.0001f * (product->demand - product->supply);
-        }
-        else if(product->demand < product->supply) {
-            product->price_vel -= 0.0001f * (product->supply - product->demand);
-        }
-        else {
-            // Gravitate towards absolute zero due to volatility decay
-            // (i.e, product price becomes stable without market activity)
-            if(product->price_vel > 0.1f) {
-                product->price_vel -= 0.001f;
-            }
-            else if(product->price_vel < -0.1f) {
-                product->price_vel += 0.001f;
-            }
-            else {
-                product->price_vel = -0.001f;
-            }
-        }
-        product->price += product->price_vel;
-        product->price = std::max<float>(0.01f, product->price);
-
-        // Save prices and stuff onto history (for the charts!)
-        product->demand_history.push_back(product->demand);
-        if(product->demand_history.size() > 60)
-            product->demand_history.pop_front();
-
-        product->supply_history.push_back(product->supply);
-        if(product->supply_history.size() > 60)
-            product->supply_history.pop_front();
-
-        product->price_history.push_back(product->price);
-        if(product->price_history.size() > 60)
-            product->price_history.pop_front();
+        product->close_market();
 
         // Re-count worldwide supply
         product->supply = 0;

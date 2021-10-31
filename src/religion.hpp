@@ -1,14 +1,10 @@
-#ifndef RELIGION_HPP
-#define RELIGION_HPP
+#pragma once
+
 #include <string>
 
-typedef uint8_t ReligionId;
-class Religion {
+#include "entity.hpp"
+
+class Religion : public RefnameEntity<uint8_t> {
 public:
-    using Id = uint8_t;
 
-    std::string name;
-    std::string ref_name;
 };
-
-#endif

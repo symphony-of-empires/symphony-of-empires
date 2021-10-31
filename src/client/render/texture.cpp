@@ -13,14 +13,13 @@ void UnifiedRender::Texture::create_dummy() {
     width = 16;
     height = 16;
     buffer = new uint32_t[width * height];
-    if (buffer == nullptr)
+    if(buffer == nullptr)
         throw TextureException("Dummy", "Out of memory for dummy texture");
 
     // Fill in with a pattern of pink and black
     // This should be autovectorized by gcc
-    for (size_t i = 0; i < width * height; i++) {
+    for(size_t i = 0; i < width * height; i++)
         buffer[i] = (i % 2) ? 0xff000000 : 0xff808000;
-    }
 }
 
 /**

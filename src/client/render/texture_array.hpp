@@ -1,5 +1,4 @@
-#ifndef TEXTURE_ARRAY_H
-#define TEXTURE_ARRAY_H
+#pragma once
 
 #include <GL/glew.h>
 #include <string>
@@ -20,5 +19,3 @@ namespace UnifiedRender {
         size_t tiles_y;
     };
 };
-
-#endif

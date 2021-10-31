@@ -1,5 +1,5 @@
-#ifndef BINARY_IMAGE_H
-#define BINARY_IMAGE_H
+#pragma once
+
 #include <cstdint>
 #include <cstddef>
 #include <exception>
@@ -33,10 +33,7 @@ public:
     virtual ~BinaryImage();
 
     uint32_t* buffer;
-    size_t width;
-    size_t height;
+    size_t width, height;
 
     virtual void from_file(const std::string& path);
 };
-
-#endif

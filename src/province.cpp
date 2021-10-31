@@ -4,19 +4,10 @@
 #include "good.hpp"
 #include "company.hpp"
 
-// Gets ID from pointer
-Province::Id Province::get_id(const World& world) {
-    const std::vector<Province*>* provinces = &world.provinces;
-    const auto province = std::find(provinces->begin(), provinces->end(), this);
-    if(province != provinces->end()) {
-        return (Province::Id)std::distance(provinces->begin(), province);
-    }
-    return (Province::Id)-1;
-}
-
 // Obtains the country that currently has a larger number of
 // tiles controlled from this province
-Nation& Province::get_occupation_controller(const World& world) const {
+Nation& Province::get_occupation_controller(void) const {
+    const World& world = World::get_instance();
     std::vector<Nation::Id> nations_cnt;
     for(size_t x = min_x; x < max_x; x++) {
         for(size_t y = min_y; y < max_y; y++) {
@@ -50,7 +41,8 @@ size_t Province::total_pops(void) const {
 }
 
 // Create a vector containing a list of all products available on this province
-std::vector<Product*> Province::get_products(const World& world) const {
+std::vector<Product*> Province::get_products(void) const {
+    const World& world = World::get_instance();
     std::vector<Product*> products;
     products.reserve(world.products.size());
     for(const auto& product : world.products) {
@@ -62,11 +54,46 @@ std::vector<Product*> Province::get_products(const World& world) const {
         }
 
         // Province must have stockpile
-        if(!stockpile.at(product_id)) {
+        if(!stockpile[product_id]) {
             continue;
         }
 
         products.push_back(product);
     }
     return products;
+}
+
+float Province::get_attractive(const Pop& pop) const {
+    float attractive = this->base_attractive;
+
+    if(this->owner->is_accepted_culture(pop)) {
+        // We dont want to be exterminated or enslaved... do we?
+        if(this->owner->current_policy.treatment == TREATMENT_ENSLAVED) {
+            attractive -= 2.5f;
+        }
+        else if(this->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
+            attractive -= 5.f;
+        }
+    }
+
+    // Account for literacy difference
+    attractive -= this->owner->base_literacy;
+
+    // Account for GDP difference
+    attractive -= this->owner->gdp / 1000.f;
+
+    // For the lower class, lower taxes is good, and so on for other POPs
+    if(pop.type->social_value <= 1.f) {
+        attractive += -(this->owner->current_policy.poor_flat_tax);
+    }
+    // For the medium class
+    else if(pop.type->social_value <= 2.f) {
+        attractive += -(this->owner->current_policy.med_flat_tax);
+    }
+    // For the high class
+    else if(pop.type->social_value <= 3.f || pop.type->social_value >= 3.f) {
+        attractive += -(this->owner->current_policy.rich_flat_tax);
+    }
+
+    return attractive;
 }

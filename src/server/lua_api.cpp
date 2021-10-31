@@ -1,3 +1,7 @@
+// NOTE: Use .at() instead of the [] operator since it will
+// throw exceptions when an invalid element is accessed so
+// the lua exceptions
+
 #ifdef windows
 extern "C" {
 #	include <lua.h>
@@ -44,7 +48,26 @@ const T* find_or_throw(const std::string& ref_name) {
 }
 
 int LuaAPI::register_new_table(lua_State* L, const std::string& name, const luaL_Reg meta[], const luaL_Reg methods[]) {
+    luaL_newlib(L, methods);
+    luaL_newmetatable(L, name.c_str());
+    luaL_setfuncs(L, methods, 0);
+    lua_setmetatable(L, -2);
+    lua_setglobal(L, name.c_str());
     return 0;
+}
+
+int LuaAPI::add_terrain_type(lua_State* L) {
+    auto* terrain_type = new TerrainType();
+
+    terrain_type->ref_name = luaL_checkstring(L, 1);
+    terrain_type->name = luaL_checkstring(L, 2);
+    terrain_type->color = bswap_32(lua_tonumber(L, 3)) >> 8;
+    terrain_type->color |= 0xff000000;
+    terrain_type->movement_penalty = lua_tonumber(L, 4);
+
+    g_world->insert(terrain_type);
+    lua_pushnumber(L, g_world->terrain_types.size() - 1);
+    return 1;
 }
 
 int LuaAPI::add_invention(lua_State* L) {
@@ -54,7 +77,7 @@ int LuaAPI::add_invention(lua_State* L) {
     invention->name = luaL_checkstring(L, 2);
     invention->description = lua_tostring(L, 3);
 
-    g_world->inventions.push_back(invention);
+    g_world->insert(invention);
     lua_pushnumber(L, g_world->inventions.size() - 1);
     return 1;
 }
@@ -83,7 +106,7 @@ int LuaAPI::add_technology(lua_State* L) {
     technology->cost = lua_tonumber(L, 4);
     technology->type = (TechnologyType)((int)lua_tonumber(L, 5));
 
-    g_world->technologies.push_back(technology);
+    g_world->insert(technology);
     lua_pushnumber(L, g_world->technologies.size() - 1);
     return 1;
 }
@@ -115,7 +138,7 @@ int LuaAPI::add_unit_trait(lua_State* L) {
     unit_trait->defense_mod = lua_tonumber(L, 5);
     unit_trait->attack_mod = lua_tonumber(L, 6);
 
-    g_world->unit_traits.push_back(unit_trait);
+    g_world->insert(unit_trait);
     lua_pushnumber(L, g_world->unit_traits.size() - 1);
     return 1;
 }
@@ -124,13 +147,14 @@ int LuaAPI::add_building_type(lua_State* L) {
     BuildingType* building_type = new BuildingType();
 
     building_type->ref_name = luaL_checkstring(L, 1);
-    building_type->is_plot_on_sea = lua_toboolean(L, 2);
-    building_type->is_build_land_units = lua_toboolean(L, 3);
-    building_type->is_build_naval_units = lua_toboolean(L, 4);
-    building_type->defense_bonus = lua_tonumber(L, 5);
-    building_type->is_factory = lua_toboolean(L, 6);
+    building_type->name = luaL_checkstring(L, 2);
+    building_type->is_plot_on_sea = lua_toboolean(L, 3);
+    building_type->is_build_land_units = lua_toboolean(L, 4);
+    building_type->is_build_naval_units = lua_toboolean(L, 5);
+    building_type->defense_bonus = lua_tonumber(L, 6);
+    building_type->is_factory = lua_toboolean(L, 7);
 
-    g_world->building_types.push_back(building_type);
+    g_world->insert(building_type);
     lua_pushnumber(L, g_world->building_types.size() - 1);
     return 1;
 }
@@ -142,7 +166,7 @@ int LuaAPI::add_good(lua_State* L) {
     good->name = luaL_checkstring(L, 2);
     good->is_edible = lua_toboolean(L, 3);
 
-    g_world->goods.push_back(good);
+    g_world->insert(good);
     lua_pushnumber(L, g_world->goods.size() - 1);
     return 1;
 }
@@ -189,7 +213,7 @@ int LuaAPI::add_nation(lua_State* L) {
         }
     }
 
-    g_world->nations.push_back(nation);
+    g_world->insert(nation);
     lua_pushnumber(L, g_world->get_id(nation));
     return 1;
 }
@@ -200,6 +224,105 @@ int LuaAPI::get_nation(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(nation));
     lua_pushstring(L, nation->name.c_str());
     return 2;
+}
+
+// TODO: Make wars be dynamically named with cassus bellis??
+/*int LuaAPI::set_war_of_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    const auto* other_nation = g_world->nations.at(lua_tonumber(L, 2));
+
+    const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
+    return 0;
+}*/
+
+int LuaAPI::get_friends_of_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& friend_nation : g_world->nations) {
+        const NationRelation& relation = nation->relations[g_world->get_id(friend_nation)];
+        if(relation.relation < 50.f) {
+            continue;
+        }
+
+        lua_pushnumber(L, g_world->get_id(friend_nation));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
+}
+
+int LuaAPI::get_enemies_of_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& other_nation : g_world->nations) {
+        const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
+        if(relation.relation > -50.f) {
+            continue;
+        }
+
+        lua_pushnumber(L, g_world->get_id(other_nation));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
+}
+
+int LuaAPI::get_allies_of_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& other_nation : g_world->nations) {
+        const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
+        if(!relation.has_alliance) {
+            continue;
+        }
+
+        lua_pushnumber(L, g_world->get_id(other_nation));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
+}
+
+int LuaAPI::get_warenemies_of_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& other_nation : g_world->nations) {
+        const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
+        if(!relation.has_war) {
+            continue;
+        }
+
+        lua_pushnumber(L, g_world->get_id(other_nation));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
+}
+
+int LuaAPI::get_embargoed_of_nation(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& other_nation : g_world->nations) {
+        const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
+        if(!relation.has_embargo) {
+            continue;
+        }
+
+        lua_pushnumber(L, g_world->get_id(other_nation));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
 }
 
 int LuaAPI::get_provinces_owned_by_nation(lua_State* L) {
@@ -255,14 +378,19 @@ int LuaAPI::add_accepted_culture(lua_State* L) {
     return 0;
 }
 
+int LuaAPI::add_accepted_religion(lua_State* L) {
+    Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
+    nation->accepted_religions.insert(g_world->religions.at(lua_tonumber(L, 2)));
+    return 0;
+}
+
 int LuaAPI::add_nation_client_hint(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
 
     NationClientHint hint;
     hint.ideology = g_world->ideologies.at(lua_tonumber(L, 2));
     hint.alt_name = luaL_checkstring(L, 3);
-    hint.colour = bswap_32(lua_tonumber(L, 4));
-    hint.colour >>= 8;
+    hint.colour = bswap_32(lua_tonumber(L, 4)) >> 8;
     hint.colour |= 0xff000000;
 
     nation->client_hints.push_back(hint);
@@ -307,8 +435,9 @@ int LuaAPI::get_nation_policies(lua_State* L) {
     lua_pushnumber(L, policy.industry_tax);
     lua_pushnumber(L, policy.military_spending);
     lua_pushboolean(L, policy.free_supplies);
-    lua_pushnumber(L, policy.minimum_wage);
-    return 33;
+    lua_pushnumber(L, policy.min_wage);
+    lua_pushnumber(L, policy.min_sv_for_parliament);
+    return 34;
 }
 
 int LuaAPI::set_nation_policies(lua_State* L) {
@@ -349,7 +478,8 @@ int LuaAPI::set_nation_policies(lua_State* L) {
     policy.industry_tax = lua_tonumber(L, 30);
     policy.military_spending = lua_tonumber(L, 31);
     policy.free_supplies = lua_toboolean(L, 32);
-    policy.minimum_wage = lua_tonumber(L, 33);
+    policy.min_wage = lua_tonumber(L, 33);
+    policy.min_sv_for_parliament = lua_tonumber(L, 34);
     return 0;
 }
 
@@ -374,12 +504,12 @@ int LuaAPI::add_nation_mod(lua_State* L) {
     mod->reproduction_mod = lua_tonumber(L, 9);
     mod->death_mod = lua_tonumber(L, 10);
     mod->militancy_mod = lua_tonumber(L, 11);
-    mod->consciousness_mod = lua_tonumber(L, 12);
+    mod->con_mod = lua_tonumber(L, 12);
     mod->life_needs_met_mod = lua_tonumber(L, 13);
     mod->everyday_needs_met_mod = lua_tonumber(L, 14);
     mod->luxury_needs_met_mod = lua_tonumber(L, 15);
 
-    g_world->nation_modifiers.push_back(mod);
+    g_world->insert(mod);
     lua_pushnumber(L, g_world->get_id(mod));
     return 1;
 }
@@ -399,7 +529,7 @@ int LuaAPI::get_nation_mod(lua_State* L) {
     lua_pushnumber(L, mod->reproduction_mod);
     lua_pushnumber(L, mod->death_mod);
     lua_pushnumber(L, mod->militancy_mod);
-    lua_pushnumber(L, mod->consciousness_mod);
+    lua_pushnumber(L, mod->con_mod);
     lua_pushnumber(L, mod->life_needs_met_mod);
     lua_pushnumber(L, mod->everyday_needs_met_mod);
     lua_pushnumber(L, mod->luxury_needs_met_mod);
@@ -410,10 +540,9 @@ int LuaAPI::add_province(lua_State* L) {
     Province* province = new Province();
 
     province->ref_name = luaL_checkstring(L, 1);
-    province->color = bswap_32(lua_tonumber(L, 2));
-    province->color >>= 8;
+    province->color = bswap_32(lua_tonumber(L, 2)) >> 8;
     province->color |= 0xff000000;
-
+    
     province->name = luaL_checkstring(L, 3);
     province->budget = 500.f;
 
@@ -427,7 +556,7 @@ int LuaAPI::add_province(lua_State* L) {
         }
     }
 
-    g_world->provinces.push_back(province);
+    g_world->insert(province);
     lua_pushnumber(L, g_world->get_id(province));
     return 1;
 }
@@ -451,18 +580,37 @@ int LuaAPI::get_province_by_id(lua_State* L) {
 
 int LuaAPI::add_province_industry(lua_State* L) {
     Province*& province = g_world->provinces.at(lua_tonumber(L, 1));
-    Building* building = new Building();
-    building->corporate_owner = g_world->companies.at(lua_tonumber(L, 2));
-    building->corporate_owner->operating_provinces.insert(province);
-    building->type = g_world->building_types.at(lua_tonumber(L, 3));
 
-    //province->add_industry(*g_world, &industry);
+    Building* building = new Building();
+
+    building->corporate_owner = g_world->companies.at(lua_tonumber(L, 2));
+    building->type = g_world->building_types.at(lua_tonumber(L, 3));
+    building->owner = g_world->nations.at(lua_tonumber(L, 4));
+
+    // Randomly place in any part of the province
+    // TODO: This will create some funny situations where coal factories will appear on
+    // the fucking pacific ocean - we need to fix that
+    building->x = province->min_x + (rand() % (province->max_x - province->min_x));
+    building->y = province->min_y + (rand() % (province->max_y - province->min_y));
+    building->x = std::min(building->x, g_world->width - 1);
+    building->y = std::min(building->y, g_world->height - 1);
+    building->province = province;
+
+    building->working_unit_type = nullptr;
+    building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
+    building->req_goods = std::vector<std::pair<Good*, size_t>>();
+    if(building->type->is_factory == true) {
+        building->budget = 100.f;
+        building->create_factory();
+        building->corporate_owner->operating_provinces.insert(building->get_province());
+    }
+    g_world->insert(building);
     return 0;
 }
 
 int LuaAPI::give_province_to(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-    g_world->nations.at(lua_tonumber(L, 2))->give_province(*g_world, *province);
+    g_world->nations.at(lua_tonumber(L, 2))->give_province(*province);
     return 0;
 }
 
@@ -476,7 +624,7 @@ int LuaAPI::get_province_owner(lua_State* L) {
 /** Get the country who owms a larger chunk of the province - this is not the same as owner */
 int LuaAPI::get_province_controller(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-    Nation& nation = province->get_occupation_controller(*g_world);
+    Nation& nation = province->get_occupation_controller();
     lua_pushnumber(L, g_world->get_id(&nation));
     return 1;
 }
@@ -539,7 +687,7 @@ int LuaAPI::multiply_province_con_global(lua_State* L) {
 
     double factor = lua_tonumber(L, 2);
     for(auto& pop : province->pops) {
-        pop.consciousness *= factor;
+        pop.con *= factor;
     }
     return 0;
 }
@@ -553,7 +701,7 @@ int LuaAPI::multiply_province_con_by_culture(lua_State* L) {
         if(pop.culture != g_world->cultures.at(lua_tonumber(L, 2))) {
             continue;
         }
-        pop.consciousness *= factor;
+        pop.con *= factor;
     }
     return 0;
 }
@@ -567,7 +715,7 @@ int LuaAPI::multiply_province_con_by_religion(lua_State* L) {
         if(pop.religion != g_world->religions.at(lua_tonumber(L, 2))) {
             continue;
         }
-        pop.consciousness *= factor;
+        pop.con *= factor;
     }
     return 0;
 }
@@ -581,10 +729,12 @@ int LuaAPI::add_province_pop(lua_State* L) {
     pop.religion = g_world->religions.at(lua_tonumber(L, 4));
     pop.size = lua_tonumber(L, 5);
     pop.literacy = lua_tonumber(L, 6);
+    pop.budget = 10.f;
 
-    if(pop.size == 0) {
-        throw LuaAPI::Exception("Can't create pops with 0 size");
-    }
+    // TODO: Make ideology NOT be random
+    pop.ideology = g_world->ideologies[rand() % g_world->ideologies.size()];
+
+    if(!pop.size) throw LuaAPI::Exception("Can't create pops with 0 size");
     province->pops.push_back(pop);
     return 0;
 }
@@ -626,7 +776,7 @@ int LuaAPI::add_company(lua_State* L) {
     company->operating_provinces.clear();
 
     // Add onto vector
-    g_world->companies.push_back(company);
+    g_world->insert(company);
     lua_pushnumber(L, g_world->get_id(company));
     return 1;
 }
@@ -646,9 +796,10 @@ int LuaAPI::add_event(lua_State* L) {
     event->do_event_function = luaL_checkstring(L, 3);
     event->title = luaL_checkstring(L, 4);
     event->text = luaL_checkstring(L, 5);
+    event->checked = lua_toboolean(L, 6);
 
     // Add onto vector
-    g_world->events.push_back(event);
+    g_world->insert(event);
     lua_pushnumber(L, g_world->events.size() - 1);
     return 1;
 }
@@ -659,7 +810,10 @@ int LuaAPI::get_event(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(event));
     lua_pushstring(L, event->conditions_function.c_str());
     lua_pushstring(L, event->do_event_function.c_str());
-    return 3;
+    lua_pushstring(L, event->title.c_str());
+    lua_pushstring(L, event->text.c_str());
+    lua_pushboolean(L, event->checked);
+    return 6;
 }
 
 int LuaAPI::add_event_receivers(lua_State* L) {
@@ -698,7 +852,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
     pop->is_laborer = lua_toboolean(L, 7);
 
     // Add onto vector
-    g_world->pop_types.push_back(pop);
+    g_world->insert(pop);
     lua_pushnumber(L, g_world->pop_types.size() - 1);
     return 1;
 }
@@ -722,7 +876,7 @@ int LuaAPI::add_culture(lua_State* L) {
     culture->ref_name = luaL_checkstring(L, 1);
     culture->name = luaL_checkstring(L, 2);
 
-    g_world->cultures.push_back(culture);
+    g_world->insert(culture);
     lua_pushnumber(L, g_world->cultures.size() - 1);
     return 1;
 }
@@ -741,7 +895,7 @@ int LuaAPI::add_religion(lua_State* L) {
     religion->ref_name = luaL_checkstring(L, 1);
     religion->name = luaL_checkstring(L, 2);
 
-    g_world->religions.push_back(religion);
+    g_world->insert(religion);
     lua_pushnumber(L, g_world->religions.size() - 1);
     return 1;
 }
@@ -769,7 +923,7 @@ int LuaAPI::add_unit_type(lua_State* L) {
     unit_type->is_ground = lua_toboolean(L, 8);
     unit_type->is_naval = lua_toboolean(L, 9);
 
-    g_world->unit_types.push_back(unit_type);
+    g_world->insert(unit_type);
     lua_pushnumber(L, g_world->unit_types.size() - 1);
     return 1;
 }
@@ -805,7 +959,7 @@ int LuaAPI::add_ideology(lua_State* L) {
     ideology->name = luaL_checkstring(L, 2);
     ideology->check_policies_fn = lua_tostring(L, 3);
 
-    g_world->ideologies.push_back(ideology);
+    g_world->insert(ideology);
     lua_pushnumber(L, g_world->ideologies.size() - 1);
     return 1;
 }
@@ -816,26 +970,6 @@ int LuaAPI::get_ideology(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(ideology));
     lua_pushstring(L, ideology->name.c_str());
     return 2;
-}
-
-int LuaAPI::get_hour(lua_State* L) {
-    lua_pushnumber(L, g_world->time % 24);
-    return 1;
-}
-
-int LuaAPI::get_day(lua_State* L) {
-    lua_pushnumber(L, (g_world->time / 24) % 30);
-    return 1;
-}
-
-int LuaAPI::get_month(lua_State* L) {
-    lua_pushnumber(L, ((g_world->time / 24) / 30) % 12);
-    return 1;
-}
-
-int LuaAPI::get_year(lua_State* L) {
-    lua_pushnumber(L, ((g_world->time / 24) / 30) / 12);
-    return 1;
 }
 
 // Checks all events and their condition functions
@@ -854,23 +988,23 @@ void LuaAPI::check_events(lua_State* L) {
 
         // Conditions met
         if(r) {
-            // Call the "do event" function
-            lua_getglobal(L, event->do_event_function.c_str());
-            lua_call(L, 0, 1);
-            bool multi = lua_tointeger(L, -1);
-            lua_pop(L, 1);
-
             print_info("Event triggered! %s (with %zu descisions)", event->ref_name.c_str(), (size_t)event->descisions.size());
 
             // Place event into inbox
             for(auto& nation : event->receivers) {
-                nation->inbox.push_back(event);
-            }
+                // Call the "do event" function
+                lua_getglobal(L, event->do_event_function.c_str());
+                lua_call(L, 0, 1);
+                lua_pushnumber(L, g_world->get_id(nation));
+                bool multi = lua_tointeger(L, -1);
+                lua_pop(L, 1);
 
-            // Event is marked as checked if it's not of multiple occurences
-            if(!multi) {
-                g_world->events[i]->checked = true;
-                break;
+                nation->inbox.push_back(event);
+
+                // Event is marked as checked if it's not of multiple occurences
+                if(!multi) {
+                    g_world->events[i]->checked = true;
+                }
             }
         }
         // Conditions not met, continue to next event...
@@ -883,11 +1017,4 @@ void LuaAPI::check_events(lua_State* L) {
         lua_call(L, 0, 1);
     }
     g_world->taken_descisions.clear();
-}
-
-int LuaAPI::get_text(lua_State* L) {
-    std::string msgid = luaL_checkstring(L, 1);
-    std::string end_msg = gettext(msgid.c_str());
-    lua_pushstring(L, end_msg.c_str());
-    return 1;
 }

@@ -1,10 +1,12 @@
-#ifndef PROVINCE_H
-#define PROVINCE_H
+#pragma once
+
 #include <cstdint>
 #include <vector>
 #include <set>
 #include <string>
 #include "pop.hpp"
+
+#include "entity.hpp"
 
 class World;
 class Nation;
@@ -12,20 +14,12 @@ class Industry;
 class Product;
 // A single province, which is used to simulate economy in a "bulk-tiles" way
 // instead of doing economical operations on every single tile
-class Province {
+class Province : public RefnameEntity<uint16_t> {
 public:
-    using Id = uint16_t;
-
-    Province::Id get_id(const World& world);
-    Nation& get_occupation_controller(const World& world) const;
+    Nation& get_occupation_controller(void) const;
     size_t total_pops(void) const;
-    std::vector<Product*> get_products(const World& world) const;
-
-    // Name of the province
-    std::string name;
-
-    // Reference name of the province
-    std::string ref_name;
+    std::vector<Product*> get_products(void) const;
+    float get_attractive(const Pop& pop) const;
 
     // Color of the province, used for mapping the province's shape from the map_div.png file
     uint32_t color;
@@ -39,10 +33,7 @@ public:
 
     // Rectangle coordinates (x,y - x,y) for "area" scanning a province when needed
     // (for example, when changing owners)
-    size_t min_x = 65532;
-    size_t min_y = 65532;
-    size_t max_x = 0;
-    size_t max_y = 0;
+    size_t min_x = 65532, min_y = 65532, max_x = 0, max_y = 0;
 
     // The (military) supply limit of the province, the max number of supplies there can be per tick
     float supply_limit;
@@ -75,5 +66,3 @@ public:
     // Attractiveness of province
     float base_attractive = 0.f;
 };
-
-#endif
