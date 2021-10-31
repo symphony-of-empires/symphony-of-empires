@@ -25,16 +25,15 @@
 using namespace UI;
 
 static Context* g_ui_context = nullptr;
-SDL_Color text_color ={ 0, 0, 0, 0 };
+SDL_Color text_color = { 0, 0, 0, 0 };
 
 Context::Context() {
     if(g_ui_context != nullptr) {
         throw std::runtime_error("UI context already constructed");
     }
     default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 16);
-    if(default_font == nullptr) {
-        throw std::runtime_error("Font could not be loaded, exiting");
-    }
+    if(default_font == nullptr)
+        throw std::runtime_error(std::string() + "Font could not be loaded: " + TTF_GetError() + ", exiting");
 
     widgets.reserve(255);
 
@@ -125,7 +124,7 @@ void Context::render_recursive(Widget& w, int x_off, int y_off) {
             child->is_show = false;
         }
 
-        if(!child->is_show)
+        if(!child->is_show || !child->is_render)
             continue;
 
         render_recursive(*child, x_off, y_off);
@@ -188,8 +187,7 @@ int Context::check_click_recursive(Widget& w, const unsigned int mx, const unsig
     y_off += w.y;
 
     // Widget must be displayed
-    if(!w.is_show)
-        return 0;
+    if(!w.is_show) return 0;
 
     // Click must be within the widget's box
     if(!((int)mx >= x_off && mx <= x_off + w.width && (int)my >= y_off && my <= y_off + w.height))
@@ -204,11 +202,9 @@ int Context::check_click_recursive(Widget& w, const unsigned int mx, const unsig
         break;
     }
 
-    if(w.on_click)
-        w.on_click(w, w.user_data);
+    if(w.on_click) w.on_click(w, w.user_data);
 
-    for(auto& child : w.children)
-        check_click_recursive(*child, mx, my, x_off, y_off);
+    for(auto& child : w.children) check_click_recursive(*child, mx, my, x_off, y_off);
     return 1;
 }
 
@@ -216,9 +212,7 @@ int Context::check_click(const unsigned mx, const unsigned my) {
     is_drag = false;
     for(int i = widgets.size() - 1; i >= 0; i--) {
         int r = check_click_recursive(*widgets[i], mx, my, 0, 0);
-        if(r > 0) {
-            return 1;
-        }
+        if(r > 0) return 1;
     }
     return 0;
 }
@@ -226,13 +220,16 @@ int Context::check_click(const unsigned mx, const unsigned my) {
 void Context::check_drag(const unsigned mx, const unsigned my) {
     for(int i = widgets.size() - 1; i >= 0; i--) {
         Widget& widget = *widgets[i];
-        if(widget.type != UI_WIDGET_WINDOW)
-            continue;
+
+        // Only windows can be dragged around
+        if(widget.type != UI_WIDGET_WINDOW) continue;
+
+        // Pinned widgets are not movable
+        if(widget.is_pinned) continue;
 
         if((int)mx >= widget.x && mx <= widget.x + widget.width && (int)my >= widget.y && my <= widget.y + 24) {
-            Window& c_widget = dynamic_cast<Window&>(widget);
-            if(!c_widget.is_movable)
-                continue;
+            auto& c_widget = static_cast<Window&>(widget);
+            if(!c_widget.is_movable) continue;
 
             if(!is_drag) {
                 drag_x = mx - widget.x;
@@ -247,7 +244,7 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 
 void check_text_input_recursive(Widget& widget, const char* _input) {
     if(widget.type == UI_WIDGET_INPUT && widget.is_hover) {
-        Input& c_widget = dynamic_cast<Input&>(widget);
+        auto& c_widget = static_cast<Input&>(widget);
         c_widget.on_textinput(c_widget, _input, c_widget.user_data);
     }
 
@@ -262,15 +259,41 @@ void Context::check_text_input(const char* _input) {
     }
 }
 
-int Context::check_wheel(unsigned mx, unsigned my, int y) {
-    for(const auto& widget : widgets) {
-        if((int)mx >= widget->x && mx <= widget->x + widget->width && (int)my >= widget->y && my <= widget->y + widget->height && widget->type == UI_WIDGET_WINDOW) {
-            for(auto& child : widget->children) {
-                if(!child->is_pinned)
-                    child->y += y;
-            }
-            return 1;
+int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y) {
+    x_off += w.x;
+    y_off += w.y;
+
+    // Widget must be shown
+    if(!w.is_show) return 0;
+    
+    if(!((int)mx >= x_off && mx <= x_off + w.width && (int)my >= y_off && my <= y_off + w.height))
+        return 0;
+    
+    // When we check the children they shall return non-zero if they are a group/window
+    // We will only select the most-front children that is either a G/W - this is done
+    // because when we call this function we will return 1 if the children is a G/W
+    // otherwise we will return 0, which will be ignored in this for loop
+    //
+    // In short: If any of our children are scrolled by the mouse we will not receive
+    // the scrolling instructions - only the front child will
+    for(const auto& children : w.children) {
+        int r = check_wheel_recursive(*children, mx, my, x_off, y_off, y);
+        if(r > 0) return 1;
+    }
+
+    if(w.is_scroll && (w.type == UI_WIDGET_WINDOW || w.type == UI_WIDGET_GROUP)) {
+        for(auto& child : w.children) {
+            if(!child->is_pinned) child->y += y;
         }
+        return 1;
+    }
+    return 0;
+}
+
+int Context::check_wheel(unsigned mx, unsigned my, int y) {
+    for(int i = widgets.size() - 1; i >= 0; i--) {
+        int r = check_wheel_recursive(*widgets[i], mx, my, 0, 0, y);
+        if(r > 0) return 1;
     }
     return 0;
 }
@@ -286,8 +309,7 @@ void Context::do_tick(void) {
 }
 
 int Context::do_tick_recursive(Widget& w) {
-    if(w.on_each_tick)
-        w.on_each_tick(w, w.user_data);
+    if(w.on_each_tick) w.on_each_tick(w, w.user_data);
 
     for(auto& child : w.children) {
         do_tick_recursive(*child);
@@ -493,6 +515,7 @@ void Widget::add_child(Widget* child) {
 }
 
 void Widget::text(const std::string& _text) {
+    // Copy _text to a local scope (SDL2 does not like references)
     SDL_Surface* surface;
 
     if(text_texture != nullptr) {
@@ -501,12 +524,9 @@ void Widget::text(const std::string& _text) {
     }
 
     TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-
     surface = TTF_RenderUTF8_Solid(g_ui_context->default_font, _text.c_str(), text_color);
-    if(surface == nullptr) {
-        print_error("Cannot create text surface: %s", TTF_GetError());
-        return;
-    }
+    if(surface == nullptr)
+        throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
 
     text_texture = new UnifiedRender::Texture(surface->w, surface->h);
     text_texture->gl_tex_num = 0;
@@ -514,21 +534,43 @@ void Widget::text(const std::string& _text) {
     for(size_t i = 0; i < (size_t)surface->w; i++) {
         for(size_t j = 0; j < (size_t)surface->h; j++) {
             uint8_t r, g, b, a;
-            uint32_t pixel = ((uint8_t*)surface->pixels)[i + j * surface->pitch];
-            SDL_GetRGBA(pixel, surface->format, &a, &b, &g, &r);
+            uint32_t pixel = *((uint32_t *)&((uint8_t *)surface->pixels)[i + j * surface->pitch]);
+            SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
 
-            uint32_t final_pixel;
+            if(a == 0xff) {
+                pixel = 0;
+            } else {
+                pixel = 0xffffffff;
+            }
+
+            /*uint32_t final_pixel;
             if(a == 0xff) {
                 final_pixel = 0;
-            }
-            else {
-                final_pixel = 0xffffffff;
-            }
-            text_texture->buffer[i + j * text_texture->width] = final_pixel;
+            } else {
+                final_pixel = pixel | 0xff000000;
+            }*/
+
+            text_texture->buffer[i + j * text_texture->width] = pixel;
         }
     }
     SDL_FreeSurface(surface);
     text_texture->to_opengl();
+}
+
+Color::Color(uint8_t red, uint8_t green, uint8_t blue)
+    : r{ red / 256.f },
+    g{ green / 256.f },
+    b{ blue / 256.f }
+{
+
+}
+
+Color::Color(uint32_t rgb)
+    : r{ ((rgb >> 16) & 0xff) / 256.f },
+    g{ ((rgb >> 8) & 0xff) / 256.f },
+    b{ (rgb & 0xff) / 256.f }
+{
+
 }
 
 /**
@@ -757,17 +799,21 @@ PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, std::vector<ChartData
         max += slice.num;
     }
 }
+PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
+    : data{ std::vector<ChartData>() }, max{ 0 }, Widget(_parent, _x, _y, w, h, UI_WIDGET_PIE_CHART) {
+}
 
 void PieChart::set_data(std::vector<ChartData> new_data) {
     data = new_data;
+    max = 0;
     for(const auto& slice : data) {
         max += slice.num;
     }
 }
 
 void PieChart::draw_triangle(float start_ratio, float end_ratio, Color color) {
-    float x_center = x + width / 2.f;
-    float y_center = y + height / 2.f;
+    float x_center = width / 2.f;
+    float y_center = height / 2.f;
     float radius = std::min<float>(width, height) * 0.5;
     float x_offset, y_offset, scale;
 

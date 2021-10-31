@@ -1,11 +1,11 @@
-#ifndef NETWORK_CLIENT_HPP
-#define NETWORK_CLIENT_HPP
+#pragma once
 
 #include <mutex>
 #include <deque>
 #include <thread>
 #include <atomic>
 #include "../network.hpp"
+#include "game_state.hpp"
 
 class Client {
     struct sockaddr_in addr;
@@ -17,10 +17,11 @@ class Client {
     
     std::thread net_thread;
     std::atomic<bool> has_snapshot;
+    GameState& gs;
 public:
     std::string username;
 
-    Client(std::string host, const unsigned port);
+    Client(GameState& gs, std::string host, const unsigned port);
     ~Client();
     int get_fd(void) {
         return fd;
@@ -32,6 +33,5 @@ public:
     std::mutex packet_mutex;
     std::deque<Packet> packet_queue;
 };
-extern Client* g_client;
 
-#endif
+extern Client* g_client;

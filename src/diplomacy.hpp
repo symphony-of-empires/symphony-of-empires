@@ -1,5 +1,4 @@
-#ifndef DIPLOMACY_H
-#define DIPLOMACY_H
+#pragma once
 
 #include "nation.hpp"
 
@@ -158,10 +157,8 @@ enum class TreatyApproval {
     ABSENT,
 };
 
-class Treaty {
+class Treaty : public IdEntity<uint16_t> {
 public:
-    using Id = uint32_t;
-
     bool does_participate(Nation* nation);
 
     std::string name;
@@ -173,13 +170,9 @@ public:
     std::vector<std::pair<Nation*, TreatyApproval>> approval_status;
 };
 
-class War {
+class War : public IdEntity<uint16_t> {
 public:
-    using Id = uint32_t;
-
     std::string name;
     std::vector<Nation*> attackers;
     std::vector<Nation*> defenders;
 };
-
-#endif

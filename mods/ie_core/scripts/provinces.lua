@@ -26,24 +26,22 @@ require('provinces/europe/spain')
 
 require('provinces/oceania/hawaii')
 
-require('provinces/unknown')
-
 --------------------------------------------------------------
 -- Continent: Europe
 -- Subcontinent: Middle Europe
 -- Country: Saxony (Germany)
 province = Province:new{ ref_name = "dresden", color = 0x8cb2ff }
 province.name = _("Dresden")
-Province:register(province)
-Province:add_pop(province, artisan, german, protestant, 5000, 0.9)
-Province:add_pop(province, farmer, german, protestant, 40000, 0.8)
-Province:add_pop(province, soldier, german, protestant, 8000, 0.8)
-Province:add_pop(province, craftsmen, german, protestant, 5000, 0.9)
-Province:add_pop(province, bureaucrat, german, protestant, 5000, 0.9)
-Province:add_pop(province, aristocrat, german, protestant, 5000, 0.9)
-Province:add_pop(province, clergymen, german, protestant, 5000, 0.9)
-Province:add_pop(province, laborer, german, protestant, 50000, 0.8)
-Province:add_pop(province, entrepreneur, german, protestant, 800, 0.9)
-Province:add_nucleus(province, saxony)
-Province:give_to(province, saxony)
-Nation:set_capital(saxony, province)
+province:register()
+province:add_pop(artisan, german, protestant, 5000, 0.9)
+province:add_pop(farmer, german, protestant, 40000, 0.8)
+province:add_pop(soldier, german, protestant, 8000, 0.8)
+province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+province:add_pop(aristocrat, german, protestant, 5000, 0.9)
+province:add_pop(clergymen, german, protestant, 5000, 0.9)
+province:add_pop(laborer, german, protestant, 50000, 0.8)
+province:add_pop(entrepreneur, german, protestant, 800, 0.9)
+province:add_nucleus(saxony)
+province:give_to(saxony)
+saxony:set_capital(province)

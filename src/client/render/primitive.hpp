@@ -1,5 +1,4 @@
-#ifndef PRIMITIVE_HPP
-#define PRIMITIVE_HPP
+#pragma once
 
 #include <GL/glew.h>
 
@@ -21,5 +20,3 @@ namespace UnifiedRender {
         };
     }
 }
-
-#endif

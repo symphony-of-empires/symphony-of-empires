@@ -1,5 +1,4 @@
-#ifndef NETWORK_H
-#define NETWORK_H
+#pragma once
 
 #include <exception>
 #ifdef unix
@@ -78,6 +77,7 @@ enum class PacketCode {
     OK,
     PACKET_ERROR,
 };
+
 class Packet {
     size_t n_data = 0;
     PacketCode code = PacketCode::OK;
@@ -159,5 +159,3 @@ public:
         return (code == PacketCode::OK);
     }
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ECONOMY_H
-#define ECONOMY_H
+#pragma once
 
 #include "../world.hpp"
 
@@ -11,5 +10,3 @@ namespace Economy {
     void do_phase_3(World& world);
     void do_phase_4(World& world);
 }
-
-#endif

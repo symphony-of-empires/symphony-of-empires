@@ -1,5 +1,4 @@
-#ifndef MODEL_HPP
-#define MODEL_HPP
+#pragma once
 
 #include <vector>
 #include <glm/vec3.hpp>
@@ -145,6 +144,5 @@ namespace UnifiedRender {
         const ComplexModel& load_complex(const std::string& path);
     };
 }
-extern UnifiedRender::ModelManager* g_model_manager;
 
-#endif
+extern UnifiedRender::ModelManager* g_model_manager;

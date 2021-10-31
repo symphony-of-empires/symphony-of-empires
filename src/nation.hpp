@@ -1,5 +1,4 @@
-#ifndef NATION_H
-#define NATION_H
+#pragma once
 
 #include <cstdint>
 #include <queue>
@@ -7,6 +6,8 @@
 #include <set>
 #include <string>
 #include <vector>
+
+#include "entity.hpp"
 
 #include "policy.hpp"
 #include "province.hpp"
@@ -50,13 +51,8 @@ public:
     Ideology* ideology;
 };
 
-class NationModifier {
+class NationModifier : public RefnameEntity<uint16_t> {
 public:
-    using Id = uint16_t;
-
-    std::string ref_name;
-    std::string name;
-
     // Modifiers for a nation, which increases/decreases certain stuff
     // They should never be 0, a modifier of 1.0 is equal to no modifer at
     // all. And a modifier of 0.5 would cause a 1/2. Similar to a 2 which
@@ -70,18 +66,17 @@ public:
     float reproduction_mod = 1.f;
     float death_mod = 1.f;
     float militancy_mod = 1.f;
-    float consciousness_mod = 1.f;
+    float con_mod = 1.f;
     float life_needs_met_mod = 1.f;
     float everyday_needs_met_mod = 1.f;
     float luxury_needs_met_mod = 1.f;
 };
 
-class Nation {
+class Nation : public RefnameEntity<uint16_t> {
     inline void do_diplomacy();
     inline bool can_do_diplomacy();
 public:
-    using Id = uint16_t;
-
+    void declare_war(Nation& nation);
     bool is_ally(const Nation& nation);
     bool is_enemy(const Nation& nation);
     bool exists(void);
@@ -90,24 +85,18 @@ public:
     void auto_relocate_capital(void);
     void set_policy(Policies& policies);
     bool is_accepted_culture(const Pop& pop) const;
+    bool is_accepted_religion(const Pop& pop) const;
     float get_tax(const Pop& pop) const;
-    void give_province(World& world, Province& province);
+    void give_province(Province& province);
     const NationClientHint& get_client_hint(void) const;
 
-    // Whetever this nation is controlled by AI
-    bool controlled_by_ai;
-
-    // Default transleted/display name
-    std::string name;
-
-    // Default reference name
-    std::string ref_name;
+    // Nation that has us on their sphere of influence
+    // This value is equal to the nation with highest influence on us in the
+    // relations vector
+    Nation* spherer;
 
     // A list with relations with all other nations, mapped 1:1 to the Nation list in the world
     std::vector<NationRelation> relations;
-
-    // Id of the nation that has us on their sphere of influence
-    Nation::Id spherer_id;
 
     // Number of diplomacy points available
     float diplomacy_points;
@@ -145,6 +134,7 @@ public:
     // Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
     // owned by this nation
     std::set<Culture*> accepted_cultures;
+    std::set<Religion*> accepted_religions;
 
     // List of provinces which are owned by this nation (including partial ownership)
     std::set<Province*> owned_provinces;
@@ -161,10 +151,8 @@ public:
     //std::vector<std::pair<Technology*, float>> techs;
     std::vector<NationModifier> modifiers;
 
-    bool is_ai = true;
-
     // Inbox of the nation; events that require our attention / should be processed
     std::deque<Event*> inbox;
-};
 
-#endif
+    bool is_ai = true;
+};

@@ -2,187 +2,188 @@
 -- Farmable stuff
 wheat = Good:new{ ref_name = "wheat" }
 wheat.name = _("Wheat")
-Good:register(wheat)
+wheat.is_edible = true
+wheat:register()
 grapes = Good:new{ ref_name = "grapes" }
 grapes.name = _("Grapes")
 grapes.is_edible = true
-Good:register(grapes)
+grapes:register()
 rice = Good:new{ ref_name = "rice" }
 rice.name = _("Rice")
 rice.is_edible = true
-Good:register(rice)
+rice:register()
 cotton = Good:new{ ref_name = "cotton" }
 cotton.name = _("Cotton")
-Good:register(cotton)
+cotton:register()
 coffe_bean = Good:new{ ref_name = "coffe_bean" }
 coffe_bean.name = _("Coffe bean")
-Good:register(coffe_bean)
+coffe_bean:register()
 salt_grain = Good:new{ ref_name = "salt_grain" }
 salt_grain.name = _("Salt grain")
-Good:register(salt_grain)
+salt_grain:register()
 silk = Good:new{ ref_name = "silk" }
 silk.name = _("Silk")
-Good:register(silk)
+silk:register()
 
 -- Industrial materials
 fuel = Good:new{ ref_name = "fuel" }
 fuel.name = _("Fuel")
-Good:register(fuel)
+fuel:register()
 glass = Good:new{ ref_name = "glass" }
 glass.name = _("Glass")
-Good:register(glass)
+glass:register()
 fabric = Good:new{ ref_name = "fabric" }
 fabric.name = _("Fabric")
-Good:register(fabric)
+fabric:register()
 dye = Good:new{ ref_name = "dye" }
 dye.name = _("Dye")
-Good:register(dye)
+dye:register()
 textile = Good:new{ ref_name = "textile" }
 textile.name = _("Textile")
-Good:register(textile)
+textile:register()
 plastic = Good:new{ ref_name = "plastic" }
 plastic.name = _("Plastic")
-Good:register(plastic)
+plastic:register()
 steel = Good:new{ ref_name = "steel" }
 steel.name = _("Steel")
-Good:register(steel)
+steel:register()
 charcoal = Good:new{ ref_name = "charcoal" }
 charcoal.name = _("Charcoal")
-Good:register(charcoal)
+charcoal:register()
 
 -- Military stuff
 gunpowder = Good:new{ ref_name = "gunpowder" }
 gunpowder.name = _("Gunpowder")
-Good:register(gunpowder)
+gunpowder:register()
 glock = Good:new{ ref_name = "glock" }
 glock.name = _("Glock")
-Good:register(glock)
+glock:register()
 cannon = Good:new{ ref_name = "cannon" }
 cannon.name = _("Cannon")
-Good:register(cannon)
+cannon:register()
 revolver = Good:new{ ref_name = "revolver" }
 revolver.name = _("Revolver")
-Good:register(revolver)
+revolver:register()
 musket = Good:new{ ref_name = "musket" }
 musket.name = _("Musket")
-Good:register(musket)
+musket:register()
 rifle = Good:new{ ref_name = "rifle" }
 rifle.name = _("Rifle")
-Good:register(rifle)
+rifle:register()
 machinegun = Good:new{ ref_name = "machinegun" }
 machinegun.name = _("Machinegun")
-Good:register(machinegun)
+machinegun:register()
 ammunition = Good:new{ ref_name = "ammunition" }
 ammunition.name = _("Ammunition")
-Good:register(ammunition)
+ammunition:register()
 sail = Good:new{ ref_name = "sail" }
 sail.name = _("Sail")
-Good:register(sail)
+sail:register()
 
 -- Minerals
 copper = Good:new{ ref_name = "copper" }
 copper.name = _("Copper")
-Good:register(copper)
+copper:register()
 silica = Good:new{ ref_name = "silica" }
 silica.name = _("Silica")
-Good:register(silica)
+silica:register()
 uranium = Good:new{ ref_name = "uranium" }
 uranium.name = _("Uranium")
-Good:register(uranium)
+uranium:register()
 gold = Good:new{ ref_name = "gold" }
 gold.name = _("Gold")
-Good:register(gold)
+gold:register()
 iron = Good:new{ ref_name = "iron" }
 iron.name = _("Iron")
-Good:register(iron)
+iron:register()
 diamond = Good:new{ ref_name = "diamond" }
 diamond.name = _("Diamond")
-Good:register(diamond)
+diamond:register()
 titanium = Good:new{ ref_name = "titanium" }
 titanium.name = _("Titanium")
-Good:register(titanium)
+titanium:register()
 bronze = Good:new{ ref_name = "bronze" }
 bronze.name = _("Bronze")
-Good:register(bronze)
+bronze:register()
 silver = Good:new{ ref_name = "silver" }
 silver.name = _("Silver")
-Good:register(silver)
+silver:register()
 platinum = Good:new{ ref_name = "platinum" }
 platinum.name = _("Platinum")
-Good:register(platinum)
+platinum:register()
 plutonium = Good:new{ ref_name = "plutonium" }
 plutonium.name = _("Plutonium")
-Good:register(plutonium)
+plutonium:register()
 tin = Good:new{ ref_name = "tin" }
 tin.name = _("Tin")
-Good:register(tin)
+tin:register()
 tungsten = Good:new{ ref_name = "tungsten" }
 tungsten.name = _("Tungsten")
-Good:register(tungsten)
+tungsten:register()
 oil = Good:new{ ref_name = "oil" }
 oil.name = _("Oil")
-Good:register(oil)
+oil:register()
 sand = Good:new{ ref_name = "sand" }
 sand.name = _("Sand")
-Good:register(sand)
+sand:register()
 timber = Good:new{ ref_name = "timber" }
 timber.name = _("Timber")
-Good:register(timber)
+timber:register()
 coal = Good:new{ ref_name = "coal" }
 coal.name = _("Coal")
-Good:register(coal)
+coal:register()
 zinc = Good:new{ ref_name = "zinc" }
 zinc.name = _("Zinc")
-Good:register(zinc)
+zinc:register()
 copper = Good:new{ ref_name = "copper" }
 copper.name = _("Copper")
-Good:register(copper)
+copper:register()
 chromium = Good:new{ ref_name = "chromium" }
 chromium.name = _("Chromium")
-Good:register(chromium)
+chromium:register()
 brass = Good:new{ ref_name = "brass" }
 brass.name = _("Brass")
-Good:register(brass)
+brass:register()
 sulfur = Good:new{ ref_name = "sulfur" }
 sulfur.name = _("Sulfur")
-Good:register(sulfur)
+sulfur:register()
 stainless_steel = Good:new{ ref_name = "stainless_steel" }
 stainless_steel.name = _("Stainless steel")
-Good:register(stainless_steel)
+stainless_steel:register()
 
 -- Food
 bread = Good:new{ ref_name = "bread" }
 bread.name = _("Bread")
 bread.is_edible = true
-Good:register(bread)
+bread:register()
 salt = Good:new{ ref_name = "salt" }
 salt.name = _("Salt")
 salt.is_edible = true
-Good:register(salt)
+salt:register()
 alcohol = Good:new{ ref_name = "alcohol" }
 alcohol.name = _("Alcohol")
 alcohol.is_edible = true
-Good:register(alcohol)
+alcohol:register()
 
 -- Commodities
 window = Good:new{ ref_name = "window" }
 window.name = _("Window")
-Good:register(window)
+window:register()
 wine = Good:new{ ref_name = "wine" }
 wine.name = _("Wine")
-Good:register(wine)
+wine:register()
 gasoline = Good:new{ ref_name = "gasoline" }
 gasoline.name = _("Gasoline")
-Good:register(gasoline)
+gasoline:register()
 chair = Good:new{ ref_name = "chair" }
 chair.name = _("Chair")
-Good:register(chair)
+chair:register()
 bed = Good:new{ ref_name = "bed" }
 bed.name = _("Bed")
-Good:register(bed)
+bed:register()
 opium = Good:new{ ref_name = "opium" }
 opium.name = _("Opium")
-Good:register(opium)
+opium:register()
 spices = Good:new{ ref_name = "spices" }
 spices.name = _("Spices")
-Good:register(spices)
+spices:register()

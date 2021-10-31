@@ -1,21 +1,17 @@
-#ifndef GAME_STATE_H
-#define GAME_STATE_H
+#pragma once
 
 #include <queue>
+#include <mutex>
+#include <vector>
+#include <atomic>
 
 #include "../nation.hpp"
 #include "../world.hpp"
-#include "interface/industry_view_nation.hpp"
-#include "interface/pop_view_nation.hpp"
-#include "interface/products_view_world.hpp"
-#include "interface/province_view.hpp"
 #include "interface/select_nation.hpp"
 #include "interface/top_window.hpp"
-#include "interface/ui_reform.hpp"
 #include "../serializer.hpp"
 #include "map.hpp"
 #include "ui.hpp"
-#include "client_network.hpp"
 
 enum class MapMode {
     COUNTRY_SELECT,
@@ -23,32 +19,33 @@ enum class MapMode {
     NO_MAP,
 };
 
-struct Input {
+class Input {
+public:
     std::pair<float, float> select_pos;
     bool middle_mouse_down = false;
     std::pair<float, float> last_camera_drag_pos;
     std::pair<int, int> mouse_pos;
+
     Unit* selected_unit = nullptr;
     Building* selected_building = nullptr;
 };
 
 // The all encompassing client state
 // This is the state we could pass down to all the ui widgets
-class ProvinceView;
-class TopWindow;
-class SelectNation;
-class IndustryViewNation;
-class PopViewNation;
-class ProductsViewWorld;
-class UIReform;
 class Map;
+class Client;
 class GameState {
-   public:
+public:
     GameState(Camera _cam) : cam{_cam} {};
-    // TODO add deconstructor
+    // TODO: add deconstructor
+
     void play_nation();
+    void send_command(Archive& archive);
+    void update_on_tick(void);
 
     Client* client = nullptr;
+
+    std::atomic<bool> update_tick;
 
     // The ui will mostly need to read the world state
     World* world = nullptr;
@@ -63,26 +60,16 @@ class GameState {
 
     UI::Context* ui_ctx;
 
-    SelectNation* select_nation;
-    TopWindow* top_win;
-    ProvinceView* province_view;
-    ProductsViewWorld* products_view_world;
-    IndustryViewNation* industry_view_nation;
-    PopViewNation* pop_view_nation;
-    UIReform* ui_reform;
-
-    // Used by client to update anything each tick (i.e a graph)
-    std::vector<std::function<void(const GameState&)>> client_update_fns;
+    Interface::SelectNation* select_nation;
+    Interface::TopWindow* top_win;
 
     std::vector<const UnifiedRender::Texture*> nation_flags;
     const UnifiedRender::Texture& get_nation_flag(Nation& nation);
 
-    void send_command(Archive& archive);
-
-   private:
+    // Used for synchronization between the networking client and the rendering thread
+    std::recursive_mutex render_lock;
 };
 
 // Run world tick and pending commands
 void main_loop(GameState&, Client*, SDL_Window*);
 void start_client(int argc, char** argv);
-#endif

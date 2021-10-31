@@ -1,5 +1,4 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#pragma once
 
 /**
  * This file implements a texture which is based from the binary image class to avoid
@@ -60,6 +59,5 @@ namespace UnifiedRender {
         const Texture& load_texture(const std::string& path, GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
     };
 };
-extern UnifiedRender::TextureManager* g_texture_manager;
 
-#endif
+extern UnifiedRender::TextureManager* g_texture_manager;

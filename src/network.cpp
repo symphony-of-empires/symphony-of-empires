@@ -17,19 +17,6 @@
 #include "network.hpp"
 #include "print.hpp"
 
-#ifdef unix
-#	include <poll.h>
-#elif defined windows
-/* MingW does not behave well with pollfd structures, however MSVC does */
-#	ifndef _MSC_VER
-typedef struct pollfd {
-    SOCKET fd;
-    SHORT events;
-    SHORT revents;
-} WSAPOLLFD, * PWSAPOLLFD, FAR* LPWSAPOLLFD;
-WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout);
-#	endif
-#endif
 #ifdef windows
 #include <winsock2.h>
 #endif

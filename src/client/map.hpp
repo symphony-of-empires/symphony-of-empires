@@ -1,5 +1,4 @@
-#ifndef MAP_H
-#define MAP_H
+#pragma once
 
 #include <cstddef>
 #ifdef _MSC_VER
@@ -52,5 +51,3 @@ public:
     void draw(Camera& cam, const int width, const int height);
     void handle_click(GameState& gs, SDL_Event event);
 };
-
-#endif

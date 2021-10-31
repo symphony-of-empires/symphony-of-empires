@@ -13,7 +13,7 @@ Shader::Shader(const std::string& path, GLuint type) {
 
         buffer = stream.str();
         compile(type);
-    } catch (std::ifstream::failure& e) {
+    } catch(std::ifstream::failure& e) {
         print_error("Cannot load shader %s", path.c_str());
     }
 }
@@ -33,7 +33,7 @@ void Shader::compile(GLuint type) {
 std::string Shader::get_status(void) {
     GLint r = 0;
     glGetShaderiv(id, GL_COMPILE_STATUS, &r);
-    if (!r) {
+    if(!r) {
         GLchar* tmpbuf = new GLchar[255];
         glGetShaderInfoLog(id, 255, NULL, tmpbuf);
 
@@ -61,7 +61,7 @@ Program::Program(const VertexShader* vertex, const FragmentShader* fragment) {
     // Check for errors of the shader
     GLint r = 0;
     glGetProgramiv(id, GL_LINK_STATUS, &r);
-    if (!r) {
+    if(!r) {
         GLchar* tmpbuf = new GLchar[255];
         glGetShaderInfoLog(id, 255, NULL, tmpbuf);
         print_info("Program error %s", tmpbuf);

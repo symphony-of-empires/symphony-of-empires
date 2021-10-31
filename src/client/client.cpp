@@ -238,12 +238,12 @@
 // void client_update(void) {
 //     // We are going to update widgets which require real-time feeding
 //     // this function **should** be called per tick
-//     std::lock_guard<std::mutex> l1(render_lock);
+//     std::lock_guard l1(render_lock);
 
 //     if (current_mode == MAP_MODE_COUNTRY_SELECT)
 //         return;
 
-//     std::lock_guard<std::recursive_mutex> l2(g_world->time_mutex);
+//     std::lock_guard l2(g_world->time_mutex);
 //     const Nation& player_nation = *g_world->nations[curr_selected_nation];
 //     if (!(g_world->time % 48)) {
 //         double gdp = 0.f;
@@ -276,20 +276,20 @@
 //     }
 
 //     size_t total_pop = 0;
-//     double militancy = 0.f, consciousness = 0.f;
+//     double militancy = 0.f, con = 0.f;
 //     for (const auto& province : player_nation.owned_provinces) {
 //         for (const auto& pop : province->pops) {
 //             total_pop += pop.size;
 //             militancy += pop.militancy;
-//             consciousness += pop.consciousness;
+//             con += pop.con;
 //         }
 //     }
 //     militancy /= total_pop;
-//     consciousness /= total_pop;
+//     con /= total_pop;
 
 //     sprintf(tmpbuf, " %10.3f", militancy);
 //     militancy_lab->text(tmpbuf);
-//     sprintf(tmpbuf, " %10.3f", consciousness);
+//     sprintf(tmpbuf, " %10.3f", con);
 //     big_brain_lab->text(tmpbuf);
 //     sprintf(tmpbuf, " %10.3f", player_nation.prestige);
 //     prestige_lab->text(tmpbuf);
@@ -396,7 +396,7 @@
 //         if (wind_osc >= 180.f)
 //             wind_osc = -180.f;
 
-//         std::unique_lock<std::mutex> lock(render_lock);
+//         std::lock_guard lock(render_lock);
 
 //         SDL_Event event;
 //         int click_on_ui;
