@@ -96,6 +96,9 @@ int main(int argc, char** argv) {
                     std::cout << "lsc: List all clients" << std::endl;
                     std::cout << "debugen: Enable debug" << std::endl;
                     std::cout << "debugdis: Disable debug" << std::endl;
+                    std::cout << "cdcs_json: Generate CDCS-compatible JSON provinces" << std::endl;
+                    std::cout << "cdcs_orig: Generate CDCS format data of provinces" << std::endl;
+                    std::cout << "array_gen: Generate an array for lua_files" << std::endl;
                 }
                 else if(r == "debugen") {
                     print_enable_debug();
