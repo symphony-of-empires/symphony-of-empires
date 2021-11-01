@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../game_state.hpp"
-#include "../ui.hpp"
+#include "client/game_state.hpp"
+#include "client/ui.hpp"
 
 class MainMenuConnectServer: public UI::Window {
 public:

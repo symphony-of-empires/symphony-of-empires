@@ -24,14 +24,14 @@ extern "C" {
 #include <libintl.h>
 #include <locale.h>
 
-#include "lua_api.hpp"
-#include "../world.hpp"
-#include "../nation.hpp"
-#include "economy.hpp"
-#include "../print.hpp"
-#include "../path.hpp"
-#include "../event.hpp"
-#include "../building.hpp"
+#include "server/lua_api.hpp"
+#include "world.hpp"
+#include "nation.hpp"
+#include "server/economy.hpp"
+#include "print.hpp"
+#include "path.hpp"
+#include "event.hpp"
+#include "building.hpp"
 
 template<typename T>
 const T* find_or_throw(const std::string& ref_name) {

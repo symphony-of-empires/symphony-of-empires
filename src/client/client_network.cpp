@@ -1,35 +1,40 @@
-#ifdef unix
-#	define _XOPEN_SOURCE_EXTENDED 1
-#	include <netdb.h>
-#	include <arpa/inet.h>
-#endif
-#include <sys/types.h>
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
 #include <mutex>
-/* Visual Studio does not know about UNISTD.H, Mingw does through */
+
+#ifdef unix
+#    define _XOPEN_SOURCE_EXTENDED 1
+#    include <netdb.h>
+#    include <arpa/inet.h>
+#endif
+#include <sys/types.h>
+
+// Visual Studio does not know about UNISTD.H, Mingw does through
 #ifndef _MSC_VER
-#	include <unistd.h>
+#    include <unistd.h>
 #endif
 
 #ifdef unix
 #	include <poll.h>
 #elif defined windows
-/* Allow us to use deprecated functions like inet_addr */
+// Allow us to use deprecated functions like inet_addr
 #   define _WINSOCK_DEPRECATED_NO_WARNINGS
-#   include <ws2def.h>
+// MingW heavily dislikes ws2def.h and causes spurious errors
+#   ifndef __MINGW32__
+#       include <ws2def.h>
+#   endif
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
 #   pragma comment(lib, "Ws2_32.lib")
 #endif
 
-#include "../actions.hpp"
-#include "../unit.hpp"
-#include "../diplomacy.hpp"
-#include "../world.hpp"
-#include "../io_impl.hpp"
-#include "client_network.hpp"
+#include "actions.hpp"
+#include "unit.hpp"
+#include "diplomacy.hpp"
+#include "world.hpp"
+#include "io_impl.hpp"
+#include "client/client_network.hpp"
 
 #include <chrono>
 #include <thread>

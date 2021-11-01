@@ -1,6 +1,5 @@
-#include "treaty.hpp"
-
-#include "../../io_impl.hpp"
+#include "client/interface/treaty.hpp"
+#include "io_impl.hpp"
 
 using namespace Interface;
 

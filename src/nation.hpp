@@ -154,5 +154,6 @@ public:
     // Inbox of the nation; events that require our attention / should be processed
     std::deque<Event*> inbox;
 
+    // Default and can be disabled by the player
     bool is_ai = true;
 };

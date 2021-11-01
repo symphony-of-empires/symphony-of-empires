@@ -1,4 +1,4 @@
-#include "pathfinding.hpp"
+#include "client/pathfinding.hpp"
 
 #include <queue>
 #include <cmath>

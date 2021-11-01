@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../nation.hpp"
-#include "../../world.hpp"
-#include "../game_state.hpp"
-#include "../ui.hpp"
+#include "nation.hpp"
+#include "world.hpp"
+#include "client/game_state.hpp"
+#include "client/ui.hpp"
 
 namespace Interface {
     class TreatyChooseWindow : public UI::Window {

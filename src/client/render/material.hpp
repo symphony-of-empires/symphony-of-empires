@@ -1,11 +1,12 @@
 #pragma once
 
-#include "texture.hpp"
 #include <string>
 #include <set>
 #include <vector>
 
 #include <glm/vec3.hpp>
+
+#include "client/render/texture.hpp"
 
 namespace UnifiedRender {
     /**

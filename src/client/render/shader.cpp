@@ -1,4 +1,4 @@
-#include "shader.hpp"
+#include "client/render/shader.hpp"
 using namespace UnifiedRender::OpenGl;
 
 Shader::Shader(const std::string& path, GLuint type) {

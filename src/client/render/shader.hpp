@@ -1,8 +1,8 @@
 #pragma once
 
 #include <GL/glew.h>
-#include "../../path.hpp"
-#include "../../print.hpp"
+#include "path.hpp"
+#include "print.hpp"
 
 #include <fstream>
 #include <iostream>

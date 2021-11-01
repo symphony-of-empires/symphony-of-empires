@@ -1,26 +1,31 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <cmath>
+#include <algorithm>
 
 #ifdef _MSC_VER
-#ifndef _WINDOWS_
-#define WIN32_LEAN_AND_MEAN 1
-#include <windows.h>
-#undef WIN32_LEAN_AND_MEAN
-#endif
+#   ifndef _WINDOWS_
+#       define WIN32_LEAN_AND_MEAN 1
+#       include <windows.h>
+#       undef WIN32_LEAN_AND_MEAN
+#   endif
 #endif
 
 #include <GL/glew.h>
 #include <GL/gl.h>
-#include <math.h>
 
-#include <algorithm>
+#ifndef M_PI
+#   define M_PI 3.1416
+#endif
 
-#include "../path.hpp"
-#include "../print.hpp"
-#include "ui.hpp"
+#include "path.hpp"
+#include "print.hpp"
+#include "client/ui.hpp"
 
-#define NOMINMAX
+#if !defined NOMINMAX
+#   define NOMINMAX 1
+#endif
 
 using namespace UI;
 

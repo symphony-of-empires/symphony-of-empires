@@ -31,12 +31,12 @@
 
 #include <chrono>
 #include <thread>
-#include "../actions.hpp"
-#include "../world.hpp"
-#include "../io_impl.hpp"
-#include "server_network.hpp"
-#include "../actions.hpp"
-#include "../io_impl.hpp"
+#include "actions.hpp"
+#include "world.hpp"
+#include "io_impl.hpp"
+#include "server/server_network.hpp"
+#include "actions.hpp"
+#include "io_impl.hpp"
 
 Server* g_server = nullptr;
 Server::Server(const unsigned port, const unsigned max_conn): n_clients(max_conn) {

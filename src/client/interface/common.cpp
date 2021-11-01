@@ -1,5 +1,5 @@
-#include "common.hpp"
-#include "good_view.hpp"
+#include "client/interface/common.hpp"
+#include "client/interface/good_view.hpp"
 
 using namespace Interface;
 

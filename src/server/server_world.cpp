@@ -1,5 +1,5 @@
-#include "../diplomacy.hpp"
-#include "../policy.hpp"
+#include "diplomacy.hpp"
+#include "policy.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -11,16 +11,16 @@
 #include <libintl.h>
 #include <locale.h>
 
-#include "../province.hpp"
-#include "economy.hpp"
-#include "../world.hpp"
-#include "../binary_image.hpp"
-#include "lua_api.hpp"
-#include "../path.hpp"
-#include "../print.hpp"
-#include "../serializer.hpp"
-#include "../io_impl.hpp"
-#include "server_network.hpp"
+#include "province.hpp"
+#include "server/economy.hpp"
+#include "world.hpp"
+#include "binary_image.hpp"
+#include "server/lua_api.hpp"
+#include "path.hpp"
+#include "print.hpp"
+#include "serializer.hpp"
+#include "io_impl.hpp"
+#include "server/server_network.hpp"
 
 #if (__cplusplus < 201703L)
 namespace std {

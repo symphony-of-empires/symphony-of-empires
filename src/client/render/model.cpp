@@ -2,10 +2,11 @@
 #include <fstream>
 #include <vector>
 #include <iterator>
-#include "model.hpp"
-#include "../../print.hpp"
-#include "../../path.hpp"
-#include "shader.hpp"
+
+#include "client/render/model.hpp"
+#include "client/render/shader.hpp"
+#include "print.hpp"
+#include "path.hpp"
 
 UnifiedRender::SimpleModel::SimpleModel(GLint _mode) : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(_mode) {
 

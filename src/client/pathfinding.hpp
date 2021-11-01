@@ -3,8 +3,8 @@
 #include <utility>
 #include <vector>
 
-#include "../world.hpp"
-#include "../nation.hpp"
+#include "world.hpp"
+#include "nation.hpp"
 
 /**
  * This is not used by the server due to architectural reasons, however it may be useful for AI clients

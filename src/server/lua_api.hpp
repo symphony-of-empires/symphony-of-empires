@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 #include <exception>
-#include "../nation.hpp"
+#include "nation.hpp"
 
 namespace LuaAPI {
     class Exception: public std::exception {

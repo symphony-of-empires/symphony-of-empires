@@ -1,4 +1,4 @@
-#include "game_state.hpp"
+#include "client/game_state.hpp"
 
 #include <GL/glew.h>
 
@@ -6,56 +6,57 @@
 #include <cstdio>
 #include <string>
 #ifdef _MSC_VER
-#include <SDL.h>
-#include <SDL_events.h>
-#include <SDL_keycode.h>
-#include <SDL_mouse.h>
-#include <SDL_opengl.h>
-#include <SDL_ttf.h>
+#   include <SDL.h>
+#   include <SDL_events.h>
+#   include <SDL_keycode.h>
+#   include <SDL_mouse.h>
+#   include <SDL_opengl.h>
+#   include <SDL_ttf.h>
 #else
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_keycode.h>
-#include <SDL2/SDL_mouse.h>
-#include <SDL2/SDL_opengl.h>
-#include <SDL2/SDL_ttf.h>
-#include <sys/wait.h>
+#   include <SDL2/SDL.h>
+#   include <SDL2/SDL_events.h>
+#   include <SDL2/SDL_keycode.h>
+#   include <SDL2/SDL_mouse.h>
+#   include <SDL2/SDL_opengl.h>
+#   include <SDL2/SDL_ttf.h>
+//#include <sys/wait.h>
 #endif
 #ifdef _MSC_VER
-/* required before GL/gl.h */
-#ifndef _WINDOWS_
-#define WIN32_LEAN_AND_MEAN 1
-#include <windows.h>
-#undef WIN32_LEAN_AND_MEAN
+// Required before GL/gl.h
+#   ifndef _WINDOWS_
+#   define WIN32_LEAN_AND_MEAN 1
+#       include <windows.h>
+#       undef WIN32_LEAN_AND_MEAN
+#   endif
 #endif
-#endif
-/* msvsc does not know about glext, mingw does so we just use this ifdef */
+
+// MSVC does not know about glext, mingw does so we just use this ifdef
 #ifndef _MSC_VER
-#include <GL/glext.h>
+#   include <GL/glext.h>
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "../company.hpp"
-#include "../good.hpp"
-#include "../io_impl.hpp"
-#include "../path.hpp"
-#include "../product.hpp"
-#include "../serializer.hpp"
-#include "../world.hpp"
-#include "camera.hpp"
-#include "client_network.hpp"
-#include "interface/descision.hpp"
-#include "interface/province_view.hpp"
-#include "interface/select_nation.hpp"
-#include "interface/top_window.hpp"
-#include "interface/province_view.hpp"
-#include "interface/treaty.hpp"
-#include "map.hpp"
-#include "render/material.hpp"
-#include "render/model.hpp"
-#include "render/texture.hpp"
-#include "ui.hpp"
+#include "company.hpp"
+#include "good.hpp"
+#include "io_impl.hpp"
+#include "path.hpp"
+#include "product.hpp"
+#include "serializer.hpp"
+#include "world.hpp"
+#include "client/camera.hpp"
+#include "client/client_network.hpp"
+#include "client/interface/descision.hpp"
+#include "client/interface/province_view.hpp"
+#include "client/interface/select_nation.hpp"
+#include "client/interface/top_window.hpp"
+#include "client/interface/province_view.hpp"
+#include "client/interface/treaty.hpp"
+#include "client/map.hpp"
+#include "client/render/material.hpp"
+#include "client/render/model.hpp"
+#include "client/render/texture.hpp"
+#include "client/ui.hpp"
 
 void GameState::play_nation() {
     // TODO add this to action

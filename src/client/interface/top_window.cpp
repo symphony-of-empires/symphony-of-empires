@@ -1,6 +1,5 @@
-#include "top_window.hpp"
-
-#include "../game_state.hpp"
+#include "client/interface/top_window.hpp"
+#include "client/game_state.hpp"
 
 using namespace Interface;
 

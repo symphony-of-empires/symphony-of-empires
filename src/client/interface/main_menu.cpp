@@ -1,6 +1,6 @@
-#include "main_menu.hpp"
-#include "../client_network.hpp"
-#include "../../print.hpp"
+#include "client/interface/main_menu.hpp"
+#include "client/client_network.hpp"
+#include "print.hpp"
 
 MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     : gs{ _gs },

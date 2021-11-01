@@ -128,12 +128,10 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
     });
 
     // Initial product info
-    int i = 0;
+    uint i = 0;
     for(const auto& product : this->gs.world->products) {
-        if(product->origin != this->province) {
-            continue;
-        }
-
+        if(product->origin != this->province) continue;
+        
         ProductInfo* info = new ProductInfo(this->gs, 0, (i * 24) + 128, product, this);
         this->product_infos.push_back(info);
         i++;

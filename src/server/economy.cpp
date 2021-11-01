@@ -1,17 +1,17 @@
 #include <algorithm>
 #include <cstdio>
 
-#include "../actions.hpp"
-#include "economy.hpp"
-#include "../world.hpp"
-#include "../print.hpp"
-#include "../serializer.hpp"
-#include "../io_impl.hpp"
-#include "server_network.hpp"
-#include "../thread_pool.hpp"
-#include "../product.hpp"
-#include "../good.hpp"
-#include "../company.hpp"
+#include "actions.hpp"
+#include "server/economy.hpp"
+#include "world.hpp"
+#include "print.hpp"
+#include "serializer.hpp"
+#include "io_impl.hpp"
+#include "server/server_network.hpp"
+#include "thread_pool.hpp"
+#include "product.hpp"
+#include "good.hpp"
+#include "company.hpp"
 
 #if (__cplusplus < 201703L)
 namespace std {
@@ -740,6 +740,9 @@ void Economy::do_phase_3(World& world) {
 
     // Chances of a coup increment for the global militancy
     for(auto& nation : world.nations) {
+        // Nation must actually exist
+        if(nation->exists() == false) continue;
+
         // Total anger in population (global)
         float total_anger = 0.f;
         // Anger per ideology (how much we hate the current ideology)
