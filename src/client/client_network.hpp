@@ -4,8 +4,9 @@
 #include <deque>
 #include <thread>
 #include <atomic>
-#include "../network.hpp"
-#include "game_state.hpp"
+
+#include "network.hpp"
+#include "client/game_state.hpp"
 
 class Client {
     struct sockaddr_in addr;

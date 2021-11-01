@@ -1,5 +1,5 @@
-#include "war.hpp"
-#include "../../io_impl.hpp"
+#include "client/interface/war.hpp"
+#include "io_impl.hpp"
 
 using namespace Interface;
 

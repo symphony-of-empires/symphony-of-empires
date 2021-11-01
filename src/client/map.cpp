@@ -1,7 +1,3 @@
-#include "map.hpp"
-
-#include <GL/glu.h>
-
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
@@ -10,13 +6,13 @@
 #include <iostream>
 #include <mutex>
 
-#include "../path.hpp"
-#include "../print.hpp"
-#include "game_state.hpp"
-#include "render/model.hpp"
-#include "../io_impl.hpp"
-
-#include "interface/province_view.hpp"
+#include "client/map.hpp"
+#include "path.hpp"
+#include "print.hpp"
+#include "client/game_state.hpp"
+#include "client/render/model.hpp"
+#include "io_impl.hpp"
+#include "client/interface/province_view.hpp"
 
 Map::Map(const World& _world): world(_world) {
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
@@ -32,22 +28,19 @@ Map::Map(const World& _world): world(_world) {
         terrain_tex = new UnifiedRender::Texture(world.width, world.height);
         for(size_t i = 0; i < world.width * world.height; i++) {
             terrain_tex->buffer[i] = world.tiles[i].terrain_type_id;
-            topo_tex->buffer[i] = world.tiles[i].terrain_type_id;
+            topo_tex->buffer[i] = world.tiles[i].elevation;
         }
         
         terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
         terrain_sheet->to_opengl();
-        {
-            auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
-            auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/map.fs");
-            map_shader = new UnifiedRender::OpenGl::Program(vs, fs);
-        }
 
-        {
-            auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/simple_model.vs");
-            auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/simple_model.fs");
-            obj_shader = new UnifiedRender::OpenGl::Program(vs, fs);
-        }
+        auto* vs = new UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
+        auto* fs = new UnifiedRender::OpenGl::FragmentShader("shaders/map.fs");
+        map_shader = new UnifiedRender::OpenGl::Program(vs, fs);
+
+        vs = new UnifiedRender::OpenGl::VertexShader("shaders/simple_model.vs");
+        fs = new UnifiedRender::OpenGl::FragmentShader("shaders/simple_model.fs");
+        obj_shader = new UnifiedRender::OpenGl::Program(vs, fs);
     }
 
     print_info("Creating topo map");
@@ -121,14 +114,14 @@ void Map::draw_flag(const Nation* nation) {
     
         sin_r = sin(r + wind_osc) / 24.f;
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
-            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),  // Vert
-            glm::vec2((r / step) / n_steps, 0.f)                    // Texcoord
+            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
+            glm::vec2((r / step) / n_steps, 0.f)
         ));
 
         sin_r = sin(r + wind_osc + 90.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
-            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),  // Vert
-            glm::vec2((r / step) / n_steps, 1.f)                    // Texcoord
+            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
+            glm::vec2((r / step) / n_steps, 1.f)
         ));
     }
 

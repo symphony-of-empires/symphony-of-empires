@@ -1,8 +1,7 @@
-#include "policies.hpp"
-
-#include "../client_network.hpp"
-#include "../../serializer.hpp"
-#include "../../io_impl.hpp"
+#include "client/interface/policies.hpp"
+#include "client/client_network.hpp"
+#include "serializer.hpp"
+#include "io_impl.hpp"
 
 using namespace Interface;
 

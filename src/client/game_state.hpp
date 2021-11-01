@@ -5,13 +5,13 @@
 #include <vector>
 #include <atomic>
 
-#include "../nation.hpp"
-#include "../world.hpp"
-#include "interface/select_nation.hpp"
-#include "interface/top_window.hpp"
-#include "../serializer.hpp"
-#include "map.hpp"
-#include "ui.hpp"
+#include "nation.hpp"
+#include "world.hpp"
+#include "client/interface/select_nation.hpp"
+#include "client/interface/top_window.hpp"
+#include "serializer.hpp"
+#include "client/map.hpp"
+#include "client/ui.hpp"
 
 enum class MapMode {
     COUNTRY_SELECT,

@@ -5,7 +5,7 @@
 #include <atomic>
 #include <vector>
 #include <thread>
-#include "../network.hpp"
+#include "network.hpp"
 
 #ifdef windows
 #include <winsock2.h>

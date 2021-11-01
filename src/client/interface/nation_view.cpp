@@ -1,5 +1,5 @@
-#include "nation_view.hpp"
-#include "../../io_impl.hpp"
+#include "client/interface/nation_view.hpp"
+#include "io_impl.hpp"
 
 using namespace Interface;
 

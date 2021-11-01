@@ -14,7 +14,7 @@
 #include <SDL2/SDL_ttf.h>
 #endif
 
-#include "render/texture.hpp"
+#include "client/render/texture.hpp"
 
 enum UI_WidgetType {
     UI_WIDGET_BUTTON,
@@ -165,7 +165,7 @@ namespace UI {
     class Group: public Widget {
     public:
         Group(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        ~Group(){};
+        ~Group() {};
 
         virtual void on_render(Context& ctx);
     };

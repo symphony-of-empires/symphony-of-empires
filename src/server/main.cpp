@@ -1,10 +1,11 @@
 #include <string>
 #include "../world.hpp"
 #include "lua_api.hpp"
+#include "swap.hpp"
 
 void client_main(int argc, char** argv);
 
-#ifdef windows
+#if defined windows
 const char* gettext(const char* str) {
     return str;
 }
@@ -16,7 +17,7 @@ const char* gettext(const char* str) {
 #include <atomic>
 std::atomic<bool> run;
 
-#ifdef unix
+#if defined unix
 #	include <libintl.h>
 #	include <locale.h>
 #endif
@@ -47,11 +48,13 @@ std::string async_get_input(void) {
 #include <dirent.h>
 #include <sys/types.h>
 int main(int argc, char** argv) {
-#ifdef unix
+#if defined unix
     setlocale(LC_ALL, "");
     bindtextdomain("main", Path::get("locale").c_str());
     textdomain("main");
 #endif
+
+#if defined unix
     DIR *dir = opendir(Path::get_full().c_str());
     if(dir != NULL) {
         struct dirent *de;
@@ -64,8 +67,14 @@ int main(int argc, char** argv) {
             }
         }
     }
+#elif defined windows
+    Path::add_path("01_tutorial");
+    Path::add_path("ie_client");
+    //Path::add_path("ie_core");
+    Path::add_path("ie_map");
+#endif
 
-#ifndef UNIT_TEST
+#if !defined UNIT_TEST
     try {
         // Run as a server for servicing multiple clients
         World* world = new World();
@@ -178,7 +187,7 @@ int main(int argc, char** argv) {
                 // generate for lua lists
                 else if(r == "array_gen") {
                     for(const auto& province : world->provinces) {
-                        uint32_t color = __bswap_32(province->color) >> 8;
+                        uint32_t color = bswap32(province->color) >> 8;
                         uint8_t r, g, b;
                         r = (color >> 16) & 0xff;
                         g = (color >> 8) & 0xff;
@@ -257,7 +266,7 @@ int main(int argc, char** argv) {
                 }
                 future = std::async(std::launch::async, async_get_input);
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(150));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(150));
         }
 
         print_info(gettext("Destroying world"));
@@ -267,10 +276,10 @@ int main(int argc, char** argv) {
     } catch(const LuaAPI::Exception& e) {
         luaL_traceback(g_world->lua, g_world->lua, e.what(), 0);
         print_error(lua_tostring(g_world->lua, -1));
-        throw;
+        exit(EXIT_FAILURE);
     } catch(const std::exception& e) {
         print_error(e.what());
-        throw;
+        exit(EXIT_FAILURE);
     }
 #else
     exit(EXIT_SUCCESS);
@@ -293,5 +302,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument,
     }
     
     free(argv[0]);
+    return 0;
 }
 #endif

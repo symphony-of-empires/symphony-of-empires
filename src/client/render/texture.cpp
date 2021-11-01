@@ -1,9 +1,8 @@
-#include "texture.hpp"
-
+#include "client/render/texture.hpp"
+#include "path.hpp"
+#include "print.hpp"
 #include <string>
-
-#include "../../path.hpp"
-#include "../../print.hpp"
+#include <algorithm>
 
 /**
  * This dummy texture helps to avoid crashes due to missing buffers or so, and also gives
@@ -54,8 +53,6 @@ void UnifiedRender::Texture::bind(void) const {
 void UnifiedRender::Texture::delete_opengl() {
     glDeleteTextures(1, &gl_tex_num);
 }
-
-#include <algorithm>
 
 /**
  * Finds a texture in the list of a texture manager

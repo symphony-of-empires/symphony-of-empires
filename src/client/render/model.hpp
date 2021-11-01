@@ -1,14 +1,17 @@
 #pragma once
 
 #include <vector>
+#include <string>
+#include <set>
+
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include <GL/glew.h>
-#include <GL/glu.h>
 #include <GL/gl.h>
+#include <GL/glu.h>
 
-#include "material.hpp"
-#include "shader.hpp"
+#include "client/render/material.hpp"
+#include "client/render/shader.hpp"
 
 namespace UnifiedRender {
     namespace OpenGl {
@@ -129,8 +132,6 @@ namespace UnifiedRender {
     };
 }
 
-#include <string>
-#include <set>
 namespace UnifiedRender {
     class ModelManager {
     private:

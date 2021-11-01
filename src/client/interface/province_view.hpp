@@ -1,11 +1,10 @@
 #pragma once
 
-#include "../../nation.hpp"
-#include "../../world.hpp"
-#include "../game_state.hpp"
-#include "../ui.hpp"
-
-#include "common.hpp"
+#include "nation.hpp"
+#include "world.hpp"
+#include "client/game_state.hpp"
+#include "client/ui.hpp"
+#include "client/interface/common.hpp"
 
 namespace Interface {
     // View information related to the population and diversity of cultures and religions

@@ -1,9 +1,9 @@
-#include "descision.hpp"
+#include "client/interface/descision.hpp"
 
-#include "../../event.hpp"
-#include "../../serializer.hpp"
-#include "../../actions.hpp"
-#include "../../io_impl.hpp"
+#include "event.hpp"
+#include "serializer.hpp"
+#include "actions.hpp"
+#include "io_impl.hpp"
 
 using namespace Interface;
 
