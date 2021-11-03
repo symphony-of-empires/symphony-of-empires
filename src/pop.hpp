@@ -40,13 +40,11 @@ public:
     Culture* culture;
     Religion* religion;
 
-    // TODO: On serializer
-    Ideology* ideology;
+    // Approval % of all the ideologies (1:1)
+    std::vector<float> ideology_approval;
 
     bool operator==(const Pop& rhs) {
-        return (this->culture == rhs.culture
-            && this->religion == rhs.religion
-            && this->type == rhs.type
-            && this->ideology == rhs.ideology);
+        return (this->culture == rhs.culture && this->religion == rhs.religion && this->type == rhs.type);
     }
+    Ideology* get_ideology(void) const;
 };
