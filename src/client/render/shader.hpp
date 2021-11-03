@@ -51,8 +51,8 @@ namespace UnifiedRender {
             void set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const;
             void set_uniform(const std::string& name, float uniform) const;
             void set_uniform(const std::string& name, int uniform) const;
-            void set_texture(int value, const std::string& name, UnifiedRender::Texture* texture) const;
-            void set_texture(int value, const std::string& name, UnifiedRender::TextureArray* texture) const;
+            void set_texture(int value, const std::string& name, const UnifiedRender::Texture* texture) const;
+            void set_texture(int value, const std::string& name, const UnifiedRender::TextureArray* texture) const;
             GLuint get_id(void) const;
         };
     }

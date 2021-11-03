@@ -201,6 +201,10 @@ void main() {
 	float yy = pix.y;
 	vec2 scaling = mod(tex_coords, pix) / pix;
 
+	vec2 grid = step(pix , mod(tex_coords, pix * 2.));
+	float g = max(grid.x, grid.y);
+	out_colour = mix(out_colour, vec4(0, 0, 0, 1), g);
+
 	vec4 color_00 = texture(border_tex, tex_coords + 0.5 * vec2(-xx, -yy));
 	vec4 color_01 = texture(border_tex, tex_coords + 0.5 * vec2(-xx, yy));
 	vec4 color_10 = texture(border_tex, tex_coords + 0.5 * vec2(xx, -yy));
@@ -235,5 +239,8 @@ void main() {
 	vec3 ambient = 0.1 * out_colour.xyz;
 
 	f_frag_colour = vec4(diffuse + ambient, 1.);
-	// f_frag_colour = texture(border_tex, v_texcoord);
+	float bLod = texture2DLod(border_tex, v_texcoord, 0.5).x;
+	bLod = step(0.55, bLod);
+	f_frag_colour = vec4(bLod, 0, 0, 1.);
+	// f_frag_colour = mix(f_frag_colour, vec4(0, 0, 0, 1), g);
 }

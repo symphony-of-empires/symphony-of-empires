@@ -21,8 +21,11 @@ Map::Map(const World& _world): world(_world) {
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
         map_2d_quad = new UnifiedRender::OpenGl::Quad2D();
         water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        water_tex->gen_mipmaps();
         noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        noise_tex->gen_mipmaps();
         topo_tex = &g_texture_manager->load_texture(Path::get("map_topo.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        topo_tex->gen_mipmaps();
         
         //terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
         topo_tex = new UnifiedRender::Texture(world.width, world.height);
@@ -64,7 +67,6 @@ Map::Map(const World& _world): world(_world) {
     // generate the underlying topo map texture, since the topo map
     // dosen't changes too much we can just do a texture
     div_topo_tex = new UnifiedRender::Texture(world.width, world.height);
-    if(glewIsSupported("GL_VERSION_2_1")) {
         div_sheet_tex = new UnifiedRender::Texture(256, 256);
         for(size_t i = 0; i < 256 * 256; i++) {
             div_sheet_tex->buffer[i] = 0x00000000;
@@ -86,24 +88,6 @@ Map::Map(const World& _world): world(_world) {
             div_sheet_tex->buffer[r + g * 256] = (0xff << 24) | color;
         }
         div_sheet_tex->to_opengl();
-    }
-    else {
-        for(size_t i = 0; i < world.width * world.height; i++) {
-            uint8_t r, g, b;
-            const Tile& tile = world.get_tile(i);
-
-            if(tile.terrain_type_id <= 1) {
-                r = 8;
-                g = 8;
-                b = 128;
-            } else {
-                r = 8;
-                g = 255;
-                b = 8;
-            }
-            div_topo_tex->buffer[i] = (0xff << 24) | (b << 16) | (g << 8) | (r);
-        }
-    }
     div_topo_tex->to_opengl();
 
     // This can be put into unified render
@@ -118,7 +102,7 @@ Map::Map(const World& _world): world(_world) {
         print_info("Frame buffer error");
 
     border_tex = new UnifiedRender::Texture(world.width, world.height);
-    border_tex->to_opengl(GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+    border_tex->to_opengl(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
     glGenFramebuffers(1, &border_fbuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, border_fbuffer);
@@ -138,6 +122,7 @@ Map::Map(const World& _world): world(_world) {
     glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
     map_2d_quad->draw();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    border_tex->gen_mipmaps();
 }
 
 std::vector<std::pair<Province::Id, uint32_t>> population_map_mode(std::vector<Province*> provinces, World* world) {
@@ -423,33 +408,14 @@ void Map::draw(Camera& cam, const int width, const int height) {
     
     map_shader->set_uniform("map_size", (float)world.width, (float)world.height);
     
-    map_shader->set_uniform("tile_map", 0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
-
-    map_shader->set_uniform("tile_sheet", 1);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, div_sheet_tex->gl_tex_num);
-
-    map_shader->set_uniform("water_texture", 2);
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, water_tex->gl_tex_num);
-
-    map_shader->set_uniform("noise_texture", 3);
-    glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, noise_tex->gl_tex_num);
-
-    map_shader->set_uniform("terrain_texture", 4);
-    glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, terrain_tex->gl_tex_num);
-
-    map_shader->set_uniform("terrain_sheet", 5);
-    glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, terrain_sheet->gl_tex_num);
-
-    map_shader->set_uniform("border_tex", 7);
-    glActiveTexture(GL_TEXTURE7);
-    glBindTexture(GL_TEXTURE_2D, border_tex->gl_tex_num);
+    map_shader->set_texture(0, "tile_map", div_topo_tex);
+    map_shader->set_texture(1, "tile_sheet", div_sheet_tex);
+    map_shader->set_texture(2, "water_texture", water_tex);
+    map_shader->set_texture(3, "noise_texture", noise_tex);
+    map_shader->set_texture(4, "terrain_texture", terrain_tex);
+    map_shader->set_texture(5, "terrain_sheet", terrain_sheet);
+    map_shader->set_texture(6, "topo_texture", topo_tex);
+    map_shader->set_texture(7, "border_tex", border_tex);
 
     map_quad->draw();
 
