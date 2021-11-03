@@ -14,6 +14,8 @@ namespace Interface {
         UI::Label* name_lab;
         UI::PieChart *sellers_pie;
 
+        UI::Chart* avg_price_chart;
+
         UI::Group* producing_it_group;
         UI::Group* consumer_it_group;
 
