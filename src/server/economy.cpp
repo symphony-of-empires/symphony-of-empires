@@ -13,22 +13,25 @@
 #include "good.hpp"
 #include "company.hpp"
 
-#if (__cplusplus < 201703L)
-namespace std {
-    template<typename T>
-    constexpr inline T clamp(T n, T min, T max) {
-        return std::min<T>(max, std::max<T>(n, min));
-    }
-}
-#endif
-
-/* Visual Studio does not define ssize_t because it's a POSIX-only type */
+// Visual Studio does not define ssize_t because it's a POSIX-only type
 #ifdef _MSC_VER
 typedef signed int ssize_t;
 #endif
 
+// Structure that represents a person emigrating from a province to another
+class Emigrated {
+public:
+    Emigrated() {};
+    ~Emigrated() {};
+
+    Province* origin;
+    Province* target;
+    Pop emigred;
+    size_t size;
+};
+
 // Phase 1 of economy: Delivers & Orders are sent from all factories in the world
-void Economy::do_phase_1(World& world) {
+void Economy::do_tick(World& world) {
     // Buildings who have fullfilled requirements to build stuff will spawn a unit
     for(size_t j = 0; j < world.buildings.size(); j++) {
         auto& building = world.buildings[j];
@@ -237,7 +240,6 @@ void Economy::do_phase_1(World& world) {
                 // (incentivizing companies to create more of this)
                 for(auto& product : world.products) {
                     if(product->good != order.good) continue;
-
                     product->demand += order.quantity;
                 }
             }
@@ -327,11 +329,9 @@ void Economy::do_phase_1(World& world) {
     std::sort(world.orders.begin(), world.orders.end(), [](const OrderGoods& lhs, const OrderGoods& rhs) {
         return lhs.payment > rhs.payment;
     });
-}
 
-// Phase 2 of the economy: Goods are transported all around the world, generating commerce and making them
-// be ready for POPs to buy
-void Economy::do_phase_2(World& world) {
+    // Phase 2 of the economy: Goods are transported all around the world, generating commerce and making them
+    // be ready for POPs to buy
     while(world.delivers.size() && world.orders.size()) {
         // We will check all transport companies; they will transport in a first-come first-serve fashion
         for(auto& company : world.companies) {
@@ -498,22 +498,9 @@ void Economy::do_phase_2(World& world) {
         //}
         //print_info("%s has %zu people", province->name.c_str(), pop_count);
     }
-}
 
-// Structure that represents a person emigrating from a province to another
-class Emigrated {
-public:
-    Emigrated() {};
-    ~Emigrated() {};
+    // Phase 3 of economy: POPs buy the aforementioned products and take from the province's stockpile
 
-    Province* origin;
-    Province* target;
-    Pop emigred;
-    size_t size;
-};
-
-// Phase 3 of economy: POPs buy the aforementioned products and take from the province's stockpile
-void Economy::do_phase_3(World& world) {
     // Now, it's like 1 am here, but i will try to write a very nice economic system
     // TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
     std::vector<Emigrated> emigration = std::vector<Emigrated>();
@@ -743,6 +730,12 @@ void Economy::do_phase_3(World& world) {
         // Nation must actually exist
         if(nation->exists() == false) continue;
 
+        // Do research on focused research
+        if(nation->focus_tech != nullptr) {
+            const float research = nation->get_research_points() / nation->focus_tech->cost;
+            nation->research[world.get_id(nation->focus_tech)] += research;
+        }
+
         // Total anger in population (global)
         float total_anger = 0.f;
         // Anger per ideology (how much we hate the current ideology)
@@ -815,12 +808,9 @@ void Economy::do_phase_3(World& world) {
             world.job_requests.push_back(request);
         }
     }
-}
 
-// Phase 4 of the economy: After all POPs buy their products and all factories have transported their goods (or not)
-// the price of each product is calculated and all markets are closed until the next day
-void Economy::do_phase_4(World& world) {
-    // Preparations for the next tick
+    // Phase 4 of the economy: After all POPs buy their products and all factories have transported their goods (or not)
+    // the price of each product is calculated and all markets are closed until the next day
 
     // Reset production costs
     for(auto& building : world.buildings) {
