@@ -62,9 +62,9 @@ int main(int argc, char** argv) {
         }
     }
 #elif defined windows
-    Path::add_path("01_tutorial");
+    //Path::add_path("01_tutorial");
     Path::add_path("ie_client");
-    //Path::add_path("ie_core");
+    Path::add_path("ie_core");
     Path::add_path("ie_map");
 #endif
     

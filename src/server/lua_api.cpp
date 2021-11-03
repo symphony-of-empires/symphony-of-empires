@@ -108,6 +108,10 @@ int LuaAPI::add_technology(lua_State* L) {
 
     g_world->insert(technology);
     lua_pushnumber(L, g_world->technologies.size() - 1);
+
+    for(auto& nation : g_world->nations) {
+        nation->research.push_back(0.f);
+    }
     return 1;
 }
 
@@ -732,7 +736,7 @@ int LuaAPI::add_province_pop(lua_State* L) {
     pop.budget = 10.f;
 
     // TODO: Make ideology NOT be random
-    pop.ideology = g_world->ideologies[rand() % g_world->ideologies.size()];
+    pop.ideology_approval.resize(g_world->ideologies.size(), 0.f);
 
     if(!pop.size) throw LuaAPI::Exception("Can't create pops with 0 size");
     province->pops.push_back(pop);

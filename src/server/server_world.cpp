@@ -599,17 +599,9 @@ void World::do_tick() {
         ai_do_tick(nation, this);
     }
 
-    // Each tick == 30 minutes
-    switch(time % (24 * 2)) {
-        // 3:00
-    case 6:
-        Economy::do_phase_1(*this);
-        break;
-        // 7:30
-        // Busy hour, newspapers come out and people get mad
-    case 15:
-        Economy::do_phase_2(*this);
-
+    // Every 48 ticks do an economical tick
+    if(time % 48 == 0) {
+        Economy::do_tick(*this);
         // Calculate prestige for today (newspapers come out!)
         for(auto& nation : this->nations) {
             const float decay_per_cent = 5.f;
@@ -619,21 +611,6 @@ void World::do_tick() {
             // Prestige cannot go below min prestige
             nation->prestige = std::max<float>(nation->prestige, min_prestige);
             nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * fmin(fmax(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
-        }
-        break;
-        // 12:00
-    case 24:
-        Economy::do_phase_3(*this);
-        for(const auto& product : g_world->products) {
-            // Broadcast to clients
-            Packet packet = Packet();
-            Archive ar = Archive();
-            ActionType action = ActionType::PRODUCT_UPDATE;
-            ::serialize(ar, &action);
-            ::serialize(ar, &product); // ProductRef
-            ::serialize(ar, product); // ProductObj
-            packet.data(ar.get_buffer(), ar.size());
-            g_server->broadcast(packet);
         }
 
         for(auto& nation : this->nations) {
@@ -651,14 +628,19 @@ void World::do_tick() {
             }
             nation->economy_score = economy_score / 100.f;
         }
-        break;
-        // 18:00
-    case 36:
-        Economy::do_phase_4(*this);
-        break;
-        // 24:00, this is where clients are sent all information **at once**
-    case 47:
-    {
+
+        for(const auto& product : g_world->products) {
+            // Broadcast to clients
+            Packet packet = Packet();
+            Archive ar = Archive();
+            ActionType action = ActionType::PRODUCT_UPDATE;
+            ::serialize(ar, &action);
+            ::serialize(ar, &product); // ProductRef
+            ::serialize(ar, product); // ProductObj
+            packet.data(ar.get_buffer(), ar.size());
+            g_server->broadcast(packet);
+        }
+
         for(const auto& nation : g_world->nations) {
             // Broadcast to clients
             Packet packet = Packet();
@@ -682,10 +664,6 @@ void World::do_tick() {
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
         }
-    }
-    break;
-    default:
-        break;
     }
 
     // Evaluate units

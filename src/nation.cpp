@@ -1,6 +1,7 @@
 #include "nation.hpp"
 #include "world.hpp"
 #include "print.hpp"
+#include "technology.hpp"
 
 // Declare war
 // TODO: Make some form of "WarParticipationRequest" so we don't force allies to join
@@ -134,7 +135,7 @@ void Nation::set_policy(Policies& policies) {
                 continue;
             }
 
-            const Policies& pop_policies = pop.ideology->policies;
+            const Policies& pop_policies = pop.get_ideology()->policies;
 
             // Disapproval of old (current) policy
             const int old_disapproval = current_policy.difference(pop_policies);
@@ -273,6 +274,24 @@ const NationClientHint& Nation::get_client_hint(void) const {
         return tmp_hint;
     }
     return client_hints[0];
+}
+
+float Nation::get_research_points(void) const {
+    float research = 0.f;
+    for(const auto& province : this->owned_provinces) {
+        for(const auto& pop : province->pops) {
+            research += pop.size * pop.literacy;
+        }
+        research /= province->pops.size();
+    }
+    return research;
+}
+
+void Nation::change_research_focus(Technology* tech) {
+    // Only military/navy technologies can actually be researched
+    if(tech->type == TechnologyType::MILITARY || tech->type == TechnologyType::NAVY) {
+        this->focus_tech = tech;
+    }
 }
 
 /*float Nation::get_industry_output_rate() {
