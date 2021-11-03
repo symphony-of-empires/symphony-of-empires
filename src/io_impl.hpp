@@ -665,6 +665,9 @@ public:
         ::serialize(stream, &obj->inbox);
         ::serialize(stream, &obj->client_hints);
         ::serialize(stream, &obj->ideology);
+
+        ::serialize(stream, &obj->research);
+        ::serialize(stream, &obj->focus_tech);
     }
     static inline void deserialize(Archive& stream, Nation* obj) {
         ::deserialize(stream, &obj->name);
@@ -694,6 +697,9 @@ public:
         ::deserialize(stream, &obj->inbox);
         ::deserialize(stream, &obj->client_hints);
         ::deserialize(stream, &obj->ideology);
+
+        ::deserialize(stream, &obj->research);
+        ::deserialize(stream, &obj->focus_tech);
     }
     static inline size_t size(const Nation* obj) {
         return
@@ -719,6 +725,8 @@ public:
             + serialized_size(&obj->inbox)
             + serialized_size(&obj->client_hints)
             + serialized_size(&obj->ideology)
+            + serialized_size(&obj->research)
+            + serialized_size(&obj->focus_tech)
             ;
     }
 };

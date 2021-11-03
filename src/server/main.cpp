@@ -68,9 +68,9 @@ int main(int argc, char** argv) {
         }
     }
 #elif defined windows
-    Path::add_path("01_tutorial");
+    //Path::add_path("01_tutorial");
     Path::add_path("ie_client");
-    //Path::add_path("ie_core");
+    Path::add_path("ie_core");
     Path::add_path("ie_map");
 #endif
 
@@ -100,6 +100,7 @@ int main(int argc, char** argv) {
                     std::cout << "start: Start the simulation" << std::endl;
                     std::cout << "stop: Pause the simulation" << std::endl;
                     std::cout << "resetp: Reset all POPs" << std::endl;
+                    std::cout << "reload: Reload all lua files and assets" << std::endl;
                     std::cout << "gvsch: Generate a graphviz of the supply chain" << std::endl;
                     std::cout << "quit: Quit the server" << std::endl;
                     std::cout << "lsc: List all clients" << std::endl;
@@ -266,7 +267,7 @@ int main(int argc, char** argv) {
                 }
                 future = std::async(std::launch::async, async_get_input);
             }
-            //std::this_thread::sleep_for(std::chrono::milliseconds(150));
+            std::this_thread::sleep_for(std::chrono::milliseconds(150));
         }
 
         print_info(gettext("Destroying world"));
