@@ -48,14 +48,14 @@ Map::Map(const World& _world): world(_world) {
         }
 
         {
-            auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/2d_shader.vs");
-            auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/border_gen.fs");
-            border_gen_shader = new UnifiedRender::OpenGl::Program(vs, fs);
+            auto vs = UnifiedRender::OpenGl::VertexShader("shaders/2d_shader.vs");
+            auto fs = UnifiedRender::OpenGl::FragmentShader("shaders/border_gen.fs");
+            border_gen_shader = new UnifiedRender::OpenGl::Program(&vs, &fs);
         }
         {
-            auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/2d_shader.vs");
-            auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/border_gen.fs");
-            border_sdf_shader = new UnifiedRender::OpenGl::Program(vs, fs);
+            auto vs = UnifiedRender::OpenGl::VertexShader("shaders/2d_shader.vs");
+            auto fs = UnifiedRender::OpenGl::FragmentShader("shaders/border_gen.fs");
+            border_sdf_shader = new UnifiedRender::OpenGl::Program(&vs, &fs);
         }
     }
 
@@ -446,9 +446,11 @@ void Map::draw(Camera& cam, const int width, const int height) {
     map_shader->set_uniform("terrain_sheet", 5);
     glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_2D_ARRAY, terrain_sheet->gl_tex_num);
+
     map_shader->set_uniform("border_tex", 7);
     glActiveTexture(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, border_tex->gl_tex_num);
+
     map_quad->draw();
 
     // TODO: We need to better this
