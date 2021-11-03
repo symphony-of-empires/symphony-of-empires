@@ -22,3 +22,7 @@ buddhist:register()
 animist = Religion:new{ ref_name = "animist" }
 animist.name = _("Animist")
 animist:register()
+
+other = Religion:new{ ref_name = "other" }
+other.name = _("Other")
+other:register()
