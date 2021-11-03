@@ -1,26 +1,20 @@
-#ifndef MAP_H
-#define MAP_H
+#pragma once
 
 #include <cstddef>
-#ifdef _MSC_VER
-/* required before GL/gl.h */
-#	ifndef _WINDOWS_
-#		define WIN32_LEAN_AND_MEAN 1
-#		include <windows.h>
-#		undef WIN32_LEAN_AND_MEAN
-#	endif
-#endif
+
+// Required before GL/gl.h
 #include <GL/glew.h>
 #include <GL/gl.h>
-#include "../world.hpp"
-#include "../province.hpp"
-#include "render/texture.hpp"
-#include "camera.hpp"
-#include "render/primitive.hpp"
-#include "render/quad_2d.hpp"
-#include "render/shader.hpp"
-#include "render/texture_array.hpp"
-#include "game_state.hpp"
+
+#include "world.hpp"
+#include "province.hpp"
+#include "client/render/texture.hpp"
+#include "client/camera.hpp"
+#include "client/render/primitive.hpp"
+#include "client/render/shader.hpp"
+#include "client/render/texture_array.hpp"
+#include "client/game_state.hpp"
+#include "client/render/quad_2d.hpp"
 
 class Map {
 public:
@@ -58,4 +52,3 @@ public:
     void update_borders();
 };
 
-#endif

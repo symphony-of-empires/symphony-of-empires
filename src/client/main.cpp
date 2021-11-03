@@ -1,5 +1,5 @@
 #include <string>
-#include "../world.hpp"
+#include "world.hpp"
 
 void start_client(int argc, char** argv);
 
@@ -20,10 +20,10 @@ std::atomic<bool> run;
 #	include <libintl.h>
 #	include <locale.h>
 #endif
-#include "../path.hpp"
-#include "../network.hpp"
-#include "../io_impl.hpp"
-#include "../actions.hpp"
+#include "path.hpp"
+#include "network.hpp"
+#include "io_impl.hpp"
+#include "actions.hpp"
 std::mutex world_lock;
 
 std::string async_get_input(void) {
@@ -42,11 +42,13 @@ std::string async_get_input(void) {
 #include <dirent.h>
 #include <sys/types.h>
 int main(int argc, char** argv) {
-#ifdef unix
+#if defined unix
     setlocale(LC_ALL, "");
     bindtextdomain("main", Path::get("locale").c_str());
     textdomain("main");
 #endif
+
+#if defined unix
     DIR *dir = opendir(Path::get_full().c_str());
     if(dir != NULL) {
         struct dirent *de;
@@ -59,15 +61,20 @@ int main(int argc, char** argv) {
             }
         }
     }
+#elif defined windows
+    Path::add_path("01_tutorial");
+    Path::add_path("ie_client");
+    //Path::add_path("ie_core");
+    Path::add_path("ie_map");
+#endif
     
 #ifndef UNIT_TEST
     try {
         start_client(argc, argv);
     } catch(const std::exception& e) {
         print_error(e.what());
-        throw;
+        exit(EXIT_FAILURE);
     }
-    exit(EXIT_SUCCESS);
 #endif
     return 0;
 }
@@ -83,5 +90,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument,
     main(1, argv);
     
     free(argv[0]);
+    return 0;
 }
 #endif

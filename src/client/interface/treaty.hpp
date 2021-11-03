@@ -1,10 +1,9 @@
-#ifndef INTERFACE_TREATY_HPP
-#define INTERFACE_TREATY_HPP
+#pragma once
 
-#include "../../nation.hpp"
-#include "../../world.hpp"
-#include "../game_state.hpp"
-#include "../ui.hpp"
+#include "nation.hpp"
+#include "world.hpp"
+#include "client/game_state.hpp"
+#include "client/ui.hpp"
 
 namespace Interface {
     class TreatyChooseWindow : public UI::Window {
@@ -17,5 +16,3 @@ namespace Interface {
         TreatyChooseWindow(GameState& gs, Treaty* treaty);
     };
 };
-
-#endif

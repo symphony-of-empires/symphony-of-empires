@@ -2,10 +2,11 @@
 #include <fstream>
 #include <vector>
 #include <iterator>
-#include "model.hpp"
-#include "../../print.hpp"
-#include "../../path.hpp"
-#include "shader.hpp"
+
+#include "client/render/model.hpp"
+#include "client/render/shader.hpp"
+#include "print.hpp"
+#include "path.hpp"
 
 UnifiedRender::SimpleModel::SimpleModel(GLint _mode) : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(_mode) {
 
@@ -31,8 +32,7 @@ void UnifiedRender::SimpleModel::upload(void) {
     vao.bind();
     vbo.bind(GL_ARRAY_BUFFER);
     
-    if (buffer.size() == 0)
-        return;
+    if(buffer.size() == 0) return;
     
     glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
     // Vertices
@@ -54,7 +54,7 @@ void UnifiedRender::ComplexModel::draw(UnifiedRender::OpenGl::Program* shader) c
 }
 
 const UnifiedRender::SimpleModel& UnifiedRender::ModelManager::load_simple(const std::string& path) {
-    return *((const UnifiedRender::SimpleModel *)NULL);
+    return *((const UnifiedRender::SimpleModel *)nullptr);
 }
 
 class WavefrontFace {
@@ -152,10 +152,9 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
                     n_elem++;
 
                     c = sline.peek();
-                    if(c == '/') {
-                        // Consume the character
-                        sline >> c;
-                    }
+
+                    // Consume the character
+                    if(c == '/') sline >> c;
                 }
             }
 

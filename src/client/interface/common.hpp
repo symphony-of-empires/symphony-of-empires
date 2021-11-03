@@ -1,10 +1,9 @@
-#ifndef COMMON_H
-#define COMMON_H
+#pragma once
 
-#include "../../nation.hpp"
-#include "../../world.hpp"
-#include "../game_state.hpp"
-#include "../ui.hpp"
+#include "nation.hpp"
+#include "world.hpp"
+#include "client/game_state.hpp"
+#include "client/ui.hpp"
 
 namespace Interface {
     class PopInfo : public UI::Group {
@@ -24,11 +23,10 @@ namespace Interface {
 
         UI::Image* good_icon;
         UI::Button* name_btn,* company_btn,* province_btn;
+        UI::Button* good_btn;
         UI::Button* price_btn,* price_rate_btn;
         UI::Chart* price_chart;
     public:
         ProductInfo(GameState& gs, int x, int y, Product* product, UI::Widget* parent);
     };
 };
-
-#endif

@@ -1,7 +1,3 @@
-#include "map.hpp"
-
-#include <GL/glu.h>
-
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
@@ -10,14 +6,14 @@
 #include <iostream>
 #include <mutex>
 
-#include "../io_impl.hpp"
-#include "../path.hpp"
-#include "../print.hpp"
-#include "game_state.hpp"
-#include "render/model.hpp"
-#include "../io_impl.hpp"
-
-#include "interface/province_view.hpp"
+#include "client/map.hpp"
+#include "path.hpp"
+#include "print.hpp"
+#include "client/game_state.hpp"
+#include "client/render/model.hpp"
+#include "io_impl.hpp"
+#include "client/interface/province_view.hpp"
+#include "world.hpp"
 
 Map::Map(const World& _world): world(_world) {
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
@@ -27,7 +23,16 @@ Map::Map(const World& _world): world(_world) {
         water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         topo_tex = &g_texture_manager->load_texture(Path::get("map_topo.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
-        terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
+        
+        //terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
+        topo_tex = new UnifiedRender::Texture(world.width, world.height);
+
+        terrain_tex = new UnifiedRender::Texture(world.width, world.height);
+        for(size_t i = 0; i < world.width * world.height; i++) {
+            terrain_tex->buffer[i] = world.tiles[i].terrain_type_id;
+            topo_tex->buffer[i] = world.tiles[i].elevation;
+        }
+        
         terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
         terrain_sheet->to_opengl();
         {
@@ -71,13 +76,14 @@ Map::Map(const World& _world): world(_world) {
             g = (tile.province_id / 256) % 256;
             b = tile.owner_id % 256;
             a = (tile.owner_id / 256) % 256;
-            // a = tile.elevation == 0 ? 255 : a;
             div_topo_tex->buffer[i] = (a << 24) | (b << 16) | (g << 8) | (r);
-            if(tile.owner_id < world.nations.size()) {
-                const Nation* owner = world.nations.at(tile.owner_id);
-                uint32_t color = owner->get_client_hint().colour;
-                div_sheet_tex->buffer[r + g * 256] = (0xff << 24) | color;
-            }
+
+            // Only "paint" valid owners
+            if(tile.owner_id == (Nation::Id)-1) continue;
+            
+            const Nation* owner = world.nations.at(tile.owner_id);
+            uint32_t color = owner->get_client_hint().colour;
+            div_sheet_tex->buffer[r + g * 256] = (0xff << 24) | color;
         }
         div_sheet_tex->to_opengl();
     }
@@ -85,14 +91,14 @@ Map::Map(const World& _world): world(_world) {
         for(size_t i = 0; i < world.width * world.height; i++) {
             uint8_t r, g, b;
             const Tile& tile = world.get_tile(i);
-            if(tile.elevation <= world.sea_level) {
+
+            if(tile.terrain_type_id <= 1) {
                 r = 8;
                 g = 8;
                 b = 128;
-            }
-            else {
+            } else {
                 r = 8;
-                g = tile.elevation;
+                g = 255;
                 b = 8;
             }
             div_topo_tex->buffer[i] = (0xff << 24) | (b << 16) | (g << 8) | (r);
@@ -144,7 +150,7 @@ std::vector<std::pair<Province::Id, uint32_t>> population_map_mode(std::vector<P
             amount += pop.size;
         }
         max_amount = std::max<size_t>(amount, max_amount);
-        province_amounts.push_back(std::make_pair(province->get_id(*world), amount));
+        province_amounts.push_back(std::make_pair(world->get_id(province), amount));
     }
     max_amount = std::max<uint32_t>(1, max_amount);
     uint8_t max_r = 255;
@@ -226,31 +232,26 @@ void Map::update_borders() {
 }
 
 void Map::draw_flag(const Nation* nation) {
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBegin(GL_LINE);
-    glColor3f(1.f, 1.f, 1.f);
-    glVertex3f(0.f, 0.f, 0.f);
-    glVertex3f(0.f, 0.f, -2.f);
-    glEnd();
-
     // Draw a flag that "waves" with some cheap wind effects it
     // looks nice and it's super cheap to make - only using sine
     const float n_steps = 8.f;  // Resolution of flag in one side (in vertices)
     const float step = 90.f;    // Steps per vertice
-
+    
     auto flag = UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(GL_TRIANGLE_STRIP);
     for(float r = 0.f; r <= (n_steps * step); r += step) {
         float sin_r = (sin(r + wind_osc) / 24.f);
-
+    
+        sin_r = sin(r + wind_osc) / 24.f;
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
-            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),  // Vert
-            glm::vec2((r / step) / n_steps, 0.f)                    // Texcoord
-            ));
+            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
+            glm::vec2((r / step) / n_steps, 0.f)
+        ));
 
+        sin_r = sin(r + wind_osc + 90.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
-            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),  // Vert
-            glm::vec2((r / step) / n_steps, 0.f)                    // Texcoord
-            ));
+            glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
+            glm::vec2((r / step) / n_steps, 1.f)
+        ));
     }
 
     flag.vao.bind();
@@ -260,25 +261,9 @@ void Map::draw_flag(const Nation* nation) {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)(3 * sizeof(float)));  // Texcoords
     glEnableVertexAttribArray(1);
+
     nation_flags.at(world.get_id(nation))->bind();
     flag.draw();
-
-    // sin_r - Sin'ed iterator along with the wind oscillator
-    /*glBegin(GL_TRIANGLE_STRIP);
-    for(float r = 0.f; r <= (n_steps * step); r += step) {
-        float sin_r;
-
-        sin_r = sin(r + wind_osc) / 24.f;
-        glColor3f((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f);
-        glTexCoord2f((r / step) / n_steps, 0.f);
-        glVertex3f(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -2.f);
-
-        sin_r = sin(r + wind_osc + 90.f) / 24.f;
-        glColor3f((sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f, (sin_r * 18.f) + 0.5f);
-        glTexCoord2f((r / step) / n_steps, 1.f);
-        glVertex3f(x + (((r / step) / n_steps) * 1.5f), y + sin_r, -1.f);
-    }
-    glEnd();*/
 }
 
 void Map::handle_click(GameState& gs, SDL_Event event) {
@@ -308,22 +293,22 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             // Check if we selected an unit
             for(const auto& unit : gs.world->units) {
                 const float size = 2.f;
-                if((int)select_pos.first > (int)unit->x - size &&
-                    (int)select_pos.first < (int)unit->x + size &&
-                    (int)select_pos.second >(int)unit->y - size &&
-                    (int)select_pos.second < (int)unit->y + size) {
+                if((int)select_pos.first > (int)unit->x - size
+                && (int)select_pos.first < (int)unit->x + size
+                && (int)select_pos.second >(int)unit->y - size
+                && (int)select_pos.second < (int)unit->y + size) {
                     selected_unit = unit;
                     return;
                 }
             }
 
-            // Check if we selected an building
+            // Check if we selected a building
             for(const auto& building : gs.world->buildings) {
                 const float size = 2.f;
-                if((int)select_pos.first > (int)building->x - size &&
-                    (int)select_pos.first < (int)building->x + size &&
-                    (int)select_pos.second >(int)building->y - size &&
-                    (int)select_pos.second < (int)building->y + size) {
+                if((int)select_pos.first > (int)building->x - size
+                && (int)select_pos.first < (int)building->x + size
+                && (int)select_pos.second >(int)building->y - size
+                && (int)select_pos.second < (int)building->y + size) {
                     selected_building = building;
                     return;
                 }
@@ -334,6 +319,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 new Interface::ProvinceView(gs, gs.world->provinces.at(tile.province_id));
                 return;
             }
+            break;
+        default:
             break;
         }
 
@@ -353,14 +340,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         ::serialize(ar, &action);
         Building building = Building();
 
-        if(gs.world->get_tile(select_pos.first + 0, select_pos.second + 0).elevation <= gs.world->sea_level) {
-            // Seaport if on bordering water
-            building.type = gs.world->building_types[2];
-        }
-        else {
-            // Barracks if on land
-            building.type = gs.world->building_types[0];
-        }
+        building.type = gs.world->building_types[0];
 
         building.x = select_pos.first;
         building.y = select_pos.second;
@@ -406,7 +386,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
 // Updates the tiles texture with the changed tiles
 void Map::update(World& world) {
-    std::lock_guard<std::recursive_mutex> lock(g_world->changed_tiles_coords_mutex);
+    std::lock_guard lock(g_world->changed_tiles_coords_mutex);
     if(world.changed_tile_coords.size() > 0) {
         glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
         glViewport(0, 0, div_topo_tex->width, div_topo_tex->height);
@@ -438,28 +418,33 @@ void Map::draw(Camera& cam, const int width, const int height) {
     map_shader->set_uniform("view", view);
     map_shader->set_uniform("view_pos", cam.position.x, cam.position.y, cam.position.z);
     projection = cam.get_projection();
+    
     map_shader->set_uniform("projection", projection);
+    
     map_shader->set_uniform("map_size", (float)world.width, (float)world.height);
+    
     map_shader->set_uniform("tile_map", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
+
     map_shader->set_uniform("tile_sheet", 1);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, div_sheet_tex->gl_tex_num);
+
     map_shader->set_uniform("water_texture", 2);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, water_tex->gl_tex_num);
+
     map_shader->set_uniform("noise_texture", 3);
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, noise_tex->gl_tex_num);
-    map_shader->set_uniform("topo_texture", 4);
+
+    map_shader->set_uniform("terrain_texture", 4);
     glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, topo_tex->gl_tex_num);
-    map_shader->set_uniform("terrain_texture", 5);
-    glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_2D, terrain_tex->gl_tex_num);
-    map_shader->set_uniform("terrain_sheet", 6);
-    glActiveTexture(GL_TEXTURE6);
+
+    map_shader->set_uniform("terrain_sheet", 5);
+    glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_2D_ARRAY, terrain_sheet->gl_tex_num);
     map_shader->set_uniform("border_tex", 7);
     glActiveTexture(GL_TEXTURE7);
@@ -476,33 +461,29 @@ void Map::draw(Camera& cam, const int width, const int height) {
 
     glActiveTexture(GL_TEXTURE0);
     obj_shader->set_uniform("tex", 0);
-
+    
     world.world_mutex.lock();
     for(const auto& building : world.buildings) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
+        
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
-
-        if(world.get_id(building->type) < outpost_type_icons.size()) {
-            outpost_type_icons.at(world.get_id(building->type))->draw(obj_shader);
-        }
+        outpost_type_icons.at(world.get_id(building->type))->draw(obj_shader);
 
         // Reverse rotation
         model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
-        draw_flag(building->get_owner(world));
+        draw_flag(building->get_owner());
     }
 
     for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
+
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
-
-        if(world.get_id(unit->type) < unit_type_icons.size()) {
-            unit_type_icons[world.get_id(unit->type)]->draw(obj_shader);
-        }
+        unit_type_icons[world.get_id(unit->type)]->draw(obj_shader);
 
         // Reverse rotation
         model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));

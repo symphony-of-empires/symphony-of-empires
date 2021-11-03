@@ -1,7 +1,6 @@
-#ifndef ECONOMY_H
-#define ECONOMY_H
+#pragma once
 
-#include "../world.hpp"
+#include "world.hpp"
 
 // Functions that do a economy simulation in various steps, divided to reduce
 // overhead, they are distributed accross 48 ticks
@@ -11,5 +10,3 @@ namespace Economy {
     void do_phase_3(World& world);
     void do_phase_4(World& world);
 }
-
-#endif

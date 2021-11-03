@@ -1,4 +1,4 @@
-#include "game_state.hpp"
+#include "client/game_state.hpp"
 
 #include <GL/glew.h>
 
@@ -6,56 +6,57 @@
 #include <cstdio>
 #include <string>
 #ifdef _MSC_VER
-#include <SDL.h>
-#include <SDL_events.h>
-#include <SDL_keycode.h>
-#include <SDL_mouse.h>
-#include <SDL_opengl.h>
-#include <SDL_ttf.h>
+#   include <SDL.h>
+#   include <SDL_events.h>
+#   include <SDL_keycode.h>
+#   include <SDL_mouse.h>
+#   include <SDL_opengl.h>
+#   include <SDL_ttf.h>
 #else
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_keycode.h>
-#include <SDL2/SDL_mouse.h>
-#include <SDL2/SDL_opengl.h>
-#include <SDL2/SDL_ttf.h>
-#include <sys/wait.h>
+#   include <SDL2/SDL.h>
+#   include <SDL2/SDL_events.h>
+#   include <SDL2/SDL_keycode.h>
+#   include <SDL2/SDL_mouse.h>
+#   include <SDL2/SDL_opengl.h>
+#   include <SDL2/SDL_ttf.h>
+//#include <sys/wait.h>
 #endif
 #ifdef _MSC_VER
-/* required before GL/gl.h */
-#ifndef _WINDOWS_
-#define WIN32_LEAN_AND_MEAN 1
-#include <windows.h>
-#undef WIN32_LEAN_AND_MEAN
+// Required before GL/gl.h
+#   ifndef _WINDOWS_
+#   define WIN32_LEAN_AND_MEAN 1
+#       include <windows.h>
+#       undef WIN32_LEAN_AND_MEAN
+#   endif
 #endif
-#endif
-/* msvsc does not know about glext, mingw does so we just use this ifdef */
+
+// MSVC does not know about glext, mingw does so we just use this ifdef
 #ifndef _MSC_VER
-#include <GL/glext.h>
+#   include <GL/glext.h>
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "../company.hpp"
-#include "../good.hpp"
-#include "../io_impl.hpp"
-#include "../path.hpp"
-#include "../product.hpp"
-#include "../serializer.hpp"
-#include "../world.hpp"
-#include "camera.hpp"
-#include "client_network.hpp"
-#include "interface/descision.hpp"
-#include "interface/province_view.hpp"
-#include "interface/select_nation.hpp"
-#include "interface/top_window.hpp"
-#include "interface/province_view.hpp"
-#include "interface/treaty.hpp"
-#include "map.hpp"
-#include "render/material.hpp"
-#include "render/model.hpp"
-#include "render/texture.hpp"
-#include "ui.hpp"
+#include "company.hpp"
+#include "good.hpp"
+#include "io_impl.hpp"
+#include "path.hpp"
+#include "product.hpp"
+#include "serializer.hpp"
+#include "world.hpp"
+#include "client/camera.hpp"
+#include "client/client_network.hpp"
+#include "client/interface/descision.hpp"
+#include "client/interface/province_view.hpp"
+#include "client/interface/select_nation.hpp"
+#include "client/interface/top_window.hpp"
+#include "client/interface/province_view.hpp"
+#include "client/interface/treaty.hpp"
+#include "client/map.hpp"
+#include "client/render/material.hpp"
+#include "client/render/model.hpp"
+#include "client/render/texture.hpp"
+#include "client/ui.hpp"
 
 void GameState::play_nation() {
     // TODO add this to action
@@ -197,14 +198,6 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
     ui_ctx->clear_dead();
 }
 
-void client_update(const GameState& gs) {
-    std::lock_guard<std::recursive_mutex> lock(gs.world->world_mutex);
-
-    gs.ui_ctx->do_tick();
-
-    //gs.map->update(*g_world);
-}
-
 void GameState::send_command(Archive& archive) {
     client->packet_mutex.lock();
 
@@ -310,73 +303,60 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
     }
 }
 
-void init_client(GameState& gs) {
-    Map* map = gs.map;
-    int& width = gs.width;
-    int& height = gs.height;
+void GameState::update_on_tick(void) {
+    //render_lock.lock();
+    ui_ctx->do_tick();
+    //render_lock.lock();
+}
+
+void main_loop(GameState& gs, Client* client, SDL_Window* window) {
+    gs.current_mode = MapMode::COUNTRY_SELECT;
+    gs.input = Input{};
+
+    // Query the initial nation flags
     for(const auto& nation : gs.world->nations) {
         std::string path;
-        
         path = Path::get("ui/flags/" + nation->ref_name + "_" +
             ((nation->ideology == nullptr)
             ? "none"
             : nation->ideology->ref_name) + ".png"
         );
-        map->nation_flags.push_back(&g_texture_manager->load_texture(path));
+        gs.map->nation_flags.push_back(&g_texture_manager->load_texture(path));
     }
 
-    /*for (const auto& building_type : gs.world->building_types) {
+    for(const auto& building_type : gs.world->building_types) {
         std::string path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
-        map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
+        gs.map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
     }
-    for (const auto& unit_type : gs.world->unit_types) {
+    for(const auto& unit_type : gs.world->unit_types) {
         std::string path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
-        map->unit_type_icons.push_back(&g_model_manager->load_complex(path));
-    }*/
+        gs.map->unit_type_icons.push_back(&g_model_manager->load_complex(path));
+    }
 
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
     gs.select_nation = new Interface::SelectNation(gs);
-}
 
-void main_loop(GameState& gs, Client* client, SDL_Window* window) {
-    //gs.products_view_world = new ProductsViewWorld(gs);
-    //gs.pop_view_nation = new PopViewNation(gs);
-    //gs.ui_reform = new UIReform(gs);
+    std::vector<Event*> displayed_events;
+    std::vector<Treaty*> displayed_treaties;
+
+    gs.update_tick = false;
 
     std::atomic<bool> run;
     run = true;
-    Nation* curr_nation = nullptr;
-
-    Map* map = gs.map;
-    gs.current_mode = MapMode::COUNTRY_SELECT;
-
-    gs.client_update_fns.push_back(&client_update);
-
-    gs.input = Input{};
-    Input& input = gs.input;
-    uint64_t last_time = 0;
-
-    init_client(gs);
-
-    std::mutex render_lock;
-    std::vector<Event*> displayed_events;
-    std::vector<Treaty*> displayed_treaties;
     while(run) {
-        if(last_time != gs.world->time) {
-            for(const auto& client_update_fn : gs.client_update_fns) {
-                client_update_fn(gs);
-            }
-            last_time = gs.world->time;
-        }
-
-        std::unique_lock<std::mutex> lock(render_lock);
-
-        handle_event(input, gs, run);
+        std::lock_guard lock(gs.render_lock);
+        
+        handle_event(gs.input, gs, run);
         if(gs.current_mode == MapMode::NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
         }
 
-        render(gs, input, window);
+        if(gs.update_tick == true) {
+            gs.update_on_tick();
+            gs.update_tick = false;
+        }
+
+        render(gs, gs.input, window);
     }
 }
 
@@ -386,8 +366,8 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
     std::atomic<bool> run;
     run = true;
 
+    // Connect to server prompt
     MainMenuConnectServer* mm_conn = new MainMenuConnectServer(gs);
-
     gs.input = Input{};
     Input& input = gs.input;
     while(run) {

@@ -1,9 +1,8 @@
-#include "texture.hpp"
-
+#include "client/render/texture.hpp"
+#include "path.hpp"
+#include "print.hpp"
 #include <string>
-
-#include "../../path.hpp"
-#include "../../print.hpp"
+#include <algorithm>
 
 /**
  * This dummy texture helps to avoid crashes due to missing buffers or so, and also gives
@@ -13,14 +12,13 @@ void UnifiedRender::Texture::create_dummy() {
     width = 16;
     height = 16;
     buffer = new uint32_t[width * height];
-    if (buffer == nullptr)
+    if(buffer == nullptr)
         throw TextureException("Dummy", "Out of memory for dummy texture");
 
     // Fill in with a pattern of pink and black
     // This should be autovectorized by gcc
-    for (size_t i = 0; i < width * height; i++) {
+    for(size_t i = 0; i < width * height; i++)
         buffer[i] = (i % 2) ? 0xff000000 : 0xff808000;
-    }
 }
 
 /**
@@ -55,8 +53,6 @@ void UnifiedRender::Texture::bind(void) const {
 void UnifiedRender::Texture::delete_opengl() {
     glDeleteTextures(1, &gl_tex_num);
 }
-
-#include <algorithm>
 
 /**
  * Finds a texture in the list of a texture manager

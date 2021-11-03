@@ -1,9 +1,10 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
-#include "../../path.hpp"
-#include "material.hpp"
-#include "../../print.hpp"
+
+#include "path.hpp"
+#include "print.hpp"
+#include "client/render/material.hpp"
 
 std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::MaterialManager::load_wavefront(const std::string& path) {
     std::ifstream file(path);
@@ -20,14 +21,12 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
             line = line.substr(len, line.length() - len);
 
         // Comment
-        if(line[0] == '#' || line.empty())
-            continue;
+        if(line[0] == '#' || line.empty()) continue;
         
         std::istringstream sline(line);
         std::string cmd;
         sline >> cmd;
-        if(cmd != "newmtl" && curr_mat == nullptr)
-            continue;
+        if(cmd != "newmtl" && curr_mat == nullptr) continue;
 
         if(cmd == "newmtl") {
             std::string name;
@@ -54,8 +53,7 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
             std::string map_path;
             sline >> map_path;
 
-            if(map_path[0] == '.')
-                continue;
+            if(map_path[0] == '.') continue;
 
             curr_mat->texture = &g_texture_manager->load_texture(Path::get("3d/" + map_path));
         } else {

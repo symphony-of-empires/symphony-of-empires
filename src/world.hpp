@@ -1,5 +1,4 @@
-#ifndef WORLD_H
-#define WORLD_H
+#pragma once
 
 #include <cstdlib>
 #include <cstdint>
@@ -13,9 +12,10 @@
 #include "building.hpp"
 #include "company.hpp"
 #include "ideology.hpp"
+#include "terrain.hpp"
 #include "server/lua_api.hpp"
 
-#define MAX_INFRA_LEVEL 			8
+#define MAX_INFRA_LEVEL 			4
 #define MAX_ELEVATION				255
 #define RIVER_ELEVATION(a)			a + 1
 
@@ -34,12 +34,14 @@ public:
     // ID of the province where this tile belongs to
     Province::Id province_id;
 
-    // Elevation level of this tile (from 0 to 255), take in account that
-    // the sea level of the world can change the meaning of this value drastically
-    uint8_t elevation;
-
     // Level of infrastructure in this tile (from 0 to MAX_INFRA_LEVEL)
     uint8_t infra_level;
+
+    // Elevation
+    uint8_t elevation;
+
+    // Terrain type
+    uint8_t terrain_type_id;
 
     const std::vector<const Tile*> get_neighbours(const World& world) const;
 };
@@ -85,7 +87,7 @@ class JobRequest {
 public:
     size_t amount;
     Province* province;
-    Pop* pop;
+    Pop pop;
 };
 
 /**
@@ -125,7 +127,7 @@ public:
     inline list_type<type*>& get_list(const type* ptr) {\
         return list;\
     };\
-    list_type<type*> list;\
+    list_type<type*> list;
 
 /**
 * Contains the main world class object, containing all the data relevant for the simulation
@@ -182,6 +184,7 @@ public:
     LIST_FOR_TYPE(Technology, technologies, std::vector)
     LIST_FOR_TYPE(Invention, inventions, std::vector)
     LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector)
+    LIST_FOR_TYPE(TerrainType, terrain_types, std::vector)
 
     template<typename T>
     inline void insert(T* ptr) {
@@ -199,10 +202,12 @@ public:
         for(typename T::Id i = cached_id; i < list.size(); i++) {
             list[i]->cached_id = (typename T::Id)-1;
         }
+
+        // Remove the element itself
+        list.erase(list.begin() + cached_id);
     };
     
     inline size_t get_id(const Tile* ptr) const {
-        std::lock_guard<std::recursive_mutex> lock(tiles_mutex);
         return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
     };
 
@@ -265,5 +270,3 @@ public:
 };
 
 extern World* g_world;
-
-#endif

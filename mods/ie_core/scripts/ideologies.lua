@@ -1,3 +1,16 @@
+-- communism = Ideology.new("communism", _("Communism"))
+-- print(communism)
+-- print(type(communism))
+-- print(communism.ref_name)
+-- for k,v in pairs(getmetatable(communism)) do
+--     print(k, v)
+-- end
+-- communism:register()
+-- communism = Ideology.get("communism")
+-- print(communism)
+-- print(type(communism))
+-- print(communism.ref_name)
+
 communism = Ideology:new{ ref_name = "communism", name = _("Communism"), check_policies_fn = "?" }
 communism:register()
 

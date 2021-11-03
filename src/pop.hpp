@@ -1,8 +1,9 @@
-#ifndef POP_H
-#define POP_H
+#pragma once
+
 #include <vector>
 #include <string>
 #include "entity.hpp"
+#include "ideology.hpp"
 
 class PopType : public RefnameEntity<uint8_t> {
 public:
@@ -12,11 +13,13 @@ public:
     bool is_slave;
     bool is_farmer;
     bool is_laborer;
+
+    // TODO: Ideology spectrum
+    //std::vector<Ideology*> spectrum;
 };
 
 #include "culture.hpp"
 #include "religion.hpp"
-#include "policy.hpp"
 class Pop {
 public:
     size_t size;
@@ -24,7 +27,7 @@ public:
     float literacy;
     
     float militancy = 0.f;
-    float consciousness = 0.f;
+    float con = 0.f;
     float budget = 0.f;
     
     float savings = 0.f;
@@ -33,16 +36,17 @@ public:
     float everyday_needs_met = 0.f;
     float luxury_needs_met = 0.f;
     
-    PopType *type;
-    Culture *culture;
-    Religion *religion;
-    Policies policies;
+    PopType* type;
+    Culture* culture;
+    Religion* religion;
+
+    // TODO: On serializer
+    Ideology* ideology;
 
     bool operator==(const Pop& rhs) {
         return (this->culture == rhs.culture
             && this->religion == rhs.religion
-            && this->type == rhs.type);
+            && this->type == rhs.type
+            && this->ideology == rhs.ideology);
     }
 };
-
-#endif

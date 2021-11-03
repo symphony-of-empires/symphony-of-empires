@@ -1,5 +1,4 @@
-#ifndef BUILDING_HPP
-#define BUILDING_HPP
+#pragma once
 
 #include "entity.hpp"
 #include "unit.hpp"
@@ -48,12 +47,13 @@ public:
     // Required goods for building this, or repairing this after a military attack
     std::vector<std::pair<Good*, size_t>> req_goods;
 
-    bool can_do_output(const World& world);
-    void add_to_stock(const World& world, const Good* good, size_t add);
-    Province* get_province(const World& world);
-    Nation* get_owner(const World& world);
-    void create_factory(World& world);
-    void delete_factory(World& world);
+    bool can_do_output(void);
+    void add_to_stock(const Good* good, size_t add);
+    Province* get_province(void);
+    Nation* get_owner(void);
+    void create_factory(void);
+    void delete_factory(void);
+    ~Building();
 
     // Nation owner of this building
     Nation* owner;
@@ -91,5 +91,3 @@ public:
     // How many workers are in the industry
     size_t workers = 0;
 };
-
-#endif

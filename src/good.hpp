@@ -1,5 +1,4 @@
-#ifndef GOOD_HPP
-#define GOOD_HPP
+#pragma once
 
 #include "entity.hpp"
 #include <string>
@@ -10,5 +9,3 @@ public:
     // Determines if the good can be "eaten", this makes the product fullfill a life need
     bool is_edible;
 };
-
-#endif

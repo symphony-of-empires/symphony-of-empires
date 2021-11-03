@@ -1,6 +1,5 @@
-#include "treaty.hpp"
-
-#include "../../io_impl.hpp"
+#include "client/interface/treaty.hpp"
+#include "io_impl.hpp"
 
 using namespace Interface;
 
@@ -9,13 +8,15 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
     treaty{ _treaty },
     UI::Window(0, 0, 256, 512)
 {
+    this->is_scroll = false;
+    
     this->body_txt = new UI::Text(0, 24, this->width, 24, this);
     this->body_txt->text("[insert the treaty description here]");
 
     this->approve_btn = new UI::Button(0, 24 * 2, this->width, 24, this);
     this->approve_btn->text("Approve");
     this->approve_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = dynamic_cast<TreatyChooseWindow&>(*w.parent);
+        auto& o = static_cast<TreatyChooseWindow&>(*w.parent);
 
         Archive ar = Archive();
         ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
@@ -33,7 +34,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
     this->deny_btn = new UI::Button(0, 24 * 3, this->width, 24, this);
     this->deny_btn->text("Deny it!");
     this->deny_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = dynamic_cast<TreatyChooseWindow&>(*w.parent);
+        auto& o = static_cast<TreatyChooseWindow&>(*w.parent);
 
         Archive ar = Archive();
         ActionType action = ActionType::CHANGE_TREATY_APPROVAL;

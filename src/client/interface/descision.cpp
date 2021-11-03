@@ -1,9 +1,9 @@
-#include "descision.hpp"
+#include "client/interface/descision.hpp"
 
-#include "../../event.hpp"
-#include "../../serializer.hpp"
-#include "../../actions.hpp"
-#include "../../io_impl.hpp"
+#include "event.hpp"
+#include "serializer.hpp"
+#include "actions.hpp"
+#include "io_impl.hpp"
 
 using namespace Interface;
 
@@ -35,7 +35,7 @@ DescisionButton::DescisionButton(UI::Window* parent, GameState& _gs, const Desci
     this->text(descision.name);
     this->user_data = this;
     this->on_click = [](UI::Widget& w, void* data) {
-        DescisionButton& state = dynamic_cast<DescisionButton&>(w);
+        auto& state = static_cast<DescisionButton&>(w);
 
         Archive ar = Archive();
         ActionType action = ActionType::NATION_TAKE_DESCISION;

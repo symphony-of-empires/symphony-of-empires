@@ -2,6 +2,7 @@
 -- Farmable stuff
 wheat = Good:new{ ref_name = "wheat" }
 wheat.name = _("Wheat")
+wheat.is_edible = true
 wheat:register()
 grapes = Good:new{ ref_name = "grapes" }
 grapes.name = _("Grapes")

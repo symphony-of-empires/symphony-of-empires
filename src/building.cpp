@@ -3,7 +3,8 @@
 #include "world.hpp"
 
 // Adds a good by id to a building stockpile
-void Building::add_to_stock(const World& world, const Good* good, const size_t add) {
+void Building::add_to_stock(const Good* good, const size_t add) {
+    const World& world = World::get_instance();
     for(size_t i = 0; i < stockpile.size(); i++) {
         if(world.get_id(type->inputs[i]) != world.get_id(good)) {
             continue;
@@ -14,7 +15,7 @@ void Building::add_to_stock(const World& world, const Good* good, const size_t a
     }
 }
 
-Province* Building::get_province(const World& world) {
+Province* Building::get_province(void) {
     //const Tile& tile = world.get_tile(this->x, this->y);
     //if(tile.province_id == (Province::Id)-1) {
     //    return nullptr;
@@ -23,7 +24,7 @@ Province* Building::get_province(const World& world) {
     return this->province;
 }
 
-Nation* Building::get_owner(const World& world) {
+Nation* Building::get_owner(void) {
     //const Tile& tile = world.get_tile(this->x, this->y);
     //if(tile.owner_id == (Nation::Id)-1) {
     //    return nullptr;
@@ -32,8 +33,9 @@ Nation* Building::get_owner(const World& world) {
     return this->owner;
 }
 
-void Building::create_factory(World& world) {
-    corporate_owner->operating_provinces.insert(get_province(world));
+void Building::create_factory(void) {
+    World& world = World::get_instance();
+    corporate_owner->operating_provinces.insert(get_province());
 
     // Add a product for each output
     for(const auto& output : type->outputs) {
@@ -41,7 +43,7 @@ void Building::create_factory(World& world) {
         new_product->building = this;
         new_product->good = output;
         new_product->owner = corporate_owner;
-        new_product->origin = get_province(world);
+        new_product->origin = get_province();
 
         output_products.push_back(new_product);
         world.products.push_back(new_product);
@@ -60,7 +62,8 @@ void Building::create_factory(World& world) {
 }
 
 // Helper method to delete a factory
-void Building::delete_factory(World& world) {
+void Building::delete_factory(void) {
+    World& world = World::get_instance();
     // Remove output products from all province's stockpiles and from the world
     for(const auto& product : output_products) {
         for(auto& province : world.provinces) {
@@ -73,7 +76,9 @@ void Building::delete_factory(World& world) {
 }
 
 // Checks if the building can produce output (if it has enough input)
-bool Building::can_do_output(const World& world) {
+bool Building::can_do_output(void) {
+    const World& world = World::get_instance();
+
     // No output products?
     if(type->outputs.empty() || output_products.empty())
         return false;
@@ -88,4 +93,11 @@ bool Building::can_do_output(const World& world) {
             return false;
     }
     return true;
+}
+
+Building::~Building() {
+    // Delete factory (products related to the factory must be destroyed too)
+    if(this->type != nullptr && this->type->is_factory == true) {
+        this->delete_factory();
+    }
 }

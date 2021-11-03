@@ -1,7 +1,6 @@
-#ifndef SELECT_NATION_H
-#define SELECT_NATION_H
+#pragma once
 
-#include "../ui.hpp"
+#include "client/ui.hpp"
 
 class GameState;
 namespace Interface {
@@ -21,5 +20,3 @@ namespace Interface {
         UI::Button* prev_country_btn;
     };
 };
-
-#endif

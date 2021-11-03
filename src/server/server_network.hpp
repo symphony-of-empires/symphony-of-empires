@@ -1,12 +1,11 @@
-#ifndef NETWORK_SERVER_HPP
-#define NETWORK_SERVER_HPP
+#pragma once
 
 #include <deque>
 #include <mutex>
 #include <atomic>
 #include <vector>
 #include <thread>
-#include "../network.hpp"
+#include "network.hpp"
 
 #ifdef windows
 #include <winsock2.h>
@@ -48,6 +47,5 @@ public:
 
     int n_clients;
 };
-extern Server* g_server;
 
-#endif
+extern Server* g_server;

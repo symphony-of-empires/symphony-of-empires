@@ -1,5 +1,4 @@
-#ifndef IO_IMPL_HPP
-#define IO_IMPL_HPP
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -62,6 +61,8 @@ template<>
 class Serializer<Religion*>: public SerializerReference<World, Religion> {};
 template<>
 class Serializer<NationModifier*>: public SerializerReference<World, NationModifier> {};
+template<>
+class Serializer<TerrainType*>: public SerializerReference<World, TerrainType> {};
 
 template<>
 class Serializer<NationModifier> {
@@ -69,7 +70,7 @@ public:
     static inline void serialize(Archive& stream, const NationModifier* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
-        ::serialize(stream, &obj->consciousness_mod);
+        ::serialize(stream, &obj->con_mod);
         ::serialize(stream, &obj->death_mod);
         ::serialize(stream, &obj->delivery_cost_mod);
         ::serialize(stream, &obj->everyday_needs_met_mod);
@@ -84,7 +85,7 @@ public:
     static inline void deserialize(Archive& stream, NationModifier* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
-        ::deserialize(stream, &obj->consciousness_mod);
+        ::deserialize(stream, &obj->con_mod);
         ::deserialize(stream, &obj->death_mod);
         ::deserialize(stream, &obj->delivery_cost_mod);
         ::deserialize(stream, &obj->everyday_needs_met_mod);
@@ -100,7 +101,7 @@ public:
         return
             serialized_size(&obj->name)
             + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->consciousness_mod)
+            + serialized_size(&obj->con_mod)
             + serialized_size(&obj->death_mod)
             + serialized_size(&obj->delivery_cost_mod)
             + serialized_size(&obj->everyday_needs_met_mod)
@@ -195,7 +196,8 @@ public:
         ::serialize(stream, &obj->treatment);
         ::serialize(stream, &obj->women_labour);
         ::serialize(stream, &obj->women_suffrage);
-        ::serialize(stream, &obj->minimum_wage);
+        ::serialize(stream, &obj->min_wage);
+        ::serialize(stream, &obj->min_sv_for_parliament);
     }
     static inline void deserialize(Archive& stream, Policies* obj) {
         ::deserialize(stream, &obj->free_supplies);
@@ -220,7 +222,8 @@ public:
         ::deserialize(stream, &obj->treatment);
         ::deserialize(stream, &obj->women_labour);
         ::deserialize(stream, &obj->women_suffrage);
-        ::deserialize(stream, &obj->minimum_wage);
+        ::deserialize(stream, &obj->min_wage);
+        ::deserialize(stream, &obj->min_sv_for_parliament);
     }
     static inline size_t size(const Policies* obj) {
         return serialized_size(&obj->free_supplies)
@@ -245,7 +248,8 @@ public:
             + serialized_size(&obj->treatment)
             + serialized_size(&obj->women_labour)
             + serialized_size(&obj->women_suffrage)
-            + serialized_size(&obj->minimum_wage);
+            + serialized_size(&obj->min_wage)
+            + serialized_size(&obj->min_sv_for_parliament)
         ;
     }
 };
@@ -279,6 +283,30 @@ public:
             + serialized_size(&obj->is_slave)
             + serialized_size(&obj->is_farmer)
             + serialized_size(&obj->is_laborer)
+            ;
+    }
+};
+
+template<>
+class Serializer<TerrainType> {
+public:
+    static inline void serialize(Archive& stream, const TerrainType* obj) {
+        ::serialize(stream, &obj->name);
+        ::serialize(stream, &obj->ref_name);
+        ::serialize(stream, &obj->color);
+        ::serialize(stream, &obj->movement_penalty);
+    }
+    static inline void deserialize(Archive& stream, TerrainType* obj) {
+        ::deserialize(stream, &obj->name);
+        ::deserialize(stream, &obj->ref_name);
+        ::deserialize(stream, &obj->color);
+        ::deserialize(stream, &obj->movement_penalty);
+    }
+    static inline size_t size(const TerrainType* obj) {
+        return serialized_size(&obj->name)
+            + serialized_size(&obj->ref_name)
+            + serialized_size(&obj->color)
+            + serialized_size(&obj->movement_penalty)
             ;
     }
 };
@@ -391,7 +419,7 @@ public:
 
         ::serialize(stream, &obj->literacy);
         ::serialize(stream, &obj->militancy);
-        ::serialize(stream, &obj->consciousness);
+        ::serialize(stream, &obj->con);
         ::serialize(stream, &obj->budget);
 
         ::serialize(stream, &obj->life_needs_met);
@@ -408,7 +436,7 @@ public:
 
         ::deserialize(stream, &obj->literacy);
         ::deserialize(stream, &obj->militancy);
-        ::deserialize(stream, &obj->consciousness);
+        ::deserialize(stream, &obj->con);
         ::deserialize(stream, &obj->budget);
 
         ::deserialize(stream, &obj->life_needs_met);
@@ -424,7 +452,7 @@ public:
             + serialized_size(&obj->unemployed)
             + serialized_size(&obj->literacy)
             + serialized_size(&obj->militancy)
-            + serialized_size(&obj->consciousness)
+            + serialized_size(&obj->con)
             + serialized_size(&obj->budget)
             + serialized_size(&obj->life_needs_met)
             + serialized_size(&obj->everyday_needs_met)
@@ -499,23 +527,26 @@ template<>
 class Serializer<Tile> {
 public:
     static inline void serialize(Archive& stream, const Tile* obj) {
-        ::serialize(stream, &obj->elevation);
+        ::serialize(stream, &obj->terrain_type_id);
         ::serialize(stream, &obj->infra_level);
         ::serialize(stream, &obj->owner_id);
         ::serialize(stream, &obj->province_id);
+        ::serialize(stream, &obj->elevation);
     }
     static inline void deserialize(Archive& stream, Tile* obj) {
-        ::deserialize(stream, &obj->elevation);
+        ::deserialize(stream, &obj->terrain_type_id);
         ::deserialize(stream, &obj->infra_level);
         ::deserialize(stream, &obj->owner_id);
         ::deserialize(stream, &obj->province_id);
+        ::deserialize(stream, &obj->elevation);
     }
     static inline size_t size(const Tile* obj) {
         return
-            serialized_size(&obj->elevation)
+            serialized_size(&obj->terrain_type_id)
             + serialized_size(&obj->infra_level)
             + serialized_size(&obj->owner_id)
             + serialized_size(&obj->province_id)
+            + serialized_size(&obj->elevation)
             ;
     }
 };
@@ -609,9 +640,8 @@ public:
     static inline void serialize(Archive& stream, const Nation* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
-        ::serialize(stream, &obj->controlled_by_ai);
         ::serialize(stream, &obj->relations);
-        ::serialize(stream, &obj->spherer_id);
+        ::serialize(stream, &obj->spherer);
         ::serialize(stream, &obj->diplomacy_points);
         ::serialize(stream, &obj->prestige);
 
@@ -639,9 +669,8 @@ public:
     static inline void deserialize(Archive& stream, Nation* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
-        ::deserialize(stream, &obj->controlled_by_ai);
         ::deserialize(stream, &obj->relations);
-        ::deserialize(stream, &obj->spherer_id);
+        ::deserialize(stream, &obj->spherer);
         ::deserialize(stream, &obj->diplomacy_points);
         ::deserialize(stream, &obj->prestige);
 
@@ -670,9 +699,8 @@ public:
         return
             serialized_size(&obj->name)
             + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->controlled_by_ai)
             + serialized_size(&obj->relations)
-            + serialized_size(&obj->spherer_id)
+            + serialized_size(&obj->spherer)
             + serialized_size(&obj->diplomacy_points)
             + serialized_size(&obj->prestige)
             + serialized_size(&obj->base_literacy)
@@ -1341,6 +1369,8 @@ public:
         ::serialize(stream, &n_technologies);
         const NationModifier::Id n_nation_modifiers = obj->nation_modifiers.size();
         ::serialize(stream, &n_nation_modifiers);
+        const TerrainType::Id n_terrain_type = obj->terrain_types.size();
+        ::serialize(stream, &n_terrain_type);
 
         print_info("(SERIALIZER) World");
         print_info("  n_goods %zu", obj->goods.size());
@@ -1358,6 +1388,7 @@ public:
         print_info("  n_outposts %zu", obj->buildings.size());
         print_info("  n_treaties %zu", obj->treaties.size());
         print_info("  n_ideologies %zu", obj->ideologies.size());
+        print_info("  n_terrain_types %zu", obj->terrain_types.size());
 
         for(auto& sub_obj : obj->goods) {
             ::serialize(stream, sub_obj);
@@ -1431,6 +1462,10 @@ public:
             ::serialize(stream, sub_obj);
         }
 
+        for(auto& sub_obj : obj->terrain_types) {
+            ::serialize(stream, sub_obj);
+        }
+
         ::serialize(stream, &obj->delivers);
         ::serialize(stream, &obj->orders);
     }
@@ -1467,6 +1502,7 @@ public:
         Invention::Id n_inventions = deserialize_and_create_list<Invention>(stream, obj);
         Technology::Id n_technologies = deserialize_and_create_list<Technology>(stream, obj);
         NationModifier::Id n_nation_modifiers = deserialize_and_create_list<NationModifier>(stream, obj);
+        TerrainType::Id n_terrain_types = deserialize_and_create_list<TerrainType>(stream, obj);
 
         print_info("(DESERIALIZER) World");
         print_info("  n_goods %zu", obj->goods.size());
@@ -1486,94 +1522,100 @@ public:
         print_info("  n_ideologies %zu", obj->ideologies.size());
         print_info("  n_inventions %zu", obj->inventions.size());
         print_info("  n_technologies %zu", obj->technologies.size());
+        print_info("  n_terrain_types %zu", obj->terrain_types.size());
 
         for(size_t i = 0; i < n_goods; i++) {
-            Good* sub_obj = obj->goods[i];
+            auto* sub_obj = obj->goods[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_unit_types; i++) {
-            UnitType* sub_obj = obj->unit_types[i];
+            auto* sub_obj = obj->unit_types[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_religions; i++) {
-            Religion* sub_obj = obj->religions[i];
+            auto* sub_obj = obj->religions[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_cultures; i++) {
-            Culture* sub_obj = obj->cultures[i];
+            auto* sub_obj = obj->cultures[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_pop_types; i++) {
-            PopType* sub_obj = obj->pop_types[i];
+            auto* sub_obj = obj->pop_types[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_nations; i++) {
-            Nation* sub_obj = obj->nations[i];
+            auto* sub_obj = obj->nations[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_provinces; i++) {
-            Province* sub_obj = obj->provinces[i];
+            auto* sub_obj = obj->provinces[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_companies; i++) {
-            Company* sub_obj = obj->companies[i];
+            auto* sub_obj = obj->companies[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_products; i++) {
-            Product* sub_obj = obj->products[i];
+            auto* sub_obj = obj->products[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_events; i++) {
-            Event* sub_obj = obj->events[i];
+            auto* sub_obj = obj->events[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_unit_traits; i++) {
-            UnitTrait* sub_obj = obj->unit_traits[i];
+            auto* sub_obj = obj->unit_traits[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_building_types; i++) {
-            BuildingType* sub_obj = obj->building_types[i];
+            auto* sub_obj = obj->building_types[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_buildings; i++) {
-            Building* sub_obj = obj->buildings[i];
+            auto* sub_obj = obj->buildings[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_treaties; i++) {
-            Treaty* sub_obj = obj->treaties[i];
+            auto* sub_obj = obj->treaties[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_ideologies; i++) {
-            Ideology* sub_obj = obj->ideologies[i];
+            auto* sub_obj = obj->ideologies[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_inventions; i++) {
-            Invention* sub_obj = obj->inventions[i];
+            auto* sub_obj = obj->inventions[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_technologies; i++) {
-            Technology* sub_obj = obj->technologies[i];
+            auto* sub_obj = obj->technologies[i];
             ::deserialize(stream, sub_obj);
         }
 
         for(size_t i = 0; i < n_inventions; i++) {
-            NationModifier* sub_obj = obj->nation_modifiers[i];
+            auto* sub_obj = obj->nation_modifiers[i];
+            ::deserialize(stream, sub_obj);
+        }
+
+        for(size_t i = 0; i < n_terrain_types; i++) {
+            auto* sub_obj = obj->terrain_types[i];
             ::deserialize(stream, sub_obj);
         }
 
@@ -1608,8 +1650,7 @@ public:
             + (obj->inventions.size() * sizeof(Invention))
             + (obj->technologies.size() * sizeof(Technology))
             + (obj->nation_modifiers.size() * sizeof(NationModifier))
+            + (obj->terrain_types.size() * sizeof(TerrainType))
             ;
     }
 };
-
-#endif
