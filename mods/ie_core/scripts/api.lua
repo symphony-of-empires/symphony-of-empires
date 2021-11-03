@@ -10,7 +10,7 @@ NationMod = {
 	reproduction = 1.0,
 	death = 1.0,
 	militancy = 1.0,
-	consciousness = 1.0,
+	con = 1.0,
 	life_needs_met = 1.0,
 	everyday_needs_met = 1.0,
 	luxury_needs_met = 1.0
@@ -22,11 +22,11 @@ function NationMod:new(o)
 	return o
 end
 function NationMod:register()
-	self.id = add_nation_mod(self.ref_name, self.name, self.industry_output, self.industry_input, self.workers_needed, self.salary_paid, self.delivery_cost, self.literacy_learn, self.reproduction, self.death, self.militancy, self.consciousness, self.life_needs_met, self.everyday_needs_met, self.luxury_needs_met)
+	self.id = add_nation_mod(self.ref_name, self.name, self.industry_output, self.industry_input, self.workers_needed, self.salary_paid, self.delivery_cost, self.literacy_learn, self.reproduction, self.death, self.militancy, self.con, self.life_needs_met, self.everyday_needs_met, self.luxury_needs_met)
 end
 function NationMod:get(ref_name)
 	o = NationMod:new()
-	o.id, o.name, o.industry_output, o.industry_input, o.workers_needed, o.salary_paid, o.delivery_cost, o.literacy_learn, o.reproduction, o.death, o.militancy, o.consciousness, o.life_needs_met, o.everyday_needs_met, o.luxury_needs_met = get_nation_mod(ref_name)
+	o.id, o.name, o.industry_output, o.industry_input, o.workers_needed, o.salary_paid, o.delivery_cost, o.literacy_learn, o.reproduction, o.death, o.militancy, o.con, o.life_needs_met, o.everyday_needs_met, o.luxury_needs_met = get_nation_mod(ref_name)
 	o.ref_name = ref_name
 	return o
 end
@@ -138,7 +138,8 @@ Policies = {
     industry_tax = 0.0,
     military_spending = 0.0,
     free_supplies = true,
-    minimum_wage = 0.0
+    min_wage = 0.0,
+	min_sv_for_parliament = 0.0
 }
 function Policies:new(o)
 	o = o or {}
@@ -244,11 +245,11 @@ function Nation:get_policies()
 	o = Policies:new()
 
 	-- If someone knows a better way to do this please do a PR
-	o.treatment, o.migration, o.immigration, o.censorship, o.build_infrastructure, o.build_factories, o.national_id, o.men_suffrage, o.men_labour, o.women_suffrage, o.women_labour, o.private_property, o.companies_allowed, o.public_education, o.secular_education, o.public_healthcare, o.social_security, o.slavery, o.legislative_parliament, o.executive_parliament, o.constitutional, o.foreign_trade, o.import_tax, o.export_tax, o.domestic_import_tax, o.domestic_export_tax, o.poor_flat_tax, o.med_flat_tax, o.rich_flat_tax, o.industry_tax, o.military_spending, o.free_supplies, o.minimum_wage = get_nation_policies(self.id)
+	o.treatment, o.migration, o.immigration, o.censorship, o.build_infrastructure, o.build_factories, o.national_id, o.men_suffrage, o.men_labour, o.women_suffrage, o.women_labour, o.private_property, o.companies_allowed, o.public_education, o.secular_education, o.public_healthcare, o.social_security, o.slavery, o.legislative_parliament, o.executive_parliament, o.constitutional, o.foreign_trade, o.import_tax, o.export_tax, o.domestic_import_tax, o.domestic_export_tax, o.poor_flat_tax, o.med_flat_tax, o.rich_flat_tax, o.industry_tax, o.military_spending, o.free_supplies, o.min_wage, o.min_sv_for_parliament = get_nation_policies(self.id)
 	return o
 end
 function Nation:set_policies(o)
-	set_nation_policies(self.id, o.treatment, o.migration, o.immigration, o.censorship, o.build_infrastructure, o.build_factories, o.national_id, o.men_suffrage, o.men_labour, o.women_suffrage, o.women_labour, o.private_property, o.companies_allowed, o.public_education, o.secular_education, o.public_healthcare, o.social_security, o.slavery, o.legislative_parliament, o.executive_parliament, o.constitutional, o.foreign_trade, o.import_tax, o.export_tax, o.domestic_import_tax, o.domestic_export_tax, o.poor_flat_tax, o.med_flat_tax, o.rich_flat_tax, o.industry_tax, o.military_spending, o.free_supplies, o.minimum_wage)
+	set_nation_policies(self.id, o.treatment, o.migration, o.immigration, o.censorship, o.build_infrastructure, o.build_factories, o.national_id, o.men_suffrage, o.men_labour, o.women_suffrage, o.women_labour, o.private_property, o.companies_allowed, o.public_education, o.secular_education, o.public_healthcare, o.social_security, o.slavery, o.legislative_parliament, o.executive_parliament, o.constitutional, o.foreign_trade, o.import_tax, o.export_tax, o.domestic_import_tax, o.domestic_export_tax, o.poor_flat_tax, o.med_flat_tax, o.rich_flat_tax, o.industry_tax, o.military_spending, o.free_supplies, o.min_wage, o.min_sv_for_parliament)
 end
 function Nation:set_ideology(ideology)
 	set_nation_ideology(self.id, ideology.id)
@@ -256,6 +257,97 @@ end
 function Nation:add_client_hint(ideology, alt_name, colour)
 	add_nation_client_hint(self.id, ideology.id, alt_name, colour)
 end
+
+function Nation:get_friends()
+	local table = get_friends_of_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
+end
+function Nation:is_friend(nation)
+	local table = Nation:get_friends(self)
+	for k, v in pairs(table) do
+		if v.id == nation.id then
+			return true
+		end
+	end
+	return false
+end
+
+function Nation:get_enemies()
+	local table = get_enemies_of_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
+end
+function Nation:is_enemy(nation)
+	local table = Nation:get_enemies(self)
+	for k, v in pairs(table) do
+		if v.id == nation.id then
+			return true
+		end
+	end
+	return false
+end
+
+function Nation:get_allies()
+	local table = get_allies_of_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
+end
+function Nation:is_ally(nation)
+	local table = Nation:get_allies(self)
+	for k, v in pairs(table) do
+		if v.id == nation.id then
+			return true
+		end
+	end
+	return false
+end
+
+function Nation:get_war_enemies()
+	local table = get_warenemies_of_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
+end
+function Nation:is_war_enemy(nation)
+	local table = Nation:get_war_enemies(self)
+	for k, v in pairs(table) do
+		if v.id == nation.id then
+			return true
+		end
+	end
+	return false
+end
+
+function Nation:get_embargoed()
+	local table = get_embargoed_of_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
+end
+function Nation:is_embargoed(nation)
+	local table = Nation:get_embargoed(self)
+	for k, v in pairs(table) do
+		if v.id == nation.id then
+			return true
+		end
+	end
+	return false
+end
+
 function Nation:get_owned_provinces()
 	local table = get_provinces_owned_by_nation(self.id)
 	local new_table = {}
@@ -348,15 +440,15 @@ end
 function Province:multiply_militancy_by_religion(religion, factor)
 	multiply_province_militancy_by_religion(self.id, religion.id, factor)
 end
--- Increments consciousness for all POPs
-function Province:multiply_consciousness_global(factor)
-	multiply_province_consciousness_global(self.id, factor)
+-- Increments con for all POPs
+function Province:multiply_con_global(factor)
+	multiply_province_con_global(self.id, factor)
 end
-function Province:multiply_consciousness_by_culture(culture, factor)
-	multiply_province_consciousness_by_culture(self.id, culture.id, factor)
+function Province:multiply_con_by_culture(culture, factor)
+	multiply_province_con_by_culture(self.id, culture.id, factor)
 end
-function Province:multiply_consciousness_by_religion(religion, factor)
-	multiply_province_consciousness_by_religion(self.id, religion.id, factor)
+function Province:multiply_con_by_religion(religion, factor)
+	multiply_province_con_by_religion(self.id, religion.id, factor)
 end
 -- Adds a POP to the province
 function Province:add_pop(pop_type, culture, religion, size, literacy)
@@ -376,7 +468,8 @@ Event = {
 	conditions_fn = "",
 	event_fn = "",
 	title = "",
-	text = ""
+	text = "",
+	checked = false
 }
 function Event:new(o)
 	o = o or {}
@@ -385,11 +478,11 @@ function Event:new(o)
 	return o
 end
 function Event:register()
-	self.id = add_event(self.ref_name, self.conditions_fn, self.event_fn, self.title, self.text)
+	self.id = add_event(self.ref_name, self.conditions_fn, self.event_fn, self.title, self.text, self.checked)
 end
-function Event:get(o, ref_name)
+function Event:get(ref_name)
 	o = Event:new()
-	o.id, o.conditions_fn, o.event_fn = get_event(ref_name)
+	o.id, o.conditions_fn, o.event_fn, o.title, o.text, o.checked = get_event(ref_name)
 	o.ref_name = ref_name
 	return o
 end
@@ -523,6 +616,23 @@ function IndustryType:new(o)
 	return o
 end
 
+TerrainType = {
+	id = 0,
+	name = "",
+	ref_name = "",
+	color = 0x000000,
+	movement_penalty = 0.0
+}
+function TerrainType:new(o)
+	o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function TerrainType:register()
+	self.id = add_terrain_type(self.ref_name, self.name, self.color, self.movement_penalty)
+end
+
 UnitType = {
 	id = 0,
 	ref_name = "",
@@ -576,7 +686,7 @@ end
 
 -- For sanity
 function rgb(r, g, b)
-	local color = 0x000000
+	local color = 0
 	color = color | (r << 16)
 	color = color | (g << 8)
 	color = color | (b << 0)

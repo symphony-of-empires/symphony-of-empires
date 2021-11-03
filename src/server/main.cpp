@@ -1,10 +1,11 @@
 #include <string>
 #include "../world.hpp"
 #include "lua_api.hpp"
+#include "swap.hpp"
 
 void client_main(int argc, char** argv);
 
-#ifdef windows
+#if defined windows
 const char* gettext(const char* str) {
     return str;
 }
@@ -16,7 +17,7 @@ const char* gettext(const char* str) {
 #include <atomic>
 std::atomic<bool> run;
 
-#ifdef unix
+#if defined unix
 #	include <libintl.h>
 #	include <locale.h>
 #endif
@@ -47,11 +48,13 @@ std::string async_get_input(void) {
 #include <dirent.h>
 #include <sys/types.h>
 int main(int argc, char** argv) {
-#ifdef unix
+#if defined unix
     setlocale(LC_ALL, "");
     bindtextdomain("main", Path::get("locale").c_str());
     textdomain("main");
 #endif
+
+#if defined unix
     DIR *dir = opendir(Path::get_full().c_str());
     if(dir != NULL) {
         struct dirent *de;
@@ -64,14 +67,20 @@ int main(int argc, char** argv) {
             }
         }
     }
+#elif defined windows
+    Path::add_path("01_tutorial");
+    Path::add_path("ie_client");
+    //Path::add_path("ie_core");
+    Path::add_path("ie_map");
+#endif
 
-#ifndef UNIT_TEST
-    // Run as a server for servicing multiple clients
-    World* world = new World();
-    world->load_mod();
-    Server* server = new Server(1836);
-
+#if !defined UNIT_TEST
     try {
+        // Run as a server for servicing multiple clients
+        World* world = new World();
+        world->load_mod();
+        Server* server = new Server(1836);
+
         std::cout << "Type start to start the simulation or help to view all the commands" << std::endl;
 
         std::future<std::string> future = std::async(std::launch::async, async_get_input);
@@ -80,7 +89,7 @@ int main(int argc, char** argv) {
         bool paused = true;
         while(run) {
             if(!paused) {
-                std::unique_lock<std::mutex> lock(world_lock);
+                std::lock_guard lock(world_lock);
                 world->do_tick();
             }
 
@@ -96,6 +105,9 @@ int main(int argc, char** argv) {
                     std::cout << "lsc: List all clients" << std::endl;
                     std::cout << "debugen: Enable debug" << std::endl;
                     std::cout << "debugdis: Disable debug" << std::endl;
+                    std::cout << "cdcs_json: Generate CDCS-compatible JSON provinces" << std::endl;
+                    std::cout << "cdcs_orig: Generate CDCS format data of provinces" << std::endl;
+                    std::cout << "array_gen: Generate an array for lua_files" << std::endl;
                 }
                 else if(r == "debugen") {
                     print_enable_debug();
@@ -168,8 +180,30 @@ int main(int argc, char** argv) {
                 }
                 // Original CDCS file format
                 else if(r == "cdcs_orig") {
-                    for(const auto& province: world->provinces) {
+                    for(const auto& province : world->provinces) {
                         std::cout << "(" << province->name << ", " << province->name << ", " << (size_t)((province->total_pops() + 1) / 1000.f) << ")" << std::endl;
+                    }
+                }
+                // generate for lua lists
+                else if(r == "array_gen") {
+                    for(const auto& province : world->provinces) {
+                        uint32_t color = bswap32(province->color) >> 8;
+                        uint8_t r, g, b;
+                        r = (color >> 16) & 0xff;
+                        g = (color >> 8) & 0xff;
+                        b = (color >> 0) & 0xff;
+
+                        std::cout << "    "
+                            << "{ "
+                            << "ref_name = \"" << province->ref_name << "\", "
+                            << "name = _(\"" << province->name << "\"), "
+                            << "color = rgb("
+                                << std::to_string(r) << ", "
+                                << std::to_string(g) << ", "
+                                << std::to_string(b) << ")"
+                            << " }"
+                            << std::endl
+                        ;
                     }
                 }
                 // generate a graphviz of the supply chain (abstract, just using industry types and goods)
@@ -232,17 +266,21 @@ int main(int argc, char** argv) {
                 }
                 future = std::async(std::launch::async, async_get_input);
             }
-            //std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(150));
         }
+
+        print_info(gettext("Destroying world"));
+        delete world;
+        print_info(gettext("Destroying server"));
+        delete server;
+    } catch(const LuaAPI::Exception& e) {
+        luaL_traceback(g_world->lua, g_world->lua, e.what(), 0);
+        print_error(lua_tostring(g_world->lua, -1));
+        exit(EXIT_FAILURE);
     } catch(const std::exception& e) {
         print_error(e.what());
-        throw;
+        exit(EXIT_FAILURE);
     }
-        
-    print_info(gettext("Destroying world"));
-    delete world;
-    print_info(gettext("Destroying server"));
-    delete server;
 #else
     exit(EXIT_SUCCESS);
 #endif
@@ -264,5 +302,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument,
     }
     
     free(argv[0]);
+    return 0;
 }
 #endif

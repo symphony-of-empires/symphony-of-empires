@@ -4,19 +4,10 @@
 #include "good.hpp"
 #include "company.hpp"
 
-// Gets ID from pointer
-Province::Id Province::get_id(const World& world) {
-    const std::vector<Province*>* provinces = &world.provinces;
-    const auto province = std::find(provinces->begin(), provinces->end(), this);
-    if(province != provinces->end()) {
-        return (Province::Id)std::distance(provinces->begin(), province);
-    }
-    return (Province::Id)-1;
-}
-
 // Obtains the country that currently has a larger number of
 // tiles controlled from this province
-Nation& Province::get_occupation_controller(const World& world) const {
+Nation& Province::get_occupation_controller(void) const {
+    const World& world = World::get_instance();
     std::vector<Nation::Id> nations_cnt;
     for(size_t x = min_x; x < max_x; x++) {
         for(size_t y = min_y; y < max_y; y++) {
@@ -50,7 +41,8 @@ size_t Province::total_pops(void) const {
 }
 
 // Create a vector containing a list of all products available on this province
-std::vector<Product*> Province::get_products(const World& world) const {
+std::vector<Product*> Province::get_products(void) const {
+    const World& world = World::get_instance();
     std::vector<Product*> products;
     products.reserve(world.products.size());
     for(const auto& product : world.products) {
@@ -102,4 +94,6 @@ float Province::get_attractive(const Pop& pop) const {
     else if(pop.type->social_value <= 3.f || pop.type->social_value >= 3.f) {
         attractive += -(this->owner->current_policy.rich_flat_tax);
     }
+
+    return attractive;
 }

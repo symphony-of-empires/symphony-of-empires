@@ -1,11 +1,13 @@
-#include "main_menu.hpp"
-#include "../../print.hpp"
+#include "client/interface/main_menu.hpp"
+#include "client/client_network.hpp"
+#include "print.hpp"
 
 MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     : gs{ _gs },
     in_game{ false },
     UI::Window(0, 0, 512, 128)
 {
+    this->is_scroll = false;
     this->text("Connect to a server");
 
     ip_addr_inp = new UI::Input(0, 24, 512, 24, this);
@@ -27,7 +29,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 
         GameState& gs = state->gs;
         gs.world = new World();
-        gs.client = new Client(server_addr, 1836);
+        gs.client = new Client(gs, server_addr, 1836);
         gs.client->username = state->username_inp->buffer;
         gs.client->wait_for_snapshot();
         gs.map = new Map(*gs.world);

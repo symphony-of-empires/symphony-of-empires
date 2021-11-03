@@ -1,7 +1,7 @@
-#ifndef MAIN_MENU_HPP
-#define MAIN_MENU_HPP
-#include "../game_state.hpp"
-#include "../ui.hpp"
+#pragma once
+
+#include "client/game_state.hpp"
+#include "client/ui.hpp"
 
 class MainMenuConnectServer: public UI::Window {
 public:
@@ -14,5 +14,3 @@ public:
     UI::Input* username_inp;
     UI::Button* conn_btn;
 };
-
-#endif

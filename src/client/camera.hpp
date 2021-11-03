@@ -1,5 +1,4 @@
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#pragma once
 
 #include <glm/vec3.hpp>
 #include <glm/glm.hpp>
@@ -98,5 +97,3 @@ public:
         return std::pair<float, float> (intersection_point.x, intersection_point.y);
     };
 };
-
-#endif

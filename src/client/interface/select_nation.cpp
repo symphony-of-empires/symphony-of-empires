@@ -1,7 +1,6 @@
-#include "select_nation.hpp"
-
-#include "../game_state.hpp"
-#include "../ui.hpp"
+#include "client/interface/select_nation.hpp"
+#include "client/game_state.hpp"
+#include "client/ui.hpp"
 
 using namespace Interface;
 

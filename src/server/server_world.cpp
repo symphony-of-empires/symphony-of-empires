@@ -1,5 +1,5 @@
-#include "../diplomacy.hpp"
-#include "../policy.hpp"
+#include "diplomacy.hpp"
+#include "policy.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -11,16 +11,16 @@
 #include <libintl.h>
 #include <locale.h>
 
-#include "../province.hpp"
-#include "economy.hpp"
-#include "../world.hpp"
-#include "../binary_image.hpp"
-#include "lua_api.hpp"
-#include "../path.hpp"
-#include "../print.hpp"
-#include "../serializer.hpp"
-#include "../io_impl.hpp"
-#include "server_network.hpp"
+#include "province.hpp"
+#include "server/economy.hpp"
+#include "world.hpp"
+#include "binary_image.hpp"
+#include "server/lua_api.hpp"
+#include "path.hpp"
+#include "print.hpp"
+#include "serializer.hpp"
+#include "io_impl.hpp"
+#include "server/server_network.hpp"
 
 #if (__cplusplus < 201703L)
 namespace std {
@@ -43,7 +43,7 @@ World::World() {
     luaL_openlibs(lua);
 
     // Register our API functions
-    lua_register(lua, "_", LuaAPI::get_text);
+    lua_register(lua, "add_terrain_type", LuaAPI::add_terrain_type);
 
     lua_register(lua, "add_technology", LuaAPI::add_technology);
     lua_register(lua, "get_technology", LuaAPI::get_technology);
@@ -66,6 +66,13 @@ World::World() {
 
     lua_register(lua, "add_nation", LuaAPI::add_nation);
     lua_register(lua, "get_nation", LuaAPI::get_nation);
+
+    lua_register(lua, "get_friends_of_nation", LuaAPI::get_friends_of_nation);
+    lua_register(lua, "get_enemies_of_nation", LuaAPI::get_enemies_of_nation);
+    lua_register(lua, "get_allies_of_nation", LuaAPI::get_allies_of_nation);
+    lua_register(lua, "get_warenemies_of_nation", LuaAPI::get_warenemies_of_nation);
+    lua_register(lua, "get_embargoed_of_nation", LuaAPI::get_embargoed_of_nation);
+
     lua_register(lua, "get_provinces_owned_by_nation", LuaAPI::get_provinces_owned_by_nation);
     lua_register(lua, "get_provinces_with_nucleus_by_nation", LuaAPI::get_provinces_with_nucleus_by_nation);
     lua_register(lua, "set_nation_primary_culture", LuaAPI::set_nation_primary_culture);
@@ -123,28 +130,59 @@ World::World() {
     lua_register(lua, "add_ideology", LuaAPI::add_ideology);
     lua_register(lua, "get_ideology", LuaAPI::get_ideology);
 
-    lua_register(lua, "get_hour", LuaAPI::get_hour);
-    lua_register(lua, "get_day", LuaAPI::get_day);
-    lua_register(lua, "get_month", LuaAPI::get_month);
-    lua_register(lua, "get_year", LuaAPI::get_year);
-    lua_register(lua, "set_date", LuaAPI::set_date);
+    lua_register(lua, "get_hour", [](lua_State* L) {
+        lua_pushnumber(L, 1 + (g_world->time % 48));
+        return 1;
+    });
+    lua_register(lua, "get_day", [](lua_State* L) {
+        lua_pushnumber(L, 1 + (g_world->time / 48 % 30));
+        return 1;
+    });
+    lua_register(lua, "get_month", [](lua_State* L) {
+        lua_pushnumber(L, 1 + (g_world->time / 48 / 30 % 12));
+        return 1;
+    });
+    lua_register(lua, "get_year", [](lua_State* L) {
+        lua_pushnumber(L, g_world->time / 48 / 30 / 12);
+        return 1;
+    });
+    lua_register(lua, "set_date", [](lua_State* L) {
+        const int year = lua_tonumber(L, 1) * 12 * 30 * 48;
+        const int month = lua_tonumber(L, 2) * 30 * 48;
+        const int day = lua_tonumber(L, 3) * 48;
+        g_world->time = year + month + day;
+        return 1;
+    });
+    lua_register(lua, "_", [](lua_State* L) {
+        std::string msgid = luaL_checkstring(L, 1);
+        std::string end_msg = gettext(msgid.c_str());
+        lua_pushstring(L, end_msg.c_str());
+        return 1;
+    });
 
-    /*
     const struct luaL_Reg ideology_meta[] = {
         { "__gc", [](lua_State* L) {
+            print_info("__gc?");
             return 0;
         }},
         { "__index", [](lua_State* L) {
-            print_info("__index?");
-            return 0;
-        }},
-        { "__newindex", [](lua_State* L) {
-            Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
+            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
             std::string member = luaL_checkstring(L, 2);
             if(member == "ref_name") {
-                ideology->ref_name = luaL_checkstring(L, 3);
+                lua_pushstring(L, (*ideology)->ref_name.c_str());
             } else if(member == "name") {
-                ideology->name = luaL_checkstring(L, 3);
+                lua_pushstring(L, (*ideology)->name.c_str());
+            }
+            print_info("__index?");
+            return 1;
+        }},
+        { "__newindex", [](lua_State* L) {
+            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
+            std::string member = luaL_checkstring(L, 2);
+            if(member == "ref_name") {
+                (*ideology)->ref_name = luaL_checkstring(L, 3);
+            } else if(member == "name") {
+                (*ideology)->name = luaL_checkstring(L, 3);
             }
             print_info("__newindex?");
             return 0;
@@ -153,32 +191,41 @@ World::World() {
     };
     const luaL_Reg ideology_methods[] = {
         { "new", [](lua_State* L) {
-            Ideology* ideology = (Ideology*)lua_newuserdata(L, sizeof(Ideology));
-            ideology->ref_name = luaL_checkstring(L, 1);
-            ideology->name = luaL_checkstring(L, 2);
+            Ideology** ideology = (Ideology**)lua_newuserdata(L, sizeof(Ideology*));
+            *ideology = new Ideology();
+            luaL_setmetatable(L, "Ideology");
+
+            (*ideology)->ref_name = luaL_checkstring(L, 1);
+            (*ideology)->name = luaL_optstring(L, 2, (*ideology)->ref_name.c_str());
+
+            print_info("__new?");
             return 1;
         }},
         { "register", [](lua_State* L) {
-            Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
-            Ideology* new_ideology = new Ideology(*ideology);
-            g_world->insert(new_ideology);
+            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
+            g_world->insert(*ideology);
+            print_info("New ideology %s", (*ideology)->ref_name.c_str());
+
+            print_info("__register?");
             return 0;
         }},
         { "get", [](lua_State* L) {
-            std::string ref_name = lua_tostring(L, 2);
+            const std::string ref_name = lua_tostring(L, 1);
             auto result = std::find_if(g_world->ideologies.begin(), g_world->ideologies.end(),
             [&ref_name](const auto& o) { return (o->ref_name == ref_name); });
             if(result == g_world->ideologies.end())
                 throw LuaAPI::Exception("Ideology " + ref_name + " not found");
 
-            Ideology* ideology = (Ideology*)luaL_checkudata(L, 1, "Ideology");
-            *ideology = **result;
-            return 0;
+            Ideology** ideology = (Ideology**)lua_newuserdata(L, sizeof(Ideology*));
+            *ideology = *result;
+            luaL_setmetatable(L, "Ideology");
+
+            print_info("__get?");
+            return 1;
         }},
         { NULL, NULL }
     };
-    LuaAPI::register_new_table(lua, "Ideology", ideology_meta, ideology_methods);
-    */
+    //LuaAPI::register_new_table(lua, "Ideology", ideology_meta, ideology_methods);
 
     // Constants for ease of readability
     lua_pushboolean(lua, true);
@@ -295,20 +342,21 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files) 
 }
 
 void World::load_mod(void) {
+    BinaryImage terrain(Path::get("map_terrain.png"));
     BinaryImage topo(Path::get("map_topo.png"));
     BinaryImage div(Path::get("map_div.png"));
     BinaryImage infra(Path::get("map_infra.png"));
 
-    width = topo.width;
-    height = topo.height;
+    width = terrain.width;
+    height = terrain.height;
 
     // Check that size of all maps match
-    if(infra.width != width || infra.height != height) {
-        throw std::runtime_error("Infrastructure map size mismatch with topographic map");
-    }
-    else if(div.width != width || div.height != height) {
-        throw std::runtime_error("Province map size mismatch with topographic map");
-    }
+    if(topo.width != width || topo.height != height)
+        throw std::runtime_error("Topographic map size mismatch");
+    else if(infra.width != width || infra.height != height)
+        throw std::runtime_error("Infrastructure map size mismatch");
+    else if(div.width != width || div.height != height)
+        throw std::runtime_error("Province map size mismatch");
 
     const size_t total_size = width * height;
 
@@ -321,7 +369,8 @@ void World::load_mod(void) {
         throw std::runtime_error("Out of memory");
     }
 
-    const std::vector<std::string> init_files ={
+    const std::vector<std::string> init_files = {
+        "terrain_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "good_types", "industry_types",
         "unit_types", "boat_types", "companies", "provinces", "init"
@@ -340,11 +389,27 @@ void World::load_mod(void) {
     ideologies.shrink_to_fit();
     building_types.shrink_to_fit();
 
+    // Build a lookup table for super fast speed on finding provinces
+    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
+    print_info(gettext("Building the province lookup table"));
+    std::vector<Province::Id> province_color_table(16777216, 0);
+    std::fill(province_color_table.begin(), province_color_table.end(), (Province::Id)-1);
     for(auto& province : provinces) {
+        province_color_table[province->color & 0xffffff] = this->get_id(province);
+
+        // Also take the opportunity to set stuff
         province->max_x = std::numeric_limits<uint32_t>::min();
         province->max_y = std::numeric_limits<uint32_t>::min();
         province->min_x = std::numeric_limits<uint32_t>::max();
         province->min_y = std::numeric_limits<uint32_t>::max();
+    }
+
+    // Do the same lookup table technique but with terrain types
+    print_info(gettext("Building the terrain_type lookup table"));
+    std::vector<TerrainType::Id> terrain_color_table(16777216, 0);
+    std::fill(terrain_color_table.begin(), terrain_color_table.end(), (TerrainType::Id)-1);
+    for(const auto& terrain_type : terrain_types) {
+        terrain_color_table[terrain_type->color & 0xffffff] = this->get_id(terrain_type);
     }
 
     // Translate all div, pol and topo maps onto this single tile array
@@ -353,10 +418,8 @@ void World::load_mod(void) {
         // Set coordinates for the tiles
         tiles[i].owner_id = (Nation::Id)-1;
         tiles[i].province_id = (Province::Id)-1;
-        tiles[i].elevation = topo.buffer[i] & 0x000000ff;
-        if(topo.buffer[i] == 0xffff0000) {
-            tiles[i].elevation = sea_level + 1;
-        }
+        tiles[i].elevation = topo.buffer[i] & 0xff;
+        tiles[i].terrain_type_id = terrain_color_table[terrain.buffer[i] & 0xffffff];
 
         // Set infrastructure level
         if(infra.buffer[i] == 0xffffffff || infra.buffer[i] == 0xff000000) {
@@ -368,16 +431,6 @@ void World::load_mod(void) {
     }
 
     // Associate tiles with provinces
-
-    // Build a lookup table for super fast speed on finding provinces
-    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-    print_info(gettext("Building the province lookup table"));
-
-    std::vector<Province::Id> province_color_table(16777216, 0);
-    std::fill(province_color_table.begin(), province_color_table.end(), (Province::Id)-1);
-    for(const auto& province : provinces) {
-        province_color_table[province->color & 0xffffff] = this->get_id(province);
-    }
 
     // Uncomment this and see a bit more below
     //std::set<uint32_t> colors_found;
@@ -537,8 +590,8 @@ void World::load_mod(void) {
 #include "../actions.hpp"
 #include "economy.hpp"
 void World::do_tick() {
-    std::lock_guard<std::recursive_mutex> lock(world_mutex);
-    std::lock_guard<std::recursive_mutex> lock2(tiles_mutex);
+    std::lock_guard lock(world_mutex);
+    std::lock_guard lock2(tiles_mutex);
 
     // AI and stuff
     // Just random shit to make the world be like more alive
@@ -704,11 +757,12 @@ void World::do_tick() {
                 end_y -= speed;
             else if(unit->y < unit->ty)
                 end_y += speed;
-
+            
+            // TODO: Disallow unit from crossing on certain stuff
             // This code prevents us from stepping onto water tiles (but allows for rivers)
-            if(get_tile(end_x, end_y).elevation <= sea_level) {
-                continue;
-            }
+            //if(get_tile(end_x, end_y).elevation <= sea_level) {
+            //    continue;
+            //}
 
             unit->x = end_x;
             unit->y = end_y;
@@ -810,7 +864,7 @@ void World::do_tick() {
         if(tile.owner_id != get_id(unit->owner)) {
             tile.owner_id = get_id(unit->owner);
 
-            std::lock_guard<std::recursive_mutex> lock(nation_changed_tiles_mutex);
+            std::lock_guard lock(nation_changed_tiles_mutex);
             nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
             {
                 std::pair<size_t, size_t> coord = std::make_pair((size_t)unit->x, (size_t)unit->y);
@@ -855,27 +909,27 @@ void World::do_tick() {
         bool is_on_effect = false;
         for(const auto& clause : treaty->clauses) {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
-                auto dyn_clause = dynamic_cast<TreatyClause::WarReparations*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
             else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
-                auto dyn_clause = dynamic_cast<TreatyClause::AnexxProvince*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
             else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
-                auto dyn_clause = dynamic_cast<TreatyClause::LiberateNation*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
             else if(clause->type == TreatyClauseType::HUMILIATE) {
-                auto dyn_clause = dynamic_cast<TreatyClause::Humiliate*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
             else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
-                auto dyn_clause = dynamic_cast<TreatyClause::ImposePolicies*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
             else if(clause->type == TreatyClauseType::CEASEFIRE) {
-                auto dyn_clause = dynamic_cast<TreatyClause::Ceasefire*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
 
@@ -889,37 +943,37 @@ void World::do_tick() {
         print_info("Enforcing treaty %s", treaty->name.c_str());
         for(auto& clause : treaty->clauses) {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
-                auto dyn_clause = dynamic_cast<TreatyClause::WarReparations*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
             }
             else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
-                auto dyn_clause = dynamic_cast<TreatyClause::AnexxProvince*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
             }
             else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
-                auto dyn_clause = dynamic_cast<TreatyClause::LiberateNation*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
             }
             else if(clause->type == TreatyClauseType::HUMILIATE) {
-                auto dyn_clause = dynamic_cast<TreatyClause::Humiliate*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
             }
             else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
-                auto dyn_clause = dynamic_cast<TreatyClause::ImposePolicies*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();
             }
             else if(clause->type == TreatyClauseType::CEASEFIRE) {
-                auto dyn_clause = dynamic_cast<TreatyClause::Ceasefire*>(clause);
+                auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
                 if(!dyn_clause->in_effect())
                     goto next_iter;
                 dyn_clause->enforce();

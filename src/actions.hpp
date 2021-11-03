@@ -1,5 +1,4 @@
-#ifndef ACTIONS_H
-#define ACTIONS_H
+#pragma once
 
 #include "serializer.hpp"
 
@@ -60,5 +59,3 @@ public:
     ActionType type;
     Action(ActionType _type): type(_type) {};
 };
-
-#endif

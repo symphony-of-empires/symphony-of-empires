@@ -1,12 +1,12 @@
-#ifndef MATERIAL_HPP
-#define MATERIAL_HPP
+#pragma once
 
-#include "texture.hpp"
 #include <string>
 #include <set>
 #include <vector>
 
 #include <glm/vec3.hpp>
+
+#include "client/render/texture.hpp"
 
 namespace UnifiedRender {
     /**
@@ -30,6 +30,5 @@ namespace UnifiedRender {
         const Material& load_material(const std::string& path);
     };
 }
-extern UnifiedRender::MaterialManager* g_material_manager;
 
-#endif
+extern UnifiedRender::MaterialManager* g_material_manager;

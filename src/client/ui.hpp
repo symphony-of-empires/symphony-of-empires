@@ -14,7 +14,7 @@
 #include <SDL2/SDL_ttf.h>
 #endif
 
-#include "render/texture.hpp"
+#include "client/render/texture.hpp"
 
 enum UI_WidgetType {
     UI_WIDGET_BUTTON,
@@ -37,6 +37,9 @@ namespace UI {
         bool is_drag;
         Widget* dragged_widget;
 
+        int check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
+        int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
+        int check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y);
     public:
         Context();
         void load_textures();
@@ -46,20 +49,14 @@ namespace UI {
         void render_recursive(Widget& widget, int x_off, int y_off);
         void render_all(const int width, const int height);
 
-        int check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         void check_hover(unsigned mx, unsigned my);
-
-        int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         int check_click(unsigned mx, unsigned my);
+        void check_drag(unsigned mx, unsigned my);
+        int check_wheel(unsigned mx, unsigned my, int y);
+        void check_text_input(const char* input);
 
         int do_tick_recursive(Widget& w);
         void do_tick(void);
-
-        void check_drag(unsigned mx, unsigned my);
-
-        int check_wheel(unsigned mx, unsigned my, int y);
-
-        void check_text_input(const char* input);
 
         void clear(void);
         void clear_dead();
@@ -112,6 +109,8 @@ namespace UI {
 
         bool is_pinned = false;
         bool is_render = true;
+
+        bool is_scroll = true;
 
         // Used internally for managing widgets outside of window bounds
         bool is_show = true;
@@ -166,7 +165,7 @@ namespace UI {
     class Group: public Widget {
     public:
         Group(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        ~Group(){};
+        ~Group() {};
 
         virtual void on_render(Context& ctx);
     };

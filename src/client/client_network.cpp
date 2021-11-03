@@ -1,55 +1,48 @@
-#ifdef unix
-#	define _XOPEN_SOURCE_EXTENDED 1
-#	include <netdb.h>
-#	include <arpa/inet.h>
-#endif
-#include <sys/types.h>
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
 #include <mutex>
-/* Visual Studio does not know about UNISTD.H, Mingw does through */
+
+#ifdef unix
+#    define _XOPEN_SOURCE_EXTENDED 1
+#    include <netdb.h>
+#    include <arpa/inet.h>
+#endif
+#include <sys/types.h>
+
+// Visual Studio does not know about UNISTD.H, Mingw does through
 #ifndef _MSC_VER
-#	include <unistd.h>
+#    include <unistd.h>
 #endif
 
 #ifdef unix
 #	include <poll.h>
 #elif defined windows
-/* Allow us to use deprecated functions like inet_addr */
-#	define _WINSOCK_DEPRECATED_NO_WARNINGS
-#	include <winsock2.h>
-#	include <ws2def.h>
-#	include <ws2tcpip.h>
-/* MingW does not behave well with pollfd structures, however MSVC does */
-#	ifndef _MSC_VER
-typedef struct pollfd {
-    SOCKET fd;
-    SHORT events;
-    SHORT revents;
-} WSAPOLLFD, *PWSAPOLLFD, FAR *LPWSAPOLLFD;
-WINSOCK_API_LINKAGE int WSAAPI WSAPoll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout);
-#	endif
+// Allow us to use deprecated functions like inet_addr
+#   define _WINSOCK_DEPRECATED_NO_WARNINGS
+// MingW heavily dislikes ws2def.h and causes spurious errors
+#   ifndef __MINGW32__
+#       include <ws2def.h>
+#   endif
+#   include <winsock2.h>
+#   include <ws2tcpip.h>
+#   pragma comment(lib, "Ws2_32.lib")
 #endif
 
-#ifdef windows
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#pragma comment(lib, "Ws2_32.lib")
-#endif
-
-#include "client_network.hpp"
-#include "../actions.hpp"
-#include "../unit.hpp"
-#include "../diplomacy.hpp"
-#include "../world.hpp"
-#include "../io_impl.hpp"
+#include "actions.hpp"
+#include "unit.hpp"
+#include "diplomacy.hpp"
+#include "world.hpp"
+#include "io_impl.hpp"
+#include "client/client_network.hpp"
 
 #include <chrono>
 #include <thread>
 
 Client* g_client = nullptr;
-Client::Client(std::string host, const unsigned port) {
+Client::Client(GameState& _gs, std::string host, const unsigned port)
+    : gs{_gs}
+{
     g_client = this;
 
     // Initialize WSA
@@ -95,15 +88,17 @@ Client::Client(std::string host, const unsigned port) {
 // to establish a new connection; since the server won't hand out snapshots - wait...
 // if you need snapshots for any reason (like desyncs) you can request with ActionType::SNAPSHOT
 void Client::net_loop(void) {
+    World& world = *(gs.world);
+
     // Receive the first snapshot of the world
     {
-        g_world->world_mutex.lock();
+        world.world_mutex.lock();
         Packet packet = Packet(fd);
         packet.recv();
         Archive ar = Archive();
         ar.set_buffer(packet.data(), packet.size());
-        ::deserialize(ar, g_world);
-        g_world->world_mutex.unlock();
+        ::deserialize(ar, &world);
+        world.world_mutex.unlock();
     }
 
     {
@@ -153,7 +148,7 @@ void Client::net_loop(void) {
                 ::deserialize(ar, &action);
 
                 // Ping from server, we should answer with a pong!
-                std::lock_guard<std::recursive_mutex> lock(g_world->world_mutex);
+                std::lock_guard lock(world.world_mutex);
                 switch(action) {
                 case ActionType::PONG: {
                     packet.send(&action);
@@ -195,13 +190,12 @@ void Client::net_loop(void) {
                 case ActionType::PRODUCT_ADD: {
                     Product* product = new Product();
                     ::deserialize(ar, product);
-                    g_world->insert(product);
+                    world.insert(product);
 
                     // NOTE: The stockpile will later be synchronized on a PROVINCE_UPDATE
                     // to the actual value by the server
-                    for(auto& province: g_world->provinces) {
+                    for(auto& province : world.provinces)
                         province->stockpile.push_back(0);
-                    }
                     print_info("New product of good type %s", product->good->name.c_str());
                 } break;
                 case ActionType::PRODUCT_UPDATE: {
@@ -214,7 +208,7 @@ void Client::net_loop(void) {
                 case ActionType::PRODUCT_REMOVE: {
                     Product* product;
                     ::deserialize(ar, &product);
-                    g_world->remove(product);
+                    world.remove(product);
                 } break;
                 case ActionType::UNIT_UPDATE: {
                     Unit* unit;
@@ -226,7 +220,7 @@ void Client::net_loop(void) {
                 case ActionType::UNIT_ADD: {
                     Unit* unit = new Unit();
                     ::deserialize(ar, unit);
-                    g_world->insert(unit);
+                    world.insert(unit);
                     print_info("New unit of %s", unit->owner->name.c_str());
                 } break;
                 case ActionType::BUILDING_UPDATE: {
@@ -239,48 +233,46 @@ void Client::net_loop(void) {
                 case ActionType::BUILDING_ADD: {
                     Building* building = new Building();
                     ::deserialize(ar, building);
-                    g_world->insert(building);
+                    world.insert(building);
 
-                    if(building->get_owner(*g_world) != nullptr) {
-                        print_info("New building property of %s", building->get_owner(*g_world)->name.c_str());
-                    }
+                    if(building->get_owner() != nullptr)
+                        print_info("New building property of %s", building->get_owner()->name.c_str());
                 } break;
                 case ActionType::BUILDING_REMOVE: {
                     Building* building;
                     ::deserialize(ar, &building);
 
-                    if(building->get_owner(*g_world) != nullptr) {
-                        print_info("Remove building property of %s", building->get_owner(*g_world)->name.c_str());
-                    }
-
-                    if(building->type->is_factory == true) {
-                        building->delete_factory(*g_world);
-                    }
+                    if(building->get_owner() != nullptr)
+                        print_info("Remove building property of %s", building->get_owner()->name.c_str());
                     
-                    g_world->remove(building);
+                    world.remove(building);
                     delete building;
                 } break;
                 case ActionType::TREATY_ADD: {
                     Treaty* treaty = new Treaty();
                     ::deserialize(ar, treaty);
-                    g_world->treaties.push_back(treaty);
+                    world.treaties.push_back(treaty);
                     print_info("%s: Drafted new treaty", treaty->sender->name.c_str());
-                    for(const auto& status: treaty->approval_status) {
+                    for(const auto& status: treaty->approval_status)
                         print_info("- %s", status.first->name.c_str());
-                    }
                 } break;
                 case ActionType::WORLD_TICK: {
-                    g_world->time++;
+                    // Give up the world mutex for now
+                    world.world_mutex.unlock();
+                    //gs.update_on_tick();
+                    gs.update_tick = true;
+                    world.world_mutex.lock();
+                    world.time++;
                 } break;
                 case ActionType::TILE_UPDATE: {
                     // get_tile is already mutexed
                     std::pair<size_t, size_t> coord;
                     ::deserialize(ar, &coord.first);
                     ::deserialize(ar, &coord.second);
-                    ::deserialize(ar, &g_world->get_tile(coord.first, coord.second));
+                    ::deserialize(ar, &world.get_tile(coord.first, coord.second));
 
-                    std::lock_guard<std::recursive_mutex> lock(g_world->changed_tiles_coords_mutex);
-                    g_world->nation_changed_tiles.push_back(&g_world->get_tile(coord.first, coord.second));
+                    std::lock_guard lock(world.changed_tiles_coords_mutex);
+                    world.nation_changed_tiles.push_back(&world.get_tile(coord.first, coord.second));
                 } break;
                 case ActionType::PROVINCE_COLONIZE: {
                     Province* province;
@@ -295,7 +287,7 @@ void Client::net_loop(void) {
             }
 
             // Client will also flush it's queue to the server
-            std::lock_guard<std::mutex> lock(packet_mutex);
+            std::lock_guard lock(packet_mutex);
             while(!packet_queue.empty()) {
                 print_info("Network: sending packet");
                 Packet elem = packet_queue.front();

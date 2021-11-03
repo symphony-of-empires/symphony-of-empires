@@ -1,12 +1,10 @@
-#ifndef PROVINCE_VIEW_H
-#define PROVINCE_VIEW_H
+#pragma once
 
-#include "../../nation.hpp"
-#include "../../world.hpp"
-#include "../game_state.hpp"
-#include "../ui.hpp"
-
-#include "common.hpp"
+#include "nation.hpp"
+#include "world.hpp"
+#include "client/game_state.hpp"
+#include "client/ui.hpp"
+#include "client/interface/common.hpp"
 
 namespace Interface {
     // View information related to the population and diversity of cultures and religions
@@ -48,6 +46,8 @@ namespace Interface {
         UI::Button* econ_btn;
         ProvinceEconomyTab* econ_tab;
 
+        UI::Button* nation_btn;
+
         UI::CloseButton* close_btn;
     public:
         ProvinceView(GameState& gs, Province* province);
@@ -57,10 +57,7 @@ namespace Interface {
     class ProvinceBrief : public UI::Window {
         UI::PieChart* cultures_pie;
         UI::Chart* economy_chart;
-        
     public:
         ProvinceBrief(GameState& gs, Province* province);
     };
 };
-
-#endif

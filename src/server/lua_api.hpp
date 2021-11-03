@@ -1,5 +1,4 @@
-#ifndef LUA_H
-#define LUA_H
+#pragma once
 
 #ifdef windows
 #  include <lua.hpp>
@@ -13,7 +12,7 @@
 #include <string>
 #include <vector>
 #include <exception>
-#include "../nation.hpp"
+#include "nation.hpp"
 
 namespace LuaAPI {
     class Exception: public std::exception {
@@ -28,6 +27,8 @@ namespace LuaAPI {
     };
 
     int register_new_table(lua_State* L, const std::string& name, const luaL_Reg meta[], const luaL_Reg methods[]);
+
+    int add_terrain_type(lua_State* L);
 
     int add_invention(lua_State* L);
     int get_invention(lua_State* L);
@@ -50,6 +51,13 @@ namespace LuaAPI {
 
     int add_nation(lua_State* L);
     int get_nation(lua_State* L);
+
+    int get_friends_of_nation(lua_State* L);
+    int get_enemies_of_nation(lua_State* L);
+    int get_allies_of_nation(lua_State* L);
+    int get_warenemies_of_nation(lua_State* L);
+    int get_embargoed_of_nation(lua_State* L);
+
     int get_provinces_owned_by_nation(lua_State* L);
     int get_provinces_with_nucleus_by_nation(lua_State* L);
     int set_nation_primary_culture(lua_State* L);
@@ -108,21 +116,9 @@ namespace LuaAPI {
     int add_ideology(lua_State* L);
     int get_ideology(lua_State* L);
 
-    // Time functions
-    int get_hour(lua_State* L);
-    int get_day(lua_State* L);
-    int get_month(lua_State* L);
-    int get_year(lua_State* L);
-    int set_date(lua_State* L);
-
     // Beta functions that exist
     int add_op_province_to_company(lua_State* L);
-
-    // Translation stuff
-    int get_text(lua_State* L);
 
     // Functions not part of the API
     void check_events(lua_State* L);
 };
-
-#endif

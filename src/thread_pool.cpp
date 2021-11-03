@@ -40,7 +40,7 @@ ThreadPool::~ThreadPool() {
  * Adds a job to the list of pending jobs
  */
 void ThreadPool::add_job(std::function<void()> job) {
-    std::unique_lock<std::mutex> lock(this->job_mutex);
+    std::lock_guard lock(this->job_mutex);
     this->jobs.push(job);
 }
 
@@ -56,7 +56,7 @@ void ThreadPool::thread_loop(void) {
         // scope. We can't keep jobs queue locked while we execute a job... that
         // would be extremely dumb
         {
-            std::unique_lock<std::mutex> lock(this->job_mutex);
+            std::lock_guard lock(this->job_mutex);
 
             // If there are no available jobs for us to take, we will continue our loop
             if(this->jobs.empty())

@@ -1,5 +1,5 @@
-#ifndef BINARY_IMAGE_H
-#define BINARY_IMAGE_H
+#pragma once
+
 #include <cstdint>
 #include <cstddef>
 #include <exception>
@@ -37,5 +37,3 @@ public:
 
     virtual void from_file(const std::string& path);
 };
-
-#endif

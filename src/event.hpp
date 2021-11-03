@@ -1,5 +1,4 @@
-#ifndef EVENT_H
-#define EVENT_H
+#pragma once
 
 #include "entity.hpp"
 #include <string>
@@ -26,5 +25,3 @@ public:
     // Takes a descision by a country
     void take_descision(Nation* sender, Descision* dec);
 };
-
-#endif
