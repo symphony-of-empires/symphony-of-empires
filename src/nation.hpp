@@ -14,11 +14,10 @@
 #include "diplomacy.hpp"
 #include "event.hpp"
 #include "ideology.hpp"
+class Technology;
 
-/**
-* Defines a one side relation between a country
-* This allows for cases where a country A hates country B, but country B loves country A
- */
+// Defines a one side relation between a country
+// This allows for cases where a country A hates country B, but country B loves country A
 class NationRelation {
 public:
     float relation;
@@ -89,6 +88,8 @@ public:
     float get_tax(const Pop& pop) const;
     void give_province(Province& province);
     const NationClientHint& get_client_hint(void) const;
+    float get_research_points(void) const;
+    void change_research_focus(Technology* tech);
 
     // Nation that has us on their sphere of influence
     // This value is equal to the nation with highest influence on us in the
@@ -153,6 +154,12 @@ public:
 
     // Inbox of the nation; events that require our attention / should be processed
     std::deque<Event*> inbox;
+
+    // Progress on technologies (1:1)
+    std::vector<float> research;
+
+    // Current focused tech
+    Technology* focus_tech;
 
     // Default and can be disabled by the player
     bool is_ai = true;
