@@ -135,7 +135,7 @@ void Nation::set_policy(Policies& policies) {
                 continue;
             }
 
-            const Policies& pop_policies = pop.ideology->policies;
+            const Policies& pop_policies = pop.get_ideology()->policies;
 
             // Disapproval of old (current) policy
             const int old_disapproval = current_policy.difference(pop_policies);

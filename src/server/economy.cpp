@@ -748,9 +748,12 @@ void Economy::do_tick(World& world) {
                 // almost never do coups - in comparasion to uneducated
                 // peseants, rich people don't need to protest!
                 const float anger = (pop.militancy * pop.con) / std::max(pop.literacy, 1.f) / std::max(pop.life_needs_met, 0.f);
-
                 total_anger += anger;
-                ideology_anger[world.get_id(pop.ideology)] += anger;
+
+                for(const auto& ideology : world.ideologies) {
+                    uint idx = world.get_id(ideology);
+                    ideology_anger[idx] += pop.ideology_approval[idx] * anger;
+                }
             }
         }
 
