@@ -17,6 +17,7 @@
 #include "render/texture.hpp"
 #include "camera.hpp"
 #include "render/primitive.hpp"
+#include "render/quad_2d.hpp"
 #include "render/shader.hpp"
 #include "render/texture_array.hpp"
 #include "game_state.hpp"
@@ -35,18 +36,19 @@ public:
 
     UnifiedRender::Texture* div_topo_tex;
     UnifiedRender::Texture* div_sheet_tex;
+    UnifiedRender::Texture* border_tex;
     const UnifiedRender::Texture* water_tex;
     const UnifiedRender::Texture* noise_tex;
     const UnifiedRender::Texture* topo_tex;
     const UnifiedRender::Texture* terrain_tex;
-    const UnifiedRender::Texture* border_tex;
     // const UnifiedRender::Texture* terrain_sheet;
     UnifiedRender::TextureArray* terrain_sheet;
     UnifiedRender::OpenGl::PrimitiveSquare* map_quad;
-    UnifiedRender::OpenGl::Program* map_shader, * obj_shader, * border_shader;
+    UnifiedRender::OpenGl::Quad2D* map_2d_quad;
+    UnifiedRender::OpenGl::Program* map_shader, * obj_shader, * border_sdf_shader, * border_gen_shader;
     const UnifiedRender::Texture* overlay_tex;
     GLuint coastline_gl_list;
-    GLuint frame_buffer;
+    GLuint frame_buffer, border_fbuffer;
 
     void update(World& world);
     void draw_flag(const Nation* nation);

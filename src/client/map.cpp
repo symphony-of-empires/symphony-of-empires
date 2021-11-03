@@ -23,6 +23,7 @@ Map::Map(const World& _world): world(_world) {
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
     if(glewIsSupported("GL_VERSION_2_1")) {
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
+        map_2d_quad = new UnifiedRender::OpenGl::Quad2D();
         water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         topo_tex = &g_texture_manager->load_texture(Path::get("map_topo.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
@@ -30,15 +31,26 @@ Map::Map(const World& _world): world(_world) {
         terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
         terrain_sheet->to_opengl();
         {
-            auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
-            auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/map.fs");
-            map_shader = new UnifiedRender::OpenGl::Program(vs, fs);
+            auto vs = UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
+            auto fs = UnifiedRender::OpenGl::FragmentShader("shaders/map.fs");
+            map_shader = new UnifiedRender::OpenGl::Program(&vs, &fs);
         }
 
         {
-            auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/simple_model.vs");
-            auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/simple_model.fs");
-            obj_shader = new UnifiedRender::OpenGl::Program(vs, fs);
+            auto vs = UnifiedRender::OpenGl::VertexShader("shaders/simple_model.vs");
+            auto fs = UnifiedRender::OpenGl::FragmentShader("shaders/simple_model.fs");
+            obj_shader = new UnifiedRender::OpenGl::Program(&vs, &fs);
+        }
+
+        {
+            auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/2d_shader.vs");
+            auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/border_gen.fs");
+            border_gen_shader = new UnifiedRender::OpenGl::Program(vs, fs);
+        }
+        {
+            auto vs = new UnifiedRender::OpenGl::VertexShader("shaders/2d_shader.vs");
+            auto fs = new UnifiedRender::OpenGl::FragmentShader("shaders/border_gen.fs");
+            border_sdf_shader = new UnifiedRender::OpenGl::Program(vs, fs);
         }
     }
 
@@ -93,11 +105,33 @@ Map::Map(const World& _world): world(_world) {
     glGenFramebuffers(1, &frame_buffer);
     glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, div_topo_tex->gl_tex_num, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, topo_tex->gl_tex_num, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         print_info("Frame buffer error");
+
+    border_tex = new UnifiedRender::Texture(world.width, world.height);
+    border_tex->to_opengl(GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+
+    glGenFramebuffers(1, &border_fbuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, border_fbuffer);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, border_tex->gl_tex_num, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        print_info("Frame buffer error");
+
+    glBindFramebuffer(GL_FRAMEBUFFER, border_fbuffer);
+    glViewport(0, 0, div_topo_tex->width, div_topo_tex->height);
+    border_gen_shader->use();
+    border_gen_shader->set_uniform("map_size", (float)div_topo_tex->width, (float)div_topo_tex->height);
+    border_gen_shader->set_uniform("tile_map", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, div_topo_tex->gl_tex_num);
+    map_2d_quad->draw();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 std::vector<std::pair<Province::Id, uint32_t>> population_map_mode(std::vector<Province*> provinces, World* world) {
@@ -160,7 +194,7 @@ void Map::update_borders() {
     // Jump flooding iterations
     while(step >= 1) {
 
-        border_shader->set_uniform("step", (float)step);
+        border_sdf_shader->set_uniform("step", (float)step);
 
         if(readingAttach0 == true) {
             // Set rendering destination to second set of buffers
@@ -427,6 +461,9 @@ void Map::draw(Camera& cam, const int width, const int height) {
     map_shader->set_uniform("terrain_sheet", 6);
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D_ARRAY, terrain_sheet->gl_tex_num);
+    map_shader->set_uniform("border_tex", 7);
+    glActiveTexture(GL_TEXTURE7);
+    glBindTexture(GL_TEXTURE_2D, border_tex->gl_tex_num);
     map_quad->draw();
 
     // TODO: We need to better this

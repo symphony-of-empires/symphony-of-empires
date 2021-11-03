@@ -15,6 +15,7 @@ uniform sampler2D noise_texture;
 uniform sampler2D topo_texture;
 uniform sampler2D terrain_texture;
 uniform sampler2DArray terrain_sheet;
+uniform sampler2D border_tex;
 
 // https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
 vec4 noTiling(sampler2D tex, vec2 uv) {
@@ -85,6 +86,11 @@ vec2 getBorder(vec2 texcoord) {
 	vec4 provienceLD = texture(tile_map, mPos + pix * vec2(0.25, 0.75)).xyzw;
 	vec4 provienceRU = texture(tile_map, mPos + pix * vec2(0.75, 0.25)).xyzw;
 	vec4 provienceRD = texture(tile_map, mPos + pix * vec2(0.75, 0.75)).xyzw;
+	// vec2 mPos = texcoord - mod(texcoord, pix);
+	// vec4 provienceLU = texture(tile_map, mPos + pix * vec2(-0.25, -0.25)).xyzw;
+	// vec4 provienceLD = texture(tile_map, mPos + pix * vec2(-0.25, 0.25)).xyzw;
+	// vec4 provienceRU = texture(tile_map, mPos + pix * vec2(0.25, -0.25)).xyzw;
+	// vec4 provienceRD = texture(tile_map, mPos + pix * vec2(0.25, 0.25)).xyzw;
 	vec2 x0 = sum(provienceLU - provienceRU);
 	vec2 x1 = sum(provienceLD - provienceRD);
 	vec2 y0 = sum(provienceLU - provienceLD);
@@ -184,8 +190,25 @@ void main() {
 	out_colour = mix(out_colour, mountain, height * height * 1.5 + 0.2);
 
 	vec2 borders = getBorder(tex_coords);
-	out_colour = mix(out_colour, province_border, borders.x);
-	out_colour = mix(out_colour, country_border, borders.y);
+	// out_colour = mix(out_colour, province_border, borders.x);
+	// out_colour = mix(out_colour, country_border, borders.y);
+
+	vec2 pix = vec2(1.0) / map_size;
+	float xx = pix.x;
+	float yy = pix.y;
+	vec2 scaling = mod(tex_coords, pix) / pix;
+
+	vec4 color_00 = texture(border_tex, tex_coords + 0.5 * vec2(-xx, -yy));
+	vec4 color_01 = texture(border_tex, tex_coords + 0.5 * vec2(-xx, yy));
+	vec4 color_10 = texture(border_tex, tex_coords + 0.5 * vec2(xx, -yy));
+	vec4 color_11 = texture(border_tex, tex_coords + 0.5 * vec2(xx, yy));
+
+	vec4 color_x0 = mix(color_00, color_10, scaling.x);
+	vec4 color_x1 = mix(color_01, color_11, scaling.x);
+
+	float bDist = mix(color_x0, color_x1, scaling.y).x;
+	// float bDist = texture(border_tex, tex_coords).x;
+	out_colour = mix(out_colour, province_border, max(0., 10. * bDist - 9.));
 
 	const vec2 size = vec2(2.0, 0.0);
 	const ivec3 off = ivec3(-1, 0, 1);
@@ -209,4 +232,5 @@ void main() {
 	vec3 ambient = 0.1 * out_colour.xyz;
 
 	f_frag_colour = vec4(diffuse + ambient, 1.);
+	// f_frag_colour = texture(border_tex, v_texcoord);
 }
