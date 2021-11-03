@@ -29,15 +29,16 @@ void UnifiedRender::Texture::to_opengl(GLuint wrap, GLuint min_filter, GLuint ma
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
-    if(glewIsSupported("GL_VERSION_2_1"))
-        glGenerateMipmap(GL_TEXTURE_2D);
-    else
-        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
+}
+
+void UnifiedRender::Texture::gen_mipmaps() const {
+    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 /**

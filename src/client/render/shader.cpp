@@ -97,13 +97,13 @@ void Program::set_uniform(const std::string& name, int value) const {
     glUniform1i(glGetUniformLocation(id, name.c_str()), value);
 }
 
-void Program::set_texture(int value, const std::string& name, UnifiedRender::Texture* texture) const {
+void Program::set_texture(int value, const std::string& name, const UnifiedRender::Texture* texture) const {
     set_uniform(name, value);
     glActiveTexture(GL_TEXTURE0 + value);
     glBindTexture(GL_TEXTURE_2D, texture->gl_tex_num);
 }
 
-void Program::set_texture(int value, const std::string& name, UnifiedRender::TextureArray* texture) const {
+void Program::set_texture(int value, const std::string& name, const UnifiedRender::TextureArray* texture) const {
     set_uniform(name, value);
     glActiveTexture(GL_TEXTURE0 + value);
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture->gl_tex_num);
