@@ -53,7 +53,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         float militancy = 0.f, con = 0.f;
         for(const auto& province : o.gs.curr_nation->owned_provinces) {
             for(const auto& pop : province->pops) {
-                ideology_data[world.get_id(pop.ideology)].num += pop.size;
+                ideology_data[world.get_id(pop.get_ideology())].num += pop.size;
                 militancy += pop.militancy;
                 con += pop.con;
             }
