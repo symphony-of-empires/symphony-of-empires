@@ -11,6 +11,7 @@ uniform vec2 map_size;
 uniform sampler2D tile_map;
 uniform sampler2D tile_sheet;
 uniform sampler2D water_texture;
+uniform sampler2D topo_texture;
 uniform sampler2D noise_texture;
 uniform sampler2D terrain_texture;
 uniform sampler2DArray terrain_sheet;
@@ -191,9 +192,9 @@ void main() {
 	vec4 out_colour = mix(ground, prov_colour, 0.8 * step(coord.a, 0.01) * prov_colour.a);
 	out_colour = mix(out_colour, mountain, height * height * 1.5 + 0.2);
 
-	vec2 borders = getBorder(tex_coords);
-	// out_colour = mix(out_colour, province_border, borders.x);
-	// out_colour = mix(out_colour, country_border, borders.y);
+	vec2 borders = get_border(tex_coords);
+	out_colour = mix(out_colour, province_border, borders.x);
+	out_colour = mix(out_colour, country_border, borders.y);
 
 	vec2 pix = vec2(1.0) / map_size;
 	float xx = pix.x;
@@ -210,7 +211,7 @@ void main() {
 
 	float bDist = mix(color_x0, color_x1, scaling.y).x;
 	// float bDist = texture(border_tex, tex_coords).x;
-	out_colour = mix(out_colour, province_border, max(0., 10. * bDist - 9.));
+	// out_colour = mix(out_colour, province_border, max(0., 10. * bDist - 9.));
 
 	const vec2 size = vec2(2.0, 0.0);
 	const ivec3 off = ivec3(-1, 0, 1);
