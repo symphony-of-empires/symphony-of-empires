@@ -404,7 +404,7 @@ void start_client(int argc, char** argv) {
     int width = 1280, height = 800;
     GameState gs{ Camera(width, height) };
 
-    window = SDL_CreateWindow("Symphony of Empires", 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_SetSwapInterval(1);  // Enable OpenGL VSYNC
     print_info("OpenGL Version: %s", glGetString(GL_VERSION));
