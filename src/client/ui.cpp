@@ -64,8 +64,7 @@ void Context::add_widget(Widget* widget) {
 
 void Context::remove_widget(Widget* widget) {
     for(size_t i = 0; i < widgets.size(); i++) {
-        if(widgets[i] != widget)
-            continue;
+        if(widgets[i] != widget) continue;
 
         widgets.erase(widgets.begin() + i);
         break;
@@ -109,8 +108,7 @@ void Context::clear_dead() {
 // }
 
 void Context::render_recursive(Widget& w, int x_off, int y_off) {
-    if(!w.width || !w.height)
-        return;
+    if(!w.width || !w.height) return;
 
     x_off += w.x;
     y_off += w.y;
@@ -156,8 +154,7 @@ int Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsig
 
     w.is_hover = false;
 
-    if(!w.is_show)
-        return 0;
+    if(!w.is_show) return 0;
 
     if(!((int)mx >= x_off && mx <= x_off + w.width && (int)my >= y_off && my <= y_off + w.height))
         return 0;
@@ -314,6 +311,9 @@ void Context::do_tick(void) {
 }
 
 int Context::do_tick_recursive(Widget& w) {
+    // Do not evaluate widgets that are not even rendered
+    if(!w.is_render) return 0;
+
     if(w.on_each_tick) w.on_each_tick(w, w.user_data);
 
     for(auto& child : w.children) {
@@ -360,14 +360,10 @@ void Widget::on_render(Context& ctx) {
     }
 
     glColor3f(1.f, 1.f, 1.f);
-    if(on_click && is_hover) {
-        glColor3f(0.5f, 0.5f, 0.5f);
-    }
 
     // Background (tile) display
     if(type == UI_WIDGET_INPUT) {
         glBindTexture(GL_TEXTURE_2D, 0);
-
         glColor3f(0.f, 0.f, 1.f);
         glBegin(GL_TRIANGLES);
         glVertex2f(0.f, 0.f);
@@ -414,6 +410,7 @@ void Widget::on_render(Context& ctx) {
 
     if(type == UI_WIDGET_BUTTON) {
         const size_t padding = 4;
+
         // Put a "grey" inner background
         glBindTexture(GL_TEXTURE_2D, ctx.button->gl_tex_num);
         glBegin(GL_TRIANGLES);
@@ -458,6 +455,20 @@ void Widget::on_render(Context& ctx) {
             4, 4,
             text_texture->width, text_texture->height,
             text_texture->gl_tex_num);
+    }
+
+    // Semi-transparent overal over elements which can be selected
+    if(on_click && is_hover) {
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glColor4f(1.5f, 1.f, 1.f, 0.5f);
+        glBegin(GL_TRIANGLES);
+        glVertex2f(0.f, 0.f);
+        glVertex2f(width, 0.f);
+        glVertex2f(width, height);
+        glVertex2f(width, height);
+        glVertex2f(0.f, height);
+        glVertex2f(0.f, 0.f);
+        glEnd();
     }
 }
 
