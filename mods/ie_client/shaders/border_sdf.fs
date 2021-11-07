@@ -4,48 +4,67 @@ out vec4 f_frag_colour;
 
 in vec2 v_texcoord;
 
-uniform float step;
-uniform sampler2D tex0;
+uniform vec2 map_size;
+uniform float jump;
+uniform sampler2D tex;
+
+float get_dist(vec2 v1_coord, vec2 v2_coord) {
+	vec2 xy_diff = (v1_coord - v2_coord) * map_size;
+	return dot(xy_diff, xy_diff);
+}
+
+vec4 fetch_pixel(vec2 coords) {
+	int pixelX = int(coords.x * map_size.x);  
+	int pixelY = int(coords.y * map_size.y);
+
+	vec2 uv = (vec2(pixelX, pixelY) + .5) / map_size;
+	return texture(tex, uv);
+}
 
 void main() {
-	vec4 fragData0;
-	vec4 neighbor0;
+	vec2 pix = 1./map_size;
+	vec3 j_vec = vec3(-jump, 0, jump);
+	vec2 m_coord = v_texcoord;
+
 	vec2 nCoord[8];
+	nCoord[0] = m_coord + j_vec.xx * pix;
+	nCoord[1] = m_coord + j_vec.xy * pix;
+	nCoord[2] = m_coord + j_vec.xz * pix;
+	nCoord[3] = m_coord + j_vec.yx * pix;
+	nCoord[4] = m_coord + j_vec.yz * pix;
+	nCoord[5] = m_coord + j_vec.zx * pix;
+	nCoord[6] = m_coord + j_vec.zy * pix;
+	nCoord[7] = m_coord + j_vec.zz * pix;
+
+	vec4 m_frag_data = fetch_pixel(m_coord);
+	// if (jump < 129) {
+	// 	f_frag_colour = m_frag_data;
+	// 	return;
+	// }
+		
 
 	float dist = 0.0;
-	float newDist;
-	int i;
+	if(m_frag_data.z > 0.0)
+		dist = get_dist(m_frag_data.xy, m_coord);
 
-	nCoord[0] = vec2(gl_FragCoord.s - step, gl_FragCoord.t - step);
-	nCoord[1] = vec2(gl_FragCoord.s, gl_FragCoord.t - step);
-	nCoord[2] = vec2(gl_FragCoord.s + step, gl_FragCoord.t - step);
-	nCoord[3] = vec2(gl_FragCoord.s - step, gl_FragCoord.t);
-	nCoord[4] = vec2(gl_FragCoord.s + step, gl_FragCoord.t);
-	nCoord[5] = vec2(gl_FragCoord.s - step, gl_FragCoord.t + step);
-	nCoord[6] = vec2(gl_FragCoord.s, gl_FragCoord.t + step);
-	nCoord[7] = vec2(gl_FragCoord.s + step, gl_FragCoord.t + step);
-
-	fragData0 = texture2DRect(tex0, gl_FragCoord.st);
-
-	if(fragData0.a == 1.0)
-		dist = (fragData0.r - gl_FragCoord.s) * (fragData0.r - gl_FragCoord.s) + (fragData0.g - gl_FragCoord.t) * (fragData0.g - gl_FragCoord.t);
-
-	for(i = 0; i < 8; ++i) {
-		if(nCoord[i].s < 0.0 || nCoord[i].s >= width || nCoord[i].t < 0.0 || nCoord[i].t >= height)
+	for(int i = 0; i < 8; ++i) {
+		if(nCoord[i].y < 0.0 || nCoord[i].y >= 1.)
 			continue;
 
-		neighbor0 = texture2DRect(tex0, nCoord[i]);
+		vec4 neighbor = fetch_pixel(nCoord[i]);
 
-		if(neighbor0.a != 1.0)
+		if(neighbor.z == 0.0)
 			continue;
 
-		newDist = (neighbor0.r - gl_FragCoord.s) * (neighbor0.r - gl_FragCoord.s) + (neighbor0.g - gl_FragCoord.t) * (neighbor0.g - gl_FragCoord.t);
+		float newDist = get_dist(neighbor.xy, m_coord);
 
-		if(fragData0.a != 1.0 || newDist < dist) {
-			fragData0 = neighbor0;
+		if(m_frag_data.z == 0.0 || newDist < dist) {
+			float d = 1. - sqrt(newDist) / (8. * sqrt(2.));
+			d = max(d, 0.00001);
+			m_frag_data.z = d;
+			m_frag_data.xy = neighbor.xy;
 			dist = newDist;
 		}
 	}
-
-	f_frag_colour = fragData0;
+	f_frag_colour = m_frag_data;
 }

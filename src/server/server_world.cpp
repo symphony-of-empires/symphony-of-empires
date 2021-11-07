@@ -439,7 +439,19 @@ void World::load_mod(void) {
         const uint32_t color = div.buffer[i];
 
         // This "skip the empty stuff" technique works!
-        while(i < total_size && (div.buffer[i] == 0xffffffff || div.buffer[i] == 0xff000000)) {
+        while(i < total_size && (div.buffer[i] == 0xffffffff || div.buffer[i] == 0xff000000 || div.buffer[i] == 0xffff00ff)) {
+            if (div.buffer[i] == 0xffff00ff) {
+                // The inland water is set to the maximum province id
+                // The border generating shader ignores provinces with id 0xfffe
+                // This is to make sure we dont draw any border with lakes
+                tiles[i].province_id = (Province::Id)-2;
+            } else if (div.buffer[i] == 0xff000000) {
+                // Temporary to show unregsitered provinces
+                tiles[i].province_id = (Province::Id)-3;
+            }
+            if (div.buffer[i] == 0xff000000) {
+                tiles[i].owner_id = (Nation::Id)-2;
+            }
             ++i;
         }
 
@@ -447,7 +459,7 @@ void World::load_mod(void) {
             break;
 
         const Province::Id province_id = province_color_table[div.buffer[i] & 0xffffff];
-        if(province_id == (Province::Id)-1) {
+        if(province_id >= (Province::Id)-3) {
             // Uncomment this and see below
             //colors_found.insert(color);
             continue;
@@ -485,7 +497,7 @@ void World::load_mod(void) {
     for(size_t j = 0; j < height; j++) {
         for(size_t i = 0; i < width; i++) {
             Tile& tile = get_tile(i, j);
-            if(tile.province_id == (Province::Id)-1)
+            if(tile.province_id >= (Province::Id)-3)
                 continue;
 
             Province* province = provinces[tile.province_id];
@@ -531,23 +543,23 @@ void World::load_mod(void) {
     for(size_t i = 0; i < total_size; i++) {
         const Tile* tile = &this->tiles[i];
         const Tile* other_tile;
-        if(tile->owner_id != (Nation::Id)-1) {
+        if(tile->owner_id < (Nation::Id)-2) {
             Nation* nation = this->nations[this->tiles[i].owner_id];
             const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
 
             for(const auto& other_tile: tiles) {
-                if(other_tile->owner_id != tile->owner_id && other_tile->owner_id != (Nation::Id)-1) {
+                if(other_tile->owner_id != tile->owner_id && other_tile->owner_id < (Nation::Id)-2) {
                     nation->neighbours.insert(this->nations.at(other_tile->owner_id));
                 }
             }
         }
 
-        if(tile->province_id != (Province::Id)-1) {
+        if(tile->province_id < (Province::Id)-3) {
             Province* province = this->provinces[this->tiles[i].province_id];
             const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
 
             for(const auto& other_tile: tiles) {
-                if(other_tile->province_id != tile->province_id && other_tile->province_id != (Province::Id)-1) {
+                if(other_tile->province_id != tile->province_id && other_tile->province_id < (Province::Id)-3) {
                     province->neighbours.insert(this->provinces.at(other_tile->province_id));
                 }
             }
@@ -753,7 +765,7 @@ void World::do_tick() {
         }
 
         // Unit is on a non-wasteland part of the map
-        if(get_tile(unit->x, unit->y).province_id != (Province::Id)-1) {
+        if(get_tile(unit->x, unit->y).province_id < (Province::Id)-3) {
             Province* province = provinces[get_tile(unit->x, unit->y).province_id];
             const Nation* nation = province->owner;
             bool free_supplies = false;

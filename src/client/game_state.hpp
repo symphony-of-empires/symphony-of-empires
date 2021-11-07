@@ -8,6 +8,7 @@
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/interface/select_nation.hpp"
+#include "client/interface/map_dev_view.hpp"
 #include "client/interface/top_window.hpp"
 #include "serializer.hpp"
 #include "client/map.hpp"

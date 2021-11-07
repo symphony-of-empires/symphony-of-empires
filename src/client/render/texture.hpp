@@ -37,12 +37,14 @@ namespace UnifiedRender {
     class Texture : public BinaryImage {
     public:
         Texture() {};
+        ~Texture() override;
         Texture(const std::string& path) : BinaryImage(path) {};
         Texture(size_t _width, size_t _height) : BinaryImage(_width, _height) {};
 
-        GLuint gl_tex_num;
+        GLuint gl_tex_num = 0;
         void create_dummy();
         void to_opengl(GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
+        void to_opengl_test(GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
         void gen_mipmaps() const;
         void bind(void) const;
         void delete_opengl();

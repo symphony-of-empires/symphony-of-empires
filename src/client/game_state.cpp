@@ -52,6 +52,7 @@
 #include "client/interface/top_window.hpp"
 #include "client/interface/province_view.hpp"
 #include "client/interface/treaty.hpp"
+#include "client/interface/map_dev_view.hpp"
 #include "client/map.hpp"
 #include "client/render/material.hpp"
 #include "client/render/model.hpp"
@@ -335,6 +336,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
     gs.select_nation = new Interface::SelectNation(gs);
+    new MapDevView(gs.map);
 
     std::vector<Event*> displayed_events;
     std::vector<Treaty*> displayed_treaties;

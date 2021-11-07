@@ -16,6 +16,8 @@ uniform sampler2D noise_texture;
 uniform sampler2D terrain_texture;
 uniform sampler2DArray terrain_sheet;
 uniform sampler2D border_tex;
+uniform sampler2D border_sdf;
+uniform sampler2D map_color;
 
 // https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
 vec4 noTiling(sampler2D tex, vec2 uv) {
@@ -74,7 +76,8 @@ vec2 sum(vec4 v) {
 	return vec2(provinceDiff, countryDiff);
 }
 
-vec2 get_border(vec2 texcoord) {
+
+vec3 get_border(vec2 texcoord) {
 	// Pixel size on map texture
 	vec2 pix = vec2(1.0) / map_size;
 
@@ -106,46 +109,51 @@ vec2 get_border(vec2 texcoord) {
 
 	vec2 xBorder2 = mix(x0, x1, scaling.y);
 	vec2 yBorder2 = mix(y0, y1, scaling.x);
-	vec2 diff = x0 * y0 + y0 * x1 + x1 * y1 + y1 * x0;
-	diff = step(3, mod(diff + 2, 4)); // Is diag border
+	vec2 is_diag = x0 * y0 + y0 * x1 + x1 * y1 + y1 * x0;
+	is_diag = step(3, mod(is_diag + 2, 4)); // Is diag border
 	vec2 borderDiag = min((xBorder2 + yBorder2) - 1.0, 2. - (xBorder2 + yBorder2));
 
 	vec2 middle = step(0.5, x0 + y0 + x1 + y1) * min(test.x, test.y);
 
 	vec2 border = max(xBorder * test.x, yBorder * test.y);
 	border = max(border, middle);
-	border = mix(border, borderDiag * 2., diff);
+	border = mix(border, borderDiag * 2., is_diag);
+	is_diag *= border.x + 0.53;
 
 	border = clamp(border, 0., 1.);
 	border.x *= border.x * 0.5;
 	border.y *= border.y * 1.2;
 	vec2 tiled = step(pix, mod(texcoord + pix * 0.5, pix * 2));
 	border.y *= (tiled.x + tiled.y) * (2. - (tiled.x + tiled.y));
-	return border;
+	return vec3(border, is_diag);
 }
 
 vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
+	const float height_scale = 0.002;
+
 	// number of depth layers
 	const float minLayers = 8;
-	const float maxLayers = 32;
+	const float maxLayers = 64;
 	float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), view_dir)));  
     // calculate the size of each layer
 	float layerDepth = 1.0 / numLayers;
     // depth of current layer
 	float currentLayerDepth = 0.0;
     // the amount to shift the texture coordinates per layer (from vector P)
-	vec2 P = view_dir.xy / view_dir.z * 0.005;
+	vec2 P = view_dir.xy / view_dir.z * height_scale;
 	vec2 deltaTexCoords = P / numLayers;
 
     // get initial values
 	vec2 currentTexCoords = tex_coords;
 	float currentDepthMapValue = texture(topo_texture, tex_coords).x;
+	// currentDepthMapValue = (currentDepthMapValue - .5) * 2.;
 
 	while(currentLayerDepth < currentDepthMapValue) {
         // shift texture coordinates along direction of P
 		currentTexCoords -= deltaTexCoords;
         // get depthmap value at current texture coordinates
 		currentDepthMapValue = texture(topo_texture, currentTexCoords).x;  
+		// currentDepthMapValue = (currentDepthMapValue - .5) * 2.;
         // get depth of next layer
 		currentLayerDepth += layerDepth;
 	}
@@ -164,13 +172,22 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
 	return finalTexCoords;
 }
 
+float isLake(vec2 id) {
+	return round(id * 255.) == vec2(254, 255) ? 1. : 0.;
+}
+float isOcean(vec2 id) {
+	return round(id * 255.) == vec2(253, 255) ? 1. : 0.;
+}
+
 void main() {
 	const vec4 land = vec4(0., 0.7, 0., 1.);
 	const vec4 province_border = vec4(0., 0., 0., 1.);
 	const vec4 country_border = vec4(0.8, 0., 0., 1.);
 	const vec4 mountain = vec4(0., 0., 0., 1.);
 	const vec4 water_col = vec4(0.06, 0.39, 0.75, 1.);
+	vec2 pix = vec2(1.0) / map_size;
 
+	// Heightmapping
 	vec3 view_dir = normalize(view_pos - v_frag_pos);
 	vec2 tex_coords = parallax_map(v_texcoord, view_dir);
 	// vec2 tex_coords = v_texcoord;
@@ -181,29 +198,58 @@ void main() {
 	water = mix(water, water_col * 0.7, 0.7);
 	// water.rgb = water.rgb * 1.2 - 0.4;
 
-	vec4 terrain_color = get_terrain_mix(tex_coords);
+	vec2 gSize = pix * 1.2;
+	// float distToMap = 4.-abs(view_pos.z)*0.002;
+	vec2 gNumber = vec2(25., 25.);
+	gNumber = 1./(gNumber+1.);
+	vec2 gEdge = gNumber;
+	vec2 gCoord = abs(gNumber * .5 - mod(tex_coords + gNumber * 0.5, gNumber));
+	vec2 grid = smoothstep(gSize, vec2(0), gCoord);
+	float g = max(grid.x, grid.y);
+	water = mix(water, vec4(0, 0, 0, 1), g * 0.2);
 
-	//float height = texture(topo_texture, v_texcoord).x;
-	const float height = 0.;
+	// vec4 terrain_color = get_terrain_mix(tex_coords);
+	vec4 terrain_color = texture(map_color, tex_coords);
 
-	vec4 coord = texture(tile_map, tex_coords).rgba;
-	vec4 ground = mix(water, terrain_color, step(0.08, height));
+	vec3 borders_diag = get_border(tex_coords);
+	vec2 borders = borders_diag.xy;
+	float diag = borders_diag.z;
+	borders.x = smoothstep(0., 1., borders.x);
+
+	float height = texture(topo_texture, tex_coords).x;
+	// float height = 0.;
+
+
+	vec2 mOff = mod(tex_coords + 0.5 * pix, pix) - 0.5 * pix;
+	vec2 dOff = mOff / pix;
+	float far = 1.-step(0.5, abs(dOff.x) + abs(dOff.y));
+	vec2 diag_coord = tex_coords;
+	diag_coord -= mOff * 2.;
+	diag_coord = mix(tex_coords, diag_coord, diag * far);
+	// vec2 test = 0.5 * pix - mod(tex_coords, pix);
+	// diag_coord += test;
+	// vec2 offV = diag_coord - tex_coords;
+	// float use = step(0.5 * pix.x, abs(test.x) + abs(test.y) * pix.x / pix.y);
+	// diag_coord -= test * 2. * use * diag;
+	// diag_coord += test;
+	// diag_coord -= sign(test) * pix * 0.5 + test;
+	// diag_coord += 2. * test ;
+	// diag_coord += pix * 0.5;
+	// diag_coord += pix;
+	vec4 coord = texture(tile_map, diag_coord).rgba;
+	float isEmpty = step(coord.a, 0.01);
 	vec4 prov_colour = texture(tile_sheet, coord.rg);
-	vec4 out_colour = mix(ground, prov_colour, 0.8 * step(coord.a, 0.01) * prov_colour.a);
-	out_colour = mix(out_colour, mountain, height * height * 1.5 + 0.2);
+	terrain_color = mix(terrain_color, water, isLake(coord.xy));
+	vec4 ground = mix(terrain_color, water, isOcean(coord.xy) + isLake(coord.xy));
+	vec4 out_colour = mix(ground, prov_colour * 1.2, 0.5 * (1.-isOcean(coord.xy)) * (1.-isLake(coord.xy)));
+	// out_colour = mix(out_colour, mountain, height * height);
 
-	vec2 borders = get_border(tex_coords);
-	out_colour = mix(out_colour, province_border, borders.x);
-	out_colour = mix(out_colour, country_border, borders.y);
+	// out_colour = mix(out_colour, country_border, borders.y);
 
-	vec2 pix = vec2(1.0) / map_size;
 	float xx = pix.x;
 	float yy = pix.y;
 	vec2 scaling = mod(tex_coords, pix) / pix;
 
-	vec2 grid = step(pix , mod(tex_coords, pix * 2.));
-	float g = max(grid.x, grid.y);
-	out_colour = mix(out_colour, vec4(0, 0, 0, 1), g);
 
 	vec4 color_00 = texture(border_tex, tex_coords + 0.5 * vec2(-xx, -yy));
 	vec4 color_01 = texture(border_tex, tex_coords + 0.5 * vec2(-xx, yy));
@@ -216,11 +262,18 @@ void main() {
 	float bDist = mix(color_x0, color_x1, scaling.y).x;
 	// float bDist = texture(border_tex, tex_coords).x;
 	// out_colour = mix(out_colour, province_border, max(0., 10. * bDist - 9.));
+	float bSdf = texture2D(border_sdf, tex_coords + pix * 0.25).z;
+	if (isOcean(coord.xy) == 1.) {
+		bSdf = sin(bSdf * 40.) * bSdf;  
+		prov_colour = vec4(0.);
+	}
+	out_colour = mix(out_colour, prov_colour * 1.2, clamp(bSdf, 0., 1.));
+	out_colour = mix(out_colour, province_border, borders.x);
 
 	const vec2 size = vec2(2.0, 0.0);
 	const ivec3 off = ivec3(-1, 0, 1);
 
-	float steep = 4.;
+	float steep = 16.;
 	// tex_coords = v_texcoord;
 	vec4 wave = texture(topo_texture, tex_coords);
 	float s11 = steep * wave.x;
@@ -239,8 +292,5 @@ void main() {
 	vec3 ambient = 0.1 * out_colour.xyz;
 
 	f_frag_colour = vec4(diffuse + ambient, 1.);
-	float bLod = texture2DLod(border_tex, v_texcoord, 0.5).x;
-	bLod = step(0.55, bLod);
-	f_frag_colour = vec4(bLod, 0, 0, 1.);
-	// f_frag_colour = mix(f_frag_colour, vec4(0, 0, 0, 1), g);
+	// f_frag_colour = texture(border_tex, v_texcoord);
 }
