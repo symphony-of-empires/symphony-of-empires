@@ -9,12 +9,12 @@ Sphere::Sphere(float center_x, float center_y, float center_z, float _radius, in
 
 	for(int latitude = 0; latitude < resolution; latitude++) {
 		for(int longitude = 0; longitude < resolution; longitude++) {
-			buffer[longitude + latitude * resolution + 0] = calc_pos(longitude + 0, latitude + 0);
-			buffer[longitude + latitude * resolution + 1] = calc_pos(longitude + 1, latitude + 0);
-			buffer[longitude + latitude * resolution + 2] = calc_pos(longitude + 0, latitude + 1);
-			buffer[longitude + latitude * resolution + 3] = calc_pos(longitude + 0, latitude + 1);
-			buffer[longitude + latitude * resolution + 4] = calc_pos(longitude + 1, latitude + 0);
-			buffer[longitude + latitude * resolution + 5] = calc_pos(longitude + 0, latitude + 0);
+			buffer[(longitude + latitude * resolution) * 6 + 0] = calc_pos(longitude + 0, latitude + 0);
+			buffer[(longitude + latitude * resolution) * 6 + 1] = calc_pos(longitude + 1, latitude + 0);
+			buffer[(longitude + latitude * resolution) * 6 + 2] = calc_pos(longitude + 0, latitude + 1);
+			buffer[(longitude + latitude * resolution) * 6 + 3] = calc_pos(longitude + 0, latitude + 1);
+			buffer[(longitude + latitude * resolution) * 6 + 4] = calc_pos(longitude + 1, latitude + 0);
+			buffer[(longitude + latitude * resolution) * 6 + 5] = calc_pos(longitude + 1, latitude + 1);
 		}
 	}
 
@@ -34,11 +34,11 @@ PackedData<glm::vec3, glm::vec2> Sphere::calc_pos(float longitude, float latitud
 	float longitude_ratio = ((float)longitude) / resolution;
 	float longitude_rad = longitude_ratio * 2 * M_PI;
 	float latitude_ratio = ((float)latitude) / resolution;
-	float latitude_rad = latitude_ratio * 2 * M_PI;
+	float latitude_rad = latitude_ratio * M_PI;
 	float x = radius * cos(longitude_rad) * sin(latitude_rad);
 	float y = radius * sin(longitude_rad) * sin(latitude_rad);
-	float z = radius * sin(latitude_rad);
+	float z = radius * cos(latitude_rad);
 	glm::vec3 pos(x, y, z);
-	glm::vec2 tex_coord(longitude_ratio, latitude_ratio);
+	glm::vec2 tex_coord(longitude_ratio, 1.-latitude_ratio);
 	return PackedData<glm::vec3, glm::vec2>(pos, tex_coord);
 }

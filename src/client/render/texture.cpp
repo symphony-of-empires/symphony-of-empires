@@ -4,6 +4,10 @@
 #include <string>
 #include <algorithm>
 
+UnifiedRender::Texture::~Texture() {
+    if (gl_tex_num)
+      delete_opengl();
+}
 /**
  * This dummy texture helps to avoid crashes due to missing buffers or so, and also gives
  * visual aid of errors
@@ -28,6 +32,18 @@ void UnifiedRender::Texture::to_opengl(GLuint wrap, GLuint min_filter, GLuint ma
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
+}
+
+void UnifiedRender::Texture::to_opengl_test(GLuint wrap, GLuint min_filter, GLuint mag_filter) {
+    glGenTextures(1, &gl_tex_num);
+    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
