@@ -143,12 +143,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->is_scroll = false;
     this->text(province->name);
 
-    auto* pop_tab = new ProvincePopulationTab(gs, 128, 24, _province, this);
-    pop_tab->is_render = true;
-
-    auto* econ_tab = new ProvinceEconomyTab(gs, 128, 24, _province, this);
-    econ_tab->is_render = false;
-
+    this->pop_tab = new ProvincePopulationTab(gs, 128, 24, province, this);
+    this->pop_tab->is_render = true;
     auto* pop_btn = new UI::Button(0, 24, 128, 24, this);
     pop_btn->text("Population");
     pop_btn->on_click = ([](UI::Widget& w, void*) {
@@ -158,6 +154,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.econ_tab->is_render = false;
     });
 
+    this->econ_tab = new ProvinceEconomyTab(gs, 128, 24, province, this);
+    this->econ_tab->is_render = false;
     auto* econ_btn = new UI::Button(0, 0, 128, 24, this);
     econ_btn->below_of(*pop_btn);
     econ_btn->text("Economy");
@@ -189,6 +187,6 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     });
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->below_of(*this->build_btn);
+    close_btn->below_of(*build_btn);
     close_btn->text("Close");
 }
