@@ -52,6 +52,7 @@
 #include "client/interface/top_window.hpp"
 #include "client/interface/province_view.hpp"
 #include "client/interface/treaty.hpp"
+#include "client/interface/army.hpp"
 #include "client/map.hpp"
 #include "client/render/material.hpp"
 #include "client/render/model.hpp"
@@ -168,6 +169,11 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             case SDLK_p:
                 if(gs.current_mode != MapMode::NO_MAP) {
                     //gs.products_view_world->show();
+                }
+                break;
+            case SDLK_a:
+                if(gs.current_mode != MapMode::NO_MAP) {
+                    new Interface::ArmyView(gs);
                 }
                 break;
             case SDLK_BACKSPACE:
