@@ -25,12 +25,37 @@ namespace Interface {
         ArmyNavyTab(GameState& gs, int x, int y, UI::Widget* parent);
     };
 
+    // Auto-Production manager
+    class ArmyProductionTab : public UI::Group {
+        GameState& gs;
+
+        UI::Chart *reqmat_chart;
+    public:
+        ArmyProductionTab(GameState& gs, int x, int y, UI::Widget* parent);
+    };
+
+    // Brief about unit being produced
+    class ArmyProductionUnitInfo : public UI::Group {
+        GameState& gs;
+        Building *building;
+
+        UI::Image *unit_icon;
+        UI::Label *province_lab;
+        UI::Label *company_lab;
+        UI::Label *name_lab;
+
+        // TODO: Add a production queue
+    public:
+        ArmyProductionUnitInfo(GameState& gs, int x, int y, Building *building, UI::Widget* parent);
+    };
+
     class ArmyView : public UI::Window {
         GameState& gs;
 
         ArmyArmyTab* army_tab;
         ArmyAirforceTab* airforce_tab;
         ArmyNavyTab* navy_tab;
+        ArmyProductionTab* production_tab;
     public:
         ArmyView(GameState& gs);
     };
