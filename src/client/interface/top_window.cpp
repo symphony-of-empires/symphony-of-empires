@@ -121,6 +121,9 @@ TopWindow::TopWindow(GameState& _gs)
 
         o.militancy_lab->text(std::to_string(militancy * 1000.));
         o.big_brain_lab->text(std::to_string(con * 1000.));
+        UI::Tooltip* tooltip = new UI::Tooltip(o.big_brain_icon, 100, 100);
+        new UI::Label(0, 24, "tooltip", tooltip);
+        o.big_brain_lab->set_tooltip(tooltip);
         int prestige = (int)o.gs.curr_nation->prestige;
         o.prestige_lab->text(std::to_string(prestige));
         int economy_score = (int)o.gs.curr_nation->economy_score;
