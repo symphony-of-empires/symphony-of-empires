@@ -4,8 +4,8 @@
 using namespace Interface;
 
 TopWindow::TopWindow(GameState& _gs)
-    : gs{_gs},
-      UI::Window(0, _gs.height - 128, _gs.width, 128)
+    : gs{ _gs },
+    UI::Window(0, _gs.height - 128, _gs.width, 128)
 {
     this->is_scroll = false;
     this->is_pinned = true;
@@ -26,7 +26,7 @@ TopWindow::TopWindow(GameState& _gs)
     gdp_chart->data.clear();
     gdp_chart->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         TopWindow& twin = static_cast<TopWindow&>(*w.parent);
-        
+
     });
 
     pop_chart = new UI::Chart(0, 24, 128, 64, this);
@@ -46,7 +46,7 @@ TopWindow::TopWindow(GameState& _gs)
     hdi_chart->data.clear();
     hdi_chart->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         TopWindow& twin = static_cast<TopWindow&>(*w.parent);
-        
+
     });
 
     UI::Image* current_flag = new UI::Image(0, 24, 128, 96, gs.map->nation_flags[g_world->get_id(gs.curr_nation)], this);
@@ -115,15 +115,32 @@ TopWindow::TopWindow(GameState& _gs)
 
         o.pop_chart->data.push_back(total_pop);
         if(o.pop_chart->data.size() >= 30) o.pop_chart->data.pop_front();
-        
+
         o.hdi_chart->data.push_back(living_std);
         if(o.hdi_chart->data.size() >= 30) o.hdi_chart->data.pop_front();
-        
-        o.militancy_lab->text(std::to_string(militancy));
-        o.big_brain_lab->text(std::to_string(con));
-        o.prestige_lab->text(std::to_string(o.gs.curr_nation->prestige));
-        o.economy_lab->text(std::to_string(o.gs.curr_nation->economy_score));
-        o.money_lab->text(std::to_string(o.gs.curr_nation->budget));
-        o.population_lab->text(std::to_string(total_pop));
+
+        o.militancy_lab->text(std::to_string(militancy * 1000.));
+        o.big_brain_lab->text(std::to_string(con * 1000.));
+        int prestige = (int)o.gs.curr_nation->prestige;
+        o.prestige_lab->text(std::to_string(prestige));
+        int economy_score = (int)o.gs.curr_nation->economy_score;
+        o.economy_lab->text(std::to_string(economy_score));
+        int budget = (int)o.gs.curr_nation->budget;
+        o.money_lab->text(std::to_string(budget));
+        std::string pop_amount;
+        // We should add a format_text() func later but this will do for now
+        if(total_pop < 1000) {
+            pop_amount = std::to_string((int)total_pop);
+        }
+        else if(total_pop < 1000 * 1000) {
+            pop_amount = std::to_string((int)total_pop / 1000) + " K";
+        }
+        else if(total_pop < 1000 * 1000 * 1000) {
+            pop_amount = std::to_string((int)total_pop / (1000 * 1000)) + " M";
+        }
+        else {
+            pop_amount = std::to_string((int)total_pop / (1000 * 1000 * 1000)) + " B";
+        }
+        o.population_lab->text(pop_amount);
     });
 }
