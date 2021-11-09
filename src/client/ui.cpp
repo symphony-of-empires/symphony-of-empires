@@ -429,23 +429,29 @@ void Widget::on_render(Context& ctx) {
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    glLineWidth(2.f);
-
-    if(type == UI_WIDGET_INPUT) {
-        glColor3f(1.f, 1.f, 1.f);
-    }
-    else {
-        glColor3f(0.f, 0.f, 0.f);
-    }
-
     if(1) {
+        glLineWidth(2.f);
+
         // Outer black border
         glBegin(GL_LINE_STRIP);
-        glVertex2f(0, 0);
-        glVertex2f(width, 0);
+
+        if(type == UI_WIDGET_WINDOW) {
+            glColor3f(1.f, 1.f, 1.f);
+        } else {
+            glColor3f(0.f, 0.f, 0.f);
+        }
+        glVertex2f(0.f, height);
+        glVertex2f(0.f, 0.f);
+        glVertex2f(width, 0.f);
+
+        if(type == UI_WIDGET_WINDOW) {
+            glColor3f(0.f, 0.f, 0.f);
+        } else {
+            glColor3f(1.f, 1.f, 1.f);
+        }
+        glVertex2f(width, 0.f);
         glVertex2f(width, height);
-        glVertex2f(0, height);
-        glVertex2f(0, 0);
+        glVertex2f(0.f, height);
         glEnd();
     }
 
@@ -690,6 +696,25 @@ void Chart::on_render(Context& ctx) {
             0, 0,
             width, height,
             current_texture->gl_tex_num);
+    }
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    if(1) {
+        glLineWidth(2.f);
+
+        // Outer black border
+        glBegin(GL_LINE_STRIP);
+
+        glColor3f(0.f, 0.f, 0.f);
+        glVertex2f(0, height);
+        glVertex2f(0, 0);
+        glVertex2f(width, 0);
+
+        glColor3f(1.f, 1.f, 1.f);
+        glVertex2f(width, 0);
+        glVertex2f(width, height);
+        glVertex2f(0, height);
+        glEnd();
     }
 
     if(data.size() > 1) {
