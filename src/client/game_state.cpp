@@ -363,6 +363,42 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
         }
 
         render(gs, gs.input, window);
+
+        // Production queue
+        if(!gs.production_queue.empty()) {
+            for(uint i = 0; i < gs.production_queue.size(); i++) {
+                UnitType* unit = gs.production_queue[i];
+
+                // TODO: Make a better queue AI
+                bool is_built = false;
+                for(const auto& building : gs.world->buildings) {
+                    // Must be our building
+                    if(building->get_owner() != gs.curr_nation) continue;
+
+                    // Must not be working on something else
+                    if(building->working_unit_type != nullptr) continue;
+
+                    g_client->packet_mutex.lock();
+                    Packet packet = Packet();
+                    Archive ar = Archive();
+                    ActionType action = ActionType::BUILDING_START_BUILDING_UNIT;
+                    ::serialize(ar, &action);
+                    ::serialize(ar, &building);
+                    ::serialize(ar, &unit);
+                    packet.data(ar.get_buffer(), ar.size());
+                    g_client->packet_queue.push_back(packet);
+                    g_client->packet_mutex.unlock();
+                    is_built = true;
+                }
+
+                // If we couldn't find a suitable building we wont be able to find buildings for other
+                // units either
+                if(!is_built) break;
+
+                gs.production_queue.erase(gs.production_queue.begin() + i);
+                i--;
+            }
+        }
     }
 }
 

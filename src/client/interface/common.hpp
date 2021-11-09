@@ -15,6 +15,15 @@ namespace Interface {
         UnitButton(GameState& gs, int x, int y, Unit* unit, UI::Widget* parent);
     };
 
+    class UnitTypeButton : public UI::Group {
+        GameState& gs;
+        UI::Image* icon_img;
+        UI::Button* name_btn;
+    public:
+        UnitType* unit_type;
+        UnitTypeButton(GameState& gs, int x, int y, UnitType* unit_type, UI::Widget* parent);
+    };
+
     class CompanyButton : public UI::Group {
         GameState& gs;
         UI::Button* name_btn;

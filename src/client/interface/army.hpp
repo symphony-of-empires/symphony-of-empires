@@ -43,20 +43,34 @@ namespace Interface {
         UI::Label *province_lab;
         UI::Label *company_lab;
         UI::Label *name_lab;
-
-        // TODO: Add a production queue
     public:
         ArmyProductionUnitInfo(GameState& gs, int x, int y, Building *building, UI::Widget* parent);
     };
 
+    class ArmyNewUnitTab : public UI::Group {
+        GameState& gs;
+    public:
+        ArmyNewUnitTab(GameState& gs, int x, int y, UI::Widget* parent);
+
+        UnitType* unit_type;
+    };
+
+    class ArmySelectUnitTab : public UI::Group {
+        GameState& gs;
+    public:
+        ArmySelectUnitTab(GameState& gs, int x, int y, UI::Widget* parent);
+    };
+
     class ArmyView : public UI::Window {
         GameState& gs;
+    public:
+        ArmyView(GameState& gs);
 
         ArmyArmyTab* army_tab;
         ArmyAirforceTab* airforce_tab;
         ArmyNavyTab* navy_tab;
         ArmyProductionTab* production_tab;
-    public:
-        ArmyView(GameState& gs);
+        ArmyNewUnitTab* new_unit_tab;
+        ArmySelectUnitTab* select_unit_tab;
     };
 };
