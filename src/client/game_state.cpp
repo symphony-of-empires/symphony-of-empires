@@ -60,7 +60,6 @@
 #include "client/ui.hpp"
 
 void GameState::play_nation() {
-    // TODO add this to action
     current_mode = MapMode::NORMAL;
 
     const Province* capital = curr_nation->capital;
@@ -73,8 +72,6 @@ void GameState::play_nation() {
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
 
-    // Select the nation
-    // TODO put in action
     g_client->packet_mutex.lock();
     Packet packet = Packet();
     Archive ar = Archive();
