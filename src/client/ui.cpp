@@ -36,7 +36,8 @@ Context::Context() {
     if(g_ui_context != nullptr) {
         throw std::runtime_error("UI context already constructed");
     }
-    default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 16);
+    // default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 16);
+    default_font = TTF_OpenFont(Path::get("ui/fonts/Poppins/Poppins-Regular.ttf").c_str(), 16);
     if(default_font == nullptr)
         throw std::runtime_error(std::string() + "Font could not be loaded: " + TTF_GetError() + ", exiting");
 
@@ -546,30 +547,31 @@ void Widget::text(const std::string& _text) {
     }
 
     //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    surface = TTF_RenderUTF8_Solid(g_ui_context->default_font, _text.c_str(), text_color);
+    surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), text_color);
     if(surface == nullptr)
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
 
     text_texture = new UnifiedRender::Texture(surface->w, surface->h);
     text_texture->gl_tex_num = 0;
+    text_texture->to_opengl(surface);
 
-    for(size_t i = 0; i < (size_t)surface->w; i++) {
-        for(size_t j = 0; j < (size_t)surface->h; j++) {
-            uint8_t r, g, b, a;
-            uint32_t pixel = *((uint32_t *)&((uint8_t *)surface->pixels)[i + j * surface->pitch]);
-            SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
+    // for(size_t i = 0; i < (size_t)surface->w; i++) {
+    //     for(size_t j = 0; j < (size_t)surface->h; j++) {
+    //         uint8_t r, g, b, a;
+    //         uint32_t pixel = *((uint32_t *)&((uint8_t *)surface->pixels)[i + j * surface->pitch]);
+    //         SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
 
-            if(a == 0xff) {
-                pixel = 0;
-            } else {
-                pixel = ((~a) << 24) | 0xffffff;
-            }
+    //         // if(a == 0xff) {
+    //         //     pixel = 0;
+    //         // } else {
+    //         //     pixel = ((~a) << 24) | 0xffffff;
+    //         // }
 
-            text_texture->buffer[i + j * text_texture->width] = pixel;
-        }
-    }
+    //         text_texture->buffer[i + j * text_texture->width] = pixel;
+    //     }
+    // }
     SDL_FreeSurface(surface);
-    text_texture->to_opengl();
+    // text_texture->to_opengl();
 }
 
 Color::Color(uint8_t red, uint8_t green, uint8_t blue)
