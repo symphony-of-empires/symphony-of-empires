@@ -373,8 +373,7 @@ void Widget::on_render(Context& ctx) {
         glVertex2f(0.f, height);
         glVertex2f(0.f, 0.f);
         glEnd();
-    }
-    else if(type != UI_WIDGET_IMAGE && type != UI_WIDGET_LABEL) {
+    } else if(type != UI_WIDGET_IMAGE && type != UI_WIDGET_LABEL) {
         glBindTexture(GL_TEXTURE_2D, ctx.background->gl_tex_num);
         glBegin(GL_TRIANGLES);
         glTexCoord2f(0.f, 0.f);
@@ -409,7 +408,7 @@ void Widget::on_render(Context& ctx) {
     }
 
     if(type == UI_WIDGET_BUTTON) {
-        const size_t padding = 4;
+        const size_t padding = 2;
 
         // Put a "grey" inner background
         glBindTexture(GL_TEXTURE_2D, ctx.button->gl_tex_num);
@@ -430,7 +429,7 @@ void Widget::on_render(Context& ctx) {
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    glLineWidth(3.f);
+    glLineWidth(2.f);
 
     if(type == UI_WIDGET_INPUT) {
         glColor3f(1.f, 1.f, 1.f);
@@ -438,6 +437,7 @@ void Widget::on_render(Context& ctx) {
     else {
         glColor3f(0.f, 0.f, 0.f);
     }
+
     if(1) {
         // Outer black border
         glBegin(GL_LINE_STRIP);
@@ -698,7 +698,11 @@ void Chart::on_render(Context& ctx) {
 
         // Obtain the highest and lowest values
         double max = *std::max_element(data.begin(), data.end());
-        double min = *std::min_element(data.begin(), data.end());
+        double min = 0.f;
+        
+        if(max < min) {
+            min = *std::min_element(data.begin(), data.end());
+        }
 
         // Works on zero-only graphs
         if(max == min) {
@@ -741,17 +745,6 @@ void Chart::on_render(Context& ctx) {
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    glLineWidth(3.f);
-    glColor3f(0.f, 0.f, 0.f);
-
-    // Inner black border
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(0, 0);
-    glVertex2f(width, 0);
-    glVertex2f(width, height);
-    glVertex2f(0, height);
-    glVertex2f(0, 0);
-    glEnd();
 }
 
 Slider::Slider(int _x, int _y, unsigned w, unsigned h, const float _min, const float _max, Widget* _parent)
