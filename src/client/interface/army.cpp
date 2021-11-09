@@ -101,7 +101,9 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
     this->is_scroll = false;
 
     this->unit_icon = new UI::Image(0, 24, 128, 96, nullptr, this);
-    this->unit_icon->current_texture = &g_texture_manager->load_texture(Path::get("ui/icons/unit_types/" + building->working_unit_type->ref_name));
+    if(building->working_unit_type != nullptr) {
+        this->unit_icon->current_texture = &g_texture_manager->load_texture(Path::get("ui/icons/unit_types/" + building->working_unit_type->ref_name));
+    }
 
     this->province_lab = new UI::Label(0, 0, "?", this);
     this->province_lab->right_side_of(*this->unit_icon);
@@ -121,7 +123,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
     this->name_lab->right_side_of(*this->company_lab);
     this->name_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
-        w.text(o.building->working_unit_type->name);
+        w.text((o.building->working_unit_type != nullptr) ? o.building->working_unit_type->name : "No unit");
     });
 }
 
@@ -155,7 +157,7 @@ ArmyNewUnitTab::ArmyNewUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
         auto& o = static_cast<ArmyView&>(*w.parent->parent);
 
         // "Give control" to the selection tab - they will return us control after selecting an unit type
-        w.parent->is_render = false;
+        static_cast<ArmyNewUnitTab&>(*w.parent).is_render = false;
         o.select_unit_tab->is_render = true;
     });
 
