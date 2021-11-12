@@ -53,6 +53,7 @@
 #include "client/interface/province_view.hpp"
 #include "client/interface/treaty.hpp"
 #include "client/interface/army.hpp"
+#include "client/interface/building.hpp"
 #include "client/map.hpp"
 #include "client/render/material.hpp"
 #include "client/render/model.hpp"
@@ -162,18 +163,24 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 gs.cam.velocity.x += std::min(4.f, std::max(0.5f, 0.02f * -gs.cam.position.z));
                 break;
             case SDLK_t:
-                if(gs.current_mode != MapMode::NO_MAP) {
+                if(gs.current_mode == MapMode::NORMAL) {
                     //new TreatyWindow(gs, gs.top_win->top_win);
                 }
                 break;
             case SDLK_p:
-                if(gs.current_mode != MapMode::NO_MAP) {
+                if(gs.current_mode == MapMode::NORMAL) {
                     //gs.products_view_world->show();
                 }
                 break;
             case SDLK_a:
-                if(gs.current_mode != MapMode::NO_MAP) {
+                if(gs.current_mode == MapMode::NORMAL) {
                     new Interface::ArmyView(gs);
+                }
+                break;
+            case SDLK_b:
+                if(gs.current_mode == MapMode::NORMAL) {
+                    const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+                    new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->nations[tile.owner_id], gs.world->provinces[tile.province_id]);
                 }
                 break;
             case SDLK_BACKSPACE:

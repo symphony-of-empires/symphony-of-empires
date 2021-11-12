@@ -157,7 +157,7 @@ ArmyNewUnitTab::ArmyNewUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
         auto& o = static_cast<ArmyView&>(*w.parent->parent);
 
         // "Give control" to the selection tab - they will return us control after selecting an unit type
-        static_cast<ArmyNewUnitTab&>(*w.parent).is_render = false;
+        w.parent->is_render = false;
         o.select_unit_tab->is_render = true;
     });
 

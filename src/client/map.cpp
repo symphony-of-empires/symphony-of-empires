@@ -137,12 +137,14 @@ void Map::draw_flag(const Nation* nation) {
     flag.draw();
 }
 
+#include "client/client_network.hpp"
+#include "serializer.hpp"
+#include "io_impl.hpp"
+#include "actions.hpp"
 void Map::handle_click(GameState& gs, SDL_Event event) {
     Input& input = gs.input;
-    if(input.select_pos.first < 0 ||
-        input.select_pos.first >= gs.world->width ||
-        input.select_pos.second < 0 ||
-        input.select_pos.second >= gs.world->height) {
+    if(input.select_pos.first < 0 || input.select_pos.first >= gs.world->width
+    || input.select_pos.second < 0 || input.select_pos.second >= gs.world->height) {
         return;
     }
     Unit* selected_unit = input.selected_unit;
@@ -164,10 +166,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             // Check if we selected an unit
             for(const auto& unit : gs.world->units) {
                 const float size = 2.f;
-                if((int)select_pos.first > (int)unit->x - size
-                && (int)select_pos.first < (int)unit->x + size
-                && (int)select_pos.second >(int)unit->y - size
-                && (int)select_pos.second < (int)unit->y + size) {
+                if((int)select_pos.first > (int)unit->x - size && (int)select_pos.first < (int)unit->x + size
+                && (int)select_pos.second >(int)unit->y - size && (int)select_pos.second < (int)unit->y + size) {
                     selected_unit = unit;
                     return;
                 }
@@ -176,10 +176,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             // Check if we selected a building
             for(const auto& building : gs.world->buildings) {
                 const float size = 2.f;
-                if((int)select_pos.first > (int)building->x - size
-                && (int)select_pos.first < (int)building->x + size
-                && (int)select_pos.second >(int)building->y - size
-                && (int)select_pos.second < (int)building->y + size) {
+                if((int)select_pos.first > (int)building->x - size && (int)select_pos.first < (int)building->x + size
+                && (int)select_pos.second >(int)building->y - size && (int)select_pos.second < (int)building->y + size) {
                     selected_building = building;
                     return;
                 }
@@ -225,11 +223,9 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         gs.client->packet_mutex.unlock();
         */
         return;
-    }
-    else if(event.button.button == SDL_BUTTON_RIGHT) {
+    } else if(event.button.button == SDL_BUTTON_RIGHT) {
         std::pair<float, float>& select_pos = input.select_pos;
 
-        /*
         if(selected_unit != nullptr) {
             selected_unit->tx = select_pos.first;
             selected_unit->ty = select_pos.second;
@@ -247,11 +243,11 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             gs.client->packet_mutex.unlock();
             return;
         }
+
         if(selected_building != nullptr) {
             //new BuildUnitWindow(gs, selected_building, gs.top_win->top_win);
             return;
         }
-        */
     }
 }
 

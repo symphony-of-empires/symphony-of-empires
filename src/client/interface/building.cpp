@@ -47,6 +47,10 @@ BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, U
     }
 }
 
+#include "client/client_network.hpp"
+#include "serializer.hpp"
+#include "actions.hpp"
+#include "io_impl.hpp"
 BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, Nation* _nation, Province* _province, Company* _company)
     : gs{_gs},
     tx(_tx),
@@ -98,7 +102,33 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
         o.nation_tab->is_render = true;
     });
 
+    auto* build_btn = new UI::Button(0, 0, 128, 24, this);
+    build_btn->below_of(*nation_btn);
+    build_btn->text("BUILD_STUFF");
+    build_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<BuildingBuildView&>(*w.parent);
+        
+        // Tell the server about this "new" building
+        g_client->packet_mutex.lock();
+        Packet packet = Packet();
+        Archive ar = Archive();
+        ActionType action = ActionType::BUILDING_ADD;
+        ::serialize(ar, &action);
+
+        auto building = Building();
+        building.owner = o.nation != nullptr ? o.nation : o.gs.curr_nation;
+        building.corporate_owner = o.company != nullptr ? o.company : o.gs.world->companies[rand() % o.gs.world->companies.size()];
+        building.type = o.gs.world->building_types[0];
+        building.x = o.tx;
+        building.y = o.ty;
+        ::serialize(ar, &building); // BuildingObj
+
+        packet.data(ar.get_buffer(), ar.size());
+        g_client->packet_queue.push_back(packet);
+        g_client->packet_mutex.unlock(); 
+    });
+
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->below_of(*nation_btn);
+    close_btn->below_of(*build_btn);
     close_btn->text("Close");
 }
