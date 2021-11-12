@@ -1,6 +1,6 @@
 # Blender v2.93.2 OBJ File: 'iron smelter.blend'
 # www.blender.org
-mtllib iron smelter.mtl
+mtllib building_types/iron_smelter.mtl
 o Cube.001
 v 1.579700 3.449652 -0.553284
 v 1.579700 4.636427 -0.553284

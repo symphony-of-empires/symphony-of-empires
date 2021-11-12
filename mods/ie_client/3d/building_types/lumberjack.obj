@@ -1,6 +1,6 @@
 # Blender v2.93.2 OBJ File: 'LumberJack.blend'
 # www.blender.org
-mtllib LumberJack.mtl
+mtllib building_types/lumberjack.mtl
 o Cube.004
 v 3.331846 1.458271 -7.137105
 v 3.331846 1.484746 -3.191288
