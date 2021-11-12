@@ -1,6 +1,6 @@
 # Blender v2.93.2 OBJ File: 'Glass Factory.blend'
 # www.blender.org
-mtllib Glass Factory.mtl
+mtllib building_types/glass_factory.mtl
 o Cube
 v 5.767111 0.501127 -3.415498
 v 5.767111 -0.501127 -3.415498

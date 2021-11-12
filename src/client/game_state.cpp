@@ -230,6 +230,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     Building* selected_building = input.selected_building;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearDepth(1.f);
 
     if(gs.current_mode != MapMode::NO_MAP) {
         Camera& cam = gs.cam;
@@ -463,6 +464,11 @@ void start_client(int argc, char** argv) {
     glEnable(GL_TEXTURE_2D);
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LEQUAL);
+    glDepthRange(0.f, 1.f);
 
     g_texture_manager = new UnifiedRender::TextureManager();
     g_material_manager = new UnifiedRender::MaterialManager();

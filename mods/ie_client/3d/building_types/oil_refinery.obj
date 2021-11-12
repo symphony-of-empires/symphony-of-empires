@@ -1,6 +1,6 @@
 # Blender v2.93.2 OBJ File: 'Oil Refinery.blend'
 # www.blender.org
-mtllib Oil Refinery.mtl
+mtllib building_types/oil_refinery.mtl
 o Cube
 v 3.331846 1.458271 -1.982781
 v 3.331846 1.484746 1.963035
