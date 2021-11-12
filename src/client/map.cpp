@@ -118,7 +118,7 @@ void Map::draw_flag(const Nation* nation) {
             glm::vec2((r / step) / n_steps, 0.f)
         ));
 
-        sin_r = sin(r + wind_osc + 90.f) / 24.f;
+        sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
@@ -207,14 +207,10 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         Archive ar = Archive();
         ActionType action = ActionType::BUILDING_ADD;
         ::serialize(ar, &action);
+        
         Building building = Building();
-
-        building.type = gs.world->building_types[0];
-
         building.x = select_pos.first;
         building.y = select_pos.second;
-        building.working_unit_type = nullptr;
-        building.req_goods = building.type->req_goods;
         // TODO FIX
         building.owner = gs.world->nations[gs.select_nation->curr_selected_nation];
         ::serialize(ar, &building);  // BuildingObj

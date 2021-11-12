@@ -17,6 +17,8 @@ void UnifiedRender::SimpleModel::draw(UnifiedRender::OpenGl::Program* shader) co
     if(material != nullptr) {
         if(material->texture != nullptr) {
             material->texture->bind();
+        } else {
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
         shader->set_uniform("colour", material->ambient_colour.r, material->ambient_colour.g, material->ambient_colour.b, 1.f);
     } else {
@@ -182,7 +184,7 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
 
                 // The faces dictate indices for the vertices and stuff and we
                 // will also subtract 1 because the indexing is 0 based
-                model->buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
+                model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
                     glm::vec3(obj.vertices[
                         std::min<size_t>(obj.vertices.size() - 1, face.vertices[i] - 1)
                     ]),
@@ -225,7 +227,7 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_stl(const s
         memcpy(&vert.y, &buffer[88 + i * (sizeof(float) * 3)], sizeof(float));
         memcpy(&vert.z, &buffer[92 + i * (sizeof(float) * 3)], sizeof(float));
 
-        model->buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
+        model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
             glm::vec3(vert),
             glm::vec2(0.f, 0.f)
         ));
