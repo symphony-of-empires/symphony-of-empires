@@ -183,7 +183,6 @@ void ai_update_relations(Nation* nation, Nation* other) {
 
 void ai_do_tick(Nation* nation, World* world) {
     if(!nation->exists()) return;
-    return;
 
     if(nation->diplomatic_timer != 0) {
         nation->diplomatic_timer--;
@@ -265,8 +264,41 @@ void ai_do_tick(Nation* nation, World* world) {
         }
     }
     // Build defenses
-    if(!(std::rand() % 5000)) {
+    if(std::rand() % 5000 == 0) {
+        Building* building = new Building();
+        building->owner = nation;
 
+        Province* province = g_world->provinces[rand() % g_world->provinces.size()];
+        if(province->max_x == province->min_x || province->max_y == province->min_y) {
+            return;
+        }
+
+        // Randomly place in any part of the province
+        // TODO: This will create some funny situations where coal factories will appear on
+        // the fucking pacific ocean - we need to fix that
+        building->x = province->min_x + ((rand() + 1) % (province->max_x - province->min_x));
+        building->y = province->min_y + ((rand() + 1) % (province->max_y - province->min_y));
+        building->x = std::min(building->x, g_world->width - 1);
+        building->y = std::min(building->y, g_world->height - 1);
+        building->province = province;
+
+        building->working_unit_type = nullptr;
+        building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
+        building->req_goods = std::vector<std::pair<Good*, size_t>>();
+        building->type = world->building_types[0];
+        world->insert(building);
+
+        // Broadcast the addition of the building to the clients
+        {
+            Packet packet = Packet();
+            Archive ar = Archive();
+            ActionType action = ActionType::BUILDING_ADD;
+            ::serialize(ar, &action);
+            ::serialize(ar, building);
+            packet.data(ar.get_buffer(), ar.size());
+            g_server->broadcast(packet);
+        }
+        print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)world->get_id(building->type), nation->name.c_str(), building->get_province()->name.c_str());
     }
     // Build a commercially related building
     if(std::rand() % 5000 == 0) {
