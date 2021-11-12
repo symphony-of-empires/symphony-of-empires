@@ -93,7 +93,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     }
 }
 
-ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Building *_building, UI::Widget* parent)
+ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Building* _building, UI::Widget* parent)
     : gs{ _gs },
     building{ _building },
     UI::Group(x, y, parent->width - x, parent->height - y, parent)
@@ -125,6 +125,11 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
         w.text((o.building->working_unit_type != nullptr) ? o.building->working_unit_type->name : "No unit");
     });
+
+    // this->name_lab->on_each_tick = ([](UI::Widget& w, void*) {
+    //     auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
+    //     w.text(o.building->working_unit_type->name);
+    // });
 }
 
 ArmySelectUnitTab::ArmySelectUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)

@@ -26,6 +26,12 @@
 #endif
 #include <GL/gl.h>
 
+#ifdef _MSC_VER
+#include <SDL_surface.h>
+#else
+#include <SDL2/SDL_surface.h>
+#endif
+
 #include "binary_image.hpp"
 
 namespace UnifiedRender {
@@ -43,6 +49,7 @@ namespace UnifiedRender {
         GLuint gl_tex_num;
         void create_dummy();
         void to_opengl(GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
+        void to_opengl(SDL_Surface* surface);
         void bind(void) const;
         void delete_opengl();
         void guillotine(const UnifiedRender::Texture& map, int x, int y, int w, int h);
