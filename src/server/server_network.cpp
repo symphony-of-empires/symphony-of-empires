@@ -289,9 +289,6 @@ void Server::net_loop(int id) {
                         if(building->type == nullptr)
                             throw ServerException("Unknown building type");
 
-                        // Modify the serialized building
-                        ar.ptr -= ::serialized_size(building);
-
                         // Check that it's not out of bounds
                         if(building->x >= g_world->width || building->y >= g_world->height)
                             throw ServerException("building out of range");
@@ -301,9 +298,12 @@ void Server::net_loop(int id) {
                         //if(g_world->get_tile(building->x, building->y).owner_id != g_world->get_id(selected_nation))
                         //    throw ServerException("Building cannot be built on foreign land");
 
+                        // Modify the serialized building
+                        ar.ptr = 0;
+                        ::serialize(ar, &action);
+
                         building->working_unit_type = nullptr;
-                        building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
-                        building->req_goods = std::vector<std::pair<Good*, size_t>>();
+                        building->req_goods = building->type->req_goods;
                         ::serialize(ar, building);
 
                         g_world->buildings.push_back(building);
