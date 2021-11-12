@@ -170,6 +170,13 @@ ServerCommand cmds[] = {
         }
     }), { "cdcs_legacy" }, "Generate legacy CDCS dump" },
     { ([](World& world, Server& server, std::string cmdline) {
+        size_t count = 0;
+        for(const auto& province : world.provinces) {
+            count += province->total_pops();
+        }
+        std::cout << "World population: " << count << std::endl;
+    }), { "popcount" }, "Display current world population" },
+    { ([](World& world, Server& server, std::string cmdline) {
         for(const auto& province : world.provinces) {
             uint32_t color = bswap32(province->color) >> 8;
             uint8_t r, g, b;
