@@ -414,7 +414,7 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
     run = true;
 
     // Connect to server prompt
-    MainMenuConnectServer* mm_conn = new MainMenuConnectServer(gs);
+    Interface::MainMenuConnectServer* mm_conn = new Interface::MainMenuConnectServer(gs);
     gs.input = Input{};
     Input& input = gs.input;
     while(run) {
