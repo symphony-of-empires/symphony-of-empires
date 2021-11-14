@@ -36,6 +36,9 @@ void Economy::do_tick(World& world) {
     for(size_t j = 0; j < world.buildings.size(); j++) {
         auto& building = world.buildings[j];
         if(building == nullptr) continue;
+
+        auto province = building->get_province();
+        if(province == nullptr || province->owner == nullptr) continue;
         
         bool can_build = true;
         for(const auto& req: building->req_goods_for_unit) {
@@ -51,10 +54,8 @@ void Economy::do_tick(World& world) {
             if(req.second) can_build = false;
         }
 
-        if(!can_build) break;
-
-        auto province = building->get_province();
-        if(province == nullptr || province->owner == nullptr) continue;
+        // TODO: Make a proper supply chain system with the whole working economy thing :)
+        //if(!can_build) break;
         
         size_t needed_laborers = 0, available_laborers = 0;
         size_t needed_farmers = 0, available_farmers = 0;
