@@ -7,6 +7,10 @@ catholic = Religion:new{ ref_name = "catholic" }
 catholic.name = _("Catholic")
 catholic:register()
 
+christian = Religion:new{ ref_name = "christian" }
+christian.name = _("Christian")
+christian:register()
+
 orthodox = Religion:new{ ref_name = "orthodox" }
 orthodox.name = _("Orthodox")
 orthodox:register()
