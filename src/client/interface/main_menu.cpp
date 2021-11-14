@@ -2,6 +2,8 @@
 #include "client/client_network.hpp"
 #include "print.hpp"
 
+using namespace Interface;
+
 MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     : gs{ _gs },
     in_game{ false },
