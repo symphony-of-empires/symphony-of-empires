@@ -77,8 +77,17 @@ napoleonic_tought:register()
 trench_warfare = Technology:new{
     ref_name = "trench_warfare",
     name = "Trench warfare",
-    description = "",
+    description = "Develop efficient tactics to create defensive frontlines making offensives very costly",
     cost = 1500.0,
     type = TECH_STRATEGIC
 }
 trench_warfare:register()
+
+guerrilla_warfare = Technology:new{
+    ref_name = "guerrilla_warfare",
+    name = "Guerrilla warfare",
+    description = "Splitting the army to allow quick-attacks and small raids that weaken and distract units and slow down their movement",
+    cost = 1500.0,
+    type = TECH_STRATEGIC
+}
+guerrilla_warfare:register()
