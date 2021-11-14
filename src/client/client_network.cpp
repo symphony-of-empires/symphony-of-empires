@@ -163,11 +163,15 @@ void Client::net_loop(void) {
                 // deserializer will deserialize onto the final object; after this the operation
                 // desired is done.
                 case ActionType::NATION_UPDATE: {
-                    Nation* nation;
-                    ::deserialize(ar, &nation);
-                    if(nation == nullptr)
-                        throw ClientException("Unknown nation");
-                    ::deserialize(ar, nation);
+                    Nation::Id size;
+                    ::deserialize(ar, &size);
+                    for(Nation::Id i = 0; i < size; i++) {
+                        Nation* nation;
+                        ::deserialize(ar, &nation);
+                        if(nation == nullptr)
+                            throw ClientException("Unknown nation");
+                        ::deserialize(ar, nation);
+                    }
                 } break;
                 case ActionType::NATION_ENACT_POLICY: {
                     Nation* nation;
@@ -181,11 +185,15 @@ void Client::net_loop(void) {
                 // TODO: There is a problem with this
                 // TODO: It throws serializer errors but idk where, maybe the server?
                 case ActionType::PROVINCE_UPDATE: {
-                    Province* province;
-                    ::deserialize(ar, &province);
-                    if(province == nullptr)
-                        throw ClientException("Unknown province");
-                    ::deserialize(ar, province);
+                    Province::Id size;
+                    ::deserialize(ar, &size);
+                    for(Product::Id i = 0; i < size; i++) {
+                        Province* province;
+                        ::deserialize(ar, &province);
+                        if(province == nullptr)
+                            throw ClientException("Unknown province");
+                        ::deserialize(ar, province);
+                    }
                 } break;
                 case ActionType::PRODUCT_ADD: {
                     Product* product = new Product();
@@ -199,11 +207,15 @@ void Client::net_loop(void) {
                     print_info("New product of good type %s", product->good->name.c_str());
                 } break;
                 case ActionType::PRODUCT_UPDATE: {
-                    Product* product;
-                    ::deserialize(ar, &product);
-                    if(product == nullptr)
-                        throw ClientException("Unknown product");
-                    ::deserialize(ar, product);
+                    Product::Id size;
+                    ::deserialize(ar, &size);
+                    for(Product::Id i = 0; i < size; i++) {
+                        Product* product;
+                        ::deserialize(ar, &product);
+                        if(product == nullptr)
+                            throw ClientException("Unknown product");
+                        ::deserialize(ar, product);
+                    }
                 } break;
                 case ActionType::PRODUCT_REMOVE: {
                     Product* product;
@@ -211,11 +223,15 @@ void Client::net_loop(void) {
                     world.remove(product);
                 } break;
                 case ActionType::UNIT_UPDATE: {
-                    Unit* unit;
-                    ::deserialize(ar, &unit);
-                    if(unit == nullptr)
-                        throw ClientException("Unknown unit");
-                    ::deserialize(ar, unit);
+                    Unit::Id size;
+                    ::deserialize(ar, &size);
+                    for(Unit::Id i = 0; i < size; i++) {
+                        Unit* unit;
+                        ::deserialize(ar, &unit);
+                        if(unit == nullptr)
+                            throw ClientException("Unknown unit");
+                        ::deserialize(ar, unit);
+                    }
                 } break;
                 case ActionType::UNIT_ADD: {
                     Unit* unit = new Unit();
@@ -224,11 +240,15 @@ void Client::net_loop(void) {
                     print_info("New unit of %s", unit->owner->name.c_str());
                 } break;
                 case ActionType::BUILDING_UPDATE: {
-                    Building* building;
-                    ::deserialize(ar, &building);
-                    if(building == nullptr)
-                        throw ClientException("Unknown building");
-                    ::deserialize(ar, building);
+                    Building::Id size;
+                    ::deserialize(ar, &size);
+                    for(Building::Id i = 0; i < size; i++) {
+                        Building* building;
+                        ::deserialize(ar, &building);
+                        if(building == nullptr)
+                            throw ClientException("Unknown building");
+                        ::deserialize(ar, building);
+                    }
                 } break;
                 case ActionType::BUILDING_ADD: {
                     Building* building = new Building();

@@ -310,14 +310,20 @@ void Economy::do_tick(World& world) {
             order.type = OrderType::UNIT;
             world.orders.push_back(order);
         }
+    }
 
+    {
         // Take opportunity to also send an update about our buildings
         Packet packet = Packet();
         Archive ar = Archive();
         ActionType action = ActionType::BUILDING_UPDATE;
         ::serialize(ar, &action); // ActionInt
-        ::serialize(ar, &building); // BuildingRef
-        ::serialize(ar, building); // BuildingObj
+        Building::Id size = world.buildings.size();
+        ::serialize(ar, &size);
+        for(const auto& building : world.buildings) {
+            ::serialize(ar, &building); // BuildingRef
+            ::serialize(ar, building); // BuildingObj
+        }
         packet.data(ar.get_buffer(), ar.size());
         g_server->broadcast(packet);
     }
