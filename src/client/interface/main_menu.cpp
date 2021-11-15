@@ -4,13 +4,55 @@
 
 using namespace Interface;
 
+MainMenu::MainMenu(GameState& _gs)
+    : gs{ _gs },
+    UI::Window((_gs.width / 2) - (256 / 2), (_gs.height / 2) - (256 / 2), 256, 256)
+{
+    this->is_pinned = true;
+    this->is_scroll = false;
+    this->text("Symphony of Empires");
+
+    auto* title_img = new UI::Image(0, 24, 256, 128, &g_texture_manager->load_texture(Path::get("ui/title.png")), this);
+
+    auto* single_btn = new UI::Button(0, 0, 256, 24, this);
+    single_btn->text("Singleplayer");
+    single_btn->below_of(*title_img);
+    single_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenu&>(*w.parent);
+        GameState& gs = o.gs;
+        gs.world = new World();
+        gs.client = new Client(gs, "127.0.0.1", 1836);
+        gs.client->username = "SpPlayer";
+        gs.client->wait_for_snapshot();
+        gs.map = new Map(*gs.world);
+        gs.in_game = true;
+    });
+
+    auto* mp_btn = new UI::Button(0, 0, 256, 24, this);
+    mp_btn->text("Multiplayer");
+    mp_btn->below_of(*single_btn);
+    mp_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenu&>(*w.parent);
+        auto* conn = new MainMenuConnectServer(o.gs);
+    });
+
+    auto* cfg_btn = new UI::Button(0, 0, 256, 24, this);
+    cfg_btn->text("Settings");
+    cfg_btn->below_of(*mp_btn);
+
+    auto* exit_btn = new UI::Button(0, 0, 256, 24, this);
+    exit_btn->text("Exit");
+    exit_btn->below_of(*cfg_btn);
+}
+
 MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     : gs{ _gs },
     in_game{ false },
-    UI::Window(0, 0, 512, 128)
+    UI::Window((_gs.width / 2) - (512 / 2), (_gs.height / 2) - (128 / 2), 512, 128)
 {
+    this->is_pinned = true;
     this->is_scroll = false;
-    this->text("Connect to a server");
+    this->text("Internet multiplayer");
 
     ip_addr_inp = new UI::Input(0, 24, 512, 24, this);
     ip_addr_inp->buffer = "127.0.0.1";
@@ -35,6 +77,6 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
         gs.client->username = state->username_inp->buffer;
         gs.client->wait_for_snapshot();
         gs.map = new Map(*gs.world);
-        state->in_game = true;
+        gs.in_game = true;
     });
 }

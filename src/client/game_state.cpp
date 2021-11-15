@@ -276,6 +276,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glPopMatrix();
 
         cam.update();
+        map->update(*gs.world);
     }
 
     gs.ui_ctx->render_all(width, height);
@@ -413,17 +414,23 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
     std::atomic<bool> run;
     run = true;
 
+    gs.in_game = false;
+
     // Connect to server prompt
-    Interface::MainMenuConnectServer* mm_conn = new Interface::MainMenuConnectServer(gs);
+    UI::Image* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &g_texture_manager->load_texture(Path::get("ui/globe.png")));
+
+    Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
+
     gs.input = Input{};
     Input& input = gs.input;
     while(run) {
         handle_event(input, gs, run);
         render(gs, input, window);
 
-        if(mm_conn->in_game == true) {
+        if(gs.in_game == true) {
             run = false;
-            mm_conn->kill();
+            mm_bg->kill();
+            main_menu->kill();
         }
     }
 }

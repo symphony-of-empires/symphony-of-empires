@@ -4,6 +4,13 @@
 #include "client/ui.hpp"
 
 namespace Interface {
+    class MainMenu : public UI::Window {
+    public:
+        MainMenu(GameState& gs);
+
+        GameState& gs;
+    };
+
     class MainMenuConnectServer : public UI::Window {
     public:
         MainMenuConnectServer(GameState& gs);

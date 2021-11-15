@@ -71,6 +71,8 @@ public:
 
     // Queue of production for unit_types
     std::deque<UnitType*> production_queue;
+
+    bool in_game;
 };
 
 // Run world tick and pending commands
