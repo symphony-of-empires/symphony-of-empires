@@ -292,7 +292,7 @@ void Client::net_loop(void) {
                     ::deserialize(ar, &world.get_tile(coord.first, coord.second));
 
                     std::lock_guard lock(world.changed_tiles_coords_mutex);
-                    world.nation_changed_tiles.push_back(&world.get_tile(coord.first, coord.second));
+                    world.changed_tile_coords.push_back(coord);
                 } break;
                 case ActionType::PROVINCE_COLONIZE: {
                     Province* province;
@@ -300,6 +300,14 @@ void Client::net_loop(void) {
                     if(province == nullptr)
                         throw ClientException("Unknown province");
                     ::deserialize(ar, province);
+
+                    std::lock_guard lock(world.changed_tiles_coords_mutex);
+                    for(size_t i = province->min_x; i < province->max_x; i++) {
+                        for(size_t j = province->min_y; j < province->max_y; j++) {
+                            if(world.get_tile(i, j).province_id != world.get_id(province)) continue;
+                            world.changed_tile_coords.push_back(std::make_pair(i, j));
+                        }
+                    }
                 } break;
                 default:
                     break;
