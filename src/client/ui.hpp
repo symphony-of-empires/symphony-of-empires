@@ -20,6 +20,7 @@ enum UI_WidgetType {
     UI_WIDGET_BUTTON,
     UI_WIDGET_INPUT,
     UI_WIDGET_WINDOW,
+    UI_WIDGET_TOOLTIP,
     UI_WIDGET_LABEL,
     UI_WIDGET_IMAGE,
     UI_WIDGET_CHART,
@@ -31,11 +32,13 @@ enum UI_WidgetType {
 
 namespace UI {
     class Widget;
+    class Tooltip;
     typedef void (*Callback)(Widget&, void*);
     class Context {
         int drag_x, drag_y;
         bool is_drag;
         Widget* dragged_widget;
+        int width, height;
 
         int check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
@@ -61,10 +64,11 @@ namespace UI {
         void clear(void);
         void clear_dead();
 
-        const UnifiedRender::Texture* background, * window_top, * button, * tooltip, * piechart_overlay;
+        const UnifiedRender::Texture* background, * window_top, * button, * tooltip_texture, * piechart_overlay;
         TTF_Font* default_font;
 
         std::vector<Widget*> widgets;
+        Tooltip* tooltip_widget = nullptr;
     };
 
     class Widget {
@@ -86,6 +90,7 @@ namespace UI {
 
         virtual void on_render(Context&);
         virtual void text(const std::string& text);
+        virtual void set_tooltip(Tooltip* tooltip);
 
         template <typename T>
         void above_of(const T& rhs) {
@@ -126,9 +131,9 @@ namespace UI {
         const UnifiedRender::Texture* current_texture = nullptr;
         UnifiedRender::Texture* text_texture = nullptr;
 
-        std::string tooltip_text = "";
+        Tooltip* tooltip = nullptr;
 
-        Widget* parent;
+        Widget* parent = nullptr;
         std::vector<Widget*> children;
 
         void* user_data = nullptr;
@@ -152,6 +157,14 @@ namespace UI {
         Color(uint8_t red, uint8_t green, uint8_t blue);
         Color(uint32_t rgb);
         float r, g, b;
+    };
+
+    class Tooltip: public Widget {
+    public:
+        Tooltip();
+        Tooltip(Widget* parent, unsigned w, unsigned h);
+        ~Tooltip(){};
+        void set_pos(int x, int y, int width, int height, int screen_width, int screen_height);
     };
 
     class ChartData {
@@ -262,6 +275,7 @@ namespace UI {
         std::vector<ChartData> data;
         float max;
     };
+
 };  // namespace UI
 
 extern SDL_Color text_color;

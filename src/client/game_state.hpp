@@ -40,7 +40,7 @@ class Client;
 class GameState {
 public:
     GameState() {};
-    // TODO: add deconstructor
+    ~GameState();
 
     void play_nation();
     void send_command(Archive& archive);
@@ -69,6 +69,11 @@ public:
 
     // Used for synchronization between the networking client and the rendering thread
     std::recursive_mutex render_lock;
+
+    // Queue of production for unit_types
+    std::deque<UnitType*> production_queue;
+
+    bool in_game;
 };
 
 // Run world tick and pending commands

@@ -14,6 +14,9 @@
 #include "io_impl.hpp"
 #include "client/interface/province_view.hpp"
 #include "world.hpp"
+#include "client/orbit_camera.hpp"
+#include "client/flat_camera.hpp"
+#include "client/camera.hpp"
 
 Map::Map(const World& _world): world(_world) {
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
@@ -271,7 +274,7 @@ void Map::draw_flag(const Nation* nation) {
             glm::vec2((r / step) / n_steps, 0.f)
             ));
 
-        sin_r = sin(r + wind_osc + 90.f) / 24.f;
+        sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
@@ -290,12 +293,14 @@ void Map::draw_flag(const Nation* nation) {
     flag.draw();
 }
 
+#include "client/client_network.hpp"
+#include "serializer.hpp"
+#include "io_impl.hpp"
+#include "actions.hpp"
 void Map::handle_click(GameState& gs, SDL_Event event) {
     Input& input = gs.input;
-    if(input.select_pos.first < 0 ||
-        input.select_pos.first >= gs.world->width ||
-        input.select_pos.second < 0 ||
-        input.select_pos.second >= gs.world->height) {
+    if(input.select_pos.first < 0 || input.select_pos.first >= gs.world->width
+        || input.select_pos.second < 0 || input.select_pos.second >= gs.world->height) {
         return;
     }
     Unit* selected_unit = input.selected_unit;
@@ -317,10 +322,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             // Check if we selected an unit
             for(const auto& unit : gs.world->units) {
                 const float size = 2.f;
-                if((int)select_pos.first > (int)unit->x - size
-                    && (int)select_pos.first < (int)unit->x + size
-                    && (int)select_pos.second >(int)unit->y - size
-                    && (int)select_pos.second < (int)unit->y + size) {
+                if((int)select_pos.first > (int)unit->x - size && (int)select_pos.first < (int)unit->x + size
+                    && (int)select_pos.second >(int)unit->y - size && (int)select_pos.second < (int)unit->y + size) {
                     selected_unit = unit;
                     return;
                 }
@@ -329,10 +332,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             // Check if we selected a building
             for(const auto& building : gs.world->buildings) {
                 const float size = 2.f;
-                if((int)select_pos.first > (int)building->x - size
-                    && (int)select_pos.first < (int)building->x + size
-                    && (int)select_pos.second >(int)building->y - size
-                    && (int)select_pos.second < (int)building->y + size) {
+                if((int)select_pos.first > (int)building->x - size && (int)select_pos.first < (int)building->x + size
+                    && (int)select_pos.second >(int)building->y - size && (int)select_pos.second < (int)building->y + size) {
                     selected_building = building;
                     return;
                 }
@@ -362,14 +363,10 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         Archive ar = Archive();
         ActionType action = ActionType::BUILDING_ADD;
         ::serialize(ar, &action);
+
         Building building = Building();
-
-        building.type = gs.world->building_types[0];
-
         building.x = select_pos.first;
         building.y = select_pos.second;
-        building.working_unit_type = nullptr;
-        building.req_goods = building.type->req_goods;
         // TODO FIX
         building.owner = gs.world->nations[gs.select_nation->curr_selected_nation];
         ::serialize(ar, &building);  // BuildingObj
@@ -382,7 +379,6 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
     else if(event.button.button == SDL_BUTTON_RIGHT) {
         std::pair<float, float>& select_pos = input.select_pos;
 
-        /*
         if(selected_unit != nullptr) {
             selected_unit->tx = select_pos.first;
             selected_unit->ty = select_pos.second;
@@ -400,16 +396,70 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             gs.client->packet_mutex.unlock();
             return;
         }
+
         if(selected_building != nullptr) {
             //new BuildUnitWindow(gs, selected_building, gs.top_win->top_win);
             return;
         }
-        */
+    }
+}
+
+void Map::update(const SDL_Event& event, Input& input)
+{
+    std::pair<int, int>& mouse_pos = input.mouse_pos;
+    std::pair<float, float>& select_pos = input.select_pos;
+    switch(event.type) {
+    case SDL_MOUSEBUTTONDOWN:
+        SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+        if(event.button.button == SDL_BUTTON_MIDDLE) {
+            input.last_camera_drag_pos = camera->get_map_pos(mouse_pos);
+        }
+        break;
+    case SDL_MOUSEMOTION:
+        SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+        if(input.middle_mouse_down) {  // Drag the map with middlemouse
+            std::pair<float, float> map_pos = camera->get_map_pos(mouse_pos);
+            camera->position.x += input.last_camera_drag_pos.first - map_pos.first;
+            camera->position.y += input.last_camera_drag_pos.second - map_pos.second;
+        }
+        input.select_pos = camera->get_map_pos(input.mouse_pos);
+        input.select_pos.first = (int)input.select_pos.first;
+        input.select_pos.second = (int)input.select_pos.second;
+        break;
+    case SDL_MOUSEWHEEL:
+        SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+        camera->move((float)0, (float)0, event.wheel.y * 2.0f);
+        break;
+    case SDL_KEYDOWN:
+        switch(event.key.keysym.sym) {
+        case SDLK_UP:
+            camera->move((float)0, (float)-1, (float)0);
+            break;
+        case SDLK_DOWN:
+            camera->move((float)0, (float)1, (float)0);
+            break;
+        case SDLK_LEFT:
+            camera->move((float)-1, (float)0, (float)0);
+            break;
+        case SDLK_RIGHT:
+            camera->move((float)1, (float)0, (float)0);
+            break;
+        case SDL_WINDOWEVENT:
+            if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                int width, height;
+                SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height);
+                camera->set_screen(width, height);
+            }
+            break;
+        default:
+            break;
+        }
+
     }
 }
 
 // Updates the tiles texture with the changed tiles
-void Map::update(World& world) {
+void Map::update_tiles(World& world) {
     std::lock_guard lock(g_world->changed_tiles_coords_mutex);
     if(world.changed_tile_coords.size() > 0) {
         glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);

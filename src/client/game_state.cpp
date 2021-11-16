@@ -54,6 +54,8 @@
 #include "client/interface/province_view.hpp"
 #include "client/interface/treaty.hpp"
 #include "client/interface/map_dev_view.hpp"
+#include "client/interface/army.hpp"
+#include "client/interface/building.hpp"
 #include "client/map.hpp"
 #include "client/render/material.hpp"
 #include "client/render/model.hpp"
@@ -73,7 +75,6 @@ void GameState::play_nation() {
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
 
-    // Select the nation
     g_client->packet_mutex.lock();
     Packet packet = Packet();
     Archive ar = Archive();
@@ -108,7 +109,6 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
             if(event.button.button == SDL_BUTTON_MIDDLE) {
                 input.middle_mouse_down = true;
-                input.last_camera_drag_pos = gs.map->camera->get_map_pos(mouse_pos);
             }
             break;
         case SDL_MOUSEBUTTONUP:
@@ -123,51 +123,35 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 gs.map->handle_click(gs, event);
             }
             break;
-        case SDL_MOUSEMOTION:
-            SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-            ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
-            if(input.middle_mouse_down) {  // Drag the map with middlemouse
-                std::pair<float, float> map_pos = gs.map->camera->get_map_pos(mouse_pos);
-                gs.map->camera->position.x += input.last_camera_drag_pos.first - map_pos.first;
-                gs.map->camera->position.y += input.last_camera_drag_pos.second - map_pos.second;
-            }
-            input.select_pos = gs.map->camera->get_map_pos(input.mouse_pos);
-            input.select_pos.first = (int)input.select_pos.first;
-            input.select_pos.second = (int)input.select_pos.second;
-            break;
         case SDL_MOUSEWHEEL:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
             click_on_ui = ui_ctx->check_wheel(mouse_pos.first, mouse_pos.second, event.wheel.y * 6);
-            if(!click_on_ui) {
-                gs.map->camera->move((float)0, (float)0, event.wheel.y * 2.0f);
-            }
             break;
         case SDL_TEXTINPUT:
             ui_ctx->check_text_input((const char*)&event.text.text);
             break;
         case SDL_KEYDOWN:
             switch(event.key.keysym.sym) {
-            case SDLK_UP:
-                gs.map->camera->move((float)0, (float)-1, (float)0);
-                break;
-            case SDLK_DOWN:
-                gs.map->camera->move((float)0, (float)1, (float)0);
-                break;
-            case SDLK_LEFT:
-                gs.map->camera->move((float)-1, (float)0, (float)0);
-                break;
-            case SDLK_RIGHT:
-                gs.map->camera->move((float)1, (float)0, (float)0);
-                break;
             case SDLK_t:
-                if(gs.current_mode != MapMode::NO_MAP) {
+                if(gs.current_mode == MapMode::NORMAL) {
                     //new TreatyWindow(gs, gs.top_win->top_win);
                 }
                 break;
             case SDLK_p:
-                if(gs.current_mode != MapMode::NO_MAP) {
+                if(gs.current_mode == MapMode::NORMAL) {
                     //gs.products_view_world->show();
+                }
+                break;
+            case SDLK_a:
+                if(gs.current_mode == MapMode::NORMAL) {
+                    new Interface::ArmyView(gs);
+                }
+                break;
+            case SDLK_b:
+                if(gs.current_mode == MapMode::NORMAL) {
+                    const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+                    new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->nations[tile.owner_id], gs.world->provinces[tile.province_id]);
                 }
                 break;
             case SDLK_BACKSPACE:
@@ -195,6 +179,9 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
         default:
             break;
         }
+        if(gs.current_mode != MapMode::NO_MAP && !click_on_ui){
+            gs.map->update(event, input);
+        }
     }
     ui_ctx->clear_dead();
 }
@@ -218,6 +205,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     Building* selected_building = input.selected_building;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearDepth(1.f);
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
@@ -269,6 +257,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glPopMatrix();
 
         map->camera->update();
+        map->update_tiles(*gs.world);
     }
 
     gs.ui_ctx->render_all(width, height);
@@ -362,6 +351,42 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
         }
 
         render(gs, gs.input, window);
+
+        // Production queue
+        if(!gs.production_queue.empty()) {
+            for(uint i = 0; i < gs.production_queue.size(); i++) {
+                UnitType* unit = gs.production_queue[i];
+
+                // TODO: Make a better queue AI
+                bool is_built = false;
+                for(const auto& building : gs.world->buildings) {
+                    // Must be our building
+                    if(building->get_owner() != gs.curr_nation) continue;
+
+                    // Must not be working on something else
+                    if(building->working_unit_type != nullptr) continue;
+
+                    g_client->packet_mutex.lock();
+                    Packet packet = Packet();
+                    Archive ar = Archive();
+                    ActionType action = ActionType::BUILDING_START_BUILDING_UNIT;
+                    ::serialize(ar, &action);
+                    ::serialize(ar, &building);
+                    ::serialize(ar, &unit);
+                    packet.data(ar.get_buffer(), ar.size());
+                    g_client->packet_queue.push_back(packet);
+                    g_client->packet_mutex.unlock();
+                    is_built = true;
+                }
+
+                // If we couldn't find a suitable building we wont be able to find buildings for other
+                // units either
+                if(!is_built) break;
+
+                gs.production_queue.erase(gs.production_queue.begin() + i);
+                i--;
+            }
+        }
     }
 }
 
@@ -371,17 +396,23 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
     std::atomic<bool> run;
     run = true;
 
+    gs.in_game = false;
+
     // Connect to server prompt
-    MainMenuConnectServer* mm_conn = new MainMenuConnectServer(gs);
+    UI::Image* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &g_texture_manager->load_texture(Path::get("ui/globe.png")));
+
+    Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
+
     gs.input = Input{};
     Input& input = gs.input;
     while(run) {
         handle_event(input, gs, run);
         render(gs, input, window);
 
-        if(mm_conn->in_game == true) {
+        if(gs.in_game == true) {
             run = false;
-            mm_conn->kill();
+            mm_bg->kill();
+            main_menu->kill();
         }
     }
 }
@@ -409,7 +440,7 @@ void start_client(int argc, char** argv) {
     int width = 1280, height = 800;
     GameState gs{};
 
-    window = SDL_CreateWindow("Symphony of Empires", 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_SetSwapInterval(1);  // Enable OpenGL VSYNC
     print_info("OpenGL Version: %s", glGetString(GL_VERSION));
@@ -419,6 +450,11 @@ void start_client(int argc, char** argv) {
     glEnable(GL_TEXTURE_2D);
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LEQUAL);
+    glDepthRange(0.f, 1.f);
 
     g_texture_manager = new UnifiedRender::TextureManager();
     g_material_manager = new UnifiedRender::MaterialManager();
@@ -441,3 +477,10 @@ void start_client(int argc, char** argv) {
     SDL_Quit();
     return;
 }
+
+GameState::~GameState() {
+    delete world;
+    delete curr_nation;
+    delete map;
+    delete ui_ctx;
+};

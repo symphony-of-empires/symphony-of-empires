@@ -39,16 +39,9 @@ namespace Interface {
     class ProvinceView : public UI::Window {
         GameState& gs;
         Province* province;
-
-        UI::Button* pop_btn;
+        
         ProvincePopulationTab* pop_tab;
-
-        UI::Button* econ_btn;
         ProvinceEconomyTab* econ_tab;
-
-        UI::Button* nation_btn;
-
-        UI::CloseButton* close_btn;
     public:
         ProvinceView(GameState& gs, Province* province);
     };

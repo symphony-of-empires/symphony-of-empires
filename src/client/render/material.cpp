@@ -54,7 +54,6 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
             sline >> map_path;
 
             if(map_path[0] == '.') continue;
-
             curr_mat->texture = &g_texture_manager->load_texture(Path::get("3d/" + map_path));
         } else {
             print_info("Command %s not implemented", cmd.c_str());

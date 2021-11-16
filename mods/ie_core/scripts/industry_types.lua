@@ -1,11 +1,11 @@
 -- Industry types
 
 -- Primary sector industries (the most essential)
-sand_smelter = IndustryType:new{ ref_name = "sand_smelter" }
-sand_smelter.name = _("Sand smelter")
-sand_smelter:register()
+glass_factory = IndustryType:new{ ref_name = "glass_factory" }
+glass_factory.name = _("Glass factory")
+glass_factory:register()
 -- glass factories can new glass from thin air
-sand_smelter:add_output(glass)
+glass_factory:add_output(glass)
 
 oil_refinery = IndustryType:new{ ref_name = "oil_refinery" }
 oil_refinery.name = _("Oil refinery")
