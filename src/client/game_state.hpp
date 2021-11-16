@@ -36,8 +36,8 @@ class Map;
 class Client;
 class GameState {
 public:
-    GameState(Camera _cam) : cam{_cam} {};
-    // TODO: add deconstructor
+    GameState(Camera _cam): cam{ _cam } {};
+    ~GameState();
 
     void play_nation();
     void send_command(Archive& archive);

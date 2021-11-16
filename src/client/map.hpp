@@ -18,6 +18,7 @@
 class Map {
 public:
     Map(const World& world);
+    ~Map() {};
 
     std::vector<const UnifiedRender::ComplexModel*> unit_type_icons, outpost_type_icons;
     std::vector<const UnifiedRender::Texture*> nation_flags;

@@ -330,8 +330,8 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
         std::string path;
         path = Path::get("ui/flags/" + nation->ref_name + "_" +
             ((nation->ideology == nullptr)
-            ? "none"
-            : nation->ideology->ref_name) + ".png"
+                ? "none"
+                : nation->ideology->ref_name) + ".png"
         );
         gs.map->nation_flags.push_back(&g_texture_manager->load_texture(path));
     }
@@ -357,7 +357,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     run = true;
     while(run) {
         std::lock_guard lock(gs.render_lock);
-        
+
         handle_event(gs.input, gs, run);
         if(gs.current_mode == MapMode::NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
@@ -495,3 +495,10 @@ void start_client(int argc, char** argv) {
     SDL_Quit();
     return;
 }
+
+GameState::~GameState() {
+    delete world;
+    delete curr_nation;
+    delete map;
+    delete ui_ctx;
+};
