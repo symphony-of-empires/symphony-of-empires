@@ -33,7 +33,7 @@ MainMenu::MainMenu(GameState& _gs)
     mp_btn->below_of(*single_btn);
     mp_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
-        auto* conn = new MainMenuConnectServer(o.gs);
+        auto* conn = new MainMenuConnectServer(o.gs, &o);
     });
 
     auto* cfg_btn = new UI::Button(0, 0, 256, 24, this);
@@ -45,10 +45,10 @@ MainMenu::MainMenu(GameState& _gs)
     exit_btn->below_of(*cfg_btn);
 }
 
-MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
+MainMenuConnectServer::MainMenuConnectServer(GameState& _gs, MainMenu* parent)
     : gs{ _gs },
     in_game{ false },
-    UI::Window((_gs.width / 2) - (512 / 2), (_gs.height / 2) - (128 / 2), 512, 128)
+    UI::Window(0, 0, 512, 128, parent)
 {
     this->is_pinned = true;
     this->is_scroll = false;

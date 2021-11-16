@@ -13,7 +13,7 @@ namespace Interface {
 
     class MainMenuConnectServer : public UI::Window {
     public:
-        MainMenuConnectServer(GameState& gs);
+        MainMenuConnectServer(GameState& gs, MainMenu* parent);
 
         GameState& gs;
         bool in_game;
