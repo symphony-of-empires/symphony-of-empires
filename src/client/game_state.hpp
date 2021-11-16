@@ -39,7 +39,7 @@ class Map;
 class Client;
 class GameState {
 public:
-    GameState(OrbitCamera _cam) : cam{_cam} {};
+    GameState() {};
     // TODO: add deconstructor
 
     void play_nation();
@@ -55,8 +55,6 @@ public:
     // Nation::Id curr_nation
     Nation* curr_nation;
     Map* map;
-    // TODO Move camera into map later since it will never be used outside of map anyway
-    OrbitCamera cam;
     Input input;
     int width, height;
     MapMode current_mode = MapMode::NO_MAP;

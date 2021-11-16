@@ -61,21 +61,19 @@
 #include "client/ui.hpp"
 
 void GameState::play_nation() {
-    // TODO add this to action
     current_mode = MapMode::NORMAL;
 
     const Province* capital = curr_nation->capital;
     if(capital != nullptr) {
-        cam.position.x = capital->max_x;
-        cam.position.y = capital->max_y;
-        cam.position.z = -100.f;
+        map->camera->position.x = capital->max_x;
+        map->camera->position.y = capital->max_y;
+        map->camera->position.z = -100.f;
     }
 
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
 
     // Select the nation
-    // TODO put in action
     g_client->packet_mutex.lock();
     Packet packet = Packet();
     Archive ar = Archive();
@@ -110,7 +108,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
             if(event.button.button == SDL_BUTTON_MIDDLE) {
                 input.middle_mouse_down = true;
-                input.last_camera_drag_pos = gs.cam.get_map_pos(mouse_pos);
+                input.last_camera_drag_pos = gs.map->camera->get_map_pos(mouse_pos);
             }
             break;
         case SDL_MOUSEBUTTONUP:
@@ -129,11 +127,11 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
             if(input.middle_mouse_down) {  // Drag the map with middlemouse
-                std::pair<float, float> map_pos = gs.cam.get_map_pos(mouse_pos);
-                gs.cam.position.x += input.last_camera_drag_pos.first - map_pos.first;
-                gs.cam.position.y += input.last_camera_drag_pos.second - map_pos.second;
+                std::pair<float, float> map_pos = gs.map->camera->get_map_pos(mouse_pos);
+                gs.map->camera->position.x += input.last_camera_drag_pos.first - map_pos.first;
+                gs.map->camera->position.y += input.last_camera_drag_pos.second - map_pos.second;
             }
-            input.select_pos = gs.cam.get_map_pos(input.mouse_pos);
+            input.select_pos = gs.map->camera->get_map_pos(input.mouse_pos);
             input.select_pos.first = (int)input.select_pos.first;
             input.select_pos.second = (int)input.select_pos.second;
             break;
@@ -142,7 +140,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
             click_on_ui = ui_ctx->check_wheel(mouse_pos.first, mouse_pos.second, event.wheel.y * 6);
             if(!click_on_ui) {
-                gs.cam.velocity.z += event.wheel.y * 2.0f;
+                gs.map->camera->move((float)0, (float)0, event.wheel.y * 2.0f);
             }
             break;
         case SDL_TEXTINPUT:
@@ -151,16 +149,16 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
         case SDL_KEYDOWN:
             switch(event.key.keysym.sym) {
             case SDLK_UP:
-                gs.cam.velocity.y -= std::min(4.f, std::max(0.5f, 0.02f));
+                gs.map->camera->move((float)0, (float)-1, (float)0);
                 break;
             case SDLK_DOWN:
-                gs.cam.velocity.y += std::min(4.f, std::max(0.5f, 0.02f));
+                gs.map->camera->move((float)0, (float)1, (float)0);
                 break;
             case SDLK_LEFT:
-                gs.cam.velocity.x -= std::min(4.f, std::max(0.5f, 0.02f));
+                gs.map->camera->move((float)-1, (float)0, (float)0);
                 break;
             case SDLK_RIGHT:
-                gs.cam.velocity.x += std::min(4.f, std::max(0.5f, 0.02f));
+                gs.map->camera->move((float)1, (float)0, (float)0);
                 break;
             case SDLK_t:
                 if(gs.current_mode != MapMode::NO_MAP) {
@@ -184,7 +182,8 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
                 std::pair<float, float> old_size = std::make_pair(width, height);
                 SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height);
-                gs.cam.set_screen(width, height);
+                // TODO move to map
+                // gs.map->camera->set_screen(width, height);
 
                 // Resize/recenter UI according to screen change
                 for(auto& widget : ui_ctx->widgets) {
@@ -225,17 +224,16 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     glFrontFace(GL_CW);
 
     if(gs.current_mode != MapMode::NO_MAP) {
-        OrbitCamera& cam = gs.cam;
         Map* map = gs.map;
 
         glPushMatrix();
         glMatrixMode(GL_PROJECTION);
-        glLoadMatrixf(glm::value_ptr(cam.get_projection()));
+        glLoadMatrixf(glm::value_ptr(map->camera->get_projection()));
         glViewport(0, 0, width, height);
         glMatrixMode(GL_MODELVIEW);
-        glLoadMatrixf(glm::value_ptr(cam.get_view()));
+        glLoadMatrixf(glm::value_ptr(map->camera->get_view()));
 
-        map->draw(cam, width, height);
+        map->draw(width, height);
 
         gs.world->world_mutex.lock();
         if(selected_unit != nullptr) {
@@ -270,7 +268,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
 
         glPopMatrix();
 
-        cam.update();
+        map->camera->update();
     }
 
     gs.ui_ctx->render_all(width, height);
@@ -409,7 +407,7 @@ void start_client(int argc, char** argv) {
     // globals
     SDL_Window* window;
     int width = 1280, height = 800;
-    GameState gs{ OrbitCamera(width, height, 100.f) };
+    GameState gs{};
 
     window = SDL_CreateWindow("Symphony of Empires", 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext context = SDL_GL_CreateContext(window);

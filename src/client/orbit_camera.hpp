@@ -8,26 +8,22 @@
 #include "print.hpp"
 #include <math.h>
 
-class OrbitCamera {
+class OrbitCamera: public Camera {
 public:
     float fov = 45.0f, near_plane = 1.0f, far_plane = 20000.0f;
     float radius;
-    glm::vec2 screen_size;
-    glm::vec3 position, velocity;
+    glm::vec3 velocity;
     glm::vec3 flat_position;
 
-    OrbitCamera(int width, int height, float _radius) {
+    OrbitCamera(int width, int height, float _radius): Camera(width, height) {
         radius = _radius;
-        set_screen(width, height);
         position = glm::vec3(400, 200, -400.f);
         velocity = glm::vec3(0);
     }
 
-    void set_screen(const int width, const int height) {
-        screen_size = glm::vec2(width, height);
-    }
+    void move(float x_dir, float y_dir, float z_dir) override {}
 
-    void update(void) {
+    void update(void) override {
         flat_position.x += velocity.x * 0.1;
         flat_position.y += velocity.y * 0.1;
         flat_position.z += velocity.z * 0.01;
@@ -42,25 +38,21 @@ public:
         else
             velocity.z = 0.f;
 
-        flat_position.x = fmod(flat_position.x, 2.f*M_PI);
+        flat_position.x = fmod(flat_position.x, 2.f * M_PI);
         flat_position.y = std::max(0.f, std::min(3.1415f, flat_position.y));
         flat_position.z = std::max(1.f, std::min(10.f, flat_position.z));
 
         position.x = flat_position.z * radius * cos(flat_position.x) * sin(flat_position.y);
         position.y = flat_position.z * radius * sin(flat_position.x) * sin(flat_position.y);
         position.z = flat_position.z * radius * cos(flat_position.y);
-        print_info("%.6f", flat_position.x);
-        print_info("%.6f", flat_position.y);
-        print_info("%.6f", flat_position.z);
-        print_info("--");
     };
 
-    glm::mat4 get_projection() {
+    glm::mat4 get_projection() override {
         float aspect_ratio = screen_size.x / screen_size.y;
         return glm::perspective(glm::radians(fov), aspect_ratio, near_plane, far_plane);
     };
 
-    glm::mat4 get_view() {
+    glm::mat4 get_view() override {
         glm::vec3 look_at = glm::vec3(0);
         // glm::vec3 up_vector = glm::vec3(0);
         glm::vec3 up_vector = glm::vec3(0.f, -1.f, 0.f);
@@ -70,7 +62,7 @@ public:
         return glm::lookAt(position, look_at, up_vector);
     };
 
-    std::pair<float, float> get_map_pos(std::pair<int, int> mouse_pos) {
+    std::pair<float, float> get_map_pos(std::pair<int, int> mouse_pos) override {
         float mouse_x = mouse_pos.first;
         float mouse_y = screen_size.y - 1.f - mouse_pos.second;
 
