@@ -19,7 +19,7 @@ Map::Map(const World& _world): world(_world) {
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
     if(glewIsSupported("GL_VERSION_2_1")) {
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
-        map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 25.f, 100);
+        map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
         map_2d_quad = new UnifiedRender::OpenGl::Quad2D();
         water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
         water_tex->gen_mipmaps();
@@ -432,7 +432,7 @@ void Map::update(World& world) {
     }
 }
 
-void Map::draw(Camera& cam, const int width, const int height) {
+void Map::draw(OrbitCamera& cam, const int width, const int height) {
     glm::mat4 view, projection;
 
     // Map should have no "model" matrix since it's always static
@@ -457,7 +457,7 @@ void Map::draw(Camera& cam, const int width, const int height) {
     map_shader->set_texture(8, "border_sdf", border_sdf);
     map_shader->set_texture(9, "map_color", map_color);
 
-    map_quad->draw();
+    // map_quad->draw();
     map_sphere->draw();
 
     // TODO: We need to better this

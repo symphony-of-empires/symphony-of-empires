@@ -189,8 +189,8 @@ void main() {
 
 	// Heightmapping
 	vec3 view_dir = normalize(view_pos - v_frag_pos);
-	vec2 tex_coords = parallax_map(v_texcoord, view_dir);
-	// vec2 tex_coords = v_texcoord;
+	// vec2 tex_coords = parallax_map(v_texcoord, view_dir);
+	vec2 tex_coords = v_texcoord;
 	if(tex_coords.x > 1.0 || tex_coords.y > 1.0 || tex_coords.x < 0.0 || tex_coords.y < 0.0)
 		discard;
 
@@ -292,5 +292,6 @@ void main() {
 	vec3 ambient = 0.1 * out_colour.xyz;
 
 	f_frag_colour = vec4(diffuse + ambient, 1.);
+	f_frag_colour = out_colour;
 	// f_frag_colour = texture(border_tex, v_texcoord);
 }

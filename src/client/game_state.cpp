@@ -45,6 +45,7 @@
 #include "serializer.hpp"
 #include "world.hpp"
 #include "client/camera.hpp"
+#include "client/orbit_camera.hpp"
 #include "client/client_network.hpp"
 #include "client/interface/descision.hpp"
 #include "client/interface/province_view.hpp"
@@ -150,16 +151,16 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
         case SDL_KEYDOWN:
             switch(event.key.keysym.sym) {
             case SDLK_UP:
-                gs.cam.velocity.y -= std::min(4.f, std::max(0.5f, 0.02f * -gs.cam.position.z));
+                gs.cam.velocity.y -= std::min(4.f, std::max(0.5f, 0.02f));
                 break;
             case SDLK_DOWN:
-                gs.cam.velocity.y += std::min(4.f, std::max(0.5f, 0.02f * -gs.cam.position.z));
+                gs.cam.velocity.y += std::min(4.f, std::max(0.5f, 0.02f));
                 break;
             case SDLK_LEFT:
-                gs.cam.velocity.x -= std::min(4.f, std::max(0.5f, 0.02f * -gs.cam.position.z));
+                gs.cam.velocity.x -= std::min(4.f, std::max(0.5f, 0.02f));
                 break;
             case SDLK_RIGHT:
-                gs.cam.velocity.x += std::min(4.f, std::max(0.5f, 0.02f * -gs.cam.position.z));
+                gs.cam.velocity.x += std::min(4.f, std::max(0.5f, 0.02f));
                 break;
             case SDLK_t:
                 if(gs.current_mode != MapMode::NO_MAP) {
@@ -219,8 +220,12 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CW);
+
     if(gs.current_mode != MapMode::NO_MAP) {
-        Camera& cam = gs.cam;
+        OrbitCamera& cam = gs.cam;
         Map* map = gs.map;
 
         glPushMatrix();
@@ -319,8 +324,8 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
         std::string path;
         path = Path::get("ui/flags/" + nation->ref_name + "_" +
             ((nation->ideology == nullptr)
-            ? "none"
-            : nation->ideology->ref_name) + ".png"
+                ? "none"
+                : nation->ideology->ref_name) + ".png"
         );
         gs.map->nation_flags.push_back(&g_texture_manager->load_texture(path));
     }
@@ -347,7 +352,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     run = true;
     while(run) {
         std::lock_guard lock(gs.render_lock);
-        
+
         handle_event(gs.input, gs, run);
         if(gs.current_mode == MapMode::NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
@@ -404,7 +409,7 @@ void start_client(int argc, char** argv) {
     // globals
     SDL_Window* window;
     int width = 1280, height = 800;
-    GameState gs{ Camera(width, height) };
+    GameState gs{ OrbitCamera(width, height, 100.f) };
 
     window = SDL_CreateWindow("Symphony of Empires", 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext context = SDL_GL_CreateContext(window);
