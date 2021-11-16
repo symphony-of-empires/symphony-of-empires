@@ -21,6 +21,19 @@ public:
     void set_screen(const int width, const int height) {
         screen_size = glm::vec2(width, height);
     }
+
+    void move_up() {
+
+    }
+    void move_down() {
+
+    }
+    void move_left() {
+
+    }
+    void move_right() {
+
+    }
     
     void update(void) {
         velocity.x = std::min(16.f, velocity.x);

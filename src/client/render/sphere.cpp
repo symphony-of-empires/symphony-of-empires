@@ -39,6 +39,6 @@ PackedData<glm::vec3, glm::vec2> Sphere::calc_pos(float longitude, float latitud
 	float y = radius * sin(longitude_rad) * sin(latitude_rad);
 	float z = radius * cos(latitude_rad);
 	glm::vec3 pos(x, y, z);
-	glm::vec2 tex_coord(longitude_ratio, 1.-latitude_ratio);
+	glm::vec2 tex_coord(longitude_ratio, latitude_ratio);
 	return PackedData<glm::vec3, glm::vec2>(pos, tex_coord);
 }

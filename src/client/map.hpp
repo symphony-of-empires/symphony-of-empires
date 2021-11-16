@@ -10,6 +10,7 @@
 #include "province.hpp"
 #include "client/render/texture.hpp"
 #include "client/camera.hpp"
+#include "client/orbit_camera.hpp"
 #include "client/render/primitive.hpp"
 #include "client/render/sphere.hpp"
 #include "client/render/shader.hpp"
@@ -52,7 +53,7 @@ public:
 
     void update(World& world);
     void draw_flag(const Nation* nation);
-    void draw(Camera& cam, const int width, const int height);
+    void draw(OrbitCamera& cam, const int width, const int height);
     void handle_click(GameState& gs, SDL_Event event);
     void set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_colors);
     void reload_shaders();

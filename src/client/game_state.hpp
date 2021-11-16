@@ -13,6 +13,8 @@
 #include "serializer.hpp"
 #include "client/map.hpp"
 #include "client/ui.hpp"
+#include "client/camera.hpp"
+#include "client/orbit_camera.hpp"
 
 enum class MapMode {
     COUNTRY_SELECT,
@@ -37,7 +39,7 @@ class Map;
 class Client;
 class GameState {
 public:
-    GameState(Camera _cam) : cam{_cam} {};
+    GameState(OrbitCamera _cam) : cam{_cam} {};
     // TODO: add deconstructor
 
     void play_nation();
@@ -54,7 +56,7 @@ public:
     Nation* curr_nation;
     Map* map;
     // TODO Move camera into map later since it will never be used outside of map anyway
-    Camera cam;
+    OrbitCamera cam;
     Input input;
     int width, height;
     MapMode current_mode = MapMode::NO_MAP;
