@@ -17,6 +17,7 @@
 
 Map::Map(const World& _world): world(_world) {
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
+    camera = new OrbitCamera(world.width, world.height, 100.f);
     if(glewIsSupported("GL_VERSION_2_1")) {
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
         map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
@@ -89,7 +90,7 @@ Map::Map(const World& _world): world(_world) {
             // Water
             color = 0x00000000;
         }
-        else if (tile.owner_id == (Nation::Id)-1) {
+        else if(tile.owner_id == (Nation::Id)-1) {
             // Land
             color = 0xffdddddd;
         }
@@ -432,15 +433,15 @@ void Map::update(World& world) {
     }
 }
 
-void Map::draw(OrbitCamera& cam, const int width, const int height) {
+void Map::draw(const int width, const int height) {
     glm::mat4 view, projection;
 
     // Map should have no "model" matrix since it's always static
     map_shader->use();
-    view = cam.get_view();
+    view = camera->get_view();
     map_shader->set_uniform("view", view);
-    map_shader->set_uniform("view_pos", cam.position.x, cam.position.y, cam.position.z);
-    projection = cam.get_projection();
+    map_shader->set_uniform("view_pos", camera->position.x, camera->position.y, camera->position.z);
+    projection = camera->get_projection();
 
     map_shader->set_uniform("projection", projection);
 
@@ -462,9 +463,9 @@ void Map::draw(OrbitCamera& cam, const int width, const int height) {
 
     // TODO: We need to better this
     obj_shader->use();
-    view = cam.get_view();
+    view = camera->get_view();
     obj_shader->set_uniform("view", view);
-    projection = cam.get_projection();
+    projection = camera->get_projection();
     obj_shader->set_uniform("projection", projection);
     obj_shader->set_uniform("map_diffusion", 0);
 

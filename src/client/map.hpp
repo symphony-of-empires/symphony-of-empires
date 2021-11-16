@@ -30,7 +30,9 @@ public:
     float wind_osc = 0.f;
 
     const World& world;
+    Camera* camera;
 
+    // Map textures
     UnifiedRender::Texture* tile_map;
     UnifiedRender::Texture* tile_sheet;
     UnifiedRender::Texture* border_tex;
@@ -40,8 +42,9 @@ public:
     const UnifiedRender::Texture* topo_tex;
     const UnifiedRender::Texture* terrain_tex;
     const UnifiedRender::Texture* map_color;
-    // const UnifiedRender::Texture* terrain_sheet;
     UnifiedRender::TextureArray* terrain_sheet;
+    // const UnifiedRender::Texture* terrain_sheet;
+
     UnifiedRender::OpenGl::PrimitiveSquare* map_quad;
     UnifiedRender::OpenGl::Sphere* map_sphere;
     UnifiedRender::OpenGl::Quad2D* map_2d_quad;
@@ -53,7 +56,7 @@ public:
 
     void update(World& world);
     void draw_flag(const Nation* nation);
-    void draw(OrbitCamera& cam, const int width, const int height);
+    void draw(const int width, const int height);
     void handle_click(GameState& gs, SDL_Event event);
     void set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_colors);
     void reload_shaders();

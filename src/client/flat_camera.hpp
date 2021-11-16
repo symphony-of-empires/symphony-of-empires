@@ -6,22 +6,17 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/intersect.hpp>
 
-class CameraFlat {
+class FlatCamera: public Camera {
 public:
     float fov = 45.0f, near_plane = 1.0f, far_plane = 20000.0f;
     glm::vec2 screen_size;
     glm::vec3 position, velocity;
 
-    CameraFlat(int width, int height) {
-        set_screen(width, height);
+    FlatCamera(int width, int height): Camera(width, height) {
         position = glm::vec3(400, 200, -400.f);
         velocity = glm::vec3(0);
     }
 
-    void set_screen(const int width, const int height) {
-        screen_size = glm::vec2(width, height);
-    }
-    
     void update(void) {
         velocity.x = std::min(16.f, velocity.x);
         velocity.y = std::min(16.f, velocity.y);
@@ -33,14 +28,14 @@ public:
             velocity.x += 0.8f;
         else
             velocity.x = 0.f;
-        
+
         if(velocity.y >= 0.9f)
             velocity.y -= 0.8f;
         else if(velocity.y <= -0.9f)
             velocity.y += 0.8f;
         else
             velocity.y = 0.f;
-        
+
         if(velocity.z >= 0.9f)
             velocity.z -= 0.8f;
         else if(velocity.z <= -0.9f)
@@ -65,35 +60,35 @@ public:
     glm::mat4 get_view() {
         glm::vec3 look_at = position;
         look_at.z = 0;
-        look_at.y -= position.z > -200 ? 0.06f * (200 + position.z) : 0; 
+        look_at.y -= position.z > -200 ? 0.06f * (200 + position.z) : 0;
         glm::vec3 up_vector = glm::vec3(0.f, -1.f, 0.f);
         return glm::lookAt(position, look_at, up_vector);
     };
 
     std::pair<float, float> get_map_pos(std::pair<int, int> mouse_pos) {
         float mouse_x = mouse_pos.first;
-        float mouse_y = screen_size.y - 1.f - mouse_pos.second;	
-            
+        float mouse_y = screen_size.y - 1.f - mouse_pos.second;
+
         glm::mat4 view = get_view();
         glm::mat4 projection = get_projection();
 
         glm::vec3 world_space_near = glm::unProject(
-            glm::vec3(mouse_x, mouse_y, 0.f), 
+            glm::vec3(mouse_x, mouse_y, 0.f),
             view, projection,
             glm::vec4(0.f, 0.f, screen_size));
-            
+
         glm::vec3 world_space_far = glm::unProject(
             glm::vec3(mouse_x, mouse_y, 1.f),
             view, projection,
             glm::vec4(0.f, 0.f, screen_size)
         );
-            
+
         glm::vec3 ray_direction = world_space_far - world_space_near;
 
         float distance = 0.f;
         glm::intersectRayPlane(world_space_near, ray_direction, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), distance);
-            
+
         glm::vec3 intersection_point = world_space_near + ray_direction * distance;
-        return std::pair<float, float> (intersection_point.x, intersection_point.y);
+        return std::pair<float, float>(intersection_point.x, intersection_point.y);
     };
 };
