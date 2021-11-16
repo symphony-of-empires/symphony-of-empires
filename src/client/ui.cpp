@@ -30,13 +30,14 @@
 using namespace UI;
 
 static Context* g_ui_context = nullptr;
-SDL_Color text_color = { 0, 0, 0, 0 };
+SDL_Color text_color ={ 0, 0, 0, 0 };
 
 Context::Context() {
     if(g_ui_context != nullptr) {
         throw std::runtime_error("UI context already constructed");
     }
-    default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 16);
+    // default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 16);
+    default_font = TTF_OpenFont(Path::get("ui/fonts/Poppins/Poppins-Regular.ttf").c_str(), 16);
     if(default_font == nullptr)
         throw std::runtime_error(std::string() + "Font could not be loaded: " + TTF_GetError() + ", exiting");
 
@@ -45,7 +46,7 @@ Context::Context() {
     background = &g_texture_manager->load_texture(Path::get("ui/background.png"));
     window_top = &g_texture_manager->load_texture(Path::get("ui/window_top.png"));
     button = &g_texture_manager->load_texture(Path::get("ui/button.png"));
-    tooltip = &g_texture_manager->load_texture(Path::get("ui/tooltip.png"));
+    tooltip_texture = &g_texture_manager->load_texture(Path::get("ui/tooltip.png"));
     piechart_overlay = &g_texture_manager->load_texture(Path::get("ui/piechart.png"));
 
     g_ui_context = this;
@@ -64,8 +65,7 @@ void Context::add_widget(Widget* widget) {
 
 void Context::remove_widget(Widget* widget) {
     for(size_t i = 0; i < widgets.size(); i++) {
-        if(widgets[i] != widget)
-            continue;
+        if(widgets[i] != widget) continue;
 
         widgets.erase(widgets.begin() + i);
         break;
@@ -109,8 +109,7 @@ void Context::clear_dead() {
 // }
 
 void Context::render_recursive(Widget& w, int x_off, int y_off) {
-    if(!w.width || !w.height)
-        return;
+    if(!w.width || !w.height) return;
 
     x_off += w.x;
     y_off += w.y;
@@ -137,6 +136,8 @@ void Context::render_recursive(Widget& w, int x_off, int y_off) {
 }
 
 void Context::render_all(const int width, const int height) {
+    this->width = width;
+    this->height = height;
     glPushMatrix();
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -147,6 +148,9 @@ void Context::render_all(const int width, const int height) {
     for(auto& widget : this->widgets) {
         render_recursive(*widget, 0, 0);
     }
+    if(tooltip_widget != nullptr) {
+        render_recursive(*tooltip_widget, 0, 0);
+    }
     glPopMatrix();
 }
 
@@ -156,8 +160,7 @@ int Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsig
 
     w.is_hover = false;
 
-    if(!w.is_show)
-        return 0;
+    if(!w.is_show) return 0;
 
     if(!((int)mx >= x_off && mx <= x_off + w.width && (int)my >= y_off && my <= y_off + w.height))
         return 0;
@@ -165,6 +168,11 @@ int Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsig
     w.is_hover = true;
     if(w.on_hover)
         w.on_hover(w, w.user_data);
+
+    if(w.tooltip != nullptr) {
+        tooltip_widget = w.tooltip;
+        tooltip_widget->set_pos(x_off, y_off, w.width, w.height, width, height);
+    }
 
     for(auto& child : w.children) {
         check_hover_recursive(*child, mx, my, x_off, y_off);
@@ -181,6 +189,7 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
         return;
     }
 
+    tooltip_widget = nullptr;
     for(int i = widgets.size() - 1; i >= 0; i--) {
         check_hover_recursive(*widgets[i], mx, my, 0, 0);
     }
@@ -270,10 +279,10 @@ int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_of
 
     // Widget must be shown
     if(!w.is_show) return 0;
-    
+
     if(!((int)mx >= x_off && mx <= x_off + w.width && (int)my >= y_off && my <= y_off + w.height))
         return 0;
-    
+
     // When we check the children they shall return non-zero if they are a group/window
     // We will only select the most-front children that is either a G/W - this is done
     // because when we call this function we will return 1 if the children is a G/W
@@ -314,6 +323,9 @@ void Context::do_tick(void) {
 }
 
 int Context::do_tick_recursive(Widget& w) {
+    // Do not evaluate widgets that are not even rendered
+    if(!w.is_render) return 0;
+
     if(w.on_each_tick) w.on_each_tick(w, w.user_data);
 
     for(auto& child : w.children) {
@@ -345,7 +357,7 @@ void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const GLui
 #include <deque>
 void Widget::on_render(Context& ctx) {
     // Shadows
-    if(type == UI_WIDGET_WINDOW) {
+    if(type == UI_WIDGET_WINDOW || type == UI_WIDGET_TOOLTIP) {
         // Shadow
         glBindTexture(GL_TEXTURE_2D, 0);
         glColor4f(0.f, 0.f, 0.f, 0.75f);
@@ -360,14 +372,10 @@ void Widget::on_render(Context& ctx) {
     }
 
     glColor3f(1.f, 1.f, 1.f);
-    if(on_click && is_hover) {
-        glColor3f(0.5f, 0.5f, 0.5f);
-    }
 
     // Background (tile) display
     if(type == UI_WIDGET_INPUT) {
         glBindTexture(GL_TEXTURE_2D, 0);
-
         glColor3f(0.f, 0.f, 1.f);
         glBegin(GL_TRIANGLES);
         glVertex2f(0.f, 0.f);
@@ -413,7 +421,8 @@ void Widget::on_render(Context& ctx) {
     }
 
     if(type == UI_WIDGET_BUTTON) {
-        const size_t padding = 4;
+        const size_t padding = 2;
+
         // Put a "grey" inner background
         glBindTexture(GL_TEXTURE_2D, ctx.button->gl_tex_num);
         glBegin(GL_TRIANGLES);
@@ -433,22 +442,31 @@ void Widget::on_render(Context& ctx) {
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    glLineWidth(3.f);
-
-    if(type == UI_WIDGET_INPUT) {
-        glColor3f(1.f, 1.f, 1.f);
-    }
-    else {
-        glColor3f(0.f, 0.f, 0.f);
-    }
     if(1) {
+        glLineWidth(2.f);
+
         // Outer black border
         glBegin(GL_LINE_STRIP);
-        glVertex2f(0, 0);
-        glVertex2f(width, 0);
+
+        if(type == UI_WIDGET_WINDOW) {
+            glColor3f(1.f, 1.f, 1.f);
+        }
+        else {
+            glColor3f(0.f, 0.f, 0.f);
+        }
+        glVertex2f(0.f, height);
+        glVertex2f(0.f, 0.f);
+        glVertex2f(width, 0.f);
+
+        if(type == UI_WIDGET_WINDOW) {
+            glColor3f(0.f, 0.f, 0.f);
+        }
+        else {
+            glColor3f(1.f, 1.f, 1.f);
+        }
+        glVertex2f(width, 0.f);
         glVertex2f(width, height);
-        glVertex2f(0, height);
-        glVertex2f(0, 0);
+        glVertex2f(0.f, height);
         glEnd();
     }
 
@@ -458,6 +476,20 @@ void Widget::on_render(Context& ctx) {
             4, 4,
             text_texture->width, text_texture->height,
             text_texture->gl_tex_num);
+    }
+
+    // Semi-transparent overal over elements which can be selected
+    if(on_click && is_hover) {
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glColor4f(1.5f, 1.f, 1.f, 0.5f);
+        glBegin(GL_TRIANGLES);
+        glVertex2f(0.f, 0.f);
+        glVertex2f(width, 0.f);
+        glVertex2f(width, height);
+        glVertex2f(width, height);
+        glVertex2f(0.f, height);
+        glVertex2f(0.f, 0.f);
+        glEnd();
     }
 }
 
@@ -498,6 +530,13 @@ Widget::~Widget() {
     }
     children.clear();
 
+    // Common texture also deleted?
+    if(text_texture != nullptr) {
+        delete text_texture;
+    }
+    if(tooltip != nullptr) {
+        delete tooltip;
+    }
     if(parent == nullptr) {
         // Hide widget immediately upon destruction
         g_ui_context->remove_widget(this);
@@ -524,35 +563,27 @@ void Widget::text(const std::string& _text) {
     SDL_Surface* surface;
 
     if(text_texture != nullptr) {
-        glDeleteTextures(1, &text_texture->gl_tex_num);
+        // Auto deletes gl_texture
         delete text_texture;
     }
 
     //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    surface = TTF_RenderUTF8_Solid(g_ui_context->default_font, _text.c_str(), text_color);
+    surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), text_color);
     if(surface == nullptr)
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
 
     text_texture = new UnifiedRender::Texture(surface->w, surface->h);
     text_texture->gl_tex_num = 0;
-
-    for(size_t i = 0; i < (size_t)surface->w; i++) {
-        for(size_t j = 0; j < (size_t)surface->h; j++) {
-            uint8_t r, g, b, a;
-            uint32_t pixel = *((uint32_t *)&((uint8_t *)surface->pixels)[i + j * surface->pitch]);
-            SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
-
-            if(a == 0xff) {
-                pixel = 0;
-            } else {
-                pixel = ((~a) << 24) | 0xffffff;
-            }
-
-            text_texture->buffer[i + j * text_texture->width] = pixel;
-        }
-    }
+    text_texture->to_opengl(surface);
     SDL_FreeSurface(surface);
-    text_texture->to_opengl();
+}
+
+void Widget::set_tooltip(Tooltip* _tooltip) {
+    // Why doesn't this work??
+    // if(tooltip != nullptr) {
+    //     delete tooltip;
+    // }
+    tooltip = _tooltip;
 }
 
 Color::Color(uint8_t red, uint8_t green, uint8_t blue)
@@ -576,6 +607,32 @@ Color::Color(uint32_t rgb)
  */
 Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI_WIDGET_WINDOW), is_movable(true) {
+}
+
+// Would be used for autosized tooltips
+Tooltip::Tooltip()
+    : Widget() {
+    type = UI_WIDGET_TOOLTIP;
+}
+
+Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
+    : Widget() {
+    parent->set_tooltip(this);
+    type = UI_WIDGET_TOOLTIP;
+    width = w;
+    height = h;
+}
+
+void Tooltip::set_pos(int _x, int _y, int _width, int _height, int screen_w, int screen_h) {
+    int extra_above = _y;
+    int extra_below = screen_h - _y - _height;
+    if (extra_above > extra_below) {
+        y = _y - height - 10;
+    }
+    else {
+        y = _y + _height + 10;
+    }
+    x = _x;
 }
 
 Checkbox::Checkbox(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
@@ -681,13 +738,36 @@ void Chart::on_render(Context& ctx) {
             current_texture->gl_tex_num);
     }
 
+    glBindTexture(GL_TEXTURE_2D, 0);
+    if(1) {
+        glLineWidth(2.f);
+
+        // Outer black border
+        glBegin(GL_LINE_STRIP);
+
+        glColor3f(0.f, 0.f, 0.f);
+        glVertex2f(0, height);
+        glVertex2f(0, 0);
+        glVertex2f(width, 0);
+
+        glColor3f(1.f, 1.f, 1.f);
+        glVertex2f(width, 0);
+        glVertex2f(width, height);
+        glVertex2f(0, height);
+        glEnd();
+    }
+
     if(data.size() > 1) {
         glBindTexture(GL_TEXTURE_2D, 0);
         glLineWidth(2.f);
 
         // Obtain the highest and lowest values
         double max = *std::max_element(data.begin(), data.end());
-        double min = *std::min_element(data.begin(), data.end());
+        double min = 0.f;
+
+        if(max < min) {
+            min = *std::min_element(data.begin(), data.end());
+        }
 
         // Works on zero-only graphs
         if(max == min) {
@@ -730,17 +810,6 @@ void Chart::on_render(Context& ctx) {
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    glLineWidth(3.f);
-    glColor3f(0.f, 0.f, 0.f);
-
-    // Inner black border
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(0, 0);
-    glVertex2f(width, 0);
-    glVertex2f(width, height);
-    glVertex2f(0, height);
-    glVertex2f(0, 0);
-    glEnd();
 }
 
 Slider::Slider(int _x, int _y, unsigned w, unsigned h, const float _min, const float _max, Widget* _parent)

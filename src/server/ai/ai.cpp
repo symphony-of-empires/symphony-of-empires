@@ -183,7 +183,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
 
 void ai_do_tick(Nation* nation, World* world) {
     if(!nation->exists()) return;
-    return;
+    if(nation->owned_provinces.size() == 0) return;
 
     if(nation->diplomatic_timer != 0) {
         nation->diplomatic_timer--;
@@ -255,8 +255,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     if(std::rand() % 50 >= 25) {
                         print_info("We, %s, deny the treaty of %s", treaty->name.c_str());
                         part.second = TreatyApproval::DENIED;
-                    }
-                    else {
+                    } else {
                         print_info("We, %s, accept the treaty of %s", treaty->name.c_str());
                         part.second = TreatyApproval::ACCEPTED;
                     }
@@ -264,10 +263,92 @@ void ai_do_tick(Nation* nation, World* world) {
             }
         }
     }
-    // Build defenses
-    if(!(std::rand() % 5000)) {
 
+    // TODO: make a better algorithm
+
+    // Risk of invasion
+    uint defense_factor = 1;
+    for(const auto& building : g_world->buildings) {
+        if(building->owner == nation) {
+            defense_factor += ((uint)building->type->defense_bonus + 1) * 10000;
+            continue;
+        }
     }
+    for(const auto& province : nation->owned_provinces) {
+        defense_factor /= ((province->total_pops() + province->n_tiles) / 10000) + 1;
+    }
+
+    if(defense_factor < 500) {
+        defense_factor = 500;
+    }
+
+    // Build defenses
+    if(std::rand() % defense_factor == 0) {
+        Building* building = new Building();
+        building->owner = nation;
+
+        auto it = std::begin(nation->owned_provinces);
+        std::advance(it, std::rand() % nation->owned_provinces.size());
+        Province* province = *it;
+        //Province* province = g_world->provinces[std::rand() % g_world->provinces.size()];
+        if(province->max_x == province->min_x || province->max_y == province->min_y) {
+            return;
+        }
+
+        // Randomly place in any part of the province
+        // TODO: This will create some funny situations where coal factories will appear on
+        // the fucking pacific ocean - we need to fix that
+        building->x = province->min_x + (std::rand() % (province->max_x - province->min_x));
+        building->y = province->min_y + (std::rand() % (province->max_y - province->min_y));
+        building->x = std::min(building->x, g_world->width - 1);
+        building->y = std::min(building->y, g_world->height - 1);
+        building->province = province;
+
+        building->working_unit_type = nullptr;
+
+        building->type = world->building_types[0];
+        world->insert(building);
+
+        // Broadcast the addition of the building to the clients
+        {
+            Packet packet = Packet();
+            Archive ar = Archive();
+            ActionType action = ActionType::BUILDING_ADD;
+            ::serialize(ar, &action);
+            ::serialize(ar, building);
+            packet.data(ar.get_buffer(), ar.size());
+            g_server->broadcast(packet);
+        }
+        print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)world->get_id(building->type), nation->name.c_str(), building->get_province()->name.c_str());
+    }
+
+    // Build units inside buildings that are not doing anything
+    if(std::rand() % 5000 == 0) {
+        for(auto& building : g_world->buildings) {
+            if(building->working_unit_type != nullptr || building->owner != nation) continue;
+
+            while(building->working_unit_type == nullptr || building->working_unit_type->is_naval == false) {
+                building->working_unit_type = g_world->unit_types[rand() % g_world->unit_types.size()];
+            }
+            building->req_goods_for_unit = building->working_unit_type->req_goods;
+            print_info("DEPLOYING UNIT OF TYPE %s IN %s", building->working_unit_type->ref_name.c_str(), building->get_province()->ref_name.c_str());
+        }
+    }
+
+    // Naval AI
+    if(std::rand() % 1000 == 0) {
+        for(auto& unit : g_world->units) {
+            if(unit->owner != nation) continue;
+
+            auto it = std::begin(nation->owned_provinces);
+            std::advance(it, std::rand() % nation->owned_provinces.size());
+            Province* province = *it;
+
+            unit->tx = province->min_x + (std::rand() % (province->max_x - province->min_x));
+            unit->ty = province->min_y + (std::rand() % (province->max_y - province->min_y));
+        }
+    }
+
     // Build a commercially related building
     if(std::rand() % 5000 == 0) {
         Good *target_good;

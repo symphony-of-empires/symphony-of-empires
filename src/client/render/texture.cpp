@@ -58,6 +58,42 @@ void UnifiedRender::Texture::gen_mipmaps() const {
 }
 
 /**
+ * Converts the texture into a OpenGL texture, and assigns it a number
+  */
+void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
+    auto colors = surface->format->BytesPerPixel;
+    GLuint texture_format;
+    if(colors == 4) {   // alpha
+        if(surface->format->Rmask == 0x000000ff)
+            texture_format = GL_RGBA;
+        else
+            texture_format = GL_BGRA;
+    }
+    else {             // no alpha
+        if(surface->format->Rmask == 0x000000ff)
+            texture_format = GL_RGB;
+        else
+            texture_format = GL_BGR;
+    }
+
+    glGenTextures(1, &gl_tex_num);
+    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
+    glTexImage2D(GL_TEXTURE_2D, 0, colors, surface->w, surface->h, 0,
+        texture_format, GL_UNSIGNED_BYTE, surface->pixels);
+
+    if(glewIsSupported("GL_VERSION_2_1"))
+        glGenerateMipmap(GL_TEXTURE_2D);
+    else
+        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+}
+
+
+/**
  * Binds the texture to the current OpenGL context
  */
 void UnifiedRender::Texture::bind(void) const {
@@ -99,7 +135,8 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load_texture(const 
     UnifiedRender::Texture* tex;
     try {
         tex = new UnifiedRender::Texture(path);
-    } catch (BinaryImageException&) {
+    }
+    catch(BinaryImageException&) {
         tex = new UnifiedRender::Texture();
         tex->create_dummy();
     }

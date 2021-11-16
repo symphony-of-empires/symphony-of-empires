@@ -10,11 +10,9 @@ class BinaryImageException: public std::exception {
     std::string buffer;
 public:
     BinaryImageException(const std::string& filename, const std::string& message) {
-        buffer = "";
-        buffer += filename;
-        buffer += ": ";
-        buffer += message;
+        buffer = "" + filename + ":" + message;
     }
+
     virtual const char* what(void) const noexcept {
         return buffer.c_str();
     }

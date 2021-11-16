@@ -10,7 +10,6 @@
 #include "province.hpp"
 #include "client/render/texture.hpp"
 #include "client/camera.hpp"
-#include "client/orbit_camera.hpp"
 #include "client/render/primitive.hpp"
 #include "client/render/sphere.hpp"
 #include "client/render/shader.hpp"
@@ -19,9 +18,11 @@
 #include "client/render/quad_2d.hpp"
 #include "client/render/framebuffer.hpp"
 
+struct Input;
 class Map {
 public:
     Map(const World& world);
+    ~Map() {};
 
     std::vector<const UnifiedRender::ComplexModel*> unit_type_icons, outpost_type_icons;
     std::vector<const UnifiedRender::Texture*> nation_flags;
@@ -54,7 +55,8 @@ public:
     GLuint frame_buffer;
     UnifiedRender::OpenGl::Framebuffer* border_fbuffer;
 
-    void update(World& world);
+    void update(const SDL_Event& event, Input& input);
+    void update_tiles(World& world);
     void draw_flag(const Nation* nation);
     void draw(const int width, const int height);
     void handle_click(GameState& gs, SDL_Event event);

@@ -641,38 +641,50 @@ void World::do_tick() {
             nation->economy_score = economy_score / 100.f;
         }
 
-        for(const auto& product : g_world->products) {
+        {
             // Broadcast to clients
             Packet packet = Packet();
             Archive ar = Archive();
             ActionType action = ActionType::PRODUCT_UPDATE;
             ::serialize(ar, &action);
-            ::serialize(ar, &product); // ProductRef
-            ::serialize(ar, product); // ProductObj
+            Product::Id size = g_world->products.size();
+            ::serialize(ar, &size);
+            for(const auto& product : g_world->products) {
+                ::serialize(ar, &product); // ProductRef
+                ::serialize(ar, product); // ProductObj
+            }
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
         }
 
-        for(const auto& nation : g_world->nations) {
+        {
             // Broadcast to clients
             Packet packet = Packet();
             Archive ar = Archive();
             ActionType action = ActionType::NATION_UPDATE;
             ::serialize(ar, &action);
-            ::serialize(ar, &nation); // NationRef
-            ::serialize(ar, nation); // NationObj
+            Nation::Id size = g_world->nations.size();
+            ::serialize(ar, &size);
+            for(const auto& nation : g_world->nations) {
+                ::serialize(ar, &nation); // NationRef
+                ::serialize(ar, nation); // NationObj
+            }
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
         }
 
-        for(const auto& province : g_world->provinces) {
+        {
             // Broadcast to clients
             Packet packet = Packet();
             Archive ar = Archive();
             ActionType action = ActionType::PROVINCE_UPDATE;
             ::serialize(ar, &action);
-            ::serialize(ar, &province); // ProvinceRef
-            ::serialize(ar, province); // ProvinceObj
+            Nation::Id size = g_world->nations.size();
+            ::serialize(ar, &size);
+            for(const auto& province : g_world->provinces) {
+                ::serialize(ar, &province); // ProvinceRef
+                ::serialize(ar, province); // ProvinceObj
+            }
             packet.data(ar.get_buffer(), ar.size());
             g_server->broadcast(packet);
         }
@@ -874,16 +886,18 @@ void World::do_tick() {
         }
     }
 
-    for(const auto& unit : units) {
+    {
         // Broadcast to clients
         Packet packet = Packet();
         Archive ar = Archive();
-
         ActionType action = ActionType::UNIT_UPDATE;
         ::serialize(ar, &action);
-        ::serialize(ar, &unit);
-        ::serialize(ar, unit);
-
+        Unit::Id size = units.size();
+        ::serialize(ar, &size);
+        for(const auto& unit : units) {
+            ::serialize(ar, &unit);
+            ::serialize(ar, unit);
+        }
         packet.data(ar.get_buffer(), ar.size());
         g_server->broadcast(packet);
     }

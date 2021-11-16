@@ -36,30 +36,28 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
                 o.gs.world->get_id(pop.culture) * 97
             );
 
-            const auto religion_col = UI::Color(
-                o.gs.world->get_id(pop.religion) * 12,
-                o.gs.world->get_id(pop.religion) * 31,
-                o.gs.world->get_id(pop.religion) * 97
-            );
-
-            const auto type_col = UI::Color(
-                o.gs.world->get_id(pop.type) * 12,
-                o.gs.world->get_id(pop.type) * 31,
-                o.gs.world->get_id(pop.type) * 97
-            );
-
             cultures_data.push_back(UI::ChartData(
                 pop.size,
                 pop.culture->name,
                 culture_col
             ));
 
+            const auto religion_col = UI::Color(
+                o.gs.world->get_id(pop.religion) * 12,
+                o.gs.world->get_id(pop.religion) * 31,
+                o.gs.world->get_id(pop.religion) * 97
+            );
             religions_data.push_back(UI::ChartData(
                 pop.size,
                 pop.religion->name,
                 religion_col
             ));
-            
+
+            const auto type_col = UI::Color(
+                o.gs.world->get_id(pop.type) * 12,
+                o.gs.world->get_id(pop.type) * 31,
+                o.gs.world->get_id(pop.type) * 97
+            );
             pop_types_data.push_back(UI::ChartData(
                 pop.size,
                 pop.type->name,
@@ -86,7 +84,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     });
 
     // Add the initial POPs infoboxes, we can later add/remove as needed on each tick update
-    int i = 0;
+    uint i = 0;
     for(const auto& pop : this->province->pops) {
         PopInfo* info = new PopInfo(this->gs, 0, (i * 24) + 128, this->province, i, this);
         this->pop_infos.push_back(info);
@@ -109,9 +107,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
         // Obtain demand, supply and other information about the goods
         std::vector<UI::ChartData> goods_data, products_data;
         for(const auto& product : o.gs.world->products) {
-            if(product->origin != o.province) {
-                continue;
-            }
+            if(product->origin != o.province) continue;
 
             const auto product_col = UI::Color(
                 o.gs.world->get_id(product) * 12,
@@ -138,6 +134,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
     }
 }
 
+#include "building.hpp"
 ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     : gs{ _gs },
     province{ _province },
@@ -146,43 +143,50 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->is_scroll = false;
     this->text(province->name);
 
-    this->pop_tab = new ProvincePopulationTab(gs, 128, 24, _province, this);
+    this->pop_tab = new ProvincePopulationTab(gs, 128, 24, province, this);
     this->pop_tab->is_render = true;
-
-    this->econ_tab = new ProvinceEconomyTab(gs, 128, 24, _province, this);
-    this->econ_tab->is_render = false;
-
-    this->pop_btn = new UI::Button(0, 24, 128, 24, this);
-    this->pop_btn->text("Population");
-    this->pop_btn->on_click = ([](UI::Widget& w, void*) {
+    auto* pop_btn = new UI::Button(0, 24, 128, 24, this);
+    pop_btn->text("Population");
+    pop_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
         o.pop_tab->is_render = true;
         o.econ_tab->is_render = false;
     });
 
-    this->econ_btn = new UI::Button(0, 0, 128, 24, this);
-    this->econ_btn->below_of(*this->pop_btn);
-    this->econ_btn->text("Economy");
-    this->econ_btn->on_click = ([](UI::Widget& w, void*) {
+    this->econ_tab = new ProvinceEconomyTab(gs, 128, 24, province, this);
+    this->econ_tab->is_render = false;
+    auto* econ_btn = new UI::Button(0, 0, 128, 24, this);
+    econ_btn->below_of(*pop_btn);
+    econ_btn->text("Economy");
+    econ_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
         o.pop_tab->is_render = false;
         o.econ_tab->is_render = true;
     });
 
-    this->nation_btn = new UI::Button(0, 0, 128, 24, this);
-    this->nation_btn->below_of(*this->econ_btn);
-    this->nation_btn->text("Nation");
-    this->nation_btn->on_click = ([](UI::Widget& w, void*) {
+    auto* nation_btn = new UI::Button(0, 0, 128, 24, this);
+    nation_btn->below_of(*econ_btn);
+    nation_btn->text("Nation");
+    nation_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
         // View the nation info only if the province has a valid owner
         if(o.province->owner == nullptr) return;
-        auto* nview = new NationView(o.gs, o.province->owner);
+        new NationView(o.gs, o.province->owner);
     });
 
-    this->close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    this->close_btn->below_of(*this->nation_btn);
-    this->close_btn->text("Close");
+    // TODO: Make this a tab
+    auto* build_btn = new UI::Button(0, 0, 128, 24, this);
+    build_btn->below_of(*nation_btn);
+    build_btn->text("Buildings");
+    build_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<ProvinceView&>(*w.parent);
+        new BuildingBuildView(o.gs, 0, 0, false, o.gs.curr_nation, o.province, nullptr);
+    });
+
+    auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
+    close_btn->below_of(*build_btn);
+    close_btn->text("Close");
 }

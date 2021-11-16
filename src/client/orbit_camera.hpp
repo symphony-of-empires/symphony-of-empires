@@ -21,7 +21,9 @@ public:
         velocity = glm::vec3(0);
     }
 
-    void move(float x_dir, float y_dir, float z_dir) override {}
+    void move(float x_dir, float y_dir, float z_dir) override {
+
+    }
 
     void update(void) override {
         flat_position.x += velocity.x * 0.1;

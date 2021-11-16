@@ -36,6 +36,9 @@ void Economy::do_tick(World& world) {
     for(size_t j = 0; j < world.buildings.size(); j++) {
         auto& building = world.buildings[j];
         if(building == nullptr) continue;
+
+        auto province = building->get_province();
+        if(province == nullptr || province->owner == nullptr) continue;
         
         bool can_build = true;
         for(const auto& req: building->req_goods_for_unit) {
@@ -51,10 +54,8 @@ void Economy::do_tick(World& world) {
             if(req.second) can_build = false;
         }
 
-        if(!can_build) break;
-
-        auto province = building->get_province();
-        if(province == nullptr || province->owner == nullptr) continue;
+        // TODO: Make a proper supply chain system with the whole working economy thing :)
+        //if(!can_build) break;
         
         size_t needed_laborers = 0, available_laborers = 0;
         size_t needed_farmers = 0, available_farmers = 0;
@@ -310,14 +311,20 @@ void Economy::do_tick(World& world) {
             order.type = OrderType::UNIT;
             world.orders.push_back(order);
         }
+    }
 
+    {
         // Take opportunity to also send an update about our buildings
         Packet packet = Packet();
         Archive ar = Archive();
         ActionType action = ActionType::BUILDING_UPDATE;
         ::serialize(ar, &action); // ActionInt
-        ::serialize(ar, &building); // BuildingRef
-        ::serialize(ar, building); // BuildingObj
+        Building::Id size = world.buildings.size();
+        ::serialize(ar, &size);
+        for(const auto& building : world.buildings) {
+            ::serialize(ar, &building); // BuildingRef
+            ::serialize(ar, building); // BuildingObj
+        }
         packet.data(ar.get_buffer(), ar.size());
         g_server->broadcast(packet);
     }
@@ -583,8 +590,8 @@ void Economy::do_tick(World& world) {
             pop.life_needs_met -= 0.01f;
 
             // x2.5 life needs met modifier, that is the max allowed
-            pop.life_needs_met = std::min<float>(15.f, std::max<float>(pop.life_needs_met, -3.f));
-            pop.everyday_needs_met = std::min<float>(15.f, std::max<float>(pop.everyday_needs_met, -3.f));
+            pop.life_needs_met = std::min<float>(1.2f, std::max<float>(pop.life_needs_met, -5.f));
+            pop.everyday_needs_met = std::min<float>(1.5f, std::max<float>(pop.everyday_needs_met, -5.f));
 
             // POPs cannot shrink below 10
             if(pop.size <= 10) {
@@ -593,17 +600,19 @@ void Economy::do_tick(World& world) {
                 // Higher literacy will mean there will be less births due to sex education
                 // and will also mean that - there would be less deaths due to higher knewledge
                 int growth;
+
                 if(pop.life_needs_met >= -2.5f) {
                     // Starvation in -1 or 0 or >1 are amortized by literacy
-                    growth = pop.life_needs_met / (pop.literacy * 0.01f);
+                    growth = pop.life_needs_met / pop.literacy;
                 }
                 // Neither literacy nor anything else can save humans from
                 // dying due starvation
                 else {
                     growth = -((int)(std::rand() % pop.size));
                 }
+
                 if(growth < 0 && (size_t)std::abs(growth) > pop.size) {
-                    growth = -((int)pop.size);
+                    growth = -pop.size;
                 }
                 pop.size += growth;
             }
@@ -618,8 +627,7 @@ void Economy::do_tick(World& world) {
                     pop.militancy -= 0.0002f;
                     pop.con -= 0.0001f;
                 }
-            }
-            else {
+            } else {
                 pop.militancy += 0.01f;
                 pop.con += 0.01f;
             }
@@ -752,7 +760,7 @@ void Economy::do_tick(World& world) {
 
                 for(const auto& ideology : world.ideologies) {
                     uint idx = world.get_id(ideology);
-                    ideology_anger[idx] += pop.ideology_approval[idx] * anger;
+                    ideology_anger[idx] += (pop.ideology_approval[idx] * anger) * (pop.size / 1000.f);
                 }
             }
         }

@@ -1,6 +1,6 @@
 # Blender v2.93.2 OBJ File: 'lighthouse.blend'
 # www.blender.org
-mtllib outpost_types/seaport.mtl
+mtllib building_types/seaport.mtl
 o Cylinder_Cylinder.002
 v 1.115389 0.289241 -0.159549
 v 1.115389 5.123621 0.165546
