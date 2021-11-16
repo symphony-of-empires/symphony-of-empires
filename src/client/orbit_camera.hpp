@@ -17,12 +17,15 @@ public:
 
     OrbitCamera(int width, int height, float _radius): Camera(width, height) {
         radius = _radius;
-        position = glm::vec3(400, 200, -400.f);
+        flat_position = glm::vec3(M_PI, M_PI * 0.5f, radius * 1.5f);
+        // position = glm::vec3(400, 200, -400.f);
         velocity = glm::vec3(0);
     }
 
     void move(float x_dir, float y_dir, float z_dir) override {
-
+        velocity.x += x_dir;
+        velocity.y += y_dir;
+        velocity.z += z_dir;
     }
 
     void update(void) override {

@@ -292,6 +292,5 @@ void main() {
 	vec3 ambient = 0.1 * out_colour.xyz;
 
 	f_frag_colour = vec4(diffuse + ambient, 1.);
-	f_frag_colour = out_colour;
 	// f_frag_colour = texture(border_tex, v_texcoord);
 }

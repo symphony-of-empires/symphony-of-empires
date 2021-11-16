@@ -8,16 +8,20 @@
 
 class FlatCamera: public Camera {
 public:
-    float fov = 45.0f, near_plane = 1.0f, far_plane = 20000.0f;
-    glm::vec2 screen_size;
-    glm::vec3 position, velocity;
+    glm::vec3 velocity;
 
     FlatCamera(int width, int height): Camera(width, height) {
         position = glm::vec3(400, 200, -400.f);
         velocity = glm::vec3(0);
     }
 
-    void update(void) {
+    void move(float x_dir, float y_dir, float z_dir) override {
+        velocity.x += x_dir;
+        velocity.y += y_dir;
+        velocity.z += z_dir;
+    }
+
+    void update(void) override {
         velocity.x = std::min(16.f, velocity.x);
         velocity.y = std::min(16.f, velocity.y);
         velocity.z = std::min(16.f, velocity.z);
@@ -52,12 +56,12 @@ public:
         position.z = -std::max(10.f, std::min((float)g_world->width / 2.f, -position.z));
     };
 
-    glm::mat4 get_projection() {
+    glm::mat4 get_projection() override {
         float aspect_ratio = screen_size.x / screen_size.y;
         return glm::perspective(glm::radians(fov), aspect_ratio, near_plane, far_plane);
     };
 
-    glm::mat4 get_view() {
+    glm::mat4 get_view() override {
         glm::vec3 look_at = position;
         look_at.z = 0;
         look_at.y -= position.z > -200 ? 0.06f * (200 + position.z) : 0;
@@ -65,7 +69,7 @@ public:
         return glm::lookAt(position, look_at, up_vector);
     };
 
-    std::pair<float, float> get_map_pos(std::pair<int, int> mouse_pos) {
+    std::pair<float, float> get_map_pos(std::pair<int, int> mouse_pos) override {
         float mouse_x = mouse_pos.first;
         float mouse_y = screen_size.y - 1.f - mouse_pos.second;
 
