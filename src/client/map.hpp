@@ -18,6 +18,11 @@
 #include "client/render/quad_2d.hpp"
 #include "client/render/framebuffer.hpp"
 
+enum class MapView {
+    SPHERE_VIEW,
+    PLANE_VIEW,
+};
+
 struct Input;
 class Map {
 public:
@@ -32,6 +37,7 @@ public:
 
     const World& world;
     Camera* camera;
+    MapView view_mode = MapView::PLANE_VIEW;
 
     // Map textures
     UnifiedRender::Texture* tile_map;
@@ -45,6 +51,7 @@ public:
     const UnifiedRender::Texture* map_color;
     UnifiedRender::TextureArray* terrain_sheet;
     // const UnifiedRender::Texture* terrain_sheet;
+    
 
     UnifiedRender::OpenGl::PrimitiveSquare* map_quad;
     UnifiedRender::OpenGl::Sphere* map_sphere;
@@ -61,6 +68,7 @@ public:
     void draw(const int width, const int height);
     void handle_click(GameState& gs, SDL_Event event);
     void set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_colors);
+    void set_view(MapView view);
     void reload_shaders();
 private:
     UnifiedRender::Texture* gen_border_sdf();

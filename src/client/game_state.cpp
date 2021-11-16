@@ -93,7 +93,6 @@ const UnifiedRender::Texture& GameState::get_nation_flag(Nation& nation) {
 }
 
 void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
-    int click_on_ui;
     std::pair<int, int>& mouse_pos = input.mouse_pos;
     std::pair<float, float>& select_pos = input.select_pos;
 
@@ -103,6 +102,10 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
     int& height = gs.height;
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
+        int click_on_ui = 0;
+        if(gs.current_mode != MapMode::NO_MAP && !click_on_ui){
+            gs.map->update(event, input);
+        }
         switch(event.type) {
         case SDL_MOUSEBUTTONDOWN:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -166,21 +169,20 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
                 std::pair<float, float> old_size = std::make_pair(width, height);
                 SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height);
-                // TODO move to map
-                // gs.map->camera->set_screen(width, height);
 
                 // Resize/recenter UI according to screen change
                 for(auto& widget : ui_ctx->widgets) {
                     widget->x *= width / old_size.first;
                     widget->y *= height / old_size.second;
                 }
+
+                if(gs.current_mode != MapMode::NO_MAP){
+                    gs.map->camera->set_screen(width, height);
+                }
             }
             break;
         default:
             break;
-        }
-        if(gs.current_mode != MapMode::NO_MAP && !click_on_ui){
-            gs.map->update(event, input);
         }
     }
     ui_ctx->clear_dead();

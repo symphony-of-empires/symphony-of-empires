@@ -20,7 +20,7 @@
 
 Map::Map(const World& _world): world(_world) {
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
-    camera = new OrbitCamera(world.width, world.height, 100.f);
+    camera = new FlatCamera(world.width, world.height);
     if(glewIsSupported("GL_VERSION_2_1")) {
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
         map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
@@ -109,6 +109,7 @@ Map::Map(const World& _world): world(_world) {
 
     // This can be put into unified render
     // I leave it for now since I havn't been able to test the code
+    glDisable(GL_CULL_FACE);
     glGenFramebuffers(1, &frame_buffer);
     glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 
@@ -118,16 +119,17 @@ Map::Map(const World& _world): world(_world) {
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         print_info("Frame buffer error");
 
-    border_tex = new UnifiedRender::Texture(world.width * 2, world.height * 2);
+    border_tex = new UnifiedRender::Texture(world.width, world.height);
     border_tex->to_opengl_test(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+    border_tex->gen_mipmaps();
 
     border_fbuffer = new UnifiedRender::OpenGl::Framebuffer();
     border_fbuffer->use();
     border_fbuffer->set_texture(0, border_tex);
 
-    glViewport(0, 0, tile_map->width * 2, tile_map->height * 2);
+    glViewport(0, 0, tile_map->width, tile_map->height);
     border_gen_shader->use();
-    border_gen_shader->set_uniform("map_size", (float)tile_map->width * 2, (float)tile_map->height * 2);
+    border_gen_shader->set_uniform("map_size", (float)tile_map->width, (float)tile_map->height);
     border_gen_shader->set_texture(0, "tile_map", tile_map);
     map_2d_quad->draw();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -135,6 +137,20 @@ Map::Map(const World& _world): world(_world) {
 
     border_sdf = gen_border_sdf();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glEnable(GL_CULL_FACE);
+}
+
+void Map::set_view(MapView view) {
+    view_mode = view;
+    int old_width = camera->screen_size.y;
+    int old_height = camera->screen_size.x;
+    delete camera;
+    if(view == MapView::PLANE_VIEW) {
+        camera = new FlatCamera(old_width, old_height);
+    }
+    else if(view == MapView::SPHERE_VIEW) {
+        camera = new OrbitCamera(old_width, old_height, 100.f);
+    }
 }
 
 void Map::reload_shaders() {
@@ -208,6 +224,7 @@ void Map::set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_c
 }
 
 UnifiedRender::Texture* Map::gen_border_sdf() {
+    glDisable(GL_CULL_FACE);
     glViewport(0, 0, border_tex->width, border_tex->height);
     border_sdf_shader->use();
     border_sdf_shader->set_uniform("map_size", (float)border_tex->width, (float)border_tex->height);
@@ -219,7 +236,7 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
     fbo->use();
 
     // Jump flooding iterations
-    int max_steps = 128.;
+    int max_steps = 16.;
     int step = max_steps;
     bool drawOnTex0 = true;
     while(step >= 1) {
@@ -249,11 +266,13 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
     if(drawOnTex0) {
         delete tex1;
         tex0->gen_mipmaps();
+        glEnable(GL_CULL_FACE);
         return tex0;
     }
     else {
         delete tex0;
         tex1->gen_mipmaps();
+        glEnable(GL_CULL_FACE);
         return tex1;
     }
 }
@@ -448,6 +467,7 @@ void Map::update(const SDL_Event& event, Input& input)
             if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
                 int width, height;
                 SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height);
+                // Doesn't work for some reason
                 camera->set_screen(width, height);
             }
             break;
@@ -508,8 +528,12 @@ void Map::draw(const int width, const int height) {
     map_shader->set_texture(8, "border_sdf", border_sdf);
     map_shader->set_texture(9, "map_color", map_color);
 
-    // map_quad->draw();
-    map_sphere->draw();
+    if(view_mode == MapView::PLANE_VIEW) {
+        map_quad->draw();
+    }
+    else if(view_mode == MapView::SPHERE_VIEW) {
+        map_sphere->draw();
+    }
 
     // TODO: We need to better this
     obj_shader->use();
