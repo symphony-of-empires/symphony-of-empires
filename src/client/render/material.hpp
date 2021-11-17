@@ -6,9 +6,8 @@
 
 #include <glm/vec3.hpp>
 
-#include "client/render/texture.hpp"
-
 namespace UnifiedRender {
+    class Texture;
     /**
      * A definition for a surface/color/texture to be applied to a model
      */

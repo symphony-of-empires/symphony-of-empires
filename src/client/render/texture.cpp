@@ -3,6 +3,11 @@
 #include "print.hpp"
 #include <string>
 #include <algorithm>
+#ifdef _MSC_VER
+#include <SDL_surface.h>
+#else
+#include <SDL2/SDL_surface.h>
+#endif
 
 UnifiedRender::Texture::~Texture() {
     if (gl_tex_num)

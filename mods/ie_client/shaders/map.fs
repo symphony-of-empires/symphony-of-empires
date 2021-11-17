@@ -179,6 +179,22 @@ float isOcean(vec2 id) {
 	return round(id * 255.) == vec2(253, 255) ? 1. : 0.;
 }
 
+vec3 gen_normal(vec2 tex_coords) {
+	float steep = 16.;
+	// tex_coords = v_texcoord;
+	vec4 wave = texture(topo_texture, tex_coords);
+	float s11 = steep * wave.x;
+	float s01 = steep * textureOffset(topo_texture, tex_coords, off.xy).x;
+	float s21 = steep * textureOffset(topo_texture, tex_coords, off.zy).x;
+	float s10 = steep * textureOffset(topo_texture, tex_coords, off.yx).x;
+	float s12 = steep * textureOffset(topo_texture, tex_coords, off.yz).x;
+	vec3 va = normalize(vec3(size.xy, s21 - s01));
+	vec3 vb = normalize(vec3(size.yx, s12 - s10));
+	vec4 bump = vec4(cross(va, vb), s11);
+	return bump.xyz;
+	// vec3 normal = normalize(bump.xyz * 2.0 - 1.0);
+}
+
 void main() {
 	const vec4 land = vec4(0., 0.7, 0., 1.);
 	const vec4 province_border = vec4(0., 0., 0., 1.);
@@ -250,7 +266,6 @@ void main() {
 	float yy = pix.y;
 	vec2 scaling = mod(tex_coords, pix) / pix;
 
-
 	vec4 color_00 = texture(border_tex, tex_coords + 0.5 * vec2(-xx, -yy));
 	vec4 color_01 = texture(border_tex, tex_coords + 0.5 * vec2(-xx, yy));
 	vec4 color_10 = texture(border_tex, tex_coords + 0.5 * vec2(xx, -yy));
@@ -273,21 +288,9 @@ void main() {
 	const vec2 size = vec2(2.0, 0.0);
 	const ivec3 off = ivec3(-1, 0, 1);
 
-	float steep = 16.;
-	// tex_coords = v_texcoord;
-	vec4 wave = texture(topo_texture, tex_coords);
-	float s11 = steep * wave.x;
-	float s01 = steep * textureOffset(topo_texture, tex_coords, off.xy).x;
-	float s21 = steep * textureOffset(topo_texture, tex_coords, off.zy).x;
-	float s10 = steep * textureOffset(topo_texture, tex_coords, off.yx).x;
-	float s12 = steep * textureOffset(topo_texture, tex_coords, off.yz).x;
-	vec3 va = normalize(vec3(size.xy, s21 - s01));
-	vec3 vb = normalize(vec3(size.yx, s12 - s10));
-	vec4 bump = vec4(cross(va, vb), s11);
-	// vec3 normal = normalize(bump.xyz * 2.0 - 1.0);
-
+	vec3 normal = gen_normal(tex_coords);
 	vec3 lightDir = normalize(vec3(0, 1, 4));
-	float diff = max(dot(lightDir, bump.xyz), 0.0);
+	float diff = max(dot(lightDir, normal), 0.0);
 	vec3 diffuse = diff * out_colour.xyz;
 	vec3 ambient = 0.1 * out_colour.xyz;
 

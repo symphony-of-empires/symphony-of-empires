@@ -1,10 +1,12 @@
 #pragma once
 
-#include "nation.hpp"
-#include "world.hpp"
-#include "client/game_state.hpp"
 #include "client/ui.hpp"
 #include "client/interface/common.hpp"
+
+class World;
+class Nation;
+class GameState;
+class Building;
 
 namespace Interface {
     class ArmyArmyTab : public UI::Group {

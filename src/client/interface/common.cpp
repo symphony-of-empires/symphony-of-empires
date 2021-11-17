@@ -1,5 +1,14 @@
 #include "client/interface/common.hpp"
 #include "client/interface/good_view.hpp"
+#include "path.hpp"
+#include "nation.hpp"
+#include "world.hpp"
+#include "client/game_state.hpp"
+#include "unit.hpp"
+#include "company.hpp"
+#include "province.hpp"
+#include "product.hpp"
+#include "client/render/texture.hpp"
 
 using namespace Interface;
 

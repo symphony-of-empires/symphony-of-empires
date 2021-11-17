@@ -5,22 +5,16 @@
 #include <vector>
 #include <atomic>
 
-#include "nation.hpp"
-#include "world.hpp"
-#include "client/interface/select_nation.hpp"
-#include "client/interface/map_dev_view.hpp"
-#include "client/interface/top_window.hpp"
 #include "serializer.hpp"
-#include "client/map.hpp"
-#include "client/ui.hpp"
-#include "client/camera.hpp"
-#include "client/orbit_camera.hpp"
 
 enum class MapMode {
     COUNTRY_SELECT,
     NORMAL,
     NO_MAP,
 };
+
+class Unit;
+class Building;
 
 class Input {
 public:
@@ -33,10 +27,25 @@ public:
     Building* selected_building = nullptr;
 };
 
+class Client;
+class World;
+class Nation;
+class Map;
+class UnitType;
+struct SDL_Window;
+namespace Interface {
+    class SelectNation;
+    class TopWindow;
+}
+namespace UI {
+    class Context;
+}
+namespace UnifiedRender {
+    class Texture;
+}
+
 // The all encompassing client state
 // This is the state we could pass down to all the ui widgets
-class Map;
-class Client;
 class GameState {
 public:
     GameState() {};

@@ -17,6 +17,15 @@
 #include "client/orbit_camera.hpp"
 #include "client/flat_camera.hpp"
 #include "client/camera.hpp"
+#include "client/interface/select_nation.hpp"
+#include "client/render/texture.hpp"
+#include "client/render/primitive.hpp"
+#include "client/render/sphere.hpp"
+#include "client/render/shader.hpp"
+#include "client/render/texture_array.hpp"
+#include "client/render/quad_2d.hpp"
+#include "client/render/framebuffer.hpp"
+#include "province.hpp"
 
 Map::Map(const World& _world): world(_world) {
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
@@ -427,6 +436,7 @@ void Map::update(const SDL_Event& event, Input& input)
 {
     std::pair<int, int>& mouse_pos = input.mouse_pos;
     std::pair<float, float>& select_pos = input.select_pos;
+    print_info("%d", event.type);
     switch(event.type) {
     case SDL_MOUSEBUTTONDOWN:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);

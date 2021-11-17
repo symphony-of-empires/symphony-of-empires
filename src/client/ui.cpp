@@ -22,6 +22,7 @@
 #include "path.hpp"
 #include "print.hpp"
 #include "client/ui.hpp"
+#include "client/render/texture.hpp"
 
 #if !defined NOMINMAX
 #   define NOMINMAX 1

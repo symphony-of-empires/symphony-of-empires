@@ -1,9 +1,14 @@
 #pragma once
 
-#include "nation.hpp"
-#include "world.hpp"
-#include "client/game_state.hpp"
 #include "client/ui.hpp"
+class World;
+class Nation;
+class GameState;
+class Unit;
+class UnitType;
+class Company;
+class Province;
+class Product;
 
 namespace Interface {
     // Pretty brief summaries (for example to click oon a button from a list)

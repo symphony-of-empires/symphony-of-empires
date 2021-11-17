@@ -26,11 +26,7 @@
 #endif
 #include <GL/gl.h>
 
-#ifdef _MSC_VER
-#include <SDL_surface.h>
-#else
-#include <SDL2/SDL_surface.h>
-#endif
+struct SDL_Surface;
 
 #include "binary_image.hpp"
 
