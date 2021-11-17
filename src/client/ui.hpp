@@ -66,7 +66,7 @@ namespace UI {
         void clear(void);
         void clear_dead();
 
-        const UnifiedRender::Texture* background, * window_top, * button, * tooltip_texture, * piechart_overlay;
+        const UnifiedRender::Texture* background, * window_top, * button, * tooltip_texture, * piechart_overlay, * border_tex;
         TTF_Font* default_font;
 
         std::vector<Widget*> widgets;

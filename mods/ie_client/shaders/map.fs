@@ -180,8 +180,10 @@ float isOcean(vec2 id) {
 }
 
 vec3 gen_normal(vec2 tex_coords) {
+	const vec2 size = vec2(2.0, 0.0);
+	const ivec3 off = ivec3(-1, 0, 1);
 	float steep = 16.;
-	// tex_coords = v_texcoord;
+
 	vec4 wave = texture(topo_texture, tex_coords);
 	float s11 = steep * wave.x;
 	float s01 = steep * textureOffset(topo_texture, tex_coords, off.xy).x;
@@ -277,16 +279,13 @@ void main() {
 	float bDist = mix(color_x0, color_x1, scaling.y).x;
 	// float bDist = texture(border_tex, tex_coords).x;
 	// out_colour = mix(out_colour, province_border, max(0., 10. * bDist - 9.));
-	float bSdf = texture2D(border_sdf, tex_coords + pix * 0.25).z;
+	float bSdf = texture2D(border_sdf, tex_coords + pix * 0.5).z;
 	if (isOcean(coord.xy) == 1.) {
 		bSdf = sin(bSdf * 40.) * bSdf;  
 		prov_colour = vec4(0.);
 	}
 	out_colour = mix(out_colour, prov_colour * 1.2, clamp(bSdf, 0., 1.));
 	out_colour = mix(out_colour, province_border, borders.x);
-
-	const vec2 size = vec2(2.0, 0.0);
-	const ivec3 off = ivec3(-1, 0, 1);
 
 	vec3 normal = gen_normal(tex_coords);
 	vec3 lightDir = normalize(vec3(0, 1, 4));
