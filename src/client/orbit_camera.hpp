@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/intersect.hpp>
 #include "print.hpp"
+#include "client/camera.hpp"
 #include <math.h>
 
 class OrbitCamera: public Camera {

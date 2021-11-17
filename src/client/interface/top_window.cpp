@@ -1,5 +1,9 @@
 #include "client/interface/top_window.hpp"
 #include "client/game_state.hpp"
+#include "path.hpp"
+#include "client/map.hpp"
+#include "world.hpp"
+#include "client/render/texture.hpp"
 
 using namespace Interface;
 

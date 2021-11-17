@@ -1,5 +1,7 @@
 #include "client/interface/good_view.hpp"
 #include "io_impl.hpp"
+#include "path.hpp"
+#include "client/render/texture.hpp"
 
 using namespace Interface;
 

@@ -1,6 +1,9 @@
 #include "client/interface/select_nation.hpp"
 #include "client/game_state.hpp"
 #include "client/ui.hpp"
+#include "world.hpp"
+#include "client/map.hpp"
+#include "client/camera.hpp"
 
 using namespace Interface;
 

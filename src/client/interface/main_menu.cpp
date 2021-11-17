@@ -1,6 +1,10 @@
 #include "client/interface/main_menu.hpp"
 #include "client/client_network.hpp"
+#include "world.hpp"
 #include "print.hpp"
+#include "path.hpp"
+#include "client/map.hpp"
+#include "client/render/texture.hpp"
 
 using namespace Interface;
 

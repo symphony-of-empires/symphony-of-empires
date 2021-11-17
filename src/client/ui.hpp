@@ -14,7 +14,9 @@
 #include <SDL2/SDL_ttf.h>
 #endif
 
-#include "client/render/texture.hpp"
+namespace UnifiedRender {
+    class Texture;
+}
 
 enum UI_WidgetType {
     UI_WIDGET_BUTTON,

@@ -10,9 +10,12 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "client/render/material.hpp"
-#include "client/render/shader.hpp"
-
+namespace UnifiedRender {
+    class Material;
+    namespace OpenGl {
+        class Program;
+    }
+}
 namespace UnifiedRender {
     namespace OpenGl {
         class VAO {
@@ -64,7 +67,7 @@ namespace UnifiedRender {
             T tex;
 
             PackedData(void) {};
-            PackedData(V _vert, T _tex) : vert(_vert), tex(_tex) {};
+            PackedData(V _vert, T _tex): vert(_vert), tex(_tex) {};
             ~PackedData() {};
             PackedData(const PackedData&) = default;
             PackedData(PackedData&&) noexcept = default;
@@ -81,8 +84,8 @@ namespace UnifiedRender {
             VAO vao;
             VBO vbo;
             GLint mode;
-            
-            PackedModel(GLint _mode) : mode(_mode) {};
+
+            PackedModel(GLint _mode): mode(_mode) {};
             ~PackedModel() {};
             PackedModel(const PackedModel&) = default;
             PackedModel(PackedModel&&) noexcept = default;
@@ -96,13 +99,12 @@ namespace UnifiedRender {
     }
 }
 
-class Material;
 namespace UnifiedRender {
     /**
      * A simple object - use these to store "simple" objects that MAY repeat
      * TODO: We should use instancing tricks on simple objects
      */
-    class SimpleModel : public OpenGl::PackedModel<glm::vec3, glm::vec2> {
+    class SimpleModel: public OpenGl::PackedModel<glm::vec3, glm::vec2> {
     public:
         SimpleModel(GLint _mode);
         ~SimpleModel() {};

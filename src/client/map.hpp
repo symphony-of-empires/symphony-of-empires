@@ -6,23 +6,33 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-#include "world.hpp"
+namespace UnifiedRender {
+    class Texture;
+    class TextureArray;
+    class ComplexModel;
+    namespace OpenGl {
+        class PrimitiveSquare;
+        class Sphere;
+        class Program;
+        class Quad2D;
+        class Framebuffer;
+    }
+}
 #include "province.hpp"
-#include "client/render/texture.hpp"
-#include "client/camera.hpp"
-#include "client/render/primitive.hpp"
-#include "client/render/sphere.hpp"
-#include "client/render/shader.hpp"
-#include "client/render/texture_array.hpp"
-#include "client/game_state.hpp"
-#include "client/render/quad_2d.hpp"
-#include "client/render/framebuffer.hpp"
+
+#include <vector>
+#include <utility>
 
 enum class MapView {
     SPHERE_VIEW,
     PLANE_VIEW,
 };
 
+class World;
+class Camera;
+class Nation;
+class GameState;
+union SDL_Event;
 struct Input;
 class Map {
 public:
@@ -51,7 +61,7 @@ public:
     const UnifiedRender::Texture* map_color;
     UnifiedRender::TextureArray* terrain_sheet;
     // const UnifiedRender::Texture* terrain_sheet;
-    
+
 
     UnifiedRender::OpenGl::PrimitiveSquare* map_quad;
     UnifiedRender::OpenGl::Sphere* map_sphere;

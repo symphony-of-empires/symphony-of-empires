@@ -7,6 +7,9 @@
 #include "client/render/shader.hpp"
 #include "print.hpp"
 #include "path.hpp"
+#include "client/render/material.hpp"
+#include "client/render/texture.hpp"
+#include "client/render/shader.hpp"
 
 UnifiedRender::SimpleModel::SimpleModel(GLint _mode) : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(_mode) {
 
