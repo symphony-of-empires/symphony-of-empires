@@ -103,9 +103,6 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
         int click_on_ui = 0;
-        if(gs.current_mode != MapMode::NO_MAP && !click_on_ui){
-            gs.map->update(event, input);
-        }
         switch(event.type) {
         case SDL_MOUSEBUTTONDOWN:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -126,6 +123,9 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 gs.map->handle_click(gs, event);
             }
             break;
+        case SDL_MOUSEMOTION:
+            SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+            ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
         case SDL_MOUSEWHEEL:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
@@ -183,6 +183,9 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             break;
         default:
             break;
+        }
+        if(gs.current_mode != MapMode::NO_MAP && !click_on_ui){
+            gs.map->update(event, input);
         }
     }
     ui_ctx->clear_dead();

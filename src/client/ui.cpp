@@ -44,11 +44,12 @@ Context::Context() {
 
     widgets.reserve(255);
 
-    background = &g_texture_manager->load_texture(Path::get("ui/background.png"));
-    window_top = &g_texture_manager->load_texture(Path::get("ui/window_top.png"));
+    background = &g_texture_manager->load_texture(Path::get("ui/background2.png"));
+    window_top = &g_texture_manager->load_texture(Path::get("ui/window_top2.png"));
     button = &g_texture_manager->load_texture(Path::get("ui/button.png"));
     tooltip_texture = &g_texture_manager->load_texture(Path::get("ui/tooltip.png"));
     piechart_overlay = &g_texture_manager->load_texture(Path::get("ui/piechart.png"));
+    border_tex = &g_texture_manager->load_texture(Path::get("ui/borders/border2.png"));
 
     g_ui_context = this;
     is_drag = false;
@@ -335,6 +336,27 @@ int Context::do_tick_recursive(Widget& w) {
     return 1;
 }
 
+void draw_tex_rect(const GLuint tex,
+    float x_start, float y_start, float xtex_start, float ytex_start,
+    float x_end, float y_end, float xtex_end, float ytex_end) {
+    // Texture switching in OpenGL is expensive
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glBegin(GL_TRIANGLES);
+    glTexCoord2f(xtex_start, ytex_start);
+    glVertex2f(x_start, y_start);
+    glTexCoord2f(xtex_end, ytex_start);
+    glVertex2f(x_end, y_start);
+    glTexCoord2f(xtex_end, ytex_end);
+    glVertex2f(x_end, y_end);
+
+    glTexCoord2f(xtex_end, ytex_end);
+    glVertex2f(x_end, y_end);
+    glTexCoord2f(xtex_start, ytex_end);
+    glVertex2f(x_start, y_end);
+    glTexCoord2f(xtex_start, ytex_start);
+    glVertex2f(x_start, y_start);
+    glEnd();
+}
 // Draw a simple quad
 void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const GLuint tex) {
     // Texture switching in OpenGL is expensive
@@ -403,6 +425,84 @@ void Widget::on_render(Context& ctx) {
         glTexCoord2f(0.f, 0.f);
         glVertex2f(0.f, 0.f);
         glEnd();
+    }
+
+    if(type == UI_WIDGET_WINDOW) {
+        float b_width = 30;
+        float b_height = 30;
+        float bi_width = 63;
+        float bi_height = 63;
+        float y_offset = 24;
+
+        float x_start = 0;
+        float y_start = y_offset;
+        float xtex_start = 0;
+        float ytex_start = 0;
+        float x_end = b_width;
+        float y_end = y_offset + b_height;
+        float xtex_end = bi_width / ctx.border_tex->width;
+        float ytex_end = bi_height / ctx.border_tex->height;
+
+        GLuint tex = ctx.border_tex->gl_tex_num;
+        // Top left corner
+        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+        // Top right corner
+        x_start = width - b_width;
+        xtex_start = (ctx.border_tex->width - bi_width) / ctx.border_tex->width;
+        x_end = width;
+        xtex_end = 1.f;
+        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+        // Bottom right corner
+        y_start = height - b_height;
+        ytex_start = (ctx.border_tex->height - bi_height) / ctx.border_tex->height;
+        y_end = height;
+        ytex_end = 1.f;
+        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+        // Bottom left corner
+        x_start = 0;
+        xtex_start = 0;
+        x_end = b_width;
+        xtex_end = bi_width / ctx.border_tex->width;
+        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+        // Top edge
+        x_start = b_width;
+        xtex_start = bi_width / ctx.border_tex->width;
+        x_end = width - b_width;
+        xtex_end = (ctx.border_tex->width - bi_width) / ctx.border_tex->width;
+        y_start = y_offset;
+        ytex_start = 0;
+        y_end = y_offset + b_height;
+        ytex_end = bi_height / ctx.border_tex->height;
+        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+        // Bottom edge
+        y_start = height - b_height;
+        ytex_start = (ctx.border_tex->height - bi_height) / ctx.border_tex->height;
+        y_end = height;
+        ytex_end = 1.f;
+        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+        // Left edge
+        y_start = y_offset + b_height;
+        ytex_start = bi_height / ctx.border_tex->height;
+        y_end = height - b_height;
+        ytex_end = (ctx.border_tex->height - bi_height) / ctx.border_tex->height;
+        x_start = 0;
+        xtex_start = 0;
+        x_end = b_width;
+        xtex_end = bi_width / ctx.border_tex->width;
+        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+        // Right edge
+        x_start = width - b_width;
+        xtex_start = (ctx.border_tex->width - bi_width) / ctx.border_tex->width;
+        x_end = width;
+        xtex_end = 1.f;
+        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
     }
 
     glColor3f(1.f, 1.f, 1.f);
@@ -627,7 +727,7 @@ Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
 void Tooltip::set_pos(int _x, int _y, int _width, int _height, int screen_w, int screen_h) {
     int extra_above = _y;
     int extra_below = screen_h - _y - _height;
-    if (extra_above > extra_below) {
+    if(extra_above > extra_below) {
         y = _y - height - 10;
     }
     else {

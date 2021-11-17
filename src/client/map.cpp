@@ -436,7 +436,6 @@ void Map::update(const SDL_Event& event, Input& input)
 {
     std::pair<int, int>& mouse_pos = input.mouse_pos;
     std::pair<float, float>& select_pos = input.select_pos;
-    print_info("%d", event.type);
     switch(event.type) {
     case SDL_MOUSEBUTTONDOWN:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
