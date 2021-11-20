@@ -26,7 +26,6 @@ namespace UnifiedRender {
             Shader(const std::string& path, GLuint type);
             ~Shader();
 
-            std::string get_status(void);
             GLuint get_id(void) const;
         };
 

@@ -13,7 +13,8 @@ Shader::Shader(const std::string& path, GLuint type) {
 
         buffer = stream.str();
         compile(type);
-    } catch(std::ifstream::failure& e) {
+    }
+    catch(std::ifstream::failure& e) {
         print_error("Cannot load shader %s", path.c_str());
     }
 }
@@ -27,21 +28,17 @@ void Shader::compile(GLuint type) {
     id = glCreateShader(type);
     glShaderSource(id, 1, &c_code, NULL);
     glCompileShader(id);
-    print_info("Status: %s", get_status().c_str());
-}
 
-std::string Shader::get_status(void) {
+    // Check for errors of the shader
     GLint r = 0;
     glGetShaderiv(id, GL_COMPILE_STATUS, &r);
     if(!r) {
-        GLchar* tmpbuf = new GLchar[255];
-        glGetShaderInfoLog(id, 255, NULL, tmpbuf);
+        std::string error_info;
+        glGetShaderInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
 
-        std::string end_buf = tmpbuf;
-        delete[] tmpbuf;
-        return end_buf;
+        print_error("Status: %s", error_info.c_str());
     }
-    return "Sucess";
+    // print_info("Status: Sucess");
 }
 
 GLuint Shader::get_id(void) const {
@@ -62,10 +59,10 @@ Program::Program(const VertexShader* vertex, const FragmentShader* fragment) {
     GLint r = 0;
     glGetProgramiv(id, GL_LINK_STATUS, &r);
     if(!r) {
-        GLchar* tmpbuf = new GLchar[255];
-        glGetShaderInfoLog(id, 255, NULL, tmpbuf);
-        print_info("Program error %s", tmpbuf);
-        delete[] tmpbuf;
+        std::string error_info;
+        glGetProgramInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
+
+        print_error("Program error %s", error_info.c_str());
     }
 }
 
@@ -85,7 +82,7 @@ void Program::set_uniform(const std::string& name, float value1, float value2, f
     glUniform3f(glGetUniformLocation(id, name.c_str()), value1, value2, value3);
 }
 
-void Program::set_uniform(const std::string &name, float value1, float value2, float value3, float value4) const {
+void Program::set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const {
     glUniform4f(glGetUniformLocation(id, name.c_str()), value1, value2, value3, value4);
 }
 
