@@ -215,7 +215,11 @@ end
 Nation = {
 	id = 0,
 	name = "",
-	ref_name = ""
+	ref_name = "",
+
+	adjective = "",
+	noun = "",
+	combo_form = ""
 }
 function Nation:new(o)
 	o = o or {}
@@ -230,6 +234,12 @@ function Nation:get(ref_name)
 	o = Nation:new()
 	o.id, o.name = get_nation(ref_name)
 	o.ref_name = ref_name
+	return o
+end
+function Nation:get_by_id(id)
+	o = Nation:new()
+	o.name, o.ref_name = get_nation_by_id(id)
+	o.id = id
 	return o
 end
 function Nation:set_capital(province)
@@ -256,6 +266,15 @@ function Nation:set_ideology(ideology)
 end
 function Nation:add_client_hint(ideology, alt_name, colour)
 	add_nation_client_hint(self.id, ideology.id, alt_name, colour)
+end
+
+function Nation:get_all()
+	local table = get_all_nations()
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
 end
 
 function Nation:get_friends()
@@ -480,6 +499,9 @@ end
 function Event:register()
 	self.id = add_event(self.ref_name, self.conditions_fn, self.event_fn, self.title, self.text, self.checked)
 end
+function Event:update()
+	update_event(self.id, self.ref_name, self.conditions_fn, self.event_fn, self.title, self.text, self.checked)
+end
 function Event:get(ref_name)
 	o = Event:new()
 	o.id, o.conditions_fn, o.event_fn, o.title, o.text, o.checked = get_event(ref_name)
@@ -539,7 +561,11 @@ end
 Culture = {
 	id = 0,
 	ref_name = "",
-	name = ""
+	name = "",
+
+	adjective = "",
+	noun = "",
+	combo_form = ""
 }
 function Culture:new(o)
 	o = o or {}
@@ -691,6 +717,53 @@ function rgb(r, g, b)
 	color = color | (g << 8)
 	color = color | (b << 0)
 	return color
+end
+
+function is_empty(s)
+	return (s == nil or s == '')
+end
+
+Language = {}
+
+function Language:is_vowel(c)
+	return (c == 'a' or c == 'e' or c == 'i' or c == 'o' or c == 'u')
+end
+
+function Language:conjugate_related_and(...)
+	local args = table.pack(...)
+
+	local str = ""
+	for i = 1, args.n do
+		-- CF not available, fallback to an adjective
+		if(is_empty(args[i].combo_form)) then
+			str = str .. args[i].adjective
+		-- Combining form available (only possible if it's first)
+		elseif i == 1 then
+			str = str .. args[i].combo_form
+		end
+
+		-- Makes somewhat correct phrases like Franco-Prussian war, Russo-Chinesse-Roman war
+		if i < (args.n - 1) then
+			str = str .. "-"
+		end
+	end
+end
+
+-- [determiner (a/an)] [adjective (or noun as fallback)]
+function Language:conjugate_indefinite_article(o)
+	local str = ""
+
+	if(is_empty(o.adjective)) then
+		str = str .. o.noun
+	else
+		str = str .. o.adjective
+	end
+
+	if(Language:is_vowel(str[0])) then
+		str = "an" .. str
+	else
+		str = "a" .. str
+	end
 end
 
 print("loaded api.lua")

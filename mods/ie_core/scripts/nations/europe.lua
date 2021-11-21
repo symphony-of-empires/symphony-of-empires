@@ -3,6 +3,7 @@
 -- Initial nations
 united_kingdom = Nation:new{ ref_name = "united_kingdom" }
 united_kingdom.name = _("United Kingdom")
+united_kingdom.adjective = _("British")
 united_kingdom:register()
 united_kingdom:set_ideology(monarchy)
 united_kingdom:add_accepted_culture(british)
@@ -11,6 +12,7 @@ united_kingdom:add_client_hint(monarchy, _("United Kingdom"), 0xc94c40)
 
 netherlands = Nation:new{ ref_name = "netherlands" }
 netherlands.name = _("Netherlands")
+netherlands.adjective = _("Dutch")
 netherlands:register()
 netherlands:set_ideology(monarchy)
 netherlands:add_accepted_culture(dutch)
@@ -18,6 +20,8 @@ netherlands:add_client_hint(monarchy, _("Netherlands"), 0xf5931b)
 
 france = Nation:new{ ref_name = "france" }
 france.name = _("France")
+france.adjective = _("French")
+france.combo_form = _("Franco")
 france:register()
 france:set_ideology(monarchy)
 france:add_accepted_culture(french)
@@ -25,6 +29,8 @@ france:add_client_hint(monarchy, _("France"), 0x1b3cb3)
 
 spain = Nation:new{ ref_name = "spain" }
 spain.name = _("Spain")
+spain.adjective = _("Spanish")
+spain.noun = _("Spainiard")
 spain:register()
 spain:set_ideology(monarchy)
 spain:add_accepted_culture(spanish)
@@ -32,6 +38,7 @@ spain:add_client_hint(monarchy, _("Spain"), 0xdee03a)
 
 portugal = Nation:new{ ref_name = "portugal" }
 portugal.name = _("Portugal")
+portugal.adjective = _("Portuguese")
 portugal:register()
 portugal:set_ideology(monarchy)
 portugal:add_accepted_culture(portuguese)
@@ -41,6 +48,7 @@ portugal:add_client_hint(communism, _("People's Republic of Portugal"), 0x0f691f
 -- Formable nations
 european_union = Nation:new{ ref_name = "european_union" }
 european_union.name = _("European Union")
+european_union.adjective = _("European")
 european_union:register()
 european_union:add_accepted_culture(catalan)
 european_union:add_accepted_culture(basque)
@@ -65,6 +73,7 @@ european_union:add_client_hint(communism, _("European Commune"), 0x060666)
 
 iberia = Nation:new{ ref_name = "iberia" }
 iberia.name = _("Iberia")
+iberia.adjective = _("Iberian")
 iberia:register()
 iberia:add_accepted_culture(catalan)
 iberia:add_accepted_culture(basque)
@@ -92,24 +101,28 @@ occitania:add_client_hint(communism, _("Occitania"), 0x808000)
 
 catalonia = Nation:new{ ref_name = "catalonia" }
 catalonia.name = _("Catalonia")
+catalonia.adjective = _("Catalonian")
 catalonia:register()
 catalonia:add_client_hint(republic, _("Catalonia"), 0xeda65a)
 
 catalonia:add_accepted_culture(catalan)
 basque_country = Nation:new{ ref_name = "basque" }
 basque_country.name = _("Basque")
+basque_country.adjective = _("Basque")
 basque_country:register()
 basque_country:add_client_hint(communism, _("Basque"), 0x808000)
 
 basque_country:add_accepted_culture(basque)
 galicia = Nation:new{ ref_name = "galicia" }
 galicia.name = _("Galicia")
+galicia.adjective = _("Galician")
 galicia:register()
 galicia:add_client_hint(communism, _("Galicia"), 0x808000)
 
 galicia:add_accepted_culture(galician)
 aragon = Nation:new{ ref_name = "aragon" }
 aragon.name = _("Aragon")
+aragon.adjective = _("Aragonesse")
 aragon:register()
 aragon:add_accepted_culture(aragonese)
 aragon:add_client_hint(communism, _("Aragon"), 0x808000)
@@ -117,6 +130,7 @@ aragon:add_client_hint(communism, _("Aragon"), 0x808000)
 -- Formable by both czech and slovakia
 czechoslovakia = Nation:new{ ref_name = "czechoslovakia" }
 czechoslovakia.name = _("Czechoslovakia")
+czechoslovakia.adjective = _("Czechoslovak")
 czechoslovakia:register()
 czechoslovakia:add_accepted_culture(slovakian)
 czechoslovakia:add_accepted_culture(czech)
@@ -128,6 +142,7 @@ czechoslovakia:add_client_hint(communism, _("Czechoslovakia"), 0x384a8a)
 -- Initial nations
 denmark = Nation:new{ ref_name = "denmark" }
 denmark.name = _("Denmark")
+denmark.adjective = _("Danish")
 denmark:register()
 denmark:set_ideology(monarchy)
 denmark:add_accepted_culture(danish)
@@ -135,6 +150,8 @@ denmark:add_client_hint(monarchy, _("Denmark"), 0xc27b6d)
 
 sweden = Nation:new{ ref_name = "sweden" }
 sweden.name = _("Sweden")
+sweden.adjective = _("Swedish")
+sweden.noun = _("Swede")
 sweden:register()
 sweden:set_ideology(monarchy)
 sweden:add_accepted_culture(swedish)
@@ -143,6 +160,7 @@ sweden:add_client_hint(monarchy, _("Sweden"), 0x3a739e)
 -- Formable nations
 scandinavia = Nation:new{ ref_name = "scandinavia" }
 scandinavia.name = _("Scandinavia")
+scandinavia.adjective = _("Scandinavian")
 scandinavia:register()
 scandinavia:set_ideology(monarchy)
 scandinavia:add_accepted_culture(finnish)
@@ -154,12 +172,15 @@ scandinavia:add_client_hint(monarchy, _("Scandinavia"), 0x3a739e)
 -- Releasable nations
 finland = Nation:new{ ref_name = "finland" }
 finland.name = _("Finland")
+finland.adjective = _("Finnish")
+finland.combo_form = _("Finno")
 finland:register()
 finland:add_accepted_culture(finnish)
 finland:add_client_hint(monarchy, _("Finland"), 0xb9ebeb)
 
 norway = Nation:new{ ref_name = "norway" }
 norway.name = _("Norway")
+norway.adjective = _("Norwegian")
 norway:register()
 norway:add_accepted_culture(norwegian)
 norway:add_client_hint(monarchy, _("Norway"), 0xab1659)
@@ -173,6 +194,7 @@ aland:add_client_hint(monarchy, _("Åland"), 0xe6dd45)
 
 iceland = Nation:new{ ref_name = "iceland" }
 iceland.name = _("Iceland")
+iceland.adjective = _("Icelandic")
 iceland:register()
 iceland:add_accepted_culture(icelandic)
 iceland:add_client_hint(monarchy, _("Iceland"), 0x8293d1)
@@ -183,6 +205,8 @@ iceland:add_client_hint(monarchy, _("Iceland"), 0x8293d1)
 -- Initial nations
 russia = Nation:new{ ref_name = "russia" }
 russia.name = _("Russia")
+russia.adjective = _("Russian")
+russia.combo_form = _("Russo")
 russia:register()
 russia:set_ideology(monarchy)
 russia:add_accepted_culture(russian)
@@ -200,6 +224,7 @@ krakow:add_client_hint(communism, _("Krakow"), 0xe6f4f7)
 -- Poland can be formed by krakow
 poland = Nation:new{ ref_name = "poland" }
 poland.name = _("Poland")
+poland.adjective = _("Polish")
 poland:register()
 poland:add_accepted_culture(polish)
 poland:add_client_hint(communism, _("Poland"), 0xbf85d6)
@@ -208,6 +233,7 @@ poland:add_client_hint(republic, _("Poland"), 0xbf85d6)
 
 lithuania = Nation:new{ ref_name = "lithuania" }
 lithuania.name = _("Lithuania")
+lithuania.adjective = _("Lithuanian")
 lithuania:register()
 lithuania:add_accepted_culture(lithuanian)
 lithuania:add_client_hint(republic, _("Lithuania"), 0x598c42)
@@ -215,6 +241,7 @@ lithuania:add_client_hint(monarchy, _("Lithuania SFSR"), 0x598c42)
 
 estonia = Nation:new{ ref_name = "estonia" }
 estonia.name = _("Estonia")
+estonia.adjective = _("Estonian")
 estonia:register()
 estonia:add_accepted_culture(estonian)
 estonia:add_client_hint(republic, _("Estonia"), 0x4c8ed4)
@@ -222,6 +249,7 @@ estonia:add_client_hint(monarchy, _("Estonia SFSR"), 0x4c8ed4)
 
 latvia = Nation:new{ ref_name = "latvia" }
 latvia.name = _("Latvia")
+latvia.adjective = _("Latvian")
 latvia:register()
 latvia:add_accepted_culture(latvian)
 latvia:add_client_hint(republic, _("Latvia"), 0x962820)
@@ -230,6 +258,7 @@ latvia:add_client_hint(monarchy, _("Latvia SFSR"), 0x962820)
 -- Lovonia can be formed by either latvia, estonia or lithuania
 livonia = Nation:new{ ref_name = "livonia" }
 livonia.name = _("Livonia")
+livonia.adjective = _("Livonian")
 livonia:register()
 livonia:add_accepted_culture(lithuanian)
 livonia:add_accepted_culture(latvian)
@@ -238,12 +267,14 @@ livonia:add_client_hint(monarchy, _("Livonia"), 0x69917f)
 
 romania = Nation:new{ ref_name = "romania" }
 romania.name = _("Romania")
+romania.adjective = _("Romanian")
 romania:register()
 romania:add_accepted_culture(bulgarian)
 romania:add_client_hint(monarchy, _("Romania"), 0xcfa85b)
 
 bulgaria = Nation:new{ ref_name = "bulgaria" }
 bulgaria.name = _("Bulgaria")
+bulgaria.adjective = _("Bulgarian")
 bulgaria:register()
 bulgaria:add_accepted_culture(bulgarian)
 bulgaria:add_client_hint(monarchy, _("Bulgaria"), 0x78cf7d)
@@ -269,24 +300,28 @@ novgorod:add_client_hint(communism, _("Novgorod"), 0x808000)
 
 nogai_horde = Nation:new{ ref_name = "nogai_horde" }
 nogai_horde.name = _("Nogai Horde")
+nogai_horde.adjective = _("Nogai")
 nogai_horde:register()
 nogai_horde:add_accepted_culture(nogai)
 nogai_horde:add_client_hint(communism, _("Nogai Horde"), 0x808000)
 
 uzbekistan = Nation:new{ ref_name = "uzbekistan" }
 uzbekistan.name = _("Uzbekistan")
+uzbekistan.adjective = _("Uzbek")
 uzbekistan:register()
 uzbekistan:add_accepted_culture(uzbek)
 uzbekistan:add_client_hint(communism, _("Uzbekistan"), 0x808000)
 
 kazakhistan = Nation:new{ ref_name = "kazakhistan" }
 kazakhistan.name = _("Kazakhistan")
+kazakhistan.adjective = _("Kazakh")
 kazakhistan:register()
 kazakhistan:add_accepted_culture(kazakh)
 kazakhistan:add_client_hint(monarchy, _("Kazakhistan"), 0x2276b3)
 
 kyrgyztan = Nation:new{ ref_name = "kyrgyztan" }
 kyrgyztan.name = _("Kyrgyztan")
+kyrgyztan.adjective = _("Kyrgyz")
 kyrgyztan:register()
 kyrgyztan:add_accepted_culture(kyrgyz)
 kyrgyztan:add_client_hint(monarchy, _("Kyrgyztan"), 0xc44f45)
@@ -294,6 +329,8 @@ kyrgyztan:add_client_hint(communism, _("Kyrgyztan"), 0xc44f45)
 
 afghanistan = Nation:new{ ref_name = "afghanistan" }
 afghanistan.name = _("Afghanistan")
+afghanistan.adjective = _("Afghan")
+afghanistan.noun = _("Afghani")
 afghanistan:register()
 afghanistan:add_accepted_culture(afghan)
 afghanistan:add_client_hint(monarchy, _("Afghanistan"), 0x3b6b48)
@@ -304,6 +341,7 @@ afghanistan:add_client_hint(monarchy, _("Afghanistan"), 0x3b6b48)
 -- Initial nations
 prussia = Nation:new{ ref_name = "prussia" }
 prussia.name = _("Prussia")
+prussia.adjective = _("Prussian")
 prussia:register()
 prussia:set_ideology(democracy)
 prussia:add_accepted_culture(german)
@@ -436,6 +474,8 @@ wurttemberg:add_client_hint(communism, _("Württemberg"), 0x808000)
 
 austria = Nation:new{ ref_name = "austria" }
 austria.name = _("Austria")
+austria.adjective = _("Austrian")
+austria.combo_form = _("Austro")
 austria:register()
 austria:set_ideology(democracy)
 austria:add_accepted_culture(german)
@@ -445,6 +485,7 @@ austria:add_client_hint(republic, _("Austria"), 0xe8ebe8)
 -- Releasable nations
 hungary = Nation:new{ ref_name = "hungary" }
 hungary.name = _("Hungary")
+hungary.adjective = _("Hungarian")
 hungary:register()
 hungary:set_ideology(monarchy)
 hungary:add_accepted_culture(hungarian)
@@ -455,12 +496,14 @@ hungary:add_client_hint(republic, _("Hungary"), 0x3f7051)
 -- Formable nations
 greater_prussia = Nation:new{ ref_name = "greater_prussia" }
 greater_prussia.name = _("Greater Prussia")
+greater_prussia.adjective = _("Prussian")
 greater_prussia:register()
 greater_prussia:add_accepted_culture(german)
 greater_prussia:add_client_hint(communism, _("Greater Prussia"), 0x808000)
 
 germany = Nation:new{ ref_name = "germany" }
 germany.name = _("Germany")
+germany.adjective = _("German")
 germany:register()
 germany:add_accepted_culture(german)
 germany:add_client_hint(communism, _("Germany"), 0x6e6e6e)
@@ -474,12 +517,14 @@ holy_roman_empire:add_client_hint(monarchy, _("Holy Roman Empire"), 0xf0e930)
 
 roman_empire = Nation:new{ ref_name = "roman_empire" }
 roman_empire.name = _("Roman Empire")
+roman_empire.adjective = _("Roman")
 roman_empire:register()
 roman_empire:add_accepted_culture(italian)
 roman_empire:add_client_hint(communism, _("Roman Empire"), 0x808000)
 
 austria_hungary = Nation:new{ ref_name = "austria_hungary" }
 austria_hungary.name = _("Austria-Hungary")
+austria_hungary.adjective = _("Austro-Hungarian")
 austria_hungary:register()
 austria_hungary:add_accepted_culture(german)
 austria_hungary:add_accepted_culture(hungarian)
@@ -492,6 +537,7 @@ austria_hungary:add_client_hint(monarchy, _("Austria-Hungary"), 0xe8ebe8)
 
 venice = Nation:new{ ref_name = "venice" }
 venice.name = _("Venice")
+venice.adjective = _("Venetian")
 venice:register()
 venice:set_ideology(democracy)
 venice:add_accepted_culture(italian)
@@ -542,6 +588,7 @@ savoie:add_client_hint(monarchy, _("Savoie"), 0x808000)
 -- Formable nations
 italy = Nation:new{ ref_name = "italy" }
 italy.name = _("Italy")
+italy.adjective = _("Italian")
 italy:register()
 italy:add_accepted_culture(italian)
 italy:add_client_hint(monarchy, _("Italy"), 0x5fbf5c)
@@ -553,14 +600,19 @@ italy:add_client_hint(republic, _("Italy"), 0x5fbf5c)
 -- Balkans
 turkey = Nation:new{ ref_name = "turkey" }
 turkey.name = _("Turkey")
+turkey.adjective = _("Turkish")
+turkey.noun = _("Turk")
+turkey.combo_form = _("Turco")
 turkey:register()
 turkey:set_ideology(monarchy)
 turkey:add_accepted_culture(turkish)
-chile:add_client_hint(monarchy, _("Ottoman Empire"), 0xc9201a)
+chile:add_client_hint(monarchy, _("Turkey"), 0xc9201a)
 chile:add_client_hint(republic, _("Turkey"), 0xc9201a)
 
 greece = Nation:new{ ref_name = "greece" }
 greece.name = _("Greece")
+greece.adjective = _("Greek")
+greece.combo_form = _("Greco")
 greece:register()
 greece:set_ideology(monarchy)
 greece:add_accepted_culture(greek)
