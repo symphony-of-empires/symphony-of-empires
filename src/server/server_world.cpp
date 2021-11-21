@@ -21,6 +21,7 @@
 #include "serializer.hpp"
 #include "io_impl.hpp"
 #include "server/server_network.hpp"
+#include "swap.hpp"
 
 #if (__cplusplus < 201703L)
 namespace std {
@@ -66,6 +67,8 @@ World::World() {
 
     lua_register(lua, "add_nation", LuaAPI::add_nation);
     lua_register(lua, "get_nation", LuaAPI::get_nation);
+    lua_register(lua, "get_nation_by_id", LuaAPI::get_nation_by_id);
+    lua_register(lua, "get_all_nations", LuaAPI::get_all_nations);
 
     lua_register(lua, "get_friends_of_nation", LuaAPI::get_friends_of_nation);
     lua_register(lua, "get_enemies_of_nation", LuaAPI::get_enemies_of_nation);
@@ -110,6 +113,7 @@ World::World() {
 
     lua_register(lua, "add_event", LuaAPI::add_event);
     lua_register(lua, "get_event", LuaAPI::get_event);
+    lua_register(lua, "update_event", LuaAPI::update_event);
     lua_register(lua, "add_event_receivers", LuaAPI::add_event_receivers);
 
     lua_register(lua, "add_descision", LuaAPI::add_descision);
@@ -433,7 +437,7 @@ void World::load_mod(void) {
     // Associate tiles with provinces
 
     // Uncomment this and see a bit more below
-    //std::set<uint32_t> colors_found;
+    std::set<uint32_t> colors_found;
     print_info(gettext("Associate tiles with provinces"));
     for(size_t i = 0; i < total_size; i++) {
         const uint32_t color = div.buffer[i];
@@ -455,13 +459,12 @@ void World::load_mod(void) {
             ++i;
         }
 
-        if(!(i < total_size))
-            break;
+        if(!(i < total_size)) break;
 
         const Province::Id province_id = province_color_table[div.buffer[i] & 0xffffff];
         if(province_id >= (Province::Id)-3) {
             // Uncomment this and see below
-            //colors_found.insert(color);
+            colors_found.insert(color);
             continue;
         }
 
@@ -475,11 +478,11 @@ void World::load_mod(void) {
     }
 
     /* Uncomment this for auto-generating lua code for unregistered provinces */
-    /*for(const auto& color_raw: colors_found) {
+    for(const auto& color_raw: colors_found) {
         uint32_t color = color_raw << 8;
 
-        printf("province = Province:create{ ref_name = \"province_%x\", color = 0x%06x }\n", __bswap_32(color), __bswap_32(color));
-        printf("province.name = _(\"Province_%x\")\n", __bswap_32(color));
+        printf("province = Province:create{ ref_name = \"province_%x\", color = 0x%06x }\n", bswap32(color), bswap32(color));
+        printf("province.name = _(\"Province_%x\")\n", bswap32(color));
         printf("province:register()\n");
         printf("province:add_pop(artisan, arabic, islamic, 1000, 0.5)\n");
         printf("province:add_pop(farmer, arabic, islamic, 1000, 0.5)\n");
@@ -490,7 +493,7 @@ void World::load_mod(void) {
         printf("province:add_pop(clergymen, arabic, islamic, 1000, 0.5)\n");
         printf("province:add_pop(laborer, arabic, islamic, 1000, 0.5)\n");
         printf("province:add_pop(entrepreneur, arabic, islamic, 1000, 0.5)\n");
-    }*/
+    }
 
     // Calculate the edges of the province (min and max x and y coordinates)
     print_info(gettext("Calculate the edges of the province (min and max x and y coordinates)"));
@@ -602,6 +605,38 @@ void World::load_mod(void) {
 #include "../actions.hpp"
 #include "economy.hpp"
 void World::do_tick() {
+    /*
+    for(uint i = 0; i < width; i++) {
+        for(uint j = 0; j < height; j++) {
+            int side = rand() % 4;
+            Tile& tile = get_tile(i, j);
+            if(rand() % ((256 - tile.elevation) * 100)) {
+                auto adjacent_tiles = tile.get_neighbours(*this);
+
+                const Tile& adj_tile = *(adjacent_tiles[rand() % adjacent_tiles.size()]);
+                if(adj_tile.owner_id == (Nation::Id)-1 || adj_tile.owner_id == (Nation::Id)-2) continue;
+                tile.owner_id = adj_tile.owner_id;
+
+                // Broadcast to clients
+                Packet packet = Packet(0);
+                Archive ar = Archive();
+
+                ActionType action = ActionType::TILE_UPDATE;
+                ::serialize(ar, &action);
+
+                std::pair<size_t, size_t> coord = std::make_pair(i, j);
+                ::serialize(ar, &coord.first);
+                ::serialize(ar, &coord.second);
+                ::serialize(ar, &tile);
+
+                packet.data(ar.get_buffer(), ar.size());
+                g_server->broadcast(packet);
+            }
+        }
+    }
+    return;
+    */
+
     std::lock_guard lock(world_mutex);
     std::lock_guard lock2(tiles_mutex);
 

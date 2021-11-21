@@ -51,6 +51,8 @@ namespace LuaAPI {
 
     int add_nation(lua_State* L);
     int get_nation(lua_State* L);
+    int get_nation_by_id(lua_State* L);
+    int get_all_nations(lua_State* L);
 
     int get_friends_of_nation(lua_State* L);
     int get_enemies_of_nation(lua_State* L);
@@ -96,6 +98,7 @@ namespace LuaAPI {
 
     int add_event(lua_State* L);
     int get_event(lua_State* L);
+    int update_event(lua_State* L);
     int add_event_receivers(lua_State* L);
 
     int add_descision(lua_State* L);
