@@ -493,6 +493,13 @@ hungary:add_client_hint(communism, _("People's Republic of Hungary"), 0x3f7051)
 hungary:add_client_hint(monarchy, _("Hungary"), 0x3f7051)
 hungary:add_client_hint(republic, _("Hungary"), 0x3f7051)
 
+ireland = Nation:new{ ref_name = "ireland" }
+ireland.name = _("Ireland")
+ireland.adjective = _("Irish")
+ireland:register()
+ireland:add_accepted_culture(german)
+ireland:add_client_hint(communism, _("Ireland"), 0x808000)
+
 -- Formable nations
 greater_prussia = Nation:new{ ref_name = "greater_prussia" }
 greater_prussia.name = _("Greater Prussia")
