@@ -5,6 +5,7 @@
 #include <deque>
 #include <functional>
 #include <vector>
+#include <string>
 
 #ifdef _MSC_VER
 #include <SDL_surface.h>
