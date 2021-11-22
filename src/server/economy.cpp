@@ -192,7 +192,7 @@ void Economy::do_tick(World& world) {
                 }
 
                 print_info("Building of %s in %s has closed down!", building->type->name.c_str(), province->name.c_str());
-
+                
                 world.remove(building);
                 delete building;
                 --j;
@@ -652,7 +652,7 @@ void Economy::do_tick(World& world) {
                     }
                 }
 
-                print_info("%zu pops wanting to emigrate!", emigreers);
+                //print_info("%zu pops wanting to emigrate!", emigreers);
 
                 // Find best province
                 Province* best_province = nullptr;
@@ -690,7 +690,7 @@ void Economy::do_tick(World& world) {
                     //goto skip_emigration;
                 }
 
-                print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
+                //print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
 
                 Emigrated emigrated = {};
                 emigrated.target = best_province;
