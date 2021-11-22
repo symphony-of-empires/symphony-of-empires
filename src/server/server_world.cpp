@@ -481,18 +481,9 @@ void World::load_mod(void) {
     for(const auto& color_raw: colors_found) {
         uint32_t color = color_raw << 8;
 
-        printf("province = Province:create{ ref_name = \"province_%x\", color = 0x%06x }\n", bswap32(color), bswap32(color));
-        printf("province.name = _(\"Province_%x\")\n", bswap32(color));
+        printf("province = Province:new{ ref_name = \"province_%06p\", color = 0x%06p }\n", (uintptr_t)bswap32(color), (uintptr_t)bswap32(color));
+        printf("province.name = _(\"Province_%06p\")\n", (uintptr_t)bswap32(color));
         printf("province:register()\n");
-        printf("province:add_pop(artisan, arabic, islamic, 1000, 0.5)\n");
-        printf("province:add_pop(farmer, arabic, islamic, 1000, 0.5)\n");
-        printf("province:add_pop(soldier, arabic, islamic, 1000, 0.5)\n");
-        printf("province:add_pop(craftsmen, arabic, islamic, 1000, 0.5)\n");
-        printf("province:add_pop(bureaucrat, arabic, islamic, 1000, 0.5)\n");
-        printf("province:add_pop(aristocrat, arabic, islamic, 1000, 0.5)\n");
-        printf("province:add_pop(clergymen, arabic, islamic, 1000, 0.5)\n");
-        printf("province:add_pop(laborer, arabic, islamic, 1000, 0.5)\n");
-        printf("province:add_pop(entrepreneur, arabic, islamic, 1000, 0.5)\n");
     }
 
     // Calculate the edges of the province (min and max x and y coordinates)
