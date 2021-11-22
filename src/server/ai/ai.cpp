@@ -205,7 +205,7 @@ void ai_do_tick(Nation* nation, World* world) {
     }
 
     // Colonize a province
-    if(1) {
+    if(!(std::rand() % 50000) {
         // Pair denoting the weight a province has, the more the better
         std::vector<std::pair<Province*, float>> colonial_value;
         for(const auto& province : world->provinces) {
@@ -225,7 +225,7 @@ void ai_do_tick(Nation* nation, World* world) {
         }
 
         // Found an appropriate colony!
-        if(colonial_value.empty()) {
+        if(!colonial_value.empty()) {
             Province* target = (*std::max_element(colonial_value.begin(), colonial_value.end())).first;
             if(target->owner == nullptr) {
                 Packet packet = Packet();
@@ -244,7 +244,7 @@ void ai_do_tick(Nation* nation, World* world) {
     }
 
     // Accepting/rejecting treaties
-    if(!(std::rand() % 5000)) {
+    if(!(std::rand() % 50)) {
         for(auto& treaty : world->treaties) {
             for(auto& part : treaty->approval_status) {
                 if(part.first == nation) {
@@ -261,6 +261,12 @@ void ai_do_tick(Nation* nation, World* world) {
                     }
                 }
             }
+        }
+    }
+
+    if(!(std::rand() % 50)) {
+        for(const auto& event : nation->inbox) {
+            event->take_descision(nation, &event->descisions[std::rand() % event->descisions.size()]);
         }
     }
 
