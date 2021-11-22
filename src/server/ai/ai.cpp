@@ -205,7 +205,7 @@ void ai_do_tick(Nation* nation, World* world) {
     }
 
     // Colonize a province
-    if(!(std::rand() % 50000) {
+    if(!(std::rand() % 50000)) {
         // Pair denoting the weight a province has, the more the better
         std::vector<std::pair<Province*, float>> colonial_value;
         for(const auto& province : world->provinces) {
