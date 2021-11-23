@@ -4,16 +4,19 @@
 #include "client/ui.hpp"
 
 namespace Interface {
-    class MainMenu : public UI::Window {
+    class MainMenuConnectServer;
+    class MainMenu: public UI::Window {
     public:
         MainMenu(GameState& gs);
+        ~MainMenu() override;
 
         GameState& gs;
+        MainMenuConnectServer* connect_window = nullptr;
     };
 
-    class MainMenuConnectServer : public UI::Window {
+    class MainMenuConnectServer: public UI::Window {
     public:
-        MainMenuConnectServer(GameState& gs, MainMenu* parent);
+        MainMenuConnectServer(GameState& gs);
 
         GameState& gs;
         bool in_game;
