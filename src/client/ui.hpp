@@ -15,9 +15,24 @@
 #include <SDL2/SDL_ttf.h>
 #endif
 
+#include <glm/vec2.hpp>
+
 namespace UnifiedRender {
     class Texture;
 }
+
+enum UI_Origin {
+    CENTER,
+    UPPER_LEFT,
+    UPPER_RIGTH,
+    LOWER_LEFT,
+    LOWER_RIGHT,
+    CENTER_SCREEN,
+    UPPER_LEFT_SCREEN,
+    UPPER_RIGHT_SCREEN,
+    LOWER_LEFT_SCREEN,
+    LOWER_RIGHT_SCREEN,
+};
 
 enum UI_WidgetType {
     UI_WIDGET_BUTTON,
@@ -43,8 +58,9 @@ namespace UI {
         Widget* dragged_widget;
         int width, height;
 
+        glm::ivec2 get_pos(Widget& w, glm::ivec2 offset);
         int check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
-        int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
+        int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, int is_clicked);
         int check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y);
     public:
         Context();
@@ -53,7 +69,9 @@ namespace UI {
         void remove_widget(Widget* widget);
 
         void render_recursive(Widget& widget, int x_off, int y_off);
-        void render_all(const int width, const int height);
+        void render_all();
+
+        void resize(const int width, const int height);
 
         void check_hover(unsigned mx, unsigned my);
         int check_click(unsigned mx, unsigned my);
@@ -67,7 +85,7 @@ namespace UI {
         void clear(void);
         void clear_dead();
 
-        const UnifiedRender::Texture* background, * window_top, * button, * tooltip_texture, * piechart_overlay, * border_tex;
+        const UnifiedRender::Texture* background, * window_top, * button, * tooltip_texture, * piechart_overlay, * border_tex, * button_border;
         TTF_Font* default_font;
 
         std::vector<Widget*> widgets;
@@ -123,6 +141,9 @@ namespace UI {
         // Used internally for managing widgets outside of window bounds
         bool is_show = true;
         bool is_hover = false;
+        bool is_float = false;
+        bool is_fullscreen = false;
+        UI_Origin origin = UPPER_LEFT;
 
         int type;
 
@@ -133,6 +154,7 @@ namespace UI {
 
         const UnifiedRender::Texture* current_texture = nullptr;
         UnifiedRender::Texture* text_texture = nullptr;
+        int text_offset_x = 4, text_offset_y = 4;
 
         Tooltip* tooltip = nullptr;
 
@@ -147,12 +169,16 @@ namespace UI {
         std::function<void(Widget&, void*)> on_update;
         std::function<void(Widget&, void*)> on_hover;
         std::function<void(Widget&, void*)> on_click;
+        std::function<void(Widget&, void*)> on_click_outside;
 
         std::function<void(Widget&, void*)> on_each_tick;
 
         bool dead = false;
 
         friend class Context;
+    private:
+        void draw_border(const UnifiedRender::Texture* border_tex,
+            float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset);
     };
 
     class Color {
@@ -188,11 +214,33 @@ namespace UI {
 
     class Input: public Widget {
     public:
+        static void on_click_default(Widget& w, void*) {
+            Input& input = static_cast<Input&>(w);
+            input.is_selected = true;
+        }
+        static void on_click_outside_default(Widget& w, void*) {
+            Input& input = static_cast<Input&>(w);
+            if(input.is_selected) {
+                input.text(input.buffer);
+            }
+            input.is_selected = false;
+        }
+        static void on_update_default(Widget& w, void*) {
+            Input& input = static_cast<Input&>(w);
+            input.timer = (input.timer + 1) % 60;
+            std::string cursor = input.timer >= 30 ? "|" : "";
+            if(input.is_selected && input.timer % 30 == 0) {
+                input.text(input.buffer + cursor);
+            }
+        }
         Input(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         ~Input(){};
 
         std::function<void(Input&, const char*, void*)> on_textinput;
         std::string buffer = "";
+        bool is_selected = false;
+    private:
+        int timer; // TODO: Needs to not be frame dependand
     };
 
     class Checkbox: public Widget {
@@ -221,7 +269,7 @@ namespace UI {
         bool is_movable = false;
 
         Window(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        ~Window(){};
+        virtual ~Window() override {};
     };
 
     class Image: public Widget {

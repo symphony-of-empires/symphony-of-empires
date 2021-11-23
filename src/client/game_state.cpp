@@ -130,6 +130,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
         case SDL_MOUSEMOTION:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
+            break;
         case SDL_MOUSEWHEEL:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
@@ -174,15 +175,14 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 std::pair<float, float> old_size = std::make_pair(width, height);
                 SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height);
 
+                ui_ctx->resize(width, height);
+                gs.width = width;
+                gs.height = height;
                 // Resize/recenter UI according to screen change
-                for(auto& widget : ui_ctx->widgets) {
-                    widget->x *= width / old_size.first;
-                    widget->y *= height / old_size.second;
-                }
-
-                if(gs.current_mode != MapMode::NO_MAP){
-                    gs.map->camera->set_screen(width, height);
-                }
+                // for(auto& widget : ui_ctx->widgets) {
+                //     widget->x *= width / old_size.first;
+                //     widget->y *= height / old_size.second;
+                // }
             }
             break;
         default:
@@ -269,7 +269,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         map->update_tiles(*gs.world);
     }
 
-    gs.ui_ctx->render_all(width, height);
+    gs.ui_ctx->render_all();
     glLoadIdentity();
     glRasterPos2f(-3.0f, -2.0f);
     SDL_GL_SwapWindow(window);
@@ -428,6 +428,7 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
 
     // Connect to server prompt
     UI::Image* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &g_texture_manager->load_texture(Path::get("ui/globe.png")));
+    mm_bg->is_fullscreen = true;
 
     Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
 

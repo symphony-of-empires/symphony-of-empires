@@ -3,6 +3,7 @@
 #include <string>
 #include <cmath>
 #include <algorithm>
+#include <glm/vec2.hpp>
 
 #ifdef _MSC_VER
 #   ifndef _WINDOWS_
@@ -46,10 +47,11 @@ Context::Context() {
 
     background = &g_texture_manager->load_texture(Path::get("ui/background2.png"));
     window_top = &g_texture_manager->load_texture(Path::get("ui/window_top2.png"));
-    button = &g_texture_manager->load_texture(Path::get("ui/button.png"));
+    button = &g_texture_manager->load_texture(Path::get("ui/button2.png"));
     tooltip_texture = &g_texture_manager->load_texture(Path::get("ui/tooltip.png"));
     piechart_overlay = &g_texture_manager->load_texture(Path::get("ui/piechart.png"));
     border_tex = &g_texture_manager->load_texture(Path::get("ui/borders/border2.png"));
+    button_border = &g_texture_manager->load_texture(Path::get("ui/borders/border_sharp2.png"));
 
     g_ui_context = this;
     is_drag = false;
@@ -110,14 +112,68 @@ void Context::clear_dead() {
 //     }
 // }
 
+glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
+    glm::ivec2 pos{ w.x, w.y };
+    glm::ivec2 screen_size{ width, height };
+    glm::ivec2 parent_size{ 0, 0 };
+    if(w.parent != nullptr)
+        parent_size = glm::ivec2{ w.parent->width, w.parent->height };
+
+    switch(w.origin)
+    {
+    case UI_Origin::CENTER:
+        pos += offset;
+        pos += parent_size / 2;
+    case UI_Origin::UPPER_LEFT:
+        pos += offset;
+        break;
+    case UI_Origin::UPPER_RIGTH:
+        pos += offset;
+        pos.x += parent_size.x;
+        break;
+    case UI_Origin::LOWER_LEFT:
+        pos += offset;
+        pos.y += parent_size.y;
+        break;
+    case UI_Origin::LOWER_RIGHT:
+        pos += offset;
+        pos += parent_size;
+        break;
+    case UI_Origin::CENTER_SCREEN:
+        pos += screen_size / 2;
+        break;
+    case UI_Origin::UPPER_LEFT_SCREEN:
+        break;
+    case UI_Origin::UPPER_RIGHT_SCREEN:
+        pos.x += screen_size.x;
+        break;
+    case UI_Origin::LOWER_LEFT_SCREEN:
+        pos.y += screen_size.y;
+        break;
+    case UI_Origin::LOWER_RIGHT_SCREEN:
+        pos += screen_size;
+        break;
+    }
+    return pos;
+}
+
+void Context::resize(int _width, int _height) {
+    width = _width;
+    height = _height;
+}
+
 void Context::render_recursive(Widget& w, int x_off, int y_off) {
     if(!w.width || !w.height) return;
 
-    x_off += w.x;
-    y_off += w.y;
+    if(w.is_fullscreen) {
+        w.width = width;
+        w.height = height;
+    }
+    glm::ivec2 offset{ x_off, y_off };
+    offset = get_pos(w, offset);
 
     glPushMatrix();
-    glTranslatef(x_off, y_off, 0.f);
+    glTranslatef(offset.x, offset.y, 0.f);
     w.on_render(*this);
     if(w.on_update) {
         w.on_update(w, w.user_data);
@@ -127,23 +183,25 @@ void Context::render_recursive(Widget& w, int x_off, int y_off) {
     for(auto& child : w.children) {
         child->is_show = true;
         if((child->x < 0 || child->x > w.width || child->y < 0 || child->y > w.height)) {
-            child->is_show = false;
+            if(!child->is_float)
+                child->is_show = false;
         }
 
         if(!child->is_show || !child->is_render)
             continue;
 
-        render_recursive(*child, x_off, y_off);
+        render_recursive(*child, offset.x, offset.y);
     }
 }
 
-void Context::render_all(const int width, const int height) {
-    this->width = width;
-    this->height = height;
+void Context::render_all() {
+    glUseProgram(0);
+    glActiveTexture(GL_TEXTURE0);
+    glViewport(0, 0, width, height);
     glPushMatrix();
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0.f, (float)width, (float)height, 0.f, 0.0f, 1.f);
+    glOrtho(0.f, (float)this->width, (float)this->height, 0.f, 0.0f, 1.f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.f, 0.f, 0.f);
@@ -157,14 +215,14 @@ void Context::render_all(const int width, const int height) {
 }
 
 int Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
-    x_off += w.x;
-    y_off += w.y;
+    glm::ivec2 offset{ x_off, y_off };
+    offset = get_pos(w, offset);
 
     w.is_hover = false;
 
     if(!w.is_show) return 0;
 
-    if(!((int)mx >= x_off && mx <= x_off + w.width && (int)my >= y_off && my <= y_off + w.height))
+    if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height))
         return 0;
 
     w.is_hover = true;
@@ -173,11 +231,11 @@ int Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsig
 
     if(w.tooltip != nullptr) {
         tooltip_widget = w.tooltip;
-        tooltip_widget->set_pos(x_off, y_off, w.width, w.height, width, height);
+        tooltip_widget->set_pos(offset.x, offset.y, w.width, w.height, width, height);
     }
 
     for(auto& child : w.children) {
-        check_hover_recursive(*child, mx, my, x_off, y_off);
+        check_hover_recursive(*child, mx, my, offset.x, offset.y);
     }
     return 1;
 }
@@ -198,37 +256,42 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
     return;
 }
 
-int Context::check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
-    x_off += w.x;
-    y_off += w.y;
+int Context::check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, int is_clicked) {
+    glm::ivec2 offset{ x_off, y_off };
+    offset = get_pos(w, offset);
 
+    int click_consumed = 1;
     // Widget must be displayed
-    if(!w.is_show) return 0;
+    if(!w.is_show) click_consumed = 0;
 
     // Click must be within the widget's box
-    if(!((int)mx >= x_off && mx <= x_off + w.width && (int)my >= y_off && my <= y_off + w.height))
-        return 0;
+    if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height))
+        click_consumed = 0;
 
     switch(w.type) {
     case UI_WIDGET_SLIDER: {
         Slider* wc = (Slider*)&w;
-        wc->value = ((float)std::abs((int)mx - x_off) / (float)wc->width) * wc->max;
+        wc->value = ((float)std::abs((int)mx - offset.x) / (float)wc->width) * wc->max;
     } break;
     default:
         break;
     }
 
-    if(w.on_click) w.on_click(w, w.user_data);
+    bool is_clicked_now = click_consumed && !is_clicked;
+    if(is_clicked_now && w.on_click) w.on_click(w, w.user_data);
+    if(!is_clicked_now && w.on_click_outside) w.on_click_outside(w, w.user_data);
 
-    for(auto& child : w.children) check_click_recursive(*child, mx, my, x_off, y_off);
-    return 1;
+    for(auto& child : w.children) {
+        check_click_recursive(*child, mx, my, offset.x, offset.y, is_clicked);
+    }
+    return is_clicked || click_consumed;
 }
 
 int Context::check_click(const unsigned mx, const unsigned my) {
     is_drag = false;
+    int is_clicked = 0;
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        int r = check_click_recursive(*widgets[i], mx, my, 0, 0);
-        if(r > 0) return 1;
+        is_clicked = check_click_recursive(*widgets[i], mx, my, 0, 0, is_clicked);
     }
     return 0;
 }
@@ -259,9 +322,10 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 }
 
 void check_text_input_recursive(Widget& widget, const char* _input) {
-    if(widget.type == UI_WIDGET_INPUT && widget.is_hover) {
+    if(widget.type == UI_WIDGET_INPUT) {
         auto& c_widget = static_cast<Input&>(widget);
-        c_widget.on_textinput(c_widget, _input, c_widget.user_data);
+        if(c_widget.is_selected)
+            c_widget.on_textinput(c_widget, _input, c_widget.user_data);
     }
 
     for(const auto& children : widget.children) {
@@ -276,13 +340,13 @@ void Context::check_text_input(const char* _input) {
 }
 
 int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y) {
-    x_off += w.x;
-    y_off += w.y;
+    glm::ivec2 offset{ x_off, y_off };
+    offset = get_pos(w, offset);
 
     // Widget must be shown
     if(!w.is_show) return 0;
 
-    if(!((int)mx >= x_off && mx <= x_off + w.width && (int)my >= y_off && my <= y_off + w.height))
+    if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height))
         return 0;
 
     // When we check the children they shall return non-zero if they are a group/window
@@ -293,7 +357,7 @@ int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_of
     // In short: If any of our children are scrolled by the mouse we will not receive
     // the scrolling instructions - only the front child will
     for(const auto& children : w.children) {
-        int r = check_wheel_recursive(*children, mx, my, x_off, y_off, y);
+        int r = check_wheel_recursive(*children, mx, my, offset.x, offset.y, y);
         if(r > 0) return 1;
     }
 
@@ -357,6 +421,81 @@ void draw_tex_rect(const GLuint tex,
     glVertex2f(x_start, y_start);
     glEnd();
 }
+
+void Widget::draw_border(const UnifiedRender::Texture* border_tex,
+    float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset) {
+    // Draw border edges and corners
+    float x_start = x_offset;
+    float y_start = y_offset;
+    float xtex_start = 0;
+    float ytex_start = 0;
+    float x_end = x_offset + b_w;
+    float y_end = y_offset + b_h;
+    float xtex_end = b_tex_w / border_tex->width;
+    float ytex_end = b_tex_h / border_tex->height;
+
+    GLuint tex = border_tex->gl_tex_num;
+    // Top left corner
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Top right corner
+    x_start = width - b_w;
+    xtex_start = (border_tex->width - b_tex_w) / border_tex->width;
+    x_end = width;
+    xtex_end = 1.f;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Bottom right corner
+    y_start = height - b_h;
+    ytex_start = (border_tex->height - b_tex_h) / border_tex->height;
+    y_end = height;
+    ytex_end = 1.f;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Bottom left corner
+    x_start = x_offset;
+    xtex_start = 0;
+    x_end = x_offset + b_w;
+    xtex_end = b_tex_w / border_tex->width;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Top edge
+    x_start = x_offset + b_w;
+    xtex_start = b_tex_w / border_tex->width;
+    x_end = width - b_w;
+    xtex_end = (border_tex->width - b_tex_w) / border_tex->width;
+    y_start = y_offset;
+    ytex_start = 0;
+    y_end = y_offset + b_h;
+    ytex_end = b_tex_h / border_tex->height;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Bottom edge
+    y_start = height - b_h;
+    ytex_start = (border_tex->height - b_tex_h) / border_tex->height;
+    y_end = height;
+    ytex_end = 1.f;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Left edge
+    y_start = y_offset + b_h;
+    ytex_start = b_tex_h / border_tex->height;
+    y_end = height - b_h;
+    ytex_end = (border_tex->height - b_tex_h) / border_tex->height;
+    x_start = x_offset;
+    xtex_start = 0;
+    x_end = b_w;
+    xtex_end = b_tex_w / border_tex->width;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Right edge
+    x_start = width - b_w;
+    xtex_start = (border_tex->width - b_tex_w) / border_tex->width;
+    x_end = width;
+    xtex_end = 1.f;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+}
+
 // Draw a simple quad
 void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const GLuint tex) {
     // Texture switching in OpenGL is expensive
@@ -430,80 +569,14 @@ void Widget::on_render(Context& ctx) {
     if(type == UI_WIDGET_WINDOW) {
         float b_width = 30;
         float b_height = 30;
-        float bi_width = 63;
-        float bi_height = 63;
+        float bi_width = 69;
+        float bi_height = 69;
+        float x_offset = 0;
         float y_offset = 24;
 
-        float x_start = 0;
-        float y_start = y_offset;
-        float xtex_start = 0;
-        float ytex_start = 0;
-        float x_end = b_width;
-        float y_end = y_offset + b_height;
-        float xtex_end = bi_width / ctx.border_tex->width;
-        float ytex_end = bi_height / ctx.border_tex->height;
-
-        GLuint tex = ctx.border_tex->gl_tex_num;
-        // Top left corner
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Top right corner
-        x_start = width - b_width;
-        xtex_start = (ctx.border_tex->width - bi_width) / ctx.border_tex->width;
-        x_end = width;
-        xtex_end = 1.f;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Bottom right corner
-        y_start = height - b_height;
-        ytex_start = (ctx.border_tex->height - bi_height) / ctx.border_tex->height;
-        y_end = height;
-        ytex_end = 1.f;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Bottom left corner
-        x_start = 0;
-        xtex_start = 0;
-        x_end = b_width;
-        xtex_end = bi_width / ctx.border_tex->width;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Top edge
-        x_start = b_width;
-        xtex_start = bi_width / ctx.border_tex->width;
-        x_end = width - b_width;
-        xtex_end = (ctx.border_tex->width - bi_width) / ctx.border_tex->width;
-        y_start = y_offset;
-        ytex_start = 0;
-        y_end = y_offset + b_height;
-        ytex_end = bi_height / ctx.border_tex->height;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Bottom edge
-        y_start = height - b_height;
-        ytex_start = (ctx.border_tex->height - bi_height) / ctx.border_tex->height;
-        y_end = height;
-        ytex_end = 1.f;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Left edge
-        y_start = y_offset + b_height;
-        ytex_start = bi_height / ctx.border_tex->height;
-        y_end = height - b_height;
-        ytex_end = (ctx.border_tex->height - bi_height) / ctx.border_tex->height;
-        x_start = 0;
-        xtex_start = 0;
-        x_end = b_width;
-        xtex_end = bi_width / ctx.border_tex->width;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Right edge
-        x_start = width - b_width;
-        xtex_start = (ctx.border_tex->width - bi_width) / ctx.border_tex->width;
-        x_end = width;
-        xtex_end = 1.f;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+        draw_border(ctx.border_tex, b_width, b_height, bi_width, bi_height, x_offset, y_offset);
     }
+
 
     glColor3f(1.f, 1.f, 1.f);
     // Top bar of windows display
@@ -522,7 +595,7 @@ void Widget::on_render(Context& ctx) {
     }
 
     if(type == UI_WIDGET_BUTTON) {
-        const size_t padding = 2;
+        const size_t padding = 1;
 
         // Put a "grey" inner background
         glBindTexture(GL_TEXTURE_2D, ctx.button->gl_tex_num);
@@ -540,10 +613,19 @@ void Widget::on_render(Context& ctx) {
         glTexCoord2f(0.f, 0.f);
         glVertex2f(padding, padding);
         glEnd();
+
+        float b_width = 20;
+        float b_height = 20;
+        float bi_width = 72;
+        float bi_height = 72;
+        float x_offset = 0;
+        float y_offset = 0;
+
+        draw_border(ctx.button_border, b_width, b_height, bi_width, bi_height, x_offset, y_offset);
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    if(1) {
+    if(type != UI_WIDGET_BUTTON && type != UI_WIDGET_IMAGE) {
         glLineWidth(2.f);
 
         // Outer black border
@@ -561,7 +643,8 @@ void Widget::on_render(Context& ctx) {
 
         if(type == UI_WIDGET_WINDOW) {
             glColor3f(0.f, 0.f, 0.f);
-        } else {
+        }
+        else {
             glColor3f(1.f, 1.f, 1.f);
         }
         glVertex2f(width, 0.f);
@@ -572,8 +655,11 @@ void Widget::on_render(Context& ctx) {
 
     if(text_texture != nullptr) {
         glColor3f(0.f, 0.f, 0.f);
+        int y_offset = text_offset_y;
+        if(type == UI_WIDGET_BUTTON)
+            y_offset = (height - text_texture->height) / 2;
         draw_rectangle(
-            4, 4,
+            text_offset_x, y_offset,
             text_texture->width, text_texture->height,
             text_texture->gl_tex_num);
     }
@@ -749,6 +835,7 @@ void Group::on_render(Context& ctx) {
 
 Button::Button(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON) {
+    text_offset_x = 20;
 }
 
 CloseButton::CloseButton(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
@@ -759,6 +846,9 @@ CloseButton::CloseButton(int _x, int _y, unsigned w, unsigned h, Widget* _parent
 Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI_WIDGET_INPUT) {
     this->on_textinput = input_ontextinput;
+    on_click = &Input::on_click_default;
+    on_click_outside = &Input::on_click_outside_default;
+    on_update = &Input::on_update_default;
 }
 
 Image::Image(int _x, int _y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* _parent)

@@ -27,9 +27,9 @@
 #include "client/render/framebuffer.hpp"
 #include "province.hpp"
 
-Map::Map(const World& _world): world(_world) {
+Map::Map(const World& _world, int screen_width, int screen_height): world(_world) {
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
-    camera = new FlatCamera(world.width, world.height);
+    camera = new FlatCamera(screen_width, screen_height);
     if(glewIsSupported("GL_VERSION_2_1")) {
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
         map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
@@ -151,8 +151,8 @@ Map::Map(const World& _world): world(_world) {
 
 void Map::set_view(MapView view) {
     view_mode = view;
-    int old_width = camera->screen_size.y;
-    int old_height = camera->screen_size.x;
+    int old_width = camera->screen_size.x;
+    int old_height = camera->screen_size.y;
     delete camera;
     if(view == MapView::PLANE_VIEW) {
         camera = new FlatCamera(old_width, old_height);
@@ -472,17 +472,15 @@ void Map::update(const SDL_Event& event, Input& input)
         case SDLK_RIGHT:
             camera->move((float)1, (float)0, (float)0);
             break;
-        case SDL_WINDOWEVENT:
-            if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                int width, height;
-                SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height);
-                // Doesn't work for some reason
-                camera->set_screen(width, height);
-            }
-            break;
-        default:
-            break;
         }
+        break;
+    case SDL_WINDOWEVENT:
+        if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
+            int width, height;
+            SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height);
+            camera->set_screen(width, height);
+        }
+        break;
 
     }
 }
