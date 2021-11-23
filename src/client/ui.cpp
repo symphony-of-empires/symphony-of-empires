@@ -195,8 +195,6 @@ void Context::render_recursive(Widget& w, int x_off, int y_off) {
 }
 
 void Context::render_all() {
-    // this->width = width;
-    // this->height = height;
     glUseProgram(0);
     glActiveTexture(GL_TEXTURE0);
     glViewport(0, 0, width, height);
@@ -204,8 +202,6 @@ void Context::render_all() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0.f, (float)this->width, (float)this->height, 0.f, 0.0f, 1.f);
-    print_info("%d", width);
-    print_info("%d", height);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.f, 0.f, 0.f);
@@ -260,16 +256,17 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
     return;
 }
 
-int Context::check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
+int Context::check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, int is_clicked) {
     glm::ivec2 offset{ x_off, y_off };
     offset = get_pos(w, offset);
 
+    int click_consumed = 1;
     // Widget must be displayed
-    if(!w.is_show) return 0;
+    if(!w.is_show) click_consumed = 0;
 
     // Click must be within the widget's box
     if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height))
-        return 0;
+        click_consumed = 0;
 
     switch(w.type) {
     case UI_WIDGET_SLIDER: {
@@ -280,17 +277,21 @@ int Context::check_click_recursive(Widget& w, const unsigned int mx, const unsig
         break;
     }
 
-    if(w.on_click) w.on_click(w, w.user_data);
+    bool is_clicked_now = click_consumed && !is_clicked;
+    if(is_clicked_now && w.on_click) w.on_click(w, w.user_data);
+    if(!is_clicked_now && w.on_click_outside) w.on_click_outside(w, w.user_data);
 
-    for(auto& child : w.children) check_click_recursive(*child, mx, my, offset.x, offset.y);
-    return 1;
+    for(auto& child : w.children) {
+        check_click_recursive(*child, mx, my, offset.x, offset.y, is_clicked);
+    }
+    return is_clicked || click_consumed;
 }
 
 int Context::check_click(const unsigned mx, const unsigned my) {
     is_drag = false;
+    int is_clicked = 0;
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        int r = check_click_recursive(*widgets[i], mx, my, 0, 0);
-        if(r > 0) return 1;
+        is_clicked = check_click_recursive(*widgets[i], mx, my, 0, 0, is_clicked);
     }
     return 0;
 }
@@ -321,9 +322,10 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 }
 
 void check_text_input_recursive(Widget& widget, const char* _input) {
-    if(widget.type == UI_WIDGET_INPUT && widget.is_hover) {
+    if(widget.type == UI_WIDGET_INPUT) {
         auto& c_widget = static_cast<Input&>(widget);
-        c_widget.on_textinput(c_widget, _input, c_widget.user_data);
+        if(c_widget.is_selected)
+            c_widget.on_textinput(c_widget, _input, c_widget.user_data);
     }
 
     for(const auto& children : widget.children) {
@@ -844,6 +846,9 @@ CloseButton::CloseButton(int _x, int _y, unsigned w, unsigned h, Widget* _parent
 Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI_WIDGET_INPUT) {
     this->on_textinput = input_ontextinput;
+    on_click = &Input::on_click_default;
+    on_click_outside = &Input::on_click_outside_default;
+    on_update = &Input::on_update_default;
 }
 
 Image::Image(int _x, int _y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* _parent)

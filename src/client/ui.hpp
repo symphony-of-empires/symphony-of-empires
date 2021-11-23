@@ -60,7 +60,7 @@ namespace UI {
 
         glm::ivec2 get_pos(Widget& w, glm::ivec2 offset);
         int check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
-        int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
+        int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, int is_clicked);
         int check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y);
     public:
         Context();
@@ -143,7 +143,7 @@ namespace UI {
         bool is_hover = false;
         bool is_float = false;
         bool is_fullscreen = false;
-        UI_Origin origin = UPPER_LEFT;        
+        UI_Origin origin = UPPER_LEFT;
 
         int type;
 
@@ -169,6 +169,7 @@ namespace UI {
         std::function<void(Widget&, void*)> on_update;
         std::function<void(Widget&, void*)> on_hover;
         std::function<void(Widget&, void*)> on_click;
+        std::function<void(Widget&, void*)> on_click_outside;
 
         std::function<void(Widget&, void*)> on_each_tick;
 
@@ -213,11 +214,33 @@ namespace UI {
 
     class Input: public Widget {
     public:
+        static void on_click_default(Widget& w, void*) {
+            Input& input = static_cast<Input&>(w);
+            input.is_selected = true;
+        }
+        static void on_click_outside_default(Widget& w, void*) {
+            Input& input = static_cast<Input&>(w);
+            if(input.is_selected) {
+                input.text(input.buffer);
+            }
+            input.is_selected = false;
+        }
+        static void on_update_default(Widget& w, void*) {
+            Input& input = static_cast<Input&>(w);
+            input.timer = (input.timer + 1) % 60;
+            std::string cursor = input.timer >= 30 ? "|" : "";
+            if(input.is_selected && input.timer % 30 == 0) {
+                input.text(input.buffer + cursor);
+            }
+        }
         Input(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         ~Input(){};
 
         std::function<void(Input&, const char*, void*)> on_textinput;
         std::string buffer = "";
+        bool is_selected = false;
+    private:
+        int timer; // TODO: Needs to not be frame dependand
     };
 
     class Checkbox: public Widget {
@@ -246,7 +269,7 @@ namespace UI {
         bool is_movable = false;
 
         Window(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        ~Window(){};
+        virtual ~Window() override {};
     };
 
     class Image: public Widget {
