@@ -36,7 +36,7 @@ union SDL_Event;
 struct Input;
 class Map {
 public:
-    Map(const World& world);
+    Map(const World& world, int screen_width, int screen_height);
     ~Map() {};
 
     std::vector<const UnifiedRender::ComplexModel*> unit_type_icons, outpost_type_icons;
