@@ -222,7 +222,7 @@ void Map::set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_c
     }
     for(auto const& province_color : province_colors) {
         Province::Id prov_id = province_color.first;
-        u_int32_t color = province_color.second;
+        uint32_t color = province_color.second;
         uint8_t r = prov_id % 256;
         uint8_t g = (prov_id / 256) % 256;
         size_t id = r + g * 256;

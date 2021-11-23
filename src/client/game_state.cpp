@@ -12,6 +12,7 @@
 #   include <SDL_mouse.h>
 #   include <SDL_opengl.h>
 #   include <SDL_ttf.h>
+#   include <SDL_audio.h>
 #else
 #   include <SDL2/SDL.h>
 #   include <SDL2/SDL_events.h>
@@ -19,6 +20,7 @@
 #   include <SDL2/SDL_mouse.h>
 #   include <SDL2/SDL_opengl.h>
 #   include <SDL2/SDL_ttf.h>
+#   include <SDL2/SDL_audio.h>
 //#include <sys/wait.h>
 #endif
 #ifdef _MSC_VER
@@ -121,6 +123,8 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
             if(click_on_ui == 0 && gs.current_mode != MapMode::NO_MAP) {
                 gs.map->handle_click(gs, event);
+            } else {
+                gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
             }
             break;
         case SDL_MOUSEMOTION:
@@ -391,7 +395,30 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     }
 }
 
-#include "interface/main_menu.hpp"
+#include "client/interface/main_menu.hpp"
+#include "client/render/sound.hpp"
+
+static void mixaudio(void *userdata, uint8_t *stream, int len) {
+    GameState& gs = *((GameState*)userdata);
+
+    std::memset(stream, 0, len);
+
+    for(uint i = 0; i < gs.sound_queue.size(); ) {
+        UnifiedRender::Sound* sound = gs.sound_queue[i];
+        int amount = sound->len - sound->pos;
+        if(amount > len) amount = len;
+
+        if(amount == 0) {
+            gs.sound_queue.erase(gs.sound_queue.begin() + i);
+            continue;
+        }
+
+        SDL_MixAudio(stream, &sound->data[sound->pos], amount, SDL_MIX_MAXVOLUME);
+        sound->pos += amount;
+
+        i++;
+    }
+}
 
 void main_menu_loop(GameState& gs, SDL_Window* window) {
     std::atomic<bool> run;
@@ -406,6 +433,8 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
 
     gs.input = Input{};
     Input& input = gs.input;
+
+    // ah yes, casting discarding the const-qualifier
     while(run) {
         handle_event(input, gs, run);
         render(gs, input, window);
@@ -428,9 +457,9 @@ World::World(void) {
 };
 World::~World(){};
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <sys/types.h>
 void start_client(int argc, char** argv) {
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -460,20 +489,34 @@ void start_client(int argc, char** argv) {
     g_texture_manager = new UnifiedRender::TextureManager();
     g_material_manager = new UnifiedRender::MaterialManager();
     g_model_manager = new UnifiedRender::ModelManager();
+    g_sound_manager = new UnifiedRender::SoundManager();
     gs.ui_ctx = new UI::Context();
+
+    gs.width = width;
+    gs.height = height;
 
     tmpbuf = new char[512];
     GLenum err = glewInit();
     if(err != GLEW_OK)
         throw std::runtime_error("Failed to init GLEW");
+    
+    // Initialize sound
+    SDL_AudioSpec fmt;
+    fmt.freq = 11050;
+    fmt.format = AUDIO_S16;
+    fmt.channels = 2;
+    fmt.samples = 512;
+    fmt.callback = mixaudio;
+    fmt.userdata = &gs;
+    if(SDL_OpenAudio(&fmt, NULL) < 0)
+        throw std::runtime_error("Unable to open audio: " + std::string(SDL_GetError()));
+    SDL_PauseAudio(0);
 
-    gs.width = width;
-    gs.height = height;
     main_menu_loop(gs, window);
     main_loop(gs, gs.client, window);
-
     delete[] tmpbuf;
 
+    SDL_CloseAudio();
     TTF_Quit();
     SDL_Quit();
     return;

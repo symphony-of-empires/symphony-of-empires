@@ -6,6 +6,7 @@
 #include <atomic>
 
 #include "serializer.hpp"
+#include "render/sound.hpp"
 
 enum class MapMode {
     COUNTRY_SELECT,
@@ -81,6 +82,10 @@ public:
 
     // Queue of production for unit_types
     std::deque<UnitType*> production_queue;
+
+    // Queue of sounds/music
+    std::vector<UnifiedRender::Sound*> sound_queue;
+    std::vector<UnifiedRender::Sound*> music_queue;
 
     bool in_game;
 };
