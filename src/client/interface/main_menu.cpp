@@ -10,8 +10,9 @@ using namespace Interface;
 
 MainMenu::MainMenu(GameState& _gs)
     : gs{ _gs },
-    UI::Window((_gs.width / 2) - (300 / 2), (_gs.height / 2) - (325 / 2), 300, 325)
+    UI::Window(- (300 / 2), - (325 / 2), 300, 325)
 {
+    this->origin = CENTER_SCREEN;
     this->is_pinned = true;
     this->is_scroll = false;
     this->text("Symphony of Empires");
@@ -57,10 +58,12 @@ MainMenu::MainMenu(GameState& _gs)
 MainMenuConnectServer::MainMenuConnectServer(GameState& _gs, MainMenu* parent)
     : gs{ _gs },
     in_game{ false },
-    UI::Window(0, 0, 512, 128, parent)
+    UI::Window(-512 / 2, -128 / 2, 512, 128, parent)
 {
+    this->origin = CENTER_SCREEN;
     this->is_pinned = true;
     this->is_scroll = false;
+    this->is_float = true;
     this->text("Internet multiplayer");
 
     ip_addr_inp = new UI::Input(0, 24, 512, 24, this);
