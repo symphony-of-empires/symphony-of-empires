@@ -67,7 +67,7 @@ namespace UI {
         void clear(void);
         void clear_dead();
 
-        const UnifiedRender::Texture* background, * window_top, * button, * tooltip_texture, * piechart_overlay, * border_tex;
+        const UnifiedRender::Texture* background, * window_top, * button, * tooltip_texture, * piechart_overlay, * border_tex, * button_border;
         TTF_Font* default_font;
 
         std::vector<Widget*> widgets;
@@ -133,6 +133,7 @@ namespace UI {
 
         const UnifiedRender::Texture* current_texture = nullptr;
         UnifiedRender::Texture* text_texture = nullptr;
+        int text_offset_x = 4, text_offset_y = 4;
 
         Tooltip* tooltip = nullptr;
 
@@ -153,6 +154,9 @@ namespace UI {
         bool dead = false;
 
         friend class Context;
+    private:
+        void draw_border(const UnifiedRender::Texture* border_tex,
+            float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset);
     };
 
     class Color {
