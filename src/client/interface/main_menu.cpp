@@ -10,7 +10,7 @@ using namespace Interface;
 
 MainMenu::MainMenu(GameState& _gs)
     : gs{ _gs },
-    UI::Window(- (300 / 2), - (325 / 2), 300, 325)
+    UI::Window(-(300 / 2), -(325 / 2), 300, 325)
 {
     this->origin = CENTER_SCREEN;
     this->is_pinned = true;
@@ -43,7 +43,9 @@ MainMenu::MainMenu(GameState& _gs)
     mp_btn->below_of(*single_btn);
     mp_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
-        auto* conn = new MainMenuConnectServer(o.gs, &o);
+        if(o.connect_window != nullptr)
+            delete o.connect_window;
+        o.connect_window = new MainMenuConnectServer(o.gs);
     });
 
     auto* cfg_btn = new UI::Button(X0, PADDING, X1, 24, this);
@@ -55,10 +57,15 @@ MainMenu::MainMenu(GameState& _gs)
     exit_btn->below_of(*cfg_btn);
 }
 
-MainMenuConnectServer::MainMenuConnectServer(GameState& _gs, MainMenu* parent)
+MainMenu::~MainMenu() {
+    if (connect_window != nullptr)
+        delete connect_window;
+}
+
+MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     : gs{ _gs },
     in_game{ false },
-    UI::Window(-512 / 2, -128 / 2, 512, 128, parent)
+    UI::Window(-512 / 2, -128 / 2, 512, 128, nullptr)
 {
     this->origin = CENTER_SCREEN;
     this->is_pinned = true;

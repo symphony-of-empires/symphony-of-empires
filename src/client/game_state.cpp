@@ -216,7 +216,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     glCullFace(GL_BACK);
     glFrontFace(GL_CW);
 
-    if(false) {
+    if(gs.current_mode != MapMode::NO_MAP) {
         Map* map = gs.map;
 
         glPushMatrix();
