@@ -275,9 +275,7 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
         // Check that the event is not already displayed to the user
         auto iter = std::find_if(displayed_events.begin(), displayed_events.end(),
             [&msg](const auto& e) { return e->ref_name == msg->ref_name; });
-        if(iter != displayed_events.end()) {
-            continue;
-        }
+        if(iter != displayed_events.end()) continue;
 
         new Interface::DescisionWindow(gs, *msg);
         displayed_events.push_back(msg);
@@ -287,9 +285,7 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
         // Check that the treaty is not already displayed
         auto iter = std::find_if(displayed_treaties.begin(), displayed_treaties.end(),
             [&treaty](const auto& e) { return e == treaty; });
-        if(iter != displayed_treaties.end()) {
-            continue;
-        }
+        if(iter != displayed_treaties.end()) continue;
 
         // Must participate in treaty
 

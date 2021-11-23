@@ -6,6 +6,7 @@ german.name = _("German")
 german:register()
 french = Culture:new{ ref_name = "french" }
 french.name = _("French")
+french.combo_form = _("Franco")
 french:register()
 british = Culture:new{ ref_name = "british" }
 british.name = _("British")
@@ -42,6 +43,7 @@ catalan.name = _("catalan")
 catalan:register()
 czech = Culture:new{ ref_name = "czech" }
 czech.name = _("Czech")
+czech.combo_form = _("Czecho")
 czech:register()
 slovakian = Culture:new{ ref_name = "slovakian" }
 slovakian.name = _("Slovakian")
@@ -51,21 +53,27 @@ hungarian.name = _("Hungarian")
 hungarian:register()
 russian = Culture:new{ ref_name = "russian" }
 russian.name = _("Russian")
+russian.combo_form = _("Russo")
 russian:register()
 swedish = Culture:new{ ref_name = "swedish" }
 swedish.name = _("Swedish")
+swedish.noun = _("Swede")
 swedish:register()
 finnish = Culture:new{ ref_name = "finnish" }
 finnish.name = _("Finnish")
+finnish.combo_form = _("Finno")
 finnish:register()
 norwegian = Culture:new{ ref_name = "norwegian" }
 norwegian.name = _("Norwegian")
 norwegian:register()
 turkish = Culture:new{ ref_name = "turkish" }
 turkish.name = _("Turkish")
+turkish.noun = _("Turk")
+turkish.combo_form = _("Turko")
 turkish:register()
 greek = Culture:new{ ref_name = "greek" }
 greek.name = _("Greek")
+greek.combo_form = _("Greco")
 greek:register()
 italian = Culture:new{ ref_name = "italian" }
 italian.name = _("Italian")
@@ -106,11 +114,13 @@ kyrgyz.name = _("Kyrgyz")
 kyrgyz:register()
 afghan = Culture:new{ ref_name = "afghan" }
 afghan.name = _("Afghan")
+afghan.combo_form = _("Afghano")
 afghan:register()
 
 -- American
 yankee = Culture:new{ ref_name = "yankee" }
 yankee.name = _("Yankee")
+yankee.adjective = _("American")
 yankee:register()
 chilean = Culture:new{ ref_name = "chilean" }
 chilean.name = _("Chilean")
@@ -162,6 +172,7 @@ polynesian:register()
 -- Middle east
 arabic = Culture:new{ ref_name = "arabic" }
 arabic.name = _("Arabic")
+arabic.noun = _("Arab")
 arabic:register()
 
 -- African

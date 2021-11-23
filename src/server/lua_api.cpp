@@ -230,6 +230,26 @@ int LuaAPI::get_nation(lua_State* L) {
     return 2;
 }
 
+int LuaAPI::get_nation_by_id(lua_State* L) {
+    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+
+    lua_pushstring(L, nation->name.c_str());
+    lua_pushstring(L, nation->ref_name.c_str());
+    return 2;
+}
+
+int LuaAPI::get_all_nations(lua_State* L) {
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& nation : g_world->nations) {
+        lua_pushnumber(L, g_world->get_id(nation));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
+}
+
 // TODO: Make wars be dynamically named with cassus bellis??
 /*int LuaAPI::set_war_of_nation(lua_State* L) {
     const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
@@ -786,7 +806,7 @@ int LuaAPI::add_company(lua_State* L) {
 }
 
 int LuaAPI::add_op_province_to_company(lua_State* L) {
-    Company* company = g_world->companies.at(lua_tonumber(L, 1));
+    auto* company = g_world->companies.at(lua_tonumber(L, 1));
     //std::string ref_name = luaL_checkstring(L, 2);
     //company->operating_provinces.insert(province);
     return 0;
@@ -806,6 +826,17 @@ int LuaAPI::add_event(lua_State* L) {
     g_world->insert(event);
     lua_pushnumber(L, g_world->events.size() - 1);
     return 1;
+}
+
+int LuaAPI::update_event(lua_State* L) {
+    auto* event = g_world->events[lua_tonumber(L, 1)];
+    event->ref_name = luaL_checkstring(L, 2);
+    event->conditions_function = luaL_checkstring(L, 3);
+    event->do_event_function = luaL_checkstring(L, 4);
+    event->title = luaL_checkstring(L, 5);
+    event->text = luaL_checkstring(L, 6);
+    event->checked = lua_toboolean(L, 7);
+    return 0;
 }
 
 int LuaAPI::get_event(lua_State* L) {
@@ -984,41 +1015,58 @@ void LuaAPI::check_events(lua_State* L) {
         Event* event = g_world->events[i];
         if(event->checked == true)
             continue;
+        
+        bool is_multi;
+        bool has_fired = false;
+        for(auto& nation : event->receivers) {
+            lua_getglobal(L, event->conditions_function.c_str());
+            lua_pushstring(L, nation->ref_name.c_str());
+            lua_pcall(L, 1, 1, 0);
+            bool r = lua_toboolean(L, -1);
+            lua_pop(L, 1);
 
-        lua_getglobal(L, event->conditions_function.c_str());
-        lua_call(L, 0, 1);
-        bool r = lua_toboolean(L, -1);
-        lua_pop(L, 1);
+            // Conditions met
+            if(r) {
+                has_fired = true;
 
-        // Conditions met
-        if(r) {
-            print_info("Event triggered! %s (with %zu descisions)", event->ref_name.c_str(), (size_t)event->descisions.size());
+                Event orig_event = Event(*event);
 
-            // Place event into inbox
-            for(auto& nation : event->receivers) {
                 // Call the "do event" function
                 lua_getglobal(L, event->do_event_function.c_str());
-                lua_call(L, 0, 1);
-                lua_pushnumber(L, g_world->get_id(nation));
-                bool multi = lua_tointeger(L, -1);
+                lua_pushstring(L, nation->ref_name.c_str());
+                lua_pcall(L, 1, 1, 0);
+                is_multi = lua_tointeger(L, -1);
                 lua_pop(L, 1);
 
-                nation->inbox.push_back(event);
-
-                // Event is marked as checked if it's not of multiple occurences
-                if(!multi) {
-                    g_world->events[i]->checked = true;
+                auto* local_event = new Event(*event);
+                local_event->ref_name += "_";
+                for(uint j = 0; j < 20; j++) {
+                    local_event->ref_name += 'a' + (rand() % 26);
                 }
+                g_world->events.push_back(local_event);
+                nation->inbox.push_back(local_event);
+                // Do not relaunch a local event
+                local_event->checked = true;
+
+                print_info("Event triggered! %s (with %zu descisions)", local_event->ref_name.c_str(), (size_t)local_event->descisions.size());
+
+                *event = orig_event;
             }
         }
-        // Conditions not met, continue to next event...
+        // Event is marked as checked if it's not of multiple occurences
+        if(has_fired && !is_multi) {
+            g_world->events[i]->checked = true;
+        }
     }
 
     // Do descisions taken effects in the queue, then clear it awaiting
     // other taken descisions :)
-    for(auto& descision : g_world->taken_descisions) {
-        lua_getglobal(L, descision->do_descision_function.c_str());
-        lua_call(L, 0, 1);
+    for(auto& dec : g_world->taken_descisions) {
+        lua_getglobal(L, dec.first->do_descision_function.c_str());
+        lua_pushstring(L, dec.second->ref_name.c_str());
+        lua_pcall(L, 1, 1, 0);
+
+        // TODO: Delete local event upon taking a descision
     }
     g_world->taken_descisions.clear();
 }

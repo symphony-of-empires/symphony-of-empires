@@ -15,7 +15,7 @@ void Event::take_descision(Nation* sender, Descision* dec) {
     }
 
     // Tell the world that we took a descision
-    g_world->taken_descisions.push_back(dec);
+    g_world->taken_descisions.push_back(std::make_pair(dec, sender));
 
     // Remove from the receivers list so we don't duplicate descisions
     receivers.erase(receiver);

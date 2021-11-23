@@ -266,7 +266,7 @@ public:
     std::vector<Tile*> elevation_changed_tiles;
     mutable std::recursive_mutex elevation_changed_tiles_mutex;
 
-    std::vector<Descision*> taken_descisions;
+    std::vector<std::pair<Descision*,Nation*>> taken_descisions;
 };
 
 extern World* g_world;

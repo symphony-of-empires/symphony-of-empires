@@ -246,7 +246,7 @@ void Nation::give_province(Province& province) {
             if(tile.province_id != province_id) continue;
 
             tile.owner_id = nation_id;
-            world.nation_changed_tiles.push_back(&tile);
+            world.changed_tile_coords.push_back(std::make_pair(i, j));
         }
     }
 

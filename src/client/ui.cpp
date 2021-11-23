@@ -561,8 +561,7 @@ void Widget::on_render(Context& ctx) {
 
         if(type == UI_WIDGET_WINDOW) {
             glColor3f(0.f, 0.f, 0.f);
-        }
-        else {
+        } else {
             glColor3f(1.f, 1.f, 1.f);
         }
         glVertex2f(width, 0.f);
@@ -579,7 +578,7 @@ void Widget::on_render(Context& ctx) {
             text_texture->gl_tex_num);
     }
 
-    // Semi-transparent overal over elements which can be selected
+    // Semi-transparent over hover elements which can be clicked
     if(on_click && is_hover) {
         glBindTexture(GL_TEXTURE_2D, 0);
         glColor4f(1.5f, 1.f, 1.f, 0.5f);
