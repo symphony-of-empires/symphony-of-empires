@@ -192,7 +192,7 @@ void Economy::do_tick(World& world) {
                 }
 
                 print_info("Building of %s in %s has closed down!", building->type->name.c_str(), province->name.c_str());
-
+                
                 world.remove(building);
                 delete building;
                 --j;
@@ -439,8 +439,7 @@ void Economy::do_tick(World& world) {
 
                         // Set quality to the max from this product
                         order.building->min_quality = std::max(order.building->min_quality, deliver.product->quality);
-                    }
-                    else if(order.type == OrderType::BUILDING) {
+                    } else if(order.type == OrderType::BUILDING) {
                         // The building will take the production materials
                         // and use them for building the unit
                         order.building->get_owner()->budget -= total_order_cost;
@@ -448,8 +447,7 @@ void Economy::do_tick(World& world) {
                             if(p.first != deliver.good) continue;
                             p.second -= std::min(deliver.quantity, p.second);
                         }
-                    }
-                    else if(order.type == OrderType::UNIT) {
+                    } else if(order.type == OrderType::UNIT) {
                         // TODO: We should deduct and set willing payment from military spendings
                         order.building->get_owner()->budget -= total_order_cost;
                         for(auto& p : order.building->req_goods) {
@@ -544,13 +542,12 @@ void Economy::do_tick(World& world) {
                     continue;
                 }
 
-                size_t bought = 0;
+                size_t bought;
                 if(product->good->is_edible) {
                     // We can only spend our allocated budget
                     bought = life_alloc_budget / product->price;
                     if(life_alloc_budget <= 0.f) continue;
-                }
-                else {
+                } else {
                     bought = everyday_alloc_budget / product->price;
 
                     // Slaves cannot buy commodities
@@ -571,7 +568,7 @@ void Economy::do_tick(World& world) {
                 pop.budget -= cost_of_transaction;
 
                 // Demand is incremented proportional to items bought and remove item from stockpile
-                product->demand += bought * 2.5f * fuzz;
+                product->demand += bought * fuzz;
                 province->stockpile[product_id] -= std::min<size_t>(province->stockpile[product_id], bought);
 
                 // Uncomment to see buyers
@@ -636,28 +633,26 @@ void Economy::do_tick(World& world) {
             // want to get out of here
             // And literacy determines "best" spot, for example a low literacy will
             // choose a slightly less desirable location
-            const float emigration_willing = 1.f / std::min(pop.life_needs_met, 0.f);
-            const long long int emigreers = (pop.size * emigration_willing) + std::rand() % pop.size;
+            const float emigration_willing = std::max<float>(-pop.life_needs_met * std::fmod(fuzz, 10), 0);
+            const long long int emigreers = std::fmod(pop.size * emigration_willing + std::rand(), pop.size);
             if(emigreers > 0) {
                 float current_attractive = province->get_attractive(pop);
 
                 // Check that laws on the province we are in allows for emigration
                 if(province->owner->current_policy.migration == ALLOW_NOBODY) {
                     goto skip_emigration;
-                }
-                else if(province->owner->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
+                } else if(province->owner->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
                     if(province->owner->is_accepted_culture(pop) == false) {
                         goto skip_emigration;
                     }
-                }
-                else if(province->owner->current_policy.migration == ALLOW_ALL_PAYMENT) {
+                } else if(province->owner->current_policy.migration == ALLOW_ALL_PAYMENT) {
                     // See if we can afford the tax
                     if(pop.budget < ((pop.budget / 1000.f) * province->owner->current_policy.export_tax)) {
                         continue;
                     }
                 }
 
-                print_info("%zu pops wanting to emigrate!", emigreers);
+                //print_info("%zu pops wanting to emigrate!", emigreers);
 
                 // Find best province
                 Province* best_province = nullptr;
@@ -665,7 +660,7 @@ void Economy::do_tick(World& world) {
                     // Don't go to owner-less provinces
                     if(target_province->owner == nullptr) continue;
 
-                    const float attractive = target_province->get_attractive(pop);
+                    const float attractive = target_province->get_attractive(pop) * (std::rand() % 16);
                     if(attractive < current_attractive) continue;
 
                     // Nobody is allowed in
@@ -688,14 +683,14 @@ void Economy::do_tick(World& world) {
                     best_province = target_province;
                 }
 
-                // If best not found then we don't go to anywhere
-                if(best_province == nullptr) {
+                // If best not found/same as we are at then we don't go to anywhere
+                if(best_province == nullptr || best_province == province) {
                     // Or we do, but just randomly
                     best_province = world.provinces[std::rand() % world.provinces.size()];
                     //goto skip_emigration;
                 }
 
-                print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
+                //print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
 
                 Emigrated emigrated = {};
                 emigrated.target = best_province;
@@ -726,8 +721,7 @@ void Economy::do_tick(World& world) {
             target.target->pops.push_back(*pop);
             new_pop = target.target->pops.end();
             new_pop->size = target.size;
-        }
-        else {
+        } else {
             new_pop->size += target.size;
         }
     }

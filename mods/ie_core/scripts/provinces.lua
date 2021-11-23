@@ -26,6 +26,8 @@ require('provinces/europe/spain')
 
 require('provinces/oceania/hawaii')
 
+require('provinces/unknown')
+
 --------------------------------------------------------------
 -- Continent: Europe
 -- Subcontinent: Middle Europe
