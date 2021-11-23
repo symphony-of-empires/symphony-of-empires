@@ -46,10 +46,11 @@ Context::Context() {
 
     background = &g_texture_manager->load_texture(Path::get("ui/background2.png"));
     window_top = &g_texture_manager->load_texture(Path::get("ui/window_top2.png"));
-    button = &g_texture_manager->load_texture(Path::get("ui/button.png"));
+    button = &g_texture_manager->load_texture(Path::get("ui/button2.png"));
     tooltip_texture = &g_texture_manager->load_texture(Path::get("ui/tooltip.png"));
     piechart_overlay = &g_texture_manager->load_texture(Path::get("ui/piechart.png"));
     border_tex = &g_texture_manager->load_texture(Path::get("ui/borders/border2.png"));
+    button_border = &g_texture_manager->load_texture(Path::get("ui/borders/border_sharp2.png"));
 
     g_ui_context = this;
     is_drag = false;
@@ -357,6 +358,81 @@ void draw_tex_rect(const GLuint tex,
     glVertex2f(x_start, y_start);
     glEnd();
 }
+
+void Widget::draw_border(const UnifiedRender::Texture* border_tex,
+    float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset) {
+    // Draw border edges and corners
+    float x_start = x_offset;
+    float y_start = y_offset;
+    float xtex_start = 0;
+    float ytex_start = 0;
+    float x_end = x_offset + b_w;
+    float y_end = y_offset + b_h;
+    float xtex_end = b_tex_w / border_tex->width;
+    float ytex_end = b_tex_h / border_tex->height;
+
+    GLuint tex = border_tex->gl_tex_num;
+    // Top left corner
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Top right corner
+    x_start = width - b_w;
+    xtex_start = (border_tex->width - b_tex_w) / border_tex->width;
+    x_end = width;
+    xtex_end = 1.f;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Bottom right corner
+    y_start = height - b_h;
+    ytex_start = (border_tex->height - b_tex_h) / border_tex->height;
+    y_end = height;
+    ytex_end = 1.f;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Bottom left corner
+    x_start = x_offset;
+    xtex_start = 0;
+    x_end = x_offset + b_w;
+    xtex_end = b_tex_w / border_tex->width;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Top edge
+    x_start = x_offset + b_w;
+    xtex_start = b_tex_w / border_tex->width;
+    x_end = width - b_w;
+    xtex_end = (border_tex->width - b_tex_w) / border_tex->width;
+    y_start = y_offset;
+    ytex_start = 0;
+    y_end = y_offset + b_h;
+    ytex_end = b_tex_h / border_tex->height;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Bottom edge
+    y_start = height - b_h;
+    ytex_start = (border_tex->height - b_tex_h) / border_tex->height;
+    y_end = height;
+    ytex_end = 1.f;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Left edge
+    y_start = y_offset + b_h;
+    ytex_start = b_tex_h / border_tex->height;
+    y_end = height - b_h;
+    ytex_end = (border_tex->height - b_tex_h) / border_tex->height;
+    x_start = x_offset;
+    xtex_start = 0;
+    x_end = b_w;
+    xtex_end = b_tex_w / border_tex->width;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+
+    // Right edge
+    x_start = width - b_w;
+    xtex_start = (border_tex->width - b_tex_w) / border_tex->width;
+    x_end = width;
+    xtex_end = 1.f;
+    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+}
+
 // Draw a simple quad
 void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const GLuint tex) {
     // Texture switching in OpenGL is expensive
@@ -430,80 +506,14 @@ void Widget::on_render(Context& ctx) {
     if(type == UI_WIDGET_WINDOW) {
         float b_width = 30;
         float b_height = 30;
-        float bi_width = 63;
-        float bi_height = 63;
+        float bi_width = 69;
+        float bi_height = 69;
+        float x_offset = 0;
         float y_offset = 24;
 
-        float x_start = 0;
-        float y_start = y_offset;
-        float xtex_start = 0;
-        float ytex_start = 0;
-        float x_end = b_width;
-        float y_end = y_offset + b_height;
-        float xtex_end = bi_width / ctx.border_tex->width;
-        float ytex_end = bi_height / ctx.border_tex->height;
-
-        GLuint tex = ctx.border_tex->gl_tex_num;
-        // Top left corner
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Top right corner
-        x_start = width - b_width;
-        xtex_start = (ctx.border_tex->width - bi_width) / ctx.border_tex->width;
-        x_end = width;
-        xtex_end = 1.f;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Bottom right corner
-        y_start = height - b_height;
-        ytex_start = (ctx.border_tex->height - bi_height) / ctx.border_tex->height;
-        y_end = height;
-        ytex_end = 1.f;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Bottom left corner
-        x_start = 0;
-        xtex_start = 0;
-        x_end = b_width;
-        xtex_end = bi_width / ctx.border_tex->width;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Top edge
-        x_start = b_width;
-        xtex_start = bi_width / ctx.border_tex->width;
-        x_end = width - b_width;
-        xtex_end = (ctx.border_tex->width - bi_width) / ctx.border_tex->width;
-        y_start = y_offset;
-        ytex_start = 0;
-        y_end = y_offset + b_height;
-        ytex_end = bi_height / ctx.border_tex->height;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Bottom edge
-        y_start = height - b_height;
-        ytex_start = (ctx.border_tex->height - bi_height) / ctx.border_tex->height;
-        y_end = height;
-        ytex_end = 1.f;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Left edge
-        y_start = y_offset + b_height;
-        ytex_start = bi_height / ctx.border_tex->height;
-        y_end = height - b_height;
-        ytex_end = (ctx.border_tex->height - bi_height) / ctx.border_tex->height;
-        x_start = 0;
-        xtex_start = 0;
-        x_end = b_width;
-        xtex_end = bi_width / ctx.border_tex->width;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-        // Right edge
-        x_start = width - b_width;
-        xtex_start = (ctx.border_tex->width - bi_width) / ctx.border_tex->width;
-        x_end = width;
-        xtex_end = 1.f;
-        draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+        draw_border(ctx.border_tex, b_width, b_height, bi_width, bi_height, x_offset, y_offset);
     }
+
 
     glColor3f(1.f, 1.f, 1.f);
     // Top bar of windows display
@@ -522,7 +532,7 @@ void Widget::on_render(Context& ctx) {
     }
 
     if(type == UI_WIDGET_BUTTON) {
-        const size_t padding = 2;
+        const size_t padding = 1;
 
         // Put a "grey" inner background
         glBindTexture(GL_TEXTURE_2D, ctx.button->gl_tex_num);
@@ -540,10 +550,19 @@ void Widget::on_render(Context& ctx) {
         glTexCoord2f(0.f, 0.f);
         glVertex2f(padding, padding);
         glEnd();
+
+        float b_width = 20;
+        float b_height = 20;
+        float bi_width = 72;
+        float bi_height = 72;
+        float x_offset = 0;
+        float y_offset = 0;
+
+        draw_border(ctx.button_border, b_width, b_height, bi_width, bi_height, x_offset, y_offset);
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    if(1) {
+    if(type != UI_WIDGET_BUTTON && type != UI_WIDGET_IMAGE) {
         glLineWidth(2.f);
 
         // Outer black border
@@ -561,7 +580,8 @@ void Widget::on_render(Context& ctx) {
 
         if(type == UI_WIDGET_WINDOW) {
             glColor3f(0.f, 0.f, 0.f);
-        } else {
+        }
+        else {
             glColor3f(1.f, 1.f, 1.f);
         }
         glVertex2f(width, 0.f);
@@ -572,8 +592,11 @@ void Widget::on_render(Context& ctx) {
 
     if(text_texture != nullptr) {
         glColor3f(0.f, 0.f, 0.f);
+        int y_offset = text_offset_y;
+        if(type == UI_WIDGET_BUTTON)
+            y_offset = (height - text_texture->height) / 2;
         draw_rectangle(
-            4, 4,
+            text_offset_x, y_offset,
             text_texture->width, text_texture->height,
             text_texture->gl_tex_num);
     }
@@ -749,6 +772,7 @@ void Group::on_render(Context& ctx) {
 
 Button::Button(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON) {
+    text_offset_x = 20;
 }
 
 CloseButton::CloseButton(int _x, int _y, unsigned w, unsigned h, Widget* _parent)

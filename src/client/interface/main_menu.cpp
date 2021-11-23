@@ -10,15 +10,20 @@ using namespace Interface;
 
 MainMenu::MainMenu(GameState& _gs)
     : gs{ _gs },
-    UI::Window((_gs.width / 2) - (256 / 2), (_gs.height / 2) - (256 / 2), 256, 256)
+    UI::Window((_gs.width / 2) - (300 / 2), (_gs.height / 2) - (325 / 2), 300, 325)
 {
     this->is_pinned = true;
     this->is_scroll = false;
     this->text("Symphony of Empires");
 
-    auto* title_img = new UI::Image(0, 24, 256, 128, &g_texture_manager->load_texture(Path::get("ui/title.png")), this);
+    const int W = 300;
+    const int PADDING = 10;
+    const int X0 = PADDING;
+    const int X1 = W - PADDING * 2;
 
-    auto* single_btn = new UI::Button(0, 0, 256, 24, this);
+    auto* title_img = new UI::Image(X0, 35, X1, 128, &g_texture_manager->load_texture(Path::get("ui/title.png")), this);
+
+    auto* single_btn = new UI::Button(X0, PADDING, X1, 24, this);
     single_btn->text("Singleplayer");
     single_btn->below_of(*title_img);
     single_btn->on_click = ([](UI::Widget& w, void*) {
@@ -32,7 +37,7 @@ MainMenu::MainMenu(GameState& _gs)
         gs.in_game = true;
     });
 
-    auto* mp_btn = new UI::Button(0, 0, 256, 24, this);
+    auto* mp_btn = new UI::Button(X0, PADDING, X1, 24, this);
     mp_btn->text("Multiplayer");
     mp_btn->below_of(*single_btn);
     mp_btn->on_click = ([](UI::Widget& w, void*) {
@@ -40,11 +45,11 @@ MainMenu::MainMenu(GameState& _gs)
         auto* conn = new MainMenuConnectServer(o.gs, &o);
     });
 
-    auto* cfg_btn = new UI::Button(0, 0, 256, 24, this);
+    auto* cfg_btn = new UI::Button(X0, PADDING, X1, 24, this);
     cfg_btn->text("Settings");
     cfg_btn->below_of(*mp_btn);
 
-    auto* exit_btn = new UI::Button(0, 0, 256, 24, this);
+    auto* exit_btn = new UI::Button(X0, PADDING, X1, 24, this);
     exit_btn->text("Exit");
     exit_btn->below_of(*cfg_btn);
 }
