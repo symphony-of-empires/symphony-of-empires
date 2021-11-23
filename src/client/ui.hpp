@@ -15,9 +15,24 @@
 #include <SDL2/SDL_ttf.h>
 #endif
 
+#include <glm/vec2.hpp>
+
 namespace UnifiedRender {
     class Texture;
 }
+
+enum UI_Origin {
+    CENTER,
+    UPPER_LEFT,
+    UPPER_RIGTH,
+    LOWER_LEFT,
+    LOWER_RIGHT,
+    CENTER_SCREEN,
+    UPPER_LEFT_SCREEN,
+    UPPER_RIGHT_SCREEN,
+    LOWER_LEFT_SCREEN,
+    LOWER_RIGHT_SCREEN,
+};
 
 enum UI_WidgetType {
     UI_WIDGET_BUTTON,
@@ -43,6 +58,7 @@ namespace UI {
         Widget* dragged_widget;
         int width, height;
 
+        glm::ivec2 get_pos(Widget& w, glm::ivec2 offset);
         int check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         int check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y);
@@ -53,7 +69,9 @@ namespace UI {
         void remove_widget(Widget* widget);
 
         void render_recursive(Widget& widget, int x_off, int y_off);
-        void render_all(const int width, const int height);
+        void render_all();
+
+        void resize(const int width, const int height);
 
         void check_hover(unsigned mx, unsigned my);
         int check_click(unsigned mx, unsigned my);
@@ -123,6 +141,9 @@ namespace UI {
         // Used internally for managing widgets outside of window bounds
         bool is_show = true;
         bool is_hover = false;
+        bool is_float = false;
+        bool is_fullscreen = false;
+        UI_Origin origin = UPPER_LEFT;        
 
         int type;
 
