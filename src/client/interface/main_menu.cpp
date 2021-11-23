@@ -28,7 +28,7 @@ MainMenu::MainMenu(GameState& _gs)
         gs.client = new Client(gs, "127.0.0.1", 1836);
         gs.client->username = "SpPlayer";
         gs.client->wait_for_snapshot();
-        gs.map = new Map(*gs.world);
+        gs.map = new Map(*gs.world, gs.width, gs.height);
         gs.in_game = true;
     });
 
@@ -80,7 +80,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs, MainMenu* parent)
         gs.client = new Client(gs, server_addr, 1836);
         gs.client->username = state->username_inp->buffer;
         gs.client->wait_for_snapshot();
-        gs.map = new Map(*gs.world);
+        gs.map = new Map(*gs.world, gs.width, gs.height);
         gs.in_game = true;
     });
 }

@@ -126,6 +126,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
         case SDL_MOUSEMOTION:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
+            break;
         case SDL_MOUSEWHEEL:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
@@ -174,10 +175,6 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 for(auto& widget : ui_ctx->widgets) {
                     widget->x *= width / old_size.first;
                     widget->y *= height / old_size.second;
-                }
-
-                if(gs.current_mode != MapMode::NO_MAP){
-                    gs.map->camera->set_screen(width, height);
                 }
             }
             break;
