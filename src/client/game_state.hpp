@@ -86,6 +86,7 @@ public:
     // Queue of sounds/music
     std::vector<UnifiedRender::Sound*> sound_queue;
     std::vector<UnifiedRender::Sound*> music_queue;
+    float music_fade_value;
 
     bool in_game;
 };

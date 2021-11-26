@@ -123,9 +123,9 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
             if(click_on_ui == 0 && gs.current_mode != MapMode::NO_MAP) {
                 gs.map->handle_click(gs, event);
-            } else {
-                gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
             }
+
+            gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
             break;
         case SDL_MOUSEMOTION:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -188,8 +188,13 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
         default:
             break;
         }
+
         if(gs.current_mode != MapMode::NO_MAP && !click_on_ui){
             gs.map->update(event, input);
+        }
+
+        if(click_on_ui) {
+            gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
         }
     }
     ui_ctx->clear_dead();
@@ -392,6 +397,11 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
                 i--;
             }
         }
+
+        if(gs.music_queue.empty()) {
+            gs.music_fade_value = 100.f;
+            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/war.wav")));
+        }
     }
 }
 
@@ -409,6 +419,7 @@ static void mixaudio(void *userdata, uint8_t *stream, int len) {
         if(amount > len) amount = len;
 
         if(amount == 0) {
+            delete sound;
             gs.sound_queue.erase(gs.sound_queue.begin() + i);
             continue;
         }
@@ -418,6 +429,26 @@ static void mixaudio(void *userdata, uint8_t *stream, int len) {
 
         i++;
     }
+
+    for(uint i = 0; i < gs.music_queue.size(); ) {
+        UnifiedRender::Sound* music = gs.music_queue[i];
+        int amount = music->len - music->pos;
+        if(amount > len) amount = len;
+
+        if(amount == 0) {
+            delete music;
+            gs.music_queue.erase(gs.music_queue.begin() + i);
+            continue;
+        }
+
+        SDL_MixAudio(stream, &music->data[music->pos], amount, SDL_MIX_MAXVOLUME / gs.music_fade_value);
+        music->pos += amount;
+
+        i++;
+    }
+
+    if(gs.music_fade_value > 1.f)
+        gs.music_fade_value -= 1.f;
 }
 
 void main_menu_loop(GameState& gs, SDL_Window* window) {
@@ -435,7 +466,6 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
     gs.input = Input{};
     Input& input = gs.input;
 
-    // ah yes, casting discarding the const-qualifier
     while(run) {
         handle_event(input, gs, run);
         render(gs, input, window);
@@ -444,6 +474,15 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
             run = false;
             mm_bg->kill();
             main_menu->kill();
+
+            for(auto& music : gs.music_queue) { delete music; }
+            gs.music_queue.clear();
+            break;
+        }
+
+        if(gs.music_queue.empty()) {
+            gs.music_fade_value = 100.f;
+            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/title.wav")));
         }
     }
 }
@@ -505,7 +544,7 @@ void start_client(int argc, char** argv) {
     SDL_AudioSpec fmt;
     fmt.freq = 11050;
     fmt.format = AUDIO_S16;
-    fmt.channels = 2;
+    fmt.channels = 1;
     fmt.samples = 512;
     fmt.callback = mixaudio;
     fmt.userdata = &gs;
