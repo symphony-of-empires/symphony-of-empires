@@ -41,7 +41,7 @@ public:
     uint8_t elevation;
 
     // Terrain type
-    uint8_t terrain_type_id;
+    TerrainType::Id terrain_type_id;
 
     const std::vector<const Tile*> get_neighbours(const World& world) const;
 };
