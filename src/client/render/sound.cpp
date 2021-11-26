@@ -23,7 +23,7 @@ Sound::Sound(const std::string& path) {
     if(SDL_LoadWAV(path.c_str(), &wave, &this->data, &this->len) == nullptr)
         throw SoundException(path, std::string(SDL_GetError()));
     
-    SDL_BuildAudioCVT(&cvt, wave.format, wave.channels, wave.freq, AUDIO_S16, 2, 11050);
+    SDL_BuildAudioCVT(&cvt, wave.format, wave.channels, wave.freq, AUDIO_S16, 1, 11050);
     cvt.buf = (Uint8*)malloc(this->len * cvt.len_mult);
     std::memcpy(cvt.buf, this->data, this->len);
     cvt.len = this->len;
@@ -42,7 +42,7 @@ Sound::Sound() {
 }
 
 Sound::~Sound() {
-
+    free(this->data);
 }
 
 const Sound& SoundManager::load(const std::string& path) {
@@ -58,13 +58,7 @@ const Sound& SoundManager::load(const std::string& path) {
     print_info("Loaded and cached sound %s", path.c_str());
 
     // Otherwise Sound is not in our control, so we create a new one
-    UnifiedRender::Sound* sound;
-    try {
-        sound = new UnifiedRender::Sound(path);
-    } catch(SoundException&) {
-        sound = new UnifiedRender::Sound();
-    }
-
+    auto* sound = new UnifiedRender::Sound(path);
     this->sounds.insert(std::make_pair(sound, path));
     return *((const Sound*)sound);
 }
