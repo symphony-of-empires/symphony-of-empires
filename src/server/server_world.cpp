@@ -346,21 +346,11 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files) 
 }
 
 void World::load_mod(void) {
-    BinaryImage terrain(Path::get("map_terrain.png"));
-    BinaryImage topo(Path::get("map_topo.png"));
-    BinaryImage div(Path::get("map_div.png"));
-    BinaryImage infra(Path::get("map_infra.png"));
-
-    width = terrain.width;
-    height = terrain.height;
-
-    // Check that size of all maps match
-    if(topo.width != width || topo.height != height)
+    std::unique_ptr<BinaryImage> topo = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_topo.png")));
+    width = topo->width;
+    height = topo->height;
+    if(topo->width != width || topo->height != height)
         throw std::runtime_error("Topographic map size mismatch");
-    else if(infra.width != width || infra.height != height)
-        throw std::runtime_error("Infrastructure map size mismatch");
-    else if(div.width != width || div.height != height)
-        throw std::runtime_error("Province map size mismatch");
 
     const size_t total_size = width * height;
 
@@ -369,9 +359,8 @@ void World::load_mod(void) {
     // Land is	> sea_level + 1
     sea_level = 126;
     tiles = new Tile[total_size];
-    if(tiles == nullptr) {
+    if(tiles == nullptr)
         throw std::runtime_error("Out of memory");
-    }
 
     const std::vector<std::string> init_files = {
         "terrain_types",
@@ -416,44 +405,59 @@ void World::load_mod(void) {
         terrain_color_table[terrain_type->color & 0xffffff] = this->get_id(terrain_type);
     }
 
+    std::unique_ptr<BinaryImage> terrain = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_terrain.png")));
+    if(terrain->width != width || terrain->height != height)
+        throw std::runtime_error("Terrain map size mismatch");
+    
+    std::unique_ptr<BinaryImage> infra = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_infra.png")));
+    if(infra->width != width || infra->height != height)
+        throw std::runtime_error("Infrastructure map size mismatch");
+
     // Translate all div, pol and topo maps onto this single tile array
     print_info(gettext("Translate all div, pol and topo maps onto this single tile array"));
     for(size_t i = 0; i < total_size; i++) {
         // Set coordinates for the tiles
         tiles[i].owner_id = (Nation::Id)-1;
         tiles[i].province_id = (Province::Id)-1;
-        tiles[i].elevation = topo.buffer[i] & 0xff;
-        tiles[i].terrain_type_id = terrain_color_table[terrain.buffer[i] & 0xffffff];
+        tiles[i].elevation = topo->buffer[i] & 0xff;
+        tiles[i].terrain_type_id = terrain_color_table[terrain->buffer[i] & 0xffffff];
 
         // Set infrastructure level
-        if(infra.buffer[i] == 0xffffffff || infra.buffer[i] == 0xff000000) {
+        if(infra->buffer[i] == 0xffffffff || infra->buffer[i] == 0xff000000) {
             tiles[i].infra_level = 0;
         }
         else {
             tiles[i].infra_level = 1;
         }
     }
+    topo.reset(nullptr);
+    terrain.reset(nullptr);
+    infra.reset(nullptr);
 
     // Associate tiles with provinces
 
     // Uncomment this and see a bit more below
     std::set<uint32_t> colors_found;
+
+    std::unique_ptr<BinaryImage> div = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_div.png")));
+    if(div->width != width || div->height != height)
+        throw std::runtime_error("Province map size mismatch");
     print_info(gettext("Associate tiles with provinces"));
     for(size_t i = 0; i < total_size; i++) {
-        const uint32_t color = div.buffer[i];
+        const uint32_t color = div->buffer[i];
 
         // This "skip the empty stuff" technique works!
-        while(i < total_size && (div.buffer[i] == 0xffffffff || div.buffer[i] == 0xff000000 || div.buffer[i] == 0xffff00ff)) {
-            if (div.buffer[i] == 0xffff00ff) {
+        while(i < total_size && (div->buffer[i] == 0xffffffff || div->buffer[i] == 0xff000000 || div->buffer[i] == 0xffff00ff)) {
+            if (div->buffer[i] == 0xffff00ff) {
                 // The inland water is set to the maximum province id
                 // The border generating shader ignores provinces with id 0xfffe
                 // This is to make sure we dont draw any border with lakes
                 tiles[i].province_id = (Province::Id)-2;
-            } else if (div.buffer[i] == 0xff000000) {
+            } else if (div->buffer[i] == 0xff000000) {
                 // Temporary to show unregsitered provinces
                 tiles[i].province_id = (Province::Id)-3;
             }
-            if (div.buffer[i] == 0xff000000) {
+            if (div->buffer[i] == 0xff000000) {
                 tiles[i].owner_id = (Nation::Id)-2;
             }
             ++i;
@@ -461,7 +465,7 @@ void World::load_mod(void) {
 
         if(!(i < total_size)) break;
 
-        const Province::Id province_id = province_color_table[div.buffer[i] & 0xffffff];
+        const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
         if(province_id >= (Province::Id)-3) {
             // Uncomment this and see below
             colors_found.insert(color);
@@ -469,13 +473,14 @@ void World::load_mod(void) {
         }
 
         const uint32_t rel_color = provinces[province_id]->color;
-        while(div.buffer[i] == rel_color) {
+        while(div->buffer[i] == rel_color) {
             tiles[i].province_id = province_id;
             provinces[province_id]->n_tiles++;
             ++i;
         }
         --i;
     }
+    div.reset(nullptr);
 
     /* Uncomment this for auto-generating lua code for unregistered provinces */
     for(const auto& color_raw: colors_found) {
