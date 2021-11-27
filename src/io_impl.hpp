@@ -5,7 +5,7 @@
 
 #include "serializer.hpp"
 
-#include "actions.hpp"
+#include "action.hpp"
 #include "world.hpp"
 #include "province.hpp"
 #include "nation.hpp"
@@ -13,7 +13,7 @@
 #include "good.hpp"
 #include "company.hpp"
 #include "pop.hpp"
-#include "actions.hpp"
+#include "action.hpp"
 #include "diplomacy.hpp"
 #include "print.hpp"
 
