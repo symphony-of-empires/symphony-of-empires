@@ -598,7 +598,7 @@ void World::load_mod(void) {
     print_info(gettext("World fully intiialized"));
 }
 
-#include "../actions.hpp"
+#include "../action.hpp"
 #include "economy.hpp"
 void World::do_tick() {
     /*

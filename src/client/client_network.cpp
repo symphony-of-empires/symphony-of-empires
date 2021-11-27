@@ -29,7 +29,7 @@
 #   pragma comment(lib, "Ws2_32.lib")
 #endif
 
-#include "actions.hpp"
+#include "action.hpp"
 #include "unit.hpp"
 #include "diplomacy.hpp"
 #include "world.hpp"

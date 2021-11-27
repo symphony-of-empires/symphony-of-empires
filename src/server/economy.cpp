@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cstdio>
 
-#include "actions.hpp"
+#include "action.hpp"
 #include "server/economy.hpp"
 #include "world.hpp"
 #include "print.hpp"

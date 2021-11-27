@@ -31,11 +31,11 @@
 
 #include <chrono>
 #include <thread>
-#include "actions.hpp"
+#include "action.hpp"
 #include "world.hpp"
 #include "io_impl.hpp"
 #include "server/server_network.hpp"
-#include "actions.hpp"
+#include "action.hpp"
 #include "io_impl.hpp"
 
 Server* g_server = nullptr;

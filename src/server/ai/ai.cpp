@@ -37,9 +37,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
     // Sucess = Sum(Demand / (Supply + 1) * Price)
     std::vector<float> avg_prob = std::vector<float>(world->goods.size(), 0.f);
     for(const auto& product : world->products) {
-        if(product->origin->owner != nation) {
-            continue;
-        }
+        if(product->origin->owner != nation) continue;
 
         avg_prob[world->get_id(product->good)] += product->demand / (product->supply + 1) * product->price;
     }
@@ -53,15 +51,11 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
     // level industries
     for(const auto& building : world->buildings) {
         const Province* province = building->get_province();
-        if(province == nullptr || province->owner != nation) {
-            continue;
-        }
+        if(province == nullptr || province->owner != nation) continue;
 
         // We will only take in account industrial buildings
         // TODO: Take in account other buildings as well
-        if(building->type->is_factory == false) {
-            continue;
-        }
+        if(building->type->is_factory == false) continue;
 
         for(const auto& input : building->type->inputs) {
             // Apply the higher-probability with outputs of this factory
@@ -84,46 +78,46 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 void ai_reform(Nation* nation) {
     Policies new_policy = nation->current_policy;
 
-    if(rand() % 100 > 50.f) {
+    if(std::rand() % 100 > 50.f) {
         new_policy.import_tax += 0.1f * (rand() % 10);
-    } else if(rand() % 100 > 50.f) {
+    } else if(std::rand() % 100 > 50.f) {
         new_policy.import_tax -= 0.1f * (rand() % 10);
     }
 
-    if(rand() % 100 > 50.f) {
+    if(std::rand() % 100 > 50.f) {
         new_policy.export_tax += 0.1f * (rand() % 10);
-    } else if(rand() % 100 > 50.f) {
+    } else if(std::rand() % 100 > 50.f) {
         new_policy.export_tax -= 0.1f * (rand() % 10);
     }
 
-    if(rand() % 100 > 50.f) {
+    if(std::rand() % 100 > 50.f) {
         new_policy.domestic_export_tax += 0.1f * (rand() % 10);
-    } else if(rand() % 100 > 50.f) {
+    } else if(std::rand() % 100 > 50.f) {
         new_policy.domestic_export_tax -= 0.1f * (rand() % 10);
     }
 
-    if(rand() % 100 > 50.f) {
+    if(std::rand() % 100 > 50.f) {
         new_policy.domestic_import_tax += 0.1f * (rand() % 10);
-    } else if(rand() % 100 > 50.f) {
+    } else if(std::rand() % 100 > 50.f) {
         new_policy.domestic_import_tax -= 0.1f * (rand() % 10);
     }
 
-    if(rand() % 100 > 50.f) {
+    if(std::rand() % 100 > 50.f) {
         new_policy.industry_tax += 0.1f * (rand() % 10);
-    } else if(rand() % 100 > 50.f) {
+    } else if(std::rand() % 100 > 50.f) {
         new_policy.industry_tax -= 0.1f * (rand() % 10);
     }
 
-    new_policy.public_healthcare = (rand() % 100 > 50.f) ? true : false;
-    new_policy.public_education = (rand() % 100 > 50.f) ? true : false;
-    new_policy.private_property = (rand() % 100 > 50.f) ? true : false;
-    new_policy.executive_parliament = (rand() % 100 > 50.f) ? true : false;
-    new_policy.legislative_parliament = (rand() % 100 > 50.f) ? true : false;
-    new_policy.foreign_trade = (rand() % 100 > 50.f) ? true : false;
+    new_policy.public_healthcare = (std::rand() % 100 > 50.f) ? true : false;
+    new_policy.public_education = (std::rand() % 100 > 50.f) ? true : false;
+    new_policy.private_property = (std::rand() % 100 > 50.f) ? true : false;
+    new_policy.executive_parliament = (std::rand() % 100 > 50.f) ? true : false;
+    new_policy.legislative_parliament = (std::rand() % 100 > 50.f) ? true : false;
+    new_policy.foreign_trade = (std::rand() % 100 > 50.f) ? true : false;
 
-    if(rand() % 100 > 50.f) {
+    if(std::rand() % 100 > 50.f) {
         new_policy.min_sv_for_parliament += 0.1f * (rand() % 10);
-    } else if(rand() % 100 > 50.f) {
+    } else if(std::rand() % 100 > 50.f) {
         new_policy.min_sv_for_parliament -= 0.1f * (rand() % 10);
     }
 
@@ -205,7 +199,7 @@ void ai_do_tick(Nation* nation, World* world) {
     }
 
     // Colonize a province
-    if(!(std::rand() % 50000)) {
+    if(!(std::rand() % 500)) {
         // Pair denoting the weight a province has, the more the better
         std::vector<std::pair<Province*, float>> colonial_value;
         for(const auto& province : world->provinces) {
@@ -248,9 +242,7 @@ void ai_do_tick(Nation* nation, World* world) {
         for(auto& treaty : world->treaties) {
             for(auto& part : treaty->approval_status) {
                 if(part.first == nation) {
-                    if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) {
-                        break;
-                    }
+                    if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) break;
 
                     if(std::rand() % 50 >= 25) {
                         print_info("We, %s, deny the treaty of %s", treaty->name.c_str());
@@ -284,8 +276,8 @@ void ai_do_tick(Nation* nation, World* world) {
         defense_factor /= ((province->total_pops() + province->n_tiles) / 10000) + 1;
     }
 
-    if(defense_factor < 500) {
-        defense_factor = 500;
+    if(defense_factor < 50) {
+        defense_factor = 50;
     }
 
     // Build defenses
@@ -297,9 +289,7 @@ void ai_do_tick(Nation* nation, World* world) {
         std::advance(it, std::rand() % nation->owned_provinces.size());
         Province* province = *it;
         //Province* province = g_world->provinces[std::rand() % g_world->provinces.size()];
-        if(province->max_x == province->min_x || province->max_y == province->min_y) {
-            return;
-        }
+        if(province->max_x == province->min_x || province->max_y == province->min_y) return;
 
         // Randomly place in any part of the province
         // TODO: This will create some funny situations where coal factories will appear on
@@ -329,11 +319,11 @@ void ai_do_tick(Nation* nation, World* world) {
     }
 
     // Build units inside buildings that are not doing anything
-    if(std::rand() % 5000 == 0) {
+    if(std::rand() % 500 == 0) {
         for(auto& building : g_world->buildings) {
             if(building->working_unit_type != nullptr || building->owner != nation) continue;
 
-            while(building->working_unit_type == nullptr || building->working_unit_type->is_naval == false) {
+            while(building->working_unit_type == nullptr) {
                 building->working_unit_type = g_world->unit_types[rand() % g_world->unit_types.size()];
             }
             building->req_goods_for_unit = building->working_unit_type->req_goods;
@@ -342,7 +332,7 @@ void ai_do_tick(Nation* nation, World* world) {
     }
 
     // Naval AI
-    if(std::rand() % 1000 == 0) {
+    if(std::rand() % 100 == 0) {
         for(auto& unit : g_world->units) {
             if(unit->owner != nation) continue;
 
@@ -388,10 +378,8 @@ void ai_do_tick(Nation* nation, World* world) {
         // Otherwise -- do not build anything since the highest valued good cannot be produced
         if(type == nullptr) return;
 
-        Province* province = g_world->provinces[rand() % g_world->provinces.size()];
-        if(province->max_x == province->min_x || province->max_y == province->min_y) {
-            return;
-        }
+        Province* province = g_world->provinces[std::rand() % g_world->provinces.size()];
+        if(province->max_x == province->min_x || province->max_y == province->min_y) return;
 
         // Now build the building
         Building* building = new Building();
@@ -400,8 +388,8 @@ void ai_do_tick(Nation* nation, World* world) {
         // Randomly place in any part of the province
         // TODO: This will create some funny situations where coal factories will appear on
         // the fucking pacific ocean - we need to fix that
-        building->x = province->min_x + ((rand() + 1) % (province->max_x - province->min_x));
-        building->y = province->min_y + ((rand() + 1) % (province->max_y - province->min_y));
+        building->x = province->min_x + ((std::rand() + 1) % (province->max_x - province->min_x));
+        building->y = province->min_y + ((std::rand() + 1) % (province->max_y - province->min_y));
         building->x = std::min(building->x, g_world->width - 1);
         building->y = std::min(building->y, g_world->height - 1);
         building->province = province;

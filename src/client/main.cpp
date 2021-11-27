@@ -23,7 +23,7 @@ std::atomic<bool> run;
 #include "path.hpp"
 #include "network.hpp"
 #include "io_impl.hpp"
-#include "actions.hpp"
+#include "action.hpp"
 std::mutex world_lock;
 
 std::string async_get_input(void) {
