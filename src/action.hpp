@@ -54,8 +54,11 @@ enum class ActionType {
     TREATY_ADD,
 };
 
-class Action {
-public:
-    ActionType type;
-    Action(ActionType _type): type(_type) {};
+namespace Action {
+    class Base {
+    public:
+        Base(void) {};
+        virtual ~Base(void) {};
+        virtual ActionType get_type(void) { return ActionType::BAD; };
+    };
 };
