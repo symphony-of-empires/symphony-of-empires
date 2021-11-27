@@ -18,7 +18,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\actions.hpp">
+    <ClInclude Include="src\action.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\binary_image.hpp">
