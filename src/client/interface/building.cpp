@@ -49,7 +49,7 @@ BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, U
 
 #include "client/client_network.hpp"
 #include "serializer.hpp"
-#include "actions.hpp"
+#include "action.hpp"
 #include "io_impl.hpp"
 BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, Nation* _nation, Province* _province, Company* _company)
     : gs{_gs},
