@@ -289,8 +289,8 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
 void Map::draw_flag(const Nation* nation) {
     // Draw a flag that "waves" with some cheap wind effects it
     // looks nice and it's super cheap to make - only using sine
-    const float n_steps = 8.f;  // Resolution of flag in one side (in vertices)
-    const float step = 90.f;    // Steps per vertice
+    const float n_steps = 8.f; // Resolution of flag in one side (in vertices)
+    const float step = 90.f; // Steps per vertice
 
     auto flag = UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(GL_TRIANGLE_STRIP);
     for(float r = 0.f; r <= (n_steps * step); r += step) {
@@ -324,7 +324,7 @@ void Map::draw_flag(const Nation* nation) {
 #include "client/client_network.hpp"
 #include "serializer.hpp"
 #include "io_impl.hpp"
-#include "actions.hpp"
+#include "action.hpp"
 void Map::handle_click(GameState& gs, SDL_Event event) {
     Input& input = gs.input;
     if(input.select_pos.first < 0 || input.select_pos.first >= gs.world->width
@@ -456,21 +456,21 @@ void Map::update(const SDL_Event& event, Input& input)
         break;
     case SDL_MOUSEWHEEL:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-        camera->move((float)0, (float)0, event.wheel.y * 2.0f);
+        camera->move(0.f, 0.f, event.wheel.y * 2.f);
         break;
     case SDL_KEYDOWN:
         switch(event.key.keysym.sym) {
         case SDLK_UP:
-            camera->move((float)0, (float)-1, (float)0);
+            camera->move(0.f, -1.f, 0.f);
             break;
         case SDLK_DOWN:
-            camera->move((float)0, (float)1, (float)0);
+            camera->move(0.f, 1.f, 0.f);
             break;
         case SDLK_LEFT:
-            camera->move((float)-1, (float)0, (float)0);
+            camera->move(-1.f, 0.f, 0.f);
             break;
         case SDLK_RIGHT:
-            camera->move((float)1, (float)0, (float)0);
+            camera->move(1.f, 0.f, 0.f);
             break;
         }
         break;
