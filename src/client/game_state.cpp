@@ -158,8 +158,13 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 break;
             case SDLK_b:
                 if(gs.current_mode == MapMode::NORMAL) {
-                    const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-                    new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->nations[tile.owner_id], gs.world->provinces[tile.province_id]);
+                    if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
+                        const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+                        
+                        if(tile.owner_id == (Nation::Id)-1) break;
+                        if(tile.province_id == (Province::Id)-1) break;
+                        new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->nations[tile.owner_id], gs.world->provinces[tile.province_id]);
+                    }
                 }
                 break;
             case SDLK_BACKSPACE:
