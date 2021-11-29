@@ -44,6 +44,7 @@
 #include "product.hpp"
 #include "serializer.hpp"
 #include "world.hpp"
+#include "print.hpp"
 #include "client/camera.hpp"
 #include "client/orbit_camera.hpp"
 #include "client/client_network.hpp"
@@ -262,13 +263,16 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glPopMatrix();
 
         map->camera->update();
-        map->update_tiles(*gs.world);
     }
 
     gs.ui_ctx->render_all();
     glLoadIdentity();
     glRasterPos2f(-3.0f, -2.0f);
     SDL_GL_SwapWindow(window);
+    if(gs.current_mode != MapMode::NO_MAP) {
+        Map* map = gs.map;
+        map->update_tiles(*gs.world);
+    }
 }
 
 void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& displayed_treaties, GameState& gs) {
@@ -442,10 +446,19 @@ void start_client(int argc, char** argv) {
     int width = 1280, height = 800;
     GameState gs{};
 
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_SetSwapInterval(1);  // Enable OpenGL VSYNC
     print_info("OpenGL Version: %s", glGetString(GL_VERSION));
+    glewExperimental = GL_TRUE;
+    GLenum err = glewInit();
+    if(err != GLEW_OK)
+        throw std::runtime_error("Failed to init GLEW");
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(GLDebugMessageCallback, 0);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -464,9 +477,6 @@ void start_client(int argc, char** argv) {
     gs.ui_ctx = new UI::Context();
 
     tmpbuf = new char[512];
-    GLenum err = glewInit();
-    if(err != GLEW_OK)
-        throw std::runtime_error("Failed to init GLEW");
 
     gs.width = width;
     gs.height = height;
