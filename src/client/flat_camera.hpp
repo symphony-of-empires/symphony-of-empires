@@ -56,6 +56,11 @@ public:
         position.z = -std::max(10.f, std::min((float)g_world->width / 2.f, -position.z));
     };
 
+    void set_pos(float x, float y) override {
+        position.x = x;
+        position.y = y;
+    }
+
     glm::mat4 get_projection() override {
         float aspect_ratio = screen_size.x / screen_size.y;
         return glm::perspective(glm::radians(fov), aspect_ratio, near_plane, far_plane);

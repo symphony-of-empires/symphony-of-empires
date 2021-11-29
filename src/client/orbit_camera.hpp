@@ -26,7 +26,7 @@ public:
     void move(float x_dir, float y_dir, float z_dir) override {
         velocity.x += x_dir;
         velocity.y += y_dir;
-        velocity.z += z_dir;
+        velocity.z -= z_dir;
     }
 
     void update(void) override {
@@ -58,6 +58,11 @@ public:
         return glm::perspective(glm::radians(fov), aspect_ratio, near_plane, far_plane);
     };
 
+    void set_pos(float x, float y) override {
+        flat_position.x = x;
+        flat_position.y = y;
+    }
+
     glm::mat4 get_view() override {
         glm::vec3 look_at = glm::vec3(0);
         // glm::vec3 up_vector = glm::vec3(0);
@@ -87,11 +92,30 @@ public:
         );
 
         glm::vec3 ray_direction = world_space_far - world_space_near;
+        ray_direction = glm::normalize(ray_direction);
 
         float distance = 0.f;
         glm::intersectRaySphere(world_space_near, ray_direction, glm::vec3(0, 0, 0), radius * radius, distance);
 
         glm::vec3 intersection_point = world_space_near + ray_direction * distance;
-        return std::pair<float, float>(intersection_point.x, intersection_point.y);
+        float pi = glm::pi<float>();
+        float y_rad = glm::acos(intersection_point.z / radius);
+        float x_rad = glm::atan(intersection_point.y, intersection_point.x);
+        // x_rad += pi;
+        // if(intersection_point.x > 0) {
+        //     x_rad = glm::atan(intersection_point.y / intersection_point.x);
+        // }
+        // else if(intersection_point.x < 0) {
+        //     x_rad = glm::atan(intersection_point.y / intersection_point.x);
+        //     x_rad += pi;
+        // }
+        float y = y_rad / (pi);
+        // y = 1.f - y;
+        float x = x_rad / (2.f * pi);
+        x += 0.5f;
+        print_info("%f", x);
+        print_info("%f", y);
+        
+        return std::pair<float, float>(x_rad, y_rad);
     };
 };

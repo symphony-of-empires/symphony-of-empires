@@ -22,6 +22,7 @@ public:
     std::pair<float, float> select_pos;
     bool middle_mouse_down = false;
     std::pair<float, float> last_camera_drag_pos;
+    std::pair<float, float> last_camera_mouse_pos;
     std::pair<int, int> mouse_pos;
 
     Unit* selected_unit = nullptr;
