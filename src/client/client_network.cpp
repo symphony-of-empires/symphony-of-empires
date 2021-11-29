@@ -204,7 +204,7 @@ void Client::net_loop(void) {
                     // to the actual value by the server
                     for(auto& province : world.provinces)
                         province->stockpile.push_back(0);
-                    print_info("New product of good type %s", product->good->name.c_str());
+                    print_info("New product of good type [%s]", product->good->ref_name.c_str());
                 } break;
                 case ActionType::PRODUCT_UPDATE: {
                     Product::Id size;
@@ -237,7 +237,7 @@ void Client::net_loop(void) {
                     Unit* unit = new Unit();
                     ::deserialize(ar, unit);
                     world.insert(unit);
-                    print_info("New unit of %s", unit->owner->name.c_str());
+                    print_info("New unit of [%s]", unit->owner->ref_name.c_str());
                 } break;
                 case ActionType::BUILDING_UPDATE: {
                     Building::Id size;
@@ -256,14 +256,14 @@ void Client::net_loop(void) {
                     world.insert(building);
 
                     if(building->get_owner() != nullptr)
-                        print_info("New building property of %s", building->get_owner()->name.c_str());
+                        print_info("New building property of [%s]", building->get_owner()->ref_name.c_str());
                 } break;
                 case ActionType::BUILDING_REMOVE: {
                     Building* building;
                     ::deserialize(ar, &building);
 
                     if(building->get_owner() != nullptr)
-                        print_info("Remove building property of %s", building->get_owner()->name.c_str());
+                        print_info("Remove building property of [%s]", building->get_owner()->ref_name.c_str());
                     
                     world.remove(building);
                     delete building;
@@ -272,9 +272,9 @@ void Client::net_loop(void) {
                     Treaty* treaty = new Treaty();
                     ::deserialize(ar, treaty);
                     world.treaties.push_back(treaty);
-                    print_info("%s: Drafted new treaty", treaty->sender->name.c_str());
+                    print_info("New treaty from [%s]", treaty->sender->ref_name.c_str());
                     for(const auto& status: treaty->approval_status)
-                        print_info("- %s", status.first->name.c_str());
+                        print_info("- [%s]", status.first->ref_name.c_str());
                 } break;
                 case ActionType::WORLD_TICK: {
                     // Give up the world mutex for now

@@ -6,6 +6,13 @@
 #include "client/ui.hpp"
 
 namespace Interface {
+    class TreatyDraftView : public UI::Window {
+        GameState& gs;
+        Treaty* treaty;
+    public:
+        TreatyDraftView(GameState& gs);
+    };
+
     class TreatyChooseWindow : public UI::Window {
         GameState& gs;
         Treaty* treaty;

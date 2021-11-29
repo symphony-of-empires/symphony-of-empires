@@ -368,8 +368,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             }
 
             // Show province information when clicking on a province
-            if(tile.province_id < (Province::Id)-2) {
-                new Interface::ProvinceView(gs, gs.world->provinces.at(tile.province_id));
+            if(tile.province_id < gs.world->provinces.size()) {
+                new Interface::ProvinceView(gs, gs.world->provinces[tile.province_id]);
                 return;
             }
             break;

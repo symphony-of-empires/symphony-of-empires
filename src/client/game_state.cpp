@@ -121,11 +121,10 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             }
 
             click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
-            if(click_on_ui == 0 && gs.current_mode != MapMode::NO_MAP) {
+            if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
+                gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
                 gs.map->handle_click(gs, event);
             }
-
-            gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
             break;
         case SDL_MOUSEMOTION:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -143,7 +142,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             switch(event.key.keysym.sym) {
             case SDLK_t:
                 if(gs.current_mode == MapMode::NORMAL) {
-                    //new TreatyWindow(gs, gs.top_win->top_win);
+                    new Interface::TreatyDraftView(gs);
                 }
                 break;
             case SDLK_p:
