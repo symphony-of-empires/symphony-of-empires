@@ -286,6 +286,7 @@ void Client::net_loop(void) {
                 } break;
                 case ActionType::TILE_UPDATE: {
                     // get_tile is already mutexed
+
                     std::pair<size_t, size_t> coord;
                     ::deserialize(ar, &coord.first);
                     ::deserialize(ar, &coord.second);

@@ -164,7 +164,7 @@ World::World() {
         return 1;
     });
 
-    const struct luaL_Reg ideology_meta[] = {
+    const struct luaL_Reg ideology_meta[] ={
         { "__gc", [](lua_State* L) {
             print_info("__gc?");
             return 0;
@@ -174,26 +174,28 @@ World::World() {
             std::string member = luaL_checkstring(L, 2);
             if(member == "ref_name") {
                 lua_pushstring(L, (*ideology)->ref_name.c_str());
-            } else if(member == "name") {
-                lua_pushstring(L, (*ideology)->name.c_str());
             }
-            print_info("__index?");
-            return 1;
-        }},
-        { "__newindex", [](lua_State* L) {
-            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
-            std::string member = luaL_checkstring(L, 2);
-            if(member == "ref_name") {
-                (*ideology)->ref_name = luaL_checkstring(L, 3);
-            } else if(member == "name") {
-                (*ideology)->name = luaL_checkstring(L, 3);
-            }
-            print_info("__newindex?");
-            return 0;
-        }},
-        { NULL, NULL }
+ else if(member == "name") {
+  lua_pushstring(L, (*ideology)->name.c_str());
+}
+print_info("__index?");
+return 1;
+}},
+{ "__newindex", [](lua_State* L) {
+    Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
+    std::string member = luaL_checkstring(L, 2);
+    if(member == "ref_name") {
+        (*ideology)->ref_name = luaL_checkstring(L, 3);
+    }
+else if(member == "name") {
+ (*ideology)->name = luaL_checkstring(L, 3);
+}
+print_info("__newindex?");
+return 0;
+}},
+{ NULL, NULL }
     };
-    const luaL_Reg ideology_methods[] = {
+    const luaL_Reg ideology_methods[] ={
         { "new", [](lua_State* L) {
             Ideology** ideology = (Ideology**)lua_newuserdata(L, sizeof(Ideology*));
             *ideology = new Ideology();
@@ -362,7 +364,7 @@ void World::load_mod(void) {
     if(tiles == nullptr)
         throw std::runtime_error("Out of memory");
 
-    const std::vector<std::string> init_files = {
+    const std::vector<std::string> init_files ={
         "terrain_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "good_types", "industry_types",
@@ -408,7 +410,7 @@ void World::load_mod(void) {
     std::unique_ptr<BinaryImage> terrain = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_terrain.png")));
     if(terrain->width != width || terrain->height != height)
         throw std::runtime_error("Terrain map size mismatch");
-    
+
     std::unique_ptr<BinaryImage> infra = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_infra.png")));
     if(infra->width != width || infra->height != height)
         throw std::runtime_error("Infrastructure map size mismatch");
@@ -448,17 +450,18 @@ void World::load_mod(void) {
 
         // This "skip the empty stuff" technique works!
         while(i < total_size && (div->buffer[i] == 0xffffffff || div->buffer[i] == 0xff000000 || div->buffer[i] == 0xffff00ff)) {
-            if (div->buffer[i] == 0xffff00ff) {
+            if(div->buffer[i] == 0xffff00ff) {
                 // The inland water is set to the maximum province id
                 // The border generating shader ignores provinces with id 0xfffe
                 // This is to make sure we dont draw any border with lakes
                 tiles[i].province_id = (Province::Id)-2;
-            } else if (div->buffer[i] == 0xff000000) {
+            }
+            else if(div->buffer[i] == 0xff000000) {
                 // Temporary to show unregsitered provinces
                 tiles[i].province_id = (Province::Id)-3;
             }
-            if (div->buffer[i] == 0xff000000) {
-                tiles[i].owner_id = (Nation::Id)-2;
+            if(div->buffer[i] == 0xff000000) {
+                // tiles[i].owner_id = (Nation::Id)-2;
             }
             ++i;
         }
@@ -483,7 +486,7 @@ void World::load_mod(void) {
     div.reset(nullptr);
 
     /* Uncomment this for auto-generating lua code for unregistered provinces */
-    for(const auto& color_raw: colors_found) {
+    for(const auto& color_raw : colors_found) {
         uint32_t color = color_raw << 8;
 
         printf("province = Province:new{ ref_name = \"province_%06p\", color = 0x%06p }\n", (uintptr_t)bswap32(color), (uintptr_t)bswap32(color));
@@ -546,7 +549,7 @@ void World::load_mod(void) {
             Nation* nation = this->nations[this->tiles[i].owner_id];
             const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
 
-            for(const auto& other_tile: tiles) {
+            for(const auto& other_tile : tiles) {
                 if(other_tile->owner_id != tile->owner_id && other_tile->owner_id < (Nation::Id)-2) {
                     nation->neighbours.insert(this->nations.at(other_tile->owner_id));
                 }
@@ -557,7 +560,7 @@ void World::load_mod(void) {
             Province* province = this->provinces[this->tiles[i].province_id];
             const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
 
-            for(const auto& other_tile: tiles) {
+            for(const auto& other_tile : tiles) {
                 if(other_tile->province_id != tile->province_id && other_tile->province_id < (Province::Id)-3) {
                     province->neighbours.insert(this->provinces.at(other_tile->province_id));
                 }
@@ -790,7 +793,7 @@ void World::do_tick() {
                 end_y -= speed;
             else if(unit->y < unit->ty)
                 end_y += speed;
-            
+
             // TODO: Disallow unit from crossing on certain stuff
             // This code prevents us from stepping onto water tiles (but allows for rivers)
             //if(get_tile(end_x, end_y).elevation <= sea_level) {
@@ -799,6 +802,17 @@ void World::do_tick() {
 
             unit->x = end_x;
             unit->y = end_y;
+            // North and south do not wrap
+            unit->y = std::max<float>(0.f, unit->y);
+            unit->y = std::min<float>(height - 1, unit->y);
+
+            // West and east do wrap
+            if(unit->x <= 0.f) {
+                unit->x = width - 1.f;
+            }
+            else if(unit->x >= width) {
+                unit->x = 0.f;
+            }
         }
 
         // Make the unit attack automatically
@@ -821,7 +835,7 @@ void World::do_tick() {
                 }
             }
             // Unit is on foreign soil, we check relations to see if we can take free military supplies
-            else {
+            else if(nation != nullptr) {
                 // No-cost supplies
                 if(unit->owner->relations[get_id(nation)].free_supplies) {
                     free_supplies = true;
@@ -860,7 +874,7 @@ void World::do_tick() {
 
                     if(products[j]->price * unit->size <= unit->budget) {
                         size_t bought = std::min(province->stockpile[j], unit->size);
-                        
+
                         province->stockpile[j] -= bought;
                         unit->supply = bought / unit->size;
 
@@ -878,12 +892,13 @@ void World::do_tick() {
 
         // North and south do not wrap
         unit->y = std::max<float>(0.f, unit->y);
-        unit->y = std::min<float>(height, unit->y);
+        unit->y = std::min<float>(height - 1, unit->y);
 
         // West and east do wrap
         if(unit->x <= 0.f) {
             unit->x = width - 1.f;
-        } else if(unit->x >= width) {
+        }
+        else if(unit->x >= width) {
             unit->x = 0.f;
         }
 

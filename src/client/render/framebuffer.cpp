@@ -15,6 +15,8 @@ Framebuffer::~Framebuffer() {
 
 void Framebuffer::set_texture(int index, const UnifiedRender::Texture* texture){
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture->gl_tex_num, 0);
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        print_error("Frame buffer error");
 }
 
 void Framebuffer::use() {
