@@ -113,8 +113,6 @@ public:
         // y = 1.f - y;
         float x = x_rad / (2.f * pi);
         x += 0.5f;
-        print_info("%f", x);
-        print_info("%f", y);
         
         return std::pair<float, float>(x_rad, y_rad);
     };

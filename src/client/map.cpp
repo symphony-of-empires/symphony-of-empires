@@ -454,25 +454,27 @@ void Map::update(const SDL_Event& event, Input& input)
         break;
     case SDL_MOUSEMOTION:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-        if(input.middle_mouse_down) {  // Drag the map with middlemouse
-            if(view_mode == MapView::SPHERE_VIEW) {
+        if(view_mode == MapView::SPHERE_VIEW) {
+            if(input.middle_mouse_down) {  // Drag the map with middlemouse
                 float scale = glm::length(camera->position) / map_sphere->radius;
                 float x_pos = input.last_camera_drag_pos.first - (mouse_pos.first - input.last_camera_mouse_pos.first) * 0.001 * scale;
                 float y_pos = input.last_camera_drag_pos.second - (mouse_pos.second - input.last_camera_mouse_pos.second) * 0.001 * scale;
                 camera->set_pos(x_pos, y_pos);
-                input.select_pos = camera->get_map_pos(input.mouse_pos);
-                input.select_pos.first = (int)(tile_map->width * input.select_pos.first);
-                input.select_pos.second = (int)(tile_map->height * input.select_pos.second);
             }
-            else {
+            input.select_pos = camera->get_map_pos(input.mouse_pos);
+            input.select_pos.first = (int)(tile_map->width * input.select_pos.first / (2. * M_PI));
+            input.select_pos.second = (int)(tile_map->height * input.select_pos.second / M_PI);
+        }
+        else {
+            if(input.middle_mouse_down) {  // Drag the map with middlemouse
                 std::pair<float, float> map_pos = camera->get_map_pos(mouse_pos);
                 float x_pos = camera->position.x + input.last_camera_drag_pos.first - map_pos.first;
                 float y_pos = camera->position.y + input.last_camera_drag_pos.second - map_pos.second;
                 camera->set_pos(x_pos, y_pos);
-                input.select_pos = camera->get_map_pos(input.mouse_pos);
-                input.select_pos.first = (int)input.select_pos.first;
-                input.select_pos.second = (int)input.select_pos.second;
             }
+            input.select_pos = camera->get_map_pos(input.mouse_pos);
+            input.select_pos.first = (int)input.select_pos.first;
+            input.select_pos.second = (int)input.select_pos.second;
         }
         break;
     case SDL_MOUSEWHEEL:
