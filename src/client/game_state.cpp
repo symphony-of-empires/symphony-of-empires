@@ -46,6 +46,7 @@
 #include "product.hpp"
 #include "serializer.hpp"
 #include "world.hpp"
+#include "print.hpp"
 #include "client/camera.hpp"
 #include "client/orbit_camera.hpp"
 #include "client/client_network.hpp"
@@ -275,13 +276,16 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glPopMatrix();
 
         map->camera->update();
-        map->update_tiles(*gs.world);
     }
 
     gs.ui_ctx->render_all();
     glLoadIdentity();
     glRasterPos2f(-3.0f, -2.0f);
     SDL_GL_SwapWindow(window);
+    if(gs.current_mode != MapMode::NO_MAP) {
+        Map* map = gs.map;
+        map->update_tiles(*gs.world);
+    }
 }
 
 void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& displayed_treaties, GameState& gs) {
@@ -404,7 +408,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 
         if(gs.music_queue.empty()) {
             gs.music_fade_value = 100.f;
-            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/war.wav")));
+            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
         }
     }
 }
@@ -418,11 +422,12 @@ static void mixaudio(void *userdata, uint8_t *stream, int len) {
     std::memset(stream, 0, len);
 
     for(uint i = 0; i < gs.sound_queue.size(); ) {
+        int size = gs.sound_queue.size();
         UnifiedRender::Sound* sound = gs.sound_queue[i];
         int amount = sound->len - sound->pos;
         if(amount > len) amount = len;
 
-        if(amount == 0) {
+        if(amount <= 0) {
             delete sound;
             gs.sound_queue.erase(gs.sound_queue.begin() + i);
             continue;
@@ -486,7 +491,7 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
 
         if(gs.music_queue.empty()) {
             gs.music_fade_value = 100.f;
-            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/title.wav")));
+            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
         }
     }
 }
@@ -514,10 +519,19 @@ void start_client(int argc, char** argv) {
     int width = 1280, height = 800;
     GameState gs{};
 
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_SetSwapInterval(1);  // Enable OpenGL VSYNC
     print_info("OpenGL Version: %s", glGetString(GL_VERSION));
+    glewExperimental = GL_TRUE;
+    GLenum err = glewInit();
+    if(err != GLEW_OK)
+        throw std::runtime_error("Failed to init GLEW");
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(GLDebugMessageCallback, 0);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -540,9 +554,6 @@ void start_client(int argc, char** argv) {
     gs.height = height;
 
     tmpbuf = new char[512];
-    GLenum err = glewInit();
-    if(err != GLEW_OK)
-        throw std::runtime_error("Failed to init GLEW");
     
     // Initialize sound
     SDL_AudioSpec fmt;
@@ -567,8 +578,8 @@ void start_client(int argc, char** argv) {
 }
 
 GameState::~GameState() {
-    delete world;
-    delete curr_nation;
-    delete map;
-    delete ui_ctx;
+    // delete world;
+    // delete curr_nation;
+    // delete map;
+    // delete ui_ctx;
 };

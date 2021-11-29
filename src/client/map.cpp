@@ -34,13 +34,18 @@ Map::Map(const World& _world, int screen_width, int screen_height): world(_world
         map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
         map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
         map_2d_quad = new UnifiedRender::OpenGl::Quad2D();
-        water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        UnifiedRender::TextureOptions mipmap_options{};
+        mipmap_options.wrap_s = GL_REPEAT;
+        mipmap_options.wrap_t = GL_REPEAT;
+        mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
+        mipmap_options.mag_filter = GL_LINEAR;
+        water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), mipmap_options);
         water_tex->gen_mipmaps();
-        noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), mipmap_options);
         noise_tex->gen_mipmaps();
-        topo_tex = &g_texture_manager->load_texture(Path::get("topo.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        topo_tex = &g_texture_manager->load_texture(Path::get("topo.png"), mipmap_options);
         topo_tex->gen_mipmaps();
-        map_color = &g_texture_manager->load_texture(Path::get("map_col.png"), GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+        map_color = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
         map_color->gen_mipmaps();
 
         //terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
@@ -51,6 +56,7 @@ Map::Map(const World& _world, int screen_width, int screen_height): world(_world
             terrain_tex->buffer[i] = world.tiles[i].terrain_type_id;
             topo_tex->buffer[i] = world.tiles[i].elevation;
         }
+        terrain_tex->to_opengl();
 
         terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
         terrain_sheet->to_opengl();
@@ -111,25 +117,22 @@ Map::Map(const World& _world, int screen_width, int screen_height): world(_world
             color = owner->get_client_hint().colour;
         }
 
-        tile_sheet->buffer[r + g * 256] = (0xff << 24) | color;
+        tile_sheet->buffer[b + a * 256] = (0xff << 24) | color;
     }
     tile_sheet->to_opengl();
-    tile_map->to_opengl();
+    UnifiedRender::TextureOptions tile_sheet_options{};
+    tile_sheet_options.internal_format = GL_RGBA32F;
+    tile_map->to_opengl(tile_sheet_options);
+    tile_map->gen_mipmaps();
 
-    // This can be put into unified render
-    // I leave it for now since I havn't been able to test the code
     glDisable(GL_CULL_FACE);
-    glGenFramebuffers(1, &frame_buffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
-
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, topo_tex->gl_tex_num, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        print_info("Frame buffer error");
 
     border_tex = new UnifiedRender::Texture(world.width, world.height);
-    border_tex->to_opengl_test(GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+    UnifiedRender::TextureOptions border_tex_options{};
+    border_tex_options.internal_format = GL_RGBA32F;
+    border_tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+    border_tex_options.mag_filter = GL_LINEAR;
+    border_tex->to_opengl(border_tex_options);
     border_tex->gen_mipmaps();
 
     border_fbuffer = new UnifiedRender::OpenGl::Framebuffer();
@@ -141,6 +144,7 @@ Map::Map(const World& _world, int screen_width, int screen_height): world(_world
     border_gen_shader->set_uniform("map_size", (float)tile_map->width, (float)tile_map->height);
     border_gen_shader->set_texture(0, "tile_map", tile_map);
     map_2d_quad->draw();
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     border_tex->gen_mipmaps();
 
@@ -237,10 +241,14 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
     glViewport(0, 0, border_tex->width, border_tex->height);
     border_sdf_shader->use();
     border_sdf_shader->set_uniform("map_size", (float)border_tex->width, (float)border_tex->height);
+    UnifiedRender::TextureOptions fbo_mipmap_options{};
+    fbo_mipmap_options.internal_format = GL_RGBA32F;
+    fbo_mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
+    fbo_mipmap_options.mag_filter = GL_LINEAR;
     UnifiedRender::Texture* tex0 = new UnifiedRender::Texture(border_tex->width, border_tex->height);
-    tex0->to_opengl_test(GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+    tex0->to_opengl(fbo_mipmap_options);
     UnifiedRender::Texture* tex1 = new UnifiedRender::Texture(border_tex->width, border_tex->height);
-    tex1->to_opengl_test(GL_REPEAT, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR);
+    tex1->to_opengl(fbo_mipmap_options);
     UnifiedRender::OpenGl::Framebuffer* fbo = new UnifiedRender::OpenGl::Framebuffer();
     fbo->use();
 
@@ -488,10 +496,23 @@ void Map::update(const SDL_Event& event, Input& input)
 // Updates the tiles texture with the changed tiles
 void Map::update_tiles(World& world) {
     std::lock_guard lock(g_world->changed_tiles_coords_mutex);
+    glDisable(GL_CULL_FACE);
     if(world.changed_tile_coords.size() > 0) {
-        glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
-        glViewport(0, 0, tile_map->width, tile_map->height);
+        UnifiedRender::OpenGl::Framebuffer* fbo = new UnifiedRender::OpenGl::Framebuffer();
+        fbo->use();
+        fbo->set_texture(0, tile_map);
 
+        glViewport(0, 0, tile_map->width, tile_map->height);
+        glBlendFunc(GL_ONE, GL_ZERO);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glActiveTexture(GL_TEXTURE0);
+        glUseProgram(0);
+        glPushMatrix();
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0.f, (float)tile_map->width, (float)tile_map->height, 0.f, 0.0f, 1.f);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
         glBegin(GL_POINTS);
         for(const auto& coords : world.changed_tile_coords) {
             uint8_t r, g, b, a;
@@ -500,14 +521,20 @@ void Map::update_tiles(World& world) {
             g = (tile.province_id / 256) % 256;
             b = tile.owner_id % 256;
             a = (tile.owner_id / 256) % 256;
-            // a = tile.elevation == 0 ? 255 : a;
-            glColor4ui(r, g, b, a);
-            glVertex2i(coords.first, coords.second);
+            glColor4f(r / 256.f, g / 256.f, b / 256.f, a / 256.f);
+            glVertex2i(coords.first, tile_map->height - coords.second);
         }
         glEnd();
+        glPopMatrix();
+
+        tile_map->gen_mipmaps();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        delete fbo;
         world.changed_tile_coords.clear();
     }
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
 }
 
 void Map::draw(const int width, const int height) {

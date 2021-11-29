@@ -6,10 +6,10 @@
 #include <exception>
 
 namespace UnifiedRender {
-    class SoundException : public std::exception {
+    class SoundException : public std::runtime_error {
         std::string msg;
     public:
-        SoundException(const std::string& filename, const std::string& message) : msg(filename + message) {};
+        SoundException(const std::string& filename, const std::string& message) : runtime_error(filename + message) {};
     };
 
     class Sound {

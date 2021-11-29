@@ -80,31 +80,36 @@ void ai_reform(Nation* nation) {
 
     if(std::rand() % 100 > 50.f) {
         new_policy.import_tax += 0.1f * (rand() % 10);
-    } else if(std::rand() % 100 > 50.f) {
+    }
+    else if(std::rand() % 100 > 50.f) {
         new_policy.import_tax -= 0.1f * (rand() % 10);
     }
 
     if(std::rand() % 100 > 50.f) {
         new_policy.export_tax += 0.1f * (rand() % 10);
-    } else if(std::rand() % 100 > 50.f) {
+    }
+    else if(std::rand() % 100 > 50.f) {
         new_policy.export_tax -= 0.1f * (rand() % 10);
     }
 
     if(std::rand() % 100 > 50.f) {
         new_policy.domestic_export_tax += 0.1f * (rand() % 10);
-    } else if(std::rand() % 100 > 50.f) {
+    }
+    else if(std::rand() % 100 > 50.f) {
         new_policy.domestic_export_tax -= 0.1f * (rand() % 10);
     }
 
     if(std::rand() % 100 > 50.f) {
         new_policy.domestic_import_tax += 0.1f * (rand() % 10);
-    } else if(std::rand() % 100 > 50.f) {
+    }
+    else if(std::rand() % 100 > 50.f) {
         new_policy.domestic_import_tax -= 0.1f * (rand() % 10);
     }
 
     if(std::rand() % 100 > 50.f) {
         new_policy.industry_tax += 0.1f * (rand() % 10);
-    } else if(std::rand() % 100 > 50.f) {
+    }
+    else if(std::rand() % 100 > 50.f) {
         new_policy.industry_tax -= 0.1f * (rand() % 10);
     }
 
@@ -117,7 +122,8 @@ void ai_reform(Nation* nation) {
 
     if(std::rand() % 100 > 50.f) {
         new_policy.min_sv_for_parliament += 0.1f * (rand() % 10);
-    } else if(std::rand() % 100 > 50.f) {
+    }
+    else if(std::rand() % 100 > 50.f) {
         new_policy.min_sv_for_parliament -= 0.1f * (rand() % 10);
     }
 
@@ -170,7 +176,8 @@ void ai_update_relations(Nation* nation, Nation* other) {
     // Randomness to spice stuff up
     if(std::rand() % 5000 == 0) {
         nation->increase_relation(*other);
-    } else if(std::rand() % 5000 == 0) {
+    }
+    else if(std::rand() % 5000 == 0) {
         nation->decrease_relation(*other);
     }
 }
@@ -191,7 +198,7 @@ void ai_do_tick(Nation* nation, World* world) {
         }
 
         // Update relations with other nations
-        for(auto& other: world->nations) {
+        for(auto& other : world->nations) {
             if(!other->exists() || other == nation) continue;
 
             ai_update_relations(nation, other);
@@ -247,7 +254,8 @@ void ai_do_tick(Nation* nation, World* world) {
                     if(std::rand() % 50 >= 25) {
                         print_info("We, %s, deny the treaty of %s", treaty->name.c_str());
                         part.second = TreatyApproval::DENIED;
-                    } else {
+                    }
+                    else {
                         print_info("We, %s, accept the treaty of %s", treaty->name.c_str());
                         part.second = TreatyApproval::ACCEPTED;
                     }
@@ -289,33 +297,36 @@ void ai_do_tick(Nation* nation, World* world) {
         std::advance(it, std::rand() % nation->owned_provinces.size());
         Province* province = *it;
         //Province* province = g_world->provinces[std::rand() % g_world->provinces.size()];
-        if(province->max_x == province->min_x || province->max_y == province->min_y) return;
-
-        // Randomly place in any part of the province
-        // TODO: This will create some funny situations where coal factories will appear on
-        // the fucking pacific ocean - we need to fix that
-        building->x = province->min_x + (std::rand() % (province->max_x - province->min_x));
-        building->y = province->min_y + (std::rand() % (province->max_y - province->min_y));
-        building->x = std::min(building->x, g_world->width - 1);
-        building->y = std::min(building->y, g_world->height - 1);
-        building->province = province;
-
-        building->working_unit_type = nullptr;
-
-        building->type = world->building_types[0];
-        world->insert(building);
-
-        // Broadcast the addition of the building to the clients
-        {
-            Packet packet = Packet();
-            Archive ar = Archive();
-            ActionType action = ActionType::BUILDING_ADD;
-            ::serialize(ar, &action);
-            ::serialize(ar, building);
-            packet.data(ar.get_buffer(), ar.size());
-            g_server->broadcast(packet);
+        if(province->min_x > world->width || province->min_y == world->height ||
+            province->max_x < province->min_x || province->max_y < province->min_y ||
+            province->n_tiles == 0) {
+            print_error("Cant build defense, province doesn't have any tiles");
         }
-        print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)world->get_id(building->type), nation->name.c_str(), building->get_province()->name.c_str());
+        else {
+
+            // Randomly place in any part of the province
+            glm::ivec2 coord = world->get_rand_province_coord(province);
+            building->x = coord.x;
+            building->y = coord.y;
+            building->province = province;
+
+            building->working_unit_type = nullptr;
+
+            building->type = world->building_types[0];
+            world->insert(building);
+
+            // Broadcast the addition of the building to the clients
+            {
+                Packet packet = Packet();
+                Archive ar = Archive();
+                ActionType action = ActionType::BUILDING_ADD;
+                ::serialize(ar, &action);
+                ::serialize(ar, building);
+                packet.data(ar.get_buffer(), ar.size());
+                g_server->broadcast(packet);
+            }
+            print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)world->get_id(building->type), nation->name.c_str(), building->get_province()->name.c_str());
+        }
     }
 
     // Build units inside buildings that are not doing anything
@@ -340,14 +351,20 @@ void ai_do_tick(Nation* nation, World* world) {
             std::advance(it, std::rand() % nation->owned_provinces.size());
             Province* province = *it;
 
-            unit->tx = province->min_x + (std::rand() % (province->max_x - province->min_x));
-            unit->ty = province->min_y + (std::rand() % (province->max_y - province->min_y));
+            if(province->min_x > world->width || province->min_y == world->height) continue;
+            if(province->max_x < province->min_x || province->max_y < province->min_y) continue;
+            if(province->n_tiles == 0) continue;
+            glm::ivec2 coord = world->get_rand_province_coord(province);
+            unit->tx = coord.x;
+            unit->ty = coord.y;
+            unit->x = std::min<float>(unit->x, g_world->width - 1);
+            unit->y = std::min<float>(unit->y, g_world->height - 1);
         }
     }
 
     // Build a commercially related building
     if(std::rand() % 5000 == 0) {
-        Good *target_good;
+        Good* target_good;
         target_good = ai_get_potential_good(nation, world);
         if(target_good == nullptr) return;
 
@@ -379,52 +396,54 @@ void ai_do_tick(Nation* nation, World* world) {
         if(type == nullptr) return;
 
         Province* province = g_world->provinces[std::rand() % g_world->provinces.size()];
-        if(province->max_x == province->min_x || province->max_y == province->min_y) return;
+        if(province->min_x > world->width || province->min_y == world->height ||
+            province->max_x < province->min_x || province->max_y < province->min_y ||
+            province->n_tiles == 0) {
+            print_error("Cant build buidling, province doesn't have any tiles");
+        }
+        else {
+            // Now build the building
+            Building* building = new Building();
+            building->owner = nation;
 
-        // Now build the building
-        Building* building = new Building();
-        building->owner = nation;
+            // Randomly place in any part of the province
+            glm::ivec2 coord = world->get_rand_province_coord(province);
+            building->x = coord.x;
+            building->y = coord.y;
+            building->province = province;
 
-        // Randomly place in any part of the province
-        // TODO: This will create some funny situations where coal factories will appear on
-        // the fucking pacific ocean - we need to fix that
-        building->x = province->min_x + ((std::rand() + 1) % (province->max_x - province->min_x));
-        building->y = province->min_y + ((std::rand() + 1) % (province->max_y - province->min_y));
-        building->x = std::min(building->x, g_world->width - 1);
-        building->y = std::min(building->y, g_world->height - 1);
-        building->province = province;
+            building->working_unit_type = nullptr;
+            building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
+            building->req_goods = std::vector<std::pair<Good*, size_t>>();
+            building->type = type;
+            if(building->type->is_factory) {
+                building->budget = 100.f;
+                building->corporate_owner = world->companies.at(std::rand() % world->companies.size());
+                building->create_factory();
+                building->corporate_owner->operating_provinces.insert(building->get_province());
+                for(const auto& product : building->output_products) {
+                    Packet packet = Packet();
+                    Archive ar = Archive();
+                    ActionType action = ActionType::PRODUCT_ADD;
+                    ::serialize(ar, &action);
+                    ::serialize(ar, product);
+                    packet.data(ar.get_buffer(), ar.size());
+                    g_server->broadcast(packet);
+                }
+            }
+            world->insert(building);
 
-        building->working_unit_type = nullptr;
-        building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
-        building->req_goods = std::vector<std::pair<Good*, size_t>>();
-        building->type = type;
-        if(building->type->is_factory) {
-            building->budget = 100.f;
-            building->corporate_owner = world->companies.at(std::rand() % world->companies.size());
-            building->create_factory();
-            building->corporate_owner->operating_provinces.insert(building->get_province());
-            for(const auto& product : building->output_products) {
+            // Broadcast the addition of the building to the clients
+            {
                 Packet packet = Packet();
                 Archive ar = Archive();
-                ActionType action = ActionType::PRODUCT_ADD;
+                ActionType action = ActionType::BUILDING_ADD;
                 ::serialize(ar, &action);
-                ::serialize(ar, product);
+                ::serialize(ar, building);
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
             }
+            print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)world->get_id(building->type), nation->name.c_str(), building->get_province()->name.c_str());
         }
-        world->insert(building);
-
-        // Broadcast the addition of the building to the clients
-        {
-            Packet packet = Packet();
-            Archive ar = Archive();
-            ActionType action = ActionType::BUILDING_ADD;
-            ::serialize(ar, &action);
-            ::serialize(ar, building);
-            packet.data(ar.get_buffer(), ar.size());
-            g_server->broadcast(packet);
-        }
-        print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)world->get_id(building->type), nation->name.c_str(), building->get_province()->name.c_str());
     }
 }

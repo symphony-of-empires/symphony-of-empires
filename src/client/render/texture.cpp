@@ -30,31 +30,16 @@ void UnifiedRender::Texture::create_dummy() {
         buffer[i] = (i % 2) ? 0xff000000 : 0xff808000;
 }
 
-/**
- * Converts the texture into a OpenGL texture, and assigns it a number
-  */
-void UnifiedRender::Texture::to_opengl(GLuint wrap, GLuint min_filter, GLuint mag_filter) {
+void UnifiedRender::Texture::to_opengl(TextureOptions options) {
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, options.internal_format, width, height, 0, options.format, options.type, buffer);
 
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
-}
-
-void UnifiedRender::Texture::to_opengl_test(GLuint wrap, GLuint min_filter, GLuint mag_filter) {
-    glGenTextures(1, &gl_tex_num);
-    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, options.wrap_s);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, options.wrap_t);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, options.min_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, options.mag_filter);
 }
 
 void UnifiedRender::Texture::gen_mipmaps() const {
@@ -124,7 +109,7 @@ void UnifiedRender::Texture::delete_opengl() {
  * on the disk, and our main point is to mirror loaded textures from the disk - not modify
  * them.
  */
-const UnifiedRender::Texture& UnifiedRender::TextureManager::load_texture(const std::string& path, GLuint wrap, GLuint min_filter, GLuint mag_filter) {
+const UnifiedRender::Texture& UnifiedRender::TextureManager::load_texture(const std::string& path, TextureOptions options) {
     // Find texture when wanting to be loaded
     auto it = std::find_if(this->textures.begin(), this->textures.end(), [&path](const std::pair<UnifiedRender::Texture*, std::string>& element) {
         return (element.second == path);
@@ -146,7 +131,7 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load_texture(const 
         tex->create_dummy();
     }
 
-    tex->to_opengl(wrap, min_filter, mag_filter);
+    tex->to_opengl(options);
     this->textures.insert(std::make_pair(tex, path));
     return *((const Texture*)tex);
 }
