@@ -77,7 +77,7 @@ vec2 sum(vec4 v) {
 }
 
 
-vec3 get_border(vec2 texcoord) {
+vec4 get_border(vec2 texcoord) {
 	// Pixel size on map texture
 	vec2 pix = vec2(1.0) / map_size;
 
@@ -118,14 +118,15 @@ vec3 get_border(vec2 texcoord) {
 	vec2 border = max(xBorder * test.x, yBorder * test.y);
 	border = max(border, middle);
 	border = mix(border, borderDiag * 2., is_diag);
-	is_diag *= border.x + 0.53;
+	is_diag.x *= border.x + 0.53;
+	is_diag.y *= border.y + 0.53;
 
 	border = clamp(border, 0., 1.);
 	border.x *= border.x * 0.5;
 	border.y *= border.y * 1.2;
 	vec2 tiled = step(pix, mod(texcoord + pix * 0.5, pix * 2));
 	border.y *= (tiled.x + tiled.y) * (2. - (tiled.x + tiled.y));
-	return vec3(border, is_diag);
+	return vec4(border, is_diag);
 }
 
 vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
@@ -229,9 +230,9 @@ void main() {
 	// vec4 terrain_color = get_terrain_mix(tex_coords);
 	vec4 terrain_color = texture(map_color, tex_coords);
 
-	vec3 borders_diag = get_border(tex_coords);
+	vec4 borders_diag = get_border(tex_coords);
 	vec2 borders = borders_diag.xy;
-	float diag = borders_diag.z;
+	float diag = borders_diag.w;
 	borders.x = smoothstep(0., 1., borders.x);
 
 	float height = texture(topo_texture, tex_coords).x;
@@ -256,7 +257,7 @@ void main() {
 	// diag_coord += pix;
 	vec4 coord = texture(tile_map, diag_coord).rgba;
 	float isEmpty = step(coord.a, 0.01);
-	vec4 prov_colour = texture(tile_sheet, coord.rg);
+	vec4 prov_colour = texture(tile_sheet, coord.zw);
 	terrain_color = mix(terrain_color, water, isLake(coord.xy));
 	vec4 ground = mix(terrain_color, water, isOcean(coord.xy) + isLake(coord.xy));
 	vec4 out_colour = mix(ground, prov_colour * 1.2, 0.5 * (1.-isOcean(coord.xy)) * (1.-isLake(coord.xy)));
@@ -284,7 +285,7 @@ void main() {
 		bSdf = sin(bSdf * 40.) * bSdf;  
 		prov_colour = vec4(0.);
 	}
-	out_colour = mix(out_colour, prov_colour * 1.2, clamp(bSdf, 0., 1.));
+	out_colour = mix(out_colour, prov_colour * 1.1, clamp(bSdf * 3. - 1., 0., 1.));
 	out_colour = mix(out_colour, province_border, borders.x);
 
 	vec3 normal = gen_normal(tex_coords);

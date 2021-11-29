@@ -31,22 +31,34 @@ struct SDL_Surface;
 #include "binary_image.hpp"
 
 namespace UnifiedRender {
-    class TextureException : public BinaryImageException {
+    class TextureException: public BinaryImageException {
     public:
-        TextureException(const std::string& filename, const std::string& message) : BinaryImageException(filename, message){};
+        TextureException(const std::string& filename, const std::string& message): BinaryImageException(filename, message){};
     };
 
-    class Texture : public BinaryImage {
+    struct TextureOptions
+    {
+        GLenum target = GL_TEXTURE_2D;
+        GLuint wrap_s = GL_REPEAT;
+        GLuint wrap_t = GL_REPEAT;
+        GLuint min_filter = GL_NEAREST;
+        GLuint mag_filter = GL_NEAREST;
+        GLuint internal_format = GL_RGBA;
+        GLuint format = GL_RGBA;
+        GLuint type = GL_UNSIGNED_BYTE;
+    };
+    const TextureOptions default_options;
+
+    class Texture: public BinaryImage {
     public:
         Texture() {};
         ~Texture() override;
-        Texture(const std::string& path) : BinaryImage(path) {};
-        Texture(size_t _width, size_t _height) : BinaryImage(_width, _height) {};
+        Texture(const std::string& path): BinaryImage(path) {};
+        Texture(size_t _width, size_t _height): BinaryImage(_width, _height) {};
 
         GLuint gl_tex_num = 0;
         void create_dummy();
-        void to_opengl(GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
-        void to_opengl_test(GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
+        void to_opengl(TextureOptions options = default_options);
         void gen_mipmaps() const;
         void to_opengl(SDL_Surface* surface);
         void bind(void) const;
@@ -62,7 +74,7 @@ namespace UnifiedRender {
     private:
         std::set<std::pair<UnifiedRender::Texture*, std::string>> textures;
     public:
-        const Texture& load_texture(const std::string& path, GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
+        const Texture& load_texture(const std::string& path, TextureOptions options = default_options);
     };
 };
 
