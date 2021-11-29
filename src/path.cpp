@@ -66,13 +66,18 @@ namespace Path {
             return str;
 
         std::string end_path;
+        bool file_found = false;
         for(const auto& path : mod_paths) {
             std::string rsult = get_full() + path + str;
             if(file_exists(rsult) == true) {
                 end_path += rsult;
                 print_info("Path '%s' exists", end_path.c_str());
+                file_found = true;
                 break;
             }
+        }
+        if(!file_found) {
+            print_error("Path could not find file: %s", str.c_str());
         }
 #ifdef windows
         std::replace(end_path.begin(), end_path.end(), '/', '\\');

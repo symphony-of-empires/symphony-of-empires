@@ -164,7 +164,7 @@ World::World() {
         return 1;
     });
 
-    const struct luaL_Reg ideology_meta[] = {
+    const struct luaL_Reg ideology_meta[] ={
         { "__gc", [](lua_State* L) {
             print_info("__gc?");
             return 0;
@@ -174,26 +174,28 @@ World::World() {
             std::string member = luaL_checkstring(L, 2);
             if(member == "ref_name") {
                 lua_pushstring(L, (*ideology)->ref_name.c_str());
-            } else if(member == "name") {
-                lua_pushstring(L, (*ideology)->name.c_str());
             }
-            print_info("__index?");
-            return 1;
-        }},
-        { "__newindex", [](lua_State* L) {
-            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
-            std::string member = luaL_checkstring(L, 2);
-            if(member == "ref_name") {
-                (*ideology)->ref_name = luaL_checkstring(L, 3);
-            } else if(member == "name") {
-                (*ideology)->name = luaL_checkstring(L, 3);
-            }
-            print_info("__newindex?");
-            return 0;
-        }},
-        { NULL, NULL }
+ else if(member == "name") {
+  lua_pushstring(L, (*ideology)->name.c_str());
+}
+print_info("__index?");
+return 1;
+}},
+{ "__newindex", [](lua_State* L) {
+    Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
+    std::string member = luaL_checkstring(L, 2);
+    if(member == "ref_name") {
+        (*ideology)->ref_name = luaL_checkstring(L, 3);
+    }
+else if(member == "name") {
+ (*ideology)->name = luaL_checkstring(L, 3);
+}
+print_info("__newindex?");
+return 0;
+}},
+{ NULL, NULL }
     };
-    const luaL_Reg ideology_methods[] = {
+    const luaL_Reg ideology_methods[] ={
         { "new", [](lua_State* L) {
             Ideology** ideology = (Ideology**)lua_newuserdata(L, sizeof(Ideology*));
             *ideology = new Ideology();
@@ -346,21 +348,11 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files) 
 }
 
 void World::load_mod(void) {
-    BinaryImage terrain(Path::get("map_terrain.png"));
-    BinaryImage topo(Path::get("map_topo.png"));
-    BinaryImage div(Path::get("map_div.png"));
-    BinaryImage infra(Path::get("map_infra.png"));
-
-    width = terrain.width;
-    height = terrain.height;
-
-    // Check that size of all maps match
-    if(topo.width != width || topo.height != height)
+    std::unique_ptr<BinaryImage> topo = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_topo.png")));
+    width = topo->width;
+    height = topo->height;
+    if(topo->width != width || topo->height != height)
         throw std::runtime_error("Topographic map size mismatch");
-    else if(infra.width != width || infra.height != height)
-        throw std::runtime_error("Infrastructure map size mismatch");
-    else if(div.width != width || div.height != height)
-        throw std::runtime_error("Province map size mismatch");
 
     const size_t total_size = width * height;
 
@@ -369,11 +361,10 @@ void World::load_mod(void) {
     // Land is	> sea_level + 1
     sea_level = 126;
     tiles = new Tile[total_size];
-    if(tiles == nullptr) {
+    if(tiles == nullptr)
         throw std::runtime_error("Out of memory");
-    }
 
-    const std::vector<std::string> init_files = {
+    const std::vector<std::string> init_files ={
         "terrain_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "good_types", "industry_types",
@@ -416,52 +407,68 @@ void World::load_mod(void) {
         terrain_color_table[terrain_type->color & 0xffffff] = this->get_id(terrain_type);
     }
 
+    std::unique_ptr<BinaryImage> terrain = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_terrain.png")));
+    if(terrain->width != width || terrain->height != height)
+        throw std::runtime_error("Terrain map size mismatch");
+
+    std::unique_ptr<BinaryImage> infra = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_infra.png")));
+    if(infra->width != width || infra->height != height)
+        throw std::runtime_error("Infrastructure map size mismatch");
+
     // Translate all div, pol and topo maps onto this single tile array
     print_info(gettext("Translate all div, pol and topo maps onto this single tile array"));
     for(size_t i = 0; i < total_size; i++) {
         // Set coordinates for the tiles
         tiles[i].owner_id = (Nation::Id)-1;
         tiles[i].province_id = (Province::Id)-1;
-        tiles[i].elevation = topo.buffer[i] & 0xff;
-        tiles[i].terrain_type_id = terrain_color_table[terrain.buffer[i] & 0xffffff];
+        tiles[i].elevation = topo->buffer[i] & 0xff;
+        tiles[i].terrain_type_id = terrain_color_table[terrain->buffer[i] & 0xffffff];
 
         // Set infrastructure level
-        if(infra.buffer[i] == 0xffffffff || infra.buffer[i] == 0xff000000) {
+        if(infra->buffer[i] == 0xffffffff || infra->buffer[i] == 0xff000000) {
             tiles[i].infra_level = 0;
         }
         else {
             tiles[i].infra_level = 1;
         }
     }
+    topo.reset(nullptr);
+    terrain.reset(nullptr);
+    infra.reset(nullptr);
 
     // Associate tiles with provinces
 
     // Uncomment this and see a bit more below
     std::set<uint32_t> colors_found;
+
+    std::unique_ptr<BinaryImage> div = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_div.png")));
+    if(div->width != width || div->height != height)
+        throw std::runtime_error("Province map size mismatch");
     print_info(gettext("Associate tiles with provinces"));
     for(size_t i = 0; i < total_size; i++) {
-        const uint32_t color = div.buffer[i];
+        const uint32_t color = div->buffer[i];
 
         // This "skip the empty stuff" technique works!
-        while(i < total_size && (div.buffer[i] == 0xffffffff || div.buffer[i] == 0xff000000 || div.buffer[i] == 0xffff00ff)) {
-            if (div.buffer[i] == 0xffff00ff) {
+        while(i < total_size && (div->buffer[i] == 0xffffffff || div->buffer[i] == 0xff000000 || div->buffer[i] == 0xffff00ff)) {
+            if(div->buffer[i] == 0xffff00ff) {
                 // The inland water is set to the maximum province id
                 // The border generating shader ignores provinces with id 0xfffe
                 // This is to make sure we dont draw any border with lakes
                 tiles[i].province_id = (Province::Id)-2;
-            } else if (div.buffer[i] == 0xff000000) {
+            }
+            else if(div->buffer[i] == 0xff000000) {
                 // Temporary to show unregsitered provinces
                 tiles[i].province_id = (Province::Id)-3;
             }
-            if (div.buffer[i] == 0xff000000) {
-                tiles[i].owner_id = (Nation::Id)-2;
+            if(div->buffer[i] == 0xff000000) {
+                // tiles[i].owner_id = (Nation::Id)-2;
             }
             ++i;
         }
 
         if(!(i < total_size)) break;
 
-        const Province::Id province_id = province_color_table[div.buffer[i] & 0xffffff];
+        const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
         if(province_id >= (Province::Id)-3) {
             // Uncomment this and see below
             colors_found.insert(color);
@@ -469,16 +476,17 @@ void World::load_mod(void) {
         }
 
         const uint32_t rel_color = provinces[province_id]->color;
-        while(div.buffer[i] == rel_color) {
+        while(div->buffer[i] == rel_color) {
             tiles[i].province_id = province_id;
             provinces[province_id]->n_tiles++;
             ++i;
         }
         --i;
     }
+    div.reset(nullptr);
 
     /* Uncomment this for auto-generating lua code for unregistered provinces */
-    for(const auto& color_raw: colors_found) {
+    for(const auto& color_raw : colors_found) {
         uint32_t color = color_raw << 8;
 
         printf("province = Province:new{ ref_name = \"province_%06p\", color = 0x%06p }\n", (uintptr_t)bswap32(color), (uintptr_t)bswap32(color));
@@ -541,7 +549,7 @@ void World::load_mod(void) {
             Nation* nation = this->nations[this->tiles[i].owner_id];
             const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
 
-            for(const auto& other_tile: tiles) {
+            for(const auto& other_tile : tiles) {
                 if(other_tile->owner_id != tile->owner_id && other_tile->owner_id < (Nation::Id)-2) {
                     nation->neighbours.insert(this->nations.at(other_tile->owner_id));
                 }
@@ -552,7 +560,7 @@ void World::load_mod(void) {
             Province* province = this->provinces[this->tiles[i].province_id];
             const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
 
-            for(const auto& other_tile: tiles) {
+            for(const auto& other_tile : tiles) {
                 if(other_tile->province_id != tile->province_id && other_tile->province_id < (Province::Id)-3) {
                     province->neighbours.insert(this->provinces.at(other_tile->province_id));
                 }
@@ -593,7 +601,7 @@ void World::load_mod(void) {
     print_info(gettext("World fully intiialized"));
 }
 
-#include "../actions.hpp"
+#include "../action.hpp"
 #include "economy.hpp"
 void World::do_tick() {
     /*
@@ -785,7 +793,7 @@ void World::do_tick() {
                 end_y -= speed;
             else if(unit->y < unit->ty)
                 end_y += speed;
-            
+
             // TODO: Disallow unit from crossing on certain stuff
             // This code prevents us from stepping onto water tiles (but allows for rivers)
             //if(get_tile(end_x, end_y).elevation <= sea_level) {
@@ -794,6 +802,17 @@ void World::do_tick() {
 
             unit->x = end_x;
             unit->y = end_y;
+            // North and south do not wrap
+            unit->y = std::max<float>(0.f, unit->y);
+            unit->y = std::min<float>(height - 1, unit->y);
+
+            // West and east do wrap
+            if(unit->x <= 0.f) {
+                unit->x = width - 1.f;
+            }
+            else if(unit->x >= width) {
+                unit->x = 0.f;
+            }
         }
 
         // Make the unit attack automatically
@@ -816,7 +835,7 @@ void World::do_tick() {
                 }
             }
             // Unit is on foreign soil, we check relations to see if we can take free military supplies
-            else {
+            else if(nation != nullptr) {
                 // No-cost supplies
                 if(unit->owner->relations[get_id(nation)].free_supplies) {
                     free_supplies = true;
@@ -826,8 +845,7 @@ void World::do_tick() {
             if(free_supplies == true) {
                 // Take anything you want, it's not needed to fucking pay at all! :)
                 for(size_t j = 0; j < province->stockpile.size(); j++) {
-                    if(!province->stockpile[j])
-                        continue;
+                    if(!province->stockpile[j]) continue;
 
                     // We will take your food pleseantly
                     if(products[j]->good->is_edible && unit->supply <= (unit->type->supply_consumption * 10.f)) {
@@ -852,12 +870,11 @@ void World::do_tick() {
                 // Buy stuff and what we are able to buy normally
                 for(size_t j = 0; j < province->stockpile.size(); j++) {
                     // Must be edible and there must be stock
-                    if(!products[j]->good->is_edible || !province->stockpile[j])
-                        continue;
+                    if(!products[j]->good->is_edible || !province->stockpile[j]) continue;
 
                     if(products[j]->price * unit->size <= unit->budget) {
                         size_t bought = std::min(province->stockpile[j], unit->size);
-                        
+
                         province->stockpile[j] -= bought;
                         unit->supply = bought / unit->size;
 
@@ -868,15 +885,14 @@ void World::do_tick() {
                     }
 
                     // We will stop buying if we are satisfied
-                    if(unit->supply >= (unit->type->supply_consumption * 1.f))
-                        break;
+                    if(unit->supply >= unit->type->supply_consumption) break;
                 }
             }
         }
 
         // North and south do not wrap
         unit->y = std::max<float>(0.f, unit->y);
-        unit->y = std::min<float>(height, unit->y);
+        unit->y = std::min<float>(height - 1, unit->y);
 
         // West and east do wrap
         if(unit->x <= 0.f) {
@@ -890,22 +906,22 @@ void World::do_tick() {
         // TODO: Make it conquer multiple tiles
         Tile& tile = get_tile(unit->x, unit->y);
         if(tile.owner_id != get_id(unit->owner)) {
+            if((tile.elevation <= this->sea_level && !unit->type->is_naval) || (tile.elevation > sea_level && !unit->type->is_ground))
+                continue;
+
             tile.owner_id = get_id(unit->owner);
 
             std::lock_guard lock(nation_changed_tiles_mutex);
             nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
             {
-                std::pair<size_t, size_t> coord = std::make_pair((size_t)unit->x, (size_t)unit->y);
                 // Broadcast to clients
-                Packet packet = Packet(0);
+                Packet packet = Packet();
                 Archive ar = Archive();
-
                 ActionType action = ActionType::TILE_UPDATE;
                 ::serialize(ar, &action);
-                ::serialize(ar, &coord.first);
-                ::serialize(ar, &coord.second);
+                std::pair<size_t, size_t> coord = std::make_pair((size_t)unit->x, (size_t)unit->y);
+                ::serialize(ar, &coord);
                 ::serialize(ar, &tile);
-
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
             }
@@ -1020,7 +1036,7 @@ void World::do_tick() {
         print_info("%i/%i/%i", time / 12 / 30 / 48, (time / 30 / 48 % 12) + 1, (time / 48 % 30) + 1);
     }
 
-    //print_info("Tick %i done", time);
+    print_info("Tick %i done", time);
     time++;
 
     // Tell clients that this tick has been done

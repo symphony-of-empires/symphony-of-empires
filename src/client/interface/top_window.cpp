@@ -30,8 +30,9 @@ TopWindow::TopWindow(GameState& _gs)
     gdp_chart->data.clear();
     gdp_chart->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         TopWindow& twin = static_cast<TopWindow&>(*w.parent);
-
     });
+    gdp_chart->tooltip = new UI::Tooltip(gdp_chart, 512, 24);
+    gdp_chart->tooltip->text("GDP is the total sum of all products within your nation");
 
     pop_chart = new UI::Chart(0, 24, 128, 64, this);
     pop_chart->right_side_of(*gdp_chart);
@@ -42,6 +43,8 @@ TopWindow::TopWindow(GameState& _gs)
         TopWindow& twin = static_cast<TopWindow&>(*w.parent);
 
     });
+    pop_chart->tooltip = new UI::Tooltip(pop_chart, 512, 24);
+    pop_chart->tooltip->text("The total population of your nation");
 
     hdi_chart = new UI::Chart(0, 24, 128, 64, this);
     hdi_chart->text("HDI");
@@ -52,32 +55,46 @@ TopWindow::TopWindow(GameState& _gs)
         TopWindow& twin = static_cast<TopWindow&>(*w.parent);
 
     });
+    hdi_chart->tooltip = new UI::Tooltip(hdi_chart, 512, 24);
+    hdi_chart->tooltip->text("Average life quality/human development");
 
     UI::Image* current_flag = new UI::Image(0, 24, 128, 96, gs.map->nation_flags[g_world->get_id(gs.curr_nation)], this);
 
     money_icon = new UI::Image(128, 24 + (24 * 0), 24, 24, &icon_money_tex, this);
     money_lab = new UI::Label(0, 24 + (24 * 0), "?", this);
     money_lab->right_side_of(*money_icon);
+    money_lab->tooltip = new UI::Tooltip(money_lab, 512, 24);
+    money_lab->tooltip->text("Money");
 
     prestige_icon = new UI::Image(128, 24 + (24 * 1), 24, 24, &icon_prestige_tex, this);
     prestige_lab = new UI::Label(0, 24 + (24 * 1), "?", this);
     prestige_lab->right_side_of(*prestige_icon);
+    prestige_lab->tooltip = new UI::Tooltip(prestige_lab, 512, 24);
+    prestige_lab->tooltip->text("Prestige");
 
     economy_icon = new UI::Image(128, 24 + (24 * 2), 24, 24, &icon_economy_score_tex, this);
     economy_lab = new UI::Label(0, 24 + (24 * 2), "?", this);
     economy_lab->right_side_of(*economy_icon);
+    economy_lab->tooltip = new UI::Tooltip(economy_lab, 512, 24);
+    economy_lab->tooltip->text("Economy score");
 
     big_brain_icon = new UI::Image(256, 24 + (24 * 0), 24, 24, &icon_big_brain_tex, this);
     big_brain_lab = new UI::Label(0, 24 + (24 * 0), "?", this);
     big_brain_lab->right_side_of(*big_brain_icon);
+    big_brain_lab->tooltip = new UI::Tooltip(big_brain_lab, 512, 24);
+    big_brain_lab->tooltip->text("Conciousness");
 
     militancy_icon = new UI::Image(256, 24 + (24 * 1), 24, 24, &icon_militancy_tex, this);
     militancy_lab = new UI::Label(0, 24 + (24 * 1), "?", this);
     militancy_lab->right_side_of(*militancy_icon);
+    militancy_lab->tooltip = new UI::Tooltip(militancy_lab, 512, 24);
+    militancy_lab->tooltip->text("Militancy");
 
     population_icon = new UI::Image(256, 24 + (24 * 2), 24, 24, &icon_population_tex, this);
     population_lab = new UI::Label(0, 24 + (24 * 2), "?", this);
     population_lab->right_side_of(*population_icon);
+    population_lab->tooltip = new UI::Tooltip(population_lab, 512, 24);
+    population_lab->tooltip->text("Population");
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(w);

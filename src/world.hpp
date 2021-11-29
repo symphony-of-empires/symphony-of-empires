@@ -14,6 +14,7 @@
 #include "ideology.hpp"
 #include "terrain.hpp"
 #include "server/lua_api.hpp"
+#include <glm/vec2.hpp>
 
 #define MAX_INFRA_LEVEL 			4
 #define MAX_ELEVATION				255
@@ -41,7 +42,7 @@ public:
     uint8_t elevation;
 
     // Terrain type
-    uint8_t terrain_type_id;
+    TerrainType::Id terrain_type_id;
 
     const std::vector<const Tile*> get_neighbours(const World& world) const;
 };
@@ -91,7 +92,7 @@ public:
 };
 
 /**
- * Represents a delivery, 
+ * Represents a delivery,
  */
 class DeliverGoods {
 public:
@@ -139,16 +140,16 @@ class World {
     template<typename T, typename C>
     inline typename T::Id get_id_from_pvector(const T* ptr, C table) const {
         // Use the cached Id of the object for faster 1-element lookups
-        if(ptr->cached_id != (typename T::Id)-1) {
+        if(ptr->cached_id != (typename T::Id) - 1) {
             return ptr->cached_id;
         }
-        
+
         // Do a full traverse of the list and cache the Id once found
         // so sucessive lookups are faster
         typename C::iterator it = std::find(table.begin(), table.end(), ptr);
         if(it == table.end()) {
             // -1 is used as an invalid index
-            return (typename T::Id)-1;
+            return (typename T::Id) - 1;
         }
         ptr->cached_id = (typename T::Id)std::distance(table.begin(), it);
         return ptr->cached_id;
@@ -166,27 +167,27 @@ public:
     void load_mod(void);
 
     LIST_FOR_TYPE(Nation, nations, std::vector)
-    LIST_FOR_TYPE(Province, provinces, std::vector)
-    LIST_FOR_TYPE(Product, products, std::vector)
-    LIST_FOR_TYPE(Good, goods, std::vector)
-    LIST_FOR_TYPE(Culture, cultures, std::vector)
-    LIST_FOR_TYPE(Company, companies, std::vector)
-    LIST_FOR_TYPE(PopType, pop_types, std::vector)
-    LIST_FOR_TYPE(Building, buildings, std::vector)
-    LIST_FOR_TYPE(Event, events, std::vector)
-    LIST_FOR_TYPE(UnitType, unit_types, std::vector)
-    LIST_FOR_TYPE(UnitTrait, unit_traits, std::vector)
-    LIST_FOR_TYPE(Unit, units, std::vector)
-    LIST_FOR_TYPE(BuildingType, building_types, std::vector)
-    LIST_FOR_TYPE(Treaty, treaties, std::vector)
-    LIST_FOR_TYPE(Ideology, ideologies, std::vector)
-    LIST_FOR_TYPE(Religion, religions, std::vector)
-    LIST_FOR_TYPE(Technology, technologies, std::vector)
-    LIST_FOR_TYPE(Invention, inventions, std::vector)
-    LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector)
-    LIST_FOR_TYPE(TerrainType, terrain_types, std::vector)
+        LIST_FOR_TYPE(Province, provinces, std::vector)
+        LIST_FOR_TYPE(Product, products, std::vector)
+        LIST_FOR_TYPE(Good, goods, std::vector)
+        LIST_FOR_TYPE(Culture, cultures, std::vector)
+        LIST_FOR_TYPE(Company, companies, std::vector)
+        LIST_FOR_TYPE(PopType, pop_types, std::vector)
+        LIST_FOR_TYPE(Building, buildings, std::vector)
+        LIST_FOR_TYPE(Event, events, std::vector)
+        LIST_FOR_TYPE(UnitType, unit_types, std::vector)
+        LIST_FOR_TYPE(UnitTrait, unit_traits, std::vector)
+        LIST_FOR_TYPE(Unit, units, std::vector)
+        LIST_FOR_TYPE(BuildingType, building_types, std::vector)
+        LIST_FOR_TYPE(Treaty, treaties, std::vector)
+        LIST_FOR_TYPE(Ideology, ideologies, std::vector)
+        LIST_FOR_TYPE(Religion, religions, std::vector)
+        LIST_FOR_TYPE(Technology, technologies, std::vector)
+        LIST_FOR_TYPE(Invention, inventions, std::vector)
+        LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector)
+        LIST_FOR_TYPE(TerrainType, terrain_types, std::vector)
 
-    template<typename T>
+        template<typename T>
     inline void insert(T* ptr) {
         auto& list = this->get_list(ptr);
         list.push_back(ptr);
@@ -200,13 +201,13 @@ public:
         // after the removed element
         typename T::Id cached_id = this->get_id<T>(ptr);
         for(typename T::Id i = cached_id; i < list.size(); i++) {
-            list[i]->cached_id = (typename T::Id)-1;
+            list[i]->cached_id = (typename T::Id) - 1;
         }
 
         // Remove the element itself
         list.erase(list.begin() + cached_id);
     };
-    
+
     inline size_t get_id(const Tile* ptr) const {
         return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
     };
@@ -217,10 +218,11 @@ public:
     inline typename T::Id get_id(const T* ptr) const {
         return get_id_from_pvector<T>(ptr, get_list(ptr));
     };
-    
+
     // Obtains a tile from the world safely, and makes sure that it is in bounds
     Tile& get_tile(size_t x, size_t y) const;
     Tile& get_tile(size_t idx) const;
+    glm::ivec2 get_rand_province_coord(Province* owner) const;
 
     // Lua state - for lua scripts, this is only used by the server and should not be
     // accesible to the client
@@ -266,7 +268,7 @@ public:
     std::vector<Tile*> elevation_changed_tiles;
     mutable std::recursive_mutex elevation_changed_tiles_mutex;
 
-    std::vector<std::pair<Descision*,Nation*>> taken_descisions;
+    std::vector<std::pair<Descision*, Nation*>> taken_descisions;
 };
 
 extern World* g_world;

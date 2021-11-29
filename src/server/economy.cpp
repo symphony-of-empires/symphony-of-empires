@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cstdio>
 
-#include "actions.hpp"
+#include "action.hpp"
 #include "server/economy.hpp"
 #include "world.hpp"
 #include "print.hpp"
@@ -687,12 +687,11 @@ void Economy::do_tick(World& world) {
                 if(best_province == nullptr || best_province == province) {
                     // Or we do, but just randomly
                     best_province = world.provinces[std::rand() % world.provinces.size()];
-                    //goto skip_emigration;
                 }
 
                 //print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
 
-                Emigrated emigrated = {};
+                Emigrated emigrated = Emigrated();
                 emigrated.target = best_province;
                 emigrated.emigred = pop;
                 emigrated.size = emigreers;
@@ -701,8 +700,7 @@ void Economy::do_tick(World& world) {
                 std::lock_guard l(emigration_lock);
                 emigration.push_back(emigrated);
             }
-        skip_emigration:
-            ;
+        skip_emigration: ;
         }
 
         //std::fill(province->stockpile.begin(), province->stockpile.end(), 0);
@@ -780,7 +778,7 @@ void Economy::do_tick(World& world) {
                 }
             }
 
-            print_info("Coup d' etat on %s! %s has taken over!", nation->name.c_str(), nation->ideology->name.c_str());
+            print_info("Coup d' etat on [%s]! [%s] has taken over!", nation->ref_name.c_str(), nation->ideology->ref_name.c_str());
         }
     }
     

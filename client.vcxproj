@@ -156,7 +156,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\actions.hpp" />
+    <ClInclude Include="src\action.hpp" />
     <ClInclude Include="src\binary_image.hpp" />
     <ClInclude Include="src\branch.hpp" />
     <ClInclude Include="src\building.hpp" />

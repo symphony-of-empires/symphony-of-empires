@@ -12,6 +12,7 @@
 #   include <SDL_mouse.h>
 #   include <SDL_opengl.h>
 #   include <SDL_ttf.h>
+#   include <SDL_audio.h>
 #else
 #   include <SDL2/SDL.h>
 #   include <SDL2/SDL_events.h>
@@ -19,6 +20,7 @@
 #   include <SDL2/SDL_mouse.h>
 #   include <SDL2/SDL_opengl.h>
 #   include <SDL2/SDL_ttf.h>
+#   include <SDL2/SDL_audio.h>
 //#include <sys/wait.h>
 #endif
 #ifdef _MSC_VER
@@ -120,7 +122,8 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             }
 
             click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
-            if(click_on_ui == 0 && gs.current_mode != MapMode::NO_MAP) {
+            if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
+                gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
                 gs.map->handle_click(gs, event);
             }
             break;
@@ -140,7 +143,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             switch(event.key.keysym.sym) {
             case SDLK_t:
                 if(gs.current_mode == MapMode::NORMAL) {
-                    //new TreatyWindow(gs, gs.top_win->top_win);
+                    new Interface::TreatyDraftView(gs);
                 }
                 break;
             case SDLK_p:
@@ -155,8 +158,13 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 break;
             case SDLK_b:
                 if(gs.current_mode == MapMode::NORMAL) {
-                    const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-                    new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->nations[tile.owner_id], gs.world->provinces[tile.province_id]);
+                    if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
+                        const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+                        
+                        if(tile.owner_id == (Nation::Id)-1) break;
+                        if(tile.province_id == (Province::Id)-1) break;
+                        new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->nations[tile.owner_id], gs.world->provinces[tile.province_id]);
+                    }
                 }
                 break;
             case SDLK_BACKSPACE:
@@ -185,8 +193,13 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
         default:
             break;
         }
+
         if(gs.current_mode != MapMode::NO_MAP && !click_on_ui){
             gs.map->update(event, input);
+        }
+
+        if(click_on_ui) {
+            gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
         }
     }
     ui_ctx->clear_dead();
@@ -392,10 +405,60 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
                 i--;
             }
         }
+
+        if(gs.music_queue.empty()) {
+            gs.music_fade_value = 100.f;
+            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
+        }
     }
 }
 
-#include "interface/main_menu.hpp"
+#include "client/interface/main_menu.hpp"
+#include "client/render/sound.hpp"
+
+static void mixaudio(void *userdata, uint8_t *stream, int len) {
+    GameState& gs = *((GameState*)userdata);
+
+    std::memset(stream, 0, len);
+
+    for(uint i = 0; i < gs.sound_queue.size(); ) {
+        int size = gs.sound_queue.size();
+        UnifiedRender::Sound* sound = gs.sound_queue[i];
+        int amount = sound->len - sound->pos;
+        if(amount > len) amount = len;
+
+        if(amount <= 0) {
+            delete sound;
+            gs.sound_queue.erase(gs.sound_queue.begin() + i);
+            continue;
+        }
+
+        SDL_MixAudio(stream, &sound->data[sound->pos], amount, SDL_MIX_MAXVOLUME);
+        sound->pos += amount;
+
+        i++;
+    }
+
+    for(uint i = 0; i < gs.music_queue.size(); ) {
+        UnifiedRender::Sound* music = gs.music_queue[i];
+        int amount = music->len - music->pos;
+        if(amount > len) amount = len;
+
+        if(amount == 0) {
+            delete music;
+            gs.music_queue.erase(gs.music_queue.begin() + i);
+            continue;
+        }
+
+        SDL_MixAudio(stream, &music->data[music->pos], amount, SDL_MIX_MAXVOLUME / gs.music_fade_value);
+        music->pos += amount;
+
+        i++;
+    }
+
+    if(gs.music_fade_value > 1.f)
+        gs.music_fade_value -= 1.f;
+}
 
 void main_menu_loop(GameState& gs, SDL_Window* window) {
     std::atomic<bool> run;
@@ -411,6 +474,7 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
 
     gs.input = Input{};
     Input& input = gs.input;
+
     while(run) {
         handle_event(input, gs, run);
         render(gs, input, window);
@@ -419,6 +483,15 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
             run = false;
             mm_bg->kill();
             main_menu->kill();
+
+            for(auto& music : gs.music_queue) { delete music; }
+            gs.music_queue.clear();
+            break;
+        }
+
+        if(gs.music_queue.empty()) {
+            gs.music_fade_value = 100.f;
+            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
         }
     }
 }
@@ -433,9 +506,9 @@ World::World(void) {
 };
 World::~World(){};
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <sys/types.h>
 void start_client(int argc, char** argv) {
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -474,25 +547,39 @@ void start_client(int argc, char** argv) {
     g_texture_manager = new UnifiedRender::TextureManager();
     g_material_manager = new UnifiedRender::MaterialManager();
     g_model_manager = new UnifiedRender::ModelManager();
+    g_sound_manager = new UnifiedRender::SoundManager();
     gs.ui_ctx = new UI::Context();
-
-    tmpbuf = new char[512];
 
     gs.width = width;
     gs.height = height;
+
+    tmpbuf = new char[512];
+    
+    // Initialize sound
+    SDL_AudioSpec fmt;
+    fmt.freq = 11050;
+    fmt.format = AUDIO_S16;
+    fmt.channels = 1;
+    fmt.samples = 512;
+    fmt.callback = mixaudio;
+    fmt.userdata = &gs;
+    if(SDL_OpenAudio(&fmt, NULL) < 0)
+        throw std::runtime_error("Unable to open audio: " + std::string(SDL_GetError()));
+    SDL_PauseAudio(0);
+
     main_menu_loop(gs, window);
     main_loop(gs, gs.client, window);
-
     delete[] tmpbuf;
 
+    SDL_CloseAudio();
     TTF_Quit();
     SDL_Quit();
     return;
 }
 
 GameState::~GameState() {
-    delete world;
-    delete curr_nation;
-    delete map;
-    delete ui_ctx;
+    // delete world;
+    // delete curr_nation;
+    // delete map;
+    // delete ui_ctx;
 };
