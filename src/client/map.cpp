@@ -17,7 +17,7 @@
 #include "client/orbit_camera.hpp"
 #include "client/flat_camera.hpp"
 #include "client/camera.hpp"
-#include "client/interface/select_nation.hpp"
+#include "client/interface/lobby.hpp"
 #include "client/render/texture.hpp"
 #include "client/render/primitive.hpp"
 #include "client/render/sphere.hpp"

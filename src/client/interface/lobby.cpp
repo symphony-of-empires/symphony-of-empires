@@ -1,4 +1,4 @@
-#include "client/interface/select_nation.hpp"
+#include "client/interface/lobby.hpp"
 #include "client/game_state.hpp"
 #include "client/ui.hpp"
 #include "world.hpp"
@@ -8,14 +8,14 @@
 using namespace Interface;
 
 // Start screen
-SelectNation::SelectNation(GameState& _gs) : gs{_gs}, curr_selected_nation{0} {
+LobbySelectView::LobbySelectView(GameState& _gs) : gs{_gs}, curr_selected_nation{0} {
     select_country_lab = new UI::Label((gs.width / 2) - (320 / 2), 8, "Select a country");
 
     curr_country_btn = new UI::Button((gs.width / 2) - (320 / 2), gs.height - 48, 320, 24);
     curr_country_btn->text("!");
     curr_country_btn->user_data = this;
     curr_country_btn->on_click = ([](UI::Widget& w, void* data) {
-        SelectNation* o = (SelectNation*)data;
+        LobbySelectView* o = (LobbySelectView*)data;
         if (o->gs.curr_nation != nullptr) {
             // Didn't seem to be able to delete them in a callback so this will do
             o->next_country_btn->kill();
@@ -35,7 +35,7 @@ SelectNation::SelectNation(GameState& _gs) : gs{_gs}, curr_selected_nation{0} {
     next_country_btn->right_side_of(*curr_country_btn);
     next_country_btn->user_data = this;
     next_country_btn->on_click = ([](UI::Widget& w, void* data) {
-        SelectNation* o = (SelectNation*)data;
+        LobbySelectView* o = (LobbySelectView*)data;
         o->change_nation(o->curr_selected_nation + 1);
     });
 
@@ -44,13 +44,13 @@ SelectNation::SelectNation(GameState& _gs) : gs{_gs}, curr_selected_nation{0} {
     prev_country_btn->left_side_of(*curr_country_btn);
     prev_country_btn->user_data = this;
     prev_country_btn->on_click = ([](UI::Widget& w, void* data) {
-        SelectNation* o = (SelectNation*)data;
+        LobbySelectView* o = (LobbySelectView*)data;
         o->change_nation(o->curr_selected_nation - 1);
     });
 }
 
 // Change nation in start screen
-void SelectNation::change_nation(size_t id) {
+void LobbySelectView::change_nation(size_t id) {
     size_t old_id = curr_selected_nation;
     if (!g_world->nations.size()) {
         UI::Window* win = new UI::Window(gs.input.mouse_pos.first, gs.input.mouse_pos.second, 512, 32);

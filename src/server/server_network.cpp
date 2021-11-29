@@ -141,8 +141,7 @@ void Server::net_loop(int id) {
                     // Then we check if the server is running and we throw accordingly
                     cl.is_connected = true;
                     break;
-                }
-                catch(SocketException& e) {
+                } catch(SocketException& e) {
                     // Do something
                     if(run == false)
                         throw SocketException("Close client");
