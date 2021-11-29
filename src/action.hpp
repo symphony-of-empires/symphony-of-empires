@@ -57,8 +57,8 @@ enum class ActionType {
 namespace Action {
     class Base {
     public:
-        Base(void) {};
-        virtual ~Base(void) {};
+        Base(void);
+        virtual ~Base(void);
         virtual ActionType get_type(void) { return ActionType::BAD; };
     };
 };

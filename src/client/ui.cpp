@@ -291,9 +291,9 @@ int Context::check_click(const unsigned mx, const unsigned my) {
     is_drag = false;
     int is_clicked = 0;
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        is_clicked = check_click_recursive(*widgets[i], mx, my, 0, 0, is_clicked);
+        is_clicked += check_click_recursive(*widgets[i], mx, my, 0, 0, is_clicked);
     }
-    return 0;
+    return is_clicked;
 }
 
 void Context::check_drag(const unsigned mx, const unsigned my) {

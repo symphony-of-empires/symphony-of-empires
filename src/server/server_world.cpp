@@ -831,8 +831,7 @@ void World::do_tick() {
             if(free_supplies == true) {
                 // Take anything you want, it's not needed to fucking pay at all! :)
                 for(size_t j = 0; j < province->stockpile.size(); j++) {
-                    if(!province->stockpile[j])
-                        continue;
+                    if(!province->stockpile[j]) continue;
 
                     // We will take your food pleseantly
                     if(products[j]->good->is_edible && unit->supply <= (unit->type->supply_consumption * 10.f)) {
@@ -857,8 +856,7 @@ void World::do_tick() {
                 // Buy stuff and what we are able to buy normally
                 for(size_t j = 0; j < province->stockpile.size(); j++) {
                     // Must be edible and there must be stock
-                    if(!products[j]->good->is_edible || !province->stockpile[j])
-                        continue;
+                    if(!products[j]->good->is_edible || !province->stockpile[j]) continue;
 
                     if(products[j]->price * unit->size <= unit->budget) {
                         size_t bought = std::min(province->stockpile[j], unit->size);
@@ -873,8 +871,7 @@ void World::do_tick() {
                     }
 
                     // We will stop buying if we are satisfied
-                    if(unit->supply >= (unit->type->supply_consumption * 1.f))
-                        break;
+                    if(unit->supply >= unit->type->supply_consumption) break;
                 }
             }
         }
@@ -886,8 +883,7 @@ void World::do_tick() {
         // West and east do wrap
         if(unit->x <= 0.f) {
             unit->x = width - 1.f;
-        }
-        else if(unit->x >= width) {
+        } else if(unit->x >= width) {
             unit->x = 0.f;
         }
 
@@ -895,22 +891,22 @@ void World::do_tick() {
         // TODO: Make it conquer multiple tiles
         Tile& tile = get_tile(unit->x, unit->y);
         if(tile.owner_id != get_id(unit->owner)) {
+            if((tile.elevation <= this->sea_level && !unit->type->is_naval) || (tile.elevation > sea_level && !unit->type->is_ground))
+                continue;
+
             tile.owner_id = get_id(unit->owner);
 
             std::lock_guard lock(nation_changed_tiles_mutex);
             nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
             {
-                std::pair<size_t, size_t> coord = std::make_pair((size_t)unit->x, (size_t)unit->y);
                 // Broadcast to clients
-                Packet packet = Packet(0);
+                Packet packet = Packet();
                 Archive ar = Archive();
-
                 ActionType action = ActionType::TILE_UPDATE;
                 ::serialize(ar, &action);
-                ::serialize(ar, &coord.first);
-                ::serialize(ar, &coord.second);
+                std::pair<size_t, size_t> coord = std::make_pair((size_t)unit->x, (size_t)unit->y);
+                ::serialize(ar, &coord);
                 ::serialize(ar, &tile);
-
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
             }
@@ -1025,7 +1021,7 @@ void World::do_tick() {
         print_info("%i/%i/%i", time / 12 / 30 / 48, (time / 30 / 48 % 12) + 1, (time / 48 % 30) + 1);
     }
 
-    //print_info("Tick %i done", time);
+    print_info("Tick %i done", time);
     time++;
 
     // Tell clients that this tick has been done

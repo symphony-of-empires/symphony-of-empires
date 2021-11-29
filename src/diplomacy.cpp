@@ -116,7 +116,7 @@ void AnexxProvince::enforce(void) {
 
     // Give provinces to the winner
     for(auto& province : provinces) {
-        print_info("Giving %s to %s (originally from %s)", province->name.c_str(), sender->name.c_str(), receiver->name.c_str());
+        print_info("Giving [%s] to [%s] (originally from [%s])", province->ref_name.c_str(), sender->ref_name.c_str(), receiver->ref_name.c_str());
 
         province->owner = sender;
 

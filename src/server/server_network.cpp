@@ -278,7 +278,7 @@ void Server::net_loop(int id) {
                         // Tell the building to build this specific unit type
                         building->working_unit_type = unit_type;
                         building->req_goods_for_unit = unit_type->req_goods;
-                        print_info("New order for building; build unit %s", unit_type->name.c_str());
+                        print_info("New order for building; build unit [%s]", unit_type->ref_name.c_str());
                     } break;
 
                         // Client tells server to build new outpost, the location (& type) is provided by
@@ -307,7 +307,7 @@ void Server::net_loop(int id) {
                         ::serialize(ar, building);
 
                         g_world->buildings.push_back(building);
-                        print_info("%s: Has built a %s on %i x %i", selected_nation->name.c_str(), building->type->name.c_str(), building->x, building->y);
+                        print_info("[%s] has built a [%s] on %i x %i", selected_nation->ref_name.c_str(), building->type->ref_name.c_str(), building->x, building->y);
                         // Rebroadcast
                         broadcast(packet);
                     } break;
@@ -351,7 +351,7 @@ void Server::net_loop(int id) {
                         TreatyApproval approval;
                         ::deserialize(ar, &approval);
 
-                        print_info("%s approves treaty %s? %s", selected_nation->name.c_str(), treaty->name.c_str(), (approval == TreatyApproval::ACCEPTED) ? "YES" : "NO");
+                        print_info("[%s] approves treaty [%s]? %s!", selected_nation->ref_name.c_str(), treaty->name.c_str(), (approval == TreatyApproval::ACCEPTED) ? "YES" : "NO");
 
                         // Check that the nation participates in the treaty
                         bool does_participate = false;
@@ -393,11 +393,11 @@ void Server::net_loop(int id) {
                             approver_nations.insert(clause->sender);
                         }
 
-                        print_info("Participants of treaty %s", treaty->name.c_str());
+                        print_info("Participants of treaty [%s]", treaty->name.c_str());
                         // Then fill as undecided (and ask nations to sign this treaty)
                         for(auto& nation : approver_nations) {
                             treaty->approval_status.push_back(std::make_pair(nation, TreatyApproval::UNDECIDED));
-                            print_info("- %s", nation->name.c_str());
+                            print_info("- [%s]", nation->ref_name.c_str());
                         }
 
                         // The sender automatically accepts the treaty (they are the ones who drafted it)
@@ -445,7 +445,7 @@ void Server::net_loop(int id) {
                         }
 
                         (*event)->take_descision(selected_nation, &(*descision));
-                        print_info("Event %s + descision %s taken by %s",
+                        print_info("Event [%s] + descision [%s] taken by [%s]",
                             event_ref_name.c_str(),
                             descision_ref_name.c_str(),
                             selected_nation->ref_name.c_str()
@@ -460,7 +460,7 @@ void Server::net_loop(int id) {
                             throw ServerException("Unknown nation");
                         selected_nation = nation;
                         selected_nation->is_ai = false;
-                        print_info("Nation %s selected by client %zu", selected_nation->name.c_str(), (size_t)id);
+                        print_info("Nation [%s] selected by client %zu", selected_nation->ref_name.c_str(), (size_t)id);
                     } break;
 
                         // Nation and province addition and removals are not allowed to be done by clients
