@@ -189,7 +189,7 @@ ArmyView::ArmyView(GameState& _gs)
     this->text("Army manager");
 
     this->army_tab = new ArmyArmyTab(gs, 128, 24, this);
-    this->army_tab->is_render = false;
+    this->army_tab->is_render = true;
     auto* army_btn = new UI::Button(0, 24, 128, 24, this);
     army_btn->text("Army");
     army_btn->on_click = ([](UI::Widget& w, void*) {

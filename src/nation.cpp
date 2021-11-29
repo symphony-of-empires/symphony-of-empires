@@ -40,7 +40,7 @@ void Nation::declare_war(Nation& nation) {
     war->defenders.push_back(&nation);
 
     war->name = "War by " + this->name + " against " + nation.name;
-    print_info("War!, %s", war->name.c_str());
+    print_info("War!, [%s]", war->name.c_str());
 }
 
 bool Nation::is_ally(const Nation& nation) {
@@ -87,8 +87,8 @@ void Nation::increase_relation(Nation& target) {
     const Nation::Id t2_idx = world.get_id(this);
     target.relations[t2_idx].relation += 5.f;
 
-    print_info("%s increases relations with %s", name.c_str(), target.name.c_str());
-    do_diplomacy();
+    print_info("[%s] increases relations with [%s]", ref_name.c_str(), target.ref_name.c_str());
+    this->do_diplomacy();
 }
 
 void Nation::decrease_relation(Nation& target) {
@@ -100,8 +100,8 @@ void Nation::decrease_relation(Nation& target) {
     const Nation::Id t2_idx = world.get_id(this);
     target.relations[t2_idx].relation += 5.f;
 
-    print_info("%s decreases relations with %s", name.c_str(), target.name.c_str());
-    do_diplomacy();
+    print_info("[%s] decreases relations with [%s]", ref_name.c_str(), target.ref_name.c_str());
+    this->do_diplomacy();
 }
 
 // Automatically relocates the capital of a nation to another province
