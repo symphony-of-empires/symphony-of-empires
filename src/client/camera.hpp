@@ -22,6 +22,7 @@ public:
     }
 
     virtual void move(float x_dir, float y_dir, float z_dir) = 0;
+    virtual void set_pos(float x, float y) = 0;
 
     virtual void update(void) = 0;
 

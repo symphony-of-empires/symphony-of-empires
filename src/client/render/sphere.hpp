@@ -19,9 +19,9 @@ namespace OpenGl {
 	class Sphere: public PackedModel<glm::vec3, glm::vec2> {
 	public:
 		Sphere(float x, float y, float z, float radius, int resolution);
+		float radius;
 	private:
 		PackedData<glm::vec3, glm::vec2> calc_pos(float longitude, float latitude);
-		float radius;
 		int resolution;
 	};
 }
