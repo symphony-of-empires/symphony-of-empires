@@ -93,7 +93,7 @@
     <ClInclude Include="src\client\interface\province_view.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\client\interface\select_nation.hpp">
+    <ClInclude Include="src\client\interface\lobby.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\client\interface\top_window.hpp">
@@ -209,7 +209,7 @@
     <ClCompile Include="src\client\interface\province_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\client\interface\select_nation.cpp">
+    <ClCompile Include="src\client\interface\lobby.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\client\interface\top_window.cpp">
