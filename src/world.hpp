@@ -186,6 +186,7 @@ public:
         LIST_FOR_TYPE(Invention, inventions, std::vector)
         LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector)
         LIST_FOR_TYPE(TerrainType, terrain_types, std::vector)
+        LIST_FOR_TYPE(War, wars, std::vector)
 
         template<typename T>
     inline void insert(T* ptr) {
