@@ -9,6 +9,7 @@ class UnitType;
 class Company;
 class Province;
 class Product;
+class BuildingType;
 
 namespace Interface {
     // Pretty brief summaries (for example to click oon a button from a list)
@@ -52,6 +53,14 @@ namespace Interface {
     public:
         Nation* nation;
         NationButton(GameState& gs, int x, int y, Nation* nation, UI::Widget* parent);
+    };
+
+    class BuildingTypeButton : public UI::Group {
+        GameState& gs;
+        UI::Button* name_btn;
+    public:
+        BuildingType* building_type;
+        BuildingTypeButton(GameState& gs, int x, int y, BuildingType* building_type, UI::Widget* parent);
     };
 
     // More extended information about these elements (information display, for example)
