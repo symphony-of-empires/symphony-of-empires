@@ -44,8 +44,7 @@ void Economy::do_tick(World& world) {
         for(const auto& req: building->req_goods_for_unit) {
             // Increment demand for all products with same required good type
             for(auto& product: world.products) {
-                if(product->good != req.first)
-                    continue;
+                if(product->good != req.first) continue;
 
                 // Government-required supplies are super important for companies
                 product->demand += req.second * 1.5f;
@@ -55,7 +54,7 @@ void Economy::do_tick(World& world) {
         }
 
         // TODO: Make a proper supply chain system with the whole working economy thing :)
-        //if(!can_build) break;
+        if(!can_build) break;
         
         size_t needed_laborers = 0, available_laborers = 0;
         size_t needed_farmers = 0, available_farmers = 0;
