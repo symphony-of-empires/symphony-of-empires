@@ -570,6 +570,12 @@ int LuaAPI::add_province(lua_State* L) {
     province->name = luaL_checkstring(L, 3);
     province->budget = 500.f;
 
+    // Set bounding box of province to the whole world (will later be resized at the bitmap-processing step)
+    province->max_x = std::numeric_limits<uint32_t>::min();
+    province->max_y = std::numeric_limits<uint32_t>::min();
+    province->min_x = std::numeric_limits<uint32_t>::max();
+    province->min_y = std::numeric_limits<uint32_t>::max();
+
     // Check for duplicates
     for(size_t i = 0; i < g_world->provinces.size(); i++) {
         if(province->color == g_world->provinces[i]->color) {
@@ -614,8 +620,8 @@ int LuaAPI::add_province_industry(lua_State* L) {
     // Randomly place in any part of the province
     // TODO: This will create some funny situations where coal factories will appear on
     // the fucking pacific ocean - we need to fix that
-    building->x = province->min_x + (rand() % (province->max_x - province->min_x));
-    building->y = province->min_y + (rand() % (province->max_y - province->min_y));
+    building->x = province->min_x + (std::rand() % (province->max_x - province->min_x));
+    building->y = province->min_y + (std::rand() % (province->max_y - province->min_y));
     building->x = std::min(building->x, g_world->width - 1);
     building->y = std::min(building->y, g_world->height - 1);
     building->province = province;
