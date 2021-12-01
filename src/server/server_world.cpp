@@ -391,12 +391,6 @@ void World::load_mod(void) {
     std::fill(province_color_table.begin(), province_color_table.end(), (Province::Id)-1);
     for(auto& province : provinces) {
         province_color_table[province->color & 0xffffff] = this->get_id(province);
-
-        // Also take the opportunity to set stuff
-        province->max_x = std::numeric_limits<uint32_t>::min();
-        province->max_y = std::numeric_limits<uint32_t>::min();
-        province->min_x = std::numeric_limits<uint32_t>::max();
-        province->min_y = std::numeric_limits<uint32_t>::max();
     }
 
     // Do the same lookup table technique but with terrain types
@@ -575,7 +569,7 @@ void World::load_mod(void) {
         nation->relations.resize(this->nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
     }
 
-    const std::vector<std::string> mod_files ={
+    const std::vector<std::string> mod_files = {
         "mod", "postinit"
     };
     lua_exec_all_of(*this, mod_files);
@@ -599,50 +593,34 @@ void World::load_mod(void) {
         policy.foreign_trade = true;
     }
     print_info(gettext("World fully intiialized"));
+
+    for(auto& building : this->buildings) {
+        Province *province = building->province;
+        if(province == nullptr) continue;
+
+        building->x = province->min_x + (std::rand() % (province->max_x - province->min_x + 1));
+        building->y = province->min_y + (std::rand() % (province->max_y - province->min_y + 1));
+        building->x = std::min(building->x, g_world->width - 1);
+        building->y = std::min(building->y, g_world->height - 1);
+    }
 }
 
 #include "../action.hpp"
 #include "economy.hpp"
 void World::do_tick() {
-    /*
-    for(uint i = 0; i < width; i++) {
-        for(uint j = 0; j < height; j++) {
-            int side = rand() % 4;
-            Tile& tile = get_tile(i, j);
-            if(rand() % ((256 - tile.elevation) * 100)) {
-                auto adjacent_tiles = tile.get_neighbours(*this);
-
-                const Tile& adj_tile = *(adjacent_tiles[rand() % adjacent_tiles.size()]);
-                if(adj_tile.owner_id == (Nation::Id)-1 || adj_tile.owner_id == (Nation::Id)-2) continue;
-                tile.owner_id = adj_tile.owner_id;
-
-                // Broadcast to clients
-                Packet packet = Packet(0);
-                Archive ar = Archive();
-
-                ActionType action = ActionType::TILE_UPDATE;
-                ::serialize(ar, &action);
-
-                std::pair<size_t, size_t> coord = std::make_pair(i, j);
-                ::serialize(ar, &coord.first);
-                ::serialize(ar, &coord.second);
-                ::serialize(ar, &tile);
-
-                packet.data(ar.get_buffer(), ar.size());
-                g_server->broadcast(packet);
-            }
-        }
-    }
-    return;
-    */
-
     std::lock_guard lock(world_mutex);
     std::lock_guard lock2(tiles_mutex);
 
     // AI and stuff
     // Just random shit to make the world be like more alive
-    for(const auto& nation : nations) {
-        ai_do_tick(nation, this);
+    for(auto& nation : nations) {
+        if(nation->diplomatic_timer != 0) {
+            nation->diplomatic_timer--;
+        }
+
+        if(nation->is_ai) {
+            ai_do_tick(nation, this);
+        }
     }
 
     // Every 48 ticks do an economical tick
@@ -897,8 +875,7 @@ void World::do_tick() {
         // West and east do wrap
         if(unit->x <= 0.f) {
             unit->x = width - 1.f;
-        }
-        else if(unit->x >= width) {
+        } else if(unit->x >= width) {
             unit->x = 0.f;
         }
 
@@ -906,8 +883,8 @@ void World::do_tick() {
         // TODO: Make it conquer multiple tiles
         Tile& tile = get_tile(unit->x, unit->y);
         if(tile.owner_id != get_id(unit->owner)) {
-            if((tile.elevation <= this->sea_level && !unit->type->is_naval) || (tile.elevation > sea_level && !unit->type->is_ground))
-                continue;
+            // Water cannot be conquered
+            if(tile.elevation <= sea_level) continue;
 
             tile.owner_id = get_id(unit->owner);
 
