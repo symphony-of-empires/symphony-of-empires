@@ -186,10 +186,6 @@ void ai_do_tick(Nation* nation, World* world) {
     if(!nation->exists()) return;
     if(nation->owned_provinces.size() == 0) return;
 
-    if(nation->diplomatic_timer != 0) {
-        nation->diplomatic_timer--;
-    }
-
     if(world->time % 48 == 0) {
         // Do a policy reform every 6 months
         if((world->time / 48) % 180 == 0) {
@@ -284,8 +280,8 @@ void ai_do_tick(Nation* nation, World* world) {
         defense_factor /= ((province->total_pops() + province->n_tiles) / 10000) + 1;
     }
 
-    if(defense_factor < 5) {
-        defense_factor = 5;
+    if(defense_factor < 50) {
+        defense_factor = 50;
     }
 
     // Build defenses
@@ -301,9 +297,7 @@ void ai_do_tick(Nation* nation, World* world) {
             province->max_x < province->min_x || province->max_y < province->min_y ||
             province->n_tiles == 0) {
             print_error("Cant build defense, province doesn't have any tiles");
-        }
-        else {
-
+        } else {
             // Randomly place in any part of the province
             glm::ivec2 coord = world->get_rand_province_coord(province);
             building->x = coord.x;
@@ -330,7 +324,7 @@ void ai_do_tick(Nation* nation, World* world) {
     }
 
     // Build units inside buildings that are not doing anything
-    if(std::rand() % 50 == 0) {
+    if(std::rand() % 5000 == 0) {
         for(auto& building : g_world->buildings) {
             if(building->working_unit_type != nullptr || building->owner != nation) continue;
 
