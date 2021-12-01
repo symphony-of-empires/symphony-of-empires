@@ -129,7 +129,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
     const World& world = World::get_instance();
 
     // Try to increase relations with our friend
-    if(nation->is_ally(*other) && !(std::rand() % 50)) {
+    if(nation->is_ally(*other) && !(std::rand() % 250)) {
         nation->increase_relation(*other);
 
         // Propose an alliance
@@ -152,7 +152,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
     }
 
     // Hate our enemies more
-    if(nation->is_enemy(*other) && !(std::rand() % 50)) {
+    if(nation->is_enemy(*other) && !(std::rand() % 250)) {
         nation->decrease_relation(*other);
 
         // Embargo them
@@ -168,9 +168,9 @@ void ai_update_relations(Nation* nation, Nation* other) {
     }
 
     // Randomness to spice stuff up
-    if(!(std::rand() % 50)) {
+    if(!(std::rand() % 100)) {
         nation->increase_relation(*other);
-    } else if(!(std::rand() % 10)) {
+    } else if(!(std::rand() % 100)) {
         nation->decrease_relation(*other);
     }
 }
