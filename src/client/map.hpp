@@ -39,7 +39,12 @@ public:
     Map(const World& world, int screen_width, int screen_height);
     ~Map() {};
 
-    std::vector<const UnifiedRender::ComplexModel*> unit_type_icons, outpost_type_icons;
+    std::vector<const UnifiedRender::ComplexModel*> building_type_models;
+    std::vector<const UnifiedRender::Texture*> building_type_icons;
+
+    std::vector<const UnifiedRender::ComplexModel*> unit_type_models;
+    std::vector<const UnifiedRender::Texture*> unit_type_icons;
+
     std::vector<const UnifiedRender::Texture*> nation_flags;
 
     // Wind oscillator (for flags)
@@ -61,7 +66,6 @@ public:
     const UnifiedRender::Texture* map_color;
     UnifiedRender::TextureArray* terrain_sheet;
     // const UnifiedRender::Texture* terrain_sheet;
-
 
     UnifiedRender::OpenGl::PrimitiveSquare* map_quad;
     UnifiedRender::OpenGl::Sphere* map_sphere;

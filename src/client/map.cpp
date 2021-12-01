@@ -27,7 +27,9 @@
 #include "client/render/framebuffer.hpp"
 #include "province.hpp"
 
-Map::Map(const World& _world, int screen_width, int screen_height): world(_world) {
+Map::Map(const World& _world, int screen_width, int screen_height)
+    : world(_world)
+{
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
     camera = new FlatCamera(screen_width, screen_height);
     if(glewIsSupported("GL_VERSION_2_1")) {
@@ -151,6 +153,34 @@ Map::Map(const World& _world, int screen_width, int screen_height): world(_world
     border_sdf = gen_border_sdf();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glEnable(GL_CULL_FACE);
+
+    // Query the initial nation flags
+    for(const auto& nation : world.nations) {
+        std::string path = Path::get("ui/flags/" + nation->ref_name + "_" +
+            (nation->ideology == nullptr ? "none" : nation->ideology->ref_name) + ".png"
+        );
+        nation_flags.push_back(&g_texture_manager->load_texture(path));
+    }
+
+    for(const auto& building_type : world.building_types) {
+        std::string path;
+
+        path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
+        building_type_models.push_back(&g_model_manager->load_complex(path));
+
+        path = Path::get("ui/building_types/" + building_type->ref_name + ".png");
+        building_type_icons.push_back(&g_texture_manager->load_texture(path));
+    }
+
+    for(const auto& unit_type : world.unit_types) {
+        std::string path;
+        
+        path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
+        unit_type_models.push_back(&g_model_manager->load_complex(path));
+
+        path = Path::get("ui/unit_types/" + unit_type->ref_name + ".png");
+        unit_type_icons.push_back(&g_texture_manager->load_texture(path));
+    }
 }
 
 void Map::set_view(MapView view) {
@@ -602,7 +632,7 @@ void Map::draw(const int width, const int height) {
 
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
-        outpost_type_icons.at(world.get_id(building->type))->draw(obj_shader);
+        building_type_models[world.get_id(building->type)]->draw(obj_shader);
 
         // Reverse rotation
         model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
@@ -616,7 +646,7 @@ void Map::draw(const int width, const int height) {
 
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
-        unit_type_icons[world.get_id(unit->type)]->draw(obj_shader);
+        unit_type_models[world.get_id(unit->type)]->draw(obj_shader);
 
         // Reverse rotation
         model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
