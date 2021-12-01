@@ -500,7 +500,6 @@ extern UnifiedRender::TextureManager* g_texture_manager;
 extern UnifiedRender::MaterialManager* g_material_manager;
 extern UnifiedRender::ModelManager* g_model_manager;
 
-char* tmpbuf;
 World::World(void) {
     g_world = this;
 };
@@ -552,8 +551,6 @@ void start_client(int argc, char** argv) {
 
     gs.width = width;
     gs.height = height;
-
-    tmpbuf = new char[512];
     
     // Initialize sound
     SDL_AudioSpec fmt;
@@ -569,7 +566,6 @@ void start_client(int argc, char** argv) {
 
     main_menu_loop(gs, window);
     main_loop(gs, gs.client, window);
-    delete[] tmpbuf;
 
     SDL_CloseAudio();
     TTF_Quit();
