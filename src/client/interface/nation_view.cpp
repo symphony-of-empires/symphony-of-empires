@@ -1,4 +1,5 @@
 #include "client/interface/nation_view.hpp"
+#include "client/client_network.hpp"
 #include "io_impl.hpp"
 
 using namespace Interface;
@@ -44,39 +45,81 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         w.text(std::to_string(o.gs.curr_nation->relations[o.gs.world->get_id(o.nation)].interest));
     });
 
-    this->inc_btn = new UI::Button(0, 0, 128, 24, this);
+    this->inc_btn = new UI::Button(0, 0, this->width, 24, this);
     this->inc_btn->below_of(*this->interest_lab);
     this->inc_btn->text("Increment relations");
+    this->inc_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<NationView&>(*w.parent);
 
-    this->dec_btn = new UI::Button(0, 0, 128, 24, this);
+        g_client->packet_mutex.lock();
+        Packet packet = Packet();
+        Archive ar = Archive();
+        ActionType action = ActionType::DIPLO_INC_RELATIONS;
+        ::serialize(ar, &action);
+        ::serialize(ar, &o.gs.curr_nation); // Sender
+        ::serialize(ar, &o.nation); // Target
+        packet.data(ar.get_buffer(), ar.size());
+        g_client->packet_queue.push_back(packet);
+        g_client->packet_mutex.unlock(); 
+    });
+
+    this->dec_btn = new UI::Button(0, 0, this->width, 24, this);
     this->dec_btn->below_of(*this->inc_btn);
     this->dec_btn->text("Decrement relations");
+    this->dec_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<NationView&>(*w.parent);
 
-    this->dow_btn = new UI::Button(0, 0, 128, 24, this);
+        g_client->packet_mutex.lock();
+        Packet packet = Packet();
+        Archive ar = Archive();
+        ActionType action = ActionType::DIPLO_DEC_RELATIONS;
+        ::serialize(ar, &action);
+        ::serialize(ar, &o.gs.curr_nation); // Sender
+        ::serialize(ar, &o.nation); // Target
+        packet.data(ar.get_buffer(), ar.size());
+        g_client->packet_queue.push_back(packet);
+        g_client->packet_mutex.unlock(); 
+    });
+
+    this->dow_btn = new UI::Button(0, 0, this->width, 24, this);
     this->dow_btn->below_of(*this->dec_btn);
     this->dow_btn->text("Declare war");
+    this->dow_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<NationView&>(*w.parent);
 
-    this->ally_btn = new UI::Button(0, 0, 128, 24, this);
+        g_client->packet_mutex.lock();
+        Packet packet = Packet();
+        Archive ar = Archive();
+        ActionType action = ActionType::DIPLO_DECLARE_WAR;
+        ::serialize(ar, &action);
+        ::serialize(ar, &o.gs.curr_nation); // Sender
+        ::serialize(ar, &o.nation); // Target
+        packet.data(ar.get_buffer(), ar.size());
+        g_client->packet_queue.push_back(packet);
+        g_client->packet_mutex.unlock(); 
+    });
+
+    this->ally_btn = new UI::Button(0, 0, this->width, 24, this);
     this->ally_btn->below_of(*this->dow_btn);
     this->ally_btn->text("Offer alliance");
 
-    this->defensive_pact_btn = new UI::Button(0, 0, 128, 24, this);
+    this->defensive_pact_btn = new UI::Button(0, 0, this->width, 24, this);
     this->defensive_pact_btn->below_of(*this->ally_btn);
     this->defensive_pact_btn->text("Defensive pact");
 
-    this->embargo_btn = new UI::Button(0, 0, 128, 24, this);
+    this->embargo_btn = new UI::Button(0, 0, this->width, 24, this);
     this->embargo_btn->below_of(*this->defensive_pact_btn);
     this->embargo_btn->text("Embargo");
 
-    this->allow_market_access_btn = new UI::Button(0, 0, 128, 24, this);
+    this->allow_market_access_btn = new UI::Button(0, 0, this->width, 24, this);
     this->allow_market_access_btn->below_of(*this->embargo_btn);
     this->allow_market_access_btn->text("Allow market access");
 
-    this->allow_military_access_btn = new UI::Button(0, 0, 128, 24, this);
+    this->allow_military_access_btn = new UI::Button(0, 0, this->width, 24, this);
     this->allow_military_access_btn->below_of(*this->allow_market_access_btn);
     this->allow_military_access_btn->text("Allow military access");
 
-    this->propose_truce_btn = new UI::Button(0, 0, 128, 24, this);
+    this->propose_truce_btn = new UI::Button(0, 0, this->width, 24, this);
     this->propose_truce_btn->below_of(*this->allow_military_access_btn);
     this->propose_truce_btn->text("Propose truce");
 

@@ -461,7 +461,24 @@ void Server::net_loop(int id) {
                         selected_nation->is_ai = false;
                         print_info("Nation [%s] selected by client %zu", selected_nation->ref_name.c_str(), (size_t)id);
                     } break;
-
+                    case ActionType::DIPLO_INC_RELATIONS: {
+                        Nation* sender,* target;
+                        ::deserialize(ar, &sender);
+                        ::deserialize(ar, &target);
+                        sender->increase_relation(*target);
+                    } break;
+                    case ActionType::DIPLO_DEC_RELATIONS: {
+                        Nation* sender,* target;
+                        ::deserialize(ar, &sender);
+                        ::deserialize(ar, &target);
+                        sender->decrease_relation(*target);
+                    } break;
+                    case ActionType::DIPLO_DECLARE_WAR: {
+                        Nation* sender,* target;
+                        ::deserialize(ar, &sender);
+                        ::deserialize(ar, &target);
+                        sender->declare_war(*target);
+                    } break;
                         // Nation and province addition and removals are not allowed to be done by clients
                     default: {
                     } break;

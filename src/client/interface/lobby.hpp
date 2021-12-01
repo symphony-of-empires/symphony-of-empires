@@ -4,12 +4,12 @@
 
 class GameState;
 namespace Interface {
-    class LobbyPlayerView : public UI::Window {
+    /*class LobbyPlayerView : public UI::Window {
         GameState& gs;
     public:
         LobbyPlayerView(GameState& gs) {};
         ~LobbyPlayerView() {};
-    };
+    };*/
 
     class LobbySelectView {
         GameState& gs;
