@@ -262,9 +262,10 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_complex(con
     } catch(std::ifstream::failure& e) {
         print_error("Model %s not found", path.c_str());
 
-        UnifiedRender::ComplexModel* complex = new UnifiedRender::ComplexModel();
-        complex_models.insert(std::make_pair(complex, path));
-        return *(const UnifiedRender::ComplexModel*)complex;
+        //UnifiedRender::ComplexModel* complex = new UnifiedRender::ComplexModel();
+        //complex_models.insert(std::make_pair(complex, path));
+        //return *(const UnifiedRender::ComplexModel*)complex;
+        return load_wavefront(Path::get("3d/default.obj"));
     }
 }
 
