@@ -710,51 +710,7 @@ void World::do_tick() {
             break;
         }
 
-        // Count friends and foes in range (and find nearest foe)
-        size_t n_friends = 0;
-        size_t n_foes = 0;
-        Unit* nearest_foe = nullptr;
-        Unit* nearest_friend = nullptr;
-        for(size_t j = 0; j < g_world->units.size(); j++) {
-            Unit* other_unit = g_world->units[j];
-            if(unit->owner == other_unit->owner) {
-                // Only when very close
-                if(std::abs(unit->x - other_unit->x) >= 4.f && std::abs(unit->y - other_unit->y) >= 4.f)
-                    continue;
-
-                n_friends++;
-
-                if(nearest_friend == nullptr) {
-                    nearest_friend = other_unit;
-                }
-
-                // Find nearest friend
-                if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_friend->x)
-                    && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_friend->y)) {
-                    nearest_friend = other_unit;
-                }
-            }
-            else {
-                // Foes from many ranges counts
-                if(std::abs(unit->x - other_unit->x) >= 1.f && std::abs(unit->y - other_unit->y) >= 1.f)
-                    continue;
-
-                n_foes++;
-
-                if(nearest_foe == nullptr) {
-                    nearest_foe = other_unit;
-                }
-
-                // Find nearest foe
-                if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_foe->x)
-                    && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_foe->y)) {
-                    nearest_foe = other_unit;
-                }
-            }
-        }
-
-        if((unit->x != unit->tx || unit->y != unit->ty)
-            && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
+        if((unit->x != unit->tx || unit->y != unit->ty) && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
             float end_x, end_y;
             const float speed = 0.1f;
 
@@ -785,19 +741,32 @@ void World::do_tick() {
             unit->y = std::min<float>(height - 1, unit->y);
 
             // West and east do wrap
-            if(unit->x <= 0.f) {
+            if(unit->x <= 0.f)
                 unit->x = width - 1.f;
-            }
-            else if(unit->x >= width) {
+            else if(unit->x >= width)
                 unit->x = 0.f;
-            }
         }
 
         // Make the unit attack automatically
         // and we must be at war with the owner of this unit to be able to attack the unit
-        if(nearest_foe != nullptr && unit->owner->is_enemy(*nearest_foe->owner)) {
-            unit->attack(*nearest_foe);
+        Unit* nearest_enemy = nullptr;
+        for(auto& other_unit : units) {
+            if(unit->owner != other_unit->owner) {
+                // Foes from many ranges counts
+                if(std::abs(unit->x - other_unit->x) >= 1.f && std::abs(unit->y - other_unit->y) >= 1.f)
+                    continue;
+                
+                if(nearest_enemy == nullptr) nearest_enemy = other_unit;
+                // Find nearest foe
+                else if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_enemy->x) && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_enemy->y)) {
+                    nearest_enemy = other_unit;
+                }
+            }
         }
+
+        // TODO: This is temporal - un-comment this :D
+        //if(nearest_enemy != nullptr && unit->owner->is_enemy(*nearest_enemy->owner))
+            unit->attack(*nearest_enemy);
 
         // Unit is on a non-wasteland part of the map
         if(get_tile(unit->x, unit->y).province_id < (Province::Id)-3) {
@@ -925,8 +894,7 @@ void World::do_tick() {
     for(const auto& treaty : treaties) {
         // Check that the treaty is agreed by all parties before enforcing it
         bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty->approval_status.end());
-        if(!on_effect)
-            continue;
+        if(!on_effect) continue;
 
         // And also check that there is atleast 1 clause that is on effect
         bool is_on_effect = false;
@@ -934,71 +902,53 @@ void World::do_tick() {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            }
-            else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
+            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            }
-            else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+            } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            }
-            else if(clause->type == TreatyClauseType::HUMILIATE) {
+            } else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            }
-            else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+            } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            }
-            else if(clause->type == TreatyClauseType::CEASEFIRE) {
+            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
 
-            if(is_on_effect)
-                break;
+            if(is_on_effect) break;
         }
-        if(!is_on_effect)
-            continue;
+        if(!is_on_effect) continue;
 
         // Treaties clauses now will be enforced
         print_info("Enforcing treaty %s", treaty->name.c_str());
         for(auto& clause : treaty->clauses) {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
-                if(!dyn_clause->in_effect())
-                    goto next_iter;
+                if(!dyn_clause->in_effect()) goto next_iter;
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
+            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
-                if(!dyn_clause->in_effect())
-                    goto next_iter;
+                if(!dyn_clause->in_effect()) goto next_iter;
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+            } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
-                if(!dyn_clause->in_effect())
-                    goto next_iter;
+                if(!dyn_clause->in_effect()) goto next_iter;
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::HUMILIATE) {
+            } else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
-                if(!dyn_clause->in_effect())
-                    goto next_iter;
+                if(!dyn_clause->in_effect()) goto next_iter;
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+            } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
-                if(!dyn_clause->in_effect())
-                    goto next_iter;
+                if(!dyn_clause->in_effect()) goto next_iter;
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::CEASEFIRE) {
+            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
-                if(!dyn_clause->in_effect())
-                    goto next_iter;
+                if(!dyn_clause->in_effect()) goto next_iter;
                 dyn_clause->enforce();
             }
 
