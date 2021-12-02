@@ -230,3 +230,38 @@ print("*************************************************************************
 print("Industrial era mod")
 print("Date: ", get_year(), "/", get_month(), "/", get_day())
 print("********************************************************************************")
+
+
+-- "Fixes" for france
+local france_prov = {
+    { ref_name = "province_c0dfcf00" },
+    { ref_name = "province_c023da00" },
+    { ref_name = "province_40026600" },
+    { ref_name = "province_40545500" },
+    { ref_name = "province_50ef00" },
+    { ref_name = "province_a031bf00" },
+    { ref_name = "province_80e43500" },
+    { ref_name = "province_ae0b6200" },
+    { ref_name = "province_ae0b6200" },
+    { ref_name = "province_bda800" },
+    { ref_name = "province_207f2600" },
+    { ref_name = "province_e0312e00" },
+    { ref_name = "province_4014b100" },
+    { ref_name = "province_a0000000" },
+    { ref_name = "province_a657cd00" },
+    { ref_name = "province_20128f00" },
+    { ref_name = "province_6027af00" },
+    { ref_name = "province_8066c200" },
+    { ref_name = "province_a0c23000" },
+    { ref_name = "province_80aacc00" },
+    { ref_name = "province_a0741600" },
+    { ref_name = "province_a0fcff00" },
+    { ref_name = "province_a0063b00" },
+    { ref_name = "province_ffe50000" },
+}
+
+--print("-- france_prov")
+--for k, v in pairs(france_prov) do
+--	v = Province:get(v.ref_name)
+--	print("   { ref_name = \"" .. v.ref_name .. "\", name = _(\"Unknown\"), color = 0x" .. string.format("%x", v.color) .. " },")
+--end
