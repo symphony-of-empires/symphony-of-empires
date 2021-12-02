@@ -579,7 +579,7 @@ int LuaAPI::add_province(lua_State* L) {
     // Check for duplicates
     for(size_t i = 0; i < g_world->provinces.size(); i++) {
         if(province->color == g_world->provinces[i]->color) {
-            throw LuaAPI::Exception(province->name + " province has same colour as " + g_world->provinces[i]->name);
+            throw LuaAPI::Exception(province->ref_name + " province has same colour as " + g_world->provinces[i]->ref_name);
         }
         else if(province->ref_name == g_world->provinces[i]->ref_name) {
             throw LuaAPI::Exception("Duplicate ref_name " + province->ref_name);
@@ -596,7 +596,9 @@ int LuaAPI::get_province(lua_State* L) {
 
     lua_pushnumber(L, g_world->get_id(province));
     lua_pushstring(L, province->name.c_str());
-    lua_pushnumber(L, province->color);
+
+    const uint32_t color = bswap_32((province->color & 0x00ffffff) << 8);
+    lua_pushnumber(L, color);
     return 3;
 }
 
@@ -604,7 +606,9 @@ int LuaAPI::get_province_by_id(lua_State* L) {
     const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_pushstring(L, province->ref_name.c_str());
     lua_pushstring(L, province->name.c_str());
-    lua_pushnumber(L, province->color);
+
+    const uint32_t color = bswap_32((province->color & 0x00ffffff) << 8);
+    lua_pushnumber(L, color);
     return 3;
 }
 
