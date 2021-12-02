@@ -89,7 +89,7 @@ local bolivia_provinces_list = {
     { ref_name = "pando", name = _("Pando"), color = rgb(71, 251, 255) },
     { ref_name = "santa_cruz", name = _("Santa Cruz"), color = rgb(255, 196, 238) },
     { ref_name = "carvoal", name = _("Carvoal"), color = rgb(255, 129, 104) },
-    { ref_name = "corumba", name = _("Corumbá"), color = rgb(140, 251, 255) },
+--    { ref_name = "corumba", name = _("Corumbá"), color = rgb(71, 251, 255) },
     { ref_name = "santissima_trinidade", name = _("Santíssima Trinidade"), color = rgb(94, 30, 255) },
     { ref_name = "fuerte_olimpo", name = _("Fuerte Olimpo"), color = rgb(111, 96, 113) },
     { ref_name = "nueva_burdeos", name = _("Nueva Burdeos"), color = rgb(255, 209, 73) },
