@@ -364,7 +364,14 @@ void World::load_mod(void) {
     if(tiles == nullptr)
         throw std::runtime_error("Out of memory");
 
-    const std::vector<std::string> init_files ={
+    for(uint i = 0; i < total_size; i++) {
+        tiles[i].elevation = topo->buffer[i] & 0xff;
+        tiles[i].owner_id = (Nation::Id)-1;
+        tiles[i].province_id = (Province::Id)-1;
+    }
+    topo.reset(nullptr);
+
+    const std::vector<std::string> init_files = {
         "terrain_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "good_types", "industry_types",
@@ -410,23 +417,19 @@ void World::load_mod(void) {
         throw std::runtime_error("Infrastructure map size mismatch");
 
     // Translate all div, pol and topo maps onto this single tile array
-    print_info(gettext("Translate all div, pol and topo maps onto this single tile array"));
+    print_info(gettext("Elevation map translation"));
     for(size_t i = 0; i < total_size; i++) {
         // Set coordinates for the tiles
-        tiles[i].owner_id = (Nation::Id)-1;
-        tiles[i].province_id = (Province::Id)-1;
-        tiles[i].elevation = topo->buffer[i] & 0xff;
         tiles[i].terrain_type_id = terrain_color_table[terrain->buffer[i] & 0xffffff];
+        tiles[i].infra_level = 0;
 
         // Set infrastructure level
-        if(infra->buffer[i] == 0xffffffff || infra->buffer[i] == 0xff000000) {
+        /*if(infra->buffer[i] == 0xffffffff || infra->buffer[i] == 0xff000000) {
             tiles[i].infra_level = 0;
-        }
-        else {
+        } else {
             tiles[i].infra_level = 1;
-        }
+        }*/
     }
-    topo.reset(nullptr);
     terrain.reset(nullptr);
     infra.reset(nullptr);
 
@@ -449,8 +452,7 @@ void World::load_mod(void) {
                 // The border generating shader ignores provinces with id 0xfffe
                 // This is to make sure we dont draw any border with lakes
                 tiles[i].province_id = (Province::Id)-2;
-            }
-            else if(div->buffer[i] == 0xff000000) {
+            } else if(div->buffer[i] == 0xff000000) {
                 // Temporary to show unregsitered provinces
                 tiles[i].province_id = (Province::Id)-3;
             }
