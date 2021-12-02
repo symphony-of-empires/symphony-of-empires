@@ -159,3 +159,9 @@ lorraine_monarchy
 
 venice_republic
 	By Facquis This W3C-unspecified vector image was created with Inkscape . - Own work, Based on a work by Oliviero Murru: Bandiera contarina, online by [1]. The work of Oliviero Murru takes up the style of the flag of the galley of Doge Domenico Contarini, kept in the Correr museum in Venice, online by [2]., CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=86092067
+
+wolfenbuttel_monarchy
+	By Wolfenbüttel - https://www.crwflags.com/fotw/flags/de-wf-wf.html, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=110535188
+
+grand_duchy_of_hesse_and_by_rhine_monarchy
+	By David Liuzzo - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=853594

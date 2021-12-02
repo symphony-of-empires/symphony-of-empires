@@ -14,6 +14,9 @@ british:register()
 dutch = Culture:new{ ref_name = "dutch" }
 dutch.name = _("Dutch")
 dutch:register()
+belgian = Culture:new{ ref_name = "belgian" }
+belgian.name = _("Belgian")
+belgian:register()
 danish = Culture:new{ ref_name = "danish" }
 danish.name = _("Danish")
 danish:register()

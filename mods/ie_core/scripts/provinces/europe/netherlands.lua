@@ -55,6 +55,7 @@ local dutch_provinces_list = {
    { ref_name = "province_765a00", name = _("Unknown"), color = 0x5a7600 },
    { ref_name = "province_a02e7b00", name = _("Unknown"), color = 0x7b2ea0 },
    { ref_name = "province_e058a000", name = _("Unknown"), color = 0xa058e0 },
+   { ref_name = "province_fffd8f00", name = _("Unknown"), color = 0xfffd8f },
 }
 
 for k, v in pairs(dutch_provinces_list) do

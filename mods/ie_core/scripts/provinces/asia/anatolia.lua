@@ -221,6 +221,7 @@ local otto_provinces_list = {
    { ref_name = "province_6bff8d00", name = _("Unknown"), color = 0x8dff6b },
    { ref_name = "province_7c81ff00", name = _("Unknown"), color = 0xff817c },
    { ref_name = "province_ff51f300", name = _("Unknown"), color = 0xf351ff },
+   { ref_name = "province_ff3a8300", name = _("Unknown"), color = 0xff3a83 },
 }
 
 for k, v in pairs(otto_provinces_list) do
