@@ -33,7 +33,7 @@ add_executable(SymphonyOfEmpiresClient ${MAIN_SOURCES} ${CLIENT_SOURCES} ${AI_SO
 IF(WIN32)
 	target_link_libraries(SymphonyOfEmpiresClient PUBLIC glew32 opengl32 glu32 ws2_32 winpthread intl wsock32)
 ELSE()
-	target_link_libraries(SymphonyOfEmpiresClient PUBLIC GL GLU GLEW SDL2main)
+	target_link_libraries(SymphonyOfEmpiresClient PUBLIC GL GLU GLEW assimp SDL2main)
 ENDIF()
 target_link_libraries(SymphonyOfEmpiresClient PUBLIC SDL2 SDL2_ttf m z tbb stdc++)
 
