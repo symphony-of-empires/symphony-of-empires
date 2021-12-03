@@ -71,5 +71,5 @@ for k, v in pairs(spain_provinces_list) do
     province:add_nucleus(spain)
     province:add_nucleus(iberia)
     province:give_to(spain)
-    province:add_industry(wheat_farm, spain, andes_transport)
+    --province:add_industry(wheat_farm, spain, andes_transport)
 end
