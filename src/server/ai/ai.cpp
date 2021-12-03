@@ -191,6 +191,29 @@ void ai_do_tick(Nation* nation, World* world) {
             ai_update_relations(nation, other);
         }
 
+        // Accepting/rejecting treaties
+        for(auto& treaty : world->treaties) {
+            for(auto& part : treaty->approval_status) {
+                if(part.first == nation) {
+                    if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) break;
+
+                    if(std::rand() % 50 >= 25) {
+                        print_info("We, %s, deny the treaty of %s", treaty->name.c_str());
+                        part.second = TreatyApproval::DENIED;
+                    }
+                    else {
+                        print_info("We, %s, accept the treaty of %s", treaty->name.c_str());
+                        part.second = TreatyApproval::ACCEPTED;
+                    }
+                }
+            }
+        }
+
+        // Taking events
+        for(const auto& event : nation->inbox) {
+            event->take_descision(nation, &event->descisions[std::rand() % event->descisions.size()]);
+        }
+
         // Build a commercially related building
         if(std::rand() % 50 == 0) {
             Good* target_good;
@@ -229,8 +252,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 province->max_x < province->min_x || province->max_y < province->min_y ||
                 province->n_tiles == 0) {
                 print_error("Cant build buidling, province doesn't have any tiles");
-            }
-            else {
+            } else {
                 // Now build the building
                 Building* building = new Building();
                 building->owner = nation;
@@ -380,33 +402,6 @@ void ai_do_tick(Nation* nation, World* world) {
                     nation->give_province(*target);
                     print_info("Conquering %s for %s", target->name.c_str(), nation->name.c_str());
                 }
-            }
-        }
-
-        // Accepting/rejecting treaties
-        if(!(std::rand() % 50)) {
-            for(auto& treaty : world->treaties) {
-                for(auto& part : treaty->approval_status) {
-                    if(part.first == nation) {
-                        if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) break;
-
-                        if(std::rand() % 50 >= 25) {
-                            print_info("We, %s, deny the treaty of %s", treaty->name.c_str());
-                            part.second = TreatyApproval::DENIED;
-                        }
-                        else {
-                            print_info("We, %s, accept the treaty of %s", treaty->name.c_str());
-                            part.second = TreatyApproval::ACCEPTED;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Taking events
-        if(!(std::rand() % 50)) {
-            for(const auto& event : nation->inbox) {
-                event->take_descision(nation, &event->descisions[std::rand() % event->descisions.size()]);
             }
         }
     }
