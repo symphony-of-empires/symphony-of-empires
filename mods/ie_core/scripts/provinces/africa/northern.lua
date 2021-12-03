@@ -23,7 +23,7 @@ for k, v in pairs(provinces_list) do
     province = Province:new(v)
     province:register()
     
-    province:add_industry(wheat_farm, united_states, andes_transport)
+    --province:add_industry(wheat_farm, united_states, andes_transport)
     province:add_pop(artisan, arabic, islamic, 10, 0.6)
     province:add_pop(farmer, arabic, islamic, 8000, 0.4)
     province:add_pop(soldier, arabic, islamic, 10, 0.6)

@@ -36,7 +36,7 @@ local usa_provinces = {
     { ref_name = "mobile", name = _("Mobile"), color = rgb(255, 79, 175) },
     { ref_name = "biloxi", name = _("Biloxi"), color = rgb(115, 28, 255) },
     { ref_name = "east_louisiana", name = _("East Louisiana"), color = rgb(199, 48, 255) },
-    { ref_name = "louisiana", name = _("Louisiana"), color = rgb(91, 146, 255) }
+    { ref_name = "louisiana", name = _("Louisiana"), color = rgb(91, 146, 255) },
 }
 
 for k, v in pairs(usa_provinces) do
@@ -75,7 +75,20 @@ local uncolonized_us_provinces = {
     { ref_name = "kansas_indian_territory", name = _("Kansas Indian Territory"), color = rgb(221, 255, 242) },
     { ref_name = "oklahoma", name = _("Oklahoma"), color = rgb(132, 240, 255) },
     { ref_name = "north_oklahoma", name = _("North Oklahoma"), color = rgb(37, 120, 131) },
-    { ref_name = "neutral_strip", name = _("Neutral Strip"), color = rgb(233, 147, 255) }
+    { ref_name = "neutral_strip", name = _("Neutral Strip"), color = rgb(233, 147, 255) },
+    { ref_name = "southwestern_colorado", name = _("Southwestern Colorado"), color = rgb(235, 158, 255) },
+    { ref_name = "northwestern_colorado", name = _("Northwestern Colorado"), color = rgb(28, 164, 255) },
+    { ref_name = "colorado", name = _("Colorado"), color = rgb(255, 40, 215) },
+    { ref_name = "southern_wyoming", name = _("Southern Wyoming"), color = rgb(109, 182, 255) },
+    { ref_name = "southwestern_wyoming", name = _("Southwestern Wyoming"), color = rgb(40, 90, 255) },
+    { ref_name = "western_wyoming", name = _("Western Wyoming"), color = rgb(255, 58, 97) },
+    { ref_name = "wyoming", name = _("Wyoming"), color = rgb(177, 135, 255) },
+    { ref_name = "montana", name = _("Montana"), color = rgb(255, 188, 196) },
+    { ref_name = "western_montana", name = _("Western Montana"), color = rgb(255, 165, 145) },
+    { ref_name = "idaho", name = _("Idaho"), color = rgb(255, 163, 204) },
+    { ref_name = "east_oregon", name = _("East Oregon"), color = rgb(89, 235, 255) },
+    { ref_name = "west_oregon", name = _("West Oregon"), color = rgb(224, 103, 255) },
+    { ref_name = "washington", name = _("Washington"), color = 0xe066ff },
 }
 
 for k, v in pairs(uncolonized_us_provinces) do
@@ -104,7 +117,7 @@ local texas_provinces = {
     { ref_name = "el_paso", name = _("El Paso"), color = rgb(255, 165, 211) },
     { ref_name = "southern_texas", name = _("Southern Texas"), color = rgb(168, 202, 255) },
     { ref_name = "corpus_christi", name = _("Corpus Christi"), color = rgb(173, 255, 241) },
-    { ref_name = "hill_country", name = _("Hill Country"), color = rgb(255, 225, 127) }
+    { ref_name = "hill_country", name = _("Hill Country"), color = rgb(255, 225, 127) },
 }
 
 for k, v in pairs(texas_provinces) do
@@ -137,213 +150,6 @@ for k, v in pairs(texas_provinces) do
     province:give_to(mexico)
     province:add_industry(wheat_farm, mexico, andes_transport)
 end
-
-province = Province:new{ ref_name = "southwestern_colorado", color = rgb(235, 158, 255) }
-province.name = _("Southwestern Colorado")
-province:register()
-province:add_industry(wheat_farm, russia, andes_transport)
-province:add_pop(artisan, yankee, protestant, 500, 0.7)
-province:add_pop(farmer, yankee, protestant, 500, 0.1)
-province:add_pop(soldier, yankee, protestant, 500, 0.2)
-province:add_pop(craftsmen, yankee, protestant, 500, 0.2)
-province:add_pop(bureaucrat, yankee, protestant, 500, 0.7)
-province:add_pop(aristocrat, yankee, protestant, 500, 0.2)
-province:add_pop(clergymen, yankee, protestant, 500, 0.3)
-province:add_pop(laborer, yankee, protestant, 500, 0.2)
-province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
-province:add_pop(slave, yankee, protestant, 500, 0.5)
-province:add_nucleus(united_states)
-
-province = Province:new{ ref_name = "northwestern_colorado", color = rgb(28, 164, 255) }
-province.name = _("Northwestern Colorado")
-province:register()
-province:add_industry(wheat_farm, russia, andes_transport)
-province:add_pop(artisan, yankee, protestant, 500, 0.7)
-province:add_pop(farmer, yankee, protestant, 500, 0.1)
-province:add_pop(soldier, yankee, protestant, 500, 0.2)
-province:add_pop(craftsmen, yankee, protestant, 500, 0.2)
-province:add_pop(bureaucrat, yankee, protestant, 500, 0.7)
-province:add_pop(aristocrat, yankee, protestant, 500, 0.2)
-province:add_pop(clergymen, yankee, protestant, 500, 0.3)
-province:add_pop(laborer, yankee, protestant, 500, 0.2)
-province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
-province:add_pop(slave, yankee, protestant, 500, 0.5)
-province:add_nucleus(united_states)
-
-province = Province:new{ ref_name = "colorado", color = rgb(255, 40, 215) }
-province.name = _("Colorado")
-province:register()
-province:add_industry(wheat_farm, russia, andes_transport)
-province:add_pop(artisan, yankee, protestant, 500, 0.7)
-province:add_pop(farmer, yankee, protestant, 500, 0.1)
-province:add_pop(soldier, yankee, protestant, 500, 0.2)
-province:add_pop(craftsmen, yankee, protestant, 500, 0.2)
-province:add_pop(bureaucrat, yankee, protestant, 500, 0.7)
-province:add_pop(aristocrat, yankee, protestant, 500, 0.2)
-province:add_pop(clergymen, yankee, protestant, 500, 0.3)
-province:add_pop(laborer, yankee, protestant, 500, 0.2)
-province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
-province:add_pop(slave, yankee, protestant, 500, 0.5)
-province:add_nucleus(united_states)
-
-province = Province:new{ ref_name = "southern_wyoming", color = rgb(109, 182, 255) }
-province.name = _("Southern Wyoming")
-province:register()
-province:add_industry(wheat_farm, russia, andes_transport)
-province:add_pop(artisan, yankee, protestant, 500, 0.7)
-province:add_pop(farmer, yankee, protestant, 500, 0.1)
-province:add_pop(soldier, yankee, protestant, 500, 0.2)
-province:add_pop(craftsmen, yankee, protestant, 500, 0.2)
-province:add_pop(bureaucrat, yankee, protestant, 500, 0.7)
-province:add_pop(aristocrat, yankee, protestant, 500, 0.2)
-province:add_pop(clergymen, yankee, protestant, 500, 0.3)
-province:add_pop(laborer, yankee, protestant, 500, 0.2)
-province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
-province:add_pop(slave, yankee, protestant, 500, 0.5)
-province:add_nucleus(united_states)
-
-province = Province:new{ ref_name = "southwestern_wyoming", color = rgb(40, 90, 255) }
-province.name = _("Southwestern Wyoming")
-province:register()
-province:add_industry(wheat_farm, russia, andes_transport)
-province:add_pop(artisan, yankee, protestant, 500, 0.7)
-province:add_pop(farmer, yankee, protestant, 500, 0.1)
-province:add_pop(soldier, yankee, protestant, 500, 0.2)
-province:add_pop(craftsmen, yankee, protestant, 500, 0.2)
-province:add_pop(bureaucrat, yankee, protestant, 500, 0.7)
-province:add_pop(aristocrat, yankee, protestant, 500, 0.2)
-province:add_pop(clergymen, yankee, protestant, 500, 0.3)
-province:add_pop(laborer, yankee, protestant, 500, 0.2)
-province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
-province:add_pop(slave, yankee, protestant, 500, 0.5)
-province:add_nucleus(united_states)
-
-province = Province:new{ ref_name = "western_wyoming", color = rgb(255, 58, 97) }
-province.name = _("Western Wyoming")
-province:register()
-province:add_industry(wheat_farm, russia, andes_transport)
-province:add_pop(artisan, yankee, protestant, 500, 0.7)
-province:add_pop(farmer, yankee, protestant, 500, 0.1)
-province:add_pop(soldier, yankee, protestant, 500, 0.2)
-province:add_pop(craftsmen, yankee, protestant, 500, 0.2)
-province:add_pop(bureaucrat, yankee, protestant, 500, 0.7)
-province:add_pop(aristocrat, yankee, protestant, 500, 0.2)
-province:add_pop(clergymen, yankee, protestant, 500, 0.3)
-province:add_pop(laborer, yankee, protestant, 500, 0.2)
-province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
-province:add_pop(slave, yankee, protestant, 500, 0.5)
-province:add_nucleus(united_states)
-
-province = Province:new{ ref_name = "wyoming", color = rgb(177, 135, 255) }
-province.name = _("Wyoming")
-province:register()
-province:add_industry(wheat_farm, russia, andes_transport)
-province:add_pop(artisan, yankee, protestant, 500, 0.7)
-province:add_pop(farmer, yankee, protestant, 500, 0.1)
-province:add_pop(soldier, yankee, protestant, 500, 0.2)
-province:add_pop(craftsmen, yankee, protestant, 500, 0.2)
-province:add_pop(bureaucrat, yankee, protestant, 500, 0.7)
-province:add_pop(aristocrat, yankee, protestant, 500, 0.2)
-province:add_pop(clergymen, yankee, protestant, 500, 0.3)
-province:add_pop(laborer, yankee, protestant, 500, 0.2)
-province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
-province:add_pop(slave, yankee, protestant, 500, 0.5)
-province:add_nucleus(united_states)
-
-province = Province:new{ ref_name = "montana", color = rgb(255, 188, 196) }
-province.name = _("Montana")
-province:register()
-province:add_industry(wheat_farm, russia, andes_transport)
-province:add_pop(artisan, yankee, protestant, 500, 0.7)
-province:add_pop(farmer, yankee, protestant, 500, 0.1)
-province:add_pop(soldier, yankee, protestant, 500, 0.2)
-province:add_pop(craftsmen, yankee, protestant, 500, 0.2)
-province:add_pop(bureaucrat, yankee, protestant, 500, 0.7)
-province:add_pop(aristocrat, yankee, protestant, 500, 0.2)
-province:add_pop(clergymen, yankee, protestant, 500, 0.3)
-province:add_pop(laborer, yankee, protestant, 500, 0.2)
-province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
-province:add_pop(slave, yankee, protestant, 500, 0.5)
-province:add_nucleus(united_states)
-
-province = Province:new{ ref_name = "western_montana", color = rgb(255, 165, 145) }
-province.name = _("Western Montana")
-province:register()
-province:add_industry(wheat_farm, russia, andes_transport)
-province:add_pop(artisan, yankee, protestant, 500, 0.7)
-province:add_pop(farmer, yankee, protestant, 500, 0.1)
-province:add_pop(soldier, yankee, protestant, 500, 0.2)
-province:add_pop(craftsmen, yankee, protestant, 500, 0.2)
-province:add_pop(bureaucrat, yankee, protestant, 500, 0.7)
-province:add_pop(aristocrat, yankee, protestant, 500, 0.2)
-province:add_pop(clergymen, yankee, protestant, 500, 0.3)
-province:add_pop(laborer, yankee, protestant, 500, 0.2)
-province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
-province:add_pop(slave, yankee, protestant, 500, 0.5)
-province:add_nucleus(united_states)
-
-province = Province:new{ ref_name = "idaho", name = _("Idaho"), color = rgb(255, 163, 204) }
-province:register()
-province:add_pop(artisan, yankee, protestant, 500, 0.7)
-province:add_pop(farmer, yankee, protestant, 500, 0.1)
-province:add_pop(soldier, yankee, protestant, 500, 0.2)
-province:add_pop(craftsmen, yankee, protestant, 500, 0.2)
-province:add_pop(bureaucrat, yankee, protestant, 500, 0.7)
-province:add_pop(aristocrat, yankee, protestant, 500, 0.2)
-province:add_pop(clergymen, yankee, protestant, 500, 0.3)
-province:add_pop(laborer, yankee, protestant, 500, 0.2)
-province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
-province:add_pop(slave, yankee, protestant, 500, 0.5)
-province:add_nucleus(united_states)
-province:add_industry(wheat_farm, united_states, andes_transport)
-
-province = Province:new{ ref_name = "east_oregon", color = rgb(89, 235, 255) }
-province.name = _("East Oregon")
-province:register()
-province:add_industry(wheat_farm, russia, andes_transport)
-province:add_pop(artisan, yankee, protestant, 500, 0.7)
-province:add_pop(farmer, yankee, protestant, 500, 0.1)
-province:add_pop(soldier, yankee, protestant, 500, 0.2)
-province:add_pop(craftsmen, yankee, protestant, 500, 0.2)
-province:add_pop(bureaucrat, yankee, protestant, 500, 0.7)
-province:add_pop(aristocrat, yankee, protestant, 500, 0.2)
-province:add_pop(clergymen, yankee, protestant, 500, 0.3)
-province:add_pop(laborer, yankee, protestant, 500, 0.2)
-province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
-province:add_pop(slave, yankee, protestant, 500, 0.5)
-province:add_nucleus(united_states)
-
-province = Province:new{ ref_name = "west_oregon", color = rgb(224, 103, 255) }
-province.name = _("West Oregon")
-province:register()
-province:add_industry(wheat_farm, russia, andes_transport)
-province:add_pop(artisan, yankee, protestant, 500, 0.7)
-province:add_pop(farmer, yankee, protestant, 500, 0.1)
-province:add_pop(soldier, yankee, protestant, 500, 0.2)
-province:add_pop(craftsmen, yankee, protestant, 500, 0.2)
-province:add_pop(bureaucrat, yankee, protestant, 500, 0.7)
-province:add_pop(aristocrat, yankee, protestant, 500, 0.2)
-province:add_pop(clergymen, yankee, protestant, 500, 0.3)
-province:add_pop(laborer, yankee, protestant, 500, 0.2)
-province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
-province:add_pop(slave, yankee, protestant, 500, 0.5)
-province:add_nucleus(united_states)
-
-province = Province:new{ ref_name = "washington", color = 0xe066ff }
-province.name = _("Washington")
-province:register()
-province:add_industry(wheat_farm, russia, andes_transport)
-province:add_pop(artisan, yankee, protestant, 500, 0.7)
-province:add_pop(farmer, yankee, protestant, 500, 0.1)
-province:add_pop(soldier, yankee, protestant, 500, 0.2)
-province:add_pop(craftsmen, yankee, protestant, 500, 0.2)
-province:add_pop(bureaucrat, yankee, protestant, 500, 0.7)
-province:add_pop(aristocrat, yankee, protestant, 500, 0.2)
-province:add_pop(clergymen, yankee, protestant, 500, 0.3)
-province:add_pop(laborer, yankee, protestant, 500, 0.2)
-province:add_pop(entrepreneur, yankee, protestant, 500, 0.9)
-province:add_pop(slave, yankee, protestant, 500, 0.5)
-province:add_nucleus(united_states)
 
 province = Province:new{ ref_name = "nevada", color = rgb(157, 122, 255) }
 province.name = _("Nevada")
