@@ -13,9 +13,9 @@ brazil = Nation:new{ ref_name = "brazil" }
 brazil.name = _("Brazil")
 brazil.adjective = "Brazilian"
 brazil:register()
-brazil:set_ideology(republic)
+brazil:set_ideology(monarchy)
 brazil:add_accepted_culture(brazilian)
-brazil:add_client_hint(republic, _("Brazil"), 0x60c483)
+brazil:add_client_hint(monarchy, _("Brazil"), 0x60c483)
 
 gran_colombia = Nation:new{ ref_name = "gran_colombia" }
 gran_colombia.name = _("Gran colombia")
