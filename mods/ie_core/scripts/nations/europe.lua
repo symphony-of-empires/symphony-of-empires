@@ -515,7 +515,14 @@ wurttemberg.name = _("Württemberg")
 wurttemberg:register()
 wurttemberg:set_ideology(monarchy)
 wurttemberg:add_accepted_culture(german)
-wurttemberg:add_client_hint(monarchy, _("Württemberg"), 0x808000)
+wurttemberg:add_client_hint(monarchy, _("Württemberg"), 0xd6677b)
+
+mecklenburg = Nation:new{ ref_name = "mecklenburg" }
+mecklenburg.name = _("Mecklenburg")
+mecklenburg:register()
+mecklenburg:set_ideology(monarchy)
+mecklenburg:add_accepted_culture(german)
+mecklenburg:add_client_hint(monarchy, _("Mecklenburg"), 0x77a186) 
 
 grand_duchy_of_hesse_and_by_rhine = Nation:new{ ref_name = "grand_duchy_of_hesse_and_by_rhine" }
 grand_duchy_of_hesse_and_by_rhine.name = _("Grand Duchy of Hesse and by Rhine")

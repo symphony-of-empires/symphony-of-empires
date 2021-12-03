@@ -92,6 +92,13 @@ haiti:set_ideology(democracy)
 haiti:add_accepted_culture(haitian)
 haiti:add_client_hint(democracy, _("Haiti"), 0xb147cc)
 
+mapuche = Nation:new{ ref_name = "mapuche" }
+mapuche.name = _("Mapuche")
+mapuche:register()
+mapuche:set_ideology(tribalism)
+mapuche:add_accepted_culture(mapuche)
+mapuche:add_client_hint(tribalism, _("Mapuche"), 0x4622b3)
+
 -- Releasable nations
 texas = Nation:new{ ref_name = "texas" }
 texas.name = _("Texas")

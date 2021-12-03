@@ -48,7 +48,7 @@ for k, v in pairs(brazil_provinces_list) do
     province:add_pop(slave, brazilian, catholic, 500, 0.5)
     province:add_nucleus(brazil)
     province:give_to(brazil)
-    province:add_industry(wheat_farm, brazil, andes_transport)
+    --province:add_industry(wheat_farm, brazil, andes_transport)
 end
 
 --------------------------------------------------------------
@@ -77,7 +77,7 @@ for k, v in pairs(paraguay_provinces_list) do
     province:add_pop(slave, paraguayan, catholic, 500, 0.5)
     province:add_nucleus(paraguay)
     province:give_to(paraguay)
-    province:add_industry(wheat_farm, paraguay, andes_transport)
+    --province:add_industry(wheat_farm, paraguay, andes_transport)
 end
 
 
@@ -117,6 +117,6 @@ for k, v in pairs(bolivia_provinces_list) do
     province:add_pop(slave, bolivian, catholic, 500, 0.5)
     province:add_nucleus(bolivia)
     province:give_to(bolivia)
-    province:add_industry(wheat_farm, bolivia, andes_transport)
+    --province:add_industry(wheat_farm, bolivia, andes_transport)
 end
 

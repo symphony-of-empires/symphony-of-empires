@@ -5,8 +5,6 @@ function cake_test()
 	return EVENT_CONDITIONS_MET
 end
 function cake_event()
-	local title = "Cake"
-	local text = "Sir, a cake has just magically appeared in your desk, what would you like to do?"
 	descision = Descision:new{
 		ref_name = "cake_descision_0",
 		name = "I think i will eat it",
@@ -62,6 +60,47 @@ cake_thing = Event:new{
 }
 cake_thing:register()
 cake_thing:add_receivers(Nation:get("hawai_i"))
+
+function unify_germany_test()
+	return EVENT_CONDITIONS_MET
+end
+function unify_germany_event()
+	descision = Descision:new{
+		ref_name = "unify_germany_descision_0",
+		name = "Yes",
+		descision_fn = "unify_germany_descision_0",
+		effects = "Prussia acquires all provinces that are a nuclei of Germany"
+	}
+	unify_germany_evhdl:add_descision(descision)
+	
+	descision = Descision:new{
+		ref_name = "unify_germany_descision_1",
+		name = "No",
+		descision_fn = "unify_germany_descision_1",
+		effects = "Nothing happens"
+	}
+	unify_germany_evhdl:add_descision(descision)
+	return EVENT_DO_ONE_TIME
+end
+function unify_germany_descision_0()
+	print('Unifying germany...')
+	local prov = Nation:get("germany"):get_nuclei_provinces()
+	for k, v in pairs(prov) do
+		prov:give_to(Nation:get("germany"))
+	end
+end
+function unify_germany_descision_1()
+	print('Germany isn\'t going to be a thing :(')
+end
+unify_germany_evhdl = Event:new{
+	ref_name = "unify_germany",
+	conditions_fn = "unify_germany_test",
+	event_fn = "unify_germany_event",
+	title = "Unify germany",
+	text = "Make germany with magic!"
+}
+unify_germany_evhdl:register()
+unify_germany_evhdl:add_receivers(Nation:get("prussia"))
 
 function kalmar_union_test()
     local needed_provinces = {
