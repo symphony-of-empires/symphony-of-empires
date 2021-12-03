@@ -62,6 +62,7 @@
 #include "client/map.hpp"
 #include "client/render/material.hpp"
 #include "client/render/model.hpp"
+#include "client/render/assimp_model.hpp"
 #include "client/render/texture.hpp"
 #include "client/ui.hpp"
 
@@ -160,7 +161,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 if(gs.current_mode == MapMode::NORMAL) {
                     if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
                         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-                        
+
                         if(tile.owner_id == (Nation::Id)-1) break;
                         if(tile.province_id == (Province::Id)-1) break;
                         new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->nations[tile.owner_id], gs.world->provinces[tile.province_id]);
@@ -337,11 +338,11 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 
     for(const auto& building_type : gs.world->building_types) {
         std::string path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
-        gs.map->outpost_type_icons.push_back(&g_model_manager->load_complex(path));
+        gs.map->outpost_type_icons.push_back(g_model_manager->load(path));
     }
     for(const auto& unit_type : gs.world->unit_types) {
         std::string path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
-        gs.map->unit_type_icons.push_back(&g_model_manager->load_complex(path));
+        gs.map->unit_type_icons.push_back(g_model_manager->load(path));
     }
 
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
@@ -416,7 +417,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 #include "client/interface/main_menu.hpp"
 #include "client/render/sound.hpp"
 
-static void mixaudio(void *userdata, uint8_t *stream, int len) {
+static void mixaudio(void* userdata, uint8_t* stream, int len) {
     GameState& gs = *((GameState*)userdata);
 
     std::memset(stream, 0, len);
@@ -554,7 +555,7 @@ void start_client(int argc, char** argv) {
     gs.height = height;
 
     tmpbuf = new char[512];
-    
+
     // Initialize sound
     SDL_AudioSpec fmt;
     fmt.freq = 11050;

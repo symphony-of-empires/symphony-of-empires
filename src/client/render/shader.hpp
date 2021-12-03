@@ -43,6 +43,7 @@ namespace UnifiedRender {
             GLuint id;
         public:
             Program(const VertexShader* vertex, const FragmentShader* fragment);
+            static Program* create(const std::string& vs_path, const std::string& fs_path);
             void use(void) const;
             void set_uniform(const std::string& name, glm::mat4 uniform) const;
             void set_uniform(const std::string& name, float value1, float value2) const;
