@@ -570,10 +570,16 @@ int LuaAPI::add_province(lua_State* L) {
     province->name = luaL_checkstring(L, 3);
     province->budget = 500.f;
 
+    // Set bounding box of province to the whole world (will later be resized at the bitmap-processing step)
+    province->max_x = std::numeric_limits<uint32_t>::min();
+    province->max_y = std::numeric_limits<uint32_t>::min();
+    province->min_x = std::numeric_limits<uint32_t>::max();
+    province->min_y = std::numeric_limits<uint32_t>::max();
+
     // Check for duplicates
     for(size_t i = 0; i < g_world->provinces.size(); i++) {
         if(province->color == g_world->provinces[i]->color) {
-            throw LuaAPI::Exception(province->name + " province has same colour as " + g_world->provinces[i]->name);
+            throw LuaAPI::Exception(province->ref_name + " province has same colour as " + g_world->provinces[i]->ref_name);
         }
         else if(province->ref_name == g_world->provinces[i]->ref_name) {
             throw LuaAPI::Exception("Duplicate ref_name " + province->ref_name);
@@ -590,7 +596,9 @@ int LuaAPI::get_province(lua_State* L) {
 
     lua_pushnumber(L, g_world->get_id(province));
     lua_pushstring(L, province->name.c_str());
-    lua_pushnumber(L, province->color);
+
+    const uint32_t color = bswap_32((province->color & 0x00ffffff) << 8);
+    lua_pushnumber(L, color);
     return 3;
 }
 
@@ -598,7 +606,9 @@ int LuaAPI::get_province_by_id(lua_State* L) {
     const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_pushstring(L, province->ref_name.c_str());
     lua_pushstring(L, province->name.c_str());
-    lua_pushnumber(L, province->color);
+
+    const uint32_t color = bswap_32((province->color & 0x00ffffff) << 8);
+    lua_pushnumber(L, color);
     return 3;
 }
 
@@ -614,8 +624,8 @@ int LuaAPI::add_province_industry(lua_State* L) {
     // Randomly place in any part of the province
     // TODO: This will create some funny situations where coal factories will appear on
     // the fucking pacific ocean - we need to fix that
-    building->x = province->min_x + (rand() % (province->max_x - province->min_x));
-    building->y = province->min_y + (rand() % (province->max_y - province->min_y));
+    building->x = province->min_x + (std::rand() % (province->max_x - province->min_x));
+    building->y = province->min_y + (std::rand() % (province->max_y - province->min_y));
     building->x = std::min(building->x, g_world->width - 1);
     building->y = std::min(building->y, g_world->height - 1);
     building->province = province;

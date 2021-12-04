@@ -90,6 +90,20 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
     });
 }
 
+BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingType* _building_type, UI::Widget* parent)
+    : gs{ _gs },
+    building_type{ _building_type },
+    UI::Group(x, y, 128, 24, parent)
+{
+    this->is_scroll = false;
+    
+    this->name_btn = new UI::Button(0, 0, 128, 24, this);
+    this->name_btn->on_each_tick = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<BuildingTypeButton&>(*w.parent);
+        w.text(o.building_type->name);
+    });
+}
+
 PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, UI::Widget* parent)
     : gs{ _gs },
     province{ _province },

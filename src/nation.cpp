@@ -79,26 +79,22 @@ inline bool Nation::can_do_diplomacy() {
 }
 
 void Nation::increase_relation(Nation& target) {
-    if(!can_do_diplomacy()) return;
+    //if(!can_do_diplomacy()) return;
 
     const World& world = World::get_instance();
-    const Nation::Id t1_idx = world.get_id(&target);
-    this->relations[t1_idx].relation += 5.f;
-    const Nation::Id t2_idx = world.get_id(this);
-    target.relations[t2_idx].relation += 5.f;
+    this->relations[world.get_id(&target)].relation += 5.f;
+    target.relations[world.get_id(this)].relation += 5.f;
 
     print_info("[%s] increases relations with [%s]", ref_name.c_str(), target.ref_name.c_str());
     this->do_diplomacy();
 }
 
 void Nation::decrease_relation(Nation& target) {
-    if(!can_do_diplomacy()) return;
+    //if(!can_do_diplomacy()) return;
 
     const World& world = World::get_instance();
-    const Nation::Id t1_idx = world.get_id(&target);
-    this->relations[t1_idx].relation += 5.f;
-    const Nation::Id t2_idx = world.get_id(this);
-    target.relations[t2_idx].relation += 5.f;
+    this->relations[world.get_id(&target)].relation -= 5.f;
+    target.relations[world.get_id(this)].relation -= 5.f;
 
     print_info("[%s] decreases relations with [%s]", ref_name.c_str(), target.ref_name.c_str());
     this->do_diplomacy();

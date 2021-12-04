@@ -1296,6 +1296,27 @@ public:
 };
 
 template<>
+class Serializer<War> {
+public:
+    static inline void serialize(Archive& stream, const War* obj) {
+        ::serialize(stream, &obj->name);
+        ::serialize(stream, &obj->attackers);
+        ::serialize(stream, &obj->defenders);
+    }
+    static inline void deserialize(Archive& stream, War* obj) {
+        ::deserialize(stream, &obj->name);
+        ::deserialize(stream, &obj->attackers);
+        ::deserialize(stream, &obj->defenders);
+    }
+    static inline size_t size(const War* obj) {
+        return serialized_size(&obj->name)
+            + serialized_size(&obj->attackers)
+            + serialized_size(&obj->defenders)
+            ;
+    }
+};
+
+template<>
 class Serializer<Ideology> {
 public:
     static inline void serialize(Archive& stream, const Ideology* obj) {
@@ -1379,6 +1400,8 @@ public:
         ::serialize(stream, &n_nation_modifiers);
         const TerrainType::Id n_terrain_type = obj->terrain_types.size();
         ::serialize(stream, &n_terrain_type);
+        const War::Id n_wars = obj->wars.size();
+        ::serialize(stream, &n_wars);
 
         print_info("(SERIALIZER) World");
         print_info("  n_goods %zu", obj->goods.size());
@@ -1397,6 +1420,7 @@ public:
         print_info("  n_treaties %zu", obj->treaties.size());
         print_info("  n_ideologies %zu", obj->ideologies.size());
         print_info("  n_terrain_types %zu", obj->terrain_types.size());
+        print_info("  n_wars %zu", obj->wars.size());
 
         for(auto& sub_obj : obj->goods) {
             ::serialize(stream, sub_obj);
@@ -1474,6 +1498,10 @@ public:
             ::serialize(stream, sub_obj);
         }
 
+        for(auto& sub_obj : obj->wars) {
+            ::serialize(stream, sub_obj);
+        }
+
         ::serialize(stream, &obj->delivers);
         ::serialize(stream, &obj->orders);
     }
@@ -1511,6 +1539,7 @@ public:
         Technology::Id n_technologies = deserialize_and_create_list<Technology>(stream, obj);
         NationModifier::Id n_nation_modifiers = deserialize_and_create_list<NationModifier>(stream, obj);
         TerrainType::Id n_terrain_types = deserialize_and_create_list<TerrainType>(stream, obj);
+        War::Id n_wars = deserialize_and_create_list<War>(stream, obj);
 
         print_info("(DESERIALIZER) World");
         print_info("  n_goods %zu", obj->goods.size());
@@ -1531,6 +1560,7 @@ public:
         print_info("  n_inventions %zu", obj->inventions.size());
         print_info("  n_technologies %zu", obj->technologies.size());
         print_info("  n_terrain_types %zu", obj->terrain_types.size());
+        print_info("  n_wars %zu", obj->wars.size());
 
         for(size_t i = 0; i < n_goods; i++) {
             auto* sub_obj = obj->goods[i];
@@ -1627,6 +1657,11 @@ public:
             ::deserialize(stream, sub_obj);
         }
 
+        for(size_t i = 0; i < n_wars; i++) {
+            auto* sub_obj = obj->wars[i];
+            ::deserialize(stream, sub_obj);
+        }
+
         ::deserialize(stream, &obj->delivers);
         ::deserialize(stream, &obj->orders);
     }
@@ -1659,6 +1694,7 @@ public:
             + (obj->technologies.size() * sizeof(Technology))
             + (obj->nation_modifiers.size() * sizeof(NationModifier))
             + (obj->terrain_types.size() * sizeof(TerrainType))
+            + (obj->wars.size() * sizeof(War))
             ;
     }
 };

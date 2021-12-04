@@ -930,7 +930,7 @@ province:add_nucleus(norway)
 province:add_nucleus(scandinavia)
 province:give_to(sweden)
 
-province = Province:new{ ref_name = "ostfold", color = 0x8cfcff }
+province = Province:new{ ref_name = "ostfold", color = 0x8cfbff }
 province.name = _("Østfold")
 province:register()
 province:add_industry(wheat_farm, united_states, andes_transport)

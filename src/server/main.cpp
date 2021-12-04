@@ -271,6 +271,8 @@ int main(int argc, char** argv) {
     Path::add_path("ie_map");
 #endif
 
+    std::srand(std::time(nullptr));
+
 #if !defined UNIT_TEST
     try {
         // Run as a server for servicing multiple clients
@@ -286,7 +288,7 @@ int main(int argc, char** argv) {
         bool paused = true;
 
         // Time between each tick
-        int delta_ms = 50;
+        int delta_ms = 2;
         while(run) {
             auto start_time = std::chrono::system_clock::now();
             if(!paused) {

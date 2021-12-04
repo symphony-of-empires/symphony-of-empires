@@ -52,7 +52,7 @@
 #include "client/client_network.hpp"
 #include "client/interface/descision.hpp"
 #include "client/interface/province_view.hpp"
-#include "client/interface/select_nation.hpp"
+#include "client/interface/lobby.hpp"
 #include "client/interface/top_window.hpp"
 #include "client/interface/province_view.hpp"
 #include "client/interface/treaty.hpp"
@@ -62,8 +62,8 @@
 #include "client/map.hpp"
 #include "client/render/material.hpp"
 #include "client/render/model.hpp"
-#include "client/render/assimp_model.hpp"
 #include "client/render/texture.hpp"
+#include "client/render/assimp_model.hpp"
 #include "client/ui.hpp"
 
 void GameState::play_nation() {
@@ -325,28 +325,8 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     gs.current_mode = MapMode::COUNTRY_SELECT;
     gs.input = Input{};
 
-    // Query the initial nation flags
-    for(const auto& nation : gs.world->nations) {
-        std::string path;
-        path = Path::get("ui/flags/" + nation->ref_name + "_" +
-            ((nation->ideology == nullptr)
-                ? "none"
-                : nation->ideology->ref_name) + ".png"
-        );
-        gs.map->nation_flags.push_back(&g_texture_manager->load_texture(path));
-    }
-
-    for(const auto& building_type : gs.world->building_types) {
-        std::string path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
-        gs.map->outpost_type_icons.push_back(g_model_manager->load(path));
-    }
-    for(const auto& unit_type : gs.world->unit_types) {
-        std::string path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
-        gs.map->unit_type_icons.push_back(g_model_manager->load(path));
-    }
-
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
-    gs.select_nation = new Interface::SelectNation(gs);
+    gs.select_nation = new Interface::LobbySelectView(gs);
     new MapDevView(gs.map);
 
     std::vector<Event*> displayed_events;
@@ -409,7 +389,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 
         if(gs.music_queue.empty()) {
             gs.music_fade_value = 100.f;
-            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
+            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/war.wav")));
         }
     }
 }
@@ -492,7 +472,7 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
 
         if(gs.music_queue.empty()) {
             gs.music_fade_value = 100.f;
-            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
+            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/title.wav")));
         }
     }
 }

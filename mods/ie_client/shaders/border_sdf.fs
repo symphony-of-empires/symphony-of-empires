@@ -37,10 +37,10 @@ void main() {
 	nCoord[7] = m_coord + j_vec.zz * pix;
 
 	vec4 m_frag_data = fetch_pixel(m_coord);
-	// if (jump < 129) {
-	// 	f_frag_colour = m_frag_data;
-	// 	return;
-	// }
+	if (jump < 8) {
+		f_frag_colour = m_frag_data;
+		return;
+	}
 		
 
 	float dist = 0.0;
@@ -59,7 +59,7 @@ void main() {
 		float newDist = get_dist(neighbor.xy, m_coord);
 
 		if(m_frag_data.z == 0.0 || newDist < dist) {
-			float d = 1. - sqrt(newDist) / (2. * sqrt(2.));
+			float d = 1. - sqrt(newDist) / (16. * sqrt(2.));
 			d = max(d, 0.00001);
 			m_frag_data.z = d;
 			m_frag_data.xy = neighbor.xy;

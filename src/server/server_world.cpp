@@ -364,7 +364,14 @@ void World::load_mod(void) {
     if(tiles == nullptr)
         throw std::runtime_error("Out of memory");
 
-    const std::vector<std::string> init_files ={
+    for(uint i = 0; i < total_size; i++) {
+        tiles[i].elevation = topo->buffer[i] & 0xff;
+        tiles[i].owner_id = (Nation::Id)-1;
+        tiles[i].province_id = (Province::Id)-1;
+    }
+    topo.reset(nullptr);
+
+    const std::vector<std::string> init_files = {
         "terrain_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "good_types", "industry_types",
@@ -391,12 +398,6 @@ void World::load_mod(void) {
     std::fill(province_color_table.begin(), province_color_table.end(), (Province::Id)-1);
     for(auto& province : provinces) {
         province_color_table[province->color & 0xffffff] = this->get_id(province);
-
-        // Also take the opportunity to set stuff
-        province->max_x = std::numeric_limits<uint32_t>::min();
-        province->max_y = std::numeric_limits<uint32_t>::min();
-        province->min_x = std::numeric_limits<uint32_t>::max();
-        province->min_y = std::numeric_limits<uint32_t>::max();
     }
 
     // Do the same lookup table technique but with terrain types
@@ -416,23 +417,19 @@ void World::load_mod(void) {
         throw std::runtime_error("Infrastructure map size mismatch");
 
     // Translate all div, pol and topo maps onto this single tile array
-    print_info(gettext("Translate all div, pol and topo maps onto this single tile array"));
+    print_info(gettext("Elevation map translation"));
     for(size_t i = 0; i < total_size; i++) {
         // Set coordinates for the tiles
-        tiles[i].owner_id = (Nation::Id)-1;
-        tiles[i].province_id = (Province::Id)-1;
-        tiles[i].elevation = topo->buffer[i] & 0xff;
         tiles[i].terrain_type_id = terrain_color_table[terrain->buffer[i] & 0xffffff];
+        tiles[i].infra_level = 0;
 
         // Set infrastructure level
-        if(infra->buffer[i] == 0xffffffff || infra->buffer[i] == 0xff000000) {
+        /*if(infra->buffer[i] == 0xffffffff || infra->buffer[i] == 0xff000000) {
             tiles[i].infra_level = 0;
-        }
-        else {
+        } else {
             tiles[i].infra_level = 1;
-        }
+        }*/
     }
-    topo.reset(nullptr);
     terrain.reset(nullptr);
     infra.reset(nullptr);
 
@@ -455,8 +452,7 @@ void World::load_mod(void) {
                 // The border generating shader ignores provinces with id 0xfffe
                 // This is to make sure we dont draw any border with lakes
                 tiles[i].province_id = (Province::Id)-2;
-            }
-            else if(div->buffer[i] == 0xff000000) {
+            } else if(div->buffer[i] == 0xff000000) {
                 // Temporary to show unregsitered provinces
                 tiles[i].province_id = (Province::Id)-3;
             }
@@ -575,7 +571,7 @@ void World::load_mod(void) {
         nation->relations.resize(this->nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
     }
 
-    const std::vector<std::string> mod_files ={
+    const std::vector<std::string> mod_files = {
         "mod", "postinit"
     };
     lua_exec_all_of(*this, mod_files);
@@ -599,50 +595,34 @@ void World::load_mod(void) {
         policy.foreign_trade = true;
     }
     print_info(gettext("World fully intiialized"));
+
+    for(auto& building : this->buildings) {
+        Province *province = building->province;
+        if(province == nullptr) continue;
+
+        building->x = province->min_x + (std::rand() % (province->max_x - province->min_x + 1));
+        building->y = province->min_y + (std::rand() % (province->max_y - province->min_y + 1));
+        building->x = std::min(building->x, g_world->width - 1);
+        building->y = std::min(building->y, g_world->height - 1);
+    }
 }
 
 #include "../action.hpp"
 #include "economy.hpp"
 void World::do_tick() {
-    /*
-    for(uint i = 0; i < width; i++) {
-        for(uint j = 0; j < height; j++) {
-            int side = rand() % 4;
-            Tile& tile = get_tile(i, j);
-            if(rand() % ((256 - tile.elevation) * 100)) {
-                auto adjacent_tiles = tile.get_neighbours(*this);
-
-                const Tile& adj_tile = *(adjacent_tiles[rand() % adjacent_tiles.size()]);
-                if(adj_tile.owner_id == (Nation::Id)-1 || adj_tile.owner_id == (Nation::Id)-2) continue;
-                tile.owner_id = adj_tile.owner_id;
-
-                // Broadcast to clients
-                Packet packet = Packet(0);
-                Archive ar = Archive();
-
-                ActionType action = ActionType::TILE_UPDATE;
-                ::serialize(ar, &action);
-
-                std::pair<size_t, size_t> coord = std::make_pair(i, j);
-                ::serialize(ar, &coord.first);
-                ::serialize(ar, &coord.second);
-                ::serialize(ar, &tile);
-
-                packet.data(ar.get_buffer(), ar.size());
-                g_server->broadcast(packet);
-            }
-        }
-    }
-    return;
-    */
-
     std::lock_guard lock(world_mutex);
     std::lock_guard lock2(tiles_mutex);
 
     // AI and stuff
     // Just random shit to make the world be like more alive
-    for(const auto& nation : nations) {
-        ai_do_tick(nation, this);
+    for(auto& nation : nations) {
+        if(nation->diplomatic_timer != 0) {
+            nation->diplomatic_timer--;
+        }
+
+        if(nation->is_ai) {
+            ai_do_tick(nation, this);
+        }
     }
 
     // Every 48 ticks do an economical tick
@@ -732,51 +712,7 @@ void World::do_tick() {
             break;
         }
 
-        // Count friends and foes in range (and find nearest foe)
-        size_t n_friends = 0;
-        size_t n_foes = 0;
-        Unit* nearest_foe = nullptr;
-        Unit* nearest_friend = nullptr;
-        for(size_t j = 0; j < g_world->units.size(); j++) {
-            Unit* other_unit = g_world->units[j];
-            if(unit->owner == other_unit->owner) {
-                // Only when very close
-                if(std::abs(unit->x - other_unit->x) >= 4.f && std::abs(unit->y - other_unit->y) >= 4.f)
-                    continue;
-
-                n_friends++;
-
-                if(nearest_friend == nullptr) {
-                    nearest_friend = other_unit;
-                }
-
-                // Find nearest friend
-                if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_friend->x)
-                    && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_friend->y)) {
-                    nearest_friend = other_unit;
-                }
-            }
-            else {
-                // Foes from many ranges counts
-                if(std::abs(unit->x - other_unit->x) >= 1.f && std::abs(unit->y - other_unit->y) >= 1.f)
-                    continue;
-
-                n_foes++;
-
-                if(nearest_foe == nullptr) {
-                    nearest_foe = other_unit;
-                }
-
-                // Find nearest foe
-                if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_foe->x)
-                    && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_foe->y)) {
-                    nearest_foe = other_unit;
-                }
-            }
-        }
-
-        if((unit->x != unit->tx || unit->y != unit->ty)
-            && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
+        if((unit->x != unit->tx || unit->y != unit->ty) && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
             float end_x, end_y;
             const float speed = 0.1f;
 
@@ -807,19 +743,32 @@ void World::do_tick() {
             unit->y = std::min<float>(height - 1, unit->y);
 
             // West and east do wrap
-            if(unit->x <= 0.f) {
+            if(unit->x <= 0.f)
                 unit->x = width - 1.f;
-            }
-            else if(unit->x >= width) {
+            else if(unit->x >= width)
                 unit->x = 0.f;
-            }
         }
 
         // Make the unit attack automatically
         // and we must be at war with the owner of this unit to be able to attack the unit
-        if(nearest_foe != nullptr && unit->owner->is_enemy(*nearest_foe->owner)) {
-            unit->attack(*nearest_foe);
+        Unit* nearest_enemy = nullptr;
+        for(auto& other_unit : units) {
+            if(unit->owner != other_unit->owner) {
+                // Foes from many ranges counts
+                if(std::abs(unit->x - other_unit->x) >= 1.f && std::abs(unit->y - other_unit->y) >= 1.f)
+                    continue;
+                
+                if(nearest_enemy == nullptr) nearest_enemy = other_unit;
+                // Find nearest foe
+                else if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_enemy->x) && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_enemy->y)) {
+                    nearest_enemy = other_unit;
+                }
+            }
         }
+
+        // TODO: This is temporal - un-comment this :D
+        //if(nearest_enemy != nullptr && unit->owner->is_enemy(*nearest_enemy->owner))
+            unit->attack(*nearest_enemy);
 
         // Unit is on a non-wasteland part of the map
         if(get_tile(unit->x, unit->y).province_id < (Province::Id)-3) {
@@ -897,8 +846,7 @@ void World::do_tick() {
         // West and east do wrap
         if(unit->x <= 0.f) {
             unit->x = width - 1.f;
-        }
-        else if(unit->x >= width) {
+        } else if(unit->x >= width) {
             unit->x = 0.f;
         }
 
@@ -906,8 +854,8 @@ void World::do_tick() {
         // TODO: Make it conquer multiple tiles
         Tile& tile = get_tile(unit->x, unit->y);
         if(tile.owner_id != get_id(unit->owner)) {
-            if((tile.elevation <= this->sea_level && !unit->type->is_naval) || (tile.elevation > sea_level && !unit->type->is_ground))
-                continue;
+            // Water cannot be conquered
+            if(tile.elevation <= sea_level) continue;
 
             tile.owner_id = get_id(unit->owner);
 
@@ -948,8 +896,7 @@ void World::do_tick() {
     for(const auto& treaty : treaties) {
         // Check that the treaty is agreed by all parties before enforcing it
         bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty->approval_status.end());
-        if(!on_effect)
-            continue;
+        if(!on_effect) continue;
 
         // And also check that there is atleast 1 clause that is on effect
         bool is_on_effect = false;
@@ -957,71 +904,53 @@ void World::do_tick() {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            }
-            else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
+            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            }
-            else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+            } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            }
-            else if(clause->type == TreatyClauseType::HUMILIATE) {
+            } else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            }
-            else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+            } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
                 is_on_effect = dyn_clause->in_effect();
-            }
-            else if(clause->type == TreatyClauseType::CEASEFIRE) {
+            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
                 is_on_effect = dyn_clause->in_effect();
             }
 
-            if(is_on_effect)
-                break;
+            if(is_on_effect) break;
         }
-        if(!is_on_effect)
-            continue;
+        if(!is_on_effect) continue;
 
         // Treaties clauses now will be enforced
         print_info("Enforcing treaty %s", treaty->name.c_str());
         for(auto& clause : treaty->clauses) {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
-                if(!dyn_clause->in_effect())
-                    goto next_iter;
+                if(!dyn_clause->in_effect()) goto next_iter;
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
+            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
-                if(!dyn_clause->in_effect())
-                    goto next_iter;
+                if(!dyn_clause->in_effect()) goto next_iter;
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+            } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
-                if(!dyn_clause->in_effect())
-                    goto next_iter;
+                if(!dyn_clause->in_effect()) goto next_iter;
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::HUMILIATE) {
+            } else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
-                if(!dyn_clause->in_effect())
-                    goto next_iter;
+                if(!dyn_clause->in_effect()) goto next_iter;
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+            } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
-                if(!dyn_clause->in_effect())
-                    goto next_iter;
+                if(!dyn_clause->in_effect()) goto next_iter;
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::CEASEFIRE) {
+            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
-                if(!dyn_clause->in_effect())
-                    goto next_iter;
+                if(!dyn_clause->in_effect()) goto next_iter;
                 dyn_clause->enforce();
             }
 

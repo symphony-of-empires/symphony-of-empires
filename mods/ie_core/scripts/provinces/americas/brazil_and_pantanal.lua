@@ -48,7 +48,7 @@ for k, v in pairs(brazil_provinces_list) do
     province:add_pop(slave, brazilian, catholic, 500, 0.5)
     province:add_nucleus(brazil)
     province:give_to(brazil)
-    province:add_industry(wheat_farm, brazil, andes_transport)
+    --province:add_industry(wheat_farm, brazil, andes_transport)
 end
 
 --------------------------------------------------------------
@@ -77,7 +77,7 @@ for k, v in pairs(paraguay_provinces_list) do
     province:add_pop(slave, paraguayan, catholic, 500, 0.5)
     province:add_nucleus(paraguay)
     province:give_to(paraguay)
-    province:add_industry(wheat_farm, paraguay, andes_transport)
+    --province:add_industry(wheat_farm, paraguay, andes_transport)
 end
 
 
@@ -89,7 +89,7 @@ local bolivia_provinces_list = {
     { ref_name = "pando", name = _("Pando"), color = rgb(71, 251, 255) },
     { ref_name = "santa_cruz", name = _("Santa Cruz"), color = rgb(255, 196, 238) },
     { ref_name = "carvoal", name = _("Carvoal"), color = rgb(255, 129, 104) },
-    { ref_name = "corumba", name = _("Corumbá"), color = rgb(140, 251, 255) },
+--    { ref_name = "corumba", name = _("Corumbá"), color = rgb(71, 251, 255) },
     { ref_name = "santissima_trinidade", name = _("Santíssima Trinidade"), color = rgb(94, 30, 255) },
     { ref_name = "fuerte_olimpo", name = _("Fuerte Olimpo"), color = rgb(111, 96, 113) },
     { ref_name = "nueva_burdeos", name = _("Nueva Burdeos"), color = rgb(255, 209, 73) },
@@ -117,6 +117,6 @@ for k, v in pairs(bolivia_provinces_list) do
     province:add_pop(slave, bolivian, catholic, 500, 0.5)
     province:add_nucleus(bolivia)
     province:give_to(bolivia)
-    province:add_industry(wheat_farm, bolivia, andes_transport)
+    --province:add_industry(wheat_farm, bolivia, andes_transport)
 end
 
