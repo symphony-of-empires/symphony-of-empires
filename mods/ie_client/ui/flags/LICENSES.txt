@@ -124,7 +124,7 @@ austria_republic
 bulgaria_republic
 	By SKopp - The flag of Bulgaria. The colors are specified at http://www.government.bg/cgi-bin/e-cms/vis/vis.pl?s=001&amp;p=0034&amp;n=000005&amp;g= as:White: Pantone SafeGreen: 17-5936 (Green TC) [textile color] [1]Red: 18-1664 (Fiery Red TC) [2], Public Domain, https://commons.wikimedia.org/w/index.php?curid=342993
 
-bulgaria_communism
+bulgaria_socialism
 	By Scroch - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=4838692
 
 catalonia_republic
@@ -145,7 +145,7 @@ italy_republic
 italy_monarchy
 	By F l a n k e r - La bandiera ItalianaDisposizioni dal R. Decreto che determina la forma della Bandiera di cui deve far uso il R. EsercitoDisposizioni dal R. Decreto che determina la forma della Bandiera di cui deve far uso il R. EsercitoLe dimensioni delle varie parti che compongono la bandiera per fanteria e cavalleria (R.D. 25 marzo 1860) sono:codolo e freccia (lunghezza totale cm 35); la freccia ha nel centro lo stemma reale contornato da fronde, sul globo reca l&#039;iscrizione «ESERCITO ITALIANO»; le iscrizioni relative a ciascun reggimento sono incise sul codolo;asta, foderata di velluto «turchino-azzurro» e ornata di «bullette» d&#039;ottone disposte a spirale, ha la lunghezza di m 2,50 compreso il calcio (cm 10) e la parte su cui si impernia la freccia (cm 10).L&#039;asta, per gli stendardi di cavalleria, è lunga m 1,38;A correzione di quanto era qui stabilito circa la lunghezza dell&#039;asta degli stendardi di cavalleria con nota n. 84, 22 maggio 1860 veniva precisato quanto segue:«si fa conoscere che l&#039;asta della Bandiera dei reggimenti di cavalleria, compreso il calcio e tutta la parte penetrante nella freccia, deve risultare metri 2,15; che la medesima è munita di una camera con anello di ferro, della lunghezza di m 0,40 a distanza di m 0,50 dalla estrema punta del calcio, e come lo dimostra l&#039;annesso disegno.»drappo in stoffa di seta di forma quadrata, dimensioni m 1,21 di lato, a tre bande: all&#039;asta quella verde (larghezza cm 40), al centro la bianca (cm 41), all&#039;esterno la rossa (cm 40).Il drappo delle bandiere dei corpi di cavalleria è anch&#039;esso di stoffa di seta, di forma quadrata delle seguenti dimensioni cm 60 di lato; è suddiviso in tre bande uguali, verde, bianca e rossa, ciascuna di cm 20 di larghezza;scudo di Savoia porta la croce bianca in campo rosso con il bordo azzurro (cm 31), altezza dello scudo cm 60, larghezza cm 39,5, larghezza bracci della croce cm 10, corona reale, ricamata in seta, alta cm 12,6;sulla parte inferiore della freccia (codolo) è avvolta una fascia di colore turchino-azzurro larga cm 9 ed annodata in modo da avere due lembi ricadenti, ciascuno di cm 74 di lunghezza, inclusa la frangia d&#039;argento alta cm 8,5. Avvolti insieme alla fascia vi sono anche due cordoni in argento, di mm 4 di diametro, per una lunghezza totale di m 1,50 incluso il fiocco lungo cm 11, che guarnisce le due estremità.|}Used colors:greenrendered as RGB 000 140 069Pantone 17-6153whiterendered as RGB 244 245 240Pantone 11-0601redrendered as RGB 205 033 042Pantone 18-1662savoy bluerendered as RGB 075 097 209Pantone ?, Public Domain, https://commons.wikimedia.org/w/index.php?curid=1670045
 
-hungary_communism
+hungary_socialism
 	By Thommy - Own work(20 August 1949). &quot;1949. évi XX. törvény. A Magyar Népköztársaság Alkotmánya.&quot;. Magyar Közlöny 5 (174): 1361.Flags of the World – Hungary - Historical Flags (1946-1989)FOTO:Fortepan — ID 17970:This vector image includes elements that have been taken or adapted from this file: Flag of Hungary.svg.This vector image includes elements that have been taken or adapted from this file: Coat of arms of Hungary (1949-1956).svg., Public Domain, https://commons.wikimedia.org/w/index.php?curid=56395073
 
 hungary_republic
@@ -159,3 +159,58 @@ lorraine_monarchy
 
 venice_republic
 	By Facquis This W3C-unspecified vector image was created with Inkscape . - Own work, Based on a work by Oliviero Murru: Bandiera contarina, online by [1]. The work of Oliviero Murru takes up the style of the flag of the galley of Doge Domenico Contarini, kept in the Correr museum in Venice, online by [2]., CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=86092067
+
+wolfenbuttel_monarchy
+	By Wolfenbüttel - https://www.crwflags.com/fotw/flags/de-wf-wf.html, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=110535188
+
+grand_duchy_of_hesse_and_by_rhine_monarchy
+	By David Liuzzo - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=853594
+
+belgium_monarchy
+	By Dbenbenn and others - Van den Bussche, E., Chief of Protocol, Belgian Federal Department of the Interior (2008) Noble Belgique, ô Mère chérie - LE PROTOCOLE EN BELGIQUE (PROTOCOL IN BELGIUM), Heule: Editions UGA ISBN: 9789067689359., Public Domain, https://commons.wikimedia.org/w/index.php?curid=342972
+
+bavaria_monarchy
+	By Digitized by User:Boris23, - based on Image:Flag of North Rhine-Westphalia.svg digitized by me too., Public Domain, https://commons.wikimedia.org/w/index.php?curid=584396
+
+oldenburg_monarchy
+	By Sir Iain - This W3C-unspecified vector image was created with Inkscape .Self-made, based on the Oldenburg page on Flaggenlexicon and on the Oldenburg page on FOTW, Public Domain, https://commons.wikimedia.org/w/index.php?curid=3952374
+
+hannover_monarchy
+	By User:Kalan, User:F l a n k e r (crown) - Own combination ofImage:Coat of arms of Lower Saxony.svg (public domain — trivial)Image:Flagge Preußen - Provinz Hannover.svg (public domain — {{PD-Coa-Germany}})Image:Flag of Italy (1861-1946) crowned.svg (CC-BY-SA 2.5), CC BY-SA 2.5, https://commons.wikimedia.org/w/index.php?curid=3560789
+
+papal_states_monarchy
+	By Tibetan Pop Rocks - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=31079891
+
+prussia_monarchy
+	By David Liuzzo, Attribution, https://commons.wikimedia.org/w/index.php?curid=14963016
+
+serbia_monarchy
+	By This vector image includes elements that have been taken or adapted from this file: Civil Flag of Serbia.svg. - Obrenovic Heraldry [1], Public Domain, https://commons.wikimedia.org/w/index.php?curid=63380332
+
+serbia_socialism
+	By User:CrnaGora - File:Flag of SR Montenegro.svg01:36, 22 June 2007 . . R-41 (Talk | contribs) . . 600×300 (3,720 bytes) (colour correction)21:45, 5 June 2007 . . R-41 (Talk | contribs) . . 600×300 (3,766 bytes) (Blue lightened)02:13, 2 June 2007 . . R-41 (Talk | contribs) . . 600×300 (3,759 bytes) (Colour correction)17:29, 1 June 2007 . . R-41 (Talk | contribs) . . 600×300 (3,759 bytes) (Colour correction)17:25, 1 June 2007 . . R-41 (Talk | contribs) . . 600×300 (3,382 bytes) (Colour correction)15:55, 25 May 2007 . . R-41 (Talk | contribs) . . 600×300 (3,382 bytes) (Star position correction)02:43, 14 July 2006 . . CrnaGora (Talk | contribs) . . 600×300 (1,604 bytes) (Flag of the Socialist Republic of Montenegro in the Socialist Federal Republic of Yugoslavia (SFRY). Self-made), Public Domain, https://commons.wikimedia.org/w/index.php?curid=2320026
+
+danzig_monarchy
+	By Mnmazur - This insignia is not confirmed to be correct, because it is lacking important source information: Please edit this file&#039;s description and provide a proper source.HELP: (1) The picture claims to be authentic. “Own work” is therefor no proper source. The provided source doesn&#039;t show an original depiction nor an original description and is probably POV (point of view). (2) For coat of arms please use the blazon and/or the picture of an original interpretation to provide an adequate source, but at least one or more references to literature. (3) If this depiction is a derivative please use the Template: Derived from to avoid sequence errors to make this work more transparent for other and to avoid an infringement of the copyright licence. In some cases it also might be advisable to name the author of those pictures.Thank you for your great work.This file was derived from: Wappen Freie Stadt Danzig.svg:, Public Domain, https://commons.wikimedia.org/w/index.php?curid=11075384
+
+silesia_monarchy
+	By Andrew J.Kurbiko - Own work, CC0, https://commons.wikimedia.org/w/index.php?curid=89874521
+
+anhalt_monarchy
+	By David Liuzzo - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=853159
+
+nassau_monarchy
+	By Sebastian Walderich - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=2311263
+
+switzerland_monarchy
+	By User:Marc MongenetCredits:User:-xfi-User:Zscout370 - PDF Colors Construction sheet, Public Domain, https://commons.wikimedia.org/w/index.php?curid=363097
+
+germany_socialism
+	By Flaggenentwurf: unbekanntdiese Datei: Jwnabd - Own workGesetz zur Änderung des Gesetzes über das Staatswappen und die Staatsflagge der Deutschen Demokratischen Republik. Vom 1. Oktober 1959Verordnung über Flaggen, Fahnen und Dienstwimpel der Deutschen Demokratischen Republik. — Flaggenverordnung — Vom 3. Januar 1973Verordnung über Flaggen, Fahnen und Dienstwimpel der Deutschen Demokratischen Republik. — Flaggenverordnung — Vom 12. Juli 1979, Public Domain, https://commons.wikimedia.org/w/index.php?curid=53582467
+
+russia_socialism
+	By Pianist - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=478539
+
+russia_republic
+	By svg by R-41, reworked by Pianist - http://en.wikipedia.org/wiki/Image:Flag_of_Russia_1991-1993.svg, Public Domain, https://commons.wikimedia.org/w/index.php?curid=2782838
+

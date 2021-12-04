@@ -49,13 +49,37 @@ local france_provinces_list = {
     -- { ref_name = "charente_maritime", name = _("Charente Maritime"), color = 0xeeaba0 },
     -- { ref_name = "deux_sevres", name = _("Deux Sèvres"), color = 0xa1ae40 },
     -- { ref_name = "vienne", name = _("Vienne"), color = 0x3baa60 }
-}
 
+    -- Uncategorized
+    { ref_name = "province_c0dfcf00", name = _("Unknown"), color = 0xcfdfc0 },
+    { ref_name = "province_c023da00", name = _("Unknown"), color = 0xda23c0 },
+    { ref_name = "province_40026600", name = _("Unknown"), color = 0x660240 },
+    { ref_name = "province_40545500", name = _("Unknown"), color = 0x555440 },
+    { ref_name = "province_50ef00", name = _("Unknown"), color = 0xef5000 },
+    { ref_name = "province_a031bf00", name = _("Unknown"), color = 0xbf31a0 },
+    { ref_name = "province_80e43500", name = _("Unknown"), color = 0x35e480 },
+    { ref_name = "province_ae0b6200", name = _("Unknown"), color = 0x620bae },
+    { ref_name = "province_bda800", name = _("Unknown"), color = 0xa8bd00 },
+    { ref_name = "province_207f2600", name = _("Unknown"), color = 0x267f20 },
+    { ref_name = "province_e0312e00", name = _("Unknown"), color = 0x2e31e0 },
+    { ref_name = "province_4014b100", name = _("Unknown"), color = 0xb11440 },
+    { ref_name = "province_a0000000", name = _("Unknown"), color = 0xa0 },
+    { ref_name = "province_a657cd00", name = _("Unknown"), color = 0xcd57a6 },
+    { ref_name = "province_20128f00", name = _("Unknown"), color = 0x8f1220 },
+    { ref_name = "province_6027af00", name = _("Unknown"), color = 0xaf2760 },
+    { ref_name = "province_8066c200", name = _("Unknown"), color = 0xc26680 },
+    { ref_name = "province_a0c23000", name = _("Unknown"), color = 0x30c2a0 },
+    { ref_name = "province_80aacc00", name = _("Unknown"), color = 0xccaa80 },
+    { ref_name = "province_a0741600", name = _("Unknown"), color = 0x1674a0 },
+    { ref_name = "province_a0fcff00", name = _("Unknown"), color = 0xfffca0 },
+    { ref_name = "province_a0063b00", name = _("Unknown"), color = 0x3b06a0 },
+    { ref_name = "province_ffe50000", name = _("Unknown"), color = 0xe5ff },
+}
 for k, v in pairs(france_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, united_states, andes_transport)
+    --province:add_industry(wheat_farm, france, andes_transport)
     province:add_pop(artisan, french, catholic, 5000, 0.9)
     province:add_pop(farmer, french, catholic, 40000, 0.8)
     province:add_pop(soldier, french, catholic, 8000, 0.8)

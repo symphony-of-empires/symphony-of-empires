@@ -85,5 +85,7 @@ for k, v in pairs(uncolonized_provinces_list) do
 
     province:add_nucleus(argentina)
     province:add_nucleus(chile)
-    province:add_industry(wheat_farm, argentina, andes_transport)
+    province:add_nucleus(mapuche)
+    province:give_to(mapuche)
+    province:add_industry(wheat_farm, mapuche, andes_transport)
 end

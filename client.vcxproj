@@ -168,7 +168,7 @@
     <ClInclude Include="src\client\interface\main_menu.hpp" />
     <ClInclude Include="src\client\interface\policies.hpp" />
     <ClInclude Include="src\client\interface\province_view.hpp" />
-    <ClInclude Include="src\client\interface\select_nation.hpp" />
+    <ClInclude Include="src\client\interface\lobby.hpp" />
     <ClInclude Include="src\client\interface\top_window.hpp" />
     <ClInclude Include="src\client\interface\treaty.hpp" />
     <ClInclude Include="src\client\map.hpp" />
@@ -218,7 +218,7 @@
     <ClCompile Include="src\client\interface\main_menu.cpp" />
     <ClCompile Include="src\client\interface\policies.cpp" />
     <ClCompile Include="src\client\interface\province_view.cpp" />
-    <ClCompile Include="src\client\interface\select_nation.cpp" />
+    <ClCompile Include="src\client\interface\lobby.cpp" />
     <ClCompile Include="src\client\interface\top_window.cpp" />
     <ClCompile Include="src\client\interface\treaty.cpp" />
     <ClCompile Include="src\client\main.cpp" />

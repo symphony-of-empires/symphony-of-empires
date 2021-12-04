@@ -36,7 +36,7 @@ class Map;
 class UnitType;
 struct SDL_Window;
 namespace Interface {
-    class SelectNation;
+    class LobbySelectView;
     class TopWindow;
 }
 namespace UI {
@@ -72,7 +72,7 @@ public:
 
     UI::Context* ui_ctx;
 
-    Interface::SelectNation* select_nation;
+    Interface::LobbySelectView* select_nation;
     Interface::TopWindow* top_win;
 
     std::vector<const UnifiedRender::Texture*> nation_flags;

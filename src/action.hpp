@@ -52,6 +52,13 @@ enum class ActionType {
     CHANGE_TREATY_APPROVAL,
     DRAFT_TREATY,
     TREATY_ADD,
+
+    // Diplomatic actions
+    DIPLO_INC_RELATIONS,
+    DIPLO_DEC_RELATIONS,
+    DIPLO_EMBARGO,
+    DIPLO_DECLARE_WAR,
+    DIPLO_ALLOW_MIL_ACCESS,
 };
 
 namespace Action {

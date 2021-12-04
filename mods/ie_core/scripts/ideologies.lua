@@ -52,3 +52,6 @@ progressivism:register()
 
 secularism = Ideology:new{ ref_name = "secularism", name = _("Secularism"), check_policies_fn = "?" }
 secularism:register()
+
+tribalism = Ideology:new{ ref_name = "tribalism", name = _("Tribalism"), check_policies_fn = "?" }
+tribalism:register()

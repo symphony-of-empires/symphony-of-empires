@@ -21,7 +21,7 @@ Sound::Sound(const std::string& path) {
     SDL_AudioCVT cvt;
 
     if(SDL_LoadWAV(path.c_str(), &wave, &this->data, &this->len) == nullptr)
-        throw SoundException(path, std::string(SDL_GetError()));
+        throw SoundException(path, SDL_GetError());
     
     SDL_BuildAudioCVT(&cvt, wave.format, wave.channels, wave.freq, AUDIO_S16, 1, 11050);
     cvt.buf = (Uint8*)malloc(this->len * cvt.len_mult);

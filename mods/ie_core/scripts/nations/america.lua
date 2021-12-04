@@ -13,9 +13,9 @@ brazil = Nation:new{ ref_name = "brazil" }
 brazil.name = _("Brazil")
 brazil.adjective = "Brazilian"
 brazil:register()
-brazil:set_ideology(republic)
+brazil:set_ideology(monarchy)
 brazil:add_accepted_culture(brazilian)
-brazil:add_client_hint(republic, _("Brazil"), 0x60c483)
+brazil:add_client_hint(monarchy, _("Brazil"), 0x60c483)
 
 gran_colombia = Nation:new{ ref_name = "gran_colombia" }
 gran_colombia.name = _("Gran colombia")
@@ -91,6 +91,13 @@ haiti:register()
 haiti:set_ideology(democracy)
 haiti:add_accepted_culture(haitian)
 haiti:add_client_hint(democracy, _("Haiti"), 0xb147cc)
+
+mapuche = Nation:new{ ref_name = "mapuche" }
+mapuche.name = _("Mapuche")
+mapuche:register()
+mapuche:set_ideology(tribalism)
+mapuche:add_accepted_culture(mapuche)
+mapuche:add_client_hint(tribalism, _("Mapuche"), 0x4622b3)
 
 -- Releasable nations
 texas = Nation:new{ ref_name = "texas" }
