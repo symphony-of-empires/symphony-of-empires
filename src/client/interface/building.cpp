@@ -7,7 +7,7 @@
 using namespace Interface;
 
 BuildingSelectCompanyTab::BuildingSelectCompanyTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : gs{_gs},
+    : gs{ _gs },
     UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
 {
     uint i = 0;
@@ -15,14 +15,15 @@ BuildingSelectCompanyTab::BuildingSelectCompanyTab(GameState& _gs, int x, int y,
         auto* btn = new CompanyButton(gs, 0, 24 * i, company, this);
         btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<BuildingBuildView&>(*w.parent);
-            o.company = static_cast<CompanyButton&>(w).company;
+            auto& company_button = static_cast<CompanyButton&>(w);
+            o.company = company_button.company;
         });
         i++;
     }
 }
 
 BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : gs{_gs},
+    : gs{ _gs },
     UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
 {
     uint i = 0;
@@ -37,7 +38,7 @@ BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int 
 }
 
 BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : gs{_gs},
+    : gs{ _gs },
     UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
 {
     uint i = 0;
@@ -52,7 +53,7 @@ BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, U
 }
 
 BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : gs{_gs},
+    : gs{ _gs },
     UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
 {
     uint i = 0;
@@ -90,7 +91,7 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
 }
 
 BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, Nation* _nation, Province* _province, Company* _company)
-    : gs{_gs},
+    : gs{ _gs },
     tx(_tx),
     ty(_ty),
     in_tile(_in_tile),

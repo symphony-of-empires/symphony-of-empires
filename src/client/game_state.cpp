@@ -106,7 +106,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
     int& height = gs.height;
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
-        int click_on_ui = 0;
+        bool click_on_ui = false;
         switch(event.type) {
         case SDL_MOUSEBUTTONDOWN:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);

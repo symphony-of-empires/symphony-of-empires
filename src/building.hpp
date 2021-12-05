@@ -59,7 +59,7 @@ public:
     Nation* owner;
     
     // Province that "supplies" this building
-    Province* province;
+    Province* province = nullptr;
     
     // Corporate owner of this building
     Company* corporate_owner;

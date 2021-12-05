@@ -48,6 +48,12 @@ enum UI_WidgetType {
     UI_WIDGET_GROUP,
 };
 
+enum class CLICK_STATE {
+    NOT_CLICKED,
+    NOT_HANDLED,
+    HANDLED,
+};
+
 namespace UI {
     class Widget;
     class Tooltip;
@@ -59,8 +65,8 @@ namespace UI {
         int width, height;
 
         glm::ivec2 get_pos(Widget& w, glm::ivec2 offset);
-        int check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
-        int check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, int is_clicked);
+        void check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
+        CLICK_STATE check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, CLICK_STATE click_state, bool clickable);
         int check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y);
     public:
         Context();
@@ -74,7 +80,7 @@ namespace UI {
         void resize(const int width, const int height);
 
         void check_hover(unsigned mx, unsigned my);
-        int check_click(unsigned mx, unsigned my);
+        bool check_click(unsigned mx, unsigned my);
         void check_drag(unsigned mx, unsigned my);
         int check_wheel(unsigned mx, unsigned my, int y);
         void check_text_input(const char* input);
@@ -140,6 +146,8 @@ namespace UI {
 
         // Used internally for managing widgets outside of window bounds
         bool is_show = true;
+		// Used internally for drawing hover effects on clickable child widgets
+        bool is_clickable = false;
         bool is_hover = false;
         bool is_float = false;
         bool is_fullscreen = false;
@@ -192,7 +200,7 @@ namespace UI {
     public:
         Tooltip();
         Tooltip(Widget* parent, unsigned w, unsigned h);
-        ~Tooltip(){};
+        virtual ~Tooltip() override {};
         void set_pos(int x, int y, int width, int height, int screen_width, int screen_height);
     };
 
@@ -207,9 +215,9 @@ namespace UI {
     class Group: public Widget {
     public:
         Group(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        ~Group() {};
+        virtual ~Group() override {};
 
-        virtual void on_render(Context& ctx);
+        virtual void on_render(Context& ctx) override;
     };
 
     class Input: public Widget {
@@ -234,7 +242,7 @@ namespace UI {
             }
         }
         Input(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        ~Input(){};
+        virtual ~Input() override {};
 
         std::function<void(Input&, const char*, void*)> on_textinput;
         std::string buffer = "";
@@ -246,13 +254,13 @@ namespace UI {
     class Checkbox: public Widget {
     public:
         Checkbox(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        ~Checkbox(){};
+        virtual ~Checkbox() override {};
     };
 
     class Button: public Widget {
     public:
         Button(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        ~Button(){};
+        virtual ~Button() override {};
     };
 
     class CloseButton: public Widget {
@@ -261,7 +269,7 @@ namespace UI {
         }
     public:
         CloseButton(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        ~CloseButton(){};
+        virtual ~CloseButton() override {};
     };
 
     class Window: public Widget {
@@ -275,20 +283,20 @@ namespace UI {
     class Image: public Widget {
     public:
         Image(int x, int y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* parent = nullptr);
-        ~Image(){};
+        virtual ~Image() override {};
     };
 
     class Label: public Widget {
     public:
         Label(int x, int y, const std::string& text = " ", Widget* parent = nullptr);
-        ~Label(){};
+        virtual ~Label() override {};
         virtual void on_render(Context& ctx);
     };
 
     class Chart: public Widget {
     public:
         Chart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
-        ~Chart(){};
+        virtual ~Chart() override {};
         virtual void on_render(Context& ctx);
         std::deque<double> data;
     };
@@ -296,7 +304,7 @@ namespace UI {
     class Slider: public Widget {
     public:
         Slider(int x, int y, unsigned w, unsigned h, float min, float max, Widget* _parent = nullptr);
-        ~Slider(){};
+        virtual ~Slider() override {};
         virtual void on_render(Context& ctx);
         float max, min, value;
     };
@@ -307,7 +315,7 @@ namespace UI {
         std::vector<UI::Label*> labels;
     public:
         Text(int x, int y, unsigned w, unsigned h, Widget* parent);
-        ~Text(){};
+        virtual ~Text() override {};
 
         virtual void on_render(Context& ctx);
         virtual void text(const std::string& text);
@@ -317,7 +325,7 @@ namespace UI {
     public:
         PieChart(int x, int y, unsigned w, unsigned h, std::vector<ChartData> data = std::vector<ChartData>(), Widget* _parent = nullptr);
         PieChart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
-        ~PieChart(){};
+        virtual ~PieChart() override {};
         virtual void on_render(Context& ctx);
         void set_data(std::vector<ChartData> data);
 
