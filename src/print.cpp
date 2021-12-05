@@ -155,7 +155,6 @@ void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
         break;
 
     default:
-        return;
         _severity = "UNKNOWN";
         break;
     }

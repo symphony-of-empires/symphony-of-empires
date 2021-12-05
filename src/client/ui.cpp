@@ -182,6 +182,7 @@ void Context::render_recursive(Widget& w, int x_off, int y_off) {
 
     for(auto& child : w.children) {
         child->is_show = true;
+        child->is_clickable = (w.on_click || w.is_clickable) && w.is_hover;
         if((child->x < 0 || child->x > w.width || child->y < 0 || child->y > w.height)) {
             if(!child->is_float)
                 child->is_show = false;
@@ -214,22 +215,22 @@ void Context::render_all() {
     glPopMatrix();
 }
 
-int Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
+void Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
     glm::ivec2 offset{ x_off, y_off };
     offset = get_pos(w, offset);
 
-    w.is_hover = false;
+    w.is_hover = true;
 
-    if(!w.is_show) return 0;
+    if(!w.is_show) w.is_hover = false;
+    if(!w.is_render) w.is_hover = false;
 
     if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height))
-        return 0;
+        w.is_hover = false;
 
-    w.is_hover = true;
-    if(w.on_hover)
+    if(w.is_hover && w.on_hover)
         w.on_hover(w, w.user_data);
 
-    if(w.tooltip != nullptr) {
+    if(w.is_hover && w.tooltip != nullptr) {
         tooltip_widget = w.tooltip;
         tooltip_widget->set_pos(offset.x, offset.y, w.width, w.height, width, height);
     }
@@ -237,7 +238,6 @@ int Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsig
     for(auto& child : w.children) {
         check_hover_recursive(*child, mx, my, offset.x, offset.y);
     }
-    return 1;
 }
 
 void Context::check_hover(const unsigned mx, const unsigned my) {
@@ -253,20 +253,24 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
     for(int i = widgets.size() - 1; i >= 0; i--) {
         check_hover_recursive(*widgets[i], mx, my, 0, 0);
     }
-    return;
 }
 
-int Context::check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, int is_clicked) {
+CLICK_STATE Context::check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off,
+    CLICK_STATE click_state, bool clickable) {
     glm::ivec2 offset{ x_off, y_off };
     offset = get_pos(w, offset);
 
-    int click_consumed = 1;
+    if(click_state != CLICK_STATE::NOT_CLICKED)
+        clickable = true;
+
+    bool click_consumed = click_state == CLICK_STATE::HANDLED;
     // Widget must be displayed
-    if(!w.is_show) click_consumed = 0;
+    if(!w.is_show) clickable = false;
+    if(!w.is_render) clickable = false;
 
     // Click must be within the widget's box
     if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height))
-        click_consumed = 0;
+        clickable = false;
 
     switch(w.type) {
     case UI_WIDGET_SLIDER: {
@@ -277,23 +281,35 @@ int Context::check_click_recursive(Widget& w, const unsigned int mx, const unsig
         break;
     }
 
-    bool is_clicked_now = click_consumed && !is_clicked;
-    if(is_clicked_now && w.on_click) w.on_click(w, w.user_data);
-    if(!is_clicked_now && w.on_click_outside) w.on_click_outside(w, w.user_data);
-
     for(auto& child : w.children) {
-        check_click_recursive(*child, mx, my, offset.x, offset.y, is_clicked);
+        click_state = check_click_recursive(*child, mx, my, offset.x, offset.y, click_state, clickable);
     }
-    return is_clicked || click_consumed;
+
+    // Call on_click_outside if on_click has been used or widget isn't hit by click
+    if(w.on_click_outside) {
+        if(!clickable || click_consumed) w.on_click_outside(w, w.user_data);
+    }
+    // Call on_click if on_click hasnt been used and widget is hit by ckick
+    if(w.on_click) {
+        if(clickable && !click_consumed) {
+            w.on_click(w, w.user_data);
+            return CLICK_STATE::HANDLED;
+        }
+    }
+
+    if(click_state == CLICK_STATE::NOT_CLICKED && clickable)
+        click_state = CLICK_STATE::NOT_HANDLED;
+
+    return click_state;
 }
 
-int Context::check_click(const unsigned mx, const unsigned my) {
+bool Context::check_click(const unsigned mx, const unsigned my) {
     is_drag = false;
-    int is_clicked = 0;
+    CLICK_STATE click_state = CLICK_STATE::NOT_CLICKED;
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        is_clicked += check_click_recursive(*widgets[i], mx, my, 0, 0, is_clicked);
+        click_state = check_click_recursive(*widgets[i], mx, my, 0, 0, click_state, true);
     }
-    return is_clicked;
+    return click_state != CLICK_STATE::NOT_CLICKED;
 }
 
 void Context::check_drag(const unsigned mx, const unsigned my) {
@@ -389,8 +405,6 @@ void Context::do_tick(void) {
 }
 
 int Context::do_tick_recursive(Widget& w) {
-    // Do not evaluate widgets that are not even rendered
-    if(!w.is_render) return 0;
 
     if(w.on_each_tick) w.on_each_tick(w, w.user_data);
 
@@ -665,7 +679,7 @@ void Widget::on_render(Context& ctx) {
     }
 
     // Semi-transparent over hover elements which can be clicked
-    if(on_click && is_hover) {
+    if((on_click && is_hover) || is_clickable) {
         glBindTexture(GL_TEXTURE_2D, 0);
         glColor4f(1.5f, 1.f, 1.f, 0.5f);
         glBegin(GL_TRIANGLES);
@@ -749,7 +763,7 @@ void Widget::text(const std::string& _text) {
     SDL_Surface* surface;
 
     std::string output_text = _text;
-    if (output_text == "") {
+    if(output_text == "") {
         output_text = " ";
     }
 

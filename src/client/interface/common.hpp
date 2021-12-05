@@ -13,9 +13,8 @@ class BuildingType;
 
 namespace Interface {
     // Pretty brief summaries (for example to click oon a button from a list)
-    class UnitButton : public UI::Group {
+    class UnitButton : public UI::Button {
         GameState& gs;
-        UI::Button* name_btn;
     public:
         Unit* unit;
         UnitButton(GameState& gs, int x, int y, Unit* unit, UI::Widget* parent);
@@ -30,17 +29,15 @@ namespace Interface {
         UnitTypeButton(GameState& gs, int x, int y, UnitType* unit_type, UI::Widget* parent);
     };
 
-    class CompanyButton : public UI::Group {
+    class CompanyButton : public UI::Button {
         GameState& gs;
-        UI::Button* name_btn;
     public:
         Company* company;
         CompanyButton(GameState& gs, int x, int y, Company* company, UI::Widget* parent);
     };
 
-    class ProvinceButton : public UI::Group {
+    class ProvinceButton : public UI::Button {
         GameState& gs;
-        UI::Button* name_btn;
     public:
         Province* province;
         ProvinceButton(GameState& gs, int x, int y, Province* province, UI::Widget* parent);
@@ -55,7 +52,7 @@ namespace Interface {
         NationButton(GameState& gs, int x, int y, Nation* nation, UI::Widget* parent);
     };
 
-    class BuildingTypeButton : public UI::Group {
+    class BuildingTypeButton : public UI::Button {
         GameState& gs;
         UI::Button* name_btn;
     public:
