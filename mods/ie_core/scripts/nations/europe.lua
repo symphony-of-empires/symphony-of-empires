@@ -581,8 +581,8 @@ germany.adjective = _("German")
 germany:register()
 germany:add_accepted_culture(german)
 germany:add_client_hint(monarchy, _("Germany"), 0x6e6e6e)
-germany:add_client_hint(republic, _("Germany"), 0x6e6e6e)
-germany:add_client_hint(socialism, _("Germany"), 0x6e6e6e)
+germany:add_client_hint(republic, _("Federal Republic of Germany"), 0x6e6e6e)
+germany:add_client_hint(socialism, _("People's Socialist Sate of Germany"), 0x6e6e6e)
 
 holy_roman_empire = Nation:new{ ref_name = "holy_roman_empire" }
 holy_roman_empire.name = _("Holy Roman Empire")
@@ -645,7 +645,7 @@ two_sicilies.name = _("Two Sicilies")
 two_sicilies:register()
 two_sicilies:set_ideology(monarchy)
 two_sicilies:add_accepted_culture(italian)
-two_sicilies:add_client_hint(monarchy, _("Two Sicilies"), 0x808000)
+two_sicilies:add_client_hint(monarchy, _("Two Sicilies"), 0x679e7b)
 
 tuscany = Nation:new{ ref_name = "tuscany" }
 tuscany.name = _("Tuscany")

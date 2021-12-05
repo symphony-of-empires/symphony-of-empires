@@ -14,7 +14,7 @@ for k, v in pairs(oldenburg_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, oldenburg, andes_transport)
+    province:add_industry(iron_mine, oldenburg, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -36,7 +36,7 @@ for k, v in pairs(wolfenbuttel_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, wolfenbuttel, andes_transport)
+    province:add_industry(iron_mine, wolfenbuttel, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -58,7 +58,7 @@ for k, v in pairs(bremen_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, bremen, andes_transport)
+    province:add_industry(iron_mine, bremen, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -80,7 +80,7 @@ for k, v in pairs(brunswick_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, brunswick, andes_transport)
+    province:add_industry(iron_mine, brunswick, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -102,7 +102,7 @@ for k, v in pairs(ritzebuttel_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, ritzebuttel, andes_transport)
+    province:add_industry(iron_mine, ritzebuttel, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -125,7 +125,7 @@ for k, v in pairs(grand_duchy_of_hesse_and_by_rhine_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, grand_duchy_of_hesse_and_by_rhine, andes_transport)
+    province:add_industry(iron_mine, grand_duchy_of_hesse_and_by_rhine, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -148,7 +148,7 @@ for k, v in pairs(luxembourg_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, luxembourg, andes_transport)
+    province:add_industry(iron_mine, luxembourg, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -198,7 +198,7 @@ for k, v in pairs(prussia_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, prussia, andes_transport)
+    province:add_industry(iron_mine, prussia, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -224,7 +224,7 @@ for k, v in pairs(bavaria_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, bavaria, andes_transport)
+    province:add_industry(iron_mine, bavaria, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -254,7 +254,7 @@ for k, v in pairs(belgium_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, belgium, andes_transport)
+    province:add_industry(iron_mine, belgium, andes_transport)
     province:add_pop(artisan, belgian, protestant, 5000, 0.9)
     province:add_pop(farmer, belgian, protestant, 40000, 0.8)
     province:add_pop(soldier, belgian, protestant, 8000, 0.8)
@@ -276,7 +276,7 @@ for k, v in pairs(hannover_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, hannover, andes_transport)
+    province:add_industry(iron_mine, hannover, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -306,7 +306,7 @@ for k, v in pairs(switzerland_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, switzerland, andes_transport)
+    province:add_industry(iron_mine, switzerland, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -317,7 +317,6 @@ for k, v in pairs(switzerland_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(entrepreneur, german, protestant, 800, 0.9)
     province:add_nucleus(switzerland)
-    province:add_nucleus(germany)
     province:give_to(switzerland)
 end
 
@@ -328,7 +327,7 @@ for k, v in pairs(baden_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, baden, andes_transport)
+    province:add_industry(iron_mine, baden, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -350,7 +349,7 @@ for k, v in pairs(wurttemberg_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, wurttemberg, andes_transport)
+    province:add_industry(iron_mine, wurttemberg, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -372,7 +371,7 @@ for k, v in pairs(mecklenburg_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, mecklenburg, andes_transport)
+    province:add_industry(iron_mine, mecklenburg, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -386,3 +385,26 @@ for k, v in pairs(mecklenburg_provinces_list) do
     province:add_nucleus(germany)
     province:give_to(mecklenburg)
 end
+
+local saxonyg_provinces_list = {
+    { ref_name = "dresden", name = _("Dresden"), color = 0x8cb2ff },
+}
+for k, v in pairs(saxonyg_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(iron_mine, saxony, andes_transport)
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(aristocrat, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(entrepreneur, german, protestant, 800, 0.9)
+    province:add_nucleus(saxony)
+    province:add_nucleus(germany)
+    province:give_to(saxony)
+end
+saxony:set_capital(Province:get("dresden"))
