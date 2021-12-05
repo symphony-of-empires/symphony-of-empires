@@ -85,17 +85,13 @@ end
 function unify_germany_descision_0()
 	print('Unifying germany...')
 	local prov = Nation:get("germany"):get_nuclei_provinces()
-	for k, v in pairs(prov) do
-		prov:give_to(Nation:get("germany"))
-	end
+	for k, v in pairs(prov) do print(prov.ref_name) prov:give_to(Nation:get("germany")) end
 end
 function unify_germany_descision_1()
-	print('Germany isn\'t going to be a thing :(')
+	print('Germany isn\'t going to be a thing :<')
 end
 unify_germany_evhdl = Event:new{
-	ref_name = "unify_germany",
-	conditions_fn = "unify_germany_test",
-	event_fn = "unify_germany_event",
+	ref_name = "unify_germany", conditions_fn = "unify_germany_test", event_fn = "unify_germany_event",
 	title = "Unify germany",
 	text = "Make germany with magic!"
 }
