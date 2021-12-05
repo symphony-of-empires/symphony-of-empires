@@ -13,7 +13,8 @@ local france_provinces_list = {
     { ref_name = "orne", name = _("Orne"), color = rgb(153, 75, 225) },
     { ref_name = "eure", name = _("Eure"), color = rgb(202, 25, 192) },
     { ref_name = "seine_maritime", name = _("Seine Maritime"), color = rgb(52, 155, 160) },
-    { ref_name = "alpes_maritimes", name = _("Alpes Maritimes"), color = rgb(70, 147, 96) },
+-- Later given by sardinia
+--  { ref_name = "alpes_maritimes", name = _("Alpes Maritimes"), color = rgb(70, 147, 96) },
     { ref_name = "alpes_de_haute_provence", name = _("Alpes de Haute Provence"), color = rgb(163, 155, 0) },
     { ref_name = "hautes_alpes", name = _("Hautes Alpes"), color = rgb(35, 73, 160) },
     { ref_name = "var", name = _("Var"), color = rgb(168, 188, 192) },
@@ -34,8 +35,9 @@ local france_provinces_list = {
     { ref_name = "ariege", name = _("Ariège"), color = rgb(105, 221, 32) },
     { ref_name = "aude", name = _("Aude"), color = rgb(229, 11, 160) },
     { ref_name = "pyrenees_orientales", name = _("Pyrénées Orientales"), color = rgb(79, 142, 64) },
-    { ref_name = "savoie", name = _("Savoie"), color = rgb(78, 69, 224) },
-    { ref_name = "haute_savoie", name = _("Haute Savoie"), color = rgb(185, 107, 32) },
+-- Later given by sardinia
+--  { ref_name = "savoie", name = _("Savoie"), color = rgb(78, 69, 224) },
+--  { ref_name = "haute_savoie", name = _("Haute Savoie"), color = rgb(185, 107, 32) },
     { ref_name = "pyrenees_atlantiques", name = _("Pyrénées Atlantiques"), color = 0x402880 },
     
     -- { ref_name = "landes", name = _("Landes"), color = 0xc788a0 },
