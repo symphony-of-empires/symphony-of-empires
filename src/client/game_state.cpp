@@ -333,6 +333,9 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 
     gs.update_tick = false;
 
+    // Call update_on_tick on start of the gamestate
+    gs.update_on_tick();
+
     std::atomic<bool> run;
     run = true;
     while(run) {
