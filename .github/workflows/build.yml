@@ -15,7 +15,7 @@ jobs:
     - name: "Install dependencies"
       run: |
        sudo apt update
-       sudo apt install libpng-dev libsdl2-dev libsdl2-ttf-dev gettext libtbb-dev libglm-dev libglew-dev libtbb-dev liblua5.3-dev
+       sudo apt install libpng-dev libsdl2-dev libsdl2-ttf-dev gettext libtbb-dev libglm-dev libglew-dev libtbb-dev liblua5.3-dev libassimp-dev
     - name: "Build"
       run: |
        cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release .
