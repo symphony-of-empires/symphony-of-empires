@@ -18,8 +18,9 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* pa
     UI::Group(x, y, 128, 24, parent)
 {
     this->is_scroll = false;
-    
+
     this->name_btn = new UI::Button(0, 0, 128, 24, this);
+    text(std::to_string(unit->size) + " " + unit->type->name);
     this->name_btn->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<UnitButton&>(*w.parent);
         w.text(std::to_string(o.unit->size) + " " + o.unit->type->name);
@@ -32,7 +33,7 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_typ
     UI::Group(x, y, 128, 24, parent)
 {
     this->is_scroll = false;
-    
+
     this->icon_img = new UI::Image(0, 0, 32, 24, nullptr, this);
     this->icon_img->current_texture = &g_texture_manager->load_texture(Path::get("ui/icons/unit_types/" + unit_type->ref_name));
 
@@ -47,8 +48,9 @@ CompanyButton::CompanyButton(GameState& _gs, int x, int y, Company* _company, UI
     UI::Group(x, y, 128, 24, parent)
 {
     this->is_scroll = false;
-    
+
     this->name_btn = new UI::Button(0, 0, 128, 24, this);
+    text(company->name);
     this->name_btn->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<CompanyButton&>(*w.parent);
         w.text(o.company->name);
@@ -61,8 +63,9 @@ ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province
     UI::Group(x, y, 128, 24, parent)
 {
     this->is_scroll = false;
-    
+
     this->name_btn = new UI::Button(0, 0, 128, 24, this);
+    text(province->name);
     this->name_btn->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceButton&>(*w.parent);
         w.text(o.province->name);
@@ -75,8 +78,9 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
     UI::Group(x, y, 128, 24, parent)
 {
     this->is_scroll = false;
-    
+
     this->flag_icon = new UI::Image(0, 0, 32, 24, nullptr, this);
+    current_texture = &gs.get_nation_flag(*nation);
     this->flag_icon->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationButton&>(*w.parent);
         w.current_texture = &o.gs.get_nation_flag(*o.nation);
@@ -84,6 +88,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
 
     this->name_btn = new UI::Button(0, 0, 128 - 32, 24, this);
     this->name_btn->right_side_of(*this->flag_icon);
+    text(nation->get_client_hint().alt_name);
     this->name_btn->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationButton&>(*w.parent);
         w.text(o.nation->get_client_hint().alt_name);
@@ -96,8 +101,9 @@ BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingTyp
     UI::Group(x, y, 128, 24, parent)
 {
     this->is_scroll = false;
-    
+
     this->name_btn = new UI::Button(0, 0, 128, 24, this);
+    text(building_type->name);
     this->name_btn->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<BuildingTypeButton&>(*w.parent);
         w.text(o.building_type->name);
@@ -111,7 +117,7 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
     UI::Group(x, y, parent->width - x, 24, parent)
 {
     this->is_scroll = false;
-    
+
     this->size_btn = new UI::Button(0, 0, 96, 24, this);
 
     this->budget_btn = new UI::Button(0, 0, 96, 24, this);
@@ -123,6 +129,13 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
     this->culture_btn = new UI::Button(0, 0, 96, 24, this);
     this->culture_btn->right_side_of(*this->religion_btn);
 
+    if(index < province->pops.size()) {
+        const Pop& pop = province->pops[index];
+        size_btn->text(std::to_string(pop.size));
+        budget_btn->text(std::to_string(pop.budget));
+        religion_btn->text(pop.religion->name);
+        culture_btn->text(pop.culture->name);
+    }
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PopInfo&>(w);
         if(o.index >= o.province->pops.size()) return;
@@ -160,13 +173,13 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
 
     this->price_chart = new UI::Chart(0, 0, 96, 24, this);
     this->price_chart->right_side_of(*this->price_btn);
-    
+
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProductInfo&>(w);
 
         // Only update every 48 ticks
         if(o.gs.world->time % 48) return;
-        
+
         if(o.price_chart->data.size() >= 30)
             o.price_chart->data.pop_back();
 
