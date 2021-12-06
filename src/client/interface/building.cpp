@@ -14,7 +14,7 @@ BuildingSelectCompanyTab::BuildingSelectCompanyTab(GameState& _gs, int x, int y,
     for(const auto& company : gs.world->companies) {
         auto* btn = new CompanyButton(gs, 0, 24 * i, company, this);
         btn->on_click = ([](UI::Widget& w, void*) {
-            auto& o = static_cast<BuildingBuildView&>(*w.parent);
+            auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
             o.company = static_cast<CompanyButton&>(w).company;
         });
         i++;
@@ -29,7 +29,7 @@ BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int 
     for(const auto& province : gs.world->provinces) {
         auto* btn = new ProvinceButton(gs, 0, 24 * i, province, this);
         btn->on_click = ([](UI::Widget& w, void*) {
-            auto& o = static_cast<BuildingBuildView&>(*w.parent);
+            auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
             o.province = static_cast<ProvinceButton&>(w).province;
         });
         i++;
@@ -44,7 +44,7 @@ BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, U
     for(const auto& nation : gs.world->nations) {
         auto* btn = new NationButton(gs, 0, 24 * i, nation, this);
         btn->on_click = ([](UI::Widget& w, void*) {
-            auto& o = static_cast<BuildingBuildView&>(*w.parent);
+            auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
             o.nation = static_cast<NationButton&>(w).nation;
         });
         i++;
@@ -59,9 +59,9 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
     for(const auto& building_type : gs.world->building_types) {
         auto* btn = new BuildingTypeButton(gs, 0, 24 * i, building_type, this);
         btn->on_click = ([](UI::Widget& w, void*) {
-            auto& o = static_cast<BuildingBuildView&>(*w.parent);
+            auto& o = dynamic_cast<BuildingBuildView&>(*w.parent->parent);
             o.building_type = static_cast<BuildingTypeButton&>(w).building_type;
-
+            
             // Tell the server about this "new" building
             g_client->packet_mutex.lock();
             Packet packet = Packet();

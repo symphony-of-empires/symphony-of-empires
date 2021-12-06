@@ -262,7 +262,7 @@ int Context::check_click_recursive(Widget& w, const unsigned int mx, const unsig
 
     int click_consumed = 1;
     // Widget must be displayed
-    if(!w.is_show) click_consumed = 0;
+    if(!w.is_show || !w.is_render) click_consumed = 0;
 
     // Click must be within the widget's box
     if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height))

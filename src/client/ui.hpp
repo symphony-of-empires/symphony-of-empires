@@ -94,7 +94,7 @@ namespace UI {
 
     class Widget {
     public:
-        Widget(){};
+        Widget() {};
         Widget(Widget* parent, int x, int y, unsigned w, unsigned h, int type, const UnifiedRender::Texture* tex = nullptr);
         Widget(const Widget&) = default;
         Widget(Widget&&) noexcept = default;
