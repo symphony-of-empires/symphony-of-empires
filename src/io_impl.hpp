@@ -791,9 +791,8 @@ public:
         ::serialize(stream, &obj->min_y);
         ::serialize(stream, &obj->supply_limit);
         ::serialize(stream, &obj->supply_rem);
-        ::serialize(stream, &obj->worker_pool);
         ::serialize(stream, &obj->owner);
-        ::serialize(stream, &obj->nucleuses);
+        ::serialize(stream, &obj->nuclei);
         ::serialize(stream, &obj->neighbours);
         ::serialize(stream, &obj->stockpile);
         ::serialize(stream, &obj->products);
@@ -811,9 +810,8 @@ public:
         ::deserialize(stream, &obj->min_y);
         ::deserialize(stream, &obj->supply_limit);
         ::deserialize(stream, &obj->supply_rem);
-        ::deserialize(stream, &obj->worker_pool);
         ::deserialize(stream, &obj->owner);
-        ::deserialize(stream, &obj->nucleuses);
+        ::deserialize(stream, &obj->nuclei);
         ::deserialize(stream, &obj->neighbours);
         ::deserialize(stream, &obj->stockpile);
         ::deserialize(stream, &obj->products);
@@ -832,9 +830,8 @@ public:
             + serialized_size(&obj->min_y)
             + serialized_size(&obj->supply_limit)
             + serialized_size(&obj->supply_rem)
-            + serialized_size(&obj->worker_pool)
             + serialized_size(&obj->owner)
-            + serialized_size(&obj->nucleuses)
+            + serialized_size(&obj->nuclei)
             + serialized_size(&obj->neighbours)
             + serialized_size(&obj->stockpile)
             + serialized_size(&obj->products)
@@ -979,7 +976,6 @@ class Serializer<Product> {
 public:
     static inline void serialize(Archive& stream, const Product* obj) {
         ::serialize(stream, &obj->owner);
-        ::serialize(stream, &obj->origin);
         ::serialize(stream, &obj->building);
         ::serialize(stream, &obj->good);
         ::serialize(stream, &obj->price);
@@ -990,7 +986,6 @@ public:
     }
     static inline void deserialize(Archive& stream, Product* obj) {
         ::deserialize(stream, &obj->owner);
-        ::deserialize(stream, &obj->origin);
         ::deserialize(stream, &obj->building);
         ::deserialize(stream, &obj->good);
         ::deserialize(stream, &obj->price);
@@ -1002,7 +997,6 @@ public:
     static inline size_t size(const Product* obj) {
         return
             serialized_size(&obj->owner)
-            + serialized_size(&obj->origin)
             + serialized_size(&obj->building)
             + serialized_size(&obj->good)
             + serialized_size(&obj->price)

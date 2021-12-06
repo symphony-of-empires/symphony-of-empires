@@ -305,7 +305,7 @@ void Server::net_loop(int id) {
                         building->req_goods = building->type->req_goods;
                         ::serialize(ar, building);
 
-                        g_world->buildings.push_back(building);
+                        g_world->insert(building);
                         print_info("[%s] has built a [%s] on %i x %i", selected_nation->ref_name.c_str(), building->type->ref_name.c_str(), building->x, building->y);
                         // Rebroadcast
                         broadcast(packet);
@@ -407,7 +407,7 @@ void Server::net_loop(int id) {
                             }
                         }
 
-                        g_world->treaties.push_back(treaty);
+                        g_world->insert(treaty);
 
                         // Rebroadcast to client
                         // We are going to add a treaty to the client

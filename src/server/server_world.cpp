@@ -135,25 +135,25 @@ World::World() {
     lua_register(lua, "get_ideology", LuaAPI::get_ideology);
 
     lua_register(lua, "get_hour", [](lua_State* L) {
-        lua_pushnumber(L, 1 + (g_world->time % 48));
+        lua_pushnumber(L, 1 + (g_world->time % g_world->ticks_per_day));
         return 1;
     });
     lua_register(lua, "get_day", [](lua_State* L) {
-        lua_pushnumber(L, 1 + (g_world->time / 48 % 30));
+        lua_pushnumber(L, 1 + (g_world->time / g_world->ticks_per_day % 30));
         return 1;
     });
     lua_register(lua, "get_month", [](lua_State* L) {
-        lua_pushnumber(L, 1 + (g_world->time / 48 / 30 % 12));
+        lua_pushnumber(L, 1 + (g_world->time / g_world->ticks_per_day / 30 % 12));
         return 1;
     });
     lua_register(lua, "get_year", [](lua_State* L) {
-        lua_pushnumber(L, g_world->time / 48 / 30 / 12);
+        lua_pushnumber(L, g_world->time / g_world->ticks_per_day / 30 / 12);
         return 1;
     });
     lua_register(lua, "set_date", [](lua_State* L) {
-        const int year = lua_tonumber(L, 1) * 12 * 30 * 48;
-        const int month = lua_tonumber(L, 2) * 30 * 48;
-        const int day = lua_tonumber(L, 3) * 48;
+        const int year = lua_tonumber(L, 1) * 12 * 30 * g_world->ticks_per_day;
+        const int month = lua_tonumber(L, 2) * 30 * g_world->ticks_per_day;
+        const int day = lua_tonumber(L, 3) * g_world->ticks_per_day;
         g_world->time = year + month + day;
         return 1;
     });
@@ -625,8 +625,8 @@ void World::do_tick() {
         }
     }
 
-    // Every 48 ticks do an economical tick
-    if(time % 48 == 0) {
+    // Every ticks_per_day ticks do an economical tick
+    if(time % ticks_per_day == 0) {
         Economy::do_tick(*this);
         // Calculate prestige for today (newspapers come out!)
         for(auto& nation : this->nations) {
@@ -961,8 +961,8 @@ void World::do_tick() {
 
     LuaAPI::check_events(lua);
 
-    if(time % 48 == 0) {
-        print_info("%i/%i/%i", time / 12 / 30 / 48, (time / 30 / 48 % 12) + 1, (time / 48 % 30) + 1);
+    if(time % ticks_per_day == 0) {
+        print_info("%i/%i/%i", time / 12 / 30 / ticks_per_day, (time / 30 / ticks_per_day % 12) + 1, (time / ticks_per_day % 30) + 1);
     }
 
     print_info("Tick %i done", time);

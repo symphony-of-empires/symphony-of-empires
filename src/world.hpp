@@ -60,6 +60,7 @@ enum class OrderType {
     INDUSTRIAL,
     BUILDING,
     UNIT,
+    POP,
 };
 class OrderGoods {
 public:
@@ -139,13 +140,13 @@ class World {
     // @tparam C STL-compatible container where the pointer *should* be located in
     template<typename T, typename C>
     inline typename T::Id get_id_from_pvector(const T* ptr, C table) const {
+        /*
         // Use the cached Id of the object for faster 1-element lookups
         if(ptr->cached_id != (typename T::Id) - 1) {
             return ptr->cached_id;
         }
 
-        // Do a full traverse of the list and cache the Id once found
-        // so sucessive lookups are faster
+        // Do a full traverse of the list and cache the Id once found so sucessive lookups are faster
         typename C::iterator it = std::find(table.begin(), table.end(), ptr);
         if(it == table.end()) {
             // -1 is used as an invalid index
@@ -153,9 +154,19 @@ class World {
         }
         ptr->cached_id = (typename T::Id)std::distance(table.begin(), it);
         return ptr->cached_id;
+        */
+        return ptr->cached_id;
     }
 
+    std::vector<Event*> daily_check_events;
+    std::vector<Event*> monthly_check_events;
+    std::vector<Event*> yearly_check_events;
+    std::vector<Event*> economical_check_events;
+    std::vector<std::pair<Event*, int>> rand_chance_events;
+
 public:
+    static constexpr uint ticks_per_day = 48;
+
     World();
     World& operator=(const World&) = default;
     ~World();
@@ -166,31 +177,32 @@ public:
     void do_tick(void);
     void load_mod(void);
 
-    LIST_FOR_TYPE(Nation, nations, std::vector)
-        LIST_FOR_TYPE(Province, provinces, std::vector)
-        LIST_FOR_TYPE(Product, products, std::vector)
-        LIST_FOR_TYPE(Good, goods, std::vector)
-        LIST_FOR_TYPE(Culture, cultures, std::vector)
-        LIST_FOR_TYPE(Company, companies, std::vector)
-        LIST_FOR_TYPE(PopType, pop_types, std::vector)
-        LIST_FOR_TYPE(Building, buildings, std::vector)
-        LIST_FOR_TYPE(Event, events, std::vector)
-        LIST_FOR_TYPE(UnitType, unit_types, std::vector)
-        LIST_FOR_TYPE(UnitTrait, unit_traits, std::vector)
-        LIST_FOR_TYPE(Unit, units, std::vector)
-        LIST_FOR_TYPE(BuildingType, building_types, std::vector)
-        LIST_FOR_TYPE(Treaty, treaties, std::vector)
-        LIST_FOR_TYPE(Ideology, ideologies, std::vector)
-        LIST_FOR_TYPE(Religion, religions, std::vector)
-        LIST_FOR_TYPE(Technology, technologies, std::vector)
-        LIST_FOR_TYPE(Invention, inventions, std::vector)
-        LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector)
-        LIST_FOR_TYPE(TerrainType, terrain_types, std::vector)
-        LIST_FOR_TYPE(War, wars, std::vector)
+    LIST_FOR_TYPE(Nation, nations, std::vector);
+    LIST_FOR_TYPE(Province, provinces, std::vector);
+    LIST_FOR_TYPE(Product, products, std::vector);
+    LIST_FOR_TYPE(Good, goods, std::vector);
+    LIST_FOR_TYPE(Culture, cultures, std::vector);
+    LIST_FOR_TYPE(Company, companies, std::vector);
+    LIST_FOR_TYPE(PopType, pop_types, std::vector);
+    LIST_FOR_TYPE(Building, buildings, std::vector);
+    LIST_FOR_TYPE(Event, events, std::vector);
+    LIST_FOR_TYPE(UnitType, unit_types, std::vector);
+    LIST_FOR_TYPE(UnitTrait, unit_traits, std::vector);
+    LIST_FOR_TYPE(Unit, units, std::vector);
+    LIST_FOR_TYPE(BuildingType, building_types, std::vector);
+    LIST_FOR_TYPE(Treaty, treaties, std::vector);
+    LIST_FOR_TYPE(Ideology, ideologies, std::vector);
+    LIST_FOR_TYPE(Religion, religions, std::vector);
+    LIST_FOR_TYPE(Technology, technologies, std::vector);
+    LIST_FOR_TYPE(Invention, inventions, std::vector);
+    LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector);
+    LIST_FOR_TYPE(TerrainType, terrain_types, std::vector);
+    LIST_FOR_TYPE(War, wars, std::vector);
 
-        template<typename T>
+    template<typename T>
     inline void insert(T* ptr) {
         auto& list = this->get_list(ptr);
+        ptr->cached_id = list.size();
         list.push_back(ptr);
     };
 
@@ -198,11 +210,10 @@ public:
     inline void remove(T* ptr) {
         auto& list = this->get_list(ptr);
 
-        // Decrease the cache_id counter for the elements
-        // after the removed element
+        // Decrease the cache_id counter for the elements after the removed element
         typename T::Id cached_id = this->get_id<T>(ptr);
         for(typename T::Id i = cached_id; i < list.size(); i++) {
-            list[i]->cached_id = (typename T::Id) - 1;
+            list[i]->cached_id -= 1;
         }
 
         // Remove the element itself

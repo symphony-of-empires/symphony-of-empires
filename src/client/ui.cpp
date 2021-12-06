@@ -408,7 +408,7 @@ int Context::check_wheel(unsigned mx, unsigned my, int y) {
 
 // These functions are called on each world tick - this is to allow to update widgets on
 // each world tick, and are also framerate independent and thus more reliable than doing
-// the usual `if (tick % 48 == 24) {}`, which can cause issues on slow PCs or very fast hosts
+// the usual `if (tick % ticks_per_day == 24) {}`, which can cause issues on slow PCs or very fast hosts
 void Context::do_tick(void) {
     for(int i = widgets.size() - 1; i >= 0; i--) {
         do_tick_recursive(*widgets[i]);

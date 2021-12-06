@@ -271,7 +271,7 @@ void Client::net_loop(void) {
                 case ActionType::TREATY_ADD: {
                     Treaty* treaty = new Treaty();
                     ::deserialize(ar, treaty);
-                    world.treaties.push_back(treaty);
+                    world.insert(treaty);
                     print_info("New treaty from [%s]", treaty->sender->ref_name.c_str());
                     for(const auto& status: treaty->approval_status)
                         print_info("- [%s]", status.first->ref_name.c_str());

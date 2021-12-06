@@ -50,6 +50,39 @@ public:
     std::string desc;
 };
 
+std::string get_tradename(const std::string& name, size_t maxlen = 4) {
+    std::string _name(name);
+
+    size_t pos = name.find(' ');
+    
+    /*if(pos != std::string::npos) {
+        // Multi-word acronym
+        _name = toupper(name[0]);
+        pos = name.find(' ');
+        while(pos != std::string::npos && _name.length() < maxlen) {
+            _name += toupper(name[pos + 1]);
+            pos = name.substr(pos + 1).find(' ');
+        }
+    } else {
+        // Single-word
+        for(auto& ch : _name) {
+            ch = toupper(ch);
+        }
+        _name = _name.substr(0, maxlen);
+    }*/
+
+    for(auto& ch : _name) {
+        ch = toupper(ch);
+    }
+    _name = _name.substr(0, maxlen);
+
+    // Post-process and remove non-alphabetic characters
+    for(auto& ch : _name) {
+        if(!isalpha(ch)) ch = '.';
+    }
+    return _name;
+}
+
 ServerCommand cmds[] = {
     { ([](World& world, Server& server, std::string cmdline) {
         std::cout << "Hello! :D" << std::endl;
@@ -124,18 +157,47 @@ ServerCommand cmds[] = {
     { ([](World& world, Server& server, std::string cmdline) {
         if(!world.products.empty()) {
             // Highest priced product
-            Product* hp_product = world.products[0];
+            const Product* a_product;
+            
+            a_product = world.products[0];
             for(const auto& product : world.products) {
-                if(product->price > hp_product->price) {
-                    hp_product = product;
+                if(product->price > a_product->price) {
+                    a_product = product;
                 }
             }
 
             std::cout << "Highest priced product" << std::endl;
-            std::cout << "Company: " << hp_product->owner->name << std::endl;
-            std::cout << "Province: " << hp_product->origin->name << std::endl;
-            std::cout << "Type: " << hp_product->good->name << std::endl;
-            std::cout << "Owner: " << hp_product->building->owner->name << std::endl;
+            std::cout << "Company: " << a_product->owner->name << std::endl;
+            std::cout << "Province: " << a_product->building->get_province()->name << std::endl;
+            std::cout << "Type: " << a_product->good->name << std::endl;
+            std::cout << "Owner: " << a_product->building->get_owner()->name << std::endl;
+            std::cout << "Cost: " << a_product->price << "(" << a_product->price_vel << ")" << std::endl;
+
+            a_product = world.products[0];
+            for(const auto& product : world.products) {
+                if(product->price < a_product->price) {
+                    a_product = product;
+                }
+            }
+            std::cout << "Lowest priced product" << std::endl;
+            std::cout << "Company: " << a_product->building->get_owner()->name << std::endl;
+            std::cout << "Province: " << a_product->building->get_province()->name << std::endl;
+            std::cout << "Type: " << a_product->good->name << std::endl;
+            std::cout << "Owner: " << a_product->building->get_owner()->name << std::endl;
+            std::cout << "Cost: " << a_product->price << "(" << a_product->price_vel << ")" << std::endl;
+
+            std::cout << "*-----------------------------------------------------*" << std::endl;
+            std::cout << "S T O C K   E X C H A N G E" << std::endl;
+            std::cout << "*-----------------------------------------------------*" << std::endl;
+            for(const auto& product : world.products) {
+                printf("|%3s", get_tradename(product->owner->name, 3).c_str());
+                printf("|%3s", get_tradename(product->building->get_owner()->name, 3).c_str());
+                printf("|%12s", get_tradename(product->building->get_province()->name, 12).c_str());
+                printf("|%8.2f", product->price);
+                printf("|%4.2f", product->price_vel);
+                std::cout << std::endl;
+            }
+            std::cout << "*-----------------------------------------------------*" << std::endl;
         } else {
             std::cout << "No products!" << std::endl;
         }
@@ -175,7 +237,7 @@ ServerCommand cmds[] = {
             count += province->total_pops();
         }
         std::cout << "World population: " << count << std::endl;
-    }), { "popcount" }, "Display current world population" },
+    }), { "world_pop", "population", "popcount" }, "Display current world population" },
     { ([](World& world, Server& server, std::string cmdline) {
         for(const auto& province : world.provinces) {
             uint32_t color = bswap32(province->color) >> 8;
@@ -299,15 +361,20 @@ int main(int argc, char** argv) {
             if(future.wait_for(std::chrono::milliseconds(10)) == std::future_status::ready) {
                 std::string r = future.get();
 
+                bool cmd_called = false;
                 for(const auto& cmd : cmds) {
                     for(const auto& alias: cmd.aliases) {
                         if(r == alias) {
                             cmd.invoke_cb(*world, *server, r);
+                            cmd_called = true;
+                            break;
                         }
                     }
                 }
 
-                if(r == "help" || r == "info") {
+                if(cmd_called == true) {
+                    // Do stuff
+                } else if(r == "help" || r == "info") {
                     std::cout << "Builtin commands:" << std::endl;
                     std::cout << "start: Start the simulation" << std::endl;
                     std::cout << "stop: Pause the simulation" << std::endl;
