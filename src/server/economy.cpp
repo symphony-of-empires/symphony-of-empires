@@ -56,7 +56,10 @@ void Economy::do_tick(World& world) {
     std::vector<AvailableWorkers> available_workers;
     for(const auto& province : world.provinces) {
         // Province must have an owner
-        if(province->owner == nullptr) continue;
+        if(province->owner == nullptr) {
+            available_workers.push_back(AvailableWorkers{});
+            continue;
+        }
 
         AvailableWorkers province_workers{};
 
@@ -531,7 +534,8 @@ void Economy::do_tick(World& world) {
 
                     // Set quality to the max from this product
                     order.building->min_quality = std::max(order.building->min_quality, deliver.product->quality);
-                } else if(order.type == OrderType::BUILDING) {
+                }
+                else if(order.type == OrderType::BUILDING) {
                     // The building will take the production materials
                     // and use them for building the unit
                     order.building->get_owner()->budget -= total_order_cost;
@@ -539,7 +543,8 @@ void Economy::do_tick(World& world) {
                         if(p.first != deliver.good) continue;
                         p.second -= std::min(deliver.quantity, p.second);
                     }
-                } else if(order.type == OrderType::UNIT) {
+                }
+                else if(order.type == OrderType::UNIT) {
                     // TODO: We should deduct and set willing payment from military spendings
                     order.building->get_owner()->budget -= total_order_cost;
                     for(auto& p : order.building->req_goods) {
@@ -562,7 +567,7 @@ void Economy::do_tick(World& world) {
 
                 // Set quality to the max from this product
                 order.building->min_quality = std::max(order.building->min_quality, deliver.product->quality);
-                
+
                 deliver.product->supply += deliver.quantity;
 
                 // Delete this deliver and order tickets from the system since
