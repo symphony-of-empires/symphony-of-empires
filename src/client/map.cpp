@@ -254,7 +254,7 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
     border_sdf_shader->set_uniform("map_size", (float)border_tex->width, (float)border_tex->height);
     UnifiedRender::TextureOptions fbo_mipmap_options{};
     fbo_mipmap_options.internal_format = GL_RGBA32F;
-    fbo_mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
+    fbo_mipmap_options.min_filter = GL_LINEAR_MIPMAP_NEAREST;
     fbo_mipmap_options.mag_filter = GL_LINEAR;
     UnifiedRender::Texture* tex0 = new UnifiedRender::Texture(border_tex->width, border_tex->height);
     tex0->to_opengl(fbo_mipmap_options);
