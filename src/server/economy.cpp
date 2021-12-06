@@ -449,9 +449,17 @@ void Economy::do_tick(World& world) {
                         // TODO: We should deduct and set willing payment from military spendings
                         order.building->get_owner()->budget -= total_order_cost;
                         for(auto& p : order.building->req_goods) {
-                            if(p.first != deliver.good) continue;
-                            p.second -= std::min(deliver.quantity, p.second);
+                            if(p.first == deliver.good) {
+                                p.second -= std::min(deliver.quantity, p.second);
+                                break;
+                            }
                         }
+                    }
+                    // Nobody is to be billed!
+                    else if(order.type == OrderType::POP) {
+                        // ... transport company still obtains their money & delivers to the province
+                        order.province->stockpile[world.get_id(deliver.product)] += order.quantity;
+                        print_info("Pop requested stuff");
                     }
 
                     deliver.product->supply += deliver.quantity;
@@ -533,6 +541,12 @@ void Economy::do_tick(World& world) {
 
                 // Province must have stockpile
                 if(!province->stockpile[product_id]) {
+                    // POPs will order it so hopefully transport companies send it
+                    OrderGoods order = OrderGoods();
+                    order.quantity = pop.size;
+                    order.province = province;
+                    world.orders.push_back(order);
+
                     // Desesperation for food leads to higher demand
                     if(product->good->is_edible && pop.life_needs_met <= 0.f) {
                         product->demand += pop.size * 5.f;
@@ -634,7 +648,7 @@ void Economy::do_tick(World& world) {
             const float emigration_willing = std::max<float>(-pop.life_needs_met * std::fmod(fuzz, 10), 0);
             const long long int emigreers = std::fmod(pop.size * emigration_willing + std::rand(), pop.size);
             if(emigreers > 0) {
-                float current_attractive = province->get_attractive(pop);
+                float current_attractive = province->get_attractiveness(pop);
 
                 // Check that laws on the province we are in allows for emigration
                 if(province->owner->current_policy.migration == ALLOW_NOBODY) {
@@ -658,7 +672,7 @@ void Economy::do_tick(World& world) {
                     // Don't go to owner-less provinces
                     if(target_province->owner == nullptr) continue;
 
-                    const float attractive = target_province->get_attractive(pop) * (std::rand() % 16);
+                    const float attractive = target_province->get_attractiveness(pop) * (std::rand() % 16);
                     if(attractive < current_attractive) continue;
 
                     // Nobody is allowed in

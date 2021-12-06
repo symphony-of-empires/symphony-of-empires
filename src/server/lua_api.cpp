@@ -369,7 +369,7 @@ int LuaAPI::get_provinces_with_nucleus_by_nation(lua_State* L) {
     size_t i = 0;
     for(const auto& province : g_world->provinces) {
         bool is_nuclei = false;
-        for(const auto& nuclei : province->nucleuses) {
+        for(const auto& nuclei : province->nuclei) {
             if(nuclei == nation) {
                 is_nuclei = true;
                 break;
@@ -778,7 +778,7 @@ int LuaAPI::rename_province(lua_State* L) {
 }
 
 int LuaAPI::add_province_nucleus(lua_State* L) {
-    g_world->provinces.at(lua_tonumber(L, 1))->nucleuses.insert(g_world->nations.at(lua_tonumber(L, 2)));
+    g_world->provinces.at(lua_tonumber(L, 1))->nuclei.insert(g_world->nations.at(lua_tonumber(L, 2)));
     return 0;
 }
 
