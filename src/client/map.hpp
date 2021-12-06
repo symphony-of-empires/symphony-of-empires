@@ -8,6 +8,7 @@
 
 namespace UnifiedRender {
     class Texture;
+    class Model;
     class TextureArray;
     class ComplexModel;
     namespace OpenGl {
@@ -39,12 +40,9 @@ public:
     Map(const World& world, int screen_width, int screen_height);
     ~Map() {};
 
-    std::vector<const UnifiedRender::ComplexModel*> building_type_models;
+    std::vector<const UnifiedRender::Model*> building_type_models, unit_type_models;
     std::vector<const UnifiedRender::Texture*> building_type_icons;
-
-    std::vector<const UnifiedRender::ComplexModel*> unit_type_models;
     std::vector<const UnifiedRender::Texture*> unit_type_icons;
-
     std::vector<const UnifiedRender::Texture*> nation_flags;
 
     // Wind oscillator (for flags)
@@ -70,10 +68,11 @@ public:
     UnifiedRender::OpenGl::PrimitiveSquare* map_quad;
     UnifiedRender::OpenGl::Sphere* map_sphere;
     UnifiedRender::OpenGl::Quad2D* map_2d_quad;
-    UnifiedRender::OpenGl::Program* map_shader, * obj_shader, * border_sdf_shader, * border_gen_shader;
+    UnifiedRender::OpenGl::Program* map_shader, * obj_shader, * border_sdf_shader, * border_gen_shader, * model_shader;
     const UnifiedRender::Texture* overlay_tex;
     GLuint coastline_gl_list;
     GLuint frame_buffer;
+    UnifiedRender::Model* ourModel;
     UnifiedRender::OpenGl::Framebuffer* border_fbuffer;
 
     void update(const SDL_Event& event, Input& input);

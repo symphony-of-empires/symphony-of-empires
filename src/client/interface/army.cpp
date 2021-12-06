@@ -113,13 +113,17 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
 
     this->province_lab = new UI::Label(0, 0, "?", this);
     this->province_lab->right_side_of(*this->unit_icon);
+    if(building->get_province() != nullptr)
+        this->province_lab->text(building->get_province()->ref_name);
     this->province_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
-        w.text(o.building->get_province()->name);
+        if(o.building->get_province() != nullptr)
+            w.text(o.building->get_province()->ref_name);
     });
 
     this->company_lab = new UI::Label(0, 0, "?", this);
     this->company_lab->right_side_of(*this->province_lab);
+    this->company_lab->text(building->corporate_owner->name);
     this->company_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
         w.text(o.building->corporate_owner->name);
@@ -127,9 +131,10 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
 
     this->name_lab = new UI::Label(0, 0, "?", this);
     this->name_lab->right_side_of(*this->company_lab);
+    this->name_lab->text((building->working_unit_type != nullptr) ? building->working_unit_type->ref_name : "No unit");
     this->name_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
-        w.text((o.building->working_unit_type != nullptr) ? o.building->working_unit_type->name : "No unit");
+        w.text((o.building->working_unit_type != nullptr) ? o.building->working_unit_type->ref_name : "No unit");
     });
 }
 

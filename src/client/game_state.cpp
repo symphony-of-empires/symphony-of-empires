@@ -63,6 +63,7 @@
 #include "client/render/material.hpp"
 #include "client/render/model.hpp"
 #include "client/render/texture.hpp"
+#include "client/render/assimp_model.hpp"
 #include "client/ui.hpp"
 
 void GameState::play_nation() {
@@ -105,7 +106,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
     int& height = gs.height;
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
-        int click_on_ui = 0;
+        bool click_on_ui = false;
         switch(event.type) {
         case SDL_MOUSEBUTTONDOWN:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -399,7 +400,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 #include "client/interface/main_menu.hpp"
 #include "client/render/sound.hpp"
 
-static void mixaudio(void *userdata, uint8_t *stream, int len) {
+static void mixaudio(void* userdata, uint8_t* stream, int len) {
     GameState& gs = *((GameState*)userdata);
 
     std::memset(stream, 0, len);
@@ -478,6 +479,7 @@ extern UnifiedRender::TextureManager* g_texture_manager;
 extern UnifiedRender::MaterialManager* g_material_manager;
 extern UnifiedRender::ModelManager* g_model_manager;
 
+char* tmpbuf;
 World::World(void) {
     g_world = this;
 };
@@ -547,6 +549,7 @@ void start_client(int argc, char** argv) {
 
     main_menu_loop(gs, window);
     main_loop(gs, gs.client, window);
+    delete[] tmpbuf;
 
     SDL_CloseAudio();
     TTF_Quit();

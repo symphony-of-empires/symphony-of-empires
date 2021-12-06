@@ -26,6 +26,8 @@
 #include "client/render/quad_2d.hpp"
 #include "client/render/framebuffer.hpp"
 #include "province.hpp"
+#include "client/render/model.hpp"
+#include "client/render/assimp_model.hpp"
 
 Map::Map(const World& _world, int screen_width, int screen_height)
     : world(_world)
@@ -62,29 +64,16 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
         terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
         terrain_sheet->to_opengl();
-        {
-            auto vs = UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
-            auto fs = UnifiedRender::OpenGl::FragmentShader("shaders/map.fs");
-            map_shader = new UnifiedRender::OpenGl::Program(&vs, &fs);
-        }
+        map_shader = UnifiedRender::OpenGl::Program::create("map", "map");
 
-        {
-            auto vs = UnifiedRender::OpenGl::VertexShader("shaders/simple_model.vs");
-            auto fs = UnifiedRender::OpenGl::FragmentShader("shaders/simple_model.fs");
-            obj_shader = new UnifiedRender::OpenGl::Program(&vs, &fs);
-        }
+        obj_shader = UnifiedRender::OpenGl::Program::create("simple_model", "simple_model");
 
-        {
-            auto vs = UnifiedRender::OpenGl::VertexShader("shaders/2d_shader.vs");
-            auto fs = UnifiedRender::OpenGl::FragmentShader("shaders/border_gen.fs");
-            border_gen_shader = new UnifiedRender::OpenGl::Program(&vs, &fs);
-        }
+        border_gen_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_gen");
 
-        {
-            auto vs = UnifiedRender::OpenGl::VertexShader("shaders/2d_shader.vs");
-            auto fs = UnifiedRender::OpenGl::FragmentShader("shaders/border_sdf.fs");
-            border_sdf_shader = new UnifiedRender::OpenGl::Program(&vs, &fs);
-        }
+        border_sdf_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_sdf");
+
+        ourModel = new UnifiedRender::Model(Path::get("3d/backpack/backpack.obj"));
+        model_shader = UnifiedRender::OpenGl::Program::create("model_loading", "model_loading");
     }
 
     print_info("Creating topo map");
@@ -164,7 +153,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         std::string path;
 
         path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
-        building_type_models.push_back(&g_model_manager->load_complex(path));
+        building_type_models.push_back(g_model_manager->load(path));
 
         path = Path::get("ui/building_types/" + building_type->ref_name + ".png");
         building_type_icons.push_back(&g_texture_manager->load_texture(path));
@@ -174,7 +163,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         std::string path;
         
         path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
-        unit_type_models.push_back(&g_model_manager->load_complex(path));
+        unit_type_models.push_back(g_model_manager->load(path));
 
         path = Path::get("ui/unit_types/" + unit_type->ref_name + ".png");
         unit_type_icons.push_back(&g_texture_manager->load_texture(path));
@@ -196,16 +185,10 @@ void Map::set_view(MapView view) {
 
 void Map::reload_shaders() {
     delete map_shader;
-    auto vs = UnifiedRender::OpenGl::VertexShader("shaders/map.vs");
-    auto fs = UnifiedRender::OpenGl::FragmentShader("shaders/map.fs");
-    map_shader = new UnifiedRender::OpenGl::Program(&vs, &fs);
+    map_shader = UnifiedRender::OpenGl::Program::create("map", "map");
 
     delete border_sdf_shader;
-    {
-        auto vs = UnifiedRender::OpenGl::VertexShader("shaders/2d_shader.vs");
-        auto fs = UnifiedRender::OpenGl::FragmentShader("shaders/border_sdf.fs");
-        border_sdf_shader = new UnifiedRender::OpenGl::Program(&vs, &fs);
-    }
+    border_sdf_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_sdf");
 
     delete border_sdf;
     border_sdf = gen_border_sdf();
@@ -271,7 +254,7 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
     border_sdf_shader->set_uniform("map_size", (float)border_tex->width, (float)border_tex->height);
     UnifiedRender::TextureOptions fbo_mipmap_options{};
     fbo_mipmap_options.internal_format = GL_RGBA32F;
-    fbo_mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
+    fbo_mipmap_options.min_filter = GL_LINEAR_MIPMAP_NEAREST;
     fbo_mipmap_options.mag_filter = GL_LINEAR;
     UnifiedRender::Texture* tex0 = new UnifiedRender::Texture(border_tex->width, border_tex->height);
     tex0->to_opengl(fbo_mipmap_options);
@@ -637,45 +620,51 @@ void Map::draw(const int width, const int height) {
     }
 
     // TODO: We need to better this
-    obj_shader->use();
     view = camera->get_view();
-    obj_shader->set_uniform("view", view);
     projection = camera->get_projection();
-    obj_shader->set_uniform("projection", projection);
-    obj_shader->set_uniform("map_diffusion", 0);
+    // obj_shader->set_uniform("map_diffusion", 0);
+    model_shader->use();
+    model_shader->set_uniform("projection", projection);
+    model_shader->set_uniform("view", view);
 
-    glActiveTexture(GL_TEXTURE0);
-    obj_shader->set_uniform("tex", 0);
+    // glActiveTexture(GL_TEXTURE0);
 
     world.world_mutex.lock();
+    glDisable(GL_CULL_FACE);
     for(const auto& building : world.buildings) {
-        glm::mat4 model(1.f);
+        glm::mat4 model = glm::mat4(1.f);
+        model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
 
-        model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
-        obj_shader->set_uniform("model", model);
-        building_type_models[world.get_id(building->type)]->draw(obj_shader);
-
-        // Reverse rotation
-        model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
-        obj_shader->set_uniform("model", model);
-        draw_flag(building->get_owner());
+        model_shader->set_uniform("model", model);
+        building_type_models.at(world.get_id(building->type))->draw(*model_shader);
     }
 
     for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
+        model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
 
-        model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
-        obj_shader->set_uniform("model", model);
-        unit_type_models[world.get_id(unit->type)]->draw(obj_shader);
+        model_shader->set_uniform("model", model);
+        unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
+    }
+    for(const auto& building : world.buildings) {
+        glm::mat4 model = glm::mat4(1.f);
+        model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
 
-        // Reverse rotation
-        model = glm::rotate(model, glm::radians(-270.f), glm::vec3(1.f, 0.f, 0.f));
-        obj_shader->set_uniform("model", model);
+        model_shader->set_uniform("model", model);
+        draw_flag(building->get_owner());
+    }
+    for(const auto& unit : world.units) {
+        glm::mat4 model(1.f);
+        model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
+
+        model_shader->set_uniform("model", model);
         draw_flag(unit->owner);
     }
+
     world.world_mutex.unlock();
+    glEnable(GL_CULL_FACE);
 
     // Resets the shader and texture
     glUseProgram(0);

@@ -43,6 +43,7 @@ public:
     uint16_t build_time;
 
     // Required goods for building the working unit
+    // TODO: change this to a struct instead of a pair for readablity
     std::vector<std::pair<Good*, size_t>> req_goods_for_unit;
     // Required goods for building this, or repairing this after a military attack
     std::vector<std::pair<Good*, size_t>> req_goods;
@@ -59,7 +60,7 @@ public:
     Nation* owner;
     
     // Province that "supplies" this building
-    Province* province;
+    Province* province = nullptr;
     
     // Corporate owner of this building
     Company* corporate_owner;

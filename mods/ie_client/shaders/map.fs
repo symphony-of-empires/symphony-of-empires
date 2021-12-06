@@ -130,7 +130,8 @@ vec4 get_border(vec2 texcoord) {
 }
 
 vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
-	const float height_scale = 0.002;
+	const float height_scale = 0.0002;
+	const float other_scale = 10.;
 
 	// number of depth layers
 	const float minLayers = 8;
@@ -146,14 +147,14 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
 
     // get initial values
 	vec2 currentTexCoords = tex_coords;
-	float currentDepthMapValue = texture(topo_texture, tex_coords).x;
+	float currentDepthMapValue = texture(topo_texture, tex_coords).x * other_scale;
 	// currentDepthMapValue = (currentDepthMapValue - .5) * 2.;
 
 	while(currentLayerDepth < currentDepthMapValue) {
         // shift texture coordinates along direction of P
 		currentTexCoords -= deltaTexCoords;
         // get depthmap value at current texture coordinates
-		currentDepthMapValue = texture(topo_texture, currentTexCoords).x;  
+		currentDepthMapValue = texture(topo_texture, currentTexCoords).x * other_scale;  
 		// currentDepthMapValue = (currentDepthMapValue - .5) * 2.;
         // get depth of next layer
 		currentLayerDepth += layerDepth;
@@ -164,7 +165,7 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
 
 	// get depth after and before collision for linear interpolation
 	float afterDepth = currentDepthMapValue - currentLayerDepth;
-	float beforeDepth = texture(topo_texture, prevTexCoords).x - currentLayerDepth + layerDepth;
+	float beforeDepth = texture(topo_texture, prevTexCoords).x * other_scale - currentLayerDepth + layerDepth;
 
 	// interpolation of texture coordinates
 	float weight = afterDepth / (afterDepth - beforeDepth);
@@ -295,5 +296,5 @@ void main() {
 	vec3 ambient = 0.1 * out_colour.xyz;
 
 	f_frag_colour = vec4(diffuse + ambient, 1.);
-	// f_frag_colour = texture(border_tex, v_texcoord);
+	f_frag_colour = texture(border_sdf, v_texcoord);
 }
