@@ -273,8 +273,7 @@ void Economy::do_tick(World& world) {
 
                 if(deliver.good->is_edible) {
                     deliver.quantity = (available_farmers / needed_farmers) * 5000;
-                }
-                else {
+                } else {
                     deliver.quantity = (available_laborers / needed_laborers) * 5000;
                 }
                 //deliver.quantity *= building->get_province()->owner.get();

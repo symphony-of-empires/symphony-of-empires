@@ -155,14 +155,11 @@ TopWindow::TopWindow(GameState& _gs)
         // We should add a format_text() func later but this will do for now
         if(total_pop < 1000) {
             pop_amount = std::to_string((int)total_pop);
-        }
-        else if(total_pop < 1000 * 1000) {
+        } else if(total_pop < 1000 * 1000) {
             pop_amount = std::to_string((int)total_pop / 1000) + " K";
-        }
-        else if(total_pop < 1000 * 1000 * 1000) {
+        } else if(total_pop < 1000 * 1000 * 1000) {
             pop_amount = std::to_string((int)total_pop / (1000 * 1000)) + " M";
-        }
-        else {
+        } else {
             pop_amount = std::to_string((int)total_pop / (1000 * 1000 * 1000)) + " B";
         }
         o.population_lab->text(pop_amount);

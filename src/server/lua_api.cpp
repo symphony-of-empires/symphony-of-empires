@@ -375,9 +375,7 @@ int LuaAPI::get_provinces_with_nucleus_by_nation(lua_State* L) {
                 break;
             }
         }
-        if(is_nuclei == false) {
-            continue;
-        }
+        if(!is_nuclei) continue;
 
         lua_pushnumber(L, g_world->get_id(province));
         lua_rawseti(L, -2, i + 1);
