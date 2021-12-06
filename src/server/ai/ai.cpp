@@ -37,7 +37,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
     // Sucess = Sum(Demand / (Supply + 1) * Price)
     std::vector<float> avg_prob = std::vector<float>(world->goods.size(), 0.f);
     for(const auto& product : world->products) {
-        if(product->origin->owner != nation) continue;
+        if(product->building->get_owner() != nation) continue;
 
         avg_prob[world->get_id(product->good)] += product->demand / (product->supply + 1) * product->price;
     }
@@ -178,9 +178,9 @@ void ai_update_relations(Nation* nation, Nation* other) {
 void ai_do_tick(Nation* nation, World* world) {
     if(!nation->exists() || !nation->owned_provinces.size()) return;
 
-    if(world->time % 48 == 0) {
+    if(world->time % world->ticks_per_day == 0) {
         // Do a policy reform every 6 months
-        if((world->time / 48) % 180 == 0) {
+        if((world->time / world->ticks_per_day) % 180 == 0) {
             // Update our policies and laws
             ai_reform(nation);
         }
@@ -381,7 +381,7 @@ void ai_do_tick(Nation* nation, World* world) {
 
                 // If it's a nucleus province it also gets a x100 multiplier to maximize priority
                 // on the nuclei provinces
-                if(prov.first->nucleuses.find(nation) != prov.first->nucleuses.end()) {
+                if(prov.first->nuclei.find(nation) != prov.first->nuclei.end()) {
                     prov.second *= 100.f;
                 }
             }

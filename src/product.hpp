@@ -16,9 +16,6 @@ public:
     // Onwer (companyId) of this product
     Company* owner;
 
-    // Origin province (where this product was made)
-    Province* origin;
-
     // Building that made this product
     Building* building;
 

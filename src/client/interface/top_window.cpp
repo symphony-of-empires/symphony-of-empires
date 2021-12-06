@@ -102,11 +102,11 @@ TopWindow::TopWindow(GameState& _gs)
         if(g_world->time % 48) return;
 
         o.text(
-            std::to_string(o.gs.world->time / 48 / 30 / 12)
+            std::to_string(o.gs.world->time / o.gs.world->ticks_per_day / 30 / 12)
             + "/"
-            + std::to_string(o.gs.world->time / 48 / 30 % 12)
+            + std::to_string(o.gs.world->time / o.gs.world->ticks_per_day / 30 % 12)
             + "/"
-            + std::to_string(o.gs.world->time % 48)
+            + std::to_string(o.gs.world->time % o.gs.world->ticks_per_day)
             + " - "
             + o.gs.curr_nation->get_client_hint().alt_name
             + " - "
