@@ -388,8 +388,8 @@ function Nation:is_owns_nuclei_from(other)
 	local nuclei_table = Nation:get_nuclei_provinces(other)
 
 	-- Expected size from total counting
-	local nucleuses_cont = 0
-	for _ in pairs(nuclei_table) do nucleuses_cont = nucleuses_cont + 1 end
+	local nuclei_cont = 0
+	for _ in pairs(nuclei_table) do nuclei_cont = nuclei_cont + 1 end
 	
 	local total_eq_cont = 0
 	for k1, v1 in pairs(owned_table) do
@@ -399,7 +399,7 @@ function Nation:is_owns_nuclei_from(other)
 			end
 		end
 	end
-	return (total_eq_cont == nucleuses_cont)
+	return (total_eq_cont == nuclei_cont)
 end
 
 Province = {
