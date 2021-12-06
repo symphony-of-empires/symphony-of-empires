@@ -85,6 +85,8 @@ namespace UI {
         void clear(void);
         void clear_dead();
 
+        void prompt(const std::string& title, const std::string& text);
+
         const UnifiedRender::Texture* background, * window_top, * button, * tooltip_texture, * piechart_overlay, * border_tex, * button_border;
         TTF_Font* default_font;
 
