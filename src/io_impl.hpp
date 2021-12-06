@@ -55,6 +55,10 @@ template<>
 class Serializer<Invention*>: public SerializerReference<World, Invention> {};
 template<>
 class Serializer<Technology*>: public SerializerReference<World, Technology> {};
+
+template<>
+class Serializer<PopGroup>: public SerializerMemcpy<PopGroup> {};
+
 template<>
 class Serializer<PopType*>: public SerializerReference<World, PopType> {};
 template<>
@@ -261,28 +265,19 @@ public:
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
         ::serialize(stream, &obj->social_value);
-        ::serialize(stream, &obj->is_entrepreneur);
-        ::serialize(stream, &obj->is_slave);
-        ::serialize(stream, &obj->is_farmer);
-        ::serialize(stream, &obj->is_laborer);
+        ::serialize(stream, &obj->group);
     }
     static inline void deserialize(Archive& stream, PopType* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
         ::deserialize(stream, &obj->social_value);
-        ::deserialize(stream, &obj->is_entrepreneur);
-        ::deserialize(stream, &obj->is_slave);
-        ::deserialize(stream, &obj->is_farmer);
-        ::deserialize(stream, &obj->is_laborer);
+        ::deserialize(stream, &obj->group);
     }
     static inline size_t size(const PopType* obj) {
         return serialized_size(&obj->name)
             + serialized_size(&obj->ref_name)
             + serialized_size(&obj->social_value)
-            + serialized_size(&obj->is_entrepreneur)
-            + serialized_size(&obj->is_slave)
-            + serialized_size(&obj->is_farmer)
-            + serialized_size(&obj->is_laborer)
+            + serialized_size(&obj->group)
             ;
     }
 };

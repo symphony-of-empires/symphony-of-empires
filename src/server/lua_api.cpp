@@ -889,10 +889,23 @@ int LuaAPI::add_pop_type(lua_State* L) {
     pop->ref_name = luaL_checkstring(L, 1);
     pop->name = luaL_checkstring(L, 2);
     pop->social_value = lua_tonumber(L, 3);
-    pop->is_entrepreneur = lua_toboolean(L, 4);
-    pop->is_slave = lua_toboolean(L, 5);
-    pop->is_farmer = lua_toboolean(L, 6);
-    pop->is_laborer = lua_toboolean(L, 7);
+    bool is_entrepreneur = lua_toboolean(L, 4);
+    bool is_slave = lua_toboolean(L, 5);
+    bool is_farmer = lua_toboolean(L, 6);
+    bool is_laborer = lua_toboolean(L, 7);
+    if (is_entrepreneur) {
+        pop->group == PopGroup::Entrepreneur;
+    } else if (is_slave) {
+        pop->group == PopGroup::Slave;
+    } else if (is_farmer) {
+        pop->group == PopGroup::Farmer;
+    } else if (is_laborer) {
+        pop->group == PopGroup::Laborer;
+    } else {
+        pop->group == PopGroup::Other;
+    }
+
+
 
     // Add onto vector
     g_world->insert(pop);
@@ -906,10 +919,10 @@ int LuaAPI::get_pop_type(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(pop_type));
     lua_pushstring(L, pop_type->name.c_str());
     lua_pushnumber(L, pop_type->social_value);
-    lua_pushboolean(L, pop_type->is_entrepreneur);
-    lua_pushboolean(L, pop_type->is_slave);
-    lua_pushboolean(L, pop_type->is_farmer);
-    lua_pushboolean(L, pop_type->is_laborer);
+    lua_pushboolean(L, pop_type->group == PopGroup::Entrepreneur);
+    lua_pushboolean(L, pop_type->group == PopGroup::Slave);
+    lua_pushboolean(L, pop_type->group == PopGroup::Farmer);
+    lua_pushboolean(L, pop_type->group == PopGroup::Laborer);
     return 7;
 }
 

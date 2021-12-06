@@ -5,14 +5,18 @@
 #include "entity.hpp"
 #include "ideology.hpp"
 
-class PopType : public RefnameEntity<uint8_t> {
+enum class PopGroup {
+    Entrepreneur,
+    Slave,
+    Farmer,
+    Laborer,
+    Other,
+};
+class PopType: public RefnameEntity<uint8_t> {
 public:
     float social_value;
 
-    bool is_entrepreneur;
-    bool is_slave;
-    bool is_farmer;
-    bool is_laborer;
+    PopGroup group;
 
     // TODO: Ideology spectrum
     //std::vector<Ideology*> spectrum;
@@ -25,17 +29,17 @@ public:
     size_t size;
     size_t unemployed = 0;
     float literacy;
-    
+
     float militancy = 0.f;
     float con = 0.f;
     float budget = 0.f;
-    
+
     float savings = 0.f;
-    
+
     float life_needs_met = 0.f;
     float everyday_needs_met = 0.f;
     float luxury_needs_met = 0.f;
-    
+
     PopType* type;
     Culture* culture;
     Religion* religion;
