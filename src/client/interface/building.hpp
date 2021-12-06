@@ -35,10 +35,10 @@ namespace Interface {
     class BuildingBuildView : public UI::Window {
         GameState& gs;
     public:
-        Nation* nation;
-        Province* province;
-        Company* company;
-        BuildingType* building_type;
+        Nation* nation = nullptr;
+        Province* province = nullptr;
+        Company* company = nullptr;
+        BuildingType* building_type = nullptr;
         
         BuildingSelectCompanyTab* company_tab;
         BuildingSelectProvinceTab* province_tab;

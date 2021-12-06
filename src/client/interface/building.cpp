@@ -30,7 +30,7 @@ BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int 
     for(const auto& province : gs.world->provinces) {
         auto* btn = new ProvinceButton(gs, 0, 24 * i, province, this);
         btn->on_click = ([](UI::Widget& w, void*) {
-            auto& o = static_cast<BuildingBuildView&>(*w.parent);
+            auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
             o.province = static_cast<ProvinceButton&>(w).province;
         });
         i++;
@@ -45,7 +45,7 @@ BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, U
     for(const auto& nation : gs.world->nations) {
         auto* btn = new NationButton(gs, 0, 24 * i, nation, this);
         btn->on_click = ([](UI::Widget& w, void*) {
-            auto& o = static_cast<BuildingBuildView&>(*w.parent);
+            auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
             o.nation = static_cast<NationButton&>(w).nation;
         });
         i++;
@@ -60,9 +60,9 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
     for(const auto& building_type : gs.world->building_types) {
         auto* btn = new BuildingTypeButton(gs, 0, 24 * i, building_type, this);
         btn->on_click = ([](UI::Widget& w, void*) {
-            auto& o = static_cast<BuildingBuildView&>(*w.parent);
+            auto& o = dynamic_cast<BuildingBuildView&>(*w.parent->parent);
             o.building_type = static_cast<BuildingTypeButton&>(w).building_type;
-
+            
             // Tell the server about this "new" building
             g_client->packet_mutex.lock();
             Packet packet = Packet();
@@ -71,12 +71,30 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
             ::serialize(ar, &action);
 
             auto building = Building();
-            building.owner = o.nation != nullptr ? o.nation : o.gs.curr_nation;
-            building.corporate_owner = o.company != nullptr ? o.company : o.gs.world->companies[rand() % o.gs.world->companies.size()];
+            if(o.nation == nullptr) {
+                o.gs.ui_ctx->prompt("Error", "No nation selected");
+                return;
+            }
+            building.owner = o.nation;
+
+            if(o.company == nullptr) {
+                o.gs.ui_ctx->prompt("Error", "No (state/private) company selected");
+                return;
+            }
+            building.corporate_owner = o.company;
+
+            if(o.building_type == nullptr) {
+                o.gs.ui_ctx->prompt("Error", "No building type selected");
+                return;
+            }
             building.type = o.building_type;
 
+            if(o.gs.curr_nation->owned_provinces.empty()) {
+                o.gs.ui_ctx->prompt("Error", "You do not own any provinces");
+                return;
+            }
             auto it = std::begin(o.gs.curr_nation->owned_provinces);
-            std::advance(it, rand() % o.gs.curr_nation->owned_provinces.size());
+            std::advance(it, std::rand() % o.gs.curr_nation->owned_provinces.size());
             building.province = o.province != nullptr ? o.province : *it;
             building.x = o.tx;
             building.y = o.ty;

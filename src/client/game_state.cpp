@@ -161,9 +161,9 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 if(gs.current_mode == MapMode::NORMAL) {
                     if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
                         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-
-                        if(tile.owner_id == (Nation::Id)-1) break;
-                        if(tile.province_id == (Province::Id)-1) break;
+                        
+                        if(tile.owner_id >= gs.world->nations.size()) break;
+                        if(tile.province_id >= gs.world->provinces.size()) break;
                         new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->nations[tile.owner_id], gs.world->provinces[tile.province_id]);
                     }
                 }
@@ -410,7 +410,6 @@ static void mixaudio(void* userdata, uint8_t* stream, int len) {
         UnifiedRender::Sound* sound = gs.sound_queue[i];
         int amount = sound->len - sound->pos;
         if(amount > len) amount = len;
-
         if(amount <= 0) {
             delete sound;
             gs.sound_queue.erase(gs.sound_queue.begin() + i);
@@ -419,7 +418,6 @@ static void mixaudio(void* userdata, uint8_t* stream, int len) {
 
         SDL_MixAudio(stream, &sound->data[sound->pos], amount, SDL_MIX_MAXVOLUME);
         sound->pos += amount;
-
         i++;
     }
 
@@ -427,8 +425,7 @@ static void mixaudio(void* userdata, uint8_t* stream, int len) {
         UnifiedRender::Sound* music = gs.music_queue[i];
         int amount = music->len - music->pos;
         if(amount > len) amount = len;
-
-        if(amount == 0) {
+        if(amount <= 0) {
             delete music;
             gs.music_queue.erase(gs.music_queue.begin() + i);
             continue;
@@ -436,12 +433,10 @@ static void mixaudio(void* userdata, uint8_t* stream, int len) {
 
         SDL_MixAudio(stream, &music->data[music->pos], amount, SDL_MIX_MAXVOLUME / gs.music_fade_value);
         music->pos += amount;
-
         i++;
     }
 
-    if(gs.music_fade_value > 1.f)
-        gs.music_fade_value -= 1.f;
+    if(gs.music_fade_value > 1.f) gs.music_fade_value -= 1.f;
 }
 
 void main_menu_loop(GameState& gs, SDL_Window* window) {
@@ -536,9 +531,10 @@ void start_client(int argc, char** argv) {
 
     gs.width = width;
     gs.height = height;
+    gs.ui_ctx->resize(gs.width, gs.height);
 
-    tmpbuf = new char[512];
-
+    gs.music_fade_value = 1.f;
+    
     // Initialize sound
     SDL_AudioSpec fmt;
     fmt.freq = 11050;

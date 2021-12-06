@@ -39,7 +39,7 @@ namespace Interface {
     // Brief about unit being produced
     class ArmyProductionUnitInfo : public UI::Group {
         GameState& gs;
-        Building *building;
+        Building *building = nullptr;
 
         UI::Image *unit_icon;
         UI::Label *province_lab;
@@ -53,8 +53,7 @@ namespace Interface {
         GameState& gs;
     public:
         ArmyNewUnitTab(GameState& gs, int x, int y, UI::Widget* parent);
-
-        UnitType* unit_type;
+        UnitType* unit_type = nullptr;
     };
 
     class ArmySelectUnitTab : public UI::Group {

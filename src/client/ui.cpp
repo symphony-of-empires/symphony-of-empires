@@ -99,6 +99,17 @@ void Context::clear_dead() {
     }
 }
 
+void Context::prompt(const std::string& title, const std::string& text) {
+    auto* win = new UI::Window(0, 0, 256, 128, nullptr);
+    win->text(title);
+
+    auto* txt = new UI::Text(0, 24, 256, 128, win);
+    txt->text(text);
+
+    auto* ok_btn = new UI::CloseButton(0, 0, 128, 128, win);
+    ok_btn->below_of(*txt);
+}
+
 // void Context::clear_dead_recursive(Widget* w) {
 //     // Remove dead widgets
 //     for (auto it = w->children.begin(); it != w->children.end();) {
@@ -360,7 +371,7 @@ int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_of
     offset = get_pos(w, offset);
 
     // Widget must be shown
-    if(!w.is_show) return 0;
+    if(!w.is_show || !w.is_render) return 0;
 
     if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height))
         return 0;
@@ -372,18 +383,19 @@ int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_of
     //
     // In short: If any of our children are scrolled by the mouse we will not receive
     // the scrolling instructions - only the front child will
+    int r = 0;
     for(const auto& children : w.children) {
-        int r = check_wheel_recursive(*children, mx, my, offset.x, offset.y, y);
-        if(r > 0) return 1;
+        r += check_wheel_recursive(*children, mx, my, offset.x, offset.y, y);
+        if(r > 0) return r;
     }
 
     if(w.is_scroll && (w.type == UI_WIDGET_WINDOW || w.type == UI_WIDGET_GROUP)) {
         for(auto& child : w.children) {
             if(!child->is_pinned) child->y += y;
         }
-        return 1;
+        r += 1;
     }
-    return 0;
+    return r;
 }
 
 int Context::check_wheel(unsigned mx, unsigned my, int y) {
@@ -772,6 +784,8 @@ void Widget::text(const std::string& _text) {
         delete text_texture;
     }
 
+    if(_text.empty()) return;
+
     //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
     surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, output_text.c_str(), text_color);
     if(surface == nullptr)
@@ -912,6 +926,8 @@ void Text::text(const std::string& text) {
         delete lab;
     }
     labels.clear();
+
+    if(text.empty()) return;
 
     // Separate the text in multiple labels
     size_t pos = 0;
