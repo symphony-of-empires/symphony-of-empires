@@ -46,7 +46,6 @@ void Economy::do_tick(World& world) {
             continue;
         }
         if(province->owner == nullptr) {
-            print_error("Building: %d of type: %s in province: %s, province owner is null!", j, building->type->ref_name, province->ref_name);
             continue;
         }
 
@@ -98,6 +97,32 @@ void Economy::do_tick(World& world) {
 
         // Search through all the job requests
         world.job_requests_mutex.lock();
+        for(const auto& province : world.provinces) {
+            // Province must have an owner
+            if(province->owner == nullptr) continue;
+
+            for(auto& pop : province->pops) {
+                // Post a job request
+                JobRequest request ={};
+                request.amount = pop.size;
+                request.pop = pop;
+                request.province = province;
+
+                // Are there any discriminative policies?
+                if(province->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
+                    // POPs of non-accepted cultures on exterminate mode cannot get jobs
+                    if(province->owner->is_accepted_culture(pop) == false) continue;
+                }
+                else if(province->owner->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
+                    // Same as above except we roll a dice
+                    if(province->owner->is_accepted_culture(pop) == false) {
+                        request.amount /= (size_t)std::fmod(std::rand() + 1.f, 32.f) + 1;
+                    }
+                }
+
+                world.job_requests.push_back(request);
+            }
+        }
         for(size_t i = 0; i < world.job_requests.size(); i++) {
             JobRequest& job_request = world.job_requests[i];
 
@@ -118,15 +143,15 @@ void Economy::do_tick(World& world) {
             // - Laborers: They are needed to produce non-edible food
             // - Farmers: They are needed to produce edibles
             // - Entrepreneur: They help "organize" the factory
-            if(available_laborers < needed_farmers && (job_pop->type->is_laborer || job_pop->type->is_slave)) {
+            if(available_laborers < needed_farmers && (job_pop->type->group == PopGroup::Laborer || job_pop->type->group == PopGroup::Slave)) {
                 employed = std::min(needed_laborers, job_request.amount - employed);
                 available_laborers += employed;
             }
-            if(available_farmers < needed_farmers && (job_pop->type->is_farmer || job_pop->type->is_slave)) {
+            if(available_farmers < needed_farmers && (job_pop->type->group == PopGroup::Farmer || job_pop->type->group == PopGroup::Slave)) {
                 employed = std::min(needed_farmers, job_request.amount - employed);
                 available_farmers += employed;
             }
-            if(available_entrepreneurs < needed_entrepreneurs && job_pop->type->is_entrepreneur) {
+            if(available_entrepreneurs < needed_entrepreneurs && job_pop->type->group == PopGroup::Entrepreneur) {
                 employed = std::min(needed_entrepreneurs, job_request.amount - employed);
                 available_entrepreneurs += employed;
             }
@@ -273,7 +298,8 @@ void Economy::do_tick(World& world) {
 
                 if(deliver.good->is_edible) {
                     deliver.quantity = (available_farmers / needed_farmers) * 5000;
-                } else {
+                }
+                else {
                     deliver.quantity = (available_laborers / needed_laborers) * 5000;
                 }
                 //deliver.quantity *= building->get_province()->owner.get();
@@ -561,7 +587,7 @@ void Economy::do_tick(World& world) {
                     bought = everyday_alloc_budget / product->price;
 
                     // Slaves cannot buy commodities
-                    if(pop.type->is_slave) continue;
+                    if(pop.type->group == PopGroup::Slave) continue;
                     if(everyday_alloc_budget <= 0.f) continue;
                 }
 
