@@ -253,10 +253,6 @@ public:
     std::vector<DeliverGoods> delivers;
     mutable std::recursive_mutex delivers_mutex;
 
-    // A list of jobs required
-    std::vector<JobRequest> job_requests;
-    mutable std::recursive_mutex job_requests_mutex;
-
     // Array containing a list of tile coord that have changed owners
     std::vector<std::pair<uint, uint>> changed_tile_coords;
     mutable std::recursive_mutex changed_tiles_coords_mutex;
