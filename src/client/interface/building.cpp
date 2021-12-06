@@ -70,12 +70,30 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
             ::serialize(ar, &action);
 
             auto building = Building();
-            building.owner = o.nation != nullptr ? o.nation : o.gs.curr_nation;
-            building.corporate_owner = o.company != nullptr ? o.company : o.gs.world->companies[rand() % o.gs.world->companies.size()];
+            if(o.nation == nullptr) {
+                o.gs.ui_ctx->prompt("Error", "No nation selected");
+                return;
+            }
+            building.owner = o.nation;
+
+            if(o.company == nullptr) {
+                o.gs.ui_ctx->prompt("Error", "No (state/private) company selected");
+                return;
+            }
+            building.corporate_owner = o.company;
+
+            if(o.building_type == nullptr) {
+                o.gs.ui_ctx->prompt("Error", "No building type selected");
+                return;
+            }
             building.type = o.building_type;
 
+            if(o.gs.curr_nation->owned_provinces.empty()) {
+                o.gs.ui_ctx->prompt("Error", "You do not own any provinces");
+                return;
+            }
             auto it = std::begin(o.gs.curr_nation->owned_provinces);
-            std::advance(it, rand() % o.gs.curr_nation->owned_provinces.size());
+            std::advance(it, std::rand() % o.gs.curr_nation->owned_provinces.size());
             building.province = o.province != nullptr ? o.province : *it;
             building.x = o.tx;
             building.y = o.ty;

@@ -16,7 +16,7 @@ LobbySelectView::LobbySelectView(GameState& _gs) : gs{_gs}, curr_selected_nation
     curr_country_btn->user_data = this;
     curr_country_btn->on_click = ([](UI::Widget& w, void* data) {
         LobbySelectView* o = (LobbySelectView*)data;
-        if (o->gs.curr_nation != nullptr) {
+        if(o->gs.curr_nation != nullptr) {
             // Didn't seem to be able to delete them in a callback so this will do
             o->next_country_btn->kill();
             o->next_country_btn = nullptr;
@@ -53,8 +53,7 @@ LobbySelectView::LobbySelectView(GameState& _gs) : gs{_gs}, curr_selected_nation
 void LobbySelectView::change_nation(size_t id) {
     size_t old_id = curr_selected_nation;
     if (!g_world->nations.size()) {
-        UI::Window* win = new UI::Window(gs.input.mouse_pos.first, gs.input.mouse_pos.second, 512, 32);
-        win->text("No nations exist");
+        gs.ui_ctx->prompt("Error", "No nations to select");
         return;
     }
 
