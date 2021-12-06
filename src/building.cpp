@@ -46,7 +46,7 @@ void Building::create_factory(void) {
         new_product->building->province->products.push_back(new_product);
 
         output_products.push_back(new_product);
-        world.products.push_back(new_product);
+        world.insert(new_product);
 
         employees_needed_per_output.push_back(500);
 

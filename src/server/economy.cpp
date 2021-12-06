@@ -36,17 +36,17 @@ void Economy::do_tick(World& world) {
     for(size_t j = 0; j < world.buildings.size(); j++) {
         auto& building = world.buildings[j];
         if(building == nullptr) {
-            print_error("Building: %d, is null!", j);
+            print_error("Building: %zu, is null!", j);
             continue;
         }
 
         auto province = building->get_province();
         if(province == nullptr) {
-            print_error("Building: %d of type: %s, province is null!", j, building->type->ref_name);
+            print_error("Building: %zu of type: %s, province is null!", j, building->type->ref_name.c_str());
             continue;
         }
         if(province->owner == nullptr) {
-            print_error("Building: %d of type: %s in province: %s, province owner is null!", j, building->type->ref_name, province->ref_name);
+            print_error("Building: %zu of type: %s in province: %s, province owner is null!", j, building->type->ref_name.c_str(), province->ref_name.c_str());
             continue;
         }
 
