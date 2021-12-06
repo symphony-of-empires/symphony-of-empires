@@ -30,8 +30,71 @@ public:
     size_t size;
 };
 
+struct Workers {
+public:
+    Pop& pop;
+    size_t amount;
+    Workers(Pop& _pop): pop{ _pop }, amount{ _pop.size } {};
+
+    Workers& operator=(const Workers& workers) {
+        pop = workers.pop;
+        amount = workers.amount;
+
+        return *this;
+    }
+};
+struct AvailableWorkers {
+public:
+    std::vector<Workers> entrepreneurs{};
+    std::vector<Workers> farmers{};
+    std::vector<Workers> laborers{};
+    // AvailableWorkers() {};
+};
 // Phase 1 of economy: Delivers & Orders are sent from all factories in the world
 void Economy::do_tick(World& world) {
+
+    std::vector<AvailableWorkers> available_workers;
+    for(const auto& province : world.provinces) {
+        // Province must have an owner
+        if(province->owner == nullptr) continue;
+
+        AvailableWorkers province_workers{};
+
+        for(auto& pop : province->pops) {
+            if(pop.type->group == PopGroup::Slave
+                || pop.type->group == PopGroup::Other) {
+                continue;
+            }
+            // Are there any discriminative policies?
+            if(province->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
+                // POPs of non-accepted cultures on exterminate mode cannot get jobs
+                if(province->owner->is_accepted_culture(pop) == false) continue;
+            }
+
+            Workers workers{ pop };
+
+            if(province->owner->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
+                if(province->owner->is_accepted_culture(pop) == false) {
+                    workers.amount /= 2;
+                }
+            }
+            switch(pop.type->group)
+            {
+            case PopGroup::Entrepreneur:
+                province_workers.entrepreneurs.push_back(workers);
+                break;
+            case PopGroup::Farmer:
+                province_workers.farmers.push_back(workers);
+                break;
+            case PopGroup::Laborer:
+                province_workers.laborers.push_back(workers);
+                break;
+            default:
+                break;
+            }
+        }
+        available_workers.push_back(province_workers);
+    }
     // Buildings who have fullfilled requirements to build stuff will spawn a unit
     for(size_t j = 0; j < world.buildings.size(); j++) {
         auto& building = world.buildings[j];
@@ -95,84 +158,77 @@ void Economy::do_tick(World& world) {
             needed_entrepreneurs = 50;
         }
 
+        const Province::Id province_id = world.get_id(province);
+        auto province_workers = available_workers[province_id];
         // Search through all the job requests
-        world.job_requests_mutex.lock();
-        for(const auto& province : world.provinces) {
-            // Province must have an owner
-            if(province->owner == nullptr) continue;
 
-            for(auto& pop : province->pops) {
-                // Post a job request
-                JobRequest request ={};
-                request.amount = pop.size;
-                request.pop = pop;
-                request.province = province;
-
-                // Are there any discriminative policies?
-                if(province->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
-                    // POPs of non-accepted cultures on exterminate mode cannot get jobs
-                    if(province->owner->is_accepted_culture(pop) == false) continue;
-                }
-                else if(province->owner->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
-                    // Same as above except we roll a dice
-                    if(province->owner->is_accepted_culture(pop) == false) {
-                        request.amount /= (size_t)std::fmod(std::rand() + 1.f, 32.f) + 1;
-                    }
-                }
-
-                world.job_requests.push_back(request);
+        // Industries require 2 (or 3) types of POPs to correctly function
+        // - Laborers: They are needed to produce non-edible food
+        // - Farmers: They are needed to produce edibles
+        // - Entrepreneur: They help "organize" the factory
+        for(size_t i = 0; i < province_workers.farmers.size(); i++) {
+            if(available_farmers >= needed_farmers) {
+                break;
             }
-        }
-        for(size_t i = 0; i < world.job_requests.size(); i++) {
-            JobRequest& job_request = world.job_requests[i];
+            Workers& workers = province_workers.farmers[i];
 
-            Pop* job_pop = nullptr;
-            for(auto& pop : job_request.province->pops) {
-                if(pop == job_request.pop) {
-                    job_pop = &pop;
-                    break;
-                }
-            }
-
-            if(job_pop == nullptr)
-                throw std::runtime_error("Pop on job_request does not exist!");
-
-            size_t employed = 0;
-
-            // Industries require 2 (or 3) types of POPs to correctly function
-            // - Laborers: They are needed to produce non-edible food
-            // - Farmers: They are needed to produce edibles
-            // - Entrepreneur: They help "organize" the factory
-            if(available_laborers < needed_farmers && (job_pop->type->group == PopGroup::Laborer || job_pop->type->group == PopGroup::Slave)) {
-                employed = std::min(needed_laborers, job_request.amount - employed);
-                available_laborers += employed;
-            }
-            if(available_farmers < needed_farmers && (job_pop->type->group == PopGroup::Farmer || job_pop->type->group == PopGroup::Slave)) {
-                employed = std::min(needed_farmers, job_request.amount - employed);
-                available_farmers += employed;
-            }
-            if(available_entrepreneurs < needed_entrepreneurs && job_pop->type->group == PopGroup::Entrepreneur) {
-                employed = std::min(needed_entrepreneurs, job_request.amount - employed);
-                available_entrepreneurs += employed;
-            }
-
-            // Do not accept anyone else
-            if(!employed) continue;
+            size_t employed = std::min(needed_farmers - available_farmers, workers.amount);
+            available_farmers += employed;
 
             // Give pay to the POP
             float payment = employed * province->owner->current_policy.min_wage;
-            job_pop->budget += payment;
+            workers.pop.budget += payment;
             building->budget -= payment;
-            job_request.amount -= employed;
+            workers.amount -= employed;
 
             // Delete job request when it has 0 amount
-            if(!job_request.amount) {
-                world.job_requests.erase(world.job_requests.begin() + i);
+            if(!workers.amount) {
+                province_workers.farmers.erase(province_workers.farmers.begin() + i);
                 --i;
-                continue;
             }
         }
-        world.job_requests_mutex.unlock();
+        for(size_t i = 0; i < province_workers.laborers.size(); i++) {
+            if(available_laborers >= needed_laborers) {
+                break;
+            }
+            Workers& workers = province_workers.laborers[i];
+
+            size_t employed = std::min(needed_laborers - available_laborers, workers.amount);
+            available_laborers += employed;
+
+            // Give pay to the POP
+            float payment = employed * province->owner->current_policy.min_wage;
+            workers.pop.budget += payment;
+            building->budget -= payment;
+            workers.amount -= employed;
+
+            // Delete job request when it has 0 amount
+            if(!workers.amount) {
+                province_workers.laborers.erase(province_workers.laborers.begin() + i);
+                --i;
+            }
+        }
+        for(size_t i = 0; i < province_workers.entrepreneurs.size(); i++) {
+            if(available_entrepreneurs >= needed_entrepreneurs) {
+                break;
+            }
+            Workers& workers = province_workers.entrepreneurs[i];
+
+            size_t employed = std::min(needed_entrepreneurs - available_entrepreneurs, workers.amount);
+            available_entrepreneurs += employed;
+
+            // Give pay to the POP
+            float payment = employed * province->owner->current_policy.min_wage;
+            workers.pop.budget += payment;
+            building->budget -= payment;
+            workers.amount -= employed;
+
+            // Delete job request when it has 0 amount
+            if(!workers.amount) {
+                province_workers.entrepreneurs.erase(province_workers.entrepreneurs.begin() + i);
+                --i;
+            }
+        }
 
         if(building->working_unit_type != nullptr) {
             // Spawn a unit
@@ -821,36 +877,6 @@ void Economy::do_tick(World& world) {
             }
 
             print_info("Coup d' etat on [%s]! [%s] has taken over!", nation->ref_name.c_str(), nation->ideology->ref_name.c_str());
-        }
-    }
-
-    // We will now post a job request so the next economic tick will be able to "link buildings"
-    // with their workers and make a somewhat realistic economy
-    world.job_requests.clear();
-    for(const auto& province : world.provinces) {
-        // Province must have an owner
-        if(province->owner == nullptr) continue;
-
-        for(auto& pop : province->pops) {
-            // Post a job request
-            JobRequest request ={};
-            request.amount = pop.size;
-            request.pop = pop;
-            request.province = province;
-
-            // Are there any discriminative policies?
-            if(province->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
-                // POPs of non-accepted cultures on exterminate mode cannot get jobs
-                if(province->owner->is_accepted_culture(pop) == false) continue;
-            }
-            else if(province->owner->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
-                // Same as above except we roll a dice
-                if(province->owner->is_accepted_culture(pop) == false) {
-                    request.amount /= (size_t)std::fmod(std::rand() + 1.f, 32.f) + 1;
-                }
-            }
-
-            world.job_requests.push_back(request);
         }
     }
 
