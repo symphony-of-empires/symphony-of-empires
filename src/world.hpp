@@ -60,6 +60,7 @@ enum class OrderType {
     INDUSTRIAL,
     BUILDING,
     UNIT,
+    POP,
 };
 class OrderGoods {
 public:
@@ -155,7 +156,15 @@ class World {
         return ptr->cached_id;
     }
 
+    std::vector<Event*> daily_check_events;
+    std::vector<Event*> monthly_check_events;
+    std::vector<Event*> yearly_check_events;
+    std::vector<Event*> economical_check_events;
+    std::vector<std::pair<Event*, int>> rand_chance_events;
+
 public:
+    static constexpr uint ticks_per_day = 48;
+
     World();
     World& operator=(const World&) = default;
     ~World();
@@ -166,29 +175,29 @@ public:
     void do_tick(void);
     void load_mod(void);
 
-    LIST_FOR_TYPE(Nation, nations, std::vector)
-        LIST_FOR_TYPE(Province, provinces, std::vector)
-        LIST_FOR_TYPE(Product, products, std::vector)
-        LIST_FOR_TYPE(Good, goods, std::vector)
-        LIST_FOR_TYPE(Culture, cultures, std::vector)
-        LIST_FOR_TYPE(Company, companies, std::vector)
-        LIST_FOR_TYPE(PopType, pop_types, std::vector)
-        LIST_FOR_TYPE(Building, buildings, std::vector)
-        LIST_FOR_TYPE(Event, events, std::vector)
-        LIST_FOR_TYPE(UnitType, unit_types, std::vector)
-        LIST_FOR_TYPE(UnitTrait, unit_traits, std::vector)
-        LIST_FOR_TYPE(Unit, units, std::vector)
-        LIST_FOR_TYPE(BuildingType, building_types, std::vector)
-        LIST_FOR_TYPE(Treaty, treaties, std::vector)
-        LIST_FOR_TYPE(Ideology, ideologies, std::vector)
-        LIST_FOR_TYPE(Religion, religions, std::vector)
-        LIST_FOR_TYPE(Technology, technologies, std::vector)
-        LIST_FOR_TYPE(Invention, inventions, std::vector)
-        LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector)
-        LIST_FOR_TYPE(TerrainType, terrain_types, std::vector)
-        LIST_FOR_TYPE(War, wars, std::vector)
+    LIST_FOR_TYPE(Nation, nations, std::vector);
+    LIST_FOR_TYPE(Province, provinces, std::vector);
+    LIST_FOR_TYPE(Product, products, std::vector);
+    LIST_FOR_TYPE(Good, goods, std::vector);
+    LIST_FOR_TYPE(Culture, cultures, std::vector);
+    LIST_FOR_TYPE(Company, companies, std::vector);
+    LIST_FOR_TYPE(PopType, pop_types, std::vector);
+    LIST_FOR_TYPE(Building, buildings, std::vector);
+    LIST_FOR_TYPE(Event, events, std::vector);
+    LIST_FOR_TYPE(UnitType, unit_types, std::vector);
+    LIST_FOR_TYPE(UnitTrait, unit_traits, std::vector);
+    LIST_FOR_TYPE(Unit, units, std::vector);
+    LIST_FOR_TYPE(BuildingType, building_types, std::vector);
+    LIST_FOR_TYPE(Treaty, treaties, std::vector);
+    LIST_FOR_TYPE(Ideology, ideologies, std::vector);
+    LIST_FOR_TYPE(Religion, religions, std::vector);
+    LIST_FOR_TYPE(Technology, technologies, std::vector);
+    LIST_FOR_TYPE(Invention, inventions, std::vector);
+    LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector);
+    LIST_FOR_TYPE(TerrainType, terrain_types, std::vector);
+    LIST_FOR_TYPE(War, wars, std::vector);
 
-        template<typename T>
+    template<typename T>
     inline void insert(T* ptr) {
         auto& list = this->get_list(ptr);
         list.push_back(ptr);

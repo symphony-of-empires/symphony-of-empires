@@ -164,8 +164,8 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProductInfo&>(w);
 
-        // Only update every 48 ticks
-        if(o.gs.world->time % 48) return;
+        // Only update every ticks_per_day ticks
+        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
         
         if(o.price_chart->data.size() >= 30)
             o.price_chart->data.pop_back();

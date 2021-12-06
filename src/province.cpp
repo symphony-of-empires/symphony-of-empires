@@ -42,7 +42,7 @@ size_t Province::total_pops(void) const {
 
 // Create a vector containing a list of all products available on this province
 std::vector<Product*> Province::get_products(void) const {
-    const World& world = World::get_instance();
+    /*const World& world = World::get_instance();
     std::vector<Product*> products;
     products.reserve(world.products.size());
     for(const auto& product : world.products) {
@@ -59,19 +59,18 @@ std::vector<Product*> Province::get_products(void) const {
         }
 
         products.push_back(product);
-    }
+    }*/
     return products;
 }
 
-float Province::get_attractive(const Pop& pop) const {
+float Province::get_attractiveness(const Pop& pop) const {
     float attractive = this->base_attractive;
 
     if(this->owner->is_accepted_culture(pop)) {
         // We dont want to be exterminated or enslaved... do we?
         if(this->owner->current_policy.treatment == TREATMENT_ENSLAVED) {
             attractive -= 2.5f;
-        }
-        else if(this->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
+        } else if(this->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
             attractive -= 5.f;
         }
     }
@@ -94,6 +93,5 @@ float Province::get_attractive(const Pop& pop) const {
     else if(pop.type->social_value <= 3.f || pop.type->social_value >= 3.f) {
         attractive += -(this->owner->current_policy.rich_flat_tax);
     }
-
     return attractive;
 }
