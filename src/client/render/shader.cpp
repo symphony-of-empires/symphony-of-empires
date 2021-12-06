@@ -66,6 +66,12 @@ Program::Program(const VertexShader* vertex, const FragmentShader* fragment) {
     }
 }
 
+Program* Program::create(const std::string& vs_path, const std::string& fs_path) {
+    auto vs = UnifiedRender::OpenGl::VertexShader(Path::get("shaders/" + vs_path + ".vs"));
+    auto fs = UnifiedRender::OpenGl::FragmentShader(Path::get("shaders/" + fs_path + ".fs"));
+    return new Program(&vs, &fs);
+}
+
 void Program::use(void) const {
     glUseProgram(id);
 }
