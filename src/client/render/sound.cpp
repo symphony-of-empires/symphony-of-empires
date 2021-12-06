@@ -58,7 +58,10 @@ const Sound& SoundManager::load(const std::string& path) {
     print_info("Loaded and cached sound %s", path.c_str());
 
     // Otherwise Sound is not in our control, so we create a new one
-    auto* sound = new UnifiedRender::Sound(path);
+    auto* sound = new UnifiedRender::Sound();
+    sound->data = nullptr;
+    sound->len = 0;
+    sound->pos = 0;
     this->sounds.insert(std::make_pair(sound, path));
     return *((const Sound*)sound);
 }

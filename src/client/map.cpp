@@ -109,12 +109,10 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         if(tile.owner_id == (Nation::Id)-2) {
             // Water
             color = 0x00000000;
-        }
-        else if(tile.owner_id == (Nation::Id)-1) {
+        } else if(tile.owner_id == (Nation::Id)-1) {
             // Land
             color = 0xffdddddd;
-        }
-        else {
+        } else {
             const Nation* owner = world.nations.at(tile.owner_id);
             color = owner->get_client_hint().colour;
         }
@@ -296,12 +294,10 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
         if(step == max_steps){
             fbo->set_texture(0, drawOnTex0 ? tex0 : tex1);
             border_sdf_shader->set_texture(0, "tex", border_tex);
-        }
-        else {
+        } else {
             fbo->set_texture(0, drawOnTex0 ? tex0 : tex1);
             border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? tex1 : tex0);
         }
-
 
         // Draw a plane over the entire screen to invoke shaders
         map_2d_quad->draw();
@@ -315,8 +311,7 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
         tex0->gen_mipmaps();
         glEnable(GL_CULL_FACE);
         return tex0;
-    }
-    else {
+    } else {
         delete tex0;
         tex1->gen_mipmaps();
         glEnable(GL_CULL_FACE);
@@ -363,6 +358,13 @@ void Map::draw_flag(const Nation* nation) {
 #include "serializer.hpp"
 #include "io_impl.hpp"
 #include "action.hpp"
+#ifdef windows
+#	define bswap_32(x) _byteswap_ulong(x)
+#	define bswap_64(x) _byteswap_uint64(x)
+#else
+#	include <byteswap.h>
+#endif
+
 void Map::handle_click(GameState& gs, SDL_Event event) {
     Input& input = gs.input;
     if(input.select_pos.first < 0 || input.select_pos.first >= gs.world->width
@@ -444,6 +446,26 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
     }
     else if(event.button.button == SDL_BUTTON_RIGHT) {
         std::pair<float, float>& select_pos = input.select_pos;
+
+        if(1) {
+            const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+            if(tile.province_id == (Province::Id)-1) return;
+            Province* province = gs.world->provinces[tile.province_id];
+            
+            std::lock_guard lock(gs.world->changed_tiles_coords_mutex);
+            for(uint i = province->min_x; i < province->max_x; i++) {
+                for(uint j = province->min_y; j < province->max_y; j++) {
+                    if(gs.world->get_tile(i, j).province_id != gs.world->get_id(province)) continue;
+                    gs.world->get_tile(i, j).owner_id = gs.world->get_id(gs.curr_nation);
+                    gs.world->changed_tile_coords.push_back(std::make_pair(i, j));
+                }
+            }
+
+            FILE *fp = fopen("test.lua", "a+t");
+            if(!fp) return;
+            fprintf(fp, "{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%06x },\r\n", province->ref_name.c_str(), province->name.c_str(), bswap_32((province->color & 0x00ffffff) << 8));
+            fclose(fp);
+        }
 
         if(selected_unit != nullptr) {
             selected_unit->tx = select_pos.first;
