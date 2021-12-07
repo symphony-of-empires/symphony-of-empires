@@ -14,9 +14,8 @@ BuildingSelectCompanyTab::BuildingSelectCompanyTab(GameState& _gs, int x, int y,
     for(const auto& company : gs.world->companies) {
         auto* btn = new CompanyButton(gs, 0, 24 * i, company, this);
         btn->on_click = ([](UI::Widget& w, void*) {
-            auto& o = static_cast<BuildingBuildView&>(*w.parent);
-            auto& company_button = static_cast<CompanyButton&>(w);
-            o.company = company_button.company;
+            auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
+            o.company = static_cast<CompanyButton&>(w).company;
         });
         i++;
     }
@@ -43,6 +42,7 @@ BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, U
 {
     uint i = 0;
     for(const auto& nation : gs.world->nations) {
+        if(!nation->exists()) continue;
         auto* btn = new NationButton(gs, 0, 24 * i, nation, this);
         btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);

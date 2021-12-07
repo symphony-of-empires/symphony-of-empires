@@ -111,9 +111,7 @@ void Economy::do_tick(World& world) {
             print_error("Building: %zu of type: %s, province is null!", j, building->type->ref_name.c_str());
             continue;
         }
-        if(province->owner == nullptr) {
-            continue;
-        }
+        if(province->owner == nullptr) continue;
 
         bool can_build = true;
         for(const auto& req : building->req_goods_for_unit) {

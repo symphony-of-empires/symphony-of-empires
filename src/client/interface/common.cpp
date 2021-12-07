@@ -15,7 +15,7 @@ using namespace Interface;
 UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* parent)
     : gs{ _gs },
     unit{ _unit },
-    UI::Button(x, y, 128, 24, parent)
+    UI::Button(x, y, parent->width, 24, parent)
 {
     text(std::to_string(unit->size) + " " + unit->type->ref_name);
     on_each_tick = ([](UI::Widget& w, void*) {
@@ -27,14 +27,14 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* pa
 UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_type, UI::Widget* parent)
     : gs{ _gs },
     unit_type{ _unit_type },
-    UI::Group(x, y, 128, 24, parent)
+    UI::Group(x, y, parent->width, 24, parent)
 {
     this->is_scroll = false;
 
     this->icon_img = new UI::Image(0, 0, 32, 24, nullptr, this);
     this->icon_img->current_texture = &g_texture_manager->load_texture(Path::get("ui/icons/unit_types/" + unit_type->ref_name));
 
-    this->name_btn = new UI::Button(0, 0, 128 - 32, 24, this);
+    this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->icon_img);
     this->name_btn->text(unit_type->ref_name);
 }
@@ -42,7 +42,7 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_typ
 CompanyButton::CompanyButton(GameState& _gs, int x, int y, Company* _company, UI::Widget* parent)
     : gs{ _gs },
     company{ _company },
-    UI::Button(x, y, 128, 24, parent)
+    UI::Button(x, y, parent->width, 24, parent)
 {
     text(company->name);
     on_each_tick = ([](UI::Widget& w, void*) {
@@ -54,7 +54,7 @@ CompanyButton::CompanyButton(GameState& _gs, int x, int y, Company* _company, UI
 ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province, UI::Widget* parent)
     : gs{ _gs },
     province{ _province },
-    UI::Button(x, y, 128, 24, parent)
+    UI::Button(x, y, parent->width, 24, parent)
 {
     text(province->ref_name);
     on_each_tick = ([](UI::Widget& w, void*) {
@@ -66,7 +66,7 @@ ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province
 NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Widget* parent)
     : gs{ _gs },
     nation{ _nation },
-    UI::Group(x, y, 128, 24, parent)
+    UI::Group(x, y, parent->width, 24, parent)
 {
     this->is_scroll = false;
 
@@ -77,7 +77,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
         w.current_texture = &o.gs.get_nation_flag(*o.nation);
     });
 
-    this->name_btn = new UI::Button(0, 0, 128 - 32, 24, this);
+    this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->flag_icon);
     this->name_btn->text(nation->get_client_hint().alt_name);
     this->name_btn->on_each_tick = ([](UI::Widget& w, void*) {
@@ -89,7 +89,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
 BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingType* _building_type, UI::Widget* parent)
     : gs{ _gs },
     building_type{ _building_type },
-    UI::Button(x, y, 128, 24, parent)
+    UI::Button(x, y, parent->width, 24, parent)
 {
     text(building_type->ref_name);
     on_each_tick = ([](UI::Widget& w, void*) {

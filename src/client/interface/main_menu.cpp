@@ -16,11 +16,10 @@ MainMenu::MainMenu(GameState& _gs)
     this->is_pinned = true;
     this->is_scroll = false;
     this->text("Symphony of Empires");
-
-    const int W = 300;
+    
     const int PADDING = 10;
     const int X0 = PADDING;
-    const int X1 = W - PADDING * 2;
+    const int X1 = this->width - PADDING * 2;
 
     auto* title_img = new UI::Image(X0, 35, X1, 128, &g_texture_manager->load_texture(Path::get("ui/title.png")), this);
 
