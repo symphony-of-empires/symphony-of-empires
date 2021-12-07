@@ -27,11 +27,14 @@ ThreadPool::ThreadPool() {
  */
 ThreadPool::~ThreadPool() {
     // We are going to signal all threads to shutdown
-    this->running = false;
+    std::unique_lock<std::mutex> latch(job_mutex);
+    running = false;
+    cv_task.notify_all();
+    latch.unlock();
 
     // After that we will start joining all threads - if a thread is executing
     // by a prolonged time, it will block the entire process
-    for(std::thread& job: this->threads) {
+    for(std::thread& job : this->threads) {
         job.join();
     }
 }
@@ -40,37 +43,43 @@ ThreadPool::~ThreadPool() {
  * Adds a job to the list of pending jobs
  */
 void ThreadPool::add_job(std::function<void()> job) {
-    std::lock_guard lock(this->job_mutex);
-    this->jobs.push(job);
+    std::lock_guard lock(job_mutex);
+    jobs.push(job);
+    cv_task.notify_one();
+}
+
+/**
+ * Waits until the job list is empty
+ */
+void ThreadPool::wait_finished() {
+    std::unique_lock<std::mutex> lock(job_mutex);
+    cv_finished.wait(lock, [this](){ return jobs.empty() && (busy == 0); });
 }
 
 /**
  * This loop is executed on each thread on the thread list, what this basically does
  * is to check in the list of available jobs for jobs we can take
  */
-void ThreadPool::thread_loop(void) {
-    while(this->running) {
-        std::function<void()> fn;
+void ThreadPool::thread_loop() {
+    while(true) {
+        std::unique_lock<std::mutex> latch(job_mutex);
+        cv_task.wait(latch, [this](){ return !running || !jobs.empty(); });
 
-        // We need to make it be like this so locking lasts until the end of the
-        // scope. We can't keep jobs queue locked while we execute a job... that
-        // would be extremely dumb
-        {
-            std::lock_guard lock(this->job_mutex);
-
-            // If there are no available jobs for us to take, we will continue our loop
-            if(this->jobs.empty())
-                continue;
-                
-            // Otherwise we execute said job
-            fn = this->jobs.back();
-            this->jobs.pop();
+        if(!running) {
+            break;
         }
 
-        // We are now going to call this function and hope it dosen't blocks infinitely
+        // pull from queue
+        auto fn = jobs.front();
+        jobs.pop();
+
+        busy++;
+        // release lock. run async
+        latch.unlock();
+
         fn();
 
-        // Now yield back to the system
-        std::this_thread::yield();
+        latch.lock();
+        cv_finished.notify_one();
     }
 }
