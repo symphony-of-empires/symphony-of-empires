@@ -100,14 +100,15 @@ void Context::clear_dead() {
 }
 
 void Context::prompt(const std::string& title, const std::string& text) {
-    auto* win = new UI::Window(0, 0, 256, 128, nullptr);
+    auto* win = new UI::Window((this->width / 2.f) - (320 / 2.f), (this->height / 2.f) - (200 / 2.f), 320, 200, nullptr);
     win->text(title);
 
-    auto* txt = new UI::Text(0, 24, 256, 128, win);
+    auto* txt = new UI::Text(0, 24, win->width, win->height - 48, win);
     txt->text(text);
 
-    auto* ok_btn = new UI::CloseButton(0, 0, 128, 128, win);
+    auto* ok_btn = new UI::CloseButton(0, 0, win->width, 24, win);
     ok_btn->below_of(*txt);
+    ok_btn->text("OK");
 }
 
 // void Context::clear_dead_recursive(Widget* w) {
