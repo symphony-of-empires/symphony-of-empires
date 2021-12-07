@@ -26,6 +26,9 @@ icelandic:register()
 irish = Culture:new{ ref_name = "irish" }
 irish.name = _("Irish")
 irish:register()
+romanian = Culture:new{ ref_name = "romanian" }
+romanian.name = _("Romanian")
+romanian:register()
 portuguese = Culture:new{ ref_name = "portuguese" }
 portuguese.name = _("Portuguese")
 portuguese:register()
@@ -42,7 +45,7 @@ aragonese = Culture:new{ ref_name = "aragonese" }
 aragonese.name = _("Aragonese")
 aragonese:register()
 catalan = Culture:new{ ref_name = "catalan" }
-catalan.name = _("catalan")
+catalan.name = _("Catalan")
 catalan:register()
 czech = Culture:new{ ref_name = "czech" }
 czech.name = _("Czech")
@@ -51,6 +54,12 @@ czech:register()
 slovakian = Culture:new{ ref_name = "slovakian" }
 slovakian.name = _("Slovakian")
 slovakian:register()
+croatian = Culture:new{ ref_name = "croatian" }
+croatian.name = _("Croatian")
+croatian:register()
+slovenian = Culture:new{ ref_name = "slovenian" }
+slovenian.name = _("Slovenian")
+slovenian:register()
 hungarian = Culture:new{ ref_name = "hungarian" }
 hungarian.name = _("Hungarian")
 hungarian:register()
@@ -80,6 +89,7 @@ greek.combo_form = _("Greco")
 greek:register()
 italian = Culture:new{ ref_name = "italian" }
 italian.name = _("Italian")
+italian.combo_form = _("Italo")
 italian:register()
 lithuanian = Culture:new{ ref_name = "lithuanian" }
 lithuanian.name = _("Lithuanian")
@@ -96,6 +106,11 @@ polish:register()
 bulgarian = Culture:new{ ref_name = "bulgarian" }
 bulgarian.name = _("Bulgarian")
 bulgarian:register()
+serbian = Culture:new{ ref_name = "serbian" }
+serbian.name = _("Serbian")
+serbian.noun = _("Serb")
+serbian.combo_form = _("Serbo")
+serbian:register()
 
 -- Eurasia and West Asia
 nogai = Culture:new{ ref_name = "nogai" }
@@ -121,10 +136,10 @@ afghan.combo_form = _("Afghano")
 afghan:register()
 
 -- American
-yankee = Culture:new{ ref_name = "yankee" }
-yankee.name = _("Yankee")
-yankee.adjective = _("American")
-yankee:register()
+american = Culture:new{ ref_name = "american" }
+american.name = _("American")
+american.adjective = _("American")
+american:register()
 chilean = Culture:new{ ref_name = "chilean" }
 chilean.name = _("Chilean")
 chilean:register()

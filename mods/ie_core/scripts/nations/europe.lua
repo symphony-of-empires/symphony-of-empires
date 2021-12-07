@@ -703,8 +703,37 @@ kosovo:add_client_hint(monarchy, _("Kosovo"), 0x808000)
 serbia = Nation:new{ ref_name = "serbia" }
 serbia.name = _("Serbia")
 serbia:register()
+serbia:add_accepted_culture(serbian)
 serbia:add_client_hint(socialism, _("Serbia"), 0x808000)
 serbia:add_client_hint(monarchy, _("Serbia"), 0x808000)
+
+montenegro = Nation:new{ ref_name = "montenegro" }
+montenegro.name = _("Montenegro")
+montenegro:register()
+montenegro:add_accepted_culture(serbian)
+montenegro:add_client_hint(socialism, _("Montenegro"), 0x808000)
+montenegro:add_client_hint(monarchy, _("Montenegro"), 0x808000)
+
+croatia = Nation:new{ ref_name = "croatia" }
+croatia.name = _("Croatia")
+croatia:register()
+croatia:add_accepted_culture(croatian)
+croatia:add_client_hint(socialism, _("Croatia"), 0x808000)
+croatia:add_client_hint(monarchy, _("Croatia"), 0x808000)
+
+moldavia = Nation:new{ ref_name = "moldavia" }
+moldavia.name = _("Moldavia")
+moldavia:register()
+moldavia:add_accepted_culture(romanian)
+moldavia:add_client_hint(socialism, _("Moldavia"), 0x808000)
+moldavia:add_client_hint(monarchy, _("Moldavia"), 0x808000)
+
+wallachia = Nation:new{ ref_name = "wallachia" }
+wallachia.name = _("Wallachia")
+wallachia:register()
+wallachia:add_accepted_culture(romanian)
+wallachia:add_client_hint(socialism, _("Wallachia"), 0x808000)
+wallachia:add_client_hint(monarchy, _("Wallachia"), 0x808000)
 
 bosnia_and_herzegovina = Nation:new{ ref_name = "bosnia_and_herzegovina" }
 bosnia_and_herzegovina.name = _("Bosnia and Herzegovina")
