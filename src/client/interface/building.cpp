@@ -62,37 +62,39 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
         btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = dynamic_cast<BuildingBuildView&>(*w.parent->parent);
             o.building_type = static_cast<BuildingTypeButton&>(w).building_type;
+
+            if(o.nation == nullptr) {
+                o.gs.ui_ctx->prompt("Error", "No nation selected");
+                return;
+            }
+
+            if(o.company == nullptr) {
+                o.gs.ui_ctx->prompt("Error", "No (state/private) company selected");
+                return;
+            }
+
+            if(o.building_type == nullptr) {
+                o.gs.ui_ctx->prompt("Error", "No building type selected");
+                return;
+            }
+
+            if(o.gs.curr_nation->owned_provinces.empty()) {
+                o.gs.ui_ctx->prompt("Error", "You do not own any provinces");
+                return;
+            }
             
             // Tell the server about this "new" building
-            g_client->packet_mutex.lock();
+            std::lock_guard lock(o.gs.client->packet_mutex);
             Packet packet = Packet();
             Archive ar = Archive();
             ActionType action = ActionType::BUILDING_ADD;
             ::serialize(ar, &action);
 
             auto building = Building();
-            if(o.nation == nullptr) {
-                o.gs.ui_ctx->prompt("Error", "No nation selected");
-                return;
-            }
             building.owner = o.nation;
-
-            if(o.company == nullptr) {
-                o.gs.ui_ctx->prompt("Error", "No (state/private) company selected");
-                return;
-            }
             building.corporate_owner = o.company;
-
-            if(o.building_type == nullptr) {
-                o.gs.ui_ctx->prompt("Error", "No building type selected");
-                return;
-            }
             building.type = o.building_type;
 
-            if(o.gs.curr_nation->owned_provinces.empty()) {
-                o.gs.ui_ctx->prompt("Error", "You do not own any provinces");
-                return;
-            }
             auto it = std::begin(o.gs.curr_nation->owned_provinces);
             std::advance(it, std::rand() % o.gs.curr_nation->owned_provinces.size());
             building.province = o.province != nullptr ? o.province : *it;
@@ -101,8 +103,9 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
             ::serialize(ar, &building); // BuildingObj
 
             packet.data(ar.get_buffer(), ar.size());
-            g_client->packet_queue.push_back(packet);
-            g_client->packet_mutex.unlock();
+            o.gs.client->packet_queue.push_back(packet);
+
+            o.gs.ui_ctx->prompt("Production", "Building a " + building.type->name + " in " + building.get_province()->name + "; owned by " + building.corporate_owner->name + " from the country of " + building.get_owner()->name);
         });
         i++;
     }
