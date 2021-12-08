@@ -720,6 +720,7 @@ void World::do_tick() {
         Unit* unit = units[i];
         if(unit->size <= 0) {
             g_world->remove(unit);
+            i--;
             break;
         }
 
@@ -910,63 +911,59 @@ void World::do_tick() {
         if(!on_effect) continue;
 
         // And also check that there is atleast 1 clause that is on effect
-        bool is_on_effect = false;
+        on_effect = false;
         for(const auto& clause : treaty->clauses) {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
-                is_on_effect = dyn_clause->in_effect();
+                on_effect = dyn_clause->in_effect();
             } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
-                is_on_effect = dyn_clause->in_effect();
+                on_effect = dyn_clause->in_effect();
             } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
-                is_on_effect = dyn_clause->in_effect();
+                on_effect = dyn_clause->in_effect();
             } else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
-                is_on_effect = dyn_clause->in_effect();
+                on_effect = dyn_clause->in_effect();
             } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
-                is_on_effect = dyn_clause->in_effect();
+                on_effect = dyn_clause->in_effect();
             } else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
-                is_on_effect = dyn_clause->in_effect();
+                on_effect = dyn_clause->in_effect();
             }
-
-            if(is_on_effect) break;
+            if(on_effect) break;
         }
-        if(!is_on_effect) continue;
+        if(!on_effect) continue;
 
         // Treaties clauses now will be enforced
         print_info("Enforcing treaty %s", treaty->name.c_str());
         for(auto& clause : treaty->clauses) {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
-                if(!dyn_clause->in_effect()) goto next_iter;
+                if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
             } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
-                if(!dyn_clause->in_effect()) goto next_iter;
+                if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
             } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
-                if(!dyn_clause->in_effect()) goto next_iter;
+                if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
             } else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
-                if(!dyn_clause->in_effect()) goto next_iter;
+                if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
             } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
-                if(!dyn_clause->in_effect()) goto next_iter;
+                if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
             } else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
-                if(!dyn_clause->in_effect()) goto next_iter;
+                if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
             }
-
-        next_iter:
-            ;
         }
     }
 
