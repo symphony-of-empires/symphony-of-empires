@@ -41,11 +41,22 @@ std::string async_get_input(void) {
 #include <cstdio>
 #include <dirent.h>
 #include <sys/types.h>
+
+#if defined windows
+#   include <windows.h>
+#   include <WinCon.h>
+#endif
+
 int main(int argc, char** argv) {
 #if defined unix
     setlocale(LC_ALL, "");
     bindtextdomain("main", Path::get("locale").c_str());
     textdomain("main");
+#endif
+
+#if defined windows
+    system("cls");
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
 #endif
 
 #if defined unix

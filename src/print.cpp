@@ -19,20 +19,30 @@ void print_disable_debug(void) {
     allow_debug = true;
 }
 
+#if defined windows
+#   include <windows.h>
+#   include <WinCon.h>
+#endif
+
 void print_error(const char* str, ...) {
     print_mutex.lock();
 
     va_list args;
     va_start(args, str);
 
-#ifdef _MSC_VER
-    printf("[ERROR] ");
+#if defined unix
+    printf("\e[36m[INFO]\e[0m ");
 #else
-    printf("\e[31m[ERROR]\e[0m ");
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
+    printf("* <error> ");
 #endif
 
     vprintf(str, args);
     printf("\n");
+
+#if defined windows
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
+#endif
 
     va_end(args);
 
@@ -40,23 +50,27 @@ void print_error(const char* str, ...) {
 }
 
 void print_info(const char* str, ...) {
-    if(allow_debug == false) {
-        return;
-    }
+    if(!allow_debug) return;
 
     print_mutex.lock();
 
     va_list args;
     va_start(args, str);
 
-#ifdef _MSC_VER
-    printf("[INFO] ");
-#else
+#if defined unix
     printf("\e[36m[INFO]\e[0m ");
+#else
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
+    printf("* <debug> ");
 #endif
 
     vprintf(str, args);
     printf("\n");
+
+
+#if defined windows
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
+#endif
 
     va_end(args);
 
