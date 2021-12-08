@@ -105,15 +105,7 @@ static inline float tile_cost(const World& world, Tile* t1, Tile* t2) {
     const float distance = std::sqrt(x_diff* x_diff + y_diff* y_diff + elev_diff* elev_diff);
     
     // Calculate average infrastructure level between the two tiles
-    const float avg_infra = ((t1->infra_level + t2->infra_level) / 2.f);
-    
-    // Cost modifier from infrastructure scales linearly with infrastructure
-    // with 1.0 cost modifier at max infra and 5.0 modifier at 0 infra
-    // NOTE: Make sure that the infrastructure modifier is always larger than 1 for bad infra
-    // (rather than <1 for good infra), or the heuristic will no longer be admissible
-    // and A* will no longer be optimal
-    const float infra_modifier = 1.f + 4.f * (1.f - avg_infra / 8.f);
-    return infra_modifier * distance;
+    return distance;
 }
 
 /**

@@ -449,11 +449,9 @@ void Economy::do_tick(World& world) {
                 const Policies& order_policy = order_province->owner->current_policy;
 
                 // If foreign trade is not allowed, then order owner === sender owner
-                if(deliver_policy.foreign_trade == false || order_policy.foreign_trade == false) {
+                if(!deliver_policy.foreign_trade || !order_policy.foreign_trade) {
                     // Trade not allowed
-                    if(order_province->owner != deliver_province->owner) {
-                        continue;
-                    }
+                    if(order_province->owner != deliver_province->owner) continue;
                 }
 
                 const float order_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
