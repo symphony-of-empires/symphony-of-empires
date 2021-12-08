@@ -101,3 +101,42 @@ romanticism = Technology:new{
     type = TECH_SOCIAL
 }
 romanticism:register()
+
+-- Military and naval tech
+gunpowder = Technology:new{
+    ref_name = "gunpowder",
+    name = "Gunpowder",
+    description = "...",
+    cost = 1500.0,
+    type = TECH_MILITARY
+}
+gunpowder:register()
+
+flintlock_rifles = Technology:new{
+    ref_name = "flintlock_rifles",
+    name = "Flintlock Rifles",
+    description = "...",
+    cost = 1500.0,
+    type = TECH_MILITARY
+}
+flintlock_rifles:register()
+flintlock_rifles:requires_technology(gunpowder)
+
+light_vessel = Technology:new{
+    ref_name = "light_vessel",
+    name = "Light Vessel",
+    description = "...",
+    cost = 1500.0,
+    type = TECH_NAVAL
+}
+light_vessel:register()
+
+heavy_vessel = Technology:new{
+    ref_name = "heavy_vessel",
+    name = "Heavy Vessel",
+    description = "...",
+    cost = 1500.0,
+    type = TECH_NAVAL
+}
+heavy_vessel:register()
+heavy_vessel:requires_technology(light_vessel)
