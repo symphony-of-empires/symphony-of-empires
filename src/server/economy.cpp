@@ -737,7 +737,6 @@ void Economy::do_tick(World& world) {
             // want to get out of here
             // And literacy determines "best" spot, for example a low literacy will
             // choose a slightly less desirable location
-            /*
             const float emigration_willing = std::max<float>(-pop.life_needs_met * std::fmod(fuzz, 10), 0);
             const long long int emigreers = std::fmod(pop.size * emigration_willing + std::rand(), pop.size);
             if(emigreers > 0) {
@@ -761,9 +760,9 @@ void Economy::do_tick(World& world) {
 
                 //print_info("%zu pops wanting to emigrate!", emigreers);
 
-                // Find best province
+                // Find best province (that neighbours us)
                 Province* best_province = nullptr;
-                for(auto target_province : world.provinces) {
+                for(auto target_province : province->neighbours) {
                     // Don't go to owner-less provinces
                     if(target_province->owner == nullptr) continue;
 
@@ -784,8 +783,8 @@ void Economy::do_tick(World& world) {
                             continue;
                         }
                     }
+                    
                     // Otherwise everyone is allowed in
-
                     current_attractive = attractive;
                     best_province = target_province;
                 }
@@ -807,7 +806,6 @@ void Economy::do_tick(World& world) {
                 const std::lock_guard l(emigration_lock);
                 emigration.push_back(emigrated);
             }
-            */
         skip_emigration:;
         }
 
