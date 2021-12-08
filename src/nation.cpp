@@ -14,30 +14,45 @@ void Nation::declare_war(Nation& nation) {
 
     // Recollect offenders
     // - Those who are allied to us
-    print_info("Attacker: %s", this->ref_name.c_str());
     for(uint i = 0; i < this->relations.size(); i++) {
         const auto& relation = this->relations[i];
 
         if(relation.has_alliance) {
             war->attackers.push_back(world.nations[i]);
-            print_info("- %s", world.nations[i]->ref_name.c_str());
         }
     }
     war->attackers.push_back(this);
 
+    print_info("Attackers");
+    for(const auto& attacker : war->attackers) {
+        print_info("[%s]", attacker->ref_name.c_str());
+    }
+
     // Recollect defenders
     // - Those who are on a defensive pact with the target
     // - Those who are allied with the target
-    print_info("Defender: %s", nation.ref_name.c_str());
     for(uint i = 0; i < nation.relations.size(); i++) {
         const auto& relation = nation.relations[i];
 
         if(relation.has_alliance || relation.has_defensive_pact) {
             war->defenders.push_back(world.nations[i]);
-            print_info("- %s", world.nations[i]->ref_name.c_str());
         }
     }
     war->defenders.push_back(&nation);
+
+    // Attackers are at war with the defenders
+    for(auto& attacker : war->attackers) {
+        for(auto& defender : war->defenders) {
+            // Bilateral war
+            attacker->relations[world.get_id(defender)].has_war = true;
+            defender->relations[world.get_id(attacker)].has_war = true;
+        }
+    }
+
+    print_info("Defenders");
+    for(const auto& defender : war->defenders) {
+        print_info("[%s]", defender->ref_name.c_str());
+    }
 
     war->name = "War by " + this->name + " against " + nation.name;
     print_info("War!, [%s]", war->name.c_str());

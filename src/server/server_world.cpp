@@ -568,7 +568,7 @@ void World::load_mod(void) {
     print_info(gettext("Creating diplomatic relations"));
     for(const auto& nation : this->nations) {
         // Relations between nations start at 0 (and latter modified by lua scripts)
-        nation->relations.resize(this->nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
+        nation->relations.resize(this->nations.size(), NationRelation{ -100.f, false, false, false, false, false, false, false, false, true, false });
     }
 
     const std::vector<std::string> mod_files = {

@@ -25,52 +25,77 @@
 
 // Obtain best potential good
 Good* ai_get_potential_good(Nation* nation, World* world) {
-    // Analyze the market probability of sucess of a product
-    // this is determined by (demand * price), we calculate
-    // this from the average of all products on our provinces we currently own
+    // We will randomly determine if we want to do a market analysis for secondary and tertiary products or if
+    // we want to build primary-sector products (to kickstart chains)
+    if(std::rand() % 5 == 0) {
+        // Analyze the market probability of sucess of a product this is determined by (demand * price), we calculate
+        // this from the average of all products on our provinces we currently own
 
-    // Obtain the average probability of profitability per good
-    // we will only however, take in account products which are produced on provinces
-    // we own, hereafter we can obtain the average of the national good industry
+        // Obtain the average probability of profitability per good we will only however, take in account products
+        // which are produced on provinces we own, hereafter we can obtain the average of the national good industry
+        print_info("Market analysis strategy");
 
-    // So our formula would be:
-    // Sucess = Sum(Demand / (Supply + 1) * Price)
-    std::vector<float> avg_prob = std::vector<float>(world->goods.size(), 0.f);
-    for(const auto& product : world->products) {
-        if(product->building->get_owner() != nation) continue;
+        // So our formula would be:
+        // Sucess = Sum(Demand / (Supply + 1) * Price)
+        std::vector<float> avg_prob = std::vector<float>(world->goods.size(), 0.f);
+        for(const auto& product : world->products) {
+            if(product->building->get_owner() != nation) continue;
 
-        avg_prob[world->get_id(product->good)] += product->demand / (product->supply + 1) * product->price;
-    }
+            avg_prob[world->get_id(product->good)] += product->demand / (product->supply + 1) * product->price;
+        }
 
-    // Now, we will take in account 2 factors:
-    // - First, an industry which takes-in a good with high sucess and outputs something
-    // should have that something have a sucess probability equal or higher to the taked
-    // good
-    // - Second, we preferably want the A.I to complete the supply chain of all industries
-    // so doing the method described above should increase the priority for filling out higher
-    // level industries
-    for(const auto& building : world->buildings) {
-        const Province* province = building->get_province();
-        if(province == nullptr || province->owner != nation) continue;
-
-        // We will only take in account industrial buildings
-        // TODO: Take in account other buildings as well
-        if(building->type->is_factory == false) continue;
-
-        for(const auto& input : building->type->inputs) {
-            // Apply the higher-probability with outputs of this factory
-            for(const auto& output : building->type->outputs) {
-                avg_prob[world->get_id(output)] += avg_prob[world->get_id(input)];
+        // Now, we will take in account 2 factors:
+        // - First, an industry which takes-in a good with high sucess and outputs something should have that something
+        // have a sucess probability equal or higher to the taked good
+        // - Second, we preferably want the A.I to complete the supply chain of all industries so doing the method described
+        // above should increase the priority for filling out higher level industries
+        for(const auto& building_type : world->building_types) {
+            // Take in account all buildings for this
+            for(const auto& input : building_type->inputs) {
+                // Apply the higher-probability with outputs of this factory
+                for(const auto& output : building_type->outputs) {
+                    avg_prob[world->get_id(output)] += avg_prob[world->get_id(input)] + 1;
+                }
             }
+        }
+
+        Good* target_good = world->goods.at(std::distance(avg_prob.begin(), std::max_element(avg_prob.begin(), avg_prob.end())));
+
+        // The more buildings there are in the world the less we are wiling to construct one
+        float saturation = std::max<size_t>(1, world->buildings.size()) / 100;
+        if(fmod(std::rand(), saturation)) {
+            print_info("Too much market saturation");
+            return nullptr;
+        }
+
+        // Obtain the index of the highest element (the one with more sucess rate)
+        return target_good;
+    } else {
+        // We will randomly pick any primary product which we are capable of producing
+        // This is mostly useful for starting supply chains from zero
+        print_info("Primary sector kickstart strategy");
+
+        // The more buildings there are in the world the less we are wiling to construct one
+        // (more intense with primary sector due to primary-industry spam)
+        float saturation = std::max<size_t>(1, world->buildings.size()) / 50;
+        if(fmod(std::rand(), saturation)) {
+            print_info("Too much market saturation");
+            return nullptr;
+        }
+
+        for(const auto& building_type : world->building_types) {
+            // Only take in account RGOs (and buildings that have atleast 1 output)
+            if(!building_type->inputs.empty() || !building_type->outputs.size()) continue;
+            if(!building_type->is_factory) continue;
+
+            // Randomness
+            if(std::rand() % 5) continue;
+            return building_type->outputs[std::rand() % building_type->outputs.size()];
         }
     }
 
-    //for(size_t i = 0; i < world->goods.size(); i++) {
-    //	print_info("%s: Good %s has %f probability", nation->name.c_str(), world->goods[i]->name.c_str(), avg_prob[i]);
-    //}
-
-    // Obtain the index of the highest element (the one with more sucess rate)
-    return world->goods.at(std::distance(avg_prob.begin(), std::max_element(avg_prob.begin(), avg_prob.end())));
+    print_info("No suitable good");
+    return nullptr;
 }
 
 // Reforms the policies of a nation taking in account several factors
@@ -162,15 +187,16 @@ void ai_update_relations(Nation* nation, Nation* other) {
         }
 
         // We really hate our enemies, don't we?
-        if(nation->relations[world.get_id(other)].has_embargo) {
+        if(nation->relations[world.get_id(other)].relation < -50.f && !nation->relations[world.get_id(other)].has_war) {
+            // TODO: Do not war if it's beyond our capabilities (i.e Liechestein vs. France, Prussia and UK)
             nation->declare_war(*other);
         }
     }
 
     // Randomness to spice stuff up
-    if(!(std::rand() % 100)) {
+    if(!(std::rand() % 1000)) {
         nation->increase_relation(*other);
-    } else if(!(std::rand() % 20)) {
+    } else if(!(std::rand() % 1000)) {
         nation->decrease_relation(*other);
     }
 }
@@ -237,12 +263,12 @@ void ai_do_tick(Nation* nation, World* world) {
             for(const auto& building_type : world->building_types) {
                 if(!building_type->is_factory) continue;
 
-                for(const auto& input : building_type->inputs) {
+                /*for(const auto& input : building_type->inputs) {
                     if(input == target_good) {
                         type = (BuildingType*)building_type;
                         break;
                     }
-                }
+                }*/
 
                 for(const auto& output : building_type->outputs) {
                     if(output == target_good) {
@@ -427,7 +453,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 Unit* other_unit = g_world->units[j];
                 if(unit->owner == other_unit->owner) {
                     // Only when very close
-                    if(std::abs(unit->x - other_unit->x) >= 4.f && std::abs(unit->y - other_unit->y) >= 4.f)
+                    if(std::abs(unit->x - other_unit->x) >= 8.f && std::abs(unit->y - other_unit->y) >= 8.f)
                         continue;
 
                     friend_attack_strength = other_unit->size * other_unit->type->attack;
@@ -442,7 +468,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     }
                 } else {
                     // Foes from many ranges counts
-                    if(std::abs(unit->x - other_unit->x) >= 1.f && std::abs(unit->y - other_unit->y) >= 1.f)
+                    if(std::abs(unit->x - other_unit->x) >= 12.f && std::abs(unit->y - other_unit->y) >= 12.f)
                         continue;
 
                     foe_attack_strength = other_unit->size * other_unit->type->attack;
@@ -473,23 +499,6 @@ void ai_do_tick(Nation* nation, World* world) {
                     unit->ty = unit->y;
                 }
             }
-
-            /*
-            if(unit->owner != nation) continue;
-
-            auto it = std::begin(nation->owned_provinces);
-            std::advance(it, std::rand() % nation->owned_provinces.size());
-            Province* province = *it;
-
-            if(province->min_x > world->width || province->min_y == world->height) continue;
-            if(province->max_x < province->min_x || province->max_y < province->min_y) continue;
-            if(province->n_tiles == 0) continue;
-            glm::ivec2 coord = world->get_rand_province_coord(province);
-            unit->tx = coord.x;
-            unit->ty = coord.y;
-            unit->x = std::min<float>(unit->x, g_world->width - 1);
-            unit->y = std::min<float>(unit->y, g_world->height - 1);
-            */
         }
     }
 }
