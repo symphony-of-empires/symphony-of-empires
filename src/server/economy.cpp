@@ -52,7 +52,6 @@ public:
 };
 // Phase 1 of economy: Delivers & Orders are sent from all factories in the world
 void Economy::do_tick(World& world) {
-
     std::vector<AvailableWorkers> available_workers;
     for(const auto& province : world.provinces) {
         // Province must have an owner
@@ -62,27 +61,22 @@ void Economy::do_tick(World& world) {
         }
 
         AvailableWorkers province_workers{};
-
         for(auto& pop : province->pops) {
-            if(pop.type->group == PopGroup::Slave
-                || pop.type->group == PopGroup::Other) {
+            if(pop.type->group == PopGroup::Slave || pop.type->group == PopGroup::Other) {
                 continue;
-            }
-            // Are there any discriminative policies?
-            if(province->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
-                // POPs of non-accepted cultures on exterminate mode cannot get jobs
-                if(province->owner->is_accepted_culture(pop) == false) continue;
             }
 
             Workers workers{ pop };
-
-            if(province->owner->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
-                if(province->owner->is_accepted_culture(pop) == false) {
+            if(province->owner->is_accepted_culture(pop) == false) {
+                // POPs of non-accepted cultures on exterminate mode cannot get jobs
+                if(province->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
+                    continue;
+                } else if(province->owner->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
                     workers.amount /= 2;
                 }
             }
-            switch(pop.type->group)
-            {
+
+            switch(pop.type->group) {
             case PopGroup::Entrepreneur:
                 province_workers.entrepreneurs.push_back(workers);
                 break;
@@ -145,8 +139,7 @@ void Economy::do_tick(World& world) {
 
                 if(output->good->is_edible) {
                     needed_farmers += employed;
-                }
-                else {
+                } else {
                     needed_laborers += employed;
                 }
                 needed_entrepreneurs += employed / 100;
@@ -168,9 +161,8 @@ void Economy::do_tick(World& world) {
         // - Farmers: They are needed to produce edibles
         // - Entrepreneur: They help "organize" the factory
         for(size_t i = 0; i < province_workers.farmers.size(); i++) {
-            if(available_farmers >= needed_farmers) {
-                break;
-            }
+            if(available_farmers >= needed_farmers) break;
+
             Workers& workers = province_workers.farmers[i];
 
             size_t employed = std::min(needed_farmers - available_farmers, workers.amount);
@@ -189,9 +181,7 @@ void Economy::do_tick(World& world) {
             }
         }
         for(size_t i = 0; i < province_workers.laborers.size(); i++) {
-            if(available_laborers >= needed_laborers) {
-                break;
-            }
+            if(available_laborers >= needed_laborers) break;
             Workers& workers = province_workers.laborers[i];
 
             size_t employed = std::min(needed_laborers - available_laborers, workers.amount);
@@ -210,9 +200,7 @@ void Economy::do_tick(World& world) {
             }
         }
         for(size_t i = 0; i < province_workers.entrepreneurs.size(); i++) {
-            if(available_entrepreneurs >= needed_entrepreneurs) {
-                break;
-            }
+            if(available_entrepreneurs >= needed_entrepreneurs) break;
             Workers& workers = province_workers.entrepreneurs[i];
 
             size_t employed = std::min(needed_entrepreneurs - available_entrepreneurs, workers.amount);
@@ -740,8 +728,7 @@ void Economy::do_tick(World& world) {
                     pop.militancy -= 0.0002f;
                     pop.con -= 0.0001f;
                 }
-            }
-            else {
+            } else {
                 pop.militancy += 0.01f;
                 pop.con += 0.01f;
             }
@@ -750,6 +737,7 @@ void Economy::do_tick(World& world) {
             // want to get out of here
             // And literacy determines "best" spot, for example a low literacy will
             // choose a slightly less desirable location
+            /*
             const float emigration_willing = std::max<float>(-pop.life_needs_met * std::fmod(fuzz, 10), 0);
             const long long int emigreers = std::fmod(pop.size * emigration_willing + std::rand(), pop.size);
             if(emigreers > 0) {
@@ -816,9 +804,10 @@ void Economy::do_tick(World& world) {
                 emigrated.size = emigreers;
                 emigrated.origin = province;
 
-                std::lock_guard l(emigration_lock);
+                const std::lock_guard l(emigration_lock);
                 emigration.push_back(emigrated);
             }
+            */
         skip_emigration:;
         }
 

@@ -191,6 +191,19 @@ void ai_do_tick(Nation* nation, World* world) {
             ai_update_relations(nation, other);
         }
 
+        // Research technologies
+        for(auto& tech : world->technologies) {
+            // Do not research if already been completed
+            if(!nation->research[world->get_id(tech)]) continue;
+
+            // Must be able to research it
+            if(!nation->can_research(tech)) continue;
+
+            nation->change_research_focus(tech);
+            print_info("[%s] now researching [%s] - %.2f research points needed", nation->ref_name.c_str(), tech->ref_name.c_str(), nation->research[world->get_id(tech)]);
+            break;
+        }
+
         // Accepting/rejecting treaties
         for(auto& treaty : world->treaties) {
             for(auto& part : treaty->approval_status) {

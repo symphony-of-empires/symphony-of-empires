@@ -202,18 +202,10 @@ bool Nation::is_accepted_religion(const Pop& pop) const {
 float Nation::get_tax(const Pop& pop) const {
     float base_tax = 1.f;
 
-    // Advanced discrimination mechanics ;)
-
-    // Only-accepted POPs policy should impose higher prices to non-accepted POPs
-    // We are not an accepted-culture POP
-    if(is_accepted_culture(pop) != true) {
-        if(current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
-            base_tax += 1.5f;
-        }
-        else if(current_policy.treatment == TREATMENT_EXTERMINATE) {
-            // Fuck you
-            base_tax += 1000.f;
-        }
+    if(!is_accepted_culture(pop) && !is_accepted_religion(pop)) {
+        // Exterminate imposes a scale of 3(+1), which will be enough to drive off most POPs
+        const int scale = 1 + current_policy.treatment;
+        base_tax *= 2 * scale;
     }
 
     if(pop.type->social_value <= 1.f) {
@@ -233,11 +225,11 @@ float Nation::get_tax(const Pop& pop) const {
 // Gives this nation a specified province (for example on a treaty)
 void Nation::give_province(Province& province) {
     World& world = World::get_instance();
-    Nation::Id nation_id = world.get_id(this);
-    Province::Id province_id = world.get_id(&province);
-
-    for(size_t i = province.min_x; i < province.max_x; i++) {
-        for(size_t j = province.min_y; j < province.max_y; j++) {
+    
+    const Nation::Id nation_id = world.get_id(this);
+    const Province::Id province_id = world.get_id(&province);
+    for(uint i = province.min_x; i < province.max_x; i++) {
+        for(uint j = province.min_y; j < province.max_y; j++) {
             Tile& tile = world.get_tile(i, j);
             if(tile.province_id != province_id) continue;
 
@@ -265,7 +257,7 @@ const NationClientHint& Nation::get_client_hint(void) const {
 
     if(client_hints.empty()) {
         tmp_hint.colour = rand();
-        tmp_hint.alt_name = "No ClientHint defined";
+        tmp_hint.alt_name = this->ref_name + "_MISSING_CLIENTHINT";
         tmp_hint.ideology = World::get_instance().ideologies[0];
         return tmp_hint;
     }
@@ -283,11 +275,24 @@ float Nation::get_research_points(void) const {
     return research;
 }
 
-void Nation::change_research_focus(Technology* tech) {
+bool Nation::can_research(Technology* tech) const {
     // Only military/navy technologies can actually be researched
-    if(tech->type == TechnologyType::MILITARY || tech->type == TechnologyType::NAVY) {
-        this->focus_tech = tech;
+    if(tech->type != TechnologyType::MILITARY && tech->type != TechnologyType::NAVY) return false;
+
+    // All required technologies for this one must be researched
+    for(const auto& req_tech : tech->req_technologies) {
+        if(research[World::get_instance().get_id(req_tech)] > 0.f) return false;
     }
+    return true;
+}
+
+void Nation::change_research_focus(Technology* tech) {
+    // Can't have already researched it (it would be dumb to re-research
+    if(!research[World::get_instance().get_id(tech)]) return;
+    // Must be able to research it
+    if(!can_research(tech)) return;
+
+    focus_tech = tech;
 }
 
 /*float Nation::get_industry_output_rate() {
