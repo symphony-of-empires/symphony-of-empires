@@ -185,7 +185,7 @@ void Server::net_loop(int id) {
             ActionType action = ActionType::PING;
             packet.send(&action);
 #ifdef unix
-            struct pollfd pfd ={};
+            struct pollfd pfd;
             pfd.fd = conn_fd;
             pfd.events = POLLIN;
 #endif
@@ -196,16 +196,20 @@ void Server::net_loop(int id) {
             // an exception is thrown), since we are using C++
             Archive ar = Archive();
             while(run && cl.is_connected == true) {
-                // Check if we need to read stuff
+                // Check if we need to read packets
 #ifdef unix
-                int has_pending = poll(&pfd, 1, 0);
-                if(pfd.revents & POLLIN || has_pending && g_world->world_mutex.try_lock() == true)
+                int has_pending = poll(&pfd, 1, 10);
 #elif defined windows
                 u_long has_pending = 0;
                 ioctlsocket(fd, FIONREAD, &has_pending);
-                if(has_pending && g_world->world_mutex.try_lock() == true)
 #endif
-                {
+
+                // Conditional of above statements
+#ifdef unix
+                if(pfd.revents & POLLIN || has_pending) {
+#elif defined windows
+                if(has_pending) {
+#endif
                     packet.recv();
                     ar.set_buffer(packet.data(), packet.size());
                     ar.rewind();
@@ -424,19 +428,16 @@ void Server::net_loop(int id) {
                         // Find event by reference name
                         std::string event_ref_name;
                         ::deserialize(ar, &event_ref_name);
-                        auto event = std::find_if(g_world->events.begin(), g_world->events.end(),
-                            [&event_ref_name](const Event* e) {
+                        auto event = std::find_if(g_world->events.begin(), g_world->events.end(), [&event_ref_name](const Event* e) {
                             return e->ref_name == event_ref_name;
                         });
-                        if(event == g_world->events.end()) {
+                        if(event == g_world->events.end())
                             throw ServerException("Event not found");
-                        }
 
                         // Find descision by reference name
                         std::string descision_ref_name;
                         ::deserialize(ar, &descision_ref_name);
-                        auto descision = std::find_if((*event)->descisions.begin(), (*event)->descisions.end(),
-                            [&descision_ref_name](const Descision& d) {
+                        auto descision = std::find_if((*event)->descisions.begin(), (*event)->descisions.end(), [&descision_ref_name](const Descision& d) {
                             return d.ref_name == descision_ref_name;
                         });
                         if(descision == (*event)->descisions.end()) {
