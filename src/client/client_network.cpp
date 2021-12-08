@@ -288,11 +288,15 @@ void Client::net_loop(void) {
                     // get_tile is already mutexed
 
                     std::pair<size_t, size_t> coord;
-                    ::deserialize(ar, &coord.first);
-                    ::deserialize(ar, &coord.second);
+                    ::deserialize(ar, &coord);
                     ::deserialize(ar, &world.get_tile(coord.first, coord.second));
 
-                    std::lock_guard lock(world.changed_tiles_coords_mutex);
+                    const Tile& tile = world.get_tile(coord.first, coord.second);
+                    if(tile.owner_id != (Nation::Id)-1 && tile.province_id <= world.provinces.size()) {
+                        world.nations[tile.owner_id]->owned_provinces.insert(world.provinces[tile.province_id]);
+                    }
+
+                    const std::lock_guard lock(world.changed_tiles_coords_mutex);
                     world.changed_tile_coords.push_back(coord);
                 } break;
                 case ActionType::PROVINCE_COLONIZE: {

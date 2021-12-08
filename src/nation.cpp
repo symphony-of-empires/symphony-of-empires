@@ -228,13 +228,18 @@ void Nation::give_province(Province& province) {
     
     const Nation::Id nation_id = world.get_id(this);
     const Province::Id province_id = world.get_id(&province);
-    for(uint i = province.min_x; i < province.max_x; i++) {
-        for(uint j = province.min_y; j < province.max_y; j++) {
+
+    const std::lock_guard lock(world.nation_changed_tiles_mutex);
+
+    uint count = 0;
+    for(uint i = province.min_x; i <= province.max_x; i++) {
+        for(uint j = province.min_y; j <= province.max_y; j++) {
             Tile& tile = world.get_tile(i, j);
             if(tile.province_id != province_id) continue;
 
             tile.owner_id = nation_id;
-            world.changed_tile_coords.push_back(std::make_pair(i, j));
+            world.nation_changed_tiles.push_back(&tile);
+            count++;
         }
     }
 

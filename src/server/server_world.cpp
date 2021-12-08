@@ -871,21 +871,24 @@ void World::do_tick() {
 
             tile.owner_id = get_id(unit->owner);
 
-            std::lock_guard lock(nation_changed_tiles_mutex);
+            const std::lock_guard lock(nation_changed_tiles_mutex);
             nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
-            {
-                // Broadcast to clients
-                Packet packet = Packet();
-                Archive ar = Archive();
-                ActionType action = ActionType::TILE_UPDATE;
-                ::serialize(ar, &action);
-                std::pair<size_t, size_t> coord = std::make_pair((size_t)unit->x, (size_t)unit->y);
-                ::serialize(ar, &coord);
-                ::serialize(ar, &tile);
-                packet.data(ar.get_buffer(), ar.size());
-                g_server->broadcast(packet);
-            }
         }
+    }
+
+    for(const auto& tile : nation_changed_tiles) {
+        // Broadcast to clients
+        Packet packet = Packet();
+        Archive ar = Archive();
+        ActionType action = ActionType::TILE_UPDATE;
+        ::serialize(ar, &action);
+
+        size_t idx = get_id(tile);
+        std::pair<size_t, size_t> coord = std::make_pair((size_t)idx % width, (size_t)idx / width);
+        ::serialize(ar, &coord);
+        ::serialize(ar, tile);
+        packet.data(ar.get_buffer(), ar.size());
+        g_server->broadcast(packet);
     }
 
     {
