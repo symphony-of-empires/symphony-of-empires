@@ -482,12 +482,15 @@ void World::load_mod(void) {
     div.reset(nullptr);
 
     /* Uncomment this for auto-generating lua code for unregistered provinces */
-    for(const auto& color_raw : colors_found) {
-        uint32_t color = color_raw << 8;
-
-        printf("province = Province:new{ ref_name = \"province_%06p\", color = 0x%06p }\n", (uintptr_t)bswap32(color), (uintptr_t)bswap32(color));
-        printf("province.name = _(\"Province_%06p\")\n", (uintptr_t)bswap32(color));
-        printf("province:register()\n");
+    FILE *fp = fopen("UNREG_PROVINCES.lua", "a+t");
+    if(fp) {
+        for(const auto& color_raw : colors_found) {
+            uint32_t color = color_raw << 8;
+            fprintf(fp, "province = Province:new{ ref_name = \"province_%06p\", color = 0x%06p }\n", (uintptr_t)bswap32(color), (uintptr_t)bswap32(color));
+            fprintf(fp, "province.name = _(\"Province_%06p\")\n", (uintptr_t)bswap32(color));
+            fprintf(fp, "province:register()\n");
+        }
+        fclose(fp);
     }
 
     // Calculate the edges of the province (min and max x and y coordinates)
@@ -518,17 +521,14 @@ void World::load_mod(void) {
 
     // Give owners the entire provinces
     print_info(gettext("Give owners the entire provinces"));
-    for(auto& nation : nations) {
-        for(auto& province : nation->owned_provinces) {
+    for(const auto& nation : nations) {
+        for(const auto& province : nation->owned_provinces) {
             const Province::Id province_id = get_id(province);
-            for(size_t x = province->min_x; x <= province->max_x; x++) {
-                for(size_t y = province->min_y; y <= province->max_y; y++) {
+            const Nation::Id nation_id = get_id(province->owner);
+            for(uint x = province->min_x; x <= province->max_x; x++) {
+                for(uint y = province->min_y; y <= province->max_y; y++) {
                     Tile& tile = get_tile(x, y);
-
-                    if(tile.province_id != province_id)
-                        continue;
-
-                    const Nation::Id nation_id = get_id(province->owner);
+                    if(tile.province_id != province_id) continue;
                     tile.owner_id = nation_id;
                 }
             }
@@ -610,14 +610,25 @@ void World::load_mod(void) {
 #include "../action.hpp"
 #include "economy.hpp"
 void World::do_tick() {
-    std::lock_guard lock(world_mutex);
-    std::lock_guard lock2(tiles_mutex);
+    const std::lock_guard lock(world_mutex);
+    const std::lock_guard lock2(tiles_mutex);
 
     // AI and stuff
     // Just random shit to make the world be like more alive
     for(auto& nation : nations) {
+        // Diplomatic cooldown
         if(nation->diplomatic_timer != 0) {
             nation->diplomatic_timer--;
+        }
+
+        // Research stuff
+        float research = nation->get_research_points();
+        if(nation->focus_tech != nullptr) {
+            float* research_progress = &nation->research[get_id(nation->focus_tech)];
+            *research_progress -= std::min(research, *research_progress);
+            if(!(*research_progress)) {
+                nation->focus_tech = nullptr;
+            }
         }
 
         if(nation->is_ai) {
@@ -636,7 +647,7 @@ void World::do_tick() {
 
             // Prestige cannot go below min prestige
             nation->prestige = std::max<float>(nation->prestige, min_prestige);
-            nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * fmin(fmax(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
+            nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<float>(std::max<float>(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
         }
 
         for(auto& nation : this->nations) {

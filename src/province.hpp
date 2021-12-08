@@ -24,6 +24,8 @@ public:
     // Color of the province, used for mapping the province's shape from the map_div.png file
     uint32_t color;
 
+    bool is_coastal = false;
+
     // Budget of the province, money stored from taxes, to later be sent into
     // the nation's main wealth ark (or in case of multiple owners - a % of wealth)
     float budget;

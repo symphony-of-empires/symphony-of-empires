@@ -110,7 +110,7 @@ int LuaAPI::add_technology(lua_State* L) {
     lua_pushnumber(L, g_world->technologies.size() - 1);
 
     for(auto& nation : g_world->nations) {
-        nation->research.push_back(0.f);
+        nation->research.push_back(technology->cost);
     }
     return 1;
 }
