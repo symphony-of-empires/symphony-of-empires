@@ -91,3 +91,13 @@ guerrilla_warfare = Technology:new{
     type = TECH_STRATEGIC
 }
 guerrilla_warfare:register()
+
+-- Social technologies
+romanticism = Technology:new{
+    ref_name = "romanticism",
+    name = "Romanticism",
+    description = "...",
+    cost = 1500.0,
+    type = TECH_SOCIAL
+}
+romanticism:register()
