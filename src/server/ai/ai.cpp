@@ -170,7 +170,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
     // Randomness to spice stuff up
     if(!(std::rand() % 100)) {
         nation->increase_relation(*other);
-    } else if(!(std::rand() % 100)) {
+    } else if(!(std::rand() % 20)) {
         nation->decrease_relation(*other);
     }
 }
@@ -200,7 +200,7 @@ void ai_do_tick(Nation* nation, World* world) {
             if(!nation->can_research(tech)) continue;
 
             nation->change_research_focus(tech);
-            print_info("[%s] now researching [%s] - %.2f research points needed", nation->ref_name.c_str(), tech->ref_name.c_str(), nation->research[world->get_id(tech)]);
+            print_info("[%s] now researching [%s] - %.2f research points (+%.2f)", nation->ref_name.c_str(), tech->ref_name.c_str(), nation->research[world->get_id(tech)], nation->get_research_points());
             break;
         }
 
@@ -211,11 +211,10 @@ void ai_do_tick(Nation* nation, World* world) {
                     if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) break;
 
                     if(std::rand() % 50 >= 25) {
-                        print_info("We, %s, deny the treaty of %s", treaty->name.c_str());
+                        print_info("We, [%s], deny the treaty of [%s]", nation->ref_name.c_str(), treaty->name.c_str());
                         part.second = TreatyApproval::DENIED;
-                    }
-                    else {
-                        print_info("We, %s, accept the treaty of %s", treaty->name.c_str());
+                    } else {
+                        print_info("We, [%s], accept the treaty of [%s]", nation->ref_name.c_str(), treaty->name.c_str());
                         part.second = TreatyApproval::ACCEPTED;
                     }
                 }
@@ -228,12 +227,10 @@ void ai_do_tick(Nation* nation, World* world) {
         }
 
         // Build a commercially related building
-        if(std::rand() % 50 == 0) {
+        if(std::rand() % 2 == 0) {
             Good* target_good;
             target_good = ai_get_potential_good(nation, world);
             if(target_good == nullptr) return;
-
-            print_info("Building a commercially related building");
 
             // Find an industry type which outputs this good
             BuildingType* type = nullptr;
@@ -255,7 +252,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 }
             }
 
-            print_info("%s: Good %s seems to be on a high-trend - building industry %s which makes that good", nation->name.c_str(), target_good->name.c_str(), type->name.c_str());
+            print_info("[%s]: Good [%s] seems to be on a high-trend - building industry [%s] which makes that good", nation->ref_name.c_str(), target_good->ref_name.c_str(), type->ref_name.c_str());
 
             // Otherwise -- do not build anything since the highest valued good cannot be produced
             if(type == nullptr) return;
@@ -275,6 +272,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 building->x = coord.x;
                 building->y = coord.y;
                 building->province = province;
+                building->corporate_owner = nullptr;
 
                 building->working_unit_type = nullptr;
                 building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
@@ -307,7 +305,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     packet.data(ar.get_buffer(), ar.size());
                     g_server->broadcast(packet);
                 }
-                print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)world->get_id(building->type), nation->name.c_str(), building->get_province()->name.c_str());
+                print_info("Building of [%s](%i), from [%s] built on [%s]", building->type->ref_name.c_str(), (int)world->get_id(building->type), nation->ref_name.c_str(), building->get_province()->ref_name.c_str());
             }
         }
 
@@ -367,16 +365,13 @@ void ai_do_tick(Nation* nation, World* world) {
         }
 
         // Build units inside buildings that are not doing anything
-        if(std::rand() % 5000 == 0) {
-            for(auto& building : g_world->buildings) {
-                if(building->working_unit_type != nullptr || building->owner != nation) continue;
+        for(auto& building : g_world->buildings) {
+            if(std::rand() % defense_factor) continue;
+            if(building->working_unit_type != nullptr || building->owner != nation) continue;
 
-                while(building->working_unit_type == nullptr) {
-                    building->working_unit_type = g_world->unit_types[rand() % g_world->unit_types.size()];
-                }
-                building->req_goods_for_unit = building->working_unit_type->req_goods;
-                print_info("DEPLOYING UNIT OF TYPE %s IN %s", building->working_unit_type->ref_name.c_str(), building->get_province()->ref_name.c_str());
-            }
+            building->working_unit_type = g_world->unit_types[std::rand() % g_world->unit_types.size()];
+            building->req_goods_for_unit = building->working_unit_type->req_goods;
+            print_info("%s: Building unit [%s] in [%s]", nation->ref_name.c_str(), building->working_unit_type->ref_name.c_str(), building->get_province()->ref_name.c_str());
         }
 
         // Colonize a province
