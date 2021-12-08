@@ -16,7 +16,6 @@
 #include "server/lua_api.hpp"
 #include <glm/vec2.hpp>
 
-#define MAX_INFRA_LEVEL 			4
 #define MAX_ELEVATION				255
 #define RIVER_ELEVATION(a)			a + 1
 
@@ -34,9 +33,6 @@ public:
 
     // ID of the province where this tile belongs to
     Province::Id province_id;
-
-    // Level of infrastructure in this tile (from 0 to MAX_INFRA_LEVEL)
-    uint8_t infra_level;
 
     // Elevation
     uint8_t elevation;

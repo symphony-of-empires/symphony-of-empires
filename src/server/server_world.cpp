@@ -412,26 +412,13 @@ void World::load_mod(void) {
     if(terrain->width != width || terrain->height != height)
         throw std::runtime_error("Terrain map size mismatch");
 
-    std::unique_ptr<BinaryImage> infra = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_infra.png")));
-    if(infra->width != width || infra->height != height)
-        throw std::runtime_error("Infrastructure map size mismatch");
-
     // Translate all div, pol and topo maps onto this single tile array
     print_info(gettext("Elevation map translation"));
     for(size_t i = 0; i < total_size; i++) {
         // Set coordinates for the tiles
         tiles[i].terrain_type_id = terrain_color_table[terrain->buffer[i] & 0xffffff];
-        tiles[i].infra_level = 0;
-
-        // Set infrastructure level
-        /*if(infra->buffer[i] == 0xffffffff || infra->buffer[i] == 0xff000000) {
-            tiles[i].infra_level = 0;
-        } else {
-            tiles[i].infra_level = 1;
-        }*/
     }
     terrain.reset(nullptr);
-    infra.reset(nullptr);
 
     // Associate tiles with provinces
 

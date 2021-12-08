@@ -55,6 +55,11 @@ enum TreatmentPolicy {
     TREATMENT_EXTERMINATE,
 };
 
+class MaterialPolicy {
+    bool is_banned;
+    float max_stockpile_saved;
+};
+
 class Policies {
 public:
     TreatmentPolicy treatment;

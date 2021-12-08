@@ -523,14 +523,12 @@ class Serializer<Tile> {
 public:
     static inline void serialize(Archive& stream, const Tile* obj) {
         ::serialize(stream, &obj->terrain_type_id);
-        ::serialize(stream, &obj->infra_level);
         ::serialize(stream, &obj->owner_id);
         ::serialize(stream, &obj->province_id);
         ::serialize(stream, &obj->elevation);
     }
     static inline void deserialize(Archive& stream, Tile* obj) {
         ::deserialize(stream, &obj->terrain_type_id);
-        ::deserialize(stream, &obj->infra_level);
         ::deserialize(stream, &obj->owner_id);
         ::deserialize(stream, &obj->province_id);
         ::deserialize(stream, &obj->elevation);
@@ -538,7 +536,6 @@ public:
     static inline size_t size(const Tile* obj) {
         return
             serialized_size(&obj->terrain_type_id)
-            + serialized_size(&obj->infra_level)
             + serialized_size(&obj->owner_id)
             + serialized_size(&obj->province_id)
             + serialized_size(&obj->elevation)
