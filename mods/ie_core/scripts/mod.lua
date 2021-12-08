@@ -84,8 +84,9 @@ function unify_germany_event()
 end
 function unify_germany_descision_0()
 	print('Unifying germany...')
+	Nation:get("germany"):set_ideology(Ideology:get("monarchy"))
 	local prov = Nation:get("germany"):get_nuclei_provinces()
-	for k, v in pairs(prov) do print(prov.ref_name) prov:give_to(Nation:get("germany")) end
+	for k, v in pairs(prov) do print(v.ref_name) v:give_to(Nation:get("germany")) end
 end
 function unify_germany_descision_1()
 	print('Germany isn\'t going to be a thing :<')
