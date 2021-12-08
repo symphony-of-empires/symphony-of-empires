@@ -266,9 +266,7 @@ int LuaAPI::get_friends_of_nation(lua_State* L) {
     size_t i = 0;
     for(const auto& friend_nation : g_world->nations) {
         const NationRelation& relation = nation->relations[g_world->get_id(friend_nation)];
-        if(relation.relation < 50.f) {
-            continue;
-        }
+        if(relation.relation < 50.f) continue;
 
         lua_pushnumber(L, g_world->get_id(friend_nation));
         lua_rawseti(L, -2, i + 1);
@@ -284,9 +282,7 @@ int LuaAPI::get_enemies_of_nation(lua_State* L) {
     size_t i = 0;
     for(const auto& other_nation : g_world->nations) {
         const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
-        if(relation.relation > -50.f) {
-            continue;
-        }
+        if(relation.relation > -50.f) continue;
 
         lua_pushnumber(L, g_world->get_id(other_nation));
         lua_rawseti(L, -2, i + 1);
@@ -302,9 +298,7 @@ int LuaAPI::get_allies_of_nation(lua_State* L) {
     size_t i = 0;
     for(const auto& other_nation : g_world->nations) {
         const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
-        if(!relation.has_alliance) {
-            continue;
-        }
+        if(!relation.has_alliance) continue;
 
         lua_pushnumber(L, g_world->get_id(other_nation));
         lua_rawseti(L, -2, i + 1);
@@ -320,9 +314,7 @@ int LuaAPI::get_warenemies_of_nation(lua_State* L) {
     size_t i = 0;
     for(const auto& other_nation : g_world->nations) {
         const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
-        if(!relation.has_war) {
-            continue;
-        }
+        if(!relation.has_war) continue;
 
         lua_pushnumber(L, g_world->get_id(other_nation));
         lua_rawseti(L, -2, i + 1);
@@ -338,9 +330,7 @@ int LuaAPI::get_embargoed_of_nation(lua_State* L) {
     size_t i = 0;
     for(const auto& other_nation : g_world->nations) {
         const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
-        if(!relation.has_embargo) {
-            continue;
-        }
+        if(!relation.has_embargo) continue;
 
         lua_pushnumber(L, g_world->get_id(other_nation));
         lua_rawseti(L, -2, i + 1);
