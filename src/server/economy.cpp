@@ -283,7 +283,6 @@ void Economy::do_tick(World& world) {
             //print_info("Building of %s in %s has %zu workers", building->type->name.c_str(), province->name.c_str(), building->workers);
             if(!building->workers) {
                 building->days_unoperational++;
-                building->min_quality = 0;
 
                 // TODO: We should tax building daily income instead of by it's total budget
                 const float loss_by_tax = building->budget * province->owner->current_policy.industry_tax;
@@ -486,10 +485,7 @@ void Economy::do_tick(World& world) {
                     continue;
                 }
 
-                // Must have above minimum quality to be accepted
-                if(order.type == OrderType::INDUSTRIAL && deliver.product->quality < order.building->min_quality) {
-                    continue;
-                }
+                if(order.type == OrderType::INDUSTRIAL) continue;
 
                 // Give both goverments their part of the tax (when tax is 1.0< then the goverment pays for it)
                 order_province->owner->budget += total_order_cost - order_cost;
@@ -517,9 +513,6 @@ void Economy::do_tick(World& world) {
                     // Increment the production cost of this building which is used
                     // so we sell our product at a profit instead  of at a loss
                     order.building->production_cost += deliver.product->price;
-
-                    // Set quality to the max from this product
-                    order.building->min_quality = std::max(order.building->min_quality, deliver.product->quality);
                 }
                 else if(order.type == OrderType::BUILDING) {
                     // The building will take the production materials
@@ -550,9 +543,6 @@ void Economy::do_tick(World& world) {
                 // Increment the production cost of this building which is used
                 // so we sell our product at a profit instead  of at a loss
                 order.building->production_cost += deliver.product->price;
-
-                // Set quality to the max from this product
-                order.building->min_quality = std::max(order.building->min_quality, deliver.product->quality);
 
                 deliver.product->supply += deliver.quantity;
 
@@ -623,7 +613,6 @@ void Economy::do_tick(World& world) {
             // Use 10% of our budget for buying uneeded commodities and shit
             // TODO: Should lower spending with higher literacy, and higher
             // TODO: Higher the fullfilment per unit with higher literacy
-            // TODO: Should sort "product" by priority (i.e with highest quality and best marketing)
             float everyday_alloc_budget = pop.budget / 10.f;
             for(const auto& product : province_products) {
                 const Product::Id product_id = world.get_id(product);

@@ -28,9 +28,6 @@ public:
     // Velocity of change of price of the product
     float price_vel;
 
-    // Quality of the product
-    float quality;
-
     // Total supply (worldwide) of the product
     size_t supply;
 
