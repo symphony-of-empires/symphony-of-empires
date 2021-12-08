@@ -890,7 +890,6 @@ public:
         ::serialize(stream, &obj->production_cost);
         ::serialize(stream, &obj->stockpile);
         ::serialize(stream, &obj->output_products);
-        ::serialize(stream, &obj->min_quality);
         ::serialize(stream, &obj->willing_payment);
         ::serialize(stream, &obj->workers);
         ::serialize(stream, &obj->req_goods);
@@ -908,7 +907,6 @@ public:
         ::deserialize(stream, &obj->production_cost);
         ::deserialize(stream, &obj->stockpile);
         ::deserialize(stream, &obj->output_products);
-        ::deserialize(stream, &obj->min_quality);
         ::deserialize(stream, &obj->willing_payment);
         ::deserialize(stream, &obj->workers);
         ::deserialize(stream, &obj->req_goods);
@@ -927,7 +925,6 @@ public:
             + serialized_size(&obj->production_cost)
             + serialized_size(&obj->stockpile)
             + serialized_size(&obj->output_products)
-            + serialized_size(&obj->min_quality)
             + serialized_size(&obj->willing_payment)
             + serialized_size(&obj->workers)
             + serialized_size(&obj->req_goods)
@@ -980,7 +977,6 @@ public:
         ::serialize(stream, &obj->good);
         ::serialize(stream, &obj->price);
         ::serialize(stream, &obj->price_vel);
-        ::serialize(stream, &obj->quality);
         ::serialize(stream, &obj->supply);
         ::serialize(stream, &obj->demand);
     }
@@ -990,7 +986,6 @@ public:
         ::deserialize(stream, &obj->good);
         ::deserialize(stream, &obj->price);
         ::deserialize(stream, &obj->price_vel);
-        ::deserialize(stream, &obj->quality);
         ::deserialize(stream, &obj->supply);
         ::deserialize(stream, &obj->demand);
     }
@@ -1001,7 +996,6 @@ public:
             + serialized_size(&obj->good)
             + serialized_size(&obj->price)
             + serialized_size(&obj->price_vel)
-            + serialized_size(&obj->quality)
             + serialized_size(&obj->supply)
             + serialized_size(&obj->demand)
             ;
