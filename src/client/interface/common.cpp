@@ -102,27 +102,27 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
     : gs{ _gs },
     province{ _province },
     index{ _index },
-    UI::Group(x, y, parent->width - x, 24, parent)
+    UI::Group(x, y, parent->width, 24, parent)
 {
     this->is_scroll = false;
 
     this->size_btn = new UI::Button(0, 0, 96, 24, this);
 
-    this->budget_btn = new UI::Button(0, 0, 96, 24, this);
+    this->budget_btn = new UI::Button(0, 0, 128, 24, this);
     this->budget_btn->right_side_of(*this->size_btn);
 
-    this->religion_btn = new UI::Button(0, 0, 96, 24, this);
+    this->religion_btn = new UI::Button(0, 0, 128, 24, this);
     this->religion_btn->right_side_of(*this->budget_btn);
 
-    this->culture_btn = new UI::Button(0, 0, 96, 24, this);
+    this->culture_btn = new UI::Button(0, 0, 128, 24, this);
     this->culture_btn->right_side_of(*this->religion_btn);
 
     if(index < province->pops.size()) {
         const Pop& pop = province->pops[index];
         this->size_btn->text(std::to_string(pop.size));
         this->budget_btn->text(std::to_string(pop.budget));
-        this->religion_btn->text(pop.religion->ref_name);
-        this->culture_btn->text(pop.culture->ref_name);
+        this->religion_btn->text(pop.religion->name);
+        this->culture_btn->text(pop.culture->name);
     }
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PopInfo&>(w);
@@ -131,15 +131,15 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
         const Pop& pop = o.province->pops[o.index];
         o.size_btn->text(std::to_string(pop.size));
         o.budget_btn->text(std::to_string(pop.budget));
-        o.religion_btn->text(pop.religion->ref_name);
-        o.culture_btn->text(pop.culture->ref_name);
+        o.religion_btn->text(pop.religion->name);
+        o.culture_btn->text(pop.culture->name);
     });
 }
 
 ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Widget* parent)
     : gs{ _gs },
     product{ _product },
-    UI::Group(x, y, parent->width - x, 24, parent)
+    UI::Group(x, y, parent->width, 24, parent)
 {
     this->is_scroll = false;
 
@@ -161,18 +161,44 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
 
     this->price_chart = new UI::Chart(0, 0, 96, 24, this);
     this->price_chart->right_side_of(*this->price_btn);
+    this->price_chart->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<ProductInfo&>(*w.parent);
+        new ProductView(o.gs, o.product);
+    });
+
+    this->supply_chart = new UI::Chart(0, 0, 96, 24, this);
+    this->supply_chart->right_side_of(*this->price_chart);
+    this->supply_chart->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<ProductInfo&>(*w.parent);
+        new ProductView(o.gs, o.product);
+    });
+
+    this->demand_chart = new UI::Chart(0, 0, 96, 24, this);
+    this->demand_chart->right_side_of(*this->supply_chart);
+    this->demand_chart->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<ProductInfo&>(*w.parent);
+        new ProductView(o.gs, o.product);
+    });
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProductInfo&>(w);
 
         // Only update every ticks_per_day ticks
         if(o.gs.world->time % o.gs.world->ticks_per_day) return;
-        
+
+        o.price_chart->data.push_back(o.product->price);
         if(o.price_chart->data.size() >= 30)
             o.price_chart->data.pop_back();
+        
+        o.supply_chart->data.push_back(o.product->supply);
+        if(o.supply_chart->data.size() >= 30)
+            o.supply_chart->data.pop_back();
+
+        o.demand_chart->data.push_back(o.product->demand);
+        if(o.demand_chart->data.size() >= 30)
+            o.demand_chart->data.pop_back();
 
         o.company_btn->text(o.product->owner->name);
-        o.price_chart->data.push_back(o.product->price);
         o.price_rate_btn->text(std::to_string(o.product->price_vel));
         o.price_btn->text(std::to_string(o.product->price_vel));
     });

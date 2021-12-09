@@ -80,7 +80,7 @@ namespace Interface {
         UI::Button* name_btn,* company_btn,* province_btn;
         UI::Button* good_btn;
         UI::Button* price_btn,* price_rate_btn;
-        UI::Chart* price_chart;
+        UI::Chart* price_chart,* demand_chart,* supply_chart;
     public:
         ProductInfo(GameState& gs, int x, int y, Product* product, UI::Widget* parent);
     };

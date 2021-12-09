@@ -6,6 +6,20 @@
 #include "client/ui.hpp"
 
 namespace Interface {
+    class ProductView : public UI::Window {
+        GameState& gs;
+        Product* product;
+
+        UI::Image* icon_img;
+        UI::Label* name_lab;
+        UI::PieChart *supply_pie;
+        UI::Chart* price_chart,* supply_chart,* demand_chart;
+
+        UI::CloseButton* close_btn;
+    public:
+        ProductView(GameState& gs, Product* product);
+    };
+
     class GoodView : public UI::Window {
         GameState& gs;
         Good* good;

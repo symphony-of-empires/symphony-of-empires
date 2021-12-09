@@ -55,7 +55,8 @@ namespace Interface {
 
     class BuildingView : public UI::Window {
         GameState& gs;
+        Building* building;
     public:
-
+        BuildingView(GameState& gs, Building* building);
     };
 };

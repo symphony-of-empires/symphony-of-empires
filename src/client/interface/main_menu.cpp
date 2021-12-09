@@ -10,22 +10,17 @@ using namespace Interface;
 
 MainMenu::MainMenu(GameState& _gs)
     : gs{ _gs },
-    UI::Window(-(300 / 2), -(325 / 2), 300, 325)
+    UI::Window(-(512 / 2), -(200 / 2), 512, 200)
 {
     this->origin = CENTER_SCREEN;
     this->is_pinned = true;
     this->is_scroll = false;
     this->text("Symphony of Empires");
     
-    const int PADDING = 10;
-    const int X0 = PADDING;
-    const int X1 = this->width - PADDING * 2;
+    //auto* title_img = new UI::Image(0, 0, 256, 128, &g_texture_manager->load_texture(Path::get("ui/title.png")), this);
 
-    auto* title_img = new UI::Image(X0, 35, X1, 128, &g_texture_manager->load_texture(Path::get("ui/title.png")), this);
-
-    auto* single_btn = new UI::Button(X0, PADDING, X1, 24, this);
+    auto* single_btn = new UI::Button(0, 24, 128, 24, this);
     single_btn->text("Singleplayer");
-    single_btn->below_of(*title_img);
     single_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
         GameState& gs = o.gs;
@@ -37,9 +32,9 @@ MainMenu::MainMenu(GameState& _gs)
         gs.in_game = true;
     });
 
-    auto* mp_btn = new UI::Button(X0, PADDING, X1, 24, this);
+    auto* mp_btn = new UI::Button(0, 24, 128, 24, this);
     mp_btn->text("Multiplayer");
-    mp_btn->below_of(*single_btn);
+    mp_btn->right_side_of(*single_btn);
     mp_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
         if(o.connect_window != nullptr)
@@ -47,13 +42,13 @@ MainMenu::MainMenu(GameState& _gs)
         o.connect_window = new MainMenuConnectServer(o.gs);
     });
 
-    auto* cfg_btn = new UI::Button(X0, PADDING, X1, 24, this);
+    auto* cfg_btn = new UI::Button(0, 24, 128, 24, this);
     cfg_btn->text("Settings");
-    cfg_btn->below_of(*mp_btn);
+    cfg_btn->right_side_of(*mp_btn);
 
-    auto* exit_btn = new UI::Button(X0, PADDING, X1, 24, this);
+    auto* exit_btn = new UI::Button(0, 24, 128, 24, this);
     exit_btn->text("Exit");
-    exit_btn->below_of(*cfg_btn);
+    exit_btn->right_side_of(*cfg_btn);
 }
 
 MainMenu::~MainMenu() {

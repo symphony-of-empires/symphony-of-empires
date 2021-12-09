@@ -99,7 +99,7 @@ TopWindow::TopWindow(GameState& _gs)
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(w);
 
-        if(g_world->time % 48) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
 
         o.text(
             std::to_string(o.gs.world->time / o.gs.world->ticks_per_day / 30 / 12)
