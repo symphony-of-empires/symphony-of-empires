@@ -183,3 +183,16 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
     close_btn->below_of(*build_btn);
     close_btn->text("Close");
 }
+
+BuildingView::BuildingView(GameState& _gs, Building* _building)
+    : gs{ _gs },
+    building(_building),
+    UI::Window(0, 0, 512, 512)
+{
+    this->is_scroll = false;
+    this->text("Information for building");
+
+    auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
+    //close_btn->below_of(*build_btn);
+    close_btn->text("Close");
+}
