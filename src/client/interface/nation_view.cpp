@@ -67,7 +67,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         w.text(o.nation->get_client_hint().ideology->name);
     });
     ideology_lab->tooltip = new UI::Tooltip(ideology_lab, 512, 24);
-    ideology_lab->tooltip->text("The ideology according to the policies");
+    ideology_lab->tooltip->text("The ideology according to their policies");
 
     if(gs.curr_nation != nation) {
         this->rel_lab = new UI::Label(0, 0, "?", this);
