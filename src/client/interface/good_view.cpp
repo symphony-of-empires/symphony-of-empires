@@ -89,7 +89,6 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     this->sellers_pie->right_side_of(*this->icon_img);
     this->sellers_pie->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<GoodView&>(*w.parent);
-
         if(o.gs.world->time % o.gs.world->ticks_per_day) return;
 
         std::vector<UI::ChartData> nations_data;

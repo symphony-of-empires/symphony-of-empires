@@ -138,7 +138,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
 ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     : gs{ _gs },
     province{ _province },
-    UI::Window(0, 0, 720, 300)
+    UI::Window(0, 0, 720, 600)
 {
     this->is_scroll = false;
     this->text(province->name);

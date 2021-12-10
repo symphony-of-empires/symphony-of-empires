@@ -100,13 +100,13 @@ void Context::clear_dead() {
 }
 
 void Context::prompt(const std::string& title, const std::string& text) {
-    auto* win = new UI::Window((this->width / 2.f) - (320 / 2.f), (this->height / 2.f) - (200 / 2.f), 320, 200, nullptr);
+    auto* win = new UI::Window((this->width / 2.f) - (320 / 2.f), (this->height / 2.f) - (128 / 2.f), 320, 128, nullptr);
     win->text(title);
 
     auto* txt = new UI::Text(0, 24, win->width, win->height - 48, win);
     txt->text(text);
 
-    auto* ok_btn = new UI::CloseButton(0, 0, win->width, 24, win);
+    auto* ok_btn = new UI::CloseButton(0, 0, 128, 24, win);
     ok_btn->below_of(*txt);
     ok_btn->text("OK");
 }
@@ -418,7 +418,6 @@ void Context::do_tick(void) {
 }
 
 int Context::do_tick_recursive(Widget& w) {
-
     if(w.on_each_tick) w.on_each_tick(w, w.user_data);
 
     for(auto& child : w.children) {
@@ -729,8 +728,7 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
     : is_show(1), type(_type), x(_x), y(_y), width(w), height(h), parent(_parent), current_texture(tex) {
     if(parent != nullptr) {
         parent->add_child(this);
-    }
-    else {
+    } else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }

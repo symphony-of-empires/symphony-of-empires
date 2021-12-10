@@ -156,11 +156,8 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
     this->price_rate_btn->right_side_of(*this->good_btn);
 
-    this->price_btn = new UI::Button(0, 0, 96, 24, this);
-    this->price_btn->right_side_of(*this->price_rate_btn);
-
     this->price_chart = new UI::Chart(0, 0, 96, 24, this);
-    this->price_chart->right_side_of(*this->price_btn);
+    this->price_chart->right_side_of(*this->price_rate_btn);
     this->price_chart->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new ProductView(o.gs, o.product);
@@ -189,6 +186,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
         o.price_chart->data.push_back(o.product->price);
         if(o.price_chart->data.size() >= 30)
             o.price_chart->data.pop_back();
+        o.price_chart->text(std::to_string(o.product->price));
         
         o.supply_chart->data.push_back(o.product->supply);
         if(o.supply_chart->data.size() >= 30)
@@ -200,6 +198,5 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
 
         o.company_btn->text(o.product->owner->name);
         o.price_rate_btn->text(std::to_string(o.product->price_vel));
-        o.price_btn->text(std::to_string(o.product->price_vel));
     });
 }
