@@ -238,7 +238,7 @@ namespace UI {
         static void on_update_default(Widget& w, void*) {
             Input& input = static_cast<Input&>(w);
             input.timer = (input.timer + 1) % 60;
-            std::string cursor = input.timer >= 30 ? "|" : "";
+            std::string cursor = input.timer >= 30 ? "_" : "";
             if(input.is_selected && input.timer % 30 == 0) {
                 input.text(input.buffer + cursor);
             }
@@ -267,7 +267,7 @@ namespace UI {
 
     class CloseButton: public Widget {
         static void on_click_default(Widget& w, void*) {
-            delete w.parent;
+            w.parent->kill();
         }
     public:
         CloseButton(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);

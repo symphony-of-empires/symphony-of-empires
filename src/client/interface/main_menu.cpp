@@ -26,7 +26,7 @@ MainMenu::MainMenu(GameState& _gs)
         GameState& gs = o.gs;
         gs.world = new World();
         gs.client = new Client(gs, "127.0.0.1", 1836);
-        gs.client->username = "SpPlayer";
+        gs.client->username = "Player";
         gs.client->wait_for_snapshot();
         gs.map = new Map(*gs.world, gs.width, gs.height);
         gs.in_game = true;
@@ -37,8 +37,6 @@ MainMenu::MainMenu(GameState& _gs)
     mp_btn->right_side_of(*single_btn);
     mp_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
-        if(o.connect_window != nullptr)
-            delete o.connect_window;
         o.connect_window = new MainMenuConnectServer(o.gs);
     });
 
@@ -59,21 +57,22 @@ MainMenu::~MainMenu() {
 MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     : gs{ _gs },
     in_game{ false },
-    UI::Window(-512 / 2, -128 / 2, 512, 128, nullptr)
+    UI::Window(0, 0, 512, 128, nullptr)
 {
-    this->origin = CENTER_SCREEN;
-    this->is_pinned = true;
     this->is_scroll = false;
-    this->is_float = true;
     this->text("Internet multiplayer");
 
-    ip_addr_inp = new UI::Input(0, 24, 512, 24, this);
+    ip_addr_inp = new UI::Input(0, 24, 128, 24, this);
     ip_addr_inp->buffer = "127.0.0.1";
     ip_addr_inp->text(ip_addr_inp->buffer);
+    ip_addr_inp->tooltip = new UI::Tooltip(ip_addr_inp, 512, 24);
+    ip_addr_inp->tooltip->text("IP Address of the server");
 
     username_inp = new UI::Input(0, 48, 512, 24, this);
-    username_inp->buffer = "Default";
+    username_inp->buffer = "Player";
     username_inp->text(username_inp->buffer);
+    username_inp->tooltip = new UI::Tooltip(username_inp, 512, 24);
+    username_inp->tooltip->text("Your publicly visible username");
 
     conn_btn = new UI::Button(0, 72, 128, 24, this);
     conn_btn->user_data = this;
@@ -86,10 +85,33 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 
         GameState& gs = state->gs;
         gs.world = new World();
-        gs.client = new Client(gs, server_addr, 1836);
-        gs.client->username = state->username_inp->buffer;
-        gs.client->wait_for_snapshot();
+
+        try {
+            gs.client = new Client(gs, server_addr, 1836);
+            gs.client->username = state->username_inp->buffer;
+            gs.client->wait_for_snapshot();
+        } catch(SocketException& e) {
+            gs.ui_ctx->prompt("Network layer error", e.what());
+            delete gs.world;
+            delete gs.client;
+            return;
+        } catch(ClientException& e) {
+            gs.ui_ctx->prompt("Client error", e.what());
+            delete gs.world;
+            delete gs.client;
+            return;
+        } catch(ServerException& e) {
+            gs.ui_ctx->prompt("Server error", e.what());
+            delete gs.world;
+            delete gs.client;
+            return;
+        }
+
         gs.map = new Map(*gs.world, gs.width, gs.height);
         gs.in_game = true;
     });
+
+    auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
+    close_btn->below_of(*conn_btn);
+    close_btn->text("OK");
 }
