@@ -563,6 +563,9 @@ void World::load_mod(void) {
     };
     lua_exec_all_of(*this, mod_files);
 
+    // Server needs now to sync changes to clients (changing state is not enough)
+    this->needs_to_sync = true;
+
     // Default init for policies
     for(auto& nation : this->nations) {
         nation->budget = 10000.f;
