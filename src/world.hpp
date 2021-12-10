@@ -250,6 +250,8 @@ public:
     // Current time (in ticks)
     uint64_t time = 0;
 
+    bool needs_to_sync = false;
+
     mutable std::recursive_mutex world_mutex;
 
     // A list of orders (what factories want to be sent to them)
