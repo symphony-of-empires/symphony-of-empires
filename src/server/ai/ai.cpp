@@ -205,55 +205,65 @@ void ai_do_tick(Nation* nation, World* world) {
     if(!nation->exists() || !nation->owned_provinces.size()) return;
 
     if(world->time % world->ticks_per_day == 0) {
-        // Do a policy reform every 6 months
-        if((world->time / world->ticks_per_day) % 180 == 0) {
-            // Update our policies and laws
-            ai_reform(nation);
+        if(nation->ai_do_policies) {
+            // Do a policy reform every 6 months
+            if((world->time / world->ticks_per_day) % 180 == 0) {
+                // Update our policies and laws
+                ai_reform(nation);
+            }
         }
 
         // Update relations with other nations
-        for(auto& other : world->nations) {
-            if(!other->exists() || other == nation) continue;
-            ai_update_relations(nation, other);
+        if(nation->ai_do_diplomacy) {
+            for(auto& other : world->nations) {
+                if(!other->exists() || other == nation) continue;
+                ai_update_relations(nation, other);
+            }
         }
 
         // Research technologies
-        for(auto& tech : world->technologies) {
-            // Do not research if already been completed
-            if(!nation->research[world->get_id(tech)]) continue;
+        if(nation->ai_do_research) {
+            for(auto& tech : world->technologies) {
+                // Do not research if already been completed
+                if(!nation->research[world->get_id(tech)]) continue;
 
-            // Must be able to research it
-            if(!nation->can_research(tech)) continue;
+                // Must be able to research it
+                if(!nation->can_research(tech)) continue;
 
-            nation->change_research_focus(tech);
-            print_info("[%s] now researching [%s] - %.2f research points (+%.2f)", nation->ref_name.c_str(), tech->ref_name.c_str(), nation->research[world->get_id(tech)], nation->get_research_points());
-            break;
+                nation->change_research_focus(tech);
+                print_info("[%s] now researching [%s] - %.2f research points (+%.2f)", nation->ref_name.c_str(), tech->ref_name.c_str(), nation->research[world->get_id(tech)], nation->get_research_points());
+                break;
+            }
         }
 
         // Accepting/rejecting treaties
-        for(auto& treaty : world->treaties) {
-            for(auto& part : treaty->approval_status) {
-                if(part.first == nation) {
-                    if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) break;
+        if(nation->ai_handle_treaties) {
+            for(auto& treaty : world->treaties) {
+                for(auto& part : treaty->approval_status) {
+                    if(part.first == nation) {
+                        if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) break;
 
-                    if(std::rand() % 50 >= 25) {
-                        print_info("We, [%s], deny the treaty of [%s]", nation->ref_name.c_str(), treaty->name.c_str());
-                        part.second = TreatyApproval::DENIED;
-                    } else {
-                        print_info("We, [%s], accept the treaty of [%s]", nation->ref_name.c_str(), treaty->name.c_str());
-                        part.second = TreatyApproval::ACCEPTED;
+                        if(std::rand() % 50 >= 25) {
+                            print_info("We, [%s], deny the treaty of [%s]", nation->ref_name.c_str(), treaty->name.c_str());
+                            part.second = TreatyApproval::DENIED;
+                        } else {
+                            print_info("We, [%s], accept the treaty of [%s]", nation->ref_name.c_str(), treaty->name.c_str());
+                            part.second = TreatyApproval::ACCEPTED;
+                        }
                     }
                 }
             }
         }
 
         // Taking events
-        for(const auto& event : nation->inbox) {
-            event->take_descision(nation, &event->descisions[std::rand() % event->descisions.size()]);
+        if(nation->ai_handle_events) {
+            for(const auto& event : nation->inbox) {
+                event->take_descision(nation, &event->descisions[std::rand() % event->descisions.size()]);
+            }
         }
 
         // Build a commercially related building
-        if(std::rand() % 2 == 0) {
+        if(std::rand() % 2 == 0 && nation->ai_do_build_production) {
             Good* target_good;
             target_good = ai_get_potential_good(nation, world);
             if(target_good == nullptr) return;
@@ -335,69 +345,71 @@ void ai_do_tick(Nation* nation, World* world) {
             }
         }
 
-        // Risk of invasion
-        uint defense_factor = 1;
-        for(const auto& building : g_world->buildings) {
-            if(building->owner == nation) {
-                defense_factor += ((uint)building->type->defense_bonus + 1) * 10000;
-                continue;
-            }
-        }
-        for(const auto& province : nation->owned_provinces) {
-            defense_factor /= ((province->total_pops() + province->n_tiles) / 10000) + 1;
-        }
-
-        if(defense_factor < 50) {
-            defense_factor = 50;
-        }
-
-        // Build defenses
-        if(std::rand() % defense_factor == 0) {
-            Building* building = new Building();
-            building->owner = nation;
-
-            auto it = std::begin(nation->owned_provinces);
-            std::advance(it, std::rand() % nation->owned_provinces.size());
-            Province* province = *it;
-            //Province* province = g_world->provinces[std::rand() % g_world->provinces.size()];
-            if(province->min_x > world->width || province->min_y == world->height ||
-                province->max_x < province->min_x || province->max_y < province->min_y ||
-                province->n_tiles == 0) {
-                print_error("Cant build defense, province doesn't have any tiles");
-            } else {
-                // Randomly place in any part of the province
-                glm::ivec2 coord = world->get_rand_province_coord(province);
-                building->x = coord.x;
-                building->y = coord.y;
-                building->province = province;
-
-                building->working_unit_type = nullptr;
-
-                building->type = world->building_types[0];
-                world->insert(building);
-
-                // Broadcast the addition of the building to the clients
-                {
-                    Packet packet = Packet();
-                    Archive ar = Archive();
-                    ActionType action = ActionType::BUILDING_ADD;
-                    ::serialize(ar, &action);
-                    ::serialize(ar, building);
-                    packet.data(ar.get_buffer(), ar.size());
-                    g_server->broadcast(packet);
+        if(nation->ai_do_unit_production) {
+            // Risk of invasion
+            uint defense_factor = 1;
+            for(const auto& building : g_world->buildings) {
+                if(building->owner == nation) {
+                    defense_factor += ((uint)building->type->defense_bonus + 1) * 10000;
+                    continue;
                 }
-                print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)world->get_id(building->type), nation->name.c_str(), building->get_province()->name.c_str());
             }
-        }
+            for(const auto& province : nation->owned_provinces) {
+                defense_factor /= ((province->total_pops() + province->n_tiles) / 10000) + 1;
+            }
 
-        // Build units inside buildings that are not doing anything
-        for(auto& building : g_world->buildings) {
-            if(std::rand() % defense_factor) continue;
-            if(building->working_unit_type != nullptr || building->owner != nation) continue;
+            if(defense_factor < 50) {
+                defense_factor = 50;
+            }
 
-            building->working_unit_type = g_world->unit_types[std::rand() % g_world->unit_types.size()];
-            building->req_goods_for_unit = building->working_unit_type->req_goods;
-            print_info("%s: Building unit [%s] in [%s]", nation->ref_name.c_str(), building->working_unit_type->ref_name.c_str(), building->get_province()->ref_name.c_str());
+            // Build defenses
+            if(std::rand() % defense_factor == 0) {
+                Building* building = new Building();
+                building->owner = nation;
+
+                auto it = std::begin(nation->owned_provinces);
+                std::advance(it, std::rand() % nation->owned_provinces.size());
+                Province* province = *it;
+                //Province* province = g_world->provinces[std::rand() % g_world->provinces.size()];
+                if(province->min_x > world->width || province->min_y == world->height ||
+                    province->max_x < province->min_x || province->max_y < province->min_y ||
+                    province->n_tiles == 0) {
+                    print_error("Cant build defense, province doesn't have any tiles");
+                } else {
+                    // Randomly place in any part of the province
+                    glm::ivec2 coord = world->get_rand_province_coord(province);
+                    building->x = coord.x;
+                    building->y = coord.y;
+                    building->province = province;
+
+                    building->working_unit_type = nullptr;
+
+                    building->type = world->building_types[0];
+                    world->insert(building);
+
+                    // Broadcast the addition of the building to the clients
+                    {
+                        Packet packet = Packet();
+                        Archive ar = Archive();
+                        ActionType action = ActionType::BUILDING_ADD;
+                        ::serialize(ar, &action);
+                        ::serialize(ar, building);
+                        packet.data(ar.get_buffer(), ar.size());
+                        g_server->broadcast(packet);
+                    }
+                    print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)world->get_id(building->type), nation->name.c_str(), building->get_province()->name.c_str());
+                }
+            }
+
+            // Build units inside buildings that are not doing anything
+            for(auto& building : g_world->buildings) {
+                if(std::rand() % defense_factor) continue;
+                if(building->working_unit_type != nullptr || building->owner != nation) continue;
+
+                building->working_unit_type = g_world->unit_types[std::rand() % g_world->unit_types.size()];
+                building->req_goods_for_unit = building->working_unit_type->req_goods;
+                print_info("%s: Building unit [%s] in [%s]", nation->ref_name.c_str(), building->working_unit_type->ref_name.c_str(), building->get_province()->ref_name.c_str());
+            }
         }
 
         // Colonize a province
@@ -442,61 +454,63 @@ void ai_do_tick(Nation* nation, World* world) {
 
     // TODO: make a better algorithm
 
-    // Naval AI
-    if(std::rand() % 100 == 0) {
-        for(auto& unit : g_world->units) {
-            // Count friends and foes in range (and find nearest foe)
-            Unit* nearest_enemy = nullptr,* nearest_friend = nullptr;
-            float friend_attack_strength = 0.f, foe_attack_strength = 0.f;
-            float friend_defense_strength = 0.f, foe_defense_strength = 0.f;
-            for(size_t j = 0; j < g_world->units.size(); j++) {
-                Unit* other_unit = g_world->units[j];
-                if(unit->owner == other_unit->owner) {
-                    // Only when very close
-                    if(std::abs(unit->x - other_unit->x) >= 8.f && std::abs(unit->y - other_unit->y) >= 8.f)
-                        continue;
+    if(nation->ai_do_cmd_troops) {
+        // Naval AI
+        if(std::rand() % 100 == 0) {
+            for(auto& unit : g_world->units) {
+                // Count friends and foes in range (and find nearest foe)
+                Unit* nearest_enemy = nullptr,* nearest_friend = nullptr;
+                float friend_attack_strength = 0.f, foe_attack_strength = 0.f;
+                float friend_defense_strength = 0.f, foe_defense_strength = 0.f;
+                for(size_t j = 0; j < g_world->units.size(); j++) {
+                    Unit* other_unit = g_world->units[j];
+                    if(unit->owner == other_unit->owner) {
+                        // Only when very close
+                        if(std::abs(unit->x - other_unit->x) >= 8.f && std::abs(unit->y - other_unit->y) >= 8.f)
+                            continue;
 
-                    friend_attack_strength = other_unit->size * other_unit->type->attack;
-                    friend_defense_strength = other_unit->size * other_unit->type->defense;
+                        friend_attack_strength = other_unit->size * other_unit->type->attack;
+                        friend_defense_strength = other_unit->size * other_unit->type->defense;
 
-                    if(nearest_friend == nullptr)
-                        nearest_friend = other_unit;
+                        if(nearest_friend == nullptr)
+                            nearest_friend = other_unit;
 
-                    // Find nearest friend
-                    if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_friend->x) && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_friend->y)) {
-                        nearest_friend = other_unit;
+                        // Find nearest friend
+                        if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_friend->x) && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_friend->y)) {
+                            nearest_friend = other_unit;
+                        }
+                    } else {
+                        // Foes from many ranges counts
+                        if(std::abs(unit->x - other_unit->x) >= 12.f && std::abs(unit->y - other_unit->y) >= 12.f)
+                            continue;
+
+                        foe_attack_strength = other_unit->size * other_unit->type->attack;
+                        foe_defense_strength = other_unit->size * other_unit->type->defense;
+
+                        if(nearest_enemy == nullptr)
+                            nearest_enemy = other_unit;
+
+                        // Find nearest foe
+                        if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_enemy->x) && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_enemy->y)) {
+                            nearest_enemy = other_unit;
+                        }
                     }
-                } else {
-                    // Foes from many ranges counts
-                    if(std::abs(unit->x - other_unit->x) >= 12.f && std::abs(unit->y - other_unit->y) >= 12.f)
-                        continue;
 
-                    foe_attack_strength = other_unit->size * other_unit->type->attack;
-                    foe_defense_strength = other_unit->size * other_unit->type->defense;
-
-                    if(nearest_enemy == nullptr)
-                        nearest_enemy = other_unit;
-
-                    // Find nearest foe
-                    if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_enemy->x) && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_enemy->y)) {
-                        nearest_enemy = other_unit;
+                    // Attack first before they attack us
+                    if(friend_attack_strength > foe_attack_strength) {
+                        unit->tx = nearest_enemy->x;
+                        unit->ty = nearest_enemy->y;
                     }
-                }
-
-                // Attack first before they attack us
-                if(friend_attack_strength > foe_attack_strength) {
-                    unit->tx = nearest_enemy->x;
-                    unit->ty = nearest_enemy->y;
-                }
-                // Defend to avoid lots of casualties
-                else if(friend_defense_strength > foe_attack_strength) {
-                    unit->tx = nearest_enemy->x;
-                    unit->ty = nearest_enemy->y;
-                }
-                // Withdraw
-                else {
-                    unit->tx = unit->x;
-                    unit->ty = unit->y;
+                    // Defend to avoid lots of casualties
+                    else if(friend_defense_strength > foe_attack_strength) {
+                        unit->tx = nearest_enemy->x;
+                        unit->ty = nearest_enemy->y;
+                    }
+                    // Withdraw
+                    else {
+                        unit->tx = unit->x;
+                        unit->ty = unit->y;
+                    }
                 }
             }
         }

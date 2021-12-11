@@ -216,8 +216,10 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
 
 void Context::render_all() {
     glUseProgram(0);
+    
     glActiveTexture(GL_TEXTURE0);
     glViewport(0, 0, width, height);
+
     glPushMatrix();
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

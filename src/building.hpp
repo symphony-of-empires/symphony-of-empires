@@ -82,6 +82,9 @@ public:
     
     // The employees needed per output
     std::vector<size_t> employees_needed_per_output;
+
+    // Level of building (all starts at 0)
+    size_t level = 0;
     
     // The pay we are willing to give
     size_t willing_payment = 0;

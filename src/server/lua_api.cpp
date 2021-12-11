@@ -33,11 +33,16 @@ extern "C" {
 #include "event.hpp"
 #include "building.hpp"
 
+// !!! IMPORTANT !!!
+// Doing changes to the world state (like Nation and Province) does NOT require an explicit update as this is done
+// after each economical tick
+// HOWEVER, adding new elements or changing other states REQUIRES a explicity synchronization!!
+
 template<typename T>
 const T* find_or_throw(const std::string& ref_name) {
-    const T* invention = nullptr;
+    const T* obj_to_find = nullptr;
 
-    const auto& list = World::get_instance().get_list(invention);
+    const auto& list = World::get_instance().get_list(obj_to_find);
     const auto result = std::find_if(list.begin(), list.end(),
         [&ref_name](const auto& o) { return (o->ref_name == ref_name); });
 
@@ -57,6 +62,9 @@ int LuaAPI::register_new_table(lua_State* L, const std::string& name, const luaL
 }
 
 int LuaAPI::add_terrain_type(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     auto* terrain_type = new TerrainType();
 
     terrain_type->ref_name = luaL_checkstring(L, 1);
@@ -70,34 +78,16 @@ int LuaAPI::add_terrain_type(lua_State* L) {
     return 1;
 }
 
-int LuaAPI::add_invention(lua_State* L) {
-    Invention* invention = new Invention();
-
-    invention->ref_name = luaL_checkstring(L, 1);
-    invention->name = luaL_checkstring(L, 2);
-    invention->description = lua_tostring(L, 3);
-
-    g_world->insert(invention);
-    lua_pushnumber(L, g_world->inventions.size() - 1);
-    return 1;
-}
-
-int LuaAPI::get_invention(lua_State* L) {
-    const auto* invention = find_or_throw<Invention>(luaL_checkstring(L, 1));
-
-    lua_pushnumber(L, g_world->get_id(invention));
-    lua_pushstring(L, invention->name.c_str());
-    lua_pushstring(L, invention->description.c_str());
-    return 3;
-}
-
 int LuaAPI::set_nation_mod_to_invention(lua_State* L) {
-    Invention* invention = g_world->inventions.at(lua_tonumber(L, 1));
-    invention->mod = g_world->nation_modifiers.at(lua_tonumber(L, 2));
+    Technology* technology = g_world->technologies.at(lua_tonumber(L, 1));
+    technology->modifiers.push_back(g_world->nation_modifiers.at(lua_tonumber(L, 2)));
     return 0;
 }
 
 int LuaAPI::add_technology(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     Technology* technology = new Technology();
 
     technology->ref_name = luaL_checkstring(L, 1);
@@ -133,6 +123,9 @@ int LuaAPI::add_req_tech_to_tech(lua_State* L) {
 }
 
 int LuaAPI::add_unit_trait(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     UnitTrait* unit_trait = new UnitTrait();
 
     unit_trait->ref_name = luaL_checkstring(L, 1);
@@ -148,6 +141,9 @@ int LuaAPI::add_unit_trait(lua_State* L) {
 }
 
 int LuaAPI::add_building_type(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     BuildingType* building_type = new BuildingType();
 
     building_type->ref_name = luaL_checkstring(L, 1);
@@ -164,6 +160,9 @@ int LuaAPI::add_building_type(lua_State* L) {
 }
 
 int LuaAPI::add_good(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     Good* good = new Good();
 
     good->ref_name = luaL_checkstring(L, 1);
@@ -205,6 +204,9 @@ int LuaAPI::add_req_good_to_industry_type(lua_State* L) {
 }
 
 int LuaAPI::add_nation(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     Nation* nation = new Nation();
 
     nation->ref_name = luaL_checkstring(L, 1);
@@ -502,6 +504,9 @@ int LuaAPI::set_nation_ideology(lua_State* L) {
 }
 
 int LuaAPI::add_nation_mod(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     NationModifier* mod = new NationModifier();
 
     mod->ref_name = luaL_checkstring(L, 1);
@@ -549,6 +554,9 @@ int LuaAPI::get_nation_mod(lua_State* L) {
 }
 
 int LuaAPI::add_province(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     Province* province = new Province();
 
     province->ref_name = luaL_checkstring(L, 1);
@@ -601,6 +609,9 @@ int LuaAPI::get_province_by_id(lua_State* L) {
 }
 
 int LuaAPI::add_province_industry(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     Province*& province = g_world->provinces.at(lua_tonumber(L, 1));
 
     Building* building = new Building();
@@ -787,6 +798,9 @@ int LuaAPI::add_province_owner(lua_State* L) {
 }
 
 int LuaAPI::add_company(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     Company* company = new Company();
 
     company->name = luaL_checkstring(L, 1);
@@ -811,6 +825,9 @@ int LuaAPI::add_op_province_to_company(lua_State* L) {
 }
 
 int LuaAPI::add_event(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     Event* event = new Event();
 
     event->ref_name = luaL_checkstring(L, 1);
@@ -874,6 +891,9 @@ int LuaAPI::add_descision(lua_State* L) {
 }
 
 int LuaAPI::add_pop_type(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     PopType* pop = new PopType();
 
     pop->ref_name = luaL_checkstring(L, 1);
@@ -895,8 +915,6 @@ int LuaAPI::add_pop_type(lua_State* L) {
         pop->group == PopGroup::Other;
     }
 
-
-
     // Add onto vector
     g_world->insert(pop);
     lua_pushnumber(L, g_world->pop_types.size() - 1);
@@ -917,6 +935,9 @@ int LuaAPI::get_pop_type(lua_State* L) {
 }
 
 int LuaAPI::add_culture(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+
     Culture* culture = new Culture();
 
     culture->ref_name = luaL_checkstring(L, 1);
@@ -936,6 +957,8 @@ int LuaAPI::get_culture(lua_State* L) {
 }
 
 int LuaAPI::add_religion(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
     Religion* religion = new Religion();
 
     religion->ref_name = luaL_checkstring(L, 1);
@@ -955,6 +978,9 @@ int LuaAPI::get_religion(lua_State* L) {
 }
 
 int LuaAPI::add_unit_type(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     UnitType* unit_type = new UnitType();
 
     unit_type->ref_name = luaL_checkstring(L, 1);
@@ -999,6 +1025,9 @@ int LuaAPI::add_req_good_unit_type(lua_State* L) {
 }
 
 int LuaAPI::add_ideology(lua_State* L) {
+    if(g_world->needs_to_sync)
+        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     Ideology* ideology = new Ideology();
 
     ideology->ref_name = luaL_checkstring(L, 1);

@@ -1,5 +1,6 @@
 NationMod = {
 	id = 0,
+	ref_name = "",
 	name = "",
 	industry_output = 1.0,
 	industry_input = 1.0,
@@ -57,29 +58,7 @@ end
 function Technology:requires_technology(o)
 	add_req_tech_to_tech(self.id, o.id)
 end
-
-Invention = {
-	id = 0,
-	ref_name = "",
-	name = "",
-	description = ""
-}
-function Invention:new(o)
-	o = o or {}
-	setmetatable(o, self)
-	self.__index = self
-	return o
-end
-function Invention:register()
-	self.id = add_invention(self.ref_name, self.name, self.description)
-end
-function Invention:get(ref_name)
-	o = Invention:new()
-	o.id, o.name, o.description = get_invention(ref_name)
-	o.ref_name = ref_name
-	return o
-end
-function Invention:set_nation_modifier(self, mod)
+function Technology:set_nation_modifier(self, mod)
 	set_nation_mod_to_invention(self.id, mod.id)
 end
 

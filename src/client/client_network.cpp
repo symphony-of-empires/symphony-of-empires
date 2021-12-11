@@ -50,7 +50,7 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
     WSADATA data;
     if(WSAStartup(MAKEWORD(2, 2), &data) != 0) {
         print_error("WSA code: %u", WSAGetLastError());
-        throw std::runtime_error("Cannot start WSA");
+        throw std::runtime_error("Can't start WSA subsystem");
     }
 #endif
     
@@ -65,7 +65,7 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
         print_error("WSA Code: %u", WSAGetLastError());
         WSACleanup();
 #endif
-        throw SocketException("Cannot create client socket");
+        throw SocketException("Can't create client socket");
     }
     
     if(connect(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
@@ -75,7 +75,7 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
         print_error("WSA Code: %u", WSAGetLastError());
         closesocket(fd);
 #endif
-        throw SocketException("Cannot connect to server");
+        throw SocketException("Can't connect to server");
     }
     
     // Launch the receive and send thread
@@ -91,6 +91,7 @@ void Client::net_loop(void) {
     World& world = *(gs.world);
 
     // Receive the first snapshot of the world
+    print_info("Obtaining snapshot");
     {
         world.world_mutex.lock();
         Packet packet = Packet(fd);
@@ -100,6 +101,7 @@ void Client::net_loop(void) {
         ::deserialize(ar, &world);
         world.world_mutex.unlock();
     }
+    print_info("Obtained snapshot");
 
     {
         Archive ar = Archive();
