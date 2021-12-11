@@ -458,7 +458,7 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
         handle_event(input, gs, run);
         render(gs, input, window);
 
-        if(gs.in_game == true) {
+        if(gs.in_game) {
             run = false;
             mm_bg->kill();
             main_menu->kill();
