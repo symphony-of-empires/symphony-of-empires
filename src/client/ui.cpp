@@ -24,6 +24,7 @@
 #include "print.hpp"
 #include "client/ui.hpp"
 #include "client/render/texture.hpp"
+#include "client/render/rectangle.hpp"
 
 #if !defined NOMINMAX
 #   define NOMINMAX 1
@@ -174,19 +175,25 @@ void Context::resize(int _width, int _height) {
     height = _height;
 }
 
-void Context::render_recursive(Widget& w, int x_off, int y_off) {
+void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
     if(!w.width || !w.height) return;
 
     if(w.is_fullscreen) {
         w.width = width;
         w.height = height;
     }
-    glm::ivec2 offset{ x_off, y_off };
+    glm::ivec2 offset{ viewport.left, viewport.top };
+    glm::ivec2 size{ w.width, w.height };
     offset = get_pos(w, offset);
+    UnifiedRender::Rect local_viewport{ offset, size };
 
+    local_viewport = viewport.intersection(local_viewport);
+    viewport = local_viewport;
+
+    local_viewport.offset(-offset);
     glPushMatrix();
     glTranslatef(offset.x, offset.y, 0.f);
-    w.on_render(*this);
+    w.on_render(*this, local_viewport);
     if(w.on_update) {
         w.on_update(w, w.user_data);
     }
@@ -195,7 +202,7 @@ void Context::render_recursive(Widget& w, int x_off, int y_off) {
     for(auto& child : w.children) {
         child->is_show = true;
         child->is_clickable = (w.on_click || w.is_clickable) && w.is_hover;
-        if((child->x < 0 || child->x > w.width || child->y < 0 || child->y > w.height)) {
+        if(viewport.size().x <= 0 || viewport.size().y <= 0) {
             if(!child->is_float)
                 child->is_show = false;
         }
@@ -203,7 +210,7 @@ void Context::render_recursive(Widget& w, int x_off, int y_off) {
         if(!child->is_show || !child->is_render)
             continue;
 
-        render_recursive(*child, offset.x, offset.y);
+        render_recursive(*child, viewport);
     }
 }
 
@@ -218,11 +225,12 @@ void Context::render_all() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.f, 0.f, 0.f);
+    UnifiedRender::Rect viewport{ 0, 0, width, height };
     for(auto& widget : this->widgets) {
-        render_recursive(*widget, 0, 0);
+        render_recursive(*widget, viewport);
     }
     if(tooltip_widget != nullptr) {
-        render_recursive(*tooltip_widget, 0, 0);
+        render_recursive(*tooltip_widget, viewport);
     }
     glPopMatrix();
 }
@@ -448,102 +456,141 @@ void draw_tex_rect(const GLuint tex,
     glEnd();
 }
 
-void Widget::draw_border(const UnifiedRender::Texture* border_tex,
-    float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset) {
-    // Draw border edges and corners
-    float x_start = x_offset;
-    float y_start = y_offset;
-    float xtex_start = 0;
-    float ytex_start = 0;
-    float x_end = x_offset + b_w;
-    float y_end = y_offset + b_h;
-    float xtex_end = b_tex_w / border_tex->width;
-    float ytex_end = b_tex_h / border_tex->height;
+void draw_rect(const GLuint tex,
+    UnifiedRender::Rect rect_pos,
+    UnifiedRender::Rect rect_tex,
+    UnifiedRender::Rect viewport) {
 
-    GLuint tex = border_tex->gl_tex_num;
-    // Top left corner
-    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+    glm::vec2 pos_size = rect_pos.size();
+    pos_size.x = pos_size.x > 0? pos_size.x : 1.f;
+    pos_size.y = pos_size.y > 0? pos_size.y : 1.f;
+    glm::vec2 tex_size = rect_tex.size();
 
-    // Top right corner
-    x_start = width - b_w;
-    xtex_start = (border_tex->width - b_tex_w) / border_tex->width;
-    x_end = width;
-    xtex_end = 1.f;
-    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
+    if(rect_pos.left < viewport.left) {
+        float x_ratio = (viewport.left - rect_pos.left) / pos_size.x;
+        rect_tex.left = rect_tex.left + x_ratio * tex_size.x;
+        rect_pos.left = viewport.left;
+    }
+    if(rect_pos.right > viewport.right) {
+        float x_ratio = (rect_pos.right - viewport.right) / pos_size.x;
+        rect_tex.right = rect_tex.right - x_ratio * tex_size.x;
+        rect_pos.right = viewport.right;
+    }
+    if(rect_pos.top < viewport.top) {
+        float y_ratio = (viewport.top - rect_pos.top) / pos_size.y;
+        rect_tex.top = rect_tex.top + y_ratio * tex_size.y;
+        rect_pos.top = viewport.top;
+    }
+    if(rect_pos.bottom > viewport.bottom) {
+        float y_ratio = (rect_pos.bottom - viewport.bottom) / pos_size.y;
+        rect_tex.bottom = rect_tex.bottom - y_ratio * tex_size.y;
+        rect_pos.bottom = viewport.bottom;
+    }
 
-    // Bottom right corner
-    y_start = height - b_h;
-    ytex_start = (border_tex->height - b_tex_h) / border_tex->height;
-    y_end = height;
-    ytex_end = 1.f;
-    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-    // Bottom left corner
-    x_start = x_offset;
-    xtex_start = 0;
-    x_end = x_offset + b_w;
-    xtex_end = b_tex_w / border_tex->width;
-    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-    // Top edge
-    x_start = x_offset + b_w;
-    xtex_start = b_tex_w / border_tex->width;
-    x_end = width - b_w;
-    xtex_end = (border_tex->width - b_tex_w) / border_tex->width;
-    y_start = y_offset;
-    ytex_start = 0;
-    y_end = y_offset + b_h;
-    ytex_end = b_tex_h / border_tex->height;
-    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-    // Bottom edge
-    y_start = height - b_h;
-    ytex_start = (border_tex->height - b_tex_h) / border_tex->height;
-    y_end = height;
-    ytex_end = 1.f;
-    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-    // Left edge
-    y_start = y_offset + b_h;
-    ytex_start = b_tex_h / border_tex->height;
-    y_end = height - b_h;
-    ytex_end = (border_tex->height - b_tex_h) / border_tex->height;
-    x_start = x_offset;
-    xtex_start = 0;
-    x_end = b_w;
-    xtex_end = b_tex_w / border_tex->width;
-    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-
-    // Right edge
-    x_start = width - b_w;
-    xtex_start = (border_tex->width - b_tex_w) / border_tex->width;
-    x_end = width;
-    xtex_end = 1.f;
-    draw_tex_rect(tex, x_start, y_start, xtex_start, ytex_start, x_end, y_end, xtex_end, ytex_end);
-}
-
-// Draw a simple quad
-void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, const GLuint tex) {
-    // Texture switching in OpenGL is expensive
     glBindTexture(GL_TEXTURE_2D, tex);
     glBegin(GL_TRIANGLES);
-    glTexCoord2f(0.f, 0.f);
-    glVertex2f(_x, _y);
-    glTexCoord2f(1.f, 0.f);
-    glVertex2f(_x + _w, _y);
-    glTexCoord2f(1.f, 1.f);
-    glVertex2f(_x + _w, _y + _h);
-    glTexCoord2f(1.f, 1.f);
-    glVertex2f(_x + _w, _y + _h);
-    glTexCoord2f(0.f, 1.f);
-    glVertex2f(_x, _y + _h);
-    glTexCoord2f(0.f, 0.f);
-    glVertex2f(_x, _y);
+    glTexCoord2f(rect_tex.left, rect_tex.top);
+    glVertex2f(rect_pos.left, rect_pos.top);
+    glTexCoord2f(rect_tex.right, rect_tex.top);
+    glVertex2f(rect_pos.right, rect_pos.top);
+    glTexCoord2f(rect_tex.right, rect_tex.bottom);
+    glVertex2f(rect_pos.right, rect_pos.bottom);
+
+    glTexCoord2f(rect_tex.right, rect_tex.bottom);
+    glVertex2f(rect_pos.right, rect_pos.bottom);
+    glTexCoord2f(rect_tex.left, rect_tex.bottom);
+    glVertex2f(rect_pos.left, rect_pos.bottom);
+    glTexCoord2f(rect_tex.left, rect_tex.top);
+    glVertex2f(rect_pos.left, rect_pos.top);
     glEnd();
 }
 
+void Widget::draw_border(const UnifiedRender::Texture* border_tex,
+    float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset, UnifiedRender::Rect viewport) {
+    // Draw border edges and corners
+    UnifiedRender::Rect pos_rect{ 0, 0, 0, 0 };
+    UnifiedRender::Rect tex_rect{ 0, 0, 0, 0 };
+    pos_rect.left = x_offset;
+    pos_rect.top = y_offset;
+    pos_rect.right = x_offset + b_w;
+    pos_rect.bottom = y_offset + b_h;
+    tex_rect.left = 0;
+    tex_rect.top = 0;
+    tex_rect.right = b_tex_w / border_tex->width;
+    tex_rect.bottom = b_tex_h / border_tex->height;
+
+    GLuint tex = border_tex->gl_tex_num;
+    // Top left corner
+    draw_rect(tex, pos_rect, tex_rect, viewport);
+
+    // Top right corner
+    pos_rect.left = width - b_w;
+    tex_rect.left = (border_tex->width - b_tex_w) / border_tex->width;
+    pos_rect.right = width;
+    tex_rect.right = 1.f;
+    draw_rect(tex, pos_rect, tex_rect, viewport);
+
+    // Bottom right corner
+    pos_rect.top = height - b_h;
+    tex_rect.top = (border_tex->height - b_tex_h) / border_tex->height;
+    pos_rect.bottom = height;
+    tex_rect.bottom = 1.f;
+    draw_rect(tex, pos_rect, tex_rect, viewport);
+
+    // Bottom left corner
+    pos_rect.left = x_offset;
+    tex_rect.left = 0;
+    pos_rect.right = x_offset + b_w;
+    tex_rect.right = b_tex_w / border_tex->width;
+    draw_rect(tex, pos_rect, tex_rect, viewport);
+
+    // Top edge
+    pos_rect.left = x_offset + b_w;
+    tex_rect.left = b_tex_w / border_tex->width;
+    pos_rect.right = width - b_w;
+    tex_rect.right = (border_tex->width - b_tex_w) / border_tex->width;
+    pos_rect.top = y_offset;
+    tex_rect.top = 0;
+    pos_rect.bottom = y_offset + b_h;
+    tex_rect.bottom = b_tex_h / border_tex->height;
+    draw_rect(tex, pos_rect, tex_rect, viewport);
+
+    // Bottom edge
+    pos_rect.top = height - b_h;
+    tex_rect.top = (border_tex->height - b_tex_h) / border_tex->height;
+    pos_rect.bottom = height;
+    tex_rect.bottom = 1.f;
+    draw_rect(tex, pos_rect, tex_rect, viewport);
+
+    // Left edge
+    pos_rect.top = y_offset + b_h;
+    tex_rect.top = b_tex_h / border_tex->height;
+    pos_rect.bottom = height - b_h;
+    tex_rect.bottom = (border_tex->height - b_tex_h) / border_tex->height;
+    pos_rect.left = x_offset;
+    tex_rect.left = 0;
+    pos_rect.right = b_w;
+    tex_rect.right = b_tex_w / border_tex->width;
+    draw_rect(tex, pos_rect, tex_rect, viewport);
+
+    // Right edge
+    pos_rect.left = width - b_w;
+    tex_rect.left = (border_tex->width - b_tex_w) / border_tex->width;
+    pos_rect.right = width;
+    tex_rect.right = 1.f;
+    draw_rect(tex, pos_rect, tex_rect, viewport);
+}
+
+// Draw a simple quad
+void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, UnifiedRender::Rect viewport, const GLuint tex) {
+    // Texture switching in OpenGL is expensive
+    UnifiedRender::Rect pos_rect{ _x, _y, (int)_w, (int)_h };
+    UnifiedRender::Rect tex_rect{ 0.f, 0.f, 1.f, 1.f };
+    draw_rect(tex, pos_rect, tex_rect, viewport);
+}
+
 #include <deque>
-void Widget::on_render(Context& ctx) {
+void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     // Shadows
     if(type == UI_WIDGET_WINDOW || type == UI_WIDGET_TOOLTIP) {
         // Shadow
@@ -563,33 +610,15 @@ void Widget::on_render(Context& ctx) {
 
     // Background (tile) display
     if(type == UI_WIDGET_INPUT) {
-        glBindTexture(GL_TEXTURE_2D, 0);
+        UnifiedRender::Rect pos_rect{ 0u, 0u, width, height };
+        UnifiedRender::Rect tex_rect{ 0, 0, 1, 1 };
         glColor3f(0.f, 0.f, 1.f);
-        glBegin(GL_TRIANGLES);
-        glVertex2f(0.f, 0.f);
-        glVertex2f(width, 0.f);
-        glVertex2f(width, height);
-        glVertex2f(width, height);
-        glVertex2f(0.f, height);
-        glVertex2f(0.f, 0.f);
-        glEnd();
+        draw_rect(0, pos_rect, tex_rect, viewport);
     }
     else if(type != UI_WIDGET_IMAGE && type != UI_WIDGET_LABEL) {
-        glBindTexture(GL_TEXTURE_2D, ctx.background->gl_tex_num);
-        glBegin(GL_TRIANGLES);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glTexCoord2f(width / ctx.background->width, 0.f);
-        glVertex2f(width, 0.f);
-        glTexCoord2f(width / ctx.background->width, height / ctx.background->height);
-        glVertex2f(width, height);
-        glTexCoord2f(width / ctx.background->width, height / ctx.background->height);
-        glVertex2f(width, height);
-        glTexCoord2f(0.f, height / ctx.background->height);
-        glVertex2f(0.f, height);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glEnd();
+        UnifiedRender::Rect pos_rect{ 0u, 0u, width, height };
+        UnifiedRender::Rect tex_rect{ 0u, 0u, width / ctx.background->width, height / ctx.background->height };
+        draw_rect(ctx.background->gl_tex_num, pos_rect, tex_rect, viewport);
     }
 
     if(type == UI_WIDGET_WINDOW) {
@@ -600,7 +629,7 @@ void Widget::on_render(Context& ctx) {
         float x_offset = 0;
         float y_offset = 24;
 
-        draw_border(ctx.border_tex, b_width, b_height, bi_width, bi_height, x_offset, y_offset);
+        draw_border(ctx.border_tex, b_width, b_height, bi_width, bi_height, x_offset, y_offset, viewport);
     }
 
 
@@ -610,6 +639,7 @@ void Widget::on_render(Context& ctx) {
         draw_rectangle(
             0, 0,
             width, 24,
+            viewport,
             ctx.window_top->gl_tex_num);
     }
 
@@ -617,6 +647,7 @@ void Widget::on_render(Context& ctx) {
         draw_rectangle(
             0, 0,
             width, height,
+            viewport,
             current_texture->gl_tex_num);
     }
 
@@ -624,21 +655,9 @@ void Widget::on_render(Context& ctx) {
         const size_t padding = 1;
 
         // Put a "grey" inner background
-        glBindTexture(GL_TEXTURE_2D, ctx.button->gl_tex_num);
-        glBegin(GL_TRIANGLES);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(padding, padding);
-        glTexCoord2f(width / ctx.button->width, 0.f);
-        glVertex2f(width - padding, padding);
-        glTexCoord2f(width / ctx.button->width, height / ctx.button->height);
-        glVertex2f(width - padding, height - padding);
-        glTexCoord2f(width / ctx.button->width, height / ctx.button->height);
-        glVertex2f(width - padding, height - padding);
-        glTexCoord2f(0.f, height / ctx.button->height);
-        glVertex2f(padding, height - padding);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(padding, padding);
-        glEnd();
+        UnifiedRender::Rect pos_rect{ padding, padding, width - padding, height - padding };
+        UnifiedRender::Rect tex_rect{ 0u, 0u, width / ctx.background->width, height / ctx.background->height };
+        draw_rect(ctx.button->gl_tex_num, pos_rect, tex_rect, viewport);
 
         float b_width = 20;
         float b_height = 20;
@@ -647,7 +666,7 @@ void Widget::on_render(Context& ctx) {
         float x_offset = 0;
         float y_offset = 0;
 
-        draw_border(ctx.button_border, b_width, b_height, bi_width, bi_height, x_offset, y_offset);
+        draw_border(ctx.button_border, b_width, b_height, bi_width, bi_height, x_offset, y_offset, viewport);
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -687,21 +706,16 @@ void Widget::on_render(Context& ctx) {
         draw_rectangle(
             text_offset_x, y_offset,
             text_texture->width, text_texture->height,
+            viewport,
             text_texture->gl_tex_num);
     }
 
     // Semi-transparent over hover elements which can be clicked
     if((on_click && is_hover) || is_clickable) {
-        glBindTexture(GL_TEXTURE_2D, 0);
+        UnifiedRender::Rect pos_rect{ 0u, 0u, width, height };
+        UnifiedRender::Rect tex_rect{ 0, 0, 1, 1 };
         glColor4f(1.5f, 1.f, 1.f, 0.5f);
-        glBegin(GL_TRIANGLES);
-        glVertex2f(0.f, 0.f);
-        glVertex2f(width, 0.f);
-        glVertex2f(width, height);
-        glVertex2f(width, height);
-        glVertex2f(0.f, height);
-        glVertex2f(0.f, 0.f);
-        glEnd();
+        draw_rect(0, pos_rect, tex_rect, viewport);
     }
 }
 
@@ -728,7 +742,8 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
     : is_show(1), type(_type), x(_x), y(_y), width(w), height(h), parent(_parent), current_texture(tex) {
     if(parent != nullptr) {
         parent->add_child(this);
-    } else {
+    }
+    else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }
@@ -861,7 +876,7 @@ Group::Group(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI_WIDGET_GROUP) {
 }
 
-void Group::on_render(Context& ctx) {
+void Group::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     // Do nothing!
 }
 
@@ -895,7 +910,7 @@ Label::Label(int _x, int _y, const std::string& _text, Widget* _parent)
     height = text_texture->height;
 }
 
-void Label::on_render(Context& ctx) {
+void Label::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {
             text_texture->to_opengl();
@@ -906,6 +921,7 @@ void Label::on_render(Context& ctx) {
         draw_rectangle(
             4, 2,
             text_texture->width, text_texture->height,
+            viewport,
             text_texture->gl_tex_num);
     }
 }
@@ -915,7 +931,7 @@ Text::Text(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 
 }
 
-void Text::on_render(Context& ctx) {
+void Text::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     // Do nothing!
 }
 
@@ -947,7 +963,7 @@ Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI_WIDGET_LABEL) {
 }
 
-void Chart::on_render(Context& ctx) {
+void Chart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glColor3f(1.f, 1.f, 1.f);
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {
@@ -959,6 +975,7 @@ void Chart::on_render(Context& ctx) {
         draw_rectangle(
             0, 0,
             width, height,
+            viewport,
             current_texture->gl_tex_num);
     }
 
@@ -1030,6 +1047,7 @@ void Chart::on_render(Context& ctx) {
         draw_rectangle(
             4, 2,
             text_texture->width, text_texture->height,
+            viewport,
             text_texture->gl_tex_num);
     }
 
@@ -1040,7 +1058,7 @@ Slider::Slider(int _x, int _y, unsigned w, unsigned h, const float _min, const f
     : max{ _max }, min{ _min }, Widget(_parent, _x, _y, w, h, UI_WIDGET_SLIDER) {
 }
 
-void Slider::on_render(Context& ctx) {
+void Slider::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glColor3f(1.f, 1.f, 1.f);
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {
@@ -1066,6 +1084,7 @@ void Slider::on_render(Context& ctx) {
         draw_rectangle(
             4, 2,
             text_texture->width, text_texture->height,
+            viewport,
             text_texture->gl_tex_num);
     }
 
@@ -1129,7 +1148,7 @@ void PieChart::draw_triangle(float start_ratio, float end_ratio, Color color) {
     glVertex2f(x_center + x_offset * radius, y_center + y_offset * radius);
 }
 
-void PieChart::on_render(Context& ctx) {
+void PieChart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glBindTexture(GL_TEXTURE_2D, ctx.piechart_overlay->gl_tex_num);
     glBegin(GL_TRIANGLES);
     float counter = 0;
