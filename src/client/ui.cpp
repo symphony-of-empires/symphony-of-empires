@@ -326,8 +326,22 @@ CLICK_STATE Context::check_click_recursive(Widget& w, const unsigned int mx, con
 bool Context::check_click(const unsigned mx, const unsigned my) {
     is_drag = false;
     CLICK_STATE click_state = CLICK_STATE::NOT_CLICKED;
+    int click_wind_index = -1;
     for(int i = widgets.size() - 1; i >= 0; i--) {
         click_state = check_click_recursive(*widgets[i], mx, my, 0, 0, click_state, true);
+        // Check if windows should move to the top
+        if(click_wind_index == -1 && click_state != CLICK_STATE::NOT_CLICKED) {
+            click_wind_index = i;
+        }
+    }
+
+    if(click_wind_index != -1) {
+        // Only movable and UI_WIDGET_WINDOWS are able to move to the top
+        Widget* window =widgets[click_wind_index];
+        if(window->type == UI_WIDGET_WINDOW && !window->is_pinned) {
+            auto it = widgets.begin() + click_wind_index;
+            std::rotate(it, it + 1, widgets.end());
+        }
     }
     return click_state != CLICK_STATE::NOT_CLICKED;
 }
