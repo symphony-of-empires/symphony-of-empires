@@ -75,7 +75,7 @@ class Nation : public RefnameEntity<uint16_t> {
     inline void do_diplomacy();
     inline bool can_do_diplomacy();
 public:
-    void declare_war(Nation& nation);
+    void declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses = std::vector<TreatyClause::BaseClause*>());
     bool is_ally(const Nation& nation);
     bool is_enemy(const Nation& nation);
     bool exists(void);

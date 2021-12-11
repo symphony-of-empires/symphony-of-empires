@@ -1282,16 +1282,19 @@ public:
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->attackers);
         ::serialize(stream, &obj->defenders);
+        ::serialize(stream, &obj->wargoals);
     }
     static inline void deserialize(Archive& stream, War* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->attackers);
         ::deserialize(stream, &obj->defenders);
+        ::deserialize(stream, &obj->wargoals);
     }
     static inline size_t size(const War* obj) {
         return serialized_size(&obj->name)
             + serialized_size(&obj->attackers)
             + serialized_size(&obj->defenders)
+            + serialized_size(&obj->wargoals)
             ;
     }
 };
