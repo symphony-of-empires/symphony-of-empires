@@ -516,6 +516,11 @@ void Server::net_loop(int id) {
             print_error("SerializerException: %s", e.what());
         }
 
+#ifdef windows
+        print_error("WSA Code: %u", WSAGetLastError());
+        WSACleanup();
+#endif
+
         // Unlock mutexes so we don't end up with weird situations... like deadlocks
         cl.is_connected = false;
         cl.packets_mutex.unlock();
