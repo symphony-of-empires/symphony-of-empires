@@ -26,7 +26,7 @@ typedef unsigned int	uint;
 * This is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
  */
 class World;
-class Tile {
+struct Tile {
 public:
     // ID of the nation who owns this tile
     Nation::Id owner_id;
@@ -58,7 +58,7 @@ enum class OrderType {
     UNIT,
     POP,
 };
-class OrderGoods {
+struct OrderGoods {
 public:
     enum OrderType type;
 
@@ -81,7 +81,7 @@ public:
 /**
  * A job request
  */
-class JobRequest {
+struct JobRequest {
 public:
     size_t amount;
     Province* province;
@@ -91,7 +91,7 @@ public:
 /**
  * Represents a delivery,
  */
-class DeliverGoods {
+struct DeliverGoods {
 public:
     // How many we are willing to pay to deliver this
     float payment;
