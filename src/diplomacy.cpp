@@ -1,4 +1,5 @@
 #include "diplomacy.hpp"
+#include "nation.hpp"
 #include "world.hpp"
 
 using namespace Diplomacy;
@@ -10,8 +11,7 @@ inline bool Diplomacy::is_friend(Nation* us, Nation* them) {
     // A high relation means we are friendly <3
     if(relation->relation >= 50.f) {
         return true;
-    }
-    else {
+    } else {
         // Well, but maybe our interest is able to determine our friendliness towards them?
         if(relation->interest >= relation->relation) {
             // We cannot be friendly with negative relations
