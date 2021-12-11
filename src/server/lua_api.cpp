@@ -40,9 +40,9 @@ extern "C" {
 
 template<typename T>
 const T* find_or_throw(const std::string& ref_name) {
-    const T* invention = nullptr;
+    const T* obj_to_find = nullptr;
 
-    const auto& list = World::get_instance().get_list(invention);
+    const auto& list = World::get_instance().get_list(obj_to_find);
     const auto result = std::find_if(list.begin(), list.end(),
         [&ref_name](const auto& o) { return (o->ref_name == ref_name); });
 
@@ -78,33 +78,9 @@ int LuaAPI::add_terrain_type(lua_State* L) {
     return 1;
 }
 
-int LuaAPI::add_invention(lua_State* L) {
-    if(g_world->needs_to_sync)
-        throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
-    Invention* invention = new Invention();
-
-    invention->ref_name = luaL_checkstring(L, 1);
-    invention->name = luaL_checkstring(L, 2);
-    invention->description = lua_tostring(L, 3);
-
-    g_world->insert(invention);
-    lua_pushnumber(L, g_world->inventions.size() - 1);
-    return 1;
-}
-
-int LuaAPI::get_invention(lua_State* L) {
-    const auto* invention = find_or_throw<Invention>(luaL_checkstring(L, 1));
-
-    lua_pushnumber(L, g_world->get_id(invention));
-    lua_pushstring(L, invention->name.c_str());
-    lua_pushstring(L, invention->description.c_str());
-    return 3;
-}
-
 int LuaAPI::set_nation_mod_to_invention(lua_State* L) {
-    Invention* invention = g_world->inventions.at(lua_tonumber(L, 1));
-    invention->mod = g_world->nation_modifiers.at(lua_tonumber(L, 2));
+    Technology* technology = g_world->technologies.at(lua_tonumber(L, 1));
+    technology->modifiers.push_back(g_world->nation_modifiers.at(lua_tonumber(L, 2)));
     return 0;
 }
 

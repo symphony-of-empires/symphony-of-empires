@@ -190,7 +190,6 @@ public:
     LIST_FOR_TYPE(Ideology, ideologies, std::vector);
     LIST_FOR_TYPE(Religion, religions, std::vector);
     LIST_FOR_TYPE(Technology, technologies, std::vector);
-    LIST_FOR_TYPE(Invention, inventions, std::vector);
     LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector);
     LIST_FOR_TYPE(TerrainType, terrain_types, std::vector);
     LIST_FOR_TYPE(War, wars, std::vector);

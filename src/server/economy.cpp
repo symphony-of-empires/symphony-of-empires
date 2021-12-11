@@ -170,7 +170,7 @@ void Economy::do_tick(World& world) {
 
             // Give pay to the POP
             float payment = employed * province->owner->current_policy.min_wage;
-            workers.pop.budget += payment;
+            workers.pop.budget += payment * building->get_owner()->get_salary_paid_mod();
             building->budget -= payment;
             workers.amount -= employed;
 
@@ -189,7 +189,7 @@ void Economy::do_tick(World& world) {
 
             // Give pay to the POP
             float payment = employed * province->owner->current_policy.min_wage;
-            workers.pop.budget += payment;
+            workers.pop.budget += payment * building->get_owner()->get_salary_paid_mod();
             building->budget -= payment;
             workers.amount -= employed;
 
@@ -208,7 +208,7 @@ void Economy::do_tick(World& world) {
 
             // Give pay to the POP
             float payment = employed * province->owner->current_policy.min_wage;
-            workers.pop.budget += payment;
+            workers.pop.budget += payment * building->get_owner()->get_salary_paid_mod();
             building->budget -= payment;
             workers.amount -= employed;
 
@@ -309,6 +309,7 @@ void Economy::do_tick(World& world) {
                 }
 
                 if(!order.quantity) continue;
+                order.quantity *= building->get_owner()->get_industry_input_mod();
 
                 order.payment = building->willing_payment;
                 order.good = input;
@@ -342,12 +343,11 @@ void Economy::do_tick(World& world) {
 
                 if(deliver.good->is_edible) {
                     deliver.quantity = (available_farmers / needed_farmers) * 5000;
-                }
-                else {
+                } else {
                     deliver.quantity = (available_laborers / needed_laborers) * 5000;
                 }
-                //deliver.quantity *= building->get_province()->owner.get();
                 if(!deliver.quantity) continue;
+                deliver.quantity *= building->get_owner()->get_industry_output_mod();
 
                 // Cannot be below production cost, so we can be profitable and we need
                 // to raise prices
@@ -369,6 +369,7 @@ void Economy::do_tick(World& world) {
 
             OrderGoods order;
             order.quantity = good.second;
+            order.quantity *= building->get_owner()->get_industry_input_mod();
             // TODO: Make this dynamic
             order.payment = good.second * 5.f;
             order.good = good.first;
@@ -384,6 +385,7 @@ void Economy::do_tick(World& world) {
 
             OrderGoods order;
             order.quantity = good.second;
+            order.quantity *= building->get_owner()->get_industry_input_mod();
             // TODO: Make this dynamic
             order.payment = good.second * 5.f;
             order.good = good.first;
@@ -702,6 +704,13 @@ void Economy::do_tick(World& world) {
                 if(growth < 0 && (size_t)std::abs(growth) > pop.size) {
                     growth = -pop.size;
                 }
+
+                if(growth < 0) {
+                    growth *= province->owner->get_death_mod();
+                } else {
+                    growth *= province->owner->get_reproduction_mod();
+                }
+
                 pop.size += growth;
             }
 
@@ -719,6 +728,9 @@ void Economy::do_tick(World& world) {
                 pop.militancy += 0.01f;
                 pop.con += 0.01f;
             }
+
+            pop.militancy += 0.01f * province->owner->get_militancy_mod();
+            pop.con += 0.01f * province->owner->get_militancy_mod();
 
             // Depending on how much not our life needs are being met is how many we
             // want to get out of here
