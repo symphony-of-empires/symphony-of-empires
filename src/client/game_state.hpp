@@ -30,6 +30,7 @@ public:
 };
 
 class Client;
+class Server;
 class World;
 class Nation;
 class Map;
@@ -58,6 +59,7 @@ public:
     void update_on_tick(void);
 
     Client* client = nullptr;
+    Server* server = nullptr;
 
     std::atomic<bool> update_tick;
 

@@ -91,6 +91,7 @@ void Client::net_loop(void) {
     World& world = *(gs.world);
 
     // Receive the first snapshot of the world
+    print_info("Obtaining snapshot");
     {
         world.world_mutex.lock();
         Packet packet = Packet(fd);
@@ -100,6 +101,7 @@ void Client::net_loop(void) {
         ::deserialize(ar, &world);
         world.world_mutex.unlock();
     }
+    print_info("Obtained snapshot");
 
     {
         Archive ar = Archive();

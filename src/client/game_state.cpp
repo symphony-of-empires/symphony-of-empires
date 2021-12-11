@@ -479,12 +479,6 @@ extern UnifiedRender::TextureManager* g_texture_manager;
 extern UnifiedRender::MaterialManager* g_material_manager;
 extern UnifiedRender::ModelManager* g_model_manager;
 
-char* tmpbuf;
-World::World(void) {
-    g_world = this;
-};
-World::~World(){};
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -534,6 +528,10 @@ void start_client(int argc, char** argv) {
     gs.ui_ctx->resize(gs.width, gs.height);
 
     gs.music_fade_value = 1.f;
+
+    gs.world = new World();
+    gs.world->load_mod();
+    gs.map = new Map(*gs.world, gs.width, gs.height);
     
     // Initialize sound
     SDL_AudioSpec fmt;
@@ -549,7 +547,6 @@ void start_client(int argc, char** argv) {
 
     main_menu_loop(gs, window);
     main_loop(gs, gs.client, window);
-    delete[] tmpbuf;
 
     SDL_CloseAudio();
     TTF_Quit();
