@@ -78,37 +78,32 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     conn_btn->user_data = this;
     conn_btn->text("Connect");
     conn_btn->on_click = ([](UI::Widget& w, void* data) {
-        MainMenuConnectServer* state = (MainMenuConnectServer*)data;
+        auto& o = static_cast<MainMenuConnectServer&>(*w.parent);
+        print_info("Okey, connecting to [%s]", o.ip_addr_inp->buffer.c_str());
 
-        std::string server_addr = state->ip_addr_inp->buffer;
-        print_info("Okey, connecting to [%s]", server_addr.c_str());
-
-        GameState& gs = state->gs;
+        GameState& gs = o.gs;
         gs.world = new World();
-
         try {
-            gs.client = new Client(gs, server_addr, 1836);
-            gs.client->username = state->username_inp->buffer;
+            gs.client = new Client(gs, o.ip_addr_inp->buffer, 1836);
+            gs.client->username = o.username_inp->buffer;
             gs.client->wait_for_snapshot();
         } catch(SocketException& e) {
             gs.ui_ctx->prompt("Network layer error", e.what());
-            delete gs.world;
-            delete gs.client;
-            return;
+            goto failure_cleanup;
         } catch(ClientException& e) {
             gs.ui_ctx->prompt("Client error", e.what());
-            delete gs.world;
-            delete gs.client;
-            return;
+            goto failure_cleanup;
         } catch(ServerException& e) {
             gs.ui_ctx->prompt("Server error", e.what());
-            delete gs.world;
-            delete gs.client;
-            return;
+            goto failure_cleanup;
         }
 
         gs.map = new Map(*gs.world, gs.width, gs.height);
         gs.in_game = true;
+    failure_cleanup:
+        delete gs.world;
+        delete gs.client;
+        return;
     });
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
