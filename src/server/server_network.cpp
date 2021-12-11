@@ -201,7 +201,7 @@ void Server::net_loop(int id) {
                 int has_pending = poll(&pfd, 1, 10);
 #elif defined windows
                 u_long has_pending = 0;
-                ioctlsocket(fd, FIONREAD, &has_pending);
+                int test = ioctlsocket(conn_fd, FIONREAD, &has_pending);
 #endif
 
                 // Conditional of above statements
