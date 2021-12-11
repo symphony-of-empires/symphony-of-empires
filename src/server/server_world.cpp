@@ -621,9 +621,7 @@ void World::do_tick() {
             }
         }
 
-        if(nation->is_ai) {
-            ai_do_tick(nation, this);
-        }
+        ai_do_tick(nation, this);
     }
 
     // Every ticks_per_day ticks do an economical tick

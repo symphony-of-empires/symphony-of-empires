@@ -163,5 +163,12 @@ public:
     Technology* focus_tech;
 
     // Default and can be disabled by the player
-    bool is_ai = true;
+    bool ai_do_policies = true;
+    bool ai_do_research = true;
+    bool ai_do_diplomacy = true;
+    bool ai_do_cmd_troops = true;
+    bool ai_do_unit_production = true;
+    bool ai_do_build_production = true;
+    bool ai_handle_treaties = true;
+    bool ai_handle_events = true;
 };
