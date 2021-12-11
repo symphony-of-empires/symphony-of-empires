@@ -1,6 +1,7 @@
 #pragma once
 
 #include "serializer.hpp"
+#include <vector>
 
 enum class ActionType {
     // Errors
@@ -61,11 +62,26 @@ enum class ActionType {
     DIPLO_ALLOW_MIL_ACCESS,
 };
 
+class Product;
+class Nation;
+class Building;
+class BuildingType;
+class Unit;
+class UnitType;
+
 namespace Action {
-    class Base {
+    class ProductUpdate {
     public:
-        Base(void);
-        virtual ~Base(void);
-        virtual ActionType get_type(void) { return ActionType::BAD; };
+        static void send(std::vector<Product*>* list);
+    };
+
+    class SelectNation {
+    public:
+        static void send(Nation* nation);
+    };
+
+    class BuildingStartProducingUnit {
+    public:
+        static void send(Building* building, UnitType* unit_type);
     };
 };
