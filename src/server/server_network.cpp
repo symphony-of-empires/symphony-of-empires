@@ -201,7 +201,7 @@ void Server::net_loop(int id) {
                 int has_pending = poll(&pfd, 1, 10);
 #elif defined windows
                 u_long has_pending = 0;
-                ioctlsocket(fd, FIONREAD, &has_pending);
+                int test = ioctlsocket(conn_fd, FIONREAD, &has_pending);
 #endif
 
                 // Conditional of above statements
@@ -459,7 +459,14 @@ void Server::net_loop(int id) {
                         if(nation == nullptr)
                             throw ServerException("Unknown nation");
                         selected_nation = nation;
-                        selected_nation->is_ai = false;
+                        selected_nation->ai_do_policies = false;
+                        selected_nation->ai_do_research = false;
+                        selected_nation->ai_do_diplomacy = false;
+                        selected_nation->ai_do_cmd_troops = false;
+                        selected_nation->ai_do_unit_production = false;
+                        selected_nation->ai_do_build_production = false;
+                        selected_nation->ai_handle_treaties = false;
+                        selected_nation->ai_handle_events = false;
                         print_info("Nation [%s] selected by client %zu", selected_nation->ref_name.c_str(), (size_t)id);
                     } break;
                     case ActionType::DIPLO_INC_RELATIONS: {
@@ -508,6 +515,11 @@ void Server::net_loop(int id) {
         catch(SerializerException& e) {
             print_error("SerializerException: %s", e.what());
         }
+
+#ifdef windows
+        print_error("WSA Code: %u", WSAGetLastError());
+        WSACleanup();
+#endif
 
         // Unlock mutexes so we don't end up with weird situations... like deadlocks
         cl.is_connected = false;

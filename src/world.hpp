@@ -26,7 +26,7 @@ typedef unsigned int	uint;
 * This is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
  */
 class World;
-class Tile {
+struct Tile {
 public:
     // ID of the nation who owns this tile
     Nation::Id owner_id;
@@ -58,7 +58,7 @@ enum class OrderType {
     UNIT,
     POP,
 };
-class OrderGoods {
+struct OrderGoods {
 public:
     enum OrderType type;
 
@@ -81,7 +81,7 @@ public:
 /**
  * A job request
  */
-class JobRequest {
+struct JobRequest {
 public:
     size_t amount;
     Province* province;
@@ -91,7 +91,7 @@ public:
 /**
  * Represents a delivery,
  */
-class DeliverGoods {
+struct DeliverGoods {
 public:
     // How many we are willing to pay to deliver this
     float payment;
@@ -190,7 +190,6 @@ public:
     LIST_FOR_TYPE(Ideology, ideologies, std::vector);
     LIST_FOR_TYPE(Religion, religions, std::vector);
     LIST_FOR_TYPE(Technology, technologies, std::vector);
-    LIST_FOR_TYPE(Invention, inventions, std::vector);
     LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector);
     LIST_FOR_TYPE(TerrainType, terrain_types, std::vector);
     LIST_FOR_TYPE(War, wars, std::vector);
@@ -249,6 +248,8 @@ public:
 
     // Current time (in ticks)
     uint64_t time = 0;
+
+    bool needs_to_sync = false;
 
     mutable std::recursive_mutex world_mutex;
 

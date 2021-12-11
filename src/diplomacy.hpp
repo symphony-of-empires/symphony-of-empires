@@ -1,6 +1,14 @@
 #pragma once
 
-#include "nation.hpp"
+#include <cstdint>
+#include <cstddef>
+#include <vector>
+#include "policy.hpp"
+#include "entity.hpp"
+
+//#include "nation.hpp"
+class Nation;
+class Province;
 
 namespace Diplomacy {
     // Determines if the other nation is a friendly potential ally
@@ -175,4 +183,6 @@ public:
     std::string name;
     std::vector<Nation*> attackers;
     std::vector<Nation*> defenders;
+
+    std::vector<TreatyClause::BaseClause*> wargoals;
 };

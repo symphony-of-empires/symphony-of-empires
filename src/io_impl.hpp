@@ -52,8 +52,6 @@ class Serializer<Building*>: public SerializerReference<World, Building> {};
 template<>
 class Serializer<Ideology*>: public SerializerReference<World, Ideology> {};
 template<>
-class Serializer<Invention*>: public SerializerReference<World, Invention> {};
-template<>
 class Serializer<Technology*>: public SerializerReference<World, Technology> {};
 
 template<>
@@ -1000,31 +998,6 @@ public:
 };
 
 template<>
-class Serializer<Invention> {
-public:
-    static inline void serialize(Archive& stream, const Invention* obj) {
-        ::serialize(stream, &obj->name);
-        ::serialize(stream, &obj->ref_name);
-        ::serialize(stream, &obj->description);
-        ::serialize(stream, &obj->mod);
-    }
-    static inline void deserialize(Archive& stream, Invention* obj) {
-        ::deserialize(stream, &obj->name);
-        ::deserialize(stream, &obj->ref_name);
-        ::deserialize(stream, &obj->description);
-        ::deserialize(stream, &obj->mod);
-    }
-    static inline size_t size(const Invention* obj) {
-        return
-            serialized_size(&obj->name)
-            + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->description)
-            + serialized_size(&obj->mod)
-            ;
-    }
-};
-
-template<>
 class Serializer<Technology> {
 public:
     static inline void serialize(Archive& stream, const Technology* obj) {
@@ -1033,7 +1006,7 @@ public:
         ::serialize(stream, &obj->description);
         ::serialize(stream, &obj->cost);
         ::serialize(stream, &obj->req_technologies);
-        ::serialize(stream, &obj->inventions);
+        ::serialize(stream, &obj->modifiers);
     }
     static inline void deserialize(Archive& stream, Technology* obj) {
         ::deserialize(stream, &obj->name);
@@ -1041,7 +1014,7 @@ public:
         ::deserialize(stream, &obj->description);
         ::deserialize(stream, &obj->cost);
         ::deserialize(stream, &obj->req_technologies);
-        ::deserialize(stream, &obj->inventions);
+        ::deserialize(stream, &obj->modifiers);
     }
     static inline size_t size(const Technology* obj) {
         return
@@ -1050,7 +1023,7 @@ public:
             + serialized_size(&obj->description)
             + serialized_size(&obj->cost)
             + serialized_size(&obj->req_technologies)
-            + serialized_size(&obj->inventions)
+            + serialized_size(&obj->modifiers)
             ;
     }
 };
@@ -1282,16 +1255,19 @@ public:
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->attackers);
         ::serialize(stream, &obj->defenders);
+        ::serialize(stream, &obj->wargoals);
     }
     static inline void deserialize(Archive& stream, War* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->attackers);
         ::deserialize(stream, &obj->defenders);
+        ::deserialize(stream, &obj->wargoals);
     }
     static inline size_t size(const War* obj) {
         return serialized_size(&obj->name)
             + serialized_size(&obj->attackers)
             + serialized_size(&obj->defenders)
+            + serialized_size(&obj->wargoals)
             ;
     }
 };
@@ -1372,8 +1348,6 @@ public:
         ::serialize(stream, &n_treaties);
         const Ideology::Id n_ideologies = obj->ideologies.size();
         ::serialize(stream, &n_ideologies);
-        const Invention::Id n_inventions = obj->inventions.size();
-        ::serialize(stream, &n_inventions);
         const Technology::Id n_technologies = obj->technologies.size();
         ::serialize(stream, &n_technologies);
         const NationModifier::Id n_nation_modifiers = obj->nation_modifiers.size();
@@ -1462,10 +1436,6 @@ public:
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj : obj->inventions) {
-            ::serialize(stream, sub_obj);
-        }
-
         for(auto& sub_obj : obj->technologies) {
             ::serialize(stream, sub_obj);
         }
@@ -1515,7 +1485,6 @@ public:
         Building::Id n_buildings = deserialize_and_create_list<Building>(stream, obj);
         Treaty::Id n_treaties = deserialize_and_create_list<Treaty>(stream, obj);
         Ideology::Id n_ideologies = deserialize_and_create_list<Ideology>(stream, obj);
-        Invention::Id n_inventions = deserialize_and_create_list<Invention>(stream, obj);
         Technology::Id n_technologies = deserialize_and_create_list<Technology>(stream, obj);
         NationModifier::Id n_nation_modifiers = deserialize_and_create_list<NationModifier>(stream, obj);
         TerrainType::Id n_terrain_types = deserialize_and_create_list<TerrainType>(stream, obj);
@@ -1537,7 +1506,6 @@ public:
         print_info("  n_outposts %zu", obj->buildings.size());
         print_info("  n_treaties %zu", obj->treaties.size());
         print_info("  n_ideologies %zu", obj->ideologies.size());
-        print_info("  n_inventions %zu", obj->inventions.size());
         print_info("  n_technologies %zu", obj->technologies.size());
         print_info("  n_terrain_types %zu", obj->terrain_types.size());
         print_info("  n_wars %zu", obj->wars.size());
@@ -1617,18 +1585,8 @@ public:
             ::deserialize(stream, sub_obj);
         }
 
-        for(size_t i = 0; i < n_inventions; i++) {
-            auto* sub_obj = obj->inventions[i];
-            ::deserialize(stream, sub_obj);
-        }
-
         for(size_t i = 0; i < n_technologies; i++) {
             auto* sub_obj = obj->technologies[i];
-            ::deserialize(stream, sub_obj);
-        }
-
-        for(size_t i = 0; i < n_inventions; i++) {
-            auto* sub_obj = obj->nation_modifiers[i];
             ::deserialize(stream, sub_obj);
         }
 
@@ -1670,7 +1628,6 @@ public:
             + (obj->buildings.size() * sizeof(Building))
             + (obj->treaties.size() * sizeof(Treaty))
             + (obj->ideologies.size() * sizeof(Ideology))
-            + (obj->inventions.size() * sizeof(Invention))
             + (obj->technologies.size() * sizeof(Technology))
             + (obj->nation_modifiers.size() * sizeof(NationModifier))
             + (obj->terrain_types.size() * sizeof(TerrainType))

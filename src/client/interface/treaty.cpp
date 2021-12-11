@@ -9,7 +9,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs)
 {
     this->is_scroll = false;
     this->text("Draft treaty");
-
+    
     auto* draft_btn = new UI::Button(0, 24 * 2, this->width, 24, this);
     draft_btn->text("Draft");
 }

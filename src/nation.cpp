@@ -6,11 +6,13 @@
 // Declare war
 // TODO: Make some form of "WarParticipationRequest" so we don't force allies to join
 // and we also make sure betrayals are possible
-void Nation::declare_war(Nation& nation) {
+void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses) {
     World& world = World::get_instance();
     auto* war = new War();
 
     print_info("%s has declared war on %s!", this->ref_name.c_str(), nation.ref_name.c_str());
+
+    war->wargoals = clauses;
 
     // Recollect offenders
     // - Those who are allied to us
@@ -54,7 +56,7 @@ void Nation::declare_war(Nation& nation) {
         print_info("[%s]", defender->ref_name.c_str());
     }
 
-    war->name = "War by " + this->name + " against " + nation.name;
+    war->name = "War of " + this->name + " against " + nation.name;
     print_info("War!, [%s]", war->name.c_str());
 }
 

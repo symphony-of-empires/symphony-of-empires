@@ -24,7 +24,7 @@ public:
 
 #include "culture.hpp"
 #include "religion.hpp"
-class Pop {
+struct Pop {
 public:
     size_t size;
     size_t unemployed = 0;

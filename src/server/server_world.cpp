@@ -50,8 +50,6 @@ World::World() {
     lua_register(lua, "get_technology", LuaAPI::get_technology);
     lua_register(lua, "add_req_tech_to_tech", LuaAPI::add_req_tech_to_tech);
 
-    lua_register(lua, "add_invention", LuaAPI::add_invention);
-    lua_register(lua, "get_invention", LuaAPI::get_invention);
     lua_register(lua, "set_nation_mod_to_invention", LuaAPI::set_nation_mod_to_invention);
 
     lua_register(lua, "add_unit_trait", LuaAPI::add_unit_trait);
@@ -563,6 +561,9 @@ void World::load_mod(void) {
     };
     lua_exec_all_of(*this, mod_files);
 
+    // Server needs now to sync changes to clients (changing state is not enough)
+    this->needs_to_sync = true;
+
     // Default init for policies
     for(auto& nation : this->nations) {
         nation->budget = 10000.f;
@@ -614,13 +615,15 @@ void World::do_tick() {
             float* research_progress = &nation->research[get_id(nation->focus_tech)];
             *research_progress -= std::min(research, *research_progress);
             if(!(*research_progress)) {
+                // Give the country the modifiers attached to the technology
+                for(auto& mod : nation->focus_tech->modifiers) {
+                    nation->modifiers.push_back(mod);
+                }
                 nation->focus_tech = nullptr;
             }
         }
 
-        if(nation->is_ai) {
-            ai_do_tick(nation, this);
-        }
+        ai_do_tick(nation, this);
     }
 
     // Every ticks_per_day ticks do an economical tick

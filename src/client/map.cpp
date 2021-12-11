@@ -322,7 +322,7 @@ void Map::draw_flag(const Nation* nation) {
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-            ));
+        ));
     }
 
     flag.vao.bind();
@@ -333,7 +333,7 @@ void Map::draw_flag(const Nation* nation) {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)(3 * sizeof(float)));  // Texcoords
     glEnableVertexAttribArray(1);
 
-    nation_flags.at(world.get_id(nation))->bind();
+    nation_flags[world.get_id(nation)]->bind();
     flag.draw();
 }
 
@@ -639,7 +639,6 @@ void Map::draw(const int width, const int height) {
         model_shader->set_uniform("model", model);
         building_type_models.at(world.get_id(building->type))->draw(*model_shader);
     }
-
     for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
         model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
@@ -669,6 +668,51 @@ void Map::draw(const int width, const int height) {
     // Resets the shader and texture
     glUseProgram(0);
     glActiveTexture(GL_TEXTURE0);
+
+    for(const auto& building : world.buildings) {
+        glPushMatrix();
+        glTranslatef(building->x, building->y, -1.f);
+        const int _w = 2, _h = 2;
+        nation_flags[world.get_id(building->get_owner())]->bind();
+        glBegin(GL_TRIANGLES);
+        glColor3f(1.f, 1.f, 1.f);
+        glTexCoord2f(0.f, 0.f);
+        glVertex2f(0.f, 0.f);
+        glTexCoord2f(1.f, 0.f);
+        glVertex2f(_w, 0.f);
+        glTexCoord2f(1.f, 1.f);
+        glVertex2f(_w, _h);
+        glTexCoord2f(1.f, 1.f);
+        glVertex2f(_w, _h);
+        glTexCoord2f(0.f, 1.f);
+        glVertex2f(0.f, _h);
+        glTexCoord2f(0.f, 0.f);
+        glVertex2f(0.f, 0.f);
+        glEnd();
+        glPopMatrix();
+    }
+    for(const auto& unit : world.units) {
+        glPushMatrix();
+        glTranslatef(unit->x, unit->y, -1.f);
+        const int _w = 2, _h = 2;
+        nation_flags[world.get_id(unit->owner)]->bind();
+        glBegin(GL_TRIANGLES);
+        glColor3f(1.f, 1.f, 1.f);
+        glTexCoord2f(0.f, 0.f);
+        glVertex2f(0.f, 0.f);
+        glTexCoord2f(1.f, 0.f);
+        glVertex2f(_w, 0.f);
+        glTexCoord2f(1.f, 1.f);
+        glVertex2f(_w, _h);
+        glTexCoord2f(1.f, 1.f);
+        glVertex2f(_w, _h);
+        glTexCoord2f(0.f, 1.f);
+        glVertex2f(0.f, _h);
+        glTexCoord2f(0.f, 0.f);
+        glVertex2f(0.f, 0.f);
+        glEnd();
+        glPopMatrix();
+    }
 
     wind_osc += 1.f;
     if(wind_osc >= 180.f)

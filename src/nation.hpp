@@ -75,7 +75,7 @@ class Nation : public RefnameEntity<uint16_t> {
     inline void do_diplomacy();
     inline bool can_do_diplomacy();
 public:
-    void declare_war(Nation& nation);
+    void declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses = std::vector<TreatyClause::BaseClause*>());
     bool is_ally(const Nation& nation);
     bool is_enemy(const Nation& nation);
     bool exists(void);
@@ -91,6 +91,110 @@ public:
     float get_research_points(void) const;
     bool can_research(Technology* tech) const;
     void change_research_focus(Technology* tech);
+
+    float get_industry_output_mod(void) {
+        float c = 0.f;
+        for(const auto& mod : modifiers) {
+            c += mod->industry_input_mod;
+        }
+        return c;
+    }
+
+    float get_industry_input_mod(void) {
+        float c = 0.f;
+        for(const auto& mod : modifiers) {
+            c += mod->industry_input_mod;
+        }
+        return c;
+    }
+
+    float get_workers_needed_mod(void) {
+        float c = 0.f;
+        for(const auto& mod : modifiers) {
+            c += mod->workers_needed_mod;
+        }
+        return c;
+    }
+
+    float get_salary_paid_mod(void) {
+        float c = 0.f;
+        for(const auto& mod : modifiers) {
+            c += mod->salary_paid_mod;
+        }
+        return c;
+    }
+
+    float get_delivery_cost_mod(void) {
+        float c = 0.f;
+        for(const auto& mod : modifiers) {
+            c += mod->delivery_cost_mod;
+        }
+        return c;
+    }
+
+    float get_literacy_learn_mod(void) {
+        float c = 0.f;
+        for(const auto& mod : modifiers) {
+            c += mod->literacy_learn_mod;
+        }
+        return c;
+    }
+
+    float get_reproduction_mod(void) {
+        float c = 0.f;
+        for(const auto& mod : modifiers) {
+            c += mod->reproduction_mod;
+        }
+        return c;
+    }
+
+    float get_death_mod(void) {
+        float c = 0.f;
+        for(const auto& mod : modifiers) {
+            c += mod->death_mod;
+        }
+        return c;
+    }
+
+    float get_militancy_mod(void) {
+        float c = 0.f;
+        for(const auto& mod : modifiers) {
+            c += mod->militancy_mod;
+        }
+        return c;
+    }
+
+    float get_con_mod(void) {
+        float c = 0.f;
+        for(const auto& mod : modifiers) {
+            c += mod->con_mod;
+        }
+        return c;
+    }
+
+    float get_life_needs_met_mod(void) {
+        float c = 0.f;
+        for(const auto& mod : modifiers) {
+            c += mod->life_needs_met_mod;
+        }
+        return c;
+    }
+
+    float get_everyday_needs_met_mod(void) {
+        float c = 0.f;
+        for(const auto& mod : modifiers) {
+            c += mod->everyday_needs_met_mod;
+        }
+        return c;
+    }
+
+    float get_luxury_needs_met_mod(void) {
+        float c = 0.f;
+        for(const auto& mod : modifiers) {
+            c += mod->luxury_needs_met_mod;
+        }
+        return c;
+    }
 
     // Nation that has us on their sphere of influence
     // This value is equal to the nation with highest influence on us in the
@@ -151,7 +255,7 @@ public:
     uint16_t diplomatic_timer;
 
     //std::vector<std::pair<Technology*, float>> techs;
-    std::vector<NationModifier> modifiers;
+    std::vector<NationModifier*> modifiers;
 
     // Inbox of the nation; events that require our attention / should be processed
     std::deque<Event*> inbox;
@@ -163,5 +267,12 @@ public:
     Technology* focus_tech;
 
     // Default and can be disabled by the player
-    bool is_ai = true;
+    bool ai_do_policies = true;
+    bool ai_do_research = true;
+    bool ai_do_diplomacy = true;
+    bool ai_do_cmd_troops = true;
+    bool ai_do_unit_production = true;
+    bool ai_do_build_production = true;
+    bool ai_handle_treaties = true;
+    bool ai_handle_events = true;
 };
