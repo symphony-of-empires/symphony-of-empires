@@ -240,7 +240,11 @@ namespace UI {
             input.timer = (input.timer + 1) % 60;
             std::string cursor = input.timer >= 30 ? "_" : "";
             if(input.is_selected && input.timer % 30 == 0) {
-                input.text(input.buffer + cursor);
+                if(!input.buffer.empty()) {
+                    input.text(input.buffer + cursor);
+                } else {
+                    input.text(cursor);
+                }
             }
         }
         Input(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
