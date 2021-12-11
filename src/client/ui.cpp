@@ -804,20 +804,16 @@ void Widget::text(const std::string& _text) {
     // Copy _text to a local scope (SDL2 does not like references)
     SDL_Surface* surface;
 
-    std::string output_text = _text;
-    if(output_text == "") {
-        output_text = " ";
-    }
-
     if(text_texture != nullptr) {
         // Auto deletes gl_texture
         delete text_texture;
+        text_texture = nullptr;
     }
 
     if(_text.empty()) return;
 
     //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, output_text.c_str(), text_color);
+    surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), text_color);
     if(surface == nullptr)
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
 
