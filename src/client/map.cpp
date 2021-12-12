@@ -647,7 +647,6 @@ void Map::draw(const int width, const int height) {
         model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
 		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
-		draw_flag(building->get_owner());
 		building_type_models.at(world.get_id(building->type))->draw(*model_shader);
     }
     for(const auto& unit : world.units) {
@@ -655,9 +654,23 @@ void Map::draw(const int width, const int height) {
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
 		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
-		draw_flag(unit->owner);
 		model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
 		unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
+    }
+    // The flags mess with the models so they are drawn after the models
+    for(const auto& building : world.buildings) {
+        glm::mat4 model(1.f);
+        model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
+		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
+        model_shader->set_uniform("model", model);
+		draw_flag(building->get_owner());
+    }
+    for(const auto& unit : world.units) {
+        glm::mat4 model(1.f);
+        model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
+		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
+        model_shader->set_uniform("model", model);
+		draw_flag(unit->owner);
     }
     
     glEnable(GL_CULL_FACE);

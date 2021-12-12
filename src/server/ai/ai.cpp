@@ -400,10 +400,12 @@ void ai_do_tick(Nation* nation, World* world) {
             for(auto& building : g_world->buildings) {
                 if(std::rand() % defense_factor) continue;
                 if(building->working_unit_type != nullptr || building->owner != nation) continue;
+                Province* province = building->get_province();
+                if (province == nullptr) continue;
 
                 building->working_unit_type = g_world->unit_types[std::rand() % g_world->unit_types.size()];
                 building->req_goods_for_unit = building->working_unit_type->req_goods;
-                print_info("%s: Building unit [%s] in [%s]", nation->ref_name.c_str(), building->working_unit_type->ref_name.c_str(), building->get_province()->ref_name.c_str());
+                print_info("%s: Building unit [%s] in [%s]", nation->ref_name.c_str(), building->working_unit_type->ref_name.c_str(), province->ref_name.c_str());
             }
         }
 

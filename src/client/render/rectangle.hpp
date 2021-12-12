@@ -13,9 +13,8 @@ namespace UnifiedRender {
 
         Rectangle(glm::vec2 position, glm::vec2 size): left{ position.x }, top{ position.y }, right{ position.x + size.x }, bottom{ position.y + size.y } {}
         Rectangle(float x, float y, float width, float height): left{ x }, top{ y }, right{ x + width }, bottom{ y + height } {}
-        Rectangle(int x, int y, int width, int height): left{ (float)x }, top{ (float)y }, right{ (float)(x + width) }, bottom{ (float)(y + height) } {}
-        Rectangle(long unsigned int x, long unsigned int y, long unsigned int width, long unsigned int height):
-            left{ (float)x }, top{ (float)y }, right{ (float)(x + width) }, bottom{ (float)(y + height) } {}
+        template<class T1, class T2, class T3, class T4>
+        Rectangle(T1 x, T2 y, T3 width, T4 height): left{ (float)x }, top{ (float)y }, right{ (float)(x + width) }, bottom{ (float)(y + height) } {}
 
         glm::vec2 size() const { return glm::vec2{ right - left, bottom - top }; }
         void size(glm::vec2 size) { right = left + size.x; bottom = top + size.y; }

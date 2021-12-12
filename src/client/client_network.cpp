@@ -135,9 +135,9 @@ void Client::net_loop(void) {
 			// When we are on host_mode we discard all potential packets send by the server
 			// (because our data is already synchronized)
 #ifdef unix
-            if(!gs.host_mode && (pfd.revents & POLLIN || has_pending)) {
+            if((pfd.revents & POLLIN || has_pending)) {
 #elif defined windows
-            if(!gs.host_mode && (has_pending)) {
+            if((has_pending)) {
 #endif
                 Packet packet = Packet(fd);
                 Archive ar = Archive();
@@ -288,7 +288,7 @@ void Client::net_loop(void) {
                     if(!gs.host_mode) {
                         world.world_mutex.lock();
                     }
-                    world.time++;
+                    // world.time++;
                 } break;
                 case ActionType::TILE_UPDATE: {
                     // get_tile is already mutexed
