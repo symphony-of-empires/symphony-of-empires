@@ -25,7 +25,7 @@ void print_disable_debug(void) {
 #endif
 
 void print_error(const char* str, ...) {
-    print_mutex.lock();
+    std::scoped_lock lock(print_mutex);
 
     va_list args;
     va_start(args, str);
@@ -45,14 +45,12 @@ void print_error(const char* str, ...) {
 #endif
 
     va_end(args);
-
-    print_mutex.unlock();
 }
 
 void print_info(const char* str, ...) {
     if(!allow_debug) return;
 
-    print_mutex.lock();
+    std::scoped_lock lock(print_mutex);
 
     va_list args;
     va_start(args, str);
@@ -73,8 +71,6 @@ void print_info(const char* str, ...) {
 #endif
 
     va_end(args);
-
-    print_mutex.unlock();
 }
 
 // Callback function for printing debug statements

@@ -113,7 +113,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     this->inc_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationView&>(*w.parent);
 
-        g_client->packet_mutex.lock();
+        std::scoped_lock lock(g_client->packet_mutex);
         Packet packet = Packet();
         Archive ar = Archive();
         ActionType action = ActionType::DIPLO_INC_RELATIONS;
@@ -122,7 +122,6 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         ::serialize(ar, &o.nation); // Target
         packet.data(ar.get_buffer(), ar.size());
         g_client->packet_queue.push_back(packet);
-        g_client->packet_mutex.unlock(); 
     });
 
     this->dec_btn = new UI::Button(0, 0, this->width, 24, this);
@@ -131,7 +130,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     this->dec_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationView&>(*w.parent);
 
-        g_client->packet_mutex.lock();
+        std::scoped_lock lock(g_client->packet_mutex);
         Packet packet = Packet();
         Archive ar = Archive();
         ActionType action = ActionType::DIPLO_DEC_RELATIONS;
@@ -140,7 +139,6 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         ::serialize(ar, &o.nation); // Target
         packet.data(ar.get_buffer(), ar.size());
         g_client->packet_queue.push_back(packet);
-        g_client->packet_mutex.unlock(); 
     });
 
     this->dow_btn = new UI::Button(0, 0, this->width, 24, this);
@@ -149,7 +147,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     this->dow_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationView&>(*w.parent);
 
-        g_client->packet_mutex.lock();
+        std::scoped_lock lock(g_client->packet_mutex);
         Packet packet = Packet();
         Archive ar = Archive();
         ActionType action = ActionType::DIPLO_DECLARE_WAR;
@@ -158,7 +156,6 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         ::serialize(ar, &o.nation); // Target
         packet.data(ar.get_buffer(), ar.size());
         g_client->packet_queue.push_back(packet);
-        g_client->packet_mutex.unlock(); 
     });
 
     this->ally_btn = new UI::Button(0, 0, this->width, 24, this);

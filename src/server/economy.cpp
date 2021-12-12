@@ -122,7 +122,8 @@ void Economy::do_tick(World& world) {
         }
 
         // TODO: Make a proper supply chain system with the whole working economy thing :)
-        if(!can_build) break;
+        // NOTE: Uncomment when it's ready :)
+        //if(!can_build) break;
 
         size_t needed_laborers = 0, available_laborers = 0;
         size_t needed_farmers = 0, available_farmers = 0;
@@ -146,8 +147,7 @@ void Economy::do_tick(World& world) {
                 needed_entrepreneurs += employed / 100;
                 ++i;
             }
-        }
-        else {
+        } else {
             needed_laborers = 50;
             needed_farmers = 50;
             needed_entrepreneurs = 50;
@@ -238,8 +238,8 @@ void Economy::do_tick(World& world) {
             unit->base = unit->size;
 
             // Notify all clients of the server about this new unit
-            g_world->insert(unit);
             building->working_unit_type = nullptr;
+			world.insert(unit);
 
             Packet packet = Packet();
             Archive ar = Archive();
@@ -302,8 +302,7 @@ void Economy::do_tick(World& world) {
                     if(available_farmers) {
                         order.quantity = (available_farmers / needed_farmers) * 5000;
                     }
-                }
-                else {
+                } else {
                     if(available_laborers) {
                         order.quantity = (available_laborers / needed_laborers) * 5000;
                     }
@@ -803,7 +802,7 @@ void Economy::do_tick(World& world) {
                 emigrated.size = emigreers;
                 emigrated.origin = province;
 
-                const std::lock_guard l(emigration_lock);
+                std::scoped_lock lock(emigration_lock);
                 emigration.push_back(emigrated);
             }
         skip_emigration:;

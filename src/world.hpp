@@ -237,7 +237,7 @@ public:
 
     // 2-Dimensional Array of tiles
     Tile* tiles;
-    mutable std::recursive_mutex tiles_mutex;
+    mutable std::mutex tiles_mutex;
 
     // Level at which sea dissapears, all sea is capped to sea_level - 1, and rivers are at sea_level.
     // Anything above is considered land
@@ -251,27 +251,27 @@ public:
 
     bool needs_to_sync = false;
 
-    mutable std::recursive_mutex world_mutex;
+    mutable std::mutex world_mutex;
 
     // A list of orders (what factories want to be sent to them)
     std::vector<OrderGoods> orders;
-    mutable std::recursive_mutex orders_mutex;
+    mutable std::mutex orders_mutex;
 
     // A deliver list (what factories need to send)
     std::vector<DeliverGoods> delivers;
-    mutable std::recursive_mutex delivers_mutex;
+    mutable std::mutex delivers_mutex;
 
     // Array containing a list of tile coord that have changed owners
     std::vector<std::pair<uint, uint>> changed_tile_coords;
-    mutable std::recursive_mutex changed_tiles_coords_mutex;
+    mutable std::mutex changed_tiles_coords_mutex;
 
     // Array containing a list of tile pointers that have changed owners
     std::vector<Tile*> nation_changed_tiles;
-    mutable std::recursive_mutex nation_changed_tiles_mutex;
+    mutable std::mutex nation_changed_tiles_mutex;
 
     // Array containing a list of tile pointers that have changed elevation
     std::vector<Tile*> elevation_changed_tiles;
-    mutable std::recursive_mutex elevation_changed_tiles_mutex;
+    mutable std::mutex elevation_changed_tiles_mutex;
 
     std::vector<std::pair<Descision*, Nation*>> taken_descisions;
 };

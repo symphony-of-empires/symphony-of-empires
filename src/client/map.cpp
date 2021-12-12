@@ -422,7 +422,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         }
 
         // Tell the server about an action for building an building
-        gs.client->packet_mutex.lock();
+        std::scoped_lock lock(gs.client->packet_mutex);
         Packet packet = Packet();
         Archive ar = Archive();
         ActionType action = ActionType::BUILDING_ADD;
@@ -436,7 +436,6 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         ::serialize(ar, &building);  // BuildingObj
         packet.data(ar.get_buffer(), ar.size());
         gs.client->packet_queue.push_back(packet);
-        gs.client->packet_mutex.unlock();
         */
         return;
     }
@@ -448,7 +447,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             if(tile.province_id == (Province::Id)-1) return;
             Province* province = gs.world->provinces[tile.province_id];
 
-            std::lock_guard lock(gs.world->changed_tiles_coords_mutex);
+            std::scoped_lock lock(gs.world->changed_tiles_coords_mutex);
             for(uint i = province->min_x; i < province->max_x; i++) {
                 for(uint j = province->min_y; j < province->max_y; j++) {
                     if(gs.world->get_tile(i, j).province_id != gs.world->get_id(province)) continue;
@@ -467,7 +466,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             selected_unit->tx = select_pos.first;
             selected_unit->ty = select_pos.second;
 
-            gs.client->packet_mutex.lock();
+            std::scoped_lock lock(gs.client->packet_mutex);
             Packet packet = Packet();
             Archive ar = Archive();
             ActionType action = ActionType::UNIT_CHANGE_TARGET;
@@ -477,7 +476,6 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             ::serialize(ar, &selected_unit->ty);
             packet.data(ar.get_buffer(), ar.size());
             gs.client->packet_queue.push_back(packet);
-            gs.client->packet_mutex.unlock();
             return;
         }
 
@@ -558,7 +556,7 @@ void Map::update(const SDL_Event& event, Input& input)
 
 // Updates the tiles texture with the changed tiles
 void Map::update_tiles(World& world) {
-    std::lock_guard lock(g_world->changed_tiles_coords_mutex);
+    std::scoped_lock lock(g_world->changed_tiles_coords_mutex);
     glDisable(GL_CULL_FACE);
     if(world.changed_tile_coords.size() > 0) {
         UnifiedRender::OpenGl::Framebuffer* fbo = new UnifiedRender::OpenGl::Framebuffer();
@@ -642,37 +640,24 @@ void Map::draw(const int width, const int height) {
     model_shader->set_uniform("view", view);
 
     // glActiveTexture(GL_TEXTURE0);
-
     glDisable(GL_CULL_FACE);
+	
     for(const auto& building : world.buildings) {
-        glm::mat4 model = glm::mat4(1.f);
-        model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
-        model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
-
-        model_shader->set_uniform("model", model);
-        building_type_models.at(world.get_id(building->type))->draw(*model_shader);
-    }
-    for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
-        model = glm::rotate(model, glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
-        model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
-
-        model_shader->set_uniform("model", model);
-        unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
-    }
-    for(const auto& building : world.buildings) {
-        glm::mat4 model = glm::mat4(1.f);
         model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
-
+		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
-        draw_flag(building->get_owner());
+		draw_flag(building->get_owner());
+		building_type_models.at(world.get_id(building->type))->draw(*model_shader);
     }
     for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
-
+		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
-        draw_flag(unit->owner);
+		draw_flag(unit->owner);
+		model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
+		unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
     }
     
     glEnable(GL_CULL_FACE);
@@ -680,14 +665,14 @@ void Map::draw(const int width, const int height) {
     // Resets the shader and texture
     glUseProgram(0);
     glActiveTexture(GL_TEXTURE0);
-
-    for(const auto& building : world.buildings) {
+	
+	glColor3f(1.f, 1.f, 1.f);
+    /*for(const auto& building : world.buildings) {
         glPushMatrix();
         glTranslatef(building->x, building->y, -1.f);
         const int _w = 2, _h = 2;
         nation_flags[world.get_id(building->get_owner())]->bind();
         glBegin(GL_TRIANGLES);
-        glColor3f(1.f, 1.f, 1.f);
         glTexCoord2f(0.f, 0.f);
         glVertex2f(0.f, 0.f);
         glTexCoord2f(1.f, 0.f);
@@ -702,14 +687,14 @@ void Map::draw(const int width, const int height) {
         glVertex2f(0.f, 0.f);
         glEnd();
         glPopMatrix();
-    }
+    }*/
     for(const auto& unit : world.units) {
         glPushMatrix();
         glTranslatef(unit->x, unit->y, -1.f);
         const int _w = 2, _h = 2;
         nation_flags[world.get_id(unit->owner)]->bind();
+		
         glBegin(GL_TRIANGLES);
-        glColor3f(1.f, 1.f, 1.f);
         glTexCoord2f(0.f, 0.f);
         glVertex2f(0.f, 0.f);
         glTexCoord2f(1.f, 0.f);
@@ -723,6 +708,14 @@ void Map::draw(const int width, const int height) {
         glTexCoord2f(0.f, 0.f);
         glVertex2f(0.f, 0.f);
         glEnd();
+		
+		glBegin(GL_LINES);
+		glColor3f(1.f, 0.f, 0.f);
+		glVertex2f(0.f, 0.f);
+		glColor3f(0.f, 1.f, 0.f);
+		glVertex2f(unit->tx - unit->x, unit->ty - unit->x);
+		glEnd();
+		
         glPopMatrix();
     }
 

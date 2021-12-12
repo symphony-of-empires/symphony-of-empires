@@ -15,22 +15,23 @@ void ProductUpdate::send(std::vector<Product*>* list) {
 }
 
 void SelectNation::send(Nation* nation) {
-    /*
-    g_client->packet_mutex.lock();
+    std::scoped_lock lock(g_client->packet_mutex);
+
     Packet packet = Packet();
     Archive ar = Archive();
+
     ActionType action = ActionType::SELECT_NATION;
     ::serialize(ar, &action);
+
     ::serialize(ar, nation);
+
     packet.data(ar.get_buffer(), ar.size());
     g_client->packet_queue.push_back(packet);
-    g_client->packet_mutex.unlock();
-    */
 }
 
 void BuildingStartProducingUnit::send(Building* building, UnitType* unit_type) {
-    /*
-    g_client->packet_mutex.lock();
+    std::scoped_lock lock(g_client->packet_mutex);
+
     Packet packet = Packet();
     Archive ar = Archive();
 
@@ -39,8 +40,7 @@ void BuildingStartProducingUnit::send(Building* building, UnitType* unit_type) {
 
     ::serialize(ar, &building);
     ::serialize(ar, unit_type);
+    
     packet.data(ar.get_buffer(), ar.size());
     g_client->packet_queue.push_back(packet);
-    g_client->packet_mutex.unlock();
-    */
 }

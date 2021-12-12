@@ -72,6 +72,11 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
                 o.gs.ui_ctx->prompt("Error", "No (state/private) company selected");
                 return;
             }
+			
+			if(o.province == nullptr) {
+                o.gs.ui_ctx->prompt("Error", "Select a province to build it on");
+                return;
+            }
 
             if(o.building_type == nullptr) {
                 o.gs.ui_ctx->prompt("Error", "No building type selected");
@@ -82,22 +87,13 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
                 o.gs.ui_ctx->prompt("Error", "You do not own any provinces");
                 return;
             }
-            
-            // Tell the server about this "new" building
-            std::lock_guard lock(o.gs.client->packet_mutex);
-            Packet packet = Packet();
-            Archive ar = Archive();
-            ActionType action = ActionType::BUILDING_ADD;
-            ::serialize(ar, &action);
 
             auto building = Building();
             building.owner = o.nation;
             building.corporate_owner = o.company;
             building.type = o.building_type;
-
-            auto it = std::begin(o.gs.curr_nation->owned_provinces);
-            std::advance(it, std::rand() % o.gs.curr_nation->owned_provinces.size());
-            building.province = o.province != nullptr ? o.province : *it;
+			
+            building.province = o.province;
 
             if(o.in_tile) {
                 building.x = o.tx;
@@ -108,11 +104,17 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
                 building.x = std::min(building.x, g_world->width - 1);
                 building.y = std::min(building.y, g_world->height - 1);
             }
-            
-            ::serialize(ar, &building); // BuildingObj
 
-            packet.data(ar.get_buffer(), ar.size());
-            o.gs.client->packet_queue.push_back(packet);
+            {
+                // Tell the server about this "new" building
+                Packet packet = Packet();
+                Archive ar = Archive();
+                ActionType action = ActionType::BUILDING_ADD;
+                ::serialize(ar, &action);
+                ::serialize(ar, &building); // BuildingObj
+                packet.data(ar.get_buffer(), ar.size());
+                o.gs.client->packet_queue.push_back(packet);
+            }
 
             o.gs.ui_ctx->prompt("Production", "Building a " + building.type->name + " in " + building.get_province()->name + "; owned by " + building.corporate_owner->name + " from the country of " + building.get_owner()->name);
         });
