@@ -626,14 +626,14 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 
     // Background (tile) display
     if(type == UI_WIDGET_INPUT) {
-        UnifiedRender::Rect pos_rect{ 0u, 0u, width, height };
-        UnifiedRender::Rect tex_rect{ 0, 0, 1, 1 };
+        UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
+        UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
         glColor3f(0.f, 0.f, 1.f);
         draw_rect(0, pos_rect, tex_rect, viewport);
     }
     else if(type != UI_WIDGET_IMAGE && type != UI_WIDGET_LABEL) {
-        UnifiedRender::Rect pos_rect{ 0u, 0u, width, height };
-        UnifiedRender::Rect tex_rect{ 0u, 0u, width / ctx.background->width, height / ctx.background->height };
+        UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
+        UnifiedRender::Rect tex_rect((int)0u, 0u, width / ctx.background->width, height / ctx.background->height);
         draw_rect(ctx.background->gl_tex_num, pos_rect, tex_rect, viewport);
     }
 
@@ -671,8 +671,8 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         const size_t padding = 1;
 
         // Put a "grey" inner background
-        UnifiedRender::Rect pos_rect{ padding, padding, width - padding, height - padding };
-        UnifiedRender::Rect tex_rect{ 0u, 0u, width / ctx.background->width, height / ctx.background->height };
+        UnifiedRender::Rect pos_rect((int)padding, padding, width - padding, height - padding);
+        UnifiedRender::Rect tex_rect((int)0u, 0u, width / ctx.background->width, height / ctx.background->height);
         draw_rect(ctx.button->gl_tex_num, pos_rect, tex_rect, viewport);
 
         float b_width = 20;
@@ -728,8 +728,8 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 
     // Semi-transparent over hover elements which can be clicked
     if((on_click && is_hover) || is_clickable) {
-        UnifiedRender::Rect pos_rect{ 0u, 0u, width, height };
-        UnifiedRender::Rect tex_rect{ 0, 0, 1, 1 };
+        UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
+        UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
         glColor4f(1.5f, 1.f, 1.f, 0.5f);
         draw_rect(0, pos_rect, tex_rect, viewport);
     }

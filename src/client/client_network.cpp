@@ -92,7 +92,7 @@ void Client::net_loop(void) {
 
     // Receive the first snapshot of the world (except on host mode)
     if(!gs.host_mode) {
-        const std::lock_guard lock(world.world_mutex);
+        std::scoped_lock lock(world.world_mutex);
         Packet packet = Packet(fd);
         packet.recv();
         Archive ar = Archive();
@@ -132,10 +132,12 @@ void Client::net_loop(void) {
 #endif
 
             // Conditional of above statements
+			// When we are on host_mode we discard all potential packets send by the server
+			// (because our data is already synchronized)
 #ifdef unix
-            if(pfd.revents & POLLIN || has_pending) {
+            if(!gs.host_mode && (pfd.revents & POLLIN || has_pending)) {
 #elif defined windows
-            if(has_pending) {
+            if(!gs.host_mode && (has_pending)) {
 #endif
                 Packet packet = Packet(fd);
                 Archive ar = Archive();
@@ -147,7 +149,7 @@ void Client::net_loop(void) {
                 ::deserialize(ar, &action);
 
                 // Ping from server, we should answer with a pong!
-                //const std::lock_guard lock(world.world_mutex);
+                //std::scoped_lock lock(world.world_mutex);
                 switch(action) {
                 case ActionType::PONG: {
                     packet.send(&action);
@@ -300,7 +302,7 @@ void Client::net_loop(void) {
                         world.nations[tile.owner_id]->owned_provinces.insert(world.provinces[tile.province_id]);
                     }
 
-                    const std::lock_guard lock(world.changed_tiles_coords_mutex);
+                    std::scoped_lock lock(world.changed_tiles_coords_mutex);
                     world.changed_tile_coords.push_back(coord);
                 } break;
                 case ActionType::PROVINCE_COLONIZE: {
@@ -310,7 +312,7 @@ void Client::net_loop(void) {
                         throw ClientException("Unknown province");
                     ::deserialize(ar, province);
 
-                    std::lock_guard lock(world.changed_tiles_coords_mutex);
+                    std::scoped_lock lock(world.changed_tiles_coords_mutex);
                     for(uint i = province->min_x; i < province->max_x; i++) {
                         for(uint j = province->min_y; j < province->max_y; j++) {
                             if(world.get_tile(i, j).province_id != world.get_id(province)) continue;
@@ -324,7 +326,7 @@ void Client::net_loop(void) {
             }
 
             // Client will also flush it's queue to the server
-            std::lock_guard lock(packet_mutex);
+            std::scoped_lock lock(packet_mutex);
             while(!packet_queue.empty()) {
                 print_info("Network: sending packet");
                 Packet elem = packet_queue.front();

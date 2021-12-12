@@ -246,7 +246,7 @@ void Nation::give_province(Province& province) {
     const Nation::Id nation_id = world.get_id(this);
     const Province::Id province_id = world.get_id(&province);
 
-    const std::lock_guard lock(world.nation_changed_tiles_mutex);
+    //std::scoped_lock lock(world.nation_changed_tiles_mutex);
 
     uint count = 0;
     for(uint i = province.min_x; i <= province.max_x; i++) {

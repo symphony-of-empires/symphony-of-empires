@@ -23,7 +23,6 @@ public:
 
     std::deque<Packet> packets;
     std::mutex packets_mutex;
-
     std::string username;
 };
 

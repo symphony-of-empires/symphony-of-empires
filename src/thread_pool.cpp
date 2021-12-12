@@ -43,7 +43,7 @@ ThreadPool::~ThreadPool() {
  * Adds a job to the list of pending jobs
  */
 void ThreadPool::add_job(std::function<void()> job) {
-    std::lock_guard lock(job_mutex);
+    std::scoped_lock lock(job_mutex);
     jobs.push(job);
     cv_task.notify_one();
 }
@@ -65,9 +65,7 @@ void ThreadPool::thread_loop() {
         std::unique_lock<std::mutex> latch(job_mutex);
         cv_task.wait(latch, [this](){ return !running || !jobs.empty(); });
 
-        if(!running) {
-            break;
-        }
+        if(!running) break;
 
         // pull from queue
         auto fn = jobs.front();

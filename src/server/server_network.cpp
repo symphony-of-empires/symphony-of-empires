@@ -104,7 +104,7 @@ Server::~Server() {
 void Server::broadcast(Packet& packet) {
     for(size_t i = 0; i < n_clients; i++) {
         if(clients[i].is_connected == true) {
-            const std::lock_guard lock(clients[i].packets_mutex);
+            std::scoped_lock lock(clients[i].packets_mutex);
             clients[i].packets.push_back(packet);
 
             // Disconnect the client when more than 200 MB is used
@@ -165,7 +165,7 @@ void Server::net_loop(int id) {
             // we also will only NOT send the snapshot to the first client only
             if(!gs.host_mode && player_count <= 1) {
                 Archive ar = Archive();
-                const std::lock_guard lock(g_world->world_mutex);
+                std::scoped_lock lock(g_world->world_mutex);
                 ::serialize(ar, g_world);
                 packet.send(ar.get_buffer(), ar.size());
             }
@@ -227,7 +227,7 @@ void Server::net_loop(int id) {
                         (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                         throw ServerException("Unallowed operation without selected nation");
 
-                    //const std::lock_guard lock(g_world->world_mutex);
+                    //std::scoped_lock lock(g_world->world_mutex);
                     switch(action) {
 
                         // - Used to test connections between server and client
@@ -505,12 +505,13 @@ void Server::net_loop(int id) {
                 ar.rewind();
 
                 // After reading everything we will send our queue appropriately to the client
-                const std::lock_guard lock(cl.packets_mutex);
-                while(cl.packets.empty() == false) {
-                    Packet elem = cl.packets.front();
-                    elem.stream = SocketStream(conn_fd);
-                    elem.send();
-                    cl.packets.pop_front();
+                if(!cl.packets.empty()) {
+                    std::scoped_lock lock(cl.packets_mutex);
+                    for(auto& elem : cl.packets) {
+                        elem.stream = SocketStream(conn_fd);
+                        elem.send();
+                    }
+                    cl.packets.clear();
                 }
             }
         }

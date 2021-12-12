@@ -598,8 +598,7 @@ void World::load_mod(void) {
 #include "../action.hpp"
 #include "economy.hpp"
 void World::do_tick() {
-    const std::lock_guard lock(world_mutex);
-    const std::lock_guard lock2(tiles_mutex);
+    std::scoped_lock lock(world_mutex);
 
     // AI and stuff
     // Just random shit to make the world be like more alive
@@ -627,7 +626,7 @@ void World::do_tick() {
     }
 
     // Every ticks_per_day ticks do an economical tick
-    if(time % ticks_per_day == 0) {
+    if(!(time % ticks_per_day)) {
         Economy::do_tick(*this);
         // Calculate prestige for today (newspapers come out!)
         for(auto& nation : this->nations) {
@@ -708,7 +707,7 @@ void World::do_tick() {
     // Evaluate units
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
-        if(unit->size <= 0) {
+        if(!unit->size) {
             g_world->remove(unit);
             i--;
             break;
@@ -770,6 +769,7 @@ void World::do_tick() {
 
         // TODO: This is temporal - un-comment this :D
         //if(nearest_enemy != nullptr && unit->owner->is_enemy(*nearest_enemy->owner))
+        if(nearest_enemy != nullptr)
             unit->attack(*nearest_enemy);
 
         // Unit is on a non-wasteland part of the map
@@ -861,7 +861,7 @@ void World::do_tick() {
 
             tile.owner_id = get_id(unit->owner);
 
-            const std::lock_guard lock(nation_changed_tiles_mutex);
+            std::scoped_lock lock(nation_changed_tiles_mutex);
             nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
         }
     }
@@ -962,7 +962,7 @@ void World::do_tick() {
 
     LuaAPI::check_events(lua);
 
-    if(time % ticks_per_day == 0) {
+    if(!(time % ticks_per_day)) {
         print_info("%i/%i/%i", time / 12 / 30 / ticks_per_day, (time / 30 / ticks_per_day % 12) + 1, (time / ticks_per_day % 30) + 1);
     }
 

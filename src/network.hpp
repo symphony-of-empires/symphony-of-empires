@@ -125,7 +125,7 @@ public:
     }
 
     inline void send(void) {
-        this->send<void>(nullptr, 0);
+        send<void>(nullptr, 0);
     }
 
     template<typename T>

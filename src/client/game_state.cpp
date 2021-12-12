@@ -79,7 +79,7 @@ void GameState::play_nation() {
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
 
-    g_client->packet_mutex.lock();
+    std::scoped_lock lock(g_client->packet_mutex);
     Packet packet = Packet();
     Archive ar = Archive();
     ActionType action = ActionType::SELECT_NATION;
@@ -87,7 +87,6 @@ void GameState::play_nation() {
     ::serialize(ar, &curr_nation);
     packet.data(ar.get_buffer(), ar.size());
     g_client->packet_queue.push_back(packet);
-    g_client->packet_mutex.unlock();
     print_info("Selected nation %s", curr_nation->ref_name.c_str());
 }
 
@@ -219,20 +218,16 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
 }
 
 void GameState::send_command(Archive& archive) {
-    client->packet_mutex.lock();
+    std::scoped_lock lock(client->packet_mutex);
 
     Packet packet = Packet(g_client->get_fd());
     packet.data(archive.get_buffer(), archive.size());
     client->packet_queue.push_back(packet);
-
-    client->packet_mutex.unlock();
 }
 
 void render(GameState& gs, Input& input, SDL_Window* window) {
     int& width = gs.width;
     int& height = gs.height;
-
-    //const std::lock_guard lock(gs.world->world_mutex);
 
     std::pair<float, float>& select_pos = input.select_pos;
     Unit* selected_unit = input.selected_unit;
@@ -247,6 +242,8 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
 
     if(gs.current_mode != MapMode::NO_MAP) {
         Map* map = gs.map;
+		
+		std::scoped_lock lock(gs.world->world_mutex);
 
         glPushMatrix();
         glMatrixMode(GL_PROJECTION);
@@ -337,10 +334,7 @@ void GameState::world_thread(void) {
     while(run) {
         while(paused) {};
 
-        if(world->world_mutex.try_lock()) {
-            world->do_tick();
-        }
-
+        world->do_tick();
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
@@ -366,13 +360,13 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
     while(gs.run) {
-        const std::lock_guard lock(gs.render_lock);
+        std::scoped_lock lock(gs.render_lock);
         handle_event(gs.input, gs, gs.run);
         if(gs.current_mode == MapMode::NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
         }
 
-        if(gs.update_tick == true) {
+        if(gs.update_tick) {
             gs.update_on_tick();
             gs.update_tick = false;
         }
@@ -393,7 +387,9 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
                     // Must not be working on something else
                     if(building->working_unit_type != nullptr) continue;
 
-                    g_client->packet_mutex.lock();
+                    is_built = true;
+
+                    std::scoped_lock lock(g_client->packet_mutex);
                     Packet packet = Packet();
                     Archive ar = Archive();
                     ActionType action = ActionType::BUILDING_START_BUILDING_UNIT;
@@ -402,8 +398,6 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
                     ::serialize(ar, &unit);
                     packet.data(ar.get_buffer(), ar.size());
                     g_client->packet_queue.push_back(packet);
-                    g_client->packet_mutex.unlock();
-                    is_built = true;
                 }
 
                 // If we couldn't find a suitable building we wont be able to find buildings for other

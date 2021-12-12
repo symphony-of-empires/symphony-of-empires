@@ -27,7 +27,7 @@
 Good* ai_get_potential_good(Nation* nation, World* world) {
     // We will randomly determine if we want to do a market analysis for secondary and tertiary products or if
     // we want to build primary-sector products (to kickstart chains)
-    if(std::rand() % 5 == 0) {
+    if(!(std::rand() % 5)) {
         // Analyze the market probability of sucess of a product this is determined by (demand * price), we calculate
         // this from the average of all products on our provinces we currently own
 
@@ -203,10 +203,10 @@ void ai_update_relations(Nation* nation, Nation* other) {
 void ai_do_tick(Nation* nation, World* world) {
     if(!nation->exists() || !nation->owned_provinces.size()) return;
 
-    if(world->time % world->ticks_per_day == 0) {
+    if(!(world->time % world->ticks_per_day)) {
         if(nation->ai_do_policies) {
             // Do a policy reform every 6 months
-            if((world->time / world->ticks_per_day) % 180 == 0) {
+            if(!((world->time / world->ticks_per_day) % 180)) {
                 // Update our policies and laws
                 ai_reform(nation);
             }
@@ -262,7 +262,7 @@ void ai_do_tick(Nation* nation, World* world) {
         }
 
         // Build a commercially related building
-        if(std::rand() % 2 == 0 && nation->ai_do_build_production) {
+        if(!(std::rand() % 2) && nation->ai_do_build_production) {
             Good* target_good;
             target_good = ai_get_potential_good(nation, world);
             if(target_good == nullptr) return;
@@ -293,9 +293,7 @@ void ai_do_tick(Nation* nation, World* world) {
             if(type == nullptr) return;
 
             Province* province = g_world->provinces[std::rand() % g_world->provinces.size()];
-            if(province->min_x > world->width || province->min_y == world->height ||
-                province->max_x < province->min_x || province->max_y < province->min_y ||
-                province->n_tiles == 0) {
+            if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || province->n_tiles == 0) {
                 print_error("Cant build buidling, province doesn't have any tiles");
             } else {
                 // Now build the building
@@ -313,8 +311,8 @@ void ai_do_tick(Nation* nation, World* world) {
                 building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
                 building->req_goods = std::vector<std::pair<Good*, size_t>>();
                 building->type = type;
+				building->budget = 1000.f;
                 if(building->type->is_factory) {
-                    building->budget = 100.f;
                     building->corporate_owner = world->companies.at(std::rand() % world->companies.size());
                     building->create_factory();
                     building->corporate_owner->operating_provinces.insert(building->get_province());
@@ -353,33 +351,31 @@ void ai_do_tick(Nation* nation, World* world) {
                     continue;
                 }
             }
+			
             for(const auto& province : nation->owned_provinces) {
                 defense_factor /= ((province->total_pops() + province->n_tiles) / 10000) + 1;
             }
 
-            if(defense_factor < 50) {
-                defense_factor = 50;
-            }
+            if(!defense_factor) defense_factor = 1;
 
             // Build defenses
-            if(std::rand() % defense_factor == 0) {
-                Building* building = new Building();
-                building->owner = nation;
-
+            if(!(std::rand() % defense_factor)) {
                 auto it = std::begin(nation->owned_provinces);
                 std::advance(it, std::rand() % nation->owned_provinces.size());
+				
                 Province* province = *it;
-                //Province* province = g_world->provinces[std::rand() % g_world->provinces.size()];
-                if(province->min_x > world->width || province->min_y == world->height ||
-                    province->max_x < province->min_x || province->max_y < province->min_y ||
+                if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y ||
                     province->n_tiles == 0) {
                     print_error("Cant build defense, province doesn't have any tiles");
                 } else {
+					Building* building = new Building();
+                    building->owner = nation;
+                    building->province = province;
+				    
                     // Randomly place in any part of the province
                     glm::ivec2 coord = world->get_rand_province_coord(province);
                     building->x = coord.x;
                     building->y = coord.y;
-                    building->province = province;
 
                     building->working_unit_type = nullptr;
 
@@ -452,10 +448,9 @@ void ai_do_tick(Nation* nation, World* world) {
     }
 
     // TODO: make a better algorithm
-
     if(nation->ai_do_cmd_troops) {
         // Naval AI
-        if(std::rand() % 100 == 0) {
+        if(!(std::rand() % 100)) {
             for(auto& unit : g_world->units) {
                 // Count friends and foes in range (and find nearest foe)
                 Unit* nearest_enemy = nullptr,* nearest_friend = nullptr;
@@ -465,7 +460,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     Unit* other_unit = g_world->units[j];
                     if(unit->owner == other_unit->owner) {
                         // Only when very close
-                        if(std::abs(unit->x - other_unit->x) >= 8.f && std::abs(unit->y - other_unit->y) >= 8.f)
+                        if(std::abs(unit->x - other_unit->x) >= 20.f && std::abs(unit->y - other_unit->y) >= 20.f)
                             continue;
 
                         friend_attack_strength = other_unit->size * other_unit->type->attack;
@@ -480,7 +475,7 @@ void ai_do_tick(Nation* nation, World* world) {
                         }
                     } else {
                         // Foes from many ranges counts
-                        if(std::abs(unit->x - other_unit->x) >= 12.f && std::abs(unit->y - other_unit->y) >= 12.f)
+                        if(std::abs(unit->x - other_unit->x) >= 30.f && std::abs(unit->y - other_unit->y) >= 30.f)
                             continue;
 
                         foe_attack_strength = other_unit->size * other_unit->type->attack;
@@ -496,12 +491,12 @@ void ai_do_tick(Nation* nation, World* world) {
                     }
 
                     // Attack first before they attack us
-                    if(friend_attack_strength > foe_attack_strength) {
+                    if(nearest_enemy != nullptr && friend_attack_strength > foe_attack_strength) {
                         unit->tx = nearest_enemy->x;
                         unit->ty = nearest_enemy->y;
                     }
                     // Defend to avoid lots of casualties
-                    else if(friend_defense_strength > foe_attack_strength) {
+                    else if(nearest_enemy != nullptr && friend_defense_strength > foe_attack_strength) {
                         unit->tx = nearest_enemy->x;
                         unit->ty = nearest_enemy->y;
                     }
