@@ -22,4 +22,4 @@ jobs:
        make -j
     - name: "Run"
       run: |
-       ./SymphonyOfEmpiresServer
+       ./SymphonyOfEmpires
