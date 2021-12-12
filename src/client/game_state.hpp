@@ -62,6 +62,9 @@ public:
     Client* client = nullptr;
     Server* server = nullptr;
 
+    std::atomic<bool> loaded_world;
+    std::atomic<bool> loaded_map;
+
     std::atomic<bool> update_tick;
     std::atomic<bool> run;
     std::atomic<bool> paused;

@@ -92,13 +92,12 @@ void Client::net_loop(void) {
 
     // Receive the first snapshot of the world (except on host mode)
     if(!gs.host_mode) {
-        world.world_mutex.lock();
+        const std::lock_guard lock(world.world_mutex);
         Packet packet = Packet(fd);
         packet.recv();
         Archive ar = Archive();
         ar.set_buffer(packet.data(), packet.size());
         ::deserialize(ar, &world);
-        world.world_mutex.unlock();
     }
 
     {

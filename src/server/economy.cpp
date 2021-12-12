@@ -19,7 +19,7 @@ typedef signed int ssize_t;
 #endif
 
 // Structure that represents a person emigrating from a province to another
-class Emigrated {
+struct Emigrated {
 public:
     Emigrated() {};
     ~Emigrated() {};
@@ -43,6 +43,7 @@ public:
         return *this;
     }
 };
+
 struct AvailableWorkers {
 public:
     std::vector<Workers> entrepreneurs{};
@@ -821,12 +822,12 @@ void Economy::do_tick(World& world) {
 
         auto new_pop = std::find(target.target->pops.begin(), target.target->pops.end(), *pop);
         if(new_pop == target.target->pops.end()) {
-            target.target->pops.push_back(*pop);
-            new_pop = target.target->pops.end();
-            new_pop->size = target.size;
-        }
-        else {
+            Pop i_pop(*pop);
+            i_pop.size = target.size;
+            target.target->pops.push_back(i_pop);
+        } else {
             new_pop->size += target.size;
+            new_pop->budget += target.emigred.budget;
         }
     }
     emigration.clear();
@@ -858,7 +859,9 @@ void Economy::do_tick(World& world) {
 
                 for(const auto& ideology : world.ideologies) {
                     uint idx = world.get_id(ideology);
-                    ideology_anger[idx] += (pop.ideology_approval[idx] * anger) * (pop.size / 1000.f);
+
+                    // TODO: Some pops lack the ideology array for some reason i dont know
+                    //ideology_anger[idx] += (pop.ideology_approval[idx] * anger) * (pop.size / 1000.f);
                 }
             }
         }

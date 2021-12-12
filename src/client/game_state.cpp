@@ -232,6 +232,8 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     int& width = gs.width;
     int& height = gs.height;
 
+    //const std::lock_guard lock(gs.world->world_mutex);
+
     std::pair<float, float>& select_pos = input.select_pos;
     Unit* selected_unit = input.selected_unit;
     Building* selected_building = input.selected_building;
@@ -253,7 +255,6 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(glm::value_ptr(map->camera->get_view()));
 
-        const std::lock_guard lock(gs.world->world_mutex);
         map->draw(width, height);
 
         if(selected_unit != nullptr) {
@@ -296,8 +297,6 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     SDL_GL_SwapWindow(window);
     if(gs.current_mode != MapMode::NO_MAP) {
         Map* map = gs.map;
-
-        const std::lock_guard lock(gs.world->world_mutex);
         map->update_tiles(*gs.world);
     }
 }
@@ -341,6 +340,8 @@ void GameState::world_thread(void) {
         if(world->world_mutex.try_lock()) {
             world->do_tick();
         }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 
@@ -365,8 +366,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     // Start the world thread
     std::thread world_th(gs.world_thread, &gs);
     while(gs.run) {
-        std::lock_guard lock(gs.render_lock);
-
+        const std::lock_guard lock(gs.render_lock);
         handle_event(gs.input, gs, gs.run);
         if(gs.current_mode == MapMode::NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
@@ -479,7 +479,6 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
 
     gs.input = Input{};
     Input& input = gs.input;
-
     while(run) {
         handle_event(input, gs, run);
         render(gs, input, window);
@@ -555,9 +554,8 @@ void start_client(int argc, char** argv) {
 
     gs.music_fade_value = 1.f;
 
-    gs.world = new World();
-    gs.world->load_mod();
-    gs.map = new Map(*gs.world, gs.width, gs.height);
+    gs.loaded_world = false;
+    gs.loaded_map = false;
     
     // Initialize sound
     SDL_AudioSpec fmt;
@@ -570,6 +568,10 @@ void start_client(int argc, char** argv) {
     if(SDL_OpenAudio(&fmt, NULL) < 0)
         throw std::runtime_error("Unable to open audio: " + std::string(SDL_GetError()));
     SDL_PauseAudio(0);
+    
+    gs.world = new World();
+    gs.world->load_mod();
+    gs.map = new Map(*gs.world, gs.width, gs.height);
 
     main_menu_loop(gs, window);
     main_loop(gs, gs.client, window);
