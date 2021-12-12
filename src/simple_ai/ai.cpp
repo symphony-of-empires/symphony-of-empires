@@ -10,7 +10,7 @@
 
 Nation* selected_nation;
 void ai_fix_taxes(void) {
-    std::lock_guard lock(g_world->world_mutex);
+    const std::lock_guard lock(g_world->world_mutex);
 
     double living_std = 0.f;
     for(const auto& province: selected_nation->owned_provinces) {
