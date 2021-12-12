@@ -364,7 +364,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     gs.run = true;
 
     // Start the world thread
-    std::thread world_th(gs.world_thread, &gs);
+    std::thread world_th(&GameState::world_thread, &gs);
     while(gs.run) {
         const std::lock_guard lock(gs.render_lock);
         handle_event(gs.input, gs, gs.run);
