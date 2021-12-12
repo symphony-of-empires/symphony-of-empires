@@ -18,6 +18,7 @@ uniform sampler2DArray terrain_sheet;
 uniform sampler2D border_tex;
 uniform sampler2D border_sdf;
 uniform sampler2D map_color;
+uniform sampler2D river_texture;
 
 // https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
 vec4 noTiling(sampler2D tex, vec2 uv) {
@@ -205,6 +206,7 @@ void main() {
 	const vec4 country_border = vec4(0.8, 0., 0., 1.);
 	const vec4 mountain = vec4(0., 0., 0., 1.);
 	const vec4 water_col = vec4(0.06, 0.39, 0.75, 1.);
+	const vec4 river_col = vec4(0., 0., 0.3, 1.);
 	vec2 pix = vec2(1.0) / map_size;
 
 	// Heightmapping
@@ -288,6 +290,8 @@ void main() {
 	}
 	out_colour = mix(out_colour, prov_colour * 1.1, clamp(bSdf * 3. - 1., 0., 1.));
 	out_colour = mix(out_colour, province_border, borders.x);
+	float river = texture(river_texture, tex_coords).b;
+	out_colour = mix(out_colour, river_col, river * 0.4);
 
 	vec3 normal = gen_normal(tex_coords);
 	vec3 lightDir = normalize(vec3(0, 1, 4));
@@ -296,5 +300,5 @@ void main() {
 	vec3 ambient = 0.1 * out_colour.xyz;
 
 	f_frag_colour = vec4(diffuse + ambient, 1.);
-	// f_frag_colour = texture(border_sdf, v_texcoord);
+	// f_frag_colour = texture(river_texture, v_texcoord);
 }

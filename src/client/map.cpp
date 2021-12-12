@@ -51,6 +51,8 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         topo_tex->gen_mipmaps();
         map_color = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
         map_color->gen_mipmaps();
+        river_tex = &g_texture_manager->load_texture(Path::get("river_smal_smooth.png"), mipmap_options);
+        river_tex->gen_mipmaps();
 
         //terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
         // topo_tex = new UnifiedRender::Texture(world.width, world.height);
@@ -622,6 +624,7 @@ void Map::draw(const int width, const int height) {
     map_shader->set_texture(7, "border_tex", border_tex);
     map_shader->set_texture(8, "border_sdf", border_sdf);
     map_shader->set_texture(9, "map_color", map_color);
+    map_shader->set_texture(10, "river_texture", river_tex);
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();
