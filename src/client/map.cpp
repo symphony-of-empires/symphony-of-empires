@@ -98,10 +98,12 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         if(tile.owner_id == (Nation::Id)-2) {
             // Water
             color = 0x00000000;
-        } else if(tile.owner_id == (Nation::Id)-1) {
+        }
+        else if(tile.owner_id == (Nation::Id)-1) {
             // Land
             color = 0xffdddddd;
-        } else {
+        }
+        else {
             const Nation* owner = world.nations.at(tile.owner_id);
             color = owner->get_client_hint().colour;
         }
@@ -143,10 +145,17 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     // Query the initial nation flags
     for(const auto& nation : world.nations) {
+        UnifiedRender::TextureOptions mipmap_options{};
+        mipmap_options.wrap_s = GL_REPEAT;
+        mipmap_options.wrap_t = GL_REPEAT;
+        mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
+        mipmap_options.mag_filter = GL_LINEAR;
         std::string path = Path::get("ui/flags/" + nation->ref_name + "_" +
             (nation->ideology == nullptr ? "none" : nation->ideology->ref_name) + ".png"
         );
-        nation_flags.push_back(&g_texture_manager->load_texture(path));
+        auto flag_texture = &g_texture_manager->load_texture(path, mipmap_options);
+        flag_texture->gen_mipmaps();
+        nation_flags.push_back(flag_texture);
     }
 
     for(const auto& building_type : world.building_types) {
@@ -161,7 +170,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     for(const auto& unit_type : world.unit_types) {
         std::string path;
-        
+
         path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
         unit_type_models.push_back(g_model_manager->load(path));
 
@@ -277,7 +286,8 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
         if(step == max_steps){
             fbo->set_texture(0, drawOnTex0 ? tex0 : tex1);
             border_sdf_shader->set_texture(0, "tex", border_tex);
-        } else {
+        }
+        else {
             fbo->set_texture(0, drawOnTex0 ? tex0 : tex1);
             border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? tex1 : tex0);
         }
@@ -294,7 +304,8 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
         tex0->gen_mipmaps();
         glEnable(GL_CULL_FACE);
         return tex0;
-    } else {
+    }
+    else {
         delete tex0;
         tex1->gen_mipmaps();
         glEnable(GL_CULL_FACE);
@@ -322,7 +333,7 @@ void Map::draw_flag(const Nation* nation) {
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-        ));
+            ));
     }
 
     flag.vao.bind();
@@ -434,7 +445,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
             if(tile.province_id == (Province::Id)-1) return;
             Province* province = gs.world->provinces[tile.province_id];
-            
+
             std::lock_guard lock(gs.world->changed_tiles_coords_mutex);
             for(uint i = province->min_x; i < province->max_x; i++) {
                 for(uint j = province->min_y; j < province->max_y; j++) {
@@ -444,7 +455,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 }
             }
 
-            FILE *fp = fopen("test.lua", "a+t");
+            FILE* fp = fopen("test.lua", "a+t");
             if(!fp) return;
             fprintf(fp, "{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%06x },\r\n", province->ref_name.c_str(), province->name.c_str(), bswap_32((province->color & 0x00ffffff) << 8));
             fclose(fp);
