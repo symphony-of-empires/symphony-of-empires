@@ -60,6 +60,7 @@ public:
     const UnifiedRender::Texture* water_tex;
     const UnifiedRender::Texture* noise_tex;
     const UnifiedRender::Texture* topo_tex;
+    const UnifiedRender::Texture* river_tex;
     UnifiedRender::Texture* terrain_tex;
     const UnifiedRender::Texture* map_color;
     UnifiedRender::TextureArray* terrain_sheet;
