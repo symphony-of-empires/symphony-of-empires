@@ -155,6 +155,7 @@ void Client::net_loop(void) {
                     packet.send(&action);
                     print_info("Received ping, responding with pong!");
                 } break;
+                if (gs.host_mode) continue;
                 // Update/Remove/Add Actions
                 // These actions all follow the same format they give a specialized ID for the index
                 // where the operated object is or should be; this allows for extreme-level fuckery
