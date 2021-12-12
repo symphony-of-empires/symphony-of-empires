@@ -98,8 +98,17 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
             auto it = std::begin(o.gs.curr_nation->owned_provinces);
             std::advance(it, std::rand() % o.gs.curr_nation->owned_provinces.size());
             building.province = o.province != nullptr ? o.province : *it;
-            building.x = o.tx;
-            building.y = o.ty;
+
+            if(o.in_tile) {
+                building.x = o.tx;
+                building.y = o.ty;
+            } else {
+                building.x = building.province->min_x + (std::rand() % (building.province->max_x - building.province->min_x));
+                building.y = building.province->min_y + (std::rand() % (building.province->max_y - building.province->min_y));
+                building.x = std::min(building.x, g_world->width - 1);
+                building.y = std::min(building.y, g_world->height - 1);
+            }
+            
             ::serialize(ar, &building); // BuildingObj
 
             packet.data(ar.get_buffer(), ar.size());

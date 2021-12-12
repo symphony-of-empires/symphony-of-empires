@@ -157,6 +157,17 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                     new Interface::ArmyView(gs);
                 }
                 break;
+            case SDLK_SPACE:
+                if(gs.current_mode == MapMode::NORMAL) {
+                    gs.paused = !gs.paused;
+
+                    if(gs.paused) {
+                        ui_ctx->prompt("Control", "Unpaused");
+                    } else {
+                        ui_ctx->prompt("Control", "Paused");
+                    }
+                }
+                break;
             case SDLK_b:
                 if(gs.current_mode == MapMode::NORMAL) {
                     if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
@@ -175,6 +186,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             break;
         case SDL_QUIT:
             run = false;
+            gs.paused = false;
             break;
         case SDL_WINDOWEVENT:
             if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
@@ -241,9 +253,9 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(glm::value_ptr(map->camera->get_view()));
 
+        const std::lock_guard lock(gs.world->world_mutex);
         map->draw(width, height);
 
-        gs.world->world_mutex.lock();
         if(selected_unit != nullptr) {
             glBegin(GL_LINE_STRIP);
             glColor3f(1.f, 0.f, 0.f);
@@ -263,7 +275,6 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
             glVertex2f(selected_building->x, selected_building->y + 1.f);
             glEnd();
         }
-        gs.world->world_mutex.unlock();
 
         glBindTexture(GL_TEXTURE_2D, 0);
         glBegin(GL_QUADS);
@@ -285,6 +296,8 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     SDL_GL_SwapWindow(window);
     if(gs.current_mode != MapMode::NO_MAP) {
         Map* map = gs.map;
+
+        const std::lock_guard lock(gs.world->world_mutex);
         map->update_tiles(*gs.world);
     }
 }
@@ -321,6 +334,16 @@ void GameState::update_on_tick(void) {
     //render_lock.lock();
 }
 
+void GameState::world_thread(void) {
+    while(run) {
+        while(paused) {};
+
+        if(world->world_mutex.try_lock()) {
+            world->do_tick();
+        }
+    }
+}
+
 void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     gs.current_mode = MapMode::COUNTRY_SELECT;
     gs.input = Input{};
@@ -332,17 +355,19 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     std::vector<Event*> displayed_events;
     std::vector<Treaty*> displayed_treaties;
 
-    gs.update_tick = false;
-
     // Call update_on_tick on start of the gamestate
     gs.update_on_tick();
+    gs.update_tick = false;
 
-    std::atomic<bool> run;
-    run = true;
-    while(run) {
+    gs.paused = true;
+    gs.run = true;
+
+    // Start the world thread
+    std::thread world_th(gs.world_thread, &gs);
+    while(gs.run) {
         std::lock_guard lock(gs.render_lock);
 
-        handle_event(gs.input, gs, run);
+        handle_event(gs.input, gs, gs.run);
         if(gs.current_mode == MapMode::NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
         }
@@ -395,6 +420,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
             gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/war.wav")));
         }
     }
+    world_th.join();
 }
 
 #include "client/interface/main_menu.hpp"

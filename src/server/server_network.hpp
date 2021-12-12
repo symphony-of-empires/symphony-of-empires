@@ -27,6 +27,7 @@ public:
     std::string username;
 };
 
+class GameState;
 class Server {
     struct sockaddr_in addr;
 #ifdef unix
@@ -36,16 +37,18 @@ class Server {
 #endif
 
     std::atomic<bool> run;
+    GameState& gs;
 public:
     ServerClient* clients;
 
-    Server(unsigned port = 1825, unsigned max_conn = 16);
+    Server(GameState& gs, unsigned port = 1825, unsigned max_conn = 16);
     ~Server();
 
     void broadcast(Packet& packet);
     void net_loop(int id);
 
     int n_clients;
+    int player_count = 0;
 };
 
 extern Server* g_server;

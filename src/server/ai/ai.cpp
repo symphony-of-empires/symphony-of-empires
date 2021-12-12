@@ -39,8 +39,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
         // Sucess = Sum(Demand / (Supply + 1) * Price)
         std::vector<float> avg_prob = std::vector<float>(world->goods.size(), 0.f);
         for(const auto& product : world->products) {
-            if(product->building->get_owner() != nation) continue;
-
+            if(product->building == nullptr || product->building->get_owner() != nation) continue;
             avg_prob[world->get_id(product->good)] += product->demand / (product->supply + 1) * product->price;
         }
 

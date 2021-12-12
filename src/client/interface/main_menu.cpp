@@ -11,7 +11,7 @@ using namespace Interface;
 
 MainMenu::MainMenu(GameState& _gs)
     : gs{ _gs },
-    UI::Window(-(512 / 2), -(200 / 2), 512, 200)
+    UI::Window(-(256 / 2), -(512 / 2), 256, 512)
 {
     this->origin = CENTER_SCREEN;
     this->is_pinned = true;
@@ -20,43 +20,52 @@ MainMenu::MainMenu(GameState& _gs)
     
     //auto* title_img = new UI::Image(0, 0, 256, 128, &g_texture_manager->load_texture(Path::get("ui/title.png")), this);
 
-    auto* single_btn = new UI::Button(0, 24, 128, 24, this);
+    auto* title_img = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")), this);
+
+    auto* single_btn = new UI::Button(0, 24 + 256, 128, 24, this);
     single_btn->text("Singleplayer");
     single_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
         GameState& gs = o.gs;
-        gs.world = new World();
-        gs.client = new Client(gs, "127.0.0.1", 1836);
-        gs.client->username = "Player";
-        gs.client->wait_for_snapshot();
-        gs.map = new Map(*gs.world, gs.width, gs.height);
-        gs.in_game = true;
+
+        o.gs.host_mode = true;
+
+        o.gs.server = new Server(o.gs, 1836);
+        o.gs.client = new Client(o.gs, "127.0.0.1", 1836);
+        o.gs.client->username = "Player";
+        o.gs.client->wait_for_snapshot();
+        o.gs.in_game = true;
     });
 
-    auto* mp_btn = new UI::Button(0, 24, 128, 24, this);
+    auto* cfg_btn = new UI::Button(0, 24 + 256, 128, 24, this);
+    cfg_btn->text("Settings");
+    cfg_btn->right_side_of(*single_btn);
+
+    auto* mp_btn = new UI::Button(0, 24 + 24 + 256, 128, 24, this);
     mp_btn->text("Join LAN");
-    mp_btn->right_side_of(*single_btn);
     mp_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
         o.connect_window = new MainMenuConnectServer(o.gs);
     });
 
-    auto* host_btn = new UI::Button(0, 24, 128, 24, this);
+    auto* host_btn = new UI::Button(0, 24 + 24 + 256, 128, 24, this);
     host_btn->text("Host");
     host_btn->right_side_of(*mp_btn);
     host_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
-        o.gs.server = new Server(1836);
+
+        o.gs.host_mode = true;
+
+        o.gs.server = new Server(o.gs, 1836);
+        o.gs.client = new Client(o.gs, "127.0.0.1", 1836);
+        o.gs.client->username = "Player";
+        o.gs.client->wait_for_snapshot();
         o.gs.in_game = true;
     });
 
-    auto* cfg_btn = new UI::Button(0, 24, 128, 24, this);
-    cfg_btn->text("Settings");
-    cfg_btn->right_side_of(*host_btn);
-
-    auto* exit_btn = new UI::Button(0, 24, 128, 24, this);
+    auto* exit_btn = new UI::Button(0, 24 + 24 + 256, 128, 24, this);
     exit_btn->text("Exit");
-    exit_btn->right_side_of(*cfg_btn);
+    exit_btn->right_side_of(*host_btn);
 }
 
 MainMenu::~MainMenu() {
@@ -93,6 +102,11 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 
         // TODO: Handle when mods differ (i.e checksum not equal to host)
         GameState& gs = o.gs;
+        gs.host_mode = false;
+
+        delete gs.world;
+        delete gs.map;
+
         gs.world = new World();
         try {
             gs.client = new Client(gs, o.ip_addr_inp->buffer, 1836);
