@@ -104,18 +104,28 @@ Server::~Server() {
 void Server::broadcast(Packet& packet) {
     for(size_t i = 0; i < n_clients; i++) {
         if(clients[i].is_connected == true) {
-            std::scoped_lock lock(clients[i].packets_mutex);
-            clients[i].packets.push_back(packet);
+			bool r;
+			
+			// If we can "acquire" the spinlock to the main packet queue we will push
+			// our packet there, otherwise we take the alternative packet queue to minimize
+			// locking between server and client
+			r = clients[i].packets_mutex.try_lock();
+			if(r) {
+				clients[i].packets.push_back(packet);
+				clients[i].packets_mutex.unlock();
+			} else {
+				std::scoped_lock lock(clients[i].pending_packets_mutex);
+				clients[i].pending_packets.push_back(packet);
+			}
 
             // Disconnect the client when more than 200 MB is used
             // we can't save your packets buddy - other clients need their stuff too!
             size_t total_size = 0;
-            for(const auto& packet_q : clients[i].packets) {
+            for(const auto& packet_q : clients[i].pending_packets) {
                 total_size += packet_q.buffer.size();
             }
             if(total_size >= 200 * 1000000) {
                 clients[i].is_connected = false;
-                clients[i].packets.clear();
                 print_error("Client %zu has exceeded max quota! - It has used %zu bytes!", i, total_size);
             }
         }
@@ -204,6 +214,17 @@ void Server::net_loop(int id) {
             // an exception is thrown), since we are using C++
             Archive ar = Archive();
             while(run && cl.is_connected == true) {
+				// Push pending_packets to packets queue (the packets queue is managed
+				// by us and requires almost 0 locking, so the host does not stagnate when
+				// trying to send packets to a certain client)
+				if(!cl.pending_packets.empty()) {
+					std::scoped_lock lock(cl.pending_packets_mutex, cl.packets_mutex);
+					for(const auto& packet : cl.pending_packets) {
+						cl.packets.push_back(packet);
+					}
+					cl.pending_packets.clear();
+				}
+				
                 // Check if we need to read packets
 #ifdef unix
                 int has_pending = poll(&pfd, 1, 10);
@@ -505,14 +526,12 @@ void Server::net_loop(int id) {
                 ar.rewind();
 
                 // After reading everything we will send our queue appropriately to the client
-                if(!cl.packets.empty()) {
-                    std::scoped_lock lock(cl.packets_mutex);
-                    for(auto& elem : cl.packets) {
-                        elem.stream = SocketStream(conn_fd);
-                        elem.send();
-                    }
-                    cl.packets.clear();
-                }
+				std::scoped_lock lock(cl.packets_mutex);
+				for(auto& packet : cl.packets) {
+					packet.stream = SocketStream(conn_fd);
+					packet.send();
+				}
+				cl.packets.clear();
             }
         }
         catch(ServerException& e) {
@@ -534,8 +553,10 @@ void Server::net_loop(int id) {
 
         // Unlock mutexes so we don't end up with weird situations... like deadlocks
         cl.is_connected = false;
-        cl.packets_mutex.unlock();
         cl.packets.clear();
+		
+		std::scoped_lock lock(cl.pending_packets_mutex);
+		cl.pending_packets.clear();
 
         // Tell the remaining clients about the disconnection
         {

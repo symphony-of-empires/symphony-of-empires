@@ -356,10 +356,8 @@ void ai_do_tick(Nation* nation, World* world) {
                 defense_factor /= ((province->total_pops() + province->n_tiles) / 10000) + 1;
             }
 
-            if(!defense_factor) defense_factor = 1;
-
             // Build defenses
-            if(!(std::rand() % defense_factor)) {
+            if(!(std::rand() % std::max<int>(500, defense_factor))) {
                 auto it = std::begin(nation->owned_provinces);
                 std::advance(it, std::rand() % nation->owned_provinces.size());
 				
@@ -398,7 +396,7 @@ void ai_do_tick(Nation* nation, World* world) {
 
             // Build units inside buildings that are not doing anything
             for(auto& building : g_world->buildings) {
-                if(std::rand() % defense_factor) continue;
+                if(std::rand() % std::max<int>(50, defense_factor)) continue;
                 if(building->working_unit_type != nullptr || building->owner != nation) continue;
                 Province* province = building->get_province();
                 if (province == nullptr) continue;

@@ -20,9 +20,13 @@ public:
 
     std::thread thread;
     std::atomic<bool> is_connected;
-
+	
+	std::deque<Packet> pending_packets;
+	std::mutex pending_packets_mutex;
+	
     std::deque<Packet> packets;
-    std::mutex packets_mutex;
+	std::mutex packets_mutex;
+	
     std::string username;
 };
 
