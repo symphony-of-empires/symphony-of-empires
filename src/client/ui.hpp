@@ -16,6 +16,7 @@
 #endif
 
 #include <glm/vec2.hpp>
+#include "client/render/rectangle.hpp"
 
 namespace UnifiedRender {
     class Texture;
@@ -74,7 +75,7 @@ namespace UI {
         void add_widget(Widget* widget);
         void remove_widget(Widget* widget);
 
-        void render_recursive(Widget& widget, int x_off, int y_off);
+        void render_recursive(Widget& widget, UnifiedRender::Rect viewport);
         void render_all();
 
         void resize(const int width, const int height);
@@ -115,9 +116,9 @@ namespace UI {
 
         void move_by(int x, int y);
         void add_child(Widget* child);
-        void draw_rectangle(int x, int y, unsigned w, unsigned h, unsigned tex);
+        void draw_rectangle(int x, int y, unsigned w, unsigned h, UnifiedRender::Rect viewport, unsigned tex);
 
-        virtual void on_render(Context&);
+        virtual void on_render(Context&, UnifiedRender::Rect viewport);
         virtual void text(const std::string& text);
         virtual void set_tooltip(Tooltip* tooltip);
 
@@ -188,7 +189,7 @@ namespace UI {
         friend class Context;
     private:
         void draw_border(const UnifiedRender::Texture* border_tex,
-            float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset);
+            float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset, UnifiedRender::Rect viewport);
     };
 
     class Color {
@@ -219,7 +220,7 @@ namespace UI {
         Group(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         virtual ~Group() override {};
 
-        virtual void on_render(Context& ctx) override;
+        virtual void on_render(Context& ctx, UnifiedRender::Rect viewport) override;
     };
 
     class Input: public Widget {
@@ -296,14 +297,14 @@ namespace UI {
     public:
         Label(int x, int y, const std::string& text = " ", Widget* parent = nullptr);
         virtual ~Label() override {};
-        virtual void on_render(Context& ctx);
+        virtual void on_render(Context& ctx, UnifiedRender::Rect viewport);
     };
 
     class Chart: public Widget {
     public:
         Chart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
         virtual ~Chart() override {};
-        virtual void on_render(Context& ctx);
+        virtual void on_render(Context& ctx, UnifiedRender::Rect viewport);
         std::deque<double> data;
     };
 
@@ -311,7 +312,7 @@ namespace UI {
     public:
         Slider(int x, int y, unsigned w, unsigned h, float min, float max, Widget* _parent = nullptr);
         virtual ~Slider() override {};
-        virtual void on_render(Context& ctx);
+        virtual void on_render(Context& ctx, UnifiedRender::Rect viewport);
         float max, min, value;
     };
 
@@ -323,7 +324,7 @@ namespace UI {
         Text(int x, int y, unsigned w, unsigned h, Widget* parent);
         virtual ~Text() override {};
 
-        virtual void on_render(Context& ctx);
+        virtual void on_render(Context& ctx, UnifiedRender::Rect viewport);
         virtual void text(const std::string& text);
     };
 
@@ -332,7 +333,7 @@ namespace UI {
         PieChart(int x, int y, unsigned w, unsigned h, std::vector<ChartData> data = std::vector<ChartData>(), Widget* _parent = nullptr);
         PieChart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
         virtual ~PieChart() override {};
-        virtual void on_render(Context& ctx);
+        virtual void on_render(Context& ctx, UnifiedRender::Rect viewport);
         void set_data(std::vector<ChartData> data);
 
     private:
