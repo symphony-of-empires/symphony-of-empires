@@ -96,6 +96,38 @@ TopWindow::TopWindow(GameState& _gs)
     population_lab->tooltip = new UI::Tooltip(population_lab, 512, 24);
     population_lab->tooltip->text("Population");
 
+    auto* speed0_btn = new UI::Button(24, 24 + (24 * 3), 48, 24, this);
+    speed0_btn->right_side_of(*population_lab);
+    speed0_btn->text("||");
+    speed0_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<TopWindow&>(*w.parent);
+        o.gs.paused = true;
+    });
+
+    auto* speed1_btn = new UI::Button(24, 24 + (24 * 3), 48, 24, this);
+    speed1_btn->right_side_of(*speed0_btn);
+    speed1_btn->text(">");
+    speed1_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<TopWindow&>(*w.parent);
+        o.gs.paused = false;
+    });
+
+    auto* speed2_btn = new UI::Button(24, 24 + (24 * 3), 48, 24, this);
+    speed2_btn->right_side_of(*speed1_btn);
+    speed2_btn->text(">>");
+    speed2_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<TopWindow&>(*w.parent);
+        o.gs.paused = false;
+    });
+
+    auto* speed3_btn = new UI::Button(24, 24 + (24 * 3), 48, 24, this);
+    speed3_btn->right_side_of(*speed2_btn);
+    speed3_btn->text(">>>");
+    speed3_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<TopWindow&>(*w.parent);
+        o.gs.paused = false;
+    });
+
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(w);
 

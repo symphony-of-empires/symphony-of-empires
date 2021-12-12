@@ -37,9 +37,13 @@
 #include "server/server_network.hpp"
 #include "action.hpp"
 #include "io_impl.hpp"
+#include "client/game_state.hpp"
 
 Server* g_server = nullptr;
-Server::Server(const unsigned port, const unsigned max_conn): n_clients(max_conn) {
+Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
+    : n_clients(max_conn),
+    gs{ _gs }
+{
     g_server = this;
 
     run = true;
@@ -48,7 +52,7 @@ Server::Server(const unsigned port, const unsigned max_conn): n_clients(max_conn
     WSAStartup(MAKEWORD(2, 2), &data);
 #endif
 
-    memset(&addr, 0, sizeof(addr));
+    std::memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_port = htons(port);
@@ -154,8 +158,12 @@ void Server::net_loop(int id) {
             Nation* selected_nation = nullptr;
             Packet packet = Packet(conn_fd);
 
-            // Send the whole snapshot of the world
-            {
+            player_count++;
+
+            // Send the whole snapshot of the world (only we are not the host)
+            // We also need to make sure the global client is not nullptr AND
+            // we also will only NOT send the snapshot to the first client only
+            if(!gs.host_mode && player_count <= 1) {
                 Archive ar = Archive();
                 const std::lock_guard lock(g_world->world_mutex);
                 ::serialize(ar, g_world);
@@ -219,7 +227,7 @@ void Server::net_loop(int id) {
                         (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                         throw ServerException("Unallowed operation without selected nation");
 
-                    const std::lock_guard lock(g_world->world_mutex);
+                    //const std::lock_guard lock(g_world->world_mutex);
                     switch(action) {
 
                         // - Used to test connections between server and client
@@ -515,6 +523,8 @@ void Server::net_loop(int id) {
         catch(SerializerException& e) {
             print_error("SerializerException: %s", e.what());
         }
+
+        player_count--;
 
 #ifdef windows
         print_error("WSA Code: %u", WSAGetLastError());

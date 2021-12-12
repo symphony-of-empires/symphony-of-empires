@@ -90,9 +90,8 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
 void Client::net_loop(void) {
     World& world = *(gs.world);
 
-    // Receive the first snapshot of the world
-    print_info("Obtaining snapshot");
-    {
+    // Receive the first snapshot of the world (except on host mode)
+    if(!gs.host_mode) {
         world.world_mutex.lock();
         Packet packet = Packet(fd);
         packet.recv();
@@ -101,7 +100,6 @@ void Client::net_loop(void) {
         ::deserialize(ar, &world);
         world.world_mutex.unlock();
     }
-    print_info("Obtained snapshot");
 
     {
         Archive ar = Archive();
@@ -150,7 +148,7 @@ void Client::net_loop(void) {
                 ::deserialize(ar, &action);
 
                 // Ping from server, we should answer with a pong!
-                std::lock_guard lock(world.world_mutex);
+                //const std::lock_guard lock(world.world_mutex);
                 switch(action) {
                 case ActionType::PONG: {
                     packet.send(&action);
@@ -280,10 +278,15 @@ void Client::net_loop(void) {
                 } break;
                 case ActionType::WORLD_TICK: {
                     // Give up the world mutex for now
-                    world.world_mutex.unlock();
+                    if(!gs.host_mode) {
+                        world.world_mutex.unlock();
+                    }
                     //gs.update_on_tick();
                     gs.update_tick = true;
-                    world.world_mutex.lock();
+
+                    if(!gs.host_mode) {
+                        world.world_mutex.lock();
+                    }
                     world.time++;
                 } break;
                 case ActionType::TILE_UPDATE: {

@@ -57,11 +57,15 @@ public:
     void play_nation();
     void send_command(Archive& archive);
     void update_on_tick(void);
+    void world_thread(void);
 
     Client* client = nullptr;
     Server* server = nullptr;
 
     std::atomic<bool> update_tick;
+    std::atomic<bool> run;
+    std::atomic<bool> paused;
+    bool host_mode;
 
     // The ui will mostly need to read the world state
     World* world = nullptr;

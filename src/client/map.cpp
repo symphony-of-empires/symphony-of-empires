@@ -629,7 +629,6 @@ void Map::draw(const int width, const int height) {
 
     // glActiveTexture(GL_TEXTURE0);
 
-    world.world_mutex.lock();
     glDisable(GL_CULL_FACE);
     for(const auto& building : world.buildings) {
         glm::mat4 model = glm::mat4(1.f);
@@ -661,8 +660,7 @@ void Map::draw(const int width, const int height) {
         model_shader->set_uniform("model", model);
         draw_flag(unit->owner);
     }
-
-    world.world_mutex.unlock();
+    
     glEnable(GL_CULL_FACE);
 
     // Resets the shader and texture
