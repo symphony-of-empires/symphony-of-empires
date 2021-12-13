@@ -15,8 +15,6 @@ void ProductUpdate::send(std::vector<Product*>* list) {
 }
 
 void SelectNation::send(Nation* nation) {
-    std::scoped_lock lock(g_client->packet_mutex);
-
     Packet packet = Packet();
     Archive ar = Archive();
 
@@ -26,12 +24,12 @@ void SelectNation::send(Nation* nation) {
     ::serialize(ar, nation);
 
     packet.data(ar.get_buffer(), ar.size());
-    g_client->packet_queue.push_back(packet);
+	
+	std::scoped_lock lock(g_client->pending_packets_mutex);
+    g_client->pending_packets.push_back(packet);
 }
 
 void BuildingStartProducingUnit::send(Building* building, UnitType* unit_type) {
-    std::scoped_lock lock(g_client->packet_mutex);
-
     Packet packet = Packet();
     Archive ar = Archive();
 
@@ -39,8 +37,25 @@ void BuildingStartProducingUnit::send(Building* building, UnitType* unit_type) {
     ::serialize(ar, &action);
 
     ::serialize(ar, &building);
-    ::serialize(ar, unit_type);
+    ::serialize(ar, &unit_type);
     
     packet.data(ar.get_buffer(), ar.size());
-    g_client->packet_queue.push_back(packet);
+	
+	std::scoped_lock lock(g_client->pending_packets_mutex);
+    g_client->pending_packets.push_back(packet);
+}
+
+void BuildingAdd::send(Building* building) {
+    Packet packet = Packet();
+    Archive ar = Archive();
+
+    ActionType action = ActionType::BUILDING_ADD;
+    ::serialize(ar, &action);
+
+    ::serialize(ar, building);
+    
+    packet.data(ar.get_buffer(), ar.size());
+	
+	std::scoped_lock lock(g_client->pending_packets_mutex);
+    g_client->pending_packets.push_back(packet);
 }

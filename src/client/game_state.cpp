@@ -78,15 +78,15 @@ void GameState::play_nation() {
 
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
-
-    std::scoped_lock lock(g_client->packet_mutex);
+	
     Packet packet = Packet();
     Archive ar = Archive();
     ActionType action = ActionType::SELECT_NATION;
     ::serialize(ar, &action);
     ::serialize(ar, &curr_nation);
     packet.data(ar.get_buffer(), ar.size());
-    g_client->packet_queue.push_back(packet);
+	std::scoped_lock lock(g_client->pending_packets_mutex);
+    g_client->pending_packets.push_back(packet);
     print_info("Selected nation %s", curr_nation->ref_name.c_str());
 }
 
@@ -195,11 +195,6 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 ui_ctx->resize(width, height);
                 gs.width = width;
                 gs.height = height;
-                // Resize/recenter UI according to screen change
-                // for(auto& widget : ui_ctx->widgets) {
-                //     widget->x *= width / old_size.first;
-                //     widget->y *= height / old_size.second;
-                // }
             }
             break;
         default:
@@ -218,11 +213,11 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
 }
 
 void GameState::send_command(Archive& archive) {
-    std::scoped_lock lock(client->packet_mutex);
+    std::scoped_lock lock(client->pending_packets_mutex);
 
     Packet packet = Packet(g_client->get_fd());
     packet.data(archive.get_buffer(), archive.size());
-    client->packet_queue.push_back(packet);
+    client->pending_packets.push_back(packet);
 }
 
 void render(GameState& gs, Input& input, SDL_Window* window) {
@@ -389,16 +384,8 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
                     if(building->working_unit_type != nullptr) continue;
 
                     is_built = true;
-
-                    std::scoped_lock lock(g_client->packet_mutex);
-                    Packet packet = Packet();
-                    Archive ar = Archive();
-                    ActionType action = ActionType::BUILDING_START_BUILDING_UNIT;
-                    ::serialize(ar, &action);
-                    ::serialize(ar, &building);
-                    ::serialize(ar, &unit);
-                    packet.data(ar.get_buffer(), ar.size());
-                    g_client->packet_queue.push_back(packet);
+					
+					Action::BuildingStartProducingUnit::send(building, unit);
                 }
 
                 // If we couldn't find a suitable building we wont be able to find buildings for other
@@ -461,9 +448,6 @@ static void mixaudio(void* userdata, uint8_t* stream, int len) {
 }
 
 void main_menu_loop(GameState& gs, SDL_Window* window) {
-    std::atomic<bool> run;
-    run = true;
-
     gs.in_game = false;
 
     // Connect to server prompt
@@ -471,9 +455,16 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
     mm_bg->is_fullscreen = true;
 
     Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
+	
+	UI::Image* logo = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")));
+	logo->above_of(*main_menu);
+	logo->left_side_of(*main_menu);
+	logo->x -= (main_menu->width / 2.f) + (logo->width / 2.f);
 
     gs.input = Input{};
     Input& input = gs.input;
+	
+	std::atomic<bool> run = true;
     while(run) {
         handle_event(input, gs, run);
         render(gs, input, window);

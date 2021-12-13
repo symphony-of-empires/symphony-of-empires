@@ -24,16 +24,15 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     this->enact_btn->below_of(*ideology_pie);
     this->enact_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PoliciesScreen&>(w);
-
-        g_client->packet_mutex.lock();
+		
         Packet packet = Packet();
         Archive ar = Archive();
         ActionType action = ActionType::NATION_ENACT_POLICY;
         ::serialize(ar, &action);
         ::serialize(ar, &o.new_policy); // PoliciesObj
         packet.data(ar.get_buffer(), ar.size());
-        g_client->packet_queue.push_back(packet);
-        g_client->packet_mutex.unlock(); 
+        std::scoped_lock lock(g_client->pending_packets_mutex);
+        g_client->pending_packets.push_back(packet);
     });
 
     this->on_each_tick = ([](UI::Widget& w, void*) {

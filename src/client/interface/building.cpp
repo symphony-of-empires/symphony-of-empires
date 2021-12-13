@@ -104,17 +104,7 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
                 building.x = std::min(building.x, g_world->width - 1);
                 building.y = std::min(building.y, g_world->height - 1);
             }
-
-            {
-                // Tell the server about this "new" building
-                Packet packet = Packet();
-                Archive ar = Archive();
-                ActionType action = ActionType::BUILDING_ADD;
-                ::serialize(ar, &action);
-                ::serialize(ar, &building); // BuildingObj
-                packet.data(ar.get_buffer(), ar.size());
-                o.gs.client->packet_queue.push_back(packet);
-            }
+			Action::BuildingAdd::send(&building);
 
             o.gs.ui_ctx->prompt("Production", "Building a " + building.type->name + " in " + building.get_province()->name + "; owned by " + building.corporate_owner->name + " from the country of " + building.get_owner()->name);
         });
