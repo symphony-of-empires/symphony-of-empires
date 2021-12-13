@@ -97,6 +97,8 @@ World::World() {
     lua_register(lua, "get_province_owner", LuaAPI::get_province_owner);
     lua_register(lua, "get_province_controller", LuaAPI::get_province_controller);
     lua_register(lua, "get_province_neighbours", LuaAPI::get_province_neighbours);
+    lua_register(lua, "get_province_pops_size", LuaAPI::get_province_pops_size);
+    lua_register(lua, "get_province_pop", LuaAPI::get_province_pop);
     lua_register(lua, "multiply_province_militancy_global", LuaAPI::multiply_province_militancy_global);
     lua_register(lua, "multiply_province_militancy_by_culture", LuaAPI::multiply_province_militancy_by_culture);
     lua_register(lua, "multiply_province_militancy_by_religion", LuaAPI::multiply_province_militancy_by_religion);
@@ -118,12 +120,15 @@ World::World() {
 
     lua_register(lua, "add_pop_type", LuaAPI::add_pop_type);
     lua_register(lua, "get_pop_type", LuaAPI::get_pop_type);
+    lua_register(lua, "get_pop_type_by_id", LuaAPI::get_pop_type_by_id);
 
     lua_register(lua, "add_culture", LuaAPI::add_culture);
     lua_register(lua, "get_culture", LuaAPI::get_culture);
+    lua_register(lua, "get_culture_by_id", LuaAPI::get_culture_by_id);
 
     lua_register(lua, "add_religion", LuaAPI::add_religion);
     lua_register(lua, "get_religion", LuaAPI::get_religion);
+    lua_register(lua, "get_religion_by_id", LuaAPI::get_religion_by_id);
 
     lua_register(lua, "add_unit_type", LuaAPI::add_unit_type);
     lua_register(lua, "get_unit_type", LuaAPI::get_unit_type);
@@ -131,6 +136,7 @@ World::World() {
 
     lua_register(lua, "add_ideology", LuaAPI::add_ideology);
     lua_register(lua, "get_ideology", LuaAPI::get_ideology);
+    lua_register(lua, "get_ideology_by_id", LuaAPI::get_ideology_by_id);
 
     lua_register(lua, "get_hour", [](lua_State* L) {
         lua_pushnumber(L, 1 + (g_world->time % g_world->ticks_per_day));

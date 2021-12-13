@@ -676,6 +676,28 @@ int LuaAPI::get_province_neighbours(lua_State* L) {
     return 1;
 }
 
+int LuaAPI::get_province_pops_size(lua_State* L) {
+    const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
+    lua_pushnumber(L, province->pops.size());
+    return 1;
+}
+
+int LuaAPI::get_province_pop(lua_State* L) {
+    const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
+    const Pop& pop = province->pops.at(lua_tonumber(L, 2));
+    lua_pushnumber(L, pop.size);
+    lua_pushnumber(L, pop.budget);
+    lua_pushnumber(L, pop.literacy);
+    lua_pushnumber(L, pop.life_needs_met);
+    lua_pushnumber(L, pop.everyday_needs_met);
+    lua_pushnumber(L, pop.luxury_needs_met);
+    lua_pushnumber(L, g_world->get_id(pop.type));
+    lua_pushnumber(L, g_world->get_id(pop.culture));
+    lua_pushnumber(L, g_world->get_id(pop.religion));
+    lua_pushnumber(L, g_world->get_id(pop.get_ideology()));
+    return 10;
+}
+
 /** Mulitplies the province militancy by a factor globally */
 int LuaAPI::multiply_province_militancy_global(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
@@ -934,6 +956,19 @@ int LuaAPI::get_pop_type(lua_State* L) {
     return 7;
 }
 
+int LuaAPI::get_pop_type_by_id(lua_State* L) {
+    const PopType* pop_type = g_world->pop_types.at(lua_tonumber(L, 1));
+
+    lua_pushstring(L, pop_type->ref_name.c_str());
+    lua_pushstring(L, pop_type->name.c_str());
+    lua_pushnumber(L, pop_type->social_value);
+    lua_pushboolean(L, pop_type->group == PopGroup::Entrepreneur);
+    lua_pushboolean(L, pop_type->group == PopGroup::Slave);
+    lua_pushboolean(L, pop_type->group == PopGroup::Farmer);
+    lua_pushboolean(L, pop_type->group == PopGroup::Laborer);
+    return 7;
+}
+
 int LuaAPI::add_culture(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
@@ -956,6 +991,14 @@ int LuaAPI::get_culture(lua_State* L) {
     return 2;
 }
 
+int LuaAPI::get_culture_by_id(lua_State* L) {
+    const auto* culture = g_world->cultures.at(lua_tonumber(L, 1));
+
+    lua_pushstring(L, culture->ref_name.c_str());
+    lua_pushstring(L, culture->name.c_str());
+    return 2;
+}
+
 int LuaAPI::add_religion(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
@@ -973,6 +1016,14 @@ int LuaAPI::get_religion(lua_State* L) {
     const auto* religion = find_or_throw<Religion>(luaL_checkstring(L, 1));
 
     lua_pushnumber(L, g_world->get_id(religion));
+    lua_pushstring(L, religion->name.c_str());
+    return 2;
+}
+
+int LuaAPI::get_religion_by_id(lua_State* L) {
+    const auto* religion = g_world->religions.at(lua_tonumber(L, 1));
+
+    lua_pushstring(L, religion->ref_name.c_str());
     lua_pushstring(L, religion->name.c_str());
     return 2;
 }
@@ -1043,6 +1094,14 @@ int LuaAPI::get_ideology(lua_State* L) {
     const auto* ideology = find_or_throw<Ideology>(luaL_checkstring(L, 1));
 
     lua_pushnumber(L, g_world->get_id(ideology));
+    lua_pushstring(L, ideology->name.c_str());
+    return 2;
+}
+
+int LuaAPI::get_ideology_by_id(lua_State* L) {
+    const auto* ideology = find_or_throw<Ideology>(luaL_checkstring(L, 1));
+
+    lua_pushstring(L, ideology->ref_name.c_str());
     lua_pushstring(L, ideology->name.c_str());
     return 2;
 }
