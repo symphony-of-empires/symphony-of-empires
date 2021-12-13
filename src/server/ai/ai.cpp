@@ -344,7 +344,7 @@ void ai_do_tick(Nation* nation, World* world) {
 
         if(nation->ai_do_unit_production) {
             // Risk of invasion
-            uint defense_factor = 1;
+            unsigned int defense_factor = 1;
             for(const auto& building : g_world->buildings) {
                 if(building->owner == nation) {
                     defense_factor += ((uint)building->type->defense_bonus + 1) * 10000;

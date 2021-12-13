@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <cstdint>
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -16,6 +17,7 @@ namespace UnifiedRender {
         class Program;
     }
 }
+
 namespace UnifiedRender {
     namespace OpenGl {
         class VAO {
@@ -97,9 +99,7 @@ namespace UnifiedRender {
             }
         };
     }
-}
 
-namespace UnifiedRender {
     /**
      * A simple object - use these to store "simple" objects that MAY repeat
      * TODO: We should use instancing tricks on simple objects
@@ -132,20 +132,22 @@ namespace UnifiedRender {
         std::vector<const SimpleModel*> simple_models;
         virtual void draw(UnifiedRender::OpenGl::Program* shader) const;
     };
+
+#ifdef UR_NO_ASSIMP
+    struct ModelManager {
+    private:
+        std::set<std::pair<SimpleModel*, std::string>> simple_models;
+        std::set<std::pair<ComplexModel*, std::string>> complex_models;
+
+        const UnifiedRender::ComplexModel& load_wavefront(const std::string& path);
+        const UnifiedRender::ComplexModel& load_stl(const std::string& path);
+    public:
+        const SimpleModel& load_simple(const std::string& path);
+        const ComplexModel& load_complex(const std::string& path);
+    };
+#endif
 }
 
-// namespace UnifiedRender {
-//     class ModelManager {
-//     private:
-//         std::set<std::pair<SimpleModel*, std::string>> simple_models;
-//         std::set<std::pair<ComplexModel*, std::string>> complex_models;
-
-//         const UnifiedRender::ComplexModel& load_wavefront(const std::string& path);
-//         const UnifiedRender::ComplexModel& load_stl(const std::string& path);
-//     public:
-//         const SimpleModel& load_simple(const std::string& path);
-//         const ComplexModel& load_complex(const std::string& path);
-//     };
-// }
-
-// extern UnifiedRender::ModelManager* g_model_manager;
+#ifdef UR_NO_ASSIMP
+extern UnifiedRender::ModelManager* g_model_manager;
+#endif

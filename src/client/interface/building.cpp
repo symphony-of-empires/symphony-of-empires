@@ -10,7 +10,7 @@ BuildingSelectCompanyTab::BuildingSelectCompanyTab(GameState& _gs, int x, int y,
     : gs{ _gs },
     UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
 {
-    uint i = 0;
+    unsigned int i = 0;
     for(const auto& company : gs.world->companies) {
         auto* btn = new CompanyButton(gs, 0, 24 * i, company, this);
         btn->on_click = ([](UI::Widget& w, void*) {
@@ -25,7 +25,7 @@ BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int 
     : gs{ _gs },
     UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
 {
-    uint i = 0;
+    unsigned int i = 0;
     for(const auto& province : gs.world->provinces) {
         auto* btn = new ProvinceButton(gs, 0, 24 * i, province, this);
         btn->on_click = ([](UI::Widget& w, void*) {
@@ -40,7 +40,7 @@ BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, U
     : gs{ _gs },
     UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
 {
-    uint i = 0;
+    unsigned int i = 0;
     for(const auto& nation : gs.world->nations) {
         if(!nation->exists()) continue;
         auto* btn = new NationButton(gs, 0, 24 * i, nation, this);
@@ -56,7 +56,7 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
     : gs{ _gs },
     UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
 {
-    uint i = 0;
+    unsigned int i = 0;
     for(const auto& building_type : gs.world->building_types) {
         auto* btn = new BuildingTypeButton(gs, 0, 24 * i, building_type, this);
         btn->on_click = ([](UI::Widget& w, void*) {

@@ -362,7 +362,7 @@ void World::load_mod(void) {
     if(tiles == nullptr)
         throw std::runtime_error("Out of memory");
 
-    for(uint i = 0; i < total_size; i++) {
+    for(unsigned int i = 0; i < total_size; i++) {
         tiles[i].elevation = topo->buffer[i] & 0xff;
         tiles[i].owner_id = (Nation::Id)-1;
         tiles[i].province_id = (Province::Id)-1;
@@ -510,8 +510,8 @@ void World::load_mod(void) {
         for(const auto& province : nation->owned_provinces) {
             const Province::Id province_id = get_id(province);
             const Nation::Id nation_id = get_id(province->owner);
-            for(uint x = province->min_x; x <= province->max_x; x++) {
-                for(uint y = province->min_y; y <= province->max_y; y++) {
+            for(unsigned int x = province->min_x; x <= province->max_x; x++) {
+                for(unsigned int y = province->min_y; y <= province->max_y; y++) {
                     Tile& tile = get_tile(x, y);
                     if(tile.province_id != province_id) continue;
                     tile.owner_id = nation_id;

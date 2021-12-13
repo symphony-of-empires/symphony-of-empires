@@ -1080,7 +1080,7 @@ void LuaAPI::check_events(lua_State* L) {
 
                 auto* local_event = new Event(*event);
                 local_event->ref_name += "_";
-                for(uint j = 0; j < 20; j++) {
+                for(unsigned int j = 0; j < 20; j++) {
                     local_event->ref_name += 'a' + (rand() % 26);
                 }
                 g_world->events.push_back(local_event);

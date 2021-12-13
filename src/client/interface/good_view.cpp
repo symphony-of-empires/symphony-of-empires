@@ -77,7 +77,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     good{ _good },
     UI::Window(0, 0, 512, 320)
 {
-    uint i;
+    unsigned int i;
 
     this->is_scroll = false;
 

@@ -16,14 +16,27 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <cstdint>
 
 namespace UnifiedRender {
-    class Model
-    {
+    class Model {
+        // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
+        void load_model(std::string const& path);
+
+        // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
+        void process_node(aiNode* node, const aiScene* scene);
+
+        UnifiedRender::Mesh process_mesh(aiMesh* mesh, const aiScene* scene);
+
+        // checks all material textures of a given type and loads the textures if they're not loaded yet.
+        // the required info is returned as a Texture struct.
+        std::vector<TextureStruct> load_material_textures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
+
+        unsigned int texture_from_file(const char* path, const std::string& directory);
     public:
         // model data 
-        vector<TextureStruct> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-        vector<UnifiedRender::Mesh>    meshes;
+        std::vector<TextureStruct> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
+        std::vector<UnifiedRender::Mesh> meshes;
         std::string directory;
         bool gammaCorrection;
 
@@ -32,26 +45,10 @@ namespace UnifiedRender {
 
         // draws the model, and thus all its meshes
         void draw(UnifiedRender::OpenGl::Program& shader) const;
-
-    private:
-        // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-        void loadModel(std::string const& path);
-
-        // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-        void processNode(aiNode* node, const aiScene* scene);
-
-        UnifiedRender::Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-
-        // checks all material textures of a given type and loads the textures if they're not loaded yet.
-        // the required info is returned as a Texture struct.
-        vector<TextureStruct> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
-
-        unsigned int TextureFromFile(const char* path, const std::string& directory);
     };
-    class ModelManager {
-    private:
-        std::set<std::pair<Model*, std::string>> models;
 
+    class ModelManager {
+        std::set<std::pair<Model*, std::string>> models;
     public:
         const Model* load(const std::string& path);
     };

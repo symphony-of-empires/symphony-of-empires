@@ -84,7 +84,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     });
 
     // Add the initial POPs infoboxes, we can later add/remove as needed on each tick update
-    uint i = 0;
+    unsigned int i = 0;
     for(const auto& pop : this->province->pops) {
         PopInfo* info = new PopInfo(this->gs, 0, (i * 24) + 128, this->province, i, this);
         this->pop_infos.push_back(info);
@@ -124,7 +124,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
     });
 
     // Initial product info
-    uint i = 0;
+    unsigned int i = 0;
     for(const auto& product : this->province->products) {
         if(product->building == nullptr) continue;
         

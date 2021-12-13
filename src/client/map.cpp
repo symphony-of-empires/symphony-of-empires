@@ -448,8 +448,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             Province* province = gs.world->provinces[tile.province_id];
 
             std::scoped_lock lock(gs.world->changed_tiles_coords_mutex);
-            for(uint i = province->min_x; i < province->max_x; i++) {
-                for(uint j = province->min_y; j < province->max_y; j++) {
+            for(unsigned int i = province->min_x; i < province->max_x; i++) {
+                for(unsigned int j = province->min_y; j < province->max_y; j++) {
                     if(gs.world->get_tile(i, j).province_id != gs.world->get_id(province)) continue;
                     gs.world->get_tile(i, j).owner_id = gs.world->get_id(gs.curr_nation);
                     gs.world->changed_tile_coords.push_back(std::make_pair(i, j));
