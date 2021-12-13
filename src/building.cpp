@@ -64,14 +64,9 @@ void Building::create_factory(void) {
 // Helper method to delete a factory
 void Building::delete_factory(void) {
     World& world = World::get_instance();
-    // Remove output products from all province's stockpiles and from the world
+    // Products become building-less
     for(const auto& product : output_products) {
-        for(auto& province : world.provinces) {
-            province->stockpile.erase(province->stockpile.begin() + world.get_id(product));
-        }
-        
-        world.remove(product);
-        delete product;
+		product->building = nullptr;
     }
 }
 
@@ -89,8 +84,7 @@ bool Building::can_do_output(void) {
 
     // Check that we have enough stockpile
     for(const auto& stock : this->stockpile) {
-        if(!stock)
-            return false;
+        if(!stock) return false;
     }
     return true;
 }

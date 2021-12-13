@@ -123,6 +123,19 @@ void Client::net_loop(void) {
         pfd.events = POLLIN;
 #endif
         while(1) {
+			// Update packets with pending list (acquiring the lock has priority to be lenient
+			// since the client takes most of it's time sending to the server anyways)
+			if(!pending_packets.empty()) {
+				if(pending_packets_mutex.try_lock()) {
+					std::scoped_lock lock(packets_mutex);
+					for(const auto& packet : pending_packets) {
+						packets.push_back(packet);
+					}
+					pending_packets.clear();
+					pending_packets_mutex.unlock();
+				}
+			}
+			
             // Check if we need to read packets
 #ifdef unix
             int has_pending = poll(&pfd, 1, 10);
@@ -327,16 +340,12 @@ void Client::net_loop(void) {
             }
 
             // Client will also flush it's queue to the server
-            std::scoped_lock lock(packet_mutex);
-            while(!packet_queue.empty()) {
-                print_info("Network: sending packet");
-                Packet elem = packet_queue.front();
-                packet_queue.pop_front();
-
-                elem.stream = SocketStream(fd);
-                elem.send();
+            std::scoped_lock lock(packets_mutex);
+            for(auto& packet : packets) {
+                packet.stream = SocketStream(fd);
+                packet.send();
             }
-            packet_queue.clear();
+            packets.clear();
         }
     } catch(ClientException& e) {
         print_error("Except: %s", e.what());

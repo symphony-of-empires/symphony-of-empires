@@ -84,4 +84,9 @@ namespace Action {
     public:
         static void send(Building* building, UnitType* unit_type);
     };
+	
+	class BuildingAdd {
+	public:
+		static void send(Building* building);
+	};
 };

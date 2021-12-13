@@ -468,8 +468,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         if(selected_unit != nullptr) {
             selected_unit->tx = select_pos.first;
             selected_unit->ty = select_pos.second;
-
-            std::scoped_lock lock(gs.client->packet_mutex);
+			
             Packet packet = Packet();
             Archive ar = Archive();
             ActionType action = ActionType::UNIT_CHANGE_TARGET;
@@ -478,7 +477,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             ::serialize(ar, &selected_unit->tx);
             ::serialize(ar, &selected_unit->ty);
             packet.data(ar.get_buffer(), ar.size());
-            gs.client->packet_queue.push_back(packet);
+			std::scoped_lock lock(gs.client->pending_packets_mutex);
+            gs.client->pending_packets.push_back(packet);
             return;
         }
 

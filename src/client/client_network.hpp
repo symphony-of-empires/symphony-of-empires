@@ -30,9 +30,12 @@ public:
     
     void net_loop(void);
     void wait_for_snapshot(void);
-    
-    std::mutex packet_mutex;
-    std::deque<Packet> packet_queue;
+	
+    std::deque<Packet> packets;
+	std::mutex packets_mutex;
+	
+	std::deque<Packet> pending_packets;
+	std::mutex pending_packets_mutex;
 };
 
 extern Client* g_client;
