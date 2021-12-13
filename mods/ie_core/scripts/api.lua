@@ -442,7 +442,7 @@ function Province:get_pops()
 	local new_table = {}
 	for i = 0, n_pops do
 		local tb = {}
-		tb.size, tb.budget, tb.literacy, tb.life_needs_met, tb.everday_needs_met, tb.luxury_needs_met, tb.type, tb.culture, tb.religion, tb.ideology = get_province_pop(self.id)
+		tb.size, tb.budget, tb.literacy, tb.life_needs_met, tb.everday_needs_met, tb.luxury_needs_met, tb.type, tb.culture, tb.religion, tb.ideology = get_province_pop(self.id, i)
 		tb.type = PopType:get_by_id(tb.type)
 		tb.culture = Culture:get_by_id(tb.culture)
 		tb.religion = Religion:get_by_id(tb.religion)
@@ -450,6 +450,9 @@ function Province:get_pops()
 		tb.id = i
 		new_table[i] = tb
 	end
+end
+function Province:update_pop(pop)
+	set_province_pop(self.id, pop.id, pop.size, pop.budget, pop.literacy, pop.life_needs_met, pop.everday_needs_met, pop.luxury_needs_met, pop.type.id, pop.culture.id, pop.religion.id)
 end
 -- Increments militancy for all POPs
 function Province:multiply_militancy(factor)
