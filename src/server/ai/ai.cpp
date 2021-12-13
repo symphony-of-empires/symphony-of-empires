@@ -460,7 +460,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     Unit* other_unit = g_world->units[j];
                     if(unit->owner == other_unit->owner) {
                         // Only when very close
-                        if(std::abs(unit->x - other_unit->x) >= 20.f && std::abs(unit->y - other_unit->y) >= 20.f)
+                        if(std::abs(unit->x - other_unit->x) >= 80.f || std::abs(unit->y - other_unit->y) >= 80.f)
                             continue;
 
                         friend_attack_strength = other_unit->size * other_unit->type->attack;
@@ -474,8 +474,12 @@ void ai_do_tick(Nation* nation, World* world) {
                             nearest_friend = other_unit;
                         }
                     } else {
+						// Must be an actual foe...
+						if(unit->owner->is_enemy(*other_unit->owner))
+							continue;
+						
                         // Foes from many ranges counts
-                        if(std::abs(unit->x - other_unit->x) >= 30.f && std::abs(unit->y - other_unit->y) >= 30.f)
+                        if(std::abs(unit->x - other_unit->x) >= 80.f || std::abs(unit->y - other_unit->y) >= 80.f)
                             continue;
 
                         foe_attack_strength = other_unit->size * other_unit->type->attack;
@@ -489,23 +493,23 @@ void ai_do_tick(Nation* nation, World* world) {
                             nearest_enemy = other_unit;
                         }
                     }
+				}
 
-                    // Attack first before they attack us
-                    if(nearest_enemy != nullptr && friend_attack_strength > foe_attack_strength) {
-                        unit->tx = nearest_enemy->x;
-                        unit->ty = nearest_enemy->y;
-                    }
-                    // Defend to avoid lots of casualties
-                    else if(nearest_enemy != nullptr && friend_defense_strength > foe_attack_strength) {
-                        unit->tx = nearest_enemy->x;
-                        unit->ty = nearest_enemy->y;
-                    }
-                    // Withdraw
-                    else {
-                        unit->tx = unit->x;
-                        unit->ty = unit->y;
-                    }
-                }
+				// Attack first before they attack us
+				if(nearest_enemy != nullptr && friend_attack_strength > foe_attack_strength) {
+					unit->tx = nearest_enemy->x;
+					unit->ty = nearest_enemy->y;
+				}
+				// Defend to avoid lots of casualties
+				else if(nearest_friend != nullptr && friend_defense_strength > foe_attack_strength) {
+					unit->tx = nearest_friend->x;
+					unit->ty = nearest_friend->y;
+				}
+				// Withdraw
+				else {
+					unit->tx = unit->x;
+					unit->ty = unit->y;
+				}
             }
         }
     }

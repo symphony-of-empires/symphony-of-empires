@@ -779,8 +779,7 @@ void World::do_tick() {
         }
 
         // TODO: This is temporal - un-comment this :D
-        //if(nearest_enemy != nullptr && unit->owner->is_enemy(*nearest_enemy->owner))
-        if(nearest_enemy != nullptr) {
+        if(nearest_enemy != nullptr && unit->owner->is_enemy(*nearest_enemy->owner)) {
 			int killed = nearest_enemy->size;
             unit->attack(*nearest_enemy);
 			killed = std::max<int>(0, killed - nearest_enemy->size);
