@@ -705,6 +705,8 @@ void World::do_tick() {
     }
 
     // Evaluate units
+	std::vector<float> mil_research_pts(nations.size(), 0.f);
+	std::vector<float> naval_research_pts(nations.size(), 0.f);
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
         if(!unit->size) {
@@ -769,8 +771,21 @@ void World::do_tick() {
 
         // TODO: This is temporal - un-comment this :D
         //if(nearest_enemy != nullptr && unit->owner->is_enemy(*nearest_enemy->owner))
-        if(nearest_enemy != nullptr)
+        if(nearest_enemy != nullptr) {
+			int killed = nearest_enemy->size;
             unit->attack(*nearest_enemy);
+			killed = std::max<int>(0, killed - nearest_enemy->size);
+			
+			// Get 1 research point per killed person on the unit
+			// Not the best system but not the worst either :)
+			if(unit->type->is_ground) {
+				mil_research_pts[get_id(unit->owner)] += killed;
+			}
+			
+			if(unit->type->is_naval) {
+				naval_research_pts[get_id(unit->owner)] += killed;
+			}
+		}
 
         // Unit is on a non-wasteland part of the map
         if(get_tile(unit->x, unit->y).province_id < (Province::Id)-3) {
@@ -865,6 +880,31 @@ void World::do_tick() {
             nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
         }
     }
+	
+	// Now researches for every country are going to be accounted :)
+	for(const auto& nation : nations) {
+		for(const auto& tech : technologies) {
+			if(!nation->can_research(tech)) continue;
+			
+			float* research_progress = &nation->research[get_id(tech)];
+			if(!(*research_progress)) continue;
+			
+			float* pts_count;
+			if(tech->type == TechnologyType::MILITARY) {
+				pts_count = &mil_research_pts[get_id(nation)];
+			} else if(tech->type == TechnologyType::NAVY) {
+				pts_count = &naval_research_pts[get_id(nation)];
+			} else {
+				continue;
+			}
+			
+			if(*pts_count <= 0.f) continue;
+			const float pts = *pts_count / 4.f;
+			*research_progress += pts;
+			*pts_count -= pts;
+			break;
+		}
+	}
 
     for(const auto& tile : nation_changed_tiles) {
         // Broadcast to clients

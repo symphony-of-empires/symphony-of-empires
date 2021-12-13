@@ -89,7 +89,7 @@ public:
     void give_province(Province& province);
     const NationClientHint& get_client_hint(void) const;
     float get_research_points(void) const;
-    bool can_research(Technology* tech) const;
+    bool can_research(const Technology* tech) const;
     void change_research_focus(Technology* tech);
 
     float get_industry_output_mod(void) {

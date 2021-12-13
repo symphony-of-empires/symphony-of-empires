@@ -297,9 +297,10 @@ float Nation::get_research_points(void) const {
     return research;
 }
 
-bool Nation::can_research(Technology* tech) const {
+bool Nation::can_research(const Technology* tech) const {
     // Only military/navy technologies can actually be researched
-    if(tech->type != TechnologyType::MILITARY && tech->type != TechnologyType::NAVY) return false;
+	// or not? wink, wink ;)
+    //if(tech->type != TechnologyType::MILITARY && tech->type != TechnologyType::NAVY) return false;
 
     // All required technologies for this one must be researched
     for(const auto& req_tech : tech->req_technologies) {
