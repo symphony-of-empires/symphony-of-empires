@@ -11,20 +11,15 @@ using namespace Interface;
 
 MainMenu::MainMenu(GameState& _gs)
     : gs{ _gs },
-    UI::Window(-(256 / 2), -(512 / 2), 256, 512)
+    UI::Window(-(128 / 2), -(256 / 2), 128, 256)
 {
     this->origin = CENTER_SCREEN;
     this->is_pinned = true;
     this->is_scroll = false;
     this->text("Symphony of Empires");
     
-    //auto* title_img = new UI::Image(0, 0, 256, 128, &g_texture_manager->load_texture(Path::get("ui/title.png")), this);
-
-    auto* title_img = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")), this);
-
     auto* single_btn = new UI::Button(0, 0, 128, 24, this);
     single_btn->text("Singleplayer");
-    single_btn->below_of(*title_img);
     single_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
         GameState& gs = o.gs;

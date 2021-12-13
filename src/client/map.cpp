@@ -56,7 +56,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         river_tex->gen_mipmaps();
 
         //terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
-        // topo_tex = new UnifiedRender::Texture(world.width, world.height);
+        //topo_tex = new UnifiedRender::Texture(world.width, world.height);
 
         terrain_tex = new UnifiedRender::Texture(world.width, world.height);
         for(size_t i = 0; i < world.width * world.height; i++) {
@@ -67,12 +67,10 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
         terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
         terrain_sheet->to_opengl();
+		
         map_shader = UnifiedRender::OpenGl::Program::create("map", "map");
-
         obj_shader = UnifiedRender::OpenGl::Program::create("simple_model", "simple_model");
-
         border_gen_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_gen");
-
         border_sdf_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_sdf");
 
         ourModel = new UnifiedRender::Model(Path::get("3d/backpack/backpack.obj"));
@@ -101,16 +99,9 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     // Land
     nation_color_tab[(Nation::Id)-1] = 0xffdddddd;
     for(size_t i = 0; i < world.width * world.height; i++) {
-        uint8_t r, g, b, a;
         const Tile& tile = world.get_tile(i);
-        r = tile.province_id % 256;
-        g = (tile.province_id / 256) % 256;
-        b = tile.owner_id % 256;
-        a = (tile.owner_id / 256) % 256;
-        tile_map->buffer[i] = (a << 24) | (b << 16) | (g << 8) | (r);
-
-        const uint32_t color = nation_color_tab[tile.owner_id];
-        tile_sheet->buffer[b + a * 256] = (0xff << 24) | color;
+        tile_map->buffer[i] = ((tile.owner_id & 0xffff) << 16) | (tile.province_id & 0xffff);
+        tile_sheet->buffer[tile.owner_id] = (0xff << 24) | nation_color_tab[tile.owner_id];
     }
     delete[] nation_color_tab;
 
@@ -191,8 +182,7 @@ void Map::set_view(MapView view) {
     delete camera;
     if(view == MapView::PLANE_VIEW) {
         camera = new FlatCamera(old_width, old_height);
-    }
-    else if(view == MapView::SPHERE_VIEW) {
+    } else if(view == MapView::SPHERE_VIEW) {
         camera = new OrbitCamera(old_width, old_height, 100.f);
     }
 }
@@ -222,12 +212,8 @@ std::vector<std::pair<Province::Id, uint32_t>> population_map_mode(std::vector<P
         province_amounts.push_back(std::make_pair(world->get_id(province), amount));
     }
     max_amount = std::max<uint32_t>(1, max_amount);
-    uint8_t max_r = 255;
-    uint8_t max_g = 229;
-    uint8_t max_b = 217;
-    uint8_t min_r = 220;
-    uint8_t min_g = 46;
-    uint8_t min_b = 35;
+    uint8_t max_r = 255, max_g = 229, max_b = 217;
+    uint8_t min_r = 220, min_g = 46, min_b = 35;
     std::vector<std::pair<Province::Id, uint32_t>> province_color;
     for(auto const& prov_amount : province_amounts) {
         Province::Id prov_id = prov_amount.first;
@@ -246,21 +232,15 @@ void Map::set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_c
     // Max amout of provinces are limited to 256 * 256
     tile_sheet->delete_opengl();
     tile_sheet = new UnifiedRender::Texture(256, 256);
-    for(size_t i = 0; i < 256 * 256; i++) {
-        tile_sheet->buffer[i] = 0x00000000;
-    }
+	std::memset(tile_sheet->buffer, 0, sizeof(tile_sheet->buffer[0]) * (tile_sheet->width * tile_sheet->height));
+	
     for(auto const& province_color : province_colors) {
-        Province::Id prov_id = province_color.first;
-        uint32_t color = province_color.second;
-        uint8_t r = prov_id % 256;
-        uint8_t g = (prov_id / 256) % 256;
-        size_t id = r + g * 256;
-
-        tile_map->buffer[id] = (0xff << 24) | color;
+        tile_map->buffer[province_color.first] = (0xff << 24) | province_color.second;
     }
     tile_sheet->to_opengl();
 }
 
+/** Creates the "waving" border around the continent to give it a 19th century map feel */
 UnifiedRender::Texture* Map::gen_border_sdf() {
     glDisable(GL_CULL_FACE);
     glViewport(0, 0, border_tex->width, border_tex->height);
@@ -270,30 +250,30 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
     fbo_mipmap_options.internal_format = GL_RGBA32F;
     fbo_mipmap_options.min_filter = GL_LINEAR_MIPMAP_NEAREST;
     fbo_mipmap_options.mag_filter = GL_LINEAR;
+	
     UnifiedRender::Texture* tex0 = new UnifiedRender::Texture(border_tex->width, border_tex->height);
     tex0->to_opengl(fbo_mipmap_options);
     UnifiedRender::Texture* tex1 = new UnifiedRender::Texture(border_tex->width, border_tex->height);
     tex1->to_opengl(fbo_mipmap_options);
-    UnifiedRender::OpenGl::Framebuffer* fbo = new UnifiedRender::OpenGl::Framebuffer();
+    
+	UnifiedRender::OpenGl::Framebuffer* fbo = new UnifiedRender::OpenGl::Framebuffer();
     fbo->use();
 
     // Jump flooding iterations
-    int max_steps = 16.;
-    int step = max_steps;
+    const int max_steps = 16.f;
+	
     bool drawOnTex0 = true;
-    while(step >= 1) {
-        // Swap read/write buffers
+	for(int step = max_steps; step >= 1; step /= 2) {
+		// Swap read/write buffers
         drawOnTex0 = !drawOnTex0;
         tex0->gen_mipmaps();
         tex1->gen_mipmaps();
         border_sdf_shader->set_uniform("jump", (float)step);
-
+		
+		fbo->set_texture(0, drawOnTex0 ? tex0 : tex1);
         if(step == max_steps){
-            fbo->set_texture(0, drawOnTex0 ? tex0 : tex1);
             border_sdf_shader->set_texture(0, "tex", border_tex);
-        }
-        else {
-            fbo->set_texture(0, drawOnTex0 ? tex0 : tex1);
+        } else {
             border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? tex1 : tex0);
         }
 
@@ -301,7 +281,8 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
         map_2d_quad->draw();
 
         step /= 2;
-    }
+	}
+	
     glFinish();
     delete fbo;
     if(drawOnTex0) {
@@ -309,8 +290,7 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
         tex0->gen_mipmaps();
         glEnable(GL_CULL_FACE);
         return tex0;
-    }
-    else {
+    } else {
         delete tex0;
         tex1->gen_mipmaps();
         glEnable(GL_CULL_FACE);
@@ -332,13 +312,13 @@ void Map::draw_flag(const Nation* nation) {
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-            ));
+        ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-            ));
+        ));
     }
 
     flag.vao.bind();
@@ -366,8 +346,7 @@ void Map::draw_flag(const Nation* nation) {
 
 void Map::handle_click(GameState& gs, SDL_Event event) {
     Input& input = gs.input;
-    if(input.select_pos.first < 0 || input.select_pos.first >= gs.world->width
-        || input.select_pos.second < 0 || input.select_pos.second >= gs.world->height) {
+    if(input.select_pos.first < 0 || input.select_pos.first >= gs.world->width || input.select_pos.second < 0 || input.select_pos.second >= gs.world->height) {
         return;
     }
     Unit* selected_unit = input.selected_unit;
@@ -581,10 +560,10 @@ void Map::update_tiles(World& world) {
         for(const auto& coords : world.changed_tile_coords) {
             uint8_t r, g, b, a;
             Tile tile = world.get_tile(coords.first, coords.second);
-            r = tile.province_id % 256;
-            g = (tile.province_id / 256) % 256;
-            b = tile.owner_id % 256;
-            a = (tile.owner_id / 256) % 256;
+            r = tile.province_id & 0xff;
+            g = (tile.province_id >> 8) & 0xff;
+            b = tile.owner_id & 0xff;
+            a = (tile.owner_id >> 8) & 0xff;
             glColor4f(r / 256.f, g / 256.f, b / 256.f, a / 256.f);
             glVertex2i(coords.first, tile_map->height - coords.second);
         }
@@ -650,6 +629,7 @@ void Map::draw(const int width, const int height) {
         model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
 		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
+		draw_flag(building->get_owner());
 		building_type_models.at(world.get_id(building->type))->draw(*model_shader);
     }
     for(const auto& unit : world.units) {
@@ -657,23 +637,10 @@ void Map::draw(const int width, const int height) {
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
 		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
-		model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
-		unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
-    }
-    // The flags mess with the models so they are drawn after the models
-    for(const auto& building : world.buildings) {
-        glm::mat4 model(1.f);
-        model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
-		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
-        model_shader->set_uniform("model", model);
-		draw_flag(building->get_owner());
-    }
-    for(const auto& unit : world.units) {
-        glm::mat4 model(1.f);
-        model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
-		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
-        model_shader->set_uniform("model", model);
 		draw_flag(unit->owner);
+		model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
+		model_shader->set_uniform("model", model);
+		unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
     }
     
     glEnable(GL_CULL_FACE);
@@ -736,6 +703,5 @@ void Map::draw(const int width, const int height) {
     }
 
     wind_osc += 1.f;
-    if(wind_osc >= 180.f)
-        wind_osc = 0.f;
+    if(wind_osc >= 180.f) wind_osc = 0.f;
 }
