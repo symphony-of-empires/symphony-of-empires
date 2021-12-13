@@ -1,6 +1,6 @@
-#include "client/render/texture.hpp"
+#include "unified_render/texture.hpp"
 #include "path.hpp"
-#include "print.hpp"
+#include "unified_render/print.hpp"
 #include <string>
 #include <algorithm>
 #ifdef _MSC_VER

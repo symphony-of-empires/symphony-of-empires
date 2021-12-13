@@ -2,7 +2,7 @@
 
 #include <GL/glew.h>
 #include "path.hpp"
-#include "print.hpp"
+#include "unified_render/print.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -12,8 +12,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/mat4x4.hpp>
 
-#include "client/render/texture.hpp"
-#include "client/render/texture_array.hpp"
+#include "unified_render/texture.hpp"
+#include "unified_render/texture_array.hpp"
 
 namespace UnifiedRender {
     namespace OpenGl {

@@ -9,7 +9,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
-#include "client/render/model.hpp"
+#include "unified_render/model.hpp"
 
 namespace UnifiedRender {
     namespace OpenGl {

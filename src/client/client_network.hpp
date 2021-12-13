@@ -5,7 +5,7 @@
 #include <thread>
 #include <atomic>
 
-#include "network.hpp"
+#include "unified_render/network.hpp"
 #include "client/game_state.hpp"
 
 class Client {

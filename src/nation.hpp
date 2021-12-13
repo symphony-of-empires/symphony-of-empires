@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "entity.hpp"
+#include "unified_render/entity.hpp"
 
 #include "policy.hpp"
 #include "province.hpp"

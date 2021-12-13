@@ -3,13 +3,13 @@
 #include <vector>
 #include <iterator>
 
-#include "client/render/model.hpp"
-#include "client/render/shader.hpp"
-#include "print.hpp"
+#include "unified_render/model.hpp"
+#include "unified_render/shader.hpp"
+#include "unified_render/print.hpp"
 #include "path.hpp"
-#include "client/render/material.hpp"
-#include "client/render/texture.hpp"
-#include "client/render/shader.hpp"
+#include "unified_render/material.hpp"
+#include "unified_render/texture.hpp"
+#include "unified_render/shader.hpp"
 
 UnifiedRender::SimpleModel::SimpleModel(GLint _mode) : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(_mode) {
 

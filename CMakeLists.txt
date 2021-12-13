@@ -26,7 +26,7 @@ include_directories("${PROJECT_SOURCE_DIR}")
 
 file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/*.cpp")
 file(GLOB CLIENT_SOURCES "${PROJECT_SOURCE_DIR}/client/*.cpp")
-file(GLOB RENDER_SOURCES "${PROJECT_SOURCE_DIR}/client/render/*.cpp")
+file(GLOB RENDER_SOURCES "${PROJECT_SOURCE_DIR}/unified_render/*.cpp")
 file(GLOB INTERFACE_SOURCES "${PROJECT_SOURCE_DIR}/client/interface/*.cpp")
 file(GLOB SERVER_SOURCES "${PROJECT_SOURCE_DIR}/server/*.cpp")
 file(GLOB SERVER_AI_SOURCES "${PROJECT_SOURCE_DIR}/server/ai/*.cpp")

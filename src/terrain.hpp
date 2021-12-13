@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "entity.hpp"
+#include "unified_render/entity.hpp"
 
 class TerrainType : public RefnameEntity<uint8_t>  {
 public:

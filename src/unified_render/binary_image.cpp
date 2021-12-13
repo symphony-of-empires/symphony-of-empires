@@ -2,9 +2,9 @@
 #include <stdexcept>
 #include <cstring>
 #include <string>
-#include "binary_image.hpp"
+#include "unified_render/binary_image.hpp"
 #include "path.hpp"
-#include "print.hpp"
+#include "unified_render/print.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"

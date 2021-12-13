@@ -8,9 +8,9 @@
 
 #include "client/map.hpp"
 #include "path.hpp"
-#include "print.hpp"
+#include "unified_render/print.hpp"
 #include "client/game_state.hpp"
-#include "client/render/model.hpp"
+#include "unified_render/model.hpp"
 #include "io_impl.hpp"
 #include "client/interface/province_view.hpp"
 #include "world.hpp"
@@ -18,16 +18,16 @@
 #include "client/flat_camera.hpp"
 #include "client/camera.hpp"
 #include "client/interface/lobby.hpp"
-#include "client/render/texture.hpp"
-#include "client/render/primitive.hpp"
-#include "client/render/sphere.hpp"
-#include "client/render/shader.hpp"
-#include "client/render/texture_array.hpp"
-#include "client/render/quad_2d.hpp"
-#include "client/render/framebuffer.hpp"
+#include "unified_render/texture.hpp"
+#include "unified_render/primitive.hpp"
+#include "unified_render/sphere.hpp"
+#include "unified_render/shader.hpp"
+#include "unified_render/texture_array.hpp"
+#include "unified_render/quad_2d.hpp"
+#include "unified_render/framebuffer.hpp"
 #include "province.hpp"
-#include "client/render/model.hpp"
-#include "client/render/assimp_model.hpp"
+#include "unified_render/model.hpp"
+#include "unified_render/assimp_model.hpp"
 
 Map::Map(const World& _world, int screen_width, int screen_height)
     : world(_world)
@@ -351,7 +351,7 @@ void Map::draw_flag(const Nation* nation) {
 }
 
 #include "client/client_network.hpp"
-#include "serializer.hpp"
+#include "unified_render/serializer.hpp"
 #include "io_impl.hpp"
 #include "action.hpp"
 #ifdef windows

@@ -44,9 +44,9 @@
 #include "io_impl.hpp"
 #include "path.hpp"
 #include "product.hpp"
-#include "serializer.hpp"
+#include "unified_render/serializer.hpp"
 #include "world.hpp"
-#include "print.hpp"
+#include "unified_render/print.hpp"
 #include "client/camera.hpp"
 #include "client/orbit_camera.hpp"
 #include "client/client_network.hpp"
@@ -60,10 +60,10 @@
 #include "client/interface/army.hpp"
 #include "client/interface/building.hpp"
 #include "client/map.hpp"
-#include "client/render/material.hpp"
-#include "client/render/model.hpp"
-#include "client/render/texture.hpp"
-#include "client/render/assimp_model.hpp"
+#include "unified_render/material.hpp"
+#include "unified_render/model.hpp"
+#include "unified_render/texture.hpp"
+#include "unified_render/assimp_model.hpp"
 #include "client/ui.hpp"
 
 void GameState::play_nation() {
@@ -419,7 +419,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 }
 
 #include "client/interface/main_menu.hpp"
-#include "client/render/sound.hpp"
+#include "unified_render/sound.hpp"
 
 static void mixaudio(void* userdata, uint8_t* stream, int len) {
     GameState& gs = *((GameState*)userdata);

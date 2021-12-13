@@ -2,7 +2,7 @@
 
 #include <GL/glew.h>
 
-#include "client/render/texture.hpp"
+#include "unified_render/texture.hpp"
 
 namespace UnifiedRender {
     namespace OpenGl {

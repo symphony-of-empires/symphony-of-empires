@@ -5,8 +5,8 @@
 #include <vector>
 #include <atomic>
 
-#include "serializer.hpp"
-#include "render/sound.hpp"
+#include "unified_render/serializer.hpp"
+#include "unified_render/sound.hpp"
 
 enum class MapMode {
     COUNTRY_SELECT,

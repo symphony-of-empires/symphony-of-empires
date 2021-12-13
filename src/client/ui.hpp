@@ -16,7 +16,7 @@
 #endif
 
 #include <glm/vec2.hpp>
-#include "client/render/rectangle.hpp"
+#include "unified_render/rectangle.hpp"
 
 namespace UnifiedRender {
     class Texture;

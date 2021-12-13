@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entity.hpp"
+#include "unified_render/entity.hpp"
 #include <string>
 #include <vector>
 
