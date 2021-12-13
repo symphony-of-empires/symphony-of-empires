@@ -100,6 +100,8 @@ World::World() {
     lua_register(lua, "get_province_pops_size", LuaAPI::get_province_pops_size);
     lua_register(lua, "get_province_pop", LuaAPI::get_province_pop);
     lua_register(lua, "set_province_pop", LuaAPI::set_province_pop);
+    lua_register(lua, "get_province_pop_ideology_approval", LuaAPI::get_province_pop_ideology_approval);
+    lua_register(lua, "set_province_pop_ideology_approval", LuaAPI::set_province_pop_ideology_approval);
     lua_register(lua, "multiply_province_militancy_global", LuaAPI::multiply_province_militancy_global);
     lua_register(lua, "multiply_province_militancy_by_culture", LuaAPI::multiply_province_militancy_by_culture);
     lua_register(lua, "multiply_province_militancy_by_religion", LuaAPI::multiply_province_militancy_by_religion);
