@@ -698,6 +698,22 @@ int LuaAPI::get_province_pop(lua_State* L) {
     return 10;
 }
 
+int LuaAPI::set_province_pop(lua_State* L) {
+    const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
+    
+    Pop& pop = province->pops.at(lua_tonumber(L, 2));
+    pop.size = lua_pushnumber(L, 3);
+    pop.budget = lua_pushnumber(L, 4);
+    pop.literacy = lua_pushnumber(L, 5);
+    pop.life_needs_met = lua_pushnumber(L, 6);
+    pop.everyday_needs_met = lua_pushnumber(L, 7);
+    pop.luxury_needs_met = lua_pushnumber(L, 8);
+    pop.type = g_world->pop_types.at(lua_pushnumber(L, 9));
+    pop.culture = g_world->cultures.at(lua_pushnumber(L, 10));
+    pop.religion = g_world->religions.at(lua_pushnumber(L, 11));
+    return 0;
+}
+
 /** Mulitplies the province militancy by a factor globally */
 int LuaAPI::multiply_province_militancy_global(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
