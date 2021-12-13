@@ -695,22 +695,39 @@ int LuaAPI::get_province_pop(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(pop.culture));
     lua_pushnumber(L, g_world->get_id(pop.religion));
     lua_pushnumber(L, g_world->get_id(pop.get_ideology()));
+    lua_pushnumber(L, pop.militancy);
+    lua_pushnumber(L, pop.con);
     return 10;
 }
 
 int LuaAPI::set_province_pop(lua_State* L) {
-    const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-    
+    Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     Pop& pop = province->pops.at(lua_tonumber(L, 2));
-    pop.size = lua_pushnumber(L, 3);
-    pop.budget = lua_pushnumber(L, 4);
-    pop.literacy = lua_pushnumber(L, 5);
-    pop.life_needs_met = lua_pushnumber(L, 6);
-    pop.everyday_needs_met = lua_pushnumber(L, 7);
-    pop.luxury_needs_met = lua_pushnumber(L, 8);
-    pop.type = g_world->pop_types.at(lua_pushnumber(L, 9));
-    pop.culture = g_world->cultures.at(lua_pushnumber(L, 10));
-    pop.religion = g_world->religions.at(lua_pushnumber(L, 11));
+    pop.size = lua_tonumber(L, 3);
+    pop.budget = lua_tonumber(L, 4);
+    pop.literacy = lua_tonumber(L, 5);
+    pop.life_needs_met = lua_tonumber(L, 6);
+    pop.everyday_needs_met = lua_tonumber(L, 7);
+    pop.luxury_needs_met = lua_tonumber(L, 8);
+    pop.type = g_world->pop_types.at(lua_tonumber(L, 9));
+    pop.culture = g_world->cultures.at(lua_tonumber(L, 10));
+    pop.religion = g_world->religions.at(lua_tonumber(L, 11));
+    pop.militancy = lua_tonumber(L, 12);
+    pop.con = lua_tonumber(L, 13);
+    return 0;
+}
+
+int LuaAPI::get_province_pop_ideology_approval(lua_State* L) {
+    Province* province = g_world->provinces.at(lua_tonumber(L, 1));
+    Pop& pop = province->pops.at(lua_tonumber(L, 2));
+    lua_pushnumber(L, pop.ideology_approval.at(lua_tonumber(L, 3)));
+    return 1;
+}
+
+int LuaAPI::set_province_pop_ideology_approval(lua_State* L) {
+    Province* province = g_world->provinces.at(lua_tonumber(L, 1));
+    Pop& pop = province->pops.at(lua_tonumber(L, 2));
+    pop.ideology_approval.at(lua_tonumber(L, 3)) = lua_tonumber(L, 4);
     return 0;
 }
 
@@ -1115,8 +1132,8 @@ int LuaAPI::get_ideology(lua_State* L) {
 }
 
 int LuaAPI::get_ideology_by_id(lua_State* L) {
-    const auto* ideology = find_or_throw<Ideology>(luaL_checkstring(L, 1));
-
+    const auto* ideology = g_world->ideologies.at(lua_tonumber(L, 1));
+    
     lua_pushstring(L, ideology->ref_name.c_str());
     lua_pushstring(L, ideology->name.c_str());
     return 2;

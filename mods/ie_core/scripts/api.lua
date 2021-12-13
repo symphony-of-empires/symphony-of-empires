@@ -387,6 +387,35 @@ function Nation:is_owns_nuclei_from(other)
 	return (total_eq_cont == nuclei_cont)
 end
 
+Pop = {
+	id = 0,
+	province_id = 0,
+	size = 0,
+	budget = 0,
+	literacy = 0,
+	life_needs_met = 0,
+	everday_needs_met = 0,
+	luxury_needs_met = 0,
+	type = {},
+	culture = {},
+	religion = {},
+	ideology = {},
+	militancy = 0,
+	con = 0,
+}
+function Pop:new(o)
+	o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function Pop:get_ideology_approval(ideology)
+	return get_province_pop_ideology_approval(self.province_id, self.id, ideology.id)
+end
+function Pop:set_ideology_approval(ideology, approval)
+	set_province_pop_ideology_approval(self.province_id, self.id, ideology.id, approval)
+end
+
 Province = {
 	id = 0,
 	name = "",
@@ -438,21 +467,26 @@ end
 -- 	return get_province_pops_size(self.id)
 -- end
 function Province:get_pops()
-	local n_pops = get_province_pops_size(self.id)
+	local n_pops = get_province_pops_size(self.id) - 1
 	local new_table = {}
 	for i = 0, n_pops do
-		local tb = {}
-		tb.size, tb.budget, tb.literacy, tb.life_needs_met, tb.everday_needs_met, tb.luxury_needs_met, tb.type, tb.culture, tb.religion, tb.ideology = get_province_pop(self.id, i)
+		local tb = Pop:new()
+		tb.size, tb.budget, tb.literacy, tb.life_needs_met, tb.everday_needs_met, tb.luxury_needs_met, tb.type, tb.culture, tb.religion, tb.ideology, tb.militancy, tb.con = get_province_pop(self.id, i)
 		tb.type = PopType:get_by_id(tb.type)
 		tb.culture = Culture:get_by_id(tb.culture)
 		tb.religion = Religion:get_by_id(tb.religion)
 		tb.ideology = Ideology:get_by_id(tb.ideology)
 		tb.id = i
+		tb.province_id = self.id
 		new_table[i] = tb
 	end
+	return new_table
 end
 function Province:update_pop(pop)
-	set_province_pop(self.id, pop.id, pop.size, pop.budget, pop.literacy, pop.life_needs_met, pop.everday_needs_met, pop.luxury_needs_met, pop.type.id, pop.culture.id, pop.religion.id)
+	set_province_pop(self.id, pop.id, pop.size, pop.budget, pop.literacy, pop.life_needs_met, pop.everday_needs_met, pop.luxury_needs_met, pop.type.id, pop.culture.id, pop.religion.id, pop.militancy, pop.con)
+end
+function Province:update_pops(pop)
+	-- TODO: Do important stuff
 end
 -- Increments militancy for all POPs
 function Province:multiply_militancy(factor)
