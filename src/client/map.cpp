@@ -724,15 +724,15 @@ void Map::draw(const int width, const int height) {
         glTexCoord2f(0.f, 0.f);
         glVertex2f(0.f, 0.f);
         glEnd();
+        glPopMatrix();
 		
+		glBindTexture(GL_TEXTURE_2D, 0);
 		glBegin(GL_LINES);
 		glColor3f(1.f, 0.f, 0.f);
-		glVertex2f(0.f, 0.f);
+		glVertex2f(unit->x, unit->y);
 		glColor3f(0.f, 1.f, 0.f);
-		glVertex2f(unit->tx - unit->x, unit->ty - unit->x);
+		glVertex2f(unit->tx, unit->ty);
 		glEnd();
-		
-        glPopMatrix();
     }
 
     wind_osc += 1.f;

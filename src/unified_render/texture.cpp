@@ -35,7 +35,6 @@ void UnifiedRender::Texture::to_opengl(TextureOptions options) {
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glTexImage2D(GL_TEXTURE_2D, 0, options.internal_format, width, height, 0, options.format, options.type, buffer);
 
-
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, options.wrap_s);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, options.wrap_t);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, options.min_filter);
