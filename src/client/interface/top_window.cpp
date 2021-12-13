@@ -3,7 +3,7 @@
 #include "path.hpp"
 #include "client/map.hpp"
 #include "world.hpp"
-#include "client/render/texture.hpp"
+#include "unified_render/texture.hpp"
 
 using namespace Interface;
 

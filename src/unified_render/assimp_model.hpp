@@ -2,13 +2,13 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <stb_image.h>
+#include "unified_render/stb_image.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "client/render/mesh.hpp"
-#include "client/render/shader.hpp"
+#include "unified_render/mesh.hpp"
+#include "unified_render/shader.hpp"
 
 #include <string>
 #include <fstream>

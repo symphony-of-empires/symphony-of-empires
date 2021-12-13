@@ -21,10 +21,10 @@
 #endif
 
 #include "path.hpp"
-#include "print.hpp"
+#include "unified_render/print.hpp"
 #include "client/ui.hpp"
-#include "client/render/texture.hpp"
-#include "client/render/rectangle.hpp"
+#include "unified_render/texture.hpp"
+#include "unified_render/rectangle.hpp"
 
 #if !defined NOMINMAX
 #   define NOMINMAX 1

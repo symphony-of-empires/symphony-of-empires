@@ -13,8 +13,8 @@
 #	include <unistd.h>
 #endif
 
-#include "network.hpp"
-#include "print.hpp"
+#include "unified_render/network.hpp"
+#include "unified_render/print.hpp"
 
 #ifdef windows
 #   include <winsock2.h>

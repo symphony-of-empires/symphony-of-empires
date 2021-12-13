@@ -28,7 +28,7 @@
 
 struct SDL_Surface;
 
-#include "binary_image.hpp"
+#include "unified_render/binary_image.hpp"
 
 namespace UnifiedRender {
     class TextureException: public BinaryImageException {

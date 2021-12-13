@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <string>
-#include "entity.hpp"
+#include "unified_render/entity.hpp"
 #include "ideology.hpp"
 
 enum class PopGroup {

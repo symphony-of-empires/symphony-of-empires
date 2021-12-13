@@ -2,10 +2,10 @@
 #include "client/client_network.hpp"
 #include "server/server_network.hpp"
 #include "world.hpp"
-#include "print.hpp"
+#include "unified_render/print.hpp"
 #include "path.hpp"
 #include "client/map.hpp"
-#include "client/render/texture.hpp"
+#include "unified_render/texture.hpp"
 
 using namespace Interface;
 

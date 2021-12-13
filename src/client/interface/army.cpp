@@ -1,7 +1,7 @@
 #include "client/interface/army.hpp"
 #include "client/map.hpp"
 #include "path.hpp"
-#include "client/render/texture.hpp"
+#include "unified_render/texture.hpp"
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"

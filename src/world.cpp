@@ -8,10 +8,10 @@
 #endif
 
 #include "province.hpp"
-#include "binary_image.hpp"
+#include "unified_render/binary_image.hpp"
 #include "path.hpp"
-#include "print.hpp"
-#include "serializer.hpp"
+#include "unified_render/print.hpp"
+#include "unified_render/serializer.hpp"
 #include "server/server_network.hpp"
 #include "diplomacy.hpp"
 #include "policy.hpp"

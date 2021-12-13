@@ -3,9 +3,9 @@
 #include <string>
 
 #include "path.hpp"
-#include "print.hpp"
-#include "client/render/material.hpp"
-#include "client/render/texture.hpp"
+#include "unified_render/print.hpp"
+#include "unified_render/material.hpp"
+#include "unified_render/texture.hpp"
 
 std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::MaterialManager::load_wavefront(const std::string& path) {
     std::ifstream file(path);

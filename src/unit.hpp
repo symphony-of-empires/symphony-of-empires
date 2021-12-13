@@ -6,7 +6,7 @@
 #include <cstddef>
 #include "good.hpp"
 
-#include "entity.hpp"
+#include "unified_render/entity.hpp"
 
 /**
 * Defines a type of unit, it can be a tank, garrison, infantry, etc

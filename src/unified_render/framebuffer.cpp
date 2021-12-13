@@ -1,5 +1,5 @@
-#include "client/render/framebuffer.hpp"
-#include "print.hpp"
+#include "unified_render/framebuffer.hpp"
+#include "unified_render/print.hpp"
 
 using namespace UnifiedRender::OpenGl;
 

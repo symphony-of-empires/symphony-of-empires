@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "nation.hpp"
-#include "entity.hpp"
+#include "unified_render/entity.hpp"
 
 enum TechnologyType {
     STRATEGIC,

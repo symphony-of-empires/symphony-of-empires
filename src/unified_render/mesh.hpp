@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "client/render/shader.hpp"
+#include "unified_render/shader.hpp"
 
 #include <string>
 #include <vector>

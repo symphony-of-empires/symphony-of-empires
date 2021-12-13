@@ -6,7 +6,7 @@
 #include <string>
 #include "pop.hpp"
 
-#include "entity.hpp"
+#include "unified_render/entity.hpp"
 
 class World;
 class Nation;

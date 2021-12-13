@@ -14,14 +14,14 @@
 #include "province.hpp"
 #include "server/economy.hpp"
 #include "world.hpp"
-#include "binary_image.hpp"
+#include "unified_render/binary_image.hpp"
 #include "server/lua_api.hpp"
 #include "path.hpp"
-#include "print.hpp"
-#include "serializer.hpp"
+#include "unified_render/print.hpp"
+#include "unified_render/serializer.hpp"
 #include "io_impl.hpp"
 #include "server/server_network.hpp"
-#include "swap.hpp"
+#include "unified_render/byteswap.hpp"
 
 #if (__cplusplus < 201703L)
 namespace std {
