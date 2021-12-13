@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>
+#include <set>
 
 // Generic manager for any resource type, the manager will call "load" if an element
 // with the same ident already exists
-template<typename T, typename I, typename L = std::vector<std::pair<T*, I>>>
+template<typename T, typename I, typename L = std::set<std::pair<T*, I>>>
 class Manager {
 private:
     L elems;
@@ -37,6 +37,6 @@ public:
                 return *(o.first);
             }
         }
-        return *o;
+        throw std::runtime_error("Can't load " + ident);
     };
 };
