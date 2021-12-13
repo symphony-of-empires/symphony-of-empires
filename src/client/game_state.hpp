@@ -7,6 +7,7 @@
 
 #include "unified_render/serializer.hpp"
 #include "unified_render/sound.hpp"
+#include "unified_render/state.hpp"
 
 enum class MapMode {
     COUNTRY_SELECT,
@@ -49,7 +50,7 @@ namespace UnifiedRender {
 
 // The all encompassing client state
 // This is the state we could pass down to all the ui widgets
-class GameState {
+class GameState : public UnifiedRender::State {
 public:
     GameState() {};
     ~GameState();
@@ -76,7 +77,6 @@ public:
     Nation* curr_nation;
     Map* map;
     Input input;
-    int width, height;
     MapMode current_mode = MapMode::NO_MAP;
 
     UI::Context* ui_ctx;

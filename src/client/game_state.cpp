@@ -238,7 +238,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     if(gs.current_mode != MapMode::NO_MAP) {
         Map* map = gs.map;
 		
-		std::scoped_lock lock(gs.world->world_mutex);
+		//std::scoped_lock lock(gs.world->world_mutex);
 
         glPushMatrix();
         glMatrixMode(GL_PROJECTION);
@@ -336,7 +336,7 @@ void GameState::world_thread(void) {
 
 void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     gs.current_mode = MapMode::COUNTRY_SELECT;
-    gs.input = Input{};
+    gs.input = Input();
 
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
     gs.select_nation = new Interface::LobbySelectView(gs);
@@ -346,10 +346,8 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     std::vector<Treaty*> displayed_treaties;
 
     // Call update_on_tick on start of the gamestate
-    gs.update_on_tick();
-    gs.update_tick = false;
-
-    gs.paused = true;
+    gs.update_tick = true;
+	
     gs.run = true;
 
     // Start the world thread
@@ -402,7 +400,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
             gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/war.wav")));
         }
     }
-    // world_th.join();
+    world_th.join();
 }
 
 #include "client/interface/main_menu.hpp"
@@ -457,22 +455,23 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
     Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
 	
 	UI::Image* logo = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")));
+	logo->origin = CENTER_SCREEN;
 	logo->above_of(*main_menu);
 	logo->left_side_of(*main_menu);
 	logo->x -= (main_menu->width / 2.f) + (logo->width / 2.f);
 
-    gs.input = Input{};
-    Input& input = gs.input;
+    gs.input = Input();
 	
 	std::atomic<bool> run = true;
     while(run) {
-        handle_event(input, gs, run);
-        render(gs, input, window);
+        handle_event(gs.input, gs, run);
+        render(gs, gs.input, window);
 
         if(gs.in_game) {
             run = false;
             mm_bg->kill();
             main_menu->kill();
+			logo->kill();
 
             for(auto& music : gs.music_queue) { delete music; }
             gs.music_queue.clear();
@@ -495,55 +494,23 @@ extern UnifiedRender::ModelManager* g_model_manager;
 #include <cstring>
 #include <sys/types.h>
 void start_client(int argc, char** argv) {
-    SDL_Init(SDL_INIT_EVERYTHING);
-    TTF_Init();
-
     // globals
-    SDL_Window* window;
-    int width = 1280, height = 800;
     GameState gs{};
-
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-    SDL_GLContext context = SDL_GL_CreateContext(window);
-    SDL_GL_SetSwapInterval(1);  // Enable OpenGL VSYNC
-    print_info("OpenGL Version: %s", glGetString(GL_VERSION));
-    glewExperimental = GL_TRUE;
-    GLenum err = glewInit();
-    if(err != GLEW_OK)
-        throw std::runtime_error("Failed to init GLEW");
-
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(GLDebugMessageCallback, 0);
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-    glEnable(GL_TEXTURE_2D);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
-    glDepthFunc(GL_LEQUAL);
-    glDepthRange(0.f, 1.f);
 
     g_texture_manager = new UnifiedRender::TextureManager();
     g_material_manager = new UnifiedRender::MaterialManager();
     g_model_manager = new UnifiedRender::ModelManager();
     g_sound_manager = new UnifiedRender::SoundManager();
     gs.ui_ctx = new UI::Context();
-
-    gs.width = width;
-    gs.height = height;
+	
     gs.ui_ctx->resize(gs.width, gs.height);
 
     gs.music_fade_value = 1.f;
 
     gs.loaded_world = false;
     gs.loaded_map = false;
-    
-    // Initialize sound
+	
+	// Initialize sound subsystem (at 11,050 hz)
     SDL_AudioSpec fmt;
     fmt.freq = 11050;
     fmt.format = AUDIO_S16;
@@ -559,12 +526,8 @@ void start_client(int argc, char** argv) {
     gs.world->load_mod();
     gs.map = new Map(*gs.world, gs.width, gs.height);
 
-    main_menu_loop(gs, window);
-    main_loop(gs, gs.client, window);
-
-    SDL_CloseAudio();
-    TTF_Quit();
-    SDL_Quit();
+    main_menu_loop(gs, gs.window);
+    main_loop(gs, gs.client, gs.window);
     return;
 }
 

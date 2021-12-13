@@ -84,6 +84,7 @@ int main(int argc, char** argv) {
         start_client(argc, argv);
     } catch(const std::exception& e) {
         print_error(e.what());
+		
         exit(EXIT_FAILURE);
     }
 #endif
