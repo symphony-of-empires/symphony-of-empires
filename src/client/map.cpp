@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <mutex>
+#include <memory>
 
 #include "client/map.hpp"
 #include "path.hpp"
@@ -87,6 +88,18 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     for(size_t i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer[i] = 0xffdddddd;
     }
+
+    // Make sure that Nation_Id is in a small enough range to fit a lookup table
+    static_assert(std::numeric_limits<Nation::Id>::max() <= 0xffff);
+    
+    uint32_t* nation_color_tab = new uint32_t[std::numeric_limits<Nation::Id>::max()];
+    for(const auto& nation : world.nations) {
+        nation_color_tab[world.get_id(nation)] = nation->get_client_hint().colour;
+    }
+    // Water
+    nation_color_tab[(Nation::Id)-2] = 0x00000000;
+    // Land
+    nation_color_tab[(Nation::Id)-1] = 0xffdddddd;
     for(size_t i = 0; i < world.width * world.height; i++) {
         uint8_t r, g, b, a;
         const Tile& tile = world.get_tile(i);
@@ -96,22 +109,12 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         a = (tile.owner_id / 256) % 256;
         tile_map->buffer[i] = (a << 24) | (b << 16) | (g << 8) | (r);
 
-        uint32_t color;
-        if(tile.owner_id == (Nation::Id)-2) {
-            // Water
-            color = 0x00000000;
-        }
-        else if(tile.owner_id == (Nation::Id)-1) {
-            // Land
-            color = 0xffdddddd;
-        }
-        else {
-            const Nation* owner = world.nations.at(tile.owner_id);
-            color = owner->get_client_hint().colour;
-        }
-
+        const uint32_t color = nation_color_tab[tile.owner_id];
         tile_sheet->buffer[b + a * 256] = (0xff << 24) | color;
     }
+    delete[] nation_color_tab;
+
+    print_info("Uploading data to OpenGL");
     tile_sheet->to_opengl();
     UnifiedRender::TextureOptions tile_sheet_options{};
     tile_sheet_options.internal_format = GL_RGBA32F;
@@ -120,6 +123,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     glDisable(GL_CULL_FACE);
 
+    print_info("Creating border textures");
     border_tex = new UnifiedRender::Texture(world.width, world.height);
     UnifiedRender::TextureOptions border_tex_options{};
     border_tex_options.internal_format = GL_RGBA32F;
@@ -128,10 +132,12 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     border_tex->to_opengl(border_tex_options);
     border_tex->gen_mipmaps();
 
+    print_info("Creating border framebuffer");
     border_fbuffer = new UnifiedRender::OpenGl::Framebuffer();
     border_fbuffer->use();
     border_fbuffer->set_texture(0, border_tex);
 
+    print_info("Drawing border with border shader");
     glViewport(0, 0, tile_map->width, tile_map->height);
     border_gen_shader->use();
     border_gen_shader->set_uniform("map_size", (float)tile_map->width, (float)tile_map->height);
@@ -145,6 +151,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glEnable(GL_CULL_FACE);
 
+    print_info("Preloading-important stuff");
     // Query the initial nation flags
     for(const auto& nation : world.nations) {
         UnifiedRender::TextureOptions mipmap_options{};
@@ -162,20 +169,16 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     for(const auto& building_type : world.building_types) {
         std::string path;
-
         path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
         building_type_models.push_back(g_model_manager->load(path));
-
         path = Path::get("ui/building_types/" + building_type->ref_name + ".png");
         building_type_icons.push_back(&g_texture_manager->load_texture(path));
     }
 
     for(const auto& unit_type : world.unit_types) {
         std::string path;
-
         path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
         unit_type_models.push_back(g_model_manager->load(path));
-
         path = Path::get("ui/unit_types/" + unit_type->ref_name + ".png");
         unit_type_icons.push_back(&g_texture_manager->load_texture(path));
     }
