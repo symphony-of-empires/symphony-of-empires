@@ -80,6 +80,8 @@ namespace LuaAPI {
     int get_province_owner(lua_State* L);
     int get_province_controller(lua_State* L);
     int get_province_neighbours(lua_State* L);
+    int get_province_pops_size(lua_State* L);
+    int get_province_pop(lua_State* L);
     int multiply_province_militancy_global(lua_State* L);
     int multiply_province_militancy_by_culture(lua_State* L);
     int multiply_province_militancy_by_religion(lua_State* L);
@@ -103,12 +105,15 @@ namespace LuaAPI {
 
     int add_pop_type(lua_State* L);
     int get_pop_type(lua_State* L);
+    int get_pop_type_by_id(lua_State* L);
 
     int add_culture(lua_State* L);
     int get_culture(lua_State* L);
+    int get_culture_by_id(lua_State* L);
 
     int add_religion(lua_State* L);
     int get_religion(lua_State* L);
+    int get_religion_by_id(lua_State* L);
 
     int add_unit_type(lua_State* L);
     int get_unit_type(lua_State* L);
@@ -116,6 +121,7 @@ namespace LuaAPI {
 
     int add_ideology(lua_State* L);
     int get_ideology(lua_State* L);
+    int get_ideology_by_id(lua_State* L);
 
     // Beta functions that exist
     int add_op_province_to_company(lua_State* L);

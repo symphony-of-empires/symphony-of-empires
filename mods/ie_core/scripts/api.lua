@@ -74,14 +74,20 @@ function Ideology:new(o)
 	self.__index = self
 	return o
 end
-function Ideology:register()
-	self.id = add_ideology(self.ref_name, self.name, self.check_policies_fn)
-end
 function Ideology:get(ref_name)
 	o = Ideology:new()
 	o.id, o.name = get_ideology(ref_name)
 	o.ref_name = ref_name
 	return o
+end
+function Ideology:get_by_id(id)
+	o = Ideology:new()
+	o.ref_name, o.name = get_ideology_by_id(id)
+	o.id = id
+	return o
+end
+function Ideology:register()
+	self.id = add_ideology(self.ref_name, self.name, self.check_policies_fn)
 end
 
 Policies = {
@@ -428,6 +434,23 @@ function Province:get_neighbours()
 	end
 	return new_table
 end
+-- function Province:__get_pop_size()
+-- 	return get_province_pops_size(self.id)
+-- end
+function Province:get_pops()
+	local n_pops = get_province_pops_size(self.id)
+	local new_table = {}
+	for i = 0, n_pops do
+		local tb = {}
+		tb.size, tb.budget, tb.literacy, tb.life_needs_met, tb.everday_needs_met, tb.luxury_needs_met, tb.type, tb.culture, tb.religion, tb.ideology = get_province_pop(self.id)
+		tb.type = PopType:get_by_id(tb.type)
+		tb.culture = Culture:get_by_id(tb.culture)
+		tb.religion = Religion:get_by_id(tb.religion)
+		tb.ideology = Ideology:get_by_id(tb.ideology)
+		tb.id = i
+		new_table[i] = tb
+	end
+end
 -- Increments militancy for all POPs
 function Province:multiply_militancy(factor)
 	multiply_province_militancy_global(self.id, factor)
@@ -533,6 +556,12 @@ function PopType:get(ref_name)
 	o.ref_name = ref_name
 	return o
 end
+function PopType:get_by_id(id)
+	o = PopType:new()
+	o.ref_name, o.name, o.social_value, o.is_entrepreneur, o.is_slave, o.is_farmer, o.is_laborer = get_pop_type_by_id(id)
+	o.id = id
+	return o
+end
 function PopType:register()
 	self.id = add_pop_type(self.ref_name, self.name, self.social_value, self.is_entrepreneur, self.is_slave, self.is_farmer, self.is_laborer)
 end
@@ -558,6 +587,12 @@ function Culture:get(ref_name)
 	o.ref_name = ref_name
 	return o
 end
+function Culture:get_by_id(id)
+	o = Culture:new()
+	o.ref_name, o.name = get_culture_by_id(id)
+	o.id = id
+	return o
+end
 function Culture:register()
 	self.id = add_culture(self.ref_name, self.name)
 end
@@ -577,6 +612,12 @@ function Religion:get(ref_name)
 	o = Religion:new()
 	o.id, o.name = get_religion(ref_name)
 	o.ref_name = ref_name
+	return o
+end
+function Religion:get_by_id(id)
+	o = Religion:new()
+	o.ref_name, o.name = get_religion_by_id(id)
+	o.id = id
 	return o
 end
 function Religion:register()
