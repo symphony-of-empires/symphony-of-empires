@@ -16,7 +16,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 
     // Recollect offenders
     // - Those who are allied to us
-    for(uint i = 0; i < this->relations.size(); i++) {
+    for(unsigned int i = 0; i < this->relations.size(); i++) {
         const auto& relation = this->relations[i];
 
         if(relation.has_alliance) {
@@ -33,7 +33,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // Recollect defenders
     // - Those who are on a defensive pact with the target
     // - Those who are allied with the target
-    for(uint i = 0; i < nation.relations.size(); i++) {
+    for(unsigned int i = 0; i < nation.relations.size(); i++) {
         const auto& relation = nation.relations[i];
 
         if(relation.has_alliance || relation.has_defensive_pact) {
@@ -248,9 +248,9 @@ void Nation::give_province(Province& province) {
 
     //std::scoped_lock lock(world.nation_changed_tiles_mutex);
 
-    uint count = 0;
-    for(uint i = province.min_x; i <= province.max_x; i++) {
-        for(uint j = province.min_y; j <= province.max_y; j++) {
+    unsigned int count = 0;
+    for(unsigned int i = province.min_x; i <= province.max_x; i++) {
+        for(unsigned int j = province.min_y; j <= province.max_y; j++) {
             Tile& tile = world.get_tile(i, j);
             if(tile.province_id != province_id) continue;
 

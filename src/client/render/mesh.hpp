@@ -7,7 +7,7 @@
 
 #include <string>
 #include <vector>
-using namespace std;
+#include <cstdint>
 
 #define MAX_BONE_INFLUENCE 4
 
@@ -30,21 +30,20 @@ struct Vertex {
 
 struct TextureStruct {
     unsigned int id;
-    string type;
-    string path;
+    std::string type, path;
 };
 
 namespace UnifiedRender {
     class Mesh {
     public:
         // mesh Data
-        vector<Vertex>       vertices;
-        vector<unsigned int> indices;
-        vector<TextureStruct>      textures;
-        unsigned int VAO;
+        std::vector<Vertex> vertices;
+        std::vector<unsigned int> indices;
+        std::vector<TextureStruct> textures;
+        unsigned int vao;
 
         // constructor
-        Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<TextureStruct> textures)
+        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<TextureStruct> textures)
         {
             this->vertices = vertices;
             this->indices = indices;
@@ -55,27 +54,23 @@ namespace UnifiedRender {
         }
 
         // render the mesh
-        void draw(OpenGl::Program& shader) const
-        {
+        void draw(OpenGl::Program& shader) const {
             // bind appropriate textures
-            unsigned int diffuseNr  = 1;
-            unsigned int specularNr = 1;
-            unsigned int normalNr   = 1;
-            unsigned int heightNr   = 1;
-            for(unsigned int i = 0; i < textures.size(); i++)
-            {
+            unsigned int n_diffuse = 1, n_specular = 1, n_normal = 1, n_height = 1;
+
+            for(unsigned int i = 0; i < textures.size(); i++) {
                 glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
                 // retrieve texture number (the N in diffuse_textureN)
-                string number;
-                string name = textures[i].type;
+                std::string number;
+                std::string name = textures[i].type;
                 if(name == "texture_diffuse")
-                    number = std::to_string(diffuseNr++);
+                    number = std::to_string(n_diffuse++);
                 else if(name == "texture_specular")
-                    number = std::to_string(specularNr++); // transfer unsigned int to string
+                    number = std::to_string(n_specular++); // transfer unsigned int to string
                 else if(name == "texture_normal")
-                    number = std::to_string(normalNr++); // transfer unsigned int to string
+                    number = std::to_string(n_normal++); // transfer unsigned int to string
                 else if(name == "texture_height")
-                    number = std::to_string(heightNr++); // transfer unsigned int to string
+                    number = std::to_string(n_height++); // transfer unsigned int to string
 
                 // now set the sampler to the correct texture unit
                 glUniform1i(glGetUniformLocation(shader.get_id(), (name + number).c_str()), i);
@@ -84,7 +79,7 @@ namespace UnifiedRender {
             }
 
             // draw mesh
-            glBindVertexArray(VAO);
+            glBindVertexArray(vao);
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
             glBindVertexArray(0);
 
@@ -94,25 +89,24 @@ namespace UnifiedRender {
 
     private:
         // render data 
-        unsigned int VBO, EBO;
+        unsigned int vbo, ebo;
 
         // initializes all the buffer objects/arrays
-        void setupMesh()
-        {
+        void setupMesh() {
             // create buffers/arrays
-            glGenVertexArrays(1, &VAO);
-            glGenBuffers(1, &VBO);
-            glGenBuffers(1, &EBO);
+            glGenVertexArrays(1, &vao);
+            glGenBuffers(1, &vbo);
+            glGenBuffers(1, &ebo);
 
-            glBindVertexArray(VAO);
+            glBindVertexArray(vao);
             // load data into vertex buffers
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
             // A great thing about structs is that their memory layout is sequential for all its items.
             // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
             // again translates to 3/2 floats which translates to a byte array.
             glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
             // set the vertex attribute pointers

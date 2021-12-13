@@ -13,7 +13,7 @@ NationMarketView::NationMarketView(GameState& _gs, Nation* _nation)
     //this->is_scroll = false;
     this->text("Market information");
 
-    uint i = 0;
+    unsigned int i = 0;
     for(const auto& product : gs.world->products) {
         if(product->building == nullptr || product->building->get_owner() != nation) continue;
         ProductInfo* info = new ProductInfo(gs, 0, (i * 24) + 128, product, this);

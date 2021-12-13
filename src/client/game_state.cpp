@@ -376,7 +376,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 
         // Production queue
         if(!gs.production_queue.empty()) {
-            for(uint i = 0; i < gs.production_queue.size(); i++) {
+            for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
                 UnitType* unit = gs.production_queue[i];
 
                 // TODO: Make a better queue AI
@@ -426,7 +426,7 @@ static void mixaudio(void* userdata, uint8_t* stream, int len) {
 
     std::memset(stream, 0, len);
 
-    for(uint i = 0; i < gs.sound_queue.size(); ) {
+    for(unsigned int i = 0; i < gs.sound_queue.size(); ) {
         int size = gs.sound_queue.size();
         UnifiedRender::Sound* sound = gs.sound_queue[i];
         int amount = sound->len - sound->pos;
@@ -442,7 +442,7 @@ static void mixaudio(void* userdata, uint8_t* stream, int len) {
         i++;
     }
 
-    for(uint i = 0; i < gs.music_queue.size(); ) {
+    for(unsigned int i = 0; i < gs.music_queue.size(); ) {
         UnifiedRender::Sound* music = gs.music_queue[i];
         int amount = music->len - music->pos;
         if(amount > len) amount = len;

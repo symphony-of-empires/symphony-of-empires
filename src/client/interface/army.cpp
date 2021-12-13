@@ -12,7 +12,7 @@ ArmyArmyTab::ArmyArmyTab(GameState& _gs, int x, int y, UI::Widget* parent)
     : gs{ _gs },
     UI::Group(x, y, parent->width - x, parent->height - y, parent)
 {
-    uint i = 0;
+    unsigned int i = 0;
     for(const auto& unit : gs.world->units) {
         if(unit->owner != gs.curr_nation) continue;
         if(!(unit->type->is_ground == true && unit->type->is_naval == false)) continue;
@@ -30,7 +30,7 @@ ArmyAirforceTab::ArmyAirforceTab(GameState& _gs, int x, int y, UI::Widget* paren
     : gs{ _gs },
     UI::Group(x, y, parent->width - x, parent->height - y, parent)
 {
-    uint i = 0;
+    unsigned int i = 0;
     for(const auto& unit : gs.world->units) {
         if(unit->owner != gs.curr_nation) continue;
         if(!(unit->type->is_ground == true && unit->type->is_naval == true)) continue;
@@ -48,7 +48,7 @@ ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
     : gs{ _gs },
     UI::Group(x, y, parent->width - x, parent->height - y, parent)
 {
-    uint i = 0;
+    unsigned int i = 0;
     for(const auto& unit : gs.world->units) {
         if(unit->owner != gs.curr_nation) continue;
         if(!(unit->type->is_ground == false && unit->type->is_naval == true)) continue;
@@ -91,7 +91,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
             o.reqmat_chart->data.pop_back();
     });
 
-    uint i = 0;
+    unsigned int i = 0;
     for(const auto& building : gs.world->buildings) {
         if(building->get_owner() != gs.curr_nation) continue;
         auto* btn = new ArmyProductionUnitInfo(gs, 0, 128 + (24 * i), building, this);
@@ -142,7 +142,7 @@ ArmySelectUnitTab::ArmySelectUnitTab(GameState& _gs, int x, int y, UI::Widget* p
     : gs{ _gs },
     UI::Group(x, y, parent->width - x, parent->height - y, parent)
 {
-    uint i = 0;
+    unsigned int i = 0;
     for(const auto& unit_type : gs.world->unit_types) {
         auto* btn = new UnitTypeButton(gs, 0, 24 * i, unit_type, this);
         btn->user_data = unit_type;

@@ -314,8 +314,8 @@ void Client::net_loop(void) {
                     ::deserialize(ar, province);
 
                     std::scoped_lock lock(world.changed_tiles_coords_mutex);
-                    for(uint i = province->min_x; i < province->max_x; i++) {
-                        for(uint j = province->min_y; j < province->max_y; j++) {
+                    for(unsigned int i = province->min_x; i < province->max_x; i++) {
+                        for(unsigned int j = province->min_y; j < province->max_y; j++) {
                             if(world.get_tile(i, j).province_id != world.get_id(province)) continue;
                             world.changed_tile_coords.push_back(std::make_pair(i, j));
                         }
