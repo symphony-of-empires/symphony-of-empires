@@ -726,7 +726,8 @@ UnitType = {
 	max_defensive_ticks = 25,
 	position_defense = 0.1,
 	is_ground = false,
-	is_naval = false
+	is_naval = false,
+	speed = 1.0
 }
 function UnitType:new(o)
 	o = o or {}
@@ -736,12 +737,12 @@ function UnitType:new(o)
 end
 function UnitType:get( ref_name)
 	o = UnitType:new()
-	o.id, o.name, o.attack, o.defense, o.health, o.max_defensive_ticks, o.position_defense, o.is_ground, o.is_naval = get_unit_type(ref_name)
+	o.id, o.name, o.attack, o.defense, o.health, o.max_defensive_ticks, o.position_defense, o.is_ground, o.is_naval, o.speed = get_unit_type(ref_name)
 	o.ref_name = ref_name
 	return o
 end
 function UnitType:register()
-	self.id = add_unit_type(self.ref_name, self.name, self.attack, self.defense, self.health, self.max_defensive_ticks, self.position_defense, self.is_ground, self.is_naval)
+	self.id = add_unit_type(self.ref_name, self.name, self.attack, self.defense, self.health, self.max_defensive_ticks, self.position_defense, self.is_ground, self.is_naval, self.speed)
 end
 function UnitType:requires_good(good, amount)
 	add_req_good_unit_type(self.id, good.id, amount)
