@@ -82,28 +82,24 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     // generate the underlying topo map texture, since the topo map
     // dosen't changes too much we can just do a texture
     tile_map = new UnifiedRender::Texture(world.width, world.height);
+	
+	// Texture holding the colours of each owner
     tile_sheet = new UnifiedRender::Texture(256, 256);
     for(size_t i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer[i] = 0xffdddddd;
     }
-
-    // Make sure that Nation_Id is in a small enough range to fit a lookup table
-    static_assert(std::numeric_limits<Nation::Id>::max() <= 0xffff);
-    
-    uint32_t* nation_color_tab = new uint32_t[std::numeric_limits<Nation::Id>::max()];
-    for(const auto& nation : world.nations) {
-        nation_color_tab[world.get_id(nation)] = nation->get_client_hint().colour;
+    for(unsigned int i = 0; i < world.nations.size(); i++) {
+        tile_sheet->buffer[i] = world.nations[i]->get_client_hint().colour;
     }
     // Water
-    nation_color_tab[(Nation::Id)-2] = 0x00000000;
+    tile_sheet->buffer[(Nation::Id)-2] = 0x00000000;
     // Land
-    nation_color_tab[(Nation::Id)-1] = 0xffdddddd;
+    tile_sheet->buffer[(Nation::Id)-1] = 0xffdddddd;
+	
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
         tile_map->buffer[i] = ((tile.owner_id & 0xffff) << 16) | (tile.province_id & 0xffff);
-        tile_sheet->buffer[tile.owner_id] = (0xff << 24) | nation_color_tab[tile.owner_id];
     }
-    delete[] nation_color_tab;
 
     print_info("Uploading data to OpenGL");
     tile_sheet->to_opengl();

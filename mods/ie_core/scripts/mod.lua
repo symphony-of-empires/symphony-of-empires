@@ -261,6 +261,11 @@ the_minas_crash = Event:new{
 }
 the_minas_crash:register()
 
+require('events/gevhdl_001')
+require('events/gevhdl_002')
+
+--invalid_shit()
+
 set_date(1825, 0, 0)
 print("********************************************************************************")
 print("Industrial era mod")
