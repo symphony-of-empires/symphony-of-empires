@@ -1078,6 +1078,8 @@ int LuaAPI::add_unit_type(lua_State* L) {
 
     unit_type->is_ground = lua_toboolean(L, 8);
     unit_type->is_naval = lua_toboolean(L, 9);
+	
+	unit_type->speed = lua_tonumber(L, 10);
 
     g_world->insert(unit_type);
     lua_pushnumber(L, g_world->unit_types.size() - 1);
@@ -1096,7 +1098,8 @@ int LuaAPI::get_unit_type(lua_State* L) {
     lua_pushnumber(L, unit_type->position_defense);
     lua_pushboolean(L, unit_type->is_ground);
     lua_pushboolean(L, unit_type->is_naval);
-    return 9;
+	lua_pushnumber(L, unit_type->speed);
+    return 10;
 }
 
 int LuaAPI::add_req_good_unit_type(lua_State* L) {

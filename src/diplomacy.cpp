@@ -84,6 +84,7 @@ void LiberateNation::enforce(void) {
     // One-time clause
     done = true;
 }
+
 bool LiberateNation::in_effect(void) {
     return !done;
 }
@@ -158,6 +159,7 @@ bool Ceasefire::in_effect() {
     return (days_duration != 0);
 }
 
+/** Checks if the specified nations participates in the treaty */
 bool Treaty::does_participate(Nation* nation) {
     bool does_participate = false;
     for(auto& status : this->approval_status) {
@@ -166,4 +168,33 @@ bool Treaty::does_participate(Nation* nation) {
         }
     }
     return false;
+}
+
+/** Checks if the treaty has any clause which may still make the treaty be in effect */
+bool Treaty::in_effect(void) const {
+	bool on_effect = false;
+	for(const auto& clause : this->clauses) {
+		if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
+			auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
+			on_effect = dyn_clause->in_effect();
+		} else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
+			auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
+			on_effect = dyn_clause->in_effect();
+		} else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+			auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
+			on_effect = dyn_clause->in_effect();
+		} else if(clause->type == TreatyClauseType::HUMILIATE) {
+			auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
+			on_effect = dyn_clause->in_effect();
+		} else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+			auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
+			on_effect = dyn_clause->in_effect();
+		} else if(clause->type == TreatyClauseType::CEASEFIRE) {
+			auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
+			on_effect = dyn_clause->in_effect();
+		}
+		
+		if(on_effect) break;
+	}
+	return on_effect;	
 }
