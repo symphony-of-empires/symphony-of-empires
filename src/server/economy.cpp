@@ -681,6 +681,11 @@ void Economy::do_tick(World& world) {
             // x2.5 life needs met modifier, that is the max allowed
             pop.life_needs_met = std::min<float>(1.2f, std::max<float>(pop.life_needs_met, -5.f));
             pop.everyday_needs_met = std::min<float>(1.5f, std::max<float>(pop.everyday_needs_met, -5.f));
+			
+			// Current liking of the party is influenced by the life_needs_met
+			if(pop.life_needs_met != 0.f) {
+				pop.ideology_approval[world.get_id(province->owner->ideology)] += pop.life_needs_met / 1000.f;
+			}
 
             // POPs cannot shrink below 10
             if(pop.size <= 10) {
