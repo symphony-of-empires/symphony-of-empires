@@ -726,7 +726,7 @@ void World::do_tick() {
 
         if((unit->x != unit->tx || unit->y != unit->ty) && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
             float end_x, end_y;
-            const float speed = 0.1f;
+            const float speed = unit->type->speed;
 
             end_x = unit->x;
             end_y = unit->y;
@@ -742,11 +742,16 @@ void World::do_tick() {
             else if(unit->y < unit->ty)
                 end_y += speed;
 
-            // TODO: Disallow unit from crossing on certain stuff
-            // This code prevents us from stepping onto water tiles (but allows for rivers)
-            //if(get_tile(end_x, end_y).elevation <= sea_level) {
-            //    continue;
-            //}
+            // Disallow units that are not naval from crossing the sea
+            if(!unit->type->is_naval && get_tile(end_x, end_y).elevation <= sea_level) {
+                continue;
+            }
+			// Consequently disallow land units on sea
+			else if(!unit->type->is_ground && get_tile(end_x, end_y).elevation > sea_level) {
+                continue;
+            }
+			
+			// Airplanes would be allowed to cross both...
 
             unit->x = end_x;
             unit->y = end_y;
@@ -755,10 +760,11 @@ void World::do_tick() {
             unit->y = std::min<float>(height - 1, unit->y);
 
             // West and east do wrap
-            if(unit->x <= 0.f)
+            if(unit->x <= 0.f) {
                 unit->x = width - 1.f;
-            else if(unit->x >= width)
+			} else if(unit->x >= width) {
                 unit->x = 0.f;
+			}
         }
 
         // Make the unit attack automatically
@@ -767,19 +773,24 @@ void World::do_tick() {
         for(auto& other_unit : units) {
             if(unit->owner != other_unit->owner) {
                 // Foes from many ranges counts
-                if(std::abs(unit->x - other_unit->x) >= 1.f && std::abs(unit->y - other_unit->y) >= 1.f)
+                if(std::abs(unit->x - other_unit->x) >= 4.f || std::abs(unit->y - other_unit->y) >= 4.f)
                     continue;
+				
+				if(nearest_enemy == nullptr) {
+					nearest_enemy = other_unit;
+					continue;
+				}
                 
-                if(nearest_enemy == nullptr) nearest_enemy = other_unit;
                 // Find nearest foe
-                else if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_enemy->x) && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_enemy->y)) {
+                if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_enemy->x) && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_enemy->y)) {
                     nearest_enemy = other_unit;
                 }
             }
         }
 
         // TODO: This is temporal - un-comment this :D
-        if(nearest_enemy != nullptr && unit->owner->is_enemy(*nearest_enemy->owner)) {
+        //if(nearest_enemy != nullptr && unit->owner->is_enemy(*nearest_enemy->owner)) {
+		if(nearest_enemy != nullptr) {
 			int killed = nearest_enemy->size;
             unit->attack(*nearest_enemy);
 			killed = std::max<int>(0, killed - nearest_enemy->size);
@@ -864,17 +875,6 @@ void World::do_tick() {
             }
         }
 
-        // North and south do not wrap
-        unit->y = std::max<float>(0.f, unit->y);
-        unit->y = std::min<float>(height - 1, unit->y);
-
-        // West and east do wrap
-        if(unit->x <= 0.f) {
-            unit->x = width - 1.f;
-        } else if(unit->x >= width) {
-            unit->x = 0.f;
-        }
-
         // Set nearby tiles as owned
         // TODO: Make it conquer multiple tiles
         Tile& tile = get_tile(unit->x, unit->y);
@@ -950,32 +950,9 @@ void World::do_tick() {
         // Check that the treaty is agreed by all parties before enforcing it
         bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty->approval_status.end());
         if(!on_effect) continue;
-
-        // And also check that there is atleast 1 clause that is on effect
-        on_effect = false;
-        for(const auto& clause : treaty->clauses) {
-            if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
-                auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
-                on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
-                auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
-                on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
-                auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
-                on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TreatyClauseType::HUMILIATE) {
-                auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
-                on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
-                auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
-                on_effect = dyn_clause->in_effect();
-            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
-                auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
-                on_effect = dyn_clause->in_effect();
-            }
-            if(on_effect) break;
-        }
-        if(!on_effect) continue;
+		
+		// Check with treaty
+        if(!treaty->in_effect()) continue;
 
         // Treaties clauses now will be enforced
         print_info("Enforcing treaty %s", treaty->name.c_str());
@@ -1018,7 +995,7 @@ void World::do_tick() {
     time++;
 
     // Tell clients that this tick has been done
-    Packet packet = Packet(0);
+    Packet packet = Packet();
     Archive ar = Archive();
     ActionType action = ActionType::WORLD_TICK;
     ::serialize(ar, &action);

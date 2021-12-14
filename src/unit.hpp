@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 #include <cstddef>
+#include <type_traits>
 #include "good.hpp"
 
 #include "unified_render/entity.hpp"
@@ -94,8 +95,23 @@ public:
         this->morale += 5.f * enemy_fanaticism * damage_dealt / enemy.size;
 
         // Deal the damage
-        enemy.size -= damage_dealt;
+        enemy.size -= std::min<size_t>(enemy.size, damage_dealt);
     };
+	
+	template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type>
+	void move_to(const T& tx, const T& ty) {
+		if(this->x > this->tx) {
+			this->x -= this->type->speed;
+		} else if(this->x < this->tx) {
+			this->x += this->type->speed;
+		}
+
+		if(this->y > this->ty) {
+			this->y -= this->type->speed;
+		} else if(this->y < this->ty) {
+			this->y += this->type->speed;
+		}
+	};
     
     // Type of unit
     UnitType* type;

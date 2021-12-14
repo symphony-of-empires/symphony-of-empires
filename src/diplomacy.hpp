@@ -168,6 +168,7 @@ enum class TreatyApproval {
 class Treaty : public IdEntity<uint16_t> {
 public:
     bool does_participate(Nation* nation);
+	bool in_effect(void) const;
 
     std::string name;
     std::vector<TreatyClause::BaseClause*> clauses;

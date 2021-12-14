@@ -338,10 +338,10 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     gs.current_mode = MapMode::COUNTRY_SELECT;
     gs.input = Input();
 
-    glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+    glClearColor(0.3f, 0.3f, 0.3f, 0.5f);
     gs.select_nation = new Interface::LobbySelectView(gs);
     new MapDevView(gs.map);
-
+=
     std::vector<Event*> displayed_events;
     std::vector<Treaty*> displayed_treaties;
 
@@ -349,6 +349,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     gs.update_tick = true;
 	
     gs.run = true;
+	gs.paused = true;
 
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);

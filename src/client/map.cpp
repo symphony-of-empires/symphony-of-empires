@@ -256,7 +256,7 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
     fbo->use();
 
     // Jump flooding iterations
-    const int max_steps = 16.f;
+    const int max_steps = 4.f;
 	
     bool drawOnTex0 = true;
 	for(int step = max_steps; step >= 1; step /= 2) {
@@ -275,8 +275,6 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
 
         // Draw a plane over the entire screen to invoke shaders
         map_2d_quad->draw();
-
-        step /= 2;
 	}
 	
     glFinish();
@@ -534,7 +532,6 @@ void Map::update(const SDL_Event& event, Input& input)
 
 // Updates the tiles texture with the changed tiles
 void Map::update_tiles(World& world) {
-    std::scoped_lock lock(g_world->changed_tiles_coords_mutex);
     glDisable(GL_CULL_FACE);
     if(world.changed_tile_coords.size() > 0) {
         UnifiedRender::OpenGl::Framebuffer* fbo = new UnifiedRender::OpenGl::Framebuffer();
@@ -669,10 +666,40 @@ void Map::draw(const int width, const int height) {
     }*/
     for(const auto& unit : world.units) {
         glPushMatrix();
-        glTranslatef(unit->x, unit->y, -1.f);
-        const int _w = 2, _h = 2;
+        glTranslatef(unit->x, unit->y, -0.1f);
+        float _w = 2, _h = 2;
         nation_flags[world.get_id(unit->owner)]->bind();
 		
+		if(!unit->size) {
+			glColor3f(0.5f, 0.5f, 0.5f);
+		} else {
+			glColor3f(1.f, 1.f, 1.f);
+		}
+        glBegin(GL_TRIANGLES);
+        glTexCoord2f(0.f, 0.f);
+        glVertex2f(0.f, 0.f);
+        glTexCoord2f(1.f, 0.f);
+        glVertex2f(_w, 0.f);
+        glTexCoord2f(1.f, 1.f);
+        glVertex2f(_w, _h);
+        glTexCoord2f(1.f, 1.f);
+        glVertex2f(_w, _h);
+        glTexCoord2f(0.f, 1.f);
+        glVertex2f(0.f, _h);
+        glTexCoord2f(0.f, 0.f);
+        glVertex2f(0.f, 0.f);
+        glEnd();
+		glPopMatrix();
+		
+		if(!unit->size) continue;
+		
+		glBindTexture(GL_TEXTURE_2D, 0);
+		
+		glPushMatrix();
+        glTranslatef(unit->x, unit->y - 2.f, -1.f);
+		_w = unit->size / unit->type->max_health;
+		_h = 0.5f;
+		glColor3f(0.f, 1.f, 0.f);
         glBegin(GL_TRIANGLES);
         glTexCoord2f(0.f, 0.f);
         glVertex2f(0.f, 0.f);
@@ -689,7 +716,27 @@ void Map::draw(const int width, const int height) {
         glEnd();
         glPopMatrix();
 		
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glPushMatrix();
+        glTranslatef(unit->x + (unit->size / unit->type->max_health), unit->y - 2.f, -1.f);
+		_w = (unit->type->max_health - unit->size) / unit->type->max_health;
+		_h = 0.5f;
+		glColor3f(1.f, 0.f, 0.f);
+        glBegin(GL_TRIANGLES);
+        glTexCoord2f(0.f, 0.f);
+        glVertex2f(0.f, 0.f);
+        glTexCoord2f(1.f, 0.f);
+        glVertex2f(_w, 0.f);
+        glTexCoord2f(1.f, 1.f);
+        glVertex2f(_w, _h);
+        glTexCoord2f(1.f, 1.f);
+        glVertex2f(_w, _h);
+        glTexCoord2f(0.f, 1.f);
+        glVertex2f(0.f, _h);
+        glTexCoord2f(0.f, 0.f);
+        glVertex2f(0.f, 0.f);
+        glEnd();
+        glPopMatrix();
+		
 		glBegin(GL_LINES);
 		glColor3f(1.f, 0.f, 0.f);
 		glVertex2f(unit->x, unit->y);

@@ -51,10 +51,10 @@ public:
     std::vector<Workers> laborers{};
     // AvailableWorkers() {};
 };
-// Phase 1 of economy: Delivers & Orders are sent from all factories in the world
-void Economy::do_tick(World& world) {
-    std::vector<AvailableWorkers> available_workers;
-    for(const auto& province : world.provinces) {
+
+static inline std::vector<AvailableWorkers> get_available_workers(World& world) {
+	std::vector<AvailableWorkers> available_workers;
+	for(const auto& province : world.provinces) {
         // Province must have an owner
         if(province->owner == nullptr) {
             available_workers.push_back(AvailableWorkers{});
@@ -93,6 +93,13 @@ void Economy::do_tick(World& world) {
         }
         available_workers.push_back(province_workers);
     }
+	return available_workers;
+}
+
+// Phase 1 of economy: Delivers & Orders are sent from all factories in the world
+void Economy::do_tick(World& world) {
+    std::vector<AvailableWorkers> available_workers = get_available_workers(world);
+    
     // Buildings who have fullfilled requirements to build stuff will spawn a unit
     for(size_t j = 0; j < world.buildings.size(); j++) {
         auto& building = world.buildings[j];
@@ -262,16 +269,6 @@ void Economy::do_tick(World& world) {
                     g_server->broadcast(packet);
                 }
 
-                for(const auto& product : building->output_products) {
-                    Packet packet = Packet();
-                    Archive ar = Archive();
-                    ActionType action = ActionType::PRODUCT_REMOVE;
-                    ::serialize(ar, &action);
-                    ::serialize(ar, &product);
-                    packet.data(ar.get_buffer(), ar.size());
-                    g_server->broadcast(packet);
-                }
-
                 print_info("Building of %s in %s has closed down!", building->type->name.c_str(), province->name.c_str());
 
                 world.remove(building);
@@ -295,7 +292,7 @@ void Economy::do_tick(World& world) {
 
             world.orders_mutex.lock();
             for(const auto& input : building->type->inputs) {
-                OrderGoods order ={};
+                OrderGoods order = {};
 
                 // Farmers can only work with edibles and laborers can only work for edibles
                 if(input->is_edible) {
@@ -687,11 +684,12 @@ void Economy::do_tick(World& world) {
 				pop.ideology_approval[world.get_id(province->owner->ideology)] += pop.life_needs_met / 1000.f;
 			}
 
-            // POPs cannot shrink below 10
-            if(pop.size <= 10) {
-                pop.size = 1;
-            }
-            else {
+            // We want to get rid of many POPs as possible
+            if(!pop.size) {
+				province->pops.erase(province->pops.begin() + i);
+                i--;
+				continue;
+            } else {
                 // Higher literacy will mean there will be less births due to sex education
                 // and will also mean that - there would be less deaths due to higher knewledge
                 int growth;
@@ -822,7 +820,7 @@ void Economy::do_tick(World& world) {
     // create clones
     for(const auto& target : emigration) {
         auto pop = std::find(target.origin->pops.begin(), target.origin->pops.end(), target.emigred);
-        pop->size -= target.size;
+        pop->size -= std::min(pop->size, target.size);
 
         auto new_pop = std::find(target.target->pops.begin(), target.target->pops.end(), *pop);
         if(new_pop == target.target->pops.end()) {
