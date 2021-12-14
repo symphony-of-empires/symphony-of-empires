@@ -341,7 +341,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     glClearColor(0.3f, 0.3f, 0.3f, 0.5f);
     gs.select_nation = new Interface::LobbySelectView(gs);
     new MapDevView(gs.map);
-=
+
     std::vector<Event*> displayed_events;
     std::vector<Treaty*> displayed_treaties;
 
