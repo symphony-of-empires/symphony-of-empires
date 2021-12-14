@@ -1169,19 +1169,29 @@ void LuaAPI::check_events(lua_State* L) {
                 lua_pcall(L, 1, 1, 0);
                 is_multi = lua_tointeger(L, -1);
                 lua_pop(L, 1);
-
+				
+				// The changes done to the event "locally" are then created into a new local event
                 auto* local_event = new Event(*event);
+				local_event->cached_id = (Event::Id)-1;
                 local_event->ref_name += "_";
                 for(unsigned int j = 0; j < 20; j++) {
                     local_event->ref_name += 'a' + (rand() % 26);
                 }
-                g_world->events.push_back(local_event);
-                nation->inbox.push_back(local_event);
-                // Do not relaunch a local event
+				// Do not relaunch a local event
                 local_event->checked = true;
+				
+				if(local_event->descisions.empty()) {
+					print_error("Event %s has no descisions (ref_name = %s)", local_event->ref_name.c_str(), nation->ref_name.c_str());
+					*event = orig_event;
+					continue;
+				}
+				
+                g_world->insert(local_event);
+				nation->inbox.push_back(local_event);
 
                 print_info("Event triggered! %s (with %zu descisions)", local_event->ref_name.c_str(), (size_t)local_event->descisions.size());
-
+				
+				// Original event then gets restored
                 *event = orig_event;
             }
         }
