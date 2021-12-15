@@ -537,25 +537,25 @@ public:
     static inline void serialize(Archive& stream, const Tile* obj) {
 #if defined TILE_GRANULARITY
         ::serialize(stream, &obj->terrain_type_id);
-#endif
         ::serialize(stream, &obj->owner_id);
+#endif
         ::serialize(stream, &obj->province_id);
         ::serialize(stream, &obj->elevation);
     }
     static inline void deserialize(Archive& stream, Tile* obj) {
 #if defined TILE_GRANULARITY
         ::deserialize(stream, &obj->terrain_type_id);
-#endif
         ::deserialize(stream, &obj->owner_id);
+#endif
         ::deserialize(stream, &obj->province_id);
         ::deserialize(stream, &obj->elevation);
     }
     static inline size_t size(const Tile* obj) {
-        return
+        return 0
 #if defined TILE_GRANULARITY
-            serialized_size(&obj->terrain_type_id)
-#endif
+            + serialized_size(&obj->terrain_type_id)
             + serialized_size(&obj->owner_id)
+#endif
             + serialized_size(&obj->province_id)
             + serialized_size(&obj->elevation)
             ;
@@ -813,6 +813,9 @@ public:
         ::serialize(stream, &obj->stockpile);
         ::serialize(stream, &obj->products);
         ::serialize(stream, &obj->pops);
+#if defined TILE_GRANULARITY
+        ::serialize(stream, &obj->controller);
+#endif
     }
     static inline void deserialize(Archive& stream, Province* obj) {
         ::deserialize(stream, &obj->name);
@@ -832,6 +835,9 @@ public:
         ::deserialize(stream, &obj->stockpile);
         ::deserialize(stream, &obj->products);
         ::deserialize(stream, &obj->pops);
+#if defined TILE_GRANULARITY
+        ::deserialize(stream, &obj->controller);
+#endif
     }
     static inline size_t size(const Province* obj) {
         return
@@ -852,6 +858,9 @@ public:
             + serialized_size(&obj->stockpile)
             + serialized_size(&obj->products)
             + serialized_size(&obj->pops)
+#if defined TILE_GRANULARITY
+            + serialized_size(&obj->controller)
+#endif
             ;
         // TODO: Rest of fields
     }

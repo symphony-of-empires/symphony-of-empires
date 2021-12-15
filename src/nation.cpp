@@ -248,6 +248,7 @@ void Nation::give_province(Province& province) {
 
     //std::scoped_lock lock(world.nation_changed_tiles_mutex);
 
+#if defined TILE_GRANULARITY
     unsigned int count = 0;
     for(unsigned int i = province.min_x; i <= province.max_x; i++) {
         for(unsigned int j = province.min_y; j <= province.max_y; j++) {
@@ -259,6 +260,7 @@ void Nation::give_province(Province& province) {
             count++;
         }
     }
+#endif
 
     world.nations[nation_id]->owned_provinces.insert(world.provinces[province_id]);
     world.provinces[province_id]->owner = world.nations[nation_id];

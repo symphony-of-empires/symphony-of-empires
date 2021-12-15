@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <algorithm>
 
+#if defined TILE_GRANULARITY
 /**
  * Checks whether the given coordinates are within bounds for the given world
  */
@@ -44,9 +45,7 @@ static std::vector<Tile *> generate_neighbors(const World& world, const Nation& 
                 
                 // Does not have military acces AND does not have alliance AND is not at war
                 // Means the country is neutral towards us and we can't cross there
-                if(relation.has_military_access != true
-                && relation.has_alliance != true
-                && relation.has_war != true) {
+                if(relation.has_military_access != true && relation.has_alliance != true && relation.has_war != true) {
                     continue;
                 }
             }
@@ -96,14 +95,10 @@ static inline float tile_cost(const World& world, Tile* t1, Tile* t2) {
     // a boat can pass thru water but for an army it will have a horrible cost!
 
     // Maximum penalties difference accounts to same cost as one jump in x or y direction (1.0)
-#if defined TILE_GRANULARITY
     const float elev_diff = (
         (int)world.terrain_types[t1->terrain_type_id]->movement_penalty
         - (int)world.terrain_types[t2->terrain_type_id]->movement_penalty)
         / 128.f;
-#else
-    const float elev_diff = 0.f;
-#endif
     
     // Base distance is euclidean distance in x, y and elevation
     const float distance = std::sqrt(x_diff* x_diff + y_diff* y_diff + elev_diff* elev_diff);
@@ -187,3 +182,6 @@ std::vector<Tile *> Pathfind::unit_path(const World& world, const Nation& nation
     std::reverse(path.begin(), path.end());
     return path;
 }
+#else
+/* TODO: Do pathfinding */
+#endif

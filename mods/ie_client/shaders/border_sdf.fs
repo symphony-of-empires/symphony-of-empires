@@ -40,7 +40,6 @@ void main() {
 	// 	f_frag_colour = m_frag_data;
 	// 	return;
 	// }
-		
 
 	float dist = 0.0;
 	if(m_frag_data.z > 0.0)

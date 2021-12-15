@@ -172,9 +172,14 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                     if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
                         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
                         
+#if defined TILE_GRANULARITY
                         if(tile.owner_id >= gs.world->nations.size()) break;
                         if(tile.province_id >= gs.world->provinces.size()) break;
                         new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->nations[tile.owner_id], gs.world->provinces[tile.province_id]);
+#else
+                        if(tile.province_id >= gs.world->provinces.size()) break;
+                        new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->provinces[tile.province_id]->owner, gs.world->provinces[tile.province_id]);
+#endif
                     }
                 }
                 break;
