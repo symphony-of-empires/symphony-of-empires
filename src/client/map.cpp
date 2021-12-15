@@ -40,39 +40,39 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
     map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
 
-#if !defined TILE_GRANULARITY
-    UnifiedRender::TextureOptions mipmap_options{};
-    mipmap_options.wrap_s = GL_REPEAT;
-    mipmap_options.wrap_t = GL_REPEAT;
-    mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
-    mipmap_options.mag_filter = GL_LINEAR;
-    
-    landscape_map = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
-    landscape_map->gen_mipmaps();
+    // #if !defined TILE_GRANULARITY
+    //     UnifiedRender::TextureOptions mipmap_options{};
+    //     mipmap_options.wrap_s = GL_REPEAT;
+    //     mipmap_options.wrap_t = GL_REPEAT;
+    //     mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
+    //     mipmap_options.mag_filter = GL_LINEAR;
 
-    topo_map = &g_texture_manager->load_texture(Path::get("topo.png"));
-    //topo_map->to_opengl();
+    //     landscape_map = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
+    //     landscape_map->gen_mipmaps();
 
-    id_map = new UnifiedRender::Texture(world.width, world.height);
-    for(size_t i = 0; i < world.width * world.height; i++) {
-        const Tile& tile = world.get_tile(i);
-        id_map->buffer[i] = (tile.province_id & 0xffff);
-    }
-    id_map->to_opengl();
+    //     topo_map = &g_texture_manager->load_texture(Path::get("topo.png"));
+    //     //topo_map->to_opengl();
 
-    province_color_tex = new UnifiedRender::Texture(256, 256);
-    for(const auto& province : world.provinces) {
-        if(province->owner != nullptr) {
-            province_color_tex->buffer[world.get_id(province)] = province->owner->get_client_hint().color;
-        } else {
-            province_color_tex->buffer[world.get_id(province)] = 0xff808080;
-        }
-    }
-    province_color_tex->buffer[(Province::Id)-1] = 0x00000000;
-    province_color_tex->to_opengl();
+    //     id_map = new UnifiedRender::Texture(world.width, world.height);
+    //     for(size_t i = 0; i < world.width * world.height; i++) {
+    //         const Tile& tile = world.get_tile(i);
+    //         id_map->buffer[i] = (tile.province_id & 0xffff);
+    //     }
+    //     id_map->to_opengl();
 
-    map_shader = UnifiedRender::OpenGl::Program::create("ps_map", "ps_map");
-#else
+    //     province_color_tex = new UnifiedRender::Texture(256, 256);
+    //     for(const auto& province : world.provinces) {
+    //         if(province->owner != nullptr) {
+    //             province_color_tex->buffer[world.get_id(province)] = province->owner->get_client_hint().color;
+    //         } else {
+    //             province_color_tex->buffer[world.get_id(province)] = 0xff808080;
+    //         }
+    //     }
+    //     province_color_tex->buffer[(Province::Id)-1] = 0x00000000;
+    //     province_color_tex->to_opengl();
+
+    //     map_shader = UnifiedRender::OpenGl::Program::create("ps_map", "ps_map");
+    // #else
     if(glewIsSupported("GL_VERSION_2_1")) {
         map_2d_quad = new UnifiedRender::OpenGl::Quad2D();
         UnifiedRender::TextureOptions mipmap_options{};
@@ -94,16 +94,16 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         //terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
         //topo_map = new UnifiedRender::Texture(world.width, world.height);
 
-        terrain_tex = new UnifiedRender::Texture(world.width, world.height);
-        for(size_t i = 0; i < world.width * world.height; i++) {
-            terrain_tex->buffer[i] = world.tiles[i].terrain_type_id;
-            topo_map->buffer[i] = world.tiles[i].elevation;
-        }
-        terrain_tex->to_opengl();
+        // terrain_tex = new UnifiedRender::Texture(world.width, world.height);
+        // for(size_t i = 0; i < world.width * world.height; i++) {
+        //     terrain_tex->buffer[i] = world.tiles[i].terrain_type_id;
+        //     topo_map->buffer[i] = world.tiles[i].elevation;
+        // }
+        // terrain_tex->to_opengl();
 
         terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
         terrain_sheet->to_opengl();
-		
+
         map_shader = UnifiedRender::OpenGl::Program::create("map", "map");
         obj_shader = UnifiedRender::OpenGl::Program::create("simple_model", "simple_model");
         border_gen_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_gen");
@@ -119,7 +119,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     // dosen't changes too much we can just do a texture
     tile_map = new UnifiedRender::Texture(world.width, world.height);
 
-	// Texture holding the colors of each owner
+    // Texture holding the colors of each owner
     tile_sheet = new UnifiedRender::Texture(256, 256);
     for(size_t i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer[i] = 0xffdddddd;
@@ -131,10 +131,17 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     tile_sheet->buffer[(Nation::Id)-2] = 0x00000000;
     // Land
     tile_sheet->buffer[(Nation::Id)-1] = 0xffdddddd;
-	
+
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
-        tile_map->buffer[i] = ((tile.owner_id & 0xffff) << 16) | (tile.province_id & 0xffff);
+        if(tile.province_id >= (Province::Id) - 3) {
+            tile_map->buffer[i] = (tile.province_id & 0xffff);
+        }
+        else {
+            auto province = world.provinces[tile.province_id];
+            if(province->owner == nullptr) continue;
+            tile_map->buffer[i] = ((world.get_id(province->owner) & 0xffff) << 16) | (tile.province_id & 0xffff);
+        }
     }
 
     print_info("Uploading data to OpenGL");
@@ -173,7 +180,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     border_sdf = gen_border_sdf();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glEnable(GL_CULL_FACE);
-#endif
+    // #endif
 
     print_info("Preloading-important stuff");
     // Query the initial nation flags
@@ -215,13 +222,14 @@ void Map::set_view(MapView view) {
     delete camera;
     if(view == MapView::PLANE_VIEW) {
         camera = new FlatCamera(old_width, old_height);
-    } else if(view == MapView::SPHERE_VIEW) {
+    }
+    else if(view == MapView::SPHERE_VIEW) {
         camera = new OrbitCamera(old_width, old_height, 100.f);
     }
 }
 
 void Map::reload_shaders() {
-#if defined TILE_GRANULARITY
+    // #if defined TILE_GRANULARITY
     delete map_shader;
     map_shader = UnifiedRender::OpenGl::Program::create("map", "map");
 
@@ -231,11 +239,11 @@ void Map::reload_shaders() {
     delete border_sdf;
     border_sdf = gen_border_sdf();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-#endif
+    // #endif
 }
 
 std::vector<std::pair<Province::Id, uint32_t>> population_map_mode(std::vector<Province*> provinces, World* world) {
-#if defined TILE_GRANULARITY
+    // #if defined TILE_GRANULARITY
     std::vector<std::pair<Province::Id, uint32_t>> province_amounts;
     uint32_t max_amount = 0;
     for(auto const& province : provinces) {
@@ -262,26 +270,26 @@ std::vector<std::pair<Province::Id, uint32_t>> population_map_mode(std::vector<P
         province_color.push_back(std::make_pair(prov_id, color));
     }
     return province_color;
-#endif
+    // #endif
 }
 
 void Map::set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_colors) {
-#if defined TILE_GRANULARITY
-    // Max amout of provinces are limited to 256 * 256
+    // #if defined TILE_GRANULARITY
+        // Max amout of provinces are limited to 256 * 256
     tile_sheet->delete_opengl();
     tile_sheet = new UnifiedRender::Texture(256, 256);
-	std::memset(tile_sheet->buffer, 0, sizeof(tile_sheet->buffer[0]) * (tile_sheet->width * tile_sheet->height));
-	
+    std::memset(tile_sheet->buffer, 0, sizeof(tile_sheet->buffer[0]) * (tile_sheet->width * tile_sheet->height));
+
     for(auto const& province_color : province_colors) {
         tile_map->buffer[province_color.first] = (0xff << 24) | province_color.second;
     }
     tile_sheet->to_opengl();
-#endif
+    // #endif
 }
 
 /** Creates the "waving" border around the continent to give it a 19th century map feel */
 UnifiedRender::Texture* Map::gen_border_sdf() {
-#if defined TILE_GRANULARITY
+    // #if defined TILE_GRANULARITY
     glDisable(GL_CULL_FACE);
     glViewport(0, 0, border_tex->width, border_tex->height);
     border_sdf_shader->use();
@@ -290,37 +298,38 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
     fbo_mipmap_options.internal_format = GL_RGBA32F;
     fbo_mipmap_options.min_filter = GL_LINEAR_MIPMAP_NEAREST;
     fbo_mipmap_options.mag_filter = GL_LINEAR;
-	
+
     UnifiedRender::Texture* tex0 = new UnifiedRender::Texture(border_tex->width, border_tex->height);
     tex0->to_opengl(fbo_mipmap_options);
     UnifiedRender::Texture* tex1 = new UnifiedRender::Texture(border_tex->width, border_tex->height);
     tex1->to_opengl(fbo_mipmap_options);
-    
-	UnifiedRender::OpenGl::Framebuffer* fbo = new UnifiedRender::OpenGl::Framebuffer();
+
+    UnifiedRender::OpenGl::Framebuffer* fbo = new UnifiedRender::OpenGl::Framebuffer();
     fbo->use();
 
     // Jump flooding iterations
     const int max_steps = 4.f;
-	
+
     bool drawOnTex0 = true;
-	for(int step = max_steps; step >= 1; step /= 2) {
-		// Swap read/write buffers
+    for(int step = max_steps; step >= 1; step /= 2) {
+        // Swap read/write buffers
         drawOnTex0 = !drawOnTex0;
         tex0->gen_mipmaps();
         tex1->gen_mipmaps();
         border_sdf_shader->set_uniform("jump", (float)step);
-		
-		fbo->set_texture(0, drawOnTex0 ? tex0 : tex1);
+
+        fbo->set_texture(0, drawOnTex0 ? tex0 : tex1);
         if(step == max_steps){
             border_sdf_shader->set_texture(0, "tex", border_tex);
-        } else {
+        }
+        else {
             border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? tex1 : tex0);
         }
 
         // Draw a plane over the entire screen to invoke shaders
         map_2d_quad->draw();
-	}
-	
+    }
+
     glFinish();
     delete fbo;
     if(drawOnTex0) {
@@ -328,15 +337,16 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
         tex0->gen_mipmaps();
         glEnable(GL_CULL_FACE);
         return tex0;
-    } else {
+    }
+    else {
         delete tex0;
         tex1->gen_mipmaps();
         glEnable(GL_CULL_FACE);
         return tex1;
     }
-#else
-    return nullptr;
-#endif
+    // #else
+        // return nullptr;
+    // #endif
 }
 
 void Map::draw_flag(const Nation* nation) {
@@ -353,13 +363,13 @@ void Map::draw_flag(const Nation* nation) {
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-        ));
+            ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-        ));
+            ));
     }
 
     flag.vao.bind();
@@ -415,10 +425,10 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 if((int)select_pos.first > (int)unit->x - size && (int)select_pos.first < (int)unit->x + size && (int)select_pos.second >(int)unit->y - size && (int)select_pos.second < (int)unit->y + size) {
                     selected_unit = unit;
                     return;
-                }
+    }
 #else
                 std::pair<float, float> pos = unit->get_pos();
-                if((int)select_pos.first > (int)pos.first - size && (int)select_pos.first < (int)pos.second + size && (int)select_pos.second > (int)pos.first - size && (int)select_pos.second < (int)pos.second + size) {
+                if((int)select_pos.first > (int)pos.first - size && (int)select_pos.first < (int)pos.second + size && (int)select_pos.second >(int)pos.first - size && (int)select_pos.second < (int)pos.second + size) {
                     selected_unit = unit;
                     return;
                 }
@@ -432,7 +442,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 if((int)select_pos.first > (int)building->x - size && (int)select_pos.first < (int)building->x + size && (int)select_pos.second >(int)building->y - size && (int)select_pos.second < (int)building->y + size) {
                     selected_building = building;
                     return;
-                }
+}
             }
 #endif
 
@@ -487,8 +497,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                     if(gs.world->get_tile(i, j).province_id != gs.world->get_id(province)) continue;
                     gs.world->get_tile(i, j).owner_id = gs.world->get_id(gs.curr_nation);
                     gs.world->changed_tile_coords.push_back(std::make_pair(i, j));
-                }
-            }
+        }
+    }
 #endif
 
             FILE* fp = fopen("test.lua", "a+t");
@@ -519,7 +529,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             ::serialize(ar, &selected_unit->ty);
 #endif
             packet.data(ar.get_buffer(), ar.size());
-			std::scoped_lock lock(gs.client->pending_packets_mutex);
+            std::scoped_lock lock(gs.client->pending_packets_mutex);
             gs.client->pending_packets.push_back(packet);
             return;
         }
@@ -649,13 +659,13 @@ void Map::update_tiles(World& world) {
 void Map::draw(const int width, const int height) {
     glm::mat4 view, projection;
 
-    for(const auto& province : world.provinces) {
-        province_color_tex->buffer[world.get_id(province)] = 0xff000000;
-        if(province->owner != nullptr) {
-            province_color_tex->buffer[world.get_id(province)] = province->owner->get_client_hint().color;
-        }
-    }
-    province_color_tex->to_opengl();
+    // for(const auto& province : world.provinces) {
+    //     province_color_tex->buffer[world.get_id(province)] = 0xff000000;
+    //     if(province->owner != nullptr) {
+    //         province_color_tex->buffer[world.get_id(province)] = province->owner->get_client_hint().color;
+    //     }
+    // }
+    // province_color_tex->to_opengl();
 
     map_shader->use();
     view = camera->get_view();
@@ -666,11 +676,11 @@ void Map::draw(const int width, const int height) {
     map_shader->set_uniform("map_size", (float)world.width, (float)world.height);
 
     // Map should have no "model" matrix since it's always static
-#if !defined TILE_GRANULARITY
-    map_shader->set_texture(0, "landscape_map", landscape_map);
-    map_shader->set_texture(1, "id_map", id_map);
-    map_shader->set_texture(2, "province_color_tex", province_color_tex);
-#else
+// #if !defined TILE_GRANULARITY
+    // map_shader->set_texture(0, "landscape_map", landscape_map);
+    // map_shader->set_texture(1, "id_map", id_map);
+    // map_shader->set_texture(2, "province_color_tex", province_color_tex);
+// #else
     map_shader->set_texture(0, "tile_map", tile_map);
     map_shader->set_texture(1, "tile_sheet", tile_sheet);
     map_shader->set_texture(2, "water_texture", water_tex);
@@ -682,11 +692,12 @@ void Map::draw(const int width, const int height) {
     map_shader->set_texture(8, "border_sdf", border_sdf);
     map_shader->set_texture(9, "landscape_map", landscape_map);
     map_shader->set_texture(10, "river_texture", river_tex);
-#endif
+    // #endif
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();
-    } else if(view_mode == MapView::SPHERE_VIEW) {
+    }
+    else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
 
@@ -700,7 +711,7 @@ void Map::draw(const int width, const int height) {
 
     // glActiveTexture(GL_TEXTURE0);
     glDisable(GL_CULL_FACE);
-	
+
     for(const auto& building : world.buildings) {
         glm::mat4 model(1.f);
 #if defined TILE_GRANULARITY
@@ -709,11 +720,11 @@ void Map::draw(const int width, const int height) {
         std::pair<float, float> pos = building->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
 #endif
-		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
+        model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
-		draw_flag(building->get_owner());
-		building_type_models.at(world.get_id(building->type))->draw(*model_shader);
-    }
+        draw_flag(building->get_owner());
+        building_type_models.at(world.get_id(building->type))->draw(*model_shader);
+}
     for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
 #if defined TILE_GRANULARITY
@@ -722,23 +733,23 @@ void Map::draw(const int width, const int height) {
         std::pair<float, float> pos = unit->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
 #endif
-		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
+        model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
-		draw_flag(unit->owner);
+        draw_flag(unit->owner);
 #if defined TILE_GRANULARITY
-		model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
+        model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
 #endif
-		model_shader->set_uniform("model", model);
-		unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
+        model_shader->set_uniform("model", model);
+        unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
     }
-    
+
     glEnable(GL_CULL_FACE);
 
     // Resets the shader and texture
     glUseProgram(0);
     glActiveTexture(GL_TEXTURE0);
-	
-	glColor3f(1.f, 1.f, 1.f);
+
+    glColor3f(1.f, 1.f, 1.f);
     /*for(const auto& building : world.buildings) {
         glPushMatrix();
         glTranslatef(building->x, building->y, -1.f);
@@ -770,12 +781,13 @@ void Map::draw(const int width, const int height) {
 #endif
         float _w = 2, _h = 2;
         nation_flags[world.get_id(unit->owner)]->bind();
-		
-		if(!unit->size) {
-			glColor3f(0.5f, 0.5f, 0.5f);
-		} else {
-			glColor3f(1.f, 1.f, 1.f);
-		}
+
+        if(!unit->size) {
+            glColor3f(0.5f, 0.5f, 0.5f);
+        }
+        else {
+            glColor3f(1.f, 1.f, 1.f);
+        }
         glBegin(GL_TRIANGLES);
         glTexCoord2f(0.f, 0.f);
         glVertex2f(0.f, 0.f);
@@ -790,21 +802,21 @@ void Map::draw(const int width, const int height) {
         glTexCoord2f(0.f, 0.f);
         glVertex2f(0.f, 0.f);
         glEnd();
-		glPopMatrix();
-		
-		if(!unit->size) continue;
-		
-		glBindTexture(GL_TEXTURE_2D, 0);
-		
-		glPushMatrix();
+        glPopMatrix();
+
+        if(!unit->size) continue;
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        glPushMatrix();
 #if !defined TILE_GRANULARITY
         glTranslatef(pos.first, pos.second, -0.1f);
 #else
         glTranslatef(unit->x, unit->y, -0.1f);
 #endif
-		_w = unit->size / unit->type->max_health;
-		_h = 0.5f;
-		glColor3f(0.f, 1.f, 0.f);
+        _w = unit->size / unit->type->max_health;
+        _h = 0.5f;
+        glColor3f(0.f, 1.f, 0.f);
         glBegin(GL_TRIANGLES);
         glTexCoord2f(0.f, 0.f);
         glVertex2f(0.f, 0.f);
@@ -820,16 +832,16 @@ void Map::draw(const int width, const int height) {
         glVertex2f(0.f, 0.f);
         glEnd();
         glPopMatrix();
-		
-		glPushMatrix();
+
+        glPushMatrix();
 #if !defined TILE_GRANULARITY
         glTranslatef(pos.first + (unit->size / unit->type->max_health), pos.second - 2.f, -1.f);
 #else
         glTranslatef(unit->x + (unit->size / unit->type->max_health), unit->y - 2.f, -1.f);
 #endif
-		_w = (unit->type->max_health - unit->size) / unit->type->max_health;
-		_h = 0.5f;
-		glColor3f(1.f, 0.f, 0.f);
+        _w = (unit->type->max_health - unit->size) / unit->type->max_health;
+        _h = 0.5f;
+        glColor3f(1.f, 0.f, 0.f);
         glBegin(GL_TRIANGLES);
         glTexCoord2f(0.f, 0.f);
         glVertex2f(0.f, 0.f);
@@ -845,14 +857,14 @@ void Map::draw(const int width, const int height) {
         glVertex2f(0.f, 0.f);
         glEnd();
         glPopMatrix();
-		
+
 #if defined TILE_GRANULARITY
-		glBegin(GL_LINES);
-		glColor3f(1.f, 0.f, 0.f);
-		glVertex2f(unit->x, unit->y);
-		glColor3f(0.f, 1.f, 0.f);
-		glVertex2f(unit->tx, unit->ty);
-		glEnd();
+        glBegin(GL_LINES);
+        glColor3f(1.f, 0.f, 0.f);
+        glVertex2f(unit->x, unit->y);
+        glColor3f(0.f, 1.f, 0.f);
+        glVertex2f(unit->tx, unit->ty);
+        glEnd();
 #else
         if(unit->target != nullptr) {
             std::pair<float, float> pos = unit->get_pos();
