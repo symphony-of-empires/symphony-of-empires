@@ -44,28 +44,24 @@ GLuint Shader::get_id(void) const {
     return id;
 }
 
-Program::Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry) {
+Program::Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry, const TessControlShader* tctrl, const TessEvalShader* tee) {
     id = glCreateProgram();
     glBindAttribLocation(id, 0, "m_pos");
     glBindAttribLocation(id, 1, "m_texcoord");
     glBindAttribLocation(id, 2, "m_color");
 
-    glAttachShader(id, vertex->get_id());
-    glAttachShader(id, fragment->get_id());
+    attach_shader(vertex);
+    attach_shader(fragment);
     if(geometry != nullptr) {
-        glAttachShader(id, geometry->get_id());
+        attach_shader(geometry);
     }
-    glLinkProgram(id);
-
-    // Check for errors of the shader
-    GLint r = 0;
-    glGetProgramiv(id, GL_LINK_STATUS, &r);
-    if(!r) {
-        std::string error_info;
-        glGetProgramInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
-        print_error("Program error %s", error_info.c_str());
-        throw ShaderException(error_info);
+    if(tctrl != nullptr) {
+        attach_shader(tctrl);
     }
+    if(tee != nullptr) {
+        attach_shader(tee);
+    }
+    link();
 }
 
 Program* Program::create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
@@ -77,6 +73,24 @@ Program* Program::create(const std::string& vs_path, const std::string& fs_path,
         return new Program(&vs, &fs, &gs);
     }
     return new Program(&vs, &fs);
+}
+
+void Program::attach_shader(const Shader* shader) {
+    glAttachShader(id, shader->get_id());
+}
+
+void Program::link(void) {
+    glLinkProgram(id);
+
+    // Check for errors of the shader
+    GLint r = 0;
+    glGetProgramiv(id, GL_LINK_STATUS, &r);
+    if(!r) {
+        std::string error_info;
+        glGetProgramInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
+        print_error("Program error %s", error_info.c_str());
+        throw ShaderException(error_info);
+    }
 }
 
 void Program::use(void) const {
