@@ -615,7 +615,7 @@ int LuaAPI::add_province_industry(lua_State* L) {
     Province*& province = g_world->provinces.at(lua_tonumber(L, 1));
 
     Building* building = new Building();
-
+    building->province = province;
     building->corporate_owner = g_world->companies.at(lua_tonumber(L, 2));
     building->type = g_world->building_types.at(lua_tonumber(L, 3));
     building->owner = g_world->nations.at(lua_tonumber(L, 4));
@@ -624,18 +624,15 @@ int LuaAPI::add_province_industry(lua_State* L) {
     // TODO: This will create some funny situations where coal factories will appear on
     // the fucking pacific ocean - we need to fix that
 #if defined TILE_GRANULARITY
-    building->x = province->min_x + (std::rand() % (province->max_x - province->min_x));
-    building->y = province->min_y + (std::rand() % (province->max_y - province->min_y));
-    building->x = std::min(building->x, g_world->width - 1);
-    building->y = std::min(building->y, g_world->height - 1);
+    glm::ivec2 coord = world->get_rand_province_coord(province);
+    building->x = coord.x;
+    building->y = coord.y;
 #endif
-    building->province = province;
-
     building->working_unit_type = nullptr;
     building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
     building->req_goods = std::vector<std::pair<Good*, size_t>>();
+    building->budget = 100.f;
     if(building->type->is_factory == true) {
-        building->budget = 100.f;
         building->create_factory();
         building->corporate_owner->operating_provinces.insert(building->get_province());
     }
@@ -843,14 +840,7 @@ int LuaAPI::add_province_nucleus(lua_State* L) {
 int LuaAPI::add_province_owner(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     Nation* nation = g_world->nations.at(lua_tonumber(L, 2));
-
-    // TODO: Remove province from old nation (of owned provinces)
-    if(province->owner != nullptr) {
-
-    }
-
-    province->owner = nation;
-    nation->owned_provinces.insert(province);
+    nation->give_province(*province);
     return 0;
 }
 

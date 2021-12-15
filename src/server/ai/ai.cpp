@@ -292,33 +292,33 @@ void ai_do_tick(Nation* nation, World* world) {
             // Otherwise -- do not build anything since the highest valued good cannot be produced
             if(type == nullptr) return;
 
-            Province* province = g_world->provinces[std::rand() % g_world->provinces.size()];
+            auto it = std::begin(nation->owned_provinces);
+            std::advance(it, std::rand() % nation->owned_provinces.size());
+			
+            Province* province = *it;
             if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
                 print_error("Cant build buidling, province doesn't have any tiles");
             } else {
                 // Now build the building
                 Building* building = new Building();
-                building->owner = nation;
-
 #if defined TILE_GRANULARITY
-                // Randomly place in any part of the province
-                glm::ivec2 coord = world->get_rand_province_coord(province);
-                building->x = coord.x;
-                building->y = coord.y;
+                    glm::ivec2 coord = world->get_rand_province_coord(province);
+                    building->x = coord.x;
+                    building->y = coord.y;
 #endif
                 building->province = province;
-                building->corporate_owner = nullptr;
-
+                building->corporate_owner = world->companies.at(0);
+                building->type = world->building_types[0];
+                building->owner = nation;
                 building->working_unit_type = nullptr;
                 building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
                 building->req_goods = std::vector<std::pair<Good*, size_t>>();
-                building->type = type;
-				building->budget = 1000.f;
+                building->budget = 100.f;
+                
                 if(building->type->is_factory) {
-                    building->corporate_owner = world->companies.at(std::rand() % world->companies.size());
                     building->create_factory();
                     building->corporate_owner->operating_provinces.insert(building->get_province());
-                    for(const auto& product : building->output_products) {
+                    /*for(const auto& product : building->output_products) {
                         Packet packet = Packet();
                         Archive ar = Archive();
                         ActionType action = ActionType::PRODUCT_ADD;
@@ -326,12 +326,12 @@ void ai_do_tick(Nation* nation, World* world) {
                         ::serialize(ar, product);
                         packet.data(ar.get_buffer(), ar.size());
                         g_server->broadcast(packet);
-                    }
+                    }*/
                 }
                 world->insert(building);
 
                 // Broadcast the addition of the building to the clients
-                {
+                /*{
                     Packet packet = Packet();
                     Archive ar = Archive();
                     ActionType action = ActionType::BUILDING_ADD;
@@ -339,7 +339,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     ::serialize(ar, building);
                     packet.data(ar.get_buffer(), ar.size());
                     g_server->broadcast(packet);
-                }
+                }*/
                 print_info("Building of [%s](%i), from [%s] built on [%s]", building->type->ref_name.c_str(), (int)world->get_id(building->type), nation->ref_name.c_str(), building->get_province()->ref_name.c_str());
             }
         }
@@ -368,22 +368,23 @@ void ai_do_tick(Nation* nation, World* world) {
                     print_error("Cant build defense, province doesn't have any tiles");
                 } else {
 					Building* building = new Building();
-                    building->owner = nation;
-                    building->province = province;
-				    
-                    // Randomly place in any part of the province
 #if defined TILE_GRANULARITY
                     glm::ivec2 coord = world->get_rand_province_coord(province);
                     building->x = coord.x;
                     building->y = coord.y;
 #endif
-                    building->working_unit_type = nullptr;
-
+                    building->province = province;
+                    building->corporate_owner = nullptr;
                     building->type = world->building_types[0];
+                    building->owner = nation;
+                    building->working_unit_type = nullptr;
+                    building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
+                    building->req_goods = std::vector<std::pair<Good*, size_t>>();
+                    building->budget = 100.f;
                     world->insert(building);
 
                     // Broadcast the addition of the building to the clients
-                    {
+                    /*{
                         Packet packet = Packet();
                         Archive ar = Archive();
                         ActionType action = ActionType::BUILDING_ADD;
@@ -391,7 +392,7 @@ void ai_do_tick(Nation* nation, World* world) {
                         ::serialize(ar, building);
                         packet.data(ar.get_buffer(), ar.size());
                         g_server->broadcast(packet);
-                    }
+                    }*/
                     print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)world->get_id(building->type), nation->name.c_str(), building->get_province()->name.c_str());
                 }
             }
@@ -399,7 +400,6 @@ void ai_do_tick(Nation* nation, World* world) {
             // Build units inside buildings that are not doing anything
             for(auto& building : g_world->buildings) {
                 //if(std::rand() % std::max<int>(50, defense_factor)) continue;
-                
                 if(std::rand() % 10) continue;
                 
                 if(building->working_unit_type != nullptr || building->owner != nation) continue;
@@ -458,7 +458,13 @@ void ai_do_tick(Nation* nation, World* world) {
         if(!(std::rand() % 100)) {
             for(auto& unit : g_world->units) {
 #if !defined TILE_GRANULARITY
+                // Go to a neighbouring province :)
+                if(unit->province->neighbours.empty()) continue;
 
+                auto it = std::begin(unit->province->neighbours);
+                std::advance(it, std::rand() % unit->province->neighbours.size());
+                Province* province = *it;
+                unit->target = province;
 #else
                 // Count friends and foes in range (and find nearest foe)
                 const Unit* nearest_enemy = nullptr;

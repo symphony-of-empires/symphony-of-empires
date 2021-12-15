@@ -1,5 +1,6 @@
 #include "building.hpp"
 #include "product.hpp"
+#include "province.hpp"
 #include "world.hpp"
 
 // Adds a good by id to a building stockpile
@@ -16,20 +17,10 @@ void Building::add_to_stock(const Good* good, const size_t add) {
 }
 
 Province* Building::get_province(void) {
-    //const Tile& tile = world.get_tile(this->x, this->y);
-    //if(tile.province_id == (Province::Id)-1) {
-    //    return nullptr;
-    //}
-    //return world.provinces[tile.province_id];
     return this->province;
 }
 
 Nation* Building::get_owner(void) {
-    //const Tile& tile = world.get_tile(this->x, this->y);
-    //if(tile.owner_id == (Nation::Id)-1) {
-    //    return nullptr;
-    //}
-    //return world.nations[tile.owner_id];
     return this->owner;
 }
 
@@ -43,14 +34,13 @@ void Building::create_factory(void) {
         new_product->building = this;
         new_product->good = output;
         new_product->owner = corporate_owner;
-        province->products.push_back(new_product);
 
+        province->products.push_back(new_product);
         output_products.push_back(new_product);
         world.insert(new_product);
 
-        employees_needed_per_output.push_back(500);
-
         // Add an element representing this product on all the province's stockpile
+        employees_needed_per_output.push_back(500);
         for(auto& province : world.provinces) {
             province->stockpile.push_back(0);
         }
@@ -95,3 +85,14 @@ Building::~Building() {
         this->delete_factory();
     }
 }
+
+std::pair<float, float> Building::get_pos(void) const {
+#if defined TILE_GRANULARITY
+    return std::make_pair(x, y);
+#else
+    return std::make_pair(
+        province->min_x + ((province->max_x - province->min_x) / 2.f),
+        province->min_y + ((province->max_y - province->min_y) / 2.f)
+    );
+#endif
+};

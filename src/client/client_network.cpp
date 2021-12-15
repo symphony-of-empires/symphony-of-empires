@@ -127,10 +127,15 @@ void Client::net_loop(void) {
 			// since the client takes most of it's time sending to the server anyways)
 			if(!pending_packets.empty()) {
 				if(pending_packets_mutex.try_lock()) {
-					std::scoped_lock lock(packets_mutex);
-					for(const auto& packet : pending_packets) {
-						packets.push_back(packet);
-					}
+                    if(gs.host_mode) {
+
+                    } else {
+                        std::scoped_lock lock(packets_mutex);
+                        for(const auto& packet : pending_packets) {
+                            packets.push_back(packet);
+                        }
+                    }
+
 					pending_packets.clear();
 					pending_packets_mutex.unlock();
 				}
@@ -148,9 +153,9 @@ void Client::net_loop(void) {
 			// When we are on host_mode we discard all potential packets send by the server
 			// (because our data is already synchronized)
 #ifdef unix
-            if((pfd.revents & POLLIN || has_pending)) {
+            if(gs.host_mode && (pfd.revents & POLLIN || has_pending)) {
 #elif defined windows
-            if((has_pending)) {
+            if(gs.host_mode && (has_pending)) {
 #endif
                 Packet packet = Packet(fd);
                 Archive ar = Archive();
@@ -341,9 +346,11 @@ void Client::net_loop(void) {
 
             // Client will also flush it's queue to the server
             std::scoped_lock lock(packets_mutex);
-            for(auto& packet : packets) {
-                packet.stream = SocketStream(fd);
-                packet.send();
+            if(!gs.host_mode) {
+                for(auto& packet : packets) {
+                    packet.stream = SocketStream(fd);
+                    packet.send();
+                }
             }
             packets.clear();
         }

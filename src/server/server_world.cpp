@@ -729,6 +729,15 @@ void World::do_tick() {
             break;
         }
 
+        if(unit->target != nullptr) {
+            unit->province = unit->target;
+
+            // Check that we are at war for it to be conquered :)
+            //if(unit->target->owner != nullptr) {
+            unit->owner->give_province(*unit->target);
+            //}
+        }
+
 #if defined TILE_GRANULARITY
         if((unit->x != unit->tx || unit->y != unit->ty) && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
             float end_x, end_y;
