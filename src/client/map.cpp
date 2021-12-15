@@ -134,7 +134,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
-        if(tile.province_id >= (Province::Id) - 3) {
+        if(tile.province_id >= (Province::Id)-3) {
             tile_map->buffer[i] = (tile.province_id & 0xffff);
         }
         else {
@@ -412,10 +412,12 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         const Tile& tile = gs.world->get_tile(select_pos.first, select_pos.second);
         switch(gs.current_mode) {
         case MapMode::COUNTRY_SELECT:
-#if defined TILE_GRANULARITY
-            // TODO add call to functions from here
-            gs.select_nation->change_nation(tile.owner_id);
-#endif
+            // #if defined TILE_GRANULARITY
+            if(tile.province_id < (Province::Id)-3) {
+                auto province = world.provinces[tile.province_id];
+                gs.select_nation->change_nation(province->owner->cached_id);
+            }
+            // #endif
             break;
         case MapMode::NORMAL:
             // Check if we selected an unit
@@ -425,7 +427,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 if((int)select_pos.first > (int)unit->x - size && (int)select_pos.first < (int)unit->x + size && (int)select_pos.second >(int)unit->y - size && (int)select_pos.second < (int)unit->y + size) {
                     selected_unit = unit;
                     return;
-    }
+            }
 #else
                 std::pair<float, float> pos = unit->get_pos();
                 if((int)select_pos.first > (int)pos.first - size && (int)select_pos.first < (int)pos.second + size && (int)select_pos.second >(int)pos.first - size && (int)select_pos.second < (int)pos.second + size) {
@@ -433,7 +435,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                     return;
                 }
 #endif
-            }
+        }
 
 #if defined TILE_GRANULARITY
             // Check if we selected a building
@@ -442,8 +444,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 if((int)select_pos.first > (int)building->x - size && (int)select_pos.first < (int)building->x + size && (int)select_pos.second >(int)building->y - size && (int)select_pos.second < (int)building->y + size) {
                     selected_building = building;
                     return;
-}
-            }
+                }
+    }
 #endif
 
             // Show province information when clicking on a province
@@ -454,7 +456,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         default:
             break;
-        }
+}
 
         // TODO: We should instead make it so you can build stuff in a "building" mode
         /*
@@ -497,15 +499,15 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                     if(gs.world->get_tile(i, j).province_id != gs.world->get_id(province)) continue;
                     gs.world->get_tile(i, j).owner_id = gs.world->get_id(gs.curr_nation);
                     gs.world->changed_tile_coords.push_back(std::make_pair(i, j));
+                }
         }
-    }
 #endif
 
             FILE* fp = fopen("test.lua", "a+t");
             if(!fp) return;
             fprintf(fp, "{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%06x },\r\n", province->ref_name.c_str(), province->name.c_str(), bswap_32((province->color & 0x00ffffff) << 8));
             fclose(fp);
-        }
+    }
 
         if(selected_unit != nullptr) {
 #if !defined TILE_GRANULARITY
@@ -724,7 +726,7 @@ void Map::draw(const int width, const int height) {
         model_shader->set_uniform("model", model);
         draw_flag(building->get_owner());
         building_type_models.at(world.get_id(building->type))->draw(*model_shader);
-}
+    }
     for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
 #if defined TILE_GRANULARITY
