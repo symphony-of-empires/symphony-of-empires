@@ -182,26 +182,24 @@ World::World() {
             std::string member = luaL_checkstring(L, 2);
             if(member == "ref_name") {
                 lua_pushstring(L, (*ideology)->ref_name.c_str());
+            } else if(member == "name") {
+                lua_pushstring(L, (*ideology)->name.c_str());
             }
- else if(member == "name") {
-  lua_pushstring(L, (*ideology)->name.c_str());
-}
-print_info("__index?");
-return 1;
-}},
-{ "__newindex", [](lua_State* L) {
-    Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
-    std::string member = luaL_checkstring(L, 2);
-    if(member == "ref_name") {
-        (*ideology)->ref_name = luaL_checkstring(L, 3);
-    }
-else if(member == "name") {
- (*ideology)->name = luaL_checkstring(L, 3);
-}
-print_info("__newindex?");
-return 0;
-}},
-{ NULL, NULL }
+            print_info("__index?");
+            return 1;
+        }},
+        { "__newindex", [](lua_State* L) {
+            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
+            std::string member = luaL_checkstring(L, 2);
+            if(member == "ref_name") {
+                (*ideology)->ref_name = luaL_checkstring(L, 3);
+            } else if(member == "name") {
+                (*ideology)->name = luaL_checkstring(L, 3);
+            }
+            print_info("__newindex?");
+            return 0;
+        }},
+        { NULL, NULL }
     };
     const luaL_Reg ideology_methods[] ={
         { "new", [](lua_State* L) {
@@ -410,6 +408,7 @@ void World::load_mod(void) {
         province_color_table[province->color & 0xffffff] = this->get_id(province);
     }
 
+#if defined TILE_GRANULARITY
     // Do the same lookup table technique but with terrain types
     print_info(gettext("Building the terrain_type lookup table"));
     std::vector<TerrainType::Id> terrain_color_table(16777216, 0);
@@ -418,9 +417,6 @@ void World::load_mod(void) {
         terrain_color_table[terrain_type->color & 0xffffff] = this->get_id(terrain_type);
     }
 
-#if !defined TILE_GRANULARITY
-
-#else
     std::unique_ptr<BinaryImage> terrain = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_terrain.png")));
     if(terrain->width != width || terrain->height != height)
         throw std::runtime_error("Terrain map size mismatch");
@@ -445,7 +441,7 @@ void World::load_mod(void) {
     print_info(gettext("Associate tiles with provinces"));
     for(size_t i = 0; i < total_size; i++) {
         const uint32_t color = div->buffer[i];
-
+#if defined TILE_GRANULARITY
         // This "skip the empty stuff" technique works!
         while(i < total_size && (div->buffer[i] == 0xffffffff || div->buffer[i] == 0xff000000 || div->buffer[i] == 0xffff00ff)) {
             if(div->buffer[i] == 0xffff00ff) {
@@ -462,15 +458,24 @@ void World::load_mod(void) {
             }
             ++i;
         }
-
         if(!(i < total_size)) break;
+#endif
 
+#if defined TILE_GRANULARITY
+        const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
+        if(province_id == (Province::Id)-1) {
+            // Uncomment this and see below
+            colors_found.insert(color);
+            continue;
+        }
+#else
         const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
         if(province_id >= (Province::Id)-3) {
             // Uncomment this and see below
             colors_found.insert(color);
             continue;
         }
+#endif
 
         const uint32_t rel_color = provinces[province_id]->color;
         while(div->buffer[i] == rel_color) {
@@ -543,8 +548,6 @@ void World::load_mod(void) {
     print_info(gettext("Creating neighbours for provinces"));
     for(size_t i = 0; i < total_size; i++) {
         const Tile* tile = &this->tiles[i];
-        const Tile* other_tile;
-
 #if defined TILE_GRANULARITY
         if(tile->owner_id < (Nation::Id)-2) {
             Nation* nation = this->nations[this->tiles[i].owner_id];
@@ -561,7 +564,6 @@ void World::load_mod(void) {
         if(tile->province_id < (Province::Id)-3) {
             Province* province = this->provinces[this->tiles[i].province_id];
             const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
-
             for(const auto& other_tile : tiles) {
                 if(other_tile->province_id != tile->province_id && other_tile->province_id < (Province::Id)-3) {
                     province->neighbours.insert(this->provinces.at(other_tile->province_id));

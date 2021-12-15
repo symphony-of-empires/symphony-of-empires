@@ -1,8 +1,8 @@
 -- Terrain types
-deepsea = TerrainType:new{ ref_name = "deepsea", name = _("Deep sea") }
+deepsea = TerrainType:new{ ref_name = "deepsea", name = _("Deep sea"), is_water_body = true }
 deepsea:register()
 
-sea = TerrainType:new{ ref_name = "sea", name = _("Sea"), color = 0x0000ff }
+sea = TerrainType:new{ ref_name = "sea", name = _("Sea"), color = 0x0000ff, is_water_body = true }
 sea:register()
 
 plains = TerrainType:new{ ref_name = "plains", name = _("Plains") }

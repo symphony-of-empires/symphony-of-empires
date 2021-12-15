@@ -36,10 +36,24 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
     camera = new FlatCamera(screen_width, screen_height);
 
-#if defined TILE_GRANULARITY
+#if !defined TILE_GRANULARITY
+    model_shader = UnifiedRender::OpenGl::Program::create("model_loading", "model_loading");
+    map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
+    map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
+
+    debug_tex = new UnifiedRender::Texture(world.width, world.height);
+    for(size_t i = 0; i < world.width * world.height; i++) {
+        const Tile& tile = world.get_tile(i);
+        if(tile.province_id < world.provinces.size()) {
+            debug_tex->buffer[i] = world.provinces[tile.province_id]->color;
+        } else {
+            debug_tex->buffer[i] = 0xffff00ff;
+        }
+    }
+
+    map_shader = UnifiedRender::OpenGl::Program::create("ps_map", "ps_map");
+#else
     if(glewIsSupported("GL_VERSION_2_1")) {
-        map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
-        map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
         map_2d_quad = new UnifiedRender::OpenGl::Quad2D();
         UnifiedRender::TextureOptions mipmap_options{};
         mipmap_options.wrap_s = GL_REPEAT;
@@ -615,7 +629,6 @@ void Map::update_tiles(World& world) {
 void Map::draw(const int width, const int height) {
     glm::mat4 view, projection;
 
-    // Map should have no "model" matrix since it's always static
     map_shader->use();
     view = camera->get_view();
     map_shader->set_uniform("view", view);
@@ -624,7 +637,10 @@ void Map::draw(const int width, const int height) {
     map_shader->set_uniform("projection", projection);
     map_shader->set_uniform("map_size", (float)world.width, (float)world.height);
 
-#if defined TILE_GRANULARITY
+    // Map should have no "model" matrix since it's always static
+#if !defined TILE_GRANULARITY
+    map_shader->set_texture(0, "debug_tex", debug_tex);
+#else
     map_shader->set_texture(0, "tile_map", tile_map);
     map_shader->set_texture(1, "tile_sheet", tile_sheet);
     map_shader->set_texture(2, "water_texture", water_tex);
@@ -636,13 +652,13 @@ void Map::draw(const int width, const int height) {
     map_shader->set_texture(8, "border_sdf", border_sdf);
     map_shader->set_texture(9, "map_color", map_color);
     map_shader->set_texture(10, "river_texture", river_tex);
+#endif
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();
     } else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
-#endif
 
     // TODO: We need to better this
     view = camera->get_view();
