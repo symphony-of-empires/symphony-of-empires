@@ -12,6 +12,7 @@ class World;
 class Nation;
 class Industry;
 class Product;
+class TerrainType;
 // A single province, which is used to simulate economy in a "bulk-tiles" way
 // instead of doing economical operations on every single tile
 class Province : public RefnameEntity<uint16_t> {
@@ -47,6 +48,7 @@ public:
     Nation* owner = nullptr;
 #if !defined TILE_GRANULARITY
     Nation* controller = nullptr;
+    TerrainType* terrain_type;
 #endif
 
     // List containing all nations who have a nucleus in this province

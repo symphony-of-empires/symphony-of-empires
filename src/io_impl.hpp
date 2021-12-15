@@ -288,18 +288,21 @@ public:
         ::serialize(stream, &obj->ref_name);
         ::serialize(stream, &obj->color);
         ::serialize(stream, &obj->movement_penalty);
+        ::serialize(stream, &obj->is_water_body);
     }
     static inline void deserialize(Archive& stream, TerrainType* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
         ::deserialize(stream, &obj->color);
         ::deserialize(stream, &obj->movement_penalty);
+        ::deserialize(stream, &obj->is_water_body);
     }
     static inline size_t size(const TerrainType* obj) {
         return serialized_size(&obj->name)
             + serialized_size(&obj->ref_name)
             + serialized_size(&obj->color)
             + serialized_size(&obj->movement_penalty)
+            + serialized_size(&obj->is_water_body)
             ;
     }
 };
@@ -815,6 +818,7 @@ public:
         ::serialize(stream, &obj->pops);
 #if defined TILE_GRANULARITY
         ::serialize(stream, &obj->controller);
+        ::serialize(stream, &obj->terrain_type);
 #endif
     }
     static inline void deserialize(Archive& stream, Province* obj) {
@@ -837,6 +841,7 @@ public:
         ::deserialize(stream, &obj->pops);
 #if defined TILE_GRANULARITY
         ::deserialize(stream, &obj->controller);
+        ::deserialize(stream, &obj->terrain_type);
 #endif
     }
     static inline size_t size(const Province* obj) {
@@ -860,6 +865,7 @@ public:
             + serialized_size(&obj->pops)
 #if defined TILE_GRANULARITY
             + serialized_size(&obj->controller)
+            + serialized_size(&obj->terrain_type)
 #endif
             ;
         // TODO: Rest of fields

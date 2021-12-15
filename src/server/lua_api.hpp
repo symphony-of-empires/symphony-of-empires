@@ -76,6 +76,7 @@ namespace LuaAPI {
     int get_province(lua_State* L);
     int get_province_by_id(lua_State* L);
     int add_province_industry(lua_State* L);
+    int set_province_terrain(lua_State* L);
     int give_province_to(lua_State* L);
     int get_province_owner(lua_State* L);
     int get_province_controller(lua_State* L);

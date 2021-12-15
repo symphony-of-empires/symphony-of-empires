@@ -72,6 +72,7 @@ int LuaAPI::add_terrain_type(lua_State* L) {
     terrain_type->color = bswap_32(lua_tonumber(L, 3)) >> 8;
     terrain_type->color |= 0xff000000;
     terrain_type->movement_penalty = lua_tonumber(L, 4);
+    terrain_type->is_water_body = lua_toboolean(L, 5);
 
     g_world->insert(terrain_type);
     lua_pushnumber(L, g_world->terrain_types.size() - 1);
@@ -559,6 +560,10 @@ int LuaAPI::add_province(lua_State* L) {
     
     Province* province = new Province();
 
+#if defined TILE_GRANULARITY
+    province->terrain_type = g_world->terrain_types[0];
+#endif
+
     province->ref_name = luaL_checkstring(L, 1);
     province->color = bswap_32(lua_tonumber(L, 2)) >> 8;
     province->color |= 0xff000000;
@@ -637,6 +642,14 @@ int LuaAPI::add_province_industry(lua_State* L) {
         building->corporate_owner->operating_provinces.insert(building->get_province());
     }
     g_world->insert(building);
+    return 0;
+}
+
+int LuaAPI::set_province_terrain(lua_State* L) {
+#if !defined TILE_GRANULARITY
+    Province* province = g_world->provinces.at(lua_tonumber(L, 1));
+    province->terrain_type = g_world->terrain_types.at(lua_tonumber(L, 2));
+#endif
     return 0;
 }
 

@@ -443,6 +443,9 @@ function Province:get_by_id(id)
 	o.id = id
 	return o
 end
+function Province:set_terrain(terrain_type)
+	set_province_terrain(self.id, terrain_type.id)
+end
 function Province:add_industry(industry_type, nation, company)
 	add_province_industry(self.id, company.id, industry_type.id, nation.id)
 end
@@ -704,7 +707,8 @@ TerrainType = {
 	name = "",
 	ref_name = "",
 	color = 0x000000,
-	movement_penalty = 0.0
+	movement_penalty = 0.0,
+	is_water_body = false
 }
 function TerrainType:new(o)
 	o = o or {}
@@ -713,7 +717,7 @@ function TerrainType:new(o)
 	return o
 end
 function TerrainType:register()
-	self.id = add_terrain_type(self.ref_name, self.name, self.color, self.movement_penalty)
+	self.id = add_terrain_type(self.ref_name, self.name, self.color, self.movement_penalty, self.is_water_body)
 end
 
 UnitType = {

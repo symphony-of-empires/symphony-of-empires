@@ -93,6 +93,7 @@ World::World() {
     lua_register(lua, "get_province_by_id", LuaAPI::get_province_by_id);
     lua_register(lua, "add_province_industry", LuaAPI::add_province_industry);
     lua_register(lua, "add_province_pop", LuaAPI::add_province_pop);
+    lua_register(lua, "set_province_terrain", LuaAPI::set_province_terrain);
     lua_register(lua, "give_province_to", LuaAPI::give_province_to);
     lua_register(lua, "get_province_owner", LuaAPI::get_province_owner);
     lua_register(lua, "get_province_controller", LuaAPI::get_province_controller);
