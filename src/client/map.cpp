@@ -62,11 +62,13 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     province_color_tex = new UnifiedRender::Texture(256, 256);
     for(const auto& province : world.provinces) {
-        province_color_tex->buffer[world.get_id(province)] = 0x00000000;
         if(province->owner != nullptr) {
             province_color_tex->buffer[world.get_id(province)] = province->owner->get_client_hint().color;
+        } else {
+            province_color_tex->buffer[world.get_id(province)] = 0xff808080;
         }
     }
+    province_color_tex->buffer[(Province::Id)-1] = 0x00000000;
     province_color_tex->to_opengl();
 
     map_shader = UnifiedRender::OpenGl::Program::create("ps_map", "ps_map");
@@ -648,7 +650,7 @@ void Map::draw(const int width, const int height) {
     glm::mat4 view, projection;
 
     for(const auto& province : world.provinces) {
-        province_color_tex->buffer[world.get_id(province)] = 0x00000000;
+        province_color_tex->buffer[world.get_id(province)] = 0xff000000;
         if(province->owner != nullptr) {
             province_color_tex->buffer[world.get_id(province)] = province->owner->get_client_hint().color;
         }
