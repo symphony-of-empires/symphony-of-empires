@@ -30,9 +30,12 @@ public:
 // When adjacent to a water tile this serves as a shipyard for spawning naval units
 class Building : public IdEntity<uint16_t> {
 public:
+#if !defined TILE_GRANULARITY
+    
+#else
     // Position of outpost
-    size_t x;
-    size_t y;
+    size_t x, y;
+#endif
 
     BuildingType* type;
 

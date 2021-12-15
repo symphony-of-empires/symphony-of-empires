@@ -415,6 +415,9 @@ void World::load_mod(void) {
         terrain_color_table[terrain_type->color & 0xffffff] = this->get_id(terrain_type);
     }
 
+#if !defined TILE_GRANULARITY
+
+#else
     std::unique_ptr<BinaryImage> terrain = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_terrain.png")));
     if(terrain->width != width || terrain->height != height)
         throw std::runtime_error("Terrain map size mismatch");
@@ -426,6 +429,7 @@ void World::load_mod(void) {
         tiles[i].terrain_type_id = terrain_color_table[terrain->buffer[i] & 0xffffff];
     }
     terrain.reset(nullptr);
+#endif
 
     // Associate tiles with provinces
 
@@ -593,15 +597,16 @@ void World::load_mod(void) {
     }
     print_info(gettext("World fully intiialized"));
 
+#if defined TILE_GRANULARITY
     for(auto& building : this->buildings) {
         Province *province = building->province;
         if(province == nullptr) continue;
-
         building->x = province->min_x + (std::rand() % (province->max_x - province->min_x + 1));
         building->y = province->min_y + (std::rand() % (province->max_y - province->min_y + 1));
         building->x = std::min(building->x, g_world->width - 1);
         building->y = std::min(building->y, g_world->height - 1);
     }
+#endif
 }
 
 #include "../action.hpp"
@@ -724,6 +729,7 @@ void World::do_tick() {
             break;
         }
 
+#if defined TILE_GRANULARITY
         if((unit->x != unit->tx || unit->y != unit->ty) && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
             float end_x, end_y;
             const float speed = unit->type->speed;
@@ -887,6 +893,7 @@ void World::do_tick() {
             std::scoped_lock lock(nation_changed_tiles_mutex);
             nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
         }
+#endif
     }
 	
 	// Now researches for every country are going to be accounted :)

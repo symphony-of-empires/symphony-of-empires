@@ -250,6 +250,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         map->draw(width, height);
 
         if(selected_unit != nullptr) {
+#if defined TILE_GRANULARITY
             glBegin(GL_LINE_STRIP);
             glColor3f(1.f, 0.f, 0.f);
             glVertex2f(selected_unit->x, selected_unit->y);
@@ -257,9 +258,11 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
             glVertex2f(selected_unit->x + 1.f, selected_unit->y + 1.f);
             glVertex2f(selected_unit->x, selected_unit->y + 1.f);
             glEnd();
+#endif
         }
 
         if(selected_building != nullptr) {
+#if defined TILE_GRANULARITY
             glBegin(GL_LINE_STRIP);
             glColor3f(1.f, 0.f, 0.f);
             glVertex2f(selected_building->x, selected_building->y);
@@ -267,11 +270,12 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
             glVertex2f(selected_building->x + 1.f, selected_building->y + 1.f);
             glVertex2f(selected_building->x, selected_building->y + 1.f);
             glEnd();
+#endif
         }
 
         glBindTexture(GL_TEXTURE_2D, 0);
         glBegin(GL_QUADS);
-        glColor3f(1.f, 1.f, 1.f);
+        glColor4f(1.f, 1.f, 1.f, 0.8f);
         glVertex2f(select_pos.first, select_pos.second);
         glVertex2f(select_pos.first + 1.f, select_pos.second);
         glVertex2f(select_pos.first + 1.f, select_pos.second + 1.f);

@@ -37,8 +37,12 @@ public:
     // Elevation
     uint8_t elevation;
 
+#if !defined TILE_GRANULARITY
+
+#else
     // Terrain type
     TerrainType::Id terrain_type_id;
+#endif
 
     const std::vector<const Tile*> get_neighbours(const World& world) const;
 };

@@ -373,30 +373,45 @@ public:
     static inline void serialize(Archive& stream, const Unit* obj) {
         ::serialize(stream, &obj->type);
         ::serialize(stream, &obj->size);
+#if !defined TILE_GRANULARITY
+        ::serialize(stream, &obj->target);
+        ::serialize(stream, &obj->province);
+#else
         ::serialize(stream, &obj->tx);
         ::serialize(stream, &obj->ty);
         ::serialize(stream, &obj->x);
         ::serialize(stream, &obj->y);
+#endif
         ::serialize(stream, &obj->owner);
         ::serialize(stream, &obj->traits);
     }
     static inline void deserialize(Archive& stream, Unit* obj) {
         ::deserialize(stream, &obj->type);
         ::deserialize(stream, &obj->size);
+#if !defined TILE_GRANULARITY
+        ::deserialize(stream, &obj->target);
+        ::deserialize(stream, &obj->province);
+#else
         ::deserialize(stream, &obj->tx);
         ::deserialize(stream, &obj->ty);
         ::deserialize(stream, &obj->x);
         ::deserialize(stream, &obj->y);
+#endif
         ::deserialize(stream, &obj->owner);
         ::deserialize(stream, &obj->traits);
     }
     static inline size_t size(const Unit* obj) {
         return serialized_size(&obj->type)
             + serialized_size(&obj->size)
+#if !defined TILE_GRANULARITY
+            + serialized_size(&obj->target)
+            + serialized_size(&obj->province)
+#else
             + serialized_size(&obj->tx)
             + serialized_size(&obj->ty)
             + serialized_size(&obj->x)
             + serialized_size(&obj->y)
+#endif
             + serialized_size(&obj->owner)
             + serialized_size(&obj->traits)
             ;
@@ -520,20 +535,26 @@ template<>
 class Serializer<Tile> {
 public:
     static inline void serialize(Archive& stream, const Tile* obj) {
+#if defined TILE_GRANULARITY
         ::serialize(stream, &obj->terrain_type_id);
+#endif
         ::serialize(stream, &obj->owner_id);
         ::serialize(stream, &obj->province_id);
         ::serialize(stream, &obj->elevation);
     }
     static inline void deserialize(Archive& stream, Tile* obj) {
+#if defined TILE_GRANULARITY
         ::deserialize(stream, &obj->terrain_type_id);
+#endif
         ::deserialize(stream, &obj->owner_id);
         ::deserialize(stream, &obj->province_id);
         ::deserialize(stream, &obj->elevation);
     }
     static inline size_t size(const Tile* obj) {
         return
+#if defined TILE_GRANULARITY
             serialized_size(&obj->terrain_type_id)
+#endif
             + serialized_size(&obj->owner_id)
             + serialized_size(&obj->province_id)
             + serialized_size(&obj->elevation)
@@ -874,8 +895,12 @@ template<>
 class Serializer<Building> {
 public:
     static inline void serialize(Archive& stream, const Building* obj) {
+#if !defined TILE_GRANULARITY
+
+#else
         ::serialize(stream, &obj->x);
         ::serialize(stream, &obj->y);
+#endif
         ::serialize(stream, &obj->type);
         ::serialize(stream, &obj->working_unit_type);
         ::serialize(stream, &obj->build_time);
@@ -891,8 +916,12 @@ public:
         ::serialize(stream, &obj->owner);
     }
     static inline void deserialize(Archive& stream, Building* obj) {
+#if !defined TILE_GRANULARITY
+
+#else
         ::deserialize(stream, &obj->x);
         ::deserialize(stream, &obj->y);
+#endif
         ::deserialize(stream, &obj->type);
         ::deserialize(stream, &obj->working_unit_type);
         ::deserialize(stream, &obj->build_time);
@@ -909,8 +938,12 @@ public:
     }
     static inline size_t size(const Building* obj) {
         return
+#if !defined TILE_GRANULARITY
+
+#else
             serialized_size(&obj->x)
             + serialized_size(&obj->y)
+#endif
             + serialized_size(&obj->type)
             + serialized_size(&obj->working_unit_type)
             + serialized_size(&obj->build_time)

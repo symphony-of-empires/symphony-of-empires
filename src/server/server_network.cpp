@@ -277,13 +277,17 @@ void Server::net_loop(int id) {
                         if(selected_nation != unit->owner)
                             throw ServerException("Nation does not control unit");
 
+#if defined TILE_GRANULARITY
                         ::deserialize(ar, &unit->tx);
                         ::deserialize(ar, &unit->ty);
-
                         if(unit->tx >= g_world->width || unit->ty >= g_world->height)
                             throw ServerException("Coordinates out of range for unit");
-
                         print_info("Unit changes targets to %zu.%zu", (size_t)unit->tx, (size_t)unit->ty);
+#else
+                        ::deserialize(ar, &unit->province);
+                        if(unit->province != nullptr)
+                            print_info("Unit changes targets to %s", unit->province->ref_name.c_str());
+#endif
                     } break;
 					// Client tells the server about the construction of a new unit, note that this will
 					// only make the building submit "construction tickets" to obtain materials to build
@@ -318,6 +322,7 @@ void Server::net_loop(int id) {
                         if(building->type == nullptr)
                             throw ServerException("Unknown building type");
 
+#if defined TILE_GRANULARITY
                         // Check that it's not out of bounds
                         if(building->x >= g_world->width || building->y >= g_world->height)
                             throw ServerException("building out of range");
@@ -326,6 +331,7 @@ void Server::net_loop(int id) {
                         // TODO: Obsolete!
                         //if(g_world->get_tile(building->x, building->y).owner_id != g_world->get_id(selected_nation))
                         //    throw ServerException("Building cannot be built on foreign land");
+#endif
 
                         // Modify the serialized building
                         ar.ptr = 0;
@@ -336,7 +342,7 @@ void Server::net_loop(int id) {
                         ::serialize(ar, building);
 
                         g_world->insert(building);
-                        print_info("[%s] has built a [%s] on %i x %i", selected_nation->ref_name.c_str(), building->type->ref_name.c_str(), building->x, building->y);
+                        print_info("[%s] has built a [%s]", selected_nation->ref_name.c_str(), building->type->ref_name.c_str());
                         // Rebroadcast
                         broadcast(packet);
                     } break;

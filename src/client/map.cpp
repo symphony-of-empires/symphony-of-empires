@@ -60,7 +60,9 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
         terrain_tex = new UnifiedRender::Texture(world.width, world.height);
         for(size_t i = 0; i < world.width * world.height; i++) {
+#if defined TILE_GRANULARITY
             terrain_tex->buffer[i] = world.tiles[i].terrain_type_id;
+#endif
             topo_tex->buffer[i] = world.tiles[i].elevation;
         }
         terrain_tex->to_opengl();
@@ -362,22 +364,29 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             // Check if we selected an unit
             for(const auto& unit : gs.world->units) {
                 const float size = 2.f;
-                if((int)select_pos.first > (int)unit->x - size && (int)select_pos.first < (int)unit->x + size
-                    && (int)select_pos.second >(int)unit->y - size && (int)select_pos.second < (int)unit->y + size) {
+#if defined TILE_GRANULARITY
+                if((int)select_pos.first > (int)unit->x - size && (int)select_pos.first < (int)unit->x + size && (int)select_pos.second >(int)unit->y - size && (int)select_pos.second < (int)unit->y + size) {
                     selected_unit = unit;
                     return;
                 }
+#else
+                if((int)select_pos.first > (int)((unit->province->max_x - unit->province->min_x) / 2.f) - size && (int)select_pos.first < (int)((unit->province->max_x - unit->province->min_x) / 2.f) + size && (int)select_pos.second > (int)((unit->province->max_y - unit->province->min_y) / 2.f) - size && (int)select_pos.second < (int)((unit->province->max_y - unit->province->min_y) / 2.f) + size) {
+                    selected_unit = unit;
+                    return;
+                }
+#endif
             }
 
+#if defined TILE_GRANULARITY
             // Check if we selected a building
             for(const auto& building : gs.world->buildings) {
                 const float size = 2.f;
-                if((int)select_pos.first > (int)building->x - size && (int)select_pos.first < (int)building->x + size
-                    && (int)select_pos.second >(int)building->y - size && (int)select_pos.second < (int)building->y + size) {
+                if((int)select_pos.first > (int)building->x - size && (int)select_pos.first < (int)building->x + size && (int)select_pos.second >(int)building->y - size && (int)select_pos.second < (int)building->y + size) {
                     selected_building = building;
                     return;
                 }
             }
+#endif
 
             // Show province information when clicking on a province
             if(tile.province_id < gs.world->provinces.size()) {
@@ -439,26 +448,39 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         }
 
         if(selected_unit != nullptr) {
+#if !defined TILE_GRANULARITY
+
+            const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+            if(tile.province_id == (Province::Id)-1) return;
+            selected_unit->target = gs.world->provinces[tile.province_id];
+#else
             selected_unit->tx = select_pos.first;
             selected_unit->ty = select_pos.second;
-			
+#endif
+
             Packet packet = Packet();
             Archive ar = Archive();
             ActionType action = ActionType::UNIT_CHANGE_TARGET;
             ::serialize(ar, &action);
             ::serialize(ar, &selected_unit);
+#if !defined TILE_GRANULARITY
+            ::serialize(ar, &selected_unit->target);
+#else
             ::serialize(ar, &selected_unit->tx);
             ::serialize(ar, &selected_unit->ty);
+#endif
             packet.data(ar.get_buffer(), ar.size());
 			std::scoped_lock lock(gs.client->pending_packets_mutex);
             gs.client->pending_packets.push_back(packet);
             return;
         }
 
+#if defined TILE_GRANULARITY
         if(selected_building != nullptr) {
             //new BuildUnitWindow(gs, selected_building, gs.top_win->top_win);
             return;
         }
+#endif
     }
 }
 
@@ -619,7 +641,12 @@ void Map::draw(const int width, const int height) {
 	
     for(const auto& building : world.buildings) {
         glm::mat4 model(1.f);
+#if defined TILE_GRANULARITY
         model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
+#else
+        std::pair<float, float> pos = std::make_pair((building->province->max_x - building->province->min_x) / 2.f, (building->province->max_y - building->province->min_y) / 2.f);
+        model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
+#endif
 		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
 		draw_flag(building->get_owner());
@@ -627,11 +654,18 @@ void Map::draw(const int width, const int height) {
     }
     for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
+#if defined TILE_GRANULARITY
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
+#else
+        std::pair<float, float> pos = std::make_pair((unit->province->max_x - unit->province->min_x) / 2.f, (unit->province->max_y - unit->province->min_y) / 2.f);
+        model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
+#endif
 		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
 		draw_flag(unit->owner);
+#if defined TILE_GRANULARITY
 		model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
+#endif
 		model_shader->set_uniform("model", model);
 		unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
     }
@@ -666,7 +700,12 @@ void Map::draw(const int width, const int height) {
     }*/
     for(const auto& unit : world.units) {
         glPushMatrix();
+#if !defined TILE_GRANULARITY
+        std::pair<float, float> pos = std::make_pair((unit->province->max_x - unit->province->min_x) / 2.f, (unit->province->max_y - unit->province->min_y) / 2.f);
+        glTranslatef(pos.first, pos.second, -0.1f);
+#else
         glTranslatef(unit->x, unit->y, -0.1f);
+#endif
         float _w = 2, _h = 2;
         nation_flags[world.get_id(unit->owner)]->bind();
 		
@@ -696,7 +735,11 @@ void Map::draw(const int width, const int height) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 		
 		glPushMatrix();
-        glTranslatef(unit->x, unit->y - 2.f, -1.f);
+#if !defined TILE_GRANULARITY
+        glTranslatef(pos.first, pos.second, -0.1f);
+#else
+        glTranslatef(unit->x, unit->y, -0.1f);
+#endif
 		_w = unit->size / unit->type->max_health;
 		_h = 0.5f;
 		glColor3f(0.f, 1.f, 0.f);
@@ -717,7 +760,11 @@ void Map::draw(const int width, const int height) {
         glPopMatrix();
 		
 		glPushMatrix();
+#if !defined TILE_GRANULARITY
+        glTranslatef(pos.first + (unit->size / unit->type->max_health), pos.second - 2.f, -1.f);
+#else
         glTranslatef(unit->x + (unit->size / unit->type->max_health), unit->y - 2.f, -1.f);
+#endif
 		_w = (unit->type->max_health - unit->size) / unit->type->max_health;
 		_h = 0.5f;
 		glColor3f(1.f, 0.f, 0.f);
@@ -737,12 +784,14 @@ void Map::draw(const int width, const int height) {
         glEnd();
         glPopMatrix();
 		
+#if defined TILE_GRANULARITY
 		glBegin(GL_LINES);
 		glColor3f(1.f, 0.f, 0.f);
 		glVertex2f(unit->x, unit->y);
 		glColor3f(0.f, 1.f, 0.f);
 		glVertex2f(unit->tx, unit->ty);
 		glEnd();
+#endif
     }
 
     wind_osc += 1.f;
