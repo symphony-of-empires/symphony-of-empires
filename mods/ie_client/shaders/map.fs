@@ -241,7 +241,6 @@ void main() {
 	float height = texture(topo_mapture, tex_coords).x;
 	// float height = 0.;
 
-
 	vec2 mOff = mod(tex_coords + 0.5 * pix, pix) - 0.5 * pix;
 	vec2 dOff = mOff / pix;
 	float far = 1.-step(0.5, abs(dOff.x) + abs(dOff.y));

@@ -15,7 +15,5 @@ uniform sampler2D province_color_tex;
 
 void main() {
 	vec4 coord = texture(id_map, v_texcoord).rgba;
-	f_frag_color = texture(province_color_tex, coord.rg);
-
-	//f_frag_color = texture(landscape_map, v_texcoord);
+	vec4 province_cols = texture(province_color_tex, coord.rg);
 }
