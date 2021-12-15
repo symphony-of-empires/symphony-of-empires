@@ -373,7 +373,9 @@ void World::load_mod(void) {
 
     for(unsigned int i = 0; i < total_size; i++) {
         tiles[i].elevation = topo->buffer[i] & 0xff;
+#if defined TILE_GRANULARITY
         tiles[i].owner_id = (Nation::Id)-1;
+#endif
         tiles[i].province_id = (Province::Id)-1;
     }
     topo.reset(nullptr);
@@ -517,6 +519,7 @@ void World::load_mod(void) {
         province->stockpile.resize(products.size(), 0);
     }
 
+#if defined TILE_GRANULARITY
     // Give owners the entire provinces
     print_info(gettext("Give owners the entire provinces"));
     for(const auto& nation : nations) {
@@ -533,12 +536,15 @@ void World::load_mod(void) {
         }
     }
     nation_changed_tiles.clear();
+#endif
 
     // Neighbours
     print_info(gettext("Creating neighbours for provinces"));
     for(size_t i = 0; i < total_size; i++) {
         const Tile* tile = &this->tiles[i];
         const Tile* other_tile;
+
+#if defined TILE_GRANULARITY
         if(tile->owner_id < (Nation::Id)-2) {
             Nation* nation = this->nations[this->tiles[i].owner_id];
             const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
@@ -549,6 +555,7 @@ void World::load_mod(void) {
                 }
             }
         }
+#endif
 
         if(tile->province_id < (Province::Id)-3) {
             Province* province = this->provinces[this->tiles[i].province_id];

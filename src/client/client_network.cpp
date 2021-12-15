@@ -309,6 +309,7 @@ void Client::net_loop(void) {
                     }
                     // world.time++;
                 } break;
+#if defined TILE_GRANULARITY
                 case ActionType::TILE_UPDATE: {
                     // get_tile is already mutexed
 
@@ -324,6 +325,7 @@ void Client::net_loop(void) {
                     std::scoped_lock lock(world.changed_tiles_coords_mutex);
                     world.changed_tile_coords.push_back(coord);
                 } break;
+#endif
                 case ActionType::PROVINCE_COLONIZE: {
                     Province* province;
                     ::deserialize(ar, &province);

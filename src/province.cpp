@@ -8,6 +8,8 @@
 // tiles controlled from this province
 Nation& Province::get_occupation_controller(void) const {
     const World& world = World::get_instance();
+
+#if defined TILE_GRANULARITY
     std::vector<Nation::Id> nations_cnt;
     for(size_t x = min_x; x < max_x; x++) {
         for(size_t y = min_y; y < max_y; y++) {
@@ -29,6 +31,9 @@ Nation& Province::get_occupation_controller(void) const {
         }
     }
     return (*world.nations[nation_id]);
+#else
+    return (*controller);
+#endif
 }
 
 // Calculates the total number of POPs in this province (total population)

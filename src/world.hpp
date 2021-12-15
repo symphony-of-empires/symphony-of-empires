@@ -28,9 +28,6 @@ typedef unsigned int	uint;
 class World;
 struct Tile {
 public:
-    // ID of the nation who owns this tile
-    Nation::Id owner_id;
-
     // ID of the province where this tile belongs to
     Province::Id province_id;
 
@@ -40,6 +37,8 @@ public:
 #if !defined TILE_GRANULARITY
 
 #else
+    // ID of the nation who owns this tile
+    Nation::Id owner_id;
     // Terrain type
     TerrainType::Id terrain_type_id;
 #endif
@@ -233,7 +232,9 @@ public:
     // Obtains a tile from the world safely, and makes sure that it is in bounds
     Tile& get_tile(size_t x, size_t y) const;
     Tile& get_tile(size_t idx) const;
+#if defined TILE_GRANULARITY
     glm::ivec2 get_rand_province_coord(Province* owner) const;
+#endif
 
     // Lua state - for lua scripts, this is only used by the server and should not be
     // accesible to the client
