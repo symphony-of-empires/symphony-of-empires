@@ -52,6 +52,10 @@ public:
     Camera* camera;
     MapView view_mode = MapView::PLANE_VIEW;
 
+#if !defined TILE_GRANULARITY
+    UnifiedRender::Texture* debug_tex;
+#endif
+
     // Map textures
     UnifiedRender::Texture* tile_map;
     UnifiedRender::Texture* tile_sheet;
