@@ -1,6 +1,6 @@
 #version 330 compatibility
 
-out vec4 f_frag_colour;
+out vec4 f_frag_color;
 
 in vec2 v_texcoord;
 in vec3 v_view_pos;
@@ -11,13 +11,13 @@ uniform vec2 map_size;
 uniform sampler2D tile_map;
 uniform sampler2D tile_sheet;
 uniform sampler2D water_texture;
-uniform sampler2D topo_texture;
+uniform sampler2D topo_mapture;
 uniform sampler2D noise_texture;
 uniform sampler2D terrain_texture;
 uniform sampler2DArray terrain_sheet;
 uniform sampler2D border_tex;
 uniform sampler2D border_sdf;
-uniform sampler2D map_color;
+uniform sampler2D landscape_map;
 uniform sampler2D river_texture;
 
 // https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
@@ -148,14 +148,14 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
 
     // get initial values
 	vec2 currentTexCoords = tex_coords;
-	float currentDepthMapValue = texture(topo_texture, tex_coords).x * other_scale;
+	float currentDepthMapValue = texture(topo_mapture, tex_coords).x * other_scale;
 	// currentDepthMapValue = (currentDepthMapValue - .5) * 2.;
 
 	while(currentLayerDepth < currentDepthMapValue) {
         // shift texture coordinates along direction of P
 		currentTexCoords -= deltaTexCoords;
         // get depthmap value at current texture coordinates
-		currentDepthMapValue = texture(topo_texture, currentTexCoords).x * other_scale;  
+		currentDepthMapValue = texture(topo_mapture, currentTexCoords).x * other_scale;  
 		// currentDepthMapValue = (currentDepthMapValue - .5) * 2.;
         // get depth of next layer
 		currentLayerDepth += layerDepth;
@@ -166,7 +166,7 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
 
 	// get depth after and before collision for linear interpolation
 	float afterDepth = currentDepthMapValue - currentLayerDepth;
-	float beforeDepth = texture(topo_texture, prevTexCoords).x * other_scale - currentLayerDepth + layerDepth;
+	float beforeDepth = texture(topo_mapture, prevTexCoords).x * other_scale - currentLayerDepth + layerDepth;
 
 	// interpolation of texture coordinates
 	float weight = afterDepth / (afterDepth - beforeDepth);
@@ -187,12 +187,12 @@ vec3 gen_normal(vec2 tex_coords) {
 	const ivec3 off = ivec3(-1, 0, 1);
 	float steep = 16.;
 
-	vec4 wave = texture(topo_texture, tex_coords);
+	vec4 wave = texture(topo_mapture, tex_coords);
 	float s11 = steep * wave.x;
-	float s01 = steep * textureOffset(topo_texture, tex_coords, off.xy).x;
-	float s21 = steep * textureOffset(topo_texture, tex_coords, off.zy).x;
-	float s10 = steep * textureOffset(topo_texture, tex_coords, off.yx).x;
-	float s12 = steep * textureOffset(topo_texture, tex_coords, off.yz).x;
+	float s01 = steep * textureOffset(topo_mapture, tex_coords, off.xy).x;
+	float s21 = steep * textureOffset(topo_mapture, tex_coords, off.zy).x;
+	float s10 = steep * textureOffset(topo_mapture, tex_coords, off.yx).x;
+	float s12 = steep * textureOffset(topo_mapture, tex_coords, off.yz).x;
 	vec3 va = normalize(vec3(size.xy, s21 - s01));
 	vec3 vb = normalize(vec3(size.yx, s12 - s10));
 	vec4 bump = vec4(cross(va, vb), s11);
@@ -231,14 +231,14 @@ void main() {
 	water = mix(water, vec4(0, 0, 0, 1), g * 0.2);
 
 	// vec4 terrain_color = get_terrain_mix(tex_coords);
-	vec4 terrain_color = texture(map_color, tex_coords);
+	vec4 terrain_color = texture(landscape_map, tex_coords);
 
 	vec4 borders_diag = get_border(tex_coords);
 	vec2 borders = borders_diag.xy;
 	float diag = borders_diag.w;
 	borders.x = smoothstep(0., 1., borders.x);
 
-	float height = texture(topo_texture, tex_coords).x;
+	float height = texture(topo_mapture, tex_coords).x;
 	// float height = 0.;
 
 
@@ -260,13 +260,13 @@ void main() {
 	// diag_coord += pix;
 	vec4 coord = texture(tile_map, diag_coord).rgba;
 	float isEmpty = step(coord.a, 0.01);
-	vec4 prov_colour = texture(tile_sheet, coord.zw);
+	vec4 prov_color = texture(tile_sheet, coord.zw);
 	terrain_color = mix(terrain_color, water, isLake(coord.xy));
 	vec4 ground = mix(terrain_color, water, isOcean(coord.xy) + isLake(coord.xy));
-	vec4 out_colour = mix(ground, prov_colour * 1.2, 0.5 * (1.-isOcean(coord.xy)) * (1.-isLake(coord.xy)));
-	// out_colour = mix(out_colour, mountain, height * height);
+	vec4 out_color = mix(ground, prov_color * 1.2, 0.5 * (1.-isOcean(coord.xy)) * (1.-isLake(coord.xy)));
+	// out_color = mix(out_color, mountain, height * height);
 
-	// out_colour = mix(out_colour, country_border, borders.y);
+	// out_color = mix(out_color, country_border, borders.y);
 
 	float xx = pix.x;
 	float yy = pix.y;
@@ -282,23 +282,23 @@ void main() {
 
 	float bDist = mix(color_x0, color_x1, scaling.y).x;
 	// float bDist = texture(border_tex, tex_coords).x;
-	// out_colour = mix(out_colour, province_border, max(0., 10. * bDist - 9.));
+	// out_color = mix(out_color, province_border, max(0., 10. * bDist - 9.));
 	float bSdf = texture2D(border_sdf, tex_coords + pix * 0.5).z;
 	if (isOcean(coord.xy) == 1.) {
 		bSdf = sin(bSdf * 40.) * bSdf;  
-		prov_colour = vec4(0.);
+		prov_color = vec4(0.);
 	}
-	out_colour = mix(out_colour, prov_colour * 1.1, clamp(bSdf * 3. - 1., 0., 1.));
-	out_colour = mix(out_colour, province_border, borders.x);
+	out_color = mix(out_color, prov_color * 1.1, clamp(bSdf * 3. - 1., 0., 1.));
+	out_color = mix(out_color, province_border, borders.x);
 	float river = texture(river_texture, tex_coords).b;
-	out_colour = mix(out_colour, river_col, river * 0.4);
+	out_color = mix(out_color, river_col, river * 0.4);
 
 	vec3 normal = gen_normal(tex_coords);
 	vec3 lightDir = normalize(vec3(0, 1, 4));
 	float diff = max(dot(lightDir, normal), 0.0);
-	vec3 diffuse = diff * out_colour.xyz;
-	vec3 ambient = 0.1 * out_colour.xyz;
+	vec3 diffuse = diff * out_color.xyz;
+	vec3 ambient = 0.1 * out_color.xyz;
 
-	f_frag_colour = vec4(diffuse + ambient, 1.);
-	// f_frag_colour = texture(river_texture, v_texcoord);
+	f_frag_color = vec4(diffuse + ambient, 1.);
+	// f_frag_color = texture(river_texture, v_texcoord);
 }

@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "%s nation has same colour as %s"
+msgid "%s nation has same color as %s"
 msgstr ""
 
 msgid ""
@@ -25,7 +25,7 @@ msgid ""
 "original nation"
 msgstr ""
 
-msgid "%s province has same colour as %s"
+msgid "%s province has same color as %s"
 msgstr ""
 
 msgid ""

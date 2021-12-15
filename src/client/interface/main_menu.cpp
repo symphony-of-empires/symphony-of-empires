@@ -29,7 +29,6 @@ MainMenu::MainMenu(GameState& _gs)
         o.gs.server = new Server(o.gs, 1836);
         o.gs.client = new Client(o.gs, "127.0.0.1", 1836);
         o.gs.client->username = "Player";
-        o.gs.client->wait_for_snapshot();
         o.gs.in_game = true;
     });
 

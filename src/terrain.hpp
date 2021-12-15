@@ -6,7 +6,7 @@
 
 class TerrainType : public RefnameEntity<uint8_t>  {
 public:
-    // Associative colour (with bitmap)
+    // Associative color (with bitmap)
     uint32_t color;
 
     // Should this terrain be treated as sea?

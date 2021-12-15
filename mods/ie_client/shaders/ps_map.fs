@@ -1,6 +1,6 @@
 #version 330 compatibility
 
-out vec4 f_frag_colour;
+out vec4 f_frag_color;
 
 in vec2 v_texcoord;
 in vec3 v_view_pos;
@@ -8,11 +8,14 @@ in vec3 v_frag_pos;
 
 uniform vec3 view_pos;
 uniform vec2 map_size;
-uniform sampler2D debug_tex;
+
+uniform sampler2D landscape_map;
+uniform sampler2D id_map;
+uniform sampler2D province_color_tex;
 
 void main() {
-	//f_frag_colour = mix(vec4(1.f, 1.f, 1.f, 1.f), texture(debug_tex, v_texcoord));
-	//f_frag_colour = vec4(1.f, 0.f, 1.f, 1.f);
+	vec4 coord = texture(id_map, v_texcoord).rgba;
+	f_frag_color = texture(province_color_tex, coord.rg);
 
-	f_frag_colour = texture(debug_tex, v_texcoord);
+	//f_frag_color = texture(landscape_map, v_texcoord);
 }

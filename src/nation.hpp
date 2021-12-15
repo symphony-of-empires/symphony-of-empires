@@ -41,7 +41,7 @@ public:
 // Hints for the client on how to display the nation
 class NationClientHint {
 public:
-    uint32_t colour;
+    uint32_t color;
 
     // Alternate name, for example communist Russia would be called USSR
     std::string alt_name;

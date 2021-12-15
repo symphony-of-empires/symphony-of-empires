@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-msgid "%s nation has same colour as %s"
+msgid "%s nation has same color as %s"
 msgstr "%s 국가는 []와 색상이 같습니다"
 
 msgid ""
@@ -25,7 +25,7 @@ msgid ""
 "original nation"
 msgstr "%s 국가는 %s 와 ref_name이 동일하므로, 국가의 원래 id를 반환합니다"
 
-msgid "%s province has same colour as %s"
+msgid "%s province has same color as %s"
 msgstr "%s 지역이 %s 과 색상이 같습니다"
 
 msgid ""

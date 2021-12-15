@@ -333,6 +333,7 @@ void Client::net_loop(void) {
                         throw ClientException("Unknown province");
                     ::deserialize(ar, province);
 
+#if defined TILE_GRANULARITY
                     std::scoped_lock lock(world.changed_tiles_coords_mutex);
                     for(unsigned int i = province->min_x; i < province->max_x; i++) {
                         for(unsigned int j = province->min_y; j < province->max_y; j++) {
@@ -340,6 +341,7 @@ void Client::net_loop(void) {
                             world.changed_tile_coords.push_back(std::make_pair(i, j));
                         }
                     }
+#endif
                 } break;
                 default:
                     break;

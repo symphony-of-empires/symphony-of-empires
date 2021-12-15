@@ -280,7 +280,7 @@ const NationClientHint& Nation::get_client_hint(void) const {
     }
 
     if(client_hints.empty()) {
-        tmp_hint.colour = rand();
+        tmp_hint.color = rand();
         tmp_hint.alt_name = this->ref_name + "_MISSING_CLIENTHINT";
         tmp_hint.ideology = World::get_instance().ideologies[0];
         return tmp_hint;

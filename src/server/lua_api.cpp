@@ -405,8 +405,8 @@ int LuaAPI::add_nation_client_hint(lua_State* L) {
     NationClientHint hint;
     hint.ideology = g_world->ideologies.at(lua_tonumber(L, 2));
     hint.alt_name = luaL_checkstring(L, 3);
-    hint.colour = bswap_32(lua_tonumber(L, 4)) >> 8;
-    hint.colour |= 0xff000000;
+    hint.color = bswap_32(lua_tonumber(L, 4)) >> 8;
+    hint.color |= 0xff000000;
 
     nation->client_hints.push_back(hint);
     return 0;
@@ -580,7 +580,7 @@ int LuaAPI::add_province(lua_State* L) {
     // Check for duplicates
     for(size_t i = 0; i < g_world->provinces.size(); i++) {
         if(province->color == g_world->provinces[i]->color) {
-            throw LuaAPI::Exception(province->ref_name + " province has same colour as " + g_world->provinces[i]->ref_name);
+            throw LuaAPI::Exception(province->ref_name + " province has same color as " + g_world->provinces[i]->ref_name);
         }
         else if(province->ref_name == g_world->provinces[i]->ref_name) {
             throw LuaAPI::Exception("Duplicate ref_name " + province->ref_name);

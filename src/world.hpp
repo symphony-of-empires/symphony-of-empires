@@ -266,6 +266,7 @@ public:
     std::vector<DeliverGoods> delivers;
     mutable std::mutex delivers_mutex;
 
+#if defined TILE_GRANULARITY
     // Array containing a list of tile coord that have changed owners
     std::vector<std::pair<uint, uint>> changed_tile_coords;
     mutable std::mutex changed_tiles_coords_mutex;
@@ -277,6 +278,7 @@ public:
     // Array containing a list of tile pointers that have changed elevation
     std::vector<Tile*> elevation_changed_tiles;
     mutable std::mutex elevation_changed_tiles_mutex;
+#endif
 
     std::vector<std::pair<Descision*, Nation*>> taken_descisions;
 };

@@ -630,18 +630,18 @@ template<>
 class Serializer<NationClientHint> {
 public:
     static inline void serialize(Archive& stream, const NationClientHint* obj) {
-        ::serialize(stream, &obj->colour);
+        ::serialize(stream, &obj->color);
         ::serialize(stream, &obj->alt_name);
         ::serialize(stream, &obj->ideology);
     }
     static inline void deserialize(Archive& stream, NationClientHint* obj) {
-        ::deserialize(stream, &obj->colour);
+        ::deserialize(stream, &obj->color);
         ::deserialize(stream, &obj->alt_name);
         ::deserialize(stream, &obj->ideology);
     }
     static inline size_t size(const NationClientHint* obj) {
         return
-            serialized_size(&obj->colour)
+            serialized_size(&obj->color)
             + serialized_size(&obj->alt_name)
             + serialized_size(&obj->ideology)
             ;

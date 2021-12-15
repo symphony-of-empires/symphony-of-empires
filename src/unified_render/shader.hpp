@@ -8,6 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <exception>
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/mat4x4.hpp>
@@ -17,6 +18,15 @@
 
 namespace UnifiedRender {
     namespace OpenGl {
+        class ShaderException: public std::exception {
+            std::string buffer;
+        public:
+            ShaderException(const std::string& _buffer) : buffer(_buffer) {};
+            virtual const char* what(void) const noexcept {
+                return buffer.c_str();
+            }
+        };
+
         class Shader {
         private:        
             void compile(GLuint type);
@@ -39,11 +49,16 @@ namespace UnifiedRender {
             FragmentShader(const std::string& path) : Shader(path, GL_FRAGMENT_SHADER) {};
         };
 
+        class GeometryShader : public Shader {
+        public:
+            GeometryShader(const std::string& path) : Shader(path, GL_GEOMETRY_SHADER) {};
+        };
+
         class Program {
             GLuint id;
         public:
-            Program(const VertexShader* vertex, const FragmentShader* fragment);
-            static Program* create(const std::string& vs_path, const std::string& fs_path);
+            Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry = nullptr);
+            static Program* create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
             void use(void) const;
             void set_uniform(const std::string& name, glm::mat4 uniform) const;
             void set_uniform(const std::string& name, float value1, float value2) const;
