@@ -36,20 +36,21 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     overlay_tex = &g_texture_manager->load_texture(Path::get("ui/map_overlay.png"));
     camera = new FlatCamera(screen_width, screen_height);
 
-#if !defined TILE_GRANULARITY
     model_shader = UnifiedRender::OpenGl::Program::create("model_loading", "model_loading");
     map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
     map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
 
+#if !defined TILE_GRANULARITY
     debug_tex = new UnifiedRender::Texture(world.width, world.height);
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
-        if(tile.province_id < world.provinces.size()) {
+        if(tile.province_id != (Province::Id)-1) {
             debug_tex->buffer[i] = world.provinces[tile.province_id]->color;
         } else {
-            debug_tex->buffer[i] = 0xffff00ff;
+            debug_tex->buffer[i] = (0xff << 24) | (std::rand() & 0xffffff);
         }
     }
+    debug_tex->to_opengl();
 
     map_shader = UnifiedRender::OpenGl::Program::create("ps_map", "ps_map");
 #else
