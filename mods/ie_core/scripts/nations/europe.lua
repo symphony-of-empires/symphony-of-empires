@@ -638,7 +638,7 @@ piedmont_sardinia.name = _("Piedmont-Sardinia")
 piedmont_sardinia:register()
 piedmont_sardinia:set_ideology(monarchy)
 piedmont_sardinia:add_accepted_culture(italian)
-piedmont_sardinia:add_client_hint(monarchy, _("Piedmont-Sardinia"), 0x808000)
+piedmont_sardinia:add_client_hint(monarchy, _("Piedmont-Sardinia"), 0x873cb5)
 
 two_sicilies = Nation:new{ ref_name = "two_sicilies" }
 two_sicilies.name = _("Two Sicilies")
