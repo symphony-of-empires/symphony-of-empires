@@ -23,10 +23,10 @@ void UnifiedRender::SimpleModel::draw(UnifiedRender::OpenGl::Program* shader) co
         } else {
             glBindTexture(GL_TEXTURE_2D, 0);
         }
-        shader->set_uniform("colour", material->ambient_colour.r, material->ambient_colour.g, material->ambient_colour.b, 1.f);
+        shader->set_uniform("color", material->ambient_color.r, material->ambient_color.g, material->ambient_color.b, 1.f);
     } else {
         glBindTexture(GL_TEXTURE_2D, 0);
-        shader->set_uniform("colour", 1.f, 1.f, 1.f, 1.f);
+        shader->set_uniform("color", 1.f, 1.f, 1.f, 1.f);
     }
 
     vao.bind();

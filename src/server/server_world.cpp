@@ -739,16 +739,26 @@ void World::do_tick() {
             break;
         }
 
+#if !defined TILE_GRANULARITY
         if(unit->target != nullptr) {
             unit->province = unit->target;
 
             // Check that we are at war for it to be conquered :)
+
+            // TODO: Only if we are at war
             //if(unit->target->owner != nullptr) {
             unit->owner->give_province(*unit->target);
             //}
         }
 
-#if defined TILE_GRANULARITY
+        for(auto& other_unit : units) {
+            if(other_unit->province != unit->province) continue;
+            if(other_unit->owner == unit->owner) continue;
+
+            // TODO: Only if we are at war
+            unit->attack(*other_unit);
+        }
+#else
         if((unit->x != unit->tx || unit->y != unit->ty) && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
             float end_x, end_y;
             const float speed = unit->type->speed;
@@ -940,6 +950,7 @@ void World::do_tick() {
 		}
 	}
 
+#if defined TILE_GRANULARITY
     for(const auto& tile : nation_changed_tiles) {
         // Broadcast to clients
         Packet packet = Packet();
@@ -954,6 +965,7 @@ void World::do_tick() {
         packet.data(ar.get_buffer(), ar.size());
         g_server->broadcast(packet);
     }
+#endif
 
     {
         // Broadcast to clients

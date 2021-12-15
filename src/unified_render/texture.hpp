@@ -36,8 +36,7 @@ namespace UnifiedRender {
         TextureException(const std::string& filename, const std::string& message): BinaryImageException(filename, message){};
     };
 
-    struct TextureOptions
-    {
+    struct TextureOptions {
         GLenum target = GL_TEXTURE_2D;
         GLuint wrap_s = GL_REPEAT;
         GLuint wrap_t = GL_REPEAT;

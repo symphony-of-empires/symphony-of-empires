@@ -1,6 +1,6 @@
 #version 330 compatibility
 
-out vec4 f_frag_colour;
+out vec4 f_frag_color;
 
 in vec2 v_texcoord;
 
@@ -37,7 +37,7 @@ void main() {
 
 	vec4 m_frag_data = fetch_pixel(m_coord);
 	// if (jump < 8) {
-	// 	f_frag_colour = m_frag_data;
+	// 	f_frag_color = m_frag_data;
 	// 	return;
 	// }
 
@@ -64,5 +64,5 @@ void main() {
 			dist = newDist;
 		}
 	}
-	f_frag_colour = m_frag_data;
+	f_frag_color = m_frag_data;
 }

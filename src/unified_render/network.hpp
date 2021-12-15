@@ -28,6 +28,50 @@
 #include <cstring>
 #include <stdexcept>
 
+#include <zlib.h>
+
+static inline size_t get_compressed_len(size_t len) {
+    return (len + 6 + (((len + 16383) / 16384) * 5));
+}
+
+static inline  size_t compress(const void* src, size_t src_len, void* dest, size_t dest_len) {
+    z_stream info = {};
+    info.total_in = info.avail_in = src_len;
+    info.total_out = info.avail_out = dest_len;
+    info.next_in = (Bytef*)src;
+    info.next_out = (Bytef*)dest;
+
+    int r;
+    r = deflateInit(&info, Z_DEFAULT_COMPRESSION);
+    if(r == Z_OK) {
+        r = deflate(&info, Z_FINISH);
+        if(r == Z_STREAM_END) {
+            return info.total_out;
+        }
+    }
+    deflateEnd(&info);
+    return info.total_out;
+}
+
+static inline size_t decompress(const void* src, size_t src_len, void* dest, size_t dest_len) {
+    z_stream info = {};
+    info.total_in = info.avail_in = src_len;
+    info.total_out = info.avail_out = dest_len;
+    info.next_in = (Bytef*)src;
+    info.next_out = (Bytef*)dest;
+
+    int r;
+    r = inflateInit(&info);
+    if(r == Z_OK) {
+        r = inflate(&info, Z_FINISH);
+        if(r == Z_STREAM_END) {
+            return info.total_out;
+        }
+    }
+    inflateEnd(&info);
+    return info.total_out;
+}
+
 class SocketException: public std::exception {
     std::string buffer;
 public:
@@ -117,8 +161,11 @@ public:
         const uint32_t net_size = htonl(n_data);
         stream.send(&net_size, sizeof(net_size));
 
-        // Socket writes can only be done 1024 bytes at a time
-        stream.send(&buffer[0], n_data);
+        uint8_t* new_buf = new uint8_t[size];
+        size_t new_size = compress(buf, size, new_buf, size);
+        stream.send(&new_buf[0], new_size);
+        //stream.send(&buffer[0], n_data);
+        delete[] new_buf;
 
         const uint16_t eof_marker = htons(0xE0F);
         stream.send(&eof_marker, sizeof(eof_marker));
@@ -142,8 +189,14 @@ public:
 
         // Reads can only be done 1024 bytes at a time
         stream.recv(&buffer[0], n_data);
-        if(buf != nullptr)
-            std::memcpy(buf, &buffer[0], n_data);
+        if(buf != nullptr) {
+            size_t new_size = get_compressed_len(n_data);
+            char* new_buf = new char[new_size];
+            size_t decomp_size = decompress(buf, n_data, new_buf, new_size);
+            std::memcpy(buf, &new_buf[0], decomp_size);
+            delete[] new_buf;
+            //std::memcpy(buf, &buffer[0], n_data);
+        }
 
         uint16_t eof_marker;
         stream.recv(&eof_marker, sizeof(eof_marker));

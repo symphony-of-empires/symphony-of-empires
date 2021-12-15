@@ -41,16 +41,33 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
 
 #if !defined TILE_GRANULARITY
-    debug_tex = new UnifiedRender::Texture(world.width, world.height);
+    UnifiedRender::TextureOptions mipmap_options{};
+    mipmap_options.wrap_s = GL_REPEAT;
+    mipmap_options.wrap_t = GL_REPEAT;
+    mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
+    mipmap_options.mag_filter = GL_LINEAR;
+    
+    landscape_map = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
+    landscape_map->gen_mipmaps();
+
+    topo_map = &g_texture_manager->load_texture(Path::get("topo.png"));
+    //topo_map->to_opengl();
+
+    id_map = new UnifiedRender::Texture(world.width, world.height);
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
-        if(tile.province_id != (Province::Id)-1) {
-            debug_tex->buffer[i] = world.provinces[tile.province_id]->color;
-        } else {
-            debug_tex->buffer[i] = (0xff << 24) | (std::rand() & 0xffffff);
+        id_map->buffer[i] = (tile.province_id & 0xffff);
+    }
+    id_map->to_opengl();
+
+    province_color_tex = new UnifiedRender::Texture(256, 256);
+    for(const auto& province : world.provinces) {
+        province_color_tex->buffer[world.get_id(province)] = 0x00000000;
+        if(province->owner != nullptr) {
+            province_color_tex->buffer[world.get_id(province)] = province->owner->get_client_hint().color;
         }
     }
-    debug_tex->to_opengl();
+    province_color_tex->to_opengl();
 
     map_shader = UnifiedRender::OpenGl::Program::create("ps_map", "ps_map");
 #else
@@ -65,20 +82,20 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         water_tex->gen_mipmaps();
         noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), mipmap_options);
         noise_tex->gen_mipmaps();
-        topo_tex = &g_texture_manager->load_texture(Path::get("topo.png"), mipmap_options);
-        topo_tex->gen_mipmaps();
-        map_color = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
-        map_color->gen_mipmaps();
+        topo_map = &g_texture_manager->load_texture(Path::get("topo.png"), mipmap_options);
+        topo_map->gen_mipmaps();
+        landscape_map = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
+        landscape_map->gen_mipmaps();
         river_tex = &g_texture_manager->load_texture(Path::get("river_smal_smooth.png"), mipmap_options);
         river_tex->gen_mipmaps();
 
         //terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
-        //topo_tex = new UnifiedRender::Texture(world.width, world.height);
+        //topo_map = new UnifiedRender::Texture(world.width, world.height);
 
         terrain_tex = new UnifiedRender::Texture(world.width, world.height);
         for(size_t i = 0; i < world.width * world.height; i++) {
             terrain_tex->buffer[i] = world.tiles[i].terrain_type_id;
-            topo_tex->buffer[i] = world.tiles[i].elevation;
+            topo_map->buffer[i] = world.tiles[i].elevation;
         }
         terrain_tex->to_opengl();
 
@@ -100,13 +117,13 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     // dosen't changes too much we can just do a texture
     tile_map = new UnifiedRender::Texture(world.width, world.height);
 
-	// Texture holding the colours of each owner
+	// Texture holding the colors of each owner
     tile_sheet = new UnifiedRender::Texture(256, 256);
     for(size_t i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer[i] = 0xffdddddd;
     }
     for(unsigned int i = 0; i < world.nations.size(); i++) {
-        tile_sheet->buffer[i] = world.nations[i]->get_client_hint().colour;
+        tile_sheet->buffer[i] = world.nations[i]->get_client_hint().color;
     }
     // Water
     tile_sheet->buffer[(Nation::Id)-2] = 0x00000000;
@@ -630,6 +647,14 @@ void Map::update_tiles(World& world) {
 void Map::draw(const int width, const int height) {
     glm::mat4 view, projection;
 
+    for(const auto& province : world.provinces) {
+        province_color_tex->buffer[world.get_id(province)] = 0x00000000;
+        if(province->owner != nullptr) {
+            province_color_tex->buffer[world.get_id(province)] = province->owner->get_client_hint().color;
+        }
+    }
+    province_color_tex->to_opengl();
+
     map_shader->use();
     view = camera->get_view();
     map_shader->set_uniform("view", view);
@@ -640,7 +665,9 @@ void Map::draw(const int width, const int height) {
 
     // Map should have no "model" matrix since it's always static
 #if !defined TILE_GRANULARITY
-    map_shader->set_texture(0, "debug_tex", debug_tex);
+    map_shader->set_texture(0, "landscape_map", landscape_map);
+    map_shader->set_texture(1, "id_map", id_map);
+    map_shader->set_texture(2, "province_color_tex", province_color_tex);
 #else
     map_shader->set_texture(0, "tile_map", tile_map);
     map_shader->set_texture(1, "tile_sheet", tile_sheet);
@@ -648,10 +675,10 @@ void Map::draw(const int width, const int height) {
     map_shader->set_texture(3, "noise_texture", noise_tex);
     map_shader->set_texture(4, "terrain_texture", terrain_tex);
     map_shader->set_texture(5, "terrain_sheet", terrain_sheet);
-    map_shader->set_texture(6, "topo_texture", topo_tex);
+    map_shader->set_texture(6, "topo_mapture", topo_map);
     map_shader->set_texture(7, "border_tex", border_tex);
     map_shader->set_texture(8, "border_sdf", border_sdf);
-    map_shader->set_texture(9, "map_color", map_color);
+    map_shader->set_texture(9, "landscape_map", landscape_map);
     map_shader->set_texture(10, "river_texture", river_tex);
 #endif
 

@@ -8,10 +8,10 @@ uniform mat4 projection;
 uniform mat4 model;
 
 out vec2 v_texcoord;
-out vec4 v_colour;
+out vec4 v_color;
 
 void main() {
 	gl_Position = ((projection * view) * model) * vec4(m_pos, 1.0);
 	v_texcoord = m_texcoord;
-	//v_colour = vec4(v_texcoord.x, v_texcoord.y, v_texcoord.x * v_texcoord.y, 1.f);
+	//v_color = vec4(v_texcoord.x, v_texcoord.y, v_texcoord.x * v_texcoord.y, 1.f);
 }

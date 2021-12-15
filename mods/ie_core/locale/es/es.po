@@ -99,7 +99,7 @@ msgstr "bien %s no encontrado"
 msgid "good"
 msgstr "bien"
 
-msgid "%s nation has same colour as %s"
+msgid "%s nation has same color as %s"
 msgstr "nacion %s tiene el mismo color que %s"
 
 msgid ""
@@ -115,7 +115,7 @@ msgstr "nacion"
 msgid "nation %s not found"
 msgstr "naion %s no encontrada"
 
-msgid "%s province has same colour as %s"
+msgid "%s province has same color as %s"
 msgstr "provincia %s tiene el mismo color que %s"
 
 msgid ""

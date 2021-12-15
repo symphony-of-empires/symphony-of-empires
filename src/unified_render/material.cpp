@@ -35,17 +35,17 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
             curr_mat = new Material();
             tmp_mat.push_back(std::make_pair(curr_mat, name));
         } else if(cmd == "Ka") {
-            glm::vec3 colour;
-            sline >> colour.x >> colour.y >> colour.z;
-            curr_mat->ambient_colour = colour;
+            glm::vec3 color;
+            sline >> color.x >> color.y >> color.z;
+            curr_mat->ambient_color = color;
         } else if(cmd == "Kd") {
-            glm::vec3 colour;
-            sline >> colour.x >> colour.y >> colour.z;
-            curr_mat->diffuse_colour = colour;
+            glm::vec3 color;
+            sline >> color.x >> color.y >> color.z;
+            curr_mat->diffuse_color = color;
         } else if(cmd == "Ks") {
-            glm::vec3 colour;
-            sline >> colour.x >> colour.y >> colour.z;
-            curr_mat->specular_colour = colour;
+            glm::vec3 color;
+            sline >> color.x >> color.y >> color.z;
+            curr_mat->specular_color = color;
         } else if(cmd == "Ns") {
             sline >> curr_mat->specular_exp;
         } else if(cmd == "Ni") {

@@ -13,8 +13,7 @@ Shader::Shader(const std::string& path, GLuint type) {
 
         buffer = stream.str();
         compile(type);
-    }
-    catch(std::ifstream::failure& e) {
+    } catch(std::ifstream::failure& e) {
         print_error("Cannot load shader %s", path.c_str());
     }
 }
@@ -35,8 +34,8 @@ void Shader::compile(GLuint type) {
     if(!r) {
         std::string error_info;
         glGetShaderInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
-
         print_error("Status: %s", error_info.c_str());
+        throw ShaderException(error_info);
     }
     // print_info("Status: Sucess");
 }
@@ -45,14 +44,17 @@ GLuint Shader::get_id(void) const {
     return id;
 }
 
-Program::Program(const VertexShader* vertex, const FragmentShader* fragment) {
+Program::Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry) {
     id = glCreateProgram();
     glBindAttribLocation(id, 0, "m_pos");
     glBindAttribLocation(id, 1, "m_texcoord");
-    glBindAttribLocation(id, 2, "m_colour");
+    glBindAttribLocation(id, 2, "m_color");
 
     glAttachShader(id, vertex->get_id());
     glAttachShader(id, fragment->get_id());
+    if(geometry != nullptr) {
+        glAttachShader(id, geometry->get_id());
+    }
     glLinkProgram(id);
 
     // Check for errors of the shader
@@ -61,14 +63,19 @@ Program::Program(const VertexShader* vertex, const FragmentShader* fragment) {
     if(!r) {
         std::string error_info;
         glGetProgramInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
-
         print_error("Program error %s", error_info.c_str());
+        throw ShaderException(error_info);
     }
 }
 
-Program* Program::create(const std::string& vs_path, const std::string& fs_path) {
+Program* Program::create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
     auto vs = UnifiedRender::OpenGl::VertexShader(Path::get("shaders/" + vs_path + ".vs"));
     auto fs = UnifiedRender::OpenGl::FragmentShader(Path::get("shaders/" + fs_path + ".fs"));
+
+    if(!gs_path.empty()) {
+        auto gs = UnifiedRender::OpenGl::GeometryShader(Path::get("shaders/" + gs_path + ".gs"));
+        return new Program(&vs, &fs, &gs);
+    }
     return new Program(&vs, &fs);
 }
 

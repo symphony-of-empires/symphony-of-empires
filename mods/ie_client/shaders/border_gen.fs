@@ -1,6 +1,6 @@
 #version 330 compatibility
 
-out vec4 f_frag_colour;
+out vec4 f_frag_color;
 
 in vec2 v_texcoord;
 
@@ -43,5 +43,5 @@ vec2 getBorder(vec2 texcoord) {
 
 void main() {
 	vec2 border = min(vec2(1.), getBorder(v_texcoord));
-	f_frag_colour = vec4(v_texcoord.xy * border.y, border.y, 1.);
+	f_frag_color = vec4(v_texcoord.xy * border.y, border.y, 1.);
 }

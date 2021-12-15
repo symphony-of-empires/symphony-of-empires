@@ -14,9 +14,9 @@ namespace UnifiedRender {
     class Material {
     public:
         const Texture* texture = nullptr;
-        glm::vec3 colour;
+        glm::vec3 color;
 
-        glm::vec3 ambient_colour, diffuse_colour, specular_colour;
+        glm::vec3 ambient_color, diffuse_color, specular_color;
         float specular_exp;
         float optical_density;
     };

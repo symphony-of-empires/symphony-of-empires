@@ -18,7 +18,7 @@ ProductView::ProductView(GameState& _gs, Product* _product)
 
         std::vector<UI::ChartData> nations_data;
         for(const auto& nation : o.gs.world->nations) {
-            nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name, nation->get_client_hint().colour));
+            nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name, nation->get_client_hint().color));
         }
 
         // Account for products that are based on this good
@@ -93,7 +93,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
 
         std::vector<UI::ChartData> nations_data;
         for(const auto& nation : o.gs.world->nations) {
-            nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name, nation->get_client_hint().colour));
+            nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name, nation->get_client_hint().color));
         }
 
         // Account for products that are based on this good

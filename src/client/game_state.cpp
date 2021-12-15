@@ -243,7 +243,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     if(gs.current_mode != MapMode::NO_MAP) {
         Map* map = gs.map;
 		
-		//std::scoped_lock lock(gs.world->world_mutex);
+		std::scoped_lock lock(gs.world->world_mutex);
 
         glPushMatrix();
         glMatrixMode(GL_PROJECTION);
@@ -339,7 +339,7 @@ void GameState::world_thread(void) {
         while(paused) {};
 
         world->do_tick();
-        // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
@@ -364,7 +364,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     std::thread world_th(&GameState::world_thread, &gs);
     while(gs.run) {
         std::scoped_lock lock(gs.render_lock);
-        gs.world->do_tick();
+
         handle_event(gs.input, gs, gs.run);
         if(gs.current_mode == MapMode::NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
@@ -410,7 +410,6 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
             gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/war.wav")));
         }
     }
-    world_th.join();
 }
 
 #include "client/interface/main_menu.hpp"

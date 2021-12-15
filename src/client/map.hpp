@@ -53,7 +53,8 @@ public:
     MapView view_mode = MapView::PLANE_VIEW;
 
 #if !defined TILE_GRANULARITY
-    UnifiedRender::Texture* debug_tex;
+    UnifiedRender::Texture* id_map;
+    UnifiedRender::Texture* province_color_tex;
 #endif
 
     // Map textures
@@ -63,10 +64,10 @@ public:
     UnifiedRender::Texture* border_sdf;
     const UnifiedRender::Texture* water_tex;
     const UnifiedRender::Texture* noise_tex;
-    const UnifiedRender::Texture* topo_tex;
+    const UnifiedRender::Texture* topo_map;
     const UnifiedRender::Texture* river_tex;
     UnifiedRender::Texture* terrain_tex;
-    const UnifiedRender::Texture* map_color;
+    const UnifiedRender::Texture* landscape_map;
     UnifiedRender::TextureArray* terrain_sheet;
     // const UnifiedRender::Texture* terrain_sheet;
 
