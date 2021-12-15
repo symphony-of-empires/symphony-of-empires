@@ -30,6 +30,16 @@ public:
 // When adjacent to a water tile this serves as a shipyard for spawning naval units
 class Building : public IdEntity<uint16_t> {
 public:
+    Building(){};
+    ~Building();
+    bool can_do_output(void);
+    void add_to_stock(const Good* good, size_t add);
+    Province* get_province(void);
+    Nation* get_owner(void);
+    void create_factory(void);
+    void delete_factory(void);
+    std::pair<float, float> get_pos(void) const;
+
 #if !defined TILE_GRANULARITY
     
 #else
@@ -51,19 +61,11 @@ public:
     // Required goods for building this, or repairing this after a military attack
     std::vector<std::pair<Good*, size_t>> req_goods;
 
-    bool can_do_output(void);
-    void add_to_stock(const Good* good, size_t add);
-    Province* get_province(void);
-    Nation* get_owner(void);
-    void create_factory(void);
-    void delete_factory(void);
-    ~Building();
-
     // Nation owner of this building
     Nation* owner;
     
     // Province that "supplies" this building
-    Province* province = nullptr;
+    Province* province;
     
     // Corporate owner of this building
     Company* corporate_owner;

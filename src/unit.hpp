@@ -63,6 +63,8 @@ public:
  */
 class Unit : public IdEntity<uint16_t> {
 public:
+    std::pair<float, float> get_pos(void) const;
+
     void attack(Unit& enemy) {
         // Calculate the attack of our unit
         float attack_mod = 0.f;
@@ -125,7 +127,7 @@ public:
     size_t base;
 
 #if !defined TILE_GRANULARITY
-    Province* target;
+    Province* target = nullptr;
     Province* province;
 #else
     // Target coordinates of this unit

@@ -644,7 +644,7 @@ void Map::draw(const int width, const int height) {
 #if defined TILE_GRANULARITY
         model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
 #else
-        std::pair<float, float> pos = std::make_pair((building->province->max_x - building->province->min_x) / 2.f, (building->province->max_y - building->province->min_y) / 2.f);
+        std::pair<float, float> pos = building->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
 #endif
 		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
@@ -657,7 +657,7 @@ void Map::draw(const int width, const int height) {
 #if defined TILE_GRANULARITY
         model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
 #else
-        std::pair<float, float> pos = std::make_pair((unit->province->max_x - unit->province->min_x) / 2.f, (unit->province->max_y - unit->province->min_y) / 2.f);
+        std::pair<float, float> pos = unit->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
 #endif
 		model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
@@ -701,7 +701,7 @@ void Map::draw(const int width, const int height) {
     for(const auto& unit : world.units) {
         glPushMatrix();
 #if !defined TILE_GRANULARITY
-        std::pair<float, float> pos = std::make_pair((unit->province->max_x - unit->province->min_x) / 2.f, (unit->province->max_y - unit->province->min_y) / 2.f);
+        std::pair<float, float> pos = unit->get_pos();
         glTranslatef(pos.first, pos.second, -0.1f);
 #else
         glTranslatef(unit->x, unit->y, -0.1f);
@@ -791,6 +791,16 @@ void Map::draw(const int width, const int height) {
 		glColor3f(0.f, 1.f, 0.f);
 		glVertex2f(unit->tx, unit->ty);
 		glEnd();
+#else
+        if(unit->target != nullptr) {
+            std::pair<float, float> pos = unit->get_pos();
+            glBegin(GL_LINES);
+            glColor3f(1.f, 0.f, 0.f);
+            glVertex2f(pos.first, pos.second);
+            glColor3f(0.f, 1.f, 0.f);
+            glVertex2f(unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
+            glEnd();
+        }
 #endif
     }
 
