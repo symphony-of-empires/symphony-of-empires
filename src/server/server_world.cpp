@@ -165,6 +165,7 @@ World::World() {
         g_world->time = year + month + day;
         return 1;
     });
+
     lua_register(lua, "_", [](lua_State* L) {
         std::string msgid = luaL_checkstring(L, 1);
         std::string end_msg = gettext(msgid.c_str());
@@ -441,7 +442,7 @@ void World::load_mod(void) {
     print_info(gettext("Associate tiles with provinces"));
     for(size_t i = 0; i < total_size; i++) {
         const uint32_t color = div->buffer[i];
-#if defined TILE_GRANULARITY
+// #if defined TILE_GRANULARITY
         // This "skip the empty stuff" technique works!
         while(i < total_size && (div->buffer[i] == 0xffffffff || div->buffer[i] == 0xff000000 || div->buffer[i] == 0xffff00ff)) {
             if(div->buffer[i] == 0xffff00ff) {
@@ -459,7 +460,7 @@ void World::load_mod(void) {
             ++i;
         }
         if(!(i < total_size)) break;
-#endif
+// #endif
 
 #if !defined TILE_GRANULARITY
         const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
