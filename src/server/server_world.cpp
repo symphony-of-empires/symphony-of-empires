@@ -461,7 +461,7 @@ void World::load_mod(void) {
         if(!(i < total_size)) break;
 #endif
 
-#if defined TILE_GRANULARITY
+#if !defined TILE_GRANULARITY
         const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
         if(province_id == (Province::Id)-1) {
             // Uncomment this and see below

@@ -11,5 +11,8 @@ uniform vec2 map_size;
 uniform sampler2D debug_tex;
 
 void main() {
-	f_frag_colour = mix(vec4(1.f, 1.f, 1.f, 1.f), texture(debug_tex, v_texcoord));
+	//f_frag_colour = mix(vec4(1.f, 1.f, 1.f, 1.f), texture(debug_tex, v_texcoord));
+	//f_frag_colour = vec4(1.f, 0.f, 1.f, 1.f);
+
+	f_frag_colour = texture(debug_tex, v_texcoord);
 }
