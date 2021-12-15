@@ -293,17 +293,19 @@ void ai_do_tick(Nation* nation, World* world) {
             if(type == nullptr) return;
 
             Province* province = g_world->provinces[std::rand() % g_world->provinces.size()];
-            if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || province->n_tiles == 0) {
+            if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
                 print_error("Cant build buidling, province doesn't have any tiles");
             } else {
                 // Now build the building
                 Building* building = new Building();
                 building->owner = nation;
 
+#if defined TILE_GRANULARITY
                 // Randomly place in any part of the province
                 glm::ivec2 coord = world->get_rand_province_coord(province);
                 building->x = coord.x;
                 building->y = coord.y;
+#endif
                 building->province = province;
                 building->corporate_owner = nullptr;
 
@@ -362,8 +364,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 std::advance(it, std::rand() % nation->owned_provinces.size());
 				
                 Province* province = *it;
-                if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y ||
-                    province->n_tiles == 0) {
+                if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
                     print_error("Cant build defense, province doesn't have any tiles");
                 } else {
 					Building* building = new Building();
@@ -371,10 +372,11 @@ void ai_do_tick(Nation* nation, World* world) {
                     building->province = province;
 				    
                     // Randomly place in any part of the province
+#if defined TILE_GRANULARITY
                     glm::ivec2 coord = world->get_rand_province_coord(province);
                     building->x = coord.x;
                     building->y = coord.y;
-
+#endif
                     building->working_unit_type = nullptr;
 
                     building->type = world->building_types[0];
@@ -396,7 +398,10 @@ void ai_do_tick(Nation* nation, World* world) {
 
             // Build units inside buildings that are not doing anything
             for(auto& building : g_world->buildings) {
-                if(std::rand() % std::max<int>(50, defense_factor)) continue;
+                //if(std::rand() % std::max<int>(50, defense_factor)) continue;
+                
+                if(std::rand() % 10) continue;
+                
                 if(building->working_unit_type != nullptr || building->owner != nation) continue;
                 Province* province = building->get_province();
                 if (province == nullptr) continue;
@@ -452,17 +457,20 @@ void ai_do_tick(Nation* nation, World* world) {
         // Naval AI
         if(!(std::rand() % 100)) {
             for(auto& unit : g_world->units) {
+#if !defined TILE_GRANULARITY
+
+#else
                 // Count friends and foes in range (and find nearest foe)
-                Unit* nearest_enemy = nullptr,* nearest_friend = nullptr;
+                const Unit* nearest_enemy = nullptr;
+                const Unit* nearest_friend = nullptr;
                 float friend_attack_strength = 0.f, foe_attack_strength = 0.f;
                 float friend_defense_strength = 0.f, foe_defense_strength = 0.f;
-                for(size_t j = 0; j < g_world->units.size(); j++) {
-                    Unit* other_unit = g_world->units[j];
-                    if(unit->owner == other_unit->owner) {
-                        // Only when very close
-                        if(std::abs(unit->x - other_unit->x) >= 80.f || std::abs(unit->y - other_unit->y) >= 80.f)
-                            continue;
+                for(const auto& other_unit : g_world->units) {
+                    // Only evaluate this unit when it's close to ours
+                    if(std::abs(unit->x - other_unit->x) >= 80.f || std::abs(unit->y - other_unit->y) >= 80.f)
+                        continue;
 
+                    if(unit->owner == other_unit->owner) {
                         friend_attack_strength = other_unit->size * other_unit->type->attack;
                         friend_defense_strength = other_unit->size * other_unit->type->defense;
 
@@ -477,10 +485,6 @@ void ai_do_tick(Nation* nation, World* world) {
 						// Must be an actual foe...
 						if(unit->owner->is_enemy(*other_unit->owner))
 							continue;
-						
-                        // Foes from many ranges counts
-                        if(std::abs(unit->x - other_unit->x) >= 80.f || std::abs(unit->y - other_unit->y) >= 80.f)
-                            continue;
 
                         foe_attack_strength = other_unit->size * other_unit->type->attack;
                         foe_defense_strength = other_unit->size * other_unit->type->defense;
@@ -497,11 +501,19 @@ void ai_do_tick(Nation* nation, World* world) {
 
 				// Attack first before they attack us
 				if(nearest_enemy != nullptr && friend_attack_strength > foe_attack_strength) {
+                    // Do not get too near
+                    if(std::abs(unit->x - nearest_enemy->x) < 1.5f && std::abs(unit->y - nearest_enemy->y) < 1.5f)
+                        continue;
+
 					unit->tx = nearest_enemy->x;
 					unit->ty = nearest_enemy->y;
 				}
 				// Defend to avoid lots of casualties
 				else if(nearest_friend != nullptr && friend_defense_strength > foe_attack_strength) {
+                    // Do not get too near
+                    if(std::abs(unit->x - nearest_friend->x) < 1.5f && std::abs(unit->y - nearest_friend->y) < 1.5f)
+                        continue;
+                    
 					unit->tx = nearest_friend->x;
 					unit->ty = nearest_friend->y;
 				}
@@ -510,6 +522,7 @@ void ai_do_tick(Nation* nation, World* world) {
 					unit->tx = unit->x;
 					unit->ty = unit->y;
 				}
+#endif
             }
         }
     }

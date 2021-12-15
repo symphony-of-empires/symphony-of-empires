@@ -96,10 +96,14 @@ static inline float tile_cost(const World& world, Tile* t1, Tile* t2) {
     // a boat can pass thru water but for an army it will have a horrible cost!
 
     // Maximum penalties difference accounts to same cost as one jump in x or y direction (1.0)
+#if defined TILE_GRANULARITY
     const float elev_diff = (
         (int)world.terrain_types[t1->terrain_type_id]->movement_penalty
         - (int)world.terrain_types[t2->terrain_type_id]->movement_penalty)
         / 128.f;
+#else
+    const float elev_diff = 0.f;
+#endif
     
     // Base distance is euclidean distance in x, y and elevation
     const float distance = std::sqrt(x_diff* x_diff + y_diff* y_diff + elev_diff* elev_diff);

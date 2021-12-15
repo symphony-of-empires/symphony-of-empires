@@ -623,10 +623,12 @@ int LuaAPI::add_province_industry(lua_State* L) {
     // Randomly place in any part of the province
     // TODO: This will create some funny situations where coal factories will appear on
     // the fucking pacific ocean - we need to fix that
+#if defined TILE_GRANULARITY
     building->x = province->min_x + (std::rand() % (province->max_x - province->min_x));
     building->y = province->min_y + (std::rand() % (province->max_y - province->min_y));
     building->x = std::min(building->x, g_world->width - 1);
     building->y = std::min(building->y, g_world->height - 1);
+#endif
     building->province = province;
 
     building->working_unit_type = nullptr;
