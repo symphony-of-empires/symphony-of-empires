@@ -54,11 +54,25 @@ namespace UnifiedRender {
             GeometryShader(const std::string& path) : Shader(path, GL_GEOMETRY_SHADER) {};
         };
 
+        class TessControlShader : public Shader {
+        public:
+            TessControlShader(const std::string& path) : Shader(path, GL_TESS_CONTROL_SHADER) {};
+        };
+
+        class TessEvalShader : public Shader {
+        public:
+            TessEvalShader(const std::string& path) : Shader(path, GL_TESS_EVALUATION_SHADER) {};
+        };
+
         class Program {
             GLuint id;
         public:
-            Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry = nullptr);
+            Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry = nullptr, const TessControlShader* tctrl = nullptr, const TessEvalShader* tee = nullptr);
             static Program* create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
+
+            void attach_shader(const Shader* shader);
+            void link(void);
+
             void use(void) const;
             void set_uniform(const std::string& name, glm::mat4 uniform) const;
             void set_uniform(const std::string& name, float value1, float value2) const;
