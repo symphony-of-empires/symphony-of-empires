@@ -15,11 +15,7 @@ enum class PopGroup {
 class PopType: public RefnameEntity<uint8_t> {
 public:
     float social_value;
-
     PopGroup group;
-
-    // TODO: Ideology spectrum
-    //std::vector<Ideology*> spectrum;
 };
 
 #include "culture.hpp"
