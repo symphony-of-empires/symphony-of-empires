@@ -113,11 +113,11 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     isolationism_chk->tooltip = new UI::Tooltip(isolationism_chk, 512, 24);
     isolationism_chk->tooltip->text("Allows us to isolate ourselves from the rest of the world");
 
-    this->enact_btn = new UI::Button(0, 0, 128, 24, this);
-    this->enact_btn->below_of(*isolationism_chk);
-    this->enact_btn->on_click = ([](UI::Widget& w, void*) {
+    auto* enact_btn = new UI::Button(0, 0, 128, 24, this);
+    enact_btn->text("Enact policy");
+    enact_btn->below_of(*isolationism_chk);
+    enact_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PoliciesScreen&>(w);
-		
         Packet packet = Packet();
         Archive ar = Archive();
         ActionType action = ActionType::NATION_ENACT_POLICY;
@@ -126,7 +126,14 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         packet.data(ar.get_buffer(), ar.size());
         std::scoped_lock lock(g_client->pending_packets_mutex);
         g_client->pending_packets.push_back(packet);
+
+        o.gs.ui_ctx->prompt("Policy", "New policy enacted!");
     });
+
+    auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
+    close_btn->text("Close");
+    close_btn->below_of(*isolationism_chk);
+    close_btn->right_side_of(*enact_btn);
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PoliciesScreen&>(w);
