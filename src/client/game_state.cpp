@@ -383,6 +383,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
         }
 
         if(gs.music_queue.empty()) {
+            std::scoped_lock lock(sound_lock);
             gs.music_fade_value = 100.f;
             gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/war.wav")));
         }
@@ -394,6 +395,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 
 static void mixaudio(void* userdata, uint8_t* stream, int len) {
     GameState& gs = *((GameState*)userdata);
+    std::scoped_lock lock(sound_lock);
 
     std::memset(stream, 0, len);
 
@@ -459,12 +461,14 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
             main_menu->kill();
 			logo->kill();
 
+            std::scoped_lock lock(sound_lock);
             for(auto& music : gs.music_queue) { delete music; }
             gs.music_queue.clear();
             break;
         }
 
         if(gs.music_queue.empty()) {
+            std::scoped_lock lock(sound_lock);
             gs.music_fade_value = 100.f;
             gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/title.wav")));
         }
