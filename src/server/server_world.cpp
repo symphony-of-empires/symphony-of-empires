@@ -665,11 +665,13 @@ void World::do_tick() {
         }
 
         if(unit->target != nullptr) {
-            unit->province = unit->target;
-
-            // Check that we are at war for it to be conquered :)
-            if(unit->target->owner != nullptr) {
-                unit->owner->give_province(*unit->target);
+            if(unit->move_progress) {
+                unit->move_progress -= std::min(unit->move_progress, unit->type->speed);
+            } else {
+                unit->province = unit->target;
+                if(unit->target->owner != nullptr) {
+                    unit->owner->give_province(*unit->target);
+                }
             }
         }
 
