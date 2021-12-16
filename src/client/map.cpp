@@ -99,6 +99,23 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     // Land
     tile_sheet->buffer[(Nation::Id)-1] = 0xffdddddd;
 
+#if defined TILE_GRANULARITY
+    for(size_t i = 0; i < world.width * world.height; i++) {
+        const Tile& tile = world.get_tile(i);
+        tile_map->buffer[i] = ((tile.owner_id & 0xffff) << 16) | (tile.province_id & 0xffff);
+    }
+#else
+    for(size_t i = 0; i < world.width * world.height; i++) {
+        const Tile& tile = world.get_tile(i);
+        if(tile.province_id >= (Province::Id)-3) {
+            tile_map->buffer[i] = (tile.province_id & 0xffff);
+        } else {
+            auto province = world.provinces[tile.province_id];
+            if(province->owner == nullptr) continue;
+            tile_map->buffer[i] = ((world.get_id(province->owner) & 0xffff) << 16) | (tile.province_id & 0xffff);
+        }
+    }
+#endif
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
         if(tile.province_id >= (Province::Id)-3) {
@@ -147,7 +164,6 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     border_sdf = gen_border_sdf();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glEnable(GL_CULL_FACE);
-    // #endif
 
     print_info("Preloading-important stuff");
     // Query the initial nation flags
@@ -196,7 +212,6 @@ void Map::set_view(MapView view) {
 }
 
 void Map::reload_shaders() {
-    // #if defined TILE_GRANULARITY
     delete map_shader;
     map_shader = UnifiedRender::OpenGl::Program::create("map", "map");
 
@@ -206,11 +221,9 @@ void Map::reload_shaders() {
     delete border_sdf;
     border_sdf = gen_border_sdf();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    // #endif
 }
 
 std::vector<std::pair<Province::Id, uint32_t>> population_map_mode(std::vector<Province*> provinces, World* world) {
-    // #if defined TILE_GRANULARITY
     std::vector<std::pair<Province::Id, uint32_t>> province_amounts;
     uint32_t max_amount = 0;
     for(auto const& province : provinces) {
@@ -237,12 +250,10 @@ std::vector<std::pair<Province::Id, uint32_t>> population_map_mode(std::vector<P
         province_color.push_back(std::make_pair(prov_id, color));
     }
     return province_color;
-    // #endif
 }
 
 void Map::set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_colors) {
-    // #if defined TILE_GRANULARITY
-        // Max amout of provinces are limited to 256 * 256
+    // Max amout of provinces are limited to 256 * 256
     tile_sheet->delete_opengl();
     tile_sheet = new UnifiedRender::Texture(256, 256);
     std::memset(tile_sheet->buffer, 0, sizeof(tile_sheet->buffer[0]) * (tile_sheet->width * tile_sheet->height));
@@ -251,12 +262,10 @@ void Map::set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_c
         tile_map->buffer[province_color.first] = (0xff << 24) | province_color.second;
     }
     tile_sheet->to_opengl();
-    // #endif
 }
 
 /** Creates the "waving" border around the continent to give it a 19th century map feel */
 UnifiedRender::Texture* Map::gen_border_sdf() {
-    // #if defined TILE_GRANULARITY
     glDisable(GL_CULL_FACE);
     glViewport(0, 0, border_tex->width, border_tex->height);
     border_sdf_shader->use();
@@ -311,9 +320,6 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
         glEnable(GL_CULL_FACE);
         return tex1;
     }
-    // #else
-        // return nullptr;
-    // #endif
 }
 
 void Map::draw_flag(const Nation* nation) {
@@ -379,12 +385,14 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         const Tile& tile = gs.world->get_tile(select_pos.first, select_pos.second);
         switch(gs.current_mode) {
         case MapMode::COUNTRY_SELECT:
-            // #if defined TILE_GRANULARITY
+#if defined TILE_GRANULARITY
+            gs.select_nation->change_nation(tile.owner_id);
+#else
             if(tile.province_id < (Province::Id)-3) {
                 auto province = world.provinces[tile.province_id];
                 gs.select_nation->change_nation(province->owner->cached_id);
             }
-            // #endif
+#endif
             break;
         case MapMode::NORMAL:
             // Check if we selected an unit
@@ -444,7 +452,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             if(!fp) return;
             fprintf(fp, "{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%06x },\r\n", province->ref_name.c_str(), province->name.c_str(), bswap_32((province->color & 0x00ffffff) << 8));
             fclose(fp);
-    }
+        }
 
         if(selected_unit != nullptr) {
             const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
@@ -605,23 +613,17 @@ void Map::draw(const int width, const int height) {
     map_shader->set_uniform("map_size", (float)world.width, (float)world.height);
 
     // Map should have no "model" matrix since it's always static
-// #if !defined TILE_GRANULARITY
-    // map_shader->set_texture(0, "landscape_map", landscape_map);
-    // map_shader->set_texture(1, "id_map", id_map);
-    // map_shader->set_texture(2, "province_color_tex", province_color_tex);
-// #else
     map_shader->set_texture(0, "tile_map", tile_map);
     map_shader->set_texture(1, "tile_sheet", tile_sheet);
     map_shader->set_texture(2, "water_texture", water_tex);
     map_shader->set_texture(3, "noise_texture", noise_tex);
-//  map_shader->set_texture(4, "terrain_texture", terrain_tex);
-    map_shader->set_texture(4, "terrain_sheet", terrain_sheet);
-//  map_shader->set_texture(6, "topo_mapture", topo_map);
-    map_shader->set_texture(5, "border_tex", border_tex);
-    map_shader->set_texture(6, "border_sdf", border_sdf);
-    map_shader->set_texture(7, "landscape_map", landscape_map);
-    map_shader->set_texture(8, "river_texture", river_tex);
-// #endif
+    map_shader->set_texture(4, "terrain_texture", terrain_tex);
+    map_shader->set_texture(5, "terrain_sheet", terrain_sheet);
+    map_shader->set_texture(6, "topo_mapture", topo_map);
+    map_shader->set_texture(7, "border_tex", border_tex);
+    map_shader->set_texture(8, "border_sdf", border_sdf);
+    map_shader->set_texture(9, "landscape_map", landscape_map);
+    map_shader->set_texture(10, "river_texture", river_tex);
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();
