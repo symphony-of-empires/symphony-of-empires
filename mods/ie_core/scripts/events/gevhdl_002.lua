@@ -18,7 +18,7 @@ function gevhdl002_event(ref_name)
 		name = "Shut them down",
 		descision_fn = "gevhdl002_descision_0"
 	}
-	descision.effects = "Every POP that supports " .. TEMP_DATA.ideology.name .. " gets 1 militancy"
+	descision.effects = "Every POP that supports " .. TEMP_DATA.ideology.name .. " gets 0.1 militancy"
 	gevhdl002:add_descision(descision)
 	
 	descision = Descision:new{
@@ -26,7 +26,7 @@ function gevhdl002_event(ref_name)
 		name = "Let them be",
 		descision_fn = "gevhdl002_descision_1",
 	}
-	descision.effects = "Every POP that supports " .. TEMP_DATA.ideology.name .. " gets 1 conciousness"
+	descision.effects = "Every POP that supports " .. TEMP_DATA.ideology.name .. " gets 0.1 conciousness"
 	gevhdl002:add_descision(descision)
 	return EVENT_DO_MANY_TIMES
 end
@@ -39,7 +39,7 @@ function gevhdl002_descision_0(ref_name)
 				goto continue
 			end
 			
-			pop.militancy = pop.militancy + 1.0
+			pop.militancy = pop.militancy + 0.1
 			province:update_pop(pop)
 			::continue::
 		end
@@ -55,7 +55,7 @@ function gevhdl002_descision_1(ref_name)
 				goto continue
 			end
 			
-			pop.con = pop.con + 1.0
+			pop.con = pop.con + 0.1
 			province:update_pop(pop)
 			::continue::
 		end
