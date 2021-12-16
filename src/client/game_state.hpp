@@ -69,6 +69,7 @@ public:
     std::atomic<bool> update_tick;
     std::atomic<bool> run;
     std::atomic<bool> paused;
+    std::atomic<int> ms_delay_speed;
     bool host_mode;
 
     // The ui will mostly need to read the world state

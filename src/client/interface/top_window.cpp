@@ -110,6 +110,7 @@ TopWindow::TopWindow(GameState& _gs)
     speed1_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
         o.gs.paused = false;
+        o.gs.ms_delay_speed = 1000;
     });
 
     auto* speed2_btn = new UI::Button(24, 24 + (24 * 3), 48, 24, this);
@@ -118,6 +119,7 @@ TopWindow::TopWindow(GameState& _gs)
     speed2_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
         o.gs.paused = false;
+        o.gs.ms_delay_speed = 500;
     });
 
     auto* speed3_btn = new UI::Button(24, 24 + (24 * 3), 48, 24, this);
@@ -126,11 +128,11 @@ TopWindow::TopWindow(GameState& _gs)
     speed3_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
         o.gs.paused = false;
+        o.gs.ms_delay_speed = 100;
     });
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(w);
-
         if(o.gs.world->time % o.gs.world->ticks_per_day) return;
 
         o.text(
