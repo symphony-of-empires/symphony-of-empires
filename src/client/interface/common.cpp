@@ -47,6 +47,7 @@ CompanyButton::CompanyButton(GameState& _gs, int x, int y, Company* _company, UI
     text(company->name);
     on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<CompanyButton&>(w);
+        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
         w.text(o.company->name);
     });
 }
@@ -74,6 +75,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
     this->flag_icon->current_texture = &gs.get_nation_flag(*nation);
     this->flag_icon->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationButton&>(*w.parent);
+        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
         w.current_texture = &o.gs.get_nation_flag(*o.nation);
     });
 
@@ -82,6 +84,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
     this->name_btn->text(nation->get_client_hint().alt_name);
     this->name_btn->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationButton&>(*w.parent);
+        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
         w.text(o.nation->get_client_hint().alt_name);
     });
 }
@@ -92,10 +95,6 @@ BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingTyp
     UI::Button(x, y, parent->width, 24, parent)
 {
     text(building_type->ref_name);
-    on_each_tick = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<BuildingTypeButton&>(w);
-        w.text(o.building_type->ref_name);
-    });
 }
 
 PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, UI::Widget* parent)
