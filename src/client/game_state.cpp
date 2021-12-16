@@ -314,9 +314,10 @@ void GameState::update_on_tick(void) {
 void GameState::world_thread(void) {
     while(run) {
         while(paused) {};
-
         world->do_tick();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        gs.update_tick = true;
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 }
 
