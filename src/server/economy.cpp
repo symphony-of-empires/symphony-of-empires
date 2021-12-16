@@ -857,10 +857,7 @@ void Economy::do_tick(World& world) {
                 total_anger += anger;
 
                 for(const auto& ideology : world.ideologies) {
-                    unsigned int idx = world.get_id(ideology);
-
-                    // TODO: Some pops lack the ideology array for some reason i dont know
-                    //ideology_anger[idx] += (pop.ideology_approval[idx] * anger) * (pop.size / 1000.f);
+                    ideology_anger[world.get_id(ideology)] += (pop.ideology_approval[world.get_id(ideology)] * anger) * (pop.size / 1000.f);
                 }
             }
         }

@@ -668,11 +668,9 @@ void World::do_tick() {
             unit->province = unit->target;
 
             // Check that we are at war for it to be conquered :)
-
-            // TODO: Only if we are at war
-            //if(unit->target->owner != nullptr) {
-            unit->owner->give_province(*unit->target);
-            //}
+            if(unit->target->owner != nullptr) {
+                unit->owner->give_province(*unit->target);
+            }
         }
 
         for(auto& other_unit : units) {

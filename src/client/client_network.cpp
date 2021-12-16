@@ -202,8 +202,6 @@ void Client::net_loop(void) {
                     ::deserialize(ar, &policy);
                     nation->current_policy = policy;
                 } break;
-                // TODO: There is a problem with this
-                // TODO: It throws serializer errors but idk where, maybe the server?
                 case ActionType::PROVINCE_UPDATE: {
                     Province::Id size;
                     ::deserialize(ar, &size);
