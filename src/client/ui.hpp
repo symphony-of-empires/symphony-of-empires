@@ -262,6 +262,7 @@ namespace UI {
     public:
         Checkbox(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         virtual ~Checkbox() override {};
+        bool value;
     };
 
     class Button: public Widget {
