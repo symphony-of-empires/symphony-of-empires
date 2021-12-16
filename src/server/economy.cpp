@@ -124,7 +124,6 @@ void Economy::do_tick(World& world) {
                 // Government-required supplies are super important for companies
                 product->demand += req.second * 1.5f;
             }
-
             if(req.second) can_build = false;
         }
 
@@ -188,6 +187,7 @@ void Economy::do_tick(World& world) {
                 --i;
             }
         }
+        
         for(size_t i = 0; i < province_workers.laborers.size(); i++) {
             if(available_laborers >= needed_laborers) break;
             Workers& workers = province_workers.laborers[i];
@@ -207,6 +207,7 @@ void Economy::do_tick(World& world) {
                 --i;
             }
         }
+
         for(size_t i = 0; i < province_workers.entrepreneurs.size(); i++) {
             if(available_entrepreneurs >= needed_entrepreneurs) break;
             Workers& workers = province_workers.entrepreneurs[i];
@@ -569,19 +570,7 @@ void Economy::do_tick(World& world) {
     world.delivers.clear();
     world.orders.clear();
 
-    // Uncomment to see stockpiles
-    for(const auto& province : world.provinces) {
-        //for(size_t i = 0; i < province->stockpile.size(); i++) {
-        //    if(!province->stockpile[i]) continue;
-        //    print_info("%zu of %s produced in %s - stockpiled by %s", province->stockpile[i], world.products[i]->good->name.c_str(), world.products[i]->origin->name.c_str(), province->name.c_str());
-        //}
-
-        //size_t pop_count = 0;
-        //for(const auto& pop : province->pops) {
-        //    pop_count += pop.size;
-        //}
-        //print_info("%s has %zu people", province->name.c_str(), pop_count);
-    }
+    // TODO: Place stockpiles
 
     // Phase 3 of economy: POPs buy the aforementioned products and take from the province's stockpile
 
