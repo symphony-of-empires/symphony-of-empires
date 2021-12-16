@@ -47,7 +47,7 @@ CompanyButton::CompanyButton(GameState& _gs, int x, int y, Company* _company, UI
     text(company->name);
     on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<CompanyButton&>(w);
-        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
         w.text(o.company->name);
     });
 }
@@ -75,7 +75,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
     this->flag_icon->current_texture = &gs.get_nation_flag(*nation);
     this->flag_icon->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationButton&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
         w.current_texture = &o.gs.get_nation_flag(*o.nation);
     });
 
@@ -84,7 +84,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
     this->name_btn->text(nation->get_client_hint().alt_name);
     this->name_btn->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationButton&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
         w.text(o.nation->get_client_hint().alt_name);
     });
 }
@@ -179,8 +179,8 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProductInfo&>(w);
 
-        // Only update every ticks_per_day ticks
-        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
+        // Only update every ticks_per_month ticks
+        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
 
         o.price_chart->data.push_back(o.product->price);
         if(o.price_chart->data.size() >= 30)

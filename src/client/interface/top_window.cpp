@@ -133,14 +133,14 @@ TopWindow::TopWindow(GameState& _gs)
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(w);
-        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
 
         o.text(
-            std::to_string(o.gs.world->time / o.gs.world->ticks_per_day / 30 / 12)
+            std::to_string(o.gs.world->time / 12 / o.gs.world->ticks_per_month)
             + "/"
-            + std::to_string(o.gs.world->time / o.gs.world->ticks_per_day / 30 % 12)
+            + std::to_string((o.gs.world->time / o.gs.world->ticks_per_month % 12) + 1)
             + "/"
-            + std::to_string(o.gs.world->time % o.gs.world->ticks_per_day)
+            + std::to_string((o.gs.world->time % o.gs.world->ticks_per_month) + 1)
             + " - "
             + o.gs.curr_nation->get_client_hint().alt_name
             + " - "

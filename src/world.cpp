@@ -186,27 +186,23 @@ World::World() {
     lua_register(lua, "add_ideology", LuaAPI::add_ideology);
     lua_register(lua, "get_ideology", LuaAPI::get_ideology);
     lua_register(lua, "get_ideology_by_id", LuaAPI::get_ideology_by_id);
-
-    lua_register(lua, "get_hour", [](lua_State* L) {
-        lua_pushnumber(L, 1 + (g_world->time % g_world->ticks_per_day));
-        return 1;
-    });
+    
     lua_register(lua, "get_day", [](lua_State* L) {
-        lua_pushnumber(L, 1 + (g_world->time / g_world->ticks_per_day % 30));
+        lua_pushnumber(L, 1 + (g_world->time % g_world->ticks_per_month));
         return 1;
     });
     lua_register(lua, "get_month", [](lua_State* L) {
-        lua_pushnumber(L, 1 + (g_world->time / g_world->ticks_per_day / 30 % 12));
+        lua_pushnumber(L, 1 + (g_world->time / g_world->ticks_per_month % 12));
         return 1;
     });
     lua_register(lua, "get_year", [](lua_State* L) {
-        lua_pushnumber(L, g_world->time / g_world->ticks_per_day / 30 / 12);
+        lua_pushnumber(L, g_world->time / g_world->ticks_per_month / 12);
         return 1;
     });
     lua_register(lua, "set_date", [](lua_State* L) {
-        const int year = lua_tonumber(L, 1) * 12 * 30 * g_world->ticks_per_day;
-        const int month = lua_tonumber(L, 2) * 30 * g_world->ticks_per_day;
-        const int day = lua_tonumber(L, 3) * g_world->ticks_per_day;
+        const int year = lua_tonumber(L, 1) * 12 * 30 * g_world->ticks_per_month;
+        const int month = lua_tonumber(L, 2) * 30 * g_world->ticks_per_month;
+        const int day = lua_tonumber(L, 3) * g_world->ticks_per_month;
         g_world->time = year + month + day;
         return 1;
     });
@@ -607,8 +603,8 @@ void World::do_tick() {
         ai_do_tick(nation, this);
     }
 
-    // Every ticks_per_day ticks do an economical tick
-    if(!(time % ticks_per_day)) {
+    // Every ticks_per_month ticks do an economical tick
+    if(!(time % ticks_per_month)) {
         Economy::do_tick(*this);
         // Calculate prestige for today (newspapers come out!)
         for(auto& nation : this->nations) {
@@ -756,8 +752,8 @@ void World::do_tick() {
 
     LuaAPI::check_events(lua);
 
-    if(!(time % ticks_per_day)) {
-        print_info("%i/%i/%i", time / 12 / 30 / ticks_per_day, (time / 30 / ticks_per_day % 12) + 1, (time / ticks_per_day % 30) + 1);
+    if(!(time % ticks_per_month)) {
+        print_info("%i/%i/%i", time / 12 / ticks_per_month, (time / ticks_per_month % 12) + 1, (time % ticks_per_month) + 1);
     }
 
     print_info("Tick %i done", time);

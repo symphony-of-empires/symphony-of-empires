@@ -203,10 +203,10 @@ void ai_update_relations(Nation* nation, Nation* other) {
 void ai_do_tick(Nation* nation, World* world) {
     if(!nation->exists() || !nation->owned_provinces.size()) return;
 
-    if(!(world->time % world->ticks_per_day)) {
+    if(!(world->time % world->ticks_per_month)) {
         if(nation->ai_do_policies) {
             // Do a policy reform every 6 months
-            if(!((world->time / world->ticks_per_day) % 180)) {
+            if(!((world->time / world->ticks_per_month) % 180)) {
                 // Update our policies and laws
                 ai_reform(nation);
             }

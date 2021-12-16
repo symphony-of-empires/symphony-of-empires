@@ -32,7 +32,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     this->is_scroll = false;
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationView&>(w);
-        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
 
         w.text(o.nation->get_client_hint().alt_name);
     });
@@ -40,7 +40,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     this->flag_img = new UI::Image(0, 24, 128, 96, nullptr, this);
     this->flag_img->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationView&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
 
         w.current_texture = &o.gs.get_nation_flag(*o.nation);
     });
@@ -51,7 +51,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     this->name_lab->below_of(*this->flag_img);
     this->name_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationView&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
 
         w.text(o.nation->get_client_hint().alt_name);
     });
@@ -62,7 +62,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     this->ideology_lab->below_of(*this->name_lab);
     this->ideology_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationView&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_day) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
 
         w.text(o.nation->get_client_hint().ideology->name);
     });
@@ -74,7 +74,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         this->rel_lab->below_of(*this->ideology_lab);
         this->rel_lab->on_each_tick = ([](UI::Widget& w, void*) {
             auto& o = static_cast<NationView&>(*w.parent);
-            if(o.gs.world->time % o.gs.world->ticks_per_day) return;
+            if(o.gs.world->time % o.gs.world->ticks_per_month) return;
 
             w.text(std::to_string(o.gs.curr_nation->relations[o.gs.world->get_id(o.nation)].relation));
         });
@@ -85,7 +85,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         this->interest_lab->below_of(*this->rel_lab);
         this->interest_lab->on_each_tick = ([](UI::Widget& w, void*) {
             auto& o = static_cast<NationView&>(*w.parent);
-            if(o.gs.world->time % o.gs.world->ticks_per_day) return;
+            if(o.gs.world->time % o.gs.world->ticks_per_month) return;
 
             w.text(std::to_string(o.gs.curr_nation->relations[o.gs.world->get_id(o.nation)].interest));
         });

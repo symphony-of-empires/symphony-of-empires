@@ -128,7 +128,7 @@ class World {
     std::vector<std::pair<Event*, int>> rand_chance_events;
 
 public:
-    static constexpr unsigned int ticks_per_day = 48;
+    static constexpr unsigned int ticks_per_month = 30;
 
     World();
     World& operator=(const World&) = default;
