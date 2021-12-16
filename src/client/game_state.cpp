@@ -126,6 +126,11 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
                 gs.map->handle_click(gs, event);
             }
+
+            if(click_on_ui) {
+                std::scoped_lock lock(gs.sound_lock);
+                gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
+            }
             break;
         case SDL_MOUSEMOTION:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -199,12 +204,8 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             break;
         }
 
-        if(gs.current_mode != MapMode::NO_MAP && !click_on_ui){
+        if(gs.current_mode != MapMode::NO_MAP && !click_on_ui) {
             gs.map->update(event, input);
-        }
-
-        if(click_on_ui) {
-            gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
         }
     }
     ui_ctx->clear_dead();
@@ -315,7 +316,7 @@ void GameState::world_thread(void) {
     while(run) {
         while(paused) {};
         world->do_tick();
-        gs.update_tick = true;
+        update_tick = true;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
@@ -384,7 +385,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
         }
 
         if(gs.music_queue.empty()) {
-            std::scoped_lock lock(sound_lock);
+            std::scoped_lock lock(gs.sound_lock);
             gs.music_fade_value = 100.f;
             gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/war.wav")));
         }
@@ -396,39 +397,40 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 
 static void mixaudio(void* userdata, uint8_t* stream, int len) {
     GameState& gs = *((GameState*)userdata);
-    std::scoped_lock lock(sound_lock);
-
     std::memset(stream, 0, len);
 
-    for(unsigned int i = 0; i < gs.sound_queue.size(); ) {
-        int size = gs.sound_queue.size();
-        UnifiedRender::Sound* sound = gs.sound_queue[i];
-        int amount = sound->len - sound->pos;
-        if(amount > len) amount = len;
-        if(amount <= 0) {
-            delete sound;
-            gs.sound_queue.erase(gs.sound_queue.begin() + i);
-            continue;
+    if(gs.sound_lock.try_lock()) {
+        for(unsigned int i = 0; i < gs.sound_queue.size(); ) {
+            int size = gs.sound_queue.size();
+            UnifiedRender::Sound* sound = gs.sound_queue[i];
+            int amount = sound->len - sound->pos;
+            if(amount > len) amount = len;
+            if(amount <= 0) {
+                delete sound;
+                gs.sound_queue.erase(gs.sound_queue.begin() + i);
+                continue;
+            }
+
+            SDL_MixAudio(stream, &sound->data[sound->pos], amount, SDL_MIX_MAXVOLUME);
+            sound->pos += amount;
+            i++;
         }
 
-        SDL_MixAudio(stream, &sound->data[sound->pos], amount, SDL_MIX_MAXVOLUME);
-        sound->pos += amount;
-        i++;
-    }
+        for(unsigned int i = 0; i < gs.music_queue.size(); ) {
+            UnifiedRender::Sound* music = gs.music_queue[i];
+            int amount = music->len - music->pos;
+            if(amount > len) amount = len;
+            if(amount <= 0) {
+                delete music;
+                gs.music_queue.erase(gs.music_queue.begin() + i);
+                continue;
+            }
 
-    for(unsigned int i = 0; i < gs.music_queue.size(); ) {
-        UnifiedRender::Sound* music = gs.music_queue[i];
-        int amount = music->len - music->pos;
-        if(amount > len) amount = len;
-        if(amount <= 0) {
-            delete music;
-            gs.music_queue.erase(gs.music_queue.begin() + i);
-            continue;
+            SDL_MixAudio(stream, &music->data[music->pos], amount, SDL_MIX_MAXVOLUME / gs.music_fade_value);
+            music->pos += amount;
+            i++;
         }
-
-        SDL_MixAudio(stream, &music->data[music->pos], amount, SDL_MIX_MAXVOLUME / gs.music_fade_value);
-        music->pos += amount;
-        i++;
+        gs.sound_lock.unlock();
     }
 
     if(gs.music_fade_value > 1.f) gs.music_fade_value -= 1.f;
@@ -462,14 +464,14 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
             main_menu->kill();
 			logo->kill();
 
-            std::scoped_lock lock(sound_lock);
+            std::scoped_lock lock(gs.sound_lock);
             for(auto& music : gs.music_queue) { delete music; }
             gs.music_queue.clear();
             break;
         }
 
         if(gs.music_queue.empty()) {
-            std::scoped_lock lock(sound_lock);
+            std::scoped_lock lock(gs.sound_lock);
             gs.music_fade_value = 100.f;
             gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/title.wav")));
         }
