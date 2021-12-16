@@ -309,39 +309,12 @@ void Client::net_loop(void) {
                     }
                     // world.time++;
                 } break;
-#if defined TILE_GRANULARITY
-                case ActionType::TILE_UPDATE: {
-                    // get_tile is already mutexed
-
-                    std::pair<size_t, size_t> coord;
-                    ::deserialize(ar, &coord);
-                    ::deserialize(ar, &world.get_tile(coord.first, coord.second));
-
-                    const Tile& tile = world.get_tile(coord.first, coord.second);
-                    if(tile.owner_id != (Nation::Id)-1 && tile.province_id <= world.provinces.size()) {
-                        world.nations[tile.owner_id]->owned_provinces.insert(world.provinces[tile.province_id]);
-                    }
-
-                    std::scoped_lock lock(world.changed_tiles_coords_mutex);
-                    world.changed_tile_coords.push_back(coord);
-                } break;
-#endif
                 case ActionType::PROVINCE_COLONIZE: {
                     Province* province;
                     ::deserialize(ar, &province);
                     if(province == nullptr)
                         throw ClientException("Unknown province");
                     ::deserialize(ar, province);
-
-#if defined TILE_GRANULARITY
-                    std::scoped_lock lock(world.changed_tiles_coords_mutex);
-                    for(unsigned int i = province->min_x; i < province->max_x; i++) {
-                        for(unsigned int j = province->min_y; j < province->max_y; j++) {
-                            if(world.get_tile(i, j).province_id != world.get_id(province)) continue;
-                            world.changed_tile_coords.push_back(std::make_pair(i, j));
-                        }
-                    }
-#endif
                 } break;
                 default:
                     break;

@@ -34,15 +34,6 @@ public:
     // Elevation
     uint8_t elevation;
 
-#if !defined TILE_GRANULARITY
-
-#else
-    // ID of the nation who owns this tile
-    Nation::Id owner_id;
-    // Terrain type
-    TerrainType::Id terrain_type_id;
-#endif
-
     const std::vector<const Tile*> get_neighbours(const World& world) const;
 };
 
@@ -134,29 +125,6 @@ public:
 * Contains the main world class object, containing all the data relevant for the simulation
  */
 class World {
-    // Template for obtaining the ID of an element from a vector
-    // @tparam T type of the element to lookup
-    // @tparam C STL-compatible container where the pointer *should* be located in
-    template<typename T, typename C>
-    inline typename T::Id get_id_from_pvector(const T* ptr, C table) const {
-        /*
-        // Use the cached Id of the object for faster 1-element lookups
-        if(ptr->cached_id != (typename T::Id) - 1) {
-            return ptr->cached_id;
-        }
-
-        // Do a full traverse of the list and cache the Id once found so sucessive lookups are faster
-        typename C::iterator it = std::find(table.begin(), table.end(), ptr);
-        if(it == table.end()) {
-            // -1 is used as an invalid index
-            return (typename T::Id) - 1;
-        }
-        ptr->cached_id = (typename T::Id)std::distance(table.begin(), it);
-        return ptr->cached_id;
-        */
-        return ptr->cached_id;
-    }
-
     std::vector<Event*> daily_check_events;
     std::vector<Event*> monthly_check_events;
     std::vector<Event*> yearly_check_events;
@@ -226,15 +194,12 @@ public:
     // obtain the list from the type) with get_list helper functions
     template<typename T>
     inline typename T::Id get_id(const T* ptr) const {
-        return get_id_from_pvector<T>(ptr, get_list(ptr));
+        return ptr->cached_id;
     };
 
     // Obtains a tile from the world safely, and makes sure that it is in bounds
     Tile& get_tile(size_t x, size_t y) const;
     Tile& get_tile(size_t idx) const;
-#if defined TILE_GRANULARITY
-    glm::ivec2 get_rand_province_coord(Province* owner) const;
-#endif
 
     // Lua state - for lua scripts, this is only used by the server and should not be
     // accesible to the client
@@ -265,21 +230,7 @@ public:
     // A deliver list (what factories need to send)
     std::vector<DeliverGoods> delivers;
     mutable std::mutex delivers_mutex;
-
-#if defined TILE_GRANULARITY
-    // Array containing a list of tile coord that have changed owners
-    std::vector<std::pair<uint, uint>> changed_tile_coords;
-    mutable std::mutex changed_tiles_coords_mutex;
-
-    // Array containing a list of tile pointers that have changed owners
-    std::vector<Tile*> nation_changed_tiles;
-    mutable std::mutex nation_changed_tiles_mutex;
-
-    // Array containing a list of tile pointers that have changed elevation
-    std::vector<Tile*> elevation_changed_tiles;
-    mutable std::mutex elevation_changed_tiles_mutex;
-#endif
-
+    
     std::vector<std::pair<Descision*, Nation*>> taken_descisions;
 };
 

@@ -171,15 +171,8 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                 if(gs.current_mode == MapMode::NORMAL) {
                     if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
                         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-                        
-#if defined TILE_GRANULARITY
-                        if(tile.owner_id >= gs.world->nations.size()) break;
-                        if(tile.province_id >= gs.world->provinces.size()) break;
-                        new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->nations[tile.owner_id], gs.world->provinces[tile.province_id]);
-#else
                         if(tile.province_id >= gs.world->provinces.size()) break;
                         new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->provinces[tile.province_id]->owner, gs.world->provinces[tile.province_id]);
-#endif
                     }
                 }
                 break;
@@ -255,27 +248,11 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         map->draw(width, height);
 
         if(selected_unit != nullptr) {
-#if defined TILE_GRANULARITY
-            glBegin(GL_LINE_STRIP);
-            glColor3f(1.f, 0.f, 0.f);
-            glVertex2f(selected_unit->x, selected_unit->y);
-            glVertex2f(selected_unit->x + 1.f, selected_unit->y);
-            glVertex2f(selected_unit->x + 1.f, selected_unit->y + 1.f);
-            glVertex2f(selected_unit->x, selected_unit->y + 1.f);
-            glEnd();
-#endif
+
         }
 
         if(selected_building != nullptr) {
-#if defined TILE_GRANULARITY
-            glBegin(GL_LINE_STRIP);
-            glColor3f(1.f, 0.f, 0.f);
-            glVertex2f(selected_building->x, selected_building->y);
-            glVertex2f(selected_building->x + 1.f, selected_building->y);
-            glVertex2f(selected_building->x + 1.f, selected_building->y + 1.f);
-            glVertex2f(selected_building->x, selected_building->y + 1.f);
-            glEnd();
-#endif
+            
         }
 
         glBindTexture(GL_TEXTURE_2D, 0);

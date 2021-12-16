@@ -301,11 +301,6 @@ void ai_do_tick(Nation* nation, World* world) {
             } else {
                 // Now build the building
                 Building* building = new Building();
-#if defined TILE_GRANULARITY
-                    glm::ivec2 coord = world->get_rand_province_coord(province);
-                    building->x = coord.x;
-                    building->y = coord.y;
-#endif
                 building->province = province;
                 building->corporate_owner = world->companies.at(0);
                 building->type = world->building_types[0];
@@ -368,11 +363,6 @@ void ai_do_tick(Nation* nation, World* world) {
                     print_error("Cant build defense, province doesn't have any tiles");
                 } else {
 					Building* building = new Building();
-#if defined TILE_GRANULARITY
-                    glm::ivec2 coord = world->get_rand_province_coord(province);
-                    building->x = coord.x;
-                    building->y = coord.y;
-#endif
                     building->province = province;
                     building->corporate_owner = nullptr;
                     building->type = world->building_types[0];
@@ -457,7 +447,6 @@ void ai_do_tick(Nation* nation, World* world) {
         // Naval AI
         if(!(std::rand() % 100)) {
             for(auto& unit : g_world->units) {
-#if !defined TILE_GRANULARITY
                 // Go to a neighbouring province :)
                 if(unit->province->neighbours.empty()) continue;
 
@@ -465,70 +454,6 @@ void ai_do_tick(Nation* nation, World* world) {
                 std::advance(it, std::rand() % unit->province->neighbours.size());
                 Province* province = *it;
                 unit->target = province;
-#else
-                // Count friends and foes in range (and find nearest foe)
-                const Unit* nearest_enemy = nullptr;
-                const Unit* nearest_friend = nullptr;
-                float friend_attack_strength = 0.f, foe_attack_strength = 0.f;
-                float friend_defense_strength = 0.f, foe_defense_strength = 0.f;
-                for(const auto& other_unit : g_world->units) {
-                    // Only evaluate this unit when it's close to ours
-                    if(std::abs(unit->x - other_unit->x) >= 80.f || std::abs(unit->y - other_unit->y) >= 80.f)
-                        continue;
-
-                    if(unit->owner == other_unit->owner) {
-                        friend_attack_strength = other_unit->size * other_unit->type->attack;
-                        friend_defense_strength = other_unit->size * other_unit->type->defense;
-
-                        if(nearest_friend == nullptr)
-                            nearest_friend = other_unit;
-
-                        // Find nearest friend
-                        if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_friend->x) && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_friend->y)) {
-                            nearest_friend = other_unit;
-                        }
-                    } else {
-						// Must be an actual foe...
-						if(unit->owner->is_enemy(*other_unit->owner))
-							continue;
-
-                        foe_attack_strength = other_unit->size * other_unit->type->attack;
-                        foe_defense_strength = other_unit->size * other_unit->type->defense;
-
-                        if(nearest_enemy == nullptr)
-                            nearest_enemy = other_unit;
-
-                        // Find nearest foe
-                        if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_enemy->x) && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_enemy->y)) {
-                            nearest_enemy = other_unit;
-                        }
-                    }
-				}
-
-				// Attack first before they attack us
-				if(nearest_enemy != nullptr && friend_attack_strength > foe_attack_strength) {
-                    // Do not get too near
-                    if(std::abs(unit->x - nearest_enemy->x) < 1.5f && std::abs(unit->y - nearest_enemy->y) < 1.5f)
-                        continue;
-
-					unit->tx = nearest_enemy->x;
-					unit->ty = nearest_enemy->y;
-				}
-				// Defend to avoid lots of casualties
-				else if(nearest_friend != nullptr && friend_defense_strength > foe_attack_strength) {
-                    // Do not get too near
-                    if(std::abs(unit->x - nearest_friend->x) < 1.5f && std::abs(unit->y - nearest_friend->y) < 1.5f)
-                        continue;
-                    
-					unit->tx = nearest_friend->x;
-					unit->ty = nearest_friend->y;
-				}
-				// Withdraw
-				else {
-					unit->tx = unit->x;
-					unit->ty = unit->y;
-				}
-#endif
             }
         }
     }

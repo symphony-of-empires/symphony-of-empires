@@ -99,23 +99,6 @@ public:
         // Deal the damage
         enemy.size -= std::min<size_t>(enemy.size, damage_dealt);
     };
-
-#if defined TILE_GRANULARITY
-	template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type>
-	void move_to(const T& tx, const T& ty) {
-		if(this->x > this->tx) {
-			this->x -= this->type->speed;
-		} else if(this->x < this->tx) {
-			this->x += this->type->speed;
-		}
-
-		if(this->y > this->ty) {
-			this->y -= this->type->speed;
-		} else if(this->y < this->ty) {
-			this->y += this->type->speed;
-		}
-	};
-#endif
     
     // Type of unit
     UnitType* type;
@@ -125,17 +108,9 @@ public:
 
     // Base size of the unit (max size due to anti-attrition)
     size_t base;
-
-#if !defined TILE_GRANULARITY
+    
     Province* target = nullptr;
     Province* province;
-#else
-    // Target coordinates of this unit
-    size_t tx, ty;
-
-    // Current position
-    float x, y;
-#endif
 
     // Who owns this unit
     Nation* owner;

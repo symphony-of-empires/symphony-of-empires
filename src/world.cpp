@@ -58,22 +58,3 @@ Tile& World::get_tile(size_t idx) const {
         throw std::runtime_error("Tile index exceeds boundaries");
     return tiles[idx];
 }
-
-#if defined TILE_GRANULARITY
-// Quite stupid way of getting random tiles but will do for now
-// TODO fix better way of getting random tiles
-glm::ivec2 World::get_rand_province_coord(Province* owner) const {
-    Province::Id owner_id = get_id(owner);
-    if(owner->n_tiles > 0) {
-        print_error("Can't get random tile, province has no tiles");
-        return glm::ivec2{ -1, -1 };
-    }
-    while (true) {
-        int x = owner->min_x + (std::rand() % (owner->max_x - owner->min_x + 1));
-        int y = owner->min_y + (std::rand() % (owner->max_y - owner->min_y + 1));
-        if(get_tile(x, y).owner_id == owner_id) {
-            return glm::ivec2(x, y);
-        }
-    }
-}
-#endif
