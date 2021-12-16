@@ -294,15 +294,6 @@ CLICK_STATE Context::check_click_recursive(Widget& w, const unsigned int mx, con
     if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height))
         clickable = false;
 
-    switch(w.type) {
-    case UI_WIDGET_SLIDER: {
-        Slider* wc = (Slider*)&w;
-        wc->value = ((float)std::abs((int)mx - offset.x) / (float)wc->width) * wc->max;
-    } break;
-    default:
-        break;
-    }
-
     for(auto& child : w.children) {
         click_state = check_click_recursive(*child, mx, my, offset.x, offset.y, click_state, clickable);
     }
@@ -314,6 +305,11 @@ CLICK_STATE Context::check_click_recursive(Widget& w, const unsigned int mx, con
     // Call on_click if on_click hasnt been used and widget is hit by ckick
     if(w.on_click) {
         if(clickable && !click_consumed) {
+            if(w.type == UI_WIDGET_SLIDER) {
+                Slider* wc = (Slider*)&w;
+                wc->value = ((float)std::abs((int)mx - offset.x) / (float)wc->width) * wc->max;
+            }
+
             w.on_click(w, w.user_data);
             return CLICK_STATE::HANDLED;
         }
@@ -630,8 +626,7 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
         glColor3f(0.f, 0.f, 1.f);
         draw_rect(0, pos_rect, tex_rect, viewport);
-    }
-    else if(type != UI_WIDGET_IMAGE && type != UI_WIDGET_LABEL) {
+    } else if(type != UI_WIDGET_IMAGE && type != UI_WIDGET_LABEL) {
         UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
         UnifiedRender::Rect tex_rect((int)0u, 0u, width / ctx.background->width, height / ctx.background->height);
         draw_rect(ctx.background->gl_tex_num, pos_rect, tex_rect, viewport);
@@ -717,13 +712,8 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     if(text_texture != nullptr) {
         glColor3f(0.f, 0.f, 0.f);
         int y_offset = text_offset_y;
-        if(type == UI_WIDGET_BUTTON)
-            y_offset = (height - text_texture->height) / 2;
-        draw_rectangle(
-            text_offset_x, y_offset,
-            text_texture->width, text_texture->height,
-            viewport,
-            text_texture->gl_tex_num);
+        if(type == UI_WIDGET_BUTTON) y_offset = (height - text_texture->height) / 2;
+        draw_rectangle(text_offset_x, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
     }
 
     // Semi-transparent over hover elements which can be clicked
@@ -1093,11 +1083,7 @@ void Slider::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 
     if(text_texture != nullptr) {
         glColor3f(0.f, 0.f, 0.f);
-        draw_rectangle(
-            4, 2,
-            text_texture->width, text_texture->height,
-            viewport,
-            text_texture->gl_tex_num);
+        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
