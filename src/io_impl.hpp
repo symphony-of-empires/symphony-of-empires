@@ -380,6 +380,7 @@ public:
         ::serialize(stream, &obj->province);
         ::serialize(stream, &obj->owner);
         ::serialize(stream, &obj->traits);
+        ::serialize(stream, &obj->move_progress);
     }
     static inline void deserialize(Archive& stream, Unit* obj) {
         ::deserialize(stream, &obj->type);
@@ -388,6 +389,7 @@ public:
         ::deserialize(stream, &obj->province);
         ::deserialize(stream, &obj->owner);
         ::deserialize(stream, &obj->traits);
+        ::deserialize(stream, &obj->move_progress);
     }
     static inline size_t size(const Unit* obj) {
         return serialized_size(&obj->type)
@@ -396,7 +398,8 @@ public:
             + serialized_size(&obj->province)
             + serialized_size(&obj->owner)
             + serialized_size(&obj->traits)
-            ;
+            + serialized_size(&obj->move_progress)
+        ;
     }
 };
 

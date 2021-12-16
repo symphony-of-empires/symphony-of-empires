@@ -453,7 +453,9 @@ void ai_do_tick(Nation* nation, World* world) {
                 auto it = std::begin(unit->province->neighbours);
                 std::advance(it, std::rand() % unit->province->neighbours.size());
                 Province* province = *it;
+
                 unit->target = province;
+                unit->move_progress = std::sqrt(std::abs((unit->province->max_x + ((unit->province->max_x - unit->province->min_x) / 2.f)) - (unit->target->max_x + ((unit->target->max_x - unit->target->min_x) / 2.f))) + std::abs((unit->province->max_y + ((unit->province->max_y - unit->province->min_y) / 2.f)) - (unit->target->max_y + ((unit->target->max_y - unit->target->min_y) / 2.f))));
             }
         }
     }

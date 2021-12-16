@@ -111,6 +111,7 @@ public:
     
     Province* target = nullptr;
     Province* province;
+    float move_progress;
 
     // Who owns this unit
     Nation* owner;
