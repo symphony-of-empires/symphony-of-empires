@@ -4,6 +4,7 @@
 #include "client/map.hpp"
 #include "world.hpp"
 #include "unified_render/texture.hpp"
+#include "client/interface/policies.hpp"
 
 using namespace Interface;
 
@@ -29,7 +30,7 @@ TopWindow::TopWindow(GameState& _gs)
     gdp_chart->current_texture = &top_win_chart_tex;
     gdp_chart->data.clear();
     gdp_chart->on_click = (UI::Callback)([](UI::Widget& w, void*) {
-        TopWindow& twin = static_cast<TopWindow&>(*w.parent);
+        auto& o = static_cast<TopWindow&>(*w.parent);
     });
     gdp_chart->tooltip = new UI::Tooltip(gdp_chart, 512, 24);
     gdp_chart->tooltip->text("GDP is the total sum of all products within your nation");
@@ -40,8 +41,7 @@ TopWindow::TopWindow(GameState& _gs)
     pop_chart->current_texture = &top_win_chart_tex;
     pop_chart->data.clear();
     pop_chart->on_click = (UI::Callback)([](UI::Widget& w, void*) {
-        TopWindow& twin = static_cast<TopWindow&>(*w.parent);
-
+        auto& o = static_cast<TopWindow&>(*w.parent);
     });
     pop_chart->tooltip = new UI::Tooltip(pop_chart, 512, 24);
     pop_chart->tooltip->text("The total population of your nation");
@@ -52,8 +52,8 @@ TopWindow::TopWindow(GameState& _gs)
     hdi_chart->current_texture = &top_win_chart_tex;
     hdi_chart->data.clear();
     hdi_chart->on_click = (UI::Callback)([](UI::Widget& w, void*) {
-        TopWindow& twin = static_cast<TopWindow&>(*w.parent);
-
+        auto& o = static_cast<TopWindow&>(*w.parent);
+        new PoliciesScreen(o.gs);
     });
     hdi_chart->tooltip = new UI::Tooltip(hdi_chart, 512, 24);
     hdi_chart->tooltip->text("Average life quality/human development");
