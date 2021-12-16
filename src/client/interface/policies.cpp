@@ -76,6 +76,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     lpar_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PoliciesScreen&>(w);
         o.new_policy.legislative_parliament = !o.new_policy.legislative_parliament;
+        ((UI::Checkbox&)w).value = o.new_policy.legislative_parliament;
     });
     lpar_chk->tooltip = new UI::Tooltip(lpar_chk, 512, 24);
     lpar_chk->tooltip->text("The legislative parliament allows to have a democratic vote on laws");
@@ -87,6 +88,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     epar_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PoliciesScreen&>(w);
         o.new_policy.executive_parliament = !o.new_policy.executive_parliament;
+        ((UI::Checkbox&)w).value = o.new_policy.executive_parliament;
     });
     epar_chk->tooltip = new UI::Tooltip(epar_chk, 512, 24);
     epar_chk->tooltip->text("The executive parliament will approve/disapprove acts of diplomacy and war");
@@ -98,6 +100,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     constitutionalism_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PoliciesScreen&>(w);
         o.new_policy.constitutional = !o.new_policy.constitutional;
+        ((UI::Checkbox&)w).value = o.new_policy.constitutional;
     });
     constitutionalism_chk->tooltip = new UI::Tooltip(constitutionalism_chk, 512, 24);
     constitutionalism_chk->tooltip->text("The constitution will limit the governing power of the goverment");
@@ -109,6 +112,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     isolationism_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PoliciesScreen&>(w);
         o.new_policy.foreign_trade = !o.new_policy.foreign_trade;
+        ((UI::Checkbox&)w).value = o.new_policy.foreign_trade;
     });
     isolationism_chk->tooltip = new UI::Tooltip(isolationism_chk, 512, 24);
     isolationism_chk->tooltip->text("Allows us to isolate ourselves from the rest of the world");
