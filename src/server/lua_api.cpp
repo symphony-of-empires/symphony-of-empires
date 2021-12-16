@@ -559,10 +559,7 @@ int LuaAPI::add_province(lua_State* L) {
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
     
     Province* province = new Province();
-
-#if defined TILE_GRANULARITY
     province->terrain_type = g_world->terrain_types[0];
-#endif
 
     province->ref_name = luaL_checkstring(L, 1);
     province->color = bswap_32(lua_tonumber(L, 2)) >> 8;
@@ -624,15 +621,6 @@ int LuaAPI::add_province_industry(lua_State* L) {
     building->corporate_owner = g_world->companies.at(lua_tonumber(L, 2));
     building->type = g_world->building_types.at(lua_tonumber(L, 3));
     building->owner = g_world->nations.at(lua_tonumber(L, 4));
-
-    // Randomly place in any part of the province
-    // TODO: This will create some funny situations where coal factories will appear on
-    // the fucking pacific ocean - we need to fix that
-#if defined TILE_GRANULARITY
-    glm::ivec2 coord = world->get_rand_province_coord(province);
-    building->x = coord.x;
-    building->y = coord.y;
-#endif
     building->working_unit_type = nullptr;
     building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
     building->req_goods = std::vector<std::pair<Good*, size_t>>();
@@ -646,10 +634,8 @@ int LuaAPI::add_province_industry(lua_State* L) {
 }
 
 int LuaAPI::set_province_terrain(lua_State* L) {
-#if !defined TILE_GRANULARITY
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     province->terrain_type = g_world->terrain_types.at(lua_tonumber(L, 2));
-#endif
     return 0;
 }
 

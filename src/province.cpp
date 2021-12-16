@@ -8,32 +8,7 @@
 // tiles controlled from this province
 Nation& Province::get_occupation_controller(void) const {
     const World& world = World::get_instance();
-
-#if defined TILE_GRANULARITY
-    std::vector<Nation::Id> nations_cnt;
-    for(size_t x = min_x; x < max_x; x++) {
-        for(size_t y = min_y; y < max_y; y++) {
-            nations_cnt.push_back(world.get_tile(x, y).owner_id);
-        }
-    }
-
-    // We are going to obtain all nations who have a foothold on this province
-    // then we are going to obtain the one with the highest tile count
-    std::set<Nation::Id> unique_nations(nations_cnt.begin(), nations_cnt.end());
-    Nation::Id nation_id = world.get_id(owner);
-    size_t max_tiles_cnt = 0;
-    for(const auto& curr_nation_id : unique_nations) {
-        // This will count the tiles for this nation
-        const size_t tiles_cnt = std::count(nations_cnt.begin(), nations_cnt.end(), curr_nation_id);
-        if(tiles_cnt > max_tiles_cnt) {
-            max_tiles_cnt = tiles_cnt;
-            nation_id = curr_nation_id;
-        }
-    }
-    return (*world.nations[nation_id]);
-#else
     return (*controller);
-#endif
 }
 
 // Calculates the total number of POPs in this province (total population)

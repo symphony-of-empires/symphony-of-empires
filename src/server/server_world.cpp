@@ -373,9 +373,6 @@ void World::load_mod(void) {
 
     for(unsigned int i = 0; i < total_size; i++) {
         tiles[i].elevation = topo->buffer[i] & 0xff;
-#if defined TILE_GRANULARITY
-        tiles[i].owner_id = (Nation::Id)-1;
-#endif
         tiles[i].province_id = (Province::Id)-1;
     }
     topo.reset(nullptr);
@@ -409,28 +406,6 @@ void World::load_mod(void) {
         province_color_table[province->color & 0xffffff] = this->get_id(province);
     }
 
-#if defined TILE_GRANULARITY
-    // Do the same lookup table technique but with terrain types
-    print_info(gettext("Building the terrain_type lookup table"));
-    std::vector<TerrainType::Id> terrain_color_table(16777216, 0);
-    std::fill(terrain_color_table.begin(), terrain_color_table.end(), (TerrainType::Id)-1);
-    for(const auto& terrain_type : terrain_types) {
-        terrain_color_table[terrain_type->color & 0xffffff] = this->get_id(terrain_type);
-    }
-
-    std::unique_ptr<BinaryImage> terrain = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_terrain.png")));
-    if(terrain->width != width || terrain->height != height)
-        throw std::runtime_error("Terrain map size mismatch");
-
-    // Translate all div, pol and topo maps onto this single tile array
-    print_info(gettext("Elevation map translation"));
-    for(size_t i = 0; i < total_size; i++) {
-        // Set coordinates for the tiles
-        tiles[i].terrain_type_id = terrain_color_table[terrain->buffer[i] & 0xffffff];
-    }
-    terrain.reset(nullptr);
-#endif
-
     // Associate tiles with provinces
 
     // Uncomment this and see a bit more below
@@ -462,21 +437,12 @@ void World::load_mod(void) {
         if(!(i < total_size)) break;
 // #endif
 
-#if !defined TILE_GRANULARITY
         const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
         if(province_id == (Province::Id)-1) {
             // Uncomment this and see below
             colors_found.insert(color);
             continue;
         }
-#else
-        const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
-        if(province_id >= (Province::Id)-3) {
-            // Uncomment this and see below
-            colors_found.insert(color);
-            continue;
-        }
-#endif
 
         const uint32_t rel_color = provinces[province_id]->color;
         while(div->buffer[i] == rel_color) {
@@ -526,42 +492,11 @@ void World::load_mod(void) {
         province->stockpile.resize(products.size(), 0);
     }
 
-#if defined TILE_GRANULARITY
-    // Give owners the entire provinces
-    print_info(gettext("Give owners the entire provinces"));
-    for(const auto& nation : nations) {
-        for(const auto& province : nation->owned_provinces) {
-            const Province::Id province_id = get_id(province);
-            const Nation::Id nation_id = get_id(province->owner);
-            for(unsigned int x = province->min_x; x <= province->max_x; x++) {
-                for(unsigned int y = province->min_y; y <= province->max_y; y++) {
-                    Tile& tile = get_tile(x, y);
-                    if(tile.province_id != province_id) continue;
-                    tile.owner_id = nation_id;
-                }
-            }
-        }
-    }
-    nation_changed_tiles.clear();
-#endif
-
     // Neighbours
     print_info(gettext("Creating neighbours for provinces"));
     for(size_t i = 0; i < total_size; i++) {
         const Tile* tile = &this->tiles[i];
-#if defined TILE_GRANULARITY
-        if(tile->owner_id < (Nation::Id)-2) {
-            Nation* nation = this->nations[this->tiles[i].owner_id];
-            const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
-
-            for(const auto& other_tile : tiles) {
-                if(other_tile->owner_id != tile->owner_id && other_tile->owner_id < (Nation::Id)-2) {
-                    nation->neighbours.insert(this->nations.at(other_tile->owner_id));
-                }
-            }
-        }
-#endif
-
+        
         if(tile->province_id < (Province::Id)-3) {
             Province* province = this->provinces[this->tiles[i].province_id];
             const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
@@ -607,17 +542,6 @@ void World::load_mod(void) {
         policy.foreign_trade = true;
     }
     print_info(gettext("World fully intiialized"));
-
-#if defined TILE_GRANULARITY
-    for(auto& building : this->buildings) {
-        Province *province = building->province;
-        if(province == nullptr) continue;
-        building->x = province->min_x + (std::rand() % (province->max_x - province->min_x + 1));
-        building->y = province->min_y + (std::rand() % (province->max_y - province->min_y + 1));
-        building->x = std::min(building->x, g_world->width - 1);
-        building->y = std::min(building->y, g_world->height - 1);
-    }
-#endif
 }
 
 #include "../action.hpp"
@@ -740,7 +664,6 @@ void World::do_tick() {
             break;
         }
 
-#if !defined TILE_GRANULARITY
         if(unit->target != nullptr) {
             unit->province = unit->target;
 
@@ -759,171 +682,6 @@ void World::do_tick() {
             // TODO: Only if we are at war
             unit->attack(*other_unit);
         }
-#else
-        if((unit->x != unit->tx || unit->y != unit->ty) && (std::abs(unit->x - unit->tx) >= 0.2f || std::abs(unit->y - unit->ty) >= 0.2f)) {
-            float end_x, end_y;
-            const float speed = unit->type->speed;
-
-            end_x = unit->x;
-            end_y = unit->y;
-
-            // Move towards target
-            if(unit->x > unit->tx)
-                end_x -= speed;
-            else if(unit->x < unit->tx)
-                end_x += speed;
-
-            if(unit->y > unit->ty)
-                end_y -= speed;
-            else if(unit->y < unit->ty)
-                end_y += speed;
-
-            // Disallow units that are not naval from crossing the sea
-            if(!unit->type->is_naval && get_tile(end_x, end_y).elevation <= sea_level) {
-                continue;
-            }
-			// Consequently disallow land units on sea
-			else if(!unit->type->is_ground && get_tile(end_x, end_y).elevation > sea_level) {
-                continue;
-            }
-			
-			// Airplanes would be allowed to cross both...
-
-            unit->x = end_x;
-            unit->y = end_y;
-            // North and south do not wrap
-            unit->y = std::max<float>(0.f, unit->y);
-            unit->y = std::min<float>(height - 1, unit->y);
-
-            // West and east do wrap
-            if(unit->x <= 0.f) {
-                unit->x = width - 1.f;
-			} else if(unit->x >= width) {
-                unit->x = 0.f;
-			}
-        }
-
-        // Make the unit attack automatically
-        // and we must be at war with the owner of this unit to be able to attack the unit
-        Unit* nearest_enemy = nullptr;
-        for(auto& other_unit : units) {
-            if(unit->owner != other_unit->owner) {
-                // Foes from many ranges counts
-                if(std::abs(unit->x - other_unit->x) >= 4.f || std::abs(unit->y - other_unit->y) >= 4.f)
-                    continue;
-				
-				if(nearest_enemy == nullptr) {
-					nearest_enemy = other_unit;
-					continue;
-				}
-                
-                // Find nearest foe
-                if(std::abs(unit->x - other_unit->x) < std::abs(unit->x - nearest_enemy->x) && std::abs(unit->y - other_unit->y) < std::abs(unit->y - nearest_enemy->y)) {
-                    nearest_enemy = other_unit;
-                }
-            }
-        }
-
-        // TODO: This is temporal - un-comment this :D
-        //if(nearest_enemy != nullptr && unit->owner->is_enemy(*nearest_enemy->owner)) {
-		if(nearest_enemy != nullptr) {
-			int killed = nearest_enemy->size;
-            unit->attack(*nearest_enemy);
-			killed = std::max<int>(0, killed - nearest_enemy->size);
-			
-			// Get 1 research point per killed person on the unit
-			// Not the best system but not the worst either :)
-			if(unit->type->is_ground) {
-				mil_research_pts[get_id(unit->owner)] += killed;
-			}
-			
-			if(unit->type->is_naval) {
-				naval_research_pts[get_id(unit->owner)] += killed;
-			}
-		}
-
-        // Unit is on a non-wasteland part of the map
-        if(get_tile(unit->x, unit->y).province_id < (Province::Id)-3) {
-            Province* province = provinces[get_tile(unit->x, unit->y).province_id];
-            const Nation* nation = province->owner;
-            bool free_supplies = false;
-
-            // Unit is on domestic soil, so we have to check the domsetic policy for free military supplies
-            if(unit->owner == nation) {
-                // No-cost supplies
-                if(unit->owner->current_policy.free_supplies) {
-                    free_supplies = true;
-                }
-            }
-            // Unit is on foreign soil, we check relations to see if we can take free military supplies
-            else if(nation != nullptr) {
-                // No-cost supplies
-                if(unit->owner->relations[get_id(nation)].free_supplies) {
-                    free_supplies = true;
-                }
-            }
-
-            if(free_supplies == true) {
-                // Take anything you want, it's not needed to fucking pay at all! :)
-                for(size_t j = 0; j < province->stockpile.size(); j++) {
-                    if(!province->stockpile[j]) continue;
-
-                    // We will take your food pleseantly
-                    if(products[j]->good->is_edible && unit->supply <= (unit->type->supply_consumption * 10.f)) {
-                        float bought = std::min(unit->size, province->stockpile[j]);
-                        province->stockpile[j] -= bought;
-
-                        unit->supply += bought / unit->size;
-                        unit->morale += bought / unit->size;
-                    }
-                    // Fuck you, we are also taking your luxury because it's free
-                    else {
-                        float bought = std::min((rand() + 1) % unit->size, province->stockpile[j]);
-                        province->stockpile[j] -= bought;
-
-                        // Yes, we are super happy with your voluntary gifts to the honourable
-                        // units of some nation
-                        unit->morale += bought / unit->size;
-                    }
-                }
-            }
-            else {
-                // Buy stuff and what we are able to buy normally
-                for(size_t j = 0; j < province->stockpile.size(); j++) {
-                    // Must be edible and there must be stock
-                    if(!products[j]->good->is_edible || !province->stockpile[j]) continue;
-
-                    if(products[j]->price * unit->size <= unit->budget) {
-                        size_t bought = std::min(province->stockpile[j], unit->size);
-
-                        province->stockpile[j] -= bought;
-                        unit->supply = bought / unit->size;
-
-                        // Pay (including taxes)
-                        const float paid = (products[j]->price * unit->size) * province->owner->current_policy.med_flat_tax;
-                        province->owner->budget += paid;
-                        unit->budget -= paid;
-                    }
-
-                    // We will stop buying if we are satisfied
-                    if(unit->supply >= unit->type->supply_consumption) break;
-                }
-            }
-        }
-
-        // Set nearby tiles as owned
-        // TODO: Make it conquer multiple tiles
-        Tile& tile = get_tile(unit->x, unit->y);
-        if(tile.owner_id != get_id(unit->owner)) {
-            // Water cannot be conquered
-            if(tile.elevation <= sea_level) continue;
-
-            tile.owner_id = get_id(unit->owner);
-
-            std::scoped_lock lock(nation_changed_tiles_mutex);
-            nation_changed_tiles.push_back(&get_tile(unit->x, unit->y));
-        }
-#endif
     }
 	
 	// Now researches for every country are going to be accounted :)
@@ -950,23 +708,6 @@ void World::do_tick() {
 			break;
 		}
 	}
-
-#if defined TILE_GRANULARITY
-    for(const auto& tile : nation_changed_tiles) {
-        // Broadcast to clients
-        Packet packet = Packet();
-        Archive ar = Archive();
-        ActionType action = ActionType::TILE_UPDATE;
-        ::serialize(ar, &action);
-
-        size_t idx = get_id(tile);
-        std::pair<size_t, size_t> coord = std::make_pair((size_t)idx % width, (size_t)idx / width);
-        ::serialize(ar, &coord);
-        ::serialize(ar, tile);
-        packet.data(ar.get_buffer(), ar.size());
-        g_server->broadcast(packet);
-    }
-#endif
 
     {
         // Broadcast to clients

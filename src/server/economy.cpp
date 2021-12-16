@@ -230,14 +230,7 @@ void Economy::do_tick(World& world) {
         if(building->working_unit_type != nullptr) {
             // Spawn a unit
             Unit* unit = new Unit();
-#if defined TILE_GRANULARITY
-            unit->x = building->x;
-            unit->y = building->y;
-            unit->tx = unit->x;
-            unit->ty = unit->y;
-#else
             unit->province = building->get_province();
-#endif
             unit->type = building->working_unit_type;
             unit->owner = building->get_owner();
             unit->budget = 5000.f;

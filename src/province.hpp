@@ -46,10 +46,8 @@ public:
 
     // The owner of this province
     Nation* owner = nullptr;
-#if !defined TILE_GRANULARITY
     Nation* controller = nullptr;
     TerrainType* terrain_type;
-#endif
 
     // List containing all nations who have a nucleus in this province
     std::set<Nation*> nuclei;

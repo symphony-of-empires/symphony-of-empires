@@ -40,39 +40,6 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
     map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
 
-    // #if !defined TILE_GRANULARITY
-    //     UnifiedRender::TextureOptions mipmap_options{};
-    //     mipmap_options.wrap_s = GL_REPEAT;
-    //     mipmap_options.wrap_t = GL_REPEAT;
-    //     mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
-    //     mipmap_options.mag_filter = GL_LINEAR;
-
-    //     landscape_map = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
-    //     landscape_map->gen_mipmaps();
-
-    //     topo_map = &g_texture_manager->load_texture(Path::get("topo.png"));
-    //     //topo_map->to_opengl();
-
-    //     id_map = new UnifiedRender::Texture(world.width, world.height);
-    //     for(size_t i = 0; i < world.width * world.height; i++) {
-    //         const Tile& tile = world.get_tile(i);
-    //         id_map->buffer[i] = (tile.province_id & 0xffff);
-    //     }
-    //     id_map->to_opengl();
-
-    //     province_color_tex = new UnifiedRender::Texture(256, 256);
-    //     for(const auto& province : world.provinces) {
-    //         if(province->owner != nullptr) {
-    //             province_color_tex->buffer[world.get_id(province)] = province->owner->get_client_hint().color;
-    //         } else {
-    //             province_color_tex->buffer[world.get_id(province)] = 0xff808080;
-    //         }
-    //     }
-    //     province_color_tex->buffer[(Province::Id)-1] = 0x00000000;
-    //     province_color_tex->to_opengl();
-
-    //     map_shader = UnifiedRender::OpenGl::Program::create("ps_map", "ps_map");
-    // #else
     if(glewIsSupported("GL_VERSION_2_1")) {
         map_2d_quad = new UnifiedRender::OpenGl::Quad2D();
         UnifiedRender::TextureOptions mipmap_options{};
@@ -423,31 +390,12 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             // Check if we selected an unit
             for(const auto& unit : gs.world->units) {
                 const float size = 2.f;
-#if defined TILE_GRANULARITY
-                if((int)select_pos.first > (int)unit->x - size && (int)select_pos.first < (int)unit->x + size && (int)select_pos.second >(int)unit->y - size && (int)select_pos.second < (int)unit->y + size) {
-                    selected_unit = unit;
-                    return;
-            }
-#else
                 std::pair<float, float> pos = unit->get_pos();
                 if((int)select_pos.first > (int)pos.first - size && (int)select_pos.first < (int)pos.second + size && (int)select_pos.second >(int)pos.first - size && (int)select_pos.second < (int)pos.second + size) {
                     selected_unit = unit;
                     return;
                 }
-#endif
-        }
-
-#if defined TILE_GRANULARITY
-            // Check if we selected a building
-            for(const auto& building : gs.world->buildings) {
-                const float size = 2.f;
-                if((int)select_pos.first > (int)building->x - size && (int)select_pos.first < (int)building->x + size && (int)select_pos.second >(int)building->y - size && (int)select_pos.second < (int)building->y + size) {
-                    selected_building = building;
-                    return;
-                }
-    }
-#endif
-
+            }
             // Show province information when clicking on a province
             if(tile.province_id < gs.world->provinces.size()) {
                 new Interface::ProvinceView(gs, gs.world->provinces[tile.province_id]);
@@ -456,7 +404,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         default:
             break;
-}
+        }
 
         // TODO: We should instead make it so you can build stuff in a "building" mode
         /*
@@ -492,17 +440,6 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             if(tile.province_id == (Province::Id)-1) return;
             Province* province = gs.world->provinces[tile.province_id];
 
-#if defined TILE_GRANULARITY
-            std::scoped_lock lock(gs.world->changed_tiles_coords_mutex);
-            for(unsigned int i = province->min_x; i < province->max_x; i++) {
-                for(unsigned int j = province->min_y; j < province->max_y; j++) {
-                    if(gs.world->get_tile(i, j).province_id != gs.world->get_id(province)) continue;
-                    gs.world->get_tile(i, j).owner_id = gs.world->get_id(gs.curr_nation);
-                    gs.world->changed_tile_coords.push_back(std::make_pair(i, j));
-                }
-        }
-#endif
-
             FILE* fp = fopen("test.lua", "a+t");
             if(!fp) return;
             fprintf(fp, "{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%06x },\r\n", province->ref_name.c_str(), province->name.c_str(), bswap_32((province->color & 0x00ffffff) << 8));
@@ -510,26 +447,16 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
     }
 
         if(selected_unit != nullptr) {
-#if !defined TILE_GRANULARITY
             const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
             if(tile.province_id == (Province::Id)-1) return;
             selected_unit->target = gs.world->provinces[tile.province_id];
-#else
-            selected_unit->tx = select_pos.first;
-            selected_unit->ty = select_pos.second;
-#endif
 
             Packet packet = Packet();
             Archive ar = Archive();
             ActionType action = ActionType::UNIT_CHANGE_TARGET;
             ::serialize(ar, &action);
             ::serialize(ar, &selected_unit);
-#if !defined TILE_GRANULARITY
             ::serialize(ar, &selected_unit->target);
-#else
-            ::serialize(ar, &selected_unit->tx);
-            ::serialize(ar, &selected_unit->ty);
-#endif
             packet.data(ar.get_buffer(), ar.size());
             std::scoped_lock lock(gs.client->pending_packets_mutex);
             gs.client->pending_packets.push_back(packet);
@@ -687,14 +614,14 @@ void Map::draw(const int width, const int height) {
     map_shader->set_texture(1, "tile_sheet", tile_sheet);
     map_shader->set_texture(2, "water_texture", water_tex);
     map_shader->set_texture(3, "noise_texture", noise_tex);
-    map_shader->set_texture(4, "terrain_texture", terrain_tex);
-    map_shader->set_texture(5, "terrain_sheet", terrain_sheet);
-    map_shader->set_texture(6, "topo_mapture", topo_map);
-    map_shader->set_texture(7, "border_tex", border_tex);
-    map_shader->set_texture(8, "border_sdf", border_sdf);
-    map_shader->set_texture(9, "landscape_map", landscape_map);
-    map_shader->set_texture(10, "river_texture", river_tex);
-    // #endif
+//  map_shader->set_texture(4, "terrain_texture", terrain_tex);
+    map_shader->set_texture(4, "terrain_sheet", terrain_sheet);
+//  map_shader->set_texture(6, "topo_mapture", topo_map);
+    map_shader->set_texture(5, "border_tex", border_tex);
+    map_shader->set_texture(6, "border_sdf", border_sdf);
+    map_shader->set_texture(7, "landscape_map", landscape_map);
+    map_shader->set_texture(8, "river_texture", river_tex);
+// #endif
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();

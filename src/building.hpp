@@ -40,13 +40,6 @@ public:
     void delete_factory(void);
     std::pair<float, float> get_pos(void) const;
 
-#if !defined TILE_GRANULARITY
-    
-#else
-    // Position of outpost
-    size_t x, y;
-#endif
-
     BuildingType* type;
 
     // Unit that is currently being built here (nullptr indicates no unit)
