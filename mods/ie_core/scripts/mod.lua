@@ -263,6 +263,7 @@ the_minas_crash:register()
 
 require('events/gevhdl_001')
 require('events/gevhdl_002')
+require('events/gevhdl_003')
 
 --invalid_shit()
 

@@ -9,14 +9,14 @@ function gevhdl001_event(ref_name)
 		ref_name = "gevhdl001_descision_0",
 		name = "We will do what we can to save our people!",
 		descision_fn = "gevhdl001_descision_0",
-		effects = "+5 con"
+		effects = "+0.5 con"
 	}
 	gevhdl001:add_descision(descision)
     descision = Descision:new{
 		ref_name = "gevhdl001_descision_1",
 		name = "We can't do anything about it",
 		descision_fn = "gevhdl001_descision_1",
-		effects = "+5 militancy"
+		effects = "+0.5 militancy"
 	}
 	gevhdl001:add_descision(descision)
 	return EVENT_DO_MANY_TIMES
@@ -26,7 +26,7 @@ function gevhdl001_descision_0(ref_name)
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()
 		for k, pop in pairs(pops) do
-			pop.con = pop.con + 5.0
+			pop.con = pop.con + 0.5
 			province:update_pop(pop)
 		end
 		province:update_pops()
@@ -37,7 +37,7 @@ function gevhdl001_descision_1(ref_name)
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()
 		for k, pop in pairs(pops) do
-			pop.militancy = pop.militancy + 5.0
+			pop.militancy = pop.militancy + 0.5
 			province:update_pop(pop)
 		end
 		province:update_pops()
