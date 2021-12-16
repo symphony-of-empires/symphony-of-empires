@@ -1,6 +1,7 @@
 #pragma once
 
 #include "unified_render/serializer.hpp"
+#include "unified_render/network.hpp"
 #include <vector>
 
 enum class ActionType {
@@ -64,6 +65,7 @@ enum class ActionType {
 
 class Product;
 class Nation;
+class Province;
 class Building;
 class BuildingType;
 class Unit;
@@ -72,21 +74,31 @@ class UnitType;
 namespace Action {
     class ProductUpdate {
     public:
-        static void send(std::vector<Product*>* list);
+        static Packet form_packet(const std::vector<Product*>& list);
+    };
+
+    class ProvinceUpdate {
+    public:
+        static Packet form_packet(const std::vector<Province*>& list);
+    };
+
+    class NationUpdate {
+    public:
+        static Packet form_packet(const std::vector<Nation*>& list);
     };
 
     class SelectNation {
     public:
-        static void send(Nation* nation);
+        static Packet form_packet(Nation* nation);
     };
 
     class BuildingStartProducingUnit {
     public:
-        static void send(Building* building, UnitType* unit_type);
+        static Packet form_packet(Building* building, UnitType* unit_type);
     };
 	
 	class BuildingAdd {
 	public:
-		static void send(Building* building);
+		static Packet form_packet(Building* building);
 	};
 };

@@ -78,16 +78,8 @@ void GameState::play_nation() {
 
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
-	
-    Packet packet = Packet();
-    Archive ar = Archive();
-    ActionType action = ActionType::SELECT_NATION;
-    ::serialize(ar, &action);
-    ::serialize(ar, &curr_nation);
-    packet.data(ar.get_buffer(), ar.size());
-	std::scoped_lock lock(g_client->pending_packets_mutex);
-    g_client->pending_packets.push_back(packet);
-    print_info("Selected nation %s", curr_nation->ref_name.c_str());
+    g_client->send(Action::SelectNation::form_packet(curr_nation));
+    print_info("Selected nation [%s]", curr_nation->ref_name.c_str());
 }
 
 const UnifiedRender::Texture& GameState::get_nation_flag(Nation& nation) {
@@ -372,7 +364,7 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 
                     is_built = true;
 					
-					Action::BuildingStartProducingUnit::send(building, unit);
+					g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
                 }
 
                 // If we couldn't find a suitable building we wont be able to find buildings for other

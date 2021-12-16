@@ -30,10 +30,6 @@ struct Tile {
 public:
     // ID of the province where this tile belongs to
     Province::Id province_id;
-
-    // Elevation
-    uint8_t elevation;
-
     const std::vector<const Tile*> get_neighbours(const World& world) const;
 };
 

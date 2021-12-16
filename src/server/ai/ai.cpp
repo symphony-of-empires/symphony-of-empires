@@ -313,7 +313,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 if(building->type->is_factory) {
                     building->create_factory();
                     building->corporate_owner->operating_provinces.insert(building->get_province());
-                    /*for(const auto& product : building->output_products) {
+                    for(const auto& product : building->output_products) {
                         Packet packet = Packet();
                         Archive ar = Archive();
                         ActionType action = ActionType::PRODUCT_ADD;
@@ -321,20 +321,12 @@ void ai_do_tick(Nation* nation, World* world) {
                         ::serialize(ar, product);
                         packet.data(ar.get_buffer(), ar.size());
                         g_server->broadcast(packet);
-                    }*/
+                    }
                 }
                 world->insert(building);
 
                 // Broadcast the addition of the building to the clients
-                /*{
-                    Packet packet = Packet();
-                    Archive ar = Archive();
-                    ActionType action = ActionType::BUILDING_ADD;
-                    ::serialize(ar, &action);
-                    ::serialize(ar, building);
-                    packet.data(ar.get_buffer(), ar.size());
-                    g_server->broadcast(packet);
-                }*/
+                g_server->broadcast(Action::BuildingAdd::form_packet(building));
                 print_info("Building of [%s](%i), from [%s] built on [%s]", building->type->ref_name.c_str(), (int)world->get_id(building->type), nation->ref_name.c_str(), building->get_province()->ref_name.c_str());
             }
         }
@@ -374,15 +366,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     world->insert(building);
 
                     // Broadcast the addition of the building to the clients
-                    /*{
-                        Packet packet = Packet();
-                        Archive ar = Archive();
-                        ActionType action = ActionType::BUILDING_ADD;
-                        ::serialize(ar, &action);
-                        ::serialize(ar, building);
-                        packet.data(ar.get_buffer(), ar.size());
-                        g_server->broadcast(packet);
-                    }*/
+                    g_server->broadcast(Action::BuildingAdd::form_packet(building));
                     print_info("Building of %s(%i), from %s built on %s", building->type->name.c_str(), (int)world->get_id(building->type), nation->name.c_str(), building->get_province()->name.c_str());
                 }
             }

@@ -92,9 +92,9 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
             building.owner = o.nation;
             building.corporate_owner = o.company;
             building.type = o.building_type;
-			
             building.province = o.province;
-			Action::BuildingAdd::send(&building);
+            building.working_unit_type = nullptr;
+			g_client->send(Action::BuildingAdd::form_packet(&building));
 
             o.gs.ui_ctx->prompt("Production", "Building a " + building.type->name + " in " + building.get_province()->name + "; owned by " + building.corporate_owner->name + " from the country of " + building.get_owner()->name);
         });

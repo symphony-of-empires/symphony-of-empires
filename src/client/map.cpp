@@ -85,6 +85,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     // generate the underlying topo map texture, since the topo map
     // dosen't changes too much we can just do a texture
     tile_map = new UnifiedRender::Texture(world.width, world.height);
+    terrain_tex = new UnifiedRender::Texture(world.width, world.height);
 
     // Texture holding the colors of each owner
     tile_sheet = new UnifiedRender::Texture(256, 256);

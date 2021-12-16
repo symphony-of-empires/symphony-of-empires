@@ -30,6 +30,7 @@ public:
     
     void net_loop(void);
     void wait_for_snapshot(void);
+    void send(const Packet& packet);
 	
     std::deque<Packet> packets;
 	std::mutex packets_mutex;

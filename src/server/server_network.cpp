@@ -101,7 +101,7 @@ Server::~Server() {
 }
 
 // This will broadcast the given packet to all clients currently on the server
-void Server::broadcast(Packet& packet) {
+void Server::broadcast(const Packet& packet) {
     for(size_t i = 0; i < n_clients; i++) {
         if(clients[i].is_connected == true) {
 			bool r;

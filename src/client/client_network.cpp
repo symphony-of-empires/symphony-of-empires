@@ -341,6 +341,11 @@ void Client::wait_for_snapshot(void) {
     }
 }
 
+void Client::send(const Packet& packet) {
+    std::scoped_lock lock(pending_packets_mutex);
+    pending_packets.push_back(packet);
+}
+
 Client::~Client() {
 #ifdef windows
     closesocket(fd);
