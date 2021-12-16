@@ -444,8 +444,7 @@ void ai_do_tick(Nation* nation, World* world) {
 
     // TODO: make a better algorithm
     if(nation->ai_do_cmd_troops) {
-        // Naval AI
-        if(!(std::rand() % 100)) {
+        if(!(std::rand() % 300)) {
             for(auto& unit : g_world->units) {
                 // Go to a neighbouring province :)
                 if(unit->province->neighbours.empty()) continue;
