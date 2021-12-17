@@ -197,6 +197,8 @@ void ai_update_relations(Nation* nation, Nation* other) {
         nation->increase_relation(*other);
     } else if(!(std::rand() % 1000)) {
         nation->decrease_relation(*other);
+    } else if(!(std::rand() % 1000)) {
+        nation->declare_war(*other);
     }
 }
 
@@ -428,17 +430,27 @@ void ai_do_tick(Nation* nation, World* world) {
 
     // TODO: make a better algorithm
     if(nation->ai_do_cmd_troops) {
-        if(!(std::rand() % 300)) {
-            for(auto& unit : g_world->units) {
-                // Go to a neighbouring province :)
-                if(unit->province->neighbours.empty()) continue;
+        for(auto& unit : g_world->units) {
+            if(unit->province->neighbours.empty()) continue;
 
-                auto it = std::begin(unit->province->neighbours);
-                std::advance(it, std::rand() % unit->province->neighbours.size());
-                Province* province = *it;
+            auto it = std::begin(unit->province->neighbours);
+            std::advance(it, std::rand() % unit->province->neighbours.size());
+            Province* province = *it;
 
-                unit->target = province;
-                unit->move_progress = std::sqrt(std::abs((unit->province->max_x + ((unit->province->max_x - unit->province->min_x) / 2.f)) - (unit->target->max_x + ((unit->target->max_x - unit->target->min_x) / 2.f))) + std::abs((unit->province->max_y + ((unit->province->max_y - unit->province->min_y) / 2.f)) - (unit->target->max_y + ((unit->target->max_y - unit->target->min_y) / 2.f))));
+            if(province->owner != nullptr) {
+                // Can only go to a province if we have military accesss, they are our ally or if we are at war
+                // also if it's ours we can move thru it
+                NationRelation& relation = province->owner->relations[world->get_id(unit->owner)];
+                if(province->owner == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war) {
+                    unit->set_target(province);
+                }
+
+                // Give priority to the provinces of people we are at war with
+                if(relation.has_war) {
+                    unit->set_target(province);
+                }
+            } else {
+                unit->set_target(province);
             }
         }
     }
