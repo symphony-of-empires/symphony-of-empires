@@ -92,31 +92,20 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     for(size_t i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer[i] = 0xffdddddd;
     }
-    for(unsigned int i = 0; i < world.nations.size(); i++) {
-        tile_sheet->buffer[i] = world.nations[i]->get_client_hint().color;
+    for(unsigned int i = 0; i < world.provinces.size(); i++) {
+        Nation* province_owner = world.provinces[i]->owner;
+        if(province_owner == nullptr) {
+            tile_sheet->buffer[i] = 0xffdddddd;
+        }
+        else {
+            tile_sheet->buffer[i] = province_owner->get_client_hint().color;
+        }
     }
     // Water
-    tile_sheet->buffer[(Nation::Id)-2] = 0x00000000;
+    tile_sheet->buffer[(Province::Id)-2] = 0x00000000;
     // Land
     tile_sheet->buffer[(Nation::Id)-1] = 0xffdddddd;
 
-#if defined TILE_GRANULARITY
-    for(size_t i = 0; i < world.width * world.height; i++) {
-        const Tile& tile = world.get_tile(i);
-        tile_map->buffer[i] = ((tile.owner_id & 0xffff) << 16) | (tile.province_id & 0xffff);
-    }
-#else
-    for(size_t i = 0; i < world.width * world.height; i++) {
-        const Tile& tile = world.get_tile(i);
-        if(tile.province_id >= (Province::Id)-3) {
-            tile_map->buffer[i] = (tile.province_id & 0xffff);
-        } else {
-            auto province = world.provinces[tile.province_id];
-            if(province->owner == nullptr) continue;
-            tile_map->buffer[i] = ((world.get_id(province->owner) & 0xffff) << 16) | (tile.province_id & 0xffff);
-        }
-    }
-#endif
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
         if(tile.province_id >= (Province::Id)-3) {
@@ -124,14 +113,19 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         }
         else {
             auto province = world.provinces[tile.province_id];
-            if(province->owner == nullptr) continue;
-            tile_map->buffer[i] = ((world.get_id(province->owner) & 0xffff) << 16) | (tile.province_id & 0xffff);
+            if(province->owner == nullptr) {
+                tile_map->buffer[i] = province->cached_id & 0xffff;
+            }
+            else {
+                tile_map->buffer[i] = ((world.get_id(province->owner) & 0xffff) << 16) | (province->cached_id & 0xffff);
+
+            }
         }
     }
 
     print_info("Uploading data to OpenGL");
-    tile_sheet->to_opengl();
     UnifiedRender::TextureOptions tile_sheet_options{};
+    tile_sheet->to_opengl();
     tile_sheet_options.internal_format = GL_RGBA32F;
     tile_map->to_opengl(tile_sheet_options);
     tile_map->gen_mipmaps();
@@ -547,6 +541,16 @@ void Map::update(const SDL_Event& event, Input& input)
         break;
 
     }
+}
+
+// Updates the province color texture with the changed provinces
+void Map::update_province(std::vector<Province*> provinces) {
+    for(unsigned int i = 0; i < world.provinces.size(); i++) {
+        Nation* province_owner = world.provinces[i]->owner;
+        if(province_owner == nullptr) continue;
+        tile_sheet->buffer[i] = province_owner->get_client_hint().color;
+    }
+    tile_sheet->to_opengl();
 }
 
 // Updates the tiles texture with the changed tiles

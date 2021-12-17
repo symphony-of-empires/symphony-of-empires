@@ -159,7 +159,8 @@ void Nation::set_policy(Policies& policies) {
             if(new_disapproval < old_disapproval) {
                 approvals += pop.size;
                 disapprovers.push_back(&pop);
-            } else {
+            }
+            else {
                 disapprovals += pop.size;
                 approvers.push_back(&pop);
             }
@@ -172,12 +173,12 @@ void Nation::set_policy(Policies& policies) {
         this->current_policy = policies;
 
         // All people who agreed gets happy
-        for(auto& pop: approvers) {
+        for(auto& pop : approvers) {
             pop->militancy /= std::min(pop->con, 0.1f);
         }
 
         // All people who disagreed gets angered
-        for(auto& pop: disapprovers) {
+        for(auto& pop : disapprovers) {
             pop->militancy *= std::min(pop->con, 0.1f);
         }
         print_info("New enacted policy passed parliament!");
@@ -185,12 +186,12 @@ void Nation::set_policy(Policies& policies) {
     // Legislation does not make it into the official law
     else {
         // All people who agreed gets angered
-        for(auto& pop: approvers) {
+        for(auto& pop : approvers) {
             pop->militancy *= std::min(pop->con, 0.1f);
         }
 
         // All people who disagreed gets happy
-        for(auto& pop: disapprovers) {
+        for(auto& pop : disapprovers) {
             pop->militancy /= std::min(pop->con, 0.1f);
         }
         print_info("New enacted policy did not made it into the parliament!");
@@ -242,7 +243,7 @@ float Nation::get_tax(const Pop& pop) const {
 // Gives this nation a specified province (for example on a treaty)
 void Nation::give_province(Province& province) {
     World& world = World::get_instance();
-    
+
     const Nation::Id nation_id = world.get_id(this);
     const Province::Id province_id = world.get_id(&province);
 
@@ -253,8 +254,7 @@ void Nation::give_province(Province& province) {
     return;
 }
 
-NationClientHint tmp_hint;
-const NationClientHint& Nation::get_client_hint(void) const {
+const NationClientHint& Nation::get_client_hint(void) {
     // Find match
     for(const auto& hint : client_hints) {
         if(hint.ideology == ideology) return hint;
@@ -266,10 +266,12 @@ const NationClientHint& Nation::get_client_hint(void) const {
     }
 
     if(client_hints.empty()) {
+        NationClientHint tmp_hint;
         tmp_hint.color = rand();
         tmp_hint.alt_name = this->ref_name + "_MISSING_CLIENTHINT";
         tmp_hint.ideology = World::get_instance().ideologies[0];
-        return tmp_hint;
+        client_hints.push_back(tmp_hint);
+        return client_hints[0];
     }
     return client_hints[0];
 }
@@ -287,7 +289,7 @@ float Nation::get_research_points(void) const {
 
 bool Nation::can_research(const Technology* tech) const {
     // Only military/navy technologies can actually be researched
-	// or not? wink, wink ;)
+    // or not? wink, wink ;)
     //if(tech->type != TechnologyType::MILITARY && tech->type != TechnologyType::NAVY) return false;
 
     // All required technologies for this one must be researched

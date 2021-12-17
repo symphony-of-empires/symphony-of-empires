@@ -186,7 +186,7 @@ World::World() {
     lua_register(lua, "add_ideology", LuaAPI::add_ideology);
     lua_register(lua, "get_ideology", LuaAPI::get_ideology);
     lua_register(lua, "get_ideology_by_id", LuaAPI::get_ideology_by_id);
-    
+
     lua_register(lua, "get_day", [](lua_State* L) {
         lua_pushnumber(L, 1 + (g_world->time % g_world->ticks_per_month));
         return 1;
@@ -224,24 +224,26 @@ World::World() {
             std::string member = luaL_checkstring(L, 2);
             if(member == "ref_name") {
                 lua_pushstring(L, (*ideology)->ref_name.c_str());
-            } else if(member == "name") {
-                lua_pushstring(L, (*ideology)->name.c_str());
             }
-            print_info("__index?");
-            return 1;
-        }},
-        { "__newindex", [](lua_State* L) {
-            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
-            std::string member = luaL_checkstring(L, 2);
-            if(member == "ref_name") {
-                (*ideology)->ref_name = luaL_checkstring(L, 3);
-            } else if(member == "name") {
-                (*ideology)->name = luaL_checkstring(L, 3);
-            }
-            print_info("__newindex?");
-            return 0;
-        }},
-        { NULL, NULL }
+ else if(member == "name") {
+  lua_pushstring(L, (*ideology)->name.c_str());
+}
+print_info("__index?");
+return 1;
+}},
+{ "__newindex", [](lua_State* L) {
+    Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
+    std::string member = luaL_checkstring(L, 2);
+    if(member == "ref_name") {
+        (*ideology)->ref_name = luaL_checkstring(L, 3);
+    }
+else if(member == "name") {
+ (*ideology)->name = luaL_checkstring(L, 3);
+}
+print_info("__newindex?");
+return 0;
+}},
+{ NULL, NULL }
     };
     const luaL_Reg ideology_methods[] ={
         { "new", [](lua_State* L) {
@@ -396,7 +398,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files) 
 }
 
 void World::load_mod(void) {
-    const std::vector<std::string> init_files = {
+    const std::vector<std::string> init_files ={
         "terrain_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "good_types", "industry_types",
@@ -448,25 +450,26 @@ void World::load_mod(void) {
     print_info(gettext("Associate tiles with provinces"));
     for(size_t i = 0; i < total_size; i++) {
         const uint32_t color = div->buffer[i];
-// #if defined TILE_GRANULARITY
-        // This "skip the empty stuff" technique works!
+        // #if defined TILE_GRANULARITY
+                // This "skip the empty stuff" technique works!
         while(i < total_size && (div->buffer[i] == 0xffffffff || div->buffer[i] == 0xff000000 || div->buffer[i] == 0xffff00ff)) {
             if(div->buffer[i] == 0xffff00ff) {
                 // The inland water is set to the maximum province id
                 // The border generating shader ignores provinces with id 0xfffe
                 // This is to make sure we dont draw any border with lakes
                 tiles[i].province_id = (Province::Id)-2;
-            } else if(div->buffer[i] == 0xff000000) {
-                // Temporary to show unregsitered provinces
+            }
+            else if(div->buffer[i] == 0xff000000) {
+                // Ocean
                 tiles[i].province_id = (Province::Id)-3;
             }
-            if(div->buffer[i] == 0xff000000) {
-                // tiles[i].owner_id = (Nation::Id)-2;
+            else if (div->buffer[i] == 0xffffffff) {
+                tiles[i].province_id = (Province::Id)-1;
             }
             ++i;
         }
         if(!(i < total_size)) break;
-// #endif
+        // #endif
 
         const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
         if(province_id == (Province::Id)-1) {
@@ -486,7 +489,7 @@ void World::load_mod(void) {
     div.reset(nullptr);
 
     /* Uncomment this for auto-generating lua code for unregistered provinces */
-    FILE *fp = fopen("UNREG_PROVINCES.lua", "a+t");
+    FILE* fp = fopen("UNREG_PROVINCES.lua", "a+t");
     if(fp) {
         for(const auto& color_raw : colors_found) {
             uint32_t color = color_raw << 8;
@@ -527,7 +530,7 @@ void World::load_mod(void) {
     print_info(gettext("Creating neighbours for provinces"));
     for(size_t i = 0; i < total_size; i++) {
         const Tile* tile = &this->tiles[i];
-        
+
         if(tile->province_id < (Province::Id)-3) {
             Province* province = this->provinces[this->tiles[i].province_id];
             const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
@@ -546,7 +549,7 @@ void World::load_mod(void) {
         nation->relations.resize(this->nations.size(), NationRelation{ -100.f, false, false, false, false, false, false, false, false, true, false });
     }
 
-    const std::vector<std::string> mod_files = {
+    const std::vector<std::string> mod_files ={
         "mod", "postinit"
     };
     lua_exec_all_of(*this, mod_files);
@@ -639,8 +642,8 @@ void World::do_tick() {
     }
 
     // Evaluate units
-	std::vector<float> mil_research_pts(nations.size(), 0.f);
-	std::vector<float> naval_research_pts(nations.size(), 0.f);
+    std::vector<float> mil_research_pts(nations.size(), 0.f);
+    std::vector<float> naval_research_pts(nations.size(), 0.f);
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
         if(!unit->size) {
@@ -652,7 +655,8 @@ void World::do_tick() {
         if(unit->target != nullptr) {
             if(unit->move_progress) {
                 unit->move_progress -= std::min(unit->move_progress, unit->type->speed);
-            } else {
+            }
+            else {
                 unit->province = unit->target;
                 if(unit->target->owner != nullptr) {
                     unit->owner->give_province(*unit->target);
@@ -668,31 +672,33 @@ void World::do_tick() {
             unit->attack(*other_unit);
         }
     }
-	
-	// Now researches for every country are going to be accounted :)
-	for(const auto& nation : nations) {
-		for(const auto& tech : technologies) {
-			if(!nation->can_research(tech)) continue;
-			
-			float* research_progress = &nation->research[get_id(tech)];
-			if(!(*research_progress)) continue;
-			
-			float* pts_count;
-			if(tech->type == TechnologyType::MILITARY) {
-				pts_count = &mil_research_pts[get_id(nation)];
-			} else if(tech->type == TechnologyType::NAVY) {
-				pts_count = &naval_research_pts[get_id(nation)];
-			} else {
-				continue;
-			}
-			
-			if(*pts_count <= 0.f) continue;
-			const float pts = *pts_count / 4.f;
-			*research_progress += pts;
-			*pts_count -= pts;
-			break;
-		}
-	}
+
+    // Now researches for every country are going to be accounted :)
+    for(const auto& nation : nations) {
+        for(const auto& tech : technologies) {
+            if(!nation->can_research(tech)) continue;
+
+            float* research_progress = &nation->research[get_id(tech)];
+            if(!(*research_progress)) continue;
+
+            float* pts_count;
+            if(tech->type == TechnologyType::MILITARY) {
+                pts_count = &mil_research_pts[get_id(nation)];
+            }
+            else if(tech->type == TechnologyType::NAVY) {
+                pts_count = &naval_research_pts[get_id(nation)];
+            }
+            else {
+                continue;
+            }
+
+            if(*pts_count <= 0.f) continue;
+            const float pts = *pts_count / 4.f;
+            *research_progress += pts;
+            *pts_count -= pts;
+            break;
+        }
+    }
 
     {
         // Broadcast to clients
@@ -715,8 +721,8 @@ void World::do_tick() {
         // Check that the treaty is agreed by all parties before enforcing it
         bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty->approval_status.end());
         if(!on_effect) continue;
-		
-		// Check with treaty
+
+        // Check with treaty
         if(!treaty->in_effect()) continue;
 
         // Treaties clauses now will be enforced
@@ -726,23 +732,28 @@ void World::do_tick() {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
                 if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
+            }
+            else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
                 if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+            }
+            else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
                 if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::HUMILIATE) {
+            }
+            else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
                 if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+            }
+            else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
                 if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
+            }
+            else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
                 if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
