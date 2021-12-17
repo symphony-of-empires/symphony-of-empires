@@ -125,7 +125,9 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     print_info("Uploading data to OpenGL");
     UnifiedRender::TextureOptions tile_sheet_options{};
-    tile_sheet->to_opengl();
+    
+    this->update_provinces(&world.provinces);
+    //tile_sheet->to_opengl();
     tile_sheet_options.internal_format = GL_RGBA32F;
     tile_map->to_opengl(tile_sheet_options);
     tile_map->gen_mipmaps();
@@ -508,58 +510,16 @@ void Map::update(const SDL_Event& event, Input& input) {
 }
 
 // Updates the province color texture with the changed provinces
-void Map::update_province(std::vector<Province*> provinces) {
-    for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        Nation* province_owner = world.provinces[i]->owner;
-        if(province_owner == nullptr) continue;
-        tile_sheet->buffer[i] = province_owner->get_client_hint().color;
+void Map::update_provinces(const std::vector<Province*>* provinces) {
+    for(unsigned int i = 0; i < 0xffff; i++) {
+        tile_sheet->buffer[i] = 0x00808080;
+    }
+
+    for(const auto& province : *provinces) {
+        if(province->owner == nullptr) continue;
+        tile_sheet->buffer[world.get_id(province)] = province->owner->get_client_hint().color;
     }
     tile_sheet->to_opengl();
-}
-
-// Updates the tiles texture with the changed tiles
-void Map::update_tiles(World& world) {
-#if defined TILE_GRANULARITY
-    glDisable(GL_CULL_FACE);
-    if(world.changed_tile_coords.size() > 0) {
-        UnifiedRender::OpenGl::Framebuffer* fbo = new UnifiedRender::OpenGl::Framebuffer();
-        fbo->use();
-        fbo->set_texture(0, tile_map);
-
-        glViewport(0, 0, tile_map->width, tile_map->height);
-        glBlendFunc(GL_ONE, GL_ZERO);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glActiveTexture(GL_TEXTURE0);
-        glUseProgram(0);
-        glPushMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0.f, (float)tile_map->width, (float)tile_map->height, 0.f, 0.0f, 1.f);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glBegin(GL_POINTS);
-        for(const auto& coords : world.changed_tile_coords) {
-            uint8_t r, g, b, a;
-            Tile tile = world.get_tile(coords.first, coords.second);
-            r = tile.province_id & 0xff;
-            g = (tile.province_id >> 8) & 0xff;
-            b = tile.owner_id & 0xff;
-            a = (tile.owner_id >> 8) & 0xff;
-            glColor4f(r / 256.f, g / 256.f, b / 256.f, a / 256.f);
-            glVertex2i(coords.first, tile_map->height - coords.second);
-        }
-        glEnd();
-        glPopMatrix();
-
-        tile_map->gen_mipmaps();
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        delete fbo;
-        world.changed_tile_coords.clear();
-    }
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
-#endif
 }
 
 void Map::draw(const GameState& gs, const int width, const int height) {

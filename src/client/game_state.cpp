@@ -76,6 +76,15 @@ void GameState::play_nation() {
         map->camera->position.z = -100.f;
     }
 
+    curr_nation->ai_do_policies = false;
+    curr_nation->ai_do_research = false;
+    curr_nation->ai_do_diplomacy = false;
+    curr_nation->ai_do_cmd_troops = false;
+    curr_nation->ai_do_unit_production = false;
+    curr_nation->ai_do_build_production = false;
+    curr_nation->ai_handle_treaties = false;
+    curr_nation->ai_handle_events = false;
+
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
     g_client->send(Action::SelectNation::form_packet(curr_nation));
@@ -257,8 +266,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     glRasterPos2f(-3.0f, -2.0f);
     SDL_GL_SwapWindow(window);
     if(gs.current_mode != MapMode::NO_MAP) {
-        Map* map = gs.map;
-        map->update_tiles(*gs.world);
+        gs.map->update_provinces(&gs.world->provinces);
     }
 }
 
