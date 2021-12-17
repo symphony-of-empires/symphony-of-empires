@@ -83,6 +83,7 @@ public:
 
     void update(const SDL_Event& event, Input& input);
     void update_tiles(World& world);
+    void update_province(std::vector<Province*> provinces);
     void draw_flag(const Nation* nation);
     void draw(const GameState& gs, const int width, const int height);
     void handle_click(GameState& gs, SDL_Event event);
