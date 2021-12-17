@@ -9,7 +9,7 @@
 namespace Interface {
     // View information related to the population and diversity of cultures and religions
     // on the specified province
-    class ProvincePopulationTab : public UI::Group {
+    class ProvincePopulationTab: public UI::Group {
         GameState& gs;
         Province* province;
 
@@ -20,10 +20,12 @@ namespace Interface {
         std::vector<PopInfo*> pop_infos;
     public:
         ProvincePopulationTab(GameState& gs, int x, int y, Province* province, UI::Widget* _parent);
+
+        void update_piecharts();
     };
 
     // View information related to the economic activity of the province
-    class ProvinceEconomyTab : public UI::Group {
+    class ProvinceEconomyTab: public UI::Group {
         UI::PieChart* company_share_pie;
         UI::PieChart* products_pie;
         UI::PieChart* goods_pie;
@@ -36,10 +38,10 @@ namespace Interface {
         Province* province;
     };
 
-    class ProvinceView : public UI::Window {
+    class ProvinceView: public UI::Window {
         GameState& gs;
         Province* province;
-        
+
         ProvincePopulationTab* pop_tab;
         ProvinceEconomyTab* econ_tab;
     public:
@@ -47,7 +49,7 @@ namespace Interface {
     };
 
     // Brief
-    class ProvinceBrief : public UI::Window {
+    class ProvinceBrief: public UI::Window {
         UI::PieChart* cultures_pie;
         UI::Chart* economy_chart;
     public:
