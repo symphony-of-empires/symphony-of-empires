@@ -216,8 +216,6 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     int& height = gs.height;
 
     std::pair<float, float>& select_pos = input.select_pos;
-    Unit* selected_unit = input.selected_unit;
-    Building* selected_building = input.selected_building;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.f);
@@ -238,15 +236,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(glm::value_ptr(map->camera->get_view()));
 
-        map->draw(width, height);
-
-        if(selected_unit != nullptr) {
-
-        }
-
-        if(selected_building != nullptr) {
-            
-        }
+        map->draw(gs, width, height);
 
         glBindTexture(GL_TEXTURE_2D, 0);
         glBegin(GL_QUADS);
