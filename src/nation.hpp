@@ -87,7 +87,7 @@ public:
     bool is_accepted_religion(const Pop& pop) const;
     float get_tax(const Pop& pop) const;
     void give_province(Province& province);
-    const NationClientHint& get_client_hint(void) const;
+    const NationClientHint& get_client_hint(void);
     float get_research_points(void) const;
     bool can_research(const Technology* tech) const;
     void change_research_focus(Technology* tech);

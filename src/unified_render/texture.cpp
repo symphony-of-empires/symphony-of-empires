@@ -31,6 +31,8 @@ void UnifiedRender::Texture::create_dummy() {
 }
 
 void UnifiedRender::Texture::to_opengl(TextureOptions options) {
+    if (gl_tex_num)
+      delete_opengl();
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glTexImage2D(GL_TEXTURE_2D, 0, options.internal_format, width, height, 0, options.format, options.type, buffer);

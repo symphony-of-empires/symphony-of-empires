@@ -62,6 +62,11 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         throw SocketException("Cannot create server socket");
     }
 
+#ifdef unix
+    int enable = 1;
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
+    setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int));
+#endif
     if(bind(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
         throw SocketException("Cannot bind server");
     }
@@ -104,19 +109,20 @@ Server::~Server() {
 void Server::broadcast(const Packet& packet) {
     for(size_t i = 0; i < n_clients; i++) {
         if(clients[i].is_connected == true) {
-			bool r;
-			
-			// If we can "acquire" the spinlock to the main packet queue we will push
-			// our packet there, otherwise we take the alternative packet queue to minimize
-			// locking between server and client
-			r = clients[i].packets_mutex.try_lock();
-			if(r) {
-				clients[i].packets.push_back(packet);
-				clients[i].packets_mutex.unlock();
-			} else {
-				std::scoped_lock lock(clients[i].pending_packets_mutex);
-				clients[i].pending_packets.push_back(packet);
-			}
+            bool r;
+
+            // If we can "acquire" the spinlock to the main packet queue we will push
+            // our packet there, otherwise we take the alternative packet queue to minimize
+            // locking between server and client
+            r = clients[i].packets_mutex.try_lock();
+            if(r) {
+                clients[i].packets.push_back(packet);
+                clients[i].packets_mutex.unlock();
+            }
+            else {
+                std::scoped_lock lock(clients[i].pending_packets_mutex);
+                clients[i].pending_packets.push_back(packet);
+            }
 
             // Disconnect the client when more than 200 MB is used
             // we can't save your packets buddy - other clients need their stuff too!
@@ -155,7 +161,8 @@ void Server::net_loop(int id) {
                     // Then we check if the server is running and we throw accordingly
                     cl.is_connected = true;
                     break;
-                } catch(SocketException& e) {
+                }
+                catch(SocketException& e) {
                     // Do something
                     if(run == false)
                         throw SocketException("Close client");
@@ -214,20 +221,20 @@ void Server::net_loop(int id) {
             // an exception is thrown), since we are using C++
             Archive ar = Archive();
             while(run && cl.is_connected == true) {
-				// Push pending_packets to packets queue (the packets queue is managed
-				// by us and requires almost 0 locking, so the host does not stagnate when
-				// trying to send packets to a certain client)
-				if(!cl.pending_packets.empty()) {
-					if(cl.pending_packets_mutex.try_lock()) {
-						std::scoped_lock lock(cl.packets_mutex);
-						for(const auto& packet : cl.pending_packets) {
-							cl.packets.push_back(packet);
-						}
-						cl.pending_packets.clear();
-						cl.pending_packets_mutex.unlock();
-					}
-				}
-				
+                // Push pending_packets to packets queue (the packets queue is managed
+                // by us and requires almost 0 locking, so the host does not stagnate when
+                // trying to send packets to a certain client)
+                if(!cl.pending_packets.empty()) {
+                    if(cl.pending_packets_mutex.try_lock()) {
+                        std::scoped_lock lock(cl.packets_mutex);
+                        for(const auto& packet : cl.pending_packets) {
+                            cl.packets.push_back(packet);
+                        }
+                        cl.pending_packets.clear();
+                        cl.pending_packets_mutex.unlock();
+                    }
+                }
+
                 // Check if we need to read packets
 #ifdef unix
                 int has_pending = poll(&pfd, 1, 10);
@@ -252,13 +259,13 @@ void Server::net_loop(int id) {
 
                     //std::scoped_lock lock(g_world->world_mutex);
                     switch(action) {
-					// - Used to test connections between server and client
+                        // - Used to test connections between server and client
                     case ActionType::PONG:
                         action = ActionType::PING;
                         packet.send(&action);
                         print_info("Received pong, responding with ping!");
                         break;
-					// - Client tells server to enact a new policy for it's nation
+                        // - Client tells server to enact a new policy for it's nation
                     case ActionType::NATION_ENACT_POLICY: {
                         Policies policies;
                         ::deserialize(ar, &policies);
@@ -266,7 +273,7 @@ void Server::net_loop(int id) {
                         // TODO: Do parliament checks and stuff
                         selected_nation->current_policy = policies;
                     } break;
-					// - Client tells server to change target of unit
+                        // - Client tells server to change target of unit
                     case ActionType::UNIT_CHANGE_TARGET: {
                         Unit* unit;
                         ::deserialize(ar, &unit);
@@ -281,9 +288,9 @@ void Server::net_loop(int id) {
                         if(unit->province != nullptr)
                             print_info("Unit changes targets to %s", unit->province->ref_name.c_str());
                     } break;
-					// Client tells the server about the construction of a new unit, note that this will
-					// only make the building submit "construction tickets" to obtain materials to build
-					// the unit can only be created by the server, not by the clients
+                        // Client tells the server about the construction of a new unit, note that this will
+                        // only make the building submit "construction tickets" to obtain materials to build
+                        // the unit can only be created by the server, not by the clients
                     case ActionType::BUILDING_START_BUILDING_UNIT: {
                         Building* building;
                         ::deserialize(ar, &building);
@@ -306,8 +313,8 @@ void Server::net_loop(int id) {
                         building->req_goods_for_unit = unit_type->req_goods;
                         print_info("New order for building; build unit [%s]", unit_type->ref_name.c_str());
                     } break;
-					// Client tells server to build new outpost, the location (& type) is provided by
-					// the client and the rest of the fields are filled by the server
+                        // Client tells server to build new outpost, the location (& type) is provided by
+                        // the client and the rest of the fields are filled by the server
                     case ActionType::BUILDING_ADD: {
                         Building* building = new Building();
                         ::deserialize(ar, building);
@@ -327,8 +334,8 @@ void Server::net_loop(int id) {
                         // Rebroadcast
                         broadcast(packet);
                     } break;
-					// Client tells server that it wants to colonize a province, this can be rejected
-					// or accepted, client should check via the next PROVINCE_UPDATE action
+                        // Client tells server that it wants to colonize a province, this can be rejected
+                        // or accepted, client should check via the next PROVINCE_UPDATE action
                     case ActionType::PROVINCE_COLONIZE: {
                         Province* province;
                         ::deserialize(ar, &province);
@@ -345,7 +352,7 @@ void Server::net_loop(int id) {
                         // Rebroadcast
                         broadcast(packet);
                     } break;
-					// Simple IRC-like chat messaging system
+                        // Simple IRC-like chat messaging system
                     case ActionType::CHAT_MESSAGE: {
                         std::string msg;
                         ::deserialize(ar, &msg);
@@ -354,7 +361,7 @@ void Server::net_loop(int id) {
                         // Rebroadcast
                         broadcast(packet);
                     } break;
-					// Client changes it's approval on certain treaty
+                        // Client changes it's approval on certain treaty
                     case ActionType::CHANGE_TREATY_APPROVAL: {
                         Treaty* treaty;
                         ::deserialize(ar, &treaty);
@@ -382,7 +389,7 @@ void Server::net_loop(int id) {
                         // Rebroadcast
                         broadcast(packet);
                     } break;
-					// Client sends a treaty to someone
+                        // Client sends a treaty to someone
                     case ActionType::DRAFT_TREATY: {
                         Treaty* treaty = new Treaty();
                         ::deserialize(ar, &treaty->clauses);
@@ -431,7 +438,7 @@ void Server::net_loop(int id) {
                         packet.data(tmp_ar.get_buffer(), tmp_ar.size());
                         broadcast(packet);
                     } break;
-					// Client takes a descision
+                        // Client takes a descision
                     case ActionType::NATION_TAKE_DESCISION: {
                         // Find event by reference name
                         std::string event_ref_name;
@@ -459,7 +466,7 @@ void Server::net_loop(int id) {
                             selected_nation->ref_name.c_str()
                         );
                     } break;
-					// The client selects a nation
+                        // The client selects a nation
                     case ActionType::SELECT_NATION: {
                         Nation* nation;
                         ::deserialize(ar, &nation);
@@ -477,24 +484,24 @@ void Server::net_loop(int id) {
                         print_info("Nation [%s] selected by client %zu", selected_nation->ref_name.c_str(), (size_t)id);
                     } break;
                     case ActionType::DIPLO_INC_RELATIONS: {
-                        Nation* sender,* target;
+                        Nation* sender, * target;
                         ::deserialize(ar, &sender);
                         ::deserialize(ar, &target);
                         sender->increase_relation(*target);
                     } break;
                     case ActionType::DIPLO_DEC_RELATIONS: {
-                        Nation* sender,* target;
+                        Nation* sender, * target;
                         ::deserialize(ar, &sender);
                         ::deserialize(ar, &target);
                         sender->decrease_relation(*target);
                     } break;
                     case ActionType::DIPLO_DECLARE_WAR: {
-                        Nation* sender,* target;
+                        Nation* sender, * target;
                         ::deserialize(ar, &sender);
                         ::deserialize(ar, &target);
                         sender->declare_war(*target);
                     } break;
-					// Nation and province addition and removals are not allowed to be done by clients
+                        // Nation and province addition and removals are not allowed to be done by clients
                     default: {
                     } break;
                     }
@@ -504,14 +511,14 @@ void Server::net_loop(int id) {
                 ar.rewind();
 
                 // After reading everything we will send our queue appropriately to the client
-				std::scoped_lock lock(cl.packets_mutex);
-				for(auto& packet : cl.packets) {
-					packet.stream = SocketStream(conn_fd);
-					packet.send();
-				}
-				cl.packets.clear();
+                std::scoped_lock lock(cl.packets_mutex);
+                for(auto& packet : cl.packets) {
+                    packet.stream = SocketStream(conn_fd);
+                    packet.send();
+                }
+                cl.packets.clear();
+                }
             }
-        }
         catch(ServerException& e) {
             print_error("ServerException: %s", e.what());
         }
@@ -531,10 +538,10 @@ void Server::net_loop(int id) {
 
         // Unlock mutexes so we don't end up with weird situations... like deadlocks
         cl.is_connected = false;
-		
-		std::scoped_lock lock(cl.packets_mutex, cl.pending_packets_mutex);
+
+        std::scoped_lock lock(cl.packets_mutex, cl.pending_packets_mutex);
         cl.packets.clear();
-		cl.pending_packets.clear();
+        cl.pending_packets.clear();
 
         // Tell the remaining clients about the disconnection
         {
@@ -552,5 +559,5 @@ void Server::net_loop(int id) {
 #elif defined unix
         shutdown(conn_fd, SHUT_RDWR);
 #endif
-    }
-}
+        }
+        }

@@ -259,7 +259,7 @@ void main() {
 	// diag_coord += pix;
 	vec4 coord = texture(tile_map, diag_coord).rgba;
 	float isEmpty = step(coord.a, 0.01);
-	vec4 prov_color = texture(tile_sheet, coord.zw);
+	vec4 prov_color = texture(tile_sheet, coord.xy * 255./256.); // Magic numbers
 	terrain_color = mix(terrain_color, water, isLake(coord.xy));
 	vec4 ground = mix(terrain_color, water, isOcean(coord.xy) + isLake(coord.xy));
 	vec4 out_color = mix(ground, prov_color * 1.2, 0.5 * (1.-isOcean(coord.xy)) * (1.-isLake(coord.xy)));
@@ -287,7 +287,8 @@ void main() {
 		bSdf = sin(bSdf * 40.) * bSdf;  
 		prov_color = vec4(0.);
 	}
-	out_color = mix(out_color, prov_color * 1.1, clamp(bSdf * 3. - 1., 0., 1.));
+	// out_color = mix(out_color, prov_color * 0.7, clamp(bSdf * 3. - 1., 0., 1.));
+    out_color = mix(out_color, out_color * 0.8, clamp(bSdf * 3. - 1., 0., 1.));
 	out_color = mix(out_color, province_border, borders.x);
 	float river = texture(river_texture, tex_coords).b;
 	out_color = mix(out_color, river_col, river * 0.4);
@@ -299,5 +300,5 @@ void main() {
 	vec3 ambient = 0.1 * out_color.xyz;
 
 	f_frag_color = vec4(diffuse + ambient, 1.);
-	// f_frag_color = texture(river_texture, v_texcoord);
+	// f_frag_color = texture(border_sdf, v_texcoord);
 }
