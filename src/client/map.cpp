@@ -374,34 +374,26 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
     if(input.select_pos.first < 0 || input.select_pos.first >= gs.world->width || input.select_pos.second < 0 || input.select_pos.second >= gs.world->height) {
         return;
     }
-    Unit* selected_unit = input.selected_unit;
-    Building* selected_building = input.selected_building;
 
     if(event.button.button == SDL_BUTTON_LEFT) {
         std::pair<float, float>& select_pos = input.select_pos;
 
-        selected_unit = nullptr;
-        selected_building = nullptr;
-
         const Tile& tile = gs.world->get_tile(select_pos.first, select_pos.second);
         switch(gs.current_mode) {
         case MapMode::COUNTRY_SELECT:
-#if defined TILE_GRANULARITY
-            gs.select_nation->change_nation(tile.owner_id);
-#else
             if(tile.province_id < (Province::Id)-3) {
                 auto province = world.provinces[tile.province_id];
                 gs.select_nation->change_nation(province->owner->cached_id);
             }
-#endif
             break;
         case MapMode::NORMAL:
+            input.selected_units.clear();
             // Check if we selected an unit
             for(const auto& unit : gs.world->units) {
                 const float size = 2.f;
                 std::pair<float, float> pos = unit->get_pos();
                 if((int)select_pos.first > (int)pos.first - size && (int)select_pos.first < (int)pos.second + size && (int)select_pos.second >(int)pos.first - size && (int)select_pos.second < (int)pos.second + size) {
-                    selected_unit = unit;
+                    input.selected_units.push_back(unit);
                     return;
                 }
             }
@@ -414,31 +406,6 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         default:
             break;
         }
-
-        // TODO: We should instead make it so you can build stuff in a "building" mode
-        /*
-
-        // Server will reject building build request if it's not in our territory (and it's not being built on water either)
-        if(tile.owner_id != gs.world->get_id(gs.curr_nation) && tile.owner_id != (Nation::Id)-1) {
-            return;
-        }
-
-        // Tell the server about an action for building an building
-        std::scoped_lock lock(gs.client->packet_mutex);
-        Packet packet = Packet();
-        Archive ar = Archive();
-        ActionType action = ActionType::BUILDING_ADD;
-        ::serialize(ar, &action);
-
-        Building building = Building();
-        building.x = select_pos.first;
-        building.y = select_pos.second;
-        // TODO FIX
-        building.owner = gs.world->nations[gs.select_nation->curr_selected_nation];
-        ::serialize(ar, &building);  // BuildingObj
-        packet.data(ar.get_buffer(), ar.size());
-        gs.client->packet_queue.push_back(packet);
-        */
         return;
     }
     else if(event.button.button == SDL_BUTTON_RIGHT) {
@@ -455,34 +422,25 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             fclose(fp);
         }
 
-        if(selected_unit != nullptr) {
+        for(const auto& unit : input.selected_units) {
             const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
             if(tile.province_id == (Province::Id)-1) return;
-            selected_unit->target = gs.world->provinces[tile.province_id];
+            unit->target = gs.world->provinces[tile.province_id];
 
             Packet packet = Packet();
             Archive ar = Archive();
             ActionType action = ActionType::UNIT_CHANGE_TARGET;
             ::serialize(ar, &action);
-            ::serialize(ar, &selected_unit);
-            ::serialize(ar, &selected_unit->target);
+            ::serialize(ar, &unit);
+            ::serialize(ar, &unit->target);
             packet.data(ar.get_buffer(), ar.size());
             std::scoped_lock lock(gs.client->pending_packets_mutex);
             gs.client->pending_packets.push_back(packet);
-            return;
         }
-
-#if defined TILE_GRANULARITY
-        if(selected_building != nullptr) {
-            //new BuildUnitWindow(gs, selected_building, gs.top_win->top_win);
-            return;
-        }
-#endif
     }
 }
 
-void Map::update(const SDL_Event& event, Input& input)
-{
+void Map::update(const SDL_Event& event, Input& input) {
     std::pair<int, int>& mouse_pos = input.mouse_pos;
     std::pair<float, float>& select_pos = input.select_pos;
     switch(event.type) {
@@ -491,7 +449,13 @@ void Map::update(const SDL_Event& event, Input& input)
         if(event.button.button == SDL_BUTTON_MIDDLE) {
             input.last_camera_drag_pos = camera->get_map_pos(mouse_pos);
             input.last_camera_mouse_pos = mouse_pos;
+
+            input.drag_coord = camera->get_map_pos(mouse_pos);
+            input.is_drag = true;
         }
+        break;
+    case SDL_MOUSEBUTTONUP:
+        input.is_drag = false;
         break;
     case SDL_MOUSEMOTION:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -594,16 +558,8 @@ void Map::update_tiles(World& world) {
 #endif
 }
 
-void Map::draw(const int width, const int height) {
+void Map::draw(const GameState& gs, const int width, const int height) {
     glm::mat4 view, projection;
-
-    // for(const auto& province : world.provinces) {
-    //     province_color_tex->buffer[world.get_id(province)] = 0xff000000;
-    //     if(province->owner != nullptr) {
-    //         province_color_tex->buffer[world.get_id(province)] = province->owner->get_client_hint().color;
-    //     }
-    // }
-    // province_color_tex->to_opengl();
 
     map_shader->use();
     view = camera->get_view();
@@ -681,7 +637,6 @@ void Map::draw(const int width, const int height) {
     glUseProgram(0);
     glActiveTexture(GL_TEXTURE0);
 
-    glColor3f(1.f, 1.f, 1.f);
     /*for(const auto& building : world.buildings) {
         glPushMatrix();
         glTranslatef(building->x, building->y, -1.f);
@@ -703,14 +658,26 @@ void Map::draw(const int width, const int height) {
         glEnd();
         glPopMatrix();
     }*/
+
+    // Draw the "drag area" box
+    if(gs.input.is_drag) {
+        glPushMatrix();
+        glTranslatef(gs.input.mouse_pos.first, gs.input.mouse_pos.second, -0.1f);
+        glColor3f(1.f, 1.f, 1.f);
+        glBegin(GL_LINES);
+        glVertex2f(0.f, 0.f);
+        glVertex2f(gs.input.drag_coord.first, 0.f);
+        glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
+        glVertex2f(0.f, gs.input.drag_coord.second);
+        glVertex2f(0.f, 0.f);
+        glEnd();
+        glPopMatrix();
+    }
+
     for(const auto& unit : world.units) {
         glPushMatrix();
-#if !defined TILE_GRANULARITY
         std::pair<float, float> pos = unit->get_pos();
         glTranslatef(pos.first, pos.second, -0.1f);
-#else
-        glTranslatef(unit->x, unit->y, -0.1f);
-#endif
         float _w = 2, _h = 2;
         nation_flags[world.get_id(unit->owner)]->bind();
 

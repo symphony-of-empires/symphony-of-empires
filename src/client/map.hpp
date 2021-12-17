@@ -84,7 +84,7 @@ public:
     void update(const SDL_Event& event, Input& input);
     void update_tiles(World& world);
     void draw_flag(const Nation* nation);
-    void draw(const int width, const int height);
+    void draw(const GameState& gs, const int width, const int height);
     void handle_click(GameState& gs, SDL_Event event);
     void set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_colors);
     void set_view(MapView view);
