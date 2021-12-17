@@ -1134,9 +1134,6 @@ void PieChart::draw_triangle(float start_ratio, float end_ratio, Color color) {
     glTexCoord2f(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f);
     glVertex2f(x_center + x_offset * radius, y_center + y_offset * radius);
 
-    glTexCoord2f(0.5f, 0.5f);
-    glVertex2f(x_center, y_center);
-
     x_offset = cos((end_ratio - 0.25f) * 2 * M_PI);
     y_offset = sin((end_ratio - 0.25f) * 2 * M_PI);
     scale = std::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
@@ -1144,6 +1141,9 @@ void PieChart::draw_triangle(float start_ratio, float end_ratio, Color color) {
     y_offset *= scale;
     glTexCoord2f(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f);
     glVertex2f(x_center + x_offset * radius, y_center + y_offset * radius);
+
+    glTexCoord2f(0.5f, 0.5f);
+    glVertex2f(x_center, y_center);
 }
 
 void PieChart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
