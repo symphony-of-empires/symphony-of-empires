@@ -97,6 +97,9 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         if(province_owner == nullptr) {
             tile_sheet->buffer[i] = 0xffdddddd;
         }
+        else if(province_owner->cached_id == (Nation::Id)-1) {
+            tile_sheet->buffer[i] = 0xffdddddd;
+        }
         else {
             tile_sheet->buffer[i] = province_owner->get_client_hint().color;
         }
@@ -104,7 +107,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     // Water
     tile_sheet->buffer[(Province::Id)-2] = 0x00000000;
     // Land
-    tile_sheet->buffer[(Nation::Id)-1] = 0xffdddddd;
+    tile_sheet->buffer[(Province::Id)-1] = 0xffdddddd;
 
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
@@ -267,7 +270,7 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
     border_sdf_shader->set_uniform("map_size", (float)border_tex->width, (float)border_tex->height);
     UnifiedRender::TextureOptions fbo_mipmap_options{};
     fbo_mipmap_options.internal_format = GL_RGBA32F;
-    fbo_mipmap_options.min_filter = GL_LINEAR_MIPMAP_NEAREST;
+    fbo_mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     fbo_mipmap_options.mag_filter = GL_LINEAR;
 
     UnifiedRender::Texture* tex0 = new UnifiedRender::Texture(border_tex->width, border_tex->height);
