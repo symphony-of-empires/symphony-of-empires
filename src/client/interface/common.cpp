@@ -60,6 +60,7 @@ ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province
     text(province->ref_name);
     on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceButton&>(w);
+        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
         w.text(o.province->ref_name);
     });
 }
@@ -125,6 +126,7 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
     }
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PopInfo&>(w);
+        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
         if(o.index >= o.province->pops.size()) return;
 
         const Pop& pop = o.province->pops[o.index];

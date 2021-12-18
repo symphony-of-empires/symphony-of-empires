@@ -363,6 +363,8 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
                     is_built = true;
 					
 					g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
+                    building->working_unit_type = unit;
+                    break;
                 }
 
                 // If we couldn't find a suitable building we wont be able to find buildings for other
