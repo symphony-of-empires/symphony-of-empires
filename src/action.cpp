@@ -56,7 +56,7 @@ Packet SelectNation::form_packet(Nation* nation) {
     Archive ar = Archive();
     ActionType action = ActionType::SELECT_NATION;
     ::serialize(ar, &action);
-    ::serialize(ar, nation);
+    ::serialize(ar, &nation);
     packet.data(ar.get_buffer(), ar.size());
     return packet;
 }
