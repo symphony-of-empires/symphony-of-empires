@@ -406,8 +406,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    }
-    else if(event.button.button == SDL_BUTTON_RIGHT) {
+    } else if(event.button.button == SDL_BUTTON_RIGHT) {
         std::pair<float, float>& select_pos = input.select_pos;
 
         if(1) {
@@ -449,7 +448,14 @@ void Map::update(const SDL_Event& event, Input& input) {
             input.last_camera_drag_pos = camera->get_map_pos(mouse_pos);
             input.last_camera_mouse_pos = mouse_pos;
 
-            input.drag_coord = camera->get_map_pos(mouse_pos);
+            input.drag_coord = camera->get_map_pos(input.mouse_pos);
+            if(view_mode == MapView::SPHERE_VIEW) {
+                input.drag_coord.first = (int)(tile_map->width * input.drag_coord.first / (2. * M_PI));
+                input.drag_coord.second = (int)(tile_map->height * input.drag_coord.second / M_PI);
+            } else {
+                input.drag_coord.first = (int)input.drag_coord.first;
+                input.drag_coord.second = (int)input.drag_coord.second;
+            }
             input.is_drag = true;
         }
         break;
@@ -468,8 +474,7 @@ void Map::update(const SDL_Event& event, Input& input) {
             input.select_pos = camera->get_map_pos(input.mouse_pos);
             input.select_pos.first = (int)(tile_map->width * input.select_pos.first / (2. * M_PI));
             input.select_pos.second = (int)(tile_map->height * input.select_pos.second / M_PI);
-        }
-        else {
+        } else {
             if(input.middle_mouse_down) {  // Drag the map with middlemouse
                 std::pair<float, float> map_pos = camera->get_map_pos(mouse_pos);
                 float x_pos = camera->position.x + input.last_camera_drag_pos.first - map_pos.first;
@@ -551,8 +556,7 @@ void Map::draw(const GameState& gs, const int width, const int height) {
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();
-    }
-    else if(view_mode == MapView::SPHERE_VIEW) {
+    } else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
 
@@ -569,12 +573,8 @@ void Map::draw(const GameState& gs, const int width, const int height) {
 
     for(const auto& building : world.buildings) {
         glm::mat4 model(1.f);
-#if defined TILE_GRANULARITY
-        model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
-#else
         std::pair<float, float> pos = building->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
-#endif
         model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
         draw_flag(building->get_owner());
@@ -582,12 +582,8 @@ void Map::draw(const GameState& gs, const int width, const int height) {
     }
     for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
-#if defined TILE_GRANULARITY
-        model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
-#else
         std::pair<float, float> pos = unit->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
-#endif
         model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
         draw_flag(unit->owner);
@@ -629,14 +625,14 @@ void Map::draw(const GameState& gs, const int width, const int height) {
     // Draw the "drag area" box
     if(gs.input.is_drag) {
         glPushMatrix();
-        glTranslatef(gs.input.mouse_pos.first, gs.input.mouse_pos.second, -0.1f);
+        glTranslatef(0.f, 0.f, -0.1f);
         glColor3f(1.f, 1.f, 1.f);
         glBegin(GL_LINES);
-        glVertex2f(0.f, 0.f);
-        glVertex2f(gs.input.drag_coord.first, 0.f);
         glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
-        glVertex2f(0.f, gs.input.drag_coord.second);
-        glVertex2f(0.f, 0.f);
+        glVertex2f(gs.input.select_pos.first, gs.input.drag_coord.second);
+        glVertex2f(gs.input.select_pos.first, gs.input.select_pos.second);
+        glVertex2f(gs.input.drag_coord.first, gs.input.select_pos.second);
+        glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
         glEnd();
         glPopMatrix();
     }
@@ -675,11 +671,7 @@ void Map::draw(const GameState& gs, const int width, const int height) {
         glBindTexture(GL_TEXTURE_2D, 0);
 
         glPushMatrix();
-#if !defined TILE_GRANULARITY
         glTranslatef(pos.first, pos.second, -0.1f);
-#else
-        glTranslatef(unit->x, unit->y, -0.1f);
-#endif
         _w = unit->size / unit->type->max_health;
         _h = 0.5f;
         glColor3f(0.f, 1.f, 0.f);
@@ -700,11 +692,7 @@ void Map::draw(const GameState& gs, const int width, const int height) {
         glPopMatrix();
 
         glPushMatrix();
-#if !defined TILE_GRANULARITY
         glTranslatef(pos.first + (unit->size / unit->type->max_health), pos.second - 2.f, -1.f);
-#else
-        glTranslatef(unit->x + (unit->size / unit->type->max_health), unit->y - 2.f, -1.f);
-#endif
         _w = (unit->type->max_health - unit->size) / unit->type->max_health;
         _h = 0.5f;
         glColor3f(1.f, 0.f, 0.f);
@@ -724,24 +712,14 @@ void Map::draw(const GameState& gs, const int width, const int height) {
         glEnd();
         glPopMatrix();
 
-#if defined TILE_GRANULARITY
-        glBegin(GL_LINES);
-        glColor3f(1.f, 0.f, 0.f);
-        glVertex2f(unit->x, unit->y);
-        glColor3f(0.f, 1.f, 0.f);
-        glVertex2f(unit->tx, unit->ty);
-        glEnd();
-#else
         if(unit->target != nullptr) {
             std::pair<float, float> pos = unit->get_pos();
             glBegin(GL_LINES);
-            glColor3f(1.f, 0.f, 0.f);
+            glColor3f(0.f, 0.f, 1.f / std::max(0.1f, unit->move_progress));
             glVertex2f(pos.first, pos.second);
-            glColor3f(0.f, 1.f, 0.f);
             glVertex2f(unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
             glEnd();
         }
-#endif
     }
 
     wind_osc += 1.f;

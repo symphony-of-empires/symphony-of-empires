@@ -647,7 +647,8 @@ void World::do_tick() {
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
         if(!unit->size) {
-            g_world->remove(unit);
+            remove(unit);
+            delete unit;
             i--;
             break;
         }

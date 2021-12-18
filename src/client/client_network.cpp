@@ -291,16 +291,9 @@ void Client::net_loop(void) {
                 } break;
                 case ActionType::WORLD_TICK: {
                     // Give up the world mutex for now
-                    if(!gs.host_mode) {
-                        world.world_mutex.unlock();
-                    }
-                    //gs.update_on_tick();
+                    world.world_mutex.unlock();
                     gs.update_tick = true;
-
-                    if(!gs.host_mode) {
-                        world.world_mutex.lock();
-                    }
-                    // world.time++;
+                    world.world_mutex.lock();
                 } break;
                 case ActionType::PROVINCE_COLONIZE: {
                     Province* province;

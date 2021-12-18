@@ -197,7 +197,9 @@ void ai_update_relations(Nation* nation, Nation* other) {
         nation->increase_relation(*other);
     } else if(!(std::rand() % 1000)) {
         nation->decrease_relation(*other);
-    } else if(!(std::rand() % 1000)) {
+    }
+    
+    if(!(std::rand() % 1000)) {
         nation->declare_war(*other);
     }
 }
