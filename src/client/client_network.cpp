@@ -127,13 +127,9 @@ void Client::net_loop(void) {
 			// since the client takes most of it's time sending to the server anyways)
 			if(!pending_packets.empty()) {
 				if(pending_packets_mutex.try_lock()) {
-                    if(gs.host_mode) {
-
-                    } else {
-                        std::scoped_lock lock(packets_mutex);
-                        for(const auto& packet : pending_packets) {
-                            packets.push_back(packet);
-                        }
+                    std::scoped_lock lock(packets_mutex);
+                    for(const auto& packet : pending_packets) {
+                        packets.push_back(packet);
                     }
 
 					pending_packets.clear();
@@ -153,9 +149,9 @@ void Client::net_loop(void) {
 			// When we are on host_mode we discard all potential packets send by the server
 			// (because our data is already synchronized)
 #ifdef unix
-            if(gs.host_mode && (pfd.revents & POLLIN || has_pending)) {
+            if(!gs.host_mode && (pfd.revents & POLLIN || has_pending)) {
 #elif defined windows
-            if(gs.host_mode && (has_pending)) {
+            if(!gs.host_mode && (has_pending)) {
 #endif
                 Packet packet = Packet(fd);
                 Archive ar = Archive();
@@ -173,7 +169,6 @@ void Client::net_loop(void) {
                     packet.send(&action);
                     print_info("Received ping, responding with pong!");
                 } break;
-                if (gs.host_mode) continue;
                 // Update/Remove/Add Actions
                 // These actions all follow the same format they give a specialized ID for the index
                 // where the operated object is or should be; this allows for extreme-level fuckery
@@ -321,11 +316,9 @@ void Client::net_loop(void) {
 
             // Client will also flush it's queue to the server
             std::scoped_lock lock(packets_mutex);
-            if(!gs.host_mode) {
-                for(auto& packet : packets) {
-                    packet.stream = SocketStream(fd);
-                    packet.send();
-                }
+            for(auto& packet : packets) {
+                packet.stream = SocketStream(fd);
+                packet.send();
             }
             packets.clear();
         }

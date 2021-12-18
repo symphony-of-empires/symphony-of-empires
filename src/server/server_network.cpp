@@ -472,15 +472,15 @@ void Server::net_loop(int id) {
                         ::deserialize(ar, &nation);
                         if(nation == nullptr)
                             throw ServerException("Unknown nation");
+                        nation->ai_do_policies = false;
+                        nation->ai_do_research = false;
+                        nation->ai_do_diplomacy = false;
+                        nation->ai_do_cmd_troops = false;
+                        nation->ai_do_unit_production = false;
+                        nation->ai_do_build_production = false;
+                        nation->ai_handle_treaties = false;
+                        nation->ai_handle_events = false;
                         selected_nation = nation;
-                        selected_nation->ai_do_policies = false;
-                        selected_nation->ai_do_research = false;
-                        selected_nation->ai_do_diplomacy = false;
-                        selected_nation->ai_do_cmd_troops = false;
-                        selected_nation->ai_do_unit_production = false;
-                        selected_nation->ai_do_build_production = false;
-                        selected_nation->ai_handle_treaties = false;
-                        selected_nation->ai_handle_events = false;
                         print_info("Nation [%s] selected by client %zu", selected_nation->ref_name.c_str(), (size_t)id);
                     } break;
                     case ActionType::DIPLO_INC_RELATIONS: {
