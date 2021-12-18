@@ -112,16 +112,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     this->inc_btn->text("Increment relations");
     this->inc_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationView&>(*w.parent);
-		
-        Packet packet = Packet();
-        Archive ar = Archive();
-        ActionType action = ActionType::DIPLO_INC_RELATIONS;
-        ::serialize(ar, &action);
-        ::serialize(ar, &o.gs.curr_nation); // Sender
-        ::serialize(ar, &o.nation); // Target
-        packet.data(ar.get_buffer(), ar.size());
-        std::scoped_lock lock(g_client->pending_packets_mutex);
-        g_client->pending_packets.push_back(packet);
+        g_client->send(Action::DiploIncRelations::form_packet(o.nation));
     });
 
     this->dec_btn = new UI::Button(0, 0, this->width, 24, this);
@@ -129,16 +120,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     this->dec_btn->text("Decrement relations");
     this->dec_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationView&>(*w.parent);
-		
-        Packet packet = Packet();
-        Archive ar = Archive();
-        ActionType action = ActionType::DIPLO_DEC_RELATIONS;
-        ::serialize(ar, &action);
-        ::serialize(ar, &o.gs.curr_nation); // Sender
-        ::serialize(ar, &o.nation); // Target
-        packet.data(ar.get_buffer(), ar.size());
-        std::scoped_lock lock(g_client->pending_packets_mutex);
-        g_client->pending_packets.push_back(packet);
+        g_client->send(Action::DiploDecRelations::form_packet(o.nation));
     });
 
     this->dow_btn = new UI::Button(0, 0, this->width, 24, this);
@@ -146,16 +128,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     this->dow_btn->text("Declare war");
     this->dow_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationView&>(*w.parent);
-		
-        Packet packet = Packet();
-        Archive ar = Archive();
-        ActionType action = ActionType::DIPLO_DECLARE_WAR;
-        ::serialize(ar, &action);
-        ::serialize(ar, &o.gs.curr_nation); // Sender
-        ::serialize(ar, &o.nation); // Target
-        packet.data(ar.get_buffer(), ar.size());
-		std::scoped_lock lock(g_client->pending_packets_mutex);
-        g_client->pending_packets.push_back(packet);
+		g_client->send(Action::DiploDeclareWar::form_packet(o.nation));
     });
 
     this->ally_btn = new UI::Button(0, 0, this->width, 24, this);

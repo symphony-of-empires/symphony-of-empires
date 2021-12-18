@@ -72,6 +72,21 @@ class Unit;
 class UnitType;
 
 namespace Action {
+    class DiploIncRelations {
+    public:
+        static Packet form_packet(Nation* target);
+    };
+
+    class DiploDecRelations {
+    public:
+        static Packet form_packet(Nation* target);
+    };
+
+    class DiploDeclareWar {
+    public:
+        static Packet form_packet(Nation* target);
+    };
+
     class ProductUpdate {
     public:
         static Packet form_packet(const std::vector<Product*>& list);

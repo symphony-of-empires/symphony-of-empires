@@ -370,13 +370,13 @@ void Map::draw_flag(const Nation* nation) {
 
 void Map::handle_click(GameState& gs, SDL_Event event) {
     Input& input = gs.input;
+
     if(input.select_pos.first < 0 || input.select_pos.first >= gs.world->width || input.select_pos.second < 0 || input.select_pos.second >= gs.world->height) {
         return;
     }
 
     if(event.button.button == SDL_BUTTON_LEFT) {
         std::pair<float, float>& select_pos = input.select_pos;
-
         const Tile& tile = gs.world->get_tile(select_pos.first, select_pos.second);
         switch(gs.current_mode) {
         case MapMode::COUNTRY_SELECT:
@@ -407,8 +407,6 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         }
         return;
     } else if(event.button.button == SDL_BUTTON_RIGHT) {
-        std::pair<float, float>& select_pos = input.select_pos;
-
         if(1) {
             const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
             if(tile.province_id == (Province::Id)-1) return;
@@ -447,20 +445,21 @@ void Map::update(const SDL_Event& event, Input& input) {
         if(event.button.button == SDL_BUTTON_MIDDLE) {
             input.last_camera_drag_pos = camera->get_map_pos(mouse_pos);
             input.last_camera_mouse_pos = mouse_pos;
-
-            input.drag_coord = camera->get_map_pos(input.mouse_pos);
-            if(view_mode == MapView::SPHERE_VIEW) {
-                input.drag_coord.first = (int)(tile_map->width * input.drag_coord.first / (2. * M_PI));
-                input.drag_coord.second = (int)(tile_map->height * input.drag_coord.second / M_PI);
-            } else {
-                input.drag_coord.first = (int)input.drag_coord.first;
-                input.drag_coord.second = (int)input.drag_coord.second;
+        } else if(event.button.button == SDL_BUTTON_LEFT) {
+            if(!input.is_drag) {
+                input.drag_coord = input.select_pos;
+                if(view_mode == MapView::SPHERE_VIEW) {
+                    input.drag_coord.first = (int)(tile_map->width * input.drag_coord.first / (2. * M_PI));
+                    input.drag_coord.second = (int)(tile_map->height * input.drag_coord.second / M_PI);
+                } else {
+                    input.drag_coord.first = (int)input.drag_coord.first;
+                    input.drag_coord.second = (int)input.drag_coord.second;
+                }
+                input.is_drag = true;
             }
-            input.is_drag = true;
         }
         break;
     case SDL_MOUSEBUTTONUP:
-        input.is_drag = false;
         break;
     case SDL_MOUSEMOTION:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -622,21 +621,6 @@ void Map::draw(const GameState& gs, const int width, const int height) {
         glPopMatrix();
     }*/
 
-    // Draw the "drag area" box
-    if(gs.input.is_drag) {
-        glPushMatrix();
-        glTranslatef(0.f, 0.f, -0.1f);
-        glColor3f(1.f, 1.f, 1.f);
-        glBegin(GL_LINES);
-        glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
-        glVertex2f(gs.input.select_pos.first, gs.input.drag_coord.second);
-        glVertex2f(gs.input.select_pos.first, gs.input.select_pos.second);
-        glVertex2f(gs.input.drag_coord.first, gs.input.select_pos.second);
-        glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
-        glEnd();
-        glPopMatrix();
-    }
-
     for(const auto& unit : world.units) {
         glPushMatrix();
         std::pair<float, float> pos = unit->get_pos();
@@ -720,6 +704,21 @@ void Map::draw(const GameState& gs, const int width, const int height) {
             glVertex2f(unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
             glEnd();
         }
+    }
+
+    // Draw the "drag area" box
+    if(gs.input.is_drag) {
+        glPushMatrix();
+        glTranslatef(0.f, 0.f, 0.f);
+        glColor3f(1.f, 1.f, 1.f);
+        glBegin(GL_LINE_STRIP);
+        glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
+        glVertex2f(gs.input.select_pos.first, gs.input.drag_coord.second);
+        glVertex2f(gs.input.select_pos.first, gs.input.select_pos.second);
+        glVertex2f(gs.input.drag_coord.first, gs.input.select_pos.second);
+        glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
+        glEnd();
+        glPopMatrix();
     }
 
     wind_osc += 1.f;
