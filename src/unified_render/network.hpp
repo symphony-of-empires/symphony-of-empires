@@ -161,11 +161,11 @@ public:
         const uint32_t net_size = htonl(n_data);
         stream.send(&net_size, sizeof(net_size));
 
-        uint8_t* new_buf = new uint8_t[size];
-        size_t new_size = compress(buf, size, new_buf, size);
-        stream.send(&new_buf[0], new_size);
-        //stream.send(&buffer[0], n_data);
-        delete[] new_buf;
+        //uint8_t* new_buf = new uint8_t[size];
+        //size_t new_size = compress(buf, size, new_buf, size);
+        //stream.send(&new_buf[0], new_size);
+        stream.send(&buffer[0], n_data);
+        //delete[] new_buf;
 
         const uint16_t eof_marker = htons(0xE0F);
         stream.send(&eof_marker, sizeof(eof_marker));
@@ -190,12 +190,12 @@ public:
         // Reads can only be done 1024 bytes at a time
         stream.recv(&buffer[0], n_data);
         if(buf != nullptr) {
-            size_t new_size = get_compressed_len(n_data);
-            char* new_buf = new char[new_size];
-            size_t decomp_size = decompress(buf, n_data, new_buf, new_size);
-            std::memcpy(buf, &new_buf[0], decomp_size);
-            delete[] new_buf;
-            //std::memcpy(buf, &buffer[0], n_data);
+            //size_t new_size = get_compressed_len(n_data);
+            //char* new_buf = new char[new_size];
+            //size_t decomp_size = decompress(buf, n_data, new_buf, new_size);
+            //std::memcpy(buf, &new_buf[0], decomp_size);
+            //delete[] new_buf;
+            std::memcpy(buf, &buffer[0], n_data);
         }
 
         uint16_t eof_marker;

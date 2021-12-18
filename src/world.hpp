@@ -170,10 +170,9 @@ public:
 
     template<typename T>
     inline void remove(T* ptr) {
-        auto& list = this->get_list(ptr);
-
         // Decrease the cache_id counter for the elements after the removed element
         typename T::Id cached_id = this->get_id<T>(ptr);
+        auto& list = this->get_list(ptr);
         for(typename T::Id i = cached_id; i < list.size(); i++) {
             list[i]->cached_id -= 1;
         }
