@@ -354,12 +354,10 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
                     is_built = true;
 					
 					g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
+                    print_info("BUILDING THING!?");
                     break;
                 }
-
-                // If we couldn't find a suitable building we wont be able to find buildings for other
-                // units either
-                if(!is_built) break;
+                if(!is_built) continue;
 
                 gs.production_queue.erase(gs.production_queue.begin() + i);
                 i--;
