@@ -2,7 +2,8 @@
 using namespace UnifiedRender::OpenGl;
 
 Quad2D::Quad2D()
-	: PackedModel(GL_TRIANGLES) {
+	: PackedModel(GL_TRIANGLES)
+{
 	buffer.resize(6);
 	buffer[0] = PackedData<glm::vec2, glm::vec2>(glm::vec2(-1.0f, -1.0f), glm::vec2(0.f, 0.f));
 	buffer[1] = PackedData<glm::vec2, glm::vec2>(glm::vec2(1.0f, -1.0f), glm::vec2(1.f, 0.f));

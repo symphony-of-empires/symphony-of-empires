@@ -2,7 +2,8 @@
 using namespace UnifiedRender::OpenGl;
 
 PrimitiveSquare::PrimitiveSquare(float start_x, float start_y, float end_x, float end_y)
-: PackedModel(GL_TRIANGLES) {
+    : PackedModel(GL_TRIANGLES)
+{
     buffer.resize(6);
     buffer[0] = PackedData<glm::vec3, glm::vec2>(glm::vec3(start_x, start_y, 0.0f), glm::vec2(0.f, 0.f));
     buffer[1] = PackedData<glm::vec3, glm::vec2>(glm::vec3(end_x, start_y, 0.0f), glm::vec2(1.f, 0.f));
