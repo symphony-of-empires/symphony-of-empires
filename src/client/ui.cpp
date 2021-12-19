@@ -33,7 +33,6 @@
 using namespace UI;
 
 static Context* g_ui_context = nullptr;
-SDL_Color text_color ={ 0, 0, 0, 0 };
 
 Context::Context() {
     if(g_ui_context != nullptr) {
@@ -710,7 +709,7 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     }
 
     if(text_texture != nullptr) {
-        glColor3f(0.f, 0.f, 0.f);
+        glColor3f(text_color.r, text_color.g, text_color.b);
         int y_offset = text_offset_y;
         if(type == UI_WIDGET_BUTTON) y_offset = (height - text_texture->height) / 2;
         draw_rectangle(text_offset_x, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
@@ -803,7 +802,8 @@ void Widget::text(const std::string& _text) {
     if(_text.empty()) return;
 
     //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), text_color);
+    SDL_Color black_color = { 0, 0, 0, 0 };
+    surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), black_color);
     if(surface == nullptr)
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
 
@@ -919,12 +919,8 @@ void Label::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         }
     }
     if(text_texture != nullptr) {
-        glColor3f(0.f, 0.f, 0.f);
-        draw_rectangle(
-            4, 2,
-            text_texture->width, text_texture->height,
-            viewport,
-            text_texture->gl_tex_num);
+        glColor3f(text_color.r, text_color.g, text_color.b);
+        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
     }
 }
 
@@ -1045,12 +1041,8 @@ void Chart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     }
 
     if(text_texture != nullptr) {
-        glColor3f(0.f, 0.f, 0.f);
-        draw_rectangle(
-            4, 2,
-            text_texture->width, text_texture->height,
-            viewport,
-            text_texture->gl_tex_num);
+        glColor3f(text_color.r, text_color.g, text_color.b);
+        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -1082,7 +1074,7 @@ void Slider::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glEnd();
 
     if(text_texture != nullptr) {
-        glColor3f(0.f, 0.f, 0.f);
+        glColor3f(text_color.r, text_color.g, text_color.b);
         draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
     }
 

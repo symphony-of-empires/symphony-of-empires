@@ -199,5 +199,11 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
 
         o.company_btn->text(o.product->owner->name);
         o.price_rate_btn->text(std::to_string(o.product->price_vel));
+
+        if(o.product->price_vel >= 0.f) {
+            o.price_rate_btn->text_color = UI::Color(0, 255, 0);
+        } else {
+            o.price_rate_btn->text_color = UI::Color(255, 0, 0);
+        }
     });
 }

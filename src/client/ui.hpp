@@ -56,6 +56,14 @@ enum class CLICK_STATE {
 };
 
 namespace UI {
+    class Color {
+    public:
+        Color() : r(0.f), g(0.f), b(0.f) {}
+        Color(uint8_t red, uint8_t green, uint8_t blue);
+        Color(uint32_t rgb);
+        float r, g, b;
+    };
+
     class Widget;
     class Tooltip;
     typedef void (*Callback)(Widget&, void*);
@@ -166,6 +174,7 @@ namespace UI {
         const UnifiedRender::Texture* current_texture = nullptr;
         UnifiedRender::Texture* text_texture = nullptr;
         int text_offset_x = 4, text_offset_y = 4;
+        Color text_color;
 
         Tooltip* tooltip = nullptr;
 
@@ -188,15 +197,7 @@ namespace UI {
 
         friend class Context;
     private:
-        void draw_border(const UnifiedRender::Texture* border_tex,
-            float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset, UnifiedRender::Rect viewport);
-    };
-
-    class Color {
-    public:
-        Color(uint8_t red, uint8_t green, uint8_t blue);
-        Color(uint32_t rgb);
-        float r, g, b;
+        void draw_border(const UnifiedRender::Texture* border_tex, float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset, UnifiedRender::Rect viewport);
     };
 
     class Tooltip: public Widget {
@@ -243,7 +244,7 @@ namespace UI {
             if(input.is_selected && input.timer % 30 == 0) {
                 if(!input.buffer.empty()) {
                     input.text(input.buffer + cursor);
-                } else {
+                } else if(!cursor.empty()) {
                     input.text(cursor);
                 }
             }
