@@ -146,8 +146,8 @@ void Client::net_loop(void) {
 #endif
 
             // Conditional of above statements
-			// When we are on host_mode we discard all potential packets send by the server
-			// (because our data is already synchronized)
+			// When we are on host_mode we discard all potential packets sent by the server
+			// (because our data is already synchronized since WE ARE the server)
 #ifdef unix
             if(!gs.host_mode && (pfd.revents & POLLIN || has_pending)) {
 #elif defined windows
@@ -161,6 +161,8 @@ void Client::net_loop(void) {
                 ar.set_buffer(packet.data(), packet.size());
                 ar.rewind();
                 ::deserialize(ar, &action);
+
+                print_info("Receiving package of %zu bytes", packet.size());
 
                 // Ping from server, we should answer with a pong!
                 //std::scoped_lock lock(world.world_mutex);
@@ -291,9 +293,7 @@ void Client::net_loop(void) {
                 } break;
                 case ActionType::WORLD_TICK: {
                     // Give up the world mutex for now
-                    world.world_mutex.unlock();
                     gs.update_tick = true;
-                    world.world_mutex.lock();
                 } break;
                 case ActionType::PROVINCE_COLONIZE: {
                     Province* province;
@@ -312,6 +312,7 @@ void Client::net_loop(void) {
             for(auto& packet : packets) {
                 packet.stream = SocketStream(fd);
                 packet.send();
+                print_info("Sending package of %zu bytes", packet.size());
             }
             packets.clear();
         }
@@ -328,8 +329,13 @@ void Client::wait_for_snapshot(void) {
 }
 
 void Client::send(const Packet& packet) {
-    std::scoped_lock lock(pending_packets_mutex);
-    pending_packets.push_back(packet);
+    if(packets_mutex.try_lock()) {
+        packets.push_back(packet);
+        packets_mutex.unlock();
+    } else {
+        std::scoped_lock lock(pending_packets_mutex);
+        pending_packets.push_back(packet);
+    }
 }
 
 Client::~Client() {
