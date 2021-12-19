@@ -109,17 +109,13 @@ Server::~Server() {
 void Server::broadcast(const Packet& packet) {
     for(size_t i = 0; i < n_clients; i++) {
         if(clients[i].is_connected == true) {
-            bool r;
-
             // If we can "acquire" the spinlock to the main packet queue we will push
             // our packet there, otherwise we take the alternative packet queue to minimize
             // locking between server and client
-            r = clients[i].packets_mutex.try_lock();
-            if(r) {
+            if(clients[i].packets_mutex.try_lock()) {
                 clients[i].packets.push_back(packet);
                 clients[i].packets_mutex.unlock();
-            }
-            else {
+            } else {
                 std::scoped_lock lock(clients[i].pending_packets_mutex);
                 clients[i].pending_packets.push_back(packet);
             }
@@ -257,8 +253,7 @@ void Server::net_loop(int id) {
 
                     if(selected_nation == nullptr && (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                         throw ServerException("Unallowed operation without selected nation");
-
-                    //std::scoped_lock lock(g_world->world_mutex);
+                    
                     switch(action) {
                     // - Used to test connections between server and client
                     case ActionType::PONG:
@@ -499,9 +494,9 @@ void Server::net_loop(int id) {
                         ::deserialize(ar, &target);
                         selected_nation->declare_war(*target);
                     } break;
-                        // Nation and province addition and removals are not allowed to be done by clients
-                    default: {
-                    } break;
+                    // Nation and province addition and removals are not allowed to be done by clients
+                    default:
+                        break;
                     }
                 }
 
@@ -515,15 +510,12 @@ void Server::net_loop(int id) {
                     packet.send();
                 }
                 cl.packets.clear();
-                }
             }
-        catch(ServerException& e) {
+        } catch(ServerException& e) {
             print_error("ServerException: %s", e.what());
-        }
-        catch(SocketException& e) {
+        } catch(SocketException& e) {
             print_error("SocketException: %s", e.what());
-        }
-        catch(SerializerException& e) {
+        } catch(SerializerException& e) {
             print_error("SerializerException: %s", e.what());
         }
 
@@ -557,5 +549,5 @@ void Server::net_loop(int id) {
 #elif defined unix
         shutdown(conn_fd, SHUT_RDWR);
 #endif
-        }
-        }
+    }
+}
