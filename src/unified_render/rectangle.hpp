@@ -6,20 +6,37 @@
 namespace UnifiedRender {
     struct Rectangle {
     public:
-        float left;
-        float top;
-        float right;
-        float bottom;
+        float left, top, right, bottom;
 
-        Rectangle(glm::vec2 position, glm::vec2 size): left{ position.x }, top{ position.y }, right{ position.x + size.x }, bottom{ position.y + size.y } {}
-        Rectangle(float x, float y, float width, float height): left{ x }, top{ y }, right{ x + width }, bottom{ y + height } {}
-        template<class T1, class T2, class T3, class T4>
-        Rectangle(T1 x, T2 y, T3 width, T4 height): left{ (float)x }, top{ (float)y }, right{ (float)(x + width) }, bottom{ (float)(y + height) } {}
+        template<typename T1, typename T2, typename T3, typename T4>
+        Rectangle(T1 x, T2 y, T3 width, T4 height): left{(float)x}, top{(float)y}, right{(float)(x + width)}, bottom{(float)(y + height)} {}
 
-        glm::vec2 size() const { return glm::vec2{ right - left, bottom - top }; }
-        void size(glm::vec2 size) { right = left + size.x; bottom = top + size.y; }
-        glm::vec2 position() const { return glm::vec2{ left, right }; }
-        void position(glm::vec2 position) { left = position.x; top = position.y; }
+        Rectangle(glm::vec2 position, glm::vec2 size)
+            : left{position.x},
+            top{position.y},
+            right{position.x + size.x},
+            bottom{position.y + size.y}
+        {
+
+        }
+
+        glm::vec2 size(void) const {
+            return glm::vec2{right - left, bottom - top};
+        }
+
+        void size(glm::vec2 size) {
+            right = left + size.x;
+            bottom = top + size.y;
+        }
+
+        glm::vec2 position(void) const {
+            return glm::vec2{left, right};
+        }
+
+        void position(glm::vec2 position) {
+            left = position.x;
+            top = position.y;
+        }
 
         void offset(glm::vec2 offset) {
             left += offset.x; 
@@ -27,13 +44,8 @@ namespace UnifiedRender {
             right += offset.x;
             bottom += offset.y;
         }
-        Rectangle intersection(Rectangle rect) {
-            float i_left = glm::max(this->left, rect.left);
-            float i_top = glm::max(this->top, rect.top);
-            float i_right = glm::min(this->right, rect.right);
-            float i_bottom = glm::min(this->bottom, rect.bottom);
-            return Rectangle{ i_left, i_top, i_right - i_left, i_bottom - i_top };
-        }
+
+        Rectangle intersection(Rectangle rect);
     };
 
     typedef struct Rectangle Rect;
