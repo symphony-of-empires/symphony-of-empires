@@ -25,13 +25,15 @@ class BinaryImage {
 public:
     BinaryImage() {};
     BinaryImage(const std::string& path);
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type>
+    BinaryImage(T _width, T _height): BinaryImage((size_t)_width, (size_t)_height) {};
+
     BinaryImage(size_t _width, size_t _height);
     BinaryImage(const BinaryImage& tex);
     BinaryImage& operator=(const BinaryImage&) = default;
     virtual ~BinaryImage();
+    virtual void from_file(const std::string& path);
 
     uint32_t* buffer;
     size_t width, height;
-
-    virtual void from_file(const std::string& path);
 };

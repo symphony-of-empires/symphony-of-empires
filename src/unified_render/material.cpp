@@ -7,7 +7,9 @@
 #include "unified_render/material.hpp"
 #include "unified_render/texture.hpp"
 
-std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::MaterialManager::load_wavefront(const std::string& path) {
+using namespace UnifiedRender;
+
+std::vector<std::pair<Material*, std::string>> MaterialManager::load_wavefront(const std::string& path) {
     std::ifstream file(path);
     std::string line;
 
@@ -67,9 +69,9 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
     return tmp_mat;
 }
 
-const UnifiedRender::Material& UnifiedRender::MaterialManager::loadMaterial(const std::string& path) {
+const Material& MaterialManager::loadMaterial(const std::string& path) {
 find:
-    auto it = std::find_if(materials.begin(), materials.end(), [&path](const std::pair<UnifiedRender::Material*, std::string>& element) {
+    auto it = std::find_if(materials.begin(), materials.end(), [&path](const std::pair<Material*, std::string>& element) {
         return (element.second == path);
     });
     if(it != materials.end())
@@ -82,4 +84,4 @@ find:
     goto find;
 }
 
-UnifiedRender::MaterialManager* g_material_manager;
+MaterialManager* g_material_manager;

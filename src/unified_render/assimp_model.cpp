@@ -19,7 +19,8 @@
 using namespace UnifiedRender;
 
 // constructor, expects a filepath to a 3D model.
-Model::Model(std::string const& path, bool gamma): gammaCorrection(gamma) {
+Model::Model(std::string const& path, bool gamma)
+    : gammaCorrection{gamma} {
     load_model(path);
 }
 

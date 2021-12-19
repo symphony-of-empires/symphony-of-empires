@@ -719,7 +719,7 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     if((on_click && is_hover) || is_clickable) {
         UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
         UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
-        glColor4f(1.5f, 1.f, 1.f, 0.5f);
+        glColor4f(0.7f, 0.7f, 0.7f, 0.5f);
         draw_rect(0, pos_rect, tex_rect, viewport);
     }
 }
@@ -736,19 +736,25 @@ void input_ontextinput(Input& w, const char* input, void* data) {
 
         if(w.buffer.length() == 0) {
             w.text(" ");
-        }
-        else {
+        } else {
             w.text(w.buffer);
         }
     }
 }
 
 Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, int _type, const UnifiedRender::Texture* tex)
-    : is_show(1), type(_type), x(_x), y(_y), width(w), height(h), parent(_parent), current_texture(tex) {
+    : is_show{1},
+    type{_type},
+    x{_x},
+    y{_y},
+    width{w},
+    height{h},
+    parent{_parent},
+    current_texture{tex}
+{
     if(parent != nullptr) {
         parent->add_child(this);
-    }
-    else {
+    } else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }

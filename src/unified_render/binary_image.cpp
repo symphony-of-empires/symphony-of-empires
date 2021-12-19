@@ -13,7 +13,10 @@ BinaryImage::BinaryImage(const std::string& path) {
     from_file(path);
 }
 
-BinaryImage::BinaryImage(size_t _width, size_t _height): width(_width), height(_height) {
+BinaryImage::BinaryImage(size_t _width, size_t _height)
+    : width{_width},
+    height{_height}
+{
     buffer = new uint32_t[width * height];
 }
 
