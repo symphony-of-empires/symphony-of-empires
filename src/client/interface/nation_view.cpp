@@ -130,18 +130,26 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         auto& o = static_cast<NationView&>(*w.parent);
 		g_client->send(Action::DiploDeclareWar::form_packet(o.nation));
     });
+    this->dow_btn->tooltip = new UI::Tooltip(this->dow_btn, 512, 24);
+    this->dow_btn->tooltip->text("Declaring war on this nation will bring all their allies to their side");
 
     this->ally_btn = new UI::Button(0, 0, this->width, 24, this);
     this->ally_btn->below_of(*this->dow_btn);
     this->ally_btn->text("Offer alliance");
+    this->ally_btn->tooltip = new UI::Tooltip(this->ally_btn, 512, 24);
+    this->ally_btn->tooltip->text("Agree to mutually defend our interests forcing them to enter war with us");
 
     this->defensive_pact_btn = new UI::Button(0, 0, this->width, 24, this);
     this->defensive_pact_btn->below_of(*this->ally_btn);
     this->defensive_pact_btn->text("Defensive pact");
+    this->defensive_pact_btn->tooltip = new UI::Tooltip(this->defensive_pact_btn, 512, 24);
+    this->defensive_pact_btn->tooltip->text("Mutually defend our countries from any foreign attacks");
 
     this->embargo_btn = new UI::Button(0, 0, this->width, 24, this);
     this->embargo_btn->below_of(*this->defensive_pact_btn);
     this->embargo_btn->text("Embargo");
+    this->embargo_btn->tooltip = new UI::Tooltip(this->embargo_btn, 512, 24);
+    this->embargo_btn->tooltip->text("Prevent imports/exports to this country");
 
     this->allow_market_access_btn = new UI::Button(0, 0, this->width, 24, this);
     this->allow_market_access_btn->below_of(*this->embargo_btn);
@@ -150,6 +158,8 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     this->allow_military_access_btn = new UI::Button(0, 0, this->width, 24, this);
     this->allow_military_access_btn->below_of(*this->allow_market_access_btn);
     this->allow_military_access_btn->text("Allow military access");
+    this->allow_military_access_btn->tooltip = new UI::Tooltip(this->allow_military_access_btn, 512, 24);
+    this->allow_military_access_btn->tooltip->text("Allow this nation to cross our land with their units");
 
     this->propose_truce_btn = new UI::Button(0, 0, this->width, 24, this);
     this->propose_truce_btn->below_of(*this->allow_military_access_btn);
