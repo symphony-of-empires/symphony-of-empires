@@ -10,9 +10,9 @@
 #endif
 
 UnifiedRender::Texture::~Texture() {
-    if (gl_tex_num)
-      delete_opengl();
+    if(gl_tex_num) delete_opengl();
 }
+
 /**
  * This dummy texture helps to avoid crashes due to missing buffers or so, and also gives
  * visual aid of errors
@@ -24,15 +24,14 @@ void UnifiedRender::Texture::create_dummy() {
     if(buffer == nullptr)
         throw TextureException("Dummy", "Out of memory for dummy texture");
 
-    // Fill in with a pattern of pink and black
+    // Fill in with a permutation pattern of pink and black
     // This should be autovectorized by gcc
     for(size_t i = 0; i < width * height; i++)
         buffer[i] = (i % 2) ? 0xff000000 : 0xff808000;
 }
 
 void UnifiedRender::Texture::to_opengl(TextureOptions options) {
-    if (gl_tex_num)
-      delete_opengl();
+    if(gl_tex_num) delete_opengl();
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glTexImage2D(GL_TEXTURE_2D, 0, options.internal_format, width, height, 0, options.format, options.type, buffer);
@@ -54,17 +53,19 @@ void UnifiedRender::Texture::gen_mipmaps() const {
 void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
     auto colors = surface->format->BytesPerPixel;
     GLuint texture_format;
-    if(colors == 4) {   // alpha
-        if(surface->format->Rmask == 0x000000ff)
+    if(colors == 4) { // alpha
+        if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGBA;
-        else
+        } else {
             texture_format = GL_BGRA;
+        }
     }
-    else {             // no alpha
-        if(surface->format->Rmask == 0x000000ff)
+    else { // no alpha
+        if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGB;
-        else
+        } else {
             texture_format = GL_BGR;
+        }
     }
 
     glGenTextures(1, &gl_tex_num);
@@ -72,10 +73,11 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
     glTexImage2D(GL_TEXTURE_2D, 0, colors, surface->w, surface->h, 0,
         texture_format, GL_UNSIGNED_BYTE, surface->pixels);
 
-    if(glewIsSupported("GL_VERSION_2_1"))
+    if(glewIsSupported("GL_VERSION_2_1")) {
         glGenerateMipmap(GL_TEXTURE_2D);
-    else
+    } else {
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+    }
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -126,13 +128,12 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load_texture(const 
     UnifiedRender::Texture* tex;
     try {
         tex = new UnifiedRender::Texture(path);
-    }
-    catch(BinaryImageException&) {
+    } catch(BinaryImageException&) {
         tex = new UnifiedRender::Texture();
         tex->create_dummy();
     }
-
     tex->to_opengl(options);
+
     this->textures.insert(std::make_pair(tex, path));
     return *((const Texture*)tex);
 }
