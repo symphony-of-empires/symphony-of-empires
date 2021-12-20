@@ -54,8 +54,6 @@ namespace UnifiedRender {
         ~Texture() override;
         Texture(const std::string& path): BinaryImage(path) {};
         Texture(size_t _width, size_t _height): BinaryImage(_width, _height) {};
-
-        GLuint gl_tex_num = 0;
         void create_dummy();
         void to_opengl(TextureOptions options = default_options);
         void gen_mipmaps() const;
@@ -63,6 +61,21 @@ namespace UnifiedRender {
         void bind(void) const;
         void delete_opengl();
         void guillotine(const UnifiedRender::Texture& map, int x, int y, int w, int h);
+
+        GLuint gl_tex_num = 0;
+    };
+
+    /**
+     * Array of textures
+     */
+    class TextureArray : public BinaryImage {
+    public:
+        TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y);
+        void to_opengl(GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
+
+        GLuint gl_tex_num;
+        size_t layers;
+        size_t tiles_x, tiles_y;
     };
 
     /**

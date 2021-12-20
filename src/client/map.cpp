@@ -21,9 +21,7 @@
 #include "client/interface/lobby.hpp"
 #include "unified_render/texture.hpp"
 #include "unified_render/primitive.hpp"
-#include "unified_render/sphere.hpp"
 #include "unified_render/shader.hpp"
-#include "unified_render/texture_array.hpp"
 #include "unified_render/quad_2d.hpp"
 #include "unified_render/framebuffer.hpp"
 #include "province.hpp"
@@ -37,7 +35,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     camera = new FlatCamera(screen_width, screen_height);
 
     model_shader = UnifiedRender::OpenGl::Program::create("model_loading", "model_loading");
-    map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
+    map_quad = new UnifiedRender::OpenGl::Square(0.f, 0.f, world.width, world.height);
     map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
 
     if(glewIsSupported("GL_VERSION_2_1")) {

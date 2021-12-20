@@ -12,7 +12,7 @@ namespace UnifiedRender {
     class TextureArray;
     class ComplexModel;
     namespace OpenGl {
-        class PrimitiveSquare;
+        class Square;
         class Sphere;
         class Program;
         class Quad2D;
@@ -71,7 +71,7 @@ public:
     UnifiedRender::TextureArray* terrain_sheet;
     // const UnifiedRender::Texture* terrain_sheet;
 
-    UnifiedRender::OpenGl::PrimitiveSquare* map_quad;
+    UnifiedRender::OpenGl::Square* map_quad;
     UnifiedRender::OpenGl::Sphere* map_sphere;
     UnifiedRender::OpenGl::Quad2D* map_2d_quad;
     UnifiedRender::OpenGl::Program* map_shader, * obj_shader, * border_sdf_shader, * border_gen_shader, * model_shader;

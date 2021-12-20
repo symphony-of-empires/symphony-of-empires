@@ -178,7 +178,6 @@
     <ClInclude Include="src\client\render\primitive.hpp" />
     <ClInclude Include="src\client\render\shader.hpp" />
     <ClInclude Include="src\client\render\texture.hpp" />
-    <ClInclude Include="src\client\render\texture_array.hpp" />
     <ClInclude Include="src\client\ui.hpp" />
     <ClInclude Include="src\company.hpp" />
     <ClInclude Include="src\culture.hpp" />
@@ -229,7 +228,6 @@
     <ClCompile Include="src\client\render\primitive.cpp" />
     <ClCompile Include="src\client\render\shader.cpp" />
     <ClCompile Include="src\client\render\texture.cpp" />
-    <ClCompile Include="src\client\render\texture_array.cpp" />
     <ClCompile Include="src\client\ui.cpp" />
     <ClCompile Include="src\diplomacy.cpp" />
     <ClCompile Include="src\event.cpp" />
