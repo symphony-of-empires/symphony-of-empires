@@ -666,9 +666,7 @@ void Economy::do_tick(World& world) {
             pop.everyday_needs_met = std::min<float>(1.5f, std::max<float>(pop.everyday_needs_met, -5.f));
 			
 			// Current liking of the party is influenced by the life_needs_met
-			if(pop.life_needs_met != 0.f && !pop.ideology_approval.empty() && province->owner->ideology != nullptr) {
-				pop.ideology_approval[world.get_id(province->owner->ideology)] += pop.life_needs_met / 1000.f;
-			}
+			pop.ideology_approval[world.get_id(province->owner->ideology)] += (pop.life_needs_met + 1.f) / 1000.f;
 
             // We want to get rid of many POPs as possible
             if(!pop.size) {
@@ -726,7 +724,7 @@ void Economy::do_tick(World& world) {
             // And literacy determines "best" spot, for example a low literacy will
             // choose a slightly less desirable location
             const float emigration_willing = std::max<float>(-pop.life_needs_met * std::fmod(fuzz, 10), 0);
-            const long long int emigreers = std::fmod(pop.size * emigration_willing + std::rand(), pop.size);
+            const long long int emigreers = std::fmod(pop.size * (emigration_willing / (std::rand() % 8)), pop.size);
             if(emigreers > 0) {
                 float current_attractive = province->get_attractiveness(pop);
 
@@ -852,7 +850,7 @@ void Economy::do_tick(World& world) {
         }
 
         // Roll a dice! (more probability with more anger!)
-        if(fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) <= 1.f) {
+        if(std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) <= 1.f) {
             // Choose the ideology with most "anger" (the one more probable to coup d'
             // etat) - amgry radicals will surely throw off the current administration
             // while peaceful people won't
