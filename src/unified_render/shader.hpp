@@ -14,11 +14,10 @@
 #include <glm/mat4x4.hpp>
 
 #include "unified_render/texture.hpp"
-#include "unified_render/texture_array.hpp"
 
 namespace UnifiedRender {
     namespace OpenGl {
-        class ShaderException: public std::exception {
+        class ShaderException : public std::exception {
             std::string buffer;
         public:
             ShaderException(const std::string& _buffer) : buffer(_buffer) {};

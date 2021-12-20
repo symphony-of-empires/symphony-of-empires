@@ -11,15 +11,13 @@
 #include "unified_render/texture.hpp"
 #include "unified_render/shader.hpp"
 
-using namespace UnifiedRender;
-
-SimpleModel::SimpleModel(GLint _mode)
-    : OpenGl::PackedModel<glm::vec3, glm::vec2>(_mode)
+UnifiedRender::SimpleModel::SimpleModel(GLint _mode)
+    : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(_mode)
 {
 
 }
 
-void SimpleModel::draw(OpenGl::Program* shader) const {
+void UnifiedRender::SimpleModel::draw(UnifiedRender::OpenGl::Program* shader) const {
     // Change color if material wants it
     if(material != nullptr) {
         if(material->texture != nullptr) {
@@ -37,7 +35,7 @@ void SimpleModel::draw(OpenGl::Program* shader) const {
     glDrawArrays(mode, 0, buffer.size());
 }
 
-void SimpleModel::upload(void) {
+void UnifiedRender::SimpleModel::upload(void) {
     vao.bind();
     vbo.bind(GL_ARRAY_BUFFER);
     
@@ -52,18 +50,18 @@ void SimpleModel::upload(void) {
     glEnableVertexAttribArray(1);
 }
 
-ComplexModel::ComplexModel(void) {
+UnifiedRender::ComplexModel::ComplexModel(void) {
 
 }
 
-void ComplexModel::draw(OpenGl::Program* shader) const {
+void UnifiedRender::ComplexModel::draw(UnifiedRender::OpenGl::Program* shader) const {
     for(const auto& model: simple_models) {
         model->draw(shader);
     }
 }
 
 #ifdef UR_NO_ASSIMP
-const SimpleModel& ModelManager::load_simple(const std::string& path) {
+const UnifiedRender::SimpleModel& UnifiedRender::ModelManager::load_simple(const std::string& path) {
     return *((const SimpleModel *)nullptr);
 }
 
@@ -88,7 +86,7 @@ public:
     const Material* material = nullptr;
 };
 
-const ComplexModel& ModelManager::load_wavefront(const std::string& path) {
+const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(const std::string& path) {
     std::ifstream file(path);
     std::string line;
 
@@ -178,10 +176,10 @@ const ComplexModel& ModelManager::load_wavefront(const std::string& path) {
     }
 
     // Convert objects into (UnifiedRender) simple objects so we can now use them
-    ComplexModel* final_model = new ComplexModel();
+    UnifiedRender::ComplexModel* final_model = new UnifiedRender::ComplexModel();
     for(const auto& obj: objects) {
         // Register each simple object to the model manager
-        SimpleModel* model = new SimpleModel(GL_TRIANGLES);
+        UnifiedRender::SimpleModel* model = new UnifiedRender::SimpleModel(GL_TRIANGLES);
         for(const auto& face: obj.faces) {
             for(size_t i = 0; i < face.vertices.size(); i++) {
                 if(i >= 3) {
@@ -212,12 +210,12 @@ const ComplexModel& ModelManager::load_wavefront(const std::string& path) {
     return *final_model;
 }
 
-const ComplexModel& ModelManager::load_stl(const std::string& path) {
+const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_stl(const std::string& path) {
     std::ifstream file(path, std::ios::binary);
     std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(file), {});
 
-    ComplexModel* final_model = new ComplexModel();
-    SimpleModel* model = new SimpleModel(GL_TRIANGLES);
+    UnifiedRender::ComplexModel* final_model = new UnifiedRender::ComplexModel();
+    UnifiedRender::SimpleModel* model = new UnifiedRender::SimpleModel(GL_TRIANGLES);
 
     // TODO: This needs more work
     // 1. we need little endian reading
@@ -235,7 +233,7 @@ const ComplexModel& ModelManager::load_stl(const std::string& path) {
         memcpy(&vert.y, &buffer[88 + i * (sizeof(float) * 3)], sizeof(float));
         memcpy(&vert.z, &buffer[92 + i * (sizeof(float) * 3)], sizeof(float));
 
-        model->buffer.push_back(OpenGl::PackedData(
+        model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
             glm::vec3(vert),
             glm::vec2(0.f, 0.f)
         ));
@@ -247,8 +245,8 @@ const ComplexModel& ModelManager::load_stl(const std::string& path) {
     return *final_model;
 }
 
-const ComplexModel& ModelManager::load_complex(const std::string& path) {
-    auto it = std::find_if(complex_models.begin(), complex_models.end(), [&path](const std::pair<UnifiedRender::ComplexModel*, std::string>& element) {
+const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_complex(const std::string& path) {
+    auto it = std::find_if(complex_models.begin(), complex_models.end(), [&path](const auto& element) {
         return (element.second == path);
     });
 
@@ -270,5 +268,5 @@ const ComplexModel& ModelManager::load_complex(const std::string& path) {
     }
 }
 
-ModelManager* g_model_manager;
+UnifiedRender::ModelManager* g_model_manager;
 #endif
