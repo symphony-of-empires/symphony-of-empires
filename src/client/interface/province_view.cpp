@@ -9,47 +9,44 @@ using namespace Interface;
 
 void ProvincePopulationTab::update_piecharts() {
     // Obtain population information
-    // TODO: This is not correct!! - we are calculating per each pop, we are supposed
-    // to merge pops from same culture/religion/type into a single dataset
-    std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
+    std::vector<size_t> culture_sizes(gs.world->cultures.size(), 0);
+    std::vector<size_t> religion_sizes(gs.world->religions.size(), 0);
+    std::vector<size_t> pop_type_sizes(gs.world->pop_types.size(), 0);
     for(const auto& pop : province->pops) {
-        const auto culture_col = UI::Color(
-            gs.world->get_id(pop.culture) * 12,
-            gs.world->get_id(pop.culture) * 31,
-            gs.world->get_id(pop.culture) * 97
-        );
-
-        cultures_data.push_back(UI::ChartData(
-            pop.size,
-            pop.culture->name,
-            culture_col
-        ));
-
-        const auto religion_col = UI::Color(
-            gs.world->get_id(pop.religion) * 12,
-            gs.world->get_id(pop.religion) * 31,
-            gs.world->get_id(pop.religion) * 97
-        );
-        religions_data.push_back(UI::ChartData(
-            pop.size,
-            pop.religion->name,
-            religion_col
-        ));
-
-        const auto type_col = UI::Color(
-            gs.world->get_id(pop.type) * 12,
-            gs.world->get_id(pop.type) * 31,
-            gs.world->get_id(pop.type) * 97
-        );
-        pop_types_data.push_back(UI::ChartData(
-            pop.size,
-            pop.type->name,
-            type_col
-        ));
+        culture_sizes[gs.world->get_id(pop.culture)] += pop.size;
+        religion_sizes[gs.world->get_id(pop.religion)] += pop.size;
+        pop_type_sizes[gs.world->get_id(pop.type)] += pop.size;
     }
 
+    std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
+    for(const auto& culture : gs.world->cultures) {
+        const auto color = UI::Color(
+            gs.world->get_id(culture) * 12,
+            gs.world->get_id(culture) * 31,
+            gs.world->get_id(culture) * 97
+        );
+        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(culture)], culture->name, color));
+    }
     cultures_pie->set_data(cultures_data);
+
+    for(const auto& religion : gs.world->religions) {
+        const auto color = UI::Color(
+            gs.world->get_id(religion) * 12,
+            gs.world->get_id(religion) * 31,
+            gs.world->get_id(religion) * 97
+        );
+        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion->name, color));
+    }
     religions_pie->set_data(religions_data);
+
+    for(const auto& pop_type : gs.world->pop_types) {
+        const auto color = UI::Color(
+            gs.world->get_id(pop_type) * 12,
+            gs.world->get_id(pop_type) * 31,
+            gs.world->get_id(pop_type) * 97
+        );
+        pop_types_data.push_back(UI::ChartData(pop_type_sizes[gs.world->get_id(pop_type)], pop_type->name, color));
+    }
     pop_types_pie->set_data(pop_types_data);
 
     if(pop_infos.size() < province->pops.size()) {
@@ -57,8 +54,7 @@ void ProvincePopulationTab::update_piecharts() {
             PopInfo* info = new PopInfo(gs, 0, (i * 24) + 128, province, i, this);
             pop_infos.push_back(info);
         }
-    }
-    else if(pop_infos.size() > province->pops.size()) {
+    } else if(pop_infos.size() > province->pops.size()) {
         for(size_t i = province->pops.size(); i < pop_infos.size(); i++) {
             pop_infos[i]->kill();
         }
@@ -84,17 +80,9 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     update_piecharts();
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvincePopulationTab&>(w);
-
+        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
         o.update_piecharts();
     });
-
-    // Add the initial POPs infoboxes, we can later add/remove as needed on each tick update
-    // unsigned int i = 0;
-    // for(const auto& pop : this->province->pops) {
-    //     PopInfo* info = new PopInfo(this->gs, 0, (i * 24) + 128, this->province, i, this);
-    //     this->pop_infos.push_back(info);
-    //     i++;
-    // }
 }
 
 ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)

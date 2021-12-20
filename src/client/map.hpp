@@ -25,6 +25,7 @@ namespace UnifiedRender {
 
 #include <vector>
 #include <utility>
+#include <functional>
 
 enum class MapView {
     SPHERE_VIEW,
@@ -43,6 +44,9 @@ struct ProvinceColor {
     UI::Color color;
     ProvinceColor(Province::Id _id, UI::Color _color): id{ _id }, color{ _color } {}
 };
+typedef std::function<std::vector<ProvinceColor>(const World& world)> mapmode_generator;
+std::vector<ProvinceColor> political_map_mode(const World& world);
+
 class Map {
 public:
     Map(const World& world, int screen_width, int screen_height);
@@ -89,15 +93,16 @@ public:
     UnifiedRender::OpenGl::Framebuffer* border_fbuffer;
 
     void update(const SDL_Event& event, Input& input);
-    void update_tiles(World& world);
-    void update_province(std::vector<Province*> provinces);
+    void update_mapmode();
     void draw_flag(const Nation* nation);
-    void draw(const int width, const int height);
+    void draw(const GameState& gs, const int width, const int height);
     void handle_click(GameState& gs, SDL_Event event);
-    void set_map_mode(std::vector<ProvinceColor> province_colors);
+    void set_map_mode(mapmode_generator mapmode_func);
     void set_view(MapView view);
     void reload_shaders();
 private:
     UnifiedRender::Texture* gen_border_sdf();
+    // Called to get mapmode
+    mapmode_generator mapmode_func;
 };
 

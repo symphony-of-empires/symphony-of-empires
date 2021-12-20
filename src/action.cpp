@@ -12,6 +12,36 @@
 
 using namespace Action;
 
+Packet DiploIncRelations::form_packet(Nation* target) {
+    Packet packet = Packet();
+    Archive ar = Archive();
+    ActionType action = ActionType::DIPLO_INC_RELATIONS;
+    ::serialize(ar, &action);
+    ::serialize(ar, &target);
+    packet.data(ar.get_buffer(), ar.size());
+    return packet;
+}
+
+Packet DiploDecRelations::form_packet(Nation* target) {
+    Packet packet = Packet();
+    Archive ar = Archive();
+    ActionType action = ActionType::DIPLO_DEC_RELATIONS;
+    ::serialize(ar, &action);
+    ::serialize(ar, &target);
+    packet.data(ar.get_buffer(), ar.size());
+    return packet;
+}
+
+Packet DiploDeclareWar::form_packet(Nation* target) {
+    Packet packet = Packet();
+    Archive ar = Archive();
+    ActionType action = ActionType::DIPLO_DECLARE_WAR;
+    ::serialize(ar, &action);
+    ::serialize(ar, &target);
+    packet.data(ar.get_buffer(), ar.size());
+    return packet;
+}
+
 Packet ProductUpdate::form_packet(const std::vector<Product*>& list) {
     Packet packet = Packet();
     Archive ar = Archive();
@@ -56,7 +86,7 @@ Packet SelectNation::form_packet(Nation* nation) {
     Archive ar = Archive();
     ActionType action = ActionType::SELECT_NATION;
     ::serialize(ar, &action);
-    ::serialize(ar, nation);
+    ::serialize(ar, &nation);
     packet.data(ar.get_buffer(), ar.size());
     return packet;
 }

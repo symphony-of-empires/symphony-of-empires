@@ -109,17 +109,13 @@ Server::~Server() {
 void Server::broadcast(const Packet& packet) {
     for(size_t i = 0; i < n_clients; i++) {
         if(clients[i].is_connected == true) {
-            bool r;
-
             // If we can "acquire" the spinlock to the main packet queue we will push
             // our packet there, otherwise we take the alternative packet queue to minimize
             // locking between server and client
-            r = clients[i].packets_mutex.try_lock();
-            if(r) {
+            if(clients[i].packets_mutex.try_lock()) {
                 clients[i].packets.push_back(packet);
                 clients[i].packets_mutex.unlock();
-            }
-            else {
+            } else {
                 std::scoped_lock lock(clients[i].pending_packets_mutex);
                 clients[i].pending_packets.push_back(packet);
             }
@@ -245,10 +241,11 @@ void Server::net_loop(int id) {
 
                 // Conditional of above statements
 #ifdef unix
-                if(pfd.revents & POLLIN || has_pending) {
+                if(pfd.revents & POLLIN || has_pending)
 #elif defined windows
-                if(has_pending) {
+                if(has_pending)
 #endif
+                {
                     packet.recv();
                     ar.set_buffer(packet.data(), packet.size());
                     ar.rewind();
@@ -256,16 +253,15 @@ void Server::net_loop(int id) {
 
                     if(selected_nation == nullptr && (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                         throw ServerException("Unallowed operation without selected nation");
-
-                    //std::scoped_lock lock(g_world->world_mutex);
+                    
                     switch(action) {
-                        // - Used to test connections between server and client
+                    // - Used to test connections between server and client
                     case ActionType::PONG:
                         action = ActionType::PING;
                         packet.send(&action);
                         print_info("Received pong, responding with ping!");
                         break;
-                        // - Client tells server to enact a new policy for it's nation
+                    // - Client tells server to enact a new policy for it's nation
                     case ActionType::NATION_ENACT_POLICY: {
                         Policies policies;
                         ::deserialize(ar, &policies);
@@ -273,7 +269,7 @@ void Server::net_loop(int id) {
                         // TODO: Do parliament checks and stuff
                         selected_nation->current_policy = policies;
                     } break;
-                        // - Client tells server to change target of unit
+                    // - Client tells server to change target of unit
                     case ActionType::UNIT_CHANGE_TARGET: {
                         Unit* unit;
                         ::deserialize(ar, &unit);
@@ -288,9 +284,9 @@ void Server::net_loop(int id) {
                         if(unit->province != nullptr)
                             print_info("Unit changes targets to %s", unit->province->ref_name.c_str());
                     } break;
-                        // Client tells the server about the construction of a new unit, note that this will
-                        // only make the building submit "construction tickets" to obtain materials to build
-                        // the unit can only be created by the server, not by the clients
+                    // Client tells the server about the construction of a new unit, note that this will
+                    // only make the building submit "construction tickets" to obtain materials to build
+                    // the unit can only be created by the server, not by the clients
                     case ActionType::BUILDING_START_BUILDING_UNIT: {
                         Building* building;
                         ::deserialize(ar, &building);
@@ -313,8 +309,8 @@ void Server::net_loop(int id) {
                         building->req_goods_for_unit = unit_type->req_goods;
                         print_info("New order for building; build unit [%s]", unit_type->ref_name.c_str());
                     } break;
-                        // Client tells server to build new outpost, the location (& type) is provided by
-                        // the client and the rest of the fields are filled by the server
+                    // Client tells server to build new outpost, the location (& type) is provided by
+                    // the client and the rest of the fields are filled by the server
                     case ActionType::BUILDING_ADD: {
                         Building* building = new Building();
                         ::deserialize(ar, building);
@@ -334,8 +330,8 @@ void Server::net_loop(int id) {
                         // Rebroadcast
                         broadcast(packet);
                     } break;
-                        // Client tells server that it wants to colonize a province, this can be rejected
-                        // or accepted, client should check via the next PROVINCE_UPDATE action
+                    // Client tells server that it wants to colonize a province, this can be rejected
+                    // or accepted, client should check via the next PROVINCE_UPDATE action
                     case ActionType::PROVINCE_COLONIZE: {
                         Province* province;
                         ::deserialize(ar, &province);
@@ -352,7 +348,7 @@ void Server::net_loop(int id) {
                         // Rebroadcast
                         broadcast(packet);
                     } break;
-                        // Simple IRC-like chat messaging system
+                    // Simple IRC-like chat messaging system
                     case ActionType::CHAT_MESSAGE: {
                         std::string msg;
                         ::deserialize(ar, &msg);
@@ -361,7 +357,7 @@ void Server::net_loop(int id) {
                         // Rebroadcast
                         broadcast(packet);
                     } break;
-                        // Client changes it's approval on certain treaty
+                    // Client changes it's approval on certain treaty
                     case ActionType::CHANGE_TREATY_APPROVAL: {
                         Treaty* treaty;
                         ::deserialize(ar, &treaty);
@@ -389,7 +385,7 @@ void Server::net_loop(int id) {
                         // Rebroadcast
                         broadcast(packet);
                     } break;
-                        // Client sends a treaty to someone
+                    // Client sends a treaty to someone
                     case ActionType::DRAFT_TREATY: {
                         Treaty* treaty = new Treaty();
                         ::deserialize(ar, &treaty->clauses);
@@ -438,7 +434,7 @@ void Server::net_loop(int id) {
                         packet.data(tmp_ar.get_buffer(), tmp_ar.size());
                         broadcast(packet);
                     } break;
-                        // Client takes a descision
+                    // Client takes a descision
                     case ActionType::NATION_TAKE_DESCISION: {
                         // Find event by reference name
                         std::string event_ref_name;
@@ -466,44 +462,41 @@ void Server::net_loop(int id) {
                             selected_nation->ref_name.c_str()
                         );
                     } break;
-                        // The client selects a nation
+                    // The client selects a nation
                     case ActionType::SELECT_NATION: {
                         Nation* nation;
                         ::deserialize(ar, &nation);
                         if(nation == nullptr)
                             throw ServerException("Unknown nation");
+                        nation->ai_do_policies = false;
+                        nation->ai_do_research = false;
+                        nation->ai_do_diplomacy = false;
+                        nation->ai_do_cmd_troops = false;
+                        nation->ai_do_unit_production = false;
+                        nation->ai_do_build_production = false;
+                        nation->ai_handle_treaties = false;
+                        nation->ai_handle_events = false;
                         selected_nation = nation;
-                        selected_nation->ai_do_policies = false;
-                        selected_nation->ai_do_research = false;
-                        selected_nation->ai_do_diplomacy = false;
-                        selected_nation->ai_do_cmd_troops = false;
-                        selected_nation->ai_do_unit_production = false;
-                        selected_nation->ai_do_build_production = false;
-                        selected_nation->ai_handle_treaties = false;
-                        selected_nation->ai_handle_events = false;
                         print_info("Nation [%s] selected by client %zu", selected_nation->ref_name.c_str(), (size_t)id);
                     } break;
                     case ActionType::DIPLO_INC_RELATIONS: {
-                        Nation* sender, * target;
-                        ::deserialize(ar, &sender);
+                        Nation* target;
                         ::deserialize(ar, &target);
-                        sender->increase_relation(*target);
+                        selected_nation->increase_relation(*target);
                     } break;
                     case ActionType::DIPLO_DEC_RELATIONS: {
-                        Nation* sender, * target;
-                        ::deserialize(ar, &sender);
+                        Nation* target;
                         ::deserialize(ar, &target);
-                        sender->decrease_relation(*target);
+                        selected_nation->decrease_relation(*target);
                     } break;
                     case ActionType::DIPLO_DECLARE_WAR: {
-                        Nation* sender, * target;
-                        ::deserialize(ar, &sender);
+                        Nation* target;
                         ::deserialize(ar, &target);
-                        sender->declare_war(*target);
+                        selected_nation->declare_war(*target);
                     } break;
-                        // Nation and province addition and removals are not allowed to be done by clients
-                    default: {
-                    } break;
+                    // Nation and province addition and removals are not allowed to be done by clients
+                    default:
+                        break;
                     }
                 }
 
@@ -517,15 +510,12 @@ void Server::net_loop(int id) {
                     packet.send();
                 }
                 cl.packets.clear();
-                }
             }
-        catch(ServerException& e) {
+        } catch(ServerException& e) {
             print_error("ServerException: %s", e.what());
-        }
-        catch(SocketException& e) {
+        } catch(SocketException& e) {
             print_error("SocketException: %s", e.what());
-        }
-        catch(SerializerException& e) {
+        } catch(SerializerException& e) {
             print_error("SerializerException: %s", e.what());
         }
 
@@ -559,5 +549,5 @@ void Server::net_loop(int id) {
 #elif defined unix
         shutdown(conn_fd, SHUT_RDWR);
 #endif
-        }
-        }
+    }
+}
