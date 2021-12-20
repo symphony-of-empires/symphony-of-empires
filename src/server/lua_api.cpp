@@ -212,6 +212,7 @@ int LuaAPI::add_nation(lua_State* L) {
 
     nation->ref_name = luaL_checkstring(L, 1);
     nation->name = luaL_checkstring(L, 2);
+    nation->ideology = g_world->ideologies.at(0);
 
     // Check for duplicates
     for(size_t i = 0; i < g_world->nations.size(); i++) {
