@@ -138,7 +138,7 @@ afghan.combo_form = _("Afghano")
 afghan:register()
 
 -- American
-american = Culture:new{ ref_name = "american" }
+american = Culture:new{ ref_name = "american", color = 0x6ea5cc }
 american.name = _("American")
 american.adjective = _("American")
 american:register()
