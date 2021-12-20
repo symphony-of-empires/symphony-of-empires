@@ -58,7 +58,7 @@ TopWindow::TopWindow(GameState& _gs)
     hdi_chart->tooltip = new UI::Tooltip(hdi_chart, 512, 24);
     hdi_chart->tooltip->text("Average life quality/human development");
 
-    UI::Image* current_flag = new UI::Image(0, 24, 128, 96, gs.map->nation_flags[g_world->get_id(gs.curr_nation)], this);
+    UI::Image* current_flag = new UI::Image(0, 24, 128, 104, gs.map->nation_flags[g_world->get_id(gs.curr_nation)], this);
 
     money_icon = new UI::Image(128, 24 + (24 * 0), 24, 24, &icon_money_tex, this);
     money_lab = new UI::Label(0, 24 + (24 * 0), "?", this);

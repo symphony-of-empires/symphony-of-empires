@@ -148,7 +148,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
             ideology_data.push_back(UI::ChartData(
                 1.f,
                 ideology->name,
-                UI::Color(rand() % 255, rand() % 255, rand() % 255)
+                UI::Color::rgb8(rand() % 255, rand() % 255, rand() % 255)
             ));
         }
         o.ideology_pie->set_data(ideology_data);

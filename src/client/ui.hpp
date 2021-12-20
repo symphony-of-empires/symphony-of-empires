@@ -17,12 +17,13 @@
 
 #include <glm/vec2.hpp>
 #include "unified_render/rectangle.hpp"
+#include "client/color.hpp"
 
 namespace UnifiedRender {
     class Texture;
 }
 
-enum UI_Origin {
+enum class UI_Origin {
     CENTER,
     UPPER_LEFT,
     UPPER_RIGTH,
@@ -149,12 +150,12 @@ namespace UI {
 
         // Used internally for managing widgets outside of window bounds
         bool is_show = true;
-		// Used internally for drawing hover effects on clickable child widgets
+        // Used internally for drawing hover effects on clickable child widgets
         bool is_clickable = false;
         bool is_hover = false;
         bool is_float = false;
         bool is_fullscreen = false;
-        UI_Origin origin = UPPER_LEFT;
+        UI_Origin origin = UI_Origin::UPPER_LEFT;
 
         int type;
 
@@ -192,12 +193,6 @@ namespace UI {
             float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset, UnifiedRender::Rect viewport);
     };
 
-    class Color {
-    public:
-        Color(uint8_t red, uint8_t green, uint8_t blue);
-        Color(uint32_t rgb);
-        float r, g, b;
-    };
 
     class Tooltip: public Widget {
     public:
@@ -210,6 +205,7 @@ namespace UI {
     class ChartData {
     public:
         ChartData(float _num, std::string _info, Color _color): num{ _num }, info{ _info }, color{ _color } {}
+        ChartData(float _num, std::string _info, uint32_t rgba): num{ _num }, info{ _info }, color{ Color::rgba32(rgba) } {}
         float num;
         std::string info; // Used for tooltips
         Color color;
@@ -243,7 +239,8 @@ namespace UI {
             if(input.is_selected && input.timer % 30 == 0) {
                 if(!input.buffer.empty()) {
                     input.text(input.buffer + cursor);
-                } else {
+                }
+                else {
                     input.text(cursor);
                 }
             }
@@ -344,12 +341,5 @@ namespace UI {
     };
 
 };  // namespace UI
-
-extern SDL_Color text_color;
-static inline void UI_Widget_TextColor(uint8_t r, uint8_t g, uint8_t b) {
-    text_color.r = r;
-    text_color.g = g;
-    text_color.b = b;
-}
 
 #endif

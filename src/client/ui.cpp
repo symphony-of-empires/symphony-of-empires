@@ -33,7 +33,6 @@
 using namespace UI;
 
 static Context* g_ui_context = nullptr;
-SDL_Color text_color ={ 0, 0, 0, 0 };
 
 Context::Context() {
     if(g_ui_context != nullptr) {
@@ -216,7 +215,7 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
 
 void Context::render_all() {
     glUseProgram(0);
-    
+
     glActiveTexture(GL_TEXTURE0);
     glViewport(0, 0, width, height);
 
@@ -626,7 +625,8 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
         glColor3f(0.f, 0.f, 1.f);
         draw_rect(0, pos_rect, tex_rect, viewport);
-    } else if(type != UI_WIDGET_IMAGE && type != UI_WIDGET_LABEL) {
+    }
+    else if(type != UI_WIDGET_IMAGE && type != UI_WIDGET_LABEL) {
         UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
         UnifiedRender::Rect tex_rect((int)0u, 0u, width / ctx.background->width, height / ctx.background->height);
         draw_rect(ctx.background->gl_tex_num, pos_rect, tex_rect, viewport);
@@ -803,6 +803,7 @@ void Widget::text(const std::string& _text) {
     if(_text.empty()) return;
 
     //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
+    SDL_Color text_color ={ 0, 0, 0, 0 };
     surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), text_color);
     if(surface == nullptr)
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
@@ -821,21 +822,6 @@ void Widget::set_tooltip(Tooltip* _tooltip) {
     tooltip = _tooltip;
 }
 
-Color::Color(uint8_t red, uint8_t green, uint8_t blue)
-    : r{ red / 256.f },
-    g{ green / 256.f },
-    b{ blue / 256.f }
-{
-
-}
-
-Color::Color(uint32_t rgb)
-    : r{ ((rgb >> 16) & 0xff) / 256.f },
-    g{ ((rgb >> 8) & 0xff) / 256.f },
-    b{ (rgb & 0xff) / 256.f }
-{
-
-}
 
 /**
 * Constructor implementations for the different types of widgets
