@@ -123,8 +123,8 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
     }
 
     // Mix each color depending of how many live there compared to max_amount
-    UI::Color max = UI::Color::rgb8(255, 229, 217);
-    UI::Color min = UI::Color::rgb8(220, 46, 35);
+    UI::Color min = UI::Color::rgb8(255, 229, 217);
+    UI::Color max = UI::Color::rgb8(220, 46, 35);
     std::vector<ProvinceColor> province_color;
     for(auto const& prov_amount : province_amounts) {
         Province::Id prov_id = prov_amount.first;
@@ -163,7 +163,7 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
             }
         }
         UI::Color max = UI::Color::rgba32(world.cultures[max_culture_id]->color);
-        UI::Color color = UI::Color::lerp(min, max, max_amount / total_amount);
+        UI::Color color = UI::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
     // Water
@@ -200,7 +200,7 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
             }
         }
         UI::Color max = UI::Color::rgba32(world.religions[max_religion_id]->color);
-        UI::Color color = UI::Color::lerp(min, max, max_amount / total_amount);
+        UI::Color color = UI::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
     // Water
