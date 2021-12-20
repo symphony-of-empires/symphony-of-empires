@@ -218,7 +218,7 @@ local bavaria_provinces_list = {
     { ref_name = "province_e856ff00", name = _("Unknown"), color = 0xff56e8 },
     { ref_name = "province_d2ff8e00", name = _("Unknown"), color = 0x8effd2 },
     { ref_name = "province_ffc38400", name = _("Unknown"), color = 0x84c3ff },
-    { ref_name = "province_984fff00", name = _("Unknown"), color = 0xff4f98 },
+    { ref_name = "weimar", name = _("Weimar"), color = 0xff4f98 },
     { ref_name = "rhineland_palatinate", name = _("Rhineland-Palatinate"), color = 0xffe242 },
 }
 for k, v in pairs(bavaria_provinces_list) do
@@ -345,7 +345,6 @@ end
 
 local wurttemberg_provinces_list = {
     { ref_name = "wurttemberg", name = _("Württemberg"), color = 0x9d7ffe },
-    { ref_name = "weimar", name = _("Weimar"), color = 0xff4f98 },
 }
 for k, v in pairs(wurttemberg_provinces_list) do
     province = Province:new(v)
