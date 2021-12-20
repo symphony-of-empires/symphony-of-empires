@@ -199,7 +199,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
         nation->decrease_relation(*other);
     }
     
-    if(!(std::rand() % 1000)) {
+    if(!(std::rand() % 50)) {
         nation->declare_war(*other);
     }
 }
@@ -443,12 +443,16 @@ void ai_do_tick(Nation* nation, World* world) {
                 // Can only go to a province if we have military accesss, they are our ally or if we are at war
                 // also if it's ours we can move thru it
                 NationRelation& relation = province->owner->relations[world->get_id(unit->owner)];
-                if(province->owner == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war) {
+                if(province->owner == unit->owner || relation.has_alliance || relation.has_military_access) {
                     unit->set_target(province);
                 }
 
                 // Give priority to the provinces of people we are at war with
                 if(relation.has_war) {
+                    for(auto& building : g_world->buildings) {
+                        if(building->get_province() != province) continue;
+                        building->owner = nation;
+                    }
                     unit->set_target(province);
                 }
             } else {

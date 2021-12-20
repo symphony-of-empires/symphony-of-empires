@@ -20,22 +20,12 @@ void ProvincePopulationTab::update_piecharts() {
 
     std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
     for(const auto& culture : gs.world->cultures) {
-        const auto color = UI::Color(
-            gs.world->get_id(culture) * 12,
-            gs.world->get_id(culture) * 31,
-            gs.world->get_id(culture) * 97
-        );
-        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(culture)], culture->name, color));
+        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(culture)], culture->name, UI::Color(culture->color)));
     }
     cultures_pie->set_data(cultures_data);
 
     for(const auto& religion : gs.world->religions) {
-        const auto color = UI::Color(
-            gs.world->get_id(religion) * 12,
-            gs.world->get_id(religion) * 31,
-            gs.world->get_id(religion) * 97
-        );
-        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion->name, color));
+        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion->name, UI::Color(religion->color)));
     }
     religions_pie->set_data(religions_data);
 
