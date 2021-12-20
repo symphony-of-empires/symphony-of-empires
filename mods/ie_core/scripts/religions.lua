@@ -39,6 +39,11 @@ animist.name = _("Animist")
 animist.color = 0xa1b0c2
 animist:register()
 
+mapuche = Religion:new{ ref_name = "mapuche" }
+mapuche.name = _("Mapuche")
+mapuche.color = 0x8c9ebd
+mapuche:register()
+
 other = Religion:new{ ref_name = "other" }
 other.name = _("Other")
 other.color = 0x616161
