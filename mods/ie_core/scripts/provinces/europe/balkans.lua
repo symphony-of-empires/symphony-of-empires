@@ -21,6 +21,7 @@ for k, v in pairs(montenegro_provinces) do
     province:add_pop(entrepreneur, serbian, orthodox, 800, 0.9)
     province:add_nucleus(montenegro)
     province:give_to(turkey)
+    province:set_terrain(plains)
 end
 
 -- Serbia
@@ -45,6 +46,7 @@ for k, v in pairs(serbia_provinces) do
     province:add_pop(entrepreneur, serbian, orthodox, 800, 0.9)
     province:add_nucleus(serbia)
     province:give_to(turkey)
+    province:set_terrain(plains)
 end
 
 -- Wallachia
@@ -77,6 +79,7 @@ for k, v in pairs(wallachia_provinces) do
     province:add_nucleus(romania)
     province:add_nucleus(wallachia)
     province:give_to(wallachia)
+    province:set_terrain(plains)
 end
 
 -- Moldavia
@@ -106,6 +109,7 @@ for k, v in pairs(moldavia_provinces) do
     province:add_nucleus(romania)
     province:add_nucleus(moldavia)
     province:give_to(moldavia)
+    province:set_terrain(plains)
 end
 
 -- Bulgaria
@@ -132,4 +136,5 @@ for k, v in pairs(bulgaria_provinces) do
     province:add_pop(entrepreneur, bulgarian, orthodox, 800, 0.9)
     province:add_nucleus(bulgaria)
     province:give_to(turkey)
+    province:set_terrain(plains)
 end

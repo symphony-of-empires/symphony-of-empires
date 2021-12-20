@@ -33,6 +33,7 @@ for k, v in pairs(two_sicilies_provinces) do
     province:add_nucleus(two_sicilies)
     province:add_nucleus(italy)
     province:give_to(two_sicilies)
+    province:set_terrain(plains)
 end
 
 local papal_states_provinces = {
@@ -60,6 +61,7 @@ for k, v in pairs(papal_states_provinces) do
     province:add_nucleus(papal_states)
     province:add_nucleus(italy)
     province:give_to(papal_states)
+    province:set_terrain(plains)
 end
 
 local piedmont_sardinia_provinces = {
@@ -95,4 +97,5 @@ for k, v in pairs(piedmont_sardinia_provinces) do
     province:add_nucleus(piedmont_sardinia)
     province:add_nucleus(italy)
     province:give_to(piedmont_sardinia)
+    province:set_terrain(plains)
 end

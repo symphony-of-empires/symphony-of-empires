@@ -141,4 +141,5 @@ for k, v in pairs(austria_provinces_list) do
     province:add_pop(entrepreneur, german, catholic, 800, 0.9)
     province:add_nucleus(austria)
     province:give_to(austria)
+    province:set_terrain(plains)
 end

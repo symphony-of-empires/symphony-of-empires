@@ -39,6 +39,11 @@ animist.name = _("Animist")
 animist.color = 0xa1b0c2
 animist:register()
 
+atheist = Religion:new{ ref_name = "atheist" }
+atheist.name = _("Atheist")
+atheist.color = 0x808080
+atheist:register()
+
 mapuche = Religion:new{ ref_name = "mapuche" }
 mapuche.name = _("Mapuche")
 mapuche.color = 0x8c9ebd

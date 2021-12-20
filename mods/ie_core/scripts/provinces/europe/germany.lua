@@ -27,6 +27,7 @@ for k, v in pairs(oldenburg_provinces_list) do
     province:add_nucleus(oldenburg)
     province:add_nucleus(germany)
     province:give_to(oldenburg)
+    province:set_terrain(plains)
 end
 
 local wolfenbuttel_provinces_list = {
@@ -49,6 +50,7 @@ for k, v in pairs(wolfenbuttel_provinces_list) do
     province:add_nucleus(wolfenbuttel)
     province:add_nucleus(germany)
     province:give_to(wolfenbuttel)
+    province:set_terrain(plains)
 end
 
 local bremen_provinces_list = {
@@ -71,6 +73,7 @@ for k, v in pairs(bremen_provinces_list) do
     province:add_nucleus(bremen)
     province:add_nucleus(germany)
     province:give_to(bremen)
+    province:set_terrain(plains)
 end
 
 local brunswick_provinces_list = {
@@ -93,6 +96,7 @@ for k, v in pairs(brunswick_provinces_list) do
     province:add_nucleus(brunswick)
     province:add_nucleus(germany)
     province:give_to(brunswick)
+    province:set_terrain(plains)
 end
 
 local ritzebuttel_provinces_list = {
@@ -115,6 +119,7 @@ for k, v in pairs(ritzebuttel_provinces_list) do
     province:add_nucleus(ritzebuttel)
     province:add_nucleus(germany)
     province:give_to(ritzebuttel)
+    province:set_terrain(plains)
 end
 
 local grand_duchy_of_hesse_and_by_rhine_provinces_list = {
@@ -138,6 +143,7 @@ for k, v in pairs(grand_duchy_of_hesse_and_by_rhine_provinces_list) do
     province:add_nucleus(grand_duchy_of_hesse_and_by_rhine)
     province:add_nucleus(germany)
     province:give_to(grand_duchy_of_hesse_and_by_rhine)
+    province:set_terrain(plains)
 end
 
 
@@ -160,6 +166,7 @@ for k, v in pairs(luxembourg_provinces_list) do
     province:add_pop(entrepreneur, german, protestant, 800, 0.9)
     province:add_nucleus(luxembourg)
     province:give_to(luxembourg)
+    province:set_terrain(plains)
 end
 
 local prussia_provinces_list = {
@@ -211,6 +218,7 @@ for k, v in pairs(prussia_provinces_list) do
     province:add_nucleus(prussia)
     province:add_nucleus(germany)
     province:give_to(prussia)
+    province:set_terrain(plains)
 end
 
 local bavaria_provinces_list = {
@@ -238,6 +246,7 @@ for k, v in pairs(bavaria_provinces_list) do
     province:add_nucleus(bavaria)
     province:add_nucleus(germany)
     province:give_to(bavaria)
+    province:set_terrain(plains)
 end
 
 local belgium_provinces_list = {
@@ -267,6 +276,7 @@ for k, v in pairs(belgium_provinces_list) do
     province:add_pop(entrepreneur, belgian, protestant, 800, 0.9)
     province:add_nucleus(belgium)
     province:give_to(belgium)
+    province:set_terrain(plains)
 end
 
 local hannover_provinces_list = {
@@ -290,6 +300,7 @@ for k, v in pairs(hannover_provinces_list) do
     province:add_nucleus(hannover)
     province:add_nucleus(germany)
     province:give_to(hannover)
+    province:set_terrain(plains)
 end
 
 local switzerland_provinces_list = {
@@ -319,6 +330,7 @@ for k, v in pairs(switzerland_provinces_list) do
     province:add_pop(entrepreneur, german, protestant, 800, 0.9)
     province:add_nucleus(switzerland)
     province:give_to(switzerland)
+    province:set_terrain(plains)
 end
 
 local baden_provinces_list = {
@@ -341,6 +353,7 @@ for k, v in pairs(baden_provinces_list) do
     province:add_nucleus(baden)
     province:add_nucleus(germany)
     province:give_to(baden)
+    province:set_terrain(plains)
 end
 
 local wurttemberg_provinces_list = {
@@ -363,6 +376,7 @@ for k, v in pairs(wurttemberg_provinces_list) do
     province:add_nucleus(wurttemberg)
     province:add_nucleus(germany)
     province:give_to(wurttemberg)
+    province:set_terrain(plains)
 end
 
 local mecklenburg_provinces_list = {
@@ -385,6 +399,7 @@ for k, v in pairs(mecklenburg_provinces_list) do
     province:add_nucleus(mecklenburg)
     province:add_nucleus(germany)
     province:give_to(mecklenburg)
+    province:set_terrain(plains)
 end
 
 local saxonyg_provinces_list = {
@@ -407,5 +422,6 @@ for k, v in pairs(saxonyg_provinces_list) do
     province:add_nucleus(saxony)
     province:add_nucleus(germany)
     province:give_to(saxony)
+    province:set_terrain(plains)
 end
 saxony:set_capital(Province:get("dresden"))

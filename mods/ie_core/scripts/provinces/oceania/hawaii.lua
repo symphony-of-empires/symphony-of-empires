@@ -17,6 +17,7 @@ province:add_pop(laborer, polynesian, protestant, 1000, 0.5)
 province:add_pop(entrepreneur, polynesian, protestant, 5, 0.9)
 province:add_nucleus(hawai_i)
 province:give_to(hawai_i)
+province:set_terrain(plains)
 
 province = Province:new{ ref_name = "kaua_i", color = 0x0f6bff }
 province.name = _("Kaua'i")
@@ -33,6 +34,7 @@ province:add_pop(laborer, polynesian, protestant, 1000, 0.5)
 province:add_pop(entrepreneur, polynesian, protestant, 5, 0.9)
 province:add_nucleus(hawai_i)
 province:give_to(hawai_i)
+province:set_terrain(plains)
 
 province = Province:new{ ref_name = "o_ahu_maui", color = 0xff7247 }
 province.name = _("O'ahu-Maui")
@@ -49,6 +51,7 @@ province:add_pop(laborer, polynesian, protestant, 1000, 0.5)
 province:add_pop(entrepreneur, polynesian, protestant, 5, 0.9)
 province:add_nucleus(hawai_i)
 province:give_to(hawai_i)
+province:set_terrain(plains)
 
 -- Whoever did this please fix!!!!
 province = Province:new{ ref_name = "hawai_i", color = 0xff54a1 }
@@ -66,4 +69,5 @@ province:add_pop(laborer, polynesian, protestant, 1000, 0.5)
 province:add_pop(entrepreneur, polynesian, protestant, 5, 0.9)
 province:add_nucleus(hawai_i)
 province:give_to(hawai_i)
+province:set_terrain(plains)
 hawai_i:set_capital(province)
