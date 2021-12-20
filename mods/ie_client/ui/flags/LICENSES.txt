@@ -237,3 +237,13 @@ moldavia_republic
 
 moldavia_socialism
 	By SVG by Pianist - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=480852
+
+poland_socialism
+poland_republic
+	Public Domain, https://en.wikipedia.org/w/index.php?curid=23473485
+
+estonia_socialism
+	By First-uploaded SVG file versions authored by Urmas, Nokka - Own work based on publicly-available information.Schematic of the flag as adopted in (1938—1956), Public Domain, https://commons.wikimedia.org/w/index.php?curid=389922
+
+latvia_socialism
+	By Ericmetro - Own work, based on [2] by Aloizs Luksa, and the traced scanned image from &quot;Гербы и Флаги СССР&quot;, Public Domain, https://commons.wikimedia.org/w/index.php?curid=56938841

@@ -11,37 +11,37 @@
 -- print(type(communism))
 -- print(communism.ref_name)
 
-communism = Ideology:new{ ref_name = "communism", name = _("Communism"), check_policies_fn = "?" }
+communism = Ideology:new{ ref_name = "communism", name = _("Communism"), color = 0x800e04 }
 communism:register()
 
-democracy = Ideology:new{ ref_name = "democracy", name = _("Democracy"), check_policies_fn = "?" }
+democracy = Ideology:new{ ref_name = "democracy", name = _("Democracy"), color = 0x4366a1 }
 democracy:register()
 
-facism = Ideology:new{ ref_name = "facism", name = _("Facism"), check_policies_fn = "?" }
-facism:register()
+fascism = Ideology:new{ ref_name = "fascism", name = _("Fascism"), color = 0xcc1f6d }
+fascism:register()
 
-socialism = Ideology:new{ ref_name = "socialism", name = _("Socialism"), check_policies_fn = "?" }
+socialism = Ideology:new{ ref_name = "socialism", name = _("Socialism"), color = 0xff1500 }
 socialism:register()
 
-republic = Ideology:new{ ref_name = "republic", name = _("Republic"), check_policies_fn = "?" }
+republic = Ideology:new{ ref_name = "republic", name = _("Republic"), color = 0x4245f5 }
 republic:register()
 
 tribal = Ideology:new{ ref_name = "tribal", name = _("Tribal"), check_policies_fn = "?" }
 tribal:register()
 
-monarchy = Ideology:new{ ref_name = "monarchy", name = _("Monarchy"), check_policies_fn = "?" }
+monarchy = Ideology:new{ ref_name = "monarchy", name = _("Monarchy"), color = 0xf2de24 }
 monarchy:register()
 
-anarchy = Ideology:new{ ref_name = "anarchy", name = _("Anarchy"), check_policies_fn = "?" }
+anarchy = Ideology:new{ ref_name = "anarchy", name = _("Anarchy"), color = 0x363533 }
 anarchy:register()
 
-anarcho_capitalism = Ideology:new{ ref_name = "anarcho_capitalism", name = _("Anarcho-Capitalism"), check_policies_fn = "?" }
+anarcho_capitalism = Ideology:new{ ref_name = "anarcho_capitalism", name = _("Anarcho-Capitalism"), color = 0xebf060 }
 anarcho_capitalism:register()
 
-corporatocracy = Ideology:new{ ref_name = "corporatocracy", name = _("Corporatocracy"), check_policies_fn = "?" }
+corporatocracy = Ideology:new{ ref_name = "corporatocracy", name = _("Corporatocracy"), color = 0x713aa1 }
 corporatocracy:register()
 
-enviromentalism = Ideology:new{ ref_name = "enviromentalism", name = _("Enviromentalism"), check_policies_fn = "?" }
+enviromentalism = Ideology:new{ ref_name = "enviromentalism", name = _("Enviromentalism"), color = 0x63db69 }
 enviromentalism:register()
 
 authoritarian = Ideology:new{ ref_name = "authoritarian", name = _("Authoritarian"), check_policies_fn = "?" }
@@ -50,7 +50,7 @@ authoritarian:register()
 progressivism = Ideology:new{ ref_name = "progressivism", name = _("Progressivism"), check_policies_fn = "?" }
 progressivism:register()
 
-secularism = Ideology:new{ ref_name = "secularism", name = _("Secularism"), check_policies_fn = "?" }
+secularism = Ideology:new{ ref_name = "secularism", name = _("Secularism"), color = 0x79e0a9 }
 secularism:register()
 
 tribalism = Ideology:new{ ref_name = "tribalism", name = _("Tribalism"), check_policies_fn = "?" }

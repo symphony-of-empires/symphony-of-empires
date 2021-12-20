@@ -164,6 +164,7 @@ sweden:register()
 sweden:set_ideology(monarchy)
 sweden:add_accepted_culture(swedish)
 sweden:add_client_hint(monarchy, _("Sweden"), 0x3a739e)
+sweden:add_client_hint(socialism, _("People's Republic of Sweden"), 0x3a739e)
 
 -- Formable nations
 scandinavia = Nation:new{ ref_name = "scandinavia" }
@@ -246,7 +247,7 @@ lithuania.adjective = _("Lithuanian")
 lithuania:register()
 lithuania:add_accepted_culture(lithuanian)
 lithuania:add_client_hint(republic, _("Lithuania"), 0x598c42)
-lithuania:add_client_hint(monarchy, _("Lithuania SFSR"), 0x598c42)
+lithuania:add_client_hint(socialism, _("Lithuania SFSR"), 0x598c42)
 
 estonia = Nation:new{ ref_name = "estonia" }
 estonia.name = _("Estonia")
@@ -254,7 +255,7 @@ estonia.adjective = _("Estonian")
 estonia:register()
 estonia:add_accepted_culture(estonian)
 estonia:add_client_hint(republic, _("Estonia"), 0x4c8ed4)
-estonia:add_client_hint(monarchy, _("Estonia SFSR"), 0x4c8ed4)
+estonia:add_client_hint(socialism, _("Estonia SFSR"), 0x4c8ed4)
 
 latvia = Nation:new{ ref_name = "latvia" }
 latvia.name = _("Latvia")
@@ -262,7 +263,7 @@ latvia.adjective = _("Latvian")
 latvia:register()
 latvia:add_accepted_culture(latvian)
 latvia:add_client_hint(republic, _("Latvia"), 0x962820)
-latvia:add_client_hint(monarchy, _("Latvia SFSR"), 0x962820)
+latvia:add_client_hint(socialism, _("Latvia SFSR"), 0x962820)
 
 -- Lovonia can be formed by either latvia, estonia or lithuania
 livonia = Nation:new{ ref_name = "livonia" }
