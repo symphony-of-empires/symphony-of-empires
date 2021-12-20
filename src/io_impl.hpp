@@ -1282,17 +1282,20 @@ public:
     static inline void serialize(Archive& stream, const Ideology* obj) {
         ::serialize(stream, &obj->ref_name);
         ::serialize(stream, &obj->name);
+        ::serialize(stream, &obj->color);
         ::serialize(stream, &obj->check_policies_fn);
     }
     static inline void deserialize(Archive& stream, Ideology* obj) {
         ::deserialize(stream, &obj->ref_name);
         ::deserialize(stream, &obj->name);
+        ::deserialize(stream, &obj->color);
         ::deserialize(stream, &obj->check_policies_fn);
     }
     static inline size_t size(const Ideology* obj) {
         return
             serialized_size(&obj->ref_name)
             + serialized_size(&obj->name)
+            + serialized_size(&obj->color)
             + serialized_size(&obj->check_policies_fn)
             ;
     }

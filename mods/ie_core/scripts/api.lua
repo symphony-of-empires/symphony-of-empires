@@ -66,7 +66,7 @@ Ideology = {
 	id = 0,
 	ref_name = "",
 	name = "",
-	check_policies_fn = ""
+	color = 0x00000000
 }
 function Ideology:new(o)
 	o = o or {}
@@ -76,18 +76,18 @@ function Ideology:new(o)
 end
 function Ideology:get(ref_name)
 	o = Ideology:new()
-	o.id, o.name = get_ideology(ref_name)
+	o.id, o.name, o.color = get_ideology(ref_name)
 	o.ref_name = ref_name
 	return o
 end
 function Ideology:get_by_id(id)
 	o = Ideology:new()
-	o.ref_name, o.name = get_ideology_by_id(id)
+	o.ref_name, o.name, o.color = get_ideology_by_id(id)
 	o.id = id
 	return o
 end
 function Ideology:register()
-	self.id = add_ideology(self.ref_name, self.name, self.check_policies_fn)
+	self.id = add_ideology(self.ref_name, self.name, self.color)
 end
 
 Policies = {

@@ -1120,7 +1120,7 @@ int LuaAPI::add_ideology(lua_State* L) {
 
     ideology->ref_name = luaL_checkstring(L, 1);
     ideology->name = luaL_checkstring(L, 2);
-    ideology->check_policies_fn = lua_tostring(L, 3);
+    ideology->color = (bswap_32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
 
     g_world->insert(ideology);
     lua_pushnumber(L, g_world->ideologies.size() - 1);
@@ -1132,7 +1132,8 @@ int LuaAPI::get_ideology(lua_State* L) {
 
     lua_pushnumber(L, g_world->get_id(ideology));
     lua_pushstring(L, ideology->name.c_str());
-    return 2;
+    lua_pushnumber(L, bswap_32((ideology->color & 0x00ffffff) << 8));
+    return 3;
 }
 
 int LuaAPI::get_ideology_by_id(lua_State* L) {
@@ -1140,7 +1141,8 @@ int LuaAPI::get_ideology_by_id(lua_State* L) {
     
     lua_pushstring(L, ideology->ref_name.c_str());
     lua_pushstring(L, ideology->name.c_str());
-    return 2;
+    lua_pushnumber(L, bswap_32((ideology->color & 0x00ffffff) << 8));
+    return 3;
 }
 
 // Checks all events and their condition functions
