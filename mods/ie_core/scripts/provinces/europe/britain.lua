@@ -147,5 +147,6 @@ for k, v in pairs(uk_provinces_list) do
     province:add_pop(entrepreneur, british, catholic, 800, 0.9)
     province:add_nucleus(united_kingdom)
     province:give_to(united_kingdom)
+    province:set_terrain(plains)
 end
 
