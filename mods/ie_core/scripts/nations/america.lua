@@ -97,7 +97,7 @@ mapuche.name = _("Mapuche")
 mapuche:register()
 mapuche:set_ideology(tribalism)
 mapuche:add_accepted_culture(mapuche)
-mapuche:add_client_hint(tribalism, _("Mapuche"), 0x4622b3)
+mapuche:add_client_hint(tribalism, _("Mapuche"), 0x8c9ebd)
 
 -- Releasable nations
 texas = Nation:new{ ref_name = "texas" }

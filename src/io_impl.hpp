@@ -313,14 +313,26 @@ public:
     static inline void serialize(Archive& stream, const Culture* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
+        ::serialize(stream, &obj->adjective);
+        ::serialize(stream, &obj->noun);
+        ::serialize(stream, &obj->combo_form);
+        ::serialize(stream, &obj->color);
     }
     static inline void deserialize(Archive& stream, Culture* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
+        ::deserialize(stream, &obj->adjective);
+        ::deserialize(stream, &obj->noun);
+        ::deserialize(stream, &obj->combo_form);
+        ::deserialize(stream, &obj->color);
     }
     static inline size_t size(const Culture* obj) {
         return serialized_size(&obj->name)
             + serialized_size(&obj->ref_name)
+            + serialized_size(&obj->adjective);
+            + serialized_size(&obj->noun);
+            + serialized_size(&obj->combo_form);
+            + serialized_size(&obj->color);
             ;
     }
 };
@@ -331,14 +343,17 @@ public:
     static inline void serialize(Archive& stream, const Religion* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
+        ::serialize(stream, &obj->color);
     }
     static inline void deserialize(Archive& stream, Religion* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
+        ::deserialize(stream, &obj->color);
     }
     static inline size_t size(const Religion* obj) {
         return serialized_size(&obj->name)
             + serialized_size(&obj->ref_name)
+            + serialized_size(&obj->color)
             ;
     }
 };

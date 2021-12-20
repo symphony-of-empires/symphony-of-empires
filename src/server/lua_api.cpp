@@ -562,8 +562,7 @@ int LuaAPI::add_province(lua_State* L) {
     province->terrain_type = g_world->terrain_types[0];
 
     province->ref_name = luaL_checkstring(L, 1);
-    province->color = bswap_32(lua_tonumber(L, 2)) >> 8;
-    province->color |= 0xff000000;
+    province->color = (bswap_32(lua_tonumber(L, 2)) >> 8) | 0xff000000;
     
     province->name = luaL_checkstring(L, 3);
     province->budget = 500.f;
@@ -594,9 +593,7 @@ int LuaAPI::get_province(lua_State* L) {
 
     lua_pushnumber(L, g_world->get_id(province));
     lua_pushstring(L, province->name.c_str());
-
-    const uint32_t color = bswap_32((province->color & 0x00ffffff) << 8);
-    lua_pushnumber(L, color);
+    lua_pushnumber(L, bswap_32((province->color & 0x00ffffff) << 8));
     return 3;
 }
 
@@ -604,9 +601,7 @@ int LuaAPI::get_province_by_id(lua_State* L) {
     const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_pushstring(L, province->ref_name.c_str());
     lua_pushstring(L, province->name.c_str());
-
-    const uint32_t color = bswap_32((province->color & 0x00ffffff) << 8);
-    lua_pushnumber(L, color);
+    lua_pushnumber(L, bswap_32((province->color & 0x00ffffff) << 8));
     return 3;
 }
 
@@ -1001,6 +996,10 @@ int LuaAPI::add_culture(lua_State* L) {
 
     culture->ref_name = luaL_checkstring(L, 1);
     culture->name = luaL_checkstring(L, 2);
+    culture->color = (bswap_32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
+    culture->adjective = luaL_checkstring(L, 4);
+    culture->noun = luaL_checkstring(L, 5);
+    culture->combo_form = luaL_checkstring(L, 6);
 
     g_world->insert(culture);
     lua_pushnumber(L, g_world->cultures.size() - 1);
@@ -1012,7 +1011,11 @@ int LuaAPI::get_culture(lua_State* L) {
 
     lua_pushnumber(L, g_world->get_id(culture));
     lua_pushstring(L, culture->name.c_str());
-    return 2;
+    lua_pushnumber(L, bswap_32((culture->color & 0x00ffffff) << 8));
+    lua_pushstring(L, culture->adjective.c_str());
+    lua_pushstring(L, culture->noun.c_str());
+    lua_pushstring(L, culture->combo_form.c_str());
+    return 6;
 }
 
 int LuaAPI::get_culture_by_id(lua_State* L) {
@@ -1020,16 +1023,21 @@ int LuaAPI::get_culture_by_id(lua_State* L) {
 
     lua_pushstring(L, culture->ref_name.c_str());
     lua_pushstring(L, culture->name.c_str());
-    return 2;
+    lua_pushnumber(L, bswap_32((culture->color & 0x00ffffff) << 8));
+    lua_pushstring(L, culture->adjective.c_str());
+    lua_pushstring(L, culture->noun.c_str());
+    lua_pushstring(L, culture->combo_form.c_str());
+    return 6;
 }
 
 int LuaAPI::add_religion(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
+    
     Religion* religion = new Religion();
-
     religion->ref_name = luaL_checkstring(L, 1);
     religion->name = luaL_checkstring(L, 2);
+    religion->color = (bswap_32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
 
     g_world->insert(religion);
     lua_pushnumber(L, g_world->religions.size() - 1);
@@ -1041,7 +1049,8 @@ int LuaAPI::get_religion(lua_State* L) {
 
     lua_pushnumber(L, g_world->get_id(religion));
     lua_pushstring(L, religion->name.c_str());
-    return 2;
+    lua_pushnumber(L, bswap_32((religion->color & 0x00ffffff) << 8));
+    return 3;
 }
 
 int LuaAPI::get_religion_by_id(lua_State* L) {
@@ -1049,7 +1058,8 @@ int LuaAPI::get_religion_by_id(lua_State* L) {
 
     lua_pushstring(L, religion->ref_name.c_str());
     lua_pushstring(L, religion->name.c_str());
-    return 2;
+    lua_pushnumber(L, bswap_32((religion->color & 0x00ffffff) << 8));
+    return 3;
 }
 
 int LuaAPI::add_unit_type(lua_State* L) {
