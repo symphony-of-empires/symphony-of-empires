@@ -242,6 +242,30 @@ void main() {
 	float dist_to_map = abs(view_pos.z);
 	dist_to_map = smoothstep(250., 350., dist_to_map);
 
+	vec2 mPos = tex_coords - mod(tex_coords + 0.5 * pix, pix);
+
+	float xx = pix.x;
+	float yy = pix.y;
+	vec2 scaling = mod(tex_coords + 0.5 * pix, pix) / pix;
+
+	vec4 color_00 = texture(tile_map, mPos + pix * vec2(0.25, 0.25));
+	float ocean_00 = isOcean(color_00.xy);
+	vec4 color_01 = texture(tile_map, mPos + pix * vec2(0.25, 0.75));
+	float ocean_01 = isOcean(color_01.xy);
+	vec4 color_10 = texture(tile_map, mPos + pix * vec2(0.75, 0.25));
+	float ocean_10 = isOcean(color_10.xy);
+	vec4 color_11 = texture(tile_map, mPos + pix * vec2(0.75, 0.75));
+	float ocean_11 = isOcean(color_11.xy);
+
+	float color_x0 = mix(ocean_00, ocean_10, scaling.x);
+	float color_x1 = mix(ocean_01, ocean_11, scaling.x);
+
+	float beach = mix(color_x0, color_x1, scaling.y);
+	float is_no_beach = 1.-step(0.1, beach);
+	float noise = texture(noise_texture, tex_coords / map_size).x;
+	beach += noise * 0.3 - 0.15;
+	beach = smoothstep(0.2, 0.3, beach);
+
 	vec4 water = noTiling(water_texture, 50. * tex_coords);
 	water = mix(water, water_col * 0.7, 0.7);
 	float grid = get_grid(tex_coords);
@@ -255,13 +279,13 @@ void main() {
 	float is_diag = borders_diag.w;
 	borders.x = smoothstep(0., 1., borders.x);
 
-	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
+	vec2 diag_coords = get_diag_coords(tex_coords, 0. * is_diag);
 	vec4 coord = texture(tile_map, diag_coords).rgba;
 	float isEmpty = step(coord.a, 0.01);
 	vec4 prov_color = texture(tile_sheet, coord.xy * 255./256.); // Magic numbers
 	terrain_color = mix(terrain_color, water, isLake(coord.xy));
-	vec4 ground = mix(terrain_color, water, isOcean(coord.xy) + isLake(coord.xy));
-	vec4 out_color = mix(ground, prov_color * 1.2, 0.5 * (1.-isOcean(coord.xy)) * (1.-isLake(coord.xy)));
+	vec4 ground = mix(terrain_color, water, beach + isLake(coord.xy));
+	vec4 out_color = mix(ground, prov_color * 1.2, 0.5 * (1.-beach) * (1.-isLake(coord.xy)));
 
 	float bSdf = texture2D(border_sdf, tex_coords + pix * 0.5).z;
 	vec4 mix_col = out_color;
@@ -270,9 +294,9 @@ void main() {
 		mix_col = mix(wave, water, dist_to_map);
 	}
     out_color = mix(out_color, mix_col * 0.8, clamp(bSdf * 3. - 1., 0., 1.));
-	borders.y *= mix(0.5, 1., dist_to_map);
+	borders.y *= mix(0.5, 1., dist_to_map) * is_no_beach;
 	out_color = mix(out_color, country_border, borders.y);
-	borders.x *= 1.-dist_to_map;
+	borders.x *= (1.-dist_to_map) * (1.-beach);
 	out_color = mix(out_color, province_border, borders.x);
 	float river = texture(river_texture, tex_coords).b;
 	out_color = mix(out_color, river_col, river * 0.4);

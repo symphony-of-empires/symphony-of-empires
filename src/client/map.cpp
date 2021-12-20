@@ -14,6 +14,7 @@
 #include "unified_render/model.hpp"
 #include "io_impl.hpp"
 #include "client/interface/province_view.hpp"
+#include "client/interface/minimap.hpp"
 #include "world.hpp"
 #include "client/orbit_camera.hpp"
 #include "client/flat_camera.hpp"
@@ -38,45 +39,32 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     map_quad = new UnifiedRender::OpenGl::Square(0.f, 0.f, world.width, world.height);
     map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
 
-    if(glewIsSupported("GL_VERSION_2_1")) {
-        map_2d_quad = new UnifiedRender::OpenGl::Quad2D();
-        UnifiedRender::TextureOptions mipmap_options{};
-        mipmap_options.wrap_s = GL_REPEAT;
-        mipmap_options.wrap_t = GL_REPEAT;
-        mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
-        mipmap_options.mag_filter = GL_LINEAR;
-        water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), mipmap_options);
-        water_tex->gen_mipmaps();
-        noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), mipmap_options);
-        noise_tex->gen_mipmaps();
-        topo_map = &g_texture_manager->load_texture(Path::get("topo.png"), mipmap_options);
-        topo_map->gen_mipmaps();
-        landscape_map = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
-        landscape_map->gen_mipmaps();
-        river_tex = &g_texture_manager->load_texture(Path::get("river_smal_smooth.png"), mipmap_options);
-        river_tex->gen_mipmaps();
+    map_2d_quad = new UnifiedRender::OpenGl::Quad2D();
+    UnifiedRender::TextureOptions mipmap_options{};
+    mipmap_options.wrap_s = GL_REPEAT;
+    mipmap_options.wrap_t = GL_REPEAT;
+    mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
+    mipmap_options.mag_filter = GL_LINEAR;
+    water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), mipmap_options);
+    water_tex->gen_mipmaps();
+    noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), mipmap_options);
+    noise_tex->gen_mipmaps();
+    topo_map = &g_texture_manager->load_texture(Path::get("topo.png"), mipmap_options);
+    topo_map->gen_mipmaps();
+    landscape_map = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
+    landscape_map->gen_mipmaps();
+    river_tex = &g_texture_manager->load_texture(Path::get("river_smal_smooth.png"), mipmap_options);
+    river_tex->gen_mipmaps();
 
-        //terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
-        //topo_map = new UnifiedRender::Texture(world.width, world.height);
+    terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
+    terrain_sheet->to_opengl();
 
-        // terrain_tex = new UnifiedRender::Texture(world.width, world.height);
-        // for(size_t i = 0; i < world.width * world.height; i++) {
-        //     terrain_tex->buffer[i] = world.tiles[i].terrain_type_id;
-        //     topo_map->buffer[i] = world.tiles[i].elevation;
-        // }
-        // terrain_tex->to_opengl();
+    map_shader = UnifiedRender::OpenGl::Program::create("map", "map");
+    obj_shader = UnifiedRender::OpenGl::Program::create("simple_model", "simple_model");
+    border_gen_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_gen");
+    border_sdf_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_sdf");
 
-        terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
-        terrain_sheet->to_opengl();
-
-        map_shader = UnifiedRender::OpenGl::Program::create("map", "map");
-        obj_shader = UnifiedRender::OpenGl::Program::create("simple_model", "simple_model");
-        border_gen_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_gen");
-        border_sdf_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_sdf");
-
-        ourModel = new UnifiedRender::Model(Path::get("3d/backpack/backpack.obj"));
-        model_shader = UnifiedRender::OpenGl::Program::create("model_loading", "model_loading");
-    }
+    model_shader = UnifiedRender::OpenGl::Program::create("model_loading", "model_loading");
 
     print_info("Creating topo map");
 
@@ -90,22 +78,6 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     for(size_t i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer[i] = 0xffdddddd;
     }
-    for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        Nation* province_owner = world.provinces[i]->owner;
-        if(province_owner == nullptr) {
-            tile_sheet->buffer[i] = 0xffdddddd;
-        }
-        else if(province_owner->cached_id == (Nation::Id)-1) {
-            tile_sheet->buffer[i] = 0xffdddddd;
-        }
-        else {
-            tile_sheet->buffer[i] = province_owner->get_client_hint().color;
-        }
-    }
-    // Water
-    tile_sheet->buffer[(Province::Id)-2] = 0x00000000;
-    // Land
-    tile_sheet->buffer[(Province::Id)-1] = 0xffdddddd;
 
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
@@ -126,9 +98,8 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     print_info("Uploading data to OpenGL");
     UnifiedRender::TextureOptions tile_sheet_options{};
-    
-    this->update_provinces(&world.provinces);
-    //tile_sheet->to_opengl();
+
+    set_map_mode(political_map_mode);
     tile_sheet_options.internal_format = GL_RGBA32F;
     tile_map->to_opengl(tile_sheet_options);
     tile_map->gen_mipmaps();
@@ -208,6 +179,26 @@ void Map::set_view(MapView view) {
         camera = new OrbitCamera(old_width, old_height, 100.f);
     }
 }
+std::vector<ProvinceColor> political_map_mode(const World& world) {
+    std::vector<ProvinceColor> province_color;
+    for(unsigned int i = 0; i < world.provinces.size(); i++) {
+        Nation* province_owner = world.provinces[i]->owner;
+        if(province_owner == nullptr) {
+            province_color.push_back(ProvinceColor(i, UI::Color::rgba32(0xffdddddd)));
+        }
+        else if(province_owner->cached_id == (Nation::Id)-1) {
+            province_color.push_back(ProvinceColor(i, UI::Color::rgba32(0xffdddddd)));
+        }
+        else {
+            province_color.push_back(ProvinceColor(i, UI::Color::rgba32(province_owner->get_client_hint().color)));
+        }
+    }
+    // Water
+    province_color.push_back(ProvinceColor((Province::Id)-2, UI::Color::rgba32(0x00000000)));
+    // Land
+    province_color.push_back(ProvinceColor((Province::Id)-1, UI::Color::rgba32(0xffdddddd)));
+    return province_color;
+}
 
 void Map::reload_shaders() {
     delete map_shader;
@@ -221,45 +212,10 @@ void Map::reload_shaders() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-std::vector<std::pair<Province::Id, uint32_t>> population_map_mode(std::vector<Province*> provinces, World* world) {
-    std::vector<std::pair<Province::Id, uint32_t>> province_amounts;
-    uint32_t max_amount = 0;
-    for(auto const& province : provinces) {
-        uint32_t color;
-        uint32_t amount = 0;
-        for(auto const& pop : province->pops) {
-            amount += pop.size;
-        }
-        max_amount = std::max<size_t>(amount, max_amount);
-        province_amounts.push_back(std::make_pair(world->get_id(province), amount));
-    }
-    max_amount = std::max<uint32_t>(1, max_amount);
-    uint8_t max_r = 255, max_g = 229, max_b = 217;
-    uint8_t min_r = 220, min_g = 46, min_b = 35;
-    std::vector<std::pair<Province::Id, uint32_t>> province_color;
-    for(auto const& prov_amount : province_amounts) {
-        Province::Id prov_id = prov_amount.first;
-        uint32_t amount = prov_amount.first;
-        float ratio = ((float)amount) / max_amount;
-        uint8_t prov_r = (uint8_t)(min_r * (1 - ratio) + max_r * ratio);
-        uint8_t prov_g = (uint8_t)(min_g * (1 - ratio) + max_g * ratio);
-        uint8_t prov_b = (uint8_t)(min_b * (1 - ratio) + max_b * ratio);
-        uint32_t color = (0xff << 24) | (prov_b << 16) | (prov_g << 8) | (prov_r);
-        province_color.push_back(std::make_pair(prov_id, color));
-    }
-    return province_color;
-}
 
-void Map::set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_colors) {
-    // Max amout of provinces are limited to 256 * 256
-    tile_sheet->delete_opengl();
-    tile_sheet = new UnifiedRender::Texture(256, 256);
-    std::memset(tile_sheet->buffer, 0, sizeof(tile_sheet->buffer[0]) * (tile_sheet->width * tile_sheet->height));
-
-    for(auto const& province_color : province_colors) {
-        tile_map->buffer[province_color.first] = (0xff << 24) | province_color.second;
-    }
-    tile_sheet->to_opengl();
+void Map::set_map_mode(mapmode_generator _mapmode_func){
+    mapmode_func = _mapmode_func;
+    update_mapmode();
 }
 
 /** Creates the "waving" border around the continent to give it a 19th century map feel */
@@ -404,7 +360,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    } else if(event.button.button == SDL_BUTTON_RIGHT) {
+    }
+    else if(event.button.button == SDL_BUTTON_RIGHT) {
         if(1) {
             const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
             if(tile.province_id == (Province::Id)-1) return;
@@ -443,13 +400,15 @@ void Map::update(const SDL_Event& event, Input& input) {
         if(event.button.button == SDL_BUTTON_MIDDLE) {
             input.last_camera_drag_pos = camera->get_map_pos(mouse_pos);
             input.last_camera_mouse_pos = mouse_pos;
-        } else if(event.button.button == SDL_BUTTON_LEFT) {
+        }
+        else if(event.button.button == SDL_BUTTON_LEFT) {
             if(!input.is_drag) {
                 input.drag_coord = input.select_pos;
                 if(view_mode == MapView::SPHERE_VIEW) {
                     input.drag_coord.first = (int)(tile_map->width * input.drag_coord.first / (2. * M_PI));
                     input.drag_coord.second = (int)(tile_map->height * input.drag_coord.second / M_PI);
-                } else {
+                }
+                else {
                     input.drag_coord.first = (int)input.drag_coord.first;
                     input.drag_coord.second = (int)input.drag_coord.second;
                 }
@@ -471,7 +430,8 @@ void Map::update(const SDL_Event& event, Input& input) {
             input.select_pos = camera->get_map_pos(input.mouse_pos);
             input.select_pos.first = (int)(tile_map->width * input.select_pos.first / (2. * M_PI));
             input.select_pos.second = (int)(tile_map->height * input.select_pos.second / M_PI);
-        } else {
+        }
+        else {
             if(input.middle_mouse_down) {  // Drag the map with middlemouse
                 std::pair<float, float> map_pos = camera->get_map_pos(mouse_pos);
                 float x_pos = camera->position.x + input.last_camera_drag_pos.first - map_pos.first;
@@ -515,14 +475,10 @@ void Map::update(const SDL_Event& event, Input& input) {
 }
 
 // Updates the province color texture with the changed provinces
-void Map::update_provinces(const std::vector<Province*>* provinces) {
-    for(unsigned int i = 0; i < 0xffff; i++) {
-        tile_sheet->buffer[i] = 0x00808080;
-    }
-
-    for(const auto& province : *provinces) {
-        if(province->owner == nullptr) continue;
-        tile_sheet->buffer[world.get_id(province)] = province->owner->get_client_hint().color;
+void Map::update_mapmode() {
+    std::vector<ProvinceColor> province_colors = mapmode_func(world);
+    for(auto const& province_color : province_colors) {
+        tile_sheet->buffer[province_color.id] = province_color.color.get_value();
     }
     tile_sheet->to_opengl();
 }
@@ -553,7 +509,8 @@ void Map::draw(const GameState& gs, const int width, const int height) {
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();
-    } else if(view_mode == MapView::SPHERE_VIEW) {
+    }
+    else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
 

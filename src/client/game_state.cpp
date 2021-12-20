@@ -59,6 +59,7 @@
 #include "client/interface/map_dev_view.hpp"
 #include "client/interface/army.hpp"
 #include "client/interface/building.hpp"
+#include "client/interface/minimap.hpp"
 #include "client/map.hpp"
 #include "unified_render/material.hpp"
 #include "unified_render/model.hpp"
@@ -75,9 +76,10 @@ void GameState::play_nation() {
         map->camera->position.y = capital->max_y;
         map->camera->position.z = -100.f;
     }
-    
+
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
+    minimap = new Interface::Minimap(*this, -300, 0, UI_Origin::UPPER_RIGHT_SCREEN);
     g_client->send(Action::SelectNation::form_packet(curr_nation));
     print_info("Selected nation [%s]", curr_nation->ref_name.c_str());
 }
@@ -159,7 +161,8 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
 
                     if(gs.paused) {
                         ui_ctx->prompt("Control", "Unpaused");
-                    } else {
+                    }
+                    else {
                         ui_ctx->prompt("Control", "Paused");
                     }
                 }
@@ -226,8 +229,8 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
 
     if(gs.current_mode != MapMode::NO_MAP) {
         Map* map = gs.map;
-		
-		std::scoped_lock lock(gs.world->world_mutex);
+
+        std::scoped_lock lock(gs.world->world_mutex);
 
         glPushMatrix();
         glMatrixMode(GL_PROJECTION);
@@ -256,9 +259,6 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     glLoadIdentity();
     glRasterPos2f(-3.0f, -2.0f);
     SDL_GL_SwapWindow(window);
-    if(gs.current_mode != MapMode::NO_MAP) {
-        gs.map->update_provinces(&gs.world->provinces);
-    }
 }
 
 void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& displayed_treaties, GameState& gs) {
@@ -290,6 +290,9 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
 void GameState::update_on_tick(void) {
     //render_lock.lock();
     ui_ctx->do_tick();
+    if(current_mode != MapMode::NO_MAP) {
+        map->update_mapmode();
+    }
     //render_lock.lock();
 }
 
@@ -316,9 +319,9 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 
     // Call update_on_tick on start of the gamestate
     gs.update_tick = true;
-	
+
     gs.run = true;
-	gs.paused = true;
+    gs.paused = true;
 
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
@@ -352,8 +355,8 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
                     if(building->working_unit_type != nullptr) continue;
 
                     is_built = true;
-					
-					g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
+
+                    g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
                     print_info("BUILDING THING!?");
                     break;
                 }
@@ -430,8 +433,8 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
 	logo->left_side_of(*main_menu);
 
     gs.input = Input();
-	
-	std::atomic<bool> run = true;
+
+    std::atomic<bool> run = true;
     while(run) {
         handle_event(gs.input, gs, run);
         render(gs, gs.input, window);
@@ -440,7 +443,7 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
             run = false;
             mm_bg->kill();
             main_menu->kill();
-			logo->kill();
+            logo->kill();
 
             std::scoped_lock lock(gs.sound_lock);
             for(auto& music : gs.music_queue) { delete music; }
@@ -473,15 +476,15 @@ void start_client(int argc, char** argv) {
     g_model_manager = new UnifiedRender::ModelManager();
     g_sound_manager = new UnifiedRender::SoundManager();
     gs.ui_ctx = new UI::Context();
-	
+
     gs.ui_ctx->resize(gs.width, gs.height);
 
     gs.music_fade_value = 1.f;
 
     gs.loaded_world = false;
     gs.loaded_map = false;
-	
-	// Initialize sound subsystem (at 11,050 hz)
+
+    // Initialize sound subsystem (at 11,050 hz)
     SDL_AudioSpec fmt;
     fmt.freq = 11050;
     fmt.format = AUDIO_S16;
@@ -492,7 +495,7 @@ void start_client(int argc, char** argv) {
     if(SDL_OpenAudio(&fmt, NULL) < 0)
         throw std::runtime_error("Unable to open audio: " + std::string(SDL_GetError()));
     SDL_PauseAudio(0);
-    
+
     gs.world = new World();
     gs.world->load_mod();
     gs.map = new Map(*gs.world, gs.width, gs.height);
