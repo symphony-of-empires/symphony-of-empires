@@ -14,11 +14,11 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     this->ideology_pie = new UI::PieChart(0, 24, 128, 128, this);
     this->ideology_pie->text("Ideologies");
 
-    this->militancy_chart = new UI::Chart(0, 0, 128, 128, this);
+    this->militancy_chart = new UI::Chart(0, 24, 128, 128, this);
     this->militancy_chart->text("Militancy");
     this->militancy_chart->right_side_of(*ideology_pie);
 
-    this->con_chart = new UI::Chart(0, 0, 128, 128, this);
+    this->con_chart = new UI::Chart(0, 24, 128, 128, this);
     this->con_chart->text("Conciousness");
     this->con_chart->right_side_of(*militancy_chart);
 
@@ -145,11 +145,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
 
         std::vector<UI::ChartData> ideology_data;
         for(const auto& ideology : world.ideologies) {
-            ideology_data.push_back(UI::ChartData(
-                1.f,
-                ideology->name,
-                UI::Color(rand() % 255, rand() % 255, rand() % 255)
-            ));
+            ideology_data.push_back(UI::ChartData(1.f, ideology->name, ideology->color));
         }
         o.ideology_pie->set_data(ideology_data);
 

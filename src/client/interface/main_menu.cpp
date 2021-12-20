@@ -11,14 +11,14 @@ using namespace Interface;
 
 MainMenu::MainMenu(GameState& _gs)
     : gs{ _gs },
-    UI::Window(-(128 / 2), -(256 / 2), 128, 256)
+    UI::Window(-(512 / 2), -(128 / 2), 512, 128)
 {
     this->origin = CENTER_SCREEN;
     this->is_pinned = true;
     this->is_scroll = false;
     this->text("Symphony of Empires");
     
-    auto* single_btn = new UI::Button(0, 0, 128, 24, this);
+    auto* single_btn = new UI::Button(0, 24, 128, 24, this);
     single_btn->text("Singleplayer");
     single_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
@@ -32,21 +32,21 @@ MainMenu::MainMenu(GameState& _gs)
         o.gs.in_game = true;
     });
 
-    auto* cfg_btn = new UI::Button(0, 0, 128, 24, this);
+    auto* cfg_btn = new UI::Button(0, 24, 128, 24, this);
     cfg_btn->text("Settings");
-    cfg_btn->below_of(*single_btn);
+    cfg_btn->right_side_of(*single_btn);
 
-    auto* mp_btn = new UI::Button(0, 0, 128, 24, this);
+    auto* mp_btn = new UI::Button(0, 24, 128, 24, this);
     mp_btn->text("Join LAN");
-    mp_btn->below_of(*cfg_btn);
+    mp_btn->right_side_of(*cfg_btn);
     mp_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
         o.connect_window = new MainMenuConnectServer(o.gs);
     });
 
-    auto* host_btn = new UI::Button(0, 0, 128, 24, this);
+    auto* host_btn = new UI::Button(0, 24, 128, 24, this);
     host_btn->text("Host");
-    host_btn->below_of(*mp_btn);
+    host_btn->right_side_of(*mp_btn);
     host_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
 
@@ -59,9 +59,9 @@ MainMenu::MainMenu(GameState& _gs)
         o.gs.in_game = true;
     });
 
-    auto* exit_btn = new UI::Button(0, 0, 128, 24, this);
+    auto* exit_btn = new UI::Button(0, 24, 128, 24, this);
     exit_btn->text("Exit");
-    exit_btn->below_of(*host_btn);
+    exit_btn->right_side_of(*host_btn);
 }
 
 MainMenu::~MainMenu() {

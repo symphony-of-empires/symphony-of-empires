@@ -426,10 +426,8 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
     Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
 	
 	UI::Image* logo = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")));
-	logo->origin = CENTER_SCREEN;
 	logo->above_of(*main_menu);
 	logo->left_side_of(*main_menu);
-	logo->x -= (main_menu->width / 2.f) + (logo->width / 2.f);
 
     gs.input = Input();
 	
