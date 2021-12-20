@@ -123,8 +123,8 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
     }
 
     // Mix each color depending of how many live there compared to max_amount
-    UI::Color max = UI::Color::rgb8(255, 229, 217);
-    UI::Color min = UI::Color::rgb8(220, 46, 35);
+    UI::Color min = UI::Color::rgb8(255, 229, 217);
+    UI::Color max = UI::Color::rgb8(220, 46, 35);
     std::vector<ProvinceColor> province_color;
     for(auto const& prov_amount : province_amounts) {
         Province::Id prov_id = prov_amount.first;
