@@ -527,6 +527,7 @@ void Map::draw(const GameState& gs, const int width, const int height) {
     // glActiveTexture(GL_TEXTURE0);
     glDisable(GL_CULL_FACE);
 
+    /*
     for(const auto& building : world.buildings) {
         glm::mat4 model(1.f);
         std::pair<float, float> pos = building->get_pos();
@@ -549,6 +550,7 @@ void Map::draw(const GameState& gs, const int width, const int height) {
         model_shader->set_uniform("model", model);
         unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
     }
+    */
 
     glEnable(GL_CULL_FACE);
 
@@ -664,6 +666,7 @@ void Map::draw(const GameState& gs, const int width, const int height) {
     }
 
     // Draw the "drag area" box
+    /*
     if(gs.input.is_drag) {
         glPushMatrix();
         glTranslatef(0.f, 0.f, 0.f);
@@ -677,6 +680,7 @@ void Map::draw(const GameState& gs, const int width, const int height) {
         glEnd();
         glPopMatrix();
     }
+    */
 
     wind_osc += 1.f;
     if(wind_osc >= 180.f) wind_osc = 0.f;
