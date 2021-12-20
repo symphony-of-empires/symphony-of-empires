@@ -12,7 +12,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     this->new_policy = gs.curr_nation->current_policy;
 
     this->ideology_pie = new UI::PieChart(0, 24, 128, 128, this);
-    this->ideology_pie->text("Ideologies");
+    auto* ideology_pie_lab = new UI::Label(0, 24, "Ideologies", this);
 
     this->militancy_chart = new UI::Chart(0, 24, 128, 128, this);
     this->militancy_chart->text("Militancy");
