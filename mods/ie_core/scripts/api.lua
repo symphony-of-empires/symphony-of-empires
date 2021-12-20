@@ -613,7 +613,9 @@ Culture = {
 
 	adjective = "",
 	noun = "",
-	combo_form = ""
+	combo_form = "",
+
+	color = 0x00000000
 }
 function Culture:new(o)
 	o = o or {}
@@ -623,24 +625,25 @@ function Culture:new(o)
 end
 function Culture:get(ref_name)
 	o = Culture:new()
-	o.id, o.name = get_culture(ref_name)
+	o.id, o.name, o.color, o.adjective, o.noun, o.combo_form = get_culture(ref_name)
 	o.ref_name = ref_name
 	return o
 end
 function Culture:get_by_id(id)
 	o = Culture:new()
-	o.ref_name, o.name = get_culture_by_id(id)
+	o.ref_name, o.name, o.color, o.adjective, o.noun, o.combo_form = get_culture_by_id(id)
 	o.id = id
 	return o
 end
 function Culture:register()
-	self.id = add_culture(self.ref_name, self.name)
+	self.id = add_culture(self.ref_name, self.name, self.color, self.adjective, self.noun, self.combo_form)
 end
 
 Religion = {
 	id = 0,
 	ref_name = "",
-	name = ""
+	name = "",
+	color = 0x00000000
 }
 function Religion:new(o)
 	o = o or {}
@@ -650,18 +653,18 @@ function Religion:new(o)
 end
 function Religion:get(ref_name)
 	o = Religion:new()
-	o.id, o.name = get_religion(ref_name)
+	o.id, o.name, o.color = get_religion(ref_name)
 	o.ref_name = ref_name
 	return o
 end
 function Religion:get_by_id(id)
 	o = Religion:new()
-	o.ref_name, o.name = get_religion_by_id(id)
+	o.ref_name, o.name, o.color = get_religion_by_id(id)
 	o.id = id
 	return o
 end
 function Religion:register()
-	self.id = add_religion(self.ref_name, self.name)
+	self.id = add_religion(self.ref_name, self.name, self.color)
 end
 
 BuildingType = {

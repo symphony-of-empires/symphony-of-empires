@@ -3,10 +3,12 @@
 -- European
 german = Culture:new{ ref_name = "german" }
 german.name = _("German")
+german.color = 0x916c53
 german:register()
 french = Culture:new{ ref_name = "french" }
 french.name = _("French")
 french.combo_form = _("Franco")
+french.color = 0x7346ab
 french:register()
 british = Culture:new{ ref_name = "british" }
 british.name = _("British")
