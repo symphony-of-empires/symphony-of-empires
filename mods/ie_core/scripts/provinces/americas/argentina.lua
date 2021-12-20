@@ -55,7 +55,7 @@ for k, v in pairs(owned_provinces_list) do
 end
 
 -- Uncolonized south of argentina (disputed by chile too because nobody owns them)
-local uncolonized_provinces_list = {
+local mapuche_owned_provinces_list = {
     { ref_name = "corrientes", name = _("Corrientes"), color = rgb(241, 158, 254) },
     { ref_name = "la_pampa", name = _("La Pampa"), color = rgb(255, 165, 234) },
     { ref_name = "viedma", name = _("Viedma"), color = rgb(136, 0, 152) },
@@ -68,24 +68,43 @@ local uncolonized_provinces_list = {
     { ref_name = "dupuy", name = _("Dupuy"), color = rgb(255, 150, 109) },
     { ref_name = "llancanelo", name = _("Llancanelo"), color = rgb(175, 255, 178) }
 }
-
-for k, v in pairs(uncolonized_provinces_list) do
+for k, v in pairs(mapuche_owned_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_pop(artisan, argentinian, catholic, 2000, 0.8)
-    province:add_pop(farmer, argentinian, catholic, 8000, 0.5)
-    province:add_pop(soldier, argentinian, catholic, 1000, 0.6)
-    province:add_pop(craftsmen, argentinian, catholic, 2000, 0.4)
-    province:add_pop(bureaucrat, argentinian, catholic, 500, 0.6)
-    province:add_pop(aristocrat, argentinian, catholic, 100, 0.8)
-    province:add_pop(clergymen, argentinian, catholic, 1000, 0.5)
-    province:add_pop(laborer, argentinian, catholic, 1000, 0.5)
-    province:add_pop(entrepreneur, argentinian, catholic, 50, 0.9)
-
+    province:add_pop(artisan, Culture:get("mapuche"), Religion:get("mapuche"), 2000, 0.8)
+    province:add_pop(farmer, Culture:get("mapuche"), Religion:get("mapuche"), 8000, 0.5)
+    province:add_pop(soldier, Culture:get("mapuche"), Religion:get("mapuche"), 1000, 0.6)
+    province:add_pop(craftsmen, Culture:get("mapuche"), Religion:get("mapuche"), 2000, 0.4)
+    province:add_pop(bureaucrat, Culture:get("mapuche"), Religion:get("mapuche"), 500, 0.6)
+    province:add_pop(aristocrat, Culture:get("mapuche"), Religion:get("mapuche"), 100, 0.8)
+    province:add_pop(clergymen, Culture:get("mapuche"), Religion:get("mapuche"), 1000, 0.5)
+    province:add_pop(laborer, Culture:get("mapuche"), Religion:get("mapuche"), 1000, 0.5)
+    province:add_pop(entrepreneur, Culture:get("mapuche"), Religion:get("mapuche"), 50, 0.9)
+    
     province:add_nucleus(argentina)
     province:add_nucleus(chile)
-    province:add_nucleus(mapuche)
-    province:give_to(mapuche)
-    province:add_industry(wheat_farm, mapuche, andes_transport)
+    province:add_nucleus(Nation:get("mapuche"))
+    province:give_to(Nation:get("mapuche"))
+    province:add_industry(wheat_farm, Nation:get("mapuche"), andes_transport)
 end
+
+--------------------------------------------------------------
+-- Continent: Americas
+-- Subcontinent: South America
+-- Country: United Kingdom
+province = Province:new{ ref_name = "falkland_islands", color = 0x078689 }
+province.name = _("Falkland Islands")
+province:register()
+province:add_industry(wheat_farm, russia, andes_transport)
+province:add_pop(artisan, british, protestant, 300, 0.7)
+province:add_pop(farmer, british, protestant, 2700, 0.6)
+province:add_pop(soldier, british, protestant, 800, 0.8)
+province:add_pop(craftsmen, british, protestant, 700, 0.5)
+province:add_pop(bureaucrat, british, protestant, 200, 0.7)
+province:add_pop(aristocrat, british, protestant, 200, 0.9)
+province:add_pop(clergymen, british, protestant, 500, 0.9)
+province:add_pop(laborer, british, protestant, 2700, 0.8)
+province:add_pop(entrepreneur, british, protestant, 100, 0.9)
+province:add_nucleus(united_kingdom)
+province:give_to(united_kingdom)
