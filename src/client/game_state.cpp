@@ -161,7 +161,8 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
 
                     if(gs.paused) {
                         ui_ctx->prompt("Control", "Unpaused");
-                    } else {
+                    }
+                    else {
                         ui_ctx->prompt("Control", "Paused");
                     }
                 }
@@ -218,8 +219,6 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     int& height = gs.height;
 
     std::pair<float, float>& select_pos = input.select_pos;
-    Unit* selected_unit = input.selected_unit;
-    Building* selected_building = input.selected_building;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.f);
@@ -230,8 +229,8 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
 
     if(gs.current_mode != MapMode::NO_MAP) {
         Map* map = gs.map;
-		
-		std::scoped_lock lock(gs.world->world_mutex);
+
+        std::scoped_lock lock(gs.world->world_mutex);
 
         glPushMatrix();
         glMatrixMode(GL_PROJECTION);
@@ -240,15 +239,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(glm::value_ptr(map->camera->get_view()));
 
-        map->draw(width, height);
-
-        if(selected_unit != nullptr) {
-
-        }
-
-        if(selected_building != nullptr) {
-            
-        }
+        map->draw(gs, width, height);
 
         glBindTexture(GL_TEXTURE_2D, 0);
         glBegin(GL_QUADS);
@@ -268,10 +259,6 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     glLoadIdentity();
     glRasterPos2f(-3.0f, -2.0f);
     SDL_GL_SwapWindow(window);
-    if(gs.current_mode != MapMode::NO_MAP) {
-        Map* map = gs.map;
-        map->update_tiles(*gs.world);
-    }
 }
 
 void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& displayed_treaties, GameState& gs) {
@@ -303,6 +290,9 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
 void GameState::update_on_tick(void) {
     //render_lock.lock();
     ui_ctx->do_tick();
+    if(current_mode != MapMode::NO_MAP) {
+        map->update_mapmode();
+    }
     //render_lock.lock();
 }
 
@@ -329,9 +319,9 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
 
     // Call update_on_tick on start of the gamestate
     gs.update_tick = true;
-	
+
     gs.run = true;
-	gs.paused = true;
+    gs.paused = true;
 
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
@@ -365,13 +355,12 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
                     if(building->working_unit_type != nullptr) continue;
 
                     is_built = true;
-					
-					g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
-                }
 
-                // If we couldn't find a suitable building we wont be able to find buildings for other
-                // units either
-                if(!is_built) break;
+                    g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
+                    print_info("BUILDING THING!?");
+                    break;
+                }
+                if(!is_built) continue;
 
                 gs.production_queue.erase(gs.production_queue.begin() + i);
                 i--;
@@ -438,16 +427,16 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
     mm_bg->is_fullscreen = true;
 
     Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
-	
-	UI::Image* logo = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")));
-	logo->origin = UI_Origin::CENTER_SCREEN;
-	logo->above_of(*main_menu);
-	logo->left_side_of(*main_menu);
-	logo->x -= (main_menu->width / 2.f) + (logo->width / 2.f);
+
+    UI::Image* logo = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")));
+    logo->origin = UI_Origin::CENTER_SCREEN;
+    logo->above_of(*main_menu);
+    logo->left_side_of(*main_menu);
+    logo->x -= (main_menu->width / 2.f) + (logo->width / 2.f);
 
     gs.input = Input();
-	
-	std::atomic<bool> run = true;
+
+    std::atomic<bool> run = true;
     while(run) {
         handle_event(gs.input, gs, run);
         render(gs, gs.input, window);
@@ -456,7 +445,7 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
             run = false;
             mm_bg->kill();
             main_menu->kill();
-			logo->kill();
+            logo->kill();
 
             std::scoped_lock lock(gs.sound_lock);
             for(auto& music : gs.music_queue) { delete music; }
@@ -489,15 +478,15 @@ void start_client(int argc, char** argv) {
     g_model_manager = new UnifiedRender::ModelManager();
     g_sound_manager = new UnifiedRender::SoundManager();
     gs.ui_ctx = new UI::Context();
-	
+
     gs.ui_ctx->resize(gs.width, gs.height);
 
     gs.music_fade_value = 1.f;
 
     gs.loaded_world = false;
     gs.loaded_map = false;
-	
-	// Initialize sound subsystem (at 11,050 hz)
+
+    // Initialize sound subsystem (at 11,050 hz)
     SDL_AudioSpec fmt;
     fmt.freq = 11050;
     fmt.format = AUDIO_S16;
@@ -508,7 +497,7 @@ void start_client(int argc, char** argv) {
     if(SDL_OpenAudio(&fmt, NULL) < 0)
         throw std::runtime_error("Unable to open audio: " + std::string(SDL_GetError()));
     SDL_PauseAudio(0);
-    
+
     gs.world = new World();
     gs.world->load_mod();
     gs.map = new Map(*gs.world, gs.width, gs.height);

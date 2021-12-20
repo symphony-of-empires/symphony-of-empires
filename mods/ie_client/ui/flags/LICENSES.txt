@@ -214,3 +214,26 @@ russia_socialism
 russia_republic
 	By svg by R-41, reworked by Pianist - http://en.wikipedia.org/wiki/Image:Flag_of_Russia_1991-1993.svg, Public Domain, https://commons.wikimedia.org/w/index.php?curid=2782838
 
+france_monarchy
+	By Sodacan - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=61419652
+
+portugal_monarchy
+	By Crenelator - Carta de Lei de 13 de Maio 1816, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=46845578
+
+sweden_socialism
+	Public Domain, https://commons.wikimedia.org/w/index.php?curid=1311387
+
+romania_socialism
+	By Various, see File History below for details. - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=3780151
+
+moldavia_monarchy
+	By Лобачев Владимир - Own work, CC0, https://commons.wikimedia.org/w/index.php?curid=96572747
+
+wallachia_monarchy
+	By Лобачев Владимир - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=98143185
+
+moldavia_republic
+	By Лобачев Владимир - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=89989666
+
+moldavia_socialism
+	By SVG by Pianist - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=480852

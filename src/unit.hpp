@@ -99,6 +99,11 @@ public:
         // Deal the damage
         enemy.size -= std::min<size_t>(enemy.size, damage_dealt);
     };
+
+    void set_target(Province* province) {
+        target = province;
+        move_progress = std::sqrt(std::abs((province->max_x + ((province->max_x - province->min_x) / 2.f)) - (target->max_x + ((target->max_x - target->min_x) / 2.f))) + std::abs((province->max_y + ((province->max_y - province->min_y) / 2.f)) - (target->max_y + ((target->max_y - target->min_y) / 2.f))));
+    };
     
     // Type of unit
     UnitType* type;

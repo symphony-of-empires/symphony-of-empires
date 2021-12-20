@@ -26,8 +26,10 @@ public:
     std::pair<float, float> last_camera_mouse_pos;
     std::pair<int, int> mouse_pos;
 
-    Unit* selected_unit = nullptr;
-    Building* selected_building = nullptr;
+    std::vector<Unit*> selected_units;
+
+    bool is_drag;
+    std::pair<int, int> drag_coord;
 };
 
 class Client;

@@ -127,10 +127,10 @@ GoodView::GoodView(GameState& _gs, Good* _good)
 
     // Industry types that produce this good
     this->producing_it_group = new UI::Group(0, 0, 128, 128, this);
-    this->producing_it_group->below_of(*this->icon_img);
+    this->producing_it_group->below_of(*this->avg_price_chart);
     i = 0;
     for(const auto& it : this->gs.world->building_types) {
-        bool is_present = std::find(it->inputs.begin(), it->inputs.end(), this->good) != it->inputs.end();
+        bool is_present = std::find(it->outputs.begin(), it->outputs.end(), this->good) != it->outputs.end();
         if(!is_present) continue;
 
         UI::Button* it_btn = new UI::Button(0, 24 * i, 128, 24, this->producing_it_group);
@@ -143,7 +143,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     this->consumer_it_group->right_side_of(*this->producing_it_group);
     i = 0;
     for(const auto& it : this->gs.world->building_types) {
-        bool is_present = std::find(it->outputs.begin(), it->outputs.end(), this->good) != it->inputs.end();
+        bool is_present = std::find(it->inputs.begin(), it->inputs.end(), this->good) != it->inputs.end();
         if(!is_present) continue;
 
         UI::Button* it_btn = new UI::Button(0, 24 * i, 128, 24, this->consumer_it_group);

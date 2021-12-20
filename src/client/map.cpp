@@ -14,6 +14,7 @@
 #include "unified_render/model.hpp"
 #include "io_impl.hpp"
 #include "client/interface/province_view.hpp"
+#include "client/interface/minimap.hpp"
 #include "world.hpp"
 #include "client/orbit_camera.hpp"
 #include "client/flat_camera.hpp"
@@ -79,22 +80,6 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     for(size_t i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer[i] = 0xffdddddd;
     }
-    for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        Nation* province_owner = world.provinces[i]->owner;
-        if(province_owner == nullptr) {
-            tile_sheet->buffer[i] = 0xffdddddd;
-        }
-        else if(province_owner->cached_id == (Nation::Id)-1) {
-            tile_sheet->buffer[i] = 0xffdddddd;
-        }
-        else {
-            tile_sheet->buffer[i] = province_owner->get_client_hint().color;
-        }
-    }
-    // Water
-    tile_sheet->buffer[(Province::Id)-2] = 0x00000000;
-    // Land
-    tile_sheet->buffer[(Province::Id)-1] = 0xffdddddd;
 
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
@@ -115,7 +100,8 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     print_info("Uploading data to OpenGL");
     UnifiedRender::TextureOptions tile_sheet_options{};
-    tile_sheet->to_opengl();
+
+    set_map_mode(political_map_mode);
     tile_sheet_options.internal_format = GL_RGBA32F;
     tile_map->to_opengl(tile_sheet_options);
     tile_map->gen_mipmaps();
@@ -195,6 +181,26 @@ void Map::set_view(MapView view) {
         camera = new OrbitCamera(old_width, old_height, 100.f);
     }
 }
+std::vector<ProvinceColor> political_map_mode(const World& world) {
+    std::vector<ProvinceColor> province_color;
+    for(unsigned int i = 0; i < world.provinces.size(); i++) {
+        Nation* province_owner = world.provinces[i]->owner;
+        if(province_owner == nullptr) {
+            province_color.push_back(ProvinceColor(i, UI::Color::rgba32(0xffdddddd)));
+        }
+        else if(province_owner->cached_id == (Nation::Id)-1) {
+            province_color.push_back(ProvinceColor(i, UI::Color::rgba32(0xffdddddd)));
+        }
+        else {
+            province_color.push_back(ProvinceColor(i, UI::Color::rgba32(province_owner->get_client_hint().color)));
+        }
+    }
+    // Water
+    province_color.push_back(ProvinceColor((Province::Id)-2, UI::Color::rgba32(0x00000000)));
+    // Land
+    province_color.push_back(ProvinceColor((Province::Id)-1, UI::Color::rgba32(0xffdddddd)));
+    return province_color;
+}
 
 void Map::reload_shaders() {
     delete map_shader;
@@ -209,12 +215,9 @@ void Map::reload_shaders() {
 }
 
 
-void Map::set_map_mode(std::vector<ProvinceColor> province_colors) {
-    // Max amout of provinces are limited to 256 * 256
-    for(auto const& province_color : province_colors) {
-        tile_sheet->buffer[province_color.id] = province_color.color.get_value();
-    }
-    tile_sheet->to_opengl();
+void Map::set_map_mode(mapmode_generator _mapmode_func){
+    mapmode_func = _mapmode_func;
+    update_mapmode();
 }
 
 /** Creates the "waving" border around the continent to give it a 19th century map feel */
@@ -323,37 +326,29 @@ void Map::draw_flag(const Nation* nation) {
 
 void Map::handle_click(GameState& gs, SDL_Event event) {
     Input& input = gs.input;
+
     if(input.select_pos.first < 0 || input.select_pos.first >= gs.world->width || input.select_pos.second < 0 || input.select_pos.second >= gs.world->height) {
         return;
     }
-    Unit* selected_unit = input.selected_unit;
-    Building* selected_building = input.selected_building;
 
     if(event.button.button == SDL_BUTTON_LEFT) {
         std::pair<float, float>& select_pos = input.select_pos;
-
-        selected_unit = nullptr;
-        selected_building = nullptr;
-
         const Tile& tile = gs.world->get_tile(select_pos.first, select_pos.second);
         switch(gs.current_mode) {
         case MapMode::COUNTRY_SELECT:
-#if defined TILE_GRANULARITY
-            gs.select_nation->change_nation(tile.owner_id);
-#else
             if(tile.province_id < (Province::Id)-3) {
                 auto province = world.provinces[tile.province_id];
                 gs.select_nation->change_nation(province->owner->cached_id);
             }
-#endif
             break;
         case MapMode::NORMAL:
+            input.selected_units.clear();
             // Check if we selected an unit
             for(const auto& unit : gs.world->units) {
                 const float size = 2.f;
                 std::pair<float, float> pos = unit->get_pos();
                 if((int)select_pos.first > (int)pos.first - size && (int)select_pos.first < (int)pos.second + size && (int)select_pos.second >(int)pos.first - size && (int)select_pos.second < (int)pos.second + size) {
-                    selected_unit = unit;
+                    input.selected_units.push_back(unit);
                     return;
                 }
             }
@@ -366,36 +361,9 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         default:
             break;
         }
-
-        // TODO: We should instead make it so you can build stuff in a "building" mode
-        /*
-
-        // Server will reject building build request if it's not in our territory (and it's not being built on water either)
-        if(tile.owner_id != gs.world->get_id(gs.curr_nation) && tile.owner_id != (Nation::Id)-1) {
-            return;
-        }
-
-        // Tell the server about an action for building an building
-        std::scoped_lock lock(gs.client->packet_mutex);
-        Packet packet = Packet();
-        Archive ar = Archive();
-        ActionType action = ActionType::BUILDING_ADD;
-        ::serialize(ar, &action);
-
-        Building building = Building();
-        building.x = select_pos.first;
-        building.y = select_pos.second;
-        // TODO FIX
-        building.owner = gs.world->nations[gs.select_nation->curr_selected_nation];
-        ::serialize(ar, &building);  // BuildingObj
-        packet.data(ar.get_buffer(), ar.size());
-        gs.client->packet_queue.push_back(packet);
-        */
         return;
     }
     else if(event.button.button == SDL_BUTTON_RIGHT) {
-        std::pair<float, float>& select_pos = input.select_pos;
-
         if(1) {
             const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
             if(tile.province_id == (Province::Id)-1) return;
@@ -407,34 +375,25 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             fclose(fp);
         }
 
-        if(selected_unit != nullptr) {
+        for(const auto& unit : input.selected_units) {
             const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
             if(tile.province_id == (Province::Id)-1) return;
-            selected_unit->target = gs.world->provinces[tile.province_id];
+            unit->target = gs.world->provinces[tile.province_id];
 
             Packet packet = Packet();
             Archive ar = Archive();
             ActionType action = ActionType::UNIT_CHANGE_TARGET;
             ::serialize(ar, &action);
-            ::serialize(ar, &selected_unit);
-            ::serialize(ar, &selected_unit->target);
+            ::serialize(ar, &unit);
+            ::serialize(ar, &unit->target);
             packet.data(ar.get_buffer(), ar.size());
             std::scoped_lock lock(gs.client->pending_packets_mutex);
             gs.client->pending_packets.push_back(packet);
-            return;
         }
-
-#if defined TILE_GRANULARITY
-        if(selected_building != nullptr) {
-            //new BuildUnitWindow(gs, selected_building, gs.top_win->top_win);
-            return;
-        }
-#endif
     }
 }
 
-void Map::update(const SDL_Event& event, Input& input)
-{
+void Map::update(const SDL_Event& event, Input& input) {
     std::pair<int, int>& mouse_pos = input.mouse_pos;
     std::pair<float, float>& select_pos = input.select_pos;
     switch(event.type) {
@@ -444,6 +403,22 @@ void Map::update(const SDL_Event& event, Input& input)
             input.last_camera_drag_pos = camera->get_map_pos(mouse_pos);
             input.last_camera_mouse_pos = mouse_pos;
         }
+        else if(event.button.button == SDL_BUTTON_LEFT) {
+            if(!input.is_drag) {
+                input.drag_coord = input.select_pos;
+                if(view_mode == MapView::SPHERE_VIEW) {
+                    input.drag_coord.first = (int)(tile_map->width * input.drag_coord.first / (2. * M_PI));
+                    input.drag_coord.second = (int)(tile_map->height * input.drag_coord.second / M_PI);
+                }
+                else {
+                    input.drag_coord.first = (int)input.drag_coord.first;
+                    input.drag_coord.second = (int)input.drag_coord.second;
+                }
+                input.is_drag = true;
+            }
+        }
+        break;
+    case SDL_MOUSEBUTTONUP:
         break;
     case SDL_MOUSEMOTION:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -502,70 +477,16 @@ void Map::update(const SDL_Event& event, Input& input)
 }
 
 // Updates the province color texture with the changed provinces
-void Map::update_province(std::vector<Province*> provinces) {
-    for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        Nation* province_owner = world.provinces[i]->owner;
-        if(province_owner == nullptr) continue;
-        tile_sheet->buffer[i] = province_owner->get_client_hint().color;
+void Map::update_mapmode() {
+    std::vector<ProvinceColor> province_colors = mapmode_func(world);
+    for(auto const& province_color : province_colors) {
+        tile_sheet->buffer[province_color.id] = province_color.color.get_value();
     }
     tile_sheet->to_opengl();
 }
 
-// Updates the tiles texture with the changed tiles
-void Map::update_tiles(World& world) {
-#if defined TILE_GRANULARITY
-    glDisable(GL_CULL_FACE);
-    if(world.changed_tile_coords.size() > 0) {
-        UnifiedRender::OpenGl::Framebuffer* fbo = new UnifiedRender::OpenGl::Framebuffer();
-        fbo->use();
-        fbo->set_texture(0, tile_map);
-
-        glViewport(0, 0, tile_map->width, tile_map->height);
-        glBlendFunc(GL_ONE, GL_ZERO);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glActiveTexture(GL_TEXTURE0);
-        glUseProgram(0);
-        glPushMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0.f, (float)tile_map->width, (float)tile_map->height, 0.f, 0.0f, 1.f);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glBegin(GL_POINTS);
-        for(const auto& coords : world.changed_tile_coords) {
-            uint8_t r, g, b, a;
-            Tile tile = world.get_tile(coords.first, coords.second);
-            r = tile.province_id & 0xff;
-            g = (tile.province_id >> 8) & 0xff;
-            b = tile.owner_id & 0xff;
-            a = (tile.owner_id >> 8) & 0xff;
-            glColor4f(r / 256.f, g / 256.f, b / 256.f, a / 256.f);
-            glVertex2i(coords.first, tile_map->height - coords.second);
-        }
-        glEnd();
-        glPopMatrix();
-
-        tile_map->gen_mipmaps();
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        delete fbo;
-        world.changed_tile_coords.clear();
-    }
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
-#endif
-}
-
-void Map::draw(const int width, const int height) {
+void Map::draw(const GameState& gs, const int width, const int height) {
     glm::mat4 view, projection;
-
-    // for(const auto& province : world.provinces) {
-    //     province_color_tex->buffer[world.get_id(province)] = 0xff000000;
-    //     if(province->owner != nullptr) {
-    //         province_color_tex->buffer[world.get_id(province)] = province->owner->get_client_hint().color;
-    //     }
-    // }
-    // province_color_tex->to_opengl();
 
     map_shader->use();
     view = camera->get_view();
@@ -608,12 +529,8 @@ void Map::draw(const int width, const int height) {
 
     for(const auto& building : world.buildings) {
         glm::mat4 model(1.f);
-#if defined TILE_GRANULARITY
-        model = glm::translate(model, glm::vec3(building->x, building->y, 0.f));
-#else
         std::pair<float, float> pos = building->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
-#endif
         model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
         draw_flag(building->get_owner());
@@ -621,12 +538,8 @@ void Map::draw(const int width, const int height) {
     }
     for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
-#if defined TILE_GRANULARITY
-        model = glm::translate(model, glm::vec3(unit->x, unit->y, 0.f));
-#else
         std::pair<float, float> pos = unit->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
-#endif
         model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
         draw_flag(unit->owner);
@@ -643,7 +556,6 @@ void Map::draw(const int width, const int height) {
     glUseProgram(0);
     glActiveTexture(GL_TEXTURE0);
 
-    glColor3f(1.f, 1.f, 1.f);
     /*for(const auto& building : world.buildings) {
         glPushMatrix();
         glTranslatef(building->x, building->y, -1.f);
@@ -665,14 +577,11 @@ void Map::draw(const int width, const int height) {
         glEnd();
         glPopMatrix();
     }*/
+
     for(const auto& unit : world.units) {
         glPushMatrix();
-#if !defined TILE_GRANULARITY
         std::pair<float, float> pos = unit->get_pos();
         glTranslatef(pos.first, pos.second, -0.1f);
-#else
-        glTranslatef(unit->x, unit->y, -0.1f);
-#endif
         float _w = 2, _h = 2;
         nation_flags[world.get_id(unit->owner)]->bind();
 
@@ -703,11 +612,7 @@ void Map::draw(const int width, const int height) {
         glBindTexture(GL_TEXTURE_2D, 0);
 
         glPushMatrix();
-#if !defined TILE_GRANULARITY
         glTranslatef(pos.first, pos.second, -0.1f);
-#else
-        glTranslatef(unit->x, unit->y, -0.1f);
-#endif
         _w = unit->size / unit->type->max_health;
         _h = 0.5f;
         glColor3f(0.f, 1.f, 0.f);
@@ -728,11 +633,7 @@ void Map::draw(const int width, const int height) {
         glPopMatrix();
 
         glPushMatrix();
-#if !defined TILE_GRANULARITY
         glTranslatef(pos.first + (unit->size / unit->type->max_health), pos.second - 2.f, -1.f);
-#else
-        glTranslatef(unit->x + (unit->size / unit->type->max_health), unit->y - 2.f, -1.f);
-#endif
         _w = (unit->type->max_health - unit->size) / unit->type->max_health;
         _h = 0.5f;
         glColor3f(1.f, 0.f, 0.f);
@@ -752,24 +653,29 @@ void Map::draw(const int width, const int height) {
         glEnd();
         glPopMatrix();
 
-#if defined TILE_GRANULARITY
-        glBegin(GL_LINES);
-        glColor3f(1.f, 0.f, 0.f);
-        glVertex2f(unit->x, unit->y);
-        glColor3f(0.f, 1.f, 0.f);
-        glVertex2f(unit->tx, unit->ty);
-        glEnd();
-#else
         if(unit->target != nullptr) {
             std::pair<float, float> pos = unit->get_pos();
             glBegin(GL_LINES);
-            glColor3f(1.f, 0.f, 0.f);
+            glColor3f(0.f, 0.f, 1.f / std::max(0.1f, unit->move_progress));
             glVertex2f(pos.first, pos.second);
-            glColor3f(0.f, 1.f, 0.f);
             glVertex2f(unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
             glEnd();
         }
-#endif
+    }
+
+    // Draw the "drag area" box
+    if(gs.input.is_drag) {
+        glPushMatrix();
+        glTranslatef(0.f, 0.f, 0.f);
+        glColor3f(1.f, 1.f, 1.f);
+        glBegin(GL_LINE_STRIP);
+        glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
+        glVertex2f(gs.input.select_pos.first, gs.input.drag_coord.second);
+        glVertex2f(gs.input.select_pos.first, gs.input.select_pos.second);
+        glVertex2f(gs.input.drag_coord.first, gs.input.select_pos.second);
+        glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
+        glEnd();
+        glPopMatrix();
     }
 
     wind_osc += 1.f;

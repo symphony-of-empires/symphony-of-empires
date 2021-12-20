@@ -127,13 +127,9 @@ void Client::net_loop(void) {
 			// since the client takes most of it's time sending to the server anyways)
 			if(!pending_packets.empty()) {
 				if(pending_packets_mutex.try_lock()) {
-                    if(gs.host_mode) {
-
-                    } else {
-                        std::scoped_lock lock(packets_mutex);
-                        for(const auto& packet : pending_packets) {
-                            packets.push_back(packet);
-                        }
+                    std::scoped_lock lock(packets_mutex);
+                    for(const auto& packet : pending_packets) {
+                        packets.push_back(packet);
                     }
 
 					pending_packets.clear();
@@ -150,12 +146,12 @@ void Client::net_loop(void) {
 #endif
 
             // Conditional of above statements
-			// When we are on host_mode we discard all potential packets send by the server
-			// (because our data is already synchronized)
+			// When we are on host_mode we discard all potential packets sent by the server
+			// (because our data is already synchronized since WE ARE the server)
 #ifdef unix
-            if(gs.host_mode && (pfd.revents & POLLIN || has_pending)) {
+            if(!gs.host_mode && (pfd.revents & POLLIN || has_pending)) {
 #elif defined windows
-            if(gs.host_mode && (has_pending)) {
+            if(!gs.host_mode && (has_pending)) {
 #endif
                 Packet packet = Packet(fd);
                 Archive ar = Archive();
@@ -166,6 +162,8 @@ void Client::net_loop(void) {
                 ar.rewind();
                 ::deserialize(ar, &action);
 
+                print_info("Receiving package of %zu bytes", packet.size());
+
                 // Ping from server, we should answer with a pong!
                 //std::scoped_lock lock(world.world_mutex);
                 switch(action) {
@@ -173,7 +171,6 @@ void Client::net_loop(void) {
                     packet.send(&action);
                     print_info("Received ping, responding with pong!");
                 } break;
-                if (gs.host_mode) continue;
                 // Update/Remove/Add Actions
                 // These actions all follow the same format they give a specialized ID for the index
                 // where the operated object is or should be; this allows for extreme-level fuckery
@@ -296,16 +293,7 @@ void Client::net_loop(void) {
                 } break;
                 case ActionType::WORLD_TICK: {
                     // Give up the world mutex for now
-                    if(!gs.host_mode) {
-                        world.world_mutex.unlock();
-                    }
-                    //gs.update_on_tick();
                     gs.update_tick = true;
-
-                    if(!gs.host_mode) {
-                        world.world_mutex.lock();
-                    }
-                    // world.time++;
                 } break;
                 case ActionType::PROVINCE_COLONIZE: {
                     Province* province;
@@ -321,11 +309,10 @@ void Client::net_loop(void) {
 
             // Client will also flush it's queue to the server
             std::scoped_lock lock(packets_mutex);
-            if(!gs.host_mode) {
-                for(auto& packet : packets) {
-                    packet.stream = SocketStream(fd);
-                    packet.send();
-                }
+            for(auto& packet : packets) {
+                packet.stream = SocketStream(fd);
+                packet.send();
+                print_info("Sending package of %zu bytes", packet.size());
             }
             packets.clear();
         }
@@ -342,8 +329,13 @@ void Client::wait_for_snapshot(void) {
 }
 
 void Client::send(const Packet& packet) {
-    std::scoped_lock lock(pending_packets_mutex);
-    pending_packets.push_back(packet);
+    if(packets_mutex.try_lock()) {
+        packets.push_back(packet);
+        packets_mutex.unlock();
+    } else {
+        std::scoped_lock lock(pending_packets_mutex);
+        pending_packets.push_back(packet);
+    }
 }
 
 Client::~Client() {

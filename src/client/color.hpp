@@ -6,13 +6,14 @@
 namespace UI {
     struct Color {
     public:
+        Color(): r{ 0 }, g{ 0 }, b{ 0 } {}
         Color(float red, float green, float blue): r{ red }, g{ green }, b{ blue } {}
         Color(float red, float green, float blue, float alpha): r{ red }, g{ green }, b{ blue }, a{ alpha } {}
         float r, g, b;
         float a = 1.f;
         uint32_t get_value() const;
         static Color rgb8(uint8_t red, uint8_t green, uint8_t blue);
-        static Color rgba8(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
+        static Color rgba8(uint8_t red, uint8_t green, uint8_t blue,uint8_t alpha);
         static Color rgba32(uint32_t argb);
         static Color lerp(Color color1, Color color2, float lamda);
     };
