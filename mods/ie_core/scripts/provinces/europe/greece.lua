@@ -54,6 +54,7 @@ for k, v in pairs(turkish_greece_provinces) do
     province:add_pop(entrepreneur, greek, christian, 800, 0.9)
     province:add_nucleus(greece)
     province:give_to(turkey)
+    province:set_terrain(plains)
 end
 
 local greek_greece_provinces = {
@@ -77,4 +78,5 @@ for k, v in pairs(greek_greece_provinces) do
     province:add_pop(entrepreneur, greek, christian, 800, 0.9)
     province:add_nucleus(greece)
     province:give_to(turkey)
+    province:set_terrain(plains)
 end

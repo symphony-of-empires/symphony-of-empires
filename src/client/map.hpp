@@ -19,10 +19,13 @@ namespace UnifiedRender {
         class Framebuffer;
     }
 }
+
 #include "province.hpp"
+#include "client/color.hpp"
 
 #include <vector>
 #include <utility>
+#include <functional>
 
 enum class MapView {
     SPHERE_VIEW,
@@ -35,6 +38,15 @@ class Nation;
 class GameState;
 union SDL_Event;
 struct Input;
+
+struct ProvinceColor {
+    Province::Id id;
+    UI::Color color;
+    ProvinceColor(Province::Id _id, UI::Color _color): id{ _id }, color{ _color } {}
+};
+typedef std::function<std::vector<ProvinceColor>(const World& world)> mapmode_generator;
+std::vector<ProvinceColor> political_map_mode(const World& world);
+
 class Map {
 public:
     Map(const World& world, int screen_width, int screen_height);
@@ -78,18 +90,19 @@ public:
     const UnifiedRender::Texture* overlay_tex;
     GLuint coastline_gl_list;
     GLuint frame_buffer;
-    UnifiedRender::Model* ourModel;
     UnifiedRender::OpenGl::Framebuffer* border_fbuffer;
 
     void update(const SDL_Event& event, Input& input);
-    void update_provinces(const std::vector<Province*>* provinces);
+    void update_mapmode();
     void draw_flag(const Nation* nation);
     void draw(const GameState& gs, const int width, const int height);
     void handle_click(GameState& gs, SDL_Event event);
-    void set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_colors);
+    void set_map_mode(mapmode_generator mapmode_func);
     void set_view(MapView view);
     void reload_shaders();
 private:
     UnifiedRender::Texture* gen_border_sdf();
+    // Called to get mapmode
+    mapmode_generator mapmode_func;
 };
 
