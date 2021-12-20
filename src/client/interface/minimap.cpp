@@ -163,7 +163,7 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
             }
         }
         UI::Color max = UI::Color::rgba32(world.cultures[max_culture_id]->color);
-        UI::Color color = UI::Color::lerp(min, max, max_amount / total_amount);
+        UI::Color color = UI::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
     // Water
@@ -200,7 +200,7 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
             }
         }
         UI::Color max = UI::Color::rgba32(world.religions[max_religion_id]->color);
-        UI::Color color = UI::Color::lerp(min, max, max_amount / total_amount);
+        UI::Color color = UI::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
     // Water
