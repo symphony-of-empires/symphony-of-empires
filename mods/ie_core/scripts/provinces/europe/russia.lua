@@ -650,4 +650,5 @@ for k, v in pairs(russia_provinces_list) do
     province:add_pop(entrepreneur, russian, orthodox, 800, 0.9)
     province:add_nucleus(russia)
     province:give_to(russia)
+    province:set_terrain(plains)
 end

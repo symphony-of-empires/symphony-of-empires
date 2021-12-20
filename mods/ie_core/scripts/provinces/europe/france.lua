@@ -93,6 +93,7 @@ for k, v in pairs(france_provinces_list) do
     province:add_pop(entrepreneur, french, catholic, 800, 0.9)
     province:add_nucleus(france)
     province:give_to(france)
+    province:set_terrain(plains)
 end
 
 --Lille

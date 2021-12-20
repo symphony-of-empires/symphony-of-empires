@@ -74,4 +74,5 @@ for k, v in pairs(dutch_provinces_list) do
     province:add_pop(entrepreneur, dutch, catholic, 800, 0.9)
     province:add_nucleus(netherlands)
     province:give_to(netherlands)
+    province:set_terrain(plains)
 end
