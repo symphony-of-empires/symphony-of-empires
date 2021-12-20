@@ -19,7 +19,9 @@ namespace UnifiedRender {
         class Framebuffer;
     }
 }
+
 #include "province.hpp"
+#include "client/color.hpp"
 
 #include <vector>
 #include <utility>
@@ -35,6 +37,12 @@ class Nation;
 class GameState;
 union SDL_Event;
 struct Input;
+
+struct ProvinceColor {
+    Province::Id id;
+    UI::Color color;
+    ProvinceColor(Province::Id _id, UI::Color _color): id{ _id }, color{ _color } {}
+};
 class Map {
 public:
     Map(const World& world, int screen_width, int screen_height);
@@ -78,7 +86,6 @@ public:
     const UnifiedRender::Texture* overlay_tex;
     GLuint coastline_gl_list;
     GLuint frame_buffer;
-    UnifiedRender::Model* ourModel;
     UnifiedRender::OpenGl::Framebuffer* border_fbuffer;
 
     void update(const SDL_Event& event, Input& input);
@@ -87,7 +94,7 @@ public:
     void draw_flag(const Nation* nation);
     void draw(const int width, const int height);
     void handle_click(GameState& gs, SDL_Event event);
-    void set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_colors);
+    void set_map_mode(std::vector<ProvinceColor> province_colors);
     void set_view(MapView view);
     void reload_shaders();
 private:

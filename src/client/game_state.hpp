@@ -40,6 +40,7 @@ struct SDL_Window;
 namespace Interface {
     class LobbySelectView;
     class TopWindow;
+    class Minimap;
 }
 namespace UI {
     class Context;
@@ -84,6 +85,7 @@ public:
 
     Interface::LobbySelectView* select_nation;
     Interface::TopWindow* top_win;
+    Interface::Minimap* minimap;
 
     std::vector<const UnifiedRender::Texture*> nation_flags;
     const UnifiedRender::Texture& get_nation_flag(Nation& nation);

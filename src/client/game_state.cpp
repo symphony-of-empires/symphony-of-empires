@@ -59,6 +59,7 @@
 #include "client/interface/map_dev_view.hpp"
 #include "client/interface/army.hpp"
 #include "client/interface/building.hpp"
+#include "client/interface/minimap.hpp"
 #include "client/map.hpp"
 #include "unified_render/material.hpp"
 #include "unified_render/model.hpp"
@@ -78,6 +79,7 @@ void GameState::play_nation() {
 
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
+    minimap = new Interface::Minimap(*this, -300, 0, UI_Origin::UPPER_RIGHT_SCREEN);
     g_client->send(Action::SelectNation::form_packet(curr_nation));
     print_info("Selected nation [%s]", curr_nation->ref_name.c_str());
 }
@@ -438,7 +440,7 @@ void main_menu_loop(GameState& gs, SDL_Window* window) {
     Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
 	
 	UI::Image* logo = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")));
-	logo->origin = CENTER_SCREEN;
+	logo->origin = UI_Origin::CENTER_SCREEN;
 	logo->above_of(*main_menu);
 	logo->left_side_of(*main_menu);
 	logo->x -= (main_menu->width / 2.f) + (logo->width / 2.f);

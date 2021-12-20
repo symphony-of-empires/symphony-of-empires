@@ -40,45 +40,32 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     map_quad = new UnifiedRender::OpenGl::PrimitiveSquare(0.f, 0.f, world.width, world.height);
     map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, 100.f, 100);
 
-    if(glewIsSupported("GL_VERSION_2_1")) {
-        map_2d_quad = new UnifiedRender::OpenGl::Quad2D();
-        UnifiedRender::TextureOptions mipmap_options{};
-        mipmap_options.wrap_s = GL_REPEAT;
-        mipmap_options.wrap_t = GL_REPEAT;
-        mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
-        mipmap_options.mag_filter = GL_LINEAR;
-        water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), mipmap_options);
-        water_tex->gen_mipmaps();
-        noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), mipmap_options);
-        noise_tex->gen_mipmaps();
-        topo_map = &g_texture_manager->load_texture(Path::get("topo.png"), mipmap_options);
-        topo_map->gen_mipmaps();
-        landscape_map = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
-        landscape_map->gen_mipmaps();
-        river_tex = &g_texture_manager->load_texture(Path::get("river_smal_smooth.png"), mipmap_options);
-        river_tex->gen_mipmaps();
+    map_2d_quad = new UnifiedRender::OpenGl::Quad2D();
+    UnifiedRender::TextureOptions mipmap_options{};
+    mipmap_options.wrap_s = GL_REPEAT;
+    mipmap_options.wrap_t = GL_REPEAT;
+    mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
+    mipmap_options.mag_filter = GL_LINEAR;
+    water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), mipmap_options);
+    water_tex->gen_mipmaps();
+    noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), mipmap_options);
+    noise_tex->gen_mipmaps();
+    topo_map = &g_texture_manager->load_texture(Path::get("topo.png"), mipmap_options);
+    topo_map->gen_mipmaps();
+    landscape_map = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
+    landscape_map->gen_mipmaps();
+    river_tex = &g_texture_manager->load_texture(Path::get("river_smal_smooth.png"), mipmap_options);
+    river_tex->gen_mipmaps();
 
-        //terrain_tex = &g_texture_manager->load_texture(Path::get("map_ter_indx.png"));
-        //topo_map = new UnifiedRender::Texture(world.width, world.height);
+    terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
+    terrain_sheet->to_opengl();
 
-        // terrain_tex = new UnifiedRender::Texture(world.width, world.height);
-        // for(size_t i = 0; i < world.width * world.height; i++) {
-        //     terrain_tex->buffer[i] = world.tiles[i].terrain_type_id;
-        //     topo_map->buffer[i] = world.tiles[i].elevation;
-        // }
-        // terrain_tex->to_opengl();
+    map_shader = UnifiedRender::OpenGl::Program::create("map", "map");
+    obj_shader = UnifiedRender::OpenGl::Program::create("simple_model", "simple_model");
+    border_gen_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_gen");
+    border_sdf_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_sdf");
 
-        terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
-        terrain_sheet->to_opengl();
-
-        map_shader = UnifiedRender::OpenGl::Program::create("map", "map");
-        obj_shader = UnifiedRender::OpenGl::Program::create("simple_model", "simple_model");
-        border_gen_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_gen");
-        border_sdf_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_sdf");
-
-        ourModel = new UnifiedRender::Model(Path::get("3d/backpack/backpack.obj"));
-        model_shader = UnifiedRender::OpenGl::Program::create("model_loading", "model_loading");
-    }
+    model_shader = UnifiedRender::OpenGl::Program::create("model_loading", "model_loading");
 
     print_info("Creating topo map");
 
@@ -221,43 +208,11 @@ void Map::reload_shaders() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-std::vector<std::pair<Province::Id, uint32_t>> population_map_mode(std::vector<Province*> provinces, World* world) {
-    std::vector<std::pair<Province::Id, uint32_t>> province_amounts;
-    uint32_t max_amount = 0;
-    for(auto const& province : provinces) {
-        uint32_t color;
-        uint32_t amount = 0;
-        for(auto const& pop : province->pops) {
-            amount += pop.size;
-        }
-        max_amount = std::max<size_t>(amount, max_amount);
-        province_amounts.push_back(std::make_pair(world->get_id(province), amount));
-    }
-    max_amount = std::max<uint32_t>(1, max_amount);
-    uint8_t max_r = 255, max_g = 229, max_b = 217;
-    uint8_t min_r = 220, min_g = 46, min_b = 35;
-    std::vector<std::pair<Province::Id, uint32_t>> province_color;
-    for(auto const& prov_amount : province_amounts) {
-        Province::Id prov_id = prov_amount.first;
-        uint32_t amount = prov_amount.first;
-        float ratio = ((float)amount) / max_amount;
-        uint8_t prov_r = (uint8_t)(min_r * (1 - ratio) + max_r * ratio);
-        uint8_t prov_g = (uint8_t)(min_g * (1 - ratio) + max_g * ratio);
-        uint8_t prov_b = (uint8_t)(min_b * (1 - ratio) + max_b * ratio);
-        uint32_t color = (0xff << 24) | (prov_b << 16) | (prov_g << 8) | (prov_r);
-        province_color.push_back(std::make_pair(prov_id, color));
-    }
-    return province_color;
-}
 
-void Map::set_map_mode(std::vector<std::pair<Province::Id, uint32_t>> province_colors) {
+void Map::set_map_mode(std::vector<ProvinceColor> province_colors) {
     // Max amout of provinces are limited to 256 * 256
-    tile_sheet->delete_opengl();
-    tile_sheet = new UnifiedRender::Texture(256, 256);
-    std::memset(tile_sheet->buffer, 0, sizeof(tile_sheet->buffer[0]) * (tile_sheet->width * tile_sheet->height));
-
     for(auto const& province_color : province_colors) {
-        tile_map->buffer[province_color.first] = (0xff << 24) | province_color.second;
+        tile_sheet->buffer[province_color.id] = province_color.color.get_value();
     }
     tile_sheet->to_opengl();
 }

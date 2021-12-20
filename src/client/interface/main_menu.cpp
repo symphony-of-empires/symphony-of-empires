@@ -13,7 +13,7 @@ MainMenu::MainMenu(GameState& _gs)
     : gs{ _gs },
     UI::Window(-(128 / 2), -(256 / 2), 128, 256)
 {
-    this->origin = CENTER_SCREEN;
+    this->origin = UI_Origin::CENTER_SCREEN;
     this->is_pinned = true;
     this->is_scroll = false;
     this->text("Symphony of Empires");
