@@ -42,7 +42,7 @@
 #include "company.hpp"
 #include "good.hpp"
 #include "io_impl.hpp"
-#include "path.hpp"
+#include "unified_render\path.hpp"
 #include "product.hpp"
 #include "unified_render/serializer.hpp"
 #include "world.hpp"

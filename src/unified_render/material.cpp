@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 
-#include "path.hpp"
+#include "unified_render\path.hpp"
 #include "unified_render/print.hpp"
 #include "unified_render/material.hpp"
 #include "unified_render/texture.hpp"
@@ -57,7 +57,7 @@ std::vector<std::pair<Material*, std::string>> MaterialManager::load_wavefront(c
             sline >> map_path;
 
             if(map_path[0] == '.') continue;
-            curr_mat->texture = &g_texture_manager->load_texture(Path::get("3d/" + map_path));
+            curr_mat->diffuse_map = &g_texture_manager->load_texture(Path::get("3d/" + map_path));
         } else {
             print_info("Command %s not implemented", cmd.c_str());
         }
@@ -79,7 +79,7 @@ find:
     
     // Create a new material
     Material* mat = new Material();
-    mat->texture = &g_texture_manager->load_texture(Path::get("default.png"));
+    mat->ambient_map = &g_texture_manager->load_texture(Path::get("default.png"));
     materials.insert(std::make_pair(mat, path));
     goto find;
 }

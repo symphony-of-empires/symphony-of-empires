@@ -6,7 +6,7 @@
 #include "unified_render/model.hpp"
 #include "unified_render/shader.hpp"
 #include "unified_render/print.hpp"
-#include "path.hpp"
+#include "unified_render\path.hpp"
 #include "unified_render/material.hpp"
 #include "unified_render/texture.hpp"
 #include "unified_render/shader.hpp"
@@ -20,14 +20,11 @@ UnifiedRender::SimpleModel::SimpleModel(GLint _mode)
 void UnifiedRender::SimpleModel::draw(UnifiedRender::OpenGl::Program* shader) const {
     // Change color if material wants it
     if(material != nullptr) {
-        if(material->texture != nullptr) {
-            material->texture->bind();
-        } else {
-            glBindTexture(GL_TEXTURE_2D, 0);
+        if(material->ambient_map != nullptr) {
+            shader->set_texture(0, "ambient_map", material->ambient_map);
         }
         shader->set_uniform("color", material->ambient_color.r, material->ambient_color.g, material->ambient_color.b, 1.f);
     } else {
-        glBindTexture(GL_TEXTURE_2D, 0);
         shader->set_uniform("color", 1.f, 1.f, 1.f, 1.f);
     }
 
@@ -179,15 +176,9 @@ const UnifiedRender::ComplexModel& UnifiedRender::ModelManager::load_wavefront(c
     UnifiedRender::ComplexModel* final_model = new UnifiedRender::ComplexModel();
     for(const auto& obj: objects) {
         // Register each simple object to the model manager
-        UnifiedRender::SimpleModel* model = new UnifiedRender::SimpleModel(GL_TRIANGLES);
+        UnifiedRender::SimpleModel* model = new UnifiedRender::SimpleModel(GL_TRIANGLE_FAN);
         for(const auto& face: obj.faces) {
             for(size_t i = 0; i < face.vertices.size(); i++) {
-                if(i >= 3) {
-                    const size_t last_idx = model->buffer.size() - 1;
-                    model->buffer.push_back(model->buffer[last_idx - 1]);
-                    model->buffer.push_back(model->buffer[last_idx - 0]);
-                }
-
                 // The faces dictate indices for the vertices and stuff and we
                 // will also subtract 1 because the indexing is 0 based
                 model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
