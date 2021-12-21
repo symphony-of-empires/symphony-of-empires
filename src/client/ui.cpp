@@ -103,7 +103,7 @@ void Context::prompt(const std::string& title, const std::string& text) {
     auto* win = new UI::Window((this->width / 2.f) - (320 / 2.f), (this->height / 2.f) - (128 / 2.f), 320, 128, nullptr);
     win->text(title);
 
-    auto* txt = new UI::Text(0, 24, win->width, win->height - 48, win);
+    auto* txt = new UI::Text(0, 0, win->width, win->height - 48, win);
     txt->text(text);
 
     auto* ok_btn = new UI::CloseButton(0, 0, 128, 24, win);
@@ -131,38 +131,37 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
     if(w.parent != nullptr)
         parent_size = glm::ivec2{ w.parent->width, w.parent->height };
 
-    switch(w.origin)
-    {
-    case UI_Origin::CENTER:
+    switch(w.origin) {
+    case UI::Origin::CENTER:
         pos += offset;
         pos += parent_size / 2;
-    case UI_Origin::UPPER_LEFT:
+    case UI::Origin::UPPER_LEFT:
         pos += offset;
         break;
-    case UI_Origin::UPPER_RIGTH:
+    case UI::Origin::UPPER_RIGTH:
         pos += offset;
         pos.x += parent_size.x;
         break;
-    case UI_Origin::LOWER_LEFT:
+    case UI::Origin::LOWER_LEFT:
         pos += offset;
         pos.y += parent_size.y;
         break;
-    case UI_Origin::LOWER_RIGHT:
+    case UI::Origin::LOWER_RIGHT:
         pos += offset;
         pos += parent_size;
         break;
-    case UI_Origin::CENTER_SCREEN:
+    case UI::Origin::CENTER_SCREEN:
         pos += screen_size / 2;
         break;
-    case UI_Origin::UPPER_LEFT_SCREEN:
+    case UI::Origin::UPPER_LEFT_SCREEN:
         break;
-    case UI_Origin::UPPER_RIGHT_SCREEN:
+    case UI::Origin::UPPER_RIGHT_SCREEN:
         pos.x += screen_size.x;
         break;
-    case UI_Origin::LOWER_LEFT_SCREEN:
+    case UI::Origin::LOWER_LEFT_SCREEN:
         pos.y += screen_size.y;
         break;
-    case UI_Origin::LOWER_RIGHT_SCREEN:
+    case UI::Origin::LOWER_RIGHT_SCREEN:
         pos += screen_size;
         break;
     }
@@ -278,7 +277,7 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
 
 CLICK_STATE Context::check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off,
     CLICK_STATE click_state, bool clickable) {
-    glm::ivec2 offset{ x_off, y_off };
+    glm::ivec2 offset{x_off, y_off};
     offset = get_pos(w, offset);
 
     if(click_state != CLICK_STATE::NOT_CLICKED)
@@ -304,7 +303,7 @@ CLICK_STATE Context::check_click_recursive(Widget& w, const unsigned int mx, con
     // Call on_click if on_click hasnt been used and widget is hit by ckick
     if(w.on_click) {
         if(clickable && !click_consumed) {
-            if(w.type == UI_WIDGET_SLIDER) {
+            if(w.type == UI::WidgetType::SLIDER) {
                 Slider* wc = (Slider*)&w;
                 wc->value = ((float)std::abs((int)mx - offset.x) / (float)wc->width) * wc->max;
             }
@@ -333,9 +332,9 @@ bool Context::check_click(const unsigned mx, const unsigned my) {
     }
 
     if(click_wind_index != -1) {
-        // Only movable and UI_WIDGET_WINDOWS are able to move to the top
+        // Only movable and UI::WidgetType::WINDOWS are able to move to the top
         Widget* window =widgets[click_wind_index];
-        if(window->type == UI_WIDGET_WINDOW && !window->is_pinned) {
+        if(window->type == UI::WidgetType::WINDOW && !window->is_pinned) {
             auto it = widgets.begin() + click_wind_index;
             std::rotate(it, it + 1, widgets.end());
         }
@@ -348,7 +347,7 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
         Widget& widget = *widgets[i];
 
         // Only windows can be dragged around
-        if(widget.type != UI_WIDGET_WINDOW) continue;
+        if(widget.type != UI::WidgetType::WINDOW) continue;
 
         // Pinned widgets are not movable
         if(widget.is_pinned) continue;
@@ -369,7 +368,7 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 }
 
 void check_text_input_recursive(Widget& widget, const char* _input) {
-    if(widget.type == UI_WIDGET_INPUT) {
+    if(widget.type == UI::WidgetType::INPUT) {
         auto& c_widget = static_cast<Input&>(widget);
         if(c_widget.is_selected)
             c_widget.on_textinput(c_widget, _input, c_widget.user_data);
@@ -409,7 +408,7 @@ int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_of
         if(r > 0) return r;
     }
 
-    if(w.is_scroll && (w.type == UI_WIDGET_WINDOW || w.type == UI_WIDGET_GROUP)) {
+    if(w.is_scroll && (w.type == UI::WidgetType::WINDOW || w.type == UI::WidgetType::GROUP)) {
         for(auto& child : w.children) {
             if(!child->is_pinned) child->y += y;
         }
@@ -603,7 +602,7 @@ void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, UnifiedRen
 #include <deque>
 void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     // Shadows
-    if(type == UI_WIDGET_WINDOW || type == UI_WIDGET_TOOLTIP) {
+    if(type == UI::WidgetType::WINDOW || type == UI::WidgetType::TOOLTIP) {
         // Shadow
         glBindTexture(GL_TEXTURE_2D, 0);
         glColor4f(0.f, 0.f, 0.f, 0.75f);
@@ -620,19 +619,18 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glColor3f(1.f, 1.f, 1.f);
 
     // Background (tile) display
-    if(type == UI_WIDGET_INPUT) {
+    if(type == UI::WidgetType::INPUT) {
         UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
         UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
         glColor3f(0.f, 0.f, 1.f);
         draw_rect(0, pos_rect, tex_rect, viewport);
-    }
-    else if(type != UI_WIDGET_IMAGE && type != UI_WIDGET_LABEL) {
+    } else if(type != UI::WidgetType::IMAGE && type != UI::WidgetType::LABEL) {
         UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
         UnifiedRender::Rect tex_rect((int)0u, 0u, width / ctx.background->width, height / ctx.background->height);
         draw_rect(ctx.background->gl_tex_num, pos_rect, tex_rect, viewport);
     }
 
-    if(type == UI_WIDGET_WINDOW) {
+    if(type == UI::WidgetType::WINDOW) {
         float b_width = 30;
         float b_height = 30;
         float bi_width = 69;
@@ -646,23 +644,15 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 
     glColor3f(1.f, 1.f, 1.f);
     // Top bar of windows display
-    if(type == UI_WIDGET_WINDOW) {
-        draw_rectangle(
-            0, 0,
-            width, 24,
-            viewport,
-            ctx.window_top->gl_tex_num);
+    if(type == UI::WidgetType::WINDOW) {
+        draw_rectangle(0, 0, width, 24, viewport, ctx.window_top->gl_tex_num);
     }
 
     if(current_texture != nullptr) {
-        draw_rectangle(
-            0, 0,
-            width, height,
-            viewport,
-            current_texture->gl_tex_num);
+        draw_rectangle(0, 0, width, height, viewport, current_texture->gl_tex_num);
     }
 
-    if(type == UI_WIDGET_BUTTON) {
+    if(type == UI::WidgetType::BUTTON) {
         const size_t padding = 1;
 
         // Put a "grey" inner background
@@ -681,26 +671,24 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    if(type != UI_WIDGET_BUTTON && type != UI_WIDGET_IMAGE) {
+    if(type != UI::WidgetType::BUTTON && type != UI::WidgetType::IMAGE) {
         glLineWidth(2.f);
 
         // Outer black border
         glBegin(GL_LINE_STRIP);
 
-        if(type == UI_WIDGET_WINDOW) {
+        if(type == UI::WidgetType::WINDOW) {
             glColor3f(1.f, 1.f, 1.f);
-        }
-        else {
+        } else {
             glColor3f(0.f, 0.f, 0.f);
         }
         glVertex2f(0.f, height);
         glVertex2f(0.f, 0.f);
         glVertex2f(width, 0.f);
 
-        if(type == UI_WIDGET_WINDOW) {
+        if(type == UI::WidgetType::WINDOW) {
             glColor3f(0.f, 0.f, 0.f);
-        }
-        else {
+        } else {
             glColor3f(1.f, 1.f, 1.f);
         }
         glVertex2f(width, 0.f);
@@ -712,8 +700,21 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     if(text_texture != nullptr) {
         glColor3f(text_color.r, text_color.g, text_color.b);
         int y_offset = text_offset_y;
-        if(type == UI_WIDGET_BUTTON) y_offset = (height - text_texture->height) / 2;
+        if(type == UI::WidgetType::BUTTON) y_offset = (height - text_texture->height) / 2;
         draw_rectangle(text_offset_x, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
+    }
+
+    if(type == UI::WidgetType::CHECKBOX) {
+        auto& o = static_cast<UI::Checkbox&>(*this);
+
+        UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
+        UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
+        if(o.value) {
+            glColor4f(0.f, 1.f, 0.f, 0.5f);
+        } else {
+            glColor4f(1.f, 0.f, 0.f, 0.5f);
+        }
+        draw_rect(0, pos_rect, tex_rect, viewport);
     }
 
     // Semi-transparent over hover elements which can be clicked
@@ -743,7 +744,7 @@ void input_ontextinput(Input& w, const char* input, void* data) {
     }
 }
 
-Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, int _type, const UnifiedRender::Texture* tex)
+Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, WidgetType _type, const UnifiedRender::Texture* tex)
     : is_show{1},
     type{_type},
     x{_x},
@@ -828,24 +829,28 @@ void Widget::set_tooltip(Tooltip* _tooltip) {
     tooltip = _tooltip;
 }
 
-
 /**
 * Constructor implementations for the different types of widgets
  */
 Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI_WIDGET_WINDOW), is_movable(true) {
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::WINDOW),
+    is_movable{true}
+{
+
 }
 
 // Would be used for autosized tooltips
 Tooltip::Tooltip()
-    : Widget() {
-    type = UI_WIDGET_TOOLTIP;
+    : Widget()
+{
+    type = UI::WidgetType::TOOLTIP;
 }
 
 Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
-    : Widget() {
+    : Widget()
+{
     parent->set_tooltip(this);
-    type = UI_WIDGET_TOOLTIP;
+    type = UI::WidgetType::TOOLTIP;
     width = w;
     height = h;
 }
@@ -855,19 +860,48 @@ void Tooltip::set_pos(int _x, int _y, int _width, int _height, int screen_w, int
     int extra_below = screen_h - _y - _height;
     if(extra_above > extra_below) {
         y = _y - height - 10;
-    }
-    else {
+    } else {
         y = _y + _height + 10;
     }
     x = _x;
 }
 
+void Tooltip::text(const std::string& text) {
+    // Delete old labels in vector (if any)
+    for(auto& lab : labels) {
+        delete lab;
+    }
+    labels.clear();
+
+    if(text.empty()) return;
+
+    // Separate the text in multiple labels
+    size_t pos = 0;
+    size_t y = 0;
+    while(pos < text.length()) {
+        size_t len = std::min<size_t>(text.length(), (this->width / 12));
+        std::string buf = text.substr(pos, len);
+
+        UI::Label* lab = new UI::Label(8, y, buf, this);
+        labels.push_back(lab);
+
+        y += 24;
+        pos += len;
+    }
+    height = y + 24;
+}
+
+
 Checkbox::Checkbox(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI_WIDGET_CHECKBOX) {
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::CHECKBOX)
+{
+
 }
 
 Group::Group(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI_WIDGET_GROUP) {
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::GROUP)
+{
+
 }
 
 void Group::on_render(Context& ctx, UnifiedRender::Rect viewport) {
@@ -875,17 +909,20 @@ void Group::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 }
 
 Button::Button(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON) {
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::BUTTON)
+{
     text_offset_x = 20;
 }
 
 CloseButton::CloseButton(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI_WIDGET_BUTTON) {
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::BUTTON)
+{
     on_click = &CloseButton::on_click_default;
 }
 
 Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI_WIDGET_INPUT) {
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::INPUT)
+{
     this->on_textinput = input_ontextinput;
     on_click = &Input::on_click_default;
     on_click_outside = &Input::on_click_outside_default;
@@ -893,12 +930,14 @@ Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 }
 
 Image::Image(int _x, int _y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI_WIDGET_IMAGE) {
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::IMAGE)
+{
     current_texture = tex;
 }
 
 Label::Label(int _x, int _y, const std::string& _text, Widget* _parent)
-    : Widget(_parent, _x, _y, 0, 0, UI_WIDGET_LABEL) {
+    : Widget(_parent, _x, _y, 0, 0, UI::WidgetType::LABEL)
+{
     text(_text);
     width = text_texture->width;
     height = text_texture->height;
@@ -909,15 +948,15 @@ void Label::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         if(!text_texture->gl_tex_num) {
             text_texture->to_opengl();
         }
-    }
-    if(text_texture != nullptr) {
+        
         glColor3f(text_color.r, text_color.g, text_color.b);
-        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
+        draw_rectangle(4, 0, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
     }
 }
 
 Text::Text(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI_WIDGET_GROUP) {
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::GROUP)
+{
 
 }
 
@@ -947,10 +986,13 @@ void Text::text(const std::string& text) {
         y += 24;
         pos += len;
     }
+    min_height = y + 24;
 }
 
 Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI_WIDGET_LABEL) {
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::LABEL)
+{
+
 }
 
 void Chart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
@@ -1041,7 +1083,11 @@ void Chart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 }
 
 Slider::Slider(int _x, int _y, unsigned w, unsigned h, const float _min, const float _max, Widget* _parent)
-    : max{ _max }, min{ _min }, Widget(_parent, _x, _y, w, h, UI_WIDGET_SLIDER) {
+    : max{_max},
+    min{_min},
+    Widget(_parent, _x, _y, w, h, UI::WidgetType::SLIDER)
+{
+
 }
 
 void Slider::on_render(Context& ctx, UnifiedRender::Rect viewport) {
@@ -1085,14 +1131,21 @@ void Slider::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 }
 
 PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, std::vector<ChartData> _data, Widget* _parent)
-    : data{ _data }, Widget(_parent, _x, _y, w, h, UI_WIDGET_PIE_CHART) {
+    : data{_data},
+    Widget(_parent, _x, _y, w, h, UI::WidgetType::PIE_CHART)
+{
     max = 0;
     for(const auto& slice : data) {
         max += slice.num;
     }
 }
+
 PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : data{ std::vector<ChartData>() }, max{ 0 }, Widget(_parent, _x, _y, w, h, UI_WIDGET_PIE_CHART) {
+    : data{std::vector<ChartData>()},
+    max{0},
+    Widget(_parent, _x, _y, w, h, UI::WidgetType::PIE_CHART)
+{
+
 }
 
 void PieChart::set_data(std::vector<ChartData> new_data) {

@@ -12,6 +12,23 @@
 
 using namespace Action;
 
+Packet AiControl::form_packet(Nation* target) {
+    Packet packet = Packet();
+    Archive ar = Archive();
+    ActionType action = ActionType::AI_CONTROL;
+    ::serialize(ar, &action);
+    ::serialize(ar, &target->ai_do_build_production);
+    ::serialize(ar, &target->ai_do_cmd_troops);
+    ::serialize(ar, &target->ai_do_diplomacy);
+    ::serialize(ar, &target->ai_do_policies);
+    ::serialize(ar, &target->ai_do_research);
+    ::serialize(ar, &target->ai_do_unit_production);
+    ::serialize(ar, &target->ai_handle_events);
+    ::serialize(ar, &target->ai_handle_treaties);
+    packet.data(ar.get_buffer(), ar.size());
+    return packet;
+}
+
 Packet DiploIncRelations::form_packet(Nation* target) {
     Packet packet = Packet();
     Archive ar = Archive();

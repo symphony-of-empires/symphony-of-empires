@@ -78,7 +78,7 @@ void GameState::play_nation() {
 
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
-    minimap = new Interface::Minimap(*this, -300, 0, UI_Origin::UPPER_RIGHT_SCREEN);
+    minimap = new Interface::Minimap(*this, -300, 0, UI::Origin::UPPER_RIGHT_SCREEN);
     g_client->send(Action::SelectNation::form_packet(curr_nation));
     print_info("Selected nation [%s]", curr_nation->ref_name.c_str());
 }
