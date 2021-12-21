@@ -59,3 +59,7 @@ float Province::get_attractiveness(const Pop& pop) const {
     }
     return attractive;
 }
+
+std::pair<float, float> Province::get_pos(void) const {
+    return std::make_pair(min_x + ((max_x - min_x) / 2.f), min_y + ((max_y - min_y) / 2.f));
+}
