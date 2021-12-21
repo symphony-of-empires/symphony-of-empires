@@ -1,6 +1,6 @@
 #include "client/interface/army.hpp"
 #include "client/map.hpp"
-#include "path.hpp"
+#include "unified_render\path.hpp"
 #include "unified_render/texture.hpp"
 #include "nation.hpp"
 #include "world.hpp"

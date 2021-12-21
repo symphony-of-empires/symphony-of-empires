@@ -13,10 +13,20 @@ namespace UnifiedRender {
      */
     class Material {
     public:
-        const Texture* texture = nullptr;
-        glm::vec3 color;
+        glm::vec3 diffuse_color;
+        const Texture* diffuse_map = nullptr;
+        glm::vec3 ambient_color;
+        const Texture* ambient_map = nullptr;
+        glm::vec3 specular_color;
+        const Texture* specular_map = nullptr;
+        const Texture* displacement_map = nullptr;
+        const Texture* occlussion_map = nullptr;
+        const Texture* luminance_map = nullptr;
+        const Texture* height_map = nullptr;
+        const Texture* normal_map = nullptr;
+        const Texture* roughness_map = nullptr;
 
-        glm::vec3 ambient_color, diffuse_color, specular_color;
+        glm::vec3 color;
         float specular_exp;
         float optical_density;
     };

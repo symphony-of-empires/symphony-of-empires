@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <vector>
 #include <fstream>
-#include "path.hpp"
+#include "unified_render\path.hpp"
 #include "unified_render/print.hpp"
 
 /* Visual Studio is not posix so we have to define PATH_MAX ourselves */

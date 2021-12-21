@@ -1,7 +1,7 @@
 #include "client/interface/minimap.hpp"
 #include "client/map.hpp"
 #include "world.hpp"
-#include "path.hpp"
+#include "unified_render\path.hpp"
 #include "unified_render/texture.hpp"
 #include <unordered_map>
 
