@@ -192,6 +192,11 @@ public:
         return ptr->cached_id;
     };
 
+    template<typename T>
+    inline float get_dist_from_equator(T x) const {
+        return std::fabs(std::fabs(x) - (width / 2.0));
+    };
+
     // Obtains a tile from the world safely, and makes sure that it is in bounds
     Tile& get_tile(size_t x, size_t y) const;
     Tile& get_tile(size_t idx) const;
