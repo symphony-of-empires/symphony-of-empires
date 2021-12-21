@@ -51,7 +51,7 @@
     <ClInclude Include="src\network.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\unified_render\path.hpp">
+    <ClInclude Include="src\unified_render/path.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\policy.hpp">
