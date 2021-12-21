@@ -165,7 +165,7 @@
     <ClInclude Include="src\manager.hpp" />
     <ClInclude Include="src\nation.hpp" />
     <ClInclude Include="src\network.hpp" />
-    <ClInclude Include="src\unified_render\path.hpp" />
+    <ClInclude Include="src\unified_render/path.hpp" />
     <ClInclude Include="src\policy.hpp" />
     <ClInclude Include="src\pop.hpp" />
     <ClInclude Include="src\print.hpp" />

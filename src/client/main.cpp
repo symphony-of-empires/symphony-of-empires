@@ -20,7 +20,7 @@ std::atomic<bool> run;
 #	include <libintl.h>
 #	include <locale.h>
 #endif
-#include "unified_render\path.hpp"
+#include "unified_render/path.hpp"
 #include "unified_render/network.hpp"
 #include "io_impl.hpp"
 #include "action.hpp"
