@@ -108,7 +108,7 @@ void Context::prompt(const std::string& title, const std::string& text) {
 
     auto* ok_btn = new UI::CloseButton(0, 0, 128, 24, win);
     ok_btn->below_of(*txt);
-    ok_btn->text("OK");
+    ok_btn->text("Close");
 }
 
 // void Context::clear_dead_recursive(Widget* w) {
