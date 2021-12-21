@@ -212,22 +212,21 @@ unsigned int Model::texture_from_file(const char* path, const std::string& direc
     return textureID;
 }
 
-const Model* ModelManager::load(const std::string& path) {
+const Model& ModelManager::load(const std::string& path) {
     // Find texture when wanting to be loaded
-    auto it = std::find_if(this->models.begin(), this->models.end(), [&path](const std::pair<UnifiedRender::Model*, std::string>& element) {
+    auto it = std::find_if(this->models.begin(), this->models.end(), [&path](const auto& element) {
         return (element.second == path);
     });
 
     // Load texture from cached texture list
     if(it != this->models.end())
-        return ((*it).first);
+        return *((*it).first);
 
     print_info("Loaded and cached model %s", path.c_str());
 
     // Otherwise texture is not in our control, so we create a new texture
     Model* model = new Model(path);
-
-    return ((const Model*)model);
+    return *model;
 }
 
 UnifiedRender::ModelManager* g_model_manager;

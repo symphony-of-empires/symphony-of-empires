@@ -64,7 +64,6 @@
 #include "unified_render/material.hpp"
 #include "unified_render/model.hpp"
 #include "unified_render/texture.hpp"
-#include "unified_render/assimp_model.hpp"
 #include "client/ui.hpp"
 
 void GameState::play_nation() {

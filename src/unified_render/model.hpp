@@ -104,50 +104,51 @@ namespace UnifiedRender {
      * A simple object - use these to store "simple" objects that MAY repeat
      * TODO: We should use instancing tricks on simple objects
      */
-    class SimpleModel: public OpenGl::PackedModel<glm::vec3, glm::vec2> {
+    class SimpleModel : public OpenGl::PackedModel<glm::vec3, glm::vec2> {
     public:
         SimpleModel(GLint _mode);
         ~SimpleModel() {};
         SimpleModel(const SimpleModel&) = default;
         SimpleModel(SimpleModel&&) noexcept = default;
         SimpleModel& operator=(const SimpleModel&) = default;
+        virtual void draw(const UnifiedRender::OpenGl::Program& shader) const;
+        void upload();
 
         const Material* material = nullptr;
-
-        virtual void draw(UnifiedRender::OpenGl::Program* shader) const;
-        void upload();
     };
 
+#ifdef NO_ASSIMP
     /**
      * A complex object being composed by many simple objects
      */
-    class ComplexModel {
+    class Model {
     public:
-        ComplexModel(void);
-        ~ComplexModel() {};
-        ComplexModel(const ComplexModel&) = default;
-        ComplexModel(ComplexModel&&) noexcept = default;
-        ComplexModel& operator=(const ComplexModel&) = default;
+        Model(void);
+        ~Model() {};
+        Model(const Model&) = default;
+        Model(Model&&) noexcept = default;
+        Model& operator=(const Model&) = default;
+        virtual void draw(const UnifiedRender::OpenGl::Program& shader) const;
 
         std::vector<const SimpleModel*> simple_models;
-        virtual void draw(UnifiedRender::OpenGl::Program* shader) const;
     };
 
-#ifdef UR_NO_ASSIMP
     struct ModelManager {
     private:
         std::set<std::pair<SimpleModel*, std::string>> simple_models;
-        std::set<std::pair<ComplexModel*, std::string>> complex_models;
+        std::set<std::pair<Model*, std::string>> complex_models;
 
-        const UnifiedRender::ComplexModel& load_wavefront(const std::string& path);
-        const UnifiedRender::ComplexModel& load_stl(const std::string& path);
+        const UnifiedRender::Model& load_wavefront(const std::string& path);
+        const UnifiedRender::Model& load_stl(const std::string& path);
     public:
         const SimpleModel& load_simple(const std::string& path);
-        const ComplexModel& load_complex(const std::string& path);
+        const Model& load(const std::string& path);
     };
 #endif
 }
 
-#ifdef UR_NO_ASSIMP
+#ifdef NO_ASSIMP
 extern UnifiedRender::ModelManager* g_model_manager;
+#else
+#include "assimp_model.hpp"
 #endif

@@ -10,7 +10,7 @@ namespace UnifiedRender {
     class Texture;
     class Model;
     class TextureArray;
-    class ComplexModel;
+    class Model;
     namespace OpenGl {
         class Square;
         class Sphere;

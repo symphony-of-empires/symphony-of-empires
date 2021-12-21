@@ -88,9 +88,9 @@ united_states:add_client_hint(democracy, _("United states"), 0x6ea5cc)
 haiti = Nation:new{ ref_name = "haiti" }
 haiti.name = _("Haiti")
 haiti:register()
-haiti:set_ideology(democracy)
+haiti:set_ideology(republic)
 haiti:add_accepted_culture(haitian)
-haiti:add_client_hint(democracy, _("Haiti"), 0xb147cc)
+haiti:add_client_hint(republic, _("Haiti"), 0xb147cc)
 
 mapuche = Nation:new{ ref_name = "mapuche" }
 mapuche.name = _("Mapuche")
@@ -105,5 +105,5 @@ texas.name = _("Texas")
 texas.adjective = _("Texan")
 texas:register()
 texas:add_accepted_culture(american)
-texas:add_client_hint(democracy, _("Texas"), 0x8be2f7)
+texas:add_client_hint(republic, _("Texas"), 0x8be2f7)
 --------------------------------------------------------------
