@@ -61,6 +61,9 @@ enum class ActionType {
     DIPLO_EMBARGO,
     DIPLO_DECLARE_WAR,
     DIPLO_ALLOW_MIL_ACCESS,
+    
+    // Change AI status
+    AI_CONTROL,
 };
 
 class Product;
@@ -72,6 +75,11 @@ class Unit;
 class UnitType;
 
 namespace Action {
+    class AiControl {
+    public:
+        static Packet form_packet(Nation* target);
+    };
+
     class DiploIncRelations {
     public:
         static Packet form_packet(Nation* target);

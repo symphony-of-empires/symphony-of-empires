@@ -7,6 +7,6 @@ namespace Interface {
     class Minimap: public UI::Window {
         GameState& gs;
     public:
-        Minimap(GameState& gs, int x, int y, UI_Origin origin);
+        Minimap(GameState& gs, int x, int y, UI::Origin origin);
     };
 };

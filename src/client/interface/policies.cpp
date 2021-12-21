@@ -5,9 +5,21 @@
 
 using namespace Interface;
 
+#define POLICY_CHECKBOX(x, title, body)\
+    auto* x## _chk = new UI::Checkbox(0, 0, 128, 24, this);\
+    x## _chk->text(title);\
+    x## _chk->on_click = ([](UI::Widget& w, void*) {\
+        auto& o = static_cast<PoliciesScreen&>(*w.parent);\
+        o.new_policy.x = !(o.new_policy).x;\
+        ((UI::Checkbox&)w).value = (o.new_policy).x;\
+    });\
+    x## _chk->value = (new_policy).x;\
+    x## _chk->tooltip = new UI::Tooltip(x## _chk, 512, 24);\
+    x## _chk->tooltip->text(body);
+
 PoliciesScreen::PoliciesScreen(GameState& _gs)
     : gs{_gs},
-    UI::Window(0, 0, 512, 512, nullptr)
+    UI::Window(0, 0, 512, 400, nullptr)
 {
     this->new_policy = gs.curr_nation->current_policy;
 
@@ -23,22 +35,34 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     this->con_chart->right_side_of(*militancy_chart);
 
     // Social
-    auto* slavery_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    slavery_chk->text("Slavery");
-    slavery_chk->below_of(*this->con_chart);
-    slavery_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<PoliciesScreen&>(w);
-        o.new_policy.slavery = !o.new_policy.slavery;
-    });
-    slavery_chk->tooltip = new UI::Tooltip(slavery_chk, 512, 24);
-    slavery_chk->tooltip->text("Allows to transfer the work to slaves for free");
+    POLICY_CHECKBOX(slavery, "Slavery", "Allows to put the burden of work to slaves for free");
+    slavery_chk->below_of(*con_chart);
+
+    POLICY_CHECKBOX(secular_education, "Secular education", "Educates people in a way that it's bound to religion");
+    secular_education_chk->below_of(*con_chart);
+    secular_education_chk->right_side_of(*slavery_chk);
+
+    POLICY_CHECKBOX(private_property, "Private property", "Allow the right to own property");
+    private_property_chk->below_of(*con_chart);
+    private_property_chk->right_side_of(*secular_education_chk);
+
+    POLICY_CHECKBOX(public_education, "Public education", "(paid by the goverment)");
+    public_education_chk->below_of(*private_property_chk);
+
+    POLICY_CHECKBOX(public_healthcare, "Public healthcare", "(paid by the goverment)");
+    public_healthcare_chk->below_of(*private_property_chk);
+    public_healthcare_chk->right_side_of(*public_education_chk);
+
+    POLICY_CHECKBOX(social_security, "Social security", "Help people in need with goverment support");
+    social_security_chk->below_of(*private_property_chk);
+    social_security_chk->right_side_of(*public_healthcare_chk);
 
     auto* poor_tax_sld = new UI::Slider(0, 0, 512, 24, -10.f, 100.f, this);
     poor_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
     poor_tax_sld->value = new_policy.poor_flat_tax;
-    poor_tax_sld->below_of(*slavery_chk);
+    poor_tax_sld->below_of(*social_security_chk);
     poor_tax_sld->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<PoliciesScreen&>(w);
+        auto& o = static_cast<PoliciesScreen&>(*w.parent);
         o.new_policy.poor_flat_tax = ((UI::Slider&)w).value;
         w.text(std::to_string(o.new_policy.poor_flat_tax));
     });
@@ -50,7 +74,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     med_tax_sld->value = new_policy.med_flat_tax;
     med_tax_sld->below_of(*poor_tax_sld);
     med_tax_sld->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<PoliciesScreen&>(w);
+        auto& o = static_cast<PoliciesScreen&>(*w.parent);
         o.new_policy.med_flat_tax = ((UI::Slider&)w).value;
         w.text(std::to_string(o.new_policy.med_flat_tax));
     });
@@ -62,7 +86,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     rich_tax_sld->value = new_policy.rich_flat_tax;
     rich_tax_sld->below_of(*med_tax_sld);
     rich_tax_sld->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<PoliciesScreen&>(w);
+        auto& o = static_cast<PoliciesScreen&>(*w.parent);
         o.new_policy.rich_flat_tax = ((UI::Slider&)w).value;
         w.text(std::to_string(o.new_policy.rich_flat_tax));
     });
@@ -70,56 +94,24 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     rich_tax_sld->tooltip->text("The taxing done to the high class (flat %)");
 
     // Goverment structure
-    auto* lpar_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    lpar_chk->text("Legislative parliament");
-    lpar_chk->below_of(*rich_tax_sld);
-    lpar_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<PoliciesScreen&>(w);
-        o.new_policy.legislative_parliament = !o.new_policy.legislative_parliament;
-        ((UI::Checkbox&)w).value = o.new_policy.legislative_parliament;
-    });
-    lpar_chk->tooltip = new UI::Tooltip(lpar_chk, 512, 24);
-    lpar_chk->tooltip->text("The legislative parliament allows to have a democratic vote on laws");
+    POLICY_CHECKBOX(legislative_parliament, "Legislative parliament", "The legislative parliament allows to have a democratic vote on laws");
+    legislative_parliament_chk->below_of(*rich_tax_sld);
 
-    auto* epar_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    epar_chk->text("Executive parliament");
-    epar_chk->below_of(*rich_tax_sld);
-    epar_chk->right_side_of(*lpar_chk);
-    epar_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<PoliciesScreen&>(w);
-        o.new_policy.executive_parliament = !o.new_policy.executive_parliament;
-        ((UI::Checkbox&)w).value = o.new_policy.executive_parliament;
-    });
-    epar_chk->tooltip = new UI::Tooltip(epar_chk, 512, 24);
-    epar_chk->tooltip->text("The executive parliament will approve/disapprove acts of diplomacy and war");
+    POLICY_CHECKBOX(executive_parliament, "Executive parliament", "The executive parliament will approve/disapprove acts of diplomacy and war");
+    executive_parliament_chk->below_of(*rich_tax_sld);
+    executive_parliament_chk->right_side_of(*legislative_parliament_chk);
 
-    auto* constitutionalism_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    constitutionalism_chk->text("Constitutionalism");
-    constitutionalism_chk->below_of(*rich_tax_sld);
-    constitutionalism_chk->right_side_of(*epar_chk);
-    constitutionalism_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<PoliciesScreen&>(w);
-        o.new_policy.constitutional = !o.new_policy.constitutional;
-        ((UI::Checkbox&)w).value = o.new_policy.constitutional;
-    });
-    constitutionalism_chk->tooltip = new UI::Tooltip(constitutionalism_chk, 512, 24);
-    constitutionalism_chk->tooltip->text("The constitution will limit the governing power of the goverment");
+    POLICY_CHECKBOX(constitutional, "Constitutional", "The constitution will limit the governing power of the goverment");
+    constitutional_chk->below_of(*rich_tax_sld);
+    constitutional_chk->right_side_of(*executive_parliament_chk);
 
     // Foreing policies
-    auto* isolationism_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    isolationism_chk->text("Isolationism");
-    isolationism_chk->below_of(*constitutionalism_chk);
-    isolationism_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<PoliciesScreen&>(w);
-        o.new_policy.foreign_trade = !o.new_policy.foreign_trade;
-        ((UI::Checkbox&)w).value = o.new_policy.foreign_trade;
-    });
-    isolationism_chk->tooltip = new UI::Tooltip(isolationism_chk, 512, 24);
-    isolationism_chk->tooltip->text("Allows us to isolate ourselves from the rest of the world");
+    POLICY_CHECKBOX(foreign_trade, "Foreign Trade", "Controls foreing trade with other countries");
+    foreign_trade_chk->below_of(*constitutional_chk);
 
     auto* enact_btn = new UI::Button(0, 0, 128, 24, this);
     enact_btn->text("Enact policy");
-    enact_btn->below_of(*isolationism_chk);
+    enact_btn->below_of(*foreign_trade_chk);
     enact_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PoliciesScreen&>(w);
         Packet packet = Packet();
@@ -136,7 +128,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
     close_btn->text("Close");
-    close_btn->below_of(*isolationism_chk);
+    close_btn->below_of(*foreign_trade_chk);
     close_btn->right_side_of(*enact_btn);
 
     this->on_each_tick = ([](UI::Widget& w, void*) {

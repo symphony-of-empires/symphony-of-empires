@@ -13,7 +13,7 @@ std::vector<ProvinceColor> population_map_mode(const World& world);
 std::vector<ProvinceColor> culture_map_mode(const World& world);
 std::vector<ProvinceColor> religion_map_mode(const World& world);
 
-Minimap::Minimap(GameState& _gs, int x, int y, UI_Origin origin)
+Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     : gs{ _gs },
     UI::Window(x, y, 300, 300)
 {

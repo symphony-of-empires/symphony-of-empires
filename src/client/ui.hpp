@@ -23,33 +23,6 @@ namespace UnifiedRender {
     class Texture;
 }
 
-enum class UI_Origin {
-    CENTER,
-    UPPER_LEFT,
-    UPPER_RIGTH,
-    LOWER_LEFT,
-    LOWER_RIGHT,
-    CENTER_SCREEN,
-    UPPER_LEFT_SCREEN,
-    UPPER_RIGHT_SCREEN,
-    LOWER_LEFT_SCREEN,
-    LOWER_RIGHT_SCREEN,
-};
-
-enum UI_WidgetType {
-    UI_WIDGET_BUTTON,
-    UI_WIDGET_INPUT,
-    UI_WIDGET_WINDOW,
-    UI_WIDGET_TOOLTIP,
-    UI_WIDGET_LABEL,
-    UI_WIDGET_IMAGE,
-    UI_WIDGET_CHART,
-    UI_WIDGET_CHECKBOX,
-    UI_WIDGET_PIE_CHART,
-    UI_WIDGET_SLIDER,
-    UI_WIDGET_GROUP,
-};
-
 enum class CLICK_STATE {
     NOT_CLICKED,
     NOT_HANDLED,
@@ -57,7 +30,6 @@ enum class CLICK_STATE {
 };
 
 namespace UI {
-
     class Widget;
     class Tooltip;
     typedef void (*Callback)(Widget&, void*);
@@ -103,10 +75,37 @@ namespace UI {
         Tooltip* tooltip_widget = nullptr;
     };
 
+    enum class Origin {
+        CENTER,
+        UPPER_LEFT,
+        UPPER_RIGTH,
+        LOWER_LEFT,
+        LOWER_RIGHT,
+        CENTER_SCREEN,
+        UPPER_LEFT_SCREEN,
+        UPPER_RIGHT_SCREEN,
+        LOWER_LEFT_SCREEN,
+        LOWER_RIGHT_SCREEN,
+    };
+
+    enum class WidgetType {
+        BUTTON,
+        INPUT,
+        WINDOW,
+        TOOLTIP,
+        LABEL,
+        IMAGE,
+        CHART,
+        CHECKBOX,
+        PIE_CHART,
+        SLIDER,
+        GROUP,
+    };
+
     class Widget {
     public:
         Widget() {};
-        Widget(Widget* parent, int x, int y, unsigned w, unsigned h, int type, const UnifiedRender::Texture* tex = nullptr);
+        Widget(Widget* parent, int x, int y, unsigned w, unsigned h, WidgetType type, const UnifiedRender::Texture* tex = nullptr);
         Widget(const Widget&) = default;
         Widget(Widget&&) noexcept = default;
         Widget& operator=(const Widget&) = default;
@@ -156,9 +155,9 @@ namespace UI {
         bool is_hover = false;
         bool is_float = false;
         bool is_fullscreen = false;
-        UI_Origin origin = UI_Origin::UPPER_LEFT;
+        UI::Origin origin = UI::Origin::UPPER_LEFT;
 
-        int type;
+        WidgetType type;
 
         int scroll_x = 0, scroll_y = 0;
         int x = 0, y = 0;
@@ -194,18 +193,10 @@ namespace UI {
         void draw_border(const UnifiedRender::Texture* border_tex, float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset, UnifiedRender::Rect viewport);
     };
 
-    class Tooltip: public Widget {
-    public:
-        Tooltip();
-        Tooltip(Widget* parent, unsigned w, unsigned h);
-        virtual ~Tooltip() override {};
-        void set_pos(int x, int y, int width, int height, int screen_width, int screen_height);
-    };
-
     class ChartData {
     public:
-        ChartData(float _num, std::string _info, Color _color): num{ _num }, info{ _info }, color{ _color } {}
-        ChartData(float _num, std::string _info, uint32_t rgba): num{ _num }, info{ _info }, color{ Color::rgba32(rgba) } {}
+        ChartData(float _num, std::string _info, Color _color): num{_num}, info{_info}, color{_color} {}
+        ChartData(float _num, std::string _info, uint32_t rgba): num{_num}, info{_info}, color{Color::rgba32(rgba)} {}
         float num;
         std::string info; // Used for tooltips
         Color color;
@@ -323,6 +314,18 @@ namespace UI {
 
         virtual void on_render(Context& ctx, UnifiedRender::Rect viewport);
         virtual void text(const std::string& text);
+
+        int min_height = 0;
+    };
+
+    class Tooltip: public Widget {
+        std::vector<UI::Label*> labels;
+    public:
+        Tooltip();
+        Tooltip(Widget* parent, unsigned w, unsigned h);
+        virtual ~Tooltip() override {};
+        void set_pos(int x, int y, int width, int height, int screen_width, int screen_height);
+        void text(const std::string& text);
     };
 
     class PieChart: public Widget {
