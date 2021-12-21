@@ -69,7 +69,7 @@ ProductView::ProductView(GameState& _gs, Product* _product)
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
     close_btn->below_of(*good_btn);
-    close_btn->text("OK");
+    close_btn->text("Close");
 }
 
 GoodView::GoodView(GameState& _gs, Good* _good)
@@ -156,5 +156,5 @@ GoodView::GoodView(GameState& _gs, Good* _good)
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
     close_btn->below_of(*this->name_lab);
-    close_btn->text("OK");
+    close_btn->text("Close");
 }

@@ -91,7 +91,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 
     conn_btn = new UI::Button(0, 72, 128, 24, this);
     conn_btn->user_data = this;
-    conn_btn->text("OK");
+    conn_btn->text("Connect");
     conn_btn->on_click = ([](UI::Widget& w, void* data) {
         auto& o = static_cast<MainMenuConnectServer&>(*w.parent);
         print_info("Okey, connecting to [%s]", o.ip_addr_inp->buffer.c_str());

@@ -21,7 +21,7 @@ NationMarketView::NationMarketView(GameState& _gs, Nation* _nation)
     }
 
     auto* close_btn = new UI::CloseButton(0, 24, this->width, 24, this);
-    close_btn->text("OK");
+    close_btn->text("Close");
 }
 
 NationView::NationView(GameState& _gs, Nation* _nation)
@@ -167,5 +167,5 @@ NationView::NationView(GameState& _gs, Nation* _nation)
 
     auto* close_btn = new UI::CloseButton(0, 0, this->width, 24, this);
     close_btn->below_of(*this->propose_truce_btn);
-    close_btn->text("OK");
+    close_btn->text("Close");
 }
