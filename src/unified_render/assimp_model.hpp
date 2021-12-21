@@ -50,7 +50,7 @@ namespace UnifiedRender {
     class ModelManager {
         std::set<std::pair<Model*, std::string>> models;
     public:
-        const Model* load(const std::string& path);
+        const Model& load(const std::string& path);
     };
 }
 

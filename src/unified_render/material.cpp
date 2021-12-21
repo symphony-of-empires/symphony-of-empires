@@ -2,21 +2,19 @@
 #include <fstream>
 #include <string>
 
+#include "unified_render/material.hpp"
 #include "unified_render\path.hpp"
 #include "unified_render/print.hpp"
-#include "unified_render/material.hpp"
 #include "unified_render/texture.hpp"
 
-using namespace UnifiedRender;
-
-std::vector<std::pair<Material*, std::string>> MaterialManager::load_wavefront(const std::string& path) {
+std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::MaterialManager::load_wavefront(const std::string& path) {
     std::ifstream file(path);
     std::string line;
 
     print_info("Loading material file %s", path.c_str());
 
-    std::vector<std::pair<Material*, std::string>> tmp_mat;
-    Material* curr_mat = nullptr;
+    std::vector<std::pair<UnifiedRender::Material*, std::string>> tmp_mat;
+    UnifiedRender::Material* curr_mat = nullptr;
     while(std::getline(file, line)) {
         // Skip whitespace
         size_t len = line.find_first_not_of(" \t");
@@ -34,7 +32,7 @@ std::vector<std::pair<Material*, std::string>> MaterialManager::load_wavefront(c
         if(cmd == "newmtl") {
             std::string name;
             sline >> name;
-            curr_mat = new Material();
+            curr_mat = new UnifiedRender::Material();
             tmp_mat.push_back(std::make_pair(curr_mat, name));
         } else if(cmd == "Ka") {
             glm::vec3 color;
@@ -69,19 +67,19 @@ std::vector<std::pair<Material*, std::string>> MaterialManager::load_wavefront(c
     return tmp_mat;
 }
 
-const Material& MaterialManager::loadMaterial(const std::string& path) {
+const UnifiedRender::Material& UnifiedRender::MaterialManager::load_material(const std::string& path) {
 find:
-    auto it = std::find_if(materials.begin(), materials.end(), [&path](const std::pair<Material*, std::string>& element) {
+    auto it = std::find_if(materials.begin(), materials.end(), [&path](const auto& element) {
         return (element.second == path);
     });
     if(it != materials.end())
         return *((*it).first);
     
     // Create a new material
-    Material* mat = new Material();
-    mat->ambient_map = &g_texture_manager->load_texture(Path::get("default.png"));
+    auto* mat = new UnifiedRender::Material();
+    mat->ambient_map = &g_texture_manager->load_texture(Path::get("3d/whitehouse.png"));
     materials.insert(std::make_pair(mat, path));
     goto find;
 }
 
-MaterialManager* g_material_manager;
+UnifiedRender::MaterialManager* g_material_manager;

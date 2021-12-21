@@ -27,7 +27,6 @@
 #include "unified_render/framebuffer.hpp"
 #include "province.hpp"
 #include "unified_render/model.hpp"
-#include "unified_render/assimp_model.hpp"
 
 Map::Map(const World& _world, int screen_width, int screen_height)
     : world(_world)
@@ -153,7 +152,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     for(const auto& building_type : world.building_types) {
         std::string path;
         path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
-        building_type_models.push_back(g_model_manager->load(path));
+        building_type_models.push_back(&g_model_manager->load(path));
         path = Path::get("ui/building_types/" + building_type->ref_name + ".png");
         building_type_icons.push_back(&g_texture_manager->load_texture(path));
     }
@@ -161,7 +160,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     for(const auto& unit_type : world.unit_types) {
         std::string path;
         path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
-        unit_type_models.push_back(g_model_manager->load(path));
+        unit_type_models.push_back(&g_model_manager->load(path));
         path = Path::get("ui/unit_types/" + unit_type->ref_name + ".png");
         unit_type_icons.push_back(&g_texture_manager->load_texture(path));
     }
@@ -525,8 +524,7 @@ void Map::draw(const GameState& gs, const int width, const int height) {
     // glActiveTexture(GL_TEXTURE0);
     glDisable(GL_CULL_FACE);
 
-    /*
-    for(const auto& building : world.buildings) {
+    /*for(const auto& building : world.buildings) {
         glm::mat4 model(1.f);
         std::pair<float, float> pos = building->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
@@ -534,12 +532,13 @@ void Map::draw(const GameState& gs, const int width, const int height) {
         model_shader->set_uniform("model", model);
         draw_flag(building->get_owner());
         building_type_models.at(world.get_id(building->type))->draw(*model_shader);
-    }
+    }*/
+
     for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
         std::pair<float, float> pos = unit->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
-        model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
+        //model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         model_shader->set_uniform("model", model);
         draw_flag(unit->owner);
 #if defined TILE_GRANULARITY
@@ -548,7 +547,6 @@ void Map::draw(const GameState& gs, const int width, const int height) {
         model_shader->set_uniform("model", model);
         unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
     }
-    */
 
     glEnable(GL_CULL_FACE);
 
@@ -680,6 +678,6 @@ void Map::draw(const GameState& gs, const int width, const int height) {
     }
     */
 
-    wind_osc += 1.f;
+    wind_osc += 0.01f;
     if(wind_osc >= 180.f) wind_osc = 0.f;
 }

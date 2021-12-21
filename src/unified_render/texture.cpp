@@ -27,7 +27,7 @@ void UnifiedRender::Texture::create_dummy() {
     // Fill in with a permutation pattern of pink and black
     // This should be autovectorized by gcc
     for(size_t i = 0; i < width * height; i++)
-        buffer[i] = (i % 2) ? 0xff000000 : 0xff808000;
+        buffer[i] = 0xff000000 | (i * 16);
 }
 
 void UnifiedRender::Texture::to_opengl(TextureOptions options) {
