@@ -20,7 +20,7 @@ NationMarketView::NationMarketView(GameState& _gs, Nation* _nation)
         i++;
     }
 
-    auto* close_btn = new UI::CloseButton(0, 24, this->width, 24, this);
+    auto* close_btn = new UI::CloseButton(0, 0, this->width, 24, this);
     close_btn->text("Close");
 }
 
@@ -37,7 +37,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         w.text(o.nation->get_client_hint().alt_name);
     });
 
-    this->flag_img = new UI::Image(0, 24, 128, 96, nullptr, this);
+    this->flag_img = new UI::Image(0, 0, 128, 96, nullptr, this);
     this->flag_img->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationView&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) return;

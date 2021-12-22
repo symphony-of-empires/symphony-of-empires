@@ -133,7 +133,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
     this->pop_tab = new ProvincePopulationTab(gs, 128, 24, province, this);
     this->pop_tab->is_render = true;
-    auto* pop_btn = new UI::Button(0, 24, 128, 24, this);
+    auto* pop_btn = new UI::Button(0, 0, 128, 24, this);
     pop_btn->text("Population");
     pop_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent);

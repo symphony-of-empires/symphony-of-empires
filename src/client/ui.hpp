@@ -130,7 +130,7 @@ namespace UI {
 
         template <typename T>
         void below_of(const T& rhs) {
-            y += rhs.y + rhs.height;
+            y = rhs.y + rhs.height;
         }
 
         template <typename T>

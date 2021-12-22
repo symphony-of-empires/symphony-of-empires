@@ -18,7 +18,7 @@ MainMenu::MainMenu(GameState& _gs)
     this->is_scroll = false;
     this->text("Symphony of Empires");
     
-    auto* single_btn = new UI::Button(0, 24, 128, 24, this);
+    auto* single_btn = new UI::Button(0, 0, 128, 24, this);
     single_btn->text("Singleplayer");
     single_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
@@ -32,11 +32,11 @@ MainMenu::MainMenu(GameState& _gs)
         o.gs.in_game = true;
     });
 
-    auto* cfg_btn = new UI::Button(0, 24, 128, 24, this);
+    auto* cfg_btn = new UI::Button(0, 0, 128, 24, this);
     cfg_btn->text("Settings");
     cfg_btn->right_side_of(*single_btn);
 
-    auto* mp_btn = new UI::Button(0, 24, 128, 24, this);
+    auto* mp_btn = new UI::Button(0, 0, 128, 24, this);
     mp_btn->text("Join LAN");
     mp_btn->right_side_of(*cfg_btn);
     mp_btn->on_click = ([](UI::Widget& w, void*) {
@@ -44,7 +44,7 @@ MainMenu::MainMenu(GameState& _gs)
         o.connect_window = new MainMenuConnectServer(o.gs);
     });
 
-    auto* host_btn = new UI::Button(0, 24, 128, 24, this);
+    auto* host_btn = new UI::Button(0, 0, 128, 24, this);
     host_btn->text("Host");
     host_btn->right_side_of(*mp_btn);
     host_btn->on_click = ([](UI::Widget& w, void*) {
@@ -59,7 +59,7 @@ MainMenu::MainMenu(GameState& _gs)
         o.gs.in_game = true;
     });
 
-    auto* exit_btn = new UI::Button(0, 24, 128, 24, this);
+    auto* exit_btn = new UI::Button(0, 0, 128, 24, this);
     exit_btn->text("Exit");
     exit_btn->right_side_of(*host_btn);
 }
@@ -77,19 +77,19 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     this->is_scroll = false;
     this->text("Internet multiplayer");
 
-    ip_addr_inp = new UI::Input(0, 24, 128, 24, this);
+    ip_addr_inp = new UI::Input(0, 0, 128, 24, this);
     ip_addr_inp->buffer = "127.0.0.1";
     ip_addr_inp->text(ip_addr_inp->buffer);
     ip_addr_inp->tooltip = new UI::Tooltip(ip_addr_inp, 512, 24);
     ip_addr_inp->tooltip->text("IP Address of the server");
 
-    username_inp = new UI::Input(0, 48, 512, 24, this);
+    username_inp = new UI::Input(0, 24, 512, 24, this);
     username_inp->buffer = "Player";
     username_inp->text(username_inp->buffer);
     username_inp->tooltip = new UI::Tooltip(username_inp, 512, 24);
     username_inp->tooltip->text("Your publicly visible username");
 
-    conn_btn = new UI::Button(0, 72, 128, 24, this);
+    conn_btn = new UI::Button(0, 48, 128, 24, this);
     conn_btn->user_data = this;
     conn_btn->text("Connect");
     conn_btn->on_click = ([](UI::Widget& w, void* data) {

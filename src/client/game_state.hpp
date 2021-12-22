@@ -8,6 +8,7 @@
 #include "unified_render/serializer.hpp"
 #include "unified_render/sound.hpp"
 #include "unified_render/state.hpp"
+#include "tutorial.hpp"
 
 enum class MapMode {
     COUNTRY_SELECT,
@@ -103,6 +104,8 @@ public:
     std::vector<UnifiedRender::Sound*> sound_queue;
     std::vector<UnifiedRender::Sound*> music_queue;
     float music_fade_value;
+
+    TutorialState tutorial;
 
     bool in_game;
 };

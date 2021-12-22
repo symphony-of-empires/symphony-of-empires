@@ -23,14 +23,14 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
 {
     this->new_policy = gs.curr_nation->current_policy;
 
-    this->ideology_pie = new UI::PieChart(0, 24, 128, 128, this);
-    auto* ideology_pie_lab = new UI::Label(0, 24, "Ideologies", this);
+    this->ideology_pie = new UI::PieChart(0, 0, 128, 128, this);
+    auto* ideology_pie_lab = new UI::Label(0, 0, "Ideologies", this);
 
-    this->militancy_chart = new UI::Chart(0, 24, 128, 128, this);
+    this->militancy_chart = new UI::Chart(0, 0, 128, 128, this);
     this->militancy_chart->text("Militancy");
     this->militancy_chart->right_side_of(*ideology_pie);
 
-    this->con_chart = new UI::Chart(0, 24, 128, 128, this);
+    this->con_chart = new UI::Chart(0, 0, 128, 128, this);
     this->con_chart->text("Conciousness");
     this->con_chart->right_side_of(*militancy_chart);
 
@@ -113,7 +113,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     enact_btn->text("Enact policy");
     enact_btn->below_of(*foreign_trade_chk);
     enact_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<PoliciesScreen&>(w);
+        auto& o = static_cast<PoliciesScreen&>(*w.parent);
         Packet packet = Packet();
         Archive ar = Archive();
         ActionType action = ActionType::NATION_ENACT_POLICY;

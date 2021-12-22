@@ -78,7 +78,7 @@ void GameState::play_nation() {
 
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
-    minimap = new Interface::Minimap(*this, -300, 0, UI::Origin::UPPER_RIGHT_SCREEN);
+    minimap = new Interface::Minimap(*this, 0, -256, UI::Origin::LOWER_LEFT_SCREEN);
     g_client->send(Action::SelectNation::form_packet(curr_nation));
     print_info("Selected nation [%s]", curr_nation->ref_name.c_str());
 }
@@ -144,24 +144,12 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
                     new Interface::TreatyDraftView(gs);
                 }
                 break;
-            case SDLK_p:
-                if(gs.current_mode == MapMode::NORMAL) {
-                    //gs.products_view_world->show();
-                }
-                break;
-            case SDLK_a:
-                if(gs.current_mode == MapMode::NORMAL) {
-                    new Interface::ArmyView(gs);
-                }
-                break;
             case SDLK_SPACE:
                 if(gs.current_mode == MapMode::NORMAL) {
                     gs.paused = !gs.paused;
-
                     if(gs.paused) {
                         ui_ctx->prompt("Control", "Unpaused");
-                    }
-                    else {
+                    } else {
                         ui_ctx->prompt("Control", "Paused");
                     }
                 }
@@ -265,8 +253,7 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
     // Event + Descision popups
     for(auto& msg : gs.curr_nation->inbox) {
         // Check that the event is not already displayed to the user
-        auto iter = std::find_if(displayed_events.begin(), displayed_events.end(),
-            [&msg](const auto& e) { return e->ref_name == msg->ref_name; });
+        auto iter = std::find_if(displayed_events.begin(), displayed_events.end(), [&msg](const auto& e) { return e->ref_name == msg->ref_name; });
         if(iter != displayed_events.end()) continue;
 
         new Interface::DescisionWindow(gs, *msg);
@@ -275,8 +262,7 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
 
     for(auto& treaty : gs.world->treaties) {
         // Check that the treaty is not already displayed
-        auto iter = std::find_if(displayed_treaties.begin(), displayed_treaties.end(),
-            [&treaty](const auto& e) { return e == treaty; });
+        auto iter = std::find_if(displayed_treaties.begin(), displayed_treaties.end(), [&treaty](const auto& e) { return e == treaty; });
         if(iter != displayed_treaties.end()) continue;
 
         // Must participate in treaty
@@ -466,6 +452,8 @@ extern UnifiedRender::ModelManager* g_model_manager;
 #include <cstdlib>
 #include <cstring>
 #include <sys/types.h>
+
+#include "server/server_network.hpp"
 void start_client(int argc, char** argv) {
     // globals
     GameState gs{};
@@ -499,7 +487,17 @@ void start_client(int argc, char** argv) {
     gs.world->load_mod();
     gs.map = new Map(*gs.world, gs.width, gs.height);
 
-    main_menu_loop(gs, gs.window);
+    gs.tutorial.fire_at_start = 1;
+
+    if(!gs.tutorial.fire_at_start) {
+        main_menu_loop(gs, gs.window);
+    } else {
+        gs.host_mode = true;
+        gs.server = new Server(gs, 1836);
+        gs.client = new Client(gs, "127.0.0.1", 1836);
+        gs.client->username = "TUTORIAL_PLAYER";
+        gs.in_game = true;
+    }
     main_loop(gs, gs.client, gs.window);
     return;
 }

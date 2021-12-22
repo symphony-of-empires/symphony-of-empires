@@ -32,7 +32,7 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_typ
     this->is_scroll = false;
 
     this->icon_img = new UI::Image(0, 0, 32, 24, nullptr, this);
-    this->icon_img->current_texture = &g_texture_manager->load_texture(Path::get("ui/icons/unit_types/" + unit_type->ref_name));
+    this->icon_img->current_texture = &g_texture_manager->load_texture(Path::get("ui/icons/unit_types/" + unit_type->ref_name + ".png"));
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->icon_img);
