@@ -15,71 +15,80 @@ std::vector<ProvinceColor> religion_map_mode(const World& world);
 
 Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     : gs{ _gs },
-    UI::Window(x, y, 300, 300)
+    UI::Window(x, y, 300, 256)
 {
     this->origin = origin;
     this->is_pinned = true;
     this->is_scroll = false;
     this->text("Minimap");
 
-    const UnifiedRender::Texture& map_texture = g_texture_manager->load_texture(Path::get("ui/globe.png"));
-
-    new UI::Image(0, 0, 300, 150, &map_texture, this);
-
-    UI::Button* political_button = new UI::Button(10, 160, 100, 24, this);
-    political_button->user_data = this;
-    political_button->text("Political");
-    political_button->on_click = ([](UI::Widget& w, void* data) {
+    auto* political_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    political_ibtn->user_data = this;
+    political_ibtn->on_click = ([](UI::Widget& w, void* data) {
         Minimap* state = (Minimap*)data;
-
         mapmode_generator map_mode = political_map_mode;
         state->gs.map->set_map_mode(map_mode);
     });
-    UI::Button* terrain_button = new UI::Button(10, 200, 100, 24, this);
-    terrain_button->user_data = this;
-    terrain_button->text("Terrain");
-    terrain_button->on_click = ([](UI::Widget& w, void* data) {
-        Minimap* state = (Minimap*)data;
+    political_ibtn->tooltip = new UI::Tooltip(political_ibtn, 512, 24);
+    political_ibtn->tooltip->text("Political");
 
+    auto* terrain_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    terrain_ibtn->right_side_of(*political_ibtn);
+    terrain_ibtn->user_data = this;
+    terrain_ibtn->on_click = ([](UI::Widget& w, void* data) {
+        Minimap* state = (Minimap*)data;
         mapmode_generator map_mode = terrain_map_mode;
         state->gs.map->set_map_mode(map_mode);
     });
-    UI::Button* population_button = new UI::Button(10, 240, 100, 24, this);
-    population_button->user_data = this;
-    population_button->text("Population");
-    population_button->on_click = ([](UI::Widget& w, void* data) {
-        Minimap* state = (Minimap*)data;
+    terrain_ibtn->tooltip = new UI::Tooltip(terrain_ibtn, 512, 24);
+    terrain_ibtn->tooltip->text("Political");
 
+    auto* population_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    population_ibtn->right_side_of(*terrain_ibtn);
+    population_ibtn->user_data = this;
+    population_ibtn->on_click = ([](UI::Widget& w, void* data) {
+        Minimap* state = (Minimap*)data;
         mapmode_generator map_mode = population_map_mode;
         state->gs.map->set_map_mode(map_mode);
     });
-    UI::Button* terrain_color_button = new UI::Button(110, 160, 100, 24, this);
-    terrain_color_button->user_data = this;
-    terrain_color_button->text("Terrain type");
-    terrain_color_button->on_click = ([](UI::Widget& w, void* data) {
-        Minimap* state = (Minimap*)data;
+    population_ibtn->tooltip = new UI::Tooltip(population_ibtn, 512, 24);
+    population_ibtn->tooltip->text("Population");
 
+    auto* terrain_color_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    terrain_color_ibtn->right_side_of(*population_ibtn);
+    terrain_color_ibtn->user_data = this;
+    terrain_color_ibtn->on_click = ([](UI::Widget& w, void* data) {
+        Minimap* state = (Minimap*)data;
         mapmode_generator map_mode = terrain_color_map_mode;
         state->gs.map->set_map_mode(map_mode);
     });
-    UI::Button* culture_button = new UI::Button(110, 200, 100, 24, this);
-    culture_button->user_data = this;
-    culture_button->text("Culture");
-    culture_button->on_click = ([](UI::Widget& w, void* data) {
-        Minimap* state = (Minimap*)data;
+    terrain_color_ibtn->tooltip = new UI::Tooltip(terrain_color_ibtn, 512, 24);
+    terrain_color_ibtn->tooltip->text("Terrain type");
 
+    auto* culture_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    culture_ibtn->right_side_of(*terrain_color_ibtn);
+    culture_ibtn->user_data = this;
+    culture_ibtn->on_click = ([](UI::Widget& w, void* data) {
+        Minimap* state = (Minimap*)data;
         mapmode_generator map_mode = culture_map_mode;
         state->gs.map->set_map_mode(map_mode);
     });
-    UI::Button* religion_button = new UI::Button(110, 240, 100, 24, this);
-    religion_button->user_data = this;
-    religion_button->text("Religion");
-    religion_button->on_click = ([](UI::Widget& w, void* data) {
-        Minimap* state = (Minimap*)data;
+    culture_ibtn->tooltip = new UI::Tooltip(culture_ibtn, 512, 24);
+    culture_ibtn->tooltip->text("Culture diversity");
 
+    auto* religion_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    religion_ibtn->right_side_of(*culture_ibtn);
+    religion_ibtn->user_data = this;
+    religion_ibtn->on_click = ([](UI::Widget& w, void* data) {
+        Minimap* state = (Minimap*)data;
         mapmode_generator map_mode = religion_map_mode;
         state->gs.map->set_map_mode(map_mode);
     });
+    religion_ibtn->tooltip = new UI::Tooltip(religion_ibtn, 512, 24);
+    religion_ibtn->tooltip->text("Religion");
+
+    auto* img = new UI::Image(0, 24, 300, 150, &g_texture_manager->load_texture(Path::get("ui/globe.png")), this);
+    img->below_of(*religion_ibtn);
 }
 
 std::vector<ProvinceColor> terrain_map_mode(const World& world) {

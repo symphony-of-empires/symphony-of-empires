@@ -90,7 +90,6 @@ Map::Map(const World& _world, int screen_width, int screen_height)
             }
             else {
                 tile_map->buffer[i] = ((world.get_id(province->owner) & 0xffff) << 16) | (province->cached_id & 0xffff);
-
             }
         }
     }
@@ -173,11 +172,11 @@ void Map::set_view(MapView view) {
     delete camera;
     if(view == MapView::PLANE_VIEW) {
         camera = new FlatCamera(old_width, old_height);
-    }
-    else if(view == MapView::SPHERE_VIEW) {
+    } else if(view == MapView::SPHERE_VIEW) {
         camera = new OrbitCamera(old_width, old_height, 100.f);
     }
 }
+
 std::vector<ProvinceColor> political_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
@@ -210,7 +209,6 @@ void Map::reload_shaders() {
     border_sdf = gen_border_sdf();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-
 
 void Map::set_map_mode(mapmode_generator _mapmode_func){
     mapmode_func = _mapmode_func;
@@ -266,8 +264,7 @@ UnifiedRender::Texture* Map::gen_border_sdf() {
         tex0->gen_mipmaps();
         glEnable(GL_CULL_FACE);
         return tex0;
-    }
-    else {
+    } else {
         delete tex0;
         tex1->gen_mipmaps();
         glEnable(GL_CULL_FACE);
@@ -508,8 +505,7 @@ void Map::draw(const GameState& gs, const int width, const int height) {
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();
-    }
-    else if(view_mode == MapView::SPHERE_VIEW) {
+    } else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
 

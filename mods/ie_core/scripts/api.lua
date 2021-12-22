@@ -695,6 +695,9 @@ end
 function BuildingType:requires_good(good, amount)
 	add_req_good_to_industry_type(self.id, good.id, amount)
 end
+function BuildingType:requires_tech(tech, amount)
+	add_req_technology_to_industry_type(self.id, tech.id)
+end
 
 IndustryType = BuildingType
 IndustryType.is_factory = true

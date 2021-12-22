@@ -22,7 +22,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
     this->is_scroll = false;
     this->text("Treaty proposal");
     
-    this->body_txt = new UI::Text(0, 24, this->width, 24, this);
+    this->body_txt = new UI::Text(0, 0, this->width, 24, this);
     this->body_txt->text("[insert the treaty description here]");
 
     auto* approve_btn = new UI::Button(0, 24 * 2, this->width, 24, this);
