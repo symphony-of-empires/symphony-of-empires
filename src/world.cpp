@@ -141,6 +141,7 @@ World::World() {
     lua_register(lua, "add_province_pop", LuaAPI::add_province_pop);
     lua_register(lua, "set_province_terrain", LuaAPI::set_province_terrain);
     lua_register(lua, "give_province_to", LuaAPI::give_province_to);
+    lua_register(lua, "give_hard_province_to", LuaAPI::give_hard_province_to);
     lua_register(lua, "get_province_owner", LuaAPI::get_province_owner);
     lua_register(lua, "get_province_controller", LuaAPI::get_province_controller);
     lua_register(lua, "get_province_neighbours", LuaAPI::get_province_neighbours);
@@ -201,9 +202,9 @@ World::World() {
         return 1;
     });
     lua_register(lua, "set_date", [](lua_State* L) {
-        const int year = lua_tonumber(L, 1) * 12 * 30 * g_world->ticks_per_month;
-        const int month = lua_tonumber(L, 2) * 30 * g_world->ticks_per_month;
-        const int day = lua_tonumber(L, 3) * g_world->ticks_per_month;
+        const int year = lua_tonumber(L, 1) * 12 * 30;
+        const int month = lua_tonumber(L, 2) * 30;
+        const int day = lua_tonumber(L, 3);
         g_world->time = year + month + day;
         return 1;
     });

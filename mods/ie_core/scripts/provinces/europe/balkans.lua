@@ -124,7 +124,7 @@ for k, v in pairs(bulgaria_provinces) do
     province = Province:new(v)
     province:register()
 
-    --province:add_industry(wheat_farm, turkey, andes_transport)
+    province:add_industry(wheat_farm, turkey, andes_transport)
     province:add_pop(artisan, bulgarian, orthodox, 5000, 0.9)
     province:add_pop(farmer, bulgarian, orthodox, 40000, 0.8)
     province:add_pop(soldier, bulgarian, orthodox, 8000, 0.8)

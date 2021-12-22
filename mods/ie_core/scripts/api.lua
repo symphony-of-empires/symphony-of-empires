@@ -452,6 +452,9 @@ end
 function Province:give_to(nation)
 	give_province_to(self.id, nation.id)
 end
+function Province:give_and_relinquish_to(nation)
+	give_hard_province_to(self.id, nation.id)
+end
 function Province:get_owner()
 	return Nation:get(get_province_owner(self.id))
 end
