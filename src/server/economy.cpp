@@ -39,7 +39,6 @@ public:
     Workers& operator=(const Workers& workers) {
         pop = workers.pop;
         amount = workers.amount;
-
         return *this;
     }
 };
@@ -55,8 +54,8 @@ public:
 static inline std::vector<AvailableWorkers> get_available_workers(World& world) {
 	std::vector<AvailableWorkers> available_workers;
 	for(const auto& province : world.provinces) {
-        // Province must have an owner
-        if(province->owner == nullptr) {
+        // Province must have a controller
+        if(province->controller == nullptr) {
             available_workers.push_back(AvailableWorkers{});
             continue;
         }
@@ -67,12 +66,12 @@ static inline std::vector<AvailableWorkers> get_available_workers(World& world) 
                 continue;
             }
 
-            Workers workers{ pop };
-            if(province->owner->is_accepted_culture(pop) == false) {
+            Workers workers{pop};
+            if(province->controller->is_accepted_culture(pop) == false) {
                 // POPs of non-accepted cultures on exterminate mode cannot get jobs
-                if(province->owner->current_policy.treatment == TREATMENT_EXTERMINATE) {
+                if(province->controller->current_policy.treatment == TREATMENT_EXTERMINATE) {
                     continue;
-                } else if(province->owner->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
+                } else if(province->controller->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
                     workers.amount /= 2;
                 }
             }
@@ -113,23 +112,7 @@ void Economy::do_tick(World& world) {
             print_error("Building: %zu of type: %s, province is null!", j, building->type->ref_name.c_str());
             continue;
         }
-        if(province->owner == nullptr) continue;
-
-        bool can_build = true;
-        for(const auto& req : building->req_goods_for_unit) {
-            // Increment demand for all products with same required good type
-            for(auto& product : world.products) {
-                if(product->good != req.first) continue;
-
-                // Government-required supplies are super important for companies
-                product->demand += req.second * 1.5f;
-            }
-            if(req.second) can_build = false;
-        }
-
-        // TODO: Make a proper supply chain system with the whole working economy thing :)
-        // NOTE: Uncomment when it's ready :)
-        //if(!can_build) break;
+        if(province->controller == nullptr) continue;
 
         size_t needed_laborers = 0, available_laborers = 0;
         size_t needed_farmers = 0, available_farmers = 0;
@@ -176,7 +159,7 @@ void Economy::do_tick(World& world) {
             available_farmers += employed;
 
             // Give pay to the POP
-            float payment = employed * province->owner->current_policy.min_wage;
+            float payment = employed * province->controller->current_policy.min_wage;
             workers.pop.budget += payment * building->get_owner()->get_salary_paid_mod();
             building->budget -= payment;
             workers.amount -= employed;
@@ -185,6 +168,7 @@ void Economy::do_tick(World& world) {
             if(!workers.amount) {
                 province_workers.farmers.erase(province_workers.farmers.begin() + i);
                 --i;
+                continue;
             }
         }
         
@@ -196,7 +180,7 @@ void Economy::do_tick(World& world) {
             available_laborers += employed;
 
             // Give pay to the POP
-            float payment = employed * province->owner->current_policy.min_wage;
+            float payment = employed * province->controller->current_policy.min_wage;
             workers.pop.budget += payment * building->get_owner()->get_salary_paid_mod();
             building->budget -= payment;
             workers.amount -= employed;
@@ -205,6 +189,7 @@ void Economy::do_tick(World& world) {
             if(!workers.amount) {
                 province_workers.laborers.erase(province_workers.laborers.begin() + i);
                 --i;
+                continue;
             }
         }
 
@@ -216,7 +201,7 @@ void Economy::do_tick(World& world) {
             available_entrepreneurs += employed;
 
             // Give pay to the POP
-            float payment = employed * province->owner->current_policy.min_wage;
+            float payment = employed * province->controller->current_policy.min_wage;
             workers.pop.budget += payment * building->get_owner()->get_salary_paid_mod();
             building->budget -= payment;
             workers.amount -= employed;
@@ -225,37 +210,57 @@ void Economy::do_tick(World& world) {
             if(!workers.amount) {
                 province_workers.entrepreneurs.erase(province_workers.entrepreneurs.begin() + i);
                 --i;
+                continue;
             }
         }
 
         if(building->working_unit_type != nullptr) {
-            // Spawn a unit
-            Unit* unit = new Unit();
-            unit->province = building->get_province();
-            unit->type = building->working_unit_type;
-            unit->owner = building->get_owner();
-            unit->budget = 5000.f;
-            unit->experience = 1.f;
-            unit->morale = 1.f;
-            unit->supply = 1.f;
-            unit->defensive_ticks = 0;
-            unit->size = unit->type->max_health;
-            unit->base = unit->size;
+            bool can_build = true;
+            for(const auto& req : building->req_goods_for_unit) {
+                // Increment demand for all products with same required good type
+                for(auto& product : world.products) {
+                    if(product->good != req.first) continue;
 
-            // Notify all clients of the server about this new unit
-            building->working_unit_type = nullptr;
-			world.insert(unit);
+                    // Government-required supplies are super important for companies
+                    product->demand += req.second * 1.5f;
+                }
+                if(req.second) {
+                    can_build = false;
+                    break;
+                }
+            }
 
-            Packet packet = Packet();
-            Archive ar = Archive();
-            ActionType action = ActionType::UNIT_ADD;
-            ::serialize(ar, &action); // ActionInt
-            ::serialize(ar, unit); // UnitObj
-            packet.data(ar.get_buffer(), ar.size());
-            g_server->broadcast(packet);
+            // TODO: Make a proper supply chain system with the whole working economy thing :)
+            // NOTE: Uncomment when it's ready :)
+            if(can_build) {
+                // Spawn a unit
+                Unit* unit = new Unit();
+                unit->province = building->get_province();
+                unit->type = building->working_unit_type;
+                unit->owner = building->get_owner();
+                unit->budget = 5000.f;
+                unit->experience = 1.f;
+                unit->morale = 1.f;
+                unit->supply = 1.f;
+                unit->defensive_ticks = 0;
+                unit->size = unit->type->max_health;
+                unit->base = unit->size;
+
+                // Notify all clients of the server about this new unit
+                building->working_unit_type = nullptr;
+                world.insert(unit);
+
+                Packet packet = Packet();
+                Archive ar = Archive();
+                ActionType action = ActionType::UNIT_ADD;
+                ::serialize(ar, &action); // ActionInt
+                ::serialize(ar, unit); // UnitObj
+                packet.data(ar.get_buffer(), ar.size());
+                g_server->broadcast(packet);
+            }
         }
 
-        if(building->type->is_factory == true) {
+        if(building->type->is_factory) {
             if(building->budget < 0.f) {
                 {
                     Packet packet = Packet();
@@ -275,15 +280,15 @@ void Economy::do_tick(World& world) {
                 continue;
             }
 
-            building->workers = available_farmers + available_entrepreneurs;
-            //print_info("Building of %s in %s has %zu workers", building->type->name.c_str(), province->name.c_str(), building->workers);
+            building->workers = available_farmers + available_laborers + available_entrepreneurs;
             if(!building->workers) {
                 building->days_unoperational++;
+                print_info("Building of %s in %s has %zu workers", building->type->name.c_str(), province->name.c_str(), building->workers);
 
                 // TODO: We should tax building daily income instead of by it's total budget
-                const float loss_by_tax = building->budget * province->owner->current_policy.industry_tax;
+                const float loss_by_tax = building->budget * province->controller->current_policy.industry_tax;
                 building->budget -= loss_by_tax;
-                province->owner->budget += loss_by_tax;
+                province->controller->budget += loss_by_tax;
                 continue;
             }
             building->days_unoperational = 0;
@@ -341,6 +346,7 @@ void Economy::do_tick(World& world) {
                 } else {
                     deliver.quantity = (available_laborers / needed_laborers) * 5000;
                 }
+
                 if(!deliver.quantity) continue;
                 deliver.quantity *= building->get_owner()->get_industry_output_mod();
 
@@ -429,7 +435,7 @@ void Economy::do_tick(World& world) {
             if(!company->in_range(deliver.province)) continue;
 
             const Province* deliver_province = deliver.province;
-            const Policies& deliver_policy = deliver_province->owner->current_policy;
+            const Policies& deliver_policy = deliver_province->controller->current_policy;
             Building* deliver_building = deliver.building;
 
             // Check all orders
@@ -443,12 +449,12 @@ void Economy::do_tick(World& world) {
                 if(!company->in_range(order.province)) continue;
 
                 Province* order_province = order.province;
-                const Policies& order_policy = order_province->owner->current_policy;
+                const Policies& order_policy = order_province->controller->current_policy;
 
-                // If foreign trade is not allowed, then order owner === sender owner
+                // If foreign trade is not allowed, then order controller === sender controller
                 if(!deliver_policy.foreign_trade || !order_policy.foreign_trade) {
                     // Trade not allowed
-                    if(order_province->owner != deliver_province->owner) continue;
+                    if(order_province->controller != deliver_province->controller) continue;
                 }
 
                 const float order_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
@@ -457,7 +463,7 @@ void Economy::do_tick(World& world) {
                 float total_order_cost, total_deliver_cost;
 
                 // International trade
-                if(order.province->owner != deliver.province->owner) {
+                if(order.province->controller != deliver.province->controller) {
                     total_order_cost = order_cost * order_policy.import_tax;
                     total_deliver_cost = deliver_cost * order_policy.export_tax;
                 }
@@ -483,8 +489,8 @@ void Economy::do_tick(World& world) {
                 if(order.type == OrderType::INDUSTRIAL) continue;
 
                 // Give both goverments their part of the tax (when tax is 1.0< then the goverment pays for it)
-                order_province->owner->budget += total_order_cost - order_cost;
-                deliver_province->owner->budget += total_deliver_cost - deliver_cost;
+                order_province->controller->budget += total_order_cost - order_cost;
+                deliver_province->controller->budget += total_deliver_cost - deliver_cost;
 
                 // Province receives a small (military) supply buff from commerce
                 order_province->supply_rem += 5.f;
@@ -580,7 +586,7 @@ void Economy::do_tick(World& world) {
     std::mutex emigration_lock;
 
     std::for_each(world.provinces.begin(), world.provinces.end(), [&emigration_lock, &emigration, &world](auto& province) {
-        if(province->owner == nullptr) return;
+        if(province->controller == nullptr) return;
 
         std::vector<Product*> province_products = province->get_products();
 
@@ -637,8 +643,8 @@ void Economy::do_tick(World& world) {
 
                 // Take in account taxes for the product
                 // TODO: Have something affect tax efficiency! - complexity at it's finest :)
-                province->owner->budget += (cost_of_transaction * province->owner->get_tax(pop)) - cost_of_transaction;
-                cost_of_transaction *= province->owner->get_tax(pop);
+                province->controller->budget += (cost_of_transaction * province->controller->get_tax(pop)) - cost_of_transaction;
+                cost_of_transaction *= province->controller->get_tax(pop);
                 pop.budget -= cost_of_transaction;
 
                 // Demand is incremented proportional to items bought and remove item from stockpile
@@ -666,7 +672,7 @@ void Economy::do_tick(World& world) {
             pop.everyday_needs_met = std::min<float>(1.5f, std::max<float>(pop.everyday_needs_met, -5.f));
 			
 			// Current liking of the party is influenced by the life_needs_met
-			pop.ideology_approval[world.get_id(province->owner->ideology)] += (pop.life_needs_met + 1.f) / 1000.f;
+			pop.ideology_approval[world.get_id(province->controller->ideology)] += (pop.life_needs_met + 1.f) / 1000.f;
 
             // We want to get rid of many POPs as possible
             if(!pop.size) {
@@ -693,9 +699,9 @@ void Economy::do_tick(World& world) {
                 }
 
                 if(growth < 0) {
-                    growth *= province->owner->get_death_mod();
+                    growth *= province->controller->get_death_mod();
                 } else {
-                    growth *= province->owner->get_reproduction_mod();
+                    growth *= province->controller->get_reproduction_mod();
                 }
 
                 pop.size += growth;
@@ -716,8 +722,8 @@ void Economy::do_tick(World& world) {
                 pop.con += 0.01f;
             }
 
-            pop.militancy += 0.01f * province->owner->get_militancy_mod();
-            pop.con += 0.01f * province->owner->get_militancy_mod();
+            pop.militancy += 0.01f * province->controller->get_militancy_mod();
+            pop.con += 0.01f * province->controller->get_militancy_mod();
 
             // Depending on how much not our life needs are being met is how many we
             // want to get out of here
@@ -729,17 +735,17 @@ void Economy::do_tick(World& world) {
                 float current_attractive = province->get_attractiveness(pop);
 
                 // Check that laws on the province we are in allows for emigration
-                if(province->owner->current_policy.migration == ALLOW_NOBODY) {
+                if(province->controller->current_policy.migration == ALLOW_NOBODY) {
                     goto skip_emigration;
                 }
-                else if(province->owner->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
-                    if(province->owner->is_accepted_culture(pop) == false) {
+                else if(province->controller->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
+                    if(province->controller->is_accepted_culture(pop) == false) {
                         goto skip_emigration;
                     }
                 }
-                else if(province->owner->current_policy.migration == ALLOW_ALL_PAYMENT) {
+                else if(province->controller->current_policy.migration == ALLOW_ALL_PAYMENT) {
                     // See if we can afford the tax
-                    if(pop.budget < ((pop.budget / 1000.f) * province->owner->current_policy.export_tax)) {
+                    if(pop.budget < ((pop.budget / 1000.f) * province->controller->current_policy.export_tax)) {
                         continue;
                     }
                 }
@@ -750,22 +756,22 @@ void Economy::do_tick(World& world) {
                 Province* best_province = nullptr;
                 for(auto target_province : province->neighbours) {
                     // Don't go to owner-less provinces
-                    if(target_province->owner == nullptr) continue;
+                    if(target_province->controller == nullptr) continue;
 
                     const float attractive = target_province->get_attractiveness(pop) * (std::rand() % 16);
                     if(attractive < current_attractive) continue;
 
                     // Nobody is allowed in
-                    if(target_province->owner->current_policy.immigration == ALLOW_NOBODY) {
+                    if(target_province->controller->current_policy.immigration == ALLOW_NOBODY) {
                         continue;
                     }
                     // Only if we are accepted culture/religion
-                    else if(target_province->owner->current_policy.immigration == ALLOW_ACCEPTED_CULTURES) {
-                        if(!target_province->owner->is_accepted_culture(pop)) continue;
+                    else if(target_province->controller->current_policy.immigration == ALLOW_ACCEPTED_CULTURES) {
+                        if(!target_province->controller->is_accepted_culture(pop)) continue;
                     }
                     // Allowed but only if we have money (and we are treated as "imported" good)
-                    else if(target_province->owner->current_policy.immigration == ALLOW_ALL_PAYMENT) {
-                        if(pop.budget < ((pop.budget / 1000.f) * target_province->owner->current_policy.import_tax)) {
+                    else if(target_province->controller->current_policy.immigration == ALLOW_ALL_PAYMENT) {
+                        if(pop.budget < ((pop.budget / 1000.f) * target_province->controller->current_policy.import_tax)) {
                             continue;
                         }
                     }

@@ -251,6 +251,7 @@ void Nation::give_province(Province& province) {
 
     world.nations[nation_id]->owned_provinces.insert(world.provinces[province_id]);
     world.provinces[province_id]->owner = world.nations[nation_id];
+    world.provinces[province_id]->controller = world.nations[nation_id];
     return;
 }
 
