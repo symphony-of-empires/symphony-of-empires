@@ -38,6 +38,10 @@ diamond_mine = IndustryType:new{ ref_name = "diamond_mine", name = _("Diamond mi
 diamond_mine:register()
 diamond_mine:add_output(diamond)
 
+coal_mine = IndustryType:new{ ref_name = "coal_mine", name = _("Coal mine") }
+coal_mine:register()
+coal_mine:add_output(coal)
+
 zinc_mine = IndustryType:new{ ref_name = "zinc_mine", name = _("Zinc mine") }
 zinc_mine:register()
 zinc_mine:add_output(zinc)
@@ -45,6 +49,10 @@ zinc_mine:add_output(zinc)
 copper_mine = IndustryType:new{ ref_name = "copper_mine", name = _("Copper mine") }
 copper_mine:register()
 copper_mine:add_output(copper)
+
+chromium_mine = IndustryType:new{ ref_name = "chromium_mine", name = _("Chromium mine") }
+chromium_mine:register()
+chromium_mine:add_output(chromium)
 
 iron_mine = IndustryType:new{ ref_name = "iron_mine", name = _("Iron mine") }
 iron_mine:register()

@@ -14,7 +14,7 @@ for k, v in pairs(oldenburg_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(iron_mine, oldenburg, andes_transport)
+    province:add_industry(zinc_mine, oldenburg, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -29,6 +29,7 @@ for k, v in pairs(oldenburg_provinces_list) do
     province:give_to(oldenburg)
     province:set_terrain(plains)
 end
+oldenburg:set_capital(Province:get("oldenburg"))
 
 local wolfenbuttel_provinces_list = {
     { ref_name = "wolfenbuttel", name = _("Wolfenbüttel"), color = 0x00ff21 },
@@ -37,7 +38,7 @@ for k, v in pairs(wolfenbuttel_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(iron_mine, wolfenbuttel, andes_transport)
+    province:add_industry(brass_smelter, wolfenbuttel, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -52,6 +53,7 @@ for k, v in pairs(wolfenbuttel_provinces_list) do
     province:give_to(wolfenbuttel)
     province:set_terrain(plains)
 end
+wolfenbuttel:set_capital(Province:get("wolfenbuttel"))
 
 local bremen_provinces_list = {
     { ref_name = "bremen", name = _("Bremen"), color = 0xff054b },
@@ -60,7 +62,7 @@ for k, v in pairs(bremen_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(iron_mine, bremen, andes_transport)
+    province:add_industry(copper_mine, bremen, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -75,6 +77,7 @@ for k, v in pairs(bremen_provinces_list) do
     province:give_to(bremen)
     province:set_terrain(plains)
 end
+bremen:set_capital(Province:get("bremen"))
 
 local brunswick_provinces_list = {
     { ref_name = "brunswick", name = _("Brunswick"), color = 0xd8ffd6 },
@@ -83,7 +86,9 @@ for k, v in pairs(brunswick_provinces_list) do
     province = Province:new(v)
     province:register()
 
+    province:add_industry(chromium_mine, brunswick, andes_transport)
     province:add_industry(iron_mine, brunswick, andes_transport)
+    province:add_industry(stainless_steel_smelter, brunswick, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -98,6 +103,7 @@ for k, v in pairs(brunswick_provinces_list) do
     province:give_to(brunswick)
     province:set_terrain(plains)
 end
+brunswick:set_capital(Province:get("brunswick"))
 
 local ritzebuttel_provinces_list = {
     { ref_name = "ritzebuttel", name = _("Ritzebüttel"), color = 0x96eaff },
@@ -106,7 +112,7 @@ for k, v in pairs(ritzebuttel_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(iron_mine, ritzebuttel, andes_transport)
+    province:add_industry(musket_factory, ritzebuttel, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -121,6 +127,7 @@ for k, v in pairs(ritzebuttel_provinces_list) do
     province:give_to(ritzebuttel)
     province:set_terrain(plains)
 end
+ritzebuttel:set_capital(Province:get("ritzebuttel"))
 
 local grand_duchy_of_hesse_and_by_rhine_provinces_list = {
     { ref_name = "darnustadt", name = _("Darnustadt"), color = 0xffd3ec },
@@ -130,7 +137,8 @@ for k, v in pairs(grand_duchy_of_hesse_and_by_rhine_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(iron_mine, grand_duchy_of_hesse_and_by_rhine, andes_transport)
+    province:add_industry(coal_mine, grand_duchy_of_hesse_and_by_rhine, andes_transport)
+    province:add_industry(ammunition_factory, grand_duchy_of_hesse_and_by_rhine, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -146,7 +154,6 @@ for k, v in pairs(grand_duchy_of_hesse_and_by_rhine_provinces_list) do
     province:set_terrain(plains)
 end
 
-
 local luxembourg_provinces_list = {
     { ref_name = "luxembourg", name = _("Luxembourg"), color = 0xb056ff },
 }
@@ -154,7 +161,9 @@ for k, v in pairs(luxembourg_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(iron_mine, luxembourg, andes_transport)
+    province:add_industry(sulfur_mine, luxembourg, andes_transport)
+    province:add_industry(carbon_destroyer, luxembourg, andes_transport)
+    province:add_industry(gunpowder_mixer, luxembourg, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -168,6 +177,7 @@ for k, v in pairs(luxembourg_provinces_list) do
     province:give_to(luxembourg)
     province:set_terrain(plains)
 end
+luxembourg:set_capital(Province:get("luxembourg"))
 
 local prussia_provinces_list = {
     { ref_name = "province_b770ff00", name = _("Unknown"), color = 0xb770fe },
@@ -355,6 +365,7 @@ for k, v in pairs(baden_provinces_list) do
     province:give_to(baden)
     province:set_terrain(plains)
 end
+baden:set_capital(Province:get("baden"))
 
 local wurttemberg_provinces_list = {
     { ref_name = "wurttemberg", name = _("Württemberg"), color = 0x9d7ffe },
@@ -378,6 +389,7 @@ for k, v in pairs(wurttemberg_provinces_list) do
     province:give_to(wurttemberg)
     province:set_terrain(plains)
 end
+wurttemberg:set_capital(Province:get("wurttemberg"))
 
 local mecklenburg_provinces_list = {
     { ref_name = "mecklenburg", name = _("Mecklenburg"), color = 0xff7a59 },
@@ -401,6 +413,7 @@ for k, v in pairs(mecklenburg_provinces_list) do
     province:give_to(mecklenburg)
     province:set_terrain(plains)
 end
+mecklenburg:set_capital(Province:get("mecklenburg"))
 
 local saxonyg_provinces_list = {
     { ref_name = "dresden", name = _("Dresden"), color = 0x8cb2ff },
