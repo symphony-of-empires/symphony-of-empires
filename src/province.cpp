@@ -3,6 +3,7 @@
 #include "product.hpp"
 #include "good.hpp"
 #include "company.hpp"
+#include "unit.hpp"
 
 // Obtains the country that currently has a larger number of
 // tiles controlled from this province
@@ -62,4 +63,13 @@ float Province::get_attractiveness(const Pop& pop) const {
 
 std::pair<float, float> Province::get_pos(void) const {
     return std::make_pair(min_x + ((max_x - min_x) / 2.f), min_y + ((max_y - min_y) / 2.f));
+}
+
+std::vector<Unit*> Province::get_units(void) const {
+    std::vector<Unit*> temp;
+    for(const auto& unit : World::get_instance().units) {
+        if(unit->province != this) continue;
+        temp.push_back(unit);
+    }
+    return temp;
 }
