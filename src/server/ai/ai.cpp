@@ -432,12 +432,64 @@ void ai_do_tick(Nation* nation, World* world) {
 
     // TODO: make a better algorithm
     if(nation->ai_do_cmd_troops) {
+        std::vector<int> defense_strength(world->provinces.size(), 0);
+        std::vector<int> attack_strength(world->provinces.size(), 0);
+        std::vector<int> potential_risk(world->provinces.size(), 0);
+
+        for(const auto& province : nation->owned_provinces) {
+            for(const auto& unit : province->get_units()) {
+                defense_strength[world->get_id(province)] += unit->type->defense;
+                attack_strength[world->get_id(province)] += unit->type->attack;
+            }
+            potential_risk[world->get_id(province)] = 1000.f / (defense_strength[world->get_id(province)] + attack_strength[world->get_id(province)] + 1);
+            potential_risk[world->get_id(province)] *= std::fmod((std::rand() + 1) / 1000.f, 20.f);
+
+            for(const auto& neighbour : province->neighbours) {
+                if(neighbour->controller != nullptr) {
+                    NationRelation& relation = neighbour->owner->relations[world->get_id(province->owner)];
+
+                    // Risk is augmentated when we border any non-ally nation
+                    if(!relation.has_alliance) {
+                        potential_risk[world->get_id(province)] += 250.f;
+                    }
+                    potential_risk[world->get_id(neighbour)] += 100.f;
+                }
+            }
+        }
+
         for(auto& unit : g_world->units) {
             if(unit->province->neighbours.empty()) continue;
 
-            auto it = std::begin(unit->province->neighbours);
-            std::advance(it, std::rand() % unit->province->neighbours.size());
-            Province* province = *it;
+            if(unit->target != nullptr) continue;
+
+            // See which province has the most potential_risk so we cover it from potential threats
+            Province* highest_risk = unit->province;
+            for(const auto& neighbour : unit->province->neighbours) {
+                if(potential_risk[world->get_id(highest_risk)] < potential_risk[world->get_id(neighbour)]) {
+                    highest_risk = neighbour;
+                }
+            }
+
+            Province* province = highest_risk;
+
+            // We ideally want troops at our border if they are not our ally
+            bool in_inner = true;
+            for(const auto& neighbour : province->neighbours) {
+                if(neighbour->controller == nullptr) continue;
+
+                if(neighbour->controller != nation && !neighbour->controller->relations[world->get_id(unit->owner)].has_alliance) {
+                    in_inner = false;
+                    break;
+                }
+            }
+
+            // Randomly go around in the inners of our country to hopefully find a border province
+            //if(in_inner && !province->neighbours.empty()) {
+            if(province->neighbours.size()) {
+                auto it = std::begin(unit->province->neighbours);
+                std::advance(it, std::rand() % unit->province->neighbours.size());
+                province = *it;
+            }
 
             if(province->owner != nullptr) {
                 // Can only go to a province if we have military accesss, they are our ally or if we are at war
@@ -447,12 +499,8 @@ void ai_do_tick(Nation* nation, World* world) {
                     unit->set_target(province);
                 }
 
-                // Give priority to the provinces of people we are at war with
+                // We also can just go to provinces
                 if(relation.has_war) {
-                    for(auto& building : g_world->buildings) {
-                        if(building->get_province() != province) continue;
-                        building->owner = nation;
-                    }
                     unit->set_target(province);
                 }
             } else {
