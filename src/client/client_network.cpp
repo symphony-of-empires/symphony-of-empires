@@ -149,9 +149,9 @@ void Client::net_loop(void) {
 			// When we are on host_mode we discard all potential packets sent by the server
 			// (because our data is already synchronized since WE ARE the server)
 #ifdef unix
-            if(!gs.host_mode && (pfd.revents & POLLIN || has_pending)) {
+            if(pfd.revents & POLLIN || has_pending) {
 #elif defined windows
-            if(!gs.host_mode && (has_pending)) {
+            if(has_pending) {
 #endif
                 Packet packet = Packet(fd);
                 Archive ar = Archive();
@@ -164,146 +164,148 @@ void Client::net_loop(void) {
 
                 print_info("Receiving package of %zu bytes", packet.size());
 
-                // Ping from server, we should answer with a pong!
-                //std::scoped_lock lock(world.world_mutex);
-                switch(action) {
-                case ActionType::PONG: {
-                    packet.send(&action);
-                    print_info("Received ping, responding with pong!");
-                } break;
-                // Update/Remove/Add Actions
-                // These actions all follow the same format they give a specialized ID for the index
-                // where the operated object is or should be; this allows for extreme-level fuckery
-                // like ref-name changes in the middle of a game in the case of updates.
-                //
-                // After the ID the object in question is given in a serialized form, in which the
-                // deserializer will deserialize onto the final object; after this the operation
-                // desired is done.
-                case ActionType::NATION_UPDATE: {
-                    Nation::Id size;
-                    ::deserialize(ar, &size);
-                    for(Nation::Id i = 0; i < size; i++) {
+                if(!gs.host_mode) {
+                    // Ping from server, we should answer with a pong!
+                    //std::scoped_lock lock(world.world_mutex);
+                    switch(action) {
+                    case ActionType::PONG: {
+                        packet.send(&action);
+                        print_info("Received ping, responding with pong!");
+                    } break;
+                    // Update/Remove/Add Actions
+                    // These actions all follow the same format they give a specialized ID for the index
+                    // where the operated object is or should be; this allows for extreme-level fuckery
+                    // like ref-name changes in the middle of a game in the case of updates.
+                    //
+                    // After the ID the object in question is given in a serialized form, in which the
+                    // deserializer will deserialize onto the final object; after this the operation
+                    // desired is done.
+                    case ActionType::NATION_UPDATE: {
+                        Nation::Id size;
+                        ::deserialize(ar, &size);
+                        for(Nation::Id i = 0; i < size; i++) {
+                            Nation* nation;
+                            ::deserialize(ar, &nation);
+                            if(nation == nullptr)
+                                throw ClientException("Unknown nation");
+                            ::deserialize(ar, nation);
+                        }
+                    } break;
+                    case ActionType::NATION_ENACT_POLICY: {
                         Nation* nation;
                         ::deserialize(ar, &nation);
                         if(nation == nullptr)
                             throw ClientException("Unknown nation");
-                        ::deserialize(ar, nation);
-                    }
-                } break;
-                case ActionType::NATION_ENACT_POLICY: {
-                    Nation* nation;
-                    ::deserialize(ar, &nation);
-                    if(nation == nullptr)
-                        throw ClientException("Unknown nation");
-                    Policies policy;
-                    ::deserialize(ar, &policy);
-                    nation->current_policy = policy;
-                } break;
-                case ActionType::PROVINCE_UPDATE: {
-                    Province::Id size;
-                    ::deserialize(ar, &size);
-                    for(Product::Id i = 0; i < size; i++) {
+                        Policies policy;
+                        ::deserialize(ar, &policy);
+                        nation->current_policy = policy;
+                    } break;
+                    case ActionType::PROVINCE_UPDATE: {
+                        Province::Id size;
+                        ::deserialize(ar, &size);
+                        for(Product::Id i = 0; i < size; i++) {
+                            Province* province;
+                            ::deserialize(ar, &province);
+                            if(province == nullptr)
+                                throw ClientException("Unknown province");
+                            ::deserialize(ar, province);
+                        }
+                    } break;
+                    case ActionType::PRODUCT_ADD: {
+                        Product* product = new Product();
+                        ::deserialize(ar, product);
+                        world.insert(product);
+
+                        // NOTE: The stockpile will later be synchronized on a PROVINCE_UPDATE
+                        // to the actual value by the server
+                        for(auto& province : world.provinces)
+                            province->stockpile.push_back(0);
+                        print_info("New product of good type [%s]", product->good->ref_name.c_str());
+                    } break;
+                    case ActionType::PRODUCT_UPDATE: {
+                        Product::Id size;
+                        ::deserialize(ar, &size);
+                        for(Product::Id i = 0; i < size; i++) {
+                            Product* product;
+                            ::deserialize(ar, &product);
+                            if(product == nullptr)
+                                throw ClientException("Unknown product");
+                            ::deserialize(ar, product);
+                        }
+                    } break;
+                    case ActionType::PRODUCT_REMOVE: {
+                        Product* product;
+                        ::deserialize(ar, &product);
+                        world.remove(product);
+                    } break;
+                    case ActionType::UNIT_UPDATE: {
+                        Unit::Id size;
+                        ::deserialize(ar, &size);
+                        for(Unit::Id i = 0; i < size; i++) {
+                            Unit* unit;
+                            ::deserialize(ar, &unit);
+                            if(unit == nullptr)
+                                throw ClientException("Unknown unit");
+                            ::deserialize(ar, unit);
+                        }
+                    } break;
+                    case ActionType::UNIT_ADD: {
+                        Unit* unit = new Unit();
+                        ::deserialize(ar, unit);
+                        world.insert(unit);
+                        print_info("New unit of [%s]", unit->owner->ref_name.c_str());
+                    } break;
+                    case ActionType::BUILDING_UPDATE: {
+                        Building::Id size;
+                        ::deserialize(ar, &size);
+                        for(Building::Id i = 0; i < size; i++) {
+                            Building* building;
+                            ::deserialize(ar, &building);
+                            if(building == nullptr)
+                                throw ClientException("Unknown building");
+                            ::deserialize(ar, building);
+                        }
+                    } break;
+                    case ActionType::BUILDING_ADD: {
+                        Building* building = new Building();
+                        ::deserialize(ar, building);
+                        world.insert(building);
+
+                        if(building->get_owner() != nullptr)
+                            print_info("New building property of [%s]", building->get_owner()->ref_name.c_str());
+                    } break;
+                    case ActionType::BUILDING_REMOVE: {
+                        Building* building;
+                        ::deserialize(ar, &building);
+
+                        if(building->get_owner() != nullptr)
+                            print_info("Remove building property of [%s]", building->get_owner()->ref_name.c_str());
+                        
+                        world.remove(building);
+                        delete building;
+                    } break;
+                    case ActionType::TREATY_ADD: {
+                        Treaty* treaty = new Treaty();
+                        ::deserialize(ar, treaty);
+                        world.insert(treaty);
+                        print_info("New treaty from [%s]", treaty->sender->ref_name.c_str());
+                        for(const auto& status: treaty->approval_status)
+                            print_info("- [%s]", status.first->ref_name.c_str());
+                    } break;
+                    case ActionType::WORLD_TICK: {
+                        // Give up the world mutex for now
+                        gs.update_tick = true;
+                    } break;
+                    case ActionType::PROVINCE_COLONIZE: {
                         Province* province;
                         ::deserialize(ar, &province);
                         if(province == nullptr)
                             throw ClientException("Unknown province");
                         ::deserialize(ar, province);
+                    } break;
+                    default:
+                        break;
                     }
-                } break;
-                case ActionType::PRODUCT_ADD: {
-                    Product* product = new Product();
-                    ::deserialize(ar, product);
-                    world.insert(product);
-
-                    // NOTE: The stockpile will later be synchronized on a PROVINCE_UPDATE
-                    // to the actual value by the server
-                    for(auto& province : world.provinces)
-                        province->stockpile.push_back(0);
-                    print_info("New product of good type [%s]", product->good->ref_name.c_str());
-                } break;
-                case ActionType::PRODUCT_UPDATE: {
-                    Product::Id size;
-                    ::deserialize(ar, &size);
-                    for(Product::Id i = 0; i < size; i++) {
-                        Product* product;
-                        ::deserialize(ar, &product);
-                        if(product == nullptr)
-                            throw ClientException("Unknown product");
-                        ::deserialize(ar, product);
-                    }
-                } break;
-                case ActionType::PRODUCT_REMOVE: {
-                    Product* product;
-                    ::deserialize(ar, &product);
-                    world.remove(product);
-                } break;
-                case ActionType::UNIT_UPDATE: {
-                    Unit::Id size;
-                    ::deserialize(ar, &size);
-                    for(Unit::Id i = 0; i < size; i++) {
-                        Unit* unit;
-                        ::deserialize(ar, &unit);
-                        if(unit == nullptr)
-                            throw ClientException("Unknown unit");
-                        ::deserialize(ar, unit);
-                    }
-                } break;
-                case ActionType::UNIT_ADD: {
-                    Unit* unit = new Unit();
-                    ::deserialize(ar, unit);
-                    world.insert(unit);
-                    print_info("New unit of [%s]", unit->owner->ref_name.c_str());
-                } break;
-                case ActionType::BUILDING_UPDATE: {
-                    Building::Id size;
-                    ::deserialize(ar, &size);
-                    for(Building::Id i = 0; i < size; i++) {
-                        Building* building;
-                        ::deserialize(ar, &building);
-                        if(building == nullptr)
-                            throw ClientException("Unknown building");
-                        ::deserialize(ar, building);
-                    }
-                } break;
-                case ActionType::BUILDING_ADD: {
-                    Building* building = new Building();
-                    ::deserialize(ar, building);
-                    world.insert(building);
-
-                    if(building->get_owner() != nullptr)
-                        print_info("New building property of [%s]", building->get_owner()->ref_name.c_str());
-                } break;
-                case ActionType::BUILDING_REMOVE: {
-                    Building* building;
-                    ::deserialize(ar, &building);
-
-                    if(building->get_owner() != nullptr)
-                        print_info("Remove building property of [%s]", building->get_owner()->ref_name.c_str());
-                    
-                    world.remove(building);
-                    delete building;
-                } break;
-                case ActionType::TREATY_ADD: {
-                    Treaty* treaty = new Treaty();
-                    ::deserialize(ar, treaty);
-                    world.insert(treaty);
-                    print_info("New treaty from [%s]", treaty->sender->ref_name.c_str());
-                    for(const auto& status: treaty->approval_status)
-                        print_info("- [%s]", status.first->ref_name.c_str());
-                } break;
-                case ActionType::WORLD_TICK: {
-                    // Give up the world mutex for now
-                    gs.update_tick = true;
-                } break;
-                case ActionType::PROVINCE_COLONIZE: {
-                    Province* province;
-                    ::deserialize(ar, &province);
-                    if(province == nullptr)
-                        throw ClientException("Unknown province");
-                    ::deserialize(ar, province);
-                } break;
-                default:
-                    break;
                 }
             }
 

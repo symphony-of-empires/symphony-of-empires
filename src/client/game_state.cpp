@@ -283,7 +283,9 @@ void GameState::update_on_tick(void) {
 
 void GameState::world_thread(void) {
     while(run) {
-        while(paused) {};
+        while(paused) {
+            if(!run) return;
+        }
         world->do_tick();
         update_tick = true;
 
@@ -299,14 +301,13 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
     gs.select_nation = new Interface::LobbySelectView(gs);
     new MapDevView(gs.map);
 
-    std::vector<Event*> displayed_events;
-    std::vector<Treaty*> displayed_treaties;
-
     // Call update_on_tick on start of the gamestate
     gs.update_tick = true;
-
     gs.run = true;
     gs.paused = true;
+
+    std::vector<Event*> displayed_events;
+    std::vector<Treaty*> displayed_treaties;
 
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);

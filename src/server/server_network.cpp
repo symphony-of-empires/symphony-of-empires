@@ -251,6 +251,8 @@ void Server::net_loop(int id) {
                     ar.rewind();
                     ::deserialize(ar, &action);
 
+                    print_info("Receiving %zu bytes from #%zu", packet.size(), (size_t)id);
+
                     if(selected_nation == nullptr && (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                         throw ServerException("Unallowed operation without selected nation");
                     
