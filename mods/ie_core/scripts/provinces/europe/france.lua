@@ -82,6 +82,8 @@ for k, v in pairs(france_provinces_list) do
     province:register()
 
     province:add_industry(lumberjack, france, andes_transport)
+    province:add_industry(wheat_farm, france, andes_transport)
+    province:add_industry(bakery, france, andes_transport)
     province:add_pop(artisan, french, catholic, 5000, 0.9)
     province:add_pop(farmer, french, catholic, 40000, 0.8)
     province:add_pop(soldier, french, catholic, 8000, 0.8)

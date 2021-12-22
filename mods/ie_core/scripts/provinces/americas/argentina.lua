@@ -51,7 +51,7 @@ for k, v in pairs(owned_provinces_list) do
     province:add_pop(entrepreneur, argentinian, catholic, 50, 0.9)
     province:add_nucleus(argentina)
     province:give_to(argentina)
-    province:add_industry(wheat_farm, argentina, andes_transport)
+    province:add_industry(sulfur_mine, argentina, andes_transport)
 end
 
 -- Uncolonized south of argentina (disputed by chile too because nobody owns them)
@@ -86,7 +86,8 @@ for k, v in pairs(mapuche_owned_provinces_list) do
     province:add_nucleus(chile)
     province:add_nucleus(Nation:get("mapuche"))
     province:give_to(Nation:get("mapuche"))
-    province:add_industry(wheat_farm, Nation:get("mapuche"), andes_transport)
+    province:add_industry(sulfur_mine, Nation:get("mapuche"), andes_transport)
+    province:add_industry(copper_mine, Nation:get("mapuche"), andes_transport)
 end
 
 --------------------------------------------------------------
