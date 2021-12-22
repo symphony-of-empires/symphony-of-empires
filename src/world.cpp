@@ -107,6 +107,7 @@ World::World() {
     lua_register(lua, "add_input_to_industry_type", LuaAPI::add_input_to_industry_type);
     lua_register(lua, "add_output_to_industry_type", LuaAPI::add_output_to_industry_type);
     lua_register(lua, "add_req_good_to_industry_type", LuaAPI::add_req_good_to_industry_type);
+    lua_register(lua, "add_req_technology_to_industry_type", LuaAPI::add_req_technology_to_industry_type);
 
     lua_register(lua, "add_nation", LuaAPI::add_nation);
     lua_register(lua, "get_nation", LuaAPI::get_nation);

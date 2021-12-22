@@ -4,6 +4,8 @@
 #include "unit.hpp"
 #include "company.hpp"
 
+class Technology;
+
 // Type for military outposts
 class BuildingType : public RefnameEntity<uint8_t> {
 public:
@@ -24,6 +26,9 @@ public:
 
     // Required goods, first describes the id of the good and the second describes how many
     std::vector<std::pair<Good*, size_t>> req_goods;
+
+    // Required technologies
+    std::vector<Technology*> req_technologies;
 };
 
 // A military outpost, on land serves as a "spawn" place for units
