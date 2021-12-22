@@ -653,13 +653,13 @@ int LuaAPI::give_hard_province_to(lua_State* L) {
     auto* nation = g_world->nations.at(lua_tonumber(L, 2));
 
     for(auto& unit : g_world->units) {
-        if(unit->province == province && unit->owner == province->owner) {
+        if(unit->province == province && unit->owner == province->controller) {
             unit->owner = nation;
         }
     }
 
     for(auto& building : g_world->buildings) {
-        if(building->get_province() == province && building->get_owner() == province->owner) {
+        if(building->get_province() == province && building->get_owner() == province->controller) {
             building->owner = nation;
         }
     }
@@ -671,7 +671,7 @@ int LuaAPI::give_hard_province_to(lua_State* L) {
 /** Obtains the owner of a province (ref_name) */
 int LuaAPI::get_province_owner(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-    lua_pushstring(L, province->owner->ref_name.c_str());
+    lua_pushstring(L, province->controller->ref_name.c_str());
     return 1;
 }
 
