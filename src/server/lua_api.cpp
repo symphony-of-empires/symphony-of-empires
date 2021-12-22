@@ -199,8 +199,15 @@ int LuaAPI::add_output_to_industry_type(lua_State* L) {
 
 int LuaAPI::add_req_good_to_industry_type(lua_State* L) {
     BuildingType* industry_type = g_world->building_types.at(lua_tonumber(L, 1));
-    Good* good = g_world->goods.at(lua_tonumber(L, 2));
+    auto* good = g_world->goods.at(lua_tonumber(L, 2));
     industry_type->req_goods.push_back(std::make_pair(good, lua_tonumber(L, 3)));
+    return 0;
+}
+
+int LuaAPI::add_req_technology_to_industry_type(lua_State* L) {
+    BuildingType* industry_type = g_world->building_types.at(lua_tonumber(L, 1));
+    auto* technology = g_world->technologies.at(lua_tonumber(L, 2));
+    industry_type->req_technologies.push_back(technology);
     return 0;
 }
 

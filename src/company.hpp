@@ -27,8 +27,7 @@ public:
     std::set<Province*> operating_provinces;
 
     inline bool in_range(Province* province) {
-        return (std::find(operating_provinces.begin(), operating_provinces.end(), province)
-            != operating_provinces.end());
+        return (std::find(operating_provinces.begin(), operating_provinces.end(), province) != operating_provinces.end());
     }
 
     void name_gen() {
