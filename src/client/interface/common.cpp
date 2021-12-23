@@ -94,13 +94,35 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
 BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Building* _building, UI::Widget* parent)
     : gs{_gs},
     building{_building},
-    UI::Button(x, y, parent->width, 24, parent)
+    UI::Group(x, y, parent->width, 24 * 8, parent)
 {
-    text(building->type->name);
-    on_each_tick = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<BuildingInfo&>(w);
+    is_scroll = false;
+
+    auto* name_btn = new UI::Button(0, 0, 128, 24, this);
+    name_btn->on_each_tick = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<BuildingInfo&>(*w.parent);
         w.text(o.building->type->name);
     });
+
+    unsigned int dx;
+
+    auto* input_lab = new UI::Label(0, 0, "Inputs:", this);
+    input_lab->below_of(*name_btn);
+    dx = input_lab->width;
+    for(const auto& good : building->type->inputs) {
+        auto* icon_img = new UI::Image(dx, 0, 24, 24, &g_texture_manager->load_texture(Path::get("ui/icons/goods/" + good->ref_name + ".png")), this);
+        icon_img->below_of(*name_btn);
+        x += icon_img->width;
+    }
+
+    auto* output_lab = new UI::Label(0, 0, "Outputs:", this);
+    output_lab->below_of(*input_lab);
+    dx = output_lab->width;
+    for(const auto& good : building->type->outputs) {
+        auto* icon_img = new UI::Image(dx, 0, 24, 24, &g_texture_manager->load_texture(Path::get("ui/icons/goods/" + good->ref_name + ".png")), this);
+        icon_img->below_of(*input_lab);
+        x += icon_img->width;
+    }
 }
 
 BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingType* _building_type, UI::Widget* parent)

@@ -98,6 +98,7 @@ namespace UI {
         CHART,
         CHECKBOX,
         PIE_CHART,
+        PROGRESS_BAR,
         SLIDER,
         GROUP,
     };
@@ -297,11 +298,19 @@ namespace UI {
         std::deque<double> data;
     };
 
-    class Slider: public Widget {
+    class ProgressBar: public Widget {
+    public:
+        ProgressBar(int x, int y, unsigned w, unsigned h, float min, float max, Widget* _parent = nullptr);
+        virtual ~ProgressBar() override {};
+        virtual void on_render(Context& ctx, UnifiedRender::Rect viewport);
+        float max, min, value;
+    };
+
+    class Slider: public ProgressBar {
     public:
         Slider(int x, int y, unsigned w, unsigned h, float min, float max, Widget* _parent = nullptr);
         virtual ~Slider() override {};
-        virtual void on_render(Context& ctx, UnifiedRender::Rect viewport);
+        //virtual void on_render(Context& ctx, UnifiedRender::Rect viewport);
         float max, min, value;
     };
 
