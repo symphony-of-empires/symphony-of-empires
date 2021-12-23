@@ -182,6 +182,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.build_tab->is_render = false;
     });
 
+    this->build_tab = new ProvinceBuildingTab(gs, 128, 24, province, this);
+    this->build_tab->is_render = false;
     auto* build_btn = new UI::Button(0, 0, 128, 24, this);
     build_btn->below_of(*econ_btn);
     build_btn->text("Buildings");

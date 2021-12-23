@@ -1,6 +1,7 @@
 #include "client/interface/nation_view.hpp"
 #include "client/client_network.hpp"
 #include "client/interface/common.hpp"
+#include "client/interface/war.hpp"
 #include "io_impl.hpp"
 
 using namespace Interface;
@@ -128,7 +129,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     this->dow_btn->text("Declare war");
     this->dow_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationView&>(*w.parent);
-		g_client->send(Action::DiploDeclareWar::form_packet(o.nation));
+        new WarDeclarePrompt(o.gs, o.nation);
     });
     this->dow_btn->tooltip = new UI::Tooltip(this->dow_btn, 512, 24);
     this->dow_btn->tooltip->text("Declaring war on this nation will bring all their allies to their side");
