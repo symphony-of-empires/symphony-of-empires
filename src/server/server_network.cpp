@@ -316,21 +316,12 @@ void Server::net_loop(int id) {
                     case ActionType::BUILDING_ADD: {
                         Building* building = new Building();
                         ::deserialize(ar, building);
-                        if(building->type == nullptr)
-                            throw ServerException("Unknown building type");
-
-                        // Modify the serialized building
-                        ar.ptr = 0;
-                        ::serialize(ar, &action);
-
-                        building->working_unit_type = nullptr;
-                        building->req_goods = building->type->req_goods;
-                        ::serialize(ar, building);
 
                         g_world->insert(building);
                         print_info("[%s] has built a [%s]", selected_nation->ref_name.c_str(), building->type->ref_name.c_str());
+                        
                         // Rebroadcast
-                        broadcast(packet);
+                        broadcast(Action::BuildingAdd::form_packet(building));
                     } break;
                     // Client tells server that it wants to colonize a province, this can be rejected
                     // or accepted, client should check via the next PROVINCE_UPDATE action

@@ -67,7 +67,7 @@ static inline std::vector<AvailableWorkers> get_available_workers(World& world) 
             }
 
             Workers workers{pop};
-            if(province->controller->is_accepted_culture(pop) == false) {
+            if(!province->controller->is_accepted_culture(pop)) {
                 // POPs of non-accepted cultures on exterminate mode cannot get jobs
                 if(province->controller->current_policy.treatment == TREATMENT_EXTERMINATE) {
                     continue;
@@ -102,14 +102,10 @@ void Economy::do_tick(World& world) {
     // Buildings who have fullfilled requirements to build stuff will spawn a unit
     for(size_t j = 0; j < world.buildings.size(); j++) {
         auto& building = world.buildings[j];
-        if(building == nullptr) {
-            print_error("Building: %zu, is null!", j);
-            continue;
-        }
-
-        auto province = building->get_province();
+        
+        auto* province = building->get_province();
         if(province == nullptr) {
-            print_error("Building: %zu of type: %s, province is null!", j, building->type->ref_name.c_str());
+            print_error("Building has null province");
             continue;
         }
         if(province->controller == nullptr) continue;
@@ -124,10 +120,8 @@ void Economy::do_tick(World& world) {
             size_t i = 0;
             for(const auto& output : building->output_products) {
                 // The minimum amount of workers needed is given by the employees_needed_per_output vector :)
-                const size_t employed = std::max<size_t>(
-                    std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2),
-                    building->employees_needed_per_output[i]);
-
+                //const size_t employed = std::max<size_t>(std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), building->employees_needed_per_output[i]);
+                const size_t employed = 500;
                 if(output->good->is_edible) {
                     needed_farmers += employed;
                 } else {
@@ -215,24 +209,25 @@ void Economy::do_tick(World& world) {
         }
 
         if(building->working_unit_type != nullptr) {
-            bool can_build = true;
+            bool can_build_unit = true;
             for(const auto& req : building->req_goods_for_unit) {
                 // Increment demand for all products with same required good type
                 for(auto& product : world.products) {
                     if(product->good != req.first) continue;
-
                     // Government-required supplies are super important for companies
                     product->demand += req.second * 1.5f;
                 }
+
                 if(req.second) {
-                    can_build = false;
+                    can_build_unit = false;
                     break;
                 }
             }
 
             // TODO: Make a proper supply chain system with the whole working economy thing :)
             // NOTE: Uncomment when it's ready :)
-            if(can_build) {
+            can_build_unit = true;
+            if(can_build_unit) {
                 // Spawn a unit
                 Unit* unit = new Unit();
                 unit->province = building->get_province();
@@ -272,7 +267,7 @@ void Economy::do_tick(World& world) {
                     g_server->broadcast(packet);
                 }
 
-                print_info("Building of %s in %s has closed down!", building->type->name.c_str(), province->name.c_str());
+                print_info("Building of [%s] in [%s] has closed down!", building->type->ref_name.c_str(), province->ref_name.c_str());
 
                 world.remove(building);
                 delete building;
@@ -281,9 +276,9 @@ void Economy::do_tick(World& world) {
             }
 
             building->workers = available_farmers + available_laborers + available_entrepreneurs;
+            print_info("[%s]: %zu workers on building of type [%s]", building->get_province()->ref_name.c_str(), building->workers, building->type->ref_name.c_str());
             if(!building->workers) {
                 building->days_unoperational++;
-                print_info("Building of %s in %s has %zu workers", building->type->name.c_str(), province->name.c_str(), building->workers);
 
                 // TODO: We should tax building daily income instead of by it's total budget
                 const float loss_by_tax = building->budget * province->controller->current_policy.industry_tax;
@@ -587,6 +582,7 @@ void Economy::do_tick(World& world) {
 
     std::for_each(world.provinces.begin(), world.provinces.end(), [&emigration_lock, &emigration, &world](auto& province) {
         if(province->controller == nullptr) return;
+        if(province->terrain_type->is_water_body) return;
 
         std::vector<Product*> province_products = province->get_products();
 
@@ -672,7 +668,7 @@ void Economy::do_tick(World& world) {
             pop.everyday_needs_met = std::min<float>(1.5f, std::max<float>(pop.everyday_needs_met, -5.f));
 			
 			// Current liking of the party is influenced by the life_needs_met
-			pop.ideology_approval[world.get_id(province->controller->ideology)] += (pop.life_needs_met + 1.f) / 1000.f;
+			pop.ideology_approval[world.get_id(province->controller->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
 
             // We want to get rid of many POPs as possible
             if(!pop.size) {
@@ -708,7 +704,7 @@ void Economy::do_tick(World& world) {
             }
 
             // Add some RNG to shake things up and make gameplay more dynamic and less deterministic :)
-            pop.size += std::rand() % std::min<size_t>(5, std::max<size_t>(1, (pop.size / 10000)));
+            pop.size += std::rand() % std::min<size_t>(5, std::max<size_t>(1, pop.size / 10000));
             pop.size = std::max<size_t>(1, pop.size);
 
             // Met life needs means less militancy
@@ -730,7 +726,7 @@ void Economy::do_tick(World& world) {
             // And literacy determines "best" spot, for example a low literacy will
             // choose a slightly less desirable location
             const float emigration_willing = std::max<float>(-pop.life_needs_met * std::fmod(fuzz, 10), 0);
-            const long long int emigreers = std::fmod(pop.size * (emigration_willing / (std::rand() % 8)), pop.size);
+            const ssize_t emigreers = std::fmod(pop.size * (emigration_willing / (std::rand() % 8)), pop.size) / 100;
             if(emigreers > 0) {
                 float current_attractive = province->get_attractiveness(pop);
 
@@ -757,6 +753,7 @@ void Economy::do_tick(World& world) {
                 for(auto target_province : province->neighbours) {
                     // Don't go to owner-less provinces
                     if(target_province->controller == nullptr) continue;
+                    if(target_province->terrain_type->is_water_body) return;
 
                     const float attractive = target_province->get_attractiveness(pop) * (std::rand() % 16);
                     if(attractive < current_attractive) continue;
