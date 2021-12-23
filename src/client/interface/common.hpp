@@ -54,7 +54,7 @@ namespace Interface {
         NationButton(GameState& gs, int x, int y, Nation* nation, UI::Widget* parent);
     };
 
-    class BuildingInfo : public UI::Button {
+    class BuildingInfo : public UI::Group {
         GameState& gs;
     public:
         Building* building;
