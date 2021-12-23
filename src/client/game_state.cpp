@@ -266,7 +266,6 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
         if(iter != displayed_treaties.end()) continue;
 
         // Must participate in treaty
-
         new Interface::TreatyChooseWindow(gs, treaty);
         displayed_treaties.push_back(treaty);
     }
