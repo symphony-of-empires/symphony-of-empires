@@ -77,13 +77,13 @@ static inline std::vector<AvailableWorkers> get_available_workers(World& world) 
             }
 
             switch(pop.type->group) {
-            case PopGroup::Entrepreneur:
+            case PopGroup::BURGEOISE:
                 province_workers.entrepreneurs.push_back(workers);
                 break;
-            case PopGroup::Farmer:
+            case PopGroup::FARMER:
                 province_workers.farmers.push_back(workers);
                 break;
-            case PopGroup::Laborer:
+            case PopGroup::LABORER:
                 province_workers.laborers.push_back(workers);
                 break;
             default:
@@ -142,7 +142,7 @@ void Economy::do_tick(World& world) {
         // Industries require 2 (or 3) types of POPs to correctly function
         // - Laborers: They are needed to produce non-edible food
         // - Farmers: They are needed to produce edibles
-        // - Entrepreneur: They help "organize" the factory
+        // - BURGEOISE: They help "organize" the factory
         for(size_t i = 0; i < province_workers.farmers.size(); i++) {
             if(available_farmers >= needed_farmers) break;
 

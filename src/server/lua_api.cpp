@@ -965,18 +965,18 @@ int LuaAPI::add_pop_type(lua_State* L) {
     pop->ref_name = luaL_checkstring(L, 1);
     pop->name = luaL_checkstring(L, 2);
     pop->social_value = lua_tonumber(L, 3);
-    bool is_entrepreneur = lua_toboolean(L, 4);
+    bool is_burgeoise = lua_toboolean(L, 4);
     bool is_slave = lua_toboolean(L, 5);
     bool is_farmer = lua_toboolean(L, 6);
     bool is_laborer = lua_toboolean(L, 7);
-    if(is_entrepreneur) {
-        pop->group = PopGroup::Entrepreneur;
+    if(is_burgeoise) {
+        pop->group = PopGroup::BURGEOISE;
     } else if(is_slave) {
         pop->group = PopGroup::Slave;
     } else if(is_farmer) {
-        pop->group = PopGroup::Farmer;
+        pop->group = PopGroup::FARMER;
     } else if(is_laborer) {
-        pop->group = PopGroup::Laborer;
+        pop->group = PopGroup::LABORER;
     } else {
         pop->group = PopGroup::Other;
     }
@@ -993,10 +993,10 @@ int LuaAPI::get_pop_type(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(pop_type));
     lua_pushstring(L, pop_type->name.c_str());
     lua_pushnumber(L, pop_type->social_value);
-    lua_pushboolean(L, pop_type->group == PopGroup::Entrepreneur);
+    lua_pushboolean(L, pop_type->group == PopGroup::BURGEOISE);
     lua_pushboolean(L, pop_type->group == PopGroup::Slave);
-    lua_pushboolean(L, pop_type->group == PopGroup::Farmer);
-    lua_pushboolean(L, pop_type->group == PopGroup::Laborer);
+    lua_pushboolean(L, pop_type->group == PopGroup::FARMER);
+    lua_pushboolean(L, pop_type->group == PopGroup::LABORER);
     return 7;
 }
 
@@ -1006,10 +1006,10 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
     lua_pushstring(L, pop_type->ref_name.c_str());
     lua_pushstring(L, pop_type->name.c_str());
     lua_pushnumber(L, pop_type->social_value);
-    lua_pushboolean(L, pop_type->group == PopGroup::Entrepreneur);
+    lua_pushboolean(L, pop_type->group == PopGroup::BURGEOISE);
     lua_pushboolean(L, pop_type->group == PopGroup::Slave);
-    lua_pushboolean(L, pop_type->group == PopGroup::Farmer);
-    lua_pushboolean(L, pop_type->group == PopGroup::Laborer);
+    lua_pushboolean(L, pop_type->group == PopGroup::FARMER);
+    lua_pushboolean(L, pop_type->group == PopGroup::LABORER);
     return 7;
 }
 

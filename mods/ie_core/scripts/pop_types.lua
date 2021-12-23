@@ -1,11 +1,12 @@
 -- Pop types
-entrepreneur = PopType:new{
-    name = _("Entrepreneur"),
-    ref_name = "entrepreneur",
-    social_value = 3.0,
-    is_entrepreneur = true
+
+burgeoise = PopType:new{
+    name = _("Burgeoise"),
+    ref_name = "burgeoise",
+    social_value = 2.0,
+    is_burgeoise = true
 }
-entrepreneur:register()
+burgeoise:register()
 
 artisan = PopType:new{
     name = _("Artisan"),
@@ -20,13 +21,6 @@ bureaucrat = PopType:new{
     social_value = 2.5
 }
 bureaucrat:register()
-
-aristocrat = PopType:new{
-    name = _("Aristocrat"),
-    ref_name = "aristocrat",
-    social_value = 2.0
-}
-aristocrat:register()
 
 clergymen = PopType:new{
     name = _("Clergymen"),
