@@ -36,10 +36,8 @@ void print_error(const char* str, ...) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
     printf("* <error> ");
 #endif
-
     vprintf(str, args);
     printf("\n");
-
 #if defined windows
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
 #endif
@@ -55,28 +53,31 @@ void print_info(const char* str, ...) {
     va_list args;
     va_start(args, str);
 
+#if defined LOG_TO_CONSOLE
 #if defined unix
     printf("\e[36m[INFO]\e[0m ");
 #else
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
     printf("* <debug> ");
 #endif
-
     vprintf(str, args);
     printf("\n");
-
-
 #if defined windows
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
+#endif
+#else
+    FILE* fp = fopen("log.txt", "a+t");
+    if(fp) {
+        vfprintf(fp, str, args);
+        fclose(fp);
+    }
 #endif
 
     va_end(args);
 }
 
 // Callback function for printing debug statements
-void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
-    GLenum severity, GLsizei length,
-    const GLchar* msg, const void* data)
+void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* msg, const void* data)
 {
     std::string _source;
     std::string _type;
