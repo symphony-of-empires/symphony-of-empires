@@ -4,6 +4,7 @@
 #include "good.hpp"
 #include "company.hpp"
 #include "unit.hpp"
+#include "building.hpp"
 
 // Obtains the country that currently has a larger number of
 // tiles controlled from this province
@@ -70,6 +71,15 @@ std::vector<Unit*> Province::get_units(void) const {
     for(const auto& unit : World::get_instance().units) {
         if(unit->province != this) continue;
         temp.push_back(unit);
+    }
+    return temp;
+}
+
+std::vector<Building*> Province::get_buildings(void) const {
+    std::vector<Building*> temp;
+    for(const auto& building : World::get_instance().buildings) {
+        if(building->get_province() != this) continue;
+        temp.push_back(building);
     }
     return temp;
 }

@@ -14,6 +14,7 @@ class Industry;
 class Product;
 class TerrainType;
 class Unit;
+class Building;
 // A single province, which is used to simulate economy in a "bulk-tiles" way
 // instead of doing economical operations on every single tile
 class Province : public RefnameEntity<uint16_t> {
@@ -24,6 +25,7 @@ public:
     float get_attractiveness(const Pop& pop) const;
     std::pair<float, float> get_pos(void) const;
     std::vector<Unit*> get_units(void) const;
+    std::vector<Building*> get_buildings(void) const;
 
     // Color of the province, used for mapping the province's shape from the map_div.png file
     uint32_t color;
