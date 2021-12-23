@@ -337,28 +337,48 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             }
             break;
         case MapMode::NORMAL:
-            input.selected_units.clear();
             // Check if we selected an unit
+            input.selected_units.clear();
             for(const auto& unit : gs.world->units) {
+                // We can't control others units
+                if(unit->owner != gs.curr_nation) continue;
+
                 const float size = 2.f;
                 std::pair<float, float> pos = unit->get_pos();
-                if((int)select_pos.first > (int)pos.first - size && (int)select_pos.first < (int)pos.second + size && (int)select_pos.second >(int)pos.first - size && (int)select_pos.second < (int)pos.second + size) {
+
+                std::pair<float, float> start_pos = input.drag_coord;
+                if(input.select_pos.first < input.drag_coord.first) {
+                    start_pos.first = input.select_pos.first;
+                } if(input.select_pos.second < input.drag_coord.second) {
+                    start_pos.second = input.select_pos.second;
+                }
+
+                std::pair<float, float> end_pos = input.drag_coord;
+                if(input.select_pos.first > input.drag_coord.first) {
+                    end_pos.first = input.select_pos.first;
+                } if(input.select_pos.second > input.drag_coord.second) {
+                    end_pos.second = input.select_pos.second;
+                }
+
+                if(pos.first >= start_pos.first && pos.first <= end_pos.first && pos.second >= start_pos.second && pos.second <= end_pos.second) {
                     input.selected_units.push_back(unit);
-                    return;
                 }
             }
-            // Show province information when clicking on a province
-            if(tile.province_id < gs.world->provinces.size()) {
-                new Interface::ProvinceView(gs, gs.world->provinces[tile.province_id]);
-                return;
+            input.is_drag = false;
+
+            if(input.selected_units.empty()) {
+                // Show province information when clicking on a province
+                if(tile.province_id < gs.world->provinces.size()) {
+                    new Interface::ProvinceView(gs, gs.world->provinces[tile.province_id]);
+                    return;
+                }
             }
             break;
         default:
             break;
         }
         return;
-    }
-    else if(event.button.button == SDL_BUTTON_RIGHT) {
+    } else if(event.button.button == SDL_BUTTON_RIGHT) {
         if(1) {
             const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
             if(tile.province_id == (Province::Id)-1) return;
@@ -370,10 +390,11 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             fclose(fp);
         }
 
+        const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+        if(tile.province_id == (Province::Id)-1) return;
+
         for(const auto& unit : input.selected_units) {
-            const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-            if(tile.province_id == (Province::Id)-1) return;
-            unit->target = gs.world->provinces[tile.province_id];
+            unit->set_target(gs.world->provinces[tile.province_id]);
 
             Packet packet = Packet();
             Archive ar = Archive();
@@ -394,18 +415,18 @@ void Map::update(const SDL_Event& event, Input& input) {
     switch(event.type) {
     case SDL_MOUSEBUTTONDOWN:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+
+        input.is_drag = false;
         if(event.button.button == SDL_BUTTON_MIDDLE) {
             input.last_camera_drag_pos = camera->get_map_pos(mouse_pos);
             input.last_camera_mouse_pos = mouse_pos;
-        }
-        else if(event.button.button == SDL_BUTTON_LEFT) {
+        } else if(event.button.button == SDL_BUTTON_LEFT) {
             if(!input.is_drag) {
                 input.drag_coord = input.select_pos;
                 if(view_mode == MapView::SPHERE_VIEW) {
                     input.drag_coord.first = (int)(tile_map->width * input.drag_coord.first / (2. * M_PI));
                     input.drag_coord.second = (int)(tile_map->height * input.drag_coord.second / M_PI);
-                }
-                else {
+                } else {
                     input.drag_coord.first = (int)input.drag_coord.first;
                     input.drag_coord.second = (int)input.drag_coord.second;
                 }
@@ -427,8 +448,7 @@ void Map::update(const SDL_Event& event, Input& input) {
             input.select_pos = camera->get_map_pos(input.mouse_pos);
             input.select_pos.first = (int)(tile_map->width * input.select_pos.first / (2. * M_PI));
             input.select_pos.second = (int)(tile_map->height * input.select_pos.second / M_PI);
-        }
-        else {
+        } else {
             if(input.middle_mouse_down) {  // Drag the map with middlemouse
                 std::pair<float, float> map_pos = camera->get_map_pos(mouse_pos);
                 float x_pos = camera->position.x + input.last_camera_drag_pos.first - map_pos.first;
@@ -656,13 +676,32 @@ void Map::draw(const GameState& gs, const int width, const int height) {
             glVertex2f(unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
             glEnd();
         }
+
+        for(const auto& selected : gs.input.selected_units) {
+            if(selected == unit) {
+                std::pair<float, float> pos = unit->get_pos();
+
+                glPushMatrix();
+                glTranslatef(0.f, 0.f, -0.1f);
+                glLineWidth(8.f);
+                glBegin(GL_LINE_STRIP);
+                glColor3f(1.f, 1.f, 1.f);
+                glVertex2f(pos.first, pos.second);
+                glVertex2f(pos.first + 1.f, pos.second);
+                glVertex2f(pos.first + 1.f, pos.second + 1.f);
+                glVertex2f(pos.first, pos.second + 1.f);
+                glEnd();
+                glLineWidth(1.f);
+                glPopMatrix();
+                break;
+            }
+        }
     }
 
     // Draw the "drag area" box
-    /*
     if(gs.input.is_drag) {
         glPushMatrix();
-        glTranslatef(0.f, 0.f, 0.f);
+        glTranslatef(0.f, 0.f, -0.1f);
         glColor3f(1.f, 1.f, 1.f);
         glBegin(GL_LINE_STRIP);
         glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
@@ -673,7 +712,6 @@ void Map::draw(const GameState& gs, const int width, const int height) {
         glEnd();
         glPopMatrix();
     }
-    */
 
     wind_osc += 0.01f;
     if(wind_osc >= 180.f) wind_osc = 0.f;

@@ -48,7 +48,7 @@ public:
     BuildingType* type;
 
     // Unit that is currently being built here (nullptr indicates no unit)
-    UnitType* working_unit_type;
+    UnitType* working_unit_type = nullptr;
 
     // Remaining ticks until the unit is built
     uint16_t build_time;

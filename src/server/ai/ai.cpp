@@ -247,9 +247,6 @@ void ai_build_commercial(Nation* nation, World* world) {
         building->corporate_owner = world->companies.at(0);
         building->type = world->building_types[0];
         building->owner = nation;
-        building->working_unit_type = nullptr;
-        building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
-        building->req_goods = std::vector<std::pair<Good*, size_t>>();
         building->budget = 100.f;
         
         if(building->type->is_factory) {
@@ -367,9 +364,6 @@ void ai_do_tick(Nation* nation, World* world) {
                     building->corporate_owner = nullptr;
                     building->type = world->building_types[0];
                     building->owner = nation;
-                    building->working_unit_type = nullptr;
-                    building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
-                    building->req_goods = std::vector<std::pair<Good*, size_t>>();
                     building->budget = 100.f;
                     world->insert(building);
 
@@ -381,14 +375,16 @@ void ai_do_tick(Nation* nation, World* world) {
 
             // Build units inside buildings that are not doing anything
             for(auto& building : g_world->buildings) {
-                //if(std::rand() % std::max<int>(50, defense_factor)) continue;
-                if(std::rand() % 10) continue;
-                
                 if(building->working_unit_type != nullptr || building->owner != nation) continue;
                 Province* province = building->get_province();
-                if (province == nullptr) continue;
+                if(province == nullptr) continue;
 
-                building->working_unit_type = g_world->unit_types[std::rand() % g_world->unit_types.size()];
+                if(std::rand() % 3) continue;
+
+                auto* unit_type = g_world->unit_types[std::rand() % g_world->unit_types.size()];
+                if(!unit_type->is_ground) continue;
+
+                building->working_unit_type = unit_type;
                 building->req_goods_for_unit = building->working_unit_type->req_goods;
                 print_info("%s: Building unit [%s] in [%s]", nation->ref_name.c_str(), building->working_unit_type->ref_name.c_str(), province->ref_name.c_str());
             }
@@ -436,7 +432,7 @@ void ai_do_tick(Nation* nation, World* world) {
 
     // TODO: make a better algorithm
     if(nation->ai_do_cmd_troops) {
-        /*std::vector<int> defense_strength(world->provinces.size(), 0);
+        std::vector<int> defense_strength(world->provinces.size(), 0);
         std::vector<int> attack_strength(world->provinces.size(), 0);
         std::vector<int> potential_risk(world->provinces.size(), 0);
 
@@ -445,68 +441,88 @@ void ai_do_tick(Nation* nation, World* world) {
                 defense_strength[world->get_id(province)] += unit->type->defense;
                 attack_strength[world->get_id(province)] += unit->type->attack;
             }
-            potential_risk[world->get_id(province)] = 1000.f / (defense_strength[world->get_id(province)] + attack_strength[world->get_id(province)] + 1);
-            potential_risk[world->get_id(province)] *= std::fmod((std::rand() + 1) / 1000.f, 20.f);
+            //potential_risk[world->get_id(province)] = 1000.f / (defense_strength[world->get_id(province)] + attack_strength[world->get_id(province)] + 1);
+            //potential_risk[world->get_id(province)] *= std::fmod((std::rand() + 1) / 1000.f, 20.f);
 
             for(const auto& neighbour : province->neighbours) {
-                if(neighbour->controller != nullptr) {
+                if(neighbour->controller != nullptr && neighbour->controller != nation) {
                     NationRelation& relation = neighbour->owner->relations[world->get_id(province->owner)];
 
                     // Risk is augmentated when we border any non-ally nation
                     if(!relation.has_alliance) {
-                        potential_risk[world->get_id(province)] += 250.f;
+                        potential_risk[world->get_id(province)] += 50;
+                        if(relation.has_war) {
+                            potential_risk[world->get_id(province)] += 1000 + (std::rand() % 10);
+                            potential_risk[world->get_id(neighbour)] += 2000 + (std::rand() % 10);
+                        }
                     }
-                    potential_risk[world->get_id(neighbour)] += 100.f;
                 }
             }
-        }*/
+
+            potential_risk[world->get_id(province)] /= defense_strength[world->get_id(province)] + 1;
+
+            for(const auto& neighbour : province->neighbours) {
+                if(neighbour->controller != nullptr) {
+                    NationRelation& relation = neighbour->owner->relations[world->get_id(province->owner)];
+                    potential_risk[world->get_id(neighbour)] += potential_risk[world->get_id(province)] / neighbour->neighbours.size();
+                }
+            }
+        }
 
         for(auto& unit : g_world->units) {
             if(unit->province->neighbours.empty()) continue;
-            //if(unit->target != nullptr) continue;
-            if(std::rand() % 100) continue;
+            if(unit->owner != nation) continue;
 
-            /*
             // See which province has the most potential_risk so we cover it from potential threats
             Province* highest_risk = unit->province;
-            for(const auto& neighbour : unit->province->neighbours) {
-                if(potential_risk[world->get_id(highest_risk)] < potential_risk[world->get_id(neighbour)]) {
-                    highest_risk = neighbour;
+            for(const auto& province : unit->province->neighbours) {
+                if(unit->type->is_naval != province->terrain_type->is_water_body) continue;
+
+                if(potential_risk[world->get_id(highest_risk)] < potential_risk[world->get_id(province)]) {
+                    if(province->owner != nullptr) {
+                        NationRelation& relation = province->owner->relations[world->get_id(unit->owner)];
+                        if(relation.has_war || relation.has_alliance || province->owner == unit->owner) {
+                            highest_risk = province;
+                        }
+                    }
+                } else {
+                    highest_risk = province;
                 }
             }
 
-            Province* province = highest_risk;
+            auto* province = highest_risk;
+            if(province == unit->province || province == unit->target) continue;
 
             // We ideally want troops at our border if they are not our ally
-            bool in_inner = true;
+            /*bool in_inner = true;
             for(const auto& neighbour : province->neighbours) {
                 if(neighbour->controller == nullptr) continue;
-
-                if(neighbour->controller != nation && !neighbour->controller->relations[world->get_id(unit->owner)].has_alliance) {
+                if(neighbour->controller != nation || !neighbour->controller->relations[world->get_id(unit->owner)].has_alliance) {
                     in_inner = false;
                     break;
                 }
-            }
-            */
+            }*/
 
             // Randomly go around in the inners of our country to hopefully find a border province
-            //if(in_inner && !province->neighbours.empty()) {
-            if(!unit->province->neighbours.empty()) {
+            /*if(in_inner && !province->neighbours.empty()) {
+                if(std::rand() % 500) continue;
+                if(unit->target != nullptr) continue;
+
                 auto it = std::begin(unit->province->neighbours);
                 std::advance(it, std::rand() % unit->province->neighbours.size());
                 if(it == unit->province->neighbours.end()) continue;
+                province = *it;
+            }*/
 
-                auto* province = *it;
-                if(province->owner != nullptr) {
-                    // Can only go to a province if we have military accesss, they are our ally or if we are at war
-                    // also if it's ours we can move thru it
-                    NationRelation& relation = province->owner->relations[world->get_id(unit->owner)];
-                    if(province->owner == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war) {
-                        unit->set_target(province);
-                    }
-                } else {
+            if(province->owner != nullptr) {
+                // Can only go to a province if we have military accesss, they are our ally or if we are at war
+                // also if it's ours we can move thru it
+                NationRelation& relation = province->owner->relations[world->get_id(unit->owner)];
+                if(province->owner == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war) {
                     unit->set_target(province);
                 }
+            } else {
+                unit->set_target(province);
             }
         }
     }
