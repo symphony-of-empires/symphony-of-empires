@@ -50,7 +50,7 @@ std::string treaty_to_text(Treaty* treaty) {
 TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
     : gs{ _gs },
     treaty{ _treaty },
-    UI::Window(0, 0, 256, 512)
+    UI::Window(0, 0, 512, 256)
 {
     this->is_scroll = false;
     this->text("Treaty proposal");
@@ -76,7 +76,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
 
     auto* deny_btn = new UI::Button(0, 0, this->width, 24, this);
     deny_btn->below_of(*this->body_txt);
-    deny_btn->left_side_of(*approve_btn);
+    deny_btn->right_side_of(*approve_btn);
     deny_btn->text("Deny");
     deny_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TreatyChooseWindow&>(*w.parent);
