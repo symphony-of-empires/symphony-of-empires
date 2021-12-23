@@ -1117,15 +1117,15 @@ void Chart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Slider::Slider(int _x, int _y, unsigned w, unsigned h, const float _min, const float _max, Widget* _parent)
+ProgressBar::ProgressBar(int _x, int _y, unsigned w, unsigned h, const float _min, const float _max, Widget* _parent)
     : max{_max},
     min{_min},
-    Widget(_parent, _x, _y, w, h, UI::WidgetType::SLIDER)
+    Widget(_parent, _x, _y, w, h, UI::WidgetType::PROGRESS_BAR)
 {
 
 }
 
-void Slider::on_render(Context& ctx, UnifiedRender::Rect viewport) {
+void ProgressBar::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glColor3f(1.f, 1.f, 1.f);
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {
@@ -1163,6 +1163,14 @@ void Slider::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glVertex2f(0, height);
     glVertex2f(0, 0);
     glEnd();
+}
+
+Slider::Slider(int _x, int _y, unsigned w, unsigned h, const float _min, const float _max, Widget* _parent)
+    : max{_max},
+    min{_min},
+    ProgressBar(_x, _y, w, h, _min, _max, _parent)
+{
+
 }
 
 PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, std::vector<ChartData> _data, Widget* _parent)
