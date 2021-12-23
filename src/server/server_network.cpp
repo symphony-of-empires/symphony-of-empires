@@ -176,12 +176,12 @@ void Server::net_loop(int id) {
             // Send the whole snapshot of the world (only we are not the host)
             // We also need to make sure the global client is not nullptr AND
             // we also will only NOT send the snapshot to the first client only
-            if(!gs.host_mode && player_count <= 1) {
+            /*if(!gs.host_mode && player_count <= 1) {
                 Archive ar = Archive();
                 std::scoped_lock lock(g_world->world_mutex);
                 ::serialize(ar, g_world);
                 packet.send(ar.get_buffer(), ar.size());
-            }
+            }*/
 
             // Read the data from client
             {
