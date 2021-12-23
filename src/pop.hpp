@@ -6,10 +6,10 @@
 #include "ideology.hpp"
 
 enum class PopGroup {
-    Entrepreneur,
+    BURGEOISE,
     Slave,
-    Farmer,
-    Laborer,
+    FARMER,
+    LABORER,
     Other,
 };
 class PopType: public RefnameEntity<uint8_t> {
