@@ -69,6 +69,7 @@ void print_info(const char* str, ...) {
     FILE* fp = fopen("log.txt", "a+t");
     if(fp) {
         vfprintf(fp, str, args);
+        fputs("\n", fp);
         fclose(fp);
     }
 #endif
