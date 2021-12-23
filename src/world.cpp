@@ -423,15 +423,12 @@ void World::load_mod(void) {
     // Build a lookup table for super fast speed on finding provinces
     // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
     print_info(gettext("Building the province lookup table"));
-    std::vector<Province::Id> province_color_table(16777216, 0);
-    std::fill(province_color_table.begin(), province_color_table.end(), (Province::Id)-1);
+    std::vector<Province::Id> province_color_table(16777216, (Province::Id)-1);
     for(auto& province : provinces) {
-        province_color_table[province->color & 0xffffff] = this->get_id(province);
+        province_color_table[province->color & 0xffffff] = get_id(province);
     }
-    //province_color_table[0xff00ff] = (Province::Id)-2;
 
     // Associate tiles with provinces
-
     // Uncomment this and see a bit more below
     std::set<uint32_t> colors_found;
 
@@ -450,13 +447,65 @@ void World::load_mod(void) {
 
     if(div->width != width || div->height != height)
         throw std::runtime_error("Province map size mismatch");
+    
+    if(1) {
+        for(auto& province : provinces) {
+            province->n_tiles = 0;
+        }
+        
+        for(size_t i = 0; i < total_size; i++) {
+            const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
+            if(province_id >= provinces.size()) continue;
+
+            while(div->buffer[i] == provinces[province_id]->color) {
+                provinces[province_id]->n_tiles++;
+                i++;
+            }
+            i--;
+        }
+
+        for(size_t i = 0; i < provinces.size(); i++) {
+            auto* province = provinces[i];
+            if(!province->n_tiles) {
+                remove(province);
+
+                for(auto& nation : nations) {
+                    nation->owned_provinces.erase(province);
+                    if(nation->capital == province) {
+                        nation->capital = nullptr;
+                    }
+                }
+
+                for(auto& company : companies) {
+                    company->operating_provinces.erase(province);
+                }
+
+                for(size_t j = 0; j < buildings.size(); j++) {
+                    auto* building = buildings[j];
+                    if(building->province != province) continue;
+                    remove(building);
+                    delete building;
+                    j--;
+                }
+
+                delete province;
+                i--;
+                continue;
+            }
+        }
+
+        std::fill(province_color_table.begin(), province_color_table.end(), (Province::Id)-1);
+        for(auto& province : provinces) {
+            province_color_table[province->color & 0xffffff] = get_id(province);
+        }
+    }
+
     print_info(gettext("Associate tiles with provinces"));
     for(size_t i = 0; i < total_size; i++) {
-        const uint32_t color = div->buffer[i];
         const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
         if(province_id == (Province::Id)-1) {
             // Uncomment this and see below
-            colors_found.insert(color);
+            colors_found.insert(div->buffer[i]);
             continue;
         }
 
@@ -471,7 +520,7 @@ void World::load_mod(void) {
     div.reset(nullptr);
 
     /* Uncomment this for auto-generating lua code for unregistered provinces */
-    FILE* fp = fopen("UNREG_PROVINCES.lua", "a+t");
+    /*FILE* fp = fopen("UNREG_PROVINCES.lua", "a+t");
     if(fp) {
         for(const auto& color_raw : colors_found) {
             uint32_t color = color_raw << 8;
@@ -480,21 +529,23 @@ void World::load_mod(void) {
             fprintf(fp, "province:register()\n");
         }
         fclose(fp);
-    }
+    }*/
 
     // Calculate the edges of the province (min and max x and y coordinates)
     print_info(gettext("Calculate the edges of the province (min and max x and y coordinates)"));
     for(size_t j = 0; j < height; j++) {
         for(size_t i = 0; i < width; i++) {
             Tile& tile = get_tile(i, j);
-            if(tile.province_id >= (Province::Id)-3)
+            if(tile.province_id >= provinces.size()) {
+                tile.province_id = (Province::Id)-1;
                 continue;
+            }
 
-            Province* province = provinces[tile.province_id];
-            province->max_x = std::max(province->max_x, i);
-            province->max_y = std::max(province->max_y, j);
-            province->min_x = std::min(province->min_x, i);
-            province->min_y = std::min(province->min_y, j);
+            auto& province = *provinces[tile.province_id];
+            province.max_x = std::max(province.max_x, i);
+            province.max_y = std::max(province.max_y, j);
+            province.min_x = std::min(province.min_x, i);
+            province.min_y = std::min(province.min_y, j);
         }
     }
 
@@ -566,6 +617,8 @@ void World::do_tick() {
     // AI and stuff
     // Just random shit to make the world be like more alive
     for(auto& nation : nations) {
+        if(!nation->exists()) continue;
+
         // Diplomatic cooldown
         if(nation->diplomatic_timer != 0) {
             nation->diplomatic_timer--;

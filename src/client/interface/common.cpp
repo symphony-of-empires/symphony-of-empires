@@ -17,10 +17,10 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* pa
     unit{ _unit },
     UI::Button(x, y, parent->width, 24, parent)
 {
-    text(std::to_string(unit->size) + " " + unit->type->ref_name);
+    text(std::to_string(unit->size) + " " + unit->type->name);
     on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<UnitButton&>(*w.parent);
-        w.text(std::to_string(o.unit->size) + " " + o.unit->type->ref_name);
+        w.text(std::to_string(o.unit->size) + " " + o.unit->type->name);
     });
 }
 
@@ -36,7 +36,7 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_typ
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->icon_img);
-    this->name_btn->text(unit_type->ref_name);
+    this->name_btn->text(unit_type->name);
 }
 
 CompanyButton::CompanyButton(GameState& _gs, int x, int y, Company* _company, UI::Widget* parent)
@@ -57,11 +57,11 @@ ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province
     province{ _province },
     UI::Button(x, y, parent->width, 24, parent)
 {
-    text(province->ref_name);
+    text(province->name);
     on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceButton&>(w);
         if(o.gs.world->time % o.gs.world->ticks_per_month) return;
-        w.text(o.province->ref_name);
+        w.text(o.province->name);
     });
 }
 
@@ -92,10 +92,10 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
 
 BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingType* _building_type, UI::Widget* parent)
     : gs{ _gs },
-    building_type{ _building_type },
+    building_type{_building_type},
     UI::Button(x, y, parent->width, 24, parent)
 {
-    text(building_type->ref_name);
+    text(building_type->name);
 }
 
 PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, UI::Widget* parent)

@@ -62,8 +62,6 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
         auto* btn = new BuildingTypeButton(gs, 0, 24 * i, building_type, this);
         btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = dynamic_cast<BuildingBuildView&>(*w.parent->parent);
-            o.building_type = static_cast<BuildingTypeButton&>(w).building_type;
-
             if(o.nation == nullptr) {
                 o.gs.ui_ctx->prompt("Error", "No nation selected");
                 return;
@@ -79,10 +77,10 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
                 return;
             }
 
-            if(o.building_type == nullptr) {
+            /*if(o.building_type == nullptr) {
                 o.gs.ui_ctx->prompt("Error", "No building type selected");
                 return;
-            }
+            }*/
 
             if(o.gs.curr_nation->owned_provinces.empty()) {
                 o.gs.ui_ctx->prompt("Error", "You do not own any provinces");
@@ -92,7 +90,7 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
             auto building = Building();
             building.owner = o.nation;
             building.corporate_owner = o.company;
-            building.type = o.building_type;
+            building.type = ((BuildingTypeButton&)w).building_type;
             building.province = o.province;
             building.working_unit_type = nullptr;
 			g_client->send(Action::BuildingAdd::form_packet(&building));
