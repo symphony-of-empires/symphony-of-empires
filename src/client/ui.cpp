@@ -100,15 +100,17 @@ void Context::clear_dead() {
 }
 
 void Context::prompt(const std::string& title, const std::string& text) {
-    auto* win = new UI::Window((this->width / 2.f) - (320 / 2.f), (this->height / 2.f) - (128 / 2.f), 320, 128, nullptr);
+    auto* win = new UI::Window(512 / 2.f, 128 / 2.f, 512, 128, nullptr);
+    win->origin = UI::Origin::CENTER_SCREEN;
     win->text(title);
 
-    auto* txt = new UI::Text(0, 0, win->width, win->height - 48, win);
+    auto* txt = new UI::Text(0, 0, win->width, win->height, win);
     txt->text(text);
+    txt->is_scroll = false;
 
     auto* ok_btn = new UI::CloseButton(0, 0, 128, 24, win);
     ok_btn->below_of(*txt);
-    ok_btn->text("Close");
+    ok_btn->text("OK");
 }
 
 // void Context::clear_dead_recursive(Widget* w) {
@@ -895,7 +897,7 @@ void Tooltip::text(const std::string& text) {
         y += 24;
         pos += len;
     }
-    height = y + 24;
+    height = y;
 }
 
 
@@ -981,8 +983,7 @@ void Text::text(const std::string& text) {
     if(text.empty()) return;
 
     // Separate the text in multiple labels
-    size_t pos = 0;
-    size_t y = 38;
+    size_t pos = 0, y = 0;
     while(pos < text.length()) {
         size_t len = std::min<size_t>(text.length(), (this->width / 12));
         std::string buf = text.substr(pos, len);
@@ -993,7 +994,7 @@ void Text::text(const std::string& text) {
         y += 24;
         pos += len;
     }
-    min_height = y + 24;
+    height = y;
 }
 
 Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)

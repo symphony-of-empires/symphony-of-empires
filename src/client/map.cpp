@@ -332,7 +332,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         case MapMode::COUNTRY_SELECT:
             if(tile.province_id < (Province::Id)-3) {
                 auto province = world.provinces[tile.province_id];
-                gs.select_nation->change_nation(province->owner->cached_id);
+                if(province->controller == nullptr) break;
+                gs.select_nation->change_nation(province->controller->cached_id);
             }
             break;
         case MapMode::NORMAL:
