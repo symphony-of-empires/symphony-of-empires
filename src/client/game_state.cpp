@@ -358,6 +358,8 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
             gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/war.wav")));
         }
     }
+    gs.run = false;
+    world_th.join();
 }
 
 #include "client/interface/main_menu.hpp"
@@ -484,11 +486,11 @@ void start_client(int argc, char** argv) {
     SDL_PauseAudio(0);
 
     gs.world = new World();
+    gs.world->load_initial();
     gs.world->load_mod();
     gs.map = new Map(*gs.world, gs.width, gs.height);
 
-    gs.tutorial.fire_at_start = 1;
-
+    gs.tutorial.fire_at_start = 0;
     if(!gs.tutorial.fire_at_start) {
         main_menu_loop(gs, gs.window);
     } else {

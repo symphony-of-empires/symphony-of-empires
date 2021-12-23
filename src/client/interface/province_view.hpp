@@ -38,14 +38,24 @@ namespace Interface {
         Province* province;
     };
 
+    class ProvinceBuildingTab: public UI::Group {
+        std::vector<BuildingInfo*> building_infos;
+    public:
+        ProvinceBuildingTab(GameState& gs, int x, int y, Province* province, UI::Widget* _parent);
+        GameState& gs;
+        Province* province;
+    };
+
     class ProvinceView: public UI::Window {
         GameState& gs;
         Province* province;
 
         ProvincePopulationTab* pop_tab;
         ProvinceEconomyTab* econ_tab;
+        ProvinceBuildingTab* build_tab;
     public:
         ProvinceView(GameState& gs, Province* province);
+        friend class ProvinceBuildingTab;
     };
 
     // Brief

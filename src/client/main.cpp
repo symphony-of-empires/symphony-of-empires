@@ -39,8 +39,7 @@ std::string async_get_input(void) {
 
 #define _XOPEN_SOURCE 700
 #include <cstdio>
-#include <dirent.h>
-#include <sys/types.h>
+#include <filesystem>
 
 #if defined windows
 #   include <windows.h>
@@ -59,32 +58,29 @@ int main(int argc, char** argv) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
 #endif
 
-#if defined unix
-    DIR *dir = opendir(Path::get_full().c_str());
-    if(dir != NULL) {
-        struct dirent *de;
-        while(de = readdir(dir)) {
-            if(de->d_name[0] == '.')
-                continue;
-            
-            if(de->d_type == DT_DIR) {
-                Path::add_path(de->d_name);
-            }
+    // Clean the log files
+    if(1) {
+        FILE* fp = fopen("log.txt", "wt");
+        if(fp) {
+            fputs("=== LOG.TXT ===\n", fp);
+            fclose(fp);
         }
     }
-#elif defined windows
-    //Path::add_path("01_tutorial");
-    Path::add_path("ie_client");
-    Path::add_path("ie_core");
-    Path::add_path("ie_map");
-#endif
+
+    const std::string asset_path = Path::get_full();
+    print_info("Assets path: %s", asset_path.c_str());
+    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
+        if(entry.is_directory()) {
+            const auto& path = entry.path().lexically_relative(asset_path);
+            Path::add_path(path.string());
+        }
+    }
     
 #ifndef UNIT_TEST
     try {
         start_client(argc, argv);
     } catch(const std::exception& e) {
         print_error(e.what());
-		
         exit(EXIT_FAILURE);
     }
 #endif

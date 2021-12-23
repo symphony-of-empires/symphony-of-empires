@@ -399,7 +399,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files) 
     }
 }
 
-void World::load_mod(void) {
+void World::load_initial(void) {
     const std::vector<std::string> init_files ={
         "terrain_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
@@ -581,7 +581,10 @@ void World::load_mod(void) {
         // Relations between nations start at 0 (and latter modified by lua scripts)
         nation->relations.resize(this->nations.size(), NationRelation{ -100.f, false, false, false, false, false, false, false, false, true, false });
     }
+    print_info(gettext("World partially intiialized"));
+}
 
+void World::load_mod(void) {
     const std::vector<std::string> mod_files ={
         "mod", "postinit"
     };

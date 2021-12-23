@@ -138,6 +138,7 @@ public:
 
     // Function that "simulates" the world by an entire tick
     void do_tick(void);
+    void load_initial(void);
     void load_mod(void);
 
     LIST_FOR_TYPE(Nation, nations, std::vector);
