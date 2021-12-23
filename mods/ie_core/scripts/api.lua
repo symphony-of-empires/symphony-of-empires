@@ -582,7 +582,7 @@ PopType = {
 	ref_name = "",
 	name = "",
 	social_value = 1.0,
-	is_entrepreneur = false,
+	is_burgeoise = false,
     is_slave = false,
     is_farmer = false,
     is_laborer = false
@@ -595,18 +595,18 @@ function PopType:new(o)
 end
 function PopType:get(ref_name)
 	o = PopType:new()
-	o.id, o.name, o.social_value, o.is_entrepreneur, o.is_slave, o.is_farmer, o.is_laborer = get_pop_type(ref_name)
+	o.id, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_farmer, o.is_laborer = get_pop_type(ref_name)
 	o.ref_name = ref_name
 	return o
 end
 function PopType:get_by_id(id)
 	o = PopType:new()
-	o.ref_name, o.name, o.social_value, o.is_entrepreneur, o.is_slave, o.is_farmer, o.is_laborer = get_pop_type_by_id(id)
+	o.ref_name, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_farmer, o.is_laborer = get_pop_type_by_id(id)
 	o.id = id
 	return o
 end
 function PopType:register()
-	self.id = add_pop_type(self.ref_name, self.name, self.social_value, self.is_entrepreneur, self.is_slave, self.is_farmer, self.is_laborer)
+	self.id = add_pop_type(self.ref_name, self.name, self.social_value, self.is_burgeoise, self.is_slave, self.is_farmer, self.is_laborer)
 end
 
 Culture = {

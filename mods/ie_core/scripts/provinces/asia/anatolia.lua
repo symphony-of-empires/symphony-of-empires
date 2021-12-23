@@ -234,10 +234,10 @@ for k, v in pairs(otto_provinces_list) do
     province:add_pop(soldier, turkish, catholic, 8000, 0.8)
     province:add_pop(craftsmen, turkish, catholic, 5000, 0.9)
     province:add_pop(bureaucrat, turkish, catholic, 5000, 0.9)
-    province:add_pop(aristocrat, turkish, catholic, 5000, 0.9)
+    province:add_pop(burgeoise, turkish, catholic, 5000, 0.9)
     province:add_pop(clergymen, turkish, catholic, 5000, 0.9)
     province:add_pop(laborer, turkish, catholic, 50000, 0.8)
-    province:add_pop(entrepreneur, turkish, catholic, 800, 0.9)
+    province:add_pop(burgeoise, turkish, catholic, 800, 0.9)
     province:add_nucleus(turkey)
     province:give_to(turkey)
 end
