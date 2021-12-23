@@ -78,7 +78,7 @@ public:
     const UnifiedRender::Texture* noise_tex;
     const UnifiedRender::Texture* topo_map;
     const UnifiedRender::Texture* river_tex;
-    UnifiedRender::Texture* terrain_tex;
+    const UnifiedRender::Texture* terrain_map;
     const UnifiedRender::Texture* landscape_map;
     UnifiedRender::TextureArray* terrain_sheet;
     // const UnifiedRender::Texture* terrain_sheet;

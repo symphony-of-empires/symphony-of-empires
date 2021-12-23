@@ -13,7 +13,7 @@ uniform sampler2D tile_sheet;
 uniform sampler2D water_texture;
 uniform sampler2D topo_mapture;
 uniform sampler2D noise_texture;
-uniform sampler2D terrain_texture;
+uniform sampler2D terrain_map;
 uniform sampler2DArray terrain_sheet;
 uniform sampler2D border_tex;
 uniform sampler2D border_sdf;
@@ -45,7 +45,7 @@ vec4 noTiling(sampler2D tex, vec2 uv) {
 
 vec4 get_terrain(vec2 coord, vec2 offset) {
 	const float size = 16.;
-	float index = texture(terrain_texture, coord).b;
+	float index = texture(terrain_map, coord).b;
 
 	index = trunc(index * size);
 	return texture(terrain_sheet, vec3(offset.x, offset.y, index));
@@ -176,11 +176,17 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
 	return finalTexCoords;
 }
 
-float isLake(vec2 id) {
-	return round(id * 255.) == vec2(254, 255) ? 1. : 0.;
+float isLake(vec2 coords) {
+	vec4 terrain = texture(terrain_map, coords);
+	return terrain.xy == vec2(1., 0.) ? 1. : 0.;
 }
-float isOcean(vec2 id) {
-	return round(id * 255.) == vec2(253, 255) ? 1. : 0.;
+float isOcean(vec2 coords) {
+	vec4 terrain = texture(terrain_map, coords);
+	return terrain.xyz == vec3(0., 0., 0.) ? 1. : 0.;
+}
+float isWater(vec2 coords) {
+	vec4 terrain = texture(terrain_map, coords);
+	return terrain.y == 0. ? 1. : 0.;
 }
 
 vec3 gen_normal(vec2 tex_coords) {
@@ -248,21 +254,21 @@ void main() {
 	float yy = pix.y;
 	vec2 scaling = mod(tex_coords + 0.5 * pix, pix) / pix;
 
-	vec4 color_00 = texture(tile_map, mPos + pix * vec2(0.25, 0.25));
-	float ocean_00 = isOcean(color_00.xy);
-	vec4 color_01 = texture(tile_map, mPos + pix * vec2(0.25, 0.75));
-	float ocean_01 = isOcean(color_01.xy);
-	vec4 color_10 = texture(tile_map, mPos + pix * vec2(0.75, 0.25));
-	float ocean_10 = isOcean(color_10.xy);
-	vec4 color_11 = texture(tile_map, mPos + pix * vec2(0.75, 0.75));
-	float ocean_11 = isOcean(color_11.xy);
+	vec2 coords_00 = mPos + pix * vec2(0.25, 0.25);
+	float ocean_00 = isWater(coords_00);
+	vec2 coords_01 = mPos + pix * vec2(0.25, 0.75);
+	float ocean_01 = isWater(coords_01);
+	vec2 coords_10 = mPos + pix * vec2(0.75, 0.25);
+	float ocean_10 = isWater(coords_10);
+	vec2 coords_11 = mPos + pix * vec2(0.75, 0.75);
+	float ocean_11 = isWater(coords_11);
 
 	float color_x0 = mix(ocean_00, ocean_10, scaling.x);
 	float color_x1 = mix(ocean_01, ocean_11, scaling.x);
 
 	float beach = mix(color_x0, color_x1, scaling.y);
 	float is_no_beach = 1.-step(0.1, beach);
-	float noise = texture(noise_texture, tex_coords / map_size).x;
+	float noise = texture(noise_texture, 20. * tex_coords).x;
 	beach += noise * 0.3 - 0.15;
 	beach = smoothstep(0.2, 0.3, beach);
 
@@ -283,13 +289,13 @@ void main() {
 	vec4 coord = texture(tile_map, diag_coords).rgba;
 	float isEmpty = step(coord.a, 0.01);
 	vec4 prov_color = texture(tile_sheet, coord.xy * 255./256.); // Magic numbers
-	terrain_color = mix(terrain_color, water, isLake(coord.xy));
-	vec4 ground = mix(terrain_color, water, beach + isLake(coord.xy));
-	vec4 out_color = mix(ground, prov_color * 1.2, 0.5 * (1.-beach) * (1.-isLake(coord.xy)));
+	terrain_color = mix(terrain_color, water, isLake(tex_coords));
+	vec4 ground = mix(terrain_color, water, beach + isLake(tex_coords));
+	vec4 out_color = mix(ground, prov_color * 1.2, 0.5 * (1.-beach) * (1.-isLake(tex_coords)));
 
 	float bSdf = texture2D(border_sdf, tex_coords + pix * 0.5).z;
 	vec4 mix_col = out_color;
-	if (isOcean(coord.xy) == 1.) {
+	if (isOcean(tex_coords) == 1.) {
 		vec4 wave = mix(water, water * 0.7, max(0.,sin(bSdf * 50.)));
 		mix_col = mix(wave, water, dist_to_map);
 	}
