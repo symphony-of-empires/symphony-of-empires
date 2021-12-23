@@ -157,7 +157,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->is_scroll = false;
     this->text(province->name);
 
-    this->pop_tab = new ProvincePopulationTab(gs, 128, 24, province, this);
+    this->pop_tab = new ProvincePopulationTab(gs, 128 + 24, 24, province, this);
     this->pop_tab->is_render = true;
     auto* pop_btn = new UI::Button(0, 0, 128, 24, this);
     pop_btn->text("Population");
@@ -169,7 +169,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.build_tab->is_render = false;
     });
 
-    this->econ_tab = new ProvinceEconomyTab(gs, 128, 24, province, this);
+    this->econ_tab = new ProvinceEconomyTab(gs, 128 + 24, 24, province, this);
     this->econ_tab->is_render = false;
     auto* econ_btn = new UI::Button(0, 0, 128, 24, this);
     econ_btn->below_of(*pop_btn);
@@ -182,7 +182,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.build_tab->is_render = false;
     });
 
-    this->build_tab = new ProvinceBuildingTab(gs, 128, 24, province, this);
+    this->build_tab = new ProvinceBuildingTab(gs, 128 + 24, 24, province, this);
     this->build_tab->is_render = false;
     auto* build_btn = new UI::Button(0, 0, 128, 24, this);
     build_btn->below_of(*econ_btn);
