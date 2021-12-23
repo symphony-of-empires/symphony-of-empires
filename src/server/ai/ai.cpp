@@ -202,6 +202,34 @@ void ai_update_relations(Nation* nation, Nation* other) {
     if(!(std::rand() % 1000)) {
         if(!nation->relations[world.get_id(other)].has_war) {
             nation->declare_war(*other);
+        } else {
+            // Offer treaties
+            if(!(std::rand() % 1000)) {
+                Treaty* treaty = new Treaty();
+
+                {
+                    auto* clause = new TreatyClause::AnexxProvince();
+                    clause->sender = nation;
+                    clause->receiver = other;
+                    for(const auto& province : other->owned_provinces) {
+                        if(province->controller == nation) {
+                            if(!(std::rand() % 10)) {
+                                clause->provinces.push_back(province);
+                            }
+                        }
+                    }
+                    treaty->clauses.push_back(clause);
+                }
+
+                {
+                    auto* clause = new TreatyClause::Ceasefire();
+                    clause->sender = nation;
+                    clause->receiver = other;
+                    treaty->clauses.push_back(clause);
+                }
+
+                ((World&)world).insert(treaty);
+            }
         }
     }
 }
@@ -435,18 +463,10 @@ void ai_do_tick(Nation* nation, World* world) {
 
     // TODO: make a better algorithm
     if(nation->ai_do_cmd_troops) {
-        std::vector<int> defense_strength(world->provinces.size(), 0);
-        std::vector<int> attack_strength(world->provinces.size(), 0);
         std::vector<int> potential_risk(world->provinces.size(), 0);
+        float defense_strength = 0.f, attack_strength = 0.f;
 
         for(const auto& province : nation->owned_provinces) {
-            for(const auto& unit : province->get_units()) {
-                defense_strength[world->get_id(province)] += unit->type->defense;
-                attack_strength[world->get_id(province)] += unit->type->attack;
-            }
-            //potential_risk[world->get_id(province)] = 1000.f / (defense_strength[world->get_id(province)] + attack_strength[world->get_id(province)] + 1);
-            //potential_risk[world->get_id(province)] *= std::fmod((std::rand() + 1) / 1000.f, 20.f);
-
             for(const auto& neighbour : province->neighbours) {
                 if(neighbour->controller != nullptr && neighbour->controller != nation) {
                     NationRelation& relation = neighbour->owner->relations[world->get_id(province->owner)];
@@ -462,7 +482,11 @@ void ai_do_tick(Nation* nation, World* world) {
                 }
             }
 
-            potential_risk[world->get_id(province)] /= defense_strength[world->get_id(province)] + 1;
+            for(const auto& unit : province->get_units()) {
+                defense_strength += unit->type->defense;
+                attack_strength += unit->type->attack;
+            }
+            potential_risk[world->get_id(province)] /= defense_strength + attack_strength;
 
             for(const auto& neighbour : province->neighbours) {
                 if(neighbour->controller != nullptr) {
