@@ -8,6 +8,7 @@
 #include "company.hpp"
 #include "province.hpp"
 #include "product.hpp"
+#include "building.hpp"
 #include "unified_render/texture.hpp"
 
 using namespace Interface;
@@ -87,6 +88,18 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
         auto& o = static_cast<NationButton&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) return;
         w.text(o.nation->get_client_hint().alt_name);
+    });
+}
+
+BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Building* _building, UI::Widget* parent)
+    : gs{_gs},
+    building{_building},
+    UI::Button(x, y, parent->width, 24, parent)
+{
+    text(building->type->name);
+    on_each_tick = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<BuildingInfo&>(*w.parent);
+        w.text(o.building->type->name);
     });
 }
 
