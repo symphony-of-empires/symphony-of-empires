@@ -116,13 +116,39 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
     for(const auto& product : this->province->products) {
         if(product->building == nullptr) continue;
 
-        ProductInfo* info = new ProductInfo(this->gs, 0, (i * 24) + 128, product, this);
+        auto* info = new ProductInfo(this->gs, 0, (i * 24) + 128, product, this);
         this->product_infos.push_back(info);
         i++;
     }
 }
 
 #include "building.hpp"
+ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
+    : gs{ _gs },
+    province{ _province },
+    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
+{
+    this->text(province->name);
+
+    // Initial product info
+    unsigned int dy = 0;
+
+    auto* build_btn = new UI::Button(0, 0, 128, 24, this);
+    build_btn->text("Build new");
+    build_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<ProvinceView&>(*w.parent->parent);
+        new BuildingBuildView(o.gs, 0, 0, false, o.gs.curr_nation, o.province, nullptr);
+    });
+    dy += build_btn->height;
+
+    auto list = province->get_buildings();
+    for(const auto& building : list) {
+        auto* info = new BuildingInfo(this->gs, 0, dy, building, this);
+        this->building_infos.push_back(info);
+        dy += info->height;
+    }
+}
+
 ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     : gs{ _gs },
     province{ _province },
@@ -140,6 +166,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
         o.pop_tab->is_render = true;
         o.econ_tab->is_render = false;
+        o.build_tab->is_render = false;
     });
 
     this->econ_tab = new ProvinceEconomyTab(gs, 128, 24, province, this);
@@ -152,10 +179,24 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
         o.pop_tab->is_render = false;
         o.econ_tab->is_render = true;
+        o.build_tab->is_render = false;
+    });
+
+    this->build_tab = new ProvinceBuildingTab(gs, 128, 24, province, this);
+    this->build_tab->is_render = false;
+    auto* build_btn = new UI::Button(0, 0, 128, 24, this);
+    build_btn->below_of(*econ_btn);
+    build_btn->text("Buildings");
+    build_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<ProvinceView&>(*w.parent);
+
+        o.pop_tab->is_render = false;
+        o.econ_tab->is_render = false;
+        o.build_tab->is_render = true;
     });
 
     auto* nation_btn = new UI::Button(0, 0, 128, 24, this);
-    nation_btn->below_of(*econ_btn);
+    nation_btn->below_of(*build_btn);
     nation_btn->text("Nation");
     nation_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
@@ -165,16 +206,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         new NationView(o.gs, o.province->owner);
     });
 
-    // TODO: Make this a tab
-    auto* build_btn = new UI::Button(0, 0, 128, 24, this);
-    build_btn->below_of(*nation_btn);
-    build_btn->text("Buildings");
-    build_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<ProvinceView&>(*w.parent);
-        new BuildingBuildView(o.gs, 0, 0, false, o.gs.curr_nation, o.province, nullptr);
-    });
-
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->below_of(*build_btn);
+    close_btn->below_of(*nation_btn);
     close_btn->text("Close");
 }

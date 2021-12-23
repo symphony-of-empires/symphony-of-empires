@@ -4,6 +4,8 @@
 #include "world.hpp"
 #include "client/map.hpp"
 #include "client/camera.hpp"
+#include <filesystem>
+#include "io_impl.hpp"
 
 using namespace Interface;
 
@@ -47,6 +49,40 @@ LobbySelectView::LobbySelectView(GameState& _gs) : gs{_gs}, curr_selected_nation
         LobbySelectView* o = (LobbySelectView*)data;
         o->change_nation(o->curr_selected_nation - 1);
     });
+
+    const std::string path = std::filesystem::current_path().string();
+    auto* game_group = new UI::Group(0, 0, 128, gs.height);
+    for(const auto& entry : std::filesystem::directory_iterator(path)) {
+        if(!entry.is_directory() && entry.path().extension() == ".scv") {
+            LoadGameBtnData data{gs};
+            data.file = entry.path().lexically_relative(path).string();
+            ldgame_data.push_back(data);
+        }
+    }
+
+    size_t i = 0;
+    for(const auto& ldgame : ldgame_data) {
+        auto* ldgame_btn = new UI::Button(0, 24 * i, 128, 24, game_group);
+        ldgame_btn->text(ldgame_data[i].file);
+        ldgame_btn->user_data = &ldgame_data[i];
+        ldgame_btn->on_click = ([](UI::Widget& w, void* data) {
+            auto* o = static_cast<LoadGameBtnData*>(data);
+            std::scoped_lock lock1(o->gs.world->world_mutex);
+            std::scoped_lock lock2(o->gs.render_lock);
+
+            if(o->gs.world != nullptr) {
+                delete o->gs.world;
+            }
+
+            Archive ar = Archive();
+            o->gs.world = new World();
+            ::deserialize(ar, o->gs.world);
+            o->gs.world->load_mod();
+
+            o->gs.map->update_mapmode();
+        });
+        ++i;
+    }
 }
 
 // Change nation in start screen

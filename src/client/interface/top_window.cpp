@@ -6,6 +6,7 @@
 #include "unified_render/texture.hpp"
 #include "client/interface/policies.hpp"
 #include "client/interface/army.hpp"
+#include "io_impl.hpp"
 
 using namespace Interface;
 
@@ -41,6 +42,27 @@ TopWindow::TopWindow(GameState& _gs)
     });
     military_ibtn->tooltip = new UI::Tooltip(military_ibtn, 512, 24);
     military_ibtn->tooltip->text("Military");
+
+    auto* exit_ibtn = new UI::Image(width / 2, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/icons/exit.png")), this);
+    exit_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
+        auto& o = static_cast<TopWindow&>(*w.parent);
+        o.gs.run = false;
+    });
+    exit_ibtn->tooltip = new UI::Tooltip(exit_ibtn, 512, 24);
+    exit_ibtn->tooltip->text("Exits");
+
+    auto* save_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/icons/save.png")), this);
+    save_ibtn->left_side_of(*exit_ibtn);
+    save_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
+        auto& o = static_cast<TopWindow&>(*w.parent);
+
+        Archive ar = Archive();
+        ::serialize(ar, o.gs.world);
+        ar.to_file(o.gs.curr_nation->ref_name + ".scv");
+        o.gs.ui_ctx->prompt("Save", "Saved sucessfully!");
+    });
+    save_ibtn->tooltip = new UI::Tooltip(save_ibtn, 512, 24);
+    save_ibtn->tooltip->text("Saves the current game; TODO: SAVE LUA STATE");
 
     auto* speed0_btn = new UI::Button(0, 0, 48, 24, this);
     speed0_btn->below_of(*military_ibtn);

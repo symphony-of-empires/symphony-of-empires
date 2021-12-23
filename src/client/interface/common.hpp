@@ -1,6 +1,7 @@
 #pragma once
 
 #include "client/ui.hpp"
+
 class World;
 class Nation;
 class GameState;
@@ -9,6 +10,7 @@ class UnitType;
 class Company;
 class Province;
 class Product;
+class Building;
 class BuildingType;
 
 namespace Interface {
@@ -50,6 +52,13 @@ namespace Interface {
     public:
         Nation* nation;
         NationButton(GameState& gs, int x, int y, Nation* nation, UI::Widget* parent);
+    };
+
+    class BuildingInfo : public UI::Button {
+        GameState& gs;
+    public:
+        Building* building;
+        BuildingInfo(GameState& gs, int x, int y, Building* building, UI::Widget* parent);
     };
 
     class BuildingTypeButton : public UI::Button {
