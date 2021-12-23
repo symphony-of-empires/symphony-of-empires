@@ -199,8 +199,10 @@ void ai_update_relations(Nation* nation, Nation* other) {
         nation->decrease_relation(*other);
     }
     
-    if(!(std::rand() % 50)) {
-        nation->declare_war(*other);
+    if(!(std::rand() % 5)) {
+        if(!nation->relations[world.get_id(other)].has_war) {
+            nation->declare_war(*other);
+        }
     }
 }
 
@@ -379,13 +381,14 @@ void ai_do_tick(Nation* nation, World* world) {
                 Province* province = building->get_province();
                 if(province == nullptr) continue;
 
-                if(std::rand() % 3) continue;
+                if(std::rand() % 10) continue;
 
                 auto* unit_type = g_world->unit_types[std::rand() % g_world->unit_types.size()];
-                if(!unit_type->is_ground) continue;
+                //if(!unit_type->is_ground) continue;
+                unit_type = g_world->unit_types[0];
 
                 building->working_unit_type = unit_type;
-                building->req_goods_for_unit = building->working_unit_type->req_goods;
+                building->req_goods_for_unit = unit_type->req_goods;
                 print_info("%s: Building unit [%s] in [%s]", nation->ref_name.c_str(), building->working_unit_type->ref_name.c_str(), province->ref_name.c_str());
             }
         }
@@ -476,7 +479,8 @@ void ai_do_tick(Nation* nation, World* world) {
             // See which province has the most potential_risk so we cover it from potential threats
             Province* highest_risk = unit->province;
             for(const auto& province : unit->province->neighbours) {
-                if(unit->type->is_naval != province->terrain_type->is_water_body) continue;
+                //if(unit->type->is_naval != province->terrain_type->is_water_body) continue;
+                if(province->terrain_type->is_water_body) continue;
 
                 if(potential_risk[world->get_id(highest_risk)] < potential_risk[world->get_id(province)]) {
                     if(province->owner != nullptr) {
