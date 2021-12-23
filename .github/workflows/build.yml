@@ -22,4 +22,5 @@ jobs:
        make -j
     - name: "Run"
       run: |
-       ./SymphonyOfEmpires
+        echo "Yay!"
+#       ./SymphonyOfEmpires
