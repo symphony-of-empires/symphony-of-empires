@@ -265,6 +265,9 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
         auto iter = std::find_if(displayed_treaties.begin(), displayed_treaties.end(), [&treaty](const auto& e) { return e == treaty; });
         if(iter != displayed_treaties.end()) continue;
 
+        // Do not mess with treaties we don't partake in, hehe
+        if(!treaty->does_participate(gs.curr_nation)) continue;
+
         // Must participate in treaty
         new Interface::TreatyChooseWindow(gs, treaty);
         displayed_treaties.push_back(treaty);
