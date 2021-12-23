@@ -204,6 +204,75 @@ void ai_update_relations(Nation* nation, Nation* other) {
     }
 }
 
+void ai_build_commercial(Nation* nation, World* world) {
+    Good* target_good;
+    target_good = ai_get_potential_good(nation, world);
+    if(target_good == nullptr) return;
+
+    // Find an industry type which outputs this good
+    BuildingType* type = nullptr;
+    for(const auto& building_type : world->building_types) {
+        if(!building_type->is_factory) continue;
+
+        /*for(const auto& input : building_type->inputs) {
+            if(input == target_good) {
+                type = (BuildingType*)building_type;
+                break;
+            }
+        }*/
+
+        for(const auto& output : building_type->outputs) {
+            if(output == target_good) {
+                type = (BuildingType*)building_type;
+                break;
+            }
+        }
+    }
+
+    print_info("[%s]: Good [%s] seems to be on a high-trend - building industry [%s] which makes that good", nation->ref_name.c_str(), target_good->ref_name.c_str(), type->ref_name.c_str());
+
+    // Otherwise -- do not build anything since the highest valued good cannot be produced
+    if(type == nullptr) return;
+
+    auto it = std::begin(nation->owned_provinces);
+    std::advance(it, std::rand() % nation->owned_provinces.size());
+    
+    Province* province = *it;
+    if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
+        print_error("Cant build buidling, province doesn't have any tiles");
+    } else {
+        // Now build the building
+        Building* building = new Building();
+        building->province = province;
+        building->corporate_owner = world->companies.at(0);
+        building->type = world->building_types[0];
+        building->owner = nation;
+        building->working_unit_type = nullptr;
+        building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
+        building->req_goods = std::vector<std::pair<Good*, size_t>>();
+        building->budget = 100.f;
+        
+        if(building->type->is_factory) {
+            building->create_factory();
+            building->corporate_owner->operating_provinces.insert(building->get_province());
+            for(const auto& product : building->output_products) {
+                Packet packet = Packet();
+                Archive ar = Archive();
+                ActionType action = ActionType::PRODUCT_ADD;
+                ::serialize(ar, &action);
+                ::serialize(ar, product);
+                packet.data(ar.get_buffer(), ar.size());
+                g_server->broadcast(packet);
+            }
+        }
+        world->insert(building);
+
+        // Broadcast the addition of the building to the clients
+        g_server->broadcast(Action::BuildingAdd::form_packet(building));
+        print_info("Building of [%s](%i), from [%s] built on [%s]", building->type->ref_name.c_str(), (int)world->get_id(building->type), nation->ref_name.c_str(), building->get_province()->ref_name.c_str());
+    }
+}
+
 void ai_do_tick(Nation* nation, World* world) {
     if(!nation->exists() || !nation->owned_provinces.size()) return;
 
@@ -267,72 +336,7 @@ void ai_do_tick(Nation* nation, World* world) {
 
         // Build a commercially related building
         if(!(std::rand() % 2) && nation->ai_do_build_production) {
-            Good* target_good;
-            target_good = ai_get_potential_good(nation, world);
-            if(target_good == nullptr) return;
-
-            // Find an industry type which outputs this good
-            BuildingType* type = nullptr;
-            for(const auto& building_type : world->building_types) {
-                if(!building_type->is_factory) continue;
-
-                /*for(const auto& input : building_type->inputs) {
-                    if(input == target_good) {
-                        type = (BuildingType*)building_type;
-                        break;
-                    }
-                }*/
-
-                for(const auto& output : building_type->outputs) {
-                    if(output == target_good) {
-                        type = (BuildingType*)building_type;
-                        break;
-                    }
-                }
-            }
-
-            print_info("[%s]: Good [%s] seems to be on a high-trend - building industry [%s] which makes that good", nation->ref_name.c_str(), target_good->ref_name.c_str(), type->ref_name.c_str());
-
-            // Otherwise -- do not build anything since the highest valued good cannot be produced
-            if(type == nullptr) return;
-
-            auto it = std::begin(nation->owned_provinces);
-            std::advance(it, std::rand() % nation->owned_provinces.size());
-			
-            Province* province = *it;
-            if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
-                print_error("Cant build buidling, province doesn't have any tiles");
-            } else {
-                // Now build the building
-                Building* building = new Building();
-                building->province = province;
-                building->corporate_owner = world->companies.at(0);
-                building->type = world->building_types[0];
-                building->owner = nation;
-                building->working_unit_type = nullptr;
-                building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
-                building->req_goods = std::vector<std::pair<Good*, size_t>>();
-                building->budget = 100.f;
-                
-                if(building->type->is_factory) {
-                    building->create_factory();
-                    building->corporate_owner->operating_provinces.insert(building->get_province());
-                    for(const auto& product : building->output_products) {
-                        Packet packet = Packet();
-                        Archive ar = Archive();
-                        ActionType action = ActionType::PRODUCT_ADD;
-                        ::serialize(ar, &action);
-                        ::serialize(ar, product);
-                        packet.data(ar.get_buffer(), ar.size());
-                        g_server->broadcast(packet);
-                    }
-                }
-                world->insert(building);
-
-                // Broadcast the addition of the building to the clients
-                g_server->broadcast(Action::BuildingAdd::form_packet(building));
-                print_info("Building of [%s](%i), from [%s] built on [%s]", building->type->ref_name.c_str(), (int)world->get_id(building->type), nation->ref_name.c_str(), building->get_province()->ref_name.c_str());
-            }
+            ai_build_commercial(nation, world);
         }
 
         if(nation->ai_do_unit_production) {
@@ -432,7 +436,7 @@ void ai_do_tick(Nation* nation, World* world) {
 
     // TODO: make a better algorithm
     if(nation->ai_do_cmd_troops) {
-        std::vector<int> defense_strength(world->provinces.size(), 0);
+        /*std::vector<int> defense_strength(world->provinces.size(), 0);
         std::vector<int> attack_strength(world->provinces.size(), 0);
         std::vector<int> potential_risk(world->provinces.size(), 0);
 
@@ -455,13 +459,14 @@ void ai_do_tick(Nation* nation, World* world) {
                     potential_risk[world->get_id(neighbour)] += 100.f;
                 }
             }
-        }
+        }*/
 
         for(auto& unit : g_world->units) {
             if(unit->province->neighbours.empty()) continue;
+            //if(unit->target != nullptr) continue;
+            if(std::rand() % 100) continue;
 
-            if(unit->target != nullptr) continue;
-
+            /*
             // See which province has the most potential_risk so we cover it from potential threats
             Province* highest_risk = unit->province;
             for(const auto& neighbour : unit->province->neighbours) {
@@ -482,29 +487,26 @@ void ai_do_tick(Nation* nation, World* world) {
                     break;
                 }
             }
+            */
 
             // Randomly go around in the inners of our country to hopefully find a border province
             //if(in_inner && !province->neighbours.empty()) {
-            if(province->neighbours.size()) {
+            if(!unit->province->neighbours.empty()) {
                 auto it = std::begin(unit->province->neighbours);
                 std::advance(it, std::rand() % unit->province->neighbours.size());
-                province = *it;
-            }
+                if(it == unit->province->neighbours.end()) continue;
 
-            if(province->owner != nullptr) {
-                // Can only go to a province if we have military accesss, they are our ally or if we are at war
-                // also if it's ours we can move thru it
-                NationRelation& relation = province->owner->relations[world->get_id(unit->owner)];
-                if(province->owner == unit->owner || relation.has_alliance || relation.has_military_access) {
+                auto* province = *it;
+                if(province->owner != nullptr) {
+                    // Can only go to a province if we have military accesss, they are our ally or if we are at war
+                    // also if it's ours we can move thru it
+                    NationRelation& relation = province->owner->relations[world->get_id(unit->owner)];
+                    if(province->owner == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war) {
+                        unit->set_target(province);
+                    }
+                } else {
                     unit->set_target(province);
                 }
-
-                // We also can just go to provinces
-                if(relation.has_war) {
-                    unit->set_target(province);
-                }
-            } else {
-                unit->set_target(province);
             }
         }
     }
