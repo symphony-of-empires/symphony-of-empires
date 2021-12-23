@@ -6,19 +6,17 @@ in vec2 v_texcoord;
 
 uniform vec2 map_size;
 uniform sampler2D tile_map;
+uniform sampler2D terrain_map;
 
-bool isLake(vec2 id) {
-	return round(id * 255.) == vec2(254, 255);
+float is_not_lake(vec2 coords) {
+	vec4 terrain = texture(terrain_map, coords);
+	return terrain.xy == vec2(1., 0.) ? 0. : 1.;
 }
 
 vec2 sum(vec4 v1, vec4 v2) {
 	vec4 v = v1 - v2;
 	float provinceDiff = min((abs(v.x) + abs(v.y)) * 255., 1.0);
-	if (isLake(v1.xy) || isLake(v2.xy))
-		provinceDiff = 0;
 	float countryDiff = min((abs(v.z) + abs(v.w)) * 255., 1.0);
-	if (isLake(v1.xy) || isLake(v2.xy))
-		countryDiff = 0;
 	return vec2(provinceDiff, countryDiff);
 }
 
@@ -28,14 +26,18 @@ vec2 getBorder(vec2 texcoord) {
 
 	// vec2 mPos = texcoord - mod(texcoord + 0.5 * pix, pix);
 	vec2 mPos = texcoord - mod(texcoord, pix);
-	vec4 provienceLU = texture(tile_map, mPos + pix * vec2(-0.25, -0.25)).xyzw;
-	vec4 provienceLD = texture(tile_map, mPos + pix * vec2(-0.25, 0.25)).xyzw;
-	vec4 provienceRU = texture(tile_map, mPos + pix * vec2(0.25, -0.25)).xyzw;
-	vec4 provienceRD = texture(tile_map, mPos + pix * vec2(0.25, 0.25)).xyzw;
-	vec2 x0 = sum(provienceLU, provienceRU);
-	vec2 x1 = sum(provienceLD, provienceRD);
-	vec2 y0 = sum(provienceLU, provienceLD);
-	vec2 y1 = sum(provienceRU, provienceRD);
+	vec2 coordLU = mPos + pix * vec2(-0.25, -0.25);
+	vec2 coordLD = mPos + pix * vec2(-0.25, +0.25);
+	vec2 coordRU = mPos + pix * vec2(+0.25, -0.25);
+	vec2 coordRD = mPos + pix * vec2(+0.25, +0.25);
+	vec4 provienceLU = texture(tile_map, coordLU).xyzw;
+	vec4 provienceLD = texture(tile_map, coordLD).xyzw;
+	vec4 provienceRU = texture(tile_map, coordRU).xyzw;
+	vec4 provienceRD = texture(tile_map, coordRD).xyzw;
+	vec2 x0 = sum(provienceLU, provienceRU) * is_not_lake(coordLU) * is_not_lake(coordRU);
+	vec2 x1 = sum(provienceLD, provienceRD) * is_not_lake(coordLD) * is_not_lake(coordRD);
+	vec2 y0 = sum(provienceLU, provienceLD) * is_not_lake(coordLU) * is_not_lake(coordLD);
+	vec2 y1 = sum(provienceRU, provienceRD) * is_not_lake(coordRU) * is_not_lake(coordRD);
 	vec2 xBorder = max(x0, x1);
 	vec2 yBorder = max(y0, y1);
 	return max(xBorder, yBorder);
