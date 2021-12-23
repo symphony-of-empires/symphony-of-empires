@@ -131,12 +131,21 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
     this->text(province->name);
 
     // Initial product info
-    unsigned int i = 0;
+    unsigned int dy = 0;
+
+    auto* build_btn = new UI::Button(0, 0, 128, 24, this);
+    build_btn->text("Build new");
+    build_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<ProvinceView&>(*w.parent->parent);
+        new BuildingBuildView(o.gs, 0, 0, false, o.gs.curr_nation, o.province, nullptr);
+    });
+    dy += build_btn->height;
+
     auto list = province->get_buildings();
     for(const auto& building : list) {
-        auto* info = new BuildingInfo(this->gs, 0, i * 24, building, this);
+        auto* info = new BuildingInfo(this->gs, 0, dy, building, this);
         this->building_infos.push_back(info);
-        i++;
+        dy += info->height;
     }
 }
 
@@ -182,7 +191,6 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.pop_tab->is_render = false;
         o.econ_tab->is_render = false;
         o.build_tab->is_render = true;
-        //new BuildingBuildView(o.gs, 0, 0, false, o.gs.curr_nation, o.province, nullptr);
     });
 
     auto* nation_btn = new UI::Button(0, 0, 128, 24, this);

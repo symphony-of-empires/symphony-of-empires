@@ -55,6 +55,7 @@ namespace Interface {
         ProvinceBuildingTab* build_tab;
     public:
         ProvinceView(GameState& gs, Province* province);
+        friend class ProvinceBuildingTab;
     };
 
     // Brief
