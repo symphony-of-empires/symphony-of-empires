@@ -98,7 +98,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Building* _building, UI
 {
     text(building->type->name);
     on_each_tick = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<BuildingInfo&>(*w.parent);
+        auto& o = static_cast<BuildingInfo&>(w);
         w.text(o.building->type->name);
     });
 }

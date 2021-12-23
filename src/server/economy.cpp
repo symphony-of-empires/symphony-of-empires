@@ -120,8 +120,7 @@ void Economy::do_tick(World& world) {
             size_t i = 0;
             for(const auto& output : building->output_products) {
                 // The minimum amount of workers needed is given by the employees_needed_per_output vector :)
-                //const size_t employed = std::max<size_t>(std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), building->employees_needed_per_output[i]);
-                const size_t employed = 500;
+                const size_t employed = std::max<size_t>(std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), building->employees_needed_per_output[i]);
                 if(output->good->is_edible) {
                     needed_farmers += employed;
                 } else {
@@ -149,11 +148,11 @@ void Economy::do_tick(World& world) {
 
             Workers& workers = province_workers.farmers[i];
 
-            size_t employed = std::min(needed_farmers - available_farmers, workers.amount);
+            const size_t employed = std::min(needed_farmers - available_farmers, workers.amount);
             available_farmers += employed;
 
             // Give pay to the POP
-            float payment = employed * province->controller->current_policy.min_wage;
+            const float payment = employed * province->controller->current_policy.min_wage;
             workers.pop.budget += payment * building->get_owner()->get_salary_paid_mod();
             building->budget -= payment;
             workers.amount -= employed;
@@ -170,11 +169,11 @@ void Economy::do_tick(World& world) {
             if(available_laborers >= needed_laborers) break;
             Workers& workers = province_workers.laborers[i];
 
-            size_t employed = std::min(needed_laborers - available_laborers, workers.amount);
+            const size_t employed = std::min(needed_laborers - available_laborers, workers.amount);
             available_laborers += employed;
 
             // Give pay to the POP
-            float payment = employed * province->controller->current_policy.min_wage;
+            const float payment = employed * province->controller->current_policy.min_wage;
             workers.pop.budget += payment * building->get_owner()->get_salary_paid_mod();
             building->budget -= payment;
             workers.amount -= employed;
@@ -191,11 +190,11 @@ void Economy::do_tick(World& world) {
             if(available_entrepreneurs >= needed_entrepreneurs) break;
             Workers& workers = province_workers.entrepreneurs[i];
 
-            size_t employed = std::min(needed_entrepreneurs - available_entrepreneurs, workers.amount);
+            const size_t employed = std::min(needed_entrepreneurs - available_entrepreneurs, workers.amount);
             available_entrepreneurs += employed;
 
             // Give pay to the POP
-            float payment = employed * province->controller->current_policy.min_wage;
+            const float payment = employed * province->controller->current_policy.min_wage;
             workers.pop.budget += payment * building->get_owner()->get_salary_paid_mod();
             building->budget -= payment;
             workers.amount -= employed;
@@ -226,7 +225,7 @@ void Economy::do_tick(World& world) {
 
             // TODO: Make a proper supply chain system with the whole working economy thing :)
             // NOTE: Uncomment when it's ready :)
-            can_build_unit = true;
+            //can_build_unit = true;
             if(can_build_unit) {
                 // Spawn a unit
                 Unit* unit = new Unit();
@@ -252,6 +251,8 @@ void Economy::do_tick(World& world) {
                 ::serialize(ar, unit); // UnitObj
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
+
+                print_info("[%s]: Building unit of [%s]", building->get_province()->ref_name.c_str(), unit->type->ref_name.c_str());
             }
         }
 
@@ -277,6 +278,9 @@ void Economy::do_tick(World& world) {
 
             building->workers = available_farmers + available_laborers + available_entrepreneurs;
             print_info("[%s]: %zu workers on building of type [%s]", building->get_province()->ref_name.c_str(), building->workers, building->type->ref_name.c_str());
+            print_info("- %zu farmers (%zu needed)", available_farmers, needed_farmers);
+            print_info("- %zu laborers (%zu needed)", available_laborers, needed_laborers);
+            print_info("- %zu entrepreneurs (%zu needed)", available_entrepreneurs, needed_entrepreneurs);
             if(!building->workers) {
                 building->days_unoperational++;
 
@@ -509,8 +513,7 @@ void Economy::do_tick(World& world) {
                     // Increment the production cost of this building which is used
                     // so we sell our product at a profit instead  of at a loss
                     order.building->production_cost += deliver.product->price;
-                }
-                else if(order.type == OrderType::BUILDING) {
+                } else if(order.type == OrderType::BUILDING) {
                     // The building will take the production materials
                     // and use them for building the unit
                     order.building->get_owner()->budget -= total_order_cost;
@@ -518,8 +521,7 @@ void Economy::do_tick(World& world) {
                         if(p.first != deliver.good) continue;
                         p.second -= std::min(deliver.quantity, p.second);
                     }
-                }
-                else if(order.type == OrderType::UNIT) {
+                } else if(order.type == OrderType::UNIT) {
                     // TODO: We should deduct and set willing payment from military spendings
                     order.building->get_owner()->budget -= total_order_cost;
                     for(auto& p : order.building->req_goods) {
@@ -653,8 +655,7 @@ void Economy::do_tick(World& world) {
                 if(product->good->is_edible) {
                     life_alloc_budget -= bought * product->price;
                     pop.life_needs_met += (float)pop.size / (float)bought;
-                }
-                else {
+                } else {
                     everyday_alloc_budget -= bought * product->price;
                     pop.everyday_needs_met += (float)pop.size / (float)bought;
                 }

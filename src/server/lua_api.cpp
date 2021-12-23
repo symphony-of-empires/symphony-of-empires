@@ -969,16 +969,16 @@ int LuaAPI::add_pop_type(lua_State* L) {
     bool is_slave = lua_toboolean(L, 5);
     bool is_farmer = lua_toboolean(L, 6);
     bool is_laborer = lua_toboolean(L, 7);
-    if (is_entrepreneur) {
-        pop->group == PopGroup::Entrepreneur;
-    } else if (is_slave) {
-        pop->group == PopGroup::Slave;
-    } else if (is_farmer) {
-        pop->group == PopGroup::Farmer;
-    } else if (is_laborer) {
-        pop->group == PopGroup::Laborer;
+    if(is_entrepreneur) {
+        pop->group = PopGroup::Entrepreneur;
+    } else if(is_slave) {
+        pop->group = PopGroup::Slave;
+    } else if(is_farmer) {
+        pop->group = PopGroup::Farmer;
+    } else if(is_laborer) {
+        pop->group = PopGroup::Laborer;
     } else {
-        pop->group == PopGroup::Other;
+        pop->group = PopGroup::Other;
     }
 
     // Add onto vector
