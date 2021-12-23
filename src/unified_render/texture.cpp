@@ -56,14 +56,16 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
     if(colors == 4) { // alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGBA;
-        } else {
+        }
+        else {
             texture_format = GL_BGRA;
         }
     }
     else { // no alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGB;
-        } else {
+        }
+        else {
             texture_format = GL_BGR;
         }
     }
@@ -75,7 +77,8 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
 
     if(glewIsSupported("GL_VERSION_2_1")) {
         glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
+    }
+    else {
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     }
 
@@ -103,10 +106,10 @@ void UnifiedRender::Texture::delete_opengl() {
 /** Creates a new texture array */
 UnifiedRender::TextureArray::TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y)
     : BinaryImage(path),
-    tiles_x{_tiles_x},
-    tiles_y{_tiles_y}
+    tiles_x{ _tiles_x },
+    tiles_y{ _tiles_y }
 {
-    
+
 }
 
 /** Uploads the TextureArray to the driver */
@@ -170,12 +173,18 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load_texture(const 
     UnifiedRender::Texture* tex;
     try {
         tex = new UnifiedRender::Texture(path);
-    } catch(BinaryImageException&) {
+    }
+    catch(BinaryImageException&) {
         tex = new UnifiedRender::Texture();
         tex->create_dummy();
     }
     tex->to_opengl(options);
-
+    if(options.min_filter == GL_NEAREST_MIPMAP_NEAREST ||
+        options.min_filter == GL_NEAREST_MIPMAP_LINEAR ||
+        options.min_filter == GL_LINEAR_MIPMAP_NEAREST ||
+        options.min_filter == GL_LINEAR_MIPMAP_LINEAR) {
+        tex->gen_mipmaps();
+    }
     this->textures.insert(std::make_pair(tex, path));
     return *((const Texture*)tex);
 }

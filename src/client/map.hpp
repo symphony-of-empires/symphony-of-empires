@@ -35,10 +35,12 @@ enum class MapView {
 class World;
 class Camera;
 class Nation;
+class MapRender;
 class GameState;
 union SDL_Event;
 struct Input;
 
+static const float GLOBE_RADIUS = 100.f;
 struct ProvinceColor {
     Province::Id id;
     UI::Color color;
@@ -50,7 +52,9 @@ std::vector<ProvinceColor> political_map_mode(const World& world);
 class Map {
 public:
     Map(const World& world, int screen_width, int screen_height);
-    ~Map() {};
+    ~Map() {
+        // delete map_render;
+    };
 
     std::vector<const UnifiedRender::Model*> building_type_models, unit_type_models;
     std::vector<const UnifiedRender::Texture*> building_type_icons;
@@ -62,35 +66,13 @@ public:
 
     const World& world;
     Camera* camera;
-    MapView view_mode = MapView::PLANE_VIEW;
 
 #if !defined TILE_GRANULARITY
     UnifiedRender::Texture* id_map;
     UnifiedRender::Texture* province_color_tex;
 #endif
 
-    // Map textures
-    UnifiedRender::Texture* tile_map;
-    UnifiedRender::Texture* tile_sheet;
-    UnifiedRender::Texture* border_tex;
-    UnifiedRender::Texture* border_sdf;
-    const UnifiedRender::Texture* water_tex;
-    const UnifiedRender::Texture* noise_tex;
-    const UnifiedRender::Texture* topo_map;
-    const UnifiedRender::Texture* river_tex;
-    const UnifiedRender::Texture* terrain_map;
-    const UnifiedRender::Texture* landscape_map;
-    UnifiedRender::TextureArray* terrain_sheet;
-    // const UnifiedRender::Texture* terrain_sheet;
-
-    UnifiedRender::OpenGl::Square* map_quad;
-    UnifiedRender::OpenGl::Sphere* map_sphere;
-    UnifiedRender::OpenGl::Quad2D* map_2d_quad;
-    UnifiedRender::OpenGl::Program* map_shader, * obj_shader, * border_sdf_shader, * border_gen_shader, * model_shader;
-    const UnifiedRender::Texture* overlay_tex;
-    GLuint coastline_gl_list;
-    GLuint frame_buffer;
-    UnifiedRender::OpenGl::Framebuffer* border_fbuffer;
+    UnifiedRender::OpenGl::Program* obj_shader, * model_shader;
 
     void update(const SDL_Event& event, Input& input);
     void update_mapmode();
@@ -101,7 +83,8 @@ public:
     void set_view(MapView view);
     void reload_shaders();
 private:
-    UnifiedRender::Texture* gen_border_sdf();
+    MapView view_mode = MapView::PLANE_VIEW;
+    MapRender* map_render;
     // Called to get mapmode
     mapmode_generator mapmode_func;
 };
