@@ -74,13 +74,14 @@ public:
     std::atomic<bool> run;
     std::atomic<bool> paused;
     std::atomic<int> ms_delay_speed;
+    std::atomic<bool> quit;
     bool host_mode;
 
     // The ui will mostly need to read the world state
     World* world = nullptr;
     // Nation::Id curr_nation
     Nation* curr_nation;
-    Map* map;
+    Map* map = nullptr;
     Input input;
     MapMode current_mode = MapMode::NO_MAP;
 

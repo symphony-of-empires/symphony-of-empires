@@ -43,7 +43,7 @@ TopWindow::TopWindow(GameState& _gs)
     military_ibtn->tooltip = new UI::Tooltip(military_ibtn, 512, 24);
     military_ibtn->tooltip->text("Military");
 
-    auto* exit_ibtn = new UI::Image(width / 2, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* exit_ibtn = new UI::Image(width / 2, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/icons/exit.png")), this);
     exit_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
         o.gs.run = false;
@@ -51,7 +51,7 @@ TopWindow::TopWindow(GameState& _gs)
     exit_ibtn->tooltip = new UI::Tooltip(exit_ibtn, 512, 24);
     exit_ibtn->tooltip->text("Exits");
 
-    auto* save_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* save_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/icons/save.png")), this);
     save_ibtn->left_side_of(*exit_ibtn);
     save_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
