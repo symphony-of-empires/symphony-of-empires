@@ -624,9 +624,6 @@ int LuaAPI::add_province_industry(lua_State* L) {
     building->corporate_owner = g_world->companies.at(lua_tonumber(L, 2));
     building->type = g_world->building_types.at(lua_tonumber(L, 3));
     building->owner = g_world->nations.at(lua_tonumber(L, 4));
-    building->working_unit_type = nullptr;
-    building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
-    building->req_goods = std::vector<std::pair<Good*, size_t>>();
     building->budget = 100.f;
     if(building->type->is_factory == true) {
         building->create_factory();

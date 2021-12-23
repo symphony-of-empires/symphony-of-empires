@@ -687,9 +687,9 @@ void Map::draw(const GameState& gs, const int width, const int height) {
                 glBegin(GL_LINE_STRIP);
                 glColor3f(1.f, 1.f, 1.f);
                 glVertex2f(pos.first, pos.second);
-                glVertex2f(pos.first + 1.f, pos.second);
-                glVertex2f(pos.first + 1.f, pos.second + 1.f);
-                glVertex2f(pos.first, pos.second + 1.f);
+                glVertex2f(pos.first + 2.f, pos.second);
+                glVertex2f(pos.first + 2.f, pos.second + 2.f);
+                glVertex2f(pos.first, pos.second + 2.f);
                 glEnd();
                 glLineWidth(1.f);
                 glPopMatrix();
