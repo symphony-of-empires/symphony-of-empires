@@ -61,6 +61,8 @@ enum class ActionType {
     DIPLO_EMBARGO,
     DIPLO_DECLARE_WAR,
     DIPLO_ALLOW_MIL_ACCESS,
+
+    FOCUS_TECH,
     
     // Change AI status
     AI_CONTROL,
@@ -73,6 +75,7 @@ class Building;
 class BuildingType;
 class Unit;
 class UnitType;
+class Technology;
 
 namespace Action {
     class AiControl {
@@ -124,4 +127,9 @@ namespace Action {
 	public:
 		static Packet form_packet(Building* building);
 	};
+
+    class FocusTech {
+    public:
+		static Packet form_packet(Technology* technology);
+    };
 };

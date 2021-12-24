@@ -10,6 +10,7 @@ class UnitType;
 class Company;
 class Province;
 class Product;
+class Technology;
 class Building;
 class BuildingType;
 
@@ -67,6 +68,13 @@ namespace Interface {
     public:
         BuildingType* building_type;
         BuildingTypeButton(GameState& gs, int x, int y, BuildingType* building_type, UI::Widget* parent);
+    };
+
+    class TechnologyInfo : public UI::Group {
+        GameState& gs;
+        Technology* technology;
+    public:
+        TechnologyInfo(GameState& gs, int x, int y, Technology* technology, UI::Widget* parent);
     };
 
     // More extended information about these elements (information display, for example)

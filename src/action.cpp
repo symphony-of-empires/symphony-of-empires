@@ -128,3 +128,13 @@ Packet BuildingAdd::form_packet(Building* building) {
     packet.data(ar.get_buffer(), ar.size());
 	return packet;
 }
+
+Packet FocusTech::form_packet(Technology* technology) {
+    Packet packet = Packet();
+    Archive ar = Archive();
+    ActionType action = ActionType::FOCUS_TECH;
+    ::serialize(ar, &action);
+    ::serialize(ar, &technology);
+    packet.data(ar.get_buffer(), ar.size());
+	return packet;
+}
