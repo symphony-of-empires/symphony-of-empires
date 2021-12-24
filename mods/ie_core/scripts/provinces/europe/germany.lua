@@ -217,6 +217,7 @@ for k, v in pairs(prussia_provinces_list) do
 
     province:add_industry(iron_mine, prussia, andes_transport)
     province:add_industry(wheat_farm, prussia, andes_transport)
+    province:add_industry(bakery, prussia, andes_transport)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
