@@ -15,6 +15,7 @@
 #include <fstream>
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
+#include <filesystem>
 
 /* Visual Studio is not posix so we have to define PATH_MAX ourselves */
 #ifndef MAX_PATH
@@ -147,14 +148,29 @@ namespace Path {
         return p_list;
     }
 
-    std::string get_dir(const std::string& str) {
-        if(str[0] == '/' || str[0] == 'C')
-            return str;
-
-        std::string rsult = get_full() + mod_paths[0] + str;
+    std::string clean_path(std::string path) {
 #ifdef windows
-        std::replace(rsult.begin(), rsult.end(), '/', '\\');
+        std::replace(path.begin(), path.end(), '/', '\\');
 #endif
-        return rsult;
+        return path;
+    }
+
+    std::vector<std::string> get_all_recursive(const std::string& str) {
+        std::vector<std::string> list;
+        if(str[0] == '/' || str[0] == 'C')
+            return list;
+
+        for(const auto& path : mod_paths) {
+            std::string end_path = get_full() + path + str;
+            if(std::filesystem::is_directory(end_path)){
+                auto entries = std::filesystem::recursive_directory_iterator(end_path);
+                for(const auto& entry : entries) {
+                    if(entry.is_regular_file()){
+                        list.push_back(clean_path(entry.path()));
+                    }
+                }
+            }
+        }
+        return list;
     }
 };

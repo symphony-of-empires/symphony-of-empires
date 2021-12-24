@@ -154,7 +154,8 @@ void handle_event(Input& input, GameState& gs) {
                     gs.paused = !gs.paused;
                     if(gs.paused) {
                         ui_ctx->prompt("Control", "Unpaused");
-                    } else {
+                    }
+                    else {
                         ui_ctx->prompt("Control", "Paused");
                     }
                 }
@@ -310,9 +311,9 @@ void main_loop(GameState& gs) {
     /*auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &g_texture_manager->load_texture(Path::get("ui/globe.png")));
     mm_bg->is_fullscreen = true;
     Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
-	auto* logo = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")));
-	logo->above_of(*main_menu);
-	logo->left_side_of(*main_menu);*/
+    auto* logo = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")));
+    logo->above_of(*main_menu);
+    logo->left_side_of(*main_menu);*/
 
     std::vector<Event*> displayed_events;
     std::vector<Treaty*> displayed_treaties;
@@ -381,16 +382,13 @@ void main_loop(GameState& gs) {
         }
 
         if(gs.music_queue.empty()) {
-            const std::string& path = Path::get_dir("music/ambience");
-            for(const auto& entry : std::filesystem::directory_iterator(path)) {
-                if(std::rand() % 50) continue;
-
-                if(!entry.is_directory()) {
-                    std::scoped_lock lock(gs.sound_lock);
-                    gs.music_fade_value = 100.f;
-                    gs.music_queue.push_back(new UnifiedRender::Sound(entry.path().string()));
-                    break;
-                }
+            // Search through all the music in 'music/ambience' and picks a random
+            auto entries = Path::get_all_recursive("music/ambience");
+            if(entries.size() != 0) {
+                int music_index = std::rand() % entries.size();
+                std::scoped_lock lock(gs.sound_lock);
+                gs.music_fade_value = 100.f;
+                gs.music_queue.push_back(new UnifiedRender::Sound(entries[music_index]));
             }
         }
     }
