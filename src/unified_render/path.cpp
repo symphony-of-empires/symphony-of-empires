@@ -166,7 +166,7 @@ namespace Path {
                 auto entries = std::filesystem::recursive_directory_iterator(end_path);
                 for(const auto& entry : entries) {
                     if(entry.is_regular_file()){
-                        list.push_back(clean_path(entry.path()));
+                        list.push_back(clean_path(entry.path().string()));
                     }
                 }
             }
