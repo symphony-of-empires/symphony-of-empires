@@ -68,7 +68,6 @@ LobbySelectView::LobbySelectView(GameState& _gs) : gs{_gs}, curr_selected_nation
         ldgame_btn->on_click = ([](UI::Widget& w, void* data) {
             auto* o = static_cast<LoadGameBtnData*>(data);
             std::scoped_lock lock1(o->gs.world->world_mutex);
-            std::scoped_lock lock2(o->gs.render_lock);
 
             if(o->gs.world != nullptr) {
                 delete o->gs.world;

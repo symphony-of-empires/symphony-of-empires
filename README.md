@@ -10,6 +10,8 @@ Required to build:
 * SDL2 and SDL2-ttf
 * lua 5.3 (or 5.4)
 * GL and GLU
+* libavcodec (on most package managers it's ffmpeg)
+* libassimp
 
 ## Build (Linux)
 Install all dependencies with this command:

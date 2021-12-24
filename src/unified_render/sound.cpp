@@ -13,6 +13,7 @@
 #endif
 
 #include <filesystem>
+#include "unified_render/stb_vorbis.c"
 
 using namespace UnifiedRender;
 
@@ -22,10 +23,18 @@ Sound::Sound(const std::string& path) {
     SDL_AudioSpec wave;
     SDL_AudioCVT cvt;
     
-    if(SDL_LoadWAV(path.c_str(), &wave, &this->data, &this->len) == nullptr)
-        throw SoundException(path, SDL_GetError());
+    int channels, rate;
+    uint8_t* decoded;
+    this->len = stb_vorbis_decode_filename(path.c_str(), &channels, &rate, (short**)&decoded);
+    this->len = this->len * channels * (sizeof(int16_t) / sizeof(uint8_t));
+    this->data = decoded;
+    this->pos = 0;
 
-    SDL_BuildAudioCVT(&cvt, wave.format, wave.channels, wave.freq, AUDIO_S16, 1, 11050);
+    /**
+     * stb already loads OGG as a series of U16 nodes, so we only have to use AUDIO_S16
+     * and the rest is already given by stb
+     */
+    SDL_BuildAudioCVT(&cvt, AUDIO_S16, channels, rate, AUDIO_S16, 1, 11050);
     cvt.buf = (Uint8*)malloc(this->len * cvt.len_mult);
     std::memcpy(cvt.buf, this->data, this->len);
     cvt.len = this->len;

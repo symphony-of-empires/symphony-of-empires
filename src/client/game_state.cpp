@@ -121,13 +121,13 @@ void handle_event(Input& input, GameState& gs) {
 
             click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
             if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
-                gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
+                gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.ogg")));
                 gs.map->handle_click(gs, event);
             }
 
             if(click_on_ui) {
                 std::scoped_lock lock(gs.sound_lock);
-                gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.wav")));
+                gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.ogg")));
             }
             break;
         case SDL_MOUSEMOTION:
@@ -222,8 +222,6 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
     if(gs.current_mode != MapMode::NO_MAP) {
         Map* map = gs.map;
 
-        std::scoped_lock lock(gs.world->world_mutex);
-
         glPushMatrix();
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(glm::value_ptr(map->camera->get_projection()));
@@ -231,6 +229,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(glm::value_ptr(map->camera->get_view()));
 
+        std::scoped_lock lock(gs.world->world_mutex);
         map->draw(gs, width, height);
 
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -382,15 +381,15 @@ void main_loop(GameState& gs) {
         }
 
         if(gs.music_queue.empty()) {
-            std::scoped_lock lock(gs.sound_lock);
-            gs.music_fade_value = 100.f;
-
-            const std::string path = Path::get("music/ambience");
+            const std::string& path = Path::get_dir("music/ambience");
             for(const auto& entry : std::filesystem::directory_iterator(path)) {
                 if(std::rand() % 50) continue;
 
                 if(!entry.is_directory()) {
+                    std::scoped_lock lock(gs.sound_lock);
+                    gs.music_fade_value = 100.f;
                     gs.music_queue.push_back(new UnifiedRender::Sound(entry.path().string()));
+                    break;
                 }
             }
         }
