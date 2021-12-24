@@ -487,6 +487,17 @@ void Server::net_loop(int id) {
                         ::deserialize(ar, &target);
                         selected_nation->declare_war(*target);
                     } break;
+                    case ActionType::FOCUS_TECH: {
+                        Technology* technology;
+                        ::deserialize(ar, &technology);
+                        if(technology == nullptr)
+                            throw ServerException("Unknown technology");
+
+                        if(!selected_nation->can_research(technology))
+                            throw ServerException("Can't research tech at the moment");
+                        
+                        selected_nation->focus_tech = technology;
+                    } break;
                     // Nation and province addition and removals are not allowed to be done by clients
                     default:
                         break;
