@@ -910,7 +910,7 @@ void Tooltip::set_pos(int _x, int _y, int _width, int _height, int screen_w, int
 void Tooltip::text(const std::string& text) {
     // Delete old labels in vector (if any)
     for(auto& lab : labels) {
-        delete lab;
+        lab->kill();
     }
     labels.clear();
 
@@ -1042,7 +1042,7 @@ void Text::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 void Text::text(const std::string& text) {
     // Delete old labels in vector (if any)
     for(auto& lab : labels) {
-        delete lab;
+        lab->kill();
     }
     labels.clear();
 
