@@ -71,6 +71,7 @@ public:
     const UnifiedRender::Texture* landscape_map;
     const UnifiedRender::Texture* wave1;
     const UnifiedRender::Texture* wave2;
+    const UnifiedRender::Texture* normal10;
     UnifiedRender::TextureArray* terrain_sheet;
 
     UnifiedRender::OpenGl::Square* map_quad;

@@ -26,8 +26,13 @@
 #include "unified_render/shader.hpp"
 #include "unified_render/quad_2d.hpp"
 #include "unified_render/framebuffer.hpp"
-#include "province.hpp"
 #include "unified_render/model.hpp"
+#include "province.hpp"
+
+#include <chrono>
+#include <iostream>
+#include <sys/time.h>
+#include <ctime>
 
 MapRender::MapRender(const World& _world)
     : world(_world)
@@ -51,6 +56,9 @@ MapRender::MapRender(const World& _world)
     topo_map = &g_texture_manager->load_texture(Path::get("topo.png"), mipmap_options);
     landscape_map = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
     river_tex = &g_texture_manager->load_texture(Path::get("river_smal_smooth.png"), mipmap_options);
+    wave1 = &g_texture_manager->load_texture(Path::get("wave1.png"), mipmap_options);
+    wave2 = &g_texture_manager->load_texture(Path::get("wave2.png"), mipmap_options);
+    normal10 = &g_texture_manager->load_texture(Path::get("normal10.png"), mipmap_options);
     terrain_map = &g_texture_manager->load_texture(Path::get("terrain_map.png"));
 
     // Terrain textures to sample from
@@ -96,8 +104,8 @@ MapRender::MapRender(const World& _world)
     for(size_t i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer[i] = 0xffdddddd;
     }
-	tile_sheet->to_opengl();
-	
+    tile_sheet->to_opengl();
+
     // Set the tile_sheet
     // set_map_mode(political_map_mode);
 
@@ -227,6 +235,11 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     projection = camera->get_projection();
     map_shader->set_uniform("projection", projection);
     map_shader->set_uniform("map_size", (float)world.width, (float)world.height);
+    // A time uniform to send to the shader
+    auto now = std::chrono::system_clock::now().time_since_epoch();
+    auto millisec_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+    float time = (float)(millisec_since_epoch % 1000000) / 1000.f;
+    map_shader->set_uniform("time", time);
 
     // Map should have no "model" matrix since it's always static
     map_shader->set_texture(0, "tile_map", tile_map);
@@ -240,6 +253,9 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     map_shader->set_texture(8, "border_sdf", border_sdf);
     map_shader->set_texture(9, "landscape_map", landscape_map);
     map_shader->set_texture(10, "river_texture", river_tex);
+    map_shader->set_texture(11, "wave1", wave1);
+    map_shader->set_texture(12, "wave2", wave2);
+    map_shader->set_texture(13, "normal10", normal10);
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();
