@@ -3,7 +3,7 @@ mechanical_theory_i = Technology:new{
     ref_name = "mechanical_theory_i",
     name = "Mechanical theory I",
     description = "Relying on natural sources such as the wind, they will be the stepping stone for future developments",
-    cost = 10.0,
+    cost = 1000.0,
     type = TECH_ECONOMIC
 }
 mechanical_theory_i:register()
@@ -12,7 +12,7 @@ mechanical_theory_ii = Technology:new{
     ref_name = "mechanical_theory_ii",
     name = "Mechanical theory II",
     description = "The boom in science will help more complex machinery to rise",
-    cost = 1800.0,
+    cost = 180000.0,
     type = TECH_ECONOMIC
 }
 mechanical_theory_ii:register()
@@ -22,7 +22,7 @@ mechanical_theory_iii = Technology:new{
     ref_name = "mechanical_theory_iii",
     name = "Mechanical theory III",
     description = "With the use of power generators it's possible to automate the movement of machines",
-    cost = 1800.0,
+    cost = 180000.0,
     type = TECH_ECONOMIC
 }
 mechanical_theory_iii:register()
@@ -32,7 +32,7 @@ voltaic_pile = Technology:new{
     ref_name = "voltaic_pile",
     name = _("Voltaic pile"),
     description = "An early battery",
-    cost = 15.0,
+    cost = 15000.0,
     type = TECH_ECONOMIC
 }
 voltaic_pile:register()
@@ -41,7 +41,7 @@ combustion_engine = Technology:new{
     ref_name = "combustion_engine",
     name = "Combustion engine",
     description = "",
-    cost = 50.0,
+    cost = 50000.0,
     type = TECH_ECONOMIC
 }
 combustion_engine:register()
@@ -50,7 +50,7 @@ steam_locomotive = Technology:new{
     ref_name = "steam_locomotive",
     name = "Steam locomotive",
     description = "",
-    cost = 100.0,
+    cost = 100000.0,
     type = TECH_ECONOMIC
 }
 steam_locomotive:register()
@@ -59,7 +59,7 @@ assembly_line = Technology:new{
     ref_name = "assembly_line",
     name = "Assembly line",
     description = "",
-    cost = 100.0,
+    cost = 100000.0,
     type = TECH_ECONOMIC
 }
 assembly_line:register()
@@ -69,7 +69,7 @@ napoleonic_tought = Technology:new{
     ref_name = "napoleonic_tought",
     name = "Napoleonic tought",
     description = "",
-    cost = 10.0,
+    cost = 10000.0,
     type = TECH_STRATEGIC
 }
 napoleonic_tought:register()
@@ -78,7 +78,7 @@ trench_warfare = Technology:new{
     ref_name = "trench_warfare",
     name = "Trench warfare",
     description = "Develop efficient tactics to create defensive frontlines making offensives very costly",
-    cost = 1500.0,
+    cost = 150000.0,
     type = TECH_STRATEGIC
 }
 trench_warfare:register()
@@ -87,7 +87,7 @@ guerrilla_warfare = Technology:new{
     ref_name = "guerrilla_warfare",
     name = "Guerrilla warfare",
     description = "Splitting the army to allow quick-attacks and small raids that weaken and distract units and slow down their movement",
-    cost = 1500.0,
+    cost = 150000.0,
     type = TECH_STRATEGIC
 }
 guerrilla_warfare:register()
@@ -97,7 +97,7 @@ romanticism = Technology:new{
     ref_name = "romanticism",
     name = "Romanticism",
     description = "...",
-    cost = 1500.0,
+    cost = 150000.0,
     type = TECH_SOCIAL
 }
 romanticism:register()
@@ -107,7 +107,7 @@ gunpowder = Technology:new{
     ref_name = "gunpowder",
     name = "Gunpowder",
     description = "...",
-    cost = 1500.0,
+    cost = 150000.0,
     type = TECH_MILITARY
 }
 gunpowder:register()
@@ -116,7 +116,7 @@ flintlock_rifles = Technology:new{
     ref_name = "flintlock_rifles",
     name = "Flintlock Rifles",
     description = "...",
-    cost = 1500.0,
+    cost = 150000.0,
     type = TECH_MILITARY
 }
 flintlock_rifles:register()
@@ -126,7 +126,7 @@ light_vessel = Technology:new{
     ref_name = "light_vessel",
     name = "Light Vessel",
     description = "...",
-    cost = 1500.0,
+    cost = 150000.0,
     type = TECH_NAVAL
 }
 light_vessel:register()
@@ -135,7 +135,7 @@ heavy_vessel = Technology:new{
     ref_name = "heavy_vessel",
     name = "Heavy Vessel",
     description = "...",
-    cost = 1500.0,
+    cost = 150000.0,
     type = TECH_NAVAL
 }
 heavy_vessel:register()
