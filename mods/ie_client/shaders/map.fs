@@ -294,7 +294,7 @@ void main() {
 	beach += noise * 0.3 - 0.15;
 	beach = smoothstep(0.2, 0.3, beach);
 
-	vec4 water = noTiling(water_texture, 50. * tex_coords);
+	vec4 water = noTiling(water_texture, 50. * tex_coords + time * vec2(0.01));
 	water = mix(water, water_col * 0.7, 0.7);
 	float grid = get_grid(tex_coords);
 	water = mix(water, vec4(0, 0, 0, 1), grid * 0.2);
