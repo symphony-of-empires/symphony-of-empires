@@ -265,12 +265,6 @@ float aquarelle(vec2 tex_coords) {
 	uv *= 20.;
 
     vec3 col = vec3(1.);
-    // vec3 layer1 = col;
-    // float tex1 = texture(noise_texture, uv*.9).x*.5;
-    // layer1 = mix(col, col*.7, tex1);
-    
-    // float tex2 = texture(noise_texture, (uv+vec2(.125,.34))*1.5).x*.2;
-    // layer1 += tex2;
     
 	float strenght = 0.5;
     float tex3 = textureLod(noise_texture, uv*.02, 1.5).x;
@@ -279,19 +273,10 @@ float aquarelle(vec2 tex_coords) {
     uv *= 2.1;
     float tex4 = textureLod(noise_texture, -uv*.02 + 0.3, 1.5).x;
     float layer2 = mix(strenght, 1.,  tex4);
-    // layer1 = mix(layer1, layer2, 0.9);
-    // layer1 = mix(layer1, layer2, 0.5);
 	layer1 += layer2;
 	layer1 *= 0.69;
 	layer1 = clamp(layer1, 0., 1.05);
 
-
-    // vec3 col = vec3(0.2, 0.3, 0.8);
-    
-    // col = mix(w_col, col, 0.4);//*vec3(0.2, 0.2, 0.8);
-
-    // fragColor = vec4(col,1.0);
-    
     return layer1;
 }
 
@@ -348,9 +333,9 @@ void main() {
 	vec4 coord = texture(tile_map, diag_coords).rgba;
 	float isEmpty = step(coord.a, 0.01);
 
-    vec4 w_col = vec4(aquarelle(tex_coords));
+    float w_col = aquarelle(tex_coords);
 	vec4 prov_color = texture(tile_sheet, coord.xy * 255./256.); // Magic numbers
-    prov_color = mix(vec4(1.), prov_color, pow(w_col.x, 5));
+    prov_color = mix(vec4(1.), prov_color, pow(w_col, 5));
 
 	terrain_color = mix(terrain_color, water, isLake(tex_coords));
 	vec4 ground = mix(terrain_color, water, beach + isLake(tex_coords));
@@ -381,7 +366,7 @@ void main() {
 
 	float specularStrength = 0.2;
 	float shininess = 8;
-	if (isWater(tex_coords) == 1.) {
+	if (isWater(tex_coords) == 1. || beach == 1.) {
 		normal = get_water_normal(tex_coords);
 		shininess = 256;
     	specularStrength = 0.4;

@@ -65,7 +65,7 @@ ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
 
 ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* parent)
     : gs{ _gs },
-    UI::Group(x, y, parent->width - x, parent->height - y, parent)
+    UI::Group(x, y, parent->width - x, parent->height, parent)
 {
     // Chart showing total number of required materials
     this->reqmat_chart = new UI::Chart(0, 0, 128, 128, this);
@@ -102,7 +102,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
 ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Building* _building, UI::Widget* parent)
     : gs{ _gs },
     building{ _building },
-    UI::Group(x, y, parent->width - x, parent->height - y, parent)
+    UI::Group(x, y, parent->width - x, 24, parent)
 {
     this->is_scroll = false;
 
