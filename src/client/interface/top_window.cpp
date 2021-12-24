@@ -6,6 +6,7 @@
 #include "unified_render/texture.hpp"
 #include "client/interface/policies.hpp"
 #include "client/interface/army.hpp"
+#include "client/interface/technology.hpp"
 #include "io_impl.hpp"
 
 using namespace Interface;
@@ -42,6 +43,15 @@ TopWindow::TopWindow(GameState& _gs)
     });
     military_ibtn->tooltip = new UI::Tooltip(military_ibtn, 512, 24);
     military_ibtn->tooltip->text("Military");
+
+    auto* research_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/icons/research.png")), this);
+    research_ibtn->right_side_of(*military_ibtn);
+    research_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
+        auto& o = static_cast<TopWindow&>(*w.parent);
+        new Interface::TechTreeView(o.gs);
+    });
+    research_ibtn->tooltip = new UI::Tooltip(research_ibtn, 512, 24);
+    research_ibtn->tooltip->text("Research");
 
     auto* exit_ibtn = new UI::Image(width / 2, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/icons/exit.png")), this);
     exit_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {

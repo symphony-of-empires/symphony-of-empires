@@ -11,6 +11,10 @@
 #include "building.hpp"
 #include "unified_render/texture.hpp"
 
+#include "client/client_network.hpp"
+#include "action.hpp"
+#include "io_impl.hpp"
+
 using namespace Interface;
 
 UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* parent)
@@ -132,6 +136,53 @@ BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingTyp
 {
     text(building_type->name);
 }
+
+TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _technology, UI::Widget* parent)
+    : gs{ _gs },
+    technology{_technology},
+    UI::Group(x, y, parent->width, 48, parent)
+{
+    is_scroll = false;
+
+    auto* chk = new UI::Checkbox(0, 0, 128, 24, this);
+    chk->text(technology->name);
+    chk->tooltip = new UI::Tooltip(chk, 512, 24);
+    chk->on_each_tick = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<TechnologyInfo&>(*w.parent);
+        if(o.technology == o.gs.curr_nation->focus_tech || !o.gs.curr_nation->research[o.gs.world->get_id(o.technology)]) {
+            ((UI::Checkbox&)w).value = true;
+        } else {
+            ((UI::Checkbox&)w).value = false;
+        }
+
+        if(o.gs.curr_nation->can_research(o.technology)) {
+            w.tooltip->text("We can research this");
+        } else {
+            std::string text = "";
+            text = "We can't research this because we don't have ";
+            for(const auto& req_tech : o.technology->req_technologies) {
+                if(o.gs.curr_nation->research[o.gs.world->get_id(req_tech)] > 0.f) {
+                    text += req_tech->name + ", ";
+                }
+            }
+            w.tooltip->text(text);
+        }
+    });
+    chk->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<TechnologyInfo&>(*w.parent);
+        if(o.gs.curr_nation->can_research(o.technology)) {
+            o.gs.client->send(Action::FocusTech::form_packet(o.technology));
+        }
+    });
+    chk->on_each_tick(*chk, nullptr);
+
+    auto* pgbar = new UI::ProgressBar(0, 24, 128, 24, 0.f, technology->cost, this);
+    pgbar->on_each_tick = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<TechnologyInfo&>(*w.parent);
+        ((UI::ProgressBar&)w).value = std::fabs(o.gs.curr_nation->research[o.gs.world->get_id(o.technology)] - o.technology->cost);
+    });
+}
+
 
 PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, UI::Widget* parent)
     : gs{ _gs },
