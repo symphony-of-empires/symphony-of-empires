@@ -258,6 +258,43 @@ vec2 get_diag_coords(vec2 tex_coords, float is_diag) {
 	return diag_coords;
 }
 
+// Watercolor efffect
+float aquarelle(vec2 tex_coords) {
+	vec2 uv = tex_coords;
+
+	uv *= 20.;
+
+    vec3 col = vec3(1.);
+    // vec3 layer1 = col;
+    // float tex1 = texture(noise_texture, uv*.9).x*.5;
+    // layer1 = mix(col, col*.7, tex1);
+    
+    // float tex2 = texture(noise_texture, (uv+vec2(.125,.34))*1.5).x*.2;
+    // layer1 += tex2;
+    
+	float strenght = 0.5;
+    float tex3 = textureLod(noise_texture, uv*.02, 1.5).x;
+    float layer1 = mix(strenght, 1., tex3);
+    
+    uv *= 2.1;
+    float tex4 = textureLod(noise_texture, -uv*.02 + 0.3, 1.5).x;
+    float layer2 = mix(strenght, 1.,  tex4);
+    // layer1 = mix(layer1, layer2, 0.9);
+    // layer1 = mix(layer1, layer2, 0.5);
+	layer1 += layer2;
+	layer1 *= 0.69;
+	layer1 = clamp(layer1, 0., 1.05);
+
+
+    // vec3 col = vec3(0.2, 0.3, 0.8);
+    
+    // col = mix(w_col, col, 0.4);//*vec3(0.2, 0.2, 0.8);
+
+    // fragColor = vec4(col,1.0);
+    
+    return layer1;
+}
+
 vec3 get_water_normal(vec2 tex_coords) {
 	float offset = time * 0.01;
 	vec2 coords = tex_coords * 50.;
@@ -307,10 +344,14 @@ void main() {
 	float is_diag = borders_diag.w;
 	borders.x = smoothstep(0., 1., borders.x);
 
-	vec2 diag_coords = get_diag_coords(tex_coords, 0. * is_diag);
+	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
 	vec4 coord = texture(tile_map, diag_coords).rgba;
 	float isEmpty = step(coord.a, 0.01);
+
+    vec4 w_col = vec4(aquarelle(tex_coords));
 	vec4 prov_color = texture(tile_sheet, coord.xy * 255./256.); // Magic numbers
+    prov_color = mix(vec4(1.), prov_color, pow(w_col.x, 5));
+
 	terrain_color = mix(terrain_color, water, isLake(tex_coords));
 	vec4 ground = mix(terrain_color, water, beach + isLake(tex_coords));
 	vec4 out_color = mix(ground, prov_color * 1.2, 0.5 * (1.-beach) * (1.-isLake(tex_coords)));
@@ -340,7 +381,7 @@ void main() {
 
 	float specularStrength = 0.2;
 	float shininess = 8;
-	if (isOcean(tex_coords) == 1.) {
+	if (isWater(tex_coords) == 1.) {
 		normal = get_water_normal(tex_coords);
 		shininess = 256;
     	specularStrength = 0.4;
@@ -351,6 +392,4 @@ void main() {
 
 	float light = ambient + diffuse + specular;	
 	f_frag_color = vec4(vec3(light), 1.) * out_color;
-	// f_frag_color = vec4(diffuse, 1.);
-	// f_frag_color.x = view_pos.y/ 1000.;
 }

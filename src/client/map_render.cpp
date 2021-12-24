@@ -49,7 +49,7 @@ MapRender::MapRender(const World& _world)
     UnifiedRender::TextureOptions mipmap_options{};
     mipmap_options.wrap_s = GL_REPEAT;
     mipmap_options.wrap_t = GL_REPEAT;
-    mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
+    mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
     water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), mipmap_options);
     noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), mipmap_options);
