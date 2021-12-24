@@ -100,12 +100,6 @@ public:
     // Queue of production for unit_types
     std::deque<UnitType*> production_queue;
 
-    // Queue of sounds/music
-    std::mutex sound_lock;
-    std::vector<UnifiedRender::Sound*> sound_queue;
-    std::vector<UnifiedRender::Sound*> music_queue;
-    float music_fade_value;
-
     TutorialState tutorial;
 
     bool in_game;

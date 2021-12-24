@@ -16,9 +16,15 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#include <cstring>
+
 using namespace UnifiedRender;
 
+static State* g_state = nullptr;
+
 State::State(void) {
+    g_state = this;
+
 	// Startup-initialization of subsystems
 	SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
@@ -55,6 +61,18 @@ State::State(void) {
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.f, 1.f);
+
+    // Initialize sound subsystem (at 11,050 hz)
+    SDL_AudioSpec fmt;
+    fmt.freq = 11050;
+    fmt.format = AUDIO_S16;
+    fmt.channels = 1;
+    fmt.samples = 512;
+    fmt.callback = &State::mixaudio;
+    fmt.userdata = this;
+    if(SDL_OpenAudio(&fmt, NULL) < 0)
+        throw std::runtime_error("Unable to open audio: " + std::string(SDL_GetError()));
+    SDL_PauseAudio(0);
 }
 
 State::~State(void) {
@@ -62,4 +80,51 @@ State::~State(void) {
 	
     TTF_Quit();
     SDL_Quit();
+
+    g_state = nullptr;
+}
+
+void State::mixaudio(void* userdata, uint8_t* stream, int len) {
+    State& gs = *((State*)userdata);
+    std::memset(stream, 0, len);
+
+    if(gs.sound_lock.try_lock()) {
+        for(unsigned int i = 0; i < gs.sound_queue.size(); ) {
+            int size = gs.sound_queue.size();
+            UnifiedRender::Sound* sound = gs.sound_queue[i];
+            int amount = sound->len - sound->pos;
+            if(amount > len) amount = len;
+            if(amount <= 0) {
+                delete sound;
+                gs.sound_queue.erase(gs.sound_queue.begin() + i);
+                continue;
+            }
+
+            SDL_MixAudio(stream, &sound->data[sound->pos], amount, SDL_MIX_MAXVOLUME);
+            sound->pos += amount;
+            i++;
+        }
+
+        for(unsigned int i = 0; i < gs.music_queue.size(); ) {
+            UnifiedRender::Sound* music = gs.music_queue[i];
+            int amount = music->len - music->pos;
+            if(amount > len) amount = len;
+            if(amount <= 0) {
+                delete music;
+                gs.music_queue.erase(gs.music_queue.begin() + i);
+                continue;
+            }
+
+            SDL_MixAudio(stream, &music->data[music->pos], amount, SDL_MIX_MAXVOLUME / gs.music_fade_value);
+            music->pos += amount;
+            i++;
+        }
+        gs.sound_lock.unlock();
+    }
+
+    if(gs.music_fade_value > 1.f) gs.music_fade_value -= 1.f;
+}
+
+State& State::get_instance(void) {
+    return *g_state;
 }
