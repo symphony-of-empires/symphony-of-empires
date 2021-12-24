@@ -279,7 +279,7 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
 
 CLICK_STATE Context::check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off,
     CLICK_STATE click_state, bool clickable) {
-    glm::ivec2 offset{x_off, y_off};
+    glm::ivec2 offset{ x_off, y_off };
     offset = get_pos(w, offset);
 
     if(click_state != CLICK_STATE::NOT_CLICKED)
@@ -468,6 +468,31 @@ void draw_tex_rect(const GLuint tex,
     glEnd();
 }
 
+UnifiedRender::Rect get_rect(UnifiedRender::Rect rect_pos, UnifiedRender::Rect viewport) {
+    glm::vec2 pos_size = rect_pos.size();
+    pos_size.x = pos_size.x > 0? pos_size.x : 1.f;
+    pos_size.y = pos_size.y > 0? pos_size.y : 1.f;
+
+    if(rect_pos.left < viewport.left) {
+        float x_ratio = (viewport.left - rect_pos.left) / pos_size.x;
+        rect_pos.left = viewport.left;
+    }
+    if(rect_pos.right > viewport.right) {
+        float x_ratio = (rect_pos.right - viewport.right) / pos_size.x;
+        rect_pos.right = viewport.right;
+    }
+    if(rect_pos.top < viewport.top) {
+        float y_ratio = (viewport.top - rect_pos.top) / pos_size.y;
+        rect_pos.top = viewport.top;
+    }
+    if(rect_pos.bottom > viewport.bottom) {
+        float y_ratio = (rect_pos.bottom - viewport.bottom) / pos_size.y;
+        rect_pos.bottom = viewport.bottom;
+    }
+
+    return rect_pos;
+}
+
 void draw_rect(const GLuint tex,
     UnifiedRender::Rect rect_pos,
     UnifiedRender::Rect rect_tex,
@@ -626,7 +651,8 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
         glColor3f(0.f, 0.f, 1.f);
         draw_rect(0, pos_rect, tex_rect, viewport);
-    } else if(type != UI::WidgetType::IMAGE && type != UI::WidgetType::LABEL) {
+    }
+    else if(type != UI::WidgetType::IMAGE && type != UI::WidgetType::LABEL) {
         UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
         UnifiedRender::Rect tex_rect((int)0u, 0u, width / ctx.background->width, height / ctx.background->height);
         draw_rect(ctx.background->gl_tex_num, pos_rect, tex_rect, viewport);
@@ -681,7 +707,8 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 
         if(type == UI::WidgetType::WINDOW) {
             glColor3f(1.f, 1.f, 1.f);
-        } else {
+        }
+        else {
             glColor3f(0.f, 0.f, 0.f);
         }
         glVertex2f(0.f, height);
@@ -690,7 +717,8 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 
         if(type == UI::WidgetType::WINDOW) {
             glColor3f(0.f, 0.f, 0.f);
-        } else {
+        }
+        else {
             glColor3f(1.f, 1.f, 1.f);
         }
         glVertex2f(width, 0.f);
@@ -713,7 +741,8 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
         if(o.value) {
             glColor4f(0.f, 1.f, 0.f, 0.5f);
-        } else {
+        }
+        else {
             glColor4f(1.f, 0.f, 0.f, 0.5f);
         }
         draw_rect(0, pos_rect, tex_rect, viewport);
@@ -740,21 +769,22 @@ void input_ontextinput(Input& w, const char* input, void* data) {
 
         if(w.buffer.length() == 0) {
             w.text(" ");
-        } else {
+        }
+        else {
             w.text(w.buffer);
         }
     }
 }
 
 Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, WidgetType _type, const UnifiedRender::Texture* tex)
-    : is_show{1},
-    type{_type},
-    x{_x},
-    y{_y},
-    width{w},
-    height{h},
-    parent{_parent},
-    current_texture{tex}
+    : is_show{ 1 },
+    type{ _type },
+    x{ _x },
+    y{ _y },
+    width{ w },
+    height{ h },
+    parent{ _parent },
+    current_texture{ tex }
 {
     if(parent != nullptr) {
         if(parent->type == UI::WidgetType::WINDOW) {
@@ -765,7 +795,8 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
             }
         }
         parent->add_child(this);
-    } else {
+    }
+    else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }
@@ -819,7 +850,7 @@ void Widget::text(const std::string& _text) {
     if(_text.empty()) return;
 
     //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    SDL_Color black_color = { 0, 0, 0, 0 };
+    SDL_Color black_color ={ 0, 0, 0, 0 };
     surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), black_color);
     if(surface == nullptr)
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
@@ -843,7 +874,7 @@ void Widget::set_tooltip(Tooltip* _tooltip) {
  */
 Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::WINDOW),
-    is_movable{true}
+    is_movable{ true }
 {
 
 }
@@ -869,7 +900,8 @@ void Tooltip::set_pos(int _x, int _y, int _width, int _height, int screen_w, int
     int extra_below = screen_h - _y - _height;
     if(extra_above > extra_below) {
         y = _y - height - 10;
-    } else {
+    }
+    else {
         y = _y + _height + 10;
     }
     x = _x;
@@ -964,7 +996,7 @@ void Label::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         if(!text_texture->gl_tex_num) {
             text_texture->to_opengl();
         }
-        
+
         glColor3f(text_color.r, text_color.g, text_color.b);
         draw_rectangle(4, 0, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
     }
@@ -983,7 +1015,7 @@ void Label::text(const std::string& _text) {
     if(_text.empty()) return;
 
     //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    SDL_Color black_color = { 0, 0, 0, 0 };
+    SDL_Color black_color ={ 0, 0, 0, 0 };
     surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), black_color);
     if(surface == nullptr)
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
@@ -1125,8 +1157,8 @@ void Chart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 }
 
 ProgressBar::ProgressBar(int _x, int _y, unsigned w, unsigned h, const float _min, const float _max, Widget* _parent)
-    : max{_max},
-    min{_min},
+    : max{ _max },
+    min{ _min },
     Widget(_parent, _x, _y, w, h, UI::WidgetType::PROGRESS_BAR)
 {
 
@@ -1142,15 +1174,19 @@ void ProgressBar::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     const float end_x = (value / max) * width;
+    UnifiedRender::Rect pos_rect{0, 0, end_x, height};
+    pos_rect = get_rect(pos_rect, viewport);
+
+    // TODO: fix scaling of colors. They should scale depending on how of the bar that is hidden
     glBegin(GL_POLYGON);
     glColor3f(0.f, 0.f, 0.7f);
-    glVertex2f(0.f, 0.f);
-    glVertex2f(end_x, 0.f);
+    glVertex2f(pos_rect.left, pos_rect.top);
+    glVertex2f(pos_rect.right, pos_rect.top);
     glColor3f(0.f, 0.f, 0.4f);
-    glVertex2f(end_x, height);
-    glVertex2f(0.f, height);
+    glVertex2f(pos_rect.right, pos_rect.bottom);
+    glVertex2f(pos_rect.left, pos_rect.bottom);
     glColor3f(0.f, 0.f, 0.7f);
-    glVertex2f(0.f, 0.f);
+    glVertex2f(pos_rect.left, pos_rect.top);
     glEnd();
 
     if(text_texture != nullptr) {
@@ -1162,26 +1198,28 @@ void ProgressBar::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glLineWidth(3.f);
     glColor3f(0.f, 0.f, 0.f);
 
+    pos_rect = UnifiedRender::Rect{0, 0, width, height};
+    pos_rect = get_rect(pos_rect, viewport);
     // Inner black border
     glBegin(GL_LINE_STRIP);
-    glVertex2f(0, 0);
-    glVertex2f(width, 0);
-    glVertex2f(width, height);
-    glVertex2f(0, height);
-    glVertex2f(0, 0);
+    glVertex2f(pos_rect.left, pos_rect.top);
+    glVertex2f(pos_rect.right, pos_rect.top);
+    glVertex2f(pos_rect.right, pos_rect.bottom);
+    glVertex2f(pos_rect.left, pos_rect.bottom);
+    glVertex2f(pos_rect.left, pos_rect.top);
     glEnd();
 }
 
 Slider::Slider(int _x, int _y, unsigned w, unsigned h, const float _min, const float _max, Widget* _parent)
-    : max{_max},
-    min{_min},
+    : max{ _max },
+    min{ _min },
     ProgressBar(_x, _y, w, h, _min, _max, _parent)
 {
 
 }
 
 PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, std::vector<ChartData> _data, Widget* _parent)
-    : data{_data},
+    : data{ _data },
     Widget(_parent, _x, _y, w, h, UI::WidgetType::PIE_CHART)
 {
     max = 0;
@@ -1191,8 +1229,8 @@ PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, std::vector<ChartData
 }
 
 PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : data{std::vector<ChartData>()},
-    max{0},
+    : data{ std::vector<ChartData>() },
+    max{ 0 },
     Widget(_parent, _x, _y, w, h, UI::WidgetType::PIE_CHART)
 {
 
