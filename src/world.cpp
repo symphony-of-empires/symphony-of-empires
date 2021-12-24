@@ -19,12 +19,15 @@
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
 #include "unified_render/serializer.hpp"
+#include "unified_render/state.hpp"
 #include "io_impl.hpp"
 #include "server/server_network.hpp"
 #include "unified_render/byteswap.hpp"
 
 #include "action.hpp"
 #include "server/economy.hpp"
+
+#include <filesystem>
 
 #if (__cplusplus < 201703L)
 namespace std {
@@ -226,26 +229,24 @@ World::World() {
             std::string member = luaL_checkstring(L, 2);
             if(member == "ref_name") {
                 lua_pushstring(L, (*ideology)->ref_name.c_str());
+            } else if(member == "name") {
+                lua_pushstring(L, (*ideology)->name.c_str());
             }
- else if(member == "name") {
-  lua_pushstring(L, (*ideology)->name.c_str());
-}
-print_info("__index?");
-return 1;
-}},
-{ "__newindex", [](lua_State* L) {
-    Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
-    std::string member = luaL_checkstring(L, 2);
-    if(member == "ref_name") {
-        (*ideology)->ref_name = luaL_checkstring(L, 3);
-    }
-else if(member == "name") {
- (*ideology)->name = luaL_checkstring(L, 3);
-}
-print_info("__newindex?");
-return 0;
-}},
-{ NULL, NULL }
+            print_info("__index?");
+            return 1;
+        }},
+        { "__newindex", [](lua_State* L) {
+            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
+            std::string member = luaL_checkstring(L, 2);
+            if(member == "ref_name") {
+                (*ideology)->ref_name = luaL_checkstring(L, 3);
+            } else if(member == "name") {
+                (*ideology)->name = luaL_checkstring(L, 3);
+            }
+            print_info("__newindex?");
+            return 0;
+        }},
+        { NULL, NULL }
     };
     const luaL_Reg ideology_methods[] ={
         { "new", [](lua_State* L) {
@@ -324,6 +325,7 @@ return 0;
     for(const auto& path : mod_paths) {
         curr_path.append(";" + path + "scripts/?.lua");
     }
+    
     lua_pop(lua, 1);
     lua_pushstring(lua, curr_path.c_str());
     lua_setfield(lua, -2, "path");

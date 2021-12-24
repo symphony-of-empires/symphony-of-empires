@@ -5,6 +5,10 @@
 #include <cstdint>
 #include <cstdio>
 #include <string>
+#include <cstdlib>
+#include <cstring>
+#include <sys/types.h>
+
 #ifdef _MSC_VER
 #   include <SDL.h>
 #   include <SDL_events.h>
@@ -65,6 +69,7 @@
 #include "unified_render/model.hpp"
 #include "unified_render/texture.hpp"
 #include "client/ui.hpp"
+#include "server/server_network.hpp"
 
 void GameState::play_nation() {
     current_mode = MapMode::NORMAL;
@@ -88,7 +93,7 @@ const UnifiedRender::Texture& GameState::get_nation_flag(Nation& nation) {
     return *map->nation_flags[id];
 }
 
-void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
+void handle_event(Input& input, GameState& gs) {
     std::pair<int, int>& mouse_pos = input.mouse_pos;
     std::pair<float, float>& select_pos = input.select_pos;
 
@@ -169,7 +174,7 @@ void handle_event(Input& input, GameState& gs, std::atomic<bool>& run) {
             }
             break;
         case SDL_QUIT:
-            run = false;
+            gs.run = false;
             gs.paused = false;
             break;
         case SDL_WINDOWEVENT:
@@ -295,28 +300,48 @@ void GameState::world_thread(void) {
     }
 }
 
-void main_loop(GameState& gs, Client* client, SDL_Window* window) {
-    gs.current_mode = MapMode::COUNTRY_SELECT;
-    gs.input = Input();
+#include "client/interface/main_menu.hpp"
+#include "unified_render/sound.hpp"
+#include <filesystem>
 
-    glClearColor(0.3f, 0.3f, 0.3f, 0.5f);
-    gs.select_nation = new Interface::LobbySelectView(gs);
-    new MapDevView(gs.map);
+void main_loop(GameState& gs) {
+    gs.in_game = false;
+
+    // Connect to server prompt
+    /*auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &g_texture_manager->load_texture(Path::get("ui/globe.png")));
+    mm_bg->is_fullscreen = true;
+    Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
+	auto* logo = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")));
+	logo->above_of(*main_menu);
+	logo->left_side_of(*main_menu);*/
+
+    std::vector<Event*> displayed_events;
+    std::vector<Treaty*> displayed_treaties;
 
     // Call update_on_tick on start of the gamestate
     gs.update_tick = true;
     gs.run = true;
     gs.paused = true;
 
-    std::vector<Event*> displayed_events;
-    std::vector<Treaty*> displayed_treaties;
+    gs.current_mode = MapMode::COUNTRY_SELECT;
+    gs.select_nation = new Interface::LobbySelectView(gs);
+    new MapDevView(gs.map);
+
+    gs.input = Input();
+
+    gs.host_mode = true;
+    gs.server = new Server(gs, 1836);
+    gs.client = new Client(gs, "127.0.0.1", 1836);
+    gs.client->username = "TUTORIAL_PLAYER";
+    gs.in_game = true;
 
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
+    glClearColor(0.3f, 0.3f, 0.3f, 0.5f);
     while(gs.run) {
         std::scoped_lock lock(gs.render_lock);
+        handle_event(gs.input, gs);
 
-        handle_event(gs.input, gs, gs.run);
         if(gs.current_mode == MapMode::NORMAL) {
             handle_popups(displayed_events, displayed_treaties, gs);
         }
@@ -326,142 +351,85 @@ void main_loop(GameState& gs, Client* client, SDL_Window* window) {
             gs.update_tick = false;
         }
 
-        render(gs, gs.input, window);
+        render(gs, gs.input, gs.window);
 
-        // Production queue
-        if(!gs.production_queue.empty()) {
-            for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
-                UnitType* unit = gs.production_queue[i];
+        if(gs.current_mode == MapMode::NORMAL) {
+            // Production queue
+            if(!gs.production_queue.empty()) {
+                for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
+                    UnitType* unit = gs.production_queue[i];
 
-                // TODO: Make a better queue AI
-                bool is_built = false;
-                for(const auto& building : gs.world->buildings) {
-                    // Must be our building
-                    if(building->get_owner() != gs.curr_nation) continue;
+                    // TODO: Make a better queue AI
+                    bool is_built = false;
+                    for(const auto& building : gs.world->buildings) {
+                        // Must be our building
+                        if(building->get_owner() != gs.curr_nation) continue;
 
-                    // Must not be working on something else
-                    if(building->working_unit_type != nullptr) continue;
+                        // Must not be working on something else
+                        if(building->working_unit_type != nullptr) continue;
 
-                    is_built = true;
+                        is_built = true;
 
-                    g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
-                    print_info("BUILDING THING!?");
-                    break;
+                        g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
+                        break;
+                    }
+                    if(!is_built) continue;
+
+                    gs.production_queue.erase(gs.production_queue.begin() + i);
+                    i--;
                 }
-                if(!is_built) continue;
-
-                gs.production_queue.erase(gs.production_queue.begin() + i);
-                i--;
             }
         }
 
         if(gs.music_queue.empty()) {
             std::scoped_lock lock(gs.sound_lock);
             gs.music_fade_value = 100.f;
-            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/war.wav")));
+
+            const std::string path = Path::get("music/ambience");
+            for(const auto& entry : std::filesystem::directory_iterator(path)) {
+                if(std::rand() % 50) continue;
+
+                if(!entry.is_directory()) {
+                    gs.music_queue.push_back(new UnifiedRender::Sound(entry.path().string()));
+                }
+            }
         }
     }
-    gs.run = false;
     world_th.join();
-}
-
-#include "client/interface/main_menu.hpp"
-#include "unified_render/sound.hpp"
-
-static void mixaudio(void* userdata, uint8_t* stream, int len) {
-    GameState& gs = *((GameState*)userdata);
-    std::memset(stream, 0, len);
-
-    if(gs.sound_lock.try_lock()) {
-        for(unsigned int i = 0; i < gs.sound_queue.size(); ) {
-            int size = gs.sound_queue.size();
-            UnifiedRender::Sound* sound = gs.sound_queue[i];
-            int amount = sound->len - sound->pos;
-            if(amount > len) amount = len;
-            if(amount <= 0) {
-                delete sound;
-                gs.sound_queue.erase(gs.sound_queue.begin() + i);
-                continue;
-            }
-
-            SDL_MixAudio(stream, &sound->data[sound->pos], amount, SDL_MIX_MAXVOLUME);
-            sound->pos += amount;
-            i++;
-        }
-
-        for(unsigned int i = 0; i < gs.music_queue.size(); ) {
-            UnifiedRender::Sound* music = gs.music_queue[i];
-            int amount = music->len - music->pos;
-            if(amount > len) amount = len;
-            if(amount <= 0) {
-                delete music;
-                gs.music_queue.erase(gs.music_queue.begin() + i);
-                continue;
-            }
-
-            SDL_MixAudio(stream, &music->data[music->pos], amount, SDL_MIX_MAXVOLUME / gs.music_fade_value);
-            music->pos += amount;
-            i++;
-        }
-        gs.sound_lock.unlock();
-    }
-
-    if(gs.music_fade_value > 1.f) gs.music_fade_value -= 1.f;
-}
-
-void main_menu_loop(GameState& gs, SDL_Window* window) {
-    gs.in_game = false;
-
-    // Connect to server prompt
-    UI::Image* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &g_texture_manager->load_texture(Path::get("ui/globe.png")));
-    mm_bg->is_fullscreen = true;
-
-    Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
-	
-	UI::Image* logo = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")));
-	logo->above_of(*main_menu);
-	logo->left_side_of(*main_menu);
-
-    gs.input = Input();
-
-    std::atomic<bool> run = true;
-    while(run) {
-        handle_event(gs.input, gs, run);
-        render(gs, gs.input, window);
-
-        if(gs.in_game) {
-            run = false;
-            mm_bg->kill();
-            main_menu->kill();
-            logo->kill();
-
-            std::scoped_lock lock(gs.sound_lock);
-            for(auto& music : gs.music_queue) { delete music; }
-            gs.music_queue.clear();
-            break;
-        }
-
-        if(gs.music_queue.empty()) {
-            std::scoped_lock lock(gs.sound_lock);
-            gs.music_fade_value = 100.f;
-            gs.music_queue.push_back(new UnifiedRender::Sound(Path::get("music/title.wav")));
-        }
-    }
 }
 
 extern UnifiedRender::TextureManager* g_texture_manager;
 extern UnifiedRender::MaterialManager* g_material_manager;
 extern UnifiedRender::ModelManager* g_model_manager;
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <sys/types.h>
-
-#include "server/server_network.hpp"
 void start_client(int argc, char** argv) {
     // globals
     GameState gs{};
+
+    // Register packages
+    const std::string asset_path = Path::get_full();
+    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
+        if(entry.is_directory()) {
+            auto package = UnifiedRender::Package();
+            package.name = entry.path().lexically_relative(asset_path).string();
+            for(const auto& _entry : std::filesystem::recursive_directory_iterator(entry.path())) {
+                if(_entry.is_directory()) continue;
+
+                auto* asset = new UnifiedRender::Asset();
+                asset->path = _entry.path().lexically_relative(entry.path()).string();
+                asset->abs_path = _entry.path().string();
+                package.assets.push_back(asset);
+            }
+            gs.packages.push_back(package);
+        }
+    }
+
+    for(const auto& package : gs.packages) {
+        print_info("PACKAGE %s", package.name.c_str());
+        for(const auto& asset : package.assets) {
+            print_info("- %s (in %s)", asset->path.c_str(), asset->abs_path.c_str());
+        }
+    }
 
     g_texture_manager = new UnifiedRender::TextureManager();
     g_material_manager = new UnifiedRender::MaterialManager();
@@ -471,29 +439,15 @@ void start_client(int argc, char** argv) {
 
     gs.ui_ctx->resize(gs.width, gs.height);
 
-    gs.music_fade_value = 1.f;
-
     gs.loaded_world = false;
     gs.loaded_map = false;
-
-    // Initialize sound subsystem (at 11,050 hz)
-    SDL_AudioSpec fmt;
-    fmt.freq = 11050;
-    fmt.format = AUDIO_S16;
-    fmt.channels = 1;
-    fmt.samples = 512;
-    fmt.callback = mixaudio;
-    fmt.userdata = &gs;
-    if(SDL_OpenAudio(&fmt, NULL) < 0)
-        throw std::runtime_error("Unable to open audio: " + std::string(SDL_GetError()));
-    SDL_PauseAudio(0);
 
     gs.world = new World();
     gs.world->load_initial();
     gs.world->load_mod();
     gs.map = new Map(*gs.world, gs.width, gs.height);
 
-    gs.tutorial.fire_at_start = 0;
+    /*gs.tutorial.fire_at_start = 0;
     if(!gs.tutorial.fire_at_start) {
         main_menu_loop(gs, gs.window);
     } else {
@@ -502,8 +456,8 @@ void start_client(int argc, char** argv) {
         gs.client = new Client(gs, "127.0.0.1", 1836);
         gs.client->username = "TUTORIAL_PLAYER";
         gs.in_game = true;
-    }
-    main_loop(gs, gs.client, gs.window);
+    }*/
+    main_loop(gs);
     return;
 }
 
