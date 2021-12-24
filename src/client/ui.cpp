@@ -907,6 +907,7 @@ void Tooltip::set_pos(int _x, int _y, int _width, int _height, int screen_w, int
     x = _x;
 }
 
+// Note! Code duplictation of Text::text 
 void Tooltip::text(const std::string& text) {
     // Delete old labels in vector (if any)
     for(auto& lab : labels) {
@@ -916,18 +917,30 @@ void Tooltip::text(const std::string& text) {
 
     if(text.empty()) return;
 
-    // Separate the text in multiple labels
-    size_t pos = 0;
-    size_t y = 0;
+    // Separate the text in multiple labels and break on space
+    // TODO: only works for monospace fonts width width 12, fix it for all fonts
+    size_t pos = 0, y = 0;
+    size_t line_width = std::max<size_t>(1, this->width / 12);
     while(pos < text.length()) {
-        size_t len = std::min<size_t>(text.length(), (this->width / 12));
-        std::string buf = text.substr(pos, len);
+        size_t end_pos = text.length();
+        size_t remaining_chars = text.length() - pos;
+        if(remaining_chars > line_width) {
+            end_pos = pos + line_width;
+            for(int i = pos + line_width; i > pos; i--) {
+                if(text[i] == ' ') {
+                    end_pos = i;
+                    break;
+                }
+            }
+        }
+
+        std::string buf = text.substr(pos, end_pos - pos);
+        pos = end_pos;
 
         UI::Label* lab = new UI::Label(8, y, buf, this);
         labels.push_back(lab);
 
         y += 24;
-        pos += len;
     }
     height = y;
 }
@@ -1048,17 +1061,30 @@ void Text::text(const std::string& text) {
 
     if(text.empty()) return;
 
-    // Separate the text in multiple labels
+    // Separate the text in multiple labels and break on space
+    // TODO: only works for monospace fonts width width 12, fix it for all fonts
     size_t pos = 0, y = 0;
+    size_t line_width = std::max<size_t>(1, this->width / 12);
     while(pos < text.length()) {
-        size_t len = std::min<size_t>(text.length(), (this->width / 12));
-        std::string buf = text.substr(pos, len);
+        size_t end_pos = text.length();
+        size_t remaining_chars = text.length() - pos;
+        if(remaining_chars > line_width) {
+            end_pos = pos + line_width;
+            for(int i = pos + line_width; i > pos; i--) {
+                if(text[i] == ' ') {
+                    end_pos = i;
+                    break;
+                }
+            }
+        }
+
+        std::string buf = text.substr(pos, end_pos - pos);
+        pos = end_pos;
 
         UI::Label* lab = new UI::Label(8, y, buf, this);
         labels.push_back(lab);
 
         y += 24;
-        pos += len;
     }
     height = y;
 }
@@ -1174,7 +1200,7 @@ void ProgressBar::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     const float end_x = (value / max) * width;
-    UnifiedRender::Rect pos_rect{0, 0, end_x, height};
+    UnifiedRender::Rect pos_rect{ 0, 0, end_x, height };
     pos_rect = get_rect(pos_rect, viewport);
 
     // TODO: fix scaling of colors. They should scale depending on how of the bar that is hidden
@@ -1198,7 +1224,7 @@ void ProgressBar::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glLineWidth(3.f);
     glColor3f(0.f, 0.f, 0.f);
 
-    pos_rect = UnifiedRender::Rect{0, 0, width, height};
+    pos_rect = UnifiedRender::Rect{ 0, 0, width, height };
     pos_rect = get_rect(pos_rect, viewport);
     // Inner black border
     glBegin(GL_LINE_STRIP);
