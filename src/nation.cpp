@@ -285,7 +285,7 @@ float Nation::get_research_points(void) const {
         }
         research /= province->pops.size();
     }
-    return research;
+    return research / 100.f;
 }
 
 bool Nation::can_research(const Technology* tech) const {

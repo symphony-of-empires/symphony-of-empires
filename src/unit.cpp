@@ -27,5 +27,5 @@ float Unit::get_speed(Province* _province) const {
     float radius_scale = std::cos(M_PI / (2 * World::get_instance().height) * (2 * (y_dist / dist_div) - World::get_instance().height));
     float x_scale = 1 / (std::fabs(radius_scale) + 0.001f);
     float speed_scale = std::sqrt(std::pow(std::sin(angle), 2) + std::pow(std::cos(angle) * x_scale, 2));
-    return speed * speed_scale;
+    return (speed * speed_scale) / 100.f;
 }

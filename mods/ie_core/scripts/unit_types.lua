@@ -3,7 +3,7 @@ garrison = UnitType:new{ ref_name = "garrison", defense = 3.0, attack = 1.0, hea
 garrison.name = _("Garrison")
 garrison:register()
 garrison:requires_good(ammunition, 200)
---garrison:requires_good(musket, 100)
+garrison:requires_good(musket, 100)
 
 infantry = UnitType:new{ ref_name = "infantry", defense = 5.0, attack = 2.0, health = 100.0, speed = 0.5 }
 infantry.name = _("Infantry")
