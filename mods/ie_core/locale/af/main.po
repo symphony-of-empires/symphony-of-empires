@@ -1,21 +1,22 @@
-# Korean translations for superleaf package.
-# Copyright (C) 2021 THE superleaf'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the superleaf package.
-# superleaf1995 <superleaf1995@sparc64-pizzabox>, 2021.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: superleaf 1995\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-25 17:12-0600\n"
-"PO-Revision-Date: 2021-05-13 16:54-0400\n"
-"Last-Translator: NIKA#7227\n"
-"Language-Team: Korean\n"
-"Language: ko\n"
+"PO-Revision-Date: 2021-12-26 01:24+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: af_ZA\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 2.3.1\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. ------------------------------------------------------------
 #. Continent: Europe
@@ -81,7 +82,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:10
 msgid "Alagoas"
-msgstr ""
+msgstr "Alagoas"
 
 #: provinces/europe/spain.lua:31
 msgid "Albacete"
@@ -128,7 +129,7 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:12
 msgid "Alta California"
-msgstr ""
+msgstr "Alta Kalifornië"
 
 #. American
 #: cultures.lua:140 cultures.lua:141 nations/america.lua:80
@@ -143,7 +144,7 @@ msgstr ""
 #: good_types.lua:77
 #, fuzzy
 msgid "Ammunition"
-msgstr "국가"
+msgstr "nasie"
 
 #: industry_types.lua:130
 msgid "Ammunition factory"
@@ -175,7 +176,7 @@ msgstr ""
 
 #: provinces/americas/chile.lua:10
 msgid "Antofagasta"
-msgstr ""
+msgstr "Antofagasta"
 
 #: provinces/americas/south_america.lua:212
 msgid "Apure"
@@ -204,8 +205,9 @@ msgid "Aragonese"
 msgstr ""
 
 #: nations/europe.lua:133
+#, fuzzy
 msgid "Aragonesse"
-msgstr ""
+msgstr "Japannese"
 
 #: provinces/americas/canada.lua:55
 msgid "Arctic Islands"
@@ -226,12 +228,12 @@ msgstr ""
 #. Initial nations
 #: nations/america.lua:5 nations/america.lua:10
 msgid "Argentina"
-msgstr "아르헨티나"
+msgstr "Argentinië"
 
 #: cultures.lua:150
 #, fuzzy
 msgid "Argentinian"
-msgstr "아르헨티나"
+msgstr "Argentinië"
 
 #. ------------------------------------------------------------
 #. Continent: Americas
@@ -251,8 +253,9 @@ msgid "Arkansas"
 msgstr ""
 
 #: terrain_types.lua:35
+#, fuzzy
 msgid "Artic"
-msgstr ""
+msgstr "Ambagsman"
 
 #: provinces/europe/scandinavia.lua:36
 msgid "Artic Greenland"
@@ -264,7 +267,7 @@ msgstr ""
 
 #: pop_types.lua:12
 msgid "Artisan"
-msgstr ""
+msgstr "Ambagsman"
 
 #: provinces/americas/caribbean.lua:592
 msgid "Aruba"
@@ -284,7 +287,7 @@ msgstr ""
 #. Country: Paraguay
 #: provinces/americas/brazil_and_pantanal.lua:59
 msgid "Asunción"
-msgstr ""
+msgstr "Asunción"
 
 #: provinces/americas/canada.lua:618
 msgid "Athabasca"
@@ -354,7 +357,7 @@ msgstr ""
 
 #: provinces/americas/chile.lua:49
 msgid "Aysén"
-msgstr ""
+msgstr "Aysén"
 
 #: provinces/europe/spain.lua:20
 msgid "Badajoz"
@@ -367,7 +370,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:30
 msgid "Bagé"
-msgstr ""
+msgstr "Bagé"
 
 #: provinces/americas/caribbean.lua:175
 msgid "Bahamas"
@@ -375,7 +378,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:12
 msgid "Bahia"
-msgstr ""
+msgstr "Bahia"
 
 #. Change to Guantánamo Bay when US occupies it
 #: provinces/americas/caribbean.lua:58
@@ -384,7 +387,7 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:13
 msgid "Baja California"
-msgstr ""
+msgstr "Baja Kalifornië"
 
 #. Food factories
 #: industry_types.lua:142
@@ -424,11 +427,11 @@ msgstr ""
 
 #: good_types.lua:182
 msgid "Bed"
-msgstr "침대"
+msgstr "Bed"
 
 #: industry_types.lua:79
 msgid "Bed manufacturer"
-msgstr ""
+msgstr "Bed vervaardiger"
 
 #: cultures.lua:18 nations/europe.lua:23
 msgid "Belgian"
@@ -482,11 +485,12 @@ msgstr ""
 
 #: nations/america.lua:39 nations/america.lua:44
 msgid "Bolivia"
-msgstr ""
+msgstr "Bolivia"
 
 #: cultures.lua:153 nations/america.lua:40
+#, fuzzy
 msgid "Bolivian"
-msgstr ""
+msgstr "Bolivia"
 
 #. Change to Big Diomede when take by the US or UK
 #: provinces/americas/alaska.lua:16
@@ -532,21 +536,21 @@ msgstr ""
 #: industry_types.lua:101
 #, fuzzy
 msgid "Brass smelter"
-msgstr "모래 제련소"
+msgstr "Sand smelter"
 
 #: nations/america.lua:13 nations/america.lua:18
 msgid "Brazil"
-msgstr "브라질"
+msgstr "Brasilië"
 
 #: cultures.lua:177
 #, fuzzy
 msgid "Brazilian"
-msgstr "브라질"
+msgstr "Brasilië"
 
 #. Food
 #: good_types.lua:156
 msgid "Bread"
-msgstr ""
+msgstr "Brood"
 
 #: nations/europe.lua:501 nations/europe.lua:505
 #: provinces/europe/germany.lua:59
@@ -598,7 +602,7 @@ msgstr ""
 
 #: pop_types.lua:19
 msgid "Bureaucrat"
-msgstr ""
+msgstr "Burokraat"
 
 #: provinces/europe/austria.lua:15
 msgid "Burgenland"
@@ -622,12 +626,13 @@ msgid "Cabagra"
 msgstr ""
 
 #: provinces/americas/central_america.lua:255
+#, fuzzy
 msgid "Calakmul"
-msgstr ""
+msgstr "Calama"
 
 #: provinces/americas/chile.lua:9
 msgid "Calama"
-msgstr ""
+msgstr "Calama"
 
 #: provinces/europe/france.lua:12
 msgid "Calvados"
@@ -650,8 +655,9 @@ msgid "Cannon"
 msgstr ""
 
 #: provinces/europe/spain.lua:19
+#, fuzzy
 msgid "Cantabria"
-msgstr ""
+msgstr "Santa Catarina"
 
 #. Cantal
 #: provinces/europe/france.lua:629
@@ -668,7 +674,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:91
 msgid "Carvoal"
-msgstr ""
+msgstr "Houtskool"
 
 #: provinces/europe/spain.lua:45
 msgid "Castellón"
@@ -720,7 +726,7 @@ msgstr ""
 #. Country: Brazil
 #: provinces/americas/brazil_and_pantanal.lua:6
 msgid "Ceará"
-msgstr ""
+msgstr "Ceará"
 
 #: provinces/europe/scandinavia.lua:540
 msgid "Central Finland"
@@ -736,12 +742,12 @@ msgstr ""
 
 #: good_types.lua:179
 msgid "Chair"
-msgstr "의자"
+msgstr "Stoel"
 
 #. Secondary sector industries (now the fun begins)
 #: industry_types.lua:74
 msgid "Chair manufacturer"
-msgstr ""
+msgstr "Stoel vervaardiger"
 
 #: provinces/europe/greece.lua:25
 msgid "Chalkidi"
@@ -767,27 +773,28 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:30
 msgid "Chiapas"
-msgstr ""
+msgstr "Chiapas"
 
 #: provinces/americas/mexico.lua:11
 msgid "Chihuahua"
-msgstr ""
+msgstr "Chihuahua"
 
 #: nations/america.lua:55 nations/america.lua:60
 msgid "Chile"
-msgstr ""
+msgstr "Chile"
 
 #: cultures.lua:144 nations/america.lua:56
+#, fuzzy
 msgid "Chilean"
-msgstr ""
+msgstr "Chile"
 
 #: provinces/americas/chile.lua:18
 msgid "Chillán"
-msgstr ""
+msgstr "Chillán"
 
 #: provinces/americas/chile.lua:48
 msgid "Chiloé"
-msgstr ""
+msgstr "Chiloé"
 
 #: religions.lua:13
 msgid "Christian"
@@ -800,7 +807,7 @@ msgstr ""
 #: industry_types.lua:53
 #, fuzzy
 msgid "Chromium mine"
-msgstr "금광"
+msgstr "Ystermyn"
 
 #: provinces/americas/argentina.lua:64
 msgid "Chubut"
@@ -808,15 +815,16 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:100
 msgid "Chuquisaca"
-msgstr ""
+msgstr "Chuquisaca"
 
 #: provinces/americas/brazil_and_pantanal.lua:32
 msgid "Cisplatina"
-msgstr ""
+msgstr "Cisplatina"
 
 #: cultures.lua:147
+#, fuzzy
 msgid "Cisplatinian"
-msgstr ""
+msgstr "Cisplatina"
 
 #: provinces/europe/spain.lua:32
 msgid "Ciudad Real"
@@ -824,7 +832,7 @@ msgstr ""
 
 #: pop_types.lua:26
 msgid "Clergymen"
-msgstr ""
+msgstr "Clergymen"
 
 #. If someone knows a better way to do this please do a PR
 #. Expected size from total counting
@@ -844,21 +852,23 @@ msgstr ""
 #. [determiner (a/an)] [adjective (or noun as fallback)]
 #. Naval unit types
 #: boat_types.lua:3
+#, fuzzy
 msgid "Clipper"
-msgstr ""
+msgstr "Kopper"
 
 #: provinces/americas/mexico.lua:10
+#, fuzzy
 msgid "Coahuila"
-msgstr ""
+msgstr "Coahuila y Texas"
 
 #: good_types.lua:133
 msgid "Coal"
-msgstr ""
+msgstr "Steenkool"
 
 #: industry_types.lua:41
 #, fuzzy
 msgid "Coal mine"
-msgstr "금광"
+msgstr "Goudmyn"
 
 #: building_types.lua:11
 msgid "Coast cannons"
@@ -866,20 +876,20 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:97
 msgid "Cochabamba"
-msgstr ""
+msgstr "Cochabamba"
 
 #: good_types.lua:19
 msgid "Coffe bean"
-msgstr ""
+msgstr "Koffie boon"
 
 #: provinces/americas/mexico.lua:23
 msgid "Colima"
-msgstr ""
+msgstr "Colima"
 
 #: cultures.lua:159
 #, fuzzy
 msgid "Colombian"
-msgstr "그란콜롬비아"
+msgstr "Gran Colombia"
 
 #: provinces/americas/united_states.lua:81
 msgid "Colorado"
@@ -903,30 +913,30 @@ msgstr ""
 
 #: provinces/americas/chile.lua:19
 msgid "Concepción"
-msgstr ""
+msgstr "Concepción"
 
 #: provinces/americas/united_states.lua:10
 msgid "Connecticut"
-msgstr ""
+msgstr "Connecticut"
 
 #. Mainland chile (without mapuche's land)
 #: provinces/americas/chile.lua:13
 msgid "Copiapó"
-msgstr ""
+msgstr "Copiapó"
 
 #. Minerals
 #: good_types.lua:85 good_types.lua:139
 msgid "Copper"
-msgstr ""
+msgstr "Kopper"
 
 #: industry_types.lua:49
 #, fuzzy
 msgid "Copper mine"
-msgstr "금광"
+msgstr "Kopper"
 
 #: provinces/americas/chile.lua:14
 msgid "Coquimbo"
-msgstr ""
+msgstr "Coquimbo"
 
 #. if taken by suriname rename it to corantijn
 #: provinces/americas/guianas.lua:40
@@ -953,16 +963,15 @@ msgstr ""
 
 #: good_types.lua:16
 msgid "Cotton"
-msgstr "목화"
+msgstr "Katoen"
 
 #: industry_types.lua:31
-#, fuzzy
 msgid "Cotton farm"
-msgstr "목화"
+msgstr "Katoenplaas"
 
 #: pop_types.lua:72
 msgid "Craftsmen"
-msgstr ""
+msgstr "Vakmanne"
 
 #. Creuse
 #: provinces/europe/france.lua:584
@@ -995,7 +1004,7 @@ msgstr ""
 
 #: provinces/americas/chile.lua:17
 msgid "Curicó"
-msgstr ""
+msgstr "Curicó"
 
 #: provinces/europe/greece.lua:16
 msgid "Cyclades"
@@ -1068,7 +1077,7 @@ msgstr ""
 
 #: provinces/americas/united_states.lua:20
 msgid "Delaware"
-msgstr ""
+msgstr "Delaware"
 
 #: provinces/americas/guianas.lua:23
 msgid "Demerara"
@@ -1097,14 +1106,13 @@ msgstr ""
 
 #: good_types.lua:100
 msgid "Diamond"
-msgstr "다이아몬드"
+msgstr "Diamant"
 
 #. Mines can new stuff from thin air, but don't worry because this is
 #. not abuse-ble
 #: industry_types.lua:37
-#, fuzzy
 msgid "Diamond mine"
-msgstr "다이아몬드"
+msgstr "Diamantmyn"
 
 #: provinces/europe/greece.lua:18
 msgid "Dodecanese"
@@ -1142,7 +1150,7 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:19
 msgid "Durango"
-msgstr ""
+msgstr "Durango"
 
 #: cultures.lua:15 nations/europe.lua:15
 msgid "Dutch"
@@ -1150,7 +1158,7 @@ msgstr ""
 
 #: good_types.lua:39
 msgid "Dye"
-msgstr ""
+msgstr "Kleurstof"
 
 #: provinces/americas/united_states.lua:38
 msgid "East Louisiana"
@@ -1269,7 +1277,7 @@ msgstr ""
 
 #: good_types.lua:36
 msgid "Fabric"
-msgstr "직물"
+msgstr "Materiaal"
 
 #. ------------------------------------------------------------
 #. Continent: Americas
@@ -1281,7 +1289,7 @@ msgstr ""
 
 #: pop_types.lua:40
 msgid "Farmer"
-msgstr ""
+msgstr "Boer"
 
 #: provinces/europe/portugal.lua:13
 msgid "Faro"
@@ -1292,8 +1300,9 @@ msgid "Fascism"
 msgstr ""
 
 #: nations/europe.lua:585
+#, fuzzy
 msgid "Federal Republic of Germany"
-msgstr ""
+msgstr "Federale Republiek van Sentraal-Amerika"
 
 #. ------------------------------------------------------------
 #. Continent: Europe
@@ -1318,11 +1327,12 @@ msgstr ""
 
 #: provinces/americas/united_states.lua:9
 msgid "Florida"
-msgstr ""
+msgstr "Florida"
 
 #: provinces/europe/greece.lua:29
+#, fuzzy
 msgid "Florina"
-msgstr ""
+msgstr "Florida"
 
 #: terrain_types.lua:11
 msgid "Forest"
@@ -1342,11 +1352,12 @@ msgstr ""
 
 #: nations/europe.lua:30 nations/europe.lua:36
 msgid "France"
-msgstr ""
+msgstr "Frankryk"
 
 #: cultures.lua:9 nations/europe.lua:32
+#, fuzzy
 msgid "Franco"
-msgstr ""
+msgstr "Frankryk"
 
 #: nations/europe.lua:391 nations/europe.lua:395
 msgid "Frankfurt"
@@ -1367,7 +1378,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:94
 msgid "Fuerte Olimpo"
-msgstr ""
+msgstr "Fuerte Olimpo"
 
 #: cultures.lua:210
 msgid "Fulani"
@@ -1402,7 +1413,7 @@ msgstr ""
 
 #: good_types.lua:176
 msgid "Gasoline"
-msgstr ""
+msgstr "Petrol"
 
 #: nations/europe.lua:624 nations/europe.lua:628
 msgid "Genoa"
@@ -1445,7 +1456,7 @@ msgstr ""
 
 #: good_types.lua:33
 msgid "Glass"
-msgstr ""
+msgstr "Glaas"
 
 #. Industry types
 #. Primary sector industries (the most essential)
@@ -1459,24 +1470,23 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:21
 msgid "Goiás"
-msgstr ""
+msgstr "Goiás"
 
 #: good_types.lua:94
 msgid "Gold"
-msgstr "금"
+msgstr "Goud"
 
 #: industry_types.lua:61
 msgid "Gold mine"
-msgstr "금광"
+msgstr "Goudmyn"
 
 #: provinces/europe/scandinavia.lua:183
 msgid "Gotland"
 msgstr ""
 
 #: nations/america.lua:21 nations/america.lua:28
-#, fuzzy
 msgid "Gran colombia"
-msgstr "그란콜롬비아"
+msgstr "Gran colombia"
 
 #: provinces/europe/spain.lua:25
 msgid "Granada"
@@ -1487,12 +1497,13 @@ msgid "Grand Duchy of Hesse and by Rhine"
 msgstr ""
 
 #: provinces/americas/united_states.lua:73
+#, fuzzy
 msgid "Grand Portage"
-msgstr ""
+msgstr "Rio Grande do Norte"
 
 #: good_types.lua:8
 msgid "Grapes"
-msgstr ""
+msgstr "Druiwe"
 
 #: terrain_types.lua:26
 msgid "Grasslands"
@@ -1529,7 +1540,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:16
 msgid "Grão-Pará"
-msgstr ""
+msgstr "Grão-Pará"
 
 #: provinces/europe/spain.lua:34
 msgid "Guadalajara"
@@ -1541,7 +1552,7 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:22
 msgid "Guanajuato"
-msgstr ""
+msgstr "Guanajuato"
 
 #: provinces/europe/portugal.lua:10
 msgid "Guarda"
@@ -1768,7 +1779,7 @@ msgstr ""
 
 #: provinces/americas/chile.lua:15
 msgid "Illapel"
-msgstr ""
+msgstr "Illapel"
 
 #: provinces/europe/france.lua:10
 msgid "Ille et Vilaine"
@@ -1809,11 +1820,12 @@ msgstr ""
 #. To be taken from bolivia
 #: provinces/americas/chile.lua:8
 msgid "Iquique"
-msgstr ""
+msgstr "Iquique"
 
 #: nations/europe.lua:565 nations/europe.lua:569
+#, fuzzy
 msgid "Ireland"
-msgstr ""
+msgstr "Maryland"
 
 #: cultures.lua:27 nations/europe.lua:566
 msgid "Irish"
@@ -1821,17 +1833,16 @@ msgstr ""
 
 #: good_types.lua:97
 msgid "Iron"
-msgstr "철"
+msgstr "Yster"
 
 #: industry_types.lua:57
-#, fuzzy
 msgid "Iron mine"
-msgstr "금광"
+msgstr "Ystermyn"
 
 #: industry_types.lua:107
 #, fuzzy
 msgid "Iron smelter"
-msgstr "모래 제련소"
+msgstr "Sand smelter"
 
 #: provinces/americas/caribbean.lua:137
 msgid "Isla de Margerita"
@@ -1864,7 +1875,7 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:18
 msgid "Jalisco"
-msgstr ""
+msgstr "Jalisco"
 
 #. ------------------------------------------------------------
 #. Continent: Americas
@@ -1949,8 +1960,9 @@ msgid "Kenai"
 msgstr ""
 
 #: provinces/americas/canada.lua:545
+#, fuzzy
 msgid "Kenora"
-msgstr ""
+msgstr "Sonora"
 
 #: provinces/americas/united_states.lua:31
 msgid "Kentucky"
@@ -2004,12 +2016,13 @@ msgid "Kythira"
 msgstr ""
 
 #: provinces/americas/argentina.lua:60
+#, fuzzy
 msgid "La Pampa"
-msgstr ""
+msgstr "La Paz"
 
 #: provinces/americas/brazil_and_pantanal.lua:96
 msgid "La Paz"
-msgstr ""
+msgstr "La Paz"
 
 #: provinces/americas/argentina.lua:23
 msgid "La Rioja"
@@ -2017,11 +2030,12 @@ msgstr ""
 
 #: pop_types.lua:48
 msgid "Laborer"
-msgstr ""
+msgstr "Arbeider"
 
 #: provinces/americas/argentina.lua:67
+#, fuzzy
 msgid "Laboulaye"
-msgstr ""
+msgstr "Arbeider"
 
 #: provinces/americas/canada.lua:296
 msgid "Labrador"
@@ -2037,16 +2051,18 @@ msgid "Landes"
 msgstr ""
 
 #: provinces/europe/scandinavia.lua:703
+#, fuzzy
 msgid "Lapland"
-msgstr ""
+msgstr "Maryland"
 
 #. ------------------------------------------------------------
 #. Continent: Europe
 #. Subcontinent: Scandinavia
 #. Country: Sweden
 #: provinces/europe/scandinavia.lua:115
+#, fuzzy
 msgid "Lappland"
-msgstr ""
+msgstr "Maryland"
 
 #: provinces/americas/argentina.lua:35
 msgid "Las Lomitas"
@@ -2069,8 +2085,9 @@ msgid "Lefkada"
 msgstr ""
 
 #: provinces/europe/spain.lua:13
+#, fuzzy
 msgid "León"
-msgstr ""
+msgstr "Nuevo León"
 
 #: provinces/americas/central_america.lua:61
 msgid "Libéria"
@@ -2119,8 +2136,9 @@ msgid "Lleida"
 msgstr ""
 
 #: nations/europe.lua:376 nations/europe.lua:381
+#, fuzzy
 msgid "Lorraine"
-msgstr ""
+msgstr "Maine"
 
 #: provinces/americas/chile.lua:53
 msgid "Los Rios"
@@ -2136,8 +2154,9 @@ msgid "Lot-et-Garonne"
 msgstr ""
 
 #: provinces/americas/united_states.lua:39
+#, fuzzy
 msgid "Louisiana"
-msgstr ""
+msgstr "Russies"
 
 #: provinces/europe/balkans.lua:118
 msgid "Lovetch"
@@ -2162,7 +2181,7 @@ msgstr ""
 #. thin air oil, i think the air needs some democracy!
 #: industry_types.lua:14
 msgid "Lumberjack"
-msgstr "나무꾼"
+msgstr "Houtkapper"
 
 #: nations/europe.lua:436 nations/europe.lua:441
 #: provinces/europe/germany.lua:158
@@ -2199,7 +2218,7 @@ msgstr ""
 
 #: provinces/americas/united_states.lua:19
 msgid "Maine"
-msgstr ""
+msgstr "Maine"
 
 #. Change to Little Diomede
 #: provinces/americas/alaska.lua:19
@@ -2233,12 +2252,13 @@ msgid "Mar Chiquita"
 msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:18
+#, fuzzy
 msgid "Maracá"
-msgstr ""
+msgstr "Maranhão"
 
 #: provinces/americas/brazil_and_pantanal.lua:15
 msgid "Maranhão"
-msgstr ""
+msgstr "Maranhão"
 
 #. Marne
 #: provinces/europe/france.lua:254
@@ -2256,15 +2276,15 @@ msgstr ""
 
 #: provinces/americas/united_states.lua:21
 msgid "Maryland"
-msgstr ""
+msgstr "Maryland"
 
 #: provinces/americas/united_states.lua:15
 msgid "Massachusetts"
-msgstr ""
+msgstr "Massachusetts"
 
 #: provinces/americas/brazil_and_pantanal.lua:20
 msgid "Mato Grosso"
-msgstr ""
+msgstr "Mato Grosso"
 
 #. Maurthe-et-Moselle
 #: provinces/europe/france.lua:269
@@ -2294,28 +2314,32 @@ msgid "Meuse"
 msgstr ""
 
 #: cultures.lua:171 nations/america.lua:71
+#, fuzzy
 msgid "Mexican"
-msgstr ""
+msgstr "Mexiko"
 
 #: nations/america.lua:76
+#, fuzzy
 msgid "Mexican Empire"
-msgstr ""
+msgstr "Wadai Ryk"
 
 #: nations/america.lua:70 nations/america.lua:75
 msgid "Mexico"
-msgstr ""
+msgstr "Mexiko"
 
 #: provinces/americas/united_states.lua:28
+#, fuzzy
 msgid "Michigan"
-msgstr ""
+msgstr "Michoacán"
 
 #: provinces/americas/mexico.lua:24
 msgid "Michoacán"
-msgstr ""
+msgstr "Michoacán"
 
 #: provinces/europe/denmark.lua:23
+#, fuzzy
 msgid "Midtjylland"
-msgstr ""
+msgstr "Maryland"
 
 #: provinces/europe/scandinavia.lua:459
 msgid "Mikkeli"
@@ -2330,7 +2354,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:22
 msgid "Minas Gerais"
-msgstr ""
+msgstr "Minas Gerais"
 
 #: provinces/americas/united_states.lua:69
 msgid "Minnesota"
@@ -2435,7 +2459,7 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:26
 msgid "México"
-msgstr ""
+msgstr "Mexiko"
 
 #. ------------------------------------------------------------
 #. Continent: Africa
@@ -2459,7 +2483,7 @@ msgstr ""
 
 #: nations/europe.lua:14 nations/europe.lua:19
 msgid "Netherlands"
-msgstr ""
+msgstr "Nederland"
 
 #: provinces/americas/argentina.lua:66
 msgid "Neuquén"
@@ -2479,15 +2503,15 @@ msgstr ""
 
 #: provinces/americas/united_states.lua:16
 msgid "New Hampshire"
-msgstr ""
+msgstr "New Hampshire"
 
 #: provinces/americas/united_states.lua:11
 msgid "New Jersey"
-msgstr ""
+msgstr "New Jersey"
 
 #: provinces/americas/united_states.lua:13
 msgid "New York"
-msgstr ""
+msgstr "New York"
 
 #: provinces/americas/canada.lua:321
 msgid "Newfoundland"
@@ -2507,7 +2531,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:61
 msgid "Nioaque"
-msgstr ""
+msgstr "Nioaque"
 
 #. Nièvre
 #: provinces/europe/france.lua:434
@@ -2533,12 +2557,14 @@ msgstr ""
 #. Subcontinent: Middle Europe
 #. Country: Denmark
 #: provinces/europe/denmark.lua:6
+#, fuzzy
 msgid "Nordjylland"
-msgstr ""
+msgstr "Maryland"
 
 #: provinces/europe/scandinavia.lua:832
+#, fuzzy
 msgid "Nordland"
-msgstr ""
+msgstr "Nederland"
 
 #: nations/europe.lua:101 nations/europe.lua:103
 msgid "Normandy"
@@ -2561,8 +2587,9 @@ msgid "North Karelia"
 msgstr ""
 
 #: provinces/americas/united_states.lua:18
+#, fuzzy
 msgid "North Maine"
-msgstr ""
+msgstr "Maine"
 
 #: provinces/europe/bohemia.lua:183
 msgid "North Moravia"
@@ -2632,15 +2659,15 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:95
 msgid "Nueva Burdeos"
-msgstr ""
+msgstr "Nueva Burdeos"
 
 #: provinces/americas/mexico.lua:15
 msgid "Nuevo León"
-msgstr ""
+msgstr "Nuevo León"
 
 #: provinces/americas/mexico.lua:31
 msgid "Nuevo México"
-msgstr ""
+msgstr "Nuevo Mexiko"
 
 #. Change to Nunivak Island when US or UK gets it
 #: provinces/americas/alaska.lua:21
@@ -2661,7 +2688,7 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:29
 msgid "Oaxaca"
-msgstr ""
+msgstr "Oaxaca"
 
 #: nations/europe.lua:106 nations/europe.lua:108
 msgid "Occitania"
@@ -2673,7 +2700,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:28
 msgid "Oeste Catarinense"
-msgstr ""
+msgstr "Oeste Catarinense"
 
 #. TODO: Remove these, because they are deprecated
 #: pop_types.lua:65
@@ -2690,12 +2717,12 @@ msgstr ""
 
 #: good_types.lua:124
 msgid "Oil"
-msgstr ""
+msgstr "Olie"
 
 #. glass factories can new glass from thin air
 #: industry_types.lua:9
 msgid "Oil refinery"
-msgstr ""
+msgstr "Olieraffinadery"
 
 #. Oise
 #: provinces/europe/france.lua:133
@@ -2747,7 +2774,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:98
 msgid "Oruro"
-msgstr ""
+msgstr "Oruro"
 
 #. ------------------------------------------------------------
 #. Continent: Europe
@@ -2759,7 +2786,7 @@ msgstr ""
 
 #: provinces/americas/chile.lua:47
 msgid "Osorno"
-msgstr ""
+msgstr "Osorno"
 
 #. Change to Hichinbrook Island when taken by US or UK
 #: provinces/americas/alaska.lua:29
@@ -2792,7 +2819,7 @@ msgstr ""
 #. Country: Bolivia + Chaco
 #: provinces/americas/brazil_and_pantanal.lua:89
 msgid "Pando"
-msgstr ""
+msgstr "Pando"
 
 #. ------------------------------------------------------------
 #. Continent: Oceania
@@ -2808,19 +2835,21 @@ msgstr ""
 
 #: nations/america.lua:47 nations/america.lua:52
 msgid "Paraguay"
-msgstr ""
+msgstr "Paraguay"
 
 #: cultures.lua:156 nations/america.lua:48
+#, fuzzy
 msgid "Paraguayan"
-msgstr ""
+msgstr "Paraguay"
 
 #: provinces/americas/brazil_and_pantanal.lua:27
+#, fuzzy
 msgid "Paraná"
-msgstr ""
+msgstr "Paraíba"
 
 #: provinces/americas/brazil_and_pantanal.lua:8
 msgid "Paraíba"
-msgstr ""
+msgstr "Paraíba"
 
 #. Paris
 #: provinces/europe/france.lua:163
@@ -2832,8 +2861,9 @@ msgid "Patras"
 msgstr ""
 
 #: provinces/americas/united_states.lua:22
+#, fuzzy
 msgid "Pennsylvania"
-msgstr ""
+msgstr "Pensylvania"
 
 #: nations/europe.lua:560
 msgid "People's Republic of Hungary"
@@ -2857,19 +2887,20 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:9
 msgid "Pernambuco"
-msgstr ""
+msgstr "Pernambuco"
 
 #: nations/america.lua:31 nations/america.lua:36
 msgid "Peru"
-msgstr ""
+msgstr "Peru"
 
 #: cultures.lua:168
+#, fuzzy
 msgid "Peruvian"
-msgstr ""
+msgstr "Peru"
 
 #: provinces/americas/brazil_and_pantanal.lua:14
 msgid "Piauí"
-msgstr ""
+msgstr "Piauí"
 
 #: nations/europe.lua:638 nations/europe.lua:642
 msgid "Piedmont-Sardinia"
@@ -2885,7 +2916,7 @@ msgstr ""
 
 #: good_types.lua:45
 msgid "Plastic"
-msgstr ""
+msgstr "Plastiek"
 
 #: good_types.lua:112
 msgid "Platinum"
@@ -2939,7 +2970,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:29
 msgid "Porto Alegre"
-msgstr ""
+msgstr "Porto Alegre"
 
 #: nations/europe.lua:48 nations/europe.lua:53
 msgid "Portugal"
@@ -2951,15 +2982,16 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:99
 msgid "Potosí"
-msgstr ""
+msgstr "Potosí"
 
 #. ------------------------------------------------------------
 #. Continent: Europe
 #. Subcontinent: Balkans
 #. Country: Austrian Empire
 #: provinces/europe/bohemia.lua:6
+#, fuzzy
 msgid "Prague"
-msgstr ""
+msgstr "Paraguay"
 
 #: provinces/americas/canada.lua:346
 msgid "Prince Edward Island"
@@ -3245,28 +3277,32 @@ msgstr ""
 #. Holy Roman Empire (German part)
 #. Initial nations
 #: nations/europe.lua:354 nations/europe.lua:359
+#, fuzzy
 msgid "Prussia"
-msgstr ""
+msgstr "Russies"
 
 #: nations/europe.lua:355 nations/europe.lua:574
+#, fuzzy
 msgid "Prussian"
-msgstr ""
+msgstr "Russies"
 
 #: provinces/americas/mexico.lua:27
 msgid "Puebla"
-msgstr ""
+msgstr "Puebla"
 
 #: provinces/americas/central_america.lua:135
+#, fuzzy
 msgid "Puerto Lempira"
-msgstr ""
+msgstr "Puerto Porvenir"
 
 #: provinces/americas/chile.lua:52
 msgid "Puerto Porvenir"
-msgstr ""
+msgstr "Puerto Porvenir"
 
 #: provinces/americas/caribbean.lua:75
+#, fuzzy
 msgid "Puerto Rico"
-msgstr ""
+msgstr "Puerto Porvenir"
 
 #: provinces/americas/south_america.lua:394
 msgid "Puno"
@@ -3274,7 +3310,7 @@ msgstr ""
 
 #: provinces/americas/chile.lua:50
 msgid "Punta Arenas"
-msgstr ""
+msgstr "Punta Arenas"
 
 #. Puy-de-Dôme
 #: provinces/europe/france.lua:659
@@ -3306,7 +3342,7 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:25
 msgid "Querétaro"
-msgstr ""
+msgstr "Querétaro"
 
 #: provinces/americas/canada.lua:175
 msgid "Rankin Inlet"
@@ -3330,16 +3366,15 @@ msgstr ""
 
 #: provinces/americas/united_states.lua:12
 msgid "Rhode Island"
-msgstr ""
+msgstr "Rhode eiland"
 
 #: good_types.lua:12
 msgid "Rice"
-msgstr "쌀"
+msgstr "Rys"
 
 #: industry_types.lua:27
-#, fuzzy
 msgid "Rice farm"
-msgstr "쌀"
+msgstr "Rysplaas"
 
 #: good_types.lua:71
 msgid "Rifle"
@@ -3351,7 +3386,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:7
 msgid "Rio Grande do Norte"
-msgstr ""
+msgstr "Rio Grande do Norte"
 
 #: provinces/americas/brazil_and_pantanal.lua:25
 msgid "Rio de Janeiro"
@@ -3371,16 +3406,18 @@ msgid "Rocky Mountains"
 msgstr ""
 
 #: provinces/europe/scandinavia.lua:815
+#, fuzzy
 msgid "Rogaland"
-msgstr ""
+msgstr "Maryland"
 
 #: nations/europe.lua:597
 msgid "Roman"
 msgstr ""
 
 #: nations/europe.lua:596 nations/europe.lua:600
+#, fuzzy
 msgid "Roman Empire"
-msgstr ""
+msgstr "Wadai Ryk"
 
 #: nations/europe.lua:279 nations/europe.lua:283
 msgid "Romania"
@@ -3392,7 +3429,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:19
 msgid "Roraima"
-msgstr ""
+msgstr "Roraima"
 
 #: provinces/americas/argentina.lua:18
 msgid "Rosario"
@@ -3403,20 +3440,23 @@ msgstr ""
 #. Poland, Baltics and European Russia
 #. Initial nations
 #: nations/europe.lua:216 nations/europe.lua:222 nations/europe.lua:224
+#, fuzzy
 msgid "Russia"
-msgstr ""
+msgstr "Russies"
 
 #: cultures.lua:67 nations/europe.lua:217
 msgid "Russian"
-msgstr ""
+msgstr "Russies"
 
 #: nations/europe.lua:223
+#, fuzzy
 msgid "Russian SFSR"
-msgstr ""
+msgstr "Russies"
 
 #: cultures.lua:68 nations/europe.lua:218
+#, fuzzy
 msgid "Russo"
-msgstr ""
+msgstr "Russies"
 
 #: provinces/americas/argentina.lua:62
 msgid "Río Negro"
@@ -3463,16 +3503,17 @@ msgid "Saint-Martin"
 msgstr ""
 
 #: provinces/europe/spain.lua:15
+#, fuzzy
 msgid "Salamanca"
-msgstr ""
+msgstr "Calama"
 
 #: good_types.lua:160
 msgid "Salt"
-msgstr ""
+msgstr "Sout"
 
 #: good_types.lua:22
 msgid "Salt grain"
-msgstr ""
+msgstr "Sout graan"
 
 #: nations/europe.lua:362 nations/europe.lua:366
 #: provinces/europe/austria.lua:10
@@ -3497,7 +3538,7 @@ msgstr ""
 
 #: provinces/americas/chile.lua:51
 msgid "San Gregorio"
-msgstr ""
+msgstr "San Gregorio"
 
 #: provinces/americas/central_america.lua:43
 msgid "San José"
@@ -3508,12 +3549,13 @@ msgid "San Juan"
 msgstr ""
 
 #: provinces/americas/argentina.lua:21
+#, fuzzy
 msgid "San Luis"
-msgstr ""
+msgstr "San Luis Potosi"
 
 #: provinces/americas/mexico.lua:21
 msgid "San Luis Potosi"
-msgstr ""
+msgstr "San Luis Potosi"
 
 #: good_types.lua:127
 msgid "Sand"
@@ -3539,37 +3581,40 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:26
 msgid "Santa Catarina"
-msgstr ""
+msgstr "Santa Catarina"
 
 #: provinces/americas/argentina.lua:65
 #: provinces/americas/brazil_and_pantanal.lua:90
 msgid "Santa Cruz"
-msgstr ""
+msgstr "Santa Cruz"
 
 #: provinces/americas/argentina.lua:24
+#, fuzzy
 msgid "Santa Fe"
-msgstr ""
+msgstr "Santa Cruz"
 
 #: provinces/americas/chile.lua:16
 msgid "Santiago"
-msgstr ""
+msgstr "Santiago"
 
 #: provinces/americas/caribbean.lua:40
+#, fuzzy
 msgid "Santiago de Cuba"
-msgstr ""
+msgstr "Santiago"
 
 #: provinces/americas/argentina.lua:31
 msgid "Santiago del Estero"
 msgstr ""
 
 #: provinces/americas/caribbean.lua:454
+#, fuzzy
 msgid "Santo Domingo"
-msgstr ""
+msgstr "Santiago"
 
 #. { ref_name = "corumba", name = _("Corumbá"), color = rgb(71, 251, 255) },
 #: provinces/americas/brazil_and_pantanal.lua:93
 msgid "Santíssima Trinidade"
-msgstr ""
+msgstr "Santíssima Trinidade"
 
 #: terrain_types.lua:23
 msgid "Savanna"
@@ -3639,7 +3684,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:11
 msgid "Sergipe"
-msgstr ""
+msgstr "Sergipe"
 
 #. Change to North Chugach when taken by US or UK
 #: provinces/americas/alaska.lua:27
@@ -3668,11 +3713,11 @@ msgstr ""
 
 #: good_types.lua:88
 msgid "Silica"
-msgstr ""
+msgstr "Silika"
 
 #: good_types.lua:25
 msgid "Silk"
-msgstr ""
+msgstr "Sy"
 
 #: good_types.lua:109
 msgid "Silver"
@@ -3680,7 +3725,7 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:17
 msgid "Sinaloa"
-msgstr ""
+msgstr "Sinaloa"
 
 #. ------------------------------------------------------------
 #. Continent: Americas
@@ -3732,11 +3777,11 @@ msgstr ""
 #. Initial nations
 #: nations/africa.lua:54 nations/africa.lua:57
 msgid "Sokoto"
-msgstr ""
+msgstr "Sokoto"
 
 #: pop_types.lua:33
 msgid "Soldier"
-msgstr ""
+msgstr "Soldaat"
 
 #: cultures.lua:246
 msgid "Somali"
@@ -3744,7 +3789,7 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:16
 msgid "Sonora"
-msgstr ""
+msgstr "Sonora"
 
 #: provinces/americas/central_america.lua:204
 msgid "Sonsonate"
@@ -3841,11 +3886,11 @@ msgstr ""
 #: industry_types.lua:95
 #, fuzzy
 msgid "Stainless steel smelter"
-msgstr "모래 제련소"
+msgstr "Sand smelter"
 
 #: good_types.lua:48
 msgid "Steel"
-msgstr "강철"
+msgstr "Staal"
 
 #: provinces/europe/austria.lua:12
 msgid "Styria"
@@ -3862,7 +3907,7 @@ msgstr ""
 #: industry_types.lua:65
 #, fuzzy
 msgid "Sulfur mine"
-msgstr "금광"
+msgstr "Goudmyn"
 
 #. ------------------------------------------------------------
 #. Continent: Americas
@@ -3893,28 +3938,31 @@ msgid "Swiss"
 msgstr ""
 
 #: nations/europe.lua:420 nations/europe.lua:426
+#, fuzzy
 msgid "Switerzeland"
-msgstr ""
+msgstr "Nederland"
 
 #: nations/europe.lua:536 nations/europe.lua:541
+#, fuzzy
 msgid "Switzerland"
-msgstr ""
+msgstr "Nederland"
 
 #: provinces/europe/denmark.lua:57
 msgid "Syddanmark"
 msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:31
+#, fuzzy
 msgid "São Borja"
-msgstr ""
+msgstr "São Paulo"
 
 #: provinces/americas/brazil_and_pantanal.lua:13
 msgid "São Francisco"
-msgstr ""
+msgstr "São Francisco"
 
 #: provinces/americas/brazil_and_pantanal.lua:24
 msgid "São Paulo"
-msgstr ""
+msgstr "São Paulo"
 
 #: terrain_types.lua:29
 msgid "Taiga"
@@ -3926,7 +3974,7 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:14
 msgid "Tamaulipas"
-msgstr ""
+msgstr "Tamaulipas"
 
 #: provinces/americas/argentina.lua:16
 msgid "Tandil"
@@ -3938,7 +3986,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:101
 msgid "Tarija"
-msgstr ""
+msgstr "Tarija"
 
 #: provinces/europe/france.lua:29
 msgid "Tarn"
@@ -3987,7 +4035,7 @@ msgstr ""
 
 #: good_types.lua:42
 msgid "Textile"
-msgstr ""
+msgstr "Tekstiel"
 
 #: provinces/europe/greece.lua:32
 msgid "Thasos"
@@ -4015,7 +4063,7 @@ msgstr ""
 
 #: good_types.lua:130
 msgid "Timber"
-msgstr "통나무"
+msgstr "Hout"
 
 #: good_types.lua:118
 msgid "Tin"
@@ -4023,16 +4071,15 @@ msgstr ""
 
 #: good_types.lua:103
 msgid "Titanium"
-msgstr "티타늄"
+msgstr "Titaan"
 
 #: industry_types.lua:69
-#, fuzzy
 msgid "Titanium mine"
-msgstr "티타늄"
+msgstr "Titaanmyn"
 
 #: provinces/americas/mexico.lua:28
 msgid "Tlaxcala"
-msgstr ""
+msgstr "Tlaxcala"
 
 #: provinces/americas/caribbean.lua:383
 msgid "Tobago"
@@ -4061,7 +4108,7 @@ msgstr ""
 #: nations/africa.lua:31 nations/africa.lua:34
 #, fuzzy
 msgid "Tripolitania"
-msgstr "티타늄"
+msgstr "Titaan"
 
 #: nations/africa.lua:32
 msgid "Tripolitanians"
@@ -4114,8 +4161,9 @@ msgid "Tunis"
 msgstr ""
 
 #: nations/africa.lua:6
+#, fuzzy
 msgid "Tunisian"
-msgstr ""
+msgstr "Russies"
 
 #: nations/europe.lua:682
 msgid "Turco"
@@ -4178,11 +4226,11 @@ msgstr ""
 #. Initial nations
 #: nations/europe.lua:5 nations/europe.lua:11
 msgid "United Kingdom"
-msgstr ""
+msgstr "Verenigde Koninkryk"
 
 #: nations/america.lua:79 nations/america.lua:86
 msgid "United states"
-msgstr ""
+msgstr "Verenigde State"
 
 #. ------------------------------------------------------------
 #. Continent: Asia
@@ -4841,9 +4889,8 @@ msgid "Uppland"
 msgstr ""
 
 #: good_types.lua:91
-#, fuzzy
 msgid "Uranium"
-msgstr "티타늄"
+msgstr "Uraan"
 
 #: provinces/americas/united_states.lua:172
 msgid "Utah"
@@ -4877,7 +4924,7 @@ msgstr ""
 #. Mapuche's provinces that chile wants to take
 #: provinces/americas/chile.lua:46
 msgid "Valdivia"
-msgstr ""
+msgstr "Valdivia"
 
 #: provinces/europe/spain.lua:46
 msgid "Valencia"
@@ -4925,11 +4972,11 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:8
 msgid "Veracruz"
-msgstr ""
+msgstr "Veracruz"
 
 #: provinces/americas/united_states.lua:17
 msgid "Vermont"
-msgstr ""
+msgstr "Vermont"
 
 #: provinces/europe/scandinavia.lua:90
 msgid "Vestfirðir"
@@ -4940,12 +4987,14 @@ msgid "Vestfold og telemark"
 msgstr ""
 
 #: provinces/europe/scandinavia.lua:866
+#, fuzzy
 msgid "Vestland"
-msgstr ""
+msgstr "Nederland"
 
 #: provinces/europe/scandinavia.lua:100
+#, fuzzy
 msgid "Vesturland"
-msgstr ""
+msgstr "Nederland"
 
 #: provinces/europe/balkans.lua:119
 msgid "Vidin"
@@ -4962,7 +5011,7 @@ msgstr ""
 
 #: provinces/americas/brazil_and_pantanal.lua:60
 msgid "Vila Sacarón"
-msgstr ""
+msgstr "Vila Sacarón"
 
 #: provinces/europe/baltics.lua:91
 msgid "Viljandi"
@@ -4975,15 +5024,16 @@ msgstr ""
 #. same logic here
 #: industry_types.lua:19
 msgid "Vineyard"
-msgstr ""
+msgstr "Wingerd"
 
 #: provinces/americas/caribbean.lua:239
+#, fuzzy
 msgid "Virgin Islands"
-msgstr ""
+msgstr "Virginia"
 
 #: provinces/americas/united_states.lua:23
 msgid "Virginia"
-msgstr ""
+msgstr "Virginia"
 
 #. Change to Inner Alaska if taken by US or UK
 #: provinces/americas/alaska.lua:10
@@ -5027,7 +5077,7 @@ msgstr ""
 
 #: nations/africa.lua:60 nations/africa.lua:62
 msgid "Wadai Empire"
-msgstr ""
+msgstr "Wadai Ryk"
 
 #: nations/europe.lua:708 nations/europe.lua:712 nations/europe.lua:713
 msgid "Wallachia"
@@ -5046,16 +5096,18 @@ msgid "West Oregon"
 msgstr ""
 
 #: provinces/americas/united_states.lua:26
+#, fuzzy
 msgid "West Virginia"
-msgstr ""
+msgstr "Virginia"
 
 #: provinces/americas/united_states.lua:87
 msgid "Western Montana"
 msgstr ""
 
 #: provinces/americas/canada.lua:667
+#, fuzzy
 msgid "Western Prairies"
-msgstr ""
+msgstr "Oeste Catarinense"
 
 #: provinces/americas/united_states.lua:84
 msgid "Western Wyoming"
@@ -5118,21 +5170,20 @@ msgstr ""
 #. Farmable stuff
 #: good_types.lua:4
 msgid "Wheat"
-msgstr "밀"
+msgstr "Koring"
 
 #: industry_types.lua:23
-#, fuzzy
 msgid "Wheat farm"
-msgstr "밀"
+msgstr "Koringplaas"
 
 #. Commodities
 #: good_types.lua:170
 msgid "Window"
-msgstr ""
+msgstr "Venster"
 
 #: good_types.lua:173
 msgid "Wine"
-msgstr ""
+msgstr "Wyn"
 
 #: provinces/americas/canada.lua:594
 msgid "Winnipeg"
@@ -5179,7 +5230,7 @@ msgstr ""
 #. Country: Mexico
 #: provinces/americas/mexico.lua:7
 msgid "Yucatán"
-msgstr ""
+msgstr "Yucatán"
 
 #. Yvelines
 #: provinces/europe/france.lua:209
@@ -5188,7 +5239,7 @@ msgstr ""
 
 #: provinces/americas/mexico.lua:20
 msgid "Zacatecas"
-msgstr ""
+msgstr "Zacatecas"
 
 #: provinces/europe/greece.lua:15
 msgid "Zakynthos"
@@ -5214,8 +5265,9 @@ msgid "Zapadnaya Alyaska"
 msgstr ""
 
 #: provinces/europe/spain.lua:50
+#, fuzzy
 msgid "Zaragoza"
-msgstr ""
+msgstr "Paraguay"
 
 #: provinces/americas/south_america.lua:314
 msgid "Zarumilla"
@@ -5228,7 +5280,7 @@ msgstr ""
 #: industry_types.lua:45
 #, fuzzy
 msgid "Zinc mine"
-msgstr "다이아몬드"
+msgstr "Diamantmyn"
 
 #: provinces/americas/south_america.lua:144
 msgid "Zulia"
@@ -5264,62 +5316,81 @@ msgid "Østfold"
 msgstr ""
 
 #~ msgid "%s nation has same color as %s"
-#~ msgstr "%s 국가는 []와 색상이 같습니다"
+#~ msgstr "%s nasie het die selfde kleur as %s"
 
 #~ msgid ""
 #~ "%s nation has same ref_name as %s thereby we will return the id of the "
 #~ "original nation"
-#~ msgstr "%s 국가는 %s 와 ref_name이 동일하므로, 국가의 원래 id를 반환합니다"
+#~ msgstr ""
+#~ "%s nasie het die selfde ref_name as %s daardeur sal ons die id van die "
+#~ "oorspronklike nasie teruggee"
 
 #~ msgid "%s province has same color as %s"
-#~ msgstr "%s 지역이 %s 과 색상이 같습니다"
+#~ msgstr "%s provinsie het die selfde kleur as %s"
 
 #~ msgid ""
 #~ "%s province has same ref_name as %s thereby we will return the id of the "
 #~ "original province"
-#~ msgstr "%s 지역은 %s 과 ref_name이 동일하므로, 지역의 원래 id를 반환합니다"
+#~ msgstr ""
+#~ "%s provinsie het die selfde ref_name as %s daardeur sal ons die id van "
+#~ "die oorspronklike provinsie teruggee"
+
+#~ msgid "Aristocrat"
+#~ msgstr "Aristokraat"
+
+#~ msgid "Bad bois"
+#~ msgstr "Sleg seuns"
+
+#~ msgid "Corumbá"
+#~ msgstr "Corumbá"
 
 #~ msgid "Diplomacy Points"
-#~ msgstr "외교점"
+#~ msgstr "Diplomasiepunte"
+
+#~ msgid "Entrepreneur"
+#~ msgstr "Entrepreneur"
+
+#~ msgid "Good bois"
+#~ msgstr "Goed seuns"
 
 #~ msgid "Literacy"
-#~ msgstr "식자율"
+#~ msgstr "Geletterdheid"
 
 #~ msgid "Lua argument type mismatch"
-#~ msgstr "루아 인증 불일치"
+#~ msgstr "Lua woordewisseling tipe wanverhouding"
 
 #~ msgid "Lua error"
-#~ msgstr "루아 에러"
+#~ msgstr "Lua fout"
 
 #~ msgid "Prestige"
-#~ msgstr "위신"
+#~ msgstr "Prestige"
 
 #~ msgid "company"
-#~ msgstr "회사"
+#~ msgstr "maatskappy"
 
 #~ msgid "good"
-#~ msgstr "상품"
+#~ msgstr "goeie"
 
 #~ msgid "good %s not found"
-#~ msgstr "%s 상품을 찾을수 없음"
+#~ msgstr "goeie %s nie gevind nie"
 
 #~ msgid "industry %s not found"
-#~ msgstr "%s 산업을 찾을수 없음"
+#~ msgstr "bedryf %s nie gevind nie"
 
 #~ msgid "industry_type"
-#~ msgstr "산업_종류"
+#~ msgstr "industry_type"
 
 #~ msgid "invalid province id %s"
-#~ msgstr "잘못된 프로빈스 id - %s"
+#~ msgstr "ongeldig provinsie id %s"
 
 #~ msgid "lua nation_id is out of bounds"
-#~ msgstr "루아의 nation_id가 범위를 벗어남"
+#~ msgstr "lua nation_id is uit van perke"
 
 #~ msgid "lua province_id is out of bounds"
-#~ msgstr "루아의 province_id가 범위를 벗어남"
+#~ msgstr "lua provinsie_id is uit van perke"
 
 #~ msgid "nation %s not found"
-#~ msgstr "%s 국가를 찾을수 없음"
+#~ msgstr "nasie %s nie gevind nie"
 
 #~ msgid "pop_type %s not found"
-#~ msgstr "pop_type %s를 찾지 못함"
+#~ msgstr "pop_type %s nie gevind nie"
