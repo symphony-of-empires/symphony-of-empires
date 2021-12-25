@@ -65,13 +65,12 @@ static inline std::vector<AvailableWorkers> get_available_workers(World& world) 
                 continue;
             }
 
-            Workers workers{ pop };
+            Workers workers{pop};
             if(!province->controller->is_accepted_culture(pop)) {
                 // POPs of non-accepted cultures on exterminate mode cannot get jobs
                 if(province->controller->current_policy.treatment == TREATMENT_EXTERMINATE) {
                     continue;
-                }
-                else if(province->controller->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
+                } else if(province->controller->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
                     workers.amount /= 2;
                 }
             }
@@ -123,8 +122,7 @@ void Economy::do_tick(World& world) {
                 const size_t employed = std::max<size_t>(std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), building->employees_needed_per_output[i]);
                 if(output->good->is_edible) {
                     needed_farmers += employed;
-                }
-                else {
+                } else {
                     needed_laborers += employed;
                 }
                 needed_entrepreneurs += employed / 100;
@@ -296,28 +294,23 @@ void Economy::do_tick(World& world) {
 
             world.orders_mutex.lock();
             for(const auto& input : building->type->inputs) {
-                OrderGoods order ={};
-
-                // Farmers can only work with edibles and laborers can only work for edibles
-                if(input->is_edible) {
-                    if(available_farmers) {
-                        order.quantity = (available_farmers / needed_farmers) * 5000;
-                    }
-                }
-                else {
-                    if(available_laborers) {
-                        order.quantity = (available_laborers / needed_laborers) * 5000;
-                    }
-                }
-
-                if(!order.quantity) continue;
-                order.quantity *= building->get_owner()->get_industry_input_mod();
+                OrderGoods order = {};
 
                 order.payment = building->willing_payment;
                 order.good = input;
                 order.building = building;
                 order.province = province;
                 order.type = OrderType::INDUSTRIAL;
+
+                // Farmers can only work with edibles and laborers can only work for edibles
+                if(input->is_edible) {
+                    order.quantity = (available_farmers / needed_farmers) * 5000;
+                } else {
+                    order.quantity = (available_laborers / needed_laborers) * 5000;
+                }
+                if(!order.quantity) continue;
+                order.quantity *= building->get_owner()->get_industry_input_mod();
+
                 world.orders.push_back(order);
 
                 // Increase demand for all products with same good type as ordered
@@ -329,13 +322,13 @@ void Economy::do_tick(World& world) {
             }
             world.orders_mutex.unlock();
 
-            if(!building->can_do_output()) continue;
+            //if(!building->can_do_output()) continue;
 
             // Now produce anything as we can!
             // Place deliver orders (we are a RGO)
             world.delivers_mutex.lock();
             for(size_t k = 0; k < building->type->outputs.size(); k++) {
-                DeliverGoods deliver;
+                DeliverGoods deliver = {};
 
                 deliver.payment = building->willing_payment;
                 deliver.good = building->type->outputs[k];
@@ -345,11 +338,9 @@ void Economy::do_tick(World& world) {
 
                 if(deliver.good->is_edible) {
                     deliver.quantity = (available_farmers / needed_farmers) * 5000;
-                }
-                else {
+                } else {
                     deliver.quantity = (available_laborers / needed_laborers) * 5000;
                 }
-
                 if(!deliver.quantity) continue;
                 deliver.quantity *= building->get_owner()->get_industry_output_mod();
 
@@ -371,13 +362,14 @@ void Economy::do_tick(World& world) {
         for(const auto& good : building->req_goods) {
             if(!good.second) continue;
 
-            OrderGoods order;
+            OrderGoods order = {};
             order.quantity = good.second;
             order.quantity *= building->get_owner()->get_industry_input_mod();
             // TODO: Make this dynamic
             order.payment = good.second * 5.f;
             order.good = good.first;
             order.building = building;
+            order.province = building->get_province();
             order.type = OrderType::BUILDING;
             world.orders.push_back(order);
         }
@@ -387,13 +379,14 @@ void Economy::do_tick(World& world) {
         for(const auto& good : building->req_goods_for_unit) {
             if(!good.second) continue;
 
-            OrderGoods order;
+            OrderGoods order = {};
             order.quantity = good.second;
             order.quantity *= building->get_owner()->get_industry_input_mod();
             // TODO: Make this dynamic
             order.payment = good.second * 5.f;
             order.good = good.first;
             order.building = building;
+            order.province = building->get_province();
             order.type = OrderType::UNIT;
             world.orders.push_back(order);
         }
@@ -427,163 +420,153 @@ void Economy::do_tick(World& world) {
     // be ready for POPs to buy
 
     // We will check all transport companies; they will transport in a first-come first-serve fashion
-    // for(auto& company : world.companies) {
-    {
-        //     if(!company->is_transport) continue;
+    // Check all delivers
+    for(size_t i = 0; i < world.delivers.size(); i++) {
+        DeliverGoods& deliver = world.delivers[i];
+        if(deliver.province == nullptr) {
+            print_error("PROVICE NULL (DELIVER)");
+            world.orders.erase(world.orders.begin() + i);
+            continue;
+        }
+        if(deliver.province->controller == nullptr) {
+            print_error("PROVICE CONTROLLER NULL (DELIVER)");
+            world.orders.erase(world.orders.begin() + i);
+            continue;
+        }
 
-            // Check all delivers
-        for(size_t i = 0; i < world.delivers.size(); i++) {
-            DeliverGoods& deliver = world.delivers[i];
+        const Policies& deliver_policy = deliver.province->controller->current_policy;
+        Building* deliver_building = deliver.building;
 
-            // Is the transport company able to transport from this province?
-            // if(!company->in_range(deliver.province)) continue;
+        // Check all orders
+        for(size_t j = 0; j < world.orders.size(); j++) {
+            OrderGoods& order = world.orders[j];
+            if(order.province == nullptr) {
+                print_error("PROVICE NULL");
+                world.orders.erase(world.orders.begin() + j);
+                continue;
+            }
+            if(order.province->controller == nullptr) {
+                print_error("PROVICE CONTROLLER NULL");
+                world.orders.erase(world.orders.begin() + j);
+                continue;
+            }
 
-            const Province* deliver_province = deliver.province;
-            const Policies& deliver_policy = deliver_province->controller->current_policy;
-            Building* deliver_building = deliver.building;
+            // Do they want these goods?
+            if(order.good != deliver.good) continue;
 
-            // Check all orders
-            for(size_t j = 0; j < world.orders.size(); j++) {
-                OrderGoods& order = world.orders[j];
+            const Policies& order_policy = order.province->controller->current_policy;
 
-                // Do they want these goods?
-                if(order.good != deliver.good) continue;
+            // If foreign trade is not allowed, then order controller === sender controller
+            if(!deliver_policy.foreign_trade || !order_policy.foreign_trade) {
+                // Trade not allowed
+                if(order.province->controller != deliver.province->controller) continue;
+            }
 
-                // Is this transport company able to transport to this province?
-                // if(!company->in_range(order.province)) continue;
+            const float order_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
+            const float deliver_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
 
-                Province* order_province = order.province;
-                if(order_province == nullptr) {
-                    print_error("PROVICE NULL");
-                    world.orders.erase(world.orders.begin() + j);
-                    continue;
-                }
-                if(order_province->controller == nullptr) {
-                    print_error("PROVICE CONTROLLER NULL");
-                    world.orders.erase(world.orders.begin() + j);
-                    continue;
-                }
+            float total_order_cost, total_deliver_cost;
+            if(order.province->controller != deliver.province->controller) {
+                // International trade
+                total_order_cost = order_cost * order_policy.import_tax;
+                total_deliver_cost = deliver_cost * order_policy.export_tax;
+            } else {
+                // Domestic trade
+                total_order_cost = order_cost * order_policy.domestic_import_tax;
+                total_deliver_cost = deliver_cost * order_policy.domestic_export_tax;
+            }
 
-                const Policies& order_policy = order_province->controller->current_policy;
-
-                // If foreign trade is not allowed, then order controller === sender controller
-                if(!deliver_policy.foreign_trade || !order_policy.foreign_trade) {
-                    // Trade not allowed
-                    if(order_province->controller != deliver_province->controller) continue;
-                }
-
-                const float order_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
-                const float deliver_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
-
-                float total_order_cost, total_deliver_cost;
-                if(order.province->controller != deliver.province->controller) {
-                    // International trade
-                    total_order_cost = order_cost * order_policy.import_tax;
-                    total_deliver_cost = deliver_cost * order_policy.export_tax;
-                } else {
-                    // Domestic trade
-                    total_order_cost = order_cost * order_policy.domestic_import_tax;
-                    total_deliver_cost = deliver_cost * order_policy.domestic_export_tax;
-                }
-
-                // Orders payment should also cover the import tax and a deliver payment should also cover the export
-                // tax too. Otherwise we can't deliver
-                if(order.payment < total_order_cost && total_order_cost > 0.f) {
-                    if(order.type == OrderType::INDUSTRIAL) {
-                        order.building->willing_payment = total_order_cost;
-                    }
-                    continue;
-                } else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
-                    deliver.building->willing_payment = total_deliver_cost;
-                    continue;
-                }
-
-                // if(order.type == OrderType::INDUSTRIAL) continue;
-
-                // Give both goverments their part of the tax (when tax is 1.0< then the goverment pays for it)
-                order_province->controller->budget += total_order_cost - order_cost;
-                deliver_province->controller->budget += total_deliver_cost - deliver_cost;
-
-                // Province receives a small (military) supply buff from commerce
-                order_province->supply_rem += 5.f;
-                order_province->supply_rem = std::min(order_province->supply_limit, order_province->supply_rem);
-
-                // Obtain number of goods that we can satisfy
-                const size_t count = std::min<size_t>(order.quantity, deliver.quantity);
-                // Add to stockpile (duplicate items) to the province at each transporting
-                order.province->stockpile[world.get_id(deliver.product)] += count;
-
-                deliver.quantity -= count;
-                order.quantity -= count;
-
-                // Increment demand of the product, and decrement supply when the demand is fullfilled
-                deliver.product->demand += count;
-
+            // Orders payment should also cover the import tax and a deliver payment should also cover the export
+            // tax too. Otherwise we can't deliver
+            if(order.payment < total_order_cost && total_order_cost > 0.f) {
                 if(order.type == OrderType::INDUSTRIAL) {
-                    // Duplicate products and put them into the province's stock (a commerce buff)
-                    order.building->add_to_stock(order.good, count);
+                    order.building->willing_payment = total_order_cost;
+                }
+                continue;
+            } else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
+                deliver.building->willing_payment = total_deliver_cost;
+                continue;
+            }
 
-                    // Increment the production cost of this building which is used
-                    // so we sell our product at a profit instead  of at a loss
-                    order.building->production_cost += deliver.product->price;
-                }
-                else if(order.type == OrderType::BUILDING) {
-                    // The building will take the production materials
-                    // and use them for building the unit
-                    order.building->get_owner()->budget -= total_order_cost;
-                    for(auto& p : order.building->req_goods) {
-                        if(p.first != deliver.good) continue;
-                        p.second -= std::min(deliver.quantity, p.second);
-                    }
-                }
-                else if(order.type == OrderType::UNIT) {
-                    // TODO: We should deduct and set willing payment from military spendings
-                    order.building->get_owner()->budget -= total_order_cost;
-                    for(auto& p : order.building->req_goods) {
-                        if(p.first == deliver.good) {
-                            p.second -= std::min(deliver.quantity, p.second);
-                            break;
-                        }
-                    }
-                }
-                // Nobody is to be billed!
-                else if(order.type == OrderType::POP) {
-                    // ... transport company still obtains their money & delivers to the province
-                    order.province->stockpile[world.get_id(deliver.product)] += order.quantity;
-                    print_info("Pop requested stuff");
-                }
+            // if(order.type == OrderType::INDUSTRIAL) continue;
+
+            // Give both goverments their part of the tax (when tax is 1.0< then the goverment pays for it)
+            order.province->controller->budget += total_order_cost - order_cost;
+            deliver.province->controller->budget += total_deliver_cost - deliver_cost;
+
+            // Province receives a small (military) supply buff from commerce
+            order.province->supply_rem += 5.f;
+            order.province->supply_rem = std::min(order.province->supply_limit, order.province->supply_rem);
+
+            // Obtain number of goods that we can satisfy
+            const size_t count = std::min<size_t>(order.quantity, deliver.quantity);
+            // Add to stockpile (duplicate items) to the province at each transporting
+            order.province->stockpile[world.get_id(deliver.product)] += count;
+            deliver.quantity -= count;
+            order.quantity -= count;
+
+            // Increment demand of the product, and decrement supply when the demand is fullfilled
+            deliver.product->demand += count;
+
+            if(order.type == OrderType::INDUSTRIAL) {
+                // Duplicate products and put them into the province's stock (a commerce buff)
+                order.building->add_to_stock(order.good, count);
 
                 // Increment the production cost of this building which is used
                 // so we sell our product at a profit instead  of at a loss
                 order.building->production_cost += deliver.product->price;
-
-                deliver.product->supply += deliver.quantity;
-
-                // Delete this deliver and order tickets from the system since
-                // they are now fullfilled (only delete when no quanity left)
-                if(!order.quantity) {
-                    world.orders.erase(world.orders.begin() + j);
-                } if(!deliver.quantity) {
-                    world.delivers.erase(world.delivers.begin() + i);
-                    i--;
+            } else if(order.type == OrderType::BUILDING) {
+                // The building will take the production materials
+                // and use them for building the unit
+                order.building->get_owner()->budget -= total_order_cost;
+                for(auto& p : order.building->req_goods) {
+                    if(p.first != deliver.good) continue;
+                    p.second -= std::min(deliver.quantity, p.second);
                 }
-                break;
+            } else if(order.type == OrderType::UNIT) {
+                // TODO: We should deduct and set willing payment from military spendings
+                order.building->get_owner()->budget -= total_order_cost;
+                for(auto& p : order.building->req_goods) {
+                    if(p.first == deliver.good) {
+                        p.second -= std::min(deliver.quantity, p.second);
+                        break;
+                    }
+                }
+            } else if(order.type == OrderType::POP) {
+                // Nobody is to be billed ... transport company still obtains their money & delivers to the province
+                order.province->stockpile[world.get_id(deliver.product)] += order.quantity;
+                print_info("Pop requested stuff");
             }
+
+            // Increment the production cost of this building which is used
+            // so we sell our product at a profit instead  of at a loss
+            order.building->production_cost += deliver.product->price;
+
+            deliver.product->supply += deliver.quantity;
+
+            // Delete this deliver and order tickets from the system since
+            // they are now fullfilled (only delete when no quanity left)
+            if(!order.quantity) {
+                world.orders.erase(world.orders.begin() + j);
+            } if(!deliver.quantity) {
+                world.delivers.erase(world.delivers.begin() + i);
+                i--;
+            }
+            break;
         }
     }
-
 
     // The remaining delivers gets dropped and just simply add up the province's stockpile
     // Drop all rejected delivers who didn't got transported
     for(size_t i = 0; i < world.delivers.size(); i++) {
-        const DeliverGoods* deliver = &world.delivers[i];
-        Product* product = deliver->product;
+        const DeliverGoods& deliver = world.delivers[i];
+        Product* product = deliver.product;
 
         // Add up to province stockpile
-        deliver->province->stockpile[world.get_id(product)] += deliver->quantity;
+        deliver.province->stockpile[world.get_id(product)] += deliver.quantity;
 
         // Increment supply because of incremented stockpile
-        product->supply += deliver->quantity;
+        product->supply += deliver.quantity;
     }
     world.delivers.clear();
     world.orders.clear();
@@ -665,13 +648,12 @@ void Economy::do_tick(World& world) {
                 province->stockpile[product_id] -= std::min<size_t>(province->stockpile[product_id], bought);
 
                 // Uncomment to see buyers
-                //print_info("Pop with budget %f bought %zu %s", pop.budget, (size_t)bought, product->good->name.c_str());
+                print_info("Pop with budget %f bought %zu %s", pop.budget, (size_t)bought, product->good->name.c_str());
 
                 if(product->good->is_edible) {
                     life_alloc_budget -= bought * product->price;
                     pop.life_needs_met += (float)pop.size / (float)bought;
-                }
-                else {
+                } else {
                     everyday_alloc_budget -= bought * product->price;
                     pop.everyday_needs_met += (float)pop.size / (float)bought;
                 }
@@ -692,8 +674,7 @@ void Economy::do_tick(World& world) {
                 province->pops.erase(province->pops.begin() + i);
                 i--;
                 continue;
-            }
-            else {
+            } else {
                 // Higher literacy will mean there will be less births due to sex education
                 // and will also mean that - there would be less deaths due to higher knewledge
                 int growth;
@@ -701,10 +682,9 @@ void Economy::do_tick(World& world) {
                 if(pop.life_needs_met >= -2.5f) {
                     // Starvation in -1 or 0 or >1 are amortized by literacy
                     growth = pop.life_needs_met / pop.literacy;
-                }
-                // Neither literacy nor anything else can save humans from
-                // dying due starvation
-                else {
+                } else {
+                    // Neither literacy nor anything else can save humans from
+                    // dying due starvation
                     growth = -((int)(std::rand() % pop.size));
                 }
 
@@ -714,8 +694,7 @@ void Economy::do_tick(World& world) {
 
                 if(growth < 0) {
                     growth *= province->controller->get_death_mod();
-                }
-                else {
+                } else {
                     growth *= province->controller->get_reproduction_mod();
                 }
 
@@ -732,8 +711,7 @@ void Economy::do_tick(World& world) {
                     pop.militancy -= 0.0002f;
                     pop.con -= 0.0001f;
                 }
-            }
-            else {
+            } else {
                 pop.militancy += 0.01f;
                 pop.con += 0.01f;
             }
@@ -753,13 +731,11 @@ void Economy::do_tick(World& world) {
                 // Check that laws on the province we are in allows for emigration
                 if(province->controller->current_policy.migration == ALLOW_NOBODY) {
                     goto skip_emigration;
-                }
-                else if(province->controller->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
+                } else if(province->controller->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
                     if(province->controller->is_accepted_culture(pop) == false) {
                         goto skip_emigration;
                     }
-                }
-                else if(province->controller->current_policy.migration == ALLOW_ALL_PAYMENT) {
+                } else if(province->controller->current_policy.migration == ALLOW_ALL_PAYMENT) {
                     // See if we can afford the tax
                     if(pop.budget < ((pop.budget / 1000.f) * province->controller->current_policy.export_tax)) {
                         continue;
@@ -817,8 +793,6 @@ void Economy::do_tick(World& world) {
             }
         skip_emigration:;
         }
-
-        //std::fill(province->stockpile.begin(), province->stockpile.end(), 0);
     });
 
     // Now time to do the emigration - we will create a new POP on the province
@@ -834,8 +808,7 @@ void Economy::do_tick(World& world) {
             Pop i_pop(*pop);
             i_pop.size = target.size;
             target.target->pops.push_back(i_pop);
-        }
-        else {
+        } else {
             new_pop->size += target.size;
             new_pop->budget += target.emigred.budget;
         }
