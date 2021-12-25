@@ -7,7 +7,6 @@ class Nation;
 class GameState;
 class Unit;
 class UnitType;
-class Company;
 class Province;
 class Product;
 class Technology;
@@ -30,13 +29,6 @@ namespace Interface {
     public:
         UnitType* unit_type;
         UnitTypeButton(GameState& gs, int x, int y, UnitType* unit_type, UI::Widget* parent);
-    };
-
-    class CompanyButton : public UI::Button {
-        GameState& gs;
-    public:
-        Company* company;
-        CompanyButton(GameState& gs, int x, int y, Company* company, UI::Widget* parent);
     };
 
     class ProvinceButton : public UI::Button {
@@ -94,7 +86,7 @@ namespace Interface {
         Product* product;
 
         UI::Image* good_icon;
-        UI::Button* name_btn,* company_btn,* province_btn;
+        UI::Button* name_btn,* province_btn;
         UI::Button* good_btn;
         UI::Button* price_btn,* price_rate_btn;
         UI::Chart* price_chart,* demand_chart,* supply_chart;

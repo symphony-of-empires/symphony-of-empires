@@ -11,7 +11,6 @@
 #include "nation.hpp"
 #include "product.hpp"
 #include "good.hpp"
-#include "company.hpp"
 #include "pop.hpp"
 #include "action.hpp"
 #include "diplomacy.hpp"
@@ -37,8 +36,6 @@ template<>
 class Serializer<Culture*>: public SerializerReference<World, Culture> {};
 template<>
 class Serializer<Good*>: public SerializerReference<World, Good> {};
-template<>
-class Serializer<Company*>: public SerializerReference<World, Company> {};
 template<>
 class Serializer<Unit*>: public SerializerReference<World, Unit> {};
 template<>
@@ -887,7 +884,6 @@ public:
         ::serialize(stream, &obj->type);
         ::serialize(stream, &obj->working_unit_type);
         ::serialize(stream, &obj->build_time);
-        ::serialize(stream, &obj->corporate_owner);
         ::serialize(stream, &obj->budget);
         ::serialize(stream, &obj->days_unoperational);
         ::serialize(stream, &obj->production_cost);
@@ -902,7 +898,6 @@ public:
         ::deserialize(stream, &obj->type);
         ::deserialize(stream, &obj->working_unit_type);
         ::deserialize(stream, &obj->build_time);
-        ::deserialize(stream, &obj->corporate_owner);
         ::deserialize(stream, &obj->budget);
         ::deserialize(stream, &obj->days_unoperational);
         ::deserialize(stream, &obj->production_cost);
@@ -918,7 +913,6 @@ public:
             serialized_size(&obj->type)
             + serialized_size(&obj->working_unit_type)
             + serialized_size(&obj->build_time)
-            + serialized_size(&obj->corporate_owner)
             + serialized_size(&obj->budget)
             + serialized_size(&obj->days_unoperational)
             + serialized_size(&obj->production_cost)
@@ -933,45 +927,9 @@ public:
 };
 
 template<>
-class Serializer<Company> {
-public:
-    static inline void serialize(Archive& stream, const Company* obj) {
-        ::serialize(stream, &obj->name);
-
-        ::serialize(stream, &obj->money);
-        ::serialize(stream, &obj->is_transport);
-        ::serialize(stream, &obj->is_retailer);
-        ::serialize(stream, &obj->is_industry);
-
-        ::serialize(stream, &obj->operating_provinces);
-    }
-    static inline void deserialize(Archive& stream, Company* obj) {
-        ::deserialize(stream, &obj->name);
-
-        ::deserialize(stream, &obj->money);
-        ::deserialize(stream, &obj->is_transport);
-        ::deserialize(stream, &obj->is_retailer);
-        ::deserialize(stream, &obj->is_industry);
-
-        ::deserialize(stream, &obj->operating_provinces);
-    }
-    static inline size_t size(const Company* obj) {
-        return
-            serialized_size(&obj->name)
-            + serialized_size(&obj->money)
-            + serialized_size(&obj->is_transport)
-            + serialized_size(&obj->is_retailer)
-            + serialized_size(&obj->is_industry)
-            + serialized_size(&obj->operating_provinces)
-            ;
-    }
-};
-
-template<>
 class Serializer<Product> {
 public:
     static inline void serialize(Archive& stream, const Product* obj) {
-        ::serialize(stream, &obj->owner);
         ::serialize(stream, &obj->building);
         ::serialize(stream, &obj->good);
         ::serialize(stream, &obj->price);
@@ -980,7 +938,6 @@ public:
         ::serialize(stream, &obj->demand);
     }
     static inline void deserialize(Archive& stream, Product* obj) {
-        ::deserialize(stream, &obj->owner);
         ::deserialize(stream, &obj->building);
         ::deserialize(stream, &obj->good);
         ::deserialize(stream, &obj->price);
@@ -990,8 +947,7 @@ public:
     }
     static inline size_t size(const Product* obj) {
         return
-            serialized_size(&obj->owner)
-            + serialized_size(&obj->building)
+            serialized_size(&obj->building)
             + serialized_size(&obj->good)
             + serialized_size(&obj->price)
             + serialized_size(&obj->price_vel)
@@ -1339,8 +1295,6 @@ public:
         ::serialize(stream, &n_nations);
         const Province::Id n_provinces = obj->provinces.size();
         ::serialize(stream, &n_provinces);
-        const Company::Id n_companies = obj->companies.size();
-        ::serialize(stream, &n_companies);
         const Product::Id n_products = obj->products.size();
         ::serialize(stream, &n_products);
         const Event::Id n_events = obj->events.size();
@@ -1372,7 +1326,6 @@ public:
         print_info("  n_pop_types %zu", obj->pop_types.size());
         print_info("  n_nations %zu", obj->nations.size());
         print_info("  n_provinces %zu", obj->provinces.size());
-        print_info("  n_companies %zu", obj->companies.size());
         print_info("  n_products %zu", obj->products.size());
         print_info("  n_events %zu", obj->events.size());
         print_info("  n_unit_traits %zu", obj->unit_traits.size());
@@ -1408,10 +1361,6 @@ public:
         }
 
         for(auto& sub_obj : obj->provinces) {
-            ::serialize(stream, sub_obj);
-        }
-
-        for(auto& sub_obj : obj->companies) {
             ::serialize(stream, sub_obj);
         }
 
@@ -1484,7 +1433,6 @@ public:
         PopType::Id n_pop_types = deserialize_and_create_list<PopType>(stream, obj);
         Nation::Id n_nations = deserialize_and_create_list<Nation>(stream, obj);
         Province::Id n_provinces = deserialize_and_create_list<Province>(stream, obj);
-        Company::Id n_companies = deserialize_and_create_list<Company>(stream, obj);
         Product::Id n_products = deserialize_and_create_list<Product>(stream, obj);
         Event::Id n_events = deserialize_and_create_list<Event>(stream, obj);
         UnitTrait::Id n_unit_traits = deserialize_and_create_list<UnitTrait>(stream, obj);
@@ -1505,7 +1453,6 @@ public:
         print_info("  n_pop_types %zu", obj->pop_types.size());
         print_info("  n_nations %zu", obj->nations.size());
         print_info("  n_provinces %zu", obj->provinces.size());
-        print_info("  n_companies %zu", obj->companies.size());
         print_info("  n_products %zu", obj->products.size());
         print_info("  n_events %zu", obj->events.size());
         print_info("  n_unit_traits %zu", obj->unit_traits.size());
@@ -1549,11 +1496,6 @@ public:
 
         for(size_t i = 0; i < n_provinces; i++) {
             auto* sub_obj = obj->provinces[i];
-            ::deserialize(stream, sub_obj);
-        }
-
-        for(size_t i = 0; i < n_companies; i++) {
-            auto* sub_obj = obj->companies[i];
             ::deserialize(stream, sub_obj);
         }
 
@@ -1627,7 +1569,6 @@ public:
             + (obj->pop_types.size() * sizeof(PopType))
             + (obj->nations.size() * sizeof(Nation))
             + (obj->provinces.size() * sizeof(Province))
-            + (obj->companies.size() * sizeof(Company))
             + (obj->products.size() * sizeof(Product))
             + (obj->events.size() * sizeof(Event))
             + (obj->unit_traits.size() * sizeof(UnitTrait))

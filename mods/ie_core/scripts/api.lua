@@ -174,29 +174,6 @@ function UnitTrait:register()
 	self.id = add_unit_trait(self.ref_name, self.supply_consumption_mod, self.speed_mod, self.max_health_mod, self.defense_mod, self.attack_mod)
 end
 
-Company = {
-	id = 0,
-	name = "",
-	is_transport = false,
-	is_retailer = false,
-	is_industry = false,
-	money = 0,
-}
-function Company:new(o)
-	o = o or {}
-	setmetatable(o, self)
-	self.__index = self
-	return o
-end
-function Company:register()
-	self.id = add_company(self.name, self.money, self.is_transport, self.is_retailer, self.is_industry)
-end
-
--- Add a province to the list of operational provinces
-function Company:add_province(province)
-	add_op_province_to_company(self.id, province.id)
-end
-
 Nation = {
 	id = 0,
 	name = "",
@@ -446,8 +423,8 @@ end
 function Province:set_terrain(terrain_type)
 	set_province_terrain(self.id, terrain_type.id)
 end
-function Province:add_industry(industry_type, nation, company)
-	add_province_industry(self.id, company.id, industry_type.id, nation.id)
+function Province:add_industry(industry_type, nation)
+	add_province_industry(self.id, industry_type.id, nation.id)
 end
 function Province:give_to(nation)
 	give_province_to(self.id, nation.id)

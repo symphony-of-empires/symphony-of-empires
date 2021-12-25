@@ -2,7 +2,6 @@
 #include "world.hpp"
 #include "product.hpp"
 #include "good.hpp"
-#include "company.hpp"
 #include "unit.hpp"
 #include "building.hpp"
 

@@ -102,11 +102,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
                 o.gs.world->get_id(product) * 97
             );
 
-            products_data.push_back(UI::ChartData(
-                product->demand,
-                product->owner->name + "'s " + product->good->name,
-                product_col
-            ));
+            products_data.push_back(UI::ChartData(product->demand, product->good->name, product_col));
         }
         o.products_pie->set_data(products_data);
     });
@@ -137,7 +133,7 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
     build_btn->text("Build new");
     build_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent->parent);
-        new BuildingBuildView(o.gs, 0, 0, false, o.gs.curr_nation, o.province, nullptr);
+        new BuildingBuildView(o.gs, 0, 0, false, o.gs.curr_nation, o.province);
     });
     dy += build_btn->height;
 

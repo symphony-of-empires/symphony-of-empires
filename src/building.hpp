@@ -2,7 +2,6 @@
 
 #include "unified_render/entity.hpp"
 #include "unit.hpp"
-#include "company.hpp"
 
 class Technology;
 
@@ -64,9 +63,6 @@ public:
     
     // Province that "supplies" this building
     Province* province;
-    
-    // Corporate owner of this building
-    Company* corporate_owner;
 
     // Total money that the factory has
     float budget = 0.f;

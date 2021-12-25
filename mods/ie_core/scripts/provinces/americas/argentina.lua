@@ -51,7 +51,7 @@ for k, v in pairs(owned_provinces_list) do
     province:add_pop(burgeoise, argentinian, catholic, 50, 0.9)
     province:add_nucleus(argentina)
     province:give_to(argentina)
-    province:add_industry(sulfur_mine, argentina, andes_transport)
+    province:add_industry(sulfur_mine, argentina)
 end
 
 -- Uncolonized south of argentina (disputed by chile too because nobody owns them)
@@ -86,8 +86,8 @@ for k, v in pairs(mapuche_owned_provinces_list) do
     province:add_nucleus(chile)
     province:add_nucleus(Nation:get("mapuche"))
     province:give_to(Nation:get("mapuche"))
-    province:add_industry(sulfur_mine, Nation:get("mapuche"), andes_transport)
-    province:add_industry(copper_mine, Nation:get("mapuche"), andes_transport)
+    province:add_industry(sulfur_mine, Nation:get("mapuche"))
+    province:add_industry(copper_mine, Nation:get("mapuche"))
 end
 
 --------------------------------------------------------------
@@ -97,7 +97,7 @@ end
 province = Province:new{ ref_name = "falkland_islands", color = 0x078689 }
 province.name = _("Falkland Islands")
 province:register()
-province:add_industry(wheat_farm, russia, andes_transport)
+province:add_industry(wheat_farm, russia)
 province:add_pop(artisan, british, protestant, 300, 0.7)
 province:add_pop(farmer, british, protestant, 2700, 0.6)
 province:add_pop(soldier, british, protestant, 800, 0.8)

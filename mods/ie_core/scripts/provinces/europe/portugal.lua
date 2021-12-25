@@ -29,6 +29,6 @@ for k, v in pairs(portugal_provinces_list) do
     province:add_nucleus(portugal)
     province:add_nucleus(iberia)
     province:give_to(portugal)
-    province:add_industry(wheat_farm, portugal, andes_transport)
+    province:add_industry(wheat_farm, portugal)
     province:set_terrain(plains)
 end

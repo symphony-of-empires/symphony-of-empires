@@ -7,12 +7,6 @@
 #include "client/interface/common.hpp"
 
 namespace Interface {
-    class BuildingSelectCompanyTab : public UI::Group {
-        GameState& gs;
-    public:
-        BuildingSelectCompanyTab(GameState& gs, int x, int y, UI::Widget* parent);
-    };
-
     class BuildingSelectProvinceTab : public UI::Group {
         GameState& gs;
     public:
@@ -37,17 +31,15 @@ namespace Interface {
     public:
         Nation* nation = nullptr;
         Province* province = nullptr;
-        Company* company = nullptr;
         BuildingType* building_type = nullptr;
-        
-        BuildingSelectCompanyTab* company_tab;
+
         BuildingSelectProvinceTab* province_tab;
         BuildingSelectNationTab* nation_tab;
         BuildingSelectTypeTab* type_tab;
 
         bool in_tile;
         int tx, ty;
-        BuildingBuildView(GameState& gs, int tx, int ty, bool in_tile, Nation* nation = nullptr, Province* province = nullptr, Company* company = nullptr);
+        BuildingBuildView(GameState& gs, int tx, int ty, bool in_tile, Nation* nation = nullptr, Province* province = nullptr);
 
         /* The tab holds buttons which sends the packets to the server - this requires access to the parent which holds private data :) */
         friend class BuildingSelectTypeTab;

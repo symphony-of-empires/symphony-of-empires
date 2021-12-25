@@ -163,8 +163,6 @@ World::World() {
     lua_register(lua, "add_province_nucleus", LuaAPI::add_province_nucleus);
     lua_register(lua, "add_province_owner", LuaAPI::add_province_owner);
 
-    lua_register(lua, "add_company", LuaAPI::add_company);
-
     lua_register(lua, "add_event", LuaAPI::add_event);
     lua_register(lua, "get_event", LuaAPI::get_event);
     lua_register(lua, "update_event", LuaAPI::update_event);
@@ -311,9 +309,6 @@ World::World() {
     lua_pushnumber(lua, TechnologyType::POLITICS);
     lua_setglobal(lua, "TECH_POLITICS");
 
-    // TODO: The. name. is. fucking. long.
-    lua_register(lua, "add_op_province_to_company", LuaAPI::add_op_province_to_company);
-
     // Set path for `require` statements in lua, this will allow us to require
     // without using data/scripts
     lua_getglobal(lua, "package");
@@ -342,8 +337,6 @@ World::~World() {
         delete unit_type;
     } for(auto& event : events) {
         delete event;
-    } for(auto& company : companies) {
-        delete company;
     } for(auto& pop_type : pop_types) {
         delete pop_type;
     } for(auto& culture : cultures) {
@@ -406,7 +399,7 @@ void World::load_initial(void) {
         "terrain_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "good_types", "industry_types",
-        "unit_types", "boat_types", "companies", "provinces", "init"
+        "unit_types", "boat_types", "provinces", "init"
     };
     lua_exec_all_of(*this, init_files);
 
@@ -476,10 +469,6 @@ void World::load_initial(void) {
                     if(nation->capital == province) {
                         nation->capital = nullptr;
                     }
-                }
-
-                for(auto& company : companies) {
-                    company->operating_provinces.erase(province);
                 }
 
                 for(size_t j = 0; j < buildings.size(); j++) {
