@@ -526,11 +526,11 @@ void Economy::do_tick(World& world) {
                 order.province->stockpile[world.get_id(deliver.product)] += order.quantity;
                 print_info("Pop requested stuff");
             }
+            order.province->stockpile[world.get_id(deliver.product)] += order.quantity;
 
             // Increment the production cost of this building which is used
             // so we sell our product at a profit instead  of at a loss
             order.building->production_cost += deliver.product->price;
-
             deliver.product->supply += deliver.quantity;
 
             // Delete this deliver and order tickets from the system since
@@ -573,7 +573,7 @@ void Economy::do_tick(World& world) {
         if(province->controller == nullptr) return;
         if(province->terrain_type->is_water_body) return;
 
-        std::vector<Product*> province_products = province->get_products();
+        //std::vector<Product*> province_products = province->get_products();
 
         // Randomness factor to emulate a pseudo-imperfect economy
         const float fuzz = std::fmod((float)(std::rand() + 1) / 1000.f, 2.f) + 1.f;
@@ -588,7 +588,7 @@ void Economy::do_tick(World& world) {
             // TODO: Should lower spending with higher literacy, and higher
             // TODO: Higher the fullfilment per unit with higher literacy
             float everyday_alloc_budget = pop.budget / 10.f;
-            for(const auto& product : province_products) {
+            for(const auto& product : world.products) {
                 const Product::Id product_id = world.get_id(product);
 
                 // Province must have stockpile
@@ -746,13 +746,11 @@ void Economy::do_tick(World& world) {
                     // Nobody is allowed in
                     if(target_province->controller->current_policy.immigration == ALLOW_NOBODY) {
                         continue;
-                    }
-                    // Only if we are accepted culture/religion
-                    else if(target_province->controller->current_policy.immigration == ALLOW_ACCEPTED_CULTURES) {
+                    } else if(target_province->controller->current_policy.immigration == ALLOW_ACCEPTED_CULTURES) {
+                        // Only if we are accepted culture/religion
                         if(!target_province->controller->is_accepted_culture(pop)) continue;
-                    }
-                    // Allowed but only if we have money (and we are treated as "imported" good)
-                    else if(target_province->controller->current_policy.immigration == ALLOW_ALL_PAYMENT) {
+                    } else if(target_province->controller->current_policy.immigration == ALLOW_ALL_PAYMENT) {
+                        // Allowed but only if we have money (and we are treated as "imported" good)
                         if(pop.budget < ((pop.budget / 1000.f) * target_province->controller->current_policy.import_tax)) {
                             continue;
                         }
