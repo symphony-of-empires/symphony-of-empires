@@ -20,7 +20,7 @@ local two_sicilies_provinces = {
 for k, v in pairs(two_sicilies_provinces) do
     province = Province:new(v)
     province:register()
-    province:add_industry(wheat_farm, two_sicilies, andes_transport)
+    province:add_industry(wheat_farm, two_sicilies)
     province:add_pop(artisan, italian, catholic, 5000, 0.9)
     province:add_pop(farmer, italian, catholic, 40000, 0.8)
     province:add_pop(soldier, italian, catholic, 8000, 0.8)
@@ -48,7 +48,7 @@ local papal_states_provinces = {
 for k, v in pairs(papal_states_provinces) do
     province = Province:new(v)
     province:register()
-    province:add_industry(wheat_farm, papal_states, andes_transport)
+    province:add_industry(wheat_farm, papal_states)
     province:add_pop(artisan, italian, catholic, 5000, 0.9)
     province:add_pop(farmer, italian, catholic, 40000, 0.8)
     province:add_pop(soldier, italian, catholic, 8000, 0.8)
@@ -84,7 +84,7 @@ local piedmont_sardinia_provinces = {
 for k, v in pairs(piedmont_sardinia_provinces) do
     province = Province:new(v)
     province:register()
-    province:add_industry(wheat_farm, piedmont_sardinia, andes_transport)
+    province:add_industry(wheat_farm, piedmont_sardinia)
     province:add_pop(artisan, italian, catholic, 5000, 0.9)
     province:add_pop(farmer, italian, catholic, 40000, 0.8)
     province:add_pop(soldier, italian, catholic, 8000, 0.8)

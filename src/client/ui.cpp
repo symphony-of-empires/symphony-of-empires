@@ -25,6 +25,7 @@
 #include "client/ui.hpp"
 #include "unified_render/texture.hpp"
 #include "unified_render/rectangle.hpp"
+#include "unified_render/state.hpp"
 
 #if !defined NOMINMAX
 #   define NOMINMAX 1
@@ -45,13 +46,13 @@ Context::Context() {
 
     widgets.reserve(255);
 
-    background = &g_texture_manager->load_texture(Path::get("ui/background2.png"));
-    window_top = &g_texture_manager->load_texture(Path::get("ui/window_top2.png"));
-    button = &g_texture_manager->load_texture(Path::get("ui/button2.png"));
-    tooltip_texture = &g_texture_manager->load_texture(Path::get("ui/tooltip.png"));
-    piechart_overlay = &g_texture_manager->load_texture(Path::get("ui/piechart.png"));
-    border_tex = &g_texture_manager->load_texture(Path::get("ui/borders/border2.png"));
-    button_border = &g_texture_manager->load_texture(Path::get("ui/borders/border_sharp2.png"));
+    background = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/background2.png"));
+    window_top = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/window_top2.png"));
+    button = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/button2.png"));
+    tooltip_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/tooltip.png"));
+    piechart_overlay = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/piechart.png"));
+    border_tex = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/borders/border2.png"));
+    button_border = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/borders/border_sharp2.png"));
 
     g_ui_context = this;
     is_drag = false;
@@ -100,7 +101,7 @@ void Context::clear_dead() {
 }
 
 void Context::prompt(const std::string& title, const std::string& text) {
-    auto* win = new UI::Window(512 / 2.f, 128 / 2.f, 512, 128, nullptr);
+    auto* win = new UI::Window(0.f, 0.f, 512, 128, nullptr);
     win->origin = UI::Origin::CENTER_SCREEN;
     win->text(title);
 
@@ -354,7 +355,7 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
         // Pinned widgets are not movable
         if(widget.is_pinned) continue;
 
-        if((int)mx >= widget.x && mx <= widget.x + widget.width && (int)my >= widget.y && my <= widget.y + 24) {
+        if((int)mx >= widget.x && mx <= widget.x + widget.width && (int)my >= widget.y && (int)my <= widget.y + 24) {
             auto& c_widget = static_cast<Window&>(widget);
             if(!c_widget.is_movable) continue;
 
@@ -474,22 +475,21 @@ UnifiedRender::Rect get_rect(UnifiedRender::Rect rect_pos, UnifiedRender::Rect v
     pos_size.y = pos_size.y > 0? pos_size.y : 1.f;
 
     if(rect_pos.left < viewport.left) {
-        float x_ratio = (viewport.left - rect_pos.left) / pos_size.x;
+        //float x_ratio = (viewport.left - rect_pos.left) / pos_size.x;
         rect_pos.left = viewport.left;
     }
     if(rect_pos.right > viewport.right) {
-        float x_ratio = (rect_pos.right - viewport.right) / pos_size.x;
+        //float x_ratio = (rect_pos.right - viewport.right) / pos_size.x;
         rect_pos.right = viewport.right;
     }
     if(rect_pos.top < viewport.top) {
-        float y_ratio = (viewport.top - rect_pos.top) / pos_size.y;
+        //float y_ratio = (viewport.top - rect_pos.top) / pos_size.y;
         rect_pos.top = viewport.top;
     }
     if(rect_pos.bottom > viewport.bottom) {
-        float y_ratio = (rect_pos.bottom - viewport.bottom) / pos_size.y;
+        //float y_ratio = (rect_pos.bottom - viewport.bottom) / pos_size.y;
         rect_pos.bottom = viewport.bottom;
     }
-
     return rect_pos;
 }
 
@@ -757,20 +757,19 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     }
 }
 
-void input_ontextinput(Input& w, const char* input, void* data) {
+void input_ontextinput(Input& w, const char* input, void*) {
     if(input != nullptr) {
         w.buffer += input;
     }
 
-    if(w.buffer.length() > 0) {
+    if(!w.buffer.empty()) {
         if(input == nullptr) {
             w.buffer.resize(w.buffer.length() - 1);
         }
 
-        if(w.buffer.length() == 0) {
+        if(w.buffer.empty()) {
             w.text(" ");
-        }
-        else {
+        } else {
             w.text(w.buffer);
         }
     }
@@ -1270,7 +1269,7 @@ void PieChart::set_data(std::vector<ChartData> new_data) {
     }
 }
 
-void PieChart::draw_triangle(float start_ratio, float end_ratio, Color color) {
+void PieChart::draw_triangle(float start_ratio, float end_ratio, UnifiedRender::Color color) {
     float x_center = width / 2.f;
     float y_center = height / 2.f;
     float radius = std::min<float>(width, height) * 0.5;

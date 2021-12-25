@@ -43,7 +43,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "company.hpp"
 #include "good.hpp"
 #include "io_impl.hpp"
 #include "unified_render/path.hpp"
@@ -95,8 +94,6 @@ const UnifiedRender::Texture& GameState::get_nation_flag(Nation& nation) {
 
 void handle_event(Input& input, GameState& gs) {
     std::pair<int, int>& mouse_pos = input.mouse_pos;
-    std::pair<float, float>& select_pos = input.select_pos;
-
     UI::Context* ui_ctx = gs.ui_ctx;
 
     int& width = gs.width;
@@ -180,7 +177,6 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_WINDOWEVENT:
             if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                std::pair<float, float> old_size = std::make_pair(width, height);
                 SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height);
 
                 ui_ctx->resize(width, height);
@@ -308,10 +304,10 @@ void main_loop(GameState& gs) {
     gs.in_game = false;
 
     // Connect to server prompt
-    /*auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &g_texture_manager->load_texture(Path::get("ui/globe.png")));
+    /*auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/globe.png")));
     mm_bg->is_fullscreen = true;
     Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
-    auto* logo = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")));
+    auto* logo = new UI::Image(0, 0, 256, 256, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/title_alt.png")));
     logo->above_of(*main_menu);
     logo->left_side_of(*main_menu);*/
 
@@ -343,6 +339,7 @@ void main_loop(GameState& gs) {
         handle_event(gs.input, gs);
 
         if(gs.current_mode == MapMode::NORMAL) {
+            std::scoped_lock lock(gs.world->world_mutex);
             handle_popups(displayed_events, displayed_treaties, gs);
         }
 
@@ -354,6 +351,7 @@ void main_loop(GameState& gs) {
         render(gs, gs.input, gs.window);
 
         if(gs.current_mode == MapMode::NORMAL) {
+            std::scoped_lock lock(gs.world->world_mutex);
             // Production queue
             if(!gs.production_queue.empty()) {
                 for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
@@ -395,10 +393,6 @@ void main_loop(GameState& gs) {
     world_th.join();
 }
 
-extern UnifiedRender::TextureManager* g_texture_manager;
-extern UnifiedRender::MaterialManager* g_material_manager;
-extern UnifiedRender::ModelManager* g_model_manager;
-
 void start_client(int argc, char** argv) {
     // globals
     GameState gs{};
@@ -412,7 +406,7 @@ void start_client(int argc, char** argv) {
             for(const auto& _entry : std::filesystem::recursive_directory_iterator(entry.path())) {
                 if(_entry.is_directory()) continue;
 
-                auto* asset = new UnifiedRender::Asset();
+                auto* asset = new UnifiedRender::Asset::File();
                 asset->path = _entry.path().lexically_relative(entry.path()).string();
                 asset->abs_path = _entry.path().string();
                 package.assets.push_back(asset);
@@ -427,11 +421,7 @@ void start_client(int argc, char** argv) {
             print_info("- %s (in %s)", asset->path.c_str(), asset->abs_path.c_str());
         }
     }
-
-    g_texture_manager = new UnifiedRender::TextureManager();
-    g_material_manager = new UnifiedRender::MaterialManager();
-    g_model_manager = new UnifiedRender::ModelManager();
-    g_sound_manager = new UnifiedRender::SoundManager();
+    
     gs.ui_ctx = new UI::Context();
 
     gs.ui_ctx->resize(gs.width, gs.height);

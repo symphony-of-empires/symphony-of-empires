@@ -24,7 +24,6 @@
 #include "unified_render/texture.hpp"
 #include "unified_render/primitive.hpp"
 #include "unified_render/shader.hpp"
-#include "unified_render/quad_2d.hpp"
 #include "unified_render/framebuffer.hpp"
 #include "unified_render/model.hpp"
 #include "province.hpp"
@@ -51,16 +50,17 @@ MapRender::MapRender(const World& _world)
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
+    auto tex_man = UnifiedRender::State::get_instance().tex_man;
     mipmap_options.internal_format = GL_RGB;
-    water_tex = &g_texture_manager->load_texture(Path::get("water_tex.png"), mipmap_options);
-    landscape_map = &g_texture_manager->load_texture(Path::get("map_col.png"), mipmap_options);
-    wave1 = &g_texture_manager->load_texture(Path::get("wave1.png"), mipmap_options);
-    wave2 = &g_texture_manager->load_texture(Path::get("wave2.png"), mipmap_options);
+    water_tex = &tex_man->load(Path::get("water_tex.png"), mipmap_options);
+    landscape_map = &tex_man->load(Path::get("map_col.png"), mipmap_options);
+    wave1 = &tex_man->load(Path::get("wave1.png"), mipmap_options);
+    wave2 = &tex_man->load(Path::get("wave2.png"), mipmap_options);
     // normal = &g_texture_manager->load_texture(Path::get("normal.png"), mipmap_options);
     // topo_map = &g_texture_manager->load_texture(Path::get("topo.png"), mipmap_options);
     mipmap_options.internal_format = GL_RED;
-    noise_tex = &g_texture_manager->load_texture(Path::get("noise_tex.png"), mipmap_options);
-    river_tex = &g_texture_manager->load_texture(Path::get("river_smal_smooth.png"), mipmap_options);
+    noise_tex = &tex_man->load(Path::get("noise_tex.png"), mipmap_options);
+    river_tex = &tex_man->load(Path::get("river_smal_smooth.png"), mipmap_options);
     // terrain_map = &g_texture_manager->load_texture(Path::get("terrain_map.png"), single_color);
     terrain_map = new UnifiedRender::Texture(Path::get("terrain_map.png"));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;

@@ -47,5 +47,5 @@ for k, v in pairs(mexico_provinces_list) do
     province:add_pop(burgeoise, mexican, catholic, 50, 0.9)
     province:add_nucleus(mexico)
     province:give_to(mexico)
-    province:add_industry(chromium_mine, mexico, andes_transport)
+    province:add_industry(chromium_mine, mexico)
 end

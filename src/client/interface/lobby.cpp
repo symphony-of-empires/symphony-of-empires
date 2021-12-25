@@ -10,7 +10,10 @@
 using namespace Interface;
 
 // Start screen
-LobbySelectView::LobbySelectView(GameState& _gs) : gs{_gs}, curr_selected_nation{0} {
+LobbySelectView::LobbySelectView(GameState& _gs)
+    : gs{ _gs },
+    curr_selected_nation{0}
+{
     select_country_lab = new UI::Label((gs.width / 2) - (320 / 2), 8, "Select a country");
 
     curr_country_btn = new UI::Button((gs.width / 2) - (320 / 2), gs.height - 48, 320, 24);

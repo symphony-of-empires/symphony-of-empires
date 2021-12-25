@@ -109,7 +109,7 @@ public:
         //     x_rad = glm::atan(intersection_point.y / intersection_point.x);
         //     x_rad += pi;
         // }
-        float y = y_rad / (pi);
+        //float y = y_rad / (pi);
         // y = 1.f - y;
         float x = x_rad / (2.f * pi);
         x += 0.5f;

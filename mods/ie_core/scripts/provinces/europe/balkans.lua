@@ -9,7 +9,7 @@ for k, v in pairs(montenegro_provinces) do
     province = Province:new(v)
     province:register()
 
-    --province:add_industry(wheat_farm, turkey, andes_transport)
+    --province:add_industry(wheat_farm, turkey)
     province:add_pop(artisan, serbian, orthodox, 5000, 0.9)
     province:add_pop(farmer, serbian, orthodox, 40000, 0.8)
     province:add_pop(soldier, serbian, orthodox, 8000, 0.8)
@@ -34,7 +34,7 @@ for k, v in pairs(serbia_provinces) do
     province = Province:new(v)
     province:register()
 
-    --province:add_industry(wheat_farm, turkey, andes_transport)
+    --province:add_industry(wheat_farm, turkey)
     province:add_pop(artisan, serbian, orthodox, 5000, 0.9)
     province:add_pop(farmer, serbian, orthodox, 40000, 0.8)
     province:add_pop(soldier, serbian, orthodox, 8000, 0.8)
@@ -66,7 +66,7 @@ for k, v in pairs(wallachia_provinces) do
     province = Province:new(v)
     province:register()
 
-    --province:add_industry(wheat_farm, turkey, andes_transport)
+    --province:add_industry(wheat_farm, turkey)
     province:add_pop(artisan, romanian, orthodox, 5000, 0.9)
     province:add_pop(farmer, romanian, orthodox, 40000, 0.8)
     province:add_pop(soldier, romanian, orthodox, 8000, 0.8)
@@ -96,7 +96,7 @@ for k, v in pairs(moldavia_provinces) do
     province = Province:new(v)
     province:register()
 
-    --province:add_industry(wheat_farm, turkey, andes_transport)
+    --province:add_industry(wheat_farm, turkey)
     province:add_pop(artisan, romanian, orthodox, 5000, 0.9)
     province:add_pop(farmer, romanian, orthodox, 40000, 0.8)
     province:add_pop(soldier, romanian, orthodox, 8000, 0.8)
@@ -124,7 +124,7 @@ for k, v in pairs(bulgaria_provinces) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, turkey, andes_transport)
+    province:add_industry(wheat_farm, turkey)
     province:add_pop(artisan, bulgarian, orthodox, 5000, 0.9)
     province:add_pop(farmer, bulgarian, orthodox, 40000, 0.8)
     province:add_pop(soldier, bulgarian, orthodox, 8000, 0.8)

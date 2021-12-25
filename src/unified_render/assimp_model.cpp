@@ -16,6 +16,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+
 using namespace UnifiedRender;
 
 // constructor, expects a filepath to a 3D model.
@@ -228,5 +229,3 @@ const Model& ModelManager::load(const std::string& path) {
     Model* model = new Model(path);
     return *model;
 }
-
-UnifiedRender::ModelManager* g_model_manager;

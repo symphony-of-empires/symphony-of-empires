@@ -19,12 +19,18 @@
 #   include <SDL2/SDL_audio.h>
 #endif
 
-#include "unified_render/sound.hpp"
-#include "unified_render/asset.hpp"
 #include <vector>
 #include <mutex>
 
+#include "unified_render/asset.hpp"
+
 namespace UnifiedRender {
+	class SoundManager;
+	class TextureManager;
+	class MaterialManager;
+	class ModelManager;
+	class Sound;
+
 	struct State {
 		SDL_Window* window;
 		SDL_GLContext context;
@@ -40,6 +46,11 @@ namespace UnifiedRender {
 		std::vector<UnifiedRender::Sound*> sound_queue;
 		std::vector<UnifiedRender::Sound*> music_queue;
 		float music_fade_value = 1.f;
+
+		UnifiedRender::SoundManager* sound_man;
+		UnifiedRender::TextureManager* tex_man;
+		UnifiedRender::MaterialManager* material_man;
+    	UnifiedRender::ModelManager* model_man;
 
 		std::vector<Package> packages;
 	};

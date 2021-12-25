@@ -42,7 +42,7 @@ for k, v in pairs(turkish_greece_provinces) do
     province = Province:new(v)
     province:register()
 
-    --province:add_industry(wheat_farm, turkey, andes_transport)
+    --province:add_industry(wheat_farm, turkey)
     province:add_pop(artisan, greek, christian, 5000, 0.9)
     province:add_pop(farmer, greek, christian, 40000, 0.8)
     province:add_pop(soldier, greek, christian, 8000, 0.8)
@@ -66,7 +66,7 @@ for k, v in pairs(greek_greece_provinces) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, turkey, andes_transport)
+    province:add_industry(wheat_farm, turkey)
     province:add_pop(artisan, greek, christian, 5000, 0.9)
     province:add_pop(farmer, greek, christian, 40000, 0.8)
     province:add_pop(soldier, greek, christian, 8000, 0.8)

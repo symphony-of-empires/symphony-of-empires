@@ -18,8 +18,8 @@ using namespace Interface;
     x## _chk->tooltip->text(body);
 
 PoliciesScreen::PoliciesScreen(GameState& _gs)
-    : gs{_gs},
-    UI::Window(0, 0, 512, 400, nullptr)
+    : UI::Window(0, 0, 512, 400, nullptr),
+    gs{ _gs }
 {
     this->new_policy = gs.curr_nation->current_policy;
 

@@ -21,7 +21,7 @@ float Unit::get_speed(Province* _province) const {
     // TODO: The comment above makes no sense since we don't do (max_move_progress / move_progress)
     const float dist_div = move_progress;
 
-    const float linear_dist = std::fabs(std::sqrt(x_dist * x_dist + y_dist * y_dist) / dist_div);
+    //const float linear_dist = std::fabs(std::sqrt(x_dist * x_dist + y_dist * y_dist) / dist_div);
     
     const float speed = type->speed / _province->terrain_type->movement_penalty;
     float radius_scale = std::cos(M_PI / (2 * World::get_instance().height) * (2 * (y_dist / dist_div) - World::get_instance().height));

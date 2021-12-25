@@ -39,5 +39,3 @@ namespace UnifiedRender {
         const Material& load_material(const std::string& path);
     };
 }
-
-extern UnifiedRender::MaterialManager* g_material_manager;

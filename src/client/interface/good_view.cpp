@@ -6,9 +6,9 @@
 using namespace Interface;
 
 ProductView::ProductView(GameState& _gs, Product* _product)
-    : gs{ _gs },
-    product{ _product },
-    UI::Window(0, 0, 512, 320)
+    : UI::Window(0, 0, 512, 320),
+    gs{ _gs },
+    product{ _product }
 {
     this->is_scroll = false;
 
@@ -73,16 +73,16 @@ ProductView::ProductView(GameState& _gs, Product* _product)
 }
 
 GoodView::GoodView(GameState& _gs, Good* _good)
-    : gs{ _gs },
-    good{ _good },
-    UI::Window(0, 0, 512, 320)
+    : UI::Window(0, 0, 512, 320),
+    gs{ _gs },
+    good{ _good }
 {
     unsigned int i;
 
     this->is_scroll = false;
 
     this->icon_img = new UI::Image(0, 0, 128, 96, nullptr, this);
-    this->icon_img->current_texture = &g_texture_manager->load_texture(Path::get("ui/icons/goods/" + good->ref_name + ".png"));
+    this->icon_img->current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/goods/" + good->ref_name + ".png"));
 
     // Piechart denoting countries which have more supply of this good
     this->sellers_pie = new UI::PieChart(0, 0, 128, 128, this);

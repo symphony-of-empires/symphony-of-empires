@@ -20,17 +20,17 @@ void ProvincePopulationTab::update_piecharts() {
 
     std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
     for(const auto& culture : gs.world->cultures) {
-        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(culture)], culture->name, UI::Color::rgba32(culture->color)));
+        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(culture)], culture->name, UnifiedRender::Color::rgba32(culture->color)));
     }
     cultures_pie->set_data(cultures_data);
 
     for(const auto& religion : gs.world->religions) {
-        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion->name, UI::Color::rgba32(religion->color)));
+        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion->name, UnifiedRender::Color::rgba32(religion->color)));
     }
     religions_pie->set_data(religions_data);
 
     for(const auto& pop_type : gs.world->pop_types) {
-        const auto color = UI::Color(
+        const auto color = UnifiedRender::Color(
             gs.world->get_id(pop_type) * 12,
             gs.world->get_id(pop_type) * 31,
             gs.world->get_id(pop_type) * 97
@@ -53,9 +53,9 @@ void ProvincePopulationTab::update_piecharts() {
 }
 
 ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
-    : gs{ _gs },
-    province{ _province },
-    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs },
+    province{ _province }
 {
     this->text(province->name);
 
@@ -79,9 +79,9 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
 }
 
 ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
-    : gs{ _gs },
-    province{ _province },
-    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs },
+    province{ _province }
 {
     this->text(province->name);
 
@@ -96,17 +96,13 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
         for(const auto& product : o.province->products) {
             if(product->building == nullptr) continue;
 
-            const auto product_col = UI::Color(
+            const auto product_col = UnifiedRender::Color(
                 o.gs.world->get_id(product) * 12,
                 o.gs.world->get_id(product) * 31,
                 o.gs.world->get_id(product) * 97
             );
 
-            products_data.push_back(UI::ChartData(
-                product->demand,
-                product->owner->name + "'s " + product->good->name,
-                product_col
-            ));
+            products_data.push_back(UI::ChartData(product->demand, product->good->name, product_col));
         }
         o.products_pie->set_data(products_data);
     });
@@ -124,9 +120,9 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
 
 #include "building.hpp"
 ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
-    : gs{ _gs },
-    province{ _province },
-    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs },
+    province{ _province }
 {
     this->text(province->name);
 
@@ -137,7 +133,7 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
     build_btn->text("Build new");
     build_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent->parent);
-        new BuildingBuildView(o.gs, 0, 0, false, o.gs.curr_nation, o.province, nullptr);
+        new BuildingBuildView(o.gs, 0, 0, false, o.gs.curr_nation, o.province);
     });
     dy += build_btn->height;
 
@@ -150,9 +146,9 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
 }
 
 ProvinceView::ProvinceView(GameState& _gs, Province* _province)
-    : gs{ _gs },
-    province{ _province },
-    UI::Window(0, 0, 720, 600)
+    : UI::Window(0, 0, 720, 600),
+    gs{ _gs },
+    province{ _province }
 {
     this->is_scroll = false;
     this->text(province->name);

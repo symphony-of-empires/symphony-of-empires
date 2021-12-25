@@ -100,8 +100,6 @@ namespace LuaAPI {
     int add_province_nucleus(lua_State* L);
     int add_province_owner(lua_State* L);
 
-    int add_company(lua_State* L);
-
     int add_event(lua_State* L);
     int get_event(lua_State* L);
     int update_event(lua_State* L);
@@ -128,9 +126,6 @@ namespace LuaAPI {
     int add_ideology(lua_State* L);
     int get_ideology(lua_State* L);
     int get_ideology_by_id(lua_State* L);
-
-    // Beta functions that exist
-    int add_op_province_to_company(lua_State* L);
 
     // Functions not part of the API
     void check_events(lua_State* L);

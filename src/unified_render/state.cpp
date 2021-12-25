@@ -1,5 +1,4 @@
 #include "unified_render/state.hpp"
-#include "unified_render/print.hpp"
 
 #ifdef _MSC_VER
 // Required before GL/gl.h
@@ -17,6 +16,12 @@
 #include <GL/glu.h>
 
 #include <cstring>
+
+#include "unified_render/print.hpp"
+#include "unified_render/sound.hpp"
+#include "unified_render/texture.hpp"
+#include "unified_render/material.hpp"
+#include "unified_render/model.hpp"
 
 using namespace UnifiedRender;
 
@@ -68,11 +73,16 @@ State::State(void) {
     fmt.format = AUDIO_S16;
     fmt.channels = 1;
     fmt.samples = 512;
-    fmt.callback = &State::mixaudio;
+    fmt.callback = &UnifiedRender::State::mixaudio;
     fmt.userdata = this;
     if(SDL_OpenAudio(&fmt, NULL) < 0)
         throw std::runtime_error("Unable to open audio: " + std::string(SDL_GetError()));
     SDL_PauseAudio(0);
+
+    tex_man = new UnifiedRender::TextureManager();
+    sound_man = new UnifiedRender::SoundManager();
+    material_man = new UnifiedRender::MaterialManager();
+    model_man = new UnifiedRender::ModelManager();
 }
 
 State::~State(void) {
@@ -91,7 +101,7 @@ void State::mixaudio(void* userdata, uint8_t* stream, int len) {
     if(gs.sound_lock.try_lock()) {
         for(unsigned int i = 0; i < gs.sound_queue.size(); ) {
             int size = gs.sound_queue.size();
-            UnifiedRender::Sound* sound = gs.sound_queue[i];
+            auto* sound = gs.sound_queue[i];
             int amount = sound->len - sound->pos;
             if(amount > len) amount = len;
             if(amount <= 0) {
@@ -106,7 +116,7 @@ void State::mixaudio(void* userdata, uint8_t* stream, int len) {
         }
 
         for(unsigned int i = 0; i < gs.music_queue.size(); ) {
-            UnifiedRender::Sound* music = gs.music_queue[i];
+            auto* music = gs.music_queue[i];
             int amount = music->len - music->pos;
             if(amount > len) amount = len;
             if(amount <= 0) {

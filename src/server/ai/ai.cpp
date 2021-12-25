@@ -274,14 +274,12 @@ void ai_build_commercial(Nation* nation, World* world) {
         // Now build the building
         Building* building = new Building();
         building->province = province;
-        building->corporate_owner = world->companies.at(0);
         building->type = world->building_types[0];
         building->owner = nation;
         building->budget = 100.f;
         
         if(building->type->is_factory) {
             building->create_factory();
-            building->corporate_owner->operating_provinces.insert(building->get_province());
             for(const auto& product : building->output_products) {
                 Packet packet = Packet();
                 Archive ar = Archive();
@@ -391,7 +389,6 @@ void ai_do_tick(Nation* nation, World* world) {
                 } else {
 					Building* building = new Building();
                     building->province = province;
-                    building->corporate_owner = nullptr;
                     building->type = world->building_types[0];
                     building->owner = nation;
                     building->budget = 100.f;

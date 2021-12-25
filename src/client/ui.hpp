@@ -17,7 +17,7 @@
 
 #include <glm/vec2.hpp>
 #include "unified_render/rectangle.hpp"
-#include "client/color.hpp"
+#include "unified_render/color.hpp"
 
 namespace UnifiedRender {
     class Texture;
@@ -168,11 +168,11 @@ namespace UI {
         const UnifiedRender::Texture* current_texture = nullptr;
         UnifiedRender::Texture* text_texture = nullptr;
         int text_offset_x = 4, text_offset_y = 4;
-        Color text_color;
+        UnifiedRender::Color text_color;
 
         Tooltip* tooltip = nullptr;
 
-        Widget* parent = nullptr;
+        Widget* parent;
         std::vector<Widget*> children;
 
         void* user_data = nullptr;
@@ -196,11 +196,11 @@ namespace UI {
 
     class ChartData {
     public:
-        ChartData(float _num, std::string _info, Color _color): num{_num}, info{_info}, color{_color} {}
-        ChartData(float _num, std::string _info, uint32_t rgba): num{_num}, info{_info}, color{Color::rgba32(rgba)} {}
+        ChartData(float _num, std::string _info, UnifiedRender::Color _color): num{_num}, info{_info}, color{_color} {}
+        ChartData(float _num, std::string _info, uint32_t rgba): num{_num}, info{_info}, color{UnifiedRender::Color::rgba32(rgba)} {}
         float num;
         std::string info; // Used for tooltips
-        Color color;
+        UnifiedRender::Color color;
     };
 
     class Group: public Widget {
@@ -347,7 +347,7 @@ namespace UI {
         void set_data(std::vector<ChartData> data);
 
     private:
-        void draw_triangle(float start_angle, float end_angle, Color color);
+        void draw_triangle(float start_angle, float end_angle, UnifiedRender::Color color);
         std::vector<ChartData> data;
         float max;
     };
