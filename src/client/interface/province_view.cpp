@@ -20,17 +20,17 @@ void ProvincePopulationTab::update_piecharts() {
 
     std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
     for(const auto& culture : gs.world->cultures) {
-        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(culture)], culture->name, UI::Color::rgba32(culture->color)));
+        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(culture)], culture->name, UnifiedRender::Color::rgba32(culture->color)));
     }
     cultures_pie->set_data(cultures_data);
 
     for(const auto& religion : gs.world->religions) {
-        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion->name, UI::Color::rgba32(religion->color)));
+        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion->name, UnifiedRender::Color::rgba32(religion->color)));
     }
     religions_pie->set_data(religions_data);
 
     for(const auto& pop_type : gs.world->pop_types) {
-        const auto color = UI::Color(
+        const auto color = UnifiedRender::Color(
             gs.world->get_id(pop_type) * 12,
             gs.world->get_id(pop_type) * 31,
             gs.world->get_id(pop_type) * 97
@@ -96,7 +96,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
         for(const auto& product : o.province->products) {
             if(product->building == nullptr) continue;
 
-            const auto product_col = UI::Color(
+            const auto product_col = UnifiedRender::Color(
                 o.gs.world->get_id(product) * 12,
                 o.gs.world->get_id(product) * 31,
                 o.gs.world->get_id(product) * 97

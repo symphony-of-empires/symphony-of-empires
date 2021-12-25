@@ -94,12 +94,12 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
 std::vector<ProvinceColor> terrain_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        province_color.push_back(ProvinceColor(i, UI::Color::rgba32(0x00000000)));
+        province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0x00000000)));
     }
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UI::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UI::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0x00000000)));
     return province_color;
 }
 
@@ -107,13 +107,13 @@ std::vector<ProvinceColor> terrain_color_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
         Province* province = world.provinces[i];
-        UI::Color color = UI::Color::rgba32(province->terrain_type->color);
+        UnifiedRender::Color color = UnifiedRender::Color::rgba32(province->terrain_type->color);
         province_color.push_back(ProvinceColor(i, color));
     }
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UI::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UI::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0x00000000)));
     return province_color;
 }
 
@@ -132,14 +132,14 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
     }
 
     // Mix each color depending of how many live there compared to max_amount
-    UI::Color min = UI::Color::rgb8(255, 229, 217);
-    UI::Color max = UI::Color::rgb8(220, 46, 35);
+    UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 229, 217);
+    UnifiedRender::Color max = UnifiedRender::Color::rgb8(220, 46, 35);
     std::vector<ProvinceColor> province_color;
     for(auto const& prov_amount : province_amounts) {
         Province::Id prov_id = prov_amount.first;
         uint32_t amount = prov_amount.second;
         float ratio = ((float)amount) / max_amount;
-        UI::Color color = UI::Color::lerp(min, max, ratio);
+        UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ratio);
         province_color.push_back(ProvinceColor(prov_id, color));
     }
     return province_color;
@@ -147,7 +147,7 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
 
 std::vector<ProvinceColor> culture_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
-    UI::Color min = UI::Color::rgb8(255, 255, 255);
+    UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 255, 255);
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
         Province* province = world.provinces[i];
         std::unordered_map<Culture::Id, size_t> culture_amounts;
@@ -171,20 +171,20 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
                 max_culture_id = pop.culture->cached_id;
             }
         }
-        UI::Color max = UI::Color::rgba32(world.cultures[max_culture_id]->color);
-        UI::Color color = UI::Color::lerp(min, max, ((float)max_amount) / total_amount);
+        UnifiedRender::Color max = UnifiedRender::Color::rgba32(world.cultures[max_culture_id]->color);
+        UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UI::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UI::Color::rgba32(0xffdddddd)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0xffdddddd)));
     return province_color;
 }
 
 std::vector<ProvinceColor> religion_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
-    UI::Color min = UI::Color::rgb8(255, 255, 255);
+    UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 255, 255);
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
         Province* province = world.provinces[i];
         std::unordered_map<Religion::Id, size_t> religion_amounts;
@@ -208,13 +208,13 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
                 max_religion_id = pop.religion->cached_id;
             }
         }
-        UI::Color max = UI::Color::rgba32(world.religions[max_religion_id]->color);
-        UI::Color color = UI::Color::lerp(min, max, ((float)max_amount) / total_amount);
+        UnifiedRender::Color max = UnifiedRender::Color::rgba32(world.religions[max_religion_id]->color);
+        UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UI::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UI::Color::rgba32(0xffdddddd)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0xffdddddd)));
     return province_color;
 }

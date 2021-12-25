@@ -911,7 +911,7 @@ void Tooltip::set_pos(int _x, int _y, int _width, int _height, int screen_w, int
 void Tooltip::text(const std::string& text) {
     // Delete old labels in vector (if any)
     for(auto& lab : labels) {
-        lab->kill();
+        delete lab;
     }
     labels.clear();
 
@@ -1055,7 +1055,7 @@ void Text::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 void Text::text(const std::string& text) {
     // Delete old labels in vector (if any)
     for(auto& lab : labels) {
-        lab->kill();
+        delete lab;
     }
     labels.clear();
 
@@ -1270,7 +1270,7 @@ void PieChart::set_data(std::vector<ChartData> new_data) {
     }
 }
 
-void PieChart::draw_triangle(float start_ratio, float end_ratio, Color color) {
+void PieChart::draw_triangle(float start_ratio, float end_ratio, UnifiedRender::Color color) {
     float x_center = width / 2.f;
     float y_center = height / 2.f;
     float radius = std::min<float>(width, height) * 0.5;
