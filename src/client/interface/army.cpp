@@ -293,7 +293,7 @@ ArmyView::ArmyView(GameState& _gs)
 
     // Hidden - only rendered on invokation and does not store state on the View directly
     // rather it stores it on the new_unit_tab
-    this->select_unit_tab = new ArmySelectUnitTab(gs, 128 + 24, 0, this);
+    this->select_unit_tab = new ArmySelectUnitTab(gs, 0, 24, this);
     this->select_unit_tab->is_render = false;
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);

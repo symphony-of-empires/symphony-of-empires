@@ -787,11 +787,8 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
 {
     if(parent != nullptr) {
         if(parent->type == UI::WidgetType::WINDOW) {
-            if(x < 24) {
-                x += 24;
-            } if(y < 24 + 24) {
-                y += 24 + 24;
-            }
+            x += 24;
+            y += 24 + 24;
         }
         parent->add_child(this);
     }
