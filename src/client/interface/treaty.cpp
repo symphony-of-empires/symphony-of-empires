@@ -4,8 +4,8 @@
 using namespace Interface;
 
 TreatyDraftView::TreatyDraftView(GameState& _gs)
-    : gs{ _gs },
-    UI::Window(0, 0, 256, 512)
+    : UI::Window(0, 0, 256, 512),
+    gs{ _gs }
 {
     this->is_scroll = false;
     this->text("Draft treaty");
@@ -48,9 +48,9 @@ std::string treaty_to_text(Treaty* treaty) {
 }
 
 TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
-    : gs{ _gs },
-    treaty{ _treaty },
-    UI::Window(0, 0, 512, 256)
+    : UI::Window(0, 0, 512, 256),
+    gs{ _gs },
+    treaty{ _treaty }
 {
     this->is_scroll = false;
     this->text("Treaty proposal");

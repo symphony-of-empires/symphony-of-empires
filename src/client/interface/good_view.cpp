@@ -6,9 +6,9 @@
 using namespace Interface;
 
 ProductView::ProductView(GameState& _gs, Product* _product)
-    : gs{ _gs },
-    product{ _product },
-    UI::Window(0, 0, 512, 320)
+    : UI::Window(0, 0, 512, 320),
+    gs{ _gs },
+    product{ _product }
 {
     this->is_scroll = false;
 
@@ -73,9 +73,9 @@ ProductView::ProductView(GameState& _gs, Product* _product)
 }
 
 GoodView::GoodView(GameState& _gs, Good* _good)
-    : gs{ _gs },
-    good{ _good },
-    UI::Window(0, 0, 512, 320)
+    : UI::Window(0, 0, 512, 320),
+    gs{ _gs },
+    good{ _good }
 {
     unsigned int i;
 

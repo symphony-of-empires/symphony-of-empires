@@ -12,8 +12,8 @@
 using namespace Interface;
 
 TopWindow::TopWindow(GameState& _gs)
-    : gs{ _gs },
-    UI::Group(0, 0, _gs.width, 128)
+    : UI::Group(0, 0, _gs.width, 128),
+    gs{ _gs }
 {
     this->is_scroll = false;
     this->is_pinned = true;

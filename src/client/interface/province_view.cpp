@@ -53,9 +53,9 @@ void ProvincePopulationTab::update_piecharts() {
 }
 
 ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
-    : gs{ _gs },
-    province{ _province },
-    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs },
+    province{ _province }
 {
     this->text(province->name);
 
@@ -79,9 +79,9 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
 }
 
 ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
-    : gs{ _gs },
-    province{ _province },
-    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs },
+    province{ _province }
 {
     this->text(province->name);
 
@@ -120,9 +120,9 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
 
 #include "building.hpp"
 ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
-    : gs{ _gs },
-    province{ _province },
-    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs },
+    province{ _province }
 {
     this->text(province->name);
 
@@ -146,9 +146,9 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
 }
 
 ProvinceView::ProvinceView(GameState& _gs, Province* _province)
-    : gs{ _gs },
-    province{ _province },
-    UI::Window(0, 0, 720, 600)
+    : UI::Window(0, 0, 720, 600),
+    gs{ _gs },
+    province{ _province }
 {
     this->is_scroll = false;
     this->text(province->name);

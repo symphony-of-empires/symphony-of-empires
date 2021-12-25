@@ -94,8 +94,6 @@ const UnifiedRender::Texture& GameState::get_nation_flag(Nation& nation) {
 
 void handle_event(Input& input, GameState& gs) {
     std::pair<int, int>& mouse_pos = input.mouse_pos;
-    std::pair<float, float>& select_pos = input.select_pos;
-
     UI::Context* ui_ctx = gs.ui_ctx;
 
     int& width = gs.width;
@@ -179,7 +177,6 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_WINDOWEVENT:
             if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                std::pair<float, float> old_size = std::make_pair(width, height);
                 SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height);
 
                 ui_ctx->resize(width, height);

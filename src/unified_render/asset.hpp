@@ -18,9 +18,9 @@ namespace UnifiedRender {
             ~Base(){};
             virtual void open(void){};
             virtual void close(void){};
-            virtual void read(void* buf, size_t n){};
-            virtual void write(const void* buf, size_t n){};
-            virtual void seek(SeekType type, int offset){};
+            virtual void read(void*, size_t){};
+            virtual void write(const void*, size_t){};
+            virtual void seek(SeekType, int){};
 
             std::string path;
             std::string abs_path;

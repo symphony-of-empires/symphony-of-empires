@@ -7,8 +7,8 @@
 using namespace Interface;
 
 BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : gs{ _gs },
-    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& province : gs.world->provinces) {
@@ -23,8 +23,8 @@ BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int 
 }
 
 BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : gs{ _gs },
-    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& nation : gs.world->nations) {
@@ -39,8 +39,8 @@ BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, U
 }
 
 BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : gs{ _gs },
-    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& building_type : gs.world->building_types) {
@@ -80,13 +80,13 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
 }
 
 BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, Nation* _nation, Province* _province)
-    : gs{ _gs },
-    tx(_tx),
-    ty(_ty),
-    in_tile(_in_tile),
-    nation(_nation),
-    province(_province),
-    UI::Window(0, 0, 512, 512)
+    : UI::Window(0, 0, 512, 512),
+    gs{ _gs },
+    tx{ _tx },
+    ty{ _ty },
+    in_tile{ _in_tile },
+    nation{ _nation },
+    province{ _province }
 {
     this->is_scroll = false;
     this->text("Build a new building");
@@ -135,9 +135,9 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
 }
 
 BuildingView::BuildingView(GameState& _gs, Building* _building)
-    : gs{ _gs },
-    building(_building),
-    UI::Window(0, 0, 512, 512)
+    : UI::Window(0, 0, 512, 512),
+    gs{ _gs },
+    building{ _building }
 {
     this->is_scroll = false;
     this->text("Information for building");
