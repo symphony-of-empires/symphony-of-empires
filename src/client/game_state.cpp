@@ -396,31 +396,6 @@ void main_loop(GameState& gs) {
 void start_client(int argc, char** argv) {
     // globals
     GameState gs{};
-
-    // Register packages
-    const std::string asset_path = Path::get_full();
-    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
-        if(entry.is_directory()) {
-            auto package = UnifiedRender::Package();
-            package.name = entry.path().lexically_relative(asset_path).string();
-            for(const auto& _entry : std::filesystem::recursive_directory_iterator(entry.path())) {
-                if(_entry.is_directory()) continue;
-
-                auto* asset = new UnifiedRender::Asset::File();
-                asset->path = _entry.path().lexically_relative(entry.path()).string();
-                asset->abs_path = _entry.path().string();
-                package.assets.push_back(asset);
-            }
-            gs.packages.push_back(package);
-        }
-    }
-
-    for(const auto& package : gs.packages) {
-        print_info("PACKAGE %s", package.name.c_str());
-        for(const auto& asset : package.assets) {
-            print_info("- %s (in %s)", asset->path.c_str(), asset->abs_path.c_str());
-        }
-    }
     
     gs.ui_ctx = new UI::Context();
 
