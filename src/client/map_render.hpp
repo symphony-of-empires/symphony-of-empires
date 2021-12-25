@@ -61,17 +61,16 @@ public:
     // Map textures
     UnifiedRender::Texture* tile_map;
     UnifiedRender::Texture* tile_sheet;
-    UnifiedRender::Texture* border_tex;
     UnifiedRender::Texture* border_sdf;
     const UnifiedRender::Texture* water_tex;
     const UnifiedRender::Texture* noise_tex;
     const UnifiedRender::Texture* topo_map;
     const UnifiedRender::Texture* river_tex;
-    const UnifiedRender::Texture* terrain_map;
+    UnifiedRender::Texture* terrain_map;
     const UnifiedRender::Texture* landscape_map;
     const UnifiedRender::Texture* wave1;
     const UnifiedRender::Texture* wave2;
-    const UnifiedRender::Texture* normal10;
+    UnifiedRender::Texture* normal_topo;
     UnifiedRender::TextureArray* terrain_sheet;
 
     UnifiedRender::OpenGl::Square* map_quad;

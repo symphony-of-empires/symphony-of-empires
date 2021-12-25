@@ -12,7 +12,7 @@ uniform float time;
 uniform sampler2D tile_map;
 uniform sampler2D tile_sheet;
 uniform sampler2D water_texture;
-uniform sampler2D topo_mapture;
+uniform sampler2D topo_texture;
 uniform sampler2D noise_texture;
 uniform sampler2D terrain_map;
 uniform sampler2DArray terrain_sheet;
@@ -153,14 +153,14 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
 
     // get initial values
 	vec2 currentTexCoords = tex_coords;
-	float currentDepthMapValue = texture(topo_mapture, tex_coords).x * other_scale;
+	float currentDepthMapValue = texture(topo_texture, tex_coords).x * other_scale;
 	// currentDepthMapValue = (currentDepthMapValue - .5) * 2.;
 
 	while(currentLayerDepth < currentDepthMapValue) {
         // shift texture coordinates along direction of P
 		currentTexCoords -= deltaTexCoords;
         // get depthmap value at current texture coordinates
-		currentDepthMapValue = texture(topo_mapture, currentTexCoords).x * other_scale;  
+		currentDepthMapValue = texture(topo_texture, currentTexCoords).x * other_scale;  
 		// currentDepthMapValue = (currentDepthMapValue - .5) * 2.;
         // get depth of next layer
 		currentLayerDepth += layerDepth;
@@ -171,7 +171,7 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
 
 	// get depth after and before collision for linear interpolation
 	float afterDepth = currentDepthMapValue - currentLayerDepth;
-	float beforeDepth = texture(topo_mapture, prevTexCoords).x * other_scale - currentLayerDepth + layerDepth;
+	float beforeDepth = texture(topo_texture, prevTexCoords).x * other_scale - currentLayerDepth + layerDepth;
 
 	// interpolation of texture coordinates
 	float weight = afterDepth / (afterDepth - beforeDepth);
@@ -182,15 +182,15 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
 
 float isLake(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	return terrain.xy == vec2(1., 0.) ? 1. : 0.;
+	return 0.;
 }
 float isOcean(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	return terrain.xyz == vec3(0., 0., 0.) ? 1. : 0.;
+	return terrain.x == 0. ? 1. : 0.;
 }
 float isWater(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	return terrain.y == 0. ? 1. : 0.;
+	return terrain.x < 2./255. ? 1. : 0.;
 }
 
 vec3 gen_normal(vec2 tex_coords) {
@@ -198,12 +198,12 @@ vec3 gen_normal(vec2 tex_coords) {
 	const ivec3 off = ivec3(-1, 0, 1);
 	float steep = 8.;
 
-	vec4 wave = texture(topo_mapture, tex_coords);
+	vec4 wave = texture(topo_texture, tex_coords);
 	float s11 = steep * wave.x;
-	float s01 = steep * textureOffset(topo_mapture, tex_coords, off.xy).x;
-	float s21 = steep * textureOffset(topo_mapture, tex_coords, off.zy).x;
-	float s10 = steep * textureOffset(topo_mapture, tex_coords, off.yx).x;
-	float s12 = steep * textureOffset(topo_mapture, tex_coords, off.yz).x;
+	float s01 = steep * textureOffset(topo_texture, tex_coords, off.xy).x;
+	float s21 = steep * textureOffset(topo_texture, tex_coords, off.zy).x;
+	float s10 = steep * textureOffset(topo_texture, tex_coords, off.yx).x;
+	float s12 = steep * textureOffset(topo_texture, tex_coords, off.yz).x;
 	vec3 va = normalize(vec3(size.xy, s21 - s01));
 	vec3 vb = normalize(vec3(size.yx, s12 - s10));
 	vec4 bump = vec4(cross(va, vb), s11);
@@ -337,11 +337,11 @@ void main() {
 	vec4 prov_color = texture(tile_sheet, coord.xy * 255./256.); // Magic numbers
     prov_color = mix(vec4(1.), prov_color, pow(w_col, 5));
 
-	terrain_color = mix(terrain_color, water, isLake(tex_coords));
-	vec4 ground = mix(terrain_color, water, beach + isLake(tex_coords));
-	vec4 out_color = mix(ground, prov_color * 1.2, 0.5 * (1.-beach) * (1.-isLake(tex_coords)));
+	// terrain_color = mix(terrain_color, water, isLake(tex_coords));
+	vec4 ground = mix(terrain_color, water, beach);
+	vec4 out_color = mix(ground, prov_color * 1.2, 0.5 * (1.-beach));
 
-	float bSdf = texture2D(border_sdf, tex_coords + pix * 0.5).z;
+	float bSdf = texture2D(border_sdf, tex_coords + pix * 0.5).x;
 	vec4 mix_col = out_color;
 	if (isOcean(tex_coords) == 1.) {
 		vec4 wave = mix(water, water * 0.7, max(0., sin(bSdf * 50.)));
@@ -352,7 +352,7 @@ void main() {
 	out_color = mix(out_color, country_border, borders.y);
 	borders.x *= (1.-dist_to_map) * (1.-beach);
 	out_color = mix(out_color, province_border, borders.x);
-	float river = texture(river_texture, tex_coords).b;
+	float river = texture(river_texture, tex_coords).x;
 	out_color = mix(out_color, river_col, river * 0.4);
 
 	float ambient = 0.1;
