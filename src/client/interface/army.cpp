@@ -200,7 +200,7 @@ ArmyNewUnitTab::ArmyNewUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
 }
 
 ArmyView::ArmyView(GameState& _gs)
-    : UI::Window(0, 0, 800, 256),
+    : UI::Window(0, 0, 800, 196),
     gs{ _gs }
 {
     this->is_scroll = false;

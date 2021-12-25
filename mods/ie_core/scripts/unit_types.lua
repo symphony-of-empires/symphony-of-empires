@@ -1,4 +1,11 @@
 -- Unit types
+militia = UnitType:new{ ref_name = "militia", defense = 1.5, attack = 0.5, health = 10.0, speed = 0.5 }
+militia.name = _("Militia")
+militia:register()
+--militia:requires_good(ammunition, 200)
+--militia:requires_good(musket, 100)
+militia:requires_good(wheat, 10)
+
 garrison = UnitType:new{ ref_name = "garrison", defense = 3.0, attack = 1.0, health = 100.0, speed = 0.5 }
 garrison.name = _("Garrison")
 garrison:register()
