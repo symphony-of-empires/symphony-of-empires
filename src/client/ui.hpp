@@ -172,7 +172,7 @@ namespace UI {
 
         Tooltip* tooltip = nullptr;
 
-        Widget* parent;
+        Widget* parent = nullptr;
         std::vector<Widget*> children;
 
         void* user_data = nullptr;
