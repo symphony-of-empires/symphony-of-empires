@@ -157,7 +157,7 @@ void UnifiedRender::TextureArray::to_opengl(GLuint wrapp, GLuint min_filter, GLu
  * on the disk, and our main point is to mirror loaded textures from the disk - not modify
  * them.
  */
-const UnifiedRender::Texture& UnifiedRender::TextureManager::load_texture(const std::string& path, TextureOptions options) {
+const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::string& path, TextureOptions options) {
     // Find texture when wanting to be loaded
     auto it = std::find_if(this->textures.begin(), this->textures.end(), [&path](const std::pair<UnifiedRender::Texture*, std::string>& element) {
         return (element.second == path);
@@ -188,5 +188,3 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load_texture(const 
     this->textures.insert(std::make_pair(tex, path));
     return *((const Texture*)tex);
 }
-
-UnifiedRender::TextureManager* g_texture_manager;

@@ -68,11 +68,6 @@ inline void deserialize(Archive& ar, T* obj) {
     Serializer<T>::deserialize(ar, obj);
 }
 
-template<typename T, typename ... Targs>
-constexpr size_t serialized_size(const T* obj) {
-    return Serializer<T>::size(obj);
-}
-
 // A serializer optimized to memcpy directly the element into the byte stream
 // use only when the object can be copied without modification (i.e a class full of ints)
 // The elements must have a fixed size for this to work.
@@ -80,14 +75,11 @@ template<typename T>
 class SerializerMemcpy {
 public:
     static inline void serialize(Archive& ar, const T* obj) {
-        ar.expand(size(obj));
+        ar.expand(sizeof(T));
         ar.copy_from(obj, sizeof(T));
     }
     static inline void deserialize(Archive& ar, T* obj) {
         ar.copy_to(obj, sizeof(T));
-    }
-    static constexpr size_t size(const T*) {
-        return sizeof(T);
     }
 };
 
@@ -168,9 +160,6 @@ public:
         *obj = string;
         delete[] string;
     }
-    static inline size_t size(const std::string* obj) {
-        return sizeof(uint32_t) + (obj->length() * sizeof(char));
-    }
 };
 
 // Non-contigous serializer for STL containers
@@ -195,9 +184,6 @@ public:
             obj_group->insert(obj);
         }
     }
-    static constexpr size_t size(const C* obj_group) {
-        return sizeof(uint32_t) + (obj_group->size() * sizeof(T));
-    }
 };
 
 // Pair serializers
@@ -211,9 +197,6 @@ public:
     static inline void deserialize(Archive& ar, std::pair<T, U>* obj) {
         ::deserialize(ar, &obj->first);
         ::deserialize(ar, &obj->second);
-    }
-    static constexpr size_t size(const std::pair<T, U>* obj) {
-        return ::serialized_size(obj->first) + ::serialized_size(obj->second);
     }
 };
 
@@ -290,10 +273,6 @@ public:
             return;
         }
         *obj = (id != (typename T::Id)-1) ? W::get_instance().get_list(*obj)[id] : nullptr;
-    };
-
-    static inline size_t size(const T* const*) {
-        return sizeof(typename T::Id);
     };
 };
 

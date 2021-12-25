@@ -20,7 +20,7 @@ namespace UnifiedRender {
     }
 }
 
-#include "client/color.hpp"
+#include "unified_render/color.hpp"
 #include "map.hpp"
 
 #include <vector>

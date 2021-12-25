@@ -29,10 +29,10 @@ DescisionWindow::DescisionWindow(GameState& gs, Event& event)
 }
 
 DescisionButton::DescisionButton(UI::Window* parent, GameState& _gs, const Descision& _descision, Event& _event)
-    : gs{_gs},
-    descision{_descision},
-    event{_event},
-    UI::Button(0, parent->height - 24, parent->width, 24, parent)
+    : UI::Button(0, parent->height - 24, parent->width, 24, parent),
+    gs{ _gs },
+    descision{ _descision },
+    event{ _event }
 {
     this->text(descision.name);
     this->user_data = this;

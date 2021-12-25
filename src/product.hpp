@@ -2,7 +2,6 @@
 
 #include <string>
 #include <deque>
-#include "company.hpp"
 #include "province.hpp"
 #include "good.hpp"
 #include "building.hpp"
@@ -12,9 +11,6 @@
 class Product : public IdEntity<uint16_t> {
 public:
     void close_market(void);
-
-    // Onwer (companyId) of this product
-    Company* owner;
 
     // Building that made this product
     Building* building;

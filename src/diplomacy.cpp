@@ -161,7 +161,6 @@ bool Ceasefire::in_effect() {
 
 /** Checks if the specified nations participates in the treaty */
 bool Treaty::does_participate(Nation* nation) {
-    bool does_participate = false;
     for(auto& status : this->approval_status) {
         if(status.first == nation) {
             return true;

@@ -10,7 +10,6 @@
 #include "good.hpp"
 #include "technology.hpp"
 #include "building.hpp"
-#include "company.hpp"
 #include "ideology.hpp"
 #include "terrain.hpp"
 #include "server/lua_api.hpp"
@@ -40,7 +39,7 @@ public:
 
 /**
 * Represents an order, something an industry wants and that should be
-* fullfilled by transport companies
+* fullfilled by transport tick
  */
 enum class OrderType {
     INDUSTRIAL,
@@ -109,10 +108,10 @@ public:
 
 // Create a new list from a type, with helper functions
 #define LIST_FOR_TYPE(type, list, list_type)\
-    inline const list_type<type*>& get_list(const type* ptr) const {\
+    inline const list_type<type*>& get_list(const type*) const {\
         return list;\
     };\
-    inline list_type<type*>& get_list(const type* ptr) {\
+    inline list_type<type*>& get_list(const type*) {\
         return list;\
     };\
     list_type<type*> list;
@@ -146,7 +145,6 @@ public:
     LIST_FOR_TYPE(Product, products, std::vector);
     LIST_FOR_TYPE(Good, goods, std::vector);
     LIST_FOR_TYPE(Culture, cultures, std::vector);
-    LIST_FOR_TYPE(Company, companies, std::vector);
     LIST_FOR_TYPE(PopType, pop_types, std::vector);
     LIST_FOR_TYPE(Building, buildings, std::vector);
     LIST_FOR_TYPE(Event, events, std::vector);

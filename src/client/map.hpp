@@ -21,7 +21,7 @@ namespace UnifiedRender {
 }
 
 #include "province.hpp"
-#include "client/color.hpp"
+#include "unified_render/color.hpp"
 
 #include <vector>
 #include <utility>
@@ -43,8 +43,8 @@ struct Input;
 static const float GLOBE_RADIUS = 100.f;
 struct ProvinceColor {
     Province::Id id;
-    UI::Color color;
-    ProvinceColor(Province::Id _id, UI::Color _color): id{ _id }, color{ _color } {}
+    UnifiedRender::Color color;
+    ProvinceColor(Province::Id _id, UnifiedRender::Color _color): id{ _id }, color{ _color } {}
 };
 typedef std::function<std::vector<ProvinceColor>(const World& world)> mapmode_generator;
 std::vector<ProvinceColor> political_map_mode(const World& world);

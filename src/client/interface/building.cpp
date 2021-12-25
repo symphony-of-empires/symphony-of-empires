@@ -6,24 +6,9 @@
 
 using namespace Interface;
 
-BuildingSelectCompanyTab::BuildingSelectCompanyTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : gs{ _gs },
-    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
-{
-    unsigned int i = 0;
-    for(const auto& company : gs.world->companies) {
-        auto* btn = new CompanyButton(gs, 0, 24 * i, company, this);
-        btn->on_click = ([](UI::Widget& w, void*) {
-            auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
-            o.company = static_cast<CompanyButton&>(w).company;
-        });
-        i++;
-    }
-}
-
 BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : gs{ _gs },
-    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& province : gs.world->provinces) {
@@ -38,8 +23,8 @@ BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int 
 }
 
 BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : gs{ _gs },
-    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& nation : gs.world->nations) {
@@ -54,8 +39,8 @@ BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, U
 }
 
 BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : gs{ _gs },
-    UI::Group(x, y, _parent->width - x, _parent->height - y, _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& building_type : gs.world->building_types) {
@@ -64,11 +49,6 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
             auto& o = dynamic_cast<BuildingBuildView&>(*w.parent->parent);
             if(o.nation == nullptr) {
                 o.gs.ui_ctx->prompt("Error", "No nation selected");
-                return;
-            }
-
-            if(o.company == nullptr) {
-                o.gs.ui_ctx->prompt("Error", "No (state/private) company selected");
                 return;
             }
 			
@@ -89,32 +69,27 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
 
             auto building = Building();
             building.owner = o.nation;
-            building.corporate_owner = o.company;
             building.type = ((BuildingTypeButton&)w).building_type;
             building.province = o.province;
 			g_client->send(Action::BuildingAdd::form_packet(&building));
 
-            o.gs.ui_ctx->prompt("Production", "Building a " + building.type->name + " in " + building.get_province()->name + "; owned by " + building.corporate_owner->name + " from the country of " + building.get_owner()->name);
+            o.gs.ui_ctx->prompt("Production", "Building a " + building.type->name + " in " + building.get_province()->name + "; owned by " + building.get_owner()->name);
         });
         i++;
     }
 }
 
-BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, Nation* _nation, Province* _province, Company* _company)
-    : gs{ _gs },
-    tx(_tx),
-    ty(_ty),
-    in_tile(_in_tile),
-    nation(_nation),
-    province(_province),
-    company(_company),
-    UI::Window(0, 0, 512, 512)
+BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, Nation* _nation, Province* _province)
+    : UI::Window(0, 0, 512, 512),
+    gs{ _gs },
+    tx{ _tx },
+    ty{ _ty },
+    in_tile{ _in_tile },
+    nation{ _nation },
+    province{ _province }
 {
     this->is_scroll = false;
     this->text("Build a new building");
-
-    this->company_tab = new BuildingSelectCompanyTab(gs, 128, 24, this);
-    this->company_tab->is_render = false;
 
     this->province_tab = new BuildingSelectProvinceTab(gs, 128, 24, this);
     this->province_tab->is_render = false;
@@ -125,22 +100,10 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
     this->type_tab = new BuildingSelectTypeTab(gs, 128, 24, this);
     this->type_tab->is_render = false;
 
-    auto* company_btn = new UI::Button(0, 24, 128, 24, this);
-    company_btn->text("Company");
-    company_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<BuildingBuildView&>(*w.parent);
-        o.company_tab->is_render = true;
-        o.province_tab->is_render = false;
-        o.nation_tab->is_render = false;
-        o.type_tab->is_render = false;
-    });
-
     auto* province_btn = new UI::Button(0, 0, 128, 24, this);
-    province_btn->below_of(*company_btn);
     province_btn->text("Province");
     province_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<BuildingBuildView&>(*w.parent);
-        o.company_tab->is_render = false;
         o.province_tab->is_render = true;
         o.nation_tab->is_render = false;
         o.type_tab->is_render = false;
@@ -151,7 +114,6 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
     nation_btn->text("Nation");
     nation_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<BuildingBuildView&>(*w.parent);
-        o.company_tab->is_render = false;
         o.province_tab->is_render = false;
         o.nation_tab->is_render = true;
         o.type_tab->is_render = false;
@@ -162,7 +124,6 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
     build_btn->text("Build");
     build_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<BuildingBuildView&>(*w.parent);
-        o.company_tab->is_render = false;
         o.province_tab->is_render = false;
         o.nation_tab->is_render = false;
         o.type_tab->is_render = true;
@@ -174,9 +135,9 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
 }
 
 BuildingView::BuildingView(GameState& _gs, Building* _building)
-    : gs{ _gs },
-    building(_building),
-    UI::Window(0, 0, 512, 512)
+    : UI::Window(0, 0, 512, 512),
+    gs{ _gs },
+    building{ _building }
 {
     this->is_scroll = false;
     this->text("Information for building");

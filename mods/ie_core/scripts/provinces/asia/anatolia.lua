@@ -228,7 +228,7 @@ for k, v in pairs(otto_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, turkey, andes_transport)
+    province:add_industry(wheat_farm, turkey)
     province:add_pop(artisan, turkish, catholic, 5000, 0.9)
     province:add_pop(farmer, turkish, catholic, 40000, 0.8)
     province:add_pop(soldier, turkish, catholic, 8000, 0.8)

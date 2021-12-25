@@ -86,8 +86,6 @@ namespace UnifiedRender {
     private:
         std::set<std::pair<UnifiedRender::Texture*, std::string>> textures;
     public:
-        const Texture& load_texture(const std::string& path, TextureOptions options = default_options);
+        const Texture& load(const std::string& path, TextureOptions options = default_options);
     };
 };
-
-extern UnifiedRender::TextureManager* g_texture_manager;

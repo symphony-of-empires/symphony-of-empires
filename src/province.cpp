@@ -2,16 +2,8 @@
 #include "world.hpp"
 #include "product.hpp"
 #include "good.hpp"
-#include "company.hpp"
 #include "unit.hpp"
 #include "building.hpp"
-
-// Obtains the country that currently has a larger number of
-// tiles controlled from this province
-Nation& Province::get_occupation_controller(void) const {
-    const World& world = World::get_instance();
-    return (*controller);
-}
 
 // Calculates the total number of POPs in this province (total population)
 size_t Province::total_pops(void) const {

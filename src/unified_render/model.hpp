@@ -147,8 +147,6 @@ namespace UnifiedRender {
 #endif
 }
 
-#ifdef NO_ASSIMP
-extern UnifiedRender::ModelManager* g_model_manager;
-#else
+#ifndef NO_ASSIMP
 #include "assimp_model.hpp"
 #endif

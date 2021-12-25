@@ -26,7 +26,6 @@ namespace Interface {
 
     // View information related to the economic activity of the province
     class ProvinceEconomyTab: public UI::Group {
-        UI::PieChart* company_share_pie;
         UI::PieChart* products_pie;
         UI::PieChart* goods_pie;
 

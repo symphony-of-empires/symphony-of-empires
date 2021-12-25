@@ -9,8 +9,8 @@
 using namespace Interface;
 
 TechTreeStrategicTab::TechTreeStrategicTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : gs{ _gs },
-    UI::Group(x, y, parent->width - x, parent->height - y, parent)
+    : UI::Group(x, y, parent->width - x, parent->height - y, parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& technology : gs.world->technologies) {
@@ -23,8 +23,8 @@ TechTreeStrategicTab::TechTreeStrategicTab(GameState& _gs, int x, int y, UI::Wid
 }
 
 TechTreeMilitaryTab::TechTreeMilitaryTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : gs{ _gs },
-    UI::Group(x, y, parent->width - x, parent->height - y, parent)
+    : UI::Group(x, y, parent->width - x, parent->height - y, parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& technology : gs.world->technologies) {
@@ -37,8 +37,8 @@ TechTreeMilitaryTab::TechTreeMilitaryTab(GameState& _gs, int x, int y, UI::Widge
 }
 
 TechTreeNavyTab::TechTreeNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : gs{ _gs },
-    UI::Group(x, y, parent->width - x, parent->height - y, parent)
+    : UI::Group(x, y, parent->width - x, parent->height - y, parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& technology : gs.world->technologies) {
@@ -51,8 +51,8 @@ TechTreeNavyTab::TechTreeNavyTab(GameState& _gs, int x, int y, UI::Widget* paren
 }
 
 TechTreeSocialTab::TechTreeSocialTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : gs{ _gs },
-    UI::Group(x, y, parent->width - x, parent->height - y, parent)
+    : UI::Group(x, y, parent->width - x, parent->height - y, parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& technology : gs.world->technologies) {
@@ -65,8 +65,8 @@ TechTreeSocialTab::TechTreeSocialTab(GameState& _gs, int x, int y, UI::Widget* p
 }
 
 TechTreeEconomicTab::TechTreeEconomicTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : gs{ _gs },
-    UI::Group(x, y, parent->width - x, parent->height - y, parent)
+    : UI::Group(x, y, parent->width - x, parent->height - y, parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& technology : gs.world->technologies) {
@@ -79,8 +79,8 @@ TechTreeEconomicTab::TechTreeEconomicTab(GameState& _gs, int x, int y, UI::Widge
 }
 
 TechTreePoliticsTab::TechTreePoliticsTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : gs{ _gs },
-    UI::Group(x, y, parent->width - x, parent->height - y, parent)
+    : UI::Group(x, y, parent->width - x, parent->height - y, parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& technology : gs.world->technologies) {
@@ -93,8 +93,8 @@ TechTreePoliticsTab::TechTreePoliticsTab(GameState& _gs, int x, int y, UI::Widge
 }
 
 TechTreeView::TechTreeView(GameState& _gs)
-    : gs{ _gs },
-    UI::Window(0, 0, 800, 256)
+    : UI::Window(0, 0, 800, 256),
+    gs{ _gs }
 {
     this->is_scroll = false;
     this->text("Research");

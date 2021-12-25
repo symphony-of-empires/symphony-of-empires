@@ -17,8 +17,6 @@
 
 using namespace UnifiedRender;
 
-SoundManager* g_sound_manager = nullptr;
-
 Sound::Sound(const std::string& path) {
     SDL_AudioSpec wave;
     SDL_AudioCVT cvt;
@@ -58,7 +56,7 @@ Sound::~Sound() {
 
 const Sound& SoundManager::load(const std::string& path) {
     // Find Sound when wanting to be loaded
-    auto it = std::find_if(this->sounds.begin(), this->sounds.end(), [&path](const std::pair<UnifiedRender::Sound*, std::string>& element) {
+    auto it = std::find_if(this->sounds.begin(), this->sounds.end(), [&path](const auto& element) {
         return (element.second == path);
     });
 

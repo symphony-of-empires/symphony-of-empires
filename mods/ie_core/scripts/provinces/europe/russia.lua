@@ -638,7 +638,7 @@ for k, v in pairs(russia_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(wheat_farm, russia, andes_transport)
+    province:add_industry(wheat_farm, russia)
     province:add_pop(artisan, russian, orthodox, 5000, 0.9)
     province:add_pop(farmer, russian, orthodox, 40000, 0.8)
     province:add_pop(soldier, russian, orthodox, 8000, 0.8)

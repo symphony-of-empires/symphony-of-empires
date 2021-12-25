@@ -14,15 +14,15 @@ std::vector<ProvinceColor> culture_map_mode(const World& world);
 std::vector<ProvinceColor> religion_map_mode(const World& world);
 
 Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
-    : gs{ _gs },
-    UI::Window(x, y, 300, 256)
+    : UI::Window(x, y, 300, 256),
+    gs{ _gs }
 {
     this->origin = origin;
     this->is_pinned = true;
     this->is_scroll = false;
     this->text("Minimap");
 
-    auto* political_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* political_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/noicon.png")), this);
     political_ibtn->user_data = this;
     political_ibtn->on_click = ([](UI::Widget& w, void* data) {
         Minimap* state = (Minimap*)data;
@@ -32,7 +32,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     political_ibtn->tooltip = new UI::Tooltip(political_ibtn, 512, 24);
     political_ibtn->tooltip->text("Political");
 
-    auto* terrain_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* terrain_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/noicon.png")), this);
     terrain_ibtn->right_side_of(*political_ibtn);
     terrain_ibtn->user_data = this;
     terrain_ibtn->on_click = ([](UI::Widget& w, void* data) {
@@ -43,7 +43,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     terrain_ibtn->tooltip = new UI::Tooltip(terrain_ibtn, 512, 24);
     terrain_ibtn->tooltip->text("Political");
 
-    auto* population_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* population_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/noicon.png")), this);
     population_ibtn->right_side_of(*terrain_ibtn);
     population_ibtn->user_data = this;
     population_ibtn->on_click = ([](UI::Widget& w, void* data) {
@@ -54,7 +54,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     population_ibtn->tooltip = new UI::Tooltip(population_ibtn, 512, 24);
     population_ibtn->tooltip->text("Population");
 
-    auto* terrain_color_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* terrain_color_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/noicon.png")), this);
     terrain_color_ibtn->right_side_of(*population_ibtn);
     terrain_color_ibtn->user_data = this;
     terrain_color_ibtn->on_click = ([](UI::Widget& w, void* data) {
@@ -65,7 +65,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     terrain_color_ibtn->tooltip = new UI::Tooltip(terrain_color_ibtn, 512, 24);
     terrain_color_ibtn->tooltip->text("Terrain type");
 
-    auto* culture_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* culture_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/noicon.png")), this);
     culture_ibtn->right_side_of(*terrain_color_ibtn);
     culture_ibtn->user_data = this;
     culture_ibtn->on_click = ([](UI::Widget& w, void* data) {
@@ -76,7 +76,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     culture_ibtn->tooltip = new UI::Tooltip(culture_ibtn, 512, 24);
     culture_ibtn->tooltip->text("Culture diversity");
 
-    auto* religion_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* religion_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/noicon.png")), this);
     religion_ibtn->right_side_of(*culture_ibtn);
     religion_ibtn->user_data = this;
     religion_ibtn->on_click = ([](UI::Widget& w, void* data) {
@@ -87,19 +87,19 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     religion_ibtn->tooltip = new UI::Tooltip(religion_ibtn, 512, 24);
     religion_ibtn->tooltip->text("Religion");
 
-    auto* img = new UI::Image(0, 24, 300, 150, &g_texture_manager->load_texture(Path::get("ui/globe.png")), this);
+    auto* img = new UI::Image(0, 24, 300, 150, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/globe.png")), this);
     img->below_of(*religion_ibtn);
 }
 
 std::vector<ProvinceColor> terrain_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        province_color.push_back(ProvinceColor(i, UI::Color::rgba32(0x00000000)));
+        province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0x00000000)));
     }
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UI::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UI::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0x00000000)));
     return province_color;
 }
 
@@ -107,13 +107,13 @@ std::vector<ProvinceColor> terrain_color_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
         Province* province = world.provinces[i];
-        UI::Color color = UI::Color::rgba32(province->terrain_type->color);
+        UnifiedRender::Color color = UnifiedRender::Color::rgba32(province->terrain_type->color);
         province_color.push_back(ProvinceColor(i, color));
     }
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UI::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UI::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0x00000000)));
     return province_color;
 }
 
@@ -122,7 +122,6 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
     std::vector<std::pair<Province::Id, uint32_t>> province_amounts;
     uint32_t max_amount = 1;
     for(auto const& province : world.provinces) {
-        uint32_t color;
         uint32_t amount = 0;
         for(auto const& pop : province->pops) {
             amount += pop.size;
@@ -132,14 +131,14 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
     }
 
     // Mix each color depending of how many live there compared to max_amount
-    UI::Color min = UI::Color::rgb8(255, 229, 217);
-    UI::Color max = UI::Color::rgb8(220, 46, 35);
+    UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 229, 217);
+    UnifiedRender::Color max = UnifiedRender::Color::rgb8(220, 46, 35);
     std::vector<ProvinceColor> province_color;
     for(auto const& prov_amount : province_amounts) {
         Province::Id prov_id = prov_amount.first;
         uint32_t amount = prov_amount.second;
         float ratio = ((float)amount) / max_amount;
-        UI::Color color = UI::Color::lerp(min, max, ratio);
+        UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ratio);
         province_color.push_back(ProvinceColor(prov_id, color));
     }
     return province_color;
@@ -147,7 +146,7 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
 
 std::vector<ProvinceColor> culture_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
-    UI::Color min = UI::Color::rgb8(255, 255, 255);
+    UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 255, 255);
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
         Province* province = world.provinces[i];
         std::unordered_map<Culture::Id, size_t> culture_amounts;
@@ -171,20 +170,20 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
                 max_culture_id = pop.culture->cached_id;
             }
         }
-        UI::Color max = UI::Color::rgba32(world.cultures[max_culture_id]->color);
-        UI::Color color = UI::Color::lerp(min, max, ((float)max_amount) / total_amount);
+        UnifiedRender::Color max = UnifiedRender::Color::rgba32(world.cultures[max_culture_id]->color);
+        UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UI::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UI::Color::rgba32(0xffdddddd)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0xffdddddd)));
     return province_color;
 }
 
 std::vector<ProvinceColor> religion_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
-    UI::Color min = UI::Color::rgb8(255, 255, 255);
+    UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 255, 255);
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
         Province* province = world.provinces[i];
         std::unordered_map<Religion::Id, size_t> religion_amounts;
@@ -208,13 +207,13 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
                 max_religion_id = pop.religion->cached_id;
             }
         }
-        UI::Color max = UI::Color::rgba32(world.religions[max_religion_id]->color);
-        UI::Color color = UI::Color::lerp(min, max, ((float)max_amount) / total_amount);
+        UnifiedRender::Color max = UnifiedRender::Color::rgba32(world.religions[max_religion_id]->color);
+        UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UI::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UI::Color::rgba32(0xffdddddd)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0xffdddddd)));
     return province_color;
 }
