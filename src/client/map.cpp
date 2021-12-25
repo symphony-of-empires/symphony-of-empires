@@ -83,8 +83,7 @@ void Map::set_view(MapView view) {
     delete camera;
     if(view == MapView::PLANE_VIEW) {
         camera = new FlatCamera(old_width, old_height);
-    }
-    else if(view == MapView::SPHERE_VIEW) {
+    } else if(view == MapView::SPHERE_VIEW) {
         camera = new OrbitCamera(old_width, old_height, 100.f);
     }
 }
@@ -96,11 +95,9 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
         Nation* province_owner = world.provinces[i]->owner;
         if(province_owner == nullptr) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        }
-        else if(province_owner->cached_id == (Nation::Id)-1) {
+        } else if(province_owner->cached_id == (Nation::Id)-1) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        }
-        else {
+        } else {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }

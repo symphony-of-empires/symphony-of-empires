@@ -119,7 +119,7 @@ void Economy::do_tick(World& world) {
             size_t i = 0;
             for(const auto& output : building->output_products) {
                 // The minimum amount of workers needed is given by the employees_needed_per_output vector :)
-                const size_t employed = std::max<size_t>(std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), building->employees_needed_per_output[i]);
+                const size_t employed = std::min<size_t>(std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), building->employees_needed_per_output[i]);
                 if(output->good->is_edible) {
                     needed_farmers += employed;
                 } else {
@@ -128,8 +128,7 @@ void Economy::do_tick(World& world) {
                 needed_entrepreneurs += employed / 100;
                 ++i;
             }
-        }
-        else {
+        } else {
             needed_laborers = 50;
             needed_farmers = 50;
             needed_entrepreneurs = 50;
@@ -277,10 +276,10 @@ void Economy::do_tick(World& world) {
             }
 
             building->workers = available_farmers + available_laborers + available_entrepreneurs;
-            print_info("[%s]: %zu workers on building of type [%s]", building->get_province()->ref_name.c_str(), building->workers, building->type->ref_name.c_str());
+            /*print_info("[%s]: %zu workers on building of type [%s]", building->get_province()->ref_name.c_str(), building->workers, building->type->ref_name.c_str());
             print_info("- %zu farmers (%zu needed)", available_farmers, needed_farmers);
             print_info("- %zu laborers (%zu needed)", available_laborers, needed_laborers);
-            print_info("- %zu entrepreneurs (%zu needed)", available_entrepreneurs, needed_entrepreneurs);
+            print_info("- %zu entrepreneurs (%zu needed)", available_entrepreneurs, needed_entrepreneurs);*/
             if(!building->workers) {
                 building->days_unoperational++;
 
@@ -440,16 +439,6 @@ void Economy::do_tick(World& world) {
         // Check all orders
         for(size_t j = 0; j < world.orders.size(); j++) {
             OrderGoods& order = world.orders[j];
-            if(order.province == nullptr) {
-                print_error("PROVICE NULL");
-                world.orders.erase(world.orders.begin() + j);
-                continue;
-            }
-            if(order.province->controller == nullptr) {
-                print_error("PROVICE CONTROLLER NULL");
-                world.orders.erase(world.orders.begin() + j);
-                continue;
-            }
 
             // Do they want these goods?
             if(order.good != deliver.good) continue;
@@ -884,8 +873,8 @@ void Economy::do_tick(World& world) {
         if(product == nullptr) continue;
 
         // Uncomment to see supply-demand
-        //if(product->price_vel && product->price > 0.01f)
-        //    print_info("%s; Supply: %zu, Demand: %zu, Price %.2f", product->good->name.c_str(), product->supply, product->demand, product->price);
+        if(product->price_vel && product->price > 0.01f)
+            print_info("%s; Supply: %zu, Demand: %zu, Price %.2f", product->good->name.c_str(), product->supply, product->demand, product->price);
 
         product->close_market();
 

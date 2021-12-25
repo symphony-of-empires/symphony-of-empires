@@ -1,9 +1,10 @@
 #include "province_view.hpp"
 #include "nation_view.hpp"
 
-#include "../game_state.hpp"
-#include "../../nation.hpp"
-#include "../../world.hpp"
+#include "client/game_state.hpp"
+#include "nation.hpp"
+#include "world.hpp"
+#include "building.hpp"
 
 using namespace Interface;
 
@@ -118,7 +119,6 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
     }
 }
 
-#include "building.hpp"
 ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },

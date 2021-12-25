@@ -64,30 +64,31 @@ MapRender::MapRender(const World& _world)
     // terrain_map = &g_texture_manager->load_texture(Path::get("terrain_map.png"), single_color);
     terrain_map = new UnifiedRender::Texture(Path::get("terrain_map.png"));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
-    for(int i = 0; i < terrain_map_size; i++) {
+    for(unsigned int i = 0; i < terrain_map_size; i++) {
         uint32_t color = terrain_map->buffer[i];
         uint32_t base_index = 0xFF000000;
         if(color == 0xFF000000) {
             terrain_map->buffer[i] = base_index + 0; // Ocean
-        }
-        else if(color == 0xFFFF00FF) {
+        } else if(color == 0xFFFF00FF) {
             terrain_map->buffer[i] = base_index + 1; // Lake 
-        }
-        else if(color == 0xFFFFFFFF) {
+        } else if(color == 0xFFFFFFFF) {
             terrain_map->buffer[i] = base_index + 2; // Land
         }
     }
     UnifiedRender::TextureOptions single_color{};
     single_color.internal_format = GL_RED;
     terrain_map->to_opengl(single_color);
+    terrain_map->gen_mipmaps();
 
-    auto topo_map = UnifiedRender::Texture(Path::get("topo.png"));
+    auto topo_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("topo.png")));
     normal_topo = new UnifiedRender::Texture(Path::get("normal.png"));
-    size_t map_size = topo_map.width * topo_map.height;
-    for(int i = 0; i < map_size; i++) {
+    size_t map_size = topo_map->width * topo_map->height;
+    for(unsigned int i = 0; i < map_size; i++) {
         normal_topo->buffer[i] &= (0x00FFFFFF);
-        normal_topo->buffer[i] |= (topo_map.buffer[i] & 0xFF) << 24;
+        normal_topo->buffer[i] |= (topo_map->buffer[i] & 0xFF) << 24;
     }
+    topo_map.reset(nullptr);
+
     mipmap_options.internal_format = GL_RGBA;
     normal_topo->to_opengl(mipmap_options);
     normal_topo->gen_mipmaps();
@@ -112,13 +113,11 @@ MapRender::MapRender(const World& _world)
         const Tile& tile = world.get_tile(i);
         if(tile.province_id >= (Province::Id)-3) {
             tile_map->buffer[i] = (tile.province_id & 0xffff);
-        }
-        else {
+        } else {
             auto province = world.provinces[tile.province_id];
             if(province->owner == nullptr) {
                 tile_map->buffer[i] = province->cached_id & 0xffff;
-            }
-            else {
+            } else {
                 tile_map->buffer[i] = ((world.get_id(province->owner) & 0xffff) << 16) | (province->cached_id & 0xffff);
             }
         }
@@ -132,7 +131,7 @@ MapRender::MapRender(const World& _world)
     // Texture holding each province color
     // The x & y coords are the province Red & Green color of the tile_map
     tile_sheet = new UnifiedRender::Texture(256, 256);
-    for(size_t i = 0; i < 256 * 256; i++) {
+    for(unsigned int i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer[i] = 0xffdddddd;
     }
     tile_sheet->to_opengl();

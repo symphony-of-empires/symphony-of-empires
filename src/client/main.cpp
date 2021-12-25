@@ -69,15 +69,6 @@ int main(int argc, char** argv) {
             fclose(fp);
         }
     }
-
-    const std::string asset_path = Path::get_full();
-    print_info("Assets path: %s", asset_path.c_str());
-    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
-        if(entry.is_directory()) {
-            const auto& path = entry.path().lexically_relative(asset_path);
-            Path::add_path(path.string());
-        }
-    }
     
 #ifndef UNIT_TEST
     try {

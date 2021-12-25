@@ -14,8 +14,10 @@ DescisionWindow::DescisionWindow(GameState& gs, Event& event)
     this->text(event.title.c_str());
 
     // Body of the event text
-    auto* txt = new UI::Text(0, y, 18 * 24, 24, this);
+    auto* txt = new UI::Text(0, 0, 18 * 24, 24, this);
     txt->text(event.text);
+
+    this->height = txt->height + (event.descisions.size() * 24);
 
     // Buttons for descisions for the event
     const DescisionButton* last = nullptr;

@@ -15,7 +15,12 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#include <filesystem>
 #include <cstring>
+
+#include "unified_render/package.hpp"
+#include "unified_render/path.hpp"
+#include "unified_render/asset.hpp"
 
 #include "unified_render/print.hpp"
 #include "unified_render/sound.hpp"
@@ -52,6 +57,10 @@ State::State(void) {
     GLenum err = glewInit();
     if(err != GLEW_OK)
         throw std::runtime_error("Failed to init GLEW");
+    
+    GLint size;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
+    print_info("%d", size);
 
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(GLDebugMessageCallback, 0);
@@ -83,6 +92,40 @@ State::State(void) {
     sound_man = new UnifiedRender::SoundManager();
     material_man = new UnifiedRender::MaterialManager();
     model_man = new UnifiedRender::ModelManager();
+
+    const std::string asset_path = Path::get_full();
+    
+    print_info("Assets path: %s", asset_path.c_str());
+    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
+        if(entry.is_directory()) {
+            const auto& path = entry.path().lexically_relative(asset_path);
+            Path::add_path(path.string());
+        }
+    }
+    
+    // Register packages
+    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
+        if(!entry.is_directory()) continue;
+
+        auto package = UnifiedRender::Package();
+        package.name = entry.path().lexically_relative(asset_path).string();
+        for(const auto& _entry : std::filesystem::recursive_directory_iterator(entry.path())) {
+            if(_entry.is_directory()) continue;
+
+            auto* asset = new UnifiedRender::Asset::File();
+            asset->path = _entry.path().lexically_relative(entry.path()).string();
+            asset->abs_path = _entry.path().string();
+            package.assets.push_back(asset);
+        }
+        packages.push_back(package);
+    }
+
+    for(const auto& package : packages) {
+        print_info("PACKAGE %s", package.name.c_str());
+        for(const auto& asset : package.assets) {
+            print_info("- %s (in %s)", asset->path.c_str(), asset->abs_path.c_str());
+        }
+    }
 }
 
 State::~State(void) {
