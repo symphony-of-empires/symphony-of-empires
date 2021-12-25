@@ -5,7 +5,6 @@
 #include "world.hpp"
 #include "client/game_state.hpp"
 #include "unit.hpp"
-#include "company.hpp"
 #include "province.hpp"
 #include "product.hpp"
 #include "building.hpp"
@@ -42,19 +41,6 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_typ
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->icon_img);
     this->name_btn->text(unit_type->name);
-}
-
-CompanyButton::CompanyButton(GameState& _gs, int x, int y, Company* _company, UI::Widget* parent)
-    : gs{ _gs },
-    company{ _company },
-    UI::Button(x, y, parent->width, 24, parent)
-{
-    text(company->name);
-    on_each_tick = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<CompanyButton&>(w);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
-        w.text(o.company->name);
-    });
 }
 
 ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province, UI::Widget* parent)
@@ -230,11 +216,8 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
 {
     this->is_scroll = false;
 
-    this->company_btn = new UI::Button(0, 0, 96, 24, this);
-
     this->good_btn = new UI::Button(0, 0, 96, 24, this);
     this->good_btn->text(product->good->name);
-    this->good_btn->right_side_of(*this->company_btn);
     this->good_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new GoodView(o.gs, o.product->good);
@@ -282,8 +265,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
         o.demand_chart->data.push_back(o.product->demand);
         if(o.demand_chart->data.size() >= 30)
             o.demand_chart->data.pop_back();
-
-        o.company_btn->text(o.product->owner->name);
+        
         o.price_rate_btn->text(std::to_string(o.product->price_vel));
 
         if(o.product->price_vel >= 0.f) {

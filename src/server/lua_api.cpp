@@ -621,13 +621,11 @@ int LuaAPI::add_province_industry(lua_State* L) {
 
     Building* building = new Building();
     building->province = province;
-    building->corporate_owner = g_world->companies.at(lua_tonumber(L, 2));
-    building->type = g_world->building_types.at(lua_tonumber(L, 3));
-    building->owner = g_world->nations.at(lua_tonumber(L, 4));
+    building->type = g_world->building_types.at(lua_tonumber(L, 2));
+    building->owner = g_world->nations.at(lua_tonumber(L, 3));
     building->budget = 100.f;
     if(building->type->is_factory == true) {
         building->create_factory();
-        building->corporate_owner->operating_provinces.insert(building->get_province());
     }
     g_world->insert(building);
     return 0;
@@ -860,33 +858,6 @@ int LuaAPI::add_province_owner(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     Nation* nation = g_world->nations.at(lua_tonumber(L, 2));
     nation->give_province(*province);
-    return 0;
-}
-
-int LuaAPI::add_company(lua_State* L) {
-    if(g_world->needs_to_sync)
-        throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
-    Company* company = new Company();
-
-    company->name = luaL_checkstring(L, 1);
-    company->money = lua_tonumber(L, 2);
-    company->is_transport = lua_toboolean(L, 3);
-    company->is_retailer = lua_toboolean(L, 4);
-    company->is_industry = lua_toboolean(L, 5);
-
-    company->operating_provinces.clear();
-
-    // Add onto vector
-    g_world->insert(company);
-    lua_pushnumber(L, g_world->get_id(company));
-    return 1;
-}
-
-int LuaAPI::add_op_province_to_company(lua_State* L) {
-    auto* company = g_world->companies.at(lua_tonumber(L, 1));
-    //std::string ref_name = luaL_checkstring(L, 2);
-    //company->operating_provinces.insert(province);
     return 0;
 }
 

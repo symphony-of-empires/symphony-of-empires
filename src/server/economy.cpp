@@ -11,7 +11,6 @@
 #include "unified_render/thread_pool.hpp"
 #include "product.hpp"
 #include "good.hpp"
-#include "company.hpp"
 
 // Visual Studio does not define ssize_t because it's a POSIX-only type
 #ifdef _MSC_VER
@@ -477,14 +476,12 @@ void Economy::do_tick(World& world) {
                 const float deliver_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
 
                 float total_order_cost, total_deliver_cost;
-
-                // International trade
                 if(order.province->controller != deliver.province->controller) {
+                    // International trade
                     total_order_cost = order_cost * order_policy.import_tax;
                     total_deliver_cost = deliver_cost * order_policy.export_tax;
-                }
-                // Domestic trade
-                else {
+                } else {
+                    // Domestic trade
                     total_order_cost = order_cost * order_policy.domestic_import_tax;
                     total_deliver_cost = deliver_cost * order_policy.domestic_export_tax;
                 }
@@ -496,8 +493,7 @@ void Economy::do_tick(World& world) {
                         order.building->willing_payment = total_order_cost;
                     }
                     continue;
-                }
-                else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
+                } else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
                     deliver.building->willing_payment = total_deliver_cost;
                     continue;
                 }

@@ -121,16 +121,8 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
             w.text(o.building->get_province()->ref_name);
     });
 
-    this->company_lab = new UI::Label(0, 0, "?", this);
-    this->company_lab->right_side_of(*this->province_lab);
-    this->company_lab->text(building->corporate_owner->name);
-    this->company_lab->on_each_tick = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
-        w.text(o.building->corporate_owner->name);
-    });
-
     this->name_lab = new UI::Label(0, 0, "?", this);
-    this->name_lab->right_side_of(*this->company_lab);
+    this->name_lab->right_side_of(*this->province_lab);
     this->name_lab->text((building->working_unit_type != nullptr) ? building->working_unit_type->ref_name : "No unit");
     this->name_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);

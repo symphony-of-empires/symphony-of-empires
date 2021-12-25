@@ -43,7 +43,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "company.hpp"
 #include "good.hpp"
 #include "io_impl.hpp"
 #include "unified_render/path.hpp"

@@ -43,7 +43,6 @@ namespace Interface {
 
         UI::Image *unit_icon;
         UI::Label *province_lab;
-        UI::Label *company_lab;
         UI::Label *name_lab;
     public:
         ArmyProductionUnitInfo(GameState& gs, int x, int y, Building *building, UI::Widget* parent);

@@ -10,7 +10,6 @@
 #include "good.hpp"
 #include "technology.hpp"
 #include "building.hpp"
-#include "company.hpp"
 #include "ideology.hpp"
 #include "terrain.hpp"
 #include "server/lua_api.hpp"
@@ -40,7 +39,7 @@ public:
 
 /**
 * Represents an order, something an industry wants and that should be
-* fullfilled by transport companies
+* fullfilled by transport tick
  */
 enum class OrderType {
     INDUSTRIAL,
@@ -146,7 +145,6 @@ public:
     LIST_FOR_TYPE(Product, products, std::vector);
     LIST_FOR_TYPE(Good, goods, std::vector);
     LIST_FOR_TYPE(Culture, cultures, std::vector);
-    LIST_FOR_TYPE(Company, companies, std::vector);
     LIST_FOR_TYPE(PopType, pop_types, std::vector);
     LIST_FOR_TYPE(Building, buildings, std::vector);
     LIST_FOR_TYPE(Event, events, std::vector);

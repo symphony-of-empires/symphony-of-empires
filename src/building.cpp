@@ -26,14 +26,12 @@ Nation* Building::get_owner(void) {
 
 void Building::create_factory(void) {
     World& world = World::get_instance();
-    corporate_owner->operating_provinces.insert(get_province());
 
     // Add a product for each output
     for(const auto& output : type->outputs) {
         Product* new_product = new Product();
         new_product->building = this;
         new_product->good = output;
-        new_product->owner = corporate_owner;
 
         province->products.push_back(new_product);
         output_products.push_back(new_product);
