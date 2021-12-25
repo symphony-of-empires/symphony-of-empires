@@ -96,23 +96,6 @@ public:
         ::deserialize(stream, &obj->salary_paid_mod);
         ::deserialize(stream, &obj->workers_needed_mod);
     }
-    static inline size_t size(const NationModifier* obj) {
-        return
-            serialized_size(&obj->name)
-            + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->con_mod)
-            + serialized_size(&obj->death_mod)
-            + serialized_size(&obj->delivery_cost_mod)
-            + serialized_size(&obj->everyday_needs_met_mod)
-            + serialized_size(&obj->life_needs_met_mod)
-            + serialized_size(&obj->literacy_learn_mod)
-            + serialized_size(&obj->luxury_needs_met_mod)
-            + serialized_size(&obj->militancy_mod)
-            + serialized_size(&obj->reproduction_mod)
-            + serialized_size(&obj->salary_paid_mod)
-            + serialized_size(&obj->workers_needed_mod)
-            ;
-    }
 };
 
 template<>
@@ -143,20 +126,6 @@ public:
         ::deserialize(stream, &obj->has_war);
         ::deserialize(stream, &obj->interest);
         ::deserialize(stream, &obj->relation);
-    }
-    static inline size_t size(const NationRelation* obj) {
-        return serialized_size(&obj->free_supplies)
-            + serialized_size(&obj->has_alliance)
-            + serialized_size(&obj->has_defensive_pact)
-            + serialized_size(&obj->has_embargo)
-            + serialized_size(&obj->has_embassy)
-            + serialized_size(&obj->has_market_access)
-            + serialized_size(&obj->has_military_access)
-            + serialized_size(&obj->has_truce)
-            + serialized_size(&obj->has_war)
-            + serialized_size(&obj->interest)
-            + serialized_size(&obj->relation)
-            ;
     }
 };
 
@@ -224,33 +193,6 @@ public:
         ::deserialize(stream, &obj->min_wage);
         ::deserialize(stream, &obj->min_sv_for_parliament);
     }
-    static inline size_t size(const Policies* obj) {
-        return serialized_size(&obj->free_supplies)
-            + serialized_size(&obj->immigration)
-            + serialized_size(&obj->import_tax)
-            + serialized_size(&obj->industry_tax)
-            + serialized_size(&obj->legislative_parliament)
-            + serialized_size(&obj->med_flat_tax)
-            + serialized_size(&obj->men_labour)
-            + serialized_size(&obj->men_suffrage)
-            + serialized_size(&obj->migration)
-            + serialized_size(&obj->military_spending)
-            + serialized_size(&obj->national_id)
-            + serialized_size(&obj->poor_flat_tax)
-            + serialized_size(&obj->private_property)
-            + serialized_size(&obj->public_education)
-            + serialized_size(&obj->public_healthcare)
-            + serialized_size(&obj->rich_flat_tax)
-            + serialized_size(&obj->secular_education)
-            + serialized_size(&obj->slavery)
-            + serialized_size(&obj->social_security)
-            + serialized_size(&obj->treatment)
-            + serialized_size(&obj->women_labour)
-            + serialized_size(&obj->women_suffrage)
-            + serialized_size(&obj->min_wage)
-            + serialized_size(&obj->min_sv_for_parliament)
-        ;
-    }
 };
 
 template<>
@@ -267,13 +209,6 @@ public:
         ::deserialize(stream, &obj->ref_name);
         ::deserialize(stream, &obj->social_value);
         ::deserialize(stream, &obj->group);
-    }
-    static inline size_t size(const PopType* obj) {
-        return serialized_size(&obj->name)
-            + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->social_value)
-            + serialized_size(&obj->group)
-            ;
     }
 };
 
@@ -293,14 +228,6 @@ public:
         ::deserialize(stream, &obj->color);
         ::deserialize(stream, &obj->movement_penalty);
         ::deserialize(stream, &obj->is_water_body);
-    }
-    static inline size_t size(const TerrainType* obj) {
-        return serialized_size(&obj->name)
-            + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->color)
-            + serialized_size(&obj->movement_penalty)
-            + serialized_size(&obj->is_water_body)
-            ;
     }
 };
 
@@ -323,15 +250,6 @@ public:
         ::deserialize(stream, &obj->combo_form);
         ::deserialize(stream, &obj->color);
     }
-    static inline size_t size(const Culture* obj) {
-        return serialized_size(&obj->name)
-            + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->adjective);
-            + serialized_size(&obj->noun);
-            + serialized_size(&obj->combo_form);
-            + serialized_size(&obj->color);
-            ;
-    }
 };
 
 template<>
@@ -346,12 +264,6 @@ public:
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
         ::deserialize(stream, &obj->color);
-    }
-    static inline size_t size(const Religion* obj) {
-        return serialized_size(&obj->name)
-            + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->color)
-            ;
     }
 };
 
@@ -371,14 +283,6 @@ public:
         ::deserialize(stream, &obj->attack_mod);
         ::deserialize(stream, &obj->supply_consumption_mod);
         ::deserialize(stream, &obj->speed_mod);
-    }
-    static inline size_t size(const UnitTrait* obj) {
-        return serialized_size(&obj->ref_name)
-            + serialized_size(&obj->defense_mod)
-            + serialized_size(&obj->attack_mod)
-            + serialized_size(&obj->supply_consumption_mod)
-            + serialized_size(&obj->speed_mod)
-            ;
     }
 };
 
@@ -402,16 +306,6 @@ public:
         ::deserialize(stream, &obj->owner);
         ::deserialize(stream, &obj->traits);
         ::deserialize(stream, &obj->move_progress);
-    }
-    static inline size_t size(const Unit* obj) {
-        return serialized_size(&obj->type)
-            + serialized_size(&obj->size)
-            + serialized_size(&obj->target)
-            + serialized_size(&obj->province)
-            + serialized_size(&obj->owner)
-            + serialized_size(&obj->traits)
-            + serialized_size(&obj->move_progress)
-        ;
     }
 };
 
@@ -452,21 +346,6 @@ public:
         ::deserialize(stream, &obj->culture);
         ::deserialize(stream, &obj->religion);
     }
-    static inline size_t size(const Pop* obj) {
-        return serialized_size(&obj->size)
-            + serialized_size(&obj->unemployed)
-            + serialized_size(&obj->literacy)
-            + serialized_size(&obj->militancy)
-            + serialized_size(&obj->con)
-            + serialized_size(&obj->budget)
-            + serialized_size(&obj->life_needs_met)
-            + serialized_size(&obj->everyday_needs_met)
-            + serialized_size(&obj->luxury_needs_met)
-            + serialized_size(&obj->type)
-            + serialized_size(&obj->culture)
-            + serialized_size(&obj->religion)
-            ;
-    }
 };
 
 template<>
@@ -483,14 +362,6 @@ public:
         ::deserialize(stream, &obj->ref_name);
         ::deserialize(stream, &obj->do_descision_function);
         ::deserialize(stream, &obj->effects);
-    }
-    static inline size_t size(const Descision* obj) {
-        return
-            serialized_size(&obj->name)
-            + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->do_descision_function)
-            + serialized_size(&obj->effects)
-            ;
     }
 };
 
@@ -515,17 +386,6 @@ public:
         ::deserialize(stream, &obj->title);
         ::deserialize(stream, &obj->text);
     }
-    static inline size_t size(const Event* obj) {
-        return
-            serialized_size(&obj->ref_name)
-            + serialized_size(&obj->conditions_function)
-            + serialized_size(&obj->do_event_function)
-            + serialized_size(&obj->receivers)
-            + serialized_size(&obj->descisions)
-            + serialized_size(&obj->title)
-            + serialized_size(&obj->text)
-            ;
-    }
 };
 
 template<>
@@ -537,10 +397,8 @@ public:
     static inline void deserialize(Archive& stream, Tile* obj) {
         ::deserialize(stream, &obj->province_id);
     }
-    static inline size_t size(const Tile* obj) {
-        return serialized_size(&obj->province_id);
-    }
 };
+
 template<>
 class Serializer<OrderGoods> {
 public:
@@ -559,16 +417,6 @@ public:
         ::deserialize(stream, &obj->province);
         ::deserialize(stream, &obj->quantity);
         ::deserialize(stream, &obj->type);
-    }
-    static inline size_t size(const OrderGoods* obj) {
-        return
-            serialized_size(&obj->good)
-            + serialized_size(&obj->building)
-            + serialized_size(&obj->payment)
-            + serialized_size(&obj->province)
-            + serialized_size(&obj->quantity)
-            + serialized_size(&obj->type)
-            ;
     }
 };
 
@@ -591,16 +439,6 @@ public:
         ::deserialize(stream, &obj->province);
         ::deserialize(stream, &obj->quantity);
     }
-    static inline size_t size(const DeliverGoods* obj) {
-        return
-            serialized_size(&obj->good)
-            + serialized_size(&obj->building)
-            + serialized_size(&obj->payment)
-            + serialized_size(&obj->product)
-            + serialized_size(&obj->province)
-            + serialized_size(&obj->quantity)
-            ;
-    }
 };
 
 template<>
@@ -615,13 +453,6 @@ public:
         ::deserialize(stream, &obj->color);
         ::deserialize(stream, &obj->alt_name);
         ::deserialize(stream, &obj->ideology);
-    }
-    static inline size_t size(const NationClientHint* obj) {
-        return
-            serialized_size(&obj->color)
-            + serialized_size(&obj->alt_name)
-            + serialized_size(&obj->ideology)
-            ;
     }
 };
 
@@ -692,34 +523,6 @@ public:
         ::deserialize(stream, &obj->research);
         ::deserialize(stream, &obj->focus_tech);
     }
-    static inline size_t size(const Nation* obj) {
-        return
-            serialized_size(&obj->name)
-            + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->relations)
-            + serialized_size(&obj->spherer)
-            + serialized_size(&obj->diplomacy_points)
-            + serialized_size(&obj->prestige)
-            + serialized_size(&obj->base_literacy)
-            + serialized_size(&obj->is_civilized)
-            + serialized_size(&obj->infamy)
-            + serialized_size(&obj->military_score)
-            + serialized_size(&obj->naval_score)
-            + serialized_size(&obj->economy_score)
-            + serialized_size(&obj->budget)
-            + serialized_size(&obj->capital)
-            + serialized_size(&obj->accepted_cultures)
-            + serialized_size(&obj->accepted_religions)
-            + serialized_size(&obj->owned_provinces)
-            + serialized_size(&obj->current_policy)
-            + serialized_size(&obj->diplomatic_timer)
-            + serialized_size(&obj->inbox)
-            + serialized_size(&obj->client_hints)
-            + serialized_size(&obj->ideology)
-            + serialized_size(&obj->research)
-            + serialized_size(&obj->focus_tech)
-            ;
-    }
 };
 
 template<>
@@ -754,21 +557,6 @@ public:
         ::deserialize(stream, &obj->build_time);
         ::deserialize(stream, &obj->is_ground);
         ::deserialize(stream, &obj->is_naval);
-    }
-    static inline size_t size(const UnitType* obj) {
-        return
-            serialized_size(&obj->name)
-            + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->supply_consumption)
-            + serialized_size(&obj->speed)
-            + serialized_size(&obj->max_health)
-            + serialized_size(&obj->defense)
-            + serialized_size(&obj->attack)
-            + serialized_size(&obj->req_goods)
-            + serialized_size(&obj->build_time)
-            + serialized_size(&obj->is_ground)
-            + serialized_size(&obj->is_naval)
-            ;
     }
 };
 
@@ -817,30 +605,6 @@ public:
         ::deserialize(stream, &obj->controller);
         ::deserialize(stream, &obj->terrain_type);
     }
-    static inline size_t size(const Province* obj) {
-        return
-            serialized_size(&obj->name)
-            + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->color)
-            + serialized_size(&obj->budget)
-            + serialized_size(&obj->n_tiles)
-            + serialized_size(&obj->max_x)
-            + serialized_size(&obj->max_y)
-            + serialized_size(&obj->min_x)
-            + serialized_size(&obj->min_y)
-            + serialized_size(&obj->supply_limit)
-            + serialized_size(&obj->supply_rem)
-            + serialized_size(&obj->owner)
-            + serialized_size(&obj->nuclei)
-            + serialized_size(&obj->neighbours)
-            + serialized_size(&obj->stockpile)
-            + serialized_size(&obj->products)
-            + serialized_size(&obj->pops)
-            + serialized_size(&obj->controller)
-            + serialized_size(&obj->terrain_type)
-            ;
-        // TODO: Rest of fields
-    }
 };
 
 template<>
@@ -863,17 +627,6 @@ public:
         ::deserialize(stream, &obj->is_build_naval_units);
         ::deserialize(stream, &obj->defense_bonus);
         ::deserialize(stream, &obj->req_goods);
-    }
-    static inline size_t size(const BuildingType* obj) {
-        return
-            serialized_size(&obj->ref_name)
-            + serialized_size(&obj->is_plot_on_land)
-            + serialized_size(&obj->is_plot_on_sea)
-            + serialized_size(&obj->is_build_land_units)
-            + serialized_size(&obj->is_build_naval_units)
-            + serialized_size(&obj->defense_bonus)
-            + serialized_size(&obj->req_goods)
-            ;
     }
 };
 
@@ -908,22 +661,6 @@ public:
         ::deserialize(stream, &obj->req_goods);
         ::deserialize(stream, &obj->owner);
     }
-    static inline size_t size(const Building* obj) {
-        return
-            serialized_size(&obj->type)
-            + serialized_size(&obj->working_unit_type)
-            + serialized_size(&obj->build_time)
-            + serialized_size(&obj->budget)
-            + serialized_size(&obj->days_unoperational)
-            + serialized_size(&obj->production_cost)
-            + serialized_size(&obj->stockpile)
-            + serialized_size(&obj->output_products)
-            + serialized_size(&obj->willing_payment)
-            + serialized_size(&obj->workers)
-            + serialized_size(&obj->req_goods)
-            + serialized_size(&obj->owner)
-            ;
-    }
 };
 
 template<>
@@ -944,16 +681,6 @@ public:
         ::deserialize(stream, &obj->price_vel);
         ::deserialize(stream, &obj->supply);
         ::deserialize(stream, &obj->demand);
-    }
-    static inline size_t size(const Product* obj) {
-        return
-            serialized_size(&obj->building)
-            + serialized_size(&obj->good)
-            + serialized_size(&obj->price)
-            + serialized_size(&obj->price_vel)
-            + serialized_size(&obj->supply)
-            + serialized_size(&obj->demand)
-            ;
     }
 };
 
@@ -976,16 +703,6 @@ public:
         ::deserialize(stream, &obj->req_technologies);
         ::deserialize(stream, &obj->modifiers);
     }
-    static inline size_t size(const Technology* obj) {
-        return
-            serialized_size(&obj->name)
-            + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->description)
-            + serialized_size(&obj->cost)
-            + serialized_size(&obj->req_technologies)
-            + serialized_size(&obj->modifiers)
-            ;
-    }
 };
 
 template<>
@@ -1000,13 +717,6 @@ public:
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
         ::deserialize(stream, &obj->is_edible);
-    }
-    static inline size_t size(const Good* obj) {
-        return
-            serialized_size(&obj->name)
-            + serialized_size(&obj->ref_name)
-            + serialized_size(&obj->is_edible)
-            ;
     }
 };
 
@@ -1133,51 +843,6 @@ public:
         ::deserialize(stream, &(*obj)->days_duration);
         ::deserialize(stream, &(*obj)->done);
     }
-    static inline size_t size(const TreatyClause::BaseClause* const* obj) {
-        size_t total = 0;
-        total += ::serialized_size(&(*obj)->type);
-        switch((*obj)->type) {
-        case TreatyClauseType::ANEXX_PROVINCES:
-        {
-            const auto dyn_clause = dynamic_cast<const TreatyClause::AnexxProvince*>(*obj);
-            total += ::serialized_size(&dyn_clause->provinces);
-        }
-        break;
-        case TreatyClauseType::LIBERATE_NATION:
-        {
-            const auto dyn_clause = dynamic_cast<const TreatyClause::LiberateNation*>(*obj);
-            total += ::serialized_size(&dyn_clause->provinces);
-            total += ::serialized_size(&dyn_clause->liberated);
-        }
-        break;
-        case TreatyClauseType::IMPOSE_POLICIES:
-        {
-            const auto dyn_clause = dynamic_cast<const TreatyClause::ImposePolicies*>(*obj);
-            total += ::serialized_size(&dyn_clause->imposed);
-        }
-        break;
-        case TreatyClauseType::WAR_REPARATIONS:
-        {
-            const auto dyn_clause = dynamic_cast<const TreatyClause::WarReparations*>(*obj);
-            total += ::serialized_size(&dyn_clause->amount);
-        }
-        break;
-        case TreatyClauseType::HUMILIATE:
-        {
-            const auto dyn_clause = dynamic_cast<const TreatyClause::Humiliate*>(*obj);
-            total += ::serialized_size(&dyn_clause->amount);
-        }
-        break;
-        default:
-            break;
-        }
-
-        total += ::serialized_size(&(*obj)->receiver);
-        total += ::serialized_size(&(*obj)->sender);
-        total += ::serialized_size(&(*obj)->days_duration);
-        total += ::serialized_size(&(*obj)->done);
-        return total;
-    }
 };
 
 template<>
@@ -1197,15 +862,6 @@ public:
         ::deserialize(stream, &obj->approval_status);
         ::deserialize(stream, &obj->clauses);
     }
-    static inline size_t size(const Treaty* obj) {
-        return
-            serialized_size(&obj->name)
-            + serialized_size(&obj->receiver)
-            + serialized_size(&obj->sender)
-            + serialized_size(&obj->approval_status)
-            + serialized_size(&obj->clauses)
-            ;
-    }
 };
 
 template<>
@@ -1223,13 +879,6 @@ public:
         ::deserialize(stream, &obj->defenders);
         ::deserialize(stream, &obj->wargoals);
     }
-    static inline size_t size(const War* obj) {
-        return serialized_size(&obj->name)
-            + serialized_size(&obj->attackers)
-            + serialized_size(&obj->defenders)
-            + serialized_size(&obj->wargoals)
-            ;
-    }
 };
 
 template<>
@@ -1246,14 +895,6 @@ public:
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->color);
         ::deserialize(stream, &obj->check_policies_fn);
-    }
-    static inline size_t size(const Ideology* obj) {
-        return
-            serialized_size(&obj->ref_name)
-            + serialized_size(&obj->name)
-            + serialized_size(&obj->color)
-            + serialized_size(&obj->check_policies_fn)
-            ;
     }
 };
 
@@ -1551,35 +1192,5 @@ public:
 
         ::deserialize(stream, &obj->delivers);
         ::deserialize(stream, &obj->orders);
-    }
-
-    static inline size_t size(const World* obj) {
-        return
-            serialized_size(&obj->width)
-            + serialized_size(&obj->height)
-            + serialized_size(&obj->sea_level)
-            + serialized_size(&obj->time)
-            + serialized_size(&obj->delivers)
-            + serialized_size(&obj->orders)
-            + (sizeof(Tile) * (obj->width * obj->height))
-            + (obj->goods.size() * sizeof(Good))
-            + (obj->unit_types.size() * sizeof(UnitType))
-            + (obj->religions.size() * sizeof(Religion))
-            + (obj->cultures.size() * sizeof(Culture))
-            + (obj->pop_types.size() * sizeof(PopType))
-            + (obj->nations.size() * sizeof(Nation))
-            + (obj->provinces.size() * sizeof(Province))
-            + (obj->products.size() * sizeof(Product))
-            + (obj->events.size() * sizeof(Event))
-            + (obj->unit_traits.size() * sizeof(UnitTrait))
-            + (obj->building_types.size() * sizeof(BuildingType))
-            + (obj->buildings.size() * sizeof(Building))
-            + (obj->treaties.size() * sizeof(Treaty))
-            + (obj->ideologies.size() * sizeof(Ideology))
-            + (obj->technologies.size() * sizeof(Technology))
-            + (obj->nation_modifiers.size() * sizeof(NationModifier))
-            + (obj->terrain_types.size() * sizeof(TerrainType))
-            + (obj->wars.size() * sizeof(War))
-            ;
     }
 };
