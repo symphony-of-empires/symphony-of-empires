@@ -19,7 +19,6 @@ class Building;
 // instead of doing economical operations on every single tile
 class Province : public RefnameEntity<uint16_t> {
 public:
-    Nation& get_occupation_controller(void) const;
     size_t total_pops(void) const;
     std::vector<Product*> get_products(void) const;
     float get_attractiveness(const Pop& pop) const;

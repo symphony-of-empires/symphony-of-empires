@@ -9,8 +9,8 @@
 using namespace Interface;
 
 ArmyArmyTab::ArmyArmyTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : gs{ _gs },
-    UI::Group(x, y, parent->width - x, parent->height - y, parent)
+    : UI::Group(x, y, parent->width - x, parent->height - y, parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& unit : gs.world->units) {
@@ -27,8 +27,8 @@ ArmyArmyTab::ArmyArmyTab(GameState& _gs, int x, int y, UI::Widget* parent)
 }
 
 ArmyAirforceTab::ArmyAirforceTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : gs{ _gs },
-    UI::Group(x, y, parent->width - x, parent->height - y, parent)
+    : UI::Group(x, y, parent->width - x, parent->height - y, parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& unit : gs.world->units) {
@@ -45,8 +45,8 @@ ArmyAirforceTab::ArmyAirforceTab(GameState& _gs, int x, int y, UI::Widget* paren
 }
 
 ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : gs{ _gs },
-    UI::Group(x, y, parent->width - x, parent->height - y, parent)
+    : UI::Group(x, y, parent->width - x, parent->height - y, parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& unit : gs.world->units) {
@@ -64,8 +64,8 @@ ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
 }
 
 ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : gs{ _gs },
-    UI::Group(x, y, parent->width - x, parent->height, parent)
+    : UI::Group(x, y, parent->width - x, parent->height, parent),
+    gs{ _gs }
 {
     // Chart showing total number of required materials
     this->reqmat_chart = new UI::Chart(0, 0, 128, 128, this);
@@ -100,9 +100,9 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
 }
 
 ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Building* _building, UI::Widget* parent)
-    : gs{ _gs },
-    building{ _building },
-    UI::Group(x, y, parent->width - x, 24, parent)
+    : UI::Group(x, y, parent->width - x, 24, parent),
+    gs{ _gs },
+    building{ _building }
 {
     this->is_scroll = false;
 
@@ -157,8 +157,8 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
 }
 
 ArmySelectUnitTab::ArmySelectUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : gs{ _gs },
-    UI::Group(x, y, parent->width - x, parent->height - y, parent)
+    : UI::Group(x, y, parent->width - x, parent->height - y, parent),
+    gs{ _gs }
 {
     unsigned int i = 0;
     for(const auto& unit_type : gs.world->unit_types) {
@@ -177,8 +177,8 @@ ArmySelectUnitTab::ArmySelectUnitTab(GameState& _gs, int x, int y, UI::Widget* p
 }
 
 ArmyNewUnitTab::ArmyNewUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : gs{ _gs },
-    UI::Group(x, y, parent->width - x, parent->height - y, parent)
+    : UI::Group(x, y, parent->width - x, parent->height - y, parent),
+    gs{ _gs }
 {
     auto* select_btn = new UI::Button(0, 0, 128, 24, this);
     select_btn->text("Select type");
@@ -200,8 +200,8 @@ ArmyNewUnitTab::ArmyNewUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
 }
 
 ArmyView::ArmyView(GameState& _gs)
-    : gs{ _gs },
-    UI::Window(0, 0, 800, 256)
+    : UI::Window(0, 0, 800, 256),
+    gs{ _gs }
 {
     this->is_scroll = false;
     this->text("Army manager");

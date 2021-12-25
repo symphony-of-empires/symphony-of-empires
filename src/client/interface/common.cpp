@@ -17,9 +17,9 @@
 using namespace Interface;
 
 UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* parent)
-    : gs{ _gs },
-    unit{ _unit },
-    UI::Button(x, y, parent->width, 24, parent)
+    : UI::Button(x, y, parent->width, 24, parent),
+    gs{ _gs },
+    unit{ _unit }
 {
     text(std::to_string(unit->size) + " " + unit->type->name);
     on_each_tick = ([](UI::Widget& w, void*) {
@@ -29,9 +29,9 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* pa
 }
 
 UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_type, UI::Widget* parent)
-    : gs{ _gs },
-    unit_type{ _unit_type },
-    UI::Group(x, y, parent->width, 24, parent)
+    : UI::Group(x, y, parent->width, 24, parent),
+    gs{ _gs },
+    unit_type{ _unit_type }
 {
     this->is_scroll = false;
 
@@ -44,9 +44,9 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_typ
 }
 
 ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province, UI::Widget* parent)
-    : gs{ _gs },
-    province{ _province },
-    UI::Button(x, y, parent->width, 24, parent)
+    : UI::Button(x, y, parent->width, 24, parent),
+    gs{ _gs },
+    province{ _province }
 {
     text(province->name);
     on_each_tick = ([](UI::Widget& w, void*) {
@@ -57,9 +57,9 @@ ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province
 }
 
 NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Widget* parent)
-    : gs{ _gs },
-    nation{ _nation },
-    UI::Group(x, y, parent->width, 24, parent)
+    : UI::Group(x, y, parent->width, 24, parent),
+    gs{ _gs },
+    nation{ _nation }
 {
     this->is_scroll = false;
 
@@ -82,9 +82,9 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
 }
 
 BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Building* _building, UI::Widget* parent)
-    : gs{_gs},
-    building{_building},
-    UI::Group(x, y, parent->width, 24 * 8, parent)
+    : UI::Group(x, y, parent->width, 24 * 8, parent),
+    gs{ _gs },
+    building{ _building }
 {
     is_scroll = false;
 
@@ -116,17 +116,17 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Building* _building, UI
 }
 
 BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingType* _building_type, UI::Widget* parent)
-    : gs{ _gs },
-    building_type{_building_type},
-    UI::Button(x, y, parent->width, 24, parent)
+    : UI::Button(x, y, parent->width, 24, parent),
+    gs{ _gs },
+    building_type{_building_type}
 {
     text(building_type->name);
 }
 
 TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _technology, UI::Widget* parent)
-    : gs{ _gs },
-    technology{_technology},
-    UI::Group(x, y, parent->width, 48, parent)
+    : UI::Group(x, y, parent->width, 48, parent),
+    gs{ _gs },
+    technology{ _technology }
 {
     is_scroll = false;
 
@@ -171,10 +171,10 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
 
 
 PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, UI::Widget* parent)
-    : gs{ _gs },
+    : UI::Group(x, y, parent->width, 24, parent),
+    gs{ _gs },
     province{ _province },
-    index{ _index },
-    UI::Group(x, y, parent->width, 24, parent)
+    index{ _index }
 {
     this->is_scroll = false;
 
@@ -212,9 +212,9 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
 }
 
 ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Widget* parent)
-    : gs{ _gs },
-    product{ _product },
-    UI::Group(x, y, parent->width, 24, parent)
+    : UI::Group(x, y, parent->width, 24, parent),
+    gs{ _gs },
+    product{ _product }
 {
     this->is_scroll = false;
 

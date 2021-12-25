@@ -673,8 +673,12 @@ int LuaAPI::get_province_owner(lua_State* L) {
 /** Get the country who owms a larger chunk of the province - this is not the same as owner */
 int LuaAPI::get_province_controller(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-    Nation& nation = province->get_occupation_controller();
-    lua_pushnumber(L, g_world->get_id(&nation));
+    Nation* nation = province->controller;
+    if(nation == nullptr) {
+        lua_pushnumber(L, -1);
+    } else {
+        lua_pushnumber(L, g_world->get_id(nation));
+    }
     return 1;
 }
 

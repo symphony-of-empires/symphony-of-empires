@@ -14,8 +14,8 @@ std::vector<ProvinceColor> culture_map_mode(const World& world);
 std::vector<ProvinceColor> religion_map_mode(const World& world);
 
 Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
-    : gs{ _gs },
-    UI::Window(x, y, 300, 256)
+    : UI::Window(x, y, 300, 256),
+    gs{ _gs }
 {
     this->origin = origin;
     this->is_pinned = true;
@@ -122,7 +122,6 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
     std::vector<std::pair<Province::Id, uint32_t>> province_amounts;
     uint32_t max_amount = 1;
     for(auto const& province : world.provinces) {
-        uint32_t color;
         uint32_t amount = 0;
         for(auto const& pop : province->pops) {
             amount += pop.size;

@@ -108,10 +108,10 @@ public:
 
 // Create a new list from a type, with helper functions
 #define LIST_FOR_TYPE(type, list, list_type)\
-    inline const list_type<type*>& get_list(const type* ptr) const {\
+    inline const list_type<type*>& get_list(const type*) const {\
         return list;\
     };\
-    inline list_type<type*>& get_list(const type* ptr) {\
+    inline list_type<type*>& get_list(const type*) {\
         return list;\
     };\
     list_type<type*> list;

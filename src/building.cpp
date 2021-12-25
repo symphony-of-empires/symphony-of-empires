@@ -51,7 +51,6 @@ void Building::create_factory(void) {
 
 // Helper method to delete a factory
 void Building::delete_factory(void) {
-    World& world = World::get_instance();
     // Products become building-less
     for(const auto& product : output_products) {
 		product->building = nullptr;
@@ -60,8 +59,6 @@ void Building::delete_factory(void) {
 
 // Checks if the building can produce output (if it has enough input)
 bool Building::can_do_output(void) {
-    const World& world = World::get_instance();
-
     // No output products?
     if(type->outputs.empty() || output_products.empty())
         return false;
