@@ -1,21 +1,22 @@
-# Korean translations for superleaf package.
-# Copyright (C) 2021 THE superleaf'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the superleaf package.
-# superleaf1995 <superleaf1995@sparc64-pizzabox>, 2021.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: superleaf 1995\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-25 17:12-0600\n"
-"PO-Revision-Date: 2021-05-13 16:54-0400\n"
-"Last-Translator: NIKA#7227\n"
-"Language-Team: Korean\n"
-"Language: ko\n"
+"PO-Revision-Date: 2021-05-13 17:35-0400\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 2.3\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. ------------------------------------------------------------
 #. Continent: Europe
@@ -143,7 +144,7 @@ msgstr ""
 #: good_types.lua:77
 #, fuzzy
 msgid "Ammunition"
-msgstr "국가"
+msgstr "nacion"
 
 #: industry_types.lua:130
 msgid "Ammunition factory"
@@ -226,12 +227,12 @@ msgstr ""
 #. Initial nations
 #: nations/america.lua:5 nations/america.lua:10
 msgid "Argentina"
-msgstr "아르헨티나"
+msgstr "Argentina"
 
 #: cultures.lua:150
 #, fuzzy
 msgid "Argentinian"
-msgstr "아르헨티나"
+msgstr "Argentina"
 
 #. ------------------------------------------------------------
 #. Continent: Americas
@@ -424,7 +425,7 @@ msgstr ""
 
 #: good_types.lua:182
 msgid "Bed"
-msgstr "침대"
+msgstr "Cama"
 
 #: industry_types.lua:79
 msgid "Bed manufacturer"
@@ -532,16 +533,16 @@ msgstr ""
 #: industry_types.lua:101
 #, fuzzy
 msgid "Brass smelter"
-msgstr "모래 제련소"
+msgstr "Fundidora de arena"
 
 #: nations/america.lua:13 nations/america.lua:18
 msgid "Brazil"
-msgstr "브라질"
+msgstr "Brasil"
 
 #: cultures.lua:177
 #, fuzzy
 msgid "Brazilian"
-msgstr "브라질"
+msgstr "Brasil"
 
 #. Food
 #: good_types.lua:156
@@ -736,7 +737,7 @@ msgstr ""
 
 #: good_types.lua:179
 msgid "Chair"
-msgstr "의자"
+msgstr "Silla"
 
 #. Secondary sector industries (now the fun begins)
 #: industry_types.lua:74
@@ -798,9 +799,8 @@ msgid "Chromium"
 msgstr ""
 
 #: industry_types.lua:53
-#, fuzzy
 msgid "Chromium mine"
-msgstr "금광"
+msgstr ""
 
 #: provinces/americas/argentina.lua:64
 msgid "Chubut"
@@ -858,7 +858,7 @@ msgstr ""
 #: industry_types.lua:41
 #, fuzzy
 msgid "Coal mine"
-msgstr "금광"
+msgstr "Mina de oro"
 
 #: building_types.lua:11
 msgid "Coast cannons"
@@ -879,7 +879,7 @@ msgstr ""
 #: cultures.lua:159
 #, fuzzy
 msgid "Colombian"
-msgstr "그란콜롬비아"
+msgstr "Gran Colombia"
 
 #: provinces/americas/united_states.lua:81
 msgid "Colorado"
@@ -922,7 +922,7 @@ msgstr ""
 #: industry_types.lua:49
 #, fuzzy
 msgid "Copper mine"
-msgstr "금광"
+msgstr "Mina de oro"
 
 #: provinces/americas/chile.lua:14
 msgid "Coquimbo"
@@ -953,12 +953,12 @@ msgstr ""
 
 #: good_types.lua:16
 msgid "Cotton"
-msgstr "목화"
+msgstr "Algodon"
 
 #: industry_types.lua:31
 #, fuzzy
 msgid "Cotton farm"
-msgstr "목화"
+msgstr "Algodon"
 
 #: pop_types.lua:72
 msgid "Craftsmen"
@@ -1097,14 +1097,14 @@ msgstr ""
 
 #: good_types.lua:100
 msgid "Diamond"
-msgstr "다이아몬드"
+msgstr "Diamante"
 
 #. Mines can new stuff from thin air, but don't worry because this is
 #. not abuse-ble
 #: industry_types.lua:37
 #, fuzzy
 msgid "Diamond mine"
-msgstr "다이아몬드"
+msgstr "Diamante"
 
 #: provinces/europe/greece.lua:18
 msgid "Dodecanese"
@@ -1269,7 +1269,7 @@ msgstr ""
 
 #: good_types.lua:36
 msgid "Fabric"
-msgstr "직물"
+msgstr "Tela"
 
 #. ------------------------------------------------------------
 #. Continent: Americas
@@ -1463,11 +1463,11 @@ msgstr ""
 
 #: good_types.lua:94
 msgid "Gold"
-msgstr "금"
+msgstr "Oro"
 
 #: industry_types.lua:61
 msgid "Gold mine"
-msgstr "금광"
+msgstr "Mina de oro"
 
 #: provinces/europe/scandinavia.lua:183
 msgid "Gotland"
@@ -1476,7 +1476,7 @@ msgstr ""
 #: nations/america.lua:21 nations/america.lua:28
 #, fuzzy
 msgid "Gran colombia"
-msgstr "그란콜롬비아"
+msgstr "Gran Colombia"
 
 #: provinces/europe/spain.lua:25
 msgid "Granada"
@@ -1821,17 +1821,17 @@ msgstr ""
 
 #: good_types.lua:97
 msgid "Iron"
-msgstr "철"
+msgstr "Hierro"
 
 #: industry_types.lua:57
 #, fuzzy
 msgid "Iron mine"
-msgstr "금광"
+msgstr "Mina de oro"
 
 #: industry_types.lua:107
 #, fuzzy
 msgid "Iron smelter"
-msgstr "모래 제련소"
+msgstr "Fundidora de arena"
 
 #: provinces/americas/caribbean.lua:137
 msgid "Isla de Margerita"
@@ -2162,7 +2162,7 @@ msgstr ""
 #. thin air oil, i think the air needs some democracy!
 #: industry_types.lua:14
 msgid "Lumberjack"
-msgstr "나무꾼"
+msgstr "Leñador"
 
 #: nations/europe.lua:436 nations/europe.lua:441
 #: provinces/europe/germany.lua:158
@@ -3334,12 +3334,12 @@ msgstr ""
 
 #: good_types.lua:12
 msgid "Rice"
-msgstr "쌀"
+msgstr "Arroz"
 
 #: industry_types.lua:27
 #, fuzzy
 msgid "Rice farm"
-msgstr "쌀"
+msgstr "Arroz"
 
 #: good_types.lua:71
 msgid "Rifle"
@@ -3841,11 +3841,11 @@ msgstr ""
 #: industry_types.lua:95
 #, fuzzy
 msgid "Stainless steel smelter"
-msgstr "모래 제련소"
+msgstr "Fundidora de arena"
 
 #: good_types.lua:48
 msgid "Steel"
-msgstr "강철"
+msgstr "Acero"
 
 #: provinces/europe/austria.lua:12
 msgid "Styria"
@@ -3862,7 +3862,7 @@ msgstr ""
 #: industry_types.lua:65
 #, fuzzy
 msgid "Sulfur mine"
-msgstr "금광"
+msgstr "Mina de oro"
 
 #. ------------------------------------------------------------
 #. Continent: Americas
@@ -4015,7 +4015,7 @@ msgstr ""
 
 #: good_types.lua:130
 msgid "Timber"
-msgstr "통나무"
+msgstr "Madera"
 
 #: good_types.lua:118
 msgid "Tin"
@@ -4023,12 +4023,12 @@ msgstr ""
 
 #: good_types.lua:103
 msgid "Titanium"
-msgstr "티타늄"
+msgstr "Titanio"
 
 #: industry_types.lua:69
 #, fuzzy
 msgid "Titanium mine"
-msgstr "티타늄"
+msgstr "Titanio"
 
 #: provinces/americas/mexico.lua:28
 msgid "Tlaxcala"
@@ -4061,7 +4061,7 @@ msgstr ""
 #: nations/africa.lua:31 nations/africa.lua:34
 #, fuzzy
 msgid "Tripolitania"
-msgstr "티타늄"
+msgstr "Titanio"
 
 #: nations/africa.lua:32
 msgid "Tripolitanians"
@@ -4843,7 +4843,7 @@ msgstr ""
 #: good_types.lua:91
 #, fuzzy
 msgid "Uranium"
-msgstr "티타늄"
+msgstr "Titanio"
 
 #: provinces/americas/united_states.lua:172
 msgid "Utah"
@@ -5118,12 +5118,12 @@ msgstr ""
 #. Farmable stuff
 #: good_types.lua:4
 msgid "Wheat"
-msgstr "밀"
+msgstr "Trigo"
 
 #: industry_types.lua:23
 #, fuzzy
 msgid "Wheat farm"
-msgstr "밀"
+msgstr "Trigo"
 
 #. Commodities
 #: good_types.lua:170
@@ -5226,9 +5226,8 @@ msgid "Zinc"
 msgstr ""
 
 #: industry_types.lua:45
-#, fuzzy
 msgid "Zinc mine"
-msgstr "다이아몬드"
+msgstr ""
 
 #: provinces/americas/south_america.lua:144
 msgid "Zulia"
@@ -5263,63 +5262,67 @@ msgstr ""
 msgid "Østfold"
 msgstr ""
 
+#~ msgid "Diplomacy Points"
+#~ msgstr "Puntos de Diplomacy"
+
+#~ msgid "Literacy"
+#~ msgstr "Literacia"
+
+#~ msgid "Prestige"
+#~ msgstr "Prestigio"
+
+#~ msgid "Lua error"
+#~ msgstr "Error lua"
+
+#~ msgid "Lua argument type mismatch"
+#~ msgstr "Discrepancia de tipo de argumento de Lua"
+
+#~ msgid "industry %s not found"
+#~ msgstr "industria %s no encontrada"
+
+#~ msgid "industry_type"
+#~ msgstr "tipo_de_industria"
+
+#~ msgid "good %s not found"
+#~ msgstr "bien %s no encontrado"
+
+#~ msgid "good"
+#~ msgstr "bien"
+
 #~ msgid "%s nation has same color as %s"
-#~ msgstr "%s 국가는 []와 색상이 같습니다"
+#~ msgstr "nacion %s tiene el mismo color que %s"
 
 #~ msgid ""
 #~ "%s nation has same ref_name as %s thereby we will return the id of the "
 #~ "original nation"
-#~ msgstr "%s 국가는 %s 와 ref_name이 동일하므로, 국가의 원래 id를 반환합니다"
+#~ msgstr ""
+#~ "la nacion %s tiene el mismo ref_name que %s asi que vamos a devolver el "
+#~ "id de la nacion original"
+
+#~ msgid "nation %s not found"
+#~ msgstr "naion %s no encontrada"
 
 #~ msgid "%s province has same color as %s"
-#~ msgstr "%s 지역이 %s 과 색상이 같습니다"
+#~ msgstr "provincia %s tiene el mismo color que %s"
 
 #~ msgid ""
 #~ "%s province has same ref_name as %s thereby we will return the id of the "
 #~ "original province"
-#~ msgstr "%s 지역은 %s 과 ref_name이 동일하므로, 지역의 원래 id를 반환합니다"
-
-#~ msgid "Diplomacy Points"
-#~ msgstr "외교점"
-
-#~ msgid "Literacy"
-#~ msgstr "식자율"
-
-#~ msgid "Lua argument type mismatch"
-#~ msgstr "루아 인증 불일치"
-
-#~ msgid "Lua error"
-#~ msgstr "루아 에러"
-
-#~ msgid "Prestige"
-#~ msgstr "위신"
-
-#~ msgid "company"
-#~ msgstr "회사"
-
-#~ msgid "good"
-#~ msgstr "상품"
-
-#~ msgid "good %s not found"
-#~ msgstr "%s 상품을 찾을수 없음"
-
-#~ msgid "industry %s not found"
-#~ msgstr "%s 산업을 찾을수 없음"
-
-#~ msgid "industry_type"
-#~ msgstr "산업_종류"
-
-#~ msgid "invalid province id %s"
-#~ msgstr "잘못된 프로빈스 id - %s"
-
-#~ msgid "lua nation_id is out of bounds"
-#~ msgstr "루아의 nation_id가 범위를 벗어남"
+#~ msgstr ""
+#~ "la provincia %s tiene el mismo ref_name que %s asi que vamos a devolver "
+#~ "el id de la provincia original"
 
 #~ msgid "lua province_id is out of bounds"
-#~ msgstr "루아의 province_id가 범위를 벗어남"
+#~ msgstr "lua province_id esta fuera de los límites"
 
-#~ msgid "nation %s not found"
-#~ msgstr "%s 국가를 찾을수 없음"
+#~ msgid "lua nation_id is out of bounds"
+#~ msgstr "lua nation_id esta fuera de los límites"
+
+#~ msgid "invalid province id %s"
+#~ msgstr "provincia %s con id invalida"
+
+#~ msgid "company"
+#~ msgstr "empresa"
 
 #~ msgid "pop_type %s not found"
-#~ msgstr "pop_type %s를 찾지 못함"
+#~ msgstr "pop_type %s no encontrado"
