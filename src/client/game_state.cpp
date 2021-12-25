@@ -321,7 +321,9 @@ void main_loop(GameState& gs) {
 
     gs.current_mode = MapMode::COUNTRY_SELECT;
     gs.select_nation = new Interface::LobbySelectView(gs);
-    new MapDevView(gs.map);
+
+    // Only used for debug
+    // new MapDevView(gs.map);
 
     gs.input = Input();
 
