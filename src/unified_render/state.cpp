@@ -18,7 +18,6 @@
 #include <filesystem>
 #include <cstring>
 
-#include "unified_render/package.hpp"
 #include "unified_render/path.hpp"
 #include "unified_render/asset.hpp"
 
