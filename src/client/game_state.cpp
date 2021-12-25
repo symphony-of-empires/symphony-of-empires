@@ -411,7 +411,7 @@ void start_client(int argc, char** argv) {
             for(const auto& _entry : std::filesystem::recursive_directory_iterator(entry.path())) {
                 if(_entry.is_directory()) continue;
 
-                auto* asset = new UnifiedRender::Asset();
+                auto* asset = new UnifiedRender::Asset::File();
                 asset->path = _entry.path().lexically_relative(entry.path()).string();
                 asset->abs_path = _entry.path().string();
                 package.assets.push_back(asset);
