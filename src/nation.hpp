@@ -93,7 +93,7 @@ public:
     void change_research_focus(Technology* tech);
 
     float get_industry_output_mod(void) {
-        float c = 0.f;
+        float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->industry_input_mod;
         }
@@ -101,7 +101,7 @@ public:
     }
 
     float get_industry_input_mod(void) {
-        float c = 0.f;
+        float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->industry_input_mod;
         }
@@ -109,7 +109,7 @@ public:
     }
 
     float get_workers_needed_mod(void) {
-        float c = 0.f;
+        float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->workers_needed_mod;
         }
@@ -117,7 +117,7 @@ public:
     }
 
     float get_salary_paid_mod(void) {
-        float c = 0.f;
+        float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->salary_paid_mod;
         }
@@ -125,7 +125,7 @@ public:
     }
 
     float get_delivery_cost_mod(void) {
-        float c = 0.f;
+        float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->delivery_cost_mod;
         }
@@ -133,7 +133,7 @@ public:
     }
 
     float get_literacy_learn_mod(void) {
-        float c = 0.f;
+        float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->literacy_learn_mod;
         }
@@ -141,7 +141,7 @@ public:
     }
 
     float get_reproduction_mod(void) {
-        float c = 0.f;
+        float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->reproduction_mod;
         }
@@ -149,7 +149,7 @@ public:
     }
 
     float get_death_mod(void) {
-        float c = 0.f;
+        float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->death_mod;
         }
@@ -157,7 +157,7 @@ public:
     }
 
     float get_militancy_mod(void) {
-        float c = 0.f;
+        float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->militancy_mod;
         }
@@ -165,7 +165,7 @@ public:
     }
 
     float get_con_mod(void) {
-        float c = 0.f;
+        float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->con_mod;
         }
@@ -173,7 +173,7 @@ public:
     }
 
     float get_life_needs_met_mod(void) {
-        float c = 0.f;
+        float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->life_needs_met_mod;
         }
@@ -181,7 +181,7 @@ public:
     }
 
     float get_everyday_needs_met_mod(void) {
-        float c = 0.f;
+        float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->everyday_needs_met_mod;
         }
@@ -189,7 +189,7 @@ public:
     }
 
     float get_luxury_needs_met_mod(void) {
-        float c = 0.f;
+        float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->luxury_needs_met_mod;
         }
