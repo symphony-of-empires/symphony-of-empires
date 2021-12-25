@@ -22,6 +22,24 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     this->is_scroll = false;
     this->text("Minimap");
 
+    auto* flat_btn = new UI::Button(50, -48, 80, 24, this);
+    flat_btn->user_data = this;
+    flat_btn->on_click = ([](UI::Widget& w, void* data) {
+        Minimap* state = (Minimap*)data;
+
+		state->gs.map->set_view(MapView::PLANE_VIEW);
+    });
+    flat_btn->text("Flat");
+
+    auto* globe_btn = new UI::Button(130, -48, 80, 24, this);
+    globe_btn->user_data = this;
+    globe_btn->on_click = ([](UI::Widget& w, void* data) {
+        Minimap* state = (Minimap*)data;
+
+		state->gs.map->set_view(MapView::SPHERE_VIEW);
+    });
+    globe_btn->text("Globe");
+    
     auto* political_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/noicon.png")), this);
     political_ibtn->user_data = this;
     political_ibtn->on_click = ([](UI::Widget& w, void* data) {
