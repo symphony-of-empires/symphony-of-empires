@@ -11,21 +11,33 @@ namespace UnifiedRender {
         CURRENT,
     };
 
-    class Asset {
-    public:
-        FILE* fp;
-    //public:
-        Asset();
-        ~Asset();
+    namespace Asset {
+        class Base {
+        public:
+            Base(){};
+            ~Base(){};
+            virtual void open(void){};
+            virtual void close(void){};
+            virtual void read(void* buf, size_t n){};
+            virtual void write(const void* buf, size_t n){};
+            virtual void seek(SeekType type, int offset){};
 
-        std::string path;
-        std::string abs_path;
+            std::string path;
+            std::string abs_path;
+        };
 
-        virtual void open(void);
-        virtual void close(void);
-        virtual void read(void* buf, size_t n);
-        virtual void write(const void* buf, size_t n);
-        virtual void seek(SeekType type, int offset);
+        class File : public Asset::Base {
+        public:
+            FILE* fp;
+        //public:
+            File();
+            ~File();
+            virtual void open(void);
+            virtual void close(void);
+            virtual void read(void* buf, size_t n);
+            virtual void write(const void* buf, size_t n);
+            virtual void seek(SeekType type, int offset);
+        };
     };
 
     class Package {
@@ -34,7 +46,7 @@ namespace UnifiedRender {
         ~Package();
 
         std::string name;
-        std::vector<Asset*> assets;
+        std::vector<Asset::Base*> assets;
     };
 };
 
