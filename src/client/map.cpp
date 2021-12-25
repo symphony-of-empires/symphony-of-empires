@@ -24,7 +24,6 @@
 #include "unified_render/texture.hpp"
 #include "unified_render/primitive.hpp"
 #include "unified_render/shader.hpp"
-#include "unified_render/quad_2d.hpp"
 #include "unified_render/framebuffer.hpp"
 #include "province.hpp"
 #include "unified_render/model.hpp"
@@ -55,7 +54,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         std::string path = Path::get("ui/flags/" + nation->ref_name + "_" +
             (nation->ideology == nullptr ? "none" : nation->ideology->ref_name) + ".png"
         );
-        auto flag_texture = &g_texture_manager->load_texture(path, mipmap_options);
+        auto flag_texture = &UnifiedRender::State::get_instance().tex_man->load(path, mipmap_options);
         flag_texture->gen_mipmaps();
         nation_flags.push_back(flag_texture);
     }
@@ -63,17 +62,17 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     for(const auto& building_type : world.building_types) {
         std::string path;
         path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
-        building_type_models.push_back(&g_model_manager->load(path));
+        building_type_models.push_back(&UnifiedRender::State::get_instance().model_man->load(path));
         path = Path::get("ui/building_types/" + building_type->ref_name + ".png");
-        building_type_icons.push_back(&g_texture_manager->load_texture(path));
+        building_type_icons.push_back(&UnifiedRender::State::get_instance().tex_man->load(path));
     }
 
     for(const auto& unit_type : world.unit_types) {
         std::string path;
         path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
-        unit_type_models.push_back(&g_model_manager->load(path));
+        unit_type_models.push_back(&UnifiedRender::State::get_instance().model_man->load(path));
         path = Path::get("ui/unit_types/" + unit_type->ref_name + ".png");
-        unit_type_icons.push_back(&g_texture_manager->load_texture(path));
+        unit_type_icons.push_back(&UnifiedRender::State::get_instance().tex_man->load(path));
     }
 }
 

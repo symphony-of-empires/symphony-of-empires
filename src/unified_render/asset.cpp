@@ -3,11 +3,11 @@
 
 using namespace UnifiedRender;
 
-Asset::File::Asset(void) {
+Asset::File::File(void) {
 
 }
 
-Asset::File::~Asset(void) {
+Asset::File::~File(void) {
 
 }
 

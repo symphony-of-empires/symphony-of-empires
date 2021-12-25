@@ -36,7 +36,7 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_typ
     this->is_scroll = false;
 
     this->icon_img = new UI::Image(0, 0, 32, 24, nullptr, this);
-    this->icon_img->current_texture = &g_texture_manager->load_texture(Path::get("ui/icons/unit_types/" + unit_type->ref_name + ".png"));
+    this->icon_img->current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/unit_types/" + unit_type->ref_name + ".png"));
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->icon_img);
@@ -100,7 +100,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Building* _building, UI
     input_lab->below_of(*name_btn);
     dx = input_lab->width;
     for(const auto& good : building->type->inputs) {
-        auto* icon_img = new UI::Image(dx, 0, 24, 24, &g_texture_manager->load_texture(Path::get("ui/icons/goods/" + good->ref_name + ".png")), this);
+        auto* icon_img = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/goods/" + good->ref_name + ".png")), this);
         icon_img->below_of(*name_btn);
         x += icon_img->width;
     }
@@ -109,7 +109,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Building* _building, UI
     output_lab->below_of(*input_lab);
     dx = output_lab->width;
     for(const auto& good : building->type->outputs) {
-        auto* icon_img = new UI::Image(dx, 0, 24, 24, &g_texture_manager->load_texture(Path::get("ui/icons/goods/" + good->ref_name + ".png")), this);
+        auto* icon_img = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/goods/" + good->ref_name + ".png")), this);
         icon_img->below_of(*input_lab);
         x += icon_img->width;
     }

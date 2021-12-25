@@ -22,7 +22,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     this->is_scroll = false;
     this->text("Minimap");
 
-    auto* political_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* political_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/noicon.png")), this);
     political_ibtn->user_data = this;
     political_ibtn->on_click = ([](UI::Widget& w, void* data) {
         Minimap* state = (Minimap*)data;
@@ -32,7 +32,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     political_ibtn->tooltip = new UI::Tooltip(political_ibtn, 512, 24);
     political_ibtn->tooltip->text("Political");
 
-    auto* terrain_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* terrain_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/noicon.png")), this);
     terrain_ibtn->right_side_of(*political_ibtn);
     terrain_ibtn->user_data = this;
     terrain_ibtn->on_click = ([](UI::Widget& w, void* data) {
@@ -43,7 +43,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     terrain_ibtn->tooltip = new UI::Tooltip(terrain_ibtn, 512, 24);
     terrain_ibtn->tooltip->text("Political");
 
-    auto* population_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* population_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/noicon.png")), this);
     population_ibtn->right_side_of(*terrain_ibtn);
     population_ibtn->user_data = this;
     population_ibtn->on_click = ([](UI::Widget& w, void* data) {
@@ -54,7 +54,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     population_ibtn->tooltip = new UI::Tooltip(population_ibtn, 512, 24);
     population_ibtn->tooltip->text("Population");
 
-    auto* terrain_color_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* terrain_color_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/noicon.png")), this);
     terrain_color_ibtn->right_side_of(*population_ibtn);
     terrain_color_ibtn->user_data = this;
     terrain_color_ibtn->on_click = ([](UI::Widget& w, void* data) {
@@ -65,7 +65,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     terrain_color_ibtn->tooltip = new UI::Tooltip(terrain_color_ibtn, 512, 24);
     terrain_color_ibtn->tooltip->text("Terrain type");
 
-    auto* culture_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* culture_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/noicon.png")), this);
     culture_ibtn->right_side_of(*terrain_color_ibtn);
     culture_ibtn->user_data = this;
     culture_ibtn->on_click = ([](UI::Widget& w, void* data) {
@@ -76,7 +76,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     culture_ibtn->tooltip = new UI::Tooltip(culture_ibtn, 512, 24);
     culture_ibtn->tooltip->text("Culture diversity");
 
-    auto* religion_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/noicon.png")), this);
+    auto* religion_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/noicon.png")), this);
     religion_ibtn->right_side_of(*culture_ibtn);
     religion_ibtn->user_data = this;
     religion_ibtn->on_click = ([](UI::Widget& w, void* data) {
@@ -87,7 +87,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     religion_ibtn->tooltip = new UI::Tooltip(religion_ibtn, 512, 24);
     religion_ibtn->tooltip->text("Religion");
 
-    auto* img = new UI::Image(0, 24, 300, 150, &g_texture_manager->load_texture(Path::get("ui/globe.png")), this);
+    auto* img = new UI::Image(0, 24, 300, 150, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/globe.png")), this);
     img->below_of(*religion_ibtn);
 }
 

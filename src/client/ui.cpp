@@ -25,6 +25,7 @@
 #include "client/ui.hpp"
 #include "unified_render/texture.hpp"
 #include "unified_render/rectangle.hpp"
+#include "unified_render/state.hpp"
 
 #if !defined NOMINMAX
 #   define NOMINMAX 1
@@ -45,13 +46,13 @@ Context::Context() {
 
     widgets.reserve(255);
 
-    background = &g_texture_manager->load_texture(Path::get("ui/background2.png"));
-    window_top = &g_texture_manager->load_texture(Path::get("ui/window_top2.png"));
-    button = &g_texture_manager->load_texture(Path::get("ui/button2.png"));
-    tooltip_texture = &g_texture_manager->load_texture(Path::get("ui/tooltip.png"));
-    piechart_overlay = &g_texture_manager->load_texture(Path::get("ui/piechart.png"));
-    border_tex = &g_texture_manager->load_texture(Path::get("ui/borders/border2.png"));
-    button_border = &g_texture_manager->load_texture(Path::get("ui/borders/border_sharp2.png"));
+    background = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/background2.png"));
+    window_top = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/window_top2.png"));
+    button = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/button2.png"));
+    tooltip_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/tooltip.png"));
+    piechart_overlay = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/piechart.png"));
+    border_tex = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/borders/border2.png"));
+    button_border = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/borders/border_sharp2.png"));
 
     g_ui_context = this;
     is_drag = false;

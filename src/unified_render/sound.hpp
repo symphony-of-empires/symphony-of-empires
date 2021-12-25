@@ -36,5 +36,3 @@ namespace UnifiedRender {
         const Sound& load(const std::string& path);
     };
 };
-
-extern UnifiedRender::SoundManager* g_sound_manager;

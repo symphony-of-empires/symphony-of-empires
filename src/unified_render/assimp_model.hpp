@@ -53,5 +53,3 @@ namespace UnifiedRender {
         const Model& load(const std::string& path);
     };
 }
-
-extern UnifiedRender::ModelManager* g_model_manager;
