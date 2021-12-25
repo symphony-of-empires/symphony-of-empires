@@ -96,19 +96,19 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
         Nation* province_owner = world.provinces[i]->owner;
         if(province_owner == nullptr) {
-            province_color.push_back(ProvinceColor(i, UI::Color::rgba32(0xffdddddd)));
+            province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
         }
         else if(province_owner->cached_id == (Nation::Id)-1) {
-            province_color.push_back(ProvinceColor(i, UI::Color::rgba32(0xffdddddd)));
+            province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
         }
         else {
-            province_color.push_back(ProvinceColor(i, UI::Color::rgba32(province_owner->get_client_hint().color)));
+            province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UI::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UI::Color::rgba32(0xffdddddd)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0xffdddddd)));
     return province_color;
 }
 

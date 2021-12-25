@@ -182,6 +182,7 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
 
     this->budget_btn = new UI::Button(0, 0, 128, 24, this);
     this->budget_btn->right_side_of(*this->size_btn);
+    this->budget_btn->set_tooltip(new UI::Tooltip(this->budget_btn, 512, 24));
 
     this->religion_btn = new UI::Button(0, 0, 128, 24, this);
     this->religion_btn->right_side_of(*this->budget_btn);
@@ -203,7 +204,8 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
 
         const Pop& pop = o.province->pops[o.index];
         o.size_btn->text(std::to_string(pop.size));
-        o.budget_btn->text(std::to_string(pop.budget));
+        o.budget_btn->text(std::to_string(pop.budget / pop.size));
+        o.budget_btn->tooltip->text("Total of " + std::to_string(pop.budget));
         o.religion_btn->text(pop.religion->name);
         o.culture_btn->text(pop.culture->name);
     });
@@ -269,9 +271,9 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
         o.price_rate_btn->text(std::to_string(o.product->price_vel));
 
         if(o.product->price_vel >= 0.f) {
-            o.price_rate_btn->text_color = UI::Color(0, 255, 0);
+            o.price_rate_btn->text_color = UnifiedRender::Color(0, 255, 0);
         } else {
-            o.price_rate_btn->text_color = UI::Color(255, 0, 0);
+            o.price_rate_btn->text_color = UnifiedRender::Color(255, 0, 0);
         }
     });
 }

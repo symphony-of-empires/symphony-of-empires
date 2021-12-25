@@ -1,8 +1,25 @@
-#include "client/color.hpp"
+#include "unified_render/color.hpp"
 
 #include <cstdint>
 
-using namespace UI;
+using namespace UnifiedRender;
+
+Color::Color(void)
+    : r{ 0.f },
+    g{ 0.f },
+    b{ 0.f }
+{
+
+}
+
+Color::Color(float red, float green, float blue, float alpha)
+    : r{ red },
+    g{ green },
+    b{ blue },
+    a{ alpha }
+{
+
+}
 
 Color Color::rgba8(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
     return Color(red / 256.f, green / 256.f, blue / 256.f, alpha / 256.f);
