@@ -31,10 +31,10 @@ Quad2D::Quad2D()
 {
 	buffer.resize(6);
 	buffer[0] = PackedData(glm::vec2(-1.0f, -1.0f), glm::vec2(0.f, 0.f));
-	buffer[1] = PackedData(glm::vec2(1.0f, -1.0f), glm::vec2(1.f, 0.f));
 	buffer[2] = PackedData(glm::vec2(-1.0f, 1.0f), glm::vec2(0.f, 1.f));
-	buffer[3] = PackedData(glm::vec2(-1.0f, 1.0f), glm::vec2(0.f, 1.f));
+	buffer[1] = PackedData(glm::vec2(1.0f, -1.0f), glm::vec2(1.f, 0.f));
 	buffer[4] = PackedData(glm::vec2(1.0f, -1.0f), glm::vec2(1.f, 0.f));
+	buffer[3] = PackedData(glm::vec2(-1.0f, 1.0f), glm::vec2(0.f, 1.f));
 	buffer[5] = PackedData(glm::vec2(1.0f, 1.0f), glm::vec2(1.f, 1.f));
 
 	vao.bind();

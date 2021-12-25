@@ -363,8 +363,6 @@ void Map::draw(const GameState& gs, const int width, const int height) {
     model_shader->set_uniform("view", view);
 
     // glActiveTexture(GL_TEXTURE0);
-    glDisable(GL_CULL_FACE);
-
     /*for(const auto& building : world.buildings) {
         glm::mat4 model(1.f);
         std::pair<float, float> pos = building->get_pos();
@@ -388,8 +386,6 @@ void Map::draw(const GameState& gs, const int width, const int height) {
         model_shader->set_uniform("model", model);
         unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
     }
-
-    glEnable(GL_CULL_FACE);
 
     // Resets the shader and texture
     glUseProgram(0);
