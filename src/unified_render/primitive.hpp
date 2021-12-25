@@ -13,13 +13,16 @@
 
 namespace UnifiedRender {
     namespace OpenGl {
-        // A square on the z=0 plane
-        class Square : public PackedModel<glm::vec3, glm::vec2> {
+        class Square : public PackedModel<glm::vec2, glm::vec2> {
         public:
             Square(float start_x, float start_y, float end_x, float end_y);
         };
 
-        // A square on the z=0 plane
+        class Quad2D : public PackedModel<glm::vec2, glm::vec2> {
+        public:
+            Quad2D();
+        };
+
 		class Sphere : public PackedModel<glm::vec3, glm::vec2> {
 			PackedData<glm::vec3, glm::vec2> calc_pos(float longitude, float latitude);
 			int resolution;

@@ -6,6 +6,7 @@
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
 #include "unified_render/texture.hpp"
+#include "unified_render/state.hpp"
 
 std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::MaterialManager::load_wavefront(const std::string& path) {
     std::ifstream file(path);
@@ -55,7 +56,7 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
             sline >> map_path;
 
             if(map_path[0] == '.') continue;
-            curr_mat->diffuse_map = &g_texture_manager->load_texture(Path::get("3d/" + map_path));
+            curr_mat->diffuse_map = &UnifiedRender::State::get_instance().tex_man->load(Path::get("3d/" + map_path));
         } else {
             print_info("Command %s not implemented", cmd.c_str());
         }
@@ -77,9 +78,7 @@ find:
     
     // Create a new material
     auto* mat = new UnifiedRender::Material();
-    mat->ambient_map = &g_texture_manager->load_texture(Path::get("3d/whitehouse.png"));
+    mat->ambient_map = &UnifiedRender::State::get_instance().tex_man->load(Path::get("3d/whitehouse.png"));
     materials.insert(std::make_pair(mat, path));
     goto find;
 }
-
-UnifiedRender::MaterialManager* g_material_manager;

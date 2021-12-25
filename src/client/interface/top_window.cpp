@@ -18,7 +18,7 @@ TopWindow::TopWindow(GameState& _gs)
     this->is_scroll = false;
     this->is_pinned = true;
     
-    auto* policy_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/icons/literacy.png")), this);
+    auto* policy_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/literacy.png")), this);
     policy_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
         new Interface::PoliciesScreen(o.gs);
@@ -26,7 +26,7 @@ TopWindow::TopWindow(GameState& _gs)
     policy_ibtn->tooltip = new UI::Tooltip(policy_ibtn, 512, 24);
     policy_ibtn->tooltip->text("Laws & Policies");
 
-    auto* economy_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/icons/economy_score.png")), this);
+    auto* economy_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/economy_score.png")), this);
     economy_ibtn->right_side_of(*policy_ibtn);
     economy_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
@@ -35,7 +35,7 @@ TopWindow::TopWindow(GameState& _gs)
     economy_ibtn->tooltip = new UI::Tooltip(economy_ibtn, 512, 24);
     economy_ibtn->tooltip->text("Economy & World Market");
 
-    auto* military_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/icons/militar_score.png")), this);
+    auto* military_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/militar_score.png")), this);
     military_ibtn->right_side_of(*economy_ibtn);
     military_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
@@ -44,7 +44,7 @@ TopWindow::TopWindow(GameState& _gs)
     military_ibtn->tooltip = new UI::Tooltip(military_ibtn, 512, 24);
     military_ibtn->tooltip->text("Military");
 
-    auto* research_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/icons/research.png")), this);
+    auto* research_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/research.png")), this);
     research_ibtn->right_side_of(*military_ibtn);
     research_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
@@ -53,7 +53,7 @@ TopWindow::TopWindow(GameState& _gs)
     research_ibtn->tooltip = new UI::Tooltip(research_ibtn, 512, 24);
     research_ibtn->tooltip->text("Research");
 
-    auto* exit_ibtn = new UI::Image(width / 2, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/icons/exit.png")), this);
+    auto* exit_ibtn = new UI::Image(width / 2, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/exit.png")), this);
     exit_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
         o.gs.run = false;
@@ -61,7 +61,7 @@ TopWindow::TopWindow(GameState& _gs)
     exit_ibtn->tooltip = new UI::Tooltip(exit_ibtn, 512, 24);
     exit_ibtn->tooltip->text("Exits");
 
-    auto* save_ibtn = new UI::Image(0, 0, 32, 32, &g_texture_manager->load_texture(Path::get("ui/icons/save.png")), this);
+    auto* save_ibtn = new UI::Image(0, 0, 32, 32, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/save.png")), this);
     save_ibtn->left_side_of(*exit_ibtn);
     save_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);

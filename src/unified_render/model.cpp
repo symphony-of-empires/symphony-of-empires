@@ -110,11 +110,11 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
             std::string name;
             sline >> name;
             name = "3d/" + name;
-            g_material_manager->load_wavefront(Path::get(name));
+            State::get_instance().material_man->load_wavefront(Path::get(name));
         } else if(cmd == "usemtl") {
             std::string name;
             sline >> name;
-            objects.front().material = &g_material_manager->load_material(name);
+            objects.front().material = &UnifiedRender::State::get_instance().material_man->load_material(name);
         } else if(cmd == "o") {
             std::string name;
             sline >> name;
@@ -253,6 +253,4 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load(const std::string&
         throw ("Model " + path + " not found");
     }
 }
-
-UnifiedRender::ModelManager* g_model_manager;
 #endif

@@ -307,10 +307,10 @@ void main_loop(GameState& gs) {
     gs.in_game = false;
 
     // Connect to server prompt
-    /*auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &g_texture_manager->load_texture(Path::get("ui/globe.png")));
+    /*auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/globe.png")));
     mm_bg->is_fullscreen = true;
     Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
-    auto* logo = new UI::Image(0, 0, 256, 256, &g_texture_manager->load_texture(Path::get("ui/title_alt.png")));
+    auto* logo = new UI::Image(0, 0, 256, 256, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/title_alt.png")));
     logo->above_of(*main_menu);
     logo->left_side_of(*main_menu);*/
 
@@ -394,10 +394,6 @@ void main_loop(GameState& gs) {
     world_th.join();
 }
 
-extern UnifiedRender::TextureManager* g_texture_manager;
-extern UnifiedRender::MaterialManager* g_material_manager;
-extern UnifiedRender::ModelManager* g_model_manager;
-
 void start_client(int argc, char** argv) {
     // globals
     GameState gs{};
@@ -426,11 +422,7 @@ void start_client(int argc, char** argv) {
             print_info("- %s (in %s)", asset->path.c_str(), asset->abs_path.c_str());
         }
     }
-
-    g_texture_manager = new UnifiedRender::TextureManager();
-    g_material_manager = new UnifiedRender::MaterialManager();
-    g_model_manager = new UnifiedRender::ModelManager();
-    g_sound_manager = new UnifiedRender::SoundManager();
+    
     gs.ui_ctx = new UI::Context();
 
     gs.ui_ctx->resize(gs.width, gs.height);

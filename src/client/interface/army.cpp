@@ -108,7 +108,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
 
     this->unit_icon = new UI::Image(0, 0, 24, 24, nullptr, this);
     if(building->working_unit_type != nullptr) {
-        this->unit_icon->current_texture = &g_texture_manager->load_texture(Path::get("ui/icons/unit_types/" + building->working_unit_type->ref_name + ".png"));
+        this->unit_icon->current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/unit_types/" + building->working_unit_type->ref_name + ".png"));
     }
 
     this->province_lab = new UI::Label(0, 0, "?", this);
