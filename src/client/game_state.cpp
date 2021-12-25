@@ -339,6 +339,7 @@ void main_loop(GameState& gs) {
         handle_event(gs.input, gs);
 
         if(gs.current_mode == MapMode::NORMAL) {
+            std::scoped_lock lock(gs.world->world_mutex);
             handle_popups(displayed_events, displayed_treaties, gs);
         }
 
@@ -350,6 +351,7 @@ void main_loop(GameState& gs) {
         render(gs, gs.input, gs.window);
 
         if(gs.current_mode == MapMode::NORMAL) {
+            std::scoped_lock lock(gs.world->world_mutex);
             // Production queue
             if(!gs.production_queue.empty()) {
                 for(unsigned int i = 0; i < gs.production_queue.size(); i++) {

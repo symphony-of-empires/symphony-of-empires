@@ -101,7 +101,7 @@ void Context::clear_dead() {
 }
 
 void Context::prompt(const std::string& title, const std::string& text) {
-    auto* win = new UI::Window(512 / 2.f, 128 / 2.f, 512, 128, nullptr);
+    auto* win = new UI::Window(0.f, 0.f, 512, 128, nullptr);
     win->origin = UI::Origin::CENTER_SCREEN;
     win->text(title);
 
@@ -910,7 +910,7 @@ void Tooltip::set_pos(int _x, int _y, int _width, int _height, int screen_w, int
 void Tooltip::text(const std::string& text) {
     // Delete old labels in vector (if any)
     for(auto& lab : labels) {
-        delete lab;
+        lab->kill();
     }
     labels.clear();
 
@@ -1054,7 +1054,7 @@ void Text::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 void Text::text(const std::string& text) {
     // Delete old labels in vector (if any)
     for(auto& lab : labels) {
-        delete lab;
+        lab->kill();
     }
     labels.clear();
 
