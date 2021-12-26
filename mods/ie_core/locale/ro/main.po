@@ -1,0 +1,5244 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-12-25 17:12-0600\n"
+"PO-Revision-Date: 2021-12-26 20:51+0200\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0\n"
+"Last-Translator: \n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n==0 || (n!=1 && n%100>=1 && n%100<=19) ? 1 : 2);\n"
+"Language: ro\n"
+
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Iberia
+#. Country: Spain
+#: provinces/europe/spain.lua:6
+msgid "A Coruña"
+msgstr "A Coruña"
+
+#: nations/africa.lua:20 nations/africa.lua:22
+msgid "Abbyssina"
+msgstr "Abisinia"
+
+#: cultures.lua:201
+msgid "Abyssinian"
+msgstr "Abisinian"
+
+#: provinces/americas/south_america.lua:426
+msgid "Acre"
+msgstr "Acru"
+
+#: cultures.lua:134 nations/europe.lua:343
+msgid "Afghan"
+msgstr "Afgan"
+
+#: nations/europe.lua:344
+msgid "Afghani"
+msgstr "Afgani"
+
+#: nations/europe.lua:342 nations/europe.lua:347
+msgid "Afghanistan"
+msgstr "Afganistan"
+
+#: cultures.lua:135
+msgid "Afghano"
+msgstr "Afgan"
+
+#: provinces/europe/scandinavia.lua:781
+msgid "Agder"
+msgstr "Agder"
+
+#: provinces/americas/central_america.lua:187
+msgid "Ahuachapán"
+msgstr "Ahuachapán"
+
+#. Aisne
+#: provinces/europe/france.lua:148
+msgid "Aisne"
+msgstr "Aisne"
+
+#. African
+#: cultures.lua:198
+msgid "Akan"
+msgstr "Akan"
+
+#: provinces/americas/united_states.lua:34
+msgid "Alabama"
+msgstr "Alabama"
+
+#: provinces/americas/central_america.lua:238
+msgid "Alacranes"
+msgstr "Alacrane"
+
+#: provinces/americas/brazil_and_pantanal.lua:10
+msgid "Alagoas"
+msgstr "Alagoas"
+
+#: provinces/europe/spain.lua:31
+msgid "Albacete"
+msgstr "Albacete"
+
+#: good_types.lua:164
+msgid "Alcohol"
+msgstr "Alcool"
+
+#: provinces/americas/alaska.lua:24
+msgid "Alexandrovski"
+msgstr "Alexandrovski"
+
+#: nations/africa.lua:13 nations/africa.lua:17
+msgid "Algeirs"
+msgstr "Alger"
+
+#: nations/africa.lua:14
+msgid "Algerian"
+msgstr "Algerian"
+
+#: provinces/europe/spain.lua:44
+msgid "Alicante"
+msgstr "Alicante"
+
+#. Allier
+#: provinces/europe/france.lua:614
+msgid "Allier"
+msgstr "Allier"
+
+#: provinces/europe/spain.lua:22
+msgid "Almería"
+msgstr "Almería"
+
+#: provinces/europe/italy.lua:82
+msgid "Alpes Maritimes"
+msgstr "Alpes Maritimes"
+
+#. Later given by sardinia
+#. { ref_name = "alpes_maritimes", name = _("Alpes Maritimes"), color = rgb(70, 147, 96) },
+#: provinces/europe/france.lua:18
+msgid "Alpes de Haute Provence"
+msgstr "Alpes de Haute Provence"
+
+#: provinces/americas/mexico.lua:12
+msgid "Alta California"
+msgstr "Alta California"
+
+#. American
+#: cultures.lua:140 cultures.lua:141 nations/america.lua:80
+#: nations/america.lua:81
+msgid "American"
+msgstr "American"
+
+#: cultures.lua:204
+msgid "Amhara"
+msgstr "Amhara"
+
+#: good_types.lua:77
+msgid "Ammunition"
+msgstr "Muniţie"
+
+#: industry_types.lua:130
+msgid "Ammunition factory"
+msgstr "Fabrică de muniție"
+
+#: ideologies.lua:38
+msgid "Anarcho-Capitalism"
+msgstr "Anarho-Capitalism"
+
+#: ideologies.lua:35
+msgid "Anarchy"
+msgstr "Anarhie"
+
+#: provinces/americas/caribbean.lua:255
+msgid "Anguilla"
+msgstr "Anguila"
+
+#: nations/europe.lua:465 nations/europe.lua:469
+msgid "Anhalt"
+msgstr "Anhalt"
+
+#: religions.lua:38
+msgid "Animist"
+msgstr "Animist"
+
+#: provinces/americas/caribbean.lua:271
+msgid "Antigua and Barbuda"
+msgstr "Antigua și Barbuda"
+
+#: provinces/americas/chile.lua:10
+msgid "Antofagasta"
+msgstr "Antofagasta"
+
+#: provinces/americas/south_america.lua:212
+msgid "Apure"
+msgstr "Apure"
+
+#: cultures.lua:193
+msgid "Arab"
+msgstr "Arab"
+
+#. Formable nations
+#: nations/africa.lua:42 nations/africa.lua:47
+msgid "Arabia"
+msgstr "Arabia"
+
+#. Middle east
+#: cultures.lua:192
+msgid "Arabic"
+msgstr "Arabic"
+
+#: nations/europe.lua:132 nations/europe.lua:136
+msgid "Aragon"
+msgstr "Aragon"
+
+#: cultures.lua:45
+msgid "Aragonese"
+msgstr "Aragoneză"
+
+#: nations/europe.lua:133
+msgid "Aragonesse"
+msgstr "Aragoneză"
+
+#: provinces/americas/canada.lua:55
+msgid "Arctic Islands"
+msgstr "Insulele Arctice"
+
+#. Ardennes
+#: provinces/europe/france.lua:224
+msgid "Ardennes"
+msgstr "Ardene"
+
+#: provinces/americas/south_america.lua:250
+msgid "Arequipa"
+msgstr "Arequipa"
+
+#. ---------------------------------------------------------------------
+#. ------------------------------------------------------------
+#. America
+#. Initial nations
+#: nations/america.lua:5 nations/america.lua:10
+msgid "Argentina"
+msgstr "Argentina"
+
+#: cultures.lua:150
+msgid "Argentinian"
+msgstr "Argentinian"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: South America
+#. Country: Peru
+#: provinces/americas/south_america.lua:234
+msgid "Arica"
+msgstr "Arica"
+
+#: provinces/europe/france.lua:35
+msgid "Ariège"
+msgstr "Ariège"
+
+#. Uncolonized part of the mainland USA should be added as a nucleus after "manifest destiny"
+#: provinces/americas/united_states.lua:64
+msgid "Arkansas"
+msgstr "Arkansas"
+
+#: terrain_types.lua:35
+msgid "Artic"
+msgstr "Artic"
+
+#: provinces/europe/scandinavia.lua:36
+msgid "Artic Greenland"
+msgstr "Groenlanda arctică"
+
+#: unit_types.lua:28
+msgid "Artillery"
+msgstr "Artilerie"
+
+#: pop_types.lua:12
+msgid "Artisan"
+msgstr "Artizan"
+
+#: provinces/americas/caribbean.lua:592
+msgid "Aruba"
+msgstr "Aruba"
+
+#: nations/africa.lua:37 nations/africa.lua:39
+msgid "Ashantee"
+msgstr "Ashantee"
+
+#: provinces/europe/spain.lua:10
+msgid "Asturias"
+msgstr "Asturie"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: South America
+#. Country: Paraguay
+#: provinces/americas/brazil_and_pantanal.lua:59
+msgid "Asunción"
+msgstr "Asunción"
+
+#: provinces/americas/canada.lua:618
+msgid "Athabasca"
+msgstr "Athabasca"
+
+#: religions.lua:43
+msgid "Atheist"
+msgstr "Ateu"
+
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Balkan
+#. Country: Greece
+#. Turkish part
+#: provinces/europe/greece.lua:8
+msgid "Attika"
+msgstr "Attica"
+
+#. Aube
+#: provinces/europe/france.lua:239
+msgid "Aube"
+msgstr "Aube"
+
+#: provinces/europe/france.lua:36
+msgid "Aude"
+msgstr "Aude"
+
+#: nations/europe.lua:544 nations/europe.lua:550 nations/europe.lua:551
+msgid "Austria"
+msgstr "Austria"
+
+#: nations/europe.lua:603 nations/europe.lua:608
+msgid "Austria-Hungary"
+msgstr "Austria-Ungaria"
+
+#: nations/europe.lua:545
+msgid "Austrian"
+msgstr "Austriac"
+
+#: nations/europe.lua:546
+msgid "Austro"
+msgstr "Austro"
+
+#: nations/europe.lua:604
+msgid "Austro-Hungarian"
+msgstr "Austro-Ungar"
+
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Scandinavia
+#. Country: Iceland
+#: provinces/europe/scandinavia.lua:50
+msgid "Austurland"
+msgstr "Austurland"
+
+#: ideologies.lua:47
+msgid "Authoritarian"
+msgstr "Autoritar"
+
+#: provinces/europe/portugal.lua:9
+msgid "Aveiro"
+msgstr "Aveiro"
+
+#: provinces/europe/france.lua:28
+msgid "Aveyron"
+msgstr "Aveyron"
+
+#: provinces/americas/chile.lua:49
+msgid "Aysén"
+msgstr "Aysén"
+
+#: provinces/europe/spain.lua:20
+msgid "Badajoz"
+msgstr "Badajoz"
+
+#: nations/europe.lua:451 nations/europe.lua:455
+#: provinces/europe/germany.lua:349
+msgid "Baden"
+msgstr "Baden"
+
+#: provinces/americas/brazil_and_pantanal.lua:30
+msgid "Bagé"
+msgstr "Bagé"
+
+#: provinces/americas/caribbean.lua:175
+msgid "Bahamas"
+msgstr "Bahamas"
+
+#: provinces/americas/brazil_and_pantanal.lua:12
+msgid "Bahia"
+msgstr "Bahia"
+
+#. Change to Guantánamo Bay when US occupies it
+#: provinces/americas/caribbean.lua:58
+msgid "Bahía de Guantánamo"
+msgstr "Bahía de Guantánamo"
+
+#: provinces/americas/mexico.lua:13
+msgid "Baja California"
+msgstr "Baja California"
+
+#. Food factories
+#: industry_types.lua:142
+msgid "Bakery"
+msgstr "Brutărie"
+
+#: provinces/americas/caribbean.lua:367
+msgid "Barbados"
+msgstr "Barbados"
+
+#: provinces/europe/spain.lua:40
+msgid "Barcelona"
+msgstr "Barcelona"
+
+#: boat_types.lua:10
+msgid "Barque"
+msgstr "Barcă"
+
+#. Outpost types
+#: building_types.lua:2
+msgid "Barracks"
+msgstr "Barăci"
+
+#. Bas-Rhin
+#: provinces/europe/france.lua:329
+msgid "Bas-Rhin"
+msgstr "Bas-Rhin"
+
+#: cultures.lua:39 nations/europe.lua:118 nations/europe.lua:119
+#: nations/europe.lua:121
+msgid "Basque"
+msgstr "Bască"
+
+#: nations/europe.lua:413 nations/europe.lua:417
+msgid "Bavaria"
+msgstr "Bavaria"
+
+#: good_types.lua:182
+msgid "Bed"
+msgstr "Pat"
+
+#: industry_types.lua:79
+msgid "Bed manufacturer"
+msgstr "Producător de paturi"
+
+#: cultures.lua:18 nations/europe.lua:23
+msgid "Belgian"
+msgstr "Belgian"
+
+#: nations/europe.lua:22 nations/europe.lua:27
+msgid "Belgium"
+msgstr "Belgia"
+
+#: provinces/americas/canada.lua:839
+msgid "Bermuda"
+msgstr "Bermude"
+
+#: provinces/americas/united_states.lua:37
+msgid "Biloxi"
+msgstr "Biloxi"
+
+#: provinces/europe/germany.lua:11
+msgid "Birkenfeld"
+msgstr "Birkenfeld"
+
+#: provinces/europe/spain.lua:53
+msgid "Biscay"
+msgstr "Biscaia"
+
+#: provinces/africa/northern.lua:12
+msgid "Bizerte"
+msgstr "Bizerte"
+
+#. province:add_industry(wheat_farm, turkey)
+#. Bulgaria
+#: provinces/europe/balkans.lua:117
+msgid "Blagoevgrad"
+msgstr "Blagoevgrad"
+
+#: provinces/europe/scandinavia.lua:356
+msgid "Blekinge"
+msgstr "Blekinge"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: Central America
+#. Country: USCA
+#: provinces/americas/central_america.lua:7
+msgid "Bocas del Toro"
+msgstr "Bocas del Toro"
+
+#: provinces/europe/scandinavia.lua:253
+msgid "Bohuslän"
+msgstr "Bohuslän"
+
+#: nations/america.lua:39 nations/america.lua:44
+msgid "Bolivia"
+msgstr "Bolivia"
+
+#: cultures.lua:153 nations/america.lua:40
+msgid "Bolivian"
+msgstr "Bolivian"
+
+#. Change to Big Diomede when take by the US or UK
+#: provinces/americas/alaska.lua:16
+msgid "Bolshoy Diomida"
+msgstr "Bolshoy Diomida"
+
+#: provinces/americas/caribbean.lua:560
+msgid "Bonaire"
+msgstr "Bonaire"
+
+#: provinces/americas/canada.lua:691
+msgid "Boreal Plains"
+msgstr "Câmpii Boreale"
+
+#: nations/africa.lua:65 nations/africa.lua:67
+msgid "Bornu"
+msgstr "Bornu"
+
+#: nations/europe.lua:743 nations/europe.lua:745
+msgid "Bosnia and Herzegovina"
+msgstr "Bosnia și Herțegovina"
+
+#: provinces/europe/france.lua:22
+msgid "Bouches du Rhône"
+msgstr "Bouches du Rhône"
+
+#: provinces/europe/balkans.lua:120
+msgid "Bourgas"
+msgstr "Burgas"
+
+#: provinces/americas/south_america.lua:127
+msgid "Boyacá"
+msgstr "Boyacá"
+
+#: nations/europe.lua:384 nations/europe.lua:388
+msgid "Brandenburg"
+msgstr "Brandenburg"
+
+#: good_types.lua:145
+msgid "Brass"
+msgstr "Alamă"
+
+#: industry_types.lua:101
+msgid "Brass smelter"
+msgstr "Topitor de alamă"
+
+#: nations/america.lua:13 nations/america.lua:18
+msgid "Brazil"
+msgstr "Brazilia"
+
+#: cultures.lua:177
+msgid "Brazilian"
+msgstr "Brazilian"
+
+#. Food
+#: good_types.lua:156
+msgid "Bread"
+msgstr "Pâine"
+
+#: nations/europe.lua:501 nations/europe.lua:505
+#: provinces/europe/germany.lua:59
+msgid "Bremen"
+msgstr "Bremen"
+
+#: cultures.lua:12 nations/europe.lua:6
+msgid "British"
+msgstr "Britanic"
+
+#. Releasable nations
+#: nations/europe.lua:96 nations/europe.lua:98
+msgid "Brittany"
+msgstr "Bretania"
+
+#: good_types.lua:106
+msgid "Bronze"
+msgstr "Bronz"
+
+#: nations/europe.lua:458 nations/europe.lua:462
+#: provinces/europe/germany.lua:83
+msgid "Brunswick"
+msgstr "Brunswick"
+
+#: religions.lua:28
+msgid "Buddhist"
+msgstr "Budist"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: South America
+#. Country: Argentina + Paragonia
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: South America
+#. Country: Argentina + Paragonia
+#. Argentina has these provinces "occupied"
+#: provinces/americas/argentina.lua:13
+msgid "Buenos Aires"
+msgstr "Buenos Aires"
+
+#: nations/europe.lua:286 nations/europe.lua:290 nations/europe.lua:291
+msgid "Bulgaria"
+msgstr "Bulgaria"
+
+#: cultures.lua:107 nations/europe.lua:287
+msgid "Bulgarian"
+msgstr "Bulgar"
+
+#: pop_types.lua:19
+msgid "Bureaucrat"
+msgstr "Birocrat"
+
+#: provinces/europe/austria.lua:15
+msgid "Burgenland"
+msgstr "Burgenland"
+
+#. Pop types
+#: pop_types.lua:4
+msgid "Burgeoise"
+msgstr "Burgeoise"
+
+#: provinces/europe/spain.lua:12
+msgid "Burgos"
+msgstr "Burgos"
+
+#: provinces/africa/northern.lua:17
+msgid "Béja"
+msgstr "Béja"
+
+#: provinces/americas/central_america.lua:25
+msgid "Cabagra"
+msgstr "Cabagra"
+
+#: provinces/americas/central_america.lua:255
+msgid "Calakmul"
+msgstr "Calakmul"
+
+#: provinces/americas/chile.lua:9
+msgid "Calama"
+msgstr "Calama"
+
+#: provinces/europe/france.lua:12
+msgid "Calvados"
+msgstr "Calvados"
+
+#: provinces/americas/caribbean.lua:23
+msgid "Camagüey"
+msgstr "Camagüey"
+
+#: provinces/americas/mexico.lua:9
+msgid "Campico"
+msgstr "Campico"
+
+#: provinces/europe/france.lua:21
+msgid "Cannes"
+msgstr "Cannes"
+
+#: good_types.lua:62
+msgid "Cannon"
+msgstr "Tun"
+
+#: provinces/europe/spain.lua:19
+msgid "Cantabria"
+msgstr "Cantabria"
+
+#. Cantal
+#: provinces/europe/france.lua:629
+msgid "Cantal"
+msgstr "Cantal"
+
+#: industry_types.lua:84
+msgid "Carbon destroyer"
+msgstr "Distrugător de carbon"
+
+#: provinces/europe/austria.lua:11
+msgid "Carinthia"
+msgstr "Carintia"
+
+#: provinces/americas/brazil_and_pantanal.lua:91
+msgid "Carvoal"
+msgstr "Carvoal"
+
+#: provinces/europe/spain.lua:45
+msgid "Castellón"
+msgstr "Castellón"
+
+#: cultures.lua:48
+msgid "Catalan"
+msgstr "Catalan"
+
+#: nations/europe.lua:111 nations/europe.lua:114
+msgid "Catalonia"
+msgstr "Catalonia"
+
+#: nations/europe.lua:112
+msgid "Catalonian"
+msgstr "Catalonian"
+
+#: provinces/americas/argentina.lua:25
+msgid "Catamarca"
+msgstr "Catamarca"
+
+#: religions.lua:8
+msgid "Catholic"
+msgstr "Catolic"
+
+#: provinces/americas/south_america.lua:58
+msgid "Cauca"
+msgstr "Cauca"
+
+#: unit_types.lua:22
+msgid "Cavalry"
+msgstr "Cavalerie"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: South America
+#. Country: France
+#: provinces/americas/guianas.lua:83
+msgid "Cayenne"
+msgstr "Cayenne"
+
+#: provinces/americas/caribbean.lua:207
+msgid "Cayman Islands"
+msgstr "Insulele Cayman"
+
+#. ------------------------------------------------------------
+#. Continent: America
+#. Subcontinent: South America
+#. Country: Brazil
+#: provinces/americas/brazil_and_pantanal.lua:6
+msgid "Ceará"
+msgstr "Ceará"
+
+#: provinces/europe/scandinavia.lua:540
+msgid "Central Finland"
+msgstr "Finlanda Centrală"
+
+#: provinces/americas/argentina.lua:28
+msgid "Central Puna"
+msgstr "Puna Centrală"
+
+#: provinces/americas/argentina.lua:32
+msgid "Chaco"
+msgstr "Chaco"
+
+#: good_types.lua:179
+msgid "Chair"
+msgstr "Scaun"
+
+#. Secondary sector industries (now the fun begins)
+#: industry_types.lua:74
+msgid "Chair manufacturer"
+msgstr "Producător de scaune"
+
+#: provinces/europe/greece.lua:25
+msgid "Chalkidi"
+msgstr "Chalkidi"
+
+#: good_types.lua:51
+msgid "Charcoal"
+msgstr "Cărbune"
+
+#. Charente
+#: provinces/europe/france.lua:509
+msgid "Charente"
+msgstr "Charente"
+
+#. Charente-Maritime
+#: provinces/europe/france.lua:524
+msgid "Charente-Maritime"
+msgstr "Charente-Maritime"
+
+#: cultures.lua:207
+msgid "Chewa"
+msgstr "Chewa"
+
+#: provinces/americas/mexico.lua:30
+msgid "Chiapas"
+msgstr "Chiapas"
+
+#: provinces/americas/mexico.lua:11
+msgid "Chihuahua"
+msgstr "Chihuahua"
+
+#: nations/america.lua:55 nations/america.lua:60
+msgid "Chile"
+msgstr "Chile"
+
+#: cultures.lua:144 nations/america.lua:56
+msgid "Chilean"
+msgstr "Chiliană"
+
+#: provinces/americas/chile.lua:18
+msgid "Chillán"
+msgstr "Chillán"
+
+#: provinces/americas/chile.lua:48
+msgid "Chiloé"
+msgstr "Chiloé"
+
+#: religions.lua:13
+msgid "Christian"
+msgstr "Creștin"
+
+#: good_types.lua:142
+msgid "Chromium"
+msgstr "Crom"
+
+#: industry_types.lua:53
+msgid "Chromium mine"
+msgstr "Mină de crom"
+
+#: provinces/americas/argentina.lua:64
+msgid "Chubut"
+msgstr "Chubut"
+
+#: provinces/americas/brazil_and_pantanal.lua:100
+msgid "Chuquisaca"
+msgstr "Chuquisaca"
+
+#: provinces/americas/brazil_and_pantanal.lua:32
+msgid "Cisplatina"
+msgstr "Cisplatina"
+
+#: cultures.lua:147
+msgid "Cisplatinian"
+msgstr "Cisplatinian"
+
+#: provinces/europe/spain.lua:32
+msgid "Ciudad Real"
+msgstr "Ciudad Real"
+
+#: pop_types.lua:26
+msgid "Clergymen"
+msgstr "Duhovnici"
+
+#. If someone knows a better way to do this please do a PR
+#. Expected size from total counting
+#. function Province:__get_pop_size()
+#. return get_province_pops_size(self.id)
+#. end
+#. TODO: Do important stuff
+#. Increments militancy for all POPs
+#. Increments con for all POPs
+#. Adds a POP to the province
+#. Rename a province
+#. Adds a country to the nucleus list of a province
+#. For sanity
+#. CF not available, fallback to an adjective
+#. Combining form available (only possible if it's first)
+#. Makes somewhat correct phrases like Franco-Prussian war, Russo-Chinesse-Roman war
+#. [determiner (a/an)] [adjective (or noun as fallback)]
+#. Naval unit types
+#: boat_types.lua:3
+msgid "Clipper"
+msgstr "Mașină de tuns"
+
+#: provinces/americas/mexico.lua:10
+msgid "Coahuila"
+msgstr "Coahuila"
+
+#: good_types.lua:133
+msgid "Coal"
+msgstr "Cărbune"
+
+#: industry_types.lua:41
+msgid "Coal mine"
+msgstr "Mină de cărbune"
+
+#: building_types.lua:11
+msgid "Coast cannons"
+msgstr "Tunuri de coastă"
+
+#: provinces/americas/brazil_and_pantanal.lua:97
+msgid "Cochabamba"
+msgstr "Cochabamba"
+
+#: good_types.lua:19
+msgid "Coffe bean"
+msgstr "Boabă de cafea"
+
+#: provinces/americas/mexico.lua:23
+msgid "Colima"
+msgstr "Colima"
+
+#: cultures.lua:159
+msgid "Colombian"
+msgstr "Columbian"
+
+#: provinces/americas/united_states.lua:81
+msgid "Colorado"
+msgstr "Colorado"
+
+#. communism = Ideology.new("communism", _("Communism"))
+#. print(communism)
+#. print(type(communism))
+#. print(communism.ref_name)
+#. for k,v in pairs(getmetatable(communism)) do
+#. print(k, v)
+#. end
+#. communism:register()
+#. communism = Ideology.get("communism")
+#. print(communism)
+#. print(type(communism))
+#. print(communism.ref_name)
+#: ideologies.lua:14
+msgid "Communism"
+msgstr "Comunism"
+
+#: provinces/americas/chile.lua:19
+msgid "Concepción"
+msgstr "Concepción"
+
+#: provinces/americas/united_states.lua:10
+msgid "Connecticut"
+msgstr "Connecticut"
+
+#. Mainland chile (without mapuche's land)
+#: provinces/americas/chile.lua:13
+msgid "Copiapó"
+msgstr "Copiapó"
+
+#. Minerals
+#: good_types.lua:85 good_types.lua:139
+msgid "Copper"
+msgstr "Cupru"
+
+#: industry_types.lua:49
+msgid "Copper mine"
+msgstr "Mină de cupru"
+
+#: provinces/americas/chile.lua:14
+msgid "Coquimbo"
+msgstr "Coquimbo"
+
+#. if taken by suriname rename it to corantijn
+#: provinces/americas/guianas.lua:40
+msgid "Corentyne"
+msgstr "Corentyne"
+
+#: ideologies.lua:41
+msgid "Corporatocracy"
+msgstr "Corporatocracy"
+
+#: provinces/americas/united_states.lua:119
+msgid "Corpus Christi"
+msgstr "Corpus Christi"
+
+#. Uncolonized south of argentina (disputed by chile too because nobody owns them)
+#: provinces/americas/argentina.lua:59
+msgid "Corrientes"
+msgstr "Corrientes"
+
+#. Corrèze
+#: provinces/europe/france.lua:569
+msgid "Corrèze"
+msgstr "Corrèze"
+
+#: good_types.lua:16
+msgid "Cotton"
+msgstr "Bumbac"
+
+#: industry_types.lua:31
+msgid "Cotton farm"
+msgstr "Fermă de bumbac"
+
+#: pop_types.lua:72
+msgid "Craftsmen"
+msgstr "Meșteri"
+
+#. Creuse
+#: provinces/europe/france.lua:584
+msgid "Creuse"
+msgstr "Creuse"
+
+#: nations/europe.lua:736 nations/europe.lua:739 nations/europe.lua:740
+msgid "Croatia"
+msgstr "Croația"
+
+#: cultures.lua:58
+msgid "Croatian"
+msgstr "Croat"
+
+#: provinces/europe/spain.lua:33
+msgid "Cuenca"
+msgstr "Cuenca"
+
+#: provinces/americas/south_america.lua:178
+msgid "Cumaná"
+msgstr "Cumaná"
+
+#: provinces/americas/south_america.lua:109
+msgid "Cundinamarca"
+msgstr "Cundinamarca"
+
+#: provinces/americas/caribbean.lua:576
+msgid "Curaçao"
+msgstr "Curaçao"
+
+#: provinces/americas/chile.lua:17
+msgid "Curicó"
+msgstr "Curicó"
+
+#: provinces/europe/greece.lua:16
+msgid "Cyclades"
+msgstr "Ciclade"
+
+#: cultures.lua:51
+msgid "Czech"
+msgstr "Ceh"
+
+#: cultures.lua:52
+msgid "Czecho"
+msgstr "Ceho"
+
+#: nations/europe.lua:141
+msgid "Czechoslovak"
+msgstr "Cehoslovac"
+
+#. Formable by both czech and slovakia
+#: nations/europe.lua:140 nations/europe.lua:145
+msgid "Czechoslovakia"
+msgstr "Cehoslovacia"
+
+#: provinces/europe/spain.lua:21
+msgid "Cáceres"
+msgstr "Cáceres"
+
+#: provinces/europe/spain.lua:23
+msgid "Cádiz"
+msgstr "Cádiz"
+
+#: provinces/americas/argentina.lua:20 provinces/europe/spain.lua:24
+msgid "Córdoba"
+msgstr "Córdoba"
+
+#. Côte-d'Or
+#: provinces/europe/france.lua:389
+msgid "Côte-d'Or"
+msgstr "Côte-d'Or"
+
+#: provinces/europe/france.lua:8
+msgid "Côtes d' Armor"
+msgstr "Côtes d' Armor"
+
+#: nations/africa.lua:70 nations/africa.lua:72
+msgid "Dahomey"
+msgstr "Dahomey"
+
+#: provinces/europe/scandinavia.lua:304
+msgid "Dalarna"
+msgstr "Dalarna"
+
+#: cultures.lua:21 nations/europe.lua:153
+msgid "Danish"
+msgstr "Danez"
+
+#: nations/europe.lua:487 nations/europe.lua:491
+msgid "Danzig"
+msgstr "Danzig"
+
+#: provinces/europe/germany.lua:133
+msgid "Darnustadt"
+msgstr "Darnustadt"
+
+#. Social technologies
+#. Military and naval tech
+#. Terrain types
+#: terrain_types.lua:2
+msgid "Deep sea"
+msgstr "Mare adăncă"
+
+#: provinces/americas/united_states.lua:20
+msgid "Delaware"
+msgstr "Delaware"
+
+#: provinces/americas/guianas.lua:23
+msgid "Demerara"
+msgstr "Demerara"
+
+#: ideologies.lua:17
+msgid "Democracy"
+msgstr "Democrație"
+
+#. ---------------------------------------------------------------------
+#. ---------------------------------------------------------------------
+#. Scandinavia
+#. Initial nations
+#: nations/europe.lua:152 nations/europe.lua:157
+msgid "Denmark"
+msgstr "Danemarca"
+
+#: terrain_types.lua:20
+msgid "Desert"
+msgstr "Deșert"
+
+#. Deux-Sèvres
+#: provinces/europe/france.lua:539
+msgid "Deux-Sèvres"
+msgstr "Deux-Sèvres"
+
+#: good_types.lua:100
+msgid "Diamond"
+msgstr "Diamant"
+
+#. Mines can new stuff from thin air, but don't worry because this is
+#. not abuse-ble
+#: industry_types.lua:37
+msgid "Diamond mine"
+msgstr "Mină de diamant"
+
+#: provinces/europe/greece.lua:18
+msgid "Dodecanese"
+msgstr "Dodecanez"
+
+#: provinces/europe/greece.lua:30
+msgid "Dodoni"
+msgstr "Dodoni"
+
+#: provinces/americas/caribbean.lua:303
+msgid "Dominica"
+msgstr "Dominica"
+
+#. Dordogne
+#: provinces/europe/france.lua:449
+msgid "Dordogne"
+msgstr "Dordogne"
+
+#. Doubs
+#: provinces/europe/france.lua:359
+msgid "Doubs"
+msgstr "Doubs"
+
+#: provinces/europe/greece.lua:24
+msgid "Drama"
+msgstr "Drama"
+
+#: provinces/europe/germany.lua:421
+msgid "Dresden"
+msgstr "Dresda"
+
+#: provinces/americas/argentina.lua:68
+msgid "Dupuy"
+msgstr "Dupuy"
+
+#: provinces/americas/mexico.lua:19
+msgid "Durango"
+msgstr "Durango"
+
+#: cultures.lua:15 nations/europe.lua:15
+msgid "Dutch"
+msgstr "Olandez"
+
+#: good_types.lua:39
+msgid "Dye"
+msgstr "Vopsea"
+
+#: provinces/americas/united_states.lua:38
+msgid "East Louisiana"
+msgstr "Louisiana de est"
+
+#: provinces/americas/united_states.lua:248
+msgid "East New Mexico"
+msgstr "Noul Mexic de est"
+
+#: provinces/americas/united_states.lua:89
+msgid "East Oregon"
+msgstr "Oregon de est"
+
+#: provinces/europe/scandinavia.lua:676
+msgid "East Oulu"
+msgstr "Oulu de est"
+
+#: provinces/americas/canada.lua:199
+msgid "Eastern Northwestern Territories"
+msgstr "Teritotiile de estul nord-vestic"
+
+#. Change name to Saskatchewan after 1905
+#: provinces/americas/canada.lua:643
+msgid "Eastern Prairies"
+msgstr "Preriile de est"
+
+#: provinces/americas/united_states.lua:116
+msgid "Eastern Texas"
+msgstr "Texas de est"
+
+#: provinces/americas/south_america.lua:24
+msgid "Ecuador"
+msgstr "Ecuador"
+
+#: cultures.lua:165
+msgid "Ecuadorian"
+msgstr "Ecuadorian"
+
+#: nations/africa.lua:25 nations/africa.lua:28
+msgid "Egypt"
+msgstr "Egipt"
+
+#: nations/africa.lua:26
+msgid "Egyptians"
+msgstr "Egipteni"
+
+#: provinces/americas/central_america.lua:272
+msgid "El Ceibo"
+msgstr "El Ceibo"
+
+#: provinces/americas/united_states.lua:117
+msgid "El Paso"
+msgstr "El Paso"
+
+#: provinces/americas/central_america.lua:169
+msgid "El Salvador"
+msgstr "El Salvador"
+
+#: provinces/americas/argentina.lua:15
+msgid "Entre Ríos"
+msgstr "Entre Ríos"
+
+#: ideologies.lua:44
+msgid "Enviromentalism"
+msgstr "Ecologism"
+
+#: provinces/americas/brazil_and_pantanal.lua:23
+msgid "Espirito Santo"
+msgstr "Espirito Santo"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: South America
+#. Country: British Empire
+#: provinces/americas/guianas.lua:7
+msgid "Essequibo"
+msgstr "Essequibo"
+
+#. Essonne
+#: provinces/europe/france.lua:179
+msgid "Essonne"
+msgstr "Essonne"
+
+#: nations/europe.lua:253 nations/europe.lua:257
+msgid "Estonia"
+msgstr "Estonia"
+
+#: nations/europe.lua:258
+msgid "Estonia SFSR"
+msgstr "RSS Estonă"
+
+#: cultures.lua:101 nations/europe.lua:254
+msgid "Estonian"
+msgstr "Estonian"
+
+#: provinces/europe/france.lua:14
+msgid "Eure"
+msgstr "Eure"
+
+#: nations/europe.lua:59
+msgid "European"
+msgstr "European"
+
+#: nations/europe.lua:80
+msgid "European Commune"
+msgstr "Comuna Europeană"
+
+#. Formable nations
+#: nations/europe.lua:58 nations/europe.lua:79
+msgid "European Union"
+msgstr "Uniunea Europeană"
+
+#: provinces/europe/greece.lua:11
+msgid "Evia"
+msgstr "Evia"
+
+#: good_types.lua:36
+msgid "Fabric"
+msgstr "Țesătură"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: South America
+#. Country: United Kingdom
+#: provinces/americas/argentina.lua:98
+msgid "Falkland Islands"
+msgstr "Insulele Falkland"
+
+#: pop_types.lua:40
+msgid "Farmer"
+msgstr "Fermier"
+
+#: provinces/europe/portugal.lua:13
+msgid "Faro"
+msgstr "Faro"
+
+#: ideologies.lua:20
+msgid "Fascism"
+msgstr "Fascism"
+
+#: nations/europe.lua:585
+msgid "Federal Republic of Germany"
+msgstr "Republica Federală Germania"
+
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Middle Europe
+#. Country: France
+#: provinces/europe/france.lua:7
+msgid "Finistère"
+msgstr "Finistère"
+
+#. Releasable nations
+#: nations/europe.lua:183 nations/europe.lua:188
+msgid "Finland"
+msgstr "Finlanda"
+
+#: cultures.lua:75 nations/europe.lua:184
+msgid "Finnish"
+msgstr "Finlandez"
+
+#: cultures.lua:76 nations/europe.lua:185
+msgid "Finno"
+msgstr "Finno"
+
+#: provinces/americas/united_states.lua:9
+msgid "Florida"
+msgstr "Florida"
+
+#: provinces/europe/greece.lua:29
+msgid "Florina"
+msgstr "Florina"
+
+#: terrain_types.lua:11
+msgid "Forest"
+msgstr "Pădure"
+
+#: provinces/americas/argentina.lua:34
+msgid "Formosa"
+msgstr "Formosa"
+
+#: building_types.lua:5
+msgid "Fort"
+msgstr "Fort"
+
+#: provinces/americas/canada.lua:127
+msgid "Fort Resolution"
+msgstr "Fort Resolution"
+
+#: nations/europe.lua:30 nations/europe.lua:36
+msgid "France"
+msgstr "Franța"
+
+#: cultures.lua:9 nations/europe.lua:32
+msgid "Franco"
+msgstr "Franco"
+
+#: nations/europe.lua:391 nations/europe.lua:395
+msgid "Frankfurt"
+msgstr "Frankfurt"
+
+#: provinces/europe/denmark.lua:91
+msgid "Frederiksborg"
+msgstr "Frederiksborg"
+
+#: cultures.lua:8 nations/europe.lua:31
+msgid "French"
+msgstr "Francez"
+
+#. Industrial materials
+#: good_types.lua:30
+msgid "Fuel"
+msgstr "Combustibil"
+
+#: provinces/americas/brazil_and_pantanal.lua:94
+msgid "Fuerte Olimpo"
+msgstr "Fuerte Olimpo"
+
+#: cultures.lua:210
+msgid "Fulani"
+msgstr "Fulani"
+
+#: provinces/africa/northern.lua:13
+msgid "Gabès"
+msgstr "Gabès"
+
+#: nations/europe.lua:125 nations/europe.lua:128
+msgid "Galicia"
+msgstr "Galicia"
+
+#: cultures.lua:42 nations/europe.lua:126
+msgid "Galician"
+msgstr "Galician"
+
+#: provinces/americas/south_america.lua:41
+msgid "Galápagos"
+msgstr "Galápagos"
+
+#: provinces/europe/france.lua:25
+msgid "Gard"
+msgstr "Gard"
+
+#. militia:requires_good(ammunition, 200)
+#. militia:requires_good(musket, 100)
+#. militia:requires_good(wheat, 10)
+#: unit_types.lua:10
+msgid "Garrison"
+msgstr "Garrison"
+
+#: good_types.lua:176
+msgid "Gasoline"
+msgstr "Benzină"
+
+#: nations/europe.lua:624 nations/europe.lua:628
+msgid "Genoa"
+msgstr "Genoa"
+
+#: provinces/americas/united_states.lua:33
+msgid "Georgia"
+msgstr "Georgia"
+
+#. Cultures
+#. European
+#: cultures.lua:5 nations/europe.lua:581
+msgid "German"
+msgstr "German"
+
+#: nations/europe.lua:580 nations/europe.lua:584
+msgid "Germany"
+msgstr "Germania"
+
+#: provinces/europe/france.lua:32
+msgid "Gers"
+msgstr "Gers"
+
+#: provinces/europe/germany.lua:134
+msgid "Giessen"
+msgstr "Giessen"
+
+#: provinces/europe/spain.lua:54
+msgid "Gipuzkoa"
+msgstr "Gipuzkoa"
+
+#: provinces/europe/spain.lua:41
+msgid "Girona"
+msgstr "Girona"
+
+#. Gironde
+#: provinces/europe/france.lua:464
+msgid "Gironde"
+msgstr "Gironde"
+
+#: good_types.lua:33
+msgid "Glass"
+msgstr "Sticlă"
+
+#. Industry types
+#. Primary sector industries (the most essential)
+#: industry_types.lua:4
+msgid "Glass factory"
+msgstr "Fabrică de sticlă"
+
+#: good_types.lua:59
+msgid "Glock"
+msgstr "Glock"
+
+#: provinces/americas/brazil_and_pantanal.lua:21
+msgid "Goiás"
+msgstr "Goiás"
+
+#: good_types.lua:94
+msgid "Gold"
+msgstr "Aur"
+
+#: industry_types.lua:61
+msgid "Gold mine"
+msgstr "Mină de aur"
+
+#: provinces/europe/scandinavia.lua:183
+msgid "Gotland"
+msgstr "Gotland"
+
+#: nations/america.lua:21 nations/america.lua:28
+msgid "Gran colombia"
+msgstr "Marea columbie"
+
+#: provinces/europe/spain.lua:25
+msgid "Granada"
+msgstr "Granada"
+
+#: nations/europe.lua:529 nations/europe.lua:533
+msgid "Grand Duchy of Hesse and by Rhine"
+msgstr "Marele ducat al Hesse"
+
+#: provinces/americas/united_states.lua:73
+msgid "Grand Portage"
+msgstr "Grand Portage"
+
+#: good_types.lua:8
+msgid "Grapes"
+msgstr "Struguri"
+
+#: terrain_types.lua:26
+msgid "Grasslands"
+msgstr "Pajiști"
+
+#: nations/europe.lua:300 nations/europe.lua:303
+msgid "Great Horde"
+msgstr "Marea Hoardă"
+
+#. Formable nations
+#: nations/europe.lua:573 nations/europe.lua:577
+msgid "Greater Prussia"
+msgstr "Prusia Mare"
+
+#: cultures.lua:88 nations/europe.lua:692
+msgid "Greco"
+msgstr "Greco"
+
+#: nations/europe.lua:690 nations/europe.lua:696
+msgid "Greece"
+msgstr "Grecia"
+
+#: cultures.lua:87 nations/europe.lua:691
+msgid "Greek"
+msgstr "Grec"
+
+#: provinces/americas/caribbean.lua:351
+msgid "Grenada"
+msgstr "Grenada"
+
+#: provinces/europe/greece.lua:28
+msgid "Grevena"
+msgstr "Grevena"
+
+#: provinces/americas/brazil_and_pantanal.lua:16
+msgid "Grão-Pará"
+msgstr "Grão-Pará"
+
+#: provinces/europe/spain.lua:34
+msgid "Guadalajara"
+msgstr "Guadalajara"
+
+#: provinces/americas/caribbean.lua:491
+msgid "Guadeloupe"
+msgstr "Guadelupa"
+
+#: provinces/americas/mexico.lua:22
+msgid "Guanajuato"
+msgstr "Guanajuato"
+
+#: provinces/europe/portugal.lua:10
+msgid "Guarda"
+msgstr "Guarda"
+
+#: provinces/americas/central_america.lua:221
+msgid "Guatemala"
+msgstr "Guatemala"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: South America
+#. Country: Gran Colombia
+#: provinces/americas/south_america.lua:7
+msgid "Guayaquil"
+msgstr "Guayaquil"
+
+#. Military stuff
+#: good_types.lua:56
+msgid "Gunpowder"
+msgstr "Praf de pușcă"
+
+#: industry_types.lua:89
+msgid "Gunpowder mixer"
+msgstr "Amestecător de praf de pușcă"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinet: Caribbean/Central America
+#. Country: Haiti
+#: nations/america.lua:89 nations/america.lua:93
+#: provinces/americas/caribbean.lua:420
+msgid "Haiti"
+msgstr "Haiti"
+
+#: cultures.lua:174
+msgid "Haitian"
+msgstr "Haitian"
+
+#: nations/europe.lua:429 nations/europe.lua:433
+msgid "Hannover"
+msgstr "Hannover"
+
+#: provinces/europe/baltics.lua:40
+msgid "Harju"
+msgstr "Harju"
+
+#: cultures.lua:213
+msgid "Hausa"
+msgstr "Hausa"
+
+#. Haut-Rhin
+#: provinces/europe/france.lua:344
+msgid "Haut-Rhin"
+msgstr "Haut-Rhin"
+
+#: provinces/europe/italy.lua:80
+msgid "Haute Savoie"
+msgstr "Haute Savoie"
+
+#. Haute-Loire
+#: provinces/europe/france.lua:644
+msgid "Haute-Loire"
+msgstr "Haute-Loire"
+
+#. Haute-Saône
+#: provinces/europe/france.lua:374
+msgid "Haute-Saône"
+msgstr "Haute-Saône"
+
+#. Haute-Vienne
+#: provinces/europe/france.lua:599
+msgid "Haute-Vienne"
+msgstr "Haute-Vienne"
+
+#: provinces/europe/france.lua:34
+msgid "Haute_Garonne"
+msgstr "Haute_Garonne"
+
+#: provinces/europe/france.lua:19
+msgid "Hautes Alpes"
+msgstr "Hautes Alpes"
+
+#: provinces/europe/france.lua:33
+msgid "Hautes Pyrénées"
+msgstr "Hautes Pyrénées"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: Caribbean/Central America
+#. Country: Kingdom of Spain
+#: provinces/americas/caribbean.lua:6
+msgid "Havana"
+msgstr "Havana"
+
+#. ---------------------------------------------------------------------
+#. Nations
+#. Whoever did this please fix!!!!
+#: nations.lua:3 nations.lua:6 provinces/oceania/hawaii.lua:58
+msgid "Hawai'i"
+msgstr "Hawaii"
+
+#: provinces/europe/denmark.lua:40
+msgid "Hedensted"
+msgstr "Hedensted"
+
+#: provinces/europe/scandinavia.lua:883
+msgid "Hedmark"
+msgstr "Hedmark"
+
+#: provinces/europe/scandinavia.lua:594
+msgid "Helsinki"
+msgstr "Helsinki"
+
+#: provinces/europe/baltics.lua:23
+msgid "Hiiu"
+msgstr "Hiiu"
+
+#: provinces/americas/united_states.lua:120
+msgid "Hill Country"
+msgstr "Țara de Deal"
+
+#. Rename to Hincha if conquered by the spanish/dominican republic
+#: provinces/americas/caribbean.lua:438
+msgid "Hincha"
+msgstr "Hincha"
+
+#: nations/europe.lua:405 nations/europe.lua:410
+msgid "Holstein"
+msgstr "Holstein"
+
+#: nations/europe.lua:589 nations/europe.lua:593
+msgid "Holy Roman Empire"
+msgstr "Sfântul Imperiu Roman"
+
+#: provinces/americas/central_america.lua:152
+msgid "Honduras"
+msgstr "Honduras"
+
+#: provinces/americas/south_america.lua:282
+msgid "Huaraz"
+msgstr "Huaraz"
+
+#: provinces/americas/canada.lua:223
+msgid "Hudson Bay Islands"
+msgstr "Insulele Golfului Hudson"
+
+#: provinces/europe/spain.lua:26
+msgid "Huelva"
+msgstr "Huelva"
+
+#: provinces/europe/spain.lua:49
+msgid "Huesca"
+msgstr "Huesca"
+
+#: religions.lua:33
+msgid "Hunduism"
+msgstr "Hunduism"
+
+#: cultures.lua:64 nations/europe.lua:556
+msgid "Hungarian"
+msgstr "Ungar"
+
+#. Releasable nations
+#: nations/europe.lua:555 nations/europe.lua:561 nations/europe.lua:562
+msgid "Hungary"
+msgstr "Ungaria"
+
+#: cultures.lua:216
+msgid "Hutu"
+msgstr "Hutu"
+
+#: provinces/americas/south_america.lua:346
+msgid "Huánuco"
+msgstr "Huánuco"
+
+#: provinces/europe/scandinavia.lua:149
+msgid "Hälsingland"
+msgstr "Hälsingland"
+
+#: provinces/europe/scandinavia.lua:513
+msgid "Häme"
+msgstr "Häme"
+
+#: provinces/europe/france.lua:26
+msgid "Hérault"
+msgstr "Hérault"
+
+#: provinces/europe/scandinavia.lua:70
+msgid "Höfuðborgarsvæðið"
+msgstr "Höfuðborgarsvæðið"
+
+#: nations/europe.lua:83 nations/europe.lua:92
+msgid "Iberia"
+msgstr "Iberia"
+
+#: nations/europe.lua:84
+msgid "Iberian"
+msgstr "Iberian"
+
+#: provinces/europe/spain.lua:39
+msgid "Ibiza"
+msgstr "Ibiza"
+
+#: nations/europe.lua:205 nations/europe.lua:209
+msgid "Iceland"
+msgstr "Islanda"
+
+#: cultures.lua:24 nations/europe.lua:206
+msgid "Icelandic"
+msgstr "Islandic"
+
+#: provinces/americas/united_states.lua:88
+msgid "Idaho"
+msgstr "Idaho"
+
+#: cultures.lua:219
+msgid "Igbo"
+msgstr "Igbo"
+
+#: provinces/europe/greece.lua:20
+msgid "Ikaria"
+msgstr "Ikaria"
+
+#: provinces/americas/chile.lua:15
+msgid "Illapel"
+msgstr "Illapel"
+
+#: provinces/europe/france.lua:10
+msgid "Ille et Vilaine"
+msgstr "Ille et Vilaine"
+
+#: provinces/americas/united_states.lua:67
+msgid "Illinois"
+msgstr "Illinois"
+
+#: provinces/americas/caribbean.lua:191
+msgid "Inagua and Long Islands"
+msgstr "Inagua și Insulele Lungi"
+
+#: provinces/americas/united_states.lua:30
+msgid "Indiana"
+msgstr "Indiana"
+
+#: unit_types.lua:16
+msgid "Infantry"
+msgstr "Infanterie"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: North America
+#. Country: The British Empire (Canada + bermuda)
+#: provinces/americas/canada.lua:6
+msgid "Inner Baffin"
+msgstr "Baffin Interior"
+
+#: provinces/americas/united_states.lua:66
+msgid "Iowa"
+msgstr "Iowa"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: South America
+#. Country: Chile + Patagonian Chile + Ex-Bolivian territory
+#. To be taken from bolivia
+#: provinces/americas/chile.lua:8
+msgid "Iquique"
+msgstr "Iquique"
+
+#: nations/europe.lua:565 nations/europe.lua:569
+msgid "Ireland"
+msgstr "Irlanda"
+
+#: cultures.lua:27 nations/europe.lua:566
+msgid "Irish"
+msgstr "Irlandez"
+
+#: good_types.lua:97
+msgid "Iron"
+msgstr "Fier"
+
+#: industry_types.lua:57
+msgid "Iron mine"
+msgstr "Mină de fier"
+
+#: industry_types.lua:107
+msgid "Iron smelter"
+msgstr "Topitor de fier"
+
+#: provinces/americas/caribbean.lua:137
+msgid "Isla de Margerita"
+msgstr "Isla de Margerita"
+
+#: religions.lua:23
+msgid "Islamic"
+msgstr "Islamic"
+
+#: provinces/americas/central_america.lua:340
+msgid "Islas de La Bahía"
+msgstr "Islas de La Bahía"
+
+#: provinces/americas/south_america.lua:75
+msgid "Istmo"
+msgstr "Istmo"
+
+#: cultures.lua:91 nations/europe.lua:668
+msgid "Italian"
+msgstr "Italian"
+
+#: cultures.lua:92
+msgid "Italo"
+msgstr "Italo"
+
+#. Formable nations
+#: nations/europe.lua:667 nations/europe.lua:671 nations/europe.lua:672
+msgid "Italy"
+msgstr "Italia"
+
+#: provinces/americas/mexico.lua:18
+msgid "Jalisco"
+msgstr "Jalisco"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: Caribbean/Central America
+#. Country: British Empire
+#: provinces/americas/caribbean.lua:159
+msgid "Jamaica"
+msgstr "Jamaica"
+
+#: provinces/europe/spain.lua:27
+msgid "Jaén"
+msgstr "Jaén"
+
+#: provinces/americas/argentina.lua:30
+msgid "Jujuy"
+msgstr "Jujuy"
+
+#: terrain_types.lua:17
+msgid "Jungle"
+msgstr "Junglă"
+
+#: provinces/americas/south_america.lua:362
+msgid "Junín"
+msgstr "Junín"
+
+#: provinces/europe/scandinavia.lua:321
+msgid "Jämtland"
+msgstr "Jämtland"
+
+#: provinces/europe/baltics.lua:108
+msgid "Järva"
+msgstr "Järva"
+
+#. Change to Kodiak if taken by US or UK
+#: provinces/americas/alaska.lua:14
+msgid "Kad'yak"
+msgstr "Kad'yak"
+
+#: provinces/africa/northern.lua:18
+msgid "Kairouan"
+msgstr "Kairouan"
+
+#: provinces/europe/greece.lua:17
+msgid "Kalymnos"
+msgstr "Kalymnos"
+
+#: provinces/americas/united_states.lua:74
+msgid "Kansas"
+msgstr "Kansas"
+
+#: provinces/americas/united_states.lua:75
+msgid "Kansas Indian Territory"
+msgstr "Teritoriul Indian Kansas"
+
+#: cultures.lua:222
+msgid "Kanuri"
+msgstr "Kanuri"
+
+#: provinces/africa/northern.lua:11
+msgid "Kasserine"
+msgstr "Kasserine"
+
+#: provinces/oceania/hawaii.lua:23
+msgid "Kaua'i"
+msgstr "Kaua'i"
+
+#. Central Asia
+#: cultures.lua:122 nations/europe.lua:328
+msgid "Kazakh"
+msgstr "Kazah"
+
+#: nations/europe.lua:327 nations/europe.lua:331
+msgid "Kazakhistan"
+msgstr "Kazachstan"
+
+#: provinces/africa/northern.lua:19
+msgid "Kebili"
+msgstr "Kebili"
+
+#: provinces/americas/alaska.lua:25
+msgid "Kenai"
+msgstr "Kenai"
+
+#: provinces/americas/canada.lua:545
+msgid "Kenora"
+msgstr "Kenora"
+
+#: provinces/americas/united_states.lua:31
+msgid "Kentucky"
+msgstr "Kentucky"
+
+#: cultures.lua:225
+msgid "Kongo"
+msgstr "Kongo"
+
+#: provinces/europe/greece.lua:31
+msgid "Korfu"
+msgstr "Korfu"
+
+#: provinces/europe/greece.lua:9
+msgid "Korinthia"
+msgstr "Korinthia"
+
+#. Releasable nations
+#: nations/europe.lua:717 nations/europe.lua:719
+msgid "Kosovo"
+msgstr "Kosovo"
+
+#: nations/europe.lua:227 nations/europe.lua:231
+msgid "Krakow"
+msgstr "Krakow"
+
+#. Change to Fort Ross when taken by US in california!
+#: provinces/americas/alaska.lua:33
+msgid "Krepostʹ Ross"
+msgstr "Krepostʹ Ross"
+
+#: provinces/europe/scandinavia.lua:486
+msgid "Kuopio"
+msgstr "Kuopio"
+
+#: provinces/europe/scandinavia.lua:405
+msgid "Kymi"
+msgstr "Kymi"
+
+#: cultures.lua:131 nations/europe.lua:335
+msgid "Kyrgyz"
+msgstr "Kyrgyz"
+
+#: nations/europe.lua:334 nations/europe.lua:338 nations/europe.lua:339
+msgid "Kyrgyztan"
+msgstr "Kyrgyztan"
+
+#. province:add_industry(wheat_farm, turkey)
+#: provinces/europe/greece.lua:61
+msgid "Kythira"
+msgstr "Kythira"
+
+#: provinces/americas/argentina.lua:60
+msgid "La Pampa"
+msgstr "La Pampa"
+
+#: provinces/americas/brazil_and_pantanal.lua:96
+msgid "La Paz"
+msgstr "La Paz"
+
+#: provinces/americas/argentina.lua:23
+msgid "La Rioja"
+msgstr "La Rioja"
+
+#: pop_types.lua:48
+msgid "Laborer"
+msgstr "Muncitor"
+
+#: provinces/americas/argentina.lua:67
+msgid "Laboulaye"
+msgstr "Laboulaye"
+
+#: provinces/americas/canada.lua:296
+msgid "Labrador"
+msgstr "Labrador"
+
+#: provinces/europe/greece.lua:62
+msgid "Lakedemona"
+msgstr "Lakedemona"
+
+#. Landes
+#: provinces/europe/france.lua:479
+msgid "Landes"
+msgstr "Landes"
+
+#: provinces/europe/scandinavia.lua:703
+msgid "Lapland"
+msgstr "Laponia"
+
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Scandinavia
+#. Country: Sweden
+#: provinces/europe/scandinavia.lua:115
+msgid "Lappland"
+msgstr "Laponia"
+
+#: provinces/americas/argentina.lua:35
+msgid "Las Lomitas"
+msgstr "Las Lomitas"
+
+#: nations/europe.lua:261 nations/europe.lua:265
+msgid "Latvia"
+msgstr "Latvia"
+
+#: nations/europe.lua:266
+msgid "Latvia SFSR"
+msgstr "RSS Latvia"
+
+#: cultures.lua:98 nations/europe.lua:262
+msgid "Latvian"
+msgstr "Leton"
+
+#: provinces/europe/greece.lua:14
+msgid "Lefkada"
+msgstr "Lefkada"
+
+#: provinces/europe/spain.lua:13
+msgid "León"
+msgstr "León"
+
+#: provinces/americas/central_america.lua:61
+msgid "Libéria"
+msgstr "Libéria"
+
+#. Lille
+#: provinces/europe/france.lua:103
+msgid "Lille"
+msgstr "Lille"
+
+#: provinces/americas/south_america.lua:266
+msgid "Lima"
+msgstr "Lima"
+
+#: provinces/europe/portugal.lua:11
+msgid "Lisbon"
+msgstr "Lisabona"
+
+#: nations/europe.lua:245 nations/europe.lua:249
+msgid "Lithuania"
+msgstr "Lituania"
+
+#: nations/europe.lua:250
+msgid "Lithuania SFSR"
+msgstr "SSR Lituania"
+
+#: cultures.lua:95 nations/europe.lua:246
+msgid "Lithuanian"
+msgstr "Lituanian"
+
+#. Lovonia can be formed by either latvia, estonia or lithuania
+#: nations/europe.lua:270 nations/europe.lua:276
+msgid "Livonia"
+msgstr "Livonia"
+
+#: nations/europe.lua:271
+msgid "Livonian"
+msgstr "Livonian"
+
+#: provinces/americas/argentina.lua:69
+msgid "Llancanelo"
+msgstr "Llancanelo"
+
+#: provinces/europe/spain.lua:42
+msgid "Lleida"
+msgstr "Lleida"
+
+#: nations/europe.lua:376 nations/europe.lua:381
+msgid "Lorraine"
+msgstr "Lorraine"
+
+#: provinces/americas/chile.lua:53
+msgid "Los Rios"
+msgstr "Los Rios"
+
+#: provinces/europe/france.lua:30
+msgid "Lot"
+msgstr "Lot"
+
+#. Lot-et-Garonne
+#: provinces/europe/france.lua:494
+msgid "Lot-et-Garonne"
+msgstr "Lot-et-Garonne"
+
+#: provinces/americas/united_states.lua:39
+msgid "Louisiana"
+msgstr "Louisiana"
+
+#: provinces/europe/balkans.lua:118
+msgid "Lovetch"
+msgstr "Lovetch"
+
+#: provinces/europe/austria.lua:14
+msgid "Lower Austria"
+msgstr "Austria Inferioară"
+
+#: provinces/europe/france.lua:27
+msgid "Lozère"
+msgstr "Lozère"
+
+#: cultures.lua:228
+msgid "Luba"
+msgstr "Luba"
+
+#: provinces/europe/spain.lua:7
+msgid "Lugo"
+msgstr "Lugo"
+
+#. thin air oil, i think the air needs some democracy!
+#: industry_types.lua:14
+msgid "Lumberjack"
+msgstr "Tăietor de lemne"
+
+#: nations/europe.lua:436 nations/europe.lua:441
+#: provinces/europe/germany.lua:158
+msgid "Luxembourg"
+msgstr "Luxemburg"
+
+#: provinces/europe/baltics.lua:57
+msgid "Lääne"
+msgstr "Lääne"
+
+#: good_types.lua:74
+msgid "Machinegun"
+msgstr "Mitralieră"
+
+#: industry_types.lua:121
+msgid "Machinegun factory"
+msgstr "Fabrică de mitraliere"
+
+#: provinces/americas/canada.lua:446
+msgid "Madawaska"
+msgstr "Madawaska"
+
+#: provinces/europe/spain.lua:30
+msgid "Madrid"
+msgstr "Madrid"
+
+#: provinces/americas/south_america.lua:92
+msgid "Magdalena"
+msgstr "Magdalena"
+
+#: cultures.lua:231
+msgid "Maghrebis"
+msgstr "Maghrebis"
+
+#: provinces/americas/united_states.lua:19
+msgid "Maine"
+msgstr "Maine"
+
+#. Change to Little Diomede
+#: provinces/americas/alaska.lua:19
+msgid "Malenkiy Diomid"
+msgstr "Malenkiy Diomid"
+
+#: provinces/europe/spain.lua:37
+msgid "Mallorca"
+msgstr "Mallorca"
+
+#: boat_types.lua:24
+msgid "Man of war"
+msgstr "Om de război"
+
+#: provinces/europe/france.lua:11
+msgid "Manche"
+msgstr "Manche"
+
+#: provinces/americas/united_states.lua:14
+msgid "Manhattan"
+msgstr "Manhattan"
+
+#. Native american
+#: cultures.lua:182 nations/america.lua:96 nations/america.lua:100
+#: religions.lua:48
+msgid "Mapuche"
+msgstr "Mapuche"
+
+#: provinces/americas/argentina.lua:19
+msgid "Mar Chiquita"
+msgstr "Mar Chiquita"
+
+#: provinces/americas/brazil_and_pantanal.lua:18
+msgid "Maracá"
+msgstr "Maracá"
+
+#: provinces/americas/brazil_and_pantanal.lua:15
+msgid "Maranhão"
+msgstr "Maranhão"
+
+#. Marne
+#: provinces/europe/france.lua:254
+msgid "Marne"
+msgstr "Marne"
+
+#. if taken by suriname, rename it to Marowijne
+#: provinces/americas/guianas.lua:101
+msgid "Maroni"
+msgstr "Maroni"
+
+#: provinces/americas/caribbean.lua:507
+msgid "Martinique"
+msgstr "Martinique"
+
+#: provinces/americas/united_states.lua:21
+msgid "Maryland"
+msgstr "Maryland"
+
+#: provinces/americas/united_states.lua:15
+msgid "Massachusetts"
+msgstr "Massachusetts"
+
+#: provinces/americas/brazil_and_pantanal.lua:20
+msgid "Mato Grosso"
+msgstr "Mato Grosso"
+
+#. Maurthe-et-Moselle
+#: provinces/europe/france.lua:269
+msgid "Maurthe-et-Moselle"
+msgstr "Maurthe-et-Moselle"
+
+#: provinces/americas/south_america.lua:330
+msgid "Maynas"
+msgstr "Maynas"
+
+#: nations/europe.lua:522 nations/europe.lua:526
+#: provinces/europe/germany.lua:397
+msgid "Mecklenburg"
+msgstr "Mecklenburg"
+
+#: provinces/americas/argentina.lua:17
+msgid "Mendoza"
+msgstr "Mendoza"
+
+#: provinces/europe/spain.lua:38
+msgid "Menorca"
+msgstr "Menorca"
+
+#. Meuse
+#: provinces/europe/france.lua:284
+msgid "Meuse"
+msgstr "Meuse"
+
+#: cultures.lua:171 nations/america.lua:71
+msgid "Mexican"
+msgstr "Mexican"
+
+#: nations/america.lua:76
+msgid "Mexican Empire"
+msgstr "Imperiul Mexican"
+
+#: nations/america.lua:70 nations/america.lua:75
+msgid "Mexico"
+msgstr "Mexic"
+
+#: provinces/americas/united_states.lua:28
+msgid "Michigan"
+msgstr "Michigan"
+
+#: provinces/americas/mexico.lua:24
+msgid "Michoacán"
+msgstr "Michoacán"
+
+#: provinces/europe/denmark.lua:23
+msgid "Midtjylland"
+msgstr "Midtjylland"
+
+#: provinces/europe/scandinavia.lua:459
+msgid "Mikkeli"
+msgstr "Mikkeli"
+
+#. Unit traits
+#. TODO: Probably generals have them
+#. Unit types
+#: unit_types.lua:3
+msgid "Militia"
+msgstr "Militia"
+
+#: provinces/americas/brazil_and_pantanal.lua:22
+msgid "Minas Gerais"
+msgstr "Minas Gerais"
+
+#: provinces/americas/united_states.lua:69
+msgid "Minnesota"
+msgstr "Minnesota"
+
+#: provinces/americas/argentina.lua:14
+msgid "Misiones"
+msgstr "Misiones"
+
+#: provinces/americas/united_states.lua:35
+msgid "Mississipi"
+msgstr "Mississipi"
+
+#: provinces/americas/united_states.lua:65
+msgid "Missouri"
+msgstr "Missouri"
+
+#: provinces/americas/united_states.lua:36
+msgid "Mobile"
+msgstr "Mobil"
+
+#: nations/europe.lua:699 nations/europe.lua:704 nations/europe.lua:705
+msgid "Moldavia"
+msgstr "Moldova"
+
+#: nations/europe.lua:700
+msgid "Moldavian"
+msgstr "Moldovean"
+
+#: ideologies.lua:32
+msgid "Monarchy"
+msgstr "Monarhie"
+
+#: provinces/africa/northern.lua:8
+msgid "Monastir"
+msgstr "Mănăstire"
+
+#: cultures.lua:234
+msgid "Mongo"
+msgstr "Mongo"
+
+#: provinces/americas/united_states.lua:86
+msgid "Montana"
+msgstr "Montana"
+
+#: provinces/americas/argentina.lua:36
+msgid "Monte Quemado"
+msgstr "Monte Quemado"
+
+#: nations/europe.lua:729 nations/europe.lua:732 nations/europe.lua:733
+msgid "Montenegro"
+msgstr "Muntenegru"
+
+#: provinces/europe/bohemia.lua:139
+msgid "Moravia"
+msgstr "Moravia"
+
+#: provinces/europe/france.lua:9
+msgid "Morbihan"
+msgstr "Morbihan"
+
+#. Moselle
+#: provinces/europe/france.lua:299
+msgid "Moselle"
+msgstr "Moselle"
+
+#: provinces/americas/central_america.lua:100
+msgid "Mosquito Coast"
+msgstr "Coasta Țânțarilor"
+
+#: provinces/americas/central_america.lua:306
+msgid "Motozintla"
+msgstr "Motozintla"
+
+#: terrain_types.lua:38
+msgid "Mountain"
+msgstr "Munte"
+
+#: nations/europe.lua:398 nations/europe.lua:402
+msgid "Munich"
+msgstr "Munich"
+
+#: provinces/europe/spain.lua:36
+msgid "Murcia"
+msgstr "Murcia"
+
+#: nations/europe.lua:294 nations/europe.lua:297
+msgid "Muscovy"
+msgstr "Moscova"
+
+#: good_types.lua:68
+msgid "Musket"
+msgstr "Muschetă"
+
+#: industry_types.lua:113
+msgid "Musket factory"
+msgstr "Fabrică de muschete"
+
+#: provinces/europe/spain.lua:28
+msgid "Málaga"
+msgstr "Málaga"
+
+#: provinces/americas/mexico.lua:26
+msgid "México"
+msgstr "Mexic"
+
+#. ------------------------------------------------------------
+#. Continent: Africa
+#. Subcontinent: Northern Africa
+#. Country: Tunis/Tunisia/French North Africa
+#: provinces/africa/northern.lua:7
+msgid "Nabeul"
+msgstr "Nabeul"
+
+#: nations/europe.lua:444 nations/europe.lua:448
+msgid "Nassau"
+msgstr "Nassau"
+
+#: provinces/europe/spain.lua:55
+msgid "Navarre"
+msgstr "Navarre"
+
+#: provinces/americas/united_states.lua:72
+msgid "Nebraska"
+msgstr "Nebrasca"
+
+#: nations/europe.lua:14 nations/europe.lua:19
+msgid "Netherlands"
+msgstr "Olanda"
+
+#: provinces/americas/argentina.lua:66
+msgid "Neuquén"
+msgstr "Neuquén"
+
+#: provinces/americas/united_states.lua:78
+msgid "Neutral Strip"
+msgstr "Bandă Neutră"
+
+#: provinces/americas/united_states.lua:155
+msgid "Nevada"
+msgstr "Nevada"
+
+#: provinces/americas/canada.lua:396
+msgid "New Brunswick"
+msgstr "New Brunswick"
+
+#: provinces/americas/united_states.lua:16
+msgid "New Hampshire"
+msgstr "New Hampshire"
+
+#: provinces/americas/united_states.lua:11
+msgid "New Jersey"
+msgstr "New Jersey"
+
+#: provinces/americas/united_states.lua:13
+msgid "New York"
+msgstr "New York"
+
+#: provinces/americas/canada.lua:321
+msgid "Newfoundland"
+msgstr "Newfoundland"
+
+#: provinces/americas/central_america.lua:118
+msgid "Nicarágua"
+msgstr "Nicarágua"
+
+#: provinces/americas/central_america.lua:81
+msgid "Nicoya"
+msgstr "Nicoya"
+
+#: cultures.lua:237
+msgid "Nilotes"
+msgstr "Nilotes"
+
+#: provinces/americas/brazil_and_pantanal.lua:61
+msgid "Nioaque"
+msgstr "Nioaque"
+
+#. Nièvre
+#: provinces/europe/france.lua:434
+msgid "Nièvre"
+msgstr "Nièvre"
+
+#. Eurasia and West Asia
+#: cultures.lua:117 nations/europe.lua:314
+msgid "Nogai"
+msgstr "Nogai"
+
+#: nations/europe.lua:313 nations/europe.lua:317
+msgid "Nogai Horde"
+msgstr "Nogai Horde"
+
+#. Nord-Pas-De-Calais
+#: provinces/europe/france.lua:118
+msgid "Nord-Pas-De-Calais"
+msgstr "Nord-Pas-De-Calais"
+
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Middle Europe
+#. Country: Denmark
+#: provinces/europe/denmark.lua:6
+msgid "Nordjylland"
+msgstr "Nordjylland"
+
+#: provinces/europe/scandinavia.lua:832
+msgid "Nordland"
+msgstr "Nordland"
+
+#: nations/europe.lua:101 nations/europe.lua:103
+msgid "Normandy"
+msgstr "Normandia"
+
+#: provinces/europe/bohemia.lua:51
+msgid "North Bohemia"
+msgstr "Bohemia de nord"
+
+#: provinces/americas/united_states.lua:24
+msgid "North Carolina"
+msgstr "Carolina de nord"
+
+#: provinces/americas/united_states.lua:70
+msgid "North Dakota"
+msgstr "Dakota de nord"
+
+#: provinces/europe/scandinavia.lua:432
+msgid "North Karelia"
+msgstr "Karelia de nord"
+
+#: provinces/americas/united_states.lua:18
+msgid "North Maine"
+msgstr "Maine de nord"
+
+#: provinces/europe/bohemia.lua:183
+msgid "North Moravia"
+msgstr "Moravia de nord"
+
+#: provinces/americas/united_states.lua:77
+msgid "North Oklahoma"
+msgstr "Oklahoma de nord"
+
+#: provinces/americas/canada.lua:496
+msgid "North Ontario"
+msgstr "Ontario de nord"
+
+#: provinces/americas/canada.lua:247
+msgid "North Quebec"
+msgstr "Quebec de nord"
+
+#: provinces/americas/canada.lua:764
+msgid "North Vancouver"
+msgstr "Vancouver de nord"
+
+#: provinces/americas/canada.lua:79
+msgid "North Yukon"
+msgstr "Yukon de nord"
+
+#: provinces/americas/united_states.lua:210
+msgid "Northern Arizona"
+msgstr "Arizona de nord"
+
+#: provinces/americas/canada.lua:715
+msgid "Northern Canadian Rockies"
+msgstr "Stâncile Canadiene de nord"
+
+#. Texas provinces (originally part of Mexico and then is conquered by the U.S on event)
+#: provinces/americas/united_states.lua:115
+msgid "Northern Texas"
+msgstr "Texas de nord"
+
+#: provinces/americas/united_states.lua:80
+msgid "Northwestern Colorado"
+msgstr "Colorado de nord-vest"
+
+#: nations/europe.lua:191 nations/europe.lua:195
+msgid "Norway"
+msgstr "Norvegia"
+
+#: cultures.lua:79 nations/europe.lua:192
+msgid "Norwegian"
+msgstr "Norvegian"
+
+#: provinces/europe/scandinavia.lua:60
+msgid "Norðurland eystra"
+msgstr "Norðurland eystra"
+
+#: provinces/americas/canada.lua:371
+msgid "Nova Scotia"
+msgstr "Nova Scotia"
+
+#: nations/europe.lua:306 nations/europe.lua:310
+msgid "Novgorod"
+msgstr "Novgorod"
+
+#. Change to Sitka if taken by US or UK
+#: provinces/americas/alaska.lua:12
+msgid "Novoarkhangelsk"
+msgstr "Novoarkhangelsk"
+
+#: provinces/americas/brazil_and_pantanal.lua:95
+msgid "Nueva Burdeos"
+msgstr "Nueva Burdeos"
+
+#: provinces/americas/mexico.lua:15
+msgid "Nuevo León"
+msgstr "Nuevo León"
+
+#: provinces/americas/mexico.lua:31
+msgid "Nuevo México"
+msgstr "Nuevo México"
+
+#. Change to Nunivak Island when US or UK gets it
+#: provinces/americas/alaska.lua:21
+msgid "Nunivok"
+msgstr "Nunivok"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: North America
+#. Country: Denmark (Greenland)
+#: provinces/europe/scandinavia.lua:6
+msgid "Nuuk"
+msgstr "Nuuk"
+
+#: provinces/oceania/hawaii.lua:40
+msgid "O'ahu-Maui"
+msgstr "O'ahu-Maui"
+
+#: provinces/americas/mexico.lua:29
+msgid "Oaxaca"
+msgstr "Oaxaca"
+
+#: nations/europe.lua:106 nations/europe.lua:108
+msgid "Occitania"
+msgstr "Occitania"
+
+#: provinces/europe/denmark.lua:74
+msgid "Odense"
+msgstr "Odense"
+
+#: provinces/americas/brazil_and_pantanal.lua:28
+msgid "Oeste Catarinense"
+msgstr "Oeste Catarinense"
+
+#. TODO: Remove these, because they are deprecated
+#: pop_types.lua:65
+msgid "Officer"
+msgstr "Ofițer"
+
+#: provinces/americas/united_states.lua:27
+msgid "Ohio"
+msgstr "Ohio"
+
+#: provinces/americas/brazil_and_pantanal.lua:17
+msgid "Oiapoque"
+msgstr "Oiapoque"
+
+#: good_types.lua:124
+msgid "Oil"
+msgstr "Ulei"
+
+#. glass factories can new glass from thin air
+#: industry_types.lua:9
+msgid "Oil refinery"
+msgstr "Rafinerie de ulei"
+
+#. Oise
+#: provinces/europe/france.lua:133
+msgid "Oise"
+msgstr "Oise"
+
+#: provinces/americas/united_states.lua:76
+msgid "Oklahoma"
+msgstr "Oklahoma"
+
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Middle Europe
+#. Country: Germany (and all her minor states)
+#. "So how many german minors are you gonna add?"
+#. ALL OF THEM
+#: nations/europe.lua:472 nations/europe.lua:476
+#: provinces/europe/germany.lua:10
+msgid "Oldenburg"
+msgstr "Oldenburg"
+
+#: provinces/americas/canada.lua:471
+msgid "Ontario"
+msgstr "Ontario"
+
+#: good_types.lua:185
+msgid "Opium"
+msgstr "Opiu"
+
+#: provinces/europe/scandinavia.lua:900
+msgid "Oppland"
+msgstr "Oppland"
+
+#: provinces/americas/south_america.lua:195
+msgid "Orinoco"
+msgstr "Orinoco"
+
+#: provinces/europe/france.lua:13
+msgid "Orne"
+msgstr "Orne"
+
+#: cultures.lua:240
+msgid "Oromo"
+msgstr "Oromo"
+
+#: religions.lua:18
+msgid "Orthodox"
+msgstr "Ortodox"
+
+#: provinces/americas/brazil_and_pantanal.lua:98
+msgid "Oruro"
+msgstr "Oruro"
+
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Scandinavia
+#. Country: Norway
+#: provinces/europe/scandinavia.lua:763
+msgid "Oslo"
+msgstr "Oslo"
+
+#: provinces/americas/chile.lua:47
+msgid "Osorno"
+msgstr "Osorno"
+
+#. Change to Hichinbrook Island when taken by US or UK
+#: provinces/americas/alaska.lua:29
+msgid "Ostrov Nuchek"
+msgstr "Ostrov Nuchek"
+
+#: religions.lua:53
+msgid "Other"
+msgstr "Alte"
+
+#: provinces/europe/scandinavia.lua:649
+msgid "Oulu"
+msgstr "Oulu"
+
+#: provinces/europe/spain.lua:9
+msgid "Ourense"
+msgstr "Ourense"
+
+#: provinces/americas/canada.lua:30
+msgid "Outer Baffin"
+msgstr "Outer Baffin"
+
+#: provinces/europe/spain.lua:14
+msgid "Palencia"
+msgstr "Palencia"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: South America
+#. Country: Bolivia + Chaco
+#: provinces/americas/brazil_and_pantanal.lua:89
+msgid "Pando"
+msgstr "Pando"
+
+#. ------------------------------------------------------------
+#. Continent: Oceania
+#. Subcontinent: Polynesia
+#. Country: Hawai'i
+#: provinces/oceania/hawaii.lua:6
+msgid "Papahānaumokuākea"
+msgstr "Papahānaumokuākea"
+
+#: nations/europe.lua:631 nations/europe.lua:635
+msgid "Papal states"
+msgstr "Statele Panpal"
+
+#: nations/america.lua:47 nations/america.lua:52
+msgid "Paraguay"
+msgstr "Paraguay"
+
+#: cultures.lua:156 nations/america.lua:48
+msgid "Paraguayan"
+msgstr "Paraguaian"
+
+#: provinces/americas/brazil_and_pantanal.lua:27
+msgid "Paraná"
+msgstr "Paraná"
+
+#: provinces/americas/brazil_and_pantanal.lua:8
+msgid "Paraíba"
+msgstr "Paraíba"
+
+#. Paris
+#: provinces/europe/france.lua:163
+msgid "Paris"
+msgstr "Paris"
+
+#: provinces/europe/greece.lua:63
+msgid "Patras"
+msgstr "Patras"
+
+#: provinces/americas/united_states.lua:22
+msgid "Pennsylvania"
+msgstr "Pennsylvania"
+
+#: nations/europe.lua:560
+msgid "People's Republic of Hungary"
+msgstr "Republica Populară Ungaria"
+
+#: nations/europe.lua:54
+msgid "People's Republic of Portugal"
+msgstr "Republica Populară Portugalia"
+
+#: nations/europe.lua:167
+msgid "People's Republic of Sweden"
+msgstr "Republica Populară Suedia"
+
+#: nations/europe.lua:586
+msgid "People's Socialist Sate of Germany"
+msgstr "Statul Socialist Popular Germania"
+
+#: provinces/europe/spain.lua:48
+msgid "Pequeñotereul"
+msgstr "Pequeñotereul"
+
+#: provinces/americas/brazil_and_pantanal.lua:9
+msgid "Pernambuco"
+msgstr "Pernambuco"
+
+#: nations/america.lua:31 nations/america.lua:36
+msgid "Peru"
+msgstr "Peru"
+
+#: cultures.lua:168
+msgid "Peruvian"
+msgstr "Peruvian"
+
+#: provinces/americas/brazil_and_pantanal.lua:14
+msgid "Piauí"
+msgstr "Piauí"
+
+#: nations/europe.lua:638 nations/europe.lua:642
+msgid "Piedmont-Sardinia"
+msgstr "Piedmont-Sardinia"
+
+#: provinces/europe/greece.lua:27
+msgid "Pieria"
+msgstr "Pieria"
+
+#: terrain_types.lua:8
+msgid "Plains"
+msgstr "Câmpii"
+
+#: good_types.lua:45
+msgid "Plastic"
+msgstr "Plastic"
+
+#: good_types.lua:112
+msgid "Platinum"
+msgstr "Platină"
+
+#: provinces/europe/greece.lua:21
+msgid "Plomari"
+msgstr "Plomari"
+
+#: good_types.lua:115
+msgid "Plutonium"
+msgstr "Plutoniu"
+
+#. Releasable nations
+#. Poland can be formed by krakow
+#: nations/europe.lua:236 nations/europe.lua:240 nations/europe.lua:241
+#: nations/europe.lua:242
+msgid "Poland"
+msgstr "Polonia"
+
+#: cultures.lua:104 nations/europe.lua:237
+msgid "Polish"
+msgstr "Polonez"
+
+#. Change to Alaska Peninsula when taken by US or UK
+#: provinces/americas/alaska.lua:31
+msgid "Poluostrov Alyaska"
+msgstr "Poluostrov Alyaska"
+
+#. Oceanic cultures
+#: cultures.lua:187
+msgid "Polynesian"
+msgstr "Polinezian"
+
+#: provinces/europe/spain.lua:8
+msgid "Pontevedra"
+msgstr "Pontevedra"
+
+#: provinces/americas/canada.lua:570
+msgid "Port Nelson"
+msgstr "Port Nelson"
+
+#. province:add_industry(wheat_farm, netherlands)
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Iberia
+#. Country: Portugal
+#: provinces/europe/portugal.lua:7
+msgid "Porto"
+msgstr "Porto"
+
+#: provinces/americas/brazil_and_pantanal.lua:29
+msgid "Porto Alegre"
+msgstr "Porto Alegre"
+
+#: nations/europe.lua:48 nations/europe.lua:53
+msgid "Portugal"
+msgstr "Portugalia"
+
+#: cultures.lua:33 nations/europe.lua:49
+msgid "Portuguese"
+msgstr "Portughez"
+
+#: provinces/americas/brazil_and_pantanal.lua:99
+msgid "Potosí"
+msgstr "Potosí"
+
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Balkans
+#. Country: Austrian Empire
+#: provinces/europe/bohemia.lua:6
+msgid "Prague"
+msgstr "Praga"
+
+#: provinces/americas/canada.lua:346
+msgid "Prince Edward Island"
+msgstr "Insula Prințul Edward"
+
+#: ideologies.lua:50
+msgid "Progressivism"
+msgstr "Progresism"
+
+#. Provinces
+#. Religion
+#: religions.lua:3
+msgid "Protestant"
+msgstr "Protestant"
+
+#: provinces/europe/balkans.lua:91
+msgid "Province_233023"
+msgstr "Province_233023"
+
+#: provinces/europe/italy.lua:69
+msgid "Province_3cf360"
+msgstr "Province_3cf360"
+
+#: provinces/europe/italy.lua:79
+msgid "Province_44a5e1"
+msgstr "Province_44a5e1"
+
+#: provinces/europe/greece.lua:39
+msgid "Province_4f4fff"
+msgstr "Province_4f4fff"
+
+#: provinces/europe/italy.lua:11
+msgid "Province_5bffa2"
+msgstr "Province_5bffa2"
+
+#: provinces/europe/balkans.lua:60
+msgid "Province_5bffa5"
+msgstr "Province_5bffa5"
+
+#: provinces/europe/italy.lua:73
+msgid "Province_5e4fc0"
+msgstr "Province_5e4fc0"
+
+#: provinces/europe/greece.lua:38
+msgid "Province_6159ff"
+msgstr "Province_6159ff"
+
+#. province:add_industry(wheat_farm, turkey)
+#. Moldavia
+#: provinces/europe/balkans.lua:87
+msgid "Province_630aff"
+msgstr "Province_630aff"
+
+#: provinces/europe/balkans.lua:62
+msgid "Province_637dff"
+msgstr "Province_637dff"
+
+#: provinces/europe/greece.lua:37
+msgid "Province_665bff"
+msgstr "Province_665bff"
+
+#: provinces/europe/italy.lua:78
+msgid "Province_66a760"
+msgstr "Province_66a760"
+
+#: provinces/europe/italy.lua:75
+msgid "Province_6b24a0"
+msgstr "Province_6b24a0"
+
+#: provinces/europe/balkans.lua:5
+msgid "Province_7af8ff"
+msgstr "Province_7af8ff"
+
+#: provinces/europe/italy.lua:16
+msgid "Province_7c94ff"
+msgstr "Province_7c94ff"
+
+#: provinces/europe/italy.lua:70
+msgid "Province_823d60"
+msgstr "Province_823d60"
+
+#: provinces/europe/italy.lua:2
+msgid "Province_82ffb1"
+msgstr "Province_82ffb1"
+
+#: provinces/europe/balkans.lua:31
+msgid "Province_8570ff"
+msgstr "Province_8570ff"
+
+#: provinces/europe/italy.lua:7
+msgid "Province_87ff8f"
+msgstr "Province_87ff8f"
+
+#: provinces/europe/italy.lua:76
+msgid "Province_8804c0"
+msgstr "Province_8804c0"
+
+#: provinces/europe/balkans.lua:92
+msgid "Province_88a7a0"
+msgstr "Province_88a7a0"
+
+#: provinces/europe/balkans.lua:57
+msgid "Province_8e7aff"
+msgstr "Province_8e7aff"
+
+#. { ref_name = "agio_oros", name = _("Agio Oros"), color = 0x9bd3ff },
+#. Greece patches
+#: provinces/europe/greece.lua:36
+msgid "Province_9bd3fe"
+msgstr "Province_9bd3fe"
+
+#: provinces/europe/italy.lua:40
+msgid "Province_9eff9b"
+msgstr "Province_9eff9b"
+
+#: provinces/europe/italy.lua:5
+msgid "Province_9effcb"
+msgstr "Province_9effcb"
+
+#: provinces/europe/italy.lua:41
+msgid "Province_a27aff"
+msgstr "Province_a27aff"
+
+#: provinces/europe/italy.lua:13
+msgid "Province_aaa0ff"
+msgstr "Province_aaa0ff"
+
+#: provinces/europe/balkans.lua:56
+msgid "Province_aaffa5"
+msgstr "Province_aaffa5"
+
+#: provinces/europe/balkans.lua:58
+msgid "Province_affbff"
+msgstr "Province_affbff"
+
+#: provinces/europe/italy.lua:44
+msgid "Province_b2ffdf"
+msgstr "Province_b2ffdf"
+
+#: provinces/europe/balkans.lua:4
+msgid "Province_b5ebff"
+msgstr "Province_b5ebff"
+
+#: provinces/europe/italy.lua:77
+msgid "Province_b822a0"
+msgstr "Province_b822a0"
+
+#: provinces/europe/balkans.lua:90
+msgid "Province_b9ff87"
+msgstr "Province_b9ff87"
+
+#. Montenegro
+#: provinces/europe/balkans.lua:3
+msgid "Province_bcc3ff"
+msgstr "Province_bcc3ff"
+
+#: provinces/europe/italy.lua:17
+msgid "Province_bcffcf"
+msgstr "Province_bcffcf"
+
+#: provinces/europe/italy.lua:72
+msgid "Province_be8d20"
+msgstr "Province_be8d20"
+
+#: provinces/europe/italy.lua:74
+msgid "Province_c78860"
+msgstr "Province_c78860"
+
+#: provinces/europe/italy.lua:6
+msgid "Province_c891ff"
+msgstr "Province_c891ff"
+
+#: provinces/europe/balkans.lua:55
+msgid "Province_caff2b"
+msgstr "Province_caff2b"
+
+#: provinces/europe/italy.lua:68
+msgid "Province_d31500"
+msgstr "Province_d31500"
+
+#: provinces/europe/italy.lua:14
+msgid "Province_d6ffef"
+msgstr "Province_d6ffef"
+
+#: provinces/europe/italy.lua:71
+msgid "Province_d83720"
+msgstr "Province_d83720"
+
+#: provinces/europe/balkans.lua:89
+msgid "Province_dbfff1"
+msgstr "Province_dbfff1"
+
+#: provinces/europe/italy.lua:46
+msgid "Province_e8ffbc"
+msgstr "Province_e8ffbc"
+
+#: provinces/europe/balkans.lua:30
+msgid "Province_ec72ff"
+msgstr "Province_ec72ff"
+
+#: provinces/europe/balkans.lua:6
+msgid "Province_f721ff"
+msgstr "Province_f721ff"
+
+#: provinces/europe/balkans.lua:88
+msgid "Province_ff1500"
+msgstr "Province_ff1500"
+
+#: provinces/europe/italy.lua:12
+msgid "Province_ff3845"
+msgstr "Province_ff3845"
+
+#: provinces/europe/italy.lua:15
+msgid "Province_ff3ab7"
+msgstr "Province_ff3ab7"
+
+#: provinces/europe/balkans.lua:59
+msgid "Province_ff3d87"
+msgstr "Province_ff3d87"
+
+#: provinces/europe/italy.lua:3
+msgid "Province_ff5b6e"
+msgstr "Province_ff5b6e"
+
+#: provinces/europe/italy.lua:43
+msgid "Province_ff5ee1"
+msgstr "Province_ff5ee1"
+
+#: provinces/europe/italy.lua:42
+msgid "Province_ff615e"
+msgstr "Province_ff615e"
+
+#: provinces/europe/balkans.lua:63
+msgid "Province_ff63f7"
+msgstr "Province_ff63f7"
+
+#: provinces/europe/balkans.lua:93
+msgid "Province_ff8a72"
+msgstr "Province_ff8a72"
+
+#. province:add_industry(wheat_farm, turkey)
+#. Wallachia
+#: provinces/europe/balkans.lua:54
+msgid "Province_ff9775"
+msgstr "Province_ff9775"
+
+#: provinces/europe/italy.lua:45
+msgid "Province_ff9ede"
+msgstr "Province_ff9ede"
+
+#: provinces/europe/italy.lua:9
+msgid "Province_ffab77"
+msgstr "Province_ffab77"
+
+#: provinces/europe/italy.lua:8
+msgid "Province_ffaffb"
+msgstr "Province_ffaffb"
+
+#: provinces/europe/italy.lua:18
+msgid "Province_ffb7d4"
+msgstr "Province_ffb7d4"
+
+#: provinces/europe/italy.lua:4
+msgid "Province_ffd5b7"
+msgstr "Province_ffd5b7"
+
+#: provinces/europe/balkans.lua:61
+msgid "Province_ffd85b"
+msgstr "Province_ffd85b"
+
+#. province:add_industry(wheat_farm, turkey)
+#. Serbia
+#: provinces/europe/balkans.lua:29
+msgid "Province_fff389"
+msgstr "Province_fff389"
+
+#: provinces/europe/italy.lua:10
+msgid "Province_fff7d8"
+msgstr "Province_fff7d8"
+
+#. ---------------------------------------------------------------------
+#. ---------------------------------------------------------------------
+#. Holy Roman Empire (German part)
+#. Initial nations
+#: nations/europe.lua:354 nations/europe.lua:359
+msgid "Prussia"
+msgstr "Prusia"
+
+#: nations/europe.lua:355 nations/europe.lua:574
+msgid "Prussian"
+msgstr "Prusian"
+
+#: provinces/americas/mexico.lua:27
+msgid "Puebla"
+msgstr "Puebla"
+
+#: provinces/americas/central_america.lua:135
+msgid "Puerto Lempira"
+msgstr "Puerto Lempira"
+
+#: provinces/americas/chile.lua:52
+msgid "Puerto Porvenir"
+msgstr "Puerto Porvenir"
+
+#: provinces/americas/caribbean.lua:75
+msgid "Puerto Rico"
+msgstr "Puerto Rico"
+
+#: provinces/americas/south_america.lua:394
+msgid "Puno"
+msgstr "Puno"
+
+#: provinces/americas/chile.lua:50
+msgid "Punta Arenas"
+msgstr "Punta Arenas"
+
+#. Puy-de-Dôme
+#: provinces/europe/france.lua:659
+msgid "Puy-de-Dôme"
+msgstr "Puy-de-Dôme"
+
+#. Later given by sardinia
+#. { ref_name = "savoie", name = _("Savoie"), color = rgb(78, 69, 224) },
+#. { ref_name = "haute_savoie", name = _("Haute Savoie"), color = rgb(185, 107, 32) },
+#: provinces/europe/france.lua:41
+msgid "Pyrénées Atlantiques"
+msgstr "Pyrénées Atlantiques"
+
+#: provinces/europe/france.lua:37
+msgid "Pyrénées Orientales"
+msgstr "Pyrénées Orientales"
+
+#: provinces/europe/baltics.lua:74
+msgid "Pärnu"
+msgstr "Pärnu"
+
+#: provinces/europe/scandinavia.lua:16
+msgid "Qanaaq"
+msgstr "Qanaaq"
+
+#: provinces/americas/canada.lua:814
+msgid "Queen Charlotte Islands"
+msgstr "Insulele Regina Charlotte"
+
+#: provinces/americas/mexico.lua:25
+msgid "Querétaro"
+msgstr "Querétaro"
+
+#: provinces/americas/canada.lua:175
+msgid "Rankin Inlet"
+msgstr "Rankin Inlet"
+
+#: ideologies.lua:26
+msgid "Republic"
+msgstr "Republică"
+
+#: provinces/americas/argentina.lua:33
+msgid "Resistencia"
+msgstr "Resistencia"
+
+#: good_types.lua:65
+msgid "Revolver"
+msgstr "Revolver"
+
+#: provinces/europe/germany.lua:242
+msgid "Rhineland-Palatinate"
+msgstr "Rhineland-Palatinate"
+
+#: provinces/americas/united_states.lua:12
+msgid "Rhode Island"
+msgstr "Insula Rhode"
+
+#: good_types.lua:12
+msgid "Rice"
+msgstr "Orez"
+
+#: industry_types.lua:27
+msgid "Rice farm"
+msgstr "Fermă de orez"
+
+#: good_types.lua:71
+msgid "Rifle"
+msgstr "Pușcă"
+
+#: provinces/americas/argentina.lua:29
+msgid "Rinconada"
+msgstr "Rinconada"
+
+#: provinces/americas/brazil_and_pantanal.lua:7
+msgid "Rio Grande do Norte"
+msgstr "Rio Grande do Norte"
+
+#: provinces/americas/brazil_and_pantanal.lua:25
+msgid "Rio de Janeiro"
+msgstr "Rio de Janeiro"
+
+#: nations/europe.lua:508 nations/europe.lua:512
+#: provinces/europe/germany.lua:109
+msgid "Ritzebüttel"
+msgstr "Ritzebüttel"
+
+#: terrain_types.lua:14
+msgid "River"
+msgstr "Râu"
+
+#: provinces/americas/united_states.lua:191
+msgid "Rocky Mountains"
+msgstr "Munții Stâncoși"
+
+#: provinces/europe/scandinavia.lua:815
+msgid "Rogaland"
+msgstr "Rogaland"
+
+#: nations/europe.lua:597
+msgid "Roman"
+msgstr "Roman"
+
+#: nations/europe.lua:596 nations/europe.lua:600
+msgid "Roman Empire"
+msgstr "Imperiul Roman"
+
+#: nations/europe.lua:279 nations/europe.lua:283
+msgid "Romania"
+msgstr "România"
+
+#: cultures.lua:30 nations/europe.lua:280
+msgid "Romanian"
+msgstr "Român"
+
+#: provinces/americas/brazil_and_pantanal.lua:19
+msgid "Roraima"
+msgstr "Roraima"
+
+#: provinces/americas/argentina.lua:18
+msgid "Rosario"
+msgstr "Rosario"
+
+#. ---------------------------------------------------------------------
+#. ---------------------------------------------------------------------
+#. Poland, Baltics and European Russia
+#. Initial nations
+#: nations/europe.lua:216 nations/europe.lua:222 nations/europe.lua:224
+msgid "Russia"
+msgstr "Rusia"
+
+#: cultures.lua:67 nations/europe.lua:217
+msgid "Russian"
+msgstr "Rus"
+
+#: nations/europe.lua:223
+msgid "Russian SFSR"
+msgstr "SSR Rusia"
+
+#: cultures.lua:68 nations/europe.lua:218
+msgid "Russo"
+msgstr "Russo"
+
+#: provinces/americas/argentina.lua:62
+msgid "Río Negro"
+msgstr "Río Negro"
+
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Baltics
+#. Country: Estonia
+#: provinces/europe/baltics.lua:6
+msgid "Saare"
+msgstr "Saare"
+
+#: provinces/americas/caribbean.lua:544
+msgid "Saba"
+msgstr "Saba"
+
+#: good_types.lua:80
+msgid "Sail"
+msgstr "Navă"
+
+#: industry_types.lua:136
+msgid "Sails factory"
+msgstr "Fabrică de nave"
+
+#: provinces/americas/caribbean.lua:287
+msgid "Saint Kitts and Nevis"
+msgstr "Saint Kitts and Nevis"
+
+#: provinces/americas/caribbean.lua:319
+msgid "Saint Lucia"
+msgstr "Sfânta Lucia"
+
+#: provinces/americas/caribbean.lua:335
+msgid "Saint Vincent & The Grenadies"
+msgstr "Sfântul Vincent și Grenadinele"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: Caribbean/Central America
+#. Country: French Republic
+#: provinces/americas/caribbean.lua:475
+msgid "Saint-Martin"
+msgstr "Sfântul Martin"
+
+#: provinces/europe/spain.lua:15
+msgid "Salamanca"
+msgstr "Salamanca"
+
+#: good_types.lua:160
+msgid "Salt"
+msgstr "Sare"
+
+#: good_types.lua:22
+msgid "Salt grain"
+msgstr "Granulă de sare"
+
+#: nations/europe.lua:362 nations/europe.lua:366
+#: provinces/europe/austria.lua:10
+msgid "Salzburg"
+msgstr "Salzburg"
+
+#: provinces/europe/greece.lua:13
+msgid "Sami"
+msgstr "Sami"
+
+#: provinces/europe/greece.lua:19
+msgid "Samos"
+msgstr "Samos"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: Caribbean/Central America
+#. Country: Gran Colombia/Colombia & Venezuela respectively
+#: provinces/americas/caribbean.lua:120
+msgid "San Andrés y Providencia"
+msgstr "San Andrés y Providencia"
+
+#: provinces/americas/chile.lua:51
+msgid "San Gregorio"
+msgstr "San Gregorio"
+
+#: provinces/americas/central_america.lua:43
+msgid "San José"
+msgstr "San José"
+
+#: provinces/americas/argentina.lua:22
+msgid "San Juan"
+msgstr "San Juan"
+
+#: provinces/americas/argentina.lua:21
+msgid "San Luis"
+msgstr "San Luis"
+
+#: provinces/americas/mexico.lua:21
+msgid "San Luis Potosi"
+msgstr "San Luis Potosi"
+
+#: good_types.lua:127
+msgid "Sand"
+msgstr "Nisip"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: Caribbean/Central Aerica
+#. Country: Kingdom of Sweden
+#. Change to saint barthélemy when taken by french
+#: provinces/americas/caribbean.lua:614
+msgid "Sankt Barthélemy"
+msgstr "Sankt Barthélemy"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: Caribbean/Central America
+#. Country: Kingdom of Denmark
+#. Rename to Saint Croix if US or France occupies, and Santa Cruz if spain occupies
+#: provinces/americas/caribbean.lua:98
+msgid "Sankt Croix"
+msgstr "Sankt Croix"
+
+#: provinces/americas/brazil_and_pantanal.lua:26
+msgid "Santa Catarina"
+msgstr "Santa Catarina"
+
+#: provinces/americas/argentina.lua:65
+#: provinces/americas/brazil_and_pantanal.lua:90
+msgid "Santa Cruz"
+msgstr "Santa Cruz"
+
+#: provinces/americas/argentina.lua:24
+msgid "Santa Fe"
+msgstr "Santa Fe"
+
+#: provinces/americas/chile.lua:16
+msgid "Santiago"
+msgstr "Santiago"
+
+#: provinces/americas/caribbean.lua:40
+msgid "Santiago de Cuba"
+msgstr "Santiago de Cuba"
+
+#: provinces/americas/argentina.lua:31
+msgid "Santiago del Estero"
+msgstr "Santiago del Estero"
+
+#: provinces/americas/caribbean.lua:454
+msgid "Santo Domingo"
+msgstr "Santo Domingo"
+
+#. { ref_name = "corumba", name = _("Corumbá"), color = rgb(71, 251, 255) },
+#: provinces/americas/brazil_and_pantanal.lua:93
+msgid "Santíssima Trinidade"
+msgstr "Santíssima Trinidade"
+
+#: terrain_types.lua:23
+msgid "Savanna"
+msgstr "Savana"
+
+#: nations/europe.lua:659 nations/europe.lua:663 provinces/europe/italy.lua:81
+msgid "Savoie"
+msgstr "Savoie"
+
+#: nations/europe.lua:369 nations/europe.lua:373
+msgid "Saxony"
+msgstr "Saxonia"
+
+#. Saône-et-Loire
+#: provinces/europe/france.lua:404
+msgid "Saône-et-Loire"
+msgstr "Saône-et-Loire"
+
+#. Formable nations
+#: nations/europe.lua:171 nations/europe.lua:179
+msgid "Scandinavia"
+msgstr "Scandinavia"
+
+#: nations/europe.lua:172
+msgid "Scandinavian"
+msgstr "Scandinav"
+
+#: terrain_types.lua:5
+msgid "Sea"
+msgstr "Mare"
+
+#: building_types.lua:8
+msgid "Seaport"
+msgstr "Port Maritim"
+
+#: ideologies.lua:53
+msgid "Secularism"
+msgstr "Secularism"
+
+#: provinces/europe/spain.lua:47
+msgid "Segovia"
+msgstr "Segovia"
+
+#: provinces/europe/france.lua:15
+msgid "Seine Maritime"
+msgstr "Seine Maritime"
+
+#: provinces/americas/central_america.lua:289
+msgid "Selva Lancadona"
+msgstr "Selva Lancadona"
+
+#: cultures.lua:111
+msgid "Serb"
+msgstr "Sârb"
+
+#: nations/europe.lua:722 nations/europe.lua:725 nations/europe.lua:726
+msgid "Serbia"
+msgstr "Serbia"
+
+#: cultures.lua:110
+msgid "Serbian"
+msgstr "Sârb"
+
+#: cultures.lua:112
+msgid "Serbo"
+msgstr "Serbo"
+
+#: provinces/americas/brazil_and_pantanal.lua:11
+msgid "Sergipe"
+msgstr "Sergipe"
+
+#. Change to North Chugach when taken by US or UK
+#: provinces/americas/alaska.lua:27
+msgid "Severnyy Chugach"
+msgstr "Severnyy Chugach"
+
+#: provinces/europe/spain.lua:29
+msgid "Seville"
+msgstr "Seville"
+
+#: provinces/africa/northern.lua:9
+msgid "Sfax"
+msgstr "Sfax"
+
+#: cultures.lua:243
+msgid "Shona"
+msgstr "Shona"
+
+#: provinces/africa/northern.lua:16
+msgid "Sidi Bouzid"
+msgstr "Sidi Bouzid"
+
+#: nations/europe.lua:479 nations/europe.lua:484
+msgid "Silesia"
+msgstr "Silesia"
+
+#: good_types.lua:88
+msgid "Silica"
+msgstr "Silice"
+
+#: good_types.lua:25
+msgid "Silk"
+msgstr "Mătase"
+
+#: good_types.lua:109
+msgid "Silver"
+msgstr "Argint"
+
+#: provinces/americas/mexico.lua:17
+msgid "Sinaloa"
+msgstr "Sinaloa"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: Caribbean/Central America
+#. Country: Kingdom of the Netherlands
+#: provinces/americas/caribbean.lua:528
+msgid "Sint Maarten"
+msgstr "Sint Maarten"
+
+#: provinces/europe/greece.lua:23
+msgid "Skopelos"
+msgstr "Skopelos"
+
+#: provinces/europe/scandinavia.lua:338
+msgid "Skåne"
+msgstr "Skåne"
+
+#: pop_types.lua:56
+msgid "Slave"
+msgstr "Sclav"
+
+#: boat_types.lua:17
+msgid "Sloop of war"
+msgstr "Om de război"
+
+#: cultures.lua:55
+msgid "Slovakian"
+msgstr "Slovac"
+
+#: cultures.lua:61
+msgid "Slovenian"
+msgstr "Sloven"
+
+#: provinces/europe/scandinavia.lua:217
+msgid "Småland"
+msgstr "Smålandă"
+
+#: ideologies.lua:23
+msgid "Socialism"
+msgstr "Socialism"
+
+#: provinces/africa/northern.lua:10
+msgid "Soghuan"
+msgstr "Soghuan"
+
+#. ---------------------------------------------------------------------
+#. ---------------------------------------------------------------------
+#. Western Africa
+#. Initial nations
+#: nations/africa.lua:54 nations/africa.lua:57
+msgid "Sokoto"
+msgstr "Sokoto"
+
+#: pop_types.lua:33
+msgid "Soldier"
+msgstr "Soldat"
+
+#: cultures.lua:246
+msgid "Somali"
+msgstr "Somalia"
+
+#: provinces/americas/mexico.lua:16
+msgid "Sonora"
+msgstr "Sonora"
+
+#: provinces/americas/central_america.lua:204
+msgid "Sonsonate"
+msgstr "Sonsonate"
+
+#: provinces/europe/spain.lua:16
+msgid "Soria"
+msgstr "Soria"
+
+#: provinces/americas/united_states.lua:25
+msgid "South Carolina"
+msgstr "Carolina de sud"
+
+#: provinces/americas/united_states.lua:71
+msgid "South Dakota"
+msgstr "Dakota de sud"
+
+#: provinces/europe/bohemia.lua:95
+msgid "South Moravia"
+msgstr "Moravia de sud"
+
+#: provinces/americas/mexico.lua:32
+msgid "South New Mexico"
+msgstr "Noul Mexic de sud"
+
+#: provinces/americas/united_states.lua:267
+msgid "South New Mexico "
+msgstr "Noul Mexic de sud "
+
+#: provinces/americas/canada.lua:271
+msgid "South Quebec"
+msgstr "Quebec de sud"
+
+#: provinces/americas/canada.lua:789
+msgid "South Vancouver"
+msgstr "Vancouver de sud"
+
+#: provinces/americas/canada.lua:103
+msgid "South Yukon"
+msgstr "Yukon de sud"
+
+#: provinces/americas/canada.lua:151
+msgid "Southern Arctic"
+msgstr "Sudul Arcticei"
+
+#: provinces/americas/united_states.lua:229
+msgid "Southern Arizona"
+msgstr "Arizona de sud"
+
+#: provinces/americas/canada.lua:739
+msgid "Southern Canadian Rockies"
+msgstr "Stâncile Canadiene de sud"
+
+#: provinces/americas/argentina.lua:27
+msgid "Southern Puna"
+msgstr "Puna de sud"
+
+#: provinces/americas/united_states.lua:118
+msgid "Southern Texas"
+msgstr "Texas de sud"
+
+#: provinces/americas/united_states.lua:82
+msgid "Southern Wyoming"
+msgstr "Wyoming de sud"
+
+#: provinces/americas/united_states.lua:79
+msgid "Southwestern Colorado"
+msgstr "Colorado de sud-vest"
+
+#: provinces/americas/united_states.lua:83
+msgid "Southwestern Wyoming"
+msgstr "Wyoming de sud-vest"
+
+#: nations/europe.lua:39 nations/europe.lua:45
+msgid "Spain"
+msgstr "Spania"
+
+#: nations/europe.lua:41
+msgid "Spainiard"
+msgstr "Spaniol"
+
+#: cultures.lua:36 nations/europe.lua:40
+msgid "Spanish"
+msgstr "Spaniol"
+
+#: good_types.lua:188
+msgid "Spices"
+msgstr "Condimente"
+
+#: good_types.lua:151
+msgid "Stainless steel"
+msgstr "Oțel inoxidabil"
+
+#: industry_types.lua:95
+msgid "Stainless steel smelter"
+msgstr "Topitor de oțel inoxidabil"
+
+#: good_types.lua:48
+msgid "Steel"
+msgstr "Oțel"
+
+#: provinces/europe/austria.lua:12
+msgid "Styria"
+msgstr "Styria"
+
+#: terrain_types.lua:45
+msgid "Subtropical Soil"
+msgstr "Pământ Sub-tropical"
+
+#: good_types.lua:148
+msgid "Sulfur"
+msgstr "Sulf"
+
+#: industry_types.lua:65
+msgid "Sulfur mine"
+msgstr "Mină de sulf"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: South America
+#. Country: Kingdom of the Netherlands
+#: provinces/americas/guianas.lua:61
+msgid "Suriname"
+msgstr "Surinam"
+
+#: provinces/europe/scandinavia.lua:80
+msgid "Suðurland"
+msgstr "Suðurland"
+
+#: cultures.lua:72 nations/europe.lua:162
+msgid "Swede"
+msgstr "Suedez"
+
+#: nations/europe.lua:160 nations/europe.lua:166
+msgid "Sweden"
+msgstr "Suedia"
+
+#: cultures.lua:71 nations/europe.lua:161
+msgid "Swedish"
+msgstr "Suedez"
+
+#: nations/europe.lua:537
+msgid "Swiss"
+msgstr "Elvețian"
+
+#: nations/europe.lua:420 nations/europe.lua:426
+msgid "Switerzeland"
+msgstr "Elveția"
+
+#: nations/europe.lua:536 nations/europe.lua:541
+msgid "Switzerland"
+msgstr "Elveția"
+
+#: provinces/europe/denmark.lua:57
+msgid "Syddanmark"
+msgstr "Syddanmark"
+
+#: provinces/americas/brazil_and_pantanal.lua:31
+msgid "São Borja"
+msgstr "São Borja"
+
+#: provinces/americas/brazil_and_pantanal.lua:13
+msgid "São Francisco"
+msgstr "São Francisco"
+
+#: provinces/americas/brazil_and_pantanal.lua:24
+msgid "São Paulo"
+msgstr "São Paulo"
+
+#: terrain_types.lua:29
+msgid "Taiga"
+msgstr "Taiga"
+
+#: cultures.lua:128
+msgid "Tajik"
+msgstr "Tajik"
+
+#: provinces/americas/mexico.lua:14
+msgid "Tamaulipas"
+msgstr "Tamaulipas"
+
+#: provinces/americas/argentina.lua:16
+msgid "Tandil"
+msgstr "Tandil"
+
+#: provinces/americas/central_america.lua:323
+msgid "Tapachula"
+msgstr "Tapachula"
+
+#: provinces/americas/brazil_and_pantanal.lua:101
+msgid "Tarija"
+msgstr "Tarija"
+
+#: provinces/europe/france.lua:29
+msgid "Tarn"
+msgstr "Tarn"
+
+#: provinces/europe/france.lua:31
+msgid "Tarn et Garonne"
+msgstr "Tarn et Garonne"
+
+#: provinces/europe/spain.lua:43
+msgid "Tarragona"
+msgstr "Tarragona"
+
+#: provinces/europe/scandinavia.lua:26
+msgid "Tasiilaq"
+msgstr "Tasiilaq"
+
+#: provinces/africa/northern.lua:14
+msgid "Tatouine"
+msgstr "Tatouine"
+
+#: provinces/americas/canada.lua:421
+msgid "Temiscouata"
+msgstr "Temiscouata"
+
+#: provinces/americas/united_states.lua:32
+msgid "Tennessee"
+msgstr "Tennessee"
+
+#: provinces/europe/spain.lua:51
+msgid "Teruel"
+msgstr "Teruel"
+
+#: nation_mod.lua:4
+msgid "Test"
+msgstr "Test"
+
+#: nations/america.lua:105
+msgid "Texan"
+msgstr "Texan"
+
+#. Releasable nations
+#: nations/america.lua:104 nations/america.lua:108
+msgid "Texas"
+msgstr "Texas"
+
+#: good_types.lua:42
+msgid "Textile"
+msgstr "Textil"
+
+#: provinces/europe/greece.lua:32
+msgid "Thasos"
+msgstr "Thasos"
+
+#: provinces/europe/greece.lua:26
+msgid "Thessalonki"
+msgstr "Thessalonki"
+
+#: provinces/europe/greece.lua:22
+msgid "Thessaly"
+msgstr "Tesalie"
+
+#: provinces/europe/greece.lua:10
+msgid "Thives"
+msgstr "Hoți"
+
+#: provinces/americas/canada.lua:520
+msgid "Thunder Bay"
+msgstr "Thunder Bay"
+
+#: provinces/americas/argentina.lua:63
+msgid "Tierra del Fuego"
+msgstr "Tierra del Fuego"
+
+#: good_types.lua:130
+msgid "Timber"
+msgstr "Cherestea"
+
+#: good_types.lua:118
+msgid "Tin"
+msgstr "Tinichea"
+
+#: good_types.lua:103
+msgid "Titanium"
+msgstr "Titan"
+
+#: industry_types.lua:69
+msgid "Titanium mine"
+msgstr "Mină de titan"
+
+#: provinces/americas/mexico.lua:28
+msgid "Tlaxcala"
+msgstr "Tlaxcala"
+
+#: provinces/americas/caribbean.lua:383
+msgid "Tobago"
+msgstr "Tobago"
+
+#: provinces/europe/spain.lua:35
+msgid "Toledo"
+msgstr "Toledo"
+
+#: provinces/africa/northern.lua:15
+msgid "Tozeur"
+msgstr "Tozeur"
+
+#: ideologies.lua:29
+msgid "Tribal"
+msgstr "Tribal"
+
+#: ideologies.lua:56
+msgid "Tribalism"
+msgstr "Tribalism"
+
+#: provinces/americas/caribbean.lua:399
+msgid "Trinidad"
+msgstr "Trinidad"
+
+#: nations/africa.lua:31 nations/africa.lua:34
+msgid "Tripolitania"
+msgstr "Tripolitania"
+
+#: nations/africa.lua:32
+msgid "Tripolitanians"
+msgstr "Tripolitanieni"
+
+#: provinces/europe/scandinavia.lua:917
+msgid "Troms"
+msgstr "Troms"
+
+#. Terrain types where farms can be created
+#: terrain_types.lua:42
+msgid "Tropical Soil"
+msgstr "Pământ Tropical"
+
+#: provinces/americas/south_america.lua:298
+msgid "Trujillo"
+msgstr "Trujillo"
+
+#: provinces/europe/scandinavia.lua:849
+msgid "Trøndelag"
+msgstr "Trøndelag"
+
+#: provinces/americas/argentina.lua:26
+msgid "Tucumán"
+msgstr "Tucumán"
+
+#: terrain_types.lua:32
+msgid "Tundra"
+msgstr "Tundră"
+
+#: good_types.lua:121
+msgid "Tungsten"
+msgstr "Tungsten"
+
+#. Requirements
+#. Finish key provinces
+#. Swedish key provinces
+#. Norwegian key provinces
+#. Only these countries can form Scandinavia
+#. Catholic Relief Act of 1829
+#. https://en.wikipedia.org/wiki/Roman_Catholic_Relief_Act_1829
+#. The minas crash was a car crash occuring on the brazilian province of minas
+#. Get the current owner of the minas province
+#. invalid_shit()
+#. ---------------------------------------------------------------------
+#. North Africa
+#. Initial nations
+#: nations/africa.lua:5 nations/africa.lua:10
+msgid "Tunis"
+msgstr "Tunisia"
+
+#: nations/africa.lua:6
+msgid "Tunisian"
+msgstr "Tunizian"
+
+#: nations/europe.lua:682
+msgid "Turco"
+msgstr "Turco"
+
+#: cultures.lua:83 nations/europe.lua:681
+msgid "Turk"
+msgstr "Turc"
+
+#. ---------------------------------------------------------------------
+#. ---------------------------------------------------------------------
+#. Balkans
+#: nations/europe.lua:679 nations/europe.lua:686 nations/europe.lua:687
+msgid "Turkey"
+msgstr "Turcia"
+
+#: cultures.lua:82 nations/europe.lua:680
+msgid "Turkish"
+msgstr "Turc"
+
+#: cultures.lua:84
+msgid "Turko"
+msgstr "Turco"
+
+#: provinces/americas/caribbean.lua:223
+msgid "Turks and Caicos Islands"
+msgstr "Turcii și Insulele Caicos"
+
+#: provinces/europe/scandinavia.lua:567
+msgid "Turku"
+msgstr "Turku"
+
+#: nations/europe.lua:652 nations/europe.lua:656
+msgid "Tuscany"
+msgstr "Tuscania"
+
+#: nations/europe.lua:645 nations/europe.lua:649
+msgid "Two Sicilies"
+msgstr "Două Sicilii"
+
+#: provinces/europe/austria.lua:9
+msgid "Tyrol"
+msgstr "Tirol"
+
+#: nations/america.lua:63 nations/america.lua:67
+msgid "UPCA"
+msgstr "PUCA"
+
+#: provinces/americas/south_america.lua:378
+msgid "Ucayali"
+msgstr "Ucayali"
+
+#: provinces/americas/alaska.lua:17
+msgid "Unalaska"
+msgstr "Unalaska"
+
+#. ------------------------------------------------------------
+#. ---------------------------------------------------------------------
+#. Europe (excluding balkans, scandinavia and the mess that Germany was)
+#. Initial nations
+#: nations/europe.lua:5 nations/europe.lua:11
+msgid "United Kingdom"
+msgstr "Regatul Unit"
+
+#: nations/america.lua:79 nations/america.lua:86
+msgid "United states"
+msgstr "Statele Unite"
+
+#. ------------------------------------------------------------
+#. Continent: Asia
+#. Subcontinent: Anatolia/Middle East
+#. Country: Ottoman Empire
+#. Uncategorized
+#. { ref_name = "landes", name = _("Landes"), color = 0xc788a0 },
+#. { ref_name = "gironde", name = _("Gironde"), color = 0x417120 },
+#. { ref_name = "lotet_garonne", name = _("Lotet Garonne"), color = 0xcfdfc0 },
+#. { ref_name = "dordogne", name = _("Dordogne"), color = 0x7f81b9 },
+#. { ref_name = "correze", name = _("Corrèze"), color = 0xbb6dcd },
+#. { ref_name = "creuse", name = _("Creuse"), color = 0xb1b840 },
+#. { ref_name = "haute_vienne", name = _("Haute Vienne"), color = 0x45ef20 },
+#. { ref_name = "charente", name = _("Charente"), color = 0x5bbec0 },
+#. { ref_name = "charente_maritime", name = _("Charente Maritime"), color = 0xeeaba0 },
+#. { ref_name = "deux_sevres", name = _("Deux Sèvres"), color = 0xa1ae40 },
+#. { ref_name = "vienne", name = _("Vienne"), color = 0x3baa60 }
+#. Uncategorized
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Middle Europe
+#. Country: Dutch Empire
+#. ------------------------------------------------------------
+#. Continent: Europe/Asia
+#. Subcontinent: Eastern Europe/Eurasia
+#. Country: Russian Empire
+#: provinces/asia/anatolia.lua:7 provinces/asia/anatolia.lua:8
+#: provinces/asia/anatolia.lua:9 provinces/asia/anatolia.lua:10
+#: provinces/asia/anatolia.lua:11 provinces/asia/anatolia.lua:12
+#: provinces/asia/anatolia.lua:13 provinces/asia/anatolia.lua:14
+#: provinces/asia/anatolia.lua:15 provinces/asia/anatolia.lua:16
+#: provinces/asia/anatolia.lua:17 provinces/asia/anatolia.lua:18
+#: provinces/asia/anatolia.lua:19 provinces/asia/anatolia.lua:20
+#: provinces/asia/anatolia.lua:21 provinces/asia/anatolia.lua:22
+#: provinces/asia/anatolia.lua:23 provinces/asia/anatolia.lua:24
+#: provinces/asia/anatolia.lua:25 provinces/asia/anatolia.lua:26
+#: provinces/asia/anatolia.lua:27 provinces/asia/anatolia.lua:28
+#: provinces/asia/anatolia.lua:29 provinces/asia/anatolia.lua:30
+#: provinces/asia/anatolia.lua:31 provinces/asia/anatolia.lua:32
+#: provinces/asia/anatolia.lua:33 provinces/asia/anatolia.lua:34
+#: provinces/asia/anatolia.lua:35 provinces/asia/anatolia.lua:36
+#: provinces/asia/anatolia.lua:37 provinces/asia/anatolia.lua:38
+#: provinces/asia/anatolia.lua:39 provinces/asia/anatolia.lua:40
+#: provinces/asia/anatolia.lua:41 provinces/asia/anatolia.lua:42
+#: provinces/asia/anatolia.lua:43 provinces/asia/anatolia.lua:44
+#: provinces/asia/anatolia.lua:45 provinces/asia/anatolia.lua:46
+#: provinces/asia/anatolia.lua:47 provinces/asia/anatolia.lua:48
+#: provinces/asia/anatolia.lua:49 provinces/asia/anatolia.lua:50
+#: provinces/asia/anatolia.lua:51 provinces/asia/anatolia.lua:52
+#: provinces/asia/anatolia.lua:53 provinces/asia/anatolia.lua:54
+#: provinces/asia/anatolia.lua:55 provinces/asia/anatolia.lua:56
+#: provinces/asia/anatolia.lua:57 provinces/asia/anatolia.lua:58
+#: provinces/asia/anatolia.lua:59 provinces/asia/anatolia.lua:60
+#: provinces/asia/anatolia.lua:61 provinces/asia/anatolia.lua:62
+#: provinces/asia/anatolia.lua:63 provinces/asia/anatolia.lua:64
+#: provinces/asia/anatolia.lua:65 provinces/asia/anatolia.lua:66
+#: provinces/asia/anatolia.lua:67 provinces/asia/anatolia.lua:68
+#: provinces/asia/anatolia.lua:69 provinces/asia/anatolia.lua:70
+#: provinces/asia/anatolia.lua:71 provinces/asia/anatolia.lua:72
+#: provinces/asia/anatolia.lua:73 provinces/asia/anatolia.lua:74
+#: provinces/asia/anatolia.lua:75 provinces/asia/anatolia.lua:76
+#: provinces/asia/anatolia.lua:77 provinces/asia/anatolia.lua:78
+#: provinces/asia/anatolia.lua:79 provinces/asia/anatolia.lua:80
+#: provinces/asia/anatolia.lua:81 provinces/asia/anatolia.lua:82
+#: provinces/asia/anatolia.lua:83 provinces/asia/anatolia.lua:84
+#: provinces/asia/anatolia.lua:85 provinces/asia/anatolia.lua:86
+#: provinces/asia/anatolia.lua:87 provinces/asia/anatolia.lua:88
+#: provinces/asia/anatolia.lua:89 provinces/asia/anatolia.lua:90
+#: provinces/asia/anatolia.lua:91 provinces/asia/anatolia.lua:92
+#: provinces/asia/anatolia.lua:93 provinces/asia/anatolia.lua:94
+#: provinces/asia/anatolia.lua:95 provinces/asia/anatolia.lua:96
+#: provinces/asia/anatolia.lua:97 provinces/asia/anatolia.lua:98
+#: provinces/asia/anatolia.lua:99 provinces/asia/anatolia.lua:100
+#: provinces/asia/anatolia.lua:101 provinces/asia/anatolia.lua:102
+#: provinces/asia/anatolia.lua:103 provinces/asia/anatolia.lua:104
+#: provinces/asia/anatolia.lua:105 provinces/asia/anatolia.lua:106
+#: provinces/asia/anatolia.lua:107 provinces/asia/anatolia.lua:108
+#: provinces/asia/anatolia.lua:109 provinces/asia/anatolia.lua:110
+#: provinces/asia/anatolia.lua:111 provinces/asia/anatolia.lua:112
+#: provinces/asia/anatolia.lua:113 provinces/asia/anatolia.lua:114
+#: provinces/asia/anatolia.lua:115 provinces/asia/anatolia.lua:116
+#: provinces/asia/anatolia.lua:117 provinces/asia/anatolia.lua:118
+#: provinces/asia/anatolia.lua:119 provinces/asia/anatolia.lua:120
+#: provinces/asia/anatolia.lua:121 provinces/asia/anatolia.lua:122
+#: provinces/asia/anatolia.lua:123 provinces/asia/anatolia.lua:124
+#: provinces/asia/anatolia.lua:125 provinces/asia/anatolia.lua:126
+#: provinces/asia/anatolia.lua:127 provinces/asia/anatolia.lua:128
+#: provinces/asia/anatolia.lua:129 provinces/asia/anatolia.lua:130
+#: provinces/asia/anatolia.lua:131 provinces/asia/anatolia.lua:132
+#: provinces/asia/anatolia.lua:133 provinces/asia/anatolia.lua:134
+#: provinces/asia/anatolia.lua:135 provinces/asia/anatolia.lua:136
+#: provinces/asia/anatolia.lua:137 provinces/asia/anatolia.lua:138
+#: provinces/asia/anatolia.lua:139 provinces/asia/anatolia.lua:140
+#: provinces/asia/anatolia.lua:141 provinces/asia/anatolia.lua:142
+#: provinces/asia/anatolia.lua:143 provinces/asia/anatolia.lua:144
+#: provinces/asia/anatolia.lua:145 provinces/asia/anatolia.lua:146
+#: provinces/asia/anatolia.lua:147 provinces/asia/anatolia.lua:148
+#: provinces/asia/anatolia.lua:149 provinces/asia/anatolia.lua:150
+#: provinces/asia/anatolia.lua:151 provinces/asia/anatolia.lua:152
+#: provinces/asia/anatolia.lua:153 provinces/asia/anatolia.lua:154
+#: provinces/asia/anatolia.lua:155 provinces/asia/anatolia.lua:156
+#: provinces/asia/anatolia.lua:157 provinces/asia/anatolia.lua:158
+#: provinces/asia/anatolia.lua:159 provinces/asia/anatolia.lua:160
+#: provinces/asia/anatolia.lua:161 provinces/asia/anatolia.lua:162
+#: provinces/asia/anatolia.lua:163 provinces/asia/anatolia.lua:164
+#: provinces/asia/anatolia.lua:165 provinces/asia/anatolia.lua:166
+#: provinces/asia/anatolia.lua:167 provinces/asia/anatolia.lua:168
+#: provinces/asia/anatolia.lua:169 provinces/asia/anatolia.lua:170
+#: provinces/asia/anatolia.lua:171 provinces/asia/anatolia.lua:172
+#: provinces/asia/anatolia.lua:173 provinces/asia/anatolia.lua:174
+#: provinces/asia/anatolia.lua:175 provinces/asia/anatolia.lua:176
+#: provinces/asia/anatolia.lua:177 provinces/asia/anatolia.lua:178
+#: provinces/asia/anatolia.lua:179 provinces/asia/anatolia.lua:180
+#: provinces/asia/anatolia.lua:181 provinces/asia/anatolia.lua:182
+#: provinces/asia/anatolia.lua:183 provinces/asia/anatolia.lua:184
+#: provinces/asia/anatolia.lua:185 provinces/asia/anatolia.lua:186
+#: provinces/asia/anatolia.lua:187 provinces/asia/anatolia.lua:188
+#: provinces/asia/anatolia.lua:189 provinces/asia/anatolia.lua:190
+#: provinces/asia/anatolia.lua:191 provinces/asia/anatolia.lua:192
+#: provinces/asia/anatolia.lua:193 provinces/asia/anatolia.lua:194
+#: provinces/asia/anatolia.lua:195 provinces/asia/anatolia.lua:196
+#: provinces/asia/anatolia.lua:197 provinces/asia/anatolia.lua:198
+#: provinces/asia/anatolia.lua:199 provinces/asia/anatolia.lua:200
+#: provinces/asia/anatolia.lua:201 provinces/asia/anatolia.lua:202
+#: provinces/asia/anatolia.lua:203 provinces/asia/anatolia.lua:204
+#: provinces/asia/anatolia.lua:205 provinces/asia/anatolia.lua:206
+#: provinces/asia/anatolia.lua:207 provinces/asia/anatolia.lua:208
+#: provinces/asia/anatolia.lua:209 provinces/asia/anatolia.lua:210
+#: provinces/asia/anatolia.lua:211 provinces/asia/anatolia.lua:212
+#: provinces/asia/anatolia.lua:213 provinces/asia/anatolia.lua:214
+#: provinces/asia/anatolia.lua:215 provinces/asia/anatolia.lua:216
+#: provinces/asia/anatolia.lua:217 provinces/asia/anatolia.lua:218
+#: provinces/asia/anatolia.lua:219 provinces/asia/anatolia.lua:220
+#: provinces/asia/anatolia.lua:221 provinces/asia/anatolia.lua:222
+#: provinces/asia/anatolia.lua:223 provinces/asia/anatolia.lua:224
+#: provinces/europe/austria.lua:18 provinces/europe/austria.lua:19
+#: provinces/europe/austria.lua:20 provinces/europe/austria.lua:21
+#: provinces/europe/austria.lua:22 provinces/europe/austria.lua:23
+#: provinces/europe/austria.lua:24 provinces/europe/austria.lua:25
+#: provinces/europe/austria.lua:26 provinces/europe/austria.lua:27
+#: provinces/europe/austria.lua:28 provinces/europe/austria.lua:29
+#: provinces/europe/austria.lua:30 provinces/europe/austria.lua:31
+#: provinces/europe/austria.lua:32 provinces/europe/austria.lua:33
+#: provinces/europe/austria.lua:34 provinces/europe/austria.lua:35
+#: provinces/europe/austria.lua:36 provinces/europe/austria.lua:37
+#: provinces/europe/austria.lua:38 provinces/europe/austria.lua:39
+#: provinces/europe/austria.lua:40 provinces/europe/austria.lua:41
+#: provinces/europe/austria.lua:42 provinces/europe/austria.lua:43
+#: provinces/europe/austria.lua:44 provinces/europe/austria.lua:45
+#: provinces/europe/austria.lua:46 provinces/europe/austria.lua:47
+#: provinces/europe/austria.lua:48 provinces/europe/austria.lua:49
+#: provinces/europe/austria.lua:50 provinces/europe/austria.lua:51
+#: provinces/europe/austria.lua:52 provinces/europe/austria.lua:53
+#: provinces/europe/austria.lua:54 provinces/europe/austria.lua:55
+#: provinces/europe/austria.lua:56 provinces/europe/austria.lua:57
+#: provinces/europe/austria.lua:58 provinces/europe/austria.lua:59
+#: provinces/europe/austria.lua:60 provinces/europe/austria.lua:61
+#: provinces/europe/austria.lua:62 provinces/europe/austria.lua:63
+#: provinces/europe/austria.lua:64 provinces/europe/austria.lua:65
+#: provinces/europe/austria.lua:66 provinces/europe/austria.lua:67
+#: provinces/europe/austria.lua:68 provinces/europe/austria.lua:69
+#: provinces/europe/austria.lua:70 provinces/europe/austria.lua:71
+#: provinces/europe/austria.lua:72 provinces/europe/austria.lua:73
+#: provinces/europe/austria.lua:74 provinces/europe/austria.lua:75
+#: provinces/europe/austria.lua:76 provinces/europe/austria.lua:77
+#: provinces/europe/austria.lua:78 provinces/europe/austria.lua:79
+#: provinces/europe/austria.lua:80 provinces/europe/austria.lua:81
+#: provinces/europe/austria.lua:82 provinces/europe/austria.lua:83
+#: provinces/europe/austria.lua:84 provinces/europe/austria.lua:85
+#: provinces/europe/austria.lua:86 provinces/europe/austria.lua:87
+#: provinces/europe/austria.lua:88 provinces/europe/austria.lua:89
+#: provinces/europe/austria.lua:90 provinces/europe/austria.lua:91
+#: provinces/europe/austria.lua:92 provinces/europe/austria.lua:93
+#: provinces/europe/austria.lua:94 provinces/europe/austria.lua:95
+#: provinces/europe/austria.lua:96 provinces/europe/austria.lua:97
+#: provinces/europe/austria.lua:98 provinces/europe/austria.lua:99
+#: provinces/europe/austria.lua:100 provinces/europe/austria.lua:101
+#: provinces/europe/austria.lua:102 provinces/europe/austria.lua:103
+#: provinces/europe/austria.lua:104 provinces/europe/austria.lua:105
+#: provinces/europe/austria.lua:106 provinces/europe/austria.lua:107
+#: provinces/europe/austria.lua:108 provinces/europe/austria.lua:109
+#: provinces/europe/austria.lua:110 provinces/europe/austria.lua:111
+#: provinces/europe/austria.lua:112 provinces/europe/austria.lua:113
+#: provinces/europe/austria.lua:114 provinces/europe/austria.lua:115
+#: provinces/europe/austria.lua:116 provinces/europe/austria.lua:117
+#: provinces/europe/austria.lua:118 provinces/europe/austria.lua:119
+#: provinces/europe/austria.lua:120 provinces/europe/austria.lua:121
+#: provinces/europe/austria.lua:122 provinces/europe/austria.lua:123
+#: provinces/europe/austria.lua:124 provinces/europe/austria.lua:125
+#: provinces/europe/britain.lua:2 provinces/europe/britain.lua:3
+#: provinces/europe/britain.lua:4 provinces/europe/britain.lua:5
+#: provinces/europe/britain.lua:6 provinces/europe/britain.lua:7
+#: provinces/europe/britain.lua:8 provinces/europe/britain.lua:9
+#: provinces/europe/britain.lua:10 provinces/europe/britain.lua:11
+#: provinces/europe/britain.lua:12 provinces/europe/britain.lua:13
+#: provinces/europe/britain.lua:14 provinces/europe/britain.lua:15
+#: provinces/europe/britain.lua:16 provinces/europe/britain.lua:17
+#: provinces/europe/britain.lua:18 provinces/europe/britain.lua:19
+#: provinces/europe/britain.lua:20 provinces/europe/britain.lua:21
+#: provinces/europe/britain.lua:22 provinces/europe/britain.lua:23
+#: provinces/europe/britain.lua:24 provinces/europe/britain.lua:25
+#: provinces/europe/britain.lua:26 provinces/europe/britain.lua:27
+#: provinces/europe/britain.lua:28 provinces/europe/britain.lua:29
+#: provinces/europe/britain.lua:30 provinces/europe/britain.lua:31
+#: provinces/europe/britain.lua:32 provinces/europe/britain.lua:33
+#: provinces/europe/britain.lua:34 provinces/europe/britain.lua:35
+#: provinces/europe/britain.lua:36 provinces/europe/britain.lua:37
+#: provinces/europe/britain.lua:38 provinces/europe/britain.lua:39
+#: provinces/europe/britain.lua:40 provinces/europe/britain.lua:41
+#: provinces/europe/britain.lua:42 provinces/europe/britain.lua:43
+#: provinces/europe/britain.lua:44 provinces/europe/britain.lua:45
+#: provinces/europe/britain.lua:46 provinces/europe/britain.lua:47
+#: provinces/europe/britain.lua:48 provinces/europe/britain.lua:49
+#: provinces/europe/britain.lua:50 provinces/europe/britain.lua:51
+#: provinces/europe/britain.lua:52 provinces/europe/britain.lua:53
+#: provinces/europe/britain.lua:54 provinces/europe/britain.lua:55
+#: provinces/europe/britain.lua:56 provinces/europe/britain.lua:57
+#: provinces/europe/britain.lua:58 provinces/europe/britain.lua:59
+#: provinces/europe/britain.lua:60 provinces/europe/britain.lua:61
+#: provinces/europe/britain.lua:62 provinces/europe/britain.lua:63
+#: provinces/europe/britain.lua:64 provinces/europe/britain.lua:65
+#: provinces/europe/britain.lua:66 provinces/europe/britain.lua:67
+#: provinces/europe/britain.lua:68 provinces/europe/britain.lua:69
+#: provinces/europe/britain.lua:70 provinces/europe/britain.lua:71
+#: provinces/europe/britain.lua:72 provinces/europe/britain.lua:73
+#: provinces/europe/britain.lua:74 provinces/europe/britain.lua:75
+#: provinces/europe/britain.lua:76 provinces/europe/britain.lua:77
+#: provinces/europe/britain.lua:78 provinces/europe/britain.lua:79
+#: provinces/europe/britain.lua:80 provinces/europe/britain.lua:81
+#: provinces/europe/britain.lua:82 provinces/europe/britain.lua:83
+#: provinces/europe/britain.lua:84 provinces/europe/britain.lua:85
+#: provinces/europe/britain.lua:86 provinces/europe/britain.lua:87
+#: provinces/europe/britain.lua:88 provinces/europe/britain.lua:89
+#: provinces/europe/britain.lua:90 provinces/europe/britain.lua:91
+#: provinces/europe/britain.lua:92 provinces/europe/britain.lua:93
+#: provinces/europe/britain.lua:94 provinces/europe/britain.lua:95
+#: provinces/europe/britain.lua:96 provinces/europe/britain.lua:97
+#: provinces/europe/britain.lua:98 provinces/europe/britain.lua:99
+#: provinces/europe/britain.lua:100 provinces/europe/britain.lua:101
+#: provinces/europe/britain.lua:102 provinces/europe/britain.lua:103
+#: provinces/europe/britain.lua:104 provinces/europe/britain.lua:105
+#: provinces/europe/britain.lua:106 provinces/europe/britain.lua:107
+#: provinces/europe/britain.lua:108 provinces/europe/britain.lua:109
+#: provinces/europe/britain.lua:110 provinces/europe/britain.lua:111
+#: provinces/europe/britain.lua:112 provinces/europe/britain.lua:113
+#: provinces/europe/britain.lua:114 provinces/europe/britain.lua:115
+#: provinces/europe/britain.lua:116 provinces/europe/britain.lua:117
+#: provinces/europe/britain.lua:118 provinces/europe/britain.lua:119
+#: provinces/europe/britain.lua:120 provinces/europe/britain.lua:121
+#: provinces/europe/britain.lua:122 provinces/europe/britain.lua:123
+#: provinces/europe/britain.lua:124 provinces/europe/britain.lua:125
+#: provinces/europe/britain.lua:126 provinces/europe/britain.lua:127
+#: provinces/europe/britain.lua:128 provinces/europe/britain.lua:129
+#: provinces/europe/britain.lua:130 provinces/europe/britain.lua:131
+#: provinces/europe/france.lua:56 provinces/europe/france.lua:57
+#: provinces/europe/france.lua:58 provinces/europe/france.lua:59
+#: provinces/europe/france.lua:60 provinces/europe/france.lua:61
+#: provinces/europe/france.lua:62 provinces/europe/france.lua:63
+#: provinces/europe/france.lua:64 provinces/europe/france.lua:65
+#: provinces/europe/france.lua:66 provinces/europe/france.lua:67
+#: provinces/europe/france.lua:68 provinces/europe/france.lua:69
+#: provinces/europe/france.lua:70 provinces/europe/france.lua:71
+#: provinces/europe/france.lua:72 provinces/europe/france.lua:73
+#: provinces/europe/france.lua:74 provinces/europe/france.lua:75
+#: provinces/europe/france.lua:76 provinces/europe/france.lua:77
+#: provinces/europe/france.lua:78 provinces/europe/germany.lua:183
+#: provinces/europe/germany.lua:184 provinces/europe/germany.lua:185
+#: provinces/europe/germany.lua:186 provinces/europe/germany.lua:187
+#: provinces/europe/germany.lua:188 provinces/europe/germany.lua:189
+#: provinces/europe/germany.lua:190 provinces/europe/germany.lua:191
+#: provinces/europe/germany.lua:192 provinces/europe/germany.lua:193
+#: provinces/europe/germany.lua:194 provinces/europe/germany.lua:195
+#: provinces/europe/germany.lua:196 provinces/europe/germany.lua:197
+#: provinces/europe/germany.lua:198 provinces/europe/germany.lua:199
+#: provinces/europe/germany.lua:200 provinces/europe/germany.lua:201
+#: provinces/europe/germany.lua:202 provinces/europe/germany.lua:203
+#: provinces/europe/germany.lua:204 provinces/europe/germany.lua:205
+#: provinces/europe/germany.lua:206 provinces/europe/germany.lua:207
+#: provinces/europe/germany.lua:208 provinces/europe/germany.lua:209
+#: provinces/europe/germany.lua:210 provinces/europe/germany.lua:211
+#: provinces/europe/germany.lua:212 provinces/europe/germany.lua:237
+#: provinces/europe/germany.lua:238 provinces/europe/germany.lua:239
+#: provinces/europe/germany.lua:240 provinces/europe/germany.lua:265
+#: provinces/europe/germany.lua:266 provinces/europe/germany.lua:267
+#: provinces/europe/germany.lua:268 provinces/europe/germany.lua:269
+#: provinces/europe/germany.lua:270 provinces/europe/germany.lua:271
+#: provinces/europe/germany.lua:272 provinces/europe/germany.lua:273
+#: provinces/europe/germany.lua:295 provinces/europe/germany.lua:296
+#: provinces/europe/germany.lua:319 provinces/europe/germany.lua:320
+#: provinces/europe/germany.lua:321 provinces/europe/germany.lua:322
+#: provinces/europe/germany.lua:323 provinces/europe/germany.lua:324
+#: provinces/europe/germany.lua:325 provinces/europe/germany.lua:326
+#: provinces/europe/germany.lua:327 provinces/europe/netherlands.lua:7
+#: provinces/europe/netherlands.lua:8 provinces/europe/netherlands.lua:9
+#: provinces/europe/netherlands.lua:10 provinces/europe/netherlands.lua:11
+#: provinces/europe/netherlands.lua:12 provinces/europe/netherlands.lua:13
+#: provinces/europe/netherlands.lua:14 provinces/europe/netherlands.lua:15
+#: provinces/europe/netherlands.lua:16 provinces/europe/netherlands.lua:17
+#: provinces/europe/netherlands.lua:18 provinces/europe/netherlands.lua:19
+#: provinces/europe/netherlands.lua:20 provinces/europe/netherlands.lua:21
+#: provinces/europe/netherlands.lua:22 provinces/europe/netherlands.lua:23
+#: provinces/europe/netherlands.lua:24 provinces/europe/netherlands.lua:25
+#: provinces/europe/netherlands.lua:26 provinces/europe/netherlands.lua:27
+#: provinces/europe/netherlands.lua:28 provinces/europe/netherlands.lua:29
+#: provinces/europe/netherlands.lua:30 provinces/europe/netherlands.lua:31
+#: provinces/europe/netherlands.lua:32 provinces/europe/netherlands.lua:33
+#: provinces/europe/netherlands.lua:34 provinces/europe/netherlands.lua:35
+#: provinces/europe/netherlands.lua:36 provinces/europe/netherlands.lua:37
+#: provinces/europe/netherlands.lua:38 provinces/europe/netherlands.lua:39
+#: provinces/europe/netherlands.lua:40 provinces/europe/netherlands.lua:41
+#: provinces/europe/netherlands.lua:42 provinces/europe/netherlands.lua:43
+#: provinces/europe/netherlands.lua:44 provinces/europe/netherlands.lua:45
+#: provinces/europe/netherlands.lua:46 provinces/europe/netherlands.lua:47
+#: provinces/europe/netherlands.lua:48 provinces/europe/netherlands.lua:49
+#: provinces/europe/netherlands.lua:50 provinces/europe/netherlands.lua:51
+#: provinces/europe/netherlands.lua:52 provinces/europe/netherlands.lua:53
+#: provinces/europe/netherlands.lua:54 provinces/europe/netherlands.lua:55
+#: provinces/europe/netherlands.lua:56 provinces/europe/netherlands.lua:57
+#: provinces/europe/netherlands.lua:58 provinces/europe/russia.lua:7
+#: provinces/europe/russia.lua:8 provinces/europe/russia.lua:9
+#: provinces/europe/russia.lua:10 provinces/europe/russia.lua:11
+#: provinces/europe/russia.lua:12 provinces/europe/russia.lua:13
+#: provinces/europe/russia.lua:14 provinces/europe/russia.lua:15
+#: provinces/europe/russia.lua:16 provinces/europe/russia.lua:17
+#: provinces/europe/russia.lua:18 provinces/europe/russia.lua:19
+#: provinces/europe/russia.lua:20 provinces/europe/russia.lua:21
+#: provinces/europe/russia.lua:22 provinces/europe/russia.lua:23
+#: provinces/europe/russia.lua:24 provinces/europe/russia.lua:25
+#: provinces/europe/russia.lua:26 provinces/europe/russia.lua:27
+#: provinces/europe/russia.lua:28 provinces/europe/russia.lua:29
+#: provinces/europe/russia.lua:30 provinces/europe/russia.lua:31
+#: provinces/europe/russia.lua:32 provinces/europe/russia.lua:33
+#: provinces/europe/russia.lua:34 provinces/europe/russia.lua:35
+#: provinces/europe/russia.lua:36 provinces/europe/russia.lua:37
+#: provinces/europe/russia.lua:38 provinces/europe/russia.lua:39
+#: provinces/europe/russia.lua:40 provinces/europe/russia.lua:41
+#: provinces/europe/russia.lua:42 provinces/europe/russia.lua:43
+#: provinces/europe/russia.lua:44 provinces/europe/russia.lua:45
+#: provinces/europe/russia.lua:46 provinces/europe/russia.lua:47
+#: provinces/europe/russia.lua:48 provinces/europe/russia.lua:49
+#: provinces/europe/russia.lua:50 provinces/europe/russia.lua:51
+#: provinces/europe/russia.lua:52 provinces/europe/russia.lua:53
+#: provinces/europe/russia.lua:54 provinces/europe/russia.lua:55
+#: provinces/europe/russia.lua:56 provinces/europe/russia.lua:57
+#: provinces/europe/russia.lua:58 provinces/europe/russia.lua:59
+#: provinces/europe/russia.lua:60 provinces/europe/russia.lua:61
+#: provinces/europe/russia.lua:62 provinces/europe/russia.lua:63
+#: provinces/europe/russia.lua:64 provinces/europe/russia.lua:65
+#: provinces/europe/russia.lua:66 provinces/europe/russia.lua:67
+#: provinces/europe/russia.lua:68 provinces/europe/russia.lua:69
+#: provinces/europe/russia.lua:70 provinces/europe/russia.lua:71
+#: provinces/europe/russia.lua:72 provinces/europe/russia.lua:73
+#: provinces/europe/russia.lua:74 provinces/europe/russia.lua:75
+#: provinces/europe/russia.lua:76 provinces/europe/russia.lua:77
+#: provinces/europe/russia.lua:78 provinces/europe/russia.lua:79
+#: provinces/europe/russia.lua:80 provinces/europe/russia.lua:81
+#: provinces/europe/russia.lua:82 provinces/europe/russia.lua:83
+#: provinces/europe/russia.lua:84 provinces/europe/russia.lua:85
+#: provinces/europe/russia.lua:86 provinces/europe/russia.lua:87
+#: provinces/europe/russia.lua:88 provinces/europe/russia.lua:89
+#: provinces/europe/russia.lua:90 provinces/europe/russia.lua:91
+#: provinces/europe/russia.lua:92 provinces/europe/russia.lua:93
+#: provinces/europe/russia.lua:94 provinces/europe/russia.lua:95
+#: provinces/europe/russia.lua:96 provinces/europe/russia.lua:97
+#: provinces/europe/russia.lua:98 provinces/europe/russia.lua:99
+#: provinces/europe/russia.lua:100 provinces/europe/russia.lua:101
+#: provinces/europe/russia.lua:102 provinces/europe/russia.lua:103
+#: provinces/europe/russia.lua:104 provinces/europe/russia.lua:105
+#: provinces/europe/russia.lua:106 provinces/europe/russia.lua:107
+#: provinces/europe/russia.lua:108 provinces/europe/russia.lua:109
+#: provinces/europe/russia.lua:110 provinces/europe/russia.lua:111
+#: provinces/europe/russia.lua:112 provinces/europe/russia.lua:113
+#: provinces/europe/russia.lua:114 provinces/europe/russia.lua:115
+#: provinces/europe/russia.lua:116 provinces/europe/russia.lua:117
+#: provinces/europe/russia.lua:118 provinces/europe/russia.lua:119
+#: provinces/europe/russia.lua:120 provinces/europe/russia.lua:121
+#: provinces/europe/russia.lua:122 provinces/europe/russia.lua:123
+#: provinces/europe/russia.lua:124 provinces/europe/russia.lua:125
+#: provinces/europe/russia.lua:126 provinces/europe/russia.lua:127
+#: provinces/europe/russia.lua:128 provinces/europe/russia.lua:129
+#: provinces/europe/russia.lua:130 provinces/europe/russia.lua:131
+#: provinces/europe/russia.lua:132 provinces/europe/russia.lua:133
+#: provinces/europe/russia.lua:134 provinces/europe/russia.lua:135
+#: provinces/europe/russia.lua:136 provinces/europe/russia.lua:137
+#: provinces/europe/russia.lua:138 provinces/europe/russia.lua:139
+#: provinces/europe/russia.lua:140 provinces/europe/russia.lua:141
+#: provinces/europe/russia.lua:142 provinces/europe/russia.lua:143
+#: provinces/europe/russia.lua:144 provinces/europe/russia.lua:145
+#: provinces/europe/russia.lua:146 provinces/europe/russia.lua:147
+#: provinces/europe/russia.lua:148 provinces/europe/russia.lua:149
+#: provinces/europe/russia.lua:150 provinces/europe/russia.lua:151
+#: provinces/europe/russia.lua:152 provinces/europe/russia.lua:153
+#: provinces/europe/russia.lua:154 provinces/europe/russia.lua:155
+#: provinces/europe/russia.lua:156 provinces/europe/russia.lua:157
+#: provinces/europe/russia.lua:158 provinces/europe/russia.lua:159
+#: provinces/europe/russia.lua:160 provinces/europe/russia.lua:161
+#: provinces/europe/russia.lua:162 provinces/europe/russia.lua:163
+#: provinces/europe/russia.lua:164 provinces/europe/russia.lua:165
+#: provinces/europe/russia.lua:166 provinces/europe/russia.lua:167
+#: provinces/europe/russia.lua:168 provinces/europe/russia.lua:169
+#: provinces/europe/russia.lua:170 provinces/europe/russia.lua:171
+#: provinces/europe/russia.lua:172 provinces/europe/russia.lua:173
+#: provinces/europe/russia.lua:174 provinces/europe/russia.lua:175
+#: provinces/europe/russia.lua:176 provinces/europe/russia.lua:177
+#: provinces/europe/russia.lua:178 provinces/europe/russia.lua:179
+#: provinces/europe/russia.lua:180 provinces/europe/russia.lua:181
+#: provinces/europe/russia.lua:182 provinces/europe/russia.lua:183
+#: provinces/europe/russia.lua:184 provinces/europe/russia.lua:185
+#: provinces/europe/russia.lua:186 provinces/europe/russia.lua:187
+#: provinces/europe/russia.lua:188 provinces/europe/russia.lua:189
+#: provinces/europe/russia.lua:190 provinces/europe/russia.lua:191
+#: provinces/europe/russia.lua:192 provinces/europe/russia.lua:193
+#: provinces/europe/russia.lua:194 provinces/europe/russia.lua:195
+#: provinces/europe/russia.lua:196 provinces/europe/russia.lua:197
+#: provinces/europe/russia.lua:198 provinces/europe/russia.lua:199
+#: provinces/europe/russia.lua:200 provinces/europe/russia.lua:201
+#: provinces/europe/russia.lua:202 provinces/europe/russia.lua:203
+#: provinces/europe/russia.lua:204 provinces/europe/russia.lua:205
+#: provinces/europe/russia.lua:206 provinces/europe/russia.lua:207
+#: provinces/europe/russia.lua:208 provinces/europe/russia.lua:209
+#: provinces/europe/russia.lua:210 provinces/europe/russia.lua:211
+#: provinces/europe/russia.lua:212 provinces/europe/russia.lua:213
+#: provinces/europe/russia.lua:214 provinces/europe/russia.lua:215
+#: provinces/europe/russia.lua:216 provinces/europe/russia.lua:217
+#: provinces/europe/russia.lua:218 provinces/europe/russia.lua:219
+#: provinces/europe/russia.lua:220 provinces/europe/russia.lua:221
+#: provinces/europe/russia.lua:222 provinces/europe/russia.lua:223
+#: provinces/europe/russia.lua:224 provinces/europe/russia.lua:225
+#: provinces/europe/russia.lua:226 provinces/europe/russia.lua:227
+#: provinces/europe/russia.lua:228 provinces/europe/russia.lua:229
+#: provinces/europe/russia.lua:230 provinces/europe/russia.lua:231
+#: provinces/europe/russia.lua:232 provinces/europe/russia.lua:233
+#: provinces/europe/russia.lua:234 provinces/europe/russia.lua:235
+#: provinces/europe/russia.lua:236 provinces/europe/russia.lua:237
+#: provinces/europe/russia.lua:238 provinces/europe/russia.lua:239
+#: provinces/europe/russia.lua:240 provinces/europe/russia.lua:241
+#: provinces/europe/russia.lua:242 provinces/europe/russia.lua:243
+#: provinces/europe/russia.lua:244 provinces/europe/russia.lua:245
+#: provinces/europe/russia.lua:246 provinces/europe/russia.lua:247
+#: provinces/europe/russia.lua:248 provinces/europe/russia.lua:249
+#: provinces/europe/russia.lua:250 provinces/europe/russia.lua:251
+#: provinces/europe/russia.lua:252 provinces/europe/russia.lua:253
+#: provinces/europe/russia.lua:254 provinces/europe/russia.lua:255
+#: provinces/europe/russia.lua:256 provinces/europe/russia.lua:257
+#: provinces/europe/russia.lua:258 provinces/europe/russia.lua:259
+#: provinces/europe/russia.lua:260 provinces/europe/russia.lua:261
+#: provinces/europe/russia.lua:262 provinces/europe/russia.lua:263
+#: provinces/europe/russia.lua:264 provinces/europe/russia.lua:265
+#: provinces/europe/russia.lua:266 provinces/europe/russia.lua:267
+#: provinces/europe/russia.lua:268 provinces/europe/russia.lua:269
+#: provinces/europe/russia.lua:270 provinces/europe/russia.lua:271
+#: provinces/europe/russia.lua:272 provinces/europe/russia.lua:273
+#: provinces/europe/russia.lua:274 provinces/europe/russia.lua:275
+#: provinces/europe/russia.lua:276 provinces/europe/russia.lua:277
+#: provinces/europe/russia.lua:278 provinces/europe/russia.lua:279
+#: provinces/europe/russia.lua:280 provinces/europe/russia.lua:281
+#: provinces/europe/russia.lua:282 provinces/europe/russia.lua:283
+#: provinces/europe/russia.lua:284 provinces/europe/russia.lua:285
+#: provinces/europe/russia.lua:286 provinces/europe/russia.lua:287
+#: provinces/europe/russia.lua:288 provinces/europe/russia.lua:289
+#: provinces/europe/russia.lua:290 provinces/europe/russia.lua:291
+#: provinces/europe/russia.lua:292 provinces/europe/russia.lua:293
+#: provinces/europe/russia.lua:294 provinces/europe/russia.lua:295
+#: provinces/europe/russia.lua:296 provinces/europe/russia.lua:297
+#: provinces/europe/russia.lua:298 provinces/europe/russia.lua:299
+#: provinces/europe/russia.lua:300 provinces/europe/russia.lua:301
+#: provinces/europe/russia.lua:302 provinces/europe/russia.lua:303
+#: provinces/europe/russia.lua:304 provinces/europe/russia.lua:305
+#: provinces/europe/russia.lua:306 provinces/europe/russia.lua:307
+#: provinces/europe/russia.lua:308 provinces/europe/russia.lua:309
+#: provinces/europe/russia.lua:310 provinces/europe/russia.lua:311
+#: provinces/europe/russia.lua:312 provinces/europe/russia.lua:313
+#: provinces/europe/russia.lua:314 provinces/europe/russia.lua:315
+#: provinces/europe/russia.lua:316 provinces/europe/russia.lua:317
+#: provinces/europe/russia.lua:318 provinces/europe/russia.lua:319
+#: provinces/europe/russia.lua:320 provinces/europe/russia.lua:321
+#: provinces/europe/russia.lua:322 provinces/europe/russia.lua:323
+#: provinces/europe/russia.lua:324 provinces/europe/russia.lua:325
+#: provinces/europe/russia.lua:326 provinces/europe/russia.lua:327
+#: provinces/europe/russia.lua:328 provinces/europe/russia.lua:329
+#: provinces/europe/russia.lua:330 provinces/europe/russia.lua:331
+#: provinces/europe/russia.lua:332 provinces/europe/russia.lua:333
+#: provinces/europe/russia.lua:334 provinces/europe/russia.lua:335
+#: provinces/europe/russia.lua:336 provinces/europe/russia.lua:337
+#: provinces/europe/russia.lua:338 provinces/europe/russia.lua:339
+#: provinces/europe/russia.lua:340 provinces/europe/russia.lua:341
+#: provinces/europe/russia.lua:342 provinces/europe/russia.lua:343
+#: provinces/europe/russia.lua:344 provinces/europe/russia.lua:345
+#: provinces/europe/russia.lua:346 provinces/europe/russia.lua:347
+#: provinces/europe/russia.lua:348 provinces/europe/russia.lua:349
+#: provinces/europe/russia.lua:350 provinces/europe/russia.lua:351
+#: provinces/europe/russia.lua:352 provinces/europe/russia.lua:353
+#: provinces/europe/russia.lua:354 provinces/europe/russia.lua:355
+#: provinces/europe/russia.lua:356 provinces/europe/russia.lua:357
+#: provinces/europe/russia.lua:358 provinces/europe/russia.lua:359
+#: provinces/europe/russia.lua:360 provinces/europe/russia.lua:361
+#: provinces/europe/russia.lua:362 provinces/europe/russia.lua:363
+#: provinces/europe/russia.lua:364 provinces/europe/russia.lua:365
+#: provinces/europe/russia.lua:366 provinces/europe/russia.lua:367
+#: provinces/europe/russia.lua:368 provinces/europe/russia.lua:369
+#: provinces/europe/russia.lua:370 provinces/europe/russia.lua:371
+#: provinces/europe/russia.lua:372 provinces/europe/russia.lua:373
+#: provinces/europe/russia.lua:374 provinces/europe/russia.lua:375
+#: provinces/europe/russia.lua:376 provinces/europe/russia.lua:377
+#: provinces/europe/russia.lua:378 provinces/europe/russia.lua:379
+#: provinces/europe/russia.lua:380 provinces/europe/russia.lua:381
+#: provinces/europe/russia.lua:382 provinces/europe/russia.lua:383
+#: provinces/europe/russia.lua:384 provinces/europe/russia.lua:385
+#: provinces/europe/russia.lua:386 provinces/europe/russia.lua:387
+#: provinces/europe/russia.lua:388 provinces/europe/russia.lua:389
+#: provinces/europe/russia.lua:390 provinces/europe/russia.lua:391
+#: provinces/europe/russia.lua:392 provinces/europe/russia.lua:393
+#: provinces/europe/russia.lua:394 provinces/europe/russia.lua:395
+#: provinces/europe/russia.lua:396 provinces/europe/russia.lua:397
+#: provinces/europe/russia.lua:398 provinces/europe/russia.lua:399
+#: provinces/europe/russia.lua:400 provinces/europe/russia.lua:401
+#: provinces/europe/russia.lua:402 provinces/europe/russia.lua:403
+#: provinces/europe/russia.lua:404 provinces/europe/russia.lua:405
+#: provinces/europe/russia.lua:406 provinces/europe/russia.lua:407
+#: provinces/europe/russia.lua:408 provinces/europe/russia.lua:409
+#: provinces/europe/russia.lua:410 provinces/europe/russia.lua:411
+#: provinces/europe/russia.lua:412 provinces/europe/russia.lua:413
+#: provinces/europe/russia.lua:414 provinces/europe/russia.lua:415
+#: provinces/europe/russia.lua:416 provinces/europe/russia.lua:417
+#: provinces/europe/russia.lua:418 provinces/europe/russia.lua:419
+#: provinces/europe/russia.lua:420 provinces/europe/russia.lua:421
+#: provinces/europe/russia.lua:422 provinces/europe/russia.lua:423
+#: provinces/europe/russia.lua:424 provinces/europe/russia.lua:425
+#: provinces/europe/russia.lua:426 provinces/europe/russia.lua:427
+#: provinces/europe/russia.lua:428 provinces/europe/russia.lua:429
+#: provinces/europe/russia.lua:430 provinces/europe/russia.lua:431
+#: provinces/europe/russia.lua:432 provinces/europe/russia.lua:433
+#: provinces/europe/russia.lua:434 provinces/europe/russia.lua:435
+#: provinces/europe/russia.lua:436 provinces/europe/russia.lua:437
+#: provinces/europe/russia.lua:438 provinces/europe/russia.lua:439
+#: provinces/europe/russia.lua:440 provinces/europe/russia.lua:441
+#: provinces/europe/russia.lua:442 provinces/europe/russia.lua:443
+#: provinces/europe/russia.lua:444 provinces/europe/russia.lua:445
+#: provinces/europe/russia.lua:446 provinces/europe/russia.lua:447
+#: provinces/europe/russia.lua:448 provinces/europe/russia.lua:449
+#: provinces/europe/russia.lua:450 provinces/europe/russia.lua:451
+#: provinces/europe/russia.lua:452 provinces/europe/russia.lua:453
+#: provinces/europe/russia.lua:454 provinces/europe/russia.lua:455
+#: provinces/europe/russia.lua:456 provinces/europe/russia.lua:457
+#: provinces/europe/russia.lua:458 provinces/europe/russia.lua:459
+#: provinces/europe/russia.lua:460 provinces/europe/russia.lua:461
+#: provinces/europe/russia.lua:462 provinces/europe/russia.lua:463
+#: provinces/europe/russia.lua:464 provinces/europe/russia.lua:465
+#: provinces/europe/russia.lua:466 provinces/europe/russia.lua:467
+#: provinces/europe/russia.lua:468 provinces/europe/russia.lua:469
+#: provinces/europe/russia.lua:470 provinces/europe/russia.lua:471
+#: provinces/europe/russia.lua:472 provinces/europe/russia.lua:473
+#: provinces/europe/russia.lua:474 provinces/europe/russia.lua:475
+#: provinces/europe/russia.lua:476 provinces/europe/russia.lua:477
+#: provinces/europe/russia.lua:478 provinces/europe/russia.lua:479
+#: provinces/europe/russia.lua:480 provinces/europe/russia.lua:481
+#: provinces/europe/russia.lua:482 provinces/europe/russia.lua:483
+#: provinces/europe/russia.lua:484 provinces/europe/russia.lua:485
+#: provinces/europe/russia.lua:486 provinces/europe/russia.lua:487
+#: provinces/europe/russia.lua:488 provinces/europe/russia.lua:489
+#: provinces/europe/russia.lua:490 provinces/europe/russia.lua:491
+#: provinces/europe/russia.lua:492 provinces/europe/russia.lua:493
+#: provinces/europe/russia.lua:494 provinces/europe/russia.lua:495
+#: provinces/europe/russia.lua:496 provinces/europe/russia.lua:497
+#: provinces/europe/russia.lua:498 provinces/europe/russia.lua:499
+#: provinces/europe/russia.lua:500 provinces/europe/russia.lua:501
+#: provinces/europe/russia.lua:502 provinces/europe/russia.lua:503
+#: provinces/europe/russia.lua:504 provinces/europe/russia.lua:505
+#: provinces/europe/russia.lua:506 provinces/europe/russia.lua:507
+#: provinces/europe/russia.lua:508 provinces/europe/russia.lua:509
+#: provinces/europe/russia.lua:510 provinces/europe/russia.lua:511
+#: provinces/europe/russia.lua:512 provinces/europe/russia.lua:513
+#: provinces/europe/russia.lua:514 provinces/europe/russia.lua:515
+#: provinces/europe/russia.lua:516 provinces/europe/russia.lua:517
+#: provinces/europe/russia.lua:518 provinces/europe/russia.lua:519
+#: provinces/europe/russia.lua:520 provinces/europe/russia.lua:521
+#: provinces/europe/russia.lua:522 provinces/europe/russia.lua:523
+#: provinces/europe/russia.lua:524 provinces/europe/russia.lua:525
+#: provinces/europe/russia.lua:526 provinces/europe/russia.lua:527
+#: provinces/europe/russia.lua:528 provinces/europe/russia.lua:529
+#: provinces/europe/russia.lua:530 provinces/europe/russia.lua:531
+#: provinces/europe/russia.lua:532 provinces/europe/russia.lua:533
+#: provinces/europe/russia.lua:534 provinces/europe/russia.lua:535
+#: provinces/europe/russia.lua:536 provinces/europe/russia.lua:537
+#: provinces/europe/russia.lua:538 provinces/europe/russia.lua:539
+#: provinces/europe/russia.lua:540 provinces/europe/russia.lua:541
+#: provinces/europe/russia.lua:542 provinces/europe/russia.lua:543
+#: provinces/europe/russia.lua:544 provinces/europe/russia.lua:545
+#: provinces/europe/russia.lua:546 provinces/europe/russia.lua:547
+#: provinces/europe/russia.lua:548 provinces/europe/russia.lua:549
+#: provinces/europe/russia.lua:550 provinces/europe/russia.lua:551
+#: provinces/europe/russia.lua:552 provinces/europe/russia.lua:553
+#: provinces/europe/russia.lua:554 provinces/europe/russia.lua:555
+#: provinces/europe/russia.lua:556 provinces/europe/russia.lua:557
+#: provinces/europe/russia.lua:558 provinces/europe/russia.lua:559
+#: provinces/europe/russia.lua:560 provinces/europe/russia.lua:561
+#: provinces/europe/russia.lua:562 provinces/europe/russia.lua:563
+#: provinces/europe/russia.lua:564 provinces/europe/russia.lua:565
+#: provinces/europe/russia.lua:566 provinces/europe/russia.lua:567
+#: provinces/europe/russia.lua:568 provinces/europe/russia.lua:569
+#: provinces/europe/russia.lua:570 provinces/europe/russia.lua:571
+#: provinces/europe/russia.lua:572 provinces/europe/russia.lua:573
+#: provinces/europe/russia.lua:574 provinces/europe/russia.lua:575
+#: provinces/europe/russia.lua:576 provinces/europe/russia.lua:577
+#: provinces/europe/russia.lua:578 provinces/europe/russia.lua:579
+#: provinces/europe/russia.lua:580 provinces/europe/russia.lua:581
+#: provinces/europe/russia.lua:582 provinces/europe/russia.lua:583
+#: provinces/europe/russia.lua:584 provinces/europe/russia.lua:585
+#: provinces/europe/russia.lua:586 provinces/europe/russia.lua:587
+#: provinces/europe/russia.lua:588 provinces/europe/russia.lua:589
+#: provinces/europe/russia.lua:590 provinces/europe/russia.lua:591
+#: provinces/europe/russia.lua:592 provinces/europe/russia.lua:593
+#: provinces/europe/russia.lua:594 provinces/europe/russia.lua:595
+#: provinces/europe/russia.lua:596 provinces/europe/russia.lua:597
+#: provinces/europe/russia.lua:598 provinces/europe/russia.lua:599
+#: provinces/europe/russia.lua:600 provinces/europe/russia.lua:601
+#: provinces/europe/russia.lua:602 provinces/europe/russia.lua:603
+#: provinces/europe/russia.lua:604 provinces/europe/russia.lua:605
+#: provinces/europe/russia.lua:606 provinces/europe/russia.lua:607
+#: provinces/europe/russia.lua:608 provinces/europe/russia.lua:609
+#: provinces/europe/russia.lua:610 provinces/europe/russia.lua:611
+#: provinces/europe/russia.lua:612 provinces/europe/russia.lua:613
+#: provinces/europe/russia.lua:614 provinces/europe/russia.lua:615
+#: provinces/europe/russia.lua:616 provinces/europe/russia.lua:617
+#: provinces/europe/russia.lua:618 provinces/europe/russia.lua:619
+#: provinces/europe/russia.lua:620 provinces/europe/russia.lua:621
+#: provinces/europe/russia.lua:622 provinces/europe/russia.lua:623
+#: provinces/europe/russia.lua:624 provinces/europe/russia.lua:625
+#: provinces/europe/russia.lua:626 provinces/europe/russia.lua:627
+#: provinces/europe/russia.lua:628 provinces/europe/russia.lua:629
+#: provinces/europe/russia.lua:630 provinces/europe/russia.lua:631
+#: provinces/europe/russia.lua:632 provinces/europe/russia.lua:633
+#: provinces/europe/russia.lua:634
+msgid "Unknown"
+msgstr "Necunoscut"
+
+#: provinces/europe/austria.lua:13
+msgid "Upper Austria"
+msgstr "Australia Superioară"
+
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: North America
+#. Country: USA
+#. East united states
+#: provinces/americas/united_states.lua:8
+msgid "Upper Coast"
+msgstr "Coasta Superioară"
+
+#: provinces/americas/united_states.lua:29
+msgid "Upper Peninsula"
+msgstr "Peninsula Superioară"
+
+#: provinces/europe/scandinavia.lua:166
+msgid "Uppland"
+msgstr "Uppland"
+
+#: good_types.lua:91
+msgid "Uranium"
+msgstr "Uraniu"
+
+#: provinces/americas/united_states.lua:172
+msgid "Utah"
+msgstr "Utah"
+
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Scandinavia
+#. Country: Finland (Russia)
+#: provinces/europe/scandinavia.lua:378
+msgid "Uusimaa"
+msgstr "Uusimaa"
+
+#: cultures.lua:125 nations/europe.lua:321
+msgid "Uzbek"
+msgstr "Uzbek"
+
+#: nations/europe.lua:320 nations/europe.lua:324
+msgid "Uzbekistan"
+msgstr "Uzbekistan"
+
+#: provinces/europe/scandinavia.lua:622
+msgid "Vaasa"
+msgstr "Vaasa"
+
+#. Val-d'Oise
+#: provinces/europe/france.lua:194
+msgid "Val-d'Oise"
+msgstr "Val-d'Oise"
+
+#. Mapuche's provinces that chile wants to take
+#: provinces/americas/chile.lua:46
+msgid "Valdivia"
+msgstr "Valdivia"
+
+#: provinces/europe/spain.lua:46
+msgid "Valencia"
+msgstr "Valencia"
+
+#: provinces/europe/spain.lua:17
+msgid "Valladolid"
+msgstr "Valladolid"
+
+#: provinces/europe/greece.lua:12
+msgid "Valtos"
+msgstr "Valtos"
+
+#: provinces/europe/france.lua:20
+msgid "Var"
+msgstr "Var"
+
+#: provinces/europe/balkans.lua:121
+msgid "Varna"
+msgstr "Varna"
+
+#: provinces/europe/france.lua:23
+msgid "Vaucluse"
+msgstr "Vaucluse"
+
+#: nations/europe.lua:617
+msgid "Venetian"
+msgstr "Venețian"
+
+#: provinces/americas/south_america.lua:161
+msgid "Venezuela"
+msgstr "Venezuela"
+
+#: cultures.lua:162
+msgid "Venezuelan"
+msgstr "Venezuelesc"
+
+#. ---------------------------------------------------------------------
+#. ---------------------------------------------------------------------
+#. Holy Roman Empire (Italian part)
+#. Initial nations
+#: nations/europe.lua:616 nations/europe.lua:621
+msgid "Venice"
+msgstr "Veneția"
+
+#: provinces/americas/mexico.lua:8
+msgid "Veracruz"
+msgstr "Veracruz"
+
+#: provinces/americas/united_states.lua:17
+msgid "Vermont"
+msgstr "Vermont"
+
+#: provinces/europe/scandinavia.lua:90
+msgid "Vestfirðir"
+msgstr "Vestfirðir"
+
+#: provinces/europe/scandinavia.lua:798
+msgid "Vestfold og telemark"
+msgstr "Vestfold og telemark"
+
+#: provinces/europe/scandinavia.lua:866
+msgid "Vestland"
+msgstr "Vestland"
+
+#: provinces/europe/scandinavia.lua:100
+msgid "Vesturland"
+msgstr "Vesturland"
+
+#: provinces/europe/balkans.lua:119
+msgid "Vidin"
+msgstr "Vidin"
+
+#: provinces/americas/argentina.lua:61
+msgid "Viedma"
+msgstr "Viedma"
+
+#. Vienne
+#: provinces/europe/france.lua:554
+msgid "Vienne"
+msgstr "Viena"
+
+#: provinces/americas/brazil_and_pantanal.lua:60
+msgid "Vila Sacarón"
+msgstr "Vila Sacarón"
+
+#: provinces/europe/baltics.lua:91
+msgid "Viljandi"
+msgstr "Viljandi"
+
+#: provinces/europe/portugal.lua:8
+msgid "Villa Real"
+msgstr "Villa Real"
+
+#. same logic here
+#: industry_types.lua:19
+msgid "Vineyard"
+msgstr "Vie"
+
+#: provinces/americas/caribbean.lua:239
+msgid "Virgin Islands"
+msgstr "Insulele Virgine"
+
+#: provinces/americas/united_states.lua:23
+msgid "Virginia"
+msgstr "Virginia"
+
+#. Change to Inner Alaska if taken by US or UK
+#: provinces/americas/alaska.lua:10
+msgid "Vnutrennyaya Alyaska"
+msgstr "Vnutrennyaya Alyaska"
+
+#. Mechanical theory series
+#: technology.lua:33
+msgid "Voltaic pile"
+msgstr "Voltaic pile"
+
+#. ------------------------------------------------------------
+#. Continent: Europe
+#. Subcontinent: Middle Europe
+#. Country: Austrian Empire
+#. Austria
+#: provinces/europe/austria.lua:8
+msgid "Vorarlberg"
+msgstr "Vorarlberg"
+
+#. Vosges
+#: provinces/europe/france.lua:314
+msgid "Vosges"
+msgstr "Vosges"
+
+#: provinces/europe/scandinavia.lua:287
+msgid "Värmland"
+msgstr "Värmland"
+
+#: provinces/europe/scandinavia.lua:132
+msgid "Västerbotten"
+msgstr "Västerbotten"
+
+#: provinces/europe/scandinavia.lua:270
+msgid "Västergötland"
+msgstr "Västergötland"
+
+#: provinces/europe/scandinavia.lua:236
+msgid "Västersmåland"
+msgstr "Västersmåland"
+
+#: nations/africa.lua:60 nations/africa.lua:62
+msgid "Wadai Empire"
+msgstr "Imperiul Wadai"
+
+#: nations/europe.lua:708 nations/europe.lua:712 nations/europe.lua:713
+msgid "Wallachia"
+msgstr "Țara Românească"
+
+#: provinces/americas/united_states.lua:91
+msgid "Washington"
+msgstr "Washington"
+
+#: provinces/europe/germany.lua:241
+msgid "Weimar"
+msgstr "Weimar"
+
+#: provinces/americas/united_states.lua:90
+msgid "West Oregon"
+msgstr "Oregon de vest"
+
+#: provinces/americas/united_states.lua:26
+msgid "West Virginia"
+msgstr "Virginia de vest"
+
+#: provinces/americas/united_states.lua:87
+msgid "Western Montana"
+msgstr "Montana de vest"
+
+#: provinces/americas/canada.lua:667
+msgid "Western Prairies"
+msgstr "Preriile de vest"
+
+#: provinces/americas/united_states.lua:84
+msgid "Western Wyoming"
+msgstr "Wyoming de vest"
+
+#. "So how many cholera dynamic-events?"
+#. "YES"
+#. Panama Canal lore
+#. Holds the data for the panama canal campaing
+#. The Atlantic-Pacific trade route
+#. Wanting to build the canal out of the blue :P
+#. Requirements
+#. TODO: Generate names dynamically based on culture (for multicultural states it's just random chance)
+#. Engineer answers to our proposal
+#. ENGINEER APPROVES PANAMA CANAL PROPOSAL
+#. function eapcp_test()
+#. -- TODO: Requirements
+#. if CANAL_CAMPAING_DATA[ref_name]
+#. return EVENT_CONDITIONS_MET
+#. end
+#. function eapcp_event(ref_name)
+#. local nation = Nation:get(ref_name)
+#. local canal_prov = Province:get("colon")
+#. descision = Descision:new{
+#. ref_name = "dsc0",
+#. name = "We're grateful of your ingenous ideas",
+#. descision_fn = "eapcp_descision_0",
+#. effects = "Start the preparations for a canal on Panama"
+#. }
+#. eapcp_evhdl:add_descision(descision)
+#. descision = Descision:new{
+#. ref_name = "dsc1",
+#. name = "This plan is too much for us!",
+#. descision_fn = "eapcp_descision_1",
+#. effects = "Panama canal idea is aborted"
+#. }
+#. eapcp_evhdl:add_descision(descision)
+#. return EVENT_DO_ONE_TIME
+#. end
+#. function eapcp_descision_0(ref_name)
+#. CANAL_CAMPAING_DATA[ref_name].ambition += 5.0
+#. CANAL_CAMPAING_DATA[ref_name].with_plan = true
+#. end
+#. function eapcp_descision_1(ref_name)
+#. CANAL_CAMPAING_DATA[ref_name].ambition += 50.0
+#. print('Country ' .. ref_name .. ' rejected the canal proposal')
+#. end
+#. eapcp_evhdl = Event:new{
+#. ref_name = "eapcp",
+#. conditions_fn = "eapcp_test",
+#. event_fn = "eapcp_event",
+#. title = "Engineer proposes Panama Canal",
+#. text = "Our engineer contacted us and gave us a plan to terraform a canal in Panama, what should we do?"
+#. }
+#. eapcp_evhdl:register()
+#. eapcp_evhdl:add_receivers(unpack(Nation:get_all()))
+#. The [OWNER_NOUN]s
+#.
+#. Good types
+#. Farmable stuff
+#: good_types.lua:4
+msgid "Wheat"
+msgstr "Grâu"
+
+#: industry_types.lua:23
+msgid "Wheat farm"
+msgstr "Fermă de grâu"
+
+#. Commodities
+#: good_types.lua:170
+msgid "Window"
+msgstr "Fereastră"
+
+#: good_types.lua:173
+msgid "Wine"
+msgstr "Vin"
+
+#: provinces/americas/canada.lua:594
+msgid "Winnipeg"
+msgstr "Winnipeg"
+
+#: provinces/americas/united_states.lua:68
+msgid "Winsconsin"
+msgstr "Winsconsin"
+
+#: nations/europe.lua:494 nations/europe.lua:498
+#: provinces/europe/germany.lua:35
+msgid "Wolfenbüttel"
+msgstr "Wolfenbüttel"
+
+#: provinces/americas/united_states.lua:85
+msgid "Wyoming"
+msgstr "Wyoming"
+
+#: nations/europe.lua:515 nations/europe.lua:519
+#: provinces/europe/germany.lua:373
+msgid "Württemberg"
+msgstr "Württemberg"
+
+#: provinces/americas/south_america.lua:410
+msgid "Xapuri"
+msgstr "Xapuri"
+
+#: provinces/americas/alaska.lua:34
+msgid "Yakutat"
+msgstr "Yakutat"
+
+#. Yonne
+#: provinces/europe/france.lua:419
+msgid "Yonne"
+msgstr "Yonne"
+
+#: cultures.lua:249
+msgid "Yoruba"
+msgstr "Yoruba"
+
+#. ------------------------------------------------------------
+#. Continent: America
+#. Subcontinent: North America
+#. Country: Mexico
+#: provinces/americas/mexico.lua:7
+msgid "Yucatán"
+msgstr "Yucatán"
+
+#. Yvelines
+#: provinces/europe/france.lua:209
+msgid "Yvelines"
+msgstr "Yvelines"
+
+#: provinces/americas/mexico.lua:20
+msgid "Zacatecas"
+msgstr "Zacatecas"
+
+#: provinces/europe/greece.lua:15
+msgid "Zakynthos"
+msgstr "Zakynthos"
+
+#. Change to Norton Sound when US or UK gets it
+#: provinces/americas/alaska.lua:23
+msgid "Zaliv Norton"
+msgstr "Zaliv Norton"
+
+#: provinces/europe/spain.lua:18
+msgid "Zamora"
+msgstr "Zamora"
+
+#. province:add_industry(wheat_farm, united_states)
+#. ------------------------------------------------------------
+#. Continent: Americas
+#. Subcontinent: North America
+#. Country: Russian Empire
+#. Change to Western Alaska if taken by the US or UK
+#: provinces/americas/alaska.lua:8
+msgid "Zapadnaya Alyaska"
+msgstr "Zapadnaya Alyaska"
+
+#: provinces/europe/spain.lua:50
+msgid "Zaragoza"
+msgstr "Zaragoza"
+
+#: provinces/americas/south_america.lua:314
+msgid "Zarumilla"
+msgstr "Zarumilla"
+
+#: good_types.lua:136
+msgid "Zinc"
+msgstr "Zinc"
+
+#: industry_types.lua:45
+msgid "Zinc mine"
+msgstr "Mină de zinc"
+
+#: provinces/americas/south_america.lua:144
+msgid "Zulia"
+msgstr "Zulia"
+
+#: cultures.lua:252
+msgid "Zulu"
+msgstr "Zulu"
+
+#: provinces/europe/spain.lua:52
+msgid "Álava"
+msgstr "Álava"
+
+#: provinces/europe/spain.lua:11
+msgid "Ávila"
+msgstr "Ávila"
+
+#: nations/europe.lua:198 nations/europe.lua:202
+#: provinces/europe/scandinavia.lua:730
+msgid "Åland"
+msgstr "Åland"
+
+#: provinces/europe/portugal.lua:12
+msgid "Évora"
+msgstr "Évora"
+
+#: provinces/europe/scandinavia.lua:200
+msgid "Öland"
+msgstr "Öland"
+
+#: provinces/europe/scandinavia.lua:934
+msgid "Østfold"
+msgstr "Østfold"
