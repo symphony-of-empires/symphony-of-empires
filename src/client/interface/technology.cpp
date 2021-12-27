@@ -101,14 +101,14 @@ TechTreeView::TechTreeView(GameState& _gs)
     }
     gs.right_side_panel = this;
 
+    this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
     this->text("Research");
 
-    this->strategic_tab = new TechTreeStrategicTab(gs, 128 + 24, 0, this);
+    this->strategic_tab = new TechTreeStrategicTab(gs, 0, 24, this);
     this->strategic_tab->is_render = true;
-    auto* strategic_btn = new UI::Button(0, 0, 128, 24, this);
-    strategic_btn->text("Strategic");
-    strategic_btn->on_click = ([](UI::Widget& w, void*) {
+    auto* strategic_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/strategic_tech.png")), this);
+    strategic_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechTreeView&>(*w.parent);
 
         o.strategic_tab->is_render = true;
@@ -119,12 +119,11 @@ TechTreeView::TechTreeView(GameState& _gs)
         o.politics_tab->is_render = false;
     });
 
-    this->military_tab = new TechTreeMilitaryTab(gs, 128 + 24, 0, this);
+    this->military_tab = new TechTreeMilitaryTab(gs, 0, 24, this);
     this->military_tab->is_render = false;
-    auto* military_btn = new UI::Button(0, 0, 128, 24, this);
-    military_btn->below_of(*strategic_btn);
-    military_btn->text("Military");
-    military_btn->on_click = ([](UI::Widget& w, void*) {
+    auto* military_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/military_tech.png")), this);
+    military_ibtn->right_side_of(*strategic_ibtn);
+    military_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechTreeView&>(*w.parent);
 
         o.strategic_tab->is_render = false;
@@ -135,12 +134,11 @@ TechTreeView::TechTreeView(GameState& _gs)
         o.politics_tab->is_render = false;
     });
 
-    this->navy_tab = new TechTreeNavyTab(gs, 128 + 24, 0, this);
+    this->navy_tab = new TechTreeNavyTab(gs, 0, 24, this);
     this->navy_tab->is_render = false;
-    auto* navy_btn = new UI::Button(0, 0, 128, 24, this);
-    navy_btn->below_of(*military_btn);
-    navy_btn->text("Navy");
-    navy_btn->on_click = ([](UI::Widget& w, void*) {
+    auto* navy_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/navy_tech.png")), this);
+    navy_ibtn->right_side_of(*military_ibtn);
+    navy_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechTreeView&>(*w.parent);
 
         o.strategic_tab->is_render = false;
@@ -151,12 +149,11 @@ TechTreeView::TechTreeView(GameState& _gs)
         o.politics_tab->is_render = false;
     });
 
-    this->social_tab = new TechTreeSocialTab(gs, 128 + 24, 0, this);
+    this->social_tab = new TechTreeSocialTab(gs, 0, 24, this);
     this->social_tab->is_render = false;
-    auto* social_btn = new UI::Button(0, 0, 128, 24, this);
-    social_btn->below_of(*navy_btn);
-    social_btn->text("Social");
-    social_btn->on_click = ([](UI::Widget& w, void*) {
+    auto* social_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/social_tech.png")), this);
+    social_ibtn->right_side_of(*navy_ibtn);
+    social_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechTreeView&>(*w.parent);
 
         o.strategic_tab->is_render = false;
@@ -167,12 +164,11 @@ TechTreeView::TechTreeView(GameState& _gs)
         o.politics_tab->is_render = false;
     });
 
-    this->economic_tab = new TechTreeEconomicTab(gs, 128 + 24, 0, this);
+    this->economic_tab = new TechTreeEconomicTab(gs, 0, 24, this);
     this->economic_tab->is_render = false;
-    auto* economic_btn = new UI::Button(0, 0, 128, 24, this);
-    economic_btn->below_of(*social_btn);
-    economic_btn->text("Economic");
-    economic_btn->on_click = ([](UI::Widget& w, void*) {
+    auto* economic_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/economic_tech.png")), this);
+    economic_ibtn->right_side_of(*social_ibtn);
+    economic_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechTreeView&>(*w.parent);
 
         o.strategic_tab->is_render = false;
@@ -183,12 +179,11 @@ TechTreeView::TechTreeView(GameState& _gs)
         o.politics_tab->is_render = false;
     });
 
-    this->politics_tab = new TechTreePoliticsTab(gs, 128 + 24, 0, this);
+    this->politics_tab = new TechTreePoliticsTab(gs, 0, 0, this);
     this->politics_tab->is_render = false;
-    auto* politics_btn = new UI::Button(0, 0, 128, 24, this);
-    politics_btn->below_of(*economic_btn);
-    politics_btn->text("Politics");
-    politics_btn->on_click = ([](UI::Widget& w, void*) {
+    auto* politics_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/politics_tech.png")), this);
+    politics_ibtn->right_side_of(*economic_ibtn);
+    politics_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechTreeView&>(*w.parent);
 
         o.strategic_tab->is_render = false;
@@ -200,7 +195,7 @@ TechTreeView::TechTreeView(GameState& _gs)
     });
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->below_of(*politics_btn);
+    close_btn->right_side_of(*politics_ibtn);
     close_btn->text("Close");
     close_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechTreeView&>(*w.parent);
