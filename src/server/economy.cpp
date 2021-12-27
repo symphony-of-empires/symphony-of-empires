@@ -274,10 +274,6 @@ void Economy::do_tick(World& world) {
                 continue;
             }
 
-            available_farmers = needed_farmers;
-            available_laborers = needed_laborers;
-            available_entrepreneurs = needed_entrepreneurs;
-
             building->workers = available_farmers + available_laborers + available_entrepreneurs;
             /*print_info("[%s]: %zu workers on building of type [%s]", building->get_province()->ref_name.c_str(), building->workers, building->type->ref_name.c_str());
             print_info("- %zu farmers (%zu needed)", available_farmers, needed_farmers);
