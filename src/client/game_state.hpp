@@ -47,6 +47,7 @@ namespace Interface {
 }
 namespace UI {
     class Context;
+    class Widget;
 }
 namespace UnifiedRender {
     class Texture;
@@ -101,6 +102,8 @@ public:
     std::deque<UnitType*> production_queue;
 
     TutorialState tutorial;
+
+    UI::Widget* right_side_panel = nullptr;
 
     bool in_game;
 };

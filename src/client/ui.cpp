@@ -101,7 +101,7 @@ void Context::clear_dead() {
 }
 
 void Context::prompt(const std::string& title, const std::string& text) {
-    auto* win = new UI::Window(0.f, 0.f, 512, 128, nullptr);
+    auto* win = new UI::Window(0, 0, 512, 128, nullptr);
     win->origin = UI::Origin::CENTER_SCREEN;
     win->text(title);
 
@@ -951,14 +951,7 @@ Checkbox::Checkbox(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 Group::Group(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::GROUP)
 {
-    glLineWidth(1.f);
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(0, 0);
-    glVertex2f(width, 0);
-    glVertex2f(width, height);
-    glVertex2f(0, height);
-    glVertex2f(0, 0);
-    glEnd();
+
 }
 
 void Group::on_render(Context& ctx, UnifiedRender::Rect viewport) {
@@ -1312,4 +1305,10 @@ void PieChart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         last_ratio = ratio;
     }
     glEnd();
+}
+
+Tab::Tab(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
+    : Group(_x, _y, w, h, _parent)
+{
+    
 }

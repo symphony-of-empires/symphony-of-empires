@@ -57,11 +57,6 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
                 return;
             }
 
-            /*if(o.building_type == nullptr) {
-                o.gs.ui_ctx->prompt("Error", "No building type selected");
-                return;
-            }*/
-
             if(o.gs.curr_nation->owned_provinces.empty()) {
                 o.gs.ui_ctx->prompt("Error", "You do not own any provinces");
                 return;

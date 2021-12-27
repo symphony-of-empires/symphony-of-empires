@@ -93,9 +93,14 @@ TechTreePoliticsTab::TechTreePoliticsTab(GameState& _gs, int x, int y, UI::Widge
 }
 
 TechTreeView::TechTreeView(GameState& _gs)
-    : UI::Window(0, 0, 800, 256),
+    : UI::Window(-400, 0, 400, _gs.height),
     gs{ _gs }
 {
+    if(gs.right_side_panel != nullptr) {
+        gs.right_side_panel->kill();
+    }
+    gs.right_side_panel = this;
+
     this->is_scroll = false;
     this->text("Research");
 
@@ -197,4 +202,9 @@ TechTreeView::TechTreeView(GameState& _gs)
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
     close_btn->below_of(*politics_btn);
     close_btn->text("Close");
+    close_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<TechTreeView&>(*w.parent);
+        o.gs.right_side_panel->kill();
+        o.gs.right_side_panel = nullptr;
+    });
 }

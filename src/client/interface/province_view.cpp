@@ -5,6 +5,8 @@
 #include "nation.hpp"
 #include "world.hpp"
 #include "building.hpp"
+#include "unified_render/path.hpp"
+#include "unified_render/texture.hpp"
 
 using namespace Interface;
 
@@ -146,18 +148,23 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
 }
 
 ProvinceView::ProvinceView(GameState& _gs, Province* _province)
-    : UI::Window(0, 0, 720, 600),
+    : UI::Window(-400, 0, 400, _gs.height),
     gs{ _gs },
     province{ _province }
 {
+    if(gs.right_side_panel != nullptr) {
+        gs.right_side_panel->kill();
+    }
+    gs.right_side_panel = this;
+
+    this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
     this->text(province->name);
 
-    this->pop_tab = new ProvincePopulationTab(gs, 128 + 24, 24, province, this);
+    this->pop_tab = new ProvincePopulationTab(gs, 0, 32, province, this);
     this->pop_tab->is_render = true;
-    auto* pop_btn = new UI::Button(0, 0, 128, 24, this);
-    pop_btn->text("Population");
-    pop_btn->on_click = ([](UI::Widget& w, void*) {
+    auto* pop_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_1.png")), this);
+    pop_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
         o.pop_tab->is_render = true;
@@ -165,12 +172,11 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.build_tab->is_render = false;
     });
 
-    this->econ_tab = new ProvinceEconomyTab(gs, 128 + 24, 24, province, this);
+    this->econ_tab = new ProvinceEconomyTab(gs, 0, 32, province, this);
     this->econ_tab->is_render = false;
-    auto* econ_btn = new UI::Button(0, 0, 128, 24, this);
-    econ_btn->below_of(*pop_btn);
-    econ_btn->text("Economy");
-    econ_btn->on_click = ([](UI::Widget& w, void*) {
+    auto* econ_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_2.png")), this);
+    econ_ibtn->right_side_of(*pop_ibtn);
+    econ_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
         o.pop_tab->is_render = false;
@@ -178,12 +184,11 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.build_tab->is_render = false;
     });
 
-    this->build_tab = new ProvinceBuildingTab(gs, 128 + 24, 24, province, this);
+    this->build_tab = new ProvinceBuildingTab(gs, 0, 32, province, this);
     this->build_tab->is_render = false;
-    auto* build_btn = new UI::Button(0, 0, 128, 24, this);
-    build_btn->below_of(*econ_btn);
-    build_btn->text("Buildings");
-    build_btn->on_click = ([](UI::Widget& w, void*) {
+    auto* build_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+    build_ibtn->right_side_of(*econ_ibtn);
+    build_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
         o.pop_tab->is_render = false;
@@ -191,10 +196,9 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.build_tab->is_render = true;
     });
 
-    auto* nation_btn = new UI::Button(0, 0, 128, 24, this);
-    nation_btn->below_of(*build_btn);
-    nation_btn->text("Nation");
-    nation_btn->on_click = ([](UI::Widget& w, void*) {
+    auto* nation_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_3.png")), this);
+    nation_ibtn->right_side_of(*build_ibtn);
+    nation_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
         // View the nation info only if the province has a valid owner
@@ -203,6 +207,11 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     });
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->below_of(*nation_btn);
+    close_btn->right_side_of(*nation_ibtn);
     close_btn->text("Close");
+    close_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<ProvinceView&>(*w.parent);
+        o.gs.right_side_panel->kill();
+        o.gs.right_side_panel = nullptr;
+    });
 }
