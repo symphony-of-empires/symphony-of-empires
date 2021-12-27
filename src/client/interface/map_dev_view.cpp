@@ -1,4 +1,5 @@
 #include "client/interface/map_dev_view.hpp"
+#include "client/ui/button.hpp"
 
 MapDevView::MapDevView(Map* _map)
 	: UI::Window(0, 0, 512, 128),

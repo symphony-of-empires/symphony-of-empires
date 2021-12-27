@@ -3,6 +3,14 @@
 #include "unified_render/path.hpp"
 #include "unified_render/texture.hpp"
 
+#include "client/ui/piechart.hpp"
+#include "client/ui/image.hpp"
+#include "client/ui/label.hpp"
+#include "client/ui/close_button.hpp"
+#include "client/ui/chart.hpp"
+#include "client/ui/group.hpp"
+#include "client/ui/button.hpp"
+
 using namespace Interface;
 
 ProductView::ProductView(GameState& _gs, Product* _product)

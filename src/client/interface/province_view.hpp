@@ -3,9 +3,14 @@
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "client/ui.hpp"
+#include "client/ui/group.hpp"
+#include "client/ui/window.hpp"
 #include "client/interface/common.hpp"
 
+namespace UI {
+    class PieChart;
+    class Chart;
+}
 namespace Interface {
     // View information related to the population and diversity of cultures and religions
     // on the specified province

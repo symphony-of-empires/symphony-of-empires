@@ -6,6 +6,11 @@
 #include "unified_render/path.hpp"
 #include "client/map.hpp"
 #include "unified_render/texture.hpp"
+#include "client/ui/button.hpp"
+#include "client/ui/input.hpp"
+#include "client/ui/tooltip.hpp"
+#include "client/ui/ui.hpp"
+#include "client/ui/close_button.hpp"
 
 using namespace Interface;
 

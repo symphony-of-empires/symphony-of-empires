@@ -67,7 +67,8 @@
 #include "unified_render/material.hpp"
 #include "unified_render/model.hpp"
 #include "unified_render/texture.hpp"
-#include "client/ui.hpp"
+#include "client/ui/ui.hpp"
+#include "client/ui/input.hpp"
 #include "server/server_network.hpp"
 
 void GameState::play_nation() {
@@ -229,7 +230,7 @@ void render(GameState& gs, Input& input, SDL_Window* window) {
         glLoadMatrixf(glm::value_ptr(map->camera->get_view()));
 
         std::scoped_lock lock(gs.world->world_mutex);
-        map->draw(gs, width, height);
+        map->draw(gs);
 
         glBindTexture(GL_TEXTURE_2D, 0);
         glBegin(GL_QUADS);

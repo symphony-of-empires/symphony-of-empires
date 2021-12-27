@@ -3,7 +3,16 @@
 #include "good.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "client/ui.hpp"
+#include "client/ui/window.hpp"
+
+namespace UI {
+    class Label;
+    class Image;
+    class PieChart;
+    class CloseButton;
+    class Chart;
+    class Group;
+}
 
 namespace Interface {
     class ProductView : public UI::Window {

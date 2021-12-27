@@ -1,7 +1,12 @@
 #pragma once
 
-#include "client/ui.hpp"
+#include "client/ui/group.hpp"
 
+namespace UI {
+    class Chart;
+    class Label;
+    class Image;
+}
 class GameState;
 namespace Interface {
     class TopWindow : public UI::Group {

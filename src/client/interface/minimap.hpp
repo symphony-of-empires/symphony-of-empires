@@ -1,6 +1,6 @@
 #pragma once
 
-#include "client/ui.hpp"
+#include "client/ui/window.hpp"
 #include "client/game_state.hpp"
 
 namespace Interface {

@@ -5,6 +5,13 @@
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
+#include "client/ui/button.hpp"
+#include "client/ui/chart.hpp"
+#include "client/ui/image.hpp"
+#include "client/ui/label.hpp"
+#include "client/ui/progress_bar.hpp"
+#include "client/ui/tooltip.hpp"
+#include "client/ui/close_button.hpp"
 
 using namespace Interface;
 

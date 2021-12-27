@@ -8,6 +8,7 @@
 #include "client/interface/army.hpp"
 #include "client/interface/technology.hpp"
 #include "io_impl.hpp"
+#include "client/ui/components.hpp"
 
 using namespace Interface;
 

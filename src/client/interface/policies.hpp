@@ -3,9 +3,15 @@
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "client/ui.hpp"
+#include "client/ui/window.hpp"
 
 #include "client/interface/common.hpp"
+
+namespace UI {
+    class PieChart;
+    class Chart;
+    class Button;
+}
 
 namespace Interface {
     class PoliciesScreen : public UI::Window {

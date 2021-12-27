@@ -2,6 +2,7 @@
 #include "client/client_network.hpp"
 #include "unified_render/serializer.hpp"
 #include "io_impl.hpp"
+#include "client/ui/components.hpp"
 
 using namespace Interface;
 

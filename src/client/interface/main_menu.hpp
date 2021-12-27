@@ -1,7 +1,12 @@
 #pragma once
 
 #include "client/game_state.hpp"
-#include "client/ui.hpp"
+#include "client/ui/window.hpp"
+
+namespace UI {
+    class Input;
+    class Button;
+}
 
 namespace Interface {
     class MainMenuConnectServer;
