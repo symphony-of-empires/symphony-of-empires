@@ -133,6 +133,9 @@ World::World() {
     lua_register(lua, "get_nation_policies", LuaAPI::get_nation_policies);
     lua_register(lua, "set_nation_policies", LuaAPI::set_nation_policies);
     lua_register(lua, "set_nation_ideology", LuaAPI::set_nation_ideology);
+    lua_register(lua, "get_nation_relation", LuaAPI::get_nation_relation);
+    lua_register(lua, "set_nation_relation", LuaAPI::set_nation_relation);
+    lua_register(lua, "nation_declare_unjustified_war", LuaAPI::nation_declare_unjustified_war);
 
     lua_register(lua, "add_nation_mod", LuaAPI::add_nation_mod);
     lua_register(lua, "get_nation_mod", LuaAPI::get_nation_mod);
@@ -153,12 +156,6 @@ World::World() {
     lua_register(lua, "set_province_pop", LuaAPI::set_province_pop);
     lua_register(lua, "get_province_pop_ideology_approval", LuaAPI::get_province_pop_ideology_approval);
     lua_register(lua, "set_province_pop_ideology_approval", LuaAPI::set_province_pop_ideology_approval);
-    lua_register(lua, "multiply_province_militancy_global", LuaAPI::multiply_province_militancy_global);
-    lua_register(lua, "multiply_province_militancy_by_culture", LuaAPI::multiply_province_militancy_by_culture);
-    lua_register(lua, "multiply_province_militancy_by_religion", LuaAPI::multiply_province_militancy_by_religion);
-    lua_register(lua, "multiply_province_con_global", LuaAPI::multiply_province_con_global);
-    lua_register(lua, "multiply_province_con_by_culture", LuaAPI::multiply_province_con_by_culture);
-    lua_register(lua, "multiply_province_con_by_religion", LuaAPI::multiply_province_con_by_religion);
     lua_register(lua, "rename_province", LuaAPI::rename_province);
     lua_register(lua, "add_province_nucleus", LuaAPI::add_province_nucleus);
     lua_register(lua, "add_province_owner", LuaAPI::add_province_owner);

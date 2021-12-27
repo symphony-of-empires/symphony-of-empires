@@ -69,6 +69,10 @@ namespace LuaAPI {
     int get_nation_policies(lua_State* L);
     int set_nation_policies(lua_State* L);
     int set_nation_ideology(lua_State* L);
+    int nation_declare_unjustified_war(lua_State* L);
+
+    int get_nation_relation(lua_State* L);
+    int set_nation_relation(lua_State* L);
 
     int add_nation_mod(lua_State* L);
     int get_nation_mod(lua_State* L);
@@ -88,12 +92,6 @@ namespace LuaAPI {
     int set_province_pop(lua_State* L);
     int get_province_pop_ideology_approval(lua_State* L);
     int set_province_pop_ideology_approval(lua_State* L);
-    int multiply_province_militancy_global(lua_State* L);
-    int multiply_province_militancy_by_culture(lua_State* L);
-    int multiply_province_militancy_by_religion(lua_State* L);
-    int multiply_province_con_global(lua_State* L);
-    int multiply_province_con_by_culture(lua_State* L);
-    int multiply_province_con_by_religion(lua_State* L);
 
     int add_province_pop(lua_State* L);
     int rename_province(lua_State* L);

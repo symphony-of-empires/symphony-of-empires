@@ -512,6 +512,54 @@ int LuaAPI::set_nation_ideology(lua_State* L) {
     return 0;
 }
 
+int LuaAPI::get_nation_relation(lua_State* L) {
+    Nation& nation = *g_world->nations.at(lua_tonumber(L, 1));
+    Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
+
+    NationRelation& relation = nation.relations[g_world->get_id(&other_nation)];
+    lua_pushnumber(L, relation.relation);
+    lua_pushnumber(L, relation.interest);
+    lua_pushboolean(L, relation.has_embargo);
+    lua_pushboolean(L, relation.has_war);
+    lua_pushboolean(L, relation.has_alliance);
+    lua_pushboolean(L, relation.has_defensive_pact);
+    lua_pushboolean(L, relation.has_truce);
+    lua_pushboolean(L, relation.has_embassy);
+    lua_pushboolean(L, relation.has_military_access);
+    lua_pushboolean(L, relation.has_market_access);
+    lua_pushboolean(L, relation.free_supplies);
+    return 11;
+}
+
+int LuaAPI::set_nation_relation(lua_State* L) {
+    Nation& nation = *g_world->nations.at(lua_tonumber(L, 1));
+    Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
+
+    NationRelation& relation = nation.relations[g_world->get_id(&other_nation)];
+    relation.relation = lua_tonumber(L, 3);
+    relation.interest = lua_tonumber(L, 4);
+    relation.has_embargo = lua_toboolean(L, 5);
+    relation.has_war = lua_toboolean(L, 6);
+    relation.has_alliance = lua_toboolean(L, 7);
+    relation.has_defensive_pact = lua_toboolean(L, 8);
+    relation.has_truce = lua_toboolean(L, 9);
+    relation.has_embassy = lua_toboolean(L, 10);
+    relation.has_military_access = lua_toboolean(L, 11);
+    relation.has_market_access = lua_toboolean(L, 12);
+    relation.free_supplies = lua_toboolean(L, 13);
+    return 0;
+}
+
+int LuaAPI::nation_declare_unjustified_war(lua_State* L) {
+    Nation& nation = *g_world->nations.at(lua_tonumber(L, 1));
+    Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
+
+    if(!nation.relations[g_world->get_id(&other_nation)].has_war) {
+        nation.declare_war(other_nation);
+    }
+    return 0;
+}
+
 int LuaAPI::add_nation_mod(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
@@ -748,83 +796,6 @@ int LuaAPI::set_province_pop_ideology_approval(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     Pop& pop = province->pops.at(lua_tonumber(L, 2));
     pop.ideology_approval.at(lua_tonumber(L, 3)) = lua_tonumber(L, 4);
-    return 0;
-}
-
-/** Mulitplies the province militancy by a factor globally */
-int LuaAPI::multiply_province_militancy_global(lua_State* L) {
-    Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-
-    double factor = lua_tonumber(L, 2);
-    for(auto& pop : province->pops) {
-        pop.militancy *= factor;
-    }
-    return 0;
-}
-
-int LuaAPI::multiply_province_militancy_by_culture(lua_State* L) {
-    Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-    Culture* culture = g_world->cultures.at(lua_tonumber(L, 2));
-
-    double factor = lua_tonumber(L, 3);
-    for(auto& pop : province->pops) {
-        if(pop.culture != g_world->cultures.at(lua_tonumber(L, 2))) {
-            continue;
-        }
-        pop.militancy *= factor;
-    }
-    return 0;
-}
-
-int LuaAPI::multiply_province_militancy_by_religion(lua_State* L) {
-    Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-    const Religion* religion = g_world->religions.at(lua_tonumber(L, 2));
-
-    double factor = lua_tonumber(L, 3);
-    for(auto& pop : province->pops) {
-        if(pop.religion != g_world->religions.at(lua_tonumber(L, 2))) {
-            continue;
-        }
-        pop.militancy *= factor;
-    }
-    return 0;
-}
-
-int LuaAPI::multiply_province_con_global(lua_State* L) {
-    Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-
-    double factor = lua_tonumber(L, 2);
-    for(auto& pop : province->pops) {
-        pop.con *= factor;
-    }
-    return 0;
-}
-
-int LuaAPI::multiply_province_con_by_culture(lua_State* L) {
-    Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-    const Culture* culture = g_world->cultures.at(lua_tonumber(L, 2));
-
-    double factor = lua_tonumber(L, 3);
-    for(auto& pop : province->pops) {
-        if(pop.culture != g_world->cultures.at(lua_tonumber(L, 2))) {
-            continue;
-        }
-        pop.con *= factor;
-    }
-    return 0;
-}
-
-int LuaAPI::multiply_province_con_by_religion(lua_State* L) {
-    Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-    const Religion* religion = g_world->religions.at(lua_tonumber(L, 2));
-
-    double factor = lua_tonumber(L, 3);
-    for(auto& pop : province->pops) {
-        if(pop.religion != g_world->religions.at(lua_tonumber(L, 2))) {
-            continue;
-        }
-        pop.con *= factor;
-    }
     return 0;
 }
 
