@@ -171,6 +171,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.econ_tab->is_render = false;
         o.build_tab->is_render = false;
     });
+    pop_ibtn->tooltip = new UI::Tooltip(pop_ibtn, 512, 24);
+    pop_ibtn->tooltip->text("Population");
 
     this->econ_tab = new ProvinceEconomyTab(gs, 0, 32, province, this);
     this->econ_tab->is_render = false;
@@ -183,6 +185,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.econ_tab->is_render = true;
         o.build_tab->is_render = false;
     });
+    econ_ibtn->tooltip = new UI::Tooltip(econ_ibtn, 512, 24);
+    econ_ibtn->tooltip->text("Economy");
 
     this->build_tab = new ProvinceBuildingTab(gs, 0, 32, province, this);
     this->build_tab->is_render = false;
@@ -195,6 +199,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.econ_tab->is_render = false;
         o.build_tab->is_render = true;
     });
+    build_ibtn->tooltip = new UI::Tooltip(build_ibtn, 512, 24);
+    build_ibtn->tooltip->text("Buildings");
 
     auto* nation_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_3.png")), this);
     nation_ibtn->right_side_of(*build_ibtn);
@@ -205,6 +211,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         if(o.province->owner == nullptr) return;
         new NationView(o.gs, o.province->owner);
     });
+    nation_ibtn->tooltip = new UI::Tooltip(nation_ibtn, 512, 24);
+    nation_ibtn->tooltip->text("Nation");
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
     close_btn->right_side_of(*nation_ibtn);
