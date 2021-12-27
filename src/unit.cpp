@@ -3,6 +3,17 @@
 #include "world.hpp"
 #include <cmath>
 
+Unit::Unit(void) {
+
+}
+
+Unit::~Unit(void) {
+    if(province != nullptr) {
+        auto it = std::find(province->units.begin(), province->units.end(), this);
+        province->units.erase(it);
+    }
+}
+
 void Unit::attack(Unit& enemy) {
     // Calculate the attack of our unit
     float attack_mod = 0.f;

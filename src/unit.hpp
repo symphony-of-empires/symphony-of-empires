@@ -63,6 +63,8 @@ public:
  */
 class Unit : public IdEntity<uint16_t> {
 public:
+    Unit(void);
+    ~Unit(void);
     void attack(Unit& enemy);
     std::pair<float, float> get_pos(void) const;
     void set_target(Province& province);
