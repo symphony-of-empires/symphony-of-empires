@@ -96,17 +96,14 @@ static inline std::vector<AvailableWorkers> get_available_workers(World& world) 
 
 // Phase 1 of economy: Delivers & Orders are sent from all factories in the world
 void Economy::do_tick(World& world) {
-    std::vector<AvailableWorkers> available_workers = get_available_workers(world);
+    auto available_workers = get_available_workers(world);
+    auto orders_good = std::vector<std::vector<OrderGoods>>(world.goods.size());
 
     // Buildings who have fullfilled requirements to build stuff will spawn a unit
     for(size_t j = 0; j < world.buildings.size(); j++) {
         auto& building = world.buildings[j];
 
         auto* province = building->get_province();
-        if(province == nullptr) {
-            print_error("Building has null province");
-            continue;
-        }
         if(province->controller == nullptr) continue;
 
         size_t needed_laborers = 0, available_laborers = 0;
@@ -119,7 +116,8 @@ void Economy::do_tick(World& world) {
             size_t i = 0;
             for(const auto& output : building->output_products) {
                 // The minimum amount of workers needed is given by the employees_needed_per_output vector :)
-                const size_t employed = std::min<size_t>(std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), building->employees_needed_per_output[i]);
+                //const size_t employed = std::min<size_t>(std::pow(10.f * (output->supply - output->demand) / std::max<size_t>(output->demand, 1), 2), building->employees_needed_per_output[i]);
+                const size_t employed = 500;
                 if(output->good->is_edible) {
                     needed_farmers += employed;
                 } else {
@@ -212,8 +210,9 @@ void Economy::do_tick(World& world) {
                 // Increment demand for all products with same required good type
                 for(auto& product : world.products) {
                     if(product->good != req.first) continue;
+
                     // Government-required supplies are super important for companies
-                    product->demand += req.second * 1.5f;
+                    product->demand += std::max(100.f, req.second / 1000.f);
                 }
 
                 if(req.second) {
@@ -228,7 +227,7 @@ void Economy::do_tick(World& world) {
             if(can_build_unit) {
                 // Spawn a unit
                 Unit* unit = new Unit();
-                unit->province = building->get_province();
+                unit->set_province(*building->get_province());
                 unit->type = building->working_unit_type;
                 unit->owner = building->get_owner();
                 unit->budget = 5000.f;
@@ -251,7 +250,7 @@ void Economy::do_tick(World& world) {
                 packet.data(ar.get_buffer(), ar.size());
                 g_server->broadcast(packet);
 
-                print_info("[%s]: Building unit of [%s]", building->get_province()->ref_name.c_str(), unit->type->ref_name.c_str());
+                print_info("[%s]: Has built an unit of [%s]", building->get_province()->ref_name.c_str(), unit->type->ref_name.c_str());
             }
         }
 
@@ -271,9 +270,13 @@ void Economy::do_tick(World& world) {
 
                 world.remove(building);
                 delete building;
-                --j;
+                j--;
                 continue;
             }
+
+            available_farmers = needed_farmers;
+            available_laborers = needed_laborers;
+            available_entrepreneurs = needed_entrepreneurs;
 
             building->workers = available_farmers + available_laborers + available_entrepreneurs;
             /*print_info("[%s]: %zu workers on building of type [%s]", building->get_province()->ref_name.c_str(), building->workers, building->type->ref_name.c_str());
@@ -287,6 +290,8 @@ void Economy::do_tick(World& world) {
                 const float loss_by_tax = building->budget * province->controller->current_policy.industry_tax;
                 building->budget -= loss_by_tax;
                 province->controller->budget += loss_by_tax;
+
+                print_info("[%s]: %zu workers on building of type [%s]", building->get_province()->ref_name.c_str(), 0, building->type->ref_name.c_str());
                 continue;
             }
             building->days_unoperational = 0;
@@ -312,11 +317,10 @@ void Economy::do_tick(World& world) {
 
                 world.orders.push_back(order);
 
-                // Increase demand for all products with same good type as ordered
-                // (incentivizing companies to create more of this)
+                // Increase demand for all products with same good type as ordered (incentivizing companies to create more of this)
                 for(auto& product : world.products) {
                     if(product->good != order.good) continue;
-                    product->demand += order.quantity;
+                    product->demand += std::min(100.f, order.quantity / 1000.f);
                 }
             }
             world.orders_mutex.unlock();
@@ -365,7 +369,7 @@ void Economy::do_tick(World& world) {
             order.quantity = good.second;
             order.quantity *= building->get_owner()->get_industry_input_mod();
             // TODO: Make this dynamic
-            order.payment = good.second * 5.f;
+            order.payment = building->willing_payment;
             order.good = good.first;
             order.building = building;
             order.province = building->get_province();
@@ -382,7 +386,7 @@ void Economy::do_tick(World& world) {
             order.quantity = good.second;
             order.quantity *= building->get_owner()->get_industry_input_mod();
             // TODO: Make this dynamic
-            order.payment = good.second * 5.f;
+            order.payment = building->willing_payment;
             order.good = good.first;
             order.building = building;
             order.province = building->get_province();
@@ -415,6 +419,13 @@ void Economy::do_tick(World& world) {
         return lhs.payment > rhs.payment;
     });
 
+    orders_good.shrink_to_fit();
+    for(const auto& order : world.orders) {
+        // TODO: This should NOT happen!!!
+        if(order.good == nullptr) continue;
+        orders_good[world.get_id(order.good)].push_back(order);
+    }
+
     // Phase 2 of the economy: Goods are transported all around the world, generating commerce and making them
     // be ready for POPs to buy
 
@@ -422,27 +433,15 @@ void Economy::do_tick(World& world) {
     // Check all delivers
     for(size_t i = 0; i < world.delivers.size(); i++) {
         DeliverGoods& deliver = world.delivers[i];
-        if(deliver.province == nullptr) {
-            print_error("PROVICE NULL (DELIVER)");
-            world.orders.erase(world.orders.begin() + i);
-            continue;
-        }
-        if(deliver.province->controller == nullptr) {
-            print_error("PROVICE CONTROLLER NULL (DELIVER)");
-            world.orders.erase(world.orders.begin() + i);
-            continue;
-        }
 
         const Policies& deliver_policy = deliver.province->controller->current_policy;
         Building* deliver_building = deliver.building;
 
         // Check all orders
-        for(size_t j = 0; j < world.orders.size(); j++) {
-            OrderGoods& order = world.orders[j];
-
-            // Do they want these goods?
-            if(order.good != deliver.good) continue;
-
+        auto& order_list = orders_good[world.get_id(deliver.good)];
+        //for(size_t j = 0; j < world.orders.size(); j++) {
+        for(size_t j = 0; j < order_list.size(); j++) {
+            OrderGoods& order = order_list[j];
             const Policies& order_policy = order.province->controller->current_policy;
 
             // If foreign trade is not allowed, then order controller === sender controller
@@ -488,15 +487,7 @@ void Economy::do_tick(World& world) {
             order.province->supply_rem = std::min(order.province->supply_limit, order.province->supply_rem);
 
             // Obtain number of goods that we can satisfy
-            const size_t count = std::min<size_t>(order.quantity, deliver.quantity);
-            // Add to stockpile (duplicate items) to the province at each transporting
-            order.province->stockpile[world.get_id(deliver.product)] += count;
-            deliver.quantity -= count;
-            order.quantity -= count;
-
-            // Increment demand of the product, and decrement supply when the demand is fullfilled
-            deliver.product->demand += count;
-
+            size_t count = std::min<size_t>(order.quantity, deliver.quantity);
             if(order.type == OrderType::INDUSTRIAL) {
                 // Duplicate products and put them into the province's stock (a commerce buff)
                 order.building->add_to_stock(order.good, count);
@@ -510,23 +501,24 @@ void Economy::do_tick(World& world) {
                 order.building->get_owner()->budget -= total_order_cost;
                 for(auto& p : order.building->req_goods) {
                     if(p.first != deliver.good) continue;
-                    p.second -= std::min(deliver.quantity, p.second);
+                    p.second -= std::min(p.second, count);
                 }
             } else if(order.type == OrderType::UNIT) {
                 // TODO: We should deduct and set willing payment from military spendings
                 order.building->get_owner()->budget -= total_order_cost;
                 for(auto& p : order.building->req_goods) {
-                    if(p.first == deliver.good) {
-                        p.second -= std::min(deliver.quantity, p.second);
-                        break;
-                    }
+                    if(p.first != deliver.good) continue;
+                    p.second -= std::min(p.second, count);
                 }
             } else if(order.type == OrderType::POP) {
                 // Nobody is to be billed ... transport company still obtains their money & delivers to the province
-                order.province->stockpile[world.get_id(deliver.product)] += order.quantity;
-                print_info("Pop requested stuff");
+                //order.province->stockpile[world.get_id(deliver.product)] += order.quantity;
+                //print_info("Pop requested stuff");
             }
-            order.province->stockpile[world.get_id(deliver.product)] += order.quantity;
+            // Add to stockpile (duplicate items) to the province at each transporting
+            deliver.quantity -= count;
+            order.quantity -= count;
+            order.province->stockpile[world.get_id(deliver.product)] += count;
 
             // Increment the production cost of this building which is used
             // so we sell our product at a profit instead  of at a loss
@@ -536,7 +528,7 @@ void Economy::do_tick(World& world) {
             // Delete this deliver and order tickets from the system since
             // they are now fullfilled (only delete when no quanity left)
             if(!order.quantity) {
-                world.orders.erase(world.orders.begin() + j);
+                order_list.erase(order_list.begin() + j);
             } if(!deliver.quantity) {
                 world.delivers.erase(world.delivers.begin() + i);
                 i--;
@@ -544,6 +536,10 @@ void Economy::do_tick(World& world) {
             break;
         }
     }
+
+    // Delete the remaining orders
+    orders_good.clear();
+    world.orders.clear();
 
     // The remaining delivers gets dropped and just simply add up the province's stockpile
     // Drop all rejected delivers who didn't got transported
@@ -558,7 +554,6 @@ void Economy::do_tick(World& world) {
         product->supply += deliver.quantity;
     }
     world.delivers.clear();
-    world.orders.clear();
 
     // TODO: Place stockpiles
 
@@ -601,7 +596,7 @@ void Economy::do_tick(World& world) {
 
                     // Desesperation for food leads to higher demand
                     if(product->good->is_edible && pop.life_needs_met <= 0.f) {
-                        product->demand += pop.size * 5.f;
+                        product->demand += pop.size * 2.f;
                     }
                     continue;
                 }
@@ -611,8 +606,7 @@ void Economy::do_tick(World& world) {
                     // We can only spend our allocated budget
                     bought = life_alloc_budget / product->price;
                     if(life_alloc_budget <= 0.f) continue;
-                }
-                else {
+                } else {
                     bought = everyday_alloc_budget / product->price;
 
                     // Slaves cannot buy commodities
@@ -637,7 +631,7 @@ void Economy::do_tick(World& world) {
                 province->stockpile[product_id] -= std::min<size_t>(province->stockpile[product_id], bought);
 
                 // Uncomment to see buyers
-                print_info("Pop with budget %f bought %zu %s", pop.budget, (size_t)bought, product->good->name.c_str());
+                //print_info("Pop with budget %f bought %zu %s", pop.budget, (size_t)bought, product->good->name.c_str());
 
                 if(product->good->is_edible) {
                     life_alloc_budget -= bought * product->price;
@@ -871,8 +865,8 @@ void Economy::do_tick(World& world) {
         if(product == nullptr) continue;
 
         // Uncomment to see supply-demand
-        if(product->price_vel && product->price > 0.01f)
-            print_info("%s; Supply: %zu, Demand: %zu, Price %.2f", product->good->name.c_str(), product->supply, product->demand, product->price);
+        //if(product->price_vel && product->price > 0.01f)
+        //    print_info("%s; Supply: %zu, Demand: %zu, Price %.2f", product->good->name.c_str(), product->supply, product->demand, product->price);
 
         product->close_market();
 

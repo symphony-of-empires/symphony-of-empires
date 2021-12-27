@@ -547,10 +547,10 @@ void ai_do_tick(Nation* nation, World* world) {
                 // also if it's ours we can move thru it
                 NationRelation& relation = province->owner->relations[world->get_id(unit->owner)];
                 if(province->owner == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war) {
-                    unit->set_target(province);
+                    unit->set_target(*province);
                 }
             } else {
-                unit->set_target(province);
+                unit->set_target(*province);
             }
         }
     }

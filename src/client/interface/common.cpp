@@ -109,7 +109,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Building* _building, UI
     for(const auto& good : building->type->inputs) {
         auto* icon_img = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/goods/" + good->ref_name + ".png")), this);
         icon_img->below_of(*name_btn);
-        x += icon_img->width;
+        dx += icon_img->width;
     }
 
     auto* output_lab = new UI::Label(0, 0, "Outputs:", this);
@@ -118,7 +118,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Building* _building, UI
     for(const auto& good : building->type->outputs) {
         auto* icon_img = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/goods/" + good->ref_name + ".png")), this);
         icon_img->below_of(*input_lab);
-        x += icon_img->width;
+        dx += icon_img->width;
     }
 }
 
