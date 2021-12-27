@@ -331,18 +331,47 @@ for k, v in pairs(switzerland_provinces_list) do
     province:register()
 
     province:add_industry(iron_mine, switzerland)
-    province:add_pop(artisan, german, protestant, 5000, 0.9)
-    province:add_pop(farmer, german, protestant, 40000, 0.8)
-    province:add_pop(soldier, german, protestant, 8000, 0.8)
-    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
-    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
-    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
-    province:add_pop(clergymen, german, protestant, 5000, 0.9)
-    province:add_pop(laborer, german, protestant, 50000, 0.8)
-    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_industry(zinc_mine, switzerland)
+    province:add_industry(copper_mine, switzerland)
+    province:add_industry(chromium_mine, switzerland)
+    province:add_industry(coal_mine, switzerland)
+    province:add_industry(carbon_destroyer, switzerland)
+    province:add_industry(sulfur_mine, switzerland)
+    province:add_industry(gunpowder_mixer, switzerland)
+    province:add_industry(stainless_steel_smelter, switzerland)
+    province:add_industry(brass_smelter, switzerland)
+    province:add_industry(iron_smelter, switzerland)
+    province:add_industry(musket_factory, switzerland)
+    province:add_industry(machinegun_factory, switzerland)
+    province:add_industry(ammunition_factory, switzerland)
+
+    province:add_pop(artisan, german, catholic, 5000, 0.9)
+    province:add_pop(farmer, german, catholic, 40000, 0.8)
+    province:add_pop(soldier, german, catholic, 8000, 0.8)
+    province:add_pop(craftsmen, german, catholic, 5000, 0.9)
+    province:add_pop(bureaucrat, german, catholic, 5000, 0.9)
+    province:add_pop(burgeoise, german, catholic, 5000, 0.9)
+    province:add_pop(clergymen, german, catholic, 5000, 0.9)
+    province:add_pop(laborer, german, catholic, 50000, 0.8)
+    province:add_pop(burgeoise, german, catholic, 800, 0.9)
     province:add_nucleus(switzerland)
     province:give_to(switzerland)
     province:set_terrain(plains)
+end
+
+-- Radical catholics on switzerland
+local prov_list = Nation:get("switzerland"):get_owned_provinces()
+for k, p in pairs(prov_list) do
+    local pops = p:get_pops()
+    for k, v in pairs(pops) do
+        if v.religion.ref_name == "catholic" then
+            -- Give them +50 militancy
+            v.militancy = v.militancy + 50.0
+            -- Synchronize changes with the world
+            p:update_pop(v)
+        end
+    end
+    p:update_pops()
 end
 
 local baden_provinces_list = {
