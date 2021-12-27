@@ -519,10 +519,7 @@ void Economy::do_tick(World& world) {
             deliver.quantity -= count;
             order.quantity -= count;
             order.province->stockpile[world.get_id(deliver.product->good)] += count;
-
-            // Increment the production cost of this building which is used
-            // so we sell our product at a profit instead  of at a loss
-            order.building->production_cost += deliver.product->price;
+            
             deliver.product->supply += deliver.quantity;
 
             // Delete this deliver and order tickets from the system since
@@ -545,13 +542,12 @@ void Economy::do_tick(World& world) {
     // Drop all rejected delivers who didn't got transported
     for(size_t i = 0; i < world.delivers.size(); i++) {
         const DeliverGoods& deliver = world.delivers[i];
-        Product& product = *deliver.product;
 
         // Add up to province stockpile
-        deliver.province->stockpile[world.get_id(product.good)] += deliver.quantity;
+        deliver.province->stockpile[world.get_id(deliver.product->good)] += deliver.quantity;
 
         // Increment supply because of incremented stockpile
-        product.supply += deliver.quantity;
+        deliver.product->supply += deliver.quantity;
     }
     world.delivers.clear();
 
@@ -584,11 +580,13 @@ void Economy::do_tick(World& world) {
                 // Province must have stockpile
                 if(!province->stockpile[world.get_id(good)]) {
                     // POPs will order it so hopefully transport companies send it
-                    OrderGoods order = OrderGoods();
+                    OrderGoods order = OrderGoods{};
                     order.quantity = pop.size;
                     order.good = good;
                     order.payment = pop.budget;
                     order.province = province;
+                    order.quantity = 1000;
+                    order.type = OrderType::POP;
                     world.orders.push_back(order);
                     continue;
                 }
