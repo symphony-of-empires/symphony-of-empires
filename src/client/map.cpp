@@ -267,15 +267,13 @@ void Map::update(const SDL_Event& event, Input& input) {
         if(event.button.button == SDL_BUTTON_MIDDLE) {
             input.last_camera_drag_pos = camera->get_map_pos(mouse_pos);
             input.last_camera_mouse_pos = mouse_pos;
-        }
-        else if(event.button.button == SDL_BUTTON_LEFT) {
+        } else if(event.button.button == SDL_BUTTON_LEFT) {
             if(!input.is_drag) {
                 input.drag_coord = input.select_pos;
                 if(view_mode == MapView::SPHERE_VIEW) {
                     input.drag_coord.first = (int)(world.width * input.drag_coord.first / (2. * M_PI));
                     input.drag_coord.second = (int)(world.height * input.drag_coord.second / M_PI);
-                }
-                else {
+                } else {
                     input.drag_coord.first = (int)input.drag_coord.first;
                     input.drag_coord.second = (int)input.drag_coord.second;
                 }
@@ -411,108 +409,118 @@ void Map::draw(const GameState& gs, const int width, const int height) {
         glPopMatrix();
     }*/
 
-    for(const auto& unit : world.units) {
-        glPushMatrix();
-        std::pair<float, float> pos = unit->get_pos();
-        glTranslatef(pos.first, pos.second, -0.1f);
-        float _w = 2, _h = 2;
-        nation_flags[world.get_id(unit->owner)]->bind();
+    for(const auto& province : world.provinces) {
+        const float size = 2.f;
+        unsigned int i = 0;
+        std::vector<Unit*> units = province->get_units();
+        const float row_width = units.size() * size;
+        for(const auto& unit : units) {
+            glPushMatrix();
+            std::pair<float, float> pos = province->get_pos();
+            pos.first -= row_width / 2.f;
+            pos.first += i * size;
 
-        if(!unit->size) {
-            glColor3f(0.5f, 0.5f, 0.5f);
-        }
-        else {
-            glColor3f(1.f, 1.f, 1.f);
-        }
-        glBegin(GL_TRIANGLES);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glTexCoord2f(1.f, 0.f);
-        glVertex2f(_w, 0.f);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(_w, _h);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(_w, _h);
-        glTexCoord2f(0.f, 1.f);
-        glVertex2f(0.f, _h);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glEnd();
-        glPopMatrix();
+            glTranslatef(pos.first, pos.second, -0.1f);
+            nation_flags[world.get_id(unit->owner)]->bind();
 
-        if(!unit->size) continue;
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        glPushMatrix();
-        glTranslatef(pos.first, pos.second, -0.1f);
-        _w = unit->size / unit->type->max_health;
-        _h = 0.5f;
-        glColor3f(0.f, 1.f, 0.f);
-        glBegin(GL_TRIANGLES);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glTexCoord2f(1.f, 0.f);
-        glVertex2f(_w, 0.f);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(_w, _h);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(_w, _h);
-        glTexCoord2f(0.f, 1.f);
-        glVertex2f(0.f, _h);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glEnd();
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslatef(pos.first + (unit->size / unit->type->max_health), pos.second - 2.f, -1.f);
-        _w = (unit->type->max_health - unit->size) / unit->type->max_health;
-        _h = 0.5f;
-        glColor3f(1.f, 0.f, 0.f);
-        glBegin(GL_TRIANGLES);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glTexCoord2f(1.f, 0.f);
-        glVertex2f(_w, 0.f);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(_w, _h);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(_w, _h);
-        glTexCoord2f(0.f, 1.f);
-        glVertex2f(0.f, _h);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glEnd();
-        glPopMatrix();
-
-        if(unit->target != nullptr) {
-            std::pair<float, float> pos = unit->get_pos();
-            glBegin(GL_LINES);
-            glColor3f(0.f, 0.f, 1.f / std::max(0.1f, unit->move_progress));
-            glVertex2f(pos.first, pos.second);
-            glVertex2f(unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
-            glEnd();
-        }
-
-        for(const auto& selected : gs.input.selected_units) {
-            if(selected == unit) {
-                std::pair<float, float> pos = unit->get_pos();
-
-                glPushMatrix();
-                glTranslatef(0.f, 0.f, -0.1f);
-                glLineWidth(8.f);
-                glBegin(GL_LINE_STRIP);
+            if(!unit->size) {
+                glColor3f(0.5f, 0.5f, 0.5f);
+            } else {
                 glColor3f(1.f, 1.f, 1.f);
-                glVertex2f(pos.first, pos.second);
-                glVertex2f(pos.first + 2.f, pos.second);
-                glVertex2f(pos.first + 2.f, pos.second + 2.f);
-                glVertex2f(pos.first, pos.second + 2.f);
-                glEnd();
-                glLineWidth(1.f);
-                glPopMatrix();
-                break;
             }
+            glBegin(GL_TRIANGLES);
+            glTexCoord2f(0.f, 0.f);
+            glVertex2f(0.f, 0.f);
+            glTexCoord2f(1.f, 0.f);
+            glVertex2f(size, 0.f);
+            glTexCoord2f(1.f, 1.f);
+            glVertex2f(size, size);
+            glTexCoord2f(1.f, 1.f);
+            glVertex2f(size, size);
+            glTexCoord2f(0.f, 1.f);
+            glVertex2f(0.f, size);
+            glTexCoord2f(0.f, 0.f);
+            glVertex2f(0.f, 0.f);
+            glEnd();
+            glPopMatrix();
+
+            if(!unit->size) continue;
+
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+            float _w, _h;
+
+            glPushMatrix();
+            glTranslatef(pos.first, pos.second, -0.1f);
+            _w = unit->size / unit->type->max_health;
+            _h = 0.5f;
+            glColor3f(0.f, 1.f, 0.f);
+            glBegin(GL_TRIANGLES);
+            glTexCoord2f(0.f, 0.f);
+            glVertex2f(0.f, 0.f);
+            glTexCoord2f(1.f, 0.f);
+            glVertex2f(_w, 0.f);
+            glTexCoord2f(1.f, 1.f);
+            glVertex2f(_w, _h);
+            glTexCoord2f(1.f, 1.f);
+            glVertex2f(_w, _h);
+            glTexCoord2f(0.f, 1.f);
+            glVertex2f(0.f, _h);
+            glTexCoord2f(0.f, 0.f);
+            glVertex2f(0.f, 0.f);
+            glEnd();
+            glPopMatrix();
+
+            glPushMatrix();
+            glTranslatef(pos.first + (unit->size / unit->type->max_health), pos.second - 2.f, -1.f);
+            _w = (unit->type->max_health - unit->size) / unit->type->max_health;
+            _h = 0.5f;
+            glColor3f(1.f, 0.f, 0.f);
+            glBegin(GL_TRIANGLES);
+            glTexCoord2f(0.f, 0.f);
+            glVertex2f(0.f, 0.f);
+            glTexCoord2f(1.f, 0.f);
+            glVertex2f(_w, 0.f);
+            glTexCoord2f(1.f, 1.f);
+            glVertex2f(_w, _h);
+            glTexCoord2f(1.f, 1.f);
+            glVertex2f(_w, _h);
+            glTexCoord2f(0.f, 1.f);
+            glVertex2f(0.f, _h);
+            glTexCoord2f(0.f, 0.f);
+            glVertex2f(0.f, 0.f);
+            glEnd();
+            glPopMatrix();
+
+            if(unit->target != nullptr) {
+                std::pair<float, float> pos = unit->get_pos();
+                glBegin(GL_LINES);
+                glColor3f(0.f, 0.f, 1.f / std::max(0.1f, unit->move_progress));
+                glVertex2f(pos.first, pos.second);
+                glVertex2f(unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
+                glEnd();
+            }
+
+            for(const auto& selected : gs.input.selected_units) {
+                if(selected == unit) {
+                    std::pair<float, float> pos = unit->get_pos();
+                    glPushMatrix();
+                    glTranslatef(0.f, 0.f, -0.1f);
+                    glLineWidth(8.f);
+                    glBegin(GL_LINE_STRIP);
+                    glColor3f(1.f, 1.f, 1.f);
+                    glVertex2f(pos.first, pos.second);
+                    glVertex2f(pos.first + 2.f, pos.second);
+                    glVertex2f(pos.first + 2.f, pos.second + 2.f);
+                    glVertex2f(pos.first, pos.second + 2.f);
+                    glEnd();
+                    glLineWidth(1.f);
+                    glPopMatrix();
+                    break;
+                }
+            }
+
+            i++;
         }
     }
 
