@@ -30,9 +30,9 @@ ProductView::ProductView(GameState& _gs, Product* _product)
         }
 
         // Account for products that are based on this good
-        for(const auto& province : o.gs.world->provinces) {
-            if(province->owner == nullptr) continue;
-            nations_data[o.gs.world->get_id(province->owner)].num += province->stockpile[o.gs.world->get_id(o.product)];
+        for(const auto& product : o.gs.world->products) {
+            if(product->good != o.product->good && product->building != nullptr) continue;
+            nations_data[o.gs.world->get_id(product->building->get_province()->controller)].num += product->building->get_province()->stockpile[o.gs.world->get_id(product->good)];
         }
         o.supply_pie->set_data(nations_data);
     });
