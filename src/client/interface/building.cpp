@@ -4,6 +4,8 @@
 #include "action.hpp"
 #include "io_impl.hpp"
 
+#include "client/ui/close_button.hpp"
+
 using namespace Interface;
 
 BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int y, UI::Widget* _parent)

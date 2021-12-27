@@ -188,7 +188,6 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 // We can't control others units
                 if(unit->owner != gs.curr_nation) continue;
 
-                const float size = 2.f;
                 std::pair<float, float> pos = unit->get_pos();
 
                 std::pair<float, float> start_pos = input.drag_coord;
@@ -258,7 +257,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
 void Map::update(const SDL_Event& event, Input& input) {
     std::pair<int, int>& mouse_pos = input.mouse_pos;
-    std::pair<float, float>& select_pos = input.select_pos;
+    // std::pair<float, float>& select_pos = input.select_pos;
     switch(event.type) {
     case SDL_MOUSEBUTTONDOWN:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -347,7 +346,7 @@ void Map::update_mapmode() {
     map_render->update_mapmode(province_colors);
 }
 
-void Map::draw(const GameState& gs, const int width, const int height) {
+void Map::draw(const GameState& gs) {
     glm::mat4 view, projection;
 
     map_render->draw(camera, view_mode);

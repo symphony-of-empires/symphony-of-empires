@@ -1,5 +1,6 @@
 #include "client/interface/treaty.hpp"
 #include "io_impl.hpp"
+#include "client/ui/components.hpp"
 
 using namespace Interface;
 

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "client/ui.hpp"
+#include "client/ui/button.hpp"
+#include "client/ui/group.hpp"
 
 class World;
 class Nation;
@@ -12,6 +13,10 @@ class Product;
 class Technology;
 class Building;
 class BuildingType;
+namespace UI {
+	class Image;
+    class Chart;
+}
 
 namespace Interface {
     // Pretty brief summaries (for example to click oon a button from a list)
