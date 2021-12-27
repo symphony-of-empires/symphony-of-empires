@@ -1,8 +1,14 @@
 #pragma once
 
-#include "client/ui.hpp"
+#include <string>
+#include <vector>
+#include <cstdlib>
 
 class GameState;
+namespace UI {
+    class Label;
+    class Button;
+}
 namespace Interface {
     /*class LobbyPlayerView : public UI::Window {
         GameState& gs;

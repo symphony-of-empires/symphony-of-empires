@@ -1,6 +1,7 @@
 #pragma once
 
-#include "client/ui.hpp"
+#include "client/ui/group.hpp"
+#include "client/ui/window.hpp"
 #include "client/interface/common.hpp"
 
 class World;

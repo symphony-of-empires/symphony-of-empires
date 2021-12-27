@@ -77,7 +77,7 @@ public:
     void update(const SDL_Event& event, Input& input);
     void update_mapmode();
     void draw_flag(const Nation* nation);
-    void draw(const GameState& gs, const int width, const int height);
+    void draw(const GameState& gs);
     void handle_click(GameState& gs, SDL_Event event);
     void set_map_mode(mapmode_generator mapmode_func);
     void set_view(MapView view);

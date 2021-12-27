@@ -4,6 +4,10 @@
 #include "unified_render/path.hpp"
 #include "unified_render/texture.hpp"
 #include <unordered_map>
+#include "client/ui/button.hpp"
+#include "client/ui/close_button.hpp"
+#include "client/ui/image.hpp"
+#include "client/ui/tooltip.hpp"
 
 using namespace Interface;
 

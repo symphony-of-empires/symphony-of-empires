@@ -3,7 +3,8 @@
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "client/ui.hpp"
+#include "client/ui/window.hpp"
+#include "client/ui/button.hpp"
 
 namespace Interface {
     class DescisionButton: public UI::Button {
