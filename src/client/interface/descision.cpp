@@ -17,7 +17,7 @@ DescisionWindow::DescisionWindow(GameState& gs, Event& event)
     auto* txt = new UI::Text(0, 0, 18 * 24, 24, this);
     txt->text(event.text);
 
-    this->height = txt->height + (event.descisions.size() * 24);
+    this->height = txt->height + (event.descisions.size() * 24) + (24 * 4);
 
     // Buttons for descisions for the event
     const DescisionButton* last = nullptr;
@@ -31,7 +31,7 @@ DescisionWindow::DescisionWindow(GameState& gs, Event& event)
 }
 
 DescisionButton::DescisionButton(UI::Window* parent, GameState& _gs, const Descision& _descision, Event& _event)
-    : UI::Button(0, parent->height - 24, parent->width, 24, parent),
+    : UI::Button(0, parent->height - 24 - 48, parent->width, 24, parent),
     gs{ _gs },
     descision{ _descision },
     event{ _event }
