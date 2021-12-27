@@ -255,6 +255,10 @@ class Serializer<std::queue<T>> : public SerializerContainer<T, std::queue<T>> {
 template<typename T>
 class Serializer<std::set<T>> : public SerializerContainer<T, std::set<T>> {};
 
+#include <unordered_set>
+template<typename T>
+class Serializer<std::unordered_set<T>> : public SerializerContainer<T, std::unordered_set<T>> {};
+
 // Used as a template for serializable objects (pointers mostly) which should be
 // treated as a reference instead of the object itself
 template<typename W, typename T>

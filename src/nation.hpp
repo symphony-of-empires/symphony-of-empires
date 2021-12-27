@@ -4,6 +4,7 @@
 #include <queue>
 #include <deque>
 #include <set>
+#include <unordered_set>
 #include <string>
 #include <vector>
 
@@ -239,8 +240,8 @@ public:
 
     // Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
     // owned by this nation
-    std::set<Culture*> accepted_cultures;
-    std::set<Religion*> accepted_religions;
+    std::unordered_set<Culture*> accepted_cultures;
+    std::unordered_set<Religion*> accepted_religions;
 
     // List of provinces which are owned by this nation (including partial ownership)
     std::set<Province*> owned_provinces;

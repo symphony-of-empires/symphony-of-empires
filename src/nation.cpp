@@ -200,18 +200,12 @@ void Nation::set_policy(Policies& policies) {
 
 // Checks if a POP is part of one of our accepted cultures
 bool Nation::is_accepted_culture(const Pop& pop) const {
-    for(const auto& culture : accepted_cultures) {
-        if(pop.culture == culture) return true;
-    }
-    return false;
+    return accepted_cultures.find(pop.culture) != accepted_cultures.end();
 }
 
 // Same as above but with religion
 bool Nation::is_accepted_religion(const Pop& pop) const {
-    for(const auto& religion : accepted_religions) {
-        if(pop.religion == religion) return true;
-    }
-    return false;
+    return accepted_religions.find(pop.religion) != accepted_religions.end();
 }
 
 // Gets the total tax applied to a POP depending on their "wealth"
