@@ -571,6 +571,12 @@ void Economy::do_tick(World& world) {
 
         for(size_t i = 0; i < province->pops.size(); i++) {
             Pop& pop = province->pops[i];
+            // We want to get rid of many POPs as possible
+            if(!pop.size) {
+                province->pops.erase(province->pops.begin() + i);
+                i--;
+                continue;
+            }
 
             // Use 10% of our budget for buying uneeded commodities and shit
             // TODO: Should lower spending with higher literacy, and higher
@@ -627,37 +633,30 @@ void Economy::do_tick(World& world) {
             // Current liking of the party is influenced by the life_needs_met
             pop.ideology_approval[world.get_id(province->controller->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
 
-            // We want to get rid of many POPs as possible
-            if(!pop.size) {
-                province->pops.erase(province->pops.begin() + i);
-                i--;
-                continue;
+            // Higher literacy will mean there will be less births due to sex education
+            // and will also mean that - there would be less deaths due to higher knewledge
+            int growth;
+
+            if(pop.life_needs_met >= -2.5f) {
+                // Starvation in -1 or 0 or >1 are amortized by literacy
+                growth = pop.life_needs_met / pop.literacy;
             } else {
-                // Higher literacy will mean there will be less births due to sex education
-                // and will also mean that - there would be less deaths due to higher knewledge
-                int growth;
-
-                if(pop.life_needs_met >= -2.5f) {
-                    // Starvation in -1 or 0 or >1 are amortized by literacy
-                    growth = pop.life_needs_met / pop.literacy;
-                } else {
-                    // Neither literacy nor anything else can save humans from
-                    // dying due starvation
-                    growth = -((int)(std::rand() % pop.size));
-                }
-
-                if(growth < 0 && (size_t)std::abs(growth) > pop.size) {
-                    growth = -pop.size;
-                }
-
-                if(growth < 0) {
-                    growth *= province->controller->get_death_mod();
-                } else {
-                    growth *= province->controller->get_reproduction_mod();
-                }
-
-                pop.size += growth;
+                // Neither literacy nor anything else can save humans from
+                // dying due starvation
+                growth = -((int)(std::rand() % pop.size));
             }
+
+            if(growth < 0 && (size_t)std::abs(growth) > pop.size) {
+                growth = -pop.size;
+            }
+
+            if(growth < 0) {
+                growth *= province->controller->get_death_mod();
+            } else {
+                growth *= province->controller->get_reproduction_mod();
+            }
+
+            pop.size += growth;
 
             // Add some RNG to shake things up and make gameplay more dynamic and less deterministic :)
             pop.size += std::rand() % std::min<size_t>(5, std::max<size_t>(1, pop.size / 10000));
