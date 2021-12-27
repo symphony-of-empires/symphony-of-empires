@@ -513,12 +513,12 @@ void Economy::do_tick(World& world) {
             } else if(order.type == OrderType::POP) {
                 // Nobody is to be billed ... transport company still obtains their money & delivers to the province
                 //order.province->stockpile[world.get_id(deliver.product)] += order.quantity;
-                //print_info("Pop requested stuff");
+                print_info("POP requested stuff");
             }
             // Add to stockpile (duplicate items) to the province at each transporting
             deliver.quantity -= count;
             order.quantity -= count;
-            order.province->stockpile[world.get_id(deliver.product)] += count;
+            order.province->stockpile[world.get_id(deliver.product->good)] += count;
 
             // Increment the production cost of this building which is used
             // so we sell our product at a profit instead  of at a loss
@@ -545,13 +545,13 @@ void Economy::do_tick(World& world) {
     // Drop all rejected delivers who didn't got transported
     for(size_t i = 0; i < world.delivers.size(); i++) {
         const DeliverGoods& deliver = world.delivers[i];
-        Product* product = deliver.product;
+        Product& product = *deliver.product;
 
         // Add up to province stockpile
-        deliver.province->stockpile[world.get_id(product)] += deliver.quantity;
+        deliver.province->stockpile[world.get_id(product.good)] += deliver.quantity;
 
         // Increment supply because of incremented stockpile
-        product->supply += deliver.quantity;
+        product.supply += deliver.quantity;
     }
     world.delivers.clear();
 
@@ -576,68 +576,45 @@ void Economy::do_tick(World& world) {
         for(size_t i = 0; i < province->pops.size(); i++) {
             Pop& pop = province->pops[i];
 
-            // Use 33% of our budget to buy edibles and life needed stuff
-            float life_alloc_budget = pop.budget / 3.f;
-
             // Use 10% of our budget for buying uneeded commodities and shit
             // TODO: Should lower spending with higher literacy, and higher
             // TODO: Higher the fullfilment per unit with higher literacy
-            float everyday_alloc_budget = pop.budget / 10.f;
-            for(const auto& product : world.products) {
-                const Product::Id product_id = world.get_id(product);
-
+            // TODO: DO NOT MAKE POP BUY FROM STOCKPILE, INSTEAD MAKE THEM BUY FROM ORDERS
+            for(const auto& good : world.goods) {
                 // Province must have stockpile
-                if(!province->stockpile[product_id]) {
+                if(!province->stockpile[world.get_id(good)]) {
                     // POPs will order it so hopefully transport companies send it
                     OrderGoods order = OrderGoods();
                     order.quantity = pop.size;
+                    order.good = good;
+                    order.payment = pop.budget;
                     order.province = province;
                     world.orders.push_back(order);
-
-                    // Desesperation for food leads to higher demand
-                    if(product->good->is_edible && pop.life_needs_met <= 0.f) {
-                        product->demand += pop.size * 2.f;
-                    }
                     continue;
                 }
 
-                size_t bought;
-                if(product->good->is_edible) {
-                    // We can only spend our allocated budget
-                    bought = life_alloc_budget / product->price;
-                    if(life_alloc_budget <= 0.f) continue;
+                unsigned int bought;
+                if(good->is_edible) {
+                    bought = std::rand() % pop.size;
                 } else {
-                    bought = everyday_alloc_budget / product->price;
-
+                    bought = std::rand() % pop.size;
                     // Slaves cannot buy commodities
                     if(pop.type->group == PopGroup::Slave) continue;
-                    if(everyday_alloc_budget <= 0.f) continue;
                 }
 
-                // Only buy the needed stuff
-                bought = std::min<float>(bought, province->stockpile[product_id]);
+                // Only buy the available stuff
+                bought = std::min<unsigned int>(bought, province->stockpile[world.get_id(good)]);
                 if(!bought) continue;
 
-                float cost_of_transaction = bought * product->price;
-
-                // Take in account taxes for the product
-                // TODO: Have something affect tax efficiency! - complexity at it's finest :)
-                province->controller->budget += (cost_of_transaction * province->controller->get_tax(pop)) - cost_of_transaction;
-                cost_of_transaction *= province->controller->get_tax(pop);
-                pop.budget -= cost_of_transaction;
-
-                // Demand is incremented proportional to items bought and remove item from stockpile
-                product->demand += bought * fuzz;
-                province->stockpile[product_id] -= std::min<size_t>(province->stockpile[product_id], bought);
+                // Delete items from stockpile
+                province->stockpile[world.get_id(good)] -= std::min<unsigned int>(province->stockpile[world.get_id(good)], bought);
 
                 // Uncomment to see buyers
                 //print_info("Pop with budget %f bought %zu %s", pop.budget, (size_t)bought, product->good->name.c_str());
 
-                if(product->good->is_edible) {
-                    life_alloc_budget -= bought * product->price;
+                if(good->is_edible) {
                     pop.life_needs_met += (float)pop.size / (float)bought;
                 } else {
-                    everyday_alloc_budget -= bought * product->price;
                     pop.everyday_needs_met += (float)pop.size / (float)bought;
                 }
             }
@@ -869,12 +846,6 @@ void Economy::do_tick(World& world) {
         //    print_info("%s; Supply: %zu, Demand: %zu, Price %.2f", product->good->name.c_str(), product->supply, product->demand, product->price);
 
         product->close_market();
-
-        // Re-count worldwide supply
-        product->supply = 0;
-        for(const auto& province : world.provinces) {
-            product->supply += province->stockpile[world.get_id(product)];
-        }
         product->demand = 0;
     }
 }

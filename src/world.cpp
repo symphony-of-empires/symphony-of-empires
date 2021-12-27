@@ -544,7 +544,7 @@ void World::load_initial(void) {
         province->max_y = std::min(height, province->max_y);
 
         // Create default stockpile of 0
-        province->stockpile.resize(products.size(), 0);
+        province->stockpile.resize(goods.size(), 0);
     }
 
     // Neighbours
@@ -655,8 +655,8 @@ void World::do_tick() {
                 }
 
                 // Also calculates GDP
-                for(const auto& product : g_world->products) {
-                    nation->gdp += product->price * province->stockpile[g_world->get_id(product)];
+                for(const auto& good : g_world->goods) {
+                    nation->gdp += province->stockpile[g_world->get_id(good)];
                 }
             }
             nation->economy_score = economy_score / 100.f;

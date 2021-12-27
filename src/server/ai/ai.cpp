@@ -522,17 +522,17 @@ void ai_do_tick(Nation* nation, World* world) {
             if(province == unit->province || province == unit->target) continue;
 
             // We ideally want troops at our border if they are not our ally
-            /*bool in_inner = true;
+            bool in_inner = true;
             for(const auto& neighbour : province->neighbours) {
                 if(neighbour->controller == nullptr) continue;
                 if(neighbour->controller != nation || !neighbour->controller->relations[world->get_id(unit->owner)].has_alliance) {
                     in_inner = false;
                     break;
                 }
-            }*/
+            }
 
             // Randomly go around in the inners of our country to hopefully find a border province
-            /*if(in_inner && !province->neighbours.empty()) {
+            if(in_inner && !province->neighbours.empty()) {
                 if(std::rand() % 500) continue;
                 if(unit->target != nullptr) continue;
 
@@ -540,7 +540,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 std::advance(it, std::rand() % unit->province->neighbours.size());
                 if(it == unit->province->neighbours.end()) continue;
                 province = *it;
-            }*/
+            }
 
             if(province->owner != nullptr) {
                 // Can only go to a province if we have military accesss, they are our ally or if we are at war

@@ -32,7 +32,7 @@ ProductView::ProductView(GameState& _gs, Product* _product)
         // Account for products that are based on this good
         for(const auto& province : o.gs.world->provinces) {
             if(province->owner == nullptr) continue;
-            nations_data[o.gs.world->get_id(province->owner)].num += province->stockpile[o.gs.world->get_id(province)];
+            nations_data[o.gs.world->get_id(province->owner)].num += province->stockpile[o.gs.world->get_id(o.product)];
         }
         o.supply_pie->set_data(nations_data);
     });
