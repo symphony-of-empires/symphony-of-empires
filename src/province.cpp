@@ -59,12 +59,7 @@ std::pair<float, float> Province::get_pos(void) const {
 }
 
 std::vector<Unit*> Province::get_units(void) const {
-    std::vector<Unit*> temp;
-    for(const auto& unit : World::get_instance().units) {
-        if(unit->province != this) continue;
-        temp.push_back(unit);
-    }
-    return temp;
+    return units;
 }
 
 std::vector<Building*> Province::get_buildings(void) const {

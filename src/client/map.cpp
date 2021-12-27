@@ -241,7 +241,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
         for(const auto& unit : input.selected_units) {
             if(!unit->province->is_neighbour(*gs.world->provinces[tile.province_id])) continue;
-            unit->set_target(gs.world->provinces[tile.province_id]);
+            unit->set_target(*gs.world->provinces[tile.province_id]);
             
             Packet packet = Packet();
             Archive ar = Archive();

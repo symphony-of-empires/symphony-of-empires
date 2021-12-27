@@ -686,7 +686,7 @@ void World::do_tick() {
             if(unit->move_progress) {
                 unit->move_progress -= std::min(unit->move_progress, unit->get_speed());
             } else {
-                unit->province = unit->target;
+                unit->set_province(*unit->target);
                 if(unit->target->owner != nullptr) {
                     unit->owner->give_province(*unit->target);
                 }

@@ -63,52 +63,12 @@ public:
  */
 class Unit : public IdEntity<uint16_t> {
 public:
+    void attack(Unit& enemy);
     std::pair<float, float> get_pos(void) const;
-
-    void attack(Unit& enemy) {
-        // Calculate the attack of our unit
-        float attack_mod = 0.f;
-        for(const auto& trait: this->traits) {
-            attack_mod *= trait->attack_mod;
-        }
-        const float attack = this->type->attack * attack_mod;
-
-        // Calculate the defense of the enemy
-        float defense_mod = 0.f;
-        for(const auto& trait: this->traits) {
-            defense_mod *= trait->defense_mod;
-        }
-        const float enemy_defense = std::max<float>(0.1f, enemy.type->defense * defense_mod);
-
-        // Calculate the total damage dealt by our unit to the enemy
-        const float damage_dealt = this->size * std::min<float>(10.f, std::max<float>(.05f, this->experience))
-            * (attack / std::pow(std::min<float>(0.f, enemy_defense), 2))
-            * std::max<float>(0.1f, this->morale) * this->supply
-        ;
-        
-        // Deal with the morale loss of the enemy
-        float enemy_fanaticism = 0.f;
-        for(const auto& trait: enemy.traits) {
-            enemy_fanaticism *= trait->morale_mod;
-        }
-        enemy.morale -= 10.f * enemy_fanaticism * damage_dealt / enemy.size;
-
-        // Our unit receives half of the morale
-        this->morale += 5.f * enemy_fanaticism * damage_dealt / enemy.size;
-
-        // Deal the damage
-        enemy.size -= std::min<size_t>(enemy.size, damage_dealt);
-    };
-
-    void set_target(Province* _province) {
-        target = _province;
-        move_progress = std::sqrt(std::abs((province->max_x + ((province->max_x - province->min_x) / 2.f)) - (target->max_x + ((target->max_x - target->min_x) / 2.f))) + std::abs((province->max_y + ((province->max_y - province->min_y) / 2.f)) - (target->max_y + ((target->max_y - target->min_y) / 2.f))));
-    };
-
-    float get_speed(Province* province) const;
-    float get_speed(void) const {
-        return get_speed(target);
-    };
+    void set_target(Province& province);
+    float get_speed(const Province& province) const;
+    float get_speed(void) const;
+    void set_province(Province& province);
     
     // Type of unit
     UnitType* type;
@@ -120,7 +80,7 @@ public:
     size_t base;
     
     Province* target = nullptr;
-    Province* province;
+    Province* province = nullptr;
     float move_progress;
 
     // Who owns this unit

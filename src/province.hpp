@@ -68,6 +68,7 @@ public:
     std::vector<Pop> pops;
 
     std::vector<Product*> products;
+    std::vector<Unit*> units;
 
     // Attractiveness of province
     float base_attractive = 0.f;
