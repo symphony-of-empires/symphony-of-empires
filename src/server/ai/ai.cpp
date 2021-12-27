@@ -152,25 +152,28 @@ void ai_reform(Nation* nation) {
 void ai_update_relations(Nation* nation, Nation* other) {
     const World& world = World::get_instance();
 
+    NationRelation& relation = nation->relations[world.get_id(other)];
+    NationRelation& other_relation = other->relations[world.get_id(nation)];
+
     // Try to increase relations with our friend
     if(nation->is_ally(*other) && !(std::rand() % 250)) {
         nation->increase_relation(*other);
 
         // Propose an alliance
-        if(nation->relations[world.get_id(other)].relation > 1.f && !other->relations[world.get_id(nation)].has_alliance) {
-            nation->relations[world.get_id(other)].has_alliance = true;
+        if(relation.relation > 1.f && !other_relation.has_alliance) {
+            relation.has_alliance = true;
             print_info("[%s] requested an alliance with [%s]!", nation->ref_name.c_str(), other->ref_name.c_str());
         }
 
         // If they want an alliance we won't hesitate to join (they are our friends after all)
-        if(other->relations[world.get_id(nation)].has_alliance && !nation->relations[world.get_id(other)].has_alliance) {
-            nation->relations[world.get_id(other)].has_alliance = true;
+        if(other_relation.has_alliance && !relation.has_alliance) {
+            relation.has_alliance = true;
             print_info("Alliance [%s] <-> [%s] has been made!", nation->ref_name.c_str(), other->ref_name.c_str());
         }
 
         // Same with the defensive pact
-        if(other->relations[world.get_id(nation)].has_defensive_pact && !nation->relations[world.get_id(other)].has_defensive_pact) {
-            nation->relations[world.get_id(other)].has_defensive_pact = true;
+        if(other_relation.has_defensive_pact && !relation.has_defensive_pact) {
+            relation.has_defensive_pact = true;
             print_info("Defensive pact [%s] <-> [%s] has been made!", nation->ref_name.c_str(), other->ref_name.c_str());
         }
     }
@@ -180,13 +183,13 @@ void ai_update_relations(Nation* nation, Nation* other) {
         nation->decrease_relation(*other);
 
         // Embargo them
-        if(nation->relations[world.get_id(other)].relation < -1.f) {
-            nation->relations[world.get_id(other)].has_embargo = true;
+        if(relation.relation < -1.f) {
+            relation.has_embargo = true;
             print_info("[%s] has placed an embargo on [%s]!", nation->ref_name.c_str(), other->ref_name.c_str());
         }
 
         // We really hate our enemies, don't we?
-        if(nation->relations[world.get_id(other)].relation < -50.f && !nation->relations[world.get_id(other)].has_war) {
+        if(relation.relation < -50.f && !relation.has_war) {
             // TODO: Do not war if it's beyond our capabilities (i.e Liechestein vs. France, Prussia and UK)
             nation->declare_war(*other);
         }
@@ -195,12 +198,12 @@ void ai_update_relations(Nation* nation, Nation* other) {
     // Randomness to spice stuff up
     if(!(std::rand() % 1000)) {
         nation->increase_relation(*other);
-    } else if(!(std::rand() % 1000)) {
+    } else if(!(std::rand() % 100)) {
         nation->decrease_relation(*other);
     }
     
-    if(!(std::rand() % 10)) {
-        if(!nation->relations[world.get_id(other)].has_war) {
+    if(!(std::rand() % 5)) {
+        if(!relation.has_war && !relation.has_alliance && !relation.has_defensive_pact) {
             nation->declare_war(*other);
         } else {
             // Offer treaties
@@ -461,36 +464,36 @@ void ai_do_tick(Nation* nation, World* world) {
     // TODO: make a better algorithm
     if(nation->ai_do_cmd_troops) {
         std::vector<int> potential_risk(world->provinces.size(), 0);
-        float defense_strength = 0.f, attack_strength = 0.f;
 
         for(const auto& province : nation->owned_provinces) {
             for(const auto& neighbour : province->neighbours) {
                 if(neighbour->controller != nullptr && neighbour->controller != nation) {
-                    NationRelation& relation = neighbour->owner->relations[world->get_id(province->owner)];
+                    NationRelation& relation = neighbour->controller->relations[world->get_id(province->owner)];
 
                     // Risk is augmentated when we border any non-ally nation
                     if(!relation.has_alliance) {
                         potential_risk[world->get_id(province)] += 50;
                         if(relation.has_war) {
-                            potential_risk[world->get_id(province)] += 1000 + (std::rand() % 10);
-                            potential_risk[world->get_id(neighbour)] += 2000 + (std::rand() % 10);
+                            //potential_risk[world->get_id(province)] += 250 + (std::rand() % 100);
+                            potential_risk[world->get_id(neighbour)] += 500 + (std::rand() % 100);
                         }
                     }
                 }
             }
 
+            float defense_strength = 0.f, attack_strength = 0.f;
             for(const auto& unit : province->get_units()) {
                 defense_strength += unit->type->defense;
                 attack_strength += unit->type->attack;
             }
             potential_risk[world->get_id(province)] /= defense_strength + attack_strength;
+        }
 
+        for(const auto& province : world->provinces) {
             for(const auto& neighbour : province->neighbours) {
-                if(neighbour->controller != nullptr) {
-                    NationRelation& relation = neighbour->owner->relations[world->get_id(province->owner)];
-                    potential_risk[world->get_id(neighbour)] += potential_risk[world->get_id(province)] / neighbour->neighbours.size();
-                }
+                potential_risk[world->get_id(neighbour)] += potential_risk[world->get_id(province)] / province->neighbours.size();
             }
+            potential_risk[world->get_id(province)] += std::rand() % 1000;
         }
 
         for(auto& unit : g_world->units) {

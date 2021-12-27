@@ -75,3 +75,12 @@ std::vector<Building*> Province::get_buildings(void) const {
     }
     return temp;
 }
+
+bool Province::is_neighbour(Province& province) const {
+    for(const auto& neighbour : this->neighbours) {
+        if(neighbour == &province) {
+            return true;
+        }
+    }
+    return false;
+}

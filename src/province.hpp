@@ -25,6 +25,7 @@ public:
     std::pair<float, float> get_pos(void) const;
     std::vector<Unit*> get_units(void) const;
     std::vector<Building*> get_buildings(void) const;
+    bool is_neighbour(Province& province) const;
 
     // Color of the province, used for mapping the province's shape from the map_div.png file
     uint32_t color;
