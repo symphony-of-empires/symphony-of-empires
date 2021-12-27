@@ -467,6 +467,8 @@ void ai_do_tick(Nation* nation, World* world) {
 
         for(const auto& province : nation->owned_provinces) {
             for(const auto& neighbour : province->neighbours) {
+                if(province->terrain_type->is_water_body) continue;
+
                 if(neighbour->controller != nullptr && neighbour->controller != nation) {
                     NationRelation& relation = neighbour->controller->relations[world->get_id(province->owner)];
 
@@ -474,8 +476,8 @@ void ai_do_tick(Nation* nation, World* world) {
                     if(!relation.has_alliance) {
                         potential_risk[world->get_id(province)] += 50;
                         if(relation.has_war) {
-                            //potential_risk[world->get_id(province)] += 250 + (std::rand() % 100);
-                            potential_risk[world->get_id(neighbour)] += 500 + (std::rand() % 100);
+                            potential_risk[world->get_id(province)] += 250 + (std::rand() % 250);
+                            potential_risk[world->get_id(neighbour)] += 500 + (std::rand() % 500);
                         }
                     }
                 }
@@ -486,14 +488,13 @@ void ai_do_tick(Nation* nation, World* world) {
                 defense_strength += unit->type->defense;
                 attack_strength += unit->type->attack;
             }
-            potential_risk[world->get_id(province)] /= defense_strength + attack_strength;
+            potential_risk[world->get_id(province)] -= defense_strength * attack_strength;
         }
 
         for(const auto& province : world->provinces) {
             for(const auto& neighbour : province->neighbours) {
                 potential_risk[world->get_id(neighbour)] += potential_risk[world->get_id(province)] / province->neighbours.size();
             }
-            potential_risk[world->get_id(province)] += std::rand() % 1000;
         }
 
         for(auto& unit : g_world->units) {
@@ -503,7 +504,7 @@ void ai_do_tick(Nation* nation, World* world) {
             // See which province has the most potential_risk so we cover it from potential threats
             Province* highest_risk = unit->province;
             for(const auto& province : unit->province->neighbours) {
-                //if(unit->type->is_naval != province->terrain_type->is_water_body) continue;
+                //if(!unit->type->is_naval && province->terrain_type->is_water_body) continue;
                 if(province->terrain_type->is_water_body) continue;
 
                 if(potential_risk[world->get_id(highest_risk)] < potential_risk[world->get_id(province)]) {
@@ -513,34 +514,11 @@ void ai_do_tick(Nation* nation, World* world) {
                             highest_risk = province;
                         }
                     }
-                } else {
-                    highest_risk = province;
                 }
             }
 
             auto* province = highest_risk;
             if(province == unit->province || province == unit->target) continue;
-
-            // We ideally want troops at our border if they are not our ally
-            bool in_inner = true;
-            for(const auto& neighbour : province->neighbours) {
-                if(neighbour->controller == nullptr) continue;
-                if(neighbour->controller != nation || !neighbour->controller->relations[world->get_id(unit->owner)].has_alliance) {
-                    in_inner = false;
-                    break;
-                }
-            }
-
-            // Randomly go around in the inners of our country to hopefully find a border province
-            if(in_inner && !province->neighbours.empty()) {
-                if(std::rand() % 500) continue;
-                if(unit->target != nullptr) continue;
-
-                auto it = std::begin(unit->province->neighbours);
-                std::advance(it, std::rand() % unit->province->neighbours.size());
-                if(it == unit->province->neighbours.end()) continue;
-                province = *it;
-            }
 
             if(province->owner != nullptr) {
                 // Can only go to a province if we have military accesss, they are our ally or if we are at war
