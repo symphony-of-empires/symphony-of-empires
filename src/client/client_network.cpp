@@ -216,10 +216,6 @@ void Client::net_loop(void) {
                         ::deserialize(ar, product);
                         world.insert(product);
 
-                        // NOTE: The stockpile will later be synchronized on a PROVINCE_UPDATE
-                        // to the actual value by the server
-                        for(auto& province : world.provinces)
-                            province->stockpile.push_back(0);
                         print_info("New product of good type [%s]", product->good->ref_name.c_str());
                     } break;
                     case ActionType::PRODUCT_UPDATE: {

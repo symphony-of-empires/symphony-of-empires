@@ -60,8 +60,8 @@ public:
     // List of all neighbouring provinces (*should* be used for pathfinding)
     std::set<Province*> neighbours;
 
-    // Each element of this list represents the availability of a product, taking as reference the
-    // product list of the world. Indexes are 1:1 with the product list.
+    // Each element of this list represents the availability of a good, taking as reference the
+    // product list of the world. Indexes are 1:1 with the good list.
     std::vector<size_t> stockpile;
 
     // List of pops in this province

@@ -37,11 +37,8 @@ void Building::create_factory(void) {
         output_products.push_back(new_product);
         world.insert(new_product);
 
-        // Add an element representing this product on all the province's stockpile
+        // Add an element representing this product
         employees_needed_per_output.push_back(500);
-        for(auto& province : world.provinces) {
-            province->stockpile.push_back(0);
-        }
     }
 
     // We will set inputs_satisfied to same size as inputs
@@ -76,8 +73,8 @@ bool Building::can_do_output(void) {
 
 Building::~Building() {
     // Delete factory (products related to the factory must be destroyed too)
-    if(this->type != nullptr && this->type->is_factory == true) {
-        this->delete_factory();
+    if(type != nullptr && type->is_factory == true) {
+        delete_factory();
     }
 }
 
