@@ -3,8 +3,14 @@
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "client/ui.hpp"
+#include "client/ui/window.hpp"
 
+namespace UI {
+    class Image;
+    class Label;
+    class Button;
+    class CloseButton;
+}
 namespace Interface {
     class NationMarketView : public UI::Window {
         GameState& gs;

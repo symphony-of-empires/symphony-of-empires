@@ -1,12 +1,19 @@
 #pragma once
 
-#include "client/ui.hpp"
+#include "client/ui/window.hpp"
+#include "client/ui/group.hpp"
 #include "client/interface/common.hpp"
 
 class World;
 class Nation;
 class GameState;
 class Building;
+
+namespace UI {
+    class Chart;
+    class Image;
+    class Label;
+}
 
 namespace Interface {
     class ArmyArmyTab : public UI::Group {

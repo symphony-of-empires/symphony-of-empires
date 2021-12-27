@@ -3,6 +3,7 @@
 #include "client/interface/common.hpp"
 #include "client/interface/war.hpp"
 #include "io_impl.hpp"
+#include "client/ui/components.hpp"
 
 using namespace Interface;
 
