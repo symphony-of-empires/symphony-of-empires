@@ -118,13 +118,15 @@ void handle_event(Input& input, GameState& gs) {
 
             click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
             if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
-                gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.ogg")));
                 gs.map->handle_click(gs, event);
             }
 
             if(click_on_ui) {
                 std::scoped_lock lock(gs.sound_lock);
-                gs.sound_queue.push_back(new UnifiedRender::Sound(Path::get("sfx/click.ogg")));
+                auto entries = Path::get_all_recursive("sfx/click");
+                if(!entries.empty()) {
+                    gs.sound_queue.push_back(new UnifiedRender::Sound(entries[std::rand() % entries.size()]));
+                }
             }
             break;
         case SDL_MOUSEMOTION:

@@ -352,6 +352,12 @@ namespace UI {
         float max;
     };
 
+    class Tab : public Group {
+    public:
+        Tab(int x, int y, unsigned w, unsigned h, UI::Widget* parent = nullptr);
+        virtual ~Tab() override {};
+    };
+
 };  // namespace UI
 
 #endif

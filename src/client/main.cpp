@@ -69,6 +69,10 @@ int main(int argc, char** argv) {
             fclose(fp);
         }
     }
+
+    const int seed = time(NULL);
+    print_info("Using random seed of %i", seed);
+    std::srand(seed);
     
 #ifndef UNIT_TEST
     try {

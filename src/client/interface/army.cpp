@@ -94,13 +94,13 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     unsigned int i = 0;
     for(const auto& building : gs.world->buildings) {
         if(building->get_owner() != gs.curr_nation) continue;
-        auto* btn = new ArmyProductionUnitInfo(gs, 0, 128 + (24 * i), building, this);
+        auto* btn = new ArmyProductionUnitInfo(gs, 0, 128 + (48 * i), building, this);
         i++;
     }
 }
 
 ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Building* _building, UI::Widget* parent)
-    : UI::Group(x, y, parent->width - x, 24, parent),
+    : UI::Group(x, y, parent->width - x, 48, parent),
     gs{ _gs },
     building{ _building }
 {
@@ -113,24 +113,24 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
 
     this->province_lab = new UI::Label(0, 0, "?", this);
     this->province_lab->right_side_of(*this->unit_icon);
-    if(building->get_province() != nullptr)
-        this->province_lab->text(building->get_province()->ref_name);
     this->province_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
-        if(o.building->get_province() != nullptr)
-            w.text(o.building->get_province()->ref_name);
+        if(o.building->get_province() != nullptr) {
+            w.text(o.building->get_province()->name);
+        }
     });
+    this->province_lab->on_each_tick(*this->province_lab, nullptr);
 
     this->name_lab = new UI::Label(0, 0, "?", this);
     this->name_lab->right_side_of(*this->province_lab);
-    this->name_lab->text((building->working_unit_type != nullptr) ? building->working_unit_type->ref_name : "No unit");
     this->name_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
-        w.text((o.building->working_unit_type != nullptr) ? o.building->working_unit_type->ref_name : "No unit");
+        w.text((o.building->working_unit_type != nullptr) ? o.building->working_unit_type->name : "No unit");
     });
+    this->name_lab->on_each_tick(*this->name_lab, nullptr);
 
     auto* progress_pgbar = new UI::ProgressBar(0, 0, 128, 24, 0.f, 1.f, this);
-    progress_pgbar->right_side_of(*this->name_lab);
+    progress_pgbar->below_of(*this->name_lab);
     progress_pgbar->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
 
@@ -154,6 +154,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
         w.tooltip->text(text);
     });
     progress_pgbar->tooltip = new UI::Tooltip(progress_pgbar, 512, 24);
+    progress_pgbar->on_each_tick(*progress_pgbar, nullptr);
 }
 
 ArmySelectUnitTab::ArmySelectUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
@@ -200,9 +201,15 @@ ArmyNewUnitTab::ArmyNewUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
 }
 
 ArmyView::ArmyView(GameState& _gs)
-    : UI::Window(0, 0, 800, 196),
+    : UI::Window(-400, 0, 400, _gs.height),
     gs{ _gs }
 {
+    if(gs.right_side_panel != nullptr) {
+        gs.right_side_panel->kill();
+    }
+    gs.right_side_panel = this;
+
+    this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
     this->text("Army manager");
 
@@ -277,7 +284,6 @@ ArmyView::ArmyView(GameState& _gs)
     this->new_unit_tab->is_render = false;
     auto* new_unit_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/new_unit.png")), this);
     new_unit_ibtn->right_side_of(*production_ibtn);
-    new_unit_ibtn->text("New Unit");
     new_unit_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyView&>(*w.parent);
 
@@ -299,4 +305,9 @@ ArmyView::ArmyView(GameState& _gs)
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
     close_btn->right_side_of(*new_unit_ibtn);
     close_btn->text("Close");
+    close_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<ArmyView&>(*w.parent);
+        o.gs.right_side_panel->kill();
+        o.gs.right_side_panel = nullptr;
+    });
 }
