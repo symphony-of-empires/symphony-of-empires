@@ -35,7 +35,7 @@ sudo dpkg -i liblua5.4-0_5.4.0-2_amd64.deb
 wget http://mirrors.kernel.org/ubuntu/pool/universe/l/lua5.4/liblua5.4-dev_5.4.0-2_amd64.deb
 sudo dpkg -i liblua5.4-dev_5.4.0-2_amd64.deb
 ```
-Alternatively, you can call `cmake` with the flag `-Dlua53:BOOL=ON` to compile with Lua 5.3 instead.
+Alternatively, you can call `cmake` with the flag `-Dlua54:BOOL=ON` to compile with Lua 5.4 - since 5.3 is used by default.
 
 The project can also be built using clang.
 
@@ -50,12 +50,12 @@ make -j
 ## Build (Windows, MinGW)
 Simply run the following after setting up the initial msys environment:
 ```
-pacman -S mingw-w64-SDL2_ttf mingw-w64-SDL2 mingw-w64-lua
+pacman -S mingw-w64-SDL2_ttf mingw-w64-SDL2 mingw-w64-lua mingw-w64-zlib
 ```
 
 On 32-bit systems the following is required:
 ```
-pacman -S mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-lua
+pacman -S mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-lua mingw-w64-i686-zlib
 ```
 
 ## Build (Windows, Visual Studio)
