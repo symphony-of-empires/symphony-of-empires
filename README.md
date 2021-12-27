@@ -47,6 +47,17 @@ cmake -DWIN32=1 -DCMAKE_BUILD_TYPE:String=RelWithDebInfo ..
 make -j
 ```
 
+## Build (Windows, MinGW)
+Simply run the following after setting up the initial msys environment:
+```
+pacman -S mingw-w64-SDL2_ttf mingw-w64-SDL2 mingw-w64-lua
+```
+
+On 32-bit systems the following is required:
+```
+pacman -S mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-lua
+```
+
 ## Build (Windows, Visual Studio)
 Builds can be built using Visual C compiler. The trick is to create a new solution and place everything there, add src and src\\client as include folders and use NuGet to obtain the required dependencies, then define the macro `windows`.
 
