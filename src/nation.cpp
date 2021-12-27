@@ -137,8 +137,7 @@ void Nation::set_policy(Policies& policies) {
         return;
     }
 
-    float approvals = 0, disapprovals = 0;
-
+    unsigned int approvals = 0, disapprovals = 0;
     std::vector<Pop*> disapprovers, approvers;
     for(const auto& province : this->owned_provinces) {
         for(auto& pop : province->pops) {
