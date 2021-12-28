@@ -196,18 +196,18 @@ void ai_update_relations(Nation* nation, Nation* other) {
     }
 
     // Randomness to spice stuff up
-    if(!(std::rand() % 1000)) {
+    if(!(std::rand() % 10)) {
         nation->increase_relation(*other);
     } else if(!(std::rand() % 100)) {
         nation->decrease_relation(*other);
     }
     
-    if(!(std::rand() % 5)) {
+    if(1) {
         if(!relation.has_war && !relation.has_alliance && !relation.has_defensive_pact) {
             nation->declare_war(*other);
         } else {
             // Offer treaties
-            if(!(std::rand() % 1000)) {
+            if(!(std::rand() % 100)) {
                 Treaty* treaty = new Treaty();
 
                 {
@@ -221,7 +221,32 @@ void ai_update_relations(Nation* nation, Nation* other) {
                             }
                         }
                     }
-                    treaty->clauses.push_back(clause);
+
+                    if(!clause->provinces.empty()) {
+                        treaty->clauses.push_back(clause);
+                    }
+                }
+
+                {
+                    auto* clause = new TreatyClause::LiberateNation();
+                    clause->sender = nation;
+                    clause->receiver = other;
+
+                    clause->liberated = nullptr;
+                    for(const auto& province : other->owned_provinces) {
+                        for(const auto& other_nation : province->nuclei) {
+                            if(other_nation != other) {
+                                clause->liberated = other_nation;
+                                break;
+                            }
+                        }
+
+                        if(clause->liberated != nullptr) break;
+                    }
+
+                    if(clause->liberated != nullptr) {
+                        treaty->clauses.push_back(clause);
+                    }
                 }
 
                 {
@@ -376,7 +401,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     continue;
                 }
             }
-			
+
             for(const auto& province : nation->owned_provinces) {
                 defense_factor /= ((province->total_pops() + province->n_tiles) / 10000) + 1;
             }
@@ -409,7 +434,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 Province* province = building->get_province();
                 if(province == nullptr) continue;
 
-                if(std::rand() % 10) continue;
+                if(std::rand() % 100) continue;
 
                 auto* unit_type = g_world->unit_types[std::rand() % g_world->unit_types.size()];
                 //if(!unit_type->is_ground) continue;
@@ -474,10 +499,9 @@ void ai_do_tick(Nation* nation, World* world) {
 
                     // Risk is augmentated when we border any non-ally nation
                     if(!relation.has_alliance) {
-                        potential_risk[world->get_id(province)] += 50;
+                        potential_risk[world->get_id(neighbour)] += 100;
                         if(relation.has_war) {
-                            potential_risk[world->get_id(province)] += 250 + (std::rand() % 250);
-                            potential_risk[world->get_id(neighbour)] += 500 + (std::rand() % 500);
+                            potential_risk[world->get_id(neighbour)] += 50000;
                         }
                     }
                 }
@@ -493,7 +517,7 @@ void ai_do_tick(Nation* nation, World* world) {
 
         for(const auto& province : world->provinces) {
             for(const auto& neighbour : province->neighbours) {
-                potential_risk[world->get_id(neighbour)] += potential_risk[world->get_id(province)] / province->neighbours.size();
+                potential_risk[world->get_id(neighbour)] += (potential_risk[world->get_id(province)] + 1) / province->neighbours.size();
             }
         }
 
@@ -501,11 +525,16 @@ void ai_do_tick(Nation* nation, World* world) {
             if(unit->province->neighbours.empty()) continue;
             if(unit->owner != nation) continue;
 
+            // Do not override targets (temporal)
+            // TODO: OVERRIDE TARGETS ON CRITICAL SITUATIONS
+            //if(unit->target != nullptr) continue;
+
             // See which province has the most potential_risk so we cover it from potential threats
             Province* highest_risk = unit->province;
             for(const auto& province : unit->province->neighbours) {
                 //if(!unit->type->is_naval && province->terrain_type->is_water_body) continue;
                 if(province->terrain_type->is_water_body) continue;
+                if(std::rand() % 2) continue;
 
                 if(potential_risk[world->get_id(highest_risk)] < potential_risk[world->get_id(province)]) {
                     if(province->owner != nullptr) {
