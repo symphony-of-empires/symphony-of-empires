@@ -1,6 +1,6 @@
 # Blender v2.93.2 OBJ File: '1 ship.blend'
 # www.blender.org
-mtllib 1 ship.mtl
+mtllib unit_types/clipper.mtl
 o Cube_Cube.010
 v -21.390604 -0.473562 4.822455
 v -21.390604 0.533062 6.467167
