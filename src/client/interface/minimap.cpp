@@ -9,6 +9,8 @@
 #include "client/ui/image.hpp"
 #include "client/ui/tooltip.hpp"
 
+#include <math.h>
+
 using namespace Interface;
 
 std::vector<ProvinceColor> terrain_map_mode(const World& world);
@@ -141,14 +143,15 @@ std::vector<ProvinceColor> terrain_color_map_mode(const World& world) {
 
 std::vector<ProvinceColor> population_map_mode(const World& world) {
     // Find the maximum amount of pops in one province
-    std::vector<std::pair<Province::Id, uint32_t>> province_amounts;
-    uint32_t max_amount = 1;
+    std::vector<std::pair<Province::Id, float>> province_amounts;
+    float max_amount = 1;
     for(auto const& province : world.provinces) {
-        uint32_t amount = 0;
+        float amount = 0;
         for(auto const& pop : province->pops) {
             amount += pop.size;
         }
-        max_amount = std::max<size_t>(amount, max_amount);
+        amount = log2(amount + 1.f);
+        max_amount = std::max<float>(amount, max_amount);
         province_amounts.push_back(std::make_pair(world.get_id(province), amount));
     }
 
@@ -159,7 +162,7 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
     for(auto const& prov_amount : province_amounts) {
         Province::Id prov_id = prov_amount.first;
         uint32_t amount = prov_amount.second;
-        float ratio = ((float)amount) / max_amount;
+        float ratio = amount / max_amount;
         UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ratio);
         province_color.push_back(ProvinceColor(prov_id, color));
     }
