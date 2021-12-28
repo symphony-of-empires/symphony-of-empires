@@ -70,6 +70,7 @@ public:
     float life_needs_met_mod = 1.f;
     float everyday_needs_met_mod = 1.f;
     float luxury_needs_met_mod = 1.f;
+    float immigration_attraction = 1.f;
 };
 
 class Nation : public RefnameEntity<uint16_t> {
@@ -85,7 +86,9 @@ public:
     void auto_relocate_capital(void);
     void set_policy(Policies& policies);
     bool is_accepted_culture(const Pop& pop) const;
+    bool is_accepted_culture(Culture* culture) const;
     bool is_accepted_religion(const Pop& pop) const;
+    bool is_accepted_religion(Religion* relgion) const;
     float get_tax(const Pop& pop) const;
     void give_province(Province& province);
     const NationClientHint& get_client_hint(void);
@@ -193,6 +196,14 @@ public:
         float c = 1.f;
         for(const auto& mod : modifiers) {
             c += mod->luxury_needs_met_mod;
+        }
+        return c;
+    }
+
+    float get_immigration_attraction_mod(void) {
+        float c = 1.f;
+        for(const auto& mod : modifiers) {
+            c += mod->immigration_attraction;
         }
         return c;
     }
