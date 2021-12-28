@@ -15,9 +15,11 @@
 #include <filesystem>
 #include "unified_render/stb_vorbis.c"
 
-using namespace UnifiedRender;
+UnifiedRender::Sound::Sound() {
+    
+}
 
-Sound::Sound(const std::string& path) {
+UnifiedRender::Sound::Sound(const std::string& path) {
     SDL_AudioSpec wave;
     SDL_AudioCVT cvt;
     
@@ -46,23 +48,20 @@ Sound::Sound(const std::string& path) {
     SDL_UnlockAudio();
 }
 
-Sound::Sound() {
-    
-}
-
-Sound::~Sound() {
+UnifiedRender::Sound::~Sound() {
     free(this->data);
 }
 
-const Sound& SoundManager::load(const std::string& path) {
+const UnifiedRender::Sound& UnifiedRender::SoundManager::load(const std::string& path) {
     // Find Sound when wanting to be loaded
     auto it = std::find_if(this->sounds.begin(), this->sounds.end(), [&path](const auto& element) {
         return (element.second == path);
     });
 
     // Load Sound from cached Sound list
-    if(it != this->sounds.end())
+    if(it != this->sounds.end()) {
         return *((*it).first);
+    }
 
     print_info("Loaded and cached sound %s", path.c_str());
 
@@ -72,5 +71,5 @@ const Sound& SoundManager::load(const std::string& path) {
     sound->len = 0;
     sound->pos = 0;
     this->sounds.insert(std::make_pair(sound, path));
-    return *((const Sound*)sound);
+    return *((const UnifiedRender::Sound*)sound);
 }

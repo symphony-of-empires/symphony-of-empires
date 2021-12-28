@@ -20,8 +20,8 @@ namespace UnifiedRender {
 
     class Sound {
     public:
-        Sound(const std::string& path);
         Sound();
+        Sound(const std::string& path);
         ~Sound();
 
         uint8_t *data;

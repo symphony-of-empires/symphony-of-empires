@@ -9,6 +9,22 @@
 #include <SDL2/SDL_surface.h>
 #endif
 
+Texture() {
+
+}
+
+UnifiedRender::Texture::Texture(const std::string& path)
+    : BinaryImage(path)
+{
+
+}
+
+UnifiedRender::Texture::Texture(size_t _width, size_t _height)
+    : BinaryImage(_width, _height) 
+{
+
+}
+
 UnifiedRender::Texture::~Texture() {
     if(gl_tex_num) delete_opengl();
 }

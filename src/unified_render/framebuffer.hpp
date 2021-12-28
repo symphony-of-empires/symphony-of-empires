@@ -10,7 +10,7 @@ namespace UnifiedRender {
         public:
             Framebuffer();
             ~Framebuffer();
-            void set_texture(int index, const UnifiedRender::Texture* texture);
+            void set_texture(int index, const UnifiedRender::Texture& texture);
             void use();
         private:
             GLuint id = 0;

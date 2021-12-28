@@ -27,11 +27,10 @@
 #include "unified_render/material.hpp"
 #include "unified_render/model.hpp"
 
-using namespace UnifiedRender;
+// Used for the singleton
+static UnifiedRender::State* g_state = nullptr;
 
-static State* g_state = nullptr;
-
-State::State(void) {
+UnifiedRender::State::State(void) {
     g_state = this;
 
 	// Startup-initialization of subsystems
@@ -127,7 +126,7 @@ State::State(void) {
     }
 }
 
-State::~State(void) {
+UnifiedRender::State::~State(void) {
 	SDL_CloseAudio();
 	
     TTF_Quit();
@@ -136,8 +135,8 @@ State::~State(void) {
     g_state = nullptr;
 }
 
-void State::mixaudio(void* userdata, uint8_t* stream, int len) {
-    State& gs = *((State*)userdata);
+void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
+    UnifiedRender::State& gs = *((UnifiedRender::State*)userdata);
     std::memset(stream, 0, len);
 
     if(gs.sound_lock.try_lock()) {
@@ -177,6 +176,6 @@ void State::mixaudio(void* userdata, uint8_t* stream, int len) {
     if(gs.music_fade_value > 1.f) gs.music_fade_value -= 1.f;
 }
 
-State& State::get_instance(void) {
+UnifiedRender::State& UnifiedRender::State::get_instance(void) {
     return *g_state;
 }

@@ -40,27 +40,27 @@ namespace UnifiedRender {
 
         class VertexShader : public Shader {
         public:
-            VertexShader(const std::string& path) : Shader(path, GL_VERTEX_SHADER) {};
+            VertexShader(const std::string& path);
         };
 
         class FragmentShader : public Shader {
         public:
-            FragmentShader(const std::string& path) : Shader(path, GL_FRAGMENT_SHADER) {};
+            FragmentShader(const std::string& path);
         };
 
         class GeometryShader : public Shader {
         public:
-            GeometryShader(const std::string& path) : Shader(path, GL_GEOMETRY_SHADER) {};
+            GeometryShader(const std::string& path);
         };
 
         class TessControlShader : public Shader {
         public:
-            TessControlShader(const std::string& path) : Shader(path, GL_TESS_CONTROL_SHADER) {};
+            TessControlShader(const std::string& path);
         };
 
         class TessEvalShader : public Shader {
         public:
-            TessEvalShader(const std::string& path) : Shader(path, GL_TESS_EVALUATION_SHADER) {};
+            TessEvalShader(const std::string& path);
         };
 
         class Program {
@@ -79,8 +79,10 @@ namespace UnifiedRender {
             void set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const;
             void set_uniform(const std::string& name, float uniform) const;
             void set_uniform(const std::string& name, int uniform) const;
-            void set_texture(int value, const std::string& name, const UnifiedRender::Texture* texture) const;
-            void set_texture(int value, const std::string& name, const UnifiedRender::TextureArray* texture) const;
+
+            void set_texture(int value, const std::string& name, const UnifiedRender::Texture& texture) const;
+            void set_texture(int value, const std::string& name, const UnifiedRender::TextureArray& texture) const;
+            
             GLuint get_id(void) const;
         };
     }
