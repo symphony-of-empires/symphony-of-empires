@@ -3,6 +3,41 @@
 -- Subcontinent: Central America
 -- Country: USCA
 
+local upca_provinces_list = {
+    { ref_name = "province_ff5e8900", name = _("Province_895eff"), color = 0x895eff },
+    { ref_name = "province_ce75ff00", name = _("Province_ff75ce"), color = 0xff75ce },
+    { ref_name = "province_40338d00", name = _("Province_8d3340"), color = 0x8d3340 },
+    { ref_name = "province_20268d00", name = _("Province_8d2620"), color = 0x8d2620 },
+    { ref_name = "province_838300", name = _("Province_838300"), color = 0x838300 },
+    { ref_name = "province_c0c84900", name = _("Province_49c8c0"), color = 0x49c8c0 },
+    { ref_name = "province_80b8dc00", name = _("Province_dcb880"), color = 0xdcb880 },
+    { ref_name = "province_ff00ff00", name = _("Province_ff00ff"), color = 0xff00ff },
+    { ref_name = "province_20e41c00", name = _("Province_1ce420"), color = 0x1ce420 },
+    { ref_name = "province_000000", name = _("Province_000000"), color = 0x000000 },
+    { ref_name = "province_8020ec00", name = _("Province_ec2080"), color = 0xec2080 },
+    { ref_name = "province_b7ff5400", name = _("Province_54ffb7"), color = 0x54ffb7 },
+    { ref_name = "province_6061c600", name = _("Province_c66160"), color = 0xc66160 },
+}
+for k, v in pairs(upca_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(gold_mine, upca)
+    province:add_industry(wheat_farm, upca)
+    province:add_pop(artisan, german, protestant, 5000, 0.7)
+    province:add_pop(farmer, german, protestant, 5000, 0.1)
+    province:add_pop(soldier, german, protestant, 5000, 0.2)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.2)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.7)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.2)
+    province:add_pop(clergymen, german, protestant, 5000, 0.3)
+    province:add_pop(laborer, german, protestant, 5000, 0.2)
+    province:add_pop(burgeoise, german, protestant, 500, 0.9)
+    province:add_pop(slave, german, protestant, 500, 0.5)
+    province:add_nucleus(upca)
+    province:give_to(upca)
+end
+
 province = Province:new{ ref_name = "bocas_del_toro", color = 0xB7CAFF }
 province.name = _("Bocas del Toro")
 province:register()

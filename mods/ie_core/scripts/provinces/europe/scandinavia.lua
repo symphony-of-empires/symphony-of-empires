@@ -127,6 +127,7 @@ local sweden_provinces_list = {
     { ref_name = "jamtland", name = _("Jämtland"), color = 0x82abff },
     { ref_name = "vasterbotten", name = _("Västerbotten"), color = 0xff6bc3 },
     { ref_name = "lappland", name = _("Lappland"), color = 0x0cdaff },
+    { ref_name = "province_ff70c800", name = _("Province_c870ff"), color = 0xc870ff },
 }
 for k, v in pairs(sweden_provinces_list) do
     province = Province:new(v)
