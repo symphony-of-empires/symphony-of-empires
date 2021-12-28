@@ -1,6 +1,6 @@
 # Blender v2.93.2 OBJ File: 'barque ship.blend'
 # www.blender.org
-mtllib barque ship.mtl
+mtllib unit_types/barque.mtl
 o Cube.001_Cube.004
 v 0.072840 0.435563 2.237157
 v 0.072840 7.244860 2.237157
