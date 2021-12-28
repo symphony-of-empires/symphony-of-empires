@@ -11,6 +11,7 @@
 #include "unified_render/thread_pool.hpp"
 #include "product.hpp"
 #include "good.hpp"
+#include "emigration.hpp"
 
 // Visual Studio does not define ssize_t because it's a POSIX-only type
 #ifdef _MSC_VER
@@ -18,16 +19,6 @@ typedef signed int ssize_t;
 #endif
 
 // Structure that represents a person emigrating from a province to another
-struct Emigrated {
-public:
-    Emigrated() {};
-    ~Emigrated() {};
-
-    Province* origin;
-    Province* target;
-    Pop emigred;
-    size_t size;
-};
 
 struct Workers {
 public:
@@ -65,12 +56,13 @@ static inline std::vector<AvailableWorkers> get_available_workers(World& world) 
                 continue;
             }
 
-            Workers workers{pop};
+            Workers workers{ pop };
             if(!province->controller->is_accepted_culture(pop)) {
                 // POPs of non-accepted cultures on exterminate mode cannot get jobs
                 if(province->controller->current_policy.treatment == TREATMENT_EXTERMINATE) {
                     continue;
-                } else if(province->controller->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
+                }
+                else if(province->controller->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
                     workers.amount /= 2;
                 }
             }
@@ -120,13 +112,15 @@ void Economy::do_tick(World& world) {
                 const size_t employed = 500;
                 if(output->good->is_edible) {
                     needed_farmers += employed;
-                } else {
+                }
+                else {
                     needed_laborers += employed;
                 }
                 needed_entrepreneurs += employed / 100;
                 ++i;
             }
-        } else {
+        }
+        else {
             needed_laborers = 50;
             needed_farmers = 50;
             needed_entrepreneurs = 50;
@@ -294,7 +288,7 @@ void Economy::do_tick(World& world) {
 
             world.orders_mutex.lock();
             for(const auto& input : building->type->inputs) {
-                OrderGoods order = {};
+                OrderGoods order ={};
 
                 order.payment = building->willing_payment;
                 order.good = input;
@@ -305,7 +299,8 @@ void Economy::do_tick(World& world) {
                 // Farmers can only work with edibles and laborers can only work for edibles
                 if(input->is_edible) {
                     order.quantity = (available_farmers / needed_farmers) * 5000;
-                } else {
+                }
+                else {
                     order.quantity = (available_laborers / needed_laborers) * 5000;
                 }
                 if(!order.quantity) continue;
@@ -327,7 +322,7 @@ void Economy::do_tick(World& world) {
             // Place deliver orders (we are a RGO)
             world.delivers_mutex.lock();
             for(size_t k = 0; k < building->type->outputs.size(); k++) {
-                DeliverGoods deliver = {};
+                DeliverGoods deliver ={};
 
                 deliver.payment = building->willing_payment;
                 deliver.good = building->type->outputs[k];
@@ -337,7 +332,8 @@ void Economy::do_tick(World& world) {
 
                 if(deliver.good->is_edible) {
                     deliver.quantity = (available_farmers / needed_farmers) * 5000;
-                } else {
+                }
+                else {
                     deliver.quantity = (available_laborers / needed_laborers) * 5000;
                 }
                 if(!deliver.quantity) continue;
@@ -361,7 +357,7 @@ void Economy::do_tick(World& world) {
         for(const auto& good : building->req_goods) {
             if(!good.second) continue;
 
-            OrderGoods order = {};
+            OrderGoods order ={};
             order.quantity = good.second;
             order.quantity *= building->get_owner()->get_industry_input_mod();
             // TODO: Make this dynamic
@@ -378,7 +374,7 @@ void Economy::do_tick(World& world) {
         for(const auto& good : building->req_goods_for_unit) {
             if(!good.second) continue;
 
-            OrderGoods order = {};
+            OrderGoods order ={};
             order.quantity = good.second;
             order.quantity *= building->get_owner()->get_industry_input_mod();
             // TODO: Make this dynamic
@@ -431,7 +427,7 @@ void Economy::do_tick(World& world) {
         DeliverGoods& deliver = world.delivers[i];
 
         const Policies& deliver_policy = deliver.province->controller->current_policy;
-        Building* deliver_building = deliver.building;
+        // Building* deliver_building = deliver.building;
 
         // Check all orders
         auto& order_list = orders_good[world.get_id(deliver.good)];
@@ -454,7 +450,8 @@ void Economy::do_tick(World& world) {
                 // International trade
                 total_order_cost = order_cost * order_policy.import_tax;
                 total_deliver_cost = deliver_cost * order_policy.export_tax;
-            } else {
+            }
+            else {
                 // Domestic trade
                 total_order_cost = order_cost * order_policy.domestic_import_tax;
                 total_deliver_cost = deliver_cost * order_policy.domestic_export_tax;
@@ -467,7 +464,8 @@ void Economy::do_tick(World& world) {
                     order.building->willing_payment = total_order_cost;
                 }
                 continue;
-            } else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
+            }
+            else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
                 deliver.building->willing_payment = total_deliver_cost;
                 continue;
             }
@@ -491,7 +489,8 @@ void Economy::do_tick(World& world) {
                 // Increment the production cost of this building which is used
                 // so we sell our product at a profit instead  of at a loss
                 order.building->production_cost += deliver.product->price;
-            } else if(order.type == OrderType::BUILDING) {
+            }
+            else if(order.type == OrderType::BUILDING) {
                 // The building will take the production materials
                 // and use them for building the unit
                 order.building->get_owner()->budget -= total_order_cost;
@@ -499,7 +498,8 @@ void Economy::do_tick(World& world) {
                     if(p.first != deliver.good) continue;
                     p.second -= std::min(p.second, count);
                 }
-            } else if(order.type == OrderType::UNIT) {
+            }
+            else if(order.type == OrderType::UNIT) {
                 // TODO: We should deduct and set willing payment from military spendings
                 order.building->get_owner()->budget -= total_order_cost;
                 for(auto& p : order.building->req_goods) {
@@ -507,7 +507,8 @@ void Economy::do_tick(World& world) {
                     p.second -= std::min(p.second, count);
                     print_info("Delivered %zu goods (%zu remaining!), of type %s", count, p.second, order.good->ref_name.c_str());
                 }
-            } else if(order.type == OrderType::POP) {
+            }
+            else if(order.type == OrderType::POP) {
                 // Nobody is to be billed ... transport company still obtains their money & delivers to the province
                 //order.province->stockpile[world.get_id(deliver.product)] += order.quantity;
             }
@@ -515,7 +516,7 @@ void Economy::do_tick(World& world) {
             deliver.quantity -= count;
             order.quantity -= count;
             order.province->stockpile[world.get_id(deliver.product->good)] += count;
-            
+
             deliver.product->supply += deliver.quantity;
 
             // Delete this deliver and order tickets from the system since
@@ -553,17 +554,12 @@ void Economy::do_tick(World& world) {
 
     // Now, it's like 1 am here, but i will try to write a very nice economic system
     // TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
-    std::vector<Emigrated> emigration = std::vector<Emigrated>();
-    std::mutex emigration_lock;
 
-    std::for_each(world.provinces.begin(), world.provinces.end(), [&emigration_lock, &emigration, &world](auto& province) {
+    std::for_each(world.provinces.begin(), world.provinces.end(), [&world](auto& province) {
         if(province->controller == nullptr) return;
         if(province->terrain_type->is_water_body) return;
 
         //std::vector<Product*> province_products = province->get_products();
-
-        // Randomness factor to emulate a pseudo-imperfect economy
-        const float fuzz = std::fmod((float)(std::rand() + 1) / 1000.f, 2.f) + 1.f;
 
         for(size_t i = 0; i < province->pops.size(); i++) {
             Pop& pop = province->pops[i];
@@ -596,7 +592,8 @@ void Economy::do_tick(World& world) {
                 unsigned int bought;
                 if(good->is_edible) {
                     bought = std::rand() % pop.size;
-                } else {
+                }
+                else {
                     bought = std::rand() % pop.size;
                     // Slaves cannot buy commodities
                     if(pop.type->group == PopGroup::Slave) continue;
@@ -614,7 +611,8 @@ void Economy::do_tick(World& world) {
 
                 if(good->is_edible) {
                     pop.life_needs_met += (float)pop.size / (float)bought;
-                } else {
+                }
+                else {
                     pop.everyday_needs_met += (float)pop.size / (float)bought;
                 }
             }
@@ -636,7 +634,8 @@ void Economy::do_tick(World& world) {
             if(pop.life_needs_met >= -2.5f) {
                 // Starvation in -1 or 0 or >1 are amortized by literacy
                 growth = pop.life_needs_met / pop.literacy;
-            } else {
+            }
+            else {
                 // Neither literacy nor anything else can save humans from
                 // dying due starvation
                 growth = -((int)(std::rand() % pop.size));
@@ -648,7 +647,8 @@ void Economy::do_tick(World& world) {
 
             if(growth < 0) {
                 growth *= province->controller->get_death_mod();
-            } else {
+            }
+            else {
                 growth *= province->controller->get_reproduction_mod();
             }
 
@@ -664,107 +664,18 @@ void Economy::do_tick(World& world) {
                     pop.militancy -= 0.0002f;
                     pop.con -= 0.0001f;
                 }
-            } else {
+            }
+            else {
                 pop.militancy += 0.01f;
                 pop.con += 0.01f;
             }
 
             pop.militancy += 0.01f * province->controller->get_militancy_mod();
             pop.con += 0.01f * province->controller->get_militancy_mod();
-
-            // Depending on how much not our life needs are being met is how many we
-            // want to get out of here
-            // And literacy determines "best" spot, for example a low literacy will
-            // choose a slightly less desirable location
-            const float emigration_willing = std::max<float>(-pop.life_needs_met * std::fmod(fuzz, 10), 0);
-            const ssize_t emigreers = std::fmod(pop.size * (emigration_willing / (std::rand() % 8)), pop.size) / 100;
-            if(emigreers > 0) {
-                float current_attractive = province->get_attractiveness(pop);
-
-                // Check that laws on the province we are in allows for emigration
-                if(province->controller->current_policy.migration == ALLOW_NOBODY) {
-                    goto skip_emigration;
-                } else if(province->controller->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
-                    if(province->controller->is_accepted_culture(pop) == false) {
-                        goto skip_emigration;
-                    }
-                } else if(province->controller->current_policy.migration == ALLOW_ALL_PAYMENT) {
-                    // See if we can afford the tax
-                    if(pop.budget < ((pop.budget / 1000.f) * province->controller->current_policy.export_tax)) {
-                        continue;
-                    }
-                }
-
-                //print_info("%zu pops wanting to emigrate!", emigreers);
-
-                // Find best province (that neighbours us)
-                Province* best_province = nullptr;
-                for(auto target_province : province->neighbours) {
-                    // Don't go to owner-less provinces
-                    if(target_province->controller == nullptr) continue;
-                    if(target_province->terrain_type->is_water_body) return;
-
-                    const float attractive = target_province->get_attractiveness(pop) * (std::rand() % 16);
-                    if(attractive < current_attractive) continue;
-
-                    // Nobody is allowed in
-                    if(target_province->controller->current_policy.immigration == ALLOW_NOBODY) {
-                        continue;
-                    } else if(target_province->controller->current_policy.immigration == ALLOW_ACCEPTED_CULTURES) {
-                        // Only if we are accepted culture/religion
-                        if(!target_province->controller->is_accepted_culture(pop)) continue;
-                    } else if(target_province->controller->current_policy.immigration == ALLOW_ALL_PAYMENT) {
-                        // Allowed but only if we have money (and we are treated as "imported" good)
-                        if(pop.budget < ((pop.budget / 1000.f) * target_province->controller->current_policy.import_tax)) {
-                            continue;
-                        }
-                    }
-
-                    // Otherwise everyone is allowed in
-                    current_attractive = attractive;
-                    best_province = target_province;
-                }
-
-                // If best not found/same as we are at then we don't go to anywhere
-                if(best_province == nullptr || best_province == province) {
-                    // Or we do, but just randomly
-                    best_province = world.provinces[std::rand() % world.provinces.size()];
-                }
-
-                //print_info("Emigrating %s -> %s, about %lli", province->name.c_str(), best_province->name.c_str(), emigreers);
-
-                Emigrated emigrated = Emigrated();
-                emigrated.target = best_province;
-                emigrated.emigred = pop;
-                emigrated.size = emigreers;
-                emigrated.origin = province;
-
-                std::scoped_lock lock(emigration_lock);
-                emigration.push_back(emigrated);
-            }
-        skip_emigration:;
         }
     });
+    do_emigration(world);
 
-    // Now time to do the emigration - we will create a new POP on the province
-    // if a POP with similar culture, religion and type does not exist - and we
-    // will also subtract the amount of emigrated from the original POP to not
-    // create clones
-    for(const auto& target : emigration) {
-        auto pop = std::find(target.origin->pops.begin(), target.origin->pops.end(), target.emigred);
-        pop->size -= std::min(pop->size, target.size);
-
-        auto new_pop = std::find(target.target->pops.begin(), target.target->pops.end(), *pop);
-        if(new_pop == target.target->pops.end()) {
-            Pop i_pop(*pop);
-            i_pop.size = target.size;
-            target.target->pops.push_back(i_pop);
-        } else {
-            new_pop->size += target.size;
-            new_pop->budget += target.emigred.budget;
-        }
-    }
-    emigration.clear();
 
     // Chances of a coup increment for the global militancy
     for(auto& nation : world.nations) {
