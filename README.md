@@ -48,14 +48,23 @@ cmake -DWIN32=1 -DCMAKE_BUILD_TYPE:String=RelWithDebInfo ..
 make -j
 ```
 
-## Build (Windows, MinGW)
-Simply run the following after setting up the initial msys environment:
+## Build (Windows, MSYS2)
+Once msys2 has been installed for the first time, you'll have to run the following commands to install essential development packages:
+```sh
+pacman -Syu
+pacman -Su
 ```
+
+Simply run the following after setting up the initial msys environment:
+```sh
 pacman -S mingw-w64-SDL2_ttf mingw-w64-SDL2 mingw-w64-lua mingw-w64-zlib
+
+# Try this one if the above does not work
+pacman -S mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2 mingw-w64-x86_64-lua mingw-w64-x86_64-zlib
 ```
 
 On 32-bit systems the following is required:
-```
+```sh
 pacman -S mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-lua mingw-w64-i686-zlib
 ```
 
@@ -63,7 +72,6 @@ pacman -S mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-lua mingw-w
 Builds can be built using Visual C compiler. The trick is to create a new solution and place everything there, add src and src\\client as include folders and use NuGet to obtain the required dependencies, then define the macro `windows`.
 
 ## Running
-
 In order to run the game you need to first start the server, this server manages the world state and does the economic simulation:
 ```
 ./SymphonyOfEmpiresServer
