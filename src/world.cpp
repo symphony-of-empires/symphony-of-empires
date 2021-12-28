@@ -508,7 +508,7 @@ void World::load_initial(void) {
     div.reset(nullptr);
 
     /* Uncomment this for auto-generating lua code for unregistered provinces */
-    /*FILE* fp = fopen("UNREG_PROVINCES.lua", "a+t");
+    FILE* fp = fopen("unknown.lua", "w+t");
     if(fp) {
         for(const auto& color_raw : colors_found) {
             uint32_t color = color_raw << 8;
@@ -517,7 +517,7 @@ void World::load_initial(void) {
             fprintf(fp, "province:register()\n");
         }
         fclose(fp);
-    }*/
+    }
 
     // Calculate the edges of the province (min and max x and y coordinates)
     print_info(gettext("Calculate the edges of the province (min and max x and y coordinates)"));
@@ -710,11 +710,9 @@ void World::do_tick() {
             float* pts_count;
             if(tech->type == TechnologyType::MILITARY) {
                 pts_count = &mil_research_pts[get_id(nation)];
-            }
-            else if(tech->type == TechnologyType::NAVY) {
+            } else if(tech->type == TechnologyType::NAVY) {
                 pts_count = &naval_research_pts[get_id(nation)];
-            }
-            else {
+            } else {
                 continue;
             }
 
