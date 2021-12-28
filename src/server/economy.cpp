@@ -505,11 +505,11 @@ void Economy::do_tick(World& world) {
                 for(auto& p : order.building->req_goods) {
                     if(p.first != deliver.good) continue;
                     p.second -= std::min(p.second, count);
+                    print_info("Delivered %zu goods (%zu remaining!), of type %s", count, p.second, order.good->ref_name.c_str());
                 }
             } else if(order.type == OrderType::POP) {
                 // Nobody is to be billed ... transport company still obtains their money & delivers to the province
                 //order.province->stockpile[world.get_id(deliver.product)] += order.quantity;
-                print_info("POP requested stuff");
             }
             // Add to stockpile (duplicate items) to the province at each transporting
             deliver.quantity -= count;

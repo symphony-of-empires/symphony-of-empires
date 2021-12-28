@@ -281,10 +281,13 @@ void Server::net_loop(int id) {
                         // Must control unit
                         if(selected_nation != unit->owner)
                             throw ServerException("Nation does not control unit");
-
-                        ::deserialize(ar, &unit->province);
-                        if(unit->province != nullptr)
-                            print_info("Unit changes targets to %s", unit->province->ref_name.c_str());
+                        
+                        Province* province;
+                        ::deserialize(ar, &province);
+                        if(province != nullptr)
+                            print_info("Unit changes targets to %s", province->ref_name.c_str());
+                        
+                        unit->set_target(*province);
                     } break;
                     // Client tells the server about the construction of a new unit, note that this will
                     // only make the building submit "construction tickets" to obtain materials to build
