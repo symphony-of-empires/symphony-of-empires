@@ -224,24 +224,23 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         return;
     }
     else if(event.button.button == SDL_BUTTON_RIGHT) {
-        if(1) {
-            const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-            if(tile.province_id == (Province::Id)-1) return;
-            Province* province = gs.world->provinces[tile.province_id];
-
-            FILE* fp = fopen("test.lua", "a+t");
-            if(!fp) return;
-            fprintf(fp, "{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%06x },\r\n", province->ref_name.c_str(), province->name.c_str(), bswap_32((province->color & 0x00ffffff) << 8));
-            fclose(fp);
-        }
-
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
         if(tile.province_id == (Province::Id)-1) return;
 
+        if(1) {
+            Province* province = gs.world->provinces[tile.province_id];
+
+            FILE* fp = fopen("test.lua", "a+t");
+            if(fp != nullptr) {
+                fprintf(fp, "{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%06x },\r\n", province->ref_name.c_str(), province->name.c_str(), bswap_32((province->color & 0x00ffffff) << 8));
+                fclose(fp);
+                gs.curr_nation->give_province(*province);
+            }
+        }
+
         for(const auto& unit : input.selected_units) {
-            if(!unit->province->is_neighbour(*gs.world->provinces[tile.province_id])) continue;
-            unit->set_target(*gs.world->provinces[tile.province_id]);
-            
+            //if(!unit->province->is_neighbour(*gs.world->provinces[tile.province_id])) continue;
+
             Packet packet = Packet();
             Archive ar = Archive();
             ActionType action = ActionType::UNIT_CHANGE_TARGET;
