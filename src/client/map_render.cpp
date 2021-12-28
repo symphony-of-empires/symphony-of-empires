@@ -171,14 +171,14 @@ UnifiedRender::Texture* MapRender::gen_border_sdf() {
     print_info("Creating border framebuffer");
     auto border_fbuffer = UnifiedRender::OpenGl::Framebuffer();
     border_fbuffer.use();
-    border_fbuffer.set_texture(0, border_tex);
+    border_fbuffer.set_texture(0, *border_tex);
 
     print_info("Drawing border with border shader");
     glViewport(0, 0, tile_map->width, tile_map->height);
     border_gen_shader->use();
     border_gen_shader->set_uniform("map_size", (float)tile_map->width, (float)tile_map->height);
-    border_gen_shader->set_texture(0, "tile_map", tile_map);
-    border_gen_shader->set_texture(1, "terrain_map", terrain_map);
+    border_gen_shader->set_texture(0, "tile_map", *tile_map);
+    border_gen_shader->set_texture(1, "terrain_map", *terrain_map);
     map_2d_quad->draw();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -213,12 +213,12 @@ UnifiedRender::Texture* MapRender::gen_border_sdf() {
         tex1->gen_mipmaps();
         border_sdf_shader->set_uniform("jump", (float)step);
 
-        fbo.set_texture(0, drawOnTex0 ? tex0 : tex1);
+        fbo.set_texture(0, drawOnTex0 ? *tex0 : *tex1);
         if(step == max_steps){
-            border_sdf_shader->set_texture(0, "tex", border_tex);
+            border_sdf_shader->set_texture(0, "tex", *border_tex);
         }
         else {
-            border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? tex1 : tex0);
+            border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? *tex1 : *tex0);
         }
 
         // Draw a plane over the entire screen to invoke shaders
@@ -249,8 +249,8 @@ UnifiedRender::Texture* MapRender::gen_border_sdf() {
     tex0 = new UnifiedRender::Texture(tex1->width, tex1->height);
     tex0->to_opengl(output_options);
 
-    output_fbo.set_texture(0, tex0);
-    output_shader->set_texture(0, "tex", tex1);
+    output_fbo.set_texture(0, *tex0);
+    output_shader->set_texture(0, "tex", *tex1);
     map_2d_quad->draw();
     glFinish();
     tex0->gen_mipmaps();
@@ -284,19 +284,19 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     map_shader->set_uniform("time", time);
 
     // Map should have no "model" matrix since it's always static
-    map_shader->set_texture(0, "tile_map", tile_map); // 4 col
-    map_shader->set_texture(1, "tile_sheet", tile_sheet);
-    map_shader->set_texture(2, "water_texture", water_tex);
-    map_shader->set_texture(3, "noise_texture", noise_tex);
-    map_shader->set_texture(4, "terrain_map", terrain_map); // 1 col
+    map_shader->set_texture(0, "tile_map", *tile_map); // 4 col
+    map_shader->set_texture(1, "tile_sheet", *tile_sheet);
+    map_shader->set_texture(2, "water_texture", *water_tex);
+    map_shader->set_texture(3, "noise_texture", *noise_tex);
+    map_shader->set_texture(4, "terrain_map", *terrain_map); // 1 col
     // Temporary not in use
     // map_shader->set_texture(5, "terrain_sheet", terrain_sheet);
-    map_shader->set_texture(8, "border_sdf", border_sdf); // 1 col
-    map_shader->set_texture(9, "landscape_map", landscape_map); // 3 col
-    map_shader->set_texture(10, "river_texture", river_tex); // 1 col
-    map_shader->set_texture(11, "wave1", wave1);
-    map_shader->set_texture(12, "wave2", wave2);
-    map_shader->set_texture(13, "normal10", normal_topo); // 3 col
+    map_shader->set_texture(8, "border_sdf", *border_sdf); // 1 col
+    map_shader->set_texture(9, "landscape_map", *landscape_map); // 3 col
+    map_shader->set_texture(10, "river_texture", *river_tex); // 1 col
+    map_shader->set_texture(11, "wave1", *wave1);
+    map_shader->set_texture(12, "wave2", *wave2);
+    map_shader->set_texture(13, "normal10", *normal_topo); // 3 col
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();

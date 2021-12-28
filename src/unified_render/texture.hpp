@@ -33,7 +33,11 @@ struct SDL_Surface;
 namespace UnifiedRender {
     class TextureException: public BinaryImageException {
     public:
-        TextureException(const std::string& filename, const std::string& message): BinaryImageException(filename, message){};
+        TextureException(const std::string& filename, const std::string& message)
+            : BinaryImageException(filename, message)
+        {
+
+        };
     };
 
     struct TextureOptions {
@@ -48,12 +52,12 @@ namespace UnifiedRender {
     };
     const TextureOptions default_options;
 
-    class Texture: public BinaryImage {
+    class Texture : public BinaryImage {
     public:
         Texture() {};
+        Texture(const std::string& path);
+        Texture(size_t _width, size_t _height);
         ~Texture() override;
-        Texture(const std::string& path): BinaryImage(path) {};
-        Texture(size_t _width, size_t _height): BinaryImage(_width, _height) {};
         void create_dummy();
         void to_opengl(TextureOptions options = default_options);
         void gen_mipmaps() const;
@@ -73,7 +77,7 @@ namespace UnifiedRender {
         TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y);
         void to_opengl(GLuint wrapp = GL_REPEAT, GLuint min_filter = GL_NEAREST, GLuint mag_filter = GL_NEAREST);
 
-        GLuint gl_tex_num;
+        GLuint gl_tex_num = 0;
         size_t layers;
         size_t tiles_x, tiles_y;
     };

@@ -53,7 +53,9 @@ void ThreadPool::add_job(std::function<void()> job) {
  */
 void ThreadPool::wait_finished() {
     std::unique_lock<std::mutex> lock(job_mutex);
-    cv_finished.wait(lock, [this](){ return jobs.empty() && (busy == 0); });
+    cv_finished.wait(lock, [this]() {
+        return (jobs.empty() && (busy == 0));
+    });
 }
 
 /**
@@ -63,7 +65,9 @@ void ThreadPool::wait_finished() {
 void ThreadPool::thread_loop() {
     while(true) {
         std::unique_lock<std::mutex> latch(job_mutex);
-        cv_task.wait(latch, [this](){ return !running || !jobs.empty(); });
+        cv_task.wait(latch, [this]() {
+            return (!running || !jobs.empty());
+        });
 
         if(!running) break;
 
