@@ -29,7 +29,13 @@ local mexico_provinces_list = {
     { ref_name = "oaxaca", name = _("Oaxaca"), color = rgb(142, 255, 168) },
     { ref_name = "chiapas", name = _("Chiapas"), color = rgb(191, 114, 255) },
     { ref_name = "nuevo_mexico", name = _("Nuevo México"), color = rgb(86, 255, 184) },
-    { ref_name = "south_new_mexico", name = _("South New Mexico"), color = rgb(145, 161, 255) }
+    { ref_name = "south_new_mexico", name = _("South New Mexico"), color = rgb(145, 161, 255) },
+
+    { ref_name = "province_e04e3c00", name = _("Province_3c4ee0"), color = 0x3c4ee0 },
+    { ref_name = "province_60ee2300", name = _("Province_23ee60"), color = 0x23ee60 },
+    { ref_name = "province_80916800", name = _("Province_689180"), color = 0x689180 },
+    { ref_name = "province_01bc00", name = _("Province_bc0100"), color = 0xbc0100 },
+    { ref_name = "province_e052ab00", name = _("Province_ab52e0"), color = 0xab52e0 },
 }
 
 for k, v in pairs(mexico_provinces_list) do
