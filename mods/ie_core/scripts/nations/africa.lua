@@ -27,6 +27,11 @@ egypt.adjective = _("Egyptians")
 egypt:register()
 egypt:add_client_hint(monarchy, _("Egypt"), 0x808000)
 
+morrocco = Nation:new{ ref_name = "morrocco" }
+morrocco.name = _("Morrocco")
+morrocco:register()
+morrocco:add_client_hint(monarchy, _("Morrocco"), 0x808000)
+
 tripolitania = Nation:new{ ref_name = "tripolitania" }
 tripolitania.name = _("Tripolitania")
 tripolitania.adjective = _("Tripolitanians")

@@ -63,7 +63,10 @@ end
 local paraguay_provinces_list = {
     { ref_name = "asuncion", name = _("Asunción"), color = rgb(0, 199, 255) },
     { ref_name = "vila_sacaron", name = _("Vila Sacarón"), color = rgb(183, 28, 255) },
-    { ref_name = "nioaque", name = _("Nioaque"), color = rgb(81, 116, 255) }
+    { ref_name = "nioaque", name = _("Nioaque"), color = rgb(81, 116, 255) },
+    { ref_name = "province_40647e00", name = _("Province_7e6440"), color = 0x7e6440 },
+    { ref_name = "province_ff7a5100", name = _("Province_517aff"), color = 0x517aff },
+    { ref_name = "province_404ad600", name = _("Province_d64a40"), color = 0xd64a40 },
 }
 for k, v in pairs(paraguay_provinces_list) do
     province = Province:new(v)
@@ -102,7 +105,9 @@ local bolivia_provinces_list = {
     { ref_name = "oruro", name = _("Oruro"), color = rgb(117, 255, 204) },
     { ref_name = "potosi", name = _("Potosí"), color = rgb(252, 99, 255) },
     { ref_name = "chuquisaca", name = _("Chuquisaca"), color = rgb(79, 167, 255) },
-    { ref_name = "tarija", name = _("Tarija"), color = rgb(144, 124, 255) }
+    { ref_name = "tarija", name = _("Tarija"), color = rgb(144, 124, 255) },
+    { ref_name = "province_ff63c800", name = _("Province_c863ff"), color = 0xc863ff },
+    { ref_name = "province_e0db4a00", name = _("Province_4adbe0"), color = 0x4adbe0 },
 }
 for k, v in pairs(bolivia_provinces_list) do
     province = Province:new(v)

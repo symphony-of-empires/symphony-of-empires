@@ -33,7 +33,10 @@ local owned_provinces_list = {
     { ref_name = "resistencia", name = _("Resistencia"), color = rgb(13, 27, 58) },
     { ref_name = "formosa", name = _("Formosa"), color = rgb(96, 255, 236) },
     { ref_name = "las_lomitas", name = _("Las Lomitas"), color = rgb(218, 170, 249) },
-    { ref_name = "monte_quemado", name = _("Monte Quemado"), color = rgb(199, 255, 79) }
+    { ref_name = "monte_quemado", name = _("Monte Quemado"), color = rgb(199, 255, 79) },
+    { ref_name = "province_ff9ef200", name = _("Province_f29eff"), color = 0xf29eff },
+    { ref_name = "province_29273800", name = _("Province_382729"), color = 0x382729 },
+    { ref_name = "province_fcbb00", name = _("Province_bbfc00"), color = 0xbbfc00 },
 }
 
 for k, v in pairs(owned_provinces_list) do
