@@ -1,5 +1,6 @@
 # Symphony of the Empires
-![Screenshot_2021-08-18_19-09-37](https://user-images.githubusercontent.com/39974089/131609523-b7c825bc-5db0-4f52-b715-ac9e469f22b3.png)
+![Screenshot_from_2021-12-25_01-25-26](https://user-images.githubusercontent.com/75251578/147566379-c81de302-533e-43e8-9a50-88d3eb4d54af.png)
+
 
 Want to contribute or are interested in the development of the game? See our discord https://discord.gg/44QuvuDmCS
 
