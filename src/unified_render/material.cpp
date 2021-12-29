@@ -75,7 +75,7 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
     return tmp_mat;
 }
 
-const UnifiedRender::Material& UnifiedRender::MaterialManager::load_material(const std::string& path) {
+const UnifiedRender::Material& UnifiedRender::MaterialManager::load(const std::string& path) {
     auto it = std::find_if(materials.begin(), materials.end(), [&path](const auto& element) {
         return (element.second == path);
     });

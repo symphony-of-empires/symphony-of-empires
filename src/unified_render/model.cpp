@@ -116,7 +116,7 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
         } else if(cmd == "usemtl") {
             std::string name;
             sline >> name;
-            objects.front().material = &UnifiedRender::State::get_instance().material_man->load_material(name);
+            objects.front().material = &UnifiedRender::State::get_instance().material_man->load(name);
         } else if(cmd == "o") {
             std::string name;
             sline >> name;
