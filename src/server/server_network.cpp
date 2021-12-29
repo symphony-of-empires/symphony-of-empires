@@ -21,6 +21,8 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     g_server = this;
 
     print_info("Deploying %u threads for clients", max_conn);
+
+    n_clients = max_conn;
     clients = new UnifiedRender::Networking::ServerClient[max_conn];
     for(size_t i = 0; i < max_conn; i++) {
         clients[i].is_connected = false;
