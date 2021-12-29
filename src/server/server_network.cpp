@@ -1,36 +1,10 @@
-#ifdef unix
-#	define _XOPEN_SOURCE_EXTENDED 1
-#	include <netdb.h>
-#	include <arpa/inet.h>
-#endif
-
-#include <sys/types.h>
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
 #include <mutex>
-/* Visual Studio does not know about UNISTD.H, Mingw does through */
-#ifndef _MSC_VER
-#	include <unistd.h>
-#endif
-
-#ifdef unix
-#	include <poll.h>
-#endif
-#include <signal.h>
-#include <fcntl.h>
-
-#ifdef windows
-#include <winsock2.h>
-#include <ws2def.h>
-#include <ws2tcpip.h>
-#include <windef.h>
-#include <ws2tcpip.h>
-#pragma comment(lib, "Ws2_32.lib")
-#endif
-
 #include <chrono>
 #include <thread>
+
 #include "action.hpp"
 #include "world.hpp"
 #include "io_impl.hpp"
