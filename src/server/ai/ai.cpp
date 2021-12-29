@@ -39,7 +39,10 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
         // Sucess = Sum(Demand / (Supply + 1) * Price)
         std::vector<float> avg_prob = std::vector<float>(world->goods.size(), 0.f);
         for(const auto& product : world->products) {
-            if(product->building == nullptr || product->building->get_owner() != nation) continue;
+            if(product->building == nullptr || product->building->get_owner() != nation) {
+                continue;
+            }
+
             avg_prob[world->get_id(product->good)] += product->demand / (product->supply + 1) * product->price;
         }
 
@@ -84,11 +87,18 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 
         for(const auto& building_type : world->building_types) {
             // Only take in account RGOs (and buildings that have atleast 1 output)
-            if(!building_type->inputs.empty() || !building_type->outputs.size()) continue;
-            if(!building_type->is_factory) continue;
+            if(!building_type->inputs.empty() || !building_type->outputs.size()) {
+                continue;
+            }
+
+            if(!building_type->is_factory) {
+                continue;
+            }
 
             // Randomness
-            if(std::rand() % 5) continue;
+            if(std::rand() % 5) {
+                continue;
+            }
             return building_type->outputs[std::rand() % building_type->outputs.size()];
         }
     }
@@ -241,7 +251,9 @@ void ai_update_relations(Nation* nation, Nation* other) {
                             }
                         }
 
-                        if(clause->liberated != nullptr) break;
+                        if(clause->liberated != nullptr) {
+                            break;
+                        }
                     }
 
                     if(clause->liberated != nullptr) {
@@ -265,12 +277,16 @@ void ai_update_relations(Nation* nation, Nation* other) {
 void ai_build_commercial(Nation* nation, World* world) {
     Good* target_good;
     target_good = ai_get_potential_good(nation, world);
-    if(target_good == nullptr) return;
+    if(target_good == nullptr) {
+        return;
+    }
 
     // Find an industry type which outputs this good
     BuildingType* type = nullptr;
     for(const auto& building_type : world->building_types) {
-        if(!building_type->is_factory) continue;
+        if(!building_type->is_factory) {
+            continue;
+        }
 
         /*for(const auto& input : building_type->inputs) {
             if(input == target_good) {
@@ -290,7 +306,9 @@ void ai_build_commercial(Nation* nation, World* world) {
     print_info("[%s]: Good [%s] seems to be on a high-trend - building industry [%s] which makes that good", nation->ref_name.c_str(), target_good->ref_name.c_str(), type->ref_name.c_str());
 
     // Otherwise -- do not build anything since the highest valued good cannot be produced
-    if(type == nullptr) return;
+    if(type == nullptr) {
+        return;
+    }
 
     auto it = std::begin(nation->owned_provinces);
     std::advance(it, std::rand() % nation->owned_provinces.size());
@@ -341,7 +359,10 @@ void ai_do_tick(Nation* nation, World* world) {
         // Update relations with other nations
         if(nation->ai_do_diplomacy) {
             for(auto& other : world->nations) {
-                if(!other->exists() || other == nation) continue;
+                if(!other->exists() || other == nation) {
+                    continue;
+                }
+
                 ai_update_relations(nation, other);
             }
         }
@@ -350,10 +371,14 @@ void ai_do_tick(Nation* nation, World* world) {
         if(nation->ai_do_research) {
             for(auto& tech : world->technologies) {
                 // Do not research if already been completed
-                if(!nation->research[world->get_id(tech)]) continue;
+                if(!nation->research[world->get_id(tech)]) {
+                    continue;
+                }
 
                 // Must be able to research it
-                if(!nation->can_research(tech)) continue;
+                if(!nation->can_research(tech)) {
+                    continue;
+                }
 
                 nation->change_research_focus(tech);
                 print_info("[%s] now researching [%s] - %.2f research points (+%.2f)", nation->ref_name.c_str(), tech->ref_name.c_str(), nation->research[world->get_id(tech)], nation->get_research_points());
@@ -432,9 +457,13 @@ void ai_do_tick(Nation* nation, World* world) {
             for(auto& building : g_world->buildings) {
                 if(building->working_unit_type != nullptr || building->owner != nation) continue;
                 Province* province = building->get_province();
-                if(province == nullptr) continue;
+                if(province == nullptr) {
+                    continue;
+                }
 
-                if(std::rand() % 100) continue;
+                if(std::rand() % 100) {
+                    continue;
+                }
 
                 auto* unit_type = g_world->unit_types[std::rand() % g_world->unit_types.size()];
                 //if(!unit_type->is_ground) continue;

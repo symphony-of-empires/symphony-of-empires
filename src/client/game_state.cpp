@@ -1,6 +1,21 @@
 #include "client/game_state.hpp"
 
+#ifdef _MSC_VER
+// Required before GL/gl.h
+#   ifndef _WINDOWS_
+#   define WIN32_LEAN_AND_MEAN 1
+#       include <windows.h>
+#       undef WIN32_LEAN_AND_MEAN
+#   endif
+#endif
+
 #include <GL/glew.h>
+// MSVC does not know about glext, mingw does so we just use this ifdef
+#ifndef _MSC_VER
+#   include <GL/glext.h>
+#endif
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 #include <cstdint>
 #include <cstdio>
@@ -27,21 +42,6 @@
 #   include <SDL2/SDL_audio.h>
 //#include <sys/wait.h>
 #endif
-#ifdef _MSC_VER
-// Required before GL/gl.h
-#   ifndef _WINDOWS_
-#   define WIN32_LEAN_AND_MEAN 1
-#       include <windows.h>
-#       undef WIN32_LEAN_AND_MEAN
-#   endif
-#endif
-
-// MSVC does not know about glext, mingw does so we just use this ifdef
-#ifndef _MSC_VER
-#   include <GL/glext.h>
-#endif
-#include <GL/gl.h>
-#include <GL/glu.h>
 
 #include "good.hpp"
 #include "io_impl.hpp"

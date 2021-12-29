@@ -21,7 +21,9 @@ void Text::text(const std::string& text) {
     }
     labels.clear();
 
-    if(text.empty()) return;
+    if(text.empty()) {
+        return;
+    }
 
     // Separate the text in multiple labels and break on space
     // TODO: only works for monospace fonts width width 12, fix it for all fonts

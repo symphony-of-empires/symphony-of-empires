@@ -23,17 +23,6 @@ public:
     }
 };
 
-class ClientException : public std::exception {
-    std::string buffer;
-public:
-    ClientException(const std::string& msg) {
-        buffer = msg;
-    }
-    virtual const char* what(void) const noexcept {
-        return buffer.c_str();
-    }
-};
-
 class GameState;
 class Server : public UnifiedRender::Networking::Server {
     GameState& gs;

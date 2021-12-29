@@ -141,9 +141,8 @@ UnifiedRender::IO::PackageManager::PackageManager(void) {
     }
 
     for(const auto& package : packages) {
-        print_info("PACKAGE %s", package.name.c_str());
         for(const auto& asset : package.assets) {
-            print_info("- %s (in %s)", asset->path.c_str(), asset->abs_path.c_str());
+            
         }
     }
 }

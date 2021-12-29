@@ -20,15 +20,15 @@
 
 namespace UnifiedRender {
     class Texture;
-}
-
-enum class CLICK_STATE {
-    NOT_CLICKED,
-    NOT_HANDLED,
-    HANDLED,
 };
 
 namespace UI {
+    enum class ClickState {
+        NOT_CLICKED,
+        NOT_HANDLED,
+        HANDLED,
+    };
+
     class Widget;
     class Tooltip;
     typedef void (*Callback)(Widget&, void*);
@@ -40,7 +40,7 @@ namespace UI {
 
         glm::ivec2 get_pos(Widget& w, glm::ivec2 offset);
         void check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
-        CLICK_STATE check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, CLICK_STATE click_state, bool clickable);
+        UI::ClickState check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, UI::ClickState click_state, bool clickable);
         int check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y);
     public:
         Context();
@@ -74,4 +74,4 @@ namespace UI {
         Tooltip* tooltip_widget = nullptr;
     };
     extern Context* g_ui_context;
-};  // namespace UI
+}; // namespace UI

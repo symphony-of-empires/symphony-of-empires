@@ -211,5 +211,5 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::str
 }
 
 const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const UnifiedRender::IO::Asset::Base* asset, TextureOptions options) {
-    this->load((asset == nullptr) ? "" : asset->abs_path, options);
+    return this->load((asset == nullptr) ? "" : asset->abs_path, options);
 }

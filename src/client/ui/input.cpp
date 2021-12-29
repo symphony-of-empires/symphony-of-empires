@@ -3,10 +3,10 @@
 #include <string>
 #include <cmath>
 #include <algorithm>
-#include <glm/vec2.hpp>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
+#include <glm/vec2.hpp>
 
 #include "client/ui/widget.hpp"
 #include "client/ui/input.hpp"
