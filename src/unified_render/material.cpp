@@ -31,7 +31,9 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
         std::istringstream sline(line);
         std::string cmd;
         sline >> cmd;
-        if(cmd != "newmtl" && curr_mat == nullptr) continue;
+        if(cmd != "newmtl" && curr_mat == nullptr) {
+            continue;
+        }
 
         if(cmd == "newmtl") {
             std::string name;

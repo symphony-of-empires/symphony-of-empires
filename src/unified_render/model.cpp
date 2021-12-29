@@ -34,14 +34,14 @@ void UnifiedRender::SimpleModel::draw(const UnifiedRender::OpenGl::Program& shad
 }
 
 void UnifiedRender::SimpleModel::upload(void) {
-    vao.bind();
-    vbo.bind(GL_ARRAY_BUFFER);
-    
     if(buffer.empty()) {
         return;
     }
-    
+
+    vao.bind();
+    vbo.bind(GL_ARRAY_BUFFER);
     glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
+    
     // Vertices
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
     glEnableVertexAttribArray(0);
@@ -81,8 +81,6 @@ public:
     std::string name;
 
     std::vector<WavefrontFace> faces;
-    std::vector<glm::vec3> vertices, normals;
-    std::vector<glm::vec2> texcoords;
     const UnifiedRender::Material* material = nullptr;
 };
 
@@ -91,6 +89,9 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
     std::string line;
 
     // Recollect all data from the .OBJ file
+    std::vector<glm::vec3> vertices, normals;
+    std::vector<glm::vec2> texcoords;
+
     std::vector<WavefrontObj> objects;
     objects.push_back(WavefrontObj("default"));
     while(std::getline(file, line)) {
@@ -108,12 +109,10 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
         std::istringstream sline(line);
         std::string cmd;
         sline >> cmd;
-
         if(cmd == "mtllib") {
             std::string name;
             sline >> name;
-            name = "3d/" + name;
-            State::get_instance().material_man->load_wavefront(Path::get(name));
+            State::get_instance().material_man->load_wavefront(Path::get("3d/" + name));
         } else if(cmd == "usemtl") {
             std::string name;
             sline >> name;
@@ -125,54 +124,59 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
         } else if(cmd == "v") {
             glm::vec3 vert;
             sline >> vert.x >> vert.y >> vert.z;
-            objects.front().vertices.push_back(vert);
+            vertices.push_back(vert);
         } else if(cmd == "vt") {
-            glm::vec3 tex;
+            glm::vec2 tex;
             sline >> tex.x >> tex.y;
-            objects.front().texcoords.push_back(tex);
+            texcoords.push_back(tex);
         } else if(cmd == "vn") {
             glm::vec3 norm;
             sline >> norm.x >> norm.y >> norm.z;
-            objects.front().normals.push_back(norm);
+            normals.push_back(norm);
         } else if(cmd == "f") {
-            objects.front().faces.push_back(WavefrontFace());
+            auto face = WavefrontFace();
             while(sline.peek() != -1) {
                 // Assemble faces - allowing for any number of vertices
                 // (and respecting the optional-ity of vt and vn fields)
-                int n_elem = 0, value = 1;
-                char c = '/';
-                while(c == '/' && n_elem < 3 && value != 0) {
+                int value;
+                char ch;
+
+                // Vertices
+                sline >> value;
+                face.vertices.push_back(value);
+
+                ch = sline.peek();
+                if(ch == '/') {
+                    sline >> ch;
+
+                    // Texcoords
                     sline >> value;
-                    
-                    switch(n_elem) {
-                    case 0:
-                        objects.front().faces.front().vertices.push_back(value);
-                        break;
-                    case 1:
-                        objects.front().faces.front().texcoords.push_back(value);
-                        break;
-                    case 2:
-                        objects.front().faces.front().normals.push_back(value);
-                        break;
-                    default:
-                        print_error("Unknown index %i", n_elem);
-                        break;
-                    }
-                    n_elem++;
+                    face.texcoords.push_back(value);
 
-                    c = sline.peek();
+                    ch = sline.peek();
+                    if(ch == '/') {
+                        sline >> ch;
+                        
+                        // Normals
+                        sline >> value;
+                        face.normals.push_back(value);
 
-                    // Consume the character
-                    if(c == '/') {
-                        sline >> c;
+                        ch = sline.peek();
+                        if(ch == '/') {
+                            print_error("Invalid face declaration");
+                            break;
+                        }
                     }
                 }
             }
 
-            if(objects.front().faces.front().vertices.size() < 3 || objects.front().faces.front().texcoords.size() < 2 || objects.front().faces.front().normals.size() < 3) {
-                print_error("Cannot create polygon - malformed face!?!");
-                //objects.front().faces.erase(objects.front().faces.end());
+            if(face.vertices.size() < 3) {
+                print_error("Cannot create polygon - malformed face?");
+            } else {
+                objects.front().faces.push_back(face);
             }
+        } else {
+            print_error("Unsupported command %s", cmd.c_str());
         }
     }
 
@@ -180,24 +184,33 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
     auto* final_model = new UnifiedRender::Model();
     for(const auto& obj: objects) {
         // Register each simple object to the model manager
-        auto* model = new UnifiedRender::SimpleModel(GL_TRIANGLES);
         for(const auto& face: obj.faces) {
-            for(unsigned int i = 0; i < face.vertices.size(); i++) {
-                // The faces dictate indices for the vertices and we will also subtract 1 because the indexing is 0 based
-                model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
-                    glm::vec3(obj.vertices[face.vertices[i] - 1]),
-                    glm::vec2(obj.texcoords[face.texcoords[i] - 1])
-                ));
+            auto* model = new UnifiedRender::SimpleModel(GL_TRIANGLE_FAN);
+
+            // The faces dictate indices for the vertices and we will also subtract 1 because the indexing is 0 based
+            if(face.vertices.size() == face.texcoords.size()) {
+                for(unsigned int i = 0; i < face.vertices.size(); i++) {
+                    model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
+                        glm::vec3(vertices[face.vertices[i] - 1]),
+                        glm::vec2(texcoords[face.texcoords[i] - 1])
+                    ));
+                }
+            } else {
+                for(unsigned int i = 0; i < face.vertices.size(); i++) {
+                    model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
+                        glm::vec3(vertices[face.vertices[i] - 1]),
+                        glm::vec2(0.f, 0.f)
+                    ));
+                }
             }
+
+            print_info("Created new SimpleModel with %zu vertices", model->buffer.size());
+            model->material = obj.material;
+            model->upload();
+
+            simple_models.insert(std::make_pair(model, obj.name));
+            final_model->simple_models.push_back(model);
         }
-
-        print_info("Created new SimpleModel with %zu vertices", model->buffer.size());
-
-        model->material = obj.material;
-        model->upload();
-
-        simple_models.insert(std::make_pair(model, obj.name));
-        final_model->simple_models.push_back(model);
     }
     complex_models.insert(std::make_pair(final_model, path));
     return *final_model;

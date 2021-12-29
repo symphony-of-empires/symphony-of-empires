@@ -351,7 +351,7 @@ void Map::draw(const GameState& gs) {
     // TODO: We need to better this
     view = camera->get_view();
     projection = camera->get_projection();
-    // obj_shader->set_uniform("map_diffusion", 0);
+    
     obj_shader->use();
     obj_shader->set_uniform("projection", projection);
     obj_shader->set_uniform("view", view);
@@ -385,7 +385,7 @@ void Map::draw(const GameState& gs) {
     for(const auto& unit_type : world.unit_types) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(world.get_id(unit_type) * 8.f, -4.f, 0.f));
-        //model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
+        model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
         unit_type_models[world.get_id(unit_type)]->draw(*obj_shader);
     }
@@ -393,7 +393,7 @@ void Map::draw(const GameState& gs) {
     for(const auto& building_type : world.building_types) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(world.get_id(building_type) * 8.f, 0.f, 0.f));
-        //model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
+        model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
         building_type_models[world.get_id(building_type)]->draw(*obj_shader);
     }
