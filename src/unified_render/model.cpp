@@ -10,6 +10,7 @@
 #include "unified_render/material.hpp"
 #include "unified_render/texture.hpp"
 #include "unified_render/shader.hpp"
+#include "unified_render/state.hpp"
 
 UnifiedRender::SimpleModel::SimpleModel(GLint _mode)
     : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(_mode)
@@ -21,7 +22,7 @@ void UnifiedRender::SimpleModel::draw(const UnifiedRender::OpenGl::Program& shad
     // Change color if material wants it
     if(material != nullptr) {
         if(material->diffuse_map != nullptr) {
-            shader.set_texture(0, "diffuse_map", material->diffuse_map);
+            shader.set_texture(0, "diffuse_map", *material->diffuse_map);
         }
         shader.set_uniform("color", material->ambient_color.r, material->ambient_color.g, material->ambient_color.b, 1.f);
     } else {
@@ -36,7 +37,9 @@ void UnifiedRender::SimpleModel::upload(void) {
     vao.bind();
     vbo.bind(GL_ARRAY_BUFFER);
     
-    if(!buffer.size()) return;
+    if(buffer.empty()) {
+        return;
+    }
     
     glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
     // Vertices
@@ -47,7 +50,6 @@ void UnifiedRender::SimpleModel::upload(void) {
     glEnableVertexAttribArray(1);
 }
 
-#ifdef NO_ASSIMP
 UnifiedRender::Model::Model(void) {
 
 }
@@ -99,8 +101,9 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
         }
 
         // Comment
-        if(line[0] == '#' || line.empty())
+        if(line[0] == '#' || line.empty()) {
             continue;
+        }
         
         std::istringstream sline(line);
         std::string cmd;
@@ -160,7 +163,9 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
                     c = sline.peek();
 
                     // Consume the character
-                    if(c == '/') sline >> c;
+                    if(c == '/') {
+                        sline >> c;
+                    }
                 }
             }
 
@@ -172,19 +177,21 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
     }
 
     // Convert objects into (UnifiedRender) simple objects so we can now use them
-    UnifiedRender::Model* final_model = new UnifiedRender::Model();
+    auto* final_model = new UnifiedRender::Model();
     for(const auto& obj: objects) {
         // Register each simple object to the model manager
-        UnifiedRender::SimpleModel* model = new UnifiedRender::SimpleModel(GL_QUAD_STRIP);
+        auto* model = new UnifiedRender::SimpleModel(GL_TRIANGLES);
         for(const auto& face: obj.faces) {
-            for(int i = 0; i < face.vertices.size(); i++) {
+            for(unsigned int i = 0; i < face.vertices.size(); i++) {
                 // The faces dictate indices for the vertices and we will also subtract 1 because the indexing is 0 based
                 model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
-                    glm::vec3(obj.vertices[face.vertices[i]]),
-                    glm::vec2(obj.texcoords[face.texcoords[i]])
+                    glm::vec3(obj.vertices[face.vertices[i] - 1]),
+                    glm::vec2(obj.texcoords[face.texcoords[i] - 1])
                 ));
             }
         }
+
+        print_info("Created new SimpleModel with %zu vertices", model->buffer.size());
 
         model->material = obj.material;
         model->upload();
@@ -236,8 +243,9 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load(const std::string&
         return (element.second == path);
     });
 
-    if(it != complex_models.end())
+    if(it != complex_models.end()) {
         return *((*it).first);
+    }
     
     // Wavefront OBJ loader
     try {
@@ -253,4 +261,3 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load(const std::string&
         throw ("Model " + path + " not found");
     }
 }
-#endif
