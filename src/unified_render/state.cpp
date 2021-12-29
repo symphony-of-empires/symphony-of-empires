@@ -104,7 +104,7 @@ UnifiedRender::State::State(void) {
     }
     
     // Register packages
-    /*for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
+    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
         if(!entry.is_directory()) {
             continue;
         }
@@ -122,7 +122,7 @@ UnifiedRender::State::State(void) {
             package.assets.push_back(asset);
         }
         packages.push_back(package);
-    }*/
+    }
 
     for(const auto& package : packages) {
         print_info("PACKAGE %s", package.name.c_str());
