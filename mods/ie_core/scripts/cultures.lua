@@ -111,6 +111,24 @@ serbian.name = _("Serbian")
 serbian.noun = _("Serb")
 serbian.combo_form = _("Serbo")
 serbian:register()
+alemmanic = Culture:new{ ref_name = "alemmanic" }
+alemmanic.name = ("Alemmanic")
+alemmanic:register()
+arpitan = Culture:new{ ref_name = "arpitan" }
+arpitan.name = _("Arpitan")
+arpitan:register()
+frainc-comtou = Culture:new{ ref_name = "frainc-comtou" }
+frainc-comtou.name = _("Frainc-Comtou")
+frainc-comtou:register()
+lombard = Culture:new{ ref_name = "lombard"}
+lombard.name = _("Lombard")
+lombard:register()
+romansh = Culture:new{ ref_name = "romansh"
+romansh.name = _("Romansh")
+romansh:register()
+walser = Culture:new{ ref_name = "walser" }
+walser.name = _("Walser")
+walser:register()
 
 -- Eurasia and West Asia
 nogai = Culture:new{ ref_name = "nogai" }
