@@ -25,14 +25,67 @@ ENDIF()
 include_directories("${PROJECT_SOURCE_DIR}")
 
 # C++ source files
-file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/*.cpp" "${PROJECT_SOURCE_DIR}/client/*.cpp" "${PROJECT_SOURCE_DIR}/client/interface/*.cpp" "${PROJECT_SOURCE_DIR}/client/ui/*.cpp" "${PROJECT_SOURCE_DIR}/server/*.cpp" "${PROJECT_SOURCE_DIR}/server/ai/*.cpp")
+file(GLOB MAIN_SOURCES
+	"${PROJECT_SOURCE_DIR}/*.cpp"
+	"${PROJECT_SOURCE_DIR}/client/*.cpp"
+	"${PROJECT_SOURCE_DIR}/client/interface/*.cpp"
+	"${PROJECT_SOURCE_DIR}/client/ui/*.cpp"
+	"${PROJECT_SOURCE_DIR}/server/*.cpp"
+	"${PROJECT_SOURCE_DIR}/server/ai/*.cpp"
+)
 file(GLOB RENDER_SOURCES "${PROJECT_SOURCE_DIR}/unified_render/*.cpp")
-add_executable(SymphonyOfEmpires ${MAIN_SOURCES} ${RENDER_SOURCES})
+add_executable(SymphonyOfEmpires
+	${MAIN_SOURCES}
+	${RENDER_SOURCES}
+)
 
 # Precompiled headers
-file(GLOB MAIN_HEADERS "${PROJECT_SOURCE_DIR}/*.hpp" "${PROJECT_SOURCE_DIR}/client/*.hpp" "${PROJECT_SOURCE_DIR}/client/interface/*.hpp" "${PROJECT_SOURCE_DIR}/client/ui/*.hpp" "${PROJECT_SOURCE_DIR}/server/*.hpp" "${PROJECT_SOURCE_DIR}/server/ai/*.hpp")
+file(GLOB MAIN_HEADERS
+	"${PROJECT_SOURCE_DIR}/*.hpp"
+	"${PROJECT_SOURCE_DIR}/client/*.hpp"
+	"${PROJECT_SOURCE_DIR}/client/interface/*.hpp"
+	"${PROJECT_SOURCE_DIR}/client/ui/*.hpp"
+	"${PROJECT_SOURCE_DIR}/server/*.hpp"
+	"${PROJECT_SOURCE_DIR}/server/ai/*.hpp"
+)
 file(GLOB RENDER_HEADERS "${PROJECT_SOURCE_DIR}/unified_render/*.hpp")
-target_precompile_headers(SymphonyOfEmpires PUBLIC ${MAIN_HEADERS} ${RENDER_HEADERS})
+target_precompile_headers(SymphonyOfEmpires PUBLIC
+	${MAIN_HEADERS}
+	${RENDER_HEADERS}
+)
+
+# Standard C++ library headers
+target_precompile_headers(SymphonyOfEmpires PRIVATE
+	<sstream>
+	<fstream>
+	<string>
+	<cstdint>
+	<cstddef>
+	<cstring>
+	<cstdlib>
+	<cstdio>
+	<vector>
+	<set>
+	<algorithm>
+	<climits>
+	<unordered_map>
+)
+
+# OpenGL header files
+target_precompile_headers(SymphonyOfEmpires PRIVATE
+	<GL/gl.h>
+	<GL/glu.h>
+	<GL/glew.h>
+)
+
+# glm header files
+target_precompile_headers(SymphonyOfEmpires PRIVATE
+	<glm/glm.hpp>
+	<glm/mat4x4.hpp>
+	<glm/common.hpp>
+	<glm/vec2.hpp>
+	<glm/vec3.hpp>
+)
 
 IF(WIN32)
 	target_link_libraries(SymphonyOfEmpires PUBLIC glew32 opengl32 glu32 ws2_32 winpthread intl wsock32)
