@@ -24,6 +24,30 @@ ENDIF()
 
 include_directories("${PROJECT_SOURCE_DIR}")
 
+#
+# Unified Render engine
+#
+file(GLOB RENDER_SOURCES "${PROJECT_SOURCE_DIR}/unified_render/*.cpp")
+add_library(UnifiedRender SHARED
+	${RENDER_SOURCES}
+)
+
+file(GLOB RENDER_HEADERS "${PROJECT_SOURCE_DIR}/unified_render/*.hpp")
+target_precompile_headers(UnifiedRender PUBLIC
+	${RENDER_HEADERS}
+)
+
+IF(WIN32)
+	target_link_libraries(UnifiedRender PUBLIC glew32 opengl32 glu32 ws2_32 winpthread intl wsock32)
+ELSE()
+	target_link_libraries(UnifiedRender PUBLIC GL GLU GLEW SDL2main)
+ENDIF()
+target_link_libraries(UnifiedRender PUBLIC SDL2 SDL2_ttf m z tbb stdc++)
+
+#
+# Symphony of Empires game
+#
+
 # C++ source files
 file(GLOB MAIN_SOURCES
 	"${PROJECT_SOURCE_DIR}/*.cpp"
@@ -33,7 +57,6 @@ file(GLOB MAIN_SOURCES
 	"${PROJECT_SOURCE_DIR}/server/*.cpp"
 	"${PROJECT_SOURCE_DIR}/server/ai/*.cpp"
 )
-file(GLOB RENDER_SOURCES "${PROJECT_SOURCE_DIR}/unified_render/*.cpp")
 add_executable(SymphonyOfEmpires
 	${MAIN_SOURCES}
 	${RENDER_SOURCES}
@@ -48,8 +71,7 @@ file(GLOB MAIN_HEADERS
 	"${PROJECT_SOURCE_DIR}/server/*.hpp"
 	"${PROJECT_SOURCE_DIR}/server/ai/*.hpp"
 )
-file(GLOB RENDER_HEADERS "${PROJECT_SOURCE_DIR}/unified_render/*.hpp")
-target_precompile_headers(SymphonyOfEmpires PUBLIC
+target_precompile_headers(SymphonyOfEmpires PRIVATE
 	${MAIN_HEADERS}
 	${RENDER_HEADERS}
 )
@@ -102,11 +124,13 @@ target_precompile_headers(SymphonyOfEmpires PRIVATE
 )
 
 IF(WIN32)
-	target_link_libraries(SymphonyOfEmpires PUBLIC glew32 opengl32 glu32 ws2_32 winpthread intl wsock32)
+	target_link_libraries(SymphonyOfEmpires PUBLIC opengl32 glu32 winpthread intl)
 ELSE()
-	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLU GLEW SDL2main)
+	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLU SDL2main)
 ENDIF()
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 SDL2_ttf m z tbb stdc++)
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 m z tbb stdc++)
+
+target_link_libraries(SymphonyOfEmpires PUBLIC UnifiedRender)
 
 IF(NOT MINGW AND NOT MSYS)
 	IF(lua54)
