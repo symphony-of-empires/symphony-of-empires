@@ -22,7 +22,7 @@
 #include <vector>
 #include <mutex>
 
-#include "unified_render/asset.hpp"
+#include "unified_render/io.hpp"
 
 namespace UnifiedRender {
 	class SoundManager;
@@ -52,6 +52,6 @@ namespace UnifiedRender {
 		UnifiedRender::MaterialManager* material_man;
     	UnifiedRender::ModelManager* model_man;
 
-		std::vector<Package> packages;
+		std::vector<IO::Package> packages;
 	};
 }

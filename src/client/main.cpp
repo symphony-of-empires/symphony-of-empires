@@ -46,7 +46,7 @@ std::string async_get_input(void) {
 #   include <WinCon.h>
 #endif
 
-#include "unified_render/asset.hpp"
+#include "unified_render/io.hpp"
 #include <vector>
 
 int main(int argc, char** argv) {
