@@ -358,14 +358,20 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
         Widget& widget = *widgets[i];
 
         // Only windows can be dragged around
-        if(widget.type != UI::WidgetType::WINDOW) continue;
+        if(widget.type != UI::WidgetType::WINDOW) {
+            continue;
+        }
 
         // Pinned widgets are not movable
-        if(widget.is_pinned) continue;
+        if(widget.is_pinned) {
+            continue;
+        }
 
         if((int)mx >= widget.x && mx <= widget.x + widget.width && (int)my >= widget.y && (int)my <= widget.y + 24) {
             auto& c_widget = static_cast<Window&>(widget);
-            if(!c_widget.is_movable) continue;
+            if(!c_widget.is_movable) {
+                continue;
+            }
 
             if(!is_drag) {
                 drag_x = mx - widget.x;
@@ -380,7 +386,7 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 
 void check_text_input_recursive(Widget& widget, const char* _input) {
     if(widget.type == UI::WidgetType::INPUT) {
-        auto& c_widget = static_cast<Input&>(widget);
+        auto& c_widget = static_cast<UI::Input&>(widget);
         if(c_widget.is_selected)
             c_widget.on_textinput(c_widget, _input, c_widget.user_data);
     }
@@ -401,10 +407,13 @@ int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_of
     offset = get_pos(w, offset);
 
     // Widget must be shown
-    if(!w.is_show || !w.is_render) return 0;
-
-    if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height))
+    if(!w.is_show || !w.is_render) {
         return 0;
+    }
+
+    if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
+        return 0;
+    }
 
     // When we check the children they shall return non-zero if they are a group/window
     // We will only select the most-front children that is either a G/W - this is done

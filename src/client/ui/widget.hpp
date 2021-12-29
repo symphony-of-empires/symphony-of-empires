@@ -20,7 +20,7 @@
 
 namespace UnifiedRender {
 	class Texture;
-}
+};
 
 namespace UI {
 	enum class Origin {
