@@ -81,56 +81,56 @@ class Technology;
 namespace Action {
     class AiControl {
     public:
-        static Packet form_packet(Nation* target);
+        static UnifiedRender::Networking::Packet form_packet(Nation* target);
     };
 
     class DiploIncRelations {
     public:
-        static Packet form_packet(Nation* target);
+        static UnifiedRender::Networking::Packet form_packet(Nation* target);
     };
 
     class DiploDecRelations {
     public:
-        static Packet form_packet(Nation* target);
+        static UnifiedRender::Networking::Packet form_packet(Nation* target);
     };
 
     class DiploDeclareWar {
     public:
-        static Packet form_packet(Nation* target);
+        static UnifiedRender::Networking::Packet form_packet(Nation* target);
     };
 
     class ProductUpdate {
     public:
-        static Packet form_packet(const std::vector<Product*>& list);
+        static UnifiedRender::Networking::Packet form_packet(const std::vector<Product*>& list);
     };
 
     class ProvinceUpdate {
     public:
-        static Packet form_packet(const std::vector<Province*>& list);
+        static UnifiedRender::Networking::Packet form_packet(const std::vector<Province*>& list);
     };
 
     class NationUpdate {
     public:
-        static Packet form_packet(const std::vector<Nation*>& list);
+        static UnifiedRender::Networking::Packet form_packet(const std::vector<Nation*>& list);
     };
 
     class SelectNation {
     public:
-        static Packet form_packet(Nation* nation);
+        static UnifiedRender::Networking::Packet form_packet(Nation* nation);
     };
 
     class BuildingStartProducingUnit {
     public:
-        static Packet form_packet(Building* building, UnitType* unit_type);
+        static UnifiedRender::Networking::Packet form_packet(Building* building, UnitType* unit_type);
     };
 	
 	class BuildingAdd {
 	public:
-		static Packet form_packet(Building* building);
+		static UnifiedRender::Networking::Packet form_packet(Building* building);
 	};
 
     class FocusTech {
     public:
-		static Packet form_packet(Technology* technology);
+		static UnifiedRender::Networking::Packet form_packet(Technology* technology);
     };
 };

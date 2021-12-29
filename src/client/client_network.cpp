@@ -50,7 +50,7 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
     WSADATA data;
     if(WSAStartup(MAKEWORD(2, 2), &data) != 0) {
         print_error("WSA code: %u", WSAGetLastError());
-        throw std::runtime_error("Can't start WSA subsystem");
+        throw UnifiedRender::Networking::SocketException("Can't start WSA subsystem");
     }
 #endif
     
@@ -65,7 +65,7 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
         print_error("WSA Code: %u", WSAGetLastError());
         WSACleanup();
 #endif
-        throw SocketException("Can't create client socket");
+        throw UnifiedRender::Networking::SocketException("Can't create client socket");
     }
     
     if(connect(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
@@ -75,7 +75,7 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
         print_error("WSA Code: %u", WSAGetLastError());
         closesocket(fd);
 #endif
-        throw SocketException("Can't connect to server");
+        throw UnifiedRender::Networking::SocketException("Can't connect to server");
     }
     
     // Launch the receive and send thread
@@ -107,7 +107,7 @@ void Client::net_loop(void) {
         ::serialize(ar, &action);
         ::serialize(ar, &username);
 
-        Packet packet = Packet(fd);
+        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet(fd);
         packet.data(ar.get_buffer(), ar.size());
         packet.send();
     }
@@ -153,7 +153,7 @@ void Client::net_loop(void) {
 #elif defined windows
             if(has_pending) {
 #endif
-                Packet packet = Packet(fd);
+                UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet(fd);
                 Archive ar = Archive();
 
                 // Obtain the action from the server
@@ -308,7 +308,7 @@ void Client::net_loop(void) {
             // Client will also flush it's queue to the server
             std::scoped_lock lock(packets_mutex);
             for(auto& packet : packets) {
-                packet.stream = SocketStream(fd);
+                packet.stream = UnifiedRender::Networking::SocketStream(fd);
                 packet.send();
                 print_info("Sending package of %zu bytes", packet.size());
             }
@@ -326,7 +326,7 @@ void Client::wait_for_snapshot(void) {
     }
 }
 
-void Client::send(const Packet& packet) {
+void Client::send(const UnifiedRender::Networking::Packet& packet) {
     if(packets_mutex.try_lock()) {
         packets.push_back(packet);
         packets_mutex.unlock();

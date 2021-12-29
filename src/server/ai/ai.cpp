@@ -309,7 +309,7 @@ void ai_build_commercial(Nation* nation, World* world) {
         if(building->type->is_factory) {
             building->create_factory();
             for(const auto& product : building->output_products) {
-                Packet packet = Packet();
+                UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
                 Archive ar = Archive();
                 ActionType action = ActionType::PRODUCT_ADD;
                 ::serialize(ar, &action);
@@ -470,7 +470,7 @@ void ai_do_tick(Nation* nation, World* world) {
             if(!colonial_value.empty()) {
                 Province* target = (*std::max_element(colonial_value.begin(), colonial_value.end())).first;
                 if(target->owner == nullptr) {
-                    Packet packet = Packet();
+                    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
                     Archive ar = Archive();
                     ActionType action = ActionType::PROVINCE_COLONIZE;
                     ::serialize(ar, &action);

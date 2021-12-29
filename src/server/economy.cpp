@@ -236,7 +236,7 @@ void Economy::do_tick(World& world) {
                 building->working_unit_type = nullptr;
                 world.insert(unit);
 
-                Packet packet = Packet();
+                UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
                 Archive ar = Archive();
                 ActionType action = ActionType::UNIT_ADD;
                 ::serialize(ar, &action); // ActionInt
@@ -251,7 +251,7 @@ void Economy::do_tick(World& world) {
         if(building->type->is_factory) {
             if(building->budget < 0.f) {
                 {
-                    Packet packet = Packet();
+                    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
                     Archive ar = Archive();
                     ActionType action = ActionType::BUILDING_REMOVE;
                     ::serialize(ar, &action);
@@ -389,7 +389,7 @@ void Economy::do_tick(World& world) {
 
     {
         // Take opportunity to also send an update about our buildings
-        Packet packet = Packet();
+        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
         Archive ar = Archive();
         ActionType action = ActionType::BUILDING_UPDATE;
         ::serialize(ar, &action); // ActionInt
