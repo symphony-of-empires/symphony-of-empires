@@ -41,11 +41,6 @@ public:
     Server(GameState& gs, unsigned port = 1825, unsigned max_conn = 16);
     ~Server(void);
     void net_loop(int id);
-
-    UnifiedRender::Networking::ServerClient* clients;
-
-    int n_clients;
-    int player_count = 0;
 };
 
 extern Server* g_server;

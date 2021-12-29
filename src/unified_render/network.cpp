@@ -98,7 +98,7 @@ UnifiedRender::Networking::ServerClient::~ServerClient(void) {
 // Server
 //
 UnifiedRender::Networking::Server::Server(const unsigned port, const unsigned max_conn)
-    : n_clients(max_conn)
+    : n_clients{ max_conn }
 {
 #ifdef windows
     WSADATA data;
