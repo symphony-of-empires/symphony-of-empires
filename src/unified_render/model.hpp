@@ -15,51 +15,35 @@ namespace UnifiedRender {
     class Material;
     namespace OpenGl {
         class Program;
-    }
-}
+    };
+};
 
 namespace UnifiedRender {
     namespace OpenGl {
         class VAO {
             GLuint id;
         public:
-            VAO(void) {
-                glGenVertexArrays(1, &id);
-            }
-            ~VAO() {
-                glDeleteVertexArrays(1, &id);
-            }
+            VAO(void);
+            ~VAO(void);
             VAO(const VAO&) = default;
             VAO(VAO&&) noexcept = default;
             VAO& operator=(const VAO&) = default;
 
-            void bind(void) const {
-                glBindVertexArray(id);
-            }
-            GLuint get_id(void) const {
-                return id;
-            }
+            void bind(void) const;
+            GLuint get_id(void) const;
         };
 
         class VBO {
             GLuint id;
         public:
-            VBO(void) {
-                glGenBuffers(1, &id);
-            }
-            ~VBO() {
-                glDeleteBuffers(1, &id);
-            }
+            VBO(void);
+            ~VBO(void);
             VBO(const VBO&) = default;
             VBO(VBO&&) noexcept = default;
             VBO& operator=(const VBO&) = default;
 
-            void bind(GLenum target = GL_ARRAY_BUFFER) const {
-                glBindBuffer(target, id);
-            }
-            GLuint get_id(void) const {
-                return id;
-            }
+            void bind(GLenum target = GL_ARRAY_BUFFER) const;
+            GLuint get_id(void) const;
         };
 
         template<typename V, typename T>
@@ -107,7 +91,7 @@ namespace UnifiedRender {
     class SimpleModel : public OpenGl::PackedModel<glm::vec3, glm::vec2> {
     public:
         SimpleModel(GLint _mode);
-        ~SimpleModel() {};
+        ~SimpleModel(void);
         SimpleModel(const SimpleModel&) = default;
         SimpleModel(SimpleModel&&) noexcept = default;
         SimpleModel& operator=(const SimpleModel&) = default;
@@ -123,7 +107,7 @@ namespace UnifiedRender {
     class Model {
     public:
         Model(void);
-        ~Model() {};
+        ~Model(void);
         Model(const Model&) = default;
         Model(Model&&) noexcept = default;
         Model& operator=(const Model&) = default;

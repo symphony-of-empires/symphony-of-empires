@@ -1,9 +1,9 @@
 #include <cstdarg>
 #include <cstdio>
 #include <mutex>
+#include <cstdint>
 
 #include <GL/glew.h>
-#include <cstdint>
 #include <GL/gl.h>
 
 #include "unified_render/print.hpp"

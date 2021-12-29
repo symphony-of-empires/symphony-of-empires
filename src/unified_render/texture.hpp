@@ -11,24 +11,17 @@
  * intended to be used in rendering cases only
  */
 
-#include <GL/glew.h>
-
 #include <cstddef>
 #include <cstdint>
 #include <string>
 #include <set>
-#ifdef windows
-#ifndef _WINDOWS_
-#define WIN32_LEAN_AND_MEAN 1
-#include <windows.h>
-#undef WIN32_LEAN_AND_MEAN
-#endif
-#endif
+
+#include <GL/glew.h>
 #include <GL/gl.h>
 
-struct SDL_Surface;
-
 #include "unified_render/binary_image.hpp"
+
+struct SDL_Surface;
 
 namespace UnifiedRender {
     class TextureException: public BinaryImageException {
@@ -54,10 +47,10 @@ namespace UnifiedRender {
 
     class Texture : public BinaryImage {
     public:
-        Texture() {};
+        Texture(void);
         Texture(const std::string& path);
         Texture(size_t _width, size_t _height);
-        ~Texture() override;
+        ~Texture(void) override;
         void create_dummy();
         void to_opengl(TextureOptions options = default_options);
         void gen_mipmaps() const;

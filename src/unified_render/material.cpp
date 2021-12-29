@@ -8,6 +8,20 @@
 #include "unified_render/texture.hpp"
 #include "unified_render/state.hpp"
 
+//
+// Material
+//
+UnifiedRender::Material::Material(void) {
+
+}
+
+UnifiedRender::Material::~Material(void) {
+    
+}
+
+//
+// Material manager
+//
 std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::MaterialManager::load_wavefront(const std::string& path) {
     std::ifstream file(path);
     std::string line;

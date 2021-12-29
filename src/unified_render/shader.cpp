@@ -1,4 +1,9 @@
+#include <fstream>
+#include <iostream>
+#include <sstream>
+
 #include "unified_render/shader.hpp"
+
 using namespace UnifiedRender::OpenGl;
 
 /**
@@ -189,8 +194,8 @@ void Program::set_texture(int value, const std::string& name, const UnifiedRende
         throw UnifiedRender::DebugException("Texture with invalid Id passed to set_texture");
     }
 #endif
-    set_uniform(name, value);
     glActiveTexture(GL_TEXTURE0 + value);
+    set_uniform(name, value);
     glBindTexture(GL_TEXTURE_2D, texture.gl_tex_num);
 }
 
@@ -200,8 +205,8 @@ void Program::set_texture(int value, const std::string& name, const UnifiedRende
         throw UnifiedRender::DebugException("Texture with invalid Id passed to set_texture");
     }
 #endif
-    set_uniform(name, value);
     glActiveTexture(GL_TEXTURE0 + value);
+    set_uniform(name, value);
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture.gl_tex_num);
 }
 

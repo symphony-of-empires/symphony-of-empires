@@ -1,24 +1,39 @@
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
+#include <mutex>
+
 #ifdef unix
 #	define _XOPEN_SOURCE_EXTENDED 1
 #	include <netdb.h>
 #	include <arpa/inet.h>
 #endif
 #include <sys/types.h>
-#include <cstring>
-#include <cstdio>
-#include <cstdlib>
-#include <mutex>
+
 // Visual Studio does not know about UNISTD.H, Mingw does through
 #ifndef _MSC_VER
 #	include <unistd.h>
+#endif
+#ifdef windows
+#   include <winsock2.h>
 #endif
 
 #include "unified_render/network.hpp"
 #include "unified_render/print.hpp"
 
-#ifdef windows
-#   include <winsock2.h>
-#endif
+SocketStream::SocketStream(void) {
+
+}
+
+SocketStream::SocketStream(int _fd)
+    : fd(_fd)
+{
+
+}
+
+SocketStream::~SocketStream(void) {
+
+}
 
 void SocketStream::send(const void* data, size_t size) {
     const char* c_data = (const char*)data;

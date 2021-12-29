@@ -2,9 +2,9 @@
 
 #include <sstream>
 #include <cstdio>
+#include <cstdint>
 
 #include <GL/glew.h>
-#include <cstdint>
 #include <GL/gl.h>
 
 void print_enable_debug(void);

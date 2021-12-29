@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <cstddef>
 #include <exception>
-#include <sstream>
 #include <string>
 
 #include "unified_render/io.hpp"

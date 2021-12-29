@@ -2,7 +2,7 @@
 
 #include <numeric>
 #include <algorithm>
-#include "stddef.h"
+#include <cstddef>
 #include <vector>
 
 // https://www.keithschwarz.com/darts-dice-coins/
@@ -18,8 +18,8 @@ private:
 	std::vector<float> prob;
 public:
 	DiscreteDistribution(std::vector<T> items, std::vector<float> probabilities):
-		_items{ items } {
-
+		_items{ items }
+	{
 		// Scale each probabilty
 		float total = std::accumulate(probabilities.begin(), probabilities.end(), 0);
 		float scale = probabilities.size() / total;
