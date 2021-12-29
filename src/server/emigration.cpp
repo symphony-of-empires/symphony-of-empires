@@ -27,8 +27,13 @@ void do_emigration(World& world) {
 	conlonial_migration(world);
 }
 
-void conlonial_migration(World&) {}
-void internal_migration(World&) {}
+void conlonial_migration(World&) {
+
+}
+
+void internal_migration(World&) {
+	
+}
 
 // Basic 
 float nation_attraction(Nation* nation, Culture* culture) {
@@ -40,14 +45,14 @@ float nation_attraction(Nation* nation, Culture* culture) {
 		const int scale = 3 - nation->current_policy.treatment;
 		attraction *= scale;
 	}
-
 	return attraction;
 }
+
 float province_attraction(Province* province) {
 	float attraction = province->base_attractive;
-
 	return attraction;
 }
+
 void external_migration(World& world) {
 	std::vector<DiscreteDistribution<Province*>*> province_distributions;
 	for(auto nation : world.nations) {
@@ -55,11 +60,14 @@ void external_migration(World& world) {
 		std::vector<Province*> viable_provinces;
 		for(auto province : nation->owned_provinces) {
 			float attraction = province_attraction(province);
-			if (attraction <= 0) continue;
+			if(attraction <= 0) {
+				continue;
+			}
 
 			attractions.push_back(attraction);
 			viable_provinces.push_back(province);
 		}
+
 		DiscreteDistribution<Province*>* distribution = nullptr;
 		if(viable_provinces.size() > 0) {
 			distribution = new DiscreteDistribution(viable_provinces, attractions);
@@ -75,16 +83,19 @@ void external_migration(World& world) {
 			if(nation->owned_provinces.size() == 0) {
 				continue;
 			}
+
 			if(nation->current_policy.migration == ALLOW_NOBODY) {
 				continue;
-			}
-			else if(nation->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
+			} else if(nation->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
 				if(!nation->accepted_cultures.count(culture)) {
 					continue;
 				}
 			}
+
 			float attraction = nation_attraction(nation, culture);
-			if (attraction <= 0) continue;
+			if(attraction <= 0) {
+				continue;
+			}
 
 			attractions.push_back(attraction);
 			viable_nations.push_back(nation);
@@ -98,8 +109,13 @@ void external_migration(World& world) {
 
 	std::vector<Emigrated> emigration = std::vector<Emigrated>();
 	std::for_each(world.provinces.begin(), world.provinces.end(), [&province_distributions, &nation_distributions, &emigration, &world](auto& province) {
-		if(province->controller == nullptr) return;
-		if(province->terrain_type->is_water_body) return;
+		if(province->controller == nullptr) {
+			return;
+		}
+
+		if(province->terrain_type->is_water_body) {
+			return;
+		}
 
 		// Randomness factor to emulate a pseudo-imperfect economy
 		const float fuzz = std::fmod((float)(std::rand() + 1) / 1000.f, 2.f) + 1.f;
@@ -120,11 +136,15 @@ void external_migration(World& world) {
 				}
 
 				auto nation_distribution = nation_distributions[pop.culture->cached_id];
-				if(nation_distribution == nullptr) continue;
+				if(nation_distribution == nullptr) {
+					continue;
+				}
 
 				auto nation = nation_distribution->get_item();
 				auto province_distribution = province_distributions[nation->cached_id];
-				if(province_distribution == nullptr) continue;
+				if(province_distribution == nullptr) {
+					continue;
+				}
 
 				auto choosen_province = province_distribution->get_item();
 				Emigrated emigrated = Emigrated(province->pops[i]);
@@ -148,8 +168,7 @@ void external_migration(World& world) {
 			Pop i_pop( target.emigred );
 			i_pop.size = target.size;
 			target.target->pops.push_back(i_pop);
-		}
-		else {
+		} else {
 			new_pop->size += target.size;
 			new_pop->budget += target.emigred.budget;
 		}

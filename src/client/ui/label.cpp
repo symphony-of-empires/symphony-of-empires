@@ -3,10 +3,10 @@
 #include <string>
 #include <cmath>
 #include <algorithm>
-#include <glm/vec2.hpp>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
+#include <glm/vec2.hpp>
 
 #include "client/ui/widget.hpp"
 #include "client/ui/label.hpp"
@@ -48,13 +48,16 @@ void Label::text(const std::string& _text) {
         text_texture = nullptr;
     }
 
-    if(_text.empty()) return;
+    if(_text.empty()) {
+        return;
+    }
 
     //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
     SDL_Color black_color ={ 0, 0, 0, 0 };
     surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), black_color);
-    if(surface == nullptr)
+    if(surface == nullptr) {
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
+    }
 
     text_texture = new UnifiedRender::Texture(surface->w, surface->h);
     text_texture->gl_tex_num = 0;

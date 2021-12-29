@@ -180,12 +180,13 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     if(type == UI::WidgetType::INPUT) {
         UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
         UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
+
         glColor3f(0.f, 0.f, 1.f);
         draw_rect(0, pos_rect, tex_rect, viewport);
-    }
-    else if(type != UI::WidgetType::IMAGE && type != UI::WidgetType::LABEL) {
+    } else if(type != UI::WidgetType::IMAGE && type != UI::WidgetType::LABEL) {
         UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
         UnifiedRender::Rect tex_rect((int)0u, 0u, width / ctx.background->width, height / ctx.background->height);
+        
         draw_rect(ctx.background->gl_tex_num, pos_rect, tex_rect, viewport);
     }
 
@@ -217,6 +218,7 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         // Put a "grey" inner background
         UnifiedRender::Rect pos_rect((int)padding, padding, width - padding, height - padding);
         UnifiedRender::Rect tex_rect((int)0u, 0u, width / ctx.background->width, height / ctx.background->height);
+
         draw_rect(ctx.button->gl_tex_num, pos_rect, tex_rect, viewport);
 
         float b_width = 20;
@@ -238,8 +240,7 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 
         if(type == UI::WidgetType::WINDOW) {
             glColor3f(1.f, 1.f, 1.f);
-        }
-        else {
+        } else {
             glColor3f(0.f, 0.f, 0.f);
         }
         glVertex2f(0.f, height);
@@ -248,8 +249,7 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 
         if(type == UI::WidgetType::WINDOW) {
             glColor3f(0.f, 0.f, 0.f);
-        }
-        else {
+        } else {
             glColor3f(1.f, 1.f, 1.f);
         }
         glVertex2f(width, 0.f);
@@ -261,7 +261,9 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     if(text_texture != nullptr) {
         glColor3f(text_color.r, text_color.g, text_color.b);
         int y_offset = text_offset_y;
-        if(type == UI::WidgetType::BUTTON) y_offset = (height - text_texture->height) / 2;
+        if(type == UI::WidgetType::BUTTON) {
+            y_offset = (height - text_texture->height) / 2;
+        }
         draw_rectangle(text_offset_x, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
     }
 
@@ -272,8 +274,7 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
         if(o.value) {
             glColor4f(0.f, 1.f, 0.f, 0.5f);
-        }
-        else {
+        } else {
             glColor4f(1.f, 0.f, 0.f, 0.5f);
         }
         draw_rect(0, pos_rect, tex_rect, viewport);
@@ -283,6 +284,7 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     if((on_click && is_hover) || is_clickable) {
         UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
         UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
+
         glColor4f(0.7f, 0.7f, 0.7f, 0.5f);
         draw_rect(0, pos_rect, tex_rect, viewport);
     }

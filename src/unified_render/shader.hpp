@@ -3,7 +3,6 @@
 #include <string>
 #include <exception>
 
-#include <GL/glew.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/mat4x4.hpp>
 

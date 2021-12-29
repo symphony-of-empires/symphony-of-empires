@@ -8,6 +8,17 @@
 #include "unified_render/network.hpp"
 #include "client/game_state.hpp"
 
+class ClientException : public std::exception {
+    std::string buffer;
+public:
+    ClientException(const std::string& msg) {
+        buffer = msg;
+    }
+    virtual const char* what(void) const noexcept {
+        return buffer.c_str();
+    }
+};
+
 class Client : public UnifiedRender::Networking::Client {
     std::thread net_thread;
     std::atomic<bool> has_snapshot;
