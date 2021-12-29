@@ -731,7 +731,7 @@ void World::do_tick() {
 
     {
         // Broadcast to clients
-        Packet packet = Packet();
+        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
         Archive ar = Archive();
         ActionType action = ActionType::UNIT_UPDATE;
         ::serialize(ar, &action);
@@ -800,7 +800,7 @@ void World::do_tick() {
     time++;
 
     // Tell clients that this tick has been done
-    Packet packet = Packet();
+    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::WORLD_TICK;
     ::serialize(ar, &action);

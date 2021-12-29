@@ -112,7 +112,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
             gs.client = new Client(gs, o.ip_addr_inp->buffer, 1836);
             gs.client->username = o.username_inp->buffer;
             gs.client->wait_for_snapshot();
-        } catch(SocketException& e) {
+        } catch(UnifiedRender::Networking::SocketException& e) {
             gs.ui_ctx->prompt("Network layer error", e.what());
             goto failure_cleanup;
         } catch(ClientException& e) {

@@ -30,12 +30,12 @@ public:
     
     void net_loop(void);
     void wait_for_snapshot(void);
-    void send(const Packet& packet);
+    void send(const UnifiedRender::Networking::Packet& packet);
 	
-    std::deque<Packet> packets;
+    std::deque<UnifiedRender::Networking::Packet> packets;
 	std::mutex packets_mutex;
 	
-	std::deque<Packet> pending_packets;
+	std::deque<UnifiedRender::Networking::Packet> pending_packets;
 	std::mutex pending_packets_mutex;
 };
 

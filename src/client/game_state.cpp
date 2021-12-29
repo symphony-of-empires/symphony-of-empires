@@ -201,7 +201,7 @@ void handle_event(Input& input, GameState& gs) {
 void GameState::send_command(Archive& archive) {
     std::scoped_lock lock(client->pending_packets_mutex);
 
-    Packet packet = Packet(g_client->get_fd());
+    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet(g_client->get_fd());
     packet.data(archive.get_buffer(), archive.size());
     client->pending_packets.push_back(packet);
 }
