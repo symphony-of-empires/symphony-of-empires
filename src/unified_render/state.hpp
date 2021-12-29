@@ -30,6 +30,9 @@ namespace UnifiedRender {
 	class MaterialManager;
 	class ModelManager;
 	class Sound;
+	namespace IO {
+		class PackageManager;
+	};
 
 	struct State {
 		SDL_Window* window;
@@ -51,7 +54,6 @@ namespace UnifiedRender {
 		UnifiedRender::TextureManager* tex_man;
 		UnifiedRender::MaterialManager* material_man;
     	UnifiedRender::ModelManager* model_man;
-
-		std::vector<IO::Package> packages;
+		UnifiedRender::IO::PackageManager* package_man;
 	};
 }

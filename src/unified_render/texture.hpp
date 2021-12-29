@@ -23,6 +23,12 @@
 
 struct SDL_Surface;
 
+namespace UnifiedRender::IO {
+    namespace Asset {
+        class Base;
+    };
+};
+
 namespace UnifiedRender {
     class TextureException: public BinaryImageException {
     public:
@@ -49,6 +55,7 @@ namespace UnifiedRender {
     public:
         Texture(void);
         Texture(const std::string& path);
+        Texture(const UnifiedRender::IO::Asset::Base* asset);
         Texture(size_t _width, size_t _height);
         ~Texture(void) override;
         void create_dummy();
@@ -84,5 +91,6 @@ namespace UnifiedRender {
         std::set<std::pair<UnifiedRender::Texture*, std::string>> textures;
     public:
         const Texture& load(const std::string& path, TextureOptions options = default_options);
+        const Texture& load(const UnifiedRender::IO::Asset::Base* asset, TextureOptions options = default_options);
     };
 };

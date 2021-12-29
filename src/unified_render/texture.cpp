@@ -19,6 +19,12 @@ UnifiedRender::Texture::Texture(const std::string& path)
 
 }
 
+UnifiedRender::Texture::Texture(const UnifiedRender::IO::Asset::Base* asset)
+    : BinaryImage((asset == nullptr) ? "" : asset->abs_path)
+{
+
+}
+
 UnifiedRender::Texture::Texture(size_t _width, size_t _height)
     : BinaryImage(_width, _height) 
 {
@@ -182,8 +188,9 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::str
     });
 
     // Load texture from cached texture list
-    if(it != this->textures.end())
+    if(it != this->textures.end()) {
         return *((*it).first);
+    }
 
     print_info("Loaded and cached texture %s", path.c_str());
 
@@ -191,18 +198,18 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::str
     UnifiedRender::Texture* tex;
     try {
         tex = new UnifiedRender::Texture(path);
-    }
-    catch(BinaryImageException&) {
+    } catch(BinaryImageException&) {
         tex = new UnifiedRender::Texture();
         tex->create_dummy();
     }
     tex->to_opengl(options);
-    if(options.min_filter == GL_NEAREST_MIPMAP_NEAREST ||
-        options.min_filter == GL_NEAREST_MIPMAP_LINEAR ||
-        options.min_filter == GL_LINEAR_MIPMAP_NEAREST ||
-        options.min_filter == GL_LINEAR_MIPMAP_LINEAR) {
+    if(options.min_filter == GL_NEAREST_MIPMAP_NEAREST || options.min_filter == GL_NEAREST_MIPMAP_LINEAR || options.min_filter == GL_LINEAR_MIPMAP_NEAREST || options.min_filter == GL_LINEAR_MIPMAP_LINEAR) {
         tex->gen_mipmaps();
     }
     this->textures.insert(std::make_pair(tex, path));
     return *((const Texture*)tex);
+}
+
+const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const UnifiedRender::IO::Asset::Base* asset, TextureOptions options) {
+    this->load((asset == nullptr) ? "" : asset->abs_path, options);
 }

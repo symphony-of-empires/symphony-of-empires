@@ -92,6 +92,7 @@ UnifiedRender::State::State(void) {
     sound_man = new UnifiedRender::SoundManager();
     material_man = new UnifiedRender::MaterialManager();
     model_man = new UnifiedRender::ModelManager();
+    package_man = new UnifiedRender::IO::PackageManager();
 
     const std::string asset_path = Path::get_full();
     
@@ -100,34 +101,6 @@ UnifiedRender::State::State(void) {
         if(entry.is_directory()) {
             const auto& path = entry.path().lexically_relative(asset_path);
             Path::add_path(path.string());
-        }
-    }
-    
-    // Register packages
-    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
-        if(!entry.is_directory()) {
-            continue;
-        }
-
-        auto package = UnifiedRender::IO::Package();
-        package.name = entry.path().lexically_relative(asset_path).string();
-        for(const auto& _entry : std::filesystem::recursive_directory_iterator(entry.path())) {
-            if(_entry.is_directory()) {
-                continue;
-            }
-
-            auto* asset = new UnifiedRender::IO::Asset::File();
-            asset->path = _entry.path().lexically_relative(entry.path()).string();
-            asset->abs_path = _entry.path().string();
-            package.assets.push_back(asset);
-        }
-        packages.push_back(package);
-    }
-
-    for(const auto& package : packages) {
-        print_info("PACKAGE %s", package.name.c_str());
-        for(const auto& asset : package.assets) {
-            print_info("- %s (in %s)", asset->path.c_str(), asset->abs_path.c_str());
         }
     }
 }

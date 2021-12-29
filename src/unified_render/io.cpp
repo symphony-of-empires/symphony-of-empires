@@ -1,9 +1,11 @@
 #include "unified_render/io.hpp"
 
-/*
- * The path class abstracts away most of the burden from handling system-dependant
- * filesystem paths
- */
+//
+// IO::Path
+//
+// The path class abstracts away most of the burden from handling system-dependant
+// filesystem paths
+//
 UnifiedRender::IO::Path::Path(void) {
 
 }
@@ -14,13 +16,21 @@ UnifiedRender::IO::Path::Path(const std::string& path)
 
 }
 
+UnifiedRender::IO::Path::Path(const char* path)
+    : str(std::string(path))
+{
+
+}
+
 UnifiedRender::IO::Path::~Path(void) {
 
 }
 
-/*
- * Base for the Asset stream
- */
+//
+// Asset::Base
+//
+// Base for the Asset stream
+//
 UnifiedRender::IO::Asset::Base::Base(void) {
 
 }
@@ -49,9 +59,11 @@ void UnifiedRender::IO::Asset::Base::seek(SeekType type, int offset) {
 
 }
 
-/*
- * A "file" version of the base asset, mostly to identify an asset on a physical disk
- */
+//
+// Asset::File
+//
+// A "file" version of the base asset, mostly to identify an asset on a physical disk
+//
 UnifiedRender::IO::Asset::File::File(void) {
 
 }
@@ -88,10 +100,78 @@ void UnifiedRender::IO::Asset::File::seek(SeekType type, int offset) {
     }
 }
 
+//
+// Package
+//
 UnifiedRender::IO::Package::Package(void) {
 
 }
 
 UnifiedRender::IO::Package::~Package(void) {
 
+}
+
+#include <filesystem>
+#include "unified_render/path.hpp"
+//
+// Package manager
+//
+UnifiedRender::IO::PackageManager::PackageManager(void) {
+    const std::string asset_path = ::Path::get_full();
+    
+    // Register packages
+    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
+        if(!entry.is_directory()) {
+            continue;
+        }
+
+        auto package = UnifiedRender::IO::Package();
+        package.name = entry.path().lexically_relative(asset_path).string();
+        for(const auto& _entry : std::filesystem::recursive_directory_iterator(entry.path())) {
+            if(_entry.is_directory()) {
+                continue;
+            }
+
+            auto* asset = new UnifiedRender::IO::Asset::File();
+            asset->path = _entry.path().lexically_relative(entry.path()).string();
+            asset->abs_path = _entry.path().string();
+            package.assets.push_back(asset);
+        }
+        packages.push_back(package);
+    }
+
+    for(const auto& package : packages) {
+        print_info("PACKAGE %s", package.name.c_str());
+        for(const auto& asset : package.assets) {
+            print_info("- %s (in %s)", asset->path.c_str(), asset->abs_path.c_str());
+        }
+    }
+}
+
+UnifiedRender::IO::PackageManager::~PackageManager(void) {
+
+}
+
+// Obtaining an unique asset means the "first-found" policy applies
+UnifiedRender::IO::Asset::Base* UnifiedRender::IO::PackageManager::get_unique(const UnifiedRender::IO::Path& path) {
+    for(const auto& package : packages) {
+        for(const auto& asset : package.assets) {
+            if(asset->path == path.str) {
+                return asset;
+            }
+        }
+    }
+    return nullptr;
+}
+
+std::vector<UnifiedRender::IO::Asset::Base*> UnifiedRender::IO::PackageManager::get_multiple(const UnifiedRender::IO::Path& path) {
+    std::vector<UnifiedRender::IO::Asset::Base*> list;
+    for(const auto& package : packages) {
+        for(const auto& asset : package.assets) {
+            if(asset->path == path.str) {
+                list.push_back(asset);
+            }
+        }
+    }
+    return list;
 }
