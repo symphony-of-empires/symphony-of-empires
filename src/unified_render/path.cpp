@@ -13,14 +13,15 @@
 #include <algorithm>
 #include <vector>
 #include <fstream>
-#include "unified_render/path.hpp"
-#include "unified_render/print.hpp"
 #include <filesystem>
 
 /* Visual Studio is not posix so we have to define PATH_MAX ourselves */
 #ifndef MAX_PATH
 #	define MAX_PATH 255
 #endif
+
+#include "unified_render/path.hpp"
+#include "unified_render/print.hpp"
 
 static std::vector<std::string> mod_paths;
 
