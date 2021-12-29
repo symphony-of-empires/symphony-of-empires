@@ -63,7 +63,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         std::string path;
         path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
         building_type_models.push_back(&UnifiedRender::State::get_instance().model_man->load(path));
-        path = Path::get("ui/building_types/" + building_type->ref_name + ".png");
+        path = Path::get("ui/icons/building_types/" + building_type->ref_name + ".png");
         building_type_icons.push_back(&UnifiedRender::State::get_instance().tex_man->load(path));
     }
 
@@ -71,7 +71,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         std::string path;
         path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
         unit_type_models.push_back(&UnifiedRender::State::get_instance().model_man->load(path));
-        path = Path::get("ui/unit_types/" + unit_type->ref_name + ".png");
+        path = Path::get("ui/icons/unit_types/" + unit_type->ref_name + ".png");
         unit_type_icons.push_back(&UnifiedRender::State::get_instance().tex_man->load(path));
     }
 }
@@ -352,9 +352,9 @@ void Map::draw(const GameState& gs) {
     view = camera->get_view();
     projection = camera->get_projection();
     // obj_shader->set_uniform("map_diffusion", 0);
-    model_shader->use();
-    model_shader->set_uniform("projection", projection);
-    model_shader->set_uniform("view", view);
+    obj_shader->use();
+    obj_shader->set_uniform("projection", projection);
+    obj_shader->set_uniform("view", view);
 
     // glActiveTexture(GL_TEXTURE0);
     /*for(const auto& building : world.buildings) {
@@ -362,9 +362,9 @@ void Map::draw(const GameState& gs) {
         std::pair<float, float> pos = building->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
         model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
-        model_shader->set_uniform("model", model);
+        obj_shader->set_uniform("model", model);
         draw_flag(building->get_owner());
-        building_type_models.at(world.get_id(building->type))->draw(*model_shader);
+        building_type_models.at(world.get_id(building->type))->draw(*obj_shader);
     }*/
 
     for(const auto& unit : world.units) {
@@ -372,13 +372,30 @@ void Map::draw(const GameState& gs) {
         std::pair<float, float> pos = unit->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
         //model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
-        model_shader->set_uniform("model", model);
+        obj_shader->set_uniform("model", model);
         draw_flag(unit->owner);
 #if defined TILE_GRANULARITY
         model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
 #endif
-        model_shader->set_uniform("model", model);
-        unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
+        obj_shader->set_uniform("model", model);
+        unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
+    }
+
+    //(&UnifiedRender::State::get_instance().model_man->load(Path::get("3d/unit_types/" + unit_type->ref_name + ".obj")));
+    for(const auto& unit_type : world.unit_types) {
+        glm::mat4 model(1.f);
+        model = glm::translate(model, glm::vec3(world.get_id(unit_type) * 8.f, -4.f, 0.f));
+        //model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
+        obj_shader->set_uniform("model", model);
+        unit_type_models[world.get_id(unit_type)]->draw(*obj_shader);
+    }
+
+    for(const auto& building_type : world.building_types) {
+        glm::mat4 model(1.f);
+        model = glm::translate(model, glm::vec3(world.get_id(building_type) * 8.f, 0.f, 0.f));
+        //model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
+        obj_shader->set_uniform("model", model);
+        building_type_models[world.get_id(building_type)]->draw(*obj_shader);
     }
 
     // Resets the shader and texture

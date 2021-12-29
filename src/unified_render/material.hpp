@@ -8,9 +8,8 @@
 
 namespace UnifiedRender {
     class Texture;
-    /**
-     * A definition for a surface/color/texture to be applied to a model
-     */
+    
+    /// A definition for a surface/color/texture to be applied to a model
     class Material {
     public:
         glm::vec3 diffuse_color;

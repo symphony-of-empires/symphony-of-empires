@@ -98,7 +98,7 @@ namespace UnifiedRender {
                 glDrawArrays(mode, 0, buffer.size());
             }
         };
-    }
+    };
 
     /**
      * A simple object - use these to store "simple" objects that MAY repeat
@@ -117,7 +117,6 @@ namespace UnifiedRender {
         const Material* material = nullptr;
     };
 
-#ifdef NO_ASSIMP
     /**
      * A complex object being composed by many simple objects
      */
@@ -144,9 +143,4 @@ namespace UnifiedRender {
         const SimpleModel& load_simple(const std::string& path);
         const Model& load(const std::string& path);
     };
-#endif
 }
-
-#ifndef NO_ASSIMP
-#include "assimp_model.hpp"
-#endif

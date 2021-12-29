@@ -7,8 +7,9 @@ UnifiedRender::OpenGl::Framebuffer::Framebuffer() {
 }
 
 UnifiedRender::OpenGl::Framebuffer::~Framebuffer() {
-	if(id)
+	if(id) {
 		glDeleteFramebuffers(1, &id);
+	}
 }
 
 void UnifiedRender::OpenGl::Framebuffer::set_texture(int index, const UnifiedRender::Texture& texture){
