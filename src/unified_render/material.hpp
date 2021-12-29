@@ -35,6 +35,6 @@ namespace UnifiedRender {
         std::set<std::pair<Material*, std::string>> materials;
     public:
         std::vector<std::pair<Material*, std::string>> load_wavefront(const std::string& path);
-        const Material& load_material(const std::string& path);
+        const Material& load(const std::string& path);
     };
 }
