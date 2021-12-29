@@ -1,13 +1,15 @@
 #pragma once
 
+#include <cmath>
+
 #include <glm/vec3.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/intersect.hpp>
+
 #include "unified_render/print.hpp"
 #include "client/camera.hpp"
-#include <math.h>
 
 class OrbitCamera: public Camera {
 public:

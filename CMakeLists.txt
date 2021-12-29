@@ -56,18 +56,29 @@ target_precompile_headers(SymphonyOfEmpires PUBLIC
 
 # Standard C++ library headers
 target_precompile_headers(SymphonyOfEmpires PRIVATE
-	<sstream>
-	<fstream>
-	<string>
 	<cstdint>
 	<cstddef>
 	<cstring>
 	<cstdlib>
 	<cstdio>
+	<climits>
+	<ctime>
+	<sstream>
+	<fstream>
+	<string>
 	<vector>
 	<set>
+	<deque>
+	<atomic>
+	<thread>
+	<mutex>
+	<utility>
+	<numeric>
+	<functional>
+	<type_traits>
 	<algorithm>
-	<climits>
+	<memory>
+	<iostream>
 	<unordered_map>
 )
 
@@ -85,6 +96,9 @@ target_precompile_headers(SymphonyOfEmpires PRIVATE
 	<glm/common.hpp>
 	<glm/vec2.hpp>
 	<glm/vec3.hpp>
+	<glm/gtx/intersect.hpp>
+	<glm/gtc/type_ptr.hpp>
+	<glm/gtc/matrix_transform.hpp>
 )
 
 IF(WIN32)

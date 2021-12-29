@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+#include <utility>
+#include <functional>
 #include <cstddef>
 
 // Required before GL/gl.h
@@ -22,10 +25,6 @@ namespace UnifiedRender {
 
 #include "province.hpp"
 #include "unified_render/color.hpp"
-
-#include <vector>
-#include <utility>
-#include <functional>
 
 enum class MapView {
     SPHERE_VIEW,
