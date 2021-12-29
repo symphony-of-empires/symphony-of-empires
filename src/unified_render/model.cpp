@@ -41,7 +41,7 @@ void UnifiedRender::SimpleModel::upload(void) {
     vao.bind();
     vbo.bind(GL_ARRAY_BUFFER);
     glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
-    
+
     // Vertices
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
     glEnableVertexAttribArray(0);

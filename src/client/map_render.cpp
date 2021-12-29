@@ -303,5 +303,4 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
-
 }
