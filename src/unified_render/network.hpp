@@ -173,6 +173,25 @@ namespace UnifiedRender::Networking {
         std::string username;
     };
 
+    class Server {
+    protected:
+        struct sockaddr_in addr;
+#ifdef unix
+        int fd;
+#elif defined windows
+        SOCKET fd;
+#endif
+        std::atomic<bool> run;
+    public:
+        Server(unsigned port, unsigned max_conn);
+        virtual ~Server(void);
+        void broadcast(const UnifiedRender::Networking::Packet& packet);
+
+        ServerClient* clients;
+        int n_clients;
+        int player_count = 0;
+    };
+
     class Client {
     protected:
         struct sockaddr_in addr;
@@ -194,26 +213,5 @@ namespace UnifiedRender::Networking {
         std::mutex pending_packets_mutex;
 
         std::string username;
-    };
-
-    class Server {
-    protected:
-        struct sockaddr_in addr;
-#ifdef unix
-        int fd;
-#elif defined windows
-        SOCKET fd;
-#endif
-
-        std::atomic<bool> run;
-    public:
-        Server(unsigned port, unsigned max_conn);
-        virtual ~Server(void);
-        void broadcast(const UnifiedRender::Networking::Packet& packet);
-
-        ServerClient* clients;
-
-        int n_clients;
-        int player_count = 0;
     };
 };

@@ -19,12 +19,10 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     gs{ _gs }
 {
     g_server = this;
+    print_info("Deploying %u threads for clients", n_clients);
 
-    print_info("Deploying %u threads for clients", max_conn);
-
-    n_clients = max_conn;
-    clients = new UnifiedRender::Networking::ServerClient[max_conn];
-    for(size_t i = 0; i < max_conn; i++) {
+    clients = new UnifiedRender::Networking::ServerClient[n_clients];
+    for(size_t i = 0; i < n_clients; i++) {
         clients[i].is_connected = false;
         clients[i].thread = std::thread(&Server::net_loop, this, i);
     }
@@ -50,8 +48,9 @@ void Server::net_loop(int id) {
             while(!cl.is_connected) {
                 try {
                     conn_fd = accept(fd, (sockaddr*)&client, &len);
-                    if(conn_fd == INVALID_SOCKET)
+                    if(conn_fd == INVALID_SOCKET) {
                         throw UnifiedRender::Networking::SocketException("Cannot accept client connection");
+                    }
 
                     // At this point the client's connection was accepted - so we only have to check
                     // Then we check if the server is running and we throw accordingly
@@ -59,8 +58,9 @@ void Server::net_loop(int id) {
                     break;
                 } catch(UnifiedRender::Networking::SocketException& e) {
                     // Do something
-                    if(run == false)
+                    if(run == false) {
                         throw UnifiedRender::Networking::SocketException("Close client");
+                    }
                 }
                 std::this_thread::sleep_for(std::chrono::seconds(3));
             }
