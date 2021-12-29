@@ -415,15 +415,12 @@ void World::load_initial(void) {
     // Build a lookup table for super fast speed on finding provinces
     // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
     print_info(gettext("Building the province lookup table"));
-    std::vector<Province::Id> province_color_table(0xffffff, (Province::Id)-1);
+    std::vector<Province::Id> province_color_table(16777216, (Province::Id)-1);
     for(auto& province : provinces) {
         province_color_table[province->color & 0xffffff] = get_id(province);
     }
 
-    // Associate tiles with provinces
-    // Uncomment this and see a bit more below
-    std::set<uint32_t> colors_found;
-
+    // Associate tiles with province
     std::unique_ptr<BinaryImage> div = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_div.png")));
     width = div->width;
     height = div->height;
@@ -494,12 +491,15 @@ void World::load_initial(void) {
         }
     }
 
+    // Uncomment this and see a bit more below
+    std::set<uint32_t> colors_found;
     print_info(gettext("Associate tiles with provinces"));
-    for(size_t i = 0; i < total_size; i++) {
+    for(size_t i = 0; i < total_size; ) {
         const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
         if(province_id == (Province::Id)-1) {
             // Uncomment this and see below
             colors_found.insert(div->buffer[i]);
+            i++;
             continue;
         }
 
@@ -507,9 +507,8 @@ void World::load_initial(void) {
         while(div->buffer[i] == rel_color) {
             tiles[i].province_id = province_id;
             provinces[province_id]->n_tiles++;
-            ++i;
+            i++;
         }
-        --i;
     }
     div.reset(nullptr);
 
