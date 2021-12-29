@@ -35,9 +35,9 @@ file(GLOB RENDER_HEADERS "${PROJECT_SOURCE_DIR}/unified_render/*.hpp")
 target_precompile_headers(SymphonyOfEmpires PUBLIC ${MAIN_HEADERS} ${RENDER_HEADERS})
 
 IF(WIN32)
-	target_link_libraries(SymphonyOfEmpires PUBLIC glew32 opengl32 glu32 ws2_32 winpthread intl wsock32 assimp)
+	target_link_libraries(SymphonyOfEmpires PUBLIC glew32 opengl32 glu32 ws2_32 winpthread intl wsock32)
 ELSE()
-	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLU GLEW SDL2main assimp)
+	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLU GLEW SDL2main)
 ENDIF()
 target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 SDL2_ttf m z tbb stdc++)
 

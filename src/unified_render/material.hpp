@@ -12,6 +12,9 @@ namespace UnifiedRender {
     /// A definition for a surface/color/texture to be applied to a model
     class Material {
     public:
+        Material(void);
+        ~Material(void);
+
         glm::vec3 diffuse_color;
         const Texture* diffuse_map = nullptr;
         glm::vec3 ambient_color;

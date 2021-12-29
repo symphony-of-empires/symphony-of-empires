@@ -1,8 +1,9 @@
 #pragma once
 
+#include <vector>
+
 #include "unified_render/serializer.hpp"
 #include "unified_render/network.hpp"
-#include <vector>
 
 enum class ActionType {
     // Errors

@@ -1,5 +1,9 @@
-#include "unified_render/primitive.hpp"
 #include <cmath>
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/intersect.hpp>
+
+#include "unified_render/primitive.hpp"
 
 using namespace UnifiedRender::OpenGl;
 

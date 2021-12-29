@@ -9,7 +9,7 @@
 #include <SDL2/SDL_surface.h>
 #endif
 
-Texture() {
+UnifiedRender::Texture::Texture(void) {
 
 }
 
@@ -25,8 +25,10 @@ UnifiedRender::Texture::Texture(size_t _width, size_t _height)
 
 }
 
-UnifiedRender::Texture::~Texture() {
-    if(gl_tex_num) delete_opengl();
+UnifiedRender::Texture::~Texture(void) {
+    if(gl_tex_num) {
+        delete_opengl();
+    }
 }
 
 /**

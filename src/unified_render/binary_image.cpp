@@ -2,12 +2,12 @@
 #include <stdexcept>
 #include <cstring>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include "unified_render/binary_image.hpp"
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 BinaryImage::BinaryImage(void) {
     

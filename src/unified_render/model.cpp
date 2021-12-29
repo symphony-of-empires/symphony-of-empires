@@ -12,9 +12,54 @@
 #include "unified_render/shader.hpp"
 #include "unified_render/state.hpp"
 
+//
+// VAO
+//
+UnifiedRender::OpenGl::VAO::VAO(void) {
+    glGenVertexArrays(1, &id);
+}
+
+UnifiedRender::OpenGl::VAO::~VAO(void) {
+    glDeleteVertexArrays(1, &id);
+}
+
+void UnifiedRender::OpenGl::VAO::bind(void) const {
+    glBindVertexArray(id);
+}
+
+GLuint UnifiedRender::OpenGl::VAO::get_id(void) const {
+    return id;
+}
+
+//
+// VBO
+//
+UnifiedRender::OpenGl::VBO::VBO(void) {
+    glGenBuffers(1, &id);
+}
+
+UnifiedRender::OpenGl::VBO::~VBO(void) {
+    glDeleteBuffers(1, &id);
+}
+
+void UnifiedRender::OpenGl::VBO::bind(GLenum target) const {
+    glBindBuffer(target, id);
+}
+
+GLuint UnifiedRender::OpenGl::VBO::get_id(void) const {
+    return id;
+}
+
+//
+// Simple model
+//
 UnifiedRender::SimpleModel::SimpleModel(GLint _mode)
     : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(_mode)
 {
+
+}
+
+UnifiedRender::SimpleModel::~SimpleModel(void) {
 
 }
 
@@ -50,7 +95,14 @@ void UnifiedRender::SimpleModel::upload(void) {
     glEnableVertexAttribArray(1);
 }
 
+//
+// Model
+//
 UnifiedRender::Model::Model(void) {
+
+}
+
+UnifiedRender::Model::~Model(void) {
 
 }
 

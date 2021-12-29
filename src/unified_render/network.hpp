@@ -64,13 +64,13 @@ public:
 class SocketStream {
     bool is_server_stream = false;
 public:
-    int fd;
-
-    SocketStream() {};
-    SocketStream(int _fd): fd(_fd) {};
-
+    SocketStream(void);
+    SocketStream(int _fd);
+    ~SocketStream(void);
     void send(const void* data, size_t size);
     void recv(void* data, size_t size);
+    
+    int fd;
 };
 
 enum class PacketCode {
