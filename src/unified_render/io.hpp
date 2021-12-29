@@ -1,10 +1,26 @@
 #pragma once
 
 #include <cstdio>
-#include <vector>
+#include <cstdlib>
 #include <string>
+#include <vector>
 
-namespace UnifiedRender {
+namespace UnifiedRender::IO {
+    struct Path {
+        Path(void);
+        Path(const std::string& path);
+        ~Path(void);
+        std::string str;
+    };
+
+    namespace StreamFlags {
+        enum {
+            READ = 0x01,
+            WRITE = 0x02,
+            TRUNCATE = 0x04,
+        };
+    };
+
     enum class SeekType {
         START,
         END,
@@ -14,13 +30,13 @@ namespace UnifiedRender {
     namespace Asset {
         class Base {
         public:
-            Base(){};
-            ~Base(){};
-            virtual void open(void){};
-            virtual void close(void){};
-            virtual void read(void*, size_t){};
-            virtual void write(const void*, size_t){};
-            virtual void seek(SeekType, int){};
+            Base();
+            ~Base();
+            virtual void open(void);
+            virtual void close(void);
+            virtual void read(void*, size_t);
+            virtual void write(const void*, size_t);
+            virtual void seek(SeekType, int);
 
             std::string path;
             std::string abs_path;
@@ -39,7 +55,8 @@ namespace UnifiedRender {
             virtual void seek(SeekType type, int offset);
         };
     };
-
+    
+    // A package containing a set of assets
     class Package {
     public:
         Package();
@@ -49,4 +66,3 @@ namespace UnifiedRender {
         std::vector<Asset::Base*> assets;
     };
 };
-

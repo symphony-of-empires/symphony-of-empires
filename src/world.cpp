@@ -415,7 +415,7 @@ void World::load_initial(void) {
     // Build a lookup table for super fast speed on finding provinces
     // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
     print_info(gettext("Building the province lookup table"));
-    std::vector<Province::Id> province_color_table(16777216, (Province::Id)-1);
+    std::vector<Province::Id> province_color_table(0xffffff, (Province::Id)-1);
     for(auto& province : provinces) {
         province_color_table[province->color & 0xffffff] = get_id(province);
     }
@@ -440,43 +440,49 @@ void World::load_initial(void) {
     if(div->width != width || div->height != height)
         throw std::runtime_error("Province map size mismatch");
     
-    if(1) {
+    if(0) {
         for(auto& province : provinces) {
             province->n_tiles = 0;
         }
         
-        for(size_t i = 0; i < total_size; i++) {
+        for(unsigned int i = 0; i < total_size; ) {
             const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
-            if(province_id >= provinces.size()) continue;
+            if(province_id >= provinces.size()) {
+                i++;
+                continue;
+            }
 
             while(div->buffer[i] == provinces[province_id]->color) {
                 provinces[province_id]->n_tiles++;
                 i++;
             }
-            i--;
         }
 
-        for(size_t i = 0; i < provinces.size(); i++) {
-            auto* province = provinces[i];
-            if(!province->n_tiles) {
-                remove(province);
+        for(unsigned int i = 0; i < provinces.size(); i++) {
+            auto& province = *provinces[i];
+            if(!province.n_tiles) {
+                remove(&province);
 
                 for(auto& nation : nations) {
-                    nation->owned_provinces.erase(province);
-                    if(nation->capital == province) {
+                    nation->owned_provinces.erase(&province);
+                    if(nation->capital == &province) {
                         nation->capital = nullptr;
                     }
                 }
 
                 for(size_t j = 0; j < buildings.size(); j++) {
-                    auto* building = buildings[j];
-                    if(building->province != province) continue;
-                    remove(building);
-                    delete building;
+                    auto& building = *buildings[j];
+
+                    if(building.province != &province) {
+                        continue;
+                    }
+
+                    remove(&building);
+                    delete &building;
                     j--;
                 }
 
-                delete province;
+                delete &province;
                 i--;
                 continue;
             }
