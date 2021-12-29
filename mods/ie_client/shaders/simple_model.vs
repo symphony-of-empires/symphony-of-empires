@@ -13,5 +13,4 @@ out vec4 v_color;
 void main() {
 	gl_Position = ((projection * view) * model) * vec4(m_pos, 1.0);
 	v_texcoord = m_texcoord;
-	//v_color = vec4(v_texcoord.x, v_texcoord.y, v_texcoord.x * v_texcoord.y, 1.f);
 }

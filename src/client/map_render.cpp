@@ -230,8 +230,7 @@ UnifiedRender::Texture* MapRender::gen_border_sdf() {
     if(drawOnTex0) {
         delete tex1;
         tex1 = tex0;
-    }
-    else {
+    } else {
         delete tex0;
     }
     tex1->gen_mipmaps();

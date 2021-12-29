@@ -91,7 +91,7 @@ Program::Program(const VertexShader* vertex, const FragmentShader* fragment, con
     id = glCreateProgram();
     glBindAttribLocation(id, 0, "m_pos");
     glBindAttribLocation(id, 1, "m_texcoord");
-    glBindAttribLocation(id, 2, "m_color");
+    /*glBindAttribLocation(id, 2, "m_color");*/
 
     attach_shader(vertex);
     attach_shader(fragment);
