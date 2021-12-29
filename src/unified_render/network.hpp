@@ -11,26 +11,29 @@
 #include <stdexcept>
 
 #ifdef unix
-#	define _XOPEN_SOURCE_EXTENDED 1
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	ifndef INVALID_SOCKET
-#		define INVALID_SOCKET -1
-#	endif
+#    define _XOPEN_SOURCE_EXTENDED 1
+#    include <netdb.h>
+#    include <arpa/inet.h>
+#endif
+#include <sys/types.h>
+
+// Visual Studio does not know about UNISTD.H, Mingw does through
+#ifndef _MSC_VER
+#    include <unistd.h>
+#endif
+
+#ifdef unix
+#	include <poll.h>
 #elif defined windows
-#	ifndef _WINDOWS_
-#		define WIN32_LEAN_AND_MEAN 1
-#       ifndef NOMINMAX
-#		    define NOMINMAX 1
-#       endif
-#		include <windows.h>
-#		undef WIN32_LEAN_AND_MEAN
-#	endif
-/* Allow us to use deprecated functions like inet_addr */
-#	define _WINSOCK_DEPRECATED_NO_WARNINGS
-#	include <winsock2.h>
-#	include <ws2def.h>
-#	include <ws2tcpip.h>
+// Allow us to use deprecated functions like inet_addr
+#   define _WINSOCK_DEPRECATED_NO_WARNINGS
+// MingW heavily dislikes ws2def.h and causes spurious errors
+#   ifndef __MINGW32__
+#       include <ws2def.h>
+#   endif
+#   include <winsock2.h>
+#   include <ws2tcpip.h>
+#   pragma comment(lib, "Ws2_32.lib")
 #endif
 
 namespace UnifiedRender::Networking {
@@ -167,6 +170,29 @@ namespace UnifiedRender::Networking {
         std::deque<UnifiedRender::Networking::Packet> packets;
         std::mutex packets_mutex;
         
+        std::string username;
+    };
+
+    class Client {
+    protected:
+        struct sockaddr_in addr;
+#ifdef unix
+        int fd;
+#elif defined windows
+        SOCKET fd;
+#endif
+    public:
+        Client(std::string host, const unsigned port);
+        ~Client();
+        int get_fd(void) const;
+        void send(const UnifiedRender::Networking::Packet& packet);
+        
+        std::deque<UnifiedRender::Networking::Packet> packets;
+        std::mutex packets_mutex;
+        
+        std::deque<UnifiedRender::Networking::Packet> pending_packets;
+        std::mutex pending_packets_mutex;
+
         std::string username;
     };
 

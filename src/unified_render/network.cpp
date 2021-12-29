@@ -14,13 +14,41 @@
 #ifndef _MSC_VER
 #	include <unistd.h>
 #endif
-#ifdef windows
-#   include <winsock2.h>
+#ifdef unix
+#	define _XOPEN_SOURCE_EXTENDED 1
+#	include <sys/socket.h>
+#	include <netinet/in.h>
+#	ifndef INVALID_SOCKET
+#		define INVALID_SOCKET -1
+#	endif
+#elif defined windows
+#	ifndef _WINDOWS_
+#		define WIN32_LEAN_AND_MEAN 1
+#       ifndef NOMINMAX
+#		    define NOMINMAX 1
+#       endif
+#		include <windows.h>
+#		undef WIN32_LEAN_AND_MEAN
+#	endif
+/* Allow us to use deprecated functions like inet_addr */
+#	define _WINSOCK_DEPRECATED_NO_WARNINGS
+#	include <winsock2.h>
+#	include <ws2def.h>
+#	include <ws2tcpip.h>
+#endif
+
+#ifdef unix
+#	include <poll.h>
+#   include <signal.h>
+#   include <fcntl.h>
 #endif
 
 #include "unified_render/network.hpp"
 #include "unified_render/print.hpp"
 
+//
+// Socket stream
+//
 UnifiedRender::Networking::SocketStream::SocketStream(void) {
 
 }
@@ -55,6 +83,9 @@ void UnifiedRender::Networking::SocketStream::recv(void* data, size_t size) {
     }
 }
 
+//
+// Server client
+//
 UnifiedRender::Networking::ServerClient::ServerClient(void) {
 
 }
@@ -63,10 +94,12 @@ UnifiedRender::Networking::ServerClient::~ServerClient(void) {
     thread.join();
 }
 
+//
+// Server
+//
 UnifiedRender::Networking::Server::Server(const unsigned port, const unsigned max_conn)
     : n_clients(max_conn)
 {
-    run = true;
 #ifdef windows
     WSADATA data;
     WSAStartup(MAKEWORD(2, 2), &data);
@@ -96,11 +129,14 @@ UnifiedRender::Networking::Server::Server(const unsigned port, const unsigned ma
     }
 
 #ifdef unix
+    // Allow non-blocking operations on this socket (we don't want to block on multi-listener servers)
     fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0) | O_NONBLOCK);
 
     // We need to ignore pipe signals since any client disconnecting **will** kill the server
     signal(SIGPIPE, SIG_IGN);
 #endif
+
+    run = true;
     print_info("Server created sucessfully and listening to %u; now invite people!", port);
 }
 
@@ -143,3 +179,65 @@ void UnifiedRender::Networking::Server::broadcast(const UnifiedRender::Networkin
         }
     }
 }
+
+//
+// Client
+//
+UnifiedRender::Networking::Client::Client(std::string host, const unsigned port) {
+    // Initialize WSA
+#ifdef windows
+    WSADATA data;
+    if(WSAStartup(MAKEWORD(2, 2), &data) != 0) {
+        print_error("WSA code: %u", WSAGetLastError());
+        throw UnifiedRender::Networking::SocketException("Can't start WSA subsystem");
+    }
+#endif
+    
+    std::memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = inet_addr(host.c_str());
+    addr.sin_port = htons(port);
+    
+    fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(fd == INVALID_SOCKET) {
+#ifdef windows
+        print_error("WSA Code: %u", WSAGetLastError());
+        WSACleanup();
+#endif
+        throw UnifiedRender::Networking::SocketException("Can't create client socket");
+    }
+    
+    if(connect(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
+#ifdef unix
+        close(fd);
+#elif defined windows
+        print_error("WSA Code: %u", WSAGetLastError());
+        closesocket(fd);
+#endif
+        throw UnifiedRender::Networking::SocketException("Can't connect to server");
+    }
+}
+
+int UnifiedRender::Networking::Client::get_fd(void) const {
+    return fd;
+}
+
+void UnifiedRender::Networking::Client::send(const UnifiedRender::Networking::Packet& packet) {
+    if(packets_mutex.try_lock()) {
+        packets.push_back(packet);
+        packets_mutex.unlock();
+    } else {
+        std::scoped_lock lock(pending_packets_mutex);
+        pending_packets.push_back(packet);
+    }
+}
+
+UnifiedRender::Networking::Client::~Client() {
+#ifdef windows
+    closesocket(fd);
+    WSACleanup();
+#else
+    close(fd);
+#endif
+}
+
