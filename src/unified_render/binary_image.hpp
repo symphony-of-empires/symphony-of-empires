@@ -33,6 +33,7 @@ public:
     BinaryImage& operator=(const BinaryImage&) = default;
     virtual ~BinaryImage();
     virtual void from_file(const UnifiedRender::IO::Path& path);
+    uint32_t get_pixel(size_t x, size_t y) const;
 
     uint32_t* buffer;
     size_t width, height;
