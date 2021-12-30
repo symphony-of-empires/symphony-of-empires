@@ -56,8 +56,8 @@ Context::Context() {
 
     widgets.reserve(255);
 
-    background = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/background2.png"));
-    window_top = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/window_top2.png"));
+    background = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/window_background.png"));
+    window_top = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/window_top3.png"));
     button = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/button2.png"));
     tooltip_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/tooltip.png"));
     piechart_overlay = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/piechart.png"));

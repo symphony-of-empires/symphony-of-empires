@@ -83,7 +83,7 @@ void GameState::play_nation() {
 
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
-    minimap = new Interface::Minimap(*this, 0, -256, UI::Origin::LOWER_LEFT_SCREEN);
+    minimap = new Interface::Minimap(*this, -400, -200, UI::Origin::LOWER_RIGHT_SCREEN);
     g_client->send(Action::SelectNation::form_packet(curr_nation));
     print_info("Selected nation [%s]", curr_nation->ref_name.c_str());
 }
@@ -398,7 +398,7 @@ void main_loop(GameState& gs) {
     world_th.join();
 }
 
-void start_client(int argc, char** argv) {
+void start_client(int, char**) {
     // globals
     GameState gs{};
     
