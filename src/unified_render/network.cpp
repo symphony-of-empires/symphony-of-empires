@@ -131,6 +131,10 @@ void UnifiedRender::Networking::ServerClient::flush_packets(void) {
 bool UnifiedRender::Networking::ServerClient::has_pending(void) {
     // Check if we need to read packets
 #ifdef unix
+    struct pollfd pfd = {};
+    pfd.fd = conn_fd;
+    pfd.events = POLLIN;
+    
     int has_pending = poll(&pfd, 1, 10);
     if(pfd.revents & POLLIN || has_pending) {
         return true;
