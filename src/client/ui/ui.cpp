@@ -151,6 +151,7 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
     case UI::Origin::CENTER:
         pos += offset;
         pos += parent_size / 2;
+        break;
     case UI::Origin::UPPER_LEFT:
         pos += offset;
         break;
@@ -331,7 +332,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
         }
     }
 
-    // Call on_click if on_click hasnt been used and widget is hit by ckick
+    // Call on_click if on_click hasnt been used and widget is hit by click
     if(w.on_click) {
         if(clickable && !click_consumed) {
             if(w.type == UI::WidgetType::SLIDER) {
