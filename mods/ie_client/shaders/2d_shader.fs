@@ -1,8 +1,8 @@
 #version 330 compatibility
 
-out vec4 f_frag_color;
+out __def_precision vec4 f_frag_color;
 
-in vec2 v_texcoord;
+in __def_precision vec2 v_texcoord;
 
 uniform sampler2D tex;
 
