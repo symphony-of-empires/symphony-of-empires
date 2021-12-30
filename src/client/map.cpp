@@ -36,9 +36,9 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     map_render = new MapRender(world);
 
     // Shader used for drawing the models using custom model render
-    obj_shader = UnifiedRender::OpenGl::Program::create("simple_model", "simple_model");
+    obj_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/simple_model.vs"), Path::get("shaders/simple_model.fs"));
     // Shader used for drawing the assimp models
-    model_shader = UnifiedRender::OpenGl::Program::create("model_loading", "model_loading");
+    // model_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/model_loading.vs"), Path::get("shaders/model_loading.fs"));
 
     // Set the mapmode
     set_map_mode(political_map_mode);

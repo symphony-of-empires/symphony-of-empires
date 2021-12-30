@@ -7,12 +7,17 @@
 #include <mutex>
 #include <memory>
 
-#include "client/map_render.hpp"
-#include "client/map.hpp"
+#include "unified_render/texture.hpp"
+#include "unified_render/primitive.hpp"
+#include "unified_render/shader.hpp"
+#include "unified_render/framebuffer.hpp"
+#include "unified_render/model.hpp"
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
+
+#include "client/map_render.hpp"
+#include "client/map.hpp"
 #include "client/game_state.hpp"
-#include "unified_render/model.hpp"
 #include "io_impl.hpp"
 #include "client/interface/province_view.hpp"
 #include "client/interface/minimap.hpp"
@@ -21,11 +26,6 @@
 #include "client/flat_camera.hpp"
 #include "client/camera.hpp"
 #include "client/interface/lobby.hpp"
-#include "unified_render/texture.hpp"
-#include "unified_render/primitive.hpp"
-#include "unified_render/shader.hpp"
-#include "unified_render/framebuffer.hpp"
-#include "unified_render/model.hpp"
 #include "province.hpp"
 
 #include <chrono>
@@ -98,9 +98,9 @@ MapRender::MapRender(const World& _world)
     // terrain_sheet->to_opengl();
 
     // The map shader that draws everything on the map 
-    map_shader = UnifiedRender::OpenGl::Program::create("map", "map");
-    border_gen_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_gen");
-    border_sdf_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_sdf");
+    map_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/map.vs"), Path::get("shaders/map.fs"));
+    border_gen_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_gen.fs"));
+    border_sdf_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf.fs"));
 
     print_info("Creating tile map & tile sheet");
 
@@ -145,10 +145,10 @@ MapRender::MapRender(const World& _world)
 
 void MapRender::reload_shaders() {
     delete map_shader;
-    map_shader = UnifiedRender::OpenGl::Program::create("map", "map");
+    map_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/map.vs"), Path::get("shaders/map.fs"));
 
     delete border_sdf_shader;
-    border_sdf_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_sdf");
+    border_sdf_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf.fs"));
 
     delete border_sdf;
     border_sdf = gen_border_sdf();
@@ -237,7 +237,7 @@ UnifiedRender::Texture* MapRender::gen_border_sdf() {
 
     UnifiedRender::OpenGl::Framebuffer output_fbo = UnifiedRender::OpenGl::Framebuffer();
     output_fbo.use();
-    auto output_shader = UnifiedRender::OpenGl::Program::create("2d_shader", "border_sdf_output");
+    auto output_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf_output.fs"));
     output_shader->use();
 
     UnifiedRender::TextureOptions output_options{};
