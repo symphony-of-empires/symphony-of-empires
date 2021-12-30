@@ -41,31 +41,13 @@ void Server::net_loop(int id) {
     while(run) {
         int conn_fd = 0;
         try {
-            sockaddr_in client;
-            socklen_t len = sizeof(client);
-
             cl.is_connected = false;
             while(!cl.is_connected) {
-                try {
-                    conn_fd = accept(fd, (sockaddr*)&client, &len);
-                    if(conn_fd == INVALID_SOCKET) {
-                        throw UnifiedRender::Networking::SocketException("Cannot accept client connection");
-                    }
-
-                    // At this point the client's connection was accepted - so we only have to check
-                    // Then we check if the server is running and we throw accordingly
-                    cl.is_connected = true;
-                    break;
-                } catch(UnifiedRender::Networking::SocketException& e) {
-                    // Do something
-                    if(run == false) {
-                        throw UnifiedRender::Networking::SocketException("Close client");
-                    }
+                conn_fd = cl.try_connect(fd);
+                if(!run) {
+                    throw ServerException("Server closed");
                 }
-                std::this_thread::sleep_for(std::chrono::seconds(3));
             }
-            print_info("New client connection established");
-            cl.is_connected = true;
 
             Nation* selected_nation = nullptr;
             UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet(conn_fd);
@@ -116,35 +98,10 @@ void Server::net_loop(int id) {
             // an exception is thrown), since we are using C++
             Archive ar = Archive();
             while(run && cl.is_connected == true) {
-                // Push pending_packets to packets queue (the packets queue is managed
-                // by us and requires almost 0 locking, so the host does not stagnate when
-                // trying to send packets to a certain client)
-                if(!cl.pending_packets.empty()) {
-                    if(cl.pending_packets_mutex.try_lock()) {
-                        std::scoped_lock lock(cl.packets_mutex);
-                        for(const auto& packet : cl.pending_packets) {
-                            cl.packets.push_back(packet);
-                        }
-                        cl.pending_packets.clear();
-                        cl.pending_packets_mutex.unlock();
-                    }
-                }
+                cl.flush_packets();
 
                 // Check if we need to read packets
-#ifdef unix
-                int has_pending = poll(&pfd, 1, 10);
-#elif defined windows
-                u_long has_pending = 0;
-                int test = ioctlsocket(conn_fd, FIONREAD, &has_pending);
-#endif
-
-                // Conditional of above statements
-#ifdef unix
-                if(pfd.revents & POLLIN || has_pending)
-#elif defined windows
-                if(has_pending)
-#endif
-                {
+                if(cl.has_pending()) {
                     packet.recv();
                     ar.set_buffer(packet.data(), packet.size());
                     ar.rewind();
