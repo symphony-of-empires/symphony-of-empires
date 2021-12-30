@@ -47,7 +47,7 @@ Context::Context() {
     if(g_ui_context != nullptr) {
         throw std::runtime_error("UI context already constructed");
     }
-    
+
     // default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 16);
     default_font = TTF_OpenFont(Path::get("ui/fonts/Poppins/Poppins-Regular.ttf").c_str(), 16);
     if(default_font == nullptr) {
@@ -106,7 +106,8 @@ void Context::clear_dead() {
             delete (*it);
             clear_dead();
             return;
-        } else {
+        }
+        else {
             ++it;
         }
     }
@@ -155,6 +156,10 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
     case UI::Origin::UPPER_LEFT:
         pos += offset;
         break;
+    case UI::Origin::UPPER_MIDDLE:
+        pos += offset;
+        pos.x += parent_size.x / 2;
+        break;
     case UI::Origin::UPPER_RIGTH:
         pos += offset;
         pos.x += parent_size.x;
@@ -162,6 +167,11 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
     case UI::Origin::LOWER_LEFT:
         pos += offset;
         pos.y += parent_size.y;
+        break;
+    case UI::Origin::LOWER_MIDDLE:
+        pos += offset;
+        pos.y += parent_size.y;
+        pos.x += parent_size.x / 2;
         break;
     case UI::Origin::LOWER_RIGHT:
         pos += offset;
@@ -172,11 +182,18 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
         break;
     case UI::Origin::UPPER_LEFT_SCREEN:
         break;
+    case UI::Origin::UPPER_MIDDLE_SCREEN:
+        pos.x += screen_size.x / 2;
+        break;
     case UI::Origin::UPPER_RIGHT_SCREEN:
         pos.x += screen_size.x;
         break;
     case UI::Origin::LOWER_LEFT_SCREEN:
         pos.y += screen_size.y;
+        break;
+    case UI::Origin::LOWER_MIDDLE_SCREEN:
+        pos.y += screen_size.y;
+        pos.x += screen_size.x / 2;
         break;
     case UI::Origin::LOWER_RIGHT_SCREEN:
         pos += screen_size;
@@ -316,13 +333,33 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
         clickable = false;
     }
 
-    // Click must be within the widget's box
-    if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
-        clickable = false;
+    // Click must be within the widget's box if it's not a group
+    if(w.type != UI::WidgetType::GROUP) {
+        if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
+            clickable = false;
+        }
+        else if(w.type == UI::WidgetType::IMAGE) {
+            if(w.current_texture != nullptr) {
+                int tex_width = w.current_texture->width;
+                int tex_height = w.current_texture->height;
+                int tex_x = ((mx - offset.x) * tex_width) / w.width;
+                int tex_y = ((my - offset.y) * tex_height) / w.height;
+                if(tex_x >= 0 && tex_x < tex_width && tex_y >= 0 && tex_y < tex_height) {
+                    uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y);
+                    if(((argb >> 24) & 0xff) == 0) {
+                        clickable = false;
+                    }
+                }
+            }
+        }
     }
 
     for(auto& child : w.children) {
         click_state = check_click_recursive(*child, mx, my, offset.x, offset.y, click_state, clickable);
+    }
+
+    if(w.type == UI::WidgetType::GROUP) {
+        clickable = false;
     }
 
     // Call on_click_outside if on_click has been used or widget isn't hit by click
