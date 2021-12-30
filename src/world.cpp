@@ -82,9 +82,7 @@ Tile& World::get_tile(size_t idx) const {
 
 void ai_do_tick(Nation* nation, World* world);
 
-/**
- * Creates a new world
-  */
+// Creates a new world
 World::World() {
     g_world = this;
 

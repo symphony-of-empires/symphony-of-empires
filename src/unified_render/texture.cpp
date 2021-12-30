@@ -37,10 +37,8 @@ UnifiedRender::Texture::~Texture(void) {
     }
 }
 
-/**
- * This dummy texture helps to avoid crashes due to missing buffers or so, and also gives
- * visual aid of errors
- */
+// This dummy texture helps to avoid crashes due to missing buffers or so, and also gives
+// visual aid of errors
 void UnifiedRender::Texture::create_dummy() {
     width = 16;
     height = 16;
@@ -71,38 +69,33 @@ void UnifiedRender::Texture::gen_mipmaps() const {
     glGenerateMipmap(GL_TEXTURE_2D);
 }
 
-/**
- * Converts the texture into a OpenGL texture, and assigns it a number
-  */
+// Converts the texture into a OpenGL texture, and assigns it a number
 void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
-    auto colors = surface->format->BytesPerPixel;
+    int colors = surface->format->BytesPerPixel;
     GLuint texture_format;
-    if(colors == 4) { // alpha
+    if(colors == 4) {
+        // Alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGBA;
-        }
-        else {
+        } else {
             texture_format = GL_BGRA;
         }
-    }
-    else { // no alpha
+    } else {
+        // No alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGB;
-        }
-        else {
+        } else {
             texture_format = GL_BGR;
         }
     }
 
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
-    glTexImage2D(GL_TEXTURE_2D, 0, colors, surface->w, surface->h, 0,
-        texture_format, GL_UNSIGNED_BYTE, surface->pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, colors, surface->w, surface->h, 0, texture_format, GL_UNSIGNED_BYTE, surface->pixels);
 
     if(glewIsSupported("GL_VERSION_2_1")) {
         glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else {
+    } else {
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     }
 
@@ -113,21 +106,17 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
 }
 
 
-/**
- * Binds the texture to the current OpenGL context
- */
+// Binds the texture to the current OpenGL context
 void UnifiedRender::Texture::bind(void) const {
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
 }
 
-/**
- * Deletes the OpenGL representation of this texture
-  */
+// Deletes the OpenGL representation of this texture
 void UnifiedRender::Texture::delete_opengl() {
     glDeleteTextures(1, &gl_tex_num);
 }
 
-/** Creates a new texture array */
+// Creates a new texture array
 UnifiedRender::TextureArray::TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y)
     : BinaryImage(path),
     tiles_x{ _tiles_x },
@@ -136,7 +125,7 @@ UnifiedRender::TextureArray::TextureArray(const std::string& path, size_t _tiles
 
 }
 
-/** Uploads the TextureArray to the driver */
+// Uploads the TextureArray to the driver
 void UnifiedRender::TextureArray::to_opengl(GLuint wrapp, GLuint min_filter, GLuint mag_filter) {
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D_ARRAY, gl_tex_num);
@@ -169,18 +158,18 @@ void UnifiedRender::TextureArray::to_opengl(GLuint wrapp, GLuint min_filter, GLu
     glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
 }
 
-/**
- * Finds a texture in the list of a texture manager
- * if the texture is already in the list we load the saved texture from the list
- * instead of loading it from the disk.
- *
- * Otherwise we load it from the disk and add it to the saved texture list
- *
- * The object returned is a pointer and we will not give ownership of textures in the list
- * and program should not modify the contents of it since it will differ from the texture
- * on the disk, and our main point is to mirror loaded textures from the disk - not modify
- * them.
- */
+//
+// Finds a texture in the list of a texture manager
+// if the texture is already in the list we load the saved texture from the list
+// instead of loading it from the disk.
+//
+// Otherwise we load it from the disk and add it to the saved texture list
+//
+// The object returned is a pointer and we will not give ownership of textures in the list
+// and program should not modify the contents of it since it will differ from the texture
+// on the disk, and our main point is to mirror loaded textures from the disk - not modify
+// them.
+//
 const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::string& path, TextureOptions options) {
     // Find texture when wanting to be loaded
     auto it = std::find_if(this->textures.begin(), this->textures.end(), [&path](const std::pair<UnifiedRender::Texture*, std::string>& element) {
@@ -202,6 +191,7 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::str
         tex = new UnifiedRender::Texture();
         tex->create_dummy();
     }
+
     tex->to_opengl(options);
     if(options.min_filter == GL_NEAREST_MIPMAP_NEAREST || options.min_filter == GL_NEAREST_MIPMAP_LINEAR || options.min_filter == GL_LINEAR_MIPMAP_NEAREST || options.min_filter == GL_LINEAR_MIPMAP_LINEAR) {
         tex->gen_mipmaps();

@@ -121,7 +121,7 @@ void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
     if(gs.sound_lock.try_lock()) {
         for(unsigned int i = 0; i < gs.sound_queue.size(); ) {
             int size = gs.sound_queue.size();
-            auto* sound = gs.sound_queue[i];
+            UnifiedRender::Sound* sound = gs.sound_queue[i];
             int amount = sound->len - sound->pos;
 
             if(amount > len) {
@@ -140,7 +140,7 @@ void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
         }
 
         for(unsigned int i = 0; i < gs.music_queue.size(); ) {
-            auto* music = gs.music_queue[i];
+            UnifiedRender::Sound* music = gs.music_queue[i];
             int amount = music->len - music->pos;
             
             if(amount > len) {

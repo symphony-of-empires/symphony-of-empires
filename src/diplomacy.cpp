@@ -158,7 +158,7 @@ bool Ceasefire::in_effect() {
     return (days_duration != 0);
 }
 
-/** Checks if the specified nations participates in the treaty */
+// Checks if the specified nations participates in the treaty
 bool Treaty::does_participate(Nation& nation) {
     for(auto& status : this->approval_status) {
         if(status.first == &nation) {
@@ -168,7 +168,7 @@ bool Treaty::does_participate(Nation& nation) {
     return false;
 }
 
-/** Checks if the treaty has any clause which may still make the treaty be in effect */
+// Checks if the treaty has any clause which may still make the treaty be in effect
 bool Treaty::in_effect(void) const {
 	bool on_effect = false;
 	for(const auto& clause : this->clauses) {

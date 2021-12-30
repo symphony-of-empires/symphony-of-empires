@@ -6,13 +6,12 @@
 #include <cstddef>
 #include <type_traits>
 #include "good.hpp"
+#include "nation.hpp"
 
 #include "unified_render/entity.hpp"
 
-/**
-* Defines a type of unit, it can be a tank, garrison, infantry, etc
-* this is moddable via a lua script and new unit types can be added
- */
+// Defines a type of unit, it can be a tank, garrison, infantry, etc
+// this is moddable via a lua script and new unit types can be added
 class UnitType : public RefnameEntity<uint8_t> {
 public:
     float supply_consumption;
@@ -45,8 +44,7 @@ public:
     std::vector<std::pair<Good *, size_t>> req_goods;
 };
 
-/** A trait for an unit; given randomly per each recruited unit
- */
+// A trait for an unit; given randomly per each recruited unit
 class UnitTrait : public RefnameEntity<uint8_t> {
 public:
     float supply_consumption_mod;
@@ -57,10 +55,7 @@ public:
     float morale_mod;
 };
 
-#include "nation.hpp"
-/**
-* Roughly a batallion, consisting of approximately 500 soldiers each
- */
+// Roughly a batallion, consisting of approximately 500 soldiers each
 class Unit : public IdEntity<uint16_t> {
 public:
     Unit(void);

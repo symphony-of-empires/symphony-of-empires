@@ -119,6 +119,7 @@ UnifiedRender::IO::Package::~Package(void) {
 UnifiedRender::IO::PackageManager::PackageManager(void) {
     const std::string asset_path = ::Path::get_full();
     
+    // TODO: Replace with a custom filesystem implementation
     // Register packages
     for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
         if(!entry.is_directory()) {
@@ -153,10 +154,13 @@ UnifiedRender::IO::PackageManager::~PackageManager(void) {
 
 // Obtaining an unique asset means the "first-found" policy applies
 UnifiedRender::IO::Asset::Base* UnifiedRender::IO::PackageManager::get_unique(const UnifiedRender::IO::Path& path) {
-    for(const auto& package : packages) {
-        for(const auto& asset : package.assets) {
-            if(asset->path == path.str) {
-                return asset;
+    std::vector<UnifiedRender::IO::Package>::const_iterator package;
+    std::vector<UnifiedRender::IO::Asset::Base*>::const_iterator asset;
+
+    for(package = packages.begin(); package != packages.end(); package++) {
+        for(asset = (*package).assets.begin(); asset != (*package).assets.end(); asset++) {
+            if((*asset)->path == path.str) {
+                return (*asset);
             }
         }
     }
@@ -165,10 +169,14 @@ UnifiedRender::IO::Asset::Base* UnifiedRender::IO::PackageManager::get_unique(co
 
 std::vector<UnifiedRender::IO::Asset::Base*> UnifiedRender::IO::PackageManager::get_multiple(const UnifiedRender::IO::Path& path) {
     std::vector<UnifiedRender::IO::Asset::Base*> list;
-    for(const auto& package : packages) {
-        for(const auto& asset : package.assets) {
-            if(asset->path == path.str) {
-                list.push_back(asset);
+
+    std::vector<UnifiedRender::IO::Package>::const_iterator package;
+    std::vector<UnifiedRender::IO::Asset::Base*>::const_iterator asset;
+
+    for(package = packages.begin(); package != packages.end(); package++) {
+        for(asset = (*package).assets.begin(); asset != (*package).assets.end(); asset++) {
+            if((*asset)->path == path.str) {
+                list.push_back((*asset));
             }
         }
     }

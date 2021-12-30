@@ -6,11 +6,8 @@
 
 using namespace UnifiedRender::OpenGl;
 
-/**
- * Construct a shader by opening the provided path and creating a
- * temporal ifstream, reading from that stream in text mode and then
- * compiling the shader
- */
+// Construct a shader by opening the provided path and creating a temporal ifstream, reading
+// from that stream in text mode and then compiling the shader
 Shader::Shader(const std::string& path, GLuint type) {
     std::ifstream file;
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -33,10 +30,8 @@ Shader::Shader(const std::string& path, GLuint type) {
     }
 }
 
-/**
- * Deconstructs the shader object
- * We have to delete the shader from the OpenGL driver by calling glDeleteShader
- */
+// Deconstructs the shader object and we have to delete the shader from the OpenGL
+// driver by calling glDeleteShader
 Shader::~Shader() {
     if(id) {
         glDeleteShader(id);
@@ -115,20 +110,18 @@ Program::Program(const VertexShader* vertex, const FragmentShader* fragment, con
 }
 
 Program* Program::create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
-    auto vs = UnifiedRender::OpenGl::VertexShader(Path::get(vs_path));
-    auto fs = UnifiedRender::OpenGl::FragmentShader(Path::get(fs_path));
+    UnifiedRender::OpenGl::VertexShader vs = UnifiedRender::OpenGl::VertexShader(Path::get(vs_path));
+    UnifiedRender::OpenGl::FragmentShader fs = UnifiedRender::OpenGl::FragmentShader(Path::get(fs_path));
 
     if(!gs_path.empty()) {
-        auto gs = UnifiedRender::OpenGl::GeometryShader(Path::get(gs_path));
+        UnifiedRender::OpenGl::GeometryShader gs = UnifiedRender::OpenGl::GeometryShader(Path::get(gs_path));
         return (new Program(&vs, &fs, &gs));
     }
     return (new Program(&vs, &fs));
 }
 
-/**
- * Attaches a shader to the program - this will make it so when the program is compiled the shader
- * will then be linked onto it
- */
+// Attaches a shader to the program - this will make it so when the program is compiled the shader
+// will then be linked onto it
 void Program::attach_shader(const Shader* shader) {
     glAttachShader(id, shader->get_id());
 }

@@ -21,7 +21,7 @@ void Event::take_descision(Nation& sender, Descision& dec) {
     receivers.erase(receiver);
 
     // Remove from inbox too
-    for(auto it = sender->inbox.begin(); it != sender.inbox.end(); it++) {
+    for(auto it = sender.inbox.begin(); it != sender.inbox.end(); it++) {
         if((*it)->ref_name == this->ref_name) {
             sender.inbox.erase(it);
             break;

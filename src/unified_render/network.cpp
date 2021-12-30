@@ -118,9 +118,11 @@ int UnifiedRender::Networking::ServerClient::try_connect(int fd) {
 void UnifiedRender::Networking::ServerClient::flush_packets(void) {
     if(!pending_packets.empty()) {
         if(pending_packets_mutex.try_lock()) {
-            std::scoped_lock lock(packets_mutex);
-            for(const auto& packet : pending_packets) {
-                packets.push_back(packet);
+            std::scoped_lock<std::mutex> lock(packets_mutex);
+
+            std::deque<UnifiedRender::Networking::Packet>::iterator packet;
+            for(packet = pending_packets.begin(); packet != pending_packets.end(); packet++) {
+                packets.push_back(*packet);
             }
             pending_packets.clear();
             pending_packets_mutex.unlock();
@@ -228,9 +230,12 @@ void UnifiedRender::Networking::Server::broadcast(const UnifiedRender::Networkin
             // Disconnect the client when more than 200 MB is used
             // we can't save your packets buddy - other clients need their stuff too!
             size_t total_size = 0;
-            for(const auto& packet_q : clients[i].pending_packets) {
-                total_size += packet_q.buffer.size();
+
+            std::deque<UnifiedRender::Networking::Packet>::iterator packet_q;
+            for(packet_q = clients[i].pending_packets.begin(); packet_q != clients[i].pending_packets.end(); packet_q++) {
+                total_size += (*packet_q).buffer.size();
             }
+
             if(total_size >= 200 * 1000000) {
                 clients[i].is_connected = false;
                 print_error("Client %zu has exceeded max quota! - It has used %zu bytes!", i, total_size);
