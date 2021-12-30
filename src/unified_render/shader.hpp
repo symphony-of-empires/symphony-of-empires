@@ -20,6 +20,59 @@ namespace UnifiedRender::OpenGl {
         }
     };
 
+    enum class GLSL_TokenType {
+        ASSIGN, TERNARY, LITERAL, IDENTIFIER,
+        ADD, SUB, MUL, DIV, REM, AND, OR,
+        SEMICOLON, COMMA, COLON,
+        CMP_EQ, CMP_GT, CMP_LT, CMP_GTEQ, CMP_LTEQ, CMP_OR, CMP_AND,
+        LPAREN, RPAREN,
+        LBRACKET, RBRACKET,
+        LBRACE, RBRACE,
+    };
+
+    struct GLSL_Token {
+        GLSL_Token(GLSL_TokenType _type) : type(_type) {};
+        ~GLSL_Token() {};
+
+        enum GLSL_TokenType type;
+        std::string data;
+    };
+
+    enum class GLSL_VariableType {
+        LOCAL, PROVIDED, INPUT, OUTPUT,
+    };
+
+    struct GLSL_Variable {
+        enum GLSL_VariableType type;
+        std::string type_name;
+        std::string name;
+        bool is_const;
+        int layout_n;
+    };
+
+    struct GLSL_Function {
+        std::string name;
+        std::vector<std::pair<std::string, std::string>> args;
+        std::string ret_type;
+    };
+
+    struct GLSL_Context {
+        std::vector<GLSL_Variable> vars;
+        std::vector<GLSL_Function> funcs;
+        std::vector<GLSL_Token> tokens;
+    };
+
+    class GLSL_Exception : public std::exception {
+        std::string buffer;
+    public:
+        GLSL_Exception(std::vector<GLSL_Token>::iterator _it, const std::string& _buffer) : buffer(_buffer), it(_it) {};
+        virtual const char* what(void) const noexcept {
+            return buffer.c_str();
+        }
+
+        std::vector<GLSL_Token>::iterator it;
+    };
+
     class Shader {
     private:        
         void compile(GLuint type);
@@ -28,7 +81,9 @@ namespace UnifiedRender::OpenGl {
     public:
         Shader(const std::string& path, GLuint type);
         ~Shader();
-        std::string lex_buffer(const std::string& buffer);
+        void lexer(GLSL_Context& ctx, const std::string& buffer);
+        void parser(GLSL_Context& ctx);
+        std::string to_text(GLSL_Context& ctx);
 
         GLuint get_id(void) const;
     };
