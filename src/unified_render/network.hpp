@@ -157,9 +157,13 @@ namespace UnifiedRender::Networking {
     };
 
     class ServerClient {
+        int conn_fd = 0;
     public:
         ServerClient(void);
         ~ServerClient(void);
+        int try_connect(int fd);
+        void flush_packets(void);
+        bool has_pending(void);
 
         std::thread thread;
         std::atomic<bool> is_connected;

@@ -90,6 +90,61 @@ UnifiedRender::Networking::ServerClient::ServerClient(void) {
 
 }
 
+int UnifiedRender::Networking::ServerClient::try_connect(int fd) {
+    sockaddr_in client;
+    socklen_t len = sizeof(client);
+    try {
+        conn_fd = accept(fd, (sockaddr*)&client, &len);
+        if(conn_fd == INVALID_SOCKET) {
+            throw UnifiedRender::Networking::SocketException("Cannot accept client connection");
+        }
+
+        // At this point the client's connection was accepted - so we only have to check
+        // Then we check if the server is running and we throw accordingly
+        is_connected = true;
+
+        print_info("New client connection established");
+        return conn_fd;
+    } catch(UnifiedRender::Networking::SocketException& e) {
+        // Continue
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    return 0;
+}
+
+// Push pending_packets to the packets queue (the packets queue is managed
+// by us and requires almost 0 locking, so the host does not stagnate when
+// trying to send packets to a certain client)
+void UnifiedRender::Networking::ServerClient::flush_packets(void) {
+    if(!pending_packets.empty()) {
+        if(pending_packets_mutex.try_lock()) {
+            std::scoped_lock lock(packets_mutex);
+            for(const auto& packet : pending_packets) {
+                packets.push_back(packet);
+            }
+            pending_packets.clear();
+            pending_packets_mutex.unlock();
+        }
+    }
+}
+
+bool UnifiedRender::Networking::ServerClient::has_pending(void) {
+    // Check if we need to read packets
+#ifdef unix
+    int has_pending = poll(&pfd, 1, 10);
+    if(pfd.revents & POLLIN || has_pending) {
+        return true;
+    }
+#elif defined windows
+    u_long has_pending = 0;
+    int test = ioctlsocket(conn_fd, FIONREAD, &has_pending);
+    if(has_pending) {
+        return true;
+    }
+#endif
+    return false;
+}
+
 UnifiedRender::Networking::ServerClient::~ServerClient(void) {
     thread.join();
 }
