@@ -112,6 +112,7 @@ namespace UI {
 
 		int scroll_x = 0, scroll_y = 0;
 		int x = 0, y = 0;
+		glm::ivec2 padding{0};
 
 		size_t width = 0, height = 0;
 
