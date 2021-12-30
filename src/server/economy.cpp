@@ -498,7 +498,7 @@ void Economy::do_tick(World& world) {
             size_t count = std::min<size_t>(order.quantity, deliver.quantity);
             if(order.type == OrderType::INDUSTRIAL) {
                 // Duplicate products and put them into the province's stock (a commerce buff)
-                order.building->add_to_stock(order.good, count);
+                order.building->add_to_stock(*order.good, count);
 
                 // Increment the production cost of this building which is used
                 // so we sell our product at a profit instead  of at a loss

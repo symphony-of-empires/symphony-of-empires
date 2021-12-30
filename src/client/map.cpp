@@ -240,7 +240,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         }
 
         for(const auto& unit : input.selected_units) {
-            //if(!unit->province->is_neighbour(*gs.world->provinces[tile.province_id])) continue;
+            //if(!unit->province->is_neighbour(*province)) continue;
 
             UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
             Archive ar = Archive();

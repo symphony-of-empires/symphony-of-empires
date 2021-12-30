@@ -38,7 +38,7 @@ void internal_migration(World&) {
 // Basic 
 float nation_attraction(Nation* nation, Culture* culture) {
 	float attraction = nation->get_immigration_attraction_mod();
-	if(nation->is_accepted_culture(culture)) {
+	if(nation->is_accepted_culture(*culture)) {
 		// Linearized version, instead of using if-else trees we just
 		// multiply the attractive by the scale; EXTERMINATE = 3, so 3 - 3 is 0 which nullifies the attractivenes
 		// and the more open the borders are the more lenient the "scale" becomes

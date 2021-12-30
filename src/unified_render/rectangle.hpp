@@ -7,21 +7,20 @@ namespace UnifiedRender {
     struct Rectangle {
     public:
         float left, top, right, bottom;
-
-        template<typename T1, typename T2, typename T3, typename T4>
-        Rectangle(T1 x, T2 y, T3 width, T4 height): left{(float)x}, top{(float)y}, right{(float)(x + width)}, bottom{(float)(y + height)} {}
+        Rectangle(float x, float y, float width, float height);
+        ~Rectangle();
 
         Rectangle(glm::vec2 position, glm::vec2 size)
-            : left{position.x},
-            top{position.y},
-            right{position.x + size.x},
-            bottom{position.y + size.y}
+            : left{ position.x },
+            top{ position.y },
+            right{ position.x + size.x },
+            bottom{ position.y + size.y }
         {
 
         }
 
         glm::vec2 size(void) const {
-            return glm::vec2{right - left, bottom - top};
+            return glm::vec2{ right - left, bottom - top };
         }
 
         void size(glm::vec2 size) {
@@ -30,7 +29,7 @@ namespace UnifiedRender {
         }
 
         glm::vec2 position(void) const {
-            return glm::vec2{left, right};
+            return glm::vec2{ left, right };
         }
 
         void position(glm::vec2 position) {
@@ -45,7 +44,7 @@ namespace UnifiedRender {
             bottom += offset.y;
         }
 
-        Rectangle intersection(Rectangle rect);
+        Rectangle intersection(const Rectangle& rect);
     };
 
     typedef struct Rectangle Rect;

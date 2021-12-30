@@ -5,8 +5,8 @@
 #include "unified_render/print.hpp"
 #include "nation.hpp"
 
-void Event::take_descision(Nation* sender, Descision* dec) {
-    auto receiver = std::find(receivers.begin(), receivers.end(), sender);
+void Event::take_descision(Nation& sender, Descision& dec) {
+    auto receiver = std::find(receivers.begin(), receivers.end(), &sender);
 
     // Confirm that the sender is in receiver's list
     if(receiver == receivers.end()) {
@@ -15,15 +15,15 @@ void Event::take_descision(Nation* sender, Descision* dec) {
     }
 
     // Tell the world that we took a descision
-    g_world->taken_descisions.push_back(std::make_pair(dec, sender));
+    g_world->taken_descisions.push_back(std::make_pair(&dec, &sender));
 
     // Remove from the receivers list so we don't duplicate descisions
     receivers.erase(receiver);
 
     // Remove from inbox too
-    for(auto it = sender->inbox.begin(); it != sender->inbox.end(); it++) {
+    for(auto it = sender->inbox.begin(); it != sender.inbox.end(); it++) {
         if((*it)->ref_name == this->ref_name) {
-            sender->inbox.erase(it);
+            sender.inbox.erase(it);
             break;
         }
     }
