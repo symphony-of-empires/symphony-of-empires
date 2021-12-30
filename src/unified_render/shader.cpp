@@ -19,7 +19,15 @@ Shader::Shader(const std::string& path, GLuint type) {
         file.close();
 
         buffer = stream.str();
-        buffer = lex_buffer(buffer);
+
+        GLSL_Context ctx;
+        lexer(ctx, buffer);
+        try {
+            parser(ctx);
+        } catch(GLSL_Exception& e) {
+            print_error("%s -> %s", e.it->data.c_str(), e.what());
+        }
+        buffer = to_text(ctx);
 
         const char* c_code = buffer.c_str();
         id = glCreateShader(type);
@@ -50,56 +58,10 @@ GLuint Shader::get_id(void) const {
     return id;
 }
 
-enum class GLSL_TokenType {
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    REM,
-    AND,
-    OR,
+void Shader::lexer(GLSL_Context& ctx, const std::string& buffer) {
+    std::vector<GLSL_Token>& tokens = ctx.tokens;
 
-    SEMICOLON,
-    COMMA,
-
-    ASSIGN,
-
-    CMP_EQ,
-    CMP_GT,
-    CMP_LT,
-    CMP_GTEQ,
-    CMP_LTEQ,
-    CMP_OR,
-    CMP_AND,
-
-    TERNARY,
-    COLON,
-
-    LPAREN,
-    RPAREN,
-
-    LBRACKET,
-    RBRACKET,
-
-    LBRACE,
-    RBRACE,
-
-    LITERAL,
-    IDENTIFIER,
-};
-
-struct GLSL_Token {
-    GLSL_Token(GLSL_TokenType _type) : type(_type) {};
-    ~GLSL_Token() {};
-
-    enum GLSL_TokenType type;
-    std::string data;
-};
-
-std::string Shader::lex_buffer(const std::string& buffer) {
     std::string::const_iterator it = buffer.begin();
-    std::vector<GLSL_Token> tokens;
-
     for( ; it != buffer.end(); ) {
         while(*it == ' ' || *it == '\t') {
             it++;
@@ -232,10 +194,71 @@ std::string Shader::lex_buffer(const std::string& buffer) {
             }
         }
     }
+}
 
-    for(const auto& tok : tokens) {
-        print_info("TOK(%zu, %s)", static_cast<int>(tok.type), tok.data.c_str());
+void Shader::parser(GLSL_Context& ctx) {
+    GLSL_Function fn;
+    
+    fn = GLSL_Function();
+    fn.name = "vec2";
+    fn.ret_type = "vec2";
+    fn.args.push_back(std::make_pair("float", "x"));
+    fn.args.push_back(std::make_pair("float", "y"));
+    ctx.funcs.push_back(fn);
+
+    fn = GLSL_Function();
+    fn.name = "vec3";
+    fn.ret_type = "vec3";
+    fn.args.push_back(std::make_pair("float", "x"));
+    fn.args.push_back(std::make_pair("float", "y"));
+    fn.args.push_back(std::make_pair("float", "z"));
+    ctx.funcs.push_back(fn);
+
+    fn = GLSL_Function();
+    fn.name = "vec4";
+    fn.ret_type = "vec4";
+    fn.args.push_back(std::make_pair("float", "x"));
+    fn.args.push_back(std::make_pair("float", "y"));
+    fn.args.push_back(std::make_pair("float", "z"));
+    fn.args.push_back(std::make_pair("float", "w"));
+    ctx.funcs.push_back(fn);
+
+    // Register all the overloads for this function
+    std::vector<std::string> mix_strings = { "vec2", "vec3", "vec4", "sampler2D" };
+    for(std::vector<std::string>::const_iterator it1 = mix_strings.begin(); it1 != mix_strings.end(); it1++) {
+        for(std::vector<std::string>::const_iterator it2 = mix_strings.begin(); it2 != mix_strings.end(); it2++) {
+            fn = GLSL_Function();
+            fn.name = "mix";
+            fn.ret_type = "vec4";
+            fn.args.push_back(std::make_pair(*it1, "x"));
+            fn.args.push_back(std::make_pair(*it2, "y"));
+            fn.args.push_back(std::make_pair("float", "z"));
+            ctx.funcs.push_back(fn);
+        }
     }
+
+    fn = GLSL_Function();
+    fn.name = "clamp";
+    fn.ret_type = "float";
+    fn.args.push_back(std::make_pair("float", "num"));
+    fn.args.push_back(std::make_pair("float", "min"));
+    fn.args.push_back(std::make_pair("float", "max"));
+    ctx.funcs.push_back(fn);
+
+    std::vector<GLSL_Token>::iterator it;
+    for(it = ctx.tokens.begin(); it != ctx.tokens.end(); it++) {
+        if(it->type == GLSL_TokenType::ASSIGN) {
+            
+        }
+    }
+
+    for(const auto& var : ctx.vars) {
+        print_error("VAR->%i (%s) typeof(%s)", static_cast<int>(var.type), var.name.c_str(), var.type_name.c_str());
+    }
+}
+
+std::string Shader::to_text(GLSL_Context& ctx) {
+    std::vector<GLSL_Token>& tokens = ctx.tokens;
 
     std::string end_buffer;
     end_buffer += "#version 330 compatibility\r\n";
@@ -311,10 +334,10 @@ std::string Shader::lex_buffer(const std::string& buffer) {
             end_buffer += tok.data;
             break;
         case GLSL_TokenType::IDENTIFIER:
-            if(tok.data == "__def_precision") {
-                end_buffer += " lowp ";
-            } else if(tok.data == "layout") {
+            if(tok.data == "layout") {
                 end_buffer += tok.data + " ";
+            } else if(tok.data == "provided") {
+                end_buffer += " uniform ";
             } else {
                 end_buffer += " " + tok.data + " ";
             }
