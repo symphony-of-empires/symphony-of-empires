@@ -4,9 +4,8 @@
 
 using namespace Diplomacy;
 
-inline bool Diplomacy::is_friend(Nation* us, Nation* them) {
-    const Nation::Id idx = g_world->get_id(them);
-    const NationRelation* relation = &us->relations[idx];
+inline bool Diplomacy::is_friend(Nation& us, Nation& them) {
+    const NationRelation* relation = &us.relations[g_world->get_id(&them)];
 
     // A high relation means we are friendly <3
     if(relation->relation >= 50.f) {
@@ -28,7 +27,7 @@ inline bool Diplomacy::is_friend(Nation* us, Nation* them) {
     }
 }
 
-inline bool Diplomacy::is_foe(Nation* us, Nation* them) {
+inline bool Diplomacy::is_foe(Nation& us, Nation& them) {
     return !is_friend(us, them);
 }
 
@@ -160,9 +159,9 @@ bool Ceasefire::in_effect() {
 }
 
 /** Checks if the specified nations participates in the treaty */
-bool Treaty::does_participate(Nation* nation) {
+bool Treaty::does_participate(Nation& nation) {
     for(auto& status : this->approval_status) {
-        if(status.first == nation) {
+        if(status.first == &nation) {
             return true;
         }
     }
@@ -193,7 +192,9 @@ bool Treaty::in_effect(void) const {
 			on_effect = dyn_clause->in_effect();
 		}
 		
-		if(on_effect) break;
+		if(on_effect) {
+            break;
+        }
 	}
 	return on_effect;	
 }

@@ -13,6 +13,8 @@ public:
 class Nation;
 class Event : public RefnameEntity<uint16_t> {
 public:
+    void take_descision(Nation& sender, Descision& dec);
+    
     std::string conditions_function;
     std::string do_event_function;
     std::vector<Nation *> receivers;
@@ -21,7 +23,4 @@ public:
     std::string title;
 
     bool checked = false;
-    
-    // Takes a descision by a country
-    void take_descision(Nation* sender, Descision* dec);
 };

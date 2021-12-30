@@ -12,10 +12,10 @@ class Province;
 
 namespace Diplomacy {
     // Determines if the other nation is a friendly potential ally
-    inline bool is_friend(Nation* us, Nation* them);
+    inline bool is_friend(Nation& us, Nation& them);
 
     // Determines if the other nation is an enemy and potential rival
-    inline bool is_foe(Nation* us, Nation* them);
+    inline bool is_foe(Nation& us, Nation& them);
 };
 
 enum class TreatyClauseType {
@@ -46,9 +46,9 @@ namespace TreatyClause {
         bool done = false;
 
         BaseClause() = default;
-        BaseClause(Nation* _sender, Nation* _receiver) {
-            sender = _sender;
-            receiver = _receiver;
+        BaseClause(Nation& _sender, Nation& _receiver) {
+            sender = &_sender;
+            receiver = &_receiver;
         };
         virtual ~BaseClause() {};
 
@@ -167,7 +167,7 @@ enum class TreatyApproval {
 
 class Treaty : public IdEntity<uint16_t> {
 public:
-    bool does_participate(Nation* nation);
+    bool does_participate(Nation& nation);
 	bool in_effect(void) const;
 
     std::string name;

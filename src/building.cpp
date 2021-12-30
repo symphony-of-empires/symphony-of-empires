@@ -3,11 +3,18 @@
 #include "province.hpp"
 #include "world.hpp"
 
+//
+// Building
+//
+Building::Building(void) {
+
+}
+
 // Adds a good by id to a building stockpile
-void Building::add_to_stock(const Good* good, const size_t add) {
+void Building::add_to_stock(const Good& good, const size_t add) {
     const World& world = World::get_instance();
     for(size_t i = 0; i < stockpile.size(); i++) {
-        if(world.get_id(type->inputs[i]) != world.get_id(good)) {
+        if(world.get_id(type->inputs[i]) != world.get_id(&good)) {
             continue;
         }
 

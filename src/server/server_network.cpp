@@ -216,18 +216,8 @@ void Server::net_loop(int id) {
                         ::deserialize(ar, &approval);
 
                         print_info("[%s] approves treaty [%s]? %s!", selected_nation->ref_name.c_str(), treaty->name.c_str(), (approval == TreatyApproval::ACCEPTED) ? "YES" : "NO");
-
-                        // Check that the nation participates in the treaty
-                        bool does_participate = false;
-                        for(auto& status : treaty->approval_status) {
-                            if(status.first == selected_nation) {
-                                // Alright, then change approval
-                                status.second = approval;
-                                does_participate = true;
-                                break;
-                            }
-                        }
-                        if(!does_participate)
+                        
+                        if(!treaty->does_participate(*selected_nation))
                             throw ServerException("Nation does not participate in treaty");
 
                         // Rebroadcast
@@ -303,7 +293,7 @@ void Server::net_loop(int id) {
                             throw ServerException("Descision " + descision_ref_name + " not found");
                         }
 
-                        (*event)->take_descision(selected_nation, &(*descision));
+                        (*event)->take_descision(*selected_nation, *descision);
                         print_info("Event [%s] + descision [%s] taken by [%s]",
                             event_ref_name.c_str(),
                             descision_ref_name.c_str(),

@@ -203,8 +203,8 @@ bool Nation::is_accepted_culture(const Pop& pop) const {
     return accepted_cultures.find(pop.culture) != accepted_cultures.end();
 }
 // Checks if a CULTURE is part of one of our accepted cultures
-bool Nation::is_accepted_culture(Culture* culture) const {
-    return accepted_cultures.find(culture) != accepted_cultures.end();
+bool Nation::is_accepted_culture(const Culture& culture) const {
+    return accepted_cultures.find(&culture) != accepted_cultures.end();
 }
 
 // Checks if a POP is part of one of our accepted religion
@@ -212,8 +212,8 @@ bool Nation::is_accepted_religion(const Pop& pop) const {
     return accepted_religions.find(pop.religion) != accepted_religions.end();
 }
 // Checks if a RELIGION is part of one of our accepted relgion
-bool Nation::is_accepted_religion(Religion* religion) const {
-    return accepted_religions.find(religion) != accepted_religions.end();
+bool Nation::is_accepted_religion(const Religion& religion) const {
+    return accepted_religions.find(&religion) != accepted_religions.end();
 }
 
 // Gets the total tax applied to a POP depending on their "wealth"
