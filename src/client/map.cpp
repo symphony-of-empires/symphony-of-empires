@@ -222,14 +222,15 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    }
-    else if(event.button.button == SDL_BUTTON_RIGHT) {
+    } else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-        if(tile.province_id == (Province::Id)-1) return;
+        if(tile.province_id == (Province::Id)-1) {
+            return;
+        }
 
-        if(1) {
-            Province* province = gs.world->provinces[tile.province_id];
+        Province* province = gs.world->provinces[tile.province_id];
 
+        if(input.selected_units.empty()) {
             FILE* fp = fopen("test.lua", "a+t");
             if(fp != nullptr) {
                 fprintf(fp, "{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%06x },\r\n", province->ref_name.c_str(), province->name.c_str(), bswap_32((province->color & 0x00ffffff) << 8));
@@ -246,7 +247,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             ActionType action = ActionType::UNIT_CHANGE_TARGET;
             ::serialize(ar, &action);
             ::serialize(ar, &unit);
-            ::serialize(ar, &unit->target);
+            ::serialize(ar, &province);
             packet.data(ar.get_buffer(), ar.size());
             std::scoped_lock lock(gs.client->pending_packets_mutex);
             gs.client->pending_packets.push_back(packet);
