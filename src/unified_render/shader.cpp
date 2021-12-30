@@ -115,11 +115,11 @@ Program::Program(const VertexShader* vertex, const FragmentShader* fragment, con
 }
 
 Program* Program::create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
-    auto vs = UnifiedRender::OpenGl::VertexShader(Path::get("shaders/" + vs_path + ".vs"));
-    auto fs = UnifiedRender::OpenGl::FragmentShader(Path::get("shaders/" + fs_path + ".fs"));
+    auto vs = UnifiedRender::OpenGl::VertexShader(Path::get(vs_path));
+    auto fs = UnifiedRender::OpenGl::FragmentShader(Path::get(fs_path));
 
     if(!gs_path.empty()) {
-        auto gs = UnifiedRender::OpenGl::GeometryShader(Path::get("shaders/" + gs_path + ".gs"));
+        auto gs = UnifiedRender::OpenGl::GeometryShader(Path::get(gs_path));
         return (new Program(&vs, &fs, &gs));
     }
     return (new Program(&vs, &fs));
