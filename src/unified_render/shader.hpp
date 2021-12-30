@@ -28,6 +28,7 @@ namespace UnifiedRender::OpenGl {
     public:
         Shader(const std::string& path, GLuint type);
         ~Shader();
+        std::string lex_buffer(const std::string& buffer);
 
         GLuint get_id(void) const;
     };

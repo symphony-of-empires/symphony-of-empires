@@ -1,14 +1,15 @@
 #version 330 compatibility
 
-out vec4 f_frag_color;
+out __def_precision vec4 f_frag_color;
 
-in vec2 v_texcoord;
-in vec3 v_view_pos;
-in vec3 v_frag_pos;
+in __def_precision vec2 v_texcoord;
+in __def_precision vec3 v_view_pos;
+in __def_precision vec3 v_frag_pos;
 
-uniform vec3 view_pos;
-uniform vec2 map_size;
-uniform float time;
+uniform __def_precision vec3 view_pos;
+uniform __def_precision vec2 map_size;
+uniform __def_precision float time;
+
 uniform sampler2D tile_map;
 uniform sampler2D tile_sheet;
 uniform sampler2D water_texture;
@@ -26,101 +27,100 @@ uniform sampler2D normal10;
 
 // https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
 vec4 noTiling(sampler2D tex, vec2 uv) {
-	float k = texture(noise_texture, 0.005 * uv).x; // cheap (cache friendly) lookup
-	float v = 1.;
+	__def_precision float k = texture(noise_texture, 0.005 * uv).x; // cheap (cache friendly) lookup
+	__def_precision float v = 1.;
 
-	vec2 duvdx = dFdx(uv);
-	vec2 duvdy = dFdx(uv);
+	__def_precision vec2 duvdx = dFdx(uv);
+	__def_precision vec2 duvdy = dFdx(uv);
 
-	float l = k * 8.0;
-	float f = fract(l);
+	__def_precision float l = k * 8.0;
+	__def_precision float f = fract(l);
 
-	float ia = floor(l); // my method
-	float ib = ia + 1.0;
+	__def_precision float ia = floor(l); // my method
+	__def_precision float ib = ia + 1.0;
 
-	vec2 offa = sin(vec2(3.0, 7.0) * ia); // can replace with any other hash
-	vec2 offb = sin(vec2(3.0, 7.0) * ib); // can replace with any other hash
+	__def_precision vec2 offa = sin(vec2(3.0, 7.0) * ia); // can replace with any other hash
+	__def_precision vec2 offb = sin(vec2(3.0, 7.0) * ib); // can replace with any other hash
 
-	vec4 cola = textureGrad(tex, uv + v * offa, duvdx, duvdy);
-	vec4 colb = textureGrad(tex, uv + v * offb, duvdx, duvdy);
-	vec4 diff = cola - colb;
+	__def_precision vec4 cola = textureGrad(tex, uv + v * offa, duvdx, duvdy);
+	__def_precision vec4 colb = textureGrad(tex, uv + v * offb, duvdx, duvdy);
+	__def_precision vec4 diff = cola - colb;
 	return mix(cola, colb, smoothstep(0.2, 0.8, f - 0.1 * (diff.x + diff.y + diff.z)));
 }
 
 vec4 get_terrain(vec2 coord, vec2 offset) {
-	const float size = 16.;
-	float index = texture(terrain_map, coord).b;
+	const __def_precision float size = 16.;
+	__def_precision float index = texture(terrain_map, coord).b;
 
 	index = trunc(index * size);
 	return texture(terrain_sheet, vec3(offset.x, offset.y, index));
 }
 
 vec4 get_terrain_mix(vec2 tex_coord) {
-	vec2 pix = vec2(1.0) / map_size;
-	float xx = pix.x;
-	float yy = pix.y;
-	vec2 scaling = mod(tex_coord + 0.5 * pix, pix) / pix;
+	__def_precision vec2 pix = vec2(1.0) / map_size;
+	__def_precision float xx = pix.x;
+	__def_precision float yy = pix.y;
+	__def_precision vec2 scaling = mod(tex_coord + 0.5 * pix, pix) / pix;
 
-	vec2 offset = 80. * tex_coord;
+	__def_precision vec2 offset = 80. * tex_coord;
 	offset.y *= xx / yy;
 
-	vec4 color_00 = get_terrain(tex_coord + 0.5 * vec2(-xx, -yy), offset);
-	vec4 color_01 = get_terrain(tex_coord + 0.5 * vec2(-xx, yy), offset);
-	vec4 color_10 = get_terrain(tex_coord + 0.5 * vec2(xx, -yy), offset);
-	vec4 color_11 = get_terrain(tex_coord + 0.5 * vec2(xx, yy), offset);
+	__def_precision vec4 color_00 = get_terrain(tex_coord + 0.5 * vec2(-xx, -yy), offset);
+	__def_precision vec4 color_01 = get_terrain(tex_coord + 0.5 * vec2(-xx, yy), offset);
+	__def_precision vec4 color_10 = get_terrain(tex_coord + 0.5 * vec2(xx, -yy), offset);
+	__def_precision vec4 color_11 = get_terrain(tex_coord + 0.5 * vec2(xx, yy), offset);
 
-	vec4 color_x0 = mix(color_00, color_10, scaling.x);
-	vec4 color_x1 = mix(color_01, color_11, scaling.x);
+	__def_precision vec4 color_x0 = mix(color_00, color_10, scaling.x);
+	__def_precision vec4 color_x1 = mix(color_01, color_11, scaling.x);
 
 	return mix(color_x0, color_x1, scaling.y);
 }
 
 vec2 sum(vec4 v) {
-	float provinceDiff = min((abs(v.x) + abs(v.y)) * 255., 1.0);
-	float countryDiff = min((abs(v.z) + abs(v.w)) * 255., 1.0);
+	__def_precision float provinceDiff = min((abs(v.x) + abs(v.y)) * 255., 1.0);
+	__def_precision float countryDiff = min((abs(v.z) + abs(v.w)) * 255., 1.0);
 	return vec2(provinceDiff, countryDiff);
 }
 
-
 vec4 get_border(vec2 texcoord) {
 	// Pixel size on map texture
-	vec2 pix = vec2(1.0) / map_size;
+	__def_precision vec2 pix = vec2(1.0) / map_size;
 
 	// Noise effect
 	// float x = texture(noise_texture, (1./4.) * (1./256.) * texcoord * map_size).x; // cheap (cache friendly) lookup
 	// float y = texture(noise_texture, (1./4.) * (1./256.) * -texcoord * map_size).x; // cheap (cache friendly) lookup
 	// texcoord += (0.5 - vec2(x, y)) * 0.5 * pix;
 
-	vec2 mPos = texcoord - mod(texcoord + 0.5 * pix, pix);
-	vec4 provienceLU = texture(tile_map, mPos + pix * vec2(0.25, 0.25)).xyzw;
-	vec4 provienceLD = texture(tile_map, mPos + pix * vec2(0.25, 0.75)).xyzw;
-	vec4 provienceRU = texture(tile_map, mPos + pix * vec2(0.75, 0.25)).xyzw;
-	vec4 provienceRD = texture(tile_map, mPos + pix * vec2(0.75, 0.75)).xyzw;
+	__def_precision vec2 mPos = texcoord - mod(texcoord + 0.5 * pix, pix);
+	__def_precision vec4 provienceLU = texture(tile_map, mPos + pix * vec2(0.25, 0.25)).xyzw;
+	__def_precision vec4 provienceLD = texture(tile_map, mPos + pix * vec2(0.25, 0.75)).xyzw;
+	__def_precision vec4 provienceRU = texture(tile_map, mPos + pix * vec2(0.75, 0.25)).xyzw;
+	__def_precision vec4 provienceRD = texture(tile_map, mPos + pix * vec2(0.75, 0.75)).xyzw;
 	// vec2 mPos = texcoord - mod(texcoord, pix);
 	// vec4 provienceLU = texture(tile_map, mPos + pix * vec2(-0.25, -0.25)).xyzw;
 	// vec4 provienceLD = texture(tile_map, mPos + pix * vec2(-0.25, 0.25)).xyzw;
 	// vec4 provienceRU = texture(tile_map, mPos + pix * vec2(0.25, -0.25)).xyzw;
 	// vec4 provienceRD = texture(tile_map, mPos + pix * vec2(0.25, 0.25)).xyzw;
-	vec2 x0 = sum(provienceLU - provienceRU);
-	vec2 x1 = sum(provienceLD - provienceRD);
-	vec2 y0 = sum(provienceLU - provienceLD);
-	vec2 y1 = sum(provienceRU - provienceRD);
-	vec2 scaling = mod(texcoord + 0.5 * pix, pix) / pix;
-	vec2 xBorder = mix(x0, x1, step(0.5, scaling.y));
-	vec2 yBorder = mix(y0, y1, step(0.5, scaling.x));
-	vec2 scalingE = mod(texcoord, pix) / pix;
-	vec2 test = min(scalingE, vec2(1., 1.) - scalingE);
+	__def_precision vec2 x0 = sum(provienceLU - provienceRU);
+	__def_precision vec2 x1 = sum(provienceLD - provienceRD);
+	__def_precision vec2 y0 = sum(provienceLU - provienceLD);
+	__def_precision vec2 y1 = sum(provienceRU - provienceRD);
+	__def_precision vec2 scaling = mod(texcoord + 0.5 * pix, pix) / pix;
+	__def_precision vec2 xBorder = mix(x0, x1, step(0.5, scaling.y));
+	__def_precision vec2 yBorder = mix(y0, y1, step(0.5, scaling.x));
+	__def_precision vec2 scalingE = mod(texcoord, pix) / pix;
+	__def_precision vec2 test = min(scalingE, vec2(1., 1.) - scalingE);
 	test = 1. - 2. * test;
 
-	vec2 xBorder2 = mix(x0, x1, scaling.y);
-	vec2 yBorder2 = mix(y0, y1, scaling.x);
-	vec2 is_diag = x0 * y0 + y0 * x1 + x1 * y1 + y1 * x0;
+	__def_precision vec2 xBorder2 = mix(x0, x1, scaling.y);
+	__def_precision vec2 yBorder2 = mix(y0, y1, scaling.x);
+	__def_precision vec2 is_diag = x0 * y0 + y0 * x1 + x1 * y1 + y1 * x0;
 	is_diag = step(3, mod(is_diag + 2, 4)); // Is diag border
-	vec2 borderDiag = min((xBorder2 + yBorder2) - 1.0, 2. - (xBorder2 + yBorder2));
+	__def_precision vec2 borderDiag = min((xBorder2 + yBorder2) - 1.0, 2. - (xBorder2 + yBorder2));
 
-	vec2 middle = step(0.5, x0 + y0 + x1 + y1) * min(test.x, test.y);
+	__def_precision vec2 middle = step(0.5, x0 + y0 + x1 + y1) * min(test.x, test.y);
 
-	vec2 border = max(xBorder * test.x, yBorder * test.y);
+	__def_precision vec2 border = max(xBorder * test.x, yBorder * test.y);
 	border = max(border, middle);
 	border = mix(border, borderDiag * 2., is_diag);
 	is_diag.x *= border.x + 0.53;

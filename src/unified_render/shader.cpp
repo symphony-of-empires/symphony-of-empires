@@ -19,6 +19,7 @@ Shader::Shader(const std::string& path, GLuint type) {
         file.close();
 
         buffer = stream.str();
+        buffer = lex_buffer(buffer);
 
         const char* c_code = buffer.c_str();
         id = glCreateShader(type);
@@ -27,14 +28,6 @@ Shader::Shader(const std::string& path, GLuint type) {
         compile(type);
     } catch(std::ifstream::failure& e) {
         print_error("Cannot load shader %s", path.c_str());
-    }
-}
-
-// Deconstructs the shader object and we have to delete the shader from the OpenGL
-// driver by calling glDeleteShader
-Shader::~Shader() {
-    if(id) {
-        glDeleteShader(id);
     }
 }
 
@@ -57,36 +50,345 @@ GLuint Shader::get_id(void) const {
     return id;
 }
 
+enum class GLSL_TokenType {
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    REM,
+    AND,
+    OR,
+
+    SEMICOLON,
+    COMMA,
+
+    ASSIGN,
+
+    CMP_EQ,
+    CMP_GT,
+    CMP_LT,
+    CMP_GTEQ,
+    CMP_LTEQ,
+    CMP_OR,
+    CMP_AND,
+
+    TERNARY,
+    COLON,
+
+    LPAREN,
+    RPAREN,
+
+    LBRACKET,
+    RBRACKET,
+
+    LBRACE,
+    RBRACE,
+
+    LITERAL,
+    IDENTIFIER,
+};
+
+struct GLSL_Token {
+    GLSL_Token(GLSL_TokenType _type) : type(_type) {};
+    ~GLSL_Token() {};
+
+    enum GLSL_TokenType type;
+    std::string data;
+};
+
+std::string Shader::lex_buffer(const std::string& buffer) {
+    std::string::const_iterator it = buffer.begin();
+    std::vector<GLSL_Token> tokens;
+
+    for( ; it != buffer.end(); ) {
+        while(*it == ' ' || *it == '\t') {
+            it++;
+        }
+
+        if(*it == '#' || (*(it + 0) == '/' && *(it + 1) == '/')) {
+            while(*it != '\n' && it != buffer.end()) {
+                it++;
+            }
+        } else if(*it == ',') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::COMMA));
+            it++;
+        } else if(*it == ';') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::SEMICOLON));
+            it++;
+        } else if(*it == '(') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::LPAREN));
+            it++;
+        } else if(*it == ')') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::RPAREN));
+            it++;
+        } else if(*it == '[') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::LBRACKET));
+            it++;
+        } else if(*it == ']') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::RBRACKET));
+            it++;
+        } else if(*it == '{') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::LBRACE));
+            it++;
+        } else if(*it == '}') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::RBRACE));
+            it++;
+        } else if(*it == '+') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::ADD));
+            it++;
+        } else if(*it == '-') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::SUB));
+            it++;
+        } else if(*it == '*') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::MUL));
+            it++;
+        } else if(*it == '/') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::DIV));
+            it++;
+        } else if(*it == '%') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::REM));
+            it++;
+        } else if(*it == '<') {
+            it++;
+
+            if(*it == '=') {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_LTEQ));
+                it++;
+            } else {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_LT));
+            }
+        } else if(*it == '>') {
+            it++;
+
+            if(*it == '=') {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_GTEQ));
+                it++;
+            } else {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_GT));
+            }
+        } else if(*it == '|') {
+            it++;
+
+            if(*it == '|') {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_OR));
+                it++;
+            } else {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::OR));
+            }
+        } else if(*it == '&') {
+            it++;
+
+            if(*it == '&') {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_AND));
+                it++;
+            } else {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::AND));
+            }
+        } else if(*it == '=') {
+            it++;
+
+            if(*it == '=') {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_EQ));
+                it++;
+            } else {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::ASSIGN));
+            }
+        } else if(*it == '?') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::TERNARY));
+            it++;
+        } else if(*it == ':') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::COLON));
+            it++;
+        } else {
+            if(isdigit(*it) || *it == '.') {
+                std::string::const_iterator start_it = it;
+
+                // Literal
+                while(isdigit(*it) || *it == '.') {
+                    it++;
+                }
+
+                // Skip "float" specifier
+                if(*it == 'f') {
+                    it++;
+                }
+
+                GLSL_Token tok = GLSL_Token(GLSL_TokenType::LITERAL);
+                tok.data = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
+                tokens.push_back(tok);
+            } else if(isalnum(*it) || *it == '_') {
+                std::string::const_iterator start_it = it;
+
+                // Identifier
+                while(isalnum(*it) || *it == '_' || *it == '.') {
+                    it++;
+                }
+
+                GLSL_Token tok = GLSL_Token(GLSL_TokenType::IDENTIFIER);
+                tok.data = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
+                tokens.push_back(tok);
+            } else {
+                it++;
+            }
+        }
+    }
+
+    for(const auto& tok : tokens) {
+        print_info("TOK(%zu, %s)", static_cast<int>(tok.type), tok.data.c_str());
+    }
+
+    std::string end_buffer;
+    end_buffer += "#version 330 compatibility\r\n";
+    for(const auto& tok : tokens) {
+        switch(tok.type) {
+        case GLSL_TokenType::SEMICOLON:
+            end_buffer += ";\r\n";
+            break;
+        case GLSL_TokenType::COMMA:
+            end_buffer += ",";
+            break;
+        case GLSL_TokenType::LPAREN:
+            end_buffer += "(";
+            break;
+        case GLSL_TokenType::RPAREN:
+            end_buffer += ")";
+            break;
+        case GLSL_TokenType::LBRACKET:
+            end_buffer += "[";
+            break;
+        case GLSL_TokenType::RBRACKET:
+            end_buffer += "]";
+            break;
+        case GLSL_TokenType::LBRACE:
+            end_buffer += "{\n";
+            break;
+        case GLSL_TokenType::RBRACE:
+            end_buffer += "}\n";
+            break;
+        case GLSL_TokenType::ADD:
+            end_buffer += "+";
+            break;
+        case GLSL_TokenType::SUB:
+            end_buffer += "-";
+            break;
+        case GLSL_TokenType::MUL:
+            end_buffer += "*";
+            break;
+        case GLSL_TokenType::DIV:
+            end_buffer += "/";
+            break;
+        case GLSL_TokenType::CMP_AND:
+            end_buffer += "&&";
+            break;
+        case GLSL_TokenType::AND:
+            end_buffer += "&";
+            break;
+        case GLSL_TokenType::CMP_OR:
+            end_buffer += "||";
+            break;
+        case GLSL_TokenType::OR:
+            end_buffer += "|";
+            break;
+        case GLSL_TokenType::CMP_LT:
+            end_buffer += "<";
+            break;
+        case GLSL_TokenType::CMP_LTEQ:
+            end_buffer += "<=";
+            break;
+        case GLSL_TokenType::CMP_GT:
+            end_buffer += ">";
+            break;
+        case GLSL_TokenType::CMP_GTEQ:
+            end_buffer += ">=";
+            break;
+        case GLSL_TokenType::TERNARY:
+            end_buffer += "?";
+            break;
+        case GLSL_TokenType::COLON:
+            end_buffer += ":";
+            break;
+        case GLSL_TokenType::LITERAL:
+            end_buffer += tok.data;
+            break;
+        case GLSL_TokenType::IDENTIFIER:
+            if(tok.data == "__def_precision") {
+                end_buffer += " lowp ";
+            } else if(tok.data == "layout") {
+                end_buffer += tok.data + " ";
+            } else {
+                end_buffer += " " + tok.data + " ";
+            }
+            break;
+        case GLSL_TokenType::ASSIGN:
+            end_buffer += "=";
+            break;
+        case GLSL_TokenType::CMP_EQ:
+            end_buffer += "==";
+            break;
+        default:
+            break;
+        }
+    }
+    print_info("%s", end_buffer.c_str());
+    return end_buffer;
+}
+
+// Deconstructs the shader object and we have to delete the shader from the OpenGL
+// driver by calling glDeleteShader
+Shader::~Shader() {
+    if(id) {
+        glDeleteShader(id);
+    }
+}
+
+//
+// Vertex shader
+//
 VertexShader::VertexShader(const std::string& path)
     : Shader(path, GL_VERTEX_SHADER)
 {
 
 }
 
+//
+// Fragment shader
+//
 FragmentShader::FragmentShader(const std::string& path)
     : Shader(path, GL_FRAGMENT_SHADER)
 {
 
 }
 
+//
+// Geometry shader
+//
 GeometryShader::GeometryShader(const std::string& path)
     : Shader(path, GL_GEOMETRY_SHADER)
 {
 
 }
 
+//
+// Tessellation control shader
+//
 TessControlShader::TessControlShader(const std::string& path)
     : Shader(path, GL_TESS_CONTROL_SHADER)
 {
 
 }
 
+//
+// Tessellation evaluation shader
+//
 TessEvalShader::TessEvalShader(const std::string& path)
     : Shader(path, GL_TESS_EVALUATION_SHADER)
 {
 
 }
 
+//
+// Program
+//
 Program::Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry, const TessControlShader* tctrl, const TessEvalShader* tee) {
     id = glCreateProgram();
     glBindAttribLocation(id, 0, "m_pos");
