@@ -30,10 +30,8 @@ UnifiedRender::Sound::Sound(const std::string& path) {
     this->data = decoded;
     this->pos = 0;
 
-    /**
-     * stb already loads OGG as a series of U16 nodes, so we only have to use AUDIO_S16
-     * and the rest is already given by stb
-     */
+    // stb already loads OGG as a series of U16 nodes, so we only have to use AUDIO_S16
+    // and the rest is already given by stb
     SDL_BuildAudioCVT(&cvt, AUDIO_S16, channels, rate, AUDIO_S16, 1, 11050);
     cvt.buf = (Uint8*)malloc(this->len * cvt.len_mult);
     std::memcpy(cvt.buf, this->data, this->len);
@@ -54,7 +52,7 @@ UnifiedRender::Sound::~Sound() {
 
 const UnifiedRender::Sound& UnifiedRender::SoundManager::load(const std::string& path) {
     // Find Sound when wanting to be loaded
-    auto it = std::find_if(this->sounds.begin(), this->sounds.end(), [&path](const auto& element) {
+    auto it = std::find_if(this->sounds.begin(), this->sounds.end(), [&path](const std::pair<UnifiedRender::Sound *, std::string>& element) {
         return (element.second == path);
     });
 
@@ -66,7 +64,7 @@ const UnifiedRender::Sound& UnifiedRender::SoundManager::load(const std::string&
     print_info("Loaded and cached sound %s", path.c_str());
 
     // Otherwise Sound is not in our control, so we create a new one
-    auto* sound = new UnifiedRender::Sound();
+    UnifiedRender::Sound* sound = new UnifiedRender::Sound();
     sound->data = nullptr;
     sound->len = 0;
     sound->pos = 0;

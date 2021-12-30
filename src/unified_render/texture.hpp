@@ -1,15 +1,10 @@
 #pragma once
 
-/**
- * This file implements a texture which is based from the binary image class to avoid
- * code repetition.
- *
- * The difference of the texture from the binary image is that the texture is oriented towards
- * OpenGL rendering more than the aforementioned binary image.
- *
- * A binary image is usable on any context but rendering, while the texture is
- * intended to be used in rendering cases only
- */
+// This file implements a texture which is based from the binary image class to avoid
+// code repetition. The difference of the texture from the binary image is that the texture
+// is oriented towards OpenGL rendering more than the aforementioned binary image. A binary
+// image is usable on any context but rendering, while the texture is intended to be used in
+// rendering cases only
 
 #include <cstddef>
 #include <cstdint>
@@ -69,9 +64,7 @@ namespace UnifiedRender {
         GLuint gl_tex_num = 0;
     };
 
-    /**
-     * Array of textures
-     */
+    // Array of textures
     class TextureArray : public BinaryImage {
     public:
         TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y);
@@ -82,10 +75,8 @@ namespace UnifiedRender {
         size_t tiles_x, tiles_y;
     };
 
-    /**
-     * This texture manager helps to cache textures instead of loading them of the disk each time they are used
-     * and also acts as a "texture loader"
-     */
+    // This texture manager helps to cache textures instead of loading them of the disk each time they are used
+    // and also acts as a "texture loader"
     class TextureManager {
     private:
         std::set<std::pair<UnifiedRender::Texture*, std::string>> textures;

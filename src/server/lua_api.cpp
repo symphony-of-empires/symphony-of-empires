@@ -727,14 +727,14 @@ int LuaAPI::give_hard_province_to(lua_State* L) {
     return 0;
 }
 
-/** Obtains the owner of a province (ref_name) */
+// Obtains the owner of a province (ref_name)
 int LuaAPI::get_province_owner(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_pushstring(L, province->controller->ref_name.c_str());
     return 1;
 }
 
-/** Get the country who owms a larger chunk of the province - this is not the same as owner */
+// Get the country who owms a larger chunk of the province - this is not the same as owner
 int LuaAPI::get_province_controller(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     Nation* nation = province->controller;
@@ -746,7 +746,7 @@ int LuaAPI::get_province_controller(lua_State* L) {
     return 1;
 }
 
-/** Obtains the neighbours of a province (by ID) */
+// Obtains the neighbours of a province (by ID)
 int LuaAPI::get_province_neighbours(lua_State* L) {
     const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_newtable(L);

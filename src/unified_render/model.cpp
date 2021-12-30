@@ -107,8 +107,9 @@ UnifiedRender::Model::~Model(void) {
 }
 
 void UnifiedRender::Model::draw(const UnifiedRender::OpenGl::Program& shader) const {
-    for(const auto& model: simple_models) {
-        model->draw(shader);
+    std::vector<const UnifiedRender::SimpleModel *>::const_iterator model;
+    for(model = simple_models.begin(); model != simple_models.end(); model++) {
+        (*model)->draw(shader);
     }
 }
 
@@ -186,7 +187,7 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
             sline >> norm.x >> norm.y >> norm.z;
             normals.push_back(norm);
         } else if(cmd == "f") {
-            auto face = WavefrontFace();
+            WavefrontFace face = WavefrontFace();
             while(sline.peek() != -1) {
                 // Assemble faces - allowing for any number of vertices
                 // (and respecting the optional-ity of vt and vn fields)
@@ -233,11 +234,11 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
     }
 
     // Convert objects into (UnifiedRender) simple objects so we can now use them
-    auto* final_model = new UnifiedRender::Model();
+    UnifiedRender::Model* final_model = new UnifiedRender::Model();
     for(const auto& obj: objects) {
         // Register each simple object to the model manager
         for(const auto& face: obj.faces) {
-            auto* model = new UnifiedRender::SimpleModel(GL_TRIANGLE_FAN);
+            UnifiedRender::SimpleModel* model = new UnifiedRender::SimpleModel(GL_TRIANGLE_FAN);
 
             // The faces dictate indices for the vertices and we will also subtract 1 because the indexing is 0 based
             if(face.vertices.size() == face.texcoords.size()) {

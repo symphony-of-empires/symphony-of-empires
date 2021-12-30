@@ -68,9 +68,7 @@ namespace TreatyClause {
         };
     };
 
-    /**
-    * Makes loser to pay war reparations to the winner
-     */
+    // Makes loser to pay war reparations to the winner
     class WarReparations: public BaseClause {
     public:
         WarReparations(): BaseClause() {
@@ -83,9 +81,7 @@ namespace TreatyClause {
         float amount = 0.f;
     };
 
-    /**
-    * Reduces prestige of loser and increments prestige from winner
-     */
+    // Reduces prestige of loser and increments prestige from winner
     class Humiliate: public BaseClause {
     public:
         Humiliate(): BaseClause() {
@@ -98,9 +94,7 @@ namespace TreatyClause {
         float amount = 0.f;
     };
 
-    /**
-    * Liberates a nation from another
-     */
+    // Liberates a nation from another
     class LiberateNation: public BaseClause {
     public:
         LiberateNation(): BaseClause() {
@@ -114,9 +108,7 @@ namespace TreatyClause {
         std::vector<Province*> provinces;
     };
 
-    /**
-    * Imposes a policy to be put in action on a nation
-     */
+    // Imposes a policy to be put in action on a nation
     class ImposePolicies: public BaseClause {
     public:
         ImposePolicies(): BaseClause() {
@@ -129,9 +121,7 @@ namespace TreatyClause {
         Policies imposed;
     };
 
-    /**
-    * Anexxes territory from the loser
-     */
+    // Anexxes territory from the loser
     class AnexxProvince: public BaseClause {
     public:
         AnexxProvince(): BaseClause() {
@@ -144,9 +134,7 @@ namespace TreatyClause {
         std::vector<Province*> provinces;
     };
 
-    /**
-    * Calls for a ceasefire
-     */
+    // Calls for a ceasefire
     class Ceasefire: public BaseClause {
     public:
         Ceasefire(): BaseClause() {

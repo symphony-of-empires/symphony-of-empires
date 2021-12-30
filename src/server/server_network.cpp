@@ -32,10 +32,9 @@ Server::~Server() {
 
 }
 
-/** This is the handling thread-function for handling a connection to a single client
- * Sending packets will only be received by the other end, when trying to broadcast please
- * put the packets on the send queue, they will be sent accordingly
- */
+// This is the handling thread-function for handling a connection to a single client
+// Sending packets will only be received by the other end, when trying to broadcast please
+// put the packets on the send queue, they will be sent accordingly
 void Server::net_loop(int id) {
     UnifiedRender::Networking::ServerClient& cl = clients[id];
     while(run) {

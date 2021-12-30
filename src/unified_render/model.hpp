@@ -60,9 +60,7 @@ namespace UnifiedRender {
             PackedData& operator=(const PackedData&) = default;
         };
 
-        /**
-        * Packed model - packs both vertices and texcoords into the same buffer
-        */
+        // Packed model - packs both vertices and texcoords into the same buffer
         template<typename V, typename T>
         class PackedModel {
         public:
@@ -84,10 +82,8 @@ namespace UnifiedRender {
         };
     };
 
-    /**
-     * A simple object - use these to store "simple" objects that MAY repeat
-     * TODO: We should use instancing tricks on simple objects
-     */
+    // A simple object - use these to store "simple" objects that MAY repeat
+    // TODO: We should use instancing tricks on simple objects
     class SimpleModel : public OpenGl::PackedModel<glm::vec3, glm::vec2> {
     public:
         SimpleModel(GLint _mode);
@@ -101,9 +97,7 @@ namespace UnifiedRender {
         const Material* material = nullptr;
     };
 
-    /**
-     * A complex object being composed by many simple objects
-     */
+    // A complex object being composed by many simple objects
     class Model {
     public:
         Model(void);

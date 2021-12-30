@@ -155,11 +155,10 @@ void MapRender::reload_shaders() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-/** Creates the "waving" border around the continent to give it a 19th century map feel */
+// Creates the "waving" border around the continent to give it a 19th century map feel
 // Generate a distance field to from each border using the jump flooding algorithm
 // Used to create borders thicker than one tile
 UnifiedRender::Texture* MapRender::gen_border_sdf() {
-
     auto border_tex = new UnifiedRender::Texture(world.width, world.height);
     UnifiedRender::TextureOptions border_tex_options{};
     border_tex_options.internal_format = GL_RGBA32F;
