@@ -3,11 +3,11 @@
 layout (location = 0) in vec3 m_pos;
 layout (location = 1) in vec2 m_texcoord;
 
-uniform mat4 view;
-uniform mat4 projection;
-uniform mat4 model;
+uniform __def_precision mat4 view;
+uniform __def_precision mat4 projection;
+uniform __def_precision mat4 model;
 
-out vec2 v_texcoord;
+out __def_precision vec2 v_texcoord;
 
 void main() {
     v_texcoord = m_texcoord;    

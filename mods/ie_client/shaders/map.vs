@@ -4,12 +4,12 @@ layout (location = 0) in vec3 m_pos;
 layout (location = 1) in vec2 m_texcoord;
 layout (location = 2) in vec3 m_color;
 
-uniform mat4 view;
-uniform mat4 projection;
+uniform __def_precision mat4 view;
+uniform __def_precision mat4 projection;
 
-out vec2 v_texcoord;
-out vec3 v_view_pos;
-out vec3 v_frag_pos;
+out __def_precision vec2 v_texcoord;
+out __def_precision vec3 v_view_pos;
+out __def_precision vec3 v_frag_pos;
 
 void main() {
 	gl_Position = (projection * view) * vec4(m_pos, 1.0);
