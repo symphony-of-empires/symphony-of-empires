@@ -177,7 +177,9 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         case MapMode::COUNTRY_SELECT:
             if(tile.province_id < (Province::Id)-3) {
                 auto province = world.provinces[tile.province_id];
-                if(province->controller == nullptr) break;
+                if(province->controller == nullptr) {
+                    break;
+                }
                 gs.select_nation->change_nation(province->controller->cached_id);
             }
             break;
@@ -186,7 +188,9 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             input.selected_units.clear();
             for(const auto& unit : gs.world->units) {
                 // We can't control others units
-                if(unit->owner != gs.curr_nation) continue;
+                if(unit->owner != gs.curr_nation) {
+                    continue;
+                }
 
                 std::pair<float, float> pos = unit->get_pos();
 
@@ -240,7 +244,17 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         }
 
         for(const auto& unit : input.selected_units) {
-            //if(!unit->province->is_neighbour(*province)) continue;
+            if(!unit->province->is_neighbour(*province)) {
+                continue;
+            }
+
+            if(unit->province->controller != nullptr && unit->province->controller != gs.curr_nation) {
+                // Must either be our ally, have military access with them or be at war
+                const NationRelation& relation = gs.curr_nation->relations[gs.world->get_id(unit->province->controller)];
+                if(!(relation.has_war || relation.has_alliance || relation.has_military_access)) {
+                    continue;
+                }
+            }
 
             UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
             Archive ar = Archive();
