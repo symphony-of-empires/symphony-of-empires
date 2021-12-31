@@ -17,7 +17,7 @@
 #include "unified_render/binary_image.hpp"
 #include "server/lua_api.hpp"
 #include "unified_render/path.hpp"
-#include "unified_render/print.hpp"
+#include "unified_render/log.hpp"
 #include "unified_render/serializer.hpp"
 #include "unified_render/state.hpp"
 #include "io_impl.hpp"
@@ -69,14 +69,16 @@ World& World::get_instance(void) {
 
 // Obtains a tile from the world safely, and makes sure that it is in bounds
 Tile& World::get_tile(size_t x, size_t y) const {
-    if(x >= width || y >= height)
+    if(x >= width || y >= height) {
         throw std::runtime_error("Tile out of bounds");
+    }
     return tiles[x + y * width];
 }
 
 Tile& World::get_tile(size_t idx) const {
-    if(idx >= width * height)
+    if(idx >= width * height) {
         throw std::runtime_error("Tile index exceeds boundaries");
+    }
     return tiles[idx];
 }
 
@@ -214,7 +216,7 @@ World::World() {
 
     const struct luaL_Reg ideology_meta[] ={
         { "__gc", [](lua_State* L) {
-            print_info("__gc?");
+            UnifiedRender::Log::debug("lua", "__gc?");
             return 0;
         }},
         { "__index", [](lua_State* L) {
@@ -225,7 +227,7 @@ World::World() {
             } else if(member == "name") {
                 lua_pushstring(L, (*ideology)->name.c_str());
             }
-            print_info("__index?");
+            UnifiedRender::Log::debug("lua", "__index?");
             return 1;
         }},
         { "__newindex", [](lua_State* L) {
@@ -236,7 +238,7 @@ World::World() {
             } else if(member == "name") {
                 (*ideology)->name = luaL_checkstring(L, 3);
             }
-            print_info("__newindex?");
+            UnifiedRender::Log::debug("lua", "__newindex?");
             return 0;
         }},
         { NULL, NULL }
@@ -250,15 +252,14 @@ World::World() {
             (*ideology)->ref_name = luaL_checkstring(L, 1);
             (*ideology)->name = luaL_optstring(L, 2, (*ideology)->ref_name.c_str());
 
-            print_info("__new?");
+            UnifiedRender::Log::debug("lua", "__new?");
             return 1;
         }},
         { "register", [](lua_State* L) {
             Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
             g_world->insert(*ideology);
-            print_info("New ideology %s", (*ideology)->ref_name.c_str());
-
-            print_info("__register?");
+            UnifiedRender::Log::debug("lua", "New ideology " + (*ideology)->ref_name);
+            UnifiedRender::Log::debug("lua", "__register?");
             return 0;
         }},
         { "get", [](lua_State* L) {
@@ -272,7 +273,7 @@ World::World() {
             *ideology = *result;
             luaL_setmetatable(L, "Ideology");
 
-            print_info("__get?");
+            UnifiedRender::Log::debug("lua", "__get?");
             return 1;
         }},
         { NULL, NULL }
@@ -382,7 +383,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files) 
             files_buf += "f()\n";
         }
     }
-    print_info("files_buf: [%s]\n", files_buf.c_str());
+    UnifiedRender::Log::debug("game", "files_buf: " + files_buf);
 
     if(luaL_loadstring(world.lua, files_buf.c_str()) != LUA_OK || lua_pcall(world.lua, 0, 0, 0) != LUA_OK) {
         throw LuaAPI::Exception(lua_tostring(world.lua, -1));
@@ -399,7 +400,7 @@ void World::load_initial(void) {
     lua_exec_all_of(*this, init_files);
 
     // Shrink normally-not-resized vectors to give back memory to the OS
-    print_info(gettext("Shrink normally-not-resized vectors to give back memory to the OS"));
+    UnifiedRender::Log::debug("game", gettext("Shrink normally-not-resized vectors to give back memory to the OS"));
     provinces.shrink_to_fit();
     nations.shrink_to_fit();
     goods.shrink_to_fit();
@@ -412,7 +413,7 @@ void World::load_initial(void) {
 
     // Build a lookup table for super fast speed on finding provinces
     // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-    print_info(gettext("Building the province lookup table"));
+    UnifiedRender::Log::debug("game", gettext("Building the province lookup table"));
     std::vector<Province::Id> province_color_table(16777216, (Province::Id)-1);
     for(auto& province : provinces) {
         province_color_table[province->color & 0xffffff] = get_id(province);
@@ -441,13 +442,13 @@ void World::load_initial(void) {
         }
         
         for(unsigned int i = 0; i < total_size; ) {
-            const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
+            const Province::Id province_id = province_color_table[div->buffer.get()[i] & 0xffffff];
             if(province_id >= provinces.size()) {
                 i++;
                 continue;
             }
 
-            while(div->buffer[i] == provinces[province_id]->color) {
+            while(div->buffer.get()[i] == provinces[province_id]->color) {
                 provinces[province_id]->n_tiles++;
                 i++;
             }
@@ -491,18 +492,18 @@ void World::load_initial(void) {
 
     // Uncomment this and see a bit more below
     std::set<uint32_t> colors_found;
-    print_info(gettext("Associate tiles with provinces"));
+    UnifiedRender::Log::debug("game", gettext("Associate tiles with provinces"));
     for(size_t i = 0; i < total_size; ) {
-        const Province::Id province_id = province_color_table[div->buffer[i] & 0xffffff];
+        const Province::Id province_id = province_color_table[div->buffer.get()[i] & 0xffffff];
         if(province_id == (Province::Id)-1) {
             // Uncomment this and see below
-            colors_found.insert(div->buffer[i]);
+            colors_found.insert(div->buffer.get()[i]);
             i++;
             continue;
         }
 
         const uint32_t rel_color = provinces[province_id]->color;
-        while(div->buffer[i] == rel_color) {
+        while(div->buffer.get()[i] == rel_color) {
             tiles[i].province_id = province_id;
             provinces[province_id]->n_tiles++;
             i++;
@@ -523,7 +524,7 @@ void World::load_initial(void) {
     }
 
     // Calculate the edges of the province (min and max x and y coordinates)
-    print_info(gettext("Calculate the edges of the province (min and max x and y coordinates)"));
+    UnifiedRender::Log::debug("game", gettext("Calculate the edges of the province (min and max x and y coordinates)"));
     for(size_t j = 0; j < height; j++) {
         for(size_t i = 0; i < width; i++) {
             Tile& tile = get_tile(i, j);
@@ -541,7 +542,7 @@ void World::load_initial(void) {
     }
 
     // Correct stuff from provinces
-    print_info(gettext("Correcting values for provinces"));
+    UnifiedRender::Log::debug("game", gettext("Correcting values for provinces"));
     for(auto& province : provinces) {
         province->max_x = std::min(width, province->max_x);
         province->max_y = std::min(height, province->max_y);
@@ -551,7 +552,7 @@ void World::load_initial(void) {
     }
 
     // Neighbours
-    print_info(gettext("Creating neighbours for provinces"));
+    UnifiedRender::Log::debug("game", gettext("Creating neighbours for provinces"));
     for(size_t i = 0; i < total_size; i++) {
         const Tile* tile = &this->tiles[i];
 
@@ -567,12 +568,12 @@ void World::load_initial(void) {
     }
 
     // Create diplomatic relations between nations
-    print_info(gettext("Creating diplomatic relations"));
+    UnifiedRender::Log::debug("game", gettext("Creating diplomatic relations"));
     for(const auto& nation : this->nations) {
         // Relations between nations start at 0 (and latter modified by lua scripts)
         nation->relations.resize(this->nations.size(), NationRelation{ -100.f, false, false, false, false, false, false, false, false, true, false });
     }
-    print_info(gettext("World partially intiialized"));
+    UnifiedRender::Log::debug("game", gettext("World partially intiialized"));
 }
 
 void World::load_mod(void) {
@@ -602,7 +603,7 @@ void World::load_mod(void) {
         policy.industry_tax = 0.1f;
         policy.foreign_trade = true;
     }
-    print_info(gettext("World fully intiialized"));
+    UnifiedRender::Log::debug("game", gettext("World fully intiialized"));
 }
 
 void World::do_tick() {
@@ -753,7 +754,7 @@ void World::do_tick() {
         if(!treaty->in_effect()) continue;
 
         // Treaties clauses now will be enforced
-        print_info("Enforcing treaty %s", treaty->name.c_str());
+        UnifiedRender::Log::debug("game", "Enforcing treaty " + treaty->name);
         for(auto& clause : treaty->clauses) {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
@@ -791,10 +792,10 @@ void World::do_tick() {
     LuaAPI::check_events(lua);
 
     if(!(time % ticks_per_month)) {
-        print_info("%i/%i/%i", time / 12 / ticks_per_month, (time / ticks_per_month % 12) + 1, (time % ticks_per_month) + 1);
+        UnifiedRender::Log::debug("game", std::to_string(time / 12 / ticks_per_month) + "/" + std::to_string((time / ticks_per_month % 12) + 1) + + "/" + std::to_string((time % ticks_per_month) + 1));
     }
 
-    print_info("Tick %i done", time);
+    UnifiedRender::Log::debug("game", "Tick " + std::to_string(time) + " done");
     time++;
 
     // Tell clients that this tick has been done
