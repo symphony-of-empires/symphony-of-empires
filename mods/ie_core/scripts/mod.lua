@@ -1,7 +1,7 @@
 math.randomseed(os.time())
 
 require('events/catholic_relief_act')
---require('events/cholera_spreads_events')
+require('events/cholera_spread_events')
 --require('events/dysentery_spread_events')
 require('events/gevhdl_001')
 require('events/gevhdl_002')

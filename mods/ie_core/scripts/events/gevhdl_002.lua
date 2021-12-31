@@ -1,7 +1,7 @@
 TEMP_DATA = {}
 
 function gevhdl002_test()
-    if math.random(0, 50) == 0 then
+    if math.random(0, 100) == 0 then
         return EVENT_CONDITIONS_MET
     end
 	return EVENT_CONDITIONS_UNMET

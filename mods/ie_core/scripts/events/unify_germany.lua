@@ -1,3 +1,7 @@
+--
+-- Unify germany "magic" event
+--
+
 function unify_germany_test()
 	return EVENT_CONDITIONS_MET
 end

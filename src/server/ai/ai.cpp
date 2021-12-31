@@ -491,7 +491,9 @@ void ai_do_tick(Nation* nation, World* world) {
             // Pair denoting the weight a province has, the more the better
             std::vector<std::pair<Province*, float>> colonial_value;
             for(const auto& province : world->provinces) {
-                if(province->owner != nullptr) continue;
+                if(province->owner != nullptr) {
+                    continue;
+                }
                 colonial_value.push_back(std::make_pair(province, 0.f));
             }
 
@@ -532,7 +534,9 @@ void ai_do_tick(Nation* nation, World* world) {
 
         for(const auto& province : nation->owned_provinces) {
             for(const auto& neighbour : province->neighbours) {
-                if(province->terrain_type->is_water_body) continue;
+                if(province->terrain_type->is_water_body) {
+                    continue;
+                }
 
                 if(neighbour->controller != nullptr && neighbour->controller != nation) {
                     NationRelation& relation = neighbour->controller->relations[world->get_id(province->owner)];
@@ -541,18 +545,19 @@ void ai_do_tick(Nation* nation, World* world) {
                     if(!relation.has_alliance) {
                         potential_risk[world->get_id(neighbour)] += 100;
                         if(relation.has_war) {
-                            potential_risk[world->get_id(neighbour)] += 50000;
+                            potential_risk[world->get_id(neighbour)] += 50000000;
                         }
                     }
                 }
             }
 
-            float defense_strength = 0.f, attack_strength = 0.f;
+            int force = 0;
             for(const auto& unit : province->get_units()) {
-                defense_strength += unit->type->defense;
-                attack_strength += unit->type->attack;
+                if(unit->owner == nation) {
+                    force += (unit->type->defense * unit->type->attack) * unit->size;
+                }
             }
-            potential_risk[world->get_id(province)] -= defense_strength * attack_strength;
+            potential_risk[world->get_id(province)] -= force;
         }
 
         for(const auto& province : world->provinces) {
@@ -562,8 +567,12 @@ void ai_do_tick(Nation* nation, World* world) {
         }
 
         for(auto& unit : g_world->units) {
-            if(unit->province->neighbours.empty()) continue;
-            if(unit->owner != nation) continue;
+            if(unit->province->neighbours.empty()) {
+                continue;
+            }
+            if(unit->owner != nation) {
+                continue;
+            }
 
             // Do not override targets (temporal)
             // TODO: OVERRIDE TARGETS ON CRITICAL SITUATIONS
@@ -573,8 +582,13 @@ void ai_do_tick(Nation* nation, World* world) {
             Province* highest_risk = unit->province;
             for(const auto& province : unit->province->neighbours) {
                 //if(!unit->type->is_naval && province->terrain_type->is_water_body) continue;
-                if(province->terrain_type->is_water_body) continue;
-                if(std::rand() % 2) continue;
+                if(province->terrain_type->is_water_body) {
+                    continue;
+                }
+
+                if(!(std::rand() % 2)) {
+                    continue;
+                }
 
                 if(potential_risk[world->get_id(highest_risk)] < potential_risk[world->get_id(province)]) {
                     if(province->owner != nullptr) {
@@ -587,7 +601,9 @@ void ai_do_tick(Nation* nation, World* world) {
             }
 
             auto* province = highest_risk;
-            if(province == unit->province || province == unit->target) continue;
+            if(province == unit->province || province == unit->target) {
+                continue;
+            }
 
             if(province->owner != nullptr) {
                 // Can only go to a province if we have military accesss, they are our ally or if we are at war

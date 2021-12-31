@@ -1,5 +1,5 @@
 function t001_test()
-    if math.random(0, 50) == 0 then
+    if math.random(0, 100) == 0 then
         return EVENT_CONDITIONS_MET
     end
 	return EVENT_CONDITIONS_UNMET
@@ -31,7 +31,7 @@ function t001_event(ref_name)
 	return EVENT_DO_ONE_TIME
 end
 function t001_descision_0(ref_name)
-	local nation = Nation:get("morrocco"):get_owned_provinces()
+	local nation = Nation:get("morrocco"):get_nuclei_provinces()
 	for k, v in pairs(prov) do
 		print(v.ref_name)
         v:give_and_relinquish_to(Nation:get("spain"))
