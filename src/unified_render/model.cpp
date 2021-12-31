@@ -231,6 +231,10 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
         } else if(cmd == "s") {
             std::string light_mode;
             sline >> light_mode;
+
+            if(light_mode != "off") {
+                print_error("Unsupported light mode %s", light_mode.c_str());
+            }
         } else {
             print_error("Unsupported command %s", cmd.c_str());
         }
