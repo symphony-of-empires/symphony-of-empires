@@ -1,6 +1,7 @@
 #include "diplomacy.hpp"
 #include "nation.hpp"
 #include "world.hpp"
+#include "unified_render/log.hpp"
 
 using namespace Diplomacy;
 
@@ -101,7 +102,6 @@ bool ImposePolicies::in_effect(void) {
     return !done;
 }
 
-#include "unified_render/print.hpp"
 unsigned AnexxProvince::cost(void) {
     size_t value = 0;
     for(const auto& province : provinces) {
@@ -116,7 +116,7 @@ void AnexxProvince::enforce(void) {
 
     // Give provinces to the winner
     for(auto& province : provinces) {
-        print_info("Giving [%s] to [%s] (originally from [%s])", province->ref_name.c_str(), sender->ref_name.c_str(), receiver->ref_name.c_str());
+        UnifiedRender::Log::debug("game", "Giving " + province->ref_name + " to " + sender->ref_name + " from " + receiver->ref_name);
 
         province->owner = sender;
 

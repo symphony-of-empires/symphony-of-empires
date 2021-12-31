@@ -1,7 +1,8 @@
 #include "nation.hpp"
 #include "world.hpp"
-#include "unified_render/print.hpp"
 #include "technology.hpp"
+
+#include "unified_render/log.hpp"
 
 // Declare war
 // TODO: Make some form of "WarParticipationRequest" so we don't force allies to join
@@ -10,7 +11,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     World& world = World::get_instance();
     auto* war = new War();
 
-    print_info("%s has declared war on %s!", this->ref_name.c_str(), nation.ref_name.c_str());
+    UnifiedRender::Log::debug("game", ref_name + " has declared war on " + nation.ref_name);
 
     war->wargoals = clauses;
 
@@ -25,9 +26,9 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     }
     war->attackers.push_back(this);
 
-    print_info("Attackers");
+    UnifiedRender::Log::debug("game", "Attackers");
     for(const auto& attacker : war->attackers) {
-        print_info("[%s]", attacker->ref_name.c_str());
+        UnifiedRender::Log::debug("game", attacker->ref_name);
     }
 
     // Recollect defenders
@@ -51,13 +52,13 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
         }
     }
 
-    print_info("Defenders");
+    UnifiedRender::Log::debug("game", "Defenders");
     for(const auto& defender : war->defenders) {
-        print_info("[%s]", defender->ref_name.c_str());
+        UnifiedRender::Log::debug("game", defender->ref_name);
     }
 
     war->name = "War of " + this->name + " against " + nation.name;
-    print_info("War!, [%s]", war->name.c_str());
+    UnifiedRender::Log::debug("game", war->name);
 }
 
 bool Nation::is_ally(const Nation& nation) {
@@ -102,7 +103,7 @@ void Nation::increase_relation(Nation& target) {
     this->relations[world.get_id(&target)].relation += 5.f;
     target.relations[world.get_id(this)].relation += 5.f;
 
-    print_info("[%s] increases relations with [%s]", ref_name.c_str(), target.ref_name.c_str());
+    UnifiedRender::Log::debug("game", ref_name + " increases relations with " + target.ref_name);
     this->do_diplomacy();
 }
 
@@ -113,7 +114,7 @@ void Nation::decrease_relation(Nation& target) {
     this->relations[world.get_id(&target)].relation -= 5.f;
     target.relations[world.get_id(this)].relation -= 5.f;
 
-    print_info("[%s] decreases relations with [%s]", ref_name.c_str(), target.ref_name.c_str());
+    UnifiedRender::Log::debug("game", ref_name + " decreases relations with " + target.ref_name);
     this->do_diplomacy();
 }
 
@@ -133,7 +134,7 @@ void Nation::set_policy(Policies& policies) {
     // No parliament? No referendum
     if(current_policy.legislative_parliament != true) {
         this->current_policy = policies;
-        print_info("Parliament-less policy passed!");
+        UnifiedRender::Log::debug("game", "Parliament-less policy passed!");
         return;
     }
 
@@ -180,7 +181,7 @@ void Nation::set_policy(Policies& policies) {
         for(auto& pop : disapprovers) {
             pop->militancy *= std::min(pop->con, 0.1f);
         }
-        print_info("New enacted policy passed parliament!");
+        UnifiedRender::Log::debug("game", "New enacted policy passed parliament!");
     }
     // Legislation does not make it into the official law
     else {
@@ -193,7 +194,7 @@ void Nation::set_policy(Policies& policies) {
         for(auto& pop : disapprovers) {
             pop->militancy /= std::min(pop->con, 0.1f);
         }
-        print_info("New enacted policy did not made it into the parliament!");
+        UnifiedRender::Log::debug("game", "New enacted policy did not made it into the parliament!");
     }
     return;
 }
@@ -259,12 +260,16 @@ void Nation::give_province(Province& province) {
 const NationClientHint& Nation::get_client_hint(void) {
     // Find match
     for(const auto& hint : client_hints) {
-        if(hint.ideology == ideology) return hint;
+        if(hint.ideology == ideology) {
+            return hint;
+        }
     }
 
     // 2nd search: Find a hint that is fallback
     for(const auto& hint : client_hints) {
-        if(hint.ideology == nullptr) return hint;
+        if(hint.ideology == nullptr) {
+            return hint;
+        }
     }
 
     if(client_hints.empty()) {
@@ -296,16 +301,23 @@ bool Nation::can_research(const Technology* tech) const {
 
     // All required technologies for this one must be researched
     for(const auto& req_tech : tech->req_technologies) {
-        if(research[World::get_instance().get_id(req_tech)] > 0.f) return false;
+        if(research[World::get_instance().get_id(req_tech)] > 0.f) {
+            return false;
+        }
     }
     return true;
 }
 
 void Nation::change_research_focus(Technology* tech) {
     // Can't have already researched it (it would be dumb to re-research
-    if(!research[World::get_instance().get_id(tech)]) return;
+    if(!research[World::get_instance().get_id(tech)]) {
+        return;
+    }
+
     // Must be able to research it
-    if(!can_research(tech)) return;
+    if(!can_research(tech)) {
+        return;
+    }
 
     focus_tech = tech;
 }
