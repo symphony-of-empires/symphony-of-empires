@@ -40,23 +40,27 @@ UnifiedRender::Texture::~Texture(void) {
 // This dummy texture helps to avoid crashes due to missing buffers or so, and also gives
 // visual aid of errors
 void UnifiedRender::Texture::create_dummy() {
-    width = 16;
-    height = 16;
-    buffer = new uint32_t[width * height];
-    if(buffer == nullptr)
+    width = 8;
+    height = 8;
+    buffer = std::unique_ptr<uint32_t>(new uint32_t[width * height]);
+    if(buffer == nullptr) {
         throw TextureException("Dummy", "Out of memory for dummy texture");
+    }
 
     // Fill in with a permutation pattern of pink and black
     // This should be autovectorized by gcc
-    for(size_t i = 0; i < width * height; i++)
-        buffer[i] = 0xff000000 | (i * 16);
+    for(size_t i = 0; i < width * height; i++) {
+        buffer.get()[i] = 0xff000000 | (i * 16);
+    }
 }
 
 void UnifiedRender::Texture::to_opengl(TextureOptions options) {
-    if(gl_tex_num) delete_opengl();
+    if(gl_tex_num) {
+        delete_opengl();
+    }
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
-    glTexImage2D(GL_TEXTURE_2D, 0, options.internal_format, width, height, 0, options.format, options.type, buffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, options.internal_format, width, height, 0, options.format, options.type, buffer.get());
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, options.wrap_s);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, options.wrap_t);
@@ -147,7 +151,7 @@ void UnifiedRender::TextureArray::to_opengl(GLuint wrapp, GLuint min_filter, GLu
 
     for(size_t x = 0; x < tiles_x; x++) {
         for(size_t y = 0; y < tiles_y; y++) {
-            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, x * tiles_x + y, p_dx, p_dy, 1, GL_RGBA, GL_UNSIGNED_BYTE, buffer + (x * p_dy * width + y * p_dx));
+            glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, x * tiles_x + y, p_dx, p_dy, 1, GL_RGBA, GL_UNSIGNED_BYTE, buffer.get() + (x * p_dy * width + y * p_dx));
         }
     }
     //glGenerateMipmap(GL_TEXTURE_2D_ARRAY);

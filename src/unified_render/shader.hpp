@@ -91,26 +91,31 @@ namespace UnifiedRender::OpenGl {
     class VertexShader : public Shader {
     public:
         VertexShader(const std::string& path);
+        ~VertexShader();
     };
 
     class FragmentShader : public Shader {
     public:
         FragmentShader(const std::string& path);
+        ~FragmentShader();
     };
 
     class GeometryShader : public Shader {
     public:
         GeometryShader(const std::string& path);
+        ~GeometryShader();
     };
 
     class TessControlShader : public Shader {
     public:
         TessControlShader(const std::string& path);
+        ~TessControlShader();
     };
 
     class TessEvalShader : public Shader {
     public:
         TessEvalShader(const std::string& path);
+        ~TessEvalShader();
     };
 
     class Program {

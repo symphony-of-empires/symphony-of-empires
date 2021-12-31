@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <exception>
+#include <memory>
 #include <string>
 
 #include "unified_render/io.hpp"
@@ -26,8 +27,6 @@ class BinaryImage {
 public:
     BinaryImage();
     BinaryImage(const UnifiedRender::IO::Path& path);
-    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type>
-    BinaryImage(T _width, T _height) : BinaryImage((size_t)_width, (size_t)_height) {};
     BinaryImage(size_t _width, size_t _height);
     BinaryImage(const BinaryImage& tex);
     BinaryImage& operator=(const BinaryImage&) = default;
@@ -35,6 +34,6 @@ public:
     virtual void from_file(const UnifiedRender::IO::Path& path);
     uint32_t get_pixel(size_t x, size_t y) const;
 
-    uint32_t* buffer;
+    std::unique_ptr<uint32_t> buffer;
     size_t width, height;
 };

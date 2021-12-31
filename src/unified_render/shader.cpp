@@ -379,12 +379,20 @@ VertexShader::VertexShader(const std::string& path)
 
 }
 
+VertexShader::~VertexShader(void) {
+
+}
+
 //
 // Fragment shader
 //
 FragmentShader::FragmentShader(const std::string& path)
     : Shader(path, GL_FRAGMENT_SHADER)
 {
+
+}
+
+FragmentShader::~FragmentShader(void) {
 
 }
 
@@ -397,12 +405,20 @@ GeometryShader::GeometryShader(const std::string& path)
 
 }
 
+GeometryShader::~GeometryShader(void) {
+
+}
+
 //
 // Tessellation control shader
 //
 TessControlShader::TessControlShader(const std::string& path)
     : Shader(path, GL_TESS_CONTROL_SHADER)
 {
+
+}
+
+TessControlShader::~TessControlShader(void) {
 
 }
 
@@ -413,6 +429,10 @@ TessEvalShader::TessEvalShader(const std::string& path)
     : Shader(path, GL_TESS_EVALUATION_SHADER)
 {
 
+}
+
+TessEvalShader::~TessEvalShader(void) {
+    
 }
 
 //
