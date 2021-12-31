@@ -223,7 +223,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
         }
     }
     
-    if(is_border && !(std::rand() % 100)) {
+    if(is_border && !(std::rand() % 10000)) {
         if(!relation.has_war && !relation.has_alliance && !relation.has_defensive_pact) {
             nation->declare_war(*other);
         } else {
@@ -576,15 +576,20 @@ void ai_do_tick(Nation* nation, World* world) {
 
             // Do not override targets (temporal)
             // TODO: OVERRIDE TARGETS ON CRITICAL SITUATIONS
-            //if(unit->target != nullptr) continue;
+            //if(unit->target != nullptr) {
+            //    continue;
+            //}
 
             // See which province has the most potential_risk so we cover it from potential threats
             Province* highest_risk = unit->province;
             for(const auto& province : unit->province->neighbours) {
-                //if(!unit->type->is_naval && province->terrain_type->is_water_body) continue;
-                if(province->terrain_type->is_water_body) {
+                if(!unit->type->is_naval && province->terrain_type->is_water_body) {
                     continue;
                 }
+
+                //if(province->terrain_type->is_water_body) {
+                //    continue;
+                //}
 
                 if(!(std::rand() % 2)) {
                     continue;
