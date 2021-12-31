@@ -3,7 +3,10 @@
 --
 
 function unify_germany_test()
-	return EVENT_CONDITIONS_MET
+    if math.random(0, 100) == 0 then
+        return EVENT_CONDITIONS_MET
+    end
+	return EVENT_CONDITIONS_UNMET
 end
 function unify_germany_event()
 	descision = Descision:new{
