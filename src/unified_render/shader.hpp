@@ -23,7 +23,7 @@ namespace UnifiedRender::OpenGl {
     enum class GLSL_TokenType {
         ASSIGN, TERNARY, LITERAL, IDENTIFIER,
         ADD, SUB, MUL, DIV, REM, AND, OR,
-        SEMICOLON, COMMA, COLON,
+        SEMICOLON, COMMA, COLON, DOT,
         CMP_EQ, CMP_GT, CMP_LT, CMP_GTEQ, CMP_LTEQ, CMP_OR, CMP_AND,
         LPAREN, RPAREN,
         LBRACKET, RBRACKET,
