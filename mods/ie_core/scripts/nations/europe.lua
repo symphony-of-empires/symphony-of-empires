@@ -365,12 +365,69 @@ salzburg:set_ideology(monarchy)
 salzburg:add_accepted_culture(german)
 salzburg:add_client_hint(monarchy, _("Salzburg"), 0x808000)
 
+thuringia = Nation:new{ ref_name = "thuringia" }
+thuringia.name = _("Thuringia")
+thuringia:register()
+thuringia:set_ideology(monarchy)
+thuringia:add_accepted_culture(german)
+thuringia:add_client_hint(monarchy, _("Thuringia"), 0x808000)
+
+lubeck = Nation:new{ ref_name = "lubeck" }
+lubeck.name = _("Lubeck")
+lubeck:register()
+lubeck:set_ideology(monarchy)
+lubeck:add_accepted_culture(german)
+lubeck:add_client_hint(monarchy, _("Lubeck"), 0x808000)
+
+waldeck = Nation:new{ ref_name = "waldeck" }
+waldeck.name = _("Waldeck")
+waldeck:register()
+waldeck:set_ideology(monarchy)
+waldeck:add_accepted_culture(german)
+waldeck:add_client_hint(monarchy, _("Waldeck"), 0x808000)
+
 saxony = Nation:new{ ref_name = "saxony" }
 saxony.name = _("Saxony")
 saxony:register()
 saxony:set_ideology(monarchy)
 saxony:add_accepted_culture(german)
 saxony:add_client_hint(monarchy, _("Saxony"), 0xbde04a)
+
+hesse_kassel = Nation:new{ ref_name = "hesse_kassel" }
+hesse_kassel.name = _("Hesse-Kassel")
+hesse_kassel:register()
+hesse_kassel:set_ideology(monarchy)
+hesse_kassel:add_accepted_culture(german)
+hesse_kassel:add_client_hint(monarchy, _("Hesse-Kassel"), 0xd4b54e)
+
+-- Composes all the Reuss-* provinces on thuringa
+reuss_gera = Nation:new{ ref_name = "reuss_gera" }
+reuss_gera.name = _("Reuss-Gera")
+reuss_gera:register()
+reuss_gera:set_ideology(monarchy)
+reuss_gera:add_accepted_culture(german)
+reuss_gera:add_client_hint(monarchy, _("Reuss-Gera"), 0x7a4bb8)
+
+saxe_weimar = Nation:new{ ref_name = "saxe_weimar" }
+saxe_weimar.name = _("Saxe-Weimar")
+saxe_weimar:register()
+saxe_weimar:set_ideology(monarchy)
+saxe_weimar:add_accepted_culture(german)
+saxe_weimar:add_client_hint(monarchy, _("Saxe-Weimar"), 0x219114)
+
+saxe_gotha = Nation:new{ ref_name = "saxe_gotha" }
+saxe_gotha.name = _("Saxe-Gotha")
+saxe_gotha:register()
+saxe_gotha:set_ideology(monarchy)
+saxe_gotha:add_accepted_culture(german)
+saxe_gotha:add_client_hint(monarchy, _("Saxe-Gotha"), 0x23e857)
+
+lippe = Nation:new{ ref_name = "lippe" }
+lippe.name = _("Lippe")
+lippe:register()
+lippe:set_ideology(monarchy)
+lippe:add_accepted_culture(german)
+lippe:add_client_hint(monarchy, _("Lippe"), 0x9c4e7a)
 
 lorraine = Nation:new{ ref_name = "lorraine" }
 lorraine.name = _("Lorraine")
@@ -401,13 +458,20 @@ munich:set_ideology(monarchy)
 munich:add_accepted_culture(german)
 munich:add_client_hint(monarchy, _("Munich"), 0x808000)
 
+hamburg = Nation:new{ ref_name = "hamburg" }
+hamburg.name = _("Hamburg")
+hamburg:register()
+hamburg:set_ideology(monarchy)
+hamburg:add_accepted_culture(german)
+hamburg:add_client_hint(monarchy, _("Hamburg"), 0x808000)
+
 holstein = Nation:new{ ref_name = "holstein" }
 holstein.name = _("Holstein")
 holstein:register()
 holstein:set_ideology(monarchy)
 holstein:add_accepted_culture(german)
 holstein:add_accepted_culture(danish)
-holstein:add_client_hint(monarchy, _("Holstein"), 0x808000)
+holstein:add_client_hint(monarchy, _("Holstein"), 0xe2e3c3)
 
 bavaria = Nation:new{ ref_name = "bavaria" }
 bavaria.name = _("Bavaria")
@@ -445,7 +509,7 @@ nassau.name = _("Nassau")
 nassau:register()
 nassau:set_ideology(monarchy)
 nassau:add_accepted_culture(german)
-nassau:add_client_hint(monarchy, _("Nassau"), 0x808000)
+nassau:add_client_hint(monarchy, _("Nassau"), 0xcc5f29)
 
 baden = Nation:new{ ref_name = "baden" }
 baden.name = _("Baden")
@@ -466,7 +530,7 @@ anhalt.name = _("Anhalt")
 anhalt:register()
 anhalt:set_ideology(monarchy)
 anhalt:add_accepted_culture(german)
-anhalt:add_client_hint(monarchy, _("Anhalt"), 0x808000)
+anhalt:add_client_hint(monarchy, _("Anhalt"), 0x30cf9f)
 
 oldenburg = Nation:new{ ref_name = "oldenburg" }
 oldenburg.name = _("Oldenburg")
@@ -537,7 +601,7 @@ grand_duchy_of_hesse_and_by_rhine.name = _("Grand Duchy of Hesse and by Rhine")
 grand_duchy_of_hesse_and_by_rhine:register()
 grand_duchy_of_hesse_and_by_rhine:set_ideology(monarchy)
 grand_duchy_of_hesse_and_by_rhine:add_accepted_culture(german)
-grand_duchy_of_hesse_and_by_rhine:add_client_hint(monarchy, _("Grand Duchy of Hesse and by Rhine"), 0x808000)
+grand_duchy_of_hesse_and_by_rhine:add_client_hint(monarchy, _("Grand Duchy of Hesse and by Rhine"), 0x3055cf)
 
 switzerland = Nation:new{ ref_name = "switzerland" }
 switzerland.name = _("Switzerland")
