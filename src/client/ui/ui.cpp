@@ -358,7 +358,8 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
         click_state = check_click_recursive(*child, mx, my, offset.x, offset.y, click_state, clickable);
     }
 
-    if(w.type == UI::WidgetType::GROUP) {
+    // Non-clickable group widgets are only taken in account
+    if(w.type == UI::WidgetType::GROUP && w.on_click == nullptr) {
         clickable = false;
     }
 
