@@ -98,9 +98,9 @@ MapRender::MapRender(const World& _world)
     // terrain_sheet->to_opengl();
 
     // The map shader that draws everything on the map 
-    map_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/map.vs"), Path::get("shaders/map.fs"));
-    border_gen_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_gen.fs"));
-    border_sdf_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf.fs"));
+    map_shader = std::unique_ptr<UnifiedRender::OpenGl::Program>(UnifiedRender::OpenGl::Program::create(Path::get("shaders/map.vs"), Path::get("shaders/map.fs")));
+    border_gen_shader = std::unique_ptr<UnifiedRender::OpenGl::Program>(UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_gen.fs")));
+    border_sdf_shader = std::unique_ptr<UnifiedRender::OpenGl::Program>(UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf.fs")));
 
     print_info("Creating tile map & tile sheet");
 
@@ -144,13 +144,13 @@ MapRender::MapRender(const World& _world)
 
 
 void MapRender::reload_shaders() {
-    delete map_shader;
-    map_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/map.vs"), Path::get("shaders/map.fs"));
+    map_shader.reset(nullptr);
+    map_shader.reset(UnifiedRender::OpenGl::Program::create(Path::get("shaders/map.vs"), Path::get("shaders/map.fs")));
 
-    delete border_sdf_shader;
-    border_sdf_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf.fs"));
+    border_sdf_shader.reset(nullptr);
+    border_sdf_shader.reset(UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf.fs")));
 
-    delete border_sdf;
+    border_sdf.reset(nullptr);
     border_sdf = gen_border_sdf();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -158,103 +158,111 @@ void MapRender::reload_shaders() {
 // Creates the "waving" border around the continent to give it a 19th century map feel
 // Generate a distance field to from each border using the jump flooding algorithm
 // Used to create borders thicker than one tile
-UnifiedRender::Texture* MapRender::gen_border_sdf() {
-    auto border_tex = new UnifiedRender::Texture(world.width, world.height);
-    UnifiedRender::TextureOptions border_tex_options{};
-    border_tex_options.internal_format = GL_RGBA32F;
-    border_tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    border_tex_options.mag_filter = GL_LINEAR;
-    border_tex->to_opengl(border_tex_options);
-    border_tex->gen_mipmaps();
+std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
+    if(1) {
+        auto border_tex = new UnifiedRender::Texture(world.width, world.height);
+        UnifiedRender::TextureOptions border_tex_options{};
+        border_tex_options.internal_format = GL_RGBA32F;
+        border_tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+        border_tex_options.mag_filter = GL_LINEAR;
+        border_tex->to_opengl(border_tex_options);
+        border_tex->gen_mipmaps();
 
-    print_info("Creating border framebuffer");
-    auto border_fbuffer = UnifiedRender::OpenGl::Framebuffer();
-    border_fbuffer.use();
-    border_fbuffer.set_texture(0, *border_tex);
+        print_info("Creating border framebuffer");
+        auto border_fbuffer = UnifiedRender::OpenGl::Framebuffer();
+        border_fbuffer.use();
+        border_fbuffer.set_texture(0, *border_tex);
 
-    print_info("Drawing border with border shader");
-    glViewport(0, 0, tile_map->width, tile_map->height);
-    border_gen_shader->use();
-    border_gen_shader->set_uniform("map_size", (float)tile_map->width, (float)tile_map->height);
-    border_gen_shader->set_texture(0, "tile_map", *tile_map);
-    border_gen_shader->set_texture(1, "terrain_map", *terrain_map);
-    map_2d_quad->draw();
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    border_tex->gen_mipmaps();
-
-    glViewport(0, 0, border_tex->width, border_tex->height);
-    border_sdf_shader->use();
-    border_sdf_shader->set_uniform("map_size", (float)border_tex->width, (float)border_tex->height);
-    UnifiedRender::TextureOptions fbo_mipmap_options{};
-    fbo_mipmap_options.internal_format = GL_RGBA32F;
-    fbo_mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    fbo_mipmap_options.mag_filter = GL_LINEAR;
-
-    // The Red & Green color channels are the coords on the map
-    // The Blue is the distance to a border
-    UnifiedRender::Texture* tex0 = new UnifiedRender::Texture(border_tex->width, border_tex->height);
-    tex0->to_opengl(fbo_mipmap_options);
-    UnifiedRender::Texture* tex1 = new UnifiedRender::Texture(border_tex->width, border_tex->height);
-    tex1->to_opengl(fbo_mipmap_options);
-
-    UnifiedRender::OpenGl::Framebuffer fbo = UnifiedRender::OpenGl::Framebuffer();
-    fbo.use();
-
-    // Jump flooding iterations, each step give a distance field 2^steps pixels away from the border
-    const int max_steps = 4.f;
-
-    bool drawOnTex0 = true;
-    for(int step = max_steps; step >= 1; step /= 2) {
-        // Swap read/write buffers
-        drawOnTex0 = !drawOnTex0;
-        tex0->gen_mipmaps();
-        tex1->gen_mipmaps();
-        border_sdf_shader->set_uniform("jump", (float)step);
-
-        fbo.set_texture(0, drawOnTex0 ? *tex0 : *tex1);
-        if(step == max_steps){
-            border_sdf_shader->set_texture(0, "tex", *border_tex);
-        }
-        else {
-            border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? *tex1 : *tex0);
-        }
-
-        // Draw a plane over the entire screen to invoke shaders
+        print_info("Drawing border with border shader");
+        glViewport(0, 0, tile_map->width, tile_map->height);
+        border_gen_shader->use();
+        border_gen_shader->set_uniform("map_size", (float)tile_map->width, (float)tile_map->height);
+        border_gen_shader->set_texture(0, "tile_map", *tile_map);
+        border_gen_shader->set_texture(1, "terrain_map", *terrain_map);
         map_2d_quad->draw();
-    }
 
-    // Delete the textures no used from memory
-    delete border_tex;
-    if(drawOnTex0) {
-        delete tex1;
-        tex1 = tex0;
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        border_tex->gen_mipmaps();
+
+        glViewport(0, 0, border_tex->width, border_tex->height);
+        border_sdf_shader->use();
+        border_sdf_shader->set_uniform("map_size", (float)border_tex->width, (float)border_tex->height);
+        UnifiedRender::TextureOptions fbo_mipmap_options{};
+        fbo_mipmap_options.internal_format = GL_RGBA32F;
+        fbo_mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+        fbo_mipmap_options.mag_filter = GL_LINEAR;
+
+        // The Red & Green color channels are the coords on the map
+        // The Blue is the distance to a border
+        std::unique_ptr<UnifiedRender::Texture> tex0 = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(border_tex->width, border_tex->height));
+        tex0->to_opengl(fbo_mipmap_options);
+
+        std::unique_ptr<UnifiedRender::Texture> tex1 = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(border_tex->width, border_tex->height));
+        tex1->to_opengl(fbo_mipmap_options);
+
+        UnifiedRender::OpenGl::Framebuffer fbo = UnifiedRender::OpenGl::Framebuffer();
+        fbo.use();
+
+        // Jump flooding iterations, each step give a distance field 2^steps pixels away from the border
+        const int max_steps = 4.f;
+
+        bool drawOnTex0 = true;
+        for(int step = max_steps; step >= 1; step /= 2) {
+            // Swap read/write buffers
+            drawOnTex0 = !drawOnTex0;
+            tex0->gen_mipmaps();
+            tex1->gen_mipmaps();
+            border_sdf_shader->set_uniform("jump", (float)step);
+
+            fbo.set_texture(0, drawOnTex0 ? *tex0 : *tex1);
+            if(step == max_steps){
+                border_sdf_shader->set_texture(0, "tex", *border_tex);
+            } else {
+                border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? *tex1 : *tex0);
+            }
+
+            // Draw a plane over the entire screen to invoke shaders
+            map_2d_quad->draw();
+        }
+
+        // Delete the textures no used from memory
+        delete border_tex;
+        if(drawOnTex0) {
+            tex1.reset(nullptr);
+            tex1 = std::move(tex0);
+        } else {
+            tex0.reset(nullptr);
+        }
+        tex1->gen_mipmaps();
+
+        UnifiedRender::OpenGl::Framebuffer output_fbo = UnifiedRender::OpenGl::Framebuffer();
+        output_fbo.use();
+        auto output_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf_output.fs"));
+        output_shader->use();
+
+        UnifiedRender::TextureOptions output_options{};
+        output_options.format = GL_RED;
+        output_options.internal_format = GL_RED;
+        output_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+        output_options.mag_filter = GL_LINEAR;
+        tex0.reset(new UnifiedRender::Texture(tex1->width, tex1->height));
+        tex0->to_opengl(output_options);
+
+        output_fbo.set_texture(0, *tex0);
+        output_shader->set_texture(0, "tex", *tex1);
+        map_2d_quad->draw();
+        glFinish();
+        tex0->gen_mipmaps();
+        tex1.reset(nullptr);
+        delete output_shader;
+
+        // Copy the object
+        return tex0;
     } else {
-        delete tex0;
+        std::unique_ptr<UnifiedRender::Texture> tex = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(2, 2));
+        std::memset(tex->buffer, 0, (2 * 2) * sizeof(uint32_t));
+        return tex;
     }
-    tex1->gen_mipmaps();
-
-    UnifiedRender::OpenGl::Framebuffer output_fbo = UnifiedRender::OpenGl::Framebuffer();
-    output_fbo.use();
-    auto output_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf_output.fs"));
-    output_shader->use();
-
-    UnifiedRender::TextureOptions output_options{};
-    output_options.format = GL_RED;
-    output_options.internal_format = GL_RED;
-    output_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    output_options.mag_filter = GL_LINEAR;
-    tex0 = new UnifiedRender::Texture(tex1->width, tex1->height);
-    tex0->to_opengl(output_options);
-
-    output_fbo.set_texture(0, *tex0);
-    output_shader->set_texture(0, "tex", *tex1);
-    map_2d_quad->draw();
-    glFinish();
-    tex0->gen_mipmaps();
-    delete tex1;
-    delete output_shader;
-    return tex0;
 }
 
 // Updates the province color texture with the changed provinces 
@@ -289,7 +297,7 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     map_shader->set_texture(4, "terrain_map", *terrain_map); // 1 col
     // Temporary not in use
     // map_shader->set_texture(5, "terrain_sheet", terrain_sheet);
-    map_shader->set_texture(8, "border_sdf", *border_sdf); // 1 col
+    map_shader->set_texture(8, "border_sdf", *(border_sdf.get())); // 1 col
     map_shader->set_texture(9, "landscape_map", *landscape_map); // 3 col
     map_shader->set_texture(10, "river_texture", *river_tex); // 1 col
     map_shader->set_texture(11, "wave1", *wave1);
@@ -298,8 +306,7 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();
-    }
-    else if(view_mode == MapView::SPHERE_VIEW) {
+    } else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
 }
