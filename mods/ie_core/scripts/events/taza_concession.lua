@@ -1,5 +1,5 @@
 function t001_test()
-    if math.random(0, 300) == 0 then
+    if math.random(0, 50) == 0 then
         return EVENT_CONDITIONS_MET
     end
 	return EVENT_CONDITIONS_UNMET
@@ -28,7 +28,7 @@ function t001_event(ref_name)
 		effects = "+50 relations with Morrocco and France"
 	}
 	t001:add_descision(descision)
-	return EVENT_DO_MANY_TIMES
+	return EVENT_DO_ONE_TIME
 end
 function t001_descision_0(ref_name)
 	local nation = Nation:get("morrocco"):get_owned_provinces()
