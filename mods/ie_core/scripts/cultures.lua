@@ -117,55 +117,33 @@ alemmanic:register()
 arpitan = Culture:new{ ref_name = "arpitan" }
 arpitan.name = _("Arpitan")
 arpitan:register()
-frainc-comtou = Culture:new{ ref_name = "frainc-comtou" }
-frainc-comtou.name = _("Frainc-Comtou")
-frainc-comtou:register()
+frainc_comtou = Culture:new{ ref_name = "frainc_comtou", name = _("Frainc-Comtou") }
+frainc_comtou:register()
 lombard = Culture:new{ ref_name = "lombard"}
 lombard.name = _("Lombard")
 lombard:register()
-romansh = Culture:new{ ref_name = "romansh"
-romansh.name = _("Romansh")
+romansh = Culture:new{ ref_name = "romansh", name = _("Romansh") }
 romansh:register()
 walser = Culture:new{ ref_name = "walser" }
 walser.name = _("Walser")
 walser:register()
 
 -- Eurasia and West Asia
-nogai = Culture:new{ ref_name = "nogai" }
-nogai.name = _("Nogai")
-nogai:register()
+Culture:new{ ref_name = "nogai", name = _("Nogai") }:register()
 
 -- Central Asia
-kazakh = Culture:new{ ref_name = "kazakh" }
-kazakh.name = _("Kazakh")
-kazakh:register()
-uzbek = Culture:new{ ref_name = "uzbek" }
-uzbek.name = _("Uzbek")
-uzbek:register()
-tajik = Culture:new{ ref_name = "tajik" }
-tajik.name = _("Tajik")
-tajik:register()
-kyrgyz = Culture:new{ ref_name = "kyrgyz" }
-kyrgyz.name = _("Kyrgyz")
-kyrgyz:register()
-afghan = Culture:new{ ref_name = "afghan" }
-afghan.name = _("Afghan")
-afghan.combo_form = _("Afghano")
-afghan:register()
+Culture:new{ ref_name = "kazakh", name = _("Kazakh") }:register()
+Culture:new{ ref_name = "uzbek", name = _("Uzbek") }:register()
+Culture:new{ ref_name = "tajik", name = _("Tajik") }:register()
+Culture:new{ ref_name = "kyrgyz", name = _("Kyrgyz") }:register()
+Culture:new{ ref_name = "afghan", name = _("Afghan"), combo_form = _("Afghano") }:register()
 
 -- East asian
-korean = Culture:new{ ref_name = "korean" }
-korean.name = _("Korean")
-korean:register()
+Culture:new{ ref_name = "korean", name = _("Korean") }:register()
 
 -- American
-american = Culture:new{ ref_name = "american", color = 0x6ea5cc }
-american.name = _("American")
-american.adjective = _("American")
-american:register()
-chilean = Culture:new{ ref_name = "chilean" }
-chilean.name = _("Chilean")
-chilean:register()
+Culture:new{ ref_name = "american", name = _("American"), adjective = _("American"), color = 0x6ea5cc }:register()
+Culture:new{ ref_name = "chilean", name = _("Chilean") }:register()
 cisplatinian = Culture:new{ ref_name = "cisplatinian" }
 cisplatinian.name = _("Cisplatinian")
 cisplatinian:register()
@@ -217,9 +195,7 @@ arabic.noun = _("Arab")
 arabic:register()
 
 -- African
-akan = Culture:new{ ref_name = "akan" }
-akan.name = _("Akan")
-akan:register()
+Culture:new{ ref_name = "akan", name = _("Akan") }:register()
 abyssinian = Culture:new{ ref_name = "abyssinian" }
 abyssinian.name = _("Abyssinian")
 abyssinian:register()
