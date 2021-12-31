@@ -211,8 +211,19 @@ void ai_update_relations(Nation* nation, Nation* other) {
     } else if(!(std::rand() % 100)) {
         nation->decrease_relation(*other);
     }
+
+    // Check if we even border them
+    bool is_border = false;
+    for(const auto& province : nation->owned_provinces) {
+        for(const auto& neighbour : province->neighbours) {
+            if(neighbour->controller == other) {
+                is_border = true;
+                break;
+            }
+        }
+    }
     
-    if(1) {
+    if(is_border && !(std::rand() % 100)) {
         if(!relation.has_war && !relation.has_alliance && !relation.has_defensive_pact) {
             nation->declare_war(*other);
         } else {
