@@ -108,7 +108,6 @@ MapRender::MapRender(const World& _world)
     // Alpha & Blue is for nation id
     // Red & Green is for province id
     tile_map = new UnifiedRender::Texture(world.width, world.height);
-
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
         if(tile.province_id >= (Province::Id)-3) {
@@ -155,12 +154,15 @@ void MapRender::reload_shaders() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+#include "client/game_state.hpp"
+
 // Creates the "waving" border around the continent to give it a 19th century map feel
 // Generate a distance field to from each border using the jump flooding algorithm
 // Used to create borders thicker than one tile
 std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
-    if(1) {
-        auto border_tex = new UnifiedRender::Texture(world.width, world.height);
+    const GameState& gs = (const GameState&)UnifiedRender::State::get_instance();
+    if(gs.has_sdf_detail) {
+        UnifiedRender::Texture* border_tex = new UnifiedRender::Texture(world.width, world.height);
         UnifiedRender::TextureOptions border_tex_options{};
         border_tex_options.internal_format = GL_RGBA32F;
         border_tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
