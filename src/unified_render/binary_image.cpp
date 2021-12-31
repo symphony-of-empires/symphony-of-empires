@@ -34,11 +34,11 @@ void BinaryImage::from_file(const UnifiedRender::IO::Path& path) {
     int i_width, i_height, i_channels;
 
     // stbi can do the conversion to RGBA for us ;)
-    void* c_buffer = stbi_load(Path::get(path.str.c_str()).c_str(), &i_width, &i_height, &i_channels, 4);
+    stbi_uc* c_buffer = stbi_load(Path::get(path.str.c_str()).c_str(), &i_width, &i_height, &i_channels, 4);
     if(c_buffer == nullptr) {
         throw BinaryImageException(path.str, std::string() + "Image load error: " + stbi_failure_reason());
     }
-    std::memcpy(buffer.get(), c_buffer, sizeof(uint32_t) * (width * height));
+    buffer.reset((uint32_t*)c_buffer);
 
     width = (size_t)i_width;
     height = (size_t)i_height;
