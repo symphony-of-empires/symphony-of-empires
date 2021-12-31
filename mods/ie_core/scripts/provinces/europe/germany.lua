@@ -6,6 +6,30 @@
 -- "So how many german minors are you gonna add?"
 -- ALL OF THEM
 
+local liechtenstein_provinces_list = {
+    { ref_name = "vaduz", name = _("Vaduz"), color = 0x4c67ff },
+}
+for k, v in pairs(liechtenstein_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(zinc_mine, Nation:get("liechtenstein"))
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(Nation:get("liechtenstein"))
+    --province:add_nucleus(Nation:get("germany"))
+    province:give_to(Nation:get("liechtenstein"))
+    province:set_terrain(plains)
+end
+Nation:get("liechtenstein"):set_capital(Province:get("vaduz"))
+
 local oldenburg_provinces_list = {
     { ref_name = "oldenburg", name = _("Oldenburg"), color = 0xffeebf },
     { ref_name = "birkenfeld", name = _("Birkenfeld"), color = 0xffa8c6 },
@@ -25,7 +49,7 @@ for k, v in pairs(oldenburg_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(oldenburg)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(oldenburg)
     province:set_terrain(plains)
 end
@@ -49,7 +73,7 @@ for k, v in pairs(wolfenbuttel_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(wolfenbuttel)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(wolfenbuttel)
     province:set_terrain(plains)
 end
@@ -73,7 +97,7 @@ for k, v in pairs(bremen_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(bremen)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(bremen)
     province:set_terrain(plains)
 end
@@ -99,7 +123,7 @@ for k, v in pairs(brunswick_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(brunswick)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(brunswick)
     province:set_terrain(plains)
 end
@@ -123,7 +147,7 @@ for k, v in pairs(ritzebuttel_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(ritzebuttel)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(ritzebuttel)
     province:set_terrain(plains)
 end
@@ -149,7 +173,7 @@ for k, v in pairs(grand_duchy_of_hesse_and_by_rhine_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(grand_duchy_of_hesse_and_by_rhine)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(grand_duchy_of_hesse_and_by_rhine)
     province:set_terrain(plains)
 end
@@ -228,7 +252,7 @@ for k, v in pairs(prussia_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(prussia)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(prussia)
     province:set_terrain(plains)
 end
@@ -256,7 +280,7 @@ for k, v in pairs(bavaria_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(bavaria)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(bavaria)
     province:set_terrain(plains)
 end
@@ -310,7 +334,7 @@ for k, v in pairs(hannover_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(hannover)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(hannover)
     province:set_terrain(plains)
 end
@@ -392,7 +416,7 @@ for k, v in pairs(baden_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(baden)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(baden)
     province:set_terrain(plains)
 end
@@ -416,7 +440,7 @@ for k, v in pairs(wurttemberg_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(wurttemberg)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(wurttemberg)
     province:set_terrain(plains)
 end
@@ -440,7 +464,7 @@ for k, v in pairs(mecklenburg_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(mecklenburg)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(mecklenburg)
     province:set_terrain(plains)
 end
@@ -464,7 +488,7 @@ for k, v in pairs(saxonyg_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(saxony)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(saxony)
     province:set_terrain(plains)
 end
