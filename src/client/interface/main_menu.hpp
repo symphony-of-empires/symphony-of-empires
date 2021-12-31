@@ -9,7 +9,22 @@ namespace UI {
 }
 
 namespace Interface {
-    class MainMenuConnectServer;
+    class MainMenuConnectServer: public UI::Window {
+        GameState& gs;
+    public:
+        MainMenuConnectServer(GameState& gs);
+
+        UI::Input* ip_addr_inp;
+        UI::Input* username_inp;
+        UI::Button* conn_btn;
+    };
+
+    class MainMenuSettings : public UI::Window {
+        GameState& gs;
+    public:
+        MainMenuSettings(GameState& gs);
+    };
+
     class MainMenu: public UI::Window {
     public:
         MainMenu(GameState& gs);
@@ -17,17 +32,6 @@ namespace Interface {
 
         GameState& gs;
         MainMenuConnectServer* connect_window = nullptr;
-    };
-
-    class MainMenuConnectServer: public UI::Window {
-    public:
-        MainMenuConnectServer(GameState& gs);
-
-        GameState& gs;
-        bool in_game;
-
-        UI::Input* ip_addr_inp;
-        UI::Input* username_inp;
-        UI::Button* conn_btn;
+        MainMenuSettings* settings_window = nullptr;
     };
 };

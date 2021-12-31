@@ -307,20 +307,23 @@ void GameState::world_thread(void) {
     }
 }
 
+#include "client/ui/image.hpp"
 #include "client/interface/main_menu.hpp"
 #include "unified_render/sound.hpp"
 #include <filesystem>
 
 void main_loop(GameState& gs) {
+    gs.input = Input();
     gs.in_game = false;
 
     // Connect to server prompt
-    /*auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/globe.png")));
-    mm_bg->is_fullscreen = true;
+    gs.current_mode = MapMode::NO_MAP;
+    //auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/globe.png")));
+    //mm_bg->is_fullscreen = true;
     Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
-    auto* logo = new UI::Image(0, 0, 256, 256, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/title_alt.png")));
-    logo->above_of(*main_menu);
-    logo->left_side_of(*main_menu);*/
+    //auto* logo = new UI::Image(0, 0, 256, 256, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/title_alt.png")));
+    //logo->above_of(*main_menu);
+    //logo->left_side_of(*main_menu);
 
     std::vector<Event*> displayed_events;
     std::vector<Treaty*> displayed_treaties;
@@ -329,20 +332,6 @@ void main_loop(GameState& gs) {
     gs.update_tick = true;
     gs.run = true;
     gs.paused = true;
-
-    gs.current_mode = MapMode::COUNTRY_SELECT;
-    gs.select_nation = new Interface::LobbySelectView(gs);
-
-    // Only used for debug
-    // new MapDevView(gs.map);
-
-    gs.input = Input();
-
-    gs.host_mode = true;
-    gs.server = new Server(gs, 1836);
-    gs.client = new Client(gs, "127.0.0.1", 1836);
-    gs.client->username = "TUTORIAL_PLAYER";
-    gs.in_game = true;
 
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
