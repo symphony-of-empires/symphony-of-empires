@@ -1143,7 +1143,7 @@ void LuaAPI::check_events(lua_State* L) {
         if(event->checked == true)
             continue;
         
-        bool is_multi;
+        bool is_multi = true;
         bool has_fired = false;
         for(auto& nation : event->receivers) {
             lua_getglobal(L, event->conditions_function.c_str());
@@ -1190,6 +1190,7 @@ void LuaAPI::check_events(lua_State* L) {
                 *event = orig_event;
             }
         }
+        
         // Event is marked as checked if it's not of multiple occurences
         if(has_fired && !is_multi) {
             g_world->events[i]->checked = true;
