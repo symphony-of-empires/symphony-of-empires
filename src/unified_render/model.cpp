@@ -228,6 +228,9 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
             } else {
                 objects.front().faces.push_back(face);
             }
+        } else if(cmd == "s") {
+            std::string light_mode;
+            sline >> light_mode;
         } else {
             print_error("Unsupported command %s", cmd.c_str());
         }

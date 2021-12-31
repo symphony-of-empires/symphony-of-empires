@@ -431,13 +431,15 @@ void World::load_initial(void) {
     const size_t total_size = width * height;
     sea_level = 126;
     tiles = new Tile[total_size];
-    if(tiles == nullptr)
+    if(tiles == nullptr) {
         throw std::runtime_error("Out of memory");
+    }
 
-    if(div->width != width || div->height != height)
+    if(div->width != width || div->height != height) {
         throw std::runtime_error("Province map size mismatch");
-    
-    if(0) {
+    }
+
+    if(1) {
         for(auto& province : provinces) {
             province->n_tiles = 0;
         }
@@ -491,81 +493,134 @@ void World::load_initial(void) {
         }
     }
 
-    // Uncomment this and see a bit more below
-    std::set<uint32_t> colors_found;
-    UnifiedRender::Log::debug("game", gettext("Associate tiles with provinces"));
-    for(size_t i = 0; i < total_size; ) {
-        const Province::Id province_id = province_color_table[div->buffer.get()[i] & 0xffffff];
-        if(province_id == (Province::Id)-1) {
-            // Uncomment this and see below
-            colors_found.insert(div->buffer.get()[i]);
-            i++;
-            continue;
-        }
-
-        const uint32_t rel_color = provinces[province_id]->color;
-        while(div->buffer.get()[i] == rel_color) {
-            tiles[i].province_id = province_id;
-            provinces[province_id]->n_tiles++;
-            i++;
-        }
+    uint32_t checksum = 1;
+    for(auto& province : provinces) {
+        checksum += province->ref_name.at(0);
     }
-    div.reset(nullptr);
+    checksum *= width * height * provinces.size();
 
-    /* Uncomment this for auto-generating lua code for unregistered provinces */
-    FILE* fp = fopen("unknown.lua", "w+t");
-    if(fp) {
-        for(const auto& color_raw : colors_found) {
-            uint32_t color = color_raw << 8;
-            fprintf(fp, "province = Province:new{ ref_name = \"province_%06p\", color = 0x%06p }\n", (uintptr_t)bswap32(color), (uintptr_t)bswap32(color));
-            fprintf(fp, "province.name = _(\"Province_%06p\")\n", (uintptr_t)bswap32(color));
-            fprintf(fp, "province:register()\n");
+    bool recalc_province = true;
+    try {
+        Archive ar = Archive();
+        ar.from_file("province_cache.dat");
+
+        // If the cache has the same checksum as us then we just have to read from the file
+        uint32_t cache_checksum;
+        ::deserialize(ar, &cache_checksum);
+        if(checksum == cache_checksum) {
+            recalc_province = false;
+            for(auto& province : provinces) {
+                ::deserialize(ar, &province->n_tiles);
+                ::deserialize(ar, &province->neighbours);
+                ::deserialize(ar, &province->max_x);
+                ::deserialize(ar, &province->max_y);
+                ::deserialize(ar, &province->min_x);
+                ::deserialize(ar, &province->min_y);
+                ::deserialize(ar, &province->stockpile);
+            }
+
+            for(size_t i = 0; i < width * height; i++) {
+                ::deserialize(ar, &tiles[i]);
+            }
         }
-        fclose(fp);
+    } catch(const std::exception& e) {
+        UnifiedRender::Log::error("cache", e.what());
     }
 
-    // Calculate the edges of the province (min and max x and y coordinates)
-    UnifiedRender::Log::debug("game", gettext("Calculate the edges of the province (min and max x and y coordinates)"));
-    for(size_t j = 0; j < height; j++) {
-        for(size_t i = 0; i < width; i++) {
-            Tile& tile = get_tile(i, j);
-            if(tile.province_id >= provinces.size()) {
-                tile.province_id = (Province::Id)-1;
+    if(recalc_province) {
+        // Uncomment this and see a bit more below
+        std::set<uint32_t> colors_found;
+        UnifiedRender::Log::debug("game", gettext("Associate tiles with provinces"));
+        for(size_t i = 0; i < total_size; ) {
+            const Province::Id province_id = province_color_table[div->buffer.get()[i] & 0xffffff];
+            if(province_id == (Province::Id)-1) {
+                // Uncomment this and see below
+                colors_found.insert(div->buffer.get()[i]);
+                i++;
                 continue;
             }
 
-            auto& province = *provinces[tile.province_id];
-            province.max_x = std::max(province.max_x, i);
-            province.max_y = std::max(province.max_y, j);
-            province.min_x = std::min(province.min_x, i);
-            province.min_y = std::min(province.min_y, j);
+            const uint32_t rel_color = provinces[province_id]->color;
+            while(div->buffer.get()[i] == rel_color) {
+                tiles[i].province_id = province_id;
+                provinces[province_id]->n_tiles++;
+                i++;
+            }
         }
-    }
+        div.reset(nullptr);
 
-    // Correct stuff from provinces
-    UnifiedRender::Log::debug("game", gettext("Correcting values for provinces"));
-    for(auto& province : provinces) {
-        province->max_x = std::min(width, province->max_x);
-        province->max_y = std::min(height, province->max_y);
+        /* Uncomment this for auto-generating lua code for unregistered provinces */
+        FILE* fp = fopen("unknown.lua", "w+t");
+        if(fp) {
+            for(const auto& color_raw : colors_found) {
+                uint32_t color = color_raw << 8;
+                fprintf(fp, "province = Province:new{ ref_name = \"province_%06p\", color = 0x%06p }\n", (uintptr_t)bswap32(color), (uintptr_t)bswap32(color));
+                fprintf(fp, "province.name = _(\"Province_%06p\")\n", (uintptr_t)bswap32(color));
+                fprintf(fp, "province:register()\n");
+            }
+            fclose(fp);
+        }
 
-        // Create default stockpile of 0
-        province->stockpile.resize(goods.size(), 0);
-    }
+        // Calculate the edges of the province (min and max x and y coordinates)
+        UnifiedRender::Log::debug("game", gettext("Calculate the edges of the province (min and max x and y coordinates)"));
+        for(size_t j = 0; j < height; j++) {
+            for(size_t i = 0; i < width; i++) {
+                Tile& tile = get_tile(i, j);
+                if(tile.province_id >= provinces.size()) {
+                    tile.province_id = (Province::Id)-1;
+                    continue;
+                }
 
-    // Neighbours
-    UnifiedRender::Log::debug("game", gettext("Creating neighbours for provinces"));
-    for(size_t i = 0; i < total_size; i++) {
-        const Tile* tile = &this->tiles[i];
+                auto& province = *provinces[tile.province_id];
+                province.max_x = std::max(province.max_x, i);
+                province.max_y = std::max(province.max_y, j);
+                province.min_x = std::min(province.min_x, i);
+                province.min_y = std::min(province.min_y, j);
+            }
+        }
 
-        if(tile->province_id < (Province::Id)-3) {
-            Province* province = this->provinces[this->tiles[i].province_id];
-            const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
-            for(const auto& other_tile : tiles) {
-                if(other_tile->province_id != tile->province_id && other_tile->province_id < (Province::Id)-3) {
-                    province->neighbours.insert(this->provinces.at(other_tile->province_id));
+        // Correct stuff from provinces
+        UnifiedRender::Log::debug("game", gettext("Correcting values for provinces"));
+        for(auto& province : provinces) {
+            province->max_x = std::min(width, province->max_x);
+            province->max_y = std::min(height, province->max_y);
+
+            // Create default stockpile of 0
+            province->stockpile.resize(goods.size(), 0);
+        }
+
+        // Neighbours
+        UnifiedRender::Log::debug("game", gettext("Creating neighbours for provinces"));
+        for(size_t i = 0; i < total_size; i++) {
+            const Tile* tile = &this->tiles[i];
+
+            if(tile->province_id < (Province::Id)-3) {
+                Province* province = this->provinces[this->tiles[i].province_id];
+                const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
+                for(const auto& other_tile : tiles) {
+                    if(other_tile->province_id != tile->province_id && other_tile->province_id < (Province::Id)-3) {
+                        province->neighbours.insert(this->provinces.at(other_tile->province_id));
+                    }
                 }
             }
         }
+
+        Archive ar = Archive();
+        ::serialize(ar, &checksum);
+        for(const auto& province : provinces) {
+            ::serialize(ar, &province->n_tiles);
+            ::serialize(ar, &province->neighbours);
+            ::serialize(ar, &province->max_x);
+            ::serialize(ar, &province->max_y);
+            ::serialize(ar, &province->min_x);
+            ::serialize(ar, &province->min_y);
+            ::serialize(ar, &province->stockpile);
+        }
+
+        for(size_t i = 0; i < width * height; i++) {
+            ::serialize(ar, &tiles[i]);
+        }
+        ar.to_file("province_cache.dat");
     }
 
     // Create diplomatic relations between nations
