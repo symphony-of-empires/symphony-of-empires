@@ -313,28 +313,28 @@ nogai_horde = Nation:new{ ref_name = "nogai_horde" }
 nogai_horde.name = _("Nogai Horde")
 nogai_horde.adjective = _("Nogai")
 nogai_horde:register()
-nogai_horde:add_accepted_culture(nogai)
+nogai_horde:add_accepted_culture(Culture:get("nogai"))
 nogai_horde:add_client_hint(monarchy, _("Nogai Horde"), 0x808000)
 
 uzbekistan = Nation:new{ ref_name = "uzbekistan" }
 uzbekistan.name = _("Uzbekistan")
 uzbekistan.adjective = _("Uzbek")
 uzbekistan:register()
-uzbekistan:add_accepted_culture(uzbek)
+uzbekistan:add_accepted_culture(Culture:get("uzbek"))
 uzbekistan:add_client_hint(monarchy, _("Uzbekistan"), 0x808000)
 
 kazakhistan = Nation:new{ ref_name = "kazakhistan" }
 kazakhistan.name = _("Kazakhistan")
 kazakhistan.adjective = _("Kazakh")
 kazakhistan:register()
-kazakhistan:add_accepted_culture(kazakh)
+kazakhistan:add_accepted_culture(Culture:get("kazakh"))
 kazakhistan:add_client_hint(monarchy, _("Kazakhistan"), 0x2276b3)
 
 kyrgyztan = Nation:new{ ref_name = "kyrgyztan" }
 kyrgyztan.name = _("Kyrgyztan")
 kyrgyztan.adjective = _("Kyrgyz")
 kyrgyztan:register()
-kyrgyztan:add_accepted_culture(kyrgyz)
+kyrgyztan:add_accepted_culture(Culture:get("kyrgyz"))
 kyrgyztan:add_client_hint(monarchy, _("Kyrgyztan"), 0xc44f45)
 kyrgyztan:add_client_hint(socialism, _("Kyrgyztan"), 0xc44f45)
 
@@ -343,7 +343,7 @@ afghanistan.name = _("Afghanistan")
 afghanistan.adjective = _("Afghan")
 afghanistan.noun = _("Afghani")
 afghanistan:register()
-afghanistan:add_accepted_culture(afghan)
+afghanistan:add_accepted_culture(Culture:get("afghan"))
 afghanistan:add_client_hint(monarchy, _("Afghanistan"), 0x3b6b48)
 -----------------------------------------------------------------------
 
