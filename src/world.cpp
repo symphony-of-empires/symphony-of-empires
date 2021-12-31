@@ -379,6 +379,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files) 
 #else
             std::string m_path = path;
 #endif
+            files_buf += "print(\"" + m_path + "\")";
             files_buf += "f = loadfile(\"" + m_path + "\")\n";
             files_buf += "f()\n";
         }
