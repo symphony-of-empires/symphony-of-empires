@@ -1,3 +1,5 @@
+Credits for Pattrck - made ui icons and graphical interface style in photoshop
+
 water_tex:
 	http://www.cadhatch.com/terms-of-use/4588167704
 

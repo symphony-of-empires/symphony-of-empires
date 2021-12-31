@@ -12,10 +12,10 @@ class Province;
 
 namespace Diplomacy {
     // Determines if the other nation is a friendly potential ally
-    inline bool is_friend(Nation* us, Nation* them);
+    inline bool is_friend(Nation& us, Nation& them);
 
     // Determines if the other nation is an enemy and potential rival
-    inline bool is_foe(Nation* us, Nation* them);
+    inline bool is_foe(Nation& us, Nation& them);
 };
 
 enum class TreatyClauseType {
@@ -46,9 +46,9 @@ namespace TreatyClause {
         bool done = false;
 
         BaseClause() = default;
-        BaseClause(Nation* _sender, Nation* _receiver) {
-            sender = _sender;
-            receiver = _receiver;
+        BaseClause(Nation& _sender, Nation& _receiver) {
+            sender = &_sender;
+            receiver = &_receiver;
         };
         virtual ~BaseClause() {};
 
@@ -68,9 +68,7 @@ namespace TreatyClause {
         };
     };
 
-    /**
-    * Makes loser to pay war reparations to the winner
-     */
+    // Makes loser to pay war reparations to the winner
     class WarReparations: public BaseClause {
     public:
         WarReparations(): BaseClause() {
@@ -83,9 +81,7 @@ namespace TreatyClause {
         float amount = 0.f;
     };
 
-    /**
-    * Reduces prestige of loser and increments prestige from winner
-     */
+    // Reduces prestige of loser and increments prestige from winner
     class Humiliate: public BaseClause {
     public:
         Humiliate(): BaseClause() {
@@ -98,9 +94,7 @@ namespace TreatyClause {
         float amount = 0.f;
     };
 
-    /**
-    * Liberates a nation from another
-     */
+    // Liberates a nation from another
     class LiberateNation: public BaseClause {
     public:
         LiberateNation(): BaseClause() {
@@ -114,9 +108,7 @@ namespace TreatyClause {
         std::vector<Province*> provinces;
     };
 
-    /**
-    * Imposes a policy to be put in action on a nation
-     */
+    // Imposes a policy to be put in action on a nation
     class ImposePolicies: public BaseClause {
     public:
         ImposePolicies(): BaseClause() {
@@ -129,9 +121,7 @@ namespace TreatyClause {
         Policies imposed;
     };
 
-    /**
-    * Anexxes territory from the loser
-     */
+    // Anexxes territory from the loser
     class AnexxProvince: public BaseClause {
     public:
         AnexxProvince(): BaseClause() {
@@ -144,9 +134,7 @@ namespace TreatyClause {
         std::vector<Province*> provinces;
     };
 
-    /**
-    * Calls for a ceasefire
-     */
+    // Calls for a ceasefire
     class Ceasefire: public BaseClause {
     public:
         Ceasefire(): BaseClause() {
@@ -167,7 +155,7 @@ enum class TreatyApproval {
 
 class Treaty : public IdEntity<uint16_t> {
 public:
-    bool does_participate(Nation* nation);
+    bool does_participate(Nation& nation);
 	bool in_effect(void) const;
 
     std::string name;

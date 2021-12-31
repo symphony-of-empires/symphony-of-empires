@@ -153,6 +153,11 @@ afghan.name = _("Afghan")
 afghan.combo_form = _("Afghano")
 afghan:register()
 
+-- East asian
+korean = Culture:new{ ref_name = "korean" }
+korean.name = _("Korean")
+korean:register()
+
 -- American
 american = Culture:new{ ref_name = "american", color = 0x6ea5cc }
 american.name = _("American")

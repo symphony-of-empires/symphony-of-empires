@@ -24,20 +24,89 @@ ENDIF()
 
 include_directories("${PROJECT_SOURCE_DIR}")
 
-file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/*.cpp")
-file(GLOB CLIENT_SOURCES "${PROJECT_SOURCE_DIR}/client/*.cpp")
+#
+# Unified Render engine
+#
 file(GLOB RENDER_SOURCES "${PROJECT_SOURCE_DIR}/unified_render/*.cpp")
-file(GLOB INTERFACE_SOURCES "${PROJECT_SOURCE_DIR}/client/interface/*.cpp")
-file(GLOB UI_SOURCES "${PROJECT_SOURCE_DIR}/client/ui/*.cpp")
-file(GLOB SERVER_SOURCES "${PROJECT_SOURCE_DIR}/server/*.cpp")
-file(GLOB SERVER_AI_SOURCES "${PROJECT_SOURCE_DIR}/server/ai/*.cpp")
-add_executable(SymphonyOfEmpires ${MAIN_SOURCES} ${CLIENT_SOURCES} ${RENDER_SOURCES} ${UI_SOURCES} ${INTERFACE_SOURCES} ${SERVER_SOURCES} ${SERVER_AI_SOURCES})
+add_library(UnifiedRender SHARED
+	${RENDER_SOURCES}
+)
 IF(WIN32)
-	target_link_libraries(SymphonyOfEmpires PUBLIC glew32 opengl32 glu32 ws2_32 winpthread intl wsock32 assimp)
+	target_link_libraries(UnifiedRender PUBLIC glew32 opengl32 glu32 ws2_32 winpthread intl wsock32)
 ELSE()
-	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLU GLEW SDL2main assimp)
+	target_link_libraries(UnifiedRender PUBLIC GL GLU GLEW SDL2main)
 ENDIF()
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 SDL2_ttf m z tbb stdc++)
+target_link_libraries(UnifiedRender PUBLIC SDL2 SDL2_ttf m z tbb stdc++)
+
+#
+# Symphony of Empires game
+#
+# C++ source files
+file(GLOB MAIN_SOURCES
+	"${PROJECT_SOURCE_DIR}/*.cpp"
+	"${PROJECT_SOURCE_DIR}/client/*.cpp"
+	"${PROJECT_SOURCE_DIR}/client/interface/*.cpp"
+	"${PROJECT_SOURCE_DIR}/client/ui/*.cpp"
+	"${PROJECT_SOURCE_DIR}/server/*.cpp"
+	"${PROJECT_SOURCE_DIR}/server/ai/*.cpp"
+)
+add_executable(SymphonyOfEmpires
+	${MAIN_SOURCES}
+)
+# Standard C++ library headers
+target_precompile_headers(SymphonyOfEmpires PRIVATE
+	<cstdint>
+	<cstddef>
+	<cstring>
+	<cstdlib>
+	<cstdio>
+	<climits>
+	<ctime>
+	<sstream>
+	<fstream>
+	<string>
+	<vector>
+	<set>
+	<deque>
+	<atomic>
+	<thread>
+	<mutex>
+	<utility>
+	<numeric>
+	<functional>
+	<type_traits>
+	<algorithm>
+	<memory>
+	<iostream>
+	<unordered_map>
+)
+# OpenGL header files
+target_precompile_headers(SymphonyOfEmpires PRIVATE
+	<GL/glew.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<GL/glext.h>
+)
+# glm header files
+target_precompile_headers(SymphonyOfEmpires PRIVATE
+	<glm/glm.hpp>
+	<glm/mat4x4.hpp>
+	<glm/common.hpp>
+	<glm/vec2.hpp>
+	<glm/vec3.hpp>
+	<glm/gtx/intersect.hpp>
+	<glm/gtc/type_ptr.hpp>
+	<glm/gtc/matrix_transform.hpp>
+)
+
+IF(WIN32)
+	target_link_libraries(SymphonyOfEmpires PUBLIC opengl32 glu32 winpthread intl)
+ELSE()
+	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLU SDL2main)
+ENDIF()
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 m z tbb stdc++)
+
+target_link_libraries(SymphonyOfEmpires PUBLIC UnifiedRender)
 
 IF(NOT MINGW AND NOT MSYS)
 	IF(lua54)

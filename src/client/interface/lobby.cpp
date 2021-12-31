@@ -18,10 +18,13 @@ LobbySelectView::LobbySelectView(GameState& _gs)
     : gs{ _gs },
     curr_selected_nation{0}
 {
-    select_country_lab = new UI::Label((gs.width / 2) - (320 / 2), 8, "Select a country");
+    select_country_lab = new UI::Button(- (320 / 2), 8, 320, 24);
+    select_country_lab->origin = UI::Origin::UPPER_MIDDLE_SCREEN;
+    select_country_lab->text("Select a country");
 
-    curr_country_btn = new UI::Button((gs.width / 2) - (320 / 2), gs.height - 48, 320, 24);
-    curr_country_btn->text("!");
+    curr_country_btn = new UI::Button(- (320 / 2), - 48, 320, 24);
+    curr_country_btn->origin = UI::Origin::LOWER_MIDDLE_SCREEN;
+    curr_country_btn->text("No selected");
     curr_country_btn->user_data = this;
     curr_country_btn->on_click = ([](UI::Widget& w, void* data) {
         LobbySelectView* o = (LobbySelectView*)data;
@@ -39,7 +42,8 @@ LobbySelectView::LobbySelectView(GameState& _gs)
         }
     });
 
-    next_country_btn = new UI::Button(0, gs.height - 48, 128, 24);
+    next_country_btn = new UI::Button(0, - 48, 128, 24);
+    next_country_btn->origin = UI::Origin::LOWER_MIDDLE_SCREEN;
     next_country_btn->text("Next");
     next_country_btn->right_side_of(*curr_country_btn);
     next_country_btn->user_data = this;
@@ -48,7 +52,8 @@ LobbySelectView::LobbySelectView(GameState& _gs)
         o->change_nation(o->curr_selected_nation + 1);
     });
 
-    prev_country_btn = new UI::Button(0, gs.height - 48, 128, 24);
+    prev_country_btn = new UI::Button(0, - 48, 128, 24);
+    prev_country_btn->origin = UI::Origin::LOWER_MIDDLE_SCREEN;
     prev_country_btn->text("Prev");
     prev_country_btn->left_side_of(*curr_country_btn);
     prev_country_btn->user_data = this;

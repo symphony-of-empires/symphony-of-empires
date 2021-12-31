@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdexcept>
 #include <set>
 
 // Generic manager for any resource type, the manager will call "load" if an element

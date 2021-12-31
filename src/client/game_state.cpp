@@ -1,6 +1,21 @@
 #include "client/game_state.hpp"
 
+#ifdef _MSC_VER
+// Required before GL/gl.h
+#   ifndef _WINDOWS_
+#   define WIN32_LEAN_AND_MEAN 1
+#       include <windows.h>
+#       undef WIN32_LEAN_AND_MEAN
+#   endif
+#endif
+
 #include <GL/glew.h>
+// MSVC does not know about glext, mingw does so we just use this ifdef
+#ifndef _MSC_VER
+#   include <GL/glext.h>
+#endif
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 #include <cstdint>
 #include <cstdio>
@@ -27,21 +42,6 @@
 #   include <SDL2/SDL_audio.h>
 //#include <sys/wait.h>
 #endif
-#ifdef _MSC_VER
-// Required before GL/gl.h
-#   ifndef _WINDOWS_
-#   define WIN32_LEAN_AND_MEAN 1
-#       include <windows.h>
-#       undef WIN32_LEAN_AND_MEAN
-#   endif
-#endif
-
-// MSVC does not know about glext, mingw does so we just use this ifdef
-#ifndef _MSC_VER
-#   include <GL/glext.h>
-#endif
-#include <GL/gl.h>
-#include <GL/glu.h>
 
 #include "good.hpp"
 #include "io_impl.hpp"
@@ -83,7 +83,7 @@ void GameState::play_nation() {
 
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
-    minimap = new Interface::Minimap(*this, 0, -256, UI::Origin::LOWER_LEFT_SCREEN);
+    minimap = new Interface::Minimap(*this, -400, -200, UI::Origin::LOWER_RIGHT_SCREEN);
     g_client->send(Action::SelectNation::form_packet(curr_nation));
     print_info("Selected nation [%s]", curr_nation->ref_name.c_str());
 }
@@ -201,7 +201,7 @@ void handle_event(Input& input, GameState& gs) {
 void GameState::send_command(Archive& archive) {
     std::scoped_lock lock(client->pending_packets_mutex);
 
-    Packet packet = Packet(g_client->get_fd());
+    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet(g_client->get_fd());
     packet.data(archive.get_buffer(), archive.size());
     client->pending_packets.push_back(packet);
 }
@@ -258,7 +258,9 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
     for(auto& msg : gs.curr_nation->inbox) {
         // Check that the event is not already displayed to the user
         auto iter = std::find_if(displayed_events.begin(), displayed_events.end(), [&msg](const auto& e) { return e->ref_name == msg->ref_name; });
-        if(iter != displayed_events.end()) continue;
+        if(iter != displayed_events.end()) {
+            continue;
+        }
 
         new Interface::DescisionWindow(gs, *msg);
         displayed_events.push_back(msg);
@@ -267,10 +269,14 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
     for(auto& treaty : gs.world->treaties) {
         // Check that the treaty is not already displayed
         auto iter = std::find_if(displayed_treaties.begin(), displayed_treaties.end(), [&treaty](const auto& e) { return e == treaty; });
-        if(iter != displayed_treaties.end()) continue;
+        if(iter != displayed_treaties.end()) {
+            continue;
+        }
 
         // Do not mess with treaties we don't partake in, hehe
-        if(!treaty->does_participate(gs.curr_nation)) continue;
+        if(!treaty->does_participate(*gs.curr_nation)) {
+            continue;
+        }
 
         // Must participate in treaty
         new Interface::TreatyChooseWindow(gs, treaty);
@@ -290,7 +296,9 @@ void GameState::update_on_tick(void) {
 void GameState::world_thread(void) {
     while(run) {
         while(paused) {
-            if(!run) return;
+            if(!run) {
+                return;
+            }
         }
         world->do_tick();
         update_tick = true;
@@ -366,17 +374,24 @@ void main_loop(GameState& gs) {
                     bool is_built = false;
                     for(const auto& building : gs.world->buildings) {
                         // Must be our building
-                        if(building->get_owner() != gs.curr_nation) continue;
+                        if(building->get_owner() != gs.curr_nation) {
+                            continue;
+                        }
 
                         // Must not be working on something else
-                        if(building->working_unit_type != nullptr) continue;
+                        if(building->working_unit_type != nullptr) {
+                            continue;
+                        }
 
                         is_built = true;
 
                         g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
                         break;
                     }
-                    if(!is_built) continue;
+                    
+                    if(!is_built) {
+                        continue;
+                    }
 
                     gs.production_queue.erase(gs.production_queue.begin() + i);
                     i--;
@@ -398,7 +413,7 @@ void main_loop(GameState& gs) {
     world_th.join();
 }
 
-void start_client(int argc, char** argv) {
+void start_client(int, char**) {
     // globals
     GameState gs{};
     

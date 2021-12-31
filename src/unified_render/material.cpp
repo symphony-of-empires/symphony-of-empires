@@ -8,6 +8,20 @@
 #include "unified_render/texture.hpp"
 #include "unified_render/state.hpp"
 
+//
+// Material
+//
+UnifiedRender::Material::Material(void) {
+
+}
+
+UnifiedRender::Material::~Material(void) {
+    
+}
+
+//
+// Material manager
+//
 std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::MaterialManager::load_wavefront(const std::string& path) {
     std::ifstream file(path);
     std::string line;
@@ -19,16 +33,21 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
     while(std::getline(file, line)) {
         // Skip whitespace
         size_t len = line.find_first_not_of(" \t");
-        if(len != std::string::npos)
+        if(len != std::string::npos) {
             line = line.substr(len, line.length() - len);
+        }
 
         // Comment
-        if(line[0] == '#' || line.empty()) continue;
+        if(line[0] == '#' || line.empty()) {
+            continue;
+        }
         
         std::istringstream sline(line);
         std::string cmd;
         sline >> cmd;
-        if(cmd != "newmtl" && curr_mat == nullptr) continue;
+        if(cmd != "newmtl" && curr_mat == nullptr) {
+            continue;
+        }
 
         if(cmd == "newmtl") {
             std::string name;
@@ -55,30 +74,35 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
             std::string map_path;
             sline >> map_path;
 
-            if(map_path[0] == '.') continue;
+            if(map_path[0] == '.') {
+                continue;
+            }
             curr_mat->diffuse_map = &UnifiedRender::State::get_instance().tex_man->load(Path::get("3d/" + map_path));
         } else {
             print_info("Command %s not implemented", cmd.c_str());
         }
     }
 
-    for(const auto& mat: tmp_mat) {
-        materials.insert(mat);
+    std::vector<std::pair<UnifiedRender::Material *, std::string>>::const_iterator mat;
+    for(mat = tmp_mat.begin(); mat != tmp_mat.end(); mat++) {
+        materials.insert((*mat));
     }
     return tmp_mat;
 }
 
-const UnifiedRender::Material& UnifiedRender::MaterialManager::load_material(const std::string& path) {
-find:
-    auto it = std::find_if(materials.begin(), materials.end(), [&path](const auto& element) {
+const UnifiedRender::Material& UnifiedRender::MaterialManager::load(const std::string& path) {
+    std::set<std::pair<UnifiedRender::Material *, std::string>>::iterator it;
+    it = std::find_if(materials.begin(), materials.end(), [&path](const std::pair<UnifiedRender::Material *, std::string>& element) {
         return (element.second == path);
     });
-    if(it != materials.end())
+    
+    if(it != materials.end()) {
         return *((*it).first);
+    }
     
     // Create a new material
-    auto* mat = new UnifiedRender::Material();
+    UnifiedRender::Material* mat = new UnifiedRender::Material();
     mat->ambient_map = &UnifiedRender::State::get_instance().tex_man->load(Path::get("3d/whitehouse.png"));
     materials.insert(std::make_pair(mat, path));
-    goto find;
+    return *mat;
 }

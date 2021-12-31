@@ -1,12 +1,10 @@
-#version 330 compatibility
-
 out vec4 f_frag_color;
 
 in vec2 v_texcoord;
 
-uniform vec2 map_size;
-uniform sampler2D tile_map;
-uniform sampler2D terrain_map;
+provided vec2 map_size;
+provided sampler2D tile_map;
+provided sampler2D terrain_map;
 
 float is_not_lake(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);

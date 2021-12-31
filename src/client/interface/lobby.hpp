@@ -6,7 +6,6 @@
 
 class GameState;
 namespace UI {
-    class Label;
     class Button;
 }
 namespace Interface {
@@ -25,7 +24,7 @@ namespace Interface {
     class LobbySelectView {
         GameState& gs;
         UI::Button* curr_country_btn;
-        UI::Label* select_country_lab;
+        UI::Button* select_country_lab;
         UI::Button* next_country_btn;
         UI::Button* prev_country_btn;
 

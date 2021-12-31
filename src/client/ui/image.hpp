@@ -17,6 +17,7 @@ namespace UI {
     class Image: public Widget {
     public:
         Image(int x, int y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* parent = nullptr);
+        Image(int x, int y, unsigned w, unsigned h, const std::string& tex_path, Widget* parent = nullptr);
         virtual ~Image() override {};
     };
 };

@@ -236,7 +236,7 @@ void Economy::do_tick(World& world) {
                 building->working_unit_type = nullptr;
                 world.insert(unit);
 
-                Packet packet = Packet();
+                UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
                 Archive ar = Archive();
                 ActionType action = ActionType::UNIT_ADD;
                 ::serialize(ar, &action); // ActionInt
@@ -251,7 +251,7 @@ void Economy::do_tick(World& world) {
         if(building->type->is_factory) {
             if(building->budget < 0.f) {
                 {
-                    Packet packet = Packet();
+                    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
                     Archive ar = Archive();
                     ActionType action = ActionType::BUILDING_REMOVE;
                     ::serialize(ar, &action);
@@ -288,7 +288,7 @@ void Economy::do_tick(World& world) {
 
             world.orders_mutex.lock();
             for(const auto& input : building->type->inputs) {
-                OrderGoods order ={};
+                OrderGoods order = {};
 
                 order.payment = building->willing_payment;
                 order.good = input;
@@ -299,18 +299,23 @@ void Economy::do_tick(World& world) {
                 // Farmers can only work with edibles and laborers can only work for edibles
                 if(input->is_edible) {
                     order.quantity = (available_farmers / needed_farmers) * 5000;
-                }
-                else {
+                } else {
                     order.quantity = (available_laborers / needed_laborers) * 5000;
                 }
-                if(!order.quantity) continue;
+                
+                if(!order.quantity) {
+                    continue;
+                }
                 order.quantity *= building->get_owner()->get_industry_input_mod();
 
                 world.orders.push_back(order);
 
                 // Increase demand for all products with same good type as ordered (incentivizing companies to create more of this)
                 for(auto& product : world.products) {
-                    if(product->good != order.good) continue;
+                    if(product->good != order.good) {
+                        continue;
+                    }
+
                     product->demand += std::min(100.f, order.quantity / 1000.f);
                 }
             }
@@ -322,7 +327,7 @@ void Economy::do_tick(World& world) {
             // Place deliver orders (we are a RGO)
             world.delivers_mutex.lock();
             for(size_t k = 0; k < building->type->outputs.size(); k++) {
-                DeliverGoods deliver ={};
+                DeliverGoods deliver = {};
 
                 deliver.payment = building->willing_payment;
                 deliver.good = building->type->outputs[k];
@@ -332,11 +337,14 @@ void Economy::do_tick(World& world) {
 
                 if(deliver.good->is_edible) {
                     deliver.quantity = (available_farmers / needed_farmers) * 5000;
-                }
-                else {
+                } else {
                     deliver.quantity = (available_laborers / needed_laborers) * 5000;
                 }
-                if(!deliver.quantity) continue;
+
+                if(!deliver.quantity) {
+                    continue;
+                }
+
                 deliver.quantity *= building->get_owner()->get_industry_output_mod();
 
                 // Cannot be below production cost, so we can be profitable and we need
@@ -355,9 +363,11 @@ void Economy::do_tick(World& world) {
 
         // Building the building itself
         for(const auto& good : building->req_goods) {
-            if(!good.second) continue;
+            if(!good.second) {
+                continue;
+            }
 
-            OrderGoods order ={};
+            OrderGoods order = {};
             order.quantity = good.second;
             order.quantity *= building->get_owner()->get_industry_input_mod();
             // TODO: Make this dynamic
@@ -372,9 +382,11 @@ void Economy::do_tick(World& world) {
         // TODO: We should deduct and set willing payment from military spendings
         // Building an unit
         for(const auto& good : building->req_goods_for_unit) {
-            if(!good.second) continue;
+            if(!good.second) {
+                continue;
+            }
 
-            OrderGoods order ={};
+            OrderGoods order = {};
             order.quantity = good.second;
             order.quantity *= building->get_owner()->get_industry_input_mod();
             // TODO: Make this dynamic
@@ -389,7 +401,7 @@ void Economy::do_tick(World& world) {
 
     {
         // Take opportunity to also send an update about our buildings
-        Packet packet = Packet();
+        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
         Archive ar = Archive();
         ActionType action = ActionType::BUILDING_UPDATE;
         ::serialize(ar, &action); // ActionInt
@@ -414,7 +426,9 @@ void Economy::do_tick(World& world) {
     orders_good.shrink_to_fit();
     for(const auto& order : world.orders) {
         // TODO: This should NOT happen!!!
-        if(order.good == nullptr) continue;
+        if(order.good == nullptr) {
+            continue;
+        }
         orders_good[world.get_id(order.good)].push_back(order);
     }
 
@@ -439,7 +453,9 @@ void Economy::do_tick(World& world) {
             // If foreign trade is not allowed, then order controller === sender controller
             if(!deliver_policy.foreign_trade || !order_policy.foreign_trade) {
                 // Trade not allowed
-                if(order.province->controller != deliver.province->controller) continue;
+                if(order.province->controller != deliver.province->controller) {
+                    continue;
+                }
             }
 
             const float order_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
@@ -450,8 +466,7 @@ void Economy::do_tick(World& world) {
                 // International trade
                 total_order_cost = order_cost * order_policy.import_tax;
                 total_deliver_cost = deliver_cost * order_policy.export_tax;
-            }
-            else {
+            } else {
                 // Domestic trade
                 total_order_cost = order_cost * order_policy.domestic_import_tax;
                 total_deliver_cost = deliver_cost * order_policy.domestic_export_tax;
@@ -464,8 +479,7 @@ void Economy::do_tick(World& world) {
                     order.building->willing_payment = total_order_cost;
                 }
                 continue;
-            }
-            else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
+            } else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
                 deliver.building->willing_payment = total_deliver_cost;
                 continue;
             }
@@ -484,34 +498,38 @@ void Economy::do_tick(World& world) {
             size_t count = std::min<size_t>(order.quantity, deliver.quantity);
             if(order.type == OrderType::INDUSTRIAL) {
                 // Duplicate products and put them into the province's stock (a commerce buff)
-                order.building->add_to_stock(order.good, count);
+                order.building->add_to_stock(*order.good, count);
 
                 // Increment the production cost of this building which is used
                 // so we sell our product at a profit instead  of at a loss
                 order.building->production_cost += deliver.product->price;
-            }
-            else if(order.type == OrderType::BUILDING) {
+            } else if(order.type == OrderType::BUILDING) {
                 // The building will take the production materials
                 // and use them for building the unit
                 order.building->get_owner()->budget -= total_order_cost;
                 for(auto& p : order.building->req_goods) {
-                    if(p.first != deliver.good) continue;
+                    if(p.first != deliver.good) {
+                        continue;
+                    }
+
                     p.second -= std::min(p.second, count);
                 }
-            }
-            else if(order.type == OrderType::UNIT) {
+            } else if(order.type == OrderType::UNIT) {
                 // TODO: We should deduct and set willing payment from military spendings
                 order.building->get_owner()->budget -= total_order_cost;
                 for(auto& p : order.building->req_goods) {
-                    if(p.first != deliver.good) continue;
+                    if(p.first != deliver.good) {
+                        continue;
+                    }
+
                     p.second -= std::min(p.second, count);
+                    print_info("Delivered %zu goods (%zu remaining!), of type %s", count, p.second, order.good->ref_name.c_str());
                 }
-            }
-            else if(order.type == OrderType::POP) {
+            } else if(order.type == OrderType::POP) {
                 // Nobody is to be billed ... transport company still obtains their money & delivers to the province
                 //order.province->stockpile[world.get_id(deliver.product)] += order.quantity;
-                print_info("POP requested stuff");
             }
+
             // Add to stockpile (duplicate items) to the province at each transporting
             deliver.quantity -= count;
             order.quantity -= count;
@@ -556,8 +574,13 @@ void Economy::do_tick(World& world) {
     // TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
 
     std::for_each(world.provinces.begin(), world.provinces.end(), [&world](auto& province) {
-        if(province->controller == nullptr) return;
-        if(province->terrain_type->is_water_body) return;
+        if(province->controller == nullptr) {
+            return;
+        }
+
+        if(province->terrain_type->is_water_body) {
+            return;
+        }
 
         //std::vector<Product*> province_products = province->get_products();
 
@@ -592,16 +615,19 @@ void Economy::do_tick(World& world) {
                 unsigned int bought;
                 if(good->is_edible) {
                     bought = std::rand() % pop.size;
-                }
-                else {
+                } else {
                     bought = std::rand() % pop.size;
                     // Slaves cannot buy commodities
-                    if(pop.type->group == PopGroup::Slave) continue;
+                    if(pop.type->group == PopGroup::Slave) {
+                        continue;
+                    }
                 }
 
                 // Only buy the available stuff
                 bought = std::min<unsigned int>(bought, province->stockpile[world.get_id(good)]);
-                if(!bought) continue;
+                if(!bought) {
+                    continue;
+                }
 
                 // Delete items from stockpile
                 province->stockpile[world.get_id(good)] -= std::min<unsigned int>(province->stockpile[world.get_id(good)], bought);
@@ -611,8 +637,7 @@ void Economy::do_tick(World& world) {
 
                 if(good->is_edible) {
                     pop.life_needs_met += (float)pop.size / (float)bought;
-                }
-                else {
+                } else {
                     pop.everyday_needs_met += (float)pop.size / (float)bought;
                 }
             }
@@ -634,8 +659,7 @@ void Economy::do_tick(World& world) {
             if(pop.life_needs_met >= -2.5f) {
                 // Starvation in -1 or 0 or >1 are amortized by literacy
                 growth = pop.life_needs_met / pop.literacy;
-            }
-            else {
+            } else {
                 // Neither literacy nor anything else can save humans from
                 // dying due starvation
                 growth = -((int)(std::rand() % pop.size));
@@ -647,8 +671,7 @@ void Economy::do_tick(World& world) {
 
             if(growth < 0) {
                 growth *= province->controller->get_death_mod();
-            }
-            else {
+            } else {
                 growth *= province->controller->get_reproduction_mod();
             }
 
@@ -664,8 +687,7 @@ void Economy::do_tick(World& world) {
                     pop.militancy -= 0.0002f;
                     pop.con -= 0.0001f;
                 }
-            }
-            else {
+            } else {
                 pop.militancy += 0.01f;
                 pop.con += 0.01f;
             }
@@ -680,7 +702,9 @@ void Economy::do_tick(World& world) {
     // Chances of a coup increment for the global militancy
     for(auto& nation : world.nations) {
         // Nation must actually exist
-        if(nation->exists() == false) continue;
+        if(nation->exists() == false) {
+            continue;
+        }
 
         // Do research on focused research
         if(nation->focus_tech != nullptr) {
@@ -743,7 +767,9 @@ void Economy::do_tick(World& world) {
 
     // Close today's price with a change according to demand - supply
     for(const auto& product : world.products) {
-        if(product == nullptr) continue;
+        if(product == nullptr) {
+            continue;
+        }
 
         // Uncomment to see supply-demand
         //if(product->price_vel && product->price > 0.01f)

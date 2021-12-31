@@ -115,7 +115,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     enact_btn->below_of(*foreign_trade_chk);
     enact_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent);
-        Packet packet = Packet();
+        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
         Archive ar = Archive();
         ActionType action = ActionType::NATION_ENACT_POLICY;
         ::serialize(ar, &action);

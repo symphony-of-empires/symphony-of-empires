@@ -36,9 +36,9 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     map_render = new MapRender(world);
 
     // Shader used for drawing the models using custom model render
-    obj_shader = UnifiedRender::OpenGl::Program::create("simple_model", "simple_model");
+    obj_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/simple_model.vs"), Path::get("shaders/simple_model.fs"));
     // Shader used for drawing the assimp models
-    model_shader = UnifiedRender::OpenGl::Program::create("model_loading", "model_loading");
+    // model_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/model_loading.vs"), Path::get("shaders/model_loading.fs"));
 
     // Set the mapmode
     set_map_mode(political_map_mode);
@@ -63,7 +63,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         std::string path;
         path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
         building_type_models.push_back(&UnifiedRender::State::get_instance().model_man->load(path));
-        path = Path::get("ui/building_types/" + building_type->ref_name + ".png");
+        path = Path::get("ui/icons/building_types/" + building_type->ref_name + ".png");
         building_type_icons.push_back(&UnifiedRender::State::get_instance().tex_man->load(path));
     }
 
@@ -71,7 +71,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         std::string path;
         path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
         unit_type_models.push_back(&UnifiedRender::State::get_instance().model_man->load(path));
-        path = Path::get("ui/unit_types/" + unit_type->ref_name + ".png");
+        path = Path::get("ui/icons/unit_types/" + unit_type->ref_name + ".png");
         unit_type_icons.push_back(&UnifiedRender::State::get_instance().tex_man->load(path));
     }
 }
@@ -222,32 +222,32 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    }
-    else if(event.button.button == SDL_BUTTON_RIGHT) {
-        if(1) {
-            const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-            if(tile.province_id == (Province::Id)-1) return;
-            Province* province = gs.world->provinces[tile.province_id];
-
-            FILE* fp = fopen("test.lua", "a+t");
-            if(!fp) return;
-            fprintf(fp, "{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%06x },\r\n", province->ref_name.c_str(), province->name.c_str(), bswap_32((province->color & 0x00ffffff) << 8));
-            fclose(fp);
+    } else if(event.button.button == SDL_BUTTON_RIGHT) {
+        const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+        if(tile.province_id == (Province::Id)-1) {
+            return;
         }
 
-        const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-        if(tile.province_id == (Province::Id)-1) return;
+        Province* province = gs.world->provinces[tile.province_id];
+
+        if(input.selected_units.empty()) {
+            FILE* fp = fopen("test.lua", "a+t");
+            if(fp != nullptr) {
+                fprintf(fp, "{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%06x },\r\n", province->ref_name.c_str(), province->name.c_str(), bswap_32((province->color & 0x00ffffff) << 8));
+                fclose(fp);
+                gs.curr_nation->give_province(*province);
+            }
+        }
 
         for(const auto& unit : input.selected_units) {
-            if(!unit->province->is_neighbour(*gs.world->provinces[tile.province_id])) continue;
-            unit->set_target(*gs.world->provinces[tile.province_id]);
-            
-            Packet packet = Packet();
+            //if(!unit->province->is_neighbour(*province)) continue;
+
+            UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
             Archive ar = Archive();
             ActionType action = ActionType::UNIT_CHANGE_TARGET;
             ::serialize(ar, &action);
             ::serialize(ar, &unit);
-            ::serialize(ar, &unit->target);
+            ::serialize(ar, &province);
             packet.data(ar.get_buffer(), ar.size());
             std::scoped_lock lock(gs.client->pending_packets_mutex);
             gs.client->pending_packets.push_back(packet);
@@ -352,10 +352,10 @@ void Map::draw(const GameState& gs) {
     // TODO: We need to better this
     view = camera->get_view();
     projection = camera->get_projection();
-    // obj_shader->set_uniform("map_diffusion", 0);
-    model_shader->use();
-    model_shader->set_uniform("projection", projection);
-    model_shader->set_uniform("view", view);
+    
+    obj_shader->use();
+    obj_shader->set_uniform("projection", projection);
+    obj_shader->set_uniform("view", view);
 
     // glActiveTexture(GL_TEXTURE0);
     /*for(const auto& building : world.buildings) {
@@ -363,9 +363,9 @@ void Map::draw(const GameState& gs) {
         std::pair<float, float> pos = building->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
         model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
-        model_shader->set_uniform("model", model);
+        obj_shader->set_uniform("model", model);
         draw_flag(building->get_owner());
-        building_type_models.at(world.get_id(building->type))->draw(*model_shader);
+        building_type_models.at(world.get_id(building->type))->draw(*obj_shader);
     }*/
 
     for(const auto& unit : world.units) {
@@ -373,13 +373,30 @@ void Map::draw(const GameState& gs) {
         std::pair<float, float> pos = unit->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
         //model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
-        model_shader->set_uniform("model", model);
+        obj_shader->set_uniform("model", model);
         draw_flag(unit->owner);
 #if defined TILE_GRANULARITY
         model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
 #endif
-        model_shader->set_uniform("model", model);
-        unit_type_models[world.get_id(unit->type)]->draw(*model_shader);
+        obj_shader->set_uniform("model", model);
+        unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
+    }
+
+    //(&UnifiedRender::State::get_instance().model_man->load(Path::get("3d/unit_types/" + unit_type->ref_name + ".obj")));
+    for(const auto& unit_type : world.unit_types) {
+        glm::mat4 model(1.f);
+        model = glm::translate(model, glm::vec3(world.get_id(unit_type) * 8.f, -4.f, 0.f));
+        model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
+        obj_shader->set_uniform("model", model);
+        unit_type_models[world.get_id(unit_type)]->draw(*obj_shader);
+    }
+
+    for(const auto& building_type : world.building_types) {
+        glm::mat4 model(1.f);
+        model = glm::translate(model, glm::vec3(world.get_id(building_type) * 8.f, 0.f, 0.f));
+        model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
+        obj_shader->set_uniform("model", model);
+        building_type_models[world.get_id(building_type)]->draw(*obj_shader);
     }
 
     // Resets the shader and texture

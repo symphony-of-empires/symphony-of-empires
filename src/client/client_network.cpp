@@ -41,42 +41,10 @@
 
 Client* g_client = nullptr;
 Client::Client(GameState& _gs, std::string host, const unsigned port)
-    : gs{_gs}
+    : UnifiedRender::Networking::Client(host, port),
+    gs{_gs}
 {
     g_client = this;
-
-    // Initialize WSA
-#ifdef windows
-    WSADATA data;
-    if(WSAStartup(MAKEWORD(2, 2), &data) != 0) {
-        print_error("WSA code: %u", WSAGetLastError());
-        throw std::runtime_error("Can't start WSA subsystem");
-    }
-#endif
-    
-    std::memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = inet_addr(host.c_str());
-    addr.sin_port = htons(port);
-    
-    fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(fd == INVALID_SOCKET) {
-#ifdef windows
-        print_error("WSA Code: %u", WSAGetLastError());
-        WSACleanup();
-#endif
-        throw SocketException("Can't create client socket");
-    }
-    
-    if(connect(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
-#ifdef unix
-        close(fd);
-#elif defined windows
-        print_error("WSA Code: %u", WSAGetLastError());
-        closesocket(fd);
-#endif
-        throw SocketException("Can't connect to server");
-    }
     
     // Launch the receive and send thread
     net_thread = std::thread(&Client::net_loop, this);
@@ -107,7 +75,7 @@ void Client::net_loop(void) {
         ::serialize(ar, &action);
         ::serialize(ar, &username);
 
-        Packet packet = Packet(fd);
+        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet(fd);
         packet.data(ar.get_buffer(), ar.size());
         packet.send();
     }
@@ -153,7 +121,7 @@ void Client::net_loop(void) {
 #elif defined windows
             if(has_pending) {
 #endif
-                Packet packet = Packet(fd);
+                UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet(fd);
                 Archive ar = Archive();
 
                 // Obtain the action from the server
@@ -308,7 +276,7 @@ void Client::net_loop(void) {
             // Client will also flush it's queue to the server
             std::scoped_lock lock(packets_mutex);
             for(auto& packet : packets) {
-                packet.stream = SocketStream(fd);
+                packet.stream = UnifiedRender::Networking::SocketStream(fd);
                 packet.send();
                 print_info("Sending package of %zu bytes", packet.size());
             }
@@ -326,22 +294,6 @@ void Client::wait_for_snapshot(void) {
     }
 }
 
-void Client::send(const Packet& packet) {
-    if(packets_mutex.try_lock()) {
-        packets.push_back(packet);
-        packets_mutex.unlock();
-    } else {
-        std::scoped_lock lock(pending_packets_mutex);
-        pending_packets.push_back(packet);
-    }
-}
-
 Client::~Client() {
-#ifdef windows
-    closesocket(fd);
-    WSACleanup();
-#else
-    close(fd);
-#endif
     net_thread.join();
 }

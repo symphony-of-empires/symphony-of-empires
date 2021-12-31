@@ -37,11 +37,13 @@ struct Input;
 struct ProvinceColors;
 
 class MapRender {
+    std::unique_ptr<UnifiedRender::Texture> gen_border_sdf();
 public:
     MapRender(const World& world);
-    ~MapRender() {
-
-    };
+    ~MapRender() {};
+    void update_mapmode(std::vector<ProvinceColor> province_colors);
+    void draw(Camera* camera, MapView view_mode);
+    void reload_shaders();
 
     std::vector<const UnifiedRender::Model*> building_type_models, unit_type_models;
     std::vector<const UnifiedRender::Texture*> building_type_icons;
@@ -61,7 +63,6 @@ public:
     // Map textures
     UnifiedRender::Texture* tile_map;
     UnifiedRender::Texture* tile_sheet;
-    UnifiedRender::Texture* border_sdf;
     const UnifiedRender::Texture* water_tex;
     const UnifiedRender::Texture* noise_tex;
     const UnifiedRender::Texture* topo_map;
@@ -77,11 +78,8 @@ public:
     UnifiedRender::OpenGl::Sphere* map_sphere;
     UnifiedRender::OpenGl::Quad2D* map_2d_quad;
 
-    UnifiedRender::OpenGl::Program* map_shader, * border_sdf_shader, * border_gen_shader;
-
-    void update_mapmode(std::vector<ProvinceColor> province_colors);
-    void draw(Camera* camera, MapView view_mode);
-    void reload_shaders();
-private:
-    UnifiedRender::Texture* gen_border_sdf();
+    std::unique_ptr<UnifiedRender::OpenGl::Program> map_shader;
+    std::unique_ptr<UnifiedRender::OpenGl::Program> border_sdf_shader;
+    std::unique_ptr<UnifiedRender::OpenGl::Program> border_gen_shader;
+    std::unique_ptr<UnifiedRender::Texture> border_sdf;
 };

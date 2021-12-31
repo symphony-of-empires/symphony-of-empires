@@ -34,10 +34,10 @@ public:
 // When adjacent to a water tile this serves as a shipyard for spawning naval units
 class Building : public IdEntity<uint16_t> {
 public:
-    Building(){};
+    Building();
     ~Building();
     bool can_do_output(void);
-    void add_to_stock(const Good* good, size_t add);
+    void add_to_stock(const Good& good, size_t add);
     Province* get_province(void);
     Nation* get_owner(void);
     void create_factory(void);

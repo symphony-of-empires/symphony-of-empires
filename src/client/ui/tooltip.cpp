@@ -25,8 +25,7 @@ void Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int screen
     int extra_below = screen_h - _y - _height;
     if(extra_above > extra_below) {
         y = _y - height - 10;
-    }
-    else {
+    } else {
         y = _y + _height + 10;
     }
     x = _x;
@@ -40,7 +39,9 @@ void Tooltip::text(const std::string& text) {
     }
     labels.clear();
 
-    if(text.empty()) return;
+    if(text.empty()) {
+        return;
+    }
 
     // Separate the text in multiple labels and break on space
     // TODO: only works for monospace fonts width width 12, fix it for all fonts

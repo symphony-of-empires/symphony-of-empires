@@ -39,7 +39,10 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
         // Sucess = Sum(Demand / (Supply + 1) * Price)
         std::vector<float> avg_prob = std::vector<float>(world->goods.size(), 0.f);
         for(const auto& product : world->products) {
-            if(product->building == nullptr || product->building->get_owner() != nation) continue;
+            if(product->building == nullptr || product->building->get_owner() != nation) {
+                continue;
+            }
+
             avg_prob[world->get_id(product->good)] += product->demand / (product->supply + 1) * product->price;
         }
 
@@ -84,11 +87,18 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 
         for(const auto& building_type : world->building_types) {
             // Only take in account RGOs (and buildings that have atleast 1 output)
-            if(!building_type->inputs.empty() || !building_type->outputs.size()) continue;
-            if(!building_type->is_factory) continue;
+            if(!building_type->inputs.empty() || !building_type->outputs.size()) {
+                continue;
+            }
+
+            if(!building_type->is_factory) {
+                continue;
+            }
 
             // Randomness
-            if(std::rand() % 5) continue;
+            if(std::rand() % 5) {
+                continue;
+            }
             return building_type->outputs[std::rand() % building_type->outputs.size()];
         }
     }
@@ -196,18 +206,18 @@ void ai_update_relations(Nation* nation, Nation* other) {
     }
 
     // Randomness to spice stuff up
-    if(!(std::rand() % 1000)) {
+    if(!(std::rand() % 10)) {
         nation->increase_relation(*other);
     } else if(!(std::rand() % 100)) {
         nation->decrease_relation(*other);
     }
     
-    if(!(std::rand() % 5)) {
+    if(1) {
         if(!relation.has_war && !relation.has_alliance && !relation.has_defensive_pact) {
             nation->declare_war(*other);
         } else {
             // Offer treaties
-            if(!(std::rand() % 1000)) {
+            if(!(std::rand() % 100)) {
                 Treaty* treaty = new Treaty();
 
                 {
@@ -221,7 +231,34 @@ void ai_update_relations(Nation* nation, Nation* other) {
                             }
                         }
                     }
-                    treaty->clauses.push_back(clause);
+
+                    if(!clause->provinces.empty()) {
+                        treaty->clauses.push_back(clause);
+                    }
+                }
+
+                {
+                    auto* clause = new TreatyClause::LiberateNation();
+                    clause->sender = nation;
+                    clause->receiver = other;
+
+                    clause->liberated = nullptr;
+                    for(const auto& province : other->owned_provinces) {
+                        for(const auto& other_nation : province->nuclei) {
+                            if(other_nation != other) {
+                                clause->liberated = other_nation;
+                                break;
+                            }
+                        }
+
+                        if(clause->liberated != nullptr) {
+                            break;
+                        }
+                    }
+
+                    if(clause->liberated != nullptr) {
+                        treaty->clauses.push_back(clause);
+                    }
                 }
 
                 {
@@ -240,12 +277,16 @@ void ai_update_relations(Nation* nation, Nation* other) {
 void ai_build_commercial(Nation* nation, World* world) {
     Good* target_good;
     target_good = ai_get_potential_good(nation, world);
-    if(target_good == nullptr) return;
+    if(target_good == nullptr) {
+        return;
+    }
 
     // Find an industry type which outputs this good
     BuildingType* type = nullptr;
     for(const auto& building_type : world->building_types) {
-        if(!building_type->is_factory) continue;
+        if(!building_type->is_factory) {
+            continue;
+        }
 
         /*for(const auto& input : building_type->inputs) {
             if(input == target_good) {
@@ -265,7 +306,9 @@ void ai_build_commercial(Nation* nation, World* world) {
     print_info("[%s]: Good [%s] seems to be on a high-trend - building industry [%s] which makes that good", nation->ref_name.c_str(), target_good->ref_name.c_str(), type->ref_name.c_str());
 
     // Otherwise -- do not build anything since the highest valued good cannot be produced
-    if(type == nullptr) return;
+    if(type == nullptr) {
+        return;
+    }
 
     auto it = std::begin(nation->owned_provinces);
     std::advance(it, std::rand() % nation->owned_provinces.size());
@@ -284,7 +327,7 @@ void ai_build_commercial(Nation* nation, World* world) {
         if(building->type->is_factory) {
             building->create_factory();
             for(const auto& product : building->output_products) {
-                Packet packet = Packet();
+                UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
                 Archive ar = Archive();
                 ActionType action = ActionType::PRODUCT_ADD;
                 ::serialize(ar, &action);
@@ -316,7 +359,10 @@ void ai_do_tick(Nation* nation, World* world) {
         // Update relations with other nations
         if(nation->ai_do_diplomacy) {
             for(auto& other : world->nations) {
-                if(!other->exists() || other == nation) continue;
+                if(!other->exists() || other == nation) {
+                    continue;
+                }
+
                 ai_update_relations(nation, other);
             }
         }
@@ -325,10 +371,14 @@ void ai_do_tick(Nation* nation, World* world) {
         if(nation->ai_do_research) {
             for(auto& tech : world->technologies) {
                 // Do not research if already been completed
-                if(!nation->research[world->get_id(tech)]) continue;
+                if(!nation->research[world->get_id(tech)]) {
+                    continue;
+                }
 
                 // Must be able to research it
-                if(!nation->can_research(tech)) continue;
+                if(!nation->can_research(tech)) {
+                    continue;
+                }
 
                 nation->change_research_focus(tech);
                 print_info("[%s] now researching [%s] - %.2f research points (+%.2f)", nation->ref_name.c_str(), tech->ref_name.c_str(), nation->research[world->get_id(tech)], nation->get_research_points());
@@ -358,7 +408,7 @@ void ai_do_tick(Nation* nation, World* world) {
         // Taking events
         if(nation->ai_handle_events) {
             for(const auto& event : nation->inbox) {
-                event->take_descision(nation, &event->descisions[std::rand() % event->descisions.size()]);
+                event->take_descision(*nation, event->descisions[std::rand() % event->descisions.size()]);
             }
         }
 
@@ -376,7 +426,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     continue;
                 }
             }
-			
+
             for(const auto& province : nation->owned_provinces) {
                 defense_factor /= ((province->total_pops() + province->n_tiles) / 10000) + 1;
             }
@@ -407,9 +457,13 @@ void ai_do_tick(Nation* nation, World* world) {
             for(auto& building : g_world->buildings) {
                 if(building->working_unit_type != nullptr || building->owner != nation) continue;
                 Province* province = building->get_province();
-                if(province == nullptr) continue;
+                if(province == nullptr) {
+                    continue;
+                }
 
-                if(std::rand() % 10) continue;
+                if(std::rand() % 100) {
+                    continue;
+                }
 
                 auto* unit_type = g_world->unit_types[std::rand() % g_world->unit_types.size()];
                 //if(!unit_type->is_ground) continue;
@@ -445,7 +499,7 @@ void ai_do_tick(Nation* nation, World* world) {
             if(!colonial_value.empty()) {
                 Province* target = (*std::max_element(colonial_value.begin(), colonial_value.end())).first;
                 if(target->owner == nullptr) {
-                    Packet packet = Packet();
+                    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
                     Archive ar = Archive();
                     ActionType action = ActionType::PROVINCE_COLONIZE;
                     ::serialize(ar, &action);
@@ -474,10 +528,9 @@ void ai_do_tick(Nation* nation, World* world) {
 
                     // Risk is augmentated when we border any non-ally nation
                     if(!relation.has_alliance) {
-                        potential_risk[world->get_id(province)] += 50;
+                        potential_risk[world->get_id(neighbour)] += 100;
                         if(relation.has_war) {
-                            potential_risk[world->get_id(province)] += 250 + (std::rand() % 250);
-                            potential_risk[world->get_id(neighbour)] += 500 + (std::rand() % 500);
+                            potential_risk[world->get_id(neighbour)] += 50000;
                         }
                     }
                 }
@@ -493,7 +546,7 @@ void ai_do_tick(Nation* nation, World* world) {
 
         for(const auto& province : world->provinces) {
             for(const auto& neighbour : province->neighbours) {
-                potential_risk[world->get_id(neighbour)] += potential_risk[world->get_id(province)] / province->neighbours.size();
+                potential_risk[world->get_id(neighbour)] += (potential_risk[world->get_id(province)] + 1) / province->neighbours.size();
             }
         }
 
@@ -501,11 +554,16 @@ void ai_do_tick(Nation* nation, World* world) {
             if(unit->province->neighbours.empty()) continue;
             if(unit->owner != nation) continue;
 
+            // Do not override targets (temporal)
+            // TODO: OVERRIDE TARGETS ON CRITICAL SITUATIONS
+            //if(unit->target != nullptr) continue;
+
             // See which province has the most potential_risk so we cover it from potential threats
             Province* highest_risk = unit->province;
             for(const auto& province : unit->province->neighbours) {
                 //if(!unit->type->is_naval && province->terrain_type->is_water_body) continue;
                 if(province->terrain_type->is_water_body) continue;
+                if(std::rand() % 2) continue;
 
                 if(potential_risk[world->get_id(highest_risk)] < potential_risk[world->get_id(province)]) {
                     if(province->owner != nullptr) {

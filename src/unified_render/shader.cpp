@@ -1,6 +1,13 @@
+#include <fstream>
+#include <iostream>
+#include <sstream>
+
 #include "unified_render/shader.hpp"
+
 using namespace UnifiedRender::OpenGl;
 
+// Construct a shader by opening the provided path and creating a temporal ifstream, reading
+// from that stream in text mode and then compiling the shader
 Shader::Shader(const std::string& path, GLuint type) {
     std::ifstream file;
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -12,20 +19,27 @@ Shader::Shader(const std::string& path, GLuint type) {
         file.close();
 
         buffer = stream.str();
+
+        GLSL_Context ctx;
+        lexer(ctx, buffer);
+        try {
+            parser(ctx);
+        } catch(GLSL_Exception& e) {
+            print_error("%s -> %s", e.it->data.c_str(), e.what());
+        }
+        buffer = to_text(ctx);
+
+        const char* c_code = buffer.c_str();
+        id = glCreateShader(type);
+        glShaderSource(id, 1, &c_code, NULL);
+
         compile(type);
     } catch(std::ifstream::failure& e) {
         print_error("Cannot load shader %s", path.c_str());
     }
 }
 
-Shader::~Shader() {
-    glDeleteShader(id);
-}
-
 void Shader::compile(GLuint type) {
-    const char* c_code = buffer.c_str();
-    id = glCreateShader(type);
-    glShaderSource(id, 1, &c_code, NULL);
     glCompileShader(id);
 
     // Check for errors of the shader
@@ -44,20 +58,402 @@ GLuint Shader::get_id(void) const {
     return id;
 }
 
+void Shader::lexer(GLSL_Context& ctx, const std::string& buffer) {
+    std::vector<GLSL_Token>& tokens = ctx.tokens;
+
+    std::string::const_iterator it = buffer.begin();
+    for( ; it != buffer.end(); ) {
+        while(*it == ' ' || *it == '\t') {
+            it++;
+        }
+
+        if(*it == '#' || (*(it + 0) == '/' && *(it + 1) == '/')) {
+            while(*it != '\n' && it != buffer.end()) {
+                it++;
+            }
+        } else if(*it == ',') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::COMMA));
+            it++;
+        } else if(*it == ';') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::SEMICOLON));
+            it++;
+        } else if(*it == '(') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::LPAREN));
+            it++;
+        } else if(*it == ')') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::RPAREN));
+            it++;
+        } else if(*it == '[') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::LBRACKET));
+            it++;
+        } else if(*it == ']') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::RBRACKET));
+            it++;
+        } else if(*it == '{') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::LBRACE));
+            it++;
+        } else if(*it == '}') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::RBRACE));
+            it++;
+        } else if(*it == '+') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::ADD));
+            it++;
+        } else if(*it == '-') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::SUB));
+            it++;
+        } else if(*it == '*') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::MUL));
+            it++;
+        } else if(*it == '/') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::DIV));
+            it++;
+        } else if(*it == '%') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::REM));
+            it++;
+        } else if(*it == '<') {
+            it++;
+
+            if(*it == '=') {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_LTEQ));
+                it++;
+            } else {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_LT));
+            }
+        } else if(*it == '>') {
+            it++;
+
+            if(*it == '=') {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_GTEQ));
+                it++;
+            } else {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_GT));
+            }
+        } else if(*it == '|') {
+            it++;
+
+            if(*it == '|') {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_OR));
+                it++;
+            } else {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::OR));
+            }
+        } else if(*it == '&') {
+            it++;
+
+            if(*it == '&') {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_AND));
+                it++;
+            } else {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::AND));
+            }
+        } else if(*it == '=') {
+            it++;
+
+            if(*it == '=') {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_EQ));
+                it++;
+            } else {
+                tokens.push_back(GLSL_Token(GLSL_TokenType::ASSIGN));
+            }
+        } else if(*it == '?') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::TERNARY));
+            it++;
+        } else if(*it == ':') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::COLON));
+            it++;
+        } else if(*it == '.') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::DOT));
+            it++;
+        } else {
+            if(isdigit(*it) || *it == '.') {
+                std::string::const_iterator start_it = it;
+
+                // Literal
+                while(isdigit(*it) || *it == '.') {
+                    it++;
+                }
+
+                // Skip "float" specifier
+                if(*it == 'f') {
+                    it++;
+                }
+
+                GLSL_Token tok = GLSL_Token(GLSL_TokenType::LITERAL);
+                tok.data = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
+                tokens.push_back(tok);
+            } else if(isalnum(*it) || *it == '_') {
+                std::string::const_iterator start_it = it;
+
+                // Identifier
+                while(isalnum(*it) || *it == '_' || *it == '.') {
+                    it++;
+                }
+
+                GLSL_Token tok = GLSL_Token(GLSL_TokenType::IDENTIFIER);
+                tok.data = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
+                tokens.push_back(tok);
+            } else {
+                it++;
+            }
+        }
+    }
+}
+
+void Shader::parser(GLSL_Context& ctx) {
+    GLSL_Function fn;
+    
+    fn = GLSL_Function();
+    fn.name = "vec2";
+    fn.ret_type = "vec2";
+    fn.args.push_back(std::make_pair("float", "x"));
+    fn.args.push_back(std::make_pair("float", "y"));
+    ctx.funcs.push_back(fn);
+
+    fn = GLSL_Function();
+    fn.name = "vec3";
+    fn.ret_type = "vec3";
+    fn.args.push_back(std::make_pair("float", "x"));
+    fn.args.push_back(std::make_pair("float", "y"));
+    fn.args.push_back(std::make_pair("float", "z"));
+    ctx.funcs.push_back(fn);
+
+    fn = GLSL_Function();
+    fn.name = "vec4";
+    fn.ret_type = "vec4";
+    fn.args.push_back(std::make_pair("float", "x"));
+    fn.args.push_back(std::make_pair("float", "y"));
+    fn.args.push_back(std::make_pair("float", "z"));
+    fn.args.push_back(std::make_pair("float", "w"));
+    ctx.funcs.push_back(fn);
+
+    // Register all the overloads for this function
+    std::vector<std::string> mix_strings = { "vec2", "vec3", "vec4", "sampler2D" };
+    for(std::vector<std::string>::const_iterator it1 = mix_strings.begin(); it1 != mix_strings.end(); it1++) {
+        for(std::vector<std::string>::const_iterator it2 = mix_strings.begin(); it2 != mix_strings.end(); it2++) {
+            fn = GLSL_Function();
+            fn.name = "mix";
+            fn.ret_type = "vec4";
+            fn.args.push_back(std::make_pair(*it1, "x"));
+            fn.args.push_back(std::make_pair(*it2, "y"));
+            fn.args.push_back(std::make_pair("float", "z"));
+            ctx.funcs.push_back(fn);
+        }
+    }
+
+    fn = GLSL_Function();
+    fn.name = "clamp";
+    fn.ret_type = "float";
+    fn.args.push_back(std::make_pair("float", "num"));
+    fn.args.push_back(std::make_pair("float", "min"));
+    fn.args.push_back(std::make_pair("float", "max"));
+    ctx.funcs.push_back(fn);
+
+    std::vector<GLSL_Token>::iterator it;
+    for(it = ctx.tokens.begin(); it != ctx.tokens.end(); it++) {
+        if(it->type == GLSL_TokenType::ASSIGN) {
+            
+        }
+    }
+
+    for(const auto& var : ctx.vars) {
+        print_error("VAR->%i (%s) typeof(%s)", static_cast<int>(var.type), var.name.c_str(), var.type_name.c_str());
+    }
+}
+
+std::string Shader::to_text(GLSL_Context& ctx) {
+    std::vector<GLSL_Token>& tokens = ctx.tokens;
+
+    std::string end_buffer;
+    end_buffer += "#version 330 compatibility\r\n";
+    for(const auto& tok : tokens) {
+        switch(tok.type) {
+        case GLSL_TokenType::SEMICOLON:
+            end_buffer += ";\r\n";
+            break;
+        case GLSL_TokenType::COMMA:
+            end_buffer += ",";
+            break;
+        case GLSL_TokenType::LPAREN:
+            end_buffer += "(";
+            break;
+        case GLSL_TokenType::RPAREN:
+            end_buffer += ")";
+            break;
+        case GLSL_TokenType::LBRACKET:
+            end_buffer += "[";
+            break;
+        case GLSL_TokenType::RBRACKET:
+            end_buffer += "]";
+            break;
+        case GLSL_TokenType::LBRACE:
+            end_buffer += "{\n";
+            break;
+        case GLSL_TokenType::RBRACE:
+            end_buffer += "}\n";
+            break;
+        case GLSL_TokenType::ADD:
+            end_buffer += "+";
+            break;
+        case GLSL_TokenType::SUB:
+            end_buffer += "-";
+            break;
+        case GLSL_TokenType::MUL:
+            end_buffer += "*";
+            break;
+        case GLSL_TokenType::DIV:
+            end_buffer += "/";
+            break;
+        case GLSL_TokenType::CMP_AND:
+            end_buffer += "&&";
+            break;
+        case GLSL_TokenType::AND:
+            end_buffer += "&";
+            break;
+        case GLSL_TokenType::CMP_OR:
+            end_buffer += "||";
+            break;
+        case GLSL_TokenType::OR:
+            end_buffer += "|";
+            break;
+        case GLSL_TokenType::CMP_LT:
+            end_buffer += "<";
+            break;
+        case GLSL_TokenType::CMP_LTEQ:
+            end_buffer += "<=";
+            break;
+        case GLSL_TokenType::CMP_GT:
+            end_buffer += ">";
+            break;
+        case GLSL_TokenType::CMP_GTEQ:
+            end_buffer += ">=";
+            break;
+        case GLSL_TokenType::TERNARY:
+            end_buffer += "?";
+            break;
+        case GLSL_TokenType::COLON:
+            end_buffer += ":";
+            break;
+        case GLSL_TokenType::DOT:
+            end_buffer += ".";
+            break;
+        case GLSL_TokenType::LITERAL:
+            end_buffer += tok.data;
+            break;
+        case GLSL_TokenType::IDENTIFIER:
+            if(tok.data == "layout") {
+                end_buffer += tok.data + " ";
+            } else if(tok.data == "provided") {
+                end_buffer += " uniform ";
+            } else {
+                end_buffer += " " + tok.data + " ";
+            }
+            break;
+        case GLSL_TokenType::ASSIGN:
+            end_buffer += "=";
+            break;
+        case GLSL_TokenType::CMP_EQ:
+            end_buffer += "==";
+            break;
+        default:
+            break;
+        }
+    }
+    print_info("%s", end_buffer.c_str());
+    return end_buffer;
+}
+
+// Deconstructs the shader object and we have to delete the shader from the OpenGL
+// driver by calling glDeleteShader
+Shader::~Shader() {
+    if(id) {
+        glDeleteShader(id);
+    }
+}
+
+//
+// Vertex shader
+//
+VertexShader::VertexShader(const std::string& path)
+    : Shader(path, GL_VERTEX_SHADER)
+{
+
+}
+
+VertexShader::~VertexShader(void) {
+
+}
+
+//
+// Fragment shader
+//
+FragmentShader::FragmentShader(const std::string& path)
+    : Shader(path, GL_FRAGMENT_SHADER)
+{
+
+}
+
+FragmentShader::~FragmentShader(void) {
+
+}
+
+//
+// Geometry shader
+//
+GeometryShader::GeometryShader(const std::string& path)
+    : Shader(path, GL_GEOMETRY_SHADER)
+{
+
+}
+
+GeometryShader::~GeometryShader(void) {
+
+}
+
+//
+// Tessellation control shader
+//
+TessControlShader::TessControlShader(const std::string& path)
+    : Shader(path, GL_TESS_CONTROL_SHADER)
+{
+
+}
+
+TessControlShader::~TessControlShader(void) {
+
+}
+
+//
+// Tessellation evaluation shader
+//
+TessEvalShader::TessEvalShader(const std::string& path)
+    : Shader(path, GL_TESS_EVALUATION_SHADER)
+{
+
+}
+
+TessEvalShader::~TessEvalShader(void) {
+    
+}
+
+//
+// Program
+//
 Program::Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry, const TessControlShader* tctrl, const TessEvalShader* tee) {
     id = glCreateProgram();
     glBindAttribLocation(id, 0, "m_pos");
     glBindAttribLocation(id, 1, "m_texcoord");
-    glBindAttribLocation(id, 2, "m_color");
+    /*glBindAttribLocation(id, 2, "m_color");*/
 
     attach_shader(vertex);
     attach_shader(fragment);
     if(geometry != nullptr) {
         attach_shader(geometry);
     }
+    
     if(tctrl != nullptr) {
         attach_shader(tctrl);
     }
+
     if(tee != nullptr) {
         attach_shader(tee);
     }
@@ -65,21 +461,28 @@ Program::Program(const VertexShader* vertex, const FragmentShader* fragment, con
 }
 
 Program* Program::create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
-    auto vs = UnifiedRender::OpenGl::VertexShader(Path::get("shaders/" + vs_path + ".vs"));
-    auto fs = UnifiedRender::OpenGl::FragmentShader(Path::get("shaders/" + fs_path + ".fs"));
+    UnifiedRender::OpenGl::VertexShader vs = UnifiedRender::OpenGl::VertexShader(Path::get(vs_path));
+    UnifiedRender::OpenGl::FragmentShader fs = UnifiedRender::OpenGl::FragmentShader(Path::get(fs_path));
 
     if(!gs_path.empty()) {
-        auto gs = UnifiedRender::OpenGl::GeometryShader(Path::get("shaders/" + gs_path + ".gs"));
-        return new Program(&vs, &fs, &gs);
+        UnifiedRender::OpenGl::GeometryShader gs = UnifiedRender::OpenGl::GeometryShader(Path::get(gs_path));
+        return (new Program(&vs, &fs, &gs));
     }
-    return new Program(&vs, &fs);
+    return (new Program(&vs, &fs));
 }
 
+// Attaches a shader to the program - this will make it so when the program is compiled the shader
+// will then be linked onto it
 void Program::attach_shader(const Shader* shader) {
     glAttachShader(id, shader->get_id());
 }
 
 void Program::link(void) {
+#ifdef UR_RENDER_DEBUG
+    if(!id) {
+        throw UnifiedRender::DebugException("Program has no Id");
+    }
+#endif
     glLinkProgram(id);
 
     // Check for errors of the shader
@@ -96,6 +499,11 @@ void Program::link(void) {
 void Program::use(void) const {
     glUseProgram(id);
 }
+
+/*
+ * Uniform overloads
+ * It allows the game engine to call these functions without worrying about type specifications
+ */
 
 void Program::set_uniform(const std::string& name, glm::mat4 uniform) const {
     glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(uniform));
@@ -121,16 +529,29 @@ void Program::set_uniform(const std::string& name, int value) const {
     glUniform1i(glGetUniformLocation(id, name.c_str()), value);
 }
 
-void Program::set_texture(int value, const std::string& name, const UnifiedRender::Texture* texture) const {
-    set_uniform(name, value);
+/*
+ * Sets the texture (sampler2D) into the shader, 
+ */
+void Program::set_texture(int value, const std::string& name, const UnifiedRender::Texture& texture) const {
+#ifdef UR_RENDER_DEBUG
+    if(!texture.gl_tex_num) {
+        throw UnifiedRender::DebugException("Texture with invalid Id passed to set_texture");
+    }
+#endif
     glActiveTexture(GL_TEXTURE0 + value);
-    glBindTexture(GL_TEXTURE_2D, texture->gl_tex_num);
+    set_uniform(name, value);
+    glBindTexture(GL_TEXTURE_2D, texture.gl_tex_num);
 }
 
-void Program::set_texture(int value, const std::string& name, const UnifiedRender::TextureArray* texture) const {
-    set_uniform(name, value);
+void Program::set_texture(int value, const std::string& name, const UnifiedRender::TextureArray& texture) const {
+#ifdef UR_RENDER_DEBUG
+    if(!texture.gl_tex_num) {
+        throw UnifiedRender::DebugException("Texture with invalid Id passed to set_texture");
+    }
+#endif
     glActiveTexture(GL_TEXTURE0 + value);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, texture->gl_tex_num);
+    set_uniform(name, value);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture.gl_tex_num);
 }
 
 GLuint Program::get_id(void) const {

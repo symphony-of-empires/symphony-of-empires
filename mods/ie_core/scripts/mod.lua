@@ -265,6 +265,11 @@ require('events/gevhdl_001')
 require('events/gevhdl_002')
 require('events/gevhdl_003')
 
+require('events/gevhdl_004')
+
+--require('events/cholera_spreads_events')
+--require('events/dysentery_spread_events')
+
 --invalid_shit()
 
 set_date(1825, 0, 0)

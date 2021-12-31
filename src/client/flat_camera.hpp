@@ -6,6 +6,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/intersect.hpp>
 
+#include "world.hpp"
+
 class FlatCamera: public Camera {
 public:
     glm::vec3 velocity;

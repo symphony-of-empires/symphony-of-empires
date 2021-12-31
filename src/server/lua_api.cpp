@@ -62,9 +62,10 @@ int LuaAPI::register_new_table(lua_State* L, const std::string& name, const luaL
 }
 
 int LuaAPI::add_terrain_type(lua_State* L) {
-    if(g_world->needs_to_sync)
+    if(g_world->needs_to_sync) {
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
+    }
+
     auto* terrain_type = new TerrainType();
 
     terrain_type->ref_name = luaL_checkstring(L, 1);
@@ -86,9 +87,10 @@ int LuaAPI::set_nation_mod_to_invention(lua_State* L) {
 }
 
 int LuaAPI::add_technology(lua_State* L) {
-    if(g_world->needs_to_sync)
+    if(g_world->needs_to_sync) {
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
+    }
+
     Technology* technology = new Technology();
 
     technology->ref_name = luaL_checkstring(L, 1);
@@ -124,9 +126,10 @@ int LuaAPI::add_req_tech_to_tech(lua_State* L) {
 }
 
 int LuaAPI::add_unit_trait(lua_State* L) {
-    if(g_world->needs_to_sync)
+    if(g_world->needs_to_sync) {
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
+    }
+
     UnitTrait* unit_trait = new UnitTrait();
 
     unit_trait->ref_name = luaL_checkstring(L, 1);
@@ -142,9 +145,10 @@ int LuaAPI::add_unit_trait(lua_State* L) {
 }
 
 int LuaAPI::add_building_type(lua_State* L) {
-    if(g_world->needs_to_sync)
+    if(g_world->needs_to_sync) {
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
+    }
+
     BuildingType* building_type = new BuildingType();
 
     building_type->ref_name = luaL_checkstring(L, 1);
@@ -277,7 +281,9 @@ int LuaAPI::get_friends_of_nation(lua_State* L) {
     size_t i = 0;
     for(const auto& friend_nation : g_world->nations) {
         const NationRelation& relation = nation->relations[g_world->get_id(friend_nation)];
-        if(relation.relation < 50.f) continue;
+        if(relation.relation < 50.f) {
+            continue;
+        }
 
         lua_pushnumber(L, g_world->get_id(friend_nation));
         lua_rawseti(L, -2, i + 1);
@@ -293,7 +299,9 @@ int LuaAPI::get_enemies_of_nation(lua_State* L) {
     size_t i = 0;
     for(const auto& other_nation : g_world->nations) {
         const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
-        if(relation.relation > -50.f) continue;
+        if(relation.relation > -50.f) {
+            continue;
+        }
 
         lua_pushnumber(L, g_world->get_id(other_nation));
         lua_rawseti(L, -2, i + 1);
@@ -309,7 +317,9 @@ int LuaAPI::get_allies_of_nation(lua_State* L) {
     size_t i = 0;
     for(const auto& other_nation : g_world->nations) {
         const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
-        if(!relation.has_alliance) continue;
+        if(!relation.has_alliance) {
+            continue;
+        }
 
         lua_pushnumber(L, g_world->get_id(other_nation));
         lua_rawseti(L, -2, i + 1);
@@ -325,7 +335,9 @@ int LuaAPI::get_warenemies_of_nation(lua_State* L) {
     size_t i = 0;
     for(const auto& other_nation : g_world->nations) {
         const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
-        if(!relation.has_war) continue;
+        if(!relation.has_war) {
+            continue;
+        }
 
         lua_pushnumber(L, g_world->get_id(other_nation));
         lua_rawseti(L, -2, i + 1);
@@ -341,7 +353,9 @@ int LuaAPI::get_embargoed_of_nation(lua_State* L) {
     size_t i = 0;
     for(const auto& other_nation : g_world->nations) {
         const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
-        if(!relation.has_embargo) continue;
+        if(!relation.has_embargo) {
+            continue;
+        }
 
         lua_pushnumber(L, g_world->get_id(other_nation));
         lua_rawseti(L, -2, i + 1);
@@ -376,7 +390,9 @@ int LuaAPI::get_provinces_with_nucleus_by_nation(lua_State* L) {
                 break;
             }
         }
-        if(!is_nuclei) continue;
+        if(!is_nuclei) {
+            continue;
+        }
 
         lua_pushnumber(L, g_world->get_id(province));
         lua_rawseti(L, -2, i + 1);
@@ -561,9 +577,10 @@ int LuaAPI::nation_declare_unjustified_war(lua_State* L) {
 }
 
 int LuaAPI::add_nation_mod(lua_State* L) {
-    if(g_world->needs_to_sync)
+    if(g_world->needs_to_sync) {
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
+    }
+
     NationModifier* mod = new NationModifier();
 
     mod->ref_name = luaL_checkstring(L, 1);
@@ -633,8 +650,7 @@ int LuaAPI::add_province(lua_State* L) {
     for(size_t i = 0; i < g_world->provinces.size(); i++) {
         if(province->color == g_world->provinces[i]->color) {
             throw LuaAPI::Exception(province->ref_name + " province has same color as " + g_world->provinces[i]->ref_name);
-        }
-        else if(province->ref_name == g_world->provinces[i]->ref_name) {
+        } else if(province->ref_name == g_world->provinces[i]->ref_name) {
             throw LuaAPI::Exception("Duplicate ref_name " + province->ref_name);
         }
     }
@@ -711,14 +727,14 @@ int LuaAPI::give_hard_province_to(lua_State* L) {
     return 0;
 }
 
-/** Obtains the owner of a province (ref_name) */
+// Obtains the owner of a province (ref_name)
 int LuaAPI::get_province_owner(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_pushstring(L, province->controller->ref_name.c_str());
     return 1;
 }
 
-/** Get the country who owms a larger chunk of the province - this is not the same as owner */
+// Get the country who owms a larger chunk of the province - this is not the same as owner
 int LuaAPI::get_province_controller(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     Nation* nation = province->controller;
@@ -730,7 +746,7 @@ int LuaAPI::get_province_controller(lua_State* L) {
     return 1;
 }
 
-/** Obtains the neighbours of a province (by ID) */
+// Obtains the neighbours of a province (by ID)
 int LuaAPI::get_province_neighbours(lua_State* L) {
     const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_newtable(L);
@@ -813,7 +829,9 @@ int LuaAPI::add_province_pop(lua_State* L) {
     // TODO: Make ideology NOT be random
     pop.ideology_approval.resize(g_world->ideologies.size(), 0.f);
 
-    if(!pop.size) throw LuaAPI::Exception("Can't create pops with 0 size");
+    if(!pop.size) {
+        throw LuaAPI::Exception("Can't create pops with 0 size");
+    }
     province->pops.push_back(pop);
     return 0;
 }

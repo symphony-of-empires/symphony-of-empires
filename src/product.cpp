@@ -16,11 +16,9 @@ void Product::close_market(void) {
     else {
         if(this->price_vel > 0.1f) {
             this->price_vel -= 0.001f;
-        }
-        else if(this->price_vel < -0.1f) {
+        } else if(this->price_vel < -0.1f) {
             this->price_vel += 0.001f;
-        }
-        else {
+        } else {
             this->price_vel = -0.001f;
         }
     }
@@ -30,14 +28,17 @@ void Product::close_market(void) {
 
     // Save prices and stuff onto history (for the charts!)
     this->demand_history.push_back(this->demand);
-    if(this->demand_history.size() > 60)
+    if(this->demand_history.size() > 60) {
         this->demand_history.pop_front();
+    }
 
     this->supply_history.push_back(this->supply);
-    if(this->supply_history.size() > 60)
+    if(this->supply_history.size() > 60) {
         this->supply_history.pop_front();
+    }
 
     this->price_history.push_back(this->price);
-    if(this->price_history.size() > 60)
+    if(this->price_history.size() > 60) {
         this->price_history.pop_front();
+    }
 }

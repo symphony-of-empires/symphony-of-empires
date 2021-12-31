@@ -22,6 +22,9 @@ public:
 #include "religion.hpp"
 struct Pop {
 public:
+    bool operator==(const Pop& rhs) const;
+    Ideology* get_ideology(void) const;
+
     size_t size;
     size_t unemployed = 0;
     float literacy;
@@ -42,9 +45,4 @@ public:
 
     // Approval % of all the ideologies (1:1)
     std::vector<float> ideology_approval;
-
-    bool operator==(const Pop& rhs) {
-        return (this->culture == rhs.culture && this->religion == rhs.religion && this->type == rhs.type);
-    }
-    Ideology* get_ideology(void) const;
 };
