@@ -161,6 +161,9 @@ void Shader::lexer(GLSL_Context& ctx, const std::string& buffer) {
         } else if(*it == ':') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::COLON));
             it++;
+        } else if(*it == '.') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::DOT));
+            it++;
         } else {
             if(isdigit(*it) || *it == '.') {
                 std::string::const_iterator start_it = it;
@@ -329,6 +332,9 @@ std::string Shader::to_text(GLSL_Context& ctx) {
             break;
         case GLSL_TokenType::COLON:
             end_buffer += ":";
+            break;
+        case GLSL_TokenType::DOT:
+            end_buffer += ".";
             break;
         case GLSL_TokenType::LITERAL:
             end_buffer += tok.data;
