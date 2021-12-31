@@ -15,6 +15,9 @@ Unit::~Unit(void) {
 }
 
 void Unit::attack(Unit& enemy) {
+    // TODO: Better attack algorithm
+    
+    /*
     // Calculate the attack of our unit
     float attack_mod = 0.f;
     for(const auto& trait: this->traits) {
@@ -47,6 +50,10 @@ void Unit::attack(Unit& enemy) {
 
     // Deal the damage
     enemy.size -= std::min<size_t>(enemy.size, damage_dealt);
+    */
+
+    const float damage = (type->attack / enemy.type->defense) * size;
+    enemy.size -= std::min<size_t>(enemy.size, damage);
 }
 
 std::pair<float, float> Unit::get_pos(void) const {
