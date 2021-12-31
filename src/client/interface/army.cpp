@@ -222,7 +222,7 @@ ArmyView::ArmyView(GameState& _gs)
 
     this->army_tab = new ArmyArmyTab(gs, 0, 32, this);
     this->army_tab->is_render = true;
-    auto* army_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/militar_score.png")), this);
+    auto* army_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/military_score.png")), this);
     army_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyView&>(*w.parent);
 

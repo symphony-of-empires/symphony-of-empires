@@ -1,11 +1,6 @@
 #pragma once
 
-#include <GL/glew.h>
-
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/intersect.hpp>
-
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 

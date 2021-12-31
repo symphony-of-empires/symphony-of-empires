@@ -1,214 +1,221 @@
 #pragma once
 
 #include <exception>
-#ifdef unix
-#	define _XOPEN_SOURCE_EXTENDED 1
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	ifndef INVALID_SOCKET
-#		define INVALID_SOCKET -1
-#	endif
-#elif defined windows
-#	ifndef _WINDOWS_
-#		define WIN32_LEAN_AND_MEAN 1
-#       ifndef NOMINMAX
-#		    define NOMINMAX 1
-#       endif
-#		include <windows.h>
-#		undef WIN32_LEAN_AND_MEAN
-#	endif
-/* Allow us to use deprecated functions like inet_addr */
-#	define _WINSOCK_DEPRECATED_NO_WARNINGS
-#	include <winsock2.h>
-#	include <ws2def.h>
-#	include <ws2tcpip.h>
-#endif
 #include <vector>
 #include <string>
 #include <cstring>
+#include <atomic>
+#include <thread>
+#include <mutex>
+#include <deque>
 #include <stdexcept>
 
-#include <zlib.h>
+#ifdef unix
+#    define _XOPEN_SOURCE_EXTENDED 1
+#    include <netdb.h>
+#    include <arpa/inet.h>
+#endif
+#include <sys/types.h>
 
-static inline size_t get_compressed_len(size_t len) {
-    return (len + 6 + (((len + 16383) / 16384) * 5));
-}
+// Visual Studio does not know about UNISTD.H, Mingw does through
+#ifndef _MSC_VER
+#    include <unistd.h>
+#endif
 
-static inline  size_t compress(const void* src, size_t src_len, void* dest, size_t dest_len) {
-    z_stream info = {};
-    info.total_in = info.avail_in = src_len;
-    info.total_out = info.avail_out = dest_len;
-    info.next_in = (Bytef*)src;
-    info.next_out = (Bytef*)dest;
+#ifdef unix
+#	include <poll.h>
+#elif defined windows
+// Allow us to use deprecated functions like inet_addr
+#   define _WINSOCK_DEPRECATED_NO_WARNINGS
+// MingW heavily dislikes ws2def.h and causes spurious errors
+#   ifndef __MINGW32__
+#       include <ws2def.h>
+#   endif
+#   include <winsock2.h>
+#   include <ws2tcpip.h>
+#   pragma comment(lib, "Ws2_32.lib")
+#endif
 
-    int r;
-    r = deflateInit(&info, Z_DEFAULT_COMPRESSION);
-    if(r == Z_OK) {
-        r = deflate(&info, Z_FINISH);
-        if(r == Z_STREAM_END) {
-            return info.total_out;
+namespace UnifiedRender::Networking {
+    class SocketException : public std::exception {
+        std::string buffer;
+    public:
+        SocketException(const std::string& msg) {
+            buffer = msg;
         }
-    }
-    deflateEnd(&info);
-    return info.total_out;
-}
-
-static inline size_t decompress(const void* src, size_t src_len, void* dest, size_t dest_len) {
-    z_stream info = {};
-    info.total_in = info.avail_in = src_len;
-    info.total_out = info.avail_out = dest_len;
-    info.next_in = (Bytef*)src;
-    info.next_out = (Bytef*)dest;
-
-    int r;
-    r = inflateInit(&info);
-    if(r == Z_OK) {
-        r = inflate(&info, Z_FINISH);
-        if(r == Z_STREAM_END) {
-            return info.total_out;
+        virtual const char* what(void) const noexcept {
+            return buffer.c_str();
         }
-    }
-    inflateEnd(&info);
-    return info.total_out;
-}
+    };
 
-class SocketException: public std::exception {
-    std::string buffer;
-public:
-    SocketException(const std::string& msg) {
-        buffer = msg;
-    }
-    virtual const char* what(void) const noexcept {
-        return buffer.c_str();
-    }
-};
+    class SocketStream {
+        bool is_server_stream = false;
+    public:
+        SocketStream(void);
+        SocketStream(int _fd);
+        ~SocketStream(void);
+        void send(const void* data, size_t size);
+        void recv(void* data, size_t size);
+        
+        int fd;
+    };
 
-class ServerException: public std::exception {
-    std::string buffer;
-public:
-    ServerException(const std::string& msg) {
-        buffer = msg;
-    }
-    virtual const char* what(void) const noexcept {
-        return buffer.c_str();
-    }
-};
+    enum class PacketCode {
+        OK,
+        PACKET_ERROR,
+    };
 
-class ClientException: public std::exception {
-    std::string buffer;
-public:
-    ClientException(const std::string& msg) {
-        buffer = msg;
-    }
-    virtual const char* what(void) const noexcept {
-        return buffer.c_str();
-    }
-};
+    class Packet {
+        size_t n_data = 0;
+        PacketCode code = PacketCode::OK;
+    public:
+        std::vector<uint8_t> buffer;
+        SocketStream stream;
 
-class SocketStream {
-    bool is_server_stream = false;
-public:
-    int fd;
+        Packet() {};
+        Packet(int _fd) { stream = UnifiedRender::Networking::SocketStream(_fd); };
+        ~Packet() {};
 
-    SocketStream() {};
-    SocketStream(int _fd): fd(_fd) {};
+        inline void* data(void) {
+            return (void*)&buffer[0];
+        }
 
-    void send(const void* data, size_t size);
-    void recv(void* data, size_t size);
-};
-
-enum class PacketCode {
-    OK,
-    PACKET_ERROR,
-};
-
-class Packet {
-    size_t n_data = 0;
-    PacketCode code = PacketCode::OK;
-public:
-    std::vector<uint8_t> buffer;
-    SocketStream stream;
-
-    Packet() {};
-    Packet(int _fd) { stream = SocketStream(_fd); };
-    ~Packet() {};
-
-    inline void* data(void) {
-        return (void*)&buffer[0];
-    }
-
-    inline void data(void* buf, size_t size) {
-        n_data = size;
-        buffer.resize(n_data);
-        std::memcpy(&buffer[0], buf, size);
-    }
-
-    inline size_t size(void) {
-        return n_data;
-    }
-
-    template<typename T>
-    inline void send(const T* buf = nullptr, size_t size = sizeof(T)) {
-        if(buf != nullptr) {
+        inline void data(void* buf, size_t size) {
             n_data = size;
             buffer.resize(n_data);
-            std::memcpy(&buffer[0], buf, n_data);
+            std::memcpy(&buffer[0], buf, size);
         }
 
-        const uint32_t net_code = htonl(static_cast<uint32_t>(code));
-        stream.send(&net_code, sizeof(net_code));
+        inline size_t size(void) {
+            return n_data;
+        }
 
-        const uint32_t net_size = htonl(n_data);
-        stream.send(&net_size, sizeof(net_size));
+        template<typename T>
+        inline void send(const T* buf = nullptr, size_t size = sizeof(T)) {
+            if(buf != nullptr) {
+                n_data = size;
+                buffer.resize(n_data);
+                std::memcpy(&buffer[0], buf, n_data);
+            }
 
-        //uint8_t* new_buf = new uint8_t[size];
-        //size_t new_size = compress(buf, size, new_buf, size);
-        //stream.send(&new_buf[0], new_size);
-        stream.send(&buffer[0], n_data);
-        //delete[] new_buf;
+            const uint32_t net_code = htonl(static_cast<uint32_t>(code));
+            stream.send(&net_code, sizeof(net_code));
 
-        const uint16_t eof_marker = htons(0xE0F);
-        stream.send(&eof_marker, sizeof(eof_marker));
-    }
+            const uint32_t net_size = htonl(n_data);
+            stream.send(&net_size, sizeof(net_size));
 
-    inline void send(void) {
-        send<void>(nullptr, 0);
-    }
-
-    template<typename T>
-    inline void recv(T* buf = nullptr) {
-        uint32_t net_code;
-        stream.recv(&net_code, sizeof(net_code));
-        net_code  = ntohl(net_code);
-        code = static_cast<PacketCode>(net_code);
-
-        uint32_t net_size;
-        stream.recv(&net_size, sizeof(net_size));
-        n_data = (size_t)ntohl(net_size);
-        buffer.resize(n_data + 1);
-
-        // Reads can only be done 1024 bytes at a time
-        stream.recv(&buffer[0], n_data);
-        if(buf != nullptr) {
-            //size_t new_size = get_compressed_len(n_data);
-            //char* new_buf = new char[new_size];
-            //size_t decomp_size = decompress(buf, n_data, new_buf, new_size);
-            //std::memcpy(buf, &new_buf[0], decomp_size);
+            //uint8_t* new_buf = new uint8_t[size];
+            //size_t new_size = compress(buf, size, new_buf, size);
+            //stream.send(&new_buf[0], new_size);
+            stream.send(&buffer[0], n_data);
             //delete[] new_buf;
-            std::memcpy(buf, &buffer[0], n_data);
+
+            const uint16_t eof_marker = htons(0xE0F);
+            stream.send(&eof_marker, sizeof(eof_marker));
         }
 
-        uint16_t eof_marker;
-        stream.recv(&eof_marker, sizeof(eof_marker));
-        if(ntohs(eof_marker) != 0xE0F)
-            throw SocketException("Packet with invalid EOF");
-    }
+        inline void send(void) {
+            send<void>(nullptr, 0);
+        }
 
-    inline void recv(void) {
-        this->recv<void>();
-    }
+        template<typename T>
+        inline void recv(T* buf = nullptr) {
+            uint32_t net_code;
+            stream.recv(&net_code, sizeof(net_code));
+            net_code  = ntohl(net_code);
+            code = static_cast<PacketCode>(net_code);
 
-    inline bool is_ok() {
-        return (code == PacketCode::OK);
-    }
+            uint32_t net_size;
+            stream.recv(&net_size, sizeof(net_size));
+            n_data = (size_t)ntohl(net_size);
+            buffer.resize(n_data + 1);
+
+            // Reads can only be done 1024 bytes at a time
+            stream.recv(&buffer[0], n_data);
+            if(buf != nullptr) {
+                //size_t new_size = get_compressed_len(n_data);
+                //char* new_buf = new char[new_size];
+                //size_t decomp_size = decompress(buf, n_data, new_buf, new_size);
+                //std::memcpy(buf, &new_buf[0], decomp_size);
+                //delete[] new_buf;
+                std::memcpy(buf, &buffer[0], n_data);
+            }
+
+            uint16_t eof_marker;
+            stream.recv(&eof_marker, sizeof(eof_marker));
+            if(ntohs(eof_marker) != 0xE0F)
+                throw UnifiedRender::Networking::SocketException("Packet with invalid EOF");
+        }
+
+        inline void recv(void) {
+            this->recv<void>();
+        }
+
+        inline bool is_ok() {
+            return (code == PacketCode::OK);
+        }
+    };
+
+    class ServerClient {
+        int conn_fd = 0;
+    public:
+        ServerClient(void);
+        ~ServerClient(void);
+        int try_connect(int fd);
+        void flush_packets(void);
+        bool has_pending(void);
+
+        std::thread thread;
+        std::atomic<bool> is_connected;
+        
+        std::deque<UnifiedRender::Networking::Packet> pending_packets;
+        std::mutex pending_packets_mutex;
+        
+        std::deque<UnifiedRender::Networking::Packet> packets;
+        std::mutex packets_mutex;
+        
+        std::string username;
+    };
+
+    class Server {
+    protected:
+        struct sockaddr_in addr;
+#ifdef unix
+        int fd;
+#elif defined windows
+        SOCKET fd;
+#endif
+        std::atomic<bool> run;
+    public:
+        Server(unsigned port, unsigned max_conn);
+        virtual ~Server(void);
+        void broadcast(const UnifiedRender::Networking::Packet& packet);
+
+        ServerClient* clients;
+        int n_clients;
+        int player_count = 0;
+    };
+
+    class Client {
+    protected:
+        struct sockaddr_in addr;
+#ifdef unix
+        int fd;
+#elif defined windows
+        SOCKET fd;
+#endif
+    public:
+        Client(std::string host, const unsigned port);
+        ~Client();
+        int get_fd(void) const;
+        void send(const UnifiedRender::Networking::Packet& packet);
+        
+        std::deque<UnifiedRender::Networking::Packet> packets;
+        std::mutex packets_mutex;
+        
+        std::deque<UnifiedRender::Networking::Packet> pending_packets;
+        std::mutex pending_packets_mutex;
+
+        std::string username;
+    };
 };

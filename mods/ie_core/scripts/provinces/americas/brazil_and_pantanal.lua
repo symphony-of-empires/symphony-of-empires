@@ -29,9 +29,14 @@ local brazil_provinces_list = {
     { ref_name = "porto_alegre", name = _("Porto Alegre"), color = rgb(150, 255, 248) },
     { ref_name = "bage", name = _("Bagé"), color = rgb(208, 137, 255) },
     { ref_name = "sao_borja", name = _("São Borja"), color = rgb(111, 162, 128) },
-    { ref_name = "cisplatina", name = _("Cisplatina"), color = rgb(255, 234, 132) }
-}
+    { ref_name = "cisplatina", name = _("Cisplatina"), color = rgb(255, 234, 132) },
 
+    { ref_name = "province_8047df00", name = _("Province_df4780"), color = 0xdf4780 },
+    { ref_name = "province_20557700", name = _("Province_775520"), color = 0x775520 },
+    { ref_name = "province_e0f8e600", name = _("Province_e6f8e0"), color = 0xe6f8e0 },
+    { ref_name = "province_20ea4e00", name = _("Province_4eea20"), color = 0x4eea20 },
+    { ref_name = "province_c0c35200", name = _("Province_52c3c0"), color = 0x52c3c0 },
+}
 for k, v in pairs(brazil_provinces_list) do
     province = Province:new(v)
     province:register()
@@ -58,9 +63,11 @@ end
 local paraguay_provinces_list = {
     { ref_name = "asuncion", name = _("Asunción"), color = rgb(0, 199, 255) },
     { ref_name = "vila_sacaron", name = _("Vila Sacarón"), color = rgb(183, 28, 255) },
-    { ref_name = "nioaque", name = _("Nioaque"), color = rgb(81, 116, 255) }
+    { ref_name = "nioaque", name = _("Nioaque"), color = rgb(81, 116, 255) },
+    { ref_name = "province_40647e00", name = _("Province_7e6440"), color = 0x7e6440 },
+    { ref_name = "province_ff7a5100", name = _("Province_517aff"), color = 0x517aff },
+    { ref_name = "province_404ad600", name = _("Province_d64a40"), color = 0xd64a40 },
 }
-
 for k, v in pairs(paraguay_provinces_list) do
     province = Province:new(v)
     province:register()
@@ -98,9 +105,10 @@ local bolivia_provinces_list = {
     { ref_name = "oruro", name = _("Oruro"), color = rgb(117, 255, 204) },
     { ref_name = "potosi", name = _("Potosí"), color = rgb(252, 99, 255) },
     { ref_name = "chuquisaca", name = _("Chuquisaca"), color = rgb(79, 167, 255) },
-    { ref_name = "tarija", name = _("Tarija"), color = rgb(144, 124, 255) }
+    { ref_name = "tarija", name = _("Tarija"), color = rgb(144, 124, 255) },
+    { ref_name = "province_ff63c800", name = _("Province_c863ff"), color = 0xc863ff },
+    { ref_name = "province_e0db4a00", name = _("Province_4adbe0"), color = 0x4adbe0 },
 }
-
 for k, v in pairs(bolivia_provinces_list) do
     province = Province:new(v)
     province:register()

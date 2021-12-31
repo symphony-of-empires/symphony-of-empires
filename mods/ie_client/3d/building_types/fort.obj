@@ -1,6 +1,6 @@
 # Blender v2.93.2 OBJ File: 'fort.blend'
 # www.blender.org
-mtllib fort.mtl
+mtllib building_types/fort.mtl
 o Cube_Cube.001
 v -0.691808 0.071141 -0.021983
 v -0.691808 1.130073 -0.021983

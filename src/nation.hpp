@@ -86,9 +86,9 @@ public:
     void auto_relocate_capital(void);
     void set_policy(Policies& policies);
     bool is_accepted_culture(const Pop& pop) const;
-    bool is_accepted_culture(Culture* culture) const;
+    bool is_accepted_culture(const Culture& culture) const;
     bool is_accepted_religion(const Pop& pop) const;
-    bool is_accepted_religion(Religion* relgion) const;
+    bool is_accepted_religion(const Religion& relgion) const;
     float get_tax(const Pop& pop) const;
     void give_province(Province& province);
     const NationClientHint& get_client_hint(void);

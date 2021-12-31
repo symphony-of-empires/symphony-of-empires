@@ -81,7 +81,7 @@ public:
     // The ui will mostly need to read the world state
     World* world = nullptr;
     // Nation::Id curr_nation
-    Nation* curr_nation;
+    Nation* curr_nation = nullptr;
     Map* map = nullptr;
     Input input;
     MapMode current_mode = MapMode::NO_MAP;

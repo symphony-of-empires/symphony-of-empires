@@ -1,36 +1,10 @@
-#ifdef unix
-#	define _XOPEN_SOURCE_EXTENDED 1
-#	include <netdb.h>
-#	include <arpa/inet.h>
-#endif
-
-#include <sys/types.h>
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
 #include <mutex>
-/* Visual Studio does not know about UNISTD.H, Mingw does through */
-#ifndef _MSC_VER
-#	include <unistd.h>
-#endif
-
-#ifdef unix
-#	include <poll.h>
-#endif
-#include <signal.h>
-#include <fcntl.h>
-
-#ifdef windows
-#include <winsock2.h>
-#include <ws2def.h>
-#include <ws2tcpip.h>
-#include <windef.h>
-#include <ws2tcpip.h>
-#pragma comment(lib, "Ws2_32.lib")
-#endif
-
 #include <chrono>
 #include <thread>
+
 #include "action.hpp"
 #include "world.hpp"
 #include "io_impl.hpp"
@@ -41,135 +15,41 @@
 
 Server* g_server = nullptr;
 Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
-    : n_clients(max_conn),
+    : UnifiedRender::Networking::Server(port, max_conn),
     gs{ _gs }
 {
     g_server = this;
+    print_info("Deploying %u threads for clients", n_clients);
 
-    run = true;
-#ifdef windows
-    WSADATA data;
-    WSAStartup(MAKEWORD(2, 2), &data);
-#endif
-
-    std::memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    addr.sin_port = htons(port);
-
-    fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(fd == INVALID_SOCKET) {
-        throw SocketException("Cannot create server socket");
-    }
-
-#ifdef unix
-    int enable = 1;
-    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
-    setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int));
-#endif
-    if(bind(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
-        throw SocketException("Cannot bind server");
-    }
-
-    if(listen(fd, max_conn) != 0) {
-        throw SocketException("Cannot listen in specified number of concurrent connections");
-    }
-
-#ifdef unix
-    fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0) | O_NONBLOCK);
-#endif
-
-    print_info("Deploying %u threads for clients", max_conn);
-    clients = new ServerClient[max_conn];
-    for(size_t i = 0; i < max_conn; i++) {
+    clients = new UnifiedRender::Networking::ServerClient[n_clients];
+    for(size_t i = 0; i < n_clients; i++) {
         clients[i].is_connected = false;
         clients[i].thread = std::thread(&Server::net_loop, this, i);
     }
-
-#ifdef unix
-    // We need to ignore pipe signals since any client disconnecting **will** kill the server
-    signal(SIGPIPE, SIG_IGN);
-#endif
-
-    print_info("Server created sucessfully and listening to %u; now invite people!", port);
 }
 
 Server::~Server() {
-    run = false;
-#ifdef unix
-    close(fd);
-#elif defined windows
-    closesocket(fd);
-    WSACleanup();
-#endif
-    delete[] clients;
+
 }
 
-// This will broadcast the given packet to all clients currently on the server
-void Server::broadcast(const Packet& packet) {
-    for(size_t i = 0; i < n_clients; i++) {
-        if(clients[i].is_connected == true) {
-            // If we can "acquire" the spinlock to the main packet queue we will push
-            // our packet there, otherwise we take the alternative packet queue to minimize
-            // locking between server and client
-            if(clients[i].packets_mutex.try_lock()) {
-                clients[i].packets.push_back(packet);
-                clients[i].packets_mutex.unlock();
-            } else {
-                std::scoped_lock lock(clients[i].pending_packets_mutex);
-                clients[i].pending_packets.push_back(packet);
-            }
-
-            // Disconnect the client when more than 200 MB is used
-            // we can't save your packets buddy - other clients need their stuff too!
-            size_t total_size = 0;
-            for(const auto& packet_q : clients[i].pending_packets) {
-                total_size += packet_q.buffer.size();
-            }
-            if(total_size >= 200 * 1000000) {
-                clients[i].is_connected = false;
-                print_error("Client %zu has exceeded max quota! - It has used %zu bytes!", i, total_size);
-            }
-        }
-    }
-}
-
-/** This is the handling thread-function for handling a connection to a single client
- * Sending packets will only be received by the other end, when trying to broadcast please
- * put the packets on the send queue, they will be sent accordingly
- */
+// This is the handling thread-function for handling a connection to a single client
+// Sending packets will only be received by the other end, when trying to broadcast please
+// put the packets on the send queue, they will be sent accordingly
 void Server::net_loop(int id) {
-    ServerClient& cl = clients[id];
+    UnifiedRender::Networking::ServerClient& cl = clients[id];
     while(run) {
         int conn_fd = 0;
         try {
-            sockaddr_in client;
-            socklen_t len = sizeof(client);
-
             cl.is_connected = false;
             while(!cl.is_connected) {
-                try {
-                    conn_fd = accept(fd, (sockaddr*)&client, &len);
-                    if(conn_fd == INVALID_SOCKET)
-                        throw SocketException("Cannot accept client connection");
-
-                    // At this point the client's connection was accepted - so we only have to check
-                    // Then we check if the server is running and we throw accordingly
-                    cl.is_connected = true;
-                    break;
+                conn_fd = cl.try_connect(fd);
+                if(!run) {
+                    throw ServerException("Server closed");
                 }
-                catch(SocketException& e) {
-                    // Do something
-                    if(run == false)
-                        throw SocketException("Close client");
-                }
-                std::this_thread::sleep_for(std::chrono::seconds(3));
             }
-            print_info("New client connection established");
-            cl.is_connected = true;
 
             Nation* selected_nation = nullptr;
-            Packet packet = Packet(conn_fd);
+            UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet(conn_fd);
 
             player_count++;
 
@@ -205,11 +85,7 @@ void Server::net_loop(int id) {
 
             ActionType action = ActionType::PING;
             packet.send(&action);
-#ifdef unix
-            struct pollfd pfd;
-            pfd.fd = conn_fd;
-            pfd.events = POLLIN;
-#endif
+            
             // TODO: The world mutex is not properly unlocked when an exception occours
             // this allows clients to abruptly disconnect and softlock a server
             // so we did this little trick of manually unlocking - but this is a bad idea
@@ -217,35 +93,10 @@ void Server::net_loop(int id) {
             // an exception is thrown), since we are using C++
             Archive ar = Archive();
             while(run && cl.is_connected == true) {
-                // Push pending_packets to packets queue (the packets queue is managed
-                // by us and requires almost 0 locking, so the host does not stagnate when
-                // trying to send packets to a certain client)
-                if(!cl.pending_packets.empty()) {
-                    if(cl.pending_packets_mutex.try_lock()) {
-                        std::scoped_lock lock(cl.packets_mutex);
-                        for(const auto& packet : cl.pending_packets) {
-                            cl.packets.push_back(packet);
-                        }
-                        cl.pending_packets.clear();
-                        cl.pending_packets_mutex.unlock();
-                    }
-                }
+                cl.flush_packets();
 
                 // Check if we need to read packets
-#ifdef unix
-                int has_pending = poll(&pfd, 1, 10);
-#elif defined windows
-                u_long has_pending = 0;
-                int test = ioctlsocket(conn_fd, FIONREAD, &has_pending);
-#endif
-
-                // Conditional of above statements
-#ifdef unix
-                if(pfd.revents & POLLIN || has_pending)
-#elif defined windows
-                if(has_pending)
-#endif
-                {
+                if(cl.has_pending()) {
                     packet.recv();
                     ar.set_buffer(packet.data(), packet.size());
                     ar.rewind();
@@ -281,10 +132,13 @@ void Server::net_loop(int id) {
                         // Must control unit
                         if(selected_nation != unit->owner)
                             throw ServerException("Nation does not control unit");
-
-                        ::deserialize(ar, &unit->province);
-                        if(unit->province != nullptr)
-                            print_info("Unit changes targets to %s", unit->province->ref_name.c_str());
+                        
+                        Province* province;
+                        ::deserialize(ar, &province);
+                        if(province != nullptr)
+                            print_info("Unit changes targets to %s", province->ref_name.c_str());
+                        
+                        unit->set_target(*province);
                     } break;
                     // Client tells the server about the construction of a new unit, note that this will
                     // only make the building submit "construction tickets" to obtain materials to build
@@ -361,18 +215,8 @@ void Server::net_loop(int id) {
                         ::deserialize(ar, &approval);
 
                         print_info("[%s] approves treaty [%s]? %s!", selected_nation->ref_name.c_str(), treaty->name.c_str(), (approval == TreatyApproval::ACCEPTED) ? "YES" : "NO");
-
-                        // Check that the nation participates in the treaty
-                        bool does_participate = false;
-                        for(auto& status : treaty->approval_status) {
-                            if(status.first == selected_nation) {
-                                // Alright, then change approval
-                                status.second = approval;
-                                does_participate = true;
-                                break;
-                            }
-                        }
-                        if(!does_participate)
+                        
+                        if(!treaty->does_participate(*selected_nation))
                             throw ServerException("Nation does not participate in treaty");
 
                         // Rebroadcast
@@ -448,7 +292,7 @@ void Server::net_loop(int id) {
                             throw ServerException("Descision " + descision_ref_name + " not found");
                         }
 
-                        (*event)->take_descision(selected_nation, &(*descision));
+                        (*event)->take_descision(*selected_nation, *descision);
                         print_info("Event [%s] + descision [%s] taken by [%s]",
                             event_ref_name.c_str(),
                             descision_ref_name.c_str(),
@@ -510,14 +354,14 @@ void Server::net_loop(int id) {
                 // After reading everything we will send our queue appropriately to the client
                 std::scoped_lock lock(cl.packets_mutex);
                 for(auto& packet : cl.packets) {
-                    packet.stream = SocketStream(conn_fd);
+                    packet.stream = UnifiedRender::Networking::SocketStream(conn_fd);
                     packet.send();
                 }
                 cl.packets.clear();
             }
         } catch(ServerException& e) {
             print_error("ServerException: %s", e.what());
-        } catch(SocketException& e) {
+        } catch(UnifiedRender::Networking::SocketException& e) {
             print_error("SocketException: %s", e.what());
         } catch(SerializerException& e) {
             print_error("SerializerException: %s", e.what());
@@ -539,7 +383,7 @@ void Server::net_loop(int id) {
 
         // Tell the remaining clients about the disconnection
         {
-            Packet packet;
+            UnifiedRender::Networking::Packet packet;
             Archive ar = Archive();
             ActionType action = ActionType::DISCONNECT;
             ::serialize(ar, &action);

@@ -1,12 +1,10 @@
-#version 330 compatibility
-
 out vec4 f_frag_color;
 
 in vec2 v_texcoord;
 
-uniform vec2 map_size;
-uniform float jump;
-uniform sampler2D tex;
+provided vec2 map_size;
+provided float jump;
+provided sampler2D tex;
 
 float get_dist(vec2 v1_coord, vec2 v2_coord) {
 	vec2 xy_diff = (v1_coord - v2_coord) * map_size;
@@ -16,7 +14,6 @@ float get_dist(vec2 v1_coord, vec2 v2_coord) {
 vec4 fetch_pixel(vec2 coords) {
 	int pixelX = int(coords.x * map_size.x);  
 	int pixelY = int(coords.y * map_size.y);
-
 	return texelFetch(tex, ivec2(pixelX, pixelY), 0);
 }
 
@@ -42,20 +39,22 @@ void main() {
 	// }
 
 	float dist = 0.0;
-	if(m_frag_data.z > 0.0)
+	if(m_frag_data.z > 0.0) {
 		dist = get_dist(m_frag_data.xy, m_coord);
+	}
 
 	for(int i = 0; i < 8; ++i) {
-		if(nCoord[i].y < 0.0 || nCoord[i].y >= 1.)
+		if(nCoord[i].y < 0.0 || nCoord[i].y >= 1.) {
 			continue;
+		}
 
 		vec4 neighbor = fetch_pixel(nCoord[i]);
 
-		if(neighbor.z == 0.0)
+		if(neighbor.z == 0.0) {
 			continue;
+		}
 
 		float newDist = get_dist(neighbor.xy, m_coord);
-
 		if(m_frag_data.z == 0.0 || newDist < dist) {
 			float d = 1. - sqrt(newDist) / (4. * sqrt(2.));
 			d = max(d, 0.001);

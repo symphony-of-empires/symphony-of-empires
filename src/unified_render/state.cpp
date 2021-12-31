@@ -19,7 +19,7 @@
 #include <cstring>
 
 #include "unified_render/path.hpp"
-#include "unified_render/asset.hpp"
+#include "unified_render/io.hpp"
 
 #include "unified_render/print.hpp"
 #include "unified_render/sound.hpp"
@@ -27,11 +27,10 @@
 #include "unified_render/material.hpp"
 #include "unified_render/model.hpp"
 
-using namespace UnifiedRender;
+// Used for the singleton
+static UnifiedRender::State* g_state = nullptr;
 
-static State* g_state = nullptr;
-
-State::State(void) {
+UnifiedRender::State::State(void) {
     g_state = this;
 
 	// Startup-initialization of subsystems
@@ -54,9 +53,10 @@ State::State(void) {
 	
     glewExperimental = GL_TRUE;
     GLenum err = glewInit();
-    if(err != GLEW_OK)
+    if(err != GLEW_OK) {
         throw std::runtime_error("Failed to init GLEW");
-    
+    }
+
     GLint size;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
     print_info("%d", size);
@@ -83,14 +83,16 @@ State::State(void) {
     fmt.samples = 512;
     fmt.callback = &UnifiedRender::State::mixaudio;
     fmt.userdata = this;
-    if(SDL_OpenAudio(&fmt, NULL) < 0)
+    if(SDL_OpenAudio(&fmt, NULL) < 0) {
         throw std::runtime_error("Unable to open audio: " + std::string(SDL_GetError()));
+    }
     SDL_PauseAudio(0);
 
     tex_man = new UnifiedRender::TextureManager();
     sound_man = new UnifiedRender::SoundManager();
     material_man = new UnifiedRender::MaterialManager();
     model_man = new UnifiedRender::ModelManager();
+    package_man = new UnifiedRender::IO::PackageManager();
 
     const std::string asset_path = Path::get_full();
     
@@ -101,33 +103,9 @@ State::State(void) {
             Path::add_path(path.string());
         }
     }
-    
-    // Register packages
-    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
-        if(!entry.is_directory()) continue;
-
-        auto package = UnifiedRender::Package();
-        package.name = entry.path().lexically_relative(asset_path).string();
-        for(const auto& _entry : std::filesystem::recursive_directory_iterator(entry.path())) {
-            if(_entry.is_directory()) continue;
-
-            auto* asset = new UnifiedRender::Asset::File();
-            asset->path = _entry.path().lexically_relative(entry.path()).string();
-            asset->abs_path = _entry.path().string();
-            package.assets.push_back(asset);
-        }
-        packages.push_back(package);
-    }
-
-    for(const auto& package : packages) {
-        print_info("PACKAGE %s", package.name.c_str());
-        for(const auto& asset : package.assets) {
-            print_info("- %s (in %s)", asset->path.c_str(), asset->abs_path.c_str());
-        }
-    }
 }
 
-State::~State(void) {
+UnifiedRender::State::~State(void) {
 	SDL_CloseAudio();
 	
     TTF_Quit();
@@ -136,16 +114,20 @@ State::~State(void) {
     g_state = nullptr;
 }
 
-void State::mixaudio(void* userdata, uint8_t* stream, int len) {
-    State& gs = *((State*)userdata);
+void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
+    UnifiedRender::State& gs = *((UnifiedRender::State*)userdata);
     std::memset(stream, 0, len);
 
     if(gs.sound_lock.try_lock()) {
         for(unsigned int i = 0; i < gs.sound_queue.size(); ) {
             int size = gs.sound_queue.size();
-            auto* sound = gs.sound_queue[i];
+            UnifiedRender::Sound* sound = gs.sound_queue[i];
             int amount = sound->len - sound->pos;
-            if(amount > len) amount = len;
+
+            if(amount > len) {
+                amount = len;
+            }
+
             if(amount <= 0) {
                 delete sound;
                 gs.sound_queue.erase(gs.sound_queue.begin() + i);
@@ -158,9 +140,13 @@ void State::mixaudio(void* userdata, uint8_t* stream, int len) {
         }
 
         for(unsigned int i = 0; i < gs.music_queue.size(); ) {
-            auto* music = gs.music_queue[i];
+            UnifiedRender::Sound* music = gs.music_queue[i];
             int amount = music->len - music->pos;
-            if(amount > len) amount = len;
+            
+            if(amount > len) {
+                amount = len;
+            }
+
             if(amount <= 0) {
                 delete music;
                 gs.music_queue.erase(gs.music_queue.begin() + i);
@@ -174,9 +160,11 @@ void State::mixaudio(void* userdata, uint8_t* stream, int len) {
         gs.sound_lock.unlock();
     }
 
-    if(gs.music_fade_value > 1.f) gs.music_fade_value -= 1.f;
+    if(gs.music_fade_value > 1.f) {
+        gs.music_fade_value -= 1.f;
+    }
 }
 
-State& State::get_instance(void) {
+UnifiedRender::State& UnifiedRender::State::get_instance(void) {
     return *g_state;
 }

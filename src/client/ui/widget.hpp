@@ -20,19 +20,23 @@
 
 namespace UnifiedRender {
 	class Texture;
-}
+};
 
 namespace UI {
 	enum class Origin {
 		CENTER,
 		UPPER_LEFT,
+		UPPER_MIDDLE,
 		UPPER_RIGTH,
 		LOWER_LEFT,
+		LOWER_MIDDLE,
 		LOWER_RIGHT,
 		CENTER_SCREEN,
 		UPPER_LEFT_SCREEN,
+		UPPER_MIDDLE_SCREEN,
 		UPPER_RIGHT_SCREEN,
 		LOWER_LEFT_SCREEN,
+		LOWER_MIDDLE_SCREEN,
 		LOWER_RIGHT_SCREEN,
 	};
 
@@ -112,6 +116,7 @@ namespace UI {
 
 		int scroll_x = 0, scroll_y = 0;
 		int x = 0, y = 0;
+		glm::ivec2 padding{0};
 
 		size_t width = 0, height = 0;
 

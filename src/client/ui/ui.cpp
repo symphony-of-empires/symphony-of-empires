@@ -3,7 +3,6 @@
 #include <string>
 #include <cmath>
 #include <algorithm>
-#include <glm/vec2.hpp>
 
 #ifdef _MSC_VER
 #   ifndef _WINDOWS_
@@ -15,6 +14,7 @@
 
 #include <GL/glew.h>
 #include <GL/gl.h>
+#include <glm/vec2.hpp>
 
 #ifndef M_PI
 #   define M_PI 3.1416
@@ -47,15 +47,17 @@ Context::Context() {
     if(g_ui_context != nullptr) {
         throw std::runtime_error("UI context already constructed");
     }
+
     // default_font = TTF_OpenFont(Path::get("ui/fonts/FreeMono.ttf").c_str(), 16);
     default_font = TTF_OpenFont(Path::get("ui/fonts/Poppins/Poppins-Regular.ttf").c_str(), 16);
-    if(default_font == nullptr)
+    if(default_font == nullptr) {
         throw std::runtime_error(std::string() + "Font could not be loaded: " + TTF_GetError() + ", exiting");
+    }
 
     widgets.reserve(255);
 
-    background = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/background2.png"));
-    window_top = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/window_top2.png"));
+    background = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/window_background.png"));
+    window_top = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/window_top3.png"));
     button = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/button2.png"));
     tooltip_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/tooltip.png"));
     piechart_overlay = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/piechart.png"));
@@ -70,15 +72,18 @@ void Context::add_widget(Widget* widget) {
     widget->is_show = 1;
 
     // Not already here
-    if(std::count(widgets.begin(), widgets.end(), widget))
+    if(std::count(widgets.begin(), widgets.end(), widget)) {
         return;
+    }
 
     widgets.push_back(widget);
 }
 
 void Context::remove_widget(Widget* widget) {
     for(size_t i = 0; i < widgets.size(); i++) {
-        if(widgets[i] != widget) continue;
+        if(widgets[i] != widget) {
+            continue;
+        }
 
         widgets.erase(widgets.begin() + i);
         break;
@@ -139,15 +144,21 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
     glm::ivec2 pos{ w.x, w.y };
     glm::ivec2 screen_size{ width, height };
     glm::ivec2 parent_size{ 0, 0 };
-    if(w.parent != nullptr)
+    if(w.parent != nullptr) {
         parent_size = glm::ivec2{ w.parent->width, w.parent->height };
+    }
 
     switch(w.origin) {
     case UI::Origin::CENTER:
         pos += offset;
         pos += parent_size / 2;
+        break;
     case UI::Origin::UPPER_LEFT:
         pos += offset;
+        break;
+    case UI::Origin::UPPER_MIDDLE:
+        pos += offset;
+        pos.x += parent_size.x / 2;
         break;
     case UI::Origin::UPPER_RIGTH:
         pos += offset;
@@ -156,6 +167,11 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
     case UI::Origin::LOWER_LEFT:
         pos += offset;
         pos.y += parent_size.y;
+        break;
+    case UI::Origin::LOWER_MIDDLE:
+        pos += offset;
+        pos.y += parent_size.y;
+        pos.x += parent_size.x / 2;
         break;
     case UI::Origin::LOWER_RIGHT:
         pos += offset;
@@ -166,11 +182,18 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
         break;
     case UI::Origin::UPPER_LEFT_SCREEN:
         break;
+    case UI::Origin::UPPER_MIDDLE_SCREEN:
+        pos.x += screen_size.x / 2;
+        break;
     case UI::Origin::UPPER_RIGHT_SCREEN:
         pos.x += screen_size.x;
         break;
     case UI::Origin::LOWER_LEFT_SCREEN:
         pos.y += screen_size.y;
+        break;
+    case UI::Origin::LOWER_MIDDLE_SCREEN:
+        pos.y += screen_size.y;
+        pos.x += screen_size.x / 2;
         break;
     case UI::Origin::LOWER_RIGHT_SCREEN:
         pos += screen_size;
@@ -185,12 +208,15 @@ void Context::resize(int _width, int _height) {
 }
 
 void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
-    if(!w.width || !w.height) return;
+    if(!w.width || !w.height) {
+        return;
+    }
 
     if(w.is_fullscreen) {
         w.width = width;
         w.height = height;
     }
+
     glm::ivec2 offset{ viewport.left, viewport.top };
     glm::ivec2 size{ w.width, w.height };
     offset = get_pos(w, offset);
@@ -212,12 +238,14 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
         child->is_show = true;
         child->is_clickable = (w.on_click || w.is_clickable) && w.is_hover;
         if(viewport.size().x <= 0 || viewport.size().y <= 0) {
-            if(!child->is_float)
+            if(!child->is_float) {
                 child->is_show = false;
+            }
         }
 
-        if(!child->is_show || !child->is_render)
+        if(!child->is_show || !child->is_render) {
             continue;
+        }
 
         render_recursive(*child, viewport);
     }
@@ -240,6 +268,7 @@ void Context::render_all() {
     for(auto& widget : this->widgets) {
         render_recursive(*widget, viewport);
     }
+
     if(tooltip_widget != nullptr) {
         render_recursive(*tooltip_widget, viewport);
     }
@@ -252,14 +281,17 @@ void Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
 
     w.is_hover = true;
 
-    if(!w.is_show) w.is_hover = false;
-    if(!w.is_render) w.is_hover = false;
-
-    if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height))
+    if(!w.is_show || !w.is_render) {
         w.is_hover = false;
+    }
 
-    if(w.is_hover && w.on_hover)
+    if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
+        w.is_hover = false;
+    }
+
+    if(w.is_hover && w.on_hover) {
         w.on_hover(w, w.user_data);
+    }
 
     if(w.is_hover && w.tooltip != nullptr) {
         tooltip_widget = w.tooltip;
@@ -286,32 +318,58 @@ void Context::check_hover(const unsigned mx, const unsigned my) {
     }
 }
 
-CLICK_STATE Context::check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off,
-    CLICK_STATE click_state, bool clickable) {
+UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, UI::ClickState click_state, bool clickable) {
     glm::ivec2 offset{ x_off, y_off };
     offset = get_pos(w, offset);
 
-    if(click_state != CLICK_STATE::NOT_CLICKED)
+    if(click_state != UI::ClickState::NOT_CLICKED) {
         clickable = true;
+    }
 
-    bool click_consumed = click_state == CLICK_STATE::HANDLED;
+    bool click_consumed = click_state == UI::ClickState::HANDLED;
+
     // Widget must be displayed
-    if(!w.is_show) clickable = false;
-    if(!w.is_render) clickable = false;
-
-    // Click must be within the widget's box
-    if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height))
+    if(!w.is_show || !w.is_render) {
         clickable = false;
+    }
+
+    // Click must be within the widget's box if it's not a group
+    if(w.type != UI::WidgetType::GROUP) {
+        if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
+            clickable = false;
+        }
+        else if(w.type == UI::WidgetType::IMAGE) {
+            if(w.current_texture != nullptr) {
+                int tex_width = w.current_texture->width;
+                int tex_height = w.current_texture->height;
+                int tex_x = ((mx - offset.x) * tex_width) / w.width;
+                int tex_y = ((my - offset.y) * tex_height) / w.height;
+                if(tex_x >= 0 && tex_x < tex_width && tex_y >= 0 && tex_y < tex_height) {
+                    uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y);
+                    if(((argb >> 24) & 0xff) == 0) {
+                        clickable = false;
+                    }
+                }
+            }
+        }
+    }
 
     for(auto& child : w.children) {
         click_state = check_click_recursive(*child, mx, my, offset.x, offset.y, click_state, clickable);
     }
 
+    if(w.type == UI::WidgetType::GROUP) {
+        clickable = false;
+    }
+
     // Call on_click_outside if on_click has been used or widget isn't hit by click
     if(w.on_click_outside) {
-        if(!clickable || click_consumed) w.on_click_outside(w, w.user_data);
+        if(!clickable || click_consumed) {
+            w.on_click_outside(w, w.user_data);
+        }
     }
-    // Call on_click if on_click hasnt been used and widget is hit by ckick
+
+    // Call on_click if on_click hasnt been used and widget is hit by click
     if(w.on_click) {
         if(clickable && !click_consumed) {
             if(w.type == UI::WidgetType::SLIDER) {
@@ -320,24 +378,26 @@ CLICK_STATE Context::check_click_recursive(Widget& w, const unsigned int mx, con
             }
 
             w.on_click(w, w.user_data);
-            return CLICK_STATE::HANDLED;
+            return UI::ClickState::HANDLED;
         }
     }
 
-    if(click_state == CLICK_STATE::NOT_CLICKED && clickable)
-        click_state = CLICK_STATE::NOT_HANDLED;
+    if(click_state == UI::ClickState::NOT_CLICKED && clickable) {
+        click_state = UI::ClickState::NOT_HANDLED;
+    }
 
     return click_state;
 }
 
 bool Context::check_click(const unsigned mx, const unsigned my) {
     is_drag = false;
-    CLICK_STATE click_state = CLICK_STATE::NOT_CLICKED;
+    UI::ClickState click_state = UI::ClickState::NOT_CLICKED;
     int click_wind_index = -1;
     for(int i = widgets.size() - 1; i >= 0; i--) {
         click_state = check_click_recursive(*widgets[i], mx, my, 0, 0, click_state, true);
+
         // Check if windows should move to the top
-        if(click_wind_index == -1 && click_state != CLICK_STATE::NOT_CLICKED) {
+        if(click_wind_index == -1 && click_state != UI::ClickState::NOT_CLICKED) {
             click_wind_index = i;
         }
     }
@@ -350,7 +410,7 @@ bool Context::check_click(const unsigned mx, const unsigned my) {
             std::rotate(it, it + 1, widgets.end());
         }
     }
-    return click_state != CLICK_STATE::NOT_CLICKED;
+    return click_state != UI::ClickState::NOT_CLICKED;
 }
 
 void Context::check_drag(const unsigned mx, const unsigned my) {
@@ -358,14 +418,20 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
         Widget& widget = *widgets[i];
 
         // Only windows can be dragged around
-        if(widget.type != UI::WidgetType::WINDOW) continue;
+        if(widget.type != UI::WidgetType::WINDOW) {
+            continue;
+        }
 
         // Pinned widgets are not movable
-        if(widget.is_pinned) continue;
+        if(widget.is_pinned) {
+            continue;
+        }
 
         if((int)mx >= widget.x && mx <= widget.x + widget.width && (int)my >= widget.y && (int)my <= widget.y + 24) {
             auto& c_widget = static_cast<Window&>(widget);
-            if(!c_widget.is_movable) continue;
+            if(!c_widget.is_movable) {
+                continue;
+            }
 
             if(!is_drag) {
                 drag_x = mx - widget.x;
@@ -380,9 +446,10 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 
 void check_text_input_recursive(Widget& widget, const char* _input) {
     if(widget.type == UI::WidgetType::INPUT) {
-        auto& c_widget = static_cast<Input&>(widget);
-        if(c_widget.is_selected)
+        auto& c_widget = static_cast<UI::Input&>(widget);
+        if(c_widget.is_selected) {
             c_widget.on_textinput(c_widget, _input, c_widget.user_data);
+        }
     }
 
     for(const auto& children : widget.children) {
@@ -401,10 +468,13 @@ int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_of
     offset = get_pos(w, offset);
 
     // Widget must be shown
-    if(!w.is_show || !w.is_render) return 0;
-
-    if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height))
+    if(!w.is_show || !w.is_render) {
         return 0;
+    }
+
+    if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
+        return 0;
+    }
 
     // When we check the children they shall return non-zero if they are a group/window
     // We will only select the most-front children that is either a G/W - this is done
@@ -416,12 +486,16 @@ int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_of
     int r = 0;
     for(const auto& children : w.children) {
         r += check_wheel_recursive(*children, mx, my, offset.x, offset.y, y);
-        if(r > 0) return r;
+        if(r > 0) {
+            return r;
+        }
     }
 
     if(w.is_scroll && (w.type == UI::WidgetType::WINDOW || w.type == UI::WidgetType::GROUP)) {
         for(auto& child : w.children) {
-            if(!child->is_pinned) child->y += y;
+            if(!child->is_pinned) {
+                child->y += y;
+            }
         }
         r += 1;
     }
@@ -431,7 +505,9 @@ int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_of
 int Context::check_wheel(unsigned mx, unsigned my, int y) {
     for(int i = widgets.size() - 1; i >= 0; i--) {
         int r = check_wheel_recursive(*widgets[i], mx, my, 0, 0, y);
-        if(r > 0) return 1;
+        if(r > 0) {
+            return 1;
+        }
     }
     return 0;
 }
@@ -447,7 +523,9 @@ void Context::do_tick(void) {
 }
 
 int Context::do_tick_recursive(Widget& w) {
-    if(w.on_each_tick) w.on_each_tick(w, w.user_data);
+    if(w.on_each_tick) {
+        w.on_each_tick(w, w.user_data);
+    }
 
     for(auto& child : w.children) {
         do_tick_recursive(*child);

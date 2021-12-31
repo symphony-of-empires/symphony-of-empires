@@ -19,17 +19,14 @@
 #define RIVER_ELEVATION(a)			a + 1
 
 typedef unsigned int	uint;
-/**
-* A single tile unit, contains all needed information for tile-scale wars
-* and other non-war stuff (like province ownership).
-* This is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
- */
+// A single tile unit this is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
 class World;
 struct Tile {
 public:
+    const std::vector<const Tile*> get_neighbours(const World& world) const;
+
     // ID of the province where this tile belongs to
     Province::Id province_id;
-    const std::vector<const Tile*> get_neighbours(const World& world) const;
 };
 
 #include <string>
@@ -37,16 +34,15 @@ public:
 #include "unit.hpp"
 #include "technology.hpp"
 
-/**
-* Represents an order, something an industry wants and that should be
-* fullfilled by transport tick
- */
 enum class OrderType {
     INDUSTRIAL,
     BUILDING,
     UNIT,
     POP,
 };
+
+// Represents an order, something an industry wants and that should be
+// fullfilled by transport tick
 struct OrderGoods {
 public:
     enum OrderType type;
@@ -67,9 +63,7 @@ public:
     Province* province;
 };
 
-/**
- * A job request
- */
+// A job request
 struct JobRequest {
 public:
     size_t amount;
@@ -77,9 +71,7 @@ public:
     Pop pop;
 };
 
-/**
- * Represents a delivery,
- */
+// Represents a delivery,
 struct DeliverGoods {
 public:
     // How many we are willing to pay to deliver this
@@ -116,9 +108,7 @@ public:
     };\
     list_type<type*> list;
 
-/**
-* Contains the main world class object, containing all the data relevant for the simulation
- */
+// Contains the main world class object, containing all the data relevant for the simulation
 class World {
     std::vector<Event*> daily_check_events;
     std::vector<Event*> monthly_check_events;
@@ -132,10 +122,7 @@ public:
     World();
     World& operator=(const World&) = default;
     ~World();
-
     static World& get_instance(void);
-
-    // Function that "simulates" the world by an entire tick
     void do_tick(void);
     void load_initial(void);
     void load_mod(void);

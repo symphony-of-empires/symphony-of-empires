@@ -1,11 +1,9 @@
-#version 330 compatibility
-
 layout (location = 0) in vec3 m_pos;
 layout (location = 1) in vec2 m_texcoord;
 layout (location = 2) in vec3 m_color;
 
-uniform mat4 view;
-uniform mat4 projection;
+provided mat4 view;
+provided mat4 projection;
 
 out vec2 v_texcoord;
 out vec3 v_view_pos;

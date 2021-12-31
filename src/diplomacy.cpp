@@ -1,12 +1,12 @@
 #include "diplomacy.hpp"
 #include "nation.hpp"
 #include "world.hpp"
+#include "unified_render/log.hpp"
 
 using namespace Diplomacy;
 
-inline bool Diplomacy::is_friend(Nation* us, Nation* them) {
-    const Nation::Id idx = g_world->get_id(them);
-    const NationRelation* relation = &us->relations[idx];
+inline bool Diplomacy::is_friend(Nation& us, Nation& them) {
+    const NationRelation* relation = &us.relations[g_world->get_id(&them)];
 
     // A high relation means we are friendly <3
     if(relation->relation >= 50.f) {
@@ -28,7 +28,7 @@ inline bool Diplomacy::is_friend(Nation* us, Nation* them) {
     }
 }
 
-inline bool Diplomacy::is_foe(Nation* us, Nation* them) {
+inline bool Diplomacy::is_foe(Nation& us, Nation& them) {
     return !is_friend(us, them);
 }
 
@@ -102,7 +102,6 @@ bool ImposePolicies::in_effect(void) {
     return !done;
 }
 
-#include "unified_render/print.hpp"
 unsigned AnexxProvince::cost(void) {
     size_t value = 0;
     for(const auto& province : provinces) {
@@ -117,7 +116,7 @@ void AnexxProvince::enforce(void) {
 
     // Give provinces to the winner
     for(auto& province : provinces) {
-        print_info("Giving [%s] to [%s] (originally from [%s])", province->ref_name.c_str(), sender->ref_name.c_str(), receiver->ref_name.c_str());
+        UnifiedRender::Log::debug("game", "Giving " + province->ref_name + " to " + sender->ref_name + " from " + receiver->ref_name);
 
         province->owner = sender;
 
@@ -159,17 +158,17 @@ bool Ceasefire::in_effect() {
     return (days_duration != 0);
 }
 
-/** Checks if the specified nations participates in the treaty */
-bool Treaty::does_participate(Nation* nation) {
+// Checks if the specified nations participates in the treaty
+bool Treaty::does_participate(Nation& nation) {
     for(auto& status : this->approval_status) {
-        if(status.first == nation) {
+        if(status.first == &nation) {
             return true;
         }
     }
     return false;
 }
 
-/** Checks if the treaty has any clause which may still make the treaty be in effect */
+// Checks if the treaty has any clause which may still make the treaty be in effect
 bool Treaty::in_effect(void) const {
 	bool on_effect = false;
 	for(const auto& clause : this->clauses) {
@@ -193,7 +192,9 @@ bool Treaty::in_effect(void) const {
 			on_effect = dyn_clause->in_effect();
 		}
 		
-		if(on_effect) break;
+		if(on_effect) {
+            break;
+        }
 	}
 	return on_effect;	
 }

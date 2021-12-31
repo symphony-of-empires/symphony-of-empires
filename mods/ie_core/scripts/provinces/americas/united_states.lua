@@ -37,6 +37,17 @@ local usa_provinces = {
     { ref_name = "biloxi", name = _("Biloxi"), color = rgb(115, 28, 255) },
     { ref_name = "east_louisiana", name = _("East Louisiana"), color = rgb(199, 48, 255) },
     { ref_name = "louisiana", name = _("Louisiana"), color = rgb(91, 146, 255) },
+
+    { ref_name = "province_119800", name = _("Province_981100"), color = 0x981100 },
+    { ref_name = "province_8004d500", name = _("Province_d50480"), color = 0xd50480 },
+    { ref_name = "province_a0c15200", name = _("Province_52c1a0"), color = 0x52c1a0 },
+    { ref_name = "province_342500", name = _("Province_253400"), color = 0x253400 },
+    { ref_name = "province_6ce400", name = _("Province_e46c00"), color = 0xe46c00 },
+    { ref_name = "province_7b9e00", name = _("Province_9e7b00"), color = 0x9e7b00 },
+    { ref_name = "province_e0095400", name = _("Province_5409e0"), color = 0x5409e0 },
+    { ref_name = "province_80536500", name = _("Province_655380"), color = 0x655380 },
+    { ref_name = "province_608b4f00", name = _("Province_4f8b60"), color = 0x4f8b60 },
+    { ref_name = "province_2062d400", name = _("Province_d46220"), color = 0xd46220 },
 }
 
 for k, v in pairs(usa_provinces) do
@@ -90,21 +101,20 @@ local uncolonized_us_provinces = {
     { ref_name = "west_oregon", name = _("West Oregon"), color = rgb(224, 103, 255) },
     { ref_name = "washington", name = _("Washington"), color = 0xe066ff },
 }
-
 for k, v in pairs(uncolonized_us_provinces) do
     province = Province:new(v)
     province:register()
 
-    province:add_pop(artisan, american, protestant, 500, 0.7)
-    province:add_pop(farmer, american, protestant, 500, 0.1)
-    province:add_pop(soldier, american, protestant, 500, 0.2)
-    province:add_pop(craftsmen, american, protestant, 500, 0.2)
-    province:add_pop(bureaucrat, american, protestant, 500, 0.7)
-    province:add_pop(burgeoise, american, protestant, 500, 0.2)
-    province:add_pop(clergymen, american, protestant, 500, 0.3)
-    province:add_pop(laborer, american, protestant, 500, 0.2)
-    province:add_pop(burgeoise, american, protestant, 500, 0.9)
-    province:add_pop(slave, american, protestant, 500, 0.5)
+    province:add_pop(artisan, american, christian, 500, 0.7)
+    province:add_pop(farmer, american, christian, 500, 0.1)
+    province:add_pop(soldier, american, christian, 500, 0.2)
+    province:add_pop(craftsmen, american, christian, 500, 0.2)
+    province:add_pop(bureaucrat, american, christian, 500, 0.7)
+    province:add_pop(burgeoise, american, christian, 500, 0.2)
+    province:add_pop(clergymen, american, christian, 500, 0.3)
+    province:add_pop(laborer, american, christian, 500, 0.2)
+    province:add_pop(burgeoise, american, christian, 500, 0.9)
+    province:add_pop(slave, american, christian, 500, 0.5)
 
     province:give_to(united_states)
     province:add_industry(wheat_farm, united_states)
@@ -119,20 +129,19 @@ local texas_provinces = {
     { ref_name = "corpus_christi", name = _("Corpus Christi"), color = rgb(173, 255, 241) },
     { ref_name = "hill_country", name = _("Hill Country"), color = rgb(255, 225, 127) },
 }
-
 for k, v in pairs(texas_provinces) do
     province = Province:new(v)
     province:register()
 
-    province:add_pop(artisan, american, protestant, 500, 0.7)
-    province:add_pop(farmer, american, protestant, 500, 0.1)
-    province:add_pop(soldier, american, protestant, 500, 0.2)
-    province:add_pop(craftsmen, american, protestant, 500, 0.2)
-    province:add_pop(bureaucrat, american, protestant, 500, 0.7)
-    province:add_pop(burgeoise, american, protestant, 500, 0.2)
-    province:add_pop(clergymen, american, protestant, 500, 0.3)
-    province:add_pop(laborer, american, protestant, 500, 0.2)
-    province:add_pop(burgeoise, american, protestant, 500, 0.9)
+    province:add_pop(artisan, american, christian, 500, 0.7)
+    province:add_pop(farmer, american, christian, 500, 0.1)
+    province:add_pop(soldier, american, christian, 500, 0.2)
+    province:add_pop(craftsmen, american, christian, 500, 0.2)
+    province:add_pop(bureaucrat, american, christian, 500, 0.7)
+    province:add_pop(burgeoise, american, christian, 500, 0.2)
+    province:add_pop(clergymen, american, christian, 500, 0.3)
+    province:add_pop(laborer, american, christian, 500, 0.2)
+    province:add_pop(burgeoise, american, christian, 500, 0.9)
 
     province:add_pop(artisan, mexican, catholic, 500, 0.7)
     province:add_pop(farmer, mexican, catholic, 500, 0.1)

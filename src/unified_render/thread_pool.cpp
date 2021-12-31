@@ -1,9 +1,11 @@
 #include "unified_render/thread_pool.hpp"
 #include <algorithm>
 
-/**
- * Constructs the thread pool, this initializes threads for the pool
- */
+//
+// ThreadPool
+//
+
+// Constructs the thread pool, this initializes threads for the pool
 ThreadPool::ThreadPool() {
     // It's a good idea to use as many threads as the hardware implementation
     // supports. Otherwise we can run into performance hits.
@@ -22,9 +24,7 @@ ThreadPool::ThreadPool() {
     // We now have our threads running at this point - waiting for jobs to take
 }
 
-/**
- * Destructs the thread pool, closing all the pending jobs
- */
+// Destructs the thread pool, closing all the pending jobs
 ThreadPool::~ThreadPool() {
     // We are going to signal all threads to shutdown
     std::unique_lock<std::mutex> latch(job_mutex);
@@ -34,41 +34,42 @@ ThreadPool::~ThreadPool() {
 
     // After that we will start joining all threads - if a thread is executing
     // by a prolonged time, it will block the entire process
-    for(std::thread& job : this->threads) {
-        job.join();
+    std::vector<std::thread>::iterator job;
+    for(job = threads.begin(); job != threads.end(); job++) {
+        (*job).join();
     }
 }
 
-/**
- * Adds a job to the list of pending jobs
- */
+// Adds a job to the list of pending jobs
 void ThreadPool::add_job(std::function<void()> job) {
     std::scoped_lock lock(job_mutex);
     jobs.push(job);
     cv_task.notify_one();
 }
 
-/**
- * Waits until the job list is empty
- */
+// Waits until the job list is empty
 void ThreadPool::wait_finished() {
     std::unique_lock<std::mutex> lock(job_mutex);
-    cv_finished.wait(lock, [this](){ return jobs.empty() && (busy == 0); });
+    cv_finished.wait(lock, [this]() {
+        return (jobs.empty() && (busy == 0));
+    });
 }
 
-/**
- * This loop is executed on each thread on the thread list, what this basically does
- * is to check in the list of available jobs for jobs we can take
- */
+// This loop is executed on each thread on the thread list, what this basically does
+// is to check in the list of available jobs for jobs we can take
 void ThreadPool::thread_loop() {
     while(true) {
         std::unique_lock<std::mutex> latch(job_mutex);
-        cv_task.wait(latch, [this](){ return !running || !jobs.empty(); });
+        cv_task.wait(latch, [this]() {
+            return (!running || !jobs.empty());
+        });
 
-        if(!running) break;
+        if(!running) {
+            break;
+        }
 
         // pull from queue
-        auto fn = jobs.front();
+        std::function<void()> fn = jobs.front();
         jobs.pop();
 
         busy++;

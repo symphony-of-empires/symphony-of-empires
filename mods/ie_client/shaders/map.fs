@@ -1,28 +1,27 @@
-#version 330 compatibility
-
 out vec4 f_frag_color;
 
 in vec2 v_texcoord;
 in vec3 v_view_pos;
 in vec3 v_frag_pos;
 
-uniform vec3 view_pos;
-uniform vec2 map_size;
-uniform float time;
-uniform sampler2D tile_map;
-uniform sampler2D tile_sheet;
-uniform sampler2D water_texture;
-uniform sampler2D topo_texture;
-uniform sampler2D noise_texture;
-uniform sampler2D terrain_map;
-uniform sampler2DArray terrain_sheet;
-uniform sampler2D border_tex;
-uniform sampler2D border_sdf;
-uniform sampler2D landscape_map;
-uniform sampler2D river_texture;
-uniform sampler2D wave1;
-uniform sampler2D wave2;
-uniform sampler2D normal10;
+provided vec3 view_pos;
+provided vec2 map_size;
+provided float time;
+
+provided sampler2D tile_map;
+provided sampler2D tile_sheet;
+provided sampler2D water_texture;
+provided sampler2D topo_texture;
+provided sampler2D noise_texture;
+provided sampler2D terrain_map;
+provided sampler2DArray terrain_sheet;
+provided sampler2D border_tex;
+provided sampler2D border_sdf;
+provided sampler2D landscape_map;
+provided sampler2D river_texture;
+provided sampler2D wave1;
+provided sampler2D wave2;
+provided sampler2D normal10;
 
 // https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
 vec4 noTiling(sampler2D tex, vec2 uv) {
@@ -80,7 +79,6 @@ vec2 sum(vec4 v) {
 	float countryDiff = min((abs(v.z) + abs(v.w)) * 255., 1.0);
 	return vec2(provinceDiff, countryDiff);
 }
-
 
 vec4 get_border(vec2 texcoord) {
 	// Pixel size on map texture
@@ -304,8 +302,9 @@ void main() {
 	vec3 view_dir = normalize(view_pos - v_frag_pos);
 	// vec2 tex_coords = parallax_map(v_texcoord, view_dir);
 	vec2 tex_coords = v_texcoord;
-	if(tex_coords.x > 1.0 || tex_coords.y > 1.0 || tex_coords.x < 0.0 || tex_coords.y < 0.0)
+	if(tex_coords.x > 1.0 || tex_coords.y > 1.0 || tex_coords.x < 0.0 || tex_coords.y < 0.0) {
 		discard;
+	}
 
 	float dist_to_map = abs(view_pos.z);
 	dist_to_map = smoothstep(250., 350., dist_to_map);

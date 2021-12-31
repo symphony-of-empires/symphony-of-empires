@@ -8,35 +8,26 @@
 #include "unified_render/network.hpp"
 #include "client/game_state.hpp"
 
-class Client {
-    struct sockaddr_in addr;
-#ifdef unix
-    int fd;
-#elif defined windows
-    SOCKET fd;
-#endif
-    
+class ClientException : public std::exception {
+    std::string buffer;
+public:
+    ClientException(const std::string& msg) {
+        buffer = msg;
+    }
+    virtual const char* what(void) const noexcept {
+        return buffer.c_str();
+    }
+};
+
+class Client : public UnifiedRender::Networking::Client {
     std::thread net_thread;
     std::atomic<bool> has_snapshot;
     GameState& gs;
 public:
-    std::string username;
-
     Client(GameState& gs, std::string host, const unsigned port);
     ~Client();
-    int get_fd(void) {
-        return fd;
-    }
-    
     void net_loop(void);
     void wait_for_snapshot(void);
-    void send(const Packet& packet);
-	
-    std::deque<Packet> packets;
-	std::mutex packets_mutex;
-	
-	std::deque<Packet> pending_packets;
-	std::mutex pending_packets_mutex;
 };
 
 extern Client* g_client;

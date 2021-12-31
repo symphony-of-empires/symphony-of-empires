@@ -247,3 +247,12 @@ estonia_socialism
 
 latvia_socialism
 	By Ericmetro - Own work, based on [2] by Aloizs Luksa, and the traced scanned image from &quot;Гербы и Флаги СССР&quot;, Public Domain, https://commons.wikimedia.org/w/index.php?curid=56938841
+
+turkey_fascism
+	Public Domain - Unknown author
+
+turkey_communism
+	Public Domain - Unknown author
+
+turkey_socialism
+	Public Domain - Unknown author
