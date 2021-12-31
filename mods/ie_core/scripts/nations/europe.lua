@@ -518,6 +518,13 @@ wurttemberg:set_ideology(monarchy)
 wurttemberg:add_accepted_culture(german)
 wurttemberg:add_client_hint(monarchy, _("Württemberg"), 0xd6677b)
 
+liechtenstein = Nation:new{ ref_name = "liechtenstein" }
+liechtenstein.name = _("Liechtenstein")
+liechtenstein:register()
+liechtenstein:set_ideology(monarchy)
+liechtenstein:add_accepted_culture(german)
+liechtenstein:add_client_hint(monarchy, _("Liechtenstein"), 0x8a24ff) 
+
 mecklenburg = Nation:new{ ref_name = "mecklenburg" }
 mecklenburg.name = _("Mecklenburg")
 mecklenburg:register()
