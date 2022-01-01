@@ -75,6 +75,8 @@ UnifiedRender::State::State(void) {
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.f, 1.f);
 
+    glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
+
     // Initialize sound subsystem (at 11,050 hz)
     SDL_AudioSpec fmt;
     fmt.freq = 11050;
