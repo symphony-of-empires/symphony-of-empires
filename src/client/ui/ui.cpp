@@ -229,10 +229,11 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
     glPushMatrix();
     glTranslatef(offset.x, offset.y, 0.f);
     w.on_render(*this, local_viewport);
+    glPopMatrix();
+
     if(w.on_update) {
         w.on_update(w, w.user_data);
     }
-    glPopMatrix();
 
     for(auto& child : w.children) {
         child->is_show = true;

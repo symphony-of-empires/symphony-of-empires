@@ -348,7 +348,6 @@ void Map::update(const SDL_Event& event, Input& input) {
             camera->set_screen(width, height);
         }
         break;
-
     }
 }
 

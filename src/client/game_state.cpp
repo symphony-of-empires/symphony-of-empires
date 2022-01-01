@@ -239,12 +239,10 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
 }
 
 void GameState::update_on_tick(void) {
-    //render_lock.lock();
     ui_ctx->do_tick();
     if(current_mode != MapMode::NO_MAP) {
         map->update_mapmode();
     }
-    //render_lock.lock();
 }
 
 void GameState::world_thread(void) {
@@ -289,7 +287,6 @@ void main_loop(GameState& gs) {
 
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
-    glClearColor(0.3f, 0.3f, 0.3f, 0.5f);
     while(gs.run) {
         std::scoped_lock lock(gs.render_lock);
         handle_event(gs.input, gs);
