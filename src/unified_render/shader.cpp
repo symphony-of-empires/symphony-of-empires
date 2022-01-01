@@ -6,69 +6,55 @@
 
 using namespace UnifiedRender::OpenGl;
 
-// Construct a shader by opening the provided path and creating a temporal ifstream, reading
-// from that stream in text mode and then compiling the shader
-Shader::Shader(const std::string& path, GLuint type) {
-    std::ifstream file;
-    file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    try {
-        // Read the entire file onto the stringstream
-        file.open(Path::get(path).c_str());
-        std::stringstream stream;
-        stream << file.rdbuf();
-        file.close();
+UnifiedRender::OpenGl::GLSL_Context::GLSL_Context(const std::string& _buffer)
+    : buffer(_buffer)
+{
 
-        buffer = stream.str();
+}
 
-        GLSL_Context ctx;
-        lexer(ctx, buffer);
-        try {
-            parser(ctx);
-        } catch(GLSL_Exception& e) {
-            print_error("%s -> %s", e.it->data.c_str(), e.what());
-        }
-        buffer = to_text(ctx);
+UnifiedRender::OpenGl::GLSL_Context::~GLSL_Context(void) {
 
-        const char* c_code = buffer.c_str();
-        id = glCreateShader(type);
-        glShaderSource(id, 1, &c_code, NULL);
+}
 
-        compile(type);
-    } catch(std::ifstream::failure& e) {
-        print_error("Cannot load shader %s", path.c_str());
+std::string UnifiedRender::OpenGl::GLSL_Context::get_identifier(std::string::iterator& it) {
+    std::string::iterator start_it = it;
+
+    // Alphanumerics, _ and dots are allowed as identifiers
+    while((isalnum(*it) || *it == '_' || *it == '.') && it != buffer.end()) {
+        it++;
     }
+    
+    std::string str = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
+    return str;
 }
 
-void Shader::compile(GLuint type) {
-    glCompileShader(id);
+std::string UnifiedRender::OpenGl::GLSL_Context::get_literal(std::string::iterator& it) {
+    std::string::iterator start_it = it;
 
-    // Check for errors of the shader
-    GLint r = 0;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &r);
-    if(!r) {
-        std::string error_info;
-        glGetShaderInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
-        print_error("Status: %s", error_info.c_str());
-        throw ShaderException(error_info);
+    // Literal
+    while((isdigit(*it) || *it == '.') && it != buffer.end()) {
+        it++;
     }
-    // print_info("Status: Sucess");
+
+    // Skip "float" specifier
+    if(*it == 'f') {
+        it++;
+    }
+
+    std::string str = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
+    return str;
 }
 
-GLuint Shader::get_id(void) const {
-    return id;
-}
-
-void Shader::lexer(GLSL_Context& ctx, const std::string& buffer) {
-    std::vector<GLSL_Token>& tokens = ctx.tokens;
-
-    std::string::const_iterator it = buffer.begin();
+void UnifiedRender::OpenGl::GLSL_Context::lexer(void) {
+    // Output the final stuff
+    std::string::iterator it = buffer.begin();
     for( ; it != buffer.end(); ) {
-        while(*it == ' ' || *it == '\t') {
+        while((*it == ' ' || *it == '\t') && it != buffer.end()) {
             it++;
         }
 
-        if(*it == '#' || (*(it + 0) == '/' && *(it + 1) == '/')) {
-            while(*it != '\n' && it != buffer.end()) {
+        if((*(it + 0) == '/' && *(it + 1) == '/') || *it == '#') {
+            while((*it != '\n') && it != buffer.end()) {
                 it++;
             }
         } else if(*it == ',') {
@@ -166,31 +152,12 @@ void Shader::lexer(GLSL_Context& ctx, const std::string& buffer) {
             it++;
         } else {
             if(isdigit(*it) || *it == '.') {
-                std::string::const_iterator start_it = it;
-
-                // Literal
-                while(isdigit(*it) || *it == '.') {
-                    it++;
-                }
-
-                // Skip "float" specifier
-                if(*it == 'f') {
-                    it++;
-                }
-
                 GLSL_Token tok = GLSL_Token(GLSL_TokenType::LITERAL);
-                tok.data = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
+                tok.data = get_literal(it);
                 tokens.push_back(tok);
             } else if(isalnum(*it) || *it == '_') {
-                std::string::const_iterator start_it = it;
-
-                // Identifier
-                while(isalnum(*it) || *it == '_' || *it == '.') {
-                    it++;
-                }
-
                 GLSL_Token tok = GLSL_Token(GLSL_TokenType::IDENTIFIER);
-                tok.data = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
+                tok.data = get_identifier(it);
                 tokens.push_back(tok);
             } else {
                 it++;
@@ -199,7 +166,7 @@ void Shader::lexer(GLSL_Context& ctx, const std::string& buffer) {
     }
 }
 
-void Shader::parser(GLSL_Context& ctx) {
+void UnifiedRender::OpenGl::GLSL_Context::parser(void) {
     GLSL_Function fn;
     
     fn = GLSL_Function();
@@ -207,7 +174,7 @@ void Shader::parser(GLSL_Context& ctx) {
     fn.ret_type = "vec2";
     fn.args.push_back(std::make_pair("float", "x"));
     fn.args.push_back(std::make_pair("float", "y"));
-    ctx.funcs.push_back(fn);
+    funcs.push_back(fn);
 
     fn = GLSL_Function();
     fn.name = "vec3";
@@ -215,7 +182,7 @@ void Shader::parser(GLSL_Context& ctx) {
     fn.args.push_back(std::make_pair("float", "x"));
     fn.args.push_back(std::make_pair("float", "y"));
     fn.args.push_back(std::make_pair("float", "z"));
-    ctx.funcs.push_back(fn);
+    funcs.push_back(fn);
 
     fn = GLSL_Function();
     fn.name = "vec4";
@@ -224,7 +191,7 @@ void Shader::parser(GLSL_Context& ctx) {
     fn.args.push_back(std::make_pair("float", "y"));
     fn.args.push_back(std::make_pair("float", "z"));
     fn.args.push_back(std::make_pair("float", "w"));
-    ctx.funcs.push_back(fn);
+    funcs.push_back(fn);
 
     // Register all the overloads for this function
     std::vector<std::string> mix_strings = { "vec2", "vec3", "vec4", "sampler2D" };
@@ -236,7 +203,7 @@ void Shader::parser(GLSL_Context& ctx) {
             fn.args.push_back(std::make_pair(*it1, "x"));
             fn.args.push_back(std::make_pair(*it2, "y"));
             fn.args.push_back(std::make_pair("float", "z"));
-            ctx.funcs.push_back(fn);
+            funcs.push_back(fn);
         }
     }
 
@@ -246,23 +213,21 @@ void Shader::parser(GLSL_Context& ctx) {
     fn.args.push_back(std::make_pair("float", "num"));
     fn.args.push_back(std::make_pair("float", "min"));
     fn.args.push_back(std::make_pair("float", "max"));
-    ctx.funcs.push_back(fn);
+    funcs.push_back(fn);
 
     std::vector<GLSL_Token>::iterator it;
-    for(it = ctx.tokens.begin(); it != ctx.tokens.end(); it++) {
+    for(it = tokens.begin(); it != tokens.end(); it++) {
         if(it->type == GLSL_TokenType::ASSIGN) {
             
         }
     }
 
-    for(const auto& var : ctx.vars) {
+    for(const auto& var : vars) {
         print_error("VAR->%i (%s) typeof(%s)", static_cast<int>(var.type), var.name.c_str(), var.type_name.c_str());
     }
 }
 
-std::string Shader::to_text(GLSL_Context& ctx) {
-    std::vector<GLSL_Token>& tokens = ctx.tokens;
-
+std::string UnifiedRender::OpenGl::GLSL_Context::to_text(void) {
     std::string end_buffer;
     end_buffer += "#version 330 compatibility\r\n";
     for(const auto& tok : tokens) {
@@ -360,6 +325,58 @@ std::string Shader::to_text(GLSL_Context& ctx) {
     }
     print_info("%s", end_buffer.c_str());
     return end_buffer;
+}
+
+// Construct a shader by opening the provided path and creating a temporal ifstream, reading
+// from that stream in text mode and then compiling the shader
+Shader::Shader(const std::string& path, GLuint type) {
+    std::ifstream file;
+    file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    try {
+        // Read the entire file onto the stringstream
+        file.open(Path::get(path).c_str());
+        std::stringstream stream;
+        stream << file.rdbuf();
+        file.close();
+
+        buffer = stream.str();
+
+        GLSL_Context ctx(buffer);
+        ctx.lexer();
+        try {
+            ctx.parser();
+        } catch(GLSL_Exception& e) {
+            print_error("%s -> %s", e.it->data.c_str(), e.what());
+        }
+        buffer = ctx.to_text();
+
+        const char* c_code = buffer.c_str();
+        id = glCreateShader(type);
+        glShaderSource(id, 1, &c_code, NULL);
+
+        compile(type);
+    } catch(std::ifstream::failure& e) {
+        print_error("Cannot load shader %s", path.c_str());
+    }
+}
+
+void Shader::compile(GLuint type) {
+    glCompileShader(id);
+
+    // Check for errors of the shader
+    GLint r = 0;
+    glGetShaderiv(id, GL_COMPILE_STATUS, &r);
+    if(!r) {
+        std::string error_info;
+        glGetShaderInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
+        print_error("Status: %s", error_info.c_str());
+        throw ShaderException(error_info);
+    }
+    // print_info("Status: Sucess");
+}
+
+GLuint Shader::get_id(void) const {
+    return id;
 }
 
 // Deconstructs the shader object and we have to delete the shader from the OpenGL

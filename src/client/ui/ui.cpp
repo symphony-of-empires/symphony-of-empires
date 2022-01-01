@@ -388,7 +388,6 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
     if(click_state == UI::ClickState::NOT_CLICKED && clickable) {
         click_state = UI::ClickState::NOT_HANDLED;
     }
-
     return click_state;
 }
 

@@ -56,10 +56,25 @@ namespace UnifiedRender::OpenGl {
         std::string ret_type;
     };
 
+    struct GLSL_Define {
+        std::string name;
+        std::string value;
+    };
+
     struct GLSL_Context {
+        GLSL_Context(const std::string& buffer);
+        ~GLSL_Context();
+        std::string get_identifier(std::string::iterator& it);
+        std::string get_literal(std::string::iterator& it);
+        void lexer(void);
+        void parser(void);
+        std::string to_text(void);
+
         std::vector<GLSL_Variable> vars;
         std::vector<GLSL_Function> funcs;
         std::vector<GLSL_Token> tokens;
+        std::vector<GLSL_Define> defines;
+        std::string buffer;
     };
 
     class GLSL_Exception : public std::exception {
@@ -81,9 +96,6 @@ namespace UnifiedRender::OpenGl {
     public:
         Shader(const std::string& path, GLuint type);
         ~Shader();
-        void lexer(GLSL_Context& ctx, const std::string& buffer);
-        void parser(GLSL_Context& ctx);
-        std::string to_text(GLSL_Context& ctx);
 
         GLuint get_id(void) const;
     };
