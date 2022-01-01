@@ -11,7 +11,7 @@ namespace UnifiedRender {
     class Model;
     class TextureArray;
     class Model;
-    namespace OpenGl {
+    namespace OpenGL {
         class Square;
         class Sphere;
         class Program;
@@ -74,12 +74,12 @@ public:
     UnifiedRender::Texture* normal_topo;
     UnifiedRender::TextureArray* terrain_sheet;
 
-    UnifiedRender::OpenGl::Square* map_quad;
-    UnifiedRender::OpenGl::Sphere* map_sphere;
-    UnifiedRender::OpenGl::Quad2D* map_2d_quad;
+    UnifiedRender::Square* map_quad;
+    UnifiedRender::Sphere* map_sphere;
+    UnifiedRender::Quad2D* map_2d_quad;
 
-    std::unique_ptr<UnifiedRender::OpenGl::Program> map_shader;
-    std::unique_ptr<UnifiedRender::OpenGl::Program> border_sdf_shader;
-    std::unique_ptr<UnifiedRender::OpenGl::Program> border_gen_shader;
+    std::unique_ptr<UnifiedRender::OpenGL::Program> map_shader;
+    std::unique_ptr<UnifiedRender::OpenGL::Program> border_sdf_shader;
+    std::unique_ptr<UnifiedRender::OpenGL::Program> border_gen_shader;
     std::unique_ptr<UnifiedRender::Texture> border_sdf;
 };

@@ -13,13 +13,13 @@
 
 namespace UnifiedRender {
     class Material;
-    namespace OpenGl {
+    namespace OpenGL {
         class Program;
     };
 };
 
 namespace UnifiedRender {
-    namespace OpenGl {
+    namespace OpenGL {
         class VAO {
             GLuint id;
         public:
@@ -84,14 +84,14 @@ namespace UnifiedRender {
 
     // A simple object - use these to store "simple" objects that MAY repeat
     // TODO: We should use instancing tricks on simple objects
-    class SimpleModel : public OpenGl::PackedModel<glm::vec3, glm::vec2> {
+    class SimpleModel : public OpenGL::PackedModel<glm::vec3, glm::vec2> {
     public:
         SimpleModel(GLint _mode);
         ~SimpleModel(void);
         SimpleModel(const SimpleModel&) = default;
         SimpleModel(SimpleModel&&) noexcept = default;
         SimpleModel& operator=(const SimpleModel&) = default;
-        virtual void draw(const UnifiedRender::OpenGl::Program& shader) const;
+        virtual void draw(const UnifiedRender::OpenGL::Program& shader) const;
         void upload();
 
         const Material* material = nullptr;
@@ -105,7 +105,7 @@ namespace UnifiedRender {
         Model(const Model&) = default;
         Model(Model&&) noexcept = default;
         Model& operator=(const Model&) = default;
-        virtual void draw(const UnifiedRender::OpenGl::Program& shader) const;
+        virtual void draw(const UnifiedRender::OpenGL::Program& shader) const;
 
         std::vector<const SimpleModel*> simple_models;
     };

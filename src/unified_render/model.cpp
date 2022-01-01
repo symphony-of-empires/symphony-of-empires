@@ -15,38 +15,38 @@
 //
 // VAO
 //
-UnifiedRender::OpenGl::VAO::VAO(void) {
+UnifiedRender::OpenGL::VAO::VAO(void) {
     glGenVertexArrays(1, &id);
 }
 
-UnifiedRender::OpenGl::VAO::~VAO(void) {
+UnifiedRender::OpenGL::VAO::~VAO(void) {
     glDeleteVertexArrays(1, &id);
 }
 
-void UnifiedRender::OpenGl::VAO::bind(void) const {
+void UnifiedRender::OpenGL::VAO::bind(void) const {
     glBindVertexArray(id);
 }
 
-GLuint UnifiedRender::OpenGl::VAO::get_id(void) const {
+GLuint UnifiedRender::OpenGL::VAO::get_id(void) const {
     return id;
 }
 
 //
 // VBO
 //
-UnifiedRender::OpenGl::VBO::VBO(void) {
+UnifiedRender::OpenGL::VBO::VBO(void) {
     glGenBuffers(1, &id);
 }
 
-UnifiedRender::OpenGl::VBO::~VBO(void) {
+UnifiedRender::OpenGL::VBO::~VBO(void) {
     glDeleteBuffers(1, &id);
 }
 
-void UnifiedRender::OpenGl::VBO::bind(GLenum target) const {
+void UnifiedRender::OpenGL::VBO::bind(GLenum target) const {
     glBindBuffer(target, id);
 }
 
-GLuint UnifiedRender::OpenGl::VBO::get_id(void) const {
+GLuint UnifiedRender::OpenGL::VBO::get_id(void) const {
     return id;
 }
 
@@ -54,7 +54,7 @@ GLuint UnifiedRender::OpenGl::VBO::get_id(void) const {
 // Simple model
 //
 UnifiedRender::SimpleModel::SimpleModel(GLint _mode)
-    : UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(_mode)
+    : UnifiedRender::OpenGL::PackedModel<glm::vec3, glm::vec2>(_mode)
 {
 
 }
@@ -63,7 +63,7 @@ UnifiedRender::SimpleModel::~SimpleModel(void) {
 
 }
 
-void UnifiedRender::SimpleModel::draw(const UnifiedRender::OpenGl::Program& shader) const {
+void UnifiedRender::SimpleModel::draw(const UnifiedRender::OpenGL::Program& shader) const {
     // Change color if material wants it
     if(material != nullptr) {
         if(material->diffuse_map != nullptr) {
@@ -106,7 +106,7 @@ UnifiedRender::Model::~Model(void) {
 
 }
 
-void UnifiedRender::Model::draw(const UnifiedRender::OpenGl::Program& shader) const {
+void UnifiedRender::Model::draw(const UnifiedRender::OpenGL::Program& shader) const {
     std::vector<const UnifiedRender::SimpleModel *>::const_iterator model;
     for(model = simple_models.begin(); model != simple_models.end(); model++) {
         (*model)->draw(shader);
@@ -250,14 +250,14 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
             // The faces dictate indices for the vertices and we will also subtract 1 because the indexing is 0 based
             if(face.vertices.size() == face.texcoords.size()) {
                 for(unsigned int i = 0; i < face.vertices.size(); i++) {
-                    model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
+                    model->buffer.push_back(UnifiedRender::OpenGL::PackedData(
                         glm::vec3(vertices[face.vertices[i] - 1]),
                         glm::vec2(texcoords[face.texcoords[i] - 1])
                     ));
                 }
             } else {
                 for(unsigned int i = 0; i < face.vertices.size(); i++) {
-                    model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
+                    model->buffer.push_back(UnifiedRender::OpenGL::PackedData(
                         glm::vec3(vertices[face.vertices[i] - 1]),
                         glm::vec2(0.f, 0.f)
                     ));
@@ -299,7 +299,7 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_stl(const std::str
         memcpy(&vert.y, &buffer[88 + i * (sizeof(float) * 3)], sizeof(float));
         memcpy(&vert.z, &buffer[92 + i * (sizeof(float) * 3)], sizeof(float));
 
-        model->buffer.push_back(UnifiedRender::OpenGl::PackedData(
+        model->buffer.push_back(UnifiedRender::OpenGL::PackedData(
             glm::vec3(vert),
             glm::vec2(0.f, 0.f)
         ));

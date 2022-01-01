@@ -37,12 +37,12 @@ MapRender::MapRender(const World& _world)
     : world(_world)
 {
     // Flat surface for drawing flat map 
-    map_quad = new UnifiedRender::OpenGl::Square(0.f, 0.f, world.width, world.height);
+    map_quad = new UnifiedRender::Square(0.f, 0.f, world.width, world.height);
     // Sphere surface for drawing globe map
-    map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, GLOBE_RADIUS, 100);
+    map_sphere = new UnifiedRender::Sphere(0.f, 0.f, 0.f, GLOBE_RADIUS, 100);
 
     // Simple 2D quad that fills viewport, used for making the border_sdf
-    map_2d_quad = new UnifiedRender::OpenGl::Quad2D();
+    map_2d_quad = new UnifiedRender::Quad2D();
 
     // Mipmapped textures
     UnifiedRender::TextureOptions mipmap_options{};
@@ -98,9 +98,9 @@ MapRender::MapRender(const World& _world)
     // terrain_sheet->to_opengl();
 
     // The map shader that draws everything on the map 
-    map_shader = std::unique_ptr<UnifiedRender::OpenGl::Program>(UnifiedRender::OpenGl::Program::create(Path::get("shaders/map.vs"), Path::get("shaders/map.fs")));
-    border_gen_shader = std::unique_ptr<UnifiedRender::OpenGl::Program>(UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_gen.fs")));
-    border_sdf_shader = std::unique_ptr<UnifiedRender::OpenGl::Program>(UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf.fs")));
+    map_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(UnifiedRender::OpenGL::Program::create(Path::get("shaders/map.vs"), Path::get("shaders/map.fs")));
+    border_gen_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(UnifiedRender::OpenGL::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_gen.fs")));
+    border_sdf_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(UnifiedRender::OpenGL::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf.fs")));
 
     print_info("Creating tile map & tile sheet");
 
@@ -144,10 +144,10 @@ MapRender::MapRender(const World& _world)
 
 void MapRender::reload_shaders() {
     map_shader.reset(nullptr);
-    map_shader.reset(UnifiedRender::OpenGl::Program::create(Path::get("shaders/map.vs"), Path::get("shaders/map.fs")));
+    map_shader.reset(UnifiedRender::OpenGL::Program::create(Path::get("shaders/map.vs"), Path::get("shaders/map.fs")));
 
     border_sdf_shader.reset(nullptr);
-    border_sdf_shader.reset(UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf.fs")));
+    border_sdf_shader.reset(UnifiedRender::OpenGL::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf.fs")));
 
     border_sdf.reset(nullptr);
     border_sdf = gen_border_sdf();
@@ -171,7 +171,7 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
         border_tex->gen_mipmaps();
 
         print_info("Creating border framebuffer");
-        auto border_fbuffer = UnifiedRender::OpenGl::Framebuffer();
+        auto border_fbuffer = UnifiedRender::OpenGL::Framebuffer();
         border_fbuffer.use();
         border_fbuffer.set_texture(0, *border_tex);
 
@@ -202,7 +202,7 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
         std::unique_ptr<UnifiedRender::Texture> tex1 = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(border_tex->width, border_tex->height));
         tex1->to_opengl(fbo_mipmap_options);
 
-        UnifiedRender::OpenGl::Framebuffer fbo = UnifiedRender::OpenGl::Framebuffer();
+        UnifiedRender::OpenGL::Framebuffer fbo = UnifiedRender::OpenGL::Framebuffer();
         fbo.use();
 
         // Jump flooding iterations, each step give a distance field 2^steps pixels away from the border
@@ -237,9 +237,9 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
         }
         tex1->gen_mipmaps();
 
-        UnifiedRender::OpenGl::Framebuffer output_fbo = UnifiedRender::OpenGl::Framebuffer();
+        UnifiedRender::OpenGL::Framebuffer output_fbo = UnifiedRender::OpenGL::Framebuffer();
         output_fbo.use();
-        auto output_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf_output.fs"));
+        auto output_shader = UnifiedRender::OpenGL::Program::create(Path::get("shaders/2d_shader.vs"), Path::get("shaders/border_sdf_output.fs"));
         output_shader->use();
 
         UnifiedRender::TextureOptions output_options{};

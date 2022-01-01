@@ -4,19 +4,19 @@
 
 #include "unified_render/shader.hpp"
 
-using namespace UnifiedRender::OpenGl;
+using namespace UnifiedRender::OpenGL;
 
-UnifiedRender::OpenGl::GLSL_Context::GLSL_Context(const std::string& _buffer)
+UnifiedRender::OpenGL::GLSL_Context::GLSL_Context(const std::string& _buffer)
     : buffer(_buffer)
 {
 
 }
 
-UnifiedRender::OpenGl::GLSL_Context::~GLSL_Context(void) {
+UnifiedRender::OpenGL::GLSL_Context::~GLSL_Context(void) {
 
 }
 
-std::string UnifiedRender::OpenGl::GLSL_Context::get_identifier(std::string::iterator& it) {
+std::string UnifiedRender::OpenGL::GLSL_Context::get_identifier(std::string::iterator& it) {
     std::string::iterator start_it = it;
 
     // Alphanumerics, _ and dots are allowed as identifiers
@@ -28,7 +28,7 @@ std::string UnifiedRender::OpenGl::GLSL_Context::get_identifier(std::string::ite
     return str;
 }
 
-std::string UnifiedRender::OpenGl::GLSL_Context::get_literal(std::string::iterator& it) {
+std::string UnifiedRender::OpenGL::GLSL_Context::get_literal(std::string::iterator& it) {
     std::string::iterator start_it = it;
 
     // Literal
@@ -45,7 +45,7 @@ std::string UnifiedRender::OpenGl::GLSL_Context::get_literal(std::string::iterat
     return str;
 }
 
-void UnifiedRender::OpenGl::GLSL_Context::lexer(void) {
+void UnifiedRender::OpenGL::GLSL_Context::lexer(void) {
     // Output the final stuff
     std::string::iterator it = buffer.begin();
     for( ; it != buffer.end(); ) {
@@ -166,7 +166,7 @@ void UnifiedRender::OpenGl::GLSL_Context::lexer(void) {
     }
 }
 
-void UnifiedRender::OpenGl::GLSL_Context::parser(void) {
+void UnifiedRender::OpenGL::GLSL_Context::parser(void) {
     GLSL_Function fn;
     
     fn = GLSL_Function();
@@ -227,7 +227,7 @@ void UnifiedRender::OpenGl::GLSL_Context::parser(void) {
     }
 }
 
-std::string UnifiedRender::OpenGl::GLSL_Context::to_text(void) {
+std::string UnifiedRender::OpenGL::GLSL_Context::to_text(void) {
     std::string end_buffer;
     end_buffer += "#version 330 compatibility\r\n";
     for(const auto& tok : tokens) {
@@ -478,11 +478,11 @@ Program::Program(const VertexShader* vertex, const FragmentShader* fragment, con
 }
 
 Program* Program::create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
-    UnifiedRender::OpenGl::VertexShader vs = UnifiedRender::OpenGl::VertexShader(Path::get(vs_path));
-    UnifiedRender::OpenGl::FragmentShader fs = UnifiedRender::OpenGl::FragmentShader(Path::get(fs_path));
+    UnifiedRender::OpenGL::VertexShader vs = UnifiedRender::OpenGL::VertexShader(Path::get(vs_path));
+    UnifiedRender::OpenGL::FragmentShader fs = UnifiedRender::OpenGL::FragmentShader(Path::get(fs_path));
 
     if(!gs_path.empty()) {
-        UnifiedRender::OpenGl::GeometryShader gs = UnifiedRender::OpenGl::GeometryShader(Path::get(gs_path));
+        UnifiedRender::OpenGL::GeometryShader gs = UnifiedRender::OpenGL::GeometryShader(Path::get(gs_path));
         return (new Program(&vs, &fs, &gs));
     }
     return (new Program(&vs, &fs));
