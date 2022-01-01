@@ -5,9 +5,9 @@
 
 #include "unified_render/primitive.hpp"
 
-using namespace UnifiedRender::OpenGl;
+using namespace UnifiedRender::OpenGL;
 
-Square::Square(float start_x, float start_y, float end_x, float end_y)
+UnifiedRender::Square::Square(float start_x, float start_y, float end_x, float end_y)
     : PackedModel(GL_TRIANGLES)
 {
     buffer.resize(6);
@@ -30,7 +30,11 @@ Square::Square(float start_x, float start_y, float end_x, float end_y)
     glEnableVertexAttribArray(1);
 }
 
-Quad2D::Quad2D()
+UnifiedRender::Square::~Sqaure(void) {
+
+}
+
+UnifiedRender::Quad2D::Quad2D(void)
 	: PackedModel(GL_TRIANGLES)
 {
 	buffer.resize(6);
@@ -53,7 +57,11 @@ Quad2D::Quad2D()
 	glEnableVertexAttribArray(1);
 }
 
-Sphere::Sphere(float center_x, float center_y, float center_z, float _radius, int _resolution)
+UnifiedRender::Quad2D::~Quad2D(void) {
+
+}
+
+UnifiedRender::Sphere::Sphere(float center_x, float center_y, float center_z, float _radius, int _resolution)
 	: radius{_radius},
     resolution{_resolution},
     PackedModel(GL_TRIANGLES)
@@ -81,6 +89,10 @@ Sphere::Sphere(float center_x, float center_y, float center_z, float _radius, in
 	// Texcoords
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+}
+
+UnifiedRender::Sphere::~Sphere(void) {
+
 }
 
 PackedData<glm::vec3, glm::vec2> Sphere::calc_pos(float longitude, float latitude) {

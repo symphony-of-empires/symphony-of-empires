@@ -10,7 +10,7 @@
 #include "unified_render/print.hpp"
 #include "unified_render/texture.hpp"
 
-namespace UnifiedRender::OpenGl {
+namespace UnifiedRender::OpenGL {
     class ShaderException : public std::exception {
         std::string buffer;
     public:
