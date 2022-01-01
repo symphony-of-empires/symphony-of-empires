@@ -394,8 +394,14 @@ bool Context::check_click(const unsigned mx, const unsigned my) {
     is_drag = false;
     UI::ClickState click_state = UI::ClickState::NOT_CLICKED;
     int click_wind_index = -1;
+
+    bool is_click = false;
     for(int i = widgets.size() - 1; i >= 0; i--) {
         click_state = check_click_recursive(*widgets[i], mx, my, 0, 0, click_state, true);
+
+        if(click_state != UI::ClickState::NOT_CLICKED) {
+            is_click = true;
+        }
 
         // Check if windows should move to the top
         if(click_wind_index == -1 && click_state != UI::ClickState::NOT_CLICKED) {
@@ -411,7 +417,7 @@ bool Context::check_click(const unsigned mx, const unsigned my) {
             std::rotate(it, it + 1, widgets.end());
         }
     }
-    return click_state != UI::ClickState::NOT_CLICKED;
+    return is_click;
 }
 
 void Context::check_drag(const unsigned mx, const unsigned my) {
