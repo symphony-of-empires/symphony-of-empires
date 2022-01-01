@@ -14,7 +14,7 @@ namespace UnifiedRender {
     class Model;
     class TextureArray;
     class Model;
-    namespace OpenGl {
+    namespace OpenGL {
         class Square;
         class Sphere;
         class Program;
@@ -71,7 +71,7 @@ public:
     UnifiedRender::Texture* province_color_tex;
 #endif
 
-    UnifiedRender::OpenGl::Program* obj_shader, * model_shader;
+    UnifiedRender::OpenGL::Program* obj_shader, * model_shader;
 
     void update(const SDL_Event& event, Input& input);
     void update_mapmode();

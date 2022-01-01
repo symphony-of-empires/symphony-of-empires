@@ -206,52 +206,6 @@ void GameState::send_command(Archive& archive) {
     client->pending_packets.push_back(packet);
 }
 
-void render(GameState& gs, Input& input, SDL_Window* window) {
-    int& width = gs.width;
-    int& height = gs.height;
-
-    std::pair<float, float>& select_pos = input.select_pos;
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearDepth(1.f);
-
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CW);
-
-    if(gs.current_mode != MapMode::NO_MAP) {
-        Map* map = gs.map;
-
-        glPushMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glLoadMatrixf(glm::value_ptr(map->camera->get_projection()));
-        glViewport(0, 0, width, height);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadMatrixf(glm::value_ptr(map->camera->get_view()));
-
-        std::scoped_lock lock(gs.world->world_mutex);
-        map->draw(gs);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glBegin(GL_QUADS);
-        glColor4f(1.f, 1.f, 1.f, 0.8f);
-        glVertex2f(select_pos.first, select_pos.second);
-        glVertex2f(select_pos.first + 1.f, select_pos.second);
-        glVertex2f(select_pos.first + 1.f, select_pos.second + 1.f);
-        glVertex2f(select_pos.first, select_pos.second + 1.f);
-        glEnd();
-
-        glPopMatrix();
-
-        map->camera->update();
-    }
-
-    gs.ui_ctx->render_all();
-    glLoadIdentity();
-    glRasterPos2f(-3.0f, -2.0f);
-    SDL_GL_SwapWindow(window);
-}
-
 void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& displayed_treaties, GameState& gs) {
     // Put popups
     // Event + Descision popups
@@ -348,56 +302,64 @@ void main_loop(GameState& gs) {
         if(gs.update_tick) {
             gs.update_on_tick();
             gs.update_tick = false;
-        }
 
-        render(gs, gs.input, gs.window);
+            if(gs.current_mode == MapMode::NORMAL) {
+                std::scoped_lock lock(gs.world->world_mutex);
+                // Production queue
+                if(!gs.production_queue.empty()) {
+                    for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
+                        UnitType* unit = gs.production_queue[i];
 
-        if(gs.current_mode == MapMode::NORMAL) {
-            std::scoped_lock lock(gs.world->world_mutex);
-            // Production queue
-            if(!gs.production_queue.empty()) {
-                for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
-                    UnitType* unit = gs.production_queue[i];
+                        // TODO: Make a better queue AI
+                        bool is_built = false;
+                        for(const auto& building : gs.world->buildings) {
+                            // Must be our building
+                            if(building->get_owner() != gs.curr_nation) {
+                                continue;
+                            }
 
-                    // TODO: Make a better queue AI
-                    bool is_built = false;
-                    for(const auto& building : gs.world->buildings) {
-                        // Must be our building
-                        if(building->get_owner() != gs.curr_nation) {
+                            // Must not be working on something else
+                            if(building->working_unit_type != nullptr) {
+                                continue;
+                            }
+
+                            is_built = true;
+
+                            g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
+                            break;
+                        }
+                        
+                        if(!is_built) {
                             continue;
                         }
 
-                        // Must not be working on something else
-                        if(building->working_unit_type != nullptr) {
-                            continue;
-                        }
-
-                        is_built = true;
-
-                        g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
-                        break;
+                        gs.production_queue.erase(gs.production_queue.begin() + i);
+                        i--;
                     }
-                    
-                    if(!is_built) {
-                        continue;
-                    }
+                }
+            }
 
-                    gs.production_queue.erase(gs.production_queue.begin() + i);
-                    i--;
+            if(gs.music_queue.empty()) {
+                // Search through all the music in 'music/ambience' and picks a random
+                auto entries = Path::get_all_recursive("music/ambience");
+                if(entries.size() != 0) {
+                    int music_index = std::rand() % entries.size();
+                    std::scoped_lock lock(gs.sound_lock);
+                    gs.music_fade_value = 100.f;
+                    gs.music_queue.push_back(new UnifiedRender::Sound(entries[music_index]));
                 }
             }
         }
 
-        if(gs.music_queue.empty()) {
-            // Search through all the music in 'music/ambience' and picks a random
-            auto entries = Path::get_all_recursive("music/ambience");
-            if(entries.size() != 0) {
-                int music_index = std::rand() % entries.size();
-                std::scoped_lock lock(gs.sound_lock);
-                gs.music_fade_value = 100.f;
-                gs.music_queue.push_back(new UnifiedRender::Sound(entries[music_index]));
-            }
+        gs.clear();
+        if(gs.current_mode != MapMode::NO_MAP) {
+            Map* map = gs.map;
+            std::scoped_lock lock(gs.world->world_mutex);
+            map->draw(gs);
+            map->camera->update();
         }
+        gs.ui_ctx->render_all();
+        gs.swap();
     }
     world_th.join();
 }
@@ -418,16 +380,10 @@ void start_client(int, char**) {
     gs.world->load_mod();
     gs.map = new Map(*gs.world, gs.width, gs.height);
 
-    /*gs.tutorial.fire_at_start = 0;
-    if(!gs.tutorial.fire_at_start) {
-        main_menu_loop(gs, gs.window);
-    } else {
-        gs.host_mode = true;
-        gs.server = new Server(gs, 1836);
-        gs.client = new Client(gs, "127.0.0.1", 1836);
-        gs.client->username = "TUTORIAL_PLAYER";
-        gs.in_game = true;
-    }*/
+    //glEnable(GL_CULL_FACE);
+    //glCullFace(GL_BACK);
+    //glFrontFace(GL_CW);
+    
     main_loop(gs);
     return;
 }

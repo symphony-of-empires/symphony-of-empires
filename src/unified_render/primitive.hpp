@@ -7,20 +7,20 @@
 #include "unified_render/model.hpp"
 
 namespace UnifiedRender {
-    class Square : public PackedModel<glm::vec2, glm::vec2> {
+    class Square : public UnifiedRender::OpenGL::PackedModel<glm::vec2, glm::vec2> {
     public:
         Square(float start_x, float start_y, float end_x, float end_y);
         ~Square();
     };
 
-    class Quad2D : public PackedModel<glm::vec2, glm::vec2> {
+    class Quad2D : public UnifiedRender::OpenGL::PackedModel<glm::vec2, glm::vec2> {
     public:
         Quad2D();
         ~Quad2D();
     };
 
-    class Sphere : public PackedModel<glm::vec3, glm::vec2> {
-        PackedData<glm::vec3, glm::vec2> calc_pos(float longitude, float latitude);
+    class Sphere : public UnifiedRender::OpenGL::PackedModel<glm::vec3, glm::vec2> {
+        UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2> calc_pos(float longitude, float latitude);
         int resolution;
     public:
         Sphere(float x, float y, float z, float radius, int resolution);

@@ -114,6 +114,17 @@ UnifiedRender::State::~State(void) {
     g_state = nullptr;
 }
 
+void UnifiedRender::State::clear(void) const {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearDepth(1.f);
+}
+
+void UnifiedRender::State::swap(void) const {
+    glLoadIdentity();
+    glRasterPos2f(0.f, 0.f);
+    SDL_GL_SwapWindow(window);
+}
+
 void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
     UnifiedRender::State& gs = *((UnifiedRender::State*)userdata);
     std::memset(stream, 0, len);
