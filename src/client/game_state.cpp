@@ -288,51 +288,53 @@ void main_loop(GameState& gs) {
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
     while(gs.run) {
-        std::scoped_lock lock(gs.render_lock);
         handle_event(gs.input, gs);
-
         if(gs.current_mode == MapMode::NORMAL) {
-            std::scoped_lock lock(gs.world->world_mutex);
-            handle_popups(displayed_events, displayed_treaties, gs);
+            if(gs.world->world_mutex.try_lock()) {
+                handle_popups(displayed_events, displayed_treaties, gs);
+                gs.world->world_mutex.unlock();
+            }
         }
 
         if(gs.update_tick) {
             gs.update_on_tick();
             gs.update_tick = false;
-
+            
             if(gs.current_mode == MapMode::NORMAL) {
-                std::scoped_lock lock(gs.world->world_mutex);
-                // Production queue
-                if(!gs.production_queue.empty()) {
-                    for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
-                        UnitType* unit = gs.production_queue[i];
+                if(gs.world->world_mutex.try_lock()) {
+                    // Production queue
+                    if(!gs.production_queue.empty()) {
+                        for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
+                            UnitType* unit = gs.production_queue[i];
 
-                        // TODO: Make a better queue AI
-                        bool is_built = false;
-                        for(const auto& building : gs.world->buildings) {
-                            // Must be our building
-                            if(building->get_owner() != gs.curr_nation) {
+                            // TODO: Make a better queue AI
+                            bool is_built = false;
+                            for(const auto& building : gs.world->buildings) {
+                                // Must be our building
+                                if(building->get_owner() != gs.curr_nation) {
+                                    continue;
+                                }
+
+                                // Must not be working on something else
+                                if(building->working_unit_type != nullptr) {
+                                    continue;
+                                }
+
+                                is_built = true;
+
+                                g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
+                                break;
+                            }
+                            
+                            if(!is_built) {
                                 continue;
                             }
 
-                            // Must not be working on something else
-                            if(building->working_unit_type != nullptr) {
-                                continue;
-                            }
-
-                            is_built = true;
-
-                            g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
-                            break;
+                            gs.production_queue.erase(gs.production_queue.begin() + i);
+                            i--;
                         }
-                        
-                        if(!is_built) {
-                            continue;
-                        }
-
-                        gs.production_queue.erase(gs.production_queue.begin() + i);
-                        i--;
                     }
+                    gs.world->world_mutex.unlock();
                 }
             }
 
@@ -348,12 +350,12 @@ void main_loop(GameState& gs) {
             }
         }
 
+        std::scoped_lock lock(gs.render_lock);
         gs.clear();
         if(gs.current_mode != MapMode::NO_MAP) {
-            Map* map = gs.map;
             std::scoped_lock lock(gs.world->world_mutex);
-            map->draw(gs);
-            map->camera->update();
+            gs.map->draw(gs);
+            gs.map->camera->update();
         }
         gs.ui_ctx->render_all();
         gs.swap();

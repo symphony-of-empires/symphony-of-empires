@@ -370,17 +370,6 @@ void Map::draw(const GameState& gs) {
     obj_shader->set_uniform("projection", projection);
     obj_shader->set_uniform("view", view);
 
-    // glActiveTexture(GL_TEXTURE0);
-    /*for(const auto& building : world.buildings) {
-        glm::mat4 model(1.f);
-        std::pair<float, float> pos = building->get_pos();
-        model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
-        model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
-        obj_shader->set_uniform("model", model);
-        draw_flag(building->get_owner());
-        building_type_models.at(world.get_id(building->type))->draw(*obj_shader);
-    }*/
-
     for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
         std::pair<float, float> pos = unit->get_pos();
@@ -412,116 +401,30 @@ void Map::draw(const GameState& gs) {
         building_type_models[world.get_id(building_type)]->draw(*obj_shader);
     }
 
-    // Resets the shader and texture
-    /*glUseProgram(0);
-    glActiveTexture(GL_TEXTURE0);*/
-
-    /*for(const auto& building : world.buildings) {
-        glPushMatrix();
-        glTranslatef(building->x, building->y, -1.f);
-        const int _w = 2, _h = 2;
-        nation_flags[world.get_id(building->get_owner())]->bind();
-        glBegin(GL_TRIANGLES);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glTexCoord2f(1.f, 0.f);
-        glVertex2f(_w, 0.f);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(_w, _h);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(_w, _h);
-        glTexCoord2f(0.f, 1.f);
-        glVertex2f(0.f, _h);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glEnd();
-        glPopMatrix();
-    }*/
-
-    /*for(const auto& province : world.provinces) {
+    for(const auto& province : world.provinces) {
         const float size = 2.f;
         unsigned int i = 0;
         std::vector<Unit*> units = province->get_units();
         const float row_width = units.size() * size;
         for(const auto& unit : units) {
-            glPushMatrix();
             std::pair<float, float> pos = province->get_pos();
             pos.first -= row_width / 2.f;
             pos.first += i * size;
 
-            glTranslatef(pos.first, pos.second, -0.1f);
-            nation_flags[world.get_id(unit->owner)]->bind();
+            glm::mat4 model(1.f);
+            model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
+            obj_shader->set_uniform("model", model);
+
+            UnifiedRender::Square plane = UnifiedRender::Square(0.f, 0.f, size, size);
+            obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(unit->owner)]);
+            obj_shader->use();
+            plane.draw();
 
             if(!unit->size) {
-                glColor3f(0.5f, 0.5f, 0.5f);
-            } else {
-                glColor3f(1.f, 1.f, 1.f);
+                continue;
             }
-            glBegin(GL_TRIANGLES);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(0.f, 0.f);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(size, 0.f);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(size, size);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(size, size);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(0.f, size);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(0.f, 0.f);
-            glEnd();
-            glPopMatrix();
 
-            if(!unit->size) continue;
-
-            glBindTexture(GL_TEXTURE_2D, 0);
-
-            float _w, _h;
-
-            glPushMatrix();
-            glTranslatef(pos.first, pos.second, -0.1f);
-            _w = unit->size / unit->type->max_health;
-            _h = 0.5f;
-            glColor3f(0.f, 1.f, 0.f);
-            glBegin(GL_TRIANGLES);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(0.f, 0.f);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(_w, 0.f);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(_w, _h);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(_w, _h);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(0.f, _h);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(0.f, 0.f);
-            glEnd();
-            glPopMatrix();
-
-            glPushMatrix();
-            glTranslatef(pos.first + (unit->size / unit->type->max_health), pos.second - 2.f, -1.f);
-            _w = (unit->type->max_health - unit->size) / unit->type->max_health;
-            _h = 0.5f;
-            glColor3f(1.f, 0.f, 0.f);
-            glBegin(GL_TRIANGLES);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(0.f, 0.f);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(_w, 0.f);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(_w, _h);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(_w, _h);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(0.f, _h);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(0.f, 0.f);
-            glEnd();
-            glPopMatrix();
-
-            if(unit->target != nullptr) {
+            /*if(unit->target != nullptr) {
                 std::pair<float, float> pos = unit->get_pos();
                 glBegin(GL_LINES);
                 glColor3f(0.f, 0.f, 1.f / std::max(0.1f, unit->move_progress));
@@ -547,11 +450,11 @@ void Map::draw(const GameState& gs) {
                     glPopMatrix();
                     break;
                 }
-            }
+            }*/
 
             i++;
         }
-    }*/
+    }
 
     // Draw the "drag area" box
     /*if(gs.input.is_drag) {
