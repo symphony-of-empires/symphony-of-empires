@@ -36,9 +36,9 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     map_render = new MapRender(world);
 
     // Shader used for drawing the models using custom model render
-    obj_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/simple_model.vs"), Path::get("shaders/simple_model.fs"));
+    obj_shader = UnifiedRender::OpenGL::Program::create(Path::get("shaders/simple_model.vs"), Path::get("shaders/simple_model.fs"));
     // Shader used for drawing the assimp models
-    // model_shader = UnifiedRender::OpenGl::Program::create(Path::get("shaders/model_loading.vs"), Path::get("shaders/model_loading.fs"));
+    // model_shader = UnifiedRender::OpenGL::Program::create(Path::get("shaders/model_loading.vs"), Path::get("shaders/model_loading.fs"));
 
     // Set the mapmode
     set_map_mode(political_map_mode);
@@ -123,18 +123,18 @@ void Map::draw_flag(const Nation* nation) {
     const float n_steps = 8.f; // Resolution of flag in one side (in vertices)
     const float step = 90.f; // Steps per vertice
 
-    auto flag = UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(GL_TRIANGLE_STRIP);
+    auto flag = UnifiedRender::OpenGL::PackedModel<glm::vec3, glm::vec2>(GL_TRIANGLE_STRIP);
     for(float r = 0.f; r <= (n_steps * step); r += step) {
         float sin_r = (sin(r + wind_osc) / 24.f);
 
         sin_r = sin(r + wind_osc) / 24.f;
-        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
+        flag.buffer.push_back(UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
             ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
-        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
+        flag.buffer.push_back(UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
             ));
@@ -414,8 +414,8 @@ void Map::draw(const GameState& gs) {
     }
 
     // Resets the shader and texture
-    glUseProgram(0);
-    glActiveTexture(GL_TEXTURE0);
+    /*glUseProgram(0);
+    glActiveTexture(GL_TEXTURE0);*/
 
     /*for(const auto& building : world.buildings) {
         glPushMatrix();
@@ -439,7 +439,7 @@ void Map::draw(const GameState& gs) {
         glPopMatrix();
     }*/
 
-    for(const auto& province : world.provinces) {
+    /*for(const auto& province : world.provinces) {
         const float size = 2.f;
         unsigned int i = 0;
         std::vector<Unit*> units = province->get_units();
@@ -552,10 +552,10 @@ void Map::draw(const GameState& gs) {
 
             i++;
         }
-    }
+    }*/
 
     // Draw the "drag area" box
-    if(gs.input.is_drag) {
+    /*if(gs.input.is_drag) {
         glPushMatrix();
         glTranslatef(0.f, 0.f, -0.1f);
         glColor3f(1.f, 1.f, 1.f);
@@ -567,8 +567,10 @@ void Map::draw(const GameState& gs) {
         glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
         glEnd();
         glPopMatrix();
-    }
+    }*/
 
     wind_osc += 0.01f;
-    if(wind_osc >= 180.f) wind_osc = 0.f;
+    if(wind_osc >= 180.f) {
+        wind_osc = 0.f;
+    }
 }

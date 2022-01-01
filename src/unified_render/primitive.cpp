@@ -30,7 +30,7 @@ UnifiedRender::Square::Square(float start_x, float start_y, float end_x, float e
     glEnableVertexAttribArray(1);
 }
 
-UnifiedRender::Square::~Sqaure(void) {
+UnifiedRender::Square::~Square(void) {
 
 }
 
@@ -95,7 +95,7 @@ UnifiedRender::Sphere::~Sphere(void) {
 
 }
 
-PackedData<glm::vec3, glm::vec2> Sphere::calc_pos(float longitude, float latitude) {
+UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2> UnifiedRender::Sphere::calc_pos(float longitude, float latitude) {
 	float longitude_ratio = ((float)longitude) / resolution;
 	float longitude_rad = longitude_ratio * 2 * M_PI;
 	float latitude_ratio = ((float)latitude) / resolution;
@@ -105,5 +105,5 @@ PackedData<glm::vec3, glm::vec2> Sphere::calc_pos(float longitude, float latitud
 	float z = radius * std::cos(latitude_rad);
 	glm::vec3 pos(x, y, z);
 	glm::vec2 tex_coord(longitude_ratio, latitude_ratio);
-	return PackedData<glm::vec3, glm::vec2>(pos, tex_coord);
+	return UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2>(pos, tex_coord);
 }

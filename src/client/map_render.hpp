@@ -11,11 +11,11 @@ namespace UnifiedRender {
     class Model;
     class TextureArray;
     class Model;
+    class Square;
+    class Sphere;
+    class Quad2D;
     namespace OpenGL {
-        class Square;
-        class Sphere;
         class Program;
-        class Quad2D;
         class Framebuffer;
     }
 }
