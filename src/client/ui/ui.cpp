@@ -293,13 +293,15 @@ void Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
         w.on_hover(w, w.user_data);
     }
 
-    if(w.is_hover && w.tooltip != nullptr) {
-        tooltip_widget = w.tooltip;
-        tooltip_widget->set_pos(offset.x, offset.y, w.width, w.height, width, height);
-    }
+    if(w.is_hover) {
+        if(w.tooltip != nullptr) {
+            tooltip_widget = w.tooltip;
+            tooltip_widget->set_pos(offset.x, offset.y, w.width, w.height, width, height);
+        }
 
-    for(auto& child : w.children) {
-        check_hover_recursive(*child, mx, my, offset.x, offset.y);
+        for(auto& child : w.children) {
+            check_hover_recursive(*child, mx, my, offset.x, offset.y);
+        }
     }
 }
 
