@@ -370,21 +370,21 @@ thuringia.name = _("Thuringia")
 thuringia:register()
 thuringia:set_ideology(monarchy)
 thuringia:add_accepted_culture(german)
-thuringia:add_client_hint(monarchy, _("Thuringia"), 0x808000)
+thuringia:add_client_hint(monarchy, _("Thuringia"), 0xdae4e6)
 
 lubeck = Nation:new{ ref_name = "lubeck" }
 lubeck.name = _("Lubeck")
 lubeck:register()
 lubeck:set_ideology(monarchy)
 lubeck:add_accepted_culture(german)
-lubeck:add_client_hint(monarchy, _("Lubeck"), 0x808000)
+lubeck:add_client_hint(monarchy, _("Lubeck"), 0x755446)
 
 waldeck = Nation:new{ ref_name = "waldeck" }
 waldeck.name = _("Waldeck")
 waldeck:register()
 waldeck:set_ideology(monarchy)
 waldeck:add_accepted_culture(german)
-waldeck:add_client_hint(monarchy, _("Waldeck"), 0x808000)
+waldeck:add_client_hint(monarchy, _("Waldeck"), 0xcbe374)
 
 saxony = Nation:new{ ref_name = "saxony" }
 saxony.name = _("Saxony")
@@ -422,6 +422,27 @@ saxe_gotha:set_ideology(monarchy)
 saxe_gotha:add_accepted_culture(german)
 saxe_gotha:add_client_hint(monarchy, _("Saxe-Gotha"), 0x23e857)
 
+saxe_coburg = Nation:new{ ref_name = "saxe_coburg" }
+saxe_coburg.name = _("Saxe-Coburg")
+saxe_coburg:register()
+saxe_coburg:set_ideology(monarchy)
+saxe_coburg:add_accepted_culture(german)
+saxe_coburg:add_client_hint(monarchy, _("Saxe-Coburg"), 0x808000)
+
+saxe_hildburghausen = Nation:new{ ref_name = "saxe_hildburghausen" }
+saxe_hildburghausen.name = _("Saxe-Hildburghausen")
+saxe_hildburghausen:register()
+saxe_hildburghausen:set_ideology(monarchy)
+saxe_hildburghausen:add_accepted_culture(german)
+saxe_hildburghausen:add_client_hint(monarchy, _("Saxe-Hildburghausen"), 0x808000)
+
+saxe_meiningen = Nation:new{ ref_name = "saxe_meiningen" }
+saxe_meiningen.name = _("Saxe-Meiningen")
+saxe_meiningen:register()
+saxe_meiningen:set_ideology(monarchy)
+saxe_meiningen:add_accepted_culture(german)
+saxe_meiningen:add_client_hint(monarchy, _("Saxe-Meiningen"), 0x808000)
+
 lippe = Nation:new{ ref_name = "lippe" }
 lippe.name = _("Lippe")
 lippe:register()
@@ -449,7 +470,7 @@ frankfurt.name = _("Frankfurt")
 frankfurt:register()
 frankfurt:set_ideology(monarchy)
 frankfurt:add_accepted_culture(german)
-frankfurt:add_client_hint(monarchy, _("Frankfurt"), 0x808000)
+frankfurt:add_client_hint(monarchy, _("Frankfurt"), 0x105e69)
 
 munich = Nation:new{ ref_name = "munich" }
 munich.name = _("Munich")
@@ -463,7 +484,7 @@ hamburg.name = _("Hamburg")
 hamburg:register()
 hamburg:set_ideology(monarchy)
 hamburg:add_accepted_culture(german)
-hamburg:add_client_hint(monarchy, _("Hamburg"), 0x808000)
+hamburg:add_client_hint(monarchy, _("Hamburg"), 0xc44551)
 
 holstein = Nation:new{ ref_name = "holstein" }
 holstein.name = _("Holstein")
@@ -567,6 +588,13 @@ bremen:register()
 bremen:set_ideology(monarchy)
 bremen:add_accepted_culture(german)
 bremen:add_client_hint(monarchy, _("Bremen"), 0x70d8bf)
+
+schaumburg_lippe = Nation:new{ ref_name = "schaumburg_lippe" }
+schaumburg_lippe.name = _("Schaumburg-Lippe")
+schaumburg_lippe:register()
+schaumburg_lippe:set_ideology(monarchy)
+schaumburg_lippe:add_accepted_culture(german)
+schaumburg_lippe:add_client_hint(monarchy, _("Schaumburg-Lippe"), 0x808000)
 
 ritzebuttel = Nation:new{ ref_name = "ritzebuttel" }
 ritzebuttel.name = _("Ritzebüttel")
