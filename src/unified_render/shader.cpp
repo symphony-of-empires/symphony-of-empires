@@ -61,14 +61,15 @@ void UnifiedRender::OpenGL::GLSL_Context::lexer(void) {
                 it++;
             }
         } else if(*it == '#') {
+            it++;
+
             std::string::iterator start_it = it;
             while(it != buffer.end() && (*it != '\n')) {
                 it++;
             }
+            
             GLSL_Token tok = GLSL_Token(GLSL_TokenType::MACRO);
-            print_info("thing");
             tok.data = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
-            print_info("think");
             tokens.push_back(tok);
         } else if(*it == ',') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::COMMA));
