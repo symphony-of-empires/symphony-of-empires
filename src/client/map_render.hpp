@@ -33,7 +33,7 @@ union SDL_Event;
 struct Input;
 struct ProvinceColors;
 
-typedef UnifiedRender::OpenGl::Option Option;
+typedef UnifiedRender::OpenGL::Option Option;
 struct MapOptions {
     Option noise{"NOISE", false};
     Option sdf{"SDF", false};
@@ -78,9 +78,9 @@ private:
     UnifiedRender::Sphere* map_sphere;
     UnifiedRender::Quad2D* map_2d_quad;
   
-    std::unique_ptr<UnifiedRender::OpenGl::Program> map_shader;
-    std::unique_ptr<UnifiedRender::OpenGl::Program> border_sdf_shader;
-    std::unique_ptr<UnifiedRender::OpenGl::Program> border_gen_shader;
-    std::unique_ptr<UnifiedRender::OpenGl::Program> output_shader;
+    std::unique_ptr<UnifiedRender::OpenGL::Program> map_shader;
+    std::unique_ptr<UnifiedRender::OpenGL::Program> border_sdf_shader;
+    std::unique_ptr<UnifiedRender::OpenGL::Program> border_gen_shader;
+    std::unique_ptr<UnifiedRender::OpenGL::Program> output_shader;
     std::unique_ptr<UnifiedRender::Texture> border_sdf;
 };
