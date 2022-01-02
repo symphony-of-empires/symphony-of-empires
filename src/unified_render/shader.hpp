@@ -22,7 +22,7 @@ namespace UnifiedRender::OpenGL {
     struct Option {
         bool used;
         Option(std::string option, bool use):
-            used{ use }, _option{ "#define " + option + "\n" } {}
+            used{ use }, _option{ option } {}
 
         std::string get_option() {
             return _option;

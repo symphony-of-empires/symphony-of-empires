@@ -50,19 +50,14 @@ MapRender::MapRender(const World& _world)
     auto tex_man = UnifiedRender::State::get_instance().tex_man;
     mipmap_options.internal_format = GL_RGB;
     water_tex = &tex_man->load(Path::get("water_tex.png"), mipmap_options);
-    if(options.landscape.used)
-        landscape_map = &tex_man->load(Path::get("map_col.png"), mipmap_options);
-    if(options.lighting.used) {
-        wave1 = &tex_man->load(Path::get("wave1.png"), mipmap_options);
-        wave2 = &tex_man->load(Path::get("wave2.png"), mipmap_options);
-    }
+    landscape_map = &tex_man->load(Path::get("map_col.png"), mipmap_options);
+    wave1 = &tex_man->load(Path::get("wave1.png"), mipmap_options);
+    wave2 = &tex_man->load(Path::get("wave2.png"), mipmap_options);
     // normal = &g_texture_manager->load_texture(Path::get("normal.png"), mipmap_options);
     // topo_map = &g_texture_manager->load_texture(Path::get("topo.png"), mipmap_options);
     mipmap_options.internal_format = GL_RED;
-    if(options.noise.used)
-        noise_tex = &tex_man->load(Path::get("noise_tex.png"), mipmap_options);
-    if(options.rivers.used)
-        river_tex = &tex_man->load(Path::get("river_smal_smooth.png"), mipmap_options);
+    noise_tex = &tex_man->load(Path::get("noise_tex.png"), mipmap_options);
+    river_tex = &tex_man->load(Path::get("river_smal_smooth.png"), mipmap_options);
     // terrain_map = &g_texture_manager->load_texture(Path::get("terrain_map.png"), single_color);
     terrain_map = new UnifiedRender::Texture(Path::get("terrain_map.png"));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
@@ -84,19 +79,17 @@ MapRender::MapRender(const World& _world)
     terrain_map->to_opengl(single_color);
     terrain_map->gen_mipmaps();
 
-    if(options.parallax.used || options.lighting.used) {
-        auto topo_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("topo.png")));
-        normal_topo = new UnifiedRender::Texture(Path::get("normal.png"));
-        size_t map_size = topo_map->width * topo_map->height;
-        for(unsigned int i = 0; i < map_size; i++) {
-            normal_topo->buffer.get()[i] &= (0x00FFFFFF);
-            normal_topo->buffer.get()[i] |= (topo_map->buffer.get()[i] & 0xFF) << 24;
-        }
-        topo_map.reset(nullptr);
-        mipmap_options.internal_format = GL_RGBA;
-        normal_topo->to_opengl(mipmap_options);
-        normal_topo->gen_mipmaps();
+    auto topo_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("topo.png")));
+    normal_topo = new UnifiedRender::Texture(Path::get("normal.png"));
+    size_t map_size = topo_map->width * topo_map->height;
+    for(unsigned int i = 0; i < map_size; i++) {
+        normal_topo->buffer.get()[i] &= (0x00FFFFFF);
+        normal_topo->buffer.get()[i] |= (topo_map->buffer.get()[i] & 0xFF) << 24;
     }
+    topo_map.reset(nullptr);
+    mipmap_options.internal_format = GL_RGBA;
+    normal_topo->to_opengl(mipmap_options);
+    normal_topo->gen_mipmaps();
 
 
     // Terrain textures to sample from
@@ -226,7 +219,8 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
         fbo.set_texture(0, drawOnTex0 ? *tex0 : *tex1);
         if(step == max_steps){
             border_sdf_shader->set_texture(0, "tex", *border_tex);
-        } else {
+        }
+        else {
             border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? *tex1 : *tex0);
         }
         // Draw a plane over the entire screen to invoke shaders
@@ -238,7 +232,8 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
     if(drawOnTex0) {
         tex1.reset(nullptr);
         tex1 = std::move(tex0);
-    } else {
+    }
+    else {
         tex0.reset(nullptr);
     }
     tex1->gen_mipmaps();
@@ -318,7 +313,8 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();
-    } else if(view_mode == MapView::SPHERE_VIEW) {
+    }
+    else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
 }

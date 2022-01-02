@@ -13,7 +13,6 @@ uniform float time;
 uniform sampler2D tile_map;
 uniform sampler2D tile_sheet;
 uniform sampler2D water_texture;
-uniform sampler2D topo_texture;
 uniform sampler2D noise_texture;
 uniform sampler2D terrain_map;
 uniform sampler2DArray terrain_sheet;
@@ -156,14 +155,14 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
 
     // get initial values
 	vec2 currentTexCoords = tex_coords;
-	float currentDepthMapValue = texture(topo_texture, tex_coords).x * other_scale;
+	float currentDepthMapValue = texture(normal, tex_coords).w * other_scale;
 	// currentDepthMapValue = (currentDepthMapValue - .5) * 2.;
 
 	while(currentLayerDepth < currentDepthMapValue) {
         // shift texture coordinates along direction of P
 		currentTexCoords -= deltaTexCoords;
         // get depthmap value at current texture coordinates
-		currentDepthMapValue = texture(topo_texture, currentTexCoords).x * other_scale;  
+		currentDepthMapValue = texture(normal, currentTexCoords).w * other_scale;  
 		// currentDepthMapValue = (currentDepthMapValue - .5) * 2.;
         // get depth of next layer
 		currentLayerDepth += layerDepth;
@@ -174,7 +173,7 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
 
 	// get depth after and before collision for linear interpolation
 	float afterDepth = currentDepthMapValue - currentLayerDepth;
-	float beforeDepth = texture(topo_texture, prevTexCoords).x * other_scale - currentLayerDepth + layerDepth;
+	float beforeDepth = texture(normal, prevTexCoords).w * other_scale - currentLayerDepth + layerDepth;
 
 	// interpolation of texture coordinates
 	float weight = afterDepth / (afterDepth - beforeDepth);
@@ -201,12 +200,12 @@ vec3 gen_normal(vec2 tex_coords) {
 	const ivec3 off = ivec3(-1, 0, 1);
 	float steep = 8.;
 
-	vec4 wave = texture(topo_texture, tex_coords);
-	float s11 = steep * wave.x;
-	float s01 = steep * textureOffset(topo_texture, tex_coords, off.xy).x;
-	float s21 = steep * textureOffset(topo_texture, tex_coords, off.zy).x;
-	float s10 = steep * textureOffset(topo_texture, tex_coords, off.yx).x;
-	float s12 = steep * textureOffset(topo_texture, tex_coords, off.yz).x;
+	vec4 wave = texture(normal, tex_coords);
+	float s11 = steep * wave.w;
+	float s01 = steep * textureOffset(normal, tex_coords, off.xy).w;
+	float s21 = steep * textureOffset(normal, tex_coords, off.zy).w;
+	float s10 = steep * textureOffset(normal, tex_coords, off.yx).w;
+	float s12 = steep * textureOffset(normal, tex_coords, off.yz).w;
 	vec3 va = normalize(vec3(size.xy, s21 - s01));
 	vec3 vb = normalize(vec3(size.yx, s12 - s10));
 	vec4 bump = vec4(cross(va, vb), s11);
@@ -333,7 +332,7 @@ void main() {
 #ifdef PARALLAX
 	// Heightmapping
 	vec3 view_dir = normalize(view_pos - v_frag_pos);
-	vec2 tex_coords = parallax_map(v_texcoord, view_dir);
+	tex_coords = parallax_map(v_texcoord, view_dir);
 	if(tex_coords.x > 1.0 || tex_coords.y > 1.0 || tex_coords.x < 0.0 || tex_coords.y < 0.0) {
 		discard;
 	}
@@ -407,7 +406,7 @@ void main() {
 #endif
 
 	float light = 1.f;
-#ifdef LIGTHING
+#ifdef LIGHTING
 	light = get_lighting(tex_coords, beach);
 #endif
 
