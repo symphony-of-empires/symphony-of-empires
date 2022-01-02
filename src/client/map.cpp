@@ -38,7 +38,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     map_render = new MapRender(world);
 
     // Shader used for drawing the models using custom model render
-    obj_shader = UnifiedRender::OpenGL::Program::create(Path::get("shaders/simple_model.vs"), Path::get("shaders/simple_model.fs"));
+    obj_shader = UnifiedRender::OpenGL::Program::create(Path::get("shaders/simple_model.vs"), Path::get("shaders/simple_model.fs")).get();
     // Shader used for drawing the assimp models
     // model_shader = UnifiedRender::OpenGL::Program::create(Path::get("shaders/model_loading.vs"), Path::get("shaders/model_loading.fs"));
 
