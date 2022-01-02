@@ -96,7 +96,7 @@ UnifiedRender::Sphere::~Sphere(void) {
 
 }
 
-UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2> Sphere::calc_pos(glm::vec3 center_pos, float longitude, float latitude) {
+UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2> UnifiedRender::Sphere::calc_pos(glm::vec3 center_pos, float longitude, float latitude) {
 	float longitude_ratio = ((float)longitude) / resolution;
 	float longitude_rad = longitude_ratio * 2 * M_PI;
 	float latitude_ratio = ((float)latitude) / resolution;

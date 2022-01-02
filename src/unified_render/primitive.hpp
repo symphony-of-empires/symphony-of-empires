@@ -18,12 +18,13 @@ namespace UnifiedRender {
         Quad2D();
         ~Quad2D();
     };
-		class Sphere : public PackedModel<glm::vec3, glm::vec2> {
-			  PackedData<glm::vec3, glm::vec2> calc_pos(glm::vec3 center_pos, float longitude, float latitude);
-			  int resolution;
+
+    class Sphere : public UnifiedRender::OpenGL::PackedModel<glm::vec3, glm::vec2> {
+        UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2> calc_pos(glm::vec3 center_pos, float longitude, float latitude);
+        int resolution;
     public:
-			  float radius;
-			  Sphere(float x, float y, float z, float radius, int resolution);
+        float radius;
+        Sphere(float x, float y, float z, float radius, int resolution);
         ~Sphere();
-		};
+    };
 }

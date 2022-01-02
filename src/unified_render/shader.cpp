@@ -62,8 +62,10 @@ void UnifiedRender::OpenGL::GLSL_Context::lexer(void) {
             while((*it != '\n') && it != buffer.end()) {
                 it++;
             }
-            GLSL_Token tok = GLSL_Token(GLSL_TokenType::MACRO));
+            GLSL_Token tok = GLSL_Token(GLSL_TokenType::MACRO);
+            print_info("thing");
             tok.data = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
+            print_info("think");
             tokens.push_back(tok);
         } else if(*it == ',') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::COMMA));
@@ -369,7 +371,7 @@ std::string UnifiedRender::OpenGL::GLSL_Context::to_text(void) {
 
 // Construct a shader by opening the provided path and creating a temporal ifstream, reading
 // from that stream in text mode and then compiling the shader
-Shader::Shader(const std::string& path, GLuint type) {
+Shader::Shader(const std::string& path, GLuint type, bool use_transpiler, std::string options) {
     std::ifstream file;
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     try {
@@ -438,13 +440,20 @@ void Shader::compile(GLuint type) {
 
         // Next we will read over the shader file and find the line
         int row_rem = row;
-        for(std::string::iterator it = buffer.begin(); it != buffer.end() && row_rem; it++) {
+        std::string::iterator it;
+        for(it = buffer.begin(); it != buffer.end() && row_rem; it++) {
             if(*it == '\n') {
                 row_rem--;
+                if(!row_rem) {
+                    break;
+                }
             }
         }
 
-        std::string line_buf = buffer.substr(std::distance(buffer.begin(), it), buffer.find_first_of('\n', std::distance(buffer.begin(), it)));
+        std::string line_buf = "(No line info)";
+        if(it != buffer.end()) {
+            line_buf = buffer.substr(std::distance(buffer.begin(), it), buffer.find_first_of('\n', std::distance(buffer.begin(), it)));
+        }
         throw ShaderException(line_buf + "\n" + error_info);
     }
     // print_info("Status: Sucess");
