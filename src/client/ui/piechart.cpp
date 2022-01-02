@@ -11,6 +11,7 @@
 #include "client/ui/piechart.hpp"
 #include "client/ui/widget.hpp"
 #include "client/ui/ui.hpp"
+#include "client/ui/tooltip.hpp"
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
 #include "unified_render/texture.hpp"
@@ -19,12 +20,16 @@
 
 using namespace UI;
 
+// Calculate the positon of the triangle
+// and then uses its barycentric coordinates to check if the point p is inside it
 PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : data{ std::vector<ChartData>() },
     max{ 0 },
     Widget(_parent, _x, _y, w, h, UI::WidgetType::PIE_CHART)
 {
-
+    tooltip = new Tooltip(this, 512, 24);
+    tooltip->is_render = false;
+    on_hover = &PieChart::on_hover_default;
 }
 
 void PieChart::set_data(std::vector<ChartData> new_data) {
@@ -81,4 +86,71 @@ void PieChart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         last_ratio = ratio;
     }
     glEnd();
+}
+
+bool in_triangle(glm::vec2 p, glm::vec2 center, float radius, float start_ratio, float end_ratio) {
+    float x_offset, y_offset, scale;
+    x_offset = cos((start_ratio - 0.25f) * 2 * M_PI);
+    y_offset = sin((start_ratio - 0.25f) * 2 * M_PI);
+    scale = std::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
+    x_offset *= scale;
+    y_offset *= scale;
+    glm::vec2 a(center.x + x_offset * radius, center.y + y_offset * radius);
+
+    x_offset = cos((end_ratio - 0.25f) * 2 * M_PI);
+    y_offset = sin((end_ratio - 0.25f) * 2 * M_PI);
+    scale = std::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
+    x_offset *= scale;
+    y_offset *= scale;
+    glm::vec2 b(center.x + x_offset * radius, center.y + y_offset * radius);
+
+    glm::vec2 c(center.x, center.y);
+
+    float A = 0.5f * (-b.y * c.x + a.y * (-b.x + c.x) + a.x * (b.y - c.y) + b.x * c.y);
+    float sign = A < 0 ? -1 : 1;
+    float s = (a.y * c.x - a.x * c.y + (c.y - a.y) * p.x + (a.x - c.x) * p.y) * sign;
+    float t = (a.x * b.y - a.y * b.x + (a.y - b.y) * p.x + (b.x - a.x) * p.y) * sign;
+
+    return s > 0 && t > 0 && (s + t) < 2 * A * sign;
+}
+
+void PieChart::on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widget_pos) {
+    PieChart& piechart = static_cast<PieChart&>(w);
+    mouse_pos -= widget_pos;
+    float counter = 0;
+    float last_corner = -0.125f;
+    float last_ratio = 0;
+
+    float x_center = piechart.width / 2.f;
+    float y_center = piechart.height / 2.f;
+    glm::ivec2 center = glm::ivec2(x_center, y_center);
+    float radius = std::min<float>(piechart.width, piechart.height) * 0.5;
+
+    glm::vec2 centered_pos = mouse_pos - center;
+    if(glm::length(centered_pos) > radius) {
+        piechart.tooltip->is_render = false;
+        return;
+    }
+
+    for(auto& slice : piechart.data) {
+        counter += slice.num;
+        float ratio = counter / piechart.max;
+        while(ratio > last_corner + 0.25f) {
+            last_corner += 0.25f;
+            bool is_inside = in_triangle(mouse_pos, center, radius, last_ratio, last_corner);
+            if(is_inside) {
+                piechart.tooltip->text(slice.info);
+                piechart.tooltip->is_render = true;
+                return;
+            }
+            last_ratio = last_corner;
+        }
+        bool is_inside = in_triangle(mouse_pos, center, radius, last_ratio, last_corner);
+        if(is_inside) {
+            piechart.tooltip->text(slice.info);
+            piechart.tooltip->is_render = true;
+            return;
+        }
+        last_ratio = ratio;
+    }
 }

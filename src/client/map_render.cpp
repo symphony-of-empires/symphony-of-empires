@@ -39,6 +39,8 @@ MapRender::MapRender(const World& _world)
     // Simple 2D quad that fills viewport, used for making the border_sdf
     map_2d_quad = new UnifiedRender::Quad2D();
 
+    options.sdf.used = true;
+
     // Mipmapped textures
     UnifiedRender::TextureOptions mipmap_options{};
     mipmap_options.wrap_s = GL_REPEAT;

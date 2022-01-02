@@ -58,12 +58,14 @@ namespace UI {
         void check_drag(unsigned mx, unsigned my);
         int check_wheel(unsigned mx, unsigned my, int y);
         void check_text_input(const char* input);
+        void set_tooltip(Tooltip* tooltip, glm::ivec2 pos);
 
         int do_tick_recursive(Widget& w);
         void do_tick(void);
 
         void clear(void);
         void clear_dead();
+        void clear_dead_recursive(Widget* w);
 
         void prompt(const std::string& title, const std::string& text);
 

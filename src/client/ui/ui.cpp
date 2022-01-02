@@ -98,19 +98,31 @@ void Context::clear(void) {
     widgets.clear();
 }
 
-void Context::clear_dead() {
-    // Quite stupid way to remove dead widgets
-    // Does it safely though
-    for(auto it = widgets.begin(); it != widgets.end();) {
-        if((*it)->dead) {
-            delete (*it);
-            clear_dead();
-            return;
+void Context::clear_dead_recursive(Widget* w) {
+    for(size_t index = 0; index < w->children.size(); index++) {
+        if((w->children[index])->dead) {
+            delete w->children[index];
+            w->children.erase(w->children.begin() + index);
+            index--;
         }
         else {
-            ++it;
+            clear_dead_recursive(w->children[index]);
         }
     }
+}
+void Context::clear_dead() {
+    for(size_t index = 0; index < widgets.size(); index++) {
+        if((widgets[index])->dead) {
+            delete widgets[index];
+            widgets.erase(widgets.begin() + index);
+            index--;
+        }
+        else {
+            clear_dead_recursive(widgets[index]);
+        }
+    }
+    if(tooltip_widget)
+        clear_dead_recursive(tooltip_widget);
 }
 
 void Context::prompt(const std::string& title, const std::string& text) {
@@ -208,6 +220,9 @@ void Context::resize(int _width, int _height) {
 }
 
 void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
+    if(!w.is_show || !w.is_render) {
+        return;
+    }
     if(!w.width || !w.height) {
         return;
     }
@@ -242,10 +257,6 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
             if(!child->is_float) {
                 child->is_show = false;
             }
-        }
-
-        if(!child->is_show || !child->is_render) {
-            continue;
         }
 
         render_recursive(*child, viewport);
@@ -291,7 +302,8 @@ void Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
     }
 
     if(w.is_hover && w.on_hover) {
-        w.on_hover(w, w.user_data);
+        glm::ivec2 mouse_pos(mx, my);
+        w.on_hover(w, mouse_pos, offset);
     }
 
     if(w.is_hover) {
@@ -470,6 +482,10 @@ void Context::check_text_input(const char* _input) {
     for(const auto& widget : widgets) {
         check_text_input_recursive(*widget, _input);
     }
+}
+
+void Context::set_tooltip(Tooltip* tooltip, glm::ivec2 pos) {
+    tooltip->set_pos(pos.x, pos.y, tooltip->width, tooltip->height, width, height);
 }
 
 int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y) {
