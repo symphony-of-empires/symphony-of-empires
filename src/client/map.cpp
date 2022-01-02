@@ -121,7 +121,7 @@ void Map::set_map_mode(mapmode_generator _mapmode_func){
     update_mapmode();
 }
 
-void Map::draw_flag(const Nation* nation) {
+void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& nation) {
     // Draw a flag that "waves" with some cheap wind effects it
     // looks nice and it's super cheap to make - only using sine
     const float n_steps = 8.f; // Resolution of flag in one side (in vertices)
@@ -152,7 +152,7 @@ void Map::draw_flag(const Nation* nation) {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)(3 * sizeof(float)));  // Texcoords
     glEnableVertexAttribArray(1);
 
-    nation_flags[world.get_id(nation)]->bind();
+    shader.set_texture(0, "diffuse_map", *nation_flags[world.get_id(&nation)]);
     flag.draw();
 }
 
@@ -314,8 +314,7 @@ void Map::update(const SDL_Event& event, Input& input) {
             input.select_pos = camera->get_map_pos(input.mouse_pos);
             input.select_pos.first = (int)(world.width * input.select_pos.first / (2. * M_PI));
             input.select_pos.second = (int)(world.height * input.select_pos.second / M_PI);
-        }
-        else {
+        } else {
             if(input.middle_mouse_down) {  // Drag the map with middlemouse
                 std::pair<float, float> map_pos = camera->get_map_pos(mouse_pos);
                 float x_pos = camera->position.x + input.last_camera_drag_pos.first - map_pos.first;
@@ -382,8 +381,7 @@ void Map::update(const SDL_Event& event, Input& input) {
                 input.select_pos = camera->get_map_pos(input.mouse_pos);
                 input.select_pos.first = (int)(world.width * input.select_pos.first / (2. * M_PI));
                 input.select_pos.second = (int)(world.height * input.select_pos.second / M_PI);
-            }
-            else {
+            } else {
                 if(input.middle_mouse_down) {  // Drag the map with middlemouse
                     std::pair<float, float> map_pos = camera->get_map_pos(mouse_pos);
                     float x_pos = camera->position.x + input.last_camera_drag_pos.first - map_pos.first;
@@ -431,7 +429,7 @@ void Map::draw(const GameState& gs) {
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
         //model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
-        draw_flag(unit->owner);
+        draw_flag(*obj_shader, *unit->owner);
 #if defined TILE_GRANULARITY
         model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
 #endif
@@ -456,28 +454,16 @@ void Map::draw(const GameState& gs) {
         building_type_models[world.get_id(building_type)]->draw(*obj_shader);
     }
 
+    obj_shader->use();
     for(const auto& province : world.provinces) {
         const float size = 2.f;
         unsigned int i = 0;
         std::vector<Unit*> units = province->get_units();
         const float row_width = units.size() * size;
         for(const auto& unit : units) {
-            std::pair<float, float> pos = province->get_pos();
-            pos.first -= row_width / 2.f;
-            pos.first += i * size;
-
-            glm::mat4 model(1.f);
-            model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
-            obj_shader->set_uniform("model", model);
-
-            UnifiedRender::Square plane = UnifiedRender::Square(0.f, 0.f, size, size);
+            /*UnifiedRender::Square plane = UnifiedRender::Square(0.f, 0.f, size, size);
             obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(unit->owner)]);
-            obj_shader->use();
-            plane.draw();
-
-            if(!unit->size) {
-                continue;
-            }
+            plane.draw();*/
 
             /*if(unit->target != nullptr) {
                 std::pair<float, float> pos = unit->get_pos();
@@ -506,7 +492,6 @@ void Map::draw(const GameState& gs) {
                     break;
                 }
             }*/
-
             i++;
         }
     }
