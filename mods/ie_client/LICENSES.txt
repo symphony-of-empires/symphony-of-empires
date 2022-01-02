@@ -5,3 +5,26 @@ water_tex:
 
 terrain_sheet:
 	http://howintheworld.com/textures/
+
+ui/military_score:
+ui/military_tech:
+ui/navy:
+ui/navy_tech:
+ui/production:
+ui/airforce:
+ui/new_unit:
+ui/naval_score:
+ui/goods/copper:
+ui/goods/brass:
+ui/goods/coffe:
+ui/goods/bread:
+ui/goods/cotton:
+ui/goods/gasoline:
+ui/goods/gold:
+ui/goods/grapes:
+ui/goods/iron:
+ui/goods/oil:
+ui/goods/titanium:
+ui/goods/wheat:
+ui/goods/wine:
+	Credits for Pattrck - made ui icons and graphical interface style in photoshop
