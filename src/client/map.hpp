@@ -49,11 +49,24 @@ typedef std::function<std::vector<ProvinceColor>(const World& world)> mapmode_ge
 std::vector<ProvinceColor> political_map_mode(const World& world);
 
 class Map {
+    MapView view_mode = MapView::PLANE_VIEW;
+    MapRender* map_render;
+    // Called to get mapmode
+    mapmode_generator mapmode_func;
 public:
     Map(const World& world, int screen_width, int screen_height);
     ~Map() {
         // delete map_render;
     };
+
+    void update(const SDL_Event& event, Input& input);
+    void update_mapmode();
+    void draw_flag(const Nation* nation);
+    void draw(const GameState& gs);
+    void handle_click(GameState& gs, SDL_Event event);
+    void set_map_mode(mapmode_generator mapmode_func);
+    void set_view(MapView view);
+    void reload_shaders();
 
     std::vector<const UnifiedRender::Model*> building_type_models, unit_type_models;
     std::vector<const UnifiedRender::Texture*> building_type_icons;
@@ -72,19 +85,5 @@ public:
 #endif
 
     UnifiedRender::OpenGL::Program* obj_shader, * model_shader;
-
-    void update(const SDL_Event& event, Input& input);
-    void update_mapmode();
-    void draw_flag(const Nation* nation);
-    void draw(const GameState& gs);
-    void handle_click(GameState& gs, SDL_Event event);
-    void set_map_mode(mapmode_generator mapmode_func);
-    void set_view(MapView view);
-    void reload_shaders();
-private:
-    MapView view_mode = MapView::PLANE_VIEW;
-    MapRender* map_render;
-    // Called to get mapmode
-    mapmode_generator mapmode_func;
 };
 
