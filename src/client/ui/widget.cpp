@@ -286,8 +286,7 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
         if(o.value) {
             glColor4f(0.f, 1.f, 0.f, 0.5f);
-        }
-        else {
+        } else {
             glColor4f(1.f, 0.f, 0.f, 0.5f);
         }
         draw_rect(0, pos_rect, tex_rect, viewport);
@@ -369,13 +368,16 @@ void Widget::text(const std::string& _text) {
         text_texture = nullptr;
     }
 
-    if(_text.empty()) return;
+    if(_text.empty()) {
+        return;
+    }
 
     //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
     SDL_Color black_color ={ 0, 0, 0, 0 };
     surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), black_color);
-    if(surface == nullptr)
+    if(surface == nullptr) {
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
+    }
 
     text_texture = new UnifiedRender::Texture(surface->w, surface->h);
     text_texture->gl_tex_num = 0;
