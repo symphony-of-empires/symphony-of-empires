@@ -125,7 +125,7 @@ function cholera_evhdl_2(ref_name)
 		decision_fn = "cholera_evhdl_2_decision_0",
 		effects = "+1 militancy, +1 con"
 	}
-	cholera_evdhl:add_decision(decision)
+	cholera_evdhl_2:add_decision(decision)
 	decision = Decision:new{
 		ref_name = "cholera_evhdl_2_decision_1",
 		name = "Ignorance is Bliss, Gentlemen",
@@ -191,7 +191,7 @@ function cholera_evdhl_3(ref_name)
 		decision = "cholera_evhdl_3_decision_0",
 		effects = "+1.5 militancy, +2 con"
 	}
-	cholera_evdhl:add_decision(decision)
+	cholera_evdhl_3:add_decision(decision)
 	decision = Decision:new{
 		ref_name = "cholera_evdhl_3_decision_1",
 		name = "Fine, send aid",
