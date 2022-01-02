@@ -754,6 +754,20 @@ tuscany:set_ideology(monarchy)
 tuscany:add_accepted_culture(italian)
 tuscany:add_client_hint(monarchy, _("Tuscany"), 0x808000)
 
+parma = Nation:new{ ref_name = "parma" }
+parma.name = _("Parma")
+parma:register()
+parma:set_ideology(monarchy)
+parma:add_accepted_culture(italian)
+parma:add_client_hint(monarchy, _("Parma"), 0x808000)
+
+modena = Nation:new{ ref_name = "modena" }
+modena.name = _("Modena")
+modena:register()
+modena:set_ideology(monarchy)
+modena:add_accepted_culture(italian)
+modena:add_client_hint(monarchy, _("Modena"), 0x808000)
+
 savoie = Nation:new{ ref_name = "savoie" }
 savoie.name = _("Savoie")
 savoie:register()
