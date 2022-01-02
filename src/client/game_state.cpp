@@ -453,7 +453,6 @@ void main_loop(GameState& gs) {
 }
 
 void start_client(int, char**) {
-    // globals
     GameState gs{};
 
     gs.ui_ctx = new UI::Context();
@@ -468,10 +467,6 @@ void start_client(int, char**) {
     gs.world->load_mod();
     gs.map = new Map(*gs.world, gs.width, gs.height);
 
-    //glEnable(GL_CULL_FACE);
-    //glCullFace(GL_BACK);
-    //glFrontFace(GL_CW);
-    
     main_loop(gs);
     return;
 }
