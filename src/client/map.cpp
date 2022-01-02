@@ -346,54 +346,6 @@ void Map::update(const SDL_Event& event, Input& input) {
             break;
         }
         break;
-    case SDL_JOYAXISMOTION: {
-        const float sensivity = UnifiedRender::State::get_instance().joy_sensivity;
-        float force = std::abs(event.jaxis.value - sensivity);
-        if(force <= sensivity) {
-            force = 0.f;
-        }
-
-        // First joystick is used as a "move around map"
-        if(event.jaxis.which == 0) {
-            if(event.jaxis.axis == 0) {
-                // X
-                camera->move(force, 0.f, 0.f);
-            } else if(event.jaxis.axis == 1) {
-                // Y
-                camera->move(0.f, force, 0.f);
-            }
-        }
-        // Second one is used to mvoe around UI (wip)
-        else if(event.jaxis.which == 1) {
-            if(event.jaxis.axis == 0) {
-                mouse_pos.first += force;
-            } else if(event.jaxis.axis == 1) {
-                mouse_pos.second += force;
-            }
-
-            if(view_mode == MapView::SPHERE_VIEW) {
-                if(input.middle_mouse_down) {  // Drag the map with middlemouse
-                    float scale = glm::length(camera->position) / GLOBE_RADIUS;
-                    float x_pos = input.last_camera_drag_pos.first - (mouse_pos.first - input.last_camera_mouse_pos.first) * 0.001 * scale;
-                    float y_pos = input.last_camera_drag_pos.second - (mouse_pos.second - input.last_camera_mouse_pos.second) * 0.001 * scale;
-                    camera->set_pos(x_pos, y_pos);
-                }
-                input.select_pos = camera->get_map_pos(input.mouse_pos);
-                input.select_pos.first = (int)(world.width * input.select_pos.first / (2. * M_PI));
-                input.select_pos.second = (int)(world.height * input.select_pos.second / M_PI);
-            } else {
-                if(input.middle_mouse_down) {  // Drag the map with middlemouse
-                    std::pair<float, float> map_pos = camera->get_map_pos(mouse_pos);
-                    float x_pos = camera->position.x + input.last_camera_drag_pos.first - map_pos.first;
-                    float y_pos = camera->position.y + input.last_camera_drag_pos.second - map_pos.second;
-                    camera->set_pos(x_pos, y_pos);
-                }
-                input.select_pos = camera->get_map_pos(input.mouse_pos);
-                input.select_pos.first = (int)input.select_pos.first;
-                input.select_pos.second = (int)input.select_pos.second;
-            }
-        }
-    } break;
     case SDL_WINDOWEVENT:
         if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
             int width, height;
@@ -412,7 +364,6 @@ void Map::update_mapmode() {
 
 void Map::draw(const GameState& gs) {
     glm::mat4 view, projection;
-
     map_render->draw(camera, view_mode);
 
     // TODO: We need to better this

@@ -112,6 +112,9 @@ void handle_event(Input& input, GameState& gs) {
                 input.middle_mouse_down = true;
             }
             break;
+        case SDL_JOYBUTTONDOWN:
+            ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
+            break;
         case SDL_MOUSEBUTTONUP:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             if(event.button.button == SDL_BUTTON_MIDDLE) {
@@ -119,6 +122,20 @@ void handle_event(Input& input, GameState& gs) {
                 break;
             }
 
+            click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
+            if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
+                gs.map->handle_click(gs, event);
+            }
+
+            if(click_on_ui) {
+                std::scoped_lock lock(gs.sound_lock);
+                auto entries = Path::get_all_recursive("sfx/click");
+                if(!entries.empty()) {
+                    gs.sound_queue.push_back(new UnifiedRender::Sound(entries[std::rand() % entries.size()]));
+                }
+            }
+            break;
+        case SDL_JOYBUTTONUP:
             click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
             if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
                 gs.map->handle_click(gs, event);
@@ -146,18 +163,12 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_KEYDOWN:
             switch(event.key.keysym.sym) {
-            case SDLK_t:
-                if(gs.current_mode == MapMode::NORMAL) {
-                    new Interface::TreatyDraftView(gs);
-                }
-                break;
             case SDLK_SPACE:
                 if(gs.current_mode == MapMode::NORMAL) {
                     gs.paused = !gs.paused;
                     if(gs.paused) {
                         ui_ctx->prompt("Control", "Unpaused");
-                    }
-                    else {
+                    } else {
                         ui_ctx->prompt("Control", "Paused");
                     }
                 }
@@ -166,7 +177,10 @@ void handle_event(Input& input, GameState& gs) {
                 if(gs.current_mode == MapMode::NORMAL) {
                     if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
                         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-                        if(tile.province_id >= gs.world->provinces.size()) break;
+                        if(tile.province_id >= gs.world->provinces.size()) {
+                            break;
+                        }
+
                         new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->provinces[tile.province_id]->owner, gs.world->provinces[tile.province_id]);
                     }
                 }
@@ -176,6 +190,46 @@ void handle_event(Input& input, GameState& gs) {
                 break;
             }
             break;
+        case SDL_JOYBALLMOTION: {
+            int xrel, yrel;
+            SDL_JoystickGetBall(gs.joy, 0, &xrel, &yrel);
+
+            const float sensivity = UnifiedRender::State::get_instance().joy_sensivity;
+            
+            float x_force = std::abs(xrel - sensivity);
+            x_force = (x_force <= sensivity) ? 0.f : xrel / sensivity;
+
+            float y_force = std::abs(yrel - sensivity);
+            y_force = (y_force <= sensivity) ? 0.f : yrel / sensivity;
+
+            if(event.jball.which == 0) {
+                gs.input.mouse_pos.first += x_force;
+                gs.input.mouse_pos.second += y_force;
+
+                if(gs.map->view_mode == MapView::SPHERE_VIEW) {
+                    if(gs.input.middle_mouse_down) {  // Drag the map with middlemouse
+                        const float scale = glm::length(gs.map->camera->position) / GLOBE_RADIUS;
+                        const float x_pos = gs.input.last_camera_drag_pos.first - (gs.input.mouse_pos.first - gs.input.last_camera_mouse_pos.first) * 0.001 * scale;
+                        const float y_pos = gs.input.last_camera_drag_pos.second - (gs.input.mouse_pos.second - gs.input.last_camera_mouse_pos.second) * 0.001 * scale;
+                        gs.map->camera->set_pos(x_pos, y_pos);
+                    }
+                    gs.input.select_pos = gs.map->camera->get_map_pos(gs.input.mouse_pos);
+                    gs.input.select_pos.first = (int)(gs.world->width * gs.input.select_pos.first / (2. * M_PI));
+                    gs.input.select_pos.second = (int)(gs.world->height * gs.input.select_pos.second / M_PI);
+                } else {
+                    if(input.middle_mouse_down) {  // Drag the map with middlemouse
+                        const std::pair<float, float> map_pos = gs.map->camera->get_map_pos(mouse_pos);
+                        const float x_pos = gs.map->camera->position.x + gs.input.last_camera_drag_pos.first - map_pos.first;
+                        const float y_pos = gs.map->camera->position.y + gs.input.last_camera_drag_pos.second - map_pos.second;
+                        gs.map->camera->set_pos(x_pos, y_pos);
+                    }
+                    gs.input.select_pos = gs.map->camera->get_map_pos(gs.input.mouse_pos);
+                    gs.input.select_pos.first = (int)gs.input.select_pos.first;
+                    gs.input.select_pos.second = (int)gs.input.select_pos.second;
+                }
+            }
+            ui_ctx->check_hover(gs.input.mouse_pos.first, gs.input.mouse_pos.second);
+        } break;
         case SDL_QUIT:
             gs.run = false;
             gs.paused = false;
@@ -360,6 +414,39 @@ void main_loop(GameState& gs) {
             gs.map->camera->update();
         }
         gs.ui_ctx->render_all();
+
+        glUseProgram(0);
+        glActiveTexture(GL_TEXTURE0);
+        glViewport(0, 0, gs.width, gs.height);
+        glPushMatrix();
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0.f, (float)gs.width, (float)gs.height, 0.f, 0.0f, 1.f);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glTranslatef(0.f, 0.f, 0.f);
+        // Cursor
+        glPushMatrix();
+        glTranslatef(gs.input.mouse_pos.first, gs.input.mouse_pos.second, 0.f);
+        gs.tex_man->load(Path::get("ui/cursor.png")).bind();
+        glColor3f(1.f, 1.f, 1.f);
+        glBegin(GL_TRIANGLES);
+        glTexCoord2f(0.f, 0.f);
+        glVertex2f(0.f, 0.f);
+        glTexCoord2f(1.f, 0.f);
+        glVertex2f(32.f, 0.f);
+        glTexCoord2f(1.f, 1.f);
+        glVertex2f(32.f, 32.f);
+        glTexCoord2f(1.f, 1.f);
+        glVertex2f(32.f, 32.f);
+        glTexCoord2f(0.f, 1.f);
+        glVertex2f(0.f, 32.f);
+        glTexCoord2f(0.f, 0.f);
+        glVertex2f(0.f, 0.f);
+        glEnd();
+        glPopMatrix();
+        glPopMatrix();
+
         gs.swap();
     }
     world_th.join();

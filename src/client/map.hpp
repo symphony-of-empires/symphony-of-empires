@@ -47,7 +47,6 @@ typedef std::function<std::vector<ProvinceColor>(const World& world)> mapmode_ge
 std::vector<ProvinceColor> political_map_mode(const World& world);
 
 class Map {
-    MapView view_mode = MapView::PLANE_VIEW;
     // Called to get mapmode
     mapmode_generator mapmode_func;
 public:
@@ -64,6 +63,7 @@ public:
     void reload_shaders();
 
     MapRender* map_render;
+    MapView view_mode = MapView::PLANE_VIEW;
 
     std::vector<const UnifiedRender::Model*> building_type_models, unit_type_models;
     std::vector<const UnifiedRender::Texture*> building_type_icons;

@@ -49,7 +49,7 @@ namespace UnifiedRender {
 		static State& get_instance(void);
 
 		SDL_Joystick* joy = nullptr;
-		float joy_sensivity = 8000.f;
+		float joy_sensivity = 2.f;
 
 		// Queue of sounds/music
 		std::mutex sound_lock;
