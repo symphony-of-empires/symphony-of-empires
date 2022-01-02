@@ -35,16 +35,18 @@ struct ProvinceColors;
 
 typedef UnifiedRender::OpenGL::Option Option;
 struct MapOptions {
-    Option noise{"NOISE", false};
-    Option sdf{"SDF", false};
-    Option lighting{"LIGHTING", false};
-    Option diag_borders{"DIAG_BORDER", false};
-    Option parallax{"PARALLAX", false};
-    Option landscape{"LANDSCAPE", false};
-    Option rivers{"RIVERS", false};
+    Option noise{ "NOISE", false };
+    Option sdf{ "SDF", false };
+    Option lighting{ "LIGHTING", false };
+    Option diag_borders{ "DIAG_BORDER", false };
+    Option parallax{ "PARALLAX", false };
+    Option landscape{ "LANDSCAPE", false };
+    Option rivers{ "RIVERS", false };
 
     std::vector<Option> get_options() {
-        return std::vector<Option>{noise, sdf};
+        return std::vector<Option>{
+            noise, sdf, lighting, diag_borders, parallax, landscape, rivers
+        };
     }
 };
 class MapRender {
@@ -58,7 +60,7 @@ public:
 
 private:
     const World& world;
-    
+
     MapOptions options;
     // Map textures
     UnifiedRender::Texture* tile_map;
@@ -77,7 +79,7 @@ private:
     UnifiedRender::Square* map_quad;
     UnifiedRender::Sphere* map_sphere;
     UnifiedRender::Quad2D* map_2d_quad;
-  
+
     std::unique_ptr<UnifiedRender::OpenGL::Program> map_shader;
     std::unique_ptr<UnifiedRender::OpenGL::Program> border_sdf_shader;
     std::unique_ptr<UnifiedRender::OpenGL::Program> border_gen_shader;

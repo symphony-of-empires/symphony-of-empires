@@ -348,7 +348,7 @@ std::string UnifiedRender::OpenGL::GLSL_Context::to_text(void) {
 
 // Construct a shader by opening the provided path and creating a temporal ifstream, reading
 // from that stream in text mode and then compiling the shader
-Shader::Shader(const std::string& path, GLuint type, bool use_transpiler, std::string options) {
+Shader::Shader(const std::string& path, GLuint type, bool use_transpiler, std::vector<GLSL_Define> defintions) {
     std::ifstream file;
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     try {
@@ -362,6 +362,7 @@ Shader::Shader(const std::string& path, GLuint type, bool use_transpiler, std::s
         
         if(use_transpiler) {
             GLSL_Context ctx(buffer);
+            ctx.defines = defintions;
             ctx.lexer();
             try {
                 ctx.parser();
@@ -464,8 +465,8 @@ VertexShader::~VertexShader(void) {
 //
 // Fragment shader
 //
-FragmentShader::FragmentShader(const std::string& path, bool use_transpiler, std::string options)
-    : Shader(path, GL_FRAGMENT_SHADER, use_transpiler, options)
+FragmentShader::FragmentShader(const std::string& path, bool use_transpiler, std::vector<GLSL_Define> defintions)
+    : Shader(path, GL_FRAGMENT_SHADER, use_transpiler, defintions)
 {
 
 }
@@ -559,19 +560,28 @@ std::unique_ptr<Program> Program::create(const std::string& vs_path, const std::
     }
     return std::make_unique<Program>(&vs, &fs);
 }
+std::unique_ptr<Program> Program::create(std::vector<Option> options, const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
+    std::vector<GLSL_Define> defined_options;
+    for(auto& option : options) {
+        if(option.used) {
+            GLSL_Define defined_option;
+            defined_option.name = option.get_option();
+            defined_options.push_back(defined_option);
+        }
+    }
+    UnifiedRender::OpenGL::VertexShader vs = UnifiedRender::OpenGL::VertexShader(Path::get(vs_path));
+    UnifiedRender::OpenGL::FragmentShader fs = UnifiedRender::OpenGL::FragmentShader(Path::get(fs_path), true);
 
-std::unique_ptr<Program> Program::create_regular(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
-    return create_regular(std::vector<Option>{}, vs_path, fs_path, gs_path);
+    if(!gs_path.empty()) {
+        UnifiedRender::OpenGL::GeometryShader gs = UnifiedRender::OpenGL::GeometryShader(Path::get(gs_path));
+        return std::make_unique<Program>(&vs, &fs, &gs);
+    }
+    return std::make_unique<Program>(&vs, &fs);
 }
 
-std::unique_ptr<Program> Program::create_regular(std::vector<Option> options, const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
+std::unique_ptr<Program> Program::create_regular(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
     UnifiedRender::OpenGL::VertexShader vs = UnifiedRender::OpenGL::VertexShader(Path::get(vs_path));
-    std::string defined_options;
-    for(auto& option : options) {
-        if(option.used)
-            defined_options += option.get_option();
-    }
-    UnifiedRender::OpenGL::FragmentShader fs = UnifiedRender::OpenGL::FragmentShader(Path::get(fs_path), false, defined_options);
+    UnifiedRender::OpenGL::FragmentShader fs = UnifiedRender::OpenGL::FragmentShader(Path::get(fs_path), false);
 
     if(!gs_path.empty()) {
         UnifiedRender::OpenGL::GeometryShader gs = UnifiedRender::OpenGL::GeometryShader(Path::get(gs_path));

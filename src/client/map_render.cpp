@@ -102,7 +102,7 @@ MapRender::MapRender(const World& _world)
     // terrain_sheet->to_opengl();
 
     // The map shader that draws everything on the map 
-    map_shader = UnifiedRender::OpenGL::Program::create_regular(options.get_options(), "shaders/map.vs", "shaders/map.fs");
+    map_shader = UnifiedRender::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
     border_gen_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_gen.fs");
     border_sdf_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf.fs");
     output_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf_output.fs");
@@ -150,7 +150,7 @@ MapRender::MapRender(const World& _world)
 
 
 void MapRender::reload_shaders() {
-    map_shader = UnifiedRender::OpenGL::Program::create_regular(options.get_options(), "shaders/map.vs", "shaders/map.fs");
+    map_shader = UnifiedRender::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
     border_sdf_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf.fs");
     border_gen_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_gen.fs");
     output_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf_output.fs");
