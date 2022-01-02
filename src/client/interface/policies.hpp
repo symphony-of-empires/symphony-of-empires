@@ -16,11 +16,6 @@ namespace UI {
 namespace Interface {
     class PoliciesScreen : public UI::Window {
         GameState& gs;
-        UI::PieChart* ideology_pie;
-        UI::Chart* militancy_chart;
-        UI::Chart* con_chart;
-
-        UI::Button* enact_btn;
         Policies new_policy;
     public:
         PoliciesScreen(GameState& gs);

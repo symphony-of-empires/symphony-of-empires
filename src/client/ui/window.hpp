@@ -9,7 +9,7 @@
 #include "client/ui/widget.hpp"
 
 namespace UI {
-    class Window: public Widget {
+    class Window : public Widget {
     public:
         bool is_movable = true;
 

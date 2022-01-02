@@ -7,5 +7,5 @@ Slider::Slider(int _x, int _y, unsigned w, unsigned h, const float _min, const f
     min{ _min },
     ProgressBar(_x, _y, w, h, _min, _max, _parent)
 {
-
+    this->type = UI::WidgetType::SLIDER;
 }

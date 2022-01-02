@@ -38,7 +38,9 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     map_render = new MapRender(world);
 
     // Shader used for drawing the models using custom model render
-    obj_shader = UnifiedRender::OpenGl::Program::create("shaders/simple_model.vs", "shaders/simple_model.fs");
+    obj_shader = UnifiedRender::OpenGL::Program::create(Path::get("shaders/simple_model.vs"), Path::get("shaders/simple_model.fs"));
+    // Shader used for drawing the assimp models
+    // model_shader = UnifiedRender::OpenGL::Program::create(Path::get("shaders/model_loading.vs"), Path::get("shaders/model_loading.fs"));
 
     // Set the mapmode
     set_map_mode(political_map_mode);
@@ -127,18 +129,18 @@ void Map::draw_flag(const Nation* nation) {
     const float n_steps = 8.f; // Resolution of flag in one side (in vertices)
     const float step = 90.f; // Steps per vertice
 
-    auto flag = UnifiedRender::OpenGl::PackedModel<glm::vec3, glm::vec2>(GL_TRIANGLE_STRIP);
+    auto flag = UnifiedRender::OpenGL::PackedModel<glm::vec3, glm::vec2>(GL_TRIANGLE_STRIP);
     for(float r = 0.f; r <= (n_steps * step); r += step) {
         float sin_r = (sin(r + wind_osc) / 24.f);
 
         sin_r = sin(r + wind_osc) / 24.f;
-        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
+        flag.buffer.push_back(UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
             ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
-        flag.buffer.push_back(UnifiedRender::OpenGl::PackedData<glm::vec3, glm::vec2>(
+        flag.buffer.push_back(UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
             ));
@@ -181,7 +183,9 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         case MapMode::COUNTRY_SELECT:
             if(tile.province_id < (Province::Id)-3) {
                 auto province = world.provinces[tile.province_id];
-                if(province->controller == nullptr) break;
+                if(province->controller == nullptr) {
+                    break;
+                }
                 gs.select_nation->change_nation(province->controller->cached_id);
             }
             break;
@@ -190,7 +194,9 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             input.selected_units.clear();
             for(const auto& unit : gs.world->units) {
                 // We can't control others units
-                if(unit->owner != gs.curr_nation) continue;
+                if(unit->owner != gs.curr_nation) {
+                    continue;
+                }
 
                 std::pair<float, float> pos = unit->get_pos();
 
@@ -244,7 +250,17 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         }
 
         for(const auto& unit : input.selected_units) {
-            //if(!unit->province->is_neighbour(*province)) continue;
+            if(!unit->province->is_neighbour(*province)) {
+                continue;
+            }
+
+            if(unit->province->controller != nullptr && unit->province->controller != gs.curr_nation) {
+                // Must either be our ally, have military access with them or be at war
+                const NationRelation& relation = gs.curr_nation->relations[gs.world->get_id(unit->province->controller)];
+                if(!(relation.has_war || relation.has_alliance || relation.has_military_access)) {
+                    continue;
+                }
+            }
 
             UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
             Archive ar = Archive();
@@ -263,6 +279,7 @@ void Map::update(const SDL_Event& event, Input& input) {
     std::pair<int, int>& mouse_pos = input.mouse_pos;
     // std::pair<float, float>& select_pos = input.select_pos;
     switch(event.type) {
+    case SDL_JOYBUTTONDOWN:
     case SDL_MOUSEBUTTONDOWN:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
 
@@ -284,6 +301,7 @@ void Map::update(const SDL_Event& event, Input& input) {
             }
         }
         break;
+    case SDL_JOYBUTTONUP:
     case SDL_MOUSEBUTTONUP:
         break;
     case SDL_MOUSEMOTION:
@@ -331,6 +349,55 @@ void Map::update(const SDL_Event& event, Input& input) {
             break;
         }
         break;
+    case SDL_JOYAXISMOTION: {
+        const float sensivity = UnifiedRender::State::get_instance().joy_sensivity;
+        float force = std::abs(event.jaxis.value - sensivity);
+        if(force <= sensivity) {
+            force = 0.f;
+        }
+
+        // First joystick is used as a "move around map"
+        if(event.jaxis.which == 0) {
+            if(event.jaxis.axis == 0) {
+                // X
+                camera->move(force, 0.f, 0.f);
+            } else if(event.jaxis.axis == 1) {
+                // Y
+                camera->move(0.f, force, 0.f);
+            }
+        }
+        // Second one is used to mvoe around UI (wip)
+        else if(event.jaxis.which == 1) {
+            if(event.jaxis.axis == 0) {
+                mouse_pos.first += force;
+            } else if(event.jaxis.axis == 1) {
+                mouse_pos.second += force;
+            }
+
+            if(view_mode == MapView::SPHERE_VIEW) {
+                if(input.middle_mouse_down) {  // Drag the map with middlemouse
+                    float scale = glm::length(camera->position) / GLOBE_RADIUS;
+                    float x_pos = input.last_camera_drag_pos.first - (mouse_pos.first - input.last_camera_mouse_pos.first) * 0.001 * scale;
+                    float y_pos = input.last_camera_drag_pos.second - (mouse_pos.second - input.last_camera_mouse_pos.second) * 0.001 * scale;
+                    camera->set_pos(x_pos, y_pos);
+                }
+                input.select_pos = camera->get_map_pos(input.mouse_pos);
+                input.select_pos.first = (int)(world.width * input.select_pos.first / (2. * M_PI));
+                input.select_pos.second = (int)(world.height * input.select_pos.second / M_PI);
+            }
+            else {
+                if(input.middle_mouse_down) {  // Drag the map with middlemouse
+                    std::pair<float, float> map_pos = camera->get_map_pos(mouse_pos);
+                    float x_pos = camera->position.x + input.last_camera_drag_pos.first - map_pos.first;
+                    float y_pos = camera->position.y + input.last_camera_drag_pos.second - map_pos.second;
+                    camera->set_pos(x_pos, y_pos);
+                }
+                input.select_pos = camera->get_map_pos(input.mouse_pos);
+                input.select_pos.first = (int)input.select_pos.first;
+                input.select_pos.second = (int)input.select_pos.second;
+            }
+        }
+    } break;
     case SDL_WINDOWEVENT:
         if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
             int width, height;
@@ -338,7 +405,6 @@ void Map::update(const SDL_Event& event, Input& input) {
             camera->set_screen(width, height);
         }
         break;
-
     }
 }
 
@@ -360,17 +426,6 @@ void Map::draw(const GameState& gs) {
     obj_shader->use();
     obj_shader->set_uniform("projection", projection);
     obj_shader->set_uniform("view", view);
-
-    // glActiveTexture(GL_TEXTURE0);
-    /*for(const auto& building : world.buildings) {
-        glm::mat4 model(1.f);
-        std::pair<float, float> pos = building->get_pos();
-        model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
-        model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
-        obj_shader->set_uniform("model", model);
-        draw_flag(building->get_owner());
-        building_type_models.at(world.get_id(building->type))->draw(*obj_shader);
-    }*/
 
     for(const auto& unit : world.units) {
         glm::mat4 model(1.f);
@@ -403,116 +458,30 @@ void Map::draw(const GameState& gs) {
         building_type_models[world.get_id(building_type)]->draw(*obj_shader);
     }
 
-    // Resets the shader and texture
-    glUseProgram(0);
-    glActiveTexture(GL_TEXTURE0);
-
-    /*for(const auto& building : world.buildings) {
-        glPushMatrix();
-        glTranslatef(building->x, building->y, -1.f);
-        const int _w = 2, _h = 2;
-        nation_flags[world.get_id(building->get_owner())]->bind();
-        glBegin(GL_TRIANGLES);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glTexCoord2f(1.f, 0.f);
-        glVertex2f(_w, 0.f);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(_w, _h);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(_w, _h);
-        glTexCoord2f(0.f, 1.f);
-        glVertex2f(0.f, _h);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glEnd();
-        glPopMatrix();
-    }*/
-
     for(const auto& province : world.provinces) {
         const float size = 2.f;
         unsigned int i = 0;
         std::vector<Unit*> units = province->get_units();
         const float row_width = units.size() * size;
         for(const auto& unit : units) {
-            glPushMatrix();
             std::pair<float, float> pos = province->get_pos();
             pos.first -= row_width / 2.f;
             pos.first += i * size;
 
-            glTranslatef(pos.first, pos.second, -0.1f);
-            nation_flags[world.get_id(unit->owner)]->bind();
+            glm::mat4 model(1.f);
+            model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
+            obj_shader->set_uniform("model", model);
+
+            UnifiedRender::Square plane = UnifiedRender::Square(0.f, 0.f, size, size);
+            obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(unit->owner)]);
+            obj_shader->use();
+            plane.draw();
 
             if(!unit->size) {
-                glColor3f(0.5f, 0.5f, 0.5f);
-            } else {
-                glColor3f(1.f, 1.f, 1.f);
+                continue;
             }
-            glBegin(GL_TRIANGLES);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(0.f, 0.f);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(size, 0.f);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(size, size);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(size, size);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(0.f, size);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(0.f, 0.f);
-            glEnd();
-            glPopMatrix();
 
-            if(!unit->size) continue;
-
-            glBindTexture(GL_TEXTURE_2D, 0);
-
-            float _w, _h;
-
-            glPushMatrix();
-            glTranslatef(pos.first, pos.second, -0.1f);
-            _w = unit->size / unit->type->max_health;
-            _h = 0.5f;
-            glColor3f(0.f, 1.f, 0.f);
-            glBegin(GL_TRIANGLES);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(0.f, 0.f);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(_w, 0.f);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(_w, _h);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(_w, _h);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(0.f, _h);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(0.f, 0.f);
-            glEnd();
-            glPopMatrix();
-
-            glPushMatrix();
-            glTranslatef(pos.first + (unit->size / unit->type->max_health), pos.second - 2.f, -1.f);
-            _w = (unit->type->max_health - unit->size) / unit->type->max_health;
-            _h = 0.5f;
-            glColor3f(1.f, 0.f, 0.f);
-            glBegin(GL_TRIANGLES);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(0.f, 0.f);
-            glTexCoord2f(1.f, 0.f);
-            glVertex2f(_w, 0.f);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(_w, _h);
-            glTexCoord2f(1.f, 1.f);
-            glVertex2f(_w, _h);
-            glTexCoord2f(0.f, 1.f);
-            glVertex2f(0.f, _h);
-            glTexCoord2f(0.f, 0.f);
-            glVertex2f(0.f, 0.f);
-            glEnd();
-            glPopMatrix();
-
-            if(unit->target != nullptr) {
+            /*if(unit->target != nullptr) {
                 std::pair<float, float> pos = unit->get_pos();
                 glBegin(GL_LINES);
                 glColor3f(0.f, 0.f, 1.f / std::max(0.1f, unit->move_progress));
@@ -538,14 +507,14 @@ void Map::draw(const GameState& gs) {
                     glPopMatrix();
                     break;
                 }
-            }
+            }*/
 
             i++;
         }
     }
 
     // Draw the "drag area" box
-    if(gs.input.is_drag) {
+    /*if(gs.input.is_drag) {
         glPushMatrix();
         glTranslatef(0.f, 0.f, -0.1f);
         glColor3f(1.f, 1.f, 1.f);
@@ -557,8 +526,10 @@ void Map::draw(const GameState& gs) {
         glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
         glEnd();
         glPopMatrix();
-    }
+    }*/
 
     wind_osc += 0.01f;
-    if(wind_osc >= 180.f) wind_osc = 0.f;
+    if(wind_osc >= 180.f) {
+        wind_osc = 0.f;
+    }
 }

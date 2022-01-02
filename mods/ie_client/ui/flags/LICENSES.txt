@@ -256,3 +256,9 @@ turkey_communism
 
 turkey_socialism
 	Public Domain - Unknown author
+
+reuss_gera_monarchy
+	By David Liuzzo - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=853466
+
+saxe_weimar_monarchy
+	By Großherzog von Sachsen Weimar - http://s14.invisionfree.com/Empires/ar/t377.htm, Public Domain, https://commons.wikimedia.org/w/index.php?curid=15613896

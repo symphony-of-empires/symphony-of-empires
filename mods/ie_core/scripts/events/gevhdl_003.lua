@@ -1,5 +1,5 @@
 function gevhdl003_test()
-    if math.random(0, 300) == 0 then
+    if math.random(0, 100) == 0 then
         return EVENT_CONDITIONS_MET
     end
 	return EVENT_CONDITIONS_UNMET

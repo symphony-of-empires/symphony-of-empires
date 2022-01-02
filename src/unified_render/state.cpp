@@ -47,7 +47,7 @@ UnifiedRender::State::State(void) {
     
 	// OpenGL configurations
 	context = SDL_GL_CreateContext(window);
-    SDL_GL_SetSwapInterval(1);
+    //SDL_GL_SetSwapInterval(1);
     
 	print_info("OpenGL Version: %s", glGetString(GL_VERSION));
 	
@@ -74,6 +74,8 @@ UnifiedRender::State::State(void) {
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.f, 1.f);
+
+    glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
 
     // Initialize sound subsystem (at 11,050 hz)
     SDL_AudioSpec fmt;
@@ -112,6 +114,22 @@ UnifiedRender::State::~State(void) {
     SDL_Quit();
 
     g_state = nullptr;
+}
+
+void UnifiedRender::State::clear(void) const {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_DEPTH_BUFFER_BIT);
+    glClearDepth(1.f);
+}
+
+void UnifiedRender::State::swap(void) const {
+    //glLoadIdentity();
+    //glRasterPos2f(0.f, 0.f);
+
+    // Required by macOS
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    SDL_GL_SwapWindow(window);
 }
 
 void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {

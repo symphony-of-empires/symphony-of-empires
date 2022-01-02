@@ -6,6 +6,30 @@
 -- "So how many german minors are you gonna add?"
 -- ALL OF THEM
 
+local liechtenstein_provinces_list = {
+    { ref_name = "vaduz", name = _("Vaduz"), color = 0x4c67ff },
+}
+for k, v in pairs(liechtenstein_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(zinc_mine, Nation:get("liechtenstein"))
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(Nation:get("liechtenstein"))
+    --province:add_nucleus(Nation:get("germany"))
+    province:give_to(Nation:get("liechtenstein"))
+    province:set_terrain(plains)
+end
+Nation:get("liechtenstein"):set_capital(Province:get("vaduz"))
+
 local oldenburg_provinces_list = {
     { ref_name = "oldenburg", name = _("Oldenburg"), color = 0xffeebf },
     { ref_name = "birkenfeld", name = _("Birkenfeld"), color = 0xffa8c6 },
@@ -25,20 +49,22 @@ for k, v in pairs(oldenburg_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(oldenburg)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(oldenburg)
     province:set_terrain(plains)
 end
 oldenburg:set_capital(Province:get("oldenburg"))
 
+-- Wolfenbuttel is actually owned by brunswick
 local wolfenbuttel_provinces_list = {
     { ref_name = "wolfenbuttel", name = _("Wolfenbüttel"), color = 0x00ff21 },
+    { ref_name = "province_7cffb300", name = _("Province_b3ff7c"), color = 0xb3ff7c },
 }
 for k, v in pairs(wolfenbuttel_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(brass_smelter, wolfenbuttel)
+    province:add_industry(brass_smelter, brunswick)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -49,8 +75,8 @@ for k, v in pairs(wolfenbuttel_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(wolfenbuttel)
-    province:add_nucleus(germany)
-    province:give_to(wolfenbuttel)
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(Nation:get("brunswick"))
     province:set_terrain(plains)
 end
 wolfenbuttel:set_capital(Province:get("wolfenbuttel"))
@@ -73,7 +99,7 @@ for k, v in pairs(bremen_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(bremen)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(bremen)
     province:set_terrain(plains)
 end
@@ -99,12 +125,106 @@ for k, v in pairs(brunswick_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(brunswick)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(brunswick)
     province:set_terrain(plains)
 end
 brunswick:set_capital(Province:get("brunswick"))
 
+local waldeck_provinces_list = {
+    { ref_name = "province_ff3f4600", name = _("Province_463fff"), color = 0x463fff },
+    { ref_name = "province_ebffa500", name = _("Province_a5ffeb"), color = 0xa5ffeb },    
+}
+for k, v in pairs(waldeck_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(iron_mine, Nation:get("waldeck"))
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(Nation:get("waldeck"))
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(Nation:get("waldeck"))
+    province:set_terrain(plains)
+end
+
+local hamburg_provinces_list = {
+    { ref_name = "province_ff49d100", name = _("Province_d149ff"), color = 0xd149ff },
+}
+for k, v in pairs(hamburg_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(iron_mine, Nation:get("hamburg"))
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(Nation:get("hamburg"))
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(Nation:get("hamburg"))
+    province:set_terrain(plains)
+end
+
+local frankfurt_provinces_list = {
+    { ref_name = "province_ff305d00", name = _("Province_5d30ff"), color = 0x5d30ff },
+}
+for k, v in pairs(frankfurt_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(iron_mine, Nation:get("frankfurt"))
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(Nation:get("frankfurt"))
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(Nation:get("frankfurt"))
+    province:set_terrain(plains)
+end
+
+local schaumburg_lippe_provinces_list = {
+    { ref_name = "province_ffeace00", name = _("Province_ceeaff"), color = 0xceeaff },
+}
+for k, v in pairs(schaumburg_lippe_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(iron_mine, Nation:get("schaumburg_lippe"))
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(Nation:get("schaumburg_lippe"))
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(Nation:get("schaumburg_lippe"))
+    province:set_terrain(plains)
+end
+
+-- Apparently it's part of hamburg
 local ritzebuttel_provinces_list = {
     { ref_name = "ritzebuttel", name = _("Ritzebüttel"), color = 0x96eaff },
 }
@@ -123,8 +243,9 @@ for k, v in pairs(ritzebuttel_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(ritzebuttel)
-    province:add_nucleus(germany)
-    province:give_to(ritzebuttel)
+    province:add_nucleus(hamburg)
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(hamburg)
     province:set_terrain(plains)
 end
 ritzebuttel:set_capital(Province:get("ritzebuttel"))
@@ -132,6 +253,7 @@ ritzebuttel:set_capital(Province:get("ritzebuttel"))
 local grand_duchy_of_hesse_and_by_rhine_provinces_list = {
     { ref_name = "darnustadt", name = _("Darnustadt"), color = 0xffd3ec },
     { ref_name = "giessen", name = _("Giessen"), color = 0x84ff84 },
+    { ref_name = "province_ffda8c00", name = _("Province_8cdaff"), color = 0x8cdaff },
 }
 for k, v in pairs(grand_duchy_of_hesse_and_by_rhine_provinces_list) do
     province = Province:new(v)
@@ -149,8 +271,289 @@ for k, v in pairs(grand_duchy_of_hesse_and_by_rhine_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(grand_duchy_of_hesse_and_by_rhine)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(grand_duchy_of_hesse_and_by_rhine)
+    province:set_terrain(plains)
+end
+
+local holstein_provinces_list = {
+    { ref_name = "province_a0300c00", name = _("Province_0c30a0"), color = 0x0c30a0 },
+    { ref_name = "province_c08c9c00", name = _("Province_9c8cc0"), color = 0x9c8cc0 },
+    { ref_name = "province_40eadf00", name = _("Province_dfea40"), color = 0xdfea40 },
+    { ref_name = "province_ffd6f700", name = _("Province_f7d6ff"), color = 0xf7d6ff },
+    { ref_name = "province_409ba300", name = _("Province_a39b40"), color = 0xa39b40 },
+    { ref_name = "province_a08d0b00", name = _("Province_0b8da0"), color = 0x0b8da0 },
+    { ref_name = "province_40531100", name = _("Province_115340"), color = 0x115340 },
+    { ref_name = "province_ff195600", name = _("Province_5619ff"), color = 0x5619ff },
+}
+for k, v in pairs(holstein_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(copper_mine, holstein)
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(holstein)
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(holstein)
+    province:set_terrain(plains)
+end
+
+local anhalt_provinces_list = {
+    { ref_name = "province_c1ff7000", name = _("Province_70ffc1"), color = 0x70ffc1 },
+}
+for k, v in pairs(anhalt_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(copper_mine, anhalt)
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(anhalt)
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(anhalt)
+    province:set_terrain(plains)
+end
+
+local lippe_provinces_list = {
+    { ref_name = "province_ffb1a500", name = _("Province_a5b1ff"), color = 0xa5b1ff },
+}
+for k, v in pairs(lippe_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(copper_mine, lippe)
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(lippe)
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(lippe)
+    province:set_terrain(plains)
+end
+
+local nassau_provinces_list = {
+    { ref_name = "province_c1ff9900", name = _("Province_99ffc1"), color = 0x99ffc1 },
+}
+for k, v in pairs(nassau_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(copper_mine, nassau)
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(nassau)
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(nassau)
+    province:set_terrain(plains)
+end
+
+local saxe_weimar_provinces_list = {
+    { ref_name = "province_da56ff00", name = _("Province_ff56da"), color = 0xff56da },
+    { ref_name = "province_ffb7d100", name = _("Province_d1b7ff"), color = 0xd1b7ff },
+    { ref_name = "province_ff99ed00", name = _("Province_ed99ff"), color = 0xed99ff },
+}
+for k, v in pairs(saxe_weimar_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(copper_mine, saxe_weimar)
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(saxe_weimar)
+    province:add_nucleus(Nation:get("thuringia"))
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(saxe_weimar)
+    province:set_terrain(plains)
+end
+
+local saxe_gotha_provinces_list = {
+    { ref_name = "province_5b8fff00", name = _("Province_ff8f5b"), color = 0xff8f5b },
+    { ref_name = "province_ffbf5900", name = _("Province_59bfff"), color = 0x59bfff },
+    { ref_name = "province_4f60ff00", name = _("Province_ff604f"), color = 0xff604f },
+    { ref_name = "province_e8cb00", name = _("Province_cbe800"), color = 0xcbe800 },
+}
+for k, v in pairs(saxe_gotha_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(copper_mine, saxe_gotha)
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(saxe_gotha)
+    province:add_nucleus(Nation:get("thuringia"))
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(saxe_gotha)
+    province:set_terrain(plains)
+end
+
+local saxe_coburg_provinces_list = {
+    { ref_name = "province_ffd47000", name = _("Province_70d4ff"), color = 0x70d4ff },
+    { ref_name = "province_ff0a4f00", name = _("Province_4f0aff"), color = 0x4f0aff },
+}
+for k, v in pairs(saxe_coburg_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(copper_mine, saxe_coburg)
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(saxe_coburg)
+    province:add_nucleus(Nation:get("thuringia"))
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(saxe_coburg)
+    province:set_terrain(plains)
+end
+
+local saxe_hildburghausen_provinces_list = {
+    { ref_name = "province_addaff00", name = _("Province_ffdaad"), color = 0xffdaad },
+    { ref_name = "province_a4ff9e00", name = _("Province_9effa4"), color = 0x9effa4 },
+}
+for k, v in pairs(saxe_hildburghausen_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(copper_mine, saxe_hildburghausen)
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(saxe_hildburghausen)
+    province:add_nucleus(Nation:get("thuringia"))
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(saxe_hildburghausen)
+    province:set_terrain(plains)
+end
+
+local saxe_meiningen_provinces_list = {
+    { ref_name = "province_ff057100", name = _("Province_7105ff"), color = 0x7105ff },
+}
+for k, v in pairs(saxe_meiningen_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(copper_mine, saxe_meiningen)
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(saxe_meiningen)
+    province:add_nucleus(Nation:get("thuringia"))
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(saxe_meiningen)
+    province:set_terrain(plains)
+end
+
+local reuss_gera_provinces_list = {
+    { ref_name = "province_ff940000", name = _("Province_0094ff"), color = 0x0094ff },
+    { ref_name = "province_f760ff00", name = _("Province_ff60f7"), color = 0xff60f7 },
+    { ref_name = "province_c1ffc400", name = _("Province_c4ffc1"), color = 0xc4ffc1 },
+    { ref_name = "province_5b8cff00", name = _("Province_ff8c5b"), color = 0xff8c5b },
+    { ref_name = "province_ffd20a00", name = _("Province_0ad2ff"), color = 0x0ad2ff },
+}
+for k, v in pairs(reuss_gera_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(copper_mine, reuss_gera)
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(reuss_gera)
+    province:add_nucleus(Nation:get("thuringia"))
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(reuss_gera)
+    province:set_terrain(plains)
+end
+
+local hesse_kassel_provinces_list = {
+    { ref_name = "province_bbff3500", name = _("Province_35ffbb"), color = 0x35ffbb },
+    { ref_name = "province_ff6db800", name = _("Province_b86dff"), color = 0xb86dff },
+    { ref_name = "province_d2ff9b00", name = _("Province_9bffd2"), color = 0x9bffd2 },
+    { ref_name = "province_82ff8800", name = _("Province_88ff82"), color = 0x88ff82 },
+    { ref_name = "province_2c19ff00", name = _("Province_ff192c"), color = 0xff192c },
+}
+for k, v in pairs(hesse_kassel_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(copper_mine, hesse_kassel)
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(hesse_kassel)
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(hesse_kassel)
     province:set_terrain(plains)
 end
 
@@ -210,6 +613,9 @@ local prussia_provinces_list = {
     { ref_name = "province_ffdebf00", name = _("Unknown"), color = 0xbfdeff },
     { ref_name = "province_60646e00", name = _("Unknown"), color = 0x6e6460 },
     { ref_name = "province_a2ff4c00", name = _("Unknown"), color = 0x4cffa2 },
+    { ref_name = "province_8057bb00", name = _("Province_bb5780"), color = 0xbb5780 },
+    { ref_name = "province_40b17600", name = _("Province_76b140"), color = 0x76b140 },
+    { ref_name = "province_fe288900", name = _("Province_8928fe"), color = 0x8928fe },
 }
 for k, v in pairs(prussia_provinces_list) do
     province = Province:new(v)
@@ -228,7 +634,7 @@ for k, v in pairs(prussia_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(prussia)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(prussia)
     province:set_terrain(plains)
 end
@@ -240,6 +646,7 @@ local bavaria_provinces_list = {
     { ref_name = "province_ffc38400", name = _("Unknown"), color = 0x84c3ff },
     { ref_name = "weimar", name = _("Weimar"), color = 0xff4f98 },
     { ref_name = "rhineland_palatinate", name = _("Rhineland-Palatinate"), color = 0xffe242 },
+    { ref_name = "province_19aaff00", name = _("Province_ffaa19"), color = 0xffaa19 },
 }
 for k, v in pairs(bavaria_provinces_list) do
     province = Province:new(v)
@@ -256,7 +663,7 @@ for k, v in pairs(bavaria_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(bavaria)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(bavaria)
     province:set_terrain(plains)
 end
@@ -310,8 +717,31 @@ for k, v in pairs(hannover_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(hannover)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(hannover)
+    province:set_terrain(plains)
+end
+
+local lubeck_provinces_list = {
+    { ref_name = "province_82c2ff00", name = _("Province_ffc282"), color = 0xffc282 },
+}
+for k, v in pairs(lubeck_provinces_list) do
+    province = Province:new(v)
+    province:register()
+
+    province:add_industry(iron_mine, Nation:get("lubeck"))
+    province:add_pop(artisan, german, protestant, 5000, 0.9)
+    province:add_pop(farmer, german, protestant, 40000, 0.8)
+    province:add_pop(soldier, german, protestant, 8000, 0.8)
+    province:add_pop(craftsmen, german, protestant, 5000, 0.9)
+    province:add_pop(bureaucrat, german, protestant, 5000, 0.9)
+    province:add_pop(burgeoise, german, protestant, 5000, 0.9)
+    province:add_pop(clergymen, german, protestant, 5000, 0.9)
+    province:add_pop(laborer, german, protestant, 50000, 0.8)
+    province:add_pop(burgeoise, german, protestant, 800, 0.9)
+    province:add_nucleus(Nation:get("lubeck"))
+    province:add_nucleus(Nation:get("germany"))
+    province:give_to(Nation:get("lubeck"))
     province:set_terrain(plains)
 end
 
@@ -392,7 +822,7 @@ for k, v in pairs(baden_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(baden)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(baden)
     province:set_terrain(plains)
 end
@@ -416,14 +846,21 @@ for k, v in pairs(wurttemberg_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(wurttemberg)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(wurttemberg)
     province:set_terrain(plains)
 end
 wurttemberg:set_capital(Province:get("wurttemberg"))
 
 local mecklenburg_provinces_list = {
+    -- Schwerin
     { ref_name = "mecklenburg", name = _("Mecklenburg"), color = 0xff7a59 },
+    { ref_name = "province_ff66f700", name = _("Province_f766ff"), color = 0xf766ff },
+    { ref_name = "province_ff8ea300", name = _("Province_a38eff"), color = 0xa38eff },
+
+    -- Sterlitz
+    { ref_name = "province_a0ffd100", name = _("Province_d1ffa0"), color = 0xd1ffa0 },
+    { ref_name = "province_5000ff00", name = _("Province_ff0050"), color = 0xff0050 },
 }
 for k, v in pairs(mecklenburg_provinces_list) do
     province = Province:new(v)
@@ -440,7 +877,7 @@ for k, v in pairs(mecklenburg_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(mecklenburg)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(mecklenburg)
     province:set_terrain(plains)
 end
@@ -464,7 +901,7 @@ for k, v in pairs(saxonyg_provinces_list) do
     province:add_pop(laborer, german, protestant, 50000, 0.8)
     province:add_pop(burgeoise, german, protestant, 800, 0.9)
     province:add_nucleus(saxony)
-    province:add_nucleus(germany)
+    province:add_nucleus(Nation:get("germany"))
     province:give_to(saxony)
     province:set_terrain(plains)
 end
