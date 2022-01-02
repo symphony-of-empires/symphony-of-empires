@@ -15,9 +15,9 @@ rice:register()
 cotton = Good:new{ ref_name = "cotton" }
 cotton.name = _("Cotton")
 cotton:register()
-coffe_bean = Good:new{ ref_name = "coffe_bean" }
-coffe_bean.name = _("Coffe bean")
-coffe_bean:register()
+coffee = Good:new{ ref_name = "coffee" }
+coffee.name = _("Coffe bean")
+coffee:register()
 salt_grain = Good:new{ ref_name = "salt_grain" }
 salt_grain.name = _("Salt grain")
 salt_grain:register()
