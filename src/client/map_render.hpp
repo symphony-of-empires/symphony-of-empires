@@ -51,17 +51,9 @@ struct MapOptions {
 };
 class MapRender {
     std::unique_ptr<UnifiedRender::Texture> gen_border_sdf();
-public:
-    MapRender(const World& world);
-    ~MapRender() {};
-    void update_mapmode(std::vector<ProvinceColor> province_colors);
-    void draw(Camera* camera, MapView view_mode);
-    void reload_shaders();
 
-private:
     const World& world;
 
-    MapOptions options;
     // Map textures
     UnifiedRender::Texture* tile_map;
     UnifiedRender::Texture* tile_sheet;
@@ -85,4 +77,12 @@ private:
     std::unique_ptr<UnifiedRender::OpenGL::Program> border_gen_shader;
     std::unique_ptr<UnifiedRender::OpenGL::Program> output_shader;
     std::unique_ptr<UnifiedRender::Texture> border_sdf;
+public:
+    MapRender(const World& world);
+    ~MapRender() {};
+    void update_mapmode(std::vector<ProvinceColor> province_colors);
+    void draw(Camera* camera, MapView view_mode);
+    void reload_shaders();
+
+    MapOptions options;
 };

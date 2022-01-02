@@ -5,6 +5,7 @@
 #include "unified_render/print.hpp"
 #include "unified_render/path.hpp"
 #include "client/map.hpp"
+#include "client/map_render.hpp"
 #include "unified_render/texture.hpp"
 #include "client/ui/button.hpp"
 #include "client/ui/input.hpp"
@@ -78,7 +79,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 // Main menu settings
 //
 MainMenuSettings::MainMenuSettings(GameState& _gs)
-    : UI::Window(0, 0, 512, 128, nullptr),
+    : UI::Window(0, 0, 512, 512, nullptr),
     gs{ _gs }
 {
     this->is_scroll = false;
@@ -112,19 +113,97 @@ MainMenuSettings::MainMenuSettings(GameState& _gs)
 
     auto* sdf_detail_chk = new UI::Checkbox(0, 0, 128, 24, this);
     sdf_detail_chk->below_of(*sensivity_sld);
-    sdf_detail_chk->value = gs.has_sdf_detail;
+    sdf_detail_chk->value = gs.map->map_render->options.sdf.used;
     sdf_detail_chk->text("SDF detail");
     sdf_detail_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenuSettings&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-        o.gs.has_sdf_detail = ((UI::Checkbox&)w).value;
+        o.gs.map->map_render->options.sdf.used = ((UI::Checkbox&)w).value;
         o.gs.map->reload_shaders();
     });
     sdf_detail_chk->tooltip = new UI::Tooltip(sdf_detail_chk, 512, 24);
-    sdf_detail_chk->tooltip->text("Enables/Disables SDF detail on the map");
+    sdf_detail_chk->tooltip->text("Enables/Disables SDF detail on the map. High performance impact");
+
+    auto* noise_chk = new UI::Checkbox(0, 0, 128, 24, this);
+    noise_chk->below_of(*sdf_detail_chk);
+    noise_chk->value = gs.map->map_render->options.noise.used;
+    noise_chk->text("Noise");
+    noise_chk->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenuSettings&>(*w.parent);
+        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
+        o.gs.map->map_render->options.noise.used = ((UI::Checkbox&)w).value;
+        o.gs.map->reload_shaders();
+    });
+    noise_chk->tooltip = new UI::Tooltip(noise_chk, 512, 24);
+    noise_chk->tooltip->text("Adds noise to the map, giving it more \"natural\" feel. Low performance impact");
+
+    auto* raytracing_chk = new UI::Checkbox(0, 0, 128, 24, this);
+    raytracing_chk->below_of(*noise_chk);
+    raytracing_chk->value = gs.map->map_render->options.lighting.used;
+    raytracing_chk->text("Simple Raytracing");
+    raytracing_chk->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenuSettings&>(*w.parent);
+        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
+        o.gs.map->map_render->options.lighting.used = ((UI::Checkbox&)w).value;
+        o.gs.map->reload_shaders();
+    });
+    raytracing_chk->tooltip = new UI::Tooltip(raytracing_chk, 512, 24);
+    raytracing_chk->tooltip->text("Creates vibrant lighting through the map. Low performance impact");
+
+    auto* diag_borders_chk = new UI::Checkbox(0, 0, 128, 24, this);
+    diag_borders_chk->below_of(*raytracing_chk);
+    diag_borders_chk->value = gs.map->map_render->options.diag_borders.used;
+    diag_borders_chk->text("Diagonal borders");
+    diag_borders_chk->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenuSettings&>(*w.parent);
+        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
+        o.gs.map->map_render->options.diag_borders.used = ((UI::Checkbox&)w).value;
+        o.gs.map->reload_shaders();
+    });
+    diag_borders_chk->tooltip = new UI::Tooltip(diag_borders_chk, 512, 24);
+    diag_borders_chk->tooltip->text("Enables/Disables replacing the blocky borders with diagonal ones. Low performance impact");
+
+    auto* parallax_chk = new UI::Checkbox(0, 0, 128, 24, this);
+    parallax_chk->below_of(*diag_borders_chk);
+    parallax_chk->value = gs.map->map_render->options.parallax.used;
+    parallax_chk->text("Parallax");
+    parallax_chk->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenuSettings&>(*w.parent);
+        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
+        o.gs.map->map_render->options.parallax.used = ((UI::Checkbox&)w).value;
+        o.gs.map->reload_shaders();
+    });
+    parallax_chk->tooltip = new UI::Tooltip(parallax_chk, 512, 24);
+    parallax_chk->tooltip->text("Enables/Disables a parallax map. High performance impact");
+
+    auto* rivers_chk = new UI::Checkbox(0, 0, 128, 24, this);
+    rivers_chk->below_of(*parallax_chk);
+    rivers_chk->value = gs.map->map_render->options.rivers.used;
+    rivers_chk->text("Rivers");
+    rivers_chk->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenuSettings&>(*w.parent);
+        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
+        o.gs.map->map_render->options.rivers.used = ((UI::Checkbox&)w).value;
+        o.gs.map->reload_shaders();
+    });
+    rivers_chk->tooltip = new UI::Tooltip(rivers_chk, 512, 24);
+    rivers_chk->tooltip->text("Enables/Disables rivers. Low performance impact");
+
+    auto* landscape_chk = new UI::Checkbox(0, 0, 128, 24, this);
+    landscape_chk->below_of(*rivers_chk);
+    landscape_chk->value = gs.map->map_render->options.landscape.used;
+    landscape_chk->text("Landscape");
+    landscape_chk->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenuSettings&>(*w.parent);
+        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
+        o.gs.map->map_render->options.landscape.used = ((UI::Checkbox&)w).value;
+        o.gs.map->reload_shaders();
+    });
+    landscape_chk->tooltip = new UI::Tooltip(landscape_chk, 512, 24);
+    landscape_chk->tooltip->text("Enables/Disables the landacape image (for terrain). Low performance impact");
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->below_of(*sdf_detail_chk);
+    close_btn->below_of(*landscape_chk);
     close_btn->text("Cancel");
 }
 

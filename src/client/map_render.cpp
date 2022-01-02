@@ -224,8 +224,7 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
         fbo.set_texture(0, drawOnTex0 ? *tex0 : *tex1);
         if(step == max_steps){
             border_sdf_shader->set_texture(0, "tex", *border_tex);
-        }
-        else {
+        } else {
             border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? *tex1 : *tex0);
         }
         // Draw a plane over the entire screen to invoke shaders
@@ -237,8 +236,7 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
     if(drawOnTex0) {
         tex1.reset(nullptr);
         tex1 = std::move(tex0);
-    }
-    else {
+    } else {
         tex0.reset(nullptr);
     }
     tex1->gen_mipmaps();
@@ -295,17 +293,21 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     map_shader->set_texture(0, "tile_map", *tile_map); // 4 col
     map_shader->set_texture(1, "tile_sheet", *tile_sheet);
     map_shader->set_texture(2, "water_texture", *water_tex);
-    if(options.noise.used)
+    if(options.noise.used) {
         map_shader->set_texture(3, "noise_texture", *noise_tex);
+    }
     map_shader->set_texture(4, "terrain_map", *terrain_map); // 1 col
     // Temporary not in use
     // map_shader->set_texture(5, "terrain_sheet", terrain_sheet);
-    if(options.sdf.used)
+    if(options.sdf.used) {
         map_shader->set_texture(8, "border_sdf", *(border_sdf.get())); // 1 col
-    if(options.landscape.used)
+    }
+    if(options.landscape.used) {
         map_shader->set_texture(9, "landscape_map", *landscape_map); // 3 col
-    if(options.rivers.used)
+    }
+    if(options.rivers.used) {
         map_shader->set_texture(10, "river_texture", *river_tex); // 1 col
+    }
     if(options.lighting.used) {
         map_shader->set_texture(11, "wave1", *wave1);
         map_shader->set_texture(12, "wave2", *wave2);
@@ -314,8 +316,7 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();
-    }
-    else if(view_mode == MapView::SPHERE_VIEW) {
+    } else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
 }
