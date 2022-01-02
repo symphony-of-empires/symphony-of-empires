@@ -31,8 +31,10 @@ namespace UI {
 		void set_data(std::vector<ChartData> data);
 
 	private:
+        static void on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widget_pos);
 		void draw_triangle(float start_angle, float end_angle, UnifiedRender::Color color);
 		std::vector<ChartData> data;
+		Tooltip* slice_tooltip;
 		float max = 1.f;
 	};
 };
