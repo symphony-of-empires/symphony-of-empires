@@ -10,6 +10,7 @@
 #include "client/ui/input.hpp"
 #include "client/ui/tooltip.hpp"
 #include "client/ui/ui.hpp"
+#include "client/ui/slider.hpp"
 #include "client/ui/checkbox.hpp"
 #include "client/ui/close_button.hpp"
 #include "client/interface/lobby.hpp"
@@ -83,7 +84,34 @@ MainMenuSettings::MainMenuSettings(GameState& _gs)
     this->is_scroll = false;
     this->text("Settings");
 
+    auto* check_controller_btn = new UI::Button(0, 0, 128, 24, this);
+    check_controller_btn->text("Check controller");
+    check_controller_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenuSettings&>(*w.parent);
+        if(o.gs.joy != nullptr) {
+            SDL_JoystickClose(o.gs.joy);
+        }
+        
+        if(SDL_NumJoysticks() >= 1) {
+            o.gs.joy = SDL_JoystickOpen(0);
+        } else {
+            o.gs.ui_ctx->prompt("Gamepad", "No present joysticks");
+        }
+    });
+    check_controller_btn->tooltip = new UI::Tooltip(check_controller_btn, 512, 24);
+    check_controller_btn->tooltip->text("Checks for any new gamepads - click this if you've connected a gamepad and experience issues");
+
+    auto* sensivity_sld = new UI::Slider(0, 0, 128, 24, -8000.f, 8000.f, this);
+    sensivity_sld->below_of(*check_controller_btn);
+    sensivity_sld->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenuSettings&>(*w.parent);
+        o.gs.joy_sensivity = ((UI::Slider&)w).value;
+    });
+    sensivity_sld->tooltip = new UI::Tooltip(sensivity_sld, 512, 24);
+    sensivity_sld->tooltip->text("Sensivity of the controller (negative/positive inverts controls)");
+
     auto* sdf_detail_chk = new UI::Checkbox(0, 0, 128, 24, this);
+    sdf_detail_chk->below_of(*sensivity_sld);
     sdf_detail_chk->value = gs.has_sdf_detail;
     sdf_detail_chk->text("SDF detail");
     sdf_detail_chk->on_click = ([](UI::Widget& w, void*) {

@@ -9,6 +9,7 @@
 #   include <SDL_opengl.h>
 #   include <SDL_ttf.h>
 #   include <SDL_audio.h>
+#	include <SDL_joystick.h>
 #else
 #   include <SDL2/SDL.h>
 #   include <SDL2/SDL_events.h>
@@ -17,6 +18,7 @@
 #   include <SDL2/SDL_opengl.h>
 #   include <SDL2/SDL_ttf.h>
 #   include <SDL2/SDL_audio.h>
+#	include <SDL2/SDL_joystick.h>
 #endif
 
 #include <vector>
@@ -45,6 +47,9 @@ namespace UnifiedRender {
 		void swap(void) const;
 		static void mixaudio(void* userdata, uint8_t* stream, int len);
 		static State& get_instance(void);
+
+		SDL_Joystick* joy = nullptr;
+		float joy_sensivity = 8000.f;
 
 		// Queue of sounds/music
 		std::mutex sound_lock;
