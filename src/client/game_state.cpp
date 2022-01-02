@@ -334,7 +334,7 @@ void main_loop(GameState& gs) {
     gs.select_nation = new Interface::LobbySelectView(gs);
 
     // Only used for debug
-    // new MapDevView(gs.map);
+    new MapDevView(gs.map);
 
     gs.input = Input();
 
@@ -388,7 +388,7 @@ void main_loop(GameState& gs) {
                         g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
                         break;
                     }
-                    
+
                     if(!is_built) {
                         continue;
                     }
@@ -416,7 +416,7 @@ void main_loop(GameState& gs) {
 void start_client(int, char**) {
     // globals
     GameState gs{};
-    
+
     gs.ui_ctx = new UI::Context();
 
     gs.ui_ctx->resize(gs.width, gs.height);

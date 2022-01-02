@@ -1,13 +1,11 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include <utility>
 #include <functional>
 #include <cstddef>
 
-// Required before GL/gl.h
-#include <GL/glew.h>
-#include <GL/gl.h>
 
 namespace UnifiedRender {
     class Texture;
@@ -51,9 +49,7 @@ std::vector<ProvinceColor> political_map_mode(const World& world);
 class Map {
 public:
     Map(const World& world, int screen_width, int screen_height);
-    ~Map() {
-        // delete map_render;
-    };
+    ~Map();
 
     std::vector<const UnifiedRender::Model*> building_type_models, unit_type_models;
     std::vector<const UnifiedRender::Texture*> building_type_icons;
@@ -71,7 +67,7 @@ public:
     UnifiedRender::Texture* province_color_tex;
 #endif
 
-    UnifiedRender::OpenGl::Program* obj_shader, * model_shader;
+    std::unique_ptr<UnifiedRender::OpenGl::Program> obj_shader;
 
     void update(const SDL_Event& event, Input& input);
     void update_mapmode();
