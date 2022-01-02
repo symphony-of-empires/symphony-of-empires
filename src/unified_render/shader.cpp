@@ -237,7 +237,7 @@ void UnifiedRender::OpenGL::GLSL_Context::parser(void) {
 
 std::string UnifiedRender::OpenGL::GLSL_Context::to_text(void) {
     std::string end_buffer;
-    end_buffer += "#version 330 compatibility\r\n";
+    //end_buffer += "#version 330 compatibility\r\n";
 
     for(const auto& define : defines) {
         end_buffer += "#define " + define.name + " " + define.value + "\r\n";
