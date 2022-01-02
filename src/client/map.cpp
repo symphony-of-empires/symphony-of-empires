@@ -6,27 +6,29 @@
 #include <iostream>
 #include <mutex>
 #include <memory>
+// Required before GL/gl.h
+#include <GL/glew.h>
+#include <GL/gl.h>
 
-#include "client/map.hpp"
-#include "client/map_render.hpp"
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
-#include "client/game_state.hpp"
-#include "unified_render/model.hpp"
-#include "io_impl.hpp"
-#include "client/interface/province_view.hpp"
-#include "client/interface/minimap.hpp"
-#include "world.hpp"
-#include "client/orbit_camera.hpp"
-#include "client/flat_camera.hpp"
-#include "client/camera.hpp"
-#include "client/interface/lobby.hpp"
 #include "unified_render/texture.hpp"
 #include "unified_render/primitive.hpp"
 #include "unified_render/shader.hpp"
 #include "unified_render/framebuffer.hpp"
-#include "province.hpp"
 #include "unified_render/model.hpp"
+
+#include "client/map.hpp"
+#include "client/map_render.hpp"
+#include "client/game_state.hpp"
+#include "unified_render/model.hpp"
+#include "client/interface/province_view.hpp"
+#include "client/interface/lobby.hpp"
+#include "world.hpp"
+#include "client/orbit_camera.hpp"
+#include "client/flat_camera.hpp"
+#include "client/camera.hpp"
+#include "province.hpp"
 
 Map::Map(const World& _world, int screen_width, int screen_height)
     : world(_world)
@@ -74,6 +76,10 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         path = Path::get("ui/icons/unit_types/" + unit_type->ref_name + ".png");
         unit_type_icons.push_back(&UnifiedRender::State::get_instance().tex_man->load(path));
     }
+}
+
+Map::~Map() {
+
 }
 
 void Map::set_view(MapView view) {

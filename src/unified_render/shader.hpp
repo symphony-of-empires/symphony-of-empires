@@ -14,10 +14,21 @@ namespace UnifiedRender::OpenGL {
     class ShaderException : public std::exception {
         std::string buffer;
     public:
-        ShaderException(const std::string& _buffer) : buffer(_buffer) {};
+        ShaderException(const std::string& _buffer): buffer(_buffer) {};
         virtual const char* what(void) const noexcept {
             return buffer.c_str();
         }
+    };
+    struct Option {
+        bool used;
+        Option(std::string option, bool use):
+            used{ use }, _option{ "#define " + option + "\n" } {}
+
+        std::string get_option() {
+            return _option;
+        }
+    private:
+        std::string _option;
     };
 
     enum class GLSL_TokenType {
@@ -34,7 +45,7 @@ namespace UnifiedRender::OpenGL {
     };
 
     struct GLSL_Token {
-        GLSL_Token(GLSL_TokenType _type) : type(_type) {};
+        GLSL_Token(GLSL_TokenType _type): type(_type) {};
         ~GLSL_Token() {};
 
         enum GLSL_TokenType type;
@@ -80,10 +91,10 @@ namespace UnifiedRender::OpenGL {
         std::string buffer;
     };
 
-    class GLSL_Exception : public std::exception {
+    class GLSL_Exception: public std::exception {
         std::string buffer;
     public:
-        GLSL_Exception(std::vector<GLSL_Token>::iterator _it, const std::string& _buffer) : buffer(_buffer), it(_it) {};
+        GLSL_Exception(std::vector<GLSL_Token>::iterator _it, const std::string& _buffer): buffer(_buffer), it(_it) {};
         virtual const char* what(void) const noexcept {
             return buffer.c_str();
         }
@@ -92,42 +103,42 @@ namespace UnifiedRender::OpenGL {
     };
 
     class Shader {
-    private:        
+    private:
         void compile(GLuint type);
         std::string buffer;
         GLuint id;
     public:
-        Shader(const std::string& path, GLuint type);
+        Shader(const std::string& path, GLuint type, bool use_transpiler = true, std::string options = "");
         ~Shader();
 
         GLuint get_id(void) const;
     };
 
-    class VertexShader : public Shader {
+    class VertexShader: public Shader {
     public:
         VertexShader(const std::string& path);
         ~VertexShader();
     };
 
-    class FragmentShader : public Shader {
+    class FragmentShader: public Shader {
     public:
-        FragmentShader(const std::string& path);
+        FragmentShader(const std::string& path, bool use_transpiler = true, std::string options = "");
         ~FragmentShader();
     };
 
-    class GeometryShader : public Shader {
+    class GeometryShader: public Shader {
     public:
         GeometryShader(const std::string& path);
         ~GeometryShader();
     };
 
-    class TessControlShader : public Shader {
+    class TessControlShader: public Shader {
     public:
         TessControlShader(const std::string& path);
         ~TessControlShader();
     };
 
-    class TessEvalShader : public Shader {
+    class TessEvalShader: public Shader {
     public:
         TessEvalShader(const std::string& path);
         ~TessEvalShader();
@@ -137,7 +148,10 @@ namespace UnifiedRender::OpenGL {
         GLuint id;
     public:
         Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry = nullptr, const TessControlShader* tctrl = nullptr, const TessEvalShader* tee = nullptr);
-        static Program* create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
+        ~Program() {};
+        static std::unique_ptr<Program> create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
+        static std::unique_ptr<Program> create_regular(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
+        static std::unique_ptr<Program> create_regular(std::vector<Option> options, const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
 
         void attach_shader(const Shader* shader);
         void link(void);
@@ -152,7 +166,7 @@ namespace UnifiedRender::OpenGL {
 
         void set_texture(int value, const std::string& name, const UnifiedRender::Texture& texture) const;
         void set_texture(int value, const std::string& name, const UnifiedRender::TextureArray& texture) const;
-        
+
         GLuint get_id(void) const;
     };
 };

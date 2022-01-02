@@ -1,13 +1,11 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include <utility>
 #include <functional>
 #include <cstddef>
 
-// Required before GL/gl.h
-#include <GL/glew.h>
-#include <GL/gl.h>
 
 namespace UnifiedRender {
     class Texture;
@@ -55,9 +53,7 @@ class Map {
     mapmode_generator mapmode_func;
 public:
     Map(const World& world, int screen_width, int screen_height);
-    ~Map() {
-        // delete map_render;
-    };
+    ~Map();
 
     void update(const SDL_Event& event, Input& input);
     void update_mapmode();
@@ -83,7 +79,6 @@ public:
     UnifiedRender::Texture* id_map;
     UnifiedRender::Texture* province_color_tex;
 #endif
-
     UnifiedRender::OpenGL::Program* obj_shader, * model_shader;
 };
 
