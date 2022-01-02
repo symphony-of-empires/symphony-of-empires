@@ -553,11 +553,11 @@ Program::Program(const VertexShader* vertex, const FragmentShader* fragment, con
 }
 
 std::unique_ptr<Program> Program::create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
-    UnifiedRender::OpenGl::VertexShader vs = UnifiedRender::OpenGl::VertexShader(Path::get(vs_path));
-    UnifiedRender::OpenGl::FragmentShader fs = UnifiedRender::OpenGl::FragmentShader(Path::get(fs_path));
+    UnifiedRender::OpenGL::VertexShader vs = UnifiedRender::OpenGL::VertexShader(Path::get(vs_path));
+    UnifiedRender::OpenGL::FragmentShader fs = UnifiedRender::OpenGL::FragmentShader(Path::get(fs_path));
 
     if(!gs_path.empty()) {
-        UnifiedRender::OpenGl::GeometryShader gs = UnifiedRender::OpenGl::GeometryShader(Path::get(gs_path));
+        UnifiedRender::OpenGL::GeometryShader gs = UnifiedRender::OpenGL::GeometryShader(Path::get(gs_path));
         return std::make_unique<Program>(&vs, &fs, &gs);
     }
     return std::make_unique<Program>(&vs, &fs);
@@ -567,16 +567,16 @@ std::unique_ptr<Program> Program::create_regular(const std::string& vs_path, con
     return create_regular(std::vector<Option>{}, vs_path, fs_path, gs_path);
 }
 std::unique_ptr<Program> Program::create_regular(std::vector<Option> options, const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
-    UnifiedRender::OpenGl::VertexShader vs = UnifiedRender::OpenGl::VertexShader(Path::get(vs_path));
+    UnifiedRender::OpenGL::VertexShader vs = UnifiedRender::OpenGL::VertexShader(Path::get(vs_path));
     std::string defined_options = "#version 330 compatibility\n";
     for(auto& option : options) {
         if(option.used)
             defined_options += option.get_option();
     }
-    UnifiedRender::OpenGl::FragmentShader fs = UnifiedRender::OpenGl::FragmentShader(Path::get(fs_path), false, defined_options);
+    UnifiedRender::OpenGL::FragmentShader fs = UnifiedRender::OpenGL::FragmentShader(Path::get(fs_path), false, defined_options);
 
     if(!gs_path.empty()) {
-        UnifiedRender::OpenGl::GeometryShader gs = UnifiedRender::OpenGl::GeometryShader(Path::get(gs_path));
+        UnifiedRender::OpenGL::GeometryShader gs = UnifiedRender::OpenGL::GeometryShader(Path::get(gs_path));
         return std::make_unique<Program>(&vs, &fs, &gs);
     }
     return std::make_unique<Program>(&vs, &fs);
