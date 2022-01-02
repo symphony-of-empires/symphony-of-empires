@@ -4,6 +4,9 @@
 #include "io_impl.hpp"
 #include "client/ui/components.hpp"
 
+#include "unified_render/texture.hpp"
+#include "unified_render/path.hpp"
+
 using namespace Interface;
 
 #define POLICY_CHECKBOX(x, title, body)\
@@ -22,10 +25,30 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     : UI::Window(0, 0, 512, 400, nullptr),
     gs{ _gs }
 {
+    this->padding.x = 0;
+    this->padding.y = 48;
+
+    this->current_texture = &gs.tex_man->load(Path::get("ui/policies_screen.png"));
+    this->width = this->current_texture->width;
+    this->height = this->current_texture->height;
+    this->text("Laws and goverment");
+
+    auto* gov_lab = new UI::Label(0, 0, "Goverment", this);
+    auto* ideology_lab = new UI::Label(6, 38, "IDEOLOGY", this);
+    ideology_lab->on_each_tick = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<PoliciesScreen&>(*w.parent);
+
+        // TODO: More dynamic names
+        if(o.gs.curr_nation->ideology != nullptr) {
+            w.text(o.gs.curr_nation->ideology->name);
+        }
+    });
+
     this->new_policy = gs.curr_nation->current_policy;
 
-    this->ideology_pie = new UI::PieChart(0, 0, 128, 128, this);
-    auto* ideology_pie_lab = new UI::Label(0, 0, "Ideologies", this);
+    auto* ideology_pie_lab = new UI::Label(0, 82, "Ideologies", this);
+    this->ideology_pie = new UI::PieChart(0, 82, 128, 128, this);
+    this->ideology_pie->below_of(*ideology_pie_lab);
 
     this->militancy_chart = new UI::Chart(0, 0, 128, 128, this);
     this->militancy_chart->text("Militancy");
