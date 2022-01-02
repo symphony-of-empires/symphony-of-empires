@@ -55,6 +55,17 @@ namespace UI {
 		GROUP,
 	};
 
+	class Border {
+	public:
+		const UnifiedRender::Texture* texture = nullptr;
+		glm::ivec2 size;
+		glm::ivec2 texture_size;
+		glm::ivec2 offset;
+
+		Border(const UnifiedRender::Texture* _texture, glm::ivec2 _size, glm::ivec2 _texture_size, glm::ivec2 _offset = glm::ivec2(0))
+			: texture{ _texture }, size{ _size }, texture_size{ _texture_size }, offset{ _offset } {};
+	};
+
 	class Context;
 	class Tooltip;
 	class Widget {
@@ -103,20 +114,18 @@ namespace UI {
 
 		bool is_scroll = true;
 
-		// Used internally for managing widgets outside of window bounds
-		bool is_show = true;
-		// Used internally for drawing hover effects on clickable child widgets
-		bool is_clickable = false;
 		bool is_hover = false;
 		bool is_float = false;
 		bool is_fullscreen = false;
+
+		bool have_shadow = false;
 		UI::Origin origin = UI::Origin::UPPER_LEFT;
 
 		WidgetType type;
 
 		int scroll_x = 0, scroll_y = 0;
 		int x = 0, y = 0;
-		glm::ivec2 padding{0};
+		glm::ivec2 padding{ 0 };
 
 		size_t width = 0, height = 0;
 
@@ -124,6 +133,7 @@ namespace UI {
 		UnifiedRender::Texture* text_texture = nullptr;
 		int text_offset_x = 4, text_offset_y = 4;
 		UnifiedRender::Color text_color;
+		Border* border = nullptr;
 
 		Tooltip* tooltip = nullptr;
 
@@ -136,16 +146,21 @@ namespace UI {
 		};
 
 		std::function<void(Widget&, void*)> on_update;
-		std::function<void(Widget&, void*)> on_hover;
+		std::function<void(Widget&, glm::ivec2 mouse_pos, glm::ivec2 widget_pos)> on_hover;
 		std::function<void(Widget&, void*)> on_click;
 		std::function<void(Widget&, void*)> on_click_outside;
 
 		std::function<void(Widget&, void*)> on_each_tick;
 
-		bool dead = false;
 
 		friend class Context;
 	private:
-		void draw_border(const UnifiedRender::Texture* border_tex, float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset, UnifiedRender::Rect viewport);
+		// Used internally for managing widgets outside of window bounds
+		bool is_show = true;
+		// Used internally for drawing hover effects on clickable child widgets
+		bool is_clickable = false;
+		bool dead = false;
+
+		void draw_border(Border* border, UnifiedRender::Rect viewport);
 	};
 };

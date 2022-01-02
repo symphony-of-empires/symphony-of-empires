@@ -73,8 +73,15 @@ void draw_rect(const GLuint tex,
     glEnd();
 }
 
-void Widget::draw_border(const UnifiedRender::Texture* border_tex,
-    float b_w, float b_h, float b_tex_w, float b_tex_h, float x_offset, float y_offset, UnifiedRender::Rect viewport) {
+void Widget::draw_border(Border* border, UnifiedRender::Rect viewport) {
+    float x_offset = border->offset.x;
+    float y_offset = border->offset.y;
+    float b_w = border->size.x;
+    float b_h = border->size.y;
+    float b_tex_w = border->texture_size.x;
+    float b_tex_h = border->texture_size.y;
+    auto border_tex = border->texture;
+
     // Draw border edges and corners
     UnifiedRender::Rect pos_rect{ 0, 0, 0, 0 };
     UnifiedRender::Rect tex_rect{ 0, 0, 0, 0 };
@@ -159,10 +166,8 @@ void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, UnifiedRen
 
 #include <deque>
 void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
-    // Shadows
-    // if(type == UI::WidgetType::WINDOW || type == UI::WidgetType::TOOLTIP) {
-    if(type == UI::WidgetType::TOOLTIP) {
-        // Shadow
+    // Shadow
+    if(have_shadow) {
         glBindTexture(GL_TEXTURE_2D, 0);
         glColor4f(0.f, 0.f, 0.f, 0.75f);
         glBegin(GL_TRIANGLES);
@@ -192,26 +197,6 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         draw_rect(ctx.background->gl_tex_num, pos_rect, tex_rect, viewport);
     }
 
-    if(type == UI::WidgetType::TOOLTIP) {
-        float b_width = 4;
-        float b_height = 4;
-        float bi_width = 10;
-        float bi_height = 10;
-        float x_offset = 0;
-        float y_offset = 0;
-
-        draw_border(ctx.border_tex, b_width, b_height, bi_width, bi_height, x_offset, y_offset, viewport);
-    }
-    if(type == UI::WidgetType::WINDOW) {
-        float b_width = 4;
-        float b_height = 4;
-        float bi_width = 10;
-        float bi_height = 10;
-        float x_offset = 0;
-        float y_offset = 24;
-
-        draw_border(ctx.border_tex, b_width, b_height, bi_width, bi_height, x_offset, y_offset, viewport);
-    }
 
 
     glColor3f(1.f, 1.f, 1.f);
@@ -219,7 +204,6 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     if(type == UI::WidgetType::WINDOW) {
         draw_rectangle(0, 0, width, 24, viewport, ctx.window_top->gl_tex_num);
     }
-
     if(current_texture != nullptr) {
         draw_rectangle(0, 0, width, height, viewport, current_texture->gl_tex_num);
     }
@@ -232,43 +216,12 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         UnifiedRender::Rect tex_rect((int)0u, 0u, width / ctx.background->width, height / ctx.background->height);
 
         draw_rect(ctx.button->gl_tex_num, pos_rect, tex_rect, viewport);
-
-        float b_width = 20;
-        float b_height = 20;
-        float bi_width = 72;
-        float bi_height = 72;
-        float x_offset = 0;
-        float y_offset = 0;
-
-        draw_border(ctx.button_border, b_width, b_height, bi_width, bi_height, x_offset, y_offset, viewport);
     }
 
+    if(border != nullptr) {
+        draw_border(border, viewport);
+    }
     glBindTexture(GL_TEXTURE_2D, 0);
-    // if(type != UI::WidgetType::BUTTON && type != UI::WidgetType::IMAGE) {
-    //     glLineWidth(2.f);
-
-    //     // Outer black border
-    //     glBegin(GL_LINE_STRIP);
-
-    //     if(type == UI::WidgetType::WINDOW) {
-    //         glColor3f(1.f, 1.f, 1.f);
-    //     } else {
-    //         glColor3f(0.f, 0.f, 0.f);
-    //     }
-    //     glVertex2f(0.f, height);
-    //     glVertex2f(0.f, 0.f);
-    //     glVertex2f(width, 0.f);
-
-    //     if(type == UI::WidgetType::WINDOW) {
-    //         glColor3f(0.f, 0.f, 0.f);
-    //     } else {
-    //         glColor3f(1.f, 1.f, 1.f);
-    //     }
-    //     glVertex2f(width, 0.f);
-    //     glVertex2f(width, height);
-    //     glVertex2f(0.f, height);
-    //     glEnd();
-    // }
 
     if(text_texture != nullptr) {
         glColor3f(text_color.r, text_color.g, text_color.b);
@@ -278,6 +231,7 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         }
         draw_rectangle(text_offset_x, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
     }
+
 
     if(type == UI::WidgetType::CHECKBOX) {
         auto& o = static_cast<UI::Checkbox&>(*this);
