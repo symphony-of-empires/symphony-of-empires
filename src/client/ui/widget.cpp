@@ -292,10 +292,6 @@ Widget::~Widget() {
     if(tooltip != nullptr) {
         delete tooltip;
     }
-    if(parent == nullptr) {
-        // Hide widget immediately upon destruction
-        g_ui_context->remove_widget(this);
-    }
 }
 
 void Widget::move_by(int _x, int _y) {
