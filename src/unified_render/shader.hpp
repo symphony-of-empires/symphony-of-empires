@@ -108,7 +108,7 @@ namespace UnifiedRender::OpenGL {
         std::string buffer;
         GLuint id;
     public:
-        Shader(const std::string& path, GLuint type, bool use_transpiler = true, std::string options = "");
+        Shader(const std::string& path, GLuint type, bool use_transpiler = true, std::vector<GLSL_Define> defintions = {});
         ~Shader();
 
         GLuint get_id(void) const;
@@ -122,7 +122,7 @@ namespace UnifiedRender::OpenGL {
 
     class FragmentShader: public Shader {
     public:
-        FragmentShader(const std::string& path, bool use_transpiler = true, std::string options = "");
+        FragmentShader(const std::string& path, bool use_transpiler = true, std::vector<GLSL_Define> defintions = {});
         ~FragmentShader();
     };
 
@@ -150,8 +150,8 @@ namespace UnifiedRender::OpenGL {
         Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry = nullptr, const TessControlShader* tctrl = nullptr, const TessEvalShader* tee = nullptr);
         ~Program() {};
         static std::unique_ptr<Program> create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
+        static std::unique_ptr<Program> create(std::vector<Option> options, const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
         static std::unique_ptr<Program> create_regular(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
-        static std::unique_ptr<Program> create_regular(std::vector<Option> options, const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
 
         void attach_shader(const Shader* shader);
         void link(void);
