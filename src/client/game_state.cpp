@@ -368,7 +368,7 @@ void main_loop(GameState& gs) {
 void start_client(int, char**) {
     // globals
     GameState gs{};
-    
+
     gs.ui_ctx = new UI::Context();
 
     gs.ui_ctx->resize(gs.width, gs.height);
