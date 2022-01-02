@@ -520,10 +520,21 @@ Program::Program(const VertexShader* vertex, const FragmentShader* fragment, con
     id = glCreateProgram();
     glBindAttribLocation(id, 0, "m_pos");
     glBindAttribLocation(id, 1, "m_texcoord");
-    /*glBindAttribLocation(id, 2, "m_color");*/
 
+#ifdef UR_RENDER_DEBUG
+    if(vertex == nullptr || !vertex->get_id()) {
+        throw UnifiedRender::DebugException("Vertex shader object was not provided correctly");
+    }
+#endif
     attach_shader(vertex);
+
+#ifdef UR_RENDER_DEBUG
+    if(fragment == nullptr || !fragment->get_id()) {
+        throw UnifiedRender::DebugException("Vertex shader object was not provided correctly");
+    }
+#endif
     attach_shader(fragment);
+
     if(geometry != nullptr) {
         attach_shader(geometry);
     }
@@ -552,6 +563,7 @@ std::unique_ptr<Program> Program::create(const std::string& vs_path, const std::
 std::unique_ptr<Program> Program::create_regular(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
     return create_regular(std::vector<Option>{}, vs_path, fs_path, gs_path);
 }
+
 std::unique_ptr<Program> Program::create_regular(std::vector<Option> options, const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
     UnifiedRender::OpenGL::VertexShader vs = UnifiedRender::OpenGL::VertexShader(Path::get(vs_path));
     std::string defined_options = "#version 330 compatibility\n";
@@ -591,17 +603,14 @@ void Program::link(void) {
         print_error("Program error %s", error_info.c_str());
         throw ShaderException(error_info);
     }
-    }
+}
 
 void Program::use(void) const {
     glUseProgram(id);
 }
 
-/*
- * Uniform overloads
- * It allows the game engine to call these functions without worrying about type specifications
- */
-
+// Uniform overloads
+// It allows the game engine to call these functions without worrying about type specifications
 void Program::set_uniform(const std::string& name, glm::mat4 uniform) const {
     glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(uniform));
 }
