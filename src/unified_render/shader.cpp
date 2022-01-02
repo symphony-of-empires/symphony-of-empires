@@ -237,17 +237,22 @@ void UnifiedRender::OpenGL::GLSL_Context::parser(void) {
 }
 
 std::string UnifiedRender::OpenGL::GLSL_Context::to_text(void) {
+    std::vector<GLSL_Token>::const_iterator it = tokens.begin();
     std::string end_buffer;
-    //end_buffer += "#version 330 compatibility\r\n";
 
-    for(const auto& define : defines) {
-        end_buffer += "#define " + define.name + " " + define.value + "\r\n";
+    // Go after the first instance of a preprocessor macro
+    if(it->type == GLSL_TokenType::MACRO) {
+        end_buffer += "#" + it->data + "\r\n";
+        it++;
+        for(const auto& define : defines) {
+            end_buffer += "#define " + define.name + " " + define.value + "\r\n";
+        }
     }
 
-    for(const auto& tok : tokens) {
-        switch(tok.type) {
+    for( ; it != tokens.end(); it++) {
+        switch(it->type) {
         case GLSL_TokenType::MACRO:
-            end_buffer += "#" + tok.data + "\r\n";
+            end_buffer += "#" + it->data + "\r\n";
             break;
         case GLSL_TokenType::SEMICOLON:
             end_buffer += ";\r\n";
@@ -319,17 +324,15 @@ std::string UnifiedRender::OpenGL::GLSL_Context::to_text(void) {
             end_buffer += ".";
             break;
         case GLSL_TokenType::LITERAL:
-            end_buffer += tok.data;
+            end_buffer += it->data;
             break;
         case GLSL_TokenType::IDENTIFIER:
-            if(tok.data == "layout") {
-                end_buffer += tok.data + " ";
-            }
-            else if(tok.data == "provided") {
+            if(it->data == "layout") {
+                end_buffer += it->data + " ";
+            } else if(it->data == "provided") {
                 end_buffer += " uniform ";
-            }
-            else {
-                end_buffer += " " + tok.data + " ";
+            } else {
+                end_buffer += " " + it->data + " ";
             }
             break;
         case GLSL_TokenType::ASSIGN:
