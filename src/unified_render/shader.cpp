@@ -20,7 +20,7 @@ std::string UnifiedRender::OpenGL::GLSL_Context::get_identifier(std::string::ite
     std::string::iterator start_it = it;
 
     // Alphanumerics, _ and dots are allowed as identifiers
-    while((isalnum(*it) || *it == '_' || *it == '.') && it != buffer.end()) {
+    while(it != buffer.end() && (isalnum(*it) || *it == '_' || *it == '.')) {
         it++;
     }
     
@@ -32,12 +32,12 @@ std::string UnifiedRender::OpenGL::GLSL_Context::get_literal(std::string::iterat
     std::string::iterator start_it = it;
 
     // Literal
-    while((isdigit(*it) || *it == '.') && it != buffer.end()) {
+    while(it != buffer.end() && (isdigit(*it) || *it == '.')) {
         it++;
     }
 
     // Skip "float" specifier
-    if(*it == 'f') {
+    if(it != buffer.end() && *it == 'f') {
         it++;
     }
 
@@ -49,17 +49,20 @@ void UnifiedRender::OpenGL::GLSL_Context::lexer(void) {
     // Output the final stuff
     std::string::iterator it = buffer.begin();
     for( ; it != buffer.end(); ) {
-        while((*it == ' ' || *it == '\t' || *it == '\r' || *it == '\n') && it != buffer.end()) {
+        while(it != buffer.end() && (*it == ' ' || *it == '\t' || *it == '\r' || *it == '\n')) {
             it++;
+        }
+        if(it == buffer.end()) {
+            break;
         }
 
         if((*(it + 0) == '/' && *(it + 1) == '/')) {
-            while((*it != '\n') && it != buffer.end()) {
+            while(it != buffer.end() && (*it != '\n')) {
                 it++;
             }
         } else if(*it == '#') {
             std::string::iterator start_it = it;
-            while((*it != '\n') && it != buffer.end()) {
+            while(it != buffer.end() && (*it != '\n')) {
                 it++;
             }
             GLSL_Token tok = GLSL_Token(GLSL_TokenType::MACRO);
@@ -70,118 +73,92 @@ void UnifiedRender::OpenGL::GLSL_Context::lexer(void) {
         } else if(*it == ',') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::COMMA));
             it++;
-        }
-        else if(*it == ';') {
+        } else if(*it == ';') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::SEMICOLON));
             it++;
-        }
-        else if(*it == '(') {
+        } else if(*it == '(') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::LPAREN));
             it++;
-        }
-        else if(*it == ')') {
+        } else if(*it == ')') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::RPAREN));
             it++;
-        }
-        else if(*it == '[') {
+        } else if(*it == '[') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::LBRACKET));
             it++;
-        }
-        else if(*it == ']') {
+        } else if(*it == ']') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::RBRACKET));
             it++;
-        }
-        else if(*it == '{') {
+        } else if(*it == '{') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::LBRACE));
             it++;
-        }
-        else if(*it == '}') {
+        } else if(*it == '}') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::RBRACE));
             it++;
-        }
-        else if(*it == '+') {
+        } else if(*it == '+') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::ADD));
             it++;
-        }
-        else if(*it == '-') {
+        } else if(*it == '-') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::SUB));
             it++;
-        }
-        else if(*it == '*') {
+        } else if(*it == '*') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::MUL));
             it++;
-        }
-        else if(*it == '/') {
+        } else if(*it == '/') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::DIV));
             it++;
-        }
-        else if(*it == '%') {
+        } else if(*it == '%') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::REM));
             it++;
-        }
-        else if(*it == '<') {
+        } else if(*it == '<') {
             it++;
-            if(*it == '=') {
+            if(it != buffer.end() && *it == '=') {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_LTEQ));
                 it++;
-            }
-            else {
+            } else {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_LT));
             }
-        }
-        else if(*it == '>') {
+        } else if(*it == '>') {
             it++;
-            if(*it == '=') {
+            if(it != buffer.end() && *it == '=') {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_GTEQ));
                 it++;
-            }
-            else {
+            } else {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_GT));
             }
-        }
-        else if(*it == '|') {
+        } else if(*it == '|') {
             it++;
-            if(*it == '|') {
+            if(it != buffer.end() && *it == '|') {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_OR));
                 it++;
-            }
-            else {
+            } else {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::OR));
             }
-        }
-        else if(*it == '&') {
+        } else if(*it == '&') {
             it++;
-            if(*it == '&') {
+            if(it != buffer.end() && *it == '&') {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_AND));
                 it++;
-            }
-            else {
+            } else {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::AND));
             }
-        }
-        else if(*it == '=') {
+        } else if(*it == '=') {
             it++;
-            if(*it == '=') {
+            if(it != buffer.end() && *it == '=') {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_EQ));
                 it++;
-            }
-            else {
+            } else {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::ASSIGN));
             }
-        }
-        else if(*it == '?') {
+        } else if(*it == '?') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::TERNARY));
             it++;
-        }
-        else if(*it == ':') {
+        } else if(*it == ':') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::COLON));
             it++;
-        }
-        else if(*it == '.') {
+        } else if(*it == '.') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::DOT));
             it++;
-        }
-        else {
+        } else {
             if(isdigit(*it) || *it == '.') {
                 GLSL_Token tok = GLSL_Token(GLSL_TokenType::LITERAL);
                 tok.data = get_literal(it);
@@ -190,8 +167,7 @@ void UnifiedRender::OpenGL::GLSL_Context::lexer(void) {
                 GLSL_Token tok = GLSL_Token(GLSL_TokenType::IDENTIFIER);
                 tok.data = get_identifier(it);
                 tokens.push_back(tok);
-            }
-            else {
+            } else {
                 it++;
             }
         }
