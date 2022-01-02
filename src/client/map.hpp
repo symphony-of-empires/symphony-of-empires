@@ -79,6 +79,6 @@ public:
     UnifiedRender::Texture* id_map;
     UnifiedRender::Texture* province_color_tex;
 #endif
-    UnifiedRender::OpenGL::Program* obj_shader, * model_shader;
+    std::unique_ptr<UnifiedRender::OpenGL::Program> obj_shader;
 };
 
