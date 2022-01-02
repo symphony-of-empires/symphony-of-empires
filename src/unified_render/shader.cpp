@@ -247,7 +247,7 @@ std::string UnifiedRender::OpenGL::GLSL_Context::to_text(void) {
     for(const auto& tok : tokens) {
         switch(tok.type) {
         case GLSL_TokenType::MACRO:
-            end_buffer += tok.data + "\r\n";
+            end_buffer += "#" + tok.data + "\r\n";
             break;
         case GLSL_TokenType::SEMICOLON:
             end_buffer += ";\r\n";
