@@ -56,7 +56,7 @@ chile.name = _("Chile")
 chile.adjective = _("Chilean")
 chile:register()
 chile:set_ideology(republic)
-chile:add_accepted_culture(chilean)
+chile:add_accepted_culture(Culture:get("chilean"))
 chile:add_client_hint(republic, _("Chile"), 0xad6dcf)
 
 upca = Nation:new{ ref_name = "upca" }
@@ -82,7 +82,7 @@ united_states.noun = _("American")
 united_states:register()
 united_states:set_ideology(democracy)
 united_states:add_accepted_culture(british)
-united_states:add_accepted_culture(american)
+united_states:add_accepted_culture(Culture:get("american"))
 united_states:add_client_hint(democracy, _("United states"), 0x6ea5cc)
 
 haiti = Nation:new{ ref_name = "haiti" }
@@ -104,6 +104,6 @@ texas = Nation:new{ ref_name = "texas" }
 texas.name = _("Texas")
 texas.adjective = _("Texan")
 texas:register()
-texas:add_accepted_culture(american)
+texas:add_accepted_culture(Culture:get("american"))
 texas:add_client_hint(republic, _("Texas"), 0x8be2f7)
 --------------------------------------------------------------

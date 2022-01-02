@@ -5,9 +5,9 @@
 
 #include "unified_render/primitive.hpp"
 
-using namespace UnifiedRender::OpenGl;
+using namespace UnifiedRender::OpenGL;
 
-Square::Square(float start_x, float start_y, float end_x, float end_y)
+UnifiedRender::Square::Square(float start_x, float start_y, float end_x, float end_y)
     : PackedModel(GL_TRIANGLES)
 {
     buffer.resize(6);
@@ -30,7 +30,11 @@ Square::Square(float start_x, float start_y, float end_x, float end_y)
     glEnableVertexAttribArray(1);
 }
 
-Quad2D::Quad2D()
+UnifiedRender::Square::~Square(void) {
+
+}
+
+UnifiedRender::Quad2D::Quad2D(void)
 	: PackedModel(GL_TRIANGLES)
 {
 	buffer.resize(6);
@@ -53,9 +57,13 @@ Quad2D::Quad2D()
 	glEnableVertexAttribArray(1);
 }
 
-Sphere::Sphere(float center_x, float center_y, float center_z, float _radius, int _resolution)
+UnifiedRender::Quad2D::~Quad2D(void) {
+
+}
+
+UnifiedRender::Sphere::Sphere(float center_x, float center_y, float center_z, float _radius, int _resolution)
 	: PackedModel(GL_TRIANGLES),
-	resolution{_resolution},
+	  resolution{_resolution},
     radius{_radius}
 {
 	buffer.resize(6 * resolution * resolution);
@@ -84,7 +92,11 @@ Sphere::Sphere(float center_x, float center_y, float center_z, float _radius, in
 	glEnableVertexAttribArray(1);
 }
 
-PackedData<glm::vec3, glm::vec2> Sphere::calc_pos(glm::vec3 center_pos, float longitude, float latitude) {
+UnifiedRender::Sphere::~Sphere(void) {
+
+}
+
+UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2> Sphere::calc_pos(glm::vec3 center_pos, float longitude, float latitude) {
 	float longitude_ratio = ((float)longitude) / resolution;
 	float longitude_rad = longitude_ratio * 2 * M_PI;
 	float latitude_ratio = ((float)latitude) / resolution;
@@ -95,5 +107,5 @@ PackedData<glm::vec3, glm::vec2> Sphere::calc_pos(glm::vec3 center_pos, float lo
 	glm::vec3 pos(x, y, z);
 	pos += center_pos;
 	glm::vec2 tex_coord(longitude_ratio, latitude_ratio);
-	return PackedData<glm::vec3, glm::vec2>(pos, tex_coord);
+	return UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2>(pos, tex_coord);
 }

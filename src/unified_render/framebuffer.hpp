@@ -5,7 +5,7 @@
 #include "unified_render/texture.hpp"
 
 namespace UnifiedRender {
-    namespace OpenGl {
+    namespace OpenGL {
         class Framebuffer {
         public:
             Framebuffer();

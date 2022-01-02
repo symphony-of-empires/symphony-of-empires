@@ -13,4 +13,5 @@ UR_RENDER_DEBUG
     When defined will enable all rendering pipeline error checks (can cause
     massive lag on graphical intensive tasks)
 
-
+UR_BACKEND_OPENGL
+    If defined it will use the OpenGL backend

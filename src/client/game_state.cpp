@@ -103,6 +103,8 @@ void handle_event(Input& input, GameState& gs) {
     while(SDL_PollEvent(&event)) {
         bool click_on_ui = false;
         switch(event.type) {
+        case SDL_CONTROLLERDEVICEADDED:
+            break;
         case SDL_MOUSEBUTTONDOWN:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
@@ -206,52 +208,6 @@ void GameState::send_command(Archive& archive) {
     client->pending_packets.push_back(packet);
 }
 
-void render(GameState& gs, Input& input, SDL_Window* window) {
-    int& width = gs.width;
-    int& height = gs.height;
-
-    std::pair<float, float>& select_pos = input.select_pos;
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearDepth(1.f);
-
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CW);
-
-    if(gs.current_mode != MapMode::NO_MAP) {
-        Map* map = gs.map;
-
-        glPushMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glLoadMatrixf(glm::value_ptr(map->camera->get_projection()));
-        glViewport(0, 0, width, height);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadMatrixf(glm::value_ptr(map->camera->get_view()));
-
-        std::scoped_lock lock(gs.world->world_mutex);
-        map->draw(gs);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glBegin(GL_QUADS);
-        glColor4f(1.f, 1.f, 1.f, 0.8f);
-        glVertex2f(select_pos.first, select_pos.second);
-        glVertex2f(select_pos.first + 1.f, select_pos.second);
-        glVertex2f(select_pos.first + 1.f, select_pos.second + 1.f);
-        glVertex2f(select_pos.first, select_pos.second + 1.f);
-        glEnd();
-
-        glPopMatrix();
-
-        map->camera->update();
-    }
-
-    gs.ui_ctx->render_all();
-    glLoadIdentity();
-    glRasterPos2f(-3.0f, -2.0f);
-    SDL_GL_SwapWindow(window);
-}
-
 void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& displayed_treaties, GameState& gs) {
     // Put popups
     // Event + Descision popups
@@ -285,12 +241,10 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
 }
 
 void GameState::update_on_tick(void) {
-    //render_lock.lock();
     ui_ctx->do_tick();
     if(current_mode != MapMode::NO_MAP) {
         map->update_mapmode();
     }
-    //render_lock.lock();
 }
 
 void GameState::world_thread(void) {
@@ -307,20 +261,23 @@ void GameState::world_thread(void) {
     }
 }
 
+#include "client/ui/image.hpp"
 #include "client/interface/main_menu.hpp"
 #include "unified_render/sound.hpp"
 #include <filesystem>
 
 void main_loop(GameState& gs) {
+    gs.input = Input();
     gs.in_game = false;
 
     // Connect to server prompt
-    /*auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/globe.png")));
-    mm_bg->is_fullscreen = true;
+    gs.current_mode = MapMode::NO_MAP;
+    //auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/globe.png")));
+    //mm_bg->is_fullscreen = true;
     Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
-    auto* logo = new UI::Image(0, 0, 256, 256, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/title_alt.png")));
-    logo->above_of(*main_menu);
-    logo->left_side_of(*main_menu);*/
+    //auto* logo = new UI::Image(0, 0, 256, 256, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/title_alt.png")));
+    //logo->above_of(*main_menu);
+    //logo->left_side_of(*main_menu);
 
     std::vector<Event*> displayed_events;
     std::vector<Treaty*> displayed_treaties;
@@ -330,85 +287,80 @@ void main_loop(GameState& gs) {
     gs.run = true;
     gs.paused = true;
 
-    gs.current_mode = MapMode::COUNTRY_SELECT;
-    gs.select_nation = new Interface::LobbySelectView(gs);
-
-    // Only used for debug
-    new MapDevView(gs.map);
-
-    gs.input = Input();
-
-    gs.host_mode = true;
-    gs.server = new Server(gs, 1836);
-    gs.client = new Client(gs, "127.0.0.1", 1836);
-    gs.client->username = "TUTORIAL_PLAYER";
-    gs.in_game = true;
-
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
-    glClearColor(0.3f, 0.3f, 0.3f, 0.5f);
     while(gs.run) {
-        std::scoped_lock lock(gs.render_lock);
         handle_event(gs.input, gs);
-
         if(gs.current_mode == MapMode::NORMAL) {
-            std::scoped_lock lock(gs.world->world_mutex);
-            handle_popups(displayed_events, displayed_treaties, gs);
+            if(gs.world->world_mutex.try_lock()) {
+                handle_popups(displayed_events, displayed_treaties, gs);
+                gs.world->world_mutex.unlock();
+            }
         }
 
         if(gs.update_tick) {
             gs.update_on_tick();
             gs.update_tick = false;
-        }
+            
+            if(gs.current_mode == MapMode::NORMAL) {
+                if(gs.world->world_mutex.try_lock()) {
+                    // Production queue
+                    if(!gs.production_queue.empty()) {
+                        for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
+                            UnitType* unit = gs.production_queue[i];
 
-        render(gs, gs.input, gs.window);
+                            // TODO: Make a better queue AI
+                            bool is_built = false;
+                            for(const auto& building : gs.world->buildings) {
+                                // Must be our building
+                                if(building->get_owner() != gs.curr_nation) {
+                                    continue;
+                                }
 
-        if(gs.current_mode == MapMode::NORMAL) {
-            std::scoped_lock lock(gs.world->world_mutex);
-            // Production queue
-            if(!gs.production_queue.empty()) {
-                for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
-                    UnitType* unit = gs.production_queue[i];
+                                // Must not be working on something else
+                                if(building->working_unit_type != nullptr) {
+                                    continue;
+                                }
 
-                    // TODO: Make a better queue AI
-                    bool is_built = false;
-                    for(const auto& building : gs.world->buildings) {
-                        // Must be our building
-                        if(building->get_owner() != gs.curr_nation) {
-                            continue;
+                                is_built = true;
+
+                                g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
+                                break;
+                            }
+                            
+                            if(!is_built) {
+                                continue;
+                            }
+
+                            gs.production_queue.erase(gs.production_queue.begin() + i);
+                            i--;
                         }
-
-                        // Must not be working on something else
-                        if(building->working_unit_type != nullptr) {
-                            continue;
-                        }
-
-                        is_built = true;
-
-                        g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
-                        break;
                     }
+                    gs.world->world_mutex.unlock();
+                }
+            }
 
-                    if(!is_built) {
-                        continue;
-                    }
-
-                    gs.production_queue.erase(gs.production_queue.begin() + i);
-                    i--;
+            if(gs.music_queue.empty()) {
+                // Search through all the music in 'music/ambience' and picks a random
+                auto entries = Path::get_all_recursive("music/ambience");
+                if(entries.size() != 0) {
+                    int music_index = std::rand() % entries.size();
+                    std::scoped_lock lock(gs.sound_lock);
+                    gs.music_fade_value = 100.f;
+                    gs.music_queue.push_back(new UnifiedRender::Sound(entries[music_index]));
                 }
             }
         }
 
-        if(gs.music_queue.empty()) {
-            // Search through all the music in 'music/ambience' and picks a random
-            auto entries = Path::get_all_recursive("music/ambience");
-            if(entries.size() != 0) {
-                int music_index = std::rand() % entries.size();
-                std::scoped_lock lock(gs.sound_lock);
-                gs.music_fade_value = 100.f;
-                gs.music_queue.push_back(new UnifiedRender::Sound(entries[music_index]));
-            }
+        std::scoped_lock lock(gs.render_lock);
+        gs.clear();
+        if(gs.current_mode != MapMode::NO_MAP) {
+            std::scoped_lock lock(gs.world->world_mutex);
+            gs.map->draw(gs);
+            gs.map->camera->update();
         }
+        gs.ui_ctx->render_all();
+        gs.swap();
     }
     world_th.join();
 }
@@ -429,16 +381,10 @@ void start_client(int, char**) {
     gs.world->load_mod();
     gs.map = new Map(*gs.world, gs.width, gs.height);
 
-    /*gs.tutorial.fire_at_start = 0;
-    if(!gs.tutorial.fire_at_start) {
-        main_menu_loop(gs, gs.window);
-    } else {
-        gs.host_mode = true;
-        gs.server = new Server(gs, 1836);
-        gs.client = new Client(gs, "127.0.0.1", 1836);
-        gs.client->username = "TUTORIAL_PLAYER";
-        gs.in_game = true;
-    }*/
+    //glEnable(GL_CULL_FACE);
+    //glCullFace(GL_BACK);
+    //glFrontFace(GL_CW);
+    
     main_loop(gs);
     return;
 }

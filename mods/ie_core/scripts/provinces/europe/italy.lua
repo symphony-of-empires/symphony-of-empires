@@ -99,3 +99,95 @@ for k, v in pairs(piedmont_sardinia_provinces) do
     province:give_to(piedmont_sardinia)
     province:set_terrain(plains)
 end
+
+local parma_provinces_list = {
+    { ref_name = "province_3fffbf00", name = _("Province_bfff3f"), color = 0xbfff3f },
+}
+for k, v in pairs(parma_provinces_list) do
+    province = Province:new(v)
+    province:register()
+    province:add_industry(wheat_farm, parma)
+    province:add_pop(artisan, italian, catholic, 5000, 0.9)
+    province:add_pop(farmer, italian, catholic, 40000, 0.8)
+    province:add_pop(soldier, italian, catholic, 8000, 0.8)
+    province:add_pop(craftsmen, italian, catholic, 5000, 0.9)
+    province:add_pop(bureaucrat, italian, catholic, 5000, 0.9)
+    province:add_pop(burgeoise, italian, catholic, 5000, 0.9)
+    province:add_pop(clergymen, italian, catholic, 5000, 0.9)
+    province:add_pop(laborer, italian, catholic, 50000, 0.8)
+    province:add_pop(burgeoise, italian, catholic, 800, 0.9)
+    province:add_nucleus(parma)
+    province:add_nucleus(italy)
+    province:give_to(parma)
+    province:set_terrain(plains)
+end
+
+local tuscany_provinces_list = {
+    { ref_name = "province_82ffb400", name = _("Province_b4ff82"), color = 0xb4ff82 },
+    { ref_name = "province_de5eff00", name = _("Province_ff5ede"), color = 0xff5ede },
+    { ref_name = "province_ff3dc100", name = _("Province_c13dff"), color = 0xc13dff },
+    { ref_name = "province_d5ffc900", name = _("Province_c9ffd5"), color = 0xc9ffd5 },
+    { ref_name = "province_ff976300", name = _("Province_6397ff"), color = 0x6397ff },
+}
+for k, v in pairs(tuscany_provinces_list) do
+    province = Province:new(v)
+    province:register()
+    province:add_industry(wheat_farm, tuscany)
+    province:add_pop(artisan, italian, catholic, 5000, 0.9)
+    province:add_pop(farmer, italian, catholic, 40000, 0.8)
+    province:add_pop(soldier, italian, catholic, 8000, 0.8)
+    province:add_pop(craftsmen, italian, catholic, 5000, 0.9)
+    province:add_pop(bureaucrat, italian, catholic, 5000, 0.9)
+    province:add_pop(burgeoise, italian, catholic, 5000, 0.9)
+    province:add_pop(clergymen, italian, catholic, 5000, 0.9)
+    province:add_pop(laborer, italian, catholic, 50000, 0.8)
+    province:add_pop(burgeoise, italian, catholic, 800, 0.9)
+    province:add_nucleus(tuscany)
+    province:add_nucleus(italy)
+    province:give_to(tuscany)
+    province:set_terrain(plains)
+end
+
+local modena_provinces_list = {
+    { ref_name = "province_ffd58700", name = _("Province_87d5ff"), color = 0x87d5ff },
+}
+for k, v in pairs(modena_provinces_list) do
+    province = Province:new(v)
+    province:register()
+    province:add_industry(wheat_farm, modena)
+    province:add_pop(artisan, italian, catholic, 5000, 0.9)
+    province:add_pop(farmer, italian, catholic, 40000, 0.8)
+    province:add_pop(soldier, italian, catholic, 8000, 0.8)
+    province:add_pop(craftsmen, italian, catholic, 5000, 0.9)
+    province:add_pop(bureaucrat, italian, catholic, 5000, 0.9)
+    province:add_pop(burgeoise, italian, catholic, 5000, 0.9)
+    province:add_pop(clergymen, italian, catholic, 5000, 0.9)
+    province:add_pop(laborer, italian, catholic, 50000, 0.8)
+    province:add_pop(burgeoise, italian, catholic, 800, 0.9)
+    province:add_nucleus(modena)
+    province:add_nucleus(italy)
+    province:give_to(modena)
+    province:set_terrain(plains)
+end
+
+local genoa_provinces_list = {
+    { ref_name = "province_6aff4c00", name = _("Province_4cff6a"), color = 0x4cff6a },
+}
+for k, v in pairs(genoa_provinces_list) do
+    province = Province:new(v)
+    province:register()
+    province:add_industry(wheat_farm, genoa)
+    province:add_pop(artisan, italian, catholic, 5000, 0.9)
+    province:add_pop(farmer, italian, catholic, 40000, 0.8)
+    province:add_pop(soldier, italian, catholic, 8000, 0.8)
+    province:add_pop(craftsmen, italian, catholic, 5000, 0.9)
+    province:add_pop(bureaucrat, italian, catholic, 5000, 0.9)
+    province:add_pop(burgeoise, italian, catholic, 5000, 0.9)
+    province:add_pop(clergymen, italian, catholic, 5000, 0.9)
+    province:add_pop(laborer, italian, catholic, 50000, 0.8)
+    province:add_pop(burgeoise, italian, catholic, 800, 0.9)
+    province:add_nucleus(genoa)
+    province:add_nucleus(italy)
+    province:give_to(genoa)
+    province:set_terrain(plains)
+end

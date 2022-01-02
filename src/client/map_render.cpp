@@ -32,12 +32,12 @@ MapRender::MapRender(const World& _world)
     : world(_world)
 {
     // Flat surface for drawing flat map 
-    map_quad = new UnifiedRender::OpenGl::Square(0.f, 0.f, world.width, world.height);
+    map_quad = new UnifiedRender::Square(0.f, 0.f, world.width, world.height);
     // Sphere surface for drawing globe map
-    map_sphere = new UnifiedRender::OpenGl::Sphere(0.f, 0.f, 0.f, GLOBE_RADIUS, 100);
+    map_sphere = new UnifiedRender::Sphere(0.f, 0.f, 0.f, GLOBE_RADIUS, 100);
 
     // Simple 2D quad that fills viewport, used for making the border_sdf
-    map_2d_quad = new UnifiedRender::OpenGl::Quad2D();
+    map_2d_quad = new UnifiedRender::Quad2D();
 
     // Mipmapped textures
     UnifiedRender::TextureOptions mipmap_options{};
@@ -113,7 +113,6 @@ MapRender::MapRender(const World& _world)
     // Alpha & Blue is for nation id
     // Red & Green is for province id
     tile_map = new UnifiedRender::Texture(world.width, world.height);
-
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
         if(tile.province_id >= (Province::Id)-3) {
@@ -160,6 +159,8 @@ void MapRender::reload_shaders() {
     if(options.sdf.used)
         border_sdf = gen_border_sdf();
 }
+
+#include "client/game_state.hpp"
 
 // Creates the "waving" border around the continent to give it a 19th century map feel
 // Generate a distance field to from each border using the jump flooding algorithm
@@ -227,7 +228,6 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
         else {
             border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? *tex1 : *tex0);
         }
-
         // Draw a plane over the entire screen to invoke shaders
         map_2d_quad->draw();
     }

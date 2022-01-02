@@ -21,8 +21,12 @@ ArmyArmyTab::ArmyArmyTab(GameState& _gs, int x, int y, UI::Widget* parent)
 {
     unsigned int i = 0;
     for(const auto& unit : gs.world->units) {
-        if(unit->owner != gs.curr_nation) continue;
-        if(!(unit->type->is_ground == true && unit->type->is_naval == false)) continue;
+        if(unit->owner != gs.curr_nation) {
+            continue;
+        }
+        if(!(unit->type->is_ground == true && unit->type->is_naval == false)) {
+            continue;
+        }
 
         auto* btn = new UnitButton(gs, 0, 24 * i, unit, this);
         btn->on_click = ([](UI::Widget& w, void*) {
@@ -39,8 +43,12 @@ ArmyAirforceTab::ArmyAirforceTab(GameState& _gs, int x, int y, UI::Widget* paren
 {
     unsigned int i = 0;
     for(const auto& unit : gs.world->units) {
-        if(unit->owner != gs.curr_nation) continue;
-        if(!(unit->type->is_ground == true && unit->type->is_naval == true)) continue;
+        if(unit->owner != gs.curr_nation) {
+            continue;
+        }
+        if(!(unit->type->is_ground == true && unit->type->is_naval == true)) {
+            continue;
+        }
 
         auto* btn = new UnitButton(gs, 0, 24 * i, unit, this);
         btn->on_click = ([](UI::Widget& w, void*) {
@@ -57,8 +65,12 @@ ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
 {
     unsigned int i = 0;
     for(const auto& unit : gs.world->units) {
-        if(unit->owner != gs.curr_nation) continue;
-        if(!(unit->type->is_ground == false && unit->type->is_naval == true)) continue;
+        if(unit->owner != gs.curr_nation) {
+            continue;
+        }
+        if(!(unit->type->is_ground == false && unit->type->is_naval == true)) {
+            continue;
+        }
 
         auto* btn = new UnitButton(gs, 0, 24 * i, unit, this);
         btn->on_click = ([](UI::Widget& w, void*) {
@@ -82,7 +94,9 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
 
         float reqtotal = 0.f;
         for(const auto& building : o.gs.world->buildings) {
-            if(building->get_owner() != o.gs.curr_nation) continue;
+            if(building->get_owner() != o.gs.curr_nation) {
+                continue;
+            }
 
             for(const auto& req : building->req_goods_for_unit) {
                 reqtotal += req.second;
@@ -94,13 +108,17 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
         }
 
         o.reqmat_chart->data.push_back(reqtotal);
-        if(o.reqmat_chart->data.size() >= 30)
+        if(o.reqmat_chart->data.size() >= 30) {
             o.reqmat_chart->data.pop_back();
+        }
     });
 
     unsigned int i = 0;
     for(const auto& building : gs.world->buildings) {
-        if(building->get_owner() != gs.curr_nation) continue;
+        if(building->get_owner() != gs.curr_nation) {
+            continue;
+        }
+
         auto* btn = new ArmyProductionUnitInfo(gs, 0, 128 + (48 * i), building, this);
         i++;
     }
@@ -171,10 +189,9 @@ ArmySelectUnitTab::ArmySelectUnitTab(GameState& _gs, int x, int y, UI::Widget* p
     unsigned int i = 0;
     for(const auto& unit_type : gs.world->unit_types) {
         auto* btn = new UnitTypeButton(gs, 0, 24 * i, unit_type, this);
-        btn->user_data = unit_type;
         btn->on_click = ([](UI::Widget& w, void* data) {
             auto& o = static_cast<ArmyView&>(*w.parent->parent);
-            o.new_unit_tab->unit_type = (UnitType*)data;
+            o.new_unit_tab->unit_type = ((UnitTypeButton&)w).unit_type;
 
             // This tab gets hidden and "pass control" to the new_unit_tab
             o.new_unit_tab->is_render = true;
@@ -203,6 +220,12 @@ ArmyNewUnitTab::ArmyNewUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
     create_btn->below_of(*select_btn);
     create_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyNewUnitTab&>(*w.parent);
+
+        if(o.unit_type == nullptr) {
+            o.gs.ui_ctx->prompt("Error", "No unit type is selected");
+            return;
+        }
+
         o.gs.production_queue.push_back(o.unit_type);
     });
 }

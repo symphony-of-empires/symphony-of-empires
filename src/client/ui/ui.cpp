@@ -229,10 +229,11 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
     glPushMatrix();
     glTranslatef(offset.x, offset.y, 0.f);
     w.on_render(*this, local_viewport);
+    glPopMatrix();
+
     if(w.on_update) {
         w.on_update(w, w.user_data);
     }
-    glPopMatrix();
 
     for(auto& child : w.children) {
         child->is_show = true;
@@ -293,13 +294,15 @@ void Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
         w.on_hover(w, w.user_data);
     }
 
-    if(w.is_hover && w.tooltip != nullptr) {
-        tooltip_widget = w.tooltip;
-        tooltip_widget->set_pos(offset.x, offset.y, w.width, w.height, width, height);
-    }
+    if(w.is_hover) {
+        if(w.tooltip != nullptr) {
+            tooltip_widget = w.tooltip;
+            tooltip_widget->set_pos(offset.x, offset.y, w.width, w.height, width, height);
+        }
 
-    for(auto& child : w.children) {
-        check_hover_recursive(*child, mx, my, offset.x, offset.y);
+        for(auto& child : w.children) {
+            check_hover_recursive(*child, mx, my, offset.x, offset.y);
+        }
     }
 }
 
@@ -358,7 +361,8 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
         click_state = check_click_recursive(*child, mx, my, offset.x, offset.y, click_state, clickable);
     }
 
-    if(w.type == UI::WidgetType::GROUP) {
+    // Non-clickable group widgets are only taken in account
+    if(w.type == UI::WidgetType::GROUP && w.on_click == nullptr) {
         clickable = false;
     }
 
@@ -385,7 +389,6 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
     if(click_state == UI::ClickState::NOT_CLICKED && clickable) {
         click_state = UI::ClickState::NOT_HANDLED;
     }
-
     return click_state;
 }
 
@@ -393,8 +396,14 @@ bool Context::check_click(const unsigned mx, const unsigned my) {
     is_drag = false;
     UI::ClickState click_state = UI::ClickState::NOT_CLICKED;
     int click_wind_index = -1;
+
+    bool is_click = false;
     for(int i = widgets.size() - 1; i >= 0; i--) {
         click_state = check_click_recursive(*widgets[i], mx, my, 0, 0, click_state, true);
+
+        if(click_state != UI::ClickState::NOT_CLICKED) {
+            is_click = true;
+        }
 
         // Check if windows should move to the top
         if(click_wind_index == -1 && click_state != UI::ClickState::NOT_CLICKED) {
@@ -410,7 +419,7 @@ bool Context::check_click(const unsigned mx, const unsigned my) {
             std::rotate(it, it + 1, widgets.end());
         }
     }
-    return click_state != UI::ClickState::NOT_CLICKED;
+    return is_click;
 }
 
 void Context::check_drag(const unsigned mx, const unsigned my) {

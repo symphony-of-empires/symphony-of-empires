@@ -69,26 +69,15 @@ namespace UnifiedRender::Networking {
         size_t n_data = 0;
         PacketCode code = PacketCode::OK;
     public:
-        std::vector<uint8_t> buffer;
-        SocketStream stream;
+        Packet();
+        Packet(int _fd);
+        ~Packet();
 
-        Packet() {};
-        Packet(int _fd) { stream = UnifiedRender::Networking::SocketStream(_fd); };
-        ~Packet() {};
+        void* data(void);
+        void data(void* buf, size_t size);
+        size_t size(void) const;
 
-        inline void* data(void) {
-            return (void*)&buffer[0];
-        }
-
-        inline void data(void* buf, size_t size) {
-            n_data = size;
-            buffer.resize(n_data);
-            std::memcpy(&buffer[0], buf, size);
-        }
-
-        inline size_t size(void) {
-            return n_data;
-        }
+        bool is_ok(void) const;
 
         template<typename T>
         inline void send(const T* buf = nullptr, size_t size = sizeof(T)) {
@@ -143,17 +132,17 @@ namespace UnifiedRender::Networking {
 
             uint16_t eof_marker;
             stream.recv(&eof_marker, sizeof(eof_marker));
-            if(ntohs(eof_marker) != 0xE0F)
+            if(ntohs(eof_marker) != 0xE0F) {
                 throw UnifiedRender::Networking::SocketException("Packet with invalid EOF");
+            }
         }
 
-        inline void recv(void) {
-            this->recv<void>();
+        void recv(void) {
+            this->recv<void>(nullptr);
         }
 
-        inline bool is_ok() {
-            return (code == PacketCode::OK);
-        }
+        std::vector<uint8_t> buffer;
+        SocketStream stream;
     };
 
     class ServerClient {
