@@ -2,10 +2,6 @@
 
 #include <cstddef>
 
-// Required before GL/gl.h
-#include <GL/glew.h>
-#include <GL/gl.h>
-
 namespace UnifiedRender {
     class Texture;
     class Model;
@@ -21,9 +17,10 @@ namespace UnifiedRender {
 }
 
 #include "unified_render/color.hpp"
-#include "map.hpp"
+#include "unified_render/shader.hpp"
 
 #include <vector>
+#include <memory>
 #include <utility>
 #include <functional>
 
@@ -36,6 +33,20 @@ union SDL_Event;
 struct Input;
 struct ProvinceColors;
 
+typedef UnifiedRender::OpenGl::Option Option;
+struct MapOptions {
+    Option noise{"NOISE", false};
+    Option sdf{"SDF", false};
+    Option lighting{"LIGHTING", false};
+    Option diag_borders{"DIAG_BORDER", false};
+    Option parallax{"PARALLAX", false};
+    Option landscape{"LANDSCAPE", false};
+    Option rivers{"RIVERS", false};
+
+    std::vector<Option> get_options() {
+        return std::vector<Option>{noise, sdf};
+    }
+};
 class MapRender {
     std::unique_ptr<UnifiedRender::Texture> gen_border_sdf();
 public:
@@ -45,21 +56,10 @@ public:
     void draw(Camera* camera, MapView view_mode);
     void reload_shaders();
 
-    std::vector<const UnifiedRender::Model*> building_type_models, unit_type_models;
-    std::vector<const UnifiedRender::Texture*> building_type_icons;
-    std::vector<const UnifiedRender::Texture*> unit_type_icons;
-    std::vector<const UnifiedRender::Texture*> nation_flags;
-
-    // Wind oscillator (for flags)
-    float wind_osc = 0.f;
-
+private:
     const World& world;
-
-#if !defined TILE_GRANULARITY
-    UnifiedRender::Texture* id_map;
-    UnifiedRender::Texture* province_color_tex;
-#endif
-
+    
+    MapOptions options;
     // Map textures
     UnifiedRender::Texture* tile_map;
     UnifiedRender::Texture* tile_sheet;
@@ -81,5 +81,6 @@ public:
     std::unique_ptr<UnifiedRender::OpenGl::Program> map_shader;
     std::unique_ptr<UnifiedRender::OpenGl::Program> border_sdf_shader;
     std::unique_ptr<UnifiedRender::OpenGl::Program> border_gen_shader;
+    std::unique_ptr<UnifiedRender::OpenGl::Program> output_shader;
     std::unique_ptr<UnifiedRender::Texture> border_sdf;
 };
