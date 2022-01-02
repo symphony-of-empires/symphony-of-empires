@@ -28,6 +28,9 @@ namespace UnifiedRender::OpenGL {
         LPAREN, RPAREN,
         LBRACKET, RBRACKET,
         LBRACE, RBRACE,
+
+        // Special "hacky" stuff
+        MACRO,
     };
 
     struct GLSL_Token {

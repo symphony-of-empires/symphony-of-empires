@@ -49,14 +49,22 @@ void UnifiedRender::OpenGL::GLSL_Context::lexer(void) {
     // Output the final stuff
     std::string::iterator it = buffer.begin();
     for( ; it != buffer.end(); ) {
-        while((*it == ' ' || *it == '\t') && it != buffer.end()) {
+        while((*it == ' ' || *it == '\t' || *it == '\r' || *it == '\n') && it != buffer.end()) {
             it++;
         }
 
-        if((*(it + 0) == '/' && *(it + 1) == '/') || *it == '#') {
+        if((*(it + 0) == '/' && *(it + 1) == '/')) {
             while((*it != '\n') && it != buffer.end()) {
                 it++;
             }
+        } else if(*it == '#') {
+            std::string::iterator start_it = it;
+            while((*it != '\n') && it != buffer.end()) {
+                it++;
+            }
+            GLSL_Token tok = GLSL_Token(GLSL_TokenType::MACRO));
+            tok.data = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
+            tokens.push_back(tok);
         } else if(*it == ',') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::COMMA));
             it++;
@@ -98,7 +106,6 @@ void UnifiedRender::OpenGL::GLSL_Context::lexer(void) {
             it++;
         } else if(*it == '<') {
             it++;
-
             if(*it == '=') {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_LTEQ));
                 it++;
@@ -107,7 +114,6 @@ void UnifiedRender::OpenGL::GLSL_Context::lexer(void) {
             }
         } else if(*it == '>') {
             it++;
-
             if(*it == '=') {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_GTEQ));
                 it++;
@@ -116,7 +122,6 @@ void UnifiedRender::OpenGL::GLSL_Context::lexer(void) {
             }
         } else if(*it == '|') {
             it++;
-
             if(*it == '|') {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_OR));
                 it++;
@@ -125,7 +130,6 @@ void UnifiedRender::OpenGL::GLSL_Context::lexer(void) {
             }
         } else if(*it == '&') {
             it++;
-
             if(*it == '&') {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_AND));
                 it++;
@@ -134,7 +138,6 @@ void UnifiedRender::OpenGL::GLSL_Context::lexer(void) {
             }
         } else if(*it == '=') {
             it++;
-
             if(*it == '=') {
                 tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_EQ));
                 it++;
@@ -230,8 +233,16 @@ void UnifiedRender::OpenGL::GLSL_Context::parser(void) {
 std::string UnifiedRender::OpenGL::GLSL_Context::to_text(void) {
     std::string end_buffer;
     end_buffer += "#version 330 compatibility\r\n";
+
+    for(const auto& define : defines) {
+        end_buffer += "#define " + define.name + " " + define.value + "\r\n";
+    }
+
     for(const auto& tok : tokens) {
         switch(tok.type) {
+        case GLSL_TokenType::MACRO:
+            end_buffer += "#" + tok.data + "\r\n";
+            break;
         case GLSL_TokenType::SEMICOLON:
             end_buffer += ";\r\n";
             break;
@@ -360,6 +371,7 @@ Shader::Shader(const std::string& path, GLuint type) {
     }
 }
 
+#include <sstream>
 void Shader::compile(GLuint type) {
     glCompileShader(id);
 
@@ -369,8 +381,40 @@ void Shader::compile(GLuint type) {
     if(!r) {
         std::string error_info;
         glGetShaderInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
-        print_error("Status: %s", error_info.c_str());
-        throw ShaderException(error_info);
+        print_error("Raw status: %s", error_info.c_str());
+
+        // Nvidia's style of errors
+        std::istringstream sline(error_info);
+        int slot, row, col;
+        char ch;
+
+        // nvidia styles errors the following way:
+        // slot:row(column)
+        // They also like to fuck me over, so they use
+        // slot(row) <-- fuck this
+
+        sline >> slot >> ch;
+        if(ch == ':') {
+            sline >> row >> ch;
+            if(ch == '(') {
+                sline >> col;
+            }
+        } else if(ch == '(') {
+            sline >> row;
+        }
+
+        // Now we will pray that this actually worked
+
+        // Next we will read over the shader file and find the line
+        int row_rem = row;
+        for(std::string::iterator it = buffer.begin(); it != buffer.end() && row_rem; it++) {
+            if(*it == '\n') {
+                row_rem--;
+            }
+        }
+
+        std::string line_buf = buffer.substr(std::distance(buffer.begin(), it), buffer.find_first_of('\n', std::distance(buffer.begin(), it)));
+        throw ShaderException(line_buf + "\n" + error_info);
     }
     // print_info("Status: Sucess");
 }
