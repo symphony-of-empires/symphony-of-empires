@@ -378,9 +378,18 @@ void Map::draw(const GameState& gs) {
         glm::mat4 model(1.f);
         std::pair<float, float> pos = unit->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
-        //model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
         draw_flag(*obj_shader, *unit->owner);
+
+        for(const auto& selected : gs.input.selected_units) {
+            if(selected != unit) {
+                continue;
+            }
+            UnifiedRender::Square select_highlight = UnifiedRender::Square(0.f, 0.f, 1.f, 1.f);
+            select_highlight.draw();
+            break;
+        }
+
 #if defined TILE_GRANULARITY
         model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
 #endif
@@ -407,11 +416,7 @@ void Map::draw(const GameState& gs) {
 
     obj_shader->use();
     for(const auto& province : world.provinces) {
-        const float size = 2.f;
-        unsigned int i = 0;
-        std::vector<Unit*> units = province->get_units();
-        const float row_width = units.size() * size;
-        for(const auto& unit : units) {
+        //for(const auto& unit : units) {
             /*UnifiedRender::Square plane = UnifiedRender::Square(0.f, 0.f, size, size);
             obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(unit->owner)]);
             plane.draw();*/
@@ -443,24 +448,18 @@ void Map::draw(const GameState& gs) {
                     break;
                 }
             }*/
-            i++;
-        }
+        //}
     }
 
     // Draw the "drag area" box
-    /*if(gs.input.is_drag) {
-        glPushMatrix();
-        glTranslatef(0.f, 0.f, -0.1f);
-        glColor3f(1.f, 1.f, 1.f);
-        glBegin(GL_LINE_STRIP);
-        glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
-        glVertex2f(gs.input.select_pos.first, gs.input.drag_coord.second);
-        glVertex2f(gs.input.select_pos.first, gs.input.select_pos.second);
-        glVertex2f(gs.input.drag_coord.first, gs.input.select_pos.second);
-        glVertex2f(gs.input.drag_coord.first, gs.input.drag_coord.second);
-        glEnd();
-        glPopMatrix();
-    }*/
+    if(gs.input.is_drag) {
+        glm::mat4 model(1.f);
+        model = glm::translate(model, glm::vec3(0.f, 0.f, 0.f));
+        obj_shader->set_uniform("model", model);
+
+        UnifiedRender::Square dragbox_square = UnifiedRender::Square(gs.input.drag_coord.first, gs.input.drag_coord.second, gs.input.select_pos.first, gs.input.select_pos.second);
+        dragbox_square.draw();
+    }
 
     wind_osc += 0.01f;
     if(wind_osc >= 180.f) {

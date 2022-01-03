@@ -39,8 +39,6 @@ MapRender::MapRender(const World& _world)
     // Simple 2D quad that fills viewport, used for making the border_sdf
     map_2d_quad = new UnifiedRender::Quad2D();
 
-    options.sdf.used = true;
-
     // Mipmapped textures
     UnifiedRender::TextureOptions mipmap_options{};
     mipmap_options.wrap_s = GL_REPEAT;
@@ -66,11 +64,9 @@ MapRender::MapRender(const World& _world)
         uint32_t base_index = 0xFF000000;
         if(color == 0xFF000000) {
             terrain_map->buffer.get()[i] = base_index + 0; // Ocean
-        }
-        else if(color == 0xFFFF00FF) {
+        } else if(color == 0xFFFF00FF) {
             terrain_map->buffer.get()[i] = base_index + 1; // Lake 
-        }
-        else if(color == 0xFFFFFFFF) {
+        } else if(color == 0xFFFFFFFF) {
             terrain_map->buffer.get()[i] = base_index + 2; // Land
         }
     }
@@ -117,8 +113,7 @@ MapRender::MapRender(const World& _world)
             auto province = world.provinces[tile.province_id];
             if(province->owner == nullptr) {
                 tile_map->buffer.get()[i] = province->cached_id & 0xffff;
-            }
-            else {
+            } else {
                 tile_map->buffer.get()[i] = ((world.get_id(province->owner) & 0xffff) << 16) | (province->cached_id & 0xffff);
             }
         }
@@ -139,8 +134,9 @@ MapRender::MapRender(const World& _world)
 
     print_info("Creating border textures");
 
-    if(options.sdf.used)
+    if(options.sdf.used) {
         border_sdf = gen_border_sdf();
+    }
 }
 
 
@@ -151,8 +147,9 @@ void MapRender::reload_shaders() {
     output_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf_output.fs");
 
     border_sdf.reset(nullptr);
-    if(options.sdf.used)
+    if(options.sdf.used) {
         border_sdf = gen_border_sdf();
+    }
 }
 
 #include "client/game_state.hpp"
