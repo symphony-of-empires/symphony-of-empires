@@ -7,6 +7,30 @@
 
 using namespace UnifiedRender::OpenGL;
 
+UnifiedRender::Line::Line(float start_x, float start_y, float end_x, float end_y)
+    : PackedModel(GL_LINES)
+{
+    buffer.resize(2);
+    buffer[0] = PackedData(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
+    buffer[1] = PackedData(glm::vec2(end_x, end_y), glm::vec2(1.f, 1.f));
+
+    vao.bind();
+    vbo.bind(GL_ARRAY_BUFFER);
+    glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
+
+    // Vertices
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // Texcoords
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+}
+
+UnifiedRender::Line::~Line(void) {
+
+}
+
 UnifiedRender::Square::Square(float start_x, float start_y, float end_x, float end_y)
     : PackedModel(GL_TRIANGLES)
 {
@@ -25,6 +49,7 @@ UnifiedRender::Square::Square(float start_x, float start_y, float end_x, float e
     // Vertices
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
     glEnableVertexAttribArray(0);
+
     // Texcoords
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
@@ -52,6 +77,7 @@ UnifiedRender::Quad2D::Quad2D(void)
 	// Vertices
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
 	glEnableVertexAttribArray(0);
+
 	// Texcoords
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)(2 * sizeof(float)));
 	glEnableVertexAttribArray(1);
@@ -87,6 +113,7 @@ UnifiedRender::Sphere::Sphere(float center_x, float center_y, float center_z, fl
 	// Vertices
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
 	glEnableVertexAttribArray(0);
+
 	// Texcoords
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);

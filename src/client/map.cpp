@@ -374,30 +374,6 @@ void Map::draw(const GameState& gs) {
     obj_shader->set_uniform("projection", projection);
     obj_shader->set_uniform("view", view);
 
-    for(const auto& unit : world.units) {
-        glm::mat4 model(1.f);
-        std::pair<float, float> pos = unit->get_pos();
-        model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
-        obj_shader->set_uniform("model", model);
-        draw_flag(*obj_shader, *unit->owner);
-
-        for(const auto& selected : gs.input.selected_units) {
-            if(selected != unit) {
-                continue;
-            }
-            UnifiedRender::Square select_highlight = UnifiedRender::Square(0.f, 0.f, 1.f, 1.f);
-            select_highlight.draw();
-            break;
-        }
-
-#if defined TILE_GRANULARITY
-        model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
-#endif
-        obj_shader->set_uniform("model", model);
-        unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
-    }
-
-    //(&UnifiedRender::State::get_instance().model_man->load(Path::get("3d/unit_types/" + unit_type->ref_name + ".obj")));
     for(const auto& unit_type : world.unit_types) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(world.get_id(unit_type) * 8.f, -4.f, 0.f));
@@ -414,47 +390,44 @@ void Map::draw(const GameState& gs) {
         building_type_models[world.get_id(building_type)]->draw(*obj_shader);
     }
 
-    obj_shader->use();
-    for(const auto& province : world.provinces) {
-        //for(const auto& unit : units) {
-            /*UnifiedRender::Square plane = UnifiedRender::Square(0.f, 0.f, size, size);
-            obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(unit->owner)]);
-            plane.draw();*/
+    for(const auto& unit : world.units) {
+        glm::mat4 model(1.f);
+        model = glm::translate(model, glm::vec3(0.f, 0.f, -1.f));
 
-            /*if(unit->target != nullptr) {
-                std::pair<float, float> pos = unit->get_pos();
-                glBegin(GL_LINES);
-                glColor3f(0.f, 0.f, 1.f / std::max(0.1f, unit->move_progress));
-                glVertex2f(pos.first, pos.second);
-                glVertex2f(unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
-                glEnd();
+        std::pair<float, float> pos = unit->get_pos();
+
+        if(unit->target != nullptr) {
+            UnifiedRender::Line target_line = UnifiedRender::Line(pos.first, pos.second, unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
+            obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/line_target.png")));
+            obj_shader->set_uniform("model", model);
+            target_line.draw();
+        }
+
+        model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
+        obj_shader->set_uniform("model", model);
+        for(const auto& selected : gs.input.selected_units) {
+            if(selected != unit) {
+                continue;
             }
 
-            for(const auto& selected : gs.input.selected_units) {
-                if(selected == unit) {
-                    std::pair<float, float> pos = unit->get_pos();
-                    glPushMatrix();
-                    glTranslatef(0.f, 0.f, -0.1f);
-                    glLineWidth(8.f);
-                    glBegin(GL_LINE_STRIP);
-                    glColor3f(1.f, 1.f, 1.f);
-                    glVertex2f(pos.first, pos.second);
-                    glVertex2f(pos.first + 2.f, pos.second);
-                    glVertex2f(pos.first + 2.f, pos.second + 2.f);
-                    glVertex2f(pos.first, pos.second + 2.f);
-                    glEnd();
-                    glLineWidth(1.f);
-                    glPopMatrix();
-                    break;
-                }
-            }*/
-        //}
+            UnifiedRender::Square select_highlight = UnifiedRender::Square(0.f, 0.f, 1.f, 1.f);
+            obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/select_border.png")));
+            select_highlight.draw();
+            break;
+        }
+        draw_flag(*obj_shader, *unit->owner);
+#if defined TILE_GRANULARITY
+        model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
+#endif
+        obj_shader->set_uniform("model", model);
+        unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
     }
 
     // Draw the "drag area" box
     if(gs.input.is_drag) {
         glm::mat4 model(1.f);
-        model = glm::translate(model, glm::vec3(0.f, 0.f, 0.f));
+        model = glm::translate(model, glm::vec3(0.f, 0.f, -1.f));
+        obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/line_target.png")));
         obj_shader->set_uniform("model", model);
 
         UnifiedRender::Square dragbox_square = UnifiedRender::Square(gs.input.drag_coord.first, gs.input.drag_coord.second, gs.input.select_pos.first, gs.input.select_pos.second);
