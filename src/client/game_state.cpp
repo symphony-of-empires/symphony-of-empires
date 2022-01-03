@@ -190,19 +190,20 @@ void handle_event(Input& input, GameState& gs) {
                 break;
             }
             break;
-        case SDL_JOYBALLMOTION: {
-            int xrel, yrel;
-            SDL_JoystickGetBall(gs.joy, 0, &xrel, &yrel);
+        case SDL_JOYAXISMOTION: {
+            int xrel = SDL_JoystickGetAxis(gs.joy, 0);
+            int yrel = SDL_JoystickGetAxis(gs.joy, 1);
 
             const float sensivity = UnifiedRender::State::get_instance().joy_sensivity;
             
             float x_force = std::abs(xrel - sensivity);
-            x_force = (x_force <= sensivity) ? 0.f : xrel / sensivity;
+            x_force = (x_force <= sensivity) ? 0.f : xrel - sensivity;
 
             float y_force = std::abs(yrel - sensivity);
-            y_force = (y_force <= sensivity) ? 0.f : yrel / sensivity;
+            y_force = (y_force <= sensivity) ? 0.f : yrel - sensivity;
 
-            if(event.jball.which == 0) {
+            //if(event.jball.which == 0) {
+            if(1) {
                 gs.input.mouse_pos.first += x_force;
                 gs.input.mouse_pos.second += y_force;
 
