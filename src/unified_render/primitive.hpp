@@ -7,6 +7,12 @@
 #include "unified_render/model.hpp"
 
 namespace UnifiedRender {
+    class Line : public UnifiedRender::OpenGL::PackedModel<glm::vec2, glm::vec2> {
+    public:
+        Line(float start_x, float start_y, float end_x, float end_y);
+        ~Line();
+    };
+
     class Square : public UnifiedRender::OpenGL::PackedModel<glm::vec2, glm::vec2> {
     public:
         Square(float start_x, float start_y, float end_x, float end_y);

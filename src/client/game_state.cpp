@@ -196,11 +196,8 @@ void handle_event(Input& input, GameState& gs) {
 
             const float sensivity = UnifiedRender::State::get_instance().joy_sensivity;
             
-            float x_force = std::abs(xrel - sensivity);
-            x_force = (x_force <= sensivity) ? 0.f : xrel - sensivity;
-
-            float y_force = std::abs(yrel - sensivity);
-            y_force = (y_force <= sensivity) ? 0.f : yrel - sensivity;
+            float x_force = xrel / sensivity;
+            float y_force = yrel / sensivity;
 
             //if(event.jball.which == 0) {
             if(1) {
