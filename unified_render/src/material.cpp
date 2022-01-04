@@ -20,7 +20,8 @@
 //      material.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Defines functions for the loading, management, creation and destruction
+//      of a material resource.
 // ----------------------------------------------------------------------------
 
 #include <algorithm>

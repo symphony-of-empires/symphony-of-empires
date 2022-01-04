@@ -25,7 +25,6 @@
 
 #include "unified_render/rectangle.hpp"
 
-
 UnifiedRender::Rectangle::Rectangle(float x, float y, float width, float height)
     : left{x},
     top{y},

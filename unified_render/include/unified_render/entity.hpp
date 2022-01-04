@@ -31,6 +31,12 @@
 template<typename IdType>
 class Entity {
 public:
+    Entity() = default;
+    Entity(Entity&&) = default;
+    Entity& Entity(const Entity&) = default;
+    Entity& Entity(Entity&&) = default;
+    virtual ~Entity() {};
+
     using Id = IdType;
 
     // Id used to speed up Id lookups on any context

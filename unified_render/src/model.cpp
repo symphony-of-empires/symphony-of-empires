@@ -20,7 +20,8 @@
 //      model.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Defines some minor functions and defines big functions for parsing
+//      polygonal data from files.
 // ----------------------------------------------------------------------------
 
 #include <algorithm>

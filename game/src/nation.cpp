@@ -29,6 +29,17 @@
 
 #include "unified_render/log.hpp"
 
+//
+// Nation
+//
+Nation::Nation(void) {
+
+}
+
+Nation::~Nation(void) {
+    
+}
+
 // Declare war
 // TODO: Make some form of "WarParticipationRequest" so we don't force allies to join
 // and we also make sure betrayals are possible

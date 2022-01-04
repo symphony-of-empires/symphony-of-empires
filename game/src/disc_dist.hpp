@@ -35,15 +35,14 @@
 
 // Uses the Aiias method to generate a lookup table of with different probabilties
 template<typename T>
-class DiscreteDistribution
-{
+class DiscreteDistribution {
 private:
 	std::vector<T> _items;
 	std::vector<float> alias;
 	std::vector<float> prob;
 public:
-	DiscreteDistribution(std::vector<T> items, std::vector<float> probabilities):
-		_items{ items }
+	DiscreteDistribution(std::vector<T> items, std::vector<float> probabilities)
+		: _items{ items }
 	{
 		// Scale each probabilty
 		float total = std::accumulate(probabilities.begin(), probabilities.end(), 0);
@@ -76,16 +75,17 @@ public:
 			greater.first = (greater.first + less.first) - 1;
 			if(greater.first < 1.f) {
 				small.push_back(greater);
-			}
-			else {
+			} else {
 				big.push_back(greater);
 			}
 		}
+
 		while(big.size() > 0) {
 			std::pair<float, int> greater = big.back();
 			big.pop_back();
 			prob[greater.second] = 1.f;
 		}
+		
 		while(small.size() > 0) {
 			std::pair<float, int> less = small.back();
 			small.pop_back();
@@ -95,7 +95,7 @@ public:
 	~DiscreteDistribution() {};
 
 	// Get a random item with a certian probabilty
-	T get_item(){
+	T get_item(void) {
 		size_t index = std::rand() % _items.size();
 		float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 		if(prob[index] < r) {

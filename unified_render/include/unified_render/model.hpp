@@ -48,8 +48,8 @@ namespace UnifiedRender {
         class VAO {
             GLuint id;
         public:
-            VAO(void);
-            ~VAO(void);
+            VAO();
+            ~VAO();
             VAO(const VAO&) = default;
             VAO(VAO&&) noexcept = default;
             VAO& operator=(const VAO&) = default;
@@ -61,8 +61,8 @@ namespace UnifiedRender {
         class VBO {
             GLuint id;
         public:
-            VBO(void);
-            ~VBO(void);
+            VBO();
+            ~VBO();
             VBO(const VBO&) = default;
             VBO(VBO&&) noexcept = default;
             VBO& operator=(const VBO&) = default;
@@ -112,7 +112,7 @@ namespace UnifiedRender {
     class SimpleModel : public OpenGL::PackedModel<glm::vec3, glm::vec2> {
     public:
         SimpleModel(GLint _mode);
-        ~SimpleModel(void);
+        ~SimpleModel();
         SimpleModel(const SimpleModel&) = default;
         SimpleModel(SimpleModel&&) noexcept = default;
         SimpleModel& operator=(const SimpleModel&) = default;
@@ -125,8 +125,8 @@ namespace UnifiedRender {
     // A complex object being composed by many simple objects
     class Model {
     public:
-        Model(void);
-        ~Model(void);
+        Model();
+        ~Model();
         Model(const Model&) = default;
         Model(Model&&) noexcept = default;
         Model& operator=(const Model&) = default;

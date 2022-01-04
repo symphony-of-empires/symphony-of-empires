@@ -20,7 +20,7 @@
 //      compress.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Functions for compressing a block of memory using the zlib library.
 // ----------------------------------------------------------------------------
 
 #include <zlib.h>

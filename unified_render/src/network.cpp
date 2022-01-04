@@ -20,7 +20,9 @@
 //      network.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Server and Client networking functions, along with primitive ones such
+//      as recv and send. This abstracts away all the "OS-dependant" parts of
+//      the networking code for the game.
 // ----------------------------------------------------------------------------
 
 #include <cstring>

@@ -20,7 +20,7 @@
 //      log.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Basic logging functions.
 // ----------------------------------------------------------------------------
 
 #include <cstdio>

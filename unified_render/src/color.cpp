@@ -20,7 +20,7 @@
 //      color.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Basic color conversion functions.
 // ----------------------------------------------------------------------------
 
 #include "unified_render/color.hpp"
