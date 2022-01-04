@@ -29,14 +29,8 @@
 
 // An entity which can only be made referenced by an id
 template<typename IdType>
-class Entity {
+struct Entity {
 public:
-    Entity() = default;
-    Entity(Entity&&) = default;
-    Entity& Entity(const Entity&) = default;
-    Entity& Entity(Entity&&) = default;
-    virtual ~Entity() {};
-
     using Id = IdType;
 
     // Id used to speed up Id lookups on any context
@@ -46,13 +40,13 @@ public:
 };
 
 template<typename IdType>
-class IdEntity : public Entity<IdType> {
+struct IdEntity : public Entity<IdType> {
 public:
 };
 
 // An entity which can be referenced via a ref_name and also via id
 template<typename IdType>
-class RefnameEntity : public IdEntity<IdType> {
+struct RefnameEntity : public IdEntity<IdType> {
 public:
     std::string ref_name;
     std::string name;

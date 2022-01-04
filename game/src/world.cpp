@@ -693,7 +693,9 @@ void World::do_tick() {
     // AI and stuff
     // Just random shit to make the world be like more alive
     for(auto& nation : nations) {
-        if(!nation->exists()) continue;
+        if(!nation->exists()) {
+            continue;
+        }
 
         // Diplomatic cooldown
         if(nation->diplomatic_timer != 0) {
@@ -747,9 +749,9 @@ void World::do_tick() {
             nation->economy_score = economy_score / 100.f;
         }
 
-        g_server->broadcast(Action::ProductUpdate::form_packet(g_world->products));
-        g_server->broadcast(Action::NationUpdate::form_packet(g_world->nations));
-        g_server->broadcast(Action::ProvinceUpdate::form_packet(g_world->provinces));
+        g_server->broadcast(Action::ProductUpdate::form_packet(products));
+        g_server->broadcast(Action::NationUpdate::form_packet(nations));
+        g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
     }
 
     // Evaluate units
@@ -776,8 +778,12 @@ void World::do_tick() {
         }
 
         for(auto& other_unit : units) {
-            if(other_unit->province != unit->province) continue;
-            if(other_unit->owner == unit->owner) continue;
+            if(other_unit->province != unit->province) {
+                continue;
+            }
+            if(other_unit->owner == unit->owner) {
+                continue;
+            }
 
             // TODO: Only if we are at war
             unit->attack(*other_unit);
@@ -787,10 +793,14 @@ void World::do_tick() {
     // Now researches for every country are going to be accounted :)
     for(const auto& nation : nations) {
         for(const auto& tech : technologies) {
-            if(!nation->can_research(tech)) continue;
+            if(!nation->can_research(tech)) {
+                continue;
+            }
 
             float* research_progress = &nation->research[get_id(tech)];
-            if(!(*research_progress)) continue;
+            if(!(*research_progress)) {
+                continue;
+            }
 
             float* pts_count;
             if(tech->type == TechnologyType::MILITARY) {
@@ -801,7 +811,10 @@ void World::do_tick() {
                 continue;
             }
 
-            if(*pts_count <= 0.f) continue;
+            if(*pts_count <= 0.f) {
+                continue;
+            }
+            
             const float pts = *pts_count / 4.f;
             *research_progress += pts;
             *pts_count -= pts;
@@ -829,42 +842,53 @@ void World::do_tick() {
     for(const auto& treaty : treaties) {
         // Check that the treaty is agreed by all parties before enforcing it
         bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty->approval_status.end());
-        if(!on_effect) continue;
+        if(!on_effect) {
+            continue;
+        }
 
         // Check with treaty
-        if(!treaty->in_effect()) continue;
+        if(!treaty->in_effect()) {
+            continue;
+        }
 
         // Treaties clauses now will be enforced
         UnifiedRender::Log::debug("game", "Enforcing treaty " + treaty->name);
         for(auto& clause : treaty->clauses) {
             if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
-                if(!dyn_clause->in_effect()) continue;
+                if(!dyn_clause->in_effect()) {
+                    continue;
+                }
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
+            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
-                if(!dyn_clause->in_effect()) continue;
+                if(!dyn_clause->in_effect()) {
+                    continue;
+                }
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+            } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
-                if(!dyn_clause->in_effect()) continue;
+                if(!dyn_clause->in_effect()) {
+                    continue;
+                }
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::HUMILIATE) {
+            } else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
-                if(!dyn_clause->in_effect()) continue;
+                if(!dyn_clause->in_effect()) {
+                    continue;
+                }
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+            } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
-                if(!dyn_clause->in_effect()) continue;
+                if(!dyn_clause->in_effect()) {
+                    continue;
+                }
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::CEASEFIRE) {
+            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
-                if(!dyn_clause->in_effect()) continue;
+                if(!dyn_clause->in_effect()) {
+                    continue;
+                }
                 dyn_clause->enforce();
             }
         }
