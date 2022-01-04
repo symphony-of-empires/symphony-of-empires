@@ -1,16 +1,43 @@
+// Unified Render - General purpouse game engine
+// Copyright (C) 2021, Unified Render contributors
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// ----------------------------------------------------------------------------
+// Name:
+//      serializer.cpp
+//
+// Abstract:
+//      Does some important stuff.
+// ----------------------------------------------------------------------------
+
 #include "unified_render/serializer.hpp"
 
 void Archive::copy_to(void* ptr, size_t size) {
-    if(size > buffer.size() - this->ptr)
+    if(size > buffer.size() - this->ptr) {
         throw SerializerException("Buffer too small for write");
-    
+    }
+
     std::memcpy(ptr, &buffer[this->ptr], size);
     this->ptr += size;
 }
 
 void Archive::copy_from(const void* ptr, size_t size) {
-    if(size > buffer.size() - this->ptr)
+    if(size > buffer.size() - this->ptr) {
         throw SerializerException("Buffer too small for read");
+    }
     
     std::memcpy(&buffer[this->ptr], ptr, size);
     this->ptr += size;
