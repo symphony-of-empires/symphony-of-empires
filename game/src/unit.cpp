@@ -28,6 +28,31 @@
 #include "world.hpp"
 #include <cmath>
 
+//
+// Unit type
+//
+UnitType::UnitType(void) {
+
+}
+
+UnitType::~UnitType(void) {
+
+}
+
+//
+// Unit trait
+//
+UnitTrait::UnitTrait(void) {
+
+}
+
+UnitTrait::~UnitTrait(void) {
+    
+}
+
+//
+// Unit
+//
 Unit::Unit(void) {
 
 }
