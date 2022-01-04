@@ -32,6 +32,8 @@
 //
 // Nation
 //
+
+/*
 Nation::Nation(void) {
 
 }
@@ -39,6 +41,7 @@ Nation::Nation(void) {
 Nation::~Nation(void) {
     
 }
+//*/
 
 // Declare war
 // TODO: Make some form of "WarParticipationRequest" so we don't force allies to join
@@ -363,3 +366,115 @@ void Nation::change_research_focus(Technology* tech) {
 
     }
 }*/
+
+float Nation::get_industry_output_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->industry_input_mod;
+    }
+    return c;
+}
+
+float Nation::get_industry_input_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->industry_input_mod;
+    }
+    return c;
+}
+
+float Nation::get_workers_needed_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->workers_needed_mod;
+    }
+    return c;
+}
+
+float Nation::get_salary_paid_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->salary_paid_mod;
+    }
+    return c;
+}
+
+float Nation::get_delivery_cost_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->delivery_cost_mod;
+    }
+    return c;
+}
+
+float Nation::get_literacy_learn_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->literacy_learn_mod;
+    }
+    return c;
+}
+
+float Nation::get_reproduction_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->reproduction_mod;
+    }
+    return c;
+}
+
+float Nation::get_death_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->death_mod;
+    }
+    return c;
+}
+
+float Nation::get_militancy_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->militancy_mod;
+    }
+    return c;
+}
+
+float Nation::get_con_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->con_mod;
+    }
+    return c;
+}
+
+float Nation::get_life_needs_met_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->life_needs_met_mod;
+    }
+    return c;
+}
+
+float Nation::get_everyday_needs_met_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->everyday_needs_met_mod;
+    }
+    return c;
+}
+
+float Nation::get_luxury_needs_met_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->luxury_needs_met_mod;
+    }
+    return c;
+}
+
+float Nation::get_immigration_attraction_mod(void) {
+    float c = 1.f;
+    for(const auto& mod : modifiers) {
+        c += mod->immigration_attraction;
+    }
+    return c;
+}

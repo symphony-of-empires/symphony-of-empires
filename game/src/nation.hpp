@@ -102,8 +102,8 @@ class Nation : public RefnameEntity<uint16_t> {
     inline void do_diplomacy();
     inline bool can_do_diplomacy();
 public:
-    Nation();
-    ~Nation();
+    //Nation();
+    //~Nation();
     void declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses = std::vector<TreatyClause::BaseClause*>());
     bool is_ally(const Nation& nation);
     bool is_enemy(const Nation& nation);
@@ -122,118 +122,20 @@ public:
     float get_research_points(void) const;
     bool can_research(const Technology* tech) const;
     void change_research_focus(Technology* tech);
-
-    float get_industry_output_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->industry_input_mod;
-        }
-        return c;
-    }
-
-    float get_industry_input_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->industry_input_mod;
-        }
-        return c;
-    }
-
-    float get_workers_needed_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->workers_needed_mod;
-        }
-        return c;
-    }
-
-    float get_salary_paid_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->salary_paid_mod;
-        }
-        return c;
-    }
-
-    float get_delivery_cost_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->delivery_cost_mod;
-        }
-        return c;
-    }
-
-    float get_literacy_learn_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->literacy_learn_mod;
-        }
-        return c;
-    }
-
-    float get_reproduction_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->reproduction_mod;
-        }
-        return c;
-    }
-
-    float get_death_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->death_mod;
-        }
-        return c;
-    }
-
-    float get_militancy_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->militancy_mod;
-        }
-        return c;
-    }
-
-    float get_con_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->con_mod;
-        }
-        return c;
-    }
-
-    float get_life_needs_met_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->life_needs_met_mod;
-        }
-        return c;
-    }
-
-    float get_everyday_needs_met_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->everyday_needs_met_mod;
-        }
-        return c;
-    }
-
-    float get_luxury_needs_met_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->luxury_needs_met_mod;
-        }
-        return c;
-    }
-
-    float get_immigration_attraction_mod(void) {
-        float c = 1.f;
-        for(const auto& mod : modifiers) {
-            c += mod->immigration_attraction;
-        }
-        return c;
-    }
+    float get_industry_output_mod(void);
+    float get_industry_input_mod(void);
+    float get_workers_needed_mod(void);
+    float get_salary_paid_mod(void);
+    float get_delivery_cost_mod(void);
+    float get_literacy_learn_mod(void);
+    float get_reproduction_mod(void);
+    float get_death_mod(void);
+    float get_militancy_mod(void);
+    float get_con_mod(void);
+    float get_life_needs_met_mod(void);
+    float get_everyday_needs_met_mod(void);
+    float get_luxury_needs_met_mod(void);
+    float get_immigration_attraction_mod(void);
 
     // Nation that has us on their sphere of influence
     // This value is equal to the nation with highest influence on us in the
@@ -303,7 +205,7 @@ public:
     std::vector<float> research;
 
     // Current focused tech
-    Technology* focus_tech;
+    Technology* focus_tech = nullptr;
 
     // Default and can be disabled by the player
     bool ai_do_policies = true;
