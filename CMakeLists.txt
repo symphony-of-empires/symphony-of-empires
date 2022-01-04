@@ -1,124 +1,14 @@
 cmake_minimum_required(VERSION 3.5.1)
 
 project(SymphonyOfEmpires)
-set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/src)
-set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS} -pthread")
+option(BUILD_ENGINE "Enable building UnifiedRender" ON)
+option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
 
-IF(WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dwindows")
-ELSE()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dunix")
-ENDIF()
+if(BUILD_ENGINE)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/unified_render)
+endif()
 
-# Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/include/SDL2")
-link_directories(/usr/local/lib)
-
-# Helps github workflows to not die
-IF(UNIT_TEST)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNIT_TEST")
-ENDIF()
-
-include_directories("${PROJECT_SOURCE_DIR}")
-
-#
-# Unified Render engine
-#
-file(GLOB RENDER_SOURCES "${PROJECT_SOURCE_DIR}/unified_render/*.cpp")
-add_library(UnifiedRender SHARED
-	${RENDER_SOURCES}
-)
-IF(WIN32)
-	target_link_libraries(UnifiedRender PUBLIC glew32 opengl32 glu32 ws2_32 winpthread intl wsock32)
-ELSE()
-	target_link_libraries(UnifiedRender PUBLIC GL GLU GLEW SDL2main)
-ENDIF()
-target_link_libraries(UnifiedRender PUBLIC SDL2 SDL2_ttf m z tbb stdc++)
-
-#
-# Symphony of Empires game
-#
-# C++ source files
-file(GLOB MAIN_SOURCES
-	"${PROJECT_SOURCE_DIR}/*.cpp"
-	"${PROJECT_SOURCE_DIR}/client/*.cpp"
-	"${PROJECT_SOURCE_DIR}/client/interface/*.cpp"
-	"${PROJECT_SOURCE_DIR}/client/ui/*.cpp"
-	"${PROJECT_SOURCE_DIR}/server/*.cpp"
-	"${PROJECT_SOURCE_DIR}/server/ai/*.cpp"
-)
-add_executable(SymphonyOfEmpires
-	${MAIN_SOURCES}
-)
-# Standard C++ library headers
-target_precompile_headers(SymphonyOfEmpires PRIVATE
-	<cstdint>
-	<cstddef>
-	<cstring>
-	<cstdlib>
-	<cstdio>
-	<climits>
-	<ctime>
-	<sstream>
-	<fstream>
-	<string>
-	<vector>
-	<set>
-	<deque>
-	<atomic>
-	<thread>
-	<mutex>
-	<utility>
-	<numeric>
-	<functional>
-	<type_traits>
-	<algorithm>
-	<memory>
-	<iostream>
-	<unordered_map>
-)
-# OpenGL header files
-target_precompile_headers(SymphonyOfEmpires PRIVATE
-	<GL/glew.h>
-	<GL/gl.h>
-	<GL/glu.h>
-	<GL/glext.h>
-)
-# glm header files
-target_precompile_headers(SymphonyOfEmpires PRIVATE
-	<glm/glm.hpp>
-	<glm/mat4x4.hpp>
-	<glm/common.hpp>
-	<glm/vec2.hpp>
-	<glm/vec3.hpp>
-	<glm/gtx/intersect.hpp>
-	<glm/gtc/type_ptr.hpp>
-	<glm/gtc/matrix_transform.hpp>
-)
-
-IF(WIN32)
-	target_link_libraries(SymphonyOfEmpires PUBLIC opengl32 glu32 winpthread intl)
-ELSE()
-	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLU SDL2main)
-ENDIF()
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 m z tbb stdc++)
-
-target_link_libraries(SymphonyOfEmpires PUBLIC UnifiedRender)
-
-IF(NOT MINGW AND NOT MSYS)
-	IF(lua54)
-		target_link_libraries(SymphonyOfEmpires PUBLIC lua5.4)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLUA54")
-		message("Making with Lua 5.4")
-	ELSE()
-		target_link_libraries(SymphonyOfEmpires PUBLIC lua5.3)
-		message("Making with Lua 5.3")
-	ENDIF()
-# msys is simple - just lua, no lua5.4 or lua5.3
-ELSE()
-	target_link_libraries(SymphonyOfEmpires PUBLIC lua)
-	message("Making with unknown lua")
-ENDIF()
+if(BUILD_GAME)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/game)
+endif()
