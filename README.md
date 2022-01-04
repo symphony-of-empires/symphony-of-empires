@@ -45,7 +45,7 @@ Using mingw-w64 on linux it is possible to cross compile for Windows builds, sim
 ```
 mkdir build && cd build
 cmake -DWIN32=1 -DCMAKE_BUILD_TYPE:String=RelWithDebInfo ..
-make -j
+make
 ```
 
 ## Build (Windows, MSYS2)
@@ -66,6 +66,13 @@ pacman -S mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2 mingw-w64-x86_64-lua m
 On 32-bit systems the following is required:
 ```sh
 pacman -S mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-lua mingw-w64-i686-zlib
+```
+
+Finally; to build you only have to run:
+```sh
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE:String=RelWithDebInfo -G"Unix Makefiles" ..
+make
 ```
 
 ## Build (Windows, Visual Studio)
