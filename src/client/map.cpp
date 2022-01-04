@@ -1,3 +1,28 @@
+// Symphony of Empires
+// Copyright (C) 2021, Symphony of Empires contributors
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// ----------------------------------------------------------------------------
+// Name:
+//      map.cpp
+//
+// Abstract:
+//      Does some important stuff.
+// ----------------------------------------------------------------------------
+
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
@@ -105,6 +130,7 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }
+
     // Water
     province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
     // Land
@@ -395,7 +421,6 @@ void Map::draw(const GameState& gs) {
         model = glm::translate(model, glm::vec3(0.f, 0.f, -1.f));
 
         std::pair<float, float> pos = unit->get_pos();
-
         if(unit->target != nullptr) {
             UnifiedRender::Line target_line = UnifiedRender::Line(pos.first, pos.second, unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
             obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/line_target.png")));
@@ -434,7 +459,7 @@ void Map::draw(const GameState& gs) {
         dragbox_square.draw();
     }
 
-    wind_osc += 0.01f;
+    wind_osc += 0.1f;
     if(wind_osc >= 180.f) {
         wind_osc = 0.f;
     }
