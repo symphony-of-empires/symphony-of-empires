@@ -94,3 +94,64 @@ If the server crashes and the port needs to be re-aquired:
 ```
 fuser -k 1836/tcp
 ```
+
+# Coding style
+4-spaces are used, tabs should be replaced with 4-spaces too. All functions, members and variables follow a
+snake_case convention; whereas the object-typenames and types should be done as CamelCase.
+
+## Object declaration
+Class members on declarations should be ordered, starting by the private section, followed by the protected section, to
+finally conclude on the public section. Each section should first start by the "main-constructor", followed by copy-constructors
+and any variant of the constructors; after it, follows the destructor of the object. Then follows the main methods of the
+object. Methods don't need to have a specific order. After the methods all the remaining member data is appended. Members
+don't need to have a specific order.
+
+In short - all functions for classes should be conformed as this:
+```cpp
+class Foo {
+    // private constructors/destructors
+    Foo(const Bar&);
+
+    // followed by private methods
+    int add_cmpxchg(int&&);
+
+    // finally by the private data
+    int secret_value;
+protected:
+    // constructor, copy-constructor & variants, destructor
+    Foo(const Bar*);
+
+    // methods
+    int add_cmpxchg_sse3(void);
+
+    // members
+    int stuff;
+public:
+    Foo();
+    // here should be any variant of constructor function prototypes
+    ~Foo();
+
+    // rest of the functions
+    explicit int add(int&, int&);
+
+    // and finally the data
+    int value;
+};
+```
+
+## Blocks
+Simply put:
+```cpp
+while(a) {
+    if(b) {
+        // stuff...
+    } else if(c) {
+        // stuff...
+    }
+
+    // no "single line" or brace-less ifs
+    if(d < 0) {
+        increment_d(&d);
+    }
+}
+```
