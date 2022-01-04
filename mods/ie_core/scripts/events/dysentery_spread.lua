@@ -51,26 +51,26 @@ function dysentery_evhdl(ref_name)
     end
     
     decision = Decision:new{
-        ref_name = "dysentery_evhdl_decision_0"
-        name = "We have to deal with this outbreak."
-        decision_fn = "dysentery_evhdl_decision_0"
+        ref_name = "dysentery_evhdl_decision_0",
+        name = "We have to deal with this outbreak.",
+        decision_fn = "dysentery_evhdl_decision_0",
         effects = "+1 con"
     }
     decision = Decision:new{
-        ref_name = "dysentery_evdhl_decision_1"
-        name = "Send a small amount of aid to the area"
-        decision_fn = "dysentery_evdhl_decision_1"
+        ref_name = "dysentery_evdhl_decision_1",
+        name = "Send a small amount of aid to the area",
+        decision_fn = "dysentery_evdhl_decision_1",
         effects = "+0.5 con"
     }
     decision = Decision:new{
-        ref_name = "dysentery_evdhl_decision_2"
-        name = "Eh, They can deal with it themselves"
-        decision_fn = "dysentery_evdhl_decision_2"
+        ref_name = "dysentery_evdhl_decision_2",
+        name = "Eh, They can deal with it themselves",
+        decision_fn = "dysentery_evdhl_decision_2",
         effects = "+1 militancy"
     }
     
     dysentery_evdhl:add_decision(decision)
-    return = EVENT_DO_MANY_TIMES
+    return EVENT_DO_MANY_TIMES
 end
 
 function dysentery_test2()
@@ -90,7 +90,7 @@ function dysentery_evhdl_2(ref_name)
 		dysentery_event_2.title = "Politicians in " .. random_province.name .." are believed to have dysentery"
 		dysentery_event_2.text = "This is believed to have happened after a speaker at a town hall spreaded it to almost everybody there"
 	elseif r == 1 then
-		dysentery_event_2.title = "Politicians denounce measures taken to limit spread in " .. random_province.name .. 
+		dysentery_event_2.title = "Politicians denounce measures taken to limit spread in " .. random_province.name
 		dysentery_event_2.text = "Local Politicians in the province have said that the measures are unlawful and should be taken away. They have allowed citizens of their province to leave their villages freely, enabling a larger spread."
 	elseif r == 2 then
 		dysentery_event_2.title = "Politicians demand that measures to limit the spread of dysentery be taken down in " .. random_province.name
@@ -98,19 +98,19 @@ function dysentery_evhdl_2(ref_name)
     end
 		
 	decision = Decision:new{
-		ref_name = "dysentery_evhdl_2_decision_0"
-		name = "Fire Them! They have no place in our government"
-		decision_fn = "dysentery_evhdl_2_decision_0"
+		ref_name = "dysentery_evhdl_2_decision_0",
+		name = "Fire Them! They have no place in our government",
+		decision_fn = "dysentery_evhdl_2_decision_0",
 		effects = "+1 militancy, +1 con"
 	}
 	decision = Decision:new{
-		ref_name = "dysentery_evhdl_2_decision_1"
-		name = "Ignorance is Bliss, Gentlemen"
-		decision_fn = "dysentery_evhdl_2_decision_1"
+		ref_name = "dysentery_evhdl_2_decision_1",
+		name = "Ignorance is Bliss, Gentlemen",
+		decision_fn = "dysentery_evhdl_2_decision_1",
 		effects = "+2 con"
 	}
 dysentery_evdhl_2:add_decision(decision)
-    return = EVENT_DO_MANY_TIMES
+    return EVENT_DO_MANY_TIMES
 end
 
 function dysentery_evdhl_3(ref_name)
@@ -129,17 +129,18 @@ function dysentery_evdhl_3(ref_name)
     end
 
 	decision = Decision:new{
-		ref_name = "dysentery_evhdl_3_decision_0"
-		name = "Send in Police to deal with them"
-		decision = "dysentery_evhdl_3_decision_0"
+		ref_name = "dysentery_evhdl_3_decision_0",
+		name = "Send in Police to deal with them",
+		decision = "dysentery_evhdl_3_decision_0",
 		effects = "+1.5 militancy, +2 con"
+    }
 	
 	decision = Decision:new{
-		ref_name = "dysentery_evdhl_3_decision_1"
-		name = "Fine, send aid"
-		decision = "dysentery_evdhl_3_decision_1"
+		ref_name = "dysentery_evdhl_3_decision_1",
+		name = "Fine, send aid",
+		decision = "dysentery_evdhl_3_decision_1",
 		effects = "-1 militancy, +3 con"
 	}
     dysentery_evdhl_3:add_decision(decision)
-	return = EVENT_DO_MANY_TIMES
+	return EVENT_DO_MANY_TIMES
 end
