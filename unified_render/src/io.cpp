@@ -20,7 +20,9 @@
 //      io.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Generalized "IO" functions for more abstract access to the OS resources
+//      along with a custom "std::filesystem" implementation to aid and
+//      implement custom paths.
 // ----------------------------------------------------------------------------
 
 #include "unified_render/io.hpp"

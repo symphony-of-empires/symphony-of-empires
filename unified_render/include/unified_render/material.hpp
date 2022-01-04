@@ -37,8 +37,8 @@ namespace UnifiedRender {
     /// A definition for a surface/color/texture to be applied to a model
     class Material {
     public:
-        Material(void);
-        ~Material(void);
+        Material();
+        ~Material();
 
         glm::vec3 diffuse_color;
         const Texture* diffuse_map = nullptr;
@@ -62,6 +62,8 @@ namespace UnifiedRender {
     private:
         std::set<std::pair<Material*, std::string>> materials;
     public:
+        MaterialManager();
+        ~MaterialManager();
         std::vector<std::pair<Material*, std::string>> load_wavefront(const std::string& path);
         const Material& load(const std::string& path);
     };

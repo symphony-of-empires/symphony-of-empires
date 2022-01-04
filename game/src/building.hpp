@@ -33,6 +33,9 @@ class Technology;
 // Type for military outposts
 class BuildingType : public RefnameEntity<uint8_t> {
 public:
+    BuildingType();
+    ~BuildingType();
+    
     bool is_plot_on_sea;
     bool is_plot_on_land;
     bool is_build_land_units;

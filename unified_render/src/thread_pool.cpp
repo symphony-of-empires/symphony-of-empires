@@ -20,7 +20,7 @@
 //      thread_pool.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Generalized thread pool implementation.
 // ----------------------------------------------------------------------------
 
 #include "unified_render/thread_pool.hpp"

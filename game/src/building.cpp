@@ -29,6 +29,17 @@
 #include "world.hpp"
 
 //
+// Building type
+//
+BuildingType::BuildingType(void) {
+
+}
+
+BuildingType::~BuildingType(void) {
+    
+}
+
+//
 // Building
 //
 Building::Building(void) {

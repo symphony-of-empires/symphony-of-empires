@@ -20,7 +20,8 @@
 //      texture.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Defines some functions to bind a BinaryImage to an OpenGL object
+//      by using the OpenGL API for managing the resources of it.
 // ----------------------------------------------------------------------------
 
 #include "unified_render/texture.hpp"

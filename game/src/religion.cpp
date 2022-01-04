@@ -17,40 +17,21 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      event.hpp
+//      religion.cpp
 //
 // Abstract:
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#pragma once
+#include "religion.hpp"
 
-#include "unified_render/entity.hpp"
-#include <string>
-#include <vector>
+//
+// Religion
+//
+Religion::Religion(void) {
 
-class Descision : public RefnameEntity<uint8_t> {
-public:
-    Descision();
-    ~Descision();
+}
 
-    std::string do_descision_function;
-    std::string effects;
-};
+Religion::~Religion(void) {
 
-class Nation;
-class Event : public RefnameEntity<uint16_t> {
-public:
-    Event();
-    ~Event();
-    void take_descision(Nation& sender, Descision& dec);
-    
-    std::string conditions_function;
-    std::string do_event_function;
-    std::vector<Nation *> receivers;
-    std::vector<Descision> descisions;
-    std::string text;
-    std::string title;
-
-    bool checked = false;
-};
+}

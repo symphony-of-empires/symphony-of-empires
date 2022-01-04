@@ -32,10 +32,10 @@
 
 namespace UnifiedRender::IO {
     struct Path {
-        Path(void);
+        Path();
         Path(const std::string& path);
         Path(const char* path);
-        ~Path(void);
+        ~Path();
         std::string str;
     };
 

@@ -173,8 +173,8 @@ namespace UnifiedRender::Networking {
     class ServerClient {
         int conn_fd = 0;
     public:
-        ServerClient(void);
-        ~ServerClient(void);
+        ServerClient();
+        ~ServerClient();
         int try_connect(int fd);
         void flush_packets(void);
         bool has_pending(void);

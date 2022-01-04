@@ -20,7 +20,9 @@
 //      state.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Defines functions for the game state, these functions initialize the
+//      game to a "usable" state, which will allow it to manage resources and
+//      show them.
 // ----------------------------------------------------------------------------
 
 #include "unified_render/state.hpp"
