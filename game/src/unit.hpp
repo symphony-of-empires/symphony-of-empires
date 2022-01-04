@@ -39,6 +39,9 @@
 // this is moddable via a lua script and new unit types can be added
 class UnitType : public RefnameEntity<uint8_t> {
 public:
+    UnitType();
+    ~UnitType();
+
     float supply_consumption;
     float speed;
     float max_health;
@@ -72,6 +75,9 @@ public:
 // A trait for an unit; given randomly per each recruited unit
 class UnitTrait : public RefnameEntity<uint8_t> {
 public:
+    UnitTrait();
+    ~UnitTrait();
+    
     float supply_consumption_mod;
     float speed_mod;
     float max_health_mod;
@@ -83,8 +89,8 @@ public:
 // Roughly a batallion, consisting of approximately 500 soldiers each
 class Unit : public IdEntity<uint16_t> {
 public:
-    Unit(void);
-    ~Unit(void);
+    Unit();
+    ~Unit();
     void attack(Unit& enemy);
     std::pair<float, float> get_pos(void) const;
     void set_target(Province& province);
