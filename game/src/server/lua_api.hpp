@@ -65,6 +65,7 @@ namespace LuaAPI {
     int add_unit_trait(lua_State* L);
 
     int add_building_type(lua_State* L);
+    int get_building_type(lua_State* L);
 
     int add_good(lua_State* L);
     int get_good(lua_State* L);
