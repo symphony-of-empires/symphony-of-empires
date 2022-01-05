@@ -39,8 +39,8 @@
 // this is moddable via a lua script and new unit types can be added
 class UnitType : public RefnameEntity<uint8_t> {
 public:
-    UnitType();
-    ~UnitType();
+    //UnitType();
+    //~UnitType();
 
     float supply_consumption;
     float speed;
