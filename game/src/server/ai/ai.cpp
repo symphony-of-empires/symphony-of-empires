@@ -247,8 +247,31 @@ void ai_update_relations(Nation* nation, Nation* other) {
             }
         }
     }
-    
-    if(is_border && !(std::rand() % 10000)) {
+
+    // Our strength as attackers
+    float our_power = 0.f;
+    for(const auto& ally_nation : nation->get_allies()) {
+        for(const auto& province : ally_nation->owned_provinces) {
+            for(const auto& unit : province->get_units()) {
+                our_power += unit->type->attack * unit->size;
+                our_power += unit->type->defense * unit->size;
+            }
+        }
+    }
+
+    // The strength of the defenders
+    float other_power = 0.f;
+    for(const auto& ally_nation : other->get_allies()) {
+        for(const auto& province : ally_nation->owned_provinces) {
+            for(const auto& unit : province->get_units()) {
+                other_power += unit->type->attack * unit->size;
+                other_power += unit->type->defense * unit->size;
+            }
+        }
+    }
+
+    // Hating a nation a lot will make us reconsider logic military actions and go "purely by instinct"
+    if(!(std::rand() % (int)(1000000 / (1 + (-relation.relation * (our_power / other_power)))))) {
         if(!relation.has_war && !relation.has_alliance && !relation.has_defensive_pact) {
             nation->declare_war(*other);
         } else {
@@ -456,19 +479,15 @@ void ai_do_tick(Nation* nation, World* world) {
         if(nation->ai_do_unit_production) {
             // Risk of invasion
             unsigned int defense_factor = 1;
-            for(const auto& building : g_world->buildings) {
-                if(building->owner == nation) {
-                    defense_factor += ((uint)building->type->defense_bonus + 1) * 10000;
-                    continue;
+
+            for(const auto& rel : nation->relations) {
+                if(rel.has_war) {
+                    defense_factor += 500;
                 }
             }
 
-            for(const auto& province : nation->owned_provinces) {
-                defense_factor /= ((province->total_pops() + province->n_tiles) / 10000) + 1;
-            }
-
             // Build defenses
-            if(!(std::rand() % std::max<int>(500, defense_factor))) {
+            if(!(std::rand() % std::max<int>(10, 100000 / defense_factor))) {
                 auto it = std::begin(nation->owned_provinces);
                 std::advance(it, std::rand() % nation->owned_provinces.size());
 				
@@ -491,13 +510,16 @@ void ai_do_tick(Nation* nation, World* world) {
 
             // Build units inside buildings that are not doing anything
             for(auto& building : g_world->buildings) {
-                if(building->working_unit_type != nullptr || building->owner != nation) continue;
+                if(building->working_unit_type != nullptr || building->owner != nation) {
+                    continue;
+                }
+                
                 Province* province = building->get_province();
                 if(province == nullptr) {
                     continue;
                 }
 
-                if(std::rand() % 100) {
+                if(std::rand() % std::max<int>(10, 10000 / defense_factor)) {
                     continue;
                 }
 
@@ -512,13 +534,14 @@ void ai_do_tick(Nation* nation, World* world) {
         }
 
         // Colonize a province
-        if(!(std::rand() % 500)) {
+        if(!(std::rand() % 50)) {
             // Pair denoting the weight a province has, the more the better
             std::vector<std::pair<Province*, float>> colonial_value;
             for(const auto& province : world->provinces) {
                 if(province->owner != nullptr) {
                     continue;
                 }
+
                 colonial_value.push_back(std::make_pair(province, 0.f));
             }
 
@@ -564,13 +587,13 @@ void ai_do_tick(Nation* nation, World* world) {
                 }
 
                 if(neighbour->controller != nullptr && neighbour->controller != nation) {
-                    NationRelation& relation = neighbour->controller->relations[world->get_id(province->owner)];
+                    NationRelation& relation = province->controller->relations[world->get_id(neighbour->controller)];
 
                     // Risk is augmentated when we border any non-ally nation
                     if(!relation.has_alliance) {
                         potential_risk[world->get_id(neighbour)] += 100;
                         if(relation.has_war) {
-                            potential_risk[world->get_id(neighbour)] += 50000000;
+                            potential_risk[world->get_id(neighbour)] += 500000000;
                         }
                     }
                 }
@@ -595,6 +618,7 @@ void ai_do_tick(Nation* nation, World* world) {
             if(unit->province->neighbours.empty()) {
                 continue;
             }
+
             if(unit->owner != nation) {
                 continue;
             }
@@ -608,6 +632,10 @@ void ai_do_tick(Nation* nation, World* world) {
             // See which province has the most potential_risk so we cover it from potential threats
             Province* highest_risk = unit->province;
             for(const auto& province : unit->province->neighbours) {
+                if(!(std::rand() % 5)) {
+                    continue;
+                }
+                
                 if(!unit->type->is_naval && province->terrain_type->is_water_body) {
                     continue;
                 }
@@ -615,10 +643,6 @@ void ai_do_tick(Nation* nation, World* world) {
                 //if(province->terrain_type->is_water_body) {
                 //    continue;
                 //}
-
-                if(!(std::rand() % 2)) {
-                    continue;
-                }
 
                 if(potential_risk[world->get_id(highest_risk)] < potential_risk[world->get_id(province)]) {
                     if(province->owner != nullptr) {
