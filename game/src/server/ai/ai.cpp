@@ -632,7 +632,11 @@ void ai_do_tick(Nation* nation, World* world) {
             // See which province has the most potential_risk so we cover it from potential threats
             Province* highest_risk = unit->province;
             for(const auto& province : unit->province->neighbours) {
-                if(!(std::rand() % 5)) {
+                if(province->controller == nullptr) {
+                    continue;
+                }
+
+                if(!(std::rand() % 2) && !unit->owner->relations[world->get_id(province->controller)].has_war) {
                     continue;
                 }
                 
