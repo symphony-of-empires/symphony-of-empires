@@ -38,7 +38,7 @@ for k, v in pairs(liechtenstein_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(zinc_mine, Nation:get("liechtenstein"))
+    province:add_industry(copper_mine, Nation:get("liechtenstein"))
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -63,7 +63,7 @@ for k, v in pairs(oldenburg_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(zinc_mine, oldenburg)
+    province:add_industry(copper_mine, oldenburg)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -89,7 +89,7 @@ for k, v in pairs(wolfenbuttel_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(brass_smelter, brunswick)
+    province:add_industry(copper_mine, brunswick)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -137,9 +137,7 @@ for k, v in pairs(brunswick_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(chromium_mine, brunswick)
     province:add_industry(iron_mine, brunswick)
-    province:add_industry(stainless_steel_smelter, brunswick)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -257,7 +255,7 @@ for k, v in pairs(ritzebuttel_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(musket_factory, ritzebuttel)
+    province:add_industry(arms_factory, ritzebuttel)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -315,7 +313,7 @@ for k, v in pairs(holstein_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(copper_mine, holstein)
+    province:add_industry(coal_mine, holstein)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -338,7 +336,7 @@ for k, v in pairs(anhalt_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(copper_mine, anhalt)
+    province:add_industry(coal_mine, anhalt)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -361,7 +359,7 @@ for k, v in pairs(lippe_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(copper_mine, lippe)
+    province:add_industry(coal_mine, lippe)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -384,7 +382,7 @@ for k, v in pairs(nassau_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(copper_mine, nassau)
+    province:add_industry(coal_mine, nassau)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -436,7 +434,7 @@ for k, v in pairs(saxe_gotha_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(copper_mine, saxe_gotha)
+    province:add_industry(iron_mine, saxe_gotha)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -461,7 +459,7 @@ for k, v in pairs(saxe_coburg_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(copper_mine, saxe_coburg)
+    province:add_industry(iron_mine, saxe_coburg)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -486,7 +484,7 @@ for k, v in pairs(saxe_hildburghausen_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(copper_mine, saxe_hildburghausen)
+    province:add_industry(iron_mine, saxe_hildburghausen)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -510,7 +508,7 @@ for k, v in pairs(saxe_meiningen_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(copper_mine, saxe_meiningen)
+    province:add_industry(iron_mine, saxe_meiningen)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -538,7 +536,7 @@ for k, v in pairs(reuss_gera_provinces_list) do
     province = Province:new(v)
     province:register()
 
-    province:add_industry(copper_mine, reuss_gera)
+    province:add_industry(coal_mine, reuss_gera)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -590,8 +588,7 @@ for k, v in pairs(luxembourg_provinces_list) do
     province:register()
 
     province:add_industry(sulfur_mine, luxembourg)
-    province:add_industry(carbon_destroyer, luxembourg)
-    province:add_industry(gunpowder_mixer, luxembourg)
+    province:add_industry(coal_mine, luxembourg)
     province:add_pop(artisan, german, protestant, 5000, 0.9)
     province:add_pop(farmer, german, protestant, 40000, 0.8)
     province:add_pop(soldier, german, protestant, 8000, 0.8)
@@ -784,22 +781,10 @@ local switzerland_provinces_list = {
 for k, v in pairs(switzerland_provinces_list) do
     province = Province:new(v)
     province:register()
-
     province:add_industry(iron_mine, switzerland)
-    province:add_industry(zinc_mine, switzerland)
     province:add_industry(copper_mine, switzerland)
-    province:add_industry(chromium_mine, switzerland)
     province:add_industry(coal_mine, switzerland)
-    province:add_industry(carbon_destroyer, switzerland)
     province:add_industry(sulfur_mine, switzerland)
-    province:add_industry(gunpowder_mixer, switzerland)
-    province:add_industry(stainless_steel_smelter, switzerland)
-    province:add_industry(brass_smelter, switzerland)
-    province:add_industry(iron_smelter, switzerland)
-    province:add_industry(musket_factory, switzerland)
-    province:add_industry(machinegun_factory, switzerland)
-    province:add_industry(ammunition_factory, switzerland)
-
     province:add_pop(artisan, german, catholic, 5000, 0.9)
     province:add_pop(farmer, german, catholic, 40000, 0.8)
     province:add_pop(soldier, german, catholic, 8000, 0.8)

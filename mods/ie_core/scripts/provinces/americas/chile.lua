@@ -60,7 +60,7 @@ for k, v in pairs(chile_owned_provinces_list) do
     province:add_nucleus(argentina)
     province:add_nucleus(chile)
     province:give_to(chile)
-    province:add_industry(zinc_mine, chile)
+    province:add_industry(coal_mine, chile)
     province:add_industry(copper_mine, chile)
     province:add_industry(iron_mine, chile)
 end
@@ -95,6 +95,6 @@ for k, v in pairs(mapuche_owned_provinces_list) do
     province:add_nucleus(chile)
     province:add_nucleus(Nation:get("mapuche"))
     province:give_to(Nation:get("mapuche"))
-    province:add_industry(zinc_mine, Nation:get("mapuche"))
+    province:add_industry(coal_mine, Nation:get("mapuche"))
     province:add_industry(copper_mine, Nation:get("mapuche"))
 end

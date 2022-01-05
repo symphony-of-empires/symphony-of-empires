@@ -66,7 +66,7 @@ local mexico_provinces_list = {
 for k, v in pairs(mexico_provinces_list) do
     province = Province:new(v)
     province:register()
-
+    province:add_industry(sulfur_mine, mexico)
     province:add_pop(artisan, mexican, catholic, 2000, 0.8)
     province:add_pop(farmer, mexican, catholic, 8000, 0.5)
     province:add_pop(soldier, mexican, catholic, 1000, 0.6)
@@ -78,5 +78,4 @@ for k, v in pairs(mexico_provinces_list) do
     province:add_pop(burgeoise, mexican, catholic, 50, 0.9)
     province:add_nucleus(mexico)
     province:give_to(mexico)
-    province:add_industry(chromium_mine, mexico)
 end
