@@ -28,6 +28,7 @@
 //
 // Religion
 //
+/*
 Religion::Religion(void) {
 
 }
@@ -35,3 +36,4 @@ Religion::Religion(void) {
 Religion::~Religion(void) {
 
 }
+//*/

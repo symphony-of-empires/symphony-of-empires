@@ -33,6 +33,7 @@
 //
 // Descision
 //
+/*
 Descision::Descision(void) {
 
 }
@@ -40,10 +41,12 @@ Descision::Descision(void) {
 Descision::~Descision(void) {
 
 }
+//*/
 
 //
 // Event
 //
+/*
 Event::Event(void) {
 
 }
@@ -51,6 +54,7 @@ Event::Event(void) {
 Event::~Event(void) {
 
 }
+//*/
 
 void Event::take_descision(Nation& sender, Descision& dec) {
     auto receiver = std::find(receivers.begin(), receivers.end(), &sender);

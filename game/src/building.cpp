@@ -31,6 +31,7 @@
 //
 // Building type
 //
+/*
 BuildingType::BuildingType(void) {
 
 }
@@ -38,13 +39,16 @@ BuildingType::BuildingType(void) {
 BuildingType::~BuildingType(void) {
     
 }
+//*/
 
 //
 // Building
 //
+/*
 Building::Building(void) {
 
 }
+//*/
 
 // Adds a good by id to a building stockpile
 void Building::add_to_stock(const Good& good, const size_t add) {

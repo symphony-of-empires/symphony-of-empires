@@ -30,6 +30,10 @@
 #include "unit.hpp"
 #include "building.hpp"
 
+//
+// Province
+//
+/*
 Province::Province(void) {
 
 }
@@ -37,6 +41,7 @@ Province::Province(void) {
 Province::~Province(void) {
     
 }
+//*/
 
 // Calculates the total number of POPs in this province (total population)
 size_t Province::total_pops(void) const {
