@@ -109,12 +109,13 @@ int LuaAPI::add_terrain_type(lua_State* L) {
 int LuaAPI::get_terrain_type(lua_State* L) {
     const auto* terrain_type = find_or_throw<TerrainType>(luaL_checkstring(L, 1));
 
+    lua_pushnumber(L, g_world->get_id(terrain_type));
     lua_pushstring(L, terrain_type->ref_name.c_str());
     lua_pushstring(L, terrain_type->name.c_str());
     lua_pushnumber(L, bswap_32((terrain_type->color & 0x00ffffff) << 8));
     lua_pushnumber(L, terrain_type->movement_penalty);
     lua_pushboolean(L, terrain_type->is_water_body);
-    return 5;
+    return 6;
 }
 
 int LuaAPI::set_nation_mod_to_invention(lua_State* L) {
@@ -199,6 +200,20 @@ int LuaAPI::add_building_type(lua_State* L) {
     g_world->insert(building_type);
     lua_pushnumber(L, g_world->building_types.size() - 1);
     return 1;
+}
+
+int LuaAPI::get_building_type(lua_State* L) {
+    const auto* building_type = find_or_throw<BuildingType>(luaL_checkstring(L, 1));
+
+    lua_pushnumber(L, g_world->get_id(building_type));
+    lua_pushstring(L, building_type->ref_name.c_str());
+    lua_pushstring(L, building_type->name.c_str());
+    lua_pushboolean(L, building_type->is_plot_on_sea);
+    lua_pushboolean(L, building_type->is_build_land_units);
+    lua_pushboolean(L, building_type->is_build_naval_units);
+    lua_pushnumber(L, building_type->defense_bonus);
+    lua_pushboolean(L, building_type->is_factory);
+    return 8;
 }
 
 int LuaAPI::add_good(lua_State* L) {

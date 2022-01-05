@@ -129,6 +129,7 @@ World::World() {
     lua_register(lua, "add_unit_trait", LuaAPI::add_unit_trait);
 
     lua_register(lua, "add_building_type", LuaAPI::add_building_type);
+    lua_register(lua, "get_building_type", LuaAPI::get_building_type);
 
     lua_register(lua, "add_good", LuaAPI::add_good);
     lua_register(lua, "get_good", LuaAPI::get_good);
