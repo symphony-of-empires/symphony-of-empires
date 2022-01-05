@@ -96,6 +96,6 @@ for k, v in pairs(spain_provinces_list) do
     province:add_nucleus(spain)
     province:add_nucleus(iberia)
     province:give_to(spain)
-    province:set_terrain(plains)
     province:add_industry(wheat_farm, spain)
+    province:set_terrain(plains)
 end

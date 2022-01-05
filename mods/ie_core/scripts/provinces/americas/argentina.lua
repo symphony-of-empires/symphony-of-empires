@@ -76,7 +76,6 @@ for k, v in pairs(owned_provinces_list) do
     province:add_pop(burgeoise, argentinian, catholic, 100, 0.8)
     province:add_pop(clergymen, argentinian, catholic, 1000, 0.5)
     province:add_pop(laborer, argentinian, catholic, 1000, 0.5)
-    province:add_pop(burgeoise, argentinian, catholic, 50, 0.9)
     province:add_nucleus(argentina)
     province:give_to(argentina)
     province:add_industry(sulfur_mine, argentina)

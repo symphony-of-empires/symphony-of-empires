@@ -72,7 +72,6 @@ for k, v in pairs(provinces_list) do
     province:add_pop(burgeoise, russian, orthodox, 200, 0.9)
     province:add_pop(clergymen, russian, orthodox, 500, 0.9)
     province:add_pop(laborer, russian, orthodox, 2700, 0.8)
-    province:add_pop(burgeoise, russian, orthodox, 100, 0.9)
     province:add_nucleus(russia)
     province:give_to(russia)
 end

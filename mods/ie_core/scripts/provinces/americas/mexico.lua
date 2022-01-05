@@ -75,7 +75,7 @@ for k, v in pairs(mexico_provinces_list) do
     province:add_pop(burgeoise, mexican, catholic, 100, 0.8)
     province:add_pop(clergymen, mexican, catholic, 1000, 0.5)
     province:add_pop(laborer, mexican, catholic, 1000, 0.5)
-    province:add_pop(burgeoise, mexican, catholic, 50, 0.9)
     province:add_nucleus(mexico)
     province:give_to(mexico)
+    province:set_terrain(plains)
 end
