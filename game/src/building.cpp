@@ -44,11 +44,9 @@ BuildingType::~BuildingType(void) {
 //
 // Building
 //
-/*
 Building::Building(void) {
 
 }
-//*/
 
 Building::~Building() {
     // Delete factory (products related to the factory must be destroyed too)
