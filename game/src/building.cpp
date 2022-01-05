@@ -50,6 +50,13 @@ Building::Building(void) {
 }
 //*/
 
+Building::~Building() {
+    // Delete factory (products related to the factory must be destroyed too)
+    if(type != nullptr && type->is_factory == true) {
+        delete_factory();
+    }
+}
+
 // Adds a good by id to a building stockpile
 void Building::add_to_stock(const Good& good, const size_t add) {
     const World& world = World::get_instance();
@@ -104,25 +111,22 @@ void Building::delete_factory(void) {
 // Checks if the building can produce output (if it has enough input)
 bool Building::can_do_output(void) {
     // No output products?
-    if(type->outputs.empty() || output_products.empty())
+    if(type->outputs.empty() || output_products.empty()) {
         return false;
+    }
 
     // Always can produce if RGO
-    if(type->inputs.empty())
+    if(type->inputs.empty()) {
         return true;
+    }
 
     // Check that we have enough stockpile
     for(const auto& stock : this->stockpile) {
-        if(!stock) return false;
+        if(!stock) {
+            return false;
+        }
     }
     return true;
-}
-
-Building::~Building() {
-    // Delete factory (products related to the factory must be destroyed too)
-    if(type != nullptr && type->is_factory == true) {
-        delete_factory();
-    }
 }
 
 std::pair<float, float> Building::get_pos(void) const {
