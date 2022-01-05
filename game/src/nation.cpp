@@ -361,6 +361,18 @@ void Nation::change_research_focus(Technology* tech) {
     focus_tech = tech;
 }
 
+std::vector<Nation*> Nation::get_allies(void) {
+    World& world = World::get_instance();
+
+    std::vector<Nation*> list;
+    for(const auto& nation : world.nations) {
+        if(relations[world.get_id(nation)].has_alliance) {
+            list.push_back(nation);
+        }
+    }
+    return list;
+}
+
 /*float Nation::get_industry_output_rate() {
     for(const auto& p: techs) {
 

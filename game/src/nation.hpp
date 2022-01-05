@@ -122,6 +122,7 @@ public:
     float get_research_points(void) const;
     bool can_research(const Technology* tech) const;
     void change_research_focus(Technology* tech);
+    std::vector<Nation*> get_allies(void);
     float get_industry_output_mod(void);
     float get_industry_input_mod(void);
     float get_workers_needed_mod(void);
