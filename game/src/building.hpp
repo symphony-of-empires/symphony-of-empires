@@ -33,8 +33,8 @@ class Technology;
 // Type for military outposts
 class BuildingType : public RefnameEntity<uint8_t> {
 public:
-    BuildingType();
-    ~BuildingType();
+    //BuildingType();
+    //~BuildingType();
     
     bool is_plot_on_sea;
     bool is_plot_on_land;
@@ -62,8 +62,8 @@ public:
 // When adjacent to a water tile this serves as a shipyard for spawning naval units
 class Building : public IdEntity<uint16_t> {
 public:
-    Building();
-    ~Building();
+    //Building();
+    //~Building();
     bool can_do_output(void);
     void add_to_stock(const Good& good, size_t add);
     Province* get_province(void);

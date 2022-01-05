@@ -25,6 +25,10 @@
 
 #include "product.hpp"
 
+//
+// Product
+//
+/*
 Product::Product(void) {
 
 }
@@ -32,6 +36,7 @@ Product::Product(void) {
 Product::~Product(void) {
     
 }
+//*/
 
 // "Close" the product for this specific day, which means the equilibrium of price
 // will change according to the changes in the market

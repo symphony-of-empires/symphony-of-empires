@@ -31,8 +31,8 @@
 
 class Descision : public RefnameEntity<uint8_t> {
 public:
-    Descision();
-    ~Descision();
+    //Descision();
+    //~Descision();
 
     std::string do_descision_function;
     std::string effects;
@@ -41,8 +41,8 @@ public:
 class Nation;
 class Event : public RefnameEntity<uint16_t> {
 public:
-    Event();
-    ~Event();
+    //Event();
+    //~Event();
     void take_descision(Nation& sender, Descision& dec);
     
     std::string conditions_function;

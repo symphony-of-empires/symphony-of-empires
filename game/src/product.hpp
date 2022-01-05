@@ -35,8 +35,8 @@
 // accross the world
 class Product : public IdEntity<uint16_t> {
 public:
-    Product();
-    ~Product();
+    //Product();
+    //~Product();
     void close_market(void);
 
     // Building that made this product
