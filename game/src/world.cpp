@@ -118,6 +118,7 @@ World::World() {
 
     // Register our API functions
     lua_register(lua, "add_terrain_type", LuaAPI::add_terrain_type);
+    lua_register(lua, "get_terrain_type", LuaAPI::get_terrain_type);
 
     lua_register(lua, "add_technology", LuaAPI::add_technology);
     lua_register(lua, "get_technology", LuaAPI::get_technology);

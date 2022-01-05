@@ -764,6 +764,12 @@ end
 function TerrainType:register()
 	self.id = add_terrain_type(self.ref_name, self.name, self.color, self.movement_penalty, self.is_water_body)
 end
+function TerrainType:get(ref_name)
+	o = TerrainType:new()
+	o.id, o.name, o.color, o.movement_penalty, o.is_water_body = get_terrain_type(ref_name)
+	o.ref_name = ref_name
+	return o
+end
 
 UnitType = {
 	id = 0,

@@ -68,8 +68,9 @@ const T* find_or_throw(const std::string& ref_name) {
     const T* obj_to_find = nullptr;
 
     const auto& list = World::get_instance().get_list(obj_to_find);
-    const auto result = std::find_if(list.begin(), list.end(),
-        [&ref_name](const auto& o) { return (o->ref_name == ref_name); });
+    const auto result = std::find_if(list.begin(), list.end(), [&ref_name](const auto& o) {
+        return (o->ref_name == ref_name);
+    });
 
     if(result == list.end()) {
         throw LuaAPI::Exception(ref_name + " not found");
@@ -103,6 +104,17 @@ int LuaAPI::add_terrain_type(lua_State* L) {
     g_world->insert(terrain_type);
     lua_pushnumber(L, g_world->terrain_types.size() - 1);
     return 1;
+}
+
+int LuaAPI::get_terrain_type(lua_State* L) {
+    const auto* terrain_type = find_or_throw<TerrainType>(luaL_checkstring(L, 1));
+
+    lua_pushstring(L, terrain_type->ref_name.c_str());
+    lua_pushstring(L, terrain_type->name.c_str());
+    lua_pushnumber(L, bswap_32((terrain_type->color & 0x00ffffff) << 8));
+    lua_pushnumber(L, terrain_type->movement_penalty);
+    lua_pushboolean(L, terrain_type->is_water_body);
+    return 5;
 }
 
 int LuaAPI::set_nation_mod_to_invention(lua_State* L) {
