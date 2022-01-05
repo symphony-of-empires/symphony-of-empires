@@ -54,6 +54,7 @@ namespace LuaAPI {
     int register_new_table(lua_State* L, const std::string& name, const luaL_Reg meta[], const luaL_Reg methods[]);
 
     int add_terrain_type(lua_State* L);
+    int get_terrain_type(lua_State* L);
     
     int set_nation_mod_to_invention(lua_State* L);
 
