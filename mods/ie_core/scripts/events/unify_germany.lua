@@ -51,7 +51,7 @@ function unify_germany_event()
 	unify_germany_evhdl:add_descision(descision)
 	return EVENT_DO_ONE_TIME
 end
-function unify_germany_descision_0()
+function unify_germany_descision_0(ref_name)
 	print('Unifying germany...')
 	Nation:get("germany"):set_ideology(Ideology:get("monarchy"))
 	local prov = Nation:get("germany"):get_nuclei_provinces()
@@ -59,6 +59,8 @@ function unify_germany_descision_0()
 		print(v.ref_name)
 		v:give_and_relinquish_to(Nation:get("germany"))
 	end
+
+	Nation:get(ref_name):switch_player_to(Nation:get("germany"))
 end
 function unify_germany_descision_1()
 	print('Germany isn\'t going to be a thing :<')

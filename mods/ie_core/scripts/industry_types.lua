@@ -59,25 +59,13 @@ cotton_farm:add_output(cotton)
 
 -- Mines can new stuff from thin air, but don't worry because this is
 -- not abuse-ble
-diamond_mine = IndustryType:new{ ref_name = "diamond_mine", name = _("Diamond mine") }
-diamond_mine:register()
-diamond_mine:add_output(diamond)
-
 coal_mine = IndustryType:new{ ref_name = "coal_mine", name = _("Coal mine") }
 coal_mine:register()
 coal_mine:add_output(coal)
 
-zinc_mine = IndustryType:new{ ref_name = "zinc_mine", name = _("Zinc mine") }
-zinc_mine:register()
-zinc_mine:add_output(zinc)
-
 copper_mine = IndustryType:new{ ref_name = "copper_mine", name = _("Copper mine") }
 copper_mine:register()
 copper_mine:add_output(copper)
-
-chromium_mine = IndustryType:new{ ref_name = "chromium_mine", name = _("Chromium mine") }
-chromium_mine:register()
-chromium_mine:add_output(chromium)
 
 iron_mine = IndustryType:new{ ref_name = "iron_mine", name = _("Iron mine") }
 iron_mine:register()
@@ -91,76 +79,35 @@ sulfur_mine = IndustryType:new{ ref_name = "sulfur_mine", name = _("Sulfur mine"
 sulfur_mine:register()
 sulfur_mine:add_output(sulfur)
 
-titanium_mine = IndustryType:new{ ref_name = "titanium_mine", name = _("Titanium mine") }
-titanium_mine:register()
-titanium_mine:add_output(titanium)
+silver_mine = IndustryType:new{ ref_name = "silver_mine", name = _("Silver mine") }
+silver_mine:register()
+silver_mine:add_output(silver)
 
 -- Secondary sector industries (now the fun begins)
-chair_manufacturer = IndustryType:new{ ref_name = "chair_manufacturer", name = _("Chair manufacturer") }
-chair_manufacturer:register()
-chair_manufacturer:add_input(timber)
-chair_manufacturer:add_output(chair)
-
-bed_manufacturer = IndustryType:new{ ref_name = "bed_manufacturer", name = _("Bed manufacturer") }
-bed_manufacturer:register()
-bed_manufacturer:add_input(timber)
-bed_manufacturer:add_output(bed)
-
-carbon_destroyer = IndustryType:new{ ref_name = "carbon_destroyer", name = _("Carbon destroyer") }
-carbon_destroyer:register()
-carbon_destroyer:add_input(coal)
-carbon_destroyer:add_output(charcoal)
-
-gunpowder_mixer = IndustryType:new{ ref_name = "gunpowder_mixer", name = _("Gunpowder mixer") }
-gunpowder_mixer:register()
-gunpowder_mixer:add_input(sulfur)
-gunpowder_mixer:add_input(charcoal)
-gunpowder_mixer:add_output(gunpowder)
-
-stainless_steel_smelter = IndustryType:new{ ref_name = "stainless_steel_smelter", name = _("Stainless steel smelter") }
-stainless_steel_smelter:register()
-stainless_steel_smelter:add_input(iron)
-stainless_steel_smelter:add_input(chromium)
-stainless_steel_smelter:add_output(stainless_steel)
-
-brass_smelter = IndustryType:new{ ref_name = "brass_smelter", name = _("Brass smelter") }
-brass_smelter:register()
-brass_smelter:add_input(copper)
-brass_smelter:add_input(zinc)
-brass_smelter:add_output(brass)
-
 iron_smelter = IndustryType:new{ ref_name = "iron_smelter", name = _("Iron smelter") }
 iron_smelter:register()
 iron_smelter:add_input(iron)
 iron_smelter:add_input(coal)
 iron_smelter:add_output(steel)
 
-musket_factory = IndustryType:new{ ref_name = "musket_factory", name = _("Musket factory") }
-musket_factory:register()
-musket_factory:add_input(timber)
-musket_factory:add_input(brass)
-musket_factory:add_input(stainless_steel)
-musket_factory:add_input(ammunition)
-musket_factory:add_output(musket)
-
-machinegun_factory = IndustryType:new{ ref_name = "machinegun_factory", name = _("Machinegun factory") }
-machinegun_factory:register()
-machinegun_factory:add_input(brass)
-machinegun_factory:add_input(stainless_steel)
-machinegun_factory:add_input(ammunition)
-machinegun_factory:add_input(coal)
-machinegun_factory:add_input(musket)
-machinegun_factory:add_output(machinegun)
-
 ammunition_factory = IndustryType:new{ ref_name = "ammunition_factory", name = _("Ammunition factory") }
 ammunition_factory:register()
-ammunition_factory:add_input(gunpowder)
+ammunition_factory:add_input(sulfur)
 ammunition_factory:add_input(coal)
+ammunition_factory:add_input(steel)
 ammunition_factory:add_output(ammunition)
+
+arms_factory = IndustryType:new{ ref_name = "arms_factory", name = _("Arms factory") }
+arms_factory:register()
+arms_factory:add_input(timber)
+arms_factory:add_input(ammunition)
+arms_factory:add_output(arms)
 
 sails_factory = IndustryType:new{ ref_name = "sails_factory", name = _("Sails factory") }
 sails_factory:register()
-sails_factory:add_input(textile)
+sails_factory:add_input(dye)
+sails_factory:add_input(timber)
+sails_factory:add_input(fabric)
 sails_factory:add_output(sail)
 
 -- Food factories
