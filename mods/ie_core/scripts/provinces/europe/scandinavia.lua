@@ -172,6 +172,7 @@ for k, v in pairs(sweden_provinces_list) do
     province:add_nucleus(sweden)
     province:add_nucleus(scandinavia)
     province:give_to(sweden)
+    province:set_terrain(plains)
 end
 
 --------------------------------------------------------------
@@ -221,6 +222,7 @@ for k, v in pairs(finland_provinces_list) do
     province:add_nucleus(russia)
     province:add_nucleus(scandinavia)
     province:give_to(russia)
+    province:set_terrain(plains)
 end
 
 province = Province:new{ ref_name = "aland", color = 0x2dffd1 }
@@ -287,4 +289,5 @@ for k, v in pairs(norway_provinces_list) do
     province:add_nucleus(norway)
     province:add_nucleus(scandinavia)
     province:give_to(sweden)
+    province:set_terrain(plains)
 end

@@ -74,7 +74,6 @@ for k, v in pairs(brazil_provinces_list) do
     province:add_pop(burgeoise, brazilian, catholic, 5000, 0.2)
     province:add_pop(clergymen, brazilian, catholic, 5000, 0.3)
     province:add_pop(laborer, brazilian, catholic, 5000, 0.2)
-    province:add_pop(burgeoise, brazilian, catholic, 500, 0.9)
     province:add_pop(slave, brazilian, catholic, 500, 0.5)
     province:add_nucleus(brazil)
     province:give_to(brazil)

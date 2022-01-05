@@ -101,6 +101,10 @@ local france_provinces_list = {
     { ref_name = "province_a0fcff00", name = _("Unknown"), color = 0xfffca0 },
     { ref_name = "province_a0063b00", name = _("Unknown"), color = 0x3b06a0 },
     { ref_name = "province_ffe50000", name = _("Unknown"), color = 0x00e5ff },
+
+    -- Uncategorized but registered
+    { ref_name = "lille", name = _("Lille"), color = 0x842ba0 },
+    { ref_name = "nord_pas_de_calais", name = _("Nord-Pas-De-Calais"), color = 0x368880 },
 }
 for k, v in pairs(france_provinces_list) do
     province = Province:new(v)
@@ -114,45 +118,14 @@ for k, v in pairs(france_provinces_list) do
     province:add_pop(soldier, french, catholic, 8000, 0.8)
     province:add_pop(craftsmen, french, catholic, 5000, 0.9)
     province:add_pop(bureaucrat, french, catholic, 5000, 0.9)
-    province:add_pop(burgeoise, french, catholic, 5000, 0.9)
+    province:add_pop(burgeoise, french, catholic, 800, 0.9)
     province:add_pop(clergymen, french, catholic, 5000, 0.9)
     province:add_pop(laborer, french, catholic, 50000, 0.8)
-    province:add_pop(burgeoise, french, catholic, 800, 0.9)
     province:add_nucleus(france)
     province:give_to(france)
     province:set_terrain(plains)
 end
 
---Lille
-province = Province:new{ ref_name = "lille", color = 0x842ba0 }
-province.name = _("Lille")
-province:register()
-province:add_pop(artisan, french, christian, 5000, 0.9)
-province:add_pop(farmer, french, christian, 40000, 0.8)
-province:add_pop(soldier, french, christian, 8000, 0.8)
-province:add_pop(craftsmen, french, christian, 5000, 0.9)
-province:add_pop(bureaucrat, french, christian, 5000, 0.9)
-province:add_pop(burgeoise, french, christian, 5000, 0.9)
-province:add_pop(clergymen, french, christian, 5000, 0.9)
-province:add_pop(laborer, french, christian, 50000, 0.8)
-province:add_pop(burgeoise, french, christian, 800, 0.9)
-province:add_nucleus(france)
-province:give_to(france)
---Nord-Pas-De-Calais
-province = Province:new{ ref_name = "nord_pas_de_calais", color = 0x368880 }
-province.name = _("Nord-Pas-De-Calais")
-province:register()
-province:add_pop(artisan, french, christian, 5000, 0.9)
-province:add_pop(farmer, french, christian, 40000, 0.8)
-province:add_pop(soldier, french, christian, 8000, 0.8)
-province:add_pop(craftsmen, french, christian, 5000, 0.9)
-province:add_pop(bureaucrat, french, christian, 5000, 0.9)
-province:add_pop(burgeoise, french, christian, 5000, 0.9)
-province:add_pop(clergymen, french, christian, 5000, 0.9)
-province:add_pop(laborer, french, christian, 50000, 0.8)
-province:add_pop(burgeoise, french, christian, 800, 0.9)
-province:add_nucleus(france)
-province:give_to(france)
 --Oise
 province = Province:new{ ref_name = "oise", color = 0x7a05bc }
 province.name = _("Oise")

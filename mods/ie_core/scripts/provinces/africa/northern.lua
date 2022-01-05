@@ -55,7 +55,6 @@ for k, v in pairs(tunis_provinces_list) do
     province:add_pop(burgeoise, arabic, islamic, 25, 0.5)
     province:add_pop(clergymen, arabic, islamic, 10, 0.6)
     province:add_pop(laborer, arabic, islamic, 1000, 0.5)
-    province:add_pop(burgeoise, arabic, islamic, 5, 0.9)
     province:add_nucleus(arabia)
     province:add_nucleus(tunis)
     province:give_to(tunis)

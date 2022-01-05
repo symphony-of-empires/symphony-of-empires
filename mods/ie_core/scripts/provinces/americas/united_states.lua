@@ -78,7 +78,7 @@ local usa_provinces = {
 for k, v in pairs(usa_provinces) do
     province = Province:new(v)
     province:register()
-
+    province:add_industry(wheat_farm, united_states)
     province:add_pop(artisan, Culture:get("american"), protestant, 500, 0.7)
     province:add_pop(farmer, Culture:get("american"), protestant, 500, 0.1)
     province:add_pop(soldier, Culture:get("american"), protestant, 500, 0.2)
@@ -87,12 +87,10 @@ for k, v in pairs(usa_provinces) do
     province:add_pop(burgeoise, Culture:get("american"), protestant, 500, 0.2)
     province:add_pop(clergymen, Culture:get("american"), protestant, 500, 0.3)
     province:add_pop(laborer, Culture:get("american"), protestant, 500, 0.2)
-    province:add_pop(burgeoise, Culture:get("american"), protestant, 500, 0.9)
     province:add_pop(slave, Culture:get("american"), protestant, 500, 0.5)
-
     province:add_nucleus(united_states)
     province:give_to(united_states)
-    province:add_industry(wheat_farm, united_states)
+    province:set_terrain(plains)
 end
 
 -- Uncolonized part of the mainland USA should be added as a nucleus after "manifest destiny"
@@ -129,7 +127,7 @@ local uncolonized_us_provinces = {
 for k, v in pairs(uncolonized_us_provinces) do
     province = Province:new(v)
     province:register()
-
+    province:add_industry(wheat_farm, united_states)
     province:add_pop(artisan, Culture:get("american"), christian, 500, 0.7)
     province:add_pop(farmer, Culture:get("american"), christian, 500, 0.1)
     province:add_pop(soldier, Culture:get("american"), christian, 500, 0.2)
@@ -138,11 +136,9 @@ for k, v in pairs(uncolonized_us_provinces) do
     province:add_pop(burgeoise, Culture:get("american"), christian, 500, 0.2)
     province:add_pop(clergymen, Culture:get("american"), christian, 500, 0.3)
     province:add_pop(laborer, Culture:get("american"), christian, 500, 0.2)
-    province:add_pop(burgeoise, Culture:get("american"), christian, 500, 0.9)
     province:add_pop(slave, Culture:get("american"), christian, 500, 0.5)
-
     province:give_to(united_states)
-    province:add_industry(wheat_farm, united_states)
+    province:set_terrain(plains)
 end
 
 -- Texas provinces (originally part of Mexico and then is conquered by the U.S on event)
@@ -157,7 +153,7 @@ local texas_provinces = {
 for k, v in pairs(texas_provinces) do
     province = Province:new(v)
     province:register()
-
+    province:add_industry(wheat_farm, mexico)
     province:add_pop(artisan, Culture:get("american"), christian, 500, 0.7)
     province:add_pop(farmer, Culture:get("american"), christian, 500, 0.1)
     province:add_pop(soldier, Culture:get("american"), christian, 500, 0.2)
@@ -166,8 +162,6 @@ for k, v in pairs(texas_provinces) do
     province:add_pop(burgeoise, Culture:get("american"), christian, 500, 0.2)
     province:add_pop(clergymen, Culture:get("american"), christian, 500, 0.3)
     province:add_pop(laborer, Culture:get("american"), christian, 500, 0.2)
-    province:add_pop(burgeoise, Culture:get("american"), christian, 500, 0.9)
-
     province:add_pop(artisan, mexican, catholic, 500, 0.7)
     province:add_pop(farmer, mexican, catholic, 500, 0.1)
     province:add_pop(soldier, mexican, catholic, 500, 0.2)
@@ -176,13 +170,11 @@ for k, v in pairs(texas_provinces) do
     province:add_pop(burgeoise, mexican, catholic, 500, 0.2)
     province:add_pop(clergymen, mexican, catholic, 500, 0.3)
     province:add_pop(laborer, mexican, catholic, 500, 0.2)
-    province:add_pop(burgeoise, mexican, catholic, 500, 0.9)
-
     province:add_nucleus(mexico)
     province:add_nucleus(texas)
     province:add_nucleus(united_states)
     province:give_to(mexico)
-    province:add_industry(wheat_farm, mexico)
+    province:set_terrain(plains)
 end
 
 province = Province:new{ ref_name = "nevada", color = rgb(157, 122, 255) }

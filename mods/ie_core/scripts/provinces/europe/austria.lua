@@ -163,7 +163,6 @@ for k, v in pairs(austria_provinces_list) do
     province:add_pop(burgeoise, german, catholic, 5000, 0.9)
     province:add_pop(clergymen, german, catholic, 5000, 0.9)
     province:add_pop(laborer, german, catholic, 50000, 0.8)
-    province:add_pop(burgeoise, german, catholic, 800, 0.9)
     province:add_nucleus(austria)
     province:give_to(austria)
     province:set_terrain(plains)

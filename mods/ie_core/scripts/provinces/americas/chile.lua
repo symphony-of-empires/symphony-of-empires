@@ -46,7 +46,9 @@ local chile_owned_provinces_list = {
 for k, v in pairs(chile_owned_provinces_list) do
     province = Province:new(v)
     province:register()
-
+    province:add_industry(coal_mine, chile)
+    province:add_industry(copper_mine, chile)
+    province:add_industry(iron_mine, chile)
     province:add_pop(artisan, Culture:get("chilean"), catholic, 2000, 0.8)
     province:add_pop(farmer, Culture:get("chilean"), catholic, 8000, 0.5)
     province:add_pop(soldier, Culture:get("chilean"), catholic, 1000, 0.6)
@@ -55,14 +57,9 @@ for k, v in pairs(chile_owned_provinces_list) do
     province:add_pop(burgeoise, Culture:get("chilean"), catholic, 100, 0.8)
     province:add_pop(clergymen, Culture:get("chilean"), catholic, 1000, 0.5)
     province:add_pop(laborer, Culture:get("chilean"), catholic, 1000, 0.5)
-    province:add_pop(burgeoise, Culture:get("chilean"), catholic, 50, 0.9)
-
     province:add_nucleus(argentina)
     province:add_nucleus(chile)
     province:give_to(chile)
-    province:add_industry(coal_mine, chile)
-    province:add_industry(copper_mine, chile)
-    province:add_industry(iron_mine, chile)
 end
 chile:set_capital(Province:get("santiago"))
 
@@ -80,7 +77,8 @@ local mapuche_owned_provinces_list = {
 for k, v in pairs(mapuche_owned_provinces_list) do
     province = Province:new(v)
     province:register()
-
+    province:add_industry(coal_mine, Nation:get("mapuche"))
+    province:add_industry(copper_mine, Nation:get("mapuche"))
     province:add_pop(artisan, Culture:get("mapuche"), Religion:get("mapuche"), 2000, 0.8)
     province:add_pop(farmer, Culture:get("mapuche"), Religion:get("mapuche"), 8000, 0.5)
     province:add_pop(soldier, Culture:get("mapuche"), Religion:get("mapuche"), 1000, 0.6)
@@ -89,12 +87,8 @@ for k, v in pairs(mapuche_owned_provinces_list) do
     province:add_pop(burgeoise, Culture:get("mapuche"), Religion:get("mapuche"), 100, 0.8)
     province:add_pop(clergymen, Culture:get("mapuche"), Religion:get("mapuche"), 1000, 0.5)
     province:add_pop(laborer, Culture:get("mapuche"), Religion:get("mapuche"), 1000, 0.5)
-    province:add_pop(burgeoise, Culture:get("mapuche"), Religion:get("mapuche"), 50, 0.9)
-    
     province:add_nucleus(argentina)
     province:add_nucleus(chile)
     province:add_nucleus(Nation:get("mapuche"))
     province:give_to(Nation:get("mapuche"))
-    province:add_industry(coal_mine, Nation:get("mapuche"))
-    province:add_industry(copper_mine, Nation:get("mapuche"))
 end
