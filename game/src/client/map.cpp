@@ -153,18 +153,18 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
     const float n_steps = 8.f; // Resolution of flag in one side (in vertices)
     const float step = 90.f; // Steps per vertice
 
-    auto flag = UnifiedRender::OpenGL::PackedModel<glm::vec3, glm::vec2>(GL_TRIANGLE_STRIP);
+    auto flag = UnifiedRender::Mesh<glm::vec3, glm::vec2>(UnifiedRender::MeshMode::TRIANGLE_STRIP);
     for(float r = 0.f; r <= (n_steps * step); r += step) {
         float sin_r = (sin(r + wind_osc) / 24.f);
 
         sin_r = sin(r + wind_osc) / 24.f;
-        flag.buffer.push_back(UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2>(
+        flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
         ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
-        flag.buffer.push_back(UnifiedRender::OpenGL::PackedData<glm::vec3, glm::vec2>(
+        flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
         ));

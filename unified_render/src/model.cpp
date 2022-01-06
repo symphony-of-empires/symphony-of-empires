@@ -79,8 +79,8 @@ GLuint UnifiedRender::OpenGL::VBO::get_id(void) const {
 //
 // Simple model
 //
-UnifiedRender::SimpleModel::SimpleModel(GLint _mode)
-    : UnifiedRender::OpenGL::PackedModel<glm::vec3, glm::vec2>(_mode)
+UnifiedRender::SimpleModel::SimpleModel(enum UnifiedRender::MeshMode _mode)
+    : UnifiedRender::Mesh<glm::vec3, glm::vec2>(_mode)
 {
 
 }
@@ -101,24 +101,7 @@ void UnifiedRender::SimpleModel::draw(const UnifiedRender::OpenGL::Program& shad
     }
 
     vao.bind();
-    glDrawArrays(mode, 0, buffer.size());
-}
-
-void UnifiedRender::SimpleModel::upload(void) {
-    if(buffer.empty()) {
-        return;
-    }
-
-    vao.bind();
-    vbo.bind(GL_ARRAY_BUFFER);
-    glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
-
-    // Vertices
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
-    glEnableVertexAttribArray(0);
-    // Texcoords
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
 }
 
 //
@@ -143,27 +126,19 @@ const UnifiedRender::SimpleModel& UnifiedRender::ModelManager::load_simple(const
     return *((const SimpleModel *)nullptr);
 }
 
-struct WavefrontFace {
-public:
-    WavefrontFace() {};
-    ~WavefrontFace() {};
-
-    // Indexes to the actual points
-    std::vector<int> vertices, texcoords, normals;
-};
-
-struct WavefrontObj {
-public:
-    WavefrontObj(const std::string& _name) : name(_name) {};
-    ~WavefrontObj() {};
-
-    std::string name;
-
-    std::vector<WavefrontFace> faces;
-    const UnifiedRender::Material* material = nullptr;
-};
-
 const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const std::string& path) {
+    struct WavefrontFace {
+        // Indexes to the actual points
+        std::vector<int> vertices, texcoords, normals;
+    };
+
+    struct WavefrontObj {
+        WavefrontObj(const std::string& _name) : name(_name) {};
+        std::string name;
+        std::vector<WavefrontFace> faces;
+        const UnifiedRender::Material* material = nullptr;
+    };
+
     std::ifstream file(path);
     std::string line;
 
@@ -268,33 +243,51 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
 
     // Convert objects into (UnifiedRender) simple objects so we can now use them
     UnifiedRender::Model* final_model = new UnifiedRender::Model();
-    for(const auto& obj: objects) {
-        // Register each simple object to the model manager
-        for(const auto& face: obj.faces) {
-            UnifiedRender::SimpleModel* model = new UnifiedRender::SimpleModel(GL_TRIANGLE_FAN);
+    for(std::vector<WavefrontObj>::const_iterator obj = objects.begin(); obj != objects.end(); obj++) {
+        // Fill up the trigonometric buffers, we will first read all the faces and make them separate
+        std::vector<std::vector<UnifiedRender::MeshData<glm::vec3, glm::vec2>>> clusters{};
+        for(std::vector<WavefrontFace>::const_iterator face = (*obj).faces.begin(); face != (*obj).faces.end(); face++) {
+            std::vector<UnifiedRender::MeshData<glm::vec3, glm::vec2>> cluster{};
 
             // The faces dictate indices for the vertices and we will also subtract 1 because the indexing is 0 based
-            if(face.vertices.size() == face.texcoords.size()) {
-                for(unsigned int i = 0; i < face.vertices.size(); i++) {
-                    model->buffer.push_back(UnifiedRender::OpenGL::PackedData(
-                        glm::vec3(vertices[face.vertices[i] - 1]),
-                        glm::vec2(texcoords[face.texcoords[i] - 1])
+            if((*face).vertices.size() == (*face).texcoords.size()) {
+                for(unsigned int i = 0; i < (*face).vertices.size(); i++) {
+                    cluster.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
+                        glm::vec3(vertices[(*face).vertices[i] - 1]),
+                        glm::vec2(texcoords[(*face).texcoords[i] - 1])
                     ));
                 }
             } else {
-                for(unsigned int i = 0; i < face.vertices.size(); i++) {
-                    model->buffer.push_back(UnifiedRender::OpenGL::PackedData(
-                        glm::vec3(vertices[face.vertices[i] - 1]),
+                for(unsigned int i = 0; i < (*face).vertices.size(); i++) {
+                    cluster.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
+                        glm::vec3(vertices[(*face).vertices[i] - 1]),
                         glm::vec2(0.f, 0.f)
                     ));
                 }
             }
+            clusters.push_back(cluster);
+        }
 
+        // TODO: This can be optimized even more
+
+        // Now it's time to merge it all into a single mesh
+
+        // It's time to merge clusters which share triangle nodes, in such case we reorganize the triangles so they
+        // are to "follow" the triangle fan
+        std::vector<std::vector<UnifiedRender::MeshData<glm::vec3, glm::vec2>>>::const_iterator cluster;
+        for(cluster = clusters.begin(); cluster != clusters.end(); cluster++) {
+            UnifiedRender::SimpleModel* model = new UnifiedRender::SimpleModel(UnifiedRender::MeshMode::TRIANGLE_FAN);
+
+            std::vector<UnifiedRender::MeshData<glm::vec3, glm::vec2>>::const_iterator v1;
+            for(v1 = (*cluster).begin(); v1 != (*cluster).end(); v1++) {
+                model->buffer.push_back(*v1);
+            }
+            
             print_info("Created new SimpleModel with %zu vertices", model->buffer.size());
-            model->material = obj.material;
+            model->material = (*obj).material;
             model->upload();
 
-            simple_models.insert(std::make_pair(model, obj.name));
+            simple_models.insert(std::make_pair(model, (*obj).name));
             final_model->simple_models.push_back(model);
         }
     }
@@ -307,7 +300,7 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_stl(const std::str
     std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(file), {});
 
     UnifiedRender::Model* final_model = new UnifiedRender::Model();
-    UnifiedRender::SimpleModel* model = new UnifiedRender::SimpleModel(GL_TRIANGLES);
+    UnifiedRender::SimpleModel* model = new UnifiedRender::SimpleModel(UnifiedRender::MeshMode::TRIANGLES);
 
     // TODO: This needs more work
     // 1. we need little endian reading
@@ -325,7 +318,7 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_stl(const std::str
         memcpy(&vert.y, &buffer[88 + i * (sizeof(float) * 3)], sizeof(float));
         memcpy(&vert.z, &buffer[92 + i * (sizeof(float) * 3)], sizeof(float));
 
-        model->buffer.push_back(UnifiedRender::OpenGL::PackedData(
+        model->buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(vert),
             glm::vec2(0.f, 0.f)
         ));
