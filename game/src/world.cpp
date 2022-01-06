@@ -23,8 +23,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "diplomacy.hpp"
-#include "policy.hpp"
+#include <filesystem>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -33,26 +32,24 @@
 #ifndef _MSC_VER
 #	include <sys/cdefs.h>
 #endif
-#include <libintl.h>
-#include <locale.h>
 
+#include "io_impl.hpp"
 #include "province.hpp"
-#include "server/economy.hpp"
 #include "world.hpp"
-#include "unified_render/binary_image.hpp"
+#include "diplomacy.hpp"
+#include "policy.hpp"
 #include "server/lua_api.hpp"
+#include "server/server_network.hpp"
+#include "action.hpp"
+#include "server/economy.hpp"
+
+#include "unified_render/binary_image.hpp"
 #include "unified_render/path.hpp"
 #include "unified_render/log.hpp"
 #include "unified_render/serializer.hpp"
 #include "unified_render/state.hpp"
-#include "io_impl.hpp"
-#include "server/server_network.hpp"
 #include "unified_render/byteswap.hpp"
-
-#include "action.hpp"
-#include "server/economy.hpp"
-
-#include <filesystem>
+#include "unified_render/locale.hpp"
 
 #if (__cplusplus < 201703L)
 namespace std {
@@ -234,10 +231,10 @@ World::World() {
         return 1;
     });
 
+    // No translation is done
     lua_register(lua, "_", [](lua_State* L) {
         std::string msgid = luaL_checkstring(L, 1);
-        std::string end_msg = gettext(msgid.c_str());
-        lua_pushstring(L, end_msg.c_str());
+        lua_pushstring(L, msgid.c_str());
         return 1;
     });
 
@@ -428,7 +425,7 @@ void World::load_initial(void) {
     lua_exec_all_of(*this, init_files);
 
     // Shrink normally-not-resized vectors to give back memory to the OS
-    UnifiedRender::Log::debug("game", gettext("Shrink normally-not-resized vectors to give back memory to the OS"));
+    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Shrink normally-not-resized vectors to give back memory to the OS"));
     provinces.shrink_to_fit();
     nations.shrink_to_fit();
     goods.shrink_to_fit();
@@ -441,7 +438,7 @@ void World::load_initial(void) {
 
     // Build a lookup table for super fast speed on finding provinces
     // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-    UnifiedRender::Log::debug("game", gettext("Building the province lookup table"));
+    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Building the province lookup table"));
     std::vector<Province::Id> province_color_table(16777216, (Province::Id)-1);
     for(auto& province : provinces) {
         province_color_table[province->color & 0xffffff] = get_id(province);
@@ -557,7 +554,7 @@ void World::load_initial(void) {
     if(recalc_province) {
         // Uncomment this and see a bit more below
         std::set<uint32_t> colors_found;
-        UnifiedRender::Log::debug("game", gettext("Associate tiles with provinces"));
+        UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Associate tiles with provinces"));
         for(size_t i = 0; i < total_size; ) {
             const Province::Id province_id = province_color_table[div->buffer.get()[i] & 0xffffff];
             if(province_id == (Province::Id)-1) {
@@ -589,7 +586,7 @@ void World::load_initial(void) {
         }
 
         // Calculate the edges of the province (min and max x and y coordinates)
-        UnifiedRender::Log::debug("game", gettext("Calculate the edges of the province (min and max x and y coordinates)"));
+        UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Calculate the edges of the province (min and max x and y coordinates)"));
         for(size_t j = 0; j < height; j++) {
             for(size_t i = 0; i < width; i++) {
                 Tile& tile = get_tile(i, j);
@@ -607,7 +604,7 @@ void World::load_initial(void) {
         }
 
         // Correct stuff from provinces
-        UnifiedRender::Log::debug("game", gettext("Correcting values for provinces"));
+        UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Correcting values for provinces"));
         for(auto& province : provinces) {
             province->max_x = std::min(width, province->max_x);
             province->max_y = std::min(height, province->max_y);
@@ -617,7 +614,7 @@ void World::load_initial(void) {
         }
 
         // Neighbours
-        UnifiedRender::Log::debug("game", gettext("Creating neighbours for provinces"));
+        UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Creating neighbours for provinces"));
         for(size_t i = 0; i < total_size; i++) {
             const Tile* tile = &this->tiles[i];
 
@@ -651,12 +648,12 @@ void World::load_initial(void) {
     }
 
     // Create diplomatic relations between nations
-    UnifiedRender::Log::debug("game", gettext("Creating diplomatic relations"));
+    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Creating diplomatic relations"));
     for(const auto& nation : this->nations) {
         // Relations between nations start at 0 (and latter modified by lua scripts)
         nation->relations.resize(this->nations.size(), NationRelation{ -100.f, false, false, false, false, false, false, false, false, true, false });
     }
-    UnifiedRender::Log::debug("game", gettext("World partially intiialized"));
+    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("World partially intiialized"));
 }
 
 void World::load_mod(void) {
@@ -686,7 +683,7 @@ void World::load_mod(void) {
         policy.industry_tax = 0.1f;
         policy.foreign_trade = true;
     }
-    UnifiedRender::Log::debug("game", gettext("World fully intiialized"));
+    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("World fully intiialized"));
 }
 
 void World::do_tick() {

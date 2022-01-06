@@ -37,6 +37,7 @@
 #include "client/ui/progress_bar.hpp"
 #include "client/ui/tooltip.hpp"
 #include "client/ui/close_button.hpp"
+#include "unified_render/locale.hpp"
 
 using namespace Interface;
 
@@ -166,7 +167,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
     this->province_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
         if(o.building->get_province() != nullptr) {
-            w.text(o.building->get_province()->name);
+            w.text(UnifiedRender::Locale::translate(o.building->get_province()->name));
         }
     });
     this->province_lab->on_each_tick(*this->province_lab, nullptr);
@@ -175,7 +176,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
     this->name_lab->right_side_of(*this->province_lab);
     this->name_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
-        w.text((o.building->working_unit_type != nullptr) ? o.building->working_unit_type->name : "No unit");
+        w.text((o.building->working_unit_type != nullptr) ? UnifiedRender::Locale::translate(o.building->working_unit_type->name) : "No unit");
     });
     this->name_lab->on_each_tick(*this->name_lab, nullptr);
 
@@ -197,7 +198,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
             full += full_req.second;
             needed += need_req.second;
 
-            text += std::to_string(need_req.second) + " of " + need_req.first->name + " (has " + std::to_string(full_req.second) + "), ";
+            text += std::to_string(need_req.second) + " of " + UnifiedRender::Locale::translate(need_req.first->name) + " (has " + std::to_string(full_req.second) + "), ";
         }
 
         ((UI::ProgressBar&)w).value = (float)full / (float)needed;
@@ -282,7 +283,7 @@ ArmyView::ArmyView(GameState& _gs)
         o.select_unit_tab->is_render = false;
     });
     army_ibtn->tooltip = new UI::Tooltip(army_ibtn, 512, 24);
-    army_ibtn->tooltip->text("Army");
+    army_ibtn->tooltip->text(UnifiedRender::Locale::translate("Army"));
 
     this->airforce_tab = new ArmyAirforceTab(gs, 0, 32, this);
     this->airforce_tab->is_render = false;
@@ -299,7 +300,7 @@ ArmyView::ArmyView(GameState& _gs)
         o.select_unit_tab->is_render = false;
     });
     airforce_ibtn->tooltip = new UI::Tooltip(airforce_ibtn, 512, 24);
-    airforce_ibtn->tooltip->text("Airforce");
+    airforce_ibtn->tooltip->text(UnifiedRender::Locale::translate("Airforce"));
 
     this->navy_tab = new ArmyNavyTab(gs, 0, 32, this);
     this->navy_tab->is_render = false;
@@ -316,7 +317,7 @@ ArmyView::ArmyView(GameState& _gs)
         o.select_unit_tab->is_render = false;
     });
     navy_ibtn->tooltip = new UI::Tooltip(navy_ibtn, 512, 24);
-    navy_ibtn->tooltip->text("Navy");
+    navy_ibtn->tooltip->text(UnifiedRender::Locale::translate("Navy"));
 
     this->production_tab = new ArmyProductionTab(gs, 0, 32, this);
     this->production_tab->is_render = false;
@@ -333,7 +334,7 @@ ArmyView::ArmyView(GameState& _gs)
         o.select_unit_tab->is_render = false;
     });
     production_ibtn->tooltip = new UI::Tooltip(production_ibtn, 512, 24);
-    production_ibtn->tooltip->text("Production");
+    production_ibtn->tooltip->text(UnifiedRender::Locale::translate("Production"));
 
     this->new_unit_tab = new ArmyNewUnitTab(gs, 0, 32, this);
     this->new_unit_tab->is_render = false;
@@ -350,7 +351,7 @@ ArmyView::ArmyView(GameState& _gs)
         o.select_unit_tab->is_render = false;
     });
     new_unit_ibtn->tooltip = new UI::Tooltip(new_unit_ibtn, 512, 24);
-    new_unit_ibtn->tooltip->text("New unit");
+    new_unit_ibtn->tooltip->text(UnifiedRender::Locale::translate("New unit"));
 
     // Hidden - only rendered on invokation and does not store state on the View directly
     // rather it stores it on the new_unit_tab
@@ -359,7 +360,7 @@ ArmyView::ArmyView(GameState& _gs)
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
     close_btn->right_side_of(*new_unit_ibtn);
-    close_btn->text("Close");
+    close_btn->text(UnifiedRender::Locale::translate("Close"));
     close_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyView&>(*w.parent);
         o.gs.right_side_panel->kill();

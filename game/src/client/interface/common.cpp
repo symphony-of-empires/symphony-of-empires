@@ -46,6 +46,8 @@
 #include "client/ui/tooltip.hpp"
 #include "client/ui/progress_bar.hpp"
 
+#include "unified_render/locale.hpp"
+
 using namespace Interface;
 
 UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* parent)
@@ -56,7 +58,7 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* pa
     text(std::to_string(unit->size) + " " + unit->type->name);
     on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<UnitButton&>(*w.parent);
-        w.text(std::to_string(o.unit->size) + " " + o.unit->type->name);
+        w.text(std::to_string(o.unit->size) + " " + UnifiedRender::Locale::translate(o.unit->type->name));
     });
 }
 
@@ -83,7 +85,9 @@ ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province
     text(province->name);
     on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceButton&>(w);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+            return;
+        }
         w.text(o.province->name);
     });
 }
@@ -99,7 +103,9 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
     this->flag_icon->current_texture = &gs.get_nation_flag(*nation);
     this->flag_icon->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationButton&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+            return;
+        }
         w.current_texture = &o.gs.get_nation_flag(*o.nation);
     });
 
@@ -108,8 +114,10 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
     this->name_btn->text(nation->get_client_hint().alt_name);
     this->name_btn->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationButton&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
-        w.text(o.nation->get_client_hint().alt_name);
+        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+            return;
+        }
+        w.text(UnifiedRender::Locale::translate(o.nation->get_client_hint().alt_name));
     });
 }
 
@@ -174,13 +182,13 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
         }
 
         if(o.gs.curr_nation->can_research(o.technology)) {
-            w.tooltip->text("We can research this");
+            w.tooltip->text(UnifiedRender::Locale::translate("We can research this"));
         } else {
             std::string text = "";
-            text = "We can't research this because we don't have ";
+            text = UnifiedRender::Locale::translate("We can't research this because we don't have ");
             for(const auto& req_tech : o.technology->req_technologies) {
                 if(o.gs.curr_nation->research[o.gs.world->get_id(req_tech)] > 0.f) {
-                    text += req_tech->name + ", ";
+                    text += UnifiedRender::Locale::translate(req_tech->name) + ", ";
                 }
             }
             w.tooltip->text(text);
@@ -221,26 +229,25 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
 
     this->culture_btn = new UI::Button(0, 0, 128, 24, this);
     this->culture_btn->right_side_of(*this->religion_btn);
-
-    if(index < province->pops.size()) {
-        const Pop& pop = province->pops[index];
-        this->size_btn->text(std::to_string(pop.size));
-        this->budget_btn->text(std::to_string(pop.budget));
-        this->religion_btn->text(pop.religion->name);
-        this->culture_btn->text(pop.culture->name);
-    }
+    
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PopInfo&>(w);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
-        if(o.index >= o.province->pops.size()) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+            return;
+        }
+
+        if(o.index >= o.province->pops.size()) {
+            return;
+        }
 
         const Pop& pop = o.province->pops[o.index];
         o.size_btn->text(std::to_string(pop.size));
         o.budget_btn->text(std::to_string(pop.budget / pop.size));
         o.budget_btn->tooltip->text("Total of " + std::to_string(pop.budget));
-        o.religion_btn->text(pop.religion->name);
-        o.culture_btn->text(pop.culture->name);
+        o.religion_btn->text(UnifiedRender::Locale::translate(pop.religion->name));
+        o.culture_btn->text(UnifiedRender::Locale::translate(pop.culture->name));
     });
+    this->on_each_tick(*this, nullptr);
 }
 
 ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Widget* parent)
@@ -285,20 +292,25 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
         auto& o = static_cast<ProductInfo&>(w);
 
         // Only update every ticks_per_month ticks
-        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+            return;
+        }
 
         o.price_chart->data.push_back(o.product->price);
-        if(o.price_chart->data.size() >= 30)
+        if(o.price_chart->data.size() >= 30) {
             o.price_chart->data.pop_back();
+        }
         o.price_chart->text(std::to_string(o.product->price));
         
         o.supply_chart->data.push_back(o.product->supply);
-        if(o.supply_chart->data.size() >= 30)
+        if(o.supply_chart->data.size() >= 30) {
             o.supply_chart->data.pop_back();
+        }
 
         o.demand_chart->data.push_back(o.product->demand);
-        if(o.demand_chart->data.size() >= 30)
+        if(o.demand_chart->data.size() >= 30) {
             o.demand_chart->data.pop_back();
+        }
         
         o.price_rate_btn->text(std::to_string(o.product->price_vel));
 
