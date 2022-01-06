@@ -32,7 +32,7 @@ add_library(unified_render SHARED ${MAIN_SOURCES})
 # Linking
 #
 IF(WIN32)
-	target_link_libraries(unified_render PUBLIC glew32 opengl32 glu32 ws2_32 winpthread intl wsock32)
+	target_link_libraries(unified_render PUBLIC glew32 opengl32 glu32 ws2_32 winpthread wsock32)
 ELSE()
 	target_link_libraries(unified_render PUBLIC GL GLU GLEW SDL2main)
 ENDIF()
