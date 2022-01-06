@@ -475,8 +475,38 @@ void main_loop(GameState& gs) {
     world_th.join();
 }
 
+#include "unified_render/locale.hpp"
 void start_client(int, char**) {
     GameState gs{};
+
+    if(1) {
+        FILE* fp = fopen(Path::get("locale/ro/main.po").c_str(), "rt");
+        if(fp != nullptr) {
+            char* tmp = new char[1000];
+            while(fgets(tmp, 1000, fp) != nullptr) {
+                if(!strncmp(tmp, "msgid", 5)) {
+                    char* msgid = new char[100];
+                    sscanf(tmp + 5, " %*c%[^\"]s%*c ", msgid);
+                    fgets(tmp, 1000, fp);
+                    if(!strncmp(tmp, "msgstr", 6)) {
+                        char* msgstr = new char[100];
+                        sscanf(tmp + 6, " %*c%[^\"]s%*c ", msgstr);
+                        trans_msg[msgid] = std::string(msgstr);
+                        delete[] msgstr;
+                    }
+                    delete[] msgid;
+                }
+            }
+            delete[] tmp;
+            fclose(fp);
+
+            for(const auto& [key, value] : trans_msg) {
+                print_info("%s=%s", key.c_str(), value.c_str());
+            }
+        } else {
+            print_error("Cannot open locale file %s", Path::get("locale/ko/main.po").c_str());
+        }
+    }
 
     gs.ui_ctx = new UI::Context();
 

@@ -41,7 +41,7 @@ add_executable(game ${MAIN_SOURCES})
 # Linking
 #
 IF(WIN32)
-	target_link_libraries(game PUBLIC opengl32 glu32 winpthread intl)
+	target_link_libraries(game PUBLIC opengl32 glu32 winpthread)
 ELSE()
 	target_link_libraries(game PUBLIC GL GLU SDL2main)
 ENDIF()

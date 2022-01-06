@@ -24,63 +24,32 @@
 // ----------------------------------------------------------------------------
 
 #include <string>
-#include "world.hpp"
-
-void start_client(int argc, char** argv);
-
-#ifdef windows
-const char* gettext(const char* str) {
-    return str;
-}
-#endif
-
 #include <chrono>
 #include <thread>
 #include <iostream>
 #include <fstream>
 #include <atomic>
-std::atomic<bool> run;
-
-#ifdef unix
-#	include <libintl.h>
-#	include <locale.h>
-#endif
-#include "unified_render/path.hpp"
-#include "unified_render/network.hpp"
-#include "io_impl.hpp"
-#include "action.hpp"
-std::mutex world_lock;
-
-std::string async_get_input(void) {
-    std::cout << "server> ";
-
-    std::string cmd;
-    std::cin >> cmd;
-    return cmd;
-}
-
-#include <iostream>
 #include <future>
-
 #define _XOPEN_SOURCE 700
 #include <cstdio>
 #include <filesystem>
-
 #if defined windows
 #   include <windows.h>
 #   include <WinCon.h>
 #endif
-
-#include "unified_render/io.hpp"
 #include <vector>
+#include <map>
+#include "world.hpp"
+#include "unified_render/io.hpp"
+#include "unified_render/path.hpp"
+#include "unified_render/network.hpp"
+#include "unified_render/locale.hpp"
+#include "io_impl.hpp"
+#include "action.hpp"
+
+void start_client(int argc, char** argv);
 
 int main(int argc, char** argv) {
-#if defined unix
-    setlocale(LC_ALL, "");
-    bindtextdomain("main", Path::get("locale").c_str());
-    textdomain("main");
-#endif
-
 #if defined windows
     system("cls");
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
