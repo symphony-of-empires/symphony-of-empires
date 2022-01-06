@@ -1,0 +1,14 @@
+Symphony Of Empires
+****************************************************************************
+Main game stuff.
+
+DEFINES
+****************************************************************************
+Several defines are provided for performance improvments or packaging in
+memory constrained environments (such as those who needs less resources in
+order to properly function).
+
+SOE_MEMORY_SAVE
+    If this define is added then the game will save as much memory as
+    possible by introducing new mechanics such as limiting the number of
+    buildings and provinces drastically.
