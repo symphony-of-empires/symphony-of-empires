@@ -30,8 +30,7 @@
 #include "unified_render/entity.hpp"
 #include "policy.hpp"
 
-class Ideology : public RefnameEntity<uint8_t> {
-public:
+struct Ideology : public RefnameEntity<uint8_t> {
     uint32_t color;
     
     // Checks that the policies of a given nation are "matching"
