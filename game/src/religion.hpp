@@ -29,8 +29,7 @@
 
 #include "unified_render/entity.hpp"
 
-class Religion : public RefnameEntity<uint8_t> {
-public:
+struct Religion : public RefnameEntity<uint8_t> {
     //Religion();
     //~Religion();
     uint32_t color;

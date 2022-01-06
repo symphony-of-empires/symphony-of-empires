@@ -37,8 +37,8 @@ enum class PopGroup {
     LABORER,
     Other,
 };
-class PopType: public RefnameEntity<uint8_t> {
-public:
+
+struct PopType : public RefnameEntity<uint8_t> {
     float social_value;
     PopGroup group;
 };
@@ -46,7 +46,6 @@ public:
 #include "culture.hpp"
 #include "religion.hpp"
 struct Pop {
-public:
     bool operator==(const Pop& rhs) const;
     Ideology* get_ideology(void) const;
 

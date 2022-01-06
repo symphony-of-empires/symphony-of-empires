@@ -85,8 +85,7 @@ class MaterialPolicy {
     float max_stockpile_saved;
 };
 
-class Policies {
-public:
+struct Policies {
     TreatmentPolicy treatment;
 
     AllowancePolicy migration;

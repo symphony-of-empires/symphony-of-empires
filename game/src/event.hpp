@@ -29,8 +29,7 @@
 #include <string>
 #include <vector>
 
-class Descision : public RefnameEntity<uint8_t> {
-public:
+struct Descision : public RefnameEntity<uint8_t> {
     //Descision();
     //~Descision();
 
@@ -39,8 +38,7 @@ public:
 };
 
 class Nation;
-class Event : public RefnameEntity<uint16_t> {
-public:
+struct Event : public RefnameEntity<uint16_t> {
     //Event();
     //~Event();
     void take_descision(Nation& sender, Descision& dec);

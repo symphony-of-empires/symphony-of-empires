@@ -42,8 +42,7 @@ class Unit;
 class Building;
 // A single province, which is used to simulate economy in a "bulk-tiles" way
 // instead of doing economical operations on every single tile
-class Province : public RefnameEntity<uint16_t> {
-public:
+struct Province : public RefnameEntity<uint16_t> {
     //Province();
     //~Province();
     size_t total_pops(void) const;
