@@ -78,11 +78,11 @@ namespace UnifiedRender {
 
 		// Queue of sounds/music
 		std::mutex sound_lock;
-		std::vector<UnifiedRender::Sound*> sound_queue;
-		std::vector<UnifiedRender::Sound*> music_queue;
+		std::vector<UnifiedRender::Audio*> sound_queue;
+		std::vector<UnifiedRender::Audio*> music_queue;
 		float music_fade_value = 1.f;
 
-		UnifiedRender::SoundManager* sound_man;
+		UnifiedRender::AudioManager* sound_man;
 		UnifiedRender::TextureManager* tex_man;
 		UnifiedRender::MaterialManager* material_man;
     	UnifiedRender::ModelManager* model_man;
