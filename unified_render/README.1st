@@ -7,11 +7,17 @@ DEBUGGING
 ****************************************************************************
 Often the game engine can encounter internal errors, due to performance
 reasons said errors won't be checked against, to enable checking see the
-following macros:
+following macros.
+
+DEFINES
+****************************************************************************
 
 UR_RENDER_DEBUG
     When defined will enable all rendering pipeline error checks (can cause
-    massive lag on graphical intensive tasks)
+    massive lag on graphical intensive tasks).
+
+UR_HEAP_DEBUG
+    Causes debugging checks to be enabled for the memory allocation.
 
 UR_BACKEND_OPENGL
-    If defined it will use the OpenGL backend
+    If defined it will use the OpenGL backend.
