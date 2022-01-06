@@ -79,30 +79,21 @@ namespace UnifiedRender {
     };
 
     template<typename V, typename T>
-    class MeshData {
-    public:
-        V vert;
-        T tex;
-
+    struct MeshData {
         MeshData(void) {};
         MeshData(V _vert, T _tex): vert(_vert), tex(_tex) {};
         ~MeshData() {};
         MeshData(const MeshData&) = default;
         MeshData(MeshData&&) noexcept = default;
         MeshData& operator=(const MeshData&) = default;
+
+        V vert;
+        T tex;
     };
 
     // Packed model - packs both vertices and texcoords into the same buffer
     template<typename V, typename T>
-    class Mesh {
-    public:
-        std::vector<UnifiedRender::MeshData<V, T>> buffer;
-#ifdef UR_BACKEND_OPENGL
-        UnifiedRender::OpenGL::VAO vao;
-        UnifiedRender::OpenGL::VBO vbo;
-#endif
-        enum UnifiedRender::MeshMode mode;
-
+    struct Mesh {
         Mesh(enum UnifiedRender::MeshMode _mode) : mode(_mode) {};
         ~Mesh() {};
         Mesh(const Mesh&) = default;
@@ -114,7 +105,9 @@ namespace UnifiedRender {
             vao.bind();
             glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
         };
+#endif
 
+#ifdef UR_BACKEND_OPENGL
         virtual void upload(void) const {
             if(buffer.empty()) {
                 return;
@@ -125,13 +118,23 @@ namespace UnifiedRender {
             glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
 
             // Vertices
-            glVertexAttribPointer(0, glm::length(buffer[0].vert), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
+            glVertexAttribPointer(0, V::length(), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
             glEnableVertexAttribArray(0);
 
             // Texcoords
-            glVertexAttribPointer(1, glm::length(buffer[0].tex), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)((int)glm::length(buffer[0].vert) * (int)sizeof(float)));
+            const int tex_stride = ((int)V::length() * (int)sizeof(float));
+            glVertexAttribPointer(1, T::length(), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)((uintptr_t)tex_stride));
             glEnableVertexAttribArray(1);
         };
+#endif
+
+        std::vector<UnifiedRender::MeshData<V, T>> buffer;
+        enum UnifiedRender::MeshMode mode;
+#ifdef UR_BACKEND_OPENGL
+        // The initialization should be done in this order, first the VAO
+        // then initialize the VBO!
+        UnifiedRender::OpenGL::VAO vao;
+        UnifiedRender::OpenGL::VBO vbo;
 #endif
     };
 };

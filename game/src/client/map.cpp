@@ -169,14 +169,7 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
             glm::vec2((r / step) / n_steps, 1.f)
         ));
     }
-
-    flag.vao.bind();
-    flag.vbo.bind(GL_ARRAY_BUFFER);
-    glBufferData(GL_ARRAY_BUFFER, flag.buffer.size() * sizeof(flag.buffer[0]), &flag.buffer[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)0);  // Vertices
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(flag.buffer[0]), (void*)(3 * sizeof(float)));  // Texcoords
-    glEnableVertexAttribArray(1);
+    flag.upload();
 
     shader.set_texture(0, "diffuse_map", *nation_flags[world.get_id(&nation)]);
     flag.draw();
