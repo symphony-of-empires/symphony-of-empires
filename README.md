@@ -155,3 +155,25 @@ while(a) {
     }
 }
 ```
+
+## Naming convention
+Classes, Structs, Types and Typenames are named in PascalCase, while variables, struct/method members and functions are declared using snake_case. Enum members and macros are declared in SCREAMING_SNAKE_CASE.
+
+```cpp
+struct FooBar {
+    FooBar() {};
+    ~FooBar() {};
+
+    int method(void) {
+        return 0;
+    };
+
+    template<typename T1 = int, typename T2 = int>
+    int add(T1 a, T2 b) {
+        return a + b;
+    };
+public:
+    int member;
+    int test_thing;
+    bool is_attack;
+};
