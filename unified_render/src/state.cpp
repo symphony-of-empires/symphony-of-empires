@@ -49,7 +49,7 @@
 #include "unified_render/io.hpp"
 
 #include "unified_render/print.hpp"
-#include "unified_render/sound.hpp"
+#include "unified_render/audio.hpp"
 #include "unified_render/texture.hpp"
 #include "unified_render/material.hpp"
 #include "unified_render/model.hpp"
@@ -118,7 +118,7 @@ UnifiedRender::State::State(void) {
     SDL_PauseAudio(0);
 
     tex_man = new UnifiedRender::TextureManager();
-    sound_man = new UnifiedRender::SoundManager();
+    sound_man = new UnifiedRender::AudioManager();
     material_man = new UnifiedRender::MaterialManager();
     model_man = new UnifiedRender::ModelManager();
     package_man = new UnifiedRender::IO::PackageManager();
@@ -166,7 +166,7 @@ void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
     if(gs.sound_lock.try_lock()) {
         for(unsigned int i = 0; i < gs.sound_queue.size(); ) {
             int size = gs.sound_queue.size();
-            UnifiedRender::Sound* sound = gs.sound_queue[i];
+            UnifiedRender::Audio* sound = gs.sound_queue[i];
             int amount = sound->len - sound->pos;
 
             if(amount > len) {
@@ -185,7 +185,7 @@ void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
         }
 
         for(unsigned int i = 0; i < gs.music_queue.size(); ) {
-            UnifiedRender::Sound* music = gs.music_queue[i];
+            UnifiedRender::Audio* music = gs.music_queue[i];
             int amount = music->len - music->pos;
             
             if(amount > len) {

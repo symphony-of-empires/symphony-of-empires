@@ -23,7 +23,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/sound.hpp"
+#include "unified_render/audio.hpp"
 #include "unified_render/print.hpp"
 
 #include <cstring>
@@ -40,11 +40,11 @@
 #include <filesystem>
 #include "stb_vorbis.c"
 
-UnifiedRender::Sound::Sound() {
+UnifiedRender::Audio::Sound() {
     
 }
 
-UnifiedRender::Sound::Sound(const std::string& path) {
+UnifiedRender::Audio::Sound(const std::string& path) {
     SDL_AudioSpec wave;
     SDL_AudioCVT cvt;
     
@@ -71,13 +71,13 @@ UnifiedRender::Sound::Sound(const std::string& path) {
     SDL_UnlockAudio();
 }
 
-UnifiedRender::Sound::~Sound() {
+UnifiedRender::Audio::~Sound() {
     free(this->data);
 }
 
-const UnifiedRender::Sound& UnifiedRender::SoundManager::load(const std::string& path) {
+const UnifiedRender::Audio& UnifiedRender::AudioManager::load(const std::string& path) {
     // Find Sound when wanting to be loaded
-    auto it = std::find_if(this->sounds.begin(), this->sounds.end(), [&path](const std::pair<UnifiedRender::Sound *, std::string>& element) {
+    auto it = std::find_if(this->sounds.begin(), this->sounds.end(), [&path](const std::pair<UnifiedRender::Audio *, std::string>& element) {
         return (element.second == path);
     });
 
@@ -89,10 +89,10 @@ const UnifiedRender::Sound& UnifiedRender::SoundManager::load(const std::string&
     print_info("Loaded and cached sound %s", path.c_str());
 
     // Otherwise Sound is not in our control, so we create a new one
-    UnifiedRender::Sound* sound = new UnifiedRender::Sound();
+    UnifiedRender::Audio* sound = new UnifiedRender::Audio();
     sound->data = nullptr;
     sound->len = 0;
     sound->pos = 0;
     this->sounds.insert(std::make_pair(sound, path));
-    return *((const UnifiedRender::Sound*)sound);
+    return *((const UnifiedRender::Audio*)sound);
 }

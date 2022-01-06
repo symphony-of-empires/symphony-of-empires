@@ -156,7 +156,7 @@ void handle_event(Input& input, GameState& gs) {
                 std::scoped_lock lock(gs.sound_lock);
                 auto entries = Path::get_all_recursive("sfx/click");
                 if(!entries.empty()) {
-                    gs.sound_queue.push_back(new UnifiedRender::Sound(entries[std::rand() % entries.size()]));
+                    gs.sound_queue.push_back(new UnifiedRender::Audio(entries[std::rand() % entries.size()]));
                 }
             }
             break;
@@ -170,7 +170,7 @@ void handle_event(Input& input, GameState& gs) {
                 std::scoped_lock lock(gs.sound_lock);
                 auto entries = Path::get_all_recursive("sfx/click");
                 if(!entries.empty()) {
-                    gs.sound_queue.push_back(new UnifiedRender::Sound(entries[std::rand() % entries.size()]));
+                    gs.sound_queue.push_back(new UnifiedRender::Audio(entries[std::rand() % entries.size()]));
                 }
             }
             break;
@@ -340,7 +340,7 @@ void GameState::world_thread(void) {
 
 #include "client/ui/image.hpp"
 #include "client/interface/main_menu.hpp"
-#include "unified_render/sound.hpp"
+#include "unified_render/audio.hpp"
 #include <filesystem>
 
 void main_loop(GameState& gs) {
@@ -424,7 +424,7 @@ void main_loop(GameState& gs) {
                     int music_index = std::rand() % entries.size();
                     std::scoped_lock lock(gs.sound_lock);
                     gs.music_fade_value = 100.f;
-                    gs.music_queue.push_back(new UnifiedRender::Sound(entries[music_index]));
+                    gs.music_queue.push_back(new UnifiedRender::Audio(entries[music_index]));
                 }
             }
         }

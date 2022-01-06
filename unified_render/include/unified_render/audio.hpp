@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      sound.hpp
+//      audio.hpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -56,7 +56,7 @@ namespace UnifiedRender {
 
     class SoundManager {
     private:
-        std::set<std::pair<UnifiedRender::Sound*, std::string>> sounds;
+        std::set<std::pair<UnifiedRender::Audio*, std::string>> sounds;
     public:
         const Sound& load(const std::string& path);
     };
