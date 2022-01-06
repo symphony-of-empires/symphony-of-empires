@@ -52,11 +52,11 @@
 #include "unified_render/io.hpp"
 
 namespace UnifiedRender {
-	class SoundManager;
 	class TextureManager;
 	class MaterialManager;
 	class ModelManager;
-	class Sound;
+	class AudioManager;
+	class Audio;
 	namespace IO {
 		class PackageManager;
 	};

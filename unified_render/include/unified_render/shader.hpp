@@ -34,6 +34,7 @@
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
 #include "unified_render/texture.hpp"
+#include "unified_render/glsl_trans.hpp"
 
 namespace UnifiedRender::OpenGL {
     class ShaderException : public std::exception {
@@ -56,84 +57,13 @@ namespace UnifiedRender::OpenGL {
         std::string _option;
     };
 
-    enum class GLSL_TokenType {
-        ASSIGN, TERNARY, LITERAL, IDENTIFIER,
-        ADD, SUB, MUL, DIV, REM, AND, OR,
-        SEMICOLON, COMMA, COLON, DOT,
-        CMP_EQ, CMP_GT, CMP_LT, CMP_GTEQ, CMP_LTEQ, CMP_OR, CMP_AND,
-        LPAREN, RPAREN,
-        LBRACKET, RBRACKET,
-        LBRACE, RBRACE,
-
-        // Special "hacky" stuff
-        MACRO,
-    };
-
-    struct GLSL_Token {
-        GLSL_Token(GLSL_TokenType _type): type(_type) {};
-        ~GLSL_Token() {};
-
-        enum GLSL_TokenType type;
-        std::string data;
-    };
-
-    enum class GLSL_VariableType {
-        LOCAL, PROVIDED, INPUT, OUTPUT,
-    };
-
-    struct GLSL_Variable {
-        enum GLSL_VariableType type;
-        std::string type_name;
-        std::string name;
-        bool is_const;
-        int layout_n;
-    };
-
-    struct GLSL_Function {
-        std::string name;
-        std::vector<std::pair<std::string, std::string>> args;
-        std::string ret_type;
-    };
-
-    struct GLSL_Define {
-        std::string name;
-        std::string value;
-    };
-
-    struct GLSL_Context {
-        GLSL_Context(const std::string& buffer);
-        ~GLSL_Context();
-        std::string get_identifier(std::string::iterator& it);
-        std::string get_literal(std::string::iterator& it);
-        void lexer(void);
-        void parser(void);
-        std::string to_text(void);
-
-        std::vector<GLSL_Variable> vars;
-        std::vector<GLSL_Function> funcs;
-        std::vector<GLSL_Token> tokens;
-        std::vector<GLSL_Define> defines;
-        std::string buffer;
-    };
-
-    class GLSL_Exception: public std::exception {
-        std::string buffer;
-    public:
-        GLSL_Exception(std::vector<GLSL_Token>::iterator _it, const std::string& _buffer): buffer(_buffer), it(_it) {};
-        virtual const char* what(void) const noexcept {
-            return buffer.c_str();
-        }
-
-        std::vector<GLSL_Token>::iterator it;
-    };
-
     class Shader {
     private:
         void compile(GLuint type);
         std::string buffer;
         GLuint id;
     public:
-        Shader(const std::string& path, GLuint type, bool use_transpiler = true, std::vector<GLSL_Define> defintions = {});
+        Shader(const std::string& path, GLuint type, bool use_transpiler = true, std::vector<UnifiedRender::OpenGL::GLSL_Define> defintions = {});
         ~Shader();
 
         GLuint get_id(void) const;
@@ -147,7 +77,7 @@ namespace UnifiedRender::OpenGL {
 
     class FragmentShader: public Shader {
     public:
-        FragmentShader(const std::string& path, bool use_transpiler = true, std::vector<GLSL_Define> defintions = {});
+        FragmentShader(const std::string& path, bool use_transpiler = true, std::vector<UnifiedRender::OpenGL::GLSL_Define> defintions = {});
         ~FragmentShader();
     };
 
