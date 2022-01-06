@@ -31,10 +31,10 @@
 #include <exception>
 
 namespace UnifiedRender {
-    class SoundException : public std::exception {
+    class AudioException : public std::exception {
         std::string buffer;
     public:
-        SoundException(const std::string& filename, const std::string& message) {
+        AudioException(const std::string& filename, const std::string& message) {
             buffer = filename + message;
         }
 
@@ -43,21 +43,21 @@ namespace UnifiedRender {
         }
     };
 
-    class Sound {
+    class Audio {
     public:
-        Sound();
-        Sound(const std::string& path);
-        ~Sound();
+        Audio();
+        Audio(const std::string& path);
+        ~Audio();
 
         uint8_t *data;
         uint32_t pos;
         uint32_t len;
     };
 
-    class SoundManager {
+    class AudioManager {
     private:
         std::set<std::pair<UnifiedRender::Audio*, std::string>> sounds;
     public:
-        const Sound& load(const std::string& path);
+        const Audio& load(const std::string& path);
     };
 };

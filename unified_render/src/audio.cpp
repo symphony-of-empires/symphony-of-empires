@@ -40,11 +40,14 @@
 #include <filesystem>
 #include "stb_vorbis.c"
 
-UnifiedRender::Audio::Sound() {
+//
+// Audio
+//
+UnifiedRender::Audio::Audio() {
     
 }
 
-UnifiedRender::Audio::Sound(const std::string& path) {
+UnifiedRender::Audio::Audio(const std::string& path) {
     SDL_AudioSpec wave;
     SDL_AudioCVT cvt;
     
@@ -71,10 +74,13 @@ UnifiedRender::Audio::Sound(const std::string& path) {
     SDL_UnlockAudio();
 }
 
-UnifiedRender::Audio::~Sound() {
+UnifiedRender::Audio::~Audio() {
     free(this->data);
 }
 
+//
+// Audio manager
+//
 const UnifiedRender::Audio& UnifiedRender::AudioManager::load(const std::string& path) {
     // Find Sound when wanting to be loaded
     auto it = std::find_if(this->sounds.begin(), this->sounds.end(), [&path](const std::pair<UnifiedRender::Audio *, std::string>& element) {
