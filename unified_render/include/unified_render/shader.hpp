@@ -102,8 +102,9 @@ namespace UnifiedRender::OpenGL {
     class Program {
         GLuint id;
     public:
+        Program();
         Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry = nullptr, const TessControlShader* tctrl = nullptr, const TessEvalShader* tee = nullptr);
-        ~Program() {};
+        ~Program();
         static std::unique_ptr<Program> create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
         static std::unique_ptr<Program> create(std::vector<Option> options, const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
         static std::unique_ptr<Program> create_regular(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");

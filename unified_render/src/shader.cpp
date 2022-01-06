@@ -201,11 +201,16 @@ UnifiedRender::OpenGL::TessEvalShader::~TessEvalShader(void) {
 //
 // Program
 //
+UnifiedRender::OpenGL::Program::Program(void) {
+    id = glCreateProgram();
+    glBindAttribLocation(id, 0, "m_pos");
+    glBindAttribLocation(id, 1, "m_texcoord");
+}
+
 UnifiedRender::OpenGL::Program::Program(const UnifiedRender::OpenGL::VertexShader* vertex, const UnifiedRender::OpenGL::FragmentShader* fragment, const UnifiedRender::OpenGL::GeometryShader* geometry, const UnifiedRender::OpenGL::TessControlShader* tctrl, const UnifiedRender::OpenGL::TessEvalShader* tee) {
     id = glCreateProgram();
     glBindAttribLocation(id, 0, "m_pos");
     glBindAttribLocation(id, 1, "m_texcoord");
-
 #ifdef UR_RENDER_DEBUG
     if(vertex == nullptr || !vertex->get_id()) {
         throw UnifiedRender::DebugException("Vertex shader object was not provided correctly");
@@ -232,6 +237,10 @@ UnifiedRender::OpenGL::Program::Program(const UnifiedRender::OpenGL::VertexShade
         attach_shader(tee);
     }
     link();
+}
+
+UnifiedRender::OpenGL::Program::~Program(void) {
+    
 }
 
 std::unique_ptr<UnifiedRender::OpenGL::Program> UnifiedRender::OpenGL::Program::create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
