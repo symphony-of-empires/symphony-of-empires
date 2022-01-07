@@ -752,32 +752,32 @@ public:
         ::serialize(stream, &(*obj)->type);
         switch((*obj)->type) {
         case TreatyClauseType::ANEXX_PROVINCES: {
-            const auto dyn_clause = dynamic_cast<const TreatyClause::AnexxProvince*>(*obj);
+            const auto dyn_clause = static_cast<const TreatyClause::AnexxProvince*>(*obj);
             if(dyn_clause == nullptr)
                 throw SerializerException("Dynamic cast failed for TreatyClause::AnexxProvince");
             ::serialize(stream, &dyn_clause->provinces);
         } break;
         case TreatyClauseType::LIBERATE_NATION: {
-            const auto dyn_clause = dynamic_cast<const TreatyClause::LiberateNation*>(*obj);
+            const auto dyn_clause = static_cast<const TreatyClause::LiberateNation*>(*obj);
             if(dyn_clause == nullptr)
                 throw SerializerException("Dynamic cast failed for TreatyClause::LiberateNation");
             ::serialize(stream, &dyn_clause->provinces);
             ::serialize(stream, &dyn_clause->liberated);
         } break;
         case TreatyClauseType::IMPOSE_POLICIES: {
-            const auto dyn_clause = dynamic_cast<const TreatyClause::ImposePolicies*>(*obj);
+            const auto dyn_clause = static_cast<const TreatyClause::ImposePolicies*>(*obj);
             if(dyn_clause == nullptr)
                 throw SerializerException("Dynamic cast failed for TreatyClause::ImposePolicies");
             ::serialize(stream, &dyn_clause->imposed);
         } break;
         case TreatyClauseType::WAR_REPARATIONS: {
-            const auto dyn_clause = dynamic_cast<const TreatyClause::WarReparations*>(*obj);
+            const auto dyn_clause = static_cast<const TreatyClause::WarReparations*>(*obj);
             if(dyn_clause == nullptr)
                 throw SerializerException("Dynamic cast failed for TreatyClause::WarReparations");
             ::serialize(stream, &dyn_clause->amount);
         } break;
         case TreatyClauseType::HUMILIATE: {
-            const auto dyn_clause = dynamic_cast<const TreatyClause::Humiliate*>(*obj);
+            const auto dyn_clause = static_cast<const TreatyClause::Humiliate*>(*obj);
             if(dyn_clause == nullptr)
                 throw SerializerException("Dynamic cast failed for TreatyClause::Humiliate");
             ::serialize(stream, &dyn_clause->amount);
