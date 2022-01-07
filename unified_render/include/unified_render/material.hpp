@@ -26,7 +26,7 @@
 #pragma once
 
 #include <string>
-#include <set>
+#include <map>
 #include <vector>
 
 #include <glm/vec3.hpp>
@@ -60,7 +60,7 @@ namespace UnifiedRender {
 
     class MaterialManager {
     private:
-        std::set<std::pair<Material*, std::string>> materials;
+        std::map<std::string, Material*> materials;
     public:
         MaterialManager();
         ~MaterialManager();

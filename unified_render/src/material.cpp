@@ -119,24 +119,21 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
 
     std::vector<std::pair<UnifiedRender::Material *, std::string>>::const_iterator mat;
     for(mat = tmp_mat.begin(); mat != tmp_mat.end(); mat++) {
-        materials.insert((*mat));
+        materials[(*mat).second] = (*mat).first;
     }
     return tmp_mat;
 }
 
 const UnifiedRender::Material& UnifiedRender::MaterialManager::load(const std::string& path) {
-    std::set<std::pair<UnifiedRender::Material *, std::string>>::iterator it;
-    it = std::find_if(materials.begin(), materials.end(), [&path](const std::pair<UnifiedRender::Material *, std::string>& element) {
-        return (element.second == path);
-    });
-    
+    std::map<std::string, UnifiedRender::Material *>::const_iterator it;
+    it = materials.find(path);
     if(it != materials.end()) {
-        return *((*it).first);
+        return *((*it).second);
     }
     
     // Create a new material
     UnifiedRender::Material* mat = new UnifiedRender::Material();
     mat->ambient_map = &UnifiedRender::State::get_instance().tex_man->load(Path::get("3d/whitehouse.png"));
-    materials.insert(std::make_pair(mat, path));
+    materials[path] = mat;
     return *mat;
 }
