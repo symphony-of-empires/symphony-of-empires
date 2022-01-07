@@ -122,10 +122,6 @@ void UnifiedRender::Model::draw(const UnifiedRender::OpenGL::Program& shader) co
     }
 }
 
-const UnifiedRender::SimpleModel& UnifiedRender::ModelManager::load_simple(const std::string& path) {
-    return *((const SimpleModel *)nullptr);
-}
-
 const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const std::string& path) {
     struct WavefrontFace {
         // Indexes to the actual points
@@ -286,12 +282,11 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
             print_info("Created new SimpleModel with %zu vertices", model->buffer.size());
             model->material = (*obj).material;
             model->upload();
-
-            simple_models.insert(std::make_pair(model, (*obj).name));
             final_model->simple_models.push_back(model);
         }
     }
-    complex_models.insert(std::make_pair(final_model, path));
+
+    models[path] = final_model;
     return *final_model;
 }
 
@@ -324,27 +319,21 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_stl(const std::str
         ));
     }
 
-    simple_models.insert(std::make_pair(model, path));
     final_model->simple_models.push_back(model);
-    complex_models.insert(std::make_pair(final_model, path));
+    models[path] = final_model;
     return *final_model;
 }
 
 const UnifiedRender::Model& UnifiedRender::ModelManager::load(const std::string& path) {
-    auto it = std::find_if(complex_models.begin(), complex_models.end(), [&path](const auto& element) {
-        return (element.second == path);
-    });
-
-    if(it != complex_models.end()) {
-        return *((*it).first);
+    auto it = models.find(path);
+    if(it != models.end()) {
+        return *((*it).second);
     }
     
     // Wavefront OBJ loader
     try {
         // TODO: This is too horrible, we need a better solution
-        if(path[path.length() - 3] == 's'
-        && path[path.length() - 2] == 't'
-        && path[path.length() - 1] == 'l') {
+        if(path[path.length() - 3] == 's' && path[path.length() - 2] == 't' && path[path.length() - 1] == 'l') {
             return load_stl(path);
         } else {
             return load_wavefront(path);
