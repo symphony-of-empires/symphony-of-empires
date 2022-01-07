@@ -106,7 +106,8 @@ namespace Interface {
         int index;
 
         UI::Image* type_icon;
-        UI::Button* size_btn,* culture_btn,* religion_btn,* budget_btn;
+        UI::Button* size_btn,* culture_btn,* budget_btn;
+        UI::Image* religion_ibtn;
     public:
         PopInfo(GameState& gs, int x, int y, Province* province, int index, UI::Widget* parent);
     };
@@ -115,9 +116,8 @@ namespace Interface {
         GameState& gs;
         Product* product;
 
-        UI::Image* good_icon;
+        UI::Image* good_ibtn;
         UI::Button* name_btn,* province_btn;
-        UI::Button* good_btn;
         UI::Button* price_btn,* price_rate_btn;
         UI::Chart* price_chart,* demand_chart,* supply_chart;
     public:

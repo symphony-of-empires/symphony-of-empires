@@ -140,18 +140,28 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Building* _building, UI
     input_lab->below_of(*name_btn);
     dx = input_lab->width;
     for(const auto& good : building->type->inputs) {
-        auto* icon_img = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/goods/" + good->ref_name + ".png")), this);
-        icon_img->below_of(*name_btn);
-        dx += icon_img->width;
+        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/goods/" + good->ref_name + ".png")), this);
+        icon_ibtn->below_of(*name_btn);
+        icon_ibtn->user_data = good;
+        icon_ibtn->on_click = ([](UI::Widget& w, void* data) {
+            auto& o = static_cast<BuildingInfo&>(*w.parent);
+            new GoodView(o.gs, (Good*)data);
+        });
+        dx += icon_ibtn->width;
     }
 
     auto* output_lab = new UI::Label(0, 0, "Outputs:", this);
     output_lab->below_of(*input_lab);
     dx = output_lab->width;
     for(const auto& good : building->type->outputs) {
-        auto* icon_img = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/goods/" + good->ref_name + ".png")), this);
-        icon_img->below_of(*input_lab);
-        dx += icon_img->width;
+        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/goods/" + good->ref_name + ".png")), this);
+        icon_ibtn->below_of(*input_lab);
+        icon_ibtn->user_data = good;
+        icon_ibtn->on_click = ([](UI::Widget& w, void* data) {
+            auto& o = static_cast<BuildingInfo&>(*w.parent);
+            new GoodView(o.gs, (Good*)data);
+        });
+        dx += icon_ibtn->width;
     }
 }
 
@@ -224,11 +234,12 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
     this->budget_btn->right_side_of(*this->size_btn);
     this->budget_btn->set_tooltip(new UI::Tooltip(this->budget_btn, 512, 24));
 
-    this->religion_btn = new UI::Button(0, 0, 128, 24, this);
-    this->religion_btn->right_side_of(*this->budget_btn);
+    this->religion_ibtn = new UI::Image(0, 0, 24, 24, nullptr, this);
+    this->religion_ibtn->right_side_of(*this->budget_btn);
+    this->religion_ibtn->set_tooltip(new UI::Tooltip(this->religion_ibtn, 512, 24));
 
     this->culture_btn = new UI::Button(0, 0, 128, 24, this);
-    this->culture_btn->right_side_of(*this->religion_btn);
+    this->culture_btn->right_side_of(*this->religion_ibtn);
     
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<PopInfo&>(w);
@@ -244,7 +255,7 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
         o.size_btn->text(std::to_string(pop.size));
         o.budget_btn->text(std::to_string(pop.budget / pop.size));
         o.budget_btn->tooltip->text("Total of " + std::to_string(pop.budget));
-        o.religion_btn->text(UnifiedRender::Locale::translate(pop.religion->name));
+        o.religion_ibtn->tooltip->text(UnifiedRender::Locale::translate(pop.religion->name));
         o.culture_btn->text(UnifiedRender::Locale::translate(pop.culture->name));
     });
     this->on_each_tick(*this, nullptr);
@@ -257,15 +268,16 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
 {
     this->is_scroll = false;
 
-    this->good_btn = new UI::Button(0, 0, 96, 24, this);
-    this->good_btn->text(product->good->name);
-    this->good_btn->on_click = ([](UI::Widget& w, void*) {
+    this->good_ibtn = new UI::Image(0, 0, 24, 24, nullptr, this);
+    this->good_ibtn->current_texture = &gs.tex_man->load(Path::get("ui/icons/goods/" + product->good->ref_name + ".png"));
+    this->good_ibtn->text(product->good->name);
+    this->good_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new GoodView(o.gs, o.product->good);
     });
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
-    this->price_rate_btn->right_side_of(*this->good_btn);
+    this->price_rate_btn->right_side_of(*this->good_ibtn);
 
     this->price_chart = new UI::Chart(0, 0, 96, 24, this);
     this->price_chart->right_side_of(*this->price_rate_btn);
