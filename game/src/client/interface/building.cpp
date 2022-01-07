@@ -73,7 +73,7 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
     for(const auto& building_type : gs.world->building_types) {
         auto* btn = new BuildingTypeButton(gs, 0, 24 * i, building_type, this);
         btn->on_click = ([](UI::Widget& w, void*) {
-            auto& o = dynamic_cast<BuildingBuildView&>(*w.parent->parent);
+            auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
             if(o.nation == nullptr) {
                 o.gs.ui_ctx->prompt("Error", "No nation selected");
                 return;
