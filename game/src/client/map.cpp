@@ -479,6 +479,17 @@ void Map::draw(const GameState& gs) {
         dragbox_square.draw();
     }
 
+    if(view_mode == MapView::SPHERE_VIEW) {
+        // Universe skybox
+        glm::mat4 model(1.f);
+        model = glm::translate(model, glm::vec3(0.f, 0.f, -1.f));
+        obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("space.png")));
+        obj_shader->set_uniform("model", model);
+
+        UnifiedRender::Sphere skybox = UnifiedRender::Sphere(0.f, 0.f, 0.f, 8000.f, 40);
+        skybox.draw();
+    }
+
     wind_osc += 0.1f;
     if(wind_osc >= 180.f) {
         wind_osc = 0.f;
