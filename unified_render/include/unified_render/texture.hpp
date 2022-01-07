@@ -33,7 +33,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
-#include <set>
+#include <map>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -103,7 +103,7 @@ namespace UnifiedRender {
     // and also acts as a "texture loader"
     class TextureManager {
     private:
-        std::set<std::pair<UnifiedRender::Texture*, std::string>> textures;
+        std::map<std::string, UnifiedRender::Texture*> textures;
     public:
         const Texture& load(const std::string& path, TextureOptions options = default_options);
         const Texture& load(const UnifiedRender::IO::Asset::Base* asset, TextureOptions options = default_options);

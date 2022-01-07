@@ -35,6 +35,9 @@
 #   include <SDL2/SDL_surface.h>
 #endif
 
+//
+// Texture
+//
 UnifiedRender::Texture::Texture(void) {
 
 }
@@ -146,6 +149,10 @@ void UnifiedRender::Texture::delete_opengl() {
     glDeleteTextures(1, &gl_tex_num);
 }
 
+//
+// Texture array
+//
+
 // Creates a new texture array
 UnifiedRender::TextureArray::TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y)
     : BinaryImage(path),
@@ -189,6 +196,10 @@ void UnifiedRender::TextureArray::to_opengl(GLuint wrapp, GLuint min_filter, GLu
 }
 
 //
+// Texture manager
+//
+
+//
 // Finds a texture in the list of a texture manager
 // if the texture is already in the list we load the saved texture from the list
 // instead of loading it from the disk.
@@ -201,14 +212,10 @@ void UnifiedRender::TextureArray::to_opengl(GLuint wrapp, GLuint min_filter, GLu
 // them.
 //
 const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::string& path, TextureOptions options) {
-    // Find texture when wanting to be loaded
-    auto it = std::find_if(this->textures.begin(), this->textures.end(), [&path](const std::pair<UnifiedRender::Texture*, std::string>& element) {
-        return (element.second == path);
-    });
-
-    // Load texture from cached texture list
-    if(it != this->textures.end()) {
-        return *((*it).first);
+    // Find texture when wanting to be loaded and load texture from cached texture list
+    std::map<std::string, UnifiedRender::Texture*>::const_iterator it = textures.find(path);
+    if(it != textures.end()) {
+        return *((*it).second);
     }
 
     print_info("Loaded and cached texture %s", path.c_str());
@@ -226,10 +233,10 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::str
     if(options.min_filter == GL_NEAREST_MIPMAP_NEAREST || options.min_filter == GL_NEAREST_MIPMAP_LINEAR || options.min_filter == GL_LINEAR_MIPMAP_NEAREST || options.min_filter == GL_LINEAR_MIPMAP_LINEAR) {
         tex->gen_mipmaps();
     }
-    this->textures.insert(std::make_pair(tex, path));
+    textures[path] = tex;
     return *((const Texture*)tex);
 }
 
 const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const UnifiedRender::IO::Asset::Base* asset, TextureOptions options) {
-    return this->load((asset == nullptr) ? "" : asset->abs_path, options);
+    return load((asset == nullptr) ? "" : asset->abs_path, options);
 }
