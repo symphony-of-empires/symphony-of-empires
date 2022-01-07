@@ -27,7 +27,7 @@
 
 #include <vector>
 #include <string>
-#include <set>
+#include <map>
 #include <cstdint>
 
 #include <glm/vec3.hpp>
@@ -75,13 +75,11 @@ namespace UnifiedRender {
 
     struct ModelManager {
     private:
-        std::set<std::pair<UnifiedRender::SimpleModel*, std::string>> simple_models;
-        std::set<std::pair<UnifiedRender::Model*, std::string>> complex_models;
+        std::map<std::string, UnifiedRender::Model*> models;
 
         const UnifiedRender::Model& load_wavefront(const std::string& path);
         const UnifiedRender::Model& load_stl(const std::string& path);
     public:
-        const UnifiedRender::SimpleModel& load_simple(const std::string& path);
         const UnifiedRender::Model& load(const std::string& path);
     };
 }
