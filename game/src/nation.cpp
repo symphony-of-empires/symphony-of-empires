@@ -98,6 +98,8 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 
     war->name = "War of " + this->name + " against " + nation.name;
     UnifiedRender::Log::debug("game", war->name);
+
+    world.insert(war);
 }
 
 bool Nation::is_ally(const Nation& nation) {
