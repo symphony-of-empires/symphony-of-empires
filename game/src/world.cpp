@@ -759,33 +759,132 @@ void World::do_tick() {
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
         if(!unit->size) {
+            for(auto& war : wars) {
+                if(!war->is_involved(*unit->owner)) {
+                    continue;
+                }
+
+                auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
+                    return &e.province == unit->province;
+                });
+                if(it == war->battles.end()) {
+                    continue;
+                }
+
+                Battle& battle = *it;
+                for(size_t j = 0; j < battle.attackers.size(); j++) {
+                    if(battle.attackers[j] != unit) {
+                        continue;
+                    }
+                    battle.attackers.erase(battle.attackers.begin() + j);
+                    break;
+                }
+
+                for(size_t j = 0; j < battle.defenders.size(); j++) {
+                    if(battle.defenders[j] != unit) {
+                        continue;
+                    }
+                    battle.defenders.erase(battle.defenders.begin() + j);
+                    break;
+                }
+                break;
+            }
+
             remove(unit);
             delete unit;
             i--;
             break;
         }
 
-        if(unit->target != nullptr) {
+        bool can_take = true;
+        for(auto& other_unit : unit->province->get_units()) {
+            // Must not our unit and only if we are at war
+            if(other_unit->owner == unit->owner || !unit->owner->relations[get_id(other_unit->owner)].has_war) {
+                continue;
+            }
+
+            can_take = false;
+
+            // If there is another unit of a country we are at war with we will start a battle
+            for(auto& war : wars) {
+                if(!war->is_involved(*unit->owner)) {
+                    UnifiedRender::Log::debug("game", "[" + unit->owner->name + "] is not involved in " + war->name);
+                    continue;
+                }
+                UnifiedRender::Log::debug("game", "[" + unit->owner->name + "] involved in " + war->name);
+                
+                auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
+                    return &e.province == unit->province;
+                });
+                UnifiedRender::Log::debug("game", "battle A_B " + war->name);
+
+                // Create a new battle if none is occurring on this province
+                if(it == war->battles.end()) {
+                    Battle battle = Battle(*war, *unit->province);
+                    battle.name = "Battle of " + unit->province->name;
+                    if(war->is_attacker(*unit->owner)) {
+                        battle.attackers.push_back(unit);
+                        battle.defenders.push_back(other_unit);
+                    } else {
+                        battle.attackers.push_back(other_unit);
+                        battle.defenders.push_back(unit);
+                    }
+                    war->battles.push_back(battle);
+                    UnifiedRender::Log::debug("game", "New battle of \"" + battle.name + "\"");
+                } else {
+                    Battle& battle = *it;
+
+                    // Add the unit to one side depending on who are we attacking
+                    // However unit must not be already involved
+                    // TODO: Make it be instead depending on who attacked first in this battle
+                    if(war->is_attacker(*unit->owner)) {
+                        if(std::find(battle.attackers.begin(), battle.attackers.end(), unit) == battle.attackers.end()) {
+                            battle.attackers.push_back(unit);
+                        }
+                    } else if(war->is_defender(*unit->owner)) {
+                        if(std::find(battle.defenders.begin(), battle.defenders.end(), unit) == battle.defenders.end()) {
+                            battle.defenders.push_back(unit);
+                        }
+                    }
+                    UnifiedRender::Log::debug("game", "Adding unit to battle of \"" + battle.name + "\"");
+                }
+                break;
+            }
+        }
+
+        if(unit->province->controller != nullptr && can_take) {
+            unit->owner->give_province(*unit->province);
+        }
+
+        if(unit->target != nullptr && unit->can_move()) {
             if(unit->move_progress) {
                 unit->move_progress -= std::min(unit->move_progress, unit->get_speed());
             } else {
                 unit->set_province(*unit->target);
-                if(unit->target->owner != nullptr) {
-                    unit->owner->give_province(*unit->target);
-                }
             }
         }
+    }
 
-        for(auto& other_unit : units) {
-            if(other_unit->province != unit->province) {
-                continue;
-            }
-            if(other_unit->owner == unit->owner) {
-                continue;
+    // Perform all battles of the active wars
+    for(auto& war : wars) {
+        for(auto& battle : war->battles) {
+            // Attackers attack Defenders
+            for(auto& attack : battle.attackers) {
+                for(auto& defend : battle.defenders) {
+                    const size_t prev_size = defend->size;
+                    attack->attack(*defend);
+                    battle.defender_casualties += prev_size - defend->size;
+                }
             }
 
-            // TODO: Only if we are at war
-            unit->attack(*other_unit);
+            // Defenders attack Attackers
+            for(auto& defend : battle.defenders) {
+                for(auto& attack : battle.attackers) {
+                    const size_t prev_size = attack->size;
+                    defend->attack(*attack);
+                    battle.attacker_casualties += prev_size - attack->size;
+                }
+            }
         }
     }
 

@@ -375,6 +375,20 @@ void main_loop(GameState& gs) {
             }
         }
 
+        if(gs.sound_queue.empty()) {
+            for(const auto& war : gs.world->wars) {
+                for(const auto& battle : war->battles) {
+                    std::scoped_lock lock(gs.sound_lock);
+                    auto entries = Path::get_all_recursive("sfx/gunfire");
+                    if(!entries.empty()) {
+                        gs.sound_queue.push_back(new UnifiedRender::Audio(entries[std::rand() % entries.size()]));
+                    }
+                    break;
+                }
+                break;
+            }
+        }
+
         if(gs.update_tick) {
             gs.update_on_tick();
             gs.update_tick = false;
