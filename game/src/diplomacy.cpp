@@ -223,3 +223,22 @@ bool Treaty::in_effect(void) const {
 	}
 	return on_effect;	
 }
+
+Battle::Battle(War& _war, Province& _province)
+    : war{ _war },
+    province{ _province }
+{
+
+}
+
+bool War::is_involved(const Nation& nation) const {
+    return (is_attacker(nation) || is_defender(nation));
+}
+
+bool War::is_attacker(const Nation& nation) const {
+    return (std::find(attackers.begin(), attackers.end(), &nation) != attackers.end());
+}
+
+bool War::is_defender(const Nation& nation) const {
+    return (std::find(defenders.begin(), defenders.end(), &nation) != defenders.end());
+}

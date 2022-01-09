@@ -257,7 +257,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
         Province* province = gs.world->provinces[tile.province_id];
 
-        if(input.selected_units.empty()) {
+        //if(input.selected_units.empty()) {
+        if(0) {
             gs.curr_nation->give_province(*province);
 
             FILE* fp = fopen("provinces_dump.lua", "wt");
@@ -446,36 +447,38 @@ void Map::draw(const GameState& gs) {
         building_type_models[world.get_id(building_type)]->draw(*obj_shader);
     }
 
-    for(const auto& unit : world.units) {
-        glm::mat4 model(1.f);
-        model = glm::translate(model, glm::vec3(0.f, 0.f, -1.f));
+    for(const auto& province : world.provinces) {
+        for(const auto& unit : province->get_units()) {
+            glm::mat4 model(1.f);
+            model = glm::translate(model, glm::vec3(0.f, 0.f, -1.f));
 
-        std::pair<float, float> pos = unit->get_pos();
-        if(unit->target != nullptr) {
-            UnifiedRender::Line target_line = UnifiedRender::Line(pos.first, pos.second, unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
-            obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/line_target.png")));
-            obj_shader->set_uniform("model", model);
-            target_line.draw();
-        }
-
-        model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
-        obj_shader->set_uniform("model", model);
-        for(const auto& selected : gs.input.selected_units) {
-            if(selected != unit) {
-                continue;
+            std::pair<float, float> pos = unit->get_pos();
+            if(unit->target != nullptr) {
+                UnifiedRender::Line target_line = UnifiedRender::Line(pos.first, pos.second, unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
+                obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/line_target.png")));
+                obj_shader->set_uniform("model", model);
+                target_line.draw();
             }
 
-            UnifiedRender::Square select_highlight = UnifiedRender::Square(0.f, 0.f, 1.f, 1.f);
-            obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/select_border.png")));
-            select_highlight.draw();
-            break;
-        }
-        draw_flag(*obj_shader, *unit->owner);
+            model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
+            obj_shader->set_uniform("model", model);
+            for(const auto& selected : gs.input.selected_units) {
+                if(selected != unit) {
+                    continue;
+                }
+
+                UnifiedRender::Square select_highlight = UnifiedRender::Square(0.f, 0.f, 1.f, 1.f);
+                obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/select_border.png")));
+                select_highlight.draw();
+                break;
+            }
+            draw_flag(*obj_shader, *unit->owner);
 #if defined TILE_GRANULARITY
-        model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
+            model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
 #endif
-        obj_shader->set_uniform("model", model);
-        unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
+            obj_shader->set_uniform("model", model);
+            unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
+        }
     }
 
     // Draw the "drag area" box

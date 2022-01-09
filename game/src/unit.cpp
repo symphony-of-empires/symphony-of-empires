@@ -162,5 +162,18 @@ void Unit::set_province(Province& _province) {
 }
 
 bool Unit::can_move(void) const {
+    const World& world = World::get_instance();
+    for(const auto& war : world.wars) {
+        if(!war->is_involved(*owner)) {
+            continue;
+        }
+
+        for(const auto& battle : war->battles) {
+            if(&battle.province == province) {
+                return false;
+            }
+        }
+        break;
+    }
     return true;
 }
