@@ -192,11 +192,29 @@ public:
     std::vector<std::pair<Nation*, TreatyApproval>> approval_status;
 };
 
+class Unit;
+class War;
+class Battle : public IdEntity<uint16_t> {
+public:
+    Battle(War& _war, Province& _province);
+
+    std::string name;
+    
+    War& war;
+    Province& province;
+    std::vector<Unit*> attackers, defenders;
+    size_t attacker_casualties = 0, defender_casualties = 0;
+    bool ended = false;
+};
+
 class War : public IdEntity<uint16_t> {
 public:
-    std::string name;
-    std::vector<Nation*> attackers;
-    std::vector<Nation*> defenders;
+    bool is_involved(const Nation& nation) const;
+    bool is_attacker(const Nation& nation) const;
+    bool is_defender(const Nation& nation) const;
 
+    std::string name;
+    std::vector<Nation*> attackers, defenders;
     std::vector<TreatyClause::BaseClause*> wargoals;
+    std::vector<Battle> battles;
 };
