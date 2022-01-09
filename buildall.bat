@@ -28,4 +28,14 @@ XCOPY ..\..\mods mods /E /Y
 ECHO "Now add the remaining DLLs!"
 CD ..
 
+ECHO ">>> Creating distrobution package"
+MKDIR distro_debug
+CD distro_debug
+COPY ..\debug\game\game.exe soe.exe
+COPY ..\debug\unified_render\libunified_render.dll libunified_render.dll
+MKDIR mods
+XCOPY ..\..\mods mods /E /Y
+ECHO "Now add the remaining DLLs!"
+CD ..
+
 CD ..
