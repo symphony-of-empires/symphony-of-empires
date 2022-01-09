@@ -88,7 +88,7 @@ namespace TreatyClause {
 
         // Determines whenever the clause is in effect or not, when it is not in effect
         // then it's removed permanently
-        virtual bool in_effect(void) {
+        virtual bool in_effect(void) const {
             return false;
         };
     };
@@ -101,7 +101,7 @@ namespace TreatyClause {
         };
         unsigned cost(void);
         void enforce(void);
-        bool in_effect(void);
+        bool in_effect(void) const;
 
         float amount = 0.f;
     };
@@ -114,7 +114,7 @@ namespace TreatyClause {
         };
         unsigned cost(void);
         void enforce(void);
-        bool in_effect(void);
+        bool in_effect(void) const;
 
         float amount = 0.f;
     };
@@ -127,7 +127,7 @@ namespace TreatyClause {
         };
         unsigned cost(void);
         void enforce(void);
-        bool in_effect(void);
+        bool in_effect(void) const;
 
         Nation* liberated = nullptr;
         std::vector<Province*> provinces;
@@ -141,7 +141,7 @@ namespace TreatyClause {
         };
         unsigned cost(void);
         void enforce(void);
-        bool in_effect(void);
+        bool in_effect(void) const;
 
         Policies imposed;
     };
@@ -154,7 +154,7 @@ namespace TreatyClause {
         };
         unsigned cost(void);
         void enforce(void);
-        bool in_effect(void);
+        bool in_effect(void) const;
 
         std::vector<Province*> provinces;
     };
@@ -167,7 +167,7 @@ namespace TreatyClause {
         };
         unsigned cost(void);
         void enforce(void);
-        bool in_effect(void);
+        bool in_effect(void) const;
     };
 };
 

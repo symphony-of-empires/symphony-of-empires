@@ -70,7 +70,7 @@ void WarReparations::enforce(void) {
     days_duration--;
 }
 
-bool WarReparations::in_effect(void) {
+bool WarReparations::in_effect(void) const {
     return (days_duration != 0);
 }
 
@@ -84,7 +84,7 @@ void Humiliate::enforce(void) {
     days_duration--;
 }
 
-bool Humiliate::in_effect(void) {
+bool Humiliate::in_effect(void) const {
     return (days_duration != 0);
 }
 
@@ -110,7 +110,7 @@ void LiberateNation::enforce(void) {
     done = true;
 }
 
-bool LiberateNation::in_effect(void) {
+bool LiberateNation::in_effect(void) const {
     return !done;
 }
 
@@ -123,7 +123,7 @@ void ImposePolicies::enforce(void) {
     done = true;
 }
 
-bool ImposePolicies::in_effect(void) {
+bool ImposePolicies::in_effect(void) const {
     return !done;
 }
 
@@ -158,7 +158,7 @@ void AnexxProvince::enforce(void) {
     done = true;
 }
 
-bool AnexxProvince::in_effect(void) {
+bool AnexxProvince::in_effect(void) const {
     return !done;
 }
 
@@ -179,7 +179,7 @@ void Ceasefire::enforce() {
     days_duration--;
 }
 
-bool Ceasefire::in_effect() {
+bool Ceasefire::in_effect() const {
     return (days_duration != 0);
 }
 
@@ -198,22 +198,22 @@ bool Treaty::in_effect(void) const {
 	bool on_effect = false;
 	for(const auto& clause : this->clauses) {
 		if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
-			auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
+			const auto* dyn_clause = static_cast<const TreatyClause::WarReparations*>(clause);
 			on_effect = dyn_clause->in_effect();
 		} else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
-			auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
+			const auto* dyn_clause = static_cast<const TreatyClause::AnexxProvince*>(clause);
 			on_effect = dyn_clause->in_effect();
 		} else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
-			auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
+			const auto* dyn_clause = static_cast<const TreatyClause::LiberateNation*>(clause);
 			on_effect = dyn_clause->in_effect();
 		} else if(clause->type == TreatyClauseType::HUMILIATE) {
-			auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
+			const auto* dyn_clause = static_cast<const TreatyClause::Humiliate*>(clause);
 			on_effect = dyn_clause->in_effect();
 		} else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
-			auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
+			const auto* dyn_clause = static_cast<const TreatyClause::ImposePolicies*>(clause);
 			on_effect = dyn_clause->in_effect();
 		} else if(clause->type == TreatyClauseType::CEASEFIRE) {
-			auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
+			const auto* dyn_clause = static_cast<const TreatyClause::Ceasefire*>(clause);
 			on_effect = dyn_clause->in_effect();
 		}
 		
