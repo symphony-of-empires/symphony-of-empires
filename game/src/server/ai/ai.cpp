@@ -660,6 +660,10 @@ void ai_do_tick(Nation* nation, World* world) {
                 continue;
             }
 
+            if(!unit->can_move()) {
+                continue;
+            }
+
             if(province->controller != nullptr) {
                 // Can only go to a province if we have military accesss, they are our ally or if we are at war
                 // also if it's ours we can move thru it

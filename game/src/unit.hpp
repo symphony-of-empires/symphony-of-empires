@@ -96,6 +96,7 @@ public:
     float get_speed(const Province& province) const;
     float get_speed(void) const;
     void set_province(Province& province);
+    bool can_move(void) const;
     
     // Type of unit
     UnitType* type;
