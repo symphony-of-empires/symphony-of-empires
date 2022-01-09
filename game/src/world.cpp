@@ -808,15 +808,12 @@ void World::do_tick() {
             // If there is another unit of a country we are at war with we will start a battle
             for(auto& war : wars) {
                 if(!war->is_involved(*unit->owner)) {
-                    UnifiedRender::Log::debug("game", "[" + unit->owner->name + "] is not involved in " + war->name);
                     continue;
                 }
-                UnifiedRender::Log::debug("game", "[" + unit->owner->name + "] involved in " + war->name);
                 
                 auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
                     return &e.province == unit->province;
                 });
-                UnifiedRender::Log::debug("game", "battle A_B " + war->name);
 
                 // Create a new battle if none is occurring on this province
                 if(it == war->battles.end()) {
