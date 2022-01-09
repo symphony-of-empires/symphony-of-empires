@@ -270,11 +270,12 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
 
     this->good_ibtn = new UI::Image(0, 0, 24, 24, nullptr, this);
     this->good_ibtn->current_texture = &gs.tex_man->load(Path::get("ui/icons/goods/" + product->good->ref_name + ".png"));
-    this->good_ibtn->text(product->good->name);
     this->good_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new GoodView(o.gs, o.product->good);
     });
+    this->good_ibtn->set_tooltip(new UI::Tooltip(this->good_ibtn, 512, 24));
+    this->good_ibtn->tooltip->text(product->good->name);
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
     this->price_rate_btn->right_side_of(*this->good_ibtn);
@@ -285,6 +286,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new ProductView(o.gs, o.product);
     });
+    this->price_chart->set_tooltip(new UI::Tooltip(this->price_chart, 512, 24));
 
     this->supply_chart = new UI::Chart(0, 0, 96, 24, this);
     this->supply_chart->right_side_of(*this->price_chart);
@@ -292,6 +294,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new ProductView(o.gs, o.product);
     });
+    this->supply_chart->set_tooltip(new UI::Tooltip(this->supply_chart, 512, 24));
 
     this->demand_chart = new UI::Chart(0, 0, 96, 24, this);
     this->demand_chart->right_side_of(*this->supply_chart);
@@ -299,6 +302,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new ProductView(o.gs, o.product);
     });
+    this->demand_chart->set_tooltip(new UI::Tooltip(this->demand_chart, 512, 24));
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProductInfo&>(w);
@@ -312,17 +316,19 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
         if(o.price_chart->data.size() >= 30) {
             o.price_chart->data.pop_back();
         }
-        o.price_chart->text(std::to_string(o.product->price));
-        
+        o.price_chart->tooltip->text(std::to_string(o.product->price));
+
         o.supply_chart->data.push_back(o.product->supply);
         if(o.supply_chart->data.size() >= 30) {
             o.supply_chart->data.pop_back();
         }
+        o.supply_chart->tooltip->text(std::to_string(o.product->supply));
 
         o.demand_chart->data.push_back(o.product->demand);
         if(o.demand_chart->data.size() >= 30) {
             o.demand_chart->data.pop_back();
         }
+        o.demand_chart->tooltip->text(std::to_string(o.product->demand));
         
         o.price_rate_btn->text(std::to_string(o.product->price_vel));
 
@@ -332,4 +338,5 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
             o.price_rate_btn->text_color = UnifiedRender::Color(255, 0, 0);
         }
     });
+    this->on_each_tick(*this, nullptr);
 }
