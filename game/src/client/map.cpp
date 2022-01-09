@@ -306,6 +306,10 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 }
             }
 
+            if(!unit->can_move()) {
+                continue;
+            }
+
             UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
             Archive ar = Archive();
             ActionType action = ActionType::UNIT_CHANGE_TARGET;
@@ -315,6 +319,12 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             packet.data(ar.get_buffer(), ar.size());
             std::scoped_lock lock(gs.client->pending_packets_mutex);
             gs.client->pending_packets.push_back(packet);
+
+            std::scoped_lock l1(gs.sound_lock);
+            auto entries = Path::get_all_recursive("sfx/land_move");
+            if(!entries.empty()) {
+                gs.sound_queue.push_back(new UnifiedRender::Audio(entries[std::rand() % entries.size()]));
+            }
         }
     }
 }

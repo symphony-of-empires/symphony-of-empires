@@ -160,3 +160,7 @@ void Unit::set_province(Province& _province) {
     // Add unit to "cache list" of units
     province->units.push_back(this);
 }
+
+bool Unit::can_move(void) const {
+    return true;
+}
