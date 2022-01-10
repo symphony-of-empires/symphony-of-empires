@@ -758,43 +758,6 @@ void World::do_tick() {
     std::vector<float> naval_research_pts(nations.size(), 0.f);
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
-        if(!unit->size) {
-            for(auto& war : wars) {
-                if(!war->is_involved(*unit->owner)) {
-                    continue;
-                }
-
-                auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
-                    return &e.province == unit->province;
-                });
-                if(it == war->battles.end()) {
-                    continue;
-                }
-
-                Battle& battle = *it;
-                for(size_t j = 0; j < battle.attackers.size(); j++) {
-                    if(battle.attackers[j] != unit) {
-                        continue;
-                    }
-                    battle.attackers.erase(battle.attackers.begin() + j);
-                    break;
-                }
-
-                for(size_t j = 0; j < battle.defenders.size(); j++) {
-                    if(battle.defenders[j] != unit) {
-                        continue;
-                    }
-                    battle.defenders.erase(battle.defenders.begin() + j);
-                    break;
-                }
-                break;
-            }
-
-            remove(unit);
-            delete unit;
-            i--;
-            break;
-        }
 
         bool can_take = true;
         for(auto& other_unit : unit->province->get_units()) {
@@ -867,19 +830,35 @@ void World::do_tick() {
         for(auto& battle : war->battles) {
             // Attackers attack Defenders
             for(auto& attack : battle.attackers) {
-                for(auto& defend : battle.defenders) {
-                    const size_t prev_size = defend->size;
-                    attack->attack(*defend);
-                    battle.defender_casualties += prev_size - defend->size;
+                for(auto it = battle.defenders.begin(); it != battle.defenders.end(); it++) {
+                    const size_t prev_size = (*it)->size;
+                    attack->attack(*(*it));
+                    battle.defender_casualties += prev_size - (*it)->size;
+
+                    if(!(*it)->size) {
+                        remove(*it);
+                        delete *it;
+                        battle.defenders.erase(it);
+                        it--;
+                        continue;
+                    }
                 }
             }
 
             // Defenders attack Attackers
             for(auto& defend : battle.defenders) {
-                for(auto& attack : battle.attackers) {
-                    const size_t prev_size = attack->size;
-                    defend->attack(*attack);
-                    battle.attacker_casualties += prev_size - attack->size;
+                for(auto it = battle.attackers.begin(); it != battle.attackers.end(); it++) {
+                    const size_t prev_size = (*it)->size;
+                    defend->attack(*(*it));
+                    battle.attacker_casualties += prev_size - (*it)->size;
+
+                    if(!(*it)->size) {
+                        remove(*it);
+                        delete *it;
+                        battle.attackers.erase(it);
+                        it--;
+                        continue;
+                    }
                 }
             }
         }
