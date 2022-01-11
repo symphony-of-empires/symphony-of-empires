@@ -37,7 +37,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     auto* build_prod_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     build_prod_chk->text("Build and production");
     build_prod_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<AISettingsWindow>(*w.parent);
+        auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
         o.gs.curr_nation->ai_do_build_production = ((UI::Checkbox&)w).value;
     });
@@ -46,7 +46,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     cmd_chk->below_of(*build_prod_chk);
     cmd_chk->text("Command troops");
     cmd_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<AISettingsWindow>(*w.parent);
+        auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
         o.gs.curr_nation->ai_do_cmd_troops = ((UI::Checkbox&)w).value;
     });
@@ -55,7 +55,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     diplo_chk->below_of(*cmd_chk);
     diplo_chk->text("Diplomacy");
     diplo_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<AISettingsWindow>(*w.parent);
+        auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
         o.gs.curr_nation->ai_do_diplomacy = ((UI::Checkbox&)w).value;
     });
@@ -64,7 +64,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     policies_chk->below_of(*diplo_chk);
     policies_chk->text("Policies");
     policies_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<AISettingsWindow>(*w.parent);
+        auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
         o.gs.curr_nation->ai_do_policies = ((UI::Checkbox&)w).value;
     });
@@ -73,7 +73,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     research_chk->below_of(*policies_chk);
     research_chk->text("Research");
     research_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<AISettingsWindow>(*w.parent);
+        auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
         o.gs.curr_nation->ai_do_research = ((UI::Checkbox&)w).value;
     });
@@ -82,7 +82,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     unit_production_chk->below_of(*research_chk);
     unit_production_chk->text("Unit Production");
     unit_production_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<AISettingsWindow>(*w.parent);
+        auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
         o.gs.curr_nation->ai_do_unit_production = ((UI::Checkbox&)w).value;
     });
@@ -91,7 +91,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     hdl_event_chk->below_of(*unit_production_chk);
     hdl_event_chk->text("Unit Production");
     hdl_event_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<AISettingsWindow>(*w.parent);
+        auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
         o.gs.curr_nation->ai_handle_events = ((UI::Checkbox&)w).value;
     });
@@ -100,7 +100,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     hdl_treaties_chk->below_of(*hdl_event_chk);
     hdl_treaties_chk->text("Unit Production");
     hdl_treaties_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<AISettingsWindow>(*w.parent);
+        auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
         o.gs.curr_nation->ai_handle_treaties = ((UI::Checkbox&)w).value;
     });
@@ -109,7 +109,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     close_btn->below_of(*hdl_treaties_chk);
     close_btn->text("Close");
     close_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<AISettingsWindow>(*w.parent);
+        auto& o = static_cast<AISettingsWindow&>(*w.parent);
 
         o.gs.client->send(Action::AiControl::form_packet(o.gs.curr_nation));
         w.parent->kill();
