@@ -271,64 +271,66 @@ void ai_update_relations(Nation* nation, Nation* other) {
     }
 
     // Hating a nation a lot will make us reconsider logic military actions and go "purely by instinct"
-    if(!(std::rand() % (int)(1000000 / (1 + (-relation.relation * (our_power / other_power)))))) {
+    if(!(std::rand() % (int)(100000 / (1 + (-relation.relation * (our_power / other_power)))))) {
         if(!relation.has_war && !relation.has_alliance && !relation.has_defensive_pact) {
             nation->declare_war(*other);
-        } else {
-            // Offer treaties
-            if(!(std::rand() % 100)) {
-                Treaty* treaty = new Treaty();
+        }
+    }
 
-                {
-                    auto* clause = new TreatyClause::AnexxProvince();
-                    clause->sender = nation;
-                    clause->receiver = other;
-                    for(const auto& province : other->owned_provinces) {
-                        if(province->controller == nation) {
-                            if(!(std::rand() % 10)) {
-                                clause->provinces.push_back(province);
-                            }
+    if(relation.has_war) {
+        // Offer treaties
+        if(!(std::rand() % 50)) {
+            Treaty* treaty = new Treaty();
+
+            {
+                auto* clause = new TreatyClause::AnexxProvince();
+                clause->sender = nation;
+                clause->receiver = other;
+                for(const auto& province : other->owned_provinces) {
+                    if(province->controller == nation) {
+                        if(!(std::rand() % 10)) {
+                            clause->provinces.push_back(province);
                         }
-                    }
-
-                    if(!clause->provinces.empty()) {
-                        treaty->clauses.push_back(clause);
                     }
                 }
 
-                {
-                    auto* clause = new TreatyClause::LiberateNation();
-                    clause->sender = nation;
-                    clause->receiver = other;
+                if(!clause->provinces.empty()) {
+                    treaty->clauses.push_back(clause);
+                }
+            }
 
-                    clause->liberated = nullptr;
-                    for(const auto& province : other->owned_provinces) {
-                        for(const auto& other_nation : province->nuclei) {
-                            if(other_nation != other) {
-                                clause->liberated = other_nation;
-                                break;
-                            }
-                        }
+            {
+                auto* clause = new TreatyClause::LiberateNation();
+                clause->sender = nation;
+                clause->receiver = other;
 
-                        if(clause->liberated != nullptr) {
+                clause->liberated = nullptr;
+                for(const auto& province : other->owned_provinces) {
+                    for(const auto& other_nation : province->nuclei) {
+                        if(other_nation != other) {
+                            clause->liberated = other_nation;
                             break;
                         }
                     }
 
                     if(clause->liberated != nullptr) {
-                        treaty->clauses.push_back(clause);
+                        break;
                     }
                 }
 
-                {
-                    auto* clause = new TreatyClause::Ceasefire();
-                    clause->sender = nation;
-                    clause->receiver = other;
+                if(clause->liberated != nullptr) {
                     treaty->clauses.push_back(clause);
                 }
-
-                ((World&)world).insert(treaty);
             }
+
+            {
+                auto* clause = new TreatyClause::Ceasefire();
+                clause->sender = nation;
+                clause->receiver = other;
+                treaty->clauses.push_back(clause);
+            }
+
+            ((World&)world).insert(treaty);
         }
     }
 }
