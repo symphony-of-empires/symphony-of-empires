@@ -262,3 +262,11 @@ reuss_gera_monarchy
 
 saxe_weimar_monarchy
 	By Großherzog von Sachsen Weimar - http://s14.invisionfree.com/Empires/ar/t377.htm, Public Domain, https://commons.wikimedia.org/w/index.php?curid=15613896
+
+taiwan_communism
+taiwan_socialism
+hawaii_socialism
+hawaii_communism
+hawaii_republic
+hawaii_fascism
+	Flags made by Higrafo
