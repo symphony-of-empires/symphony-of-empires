@@ -367,6 +367,16 @@ void Server::net_loop(int id) {
                         
                         selected_nation->focus_tech = technology;
                     } break;
+                    case ActionType::AI_CONTROL: {
+                        ::deserialize(ar, &selected_nation->ai_do_build_production);
+                        ::deserialize(ar, &selected_nation->ai_do_cmd_troops);
+                        ::deserialize(ar, &selected_nation->ai_do_diplomacy);
+                        ::deserialize(ar, &selected_nation->ai_do_policies);
+                        ::deserialize(ar, &selected_nation->ai_do_research);
+                        ::deserialize(ar, &selected_nation->ai_do_unit_production);
+                        ::deserialize(ar, &selected_nation->ai_handle_events);
+                        ::deserialize(ar, &selected_nation->ai_handle_treaties);
+                    } break;
                     // Nation and province addition and removals are not allowed to be done by clients
                     default:
                         break;
