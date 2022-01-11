@@ -100,7 +100,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
 
     auto* take_all_btn = new UI::Checkbox(0, 0, 128, 24, this);
     take_all_btn->below_of(*ceasefire_btn);
-    take_all_btn->text("Take all land");
+    take_all_btn->text("Take all controlled land");
     take_all_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TreatyDraftView&>(*w.parent);
 
@@ -127,8 +127,37 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
             }
         }
     });
+
+    auto* annexx_btn = new UI::Checkbox(0, 0, 128, 24, this);
+    annexx_btn->below_of(*take_all_btn);
+    annexx_btn->text("Annexx");
+    annexx_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<TreatyDraftView&>(*w.parent);
+
+        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
+
+        if(((UI::Checkbox&)w).value) {
+            auto* clause = new TreatyClause::AnexxProvince();
+            clause->sender = o.gs.curr_nation;
+            clause->receiver = o.nation;
+            clause->days_duration = 0;
+            for(auto& province : o.nation->owned_provinces) {
+                clause->provinces.push_back(province);
+            }
+            o.treaty.clauses.push_back(clause);
+        } else {
+            auto it = std::find_if(o.treaty.clauses.begin(), o.treaty.clauses.end(), [](const auto& e) {
+                return e->type == TreatyClauseType::ANEXX_PROVINCES;
+            });
+
+            if(it != o.treaty.clauses.end()) {
+                o.treaty.clauses.erase(it);
+            }
+        }
+    });
     
-    auto* draft_btn = new UI::Button(0, 24 * 2, this->width, 24, this);
+    auto* draft_btn = new UI::Button(0, 0, this->width, 24, this);
+    draft_btn->below_of(*annexx_btn);
     draft_btn->text("Draft");
     draft_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TreatyDraftView&>(*w.parent);
