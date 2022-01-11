@@ -227,8 +227,21 @@ MainMenuSettings::MainMenuSettings(GameState& _gs)
     landscape_chk->tooltip = new UI::Tooltip(landscape_chk, 512, 24);
     landscape_chk->tooltip->text("Enables/Disables the landacape image (for terrain). Low performance impact");
 
+    auto* motionblur_chk = new UI::Checkbox(0, 0, 128, 24, this);
+    motionblur_chk->below_of(*landscape_chk);
+    motionblur_chk->value = gs.motion_blur;
+    motionblur_chk->text("Motion blur");
+    motionblur_chk->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenuSettings&>(*w.parent);
+        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
+        o.gs.map->motion_blur = ((UI::Checkbox&)w).value;
+        o.gs.map->reload_shaders();
+    });
+    motionblur_chk->tooltip = new UI::Tooltip(motionblur_chk, 512, 24);
+    motionblur_chk->tooltip->text("Control if motion blur should be enabled");
+
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->below_of(*landscape_chk);
+    close_btn->below_of(*motionblur_chk);
     close_btn->text("Cancel");
 }
 

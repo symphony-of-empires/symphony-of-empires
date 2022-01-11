@@ -133,9 +133,7 @@ public:
     bool in_game;
 
     // Settings
-    bool has_sdf_detail = false;
-    bool has_noise_map = false;
-    bool has_flat_normal_map = true;
+    bool motion_blur = false;
 };
 
 // Run world tick and pending commands
