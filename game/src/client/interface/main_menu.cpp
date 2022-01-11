@@ -234,8 +234,7 @@ MainMenuSettings::MainMenuSettings(GameState& _gs)
     motionblur_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenuSettings&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-        o.gs.map->motion_blur = ((UI::Checkbox&)w).value;
-        o.gs.map->reload_shaders();
+        o.gs.motion_blur = ((UI::Checkbox&)w).value;
     });
     motionblur_chk->tooltip = new UI::Tooltip(motionblur_chk, 512, 24);
     motionblur_chk->tooltip->text("Control if motion blur should be enabled");
