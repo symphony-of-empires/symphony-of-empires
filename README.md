@@ -1,7 +1,6 @@
 # Symphony of the Empires
 ![Screenshot_from_2021-12-25_01-25-26](https://user-images.githubusercontent.com/75251578/147566379-c81de302-533e-43e8-9a50-88d3eb4d54af.png)
 
-
 Want to contribute or are interested in the development of the game? See our discord https://discord.gg/44QuvuDmCS
 
 This is an Opensource RTS game engine; created to be very mod-friendly.
@@ -12,19 +11,23 @@ Required to build:
 * lua 5.3 (or 5.4)
 * GL and GLU
 * libavcodec (on most package managers it's ffmpeg)
-* libassimp
 
-## Build (Linux)
+## Build on Linux
+
+### Debian-based distros
 Install all dependencies with this command:
 ```
 sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.3-dev libtbb-dev libglew-dev libglm-dev libassimp-dev
 ```
 
 The build with these commands once all the dependencies are met:
-```
+```sh
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Debug ..
-make
+cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release -DUR_BACKEND_OPENGL=1 ..
+cp game\game .
+mv game soe
+cp unified_render\libunified_render.so .
+cp unified_render\libunified_render.a .
 ```
 
 Specifying `-j` to make will freeze systems, use `-j$(nproc)` instead, if a multithreaded compilation is desired.
@@ -40,15 +43,9 @@ Alternatively, you can call `cmake` with the flag `-Dlua54:BOOL=ON` to compile w
 
 The project can also be built using clang.
 
-## Build (Linux, MinGW)
-Using mingw-w64 on linux it is possible to cross compile for Windows builds, simply run the following commands:
-```
-mkdir build && cd build
-cmake -DWIN32=1 -DCMAKE_BUILD_TYPE:String=RelWithDebInfo ..
-make
-```
+## Build on Windows
 
-## Build (Windows, MSYS2)
+### MSYS2
 Once msys2 has been installed for the first time, you'll have to run the following commands to install essential development packages:
 ```sh
 pacman -Syu
@@ -71,27 +68,28 @@ pacman -S mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-lua mingw-w
 Finally; to build you only have to run:
 ```sh
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE:String=RelWithDebInfo -G"Unix Makefiles" ..
-make
+cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release -DUR_BACKEND_OPENGL=1 ..
+cp game\game.exe .
+mv game.exe soe.exe
+cp unified_render\libunified_render.dll .
 ```
 
-## Build (Windows, Visual Studio)
+Alternatively, one may simply run the buildall.bat file under an MSYS2 session - which will create Release and Debug builds:
+```sh
+./buildall.bat
+```
+
+### Visual Studio
 Builds can be built using Visual C compiler. The trick is to create a new solution and place everything there, add src and src\\client as include folders and use NuGet to obtain the required dependencies, then define the macro `windows`.
 
 ## Running
-In order to run the game you need to first start the server, this server manages the world state and does the economic simulation:
-```
-./SymphonyOfEmpiresServer
+In order to run the game you just need to run it via the command line or left-click the executable:
+```sh
+./game
 ```
 
-After that you may want to initialize the client so you can interact with the server - this is done as follows:
-```
-./SymphonyOfEmpiresClient [optional IP address]
-```
-Not specifying a IP address will automatically connect the client to the localhost server - all servers use the port 1836.
-
-If the server crashes and the port needs to be re-aquired:
-```
+If the server crashes and the port needs to be re-aquired do the following under *NIX systems:
+```sh
 fuser -k 1836/tcp
 ```
 
