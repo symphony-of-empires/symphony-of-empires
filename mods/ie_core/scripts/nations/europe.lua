@@ -821,8 +821,11 @@ turkey.combo_form = _("Turco")
 turkey:register()
 turkey:set_ideology(monarchy)
 turkey:add_accepted_culture(turkish)
-chile:add_client_hint(monarchy, _("Turkey"), 0xc9201a)
-chile:add_client_hint(republic, _("Turkey"), 0xc9201a)
+turkey:add_client_hint(monarchy, _("Turkey"), 0xc9201a)
+turkey:add_client_hint(republic, _("Turkey"), 0xc9201a)
+turkey:add_client_hint(communism, _("Turkey"), 0xc9201a)
+turkey:add_client_hint(socialism, _("Turkey"), 0xc9201a)
+turkey:add_client_hint(fascism, _("Turkey"), 0xc9201a)
 
 greece = Nation:new{ ref_name = "greece" }
 greece.name = _("Greece")

@@ -28,8 +28,13 @@ hawai_i = Nation:new{ ref_name = "hawai_i" }
 hawai_i.name = _("Hawai'i")
 hawai_i:register()
 hawai_i:add_accepted_culture(polynesian)
+hawai_i:add_client_hint(monarchy, _("Hawai'i"), 0x808000)
 hawai_i:add_client_hint(communism, _("Hawai'i"), 0x808000)
+hawai_i:add_client_hint(socialism, _("Hawai'i"), 0x808000)
+hawai_i:add_client_hint(fascism, _("Hawai'i"), 0x808000)
+hawai_i:add_client_hint(republic, _("Hawai'i"), 0x808000)
 
 require('nations/africa')
 require('nations/america')
+require('nations/asia')
 require('nations/europe')
