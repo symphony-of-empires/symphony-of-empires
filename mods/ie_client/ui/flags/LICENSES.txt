@@ -272,4 +272,8 @@ hawaii_fascism
 usa_communism
 usa_fascism
 usa_socialism
+sokoto_fascism
+sokoto_communism
+sokoto_socialism
+upca_communism
 	Flags made by Higrafo

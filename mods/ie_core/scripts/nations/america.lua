@@ -90,6 +90,7 @@ upca:register()
 upca:set_ideology(republic)
 upca:add_accepted_culture(mexican)
 upca:add_client_hint(republic, _("United Provinces of Central America"), 0x5bb2cf)
+upca:add_client_hint(communism, _("United Provinces of Central America"), 0x5bb2cf)
 
 mexico = Nation:new{ ref_name = "mexico" }
 mexico.name = _("Mexico")
