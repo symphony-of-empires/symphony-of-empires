@@ -85,11 +85,11 @@ chile:add_accepted_culture(Culture:get("chilean"))
 chile:add_client_hint(republic, _("Chile"), 0xad6dcf)
 
 upca = Nation:new{ ref_name = "upca" }
-upca.name = _("UPCA")
+upca.name = _("United Provinces of Central America")
 upca:register()
 upca:set_ideology(republic)
 upca:add_accepted_culture(mexican)
-upca:add_client_hint(republic, _("UPCA"), 0x5bb2cf)
+upca:add_client_hint(republic, _("United Provinces of Central America"), 0x5bb2cf)
 
 mexico = Nation:new{ ref_name = "mexico" }
 mexico.name = _("Mexico")
@@ -100,15 +100,15 @@ mexico:add_accepted_culture(mexican)
 mexico:add_client_hint(republic, _("Mexico"), 0x5ac780)
 mexico:add_client_hint(monarchy, _("Mexican Empire"), 0x5ac780)
 
-united_states = Nation:new{ ref_name = "united_states" }
-united_states.name = _("United states")
-united_states.adjective = _("American")
-united_states.noun = _("American")
-united_states:register()
-united_states:set_ideology(democracy)
-united_states:add_accepted_culture(british)
-united_states:add_accepted_culture(Culture:get("american"))
-united_states:add_client_hint(democracy, _("United states"), 0x6ea5cc)
+usa = Nation:new{ ref_name = "usa" }
+usa.name = _("United states")
+usa.adjective = _("American")
+usa.noun = _("American")
+usa:register()
+usa:set_ideology(democracy)
+usa:add_accepted_culture(british)
+usa:add_accepted_culture(Culture:get("american"))
+usa:add_client_hint(democracy, _("United states"), 0x6ea5cc)
 
 haiti = Nation:new{ ref_name = "haiti" }
 haiti.name = _("Haiti")
