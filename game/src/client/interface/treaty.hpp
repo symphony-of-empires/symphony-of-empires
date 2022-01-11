@@ -38,9 +38,10 @@ namespace UI {
 namespace Interface {
     class TreatyDraftView : public UI::Window {
         GameState& gs;
-        Treaty* treaty;
+        Treaty treaty;
+        Nation* nation;
     public:
-        TreatyDraftView(GameState& gs);
+        TreatyDraftView(GameState& gs, Nation* nation);
     };
 
     class TreatyChooseWindow : public UI::Window {
