@@ -260,6 +260,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         //if(input.selected_units.empty()) {
         if(1) {
             gs.curr_nation->give_province(*province);
+            province->nuclei.insert(gs.curr_nation);
 
             FILE* fp = fopen("provinces_dump.lua", "wt");
             if(fp != nullptr) {
