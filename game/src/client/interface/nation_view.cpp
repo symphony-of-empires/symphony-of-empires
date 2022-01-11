@@ -224,7 +224,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     switch_btn->below_of(*allow_military_access_btn);
     switch_btn->text(UnifiedRender::Locale::translate("Switch to this nation"));
     switch_btn->tooltip = new UI::Tooltip(switch_btn, 512, 24);
-    switch_btn->tooltip->text(UnifiedRender::Locale::translate("Switches to this nation"));
+    switch_btn->tooltip->text(UnifiedRender::Locale::translate("Switches to this nation (multiplayer disallow rule)"));
     switch_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<NationView&>(*w.parent);
         o.gs.curr_nation = o.nation;
