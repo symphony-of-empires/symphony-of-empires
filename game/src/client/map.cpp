@@ -258,7 +258,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         Province* province = gs.world->provinces[tile.province_id];
 
         //if(input.selected_units.empty()) {
-        if(0) {
+        if(1) {
             gs.curr_nation->give_province(*province);
 
             FILE* fp = fopen("provinces_dump.lua", "wt");
