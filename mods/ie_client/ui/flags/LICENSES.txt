@@ -4,7 +4,7 @@ japan_monarchy
 peru_republic
 	By Huhsunqu - Own work, CC BY-SA 2.5, https://commons.wikimedia.org/w/index.php?curid=676295
 
-united_states_democracy
+usa_democracy
 	By No machine-readable author provided. Jacobolus assumed (based on copyright claims). - No machine-readable source provided. Own work assumed (based on copyright claims)., Public Domain, https://commons.wikimedia.org/w/index.php?curid=733550
 
 mexico_republic
@@ -19,7 +19,7 @@ paraguay_republic
 bolivia_republic
 	By Huhsunqu - Own work, CC BY-SA 2.5, https://commons.wikimedia.org/w/index.php?curid=992223
 
-federated_republic_central_america_republic
+upca_republic
 	By Huhsunqu - This W3C-unspecified vector image was created with Inkscape ., CC BY-SA 2.5, https://commons.wikimedia.org/w/index.php?curid=598888
 
 united_kingdom_monarchy
@@ -269,4 +269,7 @@ hawaii_socialism
 hawaii_communism
 hawaii_republic
 hawaii_fascism
+usa_communism
+usa_fascism
+usa_socialism
 	Flags made by Higrafo
