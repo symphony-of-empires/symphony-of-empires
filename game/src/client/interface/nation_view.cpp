@@ -26,6 +26,7 @@
 #include "client/interface/nation_view.hpp"
 #include "client/client_network.hpp"
 #include "client/interface/common.hpp"
+#include "client/interface/treaty.hpp"
 #include "client/interface/war.hpp"
 #include "io_impl.hpp"
 #include "client/ui/components.hpp"
@@ -167,13 +168,27 @@ NationView::NationView(GameState& _gs, Nation* _nation)
 
     this->dow_btn = new UI::Button(0, 0, this->width, 24, this);
     this->dow_btn->below_of(*this->dec_btn);
-    this->dow_btn->text("Declare war");
-    this->dow_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<NationView&>(*w.parent);
-        new WarDeclarePrompt(o.gs, o.nation);
-    });
     this->dow_btn->tooltip = new UI::Tooltip(this->dow_btn, 512, 24);
-    this->dow_btn->tooltip->text("Declaring war on this nation will bring all their allies to their side");
+    this->dow_btn->on_each_tick = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<NationView&>(*w.parent);
+
+        if(o.gs.curr_nation->relations[o.gs.world->get_id(o.nation)].has_war) {
+            w.text("Propose treaty");
+            w.on_click = ([](UI::Widget& w, void*) {
+                auto& o = static_cast<NationView&>(*w.parent);
+                new Interface::TreatyDraftView(o.gs, o.nation);
+            });
+            w.tooltip->text("End the war against this country and propose a peace deal");
+        } else {
+            w.text("Declare war");
+            w.on_click = ([](UI::Widget& w, void*) {
+                auto& o = static_cast<NationView&>(*w.parent);
+                new Interface::WarDeclarePrompt(o.gs, o.nation);
+            });
+            w.tooltip->text("Declaring war on this nation will bring all their allies to their side");
+        }
+    });
+    this->dow_btn->on_each_tick(*this->dow_btn, nullptr);
 
     this->ally_btn = new UI::Button(0, 0, this->width, 24, this);
     this->ally_btn->below_of(*this->dow_btn);
@@ -203,11 +218,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     this->allow_military_access_btn->tooltip = new UI::Tooltip(this->allow_military_access_btn, 512, 24);
     this->allow_military_access_btn->tooltip->text("Allow this nation to cross our land with their units");
 
-    this->propose_truce_btn = new UI::Button(0, 0, this->width, 24, this);
-    this->propose_truce_btn->below_of(*this->allow_military_access_btn);
-    this->propose_truce_btn->text("Propose truce");
-
     auto* close_btn = new UI::CloseButton(0, 0, this->width, 24, this);
-    close_btn->below_of(*this->propose_truce_btn);
+    close_btn->below_of(*this->allow_military_access_btn);
     close_btn->text("Close");
 }

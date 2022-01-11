@@ -26,19 +26,9 @@
 #include "client/interface/treaty.hpp"
 #include "io_impl.hpp"
 #include "client/ui/components.hpp"
+#include "client/client_network.hpp"
 
 using namespace Interface;
-
-TreatyDraftView::TreatyDraftView(GameState& _gs)
-    : UI::Window(0, 0, 256, 512),
-    gs{ _gs }
-{
-    this->is_scroll = false;
-    this->text("Draft treaty");
-    
-    auto* draft_btn = new UI::Button(0, 24 * 2, this->width, 24, this);
-    draft_btn->text("Draft");
-}
 
 std::string treaty_to_text(Treaty* treaty) {
     std::string text = "";
@@ -71,6 +61,93 @@ std::string treaty_to_text(Treaty* treaty) {
         text += ", ";
     }
     return text;
+}
+
+TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
+    : UI::Window(0, 0, 256, 512),
+    gs{ _gs },
+    nation{ _nation }
+{
+    this->is_scroll = false;
+    this->text("Draft treaty");
+
+    this->treaty.sender = gs.curr_nation;
+    this->treaty.receiver = nation;
+
+    auto* ceasefire_btn = new UI::Checkbox(0, 0, 128, 24, this);
+    ceasefire_btn->text("Ceasefire");
+    ceasefire_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<TreatyDraftView&>(*w.parent);
+
+        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
+
+        if(((UI::Checkbox&)w).value) {
+            auto* clause = new TreatyClause::Ceasefire();
+            clause->sender = o.gs.curr_nation;
+            clause->receiver = o.nation;
+            clause->days_duration = 360;
+            o.treaty.clauses.push_back(clause);
+        } else {
+            auto it = std::find_if(o.treaty.clauses.begin(), o.treaty.clauses.end(), [](const auto& e) {
+                return e->type == TreatyClauseType::CEASEFIRE;
+            });
+
+            if(it != o.treaty.clauses.end()) {
+                o.treaty.clauses.erase(it);
+            }
+        }
+    });
+
+    auto* take_all_btn = new UI::Checkbox(0, 0, 128, 24, this);
+    take_all_btn->below_of(*ceasefire_btn);
+    take_all_btn->text("Take all land");
+    take_all_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<TreatyDraftView&>(*w.parent);
+
+        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
+
+        if(((UI::Checkbox&)w).value) {
+            auto* clause = new TreatyClause::AnexxProvince();
+            clause->sender = o.gs.curr_nation;
+            clause->receiver = o.nation;
+            clause->days_duration = 0;
+            for(auto& province : o.nation->owned_provinces) {
+                if(province->controller == o.gs.curr_nation) {
+                    clause->provinces.push_back(province);
+                }
+            }
+            o.treaty.clauses.push_back(clause);
+        } else {
+            auto it = std::find_if(o.treaty.clauses.begin(), o.treaty.clauses.end(), [](const auto& e) {
+                return e->type == TreatyClauseType::ANEXX_PROVINCES;
+            });
+
+            if(it != o.treaty.clauses.end()) {
+                o.treaty.clauses.erase(it);
+            }
+        }
+    });
+    
+    auto* draft_btn = new UI::Button(0, 24 * 2, this->width, 24, this);
+    draft_btn->text("Draft");
+    draft_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<TreatyDraftView&>(*w.parent);
+
+        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+        Archive ar = Archive();
+        ActionType action = ActionType::DRAFT_TREATY;
+        ::serialize(ar, &action);
+        ::serialize(ar, &o.treaty.clauses);
+        ::serialize(ar, &o.treaty.name);
+        ::serialize(ar, &o.treaty.sender);
+        packet.data(ar.get_buffer(), ar.size());
+        std::scoped_lock lock(o.gs.client->pending_packets_mutex);
+        o.gs.client->pending_packets.push_back(packet);
+
+        o.gs.ui_ctx->prompt("Treaty", "Treaty drafted: " + treaty_to_text(&o.treaty));
+
+        o.kill();
+    });
 }
 
 TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
