@@ -85,6 +85,9 @@ sokoto.name = _("Sokoto")
 sokoto:register()
 sokoto:add_accepted_culture(arabic)
 sokoto:add_client_hint(monarchy, _("Sokoto"), 0x808000)
+sokoto:add_client_hint(fascism, _("Sokoto"), 0x808000)
+sokoto:add_client_hint(communism, _("Sokoto"), 0x808000)
+sokoto:add_client_hint(socialism, _("Sokoto"), 0x808000)
 
 wadai_empire = Nation:new{ ref_name = "wadai_empire" }
 wadai_empire.name = _("Wadai Empire")
