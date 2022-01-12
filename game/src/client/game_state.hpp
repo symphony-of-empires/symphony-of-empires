@@ -54,7 +54,6 @@ public:
 
     std::vector<Unit*> selected_units;
 
-    bool is_drag;
     std::pair<int, int> drag_coord;
 };
 

@@ -112,7 +112,8 @@ void Map::set_view(MapView view) {
     delete camera;
     if(view == MapView::PLANE_VIEW) {
         camera = new FlatCamera(old_width, old_height);
-    } else if(view == MapView::SPHERE_VIEW) {
+    }
+    else if(view == MapView::SPHERE_VIEW) {
         camera = new OrbitCamera(old_width, old_height, 100.f);
     }
 }
@@ -124,9 +125,11 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
         Nation* province_owner = world.provinces[i]->owner;
         if(province_owner == nullptr) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        } else if(province_owner->cached_id == (Nation::Id)-1) {
+        }
+        else if(province_owner->cached_id == (Nation::Id)-1) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        } else {
+        }
+        else {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }
@@ -161,13 +164,13 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-        ));
+            ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-        ));
+            ));
     }
     flag.upload();
 
@@ -235,7 +238,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                     input.selected_units.push_back(unit);
                 }
             }
-            input.is_drag = false;
+            is_drag = false;
 
             if(input.selected_units.empty()) {
                 // Show province information when clicking on a province
@@ -249,7 +252,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    } else if(event.button.button == SDL_BUTTON_RIGHT) {
+    }
+    else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
         if(tile.province_id == (Province::Id)-1) {
             return;
@@ -339,26 +343,27 @@ void Map::update(const SDL_Event& event, Input& input) {
     case SDL_MOUSEBUTTONDOWN:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
 
-        input.is_drag = false;
+        is_drag = false;
         if(event.button.button == SDL_BUTTON_MIDDLE) {
             input.last_camera_drag_pos = camera->get_map_pos(mouse_pos);
             input.last_camera_mouse_pos = mouse_pos;
-        } else if(event.button.button == SDL_BUTTON_LEFT) {
-            if(!input.is_drag) {
-                input.drag_coord = input.select_pos;
-                if(view_mode == MapView::SPHERE_VIEW) {
-                    input.drag_coord.first = (int)(world.width * input.drag_coord.first / (2. * M_PI));
-                    input.drag_coord.second = (int)(world.height * input.drag_coord.second / M_PI);
-                } else {
-                    input.drag_coord.first = (int)input.drag_coord.first;
-                    input.drag_coord.second = (int)input.drag_coord.second;
-                }
-                input.is_drag = true;
+        }
+        else if(event.button.button == SDL_BUTTON_LEFT) {
+            input.drag_coord = input.select_pos;
+            if(view_mode == MapView::SPHERE_VIEW) {
+                input.drag_coord.first = (int)(world.width * input.drag_coord.first / (2. * M_PI));
+                input.drag_coord.second = (int)(world.height * input.drag_coord.second / M_PI);
             }
+            else {
+                input.drag_coord.first = (int)input.drag_coord.first;
+                input.drag_coord.second = (int)input.drag_coord.second;
+            }
+            is_drag = true;
         }
         break;
     case SDL_JOYBUTTONUP:
     case SDL_MOUSEBUTTONUP:
+        is_drag = false;
         break;
     case SDL_MOUSEMOTION:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -372,7 +377,8 @@ void Map::update(const SDL_Event& event, Input& input) {
             input.select_pos = camera->get_map_pos(input.mouse_pos);
             input.select_pos.first = (int)(world.width * input.select_pos.first / (2. * M_PI));
             input.select_pos.second = (int)(world.height * input.select_pos.second / M_PI);
-        } else {
+        }
+        else {
             if(input.middle_mouse_down) {  // Drag the map with middlemouse
                 std::pair<float, float> map_pos = camera->get_map_pos(mouse_pos);
                 float x_pos = camera->position.x + input.last_camera_drag_pos.first - map_pos.first;
@@ -404,13 +410,6 @@ void Map::update(const SDL_Event& event, Input& input) {
             break;
         }
         break;
-    case SDL_WINDOWEVENT:
-        if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
-            int width, height;
-            SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height);
-            camera->set_screen(width, height);
-        }
-        break;
     }
 }
 
@@ -427,7 +426,7 @@ void Map::draw(const GameState& gs) {
     // TODO: We need to better this
     view = camera->get_view();
     projection = camera->get_projection();
-    
+
     obj_shader->use();
     obj_shader->set_uniform("projection", projection);
     obj_shader->set_uniform("view", view);
@@ -483,7 +482,7 @@ void Map::draw(const GameState& gs) {
     }
 
     // Draw the "drag area" box
-    if(gs.input.is_drag) {
+    if(is_drag) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(0.f, 0.f, -1.f));
         obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/line_target.png")));
