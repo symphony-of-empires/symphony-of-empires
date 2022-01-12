@@ -175,6 +175,7 @@ World::World() {
     lua_register(lua, "get_province_owner", LuaAPI::get_province_owner);
     lua_register(lua, "get_province_controller", LuaAPI::get_province_controller);
     lua_register(lua, "get_province_neighbours", LuaAPI::get_province_neighbours);
+    lua_register(lua, "get_province_nuclei", LuaAPI::get_province_nuclei);
     lua_register(lua, "get_province_pops_size", LuaAPI::get_province_pops_size);
     lua_register(lua, "get_province_pop", LuaAPI::get_province_pop);
     lua_register(lua, "set_province_pop", LuaAPI::set_province_pop);

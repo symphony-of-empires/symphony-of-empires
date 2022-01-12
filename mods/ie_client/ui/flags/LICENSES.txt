@@ -263,6 +263,9 @@ reuss_gera_monarchy
 saxe_weimar_monarchy
 	By Großherzog von Sachsen Weimar - http://s14.invisionfree.com/Empires/ar/t377.htm, Public Domain, https://commons.wikimedia.org/w/index.php?curid=15613896
 
+qing_monarchy
+	By !Original:清朝政府Vector: Sodacan - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=39922650
+
 taiwan_communism
 taiwan_socialism
 hawaii_socialism
@@ -276,4 +279,20 @@ sokoto_fascism
 sokoto_communism
 sokoto_socialism
 upca_communism
+qing_communism
+latvia_monarchy
+argentina_monarchy
+gran_colombia_monarchy
+paraguay_monarchy
+peru_monarchy
+usa_monarchy
+poland_monarchy
+estonia_monarchy
+chile_monarchy
+prussia_socialism
+wallachia_communism
+prussia_fascism
+prussia_communism
+uruguay_monarchy
+panama_monarchy
 	Flags made by Higrafo
