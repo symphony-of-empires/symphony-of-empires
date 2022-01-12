@@ -78,4 +78,7 @@ DescisionButton::DescisionButton(UI::Window* parent, GameState& _gs, const Desci
 
         w.parent->kill();
     };
+
+    this->tooltip = new UI::Tooltip(this, 512, 24);
+    this->tooltip->text(descision.effects);
 }
