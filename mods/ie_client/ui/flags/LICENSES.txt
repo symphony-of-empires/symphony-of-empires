@@ -293,4 +293,6 @@ prussia_socialism
 wallachia_communism
 prussia_fascism
 prussia_communism
+uruguay_monarchy
+panama_monarchy
 	Flags made by Higrafo
