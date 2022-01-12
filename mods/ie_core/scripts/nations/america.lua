@@ -86,6 +86,7 @@ chile.adjective = _("Chilean")
 chile:register()
 chile:set_ideology(republic)
 chile:add_accepted_culture(Culture:get("chilean"))
+chile:add_client_hint(monarchy, _("Chile"), 0xad6dcf)
 chile:add_client_hint(republic, _("Chile"), 0xad6dcf)
 
 upca = Nation:new{ ref_name = "upca" }
