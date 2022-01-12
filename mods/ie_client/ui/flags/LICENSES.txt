@@ -288,4 +288,7 @@ peru_monarchy
 usa_monarchy
 poland_monarchy
 estonia_monarchy
+chile_monarchy
+prussia_socialism
+wallachia_communism
 	Flags made by Higrafo
