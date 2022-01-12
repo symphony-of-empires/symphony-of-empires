@@ -24,6 +24,7 @@ The build with these commands once all the dependencies are met:
 ```sh
 mkdir build && cd build
 cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release -DUR_BACKEND_OPENGL=1 ..
+make
 cp game/game .
 mv game soe
 cp unified_render/libunified_render.so .
@@ -69,6 +70,7 @@ Finally; to build you only have to run:
 ```sh
 mkdir build && cd build
 cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release -DUR_BACKEND_OPENGL=1 ..
+make
 cp game/game.exe .
 mv game.exe soe.exe
 cp unified_render/libunified_render.dll .
