@@ -19,10 +19,11 @@ jobs:
     - name: "Build"
       run: |
        cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release -DUR_BACKEND_OPENGL=1 .
-       cp game\game .
+       make -j$(nproc)
+       cp game/game .
        mv game soe
-       cp unified_render\libunified_render.so .
-       cp unified_render\libunified_render.a .
+       cp unified_render/libunified_render.so .
+       cp unified_render/libunified_render.a .
        make -j
     - name: "Run"
       run: |

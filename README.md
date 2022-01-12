@@ -24,10 +24,11 @@ The build with these commands once all the dependencies are met:
 ```sh
 mkdir build && cd build
 cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release -DUR_BACKEND_OPENGL=1 ..
-cp game\game .
+make
+cp game/game .
 mv game soe
-cp unified_render\libunified_render.so .
-cp unified_render\libunified_render.a .
+cp unified_render/libunified_render.so .
+cp unified_render/libunified_render.a .
 ```
 
 Specifying `-j` to make will freeze systems, use `-j$(nproc)` instead, if a multithreaded compilation is desired.
@@ -69,9 +70,10 @@ Finally; to build you only have to run:
 ```sh
 mkdir build && cd build
 cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release -DUR_BACKEND_OPENGL=1 ..
-cp game\game.exe .
+make
+cp game/game.exe .
 mv game.exe soe.exe
-cp unified_render\libunified_render.dll .
+cp unified_render/libunified_render.dll .
 ```
 
 Alternatively, one may simply run the buildall.bat file under an MSYS2 session - which will create Release and Debug builds:
