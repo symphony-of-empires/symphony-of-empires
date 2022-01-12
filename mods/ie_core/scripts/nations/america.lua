@@ -141,4 +141,20 @@ texas.adjective = _("Texan")
 texas:register()
 texas:add_accepted_culture(Culture:get("american"))
 texas:add_client_hint(republic, _("Texas"), 0x8be2f7)
+
+uruguay = Nation:new{ ref_name = "uruguay" }
+uruguay.name = _("Uruguay")
+uruguay.adjective = _("Uruguayan")
+uruguay:register()
+uruguay:add_accepted_culture(paraguayan)
+uruguay:add_client_hint(monarchy, _("Uruguay"), 0x808000)
+uruguay:add_client_hint(republic, _("Uruguay"), 0x808000)
+
+panama = Nation:new{ ref_name = "panama" }
+panama.name = _("Panama")
+panama.adjective = _("Panaman")
+panama:register()
+panama:add_accepted_culture(paraguayan)
+panama:add_client_hint(monarchy, _("Panama"), 0x808000)
+panama:add_client_hint(republic, _("Panama"), 0x808000)
 --------------------------------------------------------------
