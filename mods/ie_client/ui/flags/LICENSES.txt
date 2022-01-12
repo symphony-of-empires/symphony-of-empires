@@ -291,4 +291,6 @@ estonia_monarchy
 chile_monarchy
 prussia_socialism
 wallachia_communism
+prussia_fascism
+prussia_communism
 	Flags made by Higrafo
