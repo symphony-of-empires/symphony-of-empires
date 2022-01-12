@@ -25,8 +25,7 @@ The build with these commands once all the dependencies are met:
 mkdir build && cd build
 cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release -DUR_BACKEND_OPENGL=1 ..
 make
-cp game/game .
-mv game soe
+cp game/game soe
 cp unified_render/libunified_render.so .
 cp unified_render/libunified_render.a .
 ```
