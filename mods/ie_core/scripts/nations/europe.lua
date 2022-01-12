@@ -383,6 +383,7 @@ prussia.adjective = _("Prussian")
 prussia:register()
 prussia:set_ideology(monarchy)
 prussia:add_accepted_culture(german)
+prussia:add_client_hint(socialism, _("Prussia"), 0x405370)
 prussia:add_client_hint(monarchy, _("Prussia"), 0x405370)
 
 salzburg = Nation:new{ ref_name = "salzburg" }
