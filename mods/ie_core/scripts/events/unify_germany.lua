@@ -28,7 +28,8 @@
 --
 
 function unify_germany_test()
-    if math.random(0, 100) == 0 then
+	local year = get_year()
+    if year >= 1840 and math.random(0, 100) == 0 then
         return EVENT_CONDITIONS_MET
     end
 	return EVENT_CONDITIONS_UNMET
