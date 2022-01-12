@@ -96,6 +96,7 @@ public:
 
     // Wind oscillator (for flags)
     float wind_osc = 0.f;
+    bool is_drag = false;
 
     const World& world;
     Camera* camera;

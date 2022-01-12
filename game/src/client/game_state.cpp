@@ -125,6 +125,13 @@ void handle_event(Input& input, GameState& gs) {
     int& width = gs.width;
     int& height = gs.height;
     SDL_Event event;
+
+    // Check window size every update
+    //   - needed cause the window sometimes changes size without calling the change window size event
+    SDL_GetWindowSize(gs.window, &width, &height);
+    gs.ui_ctx->resize(width, height);
+    gs.map->camera->set_screen(width, height);
+
     while(SDL_PollEvent(&event)) {
         bool click_on_ui = false;
         switch(event.type) {
@@ -132,6 +139,7 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_MOUSEBUTTONDOWN:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+            click_on_ui = ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
             ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
             if(event.button.button == SDL_BUTTON_MIDDLE) {
                 input.middle_mouse_down = true;
@@ -193,7 +201,8 @@ void handle_event(Input& input, GameState& gs) {
                     gs.paused = !gs.paused;
                     if(gs.paused) {
                         ui_ctx->prompt("Control", "Unpaused");
-                    } else {
+                    }
+                    else {
                         ui_ctx->prompt("Control", "Paused");
                     }
                 }
@@ -220,7 +229,7 @@ void handle_event(Input& input, GameState& gs) {
             int yrel = SDL_JoystickGetAxis(gs.joy, 1);
 
             const float sensivity = UnifiedRender::State::get_instance().joy_sensivity;
-            
+
             float x_force = xrel / sensivity;
             float y_force = yrel / sensivity;
 
@@ -239,7 +248,8 @@ void handle_event(Input& input, GameState& gs) {
                     gs.input.select_pos = gs.map->camera->get_map_pos(gs.input.mouse_pos);
                     gs.input.select_pos.first = (int)(gs.world->width * gs.input.select_pos.first / (2. * M_PI));
                     gs.input.select_pos.second = (int)(gs.world->height * gs.input.select_pos.second / M_PI);
-                } else {
+                }
+                else {
                     if(input.middle_mouse_down) {  // Drag the map with middlemouse
                         const std::pair<float, float> map_pos = gs.map->camera->get_map_pos(mouse_pos);
                         const float x_pos = gs.map->camera->position.x + gs.input.last_camera_drag_pos.first - map_pos.first;
@@ -256,15 +266,6 @@ void handle_event(Input& input, GameState& gs) {
         case SDL_QUIT:
             gs.run = false;
             gs.paused = false;
-            break;
-        case SDL_WINDOWEVENT:
-            if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                SDL_GetWindowSize(SDL_GetWindowFromID(event.window.windowID), &width, &height);
-
-                ui_ctx->resize(width, height);
-                gs.width = width;
-                gs.height = height;
-            }
             break;
         default:
             break;
@@ -392,7 +393,7 @@ void main_loop(GameState& gs) {
         if(gs.update_tick) {
             gs.update_on_tick();
             gs.update_tick = false;
-            
+
             if(gs.current_mode == MapMode::NORMAL) {
                 if(gs.world->world_mutex.try_lock()) {
                     // Production queue
@@ -418,7 +419,7 @@ void main_loop(GameState& gs) {
                                 g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
                                 break;
                             }
-                            
+
                             if(!is_built) {
                                 continue;
                             }
@@ -448,7 +449,7 @@ void main_loop(GameState& gs) {
         if(!gs.motion_blur) {
             gs.clear();
         }
-        
+
         if(gs.current_mode != MapMode::NO_MAP) {
             std::scoped_lock lock(gs.world->world_mutex);
             gs.map->draw(gs);
@@ -521,7 +522,8 @@ void start_client(int, char**) {
             for(const auto& [key, value] : trans_msg) {
                 print_info("%s=%s", key.c_str(), value.c_str());
             }
-        } else {
+        }
+        else {
             print_error("Cannot open locale file %s", Path::get("locale/ko/main.po").c_str());
         }
     }
