@@ -32,6 +32,7 @@ argentina.adjective = "Argentine"
 argentina:register()
 argentina:set_ideology(republic)
 argentina:add_accepted_culture(argentinian)
+argentina:add_client_hint(monarchy, _("Argentina"), 0xace3e1)
 argentina:add_client_hint(republic, _("Argentina"), 0xace3e1)
 
 brazil = Nation:new{ ref_name = "brazil" }
@@ -50,6 +51,7 @@ gran_colombia:set_ideology(republic)
 gran_colombia:add_accepted_culture(colombian)
 gran_colombia:add_accepted_culture(venezuelan)
 gran_colombia:add_accepted_culture(ecuadorian)
+gran_colombia:add_client_hint(monarchy, _("Gran colombia"), 0xe6e6b5)
 gran_colombia:add_client_hint(republic, _("Gran colombia"), 0xe6e6b5)
 
 peru = Nation:new{ ref_name = "peru" }
@@ -58,6 +60,7 @@ peru.adjective = "Peruvian"
 peru:register()
 peru:set_ideology(republic)
 peru:add_accepted_culture(peruvian)
+peru:add_client_hint(monarchy, _("Peru"), 0xe63d2e)
 peru:add_client_hint(republic, _("Peru"), 0xe63d2e)
 
 bolivia = Nation:new{ ref_name = "bolivia" }
@@ -74,6 +77,7 @@ paraguay.adjective = _("Paraguayan")
 paraguay:register()
 paraguay:set_ideology(republic)
 paraguay:add_accepted_culture(paraguayan)
+paraguay:add_client_hint(monarchy, _("Paraguay"), 0x808000)
 paraguay:add_client_hint(republic, _("Paraguay"), 0x808000)
 
 chile = Nation:new{ ref_name = "chile" }
@@ -109,7 +113,11 @@ usa:register()
 usa:set_ideology(democracy)
 usa:add_accepted_culture(british)
 usa:add_accepted_culture(Culture:get("american"))
-usa:add_client_hint(democracy, _("United states"), 0x6ea5cc)
+usa:add_client_hint(democracy, _("United States of America"), 0x6ea5cc)
+usa:add_client_hint(fascism, _("United States of America"), 0x6ea5cc)
+usa:add_client_hint(monarchy, _("United States of America"), 0x6ea5cc)
+usa:add_client_hint(socialism, _("United States of America"), 0x6ea5cc)
+usa:add_client_hint(communism, _("United States of America"), 0x6ea5cc)
 
 haiti = Nation:new{ ref_name = "haiti" }
 haiti.name = _("Haiti")
