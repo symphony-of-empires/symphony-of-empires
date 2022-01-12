@@ -812,6 +812,19 @@ int LuaAPI::get_province_neighbours(lua_State* L) {
     return 1;
 }
 
+int LuaAPI::get_province_nuclei(lua_State* L) {
+    const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
+    lua_newtable(L);
+
+    size_t i = 0;
+    for(const auto& nucleus : province->nuclei) {
+        lua_pushnumber(L, g_world->get_id(nucleus));
+        lua_rawseti(L, -2, i + 1);
+        ++i;
+    }
+    return 1;
+}
+
 int LuaAPI::get_province_pops_size(lua_State* L) {
     const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_pushnumber(L, province->pops.size());

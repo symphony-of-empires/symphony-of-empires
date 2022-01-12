@@ -505,6 +505,14 @@ function Province:get_neighbours()
 	end
 	return new_table
 end
+function Province:get_nuclei()
+	local table = get_province_nuclei(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
+end
 -- function Province:__get_pop_size()
 -- 	return get_province_pops_size(self.id)
 -- end
