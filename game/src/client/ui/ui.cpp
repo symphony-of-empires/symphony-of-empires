@@ -312,7 +312,7 @@ void Context::render_all() {
     glPopMatrix();
 }
 
-void Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
+bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
     glm::ivec2 offset{ x_off, y_off };
     offset = get_pos(w, offset);
 
@@ -322,8 +322,25 @@ void Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
         w.is_hover = false;
     }
 
+    if(w.type == UI::WidgetType::GROUP) {
+        w.is_hover = false;
+    }
     if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
         w.is_hover = false;
+    }
+    else if(w.type == UI::WidgetType::IMAGE) {
+        if(w.current_texture != nullptr) {
+            int tex_width = w.current_texture->width;
+            int tex_height = w.current_texture->height;
+            int tex_x = ((mx - offset.x) * tex_width) / w.width;
+            int tex_y = ((my - offset.y) * tex_height) / w.height;
+            if(tex_x >= 0 && tex_x < tex_width && tex_y >= 0 && tex_y < tex_height) {
+                uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y);
+                if(((argb >> 24) & 0xff) == 0) {
+                    w.is_hover = false;
+                }
+            }
+        }
     }
 
     if(w.is_hover && w.on_hover) {
@@ -341,21 +358,24 @@ void Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
             check_hover_recursive(*child, mx, my, offset.x, offset.y);
         }
     }
+    return w.is_hover;
 }
 
-void Context::check_hover(const unsigned mx, const unsigned my) {
+bool Context::check_hover(const unsigned mx, const unsigned my) {
     if(is_drag) {
         std::pair<int, int> offset = std::make_pair(mx - this->drag_x, my - this->drag_y);
         std::pair<int, int> diff = std::make_pair(offset.first - dragged_widget->x, offset.second - dragged_widget->y);
 
         dragged_widget->move_by(diff.first, diff.second);
-        return;
+        return true;
     }
 
+    bool is_hover = false;
     tooltip_widget = nullptr;
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        check_hover_recursive(*widgets[i], mx, my, 0, 0);
+        is_hover |= check_hover_recursive(*widgets[i], mx, my, 0, 0);
     }
+    return is_hover;
 }
 
 UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, UI::ClickState click_state, bool clickable) {
