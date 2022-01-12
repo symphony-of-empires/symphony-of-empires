@@ -60,24 +60,25 @@ static UnifiedRender::State* g_state = nullptr;
 UnifiedRender::State::State(void) {
     g_state = this;
 
-	// Startup-initialization of subsystems
-	SDL_Init(SDL_INIT_EVERYTHING);
+    // Startup-initialization of subsystems
+    SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
-	
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	
-	// Create the initial window
-	width = 1280;
-	height = 800;
+    SDL_ShowCursor(SDL_DISABLE);
+
+    // Create the initial window
+    width = 1280;
+    height = 800;
     window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-    
-	// OpenGL configurations
-	context = SDL_GL_CreateContext(window);
+
+    // OpenGL configurations
+    context = SDL_GL_CreateContext(window);
     //SDL_GL_SetSwapInterval(1);
-    
-	print_info("OpenGL Version: %s", glGetString(GL_VERSION));
-	
+
+    print_info("OpenGL Version: %s", glGetString(GL_VERSION));
+
     glewExperimental = GL_TRUE;
     GLenum err = glewInit();
     if(err != GLEW_OK) {
@@ -124,7 +125,7 @@ UnifiedRender::State::State(void) {
     package_man = new UnifiedRender::IO::PackageManager();
 
     const std::string asset_path = Path::get_full();
-    
+
     print_info("Assets path: %s", asset_path.c_str());
     for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
         if(entry.is_directory()) {
@@ -135,8 +136,8 @@ UnifiedRender::State::State(void) {
 }
 
 UnifiedRender::State::~State(void) {
-	SDL_CloseAudio();
-	
+    SDL_CloseAudio();
+
     TTF_Quit();
     SDL_Quit();
 
@@ -187,7 +188,7 @@ void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
         for(unsigned int i = 0; i < gs.music_queue.size(); ) {
             UnifiedRender::Audio* music = gs.music_queue[i];
             int amount = music->len - music->pos;
-            
+
             if(amount > len) {
                 amount = len;
             }
