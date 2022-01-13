@@ -180,12 +180,6 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
 #include "unified_render/serializer.hpp"
 #include "io_impl.hpp"
 #include "action.hpp"
-#ifdef windows
-#	define bswap_32(x) _byteswap_ulong(x)
-#	define bswap_64(x) _byteswap_uint64(x)
-#else
-#	include <byteswap.h>
-#endif
 
 void Map::handle_click(GameState& gs, SDL_Event event) {
     Input& input = gs.input;

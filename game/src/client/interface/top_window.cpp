@@ -35,6 +35,13 @@
 #include "io_impl.hpp"
 #include "client/ui/components.hpp"
 
+#ifdef windows
+#	define bswap_32(x) _byteswap_ulong(x)
+#	define bswap_64(x) _byteswap_uint64(x)
+#else
+#	include <byteswap.h>
+#endif
+
 using namespace Interface;
 
 TopWindow::TopWindow(GameState& _gs)
@@ -91,17 +98,11 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto* save_ibtn = new UI::Image(9, 275, 25, 25, "ui/icons/top_bar/save.png", this);
     save_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
-
-        bool is_sucess = false;
         auto& o = static_cast<TopWindow&>(*w.parent);
-        Archive ar = Archive();
-        ::serialize(ar, o.gs.world);
-        ar.to_file("default.scv");
-
         if(o.gs.editor) {
             FILE* fp = fopen("provinces_dump.lua", "wt");
             if(fp != nullptr) {
-                for(const auto& province : gs.world->provinces) {
+                for(const auto& province : o.gs.world->provinces) {
                     const uint32_t color = bswap_32((province->color & 0x00ffffff) << 8);
                     fprintf(fp, "province = Province:new{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%x }\n", province->ref_name.c_str(), province->name.c_str(), (unsigned int)color);
                     fprintf(fp, "province:register()\n");
@@ -127,16 +128,16 @@ TopWindow::TopWindow(GameState& _gs)
                     fprintf(fp, "province:set_terrain(TerrainType:get(\"%s\"))\n", province->terrain_type->ref_name.c_str());
                 }
                 fclose(fp);
-                is_sucess = true;
+                o.gs.ui_ctx->prompt("Save", "Output editor data sucessfully!");
+            } else {
+                o.gs.ui_ctx->prompt("Save", "Can't output editor data!");
             }
         } else {
-            is_sucess = true;
-        }
-
-        if(is_sucess) {
+            auto& o = static_cast<TopWindow&>(*w.parent);
+            Archive ar = Archive();
+            ::serialize(ar, o.gs.world);
+            ar.to_file("default.scv");
             o.gs.ui_ctx->prompt("Save", "Saved sucessfully!");
-        } else {
-            o.gs.ui_ctx->prompt("Save", "Can't save!");
         }
     });
     save_ibtn->tooltip = new UI::Tooltip(save_ibtn, 512, 24);

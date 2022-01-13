@@ -221,10 +221,10 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     allow_military_access_btn->tooltip->text(UnifiedRender::Locale::translate("Allow this nation to cross our land with their units"));
 
     auto* close_btn = new UI::CloseButton(0, 0, this->width, 24, this);
-    close_btn->below_of(*switch_btn);
+    close_btn->below_of(*allow_military_access_btn);
     close_btn->text("Close");
 
-    if(o.gs.editor) {
+    if(gs.editor) {
         auto* switch_btn = new UI::Button(0, 0, this->width, 24, this);
         switch_btn->below_of(*close_btn);
         switch_btn->text(UnifiedRender::Locale::translate("Switch to this nation"));
