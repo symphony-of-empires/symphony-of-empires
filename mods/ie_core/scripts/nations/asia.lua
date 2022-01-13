@@ -18,3 +18,9 @@ qing:register()
 --qing:add_accepted_culture(chinesse)
 qing:add_client_hint(monarchy, _("Qing Dynasty"), 0x808080)
 qing:add_client_hint(communism, _("Qing's People's Republic"), 0x808080)
+
+yunnan = Nation:new{ ref_name = "yunnan", name = _("Yunnan") }
+yunnan.adjective = _("Chinesse")
+yunnan:register()
+--yunnan:add_accepted_culture(chinesse)
+yunnan:add_client_hint(monarchy, _("Yunnan Dynasty"), 0x808080)
