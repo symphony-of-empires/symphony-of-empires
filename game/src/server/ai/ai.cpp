@@ -97,7 +97,8 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 
         // Obtain the index of the highest element (the one with more sucess rate)
         return target_good;
-    } else {
+    }
+    else {
         // We will randomly pick any primary product which we are capable of producing
         // This is mostly useful for starting supply chains from zero
         print_info("Primary sector kickstart strategy");
@@ -139,31 +140,36 @@ void ai_reform(Nation* nation) {
 
     if(std::rand() % 100 > 50.f) {
         new_policy.import_tax += 0.1f * (rand() % 10);
-    } else if(std::rand() % 100 > 50.f) {
+    }
+    else if(std::rand() % 100 > 50.f) {
         new_policy.import_tax -= 0.1f * (rand() % 10);
     }
 
     if(std::rand() % 100 > 50.f) {
         new_policy.export_tax += 0.1f * (rand() % 10);
-    } else if(std::rand() % 100 > 50.f) {
+    }
+    else if(std::rand() % 100 > 50.f) {
         new_policy.export_tax -= 0.1f * (rand() % 10);
     }
 
     if(std::rand() % 100 > 50.f) {
         new_policy.domestic_export_tax += 0.1f * (rand() % 10);
-    } else if(std::rand() % 100 > 50.f) {
+    }
+    else if(std::rand() % 100 > 50.f) {
         new_policy.domestic_export_tax -= 0.1f * (rand() % 10);
     }
 
     if(std::rand() % 100 > 50.f) {
         new_policy.domestic_import_tax += 0.1f * (rand() % 10);
-    } else if(std::rand() % 100 > 50.f) {
+    }
+    else if(std::rand() % 100 > 50.f) {
         new_policy.domestic_import_tax -= 0.1f * (rand() % 10);
     }
 
     if(std::rand() % 100 > 50.f) {
         new_policy.industry_tax += 0.1f * (rand() % 10);
-    } else if(std::rand() % 100 > 50.f) {
+    }
+    else if(std::rand() % 100 > 50.f) {
         new_policy.industry_tax -= 0.1f * (rand() % 10);
     }
 
@@ -176,7 +182,8 @@ void ai_reform(Nation* nation) {
 
     if(std::rand() % 100 > 50.f) {
         new_policy.min_sv_for_parliament += 0.1f * (rand() % 10);
-    } else if(std::rand() % 100 > 50.f) {
+    }
+    else if(std::rand() % 100 > 50.f) {
         new_policy.min_sv_for_parliament -= 0.1f * (rand() % 10);
     }
 
@@ -233,7 +240,8 @@ void ai_update_relations(Nation* nation, Nation* other) {
     // Randomness to spice stuff up
     if(!(std::rand() % 10)) {
         nation->increase_relation(*other);
-    } else if(!(std::rand() % 100)) {
+    }
+    else if(!(std::rand() % 100)) {
         nation->decrease_relation(*other);
     }
 
@@ -275,7 +283,8 @@ void ai_update_relations(Nation* nation, Nation* other) {
     // If the relation is negative then we divide by the positive sum of it
     if(relation.relation < 0.f) {
         const float force_dist = 100000.f * ((1.f + other_power) / (1.f + our_power));
-        if(std::rand() % (int)((-relation.relation) / (1.f + force_dist)) == 0) {
+        const int chance = (int)((-relation.relation) / (1.f + force_dist)) + 1;
+        if(std::rand() % chance == 0) {
             if(!relation.has_war) {
                 nation->declare_war(*other);
             }
@@ -378,18 +387,19 @@ void ai_build_commercial(Nation* nation, World* world) {
 
     auto it = std::begin(nation->owned_provinces);
     std::advance(it, std::rand() % nation->owned_provinces.size());
-    
+
     Province* province = *it;
     if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
         print_error("Cant build buidling, province doesn't have any tiles");
-    } else {
+    }
+    else {
         // Now build the building
         Building* building = new Building();
         building->province = province;
         building->type = world->building_types[0];
         building->owner = nation;
         building->budget = 100.f;
-        
+
         if(building->type->is_factory) {
             building->create_factory();
             for(const auto& product : building->output_products) {
@@ -462,7 +472,8 @@ void ai_do_tick(Nation* nation, World* world) {
                         if(std::rand() % 50 >= 25) {
                             print_info("We, [%s], deny the treaty of [%s]", nation->ref_name.c_str(), treaty->name.c_str());
                             part.second = TreatyApproval::DENIED;
-                        } else {
+                        }
+                        else {
                             print_info("We, [%s], accept the treaty of [%s]", nation->ref_name.c_str(), treaty->name.c_str());
                             part.second = TreatyApproval::ACCEPTED;
                         }
@@ -497,12 +508,13 @@ void ai_do_tick(Nation* nation, World* world) {
             if(!(std::rand() % std::max<int>(10, 100000 / defense_factor))) {
                 auto it = std::begin(nation->owned_provinces);
                 std::advance(it, std::rand() % nation->owned_provinces.size());
-				
+
                 Province* province = *it;
                 if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
                     print_error("Cant build defense, province doesn't have any tiles");
-                } else {
-					Building* building = new Building();
+                }
+                else {
+                    Building* building = new Building();
                     building->province = province;
                     building->type = world->building_types[0];
                     building->owner = nation;
@@ -520,7 +532,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 if(building->working_unit_type != nullptr || building->owner != nation) {
                     continue;
                 }
-                
+
                 Province* province = building->get_province();
                 if(province == nullptr) {
                     continue;
@@ -647,7 +659,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 if(province->controller == nullptr) {
                     continue;
                 }
-                
+
                 if(!unit->type->is_naval && province->terrain_type->is_water_body) {
                     continue;
                 }
@@ -678,7 +690,8 @@ void ai_do_tick(Nation* nation, World* world) {
                 if(province->controller == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war) {
                     unit->set_target(*province);
                 }
-            } else {
+            }
+            else {
                 unit->set_target(*province);
             }
         }

@@ -28,7 +28,8 @@
 UnifiedRender::Color::Color(void)
     : r{ 0.f },
     g{ 0.f },
-    b{ 0.f }
+    b{ 0.f },
+    a{ 0.f }
 {
 
 }

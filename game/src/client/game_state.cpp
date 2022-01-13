@@ -88,6 +88,7 @@
 #include "client/interface/army.hpp"
 #include "client/interface/building.hpp"
 #include "client/interface/minimap.hpp"
+#include "client/interface/profiler_view.hpp"
 #include "client/map.hpp"
 #include "unified_render/material.hpp"
 #include "unified_render/model.hpp"
@@ -196,6 +197,17 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_KEYDOWN:
             switch(event.key.keysym.sym) {
+            case SDLK_F1:
+                if(gs.current_mode == MapMode::NORMAL) {
+                    if(gs.profiler_view) {
+                        delete gs.profiler_view;
+                        gs.profiler_view = nullptr;
+                    }
+                    else {
+                        gs.profiler_view = new Interface::ProfilerView(gs);
+                    }
+                }
+                break;
             case SDLK_SPACE:
                 if(gs.current_mode == MapMode::NORMAL) {
                     gs.paused = !gs.paused;
@@ -316,7 +328,8 @@ void main_loop(GameState& gs) {
     gs.current_mode = MapMode::NO_MAP;
     //auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/globe.png")));
     //mm_bg->is_fullscreen = true;
-    Interface::MainMenu* main_menu = new Interface::MainMenu(gs);
+    /*Interface::MainMenu* main_menu =*/
+    new Interface::MainMenu(gs);
     //auto* logo = new UI::Image(0, 0, 256, 256, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/title_alt.png")));
     //logo->above_of(*main_menu);
     //logo->left_side_of(*main_menu);
@@ -454,6 +467,7 @@ void main_loop(GameState& gs) {
         glPopMatrix();
 
         gs.swap();
+        gs.world->profiler.render_done();
     }
     world_th.join();
 }

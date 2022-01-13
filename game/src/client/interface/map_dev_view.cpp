@@ -31,10 +31,9 @@ MapDevView::MapDevView(Map* _map)
 	map{ _map }
 {
 	reload_shader_button = new UI::Button(10, 10, 256, 24, this);
-	reload_shader_button->user_data = this;
 	reload_shader_button->text("Reload shaders");
-	reload_shader_button->on_click = ([](UI::Widget& w, void* data) {
-		MapDevView* state = (MapDevView*)data;
+	reload_shader_button->on_click = ([](UI::Widget& w, void*) {
+		MapDevView* state = (MapDevView*)w.parent;
 
 		state->map->reload_shaders();
 	});

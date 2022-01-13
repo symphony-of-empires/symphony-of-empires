@@ -66,6 +66,7 @@ namespace UI {
 	};
 
 	enum class WidgetType {
+		DIV,
 		BUTTON,
 		INPUT,
 		WINDOW,
@@ -75,10 +76,22 @@ namespace UI {
 		CHART,
 		CHECKBOX,
 		PIE_CHART,
+		BAR_CHART,
 		PROGRESS_BAR,
 		SLIDER,
 		GROUP,
 	};
+
+	class ChartData {
+	public:
+		ChartData(float _num, std::string _info, UnifiedRender::Color _color): num{ _num }, info{ _info }, color{ _color } {}
+		ChartData(float _num, std::string _info, uint32_t rgba): num{ _num }, info{ _info }, color{ UnifiedRender::Color::rgba32(rgba) } {}
+		~ChartData() {};
+		float num;
+		std::string info; // Used for tooltips
+		UnifiedRender::Color color;
+	};
+
 
 	class Border {
 	public:
@@ -109,6 +122,10 @@ namespace UI {
 		void move_by(int x, int y);
 		void add_child(Widget* child);
 		void draw_rectangle(int x, int y, unsigned w, unsigned h, UnifiedRender::Rect viewport, unsigned tex);
+		void draw_rect(const GLuint tex,
+			UnifiedRender::Rect rect_pos,
+			UnifiedRender::Rect rect_tex,
+			UnifiedRender::Rect viewport);
 
 		virtual void on_render(Context&, UnifiedRender::Rect viewport);
 		virtual void text(const std::string& text);
@@ -159,6 +176,7 @@ namespace UI {
 		int text_offset_x = 4, text_offset_y = 4;
 		UnifiedRender::Color text_color;
 		Border* border = nullptr;
+		UnifiedRender::Color color;
 
 		Tooltip* tooltip = nullptr;
 

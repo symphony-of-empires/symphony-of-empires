@@ -145,7 +145,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
             continue;
         }
 
-        auto* btn = new ArmyProductionUnitInfo(gs, 0, 128 + (48 * i), building, this);
+        new ArmyProductionUnitInfo(gs, 0, 128 + (48 * i), building, this);
         i++;
     }
 }
@@ -215,7 +215,7 @@ ArmySelectUnitTab::ArmySelectUnitTab(GameState& _gs, int x, int y, UI::Widget* p
     unsigned int i = 0;
     for(const auto& unit_type : gs.world->unit_types) {
         auto* btn = new UnitTypeButton(gs, 0, 24 * i, unit_type, this);
-        btn->on_click = ([](UI::Widget& w, void* data) {
+        btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ArmyView&>(*w.parent->parent);
             o.new_unit_tab->unit_type = ((UnitTypeButton&)w).unit_type;
 

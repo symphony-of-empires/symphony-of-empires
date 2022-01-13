@@ -690,6 +690,7 @@ void World::load_mod(void) {
 void World::do_tick() {
     std::scoped_lock lock(world_mutex);
 
+    profiler.start("AI");
     // AI and stuff
     // Just random shit to make the world be like more alive
     for(auto& nation : nations) {
@@ -718,7 +719,9 @@ void World::do_tick() {
 
         ai_do_tick(nation, this);
     }
+    profiler.stop("AI");
 
+    profiler.start("Economy");
     // Every ticks_per_month ticks do an economical tick
     if(!(time % ticks_per_month)) {
         Economy::do_tick(*this);
@@ -753,7 +756,9 @@ void World::do_tick() {
         g_server->broadcast(Action::NationUpdate::form_packet(nations));
         g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
     }
+    profiler.stop("Economy");
 
+    profiler.start("Units");
     // Evaluate units
     std::vector<float> mil_research_pts(nations.size(), 0.f);
     std::vector<float> naval_research_pts(nations.size(), 0.f);
@@ -825,7 +830,9 @@ void World::do_tick() {
             }
         }
     }
+    profiler.stop("Units");
 
+    profiler.start("Battles");
     // Perform all battles of the active wars
     for(auto& war : wars) {
         for(auto& battle : war->battles) {
@@ -864,7 +871,9 @@ void World::do_tick() {
             }
         }
     }
+    profiler.stop("Battles");
 
+    profiler.start("Research");
     // Now researches for every country are going to be accounted :)
     for(const auto& nation : nations) {
         for(const auto& tech : technologies) {
@@ -896,7 +905,9 @@ void World::do_tick() {
             break;
         }
     }
+    profiler.stop("Research");
 
+    profiler.start("Send packets");
     {
         // Broadcast to clients
         UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
@@ -912,7 +923,9 @@ void World::do_tick() {
         packet.data(ar.get_buffer(), ar.size());
         g_server->broadcast(packet);
     }
+    profiler.stop("Send packets");
 
+    profiler.start("Treaties");
     // Do the treaties clauses
     for(const auto& treaty : treaties) {
         // Check that the treaty is agreed by all parties before enforcing it
@@ -968,8 +981,11 @@ void World::do_tick() {
             }
         }
     }
+    profiler.stop("Treaties");
 
+    profiler.start("Events");
     LuaAPI::check_events(lua);
+    profiler.stop("Events");
 
     if(!(time % ticks_per_month)) {
         UnifiedRender::Log::debug("game", std::to_string(time / 12 / ticks_per_month) + "/" + std::to_string((time / ticks_per_month % 12) + 1) + + "/" + std::to_string((time % ticks_per_month) + 1));
