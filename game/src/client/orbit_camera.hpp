@@ -35,49 +35,46 @@
 
 #include "unified_render/print.hpp"
 #include "client/camera.hpp"
+#include "value_chase.hpp"
 
 class OrbitCamera: public Camera {
 public:
-    float fov = 45.0f, near_plane = 1.0f, far_plane = 20000.0f;
     float radius;
-    glm::vec3 velocity;
-    glm::vec3 flat_position;
+    glm::vec3 target;
+    ValueChase<glm::vec3> chase{ 0.2f };
 
-    OrbitCamera(int width, int height, float _radius): Camera(width, height) {
+    OrbitCamera(glm::vec2 screen_size, glm::vec2 map_size, float _radius)
+        : Camera(screen_size, map_size)
+    {
         radius = _radius;
-        flat_position = glm::vec3(M_PI, M_PI * 0.5f, radius * 1.5f);
-        // position = glm::vec3(400, 200, -400.f);
-        velocity = glm::vec3(0);
+        map_position = glm::vec3(M_PI, M_PI * 0.5f, radius * 1.5f);
+        target = map_position;
     }
 
     void move(float x_dir, float y_dir, float z_dir) override {
-        velocity.x += x_dir;
-        velocity.y += y_dir;
-        velocity.z -= z_dir;
+        float scale = glm::abs(target.z * map_size.x / 1e5);
+        target.x += x_dir * scale;
+        target.y += y_dir * scale;
+        target.y = glm::clamp(target.y, 0.f, map_size.y);
+        target.z += z_dir * scale;
+        target.z = glm::clamp(target.z, 0.f, map_size.x / 2.f);
     }
 
     void update(void) override {
-        flat_position.x += velocity.x * 0.1;
-        flat_position.y += velocity.y * 0.1;
-        flat_position.z += velocity.z * 0.01;
+        map_position = chase.move_toward(map_position, target);
+        map_position.y = glm::clamp(map_position.y, 0.f, map_size.y);
+        map_position.z = glm::clamp(map_position.z, 0.f, map_size.x / 2.f);
 
-        velocity.x = 0.0;
-        velocity.y = 0.0;
+        glm::vec3 normalized_pos = map_position / glm::vec3(map_size.x, map_size.y, map_size.x / 2.f);
+        glm::vec2 radiance_pos;
+        float pi = glm::pi<float>();
+        radiance_pos.x = glm::mod(normalized_pos.x * 2.f * pi, 2.f * pi);
+        radiance_pos.y = glm::max(0.f, glm::min(pi, normalized_pos.y * pi));
 
-        if(velocity.z >= 0.9f)
-            velocity.z -= 0.8f;
-        else if(velocity.z <= -0.9f)
-            velocity.z += 0.8f;
-        else
-            velocity.z = 0.f;
-
-        flat_position.x = fmod(flat_position.x, 2.f * M_PI);
-        flat_position.y = std::max(0.f, std::min(3.1415f, flat_position.y));
-        flat_position.z = std::max(1.f, std::min(10.f, flat_position.z));
-
-        position.x = flat_position.z * radius * cos(flat_position.x) * sin(flat_position.y);
-        position.y = flat_position.z * radius * sin(flat_position.x) * sin(flat_position.y);
-        position.z = flat_position.z * radius * cos(flat_position.y);
+        float distance = radius + normalized_pos.z * radius * 7.;
+        world_position.x = distance * cos(radiance_pos.x) * sin(radiance_pos.y);
+        world_position.y = distance * sin(radiance_pos.x) * sin(radiance_pos.y);
+        world_position.z = distance * cos(radiance_pos.y);
     };
 
     glm::mat4 get_projection() override {
@@ -86,21 +83,37 @@ public:
     };
 
     void set_pos(float x, float y) override {
-        flat_position.x = x;
-        flat_position.y = y;
+        map_position.x = glm::mod(x, map_size.x);
+        map_position.y = glm::clamp(y, 0.f, map_size.y);
+        target = map_position;
+
+        update();
     }
 
     glm::mat4 get_view() override {
         glm::vec3 look_at = glm::vec3(0);
-        // glm::vec3 up_vector = glm::vec3(0);
         glm::vec3 up_vector = glm::vec3(0.f, -1.f, 0.f);
-        up_vector.x = -cos(flat_position.x) * cos(flat_position.y);
-        up_vector.y = -sin(flat_position.x) * cos(flat_position.y);
-        up_vector.z = sin(flat_position.y);
-        return glm::lookAt(position, look_at, up_vector);
+
+        glm::vec3 normalized_pos = map_position;
+        normalized_pos.x = glm::mod(normalized_pos.x, map_size.x);
+        normalized_pos = normalized_pos / glm::vec3(map_size.x, map_size.y, radius);
+        glm::vec2 radiance_pos;
+        float pi = glm::pi<float>();
+        radiance_pos.x = glm::mod(normalized_pos.x * 2.f * pi, 2.f * pi);
+        radiance_pos.y = glm::max(0.f, glm::min(pi, normalized_pos.y * pi));
+        up_vector.x = -cos(radiance_pos.x) * cos(radiance_pos.y);
+        up_vector.y = -sin(radiance_pos.x) * cos(radiance_pos.y);
+        up_vector.z = sin(radiance_pos.y);
+        return glm::lookAt(world_position, look_at, up_vector);
     };
 
-    std::pair<float, float> get_map_pos(std::pair<int, int> mouse_pos) override {
+    glm::vec3 get_map_pos() override {
+        glm::vec3 out_pos = map_position;
+        out_pos.x = glm::mod(out_pos.x, map_size.x);
+        return out_pos;
+    }
+
+    bool get_cursor_map_pos(std::pair<int, int> mouse_pos, glm::ivec2& out_pos) override {
         float mouse_x = mouse_pos.first;
         float mouse_y = screen_size.y - 1.f - mouse_pos.second;
 
@@ -122,25 +135,16 @@ public:
         ray_direction = glm::normalize(ray_direction);
 
         float distance = 0.f;
-        glm::intersectRaySphere(world_space_near, ray_direction, glm::vec3(0, 0, 0), radius * radius, distance);
+        bool hit = glm::intersectRaySphere(world_space_near, ray_direction, glm::vec3(0, 0, 0), radius * radius, distance);
 
         glm::vec3 intersection_point = world_space_near + ray_direction * distance;
         float pi = glm::pi<float>();
         float y_rad = glm::acos(intersection_point.z / radius);
         float x_rad = glm::atan(intersection_point.y, intersection_point.x);
-        // x_rad += pi;
-        // if(intersection_point.x > 0) {
-        //     x_rad = glm::atan(intersection_point.y / intersection_point.x);
-        // }
-        // else if(intersection_point.x < 0) {
-        //     x_rad = glm::atan(intersection_point.y / intersection_point.x);
-        //     x_rad += pi;
-        // }
-        //float y = y_rad / (pi);
-        // y = 1.f - y;
-        float x = x_rad / (2.f * pi);
-        x += 0.5f;
-        
-        return std::pair<float, float>(x_rad, y_rad);
+
+        out_pos.x = map_size.x * x_rad / (2.f * pi);
+        out_pos.y = map_size.y * y_rad / (pi);
+
+        return hit;
     };
 };

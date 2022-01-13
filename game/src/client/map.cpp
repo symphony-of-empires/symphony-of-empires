@@ -58,7 +58,7 @@
 Map::Map(const World& _world, int screen_width, int screen_height)
     : world(_world)
 {
-    camera = new FlatCamera(screen_width, screen_height);
+    camera = new FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
 
     map_render = new MapRender(world);
 
@@ -107,14 +107,17 @@ Map::~Map() {
 
 void Map::set_view(MapView view) {
     view_mode = view;
-    int old_width = camera->screen_size.x;
-    int old_height = camera->screen_size.y;
+    glm::vec2 screen_size = camera->screen_size;
+    glm::vec2 map_size = camera->map_size;
+    glm::vec2 map_pos = camera->get_map_pos();
     delete camera;
     if(view == MapView::PLANE_VIEW) {
-        camera = new FlatCamera(old_width, old_height);
+        camera = new FlatCamera(screen_size, map_size);
+        camera->set_pos(map_pos.x, map_pos.y);
     }
     else if(view == MapView::SPHERE_VIEW) {
-        camera = new OrbitCamera(old_width, old_height, 100.f);
+        camera = new OrbitCamera(screen_size, map_size, GLOBE_RADIUS);
+        camera->set_pos(map_pos.x, map_pos.y);
     }
 }
 
@@ -345,19 +348,16 @@ void Map::update(const SDL_Event& event, Input& input) {
 
         is_drag = false;
         if(event.button.button == SDL_BUTTON_MIDDLE) {
-            input.last_camera_drag_pos = camera->get_map_pos(mouse_pos);
-            input.last_camera_mouse_pos = mouse_pos;
+            glm::ivec2 map_pos;
+            if(camera->get_cursor_map_pos(input.mouse_pos, map_pos)) {
+                last_camera_drag_pos = map_pos;
+                input.last_camera_mouse_pos = mouse_pos;
+            }
         }
         else if(event.button.button == SDL_BUTTON_LEFT) {
             input.drag_coord = input.select_pos;
-            if(view_mode == MapView::SPHERE_VIEW) {
-                input.drag_coord.first = (int)(world.width * input.drag_coord.first / (2. * M_PI));
-                input.drag_coord.second = (int)(world.height * input.drag_coord.second / M_PI);
-            }
-            else {
-                input.drag_coord.first = (int)input.drag_coord.first;
-                input.drag_coord.second = (int)input.drag_coord.second;
-            }
+            input.drag_coord.first = (int)input.drag_coord.first;
+            input.drag_coord.second = (int)input.drag_coord.second;
             is_drag = true;
         }
         break;
@@ -365,34 +365,50 @@ void Map::update(const SDL_Event& event, Input& input) {
     case SDL_MOUSEBUTTONUP:
         is_drag = false;
         break;
+    case SDL_JOYAXISMOTION:{
+        int xrel = SDL_JoystickGetAxis(input.joy, 0);
+        int yrel = SDL_JoystickGetAxis(input.joy, 1);
+
+        const float sensivity = UnifiedRender::State::get_instance().joy_sensivity;
+
+        float x_force = xrel / sensivity;
+        float y_force = yrel / sensivity;
+
+        input.mouse_pos.first += x_force;
+        input.mouse_pos.second += y_force;
+
+        if(input.middle_mouse_down) {  // Drag the map with middlemouse
+            glm::ivec2 map_pos;
+            if(camera->get_cursor_map_pos(input.mouse_pos, map_pos)) {
+                glm::vec2 current_pos = glm::make_vec2(camera->get_map_pos());
+                const glm::vec2 pos =  current_pos + last_camera_drag_pos - glm::vec2(map_pos);
+                camera->set_pos(pos.x, pos.y);
+            }
+        }
+        glm::ivec2 map_pos;
+        if(camera->get_cursor_map_pos(input.mouse_pos, map_pos)) {
+            input.select_pos.first = map_pos.x;
+            input.select_pos.second = map_pos.y;
+        }
+    } break;
     case SDL_MOUSEMOTION:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-        if(view_mode == MapView::SPHERE_VIEW) {
-            if(input.middle_mouse_down) {  // Drag the map with middlemouse
-                float scale = glm::length(camera->position) / GLOBE_RADIUS;
-                float x_pos = input.last_camera_drag_pos.first - (mouse_pos.first - input.last_camera_mouse_pos.first) * 0.001 * scale;
-                float y_pos = input.last_camera_drag_pos.second - (mouse_pos.second - input.last_camera_mouse_pos.second) * 0.001 * scale;
-                camera->set_pos(x_pos, y_pos);
+        glm::ivec2 map_pos;
+        if(input.middle_mouse_down) {  // Drag the map with middlemouse
+            if(camera->get_cursor_map_pos(mouse_pos, map_pos)) {
+                glm::vec2 current_pos = glm::make_vec2(camera->get_map_pos());
+                const glm::vec2 pos =  current_pos + last_camera_drag_pos - glm::vec2(map_pos);
+                camera->set_pos(pos.x, pos.y);
             }
-            input.select_pos = camera->get_map_pos(input.mouse_pos);
-            input.select_pos.first = (int)(world.width * input.select_pos.first / (2. * M_PI));
-            input.select_pos.second = (int)(world.height * input.select_pos.second / M_PI);
         }
-        else {
-            if(input.middle_mouse_down) {  // Drag the map with middlemouse
-                std::pair<float, float> map_pos = camera->get_map_pos(mouse_pos);
-                float x_pos = camera->position.x + input.last_camera_drag_pos.first - map_pos.first;
-                float y_pos = camera->position.y + input.last_camera_drag_pos.second - map_pos.second;
-                camera->set_pos(x_pos, y_pos);
-            }
-            input.select_pos = camera->get_map_pos(input.mouse_pos);
-            input.select_pos.first = (int)input.select_pos.first;
-            input.select_pos.second = (int)input.select_pos.second;
+        if(camera->get_cursor_map_pos(mouse_pos, map_pos)) {
+            input.select_pos.first = map_pos.x;
+            input.select_pos.second = map_pos.y;
         }
         break;
     case SDL_MOUSEWHEEL:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-        camera->move(0.f, 0.f, event.wheel.y * 2.f);
+        camera->move(0.f, 0.f, event.wheel.y * -2.f);
         break;
     case SDL_KEYDOWN:
         switch(event.key.keysym.sym) {
@@ -496,7 +512,11 @@ void Map::draw(const GameState& gs) {
         // Universe skybox
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(0.f, 0.f, -1.f));
-        obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("space.png")));
+        UnifiedRender::TextureOptions mipmap_options{};
+        mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+        mipmap_options.mag_filter = GL_LINEAR;
+        auto& skybox_texture = gs.tex_man->load(Path::get("space.png"), mipmap_options);
+        obj_shader->set_texture(0, "diffuse_map", skybox_texture);
         obj_shader->set_uniform("model", model);
 
         UnifiedRender::Sphere skybox = UnifiedRender::Sphere(0.f, 0.f, 0.f, 8000.f, 40);
