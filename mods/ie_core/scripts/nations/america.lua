@@ -141,6 +141,10 @@ texas.adjective = _("Texan")
 texas:register()
 texas:add_accepted_culture(Culture:get("american"))
 texas:add_client_hint(republic, _("Texas"), 0x8be2f7)
+texas:add_client_hint(fascism, _("Texas"), 0x8be2f7)
+texas:add_client_hint(socialism, _("Texas"), 0x8be2f7)
+texas:add_client_hint(communism, _("Texas"), 0x8be2f7)
+texas:add_client_hint(monarchy, _("Texas"), 0x8be2f7)
 
 uruguay = Nation:new{ ref_name = "uruguay" }
 uruguay.name = _("Uruguay")
