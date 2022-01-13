@@ -30,7 +30,7 @@ deepsea:register()
 sea = TerrainType:new{ ref_name = "sea", name = _("Sea"), color = 0x0000ff, is_water_body = true }
 sea:register()
 
-plains = TerrainType:new{ ref_name = "plains", name = _("Plains") }
+plains = TerrainType:new{ ref_name = "plains", name = _("Plains"), color = 0x10db32 }
 plains:register()
 
 forest = TerrainType:new{ ref_name = "forest", name = _("Forest") }
