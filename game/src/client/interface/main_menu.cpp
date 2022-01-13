@@ -128,6 +128,7 @@ MainMenuSettings::MainMenuSettings(GameState& _gs)
     check_controller_btn->tooltip->text("Checks for any new gamepads - click this if you've connected a gamepad and experience issues");
 
     auto* sensivity_sld = new UI::Slider(0, 0, 128, 24, -8000.f, 8000.f, this);
+    sensivity_sld->text("Controller Sensivity");
     sensivity_sld->below_of(*check_controller_btn);
     sensivity_sld->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenuSettings&>(*w.parent);
@@ -239,8 +240,30 @@ MainMenuSettings::MainMenuSettings(GameState& _gs)
     motionblur_chk->tooltip = new UI::Tooltip(motionblur_chk, 512, 24);
     motionblur_chk->tooltip->text("Control if motion blur should be enabled");
 
+    auto* music_volume_sld = new UI::Slider(0, 0, 128, 24, -8000.f, 8000.f, this);
+    music_volume_sld->text("Music volume");
+    music_volume_sld->below_of(*motionblur_chk);
+    music_volume_sld->value = gs.music_volume;
+    music_volume_sld->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenuSettings&>(*w.parent);
+        o.gs.music_volume = ((UI::Slider&)w).value;
+    });
+    music_volume_sld->tooltip = new UI::Tooltip(music_volume_sld, 512, 24);
+    music_volume_sld->tooltip->text("Controls the volume of the music");
+
+    auto* sound_volume_sld = new UI::Slider(0, 0, 128, 24, -8000.f, 8000.f, this);
+    sound_volume_sld->text("Sound volume");
+    sound_volume_sld->below_of(*music_volume_sld);
+    sound_volume_sld->value = gs.sound_volume;
+    sound_volume_sld->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenuSettings&>(*w.parent);
+        o.gs.sound_volume = ((UI::Slider&)w).value;
+    });
+    sound_volume_sld->tooltip = new UI::Tooltip(sound_volume_sld, 512, 24);
+    sound_volume_sld->tooltip->text("Controls the volume of the sounds");
+
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->below_of(*motionblur_chk);
+    close_btn->below_of(*sound_volume_sld);
     close_btn->text("Cancel");
 }
 
@@ -269,21 +292,14 @@ MainMenu::MainMenu(GameState& _gs)
         o.gs.client = new Client(o.gs, "127.0.0.1", 1836);
         o.gs.client->username = "Player";
         o.gs.in_game = true;
+        o.gs.editor = false;
 
         o.kill();
     });
 
-    auto* cfg_btn = new UI::Button(0, 0, 128, 24, this);
-    cfg_btn->text("Settings");
-    cfg_btn->right_side_of(*single_btn);
-    cfg_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenu&>(*w.parent);
-        o.settings_window = new MainMenuSettings(o.gs);
-    });
-
     auto* mp_btn = new UI::Button(0, 0, 128, 24, this);
     mp_btn->text("Join LAN");
-    mp_btn->below_of(*cfg_btn);
+    mp_btn->right_side_of(*single_btn);
     mp_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
         o.connect_window = new MainMenuConnectServer(o.gs);
@@ -291,7 +307,6 @@ MainMenu::MainMenu(GameState& _gs)
 
     auto* host_btn = new UI::Button(0, 0, 128, 24, this);
     host_btn->text("Host");
-    host_btn->below_of(*cfg_btn);
     host_btn->right_side_of(*mp_btn);
     host_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
@@ -306,6 +321,33 @@ MainMenu::MainMenu(GameState& _gs)
         o.gs.in_game = true;
 
         o.kill();
+    });
+
+    auto* edit_btn = new UI::Button(0, 0, 128, 24, this);
+    edit_btn->text("Editor");
+    edit_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenu&>(*w.parent);
+
+        o.gs.current_mode = MapMode::COUNTRY_SELECT;
+        o.gs.select_nation = new Interface::LobbySelectView(o.gs);
+
+        o.gs.host_mode = true;
+        o.gs.server = new Server(o.gs, 1836);
+        o.gs.client = new Client(o.gs, "127.0.0.1", 1836);
+        o.gs.client->username = "Player";
+        o.gs.in_game = true;
+        o.gs.editor = true;
+
+        o.kill();
+    });
+
+    auto* cfg_btn = new UI::Button(0, 0, 128, 24, this);
+    cfg_btn->text("Settings");
+    cfg_btn->below_of(*cfg_btn);
+    cfg_btn->right_side_of(*edit_btn);
+    cfg_btn->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenu&>(*w.parent);
+        o.settings_window = new MainMenuSettings(o.gs);
     });
 
     auto* exit_btn = new UI::Button(0, 0, 128, 24, this);

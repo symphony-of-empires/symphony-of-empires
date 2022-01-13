@@ -87,5 +87,7 @@ namespace UnifiedRender {
 		UnifiedRender::MaterialManager* material_man;
     	UnifiedRender::ModelManager* model_man;
 		UnifiedRender::IO::PackageManager* package_man;
+
+		float music_volume = 50.f, sound_volume = 50.f;
 	};
 }
