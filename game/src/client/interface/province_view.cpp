@@ -27,6 +27,7 @@
 #include "nation_view.hpp"
 
 #include "client/game_state.hpp"
+#include "client/map.hpp"
 #include "nation.hpp"
 #include "world.hpp"
 #include "building.hpp"
@@ -38,6 +39,7 @@
 #include "client/ui/tooltip.hpp"
 #include "client/ui/button.hpp"
 #include "client/ui/close_button.hpp"
+#include "client/ui/input.hpp"
 
 using namespace Interface;
 
@@ -107,7 +109,10 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     update_piecharts();
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvincePopulationTab&>(w);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+            return;
+        }
+        
         o.update_piecharts();
     });
 }
@@ -128,7 +133,9 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
         // Obtain demand, supply and other information about the goods
         std::vector<UI::ChartData> goods_data, products_data;
         for(const auto& product : o.province->products) {
-            if(product->building == nullptr) continue;
+            if(product->building == nullptr) {
+                continue;
+            }
 
             const auto product_col = UnifiedRender::Color(
                 o.gs.world->get_id(product) * 12,
@@ -144,7 +151,9 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
     // Initial product info
     unsigned int i = 0;
     for(const auto& product : this->province->products) {
-        if(product->building == nullptr) continue;
+        if(product->building == nullptr) {
+            continue;
+        }
 
         auto* info = new ProductInfo(this->gs, 0, (i * 24) + 128, product, this);
         this->product_infos.push_back(info);
@@ -175,6 +184,31 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
         auto* info = new BuildingInfo(this->gs, 0, dy, building, this);
         this->building_infos.push_back(info);
         dy += info->height;
+    }
+}
+
+ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs },
+    province{ _province }
+{
+    this->text(province->name);
+
+    // Initial product info
+    unsigned int dy = 0;
+
+    for(const auto& culture : gs.world->cultures) {
+        auto* btn = new UI::Button(0, dy, 128, 24, this);
+        btn->text(culture->ref_name.c_str());
+        btn->user_data = (void*)culture;
+        btn->on_click = ([](UI::Widget& w, void* data) {
+            auto& o = static_cast<ProvinceEditCultureTab&>(*w.parent);
+            for(auto& pop : o.province->pops) {
+                pop.culture = (Culture*)data;
+            }
+            o.gs.map->update_mapmode();
+        });
+        dy += btn->height;
     }
 }
 
@@ -239,7 +273,10 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
         // View the nation info only if the province has a valid owner
-        if(o.province->owner == nullptr) return;
+        if(o.province->owner == nullptr) {
+            return;
+        }
+
         new NationView(o.gs, o.province->owner);
     });
     nation_ibtn->tooltip = new UI::Tooltip(nation_ibtn, 512, 24);
@@ -253,4 +290,27 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         o.gs.right_side_panel->kill();
         o.gs.right_side_panel = nullptr;
     });
+
+    if(gs.editor) {
+        auto* dbg_inp = new UI::Input(0, this->height - 64, 128, 24, this);
+        dbg_inp->buffer = province->name;
+        dbg_inp->on_click = ([](UI::Widget& w, void*) {
+            auto& o = static_cast<ProvinceView&>(*w.parent);
+            o.province->name = ((UI::Input&)w).buffer;
+            o.gs.ui_ctx->prompt("Update", "Updated name of province to \"" + o.province->name + "\"!");
+        });
+
+        this->edit_culture_tab = new ProvinceEditCultureTab(gs, 0, 32, province, this);
+        this->edit_culture_tab->is_render = false;
+        auto* edit_culture_btn = new UI::Image(128, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        edit_culture_btn->on_click = ([](UI::Widget& w, void*) {
+            auto& o = static_cast<ProvinceView&>(*w.parent);
+            o.pop_tab->is_render = false;
+            o.econ_tab->is_render = false;
+            o.build_tab->is_render = false;
+            o.edit_culture_tab->is_render = true;
+        });
+        edit_culture_btn->tooltip = new UI::Tooltip(edit_culture_btn, 512, 24);
+        edit_culture_btn->tooltip->text("Edit culture");
+    }
 }

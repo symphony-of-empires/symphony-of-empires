@@ -31,7 +31,7 @@ argentina.name = _("Argentina")
 argentina.adjective = "Argentine"
 argentina:register()
 argentina:set_ideology(republic)
-argentina:add_accepted_culture(argentinian)
+argentina:add_accepted_culture(argetine)
 argentina:add_client_hint(monarchy, _("Argentina"), 0xace3e1)
 argentina:add_client_hint(republic, _("Argentina"), 0xace3e1)
 
@@ -141,6 +141,18 @@ texas.adjective = _("Texan")
 texas:register()
 texas:add_accepted_culture(Culture:get("american"))
 texas:add_client_hint(republic, _("Texas"), 0x8be2f7)
+texas:add_client_hint(fascism, _("Texas"), 0x8be2f7)
+texas:add_client_hint(socialism, _("Texas"), 0x8be2f7)
+texas:add_client_hint(communism, _("Texas"), 0x8be2f7)
+texas:add_client_hint(monarchy, _("Texas"), 0x8be2f7)
+
+csa = Nation:new{ ref_name = "csa" }
+csa.name = _("Confederate States of America")
+csa.adjective = _("Confederate")
+csa:register()
+csa:add_accepted_culture(Culture:get("american"))
+csa:add_client_hint(republic, _("Confederate States of America"), 0x8be2f7)
+csa:add_client_hint(monarchy, _("Confederate States of America"), 0x8be2f7)
 
 uruguay = Nation:new{ ref_name = "uruguay" }
 uruguay.name = _("Uruguay")

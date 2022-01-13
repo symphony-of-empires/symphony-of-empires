@@ -75,6 +75,14 @@ namespace Interface {
         Province* province;
     };
 
+    class ProvinceEditCultureTab : public UI::Group {
+    public:
+        ProvinceEditCultureTab(GameState& gs, int x, int y, Province* province, UI::Widget* _parent);
+        GameState& gs;
+        Province* province;
+        Culture* culture;
+    };
+
     class ProvinceView: public UI::Window {
         GameState& gs;
         Province* province;
@@ -82,6 +90,7 @@ namespace Interface {
         ProvincePopulationTab* pop_tab;
         ProvinceEconomyTab* econ_tab;
         ProvinceBuildingTab* build_tab;
+        ProvinceEditCultureTab* edit_culture_tab;
     public:
         ProvinceView(GameState& gs, Province* province);
         friend class ProvinceBuildingTab;

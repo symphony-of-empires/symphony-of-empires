@@ -134,6 +134,7 @@ public:
 
     // Settings
     bool motion_blur = false;
+    bool editor = true;
 };
 
 // Run world tick and pending commands
