@@ -48,10 +48,9 @@ danish:register()
 icelandic = Culture:new{ ref_name = "icelandic", color = 0x8293d1 }
 icelandic.name = _("Icelandic")
 icelandic:register()
-irish = Culture:new{ ref_name = "irish" }
-irish.name = _("Irish")
+irish = Culture:new{ ref_name = "irish", name = _("Irish"), color = 0x40b225 }
 irish:register()
-romanian = Culture:new{ ref_name = "romanian" }
+romanian = Culture:new{ ref_name = "romanian", color = 0xcfa85b }
 romanian.name = _("Romanian")
 romanian:register()
 portuguese = Culture:new{ ref_name = "portuguese", color = 0x0f691f }
@@ -69,11 +68,9 @@ galician:register()
 aragonese = Culture:new{ ref_name = "aragonese" }
 aragonese.name = _("Aragonese")
 aragonese:register()
-catalan = Culture:new{ ref_name = "catalan" }
-catalan.name = _("Catalan")
+catalan = Culture:new{ ref_name = "catalan", name = _("Catalan"), color = 0xeda65a }
 catalan:register()
-czech = Culture:new{ ref_name = "czech" }
-czech.name = _("Czech")
+czech = Culture:new{ ref_name = "czech", name = _("Czech"), color = 0x384a8a }
 czech.combo_form = _("Czecho")
 czech:register()
 slovakian = Culture:new{ ref_name = "slovakian" }
@@ -103,36 +100,28 @@ finnish:register()
 norwegian = Culture:new{ ref_name = "norwegian", color = 0xab1659 }
 norwegian.name = _("Norwegian")
 norwegian:register()
-turkish = Culture:new{ ref_name = "turkish" }
-turkish.name = _("Turkish")
+turkish = Culture:new{ ref_name = "turkish", name = _("Turkish"), color = 0xc9201a }
 turkish.noun = _("Turk")
 turkish.combo_form = _("Turko")
 turkish:register()
-greek = Culture:new{ ref_name = "greek" }
-greek.name = _("Greek")
+greek = Culture:new{ ref_name = "greek", name = _("Greek"), color = 0xaac4e6 }
 greek.combo_form = _("Greco")
 greek:register()
-italian = Culture:new{ ref_name = "italian", color = 0x679e7b }
-italian.name = _("Italian")
+italian = Culture:new{ ref_name = "italian", name = _("Italian"), color = 0x679e7b }
 italian.combo_form = _("Italo")
 italian:register()
-lithuanian = Culture:new{ ref_name = "lithuanian", color = 0x598c42 }
-lithuanian.name = _("Lithuanian")
+lithuanian = Culture:new{ ref_name = "lithuanian", name = _("Lithuanian"), color = 0x598c42 }
 lithuanian:register()
-latvian = Culture:new{ ref_name = "latvian", color = 0x962820 }
-latvian.name = _("Latvian")
+latvian = Culture:new{ ref_name = "latvian", name = _("Latvian"), color = 0x962820 }
 latvian:register()
-estonian = Culture:new{ ref_name = "estonian", color = 0x4c8ed4 }
-estonian.name = _("Estonian")
+estonian = Culture:new{ ref_name = "estonian", name = _("Estonian"), color = 0x4c8ed4 }
 estonian:register()
-polish = Culture:new{ ref_name = "polish" }
-polish.name = _("Polish")
+polish = Culture:new{ ref_name = "polish", name = _("Polish"), color = 0xbf85d6 }
 polish:register()
 bulgarian = Culture:new{ ref_name = "bulgarian", color = 0x78cf7d }
 bulgarian.name = _("Bulgarian")
 bulgarian:register()
-serbian = Culture:new{ ref_name = "serbian" }
-serbian.name = _("Serbian")
+serbian = Culture:new{ ref_name = "serbian", name = _("Serbian"), color = 0x905c4b }
 serbian.noun = _("Serb")
 serbian.combo_form = _("Serbo")
 serbian:register()
@@ -168,39 +157,28 @@ Culture:new{ ref_name = "korean", name = _("Korean") }:register()
 
 -- American
 Culture:new{ ref_name = "american", name = _("American"), adjective = _("American"), color = 0x6ea5cc }:register()
-Culture:new{ ref_name = "chilean", name = _("Chilean") }:register()
-cisplatinian = Culture:new{ ref_name = "cisplatinian" }
-cisplatinian.name = _("Cisplatinian")
+Culture:new{ ref_name = "chilean", name = _("Chilean"), color = 0xad6dcf }:register()
+cisplatinian = Culture:new{ ref_name = "cisplatinian", name = _("Cisplatinian") }
 cisplatinian:register()
-argentinian = Culture:new{ ref_name = "argentinian" }
-argentinian.name = _("Argentinian")
-argentinian:register()
-bolivian = Culture:new{ ref_name = "bolivian" }
-bolivian.name = _("Bolivian")
+argetine = Culture:new{ ref_name = "argetine", name = _("Argentinian") }
+argetine:register()
+bolivian = Culture:new{ ref_name = "bolivian", name = _("Bolivian") }
 bolivian:register()
-paraguayan = Culture:new{ ref_name = "paraguayan" }
-paraguayan.name = _("Paraguayan")
+paraguayan = Culture:new{ ref_name = "paraguayan", name = _("Paraguayan") }
 paraguayan:register()
-colombian = Culture:new{ ref_name = "colombian" }
-colombian.name = _("Colombian")
+colombian = Culture:new{ ref_name = "colombian", name = _("Colombian") }
 colombian:register()
-venezuelan = Culture:new{ ref_name = "venezuelan" }
-venezuelan.name = _("Venezuelan")
+venezuelan = Culture:new{ ref_name = "venezuelan", name = _("Venezuelan") }
 venezuelan:register()
-ecuadorian = Culture:new{ ref_name = "ecuadorian" }
-ecuadorian.name = _("Ecuadorian")
+ecuadorian = Culture:new{ ref_name = "ecuadorian", name = _("Ecuadorian") }
 ecuadorian:register()
-peruvian = Culture:new{ ref_name = "peruvian" }
-peruvian.name = _("Peruvian")
+peruvian = Culture:new{ ref_name = "peruvian", name = _("Peruvian") }
 peruvian:register()
-mexican = Culture:new{ ref_name = "mexican" }
-mexican.name = _("Mexican")
+mexican = Culture:new{ ref_name = "mexican", name = _("Mexican"), color = 0x5ac780 }
 mexican:register()
-haitian = Culture:new{ ref_name = "haitian" }
-haitian.name = _("Haitian")
+haitian = Culture:new{ ref_name = "haitian", name = _("Haitian") }
 haitian:register()
-brazilian = Culture:new{ ref_name = "brazilian" }
-brazilian.name = _("Brazilian")
+brazilian = Culture:new{ ref_name = "brazilian", name = _("Brazilian") }
 brazilian:register()
 
 -- Native american
