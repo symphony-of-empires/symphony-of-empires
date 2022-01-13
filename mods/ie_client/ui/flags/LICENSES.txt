@@ -313,3 +313,7 @@ beyiang_monarchy
 piedmont_sardinia_fascism
 baden_fascism
 	Flags made by TrumpShallPurgetheAnimeScourge
+
+baden_communism
+	Flags made by TrumpShallPurgetheAnimeScourge
+	By Jens Pattke (User:R-41) - Own work derived from [1], CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=69027388
