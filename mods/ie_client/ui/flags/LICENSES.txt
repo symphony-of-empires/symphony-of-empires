@@ -295,4 +295,21 @@ prussia_fascism
 prussia_communism
 uruguay_monarchy
 panama_monarchy
+csa_monarchy
+texas_fascism
+texas_monarchy
+texas_socialism
+texas_communism
+bolivia_monarchy
 	Flags made by Higrafo
+
+beyiang_republic
+	By !Original:Provisional Government of the Republic of China (1912)Vector: Kibinsky - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=549829
+
+beyiang_fascism
+beyiang_communism
+beyiang_socialism
+beyiang_monarchy
+piedmont_sardinia_fascism
+baden_fascism
+	Flags made by TrumpShallPurgetheAnimeScourge

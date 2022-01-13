@@ -19,6 +19,23 @@ qing:register()
 qing:add_client_hint(monarchy, _("Qing Dynasty"), 0x808080)
 qing:add_client_hint(communism, _("Qing's People's Republic"), 0x808080)
 
+beyiang = Nation:new{ ref_name = "beyiang", name = _("Beyiang") }
+beyiang.adjective = _("Chinesse")
+beyiang:register()
+--beyiang:add_accepted_culture(chinesse)
+beyiang:add_client_hint(monarchy, _("China"), 0x808080)
+beyiang:add_client_hint(communism, _("China"), 0x808080)
+beyiang:add_client_hint(fascism, _("China"), 0x808080)
+beyiang:add_client_hint(socialism, _("China"), 0x808080)
+beyiang:add_client_hint(republic, _("China"), 0x808080)
+
+china = Nation:new{ ref_name = "china", name = _("China") }
+china.adjective = _("Chinesse")
+china:register()
+--china:add_accepted_culture(chinesse)
+china:add_client_hint(republic, _("China"), 0x808080)
+china:add_client_hint(communism, _("China"), 0x808080)
+
 yunnan = Nation:new{ ref_name = "yunnan", name = _("Yunnan") }
 yunnan.adjective = _("Chinesse")
 yunnan:register()
