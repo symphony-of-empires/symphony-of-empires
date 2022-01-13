@@ -274,7 +274,8 @@ void ai_update_relations(Nation* nation, Nation* other) {
     // Calculate the times the other nation has our power, multiply that by a factor of 1,000,000
     // If the relation is negative then we divide by the positive sum of it
     if(relation.relation < 0.f) {
-        if(!(std::rand() % (int)((-relation.relation) / (100000.f * (other_power / our_power))))) {
+        const float force_dist = 100000.f * ((1.f + other_power) / (1.f + our_power));
+        if(std::rand() % (int)((-relation.relation) / (1.f + force_dist)) == 0) {
             if(!relation.has_war) {
                 nation->declare_war(*other);
             }
