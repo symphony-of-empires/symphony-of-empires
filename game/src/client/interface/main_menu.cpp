@@ -271,10 +271,10 @@ MainMenuSettings::MainMenuSettings(GameState& _gs)
 // Main menu
 //
 MainMenu::MainMenu(GameState& _gs)
-    : UI::Window(-(512 / 2), -(128 / 2), 512, 128),
+    : UI::Window(0, -128, gs.width, 128),
     gs{ _gs }
 {
-    this->origin = UI::Origin::CENTER_SCREEN;
+    this->origin = UI::Origin::LOWER_LEFT_SCREEN;
     this->is_pinned = true;
     this->is_scroll = false;
     this->text("Symphony of Empires");
@@ -324,6 +324,7 @@ MainMenu::MainMenu(GameState& _gs)
     });
 
     auto* edit_btn = new UI::Button(0, 0, 128, 24, this);
+    edit_btn->below_of(*host_btn);
     edit_btn->text("Editor");
     edit_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
@@ -343,7 +344,7 @@ MainMenu::MainMenu(GameState& _gs)
 
     auto* cfg_btn = new UI::Button(0, 0, 128, 24, this);
     cfg_btn->text("Settings");
-    cfg_btn->below_of(*cfg_btn);
+    cfg_btn->below_of(*host_btn);
     cfg_btn->right_side_of(*edit_btn);
     cfg_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
@@ -351,7 +352,7 @@ MainMenu::MainMenu(GameState& _gs)
     });
 
     auto* exit_btn = new UI::Button(0, 0, 128, 24, this);
-    exit_btn->below_of(*cfg_btn);
+    exit_btn->below_of(*host_btn);
     exit_btn->right_side_of(*host_btn);
     exit_btn->text("Exit");
 }

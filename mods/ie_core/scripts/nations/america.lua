@@ -70,6 +70,7 @@ bolivia:register()
 bolivia:set_ideology(republic)
 bolivia:add_accepted_culture(bolivian)
 bolivia:add_client_hint(republic, _("Bolivia"), 0xded6ba)
+bolivia:add_client_hint(monarchy, _("Bolivia"), 0xded6ba)
 
 paraguay = Nation:new{ ref_name = "paraguay" }
 paraguay.name = _("Paraguay")
