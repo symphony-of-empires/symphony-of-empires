@@ -292,7 +292,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     });
 
     if(gs.editor) {
-        auto* dbg_inp = new UI::Input(0, 376, 128, 24, this);
+        auto* dbg_inp = new UI::Input(0, this->height - 64, 128, 24, this);
         dbg_inp->buffer = province->name;
         dbg_inp->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
@@ -302,10 +302,13 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
         this->edit_culture_tab = new ProvinceEditCultureTab(gs, 0, 32, province, this);
         this->edit_culture_tab->is_render = false;
-        auto* edit_culture_btn = new UI::Image(128, 376, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        auto* edit_culture_btn = new UI::Image(128, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
         edit_culture_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
-            o.edit_culture_tab->is_render = !o.edit_culture_tab->is_render;
+            o.pop_tab->is_render = false;
+            o.econ_tab->is_render = false;
+            o.build_tab->is_render = false;
+            o.edit_culture_tab->is_render = true;
         });
         edit_culture_btn->tooltip = new UI::Tooltip(edit_culture_btn, 512, 24);
         edit_culture_btn->tooltip->text("Edit culture");
