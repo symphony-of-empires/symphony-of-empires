@@ -411,4 +411,5 @@ void main() {
 #endif
 
 	f_frag_color = vec4(vec3(light), 1.) * out_color;
+	f_frag_color.a = 1.;
 }
