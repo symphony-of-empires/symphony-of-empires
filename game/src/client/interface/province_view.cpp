@@ -199,13 +199,36 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Pro
 
     for(const auto& culture : gs.world->cultures) {
         auto* btn = new UI::Button(0, dy, 128, 24, this);
-        btn->text(culture->ref_name.c_str());
+        btn->text(culture->name);
         btn->user_data = (void*)culture;
         btn->on_click = ([](UI::Widget& w, void* data) {
             auto& o = static_cast<ProvinceEditCultureTab&>(*w.parent);
             for(auto& pop : o.province->pops) {
                 pop.culture = (Culture*)data;
             }
+            o.gs.map->update_mapmode();
+        });
+        dy += btn->height;
+    }
+}
+
+ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs },
+    province{ _province }
+{
+    this->text(province->name);
+
+    // Initial product info
+    unsigned int dy = 0;
+
+    for(const auto& terrain_type : gs.world->terrain_types) {
+        auto* btn = new UI::Button(0, dy, 128, 24, this);
+        btn->text(terrain_type->name);
+        btn->user_data = (void*)terrain_type;
+        btn->on_click = ([](UI::Widget& w, void* data) {
+            auto& o = static_cast<ProvinceEditTerrainTab&>(*w.parent);
+            o.province->terrain_type = (TerrainType*)data;
             o.gs.map->update_mapmode();
         });
         dy += btn->height;
@@ -309,8 +332,23 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
             o.econ_tab->is_render = false;
             o.build_tab->is_render = false;
             o.edit_culture_tab->is_render = true;
+            o.edit_terrain_tab->is_render = false;
         });
         edit_culture_btn->tooltip = new UI::Tooltip(edit_culture_btn, 512, 24);
         edit_culture_btn->tooltip->text("Edit culture");
+
+        this->edit_terrain_tab = new ProvinceEditTerrainTab(gs, 0, 32, province, this);
+        this->edit_terrain_tab->is_render = false;
+        auto* edit_terrain_btn = new UI::Image(128 + 32, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        edit_terrain_btn->on_click = ([](UI::Widget& w, void*) {
+            auto& o = static_cast<ProvinceView&>(*w.parent);
+            o.pop_tab->is_render = false;
+            o.econ_tab->is_render = false;
+            o.build_tab->is_render = false;
+            o.edit_culture_tab->is_render = false;
+            o.edit_terrain_tab->is_render = true;
+        });
+        edit_terrain_btn->tooltip = new UI::Tooltip(edit_terrain_btn, 512, 24);
+        edit_terrain_btn->tooltip->text("Edit terrain");
     }
 }
