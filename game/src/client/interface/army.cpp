@@ -232,7 +232,7 @@ ArmyNewUnitTab::ArmyNewUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
     gs{ _gs }
 {
     auto* select_btn = new UI::Button(0, 0, 128, 24, this);
-    select_btn->text("Select type");
+    select_btn->text(UnifiedRender::Locale::translate("Select type"));
     select_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyView&>(*w.parent->parent);
 
@@ -242,7 +242,7 @@ ArmyNewUnitTab::ArmyNewUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
     });
 
     auto* create_btn = new UI::Button(0, 0, 128, 24, this);
-    create_btn->text("Create");
+    create_btn->text(UnifiedRender::Locale::translate("Create"));
     create_btn->below_of(*select_btn);
     create_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyNewUnitTab&>(*w.parent);
@@ -267,7 +267,7 @@ ArmyView::ArmyView(GameState& _gs)
 
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
-    this->text("Army manager");
+    this->text(UnifiedRender::Locale::translate("Army manager"));
 
     this->army_tab = new ArmyArmyTab(gs, 0, 32, this);
     this->army_tab->is_render = true;
