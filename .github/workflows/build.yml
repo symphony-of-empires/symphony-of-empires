@@ -22,7 +22,6 @@ jobs:
        make -j$(nproc)
        cp game/game soe
        cp unified_render/libunified_render.so .
-       cp unified_render/libunified_render.a .
        make -j
     - name: "Run"
       run: |
