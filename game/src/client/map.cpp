@@ -110,10 +110,10 @@ void Map::set_view(MapView view) {
     int old_width = camera->screen_size.x;
     int old_height = camera->screen_size.y;
     delete camera;
+    
     if(view == MapView::PLANE_VIEW) {
         camera = new FlatCamera(old_width, old_height);
-    }
-    else if(view == MapView::SPHERE_VIEW) {
+    } else if(view == MapView::SPHERE_VIEW) {
         camera = new OrbitCamera(old_width, old_height, 100.f);
     }
 }
@@ -125,11 +125,9 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
         Nation* province_owner = world.provinces[i]->owner;
         if(province_owner == nullptr) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        }
-        else if(province_owner->cached_id == (Nation::Id)-1) {
+        } else if(province_owner->cached_id == (Nation::Id)-1) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        }
-        else {
+        } else {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }
@@ -164,13 +162,13 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-            ));
+        ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-            ));
+        ));
     }
     flag.upload();
 
@@ -252,8 +250,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    }
-    else if(event.button.button == SDL_BUTTON_RIGHT) {
+    } else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
         if(tile.province_id == (Province::Id)-1) {
             return;
@@ -262,7 +259,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         Province* province = gs.world->provinces[tile.province_id];
 
         //if(input.selected_units.empty()) {
-        if(1) {
+        if(gs.editor) {
             gs.curr_nation->give_province(*province);
             province->nuclei.insert(gs.curr_nation);
 
