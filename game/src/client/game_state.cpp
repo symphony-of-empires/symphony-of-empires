@@ -101,9 +101,9 @@ void GameState::play_nation() {
 
     const Province* capital = curr_nation->capital;
     if(capital != nullptr) {
-        map->camera->position.x = capital->max_x;
-        map->camera->position.y = capital->max_y;
-        map->camera->position.z = -100.f;
+        map->camera->world_position.x = capital->max_x;
+        map->camera->world_position.y = capital->max_y;
+        map->camera->world_position.z = -100.f;
     }
 
     // Make topwindow
@@ -224,45 +224,9 @@ void handle_event(Input& input, GameState& gs) {
                 break;
             }
             break;
-        case SDL_JOYAXISMOTION: {
-            int xrel = SDL_JoystickGetAxis(gs.joy, 0);
-            int yrel = SDL_JoystickGetAxis(gs.joy, 1);
-
-            const float sensivity = UnifiedRender::State::get_instance().joy_sensivity;
-
-            float x_force = xrel / sensivity;
-            float y_force = yrel / sensivity;
-
-            //if(event.jball.which == 0) {
-            if(1) {
-                gs.input.mouse_pos.first += x_force;
-                gs.input.mouse_pos.second += y_force;
-
-                if(gs.map->view_mode == MapView::SPHERE_VIEW) {
-                    if(gs.input.middle_mouse_down) {  // Drag the map with middlemouse
-                        const float scale = glm::length(gs.map->camera->position) / GLOBE_RADIUS;
-                        const float x_pos = gs.input.last_camera_drag_pos.first - (gs.input.mouse_pos.first - gs.input.last_camera_mouse_pos.first) * 0.001 * scale;
-                        const float y_pos = gs.input.last_camera_drag_pos.second - (gs.input.mouse_pos.second - gs.input.last_camera_mouse_pos.second) * 0.001 * scale;
-                        gs.map->camera->set_pos(x_pos, y_pos);
-                    }
-                    gs.input.select_pos = gs.map->camera->get_map_pos(gs.input.mouse_pos);
-                    gs.input.select_pos.first = (int)(gs.world->width * gs.input.select_pos.first / (2. * M_PI));
-                    gs.input.select_pos.second = (int)(gs.world->height * gs.input.select_pos.second / M_PI);
-                }
-                else {
-                    if(input.middle_mouse_down) {  // Drag the map with middlemouse
-                        const std::pair<float, float> map_pos = gs.map->camera->get_map_pos(mouse_pos);
-                        const float x_pos = gs.map->camera->position.x + gs.input.last_camera_drag_pos.first - map_pos.first;
-                        const float y_pos = gs.map->camera->position.y + gs.input.last_camera_drag_pos.second - map_pos.second;
-                        gs.map->camera->set_pos(x_pos, y_pos);
-                    }
-                    gs.input.select_pos = gs.map->camera->get_map_pos(gs.input.mouse_pos);
-                    gs.input.select_pos.first = (int)gs.input.select_pos.first;
-                    gs.input.select_pos.second = (int)gs.input.select_pos.second;
-                }
-            }
+        case SDL_JOYAXISMOTION:
             ui_ctx->check_hover(gs.input.mouse_pos.first, gs.input.mouse_pos.second);
-        } break;
+            break;
         case SDL_QUIT:
             gs.run = false;
             gs.paused = false;

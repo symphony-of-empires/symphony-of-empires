@@ -32,13 +32,17 @@
 #include <glm/gtx/intersect.hpp>
 
 class Camera {
+protected:
+    glm::vec3 map_position;
 public:
     float fov = 45.0f, near_plane = 1.0f, far_plane = 20000.0f;
     glm::vec2 screen_size;
-    glm::vec3 position;
+    glm::vec2 map_size;
+    glm::vec3 world_position;
 
-    Camera(int width, int height) {
-        screen_size = glm::vec2(width, height);
+    Camera(glm::vec2 _screen_size, glm::vec2 _map_size) {
+        screen_size = _screen_size;
+        map_size = _map_size;
     }
     virtual ~Camera() {};
 
@@ -48,11 +52,12 @@ public:
 
     virtual void move(float x_dir, float y_dir, float z_dir) = 0;
     virtual void set_pos(float x, float y) = 0;
+    virtual glm::vec3 get_map_pos() = 0;
 
     virtual void update(void) = 0;
 
     virtual glm::mat4 get_projection() = 0;
 
     virtual glm::mat4 get_view() = 0;
-    virtual std::pair<float, float> get_map_pos(std::pair<int, int> mouse_pos) = 0;
+    virtual bool get_cursor_map_pos(std::pair<int, int> mouse_pos, glm::ivec2& out_pos) = 0;
 };
