@@ -239,7 +239,10 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
         // View the nation info only if the province has a valid owner
-        if(o.province->owner == nullptr) return;
+        if(o.province->owner == nullptr) {
+            return;
+        }
+
         new NationView(o.gs, o.province->owner);
     });
     nation_ibtn->tooltip = new UI::Tooltip(nation_ibtn, 512, 24);

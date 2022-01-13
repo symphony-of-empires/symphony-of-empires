@@ -27,6 +27,7 @@
 #include "io_impl.hpp"
 #include "client/ui/components.hpp"
 #include "client/client_network.hpp"
+#include "unified_render/locale.hpp"
 
 using namespace Interface;
 
@@ -35,7 +36,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     gs{ _gs }
 {
     auto* build_prod_chk = new UI::Checkbox(0, 0, this->width, 24, this);
-    build_prod_chk->text("Build and production");
+    build_prod_chk->text(UnifiedRender::Locale::translate("Build and production"));
     build_prod_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
@@ -44,7 +45,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
 
     auto* cmd_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     cmd_chk->below_of(*build_prod_chk);
-    cmd_chk->text("Command troops");
+    cmd_chk->text(UnifiedRender::Locale::translate("Command troops"));
     cmd_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
@@ -53,7 +54,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
 
     auto* diplo_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     diplo_chk->below_of(*cmd_chk);
-    diplo_chk->text("Diplomacy");
+    diplo_chk->text(UnifiedRender::Locale::translate("Diplomacy"));
     diplo_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
@@ -62,7 +63,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
 
     auto* policies_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     policies_chk->below_of(*diplo_chk);
-    policies_chk->text("Policies");
+    policies_chk->text(UnifiedRender::Locale::translate("Policies"));
     policies_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
@@ -71,7 +72,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
 
     auto* research_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     research_chk->below_of(*policies_chk);
-    research_chk->text("Research");
+    research_chk->text(UnifiedRender::Locale::translate("Research"));
     research_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
@@ -80,7 +81,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
 
     auto* unit_production_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     unit_production_chk->below_of(*research_chk);
-    unit_production_chk->text("Unit Production");
+    unit_production_chk->text(UnifiedRender::Locale::translate("Unit Production"));
     unit_production_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
@@ -89,7 +90,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
 
     auto* hdl_event_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     hdl_event_chk->below_of(*unit_production_chk);
-    hdl_event_chk->text("Unit Production");
+    hdl_event_chk->text(UnifiedRender::Locale::translate("Handle events"));
     hdl_event_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
@@ -98,7 +99,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
 
     auto* hdl_treaties_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     hdl_treaties_chk->below_of(*hdl_event_chk);
-    hdl_treaties_chk->text("Unit Production");
+    hdl_treaties_chk->text(UnifiedRender::Locale::translate("Handle treaties"));
     hdl_treaties_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<AISettingsWindow&>(*w.parent);
         ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
@@ -107,7 +108,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
 
     auto* close_btn = new UI::CloseButton(0, 0, this->width, 24, this);
     close_btn->below_of(*hdl_treaties_chk);
-    close_btn->text("Close");
+    close_btn->text(UnifiedRender::Locale::translate("Close"));
     close_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<AISettingsWindow&>(*w.parent);
 

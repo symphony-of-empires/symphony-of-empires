@@ -254,7 +254,7 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
         const Pop& pop = o.province->pops[o.index];
         o.size_btn->text(std::to_string(pop.size));
         o.budget_btn->text(std::to_string(pop.budget / pop.size));
-        o.budget_btn->tooltip->text("Total of " + std::to_string(pop.budget));
+        o.budget_btn->tooltip->text(UnifiedRender::Locale::translate("A total budget of") + " " + std::to_string(pop.budget));
         o.religion_ibtn->tooltip->text(UnifiedRender::Locale::translate(pop.religion->name));
         o.culture_btn->text(UnifiedRender::Locale::translate(pop.culture->name));
     });
@@ -275,7 +275,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
         new GoodView(o.gs, o.product->good);
     });
     this->good_ibtn->set_tooltip(new UI::Tooltip(this->good_ibtn, 512, 24));
-    this->good_ibtn->tooltip->text(product->good->name);
+    this->good_ibtn->tooltip->text(UnifiedRender::Locale::translate(product->good->name));
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
     this->price_rate_btn->right_side_of(*this->good_ibtn);
