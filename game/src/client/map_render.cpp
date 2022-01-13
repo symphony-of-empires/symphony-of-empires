@@ -295,7 +295,7 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     map_shader->use();
     view = camera->get_view();
     map_shader->set_uniform("view", view);
-    map_shader->set_uniform("view_pos", camera->position.x, camera->position.y, camera->position.z);
+    map_shader->set_uniform("view_pos", camera->world_position.x, camera->world_position.y, camera->world_position.z);
     projection = camera->get_projection();
     map_shader->set_uniform("projection", projection);
     map_shader->set_uniform("map_size", (float)world.width, (float)world.height);

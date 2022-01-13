@@ -48,13 +48,14 @@ class Input {
 public:
     std::pair<float, float> select_pos;
     bool middle_mouse_down = false;
-    std::pair<float, float> last_camera_drag_pos;
     std::pair<float, float> last_camera_mouse_pos;
     std::pair<int, int> mouse_pos;
 
     std::vector<Unit*> selected_units;
 
     std::pair<int, int> drag_coord;
+
+    SDL_Joystick* joy = nullptr;
 };
 
 class Client;
@@ -79,7 +80,7 @@ namespace UnifiedRender {
 
 // The all encompassing client state
 // This is the state we could pass down to all the ui widgets
-class GameState : public UnifiedRender::State {
+class GameState: public UnifiedRender::State {
 public:
     GameState() {};
     ~GameState();

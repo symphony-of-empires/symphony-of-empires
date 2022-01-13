@@ -32,60 +32,43 @@
 #include <glm/gtx/intersect.hpp>
 
 #include "world.hpp"
+#include "value_chase.hpp"
 
 class FlatCamera: public Camera {
 public:
-    glm::vec3 velocity;
+    glm::vec3 target;
+    ValueChase<glm::vec3> chase{0.2f};
 
-    FlatCamera(int width, int height): Camera(width, height) {
-        position = glm::vec3(400, 200, -400.f);
-        velocity = glm::vec3(0);
+    FlatCamera(glm::vec2 screen_size, glm::vec2 map_size)
+        : Camera(screen_size, map_size)
+    {
+        world_position = glm::vec3(400, 200, 400.f);
+        map_position = world_position;
+        target = map_position;
     }
 
     void move(float x_dir, float y_dir, float z_dir) override {
-        velocity.x += x_dir;
-        velocity.y += y_dir;
-        velocity.z += z_dir;
+        float scale = glm::abs(target.z * map_size.x / 1e5);
+        target.x += x_dir * scale;
+        target.y += y_dir * scale;
+        target.z += z_dir * scale;
+        target = glm::clamp(target, glm::vec3(0,0,10), glm::vec3(map_size, map_size.x / 2.f));
     }
 
     void update(void) override {
-        velocity.x = std::min(16.f, velocity.x);
-        velocity.y = std::min(16.f, velocity.y);
-        velocity.z = std::min(16.f, velocity.z);
+        map_position = chase.move_toward(map_position, target);
 
-        if(velocity.x >= 0.9f)
-            velocity.x -= 0.8f;
-        else if(velocity.x <= -0.9f)
-            velocity.x += 0.8f;
-        else
-            velocity.x = 0.f;
-
-        if(velocity.y >= 0.9f)
-            velocity.y -= 0.8f;
-        else if(velocity.y <= -0.9f)
-            velocity.y += 0.8f;
-        else
-            velocity.y = 0.f;
-
-        if(velocity.z >= 0.9f)
-            velocity.z -= 0.8f;
-        else if(velocity.z <= -0.9f)
-            velocity.z += 0.8f;
-        else
-            velocity.z = 0.f;
-
-        position.x += velocity.x;
-        position.y += velocity.y;
-        position.z += velocity.z;
-
-        position.x = std::max(0.f, std::min((float)g_world->width, position.x));
-        position.y = std::max(0.f, std::min((float)g_world->height, position.y));
-        position.z = -std::max(10.f, std::min((float)g_world->width / 2.f, -position.z));
+        map_position = glm::clamp(map_position, glm::vec3(0,0,10), glm::vec3(map_size, map_size.x / 2.f));
+        world_position = map_position;
+        world_position.z *= -1;
     };
 
     void set_pos(float x, float y) override {
-        position.x = x;
-        position.y = y;
+        map_position.x = glm::clamp(x, 0.f, map_size.x);
+        map_position.y = glm::clamp(y, 0.f, map_size.y);
+        world_position = map_position;
+        world_position.z *= -1;
+        target = map_position;
     }
 
     glm::mat4 get_projection() override {
@@ -93,15 +76,21 @@ public:
         return glm::perspective(glm::radians(fov), aspect_ratio, near_plane, far_plane);
     };
 
+    glm::vec3 get_map_pos() override {
+        glm::vec3 out_pos = map_position;
+        out_pos.x = glm::mod(out_pos.x, map_size.x);
+        return out_pos;
+    }
+
     glm::mat4 get_view() override {
-        glm::vec3 look_at = position;
+        glm::vec3 look_at = world_position;
         look_at.z = 0;
-        look_at.y -= position.z > -200 ? 0.06f * (200 + position.z) : 0;
+        look_at.y -= world_position.z > -200 ? 0.06f * (200 + world_position.z) : 0;
         glm::vec3 up_vector = glm::vec3(0.f, -1.f, 0.f);
-        return glm::lookAt(position, look_at, up_vector);
+        return glm::lookAt(world_position, look_at, up_vector);
     };
 
-    std::pair<float, float> get_map_pos(std::pair<int, int> mouse_pos) override {
+    bool get_cursor_map_pos(std::pair<int, int> mouse_pos, glm::ivec2& out_pos) override {
         float mouse_x = mouse_pos.first;
         float mouse_y = screen_size.y - 1.f - mouse_pos.second;
 
@@ -122,9 +111,17 @@ public:
         glm::vec3 ray_direction = world_space_far - world_space_near;
 
         float distance = 0.f;
-        glm::intersectRayPlane(world_space_near, ray_direction, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), distance);
+        bool hit = glm::intersectRayPlane(world_space_near, ray_direction, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), distance);
 
         glm::vec3 intersection_point = world_space_near + ray_direction * distance;
-        return std::pair<float, float>(intersection_point.x, intersection_point.y);
+        out_pos.x = intersection_point.x;
+        out_pos.y = intersection_point.y;
+        if(intersection_point.x < 0
+            || intersection_point.y < 0
+            || intersection_point.x > map_size.x
+            || intersection_point.y > map_size.y) {
+            hit = false;
+        }
+        return hit;
     };
 };

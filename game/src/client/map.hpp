@@ -67,12 +67,15 @@ struct ProvinceColor {
     UnifiedRender::Color color;
     ProvinceColor(Province::Id _id, UnifiedRender::Color _color): id{ _id }, color{ _color } {}
 };
+typedef std::function<std::string(const World& world, const Province::Id id)> mapmode_tooltip;
 typedef std::function<std::vector<ProvinceColor>(const World& world)> mapmode_generator;
 std::vector<ProvinceColor> political_map_mode(const World& world);
 
 class Map {
     // Called to get mapmode
     mapmode_generator mapmode_func;
+    // Called to get the provinces info to show in tooltip
+    mapmode_tooltip mapmode_tooltip_func;
 public:
     Map(const World& world, int screen_width, int screen_height);
     ~Map();
@@ -96,7 +99,9 @@ public:
 
     // Wind oscillator (for flags)
     float wind_osc = 0.f;
+    // Input states
     bool is_drag = false;
+    glm::vec2 last_camera_drag_pos;
 
     const World& world;
     Camera* camera;
