@@ -569,6 +569,7 @@ baden:set_ideology(fascism)
 baden:add_accepted_culture(german)
 baden:add_client_hint(monarchy, _("Baden"), 0xf57915)
 baden:add_client_hint(fascism, _("Baden"), 0xf57915)
+baden:add_client_hint(communism, _("Baden"), 0xf57915)
 
 brunswick = Nation:new{ ref_name = "brunswick" }
 brunswick.name = _("Brunswick")
