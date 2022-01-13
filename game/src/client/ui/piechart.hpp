@@ -38,14 +38,6 @@
 
 namespace UI {
 	class Context;
-    class ChartData {
-    public:
-        ChartData(float _num, std::string _info, UnifiedRender::Color _color): num{_num}, info{_info}, color{_color} {}
-        ChartData(float _num, std::string _info, uint32_t rgba): num{_num}, info{_info}, color{UnifiedRender::Color::rgba32(rgba)} {}
-        float num;
-        std::string info; // Used for tooltips
-        UnifiedRender::Color color;
-    };
 
 	class PieChart: public Widget {
 	public:

@@ -68,7 +68,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     conn_btn = new UI::Button(0, 48, 128, 24, this);
     conn_btn->user_data = this;
     conn_btn->text("Connect");
-    conn_btn->on_click = ([](UI::Widget& w, void* data) {
+    conn_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenuConnectServer&>(*w.parent);
         print_info("Okey, connecting to [%s]", o.ip_addr_inp->buffer.c_str());
 
@@ -226,7 +226,7 @@ MainMenuSettings::MainMenuSettings(GameState& _gs)
         o.gs.map->reload_shaders();
     });
     landscape_chk->tooltip = new UI::Tooltip(landscape_chk, 512, 24);
-    landscape_chk->tooltip->text("Enables/Disables the landacape image (for terrain). Low performance impact");
+    landscape_chk->tooltip->text("Enables/Disables the landscape image (for terrain). Low performance impact");
 
     auto* motionblur_chk = new UI::Checkbox(0, 0, 128, 24, this);
     motionblur_chk->below_of(*landscape_chk);

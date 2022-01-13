@@ -49,7 +49,7 @@
 
 using namespace UI;
 
-void draw_rect(const GLuint tex,
+void Widget::draw_rect(const GLuint tex,
     UnifiedRender::Rect rect_pos,
     UnifiedRender::Rect rect_tex,
     UnifiedRender::Rect viewport) {
@@ -222,7 +222,12 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         draw_rect(ctx.background->gl_tex_num, pos_rect, tex_rect, viewport);
     }
 
-
+    if(color.a != 0) {
+        UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
+        UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
+        glColor4f(color.r, color.g, color.b, color.a);
+        draw_rect(0, pos_rect, tex_rect, viewport);
+    }
 
     glColor3f(1.f, 1.f, 1.f);
     // Top bar of windows display
@@ -265,7 +270,8 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
         if(o.value) {
             glColor4f(0.f, 1.f, 0.f, 0.5f);
-        } else {
+        }
+        else {
             glColor4f(1.f, 0.f, 0.f, 0.5f);
         }
         draw_rect(0, pos_rect, tex_rect, viewport);

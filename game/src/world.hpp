@@ -39,6 +39,7 @@
 #include "terrain.hpp"
 #include "server/lua_api.hpp"
 #include <glm/vec2.hpp>
+#include "unified_render/profiler.hpp"
 
 #define MAX_ELEVATION				255
 #define RIVER_ELEVATION(a)			a + 1
@@ -151,6 +152,7 @@ public:
     void do_tick(void);
     void load_initial(void);
     void load_mod(void);
+    UnifiedRender::Profiler profiler;
 
     LIST_FOR_TYPE(Nation, nations, std::vector);
     LIST_FOR_TYPE(Province, provinces, std::vector);

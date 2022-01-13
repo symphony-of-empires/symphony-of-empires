@@ -49,7 +49,7 @@ NationMarketView::NationMarketView(GameState& _gs, Nation* _nation)
             continue;
         }
         
-        ProductInfo* info = new ProductInfo(gs, 0, (i * 24) + 128, product, this);
+        new ProductInfo(gs, 0, (i * 24) + 128, product, this);
         i++;
     }
 
