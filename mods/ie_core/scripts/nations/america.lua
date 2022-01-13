@@ -31,7 +31,7 @@ argentina.name = _("Argentina")
 argentina.adjective = "Argentine"
 argentina:register()
 argentina:set_ideology(republic)
-argentina:add_accepted_culture(argentinian)
+argentina:add_accepted_culture(argetine)
 argentina:add_client_hint(monarchy, _("Argentina"), 0xace3e1)
 argentina:add_client_hint(republic, _("Argentina"), 0xace3e1)
 
