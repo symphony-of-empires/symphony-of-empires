@@ -87,7 +87,12 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
         for(auto& defender : war->defenders) {
             // Bilateral war
             attacker->relations[world.get_id(defender)].has_war = true;
+            attacker->relations[world.get_id(defender)].has_alliance = false;
+            attacker->relations[world.get_id(defender)].has_defensive_pact = false;
+
             defender->relations[world.get_id(attacker)].has_war = true;
+            defender->relations[world.get_id(attacker)].has_alliance = false;
+            defender->relations[world.get_id(attacker)].has_defensive_pact = false;
         }
     }
 

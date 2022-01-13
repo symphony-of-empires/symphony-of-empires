@@ -249,7 +249,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
     }
 
     // Our strength as attackers
-    float our_power = 0.f;
+    float our_power = 1.f;
     for(const auto& ally_nation : nation->get_allies()) {
         for(const auto& province : ally_nation->owned_provinces) {
             for(const auto& unit : province->get_units()) {
@@ -260,7 +260,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
     }
 
     // The strength of the defenders
-    float other_power = 0.f;
+    float other_power = 1.f;
     for(const auto& ally_nation : other->get_allies()) {
         for(const auto& province : ally_nation->owned_provinces) {
             for(const auto& unit : province->get_units()) {
@@ -271,9 +271,13 @@ void ai_update_relations(Nation* nation, Nation* other) {
     }
 
     // Hating a nation a lot will make us reconsider logic military actions and go "purely by instinct"
-    if(!(std::rand() % (int)(100000 / (1 + (-relation.relation * (our_power / other_power)))))) {
-        if(!relation.has_war && !relation.has_alliance && !relation.has_defensive_pact) {
-            nation->declare_war(*other);
+    // Calculate the times the other nation has our power, multiply that by a factor of 1,000,000
+    // If the relation is negative then we divide by the positive sum of it
+    if(relation.relation < 0.f) {
+        if(!(std::rand() % (int)((-relation.relation) / (100000.f * (other_power / our_power))))) {
+            if(!relation.has_war) {
+                nation->declare_war(*other);
+            }
         }
     }
 
