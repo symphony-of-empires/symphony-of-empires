@@ -91,14 +91,77 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto* save_ibtn = new UI::Image(9, 275, 25, 25, "ui/icons/top_bar/save.png", this);
     save_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
+
+        bool is_sucess = false;
         auto& o = static_cast<TopWindow&>(*w.parent);
         Archive ar = Archive();
         ::serialize(ar, o.gs.world);
-        ar.to_file(o.gs.curr_nation->ref_name + ".scv");
-        o.gs.ui_ctx->prompt("Save", "Saved sucessfully!");
+        ar.to_file("default.scv");
+
+        if(o.gs.editor) {
+            FILE* fp = fopen("provinces_dump.lua", "wt");
+            if(fp != nullptr) {
+                for(const auto& province : gs.world->provinces) {
+                    const uint32_t color = bswap_32((province->color & 0x00ffffff) << 8);
+                    fprintf(fp, "province = Province:new{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%x }\n", province->ref_name.c_str(), province->name.c_str(), (unsigned int)color);
+                    fprintf(fp, "province:register()\n");
+                    for(const auto& building : province->get_buildings()) {
+                        fprintf(fp, "province:add_industry(BuildingType:get(\"%s\"), Nation:get(\"%s\"))\n", building->type->ref_name.c_str(), building->get_owner()->ref_name.c_str());
+                    }
+
+                    for(const auto& pop : province->pops) {
+                        fprintf(fp, "province:add_pop(PopType:get(\"%s\"), Culture:get(\"%s\"), Religion:get(\"%s\"), %zu, %f)\n", pop.type->ref_name.c_str(), pop.culture->ref_name.c_str(), pop.religion->ref_name.c_str(), pop.size, pop.literacy);
+                    }
+
+                    for(const auto& nucleus : province->nuclei) {
+                        fprintf(fp, "province:add_nucleus(Nation:get(\"%s\"))\n", nucleus->ref_name.c_str());
+                    }
+
+                    if(province->owner != nullptr) {
+                        fprintf(fp, "province:give_to(Nation:get(\"%s\"))\n", province->owner->ref_name.c_str());
+                        if(province->owner->capital == province) {
+                            fprintf(fp, "Nation:get(\"%s\"):set_capital(province)\n", province->owner->ref_name.c_str());
+                        }
+                    }
+
+                    fprintf(fp, "province:set_terrain(TerrainType:get(\"%s\"))\n", province->terrain_type->ref_name.c_str());
+                }
+                fclose(fp);
+                is_sucess = true;
+            }
+        } else {
+            is_sucess = true;
+        }
+
+        if(is_sucess) {
+            o.gs.ui_ctx->prompt("Save", "Saved sucessfully!");
+        } else {
+            o.gs.ui_ctx->prompt("Save", "Can't save!");
+        }
     });
     save_ibtn->tooltip = new UI::Tooltip(save_ibtn, 512, 24);
     save_ibtn->tooltip->text("Saves the current game; TODO: SAVE LUA STATE");
+
+    /*
+    auto* load_ibtn = new UI::Image(9, 275, 25, 25, "ui/icons/top_bar/save.png", this);
+    load_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
+        auto& o = static_cast<TopWindow&>(*w.parent);
+
+        delete o.gs.world;
+        o.gs.world = new World();
+        o.gs.world->load_initial();
+        o.gs.world->load_mod();
+
+        o.gs.curr_nation = o.gs.world->nations[0];
+
+        Archive ar = Archive();
+        ::deserialize(ar, o.gs.world);
+        ar.to_file("default.scv");
+        o.gs.ui_ctx->prompt("Loaded", "Loaded sucessfully!");
+    });
+    load_ibtn->tooltip = new UI::Tooltip(load_ibtn, 512, 24);
+    load_ibtn->tooltip->text("Loads the current game");
+    */
 
     auto* exit_ibtn = new UI::Image(9, 315, 25, 25, "ui/icons/top_bar/exit.png", this);
     exit_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
