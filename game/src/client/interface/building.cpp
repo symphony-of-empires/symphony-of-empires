@@ -30,6 +30,7 @@
 #include "io_impl.hpp"
 
 #include "client/ui/close_button.hpp"
+#include "unified_render/locale.hpp"
 
 using namespace Interface;
 
@@ -39,7 +40,10 @@ BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int 
 {
     unsigned int i = 0;
     for(const auto& province : gs.world->provinces) {
-        if(province->owner != gs.curr_nation) continue;
+        if(province->owner != gs.curr_nation) {
+            continue;
+        }
+
         auto* btn = new ProvinceButton(gs, 0, 24 * i, province, this);
         btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
@@ -55,7 +59,10 @@ BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, U
 {
     unsigned int i = 0;
     for(const auto& nation : gs.world->nations) {
-        if(!nation->exists()) continue;
+        if(!nation->exists()) {
+            continue;
+        }
+        
         auto* btn = new NationButton(gs, 0, 24 * i, nation, this);
         btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
@@ -111,7 +118,7 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
     province{ _province }
 {
     this->is_scroll = false;
-    this->text("Build a new building");
+    this->text(UnifiedRender::Locale::translate("Build a new building"));
 
     this->province_tab = new BuildingSelectProvinceTab(gs, 128, 24, this);
     this->province_tab->is_render = false;
@@ -123,7 +130,7 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
     this->type_tab->is_render = false;
 
     auto* province_btn = new UI::Button(0, 0, 128, 24, this);
-    province_btn->text("Province");
+    province_btn->text(UnifiedRender::Locale::translate("Province"));
     province_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<BuildingBuildView&>(*w.parent);
         o.province_tab->is_render = true;
@@ -133,7 +140,7 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
 
     auto* nation_btn = new UI::Button(0, 0, 128, 24, this);
     nation_btn->below_of(*province_btn);
-    nation_btn->text("Nation");
+    nation_btn->text(UnifiedRender::Locale::translate("Nation"));
     nation_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<BuildingBuildView&>(*w.parent);
         o.province_tab->is_render = false;
@@ -143,7 +150,7 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
 
     auto* build_btn = new UI::Button(0, 0, 128, 24, this);
     build_btn->below_of(*nation_btn);
-    build_btn->text("Build");
+    build_btn->text(UnifiedRender::Locale::translate("Build"));
     build_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<BuildingBuildView&>(*w.parent);
         o.province_tab->is_render = false;
@@ -153,7 +160,7 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
     close_btn->below_of(*build_btn);
-    close_btn->text("Close");
+    close_btn->text(UnifiedRender::Locale::translate("Close"));
 }
 
 BuildingView::BuildingView(GameState& _gs, Building* _building)
@@ -162,9 +169,9 @@ BuildingView::BuildingView(GameState& _gs, Building* _building)
     building{ _building }
 {
     this->is_scroll = false;
-    this->text("Information for building");
+    this->text(UnifiedRender::Locale::translate("Information for this building"));
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
     //close_btn->below_of(*build_btn);
-    close_btn->text("Close");
+    close_btn->text(UnifiedRender::Locale::translate("Close"));
 }

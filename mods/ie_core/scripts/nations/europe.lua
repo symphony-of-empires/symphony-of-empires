@@ -137,22 +137,22 @@ catalonia.name = _("Catalonia")
 catalonia.adjective = _("Catalonian")
 catalonia:register()
 catalonia:add_client_hint(republic, _("Catalonia"), 0xeda65a)
-
 catalonia:add_accepted_culture(catalan)
+
 basque_country = Nation:new{ ref_name = "basque" }
 basque_country.name = _("Basque")
 basque_country.adjective = _("Basque")
 basque_country:register()
 basque_country:add_client_hint(monarchy, _("Basque"), 0x808000)
-
 basque_country:add_accepted_culture(basque)
+
 galicia = Nation:new{ ref_name = "galicia" }
 galicia.name = _("Galicia")
 galicia.adjective = _("Galician")
 galicia:register()
 galicia:add_client_hint(monarchy, _("Galicia"), 0x808000)
-
 galicia:add_accepted_culture(galician)
+
 aragon = Nation:new{ ref_name = "aragon" }
 aragon.name = _("Aragon")
 aragon.adjective = _("Aragonesse")
@@ -695,7 +695,7 @@ ireland.name = _("Ireland")
 ireland.adjective = _("Irish")
 ireland:register()
 ireland:add_accepted_culture(irish)
-ireland:add_client_hint(monarchy, _("Ireland"), 0x808000)
+ireland:add_client_hint(monarchy, _("Ireland"), 0x40b225)
 
 -- Formable nations
 greater_prussia = Nation:new{ ref_name = "greater_prussia" }
@@ -868,8 +868,8 @@ serbia = Nation:new{ ref_name = "serbia" }
 serbia.name = _("Serbia")
 serbia:register()
 serbia:add_accepted_culture(serbian)
-serbia:add_client_hint(socialism, _("Serbia"), 0x808000)
-serbia:add_client_hint(monarchy, _("Serbia"), 0x808000)
+serbia:add_client_hint(socialism, _("Serbia"), 0x905c4b)
+serbia:add_client_hint(monarchy, _("Serbia"), 0x905c4b)
 
 montenegro = Nation:new{ ref_name = "montenegro" }
 montenegro.name = _("Montenegro")

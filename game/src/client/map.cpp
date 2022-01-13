@@ -111,6 +111,7 @@ void Map::set_view(MapView view) {
     glm::vec2 map_size = camera->map_size;
     glm::vec2 map_pos = camera->get_map_pos();
     delete camera;
+    
     if(view == MapView::PLANE_VIEW) {
         camera = new FlatCamera(screen_size, map_size);
         camera->set_pos(map_pos.x, map_pos.y);
@@ -128,11 +129,9 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
         Nation* province_owner = world.provinces[i]->owner;
         if(province_owner == nullptr) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        }
-        else if(province_owner->cached_id == (Nation::Id)-1) {
+        } else if(province_owner->cached_id == (Nation::Id)-1) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        }
-        else {
+        } else {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }
@@ -167,13 +166,13 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-            ));
+        ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-            ));
+        ));
     }
     flag.upload();
 
@@ -185,12 +184,6 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
 #include "unified_render/serializer.hpp"
 #include "io_impl.hpp"
 #include "action.hpp"
-#ifdef windows
-#	define bswap_32(x) _byteswap_ulong(x)
-#	define bswap_64(x) _byteswap_uint64(x)
-#else
-#	include <byteswap.h>
-#endif
 
 void Map::handle_click(GameState& gs, SDL_Event event) {
     Input& input = gs.input;
@@ -255,8 +248,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    }
-    else if(event.button.button == SDL_BUTTON_RIGHT) {
+    } else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
         if(tile.province_id == (Province::Id)-1) {
             return;
@@ -265,41 +257,10 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         Province* province = gs.world->provinces[tile.province_id];
 
         //if(input.selected_units.empty()) {
-        if(1) {
+        if(gs.editor) {
             gs.curr_nation->give_province(*province);
             province->nuclei.insert(gs.curr_nation);
-
-            FILE* fp = fopen("provinces_dump.lua", "wt");
-            if(fp != nullptr) {
-                for(const auto& province : gs.world->provinces) {
-                    const uint32_t color = bswap_32((province->color & 0x00ffffff) << 8);
-                    fprintf(fp, "province = Province:new{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%x }\n", province->ref_name.c_str(), province->name.c_str(), (unsigned int)color);
-                    fprintf(fp, "province:register()\n");
-                    for(const auto& building : province->get_buildings()) {
-                        fprintf(fp, "province:add_industry(BuildingType:get(\"%s\"), Nation:get(\"%s\"))\n", building->type->ref_name.c_str(), building->get_owner()->ref_name.c_str());
-                    }
-
-                    for(const auto& pop : province->pops) {
-                        fprintf(fp, "province:add_pop(PopType:get(\"%s\"), Culture:get(\"%s\"), Religion:get(\"%s\"), %zu, %f)\n", pop.type->ref_name.c_str(), pop.culture->ref_name.c_str(), pop.religion->ref_name.c_str(), pop.size, pop.literacy);
-                    }
-
-                    for(const auto& nucleus : province->nuclei) {
-                        fprintf(fp, "province:add_nucleus(Nation:get(\"%s\"))\n", nucleus->ref_name.c_str());
-                    }
-
-                    if(province->owner != nullptr) {
-                        fprintf(fp, "province:give_to(Nation:get(\"%s\"))\n", province->owner->ref_name.c_str());
-                        if(province->owner->capital == province) {
-                            fprintf(fp, "Nation:get(\"%s\"):set_capital(province)\n", province->owner->ref_name.c_str());
-                        }
-                    }
-
-                    fprintf(fp, "province:set_terrain(TerrainType:get(\"%s\"))\n", province->terrain_type->ref_name.c_str());
-                }
-
-                update_mapmode();
-                fclose(fp);
-            }
+            update_mapmode();
         }
 
         for(const auto& unit : input.selected_units) {
