@@ -565,9 +565,10 @@ nassau:add_client_hint(monarchy, _("Nassau"), 0xcc5f29)
 baden = Nation:new{ ref_name = "baden" }
 baden.name = _("Baden")
 baden:register()
-baden:set_ideology(monarchy)
+baden:set_ideology(fascism)
 baden:add_accepted_culture(german)
 baden:add_client_hint(monarchy, _("Baden"), 0xf57915)
+baden:add_client_hint(fascism, _("Baden"), 0xf57915)
 
 brunswick = Nation:new{ ref_name = "brunswick" }
 brunswick.name = _("Brunswick")
@@ -769,6 +770,7 @@ piedmont_sardinia:register()
 piedmont_sardinia:set_ideology(monarchy)
 piedmont_sardinia:add_accepted_culture(italian)
 piedmont_sardinia:add_client_hint(monarchy, _("Piedmont-Sardinia"), 0x873cb5)
+piedmont_sardinia:add_client_hint(fascism, _("Piedmont-Sardinia"), 0x873cb5)
 
 two_sicilies = Nation:new{ ref_name = "two_sicilies" }
 two_sicilies.name = _("Two Sicilies")
