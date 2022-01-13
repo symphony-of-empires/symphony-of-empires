@@ -146,6 +146,14 @@ texas:add_client_hint(socialism, _("Texas"), 0x8be2f7)
 texas:add_client_hint(communism, _("Texas"), 0x8be2f7)
 texas:add_client_hint(monarchy, _("Texas"), 0x8be2f7)
 
+csa = Nation:new{ ref_name = "csa" }
+csa.name = _("Confederate States of America")
+csa.adjective = _("Confederate")
+csa:register()
+csa:add_accepted_culture(Culture:get("american"))
+csa:add_client_hint(republic, _("Confederate States of America"), 0x8be2f7)
+csa:add_client_hint(monarchy, _("Confederate States of America"), 0x8be2f7)
+
 uruguay = Nation:new{ ref_name = "uruguay" }
 uruguay.name = _("Uruguay")
 uruguay.adjective = _("Uruguayan")
