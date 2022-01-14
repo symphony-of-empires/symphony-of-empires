@@ -132,9 +132,9 @@ haiti:add_client_hint(republic, _("Haiti"), 0xb147cc)
 mapuche = Nation:new{ ref_name = "mapuche" }
 mapuche.name = _("Mapuche")
 mapuche:register()
-mapuche:set_ideology(tribalism)
+mapuche:set_ideology(tribal)
 mapuche:add_accepted_culture(mapuche)
-mapuche:add_client_hint(tribalism, _("Mapuche"), 0x8c9ebd)
+mapuche:add_client_hint(tribal, _("Mapuche"), 0x8c9ebd)
 
 -- Releasable nations
 texas = Nation:new{ ref_name = "texas" }
