@@ -271,7 +271,7 @@ MainMenuSettings::MainMenuSettings(GameState& _gs)
 // Main menu
 //
 MainMenu::MainMenu(GameState& _gs)
-    : UI::Window(0, -128, gs.width, 128),
+    : UI::Window(0, -128, 400, 128),
     gs{ _gs }
 {
     this->origin = UI::Origin::LOWER_LEFT_SCREEN;
@@ -353,7 +353,7 @@ MainMenu::MainMenu(GameState& _gs)
 
     auto* exit_btn = new UI::Button(0, 0, 128, 24, this);
     exit_btn->below_of(*host_btn);
-    exit_btn->right_side_of(*host_btn);
+    exit_btn->right_side_of(*cfg_btn);
     exit_btn->text("Exit");
 }
 

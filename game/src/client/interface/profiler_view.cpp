@@ -44,7 +44,6 @@ ProfilerView::ProfilerView(GameState& _gs)
     this->text("Profiler");
     this->is_scroll = false;
 
-
     UnifiedRender::Profiler& profiler = gs.world->profiler;
     float fps = profiler.get_fps();
 

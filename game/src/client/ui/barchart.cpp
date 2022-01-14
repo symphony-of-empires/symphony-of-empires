@@ -72,7 +72,6 @@ void BarChart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glBegin(GL_TRIANGLES);
     float counter = 0;
     float last_ratio = 0;
-
     for(auto& slice : data) {
         counter += slice.num;
         float ratio = counter / max;

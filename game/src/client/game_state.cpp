@@ -202,8 +202,7 @@ void handle_event(Input& input, GameState& gs) {
                     if(gs.profiler_view) {
                         delete gs.profiler_view;
                         gs.profiler_view = nullptr;
-                    }
-                    else {
+                    } else {
                         gs.profiler_view = new Interface::ProfilerView(gs);
                     }
                 }
