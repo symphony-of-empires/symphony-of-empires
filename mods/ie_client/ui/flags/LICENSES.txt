@@ -315,6 +315,7 @@ baden_fascism
 upca_socialism
 two_sicilies_fascism
 two_sicilies_communism
+austria_hungary_fascism
 	Flags made by TrumpShallPurgetheAnimeScourge
 
 baden_communism
