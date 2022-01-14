@@ -61,10 +61,10 @@ void Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int screen
     int extra_below = screen_h - _y - _height;
     if(extra_above > extra_below) {
         y = _y - height - 10;
-    }
-    else {
+    } else {
         y = _y + _height + 10;
     }
+    
     x = _x;
 }
 

@@ -315,20 +315,15 @@ void Context::render_all() {
 bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
     glm::ivec2 offset{ x_off, y_off };
     offset = get_pos(w, offset);
-
+    
     w.is_hover = true;
-
     if(!w.is_show || !w.is_render) {
-        w.is_hover = false;
+        return false;
     }
-
-    if(w.type == UI::WidgetType::GROUP) {
-        w.is_hover = false;
-    }
+    
     if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
         w.is_hover = false;
-    }
-    else if(w.type == UI::WidgetType::IMAGE) {
+    } else if(w.type == UI::WidgetType::IMAGE) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
@@ -343,12 +338,12 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
         }
     }
 
-    if(w.is_hover && w.on_hover) {
-        glm::ivec2 mouse_pos(mx, my);
-        w.on_hover(w, mouse_pos, offset);
-    }
-
     if(w.is_hover) {
+        if(w.on_hover) {
+            glm::ivec2 mouse_pos(mx, my);
+            w.on_hover(w, mouse_pos, offset);
+        }
+	
         if(w.tooltip != nullptr) {
             tooltip_widget = w.tooltip;
             tooltip_widget->set_pos(offset.x, offset.y, w.width, w.height, width, height);
@@ -397,8 +392,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
     if(w.type != UI::WidgetType::GROUP) {
         if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
             clickable = false;
-        }
-        else if(w.type == UI::WidgetType::IMAGE) {
+        } else if(w.type == UI::WidgetType::IMAGE) {
             if(w.current_texture != nullptr) {
                 int tex_width = w.current_texture->width;
                 int tex_height = w.current_texture->height;
