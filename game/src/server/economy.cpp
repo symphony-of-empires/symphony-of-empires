@@ -228,7 +228,9 @@ void Economy::do_tick(World& world) {
             for(const auto& req : building->req_goods_for_unit) {
                 // Increment demand for all products with same required good type
                 for(auto& product : world.products) {
-                    if(product->good != req.first) continue;
+                    if(product->good != req.first) {
+                        continue;
+                    }
 
                     // Government-required supplies are super important for companies
                     product->demand += std::max(100.f, req.second / 1000.f);
@@ -256,7 +258,7 @@ void Economy::do_tick(World& world) {
                 unit->defensive_ticks = 0;
                 unit->size = unit->type->max_health;
                 unit->base = unit->size;
-
+                
                 // Notify all clients of the server about this new unit
                 building->working_unit_type = nullptr;
                 world.insert(unit);
