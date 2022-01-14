@@ -23,6 +23,7 @@ uniform sampler2D river_texture;
 uniform sampler2D wave1;
 uniform sampler2D wave2;
 uniform sampler2D normal;
+uniform sampler2D bathymethry;
 
 // https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
 vec4 noTiling(sampler2D tex, vec2 uv) {
@@ -324,7 +325,7 @@ float get_lighting(vec2 tex_coords, float beach) {
 void main() {
 	const vec4 province_border = vec4(0., 0., 0., 1.);
 	const vec4 country_border = vec4(0.2, 0., 0., 1.);
-	const vec4 water_col = vec4(0.06, 0.39, 0.75, 1.);
+	const vec4 water_col = vec4(0.26, 0.45, 0.75, 1.);
 	const vec4 river_col = vec4(0., 0., 0.3, 1.);
 	vec2 pix = vec2(1.0) / map_size;
 
@@ -354,10 +355,14 @@ void main() {
 #else
 	vec4 water = texture(water_texture, 50. * tex_coords + time * vec2(0.01));
 #endif
+
 	water = mix(water, water_col * 0.7, 0.7);
 	float grid = get_grid(tex_coords);
-	water = mix(water, vec4(0, 0, 0, 1), grid * 0.2);
+	// water = mix(water, vec4(0, 0, 0, 1), grid * 0.2);
 
+	float bathy = texture(bathymethry, tex_coords).x;
+	bathy = (bathy - 0.50)/(.70 - 0.50);
+	water = water * mix(0.6, 1., bathy);
 
 	vec4 borders_diag = get_border(tex_coords);
 	vec2 borders = borders_diag.xy;
@@ -391,7 +396,7 @@ void main() {
 	float bSdf = texture2D(border_sdf, tex_coords + pix * 0.5).x;
 	float is_ocean = step(1., isOcean(tex_coords));
 	vec4 wave = mix(water, water * 0.7, max(0., sin(bSdf * 50.)));
-	wave = mix(wave, water, dist_to_map);
+	wave = mix(wave, water, 1.);
 	vec4 mix_col = mix(out_color, wave, is_ocean);
     out_color = mix(out_color, mix_col * 0.8, clamp(bSdf * 3. - 1., 0., 1.));
 #endif
@@ -409,6 +414,7 @@ void main() {
 #ifdef LIGHTING
 	light = get_lighting(tex_coords, beach);
 #endif
+
 
 	f_frag_color = vec4(vec3(light), 1.) * out_color;
 	f_frag_color.a = 1.;

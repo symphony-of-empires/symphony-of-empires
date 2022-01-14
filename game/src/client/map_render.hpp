@@ -90,6 +90,7 @@ class MapRender {
     const UnifiedRender::Texture* landscape_map;
     const UnifiedRender::Texture* wave1;
     const UnifiedRender::Texture* wave2;
+    const UnifiedRender::Texture* bathymethry;
     UnifiedRender::Texture* normal_topo;
     UnifiedRender::TextureArray* terrain_sheet;
 
