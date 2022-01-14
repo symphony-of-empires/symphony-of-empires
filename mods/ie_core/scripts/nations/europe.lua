@@ -737,6 +737,7 @@ austria_hungary:register()
 austria_hungary:add_accepted_culture(german)
 austria_hungary:add_accepted_culture(hungarian)
 austria_hungary:add_client_hint(monarchy, _("Austria-Hungary"), 0xe8ebe8)
+austria_hungary:add_client_hint(fascism, _("Austria-Hungary"), 0xe8ebe8)
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
@@ -779,6 +780,8 @@ two_sicilies:register()
 two_sicilies:set_ideology(monarchy)
 two_sicilies:add_accepted_culture(italian)
 two_sicilies:add_client_hint(monarchy, _("Two Sicilies"), 0x679e7b)
+two_sicilies:add_client_hint(communism, _("Two Sicilies"), 0x679e7b)
+two_sicilies:add_client_hint(fascism, _("Two Sicilies"), 0x679e7b)
 
 tuscany = Nation:new{ ref_name = "tuscany" }
 tuscany.name = _("Tuscany")
