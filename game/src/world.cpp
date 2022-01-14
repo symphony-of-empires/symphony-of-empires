@@ -783,8 +783,9 @@ void World::do_tick() {
                 auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
                     return &e.province == unit->province;
                 });
-
+                
                 // Create a new battle if none is occurring on this province
+                unit->target = nullptr;
                 if(it == war->battles.end()) {
                     Battle battle = Battle(*war, *unit->province);
                     battle.name = "Battle of " + unit->province->name;
@@ -837,13 +838,14 @@ void World::do_tick() {
     for(auto& war : wars) {
         for(auto& battle : war->battles) {
             // Attackers attack Defenders
-            for(auto& attack : battle.attackers) {
+            for(auto& attacker : battle.attackers) {
                 for(auto it = battle.defenders.begin(); it != battle.defenders.end(); it++) {
                     const size_t prev_size = (*it)->size;
-                    attack->attack(*(*it));
+                    attacker->attack(*(*it));
                     battle.defender_casualties += prev_size - (*it)->size;
 
                     if(!(*it)->size) {
+                        UnifiedRender::Log::debug("game", "Removing attacker \"" + (*it)->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         remove(*it);
                         battle.defenders.erase(it);
                         delete *it;
@@ -854,13 +856,14 @@ void World::do_tick() {
             }
 
             // Defenders attack Attackers
-            for(auto& defend : battle.defenders) {
+            for(auto& defender : battle.defenders) {
                 for(auto it = battle.attackers.begin(); it != battle.attackers.end(); it++) {
                     const size_t prev_size = (*it)->size;
-                    defend->attack(*(*it));
+                    defender->attack(*(*it));
                     battle.attacker_casualties += prev_size - (*it)->size;
 
                     if(!(*it)->size) {
+                        UnifiedRender::Log::debug("game", "Removing defender \"" + (*it)->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         remove(*it);
                         battle.attackers.erase(it);
                         delete *it;

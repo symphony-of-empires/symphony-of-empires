@@ -59,9 +59,9 @@ UnitTrait::~UnitTrait(void) {
 //
 // Unit
 //
-Unit::Unit(void) {
+/*Unit::Unit(void) {
 
-}
+}*/
 
 Unit::~Unit(void) {
     if(province != nullptr) {
@@ -167,13 +167,14 @@ bool Unit::can_move(void) const {
         if(!war->is_involved(*owner)) {
             continue;
         }
-
-        for(const auto& battle : war->battles) {
-            if(&battle.province == province) {
-                return false;
-            }
+        
+        auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
+            return &e.province == unit->province;
+        });
+        
+        if(it != war->battles.end()) {
+            return false;
         }
-        break;
     }
     return true;
 }

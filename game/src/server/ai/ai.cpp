@@ -383,15 +383,13 @@ void ai_build_commercial(Nation* nation, World* world) {
     Province* province = *it;
     if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
         print_error("Cant build buidling, province doesn't have any tiles");
-    }
-    else {
+    } else {
         // Now build the building
         Building* building = new Building();
         building->province = province;
         building->type = world->building_types[0];
         building->owner = nation;
         building->budget = 100.f;
-
         if(building->type->is_factory) {
             building->create_factory();
             for(const auto& product : building->output_products) {

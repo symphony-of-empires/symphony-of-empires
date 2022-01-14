@@ -88,7 +88,7 @@ public:
 // Roughly a batallion, consisting of approximately 500 soldiers each
 class Unit : public IdEntity<uint16_t> {
 public:
-    Unit();
+    //Unit();
     ~Unit();
     void attack(Unit& enemy);
     std::pair<float, float> get_pos(void) const;
