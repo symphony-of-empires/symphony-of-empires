@@ -846,9 +846,11 @@ void World::do_tick() {
 
                     if(!(*it)->size) {
                         UnifiedRender::Log::debug("game", "Removing attacker \"" + (*it)->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
-                        remove(*it);
+                        
+                        Unit* unit = *it;
                         battle.defenders.erase(it);
-                        delete *it;
+                        remove(unit);
+                        delete unit;
                         it--;
                         continue;
                     }
@@ -864,9 +866,11 @@ void World::do_tick() {
 
                     if(!(*it)->size) {
                         UnifiedRender::Log::debug("game", "Removing defender \"" + (*it)->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
-                        remove(*it);
+                        
+                        Unit* unit = *it;
                         battle.attackers.erase(it);
-                        delete *it;
+                        remove(unit);
+                        delete unit;
                         it--;
                         continue;
                     }
