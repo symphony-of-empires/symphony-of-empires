@@ -8,7 +8,7 @@ ECHO ">>> Making the debug build"
 MKDIR debug
 CD debug
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUR_BACKEND_OPENGL=1 -G"Unix Makefiles" ../..
-make -j3
+make -j2
 CD ..
 
 ECHO ">>> Creating debug distrobution package"
