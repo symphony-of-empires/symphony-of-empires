@@ -34,16 +34,22 @@
 class Camera {
 protected:
     glm::vec3 map_position;
-public:
-    float fov = 45.0f, near_plane = 1.0f, far_plane = 20000.0f;
+    glm::vec3 world_position;
     glm::vec2 screen_size;
     glm::vec2 map_size;
-    glm::vec3 world_position;
+public:
+    float fov = 45.0f, near_plane = 1.0f, far_plane = 20000.0f;
 
     Camera(glm::vec2 _screen_size, glm::vec2 _map_size) {
         screen_size = _screen_size;
         map_size = _map_size;
     }
+    Camera(Camera* camera) {
+        screen_size = camera->screen_size;
+        map_size = camera->map_size;
+        map_position = camera->get_map_pos();
+    }
+
     virtual ~Camera() {};
 
     void set_screen(const int width, const int height) {
@@ -53,6 +59,9 @@ public:
     virtual void move(float x_dir, float y_dir, float z_dir) = 0;
     virtual void set_pos(float x, float y) = 0;
     virtual glm::vec3 get_map_pos() = 0;
+    glm::vec3 get_world_pos() {
+        return world_position;
+    }
 
     virtual void update(void) = 0;
 
