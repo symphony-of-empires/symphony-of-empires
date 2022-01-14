@@ -33,7 +33,7 @@ cp unified_render/libunified_render.a .
 Specifying `-j` to make will freeze systems, use `-j$(nproc)` instead, if a multithreaded compilation is desired.
 
 Use this code to install Lua5.4
-```
+```sh
 wget http://mirrors.kernel.org/ubuntu/pool/universe/l/lua5.4/liblua5.4-0_5.4.0-2_amd64.deb
 sudo dpkg -i liblua5.4-0_5.4.0-2_amd64.deb
 wget http://mirrors.kernel.org/ubuntu/pool/universe/l/lua5.4/liblua5.4-dev_5.4.0-2_amd64.deb
@@ -42,6 +42,12 @@ sudo dpkg -i liblua5.4-dev_5.4.0-2_amd64.deb
 Alternatively, you can call `cmake` with the flag `-Dlua54:BOOL=ON` to compile with Lua 5.4 - since 5.3 is used by default.
 
 The project can also be built using clang.
+
+### Arch-based distros
+
+```sh
+pacman -S libpng sdl2 sdl2_ttf tbb glew lua53 glm
+```
 
 ## Build on Windows
 
