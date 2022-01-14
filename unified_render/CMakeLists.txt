@@ -75,7 +75,6 @@ target_precompile_headers(unified_render PRIVATE
 	<GL/glew.h>
 	<GL/gl.h>
 	<GL/glu.h>
-	<GL/glext.h>
 )
 # glm header files
 target_precompile_headers(unified_render PRIVATE
