@@ -47,6 +47,13 @@ public:
         target = map_position;
     }
 
+    FlatCamera(Camera* camera)
+        : Camera(camera)
+    {
+        world_position = map_position;
+        target = map_position;
+    }
+
     void move(float x_dir, float y_dir, float z_dir) override {
         float scale = glm::abs(target.z * map_size.x / 1e5);
         target.x += x_dir * scale;
