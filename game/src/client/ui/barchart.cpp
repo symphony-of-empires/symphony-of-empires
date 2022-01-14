@@ -69,12 +69,12 @@ void BarChart::set_data(std::vector<ChartData> new_data) {
 
 void BarChart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glBindTexture(GL_TEXTURE_2D, ctx.piechart_overlay->gl_tex_num);
+    float counter = 0.f;
+    float last_ratio = 0.f;
     glBegin(GL_TRIANGLES);
-    float counter = 0;
-    float last_ratio = 0;
     for(auto& slice : data) {
         counter += slice.num;
-        float ratio = counter / max;
+        const float ratio = counter / max;
 
         UnifiedRender::Rect pos_rect(last_ratio * width, 0u, ratio * width, height);
         UnifiedRender::Rect tex_rect(0u, 0u, 1u, 1u);
