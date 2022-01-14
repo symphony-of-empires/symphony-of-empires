@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.15)
 
 project(game)
 #set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/src)
@@ -100,7 +100,6 @@ target_precompile_headers(game PRIVATE
 	<GL/glew.h>
 	<GL/gl.h>
 	<GL/glu.h>
-	<GL/glext.h>
 )
 # glm header files
 target_precompile_headers(game PRIVATE
