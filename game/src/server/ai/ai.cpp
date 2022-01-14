@@ -97,8 +97,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 
         // Obtain the index of the highest element (the one with more sucess rate)
         return target_good;
-    }
-    else {
+    }else {
         // We will randomly pick any primary product which we are capable of producing
         // This is mostly useful for starting supply chains from zero
         print_info("Primary sector kickstart strategy");
@@ -140,36 +139,31 @@ void ai_reform(Nation* nation) {
 
     if(std::rand() % 100 > 50.f) {
         new_policy.import_tax += 0.1f * (rand() % 10);
-    }
-    else if(std::rand() % 100 > 50.f) {
+    } else if(std::rand() % 100 > 50.f) {
         new_policy.import_tax -= 0.1f * (rand() % 10);
     }
 
     if(std::rand() % 100 > 50.f) {
         new_policy.export_tax += 0.1f * (rand() % 10);
-    }
-    else if(std::rand() % 100 > 50.f) {
+    } else if(std::rand() % 100 > 50.f) {
         new_policy.export_tax -= 0.1f * (rand() % 10);
     }
 
     if(std::rand() % 100 > 50.f) {
         new_policy.domestic_export_tax += 0.1f * (rand() % 10);
-    }
-    else if(std::rand() % 100 > 50.f) {
+    } else if(std::rand() % 100 > 50.f) {
         new_policy.domestic_export_tax -= 0.1f * (rand() % 10);
     }
 
     if(std::rand() % 100 > 50.f) {
         new_policy.domestic_import_tax += 0.1f * (rand() % 10);
-    }
-    else if(std::rand() % 100 > 50.f) {
+    } else if(std::rand() % 100 > 50.f) {
         new_policy.domestic_import_tax -= 0.1f * (rand() % 10);
     }
 
     if(std::rand() % 100 > 50.f) {
         new_policy.industry_tax += 0.1f * (rand() % 10);
-    }
-    else if(std::rand() % 100 > 50.f) {
+    } else if(std::rand() % 100 > 50.f) {
         new_policy.industry_tax -= 0.1f * (rand() % 10);
     }
 
@@ -182,8 +176,7 @@ void ai_reform(Nation* nation) {
 
     if(std::rand() % 100 > 50.f) {
         new_policy.min_sv_for_parliament += 0.1f * (rand() % 10);
-    }
-    else if(std::rand() % 100 > 50.f) {
+    } else if(std::rand() % 100 > 50.f) {
         new_policy.min_sv_for_parliament -= 0.1f * (rand() % 10);
     }
 
@@ -240,8 +233,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
     // Randomness to spice stuff up
     if(!(std::rand() % 10)) {
         nation->increase_relation(*other);
-    }
-    else if(!(std::rand() % 100)) {
+    } else if(!(std::rand() % 10)) {
         nation->decrease_relation(*other);
     }
 

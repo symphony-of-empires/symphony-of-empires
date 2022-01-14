@@ -652,7 +652,7 @@ void World::load_initial(void) {
     UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Creating diplomatic relations"));
     for(const auto& nation : this->nations) {
         // Relations between nations start at 0 (and latter modified by lua scripts)
-        nation->relations.resize(this->nations.size(), NationRelation{ -100.f, false, false, false, false, false, false, false, false, true, false });
+        nation->relations.resize(this->nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
     }
     UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("World partially intiialized"));
 }
@@ -845,8 +845,8 @@ void World::do_tick() {
 
                     if(!(*it)->size) {
                         remove(*it);
-                        delete *it;
                         battle.defenders.erase(it);
+                        delete *it;
                         it--;
                         continue;
                     }
@@ -862,8 +862,8 @@ void World::do_tick() {
 
                     if(!(*it)->size) {
                         remove(*it);
-                        delete *it;
                         battle.attackers.erase(it);
+                        delete *it;
                         it--;
                         continue;
                     }
