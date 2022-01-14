@@ -312,6 +312,9 @@ beyiang_socialism
 beyiang_monarchy
 piedmont_sardinia_fascism
 baden_fascism
+upca_socialism
+two_sicilies_fascism
+two_sicilies_communism
 	Flags made by TrumpShallPurgetheAnimeScourge
 
 baden_communism
