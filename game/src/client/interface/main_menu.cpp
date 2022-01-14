@@ -230,7 +230,7 @@ MainMenuSettings::MainMenuSettings(GameState& _gs)
 
     auto* grid_chk = new UI::Checkbox(0, 0, 128, 24, this);
     grid_chk->below_of(*landscape_chk);
-    grid_chk->value = gs.map->map_render->options.landscape.used;
+    grid_chk->value = gs.map->map_render->options.grid.used;
     grid_chk->text("Gridlines");
     grid_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenuSettings&>(*w.parent);
@@ -243,7 +243,7 @@ MainMenuSettings::MainMenuSettings(GameState& _gs)
 
     auto* water_chk = new UI::Checkbox(0, 0, 128, 24, this);
     water_chk->below_of(*grid_chk);
-    water_chk->value = gs.map->map_render->options.landscape.used;
+    water_chk->value = gs.map->map_render->options.water.used;
     water_chk->text("Water texture");
     water_chk->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenuSettings&>(*w.parent);
