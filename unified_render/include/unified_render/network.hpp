@@ -47,9 +47,7 @@
 #    include <unistd.h>
 #endif
 
-#ifdef unix
-#	include <poll.h>
-#elif defined windows
+#if defined windows
 // Allow us to use deprecated functions like inet_addr
 #   define _WINSOCK_DEPRECATED_NO_WARNINGS
 // MingW heavily dislikes ws2def.h and causes spurious errors
@@ -194,11 +192,7 @@ namespace UnifiedRender::Networking {
     class Server {
     protected:
         struct sockaddr_in addr;
-#ifdef unix
         int fd;
-#elif defined windows
-        SOCKET fd;
-#endif
         std::atomic<bool> run;
     public:
         Server(unsigned port, unsigned max_conn);
@@ -213,11 +207,7 @@ namespace UnifiedRender::Networking {
     class Client {
     protected:
         struct sockaddr_in addr;
-#ifdef unix
         int fd;
-#elif defined windows
-        SOCKET fd;
-#endif
     public:
         Client(std::string host, const unsigned port);
         ~Client();
