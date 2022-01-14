@@ -309,8 +309,10 @@ float get_lighting(vec2 tex_coords, float beach) {
 	float diffuse = max(dot(lightDir, normal), 0.0);
 
 	float is_water = step(1., max(isWater(tex_coords), beach));
+#ifdef WATER
 	vec3 water_normal = get_water_normal(tex_coords);
 	normal = mix(normal, water_normal, is_water);
+#endif
 	float shininess = is_water == 1. ? 256 : 8;
 	float specularStrength = is_water == 1. ? 0.4 : 0.2;
 
@@ -350,15 +352,21 @@ void main() {
 #endif
 	beach = smoothstep(0.2, 0.3, beach);
 
+#ifdef WATER
 #ifdef NOISE
 	vec4 water = noTiling(water_texture, 50. * tex_coords + time * vec2(0.01));
 #else
 	vec4 water = texture(water_texture, 50. * tex_coords + time * vec2(0.01));
 #endif
-
 	water = mix(water, water_col * 0.7, 0.7);
+#else
+	vec4 water = water_col * 0.7;
+#endif
+
+#ifdef GRID
 	float grid = get_grid(tex_coords);
-	// water = mix(water, vec4(0, 0, 0, 1), grid * 0.2);
+	water = mix(water, vec4(0, 0, 0, 1), grid * 0.2);
+#endif
 
 	float bathy = texture(bathymethry, tex_coords).x;
 	bathy = (bathy - 0.50)/(.70 - 0.50);
