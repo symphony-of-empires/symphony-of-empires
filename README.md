@@ -22,12 +22,8 @@ sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.3-dev libtbb-
 
 The build with these commands once all the dependencies are met:
 ```sh
-mkdir build && cd build
-cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release -DUR_BACKEND_OPENGL=1 ..
+cmake -DUR_BACKEND_OPENGL=1 .
 make
-cp game/game soe
-cp unified_render/libunified_render.so .
-cp unified_render/libunified_render.a .
 ```
 
 Specifying `-j` to make will freeze systems, use `-j$(nproc)` instead, if a multithreaded compilation is desired.
@@ -73,17 +69,8 @@ pacman -S mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-lua mingw-w
 
 Finally; to build you only have to run:
 ```sh
-mkdir build && cd build
-cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release -DUR_BACKEND_OPENGL=1 ..
+cmake -G"Unix Makefiles" -DUR_BACKEND_OPENGL=1 .
 make
-cp game/game.exe .
-mv game.exe soe.exe
-cp unified_render/libunified_render.dll .
-```
-
-Alternatively, one may simply run the buildall.bat file under an MSYS2 session - which will create Release and Debug builds:
-```sh
-./buildall.bat
 ```
 
 ### Visual Studio

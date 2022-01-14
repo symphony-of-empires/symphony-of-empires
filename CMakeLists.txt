@@ -62,6 +62,8 @@ add_executable(SymphonyOfEmpires ${MAIN_SOURCES})
 #
 # Linking
 #
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 m z tbb stdc++ unified_render)
+
 IF(WIN32)
 	target_link_libraries(SymphonyOfEmpires PUBLIC opengl32 glu32 winpthread)
 ELSE()
@@ -83,7 +85,6 @@ ELSE()
 	message(STATUS "Using an unknown lua version")
 	target_link_libraries(SymphonyOfEmpires PUBLIC lua)
 ENDIF()
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 m z tbb stdc++ unified_render)
 
 #
 # Precompiled headers
