@@ -122,11 +122,8 @@ namespace UI {
 		void move_by(int x, int y);
 		void add_child(Widget* child);
 		void draw_rectangle(int x, int y, unsigned w, unsigned h, UnifiedRender::Rect viewport, unsigned tex);
-		void draw_rect(const GLuint tex,
-			UnifiedRender::Rect rect_pos,
-			UnifiedRender::Rect rect_tex,
-			UnifiedRender::Rect viewport);
-
+		void draw_rect(const GLuint tex, UnifiedRender::Rect rect_pos, UnifiedRender::Rect rect_tex, UnifiedRender::Rect viewport);
+        
 		virtual void on_render(Context&, UnifiedRender::Rect viewport);
 		virtual void text(const std::string& text);
 		virtual void set_tooltip(Tooltip* tooltip);

@@ -50,6 +50,7 @@ BarChart::BarChart(int _x, int _y, unsigned w, unsigned h, std::vector<ChartData
     max{ 0 },
     Widget(_parent, _x, _y, w, h, UI::WidgetType::BAR_CHART)
 {
+    
 }
 
 BarChart::BarChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
@@ -57,6 +58,7 @@ BarChart::BarChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     max{ 0 },
     Widget(_parent, _x, _y, w, h, UI::WidgetType::BAR_CHART)
 {
+    
 }
 
 void BarChart::set_data(std::vector<ChartData> new_data) {
@@ -69,9 +71,10 @@ void BarChart::set_data(std::vector<ChartData> new_data) {
 
 void BarChart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glBindTexture(GL_TEXTURE_2D, ctx.piechart_overlay->gl_tex_num);
+    glBegin(GL_TRIANGLES);
+    
     float counter = 0.f;
     float last_ratio = 0.f;
-    glBegin(GL_TRIANGLES);
     for(auto& slice : data) {
         counter += slice.num;
         const float ratio = counter / max;

@@ -31,7 +31,7 @@ using namespace UnifiedRender;
 // Keep data for 10 seconds
 const float MS_TO_KEEP_DATA = 10 * 1e3;
 
-const uint32_t colors[] ={
+const uint32_t colors[] = {
     0xFF000000, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000, 0xFF01FFFE, 0xFFFFA6FE,
     0xFFFFDB66, 0xFF006401, 0xFF010067, 0xFF95003A, 0xFF007DB5, 0xFFFF00F6,
     0xFFFFEEE8, 0xFF774D00, 0xFF90FB92, 0xFF0076FF, 0xFFD5FF00, 0xFFFF937E,
@@ -62,12 +62,12 @@ void BenchmarkTask::stop() {
     start_times.push_back(start_time);
 }
 
-
 float BenchmarkTask::get_average_time_ms() {
     clear_old();
     if(times.size() == 0) {
         return 0;
     }
+    
     float total_time = 0;
     for(auto const& time : times) {
         total_time += time;
@@ -80,6 +80,7 @@ float BenchmarkTask::get_largest_time_ms() {
     if(times.size() == 0) {
         return 0;
     }
+    
     float max_time = 0;
     for(size_t i = 0; i < times.size(); i++) {
         for(auto const& time : times) {
@@ -102,8 +103,7 @@ void BenchmarkTask::clear_old() {
         if(time > MS_TO_KEEP_DATA) {
             start_times_it = start_times.erase(start_times_it);
             times_it = times.erase(times_it);
-        }
-        else {
+        } else {
             start_times_it++;
             times_it++;
         }
@@ -118,8 +118,7 @@ void Profiler::start(std::string name) {
         BenchmarkTask task(name, color);
         task.start();
         tasks.insert({ name, task });
-    }
-    else {
+    } else {
         it->second.start();
     }
 }
@@ -129,8 +128,7 @@ void Profiler::stop(std::string name) {
     if(it == tasks.end()) {
         print_error("Profiler - Tried to stop task '%s', but it hasn't been started yet", name.c_str());
         return;
-    }
-    else {
+    } else {
         it->second.stop();
     }
 }

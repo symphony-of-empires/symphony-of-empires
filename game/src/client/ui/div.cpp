@@ -26,9 +26,8 @@
 #include "client/ui/div.hpp"
 #include "client/ui/ui.hpp"
 
-using namespace UI;
-
-Div::Div(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
+UI::Div::Div(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::DIV)
 {
+    
 }
