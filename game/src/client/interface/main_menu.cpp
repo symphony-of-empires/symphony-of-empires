@@ -228,8 +228,34 @@ MainMenuSettings::MainMenuSettings(GameState& _gs)
     landscape_chk->tooltip = new UI::Tooltip(landscape_chk, 512, 24);
     landscape_chk->tooltip->text("Enables/Disables the landscape image (for terrain). Low performance impact");
 
+    auto* grid_chk = new UI::Checkbox(0, 0, 128, 24, this);
+    grid_chk->below_of(*landscape_chk);
+    grid_chk->value = gs.map->map_render->options.grid.used;
+    grid_chk->text("Gridlines");
+    grid_chk->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenuSettings&>(*w.parent);
+        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
+        o.gs.map->map_render->options.grid.used = ((UI::Checkbox&)w).value;
+        o.gs.map->reload_shaders();
+    });
+    grid_chk->tooltip = new UI::Tooltip(grid_chk, 512, 24);
+    grid_chk->tooltip->text("Enables/Disables the grid lines on the water. Low performance impact");
+
+    auto* water_chk = new UI::Checkbox(0, 0, 128, 24, this);
+    water_chk->below_of(*grid_chk);
+    water_chk->value = gs.map->map_render->options.water.used;
+    water_chk->text("Water texture");
+    water_chk->on_click = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<MainMenuSettings&>(*w.parent);
+        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
+        o.gs.map->map_render->options.water.used = ((UI::Checkbox&)w).value;
+        o.gs.map->reload_shaders();
+    });
+    water_chk->tooltip = new UI::Tooltip(water_chk, 512, 24);
+    water_chk->tooltip->text("Enables/Disables the water texture (for terrain). Low performance impact");
+
     auto* motionblur_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    motionblur_chk->below_of(*landscape_chk);
+    motionblur_chk->below_of(*water_chk);
     motionblur_chk->value = gs.motion_blur;
     motionblur_chk->text("Motion blur");
     motionblur_chk->on_click = ([](UI::Widget& w, void*) {
