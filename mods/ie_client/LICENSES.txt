@@ -27,4 +27,12 @@ ui/goods/oil:
 ui/goods/titanium:
 ui/goods/wheat:
 ui/goods/wine:
+ui/goods/coal:
+ui/goods/sulphur:
+ui/goods/rice:
+ui/goods/silver:
 	Credits for Pattrck - made ui icons and graphical interface style in photoshop
+
+ui/icons/ideologies/communism
+ui/icons/ideologies/fascism
+	By Higralfo
