@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      client/ui/components.hpp
+//      client/interface/profiler_view.hpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -25,20 +25,35 @@
 
 #pragma once
 
-#include "client/ui/barchart.hpp"
-#include "client/ui/button.hpp"
-#include "client/ui/chart.hpp"
-#include "client/ui/checkbox.hpp"
-#include "client/ui/close_button.hpp"
-#include "client/ui/div.hpp"
-#include "client/ui/group.hpp"
-#include "client/ui/image.hpp"
-#include "client/ui/input.hpp"
-#include "client/ui/label.hpp"
-#include "client/ui/piechart.hpp"
-#include "client/ui/progress_bar.hpp"
-#include "client/ui/slider.hpp"
-#include "client/ui/tab.hpp"
-#include "client/ui/text.hpp"
-#include "client/ui/tooltip.hpp"
 #include "client/ui/window.hpp"
+#include "client/ui/group.hpp"
+#include "client/game_state.hpp"
+#include <vector>
+
+namespace UI {
+    class Label;
+    class Div;
+}
+
+namespace UnifiedRender {
+    class BenchmarkTask;
+}
+
+namespace Interface {
+    class ProfilerTaskView;
+    class ProfilerView: public UI::Window {
+        GameState& gs;
+        std::vector<ProfilerTaskView*> task_views;
+    public:
+        ProfilerView(GameState& gs);
+    };
+
+    class ProfilerTaskView: public UI::Group {
+    public:
+        ProfilerTaskView(ProfilerView* profiler_view, int x, int y);
+        void set_task(UnifiedRender::BenchmarkTask* profiler_view);
+    private:
+        UI::Label* label;
+        UI::Div* color_box;
+    };
+};
