@@ -90,7 +90,7 @@ void Label::text(const std::string& _text) {
     SDL_FreeSurface(surface);
 
     const char* error = SDL_GetError();
-    if((error == nullptr) && (error[0] != '\0')) {
+    if(error[0] != '\0') {
         print_error("SDL error %s", error);
     }
 
