@@ -66,3 +66,6 @@ linuxbuild/
 
 # makefile stuff
 .depend
+
+Makefile
+*.dll*
