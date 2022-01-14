@@ -67,10 +67,12 @@ struct MapOptions {
     Option parallax{ "PARALLAX", false };
     Option landscape{ "LANDSCAPE", false };
     Option rivers{ "RIVERS", false };
+    Option water{ "WATER", false };
+    Option grid{ "GRID", false };
 
     std::vector<Option> get_options() {
         return std::vector<Option>{
-            noise, sdf, lighting, diag_borders, parallax, landscape, rivers
+            noise, sdf, lighting, diag_borders, parallax, landscape, rivers, water, grid
         };
     }
 };
