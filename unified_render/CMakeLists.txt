@@ -8,7 +8,9 @@ project(unified_render)
 # Compilation flags
 #
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS} -pthread -fno-rtti")
+IF(CMAKE_COMPILER_IS_GNUCXX)
+	set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS} -pthread -fno-rtti")
+ENDIF()
 IF(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dwindows=1")
 ELSE()
@@ -73,7 +75,6 @@ target_precompile_headers(unified_render PRIVATE
 	<GL/glew.h>
 	<GL/gl.h>
 	<GL/glu.h>
-	<GL/glext.h>
 )
 # glm header files
 target_precompile_headers(unified_render PRIVATE
