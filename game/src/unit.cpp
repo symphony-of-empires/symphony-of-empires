@@ -168,8 +168,8 @@ bool Unit::can_move(void) const {
             continue;
         }
         
-        auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
-            return &e.province == unit->province;
+        auto it = std::find_if(war->battles.begin(), war->battles.end(), [this](const auto& e) {
+            return &e.province == this->province;
         });
         
         if(it != war->battles.end()) {
