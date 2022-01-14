@@ -70,9 +70,6 @@ void BarChart::set_data(std::vector<ChartData> new_data) {
 }
 
 void BarChart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
-    glBindTexture(GL_TEXTURE_2D, ctx.piechart_overlay->gl_tex_num);
-    glBegin(GL_TRIANGLES);
-    
     float counter = 0.f;
     float last_ratio = 0.f;
     for(auto& slice : data) {
@@ -86,5 +83,4 @@ void BarChart::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 
         last_ratio = ratio;
     }
-    glEnd();
 }
