@@ -17,28 +17,18 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      client/ui/components.hpp
+//      client/ui/div.cpp
 //
 // Abstract:
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#pragma once
-
-#include "client/ui/barchart.hpp"
-#include "client/ui/button.hpp"
-#include "client/ui/chart.hpp"
-#include "client/ui/checkbox.hpp"
-#include "client/ui/close_button.hpp"
 #include "client/ui/div.hpp"
-#include "client/ui/group.hpp"
-#include "client/ui/image.hpp"
-#include "client/ui/input.hpp"
-#include "client/ui/label.hpp"
-#include "client/ui/piechart.hpp"
-#include "client/ui/progress_bar.hpp"
-#include "client/ui/slider.hpp"
-#include "client/ui/tab.hpp"
-#include "client/ui/text.hpp"
-#include "client/ui/tooltip.hpp"
-#include "client/ui/window.hpp"
+#include "client/ui/ui.hpp"
+
+using namespace UI;
+
+Div::Div(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::DIV)
+{
+}
