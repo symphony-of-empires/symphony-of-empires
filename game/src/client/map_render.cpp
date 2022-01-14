@@ -79,6 +79,7 @@ MapRender::MapRender(const World& _world)
     // normal = &g_texture_manager->load_texture(Path::get("normal.png"), mipmap_options);
     // topo_map = &g_texture_manager->load_texture(Path::get("topo.png"), mipmap_options);
     mipmap_options.internal_format = GL_RED;
+    bathymethry = &tex_man->load(Path::get("bathymethry.png"), mipmap_options);
     noise_tex = &tex_man->load(Path::get("noise_tex.png"), mipmap_options);
     river_tex = &tex_man->load(Path::get("river_smal_smooth.png"), mipmap_options);
     // terrain_map = &g_texture_manager->load_texture(Path::get("terrain_map.png"), single_color);
@@ -318,21 +319,23 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     // Temporary not in use
     // map_shader->set_texture(5, "terrain_sheet", terrain_sheet);
     if(options.sdf.used) {
-        map_shader->set_texture(8, "border_sdf", *(border_sdf.get())); // 1 col
+        map_shader->set_texture(6, "border_sdf", *(border_sdf.get())); // 1 col
     }
 
+    map_shader->set_texture(6, "bathymethry", *bathymethry); // 1 col
+
     if(options.landscape.used) {
-        map_shader->set_texture(9, "landscape_map", *landscape_map); // 3 col
+        map_shader->set_texture(8, "landscape_map", *landscape_map); // 3 col
     }
 
     if(options.rivers.used) {
-        map_shader->set_texture(10, "river_texture", *river_tex); // 1 col
+        map_shader->set_texture(9, "river_texture", *river_tex); // 1 col
     }
 
     if(options.lighting.used) {
-        map_shader->set_texture(11, "wave1", *wave1);
-        map_shader->set_texture(12, "wave2", *wave2);
-        map_shader->set_texture(13, "normal", *normal_topo); // 3 col
+        map_shader->set_texture(10, "wave1", *wave1);
+        map_shader->set_texture(11, "wave2", *wave2);
+        map_shader->set_texture(12, "normal", *normal_topo); // 3 col
     }
 
     if(view_mode == MapView::PLANE_VIEW) {
