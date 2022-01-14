@@ -59,24 +59,3 @@ monarchy:register()
 
 anarchy = Ideology:new{ ref_name = "anarchy", name = _("Anarchy"), color = 0x363533 }
 anarchy:register()
-
-anarcho_capitalism = Ideology:new{ ref_name = "anarcho_capitalism", name = _("Anarcho-Capitalism"), color = 0xebf060 }
-anarcho_capitalism:register()
-
-corporatocracy = Ideology:new{ ref_name = "corporatocracy", name = _("Corporatocracy"), color = 0x713aa1 }
-corporatocracy:register()
-
-enviromentalism = Ideology:new{ ref_name = "enviromentalism", name = _("Enviromentalism"), color = 0x63db69 }
-enviromentalism:register()
-
-authoritarian = Ideology:new{ ref_name = "authoritarian", name = _("Authoritarian"), check_policies_fn = "?" }
-authoritarian:register()
-
-progressivism = Ideology:new{ ref_name = "progressivism", name = _("Progressivism"), check_policies_fn = "?" }
-progressivism:register()
-
-secularism = Ideology:new{ ref_name = "secularism", name = _("Secularism"), color = 0x79e0a9 }
-secularism:register()
-
-tribalism = Ideology:new{ ref_name = "tribalism", name = _("Tribalism"), check_policies_fn = "?" }
-tribalism:register()
