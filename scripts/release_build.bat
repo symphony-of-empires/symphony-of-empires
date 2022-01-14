@@ -5,10 +5,10 @@ MKDIR build
 CD build
 
 ECHO ">>> Making the release build"
-MKDIR debug
-CD debug
+MKDIR release
+CD release
 cmake -DCMAKE_BUILD_TYPE=Release -DUR_BACKEND_OPENGL=1 -G"Unix Makefiles" ../..
-make -j3
+make -j2
 CD ..
 
 ECHO ">>> Creating release distrobution package"
