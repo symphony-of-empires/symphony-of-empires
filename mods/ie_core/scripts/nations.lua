@@ -24,6 +24,17 @@
 -- ----------------------------------------------------------------------------
 
 -- Nations
+rebel = Nation:new{ ref_name = "rebel" }
+rebel.name = _("Rebel")
+rebel:register()
+rebel:add_client_hint(monarchy, _("Monarchist Rebellion"), 0x808000)
+rebel:add_client_hint(communism, _("Communist Rebellion"), 0x808000)
+rebel:add_client_hint(socialism, _("Socialist Rebellion"), 0x808000)
+rebel:add_client_hint(fascism, _("Fascist Rebellion"), 0x808000)
+rebel:add_client_hint(republic, _("Democratic Rebellion"), 0x808000)
+rebel:add_client_hint(anarchy, _("Anarchist Rebellion"), 0x808000)
+rebel:add_client_hint(tribal, _("Primitivism Rebellion"), 0x808000)
+
 hawai_i = Nation:new{ ref_name = "hawai_i" }
 hawai_i.name = _("Hawai'i")
 hawai_i:register()
