@@ -107,19 +107,15 @@ Map::~Map() {
 
 void Map::set_view(MapView view) {
     view_mode = view;
-    glm::vec2 screen_size = camera->screen_size;
-    glm::vec2 map_size = camera->map_size;
-    glm::vec2 map_pos = camera->get_map_pos();
-    delete camera;
-    
+
+    Camera* old_camera = camera;
     if(view == MapView::PLANE_VIEW) {
-        camera = new FlatCamera(screen_size, map_size);
-        camera->set_pos(map_pos.x, map_pos.y);
+        camera = new FlatCamera(old_camera);
     }
     else if(view == MapView::SPHERE_VIEW) {
-        camera = new OrbitCamera(screen_size, map_size, GLOBE_RADIUS);
-        camera->set_pos(map_pos.x, map_pos.y);
+        camera = new OrbitCamera(old_camera);
     }
+    delete camera;
 }
 
 // The standard map mode with each province color = country color

@@ -102,9 +102,7 @@ void GameState::play_nation() {
 
     const Province* capital = curr_nation->capital;
     if(capital != nullptr) {
-        map->camera->world_position.x = capital->max_x;
-        map->camera->world_position.y = capital->max_y;
-        map->camera->world_position.z = -100.f;
+        map->camera->set_pos(capital->max_x, capital->max_y);
     }
 
     // Make topwindow
