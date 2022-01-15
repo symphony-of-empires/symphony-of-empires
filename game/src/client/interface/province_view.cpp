@@ -39,7 +39,6 @@
 #include "client/ui/tooltip.hpp"
 #include "client/ui/button.hpp"
 #include "client/ui/close_button.hpp"
-#include "client/ui/input.hpp"
 
 using namespace Interface;
 
@@ -67,9 +66,9 @@ void ProvincePopulationTab::update_piecharts() {
 
     for(const auto& pop_type : gs.world->pop_types) {
         const auto color = UnifiedRender::Color(
-            gs.world->get_id(pop_type) * 12,
-            gs.world->get_id(pop_type) * 31,
-            gs.world->get_id(pop_type) * 97
+            (uint8_t)((gs.world->get_id(pop_type) * 12) % 256),
+            (uint8_t)((gs.world->get_id(pop_type) * 31) % 256),
+            (uint8_t)((gs.world->get_id(pop_type) * 97) % 256)
         );
         pop_types_data.push_back(UI::ChartData(pop_type_sizes[gs.world->get_id(pop_type)], pop_type->name, color));
     }
@@ -315,18 +314,25 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     });
 
     if(gs.editor) {
-        auto* dbg_inp = new UI::Input(0, this->height - 64, 128, 24, this);
-        dbg_inp->buffer = province->name;
-        dbg_inp->on_click = ([](UI::Widget& w, void*) {
+        rename_inp = new UI::Input(0, this->height - 64, 128, 24, this);
+        rename_inp->buffer = province->name;
+		rename_inp->text(rename_inp->buffer);
+		
+        auto* xchg_name_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        xchg_name_btn->right_side_of(*rename_inp);
+		xchg_name_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
-            o.province->name = ((UI::Input&)w).buffer;
-            o.gs.ui_ctx->prompt("Update", "Updated name of province to \"" + o.province->name + "\"!");
+			o.province->name = o.rename_inp->buffer;
+			o.gs.ui_ctx->prompt("Update", "Updated name of province to \"" + o.province->name + "\"!");
         });
+        xchg_name_btn->tooltip = new UI::Tooltip(xchg_name_btn, 512, 24);
+        xchg_name_btn->tooltip->text("Rename province");
 
         this->edit_culture_tab = new ProvinceEditCultureTab(gs, 0, 32, province, this);
         this->edit_culture_tab->is_render = false;
-        auto* edit_culture_btn = new UI::Image(128, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
-        edit_culture_btn->on_click = ([](UI::Widget& w, void*) {
+        auto* edit_culture_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        edit_culture_btn->right_side_of(*xchg_name_btn);
+		edit_culture_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
             o.pop_tab->is_render = false;
             o.econ_tab->is_render = false;
@@ -339,8 +345,9 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
         this->edit_terrain_tab = new ProvinceEditTerrainTab(gs, 0, 32, province, this);
         this->edit_terrain_tab->is_render = false;
-        auto* edit_terrain_btn = new UI::Image(128 + 32, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
-        edit_terrain_btn->on_click = ([](UI::Widget& w, void*) {
+        auto* edit_terrain_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        edit_terrain_btn->right_side_of(*edit_culture_btn);
+		edit_terrain_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
             o.pop_tab->is_render = false;
             o.econ_tab->is_render = false;
