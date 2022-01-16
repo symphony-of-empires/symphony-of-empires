@@ -95,15 +95,15 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->text(province->name);
 
     this->cultures_pie = new UI::PieChart(0, 0, 128, 128, this);
-    auto* cultures_pie_lab = new UI::Label(0, 0, "Cultures", this);
+    new UI::Label(0, 0, "Cultures", this);
 
     this->religions_pie = new UI::PieChart(0, 0, 128, 128, this);
     this->religions_pie->right_side_of(*this->cultures_pie);
-    auto* religions_pie_lab = new UI::Label(this->religions_pie->x, this->religions_pie->y, "Religions", this);
+    new UI::Label(this->religions_pie->x, this->religions_pie->y, "Religions", this);
 
     this->pop_types_pie = new UI::PieChart(0, 0, 128, 128, this);
     this->pop_types_pie->right_side_of(*this->religions_pie);
-    auto* pop_types_pie_lab = new UI::Label(this->pop_types_pie->x, this->pop_types_pie->y, "Proffesions", this);
+    new UI::Label(this->pop_types_pie->x, this->pop_types_pie->y, "Proffesions", this);
 
     update_piecharts();
     this->on_each_tick = ([](UI::Widget& w, void*) {
@@ -124,7 +124,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
     this->text(province->name);
 
     this->products_pie = new UI::PieChart(0, 0, 128, 128, this);
-    auto* products_pie_lab = new UI::Label(0, 0, "Products", this);
+    new UI::Label(0, 0, "Products", this);
 
     this->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceEconomyTab&>(w);
@@ -328,10 +328,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         xchg_name_btn->tooltip = new UI::Tooltip(xchg_name_btn, 512, 24);
         xchg_name_btn->tooltip->text("Rename province");
 
-        density_sld = new UI::Slider(0, this->height - 64, 128, 24, this);
+        density_sld = new UI::Slider(0, this->height - 64, 128, 24, 0.1f, 2.f, this);
         density_sld->right_side_of(*xchg_name_btn);
-        density_sld->max = 2.f;
-        density_sld->min = 0.1f;
         density_sld->value = 0.f;
         density_sld->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
@@ -343,7 +341,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         xchg_dens_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
 
-            const float den = o.density_sld.value;
+            const float den = o.density_sld->value;
             for(auto& pop : o.province->pops) {
                 pop.size *= den;
             }
