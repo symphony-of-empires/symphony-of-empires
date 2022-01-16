@@ -85,8 +85,8 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
                 o.gs.ui_ctx->prompt("Error", "No nation selected");
                 return;
             }
-			
-			if(o.province == nullptr) {
+            
+            if(o.province == nullptr) {
                 o.gs.ui_ctx->prompt("Error", "Select a province to build it on");
                 return;
             }
@@ -100,7 +100,7 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
             building.owner = o.nation;
             building.type = ((BuildingTypeButton&)w).building_type;
             building.province = o.province;
-			g_client->send(Action::BuildingAdd::form_packet(&building));
+            g_client->send(Action::BuildingAdd::form_packet(&building));
 
             o.gs.ui_ctx->prompt("Production", "Building a " + building.type->name + " in " + building.get_province()->name + "; owned by " + building.get_owner()->name);
         });
