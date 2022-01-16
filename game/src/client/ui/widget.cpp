@@ -364,6 +364,11 @@ void Widget::text(const std::string& _text) {
     text_texture->gl_tex_num = 0;
     text_texture->to_opengl(surface);
     SDL_FreeSurface(surface);
+
+    const char* error = SDL_GetError();
+    if(error[0] != '\0') {
+        print_error("SDL error %s", error);
+    }
 }
 
 void Widget::set_tooltip(Tooltip* _tooltip) {
