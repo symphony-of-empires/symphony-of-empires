@@ -316,23 +316,47 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     if(gs.editor) {
         rename_inp = new UI::Input(0, this->height - 64, 128, 24, this);
         rename_inp->buffer = province->name;
-		rename_inp->text(rename_inp->buffer);
-		
+        rename_inp->text(rename_inp->buffer);
+        
         auto* xchg_name_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
         xchg_name_btn->right_side_of(*rename_inp);
-		xchg_name_btn->on_click = ([](UI::Widget& w, void*) {
+        xchg_name_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
-			o.province->name = o.rename_inp->buffer;
-			o.gs.ui_ctx->prompt("Update", "Updated name of province to \"" + o.province->name + "\"!");
+            o.province->name = o.rename_inp->buffer;
+            o.gs.ui_ctx->prompt("Update", "Updated name of province to \"" + o.province->name + "\"!");
         });
         xchg_name_btn->tooltip = new UI::Tooltip(xchg_name_btn, 512, 24);
         xchg_name_btn->tooltip->text("Rename province");
 
+        density_sld = new UI::Slider(0, this->height - 64, 128, 24, this);
+        density_sld->right_side_of(*xchg_name_btn);
+        density_sld->max = 2.f;
+        density_sld->min = 0.1f;
+        density_sld->value = 0.f;
+        density_sld->on_click = ([](UI::Widget& w, void*) {
+            auto& o = static_cast<ProvinceView&>(*w.parent);
+            w.text(std::to_string(((UI::Slider&)w).value));
+        });
+
+        auto* xchg_dens_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        xchg_dens_btn->right_side_of(*density_sld);
+        xchg_dens_btn->on_click = ([](UI::Widget& w, void*) {
+            auto& o = static_cast<ProvinceView&>(*w.parent);
+
+            const float den = o.density_sld.value;
+            for(auto& pop : o.province->pops) {
+                pop.size *= den;
+            }
+            o.gs.ui_ctx->prompt("Update", "Updated POP density of province \"" + o.province->name + "\"!");
+        });
+        xchg_dens_btn->tooltip = new UI::Tooltip(xchg_dens_btn, 512, 24);
+        xchg_dens_btn->tooltip->text("Update density");
+
         this->edit_culture_tab = new ProvinceEditCultureTab(gs, 0, 32, province, this);
         this->edit_culture_tab->is_render = false;
         auto* edit_culture_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
-        edit_culture_btn->right_side_of(*xchg_name_btn);
-		edit_culture_btn->on_click = ([](UI::Widget& w, void*) {
+        edit_culture_btn->right_side_of(*xchg_dens_btn);
+        edit_culture_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
             o.pop_tab->is_render = false;
             o.econ_tab->is_render = false;
@@ -347,7 +371,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         this->edit_terrain_tab->is_render = false;
         auto* edit_terrain_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
         edit_terrain_btn->right_side_of(*edit_culture_btn);
-		edit_terrain_btn->on_click = ([](UI::Widget& w, void*) {
+        edit_terrain_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
             o.pop_tab->is_render = false;
             o.econ_tab->is_render = false;
