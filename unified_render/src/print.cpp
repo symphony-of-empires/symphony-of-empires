@@ -189,11 +189,9 @@ void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GL
     case GL_DEBUG_SEVERITY_NOTIFICATION:
         _severity = "NOTIFICATION";
         return;
-        break;
 
     default:
         _severity = "UNKNOWN";
-        break;
     }
 
     printf("%d: %s of %s severity, raised from %s: %s\n",

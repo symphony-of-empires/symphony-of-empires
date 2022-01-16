@@ -89,6 +89,11 @@ void Label::text(const std::string& _text) {
     text_texture->to_opengl(surface);
     SDL_FreeSurface(surface);
 
+    const char* error = SDL_GetError();
+    if(error[0] != '\0') {
+        print_error("SDL error %s", error);
+    }
+
     width = text_texture->width + text_offset_x;
     height = text_texture->height;
 }
