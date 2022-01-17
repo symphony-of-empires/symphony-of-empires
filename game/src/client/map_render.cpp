@@ -328,7 +328,7 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
         map_shader->set_texture(6, "border_sdf", *(border_sdf.get())); // 1 col
     }
 
-    map_shader->set_texture(6, "bathymethry", *bathymethry); // 1 col
+    map_shader->set_texture(7, "bathymethry", *bathymethry); // 1 col
 
     if(options.landscape.used) {
         map_shader->set_texture(8, "landscape_map", *landscape_map); // 3 col
