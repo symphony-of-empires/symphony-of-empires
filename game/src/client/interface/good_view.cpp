@@ -56,7 +56,10 @@ ProductView::ProductView(GameState& _gs, Product* _product)
 
         // Account for products that are based on this good
         for(const auto& product : o.gs.world->products) {
-            if(product->good != o.product->good && product->building != nullptr) continue;
+            if(product->good != o.product->good && product->building != nullptr) {
+                continue;
+            }
+            
             nations_data[o.gs.world->get_id(product->building->get_province()->controller)].num += product->building->get_province()->stockpile[o.gs.world->get_id(product->good)];
         }
         o.supply_pie->set_data(nations_data);
@@ -66,30 +69,42 @@ ProductView::ProductView(GameState& _gs, Product* _product)
     this->price_chart = new UI::Chart(0, 152, 128, 64, this);
     this->price_chart->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProductView&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+            return;
+        }
+        
         o.price_chart->data.push_back(o.product->price);
-        if(o.price_chart->data.size() > 30)
+        if(o.price_chart->data.size() > 30) {
             o.price_chart->data.pop_front();
+        }
     });
 
     this->supply_chart = new UI::Chart(0, 152, 128, 64, this);
     this->supply_chart->right_side_of(*this->price_chart);
     this->supply_chart->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProductView&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+            return;
+        }
+
         o.supply_chart->data.push_back(o.product->supply);
-        if(o.supply_chart->data.size() > 30)
+        if(o.supply_chart->data.size() > 30) {
             o.supply_chart->data.pop_front();
+        }
     });
 
     this->demand_chart = new UI::Chart(0, 152, 128, 64, this);
     this->demand_chart->right_side_of(*this->supply_chart);
     this->demand_chart->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProductView&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+            return;
+        }
+
         o.demand_chart->data.push_back(o.product->demand);
-        if(o.demand_chart->data.size() > 30)
+        if(o.demand_chart->data.size() > 30) {
             o.demand_chart->data.pop_front();
+        }
     });
 
     auto* good_btn = new UI::Button(0, 0, 128, 24, this);
@@ -122,7 +137,9 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     this->sellers_pie->right_side_of(*this->icon_img);
     this->sellers_pie->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<GoodView&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+            return;
+        }
 
         std::vector<UI::ChartData> nations_data;
         for(const auto& nation : o.gs.world->nations) {
@@ -144,11 +161,16 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     this->avg_price_chart->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<GoodView&>(*w.parent);
 
-        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+            return;
+        }
 
         float price = 0.f;
         for(const auto& product : o.gs.world->products) {
-            if(product->good != o.good) continue;
+            if(product->good != o.good) {
+                continue;
+            }
+            
             price += product->price;
         }
         price /= o.gs.world->products.size();
@@ -164,7 +186,9 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     i = 0;
     for(const auto& it : this->gs.world->building_types) {
         bool is_present = std::find(it->outputs.begin(), it->outputs.end(), this->good) != it->outputs.end();
-        if(!is_present) continue;
+        if(!is_present) {
+            continue;
+        }
 
         UI::Button* it_btn = new UI::Button(0, 24 * i, 128, 24, this->producing_it_group);
         it_btn->text(it->name);
@@ -177,7 +201,9 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     i = 0;
     for(const auto& it : this->gs.world->building_types) {
         bool is_present = std::find(it->inputs.begin(), it->inputs.end(), this->good) != it->inputs.end();
-        if(!is_present) continue;
+        if(!is_present) {
+            continue;
+        }
 
         UI::Button* it_btn = new UI::Button(0, 24 * i, 128, 24, this->consumer_it_group);
         it_btn->text(it->name);
