@@ -365,9 +365,9 @@ void Widget::text(const std::string& _text) {
     text_texture->to_opengl(surface);
     SDL_FreeSurface(surface);
 
-    const char* error = SDL_GetError();
-    if(error[0] != '\0') {
-        print_error("SDL error %s", error);
+    const char* error_msg = SDL_GetError();
+    if(error_msg[0] != '\0') {
+        print_error("SDL error %s", error_msg);
     }
 }
 
