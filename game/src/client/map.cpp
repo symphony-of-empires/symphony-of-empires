@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      map.cpp
+//      client/map.cpp
 //
 // Abstract:
 //      Does some important stuff.

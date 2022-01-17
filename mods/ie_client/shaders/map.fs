@@ -82,6 +82,10 @@ vec2 sum(vec4 v) {
 	return vec2(provinceDiff, countryDiff);
 }
 
+float is_not_water(vec2 coords) {
+	vec4 terrain = texture(terrain_map, coords);
+	return terrain.x < 2./255. ? 0. : 1.;
+}
 vec4 get_border(vec2 texcoord) {
 	// Pixel size on map texture
 	vec2 pix = vec2(1.0) / map_size;
@@ -92,19 +96,27 @@ vec4 get_border(vec2 texcoord) {
 	// texcoord += (0.5 - vec2(x, y)) * 0.5 * pix;
 
 	vec2 mPos = texcoord - mod(texcoord + 0.5 * pix, pix);
-	vec4 provienceLU = texture(tile_map, mPos + pix * vec2(0.25, 0.25)).xyzw;
-	vec4 provienceLD = texture(tile_map, mPos + pix * vec2(0.25, 0.75)).xyzw;
-	vec4 provienceRU = texture(tile_map, mPos + pix * vec2(0.75, 0.25)).xyzw;
-	vec4 provienceRD = texture(tile_map, mPos + pix * vec2(0.75, 0.75)).xyzw;
+	vec2 coordLU = mPos + pix * vec2(0.25, 0.25);
+	vec2 coordLD = mPos + pix * vec2(0.25, 0.75);
+	vec2 coordRU = mPos + pix * vec2(0.75, 0.25);
+	vec2 coordRD = mPos + pix * vec2(0.75, 0.75);
+	vec4 provienceLU = texture(tile_map, coordLU).xyzw;
+	vec4 provienceLD = texture(tile_map, coordLD).xyzw;
+	vec4 provienceRU = texture(tile_map, coordRU).xyzw;
+	vec4 provienceRD = texture(tile_map, coordRD).xyzw;
 	// vec2 mPos = texcoord - mod(texcoord, pix);
 	// vec4 provienceLU = texture(tile_map, mPos + pix * vec2(-0.25, -0.25)).xyzw;
 	// vec4 provienceLD = texture(tile_map, mPos + pix * vec2(-0.25, 0.25)).xyzw;
 	// vec4 provienceRU = texture(tile_map, mPos + pix * vec2(0.25, -0.25)).xyzw;
 	// vec4 provienceRD = texture(tile_map, mPos + pix * vec2(0.25, 0.25)).xyzw;
-	vec2 x0 = sum(provienceLU - provienceRU);
-	vec2 x1 = sum(provienceLD - provienceRD);
-	vec2 y0 = sum(provienceLU - provienceLD);
-	vec2 y1 = sum(provienceRU - provienceRD);
+	vec2 x0 = sum(provienceLU - provienceRU) * is_not_water(coordLU) * is_not_water(coordRU);
+	vec2 x1 = sum(provienceLD - provienceRD) * is_not_water(coordLD) * is_not_water(coordRD);
+	vec2 y0 = sum(provienceLU - provienceLD) * is_not_water(coordLU) * is_not_water(coordLD);
+	vec2 y1 = sum(provienceRU - provienceRD) * is_not_water(coordRU) * is_not_water(coordRD);
+	// vec2 x0 = sum(provienceLU - provienceRU);
+	// vec2 x1 = sum(provienceLD - provienceRD);
+	// vec2 y0 = sum(provienceLU - provienceLD);
+	// vec2 y1 = sum(provienceRU - provienceRD);
 	vec2 scaling = mod(texcoord + 0.5 * pix, pix) / pix;
 	vec2 xBorder = mix(x0, x1, step(0.5, scaling.y));
 	vec2 yBorder = mix(y0, y1, step(0.5, scaling.x));
@@ -308,10 +320,13 @@ float get_lighting(vec2 tex_coords, float beach) {
 	vec3 lightDir = normalize(vec3(-2, -1, -4));
 	float diffuse = max(dot(lightDir, normal), 0.0);
 
+	float dist_to_map = abs(view_pos.z);
+	dist_to_map = smoothstep(250., 350., dist_to_map);
+
 	float is_water = step(1., max(isWater(tex_coords), beach));
 #ifdef WATER
 	vec3 water_normal = get_water_normal(tex_coords);
-	normal = mix(normal, water_normal, is_water);
+	normal = mix(normal, water_normal, is_water * (1. - dist_to_map));
 #endif
 	float shininess = is_water == 1. ? 256 : 8;
 	float specularStrength = is_water == 1. ? 0.4 : 0.2;
@@ -345,7 +360,7 @@ void main() {
 	dist_to_map = smoothstep(250., 350., dist_to_map);
 
 	float beach = get_beach(tex_coords);
-	float is_no_beach = 1.-step(0.1, beach);
+	float beach_border = smoothstep(0.1, 0.0, abs(beach - .3) - 0.1);
 #ifdef NOISE
 	float noise = texture(noise_texture, 20. * tex_coords).x;
 	beach += noise * 0.3 - 0.15;
@@ -353,12 +368,14 @@ void main() {
 	beach = smoothstep(0.2, 0.3, beach);
 
 #ifdef WATER
+
 #ifdef NOISE
-	vec4 water = noTiling(water_texture, 50. * tex_coords + time * vec2(0.01));
+	vec4 water = noTiling(water_texture, 100. * tex_coords + time * vec2(0.01));
 #else
 	vec4 water = texture(water_texture, 50. * tex_coords + time * vec2(0.01));
 #endif
-	water = mix(water, water_col * 0.7, 0.7);
+
+	water = mix(water_col * 0.7, water, 0.5 - dist_to_map * 0.2);
 #else
 	vec4 water = water_col * 0.7;
 #endif
@@ -397,8 +414,8 @@ void main() {
 #else
 	vec4 terrain_color = prov_color;
 #endif
-	vec4 ground = mix(terrain_color, water, beach);
-	vec4 out_color = mix(ground, prov_color * 1.2, 0.5 * (1.-beach));
+	vec4 ground = mix(terrain_color, prov_color, 0.5);
+	vec4 out_color = mix(ground, water, beach);
 
 #ifdef SDF
 	float bSdf = texture2D(border_sdf, tex_coords + pix * 0.5).x;
@@ -406,13 +423,15 @@ void main() {
 	vec4 wave = mix(water, water * 0.7, max(0., sin(bSdf * 50.)));
 	wave = mix(wave, water, 1.);
 	vec4 mix_col = mix(out_color, wave, is_ocean);
-    out_color = mix(out_color, mix_col * 0.8, clamp(bSdf * 3. - 1., 0., 1.));
+	out_color = mix(out_color, mix_col * 0.8, clamp(bSdf * 3. - 1., 0., 1.));
 #endif
 
-	borders.y *= mix(0.5, 1., dist_to_map) * is_no_beach;
+	borders.y *= mix(0.5, 1., dist_to_map) * (1.-beach);
 	out_color = mix(out_color, country_border, borders.y);
 	borders.x *= (1.-dist_to_map) * (1.-beach);
 	out_color = mix(out_color, province_border, borders.x);
+	beach_border *= (1.-dist_to_map);
+	out_color = mix(out_color, province_border, beach_border);
 #ifdef RIVERS
 	float river = texture(river_texture, tex_coords).x;
 	out_color = mix(out_color, river_col, river * 0.4);
