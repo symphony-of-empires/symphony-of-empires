@@ -118,7 +118,7 @@ TopWindow::TopWindow(GameState& _gs)
             for(const auto& province : o.gs.world->provinces) {
                 // Remove pops with 0 size
                 for(std::vector<Pop>::iterator it = province->pops.begin(); it != province->pops.end(); it++) {
-                    if(!pop.size) {
+                    if(!(*it).size) {
                         province->pops.erase(it);
                         it--;
                         continue;
