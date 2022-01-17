@@ -345,15 +345,56 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
             for(auto& pop : o.province->pops) {
                 pop.size *= den;
             }
+            o.gs.map->update_mapmode();
             o.gs.ui_ctx->prompt("Update", "Updated POP density of province \"" + o.province->name + "\"!");
         });
         xchg_dens_btn->tooltip = new UI::Tooltip(xchg_dens_btn, 512, 24);
         xchg_dens_btn->tooltip->text("Update density");
 
+        auto* fill_pops_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        fill_pops_btn->right_side_of(*xchg_dens_btn);
+        fill_pops_btn->on_click = ([](UI::Widget& w, void*) {
+            auto& o = static_cast<ProvinceView&>(*w.parent);
+
+            // Get max sv
+            float max_sv = 1.f;
+            for(const auto& pop_type : o.gs.world->pop_types) {
+                if(pop_type->social_value > max_sv) {
+                    max_sv = pop_type->social_value;
+                }
+            }
+
+            for(auto& pop_type : o.gs.world->pop_types) {
+                Pop pop;
+                pop.type = g_world->pop_types.at(0);
+                pop.culture = g_world->cultures.at(0);
+                pop.religion = g_world->religions.at(0);
+                pop.size = 1000.f / std::max(0.01f, pop_type->social_value);
+                pop.literacy = max_sv / std::max(0.01f, pop_type->social_value);
+                pop.budget = 100.f * max_sv;
+                o.province->pops.push_back(pop);
+            }
+            o.gs.map->update_mapmode();
+            o.gs.ui_ctx->prompt("Update", "Added POPs to province \"" + o.province->name + "\"!");
+        });
+        fill_pops_btn->tooltip = new UI::Tooltip(fill_pops_btn, 512, 24);
+        fill_pops_btn->tooltip->text("Add POPs (will add " + std::to_string(gs.world->pop_types.size()) + "POPs)");
+
+        auto* clear_pops_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        clear_pops_btn->right_side_of(*fill_pops_btn);
+        clear_pops_btn->on_click = ([](UI::Widget& w, void*) {
+            auto& o = static_cast<ProvinceView&>(*w.parent);
+            o.province->pops.clear();
+            o.gs.map->update_mapmode();
+            o.gs.ui_ctx->prompt("Update", "Cleared POPs of province \"" + o.province->name + "\"!");
+        });
+        clear_pops_btn->tooltip = new UI::Tooltip(clear_pops_btn, 512, 24);
+        clear_pops_btn->tooltip->text("Removes all POPs from this province ;)");
+
         this->edit_culture_tab = new ProvinceEditCultureTab(gs, 0, 32, province, this);
         this->edit_culture_tab->is_render = false;
         auto* edit_culture_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
-        edit_culture_btn->right_side_of(*xchg_dens_btn);
+        edit_culture_btn->right_side_of(*clear_pops_btn);
         edit_culture_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
             o.pop_tab->is_render = false;
