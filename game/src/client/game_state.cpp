@@ -207,6 +207,10 @@ void handle_event(Input& input, GameState& gs) {
                 }
                 break;
             case SDLK_SPACE:
+                if(gs.editor) {
+                    break;
+                }
+                
                 if(gs.current_mode == MapMode::NORMAL) {
                     gs.paused = !gs.paused;
                     if(gs.paused) {
@@ -218,6 +222,10 @@ void handle_event(Input& input, GameState& gs) {
                 }
                 break;
             case SDLK_b:
+                if(gs.editor) {
+                    break;
+                }
+                
                 if(gs.current_mode == MapMode::NORMAL) {
                     if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
                         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);

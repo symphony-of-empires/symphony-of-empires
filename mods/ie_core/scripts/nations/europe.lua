@@ -765,6 +765,8 @@ papal_states:register()
 papal_states:set_ideology(monarchy)
 papal_states:add_accepted_culture(italian)
 papal_states:add_client_hint(monarchy, _("Papal states"), 0xf7f6cd)
+papal_states:add_client_hint(communism, _("Papal states"), 0xf7f6cd)
+papal_states:add_client_hint(socialism, _("Papal states"), 0xf7f6cd)
 
 piedmont_sardinia = Nation:new{ ref_name = "piedmont_sardinia" }
 piedmont_sardinia.name = _("Piedmont-Sardinia")
@@ -789,6 +791,7 @@ tuscany:register()
 tuscany:set_ideology(monarchy)
 tuscany:add_accepted_culture(italian)
 tuscany:add_client_hint(monarchy, _("Tuscany"), 0x808000)
+tuscany:add_client_hint(socialism, _("Tuscany"), 0x808000)
 
 parma = Nation:new{ ref_name = "parma" }
 parma.name = _("Parma")
