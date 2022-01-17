@@ -30,6 +30,8 @@
 #include "client/game_state.hpp"
 #include "client/ui/group.hpp"
 #include "client/ui/window.hpp"
+#include "client/ui/slider.hpp"
+#include "client/ui/input.hpp"
 #include "client/interface/common.hpp"
 
 namespace UI {
@@ -94,6 +96,9 @@ namespace Interface {
     class ProvinceView: public UI::Window {
         GameState& gs;
         Province* province;
+		
+        UI::Input* rename_inp;
+        UI::Slider* density_sld;
 
         ProvincePopulationTab* pop_tab;
         ProvinceEconomyTab* econ_tab;
