@@ -738,6 +738,8 @@ austria_hungary:add_accepted_culture(german)
 austria_hungary:add_accepted_culture(hungarian)
 austria_hungary:add_client_hint(monarchy, _("Austria-Hungary"), 0xe8ebe8)
 austria_hungary:add_client_hint(fascism, _("Austria-Hungary"), 0xe8ebe8)
+austria_hungary:add_client_hint(communism, _("Austria-Hungary"), 0xe8ebe8)
+austria_hungary:add_client_hint(republic, _("Austria-Hungary"), 0xe8ebe8)
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
@@ -775,6 +777,7 @@ piedmont_sardinia:set_ideology(monarchy)
 piedmont_sardinia:add_accepted_culture(italian)
 piedmont_sardinia:add_client_hint(monarchy, _("Piedmont-Sardinia"), 0x873cb5)
 piedmont_sardinia:add_client_hint(fascism, _("Piedmont-Sardinia"), 0x873cb5)
+piedmont_sardinia:add_client_hint(communism, _("Piedmont-Sardinia"), 0x873cb5)
 
 two_sicilies = Nation:new{ ref_name = "two_sicilies" }
 two_sicilies.name = _("Two Sicilies")
