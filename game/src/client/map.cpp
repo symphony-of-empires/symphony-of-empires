@@ -54,6 +54,7 @@
 #include "client/flat_camera.hpp"
 #include "client/camera.hpp"
 #include "province.hpp"
+#include "unified_render/state.hpp"
 
 Map::Map(const World& _world, int screen_width, int screen_height)
     : world(_world)
@@ -64,7 +65,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     // Shader used for drawing the models using custom model render
     obj_shader = UnifiedRender::OpenGL::Program::create("shaders/simple_model.vs", "shaders/simple_model.fs");
-    line_tex = gs.tex_man->load(Path::get("ui/line_target.png"));
+    line_tex = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/line_target.png"));
 
     // Set the mapmode
     set_map_mode(political_map_mode);
