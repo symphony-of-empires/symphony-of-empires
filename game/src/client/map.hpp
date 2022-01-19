@@ -109,6 +109,7 @@ public:
 #if !defined TILE_GRANULARITY
     UnifiedRender::Texture* id_map;
     UnifiedRender::Texture* province_color_tex;
+    const UnifiedRender::Texture* line_tex;
 #endif
     std::unique_ptr<UnifiedRender::OpenGL::Program> obj_shader;
 };

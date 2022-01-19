@@ -764,9 +764,16 @@ void World::do_tick() {
     std::vector<float> naval_research_pts(nations.size(), 0.f);
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
+        if(unit->on_battle) {
+            continue;
+        }
 
         bool can_take = true;
         for(auto& other_unit : unit->province->get_units()) {
+            if(other_unit->on_battle) {
+                continue;
+            }
+
             // Must not our unit and only if we are at war
             if(other_unit->owner == unit->owner || !unit->owner->relations[get_id(other_unit->owner)].has_war) {
                 continue;
@@ -796,8 +803,11 @@ void World::do_tick() {
                         battle.attackers.push_back(other_unit);
                         battle.defenders.push_back(unit);
                     }
+                    unit->on_battle = true;
+                    other_unit->on_battle = true;
                     war->battles.push_back(battle);
                     UnifiedRender::Log::debug("game", "New battle of \"" + battle.name + "\"");
+                    break;
                 } else {
                     Battle& battle = *it;
 
@@ -807,13 +817,16 @@ void World::do_tick() {
                     if(war->is_attacker(*unit->owner)) {
                         if(std::find(battle.attackers.begin(), battle.attackers.end(), unit) == battle.attackers.end()) {
                             battle.attackers.push_back(unit);
+                            unit->on_battle = true;
                         }
                     } else if(war->is_defender(*unit->owner)) {
                         if(std::find(battle.defenders.begin(), battle.defenders.end(), unit) == battle.defenders.end()) {
                             battle.defenders.push_back(unit);
+                            unit->on_battle = true;
                         }
                     }
                     UnifiedRender::Log::debug("game", "Adding unit to battle of \"" + battle.name + "\"");
+                    break;
                 }
                 break;
             }
@@ -836,45 +849,62 @@ void World::do_tick() {
     profiler.start("Battles");
     // Perform all battles of the active wars
     for(auto& war : wars) {
-        for(auto& battle : war->battles) {
+        for(size_t j = 0; j < war->battles.size(); j++) {
+            Battle& battle = war->battles[j];
+
+            // Battles are stored for historic purpouses
+            if(battle.ended) {
+                continue;
+            }
+
             // Attackers attack Defenders
             for(auto& attacker : battle.attackers) {
-                for(auto it = battle.defenders.begin(); it != battle.defenders.end(); it++) {
-                    const size_t prev_size = (*it)->size;
-                    attacker->attack(*(*it));
-                    battle.defender_casualties += prev_size - (*it)->size;
-
-                    if(!(*it)->size) {
-                        UnifiedRender::Log::debug("game", "Removing attacker \"" + (*it)->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
-                        
-                        Unit* unit = *it;
-                        battle.defenders.erase(it);
+                for(size_t i = 0; i < battle.defenders.size(); ) {
+                    Unit* unit = battle.defenders[i];
+                    const size_t prev_size = unit->size;
+                    attacker->attack(*unit);
+                    battle.defender_casualties += prev_size - unit->size;
+                    if(!unit->size) {
+                        UnifiedRender::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                        battle.defenders.erase(battle.defenders.begin() + i);
+                        if(unit->province != nullptr) {
+                            auto it = std::find(unit->province->units.begin(), unit->province->units.end(), unit);
+                            unit->province->units.erase(it);
+                        }
                         remove(unit);
                         delete unit;
-                        it--;
                         continue;
                     }
+                    i++;
                 }
             }
 
             // Defenders attack Attackers
             for(auto& defender : battle.defenders) {
-                for(auto it = battle.attackers.begin(); it != battle.attackers.end(); it++) {
-                    const size_t prev_size = (*it)->size;
-                    defender->attack(*(*it));
-                    battle.attacker_casualties += prev_size - (*it)->size;
-
-                    if(!(*it)->size) {
-                        UnifiedRender::Log::debug("game", "Removing defender \"" + (*it)->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
-                        
-                        Unit* unit = *it;
-                        battle.attackers.erase(it);
+                for(size_t i = 0; i < battle.attackers.size(); ) {
+                    Unit* unit = battle.attackers[i];
+                    const size_t prev_size = unit->size;
+                    defender->attack(*unit);
+                    battle.attacker_casualties += prev_size - unit->size;
+                    if(!unit->size) {
+                        UnifiedRender::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                        battle.attackers.erase(battle.attackers.begin() + i);
+                        if(unit->province != nullptr) {
+                            auto it = std::find(unit->province->units.begin(), unit->province->units.end(), unit);
+                            unit->province->units.erase(it);
+                        }
                         remove(unit);
                         delete unit;
-                        it--;
                         continue;
                     }
+                    i++;
                 }
+            }
+
+            // Once one side has fallen this battle has ended
+            if(battle.defenders.empty() || battle.attackers.empty()) {
+                battle.ended = true;
+                continue;
             }
         }
     }

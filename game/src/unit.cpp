@@ -61,7 +61,7 @@ UnitTrait::~UnitTrait(void) {
 //
 /*Unit::Unit(void) {
 
-}*/
+}
 
 Unit::~Unit(void) {
     if(province != nullptr) {
@@ -69,6 +69,7 @@ Unit::~Unit(void) {
         province->units.erase(it);
     }
 }
+//*/
 
 void Unit::attack(Unit& enemy) {
     // TODO: Better attack algorithm

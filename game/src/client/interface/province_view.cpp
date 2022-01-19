@@ -314,11 +314,11 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     });
 
     if(gs.editor) {
-        rename_inp = new UI::Input(0, this->height - 64, 128, 24, this);
+        rename_inp = new UI::Input(0, this->height - (64 + 24), 128, 24, this);
         rename_inp->buffer = province->name;
         rename_inp->text(rename_inp->buffer);
         
-        auto* xchg_name_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        auto* xchg_name_btn = new UI::Image(0, this->height - (64 + 24), 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
         xchg_name_btn->right_side_of(*rename_inp);
         xchg_name_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
@@ -328,7 +328,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         xchg_name_btn->tooltip = new UI::Tooltip(xchg_name_btn, 512, 24);
         xchg_name_btn->tooltip->text("Rename province");
 
-        density_sld = new UI::Slider(0, this->height - 64, 128, 24, 0.1f, 2.f, this);
+        density_sld = new UI::Slider(0, this->height - (64 + 24), 128, 24, 0.1f, 2.f, this);
         density_sld->right_side_of(*xchg_name_btn);
         density_sld->value = 0.f;
         density_sld->on_click = ([](UI::Widget& w, void*) {
@@ -336,7 +336,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
             w.text(std::to_string(((UI::Slider&)w).value));
         });
 
-        auto* xchg_dens_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        auto* xchg_dens_btn = new UI::Image(0, this->height - (64 + 24), 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
         xchg_dens_btn->right_side_of(*density_sld);
         xchg_dens_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);

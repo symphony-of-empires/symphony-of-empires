@@ -89,7 +89,8 @@ public:
 class Unit : public IdEntity<uint16_t> {
 public:
     //Unit();
-    ~Unit();
+    //~Unit();
+
     void attack(Unit& enemy);
     std::pair<float, float> get_pos(void) const;
     void set_target(Province& province);
@@ -133,4 +134,7 @@ public:
     float budget;
     
     std::vector<UnitTrait*> traits;
+
+    // TODO: ser/deser
+    bool on_battle = false;
 };
