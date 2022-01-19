@@ -29,6 +29,10 @@
 #include "client/ui/label.hpp"
 #include "client/ui/ui.hpp"
 
+#include "unified_render/state.hpp"
+#include "unified_render/path.hpp"
+#include "unified_render/texture.hpp"
+
 using namespace UI;
 
 Tooltip::Tooltip()
@@ -36,6 +40,9 @@ Tooltip::Tooltip()
 {
     type = UI::WidgetType::TOOLTIP;
     have_shadow = true;
+    width = 512;
+
+    current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/window_background.png"));
 
     glm::ivec2 size(4, 4);
     glm::ivec2 texture_size(10, 10);
@@ -47,10 +54,12 @@ Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
 {
     parent->set_tooltip(this);
     type = UI::WidgetType::TOOLTIP;
+    have_shadow = true;
     width = w;
     height = h;
 
-    have_shadow = true;
+    current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/window_background.png"));
+
     glm::ivec2 size(4, 4);
     glm::ivec2 texture_size(10, 10);
     border = new Border(g_ui_context->border_tex, size, texture_size);

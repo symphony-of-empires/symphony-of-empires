@@ -55,6 +55,11 @@
 #include "client/camera.hpp"
 #include "province.hpp"
 
+#include "client/client_network.hpp"
+#include "unified_render/serializer.hpp"
+#include "io_impl.hpp"
+#include "action.hpp"
+
 Map::Map(const World& _world, int screen_width, int screen_height)
     : world(_world)
 {
@@ -175,11 +180,6 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
     shader.set_texture(0, "diffuse_map", *nation_flags[world.get_id(&nation)]);
     flag.draw();
 }
-
-#include "client/client_network.hpp"
-#include "unified_render/serializer.hpp"
-#include "io_impl.hpp"
-#include "action.hpp"
 
 void Map::handle_click(GameState& gs, SDL_Event event) {
     Input& input = gs.input;

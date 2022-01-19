@@ -45,7 +45,7 @@
 using namespace Interface;
 
 TopWindow::TopWindow(GameState& _gs)
-    : UI::Group(0, 0, _gs.width, 400),
+    : UI::Group(0, 0),
     gs{ _gs }
 {
     this->is_scroll = false;
@@ -53,50 +53,50 @@ TopWindow::TopWindow(GameState& _gs)
 
     new TimeControlView(gs);
 
-    new UI::Image(0, 99, 43, 260, "ui/border_bar.png", this);
-    new UI::Image(0, 0, 159, 127, "ui/flag_border.png", this);
-
+    new UI::Image(0, 0, 147, 499, "ui/top_window.png", this);
     auto nation_flag = &gs.get_nation_flag(*gs.curr_nation);
-    auto* flag_img = new UI::Image(9, 9, 138, 84, nation_flag, this);
+    auto* flag_img = new UI::Image(5, 4, 138, 88, nation_flag, this);
     flag_img->on_each_tick = ([](UI::Widget& w, void*) {
         auto& state = static_cast<TopWindow&>(*w.parent);
 
         w.current_texture = &state.gs.get_nation_flag(*state.gs.curr_nation);
     });
 
-    auto* policy_ibtn = new UI::Image(9, 115, 25, 25, "ui/icons/top_bar/book.png", this);
+    auto* flex_column = new UI::Div(3, 96, 42, 390, this);
+    flex_column->flex = UI::Flex::COLUMN;
+    flex_column->flex_justify = UI::FlexJustify::SPACE_AROUND;
+    flex_column->flex_align = UI::FlexAlign::CENTER;
+
+    int icon_size = 25;
+
+    auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/book.png", flex_column);
     policy_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
         new Interface::PoliciesScreen(o.gs);
     });
-    policy_ibtn->tooltip = new UI::Tooltip(policy_ibtn, 512, 24);
-    policy_ibtn->tooltip->text("Laws & Policies");
+    policy_ibtn->set_tooltip("Laws & Policies");
 
-    auto* economy_ibtn = new UI::Image(9, 155, 25, 25, "ui/icons/top_bar/economy.png", this);
+    auto* economy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/economy.png", flex_column);
     economy_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         // auto& o = static_cast<TopWindow&>(*w.parent);
-
     });
-    economy_ibtn->tooltip = new UI::Tooltip(economy_ibtn, 512, 24);
-    economy_ibtn->tooltip->text("Economy & World Market");
+    economy_ibtn->set_tooltip("Economy & World Market");
 
-    auto* military_ibtn = new UI::Image(9, 195, 25, 25, "ui/icons/military_score.png", this);
+    auto* military_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/military_score.png", flex_column);
     military_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
         new Interface::ArmyView(o.gs);
     });
-    military_ibtn->tooltip = new UI::Tooltip(military_ibtn, 512, 24);
-    military_ibtn->tooltip->text("Military");
+    military_ibtn->set_tooltip("Military");
 
-    auto* research_ibtn = new UI::Image(9, 235, 25, 25, "ui/icons/top_bar/tech.png", this);
+    auto* research_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/tech.png", flex_column);
     research_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
         new Interface::TechTreeView(o.gs);
     });
-    research_ibtn->tooltip = new UI::Tooltip(research_ibtn, 512, 24);
-    research_ibtn->tooltip->text("Research");
+    research_ibtn->set_tooltip("Research");
 
-    auto* save_ibtn = new UI::Image(9, 275, 25, 25, "ui/icons/top_bar/save.png", this);
+    auto* save_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/save.png", flex_column);
     save_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
         if(o.gs.editor) {
@@ -140,8 +140,7 @@ TopWindow::TopWindow(GameState& _gs)
             o.gs.ui_ctx->prompt("Save", "Saved sucessfully!");
         }
     });
-    save_ibtn->tooltip = new UI::Tooltip(save_ibtn, 512, 24);
-    save_ibtn->tooltip->text("Saves the current game; TODO: SAVE LUA STATE");
+    save_ibtn->set_tooltip("Saves the current game; TODO: SAVE LUA STATE");
 
     /*
     auto* load_ibtn = new UI::Image(9, 275, 25, 25, "ui/icons/top_bar/save.png", this);
@@ -164,13 +163,12 @@ TopWindow::TopWindow(GameState& _gs)
     load_ibtn->tooltip->text("Loads the current game");
     */
 
-    auto* exit_ibtn = new UI::Image(9, 315, 25, 25, "ui/icons/top_bar/exit.png", this);
+    auto* exit_ibtn = new UI::Image(9, 315, icon_size, icon_size, "ui/icons/top_bar/exit.png", flex_column);
     exit_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
         o.gs.run = false;
     });
-    exit_ibtn->tooltip = new UI::Tooltip(exit_ibtn, 512, 24);
-    exit_ibtn->tooltip->text("Exits");
+    exit_ibtn->set_tooltip("Exits");
 }
 
 TimeControlView::TimeControlView(GameState& _gs)
