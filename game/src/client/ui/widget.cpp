@@ -215,12 +215,6 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         glColor3f(0.f, 0.f, 1.f);
         draw_rect(0, pos_rect, tex_rect, viewport);
     }
-    else if(type != UI::WidgetType::IMAGE && type != UI::WidgetType::LABEL) {
-        UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
-        UnifiedRender::Rect tex_rect((int)0u, 0u, width / ctx.background->width, height / ctx.background->height);
-
-        draw_rect(ctx.background->gl_tex_num, pos_rect, tex_rect, viewport);
-    }
 
     if(color.a != 0) {
         UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
@@ -230,12 +224,12 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     }
 
     glColor3f(1.f, 1.f, 1.f);
+    if(current_texture != nullptr) {
+        draw_rectangle(0, 0, width, height, viewport, current_texture->gl_tex_num);
+    }
     // Top bar of windows display
     if(type == UI::WidgetType::WINDOW) {
         draw_rectangle(0, 0, width, 24, viewport, ctx.window_top->gl_tex_num);
-    }
-    if(current_texture != nullptr) {
-        draw_rectangle(0, 0, width, height, viewport, current_texture->gl_tex_num);
     }
 
     if(type == UI::WidgetType::BUTTON) {
@@ -329,6 +323,112 @@ void Widget::move_by(int _x, int _y) {
     y += _y;
 }
 
+void Widget::recalc_child_pos() {
+    if(flex == Flex::NONE)
+        return;
+
+    bool is_row = flex == Flex::ROW;
+    size_t lenght = 0;
+    for(auto& child : children) {
+        lenght += is_row ? child->width : child->height;
+    }
+
+    size_t current_lenght = 0;
+    int size = 0, difference = 0;
+    switch(flex_justify)
+    {
+    case FlexJustify::START:
+        current_lenght = 0;
+        for(auto& child : children) {
+            if(is_row) {
+                child->x = current_lenght;
+                current_lenght += child->width + flex_gap;
+            }
+            else {
+                child->y = current_lenght;
+                current_lenght += child->height + flex_gap;
+            }
+        }
+        break;
+    case FlexJustify::END:
+        current_lenght = is_row ? width : height;
+        for(auto& child : children) {
+            if(is_row) {
+                child->x = current_lenght - child->width - flex_gap;
+                current_lenght -= child->width;
+            }
+            else {
+                child->y = current_lenght - child->height - flex_gap;
+                current_lenght -= child->height;
+            }
+        }
+        break;
+    case FlexJustify::SPACE_BETWEEN:
+        current_lenght = 0;
+        size = is_row ? width : height;
+        difference = (size - lenght) / children.size();
+        for(auto& child : children) {
+            if(is_row) {
+                child->x = current_lenght;
+                current_lenght += child->width + difference;
+            }
+            else {
+                child->y = current_lenght;
+                current_lenght += child->height + difference;
+            }
+        }
+        break;
+    case FlexJustify::SPACE_AROUND:
+        size = is_row ? width : height;
+        difference = (size - lenght) / (children.size() + 1);
+        current_lenght = std::max<int>(0, difference);
+        for(auto& child : children) {
+            if(is_row) {
+                child->x = current_lenght;
+                current_lenght += child->width + difference;
+            }
+            else {
+                child->y = current_lenght;
+                current_lenght += child->height + difference;
+            }
+        }
+        break;
+    }
+    switch(flex_align)
+    {
+    case FlexAlign::START:
+        for(auto& child : children) {
+            if(is_row) {
+                child->y = 0;
+            }
+            else {
+                child->x = 0;
+            }
+        }
+        break;
+    case FlexAlign::END:
+        for(auto& child : children) {
+            if(is_row) {
+                child->y = std::max<int>(0, height - child->height);
+            }
+            else {
+                child->x = std::max<int>(0, width - child->width);
+            }
+        }
+        break;
+    case FlexAlign::CENTER:
+        for(auto& child : children) {
+            if(is_row) {
+                child->y = std::max<int>(0, height - child->height) / 2;
+            }
+            else {
+                child->x = std::max<int>(0, width - child->width) / 2;
+            }
+        }
+        break;
+    }
+}
+
 void Widget::add_child(Widget* child) {
     // Not already in list
     if(std::count(children.begin(), children.end(), child))
@@ -337,6 +437,8 @@ void Widget::add_child(Widget* child) {
     // Add to list
     children.push_back(child);
     child->parent = this;
+
+    recalc_child_pos();
 }
 
 void Widget::text(const std::string& _text) {
@@ -377,4 +479,13 @@ void Widget::set_tooltip(Tooltip* _tooltip) {
     //     delete tooltip;
     // }
     tooltip = _tooltip;
+}
+
+void Widget::set_tooltip(std::string text) {
+    // Why doesn't this work??
+    // if(tooltip != nullptr) {
+    //     delete tooltip;
+    // }
+    tooltip = new Tooltip();
+    tooltip->text(text);
 }
