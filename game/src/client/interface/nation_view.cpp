@@ -118,7 +118,6 @@ NationView::NationView(GameState& _gs, Nation* _nation)
             if(o.gs.world->time % o.gs.world->ticks_per_month) {
                 return;
             }
-
             w.text(std::to_string(o.gs.curr_nation->relations[o.gs.world->get_id(o.nation)].relation));
         });
         rel_lab->tooltip = new UI::Tooltip(rel_lab, 512, 24);

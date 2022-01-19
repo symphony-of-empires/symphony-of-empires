@@ -41,3 +41,15 @@ yunnan.adjective = _("Chinesse")
 yunnan:register()
 --yunnan:add_accepted_culture(chinesse)
 yunnan:add_client_hint(monarchy, _("Yunnan Dynasty"), 0x808080)
+
+guanxi = Nation:new{ ref_name = "guanxi", name = _("Guanxi") }
+guanxi.adjective = _("Chinesse")
+guanxi:register()
+--guanxi:add_accepted_culture(chinesse)
+guanxi:add_client_hint(monarchy, _("Guanxi Clique"), 0x808080)
+
+shanxi = Nation:new{ ref_name = "shanxi", name = _("Shanxi") }
+shanxi.adjective = _("Chinesse")
+shanxi:register()
+--shanxi:add_accepted_culture(chinesse)
+shanxi:add_client_hint(monarchy, _("Shanxi Clique"), 0x808080)
