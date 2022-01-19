@@ -315,15 +315,16 @@ void Context::render_all() {
 bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
     glm::ivec2 offset{ x_off, y_off };
     offset = get_pos(w, offset);
-    
+
     w.is_hover = true;
     if(!w.is_show || !w.is_render) {
         return false;
     }
-    
+
     if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
         w.is_hover = false;
-    } else if(w.type == UI::WidgetType::IMAGE) {
+    }
+    else if(w.type == UI::WidgetType::IMAGE) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
@@ -338,22 +339,23 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
         }
     }
 
+    bool consumed_hover = w.is_hover && w.type != UI::WidgetType::GROUP;
     if(w.is_hover) {
         if(w.on_hover) {
             glm::ivec2 mouse_pos(mx, my);
             w.on_hover(w, mouse_pos, offset);
         }
-	
+
         if(w.tooltip != nullptr) {
             tooltip_widget = w.tooltip;
             tooltip_widget->set_pos(offset.x, offset.y, w.width, w.height, width, height);
         }
 
         for(auto& child : w.children) {
-            check_hover_recursive(*child, mx, my, offset.x, offset.y);
+            consumed_hover |= check_hover_recursive(*child, mx, my, offset.x, offset.y);
         }
     }
-    return w.is_hover;
+    return consumed_hover;
 }
 
 bool Context::check_hover(const unsigned mx, const unsigned my) {
@@ -392,7 +394,8 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
     if(w.type != UI::WidgetType::GROUP) {
         if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
             clickable = false;
-        } else if(w.type == UI::WidgetType::IMAGE) {
+        }
+        else if(w.type == UI::WidgetType::IMAGE) {
             if(w.current_texture != nullptr) {
                 int tex_width = w.current_texture->width;
                 int tex_height = w.current_texture->height;
@@ -527,17 +530,31 @@ void Context::set_tooltip(Tooltip* tooltip, glm::ivec2 pos) {
     tooltip->set_pos(pos.x, pos.y, tooltip->width, tooltip->height, width, height);
 }
 
-int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y) {
+bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y) {
     glm::ivec2 offset{ x_off, y_off };
     offset = get_pos(w, offset);
 
     // Widget must be shown
     if(!w.is_show || !w.is_render) {
-        return 0;
+        return false;
     }
 
     if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
-        return 0;
+        return false;
+    }
+    else if(w.type == UI::WidgetType::IMAGE) {
+        if(w.current_texture != nullptr) {
+            int tex_width = w.current_texture->width;
+            int tex_height = w.current_texture->height;
+            int tex_x = ((mx - offset.x) * tex_width) / w.width;
+            int tex_y = ((my - offset.y) * tex_height) / w.height;
+            if(tex_x >= 0 && tex_x < tex_width && tex_y >= 0 && tex_y < tex_height) {
+                uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y);
+                if(((argb >> 24) & 0xff) == 0) {
+                    return false;
+                }
+            }
+        }
     }
 
     // When we check the children they shall return non-zero if they are a group/window
@@ -547,33 +564,34 @@ int Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_of
     //
     // In short: If any of our children are scrolled by the mouse we will not receive
     // the scrolling instructions - only the front child will
-    int r = 0;
     for(const auto& children : w.children) {
-        r += check_wheel_recursive(*children, mx, my, offset.x, offset.y, y);
-        if(r > 0) {
-            return r;
+        bool scrolled = check_wheel_recursive(*children, mx, my, offset.x, offset.y, y);
+        if(scrolled){
+            return true;
         }
     }
 
-    if(w.is_scroll && (w.type == UI::WidgetType::WINDOW || w.type == UI::WidgetType::GROUP)) {
+    if (w.type == UI::WidgetType::GROUP) {
+        return false;
+    }
+    if(w.is_scroll) {
         for(auto& child : w.children) {
             if(!child->is_pinned) {
                 child->y += y;
             }
         }
-        r += 1;
     }
-    return r;
+    return true;
 }
 
-int Context::check_wheel(unsigned mx, unsigned my, int y) {
+bool Context::check_wheel(unsigned mx, unsigned my, int y) {
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        int r = check_wheel_recursive(*widgets[i], mx, my, 0, 0, y);
-        if(r > 0) {
-            return 1;
+        bool scrolled = check_wheel_recursive(*widgets[i], mx, my, 0, 0, y);
+        if(scrolled) {
+            return true;
         }
     }
-    return 0;
+    return false;
 }
 
 // These functions are called on each world tick - this is to allow to update widgets on

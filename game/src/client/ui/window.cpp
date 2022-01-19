@@ -25,6 +25,9 @@
 
 #include "client/ui/window.hpp"
 #include "client/ui/ui.hpp"
+#include "unified_render/state.hpp"
+#include "unified_render/path.hpp"
+#include "unified_render/texture.hpp"
 
 using namespace UI;
 
@@ -33,6 +36,8 @@ Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     is_movable{ true }
 {
     padding = glm::ivec2(8, 24 + 8);
+    current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/window_background.png"));
+    is_scroll = true;
 
     glm::ivec2 size(4, 4);
     glm::ivec2 texture_size(10, 10);
