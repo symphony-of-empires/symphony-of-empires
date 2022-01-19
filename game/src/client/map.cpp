@@ -64,6 +64,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     // Shader used for drawing the models using custom model render
     obj_shader = UnifiedRender::OpenGL::Program::create("shaders/simple_model.vs", "shaders/simple_model.fs");
+    line_tex = gs.tex_man->load(Path::get("ui/line_target.png"));
 
     // Set the mapmode
     set_map_mode(political_map_mode);
@@ -420,15 +421,16 @@ void Map::draw(const GameState& gs) {
         building_type_models[world.get_id(building_type)]->draw(*obj_shader);
     }
 
+    glm::mat4 base_model(1.f);
+    base_model = glm::translate(base_model, glm::vec3(0.f, 0.f, -1.f));
     for(const auto& province : world.provinces) {
         for(const auto& unit : province->get_units()) {
-            glm::mat4 model(1.f);
-            model = glm::translate(model, glm::vec3(0.f, 0.f, -1.f));
-
+            glm::mat4 model = base_model;
+            
             std::pair<float, float> pos = unit->get_pos();
             if(unit->target != nullptr) {
                 UnifiedRender::Line target_line = UnifiedRender::Line(pos.first, pos.second, unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
-                obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/line_target.png")));
+                obj_shader->set_texture(0, "diffuse_map", *line_tex);
                 obj_shader->set_uniform("model", model);
                 target_line.draw();
             }
@@ -458,7 +460,7 @@ void Map::draw(const GameState& gs) {
     if(is_drag) {
         glm::mat4 model(1.f);
         model = glm::translate(model, glm::vec3(0.f, 0.f, -1.f));
-        obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/line_target.png")));
+        obj_shader->set_texture(0, "diffuse_map", *line_tex);
         obj_shader->set_uniform("model", model);
 
         UnifiedRender::Square dragbox_square = UnifiedRender::Square(gs.input.drag_coord.first, gs.input.drag_coord.second, gs.input.select_pos.first, gs.input.select_pos.second);
