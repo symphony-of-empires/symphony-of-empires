@@ -102,9 +102,8 @@ TopWindow::TopWindow(GameState& _gs)
     save_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
         if(o.gs.editor) {
-            std::filesystem::create_directory("mods");
-            std::filesystem::create_directory("mods/_1editor");
-            std::filesystem::create_directory("mods/_1editor/scripts");
+            std::filesystem::create_directory("editor");
+            std::filesystem::create_directory("editor/scripts");
 
             FILE* fp;
             
