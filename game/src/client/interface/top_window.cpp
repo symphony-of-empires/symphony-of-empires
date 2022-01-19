@@ -73,34 +73,34 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/book.png", flex_column);
     policy_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
-        auto& o = static_cast<TopWindow&>(*w.parent);
+        auto& o = static_cast<TopWindow&>(*w.parent->parent);
         new Interface::PoliciesScreen(o.gs);
     });
     policy_ibtn->set_tooltip("Laws & Policies");
 
     auto* economy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/economy.png", flex_column);
     economy_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
-        // auto& o = static_cast<TopWindow&>(*w.parent);
+        // auto& o = static_cast<TopWindow&>(*w.parent->parent);
     });
     economy_ibtn->set_tooltip("Economy & World Market");
 
     auto* military_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/military_score.png", flex_column);
     military_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
-        auto& o = static_cast<TopWindow&>(*w.parent);
+        auto& o = static_cast<TopWindow&>(*w.parent->parent);
         new Interface::ArmyView(o.gs);
     });
     military_ibtn->set_tooltip("Military");
 
     auto* research_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/tech.png", flex_column);
     research_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
-        auto& o = static_cast<TopWindow&>(*w.parent);
+        auto& o = static_cast<TopWindow&>(*w.parent->parent);
         new Interface::TechTreeView(o.gs);
     });
     research_ibtn->set_tooltip("Research");
 
     auto* save_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/save.png", flex_column);
     save_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
-        auto& o = static_cast<TopWindow&>(*w.parent);
+        auto& o = static_cast<TopWindow&>(*w.parent->parent);
         if(o.gs.editor) {
             std::filesystem::create_directory("mods");
             std::filesystem::create_directory("mods/_1editor");
@@ -151,7 +151,7 @@ TopWindow::TopWindow(GameState& _gs)
             }
             fclose(fp);
         } else {
-            auto& o = static_cast<TopWindow&>(*w.parent);
+            auto& o = static_cast<TopWindow&>(*w.parent->parent);
             Archive ar = Archive();
             ::serialize(ar, o.gs.world);
             ar.to_file("default.scv");
@@ -181,9 +181,9 @@ TopWindow::TopWindow(GameState& _gs)
     load_ibtn->tooltip->text("Loads the current game");
     */
 
-    auto* exit_ibtn = new UI::Image(9, 315, icon_size, icon_size, "ui/icons/top_bar/exit.png", flex_column);
+    auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/exit.png", flex_column);
     exit_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
-        auto& o = static_cast<TopWindow&>(*w.parent);
+        auto& o = static_cast<TopWindow&>(*w.parent->parent);
         o.gs.run = false;
     });
     exit_ibtn->set_tooltip("Exits");
