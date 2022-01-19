@@ -33,6 +33,12 @@ Group::Group(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 
 }
 
+Group::Group(int _x, int _y, Widget* _parent)
+    : Widget(_parent, _x, _y, 10000, 10000, UI::WidgetType::GROUP)
+{
+
+}
+
 void Group::on_render(Context&, UnifiedRender::Rect) {
     // Do nothing!
 }

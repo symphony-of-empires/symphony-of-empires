@@ -82,6 +82,25 @@ namespace UI {
 		GROUP,
 	};
 
+	enum class Flex {
+		NONE,
+		ROW,
+		COLUMN
+	};
+
+	enum class FlexJustify {
+		START,
+		END,
+		SPACE_BETWEEN,
+		SPACE_AROUND,
+	};
+
+	enum class FlexAlign {
+		START,
+		END,
+		CENTER,
+	};
+
 	class ChartData {
 	public:
 		ChartData(float _num, std::string _info, UnifiedRender::Color _color): num{ _num }, info{ _info }, color{ _color } {}
@@ -123,10 +142,11 @@ namespace UI {
 		void add_child(Widget* child);
 		void draw_rectangle(int x, int y, unsigned w, unsigned h, UnifiedRender::Rect viewport, unsigned tex);
 		void draw_rect(const GLuint tex, UnifiedRender::Rect rect_pos, UnifiedRender::Rect rect_tex, UnifiedRender::Rect viewport);
-        
+
 		virtual void on_render(Context&, UnifiedRender::Rect viewport);
 		virtual void text(const std::string& text);
 		virtual void set_tooltip(Tooltip* tooltip);
+		virtual void set_tooltip(std::string text);
 
 		template <typename T>
 		void above_of(const T& rhs) {
@@ -151,7 +171,7 @@ namespace UI {
 		bool is_pinned = false;
 		bool is_render = true;
 
-		bool is_scroll = true;
+		bool is_scroll = false;
 
 		bool is_hover = false;
 		bool is_float = false;
@@ -174,6 +194,11 @@ namespace UI {
 		UnifiedRender::Color text_color;
 		Border* border = nullptr;
 		UnifiedRender::Color color;
+
+		Flex flex = Flex::NONE;
+		FlexJustify flex_justify = FlexJustify::START;
+		FlexAlign flex_align = FlexAlign::START;
+		size_t flex_gap = 0;
 
 		Tooltip* tooltip = nullptr;
 
@@ -201,6 +226,7 @@ namespace UI {
 		bool is_clickable = false;
 		bool dead = false;
 
+		void recalc_child_pos();
 		void draw_border(Border* border, UnifiedRender::Rect viewport);
 	};
 };

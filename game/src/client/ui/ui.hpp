@@ -66,7 +66,7 @@ namespace UI {
         glm::ivec2 get_pos(Widget& w, glm::ivec2 offset);
         bool check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         UI::ClickState check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, UI::ClickState click_state, bool clickable);
-        int check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y);
+        bool check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y);
     public:
         Context();
         void load_textures();
@@ -81,7 +81,7 @@ namespace UI {
         bool check_hover(unsigned mx, unsigned my);
         bool check_click(unsigned mx, unsigned my);
         void check_drag(unsigned mx, unsigned my);
-        int check_wheel(unsigned mx, unsigned my, int y);
+        bool check_wheel(unsigned mx, unsigned my, int y);
         void check_text_input(const char* input);
         void set_tooltip(Tooltip* tooltip, glm::ivec2 pos);
 
