@@ -55,11 +55,12 @@ class Nation;
 class GameState;
 enum class MapView;
 union SDL_Event;
-struct Input;
-struct ProvinceColors;
+class Input;
+class ProvinceColors;
 
 typedef UnifiedRender::OpenGL::Option Option;
-struct MapOptions {
+class MapOptions {
+public:
     Option noise{ "NOISE", false };
     Option sdf{ "SDF", false };
     Option lighting{ "LIGHTING", false };
@@ -76,6 +77,7 @@ struct MapOptions {
         };
     }
 };
+
 class MapRender {
 public:
     MapRender(const World& world);

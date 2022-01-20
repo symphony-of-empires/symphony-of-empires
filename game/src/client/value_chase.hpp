@@ -1,12 +1,12 @@
 #pragma once
 
-#include <sys/time.h>
-#include <ctime>
+#include <chrono>
+#include <glm/common.hpp>
 
 template <typename T>
 class ValueChase {
     float friction;
-    std::chrono::_V2::system_clock::time_point last_time;
+    std::chrono::system_clock::time_point last_time;
 public:
     ValueChase(float _friction): friction{ _friction } {};
 

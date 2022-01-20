@@ -45,7 +45,10 @@ namespace UnifiedRender::OpenGL {
             return buffer.c_str();
         }
     };
-    struct Option {
+
+    class Option {
+        std::string _option;
+    public:
         bool used;
         Option(std::string option, bool use):
             used{ use }, _option{ option } {}
@@ -53,8 +56,6 @@ namespace UnifiedRender::OpenGL {
         std::string get_option() {
             return _option;
         }
-    private:
-        std::string _option;
     };
 
     class Shader {

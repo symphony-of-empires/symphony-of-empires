@@ -123,12 +123,14 @@ void UnifiedRender::Model::draw(const UnifiedRender::OpenGL::Program& shader) co
 }
 
 const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const std::string& path) {
-    struct WavefrontFace {
+    class WavefrontFace {
+    public:
         // Indexes to the actual points
         std::vector<int> vertices, texcoords, normals;
     };
 
-    struct WavefrontObj {
+    class WavefrontObj {
+    public:
         WavefrontObj(const std::string& _name) : name(_name) {};
         std::string name;
         std::vector<WavefrontFace> faces;

@@ -27,7 +27,6 @@
 
 #include <unordered_map>
 #include <string>
-#include <sys/time.h>
 #include <ctime>
 #include <chrono>
 #include <vector>
@@ -49,8 +48,8 @@ namespace UnifiedRender {
         void clear_old();
 
         std::list<float> times;
-        std::list<std::chrono::_V2::system_clock::time_point> start_times;
-        std::chrono::_V2::system_clock::time_point start_time;
+        std::list<std::chrono::system_clock::time_point> start_times;
+        std::chrono::system_clock::time_point start_time;
         bool running = false;
     };
 
@@ -71,7 +70,7 @@ namespace UnifiedRender {
         size_t tick;
         std::unordered_map<std::string, BenchmarkTask> tasks;
         float fps;
-        std::chrono::_V2::system_clock::time_point fps_clock;
+        std::chrono::system_clock::time_point fps_clock;
         float fps_timer = 0;
         size_t frames = 0;
         bool render_started = false;

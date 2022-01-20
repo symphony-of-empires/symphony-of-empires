@@ -427,33 +427,35 @@ void Map::draw(const GameState& gs) {
         for(const auto& unit : province->get_units()) {
             glm::mat4 model = base_model;
             
-            std::pair<float, float> pos = unit->get_pos();
+            const std::pair<float, float> pos = unit->get_pos();
+            model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
             if(unit->target != nullptr) {
                 UnifiedRender::Line target_line = UnifiedRender::Line(pos.first, pos.second, unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
                 obj_shader->set_texture(0, "diffuse_map", *line_tex);
                 obj_shader->set_uniform("model", model);
                 target_line.draw();
-            }
 
-            model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
+                const std::pair<float, float> tpos = unit->target->get_pos();
+                model = glm::rotate(model, std::atan2(tpos.first - pos.first, tpos.second - pos.second), glm::vec3(0.f, 1.f, 0.f));
+            }
+            model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_uniform("model", model);
-            for(const auto& selected : gs.input.selected_units) {
-                if(selected != unit) {
-                    continue;
-                }
-
-                UnifiedRender::Square select_highlight = UnifiedRender::Square(0.f, 0.f, 1.f, 1.f);
-                obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/select_border.png")));
-                select_highlight.draw();
-                break;
-            }
             draw_flag(*obj_shader, *unit->owner);
-#if defined TILE_GRANULARITY
-            model = glm::rotate(model, std::atan2(unit->tx - unit->x, unit->ty - unit->y), glm::vec3(0.f, 1.f, 0.f));
-#endif
+
+            // Model
             obj_shader->set_uniform("model", model);
             unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
         }
+    }
+
+    // Highlight for units
+    for(const auto& unit : gs.input.selected_units) {
+        glm::mat4 model = base_model;
+        const std::pair<float, float> pos = unit->get_pos();
+        model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
+        UnifiedRender::Square select_highlight = UnifiedRender::Square(0.f, 0.f, 1.f, 1.f);
+        obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/select_border.png")));
+        select_highlight.draw();
     }
 
     // Draw the "drag area" box

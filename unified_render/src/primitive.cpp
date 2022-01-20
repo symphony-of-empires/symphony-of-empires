@@ -30,6 +30,8 @@
 
 #include "unified_render/primitive.hpp"
 
+#define M_PI 3.1418f
+
 UnifiedRender::Line::Line(float start_x, float start_y, float end_x, float end_y)
     : UnifiedRender::Mesh<glm::vec2, glm::vec2>(UnifiedRender::MeshMode::LINES)
 {

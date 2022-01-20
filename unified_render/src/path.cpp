@@ -72,8 +72,6 @@ namespace Path {
         std::string rsult = buf;
         size_t found = rsult.find_last_of("/\\");
         rsult = rsult.substr(0, found);
-        found = rsult.find_last_of("/\\");
-        rsult = rsult.substr(0, found);
         /*found = rsult.find_last_of("/\\");
         rsult = rsult.substr(0, found);*/
 

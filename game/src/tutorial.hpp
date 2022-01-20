@@ -25,7 +25,8 @@
 
 #pragma once
 
-struct TutorialState {
+class TutorialState {
+public:
     // Tutorial will only be fired at the first opening
     int fire_at_start = 1;
 

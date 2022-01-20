@@ -73,10 +73,8 @@ namespace UnifiedRender {
         std::vector<const UnifiedRender::SimpleModel*> simple_models;
     };
 
-    struct ModelManager {
-    private:
+    class ModelManager {
         std::map<std::string, UnifiedRender::Model*> models;
-
         const UnifiedRender::Model& load_wavefront(const std::string& path);
         const UnifiedRender::Model& load_stl(const std::string& path);
     public:

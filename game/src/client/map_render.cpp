@@ -33,7 +33,6 @@
 #include <memory>
 #include <chrono>
 #include <iostream>
-#include <sys/time.h>
 #include <ctime>
 
 #include "unified_render/texture.hpp"

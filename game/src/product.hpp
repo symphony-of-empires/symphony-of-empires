@@ -33,7 +33,8 @@
 
 // A product (based off a Good) which can be bought by POPs, converted by factories and transported
 // accross the world
-struct Product : public IdEntity<uint16_t> {
+class Product : public IdEntity<uint16_t> {
+public:
     //Product();
     //~Product();
     void close_market(void);

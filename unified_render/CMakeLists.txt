@@ -8,9 +8,7 @@ project(unified_render)
 # Compilation flags
 #
 set(CMAKE_CXX_STANDARD 17)
-IF(CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS} -pthread -fno-rtti")
-ENDIF()
+set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS} -pthread")
 IF(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dwindows=1")
 ELSE()
@@ -33,12 +31,17 @@ add_library(unified_render SHARED ${MAIN_SOURCES})
 #
 # Linking
 #
+target_link_libraries(unified_render PUBLIC SDL2 SDL2_ttf z tbb)
 IF(WIN32)
-	target_link_libraries(unified_render PUBLIC glew32 opengl32 glu32 ws2_32 winpthread wsock32)
+	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		
+	ELSE()
+		target_link_libraries(unified_render PUBLIC m stdc++ winpthread)
+	ENDIF()
+	target_link_libraries(unified_render PUBLIC glew32 opengl32 glu32 ws2_32 wsock32)
 ELSE()
-	target_link_libraries(unified_render PUBLIC GL GLU GLEW SDL2main)
+	target_link_libraries(unified_render PUBLIC m stdc++ GL GLU GLEW SDL2main)
 ENDIF()
-target_link_libraries(unified_render PUBLIC SDL2 SDL2_ttf m z tbb stdc++)
 
 #
 # Precompiled headers

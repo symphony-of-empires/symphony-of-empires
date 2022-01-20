@@ -29,7 +29,7 @@
 #include <glm/common.hpp>
 
 namespace UnifiedRender {
-    struct Rectangle {
+    class Rectangle {
     public:
         float left, top, right, bottom;
         Rectangle(float x, float y, float width, float height);
@@ -72,5 +72,5 @@ namespace UnifiedRender {
         Rectangle intersection(const Rectangle& rect);
     };
 
-    typedef struct Rectangle Rect;
+    typedef class Rectangle Rect;
 }

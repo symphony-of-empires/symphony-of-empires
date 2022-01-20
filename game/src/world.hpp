@@ -47,7 +47,7 @@
 typedef unsigned int	uint;
 // A single tile unit this is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
 class World;
-struct Tile {
+class Tile {
 public:
     const std::vector<const Tile*> get_neighbours(const World& world) const;
 
@@ -69,7 +69,7 @@ enum class OrderType {
 
 // Represents an order, something an industry wants and that should be
 // fullfilled by transport tick
-struct OrderGoods {
+class OrderGoods {
 public:
     enum OrderType type;
 
@@ -90,7 +90,7 @@ public:
 };
 
 // A job request
-struct JobRequest {
+class JobRequest {
 public:
     size_t amount;
     Province* province;
@@ -98,7 +98,7 @@ public:
 };
 
 // Represents a delivery,
-struct DeliverGoods {
+class DeliverGoods {
 public:
     // How many we are willing to pay to deliver this
     float payment;

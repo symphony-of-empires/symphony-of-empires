@@ -31,7 +31,7 @@
 #include "world.hpp"
 #include "disc_dist.hpp"
 
-struct Emigrated {
+class Emigrated {
 public:
 	Emigrated(Pop& pop) : emigred{pop} {};
 	~Emigrated() {};

@@ -34,7 +34,7 @@
 #include "client/ui/widget.hpp"
 
 namespace UnifiedRender {
-	struct Rectangle;
+	class Rectangle;
     typedef Rectangle Rect;
 }
 
