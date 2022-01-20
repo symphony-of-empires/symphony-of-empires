@@ -239,4 +239,39 @@ TimeControlView::TimeControlView(GameState& _gs)
     });
     speed3_btn->tooltip = new UI::Tooltip(speed3_btn, 512, 24);
     speed3_btn->tooltip->text("Fire speed");
+
+    auto* time_lab = new UI::Label(0, 24, " ", this);
+    time_lab->on_each_tick = ([](UI::Widget& w, void*) {
+        auto& o = static_cast<TimeControlView&>(*w.parent);
+        const std::string day_names[7] = {
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+        };
+
+        const std::string month_names[12] = {
+            "January",
+            "Febraury",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "October",
+            "September",
+            "November",
+            "December"
+        };
+
+        const int day = 1 + (g_world->time % g_world->ticks_per_month);
+        const int month = 1 + (g_world->time / g_world->ticks_per_month % 12);
+        const int year = g_world->time / g_world->ticks_per_month / 12;
+        w.text(day_names[o.gs.world->time % 7] + ", " + month_names[month] + " " + std::to_string(day) + ", " + std::to_string(year));
+    });
+    time_lab->on_each_tick(*time_lab, nullptr);
 }
