@@ -53,7 +53,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     this->is_scroll = false;
     this->padding = glm::ivec2(0, 24);
 
-    auto* flat_btn = new UI::Image(5, 5, 24, 24, "ui/icons/minimap/flat_icon.png", this);
+    auto* flat_btn = new UI::Image(5, 5, 24, 24, "gfx/flat_icon.png", this);
     flat_btn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
 
@@ -62,7 +62,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     flat_btn->tooltip = new UI::Tooltip(flat_btn, 512, 24);
     flat_btn->tooltip->text("Flat map");
 
-    auto* globe_btn = new UI::Image(35, 5, 24, 24, "ui/icons/minimap/globe_icon.png", this);
+    auto* globe_btn = new UI::Image(35, 5, 24, 24, "gfx/globe_icon.png", this);
     globe_btn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
 
@@ -71,7 +71,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     globe_btn->tooltip = new UI::Tooltip(globe_btn, 512, 24);
     globe_btn->tooltip->text("Globe map");
 
-    auto* political_ibtn = new UI::Image(5, 35, 24, 24, "ui/icons/minimap/icon.png", this);
+    auto* political_ibtn = new UI::Image(5, 35, 24, 24, "gfx/icon.png", this);
     political_ibtn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
         mapmode_generator map_mode = political_map_mode;
@@ -80,7 +80,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     political_ibtn->tooltip = new UI::Tooltip(political_ibtn, 512, 24);
     political_ibtn->tooltip->text("Political");
 
-    auto* terrain_ibtn = new UI::Image(5, 65, 24, 24, "ui/icons/minimap/icon.png", this);
+    auto* terrain_ibtn = new UI::Image(5, 65, 24, 24, "gfx/icon.png", this);
     terrain_ibtn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
         mapmode_generator map_mode = terrain_map_mode;
@@ -89,7 +89,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     terrain_ibtn->tooltip = new UI::Tooltip(terrain_ibtn, 512, 24);
     terrain_ibtn->tooltip->text("Political");
 
-    auto* population_ibtn = new UI::Image(5, 95, 24, 24, "ui/icons/minimap/icon.png", this);
+    auto* population_ibtn = new UI::Image(5, 95, 24, 24, "gfx/icon.png", this);
     population_ibtn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
         mapmode_generator map_mode = population_map_mode;
@@ -98,7 +98,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     population_ibtn->tooltip = new UI::Tooltip(population_ibtn, 512, 24);
     population_ibtn->tooltip->text("Population");
 
-    auto* terrain_color_ibtn = new UI::Image(35, 35, 24, 24, "ui/icons/minimap/icon.png", this);
+    auto* terrain_color_ibtn = new UI::Image(35, 35, 24, 24, "gfx/icon.png", this);
     terrain_color_ibtn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
         mapmode_generator map_mode = terrain_color_map_mode;
@@ -107,7 +107,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     terrain_color_ibtn->tooltip = new UI::Tooltip(terrain_color_ibtn, 512, 24);
     terrain_color_ibtn->tooltip->text("Terrain type");
 
-    auto* culture_ibtn = new UI::Image(35, 65, 24, 24, "ui/icons/minimap/icon.png", this);
+    auto* culture_ibtn = new UI::Image(35, 65, 24, 24, "gfx/icon.png", this);
     culture_ibtn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
         mapmode_generator map_mode = culture_map_mode;
@@ -116,7 +116,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     culture_ibtn->tooltip = new UI::Tooltip(culture_ibtn, 512, 24);
     culture_ibtn->tooltip->text("Culture diversity");
 
-    auto* religion_ibtn = new UI::Image(35, 95, 24, 24, "ui/icons/minimap/icon.png", this);
+    auto* religion_ibtn = new UI::Image(35, 95, 24, 24, "gfx/icon.png", this);
     religion_ibtn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
         mapmode_generator map_mode = religion_map_mode;
@@ -125,7 +125,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     religion_ibtn->tooltip = new UI::Tooltip(religion_ibtn, 512, 24);
     religion_ibtn->tooltip->text("Religion");
 
-    new UI::Image(65, 5, 332, 166, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/minimap.png")), this);
+    new UI::Image(65, 5, 332, 166, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/minimap.png")), this);
 }
 
 std::vector<ProvinceColor> terrain_map_mode(const World& world) {

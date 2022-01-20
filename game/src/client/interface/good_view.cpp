@@ -130,7 +130,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     this->is_scroll = false;
 
     this->icon_img = new UI::Image(0, 0, 128, 96, nullptr, this);
-    this->icon_img->current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/icons/goods/" + good->ref_name + ".png"));
+    this->icon_img->current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png"));
 
     // Piechart denoting countries which have more supply of this good
     this->sellers_pie = new UI::PieChart(0, 0, 128, 128, this);

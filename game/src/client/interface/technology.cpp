@@ -135,7 +135,7 @@ TechTreeView::TechTreeView(GameState& _gs)
 
     this->strategic_tab = new TechTreeStrategicTab(gs, 0, 24, this);
     this->strategic_tab->is_render = true;
-    auto* strategic_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/strategic_tech.png")), this);
+    auto* strategic_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/strategic_tech.png")), this);
     strategic_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechTreeView&>(*w.parent);
 
@@ -149,7 +149,7 @@ TechTreeView::TechTreeView(GameState& _gs)
 
     this->military_tab = new TechTreeMilitaryTab(gs, 0, 24, this);
     this->military_tab->is_render = false;
-    auto* military_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/military_tech.png")), this);
+    auto* military_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/military_tech.png")), this);
     military_ibtn->right_side_of(*strategic_ibtn);
     military_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechTreeView&>(*w.parent);
@@ -164,7 +164,7 @@ TechTreeView::TechTreeView(GameState& _gs)
 
     this->navy_tab = new TechTreeNavyTab(gs, 0, 24, this);
     this->navy_tab->is_render = false;
-    auto* navy_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/navy_tech.png")), this);
+    auto* navy_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/navy_tech.png")), this);
     navy_ibtn->right_side_of(*military_ibtn);
     navy_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechTreeView&>(*w.parent);
@@ -179,7 +179,7 @@ TechTreeView::TechTreeView(GameState& _gs)
 
     this->social_tab = new TechTreeSocialTab(gs, 0, 24, this);
     this->social_tab->is_render = false;
-    auto* social_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/social_tech.png")), this);
+    auto* social_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/social_tech.png")), this);
     social_ibtn->right_side_of(*navy_ibtn);
     social_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechTreeView&>(*w.parent);
@@ -194,7 +194,7 @@ TechTreeView::TechTreeView(GameState& _gs)
 
     this->economic_tab = new TechTreeEconomicTab(gs, 0, 24, this);
     this->economic_tab->is_render = false;
-    auto* economic_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/economic_tech.png")), this);
+    auto* economic_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/economic_tech.png")), this);
     economic_ibtn->right_side_of(*social_ibtn);
     economic_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechTreeView&>(*w.parent);
@@ -209,7 +209,7 @@ TechTreeView::TechTreeView(GameState& _gs)
 
     this->politics_tab = new TechTreePoliticsTab(gs, 0, 0, this);
     this->politics_tab->is_render = false;
-    auto* politics_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/politics_tech.png")), this);
+    auto* politics_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/politics_tech.png")), this);
     politics_ibtn->right_side_of(*economic_ibtn);
     politics_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechTreeView&>(*w.parent);

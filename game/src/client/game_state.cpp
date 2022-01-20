@@ -456,7 +456,7 @@ void main_loop(GameState& gs) {
         // Cursor
         glPushMatrix();
         glTranslatef(gs.input.mouse_pos.first, gs.input.mouse_pos.second, 0.f);
-        gs.tex_man->load(Path::get("ui/cursor.png")).bind();
+        gs.tex_man->load(Path::get("gfx/cursor_b.png")).bind();
         glColor3f(1.f, 1.f, 1.f);
         glBegin(GL_TRIANGLES);
         glTexCoord2f(0.f, 0.f);

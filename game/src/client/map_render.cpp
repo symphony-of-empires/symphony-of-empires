@@ -71,18 +71,18 @@ MapRender::MapRender(const World& _world)
     mipmap_options.mag_filter = GL_LINEAR;
     auto tex_man = UnifiedRender::State::get_instance().tex_man;
     mipmap_options.internal_format = GL_RGB;
-    water_tex = &tex_man->load(Path::get("water_tex.png"), mipmap_options);
-    landscape_map = &tex_man->load(Path::get("map_col.png"), mipmap_options);
-    wave1 = &tex_man->load(Path::get("wave1.png"), mipmap_options);
-    wave2 = &tex_man->load(Path::get("wave2.png"), mipmap_options);
-    // normal = &g_texture_manager->load_texture(Path::get("normal.png"), mipmap_options);
-    // topo_map = &g_texture_manager->load_texture(Path::get("topo.png"), mipmap_options);
+    water_tex = &tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
+    landscape_map = &tex_man->load(Path::get("map/color.png"), mipmap_options);
+    wave1 = &tex_man->load(Path::get("gfx/wave1.png"), mipmap_options);
+    wave2 = &tex_man->load(Path::get("gfx/wave2.png"), mipmap_options);
+    // normal = &g_texture_manager->load_texture(Path::get("map/normal.png"), mipmap_options);
+    // topo_map = &g_texture_manager->load_texture(Path::get("map/topo.png"), mipmap_options);
     mipmap_options.internal_format = GL_RED;
-    bathymethry = &tex_man->load(Path::get("bathymethry.png"), mipmap_options);
-    noise_tex = &tex_man->load(Path::get("noise_tex.png"), mipmap_options);
-    river_tex = &tex_man->load(Path::get("river_smal_smooth.png"), mipmap_options);
-    // terrain_map = &g_texture_manager->load_texture(Path::get("terrain_map.png"), single_color);
-    terrain_map = new UnifiedRender::Texture(Path::get("terrain_map.png"));
+    bathymethry = &tex_man->load(Path::get("map/bathymethry.png"), mipmap_options);
+    noise_tex = &tex_man->load(Path::get("gfx/noise_tex.png"), mipmap_options);
+    river_tex = &tex_man->load(Path::get("map/river_smooth.png"), mipmap_options);
+    // terrain_map = &g_texture_manager->load_texture(Path::get("map/terrain.png"), single_color);
+    terrain_map = new UnifiedRender::Texture(Path::get("map/terrain.png"));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
     for(unsigned int i = 0; i < terrain_map_size; i++) {
         uint32_t color = terrain_map->buffer.get()[i];
@@ -100,8 +100,8 @@ MapRender::MapRender(const World& _world)
     terrain_map->to_opengl(single_color);
     terrain_map->gen_mipmaps();
 
-    auto topo_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("topo.png")));
-    normal_topo = new UnifiedRender::Texture(Path::get("normal.png"));
+    auto topo_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/topo.png")));
+    normal_topo = new UnifiedRender::Texture(Path::get("map/normal.png"));
     size_t map_size = topo_map->width * topo_map->height;
     for(unsigned int i = 0; i < map_size; i++) {
         normal_topo->buffer.get()[i] &= (0x00FFFFFF);
