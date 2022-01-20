@@ -61,7 +61,8 @@ namespace UnifiedRender {
 		class PackageManager;
 	};
 
-	struct State {
+	class State {
+	public:
 		SDL_Window* window;
 		SDL_GLContext context;
 		int width, height;

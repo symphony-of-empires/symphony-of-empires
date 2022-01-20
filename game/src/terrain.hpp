@@ -29,7 +29,8 @@
 
 #include "unified_render/entity.hpp"
 
-struct TerrainType : public RefnameEntity<uint8_t>  {
+class TerrainType : public RefnameEntity<uint8_t>  {
+public:
     // Associative color (with bitmap)
     uint32_t color;
 

@@ -41,7 +41,8 @@ namespace Interface {
         ~LobbyPlayerView() {};
     };*/
 
-    struct LoadGameBtnData {
+    class LoadGameBtnData {
+    public:
         GameState& gs;
         std::string file;
     };
@@ -53,7 +54,7 @@ namespace Interface {
         UI::Button* next_country_btn;
         UI::Button* prev_country_btn;
 
-        std::vector<struct LoadGameBtnData> ldgame_data;
+        std::vector<class LoadGameBtnData> ldgame_data;
     public:
         LobbySelectView(GameState& gs);
         ~LobbySelectView() {};

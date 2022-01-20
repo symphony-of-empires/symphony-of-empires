@@ -59,10 +59,11 @@ class Nation;
 class MapRender;
 class GameState;
 union SDL_Event;
-struct Input;
+class Input;
 
 static const float GLOBE_RADIUS = 100.f;
-struct ProvinceColor {
+class ProvinceColor {
+public:
     Province::Id id;
     UnifiedRender::Color color;
     ProvinceColor(Province::Id _id, UnifiedRender::Color _color): id{ _id }, color{ _color } {}

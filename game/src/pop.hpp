@@ -38,14 +38,16 @@ enum class PopGroup {
     Other,
 };
 
-struct PopType : public RefnameEntity<uint8_t> {
+class PopType : public RefnameEntity<uint8_t> {
+public:
     float social_value;
     PopGroup group;
 };
 
 #include "culture.hpp"
 #include "religion.hpp"
-struct Pop {
+class Pop {
+public:
     bool operator==(const Pop& rhs) const;
     Ideology* get_ideology(void) const;
 

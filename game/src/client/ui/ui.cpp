@@ -129,8 +129,7 @@ void Context::clear_dead_recursive(Widget* w) {
             delete w->children[index];
             w->children.erase(w->children.begin() + index);
             index--;
-        }
-        else {
+        } else {
             clear_dead_recursive(w->children[index]);
         }
     }
@@ -141,8 +140,7 @@ void Context::clear_dead() {
             delete widgets[index];
             widgets.erase(widgets.begin() + index);
             index--;
-        }
-        else {
+        } else {
             clear_dead_recursive(widgets[index]);
         }
     }
@@ -260,7 +258,7 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
     glm::ivec2 offset{ viewport.left, viewport.top };
     glm::ivec2 size{ w.width, w.height };
     offset = get_pos(w, offset);
-    UnifiedRender::Rect local_viewport{ offset, size };
+    UnifiedRender::Rect local_viewport = UnifiedRender::Rect{ offset, size };
 
     local_viewport = viewport.intersection(local_viewport);
     viewport = local_viewport;

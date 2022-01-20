@@ -41,7 +41,6 @@
 #include "unified_render/binary_image.hpp"
 
 struct SDL_Surface;
-
 namespace UnifiedRender::IO {
     namespace Asset {
         class Base;
@@ -58,7 +57,8 @@ namespace UnifiedRender {
         };
     };
 
-    struct TextureOptions {
+    class TextureOptions {
+    public:
         GLenum target = GL_TEXTURE_2D;
         GLuint wrap_s = GL_REPEAT;
         GLuint wrap_t = GL_REPEAT;

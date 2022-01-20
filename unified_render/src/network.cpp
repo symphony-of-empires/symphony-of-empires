@@ -30,13 +30,6 @@
 #include <cstdlib>
 #include <mutex>
 
-#ifdef unix
-#	define _XOPEN_SOURCE_EXTENDED 1
-#	include <netdb.h>
-#	include <arpa/inet.h>
-#endif
-#include <sys/types.h>
-
 // Visual Studio does not know about UNISTD.H, Mingw does through
 #ifndef _MSC_VER
 #	include <unistd.h>
@@ -49,20 +42,22 @@
 #		define INVALID_SOCKET -1
 #	endif
 #elif defined windows
-#	ifndef _WINDOWS_
-#		define WIN32_LEAN_AND_MEAN 1
-#       ifndef NOMINMAX
-#		    define NOMINMAX 1
-#       endif
-#		include <windows.h>
-#		undef WIN32_LEAN_AND_MEAN
-#	endif
-/* Allow us to use deprecated functions like inet_addr */
-#	define _WINSOCK_DEPRECATED_NO_WARNINGS
+#	define NOMINMAX 1
+#	define WIN32_LEAN_AND_MEAN 1
+#	include <windows.h>
+#	define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 #	include <winsock2.h>
-#	include <ws2def.h>
 #	include <ws2tcpip.h>
+#	include <stdlib.h>
+#	include <stdio.h>
 #endif
+
+#ifdef unix
+#	define _XOPEN_SOURCE_EXTENDED 1
+#	include <netdb.h>
+#	include <arpa/inet.h>
+#endif
+#include <sys/types.h>
 
 #ifdef unix
 #	include <poll.h>
@@ -219,7 +214,7 @@ UnifiedRender::Networking::ServerClient::~ServerClient(void) {
 // Server
 //
 UnifiedRender::Networking::Server::Server(const unsigned port, const unsigned max_conn)
-    : n_clients{ max_conn }
+    : n_clients{ static_cast<int>(max_conn) }
 {
 #ifdef windows
     WSADATA data;

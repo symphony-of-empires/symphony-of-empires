@@ -37,7 +37,8 @@
 
 // Defines a type of unit, it can be a tank, garrison, infantry, etc
 // this is moddable via a lua script and new unit types can be added
-struct UnitType : public RefnameEntity<uint8_t> {
+class UnitType : public RefnameEntity<uint8_t> {
+public:
     //UnitType();
     //~UnitType();
 

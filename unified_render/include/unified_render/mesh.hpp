@@ -79,7 +79,8 @@ namespace UnifiedRender {
     };
 
     template<typename V, typename T>
-    struct MeshData {
+    class MeshData {
+    public:
         MeshData(void) {};
         MeshData(V _vert, T _tex): vert(_vert), tex(_tex) {};
         ~MeshData() {};
@@ -93,7 +94,8 @@ namespace UnifiedRender {
 
     // Packed model - packs both vertices and texcoords into the same buffer
     template<typename V, typename T>
-    struct Mesh {
+    class Mesh {
+    public:
         Mesh(enum UnifiedRender::MeshMode _mode) : mode(_mode) {};
         ~Mesh() {};
         Mesh(const Mesh&) = default;

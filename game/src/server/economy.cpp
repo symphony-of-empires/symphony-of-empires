@@ -45,7 +45,7 @@ typedef signed int ssize_t;
 
 // Structure that represents a person emigrating from a province to another
 
-struct Workers {
+class Workers {
 public:
     Pop& pop;
     size_t amount;
@@ -58,7 +58,7 @@ public:
     }
 };
 
-struct AvailableWorkers {
+class AvailableWorkers {
 public:
     std::vector<Workers> entrepreneurs{};
     std::vector<Workers> farmers{};

@@ -43,7 +43,8 @@ namespace UnifiedRender::OpenGL {
         MACRO,
     };
 
-    struct GLSL_Token {
+    class GLSL_Token {
+    public:
         GLSL_Token(GLSL_TokenType _type): type(_type) {};
         ~GLSL_Token() {};
 
@@ -55,7 +56,8 @@ namespace UnifiedRender::OpenGL {
         LOCAL, PROVIDED, INPUT, OUTPUT,
     };
 
-    struct GLSL_Variable {
+    class GLSL_Variable {
+    public:
         enum GLSL_VariableType type;
         std::string type_name;
         std::string name;
@@ -63,18 +65,21 @@ namespace UnifiedRender::OpenGL {
         int layout_n;
     };
 
-    struct GLSL_Function {
+    class GLSL_Function {
+    public:
         std::string name;
         std::vector<std::pair<std::string, std::string>> args;
         std::string ret_type;
     };
 
-    struct GLSL_Define {
+    class GLSL_Define {
+    public:
         std::string name;
         std::string value;
     };
 
-    struct GLSL_Context {
+    class GLSL_Context {
+    public:
         GLSL_Context(const std::string& buffer);
         ~GLSL_Context();
         std::string get_identifier(std::string::iterator& it);

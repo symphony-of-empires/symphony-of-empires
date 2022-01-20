@@ -35,6 +35,18 @@
 #include <deque>
 #include <stdexcept>
 
+#if defined windows
+// Allow us to use deprecated functions like inet_addr
+#   define _WINSOCK_DEPRECATED_NO_WARNINGS
+// MingW heavily dislikes ws2def.h and causes spurious errors
+//#   ifndef __MINGW32__
+//#       include <ws2def.h>
+//#   endif
+#   include <winsock2.h>
+#   include <ws2tcpip.h>
+#   pragma comment(lib, "Ws2_32.lib")
+#endif
+
 #ifdef unix
 #    define _XOPEN_SOURCE_EXTENDED 1
 #    include <netdb.h>
@@ -45,18 +57,6 @@
 // Visual Studio does not know about UNISTD.H, Mingw does through
 #ifndef _MSC_VER
 #    include <unistd.h>
-#endif
-
-#if defined windows
-// Allow us to use deprecated functions like inet_addr
-#   define _WINSOCK_DEPRECATED_NO_WARNINGS
-// MingW heavily dislikes ws2def.h and causes spurious errors
-#   ifndef __MINGW32__
-#       include <ws2def.h>
-#   endif
-#   include <winsock2.h>
-#   include <ws2tcpip.h>
-#   pragma comment(lib, "Ws2_32.lib")
 #endif
 
 namespace UnifiedRender::Networking {

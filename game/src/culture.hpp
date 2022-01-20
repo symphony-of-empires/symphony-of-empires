@@ -29,7 +29,8 @@
 
 #include "unified_render/entity.hpp"
 
-struct Culture : public RefnameEntity<uint16_t> {
+class Culture : public RefnameEntity<uint16_t> {
+public:
     uint32_t color;
     std::string adjective;
     std::string noun;

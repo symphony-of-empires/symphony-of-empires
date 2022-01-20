@@ -27,6 +27,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <mutex>
+#include <chrono>
+#include <thread>
 
 #ifdef unix
 #    define _XOPEN_SOURCE_EXTENDED 1
@@ -46,9 +48,9 @@
 // Allow us to use deprecated functions like inet_addr
 #   define _WINSOCK_DEPRECATED_NO_WARNINGS
 // MingW heavily dislikes ws2def.h and causes spurious errors
-#   ifndef __MINGW32__
-#       include <ws2def.h>
-#   endif
+//#   ifndef __MINGW32__
+//#       include <ws2def.h>
+//#   endif
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
 #   pragma comment(lib, "Ws2_32.lib")
@@ -60,9 +62,6 @@
 #include "world.hpp"
 #include "io_impl.hpp"
 #include "client/client_network.hpp"
-
-#include <chrono>
-#include <thread>
 
 Client* g_client = nullptr;
 Client::Client(GameState& _gs, std::string host, const unsigned port)

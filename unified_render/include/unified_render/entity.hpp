@@ -29,7 +29,7 @@
 
 // An entity which can only be made referenced by an id
 template<typename IdType>
-struct Entity {
+class Entity {
 public:
     using Id = IdType;
 
@@ -40,13 +40,13 @@ public:
 };
 
 template<typename IdType>
-struct IdEntity : public Entity<IdType> {
+class IdEntity : public Entity<IdType> {
 public:
 };
 
 // An entity which can be referenced via a ref_name and also via id
 template<typename IdType>
-struct RefnameEntity : public IdEntity<IdType> {
+class RefnameEntity : public IdEntity<IdType> {
 public:
     std::string ref_name;
     std::string name;

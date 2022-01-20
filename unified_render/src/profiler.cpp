@@ -25,6 +25,7 @@
 
 #include "unified_render/profiler.hpp"
 #include "unified_render/print.hpp"
+#include "unified_render/log.hpp"
 
 using namespace UnifiedRender;
 
@@ -52,7 +53,7 @@ void BenchmarkTask::start() {
 
 void BenchmarkTask::stop() {
     if(!running) {
-        print_error("BenchmarkTask - Tried to stop task '%s', but it hasn't been started yet", name);
+        UnifiedRender::Log::error("benchmark", "Tried to stop task '" + name + "', but it hasn't been started yet");
         return;
     }
     running = false;

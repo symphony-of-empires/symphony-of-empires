@@ -31,7 +31,8 @@
 class Technology;
 
 // Type for military outposts
-struct BuildingType : public RefnameEntity<uint8_t> {
+class BuildingType : public RefnameEntity<uint8_t> {
+public:
     //BuildingType();
     //~BuildingType();
     
@@ -59,7 +60,8 @@ struct BuildingType : public RefnameEntity<uint8_t> {
 
 // A military outpost, on land serves as a "spawn" place for units
 // When adjacent to a water tile this serves as a shipyard for spawning naval units
-struct Building : public IdEntity<uint16_t> {
+class Building : public IdEntity<uint16_t> {
+public:
     Building();
     ~Building();
     bool can_do_output(void);

@@ -29,7 +29,8 @@
 
 // Maybe make it a template so it could be either float or uint8_t
 namespace UnifiedRender {
-    struct Color {
+    class Color {
+    public:
         float r, g, b;
         float a = 1.f;
     public:

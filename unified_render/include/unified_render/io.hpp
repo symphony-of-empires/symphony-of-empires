@@ -31,7 +31,8 @@
 #include <vector>
 
 namespace UnifiedRender::IO {
-    struct Path {
+    class Path {
+    public:
         Path();
         Path(const std::string& path);
         Path(const char* path);

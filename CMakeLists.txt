@@ -30,7 +30,7 @@ endif()
 # Compilation flags
 #
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS} -pthread -fno-rtti")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS} -pthread")
 IF(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dwindows")
 ELSE()
@@ -62,12 +62,17 @@ add_executable(SymphonyOfEmpires ${MAIN_SOURCES})
 #
 # Linking
 #
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 m z tbb stdc++ unified_render)
 
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 z unified_render tbb)
 IF(WIN32)
-	target_link_libraries(SymphonyOfEmpires PUBLIC opengl32 glu32 winpthread)
+	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		
+	ELSE()
+		target_link_libraries(SymphonyOfEmpires PUBLIC stdc++ m winpthread)
+	ENDIF()
+	target_link_libraries(SymphonyOfEmpires PUBLIC opengl32 glu32)
 ELSE()
-	target_link_libraries(SymphonyOfEmpires PUBLIC GL GLU SDL2main)
+	target_link_libraries(SymphonyOfEmpires PUBLIC m stdc++ GL GLU SDL2main)
 ENDIF()
 
 # Lua library is quite strange and requires some conditionals to be able to compile it

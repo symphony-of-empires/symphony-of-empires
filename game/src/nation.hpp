@@ -44,7 +44,8 @@ class Technology;
 
 // Defines a one side relation between a country
 // This allows for cases where a country A hates country B, but country B loves country A
-struct NationRelation {
+class NationRelation {
+public:
     float relation;
     // Interest of a nation on this nation
     float interest;
@@ -64,7 +65,8 @@ struct NationRelation {
 };
 
 // Hints for the client on how to display the nation
-struct NationClientHint {
+class NationClientHint {
+public:
     uint32_t color;
 
     // Alternate name, for example communist Russia would be called USSR
@@ -74,7 +76,8 @@ struct NationClientHint {
     Ideology* ideology;
 };
 
-struct NationModifier : public RefnameEntity<uint16_t> {
+class NationModifier : public RefnameEntity<uint16_t> {
+public:
     // Modifiers for a nation, which increases/decreases certain stuff
     // They should never be 0, a modifier of 1.0 is equal to no modifer at
     // all. And a modifier of 0.5 would cause a 1/2. Similar to a 2 which
