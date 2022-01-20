@@ -33,10 +33,10 @@ sea:register()
 plains = TerrainType:new{ ref_name = "plains", name = _("Plains"), color = 0x10db32 }
 plains:register()
 
-forest = TerrainType:new{ ref_name = "forest", name = _("Forest") }
+forest = TerrainType:new{ ref_name = "forest", name = _("Forest"), color = 0x3c5e35 }
 forest:register()
 
-river = TerrainType:new{ ref_name = "river", name = _("River") }
+river = TerrainType:new{ ref_name = "river", name = _("River"), color = 0x25c4b2 }
 river:register()
 
 jungle = TerrainType:new{ ref_name = "jungle", name = _("Jungle"), color = 0x00ff00 }
@@ -60,12 +60,5 @@ tundra:register()
 artic = TerrainType:new{ ref_name = "artic", name = _("Artic"), color = 0xffffff }
 artic:register()
 
-mountain = TerrainType:new{ ref_name = "mountain", name = _("Mountain") }
+mountain = TerrainType:new{ ref_name = "mountain", name = _("Mountain"), color = 0xdbdbdb }
 mountain:register()
-
--- Terrain types where farms can be created
-tropical_fsoil = TerrainType:new{ ref_name = "tropical_fsoil", name = _("Tropical Soil") }
-tropical_fsoil:register()
-
-subtropical_fsoil = TerrainType:new{ ref_name = "subtropical_fsoil", name = _("Subtropical Soil") }
-subtropical_fsoil:register()
