@@ -85,7 +85,9 @@ slovenian:register()
 hungarian = Culture:new{ ref_name = "hungarian", color = 0x3f7051 }
 hungarian.name = _("Hungarian")
 hungarian:register()
-russian = Culture:new{ ref_name = "russian", color = 0xbf0000 }
+ukrainian = Culture:new{ ref_name = "ukrainian", name = _("Ukrainian"), color = 0xd6c913 }
+ukrainian:register()
+russian = Culture:new{ ref_name = "russian", name = _("Russian"), color = 0xbf0000 }
 russian.name = _("Russian")
 russian.combo_form = _("Russo")
 russian:register()
