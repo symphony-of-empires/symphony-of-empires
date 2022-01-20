@@ -107,7 +107,7 @@ TopWindow::TopWindow(GameState& _gs)
 
             FILE* fp;
             
-            fp = fopen("mods/_1editor/scripts/provinces.lua", "wt");
+            fp = fopen("editor/scripts/provinces.lua", "wt");
             if(fp == nullptr) {
                 o.gs.ui_ctx->prompt("Save", "Can't output editor data!");
                 return;
@@ -149,6 +149,8 @@ TopWindow::TopWindow(GameState& _gs)
                 fprintf(fp, "province:set_terrain(TerrainType:get(\"%s\"))\n", province->terrain_type->ref_name.c_str());
             }
             fclose(fp);
+
+            o.gs.ui_ctx->prompt("Save", "Editor data saved! (check editor folder)");
         } else {
             auto& o = static_cast<TopWindow&>(*w.parent->parent);
             Archive ar = Archive();
