@@ -273,10 +273,10 @@ void ai_update_relations(Nation* nation, Nation* other) {
     // Hating a nation a lot will make us reconsider logic military actions and go "purely by instinct"
     // Calculate the times the other nation has our power, multiply that by a factor of 1,000,000
     // If the relation is negative then we divide by the positive sum of it
-    if(relation.relation < 0.f) {
+    if(relation.relation < 10.f) {
         const float force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
         const int chance = std::max<int>(0, force_dist - -relation.relation);
-        if(std::rand() % (10 + chance) == 0) {
+        if(std::rand() % (100 + (chance * 100)) == 0) {
             if(!relation.has_war) {
                 nation->declare_war(*other);
             }
@@ -411,7 +411,9 @@ void ai_build_commercial(Nation* nation, World* world) {
 }
 
 void ai_do_tick(Nation* nation, World* world) {
-    if(!nation->exists() || !nation->owned_provinces.size()) return;
+    if(!nation->exists() || !nation->owned_provinces.size()) {
+        return;
+    }
 
     if(!(world->time % world->ticks_per_month)) {
         if(nation->ai_do_policies) {
@@ -587,37 +589,63 @@ void ai_do_tick(Nation* nation, World* world) {
 
     // TODO: make a better algorithm
     if(nation->ai_do_cmd_troops) {
-        std::vector<int> potential_risk(world->provinces.size(), 0);
+        std::vector<int> nations_risk_factor(world->nations.size(), 0);
+        for(const auto& other : world->nations) {
+            if(other == nation) {
+                continue;
+            }
 
+            // Here we calculate the risk factor of each nation and then we put it on a lookup table
+            // because we can't afford to calculate this for EVERY FUCKING province
+            NationRelation& relation = nation->relations[world->get_id(other)];
+
+            // Risk is augmentated when we border any non-ally nation
+            if(!relation.has_alliance) {
+                nations_risk_factor[world->get_id(other)] += 1;
+            }
+            if(relation.has_war) {
+                nations_risk_factor[world->get_id(other)] += 5;
+            }
+        }
+        // Our own nation is safe, let's set it to -10
+        nations_risk_factor[world->get_id(nation)] = -10;
+
+        std::vector<int> potential_risk(world->provinces.size(), 0);
         for(const auto& province : nation->owned_provinces) {
             for(const auto& neighbour : province->neighbours) {
                 if(province->terrain_type->is_water_body) {
                     continue;
                 }
 
-                if(neighbour->controller != nullptr && neighbour->controller != nation) {
-                    NationRelation& relation = province->controller->relations[world->get_id(neighbour->controller)];
-
-                    // Risk is augmentated when we border any non-ally nation
-                    if(!relation.has_alliance) {
-                        potential_risk[world->get_id(neighbour)] += 10;
-                    }
-
-                    if(relation.has_war) {
-                        potential_risk[world->get_id(neighbour)] += 500000000;
-                    }
+                // Province must be controlled by someone/not by us
+                if(neighbour->controller == nullptr || neighbour->controller == nation) {
+                    continue;
                 }
+
+                potential_risk[world->get_id(neighbour)] += nations_risk_factor[world->get_id(neighbour->controller)];
             }
 
-            unsigned int force = 0;
+            // The "cooling" value which basically makes us ignore some provinces with lots of defenses
+            // so we don't rack up deathstacks on a border with some micronation
+            unsigned int draw_away_force = 0;
             for(const auto& unit : province->get_units()) {
-                if(unit->owner == nation) {
-                    force += (unit->type->defense * unit->type->attack) * unit->size;
-                }
+                // Only account this for units that are of our nation
+                // because enemy units will require us to give more importance to it
+                const int unit_strength = (int)(unit->type->defense * unit->type->attack) * unit->size;
+
+                // This works because nations which are threatening to us have positive values, so they
+                // basically make the draw_away_force negative, which in turns does not draw away but rather
+                // draw in even more units
+                draw_away_force += (-nations_risk_factor[world->get_id(unit->owner)]) * unit_strength;
+                
+                //if(unit->owner == nation) {
+                //    force += (unit->type->defense * unit->type->attack) * unit->size;
+                //}
             }
-            potential_risk[world->get_id(province)] -= force;
+            potential_risk[world->get_id(province)] -= draw_away_force;
         }
 
+        // Let's spread out that heat to other provinces, so we "call" other units into the action!
         for(const auto& province : world->provinces) {
             for(const auto& neighbour : province->neighbours) {
                 potential_risk[world->get_id(neighbour)] += (potential_risk[world->get_id(province)] + 1) / province->neighbours.size();
