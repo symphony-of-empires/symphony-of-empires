@@ -90,11 +90,9 @@ MapRender::MapRender(const World& _world)
         uint32_t base_index = 0xFF000000;
         if(color == 0xFF000000) {
             terrain_map->buffer.get()[i] = base_index + 0; // Ocean
-        }
-        else if(color == 0xFFFF00FF) {
+        } else if(color == 0xFFFF00FF) {
             terrain_map->buffer.get()[i] = base_index + 1; // Lake 
-        }
-        else if(color == 0xFFFFFFFF) {
+        } else if(color == 0xFFFFFFFF) {
             terrain_map->buffer.get()[i] = base_index + 2; // Land
         }
     }
@@ -114,7 +112,6 @@ MapRender::MapRender(const World& _world)
     mipmap_options.internal_format = GL_RGBA;
     normal_topo->to_opengl(mipmap_options);
     normal_topo->gen_mipmaps();
-
 
     // Terrain textures to sample from
     // terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
@@ -136,13 +133,11 @@ MapRender::MapRender(const World& _world)
         const Tile& tile = world.get_tile(i);
         if(tile.province_id >= (Province::Id)-3) {
             tile_map->buffer.get()[i] = (tile.province_id & 0xffff);
-        }
-        else {
+        } else {
             auto province = world.provinces[tile.province_id];
             if(province->owner == nullptr) {
                 tile_map->buffer.get()[i] = province->cached_id & 0xffff;
-            }
-            else {
+            } else {
                 tile_map->buffer.get()[i] = ((world.get_id(province->owner) & 0xffff) << 16) | (province->cached_id & 0xffff);
             }
         }
