@@ -599,7 +599,6 @@ void Economy::do_tick(World& world) {
 
     // Now, it's like 1 am here, but i will try to write a very nice economic system
     // TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
-
     std::for_each(world.provinces.begin(), world.provinces.end(), [&world](auto& province) {
         if(province->controller == nullptr) {
             return;
@@ -610,7 +609,6 @@ void Economy::do_tick(World& world) {
         }
 
         //std::vector<Product*> province_products = province->get_products();
-
         for(size_t i = 0; i < province->pops.size(); i++) {
             Pop& pop = province->pops[i];
             // We want to get rid of many POPs as possible
@@ -640,10 +638,8 @@ void Economy::do_tick(World& world) {
                 }
 
                 unsigned int bought;
-                if(good->is_edible) {
-                    bought = std::rand() % pop.size;
-                } else {
-                    bought = std::rand() % pop.size;
+                bought = std::rand() % pop.size;
+                if(!good->is_edible) {
                     // Slaves cannot buy commodities
                     if(pop.type->group == PopGroup::Slave) {
                         continue;
@@ -683,25 +679,18 @@ void Economy::do_tick(World& world) {
             // and will also mean that - there would be less deaths due to higher knewledge
             int growth;
 
-            if(pop.life_needs_met >= -2.5f) {
-                // Starvation in -1 or 0 or >1 are amortized by literacy
-                growth = pop.life_needs_met / pop.literacy;
-            } else {
-                // Neither literacy nor anything else can save humans from
-                // dying due starvation
-                growth = -((int)(std::rand() % pop.size));
-            }
+            // NOTE: We used to have this thing where anything below 2.5 meant everyone dies
+            // and this was removed because it's such an unescesary detail that consumes precious
+            // CPU branching prediction... and we can't afford that!
+
+            // Starvation in -1 or 0 or >1 are amortized by literacy
+            growth = pop.life_needs_met / pop.literacy;
 
             if(growth < 0 && (size_t)std::abs(growth) > pop.size) {
                 growth = -pop.size;
             }
 
-            if(growth < 0) {
-                growth *= province->controller->get_death_mod();
-            } else {
-                growth *= province->controller->get_reproduction_mod();
-            }
-
+            growth *= (growth > 0) ? province->controller->get_reproduction_mod() : province->controller->get_death_mod();
             pop.size += growth;
 
             // Add some RNG to shake things up and make gameplay more dynamic and less deterministic :)
@@ -709,15 +698,10 @@ void Economy::do_tick(World& world) {
             pop.size = std::max<size_t>(1, pop.size);
 
             // Met life needs means less militancy
-            if(pop.life_needs_met >= 1.f) {
-                if(pop.militancy > 0.f) {
-                    pop.militancy -= 0.0002f;
-                    pop.con -= 0.0001f;
-                }
-            } else {
-                pop.militancy += 0.01f;
-                pop.con += 0.01f;
-            }
+            // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
+            // and the opposite happens with negative life needs
+            pop.militancy += 0.01f * (-pop.life_needs_met);
+            pop.con += 0.01f * (-pop.life_needs_met);
 
             pop.militancy += 0.01f * province->controller->get_militancy_mod();
             pop.con += 0.01f * province->controller->get_militancy_mod();
@@ -725,11 +709,10 @@ void Economy::do_tick(World& world) {
     });
     do_emigration(world);
 
-
-    // Chances of a coup increment for the global militancy
+    // Chances of a coup/rebellion increment for the global militancy
     for(auto& nation : world.nations) {
         // Nation must actually exist
-        if(nation->exists() == false) {
+        if(!nation->exists()) {
             continue;
         }
 
@@ -744,8 +727,12 @@ void Economy::do_tick(World& world) {
         // Anger per ideology (how much we hate the current ideology)
         std::vector<float> ideology_anger(world.ideologies.size(), 0.f);
         const float coup_chances = 1000.f;
-
         for(const auto& province : nation->owned_provinces) {
+            // Nobody can coup from occupied territory!
+            if(province->controller != nation) {
+                continue;
+            }
+
             for(const auto& pop : province->pops) {
                 // TODO: Ok, look, the justification is that educated people
                 // almost never do coups - in comparasion to uneducated
@@ -759,8 +746,34 @@ void Economy::do_tick(World& world) {
             }
         }
 
+        // Rebellions!
+        // TODO: Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
+        if(std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) <= 100.f) {
+            // Compile list of uprising provinces
+            std::vector<Province*> uprising_provinces;
+            for(const auto& province : nation->owned_provinces) {
+                float province_anger = 0.f;
+                float province_threshold = 0.f;
+                for(const auto& pop : province->pops) {
+                    province_anger += pop.militancy * pop.con;
+                    province_threshold += pop.literacy * pop.life_needs_met;
+                }
+
+                if(province_anger > province_threshold) {
+                    uprising_provinces.push_back(province);
+                }
+            }
+
+            // Make the most angry provinces revolt!
+            for(auto& province : uprising_provinces) {
+                // TODO: We should make a copy of the `rebel` nation for every rebellion!!!
+                // TODO: We should also give them an unique ideology!!!
+                world.nations[0]->give_province(*province);
+            }
+        }
+
         // Roll a dice! (more probability with more anger!)
-        if(std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) <= 1.f) {
+        if(std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) <= 100.f) {
             // Choose the ideology with most "anger" (the one more probable to coup d'
             // etat) - amgry radicals will surely throw off the current administration
             // while peaceful people won't
