@@ -23,12 +23,13 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include "unified_render/serializer.hpp"
+#include "unified_render/network.hpp"
+
 #include "action.hpp"
 #include "io_impl.hpp"
-#include "unified_render/serializer.hpp"
 #include "client/client_network.hpp"
 #include "server/server_network.hpp"
-#include "unified_render/network.hpp"
 #include "product.hpp"
 #include "building.hpp"
 #include "unit.hpp"

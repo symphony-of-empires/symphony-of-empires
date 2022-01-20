@@ -35,6 +35,9 @@
 #include <filesystem>
 #if defined windows
 #	define WIN32_LEAN_AND_MEAN 1
+#   ifndef NOMINMAX
+#	    define NOMINMAX 1
+#   endif
 #   include <windows.h>
 #   include <WinCon.h>
 #endif
@@ -81,6 +84,10 @@ int main(int argc, char** argv) {
 }
 
 #ifdef windows
+
+#ifndef NOMINMAX
+#   define NOMINMAX 1
+#endif
 #include <windows.h>
 #include <cstring>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {

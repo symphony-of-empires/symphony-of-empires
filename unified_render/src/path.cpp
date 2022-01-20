@@ -28,6 +28,9 @@
 #	include <unistd.h>
 #elif defined windows
 #	ifndef _WINDOWS_
+#       ifndef NOMINMAX
+#	        define NOMINMAX 1
+#       endif
 #		define WIN32_LEAN_AND_MEAN 1
 #		include <windows.h>
 #		undef WIN32_LEAN_AND_MEAN

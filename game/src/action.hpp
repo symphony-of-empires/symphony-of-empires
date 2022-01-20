@@ -26,8 +26,6 @@
 #pragma once
 
 #include <vector>
-
-#include "unified_render/serializer.hpp"
 #include "unified_render/network.hpp"
 
 enum class ActionType {

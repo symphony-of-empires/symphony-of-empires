@@ -29,7 +29,7 @@ endif()
 #
 # Compilation flags
 #
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS} -pthread")
 IF(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dwindows")
@@ -76,14 +76,24 @@ ELSE()
 ENDIF()
 
 # Lua library is quite strange and requires some conditionals to be able to compile it
+
 IF(NOT MINGW AND NOT MSYS)
 	IF(lua54)
 		message(STATUS "Using lua v5.4")
-		target_link_libraries(SymphonyOfEmpires PUBLIC lua5.4)
+		IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+			target_link_libraries(SymphonyOfEmpires PUBLIC lua54)
+		ELSE()
+			target_link_libraries(SymphonyOfEmpires PUBLIC lua5.4)
+		ENDIF()
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLUA54")
 	ELSE()
 		message(STATUS "Using lua v5.3")
-		target_link_libraries(SymphonyOfEmpires PUBLIC lua5.3)
+		
+		IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+			target_link_libraries(SymphonyOfEmpires PUBLIC lua53)
+		ELSE()
+			target_link_libraries(SymphonyOfEmpires PUBLIC lua5.3)
+		ENDIF()
 	ENDIF()
 # msys is simple - just lua, no lua5.4 or lua5.3
 ELSE()

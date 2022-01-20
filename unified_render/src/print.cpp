@@ -45,6 +45,9 @@ void print_disable_debug(void) {
 }
 
 #if defined windows
+#   ifndef NOMINMAX
+#	    define NOMINMAX 1
+#   endif
 #   include <windows.h>
 #   include <WinCon.h>
 #endif
@@ -71,7 +74,9 @@ void print_error(const char* str, ...) {
 }
 
 void print_info(const char* str, ...) {
-    if(!allow_debug) return;
+    if(!allow_debug) {
+        return;
+    }
 
     std::scoped_lock lock(print_mutex);
 
@@ -113,27 +118,21 @@ void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GL
     case GL_DEBUG_SOURCE_API:
         _source = "API";
         break;
-
     case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
         _source = "WINDOW SYSTEM";
         break;
-
     case GL_DEBUG_SOURCE_SHADER_COMPILER:
         _source = "SHADER COMPILER";
         break;
-
     case GL_DEBUG_SOURCE_THIRD_PARTY:
         _source = "THIRD PARTY";
         break;
-
     case GL_DEBUG_SOURCE_APPLICATION:
         _source = "APPLICATION";
         break;
-
     case GL_DEBUG_SOURCE_OTHER:
         _source = "UNKNOWN";
         break;
-
     default:
         _source = "UNKNOWN";
         break;

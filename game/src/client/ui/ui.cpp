@@ -32,6 +32,9 @@
 #ifdef _MSC_VER
 #   ifndef _WINDOWS_
 #       define WIN32_LEAN_AND_MEAN 1
+#       ifndef NOMINMAX
+#	        define NOMINMAX 1
+#       endif
 #       include <windows.h>
 #       undef WIN32_LEAN_AND_MEAN
 #   endif
@@ -299,7 +302,7 @@ void Context::render_all() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.f, 0.f, 0.f);
-    UnifiedRender::Rect viewport{ 0, 0, width, height };
+    UnifiedRender::Rect viewport(0, 0, width, height);
     for(auto& widget : this->widgets) {
         render_recursive(*widget, viewport);
     }

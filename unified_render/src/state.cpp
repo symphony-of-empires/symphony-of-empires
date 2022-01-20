@@ -31,6 +31,9 @@
 // Required before GL/gl.h
 #   ifndef _WINDOWS_
 #   define WIN32_LEAN_AND_MEAN 1
+#       ifndef NOMINMAX
+#	        define NOMINMAX 1
+#       endif
 #       include <windows.h>
 #       undef WIN32_LEAN_AND_MEAN
 #   endif

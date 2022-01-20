@@ -44,7 +44,6 @@
 //#   endif
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
-#   pragma comment(lib, "Ws2_32.lib")
 #endif
 
 #ifdef unix
@@ -52,7 +51,6 @@
 #    include <netdb.h>
 #    include <arpa/inet.h>
 #endif
-#include <sys/types.h>
 
 // Visual Studio does not know about UNISTD.H, Mingw does through
 #ifndef _MSC_VER

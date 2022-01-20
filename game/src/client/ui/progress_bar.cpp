@@ -81,7 +81,7 @@ void ProgressBar::on_render(Context&, UnifiedRender::Rect viewport) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     const float end_x = (value / max) * width;
-    UnifiedRender::Rect pos_rect{ 0, 0, end_x, height };
+    UnifiedRender::Rect pos_rect(0, 0, end_x, height);
     pos_rect = get_rect(pos_rect, viewport);
 
     // TODO: fix scaling of colors. They should scale depending on how of the bar that is hidden
@@ -105,7 +105,7 @@ void ProgressBar::on_render(Context&, UnifiedRender::Rect viewport) {
     glLineWidth(3.f);
     glColor3f(0.f, 0.f, 0.f);
 
-    pos_rect = UnifiedRender::Rect{ 0, 0, width, height };
+    pos_rect = UnifiedRender::Rect(0, 0, width, height);
     pos_rect = get_rect(pos_rect, viewport);
     // Inner black border
     glBegin(GL_LINE_STRIP);

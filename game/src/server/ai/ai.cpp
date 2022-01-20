@@ -31,11 +31,6 @@
 #include <cstring>
 #include <cmath>
 #include <set>
-#ifndef _MSC_VER
-#	include <sys/cdefs.h>
-#endif
-#include <libintl.h>
-#include <locale.h>
 
 #include "province.hpp"
 #include "server/economy.hpp"
