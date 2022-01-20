@@ -71,43 +71,43 @@ TopWindow::TopWindow(GameState& _gs)
 
     int icon_size = 25;
 
-    auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/book.png", flex_column);
+    auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/top_bar/book.png", flex_column);
     policy_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent->parent);
         new Interface::PoliciesScreen(o.gs);
     });
     policy_ibtn->set_tooltip("Laws & Policies");
 
-    auto* economy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/economy.png", flex_column);
+    auto* economy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/top_bar/economy.png", flex_column);
     economy_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         // auto& o = static_cast<TopWindow&>(*w.parent->parent);
     });
     economy_ibtn->set_tooltip("Economy & World Market");
 
-    auto* military_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/military_score.png", flex_column);
+    auto* military_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/military_score.png", flex_column);
     military_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent->parent);
         new Interface::ArmyView(o.gs);
     });
     military_ibtn->set_tooltip("Military");
 
-    auto* research_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/tech.png", flex_column);
+    auto* research_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/top_bar/tech.png", flex_column);
     research_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent->parent);
         new Interface::TechTreeView(o.gs);
     });
     research_ibtn->set_tooltip("Research");
 
-    auto* save_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/save.png", flex_column);
+    auto* save_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/top_bar/save.png", flex_column);
     save_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent->parent);
         if(o.gs.editor) {
             std::filesystem::create_directory("editor");
-            std::filesystem::create_directory("editor/scripts");
+            std::filesystem::create_directory("editor/lua");
 
             FILE* fp;
             
-            fp = fopen("editor/scripts/provinces.lua", "wt");
+            fp = fopen("editor/lua/provinces.lua", "wt");
             if(fp == nullptr) {
                 o.gs.ui_ctx->prompt("Save", "Can't output editor data!");
                 return;
@@ -162,7 +162,7 @@ TopWindow::TopWindow(GameState& _gs)
     save_ibtn->set_tooltip("Saves the current game; TODO: SAVE LUA STATE");
 
     /*
-    auto* load_ibtn = new UI::Image(9, 275, 25, 25, "ui/icons/top_bar/save.png", this);
+    auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", this);
     load_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent);
 
@@ -182,7 +182,7 @@ TopWindow::TopWindow(GameState& _gs)
     load_ibtn->tooltip->text("Loads the current game");
     */
 
-    auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "ui/icons/top_bar/exit.png", flex_column);
+    auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/top_bar/exit.png", flex_column);
     exit_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
         auto& o = static_cast<TopWindow&>(*w.parent->parent);
         o.gs.run = false;

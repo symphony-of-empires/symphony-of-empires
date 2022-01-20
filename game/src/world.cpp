@@ -342,7 +342,7 @@ World::World() {
     // Add all scripts onto the path (with glob operator '?')
     std::vector<std::string> mod_paths = Path::get_paths();
     for(const auto& path : mod_paths) {
-        curr_path.append(";" + path + "scripts/?.lua");
+        curr_path.append(";" + path + "lua/?.lua");
     }
     
     lua_pop(lua, 1);
@@ -384,10 +384,10 @@ World::~World() {
     }
 }
 
-static void lua_exec_all_of(World& world, const std::vector<std::string> files) {
-    std::string files_buf = "require(\"api\")\n\n";
+static void lua_exec_all_of(World& world, const std::vector<std::string> files, const std::string& dir = "lua") {
+    std::string files_buf = "require(\"classes/base\")\n\n";
     for(const auto& file : files) {
-        std::vector<std::string> paths = Path::get_all("scripts/" + file + ".lua");
+        std::vector<std::string> paths = Path::get_all(dir + "/" + file + ".lua");
         for(const auto& path : paths) {
             /*luaL_dofile(lua, path.c_str());
 
@@ -420,13 +420,13 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files) 
 }
 
 void World::load_initial(void) {
-    const std::vector<std::string> init_files ={
+    const std::vector<std::string> init_files = {
         "terrain_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "good_types", "industry_types",
         "unit_types", "boat_types", "provinces", "init"
     };
-    lua_exec_all_of(*this, init_files);
+    lua_exec_all_of(*this, init_files, "lua/entities");
 
     // Shrink normally-not-resized vectors to give back memory to the OS
     UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Shrink normally-not-resized vectors to give back memory to the OS"));
@@ -449,7 +449,7 @@ void World::load_initial(void) {
     }
 
     // Associate tiles with province
-    std::unique_ptr<BinaryImage> div = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map_div.png")));
+    std::unique_ptr<BinaryImage> div = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map/provinces.png")));
     width = div->width;
     height = div->height;
 
@@ -664,7 +664,7 @@ void World::load_mod(void) {
     const std::vector<std::string> mod_files ={
         "mod", "postinit"
     };
-    lua_exec_all_of(*this, mod_files);
+    lua_exec_all_of(*this, mod_files, "lua/init");
 
     // Server needs now to sync changes to clients (changing state is not enough)
     this->needs_to_sync = true;

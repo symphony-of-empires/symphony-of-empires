@@ -250,7 +250,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
     this->pop_tab = new ProvincePopulationTab(gs, 0, 32, province, this);
     this->pop_tab->is_render = true;
-    auto* pop_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_1.png")), this);
+    auto* pop_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_1.png")), this);
     pop_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
@@ -263,7 +263,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
     this->econ_tab = new ProvinceEconomyTab(gs, 0, 32, province, this);
     this->econ_tab->is_render = false;
-    auto* econ_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_2.png")), this);
+    auto* econ_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_2.png")), this);
     econ_ibtn->right_side_of(*pop_ibtn);
     econ_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
@@ -277,7 +277,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
     this->build_tab = new ProvinceBuildingTab(gs, 0, 32, province, this);
     this->build_tab->is_render = false;
-    auto* build_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+    auto* build_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
     build_ibtn->right_side_of(*econ_ibtn);
     build_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
@@ -289,7 +289,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     build_ibtn->tooltip = new UI::Tooltip(build_ibtn, 512, 24);
     build_ibtn->tooltip->text("Buildings");
 
-    auto* nation_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_3.png")), this);
+    auto* nation_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_3.png")), this);
     nation_ibtn->right_side_of(*build_ibtn);
     nation_ibtn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
@@ -318,7 +318,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         rename_inp->buffer = province->name;
         rename_inp->text(rename_inp->buffer);
         
-        auto* xchg_name_btn = new UI::Image(0, this->height - (64 + 24), 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        auto* xchg_name_btn = new UI::Image(0, this->height - (64 + 24), 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         xchg_name_btn->right_side_of(*rename_inp);
         xchg_name_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
@@ -336,7 +336,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
             w.text(std::to_string(((UI::Slider&)w).value));
         });
 
-        auto* xchg_dens_btn = new UI::Image(0, this->height - (64 + 24), 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        auto* xchg_dens_btn = new UI::Image(0, this->height - (64 + 24), 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         xchg_dens_btn->right_side_of(*density_sld);
         xchg_dens_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
@@ -351,7 +351,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         xchg_dens_btn->tooltip = new UI::Tooltip(xchg_dens_btn, 512, 24);
         xchg_dens_btn->tooltip->text("Update density");
 
-        auto* fill_pops_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        auto* fill_pops_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         fill_pops_btn->below_of(*xchg_dens_btn);
         fill_pops_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
@@ -380,7 +380,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         fill_pops_btn->tooltip = new UI::Tooltip(fill_pops_btn, 512, 24);
         fill_pops_btn->tooltip->text("Add POPs (will add " + std::to_string(gs.world->pop_types.size()) + "POPs)");
 
-        auto* clear_pops_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        auto* clear_pops_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         clear_pops_btn->below_of(*xchg_dens_btn);
         clear_pops_btn->right_side_of(*fill_pops_btn);
         clear_pops_btn->on_click = ([](UI::Widget& w, void*) {
@@ -394,7 +394,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
         this->edit_culture_tab = new ProvinceEditCultureTab(gs, 0, 32, province, this);
         this->edit_culture_tab->is_render = false;
-        auto* edit_culture_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        auto* edit_culture_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         edit_culture_btn->below_of(*xchg_dens_btn);
         edit_culture_btn->right_side_of(*clear_pops_btn);
         edit_culture_btn->on_click = ([](UI::Widget& w, void*) {
@@ -410,7 +410,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
         this->edit_terrain_tab = new ProvinceEditTerrainTab(gs, 0, 32, province, this);
         this->edit_terrain_tab->is_render = false;
-        auto* edit_terrain_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("ui/icons/pv_0.png")), this);
+        auto* edit_terrain_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         edit_terrain_btn->below_of(*xchg_dens_btn);
         edit_terrain_btn->right_side_of(*edit_culture_btn);
         edit_terrain_btn->on_click = ([](UI::Widget& w, void*) {

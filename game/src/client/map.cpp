@@ -70,7 +70,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     // Shader used for drawing the models using custom model render
     obj_shader = UnifiedRender::OpenGL::Program::create("shaders/simple_model.vs", "shaders/simple_model.fs");
-    line_tex = &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/line_target.png"));
+    line_tex = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/line_target.png"));
 
     // Set the mapmode
     set_map_mode(political_map_mode);
@@ -83,7 +83,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         mipmap_options.wrap_t = GL_REPEAT;
         mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
         mipmap_options.mag_filter = GL_LINEAR;
-        std::string path = Path::get("ui/flags/" + nation->ref_name + "_" +
+        std::string path = Path::get("gfx/flags/" + nation->ref_name + "_" +
             (nation->ideology == nullptr ? "none" : nation->ideology->ref_name) + ".png"
         );
         auto flag_texture = &UnifiedRender::State::get_instance().tex_man->load(path, mipmap_options);
@@ -93,17 +93,17 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     for(const auto& building_type : world.building_types) {
         std::string path;
-        path = Path::get("3d/building_types/" + building_type->ref_name + ".obj");
+        path = Path::get("models/BuildingType/" + building_type->ref_name + ".obj");
         building_type_models.push_back(&UnifiedRender::State::get_instance().model_man->load(path));
-        path = Path::get("ui/icons/building_types/" + building_type->ref_name + ".png");
+        path = Path::get("gfx/buildingtype/" + building_type->ref_name + ".png");
         building_type_icons.push_back(&UnifiedRender::State::get_instance().tex_man->load(path));
     }
 
     for(const auto& unit_type : world.unit_types) {
         std::string path;
-        path = Path::get("3d/unit_types/" + unit_type->ref_name + ".obj");
+        path = Path::get("models/UnitType/" + unit_type->ref_name + ".obj");
         unit_type_models.push_back(&UnifiedRender::State::get_instance().model_man->load(path));
-        path = Path::get("ui/icons/unit_types/" + unit_type->ref_name + ".png");
+        path = Path::get("gfx/unittype/" + unit_type->ref_name + ".png");
         unit_type_icons.push_back(&UnifiedRender::State::get_instance().tex_man->load(path));
     }
 }
@@ -454,7 +454,7 @@ void Map::draw(const GameState& gs) {
         const std::pair<float, float> pos = unit->get_pos();
         model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
         UnifiedRender::Square select_highlight = UnifiedRender::Square(0.f, 0.f, 1.f, 1.f);
-        obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("ui/select_border.png")));
+        obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("gfx/select_border.png")));
         select_highlight.draw();
     }
 
