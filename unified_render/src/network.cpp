@@ -42,8 +42,10 @@
 #		define INVALID_SOCKET -1
 #	endif
 #elif defined windows
-#	define NOMINMAX 1
 #	define WIN32_LEAN_AND_MEAN 1
+#   ifndef NOMINMAX
+#	    define NOMINMAX 1
+#   endif
 #	include <windows.h>
 #	define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 #	include <winsock2.h>

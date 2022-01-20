@@ -46,8 +46,6 @@ extern "C" {
 #else
 #	include <byteswap.h>
 #endif
-#include <libintl.h>
-#include <locale.h>
 
 #include "server/lua_api.hpp"
 #include "world.hpp"

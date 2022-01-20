@@ -108,8 +108,8 @@ void Widget::draw_border(Border* border, UnifiedRender::Rect viewport) {
     auto border_tex = border->texture;
 
     // Draw border edges and corners
-    UnifiedRender::Rect pos_rect{ 0, 0, 0, 0 };
-    UnifiedRender::Rect tex_rect{ 0, 0, 0, 0 };
+    UnifiedRender::Rect pos_rect(0, 0, 0, 0);
+    UnifiedRender::Rect tex_rect(0, 0, 0, 0);
     pos_rect.left = x_offset;
     pos_rect.top = y_offset;
     pos_rect.right = x_offset + b_w;
@@ -184,8 +184,8 @@ void Widget::draw_border(Border* border, UnifiedRender::Rect viewport) {
 // Draw a simple quad
 void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, UnifiedRender::Rect viewport, const GLuint tex) {
     // Texture switching in OpenGL is expensive
-    UnifiedRender::Rect pos_rect{ _x, _y, (int)_w, (int)_h };
-    UnifiedRender::Rect tex_rect{ 0.f, 0.f, 1.f, 1.f };
+    UnifiedRender::Rect pos_rect(_x, _y, (int)_w, (int)_h);
+    UnifiedRender::Rect tex_rect(0.f, 0.f, 1.f, 1.f);
     draw_rect(tex, pos_rect, tex_rect, viewport);
 }
 

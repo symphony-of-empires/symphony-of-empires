@@ -51,6 +51,9 @@
 #include "unified_render/byteswap.hpp"
 #include "unified_render/locale.hpp"
 
+#undef min
+#undef max
+
 #if (__cplusplus < 201703L)
 namespace std {
     template<typename T>

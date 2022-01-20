@@ -38,6 +38,9 @@
 #include "good.hpp"
 #include "emigration.hpp"
 
+#undef min
+#undef max
+
 // Visual Studio does not define ssize_t because it's a POSIX-only type
 #ifdef _MSC_VER
 typedef signed int ssize_t;

@@ -25,7 +25,15 @@
 
 #include <algorithm>
 #include <cstdio>
-#include <cstdio>
+#if defined unix
+#	include <sys/types.h>
+#else
+#if defined _MSC_VER
+#	include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+#endif
+#include <stddef.h>
 
 #include "server/emigration.hpp"
 #include "world.hpp"
