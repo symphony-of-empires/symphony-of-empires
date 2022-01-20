@@ -47,26 +47,6 @@ namespace Interface {
     class NationView : public UI::Window {
         GameState& gs;
         Nation* nation;
-
-        UI::Image* flag_img;
-        UI::Label* name_lab;
-        UI::Label* ideology_lab;
-
-        UI::Label* rel_lab;
-        UI::Label* interest_lab;
-        
-        UI::Button* inc_btn;
-        UI::Button* dec_btn;
-
-        UI::Button* dow_btn;
-        UI::Button* ally_btn;
-        UI::Button* defensive_pact_btn;
-        UI::Button* embargo_btn;
-        UI::Button* allow_market_access_btn;
-        UI::Button* allow_military_access_btn;
-        UI::Button* propose_truce_btn;
-        
-        UI::CloseButton* close_btn;
     public:
         NationView(GameState& gs, Nation* nation);
     };
