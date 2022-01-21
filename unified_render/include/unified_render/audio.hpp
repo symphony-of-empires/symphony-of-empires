@@ -26,7 +26,7 @@
 #pragma once
 
 #include <cstdint>
-#include <set>
+#include <map>
 #include <string>
 #include <exception>
 
@@ -56,7 +56,7 @@ namespace UnifiedRender {
 
     class AudioManager {
     private:
-        std::set<std::pair<UnifiedRender::Audio*, std::string>> sounds;
+        std::map<std::string, UnifiedRender::Audio*> sounds;
     public:
         const Audio& load(const std::string& path);
     };
