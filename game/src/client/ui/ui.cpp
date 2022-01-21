@@ -262,7 +262,9 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
     offset = get_pos(w, offset);
     UnifiedRender::Rect local_viewport = UnifiedRender::Rect{ offset, size };
 
-    local_viewport = viewport.intersection(local_viewport);
+    if (!w.parent || w.parent->type != UI::WidgetType::GROUP) {
+        local_viewport = viewport.intersection(local_viewport);
+    }
     viewport = local_viewport;
 
     local_viewport.offset(-offset);
