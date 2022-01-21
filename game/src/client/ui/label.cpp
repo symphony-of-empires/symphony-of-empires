@@ -64,35 +64,7 @@ void Label::on_render(Context&, UnifiedRender::Rect viewport) {
 }
 
 void Label::text(const std::string& _text) {
-    // Copy _text to a local scope (SDL2 does not like references)
-    SDL_Surface* surface;
-
-    if(text_texture != nullptr) {
-        // Auto deletes gl_texture
-        delete text_texture;
-        text_texture = nullptr;
-    }
-
-    if(_text.empty()) {
-        return;
-    }
-
-    //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    SDL_Color black_color ={ 0, 0, 0, 0 };
-    surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), black_color);
-    if(surface == nullptr) {
-        throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
-    }
-
-    text_texture = new UnifiedRender::Texture(surface->w, surface->h);
-    text_texture->gl_tex_num = 0;
-    text_texture->to_opengl(surface);
-    SDL_FreeSurface(surface);
-
-    const char* error = SDL_GetError();
-    if(error[0] != '\0') {
-        print_error("SDL error %s", error);
-    }
+    UI::Widget::text(_text);
 
     width = text_texture->width + text_offset_x;
     height = text_texture->height;
