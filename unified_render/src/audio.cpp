@@ -54,6 +54,9 @@ UnifiedRender::Audio::Audio(const std::string& path) {
     int channels, rate;
     uint8_t* decoded;
     this->len = stb_vorbis_decode_filename(path.c_str(), &channels, &rate, (short**)&decoded);
+    if(!this->len) {
+        throw UnifiedRender::AudioException(path, "0 length audio");
+    }
     this->len = this->len * channels * (sizeof(int16_t) / sizeof(uint8_t));
     this->data = decoded;
     this->pos = 0;
@@ -62,10 +65,13 @@ UnifiedRender::Audio::Audio(const std::string& path) {
     // and the rest is already given by stb
     SDL_BuildAudioCVT(&cvt, AUDIO_S16, channels, rate, AUDIO_S16, 1, 11050);
     cvt.buf = (Uint8*)malloc(this->len * cvt.len_mult);
+    if(cvt.buf == nullptr) {
+        throw UnifiedRender::AudioException(path, "Cannot allocate memory");
+    }
     std::memcpy(cvt.buf, this->data, this->len);
     cvt.len = this->len;
     SDL_ConvertAudio(&cvt);
-    
+
     this->data = cvt.buf;
     this->len = cvt.len_cvt;
     this->pos = 0;
@@ -80,22 +86,15 @@ UnifiedRender::Audio::~Audio() {
 //
 const UnifiedRender::Audio& UnifiedRender::AudioManager::load(const std::string& path) {
     // Find Sound when wanting to be loaded
-    auto it = std::find_if(this->sounds.begin(), this->sounds.end(), [&path](const std::pair<UnifiedRender::Audio *, std::string>& element) {
-        return (element.second == path);
-    });
-
-    // Load Sound from cached Sound list
-    if(it != this->sounds.end()) {
-        return *((*it).first);
+    std::map<std::string, UnifiedRender::Audio*>::const_iterator it = sounds.find(path);
+    if(it != sounds.cend()) {
+        return *((*it).second);
     }
 
-    print_info("Loaded and cached sound %s", path.c_str());
-
     // Otherwise Sound is not in our control, so we create a new one
-    UnifiedRender::Audio* sound = new UnifiedRender::Audio();
-    sound->data = nullptr;
-    sound->len = 0;
-    sound->pos = 0;
-    this->sounds.insert(std::make_pair(sound, path));
-    return *((const UnifiedRender::Audio*)sound);
+    UnifiedRender::Audio* sound = new UnifiedRender::Audio(path);
+    sounds[path] = sound;
+    print_info("Loaded and cached sound %s (%zu b)", path.c_str(), sound->len);
+
+    return *(static_cast<const UnifiedRender::Audio*>(sound));
 }

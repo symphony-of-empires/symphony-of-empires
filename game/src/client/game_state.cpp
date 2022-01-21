@@ -55,7 +55,6 @@
 #ifdef _MSC_VER
 #   include <SDL.h>
 #   include <SDL_events.h>
-#   include <SDL_keycode.h>
 #   include <SDL_mouse.h>
 #   include <SDL_opengl.h>
 #   include <SDL_ttf.h>
@@ -63,13 +62,14 @@
 #else
 #   include <SDL2/SDL.h>
 #   include <SDL2/SDL_events.h>
-#   include <SDL2/SDL_keycode.h>
 #   include <SDL2/SDL_mouse.h>
 #   include <SDL2/SDL_opengl.h>
 #   include <SDL2/SDL_ttf.h>
 #   include <SDL2/SDL_audio.h>
 //#include <sys/wait.h>
 #endif
+
+#include "unified_render/event.hpp"
 
 #include "good.hpp"
 #include "io_impl.hpp"
@@ -198,8 +198,8 @@ void handle_event(Input& input, GameState& gs) {
             ui_ctx->check_text_input((const char*)&event.text.text);
             break;
         case SDL_KEYDOWN:
-            switch(event.key.keysym.sym) {
-            case SDLK_F1:
+            switch(UnifiedRender::Keyboard::from_sdlk(event.key.keysym.sym)) {
+            case UnifiedRender::Keyboard::Key::F1:
                 if(gs.current_mode == MapMode::NORMAL) {
                     if(gs.profiler_view) {
                         delete gs.profiler_view;
@@ -209,7 +209,7 @@ void handle_event(Input& input, GameState& gs) {
                     }
                 }
                 break;
-            case SDLK_SPACE:
+            case UnifiedRender::Keyboard::Key::SPACE:
                 if(gs.editor) {
                     break;
                 }
@@ -224,7 +224,7 @@ void handle_event(Input& input, GameState& gs) {
                     }
                 }
                 break;
-            case SDLK_b:
+            case UnifiedRender::Keyboard::Key::B:
                 if(gs.editor) {
                     break;
                 }
@@ -240,7 +240,7 @@ void handle_event(Input& input, GameState& gs) {
                     }
                 }
                 break;
-            case SDLK_BACKSPACE:
+            case UnifiedRender::Keyboard::Key::BACKSPACE:
                 ui_ctx->check_text_input(nullptr);
                 break;
             }
