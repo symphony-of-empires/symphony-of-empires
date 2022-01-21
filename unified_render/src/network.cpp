@@ -288,8 +288,8 @@ void UnifiedRender::Networking::Server::broadcast(const UnifiedRender::Networkin
             // we can't save your packets buddy - other clients need their stuff too!
             size_t total_size = 0;
 
-            std::deque<UnifiedRender::Networking::Packet>::iterator packet_q;
-            for(packet_q = clients[i].pending_packets.begin(); packet_q != clients[i].pending_packets.end(); packet_q++) {
+            std::deque<UnifiedRender::Networking::Packet>::const_iterator packet_q;
+            for(packet_q = clients[i].pending_packets.cbegin(); packet_q != clients[i].pending_packets.cend(); packet_q++) {
                 total_size += (*packet_q).buffer.size();
             }
 

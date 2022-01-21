@@ -1270,7 +1270,12 @@ void LuaAPI::check_events(lua_State* L) {
     for(auto& dec : g_world->taken_descisions) {
         lua_getglobal(L, dec.first->do_descision_function.c_str());
         lua_pushstring(L, dec.second->ref_name.c_str());
-        lua_pcall(L, 1, 1, 0);
+
+        try {
+            lua_pcall(L, 1, 1, 0);
+        } catch(const std::exception& e) {
+            throw LuaAPI::Exception(dec.first->do_descision_function + ": " + e.what());
+        }
 
         // TODO: Delete local event upon taking a descision
     }
