@@ -335,7 +335,7 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load(const std::string&
     // Wavefront OBJ loader
     try {
         // TODO: This is too horrible, we need a better solution
-        if(path[path.length() - 3] == 's' && path[path.length() - 2] == 't' && path[path.length() - 1] == 'l') {
+        if(path.length() > 3 && path[path.length() - 3] == 's' && path[path.length() - 2] == 't' && path[path.length() - 1] == 'l') {
             return load_stl(path);
         } else {
             return load_wavefront(path);
