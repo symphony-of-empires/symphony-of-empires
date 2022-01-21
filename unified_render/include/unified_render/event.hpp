@@ -17,47 +17,33 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      audio.hpp
+//      event.hpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Does important stuff.
 // ----------------------------------------------------------------------------
 
 #pragma once
 
-#include <cstdint>
-#include <map>
-#include <string>
-#include <exception>
+namespace UnifiedRender::Keyboard {
+	enum class Key : unsigned char {
+		// TODO: What usecase this even has?
+		NONE,
 
-namespace UnifiedRender {
-    class AudioException : public std::exception {
-        std::string buffer;
-    public:
-        AudioException(const std::string& filename, const std::string& message) {
-            buffer = filename + message;
-        }
+		// Alphabet
+		A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
 
-        virtual const char* what(void) const noexcept {
-            return buffer.c_str();
-        }
-    };
+		// Numerals
+		NUM_0, NUM_1, NUM_2, NUM_3, NUM_4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9,
 
-    class Audio {
-    public:
-        Audio();
-        Audio(const std::string& path);
-        ~Audio();
+		// Function keys
+		F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
 
-        uint8_t *data;
-        uint32_t pos;
-        uint32_t len;
-    };
+		// Miscellaneous
+		SPACE,
+		BACKSPACE,
+		ESC,
+	};
 
-    class AudioManager {
-    private:
-        std::map<std::string, UnifiedRender::Audio*> sounds;
-    public:
-        const Audio& load(const std::string& path);
-    };
+	UnifiedRender::Keyboard::Key from_sdlk(int sdlk);
 };
