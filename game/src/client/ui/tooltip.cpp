@@ -113,11 +113,21 @@ void Tooltip::text(const std::string& text) {
     size_t pos = 0, y = 0;
     size_t line_width = std::max<size_t>(1, this->width / 12);
     while(pos < text.length()) {
-        size_t end_pos = text.length();
         size_t remaining_chars = text.length() - pos;
+        size_t end_pos = text.length();
         if(remaining_chars > line_width) {
             end_pos = pos + line_width;
-            for(int i = pos + line_width; i > pos; i--) {
+        }
+        bool break_line = false;
+        for(int i = pos; i <= end_pos; i++) {
+            if(text[i] == '\n') {
+                end_pos = i;
+                break_line = true;
+                break;
+            }
+        }
+        if(!break_line && remaining_chars > line_width) {
+            for(int i = end_pos; i > pos; i--) {
                 if(text[i] == ' ') {
                     end_pos = i;
                     break;
@@ -127,6 +137,9 @@ void Tooltip::text(const std::string& text) {
 
         std::string buf = text.substr(pos, end_pos - pos);
         pos = end_pos;
+        if (break_line) {
+            pos++;
+        }
 
         UI::Label* lab = new UI::Label(8, y, buf, this);
         labels.push_back(lab);
