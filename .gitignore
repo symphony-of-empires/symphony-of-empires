@@ -1,3 +1,14 @@
+# configuration depending on user
+dobuild.bat
+dobuild.sh
+dobuild.jcl
+
+# game files
+log.txt
+test.txt
+unknown.lua
+*_cache.dat
+
 # windows libraries
 windows_libs/
 
@@ -23,6 +34,8 @@ perf.data
 # windows obj files
 #*.obj
 *.exe
+*.lib
+*.pdb
 
 # output folders
 bin/
