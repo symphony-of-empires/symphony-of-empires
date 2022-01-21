@@ -254,7 +254,7 @@ void handle_event(Input& input, GameState& gs) {
         }
 
         if(gs.current_mode != MapMode::NO_MAP && !click_on_ui) {
-            gs.map->update(event, input);
+            gs.map->update(event, input, ui_ctx);
         }
     }
     ui_ctx->clear_dead();
