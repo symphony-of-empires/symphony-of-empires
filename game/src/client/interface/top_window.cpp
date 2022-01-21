@@ -193,7 +193,7 @@ TopWindow::TopWindow(GameState& _gs)
 }
 
 TimeControlView::TimeControlView(GameState& _gs)
-    : UI::Group(-192, 0, 192, 24),
+    : UI::Group(-192, 0),
     gs{ _gs }
 {
     this->is_scroll = false;
@@ -242,7 +242,7 @@ TimeControlView::TimeControlView(GameState& _gs)
     speed3_btn->tooltip = new UI::Tooltip(speed3_btn, 512, 24);
     speed3_btn->tooltip->text("Fire speed");
 
-    auto* time_lab = new UI::Label(0, 24, " ", this);
+    auto* time_lab = new UI::Label(192, 24, " ", this);
     time_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TimeControlView&>(*w.parent);
         const std::string day_names[7] = {
@@ -274,6 +274,7 @@ TimeControlView::TimeControlView(GameState& _gs)
         const int month = 1 + (g_world->time / g_world->ticks_per_month % 12);
         const int year = g_world->time / g_world->ticks_per_month / 12;
         w.text(day_names[o.gs.world->time % 7] + ", " + month_names[month] + " " + std::to_string(day) + ", " + std::to_string(year));
+        w.x = 192 - w.width;
     });
     time_lab->on_each_tick(*time_lab, nullptr);
 }
