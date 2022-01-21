@@ -40,9 +40,13 @@ using namespace Interface;
 
 std::vector<ProvinceColor> terrain_map_mode(const World& world);
 std::vector<ProvinceColor> terrain_color_map_mode(const World& world);
+std::string terrain_type_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> population_map_mode(const World& world);
+std::string population_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> culture_map_mode(const World& world);
+std::string culture_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> religion_map_mode(const World& world);
+std::string religion_tooltip(const World& world, const Province::Id id);
 
 Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     : UI::Window(x, y, 400, 200),
@@ -59,8 +63,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
 
         state->gs.map->set_view(MapView::PLANE_VIEW);
     });
-    flat_btn->tooltip = new UI::Tooltip(flat_btn, 512, 24);
-    flat_btn->tooltip->text("Flat map");
+    flat_btn->set_tooltip("Flat map");
 
     auto* globe_btn = new UI::Image(35, 5, 24, 24, "gfx/globe_icon.png", this);
     globe_btn->on_click = ([](UI::Widget& w, void*) {
@@ -68,62 +71,61 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
 
         state->gs.map->set_view(MapView::SPHERE_VIEW);
     });
-    globe_btn->tooltip = new UI::Tooltip(globe_btn, 512, 24);
-    globe_btn->tooltip->text("Globe map");
+    globe_btn->set_tooltip("Globe map");
 
     auto* political_ibtn = new UI::Image(5, 35, 24, 24, "gfx/icon.png", this);
     political_ibtn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
         mapmode_generator map_mode = political_map_mode;
-        state->gs.map->set_map_mode(map_mode);
+        mapmode_tooltip tooltip = empty_province_tooltip;
+        state->gs.map->set_map_mode(map_mode, tooltip);
     });
-    political_ibtn->tooltip = new UI::Tooltip(political_ibtn, 512, 24);
-    political_ibtn->tooltip->text("Political");
+    political_ibtn->set_tooltip("Political");
 
     auto* terrain_ibtn = new UI::Image(5, 65, 24, 24, "gfx/icon.png", this);
     terrain_ibtn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
         mapmode_generator map_mode = terrain_map_mode;
-        state->gs.map->set_map_mode(map_mode);
+        mapmode_tooltip tooltip = empty_province_tooltip;
+        state->gs.map->set_map_mode(map_mode, tooltip);
     });
-    terrain_ibtn->tooltip = new UI::Tooltip(terrain_ibtn, 512, 24);
-    terrain_ibtn->tooltip->text("Political");
+    terrain_ibtn->set_tooltip("Political");
 
     auto* population_ibtn = new UI::Image(5, 95, 24, 24, "gfx/icon.png", this);
     population_ibtn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
         mapmode_generator map_mode = population_map_mode;
-        state->gs.map->set_map_mode(map_mode);
+        mapmode_tooltip tooltip = population_tooltip;
+        state->gs.map->set_map_mode(map_mode, tooltip);
     });
-    population_ibtn->tooltip = new UI::Tooltip(population_ibtn, 512, 24);
-    population_ibtn->tooltip->text("Population");
+    population_ibtn->set_tooltip("Population");
 
     auto* terrain_color_ibtn = new UI::Image(35, 35, 24, 24, "gfx/icon.png", this);
     terrain_color_ibtn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
         mapmode_generator map_mode = terrain_color_map_mode;
-        state->gs.map->set_map_mode(map_mode);
+        mapmode_tooltip tooltip = terrain_type_tooltip;
+        state->gs.map->set_map_mode(map_mode, tooltip);
     });
-    terrain_color_ibtn->tooltip = new UI::Tooltip(terrain_color_ibtn, 512, 24);
-    terrain_color_ibtn->tooltip->text("Terrain type");
+    terrain_color_ibtn->set_tooltip("Terrain type");
 
     auto* culture_ibtn = new UI::Image(35, 65, 24, 24, "gfx/icon.png", this);
     culture_ibtn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
         mapmode_generator map_mode = culture_map_mode;
-        state->gs.map->set_map_mode(map_mode);
+        mapmode_tooltip tooltip = culture_tooltip;
+        state->gs.map->set_map_mode(map_mode, tooltip);
     });
-    culture_ibtn->tooltip = new UI::Tooltip(culture_ibtn, 512, 24);
-    culture_ibtn->tooltip->text("Culture diversity");
+    culture_ibtn->set_tooltip("Culture diversity");
 
     auto* religion_ibtn = new UI::Image(35, 95, 24, 24, "gfx/icon.png", this);
     religion_ibtn->on_click = ([](UI::Widget& w, void*) {
         Minimap* state = (Minimap*)w.parent;
         mapmode_generator map_mode = religion_map_mode;
-        state->gs.map->set_map_mode(map_mode);
+        mapmode_tooltip tooltip = religion_tooltip;
+        state->gs.map->set_map_mode(map_mode, tooltip);
     });
-    religion_ibtn->tooltip = new UI::Tooltip(religion_ibtn, 512, 24);
-    religion_ibtn->tooltip->text("Religion");
+    religion_ibtn->set_tooltip("Religion");
 
     new UI::Image(65, 5, 332, 166, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/minimap.png")), this);
 }
@@ -153,6 +155,10 @@ std::vector<ProvinceColor> terrain_color_map_mode(const World& world) {
     province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0x00000000)));
     return province_color;
 }
+std::string terrain_type_tooltip(const World& world, const Province::Id id) {
+    Province* province = world.provinces[id];
+    return province->terrain_type->name;
+}
 
 std::vector<ProvinceColor> population_map_mode(const World& world) {
     // Find the maximum amount of pops in one province
@@ -180,6 +186,19 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
         province_color.push_back(ProvinceColor(prov_id, color));
     }
     return province_color;
+}
+
+std::string population_tooltip(const World& world, const Province::Id id){
+    Province* province = world.provinces[id];
+
+    size_t amount = 0;
+    for(auto const& pop : province->pops) {
+        amount += pop.size;
+    }
+    std::string out;
+    out += province->name + "\n";
+    out += "Population: " + std::to_string(amount);
+    return out;
 }
 
 std::vector<ProvinceColor> culture_map_mode(const World& world) {
@@ -219,6 +238,35 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
     return province_color;
 }
 
+std::string culture_tooltip(const World& world, const Province::Id id){
+    Province* province = world.provinces[id];
+
+    typedef std::pair<Culture::Id, size_t> culture_amount;
+    std::vector<culture_amount> cultures;
+    for(unsigned int i = 0; i < province->pops.size(); i++) {
+        const Pop& pop = province->pops[i];
+
+        bool found = false;
+        for(auto culture_amount : cultures) {
+            if(culture_amount.first == pop.culture->cached_id) {
+                culture_amount.second += pop.size;
+                found = true;
+            }
+        }
+        if(!found) {
+            cultures.push_back(std::make_pair(pop.culture->cached_id, pop.size));
+        }
+    }
+    std::sort(cultures.begin(), cultures.end(), [](culture_amount a, culture_amount b) {
+        return a.second > b.second;
+    });
+    std::string out;
+    for(auto culture_amount : cultures) {
+        out += world.cultures[culture_amount.first]->name + std::to_string(culture_amount.second) + "\n";
+    }
+    return out;
+}
+
 std::vector<ProvinceColor> religion_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 255, 255);
@@ -254,4 +302,33 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
     // Land
     province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0xffdddddd)));
     return province_color;
+}
+
+std::string religion_tooltip(const World& world, const Province::Id id){
+    Province* province = world.provinces[id];
+
+    typedef std::pair<Religion::Id, size_t> religion_amount;
+    std::vector<religion_amount> religions;
+    for(unsigned int i = 0; i < province->pops.size(); i++) {
+        const Pop& pop = province->pops[i];
+
+        bool found = false;
+        for(auto religion_amount : religions) {
+            if(religion_amount.first == pop.religion->cached_id) {
+                religion_amount.second += pop.size;
+                found = true;
+            }
+        }
+        if(!found) {
+            religions.push_back(std::make_pair(pop.religion->cached_id, pop.size));
+        }
+    }
+    std::sort(religions.begin(), religions.end(), [](religion_amount a, religion_amount b) {
+        return a.second > b.second;
+    });
+    std::string out;
+    for(auto religion_amount : religions) {
+        out += world.religions[religion_amount.first]->name + std::to_string(religion_amount.second) + "\n";
+    }
+    return out;
 }

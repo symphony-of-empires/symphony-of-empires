@@ -176,6 +176,7 @@ namespace UI {
 		bool is_hover = false;
 		bool is_float = false;
 		bool is_fullscreen = false;
+		bool is_transparent = false;
 
 		bool have_shadow = false;
 		UI::Origin origin = UI::Origin::UPPER_LEFT;

@@ -187,7 +187,7 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_MOUSEMOTION:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-            ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
+            click_on_ui = ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
             break;
         case SDL_MOUSEWHEEL:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -257,7 +257,7 @@ void handle_event(Input& input, GameState& gs) {
         }
 
         if(gs.current_mode != MapMode::NO_MAP && !click_on_ui) {
-            gs.map->update(event, input);
+            gs.map->update(event, input, ui_ctx);
         }
     }
     ui_ctx->clear_dead();

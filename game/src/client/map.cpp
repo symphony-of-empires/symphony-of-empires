@@ -55,6 +55,7 @@
 #include "client/camera.hpp"
 #include "province.hpp"
 #include "unified_render/state.hpp"
+#include "client/ui/tooltip.hpp"
 
 #include "client/client_network.hpp"
 #include "unified_render/serializer.hpp"
@@ -73,7 +74,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     line_tex = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/line_target.png"));
 
     // Set the mapmode
-    set_map_mode(political_map_mode);
+    set_map_mode(political_map_mode, empty_province_tooltip);
 
     print_info("Preloading-important stuff");
     // Query the initial nation flags
@@ -118,7 +119,8 @@ void Map::set_view(MapView view) {
     Camera* old_camera = camera;
     if(view == MapView::PLANE_VIEW) {
         camera = new FlatCamera(old_camera);
-    } else if(view == MapView::SPHERE_VIEW) {
+    }
+    else if(view == MapView::SPHERE_VIEW) {
         camera = new OrbitCamera(old_camera);
     }
     delete camera;
@@ -131,9 +133,11 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
         Nation* province_owner = world.provinces[i]->owner;
         if(province_owner == nullptr) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        } else if(province_owner->cached_id == (Nation::Id)-1) {
+        }
+        else if(province_owner->cached_id == (Nation::Id)-1) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        } else {
+        }
+        else {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }
@@ -145,12 +149,20 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
     return province_color;
 }
 
+std::string political_province_tooltip(const World& world, const Province::Id id) {
+    return world.provinces[id]->name;
+}
+std::string empty_province_tooltip(const World& world, const Province::Id id) {
+    return "";
+}
+
 void Map::reload_shaders() {
     map_render->reload_shaders();
 }
 
-void Map::set_map_mode(mapmode_generator _mapmode_func){
-    mapmode_func = _mapmode_func;
+void Map::set_map_mode(mapmode_generator mapmode_generator, mapmode_tooltip tooltip_generator){
+    mapmode_func = mapmode_generator;
+    mapmode_tooltip_func = tooltip_generator;
     update_mapmode();
 }
 
@@ -168,13 +180,13 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-        ));
+            ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-        ));
+            ));
     }
     flag.upload();
 
@@ -245,7 +257,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    } else if(event.button.button == SDL_BUTTON_RIGHT) {
+    }
+    else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
         if(tile.province_id == (Province::Id)-1) {
             return;
@@ -296,7 +309,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
     }
 }
 
-void Map::update(const SDL_Event& event, Input& input) {
+void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx) {
     std::pair<int, int>& mouse_pos = input.mouse_pos;
     // std::pair<float, float>& select_pos = input.select_pos;
     switch(event.type) {
@@ -362,6 +375,13 @@ void Map::update(const SDL_Event& event, Input& input) {
         if(camera->get_cursor_map_pos(mouse_pos, map_pos)) {
             input.select_pos.first = map_pos.x;
             input.select_pos.second = map_pos.y;
+            auto prov_id = world.get_tile(map_pos.x, map_pos.y).province_id;
+            if(mapmode_tooltip_func != nullptr) {
+                std::string text = mapmode_tooltip_func(world, prov_id);
+                UI::Tooltip* tooltip = new UI::Tooltip();
+                tooltip->text(text);
+                ui_ctx->use_tooltip(tooltip, glm::ivec2(mouse_pos.first, mouse_pos.second));
+            }
         }
         break;
     case SDL_MOUSEWHEEL:
@@ -426,7 +446,6 @@ void Map::draw(const GameState& gs) {
     for(const auto& province : world.provinces) {
         for(const auto& unit : province->get_units()) {
             glm::mat4 model = base_model;
-            
             const std::pair<float, float> pos = unit->get_pos();
             model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
             if(unit->target != nullptr) {
@@ -445,8 +464,8 @@ void Map::draw(const GameState& gs) {
             // Model
             obj_shader->set_uniform("model", model);
             unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
+            }
         }
-    }
 
     // Highlight for units
     for(const auto& unit : gs.input.selected_units) {
@@ -488,4 +507,4 @@ void Map::draw(const GameState& gs) {
     if(wind_osc >= 180.f) {
         wind_osc = 0.f;
     }
-}
+    }
