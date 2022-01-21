@@ -262,7 +262,9 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
     offset = get_pos(w, offset);
     UnifiedRender::Rect local_viewport = UnifiedRender::Rect{ offset, size };
 
-    local_viewport = viewport.intersection(local_viewport);
+    if (!w.parent || w.parent->type != UI::WidgetType::GROUP) {
+        local_viewport = viewport.intersection(local_viewport);
+    }
     viewport = local_viewport;
 
     local_viewport.offset(-offset);
@@ -324,7 +326,7 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
     if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
         w.is_hover = false;
     }
-    else if(w.type == UI::WidgetType::IMAGE) {
+    else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
@@ -395,7 +397,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
         if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
             clickable = false;
         }
-        else if(w.type == UI::WidgetType::IMAGE) {
+        else if(w.is_transparent) {
             if(w.current_texture != nullptr) {
                 int tex_width = w.current_texture->width;
                 int tex_height = w.current_texture->height;
@@ -526,8 +528,9 @@ void Context::check_text_input(const char* _input) {
     }
 }
 
-void Context::set_tooltip(Tooltip* tooltip, glm::ivec2 pos) {
-    tooltip->set_pos(pos.x, pos.y, tooltip->width, tooltip->height, width, height);
+void Context::use_tooltip(Tooltip* tooltip, glm::ivec2 pos) {
+    tooltip_widget = tooltip;
+    tooltip_widget->set_pos(pos.x, pos.y, tooltip->width, tooltip->height, width, height);
 }
 
 bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y) {
@@ -542,7 +545,7 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
     if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
         return false;
     }
-    else if(w.type == UI::WidgetType::IMAGE) {
+    else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
