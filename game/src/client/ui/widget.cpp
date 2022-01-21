@@ -441,10 +441,17 @@ void Widget::add_child(Widget* child) {
     recalc_child_pos();
 }
 
+static unsigned int power_two_floor(unsigned int val) {
+	unsigned int power = 2, nextVal = power * 2;
+
+	while((nextVal *= 2) <= val) {
+		power*=2;
+	}
+
+	return power*2;
+}
 void Widget::text(const std::string& _text) {
     // Copy _text to a local scope (SDL2 does not like references)
-    SDL_Surface* surface;
-
     if(text_texture != nullptr) {
         // Auto deletes gl_texture
         delete text_texture;
@@ -456,11 +463,19 @@ void Widget::text(const std::string& _text) {
     }
 
     //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    SDL_Color black_color ={ 0, 0, 0, 0 };
-    surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), black_color);
+    SDL_Color black_color = { 0, 0, 0, 0 };
+    SDL_Surface* surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), black_color);
     if(surface == nullptr) {
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
     }
+	
+	int w = power_two_floor(surface->w) * 2;
+	int h = power_two_floor(surface->h) * 2;
+	//Create a surface to the correct size in RGB format, and copy the old image
+	SDL_Surface* s = SDL_CreateRGBSurface(0, w, h, 32, 0x00ff0000,0x0000ff00,0x000000ff,0xff000000);
+	SDL_BlitSurface(surface, NULL, s, NULL);
+	SDL_FreeSurface(surface);
+	surface = s;
 
     text_texture = new UnifiedRender::Texture(surface->w, surface->h);
     text_texture->gl_tex_num = 0;
