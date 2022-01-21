@@ -67,6 +67,7 @@ namespace UnifiedRender {
         GLuint internal_format = GL_RGBA;
         GLuint format = GL_RGBA;
         GLuint type = GL_UNSIGNED_BYTE;
+        bool editable = false;
     };
     const TextureOptions default_options;
 
