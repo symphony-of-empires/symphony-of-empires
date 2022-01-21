@@ -335,11 +335,11 @@ void main_loop(GameState& gs) {
 
     // Connect to server prompt
     gs.current_mode = MapMode::NO_MAP;
-    //auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/globe.png")));
+    //auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/globe.png")));
     //mm_bg->is_fullscreen = true;
     /*Interface::MainMenu* main_menu =*/
     new Interface::MainMenu(gs);
-    //auto* logo = new UI::Image(0, 0, 256, 256, &UnifiedRender::State::get_instance().tex_man->load(Path::get("ui/title_alt.png")));
+    //auto* logo = new UI::Image(0, 0, 256, 256, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/title_alt.png")));
     //logo->above_of(*main_menu);
     //logo->left_side_of(*main_menu);
 

@@ -62,7 +62,6 @@ add_executable(SymphonyOfEmpires ${MAIN_SOURCES})
 #
 # Linking
 #
-
 target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 z unified_render tbb)
 IF(WIN32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

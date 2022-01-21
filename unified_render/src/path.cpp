@@ -67,8 +67,9 @@ namespace Path {
         char buf[PATH_MAX];
         ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
 #endif
-        if(len < 0)
+        if(len < 0) {
             throw std::runtime_error("Error reading exec path");
+        }
 
         buf[len] = '\0';
 
@@ -92,8 +93,9 @@ namespace Path {
     }
 
     std::string get(const std::string& str) {
-        if(str[0] == '/' || str[0] == 'C')
+        if(str[0] == '/' || str[0] == 'C') {
             return str;
+        }
 
         std::string end_path;
         bool file_found = false;
@@ -118,8 +120,9 @@ namespace Path {
     // Gets all paths where a file with this name exists
     std::vector<std::string> get_all(const std::string& str) {
         std::vector<std::string> list;
-        if(str[0] == '/' || str[0] == 'C')
+        if(str[0] == '/' || str[0] == 'C') {
             return list;
+        }
 
         for(const auto& path : mod_paths) {
             std::string end_path = get_full() + path + str;
@@ -186,15 +189,16 @@ namespace Path {
 
     std::vector<std::string> get_all_recursive(const std::string& str) {
         std::vector<std::string> list;
-        if(str[0] == '/' || str[0] == 'C')
+        if(str[0] == '/' || str[0] == 'C') {
             return list;
+        }
 
         for(const auto& path : mod_paths) {
             std::string end_path = get_full() + path + str;
             if(std::filesystem::is_directory(end_path)){
                 auto entries = std::filesystem::recursive_directory_iterator(end_path);
                 for(const auto& entry : entries) {
-                    if(entry.is_regular_file()){
+                    if(entry.is_regular_file()) {
                         list.push_back(clean_path(entry.path().string()));
                     }
                 }

@@ -77,11 +77,10 @@ Context::Context() {
     }
 
     // default_font = TTF_OpenFont(Path::get("gfx/fonts/FreeMono.ttf").c_str(), 16);
-    default_font = TTF_OpenFont(Path::get("fonts/Poppins-Regular.ttf").c_str(), 16);
+    default_font = TTF_OpenFont(Path::get("fonts/Poppins/Poppins-Regular.ttf").c_str(), 16);
     if(default_font == nullptr) {
         throw std::runtime_error(std::string() + "Font could not be loaded: " + TTF_GetError() + ", exiting");
     }
-
     widgets.reserve(255);
 
     background = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
@@ -89,8 +88,8 @@ Context::Context() {
     button = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/button2.png"));
     tooltip_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/tooltip.png"));
     piechart_overlay = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/piechart.png"));
-    border_tex = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/borders/border2.png"));
-    button_border = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/borders/border_sharp2.png"));
+    border_tex = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/border2.png"));
+    button_border = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/border_sharp2.png"));
 
     g_ui_context = this;
     is_drag = false;

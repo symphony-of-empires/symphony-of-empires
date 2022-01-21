@@ -26,7 +26,7 @@ include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/include")
 # Source code files
 #
 file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
-add_library(unified_render SHARED ${MAIN_SOURCES})
+add_library(unified_render STATIC ${MAIN_SOURCES})
 
 #
 # Linking
