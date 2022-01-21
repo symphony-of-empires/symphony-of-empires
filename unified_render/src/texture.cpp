@@ -87,6 +87,7 @@ void UnifiedRender::Texture::to_opengl(TextureOptions options) {
     if(gl_tex_num) {
         delete_opengl();
     }
+
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glTexImage2D(GL_TEXTURE_2D, 0, options.internal_format, width, height, 0, options.format, options.type, buffer.get());
@@ -95,6 +96,11 @@ void UnifiedRender::Texture::to_opengl(TextureOptions options) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, options.wrap_t);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, options.min_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, options.mag_filter);
+
+    // We will free up the texture if we don't plan on editing it since it's on the GPU now
+    if(!options.editable) {
+        buffer.reset();
+    }
 }
 
 void UnifiedRender::Texture::gen_mipmaps() const {

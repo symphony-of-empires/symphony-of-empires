@@ -69,19 +69,18 @@ MapRender::MapRender(const World& _world)
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
-    auto tex_man = UnifiedRender::State::get_instance().tex_man;
     mipmap_options.internal_format = GL_RGB;
+
+    auto tex_man = UnifiedRender::State::get_instance().tex_man;
+
     water_tex = &tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
     landscape_map = &tex_man->load(Path::get("map/color.png"), mipmap_options);
     wave1 = &tex_man->load(Path::get("gfx/wave1.png"), mipmap_options);
     wave2 = &tex_man->load(Path::get("gfx/wave2.png"), mipmap_options);
-    // normal = &g_texture_manager->load_texture(Path::get("map/normal.png"), mipmap_options);
-    // topo_map = &g_texture_manager->load_texture(Path::get("map/topo.png"), mipmap_options);
     mipmap_options.internal_format = GL_RED;
     bathymethry = &tex_man->load(Path::get("map/bathymethry.png"), mipmap_options);
     noise_tex = &tex_man->load(Path::get("gfx/noise_tex.png"), mipmap_options);
     river_tex = &tex_man->load(Path::get("map/river_smooth.png"), mipmap_options);
-    // terrain_map = &g_texture_manager->load_texture(Path::get("map/terrain.png"), single_color);
     terrain_map = new UnifiedRender::Texture(Path::get("map/terrain.png"));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
     for(unsigned int i = 0; i < terrain_map_size; i++) {
@@ -144,6 +143,7 @@ MapRender::MapRender(const World& _world)
 
     UnifiedRender::TextureOptions tile_map_options{};
     tile_map_options.internal_format = GL_RGBA32F;
+    tile_map_options.editable = true;
     tile_map->to_opengl(tile_map_options);
     tile_map->gen_mipmaps();
 
@@ -153,7 +153,12 @@ MapRender::MapRender(const World& _world)
     for(unsigned int i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer.get()[i] = 0xffdddddd;
     }
-    tile_sheet->to_opengl();
+
+    // By default textures will be dropped from the CPU in order to save memory, however we're trying
+    // to make a buffer-texture so we have to keep it or we will have trouble
+    UnifiedRender::TextureOptions no_drop_options{};
+    no_drop_options.editable = true;
+    tile_sheet->to_opengl(no_drop_options);
 
     print_info("Creating border textures");
 
@@ -187,6 +192,7 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
     border_tex_options.internal_format = GL_RGBA32F;
     border_tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     border_tex_options.mag_filter = GL_LINEAR;
+    border_tex_options.editable = true;
     border_tex->to_opengl(border_tex_options);
     border_tex->gen_mipmaps();
 
@@ -213,6 +219,7 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
     fbo_mipmap_options.internal_format = GL_RGB32F;
     fbo_mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     fbo_mipmap_options.mag_filter = GL_LINEAR;
+    fbo_mipmap_options.editable = true;
 
     // The Red & Green color channels are the coords on the map
     // The Blue is the distance to a border
@@ -237,10 +244,9 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
         border_sdf_shader->set_uniform("jump", (float)step);
 
         fbo.set_texture(0, drawOnTex0 ? *tex0 : *tex1);
-        if(step == max_steps){
+        if(step == max_steps) {
             border_sdf_shader->set_texture(0, "tex", *border_tex);
-        }
-        else {
+        } else {
             border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? *tex1 : *tex0);
         }
         // Draw a plane over the entire screen to invoke shaders
@@ -252,8 +258,7 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
     if(drawOnTex0) {
         tex1.reset(nullptr);
         tex1 = std::move(tex0);
-    }
-    else {
+    } else {
         tex0.reset(nullptr);
     }
     tex1->gen_mipmaps();
@@ -267,6 +272,7 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
     output_options.internal_format = GL_RED;
     output_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     output_options.mag_filter = GL_LINEAR;
+    output_options.editable = true;
     tex0.reset(new UnifiedRender::Texture(tex1->width, tex1->height));
     tex0->to_opengl(output_options);
 
@@ -340,8 +346,7 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();
-    }
-    else if(view_mode == MapView::SPHERE_VIEW) {
+    } else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
 }
