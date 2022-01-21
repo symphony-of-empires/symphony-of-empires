@@ -117,7 +117,7 @@ UnifiedRender::Model::~Model(void) {
 
 void UnifiedRender::Model::draw(const UnifiedRender::OpenGL::Program& shader) const {
     std::vector<const UnifiedRender::SimpleModel *>::const_iterator model;
-    for(model = simple_models.begin(); model != simple_models.end(); model++) {
+    for(model = simple_models.cbegin(); model != simple_models.cend(); model++) {
         (*model)->draw(shader);
     }
 }
@@ -241,10 +241,10 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
 
     // Convert objects into (UnifiedRender) simple objects so we can now use them
     UnifiedRender::Model* final_model = new UnifiedRender::Model();
-    for(std::vector<WavefrontObj>::const_iterator obj = objects.begin(); obj != objects.end(); obj++) {
+    for(std::vector<WavefrontObj>::const_iterator obj = objects.cbegin(); obj != objects.cend(); obj++) {
         // Fill up the trigonometric buffers, we will first read all the faces and make them separate
         std::vector<std::vector<UnifiedRender::MeshData<glm::vec3, glm::vec2>>> clusters{};
-        for(std::vector<WavefrontFace>::const_iterator face = (*obj).faces.begin(); face != (*obj).faces.end(); face++) {
+        for(std::vector<WavefrontFace>::const_iterator face = (*obj).faces.cbegin(); face != (*obj).faces.cend(); face++) {
             std::vector<UnifiedRender::MeshData<glm::vec3, glm::vec2>> cluster{};
 
             // The faces dictate indices for the vertices and we will also subtract 1 because the indexing is 0 based
@@ -273,11 +273,11 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
         // It's time to merge clusters which share triangle nodes, in such case we reorganize the triangles so they
         // are to "follow" the triangle fan
         std::vector<std::vector<UnifiedRender::MeshData<glm::vec3, glm::vec2>>>::const_iterator cluster;
-        for(cluster = clusters.begin(); cluster != clusters.end(); cluster++) {
+        for(cluster = clusters.cbegin(); cluster != clusters.cend(); cluster++) {
             UnifiedRender::SimpleModel* model = new UnifiedRender::SimpleModel(UnifiedRender::MeshMode::TRIANGLE_FAN);
 
             std::vector<UnifiedRender::MeshData<glm::vec3, glm::vec2>>::const_iterator v1;
-            for(v1 = (*cluster).begin(); v1 != (*cluster).end(); v1++) {
+            for(v1 = (*cluster).cbegin(); v1 != (*cluster).cend(); v1++) {
                 model->buffer.push_back(*v1);
             }
             
@@ -327,8 +327,8 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_stl(const std::str
 }
 
 const UnifiedRender::Model& UnifiedRender::ModelManager::load(const std::string& path) {
-    auto it = models.find(path);
-    if(it != models.end()) {
+    std::map<std::string, UnifiedRender::Model*>::const_iterator it = models.find(path);
+    if(it != models.cend()) {
         return *((*it).second);
     }
     
