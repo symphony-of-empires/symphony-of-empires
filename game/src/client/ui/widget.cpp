@@ -483,9 +483,9 @@ void Widget::set_tooltip(Tooltip* _tooltip) {
 
 void Widget::set_tooltip(std::string text) {
     // Why doesn't this work??
-    // if(tooltip != nullptr) {
-    //     delete tooltip;
-    // }
+    if(tooltip != nullptr && tooltip->parent == nullptr) {
+        delete tooltip;
+    }
     tooltip = new Tooltip();
     tooltip->text(text);
 }
