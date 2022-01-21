@@ -65,13 +65,10 @@ UnifiedRender::Audio::Audio(const std::string& path) {
     std::memcpy(cvt.buf, this->data, this->len);
     cvt.len = this->len;
     SDL_ConvertAudio(&cvt);
-    SDL_FreeWAV(this->data);
-
-    SDL_LockAudio();
+    
     this->data = cvt.buf;
     this->len = cvt.len_cvt;
     this->pos = 0;
-    SDL_UnlockAudio();
 }
 
 UnifiedRender::Audio::~Audio() {

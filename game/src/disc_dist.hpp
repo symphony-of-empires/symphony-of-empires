@@ -52,8 +52,6 @@ public:
 		}
 
 		// Fill two work tables with probabilities larger/smaller than 1
-		alias.reserve(probabilities.size());
-		prob.reserve(probabilities.size());
 		std::vector<std::pair<float, size_t>> small;
 		std::vector<std::pair<float, size_t>> big;
 		for(size_t i = 0; i < probabilities.size(); i++) {
@@ -64,7 +62,10 @@ public:
 				big.push_back(std::make_pair(probabilities[i], i));
 			}
 		}
+
 		// Remove from the bigger one and place on the smaller ones
+		alias.resize(probabilities.size(), 0);
+		prob.resize(probabilities.size(), 0);
 		while(small.size() > 0 && big.size() > 0) {
 			std::pair<float, size_t> less = small.back();
 			small.pop_back();

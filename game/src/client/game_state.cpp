@@ -317,8 +317,15 @@ void GameState::world_thread(void) {
                 return;
             }
         }
-        world->do_tick();
-        update_tick = true;
+
+        // TODO: We should only enable this on debug builds, but whatever...
+        try {
+            world->do_tick();
+            update_tick = true;
+        } catch(const std::exception& e) {
+            ui_ctx->prompt("runtime exception", e.what());
+            paused = true;
+        }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(ms_delay_speed));
     }
