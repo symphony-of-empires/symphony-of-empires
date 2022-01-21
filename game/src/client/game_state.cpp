@@ -323,7 +323,9 @@ void GameState::world_thread(void) {
             world->do_tick();
             update_tick = true;
         } catch(const std::exception& e) {
+            world->world_mutex.unlock();
             ui_ctx->prompt("runtime exception", e.what());
+            print_error(e.what());
             paused = true;
         }
 

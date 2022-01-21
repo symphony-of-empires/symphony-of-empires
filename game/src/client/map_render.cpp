@@ -293,7 +293,9 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
     for(auto const& province_color : province_colors) {
         tile_sheet->buffer.get()[province_color.id] = province_color.color.get_value();
     }
-    tile_sheet->to_opengl();
+    UnifiedRender::TextureOptions no_drop_options{};
+    no_drop_options.editable = true;
+    tile_sheet->to_opengl(no_drop_options);
 }
 
 void MapRender::draw(Camera* camera, MapView view_mode) {
