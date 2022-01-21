@@ -52,6 +52,8 @@ mods/test
 compile_commands.json
 .cache/
 
+# cmake generated
+
 # visual studio stuff
 # User-specific files
 *.rsuser
@@ -62,11 +64,13 @@ compile_commands.json
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 out/
-client_Debug/
-client_Release/
-server_Debug/
-server_Release/
+Debug/
+Release/
 packages/
+*.sln
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
 
 # cmake stuff
 CMakeFiles/
