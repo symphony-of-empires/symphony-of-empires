@@ -8,7 +8,9 @@ project(unified_render)
 # Compilation flags
 #
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS} -pthread")
+IF(NOT MSVC)
+	set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS} -pthread")
+ENDIF()
 IF(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dwindows=1")
 ELSE()
@@ -33,7 +35,7 @@ add_library(unified_render STATIC ${MAIN_SOURCES})
 #
 target_link_libraries(unified_render PUBLIC SDL2 SDL2_ttf z tbb)
 IF(WIN32)
-	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
 		
 	ELSE()
 		target_link_libraries(unified_render PUBLIC m stdc++ winpthread)
