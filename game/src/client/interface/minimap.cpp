@@ -190,11 +190,15 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
 
 std::string population_tooltip(const World& world, const Province::Id id){
     Province* province = world.provinces[id];
-    float amount = 0;
+
+    size_t amount = 0;
     for(auto const& pop : province->pops) {
         amount += pop.size;
     }
-    return std::to_string(amount);
+    std::string out;
+    out += province->name + "\n";
+    out += "Population: " + std::to_string(amount);
+    return out;
 }
 
 std::vector<ProvinceColor> culture_map_mode(const World& world) {
