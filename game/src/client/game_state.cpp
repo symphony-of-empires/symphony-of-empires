@@ -184,7 +184,7 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_MOUSEMOTION:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-            ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
+            click_on_ui = ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
             break;
         case SDL_MOUSEWHEEL:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);

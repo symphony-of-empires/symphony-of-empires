@@ -74,6 +74,8 @@ struct ProvinceColor {
 typedef std::function<std::string(const World& world, const Province::Id id)> mapmode_tooltip;
 typedef std::function<std::vector<ProvinceColor>(const World& world)> mapmode_generator;
 std::vector<ProvinceColor> political_map_mode(const World& world);
+std::string political_province_tooltip(const World& world, const Province::Id id);
+std::string empty_province_tooltip(const World& world, const Province::Id id);
 
 class Map {
     // Called to get mapmode
@@ -89,7 +91,7 @@ public:
     void draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& nation);
     void draw(const GameState& gs);
     void handle_click(GameState& gs, SDL_Event event);
-    void set_map_mode(mapmode_generator mapmode_func);
+    void set_map_mode(mapmode_generator mapmode_func, mapmode_tooltip tooltip_func);
     void set_view(MapView view);
     void reload_shaders();
 
