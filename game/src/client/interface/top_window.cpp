@@ -55,8 +55,7 @@ TopWindow::TopWindow(GameState& _gs)
 
     new TimeControlView(gs);
 
-    auto* border = new UI::Image(0, 0, 147, 499, "gfx/top_window.png", this);
-    border->is_transparent = true;
+    UI::Image::make_transparent(0, 0, 147, 499, "gfx/top_window.png", this);
 
     auto nation_flag = &gs.get_nation_flag(*gs.curr_nation);
     auto* flag_img = new UI::Image(5, 4, 138, 88, nation_flag, this);
