@@ -47,6 +47,11 @@ namespace UnifiedRender {
     class Texture;
 };
 
+/**
+ * @defgroup UI UI
+ * The ui widgets used to create the interface
+ *
+ */
 namespace UI {
     enum class ClickState {
         NOT_CLICKED,
@@ -57,6 +62,12 @@ namespace UI {
     class Widget;
     class Tooltip;
     typedef void (*Callback)(Widget&, void*);
+
+    /**
+     * @ingroup UI
+     * @brief The ui context that handles all the ui widgets
+     *
+     */
     class Context {
         int drag_x, drag_y;
         bool is_drag;
@@ -67,38 +78,90 @@ namespace UI {
         bool check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         UI::ClickState check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, UI::ClickState click_state, bool clickable);
         bool check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y);
+        void render_recursive(Widget& widget, UnifiedRender::Rect viewport);
+        int do_tick_recursive(Widget& w);
+        void clear_dead_recursive(Widget* w);
+
+        std::vector<Widget*> widgets;
+        Tooltip* tooltip_widget = nullptr;
     public:
         Context();
         void load_textures();
         void add_widget(Widget* widget);
         void remove_widget(Widget* widget);
 
-        void render_recursive(Widget& widget, UnifiedRender::Rect viewport);
         void render_all();
 
         void resize(const int width, const int height);
 
+        /**
+         * @brief Check for on_hover events
+         * If the mouse is above a widget call the widgets on_hover or show its tooltip if possible
+         *
+         * @param mx The mouse x position
+         * @param my The mouse y position
+         * @return true if the mouse position was above a ui widget
+         */
         bool check_hover(unsigned mx, unsigned my);
+
+        /**
+         * @brief Check for on_click events
+         * Check if the mouse is above a widget and call the widgets on_click if possible
+         * Also move the clicked window to the top,
+         * only works for Window widget with is_pinned = false
+         *
+         * @param mx The mouse x position
+         * @param my The mouse y position
+         * @return true if the mouse position was above a ui widget
+         */
         bool check_click(unsigned mx, unsigned my);
+
+        /**
+         * @brief Check for on_drag events, will move Window widgets with is_pinned = false
+         *
+         * @param mx The mouse x position
+         * @param my The mouse y position
+         */
         void check_drag(unsigned mx, unsigned my);
+
+        /**
+         * @brief Check if the mouse is above a widget and scroll widget
+         *
+         * @param mx The mouse x position
+         * @param my The mouse x position
+         * @param y The mouse scroll wheel amount
+         * @return true if the mouse position was above a ui widget
+         */
         bool check_wheel(unsigned mx, unsigned my, int y);
+
+        /**
+         * @brief Will give keyboard input to Input Widget if one is selected 
+         * 
+         * @param input The input characters
+         */
         void check_text_input(const char* input);
+
         void use_tooltip(Tooltip* tooltip, glm::ivec2 pos);
 
-        int do_tick_recursive(Widget& w);
-        void do_tick(void);
+        /**
+         * @brief Will call on_tick on all widgets
+         */
+        void do_tick();
 
+        /**
+         * @brief Removes all widgets
+         */
         void clear(void);
+        /**
+         * @brief Removes all widgets that have been killed
+         */
         void clear_dead();
-        void clear_dead_recursive(Widget* w);
 
         void prompt(const std::string& title, const std::string& text);
 
         const UnifiedRender::Texture* background, * window_top, * button, * tooltip_texture, * piechart_overlay, * border_tex, * button_border;
-        TTF_Font* default_font;
 
-        std::vector<Widget*> widgets;
-        Tooltip* tooltip_widget = nullptr;
+        TTF_Font* default_font;
     };
     extern Context* g_ui_context;
 }; // namespace UI

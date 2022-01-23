@@ -30,6 +30,11 @@
 
 namespace UI {
 	class Context;
+    /**
+     * @ingroup UI
+     * @brief Input widget for keyboard inputs
+     *
+     */
 	class Input : public Widget {
 	public:
 		Input(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);

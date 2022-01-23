@@ -28,6 +28,11 @@
 #include "client/ui/widget.hpp"
 
 namespace UI {
+    /**
+     * @ingroup UI
+     * @brief Bar chart that draws horizontal bar chart
+     *
+     */
     class BarChart: public Widget {
     public:
 		BarChart(int x, int y, unsigned w, unsigned h, std::vector<ChartData> data = std::vector<ChartData>(), Widget* _parent = nullptr);

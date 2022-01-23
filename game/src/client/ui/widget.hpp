@@ -125,6 +125,11 @@ namespace UI {
 
 	class Context;
 	class Tooltip;
+    /**
+     * @ingroup UI
+     * @brief The master widget all the other widgets inherit from
+     *
+     */
 	class Widget {
 	public:
 		Widget() {};
