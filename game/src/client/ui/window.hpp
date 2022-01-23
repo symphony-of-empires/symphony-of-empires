@@ -34,6 +34,11 @@
 #include "client/ui/widget.hpp"
 
 namespace UI {
+    /**
+     * @ingroup UI
+     * @brief Window widget
+     *
+     */
     class Window : public Widget {
     public:
         bool is_movable = true;

@@ -30,6 +30,11 @@
 namespace UI {
     class Button: public Widget {
     public:
+        /**
+         * @ingroup UI
+         * @brief Button widget
+         *
+         */
         Button(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         virtual ~Button() override {};
     };

@@ -69,7 +69,6 @@
 
 using namespace UI;
 
-
 Context* UI::g_ui_context = nullptr;
 Context::Context() {
     if(g_ui_context != nullptr) {
@@ -469,7 +468,7 @@ bool Context::check_click(const unsigned mx, const unsigned my) {
 
     if(click_wind_index != -1) {
         // Only movable and UI::WidgetType::WINDOWS are able to move to the top
-        Widget* window =widgets[click_wind_index];
+        Widget* window = widgets[click_wind_index];
         if(window->type == UI::WidgetType::WINDOW && !window->is_pinned) {
             auto it = widgets.begin() + click_wind_index;
             std::rotate(it, it + 1, widgets.end());

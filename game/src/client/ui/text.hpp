@@ -33,8 +33,12 @@ namespace UI {
 	class Context;
 	class Label;
 
-    // Multiline textbox
     // TODO: Markdown support?
+    /**
+     * @ingroup UI
+     * @brief Multiline textbox
+     *
+     */
     class Text: public Widget {
         std::vector<UI::Label*> labels;
     public:
