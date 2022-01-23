@@ -772,6 +772,9 @@ void Economy::do_tick(World& world) {
                 // TODO: We should make a copy of the `rebel` nation for every rebellion!!!
                 // TODO: We should also give them an unique ideology!!!
                 world.nations[0]->give_province(*province);
+                for(auto& building : province->get_buildings()) {
+                    building->owner = world.nations[0];
+                }
             }
         }
 
