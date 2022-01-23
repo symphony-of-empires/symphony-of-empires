@@ -325,8 +325,7 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
 
     if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
         w.is_hover = false;
-    }
-    else if(w.is_transparent) {
+    } else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
