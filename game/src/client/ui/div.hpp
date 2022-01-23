@@ -34,6 +34,11 @@
 #include "client/ui/widget.hpp"
 
 namespace UI {
+    /**
+     * @ingroup UI
+     * @brief A basic widget without any presets
+     *
+     */
     class Div : public Widget {
     public:
         Div(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);

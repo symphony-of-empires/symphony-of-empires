@@ -32,6 +32,11 @@
 namespace UI {
 	class Label;
 
+    /**
+     * @ingroup UI
+     * @brief Tooltip widget
+     *
+     */
     class Tooltip: public Widget {
         std::vector<UI::Label*> labels;
     public:

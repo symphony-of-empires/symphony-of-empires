@@ -35,6 +35,11 @@
 
 namespace UI {
     class Context;
+    /**
+     * @ingroup UI
+     * @brief Progressbar widget
+     *
+     */
     class ProgressBar: public Widget {
     public:
         ProgressBar(int x, int y, unsigned w, unsigned h, float min, float max, Widget* _parent = nullptr);

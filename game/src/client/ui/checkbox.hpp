@@ -35,6 +35,11 @@
 
 namespace UI {
 	class Context;
+    /**
+     * @ingroup UI
+     * @brief Checkbox widget
+     *
+     */
     class Checkbox: public Widget {
     public:
         Checkbox(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);

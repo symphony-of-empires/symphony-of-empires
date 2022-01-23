@@ -38,6 +38,11 @@
 
 namespace UI {
 	class Context;
+    /**
+     * @ingroup UI
+     * @brief Piechart widget
+     *
+     */
 
 	class PieChart: public Widget {
 	public:

@@ -40,6 +40,15 @@ namespace UnifiedRender {
 
 namespace UI {
 	class Context;
+    /**
+     * @ingroup UI
+     * @brief Grouping to keep widgets together without triggering events
+     * 
+     * Doesn't capture mouse on mouse events
+     * The width and height are meaningless for this widget
+     * Doesn't do any cropping of child widgets if they are outside it's bounds
+     *
+     */
     class Group: public Widget {
     public:
         Group(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);

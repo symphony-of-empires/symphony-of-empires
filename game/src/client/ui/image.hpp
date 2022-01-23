@@ -39,6 +39,11 @@ namespace UnifiedRender {
 
 namespace UI {
 	class Context;
+    /**
+     * @ingroup UI
+     * @brief Image widget
+     *
+     */
     class Image: public Widget {
     public:
         Image(int x, int y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* parent = nullptr);

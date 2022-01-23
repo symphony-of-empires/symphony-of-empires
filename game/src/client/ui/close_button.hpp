@@ -35,6 +35,11 @@
 
 namespace UI {
 	class Context;
+    /**
+     * @ingroup UI
+     * @brief Button which kills the parent on click
+     *
+     */
     class CloseButton: public Widget {
         static void on_click_default(Widget& w, void*) {
             w.parent->kill();
