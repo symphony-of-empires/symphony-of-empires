@@ -1199,10 +1199,7 @@ int LuaAPI::get_ideology_by_id(lua_State* L) {
 
 // Checks all events and their condition functions
 void LuaAPI::check_events(lua_State* L) {
-    // Because of the logic of this loop, only 1 event can happen in the world per tick
-    // This is on purpouse ;)
-    for(size_t i = 0; i < g_world->events.size(); i++) {
-        Event* event = g_world->events[i];
+    for(auto& event : g_world->events) {
         if(event->checked) {
             continue;
         }
@@ -1261,7 +1258,7 @@ void LuaAPI::check_events(lua_State* L) {
         
         // Event is marked as checked if it's not of multiple occurences
         if(has_fired && !is_multi) {
-            g_world->events[i]->checked = true;
+            event->checked = true;
         }
     }
 
@@ -1270,11 +1267,11 @@ void LuaAPI::check_events(lua_State* L) {
     for(auto& dec : g_world->taken_descisions) {
         lua_getglobal(L, dec.first->do_descision_function.c_str());
         lua_pushstring(L, dec.second->ref_name.c_str());
-
+        print_info("[%s] took the descision: [%s]", dec.second->ref_name.c_str(), dec.first->do_descision_function.c_str());
         try {
-            lua_pcall(L, 1, 1, 0);
+            lua_pcall(L, 1, 0, 0);
         } catch(const std::exception& e) {
-            throw LuaAPI::Exception(dec.first->do_descision_function + ": " + e.what());
+            throw LuaAPI::Exception(dec.first->do_descision_function + "(" + dec.second->ref_name + "): " + e.what());
         }
 
         // TODO: Delete local event upon taking a descision
