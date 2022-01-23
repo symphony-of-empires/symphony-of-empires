@@ -775,6 +775,10 @@ void Economy::do_tick(World& world) {
                 for(auto& building : province->get_buildings()) {
                     building->owner = world.nations[0];
                 }
+
+                for(auto& unit : province->get_units()) {
+                    unit->owner = world.nations[0];
+                }
             }
         }
 
