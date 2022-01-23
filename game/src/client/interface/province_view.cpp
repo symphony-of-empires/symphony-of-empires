@@ -423,5 +423,17 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         });
         edit_terrain_btn->tooltip = new UI::Tooltip(edit_terrain_btn, 512, 24);
         edit_terrain_btn->tooltip->text("Edit terrain");
+
+        auto* exbuild_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
+        exbuild_btn->below_of(*xchg_dens_btn);
+        exbuild_btn->right_side_of(*edit_terrain_btn);
+        exbuild_btn->on_click = ([](UI::Widget& w, void*) {
+            auto& o = static_cast<ProvinceView&>(*w.parent);
+            for(auto& building : o.province->get_buildings()) {
+                building->owner = o.gs.curr_nation;
+            }
+        });
+        exbuild_btn->tooltip = new UI::Tooltip(exbuild_btn, 512, 24);
+        exbuild_btn->tooltip->text("Expropriates all buildings to the current owner");
     }
 }
