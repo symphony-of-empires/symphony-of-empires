@@ -837,6 +837,9 @@ void World::do_tick() {
 
         if(unit->province->controller != nullptr && can_take) {
             unit->owner->give_province(*unit->province);
+            for(auto& building : unit->province->get_buildings()) {
+                building->owner = unit->owner;
+            }
         }
 
         if(unit->target != nullptr && unit->can_move()) {
