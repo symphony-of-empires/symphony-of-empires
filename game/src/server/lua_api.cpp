@@ -1224,14 +1224,14 @@ void LuaAPI::check_events(lua_State* L) {
                 Event orig_event = Event(*event);
 
                 // Call the "do event" function
-                lua_getglobal(L, event->do_event_function.c_str());
+                lua_getglobal(L, orig_event.do_event_function.c_str());
                 lua_pushstring(L, nation->ref_name.c_str());
                 lua_pcall(L, 1, 1, 0);
                 is_multi = lua_tointeger(L, -1);
                 lua_pop(L, 1);
 				
 				// The changes done to the event "locally" are then created into a new local event
-                auto* local_event = new Event(*event);
+                auto* local_event = new Event(orig_event);
 				local_event->cached_id = (Event::Id)-1;
                 local_event->ref_name += "_";
                 for(unsigned int j = 0; j < 20; j++) {
