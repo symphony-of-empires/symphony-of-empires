@@ -124,7 +124,9 @@ void Economy::do_tick(World& world) {
         auto& building = world.buildings[j];
 
         auto* province = building->get_province();
-        if(province->controller == nullptr) continue;
+        if(province->controller == nullptr) {
+            continue;
+        }
 
         size_t needed_laborers = 0, available_laborers = 0;
         size_t needed_farmers = 0, available_farmers = 0;
@@ -140,8 +142,7 @@ void Economy::do_tick(World& world) {
                 const size_t employed = 500;
                 if(output->good->is_edible) {
                     needed_farmers += employed;
-                }
-                else {
+                } else {
                     needed_laborers += employed;
                 }
                 needed_entrepreneurs += employed / 100;
@@ -351,7 +352,7 @@ void Economy::do_tick(World& world) {
             }
             world.orders_mutex.unlock();
 
-            //if(!building->can_do_output()) continue;
+            if(!building->can_do_output()) continue;
 
             // Now produce anything as we can!
             // Place deliver orders (we are a RGO)
@@ -778,10 +779,10 @@ void Economy::do_tick(World& world) {
             dup_nation->client_hints = nation->client_hints;
             // Rebel with the most popular ideology
             dup_nation->ideology = world.ideologies[std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()))];
+            world.insert(dup_nation);
             for(auto& _nation : world.nations) {
                 _nation->relations.resize(world.nations.size(), NationRelation{0.f, false, false, false, false, false, false, false, false, true, false});
             }
-            world.insert(dup_nation);
 
             // Make the most angry provinces revolt!
             for(auto& province : uprising_provinces) {
@@ -807,7 +808,7 @@ void Economy::do_tick(World& world) {
                 dup_nation->declare_war(*nation, clauses);
             }
         }
-
+        
         // Roll a dice! (more probability with more anger!)
         if(std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) <= 100.f) {
             // Choose the ideology with most "anger" (the one more probable to coup d'

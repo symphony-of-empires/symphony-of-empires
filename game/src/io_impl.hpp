@@ -671,6 +671,7 @@ public:
         ::serialize(stream, &obj->workers);
         ::serialize(stream, &obj->req_goods);
         ::serialize(stream, &obj->owner);
+        ::serialize(stream, &obj->province);
     }
     static inline void deserialize(Archive& stream, Building* obj) {
         ::deserialize(stream, &obj->type);
@@ -685,6 +686,7 @@ public:
         ::deserialize(stream, &obj->workers);
         ::deserialize(stream, &obj->req_goods);
         ::deserialize(stream, &obj->owner);
+        ::deserialize(stream, &obj->province);
     }
 };
 

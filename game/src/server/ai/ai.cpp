@@ -516,7 +516,7 @@ void ai_do_tick(Nation* nation, World* world) {
 
             // Build units inside buildings that are not doing anything
             for(auto& building : g_world->buildings) {
-                if(building->working_unit_type != nullptr || building->owner != nation) {
+                if(building->working_unit_type != nullptr || building->owner != nation || !(building->type->is_build_land_units && building->type->is_build_naval_units)) {
                     continue;
                 }
 
