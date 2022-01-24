@@ -77,6 +77,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     set_map_mode(political_map_mode, empty_province_tooltip);
 
     print_info("Preloading-important stuff");
+
     // Query the initial nation flags
     for(const auto& nation : world.nations) {
         UnifiedRender::TextureOptions mipmap_options{};
@@ -84,9 +85,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         mipmap_options.wrap_t = GL_REPEAT;
         mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
         mipmap_options.mag_filter = GL_LINEAR;
-        std::string path = Path::get("gfx/flags/" + nation->ref_name + "_" +
-            (nation->ideology == nullptr ? "none" : nation->ideology->ref_name) + ".png"
-        );
+        std::string path = Path::get("gfx/flags/" + nation->ref_name + "_" + (nation->ideology == nullptr ? "none" : nation->ideology->ref_name) + ".png");
         auto flag_texture = &UnifiedRender::State::get_instance().tex_man->load(path, mipmap_options);
         flag_texture->gen_mipmaps();
         nation_flags.push_back(flag_texture);
@@ -180,13 +179,13 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-            ));
+        ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-            ));
+        ));
     }
     flag.upload();
 
@@ -414,6 +413,20 @@ void Map::update_mapmode() {
 }
 
 void Map::draw(const GameState& gs) {
+    if(nation_flags.size() < world.nations.size()) {
+        for(const auto& nation : world.nations) {
+            UnifiedRender::TextureOptions mipmap_options{};
+            mipmap_options.wrap_s = GL_REPEAT;
+            mipmap_options.wrap_t = GL_REPEAT;
+            mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
+            mipmap_options.mag_filter = GL_LINEAR;
+            std::string path = Path::get("gfx/flags/" + nation->ref_name + "_" + (nation->ideology == nullptr ? "none" : nation->ideology->ref_name) + ".png");
+            auto flag_texture = &UnifiedRender::State::get_instance().tex_man->load(path, mipmap_options);
+            flag_texture->gen_mipmaps();
+            nation_flags.push_back(flag_texture);
+        }
+    }
+
     glm::mat4 view, projection;
     map_render->draw(camera, view_mode);
 

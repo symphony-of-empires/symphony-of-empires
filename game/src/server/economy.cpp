@@ -766,19 +766,45 @@ void Economy::do_tick(World& world) {
                     uprising_provinces.push_back(province);
                 }
             }
+            
+            Nation* dup_nation = new Nation();
+            dup_nation->name = nation->ref_name;
+            dup_nation->ref_name = nation->ref_name;
+            dup_nation->accepted_cultures = nation->accepted_cultures;
+            dup_nation->accepted_religions = nation->accepted_religions;
+            dup_nation->base_literacy = nation->base_literacy;
+            dup_nation->research = nation->research;
+            dup_nation->relations = nation->relations;
+            dup_nation->client_hints = nation->client_hints;
+            // Rebel with the most popular ideology
+            dup_nation->ideology = world.ideologies[std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()))];
+            for(auto& _nation : world.nations) {
+                _nation->relations.resize(world.nations.size(), NationRelation{0.f, false, false, false, false, false, false, false, false, true, false});
+            }
+            world.insert(dup_nation);
 
             // Make the most angry provinces revolt!
             for(auto& province : uprising_provinces) {
                 // TODO: We should make a copy of the `rebel` nation for every rebellion!!!
                 // TODO: We should also give them an unique ideology!!!
-                world.nations[0]->give_province(*province);
+                dup_nation->give_province(*province);
                 for(auto& building : province->get_buildings()) {
-                    building->owner = world.nations[0];
+                    building->owner = dup_nation;
                 }
 
                 for(auto& unit : province->get_units()) {
-                    unit->owner = world.nations[0];
+                    unit->owner = dup_nation;
                 }
+
+                // Declare war seeking all provinces from the owner
+                std::vector<TreatyClause::BaseClause*> clauses;
+                TreatyClause::AnexxProvince* cl = new TreatyClause::AnexxProvince();
+                cl->provinces = uprising_provinces;
+                cl->sender = dup_nation;
+                cl->receiver = nation;
+                cl->type = TreatyClauseType::ANEXX_PROVINCES;
+                clauses.push_back(cl);
+                dup_nation->declare_war(*nation, clauses);
             }
         }
 
