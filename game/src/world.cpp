@@ -1022,6 +1022,15 @@ void World::do_tick() {
                 }
                 dyn_clause->enforce();
             }
+
+            // Rebellion
+            if(clause->sender->ref_name == clause->receiver->ref_name) {
+                if(clause->sender->owned_provinces.empty()) {
+                    // TODO: Delete clause->sender (and fixup references) !!!
+                } else if(clause->receiver->owned_provinces.empty()) {
+                    // TODO: Delete clause->receiver (and fixup references) !!!
+                }
+            }
         }
     }
     profiler.stop("Treaties");

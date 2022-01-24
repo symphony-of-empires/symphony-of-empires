@@ -129,14 +129,11 @@ MapRender::MapRender(const World& _world)
     tile_map = new UnifiedRender::Texture(world.width, world.height);
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
-        if(tile.province_id >= (Province::Id)-3) {
-            tile_map->buffer.get()[i] = (tile.province_id & 0xffff);
-        } else {
-            auto province = world.provinces[tile.province_id];
-            if(province->owner == nullptr) {
-                tile_map->buffer.get()[i] = province->cached_id & 0xffff;
-            } else {
-                tile_map->buffer.get()[i] = ((world.get_id(province->owner) & 0xffff) << 16) | (province->cached_id & 0xffff);
+        tile_map->buffer.get()[i] = tile.province_id & 0xffff;
+        if(tile.province_id <= world.provinces.size()) {
+            const auto* province = world.provinces[tile.province_id];
+            if(province->owner != nullptr) {
+                tile_map->buffer.get()[i] |= (world.get_id(province->owner) & 0xffff) << 16;
             }
         }
     }

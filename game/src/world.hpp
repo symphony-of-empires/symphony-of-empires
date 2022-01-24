@@ -41,10 +41,7 @@
 #include <glm/vec2.hpp>
 #include "unified_render/profiler.hpp"
 
-#define MAX_ELEVATION				255
-#define RIVER_ELEVATION(a)			a + 1
-
-typedef unsigned int	uint;
+typedef unsigned int uint;
 // A single tile unit this is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
 class World;
 class Tile {
