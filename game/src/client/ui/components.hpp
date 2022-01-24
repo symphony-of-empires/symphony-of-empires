@@ -38,7 +38,6 @@
 #include "client/ui/piechart.hpp"
 #include "client/ui/progress_bar.hpp"
 #include "client/ui/slider.hpp"
-#include "client/ui/tab.hpp"
 #include "client/ui/text.hpp"
 #include "client/ui/tooltip.hpp"
 #include "client/ui/window.hpp"
