@@ -441,9 +441,12 @@ void main_loop(GameState& gs) {
 
         std::scoped_lock lock(gs.render_lock);
 
-        if(!gs.motion_blur) {
-            gs.clear();
+        if(gs.motion_blur) {
+            glClear(GL_DEPTH_BUFFER_BIT);
+        } else {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
+        gs.clear();
 
         if(gs.current_mode != MapMode::NO_MAP) {
             std::scoped_lock lock(gs.world->world_mutex);

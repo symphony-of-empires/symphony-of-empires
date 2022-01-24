@@ -195,7 +195,20 @@ void Server::net_loop(int id) {
                     case ActionType::BUILDING_ADD: {
                         Building* building = new Building();
                         ::deserialize(ar, building);
-
+                        if(building->type->is_factory) {
+                            building->create_factory();
+                            for(const auto& product : building->output_products) {
+                                UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+                                Archive ar = Archive();
+                                ActionType action = ActionType::PRODUCT_ADD;
+                                ::serialize(ar, &action);
+                                ::serialize(ar, product);
+                                packet.data(ar.get_buffer(), ar.size());
+                                g_server->broadcast(packet);
+                            }
+                        }
+                        building->working_unit_type = nullptr;
+                        building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
                         g_world->insert(building);
                         print_info("[%s] has built a [%s]", selected_nation->ref_name.c_str(), building->type->ref_name.c_str());
                         

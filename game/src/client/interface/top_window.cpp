@@ -436,10 +436,10 @@ TimeControlView::TimeControlView(GameState& _gs)
             "December"
         };
 
-        const int day = 1 + (g_world->time % g_world->ticks_per_month);
-        const int month = 1 + (g_world->time / g_world->ticks_per_month % 12);
+        const int day = g_world->time % g_world->ticks_per_month;
+        const int month = (g_world->time / g_world->ticks_per_month) % 12;
         const int year = g_world->time / g_world->ticks_per_month / 12;
-        w.text(day_names[o.gs.world->time % 7] + ", " + month_names[month] + " " + std::to_string(day) + ", " + std::to_string(year));
+        w.text(day_names[day % 7] + ", " + month_names[month] + " " + std::to_string(day) + ", " + std::to_string(year));
         w.x = 192 - w.width;
     });
     time_lab->on_each_tick(*time_lab, nullptr);

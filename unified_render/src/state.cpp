@@ -148,7 +148,6 @@ UnifiedRender::State::~State(void) {
 }
 
 void UnifiedRender::State::clear(void) const {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //glClear(GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.f);
 }
