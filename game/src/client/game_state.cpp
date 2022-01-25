@@ -399,6 +399,10 @@ void main_loop(GameState& gs) {
                             // TODO: Make a better queue AI
                             bool is_built = false;
                             for(const auto& building : gs.world->buildings) {
+                                if(!(building->type->is_build_land_units || building->type->is_build_naval_units)) {
+                                    continue;
+                                }
+
                                 // Must be our building
                                 if(building->get_owner() != gs.curr_nation) {
                                     continue;

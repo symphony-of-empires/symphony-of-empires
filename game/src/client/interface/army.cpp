@@ -94,6 +94,7 @@ ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
         if(unit->owner != gs.curr_nation) {
             continue;
         }
+
         if(!(unit->type->is_ground == false && unit->type->is_naval == true)) {
             continue;
         }
@@ -141,6 +142,10 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
 
     unsigned int i = 0;
     for(const auto& building : gs.world->buildings) {
+        if(!(building->type->is_build_land_units || building->type->is_build_naval_units)) {
+            continue;
+        }
+
         if(building->get_owner() != gs.curr_nation) {
             continue;
         }
