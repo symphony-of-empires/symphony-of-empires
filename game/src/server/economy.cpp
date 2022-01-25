@@ -142,7 +142,8 @@ void Economy::do_tick(World& world) {
                 const size_t employed = 500;
                 if(output->good->is_edible) {
                     needed_farmers += employed;
-                } else {
+                }
+                else {
                     needed_laborers += employed;
                 }
                 needed_entrepreneurs += employed / 100;
@@ -262,7 +263,7 @@ void Economy::do_tick(World& world) {
                 unit->defensive_ticks = 0;
                 unit->size = unit->type->max_health;
                 unit->base = unit->size;
-                
+
                 // Notify all clients of the server about this new unit
                 building->working_unit_type = nullptr;
                 world.insert(unit);
@@ -319,7 +320,7 @@ void Economy::do_tick(World& world) {
 
             world.orders_mutex.lock();
             for(const auto& input : building->type->inputs) {
-                OrderGoods order = {};
+                OrderGoods order ={};
 
                 order.payment = building->willing_payment;
                 order.good = input;
@@ -330,10 +331,11 @@ void Economy::do_tick(World& world) {
                 // Farmers can only work with edibles and laborers can only work for edibles
                 if(input->is_edible) {
                     order.quantity = (available_farmers / needed_farmers) * 5000;
-                } else {
+                }
+                else {
                     order.quantity = (available_laborers / needed_laborers) * 5000;
                 }
-                
+
                 if(!order.quantity) {
                     continue;
                 }
@@ -358,7 +360,7 @@ void Economy::do_tick(World& world) {
             // Place deliver orders (we are a RGO)
             world.delivers_mutex.lock();
             for(size_t k = 0; k < building->type->outputs.size(); k++) {
-                DeliverGoods deliver = {};
+                DeliverGoods deliver ={};
 
                 deliver.payment = building->willing_payment;
                 deliver.good = building->type->outputs[k];
@@ -368,7 +370,8 @@ void Economy::do_tick(World& world) {
 
                 if(deliver.good->is_edible) {
                     deliver.quantity = (available_farmers / needed_farmers) * 5000;
-                } else {
+                }
+                else {
                     deliver.quantity = (available_laborers / needed_laborers) * 5000;
                 }
 
@@ -398,7 +401,7 @@ void Economy::do_tick(World& world) {
                 continue;
             }
 
-            OrderGoods order = {};
+            OrderGoods order ={};
             order.quantity = good.second;
             order.quantity *= building->get_owner()->get_industry_input_mod();
             // TODO: Make this dynamic
@@ -417,7 +420,7 @@ void Economy::do_tick(World& world) {
                 continue;
             }
 
-            OrderGoods order = {};
+            OrderGoods order ={};
             order.quantity = good.second;
             order.quantity *= building->get_owner()->get_industry_input_mod();
             // TODO: Make this dynamic
@@ -497,7 +500,8 @@ void Economy::do_tick(World& world) {
                 // International trade
                 total_order_cost = order_cost * order_policy.import_tax;
                 total_deliver_cost = deliver_cost * order_policy.export_tax;
-            } else {
+            }
+            else {
                 // Domestic trade
                 total_order_cost = order_cost * order_policy.domestic_import_tax;
                 total_deliver_cost = deliver_cost * order_policy.domestic_export_tax;
@@ -510,7 +514,8 @@ void Economy::do_tick(World& world) {
                     order.building->willing_payment = total_order_cost;
                 }
                 continue;
-            } else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
+            }
+            else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
                 deliver.building->willing_payment = total_deliver_cost;
                 continue;
             }
@@ -534,7 +539,8 @@ void Economy::do_tick(World& world) {
                 // Increment the production cost of this building which is used
                 // so we sell our product at a profit instead  of at a loss
                 order.building->production_cost += deliver.product->price;
-            } else if(order.type == OrderType::BUILDING) {
+            }
+            else if(order.type == OrderType::BUILDING) {
                 // The building will take the production materials
                 // and use them for building the unit
                 order.building->get_owner()->budget -= total_order_cost;
@@ -545,7 +551,8 @@ void Economy::do_tick(World& world) {
 
                     p.second -= std::min(p.second, count);
                 }
-            } else if(order.type == OrderType::UNIT) {
+            }
+            else if(order.type == OrderType::UNIT) {
                 // TODO: We should deduct and set willing payment from military spendings
                 order.building->get_owner()->budget -= total_order_cost;
                 for(auto& p : order.building->req_goods) {
@@ -556,7 +563,8 @@ void Economy::do_tick(World& world) {
                     p.second -= std::min(p.second, count);
                     print_info("Delivered %zu goods (%zu remaining!), of type %s", count, p.second, order.good->ref_name.c_str());
                 }
-            } else if(order.type == OrderType::POP) {
+            }
+            else if(order.type == OrderType::POP) {
                 // Nobody is to be billed ... transport company still obtains their money & delivers to the province
                 //order.province->stockpile[world.get_id(deliver.product)] += order.quantity;
             }
@@ -664,7 +672,8 @@ void Economy::do_tick(World& world) {
 
                 if(good->is_edible) {
                     pop.life_needs_met += (float)pop.size / (float)bought;
-                } else {
+                }
+                else {
                     pop.everyday_needs_met += (float)pop.size / (float)bought;
                 }
             }
@@ -714,7 +723,8 @@ void Economy::do_tick(World& world) {
     do_emigration(world);
 
     // Chances of a coup/rebellion increment for the global militancy
-    for(auto& nation : world.nations) {
+    for(size_t i = 0; i < world.nations.size(); i++) {
+        Nation* nation = world.nations[i];
         // Nation must actually exist
         if(!nation->exists()) {
             continue;
@@ -767,7 +777,7 @@ void Economy::do_tick(World& world) {
                     uprising_provinces.push_back(province);
                 }
             }
-            
+
             Nation* dup_nation = new Nation();
             dup_nation->name = nation->ref_name;
             dup_nation->ref_name = nation->ref_name;
@@ -781,7 +791,7 @@ void Economy::do_tick(World& world) {
             dup_nation->ideology = world.ideologies[std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()))];
             world.insert(dup_nation);
             for(auto& _nation : world.nations) {
-                _nation->relations.resize(world.nations.size(), NationRelation{0.f, false, false, false, false, false, false, false, false, true, false});
+                _nation->relations.resize(world.nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
             }
 
             // Make the most angry provinces revolt!
@@ -808,7 +818,7 @@ void Economy::do_tick(World& world) {
                 dup_nation->declare_war(*nation, clauses);
             }
         }
-        
+
         // Roll a dice! (more probability with more anger!)
         if(std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) <= 100.f) {
             // Choose the ideology with most "anger" (the one more probable to coup d'
