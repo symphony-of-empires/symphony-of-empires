@@ -28,10 +28,10 @@
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "client/ui/group.hpp"
-#include "client/ui/window.hpp"
-#include "client/ui/slider.hpp"
-#include "client/ui/input.hpp"
+#include "unified_render/ui/group.hpp"
+#include "unified_render/ui/window.hpp"
+#include "unified_render/ui/slider.hpp"
+#include "unified_render/ui/input.hpp"
 #include "client/interface/common.hpp"
 
 namespace UI {

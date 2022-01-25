@@ -27,7 +27,7 @@ include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/include")
 #
 # Source code files
 #
-file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
+file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/ui/*.cpp")
 add_library(unified_render STATIC ${MAIN_SOURCES})
 
 #

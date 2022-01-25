@@ -29,9 +29,9 @@
 #include "unified_render/serializer.hpp"
 #include "action.hpp"
 #include "io_impl.hpp"
-#include "client/ui/text.hpp"
-#include "client/ui/tooltip.hpp"
-#include "client/ui/close_button.hpp"
+#include "unified_render/ui/text.hpp"
+#include "unified_render/ui/tooltip.hpp"
+#include "unified_render/ui/close_button.hpp"
 
 using namespace Interface;
 

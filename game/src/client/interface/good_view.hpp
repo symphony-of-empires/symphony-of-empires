@@ -28,7 +28,7 @@
 #include "good.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "client/ui/window.hpp"
+#include "unified_render/ui/window.hpp"
 
 namespace UI {
     class Label;

@@ -29,7 +29,7 @@
 #include "client/interface/treaty.hpp"
 #include "client/interface/war.hpp"
 #include "io_impl.hpp"
-#include "client/ui/components.hpp"
+#include "unified_render/ui/components.hpp"
 
 #include "unified_render/locale.hpp"
 

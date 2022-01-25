@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "client/ui/button.hpp"
-#include "client/ui/group.hpp"
+#include "unified_render/ui/button.hpp"
+#include "unified_render/ui/group.hpp"
 
 class World;
 class Nation;

@@ -27,7 +27,7 @@
 #include "client/client_network.hpp"
 #include "unified_render/serializer.hpp"
 #include "io_impl.hpp"
-#include "client/ui/components.hpp"
+#include "unified_render/ui/components.hpp"
 
 #include "unified_render/texture.hpp"
 #include "unified_render/path.hpp"

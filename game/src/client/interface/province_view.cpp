@@ -33,12 +33,12 @@
 #include "building.hpp"
 #include "unified_render/path.hpp"
 #include "unified_render/texture.hpp"
-#include "client/ui/piechart.hpp"
-#include "client/ui/label.hpp"
-#include "client/ui/image.hpp"
-#include "client/ui/tooltip.hpp"
-#include "client/ui/button.hpp"
-#include "client/ui/close_button.hpp"
+#include "unified_render/ui/piechart.hpp"
+#include "unified_render/ui/label.hpp"
+#include "unified_render/ui/image.hpp"
+#include "unified_render/ui/tooltip.hpp"
+#include "unified_render/ui/button.hpp"
+#include "unified_render/ui/close_button.hpp"
 
 using namespace Interface;
 
