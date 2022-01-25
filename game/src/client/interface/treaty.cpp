@@ -25,7 +25,7 @@
 
 #include "client/interface/treaty.hpp"
 #include "io_impl.hpp"
-#include "client/ui/components.hpp"
+#include "unified_render/ui/components.hpp"
 #include "client/client_network.hpp"
 
 using namespace Interface;

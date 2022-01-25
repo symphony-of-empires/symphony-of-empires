@@ -25,16 +25,16 @@
 
 #include "client/interface/lobby.hpp"
 #include "client/game_state.hpp"
-#include "client/ui/ui.hpp"
+#include "unified_render/ui/ui.hpp"
 #include "world.hpp"
 #include "client/map.hpp"
 #include "client/camera.hpp"
 #include <filesystem>
 #include "io_impl.hpp"
 
-#include "client/ui/button.hpp"
-#include "client/ui/label.hpp"
-#include "client/ui/group.hpp"
+#include "unified_render/ui/button.hpp"
+#include "unified_render/ui/label.hpp"
+#include "unified_render/ui/group.hpp"
 
 using namespace Interface;
 

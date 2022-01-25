@@ -33,7 +33,7 @@
 #include "client/interface/army.hpp"
 #include "client/interface/technology.hpp"
 #include "io_impl.hpp"
-#include "client/ui/components.hpp"
+#include "unified_render/ui/components.hpp"
 
 #ifdef windows
 #	define bswap_32(x) _byteswap_ulong(x)

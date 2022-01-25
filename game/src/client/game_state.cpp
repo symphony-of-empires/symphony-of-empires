@@ -96,8 +96,8 @@
 #include "unified_render/material.hpp"
 #include "unified_render/model.hpp"
 #include "unified_render/texture.hpp"
-#include "client/ui/ui.hpp"
-#include "client/ui/input.hpp"
+#include "unified_render/ui/ui.hpp"
+#include "unified_render/ui/input.hpp"
 #include "server/server_network.hpp"
 
 void GameState::play_nation() {
@@ -333,7 +333,7 @@ void GameState::world_thread(void) {
     }
 }
 
-#include "client/ui/image.hpp"
+#include "unified_render/ui/image.hpp"
 #include "client/interface/main_menu.hpp"
 #include "unified_render/audio.hpp"
 #include <filesystem>

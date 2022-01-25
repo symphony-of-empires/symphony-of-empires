@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "client/ui/window.hpp"
+#include "unified_render/ui/window.hpp"
 #include "client/game_state.hpp"
 
 namespace Interface {

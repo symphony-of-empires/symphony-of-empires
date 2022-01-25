@@ -30,9 +30,9 @@
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "client/ui/image.hpp"
-#include "client/ui/close_button.hpp"
-#include "client/ui/button.hpp"
+#include "unified_render/ui/image.hpp"
+#include "unified_render/ui/close_button.hpp"
+#include "unified_render/ui/button.hpp"
 
 using namespace Interface;
 

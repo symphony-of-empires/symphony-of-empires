@@ -111,7 +111,6 @@ namespace UI {
 		UnifiedRender::Color color;
 	};
 
-
 	class Border {
 	public:
 		const UnifiedRender::Texture* texture = nullptr;
@@ -222,7 +221,6 @@ namespace UI {
 		std::function<void(Widget&, void*)> on_click_outside;
 
 		std::function<void(Widget&, void*)> on_each_tick;
-
 
 		friend class Context;
 	private:

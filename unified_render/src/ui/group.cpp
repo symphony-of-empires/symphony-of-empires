@@ -17,25 +17,28 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      unified_render/ui/button.cpp
+//      unified_render/ui/group.cpp
 //
 // Abstract:
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#pragma once
+#include "unified_render/ui/group.hpp"
 
-#include "unified_render/ui/widget.hpp"
+using namespace UI;
 
-namespace UI {
-    class Button: public Widget {
-    public:
-        /**
-         * @ingroup UI
-         * @brief Button widget
-         *
-         */
-        Button(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        virtual ~Button() override {};
-    };
-};
+Group::Group(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::GROUP)
+{
+
+}
+
+Group::Group(int _x, int _y, Widget* _parent)
+    : Widget(_parent, _x, _y, 10000, 10000, UI::WidgetType::GROUP)
+{
+
+}
+
+void Group::on_render(Context&, UnifiedRender::Rect) {
+    // Do nothing!
+}

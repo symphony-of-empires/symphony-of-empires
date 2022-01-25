@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      client/ui/group.cpp
+//      unified_render/ui/group.cpp
 //
 // Abstract:
 //      Does some important stuff.

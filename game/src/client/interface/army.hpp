@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "client/ui/window.hpp"
-#include "client/ui/group.hpp"
+#include "unified_render/ui/window.hpp"
+#include "unified_render/ui/group.hpp"
 #include "client/interface/common.hpp"
 
 class World;

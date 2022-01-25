@@ -29,8 +29,8 @@
 #include "unified_render/color.hpp"
 #include "client/game_state.hpp"
 #include "world.hpp"
-#include "client/ui/components.hpp"
-#include "client/ui/widget.hpp"
+#include "unified_render/ui/components.hpp"
+#include "unified_render/ui/widget.hpp"
 
 using namespace Interface;
 

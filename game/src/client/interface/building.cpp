@@ -29,7 +29,7 @@
 #include "action.hpp"
 #include "io_impl.hpp"
 
-#include "client/ui/close_button.hpp"
+#include "unified_render/ui/close_button.hpp"
 #include "unified_render/locale.hpp"
 
 using namespace Interface;

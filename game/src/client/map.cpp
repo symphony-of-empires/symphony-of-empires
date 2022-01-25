@@ -55,7 +55,7 @@
 #include "client/camera.hpp"
 #include "province.hpp"
 #include "unified_render/state.hpp"
-#include "client/ui/tooltip.hpp"
+#include "unified_render/ui/tooltip.hpp"
 
 #include "client/client_network.hpp"
 #include "unified_render/serializer.hpp"

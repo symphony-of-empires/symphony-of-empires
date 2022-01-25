@@ -56,7 +56,6 @@ file(GLOB MAIN_SOURCES
 	"${PROJECT_SOURCE_DIR}/game/src/*.cpp"
 	"${PROJECT_SOURCE_DIR}/game/src/client/*.cpp"
 	"${PROJECT_SOURCE_DIR}/game/src/client/interface/*.cpp"
-	"${PROJECT_SOURCE_DIR}/game/src/client/ui/*.cpp"
 	"${PROJECT_SOURCE_DIR}/game/src/server/*.cpp"
 	"${PROJECT_SOURCE_DIR}/game/src/server/ai/*.cpp"
 )
