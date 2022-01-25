@@ -24,9 +24,9 @@
 -- ----------------------------------------------------------------------------
 
 -- Unit types
-militia = UnitType:new{ ref_name = "militia", defense = 1.5, attack = 0.5, health = 10.0, speed = 0.5 }
-militia.name = _("Militia")
-militia:register()
+--militia = UnitType:new{ ref_name = "militia", defense = 1.5, attack = 0.5, health = 10.0, speed = 0.5 }
+--militia.name = _("Militia")
+--militia:register()
 --militia:requires_good(ammunition, 200)
 --militia:requires_good(arms, 100)
 

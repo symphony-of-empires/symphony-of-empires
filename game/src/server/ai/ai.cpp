@@ -499,8 +499,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 Province* province = *it;
                 if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
                     print_error("Cant build defense, province doesn't have any tiles");
-                }
-                else {
+                } else {
                     Building* building = new Building();
                     building->province = province;
                     building->type = world->building_types[0];
@@ -516,7 +515,11 @@ void ai_do_tick(Nation* nation, World* world) {
 
             // Build units inside buildings that are not doing anything
             for(auto& building : g_world->buildings) {
-                if(building->working_unit_type != nullptr || building->owner != nation || !(building->type->is_build_land_units && building->type->is_build_naval_units)) {
+                if(!(building->type->is_build_land_units && building->type->is_build_naval_units)) {
+                    //continue;
+                }
+
+                if(building->working_unit_type != nullptr || building->owner != nation) {
                     continue;
                 }
 
@@ -585,6 +588,7 @@ void ai_do_tick(Nation* nation, World* world) {
     // TODO: make a better algorithm
     if(nation->ai_do_cmd_troops) {
         std::vector<int> nations_risk_factor(world->nations.size(), 0);
+
         for(const auto& other : world->nations) {
             if(other == nation) {
                 continue;
@@ -598,28 +602,16 @@ void ai_do_tick(Nation* nation, World* world) {
             if(!relation.has_alliance) {
                 nations_risk_factor[world->get_id(other)] += 1;
             }
+
             if(relation.has_war) {
-                nations_risk_factor[world->get_id(other)] += 5;
+                nations_risk_factor[world->get_id(other)] += 10;
             }
         }
-        // Our own nation is safe, let's set it to -10
-        nations_risk_factor[world->get_id(nation)] = -10;
+        // Our own nation is safe, let's set it to 0
+        nations_risk_factor[world->get_id(nation)] = 0;
 
         std::vector<int> potential_risk(world->provinces.size(), 0);
         for(const auto& province : nation->owned_provinces) {
-            for(const auto& neighbour : province->neighbours) {
-                if(province->terrain_type->is_water_body) {
-                    continue;
-                }
-
-                // Province must be controlled by someone/not by us
-                if(neighbour->controller == nullptr || neighbour->controller == nation) {
-                    continue;
-                }
-
-                potential_risk[world->get_id(neighbour)] += nations_risk_factor[world->get_id(neighbour->controller)];
-            }
-
             // The "cooling" value which basically makes us ignore some provinces with lots of defenses
             // so we don't rack up deathstacks on a border with some micronation
             unsigned int draw_away_force = 0;
@@ -632,17 +624,26 @@ void ai_do_tick(Nation* nation, World* world) {
                 // basically make the draw_away_force negative, which in turns does not draw away but rather
                 // draw in even more units
                 draw_away_force += (-nations_risk_factor[world->get_id(unit->owner)]) * unit_strength;
-                
+
                 //if(unit->owner == nation) {
                 //    force += (unit->type->defense * unit->type->attack) * unit->size;
                 //}
             }
             potential_risk[world->get_id(province)] -= draw_away_force;
-        }
 
-        // Let's spread out that heat to other provinces, so we "call" other units into the action!
-        for(const auto& province : world->provinces) {
             for(const auto& neighbour : province->neighbours) {
+                if(province->terrain_type->is_water_body) {
+                    continue;
+                }
+
+                // Province must be controlled by someone/not by us
+                if(neighbour->controller == nullptr || neighbour->controller == nation) {
+                    continue;
+                }
+
+                potential_risk[world->get_id(neighbour)] += nations_risk_factor[world->get_id(neighbour->controller)];
+
+                // Spread out the heat
                 potential_risk[world->get_id(neighbour)] += (potential_risk[world->get_id(province)] + 1) / province->neighbours.size();
             }
         }
@@ -695,16 +696,15 @@ void ai_do_tick(Nation* nation, World* world) {
             if(!unit->can_move()) {
                 continue;
             }
-
+            
+            // Can only go to a province if we have military accesss, they are our ally or if we are at war
+            // also if it's ours we can move thru it - or if it's owned by no-one
             if(province->controller != nullptr) {
-                // Can only go to a province if we have military accesss, they are our ally or if we are at war
-                // also if it's ours we can move thru it
                 NationRelation& relation = province->controller->relations[world->get_id(unit->owner)];
                 if(province->controller == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war) {
                     unit->set_target(*province);
                 }
-            }
-            else {
+            } else {
                 unit->set_target(*province);
             }
         }
