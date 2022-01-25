@@ -40,8 +40,9 @@ std::string treaty_to_text(Treaty* treaty) {
             const auto* dyn_clause = static_cast<const TreatyClause::AnexxProvince*>(clause);
             text += dyn_clause->sender->name + " obtains ";
             for(const auto& province : dyn_clause->provinces) {
-                text += province->name + " from " + dyn_clause->receiver->name + ", ";
+                text += province->name + ", ";
             }
+            text += " from " + dyn_clause->receiver->name;
         } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
             const auto* dyn_clause = static_cast<const TreatyClause::LiberateNation*>(clause);
             text += dyn_clause->sender->name + " liberates " + dyn_clause->liberated->name + " and gives them ";
@@ -184,10 +185,10 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
     gs{ _gs },
     treaty{ _treaty }
 {
-    this->is_scroll = false;
+    this->is_scroll = true;
     this->text("Treaty proposal");
     
-    this->body_txt = new UI::Text(0, 0, this->width, 256 - 24, this);
+    this->body_txt = new UI::Text(0, 0, this->width, this->height - 24, this);
     this->body_txt->text(treaty_to_text(_treaty));
 
     auto* approve_btn = new UI::Button(0, 0, this->width, 24, this);
