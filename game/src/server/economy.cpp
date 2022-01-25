@@ -149,8 +149,7 @@ void Economy::do_tick(World& world) {
                 needed_entrepreneurs += employed / 100;
                 ++i;
             }
-        }
-        else {
+        } else {
             needed_laborers = 50;
             needed_farmers = 50;
             needed_entrepreneurs = 50;
@@ -165,7 +164,9 @@ void Economy::do_tick(World& world) {
         // - Farmers: They are needed to produce edibles
         // - BURGEOISE: They help "organize" the factory
         for(size_t i = 0; i < province_workers.farmers.size(); i++) {
-            if(available_farmers >= needed_farmers) break;
+            if(available_farmers >= needed_farmers) {
+                break;
+            }
 
             Workers& workers = province_workers.farmers[i];
 
@@ -187,7 +188,10 @@ void Economy::do_tick(World& world) {
         }
 
         for(size_t i = 0; i < province_workers.laborers.size(); i++) {
-            if(available_laborers >= needed_laborers) break;
+            if(available_laborers >= needed_laborers) {
+                break;
+            }
+                
             Workers& workers = province_workers.laborers[i];
 
             const size_t employed = std::min(needed_laborers - available_laborers, workers.amount);
@@ -208,7 +212,10 @@ void Economy::do_tick(World& world) {
         }
 
         for(size_t i = 0; i < province_workers.entrepreneurs.size(); i++) {
-            if(available_entrepreneurs >= needed_entrepreneurs) break;
+            if(available_entrepreneurs >= needed_entrepreneurs) {
+                break;
+            }
+
             Workers& workers = province_workers.entrepreneurs[i];
 
             const size_t employed = std::min(needed_entrepreneurs - available_entrepreneurs, workers.amount);
@@ -247,10 +254,19 @@ void Economy::do_tick(World& world) {
                 }
             }
 
-            // TODO: Make a proper supply chain system with the whole working economy thing :)
-            // NOTE: Uncomment when it's ready :)
-            //can_build_unit = true;
-            if(can_build_unit) {
+            // Ratio of health:person is 25, thus making units very expensive
+            const size_t army_size = building->working_unit_type->max_health * 25;
+
+            // TODO: Consume special soldier pops instead of farmers!!!
+            auto it = std::find_if(province->pops.begin(), province->pops.end(), [building, army_size](const auto& e) {
+                return (e.size >= army_size && e.type->group == PopGroup::FARMER);
+            });
+            if(it == province->pops.end()) {
+                can_build_unit = false;
+            } else {
+                // TODO: Maybe delete if size becomes 0?
+                (*it).size -= army_size;
+
                 // Spawn a unit
                 Unit* unit = new Unit();
                 unit->set_province(*building->get_province());
@@ -331,8 +347,7 @@ void Economy::do_tick(World& world) {
                 // Farmers can only work with edibles and laborers can only work for edibles
                 if(input->is_edible) {
                     order.quantity = (available_farmers / needed_farmers) * 5000;
-                }
-                else {
+                } else {
                     order.quantity = (available_laborers / needed_laborers) * 5000;
                 }
 
@@ -354,7 +369,9 @@ void Economy::do_tick(World& world) {
             }
             world.orders_mutex.unlock();
 
-            if(!building->can_do_output()) continue;
+            //if(!building->can_do_output()) {
+            //    continue;
+            //}
 
             // Now produce anything as we can!
             // Place deliver orders (we are a RGO)
