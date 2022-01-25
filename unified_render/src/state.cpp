@@ -56,6 +56,7 @@
 #include "unified_render/texture.hpp"
 #include "unified_render/material.hpp"
 #include "unified_render/model.hpp"
+#include "unified_render/log.hpp"
 
 // Used for the singleton
 static UnifiedRender::State* g_state = nullptr;
@@ -135,6 +136,30 @@ UnifiedRender::State::State(void) {
             const auto& path = entry.path().lexically_relative(asset_path);
             Path::add_path(path.string());
         }
+    }
+
+    // Plugins system (still wip)
+    for(const auto& plugin : Path::get_all("plugin.dll")) {
+#if defined windows
+        HINSTANCE hGetProcIDDLL = LoadLibrary(plugin.c_str());
+        // This shouldn't happen - like ever!
+        if(!hGetProcIDDLL) {
+            UnifiedRender::Log::error("plugin", "DLL file " + plugin + " not found");
+            continue;
+        }
+        
+        typedef int(__stdcall* plugin_dll_entry_t)(const char *gameid, int gamever);
+        plugin_dll_entry_t entry = (plugin_dll_entry_t)GetProcAddress(hGetProcIDDLL, "__unirend_entry");
+        if(!entry) {
+            UnifiedRender::Log::warning("plugin", "Can't find __unirend_entry on " + plugin);
+            continue;
+        }
+
+        int r = entry("SYMPHONY_EMPIRES", 0x00F0);
+        if(r != 0) {
+            UnifiedRender::Log::warning("plugin", "Error RET=" + std::to_string(r) + " on plugin " + plugin);
+        }
+#endif
     }
 }
 
