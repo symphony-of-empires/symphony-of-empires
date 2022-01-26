@@ -120,9 +120,9 @@ void Map::set_view(MapView view) {
         camera = new FlatCamera(old_camera);
     }
     else if(view == MapView::SPHERE_VIEW) {
-        camera = new OrbitCamera(old_camera);
+        camera = new OrbitCamera(old_camera, GLOBE_RADIUS);
     }
-    delete camera;
+    delete old_camera;
 }
 
 // The standard map mode with each province color = country color
