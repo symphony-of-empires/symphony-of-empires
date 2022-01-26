@@ -338,7 +338,9 @@ void main_loop(GameState& gs) {
     gs.in_game = false;
 
     // Connect to server prompt
-    gs.current_mode = MapMode::NO_MAP;
+    gs.current_mode = MapMode::DISPLAY_ONLY;
+    gs.map->set_view(MapView::SPHERE_VIEW);
+
     //auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/globe.png")));
     //mm_bg->is_fullscreen = true;
     /*Interface::MainMenu* main_menu =*/
@@ -364,6 +366,8 @@ void main_loop(GameState& gs) {
                 handle_popups(displayed_events, displayed_treaties, gs);
                 gs.world->world_mutex.unlock();
             }
+        } else if(gs.current_mode == MapMode::DISPLAY_ONLY) {
+            gs.map->camera->move(0.1f, 0.f, 0.f);
         }
 
         if(gs.sound_queue.empty()) {
