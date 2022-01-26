@@ -3299,11 +3299,6 @@ province:give_to(Nation:get("upca"))
 province:set_terrain(TerrainType:get("deepsea"))
 province = Province:new{ ref_name = "province_ff00ff00", name = _("Global lakes"), color = 0xff00ff }
 province:register()
-province:add_industry(BuildingType:get("gold_mine"), Nation:get("upca"))
-province:add_industry(BuildingType:get("wheat_farm"), Nation:get("upca"))
-province:add_nucleus(Nation:get("upca"))
-province:give_to(Nation:get("upca"))
-province:set_terrain(TerrainType:get("tundra"))
 province = Province:new{ ref_name = "province_20e41c00", name = _("Province_1ce420"), color = 0x1ce420 }
 province:register()
 province:add_industry(BuildingType:get("gold_mine"), Nation:get("upca"))
@@ -3323,10 +3318,6 @@ province:give_to(Nation:get("upca"))
 province:set_terrain(TerrainType:get("deepsea"))
 province = Province:new{ ref_name = "province_000000", name = _("Global sea"), color = 0x0 }
 province:register()
-province:add_industry(BuildingType:get("gold_mine"), Nation:get("upca"))
-province:add_industry(BuildingType:get("wheat_farm"), Nation:get("upca"))
-province:add_nucleus(Nation:get("upca"))
-province:give_to(Nation:get("upca"))
 province:set_terrain(TerrainType:get("deepsea"))
 province = Province:new{ ref_name = "province_8020ec00", name = _("Province_ec2080"), color = 0xec2080 }
 province:register()
@@ -34438,7 +34429,7 @@ province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ffff9b00", name = _("Province_9bffff"), color = 0x9bffff }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
-province = Province:new{ ref_name = "province_ffffff00", name = _("Province_ffffff"), color = 0xffffff }
+province = Province:new{ ref_name = "province_ffffff00", name = _("Global land"), color = 0xffffff }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_00000000009B9DCD", name = _("Province_00000000009B9DCD"), color = 0x9b9dcd }
