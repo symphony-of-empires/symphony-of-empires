@@ -112,8 +112,6 @@ public:
     Input input;
     MapMode current_mode = MapMode::NO_MAP;
 
-    UI::Context* ui_ctx;
-
     Interface::LobbySelectView* select_nation;
     Interface::TopWindow* top_win;
     Interface::Minimap* minimap;
