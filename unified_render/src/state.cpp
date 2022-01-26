@@ -173,14 +173,11 @@ UnifiedRender::State::~State(void) {
 }
 
 void UnifiedRender::State::clear(void) const {
-    //glClear(GL_DEPTH_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.f);
 }
 
 void UnifiedRender::State::swap(void) const {
-    //glLoadIdentity();
-    //glRasterPos2f(0.f, 0.f);
-
     // Required by macOS
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
