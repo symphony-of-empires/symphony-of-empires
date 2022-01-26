@@ -56,15 +56,11 @@
 #   include <SDL.h>
 #   include <SDL_events.h>
 #   include <SDL_mouse.h>
-#   include <SDL_opengl.h>
-#   include <SDL_ttf.h>
 #   include <SDL_audio.h>
 #else
 #   include <SDL2/SDL.h>
 #   include <SDL2/SDL_events.h>
 #   include <SDL2/SDL_mouse.h>
-#   include <SDL2/SDL_opengl.h>
-#   include <SDL2/SDL_ttf.h>
 #   include <SDL2/SDL_audio.h>
 //#include <sys/wait.h>
 #endif
@@ -127,7 +123,6 @@ void handle_event(Input& input, GameState& gs) {
 
     int& width = gs.width;
     int& height = gs.height;
-    SDL_Event event;
 
     // Check window size every update
     //   - needed cause the window sometimes changes size without calling the change window size event
@@ -135,6 +130,7 @@ void handle_event(Input& input, GameState& gs) {
     gs.ui_ctx->resize(width, height);
     gs.map->camera->set_screen(width, height);
 
+    SDL_Event event;
     while(SDL_PollEvent(&event)) {
         bool click_on_ui = false;
         switch(event.type) {
@@ -250,7 +246,6 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_QUIT:
             gs.run = false;
-            gs.paused = false;
             break;
         default:
             break;
@@ -445,10 +440,8 @@ void main_loop(GameState& gs) {
 
         std::scoped_lock lock(gs.render_lock);
 
-        if(gs.motion_blur) {
-            glClear(GL_DEPTH_BUFFER_BIT);
-        } else {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if(!gs.motion_blur) {
+            glClear(GL_COLOR_BUFFER_BIT);
         }
         gs.clear();
 
@@ -461,6 +454,7 @@ void main_loop(GameState& gs) {
 
         glUseProgram(0);
         glActiveTexture(GL_TEXTURE0);
+
         glViewport(0, 0, gs.width, gs.height);
         glPushMatrix();
         glMatrixMode(GL_PROJECTION);
@@ -469,6 +463,7 @@ void main_loop(GameState& gs) {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         glTranslatef(0.f, 0.f, 0.f);
+
         // Cursor
         glPushMatrix();
         glTranslatef(gs.input.mouse_pos.first, gs.input.mouse_pos.second, 0.f);
@@ -489,6 +484,7 @@ void main_loop(GameState& gs) {
         glVertex2f(0.f, 0.f);
         glEnd();
         glPopMatrix();
+
         glPopMatrix();
 
         gs.swap();

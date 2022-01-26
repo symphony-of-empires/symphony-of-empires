@@ -50,6 +50,7 @@
 #include <mutex>
 
 #include "unified_render/io.hpp"
+#include "unified_render/ui/ui.hpp"
 
 namespace UnifiedRender {
 	class TextureManager;
@@ -88,6 +89,7 @@ namespace UnifiedRender {
 		UnifiedRender::MaterialManager* material_man;
     	UnifiedRender::ModelManager* model_man;
 		UnifiedRender::IO::PackageManager* package_man;
+		UI::Context* ui_ctx;
 
 		float music_volume = 50.f, sound_volume = 50.f;
 	};
