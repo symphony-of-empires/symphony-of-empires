@@ -204,8 +204,8 @@ void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
                 continue;
             }
 			
-			float volume = (100.f / SDL_MIX_MAXVOLUME) * gs.sound_volume;
-            SDL_MixAudio(stream, &sound->data[sound->pos], amount, SDL_MIX_MAXVOLUME - volume);
+			const float volume = (SDL_MIX_MAXVOLUME / 100.f) * gs.sound_volume;
+            SDL_MixAudio(stream, &sound->data[sound->pos], amount, volume);
             sound->pos += amount;
             i++;
         }
@@ -224,8 +224,8 @@ void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
                 continue;
             }
 			
-			float volume = (100.f / SDL_MIX_MAXVOLUME) * gs.music_volume;
-            SDL_MixAudio(stream, &music->data[music->pos], amount, (SDL_MIX_MAXVOLUME / gs.music_fade_value) - volume);
+			const float volume = (SDL_MIX_MAXVOLUME / 100.f) * gs.music_volume;
+            SDL_MixAudio(stream, &music->data[music->pos], amount, volume - ((SDL_MIX_MAXVOLUME / 100.f) * gs.music_fade_value));
             music->pos += amount;
             i++;
         }
