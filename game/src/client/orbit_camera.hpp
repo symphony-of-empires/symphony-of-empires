@@ -51,8 +51,8 @@ public:
         target = map_position;
     }
 
-    OrbitCamera(Camera* camera)
-        : Camera(camera)
+    OrbitCamera(Camera* camera, float _radius)
+        : radius{_radius}, Camera(camera)
     {
         world_position = map_position;
         target = map_position;
