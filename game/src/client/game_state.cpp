@@ -531,10 +531,6 @@ void start_client(int, char**) {
         }
     }
 
-    gs.ui_ctx = new UI::Context();
-
-    gs.ui_ctx->resize(gs.width, gs.height);
-
     gs.loaded_world = false;
     gs.loaded_map = false;
 

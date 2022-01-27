@@ -62,6 +62,9 @@
 static UnifiedRender::State* g_state = nullptr;
 
 UnifiedRender::State::State(void) {
+    if(g_state != nullptr) {
+        throw std::runtime_error("Duplicate instancing of GameState");
+    }
     g_state = this;
 
     // Startup-initialization of subsystems
@@ -161,9 +164,14 @@ UnifiedRender::State::State(void) {
         }
 #endif
     }
+
+    ui_ctx = new UI::Context();
+    ui_ctx->resize(width, height);
 }
 
 UnifiedRender::State::~State(void) {
+    delete ui_ctx;
+
     SDL_CloseAudio();
 
     TTF_Quit();
@@ -185,15 +193,15 @@ void UnifiedRender::State::swap(void) const {
 }
 
 void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
-    UnifiedRender::State& gs = *((UnifiedRender::State*)userdata);
+    UnifiedRender::State& gs = *(static_cast<UnifiedRender::State*>(userdata));
     std::memset(stream, 0, len);
 
     if(gs.sound_lock.try_lock()) {
         for(unsigned int i = 0; i < gs.sound_queue.size(); ) {
             int size = gs.sound_queue.size();
             UnifiedRender::Audio* sound = gs.sound_queue[i];
-            int amount = sound->len - sound->pos;
 
+            int amount = sound->len - sound->pos;
             if(amount > len) {
                 amount = len;
             }
@@ -212,8 +220,8 @@ void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
 
         for(unsigned int i = 0; i < gs.music_queue.size(); ) {
             UnifiedRender::Audio* music = gs.music_queue[i];
-            int amount = music->len - music->pos;
 
+            int amount = music->len - music->pos;
             if(amount > len) {
                 amount = len;
             }
@@ -225,7 +233,8 @@ void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
             }
 			
 			const float volume = (SDL_MIX_MAXVOLUME / 100.f) * gs.music_volume;
-            SDL_MixAudio(stream, &music->data[music->pos], amount, volume - ((SDL_MIX_MAXVOLUME / 100.f) * gs.music_fade_value));
+            const float fade = (SDL_MIX_MAXVOLUME / 100.f) * gs.music_fade_value;
+            SDL_MixAudio(stream, &music->data[music->pos], amount, volume - fade);
             music->pos += amount;
             i++;
         }
