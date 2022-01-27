@@ -102,7 +102,7 @@ void external_migration(World& world) {
 		}
 
 		DiscreteDistribution<Province*>* distribution = nullptr;
-		if(viable_provinces.size() > 0) {
+		if(!viable_provinces.empty()) {
 			distribution = new DiscreteDistribution(viable_provinces, attractions);
 		}
 		province_distributions.push_back(distribution);
@@ -113,7 +113,7 @@ void external_migration(World& world) {
 		std::vector<float> attractions;
 		std::vector<Nation*> viable_nations;
 		for(auto nation : world.nations) {
-			if(nation->owned_provinces.size() == 0) {
+			if(nation->owned_provinces.empty()) {
 				continue;
 			}
 
@@ -133,8 +133,9 @@ void external_migration(World& world) {
 			attractions.push_back(attraction);
 			viable_nations.push_back(nation);
 		}
+
 		DiscreteDistribution<Nation*>* distribution = nullptr;
-		if(viable_nations.size() > 0) {
+		if(!viable_nations.empty()) {
 			distribution = new DiscreteDistribution(viable_nations, attractions);
 		}
 		nation_distributions.push_back(distribution);
@@ -151,8 +152,7 @@ void external_migration(World& world) {
 		}
 
 		// Randomness factor to emulate a pseudo-imperfect economy
-		const float fuzz = std::fmod((float)(std::rand() + 1) / 1000.f, 2.f) + 1.f;
-
+		const float fuzz = static_cast<float>(std::rand() + 1) / 1000.f;
 		for(size_t i = 0; i < province->pops.size(); i++) {
 			Pop& pop = province->pops[i];
 
@@ -160,8 +160,8 @@ void external_migration(World& world) {
 			// want to get out of here
 			// And literacy determines "best" spot, for example a low literacy will
 			// choose a slightly less desirable location
-			const float emigration_willing = std::max<float>(-pop.life_needs_met * std::fmod(fuzz, 10), 0);
-			const ssize_t emigreers = std::fmod(pop.size * (emigration_willing / (std::rand() % 8)), pop.size) / 100;
+			const int emigration_desire = std::max<int>(pop.militancy * -pop.life_needs_met, 1);
+			const size_t emigreers = std::min<size_t>((pop.size * emigration_desire) * std::fmod(fuzz + 1.f, 1.f), pop.size);
 			if(emigreers > 0) {
 				// Check that laws on the province we are in allows for emigration
 				if(province->controller->current_policy.migration == ALLOW_NOBODY) {
