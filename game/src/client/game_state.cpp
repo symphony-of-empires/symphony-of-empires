@@ -429,16 +429,16 @@ void main_loop(GameState& gs) {
                     gs.world->world_mutex.unlock();
                 }
             }
+        }
 
-            if(gs.music_queue.empty()) {
-                // Search through all the music in 'music/ambience' and picks a random
-                auto entries = Path::get_all_recursive("music/ambience");
-                if(entries.size() != 0) {
-                    int music_index = std::rand() % entries.size();
-                    std::scoped_lock lock(gs.sound_lock);
-                    gs.music_fade_value = 100.f;
-                    gs.music_queue.push_back(new UnifiedRender::Audio(entries[music_index]));
-                }
+        if(gs.music_queue.empty()) {
+            // Search through all the music in 'music/ambience' and picks a random
+            auto entries = Path::get_all_recursive("sfx/music/ambience");
+            if(!entries.empty()) {
+                int music_index = std::rand() % entries.size();
+                std::scoped_lock lock(gs.sound_lock);
+                gs.music_fade_value = 100.f;
+                gs.music_queue.push_back(new UnifiedRender::Audio(entries[music_index]));
             }
         }
 
