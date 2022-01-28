@@ -470,7 +470,6 @@ void Widget::text(const std::string& _text) {
     }
 	
     text_texture = new UnifiedRender::Texture(surface->w, surface->h);
-    text_texture->gl_tex_num = 0;
     text_texture->to_opengl(surface);
     SDL_FreeSurface(surface);
 
