@@ -120,8 +120,7 @@ void Map::set_view(MapView view) {
     Camera* old_camera = camera;
     if(view == MapView::PLANE_VIEW) {
         camera = new FlatCamera(old_camera);
-    }
-    else if(view == MapView::SPHERE_VIEW) {
+    } else if(view == MapView::SPHERE_VIEW) {
         camera = new OrbitCamera(old_camera, GLOBE_RADIUS);
     }
     delete old_camera;
@@ -134,11 +133,9 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
         Nation* province_owner = world.provinces[i]->owner;
         if(province_owner == nullptr) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        }
-        else if(province_owner->cached_id == (Nation::Id)-1) {
+        } else if(province_owner->cached_id == (Nation::Id)-1) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        }
-        else {
+        } else {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }
@@ -153,6 +150,7 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
 std::string political_province_tooltip(const World& world, const Province::Id id) {
     return world.provinces[id]->name;
 }
+
 std::string empty_province_tooltip(const World& world, const Province::Id id) {
     return "";
 }
@@ -204,6 +202,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
     if(event.button.button == SDL_BUTTON_LEFT) {
         std::pair<float, float>& select_pos = input.select_pos;
+
         const Tile& tile = gs.world->get_tile(select_pos.first, select_pos.second);
         switch(gs.current_mode) {
         case MapMode::COUNTRY_SELECT:
@@ -258,8 +257,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    }
-    else if(event.button.button == SDL_BUTTON_RIGHT) {
+    } else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
         if(tile.province_id == (Province::Id)-1) {
             return;
@@ -366,6 +364,7 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx) {
     case SDL_MOUSEMOTION:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
         glm::ivec2 map_pos;
+        
         if(input.middle_mouse_down) {  // Drag the map with middlemouse
             if(camera->get_cursor_map_pos(mouse_pos, map_pos)) {
                 glm::vec2 current_pos = glm::make_vec2(camera->get_map_pos());
@@ -373,7 +372,12 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx) {
                 camera->set_pos(pos.x, pos.y);
             }
         }
+
         if(camera->get_cursor_map_pos(mouse_pos, map_pos)) {
+            if(map_pos.x < 0 || map_pos.x > world.width || map_pos.y < 0 || map_pos.y > world.height) {
+                break;
+            }
+
             input.select_pos.first = map_pos.x;
             input.select_pos.second = map_pos.y;
             auto prov_id = world.get_tile(map_pos.x, map_pos.y).province_id;
@@ -480,8 +484,8 @@ void Map::draw(const GameState& gs) {
             // Model
             obj_shader->set_uniform("model", model);
             unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
-            }
         }
+    }
 
     // Highlight for units
     for(const auto& unit : gs.input.selected_units) {
@@ -511,7 +515,7 @@ void Map::draw(const GameState& gs) {
         UnifiedRender::TextureOptions mipmap_options{};
         mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         mipmap_options.mag_filter = GL_LINEAR;
-        auto& skybox_texture = gs.tex_man->load(Path::get("space.png"), mipmap_options);
+        auto& skybox_texture = gs.tex_man->load(Path::get("gfx/space.png"), mipmap_options);
         obj_shader->set_texture(0, "diffuse_map", skybox_texture);
         obj_shader->set_uniform("model", model);
 
@@ -523,4 +527,4 @@ void Map::draw(const GameState& gs) {
     if(wind_osc >= 180.f) {
         wind_osc = 0.f;
     }
-    }
+}

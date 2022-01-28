@@ -266,24 +266,24 @@ MainMenuSettings::MainMenuSettings(GameState& _gs)
     motionblur_chk->tooltip = new UI::Tooltip(motionblur_chk, 512, 24);
     motionblur_chk->tooltip->text("Control if motion blur should be enabled");
 
-    auto* music_volume_sld = new UI::Slider(0, 0, 128, 24, -8000.f, 8000.f, this);
+    auto* music_volume_sld = new UI::Slider(0, 0, 128, 24, 0.f, 100.f, this);
     music_volume_sld->text("Music volume");
     music_volume_sld->below_of(*motionblur_chk);
     music_volume_sld->value = gs.music_volume;
     music_volume_sld->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        o.gs.music_volume = ((UI::Slider&)w).value;
+        o.gs.music_volume = static_cast<int>(((UI::Slider&)w).value);
     });
     music_volume_sld->tooltip = new UI::Tooltip(music_volume_sld, 512, 24);
     music_volume_sld->tooltip->text("Controls the volume of the music");
 
-    auto* sound_volume_sld = new UI::Slider(0, 0, 128, 24, -8000.f, 8000.f, this);
+    auto* sound_volume_sld = new UI::Slider(0, 0, 128, 24, 0.f, 100.f, this);
     sound_volume_sld->text("Sound volume");
     sound_volume_sld->below_of(*music_volume_sld);
     sound_volume_sld->value = gs.sound_volume;
     sound_volume_sld->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        o.gs.sound_volume = ((UI::Slider&)w).value;
+        o.gs.sound_volume = static_cast<int>(((UI::Slider&)w).value);
     });
     sound_volume_sld->tooltip = new UI::Tooltip(sound_volume_sld, 512, 24);
     sound_volume_sld->tooltip->text("Controls the volume of the sounds");
