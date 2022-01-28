@@ -55,7 +55,7 @@ UnifiedRender::Texture::Texture(const UnifiedRender::IO::Asset::Base* asset)
 }
 
 UnifiedRender::Texture::Texture(size_t _width, size_t _height)
-    : BinaryImage(_width, _height) 
+    : BinaryImage(_width, _height)
 {
 
 }
@@ -116,14 +116,17 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
         // Alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGBA;
-        } else {
+        }
+        else {
             texture_format = GL_BGRA;
         }
-    } else {
+    }
+    else {
         // No alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGB;
-        } else {
+        }
+        else {
             texture_format = GL_BGR;
         }
     }
@@ -136,7 +139,8 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
 
     if(glewIsSupported("GL_VERSION_2_1")) {
         glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
+    }
+    else {
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     }
 
@@ -221,7 +225,8 @@ void UnifiedRender::TextureArray::to_opengl(GLuint wrapp, GLuint min_filter, GLu
 //
 const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::string& path, TextureOptions options) {
     // Find texture when wanting to be loaded and load texture from cached texture list
-    std::map<std::string, UnifiedRender::Texture*>::const_iterator it = textures.find(path);
+    auto key = std::make_pair(path, options);
+    auto it = textures.find(key);
     if(it != textures.end()) {
         return *((*it).second);
     }
@@ -232,7 +237,8 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::str
     UnifiedRender::Texture* tex;
     try {
         tex = new UnifiedRender::Texture(path);
-    } catch(BinaryImageException&) {
+    }
+    catch(BinaryImageException&) {
         tex = new UnifiedRender::Texture();
         tex->create_dummy();
     }
@@ -241,7 +247,7 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::str
     if(options.min_filter == GL_NEAREST_MIPMAP_NEAREST || options.min_filter == GL_NEAREST_MIPMAP_LINEAR || options.min_filter == GL_LINEAR_MIPMAP_NEAREST || options.min_filter == GL_LINEAR_MIPMAP_LINEAR) {
         tex->gen_mipmaps();
     }
-    textures[path] = tex;
+    textures[key] = tex;
     return *((const Texture*)tex);
 }
 

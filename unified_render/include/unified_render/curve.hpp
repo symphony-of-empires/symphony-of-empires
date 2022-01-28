@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      primitive.hpp
+//      curve.hpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -25,43 +25,28 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
+#include <vector>
 #include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-
-#include "unified_render/mesh.hpp"
+#include <glm/mat4x4.hpp>
 
 namespace UnifiedRender {
-    class Line: public UnifiedRender::Mesh<glm::vec2, glm::vec2> {
-    public:
-        Line(float start_x, float start_y, float end_x, float end_y);
-        ~Line();
-    };
+    class Quad;
+    namespace OpenGL {
+        class Program;
+    }
 
-    class Square: public UnifiedRender::Mesh<glm::vec2, glm::vec2> {
+    class Curve {
     public:
-        Square(float start_x, float start_y, float end_x, float end_y);
-        ~Square();
-    };
+        Curve(std::vector<glm::vec2> points, float width);
+        Curve(glm::vec2 p1, glm::vec2 p2, float width);
 
-    class Quad: public UnifiedRender::Mesh<glm::vec3, glm::vec2> {
-    public:
-        Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4);
-        ~Quad();
+#ifdef UR_BACKEND_OPENGL
+        void draw();
+#endif
+    private:
+        void create_line();
+        float width;
+        std::vector<glm::vec2> points;
+        std::vector<Quad*> quads;
     };
-
-    class Quad2D: public UnifiedRender::Mesh<glm::vec2, glm::vec2> {
-    public:
-        Quad2D();
-        ~Quad2D();
-    };
-
-    class Sphere: public UnifiedRender::Mesh<glm::vec3, glm::vec2> {
-        UnifiedRender::MeshData<glm::vec3, glm::vec2> calc_pos(glm::vec3 center_pos, float longitude, float latitude);
-        int resolution;
-    public:
-        float radius;
-        Sphere(float x, float y, float z, float radius, int resolution);
-        ~Sphere();
-    };
-}
+};
