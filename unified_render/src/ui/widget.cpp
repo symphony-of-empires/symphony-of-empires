@@ -227,6 +227,7 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     if(current_texture != nullptr) {
         draw_rectangle(0, 0, width, height, viewport, current_texture->gl_tex_num);
     }
+
     // Top bar of windows display
     if(type == UI::WidgetType::WINDOW) {
         draw_rectangle(0, 0, width, 24, viewport, ctx.window_top->gl_tex_num);
@@ -255,7 +256,6 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         }
         draw_rectangle(text_offset_x, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
     }
-
 
     if(type == UI::WidgetType::CHECKBOX) {
         auto& o = static_cast<UI::Checkbox&>(*this);
@@ -324,8 +324,9 @@ void Widget::move_by(int _x, int _y) {
 }
 
 void Widget::recalc_child_pos() {
-    if(flex == Flex::NONE)
+    if(flex == Flex::NONE) {
         return;
+    }
 
     bool is_row = flex == Flex::ROW;
     size_t lenght = 0;
@@ -335,8 +336,7 @@ void Widget::recalc_child_pos() {
 
     size_t current_lenght = 0;
     int size = 0, difference = 0;
-    switch(flex_justify)
-    {
+    switch(flex_justify) {
     case FlexJustify::START:
         current_lenght = 0;
         for(auto& child : children) {
@@ -394,8 +394,8 @@ void Widget::recalc_child_pos() {
         }
         break;
     }
-    switch(flex_align)
-    {
+
+    switch(flex_align) {
     case FlexAlign::START:
         for(auto& child : children) {
             if(is_row) {
@@ -431,8 +431,9 @@ void Widget::recalc_child_pos() {
 
 void Widget::add_child(Widget* child) {
     // Not already in list
-    if(std::count(children.begin(), children.end(), child))
+    if(std::count(children.begin(), children.end(), child)) {
         return;
+    }
 
     // Add to list
     children.push_back(child);
@@ -441,15 +442,14 @@ void Widget::add_child(Widget* child) {
     recalc_child_pos();
 }
 
-static unsigned int power_two_floor(unsigned int val) {
+static inline unsigned int power_two_floor(const unsigned int val) {
 	unsigned int power = 2, nextVal = power * 2;
-
 	while((nextVal *= 2) <= val) {
-		power*=2;
+		power *= 2;
 	}
-
-	return power*2;
+	return power * 2;
 }
+
 void Widget::text(const std::string& _text) {
     // Copy _text to a local scope (SDL2 does not like references)
     if(text_texture != nullptr) {
@@ -462,8 +462,8 @@ void Widget::text(const std::string& _text) {
         return;
     }
 
-    //TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    SDL_Color black_color = { 0, 0, 0, 0 };
+    TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
+    SDL_Color black_color = { (Uint8)(text_color.r * 255.f), (Uint8)(text_color.g * 255.f), (Uint8)(text_color.b * 255.f), 0 };
     SDL_Surface* surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), black_color);
     if(surface == nullptr) {
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
@@ -471,16 +471,18 @@ void Widget::text(const std::string& _text) {
 	
 	int w = power_two_floor(surface->w) * 2;
 	int h = power_two_floor(surface->h) * 2;
-	//Create a surface to the correct size in RGB format, and copy the old image
-	SDL_Surface* s = SDL_CreateRGBSurface(0, w, h, 32, 0x00ff0000,0x0000ff00,0x000000ff,0xff000000);
-	SDL_BlitSurface(surface, NULL, s, NULL);
+	//Create a surface to the correct size in RGB format, and copy the old one over to the new 32-bit format
+	SDL_Surface* conv_surface = SDL_CreateRGBSurface(0, w, h, 32, surface->format->Rmask, surface->format->Gmask, surface->format->Bmask, surface->format->Amask);
+    if(conv_surface == nullptr) {
+        throw std::runtime_error(std::string() + "Cannot create new text surface: " + SDL_GetError());
+    }
+    SDL_BlitSurface(surface, NULL, conv_surface, NULL);
 	SDL_FreeSurface(surface);
-	surface = s;
 
-    text_texture = new UnifiedRender::Texture(surface->w, surface->h);
+    text_texture = new UnifiedRender::Texture(conv_surface->w, conv_surface->h);
     text_texture->gl_tex_num = 0;
-    text_texture->to_opengl(surface);
-    SDL_FreeSurface(surface);
+    text_texture->to_opengl(conv_surface);
+    SDL_FreeSurface(conv_surface);
 
     const char* error_msg = SDL_GetError();
     if(error_msg[0] != '\0') {
