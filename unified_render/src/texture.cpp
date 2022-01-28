@@ -147,6 +147,9 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
     glTexImage2D(GL_TEXTURE_2D, 0, colors, surface->w, surface->h, 0, texture_format, GL_UNSIGNED_BYTE, surface->pixels);
 
     glGenerateMipmap(GL_TEXTURE_2D);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 0);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
 
 
