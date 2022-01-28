@@ -143,7 +143,7 @@ vec4 get_border(vec2 texcoord) {
 
 	border = clamp(border, 0., 1.);
 	border.x *= border.x * 0.5;
-	border.y *= border.y * 1.2;
+	border.y *= border.y * 1.8;
 	// border.y *= border.y * 1.2;
 	// vec2 tiled = step(pix, mod(texcoord + pix * 0.5, pix * 2));
 	// border.y *= (tiled.x + tiled.y) * (2. - (tiled.x + tiled.y));
@@ -226,7 +226,7 @@ vec3 gen_normal(vec2 tex_coords) {
 	// vec3 normal = normalize(bump.xyz * 2.0 - 1.0);
 }
 
-float get_beach(vec2 tex_coords) {
+vec2 get_beach(vec2 tex_coords) {
 	vec2 pix = vec2(1.0) / map_size;
 	vec2 mPos = tex_coords - mod(tex_coords + 0.5 * pix, pix);
 
@@ -235,16 +235,16 @@ float get_beach(vec2 tex_coords) {
 	vec2 scaling = mod(tex_coords + 0.5 * pix, pix) / pix;
 
 	vec2 coords_00 = mPos + pix * vec2(0.25, 0.25);
-	float ocean_00 = isWater(coords_00);
+	vec2 ocean_00 = vec2(isWater(coords_00), isOcean(coords_00));
 	vec2 coords_01 = mPos + pix * vec2(0.25, 0.75);
-	float ocean_01 = isWater(coords_01);
+	vec2 ocean_01 = vec2(isWater(coords_01), isOcean(coords_01));
 	vec2 coords_10 = mPos + pix * vec2(0.75, 0.25);
-	float ocean_10 = isWater(coords_10);
+	vec2 ocean_10 = vec2(isWater(coords_10), isOcean(coords_10));
 	vec2 coords_11 = mPos + pix * vec2(0.75, 0.75);
-	float ocean_11 = isWater(coords_11);
+	vec2 ocean_11 = vec2(isWater(coords_11), isOcean(coords_11));
 
-	float color_x0 = mix(ocean_00, ocean_10, scaling.x);
-	float color_x1 = mix(ocean_01, ocean_11, scaling.x);
+	vec2 color_x0 = mix(ocean_00, ocean_10, scaling.x);
+	vec2 color_x1 = mix(ocean_01, ocean_11, scaling.x);
 
 	return mix(color_x0, color_x1, scaling.y);
 }
@@ -314,26 +314,30 @@ float get_lighting(vec2 tex_coords, float beach) {
 	float ambient = 0.1;
 	vec3 view_dir = normalize(view_pos - v_frag_pos);
 
+	float dist_to_map = abs(view_pos.z);
+	dist_to_map = smoothstep(250., 350., dist_to_map);
+
 	vec3 normal = texture(normal, tex_coords).xyz;
-	normal = normalize(normal * 2.0 - 1.0);
+	normal = normal * 2.0 - 1.0;
+	normal.xy *= 0.2;
+	normal = normalize(normal);
 	normal.z *= -1;
 	vec3 lightDir = normalize(vec3(-2, -1, -4));
 	float diffuse = max(dot(lightDir, normal), 0.0);
 
-	float dist_to_map = abs(view_pos.z);
-	dist_to_map = smoothstep(250., 350., dist_to_map);
 
 	float is_water = step(1., max(isWater(tex_coords), beach));
 #ifdef WATER
 	vec3 water_normal = get_water_normal(tex_coords);
 	normal = mix(normal, water_normal, is_water * (1. - dist_to_map));
 #endif
-	float shininess = is_water == 1. ? 256 : 8;
+	float water_shine = mix(256, 64, dist_to_map);
+	float shininess = is_water == 1. ? water_shine : 8;
 	float specularStrength = is_water == 1. ? 0.4 : 0.2;
 
 	vec3 reflectDir = reflect(-lightDir, normal);  
 	float spec = pow(max(dot(view_dir, reflectDir), 0.0), shininess);
-	float specular = specularStrength * spec;      
+	float specular = specularStrength * spec;
 
 	float light = ambient + diffuse + specular;	
 	return light;
@@ -357,10 +361,12 @@ void main() {
 #endif
 
 	float dist_to_map = abs(view_pos.z);
-	dist_to_map = smoothstep(250., 350., dist_to_map);
+	dist_to_map = smoothstep(250., 450., dist_to_map);
 
-	float beach = get_beach(tex_coords);
-	float beach_border = smoothstep(0.1, 0.0, abs(beach - .3) - 0.1);
+	vec2 beach_oceanBeach = get_beach(tex_coords);
+	float beach = beach_oceanBeach.x;
+	float beach_border = beach_oceanBeach.y;
+	beach_border = smoothstep(0.1, 0.0, abs(beach_border - .3) - 0.15);
 #ifdef NOISE
 	float noise = texture(noise_texture, 20. * tex_coords).x;
 	beach += noise * 0.3 - 0.15;
@@ -375,7 +381,7 @@ void main() {
 	vec4 water = texture(water_texture, 50. * tex_coords + time * vec2(0.01));
 #endif
 
-	water = mix(water_col * 0.7, water, 0.5 - dist_to_map * 0.2);
+	water = mix(water, water_col * 0.7, dist_to_map);
 #else
 	vec4 water = water_col * 0.7;
 #endif
@@ -387,7 +393,7 @@ void main() {
 
 	float bathy = texture(bathymethry, tex_coords).x;
 	bathy = (bathy - 0.50)/(.70 - 0.50);
-	water = water * mix(0.6, 1., bathy);
+	water = water * mix(0.5, 1., bathy);
 
 	vec4 borders_diag = get_border(tex_coords);
 	vec2 borders = borders_diag.xy;
@@ -404,8 +410,8 @@ void main() {
 
 	vec4 prov_color = texture(tile_sheet, coord.xy * 255./256.); // Magic numbers
 #ifdef NOISE
-    float w_col = aquarelle(tex_coords);
-    prov_color = mix(vec4(1.), prov_color, pow(w_col, 5));
+    // float w_col = aquarelle(tex_coords);
+    // prov_color = mix(vec4(1.), prov_color, pow(w_col, 5));
 #endif
 
 #ifdef LANDSCAPE
@@ -414,7 +420,7 @@ void main() {
 #else
 	vec4 terrain_color = prov_color;
 #endif
-	vec4 ground = mix(terrain_color, prov_color, 0.5);
+	vec4 ground = mix(terrain_color, prov_color, mix(0.15, 1., dist_to_map));
 	vec4 out_color = mix(ground, water, beach);
 
 #ifdef SDF
@@ -423,18 +429,23 @@ void main() {
 	vec4 wave = mix(water, water * 0.7, max(0., sin(bSdf * 50.)));
 	wave = mix(wave, water, 1.);
 	vec4 mix_col = mix(out_color, wave, is_ocean);
-	out_color = mix(out_color, mix_col * 0.8, clamp(bSdf * 3. - 1., 0., 1.));
+	float sdf_slider = mix(0.6, 0.2, dist_to_map);
+	float sdf_mix = smoothstep(0.5, 0.7, bSdf);
+	sdf_mix = is_ocean == 0. ? sdf_mix : smoothstep(0.7, 0.9, bSdf);
+	out_color = mix(out_color, mix_col * sdf_slider, sdf_mix);
+	borders.y *= mix(1.0, 0.0, dist_to_map);
+	beach_border *= mix(1.0, 0.0, dist_to_map);
 #endif
 
-	borders.y *= mix(0.5, 1., dist_to_map) * (1.-beach);
+	borders.y *= mix(0.7, 1.0, dist_to_map) * (1.-beach);
 	out_color = mix(out_color, country_border, borders.y);
 	borders.x *= (1.-dist_to_map) * (1.-beach);
 	out_color = mix(out_color, province_border, borders.x);
-	beach_border *= (1.-dist_to_map);
+	beach_border *= mix(1.0, 1.0, dist_to_map);
 	out_color = mix(out_color, province_border, beach_border);
 #ifdef RIVERS
 	float river = texture(river_texture, tex_coords).x;
-	out_color = mix(out_color, river_col, river * 0.4);
+	out_color = mix(out_color, river_col * out_color, river * 0.4);
 #endif
 
 	float light = 1.f;
@@ -444,5 +455,6 @@ void main() {
 
 
 	f_frag_color = vec4(vec3(light), 1.) * out_color;
+	f_frag_color.xyz = pow(f_frag_color.xyz, vec3(1. / 2.2));
 	f_frag_color.a = 1.;
 }

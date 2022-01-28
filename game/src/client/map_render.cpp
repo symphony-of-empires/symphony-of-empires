@@ -69,7 +69,7 @@ MapRender::MapRender(const World& _world)
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
-    mipmap_options.internal_format = GL_RGB;
+    mipmap_options.internal_format = GL_SRGB;
 
     auto tex_man = UnifiedRender::State::get_instance().tex_man;
 
@@ -88,9 +88,11 @@ MapRender::MapRender(const World& _world)
         uint32_t base_index = 0xFF000000;
         if(color == 0xFF000000) {
             terrain_map->buffer.get()[i] = base_index + 0; // Ocean
-        } else if(color == 0xFFFF00FF) {
+        }
+        else if(color == 0xFFFF00FF) {
             terrain_map->buffer.get()[i] = base_index + 1; // Lake 
-        } else if(color == 0xFFFFFFFF) {
+        }
+        else if(color == 0xFFFFFFFF) {
             terrain_map->buffer.get()[i] = base_index + 2; // Land
         }
     }
@@ -155,6 +157,7 @@ MapRender::MapRender(const World& _world)
     // to make a buffer-texture so we have to keep it or we will have trouble
     UnifiedRender::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
+    no_drop_options.internal_format = GL_SRGB;
     tile_sheet->to_opengl(no_drop_options);
 
     print_info("Creating border textures");
@@ -175,6 +178,10 @@ void MapRender::reload_shaders() {
     if(options.sdf.used) {
         border_sdf = gen_border_sdf();
     }
+}
+
+void MapRender::update_options(MapOptions new_options) {
+    map_shader = UnifiedRender::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
 }
 
 #include "client/game_state.hpp"
@@ -243,7 +250,8 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
         fbo.set_texture(0, drawOnTex0 ? *tex0 : *tex1);
         if(step == max_steps) {
             border_sdf_shader->set_texture(0, "tex", *border_tex);
-        } else {
+        }
+        else {
             border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? *tex1 : *tex0);
         }
         // Draw a plane over the entire screen to invoke shaders
@@ -255,7 +263,8 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
     if(drawOnTex0) {
         tex1.reset(nullptr);
         tex1 = std::move(tex0);
-    } else {
+    }
+    else {
         tex0.reset(nullptr);
     }
     tex1->gen_mipmaps();
@@ -292,6 +301,7 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
     }
     UnifiedRender::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
+    no_drop_options.internal_format = GL_SRGB;
     tile_sheet->to_opengl(no_drop_options);
 }
 
@@ -345,7 +355,8 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
 
     if(view_mode == MapView::PLANE_VIEW) {
         map_quad->draw();
-    } else if(view_mode == MapView::SPHERE_VIEW) {
+    }
+    else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
 }

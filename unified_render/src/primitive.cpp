@@ -66,6 +66,24 @@ UnifiedRender::Square::~Square(void) {
 
 }
 
+UnifiedRender::Quad::Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4)
+    : UnifiedRender::Mesh<glm::vec3, glm::vec2>(UnifiedRender::MeshMode::TRIANGLES)
+{
+    buffer.resize(6);
+    buffer[0] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c1, glm::vec2(0.f, 0.f));
+    buffer[1] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c2, glm::vec2(0.f, 1.f));
+    buffer[2] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c3, glm::vec2(1.f, 1.f));
+    buffer[3] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c3, glm::vec2(1.f, 1.f));
+    buffer[4] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c4, glm::vec2(1.f, 0.f));
+    buffer[5] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c1, glm::vec2(0.f, 0.f));
+
+	upload();
+}
+
+UnifiedRender::Quad::~Quad(void) {
+
+}
+
 UnifiedRender::Quad2D::Quad2D(void)
 	: UnifiedRender::Mesh<glm::vec2, glm::vec2>(UnifiedRender::MeshMode::TRIANGLES)
 {

@@ -85,6 +85,7 @@ public:
     void update_mapmode(std::vector<ProvinceColor> province_colors);
     void draw(Camera* camera, MapView view_mode);
     void reload_shaders();
+    void update_options(MapOptions options);
 
     MapOptions options;
 private:
