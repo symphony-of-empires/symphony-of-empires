@@ -469,20 +469,10 @@ void Widget::text(const std::string& _text) {
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
     }
 	
-	int w = power_two_floor(surface->w) * 2;
-	int h = power_two_floor(surface->h) * 2;
-	//Create a surface to the correct size in RGB format, and copy the old one over to the new 32-bit format
-	SDL_Surface* conv_surface = SDL_CreateRGBSurface(0, w, h, 32, surface->format->Rmask, surface->format->Gmask, surface->format->Bmask, surface->format->Amask);
-    if(conv_surface == nullptr) {
-        throw std::runtime_error(std::string() + "Cannot create new text surface: " + SDL_GetError());
-    }
-    SDL_BlitSurface(surface, NULL, conv_surface, NULL);
-	SDL_FreeSurface(surface);
-
-    text_texture = new UnifiedRender::Texture(conv_surface->w, conv_surface->h);
+    text_texture = new UnifiedRender::Texture(surface->w, surface->h);
     text_texture->gl_tex_num = 0;
-    text_texture->to_opengl(conv_surface);
-    SDL_FreeSurface(conv_surface);
+    text_texture->to_opengl(surface);
+    SDL_FreeSurface(surface);
 
     const char* error_msg = SDL_GetError();
     if(error_msg[0] != '\0') {
