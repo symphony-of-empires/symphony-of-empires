@@ -728,7 +728,7 @@ roman_empire.name = _("Roman Empire")
 roman_empire.adjective = _("Roman")
 roman_empire:register()
 roman_empire:add_accepted_culture(italian)
-roman_empire:add_client_hint(monarchy, _("Roman Empire"), 0x808000)
+roman_empire:add_client_hint(monarchy, _("Roman Empire"), 0xbf4f43)
 
 austria_hungary = Nation:new{ ref_name = "austria_hungary" }
 austria_hungary.name = _("Austria-Hungary")
@@ -752,7 +752,7 @@ venice.adjective = _("Venetian")
 venice:register()
 venice:set_ideology(monarchy)
 venice:add_accepted_culture(italian)
-venice:add_client_hint(republic, _("Venice"), 0x808000)
+venice:add_client_hint(republic, _("Venice"), 0x41bcc4)
 
 genoa = Nation:new{ ref_name = "genoa" }
 genoa.name = _("Genoa")
@@ -793,29 +793,29 @@ tuscany.name = _("Tuscany")
 tuscany:register()
 tuscany:set_ideology(monarchy)
 tuscany:add_accepted_culture(italian)
-tuscany:add_client_hint(monarchy, _("Tuscany"), 0x808000)
-tuscany:add_client_hint(socialism, _("Tuscany"), 0x808000)
+tuscany:add_client_hint(monarchy, _("Tuscany"), 0xd4a88a)
+tuscany:add_client_hint(socialism, _("Tuscany"), 0xd4a88a)
 
 parma = Nation:new{ ref_name = "parma" }
 parma.name = _("Parma")
 parma:register()
 parma:set_ideology(monarchy)
 parma:add_accepted_culture(italian)
-parma:add_client_hint(monarchy, _("Parma"), 0x808000)
+parma:add_client_hint(monarchy, _("Parma"), 0xd48ad3)
 
 modena = Nation:new{ ref_name = "modena" }
 modena.name = _("Modena")
 modena:register()
 modena:set_ideology(monarchy)
 modena:add_accepted_culture(italian)
-modena:add_client_hint(monarchy, _("Modena"), 0x808000)
+modena:add_client_hint(monarchy, _("Modena"), 0xd3f2df)
 
 savoie = Nation:new{ ref_name = "savoie" }
 savoie.name = _("Savoie")
 savoie:register()
 savoie:set_ideology(monarchy)
 savoie:add_accepted_culture(italian)
-savoie:add_client_hint(monarchy, _("Savoie"), 0x808000)
+savoie:add_client_hint(monarchy, _("Savoie"), 0xad8abd)
 
 -- Formable nations
 italy = Nation:new{ ref_name = "italy" }
@@ -859,16 +859,16 @@ moldavia.adjective = _("Moldavian")
 moldavia:register()
 moldavia:set_ideology(monarchy)
 moldavia:add_accepted_culture(romanian)
-moldavia:add_client_hint(socialism, _("Moldavia"), 0x808000)
-moldavia:add_client_hint(monarchy, _("Moldavia"), 0x808000)
+moldavia:add_client_hint(socialism, _("Moldavia"), 0xbdc232)
+moldavia:add_client_hint(monarchy, _("Moldavia"), 0xbdc232)
 
 wallachia = Nation:new{ ref_name = "wallachia" }
 wallachia.name = _("Wallachia")
 wallachia:register()
 wallachia:set_ideology(monarchy)
 wallachia:add_accepted_culture(romanian)
-wallachia:add_client_hint(socialism, _("Wallachia"), 0x808000)
-wallachia:add_client_hint(monarchy, _("Wallachia"), 0x808000)
+wallachia:add_client_hint(socialism, _("Wallachia"), 0x535096)
+wallachia:add_client_hint(monarchy, _("Wallachia"), 0x535096)
 
 -- Releasable nations
 kosovo = Nation:new{ ref_name = "kosovo" }

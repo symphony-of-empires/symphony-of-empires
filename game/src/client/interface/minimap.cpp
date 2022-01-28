@@ -217,10 +217,10 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
             auto search = culture_amounts.find(pop.culture->cached_id);
             if(search == culture_amounts.end()) {
                 culture_amounts[pop.culture->cached_id] = pop.size;
-            }
-            else {
+            } else {
                 culture_amounts[pop.culture->cached_id] += pop.size;
             }
+
             size_t amount = culture_amounts[pop.culture->cached_id];
             if(amount > max_amount) {
                 max_amount = amount;
@@ -231,6 +231,7 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
         UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
+
     // Water
     province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
     // Land
@@ -253,13 +254,16 @@ std::string culture_tooltip(const World& world, const Province::Id id){
                 found = true;
             }
         }
+
         if(!found) {
             cultures.push_back(std::make_pair(pop.culture->cached_id, pop.size));
         }
     }
+
     std::sort(cultures.begin(), cultures.end(), [](culture_amount a, culture_amount b) {
         return a.second > b.second;
     });
+
     std::string out;
     for(auto culture_amount : cultures) {
         out += world.cultures[culture_amount.first]->name + std::to_string(culture_amount.second) + "\n";
@@ -283,10 +287,10 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
             auto search = religion_amounts.find(pop.religion->cached_id);
             if(search == religion_amounts.end()) {
                 religion_amounts[pop.religion->cached_id] = pop.size;
-            }
-            else {
+            } else {
                 religion_amounts[pop.religion->cached_id] += pop.size;
             }
+
             size_t amount = religion_amounts[pop.religion->cached_id];
             if(amount > max_amount) {
                 max_amount = amount;
@@ -297,6 +301,7 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
         UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
+
     // Water
     province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
     // Land
@@ -319,13 +324,16 @@ std::string religion_tooltip(const World& world, const Province::Id id){
                 found = true;
             }
         }
+
         if(!found) {
             religions.push_back(std::make_pair(pop.religion->cached_id, pop.size));
         }
     }
+    
     std::sort(religions.begin(), religions.end(), [](religion_amount a, religion_amount b) {
         return a.second > b.second;
     });
+
     std::string out;
     for(auto religion_amount : religions) {
         out += world.religions[religion_amount.first]->name + std::to_string(religion_amount.second) + "\n";

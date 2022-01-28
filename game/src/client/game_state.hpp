@@ -35,10 +35,11 @@
 #include "unified_render/state.hpp"
 #include "tutorial.hpp"
 
-enum class MapMode {
+enum class MapMode : unsigned char {
     COUNTRY_SELECT,
     NORMAL,
     NO_MAP,
+    DISPLAY_ONLY,
 };
 
 class Unit;

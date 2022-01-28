@@ -338,7 +338,9 @@ void main_loop(GameState& gs) {
     gs.in_game = false;
 
     // Connect to server prompt
-    gs.current_mode = MapMode::NO_MAP;
+    gs.current_mode = MapMode::DISPLAY_ONLY;
+    gs.map->set_view(MapView::SPHERE_VIEW);
+
     //auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/globe.png")));
     //mm_bg->is_fullscreen = true;
     /*Interface::MainMenu* main_menu =*/
@@ -364,6 +366,8 @@ void main_loop(GameState& gs) {
                 handle_popups(displayed_events, displayed_treaties, gs);
                 gs.world->world_mutex.unlock();
             }
+        } else if(gs.current_mode == MapMode::DISPLAY_ONLY) {
+            gs.map->camera->move(0.1f, 0.f, 0.f);
         }
 
         if(gs.sound_queue.empty()) {
@@ -425,16 +429,16 @@ void main_loop(GameState& gs) {
                     gs.world->world_mutex.unlock();
                 }
             }
+        }
 
-            if(gs.music_queue.empty()) {
-                // Search through all the music in 'music/ambience' and picks a random
-                auto entries = Path::get_all_recursive("music/ambience");
-                if(entries.size() != 0) {
-                    int music_index = std::rand() % entries.size();
-                    std::scoped_lock lock(gs.sound_lock);
-                    gs.music_fade_value = 100.f;
-                    gs.music_queue.push_back(new UnifiedRender::Audio(entries[music_index]));
-                }
+        if(gs.music_queue.empty()) {
+            // Search through all the music in 'music/ambience' and picks a random
+            auto entries = Path::get_all_recursive("sfx/music/ambience");
+            if(!entries.empty()) {
+                int music_index = std::rand() % entries.size();
+                std::scoped_lock lock(gs.sound_lock);
+                gs.music_fade_value = 100.f;
+                gs.music_queue.push_back(new UnifiedRender::Audio(entries[music_index]));
             }
         }
 
@@ -526,10 +530,6 @@ void start_client(int, char**) {
             print_error("Cannot open locale file %s", Path::get("locale/ko/main.po").c_str());
         }
     }
-
-    gs.ui_ctx = new UI::Context();
-
-    gs.ui_ctx->resize(gs.width, gs.height);
 
     gs.loaded_world = false;
     gs.loaded_map = false;
