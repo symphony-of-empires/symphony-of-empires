@@ -153,14 +153,17 @@ void Context::prompt(const std::string& title, const std::string& text) {
     auto* win = new UI::Window(0, 0, 512, 128, nullptr);
     win->origin = UI::Origin::CENTER_SCREEN;
     win->text(title);
+    win->is_scroll = true;
 
     auto* txt = new UI::Text(0, 0, win->width, win->height, win);
     txt->text(text);
-    txt->is_scroll = false;
+    txt->is_scroll = true;
 
     auto* ok_btn = new UI::CloseButton(0, 0, 128, 24, win);
     ok_btn->below_of(*txt);
     ok_btn->text("OK");
+
+    win->height = ok_btn->y + ok_btn->height;
 }
 
 // void Context::clear_dead_recursive(Widget* w) {
