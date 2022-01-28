@@ -69,7 +69,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     camera = new FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
 
     rivers = new Rivers();
-    // map_render = new MapRender(world);
+    map_render = new MapRender(world);
 
     // Shader used for drawing the models using custom model render
     obj_shader = UnifiedRender::OpenGL::Program::create("shaders/simple_model.vs", "shaders/simple_model.fs");
