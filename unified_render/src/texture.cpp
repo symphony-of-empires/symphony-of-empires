@@ -138,9 +138,8 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
     int expected_pitch = (surface->w * surface->format->BytesPerPixel + alignment - 1) / alignment * alignment;
     if(surface->pitch - expected_pitch >= alignment) // Alignment alone wont't solve it now
         glPixelStorei(GL_UNPACK_ROW_LENGTH, surface->pitch / surface->format->BytesPerPixel);
-    else glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-    // On some systems OpenGL only allows powers of 2
+    else
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
@@ -148,7 +147,7 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
 
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 0);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
 
