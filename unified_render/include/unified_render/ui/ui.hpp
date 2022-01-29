@@ -42,6 +42,7 @@
 #include <glm/vec2.hpp>
 #include "unified_render/rectangle.hpp"
 #include "unified_render/color.hpp"
+#include "unified_render/shader.hpp"
 
 namespace UnifiedRender {
     class Texture;
@@ -162,6 +163,8 @@ namespace UI {
         const UnifiedRender::Texture* background, * window_top, * button, * tooltip_texture, * piechart_overlay, * border_tex, * button_border;
 
         TTF_Font* default_font;
+
+        std::unique_ptr<UnifiedRender::OpenGL::Program> widget_shader;
     };
     extern Context* g_ui_context;
 }; // namespace UI

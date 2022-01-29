@@ -74,6 +74,8 @@ Context::Context() {
     if(g_ui_context != nullptr) {
         throw std::runtime_error("UI context already constructed");
     }
+    g_ui_context = this;
+    is_drag = false;
 
     // default_font = TTF_OpenFont(Path::get("gfx/fonts/FreeMono.ttf").c_str(), 16);
     default_font = TTF_OpenFont(Path::get("fonts/Poppins/Poppins-SemiBold.ttf").c_str(), 16);
@@ -90,8 +92,7 @@ Context::Context() {
     border_tex = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/border2.png"));
     button_border = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/border_sharp2.png"));
 
-    g_ui_context = this;
-    is_drag = false;
+    //widget_shader = UnifiedRender::OpenGL::Program::create_regular("shader/2d_shader.vs", "shader/2d_shader.fs");
 }
 
 void Context::add_widget(Widget* widget) {
@@ -145,8 +146,10 @@ void Context::clear_dead() {
             clear_dead_recursive(widgets[index]);
         }
     }
-    if(tooltip_widget)
+    
+    if(tooltip_widget) {
         clear_dead_recursive(tooltip_widget);
+    }
 }
 
 void Context::prompt(const std::string& title, const std::string& text) {
@@ -250,6 +253,7 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
     if(!w.is_show || !w.is_render) {
         return;
     }
+
     if(!w.width || !w.height) {
         return;
     }
@@ -298,10 +302,17 @@ void Context::render_all() {
     glActiveTexture(GL_TEXTURE0);
     glViewport(0, 0, width, height);
 
+    /*
+    glm::mat4 projection = glm::ortho(0.f, static_cast<float>(width), static_cast<float>(height), 0.f, 0.0f, 1.f);
+    widget_shader->set_uniform("projection", projection);
+    glm::mat4 view = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
+    widget_shader->set_uniform("view", view);
+    */
+
     glPushMatrix();
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0.f, (float)this->width, (float)this->height, 0.f, 0.0f, 1.f);
+    glOrtho(0.f, static_cast<float>(this->width), static_cast<float>(this->height), 0.f, 0.0f, 1.f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.f, 0.f, 0.f);
@@ -325,7 +336,8 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
         return false;
     }
 
-    if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
+    const UnifiedRender::Rect r = UnifiedRender::Rect(offset.x, offset.y, w.width, w.height);
+    if (!r.in_bounds(glm::vec2(static_cast<float>(mx), static_cast<float>(my)))) {
         w.is_hover = false;
     } else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
@@ -395,10 +407,10 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
 
     // Click must be within the widget's box if it's not a group
     if(w.type != UI::WidgetType::GROUP) {
-        if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
+        const UnifiedRender::Rect r = UnifiedRender::Rect(offset.x, offset.y, w.width, w.height);
+        if(!r.in_bounds(glm::vec2(mx, my))) {
             clickable = false;
-        }
-        else if(w.is_transparent) {
+        } else if(w.is_transparent) {
             if(w.current_texture != nullptr) {
                 int tex_width = w.current_texture->width;
                 int tex_height = w.current_texture->height;
@@ -435,7 +447,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
         if(clickable && !click_consumed) {
             if(w.type == UI::WidgetType::SLIDER) {
                 Slider* wc = (Slider*)&w;
-                wc->value = ((float)std::abs((int)mx - offset.x) / (float)wc->width) * wc->max;
+                wc->value = (static_cast<float>(std::abs(static_cast<int>(mx) - offset.x)) / static_cast<float>(wc->width)) * wc->max;
             }
 
             w.on_click(w, w.user_data);
@@ -472,7 +484,7 @@ bool Context::check_click(const unsigned mx, const unsigned my) {
         // Only movable and UI::WidgetType::WINDOWS are able to move to the top
         Widget* window = widgets[click_wind_index];
         if(window->type == UI::WidgetType::WINDOW && !window->is_pinned) {
-            auto it = widgets.begin() + click_wind_index;
+            std::vector<UI::Widget*>::iterator it = widgets.begin() + click_wind_index;
             std::rotate(it, it + 1, widgets.end());
         }
     }
@@ -493,8 +505,9 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
             continue;
         }
 
-        if((int)mx >= widget.x && mx <= widget.x + widget.width && (int)my >= widget.y && (int)my <= widget.y + 24) {
-            auto& c_widget = static_cast<Window&>(widget);
+        const UnifiedRender::Rect r = UnifiedRender::Rect(widget.x, widget.y, widget.width, widget.y + 24);
+        if (!r.in_bounds(glm::vec2(mx, my))) {
+            Window& c_widget = static_cast<Window&>(widget);
             if(!c_widget.is_movable) {
                 continue;
             }
@@ -512,7 +525,7 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 
 void check_text_input_recursive(Widget& widget, const char* _input) {
     if(widget.type == UI::WidgetType::INPUT) {
-        auto& c_widget = static_cast<UI::Input&>(widget);
+        UI::Input& c_widget = static_cast<UI::Input&>(widget);
         if(c_widget.is_selected) {
             c_widget.on_textinput(c_widget, _input, c_widget.user_data);
         }
@@ -543,10 +556,10 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
         return false;
     }
 
-    if(!((int)mx >= offset.x && mx <= offset.x + w.width && (int)my >= offset.y && my <= offset.y + w.height)) {
+    const UnifiedRender::Rect r = UnifiedRender::Rect(offset.x, offset.y, w.width, w.height);
+    if (!r.in_bounds(glm::vec2(mx, my))) {
         return false;
-    }
-    else if(w.is_transparent) {
+    } else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
