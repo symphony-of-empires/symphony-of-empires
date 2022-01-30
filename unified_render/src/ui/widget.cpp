@@ -98,6 +98,22 @@ void Widget::draw_rect(const GLuint tex,
     glEnd();
 }
 
+void Widget::above_of(const Widget& rhs) {
+    y = rhs.y - height;
+}
+
+void Widget::below_of(const Widget& rhs) {
+    y = rhs.y + rhs.height;
+}
+
+void Widget::left_side_of(const Widget& rhs) {
+    x = rhs.x - width;
+}
+
+void Widget::right_side_of(const Widget& rhs) {
+    x = rhs.x + rhs.width;
+}
+
 void Widget::draw_border(Border* border, UnifiedRender::Rect viewport) {
     float x_offset = border->offset.x;
     float y_offset = border->offset.y;
@@ -257,22 +273,8 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         draw_rectangle(text_offset_x, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
     }
 
-    if(type == UI::WidgetType::CHECKBOX) {
-        auto& o = static_cast<UI::Checkbox&>(*this);
-
-        UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
-        UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
-        if(o.value) {
-            glColor4f(0.f, 1.f, 0.f, 0.5f);
-        }
-        else {
-            glColor4f(1.f, 0.f, 0.f, 0.5f);
-        }
-        draw_rect(0, pos_rect, tex_rect, viewport);
-    }
-
     // Semi-transparent over hover elements which can be clicked
-    if((on_click && is_hover) || is_clickable) {
+    if(clickable_effect && ((on_click && is_hover) || is_clickable)) {
         UnifiedRender::Rect pos_rect((int)0u, 0u, width, height);
         UnifiedRender::Rect tex_rect((int)0u, 0u, 1u, 1u);
 
@@ -443,11 +445,11 @@ void Widget::add_child(Widget* child) {
 }
 
 static inline unsigned int power_two_floor(const unsigned int val) {
-	unsigned int power = 2, nextVal = power * 2;
-	while((nextVal *= 2) <= val) {
-		power *= 2;
-	}
-	return power * 2;
+    unsigned int power = 2, nextVal = power * 2;
+    while((nextVal *= 2) <= val) {
+        power *= 2;
+    }
+    return power * 2;
 }
 
 void Widget::text(const std::string& _text) {
@@ -463,12 +465,12 @@ void Widget::text(const std::string& _text) {
     }
 
     // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    SDL_Color black_color = { (Uint8)(text_color.r * 255.f), (Uint8)(text_color.g * 255.f), (Uint8)(text_color.b * 255.f), 0 };
+    SDL_Color black_color ={ (Uint8)(text_color.r * 255.f), (Uint8)(text_color.g * 255.f), (Uint8)(text_color.b * 255.f), 0 };
     SDL_Surface* surface = TTF_RenderUTF8_Blended(g_ui_context->default_font, _text.c_str(), black_color);
     if(surface == nullptr) {
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
     }
-	
+
     text_texture = new UnifiedRender::Texture(surface->w, surface->h);
     text_texture->to_opengl(surface);
     SDL_FreeSurface(surface);

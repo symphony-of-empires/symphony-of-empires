@@ -186,9 +186,9 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
     chk->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<TechnologyInfo&>(*w.parent);
         if(o.technology == o.gs.curr_nation->focus_tech || !o.gs.curr_nation->research[o.gs.world->get_id(o.technology)]) {
-            ((UI::Checkbox&)w).value = true;
+            ((UI::Checkbox&)w).set_value(true);
         } else {
-            ((UI::Checkbox&)w).value = false;
+            ((UI::Checkbox&)w).set_value(false);
         }
 
         if(o.gs.curr_nation->can_research(o.technology)) {
@@ -204,7 +204,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
             w.tooltip->text(text);
         }
     });
-    chk->on_click = ([](UI::Widget& w, void*) {
+    chk->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<TechnologyInfo&>(*w.parent);
         if(o.gs.curr_nation->can_research(o.technology)) {
             o.gs.client->send(Action::FocusTech::form_packet(o.technology));

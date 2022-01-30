@@ -65,7 +65,6 @@ DescisionButton::DescisionButton(UI::Window* parent, GameState& _gs, const Desci
     event{ _event }
 {
     this->text(descision.name);
-    this->user_data = this;
     this->on_click = [](UI::Widget& w, void*) {
         auto& o = static_cast<DescisionButton&>(w);
 

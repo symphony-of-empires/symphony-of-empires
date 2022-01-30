@@ -124,11 +124,11 @@ namespace UI {
 
 	class Context;
 	class Tooltip;
-    /**
-     * @ingroup UI
-     * @brief The master widget all the other widgets inherit from
-     *
-     */
+	/**
+	 * @ingroup UI
+	 * @brief The master widget all the other widgets inherit from
+	 *
+	 */
 	class Widget {
 	public:
 		Widget() {};
@@ -144,33 +144,16 @@ namespace UI {
 
 		void move_by(int x, int y);
 		void add_child(Widget* child);
-		void draw_rectangle(int x, int y, unsigned w, unsigned h, UnifiedRender::Rect viewport, unsigned tex);
-		void draw_rect(const GLuint tex, UnifiedRender::Rect rect_pos, UnifiedRender::Rect rect_tex, UnifiedRender::Rect viewport);
 
 		virtual void on_render(Context&, UnifiedRender::Rect viewport);
 		virtual void text(const std::string& text);
 		virtual void set_tooltip(Tooltip* tooltip);
 		virtual void set_tooltip(std::string text);
 
-		template <typename T>
-		void above_of(const T& rhs) {
-			y = rhs.y - height;
-		}
-
-		template <typename T>
-		void below_of(const T& rhs) {
-			y = rhs.y + rhs.height;
-		}
-
-		template <typename T>
-		void left_side_of(const T& rhs) {
-			x = rhs.x - width;
-		}
-
-		template <typename T>
-		void right_side_of(const T& rhs) {
-			x = rhs.x + rhs.width;
-		}
+		void above_of(const Widget& rhs);
+		void below_of(const Widget& rhs);
+		void left_side_of(const Widget& rhs);
+		void right_side_of(const Widget& rhs);
 
 		bool is_pinned = false;
 		bool is_render = true;
@@ -187,7 +170,6 @@ namespace UI {
 
 		WidgetType type;
 
-		int scroll_x = 0, scroll_y = 0;
 		int x = 0, y = 0;
 		glm::ivec2 padding{ 0 };
 
@@ -223,6 +205,12 @@ namespace UI {
 		std::function<void(Widget&, void*)> on_each_tick;
 
 		friend class Context;
+
+	protected:
+		void draw_rectangle(int x, int y, unsigned w, unsigned h, UnifiedRender::Rect viewport, unsigned tex);
+		void draw_rect(const GLuint tex, UnifiedRender::Rect rect_pos, UnifiedRender::Rect rect_tex, UnifiedRender::Rect viewport);
+		bool clickable_effect = true;
+
 	private:
 		// Used internally for managing widgets outside of window bounds
 		bool is_show = true;
