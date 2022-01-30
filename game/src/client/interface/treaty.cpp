@@ -36,26 +36,31 @@ std::string treaty_to_text(Treaty* treaty) {
         if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
             const auto* dyn_clause = static_cast<const TreatyClause::WarReparations*>(clause);
             text += dyn_clause->sender->name + " demands $" + std::to_string(dyn_clause->amount) + " from " + dyn_clause->receiver->name;
-        } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
+        }
+        else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
             const auto* dyn_clause = static_cast<const TreatyClause::AnexxProvince*>(clause);
             text += dyn_clause->sender->name + " obtains ";
             for(const auto& province : dyn_clause->provinces) {
                 text += province->name + ", ";
             }
             text += " from " + dyn_clause->receiver->name;
-        } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+        }
+        else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
             const auto* dyn_clause = static_cast<const TreatyClause::LiberateNation*>(clause);
             text += dyn_clause->sender->name + " liberates " + dyn_clause->liberated->name + " and gives them ";
             for(const auto& province : dyn_clause->provinces) {
                 text += province->name + " from " + dyn_clause->receiver->name + ", ";
             }
-        } else if(clause->type == TreatyClauseType::HUMILIATE) {
+        }
+        else if(clause->type == TreatyClauseType::HUMILIATE) {
             const auto* dyn_clause = static_cast<const TreatyClause::Humiliate*>(clause);
             text += dyn_clause->sender->name + " humiliates " + dyn_clause->receiver->name;
-        } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+        }
+        else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
             const auto* dyn_clause = static_cast<const TreatyClause::ImposePolicies*>(clause);
             text += dyn_clause->sender->name + " imposes policies on " + dyn_clause->receiver->name;
-        } else if(clause->type == TreatyClauseType::CEASEFIRE) {
+        }
+        else if(clause->type == TreatyClauseType::CEASEFIRE) {
             const auto* dyn_clause = static_cast<const TreatyClause::Ceasefire*>(clause);
             text += dyn_clause->sender->name + " proposes ceasefire to " + dyn_clause->receiver->name;
         }
@@ -77,18 +82,17 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
 
     auto* ceasefire_btn = new UI::Checkbox(0, 0, 128, 24, this);
     ceasefire_btn->text("Ceasefire");
-    ceasefire_btn->on_click = ([](UI::Widget& w, void*) {
+    ceasefire_btn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<TreatyDraftView&>(*w.parent);
 
-        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-
-        if(((UI::Checkbox&)w).value) {
+        if(((UI::Checkbox&)w).get_value()) {
             auto* clause = new TreatyClause::Ceasefire();
             clause->sender = o.gs.curr_nation;
             clause->receiver = o.nation;
             clause->days_duration = 360;
             o.treaty.clauses.push_back(clause);
-        } else {
+        }
+        else {
             auto it = std::find_if(o.treaty.clauses.begin(), o.treaty.clauses.end(), [](const auto& e) {
                 return e->type == TreatyClauseType::CEASEFIRE;
             });
@@ -102,12 +106,10 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
     auto* take_all_btn = new UI::Checkbox(0, 0, 128, 24, this);
     take_all_btn->below_of(*ceasefire_btn);
     take_all_btn->text("Take all controlled land");
-    take_all_btn->on_click = ([](UI::Widget& w, void*) {
+    take_all_btn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<TreatyDraftView&>(*w.parent);
 
-        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-
-        if(((UI::Checkbox&)w).value) {
+        if(((UI::Checkbox&)w).get_value()) {
             auto* clause = new TreatyClause::AnexxProvince();
             clause->sender = o.gs.curr_nation;
             clause->receiver = o.nation;
@@ -118,7 +120,8 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
                 }
             }
             o.treaty.clauses.push_back(clause);
-        } else {
+        }
+        else {
             auto it = std::find_if(o.treaty.clauses.begin(), o.treaty.clauses.end(), [](const auto& e) {
                 return e->type == TreatyClauseType::ANEXX_PROVINCES;
             });
@@ -132,12 +135,10 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
     auto* annexx_btn = new UI::Checkbox(0, 0, 128, 24, this);
     annexx_btn->below_of(*take_all_btn);
     annexx_btn->text("Annexx");
-    annexx_btn->on_click = ([](UI::Widget& w, void*) {
+    annexx_btn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<TreatyDraftView&>(*w.parent);
 
-        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-
-        if(((UI::Checkbox&)w).value) {
+        if(((UI::Checkbox&)w).get_value()) {
             auto* clause = new TreatyClause::AnexxProvince();
             clause->sender = o.gs.curr_nation;
             clause->receiver = o.nation;
@@ -146,7 +147,8 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
                 clause->provinces.push_back(province);
             }
             o.treaty.clauses.push_back(clause);
-        } else {
+        }
+        else {
             auto it = std::find_if(o.treaty.clauses.begin(), o.treaty.clauses.end(), [](const auto& e) {
                 return e->type == TreatyClauseType::ANEXX_PROVINCES;
             });
@@ -156,7 +158,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
             }
         }
     });
-    
+
     auto* draft_btn = new UI::Button(0, 0, this->width, 24, this);
     draft_btn->below_of(*annexx_btn);
     draft_btn->text("Draft");
@@ -187,7 +189,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
 {
     this->is_scroll = true;
     this->text("Treaty proposal");
-    
+
     this->body_txt = new UI::Text(0, 0, this->width, this->height - 24, this);
     this->body_txt->text(treaty_to_text(_treaty));
 

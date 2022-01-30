@@ -24,6 +24,7 @@
 // ----------------------------------------------------------------------------
 
 #include "client/interface/main_menu.hpp"
+#include "client/interface/settings.hpp"
 #include "client/client_network.hpp"
 #include "server/server_network.hpp"
 #include "world.hpp"
@@ -66,7 +67,6 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     username_inp->tooltip->text("Your publicly visible username");
 
     conn_btn = new UI::Button(0, 48, 128, 24, this);
-    conn_btn->user_data = this;
     conn_btn->text("Connect");
     conn_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenuConnectServer&>(*w.parent);
@@ -100,198 +100,6 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     close_btn->text("Cancel");
 }
 
-//
-// Main menu settings
-//
-MainMenuSettings::MainMenuSettings(GameState& _gs)
-    : UI::Window(0, 0, 512, 512, nullptr),
-    gs{ _gs }
-{
-    this->is_scroll = false;
-    this->text("Settings");
-
-    auto* check_controller_btn = new UI::Button(0, 0, 128, 24, this);
-    check_controller_btn->text("Check controller");
-    check_controller_btn->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        if(o.gs.joy != nullptr) {
-            SDL_JoystickClose(o.gs.joy);
-        }
-        
-        if(SDL_NumJoysticks() >= 1) {
-            o.gs.joy = SDL_JoystickOpen(0);
-        } else {
-            o.gs.ui_ctx->prompt("Gamepad", "No present joysticks");
-        }
-    });
-    check_controller_btn->tooltip = new UI::Tooltip(check_controller_btn, 512, 24);
-    check_controller_btn->tooltip->text("Checks for any new gamepads - click this if you've connected a gamepad and experience issues");
-
-    auto* sensivity_sld = new UI::Slider(0, 0, 128, 24, -8000.f, 8000.f, this);
-    sensivity_sld->text("Controller Sensivity");
-    sensivity_sld->below_of(*check_controller_btn);
-    sensivity_sld->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        o.gs.joy_sensivity = ((UI::Slider&)w).value;
-    });
-    sensivity_sld->tooltip = new UI::Tooltip(sensivity_sld, 512, 24);
-    sensivity_sld->tooltip->text("Sensivity of the controller (negative/positive inverts controls)");
-
-    auto* sdf_detail_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    sdf_detail_chk->below_of(*sensivity_sld);
-    sdf_detail_chk->value = gs.map->map_render->options.sdf.used;
-    sdf_detail_chk->text("SDF detail");
-    sdf_detail_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-        o.gs.map->map_render->options.sdf.used = ((UI::Checkbox&)w).value;
-        o.gs.map->reload_shaders();
-    });
-    sdf_detail_chk->tooltip = new UI::Tooltip(sdf_detail_chk, 512, 24);
-    sdf_detail_chk->tooltip->text("Enables/Disables SDF detail on the map. High performance impact");
-
-    auto* noise_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    noise_chk->below_of(*sdf_detail_chk);
-    noise_chk->value = gs.map->map_render->options.noise.used;
-    noise_chk->text("Noise");
-    noise_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-        o.gs.map->map_render->options.noise.used = ((UI::Checkbox&)w).value;
-        o.gs.map->reload_shaders();
-    });
-    noise_chk->tooltip = new UI::Tooltip(noise_chk, 512, 24);
-    noise_chk->tooltip->text("Adds noise to the map, giving it more \"natural\" feel. Low performance impact");
-
-    auto* raytracing_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    raytracing_chk->below_of(*noise_chk);
-    raytracing_chk->value = gs.map->map_render->options.lighting.used;
-    raytracing_chk->text("Simple Raytracing");
-    raytracing_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-        o.gs.map->map_render->options.lighting.used = ((UI::Checkbox&)w).value;
-        o.gs.map->reload_shaders();
-    });
-    raytracing_chk->tooltip = new UI::Tooltip(raytracing_chk, 512, 24);
-    raytracing_chk->tooltip->text("Creates vibrant lighting through the map. Low performance impact");
-
-    auto* diag_borders_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    diag_borders_chk->below_of(*raytracing_chk);
-    diag_borders_chk->value = gs.map->map_render->options.diag_borders.used;
-    diag_borders_chk->text("Diagonal borders");
-    diag_borders_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-        o.gs.map->map_render->options.diag_borders.used = ((UI::Checkbox&)w).value;
-        o.gs.map->reload_shaders();
-    });
-    diag_borders_chk->tooltip = new UI::Tooltip(diag_borders_chk, 512, 24);
-    diag_borders_chk->tooltip->text("Enables/Disables replacing the blocky borders with diagonal ones. Low performance impact");
-
-    auto* parallax_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    parallax_chk->below_of(*diag_borders_chk);
-    parallax_chk->value = gs.map->map_render->options.parallax.used;
-    parallax_chk->text("Parallax");
-    parallax_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-        o.gs.map->map_render->options.parallax.used = ((UI::Checkbox&)w).value;
-        o.gs.map->reload_shaders();
-    });
-    parallax_chk->tooltip = new UI::Tooltip(parallax_chk, 512, 24);
-    parallax_chk->tooltip->text("Enables/Disables a parallax map. High performance impact");
-
-    auto* rivers_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    rivers_chk->below_of(*parallax_chk);
-    rivers_chk->value = gs.map->map_render->options.rivers.used;
-    rivers_chk->text("Rivers");
-    rivers_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-        o.gs.map->map_render->options.rivers.used = ((UI::Checkbox&)w).value;
-        o.gs.map->reload_shaders();
-    });
-    rivers_chk->tooltip = new UI::Tooltip(rivers_chk, 512, 24);
-    rivers_chk->tooltip->text("Enables/Disables rivers. Low performance impact");
-
-    auto* landscape_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    landscape_chk->below_of(*rivers_chk);
-    landscape_chk->value = gs.map->map_render->options.landscape.used;
-    landscape_chk->text("Landscape");
-    landscape_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-        o.gs.map->map_render->options.landscape.used = ((UI::Checkbox&)w).value;
-        o.gs.map->reload_shaders();
-    });
-    landscape_chk->tooltip = new UI::Tooltip(landscape_chk, 512, 24);
-    landscape_chk->tooltip->text("Enables/Disables the landscape image (for terrain). Low performance impact");
-
-    auto* grid_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    grid_chk->below_of(*landscape_chk);
-    grid_chk->value = gs.map->map_render->options.grid.used;
-    grid_chk->text("Gridlines");
-    grid_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-        o.gs.map->map_render->options.grid.used = ((UI::Checkbox&)w).value;
-        o.gs.map->reload_shaders();
-    });
-    grid_chk->tooltip = new UI::Tooltip(grid_chk, 512, 24);
-    grid_chk->tooltip->text("Enables/Disables the grid lines on the water. Low performance impact");
-
-    auto* water_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    water_chk->below_of(*grid_chk);
-    water_chk->value = gs.map->map_render->options.water.used;
-    water_chk->text("Water texture");
-    water_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-        o.gs.map->map_render->options.water.used = ((UI::Checkbox&)w).value;
-        o.gs.map->reload_shaders();
-    });
-    water_chk->tooltip = new UI::Tooltip(water_chk, 512, 24);
-    water_chk->tooltip->text("Enables/Disables the water texture (for terrain). Low performance impact");
-
-    auto* motionblur_chk = new UI::Checkbox(0, 0, 128, 24, this);
-    motionblur_chk->below_of(*water_chk);
-    motionblur_chk->value = gs.motion_blur;
-    motionblur_chk->text("Motion blur");
-    motionblur_chk->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        ((UI::Checkbox&)w).value = !((UI::Checkbox&)w).value;
-        o.gs.motion_blur = ((UI::Checkbox&)w).value;
-    });
-    motionblur_chk->tooltip = new UI::Tooltip(motionblur_chk, 512, 24);
-    motionblur_chk->tooltip->text("Control if motion blur should be enabled");
-
-    auto* music_volume_sld = new UI::Slider(0, 0, 128, 24, 0.f, 100.f, this);
-    music_volume_sld->text("Music volume");
-    music_volume_sld->below_of(*motionblur_chk);
-    music_volume_sld->value = gs.music_volume;
-    music_volume_sld->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        o.gs.music_volume = static_cast<int>(((UI::Slider&)w).value);
-    });
-    music_volume_sld->tooltip = new UI::Tooltip(music_volume_sld, 512, 24);
-    music_volume_sld->tooltip->text("Controls the volume of the music");
-
-    auto* sound_volume_sld = new UI::Slider(0, 0, 128, 24, 0.f, 100.f, this);
-    sound_volume_sld->text("Sound volume");
-    sound_volume_sld->below_of(*music_volume_sld);
-    sound_volume_sld->value = gs.sound_volume;
-    sound_volume_sld->on_click = ([](UI::Widget& w, void*) {
-        auto& o = static_cast<MainMenuSettings&>(*w.parent);
-        o.gs.sound_volume = static_cast<int>(((UI::Slider&)w).value);
-    });
-    sound_volume_sld->tooltip = new UI::Tooltip(sound_volume_sld, 512, 24);
-    sound_volume_sld->tooltip->text("Controls the volume of the sounds");
-
-    auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->below_of(*sound_volume_sld);
-    close_btn->text("Cancel");
-}
 
 //
 // Main menu
@@ -374,7 +182,7 @@ MainMenu::MainMenu(GameState& _gs)
     cfg_btn->right_side_of(*edit_btn);
     cfg_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
-        o.settings_window = new MainMenuSettings(o.gs);
+        o.settings_window = new Settings(o.gs);
     });
 
     auto* exit_btn = new UI::Button(0, 0, 128, 24, this);
