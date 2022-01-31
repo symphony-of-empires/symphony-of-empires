@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      client/interface/main_menu.hpp
+//      client/interface/settings.hpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -28,30 +28,10 @@
 #include "client/game_state.hpp"
 #include "unified_render/ui/window.hpp"
 
-namespace UI {
-    class Input;
-    class Button;
-}
-
 namespace Interface {
-    class MainMenuConnectServer: public UI::Window {
+    class Settings : public UI::Window {
         GameState& gs;
     public:
-        MainMenuConnectServer(GameState& gs);
-
-        UI::Input* ip_addr_inp;
-        UI::Input* username_inp;
-        UI::Button* conn_btn;
-    };
-
-    class Settings;
-    class MainMenu: public UI::Window {
-    public:
-        MainMenu(GameState& gs);
-        ~MainMenu() override;
-
-        GameState& gs;
-        MainMenuConnectServer* connect_window = nullptr;
-        Settings* settings_window = nullptr;
+        Settings(GameState& gs);
     };
 };
