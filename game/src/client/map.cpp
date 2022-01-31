@@ -461,21 +461,72 @@ void Map::draw(const GameState& gs) {
         building_type_models[world.get_id(building_type)]->draw(*obj_shader);
     }
 
-    glm::mat4 base_model(1.f);
-    base_model = glm::translate(base_model, glm::vec3(0.f, 0.f, -1.f));
+    glm::mat4 base_model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
+    
+    std::vector<float> province_units_y(world.provinces.size(), 0.f);
+    for(const auto& war : world.wars) {
+        for(const auto& battle : war->battles) {
+            unsigned int i;
+
+            const float y = province_units_y[world.get_id(&battle.province)];
+            province_units_y[world.get_id(&battle.province)] += 2.5f;
+            const std::pair<float, float> prov_pos = battle.province.get_pos();
+
+            // Attackers on the left side
+            i = 0;
+            for(const auto& unit : battle.attackers) {
+                std::pair<float, float> pos = prov_pos;
+                pos.first -= (1.5f * i) + 3.f;
+                pos.second -= y;
+                glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
+                model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
+                obj_shader->set_uniform("model", model);
+                draw_flag(*obj_shader, *unit->owner);
+
+                // Model
+                obj_shader->set_uniform("model", model);
+                unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
+                i++;
+            }
+
+            // Defenders on the right side
+            i = 0;
+            for(const auto& unit : battle.defenders) {
+                std::pair<float, float> pos = prov_pos;
+                pos.first += (1.5f * i) + 3.f;
+                pos.second -= y;
+                glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
+                model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
+                obj_shader->set_uniform("model", model);
+                draw_flag(*obj_shader, *unit->owner);
+
+                // Model
+                obj_shader->set_uniform("model", model);
+                unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
+                i++;
+            }
+        }
+    }
+
     for(const auto& province : world.provinces) {
+        const float y = province_units_y[world.get_id(province)];
+        province_units_y[world.get_id(province)] += 2.5f;
+        const std::pair<float, float> prov_pos = province->get_pos();
+
+        unsigned int i = 0;
         for(const auto& unit : province->get_units()) {
-            glm::mat4 model = base_model;
-            const std::pair<float, float> pos = unit->get_pos();
-            model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
+            std::pair<float, float> pos = prov_pos;
+            pos.first -= 1.5f * ((province->get_units().size() / 2) - i);
+            pos.second -= y;
+            glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
             if(unit->target != nullptr) {
                 UnifiedRender::Line target_line = UnifiedRender::Line(pos.first, pos.second, unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
                 obj_shader->set_texture(0, "diffuse_map", *line_tex);
                 obj_shader->set_uniform("model", model);
                 target_line.draw();
 
-                const std::pair<float, float> tpos = unit->target->get_pos();
-                model = glm::rotate(model, std::atan2(tpos.first - pos.first, tpos.second - pos.second), glm::vec3(0.f, 1.f, 0.f));
+                //const std::pair<float, float> tpos = unit->target->get_pos();
+                //model = glm::rotate(model, std::atan2(tpos.first - pos.first, tpos.second - pos.second), glm::vec3(0.f, 1.f, 0.f));
             }
             model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_uniform("model", model);
@@ -484,14 +535,16 @@ void Map::draw(const GameState& gs) {
             // Model
             obj_shader->set_uniform("model", model);
             unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
+
+            i++;
         }
     }
+    //*/
 
     // Highlight for units
     for(const auto& unit : gs.input.selected_units) {
-        glm::mat4 model = base_model;
         const std::pair<float, float> pos = unit->get_pos();
-        model = glm::translate(model, glm::vec3(pos.first, pos.second, 0.f));
+        glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
         UnifiedRender::Square select_highlight = UnifiedRender::Square(0.f, 0.f, 1.f, 1.f);
         obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("gfx/select_border.png")));
         select_highlight.draw();
@@ -499,8 +552,7 @@ void Map::draw(const GameState& gs) {
 
     // Draw the "drag area" box
     if(is_drag) {
-        glm::mat4 model(1.f);
-        model = glm::translate(model, glm::vec3(0.f, 0.f, -1.f));
+        glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
         obj_shader->set_texture(0, "diffuse_map", *line_tex);
         obj_shader->set_uniform("model", model);
 
@@ -510,8 +562,7 @@ void Map::draw(const GameState& gs) {
 
     if(view_mode == MapView::SPHERE_VIEW) {
         // Universe skybox
-        glm::mat4 model(1.f);
-        model = glm::translate(model, glm::vec3(0.f, 0.f, -1.f));
+        glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
         UnifiedRender::TextureOptions mipmap_options{};
         mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         mipmap_options.mag_filter = GL_LINEAR;
