@@ -141,3 +141,4 @@ public:
 // Run world tick and pending commands
 void main_loop(GameState&, Client*, SDL_Window*);
 void start_client(int argc, char** argv);
+void save(GameState& gs);

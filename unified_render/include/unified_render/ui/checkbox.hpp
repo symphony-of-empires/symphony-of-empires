@@ -34,7 +34,7 @@
 #include "unified_render/ui/widget.hpp"
 
 namespace UI {
-	class Context;
+    class Div;
     /**
      * @ingroup UI
      * @brief Checkbox widget
@@ -42,8 +42,23 @@ namespace UI {
      */
     class Checkbox: public Widget {
     public:
+        Checkbox(Widget* parent = nullptr);
+        Checkbox(int size, Widget* parent = nullptr);
         Checkbox(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         virtual ~Checkbox() override {};
+        bool get_value();
+        void set_value(bool checked);
+        void set_on_click(std::function<void(Widget&)> on_click);
+        void text(const std::string& _text) override;
+
+    private:
+        static void on_click_default(Widget& w, void* data);
+        void init_checkbox(int size);
+        Div* box;
         bool value;
+        std::function<void(Widget&)> outside_on_click = nullptr;
+
+        const UnifiedRender::Texture* checked_texture;
+        const UnifiedRender::Texture* unchecked_texture;
     };
 };

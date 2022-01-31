@@ -37,12 +37,12 @@ using namespace Interface;
 #define POLICY_CHECKBOX(x, title, body)\
     auto* x## _chk = new UI::Checkbox(0, 0, 128, 24, reform_grp);\
     x## _chk->text(title);\
-    x## _chk->on_click = ([](UI::Widget& w, void*) {\
+    x## _chk->set_on_click([](UI::Widget& w) {\
         auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);\
         o.new_policy.x = !(o.new_policy).x;\
-        ((UI::Checkbox&)w).value = (o.new_policy).x;\
+        ((UI::Checkbox&)w).set_value((o.new_policy).x);\
     });\
-    x## _chk->value = (new_policy).x;\
+    x## _chk->set_value(new_policy.x);\
     x## _chk->tooltip = new UI::Tooltip(x## _chk, 512, 24);\
     x## _chk->tooltip->text(body);
 
