@@ -91,7 +91,7 @@ namespace UI {
         void add_widget(Widget* widget);
         void remove_widget(Widget* widget);
 
-        void render_all();
+        void render_all(glm::ivec2 mouse_pos);
 
         void resize(const int width, const int height);
 

@@ -697,42 +697,8 @@ void main_loop(GameState& gs) {
             gs.map->draw(gs);
             gs.map->camera->update();
         }
-        gs.ui_ctx->render_all();
+        gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
 
-        glUseProgram(0);
-        glActiveTexture(GL_TEXTURE0);
-
-        glViewport(0, 0, gs.width, gs.height);
-        glPushMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0.f, (float)gs.width, (float)gs.height, 0.f, 0.0f, 1.f);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glTranslatef(0.f, 0.f, 0.f);
-
-        // Cursor
-        glPushMatrix();
-        glTranslatef(gs.input.mouse_pos.first, gs.input.mouse_pos.second, 0.f);
-        gs.tex_man->load(Path::get("gfx/cursor_b.png")).bind();
-        glColor3f(1.f, 1.f, 1.f);
-        glBegin(GL_TRIANGLES);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glTexCoord2f(1.f, 0.f);
-        glVertex2f(32.f, 0.f);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(32.f, 32.f);
-        glTexCoord2f(1.f, 1.f);
-        glVertex2f(32.f, 32.f);
-        glTexCoord2f(0.f, 1.f);
-        glVertex2f(0.f, 32.f);
-        glTexCoord2f(0.f, 0.f);
-        glVertex2f(0.f, 0.f);
-        glEnd();
-        glPopMatrix();
-
-        glPopMatrix();
 
         gs.swap();
         gs.world->profiler.render_done();

@@ -312,13 +312,6 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
 void MapRender::draw(Camera* camera, MapView view_mode) {
     glm::mat4 view, projection;
 
-    glm::vec3 vec_from_normal;
-    if(view_mode == MapView::PLANE_VIEW) {
-        vec_from_normal = glm::vec3(0, 0, 1. / 0.);
-    }
-    else if(view_mode == MapView::SPHERE_VIEW) {
-        vec_from_normal = glm::vec3(0, 0, 0);
-    }
     map_shader->use();
     view = camera->get_view();
     map_shader->set_uniform("view", view);
@@ -329,7 +322,6 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     glm::vec3 map_pos = camera->get_map_pos();
     float distance_to_map = map_pos.z / world.width;
     map_shader->set_uniform("dist_to_map", distance_to_map);
-    map_shader->set_uniform("from_normal", vec_from_normal);
     map_shader->set_uniform("map_size", (float)world.width, (float)world.height);
     // A time uniform to send to the shader
     auto now = std::chrono::system_clock::now().time_since_epoch();
