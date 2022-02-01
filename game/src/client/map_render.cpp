@@ -56,7 +56,11 @@ MapRender::MapRender(const World& _world)
     : world(_world)
 {
     // Flat surface for drawing flat map 
-    map_quad = new UnifiedRender::Square(0.f, 0.f, world.width, world.height);
+    for(int x = -1; x <= 1; x++)
+    {
+        map_quads.push_back(new UnifiedRender::Square((int)world.width * x, 0.f, (int)world.width * (x + 1), world.height));
+    }
+
     // Sphere surface for drawing globe map
     map_sphere = new UnifiedRender::Sphere(0.f, 0.f, 0.f, GLOBE_RADIUS, 100);
 
@@ -354,7 +358,10 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     }
 
     if(view_mode == MapView::PLANE_VIEW) {
-        map_quad->draw();
+        for (size_t i = 0; i < map_quads.size(); i++)
+        {
+            map_quads[i]->draw();
+        }
     }
     else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();

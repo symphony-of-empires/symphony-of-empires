@@ -108,7 +108,7 @@ private:
     UnifiedRender::Texture* normal_topo;
     UnifiedRender::TextureArray* terrain_sheet;
 
-    UnifiedRender::Square* map_quad;
+    std::vector<UnifiedRender::Square*> map_quads;
     UnifiedRender::Sphere* map_sphere;
     UnifiedRender::Quad2D* map_2d_quad;
 

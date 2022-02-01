@@ -65,7 +65,10 @@ public:
 
     virtual void update(void) = 0;
 
-    virtual glm::mat4 get_projection() = 0;
+    virtual glm::mat4 get_projection() {
+        float aspect_ratio = screen_size.x / screen_size.y;
+        return glm::perspective(glm::radians(fov), aspect_ratio, near_plane, far_plane);
+    };
 
     virtual glm::mat4 get_view() = 0;
     virtual bool get_cursor_map_pos(std::pair<int, int> mouse_pos, glm::ivec2& out_pos) = 0;
