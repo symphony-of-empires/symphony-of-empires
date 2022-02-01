@@ -92,7 +92,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 
         // Obtain the index of the highest element (the one with more sucess rate)
         return target_good;
-    }else {
+    } else {
         // We will randomly pick any primary product which we are capable of producing
         // This is mostly useful for starting supply chains from zero
         print_info("Primary sector kickstart strategy");
@@ -272,7 +272,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
         const float force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
         const int chance = std::max<int>(0, force_dist - -relation.relation);
         if(std::rand() % (100 + (chance * 100)) == 0) {
-            if(!relation.has_war) {
+            if(!relation.has_war && !other_relation.has_war) {
                 nation->declare_war(*other);
             }
         }
