@@ -131,7 +131,8 @@ void Context::clear_dead_recursive(Widget* w) {
             delete w->children[index];
             w->children.erase(w->children.begin() + index);
             index--;
-        } else {
+        }
+        else {
             clear_dead_recursive(w->children[index]);
         }
     }
@@ -142,11 +143,12 @@ void Context::clear_dead() {
             delete widgets[index];
             widgets.erase(widgets.begin() + index);
             index--;
-        } else {
+        }
+        else {
             clear_dead_recursive(widgets[index]);
         }
     }
-    
+
     if(tooltip_widget) {
         clear_dead_recursive(tooltip_widget);
     }
@@ -268,7 +270,7 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
     offset = get_pos(w, offset);
     UnifiedRender::Rect local_viewport = UnifiedRender::Rect{ offset, size };
 
-    if (!w.parent || w.parent->type != UI::WidgetType::GROUP) {
+    if(!w.parent || w.parent->type != UI::WidgetType::GROUP) {
         local_viewport = viewport.intersection(local_viewport);
     }
     viewport = local_viewport;
@@ -296,7 +298,7 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
     }
 }
 
-void Context::render_all() {
+void Context::render_all(glm::ivec2 mouse_pos) {
     glUseProgram(0);
 
     glActiveTexture(GL_TEXTURE0);
@@ -324,6 +326,32 @@ void Context::render_all() {
     if(tooltip_widget != nullptr) {
         render_recursive(*tooltip_widget, viewport);
     }
+
+    // Cursor
+    glPushMatrix();
+    glTranslatef(mouse_pos.x, mouse_pos.y, 0.f);
+    UnifiedRender::TextureOptions mipmap_options;
+    mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+    mipmap_options.mag_filter = GL_LINEAR;
+    auto cursor = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/cursor_b.png"), mipmap_options);
+    cursor->bind();
+    glColor3f(1.f, 1.f, 1.f);
+    glBegin(GL_TRIANGLES);
+    glTexCoord2f(0.f, 0.f);
+    glVertex2f(0.f, 0.f);
+    glTexCoord2f(1.f, 0.f);
+    glVertex2f(32.f, 0.f);
+    glTexCoord2f(1.f, 1.f);
+    glVertex2f(32.f, 32.f);
+    glTexCoord2f(1.f, 1.f);
+    glVertex2f(32.f, 32.f);
+    glTexCoord2f(0.f, 1.f);
+    glVertex2f(0.f, 32.f);
+    glTexCoord2f(0.f, 0.f);
+    glVertex2f(0.f, 0.f);
+    glEnd();
+    glPopMatrix();
+
     glPopMatrix();
 }
 
@@ -337,9 +365,10 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
     }
 
     const UnifiedRender::Rect r = UnifiedRender::Rect(offset.x, offset.y, w.width, w.height);
-    if (!r.in_bounds(mx, my)) {
+    if(!r.in_bounds(mx, my)) {
         w.is_hover = false;
-    } else if(w.is_transparent) {
+    }
+    else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
@@ -410,7 +439,8 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
         const UnifiedRender::Rect r = UnifiedRender::Rect(offset.x, offset.y, w.width, w.height);
         if(!r.in_bounds(glm::vec2(mx, my))) {
             clickable = false;
-        } else if(w.is_transparent) {
+        }
+        else if(w.is_transparent) {
             if(w.current_texture != nullptr) {
                 int tex_width = w.current_texture->width;
                 int tex_height = w.current_texture->height;
@@ -506,7 +536,7 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
         }
 
         const UnifiedRender::Rect r = UnifiedRender::Rect(widget.x, widget.y, widget.width, widget.y + 24);
-        if (r.in_bounds(glm::vec2(mx, my))) {
+        if(r.in_bounds(glm::vec2(mx, my))) {
             Window& c_widget = static_cast<Window&>(widget);
             if(!c_widget.is_movable) {
                 continue;
@@ -557,9 +587,10 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
     }
 
     const UnifiedRender::Rect r = UnifiedRender::Rect(offset.x, offset.y, w.width, w.height);
-    if (!r.in_bounds(glm::vec2(mx, my))) {
+    if(!r.in_bounds(glm::vec2(mx, my))) {
         return false;
-    } else if(w.is_transparent) {
+    }
+    else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
@@ -588,7 +619,7 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
         }
     }
 
-    if (w.type == UI::WidgetType::GROUP) {
+    if(w.type == UI::WidgetType::GROUP) {
         return false;
     }
     if(w.is_scroll) {
