@@ -40,6 +40,7 @@
 class OrbitCamera: public Camera {
 public:
     float radius;
+    float circumference;
     glm::vec3 target;
     ValueChase<glm::vec3> chase{ 0.2f };
 
@@ -47,21 +48,24 @@ public:
         : Camera(screen_size, map_size)
     {
         radius = _radius;
+        circumference = _radius * 2 * M_PI;
         map_position = glm::vec3(M_PI, M_PI * 0.5f, radius * 1.5f);
         target = map_position;
     }
 
     OrbitCamera(Camera* camera, float _radius)
-        : radius{_radius}, Camera(camera)
+        : radius{ _radius }, Camera(camera)
     {
+        circumference = _radius * 2 * M_PI;
         world_position = map_position;
         target = map_position;
     }
 
     void move(float x_dir, float y_dir, float z_dir) override {
         float scale = glm::abs(target.z * map_size.x / 1e5);
-        target.x += x_dir * scale;
-        target.y += y_dir * scale;
+        float camera_radius = radius + map_position.z / (map_size.x / 2.f) * circumference * 0.5f;
+        target.x += x_dir * scale * radius / camera_radius;
+        target.y += y_dir * scale * radius / camera_radius;
         target.y = glm::clamp(target.y, 0.f, map_size.y);
         target.z += z_dir * scale;
         target.z = glm::clamp(target.z, 0.f, map_size.x / 2.f);
@@ -78,15 +82,10 @@ public:
         radiance_pos.x = glm::mod(normalized_pos.x * 2.f * pi, 2.f * pi);
         radiance_pos.y = glm::max(0.f, glm::min(pi, normalized_pos.y * pi));
 
-        float distance = radius + normalized_pos.z * radius * 7.;
+        float distance = radius + normalized_pos.z * circumference * 0.5f;
         world_position.x = distance * cos(radiance_pos.x) * sin(radiance_pos.y);
         world_position.y = distance * sin(radiance_pos.x) * sin(radiance_pos.y);
         world_position.z = distance * cos(radiance_pos.y);
-    };
-
-    glm::mat4 get_projection() override {
-        float aspect_ratio = screen_size.x / screen_size.y;
-        return glm::perspective(glm::radians(fov), aspect_ratio, near_plane, far_plane);
     };
 
     void set_pos(float x, float y) override {

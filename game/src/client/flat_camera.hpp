@@ -37,7 +37,7 @@
 class FlatCamera: public Camera {
 public:
     glm::vec3 target;
-    ValueChase<glm::vec3> chase{0.2f};
+    ValueChase<glm::vec3> chase{ 0.2f };
 
     FlatCamera(glm::vec2 screen_size, glm::vec2 map_size)
         : Camera(screen_size, map_size)
@@ -58,30 +58,29 @@ public:
         float scale = glm::abs(target.z * map_size.x / 1e5);
         target.x += x_dir * scale;
         target.y += y_dir * scale;
+        target.y = glm::clamp(target.y, 0.f, map_size.y);
         target.z += z_dir * scale;
-        target = glm::clamp(target, glm::vec3(0,0,10), glm::vec3(map_size, map_size.x / 2.f));
+        target.z = glm::clamp(target.z, 0.f, map_size.x / 2.f);
     }
 
     void update(void) override {
         map_position = chase.move_toward(map_position, target);
+        map_position.y = glm::clamp(map_position.y, 0.f, map_size.y);
+        map_position.z = glm::clamp(map_position.z, 10.f, map_size.x / 2.f);
 
-        map_position = glm::clamp(map_position, glm::vec3(0,0,10), glm::vec3(map_size, map_size.x / 2.f));
         world_position = map_position;
+        world_position.x = glm::mod(world_position.x, map_size.x);
         world_position.z *= -1;
     };
 
     void set_pos(float x, float y) override {
-        map_position.x = glm::clamp(x, 0.f, map_size.x);
+        map_position.x = glm::mod(x, map_size.x);
         map_position.y = glm::clamp(y, 0.f, map_size.y);
-        world_position = map_position;
-        world_position.z *= -1;
         target = map_position;
+
+        update();
     }
 
-    glm::mat4 get_projection() override {
-        float aspect_ratio = screen_size.x / screen_size.y;
-        return glm::perspective(glm::radians(fov), aspect_ratio, near_plane, far_plane);
-    };
 
     glm::vec3 get_map_pos() override {
         glm::vec3 out_pos = map_position;
@@ -122,11 +121,9 @@ public:
 
         glm::vec3 intersection_point = world_space_near + ray_direction * distance;
         out_pos.x = intersection_point.x;
+        out_pos.x = glm::mod((float)out_pos.x, map_size.x);
         out_pos.y = intersection_point.y;
-        if(intersection_point.x < 0
-            || intersection_point.y < 0
-            || intersection_point.x > map_size.x
-            || intersection_point.y > map_size.y) {
+        if(intersection_point.y < 0 || intersection_point.y > map_size.y) {
             hit = false;
         }
         return hit;
