@@ -69,6 +69,10 @@ namespace UnifiedRender {
             bottom += offset.y;
         }
 
+        bool in_bounds(glm::vec2 pos) const {
+            return (pos.x >= left && pos.x <= right && pos.y >= top && pos.y <= bottom);
+        }
+
         Rectangle intersection(const Rectangle& rect);
     };
 
