@@ -49,13 +49,13 @@ namespace UnifiedRender::OpenGL {
     class Option {
         std::string _option;
     public:
-        bool used;
         Option(std::string option, bool use):
-            used{ use }, _option{ option } {}
+            _option{ option } ,used{ use } {}
 
         std::string get_option() {
             return _option;
         }
+        bool used;
     };
 
     class Shader {
@@ -115,6 +115,7 @@ namespace UnifiedRender::OpenGL {
 
         void use(void) const;
         void set_uniform(const std::string& name, glm::mat4 uniform) const;
+        void set_uniform(const std::string& name, glm::vec3 uniform) const;
         void set_uniform(const std::string& name, float value1, float value2) const;
         void set_uniform(const std::string& name, float value1, float value2, float value3) const;
         void set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const;
