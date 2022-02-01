@@ -43,14 +43,15 @@ UnifiedRender::OpenGL::Shader::Shader(const std::string& path, GLuint type, bool
         file.close();
 
         buffer = stream.str();
-        
+
         if(use_transpiler) {
             UnifiedRender::OpenGL::GLSL_Context ctx(buffer);
             ctx.defines = defintions;
             ctx.lexer();
             try {
                 ctx.parser();
-            } catch(UnifiedRender::OpenGL::GLSL_Exception& e) {
+            }
+            catch(UnifiedRender::OpenGL::GLSL_Exception& e) {
                 print_error("%s -> %s", e.it->data.c_str(), e.what());
             }
             buffer = ctx.to_text();
@@ -61,7 +62,8 @@ UnifiedRender::OpenGL::Shader::Shader(const std::string& path, GLuint type, bool
         glShaderSource(id, 1, &c_code, NULL);
 
         compile(type);
-    } catch(std::ifstream::failure& e) {
+    }
+    catch(std::ifstream::failure& e) {
         print_error("Cannot load shader %s", path.c_str());
     }
 }
@@ -94,7 +96,8 @@ void UnifiedRender::OpenGL::Shader::compile(GLuint type) {
             if(ch == '(') {
                 sline >> col;
             }
-        } else if(ch == '(') {
+        }
+        else if(ch == '(') {
             sline >> row;
         }
 
@@ -240,7 +243,7 @@ UnifiedRender::OpenGL::Program::Program(const UnifiedRender::OpenGL::VertexShade
 }
 
 UnifiedRender::OpenGL::Program::~Program(void) {
-    
+
 }
 
 std::unique_ptr<UnifiedRender::OpenGL::Program> UnifiedRender::OpenGL::Program::create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
@@ -327,6 +330,10 @@ void UnifiedRender::OpenGL::Program::set_uniform(const std::string& name, float 
     glUniform3f(glGetUniformLocation(id, name.c_str()), value1, value2, value3);
 }
 
+void UnifiedRender::OpenGL::Program::set_uniform(const std::string& name, glm::vec3 uniform) const {
+    set_uniform(name, uniform.x, uniform.y, uniform.z);
+}
+
 void UnifiedRender::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const {
     glUniform4f(glGetUniformLocation(id, name.c_str()), value1, value2, value3, value4);
 }
@@ -349,7 +356,7 @@ void UnifiedRender::OpenGL::Program::set_texture(int value, const std::string& n
     glActiveTexture(GL_TEXTURE0 + value);
     set_uniform(name, value);
     glBindTexture(GL_TEXTURE_2D, texture.gl_tex_num);
-}
+    }
 
 void UnifiedRender::OpenGL::Program::set_texture(int value, const std::string& name, const UnifiedRender::TextureArray& texture) const {
 #ifdef UR_RENDER_DEBUG
@@ -360,7 +367,7 @@ void UnifiedRender::OpenGL::Program::set_texture(int value, const std::string& n
     glActiveTexture(GL_TEXTURE0 + value);
     set_uniform(name, value);
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture.gl_tex_num);
-}
+    }
 
 GLuint UnifiedRender::OpenGL::Program::get_id(void) const {
     return id;

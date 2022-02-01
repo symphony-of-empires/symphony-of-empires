@@ -63,7 +63,7 @@ namespace UnifiedRender {
         }
 
         void offset(glm::vec2 offset) {
-            left += offset.x; 
+            left += offset.x;
             top += offset.y;
             right += offset.x;
             bottom += offset.y;
@@ -73,7 +73,12 @@ namespace UnifiedRender {
             return (pos.x >= left && pos.x <= right && pos.y >= top && pos.y <= bottom);
         }
 
-        Rectangle intersection(const Rectangle& rect);
+        template<typename T>
+        bool in_bounds(T x, T y) const {
+            return in_bounds(glm::vec2(x, y));
+        }
+
+        Rectangle intersection(const Rectangle& rect) const;
     };
 
     typedef class Rectangle Rect;

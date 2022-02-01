@@ -138,9 +138,11 @@ void handle_event(Input& input, GameState& gs) {
         case SDL_CONTROLLERDEVICEADDED:
             break;
         case SDL_MOUSEBUTTONDOWN:
-            SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             click_on_ui = ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
-            ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
+            if(event.button.button == SDL_BUTTON_LEFT) {
+                SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+                ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
+            }
             if(event.button.button == SDL_BUTTON_MIDDLE) {
                 input.middle_mouse_down = true;
             }

@@ -337,7 +337,7 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
     }
 
     const UnifiedRender::Rect r = UnifiedRender::Rect(offset.x, offset.y, w.width, w.height);
-    if (!r.in_bounds(glm::vec2(static_cast<float>(mx), static_cast<float>(my)))) {
+    if (!r.in_bounds(mx, my)) {
         w.is_hover = false;
     } else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
@@ -506,7 +506,7 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
         }
 
         const UnifiedRender::Rect r = UnifiedRender::Rect(widget.x, widget.y, widget.width, widget.y + 24);
-        if (!r.in_bounds(glm::vec2(mx, my))) {
+        if (r.in_bounds(glm::vec2(mx, my))) {
             Window& c_widget = static_cast<Window&>(widget);
             if(!c_widget.is_movable) {
                 continue;
