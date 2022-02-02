@@ -151,7 +151,7 @@ std::string political_province_tooltip(const World& world, const Province::Id id
     return world.provinces[id]->name;
 }
 
-std::string empty_province_tooltip(const World& world, const Province::Id id) {
+std::string empty_province_tooltip(const World&, const Province::Id) {
     return "";
 }
 
@@ -374,7 +374,7 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx) {
         }
 
         if(camera->get_cursor_map_pos(mouse_pos, map_pos)) {
-            if(map_pos.x < 0 || map_pos.x > world.width || map_pos.y < 0 || map_pos.y > world.height) {
+            if(map_pos.x < 0 || map_pos.x > (int)world.width || map_pos.y < 0 || map_pos.y > (int)world.height) {
                 break;
             }
 

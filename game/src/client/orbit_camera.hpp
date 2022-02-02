@@ -45,16 +45,15 @@ public:
     ValueChase<glm::vec3> chase{ 0.2f };
 
     OrbitCamera(glm::vec2 screen_size, glm::vec2 map_size, float _radius)
-        : Camera(screen_size, map_size)
+        : Camera(screen_size, map_size), radius{ _radius } 
     {
-        radius = _radius;
         circumference = _radius * 2 * M_PI;
         map_position = glm::vec3(M_PI, M_PI * 0.5f, radius * 1.5f);
         target = map_position;
     }
 
     OrbitCamera(Camera* camera, float _radius)
-        : radius{ _radius }, Camera(camera)
+        : Camera(camera), radius{ _radius }
     {
         circumference = _radius * 2 * M_PI;
         world_position = map_position;

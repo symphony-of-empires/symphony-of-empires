@@ -78,6 +78,8 @@ MapRender::MapRender(const World& _world)
     auto tex_man = UnifiedRender::State::get_instance().tex_man;
 
     water_tex = &tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
+    paper_tex = &tex_man->load(Path::get("map/paper.png"), mipmap_options);
+    stripes_tex = &tex_man->load(Path::get("map/stripes.png"), mipmap_options);
     landscape_map = &tex_man->load(Path::get("map/color.png"), mipmap_options);
     wave1 = &tex_man->load(Path::get("gfx/wave1.png"), mipmap_options);
     wave2 = &tex_man->load(Path::get("gfx/wave2.png"), mipmap_options);
@@ -241,10 +243,12 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
     fbo.use();
 
     // Jump flooding iterations, each step give a distance field 2^steps pixels away from the border
-    const int max_steps = 4.f;
+    const int max_steps = 7;
+    const float max_dist = std::pow(2, max_steps);
+    border_sdf_shader->set_uniform("max_dist", max_dist);
 
     bool drawOnTex0 = true;
-    for(int step = max_steps; step >= 1; step /= 2) {
+    for(int step = max_dist; step >= 1; step /= 2) {
         // Swap read/write buffers
         drawOnTex0 = !drawOnTex0;
         tex0->gen_mipmaps();
@@ -252,7 +256,7 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
         border_sdf_shader->set_uniform("jump", (float)step);
 
         fbo.set_texture(0, drawOnTex0 ? *tex0 : *tex1);
-        if(step == max_steps) {
+        if(step == max_dist) {
             border_sdf_shader->set_texture(0, "tex", *border_tex);
         }
         else {
@@ -359,6 +363,8 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
         map_shader->set_texture(11, "wave2", *wave2);
         map_shader->set_texture(12, "normal", *normal_topo); // 3 col
     }
+    map_shader->set_texture(13, "paper_tex", *paper_tex);
+    map_shader->set_texture(14, "stripes", *stripes_tex);
 
     if(view_mode == MapView::PLANE_VIEW) {
         for(size_t i = 0; i < map_quads.size(); i++)
