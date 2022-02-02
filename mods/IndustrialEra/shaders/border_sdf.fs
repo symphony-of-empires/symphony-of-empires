@@ -4,9 +4,10 @@ out vec4 f_frag_color;
 
 in vec2 v_texcoord;
 
-provided vec2 map_size;
-provided float jump;
-provided sampler2D tex;
+uniform vec2 map_size;
+uniform float jump;
+uniform sampler2D tex;
+uniform float max_dist;
 
 float get_dist(vec2 v1_coord, vec2 v2_coord) {
 	vec2 xy_diff = (v1_coord - v2_coord) * map_size;
@@ -58,7 +59,7 @@ void main() {
 
 		float newDist = get_dist(neighbor.xy, m_coord);
 		if(m_frag_data.z == 0.0 || newDist < dist) {
-			float d = 1. - sqrt(newDist) / (4. * sqrt(2.));
+			float d = 1. - (sqrt(newDist) / (max_dist));
 			d = max(d, 0.001);
 			m_frag_data.z = d;
 			m_frag_data.xy = neighbor.xy;

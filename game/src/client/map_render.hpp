@@ -97,6 +97,8 @@ private:
     UnifiedRender::Texture* tile_map;
     UnifiedRender::Texture* tile_sheet;
     const UnifiedRender::Texture* water_tex;
+    const UnifiedRender::Texture* paper_tex;
+    const UnifiedRender::Texture* stripes_tex;
     const UnifiedRender::Texture* noise_tex;
     const UnifiedRender::Texture* topo_map;
     const UnifiedRender::Texture* river_tex;

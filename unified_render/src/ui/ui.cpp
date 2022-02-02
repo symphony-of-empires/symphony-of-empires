@@ -333,6 +333,8 @@ void Context::render_all(glm::ivec2 mouse_pos) {
     UnifiedRender::TextureOptions mipmap_options;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
+    mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
+    mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
     auto cursor = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/cursor_b.png"), mipmap_options);
     cursor->bind();
     glColor3f(1.f, 1.f, 1.f);
