@@ -114,6 +114,22 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         UnifiedRender::Color color = UnifiedRender::Color(1.f, 1.f, 1.f);
         auto text_texture =  new UnifiedRender::Texture(s.ui_ctx->default_font, color, province->name);
         province_names_text.push_back(text_texture);
+
+        glm::vec2 min_point(province->min_x, province->min_y);
+        glm::vec2 max_point(province->max_x, province->max_y);
+        glm::vec2 mid_point = 0.5f * (min_point + max_point);
+
+        float prov_size = max_point.x - min_point.x;
+        prov_size = std::min(prov_size, 500.f);
+        glm::vec2 text_size = glm::vec2(text_texture->width, text_texture->height) * (0.25f * prov_size / text_texture->width);
+        min_point = mid_point - text_size * 0.5f;
+        max_point = mid_point + text_size;
+        glm::vec3 c1 = camera->get_tile_world_pos(min_point);
+        glm::vec3 c2 = camera->get_tile_world_pos(glm::vec2(min_point.x, max_point.y));
+        glm::vec3 c3 = camera->get_tile_world_pos(glm::vec2(max_point.x, min_point.y));
+        glm::vec3 c4 = camera->get_tile_world_pos(max_point);
+        auto quad = new UnifiedRender::Quad(c1, c2, c4, c3);
+        province_names_quad.push_back(quad);
     }
 }
 
@@ -132,6 +148,31 @@ void Map::set_view(MapView view) {
         camera = new OrbitCamera(old_camera, GLOBE_RADIUS);
     }
     delete old_camera;
+
+
+    for(auto& quad : province_names_quad) {
+        delete quad;
+    }
+    province_names_quad.clear();
+    for(const auto& province : world.provinces) {
+        auto text_texture =  province_names_text[province->cached_id];
+
+        glm::vec2 min_point(province->min_x, province->min_y);
+        glm::vec2 max_point(province->max_x, province->max_y);
+        glm::vec2 mid_point = 0.5f * (min_point + max_point);
+
+        float prov_size = max_point.x - min_point.x;
+        prov_size = std::min(prov_size, 500.f);
+        glm::vec2 text_size = glm::vec2(text_texture->width, text_texture->height) * (0.25f * prov_size / text_texture->width);
+        min_point = mid_point - text_size * 0.5f;
+        max_point = mid_point + text_size;
+        glm::vec3 c1 = camera->get_tile_world_pos(min_point);
+        glm::vec3 c2 = camera->get_tile_world_pos(glm::vec2(min_point.x, max_point.y));
+        glm::vec3 c3 = camera->get_tile_world_pos(glm::vec2(max_point.x, min_point.y));
+        glm::vec3 c4 = camera->get_tile_world_pos(max_point);
+        auto quad = new UnifiedRender::Quad(c1, c2, c4, c3);
+        province_names_quad.push_back(quad);
+    }
 }
 
 // The standard map mode with each province color = country color
@@ -553,26 +594,27 @@ void Map::draw(const GameState& gs) {
     //*/
 
     obj_shader->use();
+    obj_shader->set_uniform("model", glm::mat4(1.f));
 
     glm::vec3 map_pos = camera->get_map_pos();
     float distance_to_map = map_pos.z / world.width;
     if(distance_to_map < 0.070) {
         glDepthFunc(GL_ALWAYS);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        glFrontFace(GL_CCW);
         for(const auto& province : world.provinces) {
+            if(province->terrain_type->is_water_body)
+                continue;
+
             auto* text_tex = province_names_text[world.get_id(province)];
             obj_shader->set_texture(0, "diffuse_map", *text_tex);
-            glm::vec3 min_point = glm::vec3(province->min_x, province->min_y, 0.f);
-            glm::vec3 max_point = glm::vec3(province->max_x, province->max_y, 0.f);
-            glm::vec3 mid_point = 0.5f * (min_point + max_point);
-            float min_size = max_point.x - min_point.x;
-            // float min_size = std::min(max_point.x - min_point.x, max_point.y - min_point.y);
-            glm::mat4 model = glm::translate(base_model, mid_point);
-            obj_shader->set_uniform("model", model);
-            glm::vec2 text_size = glm::vec2(text_tex->width, text_tex->height) * (0.25f * min_size / text_tex->width);
-            auto text = UnifiedRender::Square(-0.5f * text_size.x, -0.5f * text_size.y, text_size.x, text_size.y);
-            text.draw();
+
+            auto* quad = province_names_quad[world.get_id(province)];
+            quad->draw();
         }
         glDepthFunc(GL_LEQUAL);
+        glDisable(GL_CULL_FACE);
     }
 
     // Highlight for units

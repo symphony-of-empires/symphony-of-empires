@@ -152,4 +152,19 @@ public:
 
         return hit;
     };
+
+    glm::vec3 get_tile_world_pos(glm::vec2 tile_pos) override {
+        glm::vec2 normalized_pos = tile_pos / map_size;
+        glm::vec2 radiance_pos;
+        float pi = glm::pi<float>();
+        radiance_pos.x = glm::mod(normalized_pos.x * 2.f * pi, 2.f * pi);
+        radiance_pos.y = glm::max(0.f, glm::min(pi, normalized_pos.y * pi));
+
+        float distance = radius;
+        glm::vec3 out_pos;
+        out_pos.x = distance * cos(radiance_pos.x) * sin(radiance_pos.y);
+        out_pos.y = distance * sin(radiance_pos.x) * sin(radiance_pos.y);
+        out_pos.z = distance * cos(radiance_pos.y);
+        return out_pos;
+    }
 };
