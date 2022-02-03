@@ -494,7 +494,7 @@ void main() {
 	float w_lines = texture(stripes, 30. * tex_coords).x;
 	vec3 line_col = mix(water_col, water, 0.75);
 	vec3 paper_water = mix(water, line_col, 1.);
-	water = mix(water, paper_water, sdf_mix * not_lake);
+	water = mix(water, paper_water, sdf_mix);
 
 	// sdf_mix = step(b0, bSdf);
 	// paper_border0 = mix(greyed_color, paper_col, 0.05);
@@ -525,6 +525,5 @@ void main() {
 
 	f_frag_color.rgb = light * out_color;
 	f_frag_color.rgb = pow(f_frag_color.rgb, vec3(1. / 2.2));
-	// f_frag_color.xyz = texture(stripes, tex_coords).xyz;
 	f_frag_color.a = 1.;
 }

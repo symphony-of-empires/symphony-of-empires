@@ -10,7 +10,7 @@ provided sampler2D terrain_map;
 
 float is_not_lake(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	return terrain.x == 1./255. ? 0. : 1.;
+	return terrain.x == 1./255. ? 1. : 1.;
 }
 
 vec2 sum(vec4 v1, vec4 v2) {
