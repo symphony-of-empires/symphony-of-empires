@@ -547,8 +547,14 @@ void Map::draw(const GameState& gs) {
     }
     //*/
 
+    obj_shader->use();
     for(const auto& province : world.provinces) {
-        UnifiedRender::Square text = UnifiedRender::Square(province->min_x, province->min_y, province->max_x, province->max_y);
+        auto* text_tex = province_names_text[world.get_id(province)];
+        obj_shader->set_texture(0, "diffuse_map", *text_tex);
+        glm::mat4 model = glm::translate(base_model, glm::vec3(province->min_x, province->min_y, 0.f));
+        obj_shader->set_uniform("model", model);
+        auto text = UnifiedRender::Square(0.f, 0.f, (text_tex->width + 1.f) / 16.f, (text_tex->height + 1.f) / 16.f);
+        text.draw();
     }
 
     // Highlight for units
