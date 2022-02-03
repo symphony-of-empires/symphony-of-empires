@@ -66,6 +66,7 @@
 Map::Map(const World& _world, int screen_width, int screen_height)
     : world(_world)
 {
+    UnifiedRender::State& s = UnifiedRender::State::get_instance();
     camera = new FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
 
     rivers = new Rivers();
@@ -73,7 +74,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     // Shader used for drawing the models using custom model render
     obj_shader = UnifiedRender::OpenGL::Program::create("shaders/simple_model.vs", "shaders/simple_model.fs");
-    line_tex = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/line_target.png"));
+    line_tex = &s.tex_man->load(Path::get("gfx/line_target.png"));
 
     // Set the mapmode
     set_map_mode(political_map_mode, empty_province_tooltip);
@@ -88,7 +89,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
         mipmap_options.mag_filter = GL_LINEAR;
         std::string path = Path::get("gfx/flags/" + nation->ref_name + "_" + (nation->ideology == nullptr ? "none" : nation->ideology->ref_name) + ".png");
-        auto flag_texture = &UnifiedRender::State::get_instance().tex_man->load(path, mipmap_options);
+        auto flag_texture = &s.tex_man->load(path, mipmap_options);
         flag_texture->gen_mipmaps();
         nation_flags.push_back(flag_texture);
     }
@@ -96,17 +97,22 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     for(const auto& building_type : world.building_types) {
         std::string path;
         path = Path::get("models/BuildingType/" + building_type->ref_name + ".obj");
-        building_type_models.push_back(&UnifiedRender::State::get_instance().model_man->load(path));
+        building_type_models.push_back(&s.model_man->load(path));
         path = Path::get("gfx/buildingtype/" + building_type->ref_name + ".png");
-        building_type_icons.push_back(&UnifiedRender::State::get_instance().tex_man->load(path));
+        building_type_icons.push_back(&s.tex_man->load(path));
     }
 
     for(const auto& unit_type : world.unit_types) {
         std::string path;
         path = Path::get("models/UnitType/" + unit_type->ref_name + ".obj");
-        unit_type_models.push_back(&UnifiedRender::State::get_instance().model_man->load(path));
+        unit_type_models.push_back(&s.model_man->load(path));
         path = Path::get("gfx/unittype/" + unit_type->ref_name + ".png");
-        unit_type_icons.push_back(&UnifiedRender::State::get_instance().tex_man->load(path));
+        unit_type_icons.push_back(&s.tex_man->load(path));
+    }
+
+    for(const auto& province : world.provinces) {
+        UnifiedRender::Color color = UnifiedRender::Color(1.f, 1.f, 1.f);
+        province_names_text.push_back(new UnifiedRender::Texture(s.ui_ctx->default_font, color, province->name));
     }
 }
 
@@ -540,6 +546,10 @@ void Map::draw(const GameState& gs) {
         }
     }
     //*/
+
+    for(const auto& province : world.provinces) {
+        UnifiedRender::Square text = UnifiedRender::Square(province->min_x, province->min_y, province->max_x, province->max_y);
+    }
 
     // Highlight for units
     for(const auto& unit : gs.input.selected_units) {

@@ -105,6 +105,7 @@ public:
     std::vector<const UnifiedRender::Texture*> building_type_icons;
     std::vector<const UnifiedRender::Texture*> unit_type_icons;
     std::vector<const UnifiedRender::Texture*> nation_flags;
+    std::vector<UnifiedRender::Texture*> province_names_text;
 
     // Wind oscillator (for flags)
     float wind_osc = 0.f;

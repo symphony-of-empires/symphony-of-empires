@@ -39,7 +39,14 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+#ifdef _MSC_VER
+#include <SDL_ttf.h>
+#else
+#include <SDL2/SDL_ttf.h>
+#endif
+
 #include "unified_render/binary_image.hpp"
+#include "unified_render/color.hpp"
 
 struct SDL_Surface;
 namespace UnifiedRender::IO {
@@ -93,6 +100,7 @@ namespace UnifiedRender {
         Texture(const std::string& path);
         Texture(const UnifiedRender::IO::Asset::Base* asset);
         Texture(size_t _width, size_t _height);
+        Texture(TTF_Font* font, UnifiedRender::Color color, const std::string& msg);
         ~Texture(void) override;
         void create_dummy();
         void to_opengl(TextureOptions options = default_options);

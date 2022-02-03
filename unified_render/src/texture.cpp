@@ -125,8 +125,7 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
         // No alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGB;
-        }
-        else {
+        } else {
             texture_format = GL_BGR;
         }
     }
@@ -136,10 +135,12 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
     glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
 
     int expected_pitch = (surface->w * surface->format->BytesPerPixel + alignment - 1) / alignment * alignment;
-    if(surface->pitch - expected_pitch >= alignment) // Alignment alone wont't solve it now
+    if (surface->pitch - expected_pitch >= alignment) {
+        // Alignment alone wont't solve it now
         glPixelStorei(GL_UNPACK_ROW_LENGTH, surface->pitch / surface->format->BytesPerPixel);
-    else
+    } else {
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    }
 
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
@@ -160,6 +161,32 @@ void UnifiedRender::Texture::bind(void) const {
 // Deletes the OpenGL representation of this texture
 void UnifiedRender::Texture::delete_opengl() {
     glDeleteTextures(1, &gl_tex_num);
+}
+
+UnifiedRender::Texture::Texture(TTF_Font* font, UnifiedRender::Color color, const std::string& msg) {
+    // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
+    SDL_Color black_color = {
+        static_cast<Uint8>(color.r * 255.f),
+        static_cast<Uint8>(color.g * 255.f),
+        static_cast<Uint8>(color.b * 255.f),
+        0
+    };
+
+    SDL_Surface* surface = TTF_RenderUTF8_Blended(font, msg.c_str(), black_color);
+    if (surface == nullptr) {
+        throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
+    }
+
+    buffer.reset(new uint32_t[surface->w * surface->h]);
+    width = static_cast<size_t>(surface->w);
+    height = static_cast<size_t>(surface->h);
+    this->to_opengl(surface);
+    SDL_FreeSurface(surface);
+
+    const char* error_msg = SDL_GetError();
+    if(error_msg[0] != '\0') {
+        print_error("SDL error %s", error_msg);
+    }
 }
 
 //
