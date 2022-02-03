@@ -399,10 +399,14 @@ void main() {
 #else
 	vec3 water = water_col * 0.7;
 #endif
+	water = mix(water, paper_col, 0.2); 
+#ifdef SDF
 	//paper
-	// water = mix(water, paper_col, 0.2); 
-	water = mix(paper, paper_col, 0.7); 
-	water = mix(water, water_col, 0.4); 
+	vec3 p_water = mix(paper, paper_col, 0.7); 
+	p_water = mix(p_water, water_col, 0.4); 
+	water = mix(water, p_water, far_from_map);
+#endif
+
 
 #ifdef GRID
 	float grid = get_grid(tex_coords);
@@ -440,7 +444,6 @@ void main() {
 	vec3 terrain_color = prov_color;
 #endif
 	vec3 ground = mix(terrain_color, prov_color, mix(0.15, 1., far_from_map));
-	// vec3 out_color = mix(ground, water, beach);
 	vec3 out_color;
 
 #ifdef SDF
@@ -494,7 +497,7 @@ void main() {
 	float w_lines = texture(stripes, 30. * tex_coords).x;
 	vec3 line_col = mix(water_col, water, 0.75);
 	vec3 paper_water = mix(water, line_col, 1.);
-	water = mix(water, paper_water, sdf_mix * not_lake);
+	water = mix(water, paper_water, sdf_mix);
 
 	// sdf_mix = step(b0, bSdf);
 	// paper_border0 = mix(greyed_color, paper_col, 0.05);
@@ -502,7 +505,10 @@ void main() {
 
 	borders.y *= mix(1.0, 0.0, far_from_map);
 	beach_border *= mix(1.0, 0.0, far_from_map);
+#else 
+	out_color = mix(ground, water, beach);
 #endif
+
 	out_color = mix(out_color, water, beach);
 
 	borders.y *= mix(0.7, 1.0, far_from_map) * (1.-beach);
@@ -525,6 +531,5 @@ void main() {
 
 	f_frag_color.rgb = light * out_color;
 	f_frag_color.rgb = pow(f_frag_color.rgb, vec3(1. / 2.2));
-	// f_frag_color.xyz = texture(stripes, tex_coords).xyz;
 	f_frag_color.a = 1.;
 }
