@@ -65,8 +65,8 @@ void BinaryImage::from_file(const UnifiedRender::IO::Path& path) {
     }
     buffer.reset((uint32_t*)c_buffer);
 
-    width = (size_t)i_width;
-    height = (size_t)i_height;
+    width = static_cast<size_t>(i_width);
+    height = static_cast<size_t>(i_height);
 }
 
 uint32_t BinaryImage::get_pixel(size_t x, size_t y) const {
