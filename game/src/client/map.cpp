@@ -112,7 +112,8 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     for(const auto& province : world.provinces) {
         UnifiedRender::Color color = UnifiedRender::Color(1.f, 1.f, 1.f);
-        province_names_text.push_back(new UnifiedRender::Texture(s.ui_ctx->default_font, color, province->name));
+        auto text_texture =  new UnifiedRender::Texture(s.ui_ctx->default_font, color, province->name);
+        province_names_text.push_back(text_texture);
     }
 }
 
@@ -126,7 +127,8 @@ void Map::set_view(MapView view) {
     Camera* old_camera = camera;
     if(view == MapView::PLANE_VIEW) {
         camera = new FlatCamera(old_camera);
-    } else if(view == MapView::SPHERE_VIEW) {
+    }
+    else if(view == MapView::SPHERE_VIEW) {
         camera = new OrbitCamera(old_camera, GLOBE_RADIUS);
     }
     delete old_camera;
@@ -139,9 +141,11 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
         Nation* province_owner = world.provinces[i]->owner;
         if(province_owner == nullptr) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        } else if(province_owner->cached_id == (Nation::Id)-1) {
+        }
+        else if(province_owner->cached_id == (Nation::Id)-1) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        } else {
+        }
+        else {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }
@@ -185,13 +189,13 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-        ));
+            ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-        ));
+            ));
     }
     flag.upload();
 
@@ -263,7 +267,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    } else if(event.button.button == SDL_BUTTON_RIGHT) {
+    }
+    else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
         if(tile.province_id == (Province::Id)-1) {
             return;
@@ -370,7 +375,7 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx) {
     case SDL_MOUSEMOTION:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
         glm::ivec2 map_pos;
-        
+
         if(input.middle_mouse_down) {  // Drag the map with middlemouse
             if(camera->get_cursor_map_pos(mouse_pos, map_pos)) {
                 glm::vec2 current_pos = glm::make_vec2(camera->get_map_pos());
@@ -380,7 +385,7 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx) {
         }
 
         if(camera->get_cursor_map_pos(mouse_pos, map_pos)) {
-            if(map_pos.x < 0 || map_pos.x > (int)world.width || map_pos.y < 0 || map_pos.y > (int)world.height) {
+            if(map_pos.x < 0 || map_pos.x >(int)world.width || map_pos.y < 0 || map_pos.y >(int)world.height) {
                 break;
             }
 
@@ -468,7 +473,7 @@ void Map::draw(const GameState& gs) {
     }
 
     glm::mat4 base_model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
-    
+
     std::vector<float> province_units_y(world.provinces.size(), 0.f);
     for(const auto& war : world.wars) {
         for(const auto& battle : war->battles) {
@@ -548,13 +553,26 @@ void Map::draw(const GameState& gs) {
     //*/
 
     obj_shader->use();
-    for(const auto& province : world.provinces) {
-        auto* text_tex = province_names_text[world.get_id(province)];
-        obj_shader->set_texture(0, "diffuse_map", *text_tex);
-        glm::mat4 model = glm::translate(base_model, glm::vec3(province->min_x, province->min_y, 0.f));
-        obj_shader->set_uniform("model", model);
-        auto text = UnifiedRender::Square(0.f, 0.f, (text_tex->width + 1.f) / 16.f, (text_tex->height + 1.f) / 16.f);
-        text.draw();
+
+    glm::vec3 map_pos = camera->get_map_pos();
+    float distance_to_map = map_pos.z / world.width;
+    if(distance_to_map < 0.070) {
+        glDepthFunc(GL_ALWAYS);
+        for(const auto& province : world.provinces) {
+            auto* text_tex = province_names_text[world.get_id(province)];
+            obj_shader->set_texture(0, "diffuse_map", *text_tex);
+            glm::vec3 min_point = glm::vec3(province->min_x, province->min_y, 0.f);
+            glm::vec3 max_point = glm::vec3(province->max_x, province->max_y, 0.f);
+            glm::vec3 mid_point = 0.5f * (min_point + max_point);
+            float min_size = max_point.x - min_point.x;
+            // float min_size = std::min(max_point.x - min_point.x, max_point.y - min_point.y);
+            glm::mat4 model = glm::translate(base_model, mid_point);
+            obj_shader->set_uniform("model", model);
+            glm::vec2 text_size = glm::vec2(text_tex->width, text_tex->height) * (0.25f * min_size / text_tex->width);
+            auto text = UnifiedRender::Square(-0.5f * text_size.x, -0.5f * text_size.y, text_size.x, text_size.y);
+            text.draw();
+        }
+        glDepthFunc(GL_LEQUAL);
     }
 
     // Highlight for units
