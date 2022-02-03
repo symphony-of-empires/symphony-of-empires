@@ -128,4 +128,8 @@ public:
         }
         return hit;
     };
+
+    glm::vec3 get_tile_world_pos(glm::vec2 tile_pos) override {
+        return glm::vec3(tile_pos.x, tile_pos.y, 0.f);
+    }
 };

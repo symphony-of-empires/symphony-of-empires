@@ -72,4 +72,5 @@ public:
 
     virtual glm::mat4 get_view() = 0;
     virtual bool get_cursor_map_pos(std::pair<int, int> mouse_pos, glm::ivec2& out_pos) = 0;
+    virtual glm::vec3 get_tile_world_pos(glm::vec2 tile_pos) = 0;
 };
