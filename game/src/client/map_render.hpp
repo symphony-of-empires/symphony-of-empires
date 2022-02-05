@@ -26,6 +26,10 @@
 #pragma once
 
 #include <cstddef>
+#include <vector>
+#include <memory>
+#include <utility>
+#include <functional>
 
 namespace UnifiedRender {
     class Texture;
@@ -43,11 +47,6 @@ namespace UnifiedRender {
 
 #include "unified_render/color.hpp"
 #include "unified_render/shader.hpp"
-
-#include <vector>
-#include <memory>
-#include <utility>
-#include <functional>
 
 class World;
 class Camera;

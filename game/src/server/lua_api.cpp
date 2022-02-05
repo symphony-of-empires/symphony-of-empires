@@ -40,13 +40,8 @@ extern "C" {
 #endif
 #include <cstring>
 #include <cstdlib>
-#ifdef windows
-#	define bswap_32(x) _byteswap_ulong(x)
-#	define bswap_64(x) _byteswap_uint64(x)
-#else
-#	include <byteswap.h>
-#endif
 
+#include "unified_render/byteswap.hpp"
 #include "server/lua_api.hpp"
 #include "world.hpp"
 #include "nation.hpp"
@@ -94,7 +89,7 @@ int LuaAPI::add_terrain_type(lua_State* L) {
 
     terrain_type->ref_name = luaL_checkstring(L, 1);
     terrain_type->name = luaL_checkstring(L, 2);
-    terrain_type->color = bswap_32(lua_tonumber(L, 3)) >> 8;
+    terrain_type->color = bswap32(lua_tonumber(L, 3)) >> 8;
     terrain_type->color |= 0xff000000;
     terrain_type->movement_penalty = lua_tonumber(L, 4);
     terrain_type->is_water_body = lua_toboolean(L, 5);
@@ -110,7 +105,7 @@ int LuaAPI::get_terrain_type(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(terrain_type));
     lua_pushstring(L, terrain_type->ref_name.c_str());
     lua_pushstring(L, terrain_type->name.c_str());
-    lua_pushnumber(L, bswap_32((terrain_type->color & 0x00ffffff) << 8));
+    lua_pushnumber(L, bswap32((terrain_type->color & 0x00ffffff) << 8));
     lua_pushnumber(L, terrain_type->movement_penalty);
     lua_pushboolean(L, terrain_type->is_water_body);
     return 6;
@@ -479,7 +474,7 @@ int LuaAPI::add_nation_client_hint(lua_State* L) {
     NationClientHint hint;
     hint.ideology = g_world->ideologies.at(lua_tonumber(L, 2));
     hint.alt_name = luaL_checkstring(L, 3);
-    hint.color = bswap_32(lua_tonumber(L, 4)) >> 8;
+    hint.color = bswap32(lua_tonumber(L, 4)) >> 8;
     hint.color |= 0xff000000;
 
     nation->client_hints.push_back(hint);
@@ -685,7 +680,7 @@ int LuaAPI::add_province(lua_State* L) {
     province->terrain_type = g_world->terrain_types[0];
 
     province->ref_name = luaL_checkstring(L, 1);
-    province->color = (bswap_32(lua_tonumber(L, 2)) >> 8) | 0xff000000;
+    province->color = (bswap32(lua_tonumber(L, 2)) >> 8) | 0xff000000;
     
     province->name = luaL_checkstring(L, 3);
     province->budget = 500.f;
@@ -715,7 +710,7 @@ int LuaAPI::get_province(lua_State* L) {
 
     lua_pushnumber(L, g_world->get_id(province));
     lua_pushstring(L, province->name.c_str());
-    lua_pushnumber(L, bswap_32((province->color & 0x00ffffff) << 8));
+    lua_pushnumber(L, bswap32((province->color & 0x00ffffff) << 8));
     return 3;
 }
 
@@ -723,7 +718,7 @@ int LuaAPI::get_province_by_id(lua_State* L) {
     const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_pushstring(L, province->ref_name.c_str());
     lua_pushstring(L, province->name.c_str());
-    lua_pushnumber(L, bswap_32((province->color & 0x00ffffff) << 8));
+    lua_pushnumber(L, bswap32((province->color & 0x00ffffff) << 8));
     return 3;
 }
 
@@ -1048,7 +1043,7 @@ int LuaAPI::add_culture(lua_State* L) {
 
     culture->ref_name = luaL_checkstring(L, 1);
     culture->name = luaL_checkstring(L, 2);
-    culture->color = (bswap_32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
+    culture->color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
     culture->adjective = luaL_checkstring(L, 4);
     culture->noun = luaL_checkstring(L, 5);
     culture->combo_form = luaL_checkstring(L, 6);
@@ -1063,7 +1058,7 @@ int LuaAPI::get_culture(lua_State* L) {
 
     lua_pushnumber(L, g_world->get_id(culture));
     lua_pushstring(L, culture->name.c_str());
-    lua_pushnumber(L, bswap_32((culture->color & 0x00ffffff) << 8));
+    lua_pushnumber(L, bswap32((culture->color & 0x00ffffff) << 8));
     lua_pushstring(L, culture->adjective.c_str());
     lua_pushstring(L, culture->noun.c_str());
     lua_pushstring(L, culture->combo_form.c_str());
@@ -1075,7 +1070,7 @@ int LuaAPI::get_culture_by_id(lua_State* L) {
 
     lua_pushstring(L, culture->ref_name.c_str());
     lua_pushstring(L, culture->name.c_str());
-    lua_pushnumber(L, bswap_32((culture->color & 0x00ffffff) << 8));
+    lua_pushnumber(L, bswap32((culture->color & 0x00ffffff) << 8));
     lua_pushstring(L, culture->adjective.c_str());
     lua_pushstring(L, culture->noun.c_str());
     lua_pushstring(L, culture->combo_form.c_str());
@@ -1089,7 +1084,7 @@ int LuaAPI::add_religion(lua_State* L) {
     Religion* religion = new Religion();
     religion->ref_name = luaL_checkstring(L, 1);
     religion->name = luaL_checkstring(L, 2);
-    religion->color = (bswap_32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
+    religion->color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
 
     g_world->insert(religion);
     lua_pushnumber(L, g_world->religions.size() - 1);
@@ -1101,7 +1096,7 @@ int LuaAPI::get_religion(lua_State* L) {
 
     lua_pushnumber(L, g_world->get_id(religion));
     lua_pushstring(L, religion->name.c_str());
-    lua_pushnumber(L, bswap_32((religion->color & 0x00ffffff) << 8));
+    lua_pushnumber(L, bswap32((religion->color & 0x00ffffff) << 8));
     return 3;
 }
 
@@ -1110,7 +1105,7 @@ int LuaAPI::get_religion_by_id(lua_State* L) {
 
     lua_pushstring(L, religion->ref_name.c_str());
     lua_pushstring(L, religion->name.c_str());
-    lua_pushnumber(L, bswap_32((religion->color & 0x00ffffff) << 8));
+    lua_pushnumber(L, bswap32((religion->color & 0x00ffffff) << 8));
     return 3;
 }
 
@@ -1172,7 +1167,7 @@ int LuaAPI::add_ideology(lua_State* L) {
 
     ideology->ref_name = luaL_checkstring(L, 1);
     ideology->name = luaL_checkstring(L, 2);
-    ideology->color = (bswap_32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
+    ideology->color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
 
     g_world->insert(ideology);
     lua_pushnumber(L, g_world->ideologies.size() - 1);
@@ -1184,7 +1179,7 @@ int LuaAPI::get_ideology(lua_State* L) {
 
     lua_pushnumber(L, g_world->get_id(ideology));
     lua_pushstring(L, ideology->name.c_str());
-    lua_pushnumber(L, bswap_32((ideology->color & 0x00ffffff) << 8));
+    lua_pushnumber(L, bswap32((ideology->color & 0x00ffffff) << 8));
     return 3;
 }
 
@@ -1193,7 +1188,7 @@ int LuaAPI::get_ideology_by_id(lua_State* L) {
     
     lua_pushstring(L, ideology->ref_name.c_str());
     lua_pushstring(L, ideology->name.c_str());
-    lua_pushnumber(L, bswap_32((ideology->color & 0x00ffffff) << 8));
+    lua_pushnumber(L, bswap32((ideology->color & 0x00ffffff) << 8));
     return 3;
 }
 
