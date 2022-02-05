@@ -48,6 +48,7 @@
 #include "unified_render/path.hpp"
 #include "unified_render/network.hpp"
 #include "unified_render/locale.hpp"
+#include "unified_render/log.hpp"
 #include "io_impl.hpp"
 #include "action.hpp"
 
@@ -76,7 +77,7 @@ int main(int argc, char** argv) {
     try {
         start_client(argc, argv);
     } catch(const std::exception& e) {
-        print_error(e.what());
+        UnifiedRender::Log::error("game", e.what());
         exit(EXIT_FAILURE);
     }
 #endif
@@ -84,11 +85,6 @@ int main(int argc, char** argv) {
 }
 
 #ifdef windows
-
-#ifndef NOMINMAX
-#   define NOMINMAX 1
-#endif
-#include <windows.h>
 #include <cstring>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {
     char* argv[1];

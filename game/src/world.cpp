@@ -582,8 +582,8 @@ void World::load_initial(void) {
         if(fp) {
             for(const auto& color_raw : colors_found) {
                 uint32_t color = color_raw << 8;
-                fprintf(fp, "province = Province:new{ ref_name = \"province_%06p\", color = 0x%06p }\n", (uintptr_t)bswap32(color), (uintptr_t)bswap32(color));
-                fprintf(fp, "province.name = _(\"Province_%06p\")\n", (uintptr_t)bswap32(color));
+                fprintf(fp, "province = Province:new{ ref_name = \"province_%06x\", color = 0x%06x }\n", static_cast<uintptr_t>(bswap32(color)), static_cast<uintptr_t>(bswap32(color)));
+                fprintf(fp, "province.name = _(\"Province_%06x\")\n", static_cast<uintptr_t>(bswap32(color)));
                 fprintf(fp, "province:register()\n");
             }
             fclose(fp);
@@ -595,7 +595,7 @@ void World::load_initial(void) {
             for(size_t i = 0; i < width; i++) {
                 Tile& tile = get_tile(i, j);
                 if(tile.province_id >= provinces.size()) {
-                    tile.province_id = (Province::Id)-1;
+                    tile.province_id = static_cast<Province::Id>(1);
                     continue;
                 }
 
@@ -622,7 +622,7 @@ void World::load_initial(void) {
         for(size_t i = 0; i < total_size; i++) {
             const Tile* tile = &this->tiles[i];
 
-            if(tile->province_id < (Province::Id)-3) {
+            if(tile->province_id < static_cast<Province::Id>(-3)) {
                 Province* province = this->provinces[this->tiles[i].province_id];
                 const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
                 for(const auto& other_tile : tiles) {

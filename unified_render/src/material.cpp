@@ -133,7 +133,7 @@ const UnifiedRender::Material& UnifiedRender::MaterialManager::load(const std::s
     
     // Create a new material
     UnifiedRender::Material* mat = new UnifiedRender::Material();
-    mat->ambient_map = &UnifiedRender::State::get_instance().tex_man->load(Path::get("3d/whitehouse.png"));
+    mat->diffuse_map = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/whitehouse.png"));
     materials[path] = mat;
     return *mat;
 }
