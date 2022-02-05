@@ -56,11 +56,11 @@ ProductView::ProductView(GameState& _gs, Product* _product)
 
         // Account for products that are based on this good
         for(const auto& product : o.gs.world->products) {
-            if(product->good != o.product->good && product->building != nullptr) {
-                continue;
-            }
+            //if(product->good != o.product->good && product->building != nullptr) {
+            //    continue;
+            //}
             
-            nations_data[o.gs.world->get_id(product->building->get_province()->controller)].num += product->building->get_province()->stockpile[o.gs.world->get_id(product->good)];
+            //nations_data[o.gs.world->get_id(product->building->get_province()->controller)].num += product->building->get_province()->stockpile[o.gs.world->get_id(product->good)];
         }
         o.supply_pie->set_data(nations_data);
     });
@@ -148,8 +148,10 @@ GoodView::GoodView(GameState& _gs, Good* _good)
 
         // Account for products that are based on this good
         for(const auto& product : o.gs.world->products) {
-            if(product->building == nullptr || product->good != o.good) continue;
-            nations_data[o.gs.world->get_id(product->building->owner)].num += product->supply;
+            //if(product->building == nullptr || product->good != o.good) {
+            //    continue;
+            //}
+            //nations_data[o.gs.world->get_id(product->building->owner)].num += product->supply;
         }
 
         o.sellers_pie->set_data(nations_data);

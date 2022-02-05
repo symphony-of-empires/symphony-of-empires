@@ -246,42 +246,34 @@ void Client::net_loop(void) {
                         world.insert(unit);
                         print_info("New unit of [%s]", unit->owner->ref_name.c_str());
                     } break;
-                    case ActionType::BUILDING_UPDATE: {
-                        Building::Id size;
-                        ::deserialize(ar, &size);
-                        for(Building::Id i = 0; i < size; i++) {
-                            Building* building;
-                            ::deserialize(ar, &building);
-                            if(building == nullptr)
-                                throw ClientException("Unknown building");
-                            ::deserialize(ar, building);
-                        }
-                    } break;
                     case ActionType::BUILDING_ADD: {
-                        Building* building = new Building();
-                        ::deserialize(ar, building);
-                        world.insert(building);
-
-                        if(building->get_owner() != nullptr)
-                            print_info("New building property of [%s]", building->get_owner()->ref_name.c_str());
+                        Province* province;
+                        ::deserialize(ar, &province);
+                        Building building;
+                        ::deserialize(ar, &building);
+                        if(building.get_owner() != nullptr) {
+                            print_info("New building property of [%s]", building.get_owner()->ref_name.c_str());
+                        }
+                        province->buildings.push_back(building);
                     } break;
                     case ActionType::BUILDING_REMOVE: {
-                        Building* building;
+                        /*Building* building;
                         ::deserialize(ar, &building);
 
                         if(building->get_owner() != nullptr)
                             print_info("Remove building property of [%s]", building->get_owner()->ref_name.c_str());
                         
                         world.remove(building);
-                        delete building;
+                        delete building;*/
                     } break;
                     case ActionType::TREATY_ADD: {
                         Treaty* treaty = new Treaty();
                         ::deserialize(ar, treaty);
                         world.insert(treaty);
                         print_info("New treaty from [%s]", treaty->sender->ref_name.c_str());
-                        for(const auto& status: treaty->approval_status)
+                        for(const auto& status : treaty->approval_status) {
                             print_info("- [%s]", status.first->ref_name.c_str());
+                        }
                     } break;
                     case ActionType::WORLD_TICK: {
                         // Give up the world mutex for now

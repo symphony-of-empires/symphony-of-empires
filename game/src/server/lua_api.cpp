@@ -728,15 +728,14 @@ int LuaAPI::add_province_industry(lua_State* L) {
     
     Province*& province = g_world->provinces.at(lua_tonumber(L, 1));
 
-    Building* building = new Building();
-    building->province = province;
-    building->type = g_world->building_types.at(lua_tonumber(L, 2));
-    building->owner = g_world->nations.at(lua_tonumber(L, 3));
-    building->budget = 100.f;
-    if(building->type->is_factory == true) {
-        building->create_factory();
+    Building building;
+    building.type = g_world->building_types.at(lua_tonumber(L, 2));
+    building.owner = g_world->nations.at(lua_tonumber(L, 3));
+    building.budget = 100.f;
+    if(building.type->is_factory == true) {
+        building.create_factory();
     }
-    g_world->insert(building);
+    province->buildings.push_back(building);
     return 0;
 }
 
@@ -762,9 +761,9 @@ int LuaAPI::give_hard_province_to(lua_State* L) {
         }
     }
 
-    for(auto& building : g_world->buildings) {
-        if(building->get_province() == province && building->get_owner() == province->controller) {
-            building->owner = nation;
+    for(auto& building : province->get_buildings()) {
+        if(building.get_owner() == province->controller) {
+            building.owner = nation;
         }
     }
 

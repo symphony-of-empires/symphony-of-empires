@@ -497,16 +497,16 @@ void World::load_initial(void) {
                     }
                 }
 
-                for(size_t j = 0; j < buildings.size(); j++) {
-                    auto& building = *buildings[j];
+                for(size_t j = 0; j < province.get_buildings().size(); j++) {
+                    auto& building = province.get_buildings()[j];
 
                     if(building.province != &province) {
                         continue;
                     }
 
-                    remove(&building);
+                    /*remove(&building);
                     delete &building;
-                    j--;
+                    j--;*/
                 }
 
                 delete &province;
@@ -838,7 +838,7 @@ void World::do_tick() {
         if(unit->province->controller != nullptr && can_take) {
             unit->owner->give_province(*unit->province);
             for(auto& building : unit->province->get_buildings()) {
-                building->owner = unit->owner;
+                building.owner = unit->owner;
             }
         }
 

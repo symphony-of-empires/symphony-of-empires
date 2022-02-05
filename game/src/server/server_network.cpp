@@ -169,15 +169,36 @@ void Server::net_loop(int id) {
                     // only make the building submit "construction tickets" to obtain materials to build
                     // the unit can only be created by the server, not by the clients
                     case ActionType::BUILDING_START_BUILDING_UNIT: {
-                        Building* building;
-                        ::deserialize(ar, &building);
-                        if(building == nullptr)
+                        Province* province;
+                        ::deserialize(ar, &province);
+                        if(province == nullptr)
+                            throw ServerException("Unknown province");
+
+                        BuildingType* building_type;
+                        ::deserialize(ar, &building_type);
+                        if(building_type == nullptr)
                             throw ServerException("Unknown building");
+
+                        Nation* nation;
+                        ::deserialize(ar, &nation);
+                        if(nation == nullptr)
+                            throw ServerException("Unknown nation");
 
                         UnitType* unit_type;
                         ::deserialize(ar, &unit_type);
                         if(unit_type == nullptr)
                             throw ServerException("Unknown unit type");
+
+                        // Find building
+                        Building* building = nullptr;
+                        for(auto& _building : province->get_buildings()) {
+                            if(_building.get_owner() == nation && _building.type == building_type) {
+                                building = &_building;
+                            }
+                        }
+
+                        if(building == nullptr)
+                            throw ServerException("Building [TYPE=\"" + building_type->ref_name + "\"] not found");
 
                         // Must control building
                         if(building->get_owner() != selected_nation)
@@ -193,11 +214,13 @@ void Server::net_loop(int id) {
                     // Client tells server to build new outpost, the location (& type) is provided by
                     // the client and the rest of the fields are filled by the server
                     case ActionType::BUILDING_ADD: {
-                        Building* building = new Building();
-                        ::deserialize(ar, building);
-                        if(building->type->is_factory) {
-                            building->create_factory();
-                            for(const auto& product : building->output_products) {
+                        Province* province;
+                        ::deserialize(ar, &province);
+                        Building building;
+                        ::deserialize(ar, &building);
+                        if(building.type->is_factory) {
+                            building.create_factory();
+                            for(const auto& product : building.output_products) {
                                 UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
                                 Archive ar = Archive();
                                 ActionType action = ActionType::PRODUCT_ADD;
@@ -207,13 +230,13 @@ void Server::net_loop(int id) {
                                 g_server->broadcast(packet);
                             }
                         }
-                        building->working_unit_type = nullptr;
-                        building->req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
-                        g_world->insert(building);
-                        print_info("[%s] has built a [%s]", selected_nation->ref_name.c_str(), building->type->ref_name.c_str());
+                        building.working_unit_type = nullptr;
+                        building.req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
+                        province->buildings.push_back(building);
+                        print_info("[%s] has built a [%s]", selected_nation->ref_name.c_str(), building.type->ref_name.c_str());
                         
                         // Rebroadcast
-                        broadcast(Action::BuildingAdd::form_packet(building));
+                        broadcast(Action::BuildingAdd::form_packet(province, building));
                     } break;
                     // Client tells server that it wants to colonize a province, this can be rejected
                     // or accepted, client should check via the next PROVINCE_UPDATE action

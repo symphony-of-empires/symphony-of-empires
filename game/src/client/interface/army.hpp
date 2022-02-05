@@ -71,13 +71,14 @@ namespace Interface {
     // Brief about unit being produced
     class ArmyProductionUnitInfo : public UI::Group {
         GameState& gs;
-        Building *building = nullptr;
+        Province *province = nullptr;
+        unsigned int idx;
 
         UI::Image *unit_icon;
         UI::Label *province_lab;
         UI::Label *name_lab;
     public:
-        ArmyProductionUnitInfo(GameState& gs, int x, int y, Building *building, UI::Widget* parent);
+        ArmyProductionUnitInfo(GameState& _gs, int x, int y, Province* _province, unsigned int _idx, UI::Widget* parent);
     };
 
     class ArmyNewUnitTab : public UI::Group {

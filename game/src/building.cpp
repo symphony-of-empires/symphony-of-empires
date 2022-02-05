@@ -82,7 +82,6 @@ void Building::create_factory(void) {
     // Add a product for each output
     for(const auto& output : type->outputs) {
         Product* new_product = new Product();
-        new_product->building = this;
         new_product->good = output;
 
         province->products.push_back(new_product);
@@ -100,10 +99,7 @@ void Building::create_factory(void) {
 
 // Helper method to delete a factory
 void Building::delete_factory(void) {
-    // Products become building-less
-    for(const auto& product : output_products) {
-		product->building = nullptr;
-    }
+
 }
 
 // Checks if the building can produce output (if it has enough input)

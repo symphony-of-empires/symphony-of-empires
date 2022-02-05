@@ -305,7 +305,7 @@ void save(GameState& gs) {
             for(const auto& building : province->get_buildings()) {
                 //fprintf(fp, "province:add_industry(BuildingType:get(\"%s\"), Nation:get(\"%s\"))\n", building->type->ref_name.c_str(), building->get_owner()->ref_name.c_str());
                 if(province->controller != nullptr) {
-                    fprintf(fp, "province:add_industry(BuildingType:get(\"%s\"), Nation:get(\"%s\"))\n", building->type->ref_name.c_str(), province->controller->ref_name.c_str());
+                    fprintf(fp, "province:add_industry(BuildingType:get(\"%s\"), Nation:get(\"%s\"))\n", building.type->ref_name.c_str(), province->controller->ref_name.c_str());
                 }
             }
 
@@ -628,7 +628,7 @@ void main_loop(GameState& gs) {
                             UnitType* unit = gs.production_queue[i];
 
                             // TODO: Make a better queue AI
-                            bool is_built = false;
+                            /*bool is_built = false;
                             for(const auto& building : gs.world->buildings) {
                                 if(!(building->type->is_build_land_units || building->type->is_build_naval_units)) {
                                     continue;
@@ -656,6 +656,7 @@ void main_loop(GameState& gs) {
 
                             gs.production_queue.erase(gs.production_queue.begin() + i);
                             i--;
+                            */
                         }
                     }
                     gs.world->world_mutex.unlock();
