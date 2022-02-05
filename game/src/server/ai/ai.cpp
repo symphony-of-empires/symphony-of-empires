@@ -507,6 +507,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     building.type = world->building_types[0];
                     building.owner = nation;
                     building.budget = 100.f;
+                    building.province = province;
                     province->buildings.push_back(building);
 
                     // Broadcast the addition of the building to the clients

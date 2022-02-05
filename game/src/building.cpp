@@ -83,7 +83,6 @@ void Building::create_factory(void) {
     for(const auto& output : type->outputs) {
         Product* new_product = new Product();
         new_product->good = output;
-
         province->products.push_back(new_product);
         output_products.push_back(new_product);
         world.insert(new_product);

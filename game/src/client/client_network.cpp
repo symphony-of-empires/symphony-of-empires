@@ -254,6 +254,7 @@ void Client::net_loop(void) {
                         if(building.get_owner() != nullptr) {
                             print_info("New building property of [%s]", building.get_owner()->ref_name.c_str());
                         }
+                        building.province = province;
                         province->buildings.push_back(building);
                     } break;
                     case ActionType::BUILDING_REMOVE: {

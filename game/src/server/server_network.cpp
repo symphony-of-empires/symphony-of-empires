@@ -230,6 +230,7 @@ void Server::net_loop(int id) {
                                 g_server->broadcast(packet);
                             }
                         }
+                        building.province = province;
                         building.working_unit_type = nullptr;
                         building.req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
                         province->buildings.push_back(building);
