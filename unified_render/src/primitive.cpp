@@ -138,6 +138,7 @@ UnifiedRender::MeshData<glm::vec3, glm::vec2> UnifiedRender::Sphere::calc_pos(gl
 	float z = radius * std::cos(latitude_rad);
 	glm::vec3 pos(x, y, z);
 	pos += center_pos;
+	// glm::vec2 tex_coord(1. - longitude_ratio, latitude_ratio);
 	glm::vec2 tex_coord(longitude_ratio, latitude_ratio);
 	return UnifiedRender::MeshData<glm::vec3, glm::vec2>(pos, tex_coord);
 }

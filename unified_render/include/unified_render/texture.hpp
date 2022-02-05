@@ -156,8 +156,10 @@ namespace UnifiedRender {
     class TextureManager {
     private:
         std::unordered_map<std::pair<std::string, TextureOptions>, UnifiedRender::Texture*, TextureMapHash> textures;
+        UnifiedRender::Texture* white = nullptr;
     public:
         const Texture& load(const std::string& path, TextureOptions options = default_options);
         const Texture& load(const UnifiedRender::IO::Asset::Base* asset, TextureOptions options = default_options);
+        const Texture& get_white();
     };
 };

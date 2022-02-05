@@ -64,7 +64,7 @@ namespace UnifiedRender {
     public:
         MaterialManager();
         ~MaterialManager();
-        std::vector<std::pair<Material*, std::string>> load_wavefront(const std::string& path);
-        const Material& load(const std::string& path);
+        std::vector<std::pair<Material*, std::string>> load_wavefront(const std::string& path, const std::string& model_name);
+        const Material* load(const std::string& path);
     };
 }
