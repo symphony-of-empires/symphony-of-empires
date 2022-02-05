@@ -24,7 +24,7 @@
 // ----------------------------------------------------------------------------
 
 #include "unified_render/framebuffer.hpp"
-#include "unified_render/print.hpp"
+#include "unified_render/log.hpp"
 
 UnifiedRender::OpenGL::Framebuffer::Framebuffer() {
 	glGenFramebuffers(1, &id);
@@ -41,7 +41,7 @@ void UnifiedRender::OpenGL::Framebuffer::set_texture(int index, const UnifiedRen
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture.gl_tex_num, 0);
     
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        print_error("Frame buffer error");
+        UnifiedRender::Log::error("opengl", "Frame buffer error");
 	}
 }
 

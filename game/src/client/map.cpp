@@ -27,10 +27,13 @@
 #include <cstdlib>
 #include <cstring>
 #include <functional>
-#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <mutex>
 #include <memory>
+
+#define NOMINMAX 1
+
+#include <glm/gtc/matrix_transform.hpp>
 // Required before GL/gl.h
 #include <GL/glew.h>
 #include <GL/gl.h>

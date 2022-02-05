@@ -40,6 +40,7 @@
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
 #include "unified_render/serializer.hpp"
+#include "unified_render/log.hpp"
 #include "io_impl.hpp"
 #include "server/server_network.hpp"
 
@@ -377,7 +378,7 @@ void ai_build_commercial(Nation* nation, World* world) {
 
     Province* province = *it;
     if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
-        print_error("Cant build buidling, province doesn't have any tiles");
+        UnifiedRender::Log::error("game", "Cant build buidling, province doesn't have any tiles");
     } else {
         // Now build the building
         Building* building = new Building();
@@ -498,7 +499,7 @@ void ai_do_tick(Nation* nation, World* world) {
 
                 Province* province = *it;
                 if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
-                    print_error("Cant build defense, province doesn't have any tiles");
+                    UnifiedRender::Log::error("game", "Cant build defense, province doesn't have any tiles");
                 } else {
                     Building* building = new Building();
                     building->province = province;
