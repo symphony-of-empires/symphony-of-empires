@@ -726,12 +726,13 @@ int LuaAPI::add_province_industry(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
     
-    Province*& province = g_world->provinces.at(lua_tonumber(L, 1));
+    Province* province = g_world->provinces.at(lua_tonumber(L, 1));
 
     Building building;
     building.type = g_world->building_types.at(lua_tonumber(L, 2));
     building.owner = g_world->nations.at(lua_tonumber(L, 3));
     building.budget = 100.f;
+    building.province = province;
     if(building.type->is_factory == true) {
         building.create_factory();
     }
