@@ -95,9 +95,18 @@ void UnifiedRender::SimpleModel::draw(const UnifiedRender::OpenGL::Program& shad
         if(material->diffuse_map != nullptr) {
             shader.set_texture(0, "diffuse_map", *material->diffuse_map);
         }
-        shader.set_uniform("color", material->ambient_color.r, material->ambient_color.g, material->ambient_color.b, 1.f);
-    } else {
-        shader.set_uniform("color", 1.f, 1.f, 1.f, 1.f);
+        else {
+            auto& white_tex = UnifiedRender::State::get_instance().tex_man->get_white();
+            shader.set_texture(0, "diffuse_map", white_tex);
+        }
+        shader.set_uniform("ambient_color", material->ambient_color);
+        shader.set_uniform("diffuse_color", material->diffuse_color);
+    }
+    else {
+        auto& white_tex = UnifiedRender::State::get_instance().tex_man->get_white();
+        shader.set_texture(0, "diffuse_map", white_tex);
+        shader.set_uniform("ambient_color", glm::vec3(1.f));
+        shader.set_uniform("diffuse_color", glm::vec3(1.f));
     }
 
     vao.bind();
@@ -116,7 +125,7 @@ UnifiedRender::Model::~Model(void) {
 }
 
 void UnifiedRender::Model::draw(const UnifiedRender::OpenGL::Program& shader) const {
-    std::vector<const UnifiedRender::SimpleModel *>::const_iterator model;
+    std::vector<const UnifiedRender::SimpleModel*>::const_iterator model;
     for(model = simple_models.cbegin(); model != simple_models.cend(); model++) {
         (*model)->draw(shader);
     }
@@ -131,7 +140,7 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
 
     class WavefrontObj {
     public:
-        WavefrontObj(const std::string& _name) : name(_name) {};
+        WavefrontObj(const std::string& _name): name(_name) {};
         std::string name;
         std::vector<WavefrontFace> faces;
         const UnifiedRender::Material* material = nullptr;
@@ -157,35 +166,41 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
         if(line[0] == '#' || line.empty()) {
             continue;
         }
-        
+
         std::istringstream sline(line);
         std::string cmd;
         sline >> cmd;
         if(cmd == "mtllib") {
             std::string name;
             sline >> name;
-            State::get_instance().material_man->load_wavefront(Path::get("3d/" + name));
-        } else if(cmd == "usemtl") {
-            std::string name;
+            State::get_instance().material_man->load_wavefront(Path::get("models/" + name), path);
+        }
+        else if(cmd == "usemtl") {
+            std::string name = path;
             sline >> name;
-            objects.front().material = &UnifiedRender::State::get_instance().material_man->load(name);
-        } else if(cmd == "o") {
+            objects.back().material = UnifiedRender::State::get_instance().material_man->load(path + "-" + name);
+        }
+        else if(cmd == "o") {
             std::string name;
             sline >> name;
             objects.push_back(WavefrontObj(name));
-        } else if(cmd == "v") {
+        }
+        else if(cmd == "v") {
             glm::vec3 vert;
             sline >> vert.x >> vert.y >> vert.z;
             vertices.push_back(vert);
-        } else if(cmd == "vt") {
+        }
+        else if(cmd == "vt") {
             glm::vec2 tex;
             sline >> tex.x >> tex.y;
             texcoords.push_back(tex);
-        } else if(cmd == "vn") {
+        }
+        else if(cmd == "vn") {
             glm::vec3 norm;
             sline >> norm.x >> norm.y >> norm.z;
             normals.push_back(norm);
-        } else if(cmd == "f") {
+        }
+        else if(cmd == "f") {
             WavefrontFace face = WavefrontFace();
             while(sline.peek() != -1) {
                 // Assemble faces - allowing for any number of vertices
@@ -208,7 +223,7 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
                     ch = sline.peek();
                     if(ch == '/') {
                         sline >> ch;
-                        
+
                         // Normals
                         sline >> value;
                         face.normals.push_back(value);
@@ -224,17 +239,20 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
 
             if(face.vertices.size() < 3) {
                 print_error("Cannot create polygon - malformed face?");
-            } else {
-                objects.front().faces.push_back(face);
             }
-        } else if(cmd == "s") {
+            else {
+                objects.back().faces.push_back(face);
+            }
+        }
+        else if(cmd == "s") {
             std::string light_mode;
             sline >> light_mode;
 
             if(light_mode != "off") {
                 print_error("Unsupported light mode %s", light_mode.c_str());
             }
-        } else {
+        }
+        else {
             print_error("Unsupported command %s", cmd.c_str());
         }
     }
@@ -253,14 +271,15 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
                     cluster.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
                         glm::vec3(vertices[(*face).vertices[i] - 1]),
                         glm::vec2(texcoords[(*face).texcoords[i] - 1])
-                    ));
+                        ));
                 }
-            } else {
+            }
+            else {
                 for(unsigned int i = 0; i < (*face).vertices.size(); i++) {
                     cluster.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
                         glm::vec3(vertices[(*face).vertices[i] - 1]),
                         glm::vec2(0.f, 0.f)
-                    ));
+                        ));
                 }
             }
             clusters.push_back(cluster);
@@ -280,7 +299,7 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const st
             for(v1 = (*cluster).cbegin(); v1 != (*cluster).cend(); v1++) {
                 model->buffer.push_back(*v1);
             }
-            
+
             print_info("Created new SimpleModel with %zu vertices", model->buffer.size());
             model->material = (*obj).material;
             model->upload();
@@ -318,7 +337,7 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_stl(const std::str
         model->buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(vert),
             glm::vec2(0.f, 0.f)
-        ));
+            ));
     }
 
     final_model->simple_models.push_back(model);
@@ -331,16 +350,18 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load(const std::string&
     if(it != models.cend()) {
         return *((*it).second);
     }
-    
+
     // Wavefront OBJ loader
     try {
         // TODO: This is too horrible, we need a better solution
         if(path.length() > 3 && path[path.length() - 3] == 's' && path[path.length() - 2] == 't' && path[path.length() - 1] == 'l') {
             return load_stl(path);
-        } else {
+        }
+        else {
             return load_wavefront(path);
         }
-    } catch(std::ifstream::failure& e) {
+    }
+    catch(std::ifstream::failure& e) {
         throw ("Model " + path + " not found");
     }
 }

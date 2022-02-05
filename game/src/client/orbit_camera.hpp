@@ -41,11 +41,12 @@ class OrbitCamera: public Camera {
 public:
     float radius;
     float circumference;
+    float zoom_dist;
     glm::vec3 target;
     ValueChase<glm::vec3> chase{ 0.2f };
 
     OrbitCamera(glm::vec2 screen_size, glm::vec2 map_size, float _radius)
-        : Camera(screen_size, map_size), radius{ _radius } 
+        : Camera(screen_size, map_size), radius{ _radius }
     {
         circumference = _radius * 2 * M_PI;
         map_position = glm::vec3(M_PI, M_PI * 0.5f, radius * 1.5f);
@@ -81,7 +82,9 @@ public:
         radiance_pos.x = glm::mod(normalized_pos.x * 2.f * pi, 2.f * pi);
         radiance_pos.y = glm::max(0.f, glm::min(pi, normalized_pos.y * pi));
 
+        // float distance = radius - normalized_pos.z * circumference * 0.5f;
         float distance = radius + normalized_pos.z * circumference * 0.5f;
+        zoom_dist = normalized_pos.z * circumference * 0.5f;
         world_position.x = distance * cos(radiance_pos.x) * sin(radiance_pos.y);
         world_position.y = distance * sin(radiance_pos.x) * sin(radiance_pos.y);
         world_position.z = distance * cos(radiance_pos.y);
@@ -109,6 +112,10 @@ public:
         up_vector.x = -cos(radiance_pos.x) * cos(radiance_pos.y);
         up_vector.y = -sin(radiance_pos.x) * cos(radiance_pos.y);
         up_vector.z = sin(radiance_pos.y);
+        // glm::vec3 look = glm::normalize(world_position) * radius;
+        // if(zoom_dist > radius)
+        //     look = -look;
+        // return glm::lookAt(world_position, look, up_vector);
         return glm::lookAt(world_position, look_at, up_vector);
     };
 

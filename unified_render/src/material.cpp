@@ -42,7 +42,7 @@ UnifiedRender::Material::Material(void) {
 }
 
 UnifiedRender::Material::~Material(void) {
-    
+
 }
 
 //
@@ -53,10 +53,12 @@ UnifiedRender::MaterialManager::MaterialManager(void) {
 }
 
 UnifiedRender::MaterialManager::~MaterialManager(void) {
-    
+
 }
 
-std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::MaterialManager::load_wavefront(const std::string& path) {
+std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::MaterialManager::load_wavefront(
+    const std::string& path, const std::string& model_name)
+{
     std::ifstream file(path);
     std::string line;
 
@@ -75,7 +77,7 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
         if(line[0] == '#' || line.empty()) {
             continue;
         }
-        
+
         std::istringstream sline(line);
         std::string cmd;
         sline >> cmd;
@@ -87,53 +89,57 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
             std::string name;
             sline >> name;
             curr_mat = new UnifiedRender::Material();
-            tmp_mat.push_back(std::make_pair(curr_mat, name));
-        } else if(cmd == "Ka") {
+            tmp_mat.push_back(std::make_pair(curr_mat, model_name + "-" + name));
+        }
+        else if(cmd == "Ka") {
             glm::vec3 color;
             sline >> color.x >> color.y >> color.z;
             curr_mat->ambient_color = color;
-        } else if(cmd == "Kd") {
+        }
+        else if(cmd == "Kd") {
             glm::vec3 color;
             sline >> color.x >> color.y >> color.z;
             curr_mat->diffuse_color = color;
-        } else if(cmd == "Ks") {
+        }
+        else if(cmd == "Ks") {
             glm::vec3 color;
             sline >> color.x >> color.y >> color.z;
             curr_mat->specular_color = color;
-        } else if(cmd == "Ns") {
+        }
+        else if(cmd == "Ns") {
             sline >> curr_mat->specular_exp;
-        } else if(cmd == "Ni") {
+        }
+        else if(cmd == "Ni") {
             sline >> curr_mat->optical_density;
-        } else if(cmd == "map_Kd") {
+        }
+        else if(cmd == "map_Kd") {
             std::string map_path;
             sline >> map_path;
 
             if(map_path[0] == '.') {
                 continue;
             }
-            curr_mat->diffuse_map = &UnifiedRender::State::get_instance().tex_man->load(Path::get("3d/" + map_path));
-        } else {
+            curr_mat->diffuse_map = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/" + map_path));
+        }
+        else {
             print_info("Command %s not implemented", cmd.c_str());
         }
     }
 
-    std::vector<std::pair<UnifiedRender::Material *, std::string>>::const_iterator mat;
+    std::vector<std::pair<UnifiedRender::Material*, std::string>>::const_iterator mat;
     for(mat = tmp_mat.begin(); mat != tmp_mat.end(); mat++) {
         materials[(*mat).second] = (*mat).first;
     }
     return tmp_mat;
 }
 
-const UnifiedRender::Material& UnifiedRender::MaterialManager::load(const std::string& path) {
-    std::map<std::string, UnifiedRender::Material *>::const_iterator it;
+const UnifiedRender::Material* UnifiedRender::MaterialManager::load(const std::string& path) {
+    std::map<std::string, UnifiedRender::Material*>::const_iterator it;
     it = materials.find(path);
     if(it != materials.end()) {
-        return *((*it).second);
+        return ((*it).second);
     }
-    
-    // Create a new material
-    UnifiedRender::Material* mat = new UnifiedRender::Material();
-    mat->ambient_map = &UnifiedRender::State::get_instance().tex_man->load(Path::get("3d/whitehouse.png"));
-    materials[path] = mat;
-    return *mat;
+
+    print_error("Material not found: %s", path);
+    return nullptr;
 }

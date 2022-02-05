@@ -96,7 +96,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     for(const auto& building_type : world.building_types) {
         std::string path;
-        path = Path::get("models/BuildingType/" + building_type->ref_name + ".obj");
+        path = Path::get("models/building_types/" + building_type->ref_name + ".obj");
         building_type_models.push_back(&s.model_man->load(path));
         path = Path::get("gfx/buildingtype/" + building_type->ref_name + ".png");
         building_type_icons.push_back(&s.tex_man->load(path));
@@ -104,14 +104,14 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     for(const auto& unit_type : world.unit_types) {
         std::string path;
-        path = Path::get("models/UnitType/" + unit_type->ref_name + ".obj");
+        path = Path::get("models/unit_types/" + unit_type->ref_name + ".obj");
         unit_type_models.push_back(&s.model_man->load(path));
         path = Path::get("gfx/unittype/" + unit_type->ref_name + ".png");
         unit_type_icons.push_back(&s.tex_man->load(path));
     }
 
     for(const auto& province : world.provinces) {
-        UnifiedRender::Color color = UnifiedRender::Color(1.f, 1.f, 1.f);
+        UnifiedRender::Color color = UnifiedRender::Color(0.f, 0.f, 0.f);
         auto text_texture =  new UnifiedRender::Texture(s.ui_ctx->default_font, color, province->name);
         province_names_text.push_back(text_texture);
 

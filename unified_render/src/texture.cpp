@@ -125,7 +125,8 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
         // No alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGB;
-        } else {
+        }
+        else {
             texture_format = GL_BGR;
         }
     }
@@ -135,10 +136,11 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
     glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
 
     int expected_pitch = (surface->w * surface->format->BytesPerPixel + alignment - 1) / alignment * alignment;
-    if (surface->pitch - expected_pitch >= alignment) {
+    if(surface->pitch - expected_pitch >= alignment) {
         // Alignment alone wont't solve it now
         glPixelStorei(GL_UNPACK_ROW_LENGTH, surface->pitch / surface->format->BytesPerPixel);
-    } else {
+    }
+    else {
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
 
@@ -168,7 +170,7 @@ void UnifiedRender::Texture::delete_opengl() {
 
 UnifiedRender::Texture::Texture(TTF_Font* font, UnifiedRender::Color color, const std::string& msg) {
     // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    SDL_Color black_color = {
+    SDL_Color black_color ={
         static_cast<Uint8>(color.r * 255.f),
         static_cast<Uint8>(color.g * 255.f),
         static_cast<Uint8>(color.b * 255.f),
@@ -176,7 +178,7 @@ UnifiedRender::Texture::Texture(TTF_Font* font, UnifiedRender::Color color, cons
     };
 
     SDL_Surface* surface = TTF_RenderUTF8_Blended(font, msg.c_str(), black_color);
-    if (surface == nullptr) {
+    if(surface == nullptr) {
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
     }
 
@@ -241,6 +243,15 @@ void UnifiedRender::TextureArray::to_opengl(GLuint wrapp, GLuint min_filter, GLu
 //
 // Texture manager
 //
+
+const UnifiedRender::Texture& UnifiedRender::TextureManager::get_white() {
+    if(white == nullptr) {
+        white = new Texture(1, 1);
+        white->buffer.get()[0] = 0xFFFFFFFF;
+        white->to_opengl();
+    }
+    return *((const Texture *) white);
+}
 
 //
 // Finds a texture in the list of a texture manager
