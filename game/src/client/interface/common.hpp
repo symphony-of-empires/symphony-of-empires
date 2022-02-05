@@ -80,8 +80,9 @@ namespace Interface {
     class BuildingInfo : public UI::Group {
         GameState& gs;
     public:
-        Building* building;
-        BuildingInfo(GameState& gs, int x, int y, Building* building, UI::Widget* parent);
+        Province* province;
+        unsigned int idx;
+        BuildingInfo(GameState& gs, int x, int y, Province* province, unsigned int idx, UI::Widget* parent);
     };
 
     class BuildingTypeButton : public UI::Button {

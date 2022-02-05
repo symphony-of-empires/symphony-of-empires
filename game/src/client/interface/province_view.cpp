@@ -132,9 +132,9 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
         // Obtain demand, supply and other information about the goods
         std::vector<UI::ChartData> goods_data, products_data;
         for(const auto& product : o.province->products) {
-            if(product->building == nullptr) {
-                continue;
-            }
+            //if(product->building == nullptr) {
+            //    continue;
+            //}
 
             const auto product_col = UnifiedRender::Color(
                 o.gs.world->get_id(product) * 12,
@@ -150,9 +150,9 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
     // Initial product info
     unsigned int i = 0;
     for(const auto& product : this->province->products) {
-        if(product->building == nullptr) {
-            continue;
-        }
+        //if(product->building == nullptr) {
+        //    continue;
+        //}
 
         auto* info = new ProductInfo(this->gs, 0, (i * 24) + 128, product, this);
         this->product_infos.push_back(info);
@@ -178,9 +178,8 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
     });
     dy += build_btn->height;
 
-    auto list = province->get_buildings();
-    for(const auto& building : list) {
-        auto* info = new BuildingInfo(this->gs, 0, dy, building, this);
+    for(unsigned int i = 0; i < province->get_buildings().size(); i++) {
+        auto* info = new BuildingInfo(this->gs, 0, dy, province, i, this);
         this->building_infos.push_back(info);
         dy += info->height;
     }
@@ -430,7 +429,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         exbuild_btn->on_click = ([](UI::Widget& w, void*) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
             for(auto& building : o.province->get_buildings()) {
-                building->owner = o.gs.curr_nation;
+                building.owner = o.gs.curr_nation;
             }
         });
         exbuild_btn->tooltip = new UI::Tooltip(exbuild_btn, 512, 24);

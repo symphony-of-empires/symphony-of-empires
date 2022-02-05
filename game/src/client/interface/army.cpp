@@ -120,17 +120,15 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
         auto& o = static_cast<ArmyProductionTab&>(*w.parent);
 
         float reqtotal = 0.f;
-        for(const auto& building : o.gs.world->buildings) {
-            if(building->get_owner() != o.gs.curr_nation) {
-                continue;
-            }
+        for(const auto& province : o.gs.curr_nation->owned_provinces) {
+            for(const auto& building : province->get_buildings()) {
+                for(const auto& req : building.req_goods_for_unit) {
+                    reqtotal += req.second;
+                }
 
-            for(const auto& req : building->req_goods_for_unit) {
-                reqtotal += req.second;
-            }
-
-            for(const auto& req : building->req_goods) {
-                reqtotal += req.second;
+                for(const auto& req : building.req_goods) {
+                    reqtotal += req.second;
+                }
             }
         }
 
@@ -141,38 +139,40 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     });
 
     unsigned int i = 0;
-    for(const auto& building : gs.world->buildings) {
-        if(!(building->type->is_build_land_units || building->type->is_build_naval_units)) {
-            continue;
-        }
+    for(const auto& province : gs.curr_nation->owned_provinces) {
+        for(const auto& building : province->get_buildings()) {
+            if(!(building.type->is_build_land_units || building.type->is_build_naval_units)) {
+                continue;
+            }
 
-        if(building->get_owner() != gs.curr_nation) {
-            continue;
+            new ArmyProductionUnitInfo(gs, 0, 128 + (48 * i), province, i, this);
+            i++;
         }
-
-        new ArmyProductionUnitInfo(gs, 0, 128 + (48 * i), building, this);
-        i++;
     }
 }
 
-ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Building* _building, UI::Widget* parent)
+ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Province* _province, unsigned int _idx, UI::Widget* parent)
     : UI::Group(x, y, parent->width - x, 48, parent),
     gs{ _gs },
-    building{ _building }
+    province{ _province },
+    idx{ _idx }
 {
+    const auto& building = province->get_buildings()[idx];
     this->is_scroll = false;
 
     this->unit_icon = new UI::Image(0, 0, 24, 24, nullptr, this);
-    if(building->working_unit_type != nullptr) {
-        this->unit_icon->current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/" + building->working_unit_type->ref_name + ".png"));
+    if(building.working_unit_type != nullptr) {
+        this->unit_icon->current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/" + building.working_unit_type->ref_name + ".png"));
     }
 
     this->province_lab = new UI::Label(0, 0, "?", this);
     this->province_lab->right_side_of(*this->unit_icon);
     this->province_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
-        if(o.building->get_province() != nullptr) {
-            w.text(UnifiedRender::Locale::translate(o.building->get_province()->name));
+
+        auto& building = o.province->get_buildings()[o.idx];
+        if(building.get_province() != nullptr) {
+            w.text(UnifiedRender::Locale::translate(o.province->name));
         }
     });
     this->province_lab->on_each_tick(*this->province_lab, nullptr);
@@ -181,7 +181,9 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
     this->name_lab->right_side_of(*this->province_lab);
     this->name_lab->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
-        w.text((o.building->working_unit_type != nullptr) ? UnifiedRender::Locale::translate(o.building->working_unit_type->name) : "No unit");
+
+        auto& building = o.province->get_buildings()[o.idx];
+        w.text((building.working_unit_type != nullptr) ? UnifiedRender::Locale::translate(building.working_unit_type->name) : "No unit");
     });
     this->name_lab->on_each_tick(*this->name_lab, nullptr);
 
@@ -189,14 +191,15 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Bui
     progress_pgbar->below_of(*this->name_lab);
     progress_pgbar->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
+        auto& building = o.province->get_buildings()[o.idx];
 
         std::string text = "";
 
         size_t full = 0, needed = 0;
         text = "Needs ";
-        for(size_t i = 0; i < o.building->req_goods_for_unit.size(); i++) {
-            auto need_req = o.building->req_goods_for_unit[i];
-            auto full_req = o.building->working_unit_type->req_goods[i];
+        for(size_t i = 0; i < building.req_goods_for_unit.size(); i++) {
+            auto need_req = building.req_goods_for_unit[i];
+            auto full_req = building.working_unit_type->req_goods[i];
 
             full_req.second -= need_req.second;
 

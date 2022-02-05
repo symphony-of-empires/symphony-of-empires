@@ -134,23 +134,26 @@ UnifiedRender::Networking::Packet SelectNation::form_packet(Nation* nation) {
     return packet;
 }
 
-UnifiedRender::Networking::Packet BuildingStartProducingUnit::form_packet(Building* building, UnitType* unit_type) {
+UnifiedRender::Networking::Packet BuildingStartProducingUnit::form_packet(Province* province, BuildingType* building_type, Nation* nation, UnitType* unit_type) {
     UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::BUILDING_START_BUILDING_UNIT;
     ::serialize(ar, &action);
-    ::serialize(ar, &building);
+    ::serialize(ar, &province);
+    ::serialize(ar, &building_type);
+    ::serialize(ar, &nation);
     ::serialize(ar, &unit_type);
     packet.data(ar.get_buffer(), ar.size());
 	return packet;
 }
 
-UnifiedRender::Networking::Packet BuildingAdd::form_packet(Building* building) {
+UnifiedRender::Networking::Packet BuildingAdd::form_packet(Province* province, Building building) {
     UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::BUILDING_ADD;
     ::serialize(ar, &action);
-    ::serialize(ar, building);
+    ::serialize(ar, &province);
+    ::serialize(ar, &building);
     packet.data(ar.get_buffer(), ar.size());
 	return packet;
 }

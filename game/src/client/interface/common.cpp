@@ -121,17 +121,24 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
     });
 }
 
-BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Building* _building, UI::Widget* parent)
+BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, unsigned int _idx, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24 * 8, parent),
     gs{ _gs },
-    building{ _building }
+    province{ _province },
+    idx{ _idx }
 {
     is_scroll = false;
 
+    const Building& building = province->get_buildings().at(idx);
     auto* name_btn = new UI::Button(0, 0, 128, 24, this);
     name_btn->on_each_tick = ([](UI::Widget& w, void*) {
         auto& o = static_cast<BuildingInfo&>(*w.parent);
-        w.text(o.building->type->name);
+
+        if(o.idx >= o.province->get_buildings().size()) {
+            return;
+        }
+        const Building& building = o.province->get_buildings().at(o.idx);
+        w.text(building.type->name);
     });
 
     unsigned int dx;
@@ -139,7 +146,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Building* _building, UI
     auto* input_lab = new UI::Label(0, 0, "Inputs:", this);
     input_lab->below_of(*name_btn);
     dx = input_lab->width;
-    for(const auto& good : building->type->inputs) {
+    for(const auto& good : building.type->inputs) {
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
         icon_ibtn->below_of(*name_btn);
         icon_ibtn->user_data = good;
@@ -153,7 +160,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Building* _building, UI
     auto* output_lab = new UI::Label(0, 0, "Outputs:", this);
     output_lab->below_of(*input_lab);
     dx = output_lab->width;
-    for(const auto& good : building->type->outputs) {
+    for(const auto& good : building.type->outputs) {
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
         icon_ibtn->below_of(*input_lab);
         icon_ibtn->user_data = good;

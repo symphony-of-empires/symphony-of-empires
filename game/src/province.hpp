@@ -51,7 +51,8 @@ public:
     float get_attractiveness(const Pop& pop) const;
     std::pair<float, float> get_pos(void) const;
     std::vector<Unit*> get_units(void) const;
-    std::vector<Building*> get_buildings(void) const;
+    const std::vector<Building>& get_buildings(void) const;
+    std::vector<Building>& get_buildings(void);
     bool is_neighbour(Province& province) const;
 
     // Color of the province, used for mapping the province's shape from the map_div.png file
@@ -93,6 +94,8 @@ public:
 
     // List of pops in this province
     std::vector<Pop> pops;
+
+    std::vector<Building> buildings;
 
     std::vector<Product*> products;
     std::vector<Unit*> units;

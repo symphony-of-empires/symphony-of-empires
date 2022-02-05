@@ -80,7 +80,7 @@ public:
     size_t quantity;
 
     // A building who requests materials
-    Building* building;
+    Building::Id building_idx;
 
     // ID of the province where the industry (who requested this) is located in
     Province* province;
@@ -110,7 +110,7 @@ public:
     Product* product;
 
     // ID of the industry (inside the province) who is sending this product
-    Building* building;
+    Building::Id building_idx;
 
     // ID of the province where the industry (who is sending this) is located in
     Province* province;
@@ -157,7 +157,6 @@ public:
     LIST_FOR_TYPE(Good, goods, std::vector);
     LIST_FOR_TYPE(Culture, cultures, std::vector);
     LIST_FOR_TYPE(PopType, pop_types, std::vector);
-    LIST_FOR_TYPE(Building, buildings, std::vector);
     LIST_FOR_TYPE(Event, events, std::vector);
     LIST_FOR_TYPE(UnitType, unit_types, std::vector);
     LIST_FOR_TYPE(UnitTrait, unit_traits, std::vector);

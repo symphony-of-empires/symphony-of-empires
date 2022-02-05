@@ -144,12 +144,12 @@ namespace Action {
 
     class BuildingStartProducingUnit {
     public:
-        static UnifiedRender::Networking::Packet form_packet(Building* building, UnitType* unit_type);
+        static UnifiedRender::Networking::Packet form_packet(Province* province, BuildingType* building_type, Nation* nation, UnitType* unit_type);
     };
 	
 	class BuildingAdd {
 	public:
-		static UnifiedRender::Networking::Packet form_packet(Building* building);
+        static UnifiedRender::Networking::Packet form_packet(Province* province, Building building);
 	};
 
     class FocusTech {

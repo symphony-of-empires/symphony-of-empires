@@ -100,13 +100,12 @@ std::vector<Unit*> Province::get_units(void) const {
     return units;
 }
 
-std::vector<Building*> Province::get_buildings(void) const {
-    std::vector<Building*> temp;
-    for(const auto& building : World::get_instance().buildings) {
-        if(building->get_province() != this) continue;
-        temp.push_back(building);
-    }
-    return temp;
+const std::vector<Building>& Province::get_buildings(void) const {
+    return buildings;
+}
+
+std::vector<Building>& Province::get_buildings(void) {
+    return buildings;
 }
 
 bool Province::is_neighbour(Province& province) const {

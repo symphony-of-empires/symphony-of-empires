@@ -39,9 +39,6 @@ public:
     //~Product();
     void close_market(void);
 
-    // Building that made this product
-    Building* building;
-
     // Good that this product is based on
     Good* good;
 
