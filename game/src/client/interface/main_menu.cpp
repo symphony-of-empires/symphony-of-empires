@@ -182,7 +182,7 @@ MainMenu::MainMenu(GameState& _gs)
     cfg_btn->right_side_of(*edit_btn);
     cfg_btn->on_click = ([](UI::Widget& w, void*) {
         auto& o = static_cast<MainMenu&>(*w.parent);
-        o.settings_window = new Settings(o.gs);
+        o.settings_window = new Interface::Settings(o.gs);
     });
 
     auto* exit_btn = new UI::Button(0, 0, 128, 24, this);

@@ -321,7 +321,7 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load_stl(const std::str
     // TODO: This needs more work
     // 1. we need little endian reading
     uint32_t n_triangles;
-    memcpy(&n_triangles, &buffer[80], sizeof(uint32_t));
+    std::memcpy(&n_triangles, &buffer[80], sizeof(uint32_t));
 
     for(uint32_t i = 0; i < n_triangles; i++) {
         glm::vec3 vert;
