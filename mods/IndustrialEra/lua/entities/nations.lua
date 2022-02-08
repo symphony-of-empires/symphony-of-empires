@@ -45,7 +45,10 @@ hawai_i:add_client_hint(socialism, _("Hawai'i"), 0x808000)
 hawai_i:add_client_hint(fascism, _("Hawai'i"), 0x808000)
 hawai_i:add_client_hint(republic, _("Hawai'i"), 0x808000)
 
+local nation = {}
+
 require('entities/nations/africa')
 require('entities/nations/america')
 require('entities/nations/asia')
 require('entities/nations/europe')
+require('entities/nations/middle_east')
