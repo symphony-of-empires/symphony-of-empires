@@ -696,38 +696,36 @@ void World::do_tick() {
     profiler.start("AI");
     // AI and stuff
     // Just random shit to make the world be like more alive
-    for(auto& nation : nations) {
-        if(!nation->exists()) {
-            continue;
-        }
-
-        // Diplomatic cooldown
-        if(nation->diplomatic_timer != 0) {
-            nation->diplomatic_timer--;
-        }
-
-        // Research stuff
-        float research = nation->get_research_points();
-        if(nation->focus_tech != nullptr) {
-            float* research_progress = &nation->research[get_id(nation->focus_tech)];
-            *research_progress -= std::min(research, *research_progress);
-            if(!(*research_progress)) {
-                // Give the country the modifiers attached to the technology
-                for(auto& mod : nation->focus_tech->modifiers) {
-                    nation->modifiers.push_back(mod);
-                }
-                nation->focus_tech = nullptr;
+    std::for_each(nations.begin(), nations.end(), [this](auto& nation) {
+        if(nation->exists()) {
+            // Diplomatic cooldown
+            if(nation->diplomatic_timer != 0) {
+                nation->diplomatic_timer--;
             }
-        }
 
-        ai_do_tick(nation, this);
-    }
+            // Research stuff
+            float research = nation->get_research_points();
+            if(nation->focus_tech != nullptr) {
+                float* research_progress = &nation->research[get_id(nation->focus_tech)];
+                *research_progress -= std::min(research, *research_progress);
+                if(!(*research_progress)) {
+                    // Give the country the modifiers attached to the technology
+                    for(auto& mod : nation->focus_tech->modifiers) {
+                        nation->modifiers.push_back(mod);
+                    }
+                    nation->focus_tech = nullptr;
+                }
+            }
+            ai_do_tick(nation, this);
+        }
+    });
     profiler.stop("AI");
 
     profiler.start("Economy");
     // Every ticks_per_month ticks do an economical tick
     if(!(time % ticks_per_month)) {
         Economy::do_tick(*this);
+
         // Calculate prestige for today (newspapers come out!)
         for(auto& nation : this->nations) {
             const float decay_per_cent = 5.f;
@@ -737,9 +735,7 @@ void World::do_tick() {
             // Prestige cannot go below min prestige
             nation->prestige = std::max<float>(nation->prestige, min_prestige);
             nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<float>(std::max<float>(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
-        }
 
-        for(auto& nation : this->nations) {
             float economy_score = 0.f;
             for(const auto& province : nation->owned_provinces) {
                 // Calculate economy score of nations
@@ -853,8 +849,9 @@ void World::do_tick() {
     profiler.stop("Units");
 
     profiler.start("Battles");
+
     // Perform all battles of the active wars
-    for(auto& war : wars) {
+    std::for_each(wars.begin(), wars.end(), [this](auto& war) {
         for(size_t j = 0; j < war->battles.size(); j++) {
             Battle& battle = war->battles[j];
 
@@ -913,7 +910,7 @@ void World::do_tick() {
                 continue;
             }
         }
-    }
+    });
     profiler.stop("Battles");
 
     profiler.start("Research");
