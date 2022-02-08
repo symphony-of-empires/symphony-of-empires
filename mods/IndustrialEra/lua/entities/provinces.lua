@@ -1376,7 +1376,7 @@ province:add_pop(PopType:get("laborer"), Culture:get("brazilian"), Religion:get(
 province:add_pop(PopType:get("slave"), Culture:get("brazilian"), Religion:get("christian"), 500, 0.500000)
 province:add_nucleus(Nation:get("brazil"))
 province:give_to(Nation:get("brazil"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("jungle"))
 province = Province:new{ ref_name = "mato_grosso", name = _("Mato Grosso"), color = 0x9dff35 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("brazil"))
@@ -3299,6 +3299,9 @@ province:give_to(Nation:get("upca"))
 province:set_terrain(TerrainType:get("deepsea"))
 province = Province:new{ ref_name = "province_ff00ff00", name = _("Global lakes"), color = 0xff00ff }
 province:register()
+province:add_nucleus(Nation:get("tunis"))
+province:give_to(Nation:get("tunis"))
+province:set_terrain(TerrainType:get("deepsea"))
 province = Province:new{ ref_name = "province_20e41c00", name = _("Province_1ce420"), color = 0x1ce420 }
 province:register()
 province:add_industry(BuildingType:get("gold_mine"), Nation:get("upca"))
@@ -4004,10 +4007,10 @@ province:add_pop(PopType:get("burgeoise"), Culture:get("british"), Religion:get(
 province:add_pop(PopType:get("clergymen"), Culture:get("british"), Religion:get("protestant"), 5000, 0.300000)
 province:add_pop(PopType:get("laborer"), Culture:get("british"), Religion:get("protestant"), 5000, 0.200000)
 province:add_pop(PopType:get("burgeoise"), Culture:get("british"), Religion:get("protestant"), 500, 0.900000)
-province:add_nucleus(Nation:get("gran_colombia"))
 province:add_nucleus(Nation:get("united_kingdom"))
+province:add_nucleus(Nation:get("gran_colombia"))
 province:give_to(Nation:get("gran_colombia"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("jungle"))
 province = Province:new{ ref_name = "corentyne", name = _("Corentyne"), color = 0x56ffa5 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("netherlands"))
@@ -4023,7 +4026,7 @@ province:add_pop(PopType:get("burgeoise"), Culture:get("dutch"), Religion:get("p
 province:add_nucleus(Nation:get("united_kingdom"))
 province:add_nucleus(Nation:get("netherlands"))
 province:give_to(Nation:get("netherlands"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("jungle"))
 province = Province:new{ ref_name = "suriname", name = _("Suriname"), color = 0xff42ad }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("netherlands"))
@@ -4039,7 +4042,7 @@ province:add_pop(PopType:get("burgeoise"), Culture:get("dutch"), Religion:get("p
 province:add_pop(PopType:get("slave"), Culture:get("dutch"), Religion:get("protestant"), 500, 0.500000)
 province:add_nucleus(Nation:get("netherlands"))
 province:give_to(Nation:get("netherlands"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("jungle"))
 province = Province:new{ ref_name = "cayenne", name = _("Cayenne"), color = 0x552804 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("france"))
@@ -4072,7 +4075,7 @@ province:add_pop(PopType:get("slave"), Culture:get("french"), Religion:get("prot
 province:add_nucleus(Nation:get("netherlands"))
 province:add_nucleus(Nation:get("france"))
 province:give_to(Nation:get("france"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("jungle"))
 province = Province:new{ ref_name = "yucatan", name = _("Yucatán"), color = 0x567bff }
 province:register()
 province:add_industry(BuildingType:get("sulfur_mine"), Nation:get("mexico"))
@@ -6478,7 +6481,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_80b8b100", name = _("Unknown"), color = 0xb1b880 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -6492,7 +6495,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_80db4700", name = _("Unknown"), color = 0x47db80 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -6506,7 +6509,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_c05cb200", name = _("Unknown"), color = 0xb25cc0 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -6520,7 +6523,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_59dd00", name = _("Unknown"), color = 0xdd5900 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -6688,7 +6691,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_200f9800", name = _("Unknown"), color = 0x980f20 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -6828,7 +6831,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_f2ab00", name = _("Unknown"), color = 0xabf200 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -7066,7 +7069,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_e0e2b600", name = _("Unknown"), color = 0xb6e2e0 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -7934,7 +7937,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("bulgarian"), Religion:ge
 province:add_pop(PopType:get("laborer"), Culture:get("bulgarian"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("mountain"))
 province = Province:new{ ref_name = "province_d38cff00", name = _("Unknown"), color = 0xff8cd3 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8410,7 +8413,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_408a7a00", name = _("Unknown"), color = 0x7a8a40 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8424,7 +8427,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_80f58000", name = _("Unknown"), color = 0x80f580 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8438,7 +8441,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_dfad00", name = _("Unknown"), color = 0xaddf00 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8452,7 +8455,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_601d9f00", name = _("Unknown"), color = 0x9f1d60 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8508,7 +8511,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_80920200", name = _("Unknown"), color = 0x29280 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8522,7 +8525,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_154200", name = _("Unknown"), color = 0x421500 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8536,7 +8539,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_401ec100", name = _("Unknown"), color = 0xc11e40 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8592,7 +8595,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_e088c700", name = _("Unknown"), color = 0xc788e0 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8606,7 +8609,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_c0924600", name = _("Unknown"), color = 0x4692c0 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8620,7 +8623,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_40f4ef00", name = _("Unknown"), color = 0xeff440 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8634,7 +8637,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_c0f85500", name = _("Unknown"), color = 0x55f8c0 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8648,7 +8651,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_e05cb200", name = _("Unknown"), color = 0xb25ce0 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8662,7 +8665,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_6076eb00", name = _("Unknown"), color = 0xeb7660 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8676,7 +8679,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_e0494500", name = _("Unknown"), color = 0x4549e0 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8732,7 +8735,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_20feff00", name = _("Unknown"), color = 0xfffe20 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8746,7 +8749,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_600b3200", name = _("Unknown"), color = 0x320b60 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8970,7 +8973,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_e0936800", name = _("Unknown"), color = 0x6893e0 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8984,7 +8987,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_db7e00", name = _("Unknown"), color = 0x7edb00 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -8998,7 +9001,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_e07fd900", name = _("Unknown"), color = 0xd97fe0 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -9012,7 +9015,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("turkish"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("turkish"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_ff68ed00", name = _("Unknown"), color = 0xed68ff }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -9026,7 +9029,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("bulgarian"), Religion:ge
 province:add_pop(PopType:get("laborer"), Culture:get("bulgarian"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("mountain"))
 province = Province:new{ ref_name = "province_8298ff00", name = _("Unknown"), color = 0xff9882 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("turkey"))
@@ -9502,7 +9505,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("bulgarian"), Religion:ge
 province:add_pop(PopType:get("laborer"), Culture:get("bulgarian"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("turkey"))
 province:give_to(Nation:get("turkey"))
-province:set_terrain(TerrainType:get("deepsea"))
+province:set_terrain(TerrainType:get("mountain"))
 province = Province:new{ ref_name = "vorarlberg", name = _("Vorarlberg"), color = 0x5effb6 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("austria"))
@@ -11428,8 +11431,9 @@ province:add_pop(PopType:get("burgeoise"), Culture:get("romanian"), Religion:get
 province:add_pop(PopType:get("clergymen"), Culture:get("romanian"), Religion:get("orthodox"), 5000, 0.900000)
 province:add_pop(PopType:get("laborer"), Culture:get("romanian"), Religion:get("orthodox"), 50000, 0.800000)
 province:add_nucleus(Nation:get("romania"))
+province:add_nucleus(Nation:get("austria"))
 province:add_nucleus(Nation:get("moldavia"))
-province:give_to(Nation:get("moldavia"))
+province:give_to(Nation:get("austria"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_a0a78800", name = _("Province_88a7a0"), color = 0x88a7a0 }
 province:register()
@@ -11442,8 +11446,9 @@ province:add_pop(PopType:get("burgeoise"), Culture:get("romanian"), Religion:get
 province:add_pop(PopType:get("clergymen"), Culture:get("romanian"), Religion:get("orthodox"), 5000, 0.900000)
 province:add_pop(PopType:get("laborer"), Culture:get("romanian"), Religion:get("orthodox"), 50000, 0.800000)
 province:add_nucleus(Nation:get("romania"))
+province:add_nucleus(Nation:get("austria"))
 province:add_nucleus(Nation:get("moldavia"))
-province:give_to(Nation:get("moldavia"))
+province:give_to(Nation:get("austria"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_728aff00", name = _("Province_ff8a72"), color = 0xff8a72 }
 province:register()
@@ -13606,7 +13611,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("british"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("british"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("united_kingdom"))
 province:give_to(Nation:get("united_kingdom"))
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("jungle"))
 province = Province:new{ ref_name = "province_8306300", name = _("Unknown"), color = 0x633008 }
 province:register()
 province:add_industry(BuildingType:get("wheat_farm"), Nation:get("gran_colombia"))
@@ -13618,8 +13623,8 @@ province:add_pop(PopType:get("bureaucrat"), Culture:get("british"), Religion:get
 province:add_pop(PopType:get("burgeoise"), Culture:get("british"), Religion:get("christian"), 800, 0.900000)
 province:add_pop(PopType:get("clergymen"), Culture:get("british"), Religion:get("christian"), 5000, 0.900000)
 province:add_pop(PopType:get("laborer"), Culture:get("british"), Religion:get("christian"), 50000, 0.800000)
-province:add_nucleus(Nation:get("gran_colombia"))
 province:add_nucleus(Nation:get("united_kingdom"))
+province:add_nucleus(Nation:get("gran_colombia"))
 province:give_to(Nation:get("gran_colombia"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_40090000", name = _("Unknown"), color = 0x940 }
@@ -13633,8 +13638,8 @@ province:add_pop(PopType:get("bureaucrat"), Culture:get("british"), Religion:get
 province:add_pop(PopType:get("burgeoise"), Culture:get("british"), Religion:get("christian"), 800, 0.900000)
 province:add_pop(PopType:get("clergymen"), Culture:get("british"), Religion:get("christian"), 5000, 0.900000)
 province:add_pop(PopType:get("laborer"), Culture:get("british"), Religion:get("christian"), 50000, 0.800000)
-province:add_nucleus(Nation:get("gran_colombia"))
 province:add_nucleus(Nation:get("united_kingdom"))
+province:add_nucleus(Nation:get("gran_colombia"))
 province:give_to(Nation:get("gran_colombia"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_a0a6f700", name = _("Unknown"), color = 0xf7a6a0 }
@@ -13648,8 +13653,8 @@ province:add_pop(PopType:get("bureaucrat"), Culture:get("british"), Religion:get
 province:add_pop(PopType:get("burgeoise"), Culture:get("british"), Religion:get("christian"), 800, 0.900000)
 province:add_pop(PopType:get("clergymen"), Culture:get("british"), Religion:get("christian"), 5000, 0.900000)
 province:add_pop(PopType:get("laborer"), Culture:get("british"), Religion:get("christian"), 50000, 0.800000)
-province:add_nucleus(Nation:get("gran_colombia"))
 province:add_nucleus(Nation:get("united_kingdom"))
+province:add_nucleus(Nation:get("gran_colombia"))
 province:give_to(Nation:get("gran_colombia"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_40048800", name = _("Unknown"), color = 0x880440 }
@@ -13677,8 +13682,8 @@ province:add_pop(PopType:get("bureaucrat"), Culture:get("british"), Religion:get
 province:add_pop(PopType:get("burgeoise"), Culture:get("british"), Religion:get("christian"), 800, 0.900000)
 province:add_pop(PopType:get("clergymen"), Culture:get("british"), Religion:get("christian"), 5000, 0.900000)
 province:add_pop(PopType:get("laborer"), Culture:get("british"), Religion:get("christian"), 50000, 0.800000)
-province:add_nucleus(Nation:get("gran_colombia"))
 province:add_nucleus(Nation:get("united_kingdom"))
+province:add_nucleus(Nation:get("gran_colombia"))
 province:give_to(Nation:get("gran_colombia"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "syddanmark", name = _("Syddanmark"), color = 0xa3ddff }
@@ -16694,7 +16699,7 @@ province:give_to(Nation:get("modena"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_6aff4c00", name = _("Province_4cff6a"), color = 0x4cff6a }
 province:register()
-province:add_industry(BuildingType:get("wheat_farm"), Nation:get("genoa"))
+province:add_industry(BuildingType:get("wheat_farm"), Nation:get("piedmont_sardinia"))
 province:add_pop(PopType:get("artisan"), Culture:get("italian"), Religion:get("christian"), 5000, 0.900000)
 province:add_pop(PopType:get("farmer"), Culture:get("italian"), Religion:get("christian"), 40000, 0.800000)
 province:add_pop(PopType:get("soldier"), Culture:get("italian"), Religion:get("christian"), 8000, 0.800000)
@@ -16705,8 +16710,9 @@ province:add_pop(PopType:get("clergymen"), Culture:get("italian"), Religion:get(
 province:add_pop(PopType:get("laborer"), Culture:get("italian"), Religion:get("christian"), 50000, 0.800000)
 province:add_pop(PopType:get("burgeoise"), Culture:get("italian"), Religion:get("christian"), 800, 0.900000)
 province:add_nucleus(Nation:get("genoa"))
+province:add_nucleus(Nation:get("piedmont_sardinia"))
 province:add_nucleus(Nation:get("italy"))
-province:give_to(Nation:get("genoa"))
+province:give_to(Nation:get("piedmont_sardinia"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_cd4000", name = _("Unknown"), color = 0x40cd00 }
 province:register()
@@ -18267,7 +18273,7 @@ province:add_pop(PopType:get("clergymen"), Culture:get("french"), Religion:get("
 province:add_pop(PopType:get("laborer"), Culture:get("french"), Religion:get("christian"), 50000, 0.800000)
 province:add_nucleus(Nation:get("france"))
 province:give_to(Nation:get("france"))
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("jungle"))
 province = Province:new{ ref_name = "lille", name = _("Lille"), color = 0x842ba0 }
 province:register()
 province:add_industry(BuildingType:get("lumberjack"), Nation:get("france"))
@@ -24427,7 +24433,7 @@ province:give_to(Nation:get("russia"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_405e4300", name = _("Unknown"), color = 0x435e40 }
 province:register()
-province:add_industry(BuildingType:get("wheat_farm"), Nation:get("russia"))
+province:add_industry(BuildingType:get("wheat_farm"), Nation:get("austria"))
 province:add_pop(PopType:get("artisan"), Culture:get("ukrainian"), Religion:get("orthodox"), 5000, 0.900000)
 province:add_pop(PopType:get("farmer"), Culture:get("ukrainian"), Religion:get("orthodox"), 40000, 0.800000)
 province:add_pop(PopType:get("soldier"), Culture:get("ukrainian"), Religion:get("orthodox"), 8000, 0.800000)
@@ -24438,7 +24444,8 @@ province:add_pop(PopType:get("clergymen"), Culture:get("ukrainian"), Religion:ge
 province:add_pop(PopType:get("laborer"), Culture:get("ukrainian"), Religion:get("orthodox"), 50000, 0.800000)
 province:add_pop(PopType:get("burgeoise"), Culture:get("ukrainian"), Religion:get("orthodox"), 800, 0.900000)
 province:add_nucleus(Nation:get("russia"))
-province:give_to(Nation:get("russia"))
+province:add_nucleus(Nation:get("austria"))
+province:give_to(Nation:get("austria"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_c0156400", name = _("Unknown"), color = 0x6415c0 }
 province:register()
@@ -24472,7 +24479,7 @@ province:give_to(Nation:get("russia"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_20cdf300", name = _("Unknown"), color = 0xf3cd20 }
 province:register()
-province:add_industry(BuildingType:get("wheat_farm"), Nation:get("russia"))
+province:add_industry(BuildingType:get("wheat_farm"), Nation:get("austria"))
 province:add_pop(PopType:get("artisan"), Culture:get("ukrainian"), Religion:get("orthodox"), 5000, 0.900000)
 province:add_pop(PopType:get("farmer"), Culture:get("ukrainian"), Religion:get("orthodox"), 40000, 0.800000)
 province:add_pop(PopType:get("soldier"), Culture:get("ukrainian"), Religion:get("orthodox"), 8000, 0.800000)
@@ -24483,7 +24490,8 @@ province:add_pop(PopType:get("clergymen"), Culture:get("ukrainian"), Religion:ge
 province:add_pop(PopType:get("laborer"), Culture:get("ukrainian"), Religion:get("orthodox"), 50000, 0.800000)
 province:add_pop(PopType:get("burgeoise"), Culture:get("ukrainian"), Religion:get("orthodox"), 800, 0.900000)
 province:add_nucleus(Nation:get("russia"))
-province:give_to(Nation:get("russia"))
+province:add_nucleus(Nation:get("austria"))
+province:give_to(Nation:get("austria"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_60ffff00", name = _("Unknown"), color = 0xffff60 }
 province:register()
@@ -30678,7 +30686,7 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_4fcd00", name = _("Province_cd4f00"), color = 0xcd4f00 }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_515000", name = _("Province_505100"), color = 0x505100 }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
@@ -31148,6 +31156,8 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_208bed00", name = _("Province_ed8b20"), color = 0xed8b20 }
 province:register()
+province:add_nucleus(Nation:get("tunis"))
+province:give_to(Nation:get("tunis"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_208e4f00", name = _("Province_4f8e20"), color = 0x4f8e20 }
 province:register()
@@ -31839,7 +31849,7 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_5bcbff00", name = _("Province_ffcb5b"), color = 0xffcb5b }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("mountain"))
 province = Province:new{ ref_name = "province_5e66ff00", name = _("Province_ff665e"), color = 0xff665e }
 province:register()
 province:add_pop(PopType:get("burgeoise"), Culture:get("bulgarian"), Religion:get("protestant"), 296, 1.250000)
@@ -32141,7 +32151,7 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_60db4700", name = _("Province_47db60"), color = 0x47db60 }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_60e03e00", name = _("Province_3ee060"), color = 0x3ee060 }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
@@ -32300,7 +32310,9 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_77fff100", name = _("Province_f1ff77"), color = 0xf1ff77 }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:add_nucleus(Nation:get("france"))
+province:give_to(Nation:get("france"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_77fff500", name = _("Province_f5ff77"), color = 0xf5ff77 }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
@@ -32420,6 +32432,8 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_80424300", name = _("Province_434280"), color = 0x434280 }
 province:register()
+province:add_nucleus(Nation:get("tunis"))
+province:give_to(Nation:get("tunis"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_8044bd00", name = _("Province_bd4480"), color = 0xbd4480 }
 province:register()
@@ -32458,7 +32472,9 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_8056ff00", name = _("Province_ff5680"), color = 0xff5680 }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:add_nucleus(Nation:get("france"))
+province:give_to(Nation:get("france"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_8057cc00", name = _("Province_cc5780"), color = 0xcc5780 }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
@@ -32743,6 +32759,8 @@ province:give_to(Nation:get("wallachia"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_89ffc600", name = _("Province_c6ff89"), color = 0xc6ff89 }
 province:register()
+province:add_nucleus(Nation:get("france"))
+province:give_to(Nation:get("france"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_89ffe700", name = _("Province_e7ff89"), color = 0xe7ff89 }
 province:register()
@@ -32761,7 +32779,7 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_93ff5e00", name = _("Province_5eff93"), color = 0x5eff93 }
 province:register()
-province:set_terrain(TerrainType:get("desert"))
+province:set_terrain(TerrainType:get("mountain"))
 province = Province:new{ ref_name = "province_93fff600", name = _("Province_f6ff93"), color = 0xf6ff93 }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
@@ -32778,7 +32796,7 @@ province:register()
 province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_99a1ff00", name = _("Province_ffa199"), color = 0xffa199 }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("mountain"))
 province = Province:new{ ref_name = "province_99ffa600", name = _("Province_a6ff99"), color = 0xa6ff99 }
 province:register()
 province:set_terrain(TerrainType:get("desert"))
@@ -32802,7 +32820,9 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_9fff8400", name = _("Province_84ff9f"), color = 0x84ff9f }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:add_nucleus(Nation:get("france"))
+province:give_to(Nation:get("france"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_a000bf00", name = _("Province_bf00a0"), color = 0xbf00a0 }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
@@ -32972,7 +32992,7 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_a0753800", name = _("Province_3875a0"), color = 0x3875a0 }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_a07a4d00", name = _("Province_4d7aa0"), color = 0x4d7aa0 }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
@@ -33146,6 +33166,8 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_a0e25000", name = _("Province_50e2a0"), color = 0x50e2a0 }
 province:register()
+province:add_nucleus(Nation:get("tunis"))
+province:give_to(Nation:get("tunis"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_a0e2a400", name = _("Province_a4e2a0"), color = 0xa4e2a0 }
 province:register()
@@ -33214,7 +33236,7 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_a5ff9300", name = _("Province_93ffa5"), color = 0x93ffa5 }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("mountain"))
 province = Province:new{ ref_name = "province_a7ff7500", name = _("Province_75ffa7"), color = 0x75ffa7 }
 province:register()
 province:set_terrain(TerrainType:get("taiga"))
@@ -33277,7 +33299,9 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_bfd7ff00", name = _("Province_ffd7bf"), color = 0xffd7bf }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:add_nucleus(Nation:get("france"))
+province:give_to(Nation:get("france"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_bfff4900", name = _("Province_49ffbf"), color = 0x49ffbf }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
@@ -33698,7 +33722,9 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_c4ffa300", name = _("Province_a3ffc4"), color = 0xa3ffc4 }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:add_nucleus(Nation:get("france"))
+province:give_to(Nation:get("france"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_c4ffe700", name = _("Province_e7ffc4"), color = 0xe7ffc4 }
 province:register()
 province:add_nucleus(Nation:get("usa"))
@@ -33718,12 +33744,16 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ca2bff00", name = _("Province_ff2bca"), color = 0xff2bca }
 province:register()
+province:add_nucleus(Nation:get("france"))
+province:give_to(Nation:get("france"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_cac7ee00", name = _("Province_eec7ca"), color = 0xeec7ca }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ccff7a00", name = _("Province_7affcc"), color = 0x7affcc }
 province:register()
+province:add_nucleus(Nation:get("france"))
+province:give_to(Nation:get("france"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_cdff8700", name = _("Province_87ffcd"), color = 0x87ffcd }
 province:register()
@@ -33765,6 +33795,8 @@ province:register()
 province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_df9eff00", name = _("Province_ff9edf"), color = 0xff9edf }
 province:register()
+province:add_nucleus(Nation:get("france"))
+province:give_to(Nation:get("france"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_e000b300", name = _("Province_b300e0"), color = 0xb300e0 }
 province:register()
@@ -34132,13 +34164,13 @@ province:give_to(Nation:get("wallachia"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_e8ff6600", name = _("Province_66ffe8"), color = 0x66ffe8 }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("mountain"))
 province = Province:new{ ref_name = "province_ea05ff00", name = _("Province_ff05ea"), color = 0xff05ea }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ed4cff00", name = _("Province_ff4ced"), color = 0xff4ced }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("desert"))
 province = Province:new{ ref_name = "province_ed54ff00", name = _("Province_ff54ed"), color = 0xff54ed }
 province:register()
 province:set_terrain(TerrainType:get("artic"))
@@ -34162,7 +34194,7 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_f3aaff00", name = _("Province_ffaaf3"), color = 0xffaaf3 }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("mountain"))
 province = Province:new{ ref_name = "province_f5ff7200", name = _("Province_72fff5"), color = 0x72fff5 }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
@@ -34203,6 +34235,8 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ff2d2d00", name = _("Province_2d2dff"), color = 0x2d2dff }
 province:register()
+province:add_nucleus(Nation:get("france"))
+province:give_to(Nation:get("france"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ff2d4600", name = _("Province_462dff"), color = 0x462dff }
 province:register()
@@ -34224,10 +34258,12 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ff463f00", name = _("Province_3f46ff"), color = 0x3f46ff }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:add_nucleus(Nation:get("france"))
+province:give_to(Nation:get("france"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_ff499b00", name = _("Province_9b49ff"), color = 0x9b49ff }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_ff4f8000", name = _("Province_804fff"), color = 0x804fff }
 province:register()
 province:add_nucleus(Nation:get("united_kingdom"))
@@ -34238,6 +34274,8 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ff549b00", name = _("Province_9b54ff"), color = 0x9b54ff }
 province:register()
+province:add_nucleus(Nation:get("france"))
+province:give_to(Nation:get("france"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ff54b400", name = _("Province_b454ff"), color = 0xb454ff }
 province:register()
@@ -34271,7 +34309,7 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ff6a3d00", name = _("Province_3d6aff"), color = 0x3d6aff }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("mountain"))
 province = Province:new{ ref_name = "province_ff6bc800", name = _("Province_c86bff"), color = 0xc86bff }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
@@ -34286,7 +34324,7 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ff756000", name = _("Province_6075ff"), color = 0x6075ff }
 province:register()
-province:set_terrain(TerrainType:get("desert"))
+province:set_terrain(TerrainType:get("mountain"))
 province = Province:new{ ref_name = "province_ff77b900", name = _("Province_b977ff"), color = 0xb977ff }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
@@ -34313,13 +34351,15 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ff89f900", name = _("Province_f989ff"), color = 0xf989ff }
 province:register()
+province:add_nucleus(Nation:get("france"))
+province:give_to(Nation:get("france"))
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ff8c9500", name = _("Province_958cff"), color = 0x958cff }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ff907500", name = _("Province_7590ff"), color = 0x7590ff }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("savanna"))
 province = Province:new{ ref_name = "province_ff924f00", name = _("Province_4f92ff"), color = 0x4f92ff }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
@@ -34359,7 +34399,7 @@ province:register()
 province:set_terrain(TerrainType:get("plains"))
 province = Province:new{ ref_name = "province_ffadb600", name = _("Province_b6adff"), color = 0xb6adff }
 province:register()
-province:set_terrain(TerrainType:get("plains"))
+province:set_terrain(TerrainType:get("mountain"))
 province = Province:new{ ref_name = "province_ffadcf00", name = _("Province_cfadff"), color = 0xcfadff }
 province:register()
 province:set_terrain(TerrainType:get("plains"))
