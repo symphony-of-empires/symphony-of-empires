@@ -2,7 +2,7 @@
 korea = Nation:new{ ref_name = "korea", name = _("Korea") }
 korea.adjective = _("Korean")
 korea:register()
-korea:add_accepted_culture(belgian)
+korea:add_accepted_culture(Culture:get("korean"))
 korea:add_client_hint(monarchy, _("Korea"), 0x808080)
 
 taiwan = Nation:new{ ref_name = "taiwan", name = _("Taiwan") }
