@@ -42,7 +42,6 @@
 #include <vector>
 #include <fstream>
 #include <filesystem>
-#include <ctype>
 
 /* Visual Studio is not posix so we have to define PATH_MAX ourselves */
 #ifndef MAX_PATH
