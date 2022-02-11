@@ -684,7 +684,7 @@ int LuaAPI::add_province(lua_State* L) {
     province->color = (bswap32(lua_tonumber(L, 2)) >> 8) | 0xff000000;
     
     province->name = luaL_checkstring(L, 3);
-    province->budget = DECIMAL_FLOAT_TO_3P(500, 000);
+    province->budget = DECIMAL_3P(500, 000);
 
     // Set bounding box of province to the whole world (will later be resized at the bitmap-processing step)
     province->max_x = std::numeric_limits<uint32_t>::min();
@@ -732,7 +732,7 @@ int LuaAPI::add_province_industry(lua_State* L) {
     Building building;
     building.type = g_world->building_types.at(lua_tonumber(L, 2));
     building.owner = g_world->nations.at(lua_tonumber(L, 3));
-    building.budget = DECIMAL_FLOAT_TO_3P(100, 000);
+    building.budget = DECIMAL_3P(100, 000);
     building.province = province;
     if(building.type->is_factory == true) {
         building.create_factory();

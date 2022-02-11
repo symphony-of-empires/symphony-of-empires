@@ -335,7 +335,10 @@ DECIMAL_TYPE_3P Nation::get_research_points(void) const {
         for(const auto& pop : province->pops) {
             research += pop.size * pop.literacy;
         }
-        research /= province->pops.size();
+
+        if(research && !province->pops.empty()) {
+            research /= province->pops.size();
+        }
     }
     return research / DECIMAL_3P(100, 000);
 }
