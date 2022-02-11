@@ -368,9 +368,9 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
                 pop.type = g_world->pop_types.at(0);
                 pop.culture = g_world->cultures.at(0);
                 pop.religion = g_world->religions.at(0);
-                pop.size = 1000.f / std::max(0.01f, pop_type->social_value);
-                pop.literacy = max_sv / std::max(0.01f, pop_type->social_value);
-                pop.budget = 100.f * max_sv;
+                pop.size = DECIMAL_3P(1000, 000) / std::max<DECIMAL_TYPE_3P>(DECIMAL_3P(0, 010), pop_type->social_value);
+                pop.literacy = max_sv / std::max<DECIMAL_TYPE_3P>(DECIMAL_3P(0, 010), pop_type->social_value);
+                pop.budget = DECIMAL_3P(100, 000) * max_sv;
                 o.province->pops.push_back(pop);
             }
             o.gs.map->update_mapmode();

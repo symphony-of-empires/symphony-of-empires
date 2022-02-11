@@ -26,6 +26,7 @@
 #pragma once
 
 #include <cmath>
+#include "unified_render/decimal.hpp"
 
 enum AllowancePolicy {
     // Nobody can enter the country
@@ -134,49 +135,49 @@ public:
     bool foreign_trade;
 
     // Tax % for importing products
-    float import_tax;
+    DECIAML_TYPE_3P import_tax;
 
     // Tax % for exporting products
-    float export_tax;
+    DECIAML_TYPE_3P export_tax;
 
     // Tax % for domestic imports
-    float domestic_import_tax;
+    DECIAML_TYPE_3P domestic_import_tax;
 
     // Tax % for domestic exports
-    float domestic_export_tax;
+    DECIAML_TYPE_3P domestic_export_tax;
 
     // Flat tax rhs on the low-wage pops
-    float poor_flat_tax;
+    DECIAML_TYPE_3P poor_flat_tax;
 
     // Flat tax rhs on the medium-wage pops
-    float med_flat_tax;
+    DECIAML_TYPE_3P med_flat_tax;
 
     // Flat tax rhs on the high-wage pops
-    float rich_flat_tax;
+    DECIAML_TYPE_3P rich_flat_tax;
 
     // The tax given to the industrial sector
-    float industry_tax;
+    DECIAML_TYPE_3P industry_tax;
 
     // Spending done on military (% of budget)
-    float military_spending;
+    DECIAML_TYPE_3P military_spending;
 
     // Units can grab anything they want from DOMESTIC provinces
     // Please notice the DOMESTIC part of this, for foreign "free grab"; check diplomatic relations!!
     bool free_supplies;
 
     // Minimum wage
-    float min_wage;
+    DECIAML_TYPE_3P min_wage;
 
     // Minimum social value for people to be accounted on the parliament
-    float min_sv_for_parliament;
+    DECIAML_TYPE_3P min_sv_for_parliament;
 
     inline int difference(const Policies& rhs) {
         int diff = 0;
 
-        diff += std::abs(rhs.migration - this->migration);
-        diff += std::abs(rhs.immigration - this->immigration);
-        diff += std::abs(rhs.censorship - this->censorship);
-        diff += std::abs(rhs.build_factories - this->build_factories);
+        diff += std::abs(static_cast<int>(rhs.migration) - static_cast<int>(this->migration));
+        diff += std::abs(static_cast<int>(rhs.immigration) - static_cast<int>(this->immigration));
+        diff += std::abs(static_cast<int>(rhs.censorship) - static_cast<int>(this->censorship));
+        diff += std::abs(static_cast<int>(rhs.build_factories) - static_cast<int>(this->build_factories));
         diff += std::abs(rhs.build_infrastructure - this->build_infrastructure);
         diff += (rhs.national_id != this->national_id) ? 1 : 0;
         diff += (rhs.men_suffrage != this->men_suffrage) ? 1 : 0;

@@ -26,14 +26,15 @@
 #include <algorithm>
 #include <cstdio>
 
+#include "unified_render/print.hpp"
+#include "unified_render/serializer.hpp"
+#include "unified_render/thread_pool.hpp"
+
 #include "action.hpp"
 #include "server/economy.hpp"
 #include "world.hpp"
-#include "unified_render/print.hpp"
-#include "unified_render/serializer.hpp"
 #include "io_impl.hpp"
 #include "server/server_network.hpp"
-#include "unified_render/thread_pool.hpp"
 #include "product.hpp"
 #include "good.hpp"
 #include "emigration.hpp"
@@ -120,10 +121,10 @@ void Economy::do_tick(World& world) {
     auto orders_good = std::vector<std::vector<OrderGoods>>(world.goods.size());
 
     // Buildings who have fullfilled requirements to build stuff will spawn a unit
-
     for(const auto& province : world.provinces) {
         for(size_t j = 0; j < province->get_buildings().size(); j++) {
             auto& building = province->get_buildings()[j];
+            building.production_cost = 0.f;
 
             size_t needed_laborers = 0, available_laborers = 0;
             size_t needed_farmers = 0, available_farmers = 0;
@@ -139,22 +140,20 @@ void Economy::do_tick(World& world) {
                     const size_t employed = 500;
                     if(output->good->is_edible) {
                         needed_farmers += employed;
-                    }
-                    else {
+                    } else {
                         needed_laborers += employed;
                     }
                     needed_entrepreneurs += employed / 100;
                     ++i;
                 }
-            }
-            else {
+            } else {
                 needed_laborers = 50;
                 needed_farmers = 50;
                 needed_entrepreneurs = 50;
             }
 
             const Province::Id province_id = world.get_id(province);
-            auto province_workers = available_workers[province_id];
+            auto province_workers = available_workers[world.get_id(province)];
             // Search through all the job requests
 
             // Industries require 2 (or 3) types of POPs to correctly function
@@ -167,12 +166,11 @@ void Economy::do_tick(World& world) {
                 }
 
                 Workers& workers = province_workers.farmers[i];
-
                 const size_t employed = std::min(needed_farmers - available_farmers, workers.amount);
                 available_farmers += employed;
 
                 // Give pay to the POP
-                const float payment = employed * province->controller->current_policy.min_wage;
+                const DECIMAL_TYPE_3P payment = employed * province->controller->current_policy.min_wage;
                 workers.pop.budget += payment * building.get_owner()->get_salary_paid_mod();
                 building.budget -= payment;
                 workers.amount -= employed;
@@ -191,12 +189,11 @@ void Economy::do_tick(World& world) {
                 }
 
                 Workers& workers = province_workers.laborers[i];
-
                 const size_t employed = std::min(needed_laborers - available_laborers, workers.amount);
                 available_laborers += employed;
 
                 // Give pay to the POP
-                const float payment = employed * province->controller->current_policy.min_wage;
+                const DECIMAL_TYPE_3P payment = employed * province->controller->current_policy.min_wage;
                 workers.pop.budget += payment * building.get_owner()->get_salary_paid_mod();
                 building.budget -= payment;
                 workers.amount -= employed;
@@ -215,12 +212,11 @@ void Economy::do_tick(World& world) {
                 }
 
                 Workers& workers = province_workers.entrepreneurs[i];
-
                 const size_t employed = std::min(needed_entrepreneurs - available_entrepreneurs, workers.amount);
                 available_entrepreneurs += employed;
 
                 // Give pay to the POP
-                const float payment = employed * province->controller->current_policy.min_wage;
+                const DECIMAL_TYPE_3P payment = employed * province->controller->current_policy.min_wage;
                 workers.pop.budget += payment * building.get_owner()->get_salary_paid_mod();
                 building.budget -= payment;
                 workers.amount -= employed;
@@ -243,7 +239,7 @@ void Economy::do_tick(World& world) {
                         }
 
                         // Government-required supplies are super important for companies
-                        product->demand += std::max(100.f, req.second / 1000.f);
+                        product->demand += std::max<DECIMAL_TYPE_3P>(DECIMAL_3P(100, 000), req.second / DECIMAL_3P(1000, 000));
                     }
 
                     if(req.second) {
@@ -253,16 +249,14 @@ void Economy::do_tick(World& world) {
                 }
 
                 // Ratio of health:person is 25, thus making units very expensive
-                const size_t army_size = building.working_unit_type->max_health * 25;
-
+                const size_t army_size = building.working_unit_type->max_health + 100 * 25;
                 // TODO: Consume special soldier pops instead of farmers!!!
                 auto it = std::find_if(province->pops.begin(), province->pops.end(), [building, army_size](const auto& e) {
                     return (e.size >= army_size && e.type->group == PopGroup::FARMER);
                 });
                 if(it == province->pops.end()) {
                     can_build_unit = false;
-                }
-                else {
+                } else {
                     // TODO: Maybe delete if size becomes 0?
                     (*it).size -= army_size;
 
@@ -271,10 +265,10 @@ void Economy::do_tick(World& world) {
                     unit->set_province(*province);
                     unit->type = building.working_unit_type;
                     unit->owner = building.get_owner();
-                    unit->budget = 5000.f;
-                    unit->experience = 1.f;
-                    unit->morale = 1.f;
-                    unit->supply = 1.f;
+                    unit->budget = DECIMAL_3P(5000, 000);
+                    unit->experience = DECIMAL_3P(1, 000);
+                    unit->morale = DECIMAL_3P(1, 000);
+                    unit->supply = DECIMAL_3P(1, 000);
                     unit->defensive_ticks = 0;
                     unit->size = unit->type->max_health;
                     unit->base = unit->size;
@@ -282,15 +276,7 @@ void Economy::do_tick(World& world) {
                     // Notify all clients of the server about this new unit
                     building.working_unit_type = nullptr;
                     world.insert(unit);
-
-                    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
-                    Archive ar = Archive();
-                    ActionType action = ActionType::UNIT_ADD;
-                    ::serialize(ar, &action); // ActionInt
-                    ::serialize(ar, unit); // UnitObj
-                    packet.data(ar.get_buffer(), ar.size());
-                    g_server->broadcast(packet);
-
+                    g_server->broadcast(Action::UnitAdd::form_packet(*unit));
                     print_info("[%s]: Has built an unit of [%s]", province->ref_name.c_str(), unit->type->ref_name.c_str());
                 }
             }
@@ -322,12 +308,10 @@ void Economy::do_tick(World& world) {
                 print_info("- %zu entrepreneurs (%zu needed)", available_entrepreneurs, needed_entrepreneurs);*/
                 if(!building.workers) {
                     building.days_unoperational++;
-
                     // TODO: We should tax building daily income instead of by it's total budget
                     const float loss_by_tax = building.budget * province->controller->current_policy.industry_tax;
                     building.budget -= loss_by_tax;
                     province->controller->budget += loss_by_tax;
-
                     print_info("[%s]: %zu workers on building of type [%s]", province->ref_name.c_str(), 0, building.type->ref_name.c_str());
                     continue;
                 }
@@ -335,8 +319,7 @@ void Economy::do_tick(World& world) {
 
                 world.orders_mutex.lock();
                 for(const auto& input : building.type->inputs) {
-                    OrderGoods order ={};
-
+                    OrderGoods order = OrderGoods{};
                     order.payment = building.willing_payment;
                     order.good = input;
                     order.building_idx = j;
@@ -346,8 +329,7 @@ void Economy::do_tick(World& world) {
                     // Farmers can only work with edibles and laborers can only work for edibles
                     if(input->is_edible) {
                         order.quantity = (available_farmers / needed_farmers) * 5000;
-                    }
-                    else {
+                    } else {
                         order.quantity = (available_laborers / needed_laborers) * 5000;
                     }
 
@@ -364,7 +346,7 @@ void Economy::do_tick(World& world) {
                             continue;
                         }
 
-                        product->demand += std::min(100.f, order.quantity / 1000.f);
+                        product->demand += std::min<DECIMAL_TYPE_3P>(DECIMAL_3P(100, 000), order.quantity / DECIMAL_3P(1000, 000));
                     }
                 }
                 world.orders_mutex.unlock();
@@ -377,18 +359,15 @@ void Economy::do_tick(World& world) {
                 // Place deliver orders (we are a RGO)
                 world.delivers_mutex.lock();
                 for(size_t k = 0; k < building.type->outputs.size(); k++) {
-                    DeliverGoods deliver = {};
-
+                    DeliverGoods deliver = DeliverGoods{};
                     deliver.payment = building.willing_payment;
                     deliver.good = building.type->outputs[k];
                     deliver.building_idx = j;
                     deliver.province = province;
                     deliver.product = building.output_products[k];
-
                     if(deliver.good->is_edible) {
                         deliver.quantity = (available_farmers / needed_farmers) * 5000;
-                    }
-                    else {
+                    } else {
                         deliver.quantity = (available_laborers / needed_laborers) * 5000;
                     }
 
@@ -400,8 +379,8 @@ void Economy::do_tick(World& world) {
 
                     // Cannot be below production cost, so we can be profitable and we need
                     // to raise prices
-                    if(deliver.product->price < building.production_cost * 1.2f) {
-                        deliver.product->price = building.production_cost * 1.2f;
+                    if(deliver.product->price < building.production_cost * DECIMAL_3P(1, 200)) {
+                        deliver.product->price = building.production_cost * DECIMAL_3P(1, 200);
                     }
 
                     world.delivers.push_back(deliver);
@@ -418,9 +397,8 @@ void Economy::do_tick(World& world) {
                     continue;
                 }
 
-                OrderGoods order ={};
-                order.quantity = good.second;
-                order.quantity *= building.get_owner()->get_industry_input_mod();
+                OrderGoods order = OrderGoods{};
+                order.quantity = good.second * building.get_owner()->get_industry_input_mod();
                 // TODO: Make this dynamic
                 order.payment = building.willing_payment;
                 order.good = good.first;
@@ -437,9 +415,8 @@ void Economy::do_tick(World& world) {
                     continue;
                 }
 
-                OrderGoods order ={};
-                order.quantity = good.second;
-                order.quantity *= building.get_owner()->get_industry_input_mod();
+                OrderGoods order = OrderGoods{};
+                order.quantity = good.second * building.get_owner()->get_industry_input_mod();
                 // TODO: Make this dynamic
                 order.payment = building.willing_payment;
                 order.good = good.first;
@@ -455,9 +432,11 @@ void Economy::do_tick(World& world) {
     std::sort(world.delivers.begin(), world.delivers.end(), [](const DeliverGoods& lhs, const DeliverGoods& rhs) {
         return lhs.payment > rhs.payment;
     });
+    world.delivers.shrink_to_fit();
     std::sort(world.orders.begin(), world.orders.end(), [](const OrderGoods& lhs, const OrderGoods& rhs) {
         return lhs.payment > rhs.payment;
     });
+    world.orders.shrink_to_fit();
 
     orders_good.shrink_to_fit();
     for(const auto& order : world.orders) {
@@ -481,7 +460,6 @@ void Economy::do_tick(World& world) {
 
         // Check all orders
         auto& order_list = orders_good[world.get_id(deliver.good)];
-        //for(size_t j = 0; j < world.orders.size(); j++) {
         for(size_t j = 0; j < order_list.size(); j++) {
             OrderGoods& order = order_list[j];
             const Policies& order_policy = order.province->controller->current_policy;
@@ -494,10 +472,10 @@ void Economy::do_tick(World& world) {
                 }
             }
 
-            const float order_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
-            const float deliver_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
+            const DECIMAL_TYPE_3P order_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
+            const DECIMAL_TYPE_3P deliver_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
 
-            float total_order_cost, total_deliver_cost;
+            DECIMAL_TYPE_3P total_order_cost, total_deliver_cost;
             if(order.province->controller != deliver.province->controller) {
                 // International trade
                 total_order_cost = order_cost * order_policy.import_tax;
@@ -511,12 +489,12 @@ void Economy::do_tick(World& world) {
 
             // Orders payment should also cover the import tax and a deliver payment should also cover the export
             // tax too. Otherwise we can't deliver
-            if(order.payment < total_order_cost && total_order_cost > 0.f) {
+            if(order.payment < total_order_cost && total_order_cost > DECIMAL_3P(0, 000)) {
                 if(order.type == OrderType::INDUSTRIAL) {
                     order.province->get_buildings()[order.building_idx].willing_payment = total_order_cost;
                 }
                 continue;
-            } else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
+            } else if(deliver.payment < total_deliver_cost && total_deliver_cost > DECIMAL_3P(0, 000)) {
                 deliver.province->get_buildings()[deliver.building_idx].willing_payment = total_deliver_cost;
                 continue;
             }
@@ -528,8 +506,7 @@ void Economy::do_tick(World& world) {
             deliver.province->controller->budget += total_deliver_cost - deliver_cost;
 
             // Province receives a small (military) supply buff from commerce
-            order.province->supply_rem += 5.f;
-            order.province->supply_rem = std::min(order.province->supply_limit, order.province->supply_rem);
+            order.province->supply_rem = std::min(order.province->supply_limit, DECIMAL_3P(5, 000));
 
             // Obtain number of goods that we can satisfy
             size_t count = std::min<size_t>(order.quantity, deliver.quantity);
@@ -550,15 +527,13 @@ void Economy::do_tick(World& world) {
                     }
                     p.second -= std::min(p.second, count);
                 }
-            }
-            else if(order.type == OrderType::UNIT) {
+            } else if(order.type == OrderType::UNIT) {
                 // TODO: We should deduct and set willing payment from military spendings
                 order.province->get_buildings()[order.building_idx].get_owner()->budget -= total_order_cost;
                 for(auto& p : order.province->get_buildings()[order.building_idx].req_goods) {
                     if(p.first != deliver.good) {
                         continue;
                     }
-
                     p.second -= std::min(p.second, count);
                     print_info("Delivered %zu goods (%zu remaining!), of type %s", count, p.second, order.good->ref_name.c_str());
                 }
@@ -595,10 +570,8 @@ void Economy::do_tick(World& world) {
     // Drop all rejected delivers who didn't got transported
     for(size_t i = 0; i < world.delivers.size(); i++) {
         const DeliverGoods& deliver = world.delivers[i];
-
         // Add up to province stockpile
         deliver.province->stockpile[world.get_id(deliver.product->good)] += deliver.quantity;
-
         // Increment supply because of incremented stockpile
         deliver.product->supply += deliver.quantity;
     }
@@ -611,11 +584,7 @@ void Economy::do_tick(World& world) {
     // Now, it's like 1 am here, but i will try to write a very nice economic system
     // TODO: There is a lot to fix here, first the economy system commits inverse great depression and goes way too happy
     std::for_each(world.provinces.begin(), world.provinces.end(), [&world](auto& province) {
-        if(province->controller == nullptr) {
-            return;
-        }
-
-        if(province->terrain_type->is_water_body) {
+        if(province->controller == nullptr || province->terrain_type->is_water_body) {
             return;
         }
 
@@ -648,60 +617,52 @@ void Economy::do_tick(World& world) {
                     continue;
                 }
 
-                unsigned int bought;
-                bought = std::rand() % pop.size;
-                if(!good->is_edible) {
-                    // Slaves cannot buy commodities
-                    if(pop.type->group == PopGroup::Slave) {
-                        continue;
-                    }
-                }
+                // No they can, mostly because otherwise performance is shit
+                //if(!good->is_edible) {
+                //    // Slaves can't buy commodities
+                //    //if(pop.type->group == PopGroup::Slave) {
+                //    //    continue;
+                //    //}
+                //}
 
                 // Only buy the available stuff
-                bought = std::min<unsigned int>(bought, province->stockpile[world.get_id(good)]);
+                unsigned int bought = std::min<unsigned int>(std::rand() % pop.size, province->stockpile[world.get_id(good)]);
                 if(!bought) {
                     continue;
                 }
 
                 // Delete items from stockpile
-                province->stockpile[world.get_id(good)] -= std::min<unsigned int>(province->stockpile[world.get_id(good)], bought);
+                province->stockpile[world.get_id(good)] -= bought;
 
                 // Uncomment to see buyers
                 //print_info("Pop with budget %f bought %zu %s", pop.budget, (size_t)bought, product->good->name.c_str());
 
                 if(good->is_edible) {
-                    pop.life_needs_met += (float)pop.size / (float)bought;
-                }
-                else {
-                    pop.everyday_needs_met += (float)pop.size / (float)bought;
+                    pop.life_needs_met += pop.size / bought;
+                } else {
+                    pop.everyday_needs_met += pop.size / bought;
                 }
             }
 
             // Humans can survive 8 days without eating anything
-            pop.life_needs_met -= 0.01f;
+            pop.life_needs_met -= DECIMAL_3P(0, 010);
 
             // x2.5 life needs met modifier, that is the max allowed
-            pop.life_needs_met = std::min<float>(1.2f, std::max<float>(pop.life_needs_met, -5.f));
-            pop.everyday_needs_met = std::min<float>(1.5f, std::max<float>(pop.everyday_needs_met, -5.f));
+            pop.life_needs_met = std::min<DECIMAL_TYPE_3P>(DECIMAL_3P(1, 2000), std::max<DECIMAL_TYPE_3P>(pop.life_needs_met, DECIMAL_3P(-5, 000)));
+            pop.everyday_needs_met = std::min<DECIMAL_TYPE_3P>(DECIMAL_3P(1, 5000), std::max<DECIMAL_TYPE_3P>(pop.everyday_needs_met, DECIMAL_3P(-5, 000)));
 
             // Current liking of the party is influenced by the life_needs_met
-            pop.ideology_approval[world.get_id(province->controller->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
-
-            // Higher literacy will mean there will be less births due to sex education
-            // and will also mean that - there would be less deaths due to higher knewledge
-            int growth;
+            pop.ideology_approval[world.get_id(province->controller->ideology)] += (pop.life_needs_met + DECIMAL_3P(1, 000)) / DECIMAL_3P(10, 000);
 
             // NOTE: We used to have this thing where anything below 2.5 meant everyone dies
             // and this was removed because it's such an unescesary detail that consumes precious
             // CPU branching prediction... and we can't afford that!
 
             // Starvation in -1 or 0 or >1 are amortized by literacy
-            growth = pop.life_needs_met / pop.literacy;
-
-            if(growth < 0 && (size_t)std::abs(growth) > pop.size) {
-                growth = -pop.size;
-            }
-
+            DECIMAL_TYPE_3P growth = pop.life_needs_met / pop.literacy;
+            //if(growth < 0 && (size_t)std::abs(growth) > pop.size) {
+            //    growth = -pop.size;
+            //}
             growth *= (growth > 0) ? province->controller->get_reproduction_mod() : province->controller->get_death_mod();
             pop.size += growth;
 
@@ -712,11 +673,11 @@ void Economy::do_tick(World& world) {
             // Met life needs means less militancy
             // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
             // and the opposite happens with negative life needs
-            pop.militancy += 0.01f * (-pop.life_needs_met);
-            pop.con += 0.01f * (-pop.life_needs_met);
-
-            pop.militancy += 0.01f * province->controller->get_militancy_mod();
-            pop.con += 0.01f * province->controller->get_militancy_mod();
+            pop.militancy += DECIMAL_3P(0, 010) * (-pop.life_needs_met);
+            pop.con += DECIMAL_3P(0, 010) * (-pop.life_needs_met);
+            // TODO: Make these faster ;)
+            //pop.militancy += DECIMAL_3P(0, 010) * province->controller->get_militancy_mod();
+            //pop.con += DECIMAL_3P(0, 010) * province->controller->get_militancy_mod();
         }
     });
     do_emigration(world);
@@ -736,10 +697,10 @@ void Economy::do_tick(World& world) {
         }
 
         // Total anger in population (global)
-        float total_anger = 0.f;
+        DECIMAL_TYPE_3P total_anger = DECIMAL_3P(0, 000);
         // Anger per ideology (how much we hate the current ideology)
         std::vector<float> ideology_anger(world.ideologies.size(), 0.f);
-        const float coup_chances = 1000.f;
+        const DECIMAL_TYPE_3P coup_chances = DECIMAL_3P(1000, 000);
         for(const auto& province : nation->owned_provinces) {
             // Nobody can coup from occupied territory!
             if(province->controller != nation) {
@@ -750,23 +711,23 @@ void Economy::do_tick(World& world) {
                 // TODO: Ok, look, the justification is that educated people
                 // almost never do coups - in comparasion to uneducated
                 // peseants, rich people don't need to protest!
-                const float anger = (pop.militancy * pop.con) / std::max(pop.literacy, 1.f) / std::max(pop.life_needs_met, 0.f);
+                const float anger = (pop.militancy * pop.con) / std::max(pop.literacy, DECIMAL_3P(1, 000)) / std::max(pop.life_needs_met, DECIMAL_3P(0, 000));
                 total_anger += anger;
 
                 for(const auto& ideology : world.ideologies) {
-                    ideology_anger[world.get_id(ideology)] += (pop.ideology_approval[world.get_id(ideology)] * anger) * (pop.size / 1000.f);
+                    ideology_anger[world.get_id(ideology)] += (pop.ideology_approval[world.get_id(ideology)] * anger) * (pop.size / 1000);
                 }
             }
         }
 
         // Rebellions!
         // TODO: Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-        if(std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) <= 100.f) {
+        if(std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) <= DECIMAL_3P(100, 000)) {
             // Compile list of uprising provinces
             std::vector<Province*> uprising_provinces;
             for(const auto& province : nation->owned_provinces) {
-                float province_anger = 0.f;
-                float province_threshold = 0.f;
+                DECIMAL_TYPE_3P province_anger = DECIMAL_3P(0, 000);
+                DECIMAL_TYPE_3P province_threshold = DECIMAL_3P(0, 000);
                 for(const auto& pop : province->pops) {
                     province_anger += pop.militancy * pop.con;
                     province_threshold += pop.literacy * pop.life_needs_met;
@@ -790,8 +751,11 @@ void Economy::do_tick(World& world) {
             dup_nation->ideology = world.ideologies[std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()))];
             world.insert(dup_nation);
             for(auto& _nation : world.nations) {
-                _nation->relations.resize(world.nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
+                _nation->relations.resize(world.nations.size(), NationRelation{ DECIMAL_3P(0, 000), false, false, false, false, false, false, false, false, true, false });
             }
+
+            // Tell the clients about this new nation
+            g_server->broadcast(Action::NationAdd::form_packet(*dup_nation));
 
             // Make the most angry provinces revolt!
             for(auto& province : uprising_provinces) {
@@ -823,7 +787,7 @@ void Economy::do_tick(World& world) {
             // Choose the ideology with most "anger" (the one more probable to coup d'
             // etat) - amgry radicals will surely throw off the current administration
             // while peaceful people won't
-            int idx = std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()));
+            const int idx = std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()));
 
             // Ideology_anger and ideologies are mapped 1:1 - so we just pick up the associated ideology
             // Apply the policies of the ideology
@@ -835,7 +799,7 @@ void Economy::do_tick(World& world) {
             // People who are aligned to the ideology are VERY happy now
             for(const auto& province : nation->owned_provinces) {
                 for(auto& pop : province->pops) {
-                    pop.militancy = -50.f;
+                    pop.militancy = DECIMAL_3P(-50, 000);
                 }
             }
 
@@ -845,20 +809,8 @@ void Economy::do_tick(World& world) {
 
     // Phase 4 of the economy: After all POPs buy their products and all factories have transported their goods (or not)
     // the price of each product is calculated and all markets are closed until the next day
-
-    // Reset production costs
-    for(auto& province : world.provinces) {
-        for(auto& building : province->get_buildings()) {
-            building.production_cost = 0.f;
-        }
-    }
-
     // Close today's price with a change according to demand - supply
     for(const auto& product : world.products) {
-        if(product == nullptr) {
-            continue;
-        }
-
         // Uncomment to see supply-demand
         //if(product->price_vel && product->price > 0.01f)
         //    print_info("%s; Supply: %zu, Demand: %zu, Price %.2f", product->good->name.c_str(), product->supply, product->demand, product->price);

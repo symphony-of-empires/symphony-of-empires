@@ -46,9 +46,9 @@ class Technology;
 // This allows for cases where a country A hates country B, but country B loves country A
 class NationRelation {
 public:
-    float relation;
+    DECIAML_TYPE_3P relation;
     // Interest of a nation on this nation
-    float interest;
+    DECIAML_TYPE_3P interest;
 
     // Whetever commercial operations are allowed on on the target country
     bool has_embargo;
@@ -82,20 +82,20 @@ public:
     // They should never be 0, a modifier of 1.0 is equal to no modifer at
     // all. And a modifier of 0.5 would cause a 1/2. Similar to a 2 which
     // would make a x2
-    float industry_output_mod = 1.f;
-    float industry_input_mod = 1.f;
-    float workers_needed_mod = 1.f;
-    float salary_paid_mod = 1.f;
-    float delivery_cost_mod = 1.f;
-    float literacy_learn_mod = 1.f;
-    float reproduction_mod = 1.f;
-    float death_mod = 1.f;
-    float militancy_mod = 1.f;
-    float con_mod = 1.f;
-    float life_needs_met_mod = 1.f;
-    float everyday_needs_met_mod = 1.f;
-    float luxury_needs_met_mod = 1.f;
-    float immigration_attraction = 1.f;
+    DECIAML_TYPE_3P industry_output_mod = DECIMAL_3P(1, 000);
+    DECIAML_TYPE_3P industry_input_mod = DECIMAL_3P(1, 000);
+    DECIAML_TYPE_3P workers_needed_mod = DECIMAL_3P(1, 000);
+    DECIAML_TYPE_3P salary_paid_mod = DECIMAL_3P(1, 000);
+    DECIAML_TYPE_3P delivery_cost_mod = DECIMAL_3P(1, 000);
+    DECIAML_TYPE_3P literacy_learn_mod = DECIMAL_3P(1, 000);
+    DECIAML_TYPE_3P reproduction_mod = DECIMAL_3P(1, 000);
+    DECIAML_TYPE_3P death_mod = DECIMAL_3P(1, 000);
+    DECIAML_TYPE_3P militancy_mod = DECIMAL_3P(1, 000);
+    DECIAML_TYPE_3P con_mod = DECIMAL_3P(1, 000);
+    DECIAML_TYPE_3P life_needs_met_mod = DECIMAL_3P(1, 000);
+    DECIAML_TYPE_3P everyday_needs_met_mod = DECIMAL_3P(1, 000);
+    DECIAML_TYPE_3P luxury_needs_met_mod = DECIMAL_3P(1, 000);
+    DECIAML_TYPE_3P immigration_attraction = DECIMAL_3P(1, 000);
 };
 
 class Nation : public RefnameEntity<uint16_t> {
@@ -116,27 +116,27 @@ public:
     bool is_accepted_culture(const Culture& culture) const;
     bool is_accepted_religion(const Pop& pop) const;
     bool is_accepted_religion(const Religion& relgion) const;
-    float get_tax(const Pop& pop) const;
+    DECIAML_TYPE_3P get_tax(const Pop& pop) const;
     void give_province(Province& province);
     const NationClientHint& get_client_hint(void);
-    float get_research_points(void) const;
+    DECIAML_TYPE_3P get_research_points(void) const;
     bool can_research(const Technology* tech) const;
     void change_research_focus(Technology* tech);
     std::vector<Nation*> get_allies(void);
-    float get_industry_output_mod(void);
-    float get_industry_input_mod(void);
-    float get_workers_needed_mod(void);
-    float get_salary_paid_mod(void);
-    float get_delivery_cost_mod(void);
-    float get_literacy_learn_mod(void);
-    float get_reproduction_mod(void);
-    float get_death_mod(void);
-    float get_militancy_mod(void);
-    float get_con_mod(void);
-    float get_life_needs_met_mod(void);
-    float get_everyday_needs_met_mod(void);
-    float get_luxury_needs_met_mod(void);
-    float get_immigration_attraction_mod(void);
+    DECIAML_TYPE_3P get_industry_output_mod(void);
+    DECIAML_TYPE_3P get_industry_input_mod(void);
+    DECIAML_TYPE_3P get_workers_needed_mod(void);
+    DECIAML_TYPE_3P get_salary_paid_mod(void);
+    DECIAML_TYPE_3P get_delivery_cost_mod(void);
+    DECIAML_TYPE_3P get_literacy_learn_mod(void);
+    DECIAML_TYPE_3P get_reproduction_mod(void);
+    DECIAML_TYPE_3P get_death_mod(void);
+    DECIAML_TYPE_3P get_militancy_mod(void);
+    DECIAML_TYPE_3P get_con_mod(void);
+    DECIAML_TYPE_3P get_life_needs_met_mod(void);
+    DECIAML_TYPE_3P get_everyday_needs_met_mod(void);
+    DECIAML_TYPE_3P get_luxury_needs_met_mod(void);
+    DECIAML_TYPE_3P get_immigration_attraction_mod(void);
 
     // Nation that has us on their sphere of influence
     // This value is equal to the nation with highest influence on us in the
@@ -147,30 +147,30 @@ public:
     std::vector<NationRelation> relations;
 
     // Number of diplomacy points available
-    float diplomacy_points;
+    DECIAML_TYPE_3P diplomacy_points;
 
     // Total number of prestige
-    float prestige = 0.1f;
+    DECIAML_TYPE_3P prestige = DECIMAL_3P(0, 100);;
 
     // Base literacy applied to all pops
-    float base_literacy;
+    DECIAML_TYPE_3P base_literacy;
 
     // Determines if the nation is civilized
     bool is_civilized;
 
     // Level of infamy
-    float infamy = 0.f;
+    DECIAML_TYPE_3P infamy = 0;
 
     // 3 key scores used to define a nation's minimum prestige, how willing would the AI
     // be to challenge this nations and other valuable stuff
-    float military_score = 0.f, naval_score = 0.f, economy_score = 0.f;
+    DECIAML_TYPE_3P military_score = 0, naval_score = 0, economy_score = 0;
 
     // Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
     // of all products in the nation, which are volatile unless they are sold
-    float budget;
+    DECIAML_TYPE_3P budget;
 
     // Total GDP of the nation
-    float gdp = 0.f;
+    DECIAML_TYPE_3P gdp = 0;
 
     // The capital of this nation (can be nullptr)
     Province* capital = nullptr;
@@ -203,7 +203,7 @@ public:
     std::deque<Event*> inbox;
 
     // Progress on technologies (1:1)
-    std::vector<float> research;
+    std::vector<DECIAML_TYPE_3P> research;
 
     // Current focused tech
     Technology* focus_tech = nullptr;

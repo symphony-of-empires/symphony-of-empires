@@ -167,3 +167,23 @@ UnifiedRender::Networking::Packet FocusTech::form_packet(Technology* technology)
     packet.data(ar.get_buffer(), ar.size());
 	return packet;
 }
+
+UnifiedRender::Networking::Packet NationAdd::form_packet(const Nation& nation) {
+    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+    Archive ar = Archive();
+    ActionType action = ActionType::NATION_ADD;
+    ::serialize(ar, &action);
+    ::serialize(ar, &nation);
+    packet.data(ar.get_buffer(), ar.size());
+    return packet;
+}
+
+UnifiedRender::Networking::Packet UnitAdd::form_packet(const Unit& unit) {
+    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+    Archive ar = Archive();
+    ActionType action = ActionType::UNIT_ADD;
+    ::serialize(ar, &action);
+    ::serialize(ar, &unit);
+    packet.data(ar.get_buffer(), ar.size());
+    return packet;
+}
