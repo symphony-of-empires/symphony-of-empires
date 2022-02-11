@@ -67,14 +67,6 @@
 #include "client/rivers.hpp"
 
 void get_blob_bounds(std::set<Province*>* visited_provinces, const Nation& nation, const Province& province, glm::vec2* min, glm::vec2* max) {
-    // min
-    min->x = std::min<size_t>(min->x, province.min_x);
-    min->y = std::min<size_t>(min->y, province.min_y);
-
-    // max
-    max->x = std::max<size_t>(max->x, province.max_x);
-    max->y = std::max<size_t>(max->y, province.max_y);
-
     // Iterate over all neighbours
     for(const auto& neighbour : province.neighbours) {
         // Do not visit again
@@ -83,9 +75,17 @@ void get_blob_bounds(std::set<Province*>* visited_provinces, const Nation& natio
         }
 
         // Must own it
-        if(province.owner != &nation) {
+        if(neighbour->owner != &nation) {
             continue;
         }
+
+        // min
+        min->x = std::min<size_t>(min->x, neighbour->min_x);
+        min->y = std::min<size_t>(min->y, neighbour->min_y);
+
+        // max
+        max->x = std::max<size_t>(max->x, neighbour->max_x);
+        max->y = std::max<size_t>(max->y, neighbour->max_y);
 
         visited_provinces->insert(neighbour);
         get_blob_bounds(visited_provinces, nation, *neighbour, min, max);
