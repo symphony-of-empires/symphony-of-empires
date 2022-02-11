@@ -32,8 +32,8 @@
 #include <type_traits>
 #include "good.hpp"
 #include "nation.hpp"
-
 #include "unified_render/entity.hpp"
+#include "unified_render/decimal.hpp"
 
 // Defines a type of unit, it can be a tank, garrison, infantry, etc
 // this is moddable via a lua script and new unit types can be added
@@ -42,11 +42,11 @@ public:
     //UnitType();
     //~UnitType();
 
-    float supply_consumption;
-    float speed;
-    float max_health;
-    float defense;
-    float attack;
+    DECIAML_TYPE_3P supply_consumption;
+    DECIAML_TYPE_3P speed;
+    DECIAML_TYPE_3P max_health;
+    DECIAML_TYPE_3P defense;
+    DECIAML_TYPE_3P attack;
 
     // Max ticks allowed for defensive bonus - this basically prevents an unit from staying 200
     // years on the same spot and be fucking indestructible
@@ -54,7 +54,7 @@ public:
 
     // The defense provided by the unit each tick for staying on the same position
     // aka. digging trenches
-    float position_defense;
+    DECIAML_TYPE_3P position_defense;
 
     // Capacity of units that can be carried (transport units)
     size_t capacity;
@@ -78,12 +78,12 @@ public:
     //UnitTrait();
     //~UnitTrait();
     
-    float supply_consumption_mod;
-    float speed_mod;
-    float max_health_mod;
-    float defense_mod;
-    float attack_mod;
-    float morale_mod;
+    DECIAML_TYPE_3P supply_consumption_mod;
+    DECIAML_TYPE_3P speed_mod;
+    DECIAML_TYPE_3P max_health_mod;
+    DECIAML_TYPE_3P defense_mod;
+    DECIAML_TYPE_3P attack_mod;
+    DECIAML_TYPE_3P morale_mod;
 };
 
 // Roughly a batallion, consisting of approximately 500 soldiers each
@@ -93,7 +93,7 @@ public:
     //~Unit();
 
     void attack(Unit& enemy);
-    std::pair<float, float> get_pos(void) const;
+    std::pair<int, int> get_pos(void) const;
     void set_target(Province& province);
     float get_speed(const Province& province) const;
     float get_speed(void) const;
@@ -105,21 +105,19 @@ public:
 
     // Size of the unit (soldiers in unit)
     size_t size;
-
     // Base size of the unit (max size due to anti-attrition)
     size_t base;
     
-    Province* target = nullptr;
-    Province* province = nullptr;
-    float move_progress;
+    Province* target = nullptr,* province = nullptr;
+    DECIAML_TYPE_3P move_progress;
 
     // Who owns this unit
     Nation* owner;
 
-    float morale;
+    DECIAML_TYPE_3P morale;
 
     // For perspective, 0.5 is the normal unit (i.e a soldier POP)
-    float experience;
+    DECIAML_TYPE_3P experience;
 
     // Used to "ignore" an unit when doing any check, this allows other units to
     // attack this unit
@@ -129,10 +127,10 @@ public:
     uint64_t defensive_ticks;
 
     // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
-    float supply;
+    DECIAML_TYPE_3P supply;
 
     // Money that the unit has
-    float budget;
+    DECIAML_TYPE_3P budget;
     
     std::vector<UnitTrait*> traits;
 

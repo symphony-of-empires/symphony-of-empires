@@ -156,4 +156,14 @@ namespace Action {
     public:
 		static UnifiedRender::Networking::Packet form_packet(Technology* technology);
     };
+
+    class NationAdd {
+    public:
+        static UnifiedRender::Networking::Packet form_packet(const Nation& nation);
+    };
+
+    class UnitAdd {
+    public:
+        static UnifiedRender::Networking::Packet form_packet(const Unit& unit);
+    };
 };

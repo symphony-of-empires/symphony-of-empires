@@ -29,6 +29,7 @@
 #include <string>
 #include "unified_render/entity.hpp"
 #include "ideology.hpp"
+#include "unified_render/decimal.hpp"
 
 enum class PopGroup {
     BURGEOISE,
@@ -40,7 +41,7 @@ enum class PopGroup {
 
 class PopType : public RefnameEntity<uint8_t> {
 public:
-    float social_value;
+    DECIAML_TYPE_3P social_value;
     PopGroup group;
 };
 
@@ -53,22 +54,14 @@ public:
 
     size_t size;
     size_t unemployed = 0;
-    float literacy;
-
-    float militancy = 0.f;
-    float con = 0.f;
-    float budget = 0.f;
-
-    float savings = 0.f;
-
-    float life_needs_met = 0.f;
-    float everyday_needs_met = 0.f;
-    float luxury_needs_met = 0.f;
+    DECIAML_TYPE_3P life_needs_met = 0, everyday_needs_met = 0, luxury_needs_met = 0;
+    DECIAML_TYPE_3P literacy = 0, militancy = 0, con = 0;
+    DECIAML_TYPE_3P budget = 0, savings = 0;
 
     PopType* type;
     Culture* culture;
     Religion* religion;
 
     // Approval % of all the ideologies (1:1)
-    std::vector<float> ideology_approval;
+    std::vector<DECIAML_TYPE_3P> ideology_approval;
 };

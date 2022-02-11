@@ -71,7 +71,7 @@ public:
     enum OrderType type;
 
     // How many we are willing to pay for the goods to be sent to us
-    float payment;
+    DECIMAL_TYPE_3P payment;
 
     // The ID of the required product
     Good* good;
@@ -98,7 +98,7 @@ public:
 class DeliverGoods {
 public:
     // How many we are willing to pay to deliver this
-    float payment;
+    DECIMAL_TYPE_3P payment;
 
     // ID of the good we are sending
     Good* good;

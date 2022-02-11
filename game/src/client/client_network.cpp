@@ -66,6 +66,9 @@
 #include "io_impl.hpp"
 #include "client/client_network.hpp"
 
+#include "client/game_state.hpp"
+#include "client/map.hpp"
+
 Client* g_client = nullptr;
 Client::Client(GameState& _gs, std::string host, const unsigned port)
     : UnifiedRender::Networking::Client(host, port),
@@ -185,6 +188,15 @@ void Client::net_loop(void) {
                                 throw ClientException("Unknown nation");
                             ::deserialize(ar, nation);
                         }
+                    } break;
+                    case ActionType::NATION_ADD: {
+                        Nation* nation = new Nation();
+                        ::deserialize(ar, nation);
+                        world.insert(nation);
+                        for(auto& _nation : world.nations) {
+                            _nation->relations.resize(world.nations.size(), NationRelation{ DECIMAL_3P(0, 000), false, false, false, false, false, false, false, false, true, false });
+                        }
+                        print_info("New nation [%s]", nation->ref_name.c_str());
                     } break;
                     case ActionType::NATION_ENACT_POLICY: {
                         Nation* nation;

@@ -32,6 +32,7 @@
 #include "pop.hpp"
 
 #include "unified_render/entity.hpp"
+#include "unified_render/decimal.hpp"
 
 class World;
 class Nation;
@@ -62,7 +63,16 @@ public:
 
     // Budget of the province, money stored from taxes, to later be sent into
     // the nation's main wealth ark (or in case of multiple owners - a % of wealth)
-    float budget;
+    DECIAML_TYPE_3P budget;
+
+    // The (military) supply limit of the province, the max number of supplies there can be per tick
+    DECIAML_TYPE_3P supply_limit;
+
+    // The number of remaining (military) supplies in the province
+    DECIAML_TYPE_3P supply_rem;
+
+    // Attractiveness of province
+    DECIAML_TYPE_3P base_attractive = 0.f;
 
     // Number of tiles this province takes
     size_t n_tiles = 0;
@@ -70,12 +80,6 @@ public:
     // Rectangle coordinates (x,y - x,y) for "area" scanning a province when needed
     // (for example, when changing owners)
     size_t min_x = 65532, min_y = 65532, max_x = 0, max_y = 0;
-
-    // The (military) supply limit of the province, the max number of supplies there can be per tick
-    float supply_limit;
-
-    // The number of remaining (military) supplies in the province
-    float supply_rem;
 
     // The owner of this province
     Nation* owner = nullptr;
@@ -99,7 +103,4 @@ public:
 
     std::vector<Product*> products;
     std::vector<Unit*> units;
-
-    // Attractiveness of province
-    float base_attractive = 0.f;
 };

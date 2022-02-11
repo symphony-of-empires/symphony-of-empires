@@ -655,7 +655,7 @@ void World::load_initial(void) {
     UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Creating diplomatic relations"));
     for(const auto& nation : this->nations) {
         // Relations between nations start at 0 (and latter modified by lua scripts)
-        nation->relations.resize(this->nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
+        nation->relations.resize(this->nations.size(), NationRelation{ DECIMAL_3P(0, 000), false, false, false, false, false, false, false, false, true, false });
     }
     UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("World partially intiialized"));
 
@@ -687,20 +687,20 @@ void World::load_mod(void) {
 
     // Default init for policies
     for(auto& nation : this->nations) {
-        nation->budget = 10000.f;
+        nation->budget = DECIMAL_3P(10000, 000);
 
         Policies& policy = nation->current_policy;
-        policy.import_tax = 0.1f;
-        policy.export_tax = 0.1f;
-        policy.domestic_export_tax = 0.1f;
-        policy.domestic_import_tax = 0.1f;
-        policy.med_flat_tax = 0.1f;
-        policy.poor_flat_tax = 0.1f;
-        policy.rich_flat_tax = 0.1f;
+        policy.import_tax = DECIMAL_3P(0, 100);
+        policy.export_tax = DECIMAL_3P(0, 100);
+        policy.domestic_export_tax = DECIMAL_3P(0, 100);
+        policy.domestic_import_tax = DECIMAL_3P(0, 100);
+        policy.med_flat_tax = DECIMAL_3P(0, 100);
+        policy.poor_flat_tax = DECIMAL_3P(0, 100);
+        policy.rich_flat_tax = DECIMAL_3P(0, 100);
         policy.private_property = true;
         policy.immigration = ALLOW_ALL;
         policy.migration = ALLOW_ALL;
-        policy.industry_tax = 0.1f;
+        policy.industry_tax = DECIMAL_3P(0, 100);
         policy.foreign_trade = true;
     }
     UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("World fully intiialized"));
@@ -720,9 +720,9 @@ void World::do_tick() {
             }
 
             // Research stuff
-            float research = nation->get_research_points();
+            DECIMAL_TYPE_3P research = nation->get_research_points();
             if(nation->focus_tech != nullptr) {
-                float* research_progress = &nation->research[get_id(nation->focus_tech)];
+                DECIMAL_TYPE_3P* research_progress = &nation->research[get_id(nation->focus_tech)];
                 *research_progress -= std::min(research, *research_progress);
                 if(!(*research_progress)) {
                     // Give the country the modifiers attached to the technology
@@ -744,13 +744,13 @@ void World::do_tick() {
 
         // Calculate prestige for today (newspapers come out!)
         for(auto& nation : this->nations) {
-            const float decay_per_cent = 5.f;
-            const float max_modifier = 10.f;
-            const float min_prestige = std::max<float>(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
+            const DECIMAL_TYPE_3P decay_per_cent = 5.f;
+            const DECIMAL_TYPE_3P max_modifier = 10.f;
+            const DECIMAL_TYPE_3P min_prestige = std::max<DECIMAL_TYPE_3P>(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
 
             // Prestige cannot go below min prestige
-            nation->prestige = std::max<float>(nation->prestige, min_prestige);
-            nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<float>(std::max<float>(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
+            nation->prestige = std::max<DECIMAL_TYPE_3P>(nation->prestige, min_prestige);
+            nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<DECIMAL_TYPE_3P>(std::max<DECIMAL_TYPE_3P>(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
 
             float economy_score = 0.f;
             for(const auto& province : nation->owned_provinces) {
@@ -775,8 +775,8 @@ void World::do_tick() {
 
     profiler.start("Units");
     // Evaluate units
-    std::vector<float> mil_research_pts(nations.size(), 0.f);
-    std::vector<float> naval_research_pts(nations.size(), 0.f);
+    std::vector<DECIMAL_TYPE_3P> mil_research_pts(nations.size(), 0.f);
+    std::vector<DECIMAL_TYPE_3P> naval_research_pts(nations.size(), 0.f);
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
         if(unit->on_battle) {
@@ -856,7 +856,7 @@ void World::do_tick() {
 
         if(unit->target != nullptr && unit->can_move()) {
             if(unit->move_progress) {
-                unit->move_progress -= std::min(unit->move_progress, unit->get_speed());
+                unit->move_progress -= std::min<DECIMAL_TYPE_3P>(unit->move_progress, unit->get_speed());
             } else {
                 unit->set_province(*unit->target);
             }
@@ -864,9 +864,8 @@ void World::do_tick() {
     }
     profiler.stop("Units");
 
-    profiler.start("Battles");
-
     // Perform all battles of the active wars
+    profiler.start("Battles");
     std::for_each(wars.begin(), wars.end(), [this](auto& war) {
         for(size_t j = 0; j < war->battles.size(); j++) {
             Battle& battle = war->battles[j];
@@ -937,12 +936,12 @@ void World::do_tick() {
                 continue;
             }
 
-            float* research_progress = &nation->research[get_id(tech)];
+            DECIMAL_TYPE_3P* research_progress = &nation->research[get_id(tech)];
             if(!(*research_progress)) {
                 continue;
             }
 
-            float* pts_count;
+            DECIMAL_TYPE_3P* pts_count;
             if(tech->type == TechnologyType::MILITARY) {
                 pts_count = &mil_research_pts[get_id(nation)];
             } else if(tech->type == TechnologyType::NAVY) {
@@ -955,7 +954,7 @@ void World::do_tick() {
                 continue;
             }
             
-            const float pts = *pts_count / 4.f;
+            const DECIMAL_TYPE_3P pts = *pts_count / 4.f;
             *research_progress += pts;
             *pts_count -= pts;
             break;
