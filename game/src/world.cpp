@@ -658,6 +658,14 @@ void World::load_initial(void) {
         nation->relations.resize(this->nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
     }
     UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("World partially intiialized"));
+
+    // Auto-relocate capitals for countries which do not have one
+    for(auto& nation : this->nations) {
+        if(nation->capital == nullptr) {
+            UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Relocating capital of [" + nation->ref_name + "]"));
+            nation->auto_relocate_capital();
+        }
+    }
 }
 
 void World::load_mod(void) {
