@@ -93,7 +93,7 @@ namespace Path {
     }
 
     std::string get(const std::string& str) {
-        if(str[0] == '/' || str[0] == 'C') {
+        if(str[0] == '/' || isalpha(str[0])) {
             return str;
         }
 
@@ -120,7 +120,7 @@ namespace Path {
     // Gets all paths where a file with this name exists
     std::vector<std::string> get_all(const std::string& str) {
         std::vector<std::string> list;
-        if(str[0] == '/' || str[0] == 'C') {
+        if(str[0] == '/' || isalpha(str[0])) {
             return list;
         }
 
@@ -189,7 +189,7 @@ namespace Path {
 
     std::vector<std::string> get_all_recursive(const std::string& str) {
         std::vector<std::string> list;
-        if(str[0] == '/' || str[0] == 'C') {
+        if(str[0] == '/' || isalpha(str[0])) {
             return list;
         }
 
