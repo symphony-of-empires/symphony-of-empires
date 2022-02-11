@@ -750,7 +750,7 @@ void World::do_tick() {
 
             // Prestige cannot go below min prestige
             nation->prestige = std::max<DECIMAL_TYPE_3P>(nation->prestige, min_prestige);
-            nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<DECIMAL_TYPE_3P>(std::max<DECIMAL_TYPE_3P>(1, nation->prestige - min_prestige) / min_prestige, max_modifier);
+            nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<DECIMAL_TYPE_3P>(std::max<DECIMAL_TYPE_3P>(1, nation->prestige - min_prestige) / (min_prestige + 1), max_modifier);
 
             float economy_score = 0.f;
             for(const auto& province : nation->owned_provinces) {
