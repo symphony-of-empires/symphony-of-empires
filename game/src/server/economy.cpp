@@ -711,7 +711,7 @@ void Economy::do_tick(World& world) {
                 // TODO: Ok, look, the justification is that educated people
                 // almost never do coups - in comparasion to uneducated
                 // peseants, rich people don't need to protest!
-                const float anger = (pop.militancy * pop.con) / std::max(pop.literacy, DECIMAL_3P(1, 000)) / std::max(pop.life_needs_met, DECIMAL_3P(0, 000));
+                const float anger = DECIMAL_3P_TO_FLOAT(std::max(pop.militancy * pop.con, DECIMAL_3P(0, 001)) / std::max(pop.literacy, DECIMAL_3P(1, 000)) / std::max(pop.life_needs_met, DECIMAL_3P(0, 001)));
                 total_anger += anger;
 
                 for(const auto& ideology : world.ideologies) {
@@ -754,8 +754,8 @@ void Economy::do_tick(World& world) {
                 _nation->relations.resize(world.nations.size(), NationRelation{ DECIMAL_3P(0, 000), false, false, false, false, false, false, false, false, true, false });
             }
 
-            // Tell the clients about this new nation
-            g_server->broadcast(Action::NationAdd::form_packet(*dup_nation));
+            // TODO: Tell the clients about this new nation
+            //g_server->broadcast(Action::NationAdd::form_packet(*dup_nation));
 
             // Make the most angry provinces revolt!
             for(auto& province : uprising_provinces) {
