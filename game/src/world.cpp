@@ -661,10 +661,18 @@ void World::load_initial(void) {
 
     // Auto-relocate capitals for countries which do not have one
     for(auto& nation : this->nations) {
-        if(nation->capital == nullptr) {
-            UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Relocating capital of [" + nation->ref_name + "]"));
-            nation->auto_relocate_capital();
+        // Must exist
+        if(!nation->exists()) {
+            continue;
         }
+
+        // Must not have already a capital set
+        if(nation->capital != nullptr) {
+            continue;
+        }
+
+        UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Relocating capital of [" + nation->ref_name + "]"));
+        nation->auto_relocate_capital();
     }
 }
 
