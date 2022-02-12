@@ -3322,6 +3322,514 @@ province:set_terrain(TerrainType:get("deepsea"))
 province = Province:new{ ref_name = "province_000000", name = _("Global sea"), color = 0x0 }
 province:register()
 province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_e00000", color = 0xe00000 }
+province.name = _("Province_e00000")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_e10000", color = 0xe10000 }
+province.name = _("Province_e10000")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_e20000", color = 0xe20000 }
+province.name = _("Province_e20000")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_e30000", color = 0xe30000 }
+province.name = _("Province_e30000")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_e40000", color = 0xe40000 }
+province.name = _("Province_e40000")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_e50000", color = 0xe50000 }
+province.name = _("Province_e50000")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_e60000", color = 0xe60000 }
+province.name = _("Province_e60000")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_e70000", color = 0xe70000 }
+province.name = _("Province_e70000")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_e80000", color = 0xe80000 }
+province.name = _("Province_e80000")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_e90000", color = 0xe90000 }
+province.name = _("Province_e90000")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_ea0000", color = 0xea0000 }
+province.name = _("Province_ea0000")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6b00", color = 0x3f6b00 }
+province.name = _("Province_3f6b00")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6c00", color = 0x3f6c00 }
+province.name = _("Province_3f6c00")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6d00", color = 0x3f6d00 }
+province.name = _("Province_3f6d00")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6f00", color = 0x3f6f00 }
+province.name = _("Province_3f6f00")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7400", color = 0x3f7400 }
+province.name = _("Province_3f7400")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7500", color = 0x3f7500 }
+province.name = _("Province_3f7500")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7900", color = 0x3f7900 }
+province.name = _("Province_3f7900")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f8200", color = 0x3f8200 }
+province.name = _("Province_3f8200")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_01850f", color = 0x01850f }
+province.name = _("Province_01850f")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_ff900f", color = 0xff900f }
+province.name = _("Province_ff900f")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_50920f", color = 0x50920f }
+province.name = _("Province_50920f")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f5f20", color = 0x3f5f20 }
+province.name = _("Province_3f5f20")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6220", color = 0x3f6220 }
+province.name = _("Province_3f6220")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6720", color = 0x3f6720 }
+province.name = _("Province_3f6720")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6920", color = 0x3f6920 }
+province.name = _("Province_3f6920")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7620", color = 0x3f7620 }
+province.name = _("Province_3f7620")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7c20", color = 0x3f7c20 }
+province.name = _("Province_3f7c20")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7e20", color = 0x3f7e20 }
+province.name = _("Province_3f7e20")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7f20", color = 0x3f7f20 }
+province.name = _("Province_3f7f20")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f5d40", color = 0x3f5d40 }
+province.name = _("Province_3f5d40")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f5e40", color = 0x3f5e40 }
+province.name = _("Province_3f5e40")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6540", color = 0x3f6540 }
+province.name = _("Province_3f6540")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6640", color = 0x3f6640 }
+province.name = _("Province_3f6640")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6840", color = 0x3f6840 }
+province.name = _("Province_3f6840")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7140", color = 0x3f7140 }
+province.name = _("Province_3f7140")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7340", color = 0x3f7340 }
+province.name = _("Province_3f7340")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7b40", color = 0x3f7b40 }
+province.name = _("Province_3f7b40")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f8140", color = 0x3f8140 }
+province.name = _("Province_3f8140")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f5c60", color = 0x3f5c60 }
+province.name = _("Province_3f5c60")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6360", color = 0x3f6360 }
+province.name = _("Province_3f6360")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6460", color = 0x3f6460 }
+province.name = _("Province_3f6460")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6a60", color = 0x3f6a60 }
+province.name = _("Province_3f6a60")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6d60", color = 0x3f6d60 }
+province.name = _("Province_3f6d60")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7060", color = 0x3f7060 }
+province.name = _("Province_3f7060")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f5d80", color = 0x3f5d80 }
+province.name = _("Province_3f5d80")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6b80", color = 0x3f6b80 }
+province.name = _("Province_3f6b80")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6e80", color = 0x3f6e80 }
+province.name = _("Province_3f6e80")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7280", color = 0x3f7280 }
+province.name = _("Province_3f7280")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7480", color = 0x3f7480 }
+province.name = _("Province_3f7480")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7580", color = 0x3f7580 }
+province.name = _("Province_3f7580")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7a80", color = 0x3f7a80 }
+province.name = _("Province_3f7a80")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f8080", color = 0x3f8080 }
+province.name = _("Province_3f8080")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_010085", color = 0x010085 }
+province.name = _("Province_010085")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_010086", color = 0x010086 }
+province.name = _("Province_010086")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_010087", color = 0x010087 }
+province.name = _("Province_010087")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_010088", color = 0x010088 }
+province.name = _("Province_010088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_020088", color = 0x020088 }
+province.name = _("Province_020088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_030088", color = 0x030088 }
+province.name = _("Province_030088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_040088", color = 0x040088 }
+province.name = _("Province_040088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_050088", color = 0x050088 }
+province.name = _("Province_050088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_060088", color = 0x060088 }
+province.name = _("Province_060088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_070088", color = 0x070088 }
+province.name = _("Province_070088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_080088", color = 0x080088 }
+province.name = _("Province_080088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_090088", color = 0x090088 }
+province.name = _("Province_090088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_0a0088", color = 0x0a0088 }
+province.name = _("Province_0a0088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_0b0088", color = 0x0b0088 }
+province.name = _("Province_0b0088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_0c0088", color = 0x0c0088 }
+province.name = _("Province_0c0088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_0d0088", color = 0x0d0088 }
+province.name = _("Province_0d0088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_0e0088", color = 0x0e0088 }
+province.name = _("Province_0e0088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_0f0088", color = 0x0f0088 }
+province.name = _("Province_0f0088")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_000089", color = 0x000089 }
+province.name = _("Province_000089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_010089", color = 0x010089 }
+province.name = _("Province_010089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_020089", color = 0x020089 }
+province.name = _("Province_020089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_030089", color = 0x030089 }
+province.name = _("Province_030089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_040089", color = 0x040089 }
+province.name = _("Province_040089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_050089", color = 0x050089 }
+province.name = _("Province_050089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_060089", color = 0x060089 }
+province.name = _("Province_060089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_070089", color = 0x070089 }
+province.name = _("Province_070089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_080089", color = 0x080089 }
+province.name = _("Province_080089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_090089", color = 0x090089 }
+province.name = _("Province_090089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_0a0089", color = 0x0a0089 }
+province.name = _("Province_0a0089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_0b0089", color = 0x0b0089 }
+province.name = _("Province_0b0089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_0c0089", color = 0x0c0089 }
+province.name = _("Province_0c0089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_0d0089", color = 0x0d0089 }
+province.name = _("Province_0d0089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_0e0089", color = 0x0e0089 }
+province.name = _("Province_0e0089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_0f0089", color = 0x0f0089 }
+province.name = _("Province_0f0089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_100089", color = 0x100089 }
+province.name = _("Province_100089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_110089", color = 0x110089 }
+province.name = _("Province_110089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_120089", color = 0x120089 }
+province.name = _("Province_120089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_130089", color = 0x130089 }
+province.name = _("Province_130089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_140089", color = 0x140089 }
+province.name = _("Province_140089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_150089", color = 0x150089 }
+province.name = _("Province_150089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_160089", color = 0x160089 }
+province.name = _("Province_160089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_170089", color = 0x170089 }
+province.name = _("Province_170089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_180089", color = 0x180089 }
+province.name = _("Province_180089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_190089", color = 0x190089 }
+province.name = _("Province_190089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_1a0089", color = 0x1a0089 }
+province.name = _("Province_1a0089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_1b0089", color = 0x1b0089 }
+province.name = _("Province_1b0089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_1c0089", color = 0x1c0089 }
+province.name = _("Province_1c0089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_1d0089", color = 0x1d0089 }
+province.name = _("Province_1d0089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_1e0089", color = 0x1e0089 }
+province.name = _("Province_1e0089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_1f0089", color = 0x1f0089 }
+province.name = _("Province_1f0089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_200089", color = 0x200089 }
+province.name = _("Province_200089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_230089", color = 0x230089 }
+province.name = _("Province_230089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_240089", color = 0x240089 }
+province.name = _("Province_240089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_250089", color = 0x250089 }
+province.name = _("Province_250089")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f60a0", color = 0x3f60a0 }
+province.name = _("Province_3f60a0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f61a0", color = 0x3f61a0 }
+province.name = _("Province_3f61a0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f69a0", color = 0x3f69a0 }
+province.name = _("Province_3f69a0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f73a0", color = 0x3f73a0 }
+province.name = _("Province_3f73a0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f77a0", color = 0x3f77a0 }
+province.name = _("Province_3f77a0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7ca0", color = 0x3f7ca0 }
+province.name = _("Province_3f7ca0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7ea0", color = 0x3f7ea0 }
+province.name = _("Province_3f7ea0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7fa0", color = 0x3f7fa0 }
+province.name = _("Province_3f7fa0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f64c0", color = 0x3f64c0 }
+province.name = _("Province_3f64c0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f66c0", color = 0x3f66c0 }
+province.name = _("Province_3f66c0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6fc0", color = 0x3f6fc0 }
+province.name = _("Province_3f6fc0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f79c0", color = 0x3f79c0 }
+province.name = _("Province_3f79c0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7ac0", color = 0x3f7ac0 }
+province.name = _("Province_3f7ac0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f7bc0", color = 0x3f7bc0 }
+province.name = _("Province_3f7bc0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f81c0", color = 0x3f81c0 }
+province.name = _("Province_3f81c0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f5fe0", color = 0x3f5fe0 }
+province.name = _("Province_3f5fe0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f65e0", color = 0x3f65e0 }
+province.name = _("Province_3f65e0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f6de0", color = 0x3f6de0 }
+province.name = _("Province_3f6de0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f76e0", color = 0x3f76e0 }
+province.name = _("Province_3f76e0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
+province = Province:new{ ref_name = "province_3f81e0", color = 0x3f81e0 }
+province.name = _("Province_3f81e0")
+province:register()
+province:set_terrain(TerrainType:get("deepsea"))
 province = Province:new{ ref_name = "province_8020ec00", name = _("Province_ec2080"), color = 0xec2080 }
 province:register()
 province:add_industry(BuildingType:get("gold_mine"), Nation:get("upca"))
