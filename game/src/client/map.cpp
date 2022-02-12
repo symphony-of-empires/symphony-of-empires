@@ -59,6 +59,7 @@
 #include "province.hpp"
 #include "unified_render/state.hpp"
 #include "unified_render/ui/tooltip.hpp"
+#include "unified_render/font_sdf.hpp"
 
 #include "client/client_network.hpp"
 #include "unified_render/serializer.hpp"
@@ -110,6 +111,8 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     print_info("Preloading-important stuff");
 
+    map_font = new UnifiedRender::FontSDF("fonts/Poppins_SDF/poppins");
+
     // Query the initial nation flags
     for(const auto& nation : world.nations) {
         UnifiedRender::TextureOptions mipmap_options{};
@@ -139,60 +142,82 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         unit_type_icons.push_back(&s.tex_man->load(path));
     }
 
-    for(const auto& province : world.provinces) {
-        UnifiedRender::Color color = UnifiedRender::Color(0.f, 0.f, 0.f);
-        auto text_texture =  new UnifiedRender::Texture(s.ui_ctx->default_font, color, province->name);
-        province_names_text.push_back(text_texture);
+    create_labels();
+}
 
+Map::~Map() {
+
+}
+
+void Map::create_labels() {
+    for(auto& label : province_labels) {
+        delete label;
+    }
+    province_labels.clear();
+    for(const auto& province : world.provinces) {
         glm::vec2 min_point(province->min_x, province->min_y);
         glm::vec2 max_point(province->max_x, province->max_y);
         glm::vec2 mid_point = 0.5f * (min_point + max_point);
 
-        const float prov_size = std::min(max_point.x - min_point.x, 500.f);
-        glm::vec2 text_size = glm::vec2(text_texture->width, text_texture->height) * (0.25f * prov_size / text_texture->width);
-        min_point = mid_point - text_size * 0.5f;
-        max_point = mid_point + text_size;
-        glm::vec3 c1 = camera->get_tile_world_pos(min_point);
-        glm::vec3 c2 = camera->get_tile_world_pos(glm::vec2(min_point.x, max_point.y));
-        glm::vec3 c3 = camera->get_tile_world_pos(glm::vec2(max_point.x, min_point.y));
-        glm::vec3 c4 = camera->get_tile_world_pos(max_point);
-        auto quad = new UnifiedRender::Quad(c1, c2, c4, c3);
-        province_names_quad.push_back(quad);
+        glm::vec2 x_step = glm::vec2(std::min(max_point.x - mid_point.x, 250.f), 0);
+
+        glm::vec3 center = camera->get_tile_world_pos(mid_point);
+        glm::vec3 left = camera->get_tile_world_pos(mid_point - x_step);
+        glm::vec3 right = camera->get_tile_world_pos(mid_point + x_step);
+
+        float width = glm::length(left - right);
+        width *= 0.25f;
+
+        glm::vec3 right_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x + 1.f, mid_point.y));
+        right_dir  = right_dir - center;
+        glm::vec3 top_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x, mid_point.y - 1.f));
+        top_dir = top_dir - center;
+
+        auto label = map_font->gen_text(province->name, center, top_dir, right_dir, width);
+        province_labels.push_back(label);
     }
 
+    for(auto& label : nation_labels) {
+        delete label;
+    }
+    nation_labels.clear();
     for(const auto& nation : world.nations) {
-        UnifiedRender::Color color = UnifiedRender::Color(0.f, 0.f, 0.f);
-        auto text_texture =  new UnifiedRender::Texture(s.ui_ctx->default_font, color, nation->get_client_hint().alt_name);
-        nation_names_text.push_back(text_texture);
-
         glm::vec2 min_point(world.width - 1, world.height - 1);
         glm::vec2 max_point(0.f, 0.f);
 
         if(nation->capital != nullptr) {
             std::set<Province*> visited_provinces;
             get_blob_bounds(&visited_provinces, *nation, *nation->capital, &min_point, &max_point);
-        } else {
-            min_point = glm::vec2(1.f, 1.f);
+        }
+        else {
+            for(auto& province : nation->owned_provinces) {
+                min_point.x = std::min(min_point.x, (float)province->min_x);
+                min_point.y = std::min(min_point.x, (float)province->min_y);
+                max_point.x = std::max(min_point.y, (float)province->max_x);
+                max_point.y = std::max(min_point.y, (float)province->min_y);
+            }
         }
 
         glm::vec2 mid_point = 0.5f * (min_point + max_point);
 
-        const float prov_size = std::min(max_point.x - min_point.x, 50000.f);
-        glm::vec2 text_size = glm::vec2(text_texture->width, text_texture->height) * (0.25f * prov_size / text_texture->width);
-        min_point = mid_point - text_size * 0.5f;
-        max_point = mid_point + text_size;
-        glm::vec3 c1 = camera->get_tile_world_pos(min_point);
-        glm::vec3 c2 = camera->get_tile_world_pos(glm::vec2(min_point.x, max_point.y));
-        glm::vec3 c3 = camera->get_tile_world_pos(glm::vec2(max_point.x, min_point.y));
-        glm::vec3 c4 = camera->get_tile_world_pos(max_point);
-        auto quad = new UnifiedRender::Quad(c1, c2, c4, c3);
-        nation_names_quad.push_back(quad);
+        glm::vec3 center = camera->get_tile_world_pos(mid_point);
+
+        glm::vec2 x_step = glm::vec2(max_point.x - mid_point.x, 0);
+        glm::vec3 left = camera->get_tile_world_pos(mid_point - x_step);
+        glm::vec3 right = camera->get_tile_world_pos(mid_point + x_step);
+        float width = glm::length(left - right);
+        width *= 0.25f;
+
+        glm::vec3 right_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x + 1.f, mid_point.y));
+        right_dir  = right_dir - center;
+        glm::vec3 top_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x, mid_point.y - 1.f));
+        top_dir = top_dir - center;
+
+        auto label = map_font->gen_text(nation->get_client_hint().alt_name, center, top_dir, right_dir, width);
+        nation_labels.push_back(label);
     }
 }
 
-Map::~Map() {
-
-}
 
 void Map::set_view(MapView view) {
     view_mode = view;
@@ -206,63 +231,7 @@ void Map::set_view(MapView view) {
     }
     delete old_camera;
 
-    UnifiedRender::State& s = UnifiedRender::State::get_instance();
-    for(auto& quad : province_names_quad) {
-        delete quad;
-    }
-    province_names_quad.clear();
-    for(const auto& province : world.provinces) {
-        auto text_texture =  province_names_text[province->cached_id];
-
-        glm::vec2 min_point(province->min_x, province->min_y);
-        glm::vec2 max_point(province->max_x, province->max_y);
-        glm::vec2 mid_point = 0.5f * (min_point + max_point);
-
-        float prov_size = max_point.x - min_point.x;
-        prov_size = std::min(prov_size, 500.f);
-        glm::vec2 text_size = glm::vec2(text_texture->width, text_texture->height) * (0.25f * prov_size / text_texture->width);
-        min_point = mid_point - text_size * 0.5f;
-        max_point = mid_point + text_size;
-        glm::vec3 c1 = camera->get_tile_world_pos(min_point);
-        glm::vec3 c2 = camera->get_tile_world_pos(glm::vec2(min_point.x, max_point.y));
-        glm::vec3 c3 = camera->get_tile_world_pos(glm::vec2(max_point.x, min_point.y));
-        glm::vec3 c4 = camera->get_tile_world_pos(max_point);
-        auto quad = new UnifiedRender::Quad(c1, c2, c4, c3);
-        province_names_quad.push_back(quad);
-    }
-
-    for(auto& quad : nation_names_quad) {
-        delete quad;
-    }
-    nation_names_quad.clear();
-    for(const auto& nation : world.nations) {
-        UnifiedRender::Color color = UnifiedRender::Color(0.f, 0.f, 0.f);
-        auto text_texture =  new UnifiedRender::Texture(s.ui_ctx->default_font, color, nation->get_client_hint().alt_name);
-        nation_names_text.push_back(text_texture);
-
-        glm::vec2 min_point(world.width - 1, world.height - 1);
-        glm::vec2 max_point(0.f, 0.f);
-
-        if(nation->capital != nullptr) {
-            std::set<Province*> visited_provinces;
-            get_blob_bounds(&visited_provinces, *nation, *nation->capital, &min_point, &max_point);
-        } else {
-            min_point = glm::vec2(1.f, 1.f);
-        }
-
-        glm::vec2 mid_point = 0.5f * (min_point + max_point);
-
-        const float prov_size = std::min(max_point.x - min_point.x, 500.f);
-        glm::vec2 text_size = glm::vec2(text_texture->width, text_texture->height) * (0.25f * prov_size / text_texture->width);
-        min_point = mid_point - text_size * 0.5f;
-        max_point = mid_point + text_size;
-        glm::vec3 c1 = camera->get_tile_world_pos(min_point);
-        glm::vec3 c2 = camera->get_tile_world_pos(glm::vec2(min_point.x, max_point.y));
-        glm::vec3 c3 = camera->get_tile_world_pos(glm::vec2(max_point.x, min_point.y));
-        glm::vec3 c4 = camera->get_tile_world_pos(max_point);
-        auto quad = new UnifiedRender::Quad(c1, c2, c4, c3);
-        nation_names_quad.push_back(quad);
-    }
+    create_labels();
 }
 
 // The standard map mode with each province color = country color
@@ -272,7 +241,8 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
         Nation* province_owner = world.provinces[i]->owner;
         if(province_owner == nullptr) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        } else {
+        }
+        else {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }
@@ -679,9 +649,6 @@ void Map::draw(const GameState& gs) {
     }
     //*/
 
-    obj_shader->use();
-    obj_shader->set_uniform("model", glm::mat4(1.f));
-
     glm::vec3 map_pos = camera->get_map_pos();
     float distance_to_map = map_pos.z / world.width;
     if(distance_to_map < 0.070) {
@@ -689,16 +656,7 @@ void Map::draw(const GameState& gs) {
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
         glFrontFace(GL_CCW);
-        for(const auto& province : world.provinces) {
-            if(province->terrain_type->is_water_body)
-                continue;
-
-            auto* text_tex = province_names_text[world.get_id(province)];
-            obj_shader->set_texture(0, "diffuse_map", *text_tex);
-
-            auto* quad = province_names_quad[world.get_id(province)];
-            quad->draw();
-        }
+        map_font->draw(province_labels, projection, view);
         glDepthFunc(GL_LEQUAL);
         glDisable(GL_CULL_FACE);
     }
@@ -708,19 +666,25 @@ void Map::draw(const GameState& gs) {
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
         glFrontFace(GL_CCW);
-        for(const auto& nation : world.nations) {
-            if(!nation->exists())
-                continue;
+        map_font->draw(nation_labels, projection, view);
+        // for(const auto& nation : world.nations) {
+        //     if(!nation->exists())
+        //         continue;
 
-            auto* text_tex = nation_names_text[world.get_id(nation)];
-            obj_shader->set_texture(0, "diffuse_map", *text_tex);
+        //     auto* text_tex = nation_names_text[world.get_id(nation)];
+        //     obj_shader->set_texture(0, "diffuse_map", *text_tex);
 
-            auto* quad = nation_names_quad[world.get_id(nation)];
-            quad->draw();
-        }
+        //     auto* quad = nation_names_quad[world.get_id(nation)];
+        //     // quad->draw();
+        // }
         glDepthFunc(GL_LEQUAL);
         glDisable(GL_CULL_FACE);
     }
+    obj_shader->use();
+    obj_shader->set_uniform("model", glm::mat4(1.f));
+    obj_shader->set_uniform("projection", projection);
+    obj_shader->set_uniform("view", view);
+
 
     // Highlight for units
     for(const auto& unit : gs.input.selected_units) {
