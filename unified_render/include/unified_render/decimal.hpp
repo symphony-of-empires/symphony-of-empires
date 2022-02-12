@@ -25,8 +25,6 @@
 
 #pragma once
 
-#define DECIMAL_TYPE_3P int
-#define DECIAML_TYPE_3P int
-#define DECIMAL_3P(x, y) x##y
-#define DECIMAL_FLOAT_TO_3P(x) ((x) * 1000)
-#define DECIMAL_3P_TO_FLOAT(x) ((float)(x)) ? (((float)(x)) / 1000) : 0
+namespace UnifiedRender {
+	typedef double Decimal;
+};

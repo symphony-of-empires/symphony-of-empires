@@ -46,9 +46,9 @@ class Technology;
 // This allows for cases where a country A hates country B, but country B loves country A
 class NationRelation {
 public:
-    DECIAML_TYPE_3P relation;
+    UnifiedRender::Decimal relation;
     // Interest of a nation on this nation
-    DECIAML_TYPE_3P interest;
+    UnifiedRender::Decimal interest;
 
     // Whetever commercial operations are allowed on on the target country
     bool has_embargo;
@@ -82,20 +82,20 @@ public:
     // They should never be 0, a modifier of 1.0 is equal to no modifer at
     // all. And a modifier of 0.5 would cause a 1/2. Similar to a 2 which
     // would make a x2
-    DECIAML_TYPE_3P industry_output_mod = DECIMAL_3P(1, 000);
-    DECIAML_TYPE_3P industry_input_mod = DECIMAL_3P(1, 000);
-    DECIAML_TYPE_3P workers_needed_mod = DECIMAL_3P(1, 000);
-    DECIAML_TYPE_3P salary_paid_mod = DECIMAL_3P(1, 000);
-    DECIAML_TYPE_3P delivery_cost_mod = DECIMAL_3P(1, 000);
-    DECIAML_TYPE_3P literacy_learn_mod = DECIMAL_3P(1, 000);
-    DECIAML_TYPE_3P reproduction_mod = DECIMAL_3P(1, 000);
-    DECIAML_TYPE_3P death_mod = DECIMAL_3P(1, 000);
-    DECIAML_TYPE_3P militancy_mod = DECIMAL_3P(1, 000);
-    DECIAML_TYPE_3P con_mod = DECIMAL_3P(1, 000);
-    DECIAML_TYPE_3P life_needs_met_mod = DECIMAL_3P(1, 000);
-    DECIAML_TYPE_3P everyday_needs_met_mod = DECIMAL_3P(1, 000);
-    DECIAML_TYPE_3P luxury_needs_met_mod = DECIMAL_3P(1, 000);
-    DECIAML_TYPE_3P immigration_attraction = DECIMAL_3P(1, 000);
+    UnifiedRender::Decimal industry_output_mod = 1.f;
+    UnifiedRender::Decimal industry_input_mod = 1.f;
+    UnifiedRender::Decimal workers_needed_mod = 1.f;
+    UnifiedRender::Decimal salary_paid_mod = 1.f;
+    UnifiedRender::Decimal delivery_cost_mod = 1.f;
+    UnifiedRender::Decimal literacy_learn_mod = 1.f;
+    UnifiedRender::Decimal reproduction_mod = 1.f;
+    UnifiedRender::Decimal death_mod = 1.f;
+    UnifiedRender::Decimal militancy_mod = 1.f;
+    UnifiedRender::Decimal con_mod = 1.f;
+    UnifiedRender::Decimal life_needs_met_mod = 1.f;
+    UnifiedRender::Decimal everyday_needs_met_mod = 1.f;
+    UnifiedRender::Decimal luxury_needs_met_mod = 1.f;
+    UnifiedRender::Decimal immigration_attraction = 1.f;
 };
 
 class Nation : public RefnameEntity<uint16_t> {
@@ -116,27 +116,27 @@ public:
     bool is_accepted_culture(const Culture& culture) const;
     bool is_accepted_religion(const Pop& pop) const;
     bool is_accepted_religion(const Religion& relgion) const;
-    DECIAML_TYPE_3P get_tax(const Pop& pop) const;
+    UnifiedRender::Decimal get_tax(const Pop& pop) const;
     void give_province(Province& province);
     const NationClientHint& get_client_hint(void);
-    DECIAML_TYPE_3P get_research_points(void) const;
+    UnifiedRender::Decimal get_research_points(void) const;
     bool can_research(const Technology* tech) const;
     void change_research_focus(Technology* tech);
     std::vector<Nation*> get_allies(void);
-    DECIAML_TYPE_3P get_industry_output_mod(void);
-    DECIAML_TYPE_3P get_industry_input_mod(void);
-    DECIAML_TYPE_3P get_workers_needed_mod(void);
-    DECIAML_TYPE_3P get_salary_paid_mod(void);
-    DECIAML_TYPE_3P get_delivery_cost_mod(void);
-    DECIAML_TYPE_3P get_literacy_learn_mod(void);
-    DECIAML_TYPE_3P get_reproduction_mod(void);
-    DECIAML_TYPE_3P get_death_mod(void);
-    DECIAML_TYPE_3P get_militancy_mod(void);
-    DECIAML_TYPE_3P get_con_mod(void);
-    DECIAML_TYPE_3P get_life_needs_met_mod(void);
-    DECIAML_TYPE_3P get_everyday_needs_met_mod(void);
-    DECIAML_TYPE_3P get_luxury_needs_met_mod(void);
-    DECIAML_TYPE_3P get_immigration_attraction_mod(void);
+    UnifiedRender::Decimal get_industry_output_mod(void);
+    UnifiedRender::Decimal get_industry_input_mod(void);
+    UnifiedRender::Decimal get_workers_needed_mod(void);
+    UnifiedRender::Decimal get_salary_paid_mod(void);
+    UnifiedRender::Decimal get_delivery_cost_mod(void);
+    UnifiedRender::Decimal get_literacy_learn_mod(void);
+    UnifiedRender::Decimal get_reproduction_mod(void);
+    UnifiedRender::Decimal get_death_mod(void);
+    UnifiedRender::Decimal get_militancy_mod(void);
+    UnifiedRender::Decimal get_con_mod(void);
+    UnifiedRender::Decimal get_life_needs_met_mod(void);
+    UnifiedRender::Decimal get_everyday_needs_met_mod(void);
+    UnifiedRender::Decimal get_luxury_needs_met_mod(void);
+    UnifiedRender::Decimal get_immigration_attraction_mod(void);
 
     // Nation that has us on their sphere of influence
     // This value is equal to the nation with highest influence on us in the
@@ -147,30 +147,30 @@ public:
     std::vector<NationRelation> relations;
 
     // Number of diplomacy points available
-    DECIAML_TYPE_3P diplomacy_points;
+    UnifiedRender::Decimal diplomacy_points;
 
     // Total number of prestige
-    DECIAML_TYPE_3P prestige = DECIMAL_3P(0, 100);;
+    UnifiedRender::Decimal prestige = 0.1f;
 
     // Base literacy applied to all pops
-    DECIAML_TYPE_3P base_literacy;
+    UnifiedRender::Decimal base_literacy;
 
     // Determines if the nation is civilized
     bool is_civilized;
 
     // Level of infamy
-    DECIAML_TYPE_3P infamy = 0;
+    UnifiedRender::Decimal infamy = 0;
 
     // 3 key scores used to define a nation's minimum prestige, how willing would the AI
     // be to challenge this nations and other valuable stuff
-    DECIAML_TYPE_3P military_score = 0, naval_score = 0, economy_score = 0;
+    UnifiedRender::Decimal military_score = 0, naval_score = 0, economy_score = 0;
 
     // Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
     // of all products in the nation, which are volatile unless they are sold
-    DECIAML_TYPE_3P budget;
+    UnifiedRender::Decimal budget;
 
     // Total GDP of the nation
-    DECIAML_TYPE_3P gdp = 0;
+    UnifiedRender::Decimal gdp = 0;
 
     // The capital of this nation (can be nullptr)
     Province* capital = nullptr;
@@ -203,7 +203,7 @@ public:
     std::deque<Event*> inbox;
 
     // Progress on technologies (1:1)
-    std::vector<DECIAML_TYPE_3P> research;
+    std::vector<UnifiedRender::Decimal> research;
 
     // Current focused tech
     Technology* focus_tech = nullptr;

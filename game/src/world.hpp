@@ -71,7 +71,7 @@ public:
     enum OrderType type;
 
     // How many we are willing to pay for the goods to be sent to us
-    DECIMAL_TYPE_3P payment;
+    UnifiedRender::Decimal payment;
 
     // The ID of the required product
     Good* good;
@@ -98,7 +98,7 @@ public:
 class DeliverGoods {
 public:
     // How many we are willing to pay to deliver this
-    DECIMAL_TYPE_3P payment;
+    UnifiedRender::Decimal payment;
 
     // ID of the good we are sending
     Good* good;
