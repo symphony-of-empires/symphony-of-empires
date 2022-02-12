@@ -138,7 +138,7 @@ void FontSDF::draw(std::vector<Label3d*>& labels, glm::mat4 projection, glm::mat
     sdf_font_shader->set_uniform("view", view);
     sdf_font_shader->set_texture(0, "atlas", *atlas);
     for(auto& label : labels) {
-        sdf_font_shader->set_uniform("pxRange", label->size * 0.25f);
+        sdf_font_shader->set_uniform("pxRange", label->size * 0.5f);
         label->draw();
     }
 }
