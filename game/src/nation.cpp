@@ -220,12 +220,12 @@ void Nation::set_policy(Policies& policies) {
 
         // All people who agreed gets happy
         for(auto& pop : approvers) {
-            pop->militancy /= std::min<DECIMAL_TYPE_3P>(pop->con, DECIMAL_3P(0, 100));
+            pop->militancy /= std::min<UnifiedRender::Decimal>(pop->con, 0.1f);
         }
 
         // All people who disagreed gets angered
         for(auto& pop : disapprovers) {
-            pop->militancy *= std::min<DECIMAL_TYPE_3P>(pop->con, DECIMAL_3P(0, 100));
+            pop->militancy *= std::min<UnifiedRender::Decimal>(pop->con, 0.1f);
         }
         UnifiedRender::Log::debug("game", "New enacted policy passed parliament!");
     }
@@ -233,12 +233,12 @@ void Nation::set_policy(Policies& policies) {
     else {
         // All people who agreed gets angered
         for(auto& pop : approvers) {
-            pop->militancy *= std::min<DECIMAL_TYPE_3P>(pop->con, DECIMAL_3P(0, 100));
+            pop->militancy *= std::min<UnifiedRender::Decimal>(pop->con, 0.1f);
         }
 
         // All people who disagreed gets happy
         for(auto& pop : disapprovers) {
-            pop->militancy /= std::min<DECIMAL_TYPE_3P>(pop->con, DECIMAL_3P(0, 100));
+            pop->militancy /= std::min<UnifiedRender::Decimal>(pop->con, 0.1f);
         }
         UnifiedRender::Log::debug("game", "New enacted policy did not made it into the parliament!");
     }
@@ -265,8 +265,8 @@ bool Nation::is_accepted_religion(const Religion& religion) const {
 
 // Gets the total tax applied to a POP depending on their "wealth"
 // (not exactly like that, more like by their type/status)
-DECIMAL_TYPE_3P Nation::get_tax(const Pop& pop) const {
-    DECIMAL_TYPE_3P base_tax = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_tax(const Pop& pop) const {
+    UnifiedRender::Decimal base_tax = 1.f;
 
     if(!is_accepted_culture(pop) && !is_accepted_religion(pop)) {
         // Exterminate imposes a scale of 3(+1), which will be enough to drive off most POPs
@@ -274,15 +274,15 @@ DECIMAL_TYPE_3P Nation::get_tax(const Pop& pop) const {
         base_tax *= 2 * scale;
     }
 
-    if(pop.type->social_value <= DECIMAL_3P(1, 000)) {
+    if(pop.type->social_value <= 1.f) {
         return current_policy.poor_flat_tax * base_tax;
     }
     // For the medium class
-    else if(pop.type->social_value <= DECIMAL_3P(2, 000)) {
+    else if(pop.type->social_value <= 2.f) {
         return current_policy.med_flat_tax * base_tax;
     }
     // For the high class
-    else if(pop.type->social_value <= DECIMAL_3P(3, 000)) {
+    else if(pop.type->social_value <= 3.f) {
         return current_policy.rich_flat_tax * base_tax;
     }
     return base_tax;
@@ -329,8 +329,8 @@ const NationClientHint& Nation::get_client_hint(void) {
     return client_hints[0];
 }
 
-DECIMAL_TYPE_3P Nation::get_research_points(void) const {
-    DECIMAL_TYPE_3P research = DECIMAL_3P(0, 000);
+UnifiedRender::Decimal Nation::get_research_points(void) const {
+    UnifiedRender::Decimal research = 0.f;
     for(const auto& province : this->owned_provinces) {
         for(const auto& pop : province->pops) {
             research += pop.size * pop.literacy;
@@ -340,7 +340,7 @@ DECIMAL_TYPE_3P Nation::get_research_points(void) const {
             research /= province->pops.size();
         }
     }
-    return research / DECIMAL_3P(100, 000);
+    return research / 100.f;
 }
 
 bool Nation::can_research(const Technology* tech) const {
@@ -350,7 +350,7 @@ bool Nation::can_research(const Technology* tech) const {
 
     // All required technologies for this one must be researched
     for(const auto& req_tech : tech->req_technologies) {
-        if(research[World::get_instance().get_id(req_tech)] > DECIMAL_3P(0, 000)) {
+        if(research[World::get_instance().get_id(req_tech)] > 0.f) {
             return false;
         }
     }
@@ -389,112 +389,112 @@ std::vector<Nation*> Nation::get_allies(void) {
     }
 }*/
 
-DECIMAL_TYPE_3P Nation::get_industry_output_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_industry_output_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->industry_input_mod;
     }
     return c;
 }
 
-DECIMAL_TYPE_3P Nation::get_industry_input_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_industry_input_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->industry_input_mod;
     }
     return c;
 }
 
-DECIMAL_TYPE_3P Nation::get_workers_needed_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_workers_needed_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->workers_needed_mod;
     }
     return c;
 }
 
-DECIMAL_TYPE_3P Nation::get_salary_paid_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_salary_paid_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->salary_paid_mod;
     }
     return c;
 }
 
-DECIMAL_TYPE_3P Nation::get_delivery_cost_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_delivery_cost_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->delivery_cost_mod;
     }
     return c;
 }
 
-DECIMAL_TYPE_3P Nation::get_literacy_learn_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_literacy_learn_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->literacy_learn_mod;
     }
     return c;
 }
 
-DECIMAL_TYPE_3P Nation::get_reproduction_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_reproduction_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->reproduction_mod;
     }
     return c;
 }
 
-DECIMAL_TYPE_3P Nation::get_death_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_death_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->death_mod;
     }
     return c;
 }
 
-DECIMAL_TYPE_3P Nation::get_militancy_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_militancy_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->militancy_mod;
     }
     return c;
 }
 
-DECIMAL_TYPE_3P Nation::get_con_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_con_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->con_mod;
     }
     return c;
 }
 
-DECIMAL_TYPE_3P Nation::get_life_needs_met_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_life_needs_met_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->life_needs_met_mod;
     }
     return c;
 }
 
-DECIMAL_TYPE_3P Nation::get_everyday_needs_met_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_everyday_needs_met_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->everyday_needs_met_mod;
     }
     return c;
 }
 
-DECIMAL_TYPE_3P Nation::get_luxury_needs_met_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_luxury_needs_met_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->luxury_needs_met_mod;
     }
     return c;
 }
 
-DECIMAL_TYPE_3P Nation::get_immigration_attraction_mod(void) {
-    DECIMAL_TYPE_3P c = DECIMAL_3P(1, 000);
+UnifiedRender::Decimal Nation::get_immigration_attraction_mod(void) {
+    UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->immigration_attraction;
     }

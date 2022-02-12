@@ -58,7 +58,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 
         // So our formula would be:
         // Sucess = Sum(Demand / (Supply + 1) * Price)
-        std::vector<float> avg_prob = std::vector<float>(world->goods.size(), 0.f);
+        std::vector<UnifiedRender::Decimal> avg_prob = std::vector<UnifiedRender::Decimal>(world->goods.size(), 0.f);
         for(const auto& product : world->products) {
             //if(product->building->get_owner() != nation) {
             //    continue;
@@ -86,8 +86,8 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 
         // The more buildings there are in the world the less we are wiling to construct one
         //float saturation = std::max<size_t>(1, world->buildings.size()) / 100;
-        float saturation = 1.f;
-        if(fmod(std::rand(), saturation)) {
+        UnifiedRender::Decimal saturation = 1.f;
+        if(std::fmod(std::rand(), saturation)) {
             print_info("Too much market saturation");
             return nullptr;
         }
@@ -247,7 +247,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
     }
 
     // Our strength as attackers
-    float our_power = 1.f;
+    UnifiedRender::Decimal our_power = 1.f;
     for(const auto& ally_nation : nation->get_allies()) {
         for(const auto& province : ally_nation->owned_provinces) {
             for(const auto& unit : province->get_units()) {
@@ -258,7 +258,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
     }
 
     // The strength of the defenders
-    float other_power = 1.f;
+    UnifiedRender::Decimal other_power = 1.f;
     for(const auto& ally_nation : other->get_allies()) {
         for(const auto& province : ally_nation->owned_provinces) {
             for(const auto& unit : province->get_units()) {
@@ -272,8 +272,8 @@ void ai_update_relations(Nation* nation, Nation* other) {
     // Calculate the times the other nation has our power, multiply that by a factor of 1,000,000
     // If the relation is negative then we divide by the positive sum of it
     if(relation.relation < 10.f) {
-        const float force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
-        const int chance = std::max<int>(0, force_dist - -relation.relation);
+        const UnifiedRender::Decimal force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
+        const int chance = std::max<UnifiedRender::Decimal>(0, force_dist - -relation.relation);
         if(std::rand() % (100 + (chance * 100)) == 0) {
             if(!relation.has_war && !other_relation.has_war) {
                 nation->declare_war(*other);
