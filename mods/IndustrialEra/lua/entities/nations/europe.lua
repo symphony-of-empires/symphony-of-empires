@@ -23,6 +23,10 @@
 --      Does important stuff
 -- ----------------------------------------------------------------------------
 
+-- TODO: Make Finland a puppet of Russia
+-- TODO: Make Norway a puppet of Sweden
+-- TODO: Make Poland a puppet of Russia
+
 -----------------------------------------------------------------------
 -- Europe (excluding balkans, scandinavia and the mess that Germany was)
 -- Initial nations
@@ -254,6 +258,16 @@ krakow:register()
 krakow:set_ideology(monarchy)
 krakow:add_accepted_culture(polish)
 krakow:add_client_hint(monarchy, _("Krakow"), 0xe6f4f7)
+
+-- Russian puppet
+congress_of_poland = Nation:new{ ref_name = "congress_of_poland" }
+congress_of_poland.name = _("Congress of Poland")
+congress_of_poland.adjective = _("Polish")
+congress_of_poland:register()
+congress_of_poland:add_accepted_culture(polish)
+congress_of_poland:add_client_hint(monarchy, _("Congress of Poland"), 0xbf85d6)
+congress_of_poland:add_client_hint(socialism, _("People's Congress of Poland"), 0xbf85d6)
+congress_of_poland:add_client_hint(republic, _("Congress of Poland"), 0xbf85d6)
 
 -- Releasable nations
 -- Poland can be formed by krakow
