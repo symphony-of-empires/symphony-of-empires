@@ -708,7 +708,7 @@ void Economy::do_tick(World& world) {
                 // TODO: Ok, look, the justification is that educated people
                 // almost never do coups - in comparasion to uneducated
                 // peseants, rich people don't need to protest!
-                const UnifiedRender::Decimal anger = (std::max(pop.militancy * pop.con, 0.001f) / std::max(pop.literacy, 1.f) / std::max(pop.life_needs_met, 0.001f));
+                const UnifiedRender::Decimal anger = (std::max<UnifiedRender::Decimal>(pop.militancy * pop.con, 0.001f) / std::max<UnifiedRender::Decimal>(pop.literacy, 1.f) / std::max<UnifiedRender::Decimal>(pop.life_needs_met, 0.001f));
                 total_anger += anger;
                 for(const auto& ideology : world.ideologies) {
                     ideology_anger[world.get_id(ideology)] += (pop.ideology_approval[world.get_id(ideology)] * anger) * (pop.size / 1000);
