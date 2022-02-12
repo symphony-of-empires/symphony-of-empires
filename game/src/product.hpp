@@ -30,6 +30,7 @@
 #include "province.hpp"
 #include "good.hpp"
 #include "building.hpp"
+#include "unified_render/decimal.hpp"
 
 // A product (based off a Good) which can be bought by POPs, converted by factories and transported
 // accross the world
@@ -43,10 +44,10 @@ public:
     Good* good;
 
     // Price of the product
-    float price;
+    UnifiedRender::Decimal price;
 
     // Velocity of change of price of the product
-    float price_vel;
+    UnifiedRender::Decimal price_vel;
 
     // Total supply (worldwide) of the product
     size_t supply;
@@ -55,7 +56,7 @@ public:
     size_t demand;
 
     // History of price, supply and demand for the past 30 days
-    std::deque<float> price_history;
+    std::deque<UnifiedRender::Decimal> price_history;
     std::deque<size_t> supply_history;
     std::deque<size_t> demand_history;
 };

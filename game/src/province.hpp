@@ -63,16 +63,16 @@ public:
 
     // Budget of the province, money stored from taxes, to later be sent into
     // the nation's main wealth ark (or in case of multiple owners - a % of wealth)
-    DECIAML_TYPE_3P budget;
+    UnifiedRender::Decimal budget;
 
     // The (military) supply limit of the province, the max number of supplies there can be per tick
-    DECIAML_TYPE_3P supply_limit;
+    UnifiedRender::Decimal supply_limit;
 
     // The number of remaining (military) supplies in the province
-    DECIAML_TYPE_3P supply_rem;
+    UnifiedRender::Decimal supply_rem;
 
     // Attractiveness of province
-    DECIAML_TYPE_3P base_attractive = 0.f;
+    UnifiedRender::Decimal base_attractive = 0.f;
 
     // Number of tiles this province takes
     size_t n_tiles = 0;

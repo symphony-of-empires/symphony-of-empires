@@ -135,41 +135,41 @@ public:
     bool foreign_trade;
 
     // Tax % for importing products
-    DECIAML_TYPE_3P import_tax;
+    UnifiedRender::Decimal import_tax;
 
     // Tax % for exporting products
-    DECIAML_TYPE_3P export_tax;
+    UnifiedRender::Decimal export_tax;
 
     // Tax % for domestic imports
-    DECIAML_TYPE_3P domestic_import_tax;
+    UnifiedRender::Decimal domestic_import_tax;
 
     // Tax % for domestic exports
-    DECIAML_TYPE_3P domestic_export_tax;
+    UnifiedRender::Decimal domestic_export_tax;
 
     // Flat tax rhs on the low-wage pops
-    DECIAML_TYPE_3P poor_flat_tax;
+    UnifiedRender::Decimal poor_flat_tax;
 
     // Flat tax rhs on the medium-wage pops
-    DECIAML_TYPE_3P med_flat_tax;
+    UnifiedRender::Decimal med_flat_tax;
 
     // Flat tax rhs on the high-wage pops
-    DECIAML_TYPE_3P rich_flat_tax;
+    UnifiedRender::Decimal rich_flat_tax;
 
     // The tax given to the industrial sector
-    DECIAML_TYPE_3P industry_tax;
+    UnifiedRender::Decimal industry_tax;
 
     // Spending done on military (% of budget)
-    DECIAML_TYPE_3P military_spending;
+    UnifiedRender::Decimal military_spending;
 
     // Units can grab anything they want from DOMESTIC provinces
     // Please notice the DOMESTIC part of this, for foreign "free grab"; check diplomatic relations!!
     bool free_supplies;
 
     // Minimum wage
-    DECIAML_TYPE_3P min_wage;
+    UnifiedRender::Decimal min_wage;
 
     // Minimum social value for people to be accounted on the parliament
-    DECIAML_TYPE_3P min_sv_for_parliament;
+    UnifiedRender::Decimal min_sv_for_parliament;
 
     inline int difference(const Policies& rhs) {
         int diff = 0;

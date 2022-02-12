@@ -170,7 +170,7 @@ void Economy::do_tick(World& world) {
                 available_farmers += employed;
 
                 // Give pay to the POP
-                const DECIMAL_TYPE_3P payment = employed * province->controller->current_policy.min_wage;
+                const UnifiedRender::Decimal payment = employed * province->controller->current_policy.min_wage;
                 workers.pop.budget += payment * building.get_owner()->get_salary_paid_mod();
                 building.budget -= payment;
                 workers.amount -= employed;
@@ -193,7 +193,7 @@ void Economy::do_tick(World& world) {
                 available_laborers += employed;
 
                 // Give pay to the POP
-                const DECIMAL_TYPE_3P payment = employed * province->controller->current_policy.min_wage;
+                const UnifiedRender::Decimal payment = employed * province->controller->current_policy.min_wage;
                 workers.pop.budget += payment * building.get_owner()->get_salary_paid_mod();
                 building.budget -= payment;
                 workers.amount -= employed;
@@ -216,7 +216,7 @@ void Economy::do_tick(World& world) {
                 available_entrepreneurs += employed;
 
                 // Give pay to the POP
-                const DECIMAL_TYPE_3P payment = employed * province->controller->current_policy.min_wage;
+                const UnifiedRender::Decimal payment = employed * province->controller->current_policy.min_wage;
                 workers.pop.budget += payment * building.get_owner()->get_salary_paid_mod();
                 building.budget -= payment;
                 workers.amount -= employed;
@@ -239,7 +239,7 @@ void Economy::do_tick(World& world) {
                         }
 
                         // Government-required supplies are super important for companies
-                        product->demand += std::max<DECIMAL_TYPE_3P>(DECIMAL_3P(100, 000), req.second / DECIMAL_3P(1000, 000));
+                        product->demand += std::max<UnifiedRender::Decimal>(100.f, req.second / 1000.f);
                     }
 
                     if(req.second) {
@@ -265,10 +265,10 @@ void Economy::do_tick(World& world) {
                     unit->set_province(*province);
                     unit->type = building.working_unit_type;
                     unit->owner = building.get_owner();
-                    unit->budget = DECIMAL_3P(5000, 000);
-                    unit->experience = DECIMAL_3P(1, 000);
-                    unit->morale = DECIMAL_3P(1, 000);
-                    unit->supply = DECIMAL_3P(1, 000);
+                    unit->budget = 5000.f;
+                    unit->experience = 1.f;
+                    unit->morale = 1.f;
+                    unit->supply = 1.f;
                     unit->defensive_ticks = 0;
                     unit->size = unit->type->max_health;
                     unit->base = unit->size;
@@ -346,7 +346,7 @@ void Economy::do_tick(World& world) {
                             continue;
                         }
 
-                        product->demand += std::min<DECIMAL_TYPE_3P>(DECIMAL_3P(100, 000), order.quantity / DECIMAL_3P(1000, 000));
+                        product->demand += std::min<UnifiedRender::Decimal>(100.f, order.quantity / 1000.f);
                     }
                 }
                 world.orders_mutex.unlock();
@@ -379,8 +379,8 @@ void Economy::do_tick(World& world) {
 
                     // Cannot be below production cost, so we can be profitable and we need
                     // to raise prices
-                    if(deliver.product->price < building.production_cost * DECIMAL_3P(1, 200)) {
-                        deliver.product->price = building.production_cost * DECIMAL_3P(1, 200);
+                    if(deliver.product->price < building.production_cost * 1.2f) {
+                        deliver.product->price = building.production_cost * 1.2f;
                     }
 
                     world.delivers.push_back(deliver);
@@ -472,10 +472,10 @@ void Economy::do_tick(World& world) {
                 }
             }
 
-            const DECIMAL_TYPE_3P order_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
-            const DECIMAL_TYPE_3P deliver_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
+            const UnifiedRender::Decimal order_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
+            const UnifiedRender::Decimal deliver_cost = deliver.product->price * std::min(order.quantity, deliver.quantity);
 
-            DECIMAL_TYPE_3P total_order_cost, total_deliver_cost;
+            UnifiedRender::Decimal total_order_cost, total_deliver_cost;
             if(order.province->controller != deliver.province->controller) {
                 // International trade
                 total_order_cost = order_cost * order_policy.import_tax;
@@ -489,12 +489,12 @@ void Economy::do_tick(World& world) {
 
             // Orders payment should also cover the import tax and a deliver payment should also cover the export
             // tax too. Otherwise we can't deliver
-            if(order.payment < total_order_cost && total_order_cost > DECIMAL_3P(0, 000)) {
+            if(order.payment < total_order_cost && total_order_cost > 0.f) {
                 if(order.type == OrderType::INDUSTRIAL) {
                     order.province->get_buildings()[order.building_idx].willing_payment = total_order_cost;
                 }
                 continue;
-            } else if(deliver.payment < total_deliver_cost && total_deliver_cost > DECIMAL_3P(0, 000)) {
+            } else if(deliver.payment < total_deliver_cost && total_deliver_cost > 0.f) {
                 deliver.province->get_buildings()[deliver.building_idx].willing_payment = total_deliver_cost;
                 continue;
             }
@@ -506,7 +506,7 @@ void Economy::do_tick(World& world) {
             deliver.province->controller->budget += total_deliver_cost - deliver_cost;
 
             // Province receives a small (military) supply buff from commerce
-            order.province->supply_rem = std::min(order.province->supply_limit, DECIMAL_3P(5, 000));
+            order.province->supply_rem = std::min<UnifiedRender::Decimal>(order.province->supply_limit, 5.f);
 
             // Obtain number of goods that we can satisfy
             size_t count = std::min<size_t>(order.quantity, deliver.quantity);
@@ -645,21 +645,21 @@ void Economy::do_tick(World& world) {
             }
 
             // Humans can survive 8 days without eating anything
-            pop.life_needs_met -= DECIMAL_3P(0, 010);
+            pop.life_needs_met -= 0.01f;
 
             // x2.5 life needs met modifier, that is the max allowed
-            pop.life_needs_met = std::min<DECIMAL_TYPE_3P>(DECIMAL_3P(1, 2000), std::max<DECIMAL_TYPE_3P>(pop.life_needs_met, DECIMAL_3P(-5, 000)));
-            pop.everyday_needs_met = std::min<DECIMAL_TYPE_3P>(DECIMAL_3P(1, 5000), std::max<DECIMAL_TYPE_3P>(pop.everyday_needs_met, DECIMAL_3P(-5, 000)));
+            pop.life_needs_met = std::min<UnifiedRender::Decimal>(1.2f, std::max<UnifiedRender::Decimal>(pop.life_needs_met, -5.f));
+            pop.everyday_needs_met = std::min<UnifiedRender::Decimal>(1.5f, std::max<UnifiedRender::Decimal>(pop.everyday_needs_met, -5.f));
 
             // Current liking of the party is influenced by the life_needs_met
-            pop.ideology_approval[world.get_id(province->controller->ideology)] += (pop.life_needs_met + DECIMAL_3P(1, 000)) / DECIMAL_3P(10, 000);
+            pop.ideology_approval[world.get_id(province->controller->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
 
             // NOTE: We used to have this thing where anything below 2.5 meant everyone dies
             // and this was removed because it's such an unescesary detail that consumes precious
             // CPU branching prediction... and we can't afford that!
 
             // Starvation in -1 or 0 or >1 are amortized by literacy
-            DECIMAL_TYPE_3P growth = pop.life_needs_met / pop.literacy;
+            UnifiedRender::Decimal growth = pop.life_needs_met / pop.literacy;
             //if(growth < 0 && (size_t)std::abs(growth) > pop.size) {
             //    growth = -pop.size;
             //}
@@ -673,11 +673,8 @@ void Economy::do_tick(World& world) {
             // Met life needs means less militancy
             // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
             // and the opposite happens with negative life needs
-            pop.militancy += DECIMAL_3P(0, 010) * (-pop.life_needs_met);
-            pop.con += DECIMAL_3P(0, 010) * (-pop.life_needs_met);
-            // TODO: Make these faster ;)
-            //pop.militancy += DECIMAL_3P(0, 010) * province->controller->get_militancy_mod();
-            //pop.con += DECIMAL_3P(0, 010) * province->controller->get_militancy_mod();
+            pop.militancy += 0.01f * (-pop.life_needs_met) * province->controller->get_militancy_mod();;
+            pop.con += 0.01f * (-pop.life_needs_met) * province->controller->get_militancy_mod();;
         }
     });
     do_emigration(world);
@@ -697,10 +694,10 @@ void Economy::do_tick(World& world) {
         }
 
         // Total anger in population (global)
-        DECIMAL_TYPE_3P total_anger = DECIMAL_3P(0, 000);
+        UnifiedRender::Decimal total_anger = 0.f;
         // Anger per ideology (how much we hate the current ideology)
         std::vector<float> ideology_anger(world.ideologies.size(), 0.f);
-        const DECIMAL_TYPE_3P coup_chances = DECIMAL_3P(1000, 000);
+        const UnifiedRender::Decimal coup_chances = 1000.f;
         for(const auto& province : nation->owned_provinces) {
             // Nobody can coup from occupied territory!
             if(province->controller != nation) {
@@ -711,9 +708,8 @@ void Economy::do_tick(World& world) {
                 // TODO: Ok, look, the justification is that educated people
                 // almost never do coups - in comparasion to uneducated
                 // peseants, rich people don't need to protest!
-                const float anger = DECIMAL_3P_TO_FLOAT(std::max(pop.militancy * pop.con, DECIMAL_3P(0, 001)) / std::max(pop.literacy, DECIMAL_3P(1, 000)) / std::max(pop.life_needs_met, DECIMAL_3P(0, 001)));
+                const UnifiedRender::Decimal anger = (std::max<UnifiedRender::Decimal>(pop.militancy * pop.con, 0.001f) / std::max<UnifiedRender::Decimal>(pop.literacy, 1.f) / std::max<UnifiedRender::Decimal>(pop.life_needs_met, 0.001f));
                 total_anger += anger;
-
                 for(const auto& ideology : world.ideologies) {
                     ideology_anger[world.get_id(ideology)] += (pop.ideology_approval[world.get_id(ideology)] * anger) * (pop.size / 1000);
                 }
@@ -722,12 +718,12 @@ void Economy::do_tick(World& world) {
 
         // Rebellions!
         // TODO: Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-        if(std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) <= DECIMAL_3P(100, 000)) {
+        if((std::fmod(rand(), (std::max(coup_chances, coup_chances - total_anger)))) <= 100.f) {
             // Compile list of uprising provinces
             std::vector<Province*> uprising_provinces;
             for(const auto& province : nation->owned_provinces) {
-                DECIMAL_TYPE_3P province_anger = DECIMAL_3P(0, 000);
-                DECIMAL_TYPE_3P province_threshold = DECIMAL_3P(0, 000);
+                UnifiedRender::Decimal province_anger = 0.f;
+                UnifiedRender::Decimal province_threshold = 0.f;
                 for(const auto& pop : province->pops) {
                     province_anger += pop.militancy * pop.con;
                     province_threshold += pop.literacy * pop.life_needs_met;
@@ -751,13 +747,14 @@ void Economy::do_tick(World& world) {
             dup_nation->ideology = world.ideologies[std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()))];
             world.insert(dup_nation);
             for(auto& _nation : world.nations) {
-                _nation->relations.resize(world.nations.size(), NationRelation{ DECIMAL_3P(0, 000), false, false, false, false, false, false, false, false, true, false });
+                _nation->relations.resize(world.nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
             }
 
             // TODO: Tell the clients about this new nation
             //g_server->broadcast(Action::NationAdd::form_packet(*dup_nation));
 
             // Make the most angry provinces revolt!
+            std::vector<TreatyClause::BaseClause*> clauses;
             for(auto& province : uprising_provinces) {
                 // TODO: We should make a copy of the `rebel` nation for every rebellion!!!
                 // TODO: We should also give them an unique ideology!!!
@@ -765,25 +762,24 @@ void Economy::do_tick(World& world) {
                 for(auto& building : province->get_buildings()) {
                     building.owner = dup_nation;
                 }
-
                 for(auto& unit : province->get_units()) {
                     unit->owner = dup_nation;
                 }
 
                 // Declare war seeking all provinces from the owner
-                std::vector<TreatyClause::BaseClause*> clauses;
                 TreatyClause::AnexxProvince* cl = new TreatyClause::AnexxProvince();
                 cl->provinces = uprising_provinces;
                 cl->sender = dup_nation;
                 cl->receiver = nation;
                 cl->type = TreatyClauseType::ANEXX_PROVINCES;
                 clauses.push_back(cl);
-                dup_nation->declare_war(*nation, clauses);
+                print_info("Revolt on [%s]! [%s] has taken over!", province->ref_name.c_str(), dup_nation->ideology->ref_name.c_str());
             }
+            dup_nation->declare_war(*nation, clauses);
         }
 
         // Roll a dice! (more probability with more anger!)
-        if(std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger)) <= 100.f) {
+        if((std::fmod(rand(), (std::max(coup_chances, coup_chances - total_anger)))) <= 100.f) {
             // Choose the ideology with most "anger" (the one more probable to coup d'
             // etat) - amgry radicals will surely throw off the current administration
             // while peaceful people won't
@@ -799,7 +795,7 @@ void Economy::do_tick(World& world) {
             // People who are aligned to the ideology are VERY happy now
             for(const auto& province : nation->owned_provinces) {
                 for(auto& pop : province->pops) {
-                    pop.militancy = DECIMAL_3P(-50, 000);
+                    pop.militancy = -50.f;
                 }
             }
 

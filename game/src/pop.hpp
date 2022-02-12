@@ -41,7 +41,7 @@ enum class PopGroup {
 
 class PopType : public RefnameEntity<uint8_t> {
 public:
-    DECIAML_TYPE_3P social_value;
+    UnifiedRender::Decimal social_value;
     PopGroup group;
 };
 
@@ -54,14 +54,14 @@ public:
 
     size_t size;
     size_t unemployed = 0;
-    DECIAML_TYPE_3P life_needs_met = 0, everyday_needs_met = 0, luxury_needs_met = 0;
-    DECIAML_TYPE_3P literacy = 0, militancy = 0, con = 0;
-    DECIAML_TYPE_3P budget = 0, savings = 0;
+    UnifiedRender::Decimal life_needs_met = 0, everyday_needs_met = 0, luxury_needs_met = 0;
+    UnifiedRender::Decimal literacy = 0, militancy = 0, con = 0;
+    UnifiedRender::Decimal budget = 0, savings = 0;
 
     PopType* type;
     Culture* culture;
     Religion* religion;
 
     // Approval % of all the ideologies (1:1)
-    std::vector<DECIAML_TYPE_3P> ideology_approval;
+    std::vector<UnifiedRender::Decimal> ideology_approval;
 };
