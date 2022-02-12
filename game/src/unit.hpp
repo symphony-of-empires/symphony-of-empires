@@ -42,11 +42,11 @@ public:
     //UnitType();
     //~UnitType();
 
-    DECIAML_TYPE_3P supply_consumption;
-    DECIAML_TYPE_3P speed;
-    DECIAML_TYPE_3P max_health;
-    DECIAML_TYPE_3P defense;
-    DECIAML_TYPE_3P attack;
+    UnifiedRender::Decimal supply_consumption;
+    UnifiedRender::Decimal speed;
+    UnifiedRender::Decimal max_health;
+    UnifiedRender::Decimal defense;
+    UnifiedRender::Decimal attack;
 
     // Max ticks allowed for defensive bonus - this basically prevents an unit from staying 200
     // years on the same spot and be fucking indestructible
@@ -54,7 +54,7 @@ public:
 
     // The defense provided by the unit each tick for staying on the same position
     // aka. digging trenches
-    DECIAML_TYPE_3P position_defense;
+    UnifiedRender::Decimal position_defense;
 
     // Capacity of units that can be carried (transport units)
     size_t capacity;
@@ -78,12 +78,12 @@ public:
     //UnitTrait();
     //~UnitTrait();
     
-    DECIAML_TYPE_3P supply_consumption_mod;
-    DECIAML_TYPE_3P speed_mod;
-    DECIAML_TYPE_3P max_health_mod;
-    DECIAML_TYPE_3P defense_mod;
-    DECIAML_TYPE_3P attack_mod;
-    DECIAML_TYPE_3P morale_mod;
+    UnifiedRender::Decimal supply_consumption_mod;
+    UnifiedRender::Decimal speed_mod;
+    UnifiedRender::Decimal max_health_mod;
+    UnifiedRender::Decimal defense_mod;
+    UnifiedRender::Decimal attack_mod;
+    UnifiedRender::Decimal morale_mod;
 };
 
 // Roughly a batallion, consisting of approximately 500 soldiers each
@@ -109,15 +109,15 @@ public:
     size_t base;
     
     Province* target = nullptr,* province = nullptr;
-    DECIAML_TYPE_3P move_progress;
+    UnifiedRender::Decimal move_progress;
 
     // Who owns this unit
     Nation* owner;
 
-    DECIAML_TYPE_3P morale;
+    UnifiedRender::Decimal morale;
 
     // For perspective, 0.5 is the normal unit (i.e a soldier POP)
-    DECIAML_TYPE_3P experience;
+    UnifiedRender::Decimal experience;
 
     // Used to "ignore" an unit when doing any check, this allows other units to
     // attack this unit
@@ -127,10 +127,10 @@ public:
     uint64_t defensive_ticks;
 
     // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
-    DECIAML_TYPE_3P supply;
+    UnifiedRender::Decimal supply;
 
     // Money that the unit has
-    DECIAML_TYPE_3P budget;
+    UnifiedRender::Decimal budget;
     
     std::vector<UnitTrait*> traits;
 

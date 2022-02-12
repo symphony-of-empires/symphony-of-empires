@@ -194,7 +194,7 @@ void Client::net_loop(void) {
                         ::deserialize(ar, nation);
                         world.insert(nation);
                         for(auto& _nation : world.nations) {
-                            _nation->relations.resize(world.nations.size(), NationRelation{ DECIMAL_3P(0, 000), false, false, false, false, false, false, false, false, true, false });
+                            _nation->relations.resize(world.nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
                         }
                         print_info("New nation [%s]", nation->ref_name.c_str());
                     } break;

@@ -92,7 +92,7 @@ int LuaAPI::add_terrain_type(lua_State* L) {
     terrain_type->name = luaL_checkstring(L, 2);
     terrain_type->color = bswap32(lua_tonumber(L, 3)) >> 8;
     terrain_type->color |= 0xff000000;
-    terrain_type->movement_penalty = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 4));
+    terrain_type->movement_penalty = (lua_tonumber(L, 4));
     terrain_type->is_water_body = lua_toboolean(L, 5);
 
     g_world->insert(terrain_type);
@@ -107,7 +107,7 @@ int LuaAPI::get_terrain_type(lua_State* L) {
     lua_pushstring(L, terrain_type->ref_name.c_str());
     lua_pushstring(L, terrain_type->name.c_str());
     lua_pushnumber(L, bswap32((terrain_type->color & 0x00ffffff) << 8));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(terrain_type->movement_penalty));
+    lua_pushnumber(L, (terrain_type->movement_penalty));
     lua_pushboolean(L, terrain_type->is_water_body);
     return 6;
 }
@@ -128,7 +128,7 @@ int LuaAPI::add_technology(lua_State* L) {
     technology->ref_name = luaL_checkstring(L, 1);
     technology->name = luaL_checkstring(L, 2);
     technology->description = lua_tostring(L, 3);
-    technology->cost = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 4));
+    technology->cost = (lua_tonumber(L, 4));
     technology->type = (TechnologyType)((int)lua_tonumber(L, 5));
 
     g_world->insert(technology);
@@ -146,7 +146,7 @@ int LuaAPI::get_technology(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(technology));
     lua_pushstring(L, technology->name.c_str());
     lua_pushstring(L, technology->description.c_str());
-    lua_pushnumber(L, DECIMAL_FLOAT_TO_3P(technology->cost));
+    lua_pushnumber(L, (technology->cost));
     lua_pushnumber(L, technology->type);
     return 5;
 }
@@ -165,11 +165,11 @@ int LuaAPI::add_unit_trait(lua_State* L) {
     UnitTrait* unit_trait = new UnitTrait();
 
     unit_trait->ref_name = luaL_checkstring(L, 1);
-    unit_trait->supply_consumption_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 2));
-    unit_trait->speed_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 3));
-    unit_trait->max_health_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 4));
-    unit_trait->defense_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 5));
-    unit_trait->attack_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 6));
+    unit_trait->supply_consumption_mod = (lua_tonumber(L, 2));
+    unit_trait->speed_mod = (lua_tonumber(L, 3));
+    unit_trait->max_health_mod = (lua_tonumber(L, 4));
+    unit_trait->defense_mod = (lua_tonumber(L, 5));
+    unit_trait->attack_mod = (lua_tonumber(L, 6));
 
     g_world->insert(unit_trait);
     lua_pushnumber(L, g_world->unit_traits.size() - 1);
@@ -188,7 +188,7 @@ int LuaAPI::add_building_type(lua_State* L) {
     building_type->is_plot_on_sea = lua_toboolean(L, 3);
     building_type->is_build_land_units = lua_toboolean(L, 4);
     building_type->is_build_naval_units = lua_toboolean(L, 5);
-    building_type->defense_bonus = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 6));
+    building_type->defense_bonus = (lua_tonumber(L, 6));
     building_type->is_factory = lua_toboolean(L, 7);
 
     g_world->insert(building_type);
@@ -205,7 +205,7 @@ int LuaAPI::get_building_type(lua_State* L) {
     lua_pushboolean(L, building_type->is_plot_on_sea);
     lua_pushboolean(L, building_type->is_build_land_units);
     lua_pushboolean(L, building_type->is_build_naval_units);
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(building_type->defense_bonus));
+    lua_pushnumber(L, (building_type->defense_bonus));
     lua_pushboolean(L, building_type->is_factory);
     return 8;
 }
@@ -510,18 +510,18 @@ int LuaAPI::get_nation_policies(lua_State* L) {
     lua_pushboolean(L, policy.executive_parliament);
     lua_pushboolean(L, policy.constitutional);
     lua_pushboolean(L, policy.foreign_trade);
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(policy.import_tax));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(policy.export_tax));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(policy.domestic_import_tax));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(policy.domestic_export_tax));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(policy.poor_flat_tax));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(policy.med_flat_tax));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(policy.rich_flat_tax));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(policy.industry_tax));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(policy.military_spending));
+    lua_pushnumber(L, (policy.import_tax));
+    lua_pushnumber(L, (policy.export_tax));
+    lua_pushnumber(L, (policy.domestic_import_tax));
+    lua_pushnumber(L, (policy.domestic_export_tax));
+    lua_pushnumber(L, (policy.poor_flat_tax));
+    lua_pushnumber(L, (policy.med_flat_tax));
+    lua_pushnumber(L, (policy.rich_flat_tax));
+    lua_pushnumber(L, (policy.industry_tax));
+    lua_pushnumber(L, (policy.military_spending));
     lua_pushboolean(L, policy.free_supplies);
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(policy.min_wage));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(policy.min_sv_for_parliament));
+    lua_pushnumber(L, (policy.min_wage));
+    lua_pushnumber(L, (policy.min_sv_for_parliament));
     return 34;
 }
 
@@ -553,18 +553,18 @@ int LuaAPI::set_nation_policies(lua_State* L) {
     policy.executive_parliament = lua_toboolean(L, 20);
     policy.constitutional = lua_toboolean(L, 21);
     policy.foreign_trade = lua_toboolean(L, 22);
-    policy.import_tax = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 23));
-    policy.export_tax = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 24));
-    policy.domestic_import_tax = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 25));
-    policy.domestic_export_tax = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 26));
-    policy.poor_flat_tax = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 27));
-    policy.med_flat_tax = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 28));
-    policy.rich_flat_tax = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 29));
-    policy.industry_tax = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 30));
-    policy.military_spending = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 31));
+    policy.import_tax = (lua_tonumber(L, 23));
+    policy.export_tax = (lua_tonumber(L, 24));
+    policy.domestic_import_tax = (lua_tonumber(L, 25));
+    policy.domestic_export_tax = (lua_tonumber(L, 26));
+    policy.poor_flat_tax = (lua_tonumber(L, 27));
+    policy.med_flat_tax = (lua_tonumber(L, 28));
+    policy.rich_flat_tax = (lua_tonumber(L, 29));
+    policy.industry_tax = (lua_tonumber(L, 30));
+    policy.military_spending = (lua_tonumber(L, 31));
     policy.free_supplies = lua_toboolean(L, 32);
-    policy.min_wage = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 33));
-    policy.min_sv_for_parliament = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 34));
+    policy.min_wage = (lua_tonumber(L, 33));
+    policy.min_sv_for_parliament = (lua_tonumber(L, 34));
     return 0;
 }
 
@@ -579,8 +579,8 @@ int LuaAPI::get_nation_relation(lua_State* L) {
     Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
 
     NationRelation& relation = nation.relations[g_world->get_id(&other_nation)];
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(relation.relation));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(relation.interest));
+    lua_pushnumber(L, (relation.relation));
+    lua_pushnumber(L, (relation.interest));
     lua_pushboolean(L, relation.has_embargo);
     lua_pushboolean(L, relation.has_war);
     lua_pushboolean(L, relation.has_alliance);
@@ -598,8 +598,8 @@ int LuaAPI::set_nation_relation(lua_State* L) {
     Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
 
     NationRelation& relation = nation.relations[g_world->get_id(&other_nation)];
-    relation.relation = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 3));
-    relation.interest = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 4));
+    relation.relation = (lua_tonumber(L, 3));
+    relation.interest = (lua_tonumber(L, 4));
     relation.has_embargo = lua_toboolean(L, 5);
     relation.has_war = lua_toboolean(L, 6);
     relation.has_alliance = lua_toboolean(L, 7);
@@ -632,19 +632,19 @@ int LuaAPI::add_nation_mod(lua_State* L) {
     mod->ref_name = luaL_checkstring(L, 1);
     mod->name = luaL_checkstring(L, 2);
 
-    mod->industry_output_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 3));
-    mod->industry_input_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 4));
-    mod->workers_needed_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 5));
-    mod->salary_paid_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 6));
-    mod->delivery_cost_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 7));
-    mod->literacy_learn_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 8));
-    mod->reproduction_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 9));
-    mod->death_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 10));
-    mod->militancy_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 11));
-    mod->con_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 12));
-    mod->life_needs_met_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 13));
-    mod->everyday_needs_met_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 14));
-    mod->luxury_needs_met_mod = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 15));
+    mod->industry_output_mod = (lua_tonumber(L, 3));
+    mod->industry_input_mod = (lua_tonumber(L, 4));
+    mod->workers_needed_mod = (lua_tonumber(L, 5));
+    mod->salary_paid_mod = (lua_tonumber(L, 6));
+    mod->delivery_cost_mod = (lua_tonumber(L, 7));
+    mod->literacy_learn_mod = (lua_tonumber(L, 8));
+    mod->reproduction_mod = (lua_tonumber(L, 9));
+    mod->death_mod = (lua_tonumber(L, 10));
+    mod->militancy_mod = (lua_tonumber(L, 11));
+    mod->con_mod = (lua_tonumber(L, 12));
+    mod->life_needs_met_mod = (lua_tonumber(L, 13));
+    mod->everyday_needs_met_mod = (lua_tonumber(L, 14));
+    mod->luxury_needs_met_mod = (lua_tonumber(L, 15));
 
     g_world->insert(mod);
     lua_pushnumber(L, g_world->get_id(mod));
@@ -657,19 +657,19 @@ int LuaAPI::get_nation_mod(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(mod));
     lua_pushstring(L, mod->name.c_str());
 
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(mod->industry_output_mod));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(mod->industry_input_mod));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(mod->workers_needed_mod));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(mod->salary_paid_mod));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(mod->delivery_cost_mod));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(mod->literacy_learn_mod));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(mod->reproduction_mod));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(mod->death_mod));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(mod->militancy_mod));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(mod->con_mod));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(mod->life_needs_met_mod));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(mod->everyday_needs_met_mod));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(mod->luxury_needs_met_mod));
+    lua_pushnumber(L, (mod->industry_output_mod));
+    lua_pushnumber(L, (mod->industry_input_mod));
+    lua_pushnumber(L, (mod->workers_needed_mod));
+    lua_pushnumber(L, (mod->salary_paid_mod));
+    lua_pushnumber(L, (mod->delivery_cost_mod));
+    lua_pushnumber(L, (mod->literacy_learn_mod));
+    lua_pushnumber(L, (mod->reproduction_mod));
+    lua_pushnumber(L, (mod->death_mod));
+    lua_pushnumber(L, (mod->militancy_mod));
+    lua_pushnumber(L, (mod->con_mod));
+    lua_pushnumber(L, (mod->life_needs_met_mod));
+    lua_pushnumber(L, (mod->everyday_needs_met_mod));
+    lua_pushnumber(L, (mod->luxury_needs_met_mod));
     return 1;
 }
 
@@ -684,7 +684,7 @@ int LuaAPI::add_province(lua_State* L) {
     province->color = (bswap32(lua_tonumber(L, 2)) >> 8) | 0xff000000;
     
     province->name = luaL_checkstring(L, 3);
-    province->budget = DECIMAL_3P(500, 000);
+    province->budget = 500.f;
 
     // Set bounding box of province to the whole world (will later be resized at the bitmap-processing step)
     province->max_x = std::numeric_limits<uint32_t>::min();
@@ -732,7 +732,7 @@ int LuaAPI::add_province_industry(lua_State* L) {
     Building building;
     building.type = g_world->building_types.at(lua_tonumber(L, 2));
     building.owner = g_world->nations.at(lua_tonumber(L, 3));
-    building.budget = DECIMAL_3P(100, 000);
+    building.budget = 100.f;
     building.province = province;
     if(building.type->is_factory == true) {
         building.create_factory();
@@ -828,35 +828,35 @@ int LuaAPI::get_province_pops_size(lua_State* L) {
 int LuaAPI::get_province_pop(lua_State* L) {
     const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     const Pop& pop = province->pops.at(lua_tonumber(L, 2));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(pop.size));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(pop.budget));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(pop.literacy));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(pop.life_needs_met));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(pop.everyday_needs_met));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(pop.luxury_needs_met));
+    lua_pushnumber(L, (pop.size));
+    lua_pushnumber(L, (pop.budget));
+    lua_pushnumber(L, (pop.literacy));
+    lua_pushnumber(L, (pop.life_needs_met));
+    lua_pushnumber(L, (pop.everyday_needs_met));
+    lua_pushnumber(L, (pop.luxury_needs_met));
     lua_pushnumber(L, g_world->get_id(pop.type));
     lua_pushnumber(L, g_world->get_id(pop.culture));
     lua_pushnumber(L, g_world->get_id(pop.religion));
     lua_pushnumber(L, g_world->get_id(pop.get_ideology()));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(pop.militancy));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(pop.con));
+    lua_pushnumber(L, (pop.militancy));
+    lua_pushnumber(L, (pop.con));
     return 10;
 }
 
 int LuaAPI::set_province_pop(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
     Pop& pop = province->pops.at(lua_tonumber(L, 2));
-    pop.size = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 3));
-    pop.budget = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 4));
-    pop.literacy = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 5));
-    pop.life_needs_met = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 6));
-    pop.everyday_needs_met = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 7));
-    pop.luxury_needs_met = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 8));
+    pop.size = (lua_tonumber(L, 3));
+    pop.budget = (lua_tonumber(L, 4));
+    pop.literacy = (lua_tonumber(L, 5));
+    pop.life_needs_met = (lua_tonumber(L, 6));
+    pop.everyday_needs_met = (lua_tonumber(L, 7));
+    pop.luxury_needs_met = (lua_tonumber(L, 8));
     pop.type = g_world->pop_types.at(lua_tonumber(L, 9));
     pop.culture = g_world->cultures.at(lua_tonumber(L, 10));
     pop.religion = g_world->religions.at(lua_tonumber(L, 11));
-    pop.militancy = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 12));
-    pop.con = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 13));
+    pop.militancy = (lua_tonumber(L, 12));
+    pop.con = (lua_tonumber(L, 13));
     return 0;
 }
 
@@ -881,8 +881,8 @@ int LuaAPI::add_province_pop(lua_State* L) {
     pop.type = g_world->pop_types.at(lua_tonumber(L, 2));
     pop.culture = g_world->cultures.at(lua_tonumber(L, 3));
     pop.religion = g_world->religions.at(lua_tonumber(L, 4));
-    pop.size = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 5));
-    pop.literacy = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 6));
+    pop.size = (lua_tonumber(L, 5));
+    pop.literacy = (lua_tonumber(L, 6));
     pop.budget = 10.f;
 
     // TODO: Make ideology NOT be random
@@ -1118,17 +1118,17 @@ int LuaAPI::add_unit_type(lua_State* L) {
 
     unit_type->ref_name = luaL_checkstring(L, 1);
     unit_type->name = luaL_checkstring(L, 2);
-    unit_type->attack = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 3));
-    unit_type->defense = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 4));
-    unit_type->max_health = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 5));
+    unit_type->attack = (lua_tonumber(L, 3));
+    unit_type->defense = (lua_tonumber(L, 4));
+    unit_type->max_health = (lua_tonumber(L, 5));
 
-    unit_type->max_defensive_ticks = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 6));
-    unit_type->position_defense = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 7));
+    unit_type->max_defensive_ticks = (lua_tonumber(L, 6));
+    unit_type->position_defense = (lua_tonumber(L, 7));
 
     unit_type->is_ground = lua_toboolean(L, 8);
     unit_type->is_naval = lua_toboolean(L, 9);
 	
-	unit_type->speed = DECIMAL_FLOAT_TO_3P(lua_tonumber(L, 10));
+	unit_type->speed = (lua_tonumber(L, 10));
 
     g_world->insert(unit_type);
     lua_pushnumber(L, g_world->unit_types.size() - 1);
@@ -1140,14 +1140,14 @@ int LuaAPI::get_unit_type(lua_State* L) {
 
     lua_pushnumber(L, g_world->get_id(unit_type));
     lua_pushstring(L, unit_type->name.c_str());
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(unit_type->attack));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(unit_type->defense));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(unit_type->max_health));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(unit_type->max_defensive_ticks));
-    lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(unit_type->position_defense));
+    lua_pushnumber(L, (unit_type->attack));
+    lua_pushnumber(L, (unit_type->defense));
+    lua_pushnumber(L, (unit_type->max_health));
+    lua_pushnumber(L, (unit_type->max_defensive_ticks));
+    lua_pushnumber(L, (unit_type->position_defense));
     lua_pushboolean(L, unit_type->is_ground);
     lua_pushboolean(L, unit_type->is_naval);
-	lua_pushnumber(L, DECIMAL_3P_TO_FLOAT(unit_type->speed));
+	lua_pushnumber(L, (unit_type->speed));
     return 10;
 }
 
