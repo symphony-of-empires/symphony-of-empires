@@ -37,6 +37,9 @@ namespace UnifiedRender {
     class TextureArray;
     class Model;
     class Quad;
+    class FontSDF;
+    class Label3d;
+
     namespace OpenGL {
         class Square;
         class Sphere;
@@ -98,6 +101,7 @@ public:
     void set_map_mode(mapmode_generator mapmode_func, mapmode_tooltip tooltip_func);
     void set_view(MapView view);
     void reload_shaders();
+    void create_labels();
 
     MapRender* map_render;
     MapView view_mode = MapView::PLANE_VIEW;
@@ -107,11 +111,9 @@ public:
     std::vector<const UnifiedRender::Texture*> unit_type_icons;
     std::vector<const UnifiedRender::Texture*> nation_flags;
 
-    std::vector<UnifiedRender::Texture*> province_names_text;
-    std::vector<UnifiedRender::Quad*> province_names_quad;
-
-    std::vector<UnifiedRender::Texture*> nation_names_text;
-    std::vector<UnifiedRender::Quad*> nation_names_quad;
+    std::vector<UnifiedRender::Label3d*> province_labels;
+    std::vector<UnifiedRender::Label3d*> nation_labels;
+    UnifiedRender::FontSDF* map_font;
 
     // Wind oscillator (for flags)
     float wind_osc = 0.f;

@@ -44,6 +44,12 @@ namespace UnifiedRender {
         ~Square();
     };
 
+    class TriangleList: public UnifiedRender::Mesh<glm::vec3, glm::vec2> {
+    public:
+        TriangleList(std::vector<glm::vec3>& positions, std::vector<glm::vec2>& tex_coords);
+        ~TriangleList();
+    };
+    
     class Quad: public UnifiedRender::Mesh<glm::vec3, glm::vec2> {
     public:
         Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4);

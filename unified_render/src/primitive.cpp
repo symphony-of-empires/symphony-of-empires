@@ -35,11 +35,11 @@
 #endif
 
 UnifiedRender::Line::Line(float start_x, float start_y, float end_x, float end_y)
-    : UnifiedRender::Mesh<glm::vec2, glm::vec2>(UnifiedRender::MeshMode::LINES)
+	: UnifiedRender::Mesh<glm::vec2, glm::vec2>(UnifiedRender::MeshMode::LINES)
 {
-    buffer.resize(2);
-    buffer[0] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
-    buffer[1] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(end_x, end_y), glm::vec2(1.f, 1.f));
+	buffer.resize(2);
+	buffer[0] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
+	buffer[1] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(end_x, end_y), glm::vec2(1.f, 1.f));
 
 	upload();
 }
@@ -49,15 +49,15 @@ UnifiedRender::Line::~Line(void) {
 }
 
 UnifiedRender::Square::Square(float start_x, float start_y, float end_x, float end_y)
-    : UnifiedRender::Mesh<glm::vec2, glm::vec2>(UnifiedRender::MeshMode::TRIANGLES)
+	: UnifiedRender::Mesh<glm::vec2, glm::vec2>(UnifiedRender::MeshMode::TRIANGLES)
 {
-    buffer.resize(6);
-    buffer[0] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
-    buffer[1] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(end_x, start_y), glm::vec2(1.f, 0.f));
-    buffer[2] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(start_x, end_y), glm::vec2(0.f, 1.f));
-    buffer[3] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(start_x, end_y), glm::vec2(0.f, 1.f));
-    buffer[4] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(end_x, start_y), glm::vec2(1.f, 0.f));
-    buffer[5] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(end_x, end_y), glm::vec2(1.f, 1.f));
+	buffer.resize(6);
+	buffer[0] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
+	buffer[1] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(end_x, start_y), glm::vec2(1.f, 0.f));
+	buffer[2] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(start_x, end_y), glm::vec2(0.f, 1.f));
+	buffer[3] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(start_x, end_y), glm::vec2(0.f, 1.f));
+	buffer[4] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(end_x, start_y), glm::vec2(1.f, 0.f));
+	buffer[5] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(end_x, end_y), glm::vec2(1.f, 1.f));
 
 	upload();
 }
@@ -66,16 +66,30 @@ UnifiedRender::Square::~Square(void) {
 
 }
 
-UnifiedRender::Quad::Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4)
-    : UnifiedRender::Mesh<glm::vec3, glm::vec2>(UnifiedRender::MeshMode::TRIANGLES)
+UnifiedRender::TriangleList::TriangleList(std::vector<glm::vec3>& positions, std::vector<glm::vec2>& tex_coords)
+	: UnifiedRender::Mesh<glm::vec3, glm::vec2>(UnifiedRender::MeshMode::TRIANGLES)
 {
-    buffer.resize(6);
-    buffer[0] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c1, glm::vec2(0.f, 0.f));
-    buffer[1] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c2, glm::vec2(0.f, 1.f));
-    buffer[2] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c3, glm::vec2(1.f, 1.f));
-    buffer[3] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c3, glm::vec2(1.f, 1.f));
-    buffer[4] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c4, glm::vec2(1.f, 0.f));
-    buffer[5] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c1, glm::vec2(0.f, 0.f));
+	buffer.resize(positions.size());
+	for(size_t i = 0; i < positions.size(); i++) {
+		buffer[i] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(positions[i], tex_coords[i]);
+	}
+	upload();
+}
+
+UnifiedRender::TriangleList::~TriangleList(void) {
+
+}
+
+UnifiedRender::Quad::Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4)
+	: UnifiedRender::Mesh<glm::vec3, glm::vec2>(UnifiedRender::MeshMode::TRIANGLES)
+{
+	buffer.resize(6);
+	buffer[0] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c1, glm::vec2(0.f, 0.f));
+	buffer[1] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c2, glm::vec2(0.f, 1.f));
+	buffer[2] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c3, glm::vec2(1.f, 1.f));
+	buffer[3] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c3, glm::vec2(1.f, 1.f));
+	buffer[4] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c4, glm::vec2(1.f, 0.f));
+	buffer[5] = UnifiedRender::MeshData<glm::vec3, glm::vec2>(c1, glm::vec2(0.f, 0.f));
 
 	upload();
 }
@@ -104,8 +118,8 @@ UnifiedRender::Quad2D::~Quad2D(void) {
 
 UnifiedRender::Sphere::Sphere(float center_x, float center_y, float center_z, float _radius, int _resolution)
 	: UnifiedRender::Mesh<glm::vec3, glm::vec2>(UnifiedRender::MeshMode::TRIANGLES),
-	resolution{_resolution},
-    radius{_radius}
+	resolution{ _resolution },
+	radius{ _radius }
 {
 	buffer.resize(6 * resolution * resolution);
 	glm::vec3 center_pos(center_x, center_y, center_z);

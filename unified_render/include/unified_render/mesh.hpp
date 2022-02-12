@@ -97,7 +97,7 @@ namespace UnifiedRender {
     class Mesh {
     public:
         Mesh(enum UnifiedRender::MeshMode _mode) : mode(_mode) {};
-        ~Mesh() {};
+        virtual ~Mesh() {};
         Mesh(const Mesh&) = default;
         Mesh(Mesh&&) noexcept = default;
         Mesh& operator=(const Mesh&) = default;
