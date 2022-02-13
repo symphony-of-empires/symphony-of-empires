@@ -197,12 +197,15 @@ namespace UI {
 			dead = true;
 		};
 
-		std::function<void(Widget&, void*)> on_update;
+		std::function<void(Widget&)> on_update;
 		std::function<void(Widget&, glm::ivec2 mouse_pos, glm::ivec2 widget_pos)> on_hover;
-		std::function<void(Widget&, void*)> on_click;
-		std::function<void(Widget&, void*)> on_click_outside;
+		std::function<void(Widget&)> on_click;
+        virtual void set_on_click(std::function<void(Widget&)> _on_click) {
+			on_click = _on_click; 
+		}
+		std::function<void(Widget&)> on_click_outside;
 
-		std::function<void(Widget&, void*)> on_each_tick;
+		std::function<void(Widget&)> on_each_tick;
 
 		friend class Context;
 

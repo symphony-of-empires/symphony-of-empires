@@ -45,7 +45,7 @@
 UI::Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::INPUT)
 {
-    this->on_textinput = ([](UI::Input& w, const char* input, void*) {
+    this->on_textinput = ([](UI::Input& w, const char* input) {
         if(input != nullptr) {
             w.buffer += input;
         }

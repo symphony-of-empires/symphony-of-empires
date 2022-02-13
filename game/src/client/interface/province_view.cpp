@@ -79,7 +79,8 @@ void ProvincePopulationTab::update_piecharts() {
             PopInfo* info = new PopInfo(gs, 0, (i * 24) + 128, province, i, this);
             pop_infos.push_back(info);
         }
-    } else if(pop_infos.size() > province->pops.size()) {
+    }
+    else if(pop_infos.size() > province->pops.size()) {
         for(size_t i = province->pops.size(); i < pop_infos.size(); i++) {
             pop_infos[i]->kill();
         }
@@ -106,12 +107,12 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     new UI::Label(this->pop_types_pie->x, this->pop_types_pie->y, "Proffesions", this);
 
     update_piecharts();
-    this->on_each_tick = ([](UI::Widget& w, void*) {
+    this->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<ProvincePopulationTab&>(w);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
         }
-        
+
         o.update_piecharts();
     });
 }
@@ -126,7 +127,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
     this->products_pie = new UI::PieChart(0, 0, 128, 128, this);
     new UI::Label(0, 0, "Products", this);
 
-    this->on_each_tick = ([](UI::Widget& w, void*) {
+    this->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<ProvinceEconomyTab&>(w);
 
         // Obtain demand, supply and other information about the goods
@@ -172,7 +173,7 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
 
     auto* build_btn = new UI::Button(0, 0, 128, 24, this);
     build_btn->text("Build new");
-    build_btn->on_click = ([](UI::Widget& w, void*) {
+    build_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProvinceView&>(*w.parent->parent);
         new BuildingBuildView(o.gs, 0, 0, false, o.gs.curr_nation, o.province);
     });
@@ -198,11 +199,10 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Pro
     for(const auto& culture : gs.world->cultures) {
         auto* btn = new UI::Button(0, dy, 128, 24, this);
         btn->text(culture->name);
-        btn->user_data = (void*)culture;
-        btn->on_click = ([](UI::Widget& w, void* data) {
+        btn->on_click = ([culture](UI::Widget& w) {
             auto& o = static_cast<ProvinceEditCultureTab&>(*w.parent);
             for(auto& pop : o.province->pops) {
-                pop.culture = (Culture*)data;
+                pop.culture = culture;
             }
             o.gs.map->update_mapmode();
         });
@@ -223,10 +223,9 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
     for(const auto& terrain_type : gs.world->terrain_types) {
         auto* btn = new UI::Button(0, dy, 128, 24, this);
         btn->text(terrain_type->name);
-        btn->user_data = (void*)terrain_type;
-        btn->on_click = ([](UI::Widget& w, void* data) {
+        btn->on_click = ([terrain_type](UI::Widget& w) {
             auto& o = static_cast<ProvinceEditTerrainTab&>(*w.parent);
-            o.province->terrain_type = (TerrainType*)data;
+            o.province->terrain_type = terrain_type;
             o.gs.map->update_mapmode();
         });
         dy += btn->height;
@@ -250,7 +249,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->pop_tab = new ProvincePopulationTab(gs, 0, 32, province, this);
     this->pop_tab->is_render = true;
     auto* pop_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_1.png")), this);
-    pop_ibtn->on_click = ([](UI::Widget& w, void*) {
+    pop_ibtn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
         o.pop_tab->is_render = true;
@@ -264,7 +263,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->econ_tab->is_render = false;
     auto* econ_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_2.png")), this);
     econ_ibtn->right_side_of(*pop_ibtn);
-    econ_ibtn->on_click = ([](UI::Widget& w, void*) {
+    econ_ibtn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
         o.pop_tab->is_render = false;
@@ -278,7 +277,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->build_tab->is_render = false;
     auto* build_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
     build_ibtn->right_side_of(*econ_ibtn);
-    build_ibtn->on_click = ([](UI::Widget& w, void*) {
+    build_ibtn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
         o.pop_tab->is_render = false;
@@ -290,7 +289,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
     auto* nation_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_3.png")), this);
     nation_ibtn->right_side_of(*build_ibtn);
-    nation_ibtn->on_click = ([](UI::Widget& w, void*) {
+    nation_ibtn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
 
         // View the nation info only if the province has a valid owner
@@ -306,7 +305,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
     close_btn->right_side_of(*nation_ibtn);
     close_btn->text("Close");
-    close_btn->on_click = ([](UI::Widget& w, void*) {
+    close_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
         o.gs.right_side_panel->kill();
         o.gs.right_side_panel = nullptr;
@@ -316,10 +315,10 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         rename_inp = new UI::Input(0, this->height - (64 + 24), 128, 24, this);
         rename_inp->buffer = province->name;
         rename_inp->text(rename_inp->buffer);
-        
+
         auto* xchg_name_btn = new UI::Image(0, this->height - (64 + 24), 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         xchg_name_btn->right_side_of(*rename_inp);
-        xchg_name_btn->on_click = ([](UI::Widget& w, void*) {
+        xchg_name_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
             o.province->name = o.rename_inp->buffer;
             o.gs.ui_ctx->prompt("Update", "Updated name of province to \"" + o.province->name + "\"!");
@@ -330,14 +329,14 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         density_sld = new UI::Slider(0, this->height - (64 + 24), 128, 24, 0.1f, 2.f, this);
         density_sld->right_side_of(*xchg_name_btn);
         density_sld->value = 0.f;
-        density_sld->on_click = ([](UI::Widget& w, void*) {
+        density_sld->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
             w.text(std::to_string(((UI::Slider&)w).value));
         });
 
         auto* xchg_dens_btn = new UI::Image(0, this->height - (64 + 24), 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         xchg_dens_btn->right_side_of(*density_sld);
-        xchg_dens_btn->on_click = ([](UI::Widget& w, void*) {
+        xchg_dens_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
 
             const float den = o.density_sld->value;
@@ -352,7 +351,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
         auto* fill_pops_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         fill_pops_btn->below_of(*xchg_dens_btn);
-        fill_pops_btn->on_click = ([](UI::Widget& w, void*) {
+        fill_pops_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
 
             // Get max sv
@@ -382,7 +381,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         auto* clear_pops_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         clear_pops_btn->below_of(*xchg_dens_btn);
         clear_pops_btn->right_side_of(*fill_pops_btn);
-        clear_pops_btn->on_click = ([](UI::Widget& w, void*) {
+        clear_pops_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
             o.province->pops.clear();
             o.gs.map->update_mapmode();
@@ -396,7 +395,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         auto* edit_culture_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         edit_culture_btn->below_of(*xchg_dens_btn);
         edit_culture_btn->right_side_of(*clear_pops_btn);
-        edit_culture_btn->on_click = ([](UI::Widget& w, void*) {
+        edit_culture_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
             o.pop_tab->is_render = false;
             o.econ_tab->is_render = false;
@@ -412,7 +411,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         auto* edit_terrain_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         edit_terrain_btn->below_of(*xchg_dens_btn);
         edit_terrain_btn->right_side_of(*edit_culture_btn);
-        edit_terrain_btn->on_click = ([](UI::Widget& w, void*) {
+        edit_terrain_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
             o.pop_tab->is_render = false;
             o.econ_tab->is_render = false;
@@ -426,7 +425,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         auto* exbuild_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         exbuild_btn->below_of(*xchg_dens_btn);
         exbuild_btn->right_side_of(*edit_terrain_btn);
-        exbuild_btn->on_click = ([](UI::Widget& w, void*) {
+        exbuild_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
             for(auto& building : o.province->get_buildings()) {
                 building.owner = o.gs.curr_nation;

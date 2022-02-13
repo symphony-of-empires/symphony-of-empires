@@ -63,7 +63,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     nation{ _nation }
 {
     this->is_scroll = false;
-    this->on_each_tick = ([](UI::Widget& w, void*) {
+    this->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<NationView&>(w);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -73,7 +73,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     });
 
     auto* flag_img = new UI::Image(0, 0, 128, 96, nullptr, this);
-    flag_img->on_each_tick = ([](UI::Widget& w, void*) {
+    flag_img->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<NationView&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -85,7 +85,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
 
     auto* name_lab = new UI::Label(0, 0, "?", this);
     name_lab->below_of(*flag_img);
-    name_lab->on_each_tick = ([](UI::Widget& w, void*) {
+    name_lab->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<NationView&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -97,7 +97,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
 
     auto* ideology_lab = new UI::Label(0, 0, "?", this);
     ideology_lab->below_of(*name_lab);
-    ideology_lab->on_each_tick = ([](UI::Widget& w, void*) {
+    ideology_lab->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<NationView&>(*w.parent);
        if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -112,7 +112,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     if(gs.curr_nation != nation) {
         rel_lab = new UI::Label(0, 0, "?", this);
         rel_lab->below_of(*ideology_lab);
-        rel_lab->on_each_tick = ([](UI::Widget& w, void*) {
+        rel_lab->on_each_tick = ([](UI::Widget& w) {
             auto& o = static_cast<NationView&>(*w.parent);
             if(o.gs.world->time % o.gs.world->ticks_per_month) {
                 return;
@@ -124,7 +124,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
 
         interest_lab = new UI::Label(0, 0, "?", this);
         interest_lab->below_of(*rel_lab);
-        interest_lab->on_each_tick = ([](UI::Widget& w, void*) {
+        interest_lab->on_each_tick = ([](UI::Widget& w) {
             auto& o = static_cast<NationView&>(*w.parent);
             if(o.gs.world->time % o.gs.world->ticks_per_month) {
                 return;
@@ -142,7 +142,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         market_btn->below_of(*ideology_lab);
     }
     market_btn->text(UnifiedRender::Locale::translate("Examine market"));
-    market_btn->on_click = ([](UI::Widget& w, void*) {
+    market_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<NationView&>(*w.parent);
         new NationMarketView(o.gs, o.nation);
     });
@@ -154,7 +154,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         auto* inc_btn = new UI::Button(0, 0, this->width, 24, this);
         inc_btn->below_of(*market_btn);
         inc_btn->text(UnifiedRender::Locale::translate("Increment relations"));
-        inc_btn->on_click = ([](UI::Widget& w, void*) {
+        inc_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<NationView&>(*w.parent);
             g_client->send(Action::DiploIncRelations::form_packet(o.nation));
         });
@@ -162,7 +162,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         auto* dec_btn = new UI::Button(0, 0, this->width, 24, this);
         dec_btn->below_of(*inc_btn);
         dec_btn->text(UnifiedRender::Locale::translate("Decrement relations"));
-        dec_btn->on_click = ([](UI::Widget& w, void*) {
+        dec_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<NationView&>(*w.parent);
             g_client->send(Action::DiploDecRelations::form_packet(o.nation));
         });
@@ -170,26 +170,26 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         auto* dow_btn = new UI::Button(0, 0, this->width, 24, this);
         dow_btn->below_of(*dec_btn);
         dow_btn->tooltip = new UI::Tooltip(dow_btn, 512, 24);
-        dow_btn->on_each_tick = ([](UI::Widget& w, void*) {
+        dow_btn->on_each_tick = ([](UI::Widget& w) {
             auto& o = static_cast<NationView&>(*w.parent);
 
             if(o.gs.curr_nation->relations[o.gs.world->get_id(o.nation)].has_war) {
                 w.text(UnifiedRender::Locale::translate("Propose treaty"));
-                w.on_click = ([](UI::Widget& w, void*) {
+                w.on_click = ([](UI::Widget& w) {
                     auto& o = static_cast<NationView&>(*w.parent);
                     new Interface::TreatyDraftView(o.gs, o.nation);
                 });
                 w.tooltip->text(UnifiedRender::Locale::translate("End the war against this country and propose a peace deal"));
             } else {
                 w.text(UnifiedRender::Locale::translate("Declare war"));
-                w.on_click = ([](UI::Widget& w, void*) {
+                w.on_click = ([](UI::Widget& w) {
                     auto& o = static_cast<NationView&>(*w.parent);
                     new Interface::WarDeclarePrompt(o.gs, o.nation);
                 });
                 w.tooltip->text(UnifiedRender::Locale::translate("Declaring war on this nation will bring all their allies to their side"));
             }
         });
-        dow_btn->on_each_tick(*dow_btn, nullptr);
+        dow_btn->on_each_tick(*dow_btn);
 
         auto* ally_btn = new UI::Button(0, 0, this->width, 24, this);
         ally_btn->below_of(*dow_btn);
@@ -230,7 +230,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         switch_btn->text(UnifiedRender::Locale::translate("Switch to this nation"));
         switch_btn->tooltip = new UI::Tooltip(switch_btn, 512, 24);
         switch_btn->tooltip->text(UnifiedRender::Locale::translate("Switches to this nation (multiplayer disallow rule)"));
-        switch_btn->on_click = ([](UI::Widget& w, void*) {
+        switch_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<NationView&>(*w.parent);
             o.gs.curr_nation = o.nation;
         });

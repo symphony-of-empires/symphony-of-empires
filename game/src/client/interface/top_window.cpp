@@ -51,7 +51,7 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto nation_flag = &gs.get_nation_flag(*gs.curr_nation);
     auto* flag_img = new UI::Image(5, 4, 138, 88, nation_flag, this);
-    flag_img->on_each_tick = ([](UI::Widget& w, void*) {
+    flag_img->on_each_tick = ([](UI::Widget& w) {
         auto& state = static_cast<TopWindow&>(*w.parent);
 
         w.current_texture = &state.gs.get_nation_flag(*state.gs.curr_nation);
@@ -65,34 +65,34 @@ TopWindow::TopWindow(GameState& _gs)
     int icon_size = 25;
 
     auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/book.png", flex_column);
-    policy_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
+    policy_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
         auto& o = static_cast<TopWindow&>(*w.parent->parent);
         new Interface::PoliciesScreen(o.gs);
     });
     policy_ibtn->set_tooltip("Laws & Policies");
 
     auto* economy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/economy.png", flex_column);
-    economy_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
+    economy_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
         // auto& o = static_cast<TopWindow&>(*w.parent->parent);
     });
     economy_ibtn->set_tooltip("Economy & World Market");
 
     auto* military_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/military_score.png", flex_column);
-    military_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
+    military_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
         auto& o = static_cast<TopWindow&>(*w.parent->parent);
         new Interface::ArmyView(o.gs);
     });
     military_ibtn->set_tooltip("Military");
 
     auto* research_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/tech.png", flex_column);
-    research_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
+    research_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
         auto& o = static_cast<TopWindow&>(*w.parent->parent);
         new Interface::TechTreeView(o.gs);
     });
     research_ibtn->set_tooltip("Research");
 
     auto* save_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/save.png", flex_column);
-    save_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
+    save_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
         auto& o = static_cast<TopWindow&>(*w.parent->parent);
         save(o.gs);
     });
@@ -100,7 +100,7 @@ TopWindow::TopWindow(GameState& _gs)
 
     /*
     auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", this);
-    load_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
+    load_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
         auto& o = static_cast<TopWindow&>(*w.parent);
 
         delete o.gs.world;
@@ -120,7 +120,7 @@ TopWindow::TopWindow(GameState& _gs)
     */
 
     auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/exit.png", flex_column);
-    exit_ibtn->on_click = (UI::Callback)([](UI::Widget& w, void*) {
+    exit_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
         auto& o = static_cast<TopWindow&>(*w.parent->parent);
         o.gs.run = false;
     });
@@ -137,7 +137,7 @@ TimeControlView::TimeControlView(GameState& _gs)
 
     auto* speed0_btn = new UI::Button(0, 0, 48, 24, this);
     speed0_btn->text("||");
-    speed0_btn->on_click = ([](UI::Widget& w, void*) {
+    speed0_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<TimeControlView&>(*w.parent);
         o.gs.paused = true;
     });
@@ -147,7 +147,7 @@ TimeControlView::TimeControlView(GameState& _gs)
     auto* speed1_btn = new UI::Button(0, 0, 48, 24, this);
     speed1_btn->right_side_of(*speed0_btn);
     speed1_btn->text(">");
-    speed1_btn->on_click = ([](UI::Widget& w, void*) {
+    speed1_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<TimeControlView&>(*w.parent);
         o.gs.paused = false;
         o.gs.ms_delay_speed = 1000;
@@ -158,7 +158,7 @@ TimeControlView::TimeControlView(GameState& _gs)
     auto* speed2_btn = new UI::Button(0, 0, 48, 24, this);
     speed2_btn->right_side_of(*speed1_btn);
     speed2_btn->text(">>");
-    speed2_btn->on_click = ([](UI::Widget& w, void*) {
+    speed2_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<TimeControlView&>(*w.parent);
         o.gs.paused = false;
         o.gs.ms_delay_speed = 500;
@@ -169,7 +169,7 @@ TimeControlView::TimeControlView(GameState& _gs)
     auto* speed3_btn = new UI::Button(0, 0, 48, 24, this);
     speed3_btn->right_side_of(*speed2_btn);
     speed3_btn->text(">>>");
-    speed3_btn->on_click = ([](UI::Widget& w, void*) {
+    speed3_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<TimeControlView&>(*w.parent);
         o.gs.paused = false;
         o.gs.ms_delay_speed = 50;
@@ -178,7 +178,7 @@ TimeControlView::TimeControlView(GameState& _gs)
     speed3_btn->tooltip->text("Fire speed");
 
     auto* time_lab = new UI::Label(192, 24, " ", this);
-    time_lab->on_each_tick = ([](UI::Widget& w, void*) {
+    time_lab->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<TimeControlView&>(*w.parent);
         const std::string day_names[7] = {
             "Monday",
@@ -211,5 +211,5 @@ TimeControlView::TimeControlView(GameState& _gs)
         w.text(day_names[day % 7] + ", " + month_names[month] + " " + std::to_string(day) + ", " + std::to_string(year));
         w.x = 192 - w.width;
     });
-    time_lab->on_each_tick(*time_lab, nullptr);
+    time_lab->on_each_tick(*time_lab);
 }

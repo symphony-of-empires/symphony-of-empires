@@ -56,7 +56,7 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* pa
     unit{ _unit }
 {
     text(std::to_string(unit->size) + " " + unit->type->name);
-    on_each_tick = ([](UI::Widget& w, void*) {
+    on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<UnitButton&>(*w.parent);
         w.text(std::to_string(o.unit->size) + " " + UnifiedRender::Locale::translate(o.unit->type->name));
     });
@@ -83,7 +83,7 @@ ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province
     province{ _province }
 {
     text(province->name);
-    on_each_tick = ([](UI::Widget& w, void*) {
+    on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<ProvinceButton&>(w);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -101,7 +101,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
 
     this->flag_icon = new UI::Image(0, 0, 32, 24, nullptr, this);
     this->flag_icon->current_texture = &gs.get_nation_flag(*nation);
-    this->flag_icon->on_each_tick = ([](UI::Widget& w, void*) {
+    this->flag_icon->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<NationButton&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -112,7 +112,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->flag_icon);
     this->name_btn->text(nation->get_client_hint().alt_name);
-    this->name_btn->on_each_tick = ([](UI::Widget& w, void*) {
+    this->name_btn->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<NationButton&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -131,7 +131,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
 
     const Building& building = province->get_buildings().at(idx);
     auto* name_btn = new UI::Button(0, 0, 128, 24, this);
-    name_btn->on_each_tick = ([](UI::Widget& w, void*) {
+    name_btn->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<BuildingInfo&>(*w.parent);
 
         if(o.idx >= o.province->get_buildings().size()) {
@@ -149,10 +149,9 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
     for(const auto& good : building.type->inputs) {
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
         icon_ibtn->below_of(*name_btn);
-        icon_ibtn->user_data = good;
-        icon_ibtn->on_click = ([](UI::Widget& w, void* data) {
+        icon_ibtn->on_click = ([good](UI::Widget& w) {
             auto& o = static_cast<BuildingInfo&>(*w.parent);
-            new GoodView(o.gs, (Good*)data);
+            new GoodView(o.gs, good);
         });
         dx += icon_ibtn->width;
     }
@@ -163,10 +162,9 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
     for(const auto& good : building.type->outputs) {
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
         icon_ibtn->below_of(*input_lab);
-        icon_ibtn->user_data = good;
-        icon_ibtn->on_click = ([](UI::Widget& w, void* data) {
+        icon_ibtn->on_click = ([good](UI::Widget& w) {
             auto& o = static_cast<BuildingInfo&>(*w.parent);
-            new GoodView(o.gs, (Good*)data);
+            new GoodView(o.gs, good);
         });
         dx += icon_ibtn->width;
     }
@@ -190,7 +188,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
     auto* chk = new UI::Checkbox(0, 0, 128, 24, this);
     chk->text(technology->name);
     chk->tooltip = new UI::Tooltip(chk, 512, 24);
-    chk->on_each_tick = ([](UI::Widget& w, void*) {
+    chk->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<TechnologyInfo&>(*w.parent);
         if(o.technology == o.gs.curr_nation->focus_tech || !o.gs.curr_nation->research[o.gs.world->get_id(o.technology)]) {
             ((UI::Checkbox&)w).set_value(true);
@@ -217,10 +215,10 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
             o.gs.client->send(Action::FocusTech::form_packet(o.technology));
         }
     });
-    chk->on_each_tick(*chk, nullptr);
+    chk->on_each_tick(*chk);
 
     auto* pgbar = new UI::ProgressBar(0, 24, 128, 24, 0.f, technology->cost, this);
-    pgbar->on_each_tick = ([](UI::Widget& w, void*) {
+    pgbar->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<TechnologyInfo&>(*w.parent);
         ((UI::ProgressBar&)w).value = std::fabs(o.gs.curr_nation->research[o.gs.world->get_id(o.technology)] - o.technology->cost);
     });
@@ -248,7 +246,7 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
     this->culture_btn = new UI::Button(0, 0, 128, 24, this);
     this->culture_btn->right_side_of(*this->religion_ibtn);
     
-    this->on_each_tick = ([](UI::Widget& w, void*) {
+    this->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<PopInfo&>(w);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -265,7 +263,7 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
         o.religion_ibtn->tooltip->text(UnifiedRender::Locale::translate(pop.religion->name));
         o.culture_btn->text(UnifiedRender::Locale::translate(pop.culture->name));
     });
-    this->on_each_tick(*this, nullptr);
+    this->on_each_tick(*this);
 }
 
 ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Widget* parent)
@@ -277,7 +275,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
 
     this->good_ibtn = new UI::Image(0, 0, 24, 24, nullptr, this);
     this->good_ibtn->current_texture = &gs.tex_man->load(Path::get("gfx/good/" + product->good->ref_name + ".png"));
-    this->good_ibtn->on_click = ([](UI::Widget& w, void*) {
+    this->good_ibtn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new GoodView(o.gs, o.product->good);
     });
@@ -289,7 +287,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
 
     this->price_chart = new UI::Chart(0, 0, 96, 24, this);
     this->price_chart->right_side_of(*this->price_rate_btn);
-    this->price_chart->on_click = ([](UI::Widget& w, void*) {
+    this->price_chart->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new ProductView(o.gs, o.product);
     });
@@ -297,7 +295,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
 
     this->supply_chart = new UI::Chart(0, 0, 96, 24, this);
     this->supply_chart->right_side_of(*this->price_chart);
-    this->supply_chart->on_click = ([](UI::Widget& w, void*) {
+    this->supply_chart->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new ProductView(o.gs, o.product);
     });
@@ -305,13 +303,13 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
 
     this->demand_chart = new UI::Chart(0, 0, 96, 24, this);
     this->demand_chart->right_side_of(*this->supply_chart);
-    this->demand_chart->on_click = ([](UI::Widget& w, void*) {
+    this->demand_chart->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new ProductView(o.gs, o.product);
     });
     this->demand_chart->set_tooltip(new UI::Tooltip(this->demand_chart, 512, 24));
 
-    this->on_each_tick = ([](UI::Widget& w, void*) {
+    this->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(w);
 
         // Only update every ticks_per_month ticks
@@ -345,5 +343,5 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
             o.price_rate_btn->text_color = UnifiedRender::Color(255, 0, 0);
         }
     });
-    this->on_each_tick(*this, nullptr);
+    this->on_each_tick(*this);
 }
