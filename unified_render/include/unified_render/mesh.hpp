@@ -69,7 +69,7 @@ namespace UnifiedRender::OpenGL {
 #endif
 
 namespace UnifiedRender {
-    enum class MeshMode  {
+    enum class MeshMode {
 #ifdef UR_BACKEND_OPENGL
         TRIANGLE_FAN = GL_TRIANGLE_FAN,
         TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
@@ -78,7 +78,7 @@ namespace UnifiedRender {
 #endif
     };
 
-    template<typename V, typename T>
+    template<typename V = glm::vec3, typename T = glm::vec2>
     class MeshData {
     public:
         MeshData(void) {};
@@ -93,7 +93,7 @@ namespace UnifiedRender {
     };
 
     // Packed model - packs both vertices and texcoords into the same buffer
-    template<typename V, typename T>
+    template<typename V = glm::vec3, typename T = glm::vec2>
     class Mesh {
     public:
         Mesh(enum UnifiedRender::MeshMode _mode) : mode(_mode) {};
@@ -124,7 +124,7 @@ namespace UnifiedRender {
             glEnableVertexAttribArray(0);
 
             // Texcoords
-            const int tex_stride = ((int)V::length() * (int)sizeof(float));
+            constexpr int tex_stride = ((int)V::length() * (int)sizeof(float));
             glVertexAttribPointer(1, T::length(), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)((uintptr_t)tex_stride));
             glEnableVertexAttribArray(1);
         };
@@ -132,6 +132,7 @@ namespace UnifiedRender {
 
         std::vector<UnifiedRender::MeshData<V, T>> buffer;
         enum UnifiedRender::MeshMode mode;
+
 #ifdef UR_BACKEND_OPENGL
         // The initialization should be done in this order, first the VAO
         // then initialize the VBO!

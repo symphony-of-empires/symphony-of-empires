@@ -440,14 +440,6 @@ void World::load_initial(void) {
     ideologies.shrink_to_fit();
     building_types.shrink_to_fit();
 
-    // Build a lookup table for super fast speed on finding provinces
-    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Building the province lookup table"));
-    std::vector<Province::Id> province_color_table(16777216, (Province::Id)-1);
-    for(auto& province : provinces) {
-        province_color_table[province->color & 0xffffff] = get_id(province);
-    }
-
     // Associate tiles with province
     std::unique_ptr<BinaryImage> div = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map/provinces.png")));
     width = div->width;
@@ -467,7 +459,15 @@ void World::load_initial(void) {
         throw std::runtime_error("Province map size mismatch");
     }
 
-    if(1) {
+    // Build a lookup table for super fast speed on finding provinces
+    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
+    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Building the province lookup table"));
+    std::vector<Province::Id> province_color_table(16777216, (Province::Id)-1);
+    for(auto& province : provinces) {
+        province_color_table[province->color & 0xffffff] = get_id(province);
+    }
+
+    /*if(1) {
         for(auto& province : provinces) {
             province->n_tiles = 0;
         }
@@ -506,7 +506,7 @@ void World::load_initial(void) {
 
                     /*remove(&building);
                     delete &building;
-                    j--;*/
+                    j--;/
                 }
 
                 delete &province;
@@ -519,14 +519,13 @@ void World::load_initial(void) {
         for(auto& province : provinces) {
             province_color_table[province->color & 0xffffff] = get_id(province);
         }
-    }
+    }*/
 
     uint32_t checksum = 1;
     for(auto& province : provinces) {
         checksum += province->ref_name.at(0);
     }
     checksum *= width * height * provinces.size();
-
     bool recalc_province = true;
     try {
         Archive ar = Archive();
@@ -585,6 +584,17 @@ void World::load_initial(void) {
                 fprintf(fp, "province = Province:new{ ref_name = \"province_%06x\", color = 0x%06x }\n", static_cast<uintptr_t>(bswap32(color)), static_cast<uintptr_t>(bswap32(color)));
                 fprintf(fp, "province.name = _(\"Province_%06x\")\n", static_cast<uintptr_t>(bswap32(color)));
                 fprintf(fp, "province:register()\n");
+            }
+            fclose(fp);
+        }
+
+        fp = fopen("unused.txt", "w+t");
+        if(fp) {
+            for(int i = 0; i < province_color_table.size(); i++) {
+                uint32_t color = i << 8;
+                if(province_color_table[i] == (Province::Id)-1) {
+                    fprintf(fp, "%06x\n", static_cast<uintptr_t>(bswap32(color)));
+                }
             }
             fclose(fp);
         }

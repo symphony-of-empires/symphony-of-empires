@@ -150,6 +150,7 @@ Map::~Map() {
 }
 
 void Map::create_labels() {
+    // Provinces
     for(auto& label : province_labels) {
         delete label;
     }
@@ -177,6 +178,7 @@ void Map::create_labels() {
         province_labels.push_back(label);
     }
 
+    // Nations
     for(auto& label : nation_labels) {
         delete label;
     }
@@ -188,25 +190,21 @@ void Map::create_labels() {
         if(nation->capital != nullptr) {
             std::set<Province*> visited_provinces;
             get_blob_bounds(&visited_provinces, *nation, *nation->capital, &min_point, &max_point);
-        }
-        else {
+        } else {
             for(auto& province : nation->owned_provinces) {
                 min_point.x = std::min(min_point.x, (float)province->min_x);
-                min_point.y = std::min(min_point.x, (float)province->min_y);
-                max_point.x = std::max(min_point.y, (float)province->max_x);
+                min_point.y = std::min(min_point.y, (float)province->min_y);
+                max_point.x = std::max(min_point.x, (float)province->max_x);
                 max_point.y = std::max(min_point.y, (float)province->min_y);
             }
         }
 
         glm::vec2 mid_point = 0.5f * (min_point + max_point);
-
         glm::vec3 center = camera->get_tile_world_pos(mid_point);
-
         glm::vec2 x_step = glm::vec2(max_point.x - mid_point.x, 0);
         glm::vec3 left = camera->get_tile_world_pos(mid_point - x_step);
         glm::vec3 right = camera->get_tile_world_pos(mid_point + x_step);
-        float width = glm::length(left - right);
-        width *= 0.25f;
+        float width = glm::length(left - right) * 0.25f;
 
         glm::vec3 right_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x + 1.f, mid_point.y));
         right_dir  = right_dir - center;
@@ -225,12 +223,10 @@ void Map::set_view(MapView view) {
     Camera* old_camera = camera;
     if(view == MapView::PLANE_VIEW) {
         camera = new FlatCamera(old_camera);
-    }
-    else if(view == MapView::SPHERE_VIEW) {
+    } else if(view == MapView::SPHERE_VIEW) {
         camera = new OrbitCamera(old_camera, GLOBE_RADIUS);
     }
     delete old_camera;
-
     create_labels();
 }
 
@@ -241,8 +237,7 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
         Nation* province_owner = world.provinces[i]->owner;
         if(province_owner == nullptr) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        }
-        else {
+        } else {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }
@@ -286,13 +281,13 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-            ));
+        ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-            ));
+        ));
     }
     flag.upload();
 
@@ -364,8 +359,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    }
-    else if(event.button.button == SDL_BUTTON_RIGHT) {
+    } else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
         if(tile.province_id == (Province::Id)-1) {
             return;
@@ -431,8 +425,7 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx) {
                 last_camera_drag_pos = map_pos;
                 input.last_camera_mouse_pos = mouse_pos;
             }
-        }
-        else if(event.button.button == SDL_BUTTON_LEFT) {
+        } else if(event.button.button == SDL_BUTTON_LEFT) {
             input.drag_coord = input.select_pos;
             input.drag_coord.first = (int)input.drag_coord.first;
             input.drag_coord.second = (int)input.drag_coord.second;
@@ -651,35 +644,32 @@ void Map::draw(const GameState& gs) {
 
     glm::vec3 map_pos = camera->get_map_pos();
     float distance_to_map = map_pos.z / world.width;
+
+    glDepthFunc(GL_ALWAYS);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
     if(distance_to_map < 0.070) {
-        glDepthFunc(GL_ALWAYS);
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
-        glFrontFace(GL_CCW);
         map_font->draw(province_labels, projection, view);
-        glDepthFunc(GL_LEQUAL);
-        glDisable(GL_CULL_FACE);
-    }
-    else
-    {
-        glDepthFunc(GL_ALWAYS);
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
-        glFrontFace(GL_CCW);
+    } else {
         map_font->draw(nation_labels, projection, view);
-        // for(const auto& nation : world.nations) {
-        //     if(!nation->exists())
-        //         continue;
+        /*for(const auto& nation : world.nations) {
+            if(!nation->exists()) {
+                continue;
+            }
 
-        //     auto* text_tex = nation_names_text[world.get_id(nation)];
-        //     obj_shader->set_texture(0, "diffuse_map", *text_tex);
+            // TODO: Generate labels for new countries (ex. rebellions) automatically!
+            if(world.get_id(nation) > nation_labels.size()) {
+                return;
+            }
 
-        //     auto* quad = nation_names_quad[world.get_id(nation)];
-        //     // quad->draw();
-        // }
-        glDepthFunc(GL_LEQUAL);
-        glDisable(GL_CULL_FACE);
+            auto label = nation_labels[world.get_id(nation)];
+            label->draw();
+        }*/
     }
+    glDepthFunc(GL_LEQUAL);
+    glDisable(GL_CULL_FACE);
+
     obj_shader->use();
     obj_shader->set_uniform("model", glm::mat4(1.f));
     obj_shader->set_uniform("projection", projection);
