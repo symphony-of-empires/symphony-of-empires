@@ -282,7 +282,7 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
     glPopMatrix();
 
     if(w.on_update) {
-        w.on_update(w, w.user_data);
+        w.on_update(w);
     }
 
     for(auto& child : w.children) {
@@ -470,7 +470,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
     // Call on_click_outside if on_click has been used or widget isn't hit by click
     if(w.on_click_outside) {
         if(!clickable || click_consumed) {
-            w.on_click_outside(w, w.user_data);
+            w.on_click_outside(w);
         }
     }
 
@@ -482,7 +482,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
                 wc->value = (static_cast<float>(std::abs(static_cast<int>(mx) - offset.x)) / static_cast<float>(wc->width)) * wc->max;
             }
 
-            w.on_click(w, w.user_data);
+            w.on_click(w);
             return UI::ClickState::HANDLED;
         }
     }
@@ -559,7 +559,7 @@ void check_text_input_recursive(Widget& widget, const char* _input) {
     if(widget.type == UI::WidgetType::INPUT) {
         UI::Input& c_widget = static_cast<UI::Input&>(widget);
         if(c_widget.is_selected) {
-            c_widget.on_textinput(c_widget, _input, c_widget.user_data);
+            c_widget.on_textinput(c_widget, _input);
         }
     }
 
@@ -656,7 +656,7 @@ void Context::do_tick(void) {
 
 int Context::do_tick_recursive(Widget& w) {
     if(w.on_each_tick) {
-        w.on_each_tick(w, w.user_data);
+        w.on_each_tick(w);
     }
 
     for(auto& child : w.children) {

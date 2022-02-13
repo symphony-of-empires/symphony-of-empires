@@ -83,7 +83,7 @@ void Checkbox::set_on_click(std::function<void(Widget&)> on_click) {
     outside_on_click = on_click;
 }
 
-void Checkbox::on_click_default(Widget& w, void*) {
+void Checkbox::on_click_default(Widget& w) {
     Checkbox& checkbox = static_cast<Checkbox&>(w);
     checkbox.set_value(!checkbox.value);
     if(checkbox.outside_on_click) {
