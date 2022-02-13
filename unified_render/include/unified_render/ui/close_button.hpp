@@ -41,7 +41,7 @@ namespace UI {
      *
      */
     class CloseButton: public Widget {
-        static void on_click_default(Widget& w, void*) {
+        static void on_click_default(Widget& w) {
             w.parent->kill();
         }
     public:

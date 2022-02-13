@@ -62,7 +62,7 @@ namespace UI {
 
     class Widget;
     class Tooltip;
-    typedef void (*Callback)(Widget&, void*);
+    typedef void (*Callback)(Widget&);
 
     /**
      * @ingroup UI
