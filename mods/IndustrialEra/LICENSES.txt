@@ -36,6 +36,7 @@ gfx/religion/christianism:
 gfx/religion/jewish:
 gfx/religion/taoism:
 gfx/religion/hinduism:
+gfx/religion/shinto:
 	Credits for Pattrck - made ui icons and graphical interface style in photoshop
 
 gfx/ideology/communism
