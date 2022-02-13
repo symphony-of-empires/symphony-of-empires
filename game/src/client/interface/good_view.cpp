@@ -46,7 +46,7 @@ ProductView::ProductView(GameState& _gs, Product* _product)
     this->is_scroll = false;
 
     this->supply_pie = new UI::PieChart(0, 0, 128, 128, this);
-    this->supply_pie->on_each_tick = ([](UI::Widget& w, void*) {
+    this->supply_pie->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<ProductView&>(*w.parent);
 
         std::vector<UI::ChartData> nations_data;
@@ -67,7 +67,7 @@ ProductView::ProductView(GameState& _gs, Product* _product)
 
     // Show average price of the good (accounting for all products on the world)
     this->price_chart = new UI::Chart(0, 152, 128, 64, this);
-    this->price_chart->on_each_tick = ([](UI::Widget& w, void*) {
+    this->price_chart->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<ProductView&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -81,7 +81,7 @@ ProductView::ProductView(GameState& _gs, Product* _product)
 
     this->supply_chart = new UI::Chart(0, 152, 128, 64, this);
     this->supply_chart->right_side_of(*this->price_chart);
-    this->supply_chart->on_each_tick = ([](UI::Widget& w, void*) {
+    this->supply_chart->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<ProductView&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -95,7 +95,7 @@ ProductView::ProductView(GameState& _gs, Product* _product)
 
     this->demand_chart = new UI::Chart(0, 152, 128, 64, this);
     this->demand_chart->right_side_of(*this->supply_chart);
-    this->demand_chart->on_each_tick = ([](UI::Widget& w, void*) {
+    this->demand_chart->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<ProductView&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -110,7 +110,7 @@ ProductView::ProductView(GameState& _gs, Product* _product)
     auto* good_btn = new UI::Button(0, 0, 128, 24, this);
     good_btn->below_of(*this->demand_chart);
     good_btn->text(product->good->name);
-    good_btn->on_click = ([](UI::Widget& w, void*) {
+    good_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductView&>(*w.parent);
         new GoodView(o.gs, o.product->good);
     });
@@ -135,7 +135,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     // Piechart denoting countries which have more supply of this good
     this->sellers_pie = new UI::PieChart(0, 0, 128, 128, this);
     this->sellers_pie->right_side_of(*this->icon_img);
-    this->sellers_pie->on_each_tick = ([](UI::Widget& w, void*) {
+    this->sellers_pie->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<GoodView&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -160,7 +160,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     // Show average price of the good (accounting for all products on the world)
     this->avg_price_chart = new UI::Chart(0, 0, 128, 128, this);
     this->avg_price_chart->right_side_of(*this->sellers_pie);
-    this->avg_price_chart->on_each_tick = ([](UI::Widget& w, void*) {
+    this->avg_price_chart->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<GoodView&>(*w.parent);
 
         if(o.gs.world->time % o.gs.world->ticks_per_month) {

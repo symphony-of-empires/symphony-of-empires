@@ -68,7 +68,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 
     conn_btn = new UI::Button(0, 48, 128, 24, this);
     conn_btn->text("Connect");
-    conn_btn->on_click = ([](UI::Widget& w, void*) {
+    conn_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<MainMenuConnectServer&>(*w.parent);
         print_info("Okey, connecting to [%s]", o.ip_addr_inp->buffer.c_str());
 
@@ -115,7 +115,7 @@ MainMenu::MainMenu(GameState& _gs)
     
     auto* single_btn = new UI::Button(0, 0, 128, 24, this);
     single_btn->text("Singleplayer");
-    single_btn->on_click = ([](UI::Widget& w, void*) {
+    single_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<MainMenu&>(*w.parent);
 
         o.gs.current_mode = MapMode::COUNTRY_SELECT;
@@ -134,7 +134,7 @@ MainMenu::MainMenu(GameState& _gs)
     auto* mp_btn = new UI::Button(0, 0, 128, 24, this);
     mp_btn->text("Join LAN");
     mp_btn->right_side_of(*single_btn);
-    mp_btn->on_click = ([](UI::Widget& w, void*) {
+    mp_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<MainMenu&>(*w.parent);
         o.connect_window = new MainMenuConnectServer(o.gs);
     });
@@ -142,7 +142,7 @@ MainMenu::MainMenu(GameState& _gs)
     auto* host_btn = new UI::Button(0, 0, 128, 24, this);
     host_btn->text("Host");
     host_btn->right_side_of(*mp_btn);
-    host_btn->on_click = ([](UI::Widget& w, void*) {
+    host_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<MainMenu&>(*w.parent);
 
         o.gs.current_mode = MapMode::COUNTRY_SELECT;
@@ -160,7 +160,7 @@ MainMenu::MainMenu(GameState& _gs)
     auto* edit_btn = new UI::Button(0, 0, 128, 24, this);
     edit_btn->below_of(*host_btn);
     edit_btn->text("Editor");
-    edit_btn->on_click = ([](UI::Widget& w, void*) {
+    edit_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<MainMenu&>(*w.parent);
 
         o.gs.current_mode = MapMode::COUNTRY_SELECT;
@@ -180,7 +180,7 @@ MainMenu::MainMenu(GameState& _gs)
     cfg_btn->text("Settings");
     cfg_btn->below_of(*host_btn);
     cfg_btn->right_side_of(*edit_btn);
-    cfg_btn->on_click = ([](UI::Widget& w, void*) {
+    cfg_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<MainMenu&>(*w.parent);
         o.settings_window = new Interface::Settings(o.gs);
     });

@@ -48,11 +48,11 @@ namespace UI {
         virtual ~Checkbox() override {};
         bool get_value();
         void set_value(bool checked);
-        void set_on_click(std::function<void(Widget&)> on_click);
+        void set_on_click(std::function<void(Widget&)> on_click) override;
         void text(const std::string& _text) override;
 
     private:
-        static void on_click_default(Widget& w, void* data);
+        static void on_click_default(Widget& w);
         void init_checkbox(int size);
         Div* box;
         bool value;

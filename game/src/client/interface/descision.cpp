@@ -65,7 +65,7 @@ DescisionButton::DescisionButton(UI::Window* parent, GameState& _gs, const Desci
     event{ _event }
 {
     this->text(descision.name);
-    this->on_click = [](UI::Widget& w, void*) {
+    this->on_click = [](UI::Widget& w) {
         auto& o = static_cast<DescisionButton&>(w);
 
         Archive ar = Archive();

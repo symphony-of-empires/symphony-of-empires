@@ -48,7 +48,7 @@ ProfilerView::ProfilerView(GameState& _gs)
     float fps = profiler.get_fps();
 
     auto* fps_lab = new UI::Label(10, 0, "FPS: " + std::to_string((int)fps), this);
-    fps_lab->on_update = ([](UI::Widget& w, void*) {
+    fps_lab->on_update = ([](UI::Widget& w) {
         auto& state = static_cast<ProfilerView&>(*w.parent);
         UnifiedRender::Profiler& profiler = state.gs.world->profiler;
         float fps = profiler.get_fps();
@@ -64,7 +64,7 @@ ProfilerView::ProfilerView(GameState& _gs)
     }
 
     auto* task_chart = new UI::BarChart(20, 20, 200, 20, this);
-    task_chart->on_update = ([](UI::Widget& w, void*) {
+    task_chart->on_update = ([](UI::Widget& w) {
         auto& state = static_cast<ProfilerView&>(*w.parent);
         auto& chart = static_cast<UI::BarChart&>(w);
         UnifiedRender::Profiler& profiler = state.gs.world->profiler;
@@ -78,7 +78,7 @@ ProfilerView::ProfilerView(GameState& _gs)
         chart.set_data(data);
     });
 
-    this->on_update = ([](UI::Widget& w, void*) {
+    this->on_update = ([](UI::Widget& w) {
         auto& state = static_cast<ProfilerView&>(w);
         UnifiedRender::Profiler& profiler = state.gs.world->profiler;
         auto tasks = profiler.get_tasks();

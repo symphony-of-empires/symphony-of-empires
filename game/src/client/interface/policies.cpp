@@ -62,7 +62,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
 
     auto* gov_lab = new UI::Label(0, 0, "Goverment", this);
     auto* ideology_lab = new UI::Label(6, 38, "IDEOLOGY", this);
-    ideology_lab->on_each_tick = ([](UI::Widget& w, void*) {
+    ideology_lab->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -73,12 +73,12 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
             w.text(o.gs.curr_nation->ideology->name);
         }
     });
-    ideology_lab->on_each_tick(*ideology_lab, nullptr);
+    ideology_lab->on_each_tick(*ideology_lab);
 
     auto* ideology_pie_lab = new UI::Label(0, 82, "House", this);
     auto* ideology_pie = new UI::PieChart(0, 0, 128, 128, this);
     ideology_pie->below_of(*ideology_pie_lab);
-    ideology_pie->on_each_tick = ([](UI::Widget& w, void*) {
+    ideology_pie->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -90,10 +90,10 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         }
         ((UI::PieChart&)w).set_data(ideology_data);
     });
-    ideology_pie->on_each_tick(*ideology_pie, nullptr);
+    ideology_pie->on_each_tick(*ideology_pie);
 
     auto* militancy_lab = new UI::Label(0, 290, " ", this);
-    militancy_lab->on_each_tick = ([](UI::Widget& w, void*) {
+    militancy_lab->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -110,11 +110,11 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         }
         w.text("Militancy: " + std::to_string(num));
     });
-    militancy_lab->on_each_tick(*militancy_lab, nullptr);
+    militancy_lab->on_each_tick(*militancy_lab);
 
     auto* con_lab = new UI::Label(0, 290, " ", this);
     con_lab->below_of(*militancy_lab);
-    con_lab->on_each_tick = ([](UI::Widget& w, void*) {
+    con_lab->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
@@ -131,7 +131,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         }
         w.text("Consciousness: " + std::to_string(num));
     });
-    con_lab->on_each_tick(*con_lab, nullptr);
+    con_lab->on_each_tick(*con_lab);
 
     auto* reform_grp = new UI::Group(207, 38, this->width - 207, this->height - (this->padding.y + 38 + 48), this);
     reform_grp->is_scroll = true;
@@ -158,7 +158,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     poor_tax_sld->below_of(*social_security_chk);
     poor_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
     poor_tax_sld->value = new_policy.poor_flat_tax;
-    poor_tax_sld->on_click = ([](UI::Widget& w, void*) {
+    poor_tax_sld->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);
         o.new_policy.poor_flat_tax = ((UI::Slider&)w).value;
         w.text(std::to_string(o.new_policy.poor_flat_tax));
@@ -170,7 +170,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     med_tax_sld->below_of(*poor_tax_sld);
     med_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
     med_tax_sld->value = new_policy.med_flat_tax;
-    med_tax_sld->on_click = ([](UI::Widget& w, void*) {
+    med_tax_sld->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);
         o.new_policy.med_flat_tax = ((UI::Slider&)w).value;
         w.text(std::to_string(o.new_policy.med_flat_tax));
@@ -182,7 +182,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     rich_tax_sld->below_of(*med_tax_sld);
     rich_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
     rich_tax_sld->value = new_policy.rich_flat_tax;
-    rich_tax_sld->on_click = ([](UI::Widget& w, void*) {
+    rich_tax_sld->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);
         o.new_policy.rich_flat_tax = ((UI::Slider&)w).value;
         w.text(std::to_string(o.new_policy.rich_flat_tax));
@@ -207,7 +207,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     auto* enact_btn = new UI::Button(207, 0, 128, 24, this);
     enact_btn->below_of(*reform_grp);
     enact_btn->text("Enact policy");
-    enact_btn->on_click = ([](UI::Widget& w, void*) {
+    enact_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent);
         UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
         Archive ar = Archive();

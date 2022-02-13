@@ -162,7 +162,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
     auto* draft_btn = new UI::Button(0, 0, this->width, 24, this);
     draft_btn->below_of(*annexx_btn);
     draft_btn->text("Draft");
-    draft_btn->on_click = ([](UI::Widget& w, void*) {
+    draft_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<TreatyDraftView&>(*w.parent);
 
         UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
@@ -196,7 +196,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
     auto* approve_btn = new UI::Button(0, 0, this->width, 24, this);
     approve_btn->below_of(*this->body_txt);
     approve_btn->text("Approve");
-    approve_btn->on_click = ([](UI::Widget& w, void*) {
+    approve_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<TreatyChooseWindow&>(*w.parent);
         Archive ar = Archive();
         ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
@@ -213,7 +213,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
     deny_btn->below_of(*this->body_txt);
     deny_btn->right_side_of(*approve_btn);
     deny_btn->text("Deny");
-    deny_btn->on_click = ([](UI::Widget& w, void*) {
+    deny_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<TreatyChooseWindow&>(*w.parent);
 
         Archive ar = Archive();

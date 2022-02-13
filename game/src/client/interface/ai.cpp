@@ -37,9 +37,8 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
 {
     auto* build_prod_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     build_prod_chk->text(UnifiedRender::Locale::translate("Build and production"));
-    build_prod_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<AISettingsWindow&>(*w.parent);
-        o.gs.curr_nation->ai_do_build_production = ((UI::Checkbox&)w).get_value();
+    build_prod_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.curr_nation->ai_do_build_production = ((UI::Checkbox&)w).get_value();
     });
 
     auto* cmd_chk = new UI::Checkbox(0, 0, this->width, 24, this);
@@ -101,7 +100,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     auto* close_btn = new UI::CloseButton(0, 0, this->width, 24, this);
     close_btn->below_of(*hdl_treaties_chk);
     close_btn->text(UnifiedRender::Locale::translate("Close"));
-    close_btn->on_click = ([](UI::Widget& w, void*) {
+    close_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<AISettingsWindow&>(*w.parent);
 
         o.gs.client->send(Action::AiControl::form_packet(o.gs.curr_nation));
