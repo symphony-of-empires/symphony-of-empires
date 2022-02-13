@@ -718,7 +718,7 @@ void Economy::do_tick(World& world) {
 
         // Rebellions!
         // TODO: Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-        if((std::fmod(rand(), (std::max(coup_chances, coup_chances - total_anger)))) <= 100.f) {
+        if(!std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger))) {
             // Compile list of uprising provinces
             std::vector<Province*> uprising_provinces;
             for(const auto& province : nation->owned_provinces) {
@@ -751,7 +751,7 @@ void Economy::do_tick(World& world) {
             }
 
             // TODO: Tell the clients about this new nation
-            //g_server->broadcast(Action::NationAdd::form_packet(*dup_nation));
+            g_server->broadcast(Action::NationAdd::form_packet(*dup_nation));
 
             // Make the most angry provinces revolt!
             std::vector<TreatyClause::BaseClause*> clauses;
@@ -779,10 +779,10 @@ void Economy::do_tick(World& world) {
         }
 
         // Roll a dice! (more probability with more anger!)
-        if((std::fmod(rand(), (std::max(coup_chances, coup_chances - total_anger)))) <= 100.f) {
+        if(!std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger))) {
             // Choose the ideology with most "anger" (the one more probable to coup d'
             // etat) - amgry radicals will surely throw off the current administration
-            // while peaceful people won't
+            // while peaceful people wonq't
             const int idx = std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()));
 
             // Ideology_anger and ideologies are mapped 1:1 - so we just pick up the associated ideology

@@ -44,37 +44,37 @@ namespace UnifiedRender {
 
         }
 
-        glm::vec2 size(void) const {
+        inline glm::vec2 size(void) const {
             return glm::vec2{ right - left, bottom - top };
         }
 
-        void size(glm::vec2 size) {
+        inline void size(glm::vec2 size) {
             right = left + size.x;
             bottom = top + size.y;
         }
 
-        glm::vec2 position(void) const {
+        inline glm::vec2 position(void) const {
             return glm::vec2{ left, right };
         }
 
-        void position(glm::vec2 position) {
+        inline void position(glm::vec2 position) {
             left = position.x;
             top = position.y;
         }
 
-        void offset(glm::vec2 offset) {
+        inline void offset(glm::vec2 offset) {
             left += offset.x;
             top += offset.y;
             right += offset.x;
             bottom += offset.y;
         }
 
-        bool in_bounds(glm::vec2 pos) const {
+        inline bool in_bounds(glm::vec2 pos) const {
             return (pos.x >= left && pos.x <= right && pos.y >= top && pos.y <= bottom);
         }
 
         template<typename T>
-        bool in_bounds(T x, T y) const {
+        inline bool in_bounds(T x, T y) const {
             return in_bounds(glm::vec2(x, y));
         }
 

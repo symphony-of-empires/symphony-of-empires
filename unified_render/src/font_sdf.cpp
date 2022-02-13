@@ -20,8 +20,14 @@
 //      font_sdf.cpp
 //
 // Abstract:
-//      Does important stuff.
+//      An SDF font parser, will show up vectorized fonts on the screen by
+//      drawing them - providing non-raster fonts and allowing for higher
+//      resolution texts.
 // ----------------------------------------------------------------------------
+
+#include <iostream>
+#include <fstream>
+#include <string>
 
 #include "unified_render/font_sdf.hpp"
 #include "unified_render/state.hpp"
@@ -32,15 +38,10 @@
 
 using namespace UnifiedRender;
 
-#include <iostream>
-#include <fstream>
-#include <string>
-
-
-FontSDF::FontSDF(std::string filename) {
+UnifiedRender::FontSDF::FontSDF(const std::string& filename) {
     sdf_font_shader = OpenGL::Program::create("shaders/font_sdf.vs", "shaders/font_sdf.fs");
 
-    auto tex_man = UnifiedRender::State::get_instance().tex_man;
+    UnifiedRender::TextureManager* tex_man = UnifiedRender::State::get_instance().tex_man;
 
     UnifiedRender::TextureOptions mipmap_options;
     mipmap_options.min_filter = GL_LINEAR;
@@ -49,12 +50,12 @@ FontSDF::FontSDF(std::string filename) {
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
     atlas = &tex_man->load(Path::get(filename + ".png"), mipmap_options);
 
-    char buff;
-    uint32_t unicode;
-    float advance, top, bottom, left, right;
-    std::string line;
     std::ifstream glyph_data(Path::get(filename + ".csv"));
     if(glyph_data.is_open()) {
+        char buff;
+        uint32_t unicode;
+        float advance, top, bottom, left, right;
+        std::string line;
         while(std::getline(glyph_data, line)) {
             std::istringstream data(line);
             data >> unicode >> buff;
@@ -62,9 +63,9 @@ FontSDF::FontSDF(std::string filename) {
             data >> left >> buff >> bottom >> buff >> right >> buff >> top >> buff;
             Rectangle plane_bounds(left, top, right - left, bottom - top);
             data >> left >> buff >> bottom >> buff >> right >> buff >> top;
-            left   /= atlas->width;
-            right  /= atlas->width;
-            top    /= atlas->height;
+            left /= atlas->width;
+            right /= atlas->width;
+            top /= atlas->height;
             bottom /= atlas->height;
             Rectangle atlas_bounds(left, top, right - left, bottom - top);
             Glyph glyph(advance, atlas_bounds, plane_bounds);
@@ -73,13 +74,14 @@ FontSDF::FontSDF(std::string filename) {
     }
 }
 
-Label3d* FontSDF::gen_text(std::string text, glm::vec3 center, glm::vec3 top, glm::vec3 right, float width) {
+Label3d* UnifiedRender::FontSDF::gen_text(const std::string& text, glm::vec3 center, glm::vec3 top, glm::vec3 right, float width) {
     UnifiedRender::Color color = UnifiedRender::Color(0.f, 0.f, 0.f);
     float text_width = 0;
-    for(char& character : text) {
-        uint16_t unicode = (u_int16_t)character;
-        if(!unicode_map.count(unicode))
+    for(const char& character : text) {
+        uint16_t unicode = (uint16_t)character;
+        if(!unicode_map.count(unicode)) {
             continue;
+        }
         Glyph& glyph = unicode_map.at(unicode);
         text_width += glyph.advance;
     }
@@ -90,10 +92,11 @@ Label3d* FontSDF::gen_text(std::string text, glm::vec3 center, glm::vec3 top, gl
 
     std::vector<glm::vec3> positions;
     std::vector<glm::vec2> tex_coords;
-    for(char& character : text) {
-        uint16_t unicode = (u_int16_t)character;
-        if(!unicode_map.count(unicode))
+    for(const char& character : text) {
+        uint16_t unicode = (uint16_t)character;
+        if(!unicode_map.count(unicode)) {
             continue;
+        }
         Glyph glyph = unicode_map.at(unicode);
 
         glm::vec2 atlas_tl(glyph.atlas_bounds.left, glyph.atlas_bounds.top);
@@ -132,17 +135,30 @@ Label3d* FontSDF::gen_text(std::string text, glm::vec3 center, glm::vec3 top, gl
     return new Label3d(triangles, scale);
 }
 
-void FontSDF::draw(std::vector<Label3d*>& labels, glm::mat4 projection, glm::mat4 view) {
+void UnifiedRender::FontSDF::draw(const std::vector<UnifiedRender::Label3d*>& labels, glm::mat4 projection, glm::mat4 view) {
     sdf_font_shader->use();
     sdf_font_shader->set_uniform("projection", projection);
     sdf_font_shader->set_uniform("view", view);
+    // Set the atlas texture
     sdf_font_shader->set_texture(0, "atlas", *atlas);
-    for(auto& label : labels) {
-        sdf_font_shader->set_uniform("pxRange", label->size * 0.5f);
-        label->draw();
+    // Iterate over all labels
+    for(std::vector<UnifiedRender::Label3d*>::const_iterator label = labels.begin(); label != labels.end(); label++) {
+        sdf_font_shader->set_uniform("pxRange", (*label)->size * 0.5f);
+        (*label)->draw();
     }
 }
 
-Label3d::Label3d(TriangleList* _triangles, float _size): triangles(_triangles), size{ _size } {};
-Label3d::~Label3d() { delete triangles; };
-void Label3d::draw() { triangles->draw(); };
+UnifiedRender::Label3d::Label3d(UnifiedRender::TriangleList* _triangles, float _size)
+    : triangles(_triangles),
+    size{ _size }
+{
+    // ...
+}
+
+UnifiedRender::Label3d::~Label3d() {
+    delete triangles;
+}
+
+void UnifiedRender::Label3d::draw() {
+    triangles->draw();
+}

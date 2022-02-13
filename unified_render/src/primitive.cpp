@@ -24,7 +24,6 @@
 // ----------------------------------------------------------------------------
 
 #include <cmath>
-
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/intersect.hpp>
 
