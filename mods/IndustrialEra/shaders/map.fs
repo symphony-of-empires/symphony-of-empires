@@ -457,7 +457,7 @@ void main() {
 	// sdf_mix = is_ocean == 0. ? sdf_mix : smoothstep(0.7, 0.9, bSdf);
 	// out_color = mix(out_color, mix_col * sdf_slider, sdf_mix);
 
-	float bSdf = texture(border_sdf, tex_coords + pix * 0.5, 1).x;
+	float bSdf = texture(border_sdf, tex_coords + pix * 0.5, 1).z;
 	float sdf_mix;
 	vec3 paper_border0;
 	vec3 paper_border1;

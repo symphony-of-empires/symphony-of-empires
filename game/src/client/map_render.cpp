@@ -166,9 +166,17 @@ MapRender::MapRender(const World& _world)
 
     print_info("Creating border textures");
 
-    if(options.sdf.used) {
-        border_sdf = gen_border_sdf();
-    }
+    UnifiedRender::TextureOptions sdf_options{};
+    sdf_options.wrap_s = GL_REPEAT;
+    sdf_options.wrap_t = GL_REPEAT;
+    sdf_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+    sdf_options.mag_filter = GL_LINEAR;
+    border_sdf = new UnifiedRender::Texture(Path::get("map/sdf_map.png"));
+    border_sdf->to_opengl(sdf_options);
+    border_sdf->gen_mipmaps();
+    // if(options.sdf.used) {
+    //     border_sdf = gen_border_sdf();
+    // }
 }
 
 
@@ -178,10 +186,10 @@ void MapRender::reload_shaders() {
     border_gen_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_gen.fs");
     output_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf_output.fs");
 
-    border_sdf.reset(nullptr);
-    if(options.sdf.used) {
-        border_sdf = gen_border_sdf();
-    }
+    // border_sdf.reset(nullptr);
+    // if(options.sdf.used) {
+    //     border_sdf = gen_border_sdf();
+    // }
 }
 
 void MapRender::update_options(MapOptions new_options) {
@@ -343,7 +351,7 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     // Temporary not in use
     // map_shader->set_texture(5, "terrain_sheet", terrain_sheet);
     if(options.sdf.used) {
-        map_shader->set_texture(6, "border_sdf", *(border_sdf.get())); // 1 col
+        map_shader->set_texture(6, "border_sdf", *border_sdf); // 1 col
     }
 
     map_shader->set_texture(7, "bathymethry", *bathymethry); // 1 col
