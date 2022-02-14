@@ -119,7 +119,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     print_info("Preloading-important stuff");
 
-    map_font = new UnifiedRender::FontSDF("fonts/Poppins_SDF/poppins");
+    map_font = new UnifiedRender::FontSDF("fonts/cinzel_sdf/cinzel");
 
     // Query the initial nation flags
     for(const auto& nation : world.nations) {
