@@ -88,7 +88,7 @@ void get_blob_bounds(std::set<Province*>* visited_provinces, const Nation& natio
             min_y->y = neighbour->min_y;
         }
 
-        if(neighbour->max_x < max_x->x) {
+        if(neighbour->max_x > max_x->x) {
             max_x->x = neighbour->max_x;
             max_x->y = neighbour->max_y;
         } if(neighbour->max_y > max_y->y) {
@@ -194,7 +194,7 @@ void Map::create_labels() {
     for(const auto& nation : world.nations) {
         glm::vec2 min_point_x(world.width - 1, world.height - 1), min_point_y(world.width - 1, world.height - 1);
         glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
-
+        
         std::set<Province*> visited_provinces;
         if(nation->capital != nullptr) {
             get_blob_bounds(&visited_provinces, *nation, *nation->capital, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
@@ -638,19 +638,6 @@ void Map::draw(const GameState& gs) {
         map_font->draw(province_labels, projection, view);
     } else {
         map_font->draw(nation_labels, projection, view);
-        /*for(const auto& nation : world.nations) {
-            if(!nation->exists()) {
-                continue;
-            }
-
-            // TODO: Generate labels for new countries (ex. rebellions) automatically!
-            if(world.get_id(nation) > nation_labels.size()) {
-                return;
-            }
-
-            auto label = nation_labels[world.get_id(nation)];
-            label->draw();
-        }*/
     }
     glDepthFunc(GL_LEQUAL);
     glDisable(GL_CULL_FACE);

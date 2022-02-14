@@ -13,6 +13,7 @@ uniform float dist_to_map;
 
 uniform sampler2D tile_map;
 uniform sampler2D tile_sheet;
+uniform sampler2D tile_sheet_nation;
 uniform sampler2D water_texture;
 uniform sampler2D noise_texture;
 uniform sampler2D terrain_map;
@@ -105,10 +106,19 @@ vec4 get_border(vec2 texcoord) {
 	vec2 coordLD = mPos + pix * vec2(0.25, 0.75);
 	vec2 coordRU = mPos + pix * vec2(0.75, 0.25);
 	vec2 coordRD = mPos + pix * vec2(0.75, 0.75);
-	vec4 provienceLU = texture(tile_map, coordLU).xyzw;
-	vec4 provienceLD = texture(tile_map, coordLD).xyzw;
-	vec4 provienceRU = texture(tile_map, coordRU).xyzw;
-	vec4 provienceRD = texture(tile_map, coordRD).xyzw;
+	vec4 provienceLU, provienceLD, provienceRU, provienceRD;
+
+	provienceLU.xy = texture(tile_map, coordLU).xy;
+	provienceLD.xy = texture(tile_map, coordLD).xy;
+	provienceRU.xy = texture(tile_map, coordRU).xy;
+	provienceRD.xy = texture(tile_map, coordRD).xy;
+
+	vec2 scale = vec2(255./256.);
+	provienceLU.zw = texture(tile_sheet_nation, provienceLU.xy * scale).xy;
+	provienceLD.zw = texture(tile_sheet_nation, provienceLD.xy * scale).xy;
+	provienceRU.zw = texture(tile_sheet_nation, provienceRU.xy * scale).xy;
+	provienceRD.zw = texture(tile_sheet_nation, provienceRD.xy * scale).xy;
+
 	// vec2 mPos = texcoord - mod(texcoord, pix);
 	// vec4 provienceLU = texture(tile_map, mPos + pix * vec2(-0.25, -0.25)).xyzw;
 	// vec4 provienceLD = texture(tile_map, mPos + pix * vec2(-0.25, 0.25)).xyzw;
@@ -425,13 +435,12 @@ void main() {
 #ifdef DIAG_BORDER
 	float is_diag = borders_diag.w;
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
-	vec4 coord = texture(tile_map, diag_coords);
+	vec2 coord = texture(tile_map, diag_coords).xy;
 #else
-	vec4 coord = texture(tile_map, tex_coords);
+	vec2 coord = texture(tile_map, tex_coords).xy;
 #endif
-	float isEmpty = step(coord.a, 0.01);
-
-	vec3 prov_color = texture(tile_sheet, coord.xy * 255./256.).rgb; // Magic numbers
+	vec2 prov_color_coord = coord * vec2(255./256.);
+	vec3 prov_color = texture(tile_sheet, prov_color_coord).rgb;
 #ifdef NOISE
     // float w_col = aquarelle(tex_coords);
     // prov_color = mix(vec4(1.), prov_color, pow(w_col, 5));
