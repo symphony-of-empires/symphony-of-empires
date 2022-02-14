@@ -35,7 +35,8 @@ using namespace UnifiedRender;
 #include <iostream>
 #include <fstream>
 #include <string>
-
+#include <codecvt>
+#include <locale>
 
 FontSDF::FontSDF(std::string filename) {
     sdf_font_shader = OpenGL::Program::create("shaders/font_sdf.vs", "shaders/font_sdf.fs");
@@ -75,12 +76,15 @@ FontSDF::FontSDF(std::string filename) {
 
 Label3d* FontSDF::gen_text(std::string text, glm::vec3 center, glm::vec3 top, glm::vec3 right, float width) {
     UnifiedRender::Color color = UnifiedRender::Color(0.f, 0.f, 0.f);
+
+    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
+    std::u32string unicode_text = conv_utf8_utf32.from_bytes(text);
+
     float text_width = 0;
-    for(char& character : text) {
-        uint16_t unicode = (u_int16_t)character;
-        if(!unicode_map.count(unicode))
+    for(char32_t& character : unicode_text) {
+        if(!unicode_map.count(character))
             continue;
-        Glyph& glyph = unicode_map.at(unicode);
+        Glyph& glyph = unicode_map.at(character);
         text_width += glyph.advance;
     }
     float scale = width / text_width;
@@ -90,11 +94,10 @@ Label3d* FontSDF::gen_text(std::string text, glm::vec3 center, glm::vec3 top, gl
 
     std::vector<glm::vec3> positions;
     std::vector<glm::vec2> tex_coords;
-    for(char& character : text) {
-        uint16_t unicode = (u_int16_t)character;
-        if(!unicode_map.count(unicode))
+    for(char32_t& character : unicode_text) {
+        if(!unicode_map.count(character))
             continue;
-        Glyph glyph = unicode_map.at(unicode);
+        Glyph glyph = unicode_map.at(character);
 
         glm::vec2 atlas_tl(glyph.atlas_bounds.left, glyph.atlas_bounds.top);
         glm::vec2 atlas_bl(glyph.atlas_bounds.left, glyph.atlas_bounds.bottom);
