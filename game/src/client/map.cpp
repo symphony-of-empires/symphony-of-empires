@@ -67,7 +67,7 @@
 #include "action.hpp"
 #include "client/rivers.hpp"
 
-void get_blob_bounds(std::set<Province*>* visited_provinces, const Nation& nation, const Province& province, glm::vec2* min, glm::vec2* max) {
+void get_blob_bounds(std::set<Province*>* visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
     // Iterate over all neighbours
     for(const auto& neighbour : province.neighbours) {
         // Do not visit again
@@ -80,16 +80,24 @@ void get_blob_bounds(std::set<Province*>* visited_provinces, const Nation& natio
             continue;
         }
 
-        // min
-        min->x = std::min<size_t>(min->x, neighbour->min_x);
-        min->y = std::min<size_t>(min->y, neighbour->min_y);
+        if(neighbour->min_x < min_x->x) {
+            min_x->x = neighbour->min_x;
+            min_x->y = neighbour->min_y;
+        } if(neighbour->min_y < min_y->y) {
+            min_y->x = neighbour->min_x;
+            min_y->y = neighbour->min_y;
+        }
 
-        // max
-        max->x = std::max<size_t>(max->x, neighbour->max_x);
-        max->y = std::max<size_t>(max->y, neighbour->max_y);
+        if(neighbour->max_x < max_x->x) {
+            max_x->x = neighbour->max_x;
+            max_x->y = neighbour->max_y;
+        } if(neighbour->max_y > max_y->y) {
+            max_y->x = neighbour->max_x;
+            max_y->y = neighbour->max_y;
+        }
 
         visited_provinces->insert(neighbour);
-        get_blob_bounds(visited_provinces, nation, *neighbour, min, max);
+        get_blob_bounds(visited_provinces, nation, *neighbour, min_x, min_y, max_x, max_y);
     }
 }
 
@@ -184,38 +192,32 @@ void Map::create_labels() {
     }
     nation_labels.clear();
     for(const auto& nation : world.nations) {
-        glm::vec2 min_point(world.width - 1, world.height - 1);
-        glm::vec2 max_point(0.f, 0.f);
+        glm::vec2 min_point_x(world.width - 1, world.height - 1), min_point_y(world.width - 1, world.height - 1);
+        glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
 
+        std::set<Province*> visited_provinces;
         if(nation->capital != nullptr) {
-            std::set<Province*> visited_provinces;
-            get_blob_bounds(&visited_provinces, *nation, *nation->capital, &min_point, &max_point);
-        } else {
-            for(auto& province : nation->owned_provinces) {
-                min_point.x = std::min(min_point.x, (float)province->min_x);
-                min_point.y = std::min(min_point.y, (float)province->min_y);
-                max_point.x = std::max(min_point.x, (float)province->max_x);
-                max_point.y = std::max(min_point.y, (float)province->min_y);
-            }
+            get_blob_bounds(&visited_provinces, *nation, *nation->capital, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
+        } else if(!nation->owned_provinces.empty()) {
+            get_blob_bounds(&visited_provinces, *nation, **(nation->owned_provinces.begin()), &min_point_x, &min_point_y, &max_point_x, &max_point_y);
         }
 
-        glm::vec2 mid_point = 0.5f * (min_point + max_point);
+        glm::vec2 mid_point = 0.5f * (glm::vec2(min_point_x.x, min_point_y.y) + glm::vec2(max_point_x.x, max_point_y.y));
         glm::vec3 center = camera->get_tile_world_pos(mid_point);
-        glm::vec2 x_step = glm::vec2(max_point.x - mid_point.x, 0);
+        glm::vec2 x_step = glm::vec2(max_point_x.x - mid_point.x, 0);
         glm::vec3 left = camera->get_tile_world_pos(mid_point - x_step);
         glm::vec3 right = camera->get_tile_world_pos(mid_point + x_step);
-        float width = glm::length(left - right) * 0.25f;
+        float width = glm::length(left - right) * 0.3f;
 
         glm::vec3 right_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x + 1.f, mid_point.y));
         right_dir  = right_dir - center;
         glm::vec3 top_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x, mid_point.y - 1.f));
         top_dir = top_dir - center;
 
-        auto label = map_font->gen_text(nation->get_client_hint().alt_name, center, top_dir, right_dir, width);
+        auto* label = map_font->gen_text(nation->get_client_hint().alt_name, center, top_dir, right_dir, width);
         nation_labels.push_back(label);
     }
 }
-
 
 void Map::set_view(MapView view) {
     view_mode = view;
@@ -521,7 +523,8 @@ void Map::update_mapmode() {
 
 void Map::draw(const GameState& gs) {
     if(nation_flags.size() < world.nations.size()) {
-        for(const auto& nation : world.nations) {
+        for(unsigned int i = nation_flags.size() - 1; i < world.nations.size(); i++) {
+            const Nation* nation = world.nations[i];
             UnifiedRender::TextureOptions mipmap_options{};
             mipmap_options.wrap_s = GL_REPEAT;
             mipmap_options.wrap_t = GL_REPEAT;
@@ -534,33 +537,15 @@ void Map::draw(const GameState& gs) {
         }
     }
 
-    glm::mat4 view, projection;
     map_render->draw(camera, view_mode);
-    // rivers->draw(camera);
+    //rivers->draw(camera);
 
     // TODO: We need to better this
-    view = camera->get_view();
-    projection = camera->get_projection();
-
     obj_shader->use();
+    const glm::mat4 projection = camera->get_projection();
     obj_shader->set_uniform("projection", projection);
+    const glm::mat4 view = camera->get_view();
     obj_shader->set_uniform("view", view);
-
-    for(const auto& unit_type : world.unit_types) {
-        glm::mat4 model(1.f);
-        model = glm::translate(model, glm::vec3(world.get_id(unit_type) * 8.f, -4.f, 0.f));
-        model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
-        obj_shader->set_uniform("model", model);
-        unit_type_models[world.get_id(unit_type)]->draw(*obj_shader);
-    }
-
-    for(const auto& building_type : world.building_types) {
-        glm::mat4 model(1.f);
-        model = glm::translate(model, glm::vec3(world.get_id(building_type) * 8.f, 0.f, 0.f));
-        model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
-        obj_shader->set_uniform("model", model);
-        building_type_models[world.get_id(building_type)]->draw(*obj_shader);
-    }
 
     glm::mat4 base_model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
 
@@ -576,16 +561,16 @@ void Map::draw(const GameState& gs) {
             // Attackers on the left side
             i = 0;
             for(const auto& unit : battle.attackers) {
-                std::pair<float, float> pos = prov_pos;
-                pos.first -= (1.5f * i) + 3.f;
-                pos.second -= y;
+                const std::pair<float, float> pos = std::make_pair(prov_pos.first - (1.5f * i) - 3.f, prov_pos.second - y);
                 glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_uniform("model", model);
-                draw_flag(*obj_shader, *unit->owner);
+                obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(unit->owner)]);
+
+                auto flag_quad = UnifiedRender::Quad2D();
+                flag_quad.draw();
 
                 // Model
-                obj_shader->set_uniform("model", model);
                 unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
                 i++;
             }
@@ -593,16 +578,16 @@ void Map::draw(const GameState& gs) {
             // Defenders on the right side
             i = 0;
             for(const auto& unit : battle.defenders) {
-                std::pair<float, float> pos = prov_pos;
-                pos.first += (1.5f * i) + 3.f;
-                pos.second -= y;
+                const std::pair<float, float> pos = std::make_pair(prov_pos.first + (1.5f * i) + 3.f, prov_pos.second - y);
                 glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_uniform("model", model);
-                draw_flag(*obj_shader, *unit->owner);
+                obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(unit->owner)]);
+
+                auto flag_quad = UnifiedRender::Quad2D();
+                flag_quad.draw();
 
                 // Model
-                obj_shader->set_uniform("model", model);
                 unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
                 i++;
             }
