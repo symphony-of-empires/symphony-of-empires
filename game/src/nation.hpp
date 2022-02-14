@@ -40,6 +40,7 @@
 #include "diplomacy.hpp"
 #include "event.hpp"
 #include "ideology.hpp"
+#include "pop.hpp"
 class Technology;
 
 // Defines a one side relation between a country

@@ -96,13 +96,10 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
                 return;
             }
 
-            Building building;
-            building.owner = o.nation;
-            building.type = ((BuildingTypeButton&)w).building_type;
-            building.province = o.province;
-            g_client->send(Action::BuildingAdd::form_packet(o.province, building));
-
-            o.gs.ui_ctx->prompt("Production", "Building a " + building.type->name + " in " + building.get_province()->name + "; owned by " + building.get_owner()->name);
+            const BuildingType* building_type = ((BuildingTypeButton&)w).building_type;
+            o.province->buildings[o.gs.world->get_id(building_type)].level += 1;
+            g_client->send(Action::BuildingAdd::form_packet(o.province, ((BuildingTypeButton&)w).building_type));
+            o.gs.ui_ctx->prompt("Production", "Building a " + building_type->name + " in " + o.province->ref_name + "; owned by " + o.province->controller->name);
         });
         i++;
     }

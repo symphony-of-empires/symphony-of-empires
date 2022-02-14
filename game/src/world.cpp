@@ -375,8 +375,6 @@ World::~World() {
         delete building_type;
     } for(auto& unit_trait : unit_traits) {
         delete unit_trait;
-    } for(auto& product : products) {
-        delete product;
     } for(auto& unit : units) {
         delete unit;
     } for(auto& ideology : ideologies) {
@@ -440,14 +438,6 @@ void World::load_initial(void) {
     ideologies.shrink_to_fit();
     building_types.shrink_to_fit();
 
-    // Build a lookup table for super fast speed on finding provinces
-    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Building the province lookup table"));
-    std::vector<Province::Id> province_color_table(16777216, (Province::Id)-1);
-    for(auto& province : provinces) {
-        province_color_table[province->color & 0xffffff] = get_id(province);
-    }
-
     // Associate tiles with province
     std::unique_ptr<BinaryImage> div = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map/provinces.png")));
     width = div->width;
@@ -467,7 +457,15 @@ void World::load_initial(void) {
         throw std::runtime_error("Province map size mismatch");
     }
 
-    if(1) {
+    // Build a lookup table for super fast speed on finding provinces
+    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
+    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Building the province lookup table"));
+    std::vector<Province::Id> province_color_table(16777216, (Province::Id)-1);
+    for(auto& province : provinces) {
+        province_color_table[province->color & 0xffffff] = get_id(province);
+    }
+
+    /*if(1) {
         for(auto& province : provinces) {
             province->n_tiles = 0;
         }
@@ -506,7 +504,7 @@ void World::load_initial(void) {
 
                     /*remove(&building);
                     delete &building;
-                    j--;*/
+                    j--;/
                 }
 
                 delete &province;
@@ -519,14 +517,13 @@ void World::load_initial(void) {
         for(auto& province : provinces) {
             province_color_table[province->color & 0xffffff] = get_id(province);
         }
-    }
+    }*/
 
     uint32_t checksum = 1;
     for(auto& province : provinces) {
         checksum += province->ref_name.at(0);
     }
     checksum *= width * height * provinces.size();
-
     bool recalc_province = true;
     try {
         Archive ar = Archive();
@@ -544,7 +541,6 @@ void World::load_initial(void) {
                 ::deserialize(ar, &province->max_y);
                 ::deserialize(ar, &province->min_x);
                 ::deserialize(ar, &province->min_y);
-                ::deserialize(ar, &province->stockpile);
             }
 
             for(size_t i = 0; i < width * height; i++) {
@@ -589,6 +585,17 @@ void World::load_initial(void) {
             fclose(fp);
         }
 
+        fp = fopen("unused.txt", "w+t");
+        if(fp) {
+            for(int i = 0; i < province_color_table.size(); i++) {
+                uint32_t color = i << 8;
+                if(province_color_table[i] == (Province::Id)-1) {
+                    fprintf(fp, "%06x\n", static_cast<uintptr_t>(bswap32(color)));
+                }
+            }
+            fclose(fp);
+        }
+
         // Calculate the edges of the province (min and max x and y coordinates)
         UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Calculate the edges of the province (min and max x and y coordinates)"));
         for(size_t j = 0; j < height; j++) {
@@ -612,9 +619,6 @@ void World::load_initial(void) {
         for(auto& province : provinces) {
             province->max_x = std::min(width, province->max_x);
             province->max_y = std::min(height, province->max_y);
-
-            // Create default stockpile of 0
-            province->stockpile.resize(goods.size(), 0);
         }
 
         // Neighbours
@@ -642,7 +646,6 @@ void World::load_initial(void) {
             ::serialize(ar, &province->max_y);
             ::serialize(ar, &province->min_x);
             ::serialize(ar, &province->min_y);
-            ::serialize(ar, &province->stockpile);
         }
 
         for(size_t i = 0; i < width * height; i++) {
@@ -758,16 +761,9 @@ void World::do_tick() {
                 for(const auto& pop : province->pops) {
                     economy_score += pop.budget;
                 }
-
-                // Also calculates GDP
-                for(const auto& good : g_world->goods) {
-                    nation->gdp += province->stockpile[g_world->get_id(good)];
-                }
             }
             nation->economy_score = economy_score / 100.f;
         }
-
-        g_server->broadcast(Action::ProductUpdate::form_packet(products));
         g_server->broadcast(Action::NationUpdate::form_packet(nations));
         g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
     }
@@ -849,9 +845,6 @@ void World::do_tick() {
 
         if(unit->province->controller != nullptr && can_take) {
             unit->owner->give_province(*unit->province);
-            for(auto& building : unit->province->get_buildings()) {
-                building.owner = unit->owner;
-            }
         }
 
         if(unit->target != nullptr && unit->can_move()) {

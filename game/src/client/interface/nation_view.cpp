@@ -44,14 +44,14 @@ NationMarketView::NationMarketView(GameState& _gs, Nation* _nation)
     this->text(UnifiedRender::Locale::translate("Market information"));
 
     unsigned int i = 0;
-    for(const auto& product : gs.world->products) {
+    /*for(const auto& product : gs.world->products) {
         //if(product->building == nullptr || product->building->get_owner() != nation) {
         //    continue;
         //}
         
         new ProductInfo(gs, 0, (i * 24) + 128, product, this);
         i++;
-    }
+    }*/
 
     auto* close_btn = new UI::CloseButton(0, 0, this->width, 24, this);
     close_btn->text(UnifiedRender::Locale::translate("Close"));
