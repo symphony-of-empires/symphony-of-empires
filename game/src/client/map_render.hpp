@@ -82,6 +82,7 @@ public:
     MapRender(const World& world);
     ~MapRender() {};
     void update_mapmode(std::vector<ProvinceColor> province_colors);
+    void update_nations(std::vector<Province*> nations);
     void draw(Camera* camera, MapView view_mode);
     void reload_shaders();
     void update_options(MapOptions options);
@@ -95,6 +96,7 @@ private:
     // Map textures
     UnifiedRender::Texture* tile_map;
     UnifiedRender::Texture* tile_sheet;
+    UnifiedRender::Texture* tile_sheet_nation;
     const UnifiedRender::Texture* water_tex;
     const UnifiedRender::Texture* paper_tex;
     const UnifiedRender::Texture* stripes_tex;

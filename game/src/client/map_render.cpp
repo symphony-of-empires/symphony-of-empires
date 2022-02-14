@@ -94,9 +94,11 @@ MapRender::MapRender(const World& _world)
         uint32_t base_index = 0xFF000000;
         if(color == 0xFF000000) {
             terrain_map->buffer.get()[i] = base_index + 0; // Ocean
-        } else if(color == 0xFFFF00FF) {
+        }
+        else if(color == 0xFFFF00FF) {
             terrain_map->buffer.get()[i] = base_index + 1; // Lake 
-        }  else if(color == 0xFFFFFFFF) {
+        }
+        else if(color == 0xFFFFFFFF) {
             terrain_map->buffer.get()[i] = base_index + 2; // Land
         }
     }
@@ -156,6 +158,10 @@ MapRender::MapRender(const World& _world)
     for(unsigned int i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer.get()[i] = 0xffdddddd;
     }
+    tile_sheet_nation = new UnifiedRender::Texture(256, 256);
+    for(unsigned int i = 0; i < 256 * 256; i++) {
+        tile_sheet_nation->buffer.get()[i] = 0xffdddddd;
+    }
 
     // By default textures will be dropped from the CPU in order to save memory, however we're trying
     // to make a buffer-texture so we have to keep it or we will have trouble
@@ -163,6 +169,7 @@ MapRender::MapRender(const World& _world)
     no_drop_options.editable = true;
     no_drop_options.internal_format = GL_SRGB;
     tile_sheet->to_opengl(no_drop_options);
+    update_nations(world.provinces);
 
     print_info("Creating border textures");
 
@@ -319,6 +326,17 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
     tile_sheet->to_opengl(no_drop_options);
 }
 
+// Updates nations
+void MapRender::update_nations(std::vector<Province*> provinces) {
+    for(auto const& province : provinces) {
+        if(province->owner != nullptr)
+            tile_sheet_nation->buffer.get()[province->cached_id] = province->owner->cached_id;
+    }
+    UnifiedRender::TextureOptions no_drop_options{};
+    no_drop_options.editable = true;
+    tile_sheet_nation->to_opengl(no_drop_options);
+}
+
 void MapRender::draw(Camera* camera, MapView view_mode) {
     glm::mat4 view, projection;
 
@@ -370,7 +388,8 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
         map_shader->set_texture(12, "normal", *normal_topo); // 3 col
     }
     map_shader->set_texture(13, "paper_tex", *paper_tex);
-    map_shader->set_texture(14, "stripes", *stripes_tex);
+    // map_shader->set_texture(14, "stripes", *stripes_tex);
+    map_shader->set_texture(14, "tile_sheet_nation", *tile_sheet_nation);
 
     if(view_mode == MapView::PLANE_VIEW) {
         for(size_t i = 0; i < map_quads.size(); i++)
