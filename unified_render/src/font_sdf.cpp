@@ -38,7 +38,7 @@ using namespace UnifiedRender;
 #include <codecvt>
 #include <locale>
 
-FontSDF::FontSDF(std::string filename) {
+FontSDF::FontSDF(const std::string& filename) {
     sdf_font_shader = OpenGL::Program::create("shaders/font_sdf.vs", "shaders/font_sdf.fs");
 
     auto tex_man = UnifiedRender::State::get_instance().tex_man;
@@ -74,7 +74,7 @@ FontSDF::FontSDF(std::string filename) {
     }
 }
 
-Label3d* FontSDF::gen_text(std::string text, glm::vec3 center, glm::vec3 top, glm::vec3 right, float width) {
+Label3d* FontSDF::gen_text(const std::string& text, glm::vec3 center, glm::vec3 top, glm::vec3 right, float width) {
     UnifiedRender::Color color = UnifiedRender::Color(0.f, 0.f, 0.f);
 
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
@@ -135,7 +135,7 @@ Label3d* FontSDF::gen_text(std::string text, glm::vec3 center, glm::vec3 top, gl
     return new Label3d(triangles, scale);
 }
 
-void FontSDF::draw(std::vector<Label3d*>& labels, glm::mat4 projection, glm::mat4 view) {
+void FontSDF::draw(const std::vector<Label3d*>& labels, glm::mat4 projection, glm::mat4 view) {
     sdf_font_shader->use();
     sdf_font_shader->set_uniform("projection", projection);
     sdf_font_shader->set_uniform("view", view);
@@ -146,6 +146,16 @@ void FontSDF::draw(std::vector<Label3d*>& labels, glm::mat4 projection, glm::mat
     }
 }
 
-Label3d::Label3d(TriangleList* _triangles, float _size): triangles(_triangles), size{ _size } {};
-Label3d::~Label3d() { delete triangles; };
-void Label3d::draw() { triangles->draw(); };
+Label3d::Label3d(TriangleList* _triangles, float _size)
+    : triangles(_triangles),
+    size{ _size }
+{
+}
+
+Label3d::~Label3d() {
+    delete triangles;
+}
+
+void Label3d::draw() {
+    triangles->draw();
+}

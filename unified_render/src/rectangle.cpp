@@ -30,8 +30,8 @@ using namespace UnifiedRender;
 Rectangle::Rectangle(float x, float y, float width, float height)
     : left{ x },
     top{ y },
-    right{ (x + width) },
-    bottom{ (y + height) }
+    right{ x + width },
+    bottom{ y + height }
 {
 
 }

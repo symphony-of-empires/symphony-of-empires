@@ -23,14 +23,6 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "province_view.hpp"
-#include "nation_view.hpp"
-
-#include "client/game_state.hpp"
-#include "client/map.hpp"
-#include "nation.hpp"
-#include "world.hpp"
-#include "building.hpp"
 #include "unified_render/path.hpp"
 #include "unified_render/texture.hpp"
 #include "unified_render/ui/piechart.hpp"
@@ -39,6 +31,14 @@
 #include "unified_render/ui/tooltip.hpp"
 #include "unified_render/ui/button.hpp"
 #include "unified_render/ui/close_button.hpp"
+
+#include "province_view.hpp"
+#include "nation_view.hpp"
+#include "client/game_state.hpp"
+#include "client/map.hpp"
+#include "nation.hpp"
+#include "world.hpp"
+#include "building.hpp"
 
 using namespace Interface;
 
@@ -132,31 +132,29 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
 
         // Obtain demand, supply and other information about the goods
         std::vector<UI::ChartData> goods_data, products_data;
+
+        int i = 0;
         for(const auto& product : o.province->products) {
             //if(product->building == nullptr) {
             //    continue;
             //}
 
             const auto product_col = UnifiedRender::Color(
-                o.gs.world->get_id(product) * 12,
-                o.gs.world->get_id(product) * 31,
-                o.gs.world->get_id(product) * 97
+                i * 12,
+                i * 31,
+                i * 97
             );
 
-            products_data.push_back(UI::ChartData(product->demand, product->good->name, product_col));
+            products_data.push_back(UI::ChartData(product.demand, product.good->name, product_col));
         }
         o.products_pie->set_data(products_data);
     });
 
     // Initial product info
     unsigned int i = 0;
-    for(const auto& product : this->province->products) {
-        //if(product->building == nullptr) {
-        //    continue;
-        //}
-
-        auto* info = new ProductInfo(this->gs, 0, (i * 24) + 128, product, this);
-        this->product_infos.push_back(info);
+    for(const auto& good : gs.world->goods) {
+        auto* info = new ProductInfo(this->gs, 0, (i * 24) + 128, province, good, this);
+        product_infos.push_back(info);
         i++;
     }
 }
@@ -421,17 +419,5 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         });
         edit_terrain_btn->tooltip = new UI::Tooltip(edit_terrain_btn, 512, 24);
         edit_terrain_btn->tooltip->text("Edit terrain");
-
-        auto* exbuild_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
-        exbuild_btn->below_of(*xchg_dens_btn);
-        exbuild_btn->right_side_of(*edit_terrain_btn);
-        exbuild_btn->on_click = ([](UI::Widget& w) {
-            auto& o = static_cast<ProvinceView&>(*w.parent);
-            for(auto& building : o.province->get_buildings()) {
-                building.owner = o.gs.curr_nation;
-            }
-        });
-        exbuild_btn->tooltip = new UI::Tooltip(exbuild_btn, 512, 24);
-        exbuild_btn->tooltip->text("Expropriates all buildings to the current owner");
     }
 }

@@ -33,7 +33,6 @@
 #include "unified_render/decimal.hpp"
 
 // A product (based off a Good) which can be bought by POPs, converted by factories and transported
-// accross the world
 class Product : public IdEntity<uint16_t> {
 public:
     //Product();
@@ -49,10 +48,10 @@ public:
     // Velocity of change of price of the product
     UnifiedRender::Decimal price_vel;
 
-    // Total supply (worldwide) of the product
+    // Total supply of the product
     size_t supply;
 
-    // Total demand (worldwide) of the product
+    // Total demand of the product
     size_t demand;
 
     // History of price, supply and demand for the past 30 days
