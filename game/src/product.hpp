@@ -39,9 +39,6 @@ public:
     //~Product();
     void close_market(void);
 
-    // Good that this product is based on
-    Good* good;
-
     // Price of the product
     UnifiedRender::Decimal price;
 

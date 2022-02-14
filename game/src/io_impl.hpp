@@ -655,14 +655,12 @@ template<>
 class Serializer<Product> {
 public:
     static inline void serialize(Archive& stream, const Product* obj) {
-        ::serialize(stream, &obj->good);
         ::serialize(stream, &obj->price);
         ::serialize(stream, &obj->price_vel);
         ::serialize(stream, &obj->supply);
         ::serialize(stream, &obj->demand);
     }
     static inline void deserialize(Archive& stream, Product* obj) {
-        ::deserialize(stream, &obj->good);
         ::deserialize(stream, &obj->price);
         ::deserialize(stream, &obj->price_vel);
         ::deserialize(stream, &obj->supply);

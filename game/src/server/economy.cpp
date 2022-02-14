@@ -413,10 +413,12 @@ void Economy::do_tick(World& world) {
                 // this also gets nullified
                 province->products[j].supply -= bought;
                 pop.budget -= bought * province->products[j].price;
-                if(world.goods[j]->is_edible) {
-                    pop.life_needs_met += pop.size / bought;
-                } else {
-                    pop.everyday_needs_met += pop.size / bought;
+                if(bought) {
+                    if(world.goods[j]->is_edible) {
+                        pop.life_needs_met += pop.size / bought;
+                    } else {
+                        pop.everyday_needs_met += pop.size / bought;
+                    }
                 }
 
                 if(pop.budget < 0.f) {

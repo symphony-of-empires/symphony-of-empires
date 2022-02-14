@@ -131,23 +131,18 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
         auto& o = static_cast<ProvinceEconomyTab&>(w);
 
         // Obtain demand, supply and other information about the goods
-        std::vector<UI::ChartData> goods_data, products_data;
-
+        std::vector<UI::ChartData> goods_data;
         int i = 0;
-        for(const auto& product : o.province->products) {
-            //if(product->building == nullptr) {
-            //    continue;
-            //}
-
-            const auto product_col = UnifiedRender::Color(
+        for(const auto& good : o.gs.world->goods) {
+            const auto good_col = UnifiedRender::Color(
                 i * 12,
                 i * 31,
                 i * 97
             );
-
-            products_data.push_back(UI::ChartData(product.demand, product.good->name, product_col));
+            Product& product = o.province->products[o.gs.world->get_id(good)];
+            goods_data.push_back(UI::ChartData(product.demand, good->name, good_col));
         }
-        o.products_pie->set_data(products_data);
+        o.products_pie->set_data(goods_data);
     });
 
     // Initial product info

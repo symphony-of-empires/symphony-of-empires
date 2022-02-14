@@ -102,10 +102,10 @@ ProductView::ProductView(GameState& _gs, Product* _product)
 
     auto* good_btn = new UI::Button(0, 0, 128, 24, this);
     good_btn->below_of(*this->demand_chart);
-    good_btn->text(product->good->name);
+    //good_btn->text(product->good->name);
     good_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductView&>(*w.parent);
-        new GoodView(o.gs, o.product->good);
+        //new GoodView(o.gs, o.product->good);
     });
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
