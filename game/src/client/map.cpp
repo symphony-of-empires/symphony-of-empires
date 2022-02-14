@@ -667,16 +667,6 @@ void Map::draw(const GameState& gs) {
         glCullFace(GL_BACK);
         glFrontFace(GL_CCW);
         map_font->draw(nation_labels, projection, view);
-        // for(const auto& nation : world.nations) {
-        //     if(!nation->exists())
-        //         continue;
-
-        //     auto* text_tex = nation_names_text[world.get_id(nation)];
-        //     obj_shader->set_texture(0, "diffuse_map", *text_tex);
-
-        //     auto* quad = nation_names_quad[world.get_id(nation)];
-        //     // quad->draw();
-        // }
         glDepthFunc(GL_LEQUAL);
         glDisable(GL_CULL_FACE);
     }
