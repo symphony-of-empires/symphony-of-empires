@@ -39,6 +39,8 @@
 #include "unified_render/ui/ui.hpp"
 #include "unified_render/ui/slider.hpp"
 #include "unified_render/ui/checkbox.hpp"
+#include "unified_render/ui/group.hpp"
+#include "unified_render/ui/image.hpp"
 #include "unified_render/ui/close_button.hpp"
 #include "client/interface/lobby.hpp"
 
@@ -68,31 +70,31 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 
     conn_btn = new UI::Button(0, 48, 128, 24, this);
     conn_btn->text("Connect");
-    conn_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<MainMenuConnectServer&>(*w.parent);
-        print_info("Okey, connecting to [%s]", o.ip_addr_inp->buffer.c_str());
+    conn_btn->on_click = ([this](UI::Widget& w) {
+        auto& gs = this->gs;
+        print_info("Okey, connecting to [%s]", this->ip_addr_inp->buffer.c_str());
 
         // TODO: Handle when mods differ (i.e checksum not equal to host)
-        o.gs.host_mode = false;
+        gs.host_mode = false;
 
         try {
-            o.gs.client = new Client(o.gs, o.ip_addr_inp->buffer, 1836);
-            o.gs.client->username = o.username_inp->buffer;
-            o.gs.client->wait_for_snapshot();
-        } catch(UnifiedRender::Networking::SocketException& e) {
-            o.gs.ui_ctx->prompt("Network layer error", e.what());
-            goto failure_cleanup;
-        } catch(ClientException& e) {
-            o.gs.ui_ctx->prompt("Client error", e.what());
-            goto failure_cleanup;
-        } catch(ServerException& e) {
-            o.gs.ui_ctx->prompt("Server error", e.what());
-            goto failure_cleanup;
+            gs.client = new Client(gs, this->ip_addr_inp->buffer, 1836);
+            gs.client->username = this->username_inp->buffer;
+            gs.client->wait_for_snapshot();
+            gs.in_game = true;
+            return;
         }
-        o.gs.in_game = true;
-    failure_cleanup:
-        delete o.gs.world;
-        delete o.gs.client;
+        catch(UnifiedRender::Networking::SocketException& e) {
+            gs.ui_ctx->prompt("Network layer error", e.what());
+        }
+        catch(ClientException& e) {
+            gs.ui_ctx->prompt("Client error", e.what());
+        }
+        catch(ServerException& e) {
+            gs.ui_ctx->prompt("Server error", e.what());
+        }
+        delete gs.world;
+        delete gs.client;
     });
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
@@ -105,90 +107,151 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 // Main menu
 //
 MainMenu::MainMenu(GameState& _gs)
-    : UI::Window(0, -128, 400, 128),
+    : UI::Div(250, -270, 300, 540),
     gs{ _gs }
 {
-    this->origin = UI::Origin::LOWER_LEFT_SCREEN;
+    this->origin = UI::Origin::MIDDLE_LEFT_SCREEN;
     this->is_pinned = true;
     this->is_scroll = false;
-    this->text("Symphony of Empires");
-    
-    auto* single_btn = new UI::Button(0, 0, 128, 24, this);
+    // this->text("Symphony of Empires");
+    auto tex_man = UnifiedRender::State::get_instance().tex_man;
+    UnifiedRender::TextureOptions mipmap_options;
+    mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+    mipmap_options.mag_filter = GL_LINEAR;
+    mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
+    mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
+
+    auto font = TTF_OpenFont(Path::get("fonts/neon_euler/euler.ttf").c_str(), 20);
+    auto text_color = UnifiedRender::Color(1., 1., 1.);
+
+    this->current_texture = &tex_man->load(Path::get("gfx/ui/bg/main_menu.png"), mipmap_options);
+    auto main_menu_border = &tex_man->load(Path::get("gfx/ui/bg/main_menu_border.png"));
+    this->border = UI::Border(main_menu_border, glm::ivec2(16), glm::ivec2(16));
+
+    auto logo = &tex_man->load(Path::get("gfx/ui/image/logo.png"), mipmap_options);
+    new UI::Image(0, 0, 300, 120, logo, this);
+
+    auto button_image = &tex_man->load(Path::get("gfx/ui/button/button.png"), mipmap_options);
+    auto button_border_image = &tex_man->load(Path::get("gfx/ui/button/button_border.png"));
+    glm::ivec2 size(3, 3);
+    glm::ivec2 texture_size(3, 3);
+    auto button_border = UI::Border(button_border_image, size, texture_size);
+
+    auto* button_list = new UI::Div(0, 200, 300, 320, this);
+    button_list->flex = UI::Flex::COLUMN;
+    button_list->flex_align = UI::Align::CENTER;
+    button_list->flex_gap = 8;
+
+
+    int b_width = 225;
+    int b_height = 33;
+    auto* single_btn = new UI::Button(0, 0, b_width, b_height, button_list);
+    single_btn->border = button_border;
+    single_btn->current_texture = button_image;
+    single_btn->font = font;
+    single_btn->text_color = text_color;
+    single_btn->text_align_x = UI::Align::CENTER;
+    single_btn->text_align_y = UI::Align::CENTER;
     single_btn->text("Singleplayer");
-    single_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<MainMenu&>(*w.parent);
+    single_btn->on_click = ([this](UI::Widget& w) {
+        auto& gs = this->gs;
 
-        o.gs.current_mode = MapMode::COUNTRY_SELECT;
-        o.gs.select_nation = new Interface::LobbySelectView(o.gs);
+        gs.current_mode = MapMode::COUNTRY_SELECT;
+        gs.select_nation = new Interface::LobbySelectView(gs);
 
-        o.gs.host_mode = true;
-        o.gs.server = new Server(o.gs, 1836);
-        o.gs.client = new Client(o.gs, "127.0.0.1", 1836);
-        o.gs.client->username = "Player";
-        o.gs.in_game = true;
-        o.gs.editor = false;
+        gs.host_mode = true;
+        gs.server = new Server(gs, 1836);
+        gs.client = new Client(gs, "127.0.0.1", 1836);
+        gs.client->username = "Player";
+        gs.in_game = true;
+        gs.editor = false;
 
-        o.kill();
+        this->kill();
     });
 
-    auto* mp_btn = new UI::Button(0, 0, 128, 24, this);
+    auto* mp_btn = new UI::Button(0, 0, b_width, b_height, button_list);
+    mp_btn->border = button_border;
+    mp_btn->current_texture = button_image;
+    mp_btn->font = font;
+    mp_btn->text_color = text_color;
+    mp_btn->text_align_x = UI::Align::CENTER;
+    mp_btn->text_align_y = UI::Align::CENTER;
     mp_btn->text("Join LAN");
-    mp_btn->right_side_of(*single_btn);
-    mp_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<MainMenu&>(*w.parent);
-        o.connect_window = new MainMenuConnectServer(o.gs);
+    mp_btn->on_click = ([this](UI::Widget& w) {
+        this->connect_window = new MainMenuConnectServer(this->gs);
     });
 
-    auto* host_btn = new UI::Button(0, 0, 128, 24, this);
+    auto* host_btn = new UI::Button(0, 0, b_width, b_height, button_list);
+    host_btn->border = button_border;
+    host_btn->current_texture = button_image;
+    host_btn->font = font;
+    host_btn->text_color = text_color;
+    host_btn->text_align_x = UI::Align::CENTER;
+    host_btn->text_align_y = UI::Align::CENTER;
     host_btn->text("Host");
-    host_btn->right_side_of(*mp_btn);
-    host_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<MainMenu&>(*w.parent);
+    host_btn->on_click = ([this](UI::Widget& w) {
+        auto& gs = this->gs;
 
-        o.gs.current_mode = MapMode::COUNTRY_SELECT;
-        o.gs.select_nation = new Interface::LobbySelectView(o.gs);
+        gs.current_mode = MapMode::COUNTRY_SELECT;
+        gs.select_nation = new Interface::LobbySelectView(gs);
 
-        o.gs.host_mode = true;
-        o.gs.server = new Server(o.gs, 1836);
-        o.gs.client = new Client(o.gs, "127.0.0.1", 1836);
-        o.gs.client->username = "Host";
-        o.gs.in_game = true;
+        gs.host_mode = true;
+        gs.server = new Server(gs, 1836);
+        gs.client = new Client(gs, "127.0.0.1", 1836);
+        gs.client->username = "Host";
+        gs.in_game = true;
 
-        o.kill();
+        this->kill();
     });
 
-    auto* edit_btn = new UI::Button(0, 0, 128, 24, this);
-    edit_btn->below_of(*host_btn);
+    auto* edit_btn = new UI::Button(0, 0, b_width, b_height, button_list);
+    edit_btn->border = button_border;
+    edit_btn->current_texture = button_image;
+    edit_btn->font = font;
+    edit_btn->text_color = text_color;
+    edit_btn->text_align_x = UI::Align::CENTER;
+    edit_btn->text_align_y = UI::Align::CENTER;
     edit_btn->text("Editor");
-    edit_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<MainMenu&>(*w.parent);
+    edit_btn->on_click = ([this](UI::Widget& w) {
+        auto& gs = this->gs;
 
-        o.gs.current_mode = MapMode::COUNTRY_SELECT;
-        o.gs.select_nation = new Interface::LobbySelectView(o.gs);
+        gs.current_mode = MapMode::COUNTRY_SELECT;
+        gs.select_nation = new Interface::LobbySelectView(gs);
 
-        o.gs.host_mode = true;
-        o.gs.server = new Server(o.gs, 1836);
-        o.gs.client = new Client(o.gs, "127.0.0.1", 1836);
-        o.gs.client->username = "Player";
-        o.gs.in_game = true;
-        o.gs.editor = true;
+        gs.host_mode = true;
+        gs.server = new Server(gs, 1836);
+        gs.client = new Client(gs, "127.0.0.1", 1836);
+        gs.client->username = "Player";
+        gs.in_game = true;
+        gs.editor = true;
 
-        o.kill();
+        this->kill();
     });
 
-    auto* cfg_btn = new UI::Button(0, 0, 128, 24, this);
+    auto* cfg_btn = new UI::Button(0, 0, b_width, b_height, button_list);
+    cfg_btn->border = button_border;
+    cfg_btn->current_texture = button_image;
+    cfg_btn->font = font;
+    cfg_btn->text_color = text_color;
+    cfg_btn->text_align_x = UI::Align::CENTER;
+    cfg_btn->text_align_y = UI::Align::CENTER;
     cfg_btn->text("Settings");
-    cfg_btn->below_of(*host_btn);
-    cfg_btn->right_side_of(*edit_btn);
-    cfg_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<MainMenu&>(*w.parent);
-        o.settings_window = new Interface::Settings(o.gs);
+    cfg_btn->on_click = ([this](UI::Widget& w) {
+        this->settings_window = new Interface::Settings(this->gs);
     });
 
-    auto* exit_btn = new UI::Button(0, 0, 128, 24, this);
-    exit_btn->below_of(*host_btn);
-    exit_btn->right_side_of(*cfg_btn);
+    auto* exit_btn = new UI::Button(-75, -60, 150, b_height, this);
+    exit_btn->border = button_border;
+    exit_btn->current_texture = button_image;
+    exit_btn->font = font;
+    exit_btn->text_align_x = UI::Align::CENTER;
+    exit_btn->text_align_y = UI::Align::CENTER;
+    exit_btn->text_color = text_color;
+    exit_btn->origin = UI::Origin::LOWER_MIDDLE;
     exit_btn->text("Exit");
+    exit_btn->on_click = ([this](UI::Widget& w) {
+        this->gs.run = false;
+    });
 }
 
 MainMenu::~MainMenu() {

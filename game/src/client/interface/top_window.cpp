@@ -60,7 +60,7 @@ TopWindow::TopWindow(GameState& _gs)
     auto* flex_column = new UI::Div(3, 96, 42, 390, this);
     flex_column->flex = UI::Flex::COLUMN;
     flex_column->flex_justify = UI::FlexJustify::SPACE_AROUND;
-    flex_column->flex_align = UI::FlexAlign::CENTER;
+    flex_column->flex_align = UI::Align::CENTER;
 
     int icon_size = 25;
 

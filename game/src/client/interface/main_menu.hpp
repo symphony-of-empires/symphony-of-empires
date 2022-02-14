@@ -27,6 +27,7 @@
 
 #include "client/game_state.hpp"
 #include "unified_render/ui/window.hpp"
+#include "unified_render/ui/div.hpp"
 
 namespace UI {
     class Input;
@@ -45,7 +46,7 @@ namespace Interface {
     };
 
     class Settings;
-    class MainMenu: public UI::Window {
+    class MainMenu: public UI::Div {
     public:
         MainMenu(GameState& gs);
         ~MainMenu() override;

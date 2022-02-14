@@ -50,13 +50,17 @@ namespace UnifiedRender {
 namespace UI {
 	enum class Origin {
 		CENTER,
+		MIDDLE_LEFT,
+		MIDDLE_RIGHT,
 		UPPER_LEFT,
 		UPPER_MIDDLE,
-		UPPER_RIGTH,
+		UPPER_RIGHT,
 		LOWER_LEFT,
 		LOWER_MIDDLE,
 		LOWER_RIGHT,
 		CENTER_SCREEN,
+		MIDDLE_LEFT_SCREEN,
+		MIDDLE_RIGHT_SCREEN,
 		UPPER_LEFT_SCREEN,
 		UPPER_MIDDLE_SCREEN,
 		UPPER_RIGHT_SCREEN,
@@ -95,7 +99,7 @@ namespace UI {
 		SPACE_AROUND,
 	};
 
-	enum class FlexAlign {
+	enum class Align {
 		START,
 		END,
 		CENTER,
@@ -118,6 +122,7 @@ namespace UI {
 		glm::ivec2 texture_size;
 		glm::ivec2 offset;
 
+		Border() {};
 		Border(const UnifiedRender::Texture* _texture, glm::ivec2 _size, glm::ivec2 _texture_size, glm::ivec2 _offset = glm::ivec2(0))
 			: texture{ _texture }, size{ _size }, texture_size{ _texture_size }, offset{ _offset } {};
 	};
@@ -178,13 +183,16 @@ namespace UI {
 		const UnifiedRender::Texture* current_texture = nullptr;
 		UnifiedRender::Texture* text_texture = nullptr;
 		int text_offset_x = 4, text_offset_y = 4;
+		Align text_align_y = Align::START; 
+		Align text_align_x = Align::START; 
 		UnifiedRender::Color text_color;
-		Border* border = nullptr;
+        TTF_Font* font = nullptr;
+		Border border;
 		UnifiedRender::Color color;
 
 		Flex flex = Flex::NONE;
 		FlexJustify flex_justify = FlexJustify::START;
-		FlexAlign flex_align = FlexAlign::START;
+		Align flex_align = Align::START;
 		size_t flex_gap = 0;
 
 		Tooltip* tooltip = nullptr;
@@ -200,8 +208,8 @@ namespace UI {
 		std::function<void(Widget&)> on_update;
 		std::function<void(Widget&, glm::ivec2 mouse_pos, glm::ivec2 widget_pos)> on_hover;
 		std::function<void(Widget&)> on_click;
-        virtual void set_on_click(std::function<void(Widget&)> _on_click) {
-			on_click = _on_click; 
+		virtual void set_on_click(std::function<void(Widget&)> _on_click) {
+			on_click = _on_click;
 		}
 		std::function<void(Widget&)> on_click_outside;
 
@@ -222,6 +230,6 @@ namespace UI {
 		bool dead = false;
 
 		void recalc_child_pos();
-		void draw_border(Border* border, UnifiedRender::Rect viewport);
+		void draw_border(Border& border, UnifiedRender::Rect viewport);
 	};
 };

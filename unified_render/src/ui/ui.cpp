@@ -197,6 +197,15 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
         pos += offset;
         pos += parent_size / 2;
         break;
+    case UI::Origin::MIDDLE_LEFT:
+        pos += offset;
+        pos.y += parent_size.y / 2;
+        break;
+    case UI::Origin::MIDDLE_RIGHT:
+        pos += offset;
+        pos.y += parent_size.y / 2;
+        pos.x += parent_size.x;
+        break;
     case UI::Origin::UPPER_LEFT:
         pos += offset;
         break;
@@ -204,7 +213,7 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
         pos += offset;
         pos.x += parent_size.x / 2;
         break;
-    case UI::Origin::UPPER_RIGTH:
+    case UI::Origin::UPPER_RIGHT:
         pos += offset;
         pos.x += parent_size.x;
         break;
@@ -223,6 +232,13 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
         break;
     case UI::Origin::CENTER_SCREEN:
         pos += screen_size / 2;
+        break;
+    case UI::Origin::MIDDLE_LEFT_SCREEN:
+        pos.y += screen_size.y / 2;
+        break;
+    case UI::Origin::MIDDLE_RIGHT_SCREEN:
+        pos.y += screen_size.y / 2;
+        pos.x += screen_size.x;
         break;
     case UI::Origin::UPPER_LEFT_SCREEN:
         break;
