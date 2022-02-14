@@ -83,6 +83,9 @@ CMakeCache.txt
 unixbuild/
 linuxbuild/
 
+# libs
+external/
+
 # makefile stuff
 .depend
 
