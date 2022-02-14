@@ -114,14 +114,14 @@ void Widget::right_side_of(const Widget& rhs) {
     x = rhs.x + rhs.width;
 }
 
-void Widget::draw_border(Border* border, UnifiedRender::Rect viewport) {
-    float x_offset = border->offset.x;
-    float y_offset = border->offset.y;
-    float b_w = border->size.x;
-    float b_h = border->size.y;
-    float b_tex_w = border->texture_size.x;
-    float b_tex_h = border->texture_size.y;
-    auto border_tex = border->texture;
+void Widget::draw_border(Border& border, UnifiedRender::Rect viewport) {
+    float x_offset = border.offset.x;
+    float y_offset = border.offset.y;
+    float b_w = border.size.x;
+    float b_h = border.size.y;
+    float b_tex_w = border.texture_size.x;
+    float b_tex_h = border.texture_size.y;
+    auto border_tex = border.texture;
 
     // Draw border edges and corners
     UnifiedRender::Rect pos_rect(0, 0, 0, 0);
@@ -249,28 +249,38 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         draw_rectangle(0, 0, width, 24, viewport, ctx.window_top->gl_tex_num);
     }
 
-    if(type == UI::WidgetType::BUTTON) {
-        const size_t padding = 1;
+    // if(type == UI::WidgetType::BUTTON) {
+    //     const size_t padding = 1;
 
-        // Put a "grey" inner background
-        UnifiedRender::Rect pos_rect((int)padding, padding, width - padding, height - padding);
-        UnifiedRender::Rect tex_rect((int)0u, 0u, width / ctx.background->width, height / ctx.background->height);
+    //     // Put a "grey" inner background
+    //     UnifiedRender::Rect pos_rect((int)padding, padding, width - padding, height - padding);
+    //     UnifiedRender::Rect tex_rect((int)0u, 0u, width / ctx.background->width, height / ctx.background->height);
 
-        draw_rect(ctx.button->gl_tex_num, pos_rect, tex_rect, viewport);
-    }
+    //     draw_rect(ctx.button->gl_tex_num, pos_rect, tex_rect, viewport);
+    // }
 
-    if(border != nullptr) {
+    if(border.texture != nullptr) {
         draw_border(border, viewport);
     }
     glBindTexture(GL_TEXTURE_2D, 0);
 
     if(text_texture != nullptr) {
         glColor3f(text_color.r, text_color.g, text_color.b);
+
+        int x_offset = text_offset_x;
         int y_offset = text_offset_y;
-        if(type == UI::WidgetType::BUTTON) {
-            y_offset = (height - text_texture->height) / 2;
+        if(text_align_x == UI::Align::CENTER) {
+            x_offset = (width - text_texture->width) / 2;
         }
-        draw_rectangle(text_offset_x, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
+        else if(text_align_x == UI::Align::END) {
+            x_offset += width - text_texture->width;
+        }
+        if(text_align_y == UI::Align::CENTER) {
+            y_offset = (height - text_texture->height) / 2;
+        } else if (text_align_y == UI::Align::END) {
+            y_offset += height - text_texture->height;
+        }
+        draw_rectangle(x_offset, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
     }
 
     // Semi-transparent over hover elements which can be clicked
@@ -398,7 +408,7 @@ void Widget::recalc_child_pos() {
     }
 
     switch(flex_align) {
-    case FlexAlign::START:
+    case Align::START:
         for(auto& child : children) {
             if(is_row) {
                 child->y = 0;
@@ -408,7 +418,7 @@ void Widget::recalc_child_pos() {
             }
         }
         break;
-    case FlexAlign::END:
+    case Align::END:
         for(auto& child : children) {
             if(is_row) {
                 child->y = std::max<int>(0, height - child->height);
@@ -418,7 +428,7 @@ void Widget::recalc_child_pos() {
             }
         }
         break;
-    case FlexAlign::CENTER:
+    case Align::CENTER:
         for(auto& child : children) {
             if(is_row) {
                 child->y = std::max<int>(0, height - child->height) / 2;
@@ -464,7 +474,8 @@ void Widget::text(const std::string& _text) {
         return;
     }
 
-    text_texture = new UnifiedRender::Texture(g_ui_context->default_font, text_color, _text);
+    TTF_Font* text_font = font ? font : g_ui_context->default_font;
+    text_texture = new UnifiedRender::Texture(text_font, text_color, _text);
 }
 
 void Widget::set_tooltip(Tooltip* _tooltip) {
