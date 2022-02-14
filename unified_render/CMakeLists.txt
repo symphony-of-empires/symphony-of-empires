@@ -20,9 +20,13 @@ IF(UNIT_TEST)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNIT_TEST=1")
 ENDIF()
 # Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/include/SDL2")
+include_directories(/usr/include/SDL2)
+
 link_directories(/usr/local/lib)
 include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/include")
+
+link_directories(${PROJECT_SOURCE_DIR}/../external/lib)
+include_directories(${PROJECT_SOURCE_DIR}/../external/include)
 
 #
 # Source code files
