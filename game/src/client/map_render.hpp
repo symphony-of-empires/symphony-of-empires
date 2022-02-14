@@ -60,15 +60,15 @@ class ProvinceColors;
 typedef UnifiedRender::OpenGL::Option Option;
 class MapOptions {
 public:
-    Option noise{ "NOISE", false };
-    Option sdf{ "SDF", false };
-    Option lighting{ "LIGHTING", false };
-    Option diag_borders{ "DIAG_BORDER", false };
+    Option noise{ "NOISE", true };
+    Option sdf{ "SDF", true };
+    Option lighting{ "LIGHTING", true };
+    Option diag_borders{ "DIAG_BORDER", true };
     Option parallax{ "PARALLAX", false };
-    Option landscape{ "LANDSCAPE", false };
-    Option rivers{ "RIVERS", false };
-    Option water{ "WATER", false };
-    Option grid{ "GRID", false };
+    Option landscape{ "LANDSCAPE", true };
+    Option rivers{ "RIVERS", true };
+    Option water{ "WATER", true };
+    Option grid{ "GRID", true };
 
     std::vector<Option> get_options() {
         return std::vector<Option>{
@@ -117,5 +117,5 @@ private:
     std::unique_ptr<UnifiedRender::OpenGL::Program> border_sdf_shader;
     std::unique_ptr<UnifiedRender::OpenGL::Program> border_gen_shader;
     std::unique_ptr<UnifiedRender::OpenGL::Program> output_shader;
-    std::unique_ptr<UnifiedRender::Texture> border_sdf;
+    UnifiedRender::Texture* border_sdf;
 };
