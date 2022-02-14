@@ -52,11 +52,6 @@ size_t Province::total_pops(void) const {
     return total;
 }
 
-// Create a vector containing a list of all products available on this province
-std::vector<Product*> Province::get_products(void) const {
-    return products;
-}
-
 float Province::get_attractiveness(const Pop& pop) const {
     float attractive = this->base_attractive;
     

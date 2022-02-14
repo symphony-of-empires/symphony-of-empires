@@ -71,10 +71,6 @@ enum class ActionType {
 
     TILE_UPDATE,
 
-    PRODUCT_ADD,
-    PRODUCT_REMOVE,
-    PRODUCT_UPDATE,
-
     CHANGE_TREATY_APPROVAL,
     DRAFT_TREATY,
     TREATY_ADD,
@@ -122,11 +118,6 @@ namespace Action {
         static UnifiedRender::Networking::Packet form_packet(Nation* target);
     };
 
-    class ProductUpdate {
-    public:
-        static UnifiedRender::Networking::Packet form_packet(const std::vector<Product*>& list);
-    };
-
     class ProvinceUpdate {
     public:
         static UnifiedRender::Networking::Packet form_packet(const std::vector<Province*>& list);
@@ -149,7 +140,7 @@ namespace Action {
 	
 	class BuildingAdd {
 	public:
-        static UnifiedRender::Networking::Packet form_packet(Province* province, Building building);
+        static UnifiedRender::Networking::Packet form_packet(Province* province, BuildingType* building_type);
 	};
 
     class FocusTech {

@@ -36,6 +36,7 @@ class UnitType;
 class Province;
 class Product;
 class Technology;
+class Good;
 class Building;
 class BuildingType;
 namespace UI {
@@ -115,13 +116,14 @@ namespace Interface {
 
     class ProductInfo : public UI::Group {
         GameState& gs;
-        Product* product;
+        Province* province;
+        Good* good;
 
         UI::Image* good_ibtn;
         UI::Button* name_btn,* province_btn;
         UI::Button* price_btn,* price_rate_btn;
         UI::Chart* price_chart,* demand_chart,* supply_chart;
     public:
-        ProductInfo(GameState& gs, int x, int y, Product* product, UI::Widget* parent);
+        ProductInfo(GameState& gs, int x, int y, Province* province, Good* good, UI::Widget* parent);
     };
 };

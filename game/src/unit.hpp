@@ -30,10 +30,12 @@
 #include <cstdint>
 #include <cstddef>
 #include <type_traits>
-#include "good.hpp"
-#include "nation.hpp"
 #include "unified_render/entity.hpp"
 #include "unified_render/decimal.hpp"
+
+class Nation;
+class Good;
+class Province;
 
 // Defines a type of unit, it can be a tank, garrison, infantry, etc
 // this is moddable via a lua script and new unit types can be added
@@ -108,7 +110,8 @@ public:
     // Base size of the unit (max size due to anti-attrition)
     size_t base;
     
-    Province* target = nullptr,* province = nullptr;
+    Province* target = nullptr;
+    Province* province = nullptr;
     UnifiedRender::Decimal move_progress;
 
     // Who owns this unit
