@@ -375,8 +375,6 @@ World::~World() {
         delete building_type;
     } for(auto& unit_trait : unit_traits) {
         delete unit_trait;
-    } for(auto& product : products) {
-        delete product;
     } for(auto& unit : units) {
         delete unit;
     } for(auto& ideology : ideologies) {
@@ -543,7 +541,6 @@ void World::load_initial(void) {
                 ::deserialize(ar, &province->max_y);
                 ::deserialize(ar, &province->min_x);
                 ::deserialize(ar, &province->min_y);
-                ::deserialize(ar, &province->stockpile);
             }
 
             for(size_t i = 0; i < width * height; i++) {
@@ -622,9 +619,6 @@ void World::load_initial(void) {
         for(auto& province : provinces) {
             province->max_x = std::min(width, province->max_x);
             province->max_y = std::min(height, province->max_y);
-
-            // Create default stockpile of 0
-            province->stockpile.resize(goods.size(), 0);
         }
 
         // Neighbours
@@ -652,7 +646,6 @@ void World::load_initial(void) {
             ::serialize(ar, &province->max_y);
             ::serialize(ar, &province->min_x);
             ::serialize(ar, &province->min_y);
-            ::serialize(ar, &province->stockpile);
         }
 
         for(size_t i = 0; i < width * height; i++) {
@@ -768,16 +761,9 @@ void World::do_tick() {
                 for(const auto& pop : province->pops) {
                     economy_score += pop.budget;
                 }
-
-                // Also calculates GDP
-                for(const auto& good : g_world->goods) {
-                    nation->gdp += province->stockpile[g_world->get_id(good)];
-                }
             }
             nation->economy_score = economy_score / 100.f;
         }
-
-        g_server->broadcast(Action::ProductUpdate::form_packet(products));
         g_server->broadcast(Action::NationUpdate::form_packet(nations));
         g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
     }
@@ -859,9 +845,6 @@ void World::do_tick() {
 
         if(unit->province->controller != nullptr && can_take) {
             unit->owner->give_province(*unit->province);
-            for(auto& building : unit->province->get_buildings()) {
-                building.owner = unit->owner;
-            }
         }
 
         if(unit->target != nullptr && unit->can_move()) {

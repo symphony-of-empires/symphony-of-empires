@@ -218,29 +218,6 @@ void Client::net_loop(void) {
                             ::deserialize(ar, province);
                         }
                     } break;
-                    case ActionType::PRODUCT_ADD: {
-                        Product* product = new Product();
-                        ::deserialize(ar, product);
-                        world.insert(product);
-
-                        print_info("New product of good type [%s]", product->good->ref_name.c_str());
-                    } break;
-                    case ActionType::PRODUCT_UPDATE: {
-                        Product::Id size;
-                        ::deserialize(ar, &size);
-                        for(Product::Id i = 0; i < size; i++) {
-                            Product* product;
-                            ::deserialize(ar, &product);
-                            if(product == nullptr)
-                                throw ClientException("Unknown product");
-                            ::deserialize(ar, product);
-                        }
-                    } break;
-                    case ActionType::PRODUCT_REMOVE: {
-                        Product* product;
-                        ::deserialize(ar, &product);
-                        world.remove(product);
-                    } break;
                     case ActionType::UNIT_UPDATE: {
                         Unit::Id size;
                         ::deserialize(ar, &size);
@@ -263,10 +240,6 @@ void Client::net_loop(void) {
                         ::deserialize(ar, &province);
                         Building building;
                         ::deserialize(ar, &building);
-                        if(building.get_owner() != nullptr) {
-                            print_info("New building property of [%s]", building.get_owner()->ref_name.c_str());
-                        }
-                        building.province = province;
                         province->buildings.push_back(building);
                     } break;
                     case ActionType::BUILDING_REMOVE: {

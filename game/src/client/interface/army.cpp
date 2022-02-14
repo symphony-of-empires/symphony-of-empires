@@ -141,7 +141,8 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     unsigned int i = 0;
     for(const auto& province : gs.curr_nation->owned_provinces) {
         for(const auto& building : province->get_buildings()) {
-            if(!(building.type->is_build_land_units || building.type->is_build_naval_units)) {
+            const BuildingType* building_type = gs.world->building_types[i];
+            if(!(building_type->is_build_land_units || building_type->is_build_naval_units)) {
                 continue;
             }
 
@@ -169,9 +170,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Pro
     this->province_lab->right_side_of(*this->unit_icon);
     this->province_lab->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<ArmyProductionUnitInfo&>(*w.parent);
-
-        auto& building = o.province->get_buildings()[o.idx];
-        if(building.get_province() != nullptr) {
+        if(o.province != nullptr) {
             w.text(UnifiedRender::Locale::translate(o.province->name));
         }
     });

@@ -30,6 +30,14 @@
 #include <cstddef>
 #include <cstring>
 #include <ctime>
+#include <algorithm>
+#include <mutex>
+#include <string>
+
+#include <glm/vec2.hpp>
+
+#include "unified_render/profiler.hpp"
+
 #include "nation.hpp"
 #include "product.hpp"
 #include "good.hpp"
@@ -38,10 +46,12 @@
 #include "ideology.hpp"
 #include "terrain.hpp"
 #include "server/lua_api.hpp"
-#include <glm/vec2.hpp>
-#include "unified_render/profiler.hpp"
+#include "province.hpp"
+#include "unit.hpp"
+#include "technology.hpp"
+#include "event.hpp"
+#include "diplomacy.hpp"
 
-typedef unsigned int uint;
 // A single tile unit this is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
 class World;
 class Tile {
@@ -51,75 +61,6 @@ public:
     // ID of the province where this tile belongs to
     Province::Id province_id;
 };
-
-#include <string>
-#include "province.hpp"
-#include "unit.hpp"
-#include "technology.hpp"
-
-enum class OrderType {
-    INDUSTRIAL,
-    BUILDING,
-    UNIT,
-    POP,
-};
-
-// Represents an order, something an industry wants and that should be
-// fullfilled by transport tick
-class OrderGoods {
-public:
-    enum OrderType type;
-
-    // How many we are willing to pay for the goods to be sent to us
-    UnifiedRender::Decimal payment;
-
-    // The ID of the required product
-    Good* good;
-
-    // Quantity of desired goods
-    size_t quantity;
-
-    // A building who requests materials
-    Building::Id building_idx;
-
-    // ID of the province where the industry (who requested this) is located in
-    Province* province;
-};
-
-// A job request
-class JobRequest {
-public:
-    size_t amount;
-    Province* province;
-    Pop pop;
-};
-
-// Represents a delivery,
-class DeliverGoods {
-public:
-    // How many we are willing to pay to deliver this
-    UnifiedRender::Decimal payment;
-
-    // ID of the good we are sending
-    Good* good;
-
-    // Quantity available to send
-    size_t quantity;
-
-    // Product ID of the product to be sent
-    Product* product;
-
-    // ID of the industry (inside the province) who is sending this product
-    Building::Id building_idx;
-
-    // ID of the province where the industry (who is sending this) is located in
-    Province* province;
-};
-
-#include <algorithm>
-#include <mutex>
-#include "event.hpp"
-#include "diplomacy.hpp"
 
 // Create a new list from a type, with helper functions
 #define LIST_FOR_TYPE(type, list, list_type)\
@@ -153,7 +94,6 @@ public:
 
     LIST_FOR_TYPE(Nation, nations, std::vector);
     LIST_FOR_TYPE(Province, provinces, std::vector);
-    LIST_FOR_TYPE(Product, products, std::vector);
     LIST_FOR_TYPE(Good, goods, std::vector);
     LIST_FOR_TYPE(Culture, cultures, std::vector);
     LIST_FOR_TYPE(PopType, pop_types, std::vector);
@@ -231,15 +171,6 @@ public:
     bool needs_to_sync = false;
 
     mutable std::mutex world_mutex;
-
-    // A list of orders (what factories want to be sent to them)
-    std::vector<OrderGoods> orders;
-    mutable std::mutex orders_mutex;
-
-    // A deliver list (what factories need to send)
-    std::vector<DeliverGoods> delivers;
-    mutable std::mutex delivers_mutex;
-    
     std::vector<std::pair<Descision*, Nation*>> taken_descisions;
 };
 

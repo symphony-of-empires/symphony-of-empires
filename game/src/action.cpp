@@ -85,19 +85,6 @@ UnifiedRender::Networking::Packet DiploDeclareWar::form_packet(Nation* target) {
     return packet;
 }
 
-UnifiedRender::Networking::Packet ProductUpdate::form_packet(const std::vector<Product*>& list) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
-    Archive ar = Archive();
-    ActionType action = ActionType::PRODUCT_UPDATE;
-    ::serialize(ar, &action);
-    for(const auto& product : list) {
-        ::serialize(ar, &product); // ProductRef
-        ::serialize(ar, product); // ProductObj
-    }
-    packet.data(ar.get_buffer(), ar.size());
-    return packet;
-}
-
 UnifiedRender::Networking::Packet ProvinceUpdate::form_packet(const std::vector<Province*>& list) {
     UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
     Archive ar = Archive();
@@ -147,13 +134,13 @@ UnifiedRender::Networking::Packet BuildingStartProducingUnit::form_packet(Provin
 	return packet;
 }
 
-UnifiedRender::Networking::Packet BuildingAdd::form_packet(Province* province, Building building) {
+UnifiedRender::Networking::Packet BuildingAdd::form_packet(Province* province, BuildingType* building_type) {
     UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::BUILDING_ADD;
     ::serialize(ar, &action);
     ::serialize(ar, &province);
-    ::serialize(ar, &building);
+    ::serialize(ar, &building_type);
     packet.data(ar.get_buffer(), ar.size());
 	return packet;
 }

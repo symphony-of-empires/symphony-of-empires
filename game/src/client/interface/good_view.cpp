@@ -54,14 +54,7 @@ ProductView::ProductView(GameState& _gs, Product* _product)
             nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name, nation->get_client_hint().color));
         }
 
-        // Account for products that are based on this good
-        for(const auto& product : o.gs.world->products) {
-            //if(product->good != o.product->good && product->building != nullptr) {
-            //    continue;
-            //}
-            
-            //nations_data[o.gs.world->get_id(product->building->get_province()->controller)].num += product->building->get_province()->stockpile[o.gs.world->get_id(product->good)];
-        }
+        // TODO: Account for products that are based on this good on every province
         o.supply_pie->set_data(nations_data);
     });
 
@@ -146,14 +139,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
             nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name, nation->get_client_hint().color));
         }
 
-        // Account for products that are based on this good
-        for(const auto& product : o.gs.world->products) {
-            //if(product->building == nullptr || product->good != o.good) {
-            //    continue;
-            //}
-            //nations_data[o.gs.world->get_id(product->building->owner)].num += product->supply;
-        }
-
+        // TODO: Account for products that are based on this good
         o.sellers_pie->set_data(nations_data);
     });
 
@@ -168,18 +154,19 @@ GoodView::GoodView(GameState& _gs, Good* _good)
         }
 
         float price = 0.f;
-        for(const auto& product : o.gs.world->products) {
-            if(product->good != o.good) {
-                continue;
-            }
-            
-            price += product->price;
-        }
-        price /= o.gs.world->products.size();
+        //for(const auto& product : o.gs.world->products) {
+        //    if(product->good != o.good) {
+        //        continue;
+        //    }
+        //    
+        //    price += product->price;
+        //}
+        //price /= o.gs.world->products.size();
 
         o.avg_price_chart->data.push_back(price);
-        if(o.avg_price_chart->data.size() > 30)
+        if(o.avg_price_chart->data.size() > 30) {
             o.avg_price_chart->data.pop_front();
+        }
     });
 
     // Industry types that produce this good

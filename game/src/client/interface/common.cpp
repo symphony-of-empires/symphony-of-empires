@@ -23,6 +23,16 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include "unified_render/texture.hpp"
+#include "unified_render/ui/image.hpp"
+#include "unified_render/ui/button.hpp"
+#include "unified_render/ui/chart.hpp"
+#include "unified_render/ui/label.hpp"
+#include "unified_render/ui/checkbox.hpp"
+#include "unified_render/ui/tooltip.hpp"
+#include "unified_render/ui/progress_bar.hpp"
+#include "unified_render/locale.hpp"
+
 #include "client/interface/common.hpp"
 #include "client/interface/good_view.hpp"
 #include "unified_render/path.hpp"
@@ -33,20 +43,9 @@
 #include "province.hpp"
 #include "product.hpp"
 #include "building.hpp"
-#include "unified_render/texture.hpp"
-
 #include "client/client_network.hpp"
 #include "action.hpp"
 #include "io_impl.hpp"
-#include "unified_render/ui/image.hpp"
-#include "unified_render/ui/button.hpp"
-#include "unified_render/ui/chart.hpp"
-#include "unified_render/ui/label.hpp"
-#include "unified_render/ui/checkbox.hpp"
-#include "unified_render/ui/tooltip.hpp"
-#include "unified_render/ui/progress_bar.hpp"
-
-#include "unified_render/locale.hpp"
 
 using namespace Interface;
 
@@ -138,7 +137,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
             return;
         }
         const Building& building = o.province->get_buildings().at(o.idx);
-        w.text(building.type->name);
+        //w.text(building.type->name);
     });
 
     unsigned int dx;
@@ -146,7 +145,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
     auto* input_lab = new UI::Label(0, 0, "Inputs:", this);
     input_lab->below_of(*name_btn);
     dx = input_lab->width;
-    for(const auto& good : building.type->inputs) {
+    for(const auto& good : gs.world->building_types[idx]->inputs) {
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
         icon_ibtn->below_of(*name_btn);
         icon_ibtn->on_click = ([good](UI::Widget& w) {
@@ -159,7 +158,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
     auto* output_lab = new UI::Label(0, 0, "Outputs:", this);
     output_lab->below_of(*input_lab);
     dx = output_lab->width;
-    for(const auto& good : building.type->outputs) {
+    for(const auto& good : gs.world->building_types[idx]->outputs) {
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
         icon_ibtn->below_of(*input_lab);
         icon_ibtn->on_click = ([good](UI::Widget& w) {
@@ -266,21 +265,22 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
     this->on_each_tick(*this);
 }
 
-ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Widget* parent)
+ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good* _good, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24, parent),
     gs{ _gs },
-    product{ _product }
+    province{ _province },
+    good{ _good }
 {
     this->is_scroll = false;
 
     this->good_ibtn = new UI::Image(0, 0, 24, 24, nullptr, this);
-    this->good_ibtn->current_texture = &gs.tex_man->load(Path::get("gfx/good/" + product->good->ref_name + ".png"));
+    this->good_ibtn->current_texture = &gs.tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png"));
     this->good_ibtn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
-        new GoodView(o.gs, o.product->good);
+        new GoodView(o.gs, o.good);
     });
     this->good_ibtn->set_tooltip(new UI::Tooltip(this->good_ibtn, 512, 24));
-    this->good_ibtn->tooltip->text(UnifiedRender::Locale::translate(product->good->name));
+    this->good_ibtn->tooltip->text(UnifiedRender::Locale::translate(good->name));
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
     this->price_rate_btn->right_side_of(*this->good_ibtn);
@@ -289,7 +289,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
     this->price_chart->right_side_of(*this->price_rate_btn);
     this->price_chart->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
-        new ProductView(o.gs, o.product);
+        //new ProductView(o.gs, o.product);
     });
     this->price_chart->set_tooltip(new UI::Tooltip(this->price_chart, 512, 24));
 
@@ -297,7 +297,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
     this->supply_chart->right_side_of(*this->price_chart);
     this->supply_chart->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
-        new ProductView(o.gs, o.product);
+        //new ProductView(o.gs, o.product);
     });
     this->supply_chart->set_tooltip(new UI::Tooltip(this->supply_chart, 512, 24));
 
@@ -305,7 +305,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
     this->demand_chart->right_side_of(*this->supply_chart);
     this->demand_chart->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
-        new ProductView(o.gs, o.product);
+        //new ProductView(o.gs, o.province->products[o.gs.world->get_id(o.good)]);
     });
     this->demand_chart->set_tooltip(new UI::Tooltip(this->demand_chart, 512, 24));
 
@@ -317,27 +317,27 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Product* _product, UI::Wi
             return;
         }
 
-        o.price_chart->data.push_back(o.product->price);
+        Product& product = o.province->products[o.gs.world->get_id(o.good)];
+
+        o.price_chart->data.push_back(product.price);
         if(o.price_chart->data.size() >= 30) {
             o.price_chart->data.pop_back();
         }
-        o.price_chart->tooltip->text(std::to_string(o.product->price));
+        o.price_chart->tooltip->text(std::to_string(product.price));
 
-        o.supply_chart->data.push_back(o.product->supply);
+        o.supply_chart->data.push_back(product.supply);
         if(o.supply_chart->data.size() >= 30) {
             o.supply_chart->data.pop_back();
         }
-        o.supply_chart->tooltip->text(std::to_string(o.product->supply));
+        o.supply_chart->tooltip->text(std::to_string(product.supply));
 
-        o.demand_chart->data.push_back(o.product->demand);
+        o.demand_chart->data.push_back(product.demand);
         if(o.demand_chart->data.size() >= 30) {
             o.demand_chart->data.pop_back();
         }
-        o.demand_chart->tooltip->text(std::to_string(o.product->demand));
-        
-        o.price_rate_btn->text(std::to_string(o.product->price_vel));
-
-        if(o.product->price_vel >= 0.f) {
+        o.demand_chart->tooltip->text(std::to_string(product.demand));
+        o.price_rate_btn->text(std::to_string(product.price_vel));
+        if(product.price_vel >= 0.f) {
             o.price_rate_btn->text_color = UnifiedRender::Color(0, 255, 0);
         } else {
             o.price_rate_btn->text_color = UnifiedRender::Color(255, 0, 0);

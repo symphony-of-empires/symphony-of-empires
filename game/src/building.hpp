@@ -25,7 +25,9 @@
 
 #pragma once
 
+#include <vector>
 #include "unified_render/entity.hpp"
+
 #include "unit.hpp"
 
 class Technology;
@@ -64,33 +66,18 @@ class Building : public IdEntity<uint16_t> {
 public:
     Building();
     ~Building();
-    bool can_do_output(void);
+    bool can_do_output(void) const;
     void add_to_stock(const Good& good, size_t add);
-    Province* get_province(void);
-    Nation* get_owner(void);
-    void create_factory(void);
-    void delete_factory(void);
-    std::pair<float, float> get_pos(void) const;
-
-    BuildingType* type;
 
     // Unit that is currently being built here (nullptr indicates no unit)
     UnitType* working_unit_type = nullptr;
-
     // Remaining ticks until the unit is built
     uint16_t build_time;
-
     // Required goods for building the working unit
     // TODO: change this to a struct instead of a pair for readablity
     std::vector<std::pair<Good*, size_t>> req_goods_for_unit;
     // Required goods for building this, or repairing this after a military attack
     std::vector<std::pair<Good*, size_t>> req_goods;
-
-    // Nation owner of this building
-    Nation* owner;
-    
-    // Province that "supplies" this building
-    Province* province;
 
     // Total money that the factory has
     float budget = 0.f;
@@ -104,18 +91,9 @@ public:
     // Stockpile of inputs in the factory
     std::vector<size_t> stockpile;
     
-    // Used for faster lookups
-    std::vector<Product*> output_products;
-    
     // The employees needed per output
     std::vector<size_t> employees_needed_per_output;
 
     // Level of building (all starts at 0)
     size_t level = 0;
-    
-    // The pay we are willing to give
-    size_t willing_payment = 0;
-    
-    // How many workers are in the industry
-    size_t workers = 0;
 };

@@ -692,6 +692,9 @@ int LuaAPI::add_province(lua_State* L) {
     province->min_x = std::numeric_limits<uint32_t>::max();
     province->min_y = std::numeric_limits<uint32_t>::max();
 
+    province->products = std::vector<Product>(g_world->goods.size(), Product{});
+    province->buildings = std::vector<Building>(g_world->building_types.size(), Building{});
+
     // Check for duplicates
     for(size_t i = 0; i < g_world->provinces.size(); i++) {
         if(province->color == g_world->provinces[i]->color) {
@@ -724,20 +727,14 @@ int LuaAPI::get_province_by_id(lua_State* L) {
 }
 
 int LuaAPI::add_province_industry(lua_State* L) {
-    if(g_world->needs_to_sync)
+    if(g_world->needs_to_sync) {
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
-    Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-
-    Building building;
-    building.type = g_world->building_types.at(lua_tonumber(L, 2));
-    building.owner = g_world->nations.at(lua_tonumber(L, 3));
-    building.budget = 100.f;
-    building.province = province;
-    if(building.type->is_factory == true) {
-        building.create_factory();
     }
-    province->buildings.push_back(building);
+
+    Province* province = g_world->provinces.at(lua_tonumber(L, 1));
+    // Add up a level of upgrade
+    BuildingType* building_type = g_world->building_types.at(lua_tonumber(L, 2));
+    province->buildings[g_world->get_id(building_type)].level += 1;
     return 0;
 }
 
@@ -760,12 +757,6 @@ int LuaAPI::give_hard_province_to(lua_State* L) {
     for(auto& unit : g_world->units) {
         if(unit->province == province && unit->owner == province->controller) {
             unit->owner = nation;
-        }
-    }
-
-    for(auto& building : province->get_buildings()) {
-        if(building.get_owner() == province->controller) {
-            building.owner = nation;
         }
     }
 

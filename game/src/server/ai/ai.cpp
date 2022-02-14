@@ -59,13 +59,8 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
         // So our formula would be:
         // Sucess = Sum(Demand / (Supply + 1) * Price)
         std::vector<UnifiedRender::Decimal> avg_prob = std::vector<UnifiedRender::Decimal>(world->goods.size(), 0.f);
-        for(const auto& product : world->products) {
-            //if(product->building->get_owner() != nation) {
-            //    continue;
-            //}
-
-            avg_prob[world->get_id(product->good)] += product->demand / (product->supply + 1) * product->price;
-        }
+        // TODO: Calculate average probability
+        // avg_prob[world->get_id(product->good)] += product->demand / (product->supply + 1) * product->price;
 
         // Now, we will take in account 2 factors:
         // - First, an industry which takes-in a good with high sucess and outputs something should have that something
@@ -383,28 +378,11 @@ void ai_build_commercial(Nation* nation, World* world) {
         UnifiedRender::Log::error("game", "Cant build buidling, province doesn't have any tiles");
     } else {
         // Now build the building
-        Building building;
-        building.province = province;
-        building.type = world->building_types[0];
-        building.owner = nation;
-        building.budget = 100.f;
-        if(building.type->is_factory) {
-            building.create_factory();
-            for(const auto& product : building.output_products) {
-                UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
-                Archive ar = Archive();
-                ActionType action = ActionType::PRODUCT_ADD;
-                ::serialize(ar, &action);
-                ::serialize(ar, product);
-                packet.data(ar.get_buffer(), ar.size());
-                g_server->broadcast(packet);
-            }
-        }
-        province->buildings.push_back(building);
-
+        BuildingType* building_type = world->building_types[0];
+        province->buildings[world->get_id(building_type)].level += 1;
         // Broadcast the addition of the building to the clients
-        g_server->broadcast(Action::BuildingAdd::form_packet(province, building));
-        print_info("Building of [%s](%i), from [%s] built on [%s]", building.type->ref_name.c_str(), (int)world->get_id(building.type), nation->ref_name.c_str(), province->ref_name.c_str());
+        g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
+        print_info("Building of [%s](%i), from [%s] built on [%s]", building_type->ref_name.c_str(), (int)world->get_id(building_type), nation->ref_name.c_str(), province->ref_name.c_str());
     }
 }
 
@@ -503,27 +481,20 @@ void ai_do_tick(Nation* nation, World* world) {
                 if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
                     UnifiedRender::Log::error("game", "Cant build defense, province doesn't have any tiles");
                 } else {
-                    Building building;
-                    building.type = world->building_types[0];
-                    building.owner = nation;
-                    building.budget = 100.f;
-                    building.province = province;
-                    province->buildings.push_back(building);
-
+                    BuildingType* building_type = world->building_types[0];
+                    province->buildings[world->get_id(building_type)].level += 1;
                     // Broadcast the addition of the building to the clients
-                    g_server->broadcast(Action::BuildingAdd::form_packet(province, building));
-                    print_info("Building of %s(%i), from %s built on %s", building.type->name.c_str(), (int)world->get_id(building.type), nation->name.c_str(), province->name.c_str());
+                    g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
+                    print_info("Building of %s(%i), from %s built on %s", building_type->name.c_str(), (int)world->get_id(building_type), nation->name.c_str(), province->name.c_str());
                 }
             }
 
             // Build units inside buildings that are not doing anything
             for(auto& province : g_world->provinces) {
-                for(auto& building : province->get_buildings()) {
-                    if(!(building.type->is_build_land_units && building.type->is_build_naval_units)) {
-                        //continue;
-                    }
-
-                    if(building.working_unit_type != nullptr || building.owner != nation) {
+                for(size_t i = 0; i < world->building_types.size(); i++) {
+                    BuildingType* building_type = world->building_types[i];
+                    auto& building = province->buildings[i];
+                    if(!(building_type->is_build_land_units && building_type->is_build_naval_units) || building.working_unit_type != nullptr) {
                         continue;
                     }
 
@@ -534,7 +505,6 @@ void ai_do_tick(Nation* nation, World* world) {
                     auto* unit_type = g_world->unit_types[std::rand() % g_world->unit_types.size()];
                     //if(!unit_type->is_ground) continue;
                     unit_type = g_world->unit_types[0];
-
                     building.working_unit_type = unit_type;
                     building.req_goods_for_unit = unit_type->req_goods;
                     print_info("%s: Building unit [%s] in [%s]", nation->ref_name.c_str(), building.working_unit_type->ref_name.c_str(), province->ref_name.c_str());

@@ -189,20 +189,13 @@ void Server::net_loop(int id) {
                         if(unit_type == nullptr)
                             throw ServerException("Unknown unit type");
 
-                        // Find building
+                        // TODO: Find building
                         Building* building = nullptr;
-                        for(auto& _building : province->get_buildings()) {
-                            if(_building.get_owner() == nation && _building.type == building_type) {
-                                building = &_building;
-                            }
-                        }
-
-                        if(building == nullptr)
-                            throw ServerException("Building [TYPE=\"" + building_type->ref_name + "\"] not found");
-
-                        // Must control building
-                        if(building->get_owner() != selected_nation)
-                            throw ServerException("Nation does not control building");
+                        //for(auto& _building : province->get_buildings()) {
+                        //    if(_building.get_owner() == nation && _building.type == building_type) {
+                        //        building = &_building;
+                        //    }
+                        //}
 
                         // TODO: Check nation can build this unit
 
@@ -216,28 +209,11 @@ void Server::net_loop(int id) {
                     case ActionType::BUILDING_ADD: {
                         Province* province;
                         ::deserialize(ar, &province);
-                        Building building;
-                        ::deserialize(ar, &building);
-                        if(building.type->is_factory) {
-                            building.create_factory();
-                            for(const auto& product : building.output_products) {
-                                UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
-                                Archive ar = Archive();
-                                ActionType action = ActionType::PRODUCT_ADD;
-                                ::serialize(ar, &action);
-                                ::serialize(ar, product);
-                                packet.data(ar.get_buffer(), ar.size());
-                                g_server->broadcast(packet);
-                            }
-                        }
-                        building.province = province;
-                        building.working_unit_type = nullptr;
-                        building.req_goods_for_unit = std::vector<std::pair<Good*, size_t>>();
-                        province->buildings.push_back(building);
-                        print_info("[%s] has built a [%s]", selected_nation->ref_name.c_str(), building.type->ref_name.c_str());
-                        
+                        BuildingType* building_type;
+                        ::deserialize(ar, &building_type);
+                        province->buildings[g_world->get_id(building_type)].level += 1;
                         // Rebroadcast
-                        broadcast(Action::BuildingAdd::form_packet(province, building));
+                        broadcast(Action::BuildingAdd::form_packet(province, building_type));
                     } break;
                     // Client tells server that it wants to colonize a province, this can be rejected
                     // or accepted, client should check via the next PROVINCE_UPDATE action

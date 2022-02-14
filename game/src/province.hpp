@@ -29,7 +29,6 @@
 #include <vector>
 #include <set>
 #include <string>
-#include "pop.hpp"
 
 #include "unified_render/entity.hpp"
 #include "unified_render/decimal.hpp"
@@ -41,6 +40,30 @@ class Product;
 class TerrainType;
 class Unit;
 class Building;
+
+#include "pop.hpp"
+#include "building.hpp"
+
+class Province;
+// Represents a delivery,
+class DeliverGoods {
+public:
+    // How many we are willing to pay to deliver this
+    UnifiedRender::Decimal payment;
+
+    // ID of the good we are sending
+    Good* good;
+
+    // Quantity available to send
+    size_t quantity;
+
+    // ID of the industry (inside the province) who is sending this product
+    Building::Id building_idx;
+
+    // ID of the province where the industry (who is sending this) is located in
+    Province* province;
+};
+
 // A single province, which is used to simulate economy in a "bulk-tiles" way
 // instead of doing economical operations on every single tile
 class Province : public RefnameEntity<uint16_t> {
@@ -48,7 +71,6 @@ public:
     //Province();
     //~Province();
     size_t total_pops(void) const;
-    std::vector<Product*> get_products(void) const;
     float get_attractiveness(const Pop& pop) const;
     std::pair<float, float> get_pos(void) const;
     std::vector<Unit*> get_units(void) const;
@@ -92,15 +114,15 @@ public:
     // List of all neighbouring provinces (*should* be used for pathfinding)
     std::set<Province*> neighbours;
 
-    // Each element of this list represents the availability of a good, taking as reference the
-    // product list of the world. Indexes are 1:1 with the good list.
-    std::vector<size_t> stockpile;
+    // Products of this province (size == goods.size()!)
+    std::vector<Product> products;
 
     // List of pops in this province
     std::vector<Pop> pops;
 
     std::vector<Building> buildings;
-
-    std::vector<Product*> products;
     std::vector<Unit*> units;
+
+    // A deliver list (what factories need to send)
+    std::vector<DeliverGoods> delivers;
 };
