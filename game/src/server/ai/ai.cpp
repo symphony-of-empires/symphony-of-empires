@@ -444,8 +444,7 @@ void ai_do_tick(Nation* nation, World* world) {
                         if(std::rand() % 50 >= 25) {
                             print_info("We, [%s], deny the treaty of [%s]", nation->ref_name.c_str(), treaty->name.c_str());
                             part.second = TreatyApproval::DENIED;
-                        }
-                        else {
+                        } else {
                             print_info("We, [%s], accept the treaty of [%s]", nation->ref_name.c_str(), treaty->name.c_str());
                             part.second = TreatyApproval::ACCEPTED;
                         }
@@ -471,7 +470,7 @@ void ai_do_tick(Nation* nation, World* world) {
             unsigned int defense_factor = 1;
             for(const auto& rel : nation->relations) {
                 if(rel.has_war) {
-                    defense_factor += 5;
+                    defense_factor += 2;
                 }
             }
             // Build defenses
@@ -482,8 +481,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 Province* province = *it;
                 if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
                     UnifiedRender::Log::error("game", "Cant build defense, province doesn't have any tiles");
-                }
-                else {
+                } else {
                     BuildingType* building_type = world->building_types[0];
                     province->buildings[world->get_id(building_type)].level += 1;
                     province->buildings[world->get_id(building_type)].req_goods = building_type->req_goods;
@@ -504,6 +502,10 @@ void ai_do_tick(Nation* nation, World* world) {
                     for(const auto& province : g_world->provinces) {
                         auto& building = province->buildings[i];
                         if(building.working_unit_type != nullptr || !building.can_build_unit()) {
+                            continue;
+                        }
+
+                        if(std::rand() % defense_factor) {
                             continue;
                         }
 

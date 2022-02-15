@@ -593,11 +593,14 @@ int LuaAPI::add_province(lua_State* L) {
     }
 
     province->products = std::vector<Product>(g_world->goods.size(), Product{});
+    province->products.shrink_to_fit();
     province->buildings = std::vector<Building>(g_world->building_types.size(), Building{});
+    province->buildings.shrink_to_fit();
     for(const auto& building_type : g_world->building_types) {
         for(auto& input : building_type->inputs) {
             province->buildings[g_world->get_id(building_type)].stockpile.push_back(0);
         }
+        province->buildings[g_world->get_id(building_type)].stockpile.shrink_to_fit();
     }
 
     province->budget = 500.f;
