@@ -28,10 +28,19 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <execution>
 #include <set>
 #ifndef _MSC_VER
 #	include <sys/cdefs.h>
 #endif
+
+#include "unified_render/binary_image.hpp"
+#include "unified_render/path.hpp"
+#include "unified_render/log.hpp"
+#include "unified_render/serializer.hpp"
+#include "unified_render/state.hpp"
+#include "unified_render/byteswap.hpp"
+#include "unified_render/locale.hpp"
 
 #include "io_impl.hpp"
 #include "province.hpp"
@@ -42,14 +51,6 @@
 #include "server/server_network.hpp"
 #include "action.hpp"
 #include "server/economy.hpp"
-
-#include "unified_render/binary_image.hpp"
-#include "unified_render/path.hpp"
-#include "unified_render/log.hpp"
-#include "unified_render/serializer.hpp"
-#include "unified_render/state.hpp"
-#include "unified_render/byteswap.hpp"
-#include "unified_render/locale.hpp"
 
 #undef min
 #undef max
@@ -578,7 +579,7 @@ void World::load_initial(void) {
             fclose(fp);
         }
 
-        fp = fopen("unused.txt", "w+t");
+        /*fp = fopen("unused.txt", "w+t");
         if(fp) {
             for(int i = 0; i < province_color_table.size(); i++) {
                 uint32_t color = i << 8;
@@ -587,7 +588,7 @@ void World::load_initial(void) {
                 }
             }
             fclose(fp);
-        }
+        }*/
 
         // Calculate the edges of the province (min and max x and y coordinates)
         UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Calculate the edges of the province (min and max x and y coordinates)"));
@@ -708,7 +709,7 @@ void World::do_tick() {
     profiler.start("AI");
     // AI and stuff
     // Just random shit to make the world be like more alive
-    std::for_each(nations.begin(), nations.end(), [this](auto& nation) {
+    std::for_each(std::execution::par, nations.begin(), nations.end(), [this](auto& nation) {
         if(nation->exists()) {
             // Diplomatic cooldown
             if(nation->diplomatic_timer != 0) {
@@ -737,7 +738,7 @@ void World::do_tick() {
     // Every ticks_per_month ticks do an economical tick
     if(!(time % ticks_per_month)) {
         Economy::do_tick(*this);
-
+        /*
         // Calculate prestige for today (newspapers come out!)
         for(auto& nation : this->nations) {
             const UnifiedRender::Decimal decay_per_cent = 5.f;
@@ -757,6 +758,7 @@ void World::do_tick() {
             }
             nation->economy_score = economy_score / 100.f;
         }
+        */
         g_server->broadcast(Action::NationUpdate::form_packet(nations));
         g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
     }
@@ -852,7 +854,7 @@ void World::do_tick() {
 
     // Perform all battles of the active wars
     profiler.start("Battles");
-    std::for_each(wars.begin(), wars.end(), [this](auto& war) {
+    std::for_each(std::execution::par, wars.begin(), wars.end(), [this](auto& war) {
         for(size_t j = 0; j < war->battles.size(); j++) {
             Battle& battle = war->battles[j];
 

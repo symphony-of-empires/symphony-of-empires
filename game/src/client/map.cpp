@@ -38,6 +38,9 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+#include "unified_render/state.hpp"
+#include "unified_render/ui/tooltip.hpp"
+#include "unified_render/font_sdf.hpp"
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
 #include "unified_render/texture.hpp"
@@ -45,11 +48,11 @@
 #include "unified_render/shader.hpp"
 #include "unified_render/framebuffer.hpp"
 #include "unified_render/model.hpp"
+#include "unified_render/serializer.hpp"
 
 #include "client/map.hpp"
 #include "client/map_render.hpp"
 #include "client/game_state.hpp"
-#include "unified_render/model.hpp"
 #include "client/interface/province_view.hpp"
 #include "client/interface/lobby.hpp"
 #include "world.hpp"
@@ -57,12 +60,7 @@
 #include "client/flat_camera.hpp"
 #include "client/camera.hpp"
 #include "province.hpp"
-#include "unified_render/state.hpp"
-#include "unified_render/ui/tooltip.hpp"
-#include "unified_render/font_sdf.hpp"
-
 #include "client/client_network.hpp"
-#include "unified_render/serializer.hpp"
 #include "io_impl.hpp"
 #include "action.hpp"
 #include "client/rivers.hpp"
