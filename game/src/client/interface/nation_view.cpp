@@ -23,15 +23,15 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include "unified_render/ui/components.hpp"
+#include "unified_render/locale.hpp"
+
 #include "client/interface/nation_view.hpp"
 #include "client/client_network.hpp"
 #include "client/interface/common.hpp"
 #include "client/interface/treaty.hpp"
 #include "client/interface/war.hpp"
 #include "io_impl.hpp"
-#include "unified_render/ui/components.hpp"
-
-#include "unified_render/locale.hpp"
 
 using namespace Interface;
 

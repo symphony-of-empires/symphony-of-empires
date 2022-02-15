@@ -76,3 +76,12 @@ bool Building::can_do_output(void) const {
     }
     return true;
 }
+
+bool Building::can_build_unit(void) const {
+    for(const auto& req : req_goods_for_unit) {
+        if(req.second) {
+            return false;
+        }
+    }
+    return true;
+}

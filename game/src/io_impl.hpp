@@ -334,16 +334,13 @@ public:
     static inline void serialize(Archive& stream, const Pop* obj) {
         ::serialize(stream, &obj->size);
         ::serialize(stream, &obj->unemployed);
-
         ::serialize(stream, &obj->literacy);
         ::serialize(stream, &obj->militancy);
         ::serialize(stream, &obj->con);
         ::serialize(stream, &obj->budget);
-
         ::serialize(stream, &obj->life_needs_met);
         ::serialize(stream, &obj->everyday_needs_met);
         ::serialize(stream, &obj->luxury_needs_met);
-
         ::serialize(stream, &obj->type);
         ::serialize(stream, &obj->culture);
         ::serialize(stream, &obj->religion);
@@ -351,16 +348,13 @@ public:
     static inline void deserialize(Archive& stream, Pop* obj) {
         ::deserialize(stream, &obj->size);
         ::deserialize(stream, &obj->unemployed);
-
         ::deserialize(stream, &obj->literacy);
         ::deserialize(stream, &obj->militancy);
         ::deserialize(stream, &obj->con);
         ::deserialize(stream, &obj->budget);
-
         ::deserialize(stream, &obj->life_needs_met);
         ::deserialize(stream, &obj->everyday_needs_met);
         ::deserialize(stream, &obj->luxury_needs_met);
-
         ::deserialize(stream, &obj->type);
         ::deserialize(stream, &obj->culture);
         ::deserialize(stream, &obj->religion);
@@ -415,25 +409,6 @@ public:
     }
     static inline void deserialize(Archive& stream, Tile* obj) {
         ::deserialize(stream, &obj->province_id);
-    }
-};
-
-template<>
-class Serializer<DeliverGoods> {
-public:
-    static inline void serialize(Archive& stream, const DeliverGoods* obj) {
-        ::serialize(stream, &obj->good);
-        ::serialize(stream, &obj->building_idx);
-        ::serialize(stream, &obj->payment);
-        ::serialize(stream, &obj->province);
-        ::serialize(stream, &obj->quantity);
-    }
-    static inline void deserialize(Archive& stream, DeliverGoods* obj) {
-        ::deserialize(stream, &obj->good);
-        ::deserialize(stream, &obj->building_idx);
-        ::deserialize(stream, &obj->payment);
-        ::deserialize(stream, &obj->province);
-        ::deserialize(stream, &obj->quantity);
     }
 };
 
@@ -579,7 +554,6 @@ public:
         ::serialize(stream, &obj->buildings);
         ::serialize(stream, &obj->controller);
         ::serialize(stream, &obj->terrain_type);
-        ::serialize(stream, &obj->delivers);
     }
     static inline void deserialize(Archive& stream, Province* obj) {
         ::deserialize(stream, &obj->name);
@@ -601,7 +575,6 @@ public:
         ::deserialize(stream, &obj->buildings);
         ::deserialize(stream, &obj->controller);
         ::deserialize(stream, &obj->terrain_type);
-        ::deserialize(stream, &obj->delivers);
     }
 };
 

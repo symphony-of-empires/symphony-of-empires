@@ -138,16 +138,22 @@ void Economy::do_tick(World& world) {
                 // of the factory
                 for(const auto& output : world.building_types[j]->outputs) {
                     const size_t employed = 500;
-                    needed_farmers += employed * static_cast<int>(output->is_edible);
-                    needed_laborers += employed * static_cast<int>(!output->is_edible);
+                    if(output->is_edible) {
+                        needed_farmers += employed;
+                    } else {
+                        needed_laborers += employed;
+                    }
                     needed_entrepreneurs += employed / 100;
                 }
 
                 // And the inputs also employ people
                 for(const auto& input : world.building_types[j]->inputs) {
                     const size_t employed = 500;
-                    needed_farmers += employed * static_cast<int>(input->is_edible);
-                    needed_laborers += employed * static_cast<int>(!input->is_edible);
+                    if(input->is_edible) {
+                        needed_farmers += employed;
+                    } else {
+                        needed_laborers += employed;
+                    }
                     needed_entrepreneurs += employed / 100;
                 }
 
@@ -221,13 +227,7 @@ void Economy::do_tick(World& world) {
 
                 // Buildings who have fullfilled requirements to build stuff will spawn a unit
                 if(building.working_unit_type != nullptr) {
-                    bool can_build_unit = true;
-                    for(const auto& req : building.req_goods_for_unit) {
-                        if(req.second) {
-                            can_build_unit = false;
-                            break;
-                        }
-                    }
+                    bool can_build_unit = building.can_build_unit();
 
                     // Ratio of health:person is 25, thus making units very expensive
                     const size_t army_size = building.working_unit_type->max_health + 100 * 25;
@@ -238,8 +238,8 @@ void Economy::do_tick(World& world) {
                     if(it == province->pops.end()) {
                         can_build_unit = false;
                     }
-                    //if(can_build_unit) {
-                    {
+                    
+                    if(can_build_unit) {
                         // TODO: Maybe delete if size becomes 0?
                         (*it).size -= army_size;
 
@@ -267,57 +267,28 @@ void Economy::do_tick(World& world) {
                 }
 
                 if(building_type->is_factory) {
-                    /*
-                    building.workers = available_farmers + available_laborers + available_entrepreneurs;
-                    print_info("[%s]: %zu workers on building of type [%s]", building->get_province()->ref_name.c_str(), building->workers, building->type->ref_name.c_str());
+                    print_info("[%s]: Workers working on building of type [%s]", province->ref_name.c_str(), building_type->ref_name.c_str());
                     print_info("- %zu farmers (%zu needed)", available_farmers, needed_farmers);
                     print_info("- %zu laborers (%zu needed)", available_laborers, needed_laborers);
                     print_info("- %zu entrepreneurs (%zu needed)", available_entrepreneurs, needed_entrepreneurs);
-                    */
-                    building.days_unoperational = 0;
 
+                    // Consume inputs needed to produce stuff (will decrease supplies and increase demand)
+                    size_t k = 0;
                     for(const auto& input : world.building_types[j]->inputs) {
+                        Product& product = province->products[world.get_id(input)];
                         // Farmers can only work with edibles and laborers can only work for edibles
-                        int quantity = 0;
+                        size_t quantity = 0;
                         if(input->is_edible) {
                             quantity = (available_farmers / needed_farmers) * 5000;
                         } else {
                             quantity = (available_laborers / needed_laborers) * 5000;
                         }
-                        quantity *= province->controller->get_industry_input_mod();
-                    }
-
-                    //if(!building->can_do_output()) {
-                    //    continue;
-                    //}
-
-                    // Now produce anything as we can!
-                    // Place deliver orders (we are a RGO)
-                    for(size_t k = 0; k < building_type->outputs.size(); k++) {
-                        DeliverGoods deliver = DeliverGoods{};
-                        //deliver.payment = building.willing_payment;
-                        deliver.payment = 1000.f;
-                        deliver.good = building_type->outputs[k];
-                        deliver.building_idx = j;
-                        deliver.province = province;
-                        if(deliver.good->is_edible) {
-                            deliver.quantity = (available_farmers / needed_farmers) * 5000;
-                        } else {
-                            deliver.quantity = (available_laborers / needed_laborers) * 5000;
-                        }
-
-                        if(!deliver.quantity) {
-                            continue;
-                        }
-
-                        deliver.quantity *= province->controller->get_industry_output_mod();
-
-                        // Cannot be below production cost, so we can be profitable and we need
-                        // to raise prices
-                        /*if(deliver.good]->price < building.production_cost * 1.2f) {
-                            deliver.good]->price = building.production_cost * 1.2f;
-                        }*/
-                        province->delivers.push_back(deliver);
+                        quantity = std::min<size_t>(std::min<size_t>(quantity, building.stockpile[k]), product.supply);
+                        //quantity *= province->controller->get_industry_input_mod();
+                        product.supply -= quantity;
+                        product.demand += quantity;
+                        building.stockpile[k] -= quantity;
+                        k++;
                     }
                 }
 
@@ -331,26 +302,31 @@ void Economy::do_tick(World& world) {
                 for(const auto& good : building.req_goods_for_unit) {
                     int quantity = good.second * province->controller->get_industry_input_mod();
                 }
+
+                // Produce products (incrementing supply)
+                if(building.can_do_output()) {
+                    print_info("Can do output!!!");
+                    for(const auto& output : world.building_types[j]->outputs) {
+                        Product& product = province->products[world.get_id(output)];
+                        // Farmers can only work with edibles and laborers can only work for edibles
+                        size_t quantity = 0;
+                        if(output->is_edible) {
+                            quantity = (available_farmers / needed_farmers) * 5000;
+                        } else {
+                            quantity = (available_laborers / needed_laborers) * 5000;
+                        }
+                        quantity = std::min<size_t>(quantity, product.supply);
+                        //quantity *= province->controller->get_industry_input_mod();
+                        product.supply += quantity;
+                    }
+                    continue;
+                }
             }
 
-            // Sort on best payment first for orders and delivers
-            std::sort(province->delivers.begin(), province->delivers.end(), [](const DeliverGoods& lhs, const DeliverGoods& rhs) {
-                return lhs.payment > rhs.payment;
-            });
-            province->delivers.shrink_to_fit();
-
-            // The remaining delivers gets dropped and just simply add up the province's stockpile
-            // Drop all rejected delivers who didn't got transported
-            for(size_t i = 0; i < province->delivers.size(); i++) {
-                const DeliverGoods& deliver = province->delivers[i];
-                //deliver.province->products[province->get_id(deliver.good)].supply += deliver.quantity;
-            }
-            province->delivers.clear();
-
-            //std::vector<Product*> province_products = province->get_products();
+            // POPs now will proceed to buy products produced from factories & buying from the stockpile
+            // of this province with the local market price
             for(size_t i = 0; i < province->pops.size(); i++) {
                 Pop& pop = province->pops[i];
-                // We want to get rid of many POPs as possible
                 if(!pop.size) {
                     province->pops.erase(province->pops.begin() + i);
                     i--;
@@ -372,6 +348,7 @@ void Economy::do_tick(World& world) {
                     // NOTE: If we didn't bought anything it will simply invalidate this, plus if the supply is nil
                     // this also gets nullified
                     province->products[j].supply -= bought;
+                    province->products[j].demand += bought;
                     pop.budget -= bought * province->products[j].price;
                     if(bought) {
                         if(world.goods[j]->is_edible) {

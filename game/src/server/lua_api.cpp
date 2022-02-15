@@ -594,6 +594,12 @@ int LuaAPI::add_province(lua_State* L) {
 
     province->products = std::vector<Product>(g_world->goods.size(), Product{});
     province->buildings = std::vector<Building>(g_world->building_types.size(), Building{});
+    for(const auto& building_type : g_world->building_types) {
+        for(auto& input : building_type->inputs) {
+            province->buildings[g_world->get_id(building_type)].stockpile.push_back(0);
+        }
+    }
+
     province->budget = 500.f;
     // Set bounding box of province to the whole world (will later be resized at the bitmap-processing step)
     province->max_x = std::numeric_limits<uint32_t>::min();
