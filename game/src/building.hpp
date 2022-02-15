@@ -66,8 +66,9 @@ class Building : public IdEntity<uint16_t> {
 public:
     Building();
     ~Building();
-    bool can_do_output(void) const;
     void add_to_stock(const Good& good, size_t add);
+    bool can_do_output(void) const;
+    bool can_build_unit(void) const;
 
     // Unit that is currently being built here (nullptr indicates no unit)
     UnitType* working_unit_type = nullptr;

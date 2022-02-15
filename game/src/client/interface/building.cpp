@@ -23,14 +23,14 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "client/interface/building.hpp"
-#include "client/client_network.hpp"
 #include "unified_render/serializer.hpp"
-#include "action.hpp"
-#include "io_impl.hpp"
-
 #include "unified_render/ui/close_button.hpp"
 #include "unified_render/locale.hpp"
+
+#include "client/interface/building.hpp"
+#include "client/client_network.hpp"
+#include "action.hpp"
+#include "io_impl.hpp"
 
 using namespace Interface;
 

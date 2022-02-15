@@ -44,26 +44,6 @@ class Building;
 #include "pop.hpp"
 #include "building.hpp"
 
-class Province;
-// Represents a delivery,
-class DeliverGoods {
-public:
-    // How many we are willing to pay to deliver this
-    UnifiedRender::Decimal payment;
-
-    // ID of the good we are sending
-    Good* good;
-
-    // Quantity available to send
-    size_t quantity;
-
-    // ID of the industry (inside the province) who is sending this product
-    Building::Id building_idx;
-
-    // ID of the province where the industry (who is sending this) is located in
-    Province* province;
-};
-
 // A single province, which is used to simulate economy in a "bulk-tiles" way
 // instead of doing economical operations on every single tile
 class Province : public RefnameEntity<uint16_t> {
@@ -119,10 +99,6 @@ public:
 
     // List of pops in this province
     std::vector<Pop> pops;
-
     std::vector<Building> buildings;
     std::vector<Unit*> units;
-
-    // A deliver list (what factories need to send)
-    std::vector<DeliverGoods> delivers;
 };

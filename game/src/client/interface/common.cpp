@@ -223,7 +223,6 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
     });
 }
 
-
 PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24, parent),
     gs{ _gs },
@@ -283,10 +282,11 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
     this->good_ibtn->tooltip->text(UnifiedRender::Locale::translate(good->name));
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
-    this->price_rate_btn->right_side_of(*this->good_ibtn);
+    this->price_rate_btn->right_side_of(*this->quantity_lab);
 
     this->price_chart = new UI::Chart(0, 0, 96, 24, this);
     this->price_chart->right_side_of(*this->price_rate_btn);
+    this->price_chart->text("Price");
     this->price_chart->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         //new ProductView(o.gs, o.product);
@@ -295,6 +295,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
 
     this->supply_chart = new UI::Chart(0, 0, 96, 24, this);
     this->supply_chart->right_side_of(*this->price_chart);
+    this->supply_chart->text("Supply");
     this->supply_chart->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         //new ProductView(o.gs, o.product);
@@ -303,6 +304,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
 
     this->demand_chart = new UI::Chart(0, 0, 96, 24, this);
     this->demand_chart->right_side_of(*this->supply_chart);
+    this->demand_chart->text("Demand");
     this->demand_chart->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         //new ProductView(o.gs, o.province->products[o.gs.world->get_id(o.good)]);

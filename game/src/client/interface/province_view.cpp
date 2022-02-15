@@ -79,8 +79,7 @@ void ProvincePopulationTab::update_piecharts() {
             PopInfo* info = new PopInfo(gs, 0, (i * 24) + 128, province, i, this);
             pop_infos.push_back(info);
         }
-    }
-    else if(pop_infos.size() > province->pops.size()) {
+    } else if(pop_infos.size() > province->pops.size()) {
         for(size_t i = province->pops.size(); i < pop_infos.size(); i++) {
             pop_infos[i]->kill();
         }
@@ -106,15 +105,14 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->pop_types_pie->right_side_of(*this->religions_pie);
     new UI::Label(this->pop_types_pie->x, this->pop_types_pie->y, "Proffesions", this);
 
-    update_piecharts();
     this->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<ProvincePopulationTab&>(w);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
         }
-
         o.update_piecharts();
     });
+    this->on_each_tick(*this);
 }
 
 ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
@@ -123,6 +121,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
     province{ _province }
 {
     this->text(province->name);
+    this->is_scroll = true;
 
     this->products_pie = new UI::PieChart(0, 0, 128, 128, this);
     new UI::Label(0, 0, "Products", this);
@@ -134,16 +133,13 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
         std::vector<UI::ChartData> goods_data;
         int i = 0;
         for(const auto& good : o.gs.world->goods) {
-            const auto good_col = UnifiedRender::Color(
-                i * 12,
-                i * 31,
-                i * 97
-            );
+            const auto good_col = UnifiedRender::Color(i * 12, i * 31, i * 97);
             Product& product = o.province->products[o.gs.world->get_id(good)];
             goods_data.push_back(UI::ChartData(product.demand, good->name, good_col));
         }
         o.products_pie->set_data(goods_data);
     });
+    this->on_each_tick(*this);
 
     // Initial product info
     unsigned int i = 0;
@@ -172,10 +168,12 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
     });
     dy += build_btn->height;
 
-    for(unsigned int i = 0; i < province->get_buildings().size(); i++) {
-        auto* info = new BuildingInfo(this->gs, 0, dy, province, i, this);
-        this->building_infos.push_back(info);
-        dy += info->height;
+    for(unsigned int i = 0; i < gs.world->building_types.size(); i++) {
+        if(province->buildings[i].level) {
+            auto* info = new BuildingInfo(this->gs, 0, dy, province, i, this);
+            this->building_infos.push_back(info);
+            dy += info->height;
+        }
     }
 }
 
