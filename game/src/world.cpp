@@ -144,12 +144,6 @@ World::World() {
     lua_register(lua, "get_nation_by_id", LuaAPI::get_nation_by_id);
     lua_register(lua, "get_all_nations", LuaAPI::get_all_nations);
 
-    lua_register(lua, "get_friends_of_nation", LuaAPI::get_friends_of_nation);
-    lua_register(lua, "get_enemies_of_nation", LuaAPI::get_enemies_of_nation);
-    lua_register(lua, "get_allies_of_nation", LuaAPI::get_allies_of_nation);
-    lua_register(lua, "get_warenemies_of_nation", LuaAPI::get_warenemies_of_nation);
-    lua_register(lua, "get_embargoed_of_nation", LuaAPI::get_embargoed_of_nation);
-
     lua_register(lua, "get_provinces_owned_by_nation", LuaAPI::get_provinces_owned_by_nation);
     lua_register(lua, "get_provinces_with_nucleus_by_nation", LuaAPI::get_provinces_with_nucleus_by_nation);
     lua_register(lua, "set_nation_primary_culture", LuaAPI::set_nation_primary_culture);
@@ -168,18 +162,17 @@ World::World() {
     lua_register(lua, "get_nation_mod", LuaAPI::get_nation_mod);
 
     lua_register(lua, "add_province", LuaAPI::add_province);
+    lua_register(lua, "update_province", LuaAPI::update_province);
     lua_register(lua, "get_province", LuaAPI::get_province);
     lua_register(lua, "get_province_by_id", LuaAPI::get_province_by_id);
-    lua_register(lua, "add_province_industry", LuaAPI::add_province_industry);
+    lua_register(lua, "update_province_building", LuaAPI::update_province_building);
     lua_register(lua, "add_province_pop", LuaAPI::add_province_pop);
-    lua_register(lua, "set_province_terrain", LuaAPI::set_province_terrain);
     lua_register(lua, "give_province_to", LuaAPI::give_province_to);
     lua_register(lua, "give_hard_province_to", LuaAPI::give_hard_province_to);
     lua_register(lua, "get_province_owner", LuaAPI::get_province_owner);
     lua_register(lua, "get_province_controller", LuaAPI::get_province_controller);
     lua_register(lua, "get_province_neighbours", LuaAPI::get_province_neighbours);
     lua_register(lua, "get_province_nuclei", LuaAPI::get_province_nuclei);
-    lua_register(lua, "get_province_pops_size", LuaAPI::get_province_pops_size);
     lua_register(lua, "get_province_pop", LuaAPI::get_province_pop);
     lua_register(lua, "set_province_pop", LuaAPI::set_province_pop);
     lua_register(lua, "get_province_pop_ideology_approval", LuaAPI::get_province_pop_ideology_approval);

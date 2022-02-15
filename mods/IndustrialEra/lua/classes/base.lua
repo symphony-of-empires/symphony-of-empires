@@ -265,10 +265,13 @@ function Nation:get_all()
 end
 
 function Nation:get_friends()
-	local table = get_friends_of_nation(self.id)
+	local table = self:get_all()
 	local new_table = {}
 	for k, v in pairs(table) do
-		new_table[k] = Nation:get_by_id(v)
+		local relation = self:get_relation(Nation:get_by_id(v))
+		if relation.relation > 50.0 then
+			new_table[k] = Nation:get_by_id(v)
+		end
 	end
 	return new_table
 end
@@ -283,10 +286,13 @@ function Nation:is_friend(nation)
 end
 
 function Nation:get_enemies()
-	local table = get_enemies_of_nation(self.id)
+	local table = self:get_all()
 	local new_table = {}
 	for k, v in pairs(table) do
-		new_table[k] = Nation:get_by_id(v)
+		local relation = self:get_relation(Nation:get_by_id(v))
+		if relation.relation < -50.0 then
+			new_table[k] = Nation:get_by_id(v)
+		end
 	end
 	return new_table
 end
@@ -301,10 +307,13 @@ function Nation:is_enemy(nation)
 end
 
 function Nation:get_allies()
-	local table = get_allies_of_nation(self.id)
+	local table = self:get_all()
 	local new_table = {}
 	for k, v in pairs(table) do
-		new_table[k] = Nation:get_by_id(v)
+		local relation = self:get_relation(Nation:get_by_id(v))
+		if relation.has_alliance == true then
+			new_table[k] = Nation:get_by_id(v)
+		end
 	end
 	return new_table
 end
@@ -313,10 +322,13 @@ function Nation:is_ally(nation)
 end
 
 function Nation:get_war_enemies()
-	local table = get_warenemies_of_nation(self.id)
+	local table = self:get_all()
 	local new_table = {}
 	for k, v in pairs(table) do
-		new_table[k] = Nation:get_by_id(v)
+		local relation = self:get_relation(Nation:get_by_id(v))
+		if relation.has_war == true then
+			new_table[k] = Nation:get_by_id(v)
+		end
 	end
 	return new_table
 end
@@ -331,10 +343,13 @@ function Nation:is_war_enemy(nation)
 end
 
 function Nation:get_embargoed()
-	local table = get_embargoed_of_nation(self.id)
+	local table = self:get_all()
 	local new_table = {}
 	for k, v in pairs(table) do
-		new_table[k] = Nation:get_by_id(v)
+		local relation = self:get_relation(Nation:get_by_id(v))
+		if relation.has_embargo == true then
+			new_table[k] = Nation:get_by_id(v)
+		end
 	end
 	return new_table
 end
@@ -411,7 +426,6 @@ function Nation:make_ally(other)
 	rel.has_war = false
 	rel.has_alliance = true
 	Nation:set_relation(self, other, rel)
-
 	-- TODO: Clear up the war
 end
 function Nation:embargo(other)
@@ -456,7 +470,8 @@ Province = {
 	id = 0,
 	name = "",
 	ref_name = "",
-	color = 0
+	color = 0,
+	terrain = {}
 }
 function Province:new(o)
 	o = o or {}
@@ -469,21 +484,22 @@ function Province:register()
 end
 function Province:get(ref_name)
 	o = Province:new()
-	o.id, o.name, o.color = get_province(ref_name)
+	local terrain_id = 0
+	o.id, o.name, o.color, terrain_id = get_province(ref_name)
+	o.terrain = TerrainType:get(terrain_id)
 	o.ref_name = ref_name
 	return o
 end
 function Province:get_by_id(id)
 	o = Province:new()
-	o.ref_name, o.name, o.color = get_province_by_id(id)
+	local terrain_id = 0
+	o.ref_name, o.name, o.color, terrain_id = get_province_by_id(id)
+	o.terrain = TerrainType:get(terrain_id)
 	o.id = id
 	return o
 end
-function Province:set_terrain(terrain_type)
-	set_province_terrain(self.id, terrain_type.id)
-end
-function Province:add_industry(industry_type, nation)
-	add_province_industry(self.id, industry_type.id, nation.id)
+function Province:update_building(building_type, level)
+	update_province_building(self.id, building_type.id, level)
 end
 function Province:give_to(nation)
 	give_province_to(self.id, nation.id)
@@ -538,26 +554,72 @@ end
 function Province:update_pops(pop)
 	-- TODO: Do important stuff
 end
+
+-- ============================================================================
+-- DEPRECATED do not use!!!!
+-- ============================================================================
+
 -- Increments militancy for all POPs
 function Province:multiply_militancy(factor)
-	multiply_province_militancy_global(self.id, factor)
+	local pops = self:get_pops()
+	for k, pop in pairs(pops) do
+		pop.militancy = pop.militancy * factor
+		self:update_pop(pop)
+	end
+	self:update_pops()
 end
 function Province:multiply_militancy_by_culture(culture, factor)
-	multiply_province_militancy_by_culture(self.id, culture.id, factor)
+	local pops = self:get_pops()
+	for k, pop in pairs(pops) do
+		if pop.culture.id == culture.id then
+			pop.militancy = pop.militancy * factor
+			self:update_pop(pop)
+		end
+	end
+	self:update_pops()
 end
 function Province:multiply_militancy_by_religion(religion, factor)
-	multiply_province_militancy_by_religion(self.id, religion.id, factor)
+	local pops = self:get_pops()
+	for k, pop in pairs(pops) do
+		if pop.religion.id == religion.id then
+			pop.militancy = pop.militancy * factor
+			self:update_pop(pop)
+		end
+	end
+	self:update_pops()
 end
+
 -- Increments con for all POPs
 function Province:multiply_con_global(factor)
-	multiply_province_con_global(self.id, factor)
+	local pops = self:get_pops()
+	for k, pop in pairs(pops) do
+		pop.con = pop.con * factor
+		self:update_pop(pop)
+	end
+	self:update_pops()
 end
 function Province:multiply_con_by_culture(culture, factor)
-	multiply_province_con_by_culture(self.id, culture.id, factor)
+	local pops = self:get_pops()
+	for k, pop in pairs(pops) do
+		if pop.culture.id == culture.id then
+			pop.con = pop.con * factor
+			self:update_pop(pop)
+		end
+	end
+	self:update_pops()
 end
 function Province:multiply_con_by_religion(religion, factor)
-	multiply_province_con_by_religion(self.id, religion.id, factor)
+	local pops = self:get_pops()
+	for k, pop in pairs(pops) do
+		if pop.religion.id == religion.id then
+			pop.con = pop.con * factor
+			self:update_pop(pop)
+		end
+	end
+	self:update_pops()
 end
+-- ============================================================================
+
 -- Adds a POP to the province
 function Province:add_pop(pop_type, culture, religion, size, literacy)
 	add_province_pop(self.id, pop_type.id, culture.id, religion.id, size, literacy)
@@ -657,11 +719,9 @@ Culture = {
 	id = 0,
 	ref_name = "",
 	name = "",
-
 	adjective = "",
 	noun = "",
 	combo_form = "",
-
 	color = 0x00000000
 }
 function Culture:new(o)

@@ -23,24 +23,24 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "diplomacy.hpp"
-#include "policy.hpp"
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
 #include <set>
 
-#include "province.hpp"
-#include "server/economy.hpp"
-#include "world.hpp"
 #include "unified_render/binary_image.hpp"
-#include "server/lua_api.hpp"
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
 #include "unified_render/serializer.hpp"
 #include "unified_render/log.hpp"
+
+#include "diplomacy.hpp"
+#include "policy.hpp"
+#include "province.hpp"
+#include "server/economy.hpp"
+#include "world.hpp"
+#include "server/lua_api.hpp"
 #include "io_impl.hpp"
 #include "server/server_network.hpp"
 
@@ -584,7 +584,7 @@ void ai_do_tick(Nation* nation, World* world) {
         for(const auto& province : nation->owned_provinces) {
             // The "cooling" value which basically makes us ignore some provinces with lots of defenses
             // so we don't rack up deathstacks on a border with some micronation
-            unsigned int draw_away_force = 0;
+            int draw_away_force = 0;
             for(const auto& unit : province->get_units()) {
                 // Only account this for units that are of our nation
                 // because enemy units will require us to give more importance to it

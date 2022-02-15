@@ -37,7 +37,6 @@
 #include <string>
 #include <vector>
 #include <exception>
-#include "nation.hpp"
 
 namespace LuaAPI {
     class Exception: public std::exception {
@@ -80,12 +79,6 @@ namespace LuaAPI {
     int get_nation_by_id(lua_State* L);
     int get_all_nations(lua_State* L);
 
-    int get_friends_of_nation(lua_State* L);
-    int get_enemies_of_nation(lua_State* L);
-    int get_allies_of_nation(lua_State* L);
-    int get_warenemies_of_nation(lua_State* L);
-    int get_embargoed_of_nation(lua_State* L);
-
     int get_provinces_owned_by_nation(lua_State* L);
     int get_provinces_with_nucleus_by_nation(lua_State* L);
     int set_nation_primary_culture(lua_State* L);
@@ -105,17 +98,16 @@ namespace LuaAPI {
     int get_nation_mod(lua_State* L);
 
     int add_province(lua_State* L);
+    int update_province(lua_State* L);
     int get_province(lua_State* L);
     int get_province_by_id(lua_State* L);
-    int add_province_industry(lua_State* L);
-    int set_province_terrain(lua_State* L);
+    int update_province_building(lua_State* L);
     int give_province_to(lua_State* L);
     int give_hard_province_to(lua_State* L);
     int get_province_owner(lua_State* L);
     int get_province_controller(lua_State* L);
     int get_province_neighbours(lua_State* L);
     int get_province_nuclei(lua_State* L);
-    int get_province_pops_size(lua_State* L);
     int get_province_pop(lua_State* L);
     int set_province_pop(lua_State* L);
     int get_province_pop_ideology_approval(lua_State* L);
