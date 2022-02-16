@@ -44,22 +44,21 @@ Province::~Province(void) {
 //*/
 
 // Calculates the total number of POPs in this province (total population)
-size_t Province::total_pops(void) const {
-    size_t total = 0;
+UnifiedRender::Number Province::total_pops(void) const {
+    UnifiedRender::Number total = 0;
     for(const auto& pop : pops) {
         total += pop.size;
     }
     return total;
 }
 
-float Province::get_attractiveness(const Pop& pop) const {
-    float attractive = this->base_attractive;
-    
+UnifiedRender::Decimal Province::get_attractiveness(const Pop& pop) const {
+    UnifiedRender::Decimal attractive = this->base_attractive;
     if(!this->owner->is_accepted_culture(pop) && !this->owner->is_accepted_religion(pop)) {
         // Linearized version, instead of using if-else trees we just
         // multiply the attractive by the scale; EXTERMINATE = 3, so 3 - 3 is 0 which nullifies the attractivenes
         // and the more open the borders are the more lenient the "scale" becomes
-        const int scale = 3 - this->owner->current_policy.treatment;
+        const UnifiedRender::Number scale = 3 - this->owner->current_policy.treatment;
         attractive *= scale;
     }
 
@@ -87,7 +86,7 @@ float Province::get_attractiveness(const Pop& pop) const {
     return attractive;
 }
 
-std::pair<float, float> Province::get_pos(void) const {
+std::pair<UnifiedRender::Decimal, UnifiedRender::Decimal> Province::get_pos(void) const {
     return std::make_pair(min_x + ((max_x - min_x) / 2.f), min_y + ((max_y - min_y) / 2.f));
 }
 

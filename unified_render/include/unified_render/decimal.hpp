@@ -27,4 +27,6 @@
 
 namespace UnifiedRender {
 	typedef double Decimal;
+	typedef float Number;
+	typedef double BigNumber;
 };

@@ -117,7 +117,7 @@ void Unit::attack(Unit& enemy) {
     enemy.size -= std::min<size_t>(enemy.size, (damage));
 }
 
-std::pair<int, int> Unit::get_pos(void) const {
+std::pair<UnifiedRender::Number, UnifiedRender::Number> Unit::get_pos(void) const {
     return province->get_pos();
 }
 
@@ -126,30 +126,30 @@ void Unit::set_target(Province& _province) {
     move_progress = std::sqrt(std::abs((province->max_x + ((province->max_x - province->min_x) / 2.f)) - (target->max_x + ((target->max_x - target->min_x) / 2.f))) + std::abs((province->max_y + ((province->max_y - province->min_y) / 2.f)) - (target->max_y + ((target->max_y - target->min_y) / 2.f))));
 }
 
-float Unit::get_speed(const Province& _province) const {
+UnifiedRender::Decimal Unit::get_speed(const Province& _province) const {
     auto start_pos = province->get_pos();
     auto end_pos = _province.get_pos();
 
     // Get the linear distance from the current deduced position of the unit and the target
     // the current position of the unit is relative to the move progress it has done (so if it's
     // halfway thru a province it will then be placed at half of the distance)
-    const float x_dist = (end_pos.first - start_pos.first);
-    const float y_dist = (end_pos.second - start_pos.second);
-    const float angle = std::atan2(x_dist, y_dist);
+    const UnifiedRender::Decimal x_dist = (end_pos.first - start_pos.first);
+    const UnifiedRender::Decimal y_dist = (end_pos.second - start_pos.second);
+    const UnifiedRender::Decimal angle = std::atan2(x_dist, y_dist);
 
     // TODO: The comment above makes no sense since we don't do (max_move_progress / move_progress)
-    const float dist_div = move_progress;
+    const UnifiedRender::Decimal dist_div = move_progress;
 
     //const float linear_dist = std::fabs(std::sqrt(x_dist * x_dist + y_dist * y_dist) / dist_div);
     
-    const float speed = (type->speed) / _province.terrain_type->movement_penalty;
-    float radius_scale = std::cos(M_PI / (2 * World::get_instance().height) * (2 * (y_dist / dist_div) - World::get_instance().height));
-    float x_scale = 1 / (std::fabs(radius_scale) + 0.001f);
-    float speed_scale = std::sqrt(std::pow(std::sin(angle), 2) + std::pow(std::cos(angle) * x_scale, 2));
+    const UnifiedRender::Decimal speed = (type->speed) / _province.terrain_type->movement_penalty;
+    UnifiedRender::Decimal radius_scale = std::cos(M_PI / (2 * World::get_instance().height) * (2 * (y_dist / dist_div) - World::get_instance().height));
+    UnifiedRender::Decimal x_scale = 1 / (std::fabs(radius_scale) + 0.001f);
+    UnifiedRender::Decimal speed_scale = std::sqrt(std::pow(std::sin(angle), 2) + std::pow(std::cos(angle) * x_scale, 2));
     return (speed * speed_scale) / 100.f;
 }
 
-float Unit::get_speed(void) const {
+UnifiedRender::Decimal Unit::get_speed(void) const {
     return get_speed(*target);
 }
 
