@@ -52,17 +52,17 @@ public:
 
     // Max ticks allowed for defensive bonus - this basically prevents an unit from staying 200
     // years on the same spot and be fucking indestructible
-    uint64_t max_defensive_ticks;
+    UnifiedRender::Number max_defensive_ticks;
 
     // The defense provided by the unit each tick for staying on the same position
     // aka. digging trenches
-    UnifiedRender::Decimal position_defense;
+    UnifiedRender::Number position_defense;
 
     // Capacity of units that can be carried (transport units)
-    size_t capacity;
+    UnifiedRender::Number capacity;
 
     // Time needed to build
-    size_t build_time;
+    UnifiedRender::Number build_time;
 
     // Can go on ground?
     bool is_ground;
@@ -71,7 +71,7 @@ public:
     bool is_naval;
 
     // Required goods, first describes the id of the good and the second describes how many
-    std::vector<std::pair<Good *, size_t>> req_goods;
+    std::vector<std::pair<Good *, UnifiedRender::Number>> req_goods;
 };
 
 // A trait for an unit; given randomly per each recruited unit
@@ -95,48 +95,33 @@ public:
     //~Unit();
 
     void attack(Unit& enemy);
-    std::pair<int, int> get_pos(void) const;
+    std::pair<UnifiedRender::Number, UnifiedRender::Number> get_pos(void) const;
     void set_target(Province& province);
-    float get_speed(const Province& province) const;
-    float get_speed(void) const;
+    UnifiedRender::Decimal get_speed(const Province& province) const;
+    UnifiedRender::Decimal get_speed(void) const;
     void set_province(Province& province);
     bool can_move(void) const;
     
     // Type of unit
     UnitType* type;
-
-    // Size of the unit (soldiers in unit)
-    size_t size;
-    // Base size of the unit (max size due to anti-attrition)
-    size_t base;
-    
-    Province* target = nullptr;
-    Province* province = nullptr;
-    UnifiedRender::Decimal move_progress;
-
     // Who owns this unit
     Nation* owner;
+    Province* target = nullptr;
+    Province* province = nullptr;
 
+    // Size of the unit (soldiers in unit)
+    UnifiedRender::Number size;
+    // Base size of the unit (max size due to anti-attrition)
+    UnifiedRender::Number base;
+    UnifiedRender::Decimal move_progress;
     UnifiedRender::Decimal morale;
-
     // For perspective, 0.5 is the normal unit (i.e a soldier POP)
     UnifiedRender::Decimal experience;
-
-    // Used to "ignore" an unit when doing any check, this allows other units to
-    // attack this unit
-    bool ignore_tag;
-
-    // The ticks the unit has not been moved
-    uint64_t defensive_ticks;
-
     // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
     UnifiedRender::Decimal supply;
-
     // Money that the unit has
     UnifiedRender::Decimal budget;
-    
     std::vector<UnitTrait*> traits;
-
     // TODO: ser/deser
     bool on_battle = false;
 };

@@ -27,6 +27,7 @@
 
 #include <vector>
 #include "unified_render/entity.hpp"
+#include "unified_render/decimal.hpp"
 
 #include "unit.hpp"
 
@@ -44,17 +45,18 @@ public:
     bool is_build_naval_units;
 
     // Defensive bonus given to units on the outpost
-    float defense_bonus;
+    UnifiedRender::Number defense_bonus;
 
     // Is this a factory?
     bool is_factory;
+
     // List of goods required to create output
     std::vector<Good*> inputs;
     // List of goods that this factory type creates
     std::vector<Good*> outputs;
 
     // Required goods, first describes the id of the good and the second describes how many
-    std::vector<std::pair<Good*, size_t>> req_goods;
+    std::vector<std::pair<Good*, UnifiedRender::Number>> req_goods;
 
     // Required technologies
     std::vector<Technology*> req_technologies;
@@ -72,29 +74,31 @@ public:
 
     // Unit that is currently being built here (nullptr indicates no unit)
     UnitType* working_unit_type = nullptr;
+
     // Remaining ticks until the unit is built
-    uint16_t build_time;
+    UnifiedRender::Number build_time;
+
     // Required goods for building the working unit
     // TODO: change this to a struct instead of a pair for readablity
-    std::vector<std::pair<Good*, size_t>> req_goods_for_unit;
+    std::vector<std::pair<Good*, UnifiedRender::Number>> req_goods_for_unit;
     // Required goods for building this, or repairing this after a military attack
-    std::vector<std::pair<Good*, size_t>> req_goods;
+    std::vector<std::pair<Good*, UnifiedRender::Number>> req_goods;
 
     // Total money that the factory has
-    float budget = 0.f;
+    UnifiedRender::Decimal budget = 0.f;
     
     // Days that the factory has not been operational
-    size_t days_unoperational = 0;
+    UnifiedRender::Number days_unoperational = 0;
     
     // Money needed to produce - helps determine the price of the output products
-    float production_cost = 0.f;
+    UnifiedRender::Decimal production_cost = 0.f;
     
     // Stockpile of inputs in the factory
-    std::vector<size_t> stockpile;
+    std::vector<UnifiedRender::Number> stockpile;
     
     // The employees needed per output
-    std::vector<size_t> employees_needed_per_output;
+    std::vector<UnifiedRender::Number> employees_needed_per_output;
 
     // Level of building (all starts at 0)
-    size_t level = 0;
+    UnifiedRender::Number level = 0;
 };

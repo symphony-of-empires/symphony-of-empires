@@ -129,9 +129,7 @@ MapRender::MapRender(const World& _world)
 
     print_info("Creating tile map & tile sheet");
 
-    // The province & nation mapping
-    // Alpha & Blue is for nation id
-    // Red & Green is for province id
+    // The province & nation mapping Alpha & Blue is for nation id Red & Green is for province id
     tile_map = new UnifiedRender::Texture(world.width, world.height);
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);

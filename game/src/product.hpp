@@ -27,10 +27,11 @@
 
 #include <string>
 #include <deque>
+#include "unified_render/decimal.hpp"
+
 #include "province.hpp"
 #include "good.hpp"
 #include "building.hpp"
-#include "unified_render/decimal.hpp"
 
 // A product (based off a Good) which can be bought by POPs, converted by factories and transported
 class Product : public IdEntity<uint16_t> {
@@ -46,13 +47,13 @@ public:
     UnifiedRender::Decimal price_vel;
 
     // Total supply of the product
-    size_t supply;
+    UnifiedRender::Number supply;
 
     // Total demand of the product
-    size_t demand;
+    UnifiedRender::Number demand;
 
     // History of price, supply and demand for the past 30 days
     std::deque<UnifiedRender::Decimal> price_history;
-    std::deque<size_t> supply_history;
-    std::deque<size_t> demand_history;
+    std::deque<UnifiedRender::Number> supply_history;
+    std::deque<UnifiedRender::Number> demand_history;
 };

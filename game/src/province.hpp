@@ -50,9 +50,9 @@ class Province : public RefnameEntity<uint16_t> {
 public:
     //Province();
     //~Province();
-    size_t total_pops(void) const;
-    float get_attractiveness(const Pop& pop) const;
-    std::pair<float, float> get_pos(void) const;
+    UnifiedRender::Number total_pops(void) const;
+    UnifiedRender::Decimal get_attractiveness(const Pop& pop) const;
+    std::pair<UnifiedRender::Decimal, UnifiedRender::Decimal> get_pos(void) const;
     std::vector<Unit*> get_units(void) const;
     const std::vector<Building>& get_buildings(void) const;
     std::vector<Building>& get_buildings(void);
