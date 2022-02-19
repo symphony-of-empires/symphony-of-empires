@@ -27,13 +27,12 @@
 #include <cstdlib>
 #include <cstring>
 #include <functional>
-#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <mutex>
 #include <memory>
 #include <chrono>
-#include <iostream>
 #include <ctime>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "unified_render/texture.hpp"
 #include "unified_render/primitive.hpp"
@@ -267,8 +266,7 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
         fbo.set_texture(0, drawOnTex0 ? *tex0 : *tex1);
         if(step == max_dist) {
             border_sdf_shader->set_texture(0, "tex", *border_tex);
-        }
-        else {
+        } else {
             border_sdf_shader->set_texture(0, "tex", drawOnTex0 ? *tex1 : *tex0);
         }
         // Draw a plane over the entire screen to invoke shaders
@@ -280,8 +278,7 @@ std::unique_ptr<UnifiedRender::Texture> MapRender::gen_border_sdf() {
     if(drawOnTex0) {
         tex1.reset(nullptr);
         tex1 = std::move(tex0);
-    }
-    else {
+    } else {
         tex0.reset(nullptr);
     }
     tex1->gen_mipmaps();
@@ -388,12 +385,10 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     map_shader->set_texture(14, "tile_sheet_nation", *tile_sheet_nation);
 
     if(view_mode == MapView::PLANE_VIEW) {
-        for(size_t i = 0; i < map_quads.size(); i++)
-        {
+        for(size_t i = 0; i < map_quads.size(); i++) {
             map_quads[i]->draw();
         }
-    }
-    else if(view_mode == MapView::SPHERE_VIEW) {
+    } else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
 }

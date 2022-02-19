@@ -27,6 +27,9 @@
 
 #include "unified_render/ui/button.hpp"
 #include "unified_render/ui/group.hpp"
+#include "unified_render/ui/chart.hpp"
+#include "unified_render/ui/image.hpp"
+#include "unified_render/ui/label.hpp"
 
 class World;
 class Nation;
@@ -39,11 +42,6 @@ class Technology;
 class Good;
 class Building;
 class BuildingType;
-namespace UI {
-	class Image;
-    class Chart;
-    class Label;
-}
 
 namespace Interface {
     // Pretty brief summaries (for example to click oon a button from a list)
@@ -121,7 +119,6 @@ namespace Interface {
         Good* good;
 
         UI::Image* good_ibtn;
-        UI::Label* quantity_lab;
         UI::Button* name_btn,* province_btn;
         UI::Button* price_btn,* price_rate_btn;
         UI::Chart* price_chart,* demand_chart,* supply_chart;

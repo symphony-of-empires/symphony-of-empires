@@ -546,7 +546,6 @@ void Map::draw(const GameState& gs) {
     obj_shader->set_uniform("view", view);
 
     glm::mat4 base_model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
-
     std::vector<float> province_units_y(world.provinces.size(), 0.f);
     for(const auto& war : world.wars) {
         for(const auto& battle : war->battles) {
@@ -644,7 +643,6 @@ void Map::draw(const GameState& gs) {
     obj_shader->set_uniform("model", glm::mat4(1.f));
     obj_shader->set_uniform("projection", projection);
     obj_shader->set_uniform("view", view);
-
 
     // Highlight for units
     for(const auto& unit : gs.input.selected_units) {

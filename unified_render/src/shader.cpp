@@ -50,8 +50,7 @@ UnifiedRender::OpenGL::Shader::Shader(const std::string& path, GLuint type, bool
             ctx.lexer();
             try {
                 ctx.parser();
-            }
-            catch(UnifiedRender::OpenGL::GLSL_Exception& e) {
+            } catch(UnifiedRender::OpenGL::GLSL_Exception& e) {
                 print_error("%s -> %s", e.it->data.c_str(), e.what());
             }
             buffer = ctx.to_text();
@@ -62,8 +61,7 @@ UnifiedRender::OpenGL::Shader::Shader(const std::string& path, GLuint type, bool
         glShaderSource(id, 1, &c_code, NULL);
 
         compile(type);
-    }
-    catch(std::ifstream::failure& e) {
+    } catch(std::ifstream::failure& e) {
         print_error("Cannot load shader %s", path.c_str());
     }
 }
@@ -89,15 +87,13 @@ void UnifiedRender::OpenGL::Shader::compile(GLuint type) {
         // slot:row(column)
         // They also like to fuck me over, so they use
         // slot(row) <-- fuck this
-
         sline >> slot >> ch;
         if(ch == ':') {
             sline >> row >> ch;
             if(ch == '(') {
                 sline >> col;
             }
-        }
-        else if(ch == '(') {
+        } else if(ch == '(') {
             sline >> row;
         }
 

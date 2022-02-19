@@ -58,16 +58,25 @@ void print_error(const char* str, ...) {
     va_list args;
     va_start(args, str);
 
+#if defined LOG_TO_CONSOLE
 #if defined unix
     printf("\e[36m[INFO]\e[0m ");
 #else
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
-    printf("* <warning> ");
+    printf("* <error> ");
 #endif
     vprintf(str, args);
     printf("\n");
 #if defined windows
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
+#endif
+#else
+    FILE* fp = fopen("log.txt", "a+t");
+    if(fp) {
+        vfprintf(fp, str, args);
+        fputs("\n", fp);
+        fclose(fp);
+    }
 #endif
 
     va_end(args);

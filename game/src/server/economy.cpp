@@ -24,6 +24,7 @@
 // ----------------------------------------------------------------------------
 
 #include <algorithm>
+#include <execution>
 #include <cstdio>
 
 #include "unified_render/print.hpp"
@@ -69,56 +70,98 @@ public:
     std::vector<Workers> laborers{};
 };
 
-static inline AvailableWorkers get_available_workers(Province* province) {
-    // Province must have a controller
-    if(province->controller == nullptr) {
-        return AvailableWorkers{};
-    }
-
-    AvailableWorkers province_workers{};
-    for(auto& pop : province->pops) {
-        if(pop.type->group == PopGroup::Slave || pop.type->group == PopGroup::Other) {
-            continue;
-        }
-
-        Workers workers{ pop };
-        if(!province->controller->is_accepted_culture(pop)) {
-            // POPs of non-accepted cultures on exterminate mode cannot get jobs
-            if(province->controller->current_policy.treatment == TREATMENT_EXTERMINATE) {
-                continue;
-            } else if(province->controller->current_policy.treatment == TREATMENT_ONLY_ACCEPTED) {
-                workers.amount /= 2;
-            }
-        }
-
-        switch(pop.type->group) {
-        case PopGroup::BURGEOISE:
-            province_workers.entrepreneurs.push_back(workers);
-            break;
-        case PopGroup::FARMER:
-            province_workers.farmers.push_back(workers);
-            break;
-        case PopGroup::LABORER:
-            province_workers.laborers.push_back(workers);
-            break;
-        default:
-            break;
-        }
-    }
-    return province_workers;
-}
-
-#include <execution>
-
 // Phase 1 of economy: Delivers & Orders are sent from all factories in the world
 void Economy::do_tick(World& world) {
     std::for_each(std::execution::par, world.nations.begin(), world.nations.end(), [&world](const auto& nation) {
         for(const auto& province : nation->owned_provinces) {
-            if(province->controller != nation) {
-                continue;
+            AvailableWorkers province_workers{};
+;            // POPs now will proceed to buy products produced from factories & buying from the stockpile
+            // of this province with the local market price
+            for(size_t i = 0; i < province->pops.size(); i++) {
+                Pop& pop = province->pops[i];
+                if(!pop.size) {
+                    province->pops.erase(province->pops.begin() + i);
+                    i--;
+                    continue;
+                }
+
+                // Also add this POP to the AvailableWorkers array
+                Workers workers{ pop };
+                switch(pop.type->group) {
+                case PopGroup::BURGEOISE:
+                    province_workers.entrepreneurs.push_back(workers);
+                    break;
+                case PopGroup::FARMER:
+                    province_workers.farmers.push_back(workers);
+                    break;
+                case PopGroup::LABORER:
+                    province_workers.laborers.push_back(workers);
+                    break;
+                }
+
+                // Deduct life needs met (to force pops to eat nom nom)
+                pop.life_needs_met -= 0.01f;
+
+                // Use 10% of our budget for buying uneeded commodities and shit
+                // TODO: Should lower spending with higher literacy, and higher
+                // TODO: Higher the fullfilment per unit with higher literacy
+                // TODO: DO NOT MAKE POP BUY FROM STOCKPILE, INSTEAD MAKE THEM BUY FROM ORDERS
+                for(size_t j = 0; j < province->products.size(); j++) {
+                    // Only buy the available stuff
+                    UnifiedRender::Number bought = std::min<UnifiedRender::Number>(std::rand() % pop.size, province->products[j].supply);
+
+                    // Deduct from pop's budget the product * how many we bought
+                    // NOTE: If we didn't bought anything it will simply invalidate this, plus if the supply is nil
+                    // this also gets nullified
+                    province->products[j].supply -= bought;
+                    province->products[j].demand += bought;
+                    pop.budget -= bought * province->products[j].price;
+                    if(bought) {
+                        if(world.goods[j]->is_edible) {
+                            pop.life_needs_met += pop.size / bought;
+                        }
+                        else {
+                            pop.everyday_needs_met += pop.size / bought;
+                        }
+                    }
+
+                    if(pop.budget < 0.f) {
+                        // TODO: Get a loan
+                        // TODO: Get the life savings
+                        break;
+                    }
+                }
+
+                // x2.5 life needs met modifier, that is the max allowed
+                pop.life_needs_met = std::min<UnifiedRender::Decimal>(1.5f, std::max<UnifiedRender::Decimal>(pop.life_needs_met, -5.f));
+                pop.everyday_needs_met = std::min<UnifiedRender::Decimal>(1.5f, std::max<UnifiedRender::Decimal>(pop.everyday_needs_met, -5.f));
+
+                // Current liking of the party is influenced by the life_needs_met
+                pop.ideology_approval[world.get_id(province->controller->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
+
+                // NOTE: We used to have this thing where anything below 2.5 meant everyone dies
+                // and this was removed because it's such an unescesary detail that consumes precious
+                // CPU branching prediction... and we can't afford that!
+
+                // Starvation in -1 or 0 or >1 are amortized by literacy
+                UnifiedRender::Decimal growth = pop.life_needs_met / pop.literacy;
+                //if(growth < 0 && (size_t)std::abs(growth) > pop.size) {
+                //    growth = -pop.size;
+                //}
+                growth *= (growth > 0) ? province->controller->get_reproduction_mod() : province->controller->get_death_mod();
+                pop.size += growth;
+
+                // Add some RNG to shake things up and make gameplay more dynamic and less deterministic :)
+                pop.size += std::fmod(std::rand(), std::min<UnifiedRender::Number>(5.f, std::max<UnifiedRender::Number>(1.f, pop.size / 10000)));
+                pop.size = std::fabs(pop.size);
+
+                // Met life needs means less militancy
+                // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
+                // and the opposite happens with negative life needs
+                pop.militancy += 0.01f * (-pop.life_needs_met) * province->controller->get_militancy_mod();;
+                pop.con += 0.01f * (-pop.life_needs_met) * province->controller->get_militancy_mod();;
             }
 
-            auto province_workers = get_available_workers(province);
             for(size_t j = 0; j < world.building_types.size(); j++) {
                 BuildingType* building_type = world.building_types[j];
                 auto& building = province->buildings[j];
@@ -322,78 +365,6 @@ void Economy::do_tick(World& world) {
                 }
             }
 
-            // POPs now will proceed to buy products produced from factories & buying from the stockpile
-            // of this province with the local market price
-            for(size_t i = 0; i < province->pops.size(); i++) {
-                Pop& pop = province->pops[i];
-                if(!pop.size) {
-                    province->pops.erase(province->pops.begin() + i);
-                    i--;
-                    continue;
-                }
-
-                // Deduct life needs met (to force pops to eat nom nom)
-                pop.life_needs_met -= 0.01f;
-
-                // Use 10% of our budget for buying uneeded commodities and shit
-                // TODO: Should lower spending with higher literacy, and higher
-                // TODO: Higher the fullfilment per unit with higher literacy
-                // TODO: DO NOT MAKE POP BUY FROM STOCKPILE, INSTEAD MAKE THEM BUY FROM ORDERS
-                for(size_t j = 0; j < province->products.size(); j++) {
-                    // Only buy the available stuff
-                    UnifiedRender::Number bought = std::min<UnifiedRender::Number>(std::rand() % pop.size, province->products[j].supply);
-
-                    // Deduct from pop's budget the product * how many we bought
-                    // NOTE: If we didn't bought anything it will simply invalidate this, plus if the supply is nil
-                    // this also gets nullified
-                    province->products[j].supply -= bought;
-                    province->products[j].demand += bought;
-                    pop.budget -= bought * province->products[j].price;
-                    if(bought) {
-                        if(world.goods[j]->is_edible) {
-                            pop.life_needs_met += pop.size / bought;
-                        } else {
-                            pop.everyday_needs_met += pop.size / bought;
-                        }
-                    }
-
-                    if(pop.budget < 0.f) {
-                        // TODO: Get a loan
-                        // TODO: Get the life savings
-                        break;
-                    }
-                }
-
-                // x2.5 life needs met modifier, that is the max allowed
-                pop.life_needs_met = std::min<UnifiedRender::Decimal>(1.5f, std::max<UnifiedRender::Decimal>(pop.life_needs_met, -5.f));
-                pop.everyday_needs_met = std::min<UnifiedRender::Decimal>(1.5f, std::max<UnifiedRender::Decimal>(pop.everyday_needs_met, -5.f));
-
-                // Current liking of the party is influenced by the life_needs_met
-                pop.ideology_approval[world.get_id(province->controller->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
-
-                // NOTE: We used to have this thing where anything below 2.5 meant everyone dies
-                // and this was removed because it's such an unescesary detail that consumes precious
-                // CPU branching prediction... and we can't afford that!
-
-                // Starvation in -1 or 0 or >1 are amortized by literacy
-                UnifiedRender::Decimal growth = pop.life_needs_met / pop.literacy;
-                //if(growth < 0 && (size_t)std::abs(growth) > pop.size) {
-                //    growth = -pop.size;
-                //}
-                growth *= (growth > 0) ? province->controller->get_reproduction_mod() : province->controller->get_death_mod();
-                pop.size += growth;
-
-                // Add some RNG to shake things up and make gameplay more dynamic and less deterministic :)
-                pop.size += std::fmod(std::rand(), std::min<UnifiedRender::Number>(5.f, std::max<UnifiedRender::Number>(1.f, pop.size / 10000)));
-                pop.size = std::fabs(pop.size);
-
-                // Met life needs means less militancy
-                // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
-                // and the opposite happens with negative life needs
-                pop.militancy += 0.01f * (-pop.life_needs_met) * province->controller->get_militancy_mod();;
-                pop.con += 0.01f * (-pop.life_needs_met) * province->controller->get_militancy_mod();;
-            }
-
             // Close the local market of this province
             for(auto& product : province->products) {
                 product.close_market();
@@ -427,7 +398,7 @@ void Economy::do_tick(World& world) {
 
         // Rebellions!
         // TODO: Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-        if(!std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger))) {
+        if(!std::fmod(std::rand(), std::max(1, coup_chances - total_anger))) {
             // Compile list of uprising provinces
             std::vector<Province*> uprising_provinces;
             for(const auto& province : nation->owned_provinces) {
