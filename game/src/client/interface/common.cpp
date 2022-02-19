@@ -282,7 +282,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
     this->good_ibtn->tooltip->text(UnifiedRender::Locale::translate(good->name));
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
-    this->price_rate_btn->right_side_of(*this->quantity_lab);
+    this->price_rate_btn->right_side_of(*this->good_ibtn);
 
     this->price_chart = new UI::Chart(0, 0, 96, 24, this);
     this->price_chart->right_side_of(*this->price_rate_btn);
