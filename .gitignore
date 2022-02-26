@@ -43,6 +43,7 @@ obj/
 
 # test stuff
 mods/test
+editor/
 
 # compiled translation files
 *.mo

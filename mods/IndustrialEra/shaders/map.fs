@@ -1,4 +1,5 @@
 #version 330 compatibility
+precision lowp float;
 
 out vec4 f_frag_color;
 
