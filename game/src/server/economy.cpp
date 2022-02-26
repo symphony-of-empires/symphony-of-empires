@@ -398,7 +398,7 @@ void Economy::do_tick(World& world) {
 
         // Rebellions!
         // TODO: Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-        if(!std::fmod(std::rand(), std::max(1, coup_chances - total_anger))) {
+        if(!std::fmod(std::rand(), std::max<UnifiedRender::Decimal>(1, coup_chances - total_anger))) {
             // Compile list of uprising provinces
             std::vector<Province*> uprising_provinces;
             for(const auto& province : nation->owned_provinces) {
