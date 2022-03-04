@@ -206,4 +206,13 @@ namespace Path {
         }
         return list;
     }
+
+    std::string cat_strings(const std::vector<std::string>& vec)
+    {
+        std::string str;
+        for(const auto& _str : vec) {
+            str += _str;
+        }
+        return str;
+    }
 };

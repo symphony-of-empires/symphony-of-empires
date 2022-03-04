@@ -49,13 +49,12 @@ namespace UnifiedRender::OpenGL {
     class Option {
         std::string _option;
     public:
-        Option(std::string option, bool use):
-            _option{ option } ,used{ use } {}
+        bool used;
 
-        std::string get_option() {
+        Option(std::string option, bool use) : _option{ option } ,used{ use } {}
+        std::string get_option(void) const {
             return _option;
         }
-        bool used;
     };
 
     class Shader {
@@ -64,39 +63,38 @@ namespace UnifiedRender::OpenGL {
         std::string buffer;
         GLuint id;
     public:
-        Shader(const std::string& path, GLuint type, bool use_transpiler = true, std::vector<UnifiedRender::OpenGL::GLSL_Define> defintions = {});
+        Shader(const std::string& _buffer, GLuint type, bool use_transpiler = true, std::vector<UnifiedRender::OpenGL::GLSL_Define> defintions = {});
         ~Shader();
-
         GLuint get_id(void) const;
     };
 
     class VertexShader: public Shader {
     public:
-        VertexShader(const std::string& path);
+        VertexShader(const std::string& _buffer);
         ~VertexShader();
     };
 
     class FragmentShader: public Shader {
     public:
-        FragmentShader(const std::string& path, bool use_transpiler = true, std::vector<UnifiedRender::OpenGL::GLSL_Define> defintions = {});
+        FragmentShader(const std::string& _buffer, bool use_transpiler = true, std::vector<UnifiedRender::OpenGL::GLSL_Define> defintions = {});
         ~FragmentShader();
     };
 
     class GeometryShader: public Shader {
     public:
-        GeometryShader(const std::string& path);
+        GeometryShader(const std::string& _buffer);
         ~GeometryShader();
     };
 
     class TessControlShader: public Shader {
     public:
-        TessControlShader(const std::string& path);
+        TessControlShader(const std::string& _buffer);
         ~TessControlShader();
     };
 
     class TessEvalShader: public Shader {
     public:
-        TessEvalShader(const std::string& path);
+        TessEvalShader(const std::string& _buffer);
         ~TessEvalShader();
     };
 
@@ -104,11 +102,13 @@ namespace UnifiedRender::OpenGL {
         GLuint id;
     public:
         Program();
-        Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry = nullptr, const TessControlShader* tctrl = nullptr, const TessEvalShader* tee = nullptr);
+        //Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry = nullptr, const TessControlShader* tctrl = nullptr, const TessEvalShader* tee = nullptr);
         ~Program();
+        /*
         static std::unique_ptr<Program> create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
         static std::unique_ptr<Program> create(std::vector<Option> options, const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
         static std::unique_ptr<Program> create_regular(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
+        */
 
         void attach_shader(const Shader* shader);
         void link(void);

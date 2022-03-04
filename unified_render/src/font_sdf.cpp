@@ -38,8 +38,22 @@ using namespace UnifiedRender;
 #include <codecvt>
 #include <locale>
 
-FontSDF::FontSDF(const std::string& filename) {
-    sdf_font_shader = OpenGL::Program::create("shaders/font_sdf.vs", "shaders/font_sdf.fs");
+UnifiedRender::Glyph::Glyph(float _advance, Rectangle _atlas_bounds, Rectangle _plane_bounds)
+    : advance(_advance), atlas_bounds(_atlas_bounds), plane_bounds(_plane_bounds)
+{
+
+}
+
+UnifiedRender::FontSDF::FontSDF(const std::string& filename) {
+    //sdf_font_shader = OpenGL::Program::create("shaders/font_sdf.vs", "shaders/font_sdf.fs");
+    sdf_font_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    {
+        auto vs_shader = UnifiedRender::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/font_sdf.vs")));
+        sdf_font_shader->attach_shader(&vs_shader);
+        auto fs_shader = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/font_sdf.fs")));
+        sdf_font_shader->attach_shader(&fs_shader);
+        sdf_font_shader->link();
+    }
 
     auto tex_man = UnifiedRender::State::get_instance().tex_man;
 
@@ -74,7 +88,7 @@ FontSDF::FontSDF(const std::string& filename) {
     }
 }
 
-Label3d* FontSDF::gen_text(const std::string& text, glm::vec3 center, glm::vec3 top, glm::vec3 right, float width) {
+Label3d* UnifiedRender::FontSDF::gen_text(const std::string& text, glm::vec3 center, glm::vec3 top, glm::vec3 right, float width) {
     UnifiedRender::Color color = UnifiedRender::Color(0.f, 0.f, 0.f);
 
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
@@ -82,9 +96,11 @@ Label3d* FontSDF::gen_text(const std::string& text, glm::vec3 center, glm::vec3 
 
     float text_width = 0;
     for(char32_t& character : unicode_text) {
-        if(!unicode_map.count(character))
+        if(!unicode_map.count(character)) {
             continue;
-        Glyph& glyph = unicode_map.at(character);
+        }
+
+        UnifiedRender::Glyph& glyph = unicode_map.at(character);
         text_width += glyph.advance;
     }
     float scale = width / text_width;
@@ -95,8 +111,10 @@ Label3d* FontSDF::gen_text(const std::string& text, glm::vec3 center, glm::vec3 
     std::vector<glm::vec3> positions;
     std::vector<glm::vec2> tex_coords;
     for(char32_t& character : unicode_text) {
-        if(!unicode_map.count(character))
+        if(!unicode_map.count(character)) {
             continue;
+        }
+
         Glyph glyph = unicode_map.at(character);
 
         glm::vec2 atlas_tl(glyph.atlas_bounds.left, glyph.atlas_bounds.top);
@@ -135,27 +153,28 @@ Label3d* FontSDF::gen_text(const std::string& text, glm::vec3 center, glm::vec3 
     return new Label3d(triangles, scale);
 }
 
-void FontSDF::draw(const std::vector<Label3d*>& labels, glm::mat4 projection, glm::mat4 view) {
+void UnifiedRender::FontSDF::draw(const std::vector<Label3d*>& labels, glm::mat4 projection, glm::mat4 view) {
     sdf_font_shader->use();
     sdf_font_shader->set_uniform("projection", projection);
     sdf_font_shader->set_uniform("view", view);
     sdf_font_shader->set_texture(0, "atlas", *atlas);
     for(auto& label : labels) {
-        sdf_font_shader->set_uniform("pxRange", label->size * 0.5f);
+        sdf_font_shader->set_uniform("px_range", label->size * 0.5f);
         label->draw();
     }
 }
 
-Label3d::Label3d(TriangleList* _triangles, float _size)
+UnifiedRender::Label3d::Label3d(TriangleList* _triangles, float _size)
     : triangles(_triangles),
     size{ _size }
 {
+
 }
 
-Label3d::~Label3d() {
+UnifiedRender::Label3d::~Label3d() {
     delete triangles;
 }
 
-void Label3d::draw() {
+void UnifiedRender::Label3d::draw() {
     triangles->draw();
 }

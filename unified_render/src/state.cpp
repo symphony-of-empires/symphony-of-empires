@@ -57,6 +57,7 @@
 #include "unified_render/material.hpp"
 #include "unified_render/model.hpp"
 #include "unified_render/log.hpp"
+#include "unified_render/shader.hpp"
 
 // Used for the singleton
 static UnifiedRender::State* g_state = nullptr;
@@ -130,6 +131,139 @@ UnifiedRender::State::State(void) {
     material_man = new UnifiedRender::MaterialManager();
     model_man = new UnifiedRender::ModelManager();
     package_man = new UnifiedRender::IO::PackageManager();
+
+    // Compile built-in shaders
+
+    // Big library used mostly by every shader, compiled for faster linking or other stuff
+    builtin_shaders["fs_lib"] = std::unique_ptr<UnifiedRender::OpenGL::FragmentShader>(new UnifiedRender::OpenGL::FragmentShader(
+        "#version 330 compatibility\n"
+        "precision lowp float;\n"
+        "\n"
+        "// Generic function for normalization of the water\n"
+        "vec3 get_water_normal(float time, sampler2D wave1, sampler2D wave2, vec2 tex_coords) {\n"
+        "    float offset = time * 0.01;\n"
+        "    vec2 coords = tex_coords * 50.0;\n"
+        "    vec3 normal1 = texture(wave1, coords + vec2(1.0) * offset).xyz;\n"
+        "    normal1 = normalize(normal1 * 2.0 - 1.0);\n"
+        "    vec3 normal2 = texture(wave2, coords + vec2(0.2, -0.8) * offset).xyz;\n"
+        "    normal2 = normalize(normal2 * 2.0 - 1.0);\n"
+        "    vec3 normal = normalize(normal1 + normal2);\n"
+        "    normal.z *= -1.0;\n"
+        "    return normal;\n"
+        "}\n"
+        "\n"
+        "// https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm\n"
+        "vec4 no_tiling(sampler2D tex, vec2 uv, sampler2D noisy_tex) {\n"
+        "    float k = texture(noisy_tex, 0.005 * uv).x; // cheap (cache friendly) lookup\n"
+        "    float v = 1.0;\n"
+        "\n"
+        "    vec2 duvdx = dFdx(uv);\n"
+        "    vec2 duvdy = dFdx(uv);\n"
+        "\n"
+        "    float l = k * 8.0;\n"
+        "    float f = fract(l);\n"
+        "\n"
+        "    float ia = floor(l); // my method\n"
+        "    float ib = ia + 1.0;\n"
+        "\n"
+        "    vec2 offa = sin(vec2(3.0f, 7.0) * ia); // can replace with any other hash\n"
+        "    vec2 offb = sin(vec2(3.0f, 7.0) * ib); // can replace with any other hash\n"
+        "\n"
+        "    vec4 cola = textureGrad(tex, uv + v * offa, duvdx, duvdy);\n"
+        "    vec4 colb = textureGrad(tex, uv + v * offb, duvdx, duvdy);\n"
+        "    vec4 diff = cola - colb;\n"
+        "    return mix(cola, colb, smoothstep(0.2, 0.8, f - 0.1 * (diff.x + diff.y + diff.z)));\n"
+        "}\n"
+        "\n"
+        "// Watercolor efffect\n"
+        "float water_aquarelle(sampler2D noise_tex, vec2 tex_coords) {\n"
+        "    vec2 uv = tex_coords * 20.0;\n"
+        "    vec3 col = vec3(1.0);\n"
+        "    \n"
+        "    float strenght = 0.5;\n"
+        "    float tex3 = textureLod(noise_tex, uv * 0.02, 1.5).x;\n"
+        "    float layer1 = mix(strenght, 1.0, tex3);\n"
+        "    \n"
+        "    uv *= 2.1;\n"
+        "    float tex4 = textureLod(noise_tex, -uv * 0.02 + 0.3, 1.5).x;\n"
+        "    float layer2 = mix(strenght, 1.0,  tex4);\n"
+        "    layer1 += layer2;\n"
+        "    layer1 *= 0.69;\n"
+        "    layer1 = clamp(layer1, 0.0, 1.05);\n"
+        "    return layer1;\n"
+        "}\n"
+    ));
+
+    // 2D generic fragment shader
+    builtin_shaders["fs_2d"] = std::unique_ptr<UnifiedRender::OpenGL::FragmentShader>(new UnifiedRender::OpenGL::FragmentShader(
+        "#version 330 compatibility\n"
+        "precision lowp float;\n"
+        "\n"
+        "out vec4 f_frag_color;\n"
+        "in vec2 v_texcoord;\n"
+        "\n"
+        "provided sampler2D tex;\n"
+        "\n"
+        "void main() {\n"
+        "    f_frag_color = texture(tex, v_texcoord);\n"
+        "}\n"
+    ));
+
+    // 2D generic vertex shader
+    builtin_shaders["vs_2d"] = std::unique_ptr<UnifiedRender::OpenGL::VertexShader>(new UnifiedRender::OpenGL::VertexShader(
+        "#version 330 compatibility\n"
+        "precision lowp float;\n"
+        "\n"
+        "layout (location = 0) in vec2 m_pos;\n"
+        "layout (location = 1) in vec2 m_texcoord;\n"
+        "\n"
+        "out vec2 v_texcoord;\n"
+        "\n"
+        "void main() {\n"
+        "    gl_Position = vec4(m_pos.xy, 0.0, 1.0);\n"
+        "    v_texcoord = m_texcoord;\n"
+        "}\n"
+    ));
+
+    // 3D generic fragment shader
+    builtin_shaders["fs_3d"] = std::unique_ptr<UnifiedRender::OpenGL::FragmentShader>(new UnifiedRender::OpenGL::FragmentShader(
+        "#version 330 compatibility\n"
+        "precision lowp float;\n"
+        "\n"
+        "out vec4 f_color;\n"
+        "in vec2 v_texcoord;\n"
+        "\n"
+        "uniform sampler2D diffuse_map;\n"
+        "\n"
+        "uniform vec3 ambient_color;\n"
+        "uniform vec3 diffuse_color;\n"
+        "\n"
+        "void main() {\n"
+        "    vec4 tex_color = texture(diffuse_map, v_texcoord);\n"
+        "    tex_color.xyz *= ambient_color * diffuse_color;\n"
+        "    f_color = tex_color;\n"
+        "}\n"
+    ));
+
+    // 3D generic vertex shader
+    builtin_shaders["vs_3d"] = std::unique_ptr<UnifiedRender::OpenGL::VertexShader>(new UnifiedRender::OpenGL::VertexShader(
+        "#version 330 compatibility\n"
+        "precision lowp float;\n"
+        "\n"
+        "layout (location = 0) in vec3 m_pos;\n"
+        "layout (location = 1) in vec2 m_texcoord;\n"
+        "\n"
+        "provided mat4 view;\n"
+        "provided mat4 projection;\n"
+        "provided mat4 model;\n"
+        "\n"
+        "out vec2 v_texcoord;\n"
+        "\n"
+        "void main() {\n"
+        "    v_texcoord = m_texcoord;\n"
+        "    gl_Position = projection * view * model * vec4(m_pos, 1.0);\n"
+        "}\n"
+    ));
 
     const std::string asset_path = Path::get_full();
 

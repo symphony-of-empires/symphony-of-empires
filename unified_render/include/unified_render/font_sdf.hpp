@@ -36,10 +36,9 @@ namespace UnifiedRender {
     class Texture;
     class TriangleList;
 
-    struct Glyph {
-        Glyph(float _advance, Rectangle _atlas_bounds, Rectangle _plane_bounds)
-            : advance(_advance), atlas_bounds(_atlas_bounds), plane_bounds(_plane_bounds) {}
-
+    class Glyph {
+    public:
+        Glyph(float _advance, Rectangle _atlas_bounds, Rectangle _plane_bounds);
         float advance;
         Rectangle atlas_bounds;
         Rectangle plane_bounds;
