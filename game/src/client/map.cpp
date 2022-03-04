@@ -109,7 +109,12 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     map_render = new MapRender(world);
 
     // Shader used for drawing the models using custom model render
-    obj_shader = UnifiedRender::OpenGL::Program::create("shaders/simple_model.vs", "shaders/simple_model.fs");
+    obj_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    {
+        obj_shader->attach_shader(s.builtin_shaders["vs_3d"].get());
+        obj_shader->attach_shader(s.builtin_shaders["fs_3d"].get());
+        obj_shader->link();
+    }
     line_tex = &s.tex_man->load(Path::get("gfx/line_target.png"));
 
     // Set the mapmode

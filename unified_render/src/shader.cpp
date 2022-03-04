@@ -32,38 +32,25 @@
 
 // Construct a shader by opening the provided path and creating a temporal ifstream, reading
 // from that stream in text mode and then compiling the shader
-UnifiedRender::OpenGL::Shader::Shader(const std::string& path, GLuint type, bool use_transpiler, std::vector<UnifiedRender::OpenGL::GLSL_Define> defintions) {
-    std::ifstream file;
-    file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    try {
-        // Read the entire file onto the stringstream
-        file.open(Path::get(path).c_str());
-        std::stringstream stream;
-        stream << file.rdbuf();
-        file.close();
-
-        buffer = stream.str();
-
-        if(use_transpiler) {
-            UnifiedRender::OpenGL::GLSL_Context ctx(buffer);
-            ctx.defines = defintions;
-            ctx.lexer();
-            try {
-                ctx.parser();
-            } catch(UnifiedRender::OpenGL::GLSL_Exception& e) {
-                print_error("%s -> %s", e.it->data.c_str(), e.what());
-            }
-            buffer = ctx.to_text();
+UnifiedRender::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_transpiler, std::vector<UnifiedRender::OpenGL::GLSL_Define> defintions)
+    : buffer(_buffer)
+{
+    if(use_transpiler) {
+        UnifiedRender::OpenGL::GLSL_Context ctx(buffer);
+        ctx.defines = defintions;
+        ctx.lexer();
+        try {
+            ctx.parser();
+        } catch(UnifiedRender::OpenGL::GLSL_Exception& e) {
+            print_error("%s -> %s", e.it->data.c_str(), e.what());
         }
-
-        const char* c_code = buffer.c_str();
-        id = glCreateShader(type);
-        glShaderSource(id, 1, &c_code, NULL);
-
-        compile(type);
-    } catch(std::ifstream::failure& e) {
-        print_error("Cannot load shader %s", path.c_str());
+        buffer = ctx.to_text();
     }
+
+    const char* c_code = buffer.c_str();
+    id = glCreateShader(type);
+    glShaderSource(id, 1, &c_code, NULL);
+    compile(type);
 }
 
 #include <sstream>
@@ -135,8 +122,8 @@ UnifiedRender::OpenGL::Shader::~Shader() {
 //
 // Vertex shader
 //
-UnifiedRender::OpenGL::VertexShader::VertexShader(const std::string& path)
-    : Shader(path, GL_VERTEX_SHADER)
+UnifiedRender::OpenGL::VertexShader::VertexShader(const std::string& _buffer)
+    : Shader(_buffer, GL_VERTEX_SHADER)
 {
 
 }
@@ -148,8 +135,8 @@ UnifiedRender::OpenGL::VertexShader::~VertexShader(void) {
 //
 // Fragment shader
 //
-UnifiedRender::OpenGL::FragmentShader::FragmentShader(const std::string& path, bool use_transpiler, std::vector<UnifiedRender::OpenGL::GLSL_Define> defintions)
-    : Shader(path, GL_FRAGMENT_SHADER, use_transpiler, defintions)
+UnifiedRender::OpenGL::FragmentShader::FragmentShader(const std::string& _buffer, bool use_transpiler, std::vector<UnifiedRender::OpenGL::GLSL_Define> defintions)
+    : Shader(_buffer, GL_FRAGMENT_SHADER, use_transpiler, defintions)
 {
 
 }
@@ -161,8 +148,8 @@ UnifiedRender::OpenGL::FragmentShader::~FragmentShader(void) {
 //
 // Geometry shader
 //
-UnifiedRender::OpenGL::GeometryShader::GeometryShader(const std::string& path)
-    : Shader(path, GL_GEOMETRY_SHADER)
+UnifiedRender::OpenGL::GeometryShader::GeometryShader(const std::string& _buffer)
+    : Shader(_buffer, GL_GEOMETRY_SHADER)
 {
 
 }
@@ -174,8 +161,8 @@ UnifiedRender::OpenGL::GeometryShader::~GeometryShader(void) {
 //
 // Tessellation control shader
 //
-UnifiedRender::OpenGL::TessControlShader::TessControlShader(const std::string& path)
-    : Shader(path, GL_TESS_CONTROL_SHADER)
+UnifiedRender::OpenGL::TessControlShader::TessControlShader(const std::string& _buffer)
+    : Shader(_buffer, GL_TESS_CONTROL_SHADER)
 {
 
 }
@@ -187,8 +174,8 @@ UnifiedRender::OpenGL::TessControlShader::~TessControlShader(void) {
 //
 // Tessellation evaluation shader
 //
-UnifiedRender::OpenGL::TessEvalShader::TessEvalShader(const std::string& path)
-    : Shader(path, GL_TESS_EVALUATION_SHADER)
+UnifiedRender::OpenGL::TessEvalShader::TessEvalShader(const std::string& _buffer)
+    : Shader(_buffer, GL_TESS_EVALUATION_SHADER)
 {
 
 }
@@ -206,6 +193,7 @@ UnifiedRender::OpenGL::Program::Program(void) {
     glBindAttribLocation(id, 1, "m_texcoord");
 }
 
+/*
 UnifiedRender::OpenGL::Program::Program(const UnifiedRender::OpenGL::VertexShader* vertex, const UnifiedRender::OpenGL::FragmentShader* fragment, const UnifiedRender::OpenGL::GeometryShader* geometry, const UnifiedRender::OpenGL::TessControlShader* tctrl, const UnifiedRender::OpenGL::TessEvalShader* tee) {
     id = glCreateProgram();
     glBindAttribLocation(id, 0, "m_pos");
@@ -237,17 +225,19 @@ UnifiedRender::OpenGL::Program::Program(const UnifiedRender::OpenGL::VertexShade
     }
     link();
 }
+*/
 
 UnifiedRender::OpenGL::Program::~Program(void) {
 
 }
 
+/*
 std::unique_ptr<UnifiedRender::OpenGL::Program> UnifiedRender::OpenGL::Program::create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
-    UnifiedRender::OpenGL::VertexShader vs = UnifiedRender::OpenGL::VertexShader(Path::get(vs_path));
-    UnifiedRender::OpenGL::FragmentShader fs = UnifiedRender::OpenGL::FragmentShader(Path::get(fs_path));
+    UnifiedRender::OpenGL::VertexShader vs = UnifiedRender::OpenGL::VertexShader(Path::cat_strings(Path::get_data(vs_path)));
+    UnifiedRender::OpenGL::FragmentShader fs = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data(fs_path)));
 
     if(!gs_path.empty()) {
-        UnifiedRender::OpenGL::GeometryShader gs = UnifiedRender::OpenGL::GeometryShader(Path::get(gs_path));
+        UnifiedRender::OpenGL::GeometryShader gs = UnifiedRender::OpenGL::GeometryShader(Path::cat_strings(Path::get_data(gs_path)));
         return std::make_unique<Program>(&vs, &fs, &gs);
     }
     return std::make_unique<Program>(&vs, &fs);
@@ -282,6 +272,7 @@ std::unique_ptr<UnifiedRender::OpenGL::Program> UnifiedRender::OpenGL::Program::
     }
     return std::make_unique<UnifiedRender::OpenGL::Program>(&vs, &fs);
 }
+*/
 
 // Attaches a shader to the program - this will make it so when the program is compiled the shader
 // will then be linked onto it
@@ -352,7 +343,7 @@ void UnifiedRender::OpenGL::Program::set_texture(int value, const std::string& n
     glActiveTexture(GL_TEXTURE0 + value);
     set_uniform(name, value);
     glBindTexture(GL_TEXTURE_2D, texture.gl_tex_num);
-    }
+}
 
 void UnifiedRender::OpenGL::Program::set_texture(int value, const std::string& name, const UnifiedRender::TextureArray& texture) const {
 #ifdef UR_RENDER_DEBUG
@@ -363,7 +354,7 @@ void UnifiedRender::OpenGL::Program::set_texture(int value, const std::string& n
     glActiveTexture(GL_TEXTURE0 + value);
     set_uniform(name, value);
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture.gl_tex_num);
-    }
+}
 
 GLuint UnifiedRender::OpenGL::Program::get_id(void) const {
     return id;

@@ -48,6 +48,8 @@
 
 #include <vector>
 #include <mutex>
+#include <memory>
+#include <map>
 
 #include "unified_render/io.hpp"
 #include "unified_render/ui/ui.hpp"
@@ -60,6 +62,9 @@ namespace UnifiedRender {
 	class Audio;
 	namespace IO {
 		class PackageManager;
+	};
+	namespace OpenGL {
+		class Shader;
 	};
 
 	class State {
@@ -92,5 +97,8 @@ namespace UnifiedRender {
 		UI::Context* ui_ctx;
 
 		float music_volume = 50.f, sound_volume = 50.f;
+
+		// Builtin shaders
+		std::map<std::string, std::unique_ptr<UnifiedRender::OpenGL::Shader>> builtin_shaders;
 	};
 }

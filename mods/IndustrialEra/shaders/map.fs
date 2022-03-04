@@ -32,28 +32,8 @@ uniform sampler2D stripes;
 
 #define RGB(r, g, b) pow(vec3(r, g, b), vec3(2.2))
 
-// https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
-vec4 noTiling(sampler2D tex, vec2 uv) {
-	float k = texture(noise_texture, 0.005 * uv).x; // cheap (cache friendly) lookup
-	float v = 1.;
-
-	vec2 duvdx = dFdx(uv);
-	vec2 duvdy = dFdx(uv);
-
-	float l = k * 8.0;
-	float f = fract(l);
-
-	float ia = floor(l); // my method
-	float ib = ia + 1.0;
-
-	vec2 offa = sin(vec2(3.0, 7.0) * ia); // can replace with any other hash
-	vec2 offb = sin(vec2(3.0, 7.0) * ib); // can replace with any other hash
-
-	vec4 cola = textureGrad(tex, uv + v * offa, duvdx, duvdy);
-	vec4 colb = textureGrad(tex, uv + v * offb, duvdx, duvdy);
-	vec4 diff = cola - colb;
-	return mix(cola, colb, smoothstep(0.2, 0.8, f - 0.1 * (diff.x + diff.y + diff.z)));
-}
+vec3 get_water_normal(float time, sampler2D wave1, sampler2D wave2, vec2 tex_coords);
+vec4 no_tiling(sampler2D tex, vec2 uv, sampler2D noisy_tex);
 
 vec4 get_terrain(vec2 coord, vec2 offset) {
 	const float size = 16.;
@@ -93,6 +73,7 @@ float is_not_water(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
 	return terrain.x < 2./255. ? 0. : 1.;
 }
+
 vec4 get_border(vec2 texcoord) {
 	// Pixel size on map texture
 	vec2 pix = vec2(1.0) / map_size;
@@ -289,42 +270,6 @@ vec2 get_diag_coords(vec2 tex_coords, float is_diag) {
 	return diag_coords;
 }
 
-// Watercolor efffect
-float aquarelle(vec2 tex_coords) {
-	vec2 uv = tex_coords;
-
-	uv *= 20.;
-
-    vec3 col = vec3(1.);
-    
-	float strenght = 0.5;
-    float tex3 = textureLod(noise_texture, uv*.02, 1.5).x;
-    float layer1 = mix(strenght, 1., tex3);
-    
-    uv *= 2.1;
-    float tex4 = textureLod(noise_texture, -uv*.02 + 0.3, 1.5).x;
-    float layer2 = mix(strenght, 1.,  tex4);
-	layer1 += layer2;
-	layer1 *= 0.69;
-	layer1 = clamp(layer1, 0., 1.05);
-
-    return layer1;
-}
-
-// The normal for the water
-vec3 get_water_normal(vec2 tex_coords) {
-	float offset = time * 0.01;
-	vec2 coords = tex_coords * 50.;
-	vec3 normal1 = texture(wave1, coords + vec2(1.) * offset).xyz;
-	normal1 = normalize(normal1 * 2.0 - 1.0);
-	vec3 normal2 = texture(wave2, coords + vec2(0.2, -0.8) * offset).xyz;
-	normal2 = normalize(normal2 * 2.0 - 1.0);
-	vec3 normal = normalize(normal1 + normal2);
-	normal.z *= -1;
-
-	return normal;
-}
-
 // Ambient, diffuse and specular lighting
 float get_lighting(vec2 tex_coords, float beach) {
 	float ambient = 0.1;
@@ -340,10 +285,9 @@ float get_lighting(vec2 tex_coords, float beach) {
 	vec3 lightDir = normalize(vec3(-2, -1, -4));
 	float diffuse = max(dot(lightDir, normal), 0.0);
 
-
 	float is_water = step(1., max(isWater(tex_coords), beach));
 #ifdef WATER
-	vec3 water_normal = get_water_normal(tex_coords);
+	vec3 water_normal = get_water_normal(time, wave1, wave2, tex_coords);
 	normal = mix(normal, water_normal, is_water * (1. - far_from_map));
 #endif
 	float water_shine = mix(256, 64, far_from_map);
@@ -401,7 +345,7 @@ void main() {
 #ifdef WATER
 
 #ifdef NOISE
-	vec3 water = noTiling(water_texture, 100. * tex_coords + time * vec2(0.01)).rgb;
+	vec3 water = no_tiling(water_texture, 100. * tex_coords + time * vec2(0.01), noise_texture).rgb;
 #else
 	vec3 water = texture(water_texture, 50. * tex_coords + time * vec2(0.01)).rgb;
 #endif
@@ -443,7 +387,7 @@ void main() {
 	vec2 prov_color_coord = coord * vec2(255./256.);
 	vec3 prov_color = texture(tile_sheet, prov_color_coord).rgb;
 #ifdef NOISE
-    // float w_col = aquarelle(tex_coords);
+    // float w_col = water_aquarelle(tex_coords);
     // prov_color = mix(vec4(1.), prov_color, pow(w_col, 5));
 #endif
 
@@ -537,7 +481,6 @@ void main() {
 #ifdef LIGHTING
 	light = get_lighting(tex_coords, beach);
 #endif
-
 
 	f_frag_color.rgb = light * out_color;
 	f_frag_color.rgb = pow(f_frag_color.rgb, vec3(1. / 2.2));

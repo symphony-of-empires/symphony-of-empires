@@ -37,4 +37,5 @@ namespace Path {
     std::vector<std::string> get_data(const std::string& str);
     std::vector<std::string> get_paths(void);
     std::vector<std::string> get_all_recursive(const std::string& str);
+    std::string cat_strings(const std::vector<std::string>& vec);
 };

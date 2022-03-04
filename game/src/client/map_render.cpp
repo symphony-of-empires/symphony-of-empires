@@ -55,8 +55,7 @@ MapRender::MapRender(const World& _world)
     : world(_world)
 {
     // Flat surface for drawing flat map 
-    for(int x = -1; x <= 1; x++)
-    {
+    for(int x = -1; x <= 1; x++) {
         map_quads.push_back(new UnifiedRender::Square((int)world.width * x, 0.f, (int)world.width * (x + 1), world.height));
     }
 
@@ -121,10 +120,7 @@ MapRender::MapRender(const World& _world)
     // terrain_sheet->to_opengl();
 
     // The map shader that draws everything on the map 
-    map_shader = UnifiedRender::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
-    border_gen_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_gen.fs");
-    border_sdf_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf.fs");
-    output_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf_output.fs");
+    reload_shaders();
 
     print_info("Creating tile map & tile sheet");
 
@@ -183,10 +179,49 @@ MapRender::MapRender(const World& _world)
 
 
 void MapRender::reload_shaders() {
-    map_shader = UnifiedRender::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
-    border_sdf_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf.fs");
-    border_gen_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_gen.fs");
-    output_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf_output.fs");
+    //map_shader = UnifiedRender::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
+    map_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    {
+        std::vector<UnifiedRender::OpenGL::GLSL_Define> defined_options;
+        for(auto& option : options.get_options()) {
+            if(option.used) {
+                UnifiedRender::OpenGL::GLSL_Define defined_option;
+                defined_option.name = option.get_option();
+                defined_options.push_back(defined_option);
+            }
+        }
+
+        auto vs_shader = UnifiedRender::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/map.vs")));
+        map_shader->attach_shader(&vs_shader);
+        auto fs_shader = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/map.fs")), true, defined_options);
+        map_shader->attach_shader(&fs_shader);
+        map_shader->attach_shader(UnifiedRender::State::get_instance().builtin_shaders["fs_lib"].get());
+        map_shader->link();
+    }
+    //border_gen_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_gen.fs");
+    border_gen_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    {
+        border_gen_shader->attach_shader(UnifiedRender::State::get_instance().builtin_shaders["vs_2d"].get());
+        auto fs_shader = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/border_gen.fs")));
+        border_gen_shader->attach_shader(&fs_shader);
+        border_gen_shader->link();
+    }
+    //border_sdf_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf.fs");
+    border_sdf_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    {
+        border_sdf_shader->attach_shader(UnifiedRender::State::get_instance().builtin_shaders["vs_2d"].get());
+        auto fs_shader = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/border_sdf.fs")));
+        border_sdf_shader->attach_shader(&fs_shader);
+        border_sdf_shader->link();
+    }
+    //output_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf_output.fs");
+    output_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    {
+        output_shader->attach_shader(UnifiedRender::State::get_instance().builtin_shaders["vs_2d"].get());
+        auto fs_shader = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/border_sdf_output.fs")));
+        output_shader->attach_shader(&fs_shader);
+        output_shader->link();
+    }
 
     // border_sdf.reset(nullptr);
     // if(options.sdf.used) {
@@ -195,7 +230,25 @@ void MapRender::reload_shaders() {
 }
 
 void MapRender::update_options(MapOptions new_options) {
-    map_shader = UnifiedRender::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
+    //map_shader = UnifiedRender::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
+    map_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    {
+        std::vector<UnifiedRender::OpenGL::GLSL_Define> defined_options;
+        for(auto& option : options.get_options()) {
+            if(option.used) {
+                UnifiedRender::OpenGL::GLSL_Define defined_option;
+                defined_option.name = option.get_option();
+                defined_options.push_back(defined_option);
+            }
+        }
+
+        auto vs_shader = UnifiedRender::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/map.vs")));
+        map_shader->attach_shader(&vs_shader);
+        auto fs_shader = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/map.fs")), true, defined_options);
+        map_shader->attach_shader(&fs_shader);
+        map_shader->attach_shader(UnifiedRender::State::get_instance().builtin_shaders["fs_lib"].get());
+        map_shader->link();
+    }
 }
 
 #include "client/game_state.hpp"
