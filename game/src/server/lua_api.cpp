@@ -227,6 +227,16 @@ int LuaAPI::add_input_to_industry_type(lua_State* L) {
     BuildingType* industry_type = g_world->building_types.at(lua_tonumber(L, 1));
     Good* good = g_world->goods.at(lua_tonumber(L, 2));
     industry_type->inputs.push_back(good);
+
+    // And the inputs also employ people
+    for(const auto& input : industry_type->inputs) {
+        if(input->is_edible) {
+            industry_type->num_req_farmers += 10;
+        } else {
+            industry_type->num_req_laborers += 100;
+        }
+        industry_type->num_req_entrepreneurs += 1;
+    }
     return 0;
 }
 
@@ -234,6 +244,18 @@ int LuaAPI::add_output_to_industry_type(lua_State* L) {
     BuildingType* industry_type = g_world->building_types.at(lua_tonumber(L, 1));
     Good* good = g_world->goods.at(lua_tonumber(L, 2));
     industry_type->outputs.push_back(good);
+
+    // Each output adds a required farmer or laborer depending on the type
+    // of output, it also requires entrepreneurs to "manage" the operations
+    // of the factory
+    for(const auto& output : industry_type->outputs) {
+        if(output->is_edible) {
+            industry_type->num_req_farmers += 10;
+        } else {
+            industry_type->num_req_laborers += 100;
+        }
+        industry_type->num_req_entrepreneurs += 1;
+    }
     return 0;
 }
 

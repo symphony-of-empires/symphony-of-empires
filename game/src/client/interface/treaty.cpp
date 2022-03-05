@@ -114,10 +114,8 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
             clause->sender = o.gs.curr_nation;
             clause->receiver = o.nation;
             clause->days_duration = 0;
-            for(auto& province : o.nation->owned_provinces) {
-                if(province->controller == o.gs.curr_nation) {
-                    clause->provinces.push_back(province);
-                }
+            for(auto& province : o.nation->controlled_provinces) {
+                clause->provinces.push_back(province);
             }
             o.treaty.clauses.push_back(clause);
         }

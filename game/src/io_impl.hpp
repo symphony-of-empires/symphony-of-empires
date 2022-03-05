@@ -452,6 +452,7 @@ public:
         ::serialize(stream, &obj->accepted_cultures);
         ::serialize(stream, &obj->accepted_religions);
         ::serialize(stream, &obj->owned_provinces);
+        ::serialize(stream, &obj->controlled_provinces);
         ::serialize(stream, &obj->current_policy);
         ::serialize(stream, &obj->diplomatic_timer);
 
@@ -484,6 +485,7 @@ public:
         ::deserialize(stream, &obj->accepted_cultures);
         ::deserialize(stream, &obj->accepted_religions);
         ::deserialize(stream, &obj->owned_provinces);
+        ::deserialize(stream, &obj->controlled_provinces);
         ::deserialize(stream, &obj->current_policy);
         ::deserialize(stream, &obj->diplomatic_timer);
 

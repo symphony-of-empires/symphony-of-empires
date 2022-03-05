@@ -52,11 +52,12 @@ Rivers::Rivers() {
     build_rivers();
 }
 
-struct ConnectedNode {
+class ConnectedNode {
+public:
     ConnectedNode* node = nullptr;
     std::vector<glm::vec2>* river;
 
-    ConnectedNode(): river{ new std::vector<glm::vec2> } {}
+    ConnectedNode() : river{ new std::vector<glm::vec2> } {}
     ConnectedNode(std::vector<glm::vec2>* _river): river{ _river } {}
 };
 

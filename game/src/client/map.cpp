@@ -201,8 +201,8 @@ void Map::create_labels() {
         std::set<Province*> visited_provinces;
         if(nation->capital != nullptr) {
             get_blob_bounds(&visited_provinces, *nation, *nation->capital, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
-        } else if(!nation->owned_provinces.empty()) {
-            get_blob_bounds(&visited_provinces, *nation, **(nation->owned_provinces.begin()), &min_point_x, &min_point_y, &max_point_x, &max_point_y);
+        } else if(!nation->controlled_provinces.empty()) {
+            get_blob_bounds(&visited_provinces, *nation, **(nation->controlled_provinces.begin()), &min_point_x, &min_point_y, &max_point_x, &max_point_y);
         }
 
         glm::vec2 mid_point = 0.5f * (glm::vec2(min_point_x.x, min_point_y.y) + glm::vec2(max_point_x.x, max_point_y.y));
@@ -315,10 +315,9 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         case MapMode::COUNTRY_SELECT:
             if(tile.province_id < (Province::Id)-3) {
                 auto province = world.provinces[tile.province_id];
-                if(province->controller == nullptr) {
-                    break;
+                if(province->controller != nullptr) {
+                    gs.select_nation->change_nation(province->controller->cached_id);
                 }
-                gs.select_nation->change_nation(province->controller->cached_id);
             }
             break;
         case MapMode::NORMAL:

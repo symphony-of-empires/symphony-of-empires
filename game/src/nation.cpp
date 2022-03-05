@@ -129,7 +129,7 @@ bool Nation::is_enemy(const Nation& nation) {
 // if the nation "exists" at all, this means that it has a presence and a goverment
 // must own atleast 1 province
 bool Nation::exists(void) {
-    return owned_provinces.size() > 0;
+    return !(controlled_provinces.empty());
 }
 
 inline void Nation::do_diplomacy() {
@@ -186,7 +186,7 @@ void Nation::set_policy(Policies& policies) {
 
     unsigned int approvals = 0, disapprovals = 0;
     std::vector<Pop*> disapprovers, approvers;
-    for(const auto& province : this->owned_provinces) {
+    for(const auto& province : owned_provinces) {
         for(auto& pop : province->pops) {
             // Must have the minimum required social value
             // the min-social-value is taken from the new enacted policy
@@ -205,8 +205,7 @@ void Nation::set_policy(Policies& policies) {
             if(new_disapproval < old_disapproval) {
                 approvals += pop.size;
                 disapprovers.push_back(&pop);
-            }
-            else {
+            } else {
                 disapprovals += pop.size;
                 approvers.push_back(&pop);
             }
@@ -290,17 +289,27 @@ UnifiedRender::Decimal Nation::get_tax(const Pop& pop) const {
 
 // Gives this nation a specified province (for example on a treaty)
 void Nation::give_province(Province& province) {
-    World& world = World::get_instance();
+    if(province.controller != nullptr) {
+        province.controller->controlled_provinces.erase(&province);
+    }
 
-    const Nation::Id nation_id = world.get_id(this);
-    const Province::Id province_id = world.get_id(&province);
+    if(province.owner != nullptr) {
+        province.owner->owned_provinces.erase(&province);
+    }
 
-    //std::scoped_lock lock(world.nation_changed_tiles_mutex);
+    controlled_provinces.insert(&province);
+    owned_provinces.insert(&province);
 
-    world.nations[nation_id]->owned_provinces.insert(world.provinces[province_id]);
-    world.provinces[province_id]->owner = world.nations[nation_id];
-    world.provinces[province_id]->controller = world.nations[nation_id];
-    return;
+    province.owner = this;
+    province.controller = this;
+}
+
+void Nation::control_province(Province& province) {
+    if(province.controller != nullptr) {
+        province.controller->controlled_provinces.erase(&province);
+    }
+    controlled_provinces.insert(&province);
+    province.controller = this;
 }
 
 const NationClientHint& Nation::get_client_hint(void) {

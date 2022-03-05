@@ -33,7 +33,8 @@
 typedef SSIZE_T ssize_t;
 #endif
 #endif
-#include <stddef.h>
+#include <cstddef>
+#include <execution>
 
 #include "server/emigration.hpp"
 #include "world.hpp"
@@ -113,7 +114,7 @@ void external_migration(World& world) {
 		std::vector<float> attractions;
 		std::vector<Nation*> viable_nations;
 		for(auto nation : world.nations) {
-			if(nation->owned_provinces.empty()) {
+			if(!nation->exists()) {
 				continue;
 			}
 
@@ -142,51 +143,58 @@ void external_migration(World& world) {
 	}
 
 	std::vector<Emigrated> emigration = std::vector<Emigrated>();
-	std::for_each(world.provinces.begin(), world.provinces.end(), [&province_distributions, &nation_distributions, &emigration, &world](auto& province) {
-		if(province->controller == nullptr) {
+    // Collect list of nations that exist
+    std::vector<Nation*> eval_nations;
+    for(const auto& nation : world.nations) {
+        if(nation->exists()) {
+            eval_nations.push_back(nation);
+        }
+    }
+
+    std::for_each(std::execution::par, eval_nations.begin(), eval_nations.end(), [&emigration, &nation_distributions, &province_distributions, &world](const auto& nation) {
+		// Check that laws on the province we are in allows for emigration
+		if(nation->current_policy.migration == ALLOW_NOBODY) {
 			return;
 		}
 
-		if(province->terrain_type->is_water_body) {
-			return;
-		}
+		for(const auto& province : nation->controlled_provinces) {
+			// Guaranteed that province->controller != nullptr
+			if(province->terrain_type->is_water_body) {
+				return;
+			}
 
-		// Randomness factor to emulate a pseudo-imperfect economy
-		const float fuzz = static_cast<float>(std::rand() + 1) / 1000.f;
-		for(size_t i = 0; i < province->pops.size(); i++) {
-			Pop& pop = province->pops[i];
+			// Randomness factor to emulate a pseudo-imperfect economy
+			const float fuzz = static_cast<float>(std::rand() + 1) / 1000.f;
+			for(size_t i = 0; i < province->pops.size(); i++) {
+				Pop& pop = province->pops[i];
 
-			// Depending on how much not our life needs are being met is how many we
-			// want to get out of here
-			// And literacy determines "best" spot, for example a low literacy will
-			// choose a slightly less desirable location
-			const int emigration_desire = std::max<int>(pop.militancy * -pop.life_needs_met, 1);
-			const size_t emigreers = std::min<size_t>((pop.size * emigration_desire) * std::fmod(fuzz + 1.f, 1.f), pop.size);
-			if(emigreers > 0) {
-				// Check that laws on the province we are in allows for emigration
-				if(province->controller->current_policy.migration == ALLOW_NOBODY) {
-					continue;
+				// Depending on how much not our life needs are being met is how many we
+				// want to get out of here
+				// And literacy determines "best" spot, for example a low literacy will
+				// choose a slightly less desirable location
+				const int emigration_desire = std::max<int>(pop.militancy * -pop.life_needs_met, 1);
+				const size_t emigreers = std::min<size_t>((pop.size * emigration_desire) * std::fmod(fuzz + 1.f, 1.f), pop.size);
+				if(emigreers > 0) {
+					auto nation_distribution = nation_distributions[pop.culture->cached_id];
+					if(nation_distribution == nullptr) {
+						continue;
+					}
+
+					auto nation = nation_distribution->get_item();
+					auto province_distribution = province_distributions[nation->cached_id];
+					if(province_distribution == nullptr) {
+						continue;
+					}
+
+					auto choosen_province = province_distribution->get_item();
+					Emigrated emigrated = Emigrated(province->pops[i]);
+					emigrated.target = choosen_province;
+					emigrated.size = emigreers;
+					emigrated.origin = province;
+
+					emigration.push_back(emigrated);
+					pop.size -= emigreers;
 				}
-
-				auto nation_distribution = nation_distributions[pop.culture->cached_id];
-				if(nation_distribution == nullptr) {
-					continue;
-				}
-
-				auto nation = nation_distribution->get_item();
-				auto province_distribution = province_distributions[nation->cached_id];
-				if(province_distribution == nullptr) {
-					continue;
-				}
-
-				auto choosen_province = province_distribution->get_item();
-				Emigrated emigrated = Emigrated(province->pops[i]);
-				emigrated.target = choosen_province;
-				emigrated.size = emigreers;
-				emigrated.origin = province;
-
-				emigration.push_back(emigrated);
-				pop.size -= emigreers;
 			}
 		}
 	});

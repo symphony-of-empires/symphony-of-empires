@@ -119,6 +119,7 @@ public:
     bool is_accepted_religion(const Religion& relgion) const;
     UnifiedRender::Decimal get_tax(const Pop& pop) const;
     void give_province(Province& province);
+    void control_province(Province& province);
     const NationClientHint& get_client_hint(void);
     UnifiedRender::Decimal get_research_points(void) const;
     bool can_research(const Technology* tech) const;
@@ -186,7 +187,8 @@ public:
     std::unordered_set<Religion*> accepted_religions;
 
     // List of provinces which are owned by this nation (including partial ownership)
-    std::set<Province*> owned_provinces;
+    // TODO: Add controlled provinces to serializer
+    std::set<Province*> owned_provinces, controlled_provinces;
 
     // List of neighbouring nations
     std::set<Nation*> neighbours;
