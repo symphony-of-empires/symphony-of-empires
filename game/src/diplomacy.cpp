@@ -142,16 +142,8 @@ void AnexxProvince::enforce(void) {
     // Give provinces to the winner
     for(auto& province : provinces) {
         UnifiedRender::Log::debug("game", "Giving " + province->ref_name + " to " + sender->ref_name + " from " + receiver->ref_name);
-
-        province->owner = sender;
-
-        // Add to sender's owned provinces list and remove from
-        // original owner
-        sender->owned_provinces.insert(province);
-        const auto it = receiver->owned_provinces.find(province);
-        if(it != receiver->owned_provinces.end()) {
-            receiver->owned_provinces.erase(it);
-        }
+        // Change ownership of provinces
+        sender->give_province(*province);
     }
 
     // One-time clause

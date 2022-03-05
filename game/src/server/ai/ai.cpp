@@ -236,7 +236,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
 
     // Check if we even border them
     bool is_border = false;
-    for(const auto& province : nation->owned_provinces) {
+    for(const auto& province : nation->controlled_provinces) {
         for(const auto& neighbour : province->neighbours) {
             if(neighbour->controller == other) {
                 is_border = true;
@@ -391,7 +391,7 @@ void ai_build_commercial(Nation* nation, World* world) {
 }
 
 void ai_do_tick(Nation* nation, World* world) {
-    if(!nation->exists() || !nation->owned_provinces.size()) {
+    if(!nation->exists()) {
         return;
     }
 
@@ -461,20 +461,23 @@ void ai_do_tick(Nation* nation, World* world) {
         }
 
         // Build a commercially related building
-        if(!(std::rand() % 2) && nation->ai_do_build_production) {
+        if(!(std::rand() % 100) && nation->ai_do_build_production) {
             ai_build_commercial(nation, world);
         }
 
         if(nation->ai_do_unit_production) {
             // Risk of invasion
-            unsigned int defense_factor = 1;
+            int defense_factor = 1;
             for(const auto& rel : nation->relations) {
                 if(rel.has_war) {
                     defense_factor += 2;
                 }
             }
+
+            const int base_reluctance = 1000;
+
             // Build defenses
-            if(std::rand() % defense_factor) {
+            if(std::rand() % (base_reluctance / defense_factor)) {
                 auto it = std::begin(nation->owned_provinces);
                 std::advance(it, std::rand() % nation->owned_provinces.size());
 
@@ -487,25 +490,25 @@ void ai_do_tick(Nation* nation, World* world) {
                     province->buildings[world->get_id(building_type)].req_goods = building_type->req_goods;
                     // Broadcast the addition of the building to the clients
                     g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
-                    print_info("Building of %s(%i), from %s built on %s", building_type->name.c_str(), (int)world->get_id(building_type), nation->name.c_str(), province->name.c_str());
+                    UnifiedRender::Log::debug("game", "Building building " + building_type->name + " from " + nation->name + " built on " + province->name);
                 }
             }
 
-            if(std::rand() % defense_factor) {
+            if(std::rand() % (base_reluctance / defense_factor)) {
                 // Build units inside buildings that are not doing anything
                 for(size_t i = 0; i < world->building_types.size(); i++) {
                     const BuildingType* building_type = world->building_types[i];
-                    if(!(building_type->is_build_land_units && building_type->is_build_naval_units)) {
+                    /*if(!(building_type->is_build_land_units && building_type->is_build_naval_units)) {
                         continue;
-                    }
+                    }*/
 
                     for(const auto& province : g_world->provinces) {
                         auto& building = province->buildings[i];
-                        if(building.working_unit_type != nullptr || !building.can_build_unit()) {
+                        if(building.working_unit_type != nullptr || !building.can_do_output()) {
                             continue;
                         }
 
-                        if(std::rand() % defense_factor) {
+                        if(std::rand() % (base_reluctance / defense_factor)) {
                             continue;
                         }
 
@@ -514,7 +517,7 @@ void ai_do_tick(Nation* nation, World* world) {
                         unit_type = g_world->unit_types[0];
                         building.working_unit_type = unit_type;
                         building.req_goods_for_unit = unit_type->req_goods;
-                        print_info("Building by [%s], of unit [%s] in [%s]", nation->ref_name.c_str(), building.working_unit_type->ref_name.c_str(), province->ref_name.c_str());
+                        UnifiedRender::Log::debug("game", "Building of unit " + unit_type->name + " from " + nation->name + " built on " + province->name);
                     }
                 }
             }
@@ -590,7 +593,7 @@ void ai_do_tick(Nation* nation, World* world) {
         nations_risk_factor[world->get_id(nation)] = 0;
 
         std::vector<int> potential_risk(world->provinces.size(), 0);
-        for(const auto& province : nation->owned_provinces) {
+        for(const auto& province : nation->controlled_provinces) {
             // The "cooling" value which basically makes us ignore some provinces with lots of defenses
             // so we don't rack up deathstacks on a border with some micronation
             int draw_away_force = 0;

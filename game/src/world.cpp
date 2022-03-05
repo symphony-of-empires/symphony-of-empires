@@ -572,8 +572,8 @@ void World::load_initial(void) {
         if(fp) {
             for(const auto& color_raw : colors_found) {
                 uint32_t color = color_raw << 8;
-                fprintf(fp, "province = Province:new{ ref_name = \"province_%06x\", color = 0x%06x }\n", static_cast<uintptr_t>(bswap32(color)), static_cast<uintptr_t>(bswap32(color)));
-                fprintf(fp, "province.name = _(\"Province_%06x\")\n", static_cast<uintptr_t>(bswap32(color)));
+                fprintf(fp, "province = Province:new{ ref_name = \"province_%06x\", color = 0x%06x }\n", static_cast<unsigned int>(bswap32(color)), static_cast<unsigned int>(bswap32(color)));
+                fprintf(fp, "province.name = _(\"Province_%06x\")\n", static_cast<unsigned int>(bswap32(color)));
                 fprintf(fp, "province:register()\n");
             }
             fclose(fp);
@@ -710,27 +710,29 @@ void World::do_tick() {
     // AI and stuff
     // Just random shit to make the world be like more alive
     std::for_each(std::execution::par, nations.begin(), nations.end(), [this](auto& nation) {
-        if(nation->exists()) {
-            // Diplomatic cooldown
-            if(nation->diplomatic_timer != 0) {
-                nation->diplomatic_timer--;
-            }
-
-            // Research stuff
-            UnifiedRender::Decimal research = nation->get_research_points();
-            if(nation->focus_tech != nullptr) {
-                UnifiedRender::Decimal* research_progress = &nation->research[get_id(nation->focus_tech)];
-                *research_progress -= std::min(research, *research_progress);
-                if(!(*research_progress)) {
-                    // Give the country the modifiers attached to the technology
-                    for(auto& mod : nation->focus_tech->modifiers) {
-                        nation->modifiers.push_back(mod);
-                    }
-                    nation->focus_tech = nullptr;
-                }
-            }
-            ai_do_tick(nation, this);
+        if(!nation->exists()) {
+            return;
         }
+
+        // Diplomatic cooldown
+        if(nation->diplomatic_timer != 0) {
+            nation->diplomatic_timer--;
+        }
+
+        // Research stuff
+        UnifiedRender::Decimal research = nation->get_research_points();
+        if(nation->focus_tech != nullptr) {
+            UnifiedRender::Decimal* research_progress = &nation->research[get_id(nation->focus_tech)];
+            *research_progress -= std::min(research, *research_progress);
+            if(!(*research_progress)) {
+                // Give the country the modifiers attached to the technology
+                for(auto& mod : nation->focus_tech->modifiers) {
+                    nation->modifiers.push_back(mod);
+                }
+                nation->focus_tech = nullptr;
+            }
+        }
+        //ai_do_tick(nation, this);
     });
     profiler.stop("AI");
 

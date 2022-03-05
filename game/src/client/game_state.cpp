@@ -244,6 +244,8 @@ void handle_event(Input& input, GameState& gs) {
             case UnifiedRender::Keyboard::Key::BACKSPACE:
                 ui_ctx->check_text_input(nullptr);
                 break;
+            default:
+                break;
             }
             break;
         case SDL_JOYAXISMOTION:
@@ -319,7 +321,8 @@ void save(GameState& gs) {
             for(const auto& building_type : gs.world->building_types) {
                 Building& building = province->buildings[gs.world->get_id(building_type)];
                 if(building.level) {
-                    fprintf(fp, "province:update_building(BuildingType:get(\"%s\"), %zu)\n", building_type->ref_name.c_str(), building.level);
+                    building.level = 1;
+                    fprintf(fp, "province:update_building(BuildingType:get(\"%s\"), %f)\n", building_type->ref_name.c_str(), building.level);
                 }
             }
 
@@ -421,7 +424,7 @@ void save(GameState& gs) {
                 fprintf(fp, "v = UnitType:new{ ref_name = \"%s\", name = _(\"%s\"), defense = %f, attack = %f, health = %f, speed = %f }\n", unit_type->ref_name.c_str(), unit_type->name.c_str(), unit_type->defense, unit_type->attack, unit_type->max_health, unit_type->speed);
                 fprintf(fp, "v:register()\n");
                 for(const auto& good : unit_type->req_goods) {
-                    fprintf(fp, "v:requires_good(Good:get(\"%s\"), %zu)\n", good.first->ref_name.c_str(), good.second);
+                    fprintf(fp, "v:requires_good(Good:get(\"%s\"), %f)\n", good.first->ref_name.c_str(), good.second);
                 }
                 cnt++;
             }
@@ -445,7 +448,7 @@ void save(GameState& gs) {
                 fprintf(fp, "v = BoatType:new{ ref_name = \"%s\", name = _(\"%s\"), defense = %f, attack = %f, health = %f, speed = %f }\n", unit_type->ref_name.c_str(), unit_type->name.c_str(), unit_type->defense, unit_type->attack, unit_type->max_health, unit_type->speed);
                 fprintf(fp, "v:register()\n");
                 for(const auto& good : unit_type->req_goods) {
-                    fprintf(fp, "v:requires_good(Good:get(\"%s\"), %zu)\n", good.first->ref_name.c_str(), good.second);
+                    fprintf(fp, "v:requires_good(Good:get(\"%s\"), %f)\n", good.first->ref_name.c_str(), good.second);
                 }
                 cnt++;
             }
@@ -469,7 +472,7 @@ void save(GameState& gs) {
                 fprintf(fp, "v = AirplaneType:new{ ref_name = \"%s\", name = _(\"%s\"), defense = %f, attack = %f, health = %f, speed = %f }\n", unit_type->ref_name.c_str(), unit_type->name.c_str(), unit_type->defense, unit_type->attack, unit_type->max_health, unit_type->speed);
                 fprintf(fp, "v:register()\n");
                 for(const auto& good : unit_type->req_goods) {
-                    fprintf(fp, "v:requires_good(Good:get(\"%s\"), %zu)\n", good.first->ref_name.c_str(), good.second);
+                    fprintf(fp, "v:requires_good(Good:get(\"%s\"), %f)\n", good.first->ref_name.c_str(), good.second);
                 }
                 cnt++;
             }
