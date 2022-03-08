@@ -28,8 +28,8 @@
 #include <vector>
 #include <string>
 #include "unified_render/entity.hpp"
-#include "ideology.hpp"
 #include "unified_render/decimal.hpp"
+#include "ideology.hpp"
 
 enum class PopGroup {
     BURGEOISE,
