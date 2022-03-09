@@ -73,6 +73,14 @@ void get_blob_bounds(std::set<Province*>* visited_provinces, const Nation& natio
             continue;
         }
 
+#if 1
+        // Province must not be morbidly big
+        if(neighbour->max_x - neighbour->min_x >= g_world->width / 2.f
+        || neighbour->max_y - neighbour->min_y >= g_world->height / 2.f) {
+            continue;
+        }
+#endif
+
         // Must own it
         if(neighbour->owner != &nation) {
             continue;
@@ -195,6 +203,12 @@ void Map::create_labels() {
     }
     nation_labels.clear();
     for(const auto& nation : world.nations) {
+        if(!nation->exists()) {
+            auto* label = map_font->gen_text(nation->get_client_hint().alt_name, 1.f);
+            nation_labels.push_back(label);
+            continue;
+        }
+
         glm::vec2 min_point_x(world.width - 1, world.height - 1), min_point_y(world.width - 1, world.height - 1);
         glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
         

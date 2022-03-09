@@ -265,6 +265,57 @@ UnifiedRender::State::State(void) {
         "}\n"
     ));
 
+    builtin_shaders["vs_font_sdf"] = std::unique_ptr<UnifiedRender::OpenGL::VertexShader>(new UnifiedRender::OpenGL::VertexShader(
+        "#version 330 compatibility\n"
+        "precision lowp float;\n"
+        "\n"
+        "layout (location = 0) in vec3 m_pos;\n"
+        "layout (location = 1) in vec2 m_texcoord;\n"
+        "\n"
+        "uniform mat4 view;\n"
+        "uniform mat4 projection;\n"
+        "uniform mat4 model;\n"
+        "\n"
+        "out vec2 v_texcoord;\n"
+        "\n"
+        "void main() {\n"
+        "    v_texcoord = m_texcoord;\n"
+        "    gl_Position = projection * view * model * vec4(m_pos, 1.0);\n"
+        "}\n"
+    ));
+
+    builtin_shaders["fs_font_sdf"] = std::unique_ptr<UnifiedRender::OpenGL::FragmentShader>(new UnifiedRender::OpenGL::FragmentShader(
+        "#version 330 compatibility\n"
+        "precision lowp float;\n"
+        "\n"
+        "out vec4 f_color;\n"
+        "in vec2 v_texcoord;\n"
+        "\n"
+        "uniform sampler2D atlas;\n"
+        "uniform float px_range;\n"
+        "\n"
+        "float screen_px_range() {\n"
+        "    vec2 uv = v_texcoord;\n"
+        "    uv.y = 1.0 - uv.y;\n"
+        "    vec2 unit_range = vec2(px_range) / vec2(textureSize(atlas, 0));\n"
+        "    return max(0.5 * dot(unit_range, vec2(1.0) / fwidth(uv)), 1.0);\n"
+        "}\n"
+        "\n"
+        "float median(float r, float g, float b) {\n"
+        "    return max(min(r, g), min(max(r, g), b));\n"
+        "}\n"
+        "\n"
+        "void main() {\n"
+        "    vec2 uv = v_texcoord;\n"
+        "    uv.y = 1. - uv.y;\n"
+        "    vec3 msd = texture(atlas, uv).rgb;\n"
+        "    float sd = median(msd.r, msd.g, msd.b);\n"
+        "    float screen_px_distance = screen_px_range() * (sd - 0.5);\n"
+        "    float opacity = clamp(screen_px_distance + 0.5, 0.0, 1.0);\n"
+        "    f_color = vec4(0.0, 0.0, 0.0, opacity);\n"
+        "}\n"
+    ));
+
     const std::string asset_path = Path::get_full();
 
     print_info("Assets path: %s", asset_path.c_str());
