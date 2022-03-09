@@ -121,52 +121,61 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
 }
 
 BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, unsigned int _idx, UI::Widget* parent)
-    : UI::Group(x, y, parent->width, 24 * 8, parent),
+    : UI::Group(x, y, parent->width, 24 * 2, parent),
     gs{ _gs },
     province{ _province },
     idx{ _idx }
 {
     is_scroll = false;
 
-    const Building& building = province->get_buildings().at(idx);
-    auto* name_btn = new UI::Button(0, 0, 128, 24, this);
-    name_btn->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<BuildingInfo&>(*w.parent);
+    const BuildingType& building_type = *gs.world->building_types[idx];
+    auto* name_btn = new UI::Label(0, 0, building_type.name, this);
 
-        if(o.idx >= o.province->get_buildings().size()) {
-            return;
+    unsigned int dx = 0;
+    if(!building_type.inputs.empty()) {
+        auto* makes_lab = new UI::Label(dx, 0, UnifiedRender::Locale::translate("Makes"), this);
+        makes_lab->below_of(*name_btn);
+        dx += makes_lab->width;
+        for(const auto& good : building_type.inputs) {
+            auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
+            icon_ibtn->below_of(*name_btn);
+            icon_ibtn->on_click = ([good](UI::Widget& w) {
+                auto& o = static_cast<BuildingInfo&>(*w.parent);
+                new GoodView(o.gs, good);
+            });
+            icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
+            icon_ibtn->tooltip->text(good->name);
+            dx += icon_ibtn->width;
         }
-        const Building& building = o.province->get_buildings().at(o.idx);
-        //w.text(building.type->name);
-    });
+    }
 
-    unsigned int dx;
-
-    auto* input_lab = new UI::Label(0, 0, "Inputs:", this);
-    input_lab->below_of(*name_btn);
-    dx = input_lab->width;
-    for(const auto& good : gs.world->building_types[idx]->inputs) {
+    auto* arrow_lab = new UI::Label(dx, 0, "?", this);
+    if(building_type.inputs.empty()) {
+        arrow_lab->text(UnifiedRender::Locale::translate("Produces"));
+    } else {
+        arrow_lab->text(UnifiedRender::Locale::translate("into"));
+    }
+    arrow_lab->below_of(*name_btn);
+    dx += arrow_lab->width;
+    for(const auto& good : building_type.outputs) {
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
         icon_ibtn->below_of(*name_btn);
         icon_ibtn->on_click = ([good](UI::Widget& w) {
             auto& o = static_cast<BuildingInfo&>(*w.parent);
             new GoodView(o.gs, good);
         });
+        icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
+        icon_ibtn->tooltip->text(good->name);
         dx += icon_ibtn->width;
     }
 
-    auto* output_lab = new UI::Label(0, 0, "Outputs:", this);
-    output_lab->below_of(*input_lab);
-    dx = output_lab->width;
-    for(const auto& good : gs.world->building_types[idx]->outputs) {
-        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
-        icon_ibtn->below_of(*input_lab);
-        icon_ibtn->on_click = ([good](UI::Widget& w) {
-            auto& o = static_cast<BuildingInfo&>(*w.parent);
-            new GoodView(o.gs, good);
-        });
-        dx += icon_ibtn->width;
-    }
+    auto* money_lab = new UI::Label(dx, 0, "?", this);
+    money_lab->below_of(*name_btn);
+    money_lab->on_each_tick = ([](UI::Widget& w) {
+        auto& o = static_cast<BuildingInfo&>(*w.parent);
+        w.text(std::to_string(o.province->buildings[o.idx].budget));
+    });
+    money_lab->on_each_tick(*money_lab);
 }
 
 BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingType* _building_type, UI::Widget* parent)
@@ -321,23 +330,30 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
 
         Product& product = o.province->products[o.gs.world->get_id(o.good)];
 
-        o.price_chart->data.push_back(product.price);
-        if(o.price_chart->data.size() >= 30) {
-            o.price_chart->data.pop_back();
+        o.price_chart->data.clear();
+        for(const auto& data : product.price_history) {
+            o.price_chart->data.push_back(data);
         }
-        o.price_chart->tooltip->text(std::to_string(product.price));
+        if(!product.price_history.empty()) {
+            o.price_chart->tooltip->text(std::to_string(product.price_history.back()));
+        }
 
-        o.supply_chart->data.push_back(product.supply);
-        if(o.supply_chart->data.size() >= 30) {
-            o.supply_chart->data.pop_back();
+        o.supply_chart->data.clear();
+        for(const auto& data : product.supply_history) {
+            o.supply_chart->data.push_back(data);
         }
-        o.supply_chart->tooltip->text(std::to_string(product.supply));
+        if(!product.supply_history.empty()) {
+            o.supply_chart->tooltip->text(std::to_string((int)product.supply_history.back()));
+        }
 
-        o.demand_chart->data.push_back(product.demand);
-        if(o.demand_chart->data.size() >= 30) {
-            o.demand_chart->data.pop_back();
+        o.demand_chart->data.clear();
+        for(const auto& data : product.demand_history) {
+            o.demand_chart->data.push_back(data);
         }
-        o.demand_chart->tooltip->text(std::to_string(product.demand));
+        if(!product.demand_history.empty()) {
+            o.demand_chart->tooltip->text(std::to_string((int)product.demand_history.back()));
+        }
+
         o.price_rate_btn->text(std::to_string(product.price_vel));
         if(product.price_vel >= 0.f) {
             o.price_rate_btn->text_color = UnifiedRender::Color(0, 255, 0);

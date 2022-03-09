@@ -271,10 +271,10 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         int y_offset = text_offset_y;
         if(text_align_x == UI::Align::CENTER) {
             x_offset = (width - text_texture->width) / 2;
-        }
-        else if(text_align_x == UI::Align::END) {
+        } else if(text_align_x == UI::Align::END) {
             x_offset += width - text_texture->width;
         }
+
         if(text_align_y == UI::Align::CENTER) {
             y_offset = (height - text_texture->height) / 2;
         } else if (text_align_y == UI::Align::END) {
@@ -307,8 +307,7 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
         x += parent->padding.x;
         y += parent->padding.y;
         parent->add_child(this);
-    }
-    else {
+    } else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }
@@ -355,8 +354,7 @@ void Widget::recalc_child_pos() {
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + flex_gap;
-            }
-            else {
+            } else {
                 child->y = current_lenght;
                 current_lenght += child->height + flex_gap;
             }
@@ -368,8 +366,7 @@ void Widget::recalc_child_pos() {
             if(is_row) {
                 child->x = current_lenght - child->width - flex_gap;
                 current_lenght -= child->width;
-            }
-            else {
+            } else {
                 child->y = current_lenght - child->height - flex_gap;
                 current_lenght -= child->height;
             }
@@ -383,8 +380,7 @@ void Widget::recalc_child_pos() {
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
-            }
-            else {
+            } else {
                 child->y = current_lenght;
                 current_lenght += child->height + difference;
             }
@@ -398,8 +394,7 @@ void Widget::recalc_child_pos() {
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
-            }
-            else {
+            } else {
                 child->y = current_lenght;
                 current_lenght += child->height + difference;
             }
@@ -412,8 +407,7 @@ void Widget::recalc_child_pos() {
         for(auto& child : children) {
             if(is_row) {
                 child->y = 0;
-            }
-            else {
+            } else {
                 child->x = 0;
             }
         }
@@ -422,8 +416,7 @@ void Widget::recalc_child_pos() {
         for(auto& child : children) {
             if(is_row) {
                 child->y = std::max<int>(0, height - child->height);
-            }
-            else {
+            } else {
                 child->x = std::max<int>(0, width - child->width);
             }
         }
@@ -432,8 +425,7 @@ void Widget::recalc_child_pos() {
         for(auto& child : children) {
             if(is_row) {
                 child->y = std::max<int>(0, height - child->height) / 2;
-            }
-            else {
+            } else {
                 child->x = std::max<int>(0, width - child->width) / 2;
             }
         }
