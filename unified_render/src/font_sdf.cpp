@@ -87,7 +87,7 @@ UnifiedRender::FontSDF::FontSDF(const std::string& filename) {
     }
 }
 
-Label3D* UnifiedRender::FontSDF::gen_text(const std::string& text, float width) {
+Label3D* UnifiedRender::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width) {
     UnifiedRender::Color color = UnifiedRender::Color(0.f, 0.f, 0.f);
 
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
@@ -105,7 +105,7 @@ Label3D* UnifiedRender::FontSDF::gen_text(const std::string& text, float width) 
     float scale = width / text_width;
     top = glm::normalize(top);
     right = glm::normalize(right);
-    glm::vec3 start = center - right * width * 0.5f;
+    glm::vec3 start = right;
 
     std::vector<glm::vec3> positions;
     std::vector<glm::vec2> tex_coords;
@@ -143,7 +143,7 @@ Label3D* UnifiedRender::FontSDF::gen_text(const std::string& text, float width) 
         tex_coords.push_back(atlas_tr);
         positions.push_back(char_tr);
         tex_coords.push_back(atlas_tl);
-        positions.push_back(glm::vec3(char_tl.x, char_tl.y, 1.f));
+        positions.push_back(char_tl);
 
         start += right * glyph.advance * scale;
     }
@@ -158,6 +158,7 @@ void UnifiedRender::FontSDF::draw(const std::vector<Label3D*>& labels, glm::mat4
     sdf_font_shader->set_uniform("view", view);
     sdf_font_shader->set_texture(0, "atlas", *atlas);
     for(auto& label : labels) {
+        sdf_font_shader->set_uniform("model", label->model);
         sdf_font_shader->set_uniform("px_range", label->size * 0.5f);
         label->draw();
     }

@@ -59,6 +59,7 @@ namespace UnifiedRender {
     class FontSDF {
     public:
         FontSDF(const std::string& filename);
+        Label3D* gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width);
         void draw(const std::vector<Label3D*>& labels, glm::mat4 projection, glm::mat4 view);
     private:
         std::unordered_map<uint32_t, Glyph> unicode_map;
