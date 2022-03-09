@@ -74,9 +74,10 @@ void Economy::do_tick(World& world) {
 
     std::for_each(std::execution::par, eval_nations.begin(), eval_nations.end(), [&world](const auto& nation) {
         // Minimal speedup but probably can keep our branch predictor happy ^_^
-        unsigned int seed = 28452;
-        float rand_seed = (float)rand_r(&seed);
+        unsigned int seed = std::rand();
         for(const auto& province : nation->controlled_provinces) {
+            float rand_seed;
+            
             std::vector<Workers> entrepreneurs;
             entrepreneurs.reserve(world.cultures.size() * world.religions.size() * world.pop_types.size());
             std::vector<Workers> farmers;
@@ -113,9 +114,16 @@ void Economy::do_tick(World& world) {
                 auto& building = province->buildings[world.get_id(building_type)];
                 building.production_cost = 0.f;
 
+                // Building not built does not exist
+                if(!building.level) {
+                    continue;
+                }
+
                 // Can't operate building without funds
-                if(building.budget < 0.f) {
+                if(building.budget <= 0.f) {
+#if 0
                     print_info("Building of [%s] in [%s] is closed due to lack of funds!", building_type->ref_name.c_str(), province->ref_name.c_str());
+#endif
                     continue;
                 }
 
@@ -206,6 +214,7 @@ void Economy::do_tick(World& world) {
                     auto it = std::find_if(province->pops.begin(), province->pops.end(), [building, army_size](const auto& e) {
                         return (e.size >= army_size && e.type->group == PopGroup::FARMER);
                     });
+
                     if(it == province->pops.end()) {
                         can_build_unit = false;
                     }
@@ -237,28 +246,36 @@ void Economy::do_tick(World& world) {
                     }
                 }
 
-                if(building_type->is_factory) {
+                {
+                //if(building_type->is_factory) {
+#if 0
                     print_info("[%s]: Workers working on building of type [%s]", province->ref_name.c_str(), building_type->ref_name.c_str());
                     print_info("- %f farmers (%f needed)", available_farmers, needed_farmers);
                     print_info("- %f laborers (%f needed)", available_laborers, needed_laborers);
                     print_info("- %f entrepreneurs (%f needed)", available_entrepreneurs, needed_entrepreneurs);
+#endif
 
                     // Consume inputs needed to produce stuff (will decrease supplies and increase demand)
                     size_t k = 0;
                     for(const auto& input : building_type->inputs) {
                         Product& product = province->products[world.get_id(input)];
                         // Farmers can only work with edibles and laborers can only work for edibles
-                        UnifiedRender::Number quantity = 0;
+                        UnifiedRender::Number quantity = 0.f;
                         if(input->is_edible) {
-                            quantity = (available_farmers / needed_farmers) * 5000;
+                            quantity = (available_farmers / needed_farmers) * 5000.f;
                         } else {
-                            quantity = (available_laborers / needed_laborers) * 5000;
+                            quantity = (available_laborers / needed_laborers) * 5000.f;
                         }
-                        quantity = std::min<UnifiedRender::Number>(std::min<UnifiedRender::Number>(quantity, building.stockpile[k]), product.supply);
+
+                        quantity = std::min<UnifiedRender::Number>(quantity, building.stockpile[k]);
+                        quantity = std::min<UnifiedRender::Number>(quantity, product.supply);
+                        quantity = std::min<UnifiedRender::Number>(quantity, building.budget / product.price);
+
                         //quantity *= nation->get_industry_input_mod();
                         product.supply -= quantity;
                         product.demand += quantity;
                         building.stockpile[k] -= quantity;
+                        building.budget -= quantity * product.price;
                         k++;
                     }
                 }
@@ -276,8 +293,10 @@ void Economy::do_tick(World& world) {
 
                 // Produce products (incrementing supply)
                 if(building.can_do_output()) {
+#if 0
                     print_info("Can do output!!!");
-                    for(const auto& output : world.building_types[world.get_id(building_type)]->outputs) {
+#endif
+                    for(const auto& output : building_type->outputs) {
                         Product& product = province->products[world.get_id(output)];
                         // Farmers can only work with edibles and laborers can only work for edibles
                         UnifiedRender::Number quantity = 0;
@@ -286,9 +305,9 @@ void Economy::do_tick(World& world) {
                         } else {
                             quantity = (available_laborers / needed_laborers) * 5000;
                         }
-                        quantity = std::min<UnifiedRender::Number>(quantity, product.supply);
-                        //quantity *= nation->get_industry_input_mod();
+                        //quantity *= nation->get_industry_output_mod();
                         product.supply += quantity;
+                        //building.budget += quantity * product.price;
                     }
                     continue;
                 }
@@ -307,9 +326,13 @@ void Economy::do_tick(World& world) {
                 // TODO: Higher the fullfilment per unit with higher literacy
                 // TODO: DO NOT MAKE POP BUY FROM STOCKPILE, INSTEAD MAKE THEM BUY FROM ORDERS
                 for(size_t j = 0; j < province->products.size(); j++) {
+                    rand_seed = ::rand_r(&seed);
+
                     // Only buy the available stuff
-                    UnifiedRender::Number bought = std::min<UnifiedRender::Number>((int)rand_seed % pop.size, province->products[j].supply);
-                    rand_seed *= 1731.6f;
+                    UnifiedRender::Number bought = std::floor(std::min<UnifiedRender::Number>(std::fmod(rand_seed, pop.size * (-pop.life_needs_met)), province->products[j].supply));
+                    if(bought < 0.f) {
+                        break;
+                    }
 
                     // Deduct from pop's budget the product * how many we bought
                     // NOTE: If we didn't bought anything it will simply invalidate this, plus if the supply is nil
@@ -317,12 +340,10 @@ void Economy::do_tick(World& world) {
                     province->products[j].supply -= bought;
                     province->products[j].demand += bought;
                     pop.budget -= bought * province->products[j].price;
-                    if(bought) {
                     if(world.goods[j]->is_edible) {
                         pop.life_needs_met += pop.size / bought;
                     } else {
                         pop.everyday_needs_met += pop.size / bought;
-                    }
                     }
 
                     if(pop.budget < 0.f) {
@@ -342,18 +363,14 @@ void Economy::do_tick(World& world) {
                 // NOTE: We used to have this thing where anything below 2.5 meant everyone dies
                 // and this was removed because it's such an unescesary detail that consumes precious
                 // CPU branching prediction... and we can't afford that!
+                rand_seed = ::rand_r(&seed);
 
-                // Starvation in -1 or 0 or >1 are amortized by literacy
-                UnifiedRender::Decimal growth = pop.life_needs_met / pop.literacy;
-                //if(growth < 0 && (size_t)std::abs(growth) > pop.size) {
-                //    growth = -pop.size;
-                //}
-                growth *= (growth > 0) ? nation->get_reproduction_mod() : nation->get_death_mod();
-                pop.size += growth;
-
-                // Add some RNG to shake things up and make gameplay more dynamic and less deterministic :)
-                pop.size += std::fmod(rand_seed, std::min<UnifiedRender::Number>(5.f, std::max<UnifiedRender::Number>(1.f, pop.size / 10000)));
-                pop.size = std::fabs(pop.size);
+                // More literacy means more educated persons with less children
+                UnifiedRender::Decimal growth = pop.size / (pop.literacy + 1.f);
+                growth *= pop.life_needs_met;
+                growth = std::min<UnifiedRender::Decimal>(std::fmod(rand_seed, 10.f), growth);
+                //growth *= (growth > 0.f) ? nation->get_reproduction_mod() : nation->get_death_mod();
+                pop.size += static_cast<UnifiedRender::Number>((int)growth);
 
                 // Met life needs means less militancy
                 // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
@@ -363,9 +380,19 @@ void Economy::do_tick(World& world) {
             }
 
             // Close the local market of this province
+            int i = 0;
             for(auto& product : province->products) {
                 product.close_market();
-                product.demand = 0;
+                for(const auto& building_type : world.building_types) {
+                    Building& building = province->buildings[world.get_id(building_type)];
+                    for(const auto& output : building_type->outputs) {
+                        if(world.get_id(output) == i) {
+                            building.budget += product.demand * product.price;
+                            break;
+                        }
+                    }
+                }
+                i++;
             }
         }
 
