@@ -94,14 +94,14 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
 {
     this->text(province->name);
 
-    this->cultures_pie = new UI::PieChart(0, 0, 128, 128, this);
+    this->cultures_pie = new UI::PieChart(0, 0, 96, 96, this);
     new UI::Label(0, 0, "Cultures", this);
 
-    this->religions_pie = new UI::PieChart(0, 0, 128, 128, this);
+    this->religions_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->religions_pie->right_side_of(*this->cultures_pie);
     new UI::Label(this->religions_pie->x, this->religions_pie->y, "Religions", this);
 
-    this->pop_types_pie = new UI::PieChart(0, 0, 128, 128, this);
+    this->pop_types_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->pop_types_pie->right_side_of(*this->religions_pie);
     new UI::Label(this->pop_types_pie->x, this->pop_types_pie->y, "Proffesions", this);
 

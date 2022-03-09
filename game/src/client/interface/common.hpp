@@ -107,8 +107,8 @@ namespace Interface {
         int index;
 
         UI::Image* type_icon;
-        UI::Button* size_btn,* culture_btn,* budget_btn;
-        UI::Image* religion_ibtn;
+        UI::Button* size_btn,* budget_btn;
+        UI::Image* religion_ibtn,* culture_ibtn;
     public:
         PopInfo(GameState& gs, int x, int y, Province* province, int index, UI::Widget* parent);
     };

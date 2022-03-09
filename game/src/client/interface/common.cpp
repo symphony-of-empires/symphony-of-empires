@@ -250,8 +250,9 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
     this->religion_ibtn->right_side_of(*this->budget_btn);
     this->religion_ibtn->set_tooltip(new UI::Tooltip(this->religion_ibtn, 512, 24));
 
-    this->culture_btn = new UI::Button(0, 0, 128, 24, this);
-    this->culture_btn->right_side_of(*this->religion_ibtn);
+    this->culture_ibtn = new UI::Image(0, 0, 24, 24, nullptr, this);
+    this->culture_ibtn->right_side_of(*this->religion_ibtn);
+    this->culture_ibtn->set_tooltip(new UI::Tooltip(this->culture_ibtn, 512, 24));
     
     this->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<PopInfo&>(w);
@@ -267,8 +268,10 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
         o.size_btn->text(std::to_string(pop.size));
         o.budget_btn->text(std::to_string(pop.budget / pop.size));
         o.budget_btn->tooltip->text(UnifiedRender::Locale::translate("A total budget of") + " " + std::to_string(pop.budget));
+        o.religion_ibtn->current_texture = &o.gs.tex_man->load(Path::get("gfx/religion/" + pop.religion->ref_name + ".png"));
         o.religion_ibtn->tooltip->text(UnifiedRender::Locale::translate(pop.religion->name));
-        o.culture_btn->text(UnifiedRender::Locale::translate(pop.culture->name));
+        o.culture_ibtn->current_texture = &o.gs.tex_man->load(Path::get("gfx/noicon.png"));
+        o.culture_ibtn->tooltip->text(UnifiedRender::Locale::translate(pop.culture->name));
     });
     this->on_each_tick(*this);
 }

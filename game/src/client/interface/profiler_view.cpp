@@ -23,14 +23,14 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "client/interface/profiler_view.hpp"
-
 #include "unified_render/profiler.hpp"
 #include "unified_render/color.hpp"
-#include "client/game_state.hpp"
-#include "world.hpp"
 #include "unified_render/ui/components.hpp"
 #include "unified_render/ui/widget.hpp"
+
+#include "client/interface/profiler_view.hpp"
+#include "client/game_state.hpp"
+#include "world.hpp"
 
 using namespace Interface;
 
