@@ -38,7 +38,7 @@ namespace UnifiedRender {
     class Model;
     class Quad;
     class FontSDF;
-    class Label3d;
+    class Label3D;
 
     namespace OpenGL {
         class Square;
@@ -111,8 +111,8 @@ public:
     std::vector<const UnifiedRender::Texture*> unit_type_icons;
     std::vector<const UnifiedRender::Texture*> nation_flags;
 
-    std::vector<UnifiedRender::Label3d*> province_labels;
-    std::vector<UnifiedRender::Label3d*> nation_labels;
+    std::vector<UnifiedRender::Label3D*> province_labels;
+    std::vector<UnifiedRender::Label3D*> nation_labels;
     UnifiedRender::FontSDF* map_font;
 
     // Wind oscillator (for flags)
