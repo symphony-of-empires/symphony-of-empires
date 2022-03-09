@@ -148,7 +148,7 @@ Policies = {
     industry_tax = 0.0,
     military_spending = 0.0,
     free_supplies = true,
-    min_wage = 0.0,
+    min_wage = 1.0,
 	min_sv_for_parliament = 0.0
 }
 function Policies:new(o)
