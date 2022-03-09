@@ -136,13 +136,14 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
             const auto good_col = UnifiedRender::Color(i * 12, i * 31, i * 97);
             Product& product = o.province->products[o.gs.world->get_id(good)];
             goods_data.push_back(UI::ChartData(product.demand, good->name, good_col));
+            i++;
         }
         o.products_pie->set_data(goods_data);
     });
     this->on_each_tick(*this);
 
     // Initial product info
-    unsigned int i = 0;
+    int i = 0;
     for(const auto& good : gs.world->goods) {
         auto* info = new ProductInfo(this->gs, 0, (i * 24) + 128, province, good, this);
         product_infos.push_back(info);

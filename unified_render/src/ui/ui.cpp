@@ -131,8 +131,7 @@ void Context::clear_dead_recursive(Widget* w) {
             delete w->children[index];
             w->children.erase(w->children.begin() + index);
             index--;
-        }
-        else {
+        } else {
             clear_dead_recursive(w->children[index]);
         }
     }
@@ -143,8 +142,7 @@ void Context::clear_dead() {
             delete widgets[index];
             widgets.erase(widgets.begin() + index);
             index--;
-        }
-        else {
+        } else {
             clear_dead_recursive(widgets[index]);
         }
     }
@@ -385,8 +383,7 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
     const UnifiedRender::Rect r = UnifiedRender::Rect(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(mx, my)) {
         w.is_hover = false;
-    }
-    else if(w.is_transparent) {
+    } else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
@@ -457,8 +454,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
         const UnifiedRender::Rect r = UnifiedRender::Rect(offset.x, offset.y, w.width, w.height);
         if(!r.in_bounds(glm::vec2(mx, my))) {
             clickable = false;
-        }
-        else if(w.is_transparent) {
+        } else if(w.is_transparent) {
             if(w.current_texture != nullptr) {
                 int tex_width = w.current_texture->width;
                 int tex_height = w.current_texture->height;
@@ -607,8 +603,7 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
     const UnifiedRender::Rect r = UnifiedRender::Rect(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(glm::vec2(mx, my))) {
         return false;
-    }
-    else if(w.is_transparent) {
+    } else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
@@ -630,24 +625,23 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
     //
     // In short: If any of our children are scrolled by the mouse we will not receive
     // the scrolling instructions - only the front child will
+    bool scrolled = false;
     for(const auto& children : w.children) {
-        bool scrolled = check_wheel_recursive(*children, mx, my, offset.x, offset.y, y);
-        if(scrolled){
-            return true;
+        scrolled = check_wheel_recursive(*children, mx, my, offset.x, offset.y, y);
+        if(scrolled) {
+            break;
         }
     }
 
-    if(w.type == UI::WidgetType::GROUP) {
-        return false;
-    }
     if(w.is_scroll) {
         for(auto& child : w.children) {
             if(!child->is_pinned) {
                 child->y += y;
             }
         }
+        scrolled = true;
     }
-    return true;
+    return scrolled;
 }
 
 bool Context::check_wheel(unsigned mx, unsigned my, int y) {
