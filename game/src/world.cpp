@@ -699,6 +699,8 @@ void World::load_mod(void) {
         policy.migration = ALLOW_ALL;
         policy.industry_tax = 0.1f;
         policy.foreign_trade = true;
+        policy.min_wage = 1.f;
+        policy.min_sv_for_parliament = 2.f;
     }
     UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("World fully intiialized"));
 }

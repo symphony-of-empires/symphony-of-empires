@@ -43,26 +43,26 @@ Product::~Product(void) {
 void Product::close_market(void) {
     // Increase price with more demand
     if(this->demand > this->supply) {
-        this->price_vel += 0.0001f * (this->demand - this->supply);
+        this->price_vel += 0.001f * (this->demand - this->supply);
     }
     // Increase supply with more demand
     else if(this->demand < this->supply) {
-        this->price_vel -= 0.0001f * (this->supply - this->demand);
+        this->price_vel -= 0.001f * (this->supply - this->demand);
     }
     // Gravitate towards absolute zero due to volatility decay
     // (i.e, product price becomes stable without market activity)
     else {
         if(this->price_vel > 0.1f) {
-            this->price_vel -= 0.001f;
+            this->price_vel -= 0.01f;
         } else if(this->price_vel < -0.1f) {
-            this->price_vel += 0.001f;
+            this->price_vel += 0.01f;
         } else {
-            this->price_vel = -0.001f;
+            this->price_vel = -0.01f;
         }
     }
 
-    this->price += this->price_vel;
-    this->price = std::max<float>(0.01f, this->price);
+    // Set the new price
+    this->price = std::max<UnifiedRender::Decimal>(0.01f, this->price + this->price_vel);
 
     // Save prices and stuff onto history (for the charts!)
     this->demand_history.push_back(this->demand);
@@ -79,4 +79,6 @@ void Product::close_market(void) {
     if(this->price_history.size() > 60) {
         this->price_history.pop_front();
     }
+
+    this->demand = 0;
 }

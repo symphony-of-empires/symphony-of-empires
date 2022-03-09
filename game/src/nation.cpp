@@ -403,7 +403,7 @@ UnifiedRender::Decimal Nation::get_industry_output_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->industry_input_mod;
     }
-    return c;
+    return ((1.f));
 }
 
 UnifiedRender::Decimal Nation::get_industry_input_mod(void) {
@@ -411,7 +411,7 @@ UnifiedRender::Decimal Nation::get_industry_input_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->industry_input_mod;
     }
-    return c;
+    return ((1.f));
 }
 
 UnifiedRender::Decimal Nation::get_workers_needed_mod(void) {
@@ -419,7 +419,7 @@ UnifiedRender::Decimal Nation::get_workers_needed_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->workers_needed_mod;
     }
-    return c;
+    return ((1.f));
 }
 
 UnifiedRender::Decimal Nation::get_salary_paid_mod(void) {
@@ -427,7 +427,7 @@ UnifiedRender::Decimal Nation::get_salary_paid_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->salary_paid_mod;
     }
-    return c;
+    return ((1.f));
 }
 
 UnifiedRender::Decimal Nation::get_delivery_cost_mod(void) {
@@ -435,7 +435,7 @@ UnifiedRender::Decimal Nation::get_delivery_cost_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->delivery_cost_mod;
     }
-    return c;
+    return ((1.f));
 }
 
 UnifiedRender::Decimal Nation::get_literacy_learn_mod(void) {
@@ -443,7 +443,7 @@ UnifiedRender::Decimal Nation::get_literacy_learn_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->literacy_learn_mod;
     }
-    return c;
+    return ((1.f));
 }
 
 UnifiedRender::Decimal Nation::get_reproduction_mod(void) {
@@ -451,7 +451,7 @@ UnifiedRender::Decimal Nation::get_reproduction_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->reproduction_mod;
     }
-    return c;
+    return ((1.f));
 }
 
 UnifiedRender::Decimal Nation::get_death_mod(void) {
@@ -459,7 +459,7 @@ UnifiedRender::Decimal Nation::get_death_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->death_mod;
     }
-    return c;
+    return ((1.f));
 }
 
 UnifiedRender::Decimal Nation::get_militancy_mod(void) {
@@ -467,7 +467,7 @@ UnifiedRender::Decimal Nation::get_militancy_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->militancy_mod;
     }
-    return c;
+    return ((1.f));
 }
 
 UnifiedRender::Decimal Nation::get_con_mod(void) {
@@ -475,7 +475,7 @@ UnifiedRender::Decimal Nation::get_con_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->con_mod;
     }
-    return c;
+    return ((1.f));
 }
 
 UnifiedRender::Decimal Nation::get_life_needs_met_mod(void) {
@@ -483,7 +483,7 @@ UnifiedRender::Decimal Nation::get_life_needs_met_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->life_needs_met_mod;
     }
-    return c;
+    return ((1.f));
 }
 
 UnifiedRender::Decimal Nation::get_everyday_needs_met_mod(void) {
@@ -491,7 +491,7 @@ UnifiedRender::Decimal Nation::get_everyday_needs_met_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->everyday_needs_met_mod;
     }
-    return c;
+    return ((1.f));
 }
 
 UnifiedRender::Decimal Nation::get_luxury_needs_met_mod(void) {
@@ -499,7 +499,7 @@ UnifiedRender::Decimal Nation::get_luxury_needs_met_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->luxury_needs_met_mod;
     }
-    return c;
+    return ((1.f));
 }
 
 UnifiedRender::Decimal Nation::get_immigration_attraction_mod(void) {
@@ -507,5 +507,5 @@ UnifiedRender::Decimal Nation::get_immigration_attraction_mod(void) {
     for(const auto& mod : modifiers) {
         c += mod->immigration_attraction;
     }
-    return c;
+    return ((1.f));
 }
