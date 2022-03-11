@@ -41,6 +41,11 @@
 #	ifndef INVALID_SOCKET
 #		define INVALID_SOCKET -1
 #	endif
+#	include <netdb.h>
+#	include <arpa/inet.h>
+#	include <poll.h>
+#   include <signal.h>
+#   include <fcntl.h>
 #elif defined windows
 #	define WIN32_LEAN_AND_MEAN 1
 #   ifndef NOMINMAX
@@ -50,22 +55,9 @@
 #	define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 #	include <winsock2.h>
 #	include <ws2tcpip.h>
-#	include <stdlib.h>
-#	include <stdio.h>
 #endif
 
-#ifdef unix
-#	define _XOPEN_SOURCE_EXTENDED 1
-#	include <netdb.h>
-#	include <arpa/inet.h>
-#endif
 #include <sys/types.h>
-
-#ifdef unix
-#	include <poll.h>
-#   include <signal.h>
-#   include <fcntl.h>
-#endif
 
 #include "unified_render/network.hpp"
 #include "unified_render/print.hpp"
@@ -124,8 +116,10 @@ void UnifiedRender::Networking::SocketStream::send(const void* data, size_t size
     const char* c_data = (const char*)data;
     for(size_t i = 0; i < size; ) {
         int r = ::send(fd, &c_data[i], std::min<size_t>(1024, size - i), 0);
-        if(r < 0)
+        if(r < 0) {
             throw UnifiedRender::Networking::SocketException("Can't send data of packet");
+        }
+        
         i += (size_t)r;
     }
 }
@@ -134,8 +128,10 @@ void UnifiedRender::Networking::SocketStream::recv(void* data, size_t size) {
     char* c_data = (char*)data;
     for(size_t i = 0; i < size; ) {
         int r = ::recv(fd, &c_data[i], std::min<size_t>(1024, size - i), MSG_WAITALL);
-        if(r < 0)
+        if(r < 0) {
             throw UnifiedRender::Networking::SocketException("Can't receive data of packet");
+        }
+
         i += (size_t)r;
     }
 }
