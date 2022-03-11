@@ -553,22 +553,21 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
 
 void GameState::update_on_tick(void) {
     ui_ctx->do_tick();
+
+    // TODO: This is inefficient and we should only update **when** needed
     if(current_mode != MapMode::NO_MAP) {
         map->update_mapmode();
+        map->create_labels();
     }
 }
 
 void GameState::world_thread(void) {
     while(run) {
-        while(paused) {
+        // Gamestate thread hasn't acknowledged the updated tick just yet
+        while(paused || update_tick) {
             if(!run) {
                 return;
             }
-        }
-
-        // Gamestate thread hasn't acknowledged the updated tick
-        while(update_tick == true) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(ms_delay_speed));
         }
 
         // TODO: We should only enable this on debug builds, but whatever...
@@ -577,7 +576,6 @@ void GameState::world_thread(void) {
                 world->do_tick();
                 update_tick = true;
             } catch(const std::exception& e) {
-                //world->world_mutex.unlock();
                 ui_ctx->prompt("Runtime exception", e.what());
                 UnifiedRender::Log::error("game", e.what());
                 paused = true;
@@ -588,10 +586,12 @@ void GameState::world_thread(void) {
     }
 }
 
-#include "unified_render/ui/image.hpp"
-#include "client/interface/main_menu.hpp"
-#include "unified_render/audio.hpp"
 #include <filesystem>
+
+#include "unified_render/ui/image.hpp"
+#include "unified_render/audio.hpp"
+
+#include "client/interface/main_menu.hpp"
 
 void main_loop(GameState& gs) {
     gs.input = Input();
@@ -601,13 +601,7 @@ void main_loop(GameState& gs) {
     gs.current_mode = MapMode::DISPLAY_ONLY;
     gs.map->set_view(MapView::SPHERE_VIEW);
 
-    //auto* mm_bg = new UI::Image(0, 0, gs.width, gs.height, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/globe.png")));
-    //mm_bg->is_fullscreen = true;
-    /*Interface::MainMenu* main_menu =*/
     new Interface::MainMenu(gs);
-    //auto* logo = new UI::Image(0, 0, 256, 256, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/title_alt.png")));
-    //logo->above_of(*main_menu);
-    //logo->left_side_of(*main_menu);
 
     std::vector<Event*> displayed_events;
     std::vector<Treaty*> displayed_treaties;
@@ -633,7 +627,7 @@ void main_loop(GameState& gs) {
         if(gs.sound_queue.empty()) {
             for(const auto& war : gs.world->wars) {
                 for(const auto& battle : war->battles) {
-                    std::scoped_lock lock(gs.sound_lock);
+                    const std::scoped_lock lock(gs.sound_lock);
                     auto entries = Path::get_all_recursive("sfx/gunfire");
                     if(!entries.empty()) {
                         gs.sound_queue.push_back(new UnifiedRender::Audio(entries[std::rand() % entries.size()]));
@@ -648,8 +642,9 @@ void main_loop(GameState& gs) {
             gs.update_on_tick();
             gs.update_tick = false;
 
-            if(gs.current_mode == MapMode::NORMAL && gs.world->world_mutex.try_lock()) {
+            if(gs.current_mode == MapMode::NORMAL) {
                 // Production queue
+                std::scoped_lock lock(gs.world->world_mutex);
                 for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
                     UnitType* unit = gs.production_queue[i];
 
@@ -678,7 +673,6 @@ void main_loop(GameState& gs) {
                     gs.production_queue.erase(gs.production_queue.begin() + i);
                     i--;
                 }
-                gs.world->world_mutex.unlock();
             }
         }
 
@@ -702,7 +696,6 @@ void main_loop(GameState& gs) {
         if(gs.current_mode != MapMode::NO_MAP) {
             gs.map->draw(gs);
             gs.map->camera->update();
-            gs.world->world_mutex.unlock();
         }
         gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
 

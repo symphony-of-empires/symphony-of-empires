@@ -706,8 +706,6 @@ void World::load_mod(void) {
 }
 
 void World::do_tick() {
-    std::scoped_lock lock(world_mutex);
-
     profiler.start("AI");
     // AI and stuff
     // Just random shit to make the world be like more alive

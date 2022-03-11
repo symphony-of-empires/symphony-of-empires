@@ -87,17 +87,7 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
 // if you need snapshots for any reason (like desyncs) you can request with ActionType::SNAPSHOT
 void Client::net_loop(void) {
     World& world = *(gs.world);
-
-    // Receive the first snapshot of the world (except on host mode)
-    /*if(!gs.host_mode) {
-        std::scoped_lock lock(world.world_mutex);
-        Packet packet = Packet(fd);
-        packet.recv();
-        Archive ar = Archive();
-        ar.set_buffer(packet.data(), packet.size());
-        ::deserialize(ar, &world);
-    }*/
-
+    
     {
         Archive ar = Archive();
 
@@ -164,7 +154,6 @@ void Client::net_loop(void) {
 
                 if(!gs.host_mode) {
                     // Ping from server, we should answer with a pong!
-                    //std::scoped_lock lock(world.world_mutex);
                     switch(action) {
                     case ActionType::PONG: {
                         packet.send(&action);
