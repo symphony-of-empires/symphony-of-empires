@@ -27,6 +27,7 @@
 #include <execution>
 #include <cstdio>
 
+#include "unified_render/log.hpp"
 #include "unified_render/print.hpp"
 #include "unified_render/serializer.hpp"
 #include "unified_render/thread_pool.hpp"
@@ -222,7 +223,7 @@ void Economy::do_tick(World& world) {
                     can_build_unit = true;
                     if(can_build_unit) {
                         // TODO: Maybe delete if size becomes 0?
-                        (*it).size -= army_size;
+                        //(*it).size -= army_size;
 
                         // Spawn a unit
                         Unit* unit = new Unit();
@@ -242,19 +243,20 @@ void Economy::do_tick(World& world) {
                         world.insert(unit);
                         g_server->broadcast(Action::UnitAdd::form_packet(*unit));
                         world.world_mutex.unlock();
-                        print_info("[%s]: Has built an unit of [%s]", province->ref_name.c_str(), unit->type->ref_name.c_str());
+                        UnifiedRender::Log::debug("economy", "[" + province->ref_name + "]: Has built an unit of [" + unit->type->ref_name + "]");
                     }
                 }
 
-                {
-                //if(building_type->is_factory) {
 #if 0
-                    print_info("[%s]: Workers working on building of type [%s]", province->ref_name.c_str(), building_type->ref_name.c_str());
-                    print_info("- %f farmers (%f needed)", available_farmers, needed_farmers);
-                    print_info("- %f laborers (%f needed)", available_laborers, needed_laborers);
-                    print_info("- %f entrepreneurs (%f needed)", available_entrepreneurs, needed_entrepreneurs);
+                if(1) {
+                    UnifiedRender::Log::debug("economy", "[%s]: Workers working on building of type [%s]", province->ref_name.c_str(), building_type->ref_name.c_str());
+                    UnifiedRender::Log::debug("economy", "- %f farmers (%f needed)", available_farmers, needed_farmers);
+                    UnifiedRender::Log::debug("economy", "- %f laborers (%f needed)", available_laborers, needed_laborers);
+                    UnifiedRender::Log::debug("economy", "- %f entrepreneurs (%f needed)", available_entrepreneurs, needed_entrepreneurs);
+                }
 #endif
 
+                if(building_type->is_factory) {
                     // Consume inputs needed to produce stuff (will decrease supplies and increase demand)
                     size_t k = 0;
                     for(const auto& input : building_type->inputs) {
@@ -294,7 +296,7 @@ void Economy::do_tick(World& world) {
                 // Produce products (incrementing supply)
                 if(building.can_do_output()) {
 #if 0
-                    print_info("Can do output!!!");
+                    UnifiedRender::Log::debug("economy", "Can do output!!!");
 #endif
                     for(const auto& output : building_type->outputs) {
                         Product& product = province->products[world.get_id(output)];
