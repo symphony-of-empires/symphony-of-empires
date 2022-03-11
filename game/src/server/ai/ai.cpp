@@ -504,7 +504,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     for(size_t i = 0; i < world->building_types.size(); i++) {
                         const BuildingType* building_type = world->building_types[i];
                         if(!(building_type->is_build_land_units && building_type->is_build_naval_units)) {
-                        //    continue;
+                            continue;
                         }
 
                         auto& building = province->buildings[i];

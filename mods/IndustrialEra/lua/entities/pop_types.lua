@@ -31,8 +31,8 @@ burgeoise = PopType:new{
     social_value = 2.0,
     is_burgeoise = true,
     needs = {
-        {bread.id, 1.0},
-        {salt.id, 0.1}
+        { Good:get("bread"), 1.0 },
+        { Good:get("salt"), 0.1 }
     }
 }
 burgeoise:register()
@@ -40,28 +40,44 @@ burgeoise:register()
 artisan = PopType:new{
     name = _("Artisan"),
     ref_name = "artisan",
-    social_value = 1.0
+    social_value = 1.0,
+    needs = {
+        { Good:get("bread"), 1.0 },
+        { Good:get("salt"), 0.1 }
+    }
 }
 artisan:register()
 
 bureaucrat = PopType:new{
     name = _("Bureaucrat"),
     ref_name = "bureaucrat",
-    social_value = 2.5
+    social_value = 2.5,
+    needs = {
+        { Good:get("bread"), 1.0 },
+        { Good:get("salt"), 0.1 }
+    }
 }
 bureaucrat:register()
 
-clergymen = PopType:new{
+intellectual = PopType:new{
     name = _("Clergymen"),
-    ref_name = "clergymen",
-    social_value = 2.5
+    ref_name = "intellectual",
+    social_value = 2.5,
+    needs = {
+        { Good:get("bread"), 1.0 },
+        { Good:get("salt"), 0.1 }
+    }
 }
-clergymen:register()
+intellectual:register()
 
 soldier = PopType:new{
     name = _("Soldier"),
     ref_name = "soldier",
-    social_value = 1.5
+    social_value = 1.5,
+    needs = {
+        { Good:get("bread"), 1.0 },
+        { Good:get("salt"), 0.1 }
+    }
 }
 soldier:register()
 
@@ -69,7 +85,11 @@ farmer = PopType:new{
     name = _("Farmer"),
     ref_name = "farmer",
     social_value = 1.0,
-    is_farmer = true
+    is_farmer = true,
+    needs = {
+        { Good:get("bread"), 1.0 },
+        { Good:get("salt"), 0.1 }
+    }
 }
 farmer:register()
 
@@ -77,7 +97,11 @@ laborer = PopType:new{
     name = _("Laborer"),
     ref_name = "laborer",
     social_value = 1.0,
-    is_laborer = true
+    is_laborer = true,
+    needs = {
+        { Good:get("bread"), 1.0 },
+        { Good:get("salt"), 0.1 }
+    }
 }
 laborer:register()
 
@@ -85,21 +109,10 @@ slave = PopType:new{
     name = _("Slave"),
     ref_name = "slave",
     social_value = 0.1,
-    is_slave = true
+    is_slave = true,
+    needs = {
+        { Good:get("bread"), 1.0 },
+        { Good:get("salt"), 0.1 }
+    }
 }
 slave:register()
-
--- TODO: Remove these, because they are deprecated
-officer = PopType:new{
-    name = _("Officer"),
-    ref_name = "officer",
-    social_value = 1.5
-}
-officer:register()
-
-craftsmen = PopType:new{
-    name = _("Craftsmen"),
-    ref_name = "craftsmen",
-    social_value = 1.5
-}
-craftsmen:register()

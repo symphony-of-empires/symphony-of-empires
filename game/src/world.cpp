@@ -399,7 +399,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 #else
             std::string m_path = path;
 #endif
-            files_buf += "print(\"" + m_path + "\")";
+            files_buf += "print(\"" + m_path + "\")\n";
             files_buf += "f = loadfile(\"" + m_path + "\")\n";
             files_buf += "f()\n";
         }
@@ -413,9 +413,9 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 
 void World::load_initial(void) {
     const std::vector<std::string> init_files = {
-        "terrain_types",
+        "terrain_types", "good_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
-        "technology", "religions", "good_types", "pop_types", "industry_types",
+        "technology", "religions", "pop_types", "industry_types",
         "unit_types", "boat_types", "provinces", "init"
     };
     lua_exec_all_of(*this, init_files, "lua/entities");
@@ -458,60 +458,6 @@ void World::load_initial(void) {
     for(auto& province : provinces) {
         province_color_table[province->color & 0xffffff] = get_id(*province);
     }
-
-    /*if(1) {
-        for(auto& province : provinces) {
-            province->n_tiles = 0;
-        }
-        
-        for(unsigned int i = 0; i < total_size; ) {
-            const Province::Id province_id = province_color_table[div->buffer.get()[i] & 0xffffff];
-            if(province_id >= provinces.size()) {
-                i++;
-                continue;
-            }
-
-            while(div->buffer.get()[i] == provinces[province_id]->color) {
-                provinces[province_id]->n_tiles++;
-                i++;
-            }
-        }
-
-        for(unsigned int i = 0; i < provinces.size(); i++) {
-            auto& province = *provinces[i];
-            if(!province.n_tiles) {
-                remove(province);
-
-                for(auto& nation : nations) {
-                    nation->owned_provinces.erase(&province);
-                    if(nation->capital == &province) {
-                        nation->capital = nullptr;
-                    }
-                }
-
-                for(size_t j = 0; j < province.get_buildings().size(); j++) {
-                    auto& building = province.get_buildings()[j];
-
-                    if(building.province != &province) {
-                        continue;
-                    }
-
-                    /*remove(building);
-                    delete &building;
-                    j--;/
-                }
-
-                delete &province;
-                i--;
-                continue;
-            }
-        }
-
-        std::fill(province_color_table.begin(), province_color_table.end(), (Province::Id)-1);
-        for(auto& province : provinces) {
-            province_color_table[province->color & 0xffffff] = get_id(province);
-        }
-    }*/
 
     uint32_t checksum = 1;
     for(auto& province : provinces) {
