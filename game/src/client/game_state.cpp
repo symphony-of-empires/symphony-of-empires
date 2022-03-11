@@ -566,6 +566,11 @@ void GameState::world_thread(void) {
             }
         }
 
+        // Gamestate thread hasn't acknowledged the updated tick
+        while(update_tick == true) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(ms_delay_speed));
+        }
+
         // TODO: We should only enable this on debug builds, but whatever...
         if(world->world_mutex.try_lock()) {
             try {
@@ -643,47 +648,37 @@ void main_loop(GameState& gs) {
             gs.update_on_tick();
             gs.update_tick = false;
 
-            if(gs.current_mode == MapMode::NORMAL) {
-                if(gs.world->world_mutex.try_lock()) {
-                    // Production queue
-                    if(!gs.production_queue.empty()) {
-                        for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
-                            UnitType* unit = gs.production_queue[i];
+            if(gs.current_mode == MapMode::NORMAL && gs.world->world_mutex.try_lock()) {
+                // Production queue
+                for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
+                    UnitType* unit = gs.production_queue[i];
 
-                            // TODO: Make a better queue AI
-                            /*bool is_built = false;
-                            for(const auto& building : gs.world->buildings) {
-                                if(!(building->type->is_build_land_units || building->type->is_build_naval_units)) {
-                                    continue;
-                                }
-
-                                // Must be our building
-                                if(building->get_owner() != gs.curr_nation) {
-                                    continue;
-                                }
-
-                                // Must not be working on something else
-                                if(building->working_unit_type != nullptr) {
-                                    continue;
-                                }
-
-                                is_built = true;
-
-                                g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
-                                break;
-                            }
-
-                            if(!is_built) {
+                    // TODO: Make a better queue AI
+                    bool is_built = false;
+                    for(const auto& province : gs.curr_nation->controlled_provinces) {
+                        for(const auto& building : province->get_buildings()) {
+                            // Must not be working on something else
+                            if(building.working_unit_type != nullptr) {
                                 continue;
                             }
 
-                            gs.production_queue.erase(gs.production_queue.begin() + i);
-                            i--;
-                            */
+                            is_built = true;
+                            //g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
+                            break;
+                        }
+
+                        if(!is_built) {
+                            break;
                         }
                     }
-                    gs.world->world_mutex.unlock();
+                    if(!is_built) {
+                        break;
+                    }
+
+                    gs.production_queue.erase(gs.production_queue.begin() + i);
+                    i--;
                 }
+                gs.world->world_mutex.unlock();
             }
         }
 
