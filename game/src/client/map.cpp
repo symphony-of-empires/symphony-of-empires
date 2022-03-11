@@ -75,8 +75,7 @@ void get_blob_bounds(std::set<Province*>* visited_provinces, const Nation& natio
 
 #if 1
         // Province must not be morbidly big
-        if(neighbour->max_x - neighbour->min_x >= g_world->width / 2.f
-        || neighbour->max_y - neighbour->min_y >= g_world->height / 2.f) {
+        if(std::fabs(neighbour->max_x - neighbour->min_x) >= g_world->width / 2.f || std::fabs(neighbour->max_y - neighbour->min_y) >= g_world->height / 2.f) {
             continue;
         }
 #endif
@@ -210,22 +209,49 @@ void Map::create_labels() {
             continue;
         }
 
-        glm::vec2 min_point_x(world.width - 1, world.height - 1), min_point_y(world.width - 1, world.height - 1);
+        glm::vec2 min_point_x(world.width - 1.f, world.height - 1.f), min_point_y(world.width - 1.f, world.height - 1.f);
         glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
         
         std::set<Province*> visited_provinces;
         if(nation->capital != nullptr) {
+            max_point_x.x = nation->capital->max_x;
+            max_point_x.y = nation->capital->max_y;
+            max_point_y.x = nation->capital->max_x;
+            max_point_y.y = nation->capital->max_y;
+
+            min_point_x.x = nation->capital->min_x;
+            min_point_x.y = nation->capital->min_y;
+            min_point_y.x = nation->capital->min_x;
+            min_point_y.y = nation->capital->min_y;
+
             get_blob_bounds(&visited_provinces, *nation, *nation->capital, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
-        } else if(!nation->controlled_provinces.empty()) {
+        } else {
             get_blob_bounds(&visited_provinces, *nation, **(nation->controlled_provinces.begin()), &min_point_x, &min_point_y, &max_point_x, &max_point_y);
         }
 
-        glm::vec2 mid_point = 0.5f * (glm::vec2(min_point_x.x, min_point_y.y) + glm::vec2(max_point_x.x, max_point_y.y));
+#if 0
+        // Stop super-big labels
+        if(glm::abs(min_point_x.x - max_point_x.x) >= world.width / 2.f
+        || glm::abs(min_point_y.y - max_point_y.y) >= world.height / 2.f) {
+            auto* label = map_font->gen_text(nation->get_client_hint().alt_name, glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
+            nation_labels.push_back(label);
+            print_error("Extremely big nation: %s", nation->ref_name.c_str());
+            continue;
+        }
+#endif
+
+        glm::vec2 lab_min, lab_max;
+        lab_min.x = min_point_x.x;
+        lab_min.y = min_point_y.y;
+        lab_max.x = max_point_x.x;
+        lab_max.y = max_point_y.y;
+
+        glm::vec2 mid_point = 0.5f * (lab_min + lab_max);
         glm::vec3 center = camera->get_tile_world_pos(mid_point);
-        glm::vec2 x_step = glm::vec2(max_point_x.x - mid_point.x, 0);
+        glm::vec2 x_step = glm::vec2(lab_max.x - mid_point.x, 0.f);
         glm::vec3 left = camera->get_tile_world_pos(mid_point - x_step);
         glm::vec3 right = camera->get_tile_world_pos(mid_point + x_step);
-        float width = glm::length(left - right) * 0.3f;
+        float width = glm::length(left - right);
 
         glm::vec3 right_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x + 1.f, mid_point.y));
         right_dir  = right_dir - center;
@@ -234,6 +260,8 @@ void Map::create_labels() {
 
         auto* label = map_font->gen_text(nation->get_client_hint().alt_name, top_dir, right_dir, width);
         label->model = glm::translate(label->model, center);
+        label->model = glm::rotate(label->model, std::atan2(lab_max.y - lab_min.y, lab_max.x - lab_min.x), glm::vec3(0.f, 0.f, 1.f));
+        label->model = glm::translate(label->model, glm::vec3(-(width / 2.f), 0.f, 0.f));
         nation_labels.push_back(label);
     }
 }
