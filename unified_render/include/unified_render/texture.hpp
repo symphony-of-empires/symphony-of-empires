@@ -67,7 +67,7 @@ namespace UnifiedRender {
 
     class TextureOptions {
     public:
-        TextureOptions() { };
+        TextureOptions() {};
 
         GLenum target = GL_TEXTURE_2D;
         GLuint wrap_s = GL_REPEAT;
@@ -92,7 +92,6 @@ namespace UnifiedRender {
         }
     };
     const TextureOptions default_options;
-
 
     class Texture: public BinaryImage {
     public:
@@ -128,7 +127,7 @@ namespace UnifiedRender {
     inline void hash_combine(std::size_t& s, const T& v)
     {
         std::hash<T> h;
-        s^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
+        s ^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
     }
 
     struct TextureMapHash
@@ -137,7 +136,6 @@ namespace UnifiedRender {
         {
             std::size_t res = 0;
             hash_combine(res, key.first);
-
             TextureOptions s = key.second;
             hash_combine(res, s.target);
             hash_combine(res, s.wrap_s);
