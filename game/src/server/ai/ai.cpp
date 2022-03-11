@@ -61,8 +61,8 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
         std::vector<UnifiedRender::Decimal> avg_prob = std::vector<UnifiedRender::Decimal>(world->goods.size(), 0.f);
         for(const auto& province : nation->owned_provinces) {
             for(const auto& good : world->goods) {
-                const Product& product = province->products[world->get_id(good)];
-                avg_prob[world->get_id(good)] += product.demand / (product.supply + 1) * product.price;
+                const Product& product = province->products[world->get_id(*good)];
+                avg_prob[world->get_id(*good)] += product.demand / (product.supply + 1) * product.price;
             }
         }
 
@@ -76,7 +76,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
             for(const auto& input : building_type->inputs) {
                 // Apply the higher-probability with outputs of this factory
                 for(const auto& output : building_type->outputs) {
-                    avg_prob[world->get_id(output)] += avg_prob[world->get_id(input)] + 1;
+                    avg_prob[world->get_id(*output)] += avg_prob[world->get_id(*input)] + 1;
                 }
             }
         }
@@ -184,8 +184,8 @@ void ai_reform(Nation* nation) {
 void ai_update_relations(Nation* nation, Nation* other) {
     const World& world = World::get_instance();
 
-    NationRelation& relation = nation->relations[world.get_id(other)];
-    NationRelation& other_relation = other->relations[world.get_id(nation)];
+    NationRelation& relation = nation->relations[world.get_id(*other)];
+    NationRelation& other_relation = other->relations[world.get_id(*nation)];
 
     // Try to increase relations with our friend
     if(nation->is_ally(*other) && !(std::rand() % 250)) {
@@ -336,7 +336,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
                 treaty->clauses.push_back(clause);
             }
 
-            ((World&)world).insert(treaty);
+            ((World&)world).insert(*treaty);
         }
     }
 }
@@ -386,10 +386,10 @@ void ai_build_commercial(Nation* nation, World* world) {
     } else {
         // Now build the building
         BuildingType* building_type = world->building_types[0];
-        province->buildings[world->get_id(building_type)].level += 1;
+        province->buildings[world->get_id(*building_type)].level += 1;
         // Broadcast the addition of the building to the clients
         g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
-        print_info("Building of [%s](%i), from [%s] built on [%s]", building_type->ref_name.c_str(), (int)world->get_id(building_type), nation->ref_name.c_str(), province->ref_name.c_str());
+        print_info("Building of [%s](%i), from [%s] built on [%s]", building_type->ref_name.c_str(), (int)world->get_id(*building_type), nation->ref_name.c_str(), province->ref_name.c_str());
     }
 }
 
@@ -422,7 +422,7 @@ void ai_do_tick(Nation* nation, World* world) {
         if(nation->ai_do_research) {
             for(auto& tech : world->technologies) {
                 // Do not research if already been completed
-                if(!nation->research[world->get_id(tech)]) {
+                if(!nation->research[world->get_id(*tech)]) {
                     continue;
                 }
 
@@ -432,7 +432,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 }
 
                 nation->change_research_focus(tech);
-                print_info("[%s] now researching [%s] - %.2f research points (+%.2f)", nation->ref_name.c_str(), tech->ref_name.c_str(), nation->research[world->get_id(tech)], nation->get_research_points());
+                print_info("[%s] now researching [%s] - %.2f research points (+%.2f)", nation->ref_name.c_str(), tech->ref_name.c_str(), nation->research[world->get_id(*tech)], nation->get_research_points());
                 break;
             }
         }
@@ -487,8 +487,8 @@ void ai_do_tick(Nation* nation, World* world) {
                 Province* province = *it;
 
                 BuildingType* building_type = world->building_types[0];
-                province->buildings[world->get_id(building_type)].level += 1;
-                province->buildings[world->get_id(building_type)].req_goods = building_type->req_goods;
+                province->buildings[world->get_id(*building_type)].level += 1;
+                province->buildings[world->get_id(*building_type)].req_goods = building_type->req_goods;
                 // Broadcast the addition of the building to the clients
                 g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
                 UnifiedRender::Log::debug("ai", "Building building " + building_type->name + " from " + nation->name + " built on " + province->name);
@@ -579,17 +579,17 @@ void ai_do_tick(Nation* nation, World* world) {
 
             // Here we calculate the risk factor of each nation and then we put it on a lookup table
             // because we can't afford to calculate this for EVERY FUCKING province
-            NationRelation& relation = nation->relations[world->get_id(other)];
+            NationRelation& relation = nation->relations[world->get_id(*other)];
             // Risk is augmentated when we border any non-ally nation
             if(!relation.has_alliance) {
-                nations_risk_factor[world->get_id(other)] += 1;
+                nations_risk_factor[world->get_id(*other)] += 1;
             }
             if(relation.has_war) {
-                nations_risk_factor[world->get_id(other)] += 10;
+                nations_risk_factor[world->get_id(*other)] += 10;
             }
         }
         // Our own nation is safe, let's set it to 0
-        nations_risk_factor[world->get_id(nation)] = 0;
+        nations_risk_factor[world->get_id(*nation)] = 0;
 
         std::vector<int> potential_risk(world->provinces.size(), 0);
         for(const auto& province : world->provinces) {
@@ -603,12 +603,12 @@ void ai_do_tick(Nation* nation, World* world) {
                 // This works because nations which are threatening to us have positive values, so they
                 // basically make the draw_away_force negative, which in turns does not draw away but rather
                 // draw in even more units
-                draw_away_force += (-nations_risk_factor[world->get_id(unit->owner)]) * unit_strength;
+                draw_away_force += (-nations_risk_factor[world->get_id(*unit->owner)]) * unit_strength;
                 //if(unit->owner == nation) {
                 //    force += (unit->type->defense * unit->type->attack) * unit->size;
                 //}
             }
-            potential_risk[world->get_id(province)] -= draw_away_force;
+            potential_risk[world->get_id(*province)] -= draw_away_force;
 
             for(const auto& neighbour : province->neighbours) {
                 if(province->terrain_type->is_water_body) {
@@ -618,9 +618,9 @@ void ai_do_tick(Nation* nation, World* world) {
                 if(neighbour->controller == nullptr || neighbour->controller == nation) {
                     continue;
                 }
-                potential_risk[world->get_id(neighbour)] += nations_risk_factor[world->get_id(neighbour->controller)];
+                potential_risk[world->get_id(*neighbour)] += nations_risk_factor[world->get_id(*neighbour->controller)];
                 // Spread out the heat
-                potential_risk[world->get_id(neighbour)] += (potential_risk[world->get_id(province)] + 1) / province->neighbours.size();
+                potential_risk[world->get_id(*neighbour)] += (potential_risk[world->get_id(*province)] + 1) / province->neighbours.size();
             }
         }
 
@@ -648,9 +648,9 @@ void ai_do_tick(Nation* nation, World* world) {
                         continue;
                     }
 
-                    if(potential_risk[world->get_id(highest_risk)] < potential_risk[world->get_id(province)]) {
+                    if(potential_risk[world->get_id(*highest_risk)] < potential_risk[world->get_id(*province)]) {
                         if(province->controller != nullptr) {
-                            NationRelation& relation = province->controller->relations[world->get_id(unit->owner)];
+                            NationRelation& relation = province->controller->relations[world->get_id(*unit->owner)];
                             if(relation.has_war || relation.has_alliance || province->owner == unit->owner) {
                                 highest_risk = province;
                             }
@@ -669,7 +669,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 // Can only go to a province if we have military accesss, they are our ally or if we are at war
                 // also if it's ours we can move thru it - or if it's owned by no-one
                 if(target_province->controller != nullptr) {
-                    NationRelation& relation = target_province->controller->relations[world->get_id(unit->owner)];
+                    NationRelation& relation = target_province->controller->relations[world->get_id(*unit->owner)];
                     if(target_province->controller == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war) {
                         unit->set_target(*target_province);
                     }

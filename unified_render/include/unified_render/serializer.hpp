@@ -290,18 +290,18 @@ template<typename W, typename T>
 class SerializerReference {
 public:
     static inline void serialize(Archive& stream, const T* const* obj) {
-        typename T::Id id = (*obj == nullptr) ? (typename T::Id)-1 : W::get_instance().get_id(*obj);
+        typename T::Id id = (*obj == nullptr) ? (typename T::Id)-1 : W::get_instance().get_id(**obj);
         ::serialize(stream, &id);
     };
 
     static inline void deserialize(Archive& stream, T** obj) {
         typename T::Id id;
         ::deserialize(stream, &id);
-        if(id >= W::get_instance().get_list(*obj).size()) {
+        if(id >= W::get_instance().get_list(**obj).size()) {
             *obj = nullptr;
             return;
         }
-        *obj = (id != (typename T::Id)-1) ? W::get_instance().get_list(*obj)[id] : nullptr;
+        *obj = (id != (typename T::Id)-1) ? W::get_instance().get_list(**obj)[id] : nullptr;
     };
 };
 

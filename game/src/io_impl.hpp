@@ -844,7 +844,7 @@ public:
         ::deserialize(stream, &n_elems);
         for(size_t i = 0; i < n_elems; i++) {
             T* sub_obj = new T();
-            obj->insert(sub_obj);
+            obj->insert(*sub_obj);
         }
         return n_elems;
     }

@@ -163,7 +163,7 @@ std::vector<ProvinceColor> relations_map_mode(const World& world) {
             continue;
         }
 
-        const NationRelation& rel = province.controller->relations[world.get_id(gs.highlighted_nation)];
+        const NationRelation& rel = province.controller->relations[world.get_id(*gs.highlighted_nation)];
         if(rel.has_alliance) {
             UnifiedRender::Color color = UnifiedRender::Color::rgba32(bswap32(0x20d4d1ff));
             provinces_color.push_back(ProvinceColor(i, color));
@@ -202,7 +202,7 @@ form_final:
     str += " ";
 
     {
-        const NationRelation& rel = province.controller->relations[world.get_id(((GameState&)GameState::get_instance()).highlighted_nation)];
+        const NationRelation& rel = province.controller->relations[world.get_id(*gs.highlighted_nation)];
         if(rel.has_alliance) {
             str += "allied with us";
             return str;
@@ -228,7 +228,7 @@ form_final:
     /*int ally_cnt = 0;
     str += UnifiedRender::Locale::translate("Allied with") + " ";
     for(const auto& nation : gs.world->nations) {
-        const NationRelation& rel = province.controller->relations[world.get_id(nation)];
+        const NationRelation& rel = province.controller->relations[world.get_id(*nation)];
         if(rel.has_alliance) {
             str += UnifiedRender::Locale::translate(nation->get_client_hint().alt_name);
             str += ", ";
@@ -282,7 +282,7 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
         }
         amount = log2(amount + 1.f);
         max_amount = std::max<float>(amount, max_amount);
-        province_amounts.push_back(std::make_pair(world.get_id(province), amount));
+        province_amounts.push_back(std::make_pair(world.get_id(*province), amount));
     }
 
     // Mix each color depending of how many live there compared to max_amount

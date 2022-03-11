@@ -117,7 +117,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
             if(o.gs.world->time % o.gs.world->ticks_per_month) {
                 return;
             }
-            w.text(std::to_string(o.gs.curr_nation->relations[o.gs.world->get_id(o.nation)].relation));
+            w.text(std::to_string(o.gs.curr_nation->relations[o.gs.world->get_id(*o.nation)].relation));
         });
         rel_lab->tooltip = new UI::Tooltip(rel_lab, 512, 24);
         rel_lab->tooltip->text(UnifiedRender::Locale::translate("Our diplomatic relations with them"));
@@ -129,7 +129,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
             if(o.gs.world->time % o.gs.world->ticks_per_month) {
                 return;
             }
-            w.text(std::to_string(o.gs.curr_nation->relations[o.gs.world->get_id(o.nation)].interest));
+            w.text(std::to_string(o.gs.curr_nation->relations[o.gs.world->get_id(*o.nation)].interest));
         });
         interest_lab->tooltip = new UI::Tooltip(interest_lab, 512, 24);
         interest_lab->tooltip->text(UnifiedRender::Locale::translate("Interest/Tolerance towards them"));
@@ -173,7 +173,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         dow_btn->on_each_tick = ([](UI::Widget& w) {
             auto& o = static_cast<NationView&>(*w.parent);
 
-            if(o.gs.curr_nation->relations[o.gs.world->get_id(o.nation)].has_war) {
+            if(o.gs.curr_nation->relations[o.gs.world->get_id(*o.nation)].has_war) {
                 w.text(UnifiedRender::Locale::translate("Propose treaty"));
                 w.on_click = ([](UI::Widget& w) {
                     auto& o = static_cast<NationView&>(*w.parent);

@@ -115,7 +115,7 @@ void GameState::play_nation() {
 }
 
 const UnifiedRender::Texture& GameState::get_nation_flag(Nation& nation) {
-    Nation::Id id = world->get_id(&nation);
+    Nation::Id id = world->get_id(nation);
     return *map->nation_flags[id];
 }
 
@@ -304,9 +304,9 @@ void save(GameState& gs) {
                 // Or if it's duplicate, merge it
                 auto dup_it = std::find_if(province->pops.begin(), province->pops.end(), [&gs, &it](const auto& e) {
                     return (
-                        gs.world->get_id(it->culture) == gs.world->get_id(e.culture)
-                        && gs.world->get_id(it->religion) == gs.world->get_id(e.religion)
-                        && gs.world->get_id(it->type) == gs.world->get_id(e.type)
+                        gs.world->get_id(*it->culture) == gs.world->get_id(*e.culture)
+                        && gs.world->get_id(*it->religion) == gs.world->get_id(*e.religion)
+                        && gs.world->get_id(*it->type) == gs.world->get_id(*e.type)
                     );
                 });
 
@@ -324,7 +324,7 @@ void save(GameState& gs) {
             fprintf(fp, "province = Province:new{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%x, terrain = TerrainType:get(\"%s\") }\n", province->ref_name.c_str(), province->name.c_str(), (unsigned int)color, province->terrain_type->ref_name.c_str());
             fprintf(fp, "province:register()\n");
             for(const auto& building_type : gs.world->building_types) {
-                Building& building = province->buildings[gs.world->get_id(building_type)];
+                Building& building = province->buildings[gs.world->get_id(*building_type)];
                 if(building.level) {
                     building.level = 1;
                     fprintf(fp, "province:update_building(BuildingType:get(\"%s\"), %f)\n", building_type->ref_name.c_str(), building.level);
@@ -579,6 +579,7 @@ void GameState::world_thread(void) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(ms_delay_speed));
             } catch(const std::exception& e) {
                 world->world_mutex.unlock();
+                std::scoped_lock lock(render_lock);
                 ui_ctx->prompt("Runtime exception", e.what());
                 UnifiedRender::Log::error("game", e.what());
                 paused = true;
@@ -652,7 +653,7 @@ void main_loop(GameState& gs) {
                     bool is_built = false;
                     for(const auto& building_type : gs.world->building_types) {
                         for(const auto& province : gs.curr_nation->controlled_provinces) {
-                            Building& building = province->get_buildings()[gs.world->get_id(building_type)];
+                            Building& building = province->get_buildings()[gs.world->get_id(*building_type)];
                             // Must not be working on something else
                             if(building.working_unit_type != nullptr) {
                                 continue;

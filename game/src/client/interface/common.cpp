@@ -198,7 +198,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
     chk->tooltip = new UI::Tooltip(chk, 512, 24);
     chk->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<TechnologyInfo&>(*w.parent);
-        if(o.technology == o.gs.curr_nation->focus_tech || !o.gs.curr_nation->research[o.gs.world->get_id(o.technology)]) {
+        if(o.technology == o.gs.curr_nation->focus_tech || !o.gs.curr_nation->research[o.gs.world->get_id(*o.technology)]) {
             ((UI::Checkbox&)w).set_value(true);
         } else {
             ((UI::Checkbox&)w).set_value(false);
@@ -210,7 +210,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
             std::string text = "";
             text = UnifiedRender::Locale::translate("We can't research this because we don't have ");
             for(const auto& req_tech : o.technology->req_technologies) {
-                if(o.gs.curr_nation->research[o.gs.world->get_id(req_tech)] > 0.f) {
+                if(o.gs.curr_nation->research[o.gs.world->get_id(*req_tech)] > 0.f) {
                     text += UnifiedRender::Locale::translate(req_tech->name) + ", ";
                 }
             }
@@ -228,7 +228,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
     auto* pgbar = new UI::ProgressBar(0, 24, 128, 24, 0.f, technology->cost, this);
     pgbar->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<TechnologyInfo&>(*w.parent);
-        ((UI::ProgressBar&)w).value = std::fabs(o.gs.curr_nation->research[o.gs.world->get_id(o.technology)] - o.technology->cost);
+        ((UI::ProgressBar&)w).value = std::fabs(o.gs.curr_nation->research[o.gs.world->get_id(*o.technology)] - o.technology->cost);
     });
 }
 
@@ -319,7 +319,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
     this->demand_chart->text("Demand");
     this->demand_chart->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
-        //new ProductView(o.gs, o.province->products[o.gs.world->get_id(o.good)]);
+        //new ProductView(o.gs, o.province->products[o.gs.world->get_id(*o.good)]);
     });
     this->demand_chart->set_tooltip(new UI::Tooltip(this->demand_chart, 512, 24));
 
@@ -331,7 +331,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
             return;
         }
 
-        Product& product = o.province->products[o.gs.world->get_id(o.good)];
+        Product& product = o.province->products[o.gs.world->get_id(*o.good)];
 
         o.price_chart->data.clear();
         for(const auto& data : product.price_history) {

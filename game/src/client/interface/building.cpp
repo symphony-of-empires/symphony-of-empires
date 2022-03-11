@@ -97,7 +97,7 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
             }
 
             const BuildingType* building_type = ((BuildingTypeButton&)w).building_type;
-            o.province->buildings[o.gs.world->get_id(building_type)].level += 1;
+            o.province->buildings[o.gs.world->get_id(*building_type)].level += 1;
             g_client->send(Action::BuildingAdd::form_packet(o.province, ((BuildingTypeButton&)w).building_type));
             o.gs.ui_ctx->prompt("Production", "Building a " + building_type->name + " in " + o.province->ref_name + "; owned by " + o.province->controller->name);
         });
