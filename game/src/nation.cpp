@@ -86,15 +86,15 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     for(auto& attacker : war->attackers) {
         for(auto& defender : war->defenders) {
             // Bilateral war
-            attacker->relations[world.get_id(defender)].has_war = true;
-            attacker->relations[world.get_id(defender)].has_alliance = false;
-            attacker->relations[world.get_id(defender)].has_defensive_pact = false;
-            attacker->relations[world.get_id(defender)].relation = -100.f;
+            attacker->relations[world.get_id(*defender)].has_war = true;
+            attacker->relations[world.get_id(*defender)].has_alliance = false;
+            attacker->relations[world.get_id(*defender)].has_defensive_pact = false;
+            attacker->relations[world.get_id(*defender)].relation = -100.f;
 
-            defender->relations[world.get_id(attacker)].has_war = true;
-            defender->relations[world.get_id(attacker)].has_alliance = false;
-            defender->relations[world.get_id(attacker)].has_defensive_pact = false;
-            defender->relations[world.get_id(attacker)].relation = -100.f;
+            defender->relations[world.get_id(*attacker)].has_war = true;
+            defender->relations[world.get_id(*attacker)].has_alliance = false;
+            defender->relations[world.get_id(*attacker)].has_defensive_pact = false;
+            defender->relations[world.get_id(*attacker)].relation = -100.f;
         }
     }
 
@@ -106,13 +106,13 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     war->name = "War of " + this->name + " against " + nation.name;
     UnifiedRender::Log::debug("game", war->name);
 
-    world.insert(war);
+    world.insert(*war);
 }
 
 bool Nation::is_ally(const Nation& nation) {
     const World& world = World::get_instance();
 
-    if(nation.relations[world.get_id(this)].has_war || this->relations[world.get_id(&nation)].has_war) {
+    if(nation.relations[world.get_id(*this)].has_war || this->relations[world.get_id(nation)].has_war) {
         return false;
     }
     return true;
@@ -121,7 +121,7 @@ bool Nation::is_ally(const Nation& nation) {
 bool Nation::is_enemy(const Nation& nation) {
     const World& world = World::get_instance();
 
-    if(nation.relations[world.get_id(this)].has_war || this->relations[world.get_id(&nation)].has_war) {
+    if(nation.relations[world.get_id(*this)].has_war || this->relations[world.get_id(nation)].has_war) {
         return true;
     }
     return false;
@@ -148,8 +148,8 @@ void Nation::increase_relation(Nation& target) {
     //if(!can_do_diplomacy()) return;
 
     const World& world = World::get_instance();
-    this->relations[world.get_id(&target)].relation += 5.f;
-    target.relations[world.get_id(this)].relation += 5.f;
+    this->relations[world.get_id(target)].relation += 5.f;
+    target.relations[world.get_id(*this)].relation += 5.f;
 
     UnifiedRender::Log::debug("game", ref_name + " increases relations with " + target.ref_name);
     this->do_diplomacy();
@@ -159,8 +159,8 @@ void Nation::decrease_relation(Nation& target) {
     //if(!can_do_diplomacy()) return;
 
     const World& world = World::get_instance();
-    this->relations[world.get_id(&target)].relation -= 5.f;
-    target.relations[world.get_id(this)].relation -= 5.f;
+    this->relations[world.get_id(target)].relation -= 5.f;
+    target.relations[world.get_id(*this)].relation -= 5.f;
 
     UnifiedRender::Log::debug("game", ref_name + " decreases relations with " + target.ref_name);
     this->do_diplomacy();
@@ -361,7 +361,7 @@ bool Nation::can_research(const Technology* tech) const {
 
     // All required technologies for this one must be researched
     for(const auto& req_tech : tech->req_technologies) {
-        if(research[World::get_instance().get_id(req_tech)] > 0.f) {
+        if(research[World::get_instance().get_id(*req_tech)] > 0.f) {
             return false;
         }
     }
@@ -370,7 +370,7 @@ bool Nation::can_research(const Technology* tech) const {
 
 void Nation::change_research_focus(Technology* tech) {
     // Can't have already researched it (it would be dumb to re-research
-    if(!research[World::get_instance().get_id(tech)]) {
+    if(!research[World::get_instance().get_id(*tech)]) {
         return;
     }
 
@@ -387,7 +387,7 @@ std::vector<Nation*> Nation::get_allies(void) {
 
     std::vector<Nation*> list;
     for(const auto& nation : world.nations) {
-        if(relations[world.get_id(nation)].has_alliance) {
+        if(relations[world.get_id(*nation)].has_alliance) {
             list.push_back(nation);
         }
     }

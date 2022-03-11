@@ -64,10 +64,10 @@ public:
 
 // Create a new list from a type, with helper functions
 #define LIST_FOR_TYPE(type, list, list_type)\
-    inline const list_type<type*>& get_list(const type*) const {\
+    inline const list_type<type*>& get_list(const type&) const {\
         return list;\
     };\
-    inline list_type<type*>& get_list(const type*) {\
+    inline list_type<type*>& get_list(const type&) {\
         return list;\
     };\
     list_type<type*> list;
@@ -111,14 +111,14 @@ public:
     LIST_FOR_TYPE(War, wars, std::vector);
 
     template<typename T>
-    inline void insert(T* ptr) {
+    inline void insert(const T& ptr) {
         auto& list = this->get_list(ptr);
-        ptr->cached_id = list.size();
-        list.push_back(ptr);
+        ptr.cached_id = list.size();
+        list.push_back((T*)&ptr);
     };
 
     template<typename T>
-    inline void remove(T* ptr) {
+    inline void remove(T& ptr) {
         // Decrease the cache_id counter for the elements after the removed element
         typename T::Id cached_id = this->get_id<T>(ptr);
         auto& list = this->get_list(ptr);
@@ -130,19 +130,18 @@ public:
         list.erase(list.begin() + cached_id);
     };
 
-    inline size_t get_id(const Tile* ptr) const {
-        return ((ptrdiff_t)ptr - (ptrdiff_t)tiles) / sizeof(Tile);
+    inline size_t get_id(const Tile& ptr) const {
+        return ((ptrdiff_t)&ptr - (ptrdiff_t)tiles) / sizeof(Tile);
     };
 
     // Template for all types except for tiles (we can do this because we can
     // obtain the list from the type) with get_list helper functions
     template<typename T>
-    inline typename T::Id get_id(const T* ptr) const {
-        return ptr->cached_id;
+    inline typename T::Id get_id(const T& ptr) const {
+        return ptr.cached_id;
     };
 
-    template<typename T>
-    inline float get_dist_from_equator(T x) const {
+    float get_dist_from_equator(float x) const {
         return std::fabs(std::fabs(x) - (width / 2.0));
     };
 

@@ -339,7 +339,7 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
         ));
     }
     flag.upload();
-    shader.set_texture(0, "diffuse_map", *nation_flags[world.get_id(&nation)]);
+    shader.set_texture(0, "diffuse_map", *nation_flags[world.get_id(nation)]);
     flag.draw();
 }
 
@@ -435,7 +435,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
             if(unit->province->controller != nullptr && unit->province->controller != gs.curr_nation) {
                 // Must either be our ally, have military access with them or be at war
-                const NationRelation& relation = gs.curr_nation->relations[gs.world->get_id(unit->province->controller)];
+                const NationRelation& relation = gs.curr_nation->relations[gs.world->get_id(*unit->province->controller)];
                 if(!(relation.has_war || relation.has_alliance || relation.has_military_access)) {
                     continue;
                 }
@@ -616,8 +616,8 @@ void Map::draw(const GameState& gs) {
         for(const auto& battle : war->battles) {
             unsigned int i;
 
-            const float y = province_units_y[world.get_id(&battle.province)];
-            province_units_y[world.get_id(&battle.province)] += 2.5f;
+            const float y = province_units_y[world.get_id(battle.province)];
+            province_units_y[world.get_id(battle.province)] += 2.5f;
             const std::pair<float, float> prov_pos = battle.province.get_pos();
 
             // Attackers on the left side
@@ -627,13 +627,13 @@ void Map::draw(const GameState& gs) {
                 glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_uniform("model", model);
-                obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(unit->owner)]);
+                obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
 
                 auto flag_quad = UnifiedRender::Quad2D();
                 flag_quad.draw();
 
                 // Model
-                unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
+                unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
                 i++;
             }
 
@@ -644,20 +644,20 @@ void Map::draw(const GameState& gs) {
                 glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_uniform("model", model);
-                obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(unit->owner)]);
+                obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
                 auto flag_quad = UnifiedRender::Quad2D();
                 flag_quad.draw();
 
                 // Model
-                unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
+                unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
                 i++;
             }
         }
     }
 
     for(const auto& province : world.provinces) {
-        const float y = province_units_y[world.get_id(province)];
-        province_units_y[world.get_id(province)] += 2.5f;
+        const float y = province_units_y[world.get_id(*province)];
+        province_units_y[world.get_id(*province)] += 2.5f;
         const std::pair<float, float> prov_pos = province->get_pos();
 
         unsigned int i = 0;
@@ -676,13 +676,13 @@ void Map::draw(const GameState& gs) {
                 //model = glm::rotate(model, std::atan2(tpos.first - pos.first, tpos.second - pos.second), glm::vec3(0.f, 1.f, 0.f));
             }
             obj_shader->set_uniform("model", model);
-            obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(unit->owner)]);
+            obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
             auto flag_quad = UnifiedRender::Quad2D();
             flag_quad.draw();
 
             // Model
             obj_shader->set_uniform("model", model);
-            unit_type_models[world.get_id(unit->type)]->draw(*obj_shader);
+            unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
 
             i++;
         }

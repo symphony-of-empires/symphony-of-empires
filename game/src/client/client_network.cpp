@@ -181,7 +181,7 @@ void Client::net_loop(void) {
                     case ActionType::NATION_ADD: {
                         Nation* nation = new Nation();
                         ::deserialize(ar, nation);
-                        world.insert(nation);
+                        world.insert(*nation);
                         for(auto& _nation : world.nations) {
                             _nation->relations.resize(world.nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
                         }
@@ -221,7 +221,7 @@ void Client::net_loop(void) {
                     case ActionType::UNIT_ADD: {
                         Unit* unit = new Unit();
                         ::deserialize(ar, unit);
-                        world.insert(unit);
+                        world.insert(*unit);
                         print_info("New unit of [%s]", unit->owner->ref_name.c_str());
                     } break;
                     case ActionType::BUILDING_ADD: {
@@ -244,7 +244,7 @@ void Client::net_loop(void) {
                     case ActionType::TREATY_ADD: {
                         Treaty* treaty = new Treaty();
                         ::deserialize(ar, treaty);
-                        world.insert(treaty);
+                        world.insert(*treaty);
                         print_info("New treaty from [%s]", treaty->sender->ref_name.c_str());
                         for(const auto& status : treaty->approval_status) {
                             print_info("- [%s]", status.first->ref_name.c_str());

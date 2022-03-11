@@ -66,7 +66,7 @@ namespace std {
 
 const std::vector<const Tile*> Tile::get_neighbours(const World& world) const {
     std::vector<const Tile*> tiles;
-    const size_t idx = world.get_id(this);
+    const size_t idx = world.get_id(*this);
 
     // Up
     if(idx > world.width) {
@@ -279,7 +279,7 @@ World::World() {
         }},
         { "register", [](lua_State* L) {
             Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
-            g_world->insert(*ideology);
+            g_world->insert(**ideology);
             UnifiedRender::Log::debug("lua", "New ideology " + (*ideology)->ref_name);
             UnifiedRender::Log::debug("lua", "__register?");
             return 0;
@@ -456,7 +456,7 @@ void World::load_initial(void) {
     UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Building the province lookup table"));
     std::vector<Province::Id> province_color_table(16777216, (Province::Id)-1);
     for(auto& province : provinces) {
-        province_color_table[province->color & 0xffffff] = get_id(province);
+        province_color_table[province->color & 0xffffff] = get_id(*province);
     }
 
     /*if(1) {
@@ -480,7 +480,7 @@ void World::load_initial(void) {
         for(unsigned int i = 0; i < provinces.size(); i++) {
             auto& province = *provinces[i];
             if(!province.n_tiles) {
-                remove(&province);
+                remove(province);
 
                 for(auto& nation : nations) {
                     nation->owned_provinces.erase(&province);
@@ -496,7 +496,7 @@ void World::load_initial(void) {
                         continue;
                     }
 
-                    /*remove(&building);
+                    /*remove(building);
                     delete &building;
                     j--;/
                 }
@@ -722,7 +722,7 @@ void World::do_tick() {
         // Research stuff
         UnifiedRender::Decimal research = nation->get_research_points();
         if(nation->focus_tech != nullptr) {
-            UnifiedRender::Decimal* research_progress = &nation->research[get_id(nation->focus_tech)];
+            UnifiedRender::Decimal* research_progress = &nation->research[get_id(*nation->focus_tech)];
             *research_progress -= std::min(research, *research_progress);
             if(!(*research_progress)) {
                 // Give the country the modifiers attached to the technology
@@ -783,7 +783,7 @@ void World::do_tick() {
             }
 
             // Must not our unit and only if we are at war
-            if(other_unit->owner == unit->owner || !unit->owner->relations[get_id(other_unit->owner)].has_war) {
+            if(other_unit->owner == unit->owner || !unit->owner->relations[get_id(*other_unit->owner)].has_war) {
                 continue;
             }
 
@@ -879,7 +879,7 @@ void World::do_tick() {
 
                         auto it = std::find(unit->province->units.begin(), unit->province->units.end(), unit);
                         unit->province->units.erase(it);
-                        remove(unit);
+                        remove(*unit);
                         delete unit;
                         continue;
                     }
@@ -901,7 +901,7 @@ void World::do_tick() {
 
                         auto it = std::find(unit->province->units.begin(), unit->province->units.end(), unit);
                         unit->province->units.erase(it);
-                        remove(unit);
+                        remove(*unit);
                         delete unit;
                         continue;
                     }
@@ -926,16 +926,16 @@ void World::do_tick() {
                 continue;
             }
 
-            UnifiedRender::Decimal* research_progress = &nation->research[get_id(tech)];
+            UnifiedRender::Decimal* research_progress = &nation->research[get_id(*tech)];
             if(!(*research_progress)) {
                 continue;
             }
 
             UnifiedRender::Decimal* pts_count;
             if(tech->type == TechnologyType::MILITARY) {
-                pts_count = &mil_research_pts[get_id(nation)];
+                pts_count = &mil_research_pts[get_id(*nation)];
             } else if(tech->type == TechnologyType::NAVY) {
-                pts_count = &naval_research_pts[get_id(nation)];
+                pts_count = &naval_research_pts[get_id(*nation)];
             } else {
                 continue;
             }

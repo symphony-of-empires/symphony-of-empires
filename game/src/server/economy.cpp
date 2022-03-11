@@ -116,7 +116,7 @@ void Economy::do_tick(World& world) {
             }
 
             for(const auto& building_type : world.building_types) {
-                auto& building = province->buildings[world.get_id(building_type)];
+                auto& building = province->buildings[world.get_id(*building_type)];
                 building.production_cost = 0.f;
 
                 // Building not built does not exist
@@ -259,7 +259,7 @@ void Economy::do_tick(World& world) {
                     // Consume inputs needed to produce stuff (will decrease supplies and increase demand)
                     size_t k = 0;
                     for(const auto& input : building_type->inputs) {
-                        Product& product = province->products[world.get_id(input)];
+                        Product& product = province->products[world.get_id(*input)];
                         // Farmers can only work with edibles and laborers can only work for edibles
                         UnifiedRender::Number quantity = 0.f;
                         if(input->is_edible) {
@@ -298,7 +298,7 @@ void Economy::do_tick(World& world) {
                     UnifiedRender::Log::debug("economy", "Can do output!!!");
 #endif
                     for(const auto& output : building_type->outputs) {
-                        Product& product = province->products[world.get_id(output)];
+                        Product& product = province->products[world.get_id(*output)];
                         // Farmers can only work with edibles and laborers can only work for edibles
                         UnifiedRender::Number quantity = 0;
                         if(output->is_edible) {
@@ -361,7 +361,7 @@ void Economy::do_tick(World& world) {
                 pop.everyday_needs_met = std::min<UnifiedRender::Decimal>(1.5f, std::max<UnifiedRender::Decimal>(pop.everyday_needs_met, -5.f));
 
                 // Current liking of the party is influenced by the life_needs_met
-                pop.ideology_approval[world.get_id(nation->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
+                pop.ideology_approval[world.get_id(*nation->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
 
                 // NOTE: We used to have this thing where anything below 2.5 meant everyone dies
                 // and this was removed because it's such an unescesary detail that consumes precious
@@ -387,9 +387,9 @@ void Economy::do_tick(World& world) {
             for(auto& product : province->products) {
                 product.close_market();
                 for(const auto& building_type : world.building_types) {
-                    Building& building = province->buildings[world.get_id(building_type)];
+                    Building& building = province->buildings[world.get_id(*building_type)];
                     for(const auto& output : building_type->outputs) {
-                        if(world.get_id(output) == i) {
+                        if(world.get_id(*output) == i) {
                             building.budget += product.demand * product.price;
                             break;
                         }
@@ -402,7 +402,7 @@ void Economy::do_tick(World& world) {
         // Do research on focused research
         if(nation->focus_tech != nullptr) {
             const UnifiedRender::Decimal research = nation->get_research_points() / nation->focus_tech->cost;
-            nation->research[world.get_id(nation->focus_tech)] += research;
+            nation->research[world.get_id(*nation->focus_tech)] += research;
         }
 
         // Total anger in population (global)
@@ -418,7 +418,7 @@ void Economy::do_tick(World& world) {
                 const UnifiedRender::Decimal anger = (std::max<UnifiedRender::Decimal>(pop.militancy * pop.con, 0.001f) / std::max<UnifiedRender::Decimal>(pop.literacy, 1.f) / std::max<UnifiedRender::Decimal>(pop.life_needs_met, 0.001f));
                 total_anger += anger;
                 for(const auto& ideology : world.ideologies) {
-                    ideology_anger[world.get_id(ideology)] += (pop.ideology_approval[world.get_id(ideology)] * anger) * (pop.size / 1000);
+                    ideology_anger[world.get_id(*ideology)] += (pop.ideology_approval[world.get_id(*ideology)] * anger) * (pop.size / 1000);
                 }
             }
         }
@@ -452,7 +452,7 @@ void Economy::do_tick(World& world) {
             dup_nation->client_hints = nation->client_hints;
             // Rebel with the most popular ideology
             dup_nation->ideology = world.ideologies[std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()))];
-            world.insert(dup_nation);
+            world.insert(*dup_nation);
             for(auto& _nation : world.nations) {
                 _nation->relations.resize(world.nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
             }
@@ -524,7 +524,7 @@ void Economy::do_tick(World& world) {
             }
 
             // Now commit the transaction of the new units into the main world area
-            world.insert(unit);
+            world.insert(*unit);
             g_server->broadcast(Action::UnitAdd::form_packet(*unit));
         }
     }

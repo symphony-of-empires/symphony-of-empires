@@ -48,29 +48,29 @@ void ProvincePopulationTab::update_piecharts() {
     std::vector<size_t> religion_sizes(gs.world->religions.size(), 0);
     std::vector<size_t> pop_type_sizes(gs.world->pop_types.size(), 0);
     for(const auto& pop : province->pops) {
-        culture_sizes[gs.world->get_id(pop.culture)] += pop.size;
-        religion_sizes[gs.world->get_id(pop.religion)] += pop.size;
-        pop_type_sizes[gs.world->get_id(pop.type)] += pop.size;
+        culture_sizes[gs.world->get_id(*pop.culture)] += pop.size;
+        religion_sizes[gs.world->get_id(*pop.religion)] += pop.size;
+        pop_type_sizes[gs.world->get_id(*pop.type)] += pop.size;
     }
 
     std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
     for(const auto& culture : gs.world->cultures) {
-        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(culture)], culture->name, UnifiedRender::Color::rgba32(culture->color)));
+        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(*culture)], culture->name, UnifiedRender::Color::rgba32(culture->color)));
     }
     cultures_pie->set_data(cultures_data);
 
     for(const auto& religion : gs.world->religions) {
-        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion->name, UnifiedRender::Color::rgba32(religion->color)));
+        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(*religion)], religion->name, UnifiedRender::Color::rgba32(religion->color)));
     }
     religions_pie->set_data(religions_data);
 
     for(const auto& pop_type : gs.world->pop_types) {
         const auto color = UnifiedRender::Color(
-            (uint8_t)((gs.world->get_id(pop_type) * 12) % 256),
-            (uint8_t)((gs.world->get_id(pop_type) * 31) % 256),
-            (uint8_t)((gs.world->get_id(pop_type) * 97) % 256)
+            (uint8_t)((gs.world->get_id(*pop_type) * 12) % 256),
+            (uint8_t)((gs.world->get_id(*pop_type) * 31) % 256),
+            (uint8_t)((gs.world->get_id(*pop_type) * 97) % 256)
         );
-        pop_types_data.push_back(UI::ChartData(pop_type_sizes[gs.world->get_id(pop_type)], pop_type->name, color));
+        pop_types_data.push_back(UI::ChartData(pop_type_sizes[gs.world->get_id(*pop_type)], pop_type->name, color));
     }
     pop_types_pie->set_data(pop_types_data);
 
@@ -134,7 +134,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
         int i = 0;
         for(const auto& good : o.gs.world->goods) {
             const auto good_col = UnifiedRender::Color(i * 12, i * 31, i * 97);
-            Product& product = o.province->products[o.gs.world->get_id(good)];
+            Product& product = o.province->products[o.gs.world->get_id(*good)];
             goods_data.push_back(UI::ChartData(product.demand, good->name, good_col));
             i++;
         }

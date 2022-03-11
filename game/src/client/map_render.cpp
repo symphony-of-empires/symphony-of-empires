@@ -132,7 +132,7 @@ MapRender::MapRender(const World& _world)
         if(tile.province_id <= world.provinces.size()) {
             const auto* province = world.provinces[tile.province_id];
             if(province->owner != nullptr) {
-                tile_map->buffer.get()[i] |= (world.get_id(province->owner) & 0xffff) << 16;
+                tile_map->buffer.get()[i] |= (world.get_id(*province->owner) & 0xffff) << 16;
             }
         }
     }

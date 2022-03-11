@@ -211,7 +211,7 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, &province);
                     BuildingType* building_type;
                     ::deserialize(ar, &building_type);
-                    province->buildings[g_world->get_id(building_type)].level += 1;
+                    province->buildings[g_world->get_id(*building_type)].level += 1;
                     // Rebroadcast
                     broadcast(Action::BuildingAdd::form_packet(province, building_type));
                 } break;
@@ -298,7 +298,7 @@ void Server::net_loop(int id) {
                         }
                     }
 
-                    g_world->insert(treaty);
+                    g_world->insert(*treaty);
 
                     // Rebroadcast to client
                     // We are going to add a treaty to the client
