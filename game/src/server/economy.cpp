@@ -237,12 +237,13 @@ void Economy::do_tick(World& world) {
                         unit->size = unit->type->max_health;
                         unit->base = unit->size;
 
-                        world.world_mutex.lock();
                         // Notify all clients of the server about this new unit
-                        building.working_unit_type = nullptr;
+                        world.world_mutex.lock();
                         world.insert(unit);
-                        g_server->broadcast(Action::UnitAdd::form_packet(*unit));
                         world.world_mutex.unlock();
+                        
+                        building.working_unit_type = nullptr;
+                        g_server->broadcast(Action::UnitAdd::form_packet(*unit));
                         UnifiedRender::Log::debug("economy", "[" + province->ref_name + "]: Has built an unit of [" + unit->type->ref_name + "]");
                     }
                 }

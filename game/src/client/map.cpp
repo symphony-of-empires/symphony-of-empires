@@ -374,7 +374,6 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 }
 
                 std::pair<float, float> pos = unit->get_pos();
-
                 std::pair<float, float> start_pos = input.drag_coord;
                 if(input.select_pos.first < input.drag_coord.first) {
                     start_pos.first = input.select_pos.first;
@@ -658,7 +657,6 @@ void Map::draw(const GameState& gs) {
                 //const std::pair<float, float> tpos = unit->target->get_pos();
                 //model = glm::rotate(model, std::atan2(tpos.first - pos.first, tpos.second - pos.second), glm::vec3(0.f, 1.f, 0.f));
             }
-            model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_uniform("model", model);
             obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(unit->owner)]);
             auto flag_quad = UnifiedRender::Quad2D();

@@ -99,7 +99,6 @@ LobbySelectView::LobbySelectView(GameState& _gs)
         auto data = &ldgame_data[i];
         ldgame_btn->on_click = ([data](UI::Widget& w){
             std::scoped_lock lock1(data->gs.world->world_mutex);
-
             if(data->gs.world != nullptr) {
                 delete data->gs.world;
             }
