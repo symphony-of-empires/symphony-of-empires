@@ -974,7 +974,21 @@ int LuaAPI::get_pop_type(lua_State* L) {
     lua_pushboolean(L, pop_type->group == PopGroup::Slave);
     lua_pushboolean(L, pop_type->group == PopGroup::FARMER);
     lua_pushboolean(L, pop_type->group == PopGroup::LABORER);
-    return 7;
+    lua_newtable(L);
+    size_t index = 1;
+    for(size_t i = 0; i < pop_type->good_needs.size(); i++) {
+        if(pop_type->good_needs[i] != 0) {
+            lua_pushnumber(L, index++);
+
+            lua_newtable(L);
+            lua_pushnumber(L, i);
+            lua_pushnumber(L, pop_type->good_needs[i]);
+            lua_settable(L, -3);
+
+            lua_settable(L, -3);
+        }
+    }
+    return 8;
 }
 
 int LuaAPI::get_pop_type_by_id(lua_State* L) {
@@ -987,7 +1001,21 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
     lua_pushboolean(L, pop_type->group == PopGroup::Slave);
     lua_pushboolean(L, pop_type->group == PopGroup::FARMER);
     lua_pushboolean(L, pop_type->group == PopGroup::LABORER);
-    return 7;
+    lua_newtable(L);
+    size_t index = 1;
+    for(size_t i = 0; i < pop_type->good_needs.size(); i++) {
+        if(pop_type->good_needs[i] != 0) {
+            lua_pushnumber(L, index++);
+
+            lua_newtable(L);
+            lua_pushnumber(L, i);
+            lua_pushnumber(L, pop_type->good_needs[i]);
+            lua_settable(L, -3);
+
+            lua_settable(L, -3);
+        }
+    }
+    return 8;
 }
 
 int LuaAPI::add_culture(lua_State* L) {
