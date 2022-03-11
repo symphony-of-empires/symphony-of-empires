@@ -32,6 +32,7 @@
 #include "unified_render/ui/close_button.hpp"
 #include "unified_render/ui/image.hpp"
 #include "unified_render/ui/tooltip.hpp"
+#include "unified_render/locale.hpp"
 
 #include "client/interface/minimap.hpp"
 #include "client/map.hpp"
@@ -39,7 +40,8 @@
 
 using namespace Interface;
 
-std::vector<ProvinceColor> terrain_map_mode(const World& world);
+std::vector<ProvinceColor> relations_map_mode(const World& world);
+std::string relations_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> terrain_color_map_mode(const World& world);
 std::string terrain_type_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> population_map_mode(const World& world);
@@ -48,6 +50,8 @@ std::vector<ProvinceColor> culture_map_mode(const World& world);
 std::string culture_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> religion_map_mode(const World& world);
 std::string religion_tooltip(const World& world, const Province::Id id);
+// UNUSED
+std::vector<ProvinceColor> terrain_map_mode(const World& world);
 
 Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     : UI::Window(x, y, 400, 200),
@@ -83,14 +87,14 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     });
     political_ibtn->set_tooltip("Political");
 
-    auto* terrain_ibtn = new UI::Image(5, 65, 24, 24, "gfx/icon.png", this);
-    terrain_ibtn->on_click = ([](UI::Widget& w) {
+    auto* relations_ibtn = new UI::Image(5, 65, 24, 24, "gfx/icon.png", this);
+    relations_ibtn->on_click = ([](UI::Widget& w) {
         Minimap* state = (Minimap*)w.parent;
-        mapmode_generator map_mode = terrain_map_mode;
-        mapmode_tooltip tooltip = empty_province_tooltip;
+        mapmode_generator map_mode = relations_map_mode;
+        mapmode_tooltip tooltip = relations_tooltip;
         state->gs.map->set_map_mode(map_mode, tooltip);
     });
-    terrain_ibtn->set_tooltip("Political");
+    relations_ibtn->set_tooltip("Relations");
 
     auto* population_ibtn = new UI::Image(5, 95, 24, 24, "gfx/icon.png", this);
     population_ibtn->on_click = ([](UI::Widget& w) {
@@ -129,6 +133,74 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     religion_ibtn->set_tooltip("Religion");
 
     new UI::Image(65, 5, 332, 166, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/minimap.png")), this);
+}
+
+#include "unified_render/byteswap.hpp"
+std::vector<ProvinceColor> relations_map_mode(const World& world) {
+    GameState& gs = ((GameState&)GameState::get_instance());
+
+    std::vector<ProvinceColor> provinces_color;
+    for(unsigned int i = 0; i < world.provinces.size(); i++) {
+        const Province& province = *world.provinces[i];
+        if(province.controller == nullptr) {
+            UnifiedRender::Color color = UnifiedRender::Color::rgba32(bswap32(0x808080ff));
+            provinces_color.push_back(ProvinceColor(i, color));
+            continue;
+        }
+
+        if(province.controller == gs.curr_nation) {
+            UnifiedRender::Color color = UnifiedRender::Color::rgba32(bswap32(0x8080ffff));
+            provinces_color.push_back(ProvinceColor(i, color));
+            continue;
+        }
+
+        const NationRelation& rel = province.controller->relations[world.get_id(gs.curr_nation)];
+        
+        const uint8_t r = (rel.relation < 0.f) ? -rel.relation : 0.f;
+        const uint8_t g = (rel.relation > 0.f) ? rel.relation : 0.f;
+        const uint8_t b = g;
+        UnifiedRender::Color color = UnifiedRender::Color::rgba32(bswap32(~(0x00000000 | (b << 24) | (r << 16) | (g << 8))));
+        provinces_color.push_back(ProvinceColor(i, color));
+    }
+    return provinces_color;
+}
+
+std::string relations_tooltip(const World& world, const Province::Id id) {
+    const Province& province = *world.provinces[id];
+    std::string str;
+
+    if(province.controller == nullptr) {
+        str += UnifiedRender::Locale::translate("Uncontrolled");
+        return str;
+    }
+
+    if(province.controller == province.owner) {
+        str += UnifiedRender::Locale::translate(province.owner->get_client_hint().alt_name);
+        goto form_final;
+    }
+
+    str += UnifiedRender::Locale::translate("Owned by") + " ";
+    str += UnifiedRender::Locale::translate(province.owner->get_client_hint().alt_name);
+    str += " " + UnifiedRender::Locale::translate("controlled by") + " ";
+    str += UnifiedRender::Locale::translate(province.controller->get_client_hint().alt_name);
+form_final:
+    str += " ";
+
+    const NationRelation& rel = province.controller->relations[world.get_id(((GameState&)GameState::get_instance()).curr_nation)];
+    const std::vector<std::string> rel_lvls = {
+        "nemesis",
+        "enemy",
+        "disrespectful",
+        "neutral",
+        "respectful",
+        "collaborates",
+        "friendly"
+    };
+
+    int idx = ((rel.relation + 200.f) / (200.f * 2.f)) * rel_lvls.size();
+    str += std::to_string(rel.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
+
+    return str;
 }
 
 std::vector<ProvinceColor> terrain_map_mode(const World& world) {

@@ -23,15 +23,9 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "client/interface/main_menu.hpp"
-#include "client/interface/settings.hpp"
-#include "client/client_network.hpp"
-#include "server/server_network.hpp"
-#include "world.hpp"
 #include "unified_render/print.hpp"
+#include "unified_render/log.hpp"
 #include "unified_render/path.hpp"
-#include "client/map.hpp"
-#include "client/map_render.hpp"
 #include "unified_render/texture.hpp"
 #include "unified_render/ui/button.hpp"
 #include "unified_render/ui/input.hpp"
@@ -42,6 +36,14 @@
 #include "unified_render/ui/group.hpp"
 #include "unified_render/ui/image.hpp"
 #include "unified_render/ui/close_button.hpp"
+
+#include "client/interface/main_menu.hpp"
+#include "client/interface/settings.hpp"
+#include "client/client_network.hpp"
+#include "server/server_network.hpp"
+#include "world.hpp"
+#include "client/map.hpp"
+#include "client/map_render.hpp"
 #include "client/interface/lobby.hpp"
 
 using namespace Interface;
@@ -72,7 +74,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     conn_btn->text("Connect");
     conn_btn->on_click = ([this](UI::Widget& w) {
         auto& gs = this->gs;
-        print_info("Okey, connecting to [%s]", this->ip_addr_inp->buffer.c_str());
+        UnifiedRender::Log::debug("ui", "Okey, connecting to [" + ip_addr_inp->buffer + "]");
 
         // TODO: Handle when mods differ (i.e checksum not equal to host)
         gs.host_mode = false;
