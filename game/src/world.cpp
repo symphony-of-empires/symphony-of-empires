@@ -734,7 +734,7 @@ void World::do_tick() {
                 nation->focus_tech = nullptr;
             }
         }
-        //ai_do_tick(nation, this);
+        ai_do_tick(nation, this);
     });
     profiler.stop("AI");
 
