@@ -519,6 +519,10 @@ void Economy::do_tick(World& world) {
         // Lock for world is already acquired since the economy runs inside the world's do_tick which
         // should be lock guarded by the callee
         for(const auto& unit : new_units) {
+            if(world.units.size() >= 10000) {
+                continue;
+            }
+
             // Now commit the transaction of the new units into the main world area
             world.insert(unit);
             g_server->broadcast(Action::UnitAdd::form_packet(*unit));

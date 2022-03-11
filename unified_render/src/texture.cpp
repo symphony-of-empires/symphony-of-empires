@@ -175,7 +175,7 @@ UnifiedRender::Texture::Texture(TTF_Font* font, UnifiedRender::Color color, cons
         throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
     }
 
-    buffer.reset(new uint32_t[surface->w * surface->h]);
+    buffer.reset();
     width = static_cast<size_t>(surface->w);
     height = static_cast<size_t>(surface->h);
     this->to_opengl(surface);
@@ -236,7 +236,7 @@ UnifiedRender::TextureArray::TextureArray(const std::string& path, size_t _tiles
 }
 
 // Uploads the TextureArray to the driver
-void UnifiedRender::TextureArray::to_opengl(GLuint wrapp, GLuint min_filter, GLuint mag_filter) {
+void UnifiedRender::TextureArray::to_opengl(void) {
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D_ARRAY, gl_tex_num);
 
@@ -307,8 +307,7 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::str
     UnifiedRender::Texture* tex;
     try {
         tex = new UnifiedRender::Texture(path);
-    }
-    catch(BinaryImageException&) {
+    } catch(BinaryImageException&) {
         tex = new UnifiedRender::Texture();
         tex->create_dummy();
     }

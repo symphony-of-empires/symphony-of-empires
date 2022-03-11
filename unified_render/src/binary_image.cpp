@@ -63,10 +63,14 @@ void BinaryImage::from_file(const UnifiedRender::IO::Path& path) {
     if(c_buffer == nullptr) {
         throw BinaryImageException(path.str, std::string() + "Image load error: " + stbi_failure_reason());
     }
-    buffer.reset((uint32_t*)c_buffer);
 
     width = static_cast<size_t>(i_width);
     height = static_cast<size_t>(i_height);
+
+    // valgrind complains about mismatched frees
+    buffer = std::unique_ptr<uint32_t>(new uint32_t[width * height]);
+    std::memcpy(buffer.get(), c_buffer, sizeof(uint32_t) * width * height);
+    free(c_buffer);
 }
 
 uint32_t BinaryImage::get_pixel(size_t x, size_t y) const {

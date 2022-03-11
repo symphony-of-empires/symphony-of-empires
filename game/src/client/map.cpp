@@ -339,7 +339,6 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
         ));
     }
     flag.upload();
-
     shader.set_texture(0, "diffuse_map", *nation_flags[world.get_id(&nation)]);
     flag.draw();
 }
@@ -356,6 +355,14 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
         const Tile& tile = gs.world->get_tile(select_pos.first, select_pos.second);
         switch(gs.current_mode) {
+        case MapMode::RELATIONS_SELECT:
+            if(tile.province_id < (Province::Id)-3) {
+                auto province = world.provinces[tile.province_id];
+                if(province->controller != nullptr) {
+                    gs.highlighted_nation = province->controller;
+                }
+            }
+            break;
         case MapMode::COUNTRY_SELECT:
             if(tile.province_id < (Province::Id)-3) {
                 auto province = world.provinces[tile.province_id];
@@ -568,8 +575,7 @@ void Map::update_mapmode() {
 
 void Map::draw(const GameState& gs) {
     if(nation_flags.size() < world.nations.size()) {
-        for(unsigned int i = nation_flags.size() - 1; i < world.nations.size(); i++) {
-            const Nation* nation = world.nations[i];
+        for(const auto& nation : world.nations) {
             UnifiedRender::TextureOptions mipmap_options{};
             mipmap_options.wrap_s = GL_REPEAT;
             mipmap_options.wrap_t = GL_REPEAT;
@@ -580,6 +586,18 @@ void Map::draw(const GameState& gs) {
             flag_texture->gen_mipmaps();
             nation_flags.push_back(flag_texture);
         }
+        /*for(unsigned int i = nation_flags.size() - 1; i < world.nations.size(); i++) {
+            const Nation* nation = world.nations[i];
+            UnifiedRender::TextureOptions mipmap_options{};
+            mipmap_options.wrap_s = GL_REPEAT;
+            mipmap_options.wrap_t = GL_REPEAT;
+            mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
+            mipmap_options.mag_filter = GL_LINEAR;
+            std::string path = Path::get("gfx/flags/" + nation->ref_name + "_" + (nation->ideology == nullptr ? "none" : nation->ideology->ref_name) + ".png");
+            auto flag_texture = &UnifiedRender::State::get_instance().tex_man->load(path, mipmap_options);
+            flag_texture->gen_mipmaps();
+            nation_flags.push_back(flag_texture);
+        }*/
     }
 
     map_render->draw(camera, view_mode);

@@ -194,12 +194,14 @@ void ai_update_relations(Nation* nation, Nation* other) {
         // Propose an alliance
         if(relation.relation > 1.f && !other_relation.has_alliance) {
             relation.has_alliance = true;
+            relation.relation = 100.f;
             print_info("[%s] requested an alliance with [%s]!", nation->ref_name.c_str(), other->ref_name.c_str());
         }
 
         // If they want an alliance we won't hesitate to join (they are our friends after all)
         if(other_relation.has_alliance && !relation.has_alliance) {
             relation.has_alliance = true;
+            relation.relation = 100.f;
             print_info("Alliance [%s] <-> [%s] has been made!", nation->ref_name.c_str(), other->ref_name.c_str());
         }
 
