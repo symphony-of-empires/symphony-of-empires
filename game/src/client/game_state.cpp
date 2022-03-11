@@ -567,17 +567,19 @@ void GameState::world_thread(void) {
         }
 
         // TODO: We should only enable this on debug builds, but whatever...
-        try {
-            world->do_tick();
-            update_tick = true;
-        } catch(const std::exception& e) {
+        if(world->world_mutex.try_lock()) {
+            try {
+                world->do_tick();
+                update_tick = true;
+            } catch(const std::exception& e) {
+                //world->world_mutex.unlock();
+                ui_ctx->prompt("Runtime exception", e.what());
+                UnifiedRender::Log::error("game", e.what());
+                paused = true;
+            }
             world->world_mutex.unlock();
-            ui_ctx->prompt("Runtime exception", e.what());
-            UnifiedRender::Log::error("game", e.what());
-            paused = true;
+            std::this_thread::sleep_for(std::chrono::milliseconds(ms_delay_speed));
         }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(ms_delay_speed));
     }
 }
 
@@ -697,16 +699,15 @@ void main_loop(GameState& gs) {
         }
 
         std::scoped_lock lock(gs.render_lock);
-
         if(!gs.motion_blur) {
             glClear(GL_COLOR_BUFFER_BIT);
         }
         gs.clear();
 
         if(gs.current_mode != MapMode::NO_MAP) {
-            std::scoped_lock lock(gs.world->world_mutex);
             gs.map->draw(gs);
             gs.map->camera->update();
+            gs.world->world_mutex.unlock();
         }
         gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
 
@@ -721,7 +722,7 @@ void start_client(int, char**) {
     GameState gs{};
 
     if(1) {
-        FILE* fp = fopen(Path::get("locale/ro/main.po").c_str(), "rt");
+        FILE* fp = fopen(Path::get("locale/ko/main.po").c_str(), "rt");
         if(fp != nullptr) {
             char* tmp = new char[1000];
             while(fgets(tmp, 1000, fp) != nullptr) {
