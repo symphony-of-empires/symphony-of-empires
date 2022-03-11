@@ -240,7 +240,7 @@ UnifiedRender::State::State(void) {
         "\n"
         "void main() {\n"
         "    vec4 tex_color = texture(diffuse_map, v_texcoord);\n"
-        "    tex_color.xyz *= ambient_color * diffuse_color;\n"
+        //"    tex_color.rgb *= ambient_color * diffuse_color;\n"
         "    f_color = tex_color;\n"
         "}\n"
     ));

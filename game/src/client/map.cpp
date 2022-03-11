@@ -628,7 +628,6 @@ void Map::draw(const GameState& gs) {
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_uniform("model", model);
                 obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(unit->owner)]);
-
                 auto flag_quad = UnifiedRender::Quad2D();
                 flag_quad.draw();
 
@@ -652,8 +651,8 @@ void Map::draw(const GameState& gs) {
             glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
             if(unit->target != nullptr) {
                 UnifiedRender::Line target_line = UnifiedRender::Line(pos.first, pos.second, unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
-                obj_shader->set_texture(0, "diffuse_map", *line_tex);
                 obj_shader->set_uniform("model", model);
+                obj_shader->set_texture(0, "diffuse_map", *line_tex);
                 target_line.draw();
 
                 //const std::pair<float, float> tpos = unit->target->get_pos();
@@ -661,7 +660,9 @@ void Map::draw(const GameState& gs) {
             }
             model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_uniform("model", model);
-            draw_flag(*obj_shader, *unit->owner);
+            obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(unit->owner)]);
+            auto flag_quad = UnifiedRender::Quad2D();
+            flag_quad.draw();
 
             // Model
             obj_shader->set_uniform("model", model);
