@@ -176,6 +176,8 @@ namespace UnifiedRender::Networking {
         bool has_pending(void);
 
         std::thread thread;
+        // Is our thread currently polling/serving?
+        bool is_active;
         std::atomic<bool> is_connected;
         
         std::deque<UnifiedRender::Networking::Packet> pending_packets;

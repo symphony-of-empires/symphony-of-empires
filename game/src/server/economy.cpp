@@ -73,7 +73,11 @@ void Economy::do_tick(World& world) {
         }
     }
 
-    std::for_each(std::execution::par, eval_nations.begin(), eval_nations.end(), [&world](const auto& nation) {
+    std::vector<Unit*> new_units;
+    std::mutex new_units_mutex;
+    std::for_each(std::execution::par, eval_nations.begin(), eval_nations.end(), [&new_units, &new_units_mutex, &world](const auto& nation) {
+        std::vector<Unit*> new_nation_units;
+
         // Minimal speedup but probably can keep our branch predictor happy ^_^
         unsigned int seed = std::rand();
         for(const auto& province : nation->controlled_provinces) {
@@ -236,14 +240,8 @@ void Economy::do_tick(World& world) {
                         unit->supply = 1.f;
                         unit->size = unit->type->max_health;
                         unit->base = unit->size;
-
-                        // Notify all clients of the server about this new unit
-                        world.world_mutex.lock();
-                        world.insert(unit);
-                        world.world_mutex.unlock();
-                        
+                        new_nation_units.push_back(unit);
                         building.working_unit_type = nullptr;
-                        g_server->broadcast(Action::UnitAdd::form_packet(*unit));
                         UnifiedRender::Log::debug("economy", "[" + province->ref_name + "]: Has built an unit of [" + unit->type->ref_name + "]");
                     }
                 }
@@ -328,7 +326,8 @@ void Economy::do_tick(World& world) {
                 // TODO: Should lower spending with higher literacy, and higher
                 // TODO: Higher the fullfilment per unit with higher literacy
                 // TODO: DO NOT MAKE POP BUY FROM STOCKPILE, INSTEAD MAKE THEM BUY FROM ORDERS
-                for(size_t j = 0; j < province->products.size(); j++) {
+                size_t j = 0;
+                for(auto& product : province->products) {
                     rand_seed = ::rand_r(&seed);
 
                     // Only buy the available stuff
@@ -340,9 +339,9 @@ void Economy::do_tick(World& world) {
                     // Deduct from pop's budget the product * how many we bought
                     // NOTE: If we didn't bought anything it will simply invalidate this, plus if the supply is nil
                     // this also gets nullified
-                    province->products[j].supply -= bought;
-                    province->products[j].demand += bought;
-                    pop.budget -= bought * province->products[j].price;
+                    product.supply -= bought;
+                    product.demand += bought;
+                    pop.budget -= bought * product.price;
                     if(world.goods[j]->is_edible) {
                         pop.life_needs_met += pop.size / bought;
                     } else {
@@ -354,6 +353,7 @@ void Economy::do_tick(World& world) {
                         // TODO: Get the life savings
                         break;
                     }
+                    j++;
                 }
 
                 // x2.5 life needs met modifier, that is the max allowed
@@ -405,7 +405,6 @@ void Economy::do_tick(World& world) {
             nation->research[world.get_id(nation->focus_tech)] += research;
         }
 
-#if 0
         // Total anger in population (global)
         UnifiedRender::Decimal total_anger = 0.f;
         // Anger per ideology (how much we hate the current ideology)
@@ -506,8 +505,25 @@ void Economy::do_tick(World& world) {
 
             print_info("Coup d' etat on [%s]! [%s] has taken over!", nation->ref_name.c_str(), nation->ideology->ref_name.c_str());
         }
-#endif
+
+        if(!new_nation_units.empty()) {
+            // Add to new_units list
+            std::scoped_lock lock(new_units_mutex);
+            for(const auto& unit : new_nation_units) {
+                new_units.push_back(unit);
+            }
+        }
     });
+
+    if(!new_units.empty()) {
+        // Lock for world is already acquired since the economy runs inside the world's do_tick which
+        // should be lock guarded by the callee
+        for(const auto& unit : new_units) {
+            // Now commit the transaction of the new units into the main world area
+            world.insert(unit);
+            g_server->broadcast(Action::UnitAdd::form_packet(*unit));
+        }
+    }
 
     do_emigration(world);
 }

@@ -564,7 +564,7 @@ void GameState::update_on_tick(void) {
 void GameState::world_thread(void) {
     while(run) {
         // Gamestate thread hasn't acknowledged the updated tick just yet
-        while(paused || update_tick) {
+        while(paused) {
             if(!run) {
                 return;
             }
@@ -575,13 +575,14 @@ void GameState::world_thread(void) {
             try {
                 world->do_tick();
                 update_tick = true;
+                world->world_mutex.unlock();
+                std::this_thread::sleep_for(std::chrono::milliseconds(ms_delay_speed));
             } catch(const std::exception& e) {
+                world->world_mutex.unlock();
                 ui_ctx->prompt("Runtime exception", e.what());
                 UnifiedRender::Log::error("game", e.what());
                 paused = true;
             }
-            world->world_mutex.unlock();
-            std::this_thread::sleep_for(std::chrono::milliseconds(ms_delay_speed));
         }
     }
 }
@@ -611,17 +612,17 @@ void main_loop(GameState& gs) {
     gs.run = true;
     gs.paused = true;
 
+    gs.map->camera->move(0.f, 50.f, 10.f);
+
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
     while(gs.run) {
         handle_event(gs.input, gs);
-        if(gs.current_mode == MapMode::NORMAL) {
-            if(gs.world->world_mutex.try_lock()) {
-                handle_popups(displayed_events, displayed_treaties, gs);
-                gs.world->world_mutex.unlock();
-            }
+        if(gs.current_mode == MapMode::NORMAL && gs.world->world_mutex.try_lock()) {
+            handle_popups(displayed_events, displayed_treaties, gs);
+            gs.world->world_mutex.unlock();
         } else if(gs.current_mode == MapMode::DISPLAY_ONLY) {
-            gs.map->camera->move(0.1f, 0.f, 0.f);
+            gs.map->camera->move(0.05f, 0.f, 0.f);
         }
 
         if(gs.sound_queue.empty()) {
@@ -638,27 +639,27 @@ void main_loop(GameState& gs) {
             }
         }
 
-        if(gs.update_tick) {
+        if(gs.update_tick && gs.world->world_mutex.try_lock()) {
             gs.update_on_tick();
             gs.update_tick = false;
 
             if(gs.current_mode == MapMode::NORMAL) {
                 // Production queue
-                std::scoped_lock lock(gs.world->world_mutex);
                 for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
-                    UnitType* unit = gs.production_queue[i];
+                    UnitType* unit_type = gs.production_queue[i];
 
                     // TODO: Make a better queue AI
                     bool is_built = false;
-                    for(const auto& province : gs.curr_nation->controlled_provinces) {
-                        for(const auto& building : province->get_buildings()) {
+                    for(const auto& building_type : gs.world->building_types) {
+                        for(const auto& province : gs.curr_nation->controlled_provinces) {
+                            Building& building = province->get_buildings()[gs.world->get_id(building_type)];
                             // Must not be working on something else
                             if(building.working_unit_type != nullptr) {
                                 continue;
                             }
 
                             is_built = true;
-                            //g_client->send(Action::BuildingStartProducingUnit::form_packet(building, unit));
+                            g_client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, gs.curr_nation, unit_type));
                             break;
                         }
 
@@ -674,6 +675,7 @@ void main_loop(GameState& gs) {
                     i--;
                 }
             }
+            gs.world->world_mutex.unlock();
         }
 
         if(gs.music_queue.empty()) {
@@ -681,8 +683,8 @@ void main_loop(GameState& gs) {
             auto entries = Path::get_all_recursive("sfx/music/ambience");
             if(!entries.empty()) {
                 int music_index = std::rand() % entries.size();
-                std::scoped_lock lock(gs.sound_lock);
                 gs.music_fade_value = 100.f;
+                std::scoped_lock lock(gs.sound_lock);
                 gs.music_queue.push_back(new UnifiedRender::Audio(entries[music_index]));
             }
         }
@@ -694,11 +696,15 @@ void main_loop(GameState& gs) {
         gs.clear();
 
         if(gs.current_mode != MapMode::NO_MAP) {
+            std::scoped_lock lock(gs.world->world_mutex);
             gs.map->draw(gs);
+        }
+
+        if(gs.current_mode != MapMode::NO_MAP) {
             gs.map->camera->update();
         }
-        gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
 
+        gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
         gs.swap();
         gs.world->profiler.render_done();
     }
