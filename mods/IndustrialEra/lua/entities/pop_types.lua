@@ -29,7 +29,11 @@ burgeoise = PopType:new{
     name = _("Burgeoise"),
     ref_name = "burgeoise",
     social_value = 2.0,
-    is_burgeoise = true
+    is_burgeoise = true,
+    needs = {
+        {bread.id, 1.0},
+        {salt.id, 0.1}
+    }
 }
 burgeoise:register()
 
