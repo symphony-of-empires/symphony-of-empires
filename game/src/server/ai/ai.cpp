@@ -282,7 +282,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
 
     if(relation.has_war) {
         // Offer treaties
-        if(!(std::rand() % 50)) {
+        if(!(std::rand() % 5000)) {
             Treaty* treaty = new Treaty();
 
             {
@@ -379,7 +379,7 @@ void ai_build_commercial(Nation* nation, World* world) {
 
     Province* province = *it;
     if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
-        UnifiedRender::Log::error("game", "Cant build buidling, province doesn't have any tiles");
+        UnifiedRender::Log::error("ai", "Cant build buidling, province doesn't have any tiles");
     } else {
         // Now build the building
         BuildingType* building_type = world->building_types[0];
@@ -470,45 +470,42 @@ void ai_do_tick(Nation* nation, World* world) {
             int defense_factor = 1;
             for(const auto& rel : nation->relations) {
                 if(rel.has_war) {
-                    defense_factor += 2;
+                    defense_factor++;
                 }
             }
+            defense_factor = std::min(defense_factor, 100);
 
-            const int base_reluctance = 1000;
+            const int base_reluctance = 100;
 
             // Build defenses
-            if(std::rand() % (base_reluctance / defense_factor)) {
+            if(std::rand() % (base_reluctance / defense_factor) == 0) {
                 auto it = std::begin(nation->owned_provinces);
                 std::advance(it, std::rand() % nation->owned_provinces.size());
-
                 Province* province = *it;
-                if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
-                    UnifiedRender::Log::error("game", "Cant build defense, province doesn't have any tiles");
-                } else {
-                    BuildingType* building_type = world->building_types[0];
-                    province->buildings[world->get_id(building_type)].level += 1;
-                    province->buildings[world->get_id(building_type)].req_goods = building_type->req_goods;
-                    // Broadcast the addition of the building to the clients
-                    g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
-                    UnifiedRender::Log::debug("game", "Building building " + building_type->name + " from " + nation->name + " built on " + province->name);
-                }
+
+                BuildingType* building_type = world->building_types[0];
+                province->buildings[world->get_id(building_type)].level += 1;
+                province->buildings[world->get_id(building_type)].req_goods = building_type->req_goods;
+                // Broadcast the addition of the building to the clients
+                g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
+                UnifiedRender::Log::debug("ai", "Building building " + building_type->name + " from " + nation->name + " built on " + province->name);
             }
 
-            if(std::rand() % (base_reluctance / defense_factor)) {
+            if(std::rand() % (base_reluctance / defense_factor) == 0) {
                 // Build units inside buildings that are not doing anything
-                for(size_t i = 0; i < world->building_types.size(); i++) {
-                    const BuildingType* building_type = world->building_types[i];
-                    /*if(!(building_type->is_build_land_units && building_type->is_build_naval_units)) {
+                for(const auto& province : nation->controlled_provinces) {
+                    if(std::rand() % (base_reluctance / defense_factor)) {
                         continue;
-                    }*/
+                    }
 
-                    for(const auto& province : g_world->provinces) {
-                        auto& building = province->buildings[i];
-                        if(building.working_unit_type != nullptr || !building.can_do_output()) {
-                            continue;
+                    for(size_t i = 0; i < world->building_types.size(); i++) {
+                        const BuildingType* building_type = world->building_types[i];
+                        if(!(building_type->is_build_land_units && building_type->is_build_naval_units)) {
+                        //    continue;
                         }
 
-                        if(std::rand() % (base_reluctance / defense_factor)) {
+                        auto& building = province->buildings[i];
+                        if(building.level == 0 || building.working_unit_type != nullptr || !building.can_do_output()) {
                             continue;
                         }
 
@@ -517,7 +514,7 @@ void ai_do_tick(Nation* nation, World* world) {
                         unit_type = g_world->unit_types[0];
                         building.working_unit_type = unit_type;
                         building.req_goods_for_unit = unit_type->req_goods;
-                        UnifiedRender::Log::debug("game", "Building of unit " + unit_type->name + " from " + nation->name + " built on " + province->name);
+                        UnifiedRender::Log::debug("ai", "Building of unit " + unit_type->name + " from " + nation->name + " built on " + province->name);
                     }
                 }
             }
