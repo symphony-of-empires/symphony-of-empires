@@ -714,7 +714,8 @@ int LuaAPI::get_province_controller(lua_State* L) {
     Nation* nation = province->controller;
     if(nation == nullptr) {
         lua_pushnumber(L, -1);
-    } else {
+    }
+    else {
         lua_pushnumber(L, g_world->get_id(*nation));
     }
     return 1;
@@ -910,17 +911,36 @@ int LuaAPI::add_pop_type(lua_State* L) {
     pop->ref_name = luaL_checkstring(L, 1);
     pop->name = luaL_checkstring(L, 2);
     pop->social_value = lua_tonumber(L, 3);
-    if(lua_toboolean(L, 4)) {
+    bool is_burgeoise = lua_toboolean(L, 4);
+    bool is_slave = lua_toboolean(L, 5);
+    bool is_farmer = lua_toboolean(L, 6);
+    bool is_laborer = lua_toboolean(L, 7);
+    if(is_burgeoise) {
         pop->group = PopGroup::BURGEOISE;
-    } else if(lua_toboolean(L, 5)) {
+    }
+    else if(is_slave) {
         pop->group = PopGroup::Slave;
-    } else if(lua_toboolean(L, 6)) {
+    }
+    else if(is_farmer) {
         pop->group = PopGroup::FARMER;
-    } else if(lua_toboolean(L, 7)) {
+    }
+    else if(is_laborer) {
         pop->group = PopGroup::LABORER;
-    } else {
+    }
+    else {
         pop->group = PopGroup::Other;
     }
+    // if(lua_toboolean(L, 4)) {
+    //     pop->group = PopGroup::BURGEOISE;
+    // } else if(lua_toboolean(L, 5)) {
+    //     pop->group = PopGroup::Slave;
+    // } else if(lua_toboolean(L, 6)) {
+    //     pop->group = PopGroup::FARMER;
+    // } else if(lua_toboolean(L, 7)) {
+    //     pop->group = PopGroup::LABORER;
+    // } else {
+    //     pop->group = PopGroup::Other;
+    // }
 
     pop->good_needs = std::vector<float>(g_world->goods.size(), 0);
 
@@ -970,10 +990,12 @@ int LuaAPI::get_pop_type(lua_State* L) {
     for(size_t i = 0; i < pop_type->good_needs.size(); i++) {
         if(pop_type->good_needs[i] != 0) {
             lua_pushnumber(L, index++);
+
             lua_newtable(L);
-            lua_pushnumber(L, i);
+            lua_pushstring(L, g_world->goods[i]->ref_name.c_str());
             lua_pushnumber(L, pop_type->good_needs[i]);
             lua_settable(L, -3);
+
             lua_settable(L, -3);
         }
     }
@@ -997,7 +1019,7 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
             lua_pushnumber(L, index++);
 
             lua_newtable(L);
-            lua_pushnumber(L, i);
+            lua_pushstring(L, g_world->goods[i]->ref_name.c_str());
             lua_pushnumber(L, pop_type->good_needs[i]);
             lua_settable(L, -3);
 
@@ -1206,15 +1228,15 @@ void LuaAPI::check_events(lua_State* L) {
                 }
                 // Do not relaunch a local event
                 local_event->checked = true;
-				
-				if(local_event->descisions.empty()) {
-					print_error("Event %s has no descisions (ref_name = %s)", local_event->ref_name.c_str(), nation->ref_name.c_str());
-					*event = orig_event;
-					continue;
-				}
-				
+
+                if(local_event->descisions.empty()) {
+                    print_error("Event %s has no descisions (ref_name = %s)", local_event->ref_name.c_str(), nation->ref_name.c_str());
+                    *event = orig_event;
+                    continue;
+                }
+
                 g_world->insert(*local_event);
-				nation->inbox.push_back(local_event);
+                nation->inbox.push_back(local_event);
 
                 print_info("Event triggered! %s (with %zu descisions)", local_event->ref_name.c_str(), (size_t)local_event->descisions.size());
 
