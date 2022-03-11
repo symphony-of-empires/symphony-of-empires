@@ -43,6 +43,7 @@ class PopType : public RefnameEntity<uint8_t> {
 public:
     UnifiedRender::Decimal social_value;
     PopGroup group;
+    std::vector<float> good_needs; 
 };
 
 #include "culture.hpp"
