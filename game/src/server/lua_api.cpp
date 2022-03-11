@@ -203,7 +203,7 @@ int LuaAPI::get_building_type(lua_State* L) {
 int LuaAPI::add_good(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
+
     Good* good = new Good();
 
     good->ref_name = luaL_checkstring(L, 1);
@@ -232,7 +232,8 @@ int LuaAPI::add_input_to_industry_type(lua_State* L) {
     for(const auto& input : industry_type->inputs) {
         if(input->is_edible) {
             industry_type->num_req_farmers += 10;
-        } else {
+        }
+        else {
             industry_type->num_req_laborers += 100;
         }
         industry_type->num_req_entrepreneurs += 1;
@@ -251,7 +252,8 @@ int LuaAPI::add_output_to_industry_type(lua_State* L) {
     for(const auto& output : industry_type->outputs) {
         if(output->is_edible) {
             industry_type->num_req_farmers += 10;
-        } else {
+        }
+        else {
             industry_type->num_req_laborers += 100;
         }
         industry_type->num_req_entrepreneurs += 1;
@@ -276,7 +278,7 @@ int LuaAPI::add_req_technology_to_industry_type(lua_State* L) {
 int LuaAPI::add_nation(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
+
     Nation* nation = new Nation();
 
     nation->ref_name = luaL_checkstring(L, 1);
@@ -609,7 +611,8 @@ int LuaAPI::add_province(lua_State* L) {
     for(size_t i = 0; i < g_world->provinces.size(); i++) {
         if(province->color == g_world->provinces[i]->color) {
             throw LuaAPI::Exception(province->ref_name + " province has same color as " + g_world->provinces[i]->ref_name);
-        } else if(province->ref_name == g_world->provinces[i]->ref_name) {
+        }
+        else if(province->ref_name == g_world->provinces[i]->ref_name) {
             throw LuaAPI::Exception("Duplicate ref_name " + province->ref_name);
         }
     }
@@ -711,7 +714,8 @@ int LuaAPI::get_province_controller(lua_State* L) {
     Nation* nation = province->controller;
     if(nation == nullptr) {
         lua_pushnumber(L, -1);
-    } else {
+    }
+    else {
         lua_pushnumber(L, g_world->get_id(nation));
     }
     return 1;
@@ -835,7 +839,7 @@ int LuaAPI::add_province_owner(lua_State* L) {
 int LuaAPI::add_event(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
+
     Event* event = new Event();
 
     event->ref_name = luaL_checkstring(L, 1);
@@ -901,7 +905,7 @@ int LuaAPI::add_descision(lua_State* L) {
 int LuaAPI::add_pop_type(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
+
     PopType* pop = new PopType();
 
     pop->ref_name = luaL_checkstring(L, 1);
@@ -913,15 +917,46 @@ int LuaAPI::add_pop_type(lua_State* L) {
     bool is_laborer = lua_toboolean(L, 7);
     if(is_burgeoise) {
         pop->group = PopGroup::BURGEOISE;
-    } else if(is_slave) {
+    }
+    else if(is_slave) {
         pop->group = PopGroup::Slave;
-    } else if(is_farmer) {
+    }
+    else if(is_farmer) {
         pop->group = PopGroup::FARMER;
-    } else if(is_laborer) {
+    }
+    else if(is_laborer) {
         pop->group = PopGroup::LABORER;
-    } else {
+    }
+    else {
         pop->group = PopGroup::Other;
     }
+
+    pop->good_needs = std::vector<float>(g_world->goods.size(), 0);
+
+    // -- Loads the needs table into pop->good_needs
+    lua_pushvalue(L, 8);
+    // stack now contains: -1 => table
+    lua_pushnil(L);
+    // stack now contains: -1 => nil; -2 => table
+    while(lua_next(L, -2)) {
+        // stack now contains: -1 => table2; -2 => key; -3 => table
+        lua_pushnil(L);
+        // stack now contains: -1 => nil; -2 => table2; -3 => key; -4 => table
+        lua_next(L, -2);
+        // stack now contains: -1 => value; -2 => key2; -3 => table2; -4 => key; -5 => table
+        const Good::Id good_id = lua_tonumber(L, -1);
+        lua_pop(L, 1);
+        // stack now contains: -1 => key; -2 => table2; -3 => key; -4 => table
+        lua_next(L, -2);
+        // stack now contains: -1 => value; -2 => key; -3 => table2; -4 => key; -5 => table
+        const float amount = lua_tonumber(L, -1);
+        // pop value + key + table2, leaving key
+        lua_pop(L, 3);
+        // stack now contains: -1 => key; -2 => table
+        pop->good_needs[good_id] = amount;
+    }
+    // stack now contains: -1 => table
+    lua_pop(L, 1);
 
     // Add onto vector
     g_world->insert(pop);
@@ -1000,7 +1035,7 @@ int LuaAPI::get_culture_by_id(lua_State* L) {
 int LuaAPI::add_religion(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
+
     Religion* religion = new Religion();
     religion->ref_name = luaL_checkstring(L, 1);
     religion->name = luaL_checkstring(L, 2);
@@ -1032,7 +1067,7 @@ int LuaAPI::get_religion_by_id(lua_State* L) {
 int LuaAPI::add_unit_type(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
+
     UnitType* unit_type = new UnitType();
 
     unit_type->ref_name = luaL_checkstring(L, 1);
@@ -1046,8 +1081,8 @@ int LuaAPI::add_unit_type(lua_State* L) {
 
     unit_type->is_ground = lua_toboolean(L, 8);
     unit_type->is_naval = lua_toboolean(L, 9);
-	
-	unit_type->speed = (lua_tonumber(L, 10));
+
+    unit_type->speed = (lua_tonumber(L, 10));
 
     g_world->insert(unit_type);
     lua_pushnumber(L, g_world->unit_types.size() - 1);
@@ -1066,7 +1101,7 @@ int LuaAPI::get_unit_type(lua_State* L) {
     lua_pushnumber(L, (unit_type->position_defense));
     lua_pushboolean(L, unit_type->is_ground);
     lua_pushboolean(L, unit_type->is_naval);
-	lua_pushnumber(L, (unit_type->speed));
+    lua_pushnumber(L, (unit_type->speed));
     return 10;
 }
 
@@ -1082,7 +1117,7 @@ int LuaAPI::add_req_good_unit_type(lua_State* L) {
 int LuaAPI::add_ideology(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    
+
     Ideology* ideology = new Ideology();
 
     ideology->ref_name = luaL_checkstring(L, 1);
@@ -1105,7 +1140,7 @@ int LuaAPI::get_ideology(lua_State* L) {
 
 int LuaAPI::get_ideology_by_id(lua_State* L) {
     const auto* ideology = g_world->ideologies.at(lua_tonumber(L, 1));
-    
+
     lua_pushstring(L, ideology->ref_name.c_str());
     lua_pushstring(L, ideology->name.c_str());
     lua_pushnumber(L, bswap32((ideology->color & 0x00ffffff) << 8));
@@ -1118,7 +1153,7 @@ void LuaAPI::check_events(lua_State* L) {
         if(event->checked) {
             continue;
         }
-        
+
         bool is_multi = true;
         bool has_fired = false;
         for(auto& nation : event->receivers) {
@@ -1144,33 +1179,33 @@ void LuaAPI::check_events(lua_State* L) {
                 lua_pcall(L, 1, 1, 0);
                 is_multi = lua_tointeger(L, -1);
                 lua_pop(L, 1);
-				
-				// The changes done to the event "locally" are then created into a new local event
+
+                // The changes done to the event "locally" are then created into a new local event
                 auto* local_event = new Event(orig_event);
-				local_event->cached_id = (Event::Id)-1;
+                local_event->cached_id = (Event::Id)-1;
                 local_event->ref_name += "_";
                 for(unsigned int j = 0; j < 20; j++) {
                     local_event->ref_name += 'a' + (rand() % 26);
                 }
-				// Do not relaunch a local event
+                // Do not relaunch a local event
                 local_event->checked = true;
-				
-				if(local_event->descisions.empty()) {
-					print_error("Event %s has no descisions (ref_name = %s)", local_event->ref_name.c_str(), nation->ref_name.c_str());
-					*event = orig_event;
-					continue;
-				}
-				
+
+                if(local_event->descisions.empty()) {
+                    print_error("Event %s has no descisions (ref_name = %s)", local_event->ref_name.c_str(), nation->ref_name.c_str());
+                    *event = orig_event;
+                    continue;
+                }
+
                 g_world->insert(local_event);
-				nation->inbox.push_back(local_event);
+                nation->inbox.push_back(local_event);
 
                 print_info("Event triggered! %s (with %zu descisions)", local_event->ref_name.c_str(), (size_t)local_event->descisions.size());
-				
-				// Original event then gets restored
+
+                // Original event then gets restored
                 *event = orig_event;
             }
         }
-        
+
         // Event is marked as checked if it's not of multiple occurences
         if(has_fired && !is_multi) {
             event->checked = true;
@@ -1185,7 +1220,8 @@ void LuaAPI::check_events(lua_State* L) {
         print_info("[%s] took the descision: [%s]", dec.second->ref_name.c_str(), dec.first->do_descision_function.c_str());
         try {
             lua_pcall(L, 1, 0, 0);
-        } catch(const std::exception& e) {
+        }
+        catch(const std::exception& e) {
             throw LuaAPI::Exception(dec.first->do_descision_function + "(" + dec.second->ref_name + "): " + e.what());
         }
         // TODO: Delete local event upon taking a descision

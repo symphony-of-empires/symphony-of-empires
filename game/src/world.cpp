@@ -415,7 +415,7 @@ void World::load_initial(void) {
     const std::vector<std::string> init_files = {
         "terrain_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
-        "technology", "religions", "pop_types", "good_types", "industry_types",
+        "technology", "religions", "good_types", "pop_types", "industry_types",
         "unit_types", "boat_types", "provinces", "init"
     };
     lua_exec_all_of(*this, init_files, "lua/entities");
@@ -858,7 +858,7 @@ void World::do_tick() {
     profiler.start("Battles");
     std::for_each(std::execution::par, wars.begin(), wars.end(), [this](auto& war) {
         for(auto& battle : war->battles) {
-            assert(battle.province != nullptr);
+            // assert(battle.province != nullptr);
 
             // Battles are stored for historic purpouses
             if(battle.ended) {
