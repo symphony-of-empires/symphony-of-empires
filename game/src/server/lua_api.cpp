@@ -910,23 +910,15 @@ int LuaAPI::add_pop_type(lua_State* L) {
     pop->ref_name = luaL_checkstring(L, 1);
     pop->name = luaL_checkstring(L, 2);
     pop->social_value = lua_tonumber(L, 3);
-    bool is_burgeoise = lua_toboolean(L, 4);
-    bool is_slave = lua_toboolean(L, 5);
-    bool is_farmer = lua_toboolean(L, 6);
-    bool is_laborer = lua_toboolean(L, 7);
-    if(is_burgeoise) {
+    if(lua_toboolean(L, 4)) {
         pop->group = PopGroup::BURGEOISE;
-    }
-    else if(is_slave) {
+    } else if(lua_toboolean(L, 5)) {
         pop->group = PopGroup::Slave;
-    }
-    else if(is_farmer) {
+    } else if(lua_toboolean(L, 6)) {
         pop->group = PopGroup::FARMER;
-    }
-    else if(is_laborer) {
+    } else if(lua_toboolean(L, 7)) {
         pop->group = PopGroup::LABORER;
-    }
-    else {
+    } else {
         pop->group = PopGroup::Other;
     }
 
@@ -943,7 +935,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
         // stack now contains: -1 => nil; -2 => table2; -3 => key; -4 => table
         lua_next(L, -2);
         // stack now contains: -1 => value; -2 => key2; -3 => table2; -4 => key; -5 => table
-        const Good::Id good_id = lua_tonumber(L, -1);
+        const Good& good = *find_or_throw<Good>(luaL_checkstring(L, -1));
         lua_pop(L, 1);
         // stack now contains: -1 => key; -2 => table2; -3 => key; -4 => table
         lua_next(L, -2);
@@ -952,7 +944,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
         // pop value + key + table2, leaving key
         lua_pop(L, 3);
         // stack now contains: -1 => key; -2 => table
-        pop->good_needs[good_id] = amount;
+        pop->good_needs[g_world->get_id(good)] = amount;
     }
     // stack now contains: -1 => table
     lua_pop(L, 1);
@@ -978,12 +970,10 @@ int LuaAPI::get_pop_type(lua_State* L) {
     for(size_t i = 0; i < pop_type->good_needs.size(); i++) {
         if(pop_type->good_needs[i] != 0) {
             lua_pushnumber(L, index++);
-
             lua_newtable(L);
             lua_pushnumber(L, i);
             lua_pushnumber(L, pop_type->good_needs[i]);
             lua_settable(L, -3);
-
             lua_settable(L, -3);
         }
     }
