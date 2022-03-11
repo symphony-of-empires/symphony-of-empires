@@ -27,8 +27,8 @@
 #include <stdexcept>
 #include <cstring>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#define STB_IMAGE_IMPLEMENTATION 1
+#include "unified_render/stb_image.h"
 
 #include "unified_render/binary_image.hpp"
 #include "unified_render/path.hpp"

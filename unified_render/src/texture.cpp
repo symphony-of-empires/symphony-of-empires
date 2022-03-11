@@ -24,16 +24,11 @@
 //      by using the OpenGL API for managing the resources of it.
 // ----------------------------------------------------------------------------
 
+#include <algorithm>
+
 #include "unified_render/texture.hpp"
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
-#include <string>
-#include <algorithm>
-#ifdef _MSC_VER
-#   include <SDL_surface.h>
-#else
-#   include <SDL2/SDL_surface.h>
-#endif
 
 //
 // Texture
@@ -116,31 +111,29 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
         // Alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGBA;
-        }
-        else {
+        } else {
             texture_format = GL_BGRA;
         }
-    }
-    else {
+    } else {
         // No alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGB;
-        }
-        else {
+        } else {
             texture_format = GL_BGR;
         }
     }
 
     int alignment = 8;
-    while(surface->pitch % alignment) alignment>>=1; // x%1==0 for any x
+    while(surface->pitch % alignment) {
+        alignment >>= 1; // x%1==0 for any x
+    }
     glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
 
     int expected_pitch = (surface->w * surface->format->BytesPerPixel + alignment - 1) / alignment * alignment;
     if(surface->pitch - expected_pitch >= alignment) {
         // Alignment alone wont't solve it now
         glPixelStorei(GL_UNPACK_ROW_LENGTH, surface->pitch / surface->format->BytesPerPixel);
-    }
-    else {
+    } else {
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
 
@@ -191,6 +184,41 @@ UnifiedRender::Texture::Texture(TTF_Font* font, UnifiedRender::Color color, cons
     const char* error_msg = SDL_GetError();
     if(error_msg[0] != '\0') {
         print_error("SDL error %s", error_msg);
+    }
+}
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION 1
+#include "unified_render/stb_image_write.h"
+void UnifiedRender::Texture::to_file(const std::string& filename) {
+    int channel_count = 3;
+    int stride = channel_count * width;
+    int data_size = stride * height;
+
+    GLuint pbo;
+    glGenBuffers(1, &pbo);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo);
+    glBufferData(GL_PIXEL_PACK_BUFFER, data_size, NULL, GL_STREAM_DRAW);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
+
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)0);
+    //ensure we don't try and read data before the transfer is complete
+    GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    glFlush();
+
+    // then regularly check for completion
+    GLint result;
+    glGetSynciv(sync, GL_SYNC_STATUS, sizeof(result), NULL, &result);
+    if(result == GL_SIGNALED) {
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo);
+        GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+        if(src) {
+            int success = stbi_write_png(filename.c_str(), width, height, channel_count, src, stride);
+        }
+        glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+        glDeleteBuffers(1, &pbo);
+        pbo = 0;
     }
 }
 
