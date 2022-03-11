@@ -54,7 +54,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 
         // Obtain the average probability of profitability per good we will only however, take in account products
         // which are produced on provinces we own, hereafter we can obtain the average of the national good industry
-        print_info("Market analysis strategy");
+        UnifiedRender::Log::debug("ai", "Market analysis strategy");
 
         // So our formula would be:
         // Sucess = Sum(Demand / (Supply + 1) * Price)
@@ -87,7 +87,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
         //float saturation = std::max<size_t>(1, world->buildings.size()) / 100;
         UnifiedRender::Decimal saturation = 1.f;
         if(std::fmod(std::rand(), saturation)) {
-            print_info("Too much market saturation");
+            UnifiedRender::Log::debug("ai", "Too much market saturation");
             return nullptr;
         }
 
@@ -96,14 +96,14 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
     } else {
         // We will randomly pick any primary product which we are capable of producing
         // This is mostly useful for starting supply chains from zero
-        print_info("Primary sector kickstart strategy");
+        UnifiedRender::Log::debug("ai", "Primary sector kickstart strategy");
 
         // The more buildings there are in the world the less we are wiling to construct one
         // (more intense with primary sector due to primary-industry spam)
         //float saturation = std::max<size_t>(1, world->buildings.size()) / 50;
         float saturation = 1.f;
         if(fmod(std::rand(), saturation)) {
-            print_info("Too much market saturation");
+            UnifiedRender::Log::debug("ai", "Too much market saturation");
             return nullptr;
         }
 
@@ -125,7 +125,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
         }
     }
 
-    print_info("No suitable good");
+    UnifiedRender::Log::debug("ai", "No suitable good");
     return nullptr;
 }
 
@@ -270,7 +270,8 @@ void ai_update_relations(Nation* nation, Nation* other) {
     // Hating a nation a lot will make us reconsider logic military actions and go "purely by instinct"
     // Calculate the times the other nation has our power, multiply that by a factor of 1,000,000
     // If the relation is negative then we divide by the positive sum of it
-    if(relation.relation < 10.f) {
+    //if(relation.relation < 10.f) {
+    if(1) {
         const UnifiedRender::Decimal force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
         const int chance = std::max<UnifiedRender::Decimal>(0, force_dist - -relation.relation);
         if(std::rand() % (100 + (chance * 100)) == 0) {
@@ -442,10 +443,10 @@ void ai_do_tick(Nation* nation, World* world) {
                         if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) break;
 
                         if(std::rand() % 50 >= 25) {
-                            print_info("We, [%s], deny the treaty of [%s]", nation->ref_name.c_str(), treaty->name.c_str());
+                            UnifiedRender::Log::debug("ai", "We, [" + nation->ref_name + "], deny the treaty of [" + treaty->name + "]");
                             part.second = TreatyApproval::DENIED;
                         } else {
-                            print_info("We, [%s], accept the treaty of [%s]", nation->ref_name.c_str(), treaty->name.c_str());
+                            UnifiedRender::Log::debug("ai", "We, [" + nation->ref_name + "], accept the treaty of [" + treaty->name + "]");
                             part.second = TreatyApproval::ACCEPTED;
                         }
                     }
@@ -569,7 +570,6 @@ void ai_do_tick(Nation* nation, World* world) {
     // TODO: make a better algorithm
     if(nation->ai_do_cmd_troops) {
         std::vector<int> nations_risk_factor(world->nations.size(), 0);
-
         for(const auto& other : world->nations) {
             if(other == nation) {
                 continue;
@@ -590,7 +590,7 @@ void ai_do_tick(Nation* nation, World* world) {
         nations_risk_factor[world->get_id(nation)] = 0;
 
         std::vector<int> potential_risk(world->provinces.size(), 0);
-        for(const auto& province : nation->controlled_provinces) {
+        for(const auto& province : world->provinces) {
             // The "cooling" value which basically makes us ignore some provinces with lots of defenses
             // so we don't rack up deathstacks on a border with some micronation
             int draw_away_force = 0;
@@ -663,6 +663,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 if(!unit->can_move()) {
                     continue;
                 }
+                
                 // Can only go to a province if we have military accesss, they are our ally or if we are at war
                 // also if it's ours we can move thru it - or if it's owned by no-one
                 if(target_province->controller != nullptr) {
