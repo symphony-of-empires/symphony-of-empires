@@ -65,7 +65,6 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* flat_btn = new UI::Image(5, 5, 24, 24, "gfx/flat_icon.png", this);
     flat_btn->on_click = ([](UI::Widget& w) {
         Minimap* state = (Minimap*)w.parent;
-
         state->gs.map->set_view(MapView::PLANE_VIEW);
     });
     flat_btn->set_tooltip("Flat map");
@@ -73,7 +72,6 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* globe_btn = new UI::Image(35, 5, 24, 24, "gfx/globe_icon.png", this);
     globe_btn->on_click = ([](UI::Widget& w) {
         Minimap* state = (Minimap*)w.parent;
-
         state->gs.map->set_view(MapView::SPHERE_VIEW);
     });
     globe_btn->set_tooltip("Globe map");
@@ -81,6 +79,8 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* political_ibtn = new UI::Image(5, 35, 24, 24, "gfx/icon.png", this);
     political_ibtn->on_click = ([](UI::Widget& w) {
         Minimap* state = (Minimap*)w.parent;
+        state->gs.current_mode = MapMode::NORMAL;
+
         mapmode_generator map_mode = political_map_mode;
         mapmode_tooltip tooltip = empty_province_tooltip;
         state->gs.map->set_map_mode(map_mode, tooltip);
@@ -90,6 +90,9 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* relations_ibtn = new UI::Image(5, 65, 24, 24, "gfx/icon.png", this);
     relations_ibtn->on_click = ([](UI::Widget& w) {
         Minimap* state = (Minimap*)w.parent;
+        state->gs.current_mode = MapMode::RELATIONS_SELECT;
+        state->gs.highlighted_nation = state->gs.curr_nation;
+
         mapmode_generator map_mode = relations_map_mode;
         mapmode_tooltip tooltip = relations_tooltip;
         state->gs.map->set_map_mode(map_mode, tooltip);
@@ -102,12 +105,15 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
         mapmode_generator map_mode = population_map_mode;
         mapmode_tooltip tooltip = population_tooltip;
         state->gs.map->set_map_mode(map_mode, tooltip);
+        state->gs.current_mode = MapMode::NORMAL;
     });
     population_ibtn->set_tooltip("Population");
 
     auto* terrain_color_ibtn = new UI::Image(35, 35, 24, 24, "gfx/icon.png", this);
     terrain_color_ibtn->on_click = ([](UI::Widget& w) {
         Minimap* state = (Minimap*)w.parent;
+        state->gs.current_mode = MapMode::NORMAL;
+
         mapmode_generator map_mode = terrain_color_map_mode;
         mapmode_tooltip tooltip = terrain_type_tooltip;
         state->gs.map->set_map_mode(map_mode, tooltip);
@@ -117,6 +123,8 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* culture_ibtn = new UI::Image(35, 65, 24, 24, "gfx/icon.png", this);
     culture_ibtn->on_click = ([](UI::Widget& w) {
         Minimap* state = (Minimap*)w.parent;
+        state->gs.current_mode = MapMode::NORMAL;
+
         mapmode_generator map_mode = culture_map_mode;
         mapmode_tooltip tooltip = culture_tooltip;
         state->gs.map->set_map_mode(map_mode, tooltip);
@@ -126,18 +134,19 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* religion_ibtn = new UI::Image(35, 95, 24, 24, "gfx/icon.png", this);
     religion_ibtn->on_click = ([](UI::Widget& w) {
         Minimap* state = (Minimap*)w.parent;
+        state->gs.current_mode = MapMode::NORMAL;
+
         mapmode_generator map_mode = religion_map_mode;
         mapmode_tooltip tooltip = religion_tooltip;
         state->gs.map->set_map_mode(map_mode, tooltip);
     });
     religion_ibtn->set_tooltip("Religion");
-
     new UI::Image(65, 5, 332, 166, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/minimap.png")), this);
 }
 
 #include "unified_render/byteswap.hpp"
 std::vector<ProvinceColor> relations_map_mode(const World& world) {
-    GameState& gs = ((GameState&)GameState::get_instance());
+    const GameState& gs = ((const GameState&)GameState::get_instance());
 
     std::vector<ProvinceColor> provinces_color;
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
@@ -148,14 +157,19 @@ std::vector<ProvinceColor> relations_map_mode(const World& world) {
             continue;
         }
 
-        if(province.controller == gs.curr_nation) {
+        if(province.controller == gs.highlighted_nation) {
             UnifiedRender::Color color = UnifiedRender::Color::rgba32(bswap32(0x8080ffff));
             provinces_color.push_back(ProvinceColor(i, color));
             continue;
         }
 
-        const NationRelation& rel = province.controller->relations[world.get_id(gs.curr_nation)];
-        
+        const NationRelation& rel = province.controller->relations[world.get_id(gs.highlighted_nation)];
+        if(rel.has_alliance) {
+            UnifiedRender::Color color = UnifiedRender::Color::rgba32(bswap32(0x20d4d1ff));
+            provinces_color.push_back(ProvinceColor(i, color));
+            continue;
+        }
+
         const uint8_t r = (rel.relation < 0.f) ? -rel.relation : 0.f;
         const uint8_t g = (rel.relation > 0.f) ? rel.relation : 0.f;
         const uint8_t b = g;
@@ -166,6 +180,7 @@ std::vector<ProvinceColor> relations_map_mode(const World& world) {
 }
 
 std::string relations_tooltip(const World& world, const Province::Id id) {
+    const GameState& gs = ((const GameState&)GameState::get_instance());
     const Province& province = *world.provinces[id];
     std::string str;
 
@@ -175,7 +190,7 @@ std::string relations_tooltip(const World& world, const Province::Id id) {
     }
 
     if(province.controller == province.owner) {
-        str += UnifiedRender::Locale::translate(province.owner->get_client_hint().alt_name);
+        str += UnifiedRender::Locale::translate(province.controller->get_client_hint().alt_name);
         goto form_final;
     }
 
@@ -186,20 +201,43 @@ std::string relations_tooltip(const World& world, const Province::Id id) {
 form_final:
     str += " ";
 
-    const NationRelation& rel = province.controller->relations[world.get_id(((GameState&)GameState::get_instance()).curr_nation)];
-    const std::vector<std::string> rel_lvls = {
-        "nemesis",
-        "enemy",
-        "disrespectful",
-        "neutral",
-        "respectful",
-        "collaborates",
-        "friendly"
-    };
+    {
+        const NationRelation& rel = province.controller->relations[world.get_id(((GameState&)GameState::get_instance()).highlighted_nation)];
+        if(rel.has_alliance) {
+            str += "allied with us";
+            return str;
+        } else if(rel.has_war) {
+            str += "at war with us";
+            return str;
+        }
+        
+        const std::vector<std::string> rel_lvls = {
+            "nemesis",
+            "enemy",
+            "disrespectful",
+            "neutral",
+            "respectful",
+            "collaborates",
+            "friendly"
+        };
 
-    int idx = ((rel.relation + 200.f) / (200.f * 2.f)) * rel_lvls.size();
-    str += std::to_string(rel.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
+        int idx = ((rel.relation + 200.f) / (200.f * 2.f)) * rel_lvls.size();
+        str += std::to_string(rel.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
+    }
 
+    /*int ally_cnt = 0;
+    str += UnifiedRender::Locale::translate("Allied with") + " ";
+    for(const auto& nation : gs.world->nations) {
+        const NationRelation& rel = province.controller->relations[world.get_id(nation)];
+        if(rel.has_alliance) {
+            str += UnifiedRender::Locale::translate(nation->get_client_hint().alt_name);
+            str += ", ";
+            ally_cnt++;
+        }
+    }
+    if(ally_cnt == 0) {
+        str += UnifiedRender::Locale::translate("nobody");
+    }*/
     return str;
 }
 

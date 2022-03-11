@@ -40,6 +40,11 @@ enum class MapMode : unsigned char {
     NORMAL,
     NO_MAP,
     DISPLAY_ONLY,
+
+    // Mapmodes
+    RELATIONS_SELECT,
+    RELIGION_SELECT,
+    CULTURE_SELECT,
 };
 
 class Unit;
@@ -109,6 +114,8 @@ public:
     World* world = nullptr;
     // Nation::Id curr_nation
     Nation* curr_nation = nullptr;
+    // Used for mapmodes
+    Nation* highlighted_nation = nullptr;
     Map* map = nullptr;
     Input input;
     MapMode current_mode = MapMode::NO_MAP;
