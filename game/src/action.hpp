@@ -157,4 +157,9 @@ namespace Action {
     public:
         static UnifiedRender::Networking::Packet form_packet(const Unit& unit);
     };
+
+    class UnitUpdate {
+    public:
+        static UnifiedRender::Networking::Packet form_packet(const std::vector<Unit*>& units);
+    };
 };

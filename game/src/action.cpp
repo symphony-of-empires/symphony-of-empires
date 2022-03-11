@@ -174,3 +174,18 @@ UnifiedRender::Networking::Packet UnitAdd::form_packet(const Unit& unit) {
     packet.data(ar.get_buffer(), ar.size());
     return packet;
 }
+
+UnifiedRender::Networking::Packet UnitUpdate::form_packet(const std::vector<Unit*>& units) {
+    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+    Archive ar = Archive();
+    ActionType action = ActionType::UNIT_UPDATE;
+    ::serialize(ar, &action);
+    Unit::Id size = units.size();
+    ::serialize(ar, &size);
+    for(const auto& unit : units) {
+        ::serialize(ar, &unit);
+        ::serialize(ar, unit);
+    }
+    packet.data(ar.get_buffer(), ar.size());
+    return packet;
+}

@@ -857,8 +857,8 @@ void World::do_tick() {
     // Perform all battles of the active wars
     profiler.start("Battles");
     std::for_each(std::execution::par, wars.begin(), wars.end(), [this](auto& war) {
-        for(size_t j = 0; j < war->battles.size(); j++) {
-            Battle& battle = war->battles[j];
+        for(auto& battle : war->battles) {
+            assert(battle.province != nullptr);
 
             // Battles are stored for historic purpouses
             if(battle.ended) {
@@ -875,10 +875,10 @@ void World::do_tick() {
                     if(!unit->size) {
                         UnifiedRender::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.defenders.erase(battle.defenders.begin() + i);
-                        if(unit->province != nullptr) {
-                            auto it = std::find(unit->province->units.begin(), unit->province->units.end(), unit);
-                            unit->province->units.erase(it);
-                        }
+                        assert(unit->province != nullptr);
+
+                        auto it = std::find(unit->province->units.begin(), unit->province->units.end(), unit);
+                        unit->province->units.erase(it);
                         remove(unit);
                         delete unit;
                         continue;
@@ -897,10 +897,10 @@ void World::do_tick() {
                     if(!unit->size) {
                         UnifiedRender::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.attackers.erase(battle.attackers.begin() + i);
-                        if(unit->province != nullptr) {
-                            auto it = std::find(unit->province->units.begin(), unit->province->units.end(), unit);
-                            unit->province->units.erase(it);
-                        }
+                        assert(unit->province != nullptr);
+
+                        auto it = std::find(unit->province->units.begin(), unit->province->units.end(), unit);
+                        unit->province->units.erase(it);
                         remove(unit);
                         delete unit;
                         continue;
@@ -953,21 +953,7 @@ void World::do_tick() {
     profiler.stop("Research");
 
     profiler.start("Send packets");
-    {
-        // Broadcast to clients
-        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
-        Archive ar = Archive();
-        ActionType action = ActionType::UNIT_UPDATE;
-        ::serialize(ar, &action);
-        Unit::Id size = units.size();
-        ::serialize(ar, &size);
-        for(const auto& unit : units) {
-            ::serialize(ar, &unit);
-            ::serialize(ar, unit);
-        }
-        packet.data(ar.get_buffer(), ar.size());
-        g_server->broadcast(packet);
-    }
+    g_server->broadcast(Action::UnitUpdate::form_packet(units));
     profiler.stop("Send packets");
 
     profiler.start("Treaties");

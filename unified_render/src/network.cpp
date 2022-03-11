@@ -60,7 +60,7 @@
 #include <sys/types.h>
 
 #include "unified_render/network.hpp"
-#include "unified_render/print.hpp"
+#include "unified_render/log.hpp"
 
 //
 // Packet
@@ -140,7 +140,7 @@ void UnifiedRender::Networking::SocketStream::recv(void* data, size_t size) {
 // Server client
 //
 UnifiedRender::Networking::ServerClient::ServerClient(void) {
-
+    is_active = false;
 }
 
 int UnifiedRender::Networking::ServerClient::try_connect(int fd) {
@@ -156,7 +156,7 @@ int UnifiedRender::Networking::ServerClient::try_connect(int fd) {
         // Then we check if the server is running and we throw accordingly
         is_connected = true;
 
-        print_info("New client connection established");
+        UnifiedRender::Log::debug("server", "New client connection established");
         return conn_fd;
     } catch(UnifiedRender::Networking::SocketException& e) {
         // Continue
@@ -171,7 +171,7 @@ int UnifiedRender::Networking::ServerClient::try_connect(int fd) {
 void UnifiedRender::Networking::ServerClient::flush_packets(void) {
     if(!pending_packets.empty()) {
         if(pending_packets_mutex.try_lock()) {
-            std::scoped_lock<std::mutex> lock(packets_mutex);
+            std::lock_guard<std::mutex> lock(packets_mutex);
 
             std::deque<UnifiedRender::Networking::Packet>::iterator packet;
             for(packet = pending_packets.begin(); packet != pending_packets.end(); packet++) {
@@ -251,7 +251,7 @@ UnifiedRender::Networking::Server::Server(const unsigned port, const unsigned ma
 #endif
 
     run = true;
-    print_info("Server created sucessfully and listening to %u; now invite people!", port);
+    UnifiedRender::Log::debug("serber", "Server created sucessfully and listening to " + std::to_string(port) + "; now invite people!");
 }
 
 UnifiedRender::Networking::Server::~Server() {
@@ -276,7 +276,7 @@ void UnifiedRender::Networking::Server::broadcast(const UnifiedRender::Networkin
                 clients[i].packets.push_back(packet);
                 clients[i].packets_mutex.unlock();
             } else {
-                std::scoped_lock lock(clients[i].pending_packets_mutex);
+                std::lock_guard<std::mutex> lock(clients[i].pending_packets_mutex);
                 clients[i].pending_packets.push_back(packet);
             }
 
@@ -291,7 +291,7 @@ void UnifiedRender::Networking::Server::broadcast(const UnifiedRender::Networkin
 
             if(total_size >= 200 * 1000000) {
                 clients[i].is_connected = false;
-                print_error("Client %zu has exceeded max quota! - It has used %zu bytes!", i, total_size);
+                UnifiedRender::Log::debug("server", "Client#" + std::to_string(i) + " has exceeded max quota! - It has used " + std::to_string(total_size) + "B!");
             }
         }
     }
@@ -344,7 +344,7 @@ void UnifiedRender::Networking::Client::send(const UnifiedRender::Networking::Pa
         packets.push_back(packet);
         packets_mutex.unlock();
     } else {
-        std::scoped_lock lock(pending_packets_mutex);
+        std::lock_guard<std::mutex> lock(pending_packets_mutex);
         pending_packets.push_back(packet);
     }
 }
