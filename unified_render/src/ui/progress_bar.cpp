@@ -23,11 +23,10 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/ui/progress_bar.hpp"
-
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+#include "unified_render/ui/progress_bar.hpp"
 #include "unified_render/ui/widget.hpp"
 #include "unified_render/ui/input.hpp"
 #include "unified_render/ui/ui.hpp"

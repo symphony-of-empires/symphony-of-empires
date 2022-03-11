@@ -23,18 +23,19 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "client/interface/minimap.hpp"
-#include "client/map.hpp"
-#include "world.hpp"
+#include <cmath>
+#include <unordered_map>
+
 #include "unified_render/path.hpp"
 #include "unified_render/texture.hpp"
-#include <unordered_map>
 #include "unified_render/ui/button.hpp"
 #include "unified_render/ui/close_button.hpp"
 #include "unified_render/ui/image.hpp"
 #include "unified_render/ui/tooltip.hpp"
 
-#include <math.h>
+#include "client/interface/minimap.hpp"
+#include "client/map.hpp"
+#include "world.hpp"
 
 using namespace Interface;
 
