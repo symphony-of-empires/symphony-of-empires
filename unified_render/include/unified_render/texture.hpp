@@ -40,15 +40,16 @@
 #include <GL/gl.h>
 
 #ifdef _MSC_VER
-#include <SDL_ttf.h>
+#   include <SDL_ttf.h>
+#   include <SDL_surface.h>
 #else
-#include <SDL2/SDL_ttf.h>
+#   include <SDL2/SDL_ttf.h>
+#   include <SDL2/SDL_surface.h>
 #endif
 
 #include "unified_render/binary_image.hpp"
 #include "unified_render/color.hpp"
 
-struct SDL_Surface;
 namespace UnifiedRender::IO {
     namespace Asset {
         class Base;
@@ -108,6 +109,7 @@ namespace UnifiedRender {
         void bind(void) const;
         void delete_opengl();
         void guillotine(const UnifiedRender::Texture& map, int x, int y, int w, int h);
+        void to_file(const std::string& filename);
 
         GLuint gl_tex_num = 0;
     };
