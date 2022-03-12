@@ -76,8 +76,8 @@ MapRender::MapRender(const World& _world)
     auto tex_man = UnifiedRender::State::get_instance().tex_man;
 
     water_tex = &tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
-    paper_tex = &tex_man->load(Path::get("map/paper.png"), mipmap_options);
-    stripes_tex = &tex_man->load(Path::get("map/stripes.png"), mipmap_options);
+    paper_tex = &tex_man->load(Path::get("gfx/paper.png"), mipmap_options);
+    stripes_tex = &tex_man->load(Path::get("gfx/stripes.png"), mipmap_options);
     landscape_map = &tex_man->load(Path::get("map/color.png"), mipmap_options);
     wave1 = &tex_man->load(Path::get("gfx/wave1.png"), mipmap_options);
     wave2 = &tex_man->load(Path::get("gfx/wave2.png"), mipmap_options);
