@@ -31,6 +31,7 @@
 #include "unified_render/print.hpp"
 #include "unified_render/serializer.hpp"
 #include "unified_render/thread_pool.hpp"
+#include "unified_render/rand.hpp"
 
 #include "action.hpp"
 #include "server/economy.hpp"
@@ -69,6 +70,7 @@ void militancy_update(World& world, Nation* nation) {
     // Anger per ideology (how much we hate the current ideology)
     std::vector<UnifiedRender::Decimal> ideology_anger(world.ideologies.size(), 0.f);
     const UnifiedRender::Decimal coup_chances = 1000.f;
+    auto rand = UnifiedRender::get_local_generator();
     for(const auto& province : nation->controlled_provinces) {
         for(const auto& pop : province->pops) {
             // TODO: Ok, look, the justification is that educated people
@@ -84,7 +86,7 @@ void militancy_update(World& world, Nation* nation) {
 
     // Rebellions!
     // TODO: Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-    if(!std::fmod(std::rand(), std::max<UnifiedRender::Decimal>(1, coup_chances - total_anger))) {
+    if(!std::fmod(rand(), std::max<UnifiedRender::Decimal>(1, coup_chances - total_anger))) {
         // Compile list of uprising provinces
         std::vector<Province*> uprising_provinces;
         for(const auto& province : nation->owned_provinces) {
@@ -142,7 +144,7 @@ void militancy_update(World& world, Nation* nation) {
     }
 
     // Roll a dice! (more probability with more anger!)
-    if(!std::fmod(std::rand(), std::max(coup_chances, coup_chances - total_anger))) {
+    if(!std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger))) {
         // Choose the ideology with most "anger" (the one more probable to coup d'
         // etat) - amgry radicals will surely throw off the current administration
         // while peaceful people wonq't
@@ -182,9 +184,8 @@ void Economy::do_tick(World& world) {
         std::vector<Unit*> new_nation_units;
 
         // Minimal speedup but probably can keep our branch predictor happy ^_^
-        unsigned int seed = std::rand();
+        auto rand = UnifiedRender::get_local_generator();
         for(const auto& province : nation->controlled_provinces) {
-            float rand_seed;
 
             std::vector<Workers> entrepreneurs;
             entrepreneurs.reserve(world.cultures.size() * world.religions.size() * world.pop_types.size());
@@ -399,10 +400,8 @@ void Economy::do_tick(World& world) {
                 // TODO: DO NOT MAKE POP BUY FROM STOCKPILE, INSTEAD MAKE THEM BUY FROM ORDERS
                 size_t j = 0;
                 for(auto& product : province->products) {
-                    rand_seed = rand();
-
                     // Only buy the available stuff
-                    UnifiedRender::Number bought = std::floor(std::min<UnifiedRender::Number>(std::fmod(rand_seed, pop.size * (-pop.life_needs_met)), province->products[j].supply));
+                    UnifiedRender::Number bought = std::floor(std::min<UnifiedRender::Number>(std::fmod(rand(), pop.size * (-pop.life_needs_met)), province->products[j].supply));
                     if(bought < 0.f) {
                         break;
                     }
@@ -417,7 +416,7 @@ void Economy::do_tick(World& world) {
                         // pop.life_needs_met += pop.size / bought;
                     // }
                     // else {
-                        pop.everyday_needs_met += pop.size / bought;
+                    pop.everyday_needs_met += pop.size / bought;
                     // }
 
                     if(pop.budget < 0.f) {
@@ -438,12 +437,11 @@ void Economy::do_tick(World& world) {
                 // NOTE: We used to have this thing where anything below 2.5 meant everyone dies
                 // and this was removed because it's such an unescesary detail that consumes precious
                 // CPU branching prediction... and we can't afford that!
-                rand_seed = rand();
 
                 // More literacy means more educated persons with less children
                 UnifiedRender::Decimal growth = pop.size / (pop.literacy + 1.f);
                 growth *= pop.life_needs_met;
-                growth = std::min<UnifiedRender::Decimal>(std::fmod(rand_seed, 10.f), growth);
+                growth = std::min<UnifiedRender::Decimal>(std::fmod(rand(), 10.f), growth);
                 //growth *= (growth > 0.f) ? nation->get_reproduction_mod() : nation->get_death_mod();
                 pop.size += static_cast<UnifiedRender::Number>((int)growth);
 
