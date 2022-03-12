@@ -62,6 +62,36 @@ const T* find_or_throw(const std::string& ref_name) {
     return (*result);
 }
 
+void append_to_table(lua_State* L, int* index, float number) {
+    lua_pushnumber(L, (*index)++);
+    lua_pushnumber(L, number);
+    lua_settable(L, -3);
+}
+void append_to_table(lua_State* L, int index, float number) {
+    append_to_table(L, &index, number);
+}
+
+void append_to_table(lua_State* L, int* index, const std::string& text) {
+    lua_pushnumber(L, (*index)++);
+    lua_pushstring(L, text.c_str());
+    lua_settable(L, -3);
+}
+void append_to_table(lua_State* L, int index, const std::string& text) {
+    append_to_table(L, &index, text);
+}
+
+float pop_number(lua_State* L) {
+    const float amount = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+    return amount;
+}
+
+const std::string& pop_string(lua_State* L) {
+    const std::string& text = luaL_checkstring(L, -1);
+    lua_pop(L, 1);
+    return text;
+}
+
 int LuaAPI::register_new_table(lua_State* L, const std::string& name, const luaL_Reg meta[], const luaL_Reg methods[]) {
     luaL_newlib(L, methods);
     luaL_newmetatable(L, name.c_str());
@@ -208,7 +238,6 @@ int LuaAPI::add_good(lua_State* L) {
 
     good->ref_name = luaL_checkstring(L, 1);
     good->name = luaL_checkstring(L, 2);
-    good->is_edible = lua_toboolean(L, 3);
 
     g_world->insert(*good);
     lua_pushnumber(L, g_world->goods.size() - 1);
@@ -230,12 +259,7 @@ int LuaAPI::add_input_to_industry_type(lua_State* L) {
 
     // And the inputs also employ people
     for(const auto& input : industry_type->inputs) {
-        if(input->is_edible) {
-            industry_type->num_req_farmers += 10;
-        }
-        else {
-            industry_type->num_req_laborers += 100;
-        }
+        industry_type->num_req_workers += 100;
         industry_type->num_req_entrepreneurs += 1;
     }
     return 0;
@@ -250,12 +274,7 @@ int LuaAPI::add_output_to_industry_type(lua_State* L) {
     // of output, it also requires entrepreneurs to "manage" the operations
     // of the factory
     for(const auto& output : industry_type->outputs) {
-        if(output->is_edible) {
-            industry_type->num_req_farmers += 10;
-        }
-        else {
-            industry_type->num_req_laborers += 100;
-        }
+        industry_type->num_req_workers += 100;
         industry_type->num_req_entrepreneurs += 1;
     }
     return 0;
@@ -930,43 +949,39 @@ int LuaAPI::add_pop_type(lua_State* L) {
     else {
         pop->group = PopGroup::Other;
     }
-    // if(lua_toboolean(L, 4)) {
-    //     pop->group = PopGroup::BURGEOISE;
-    // } else if(lua_toboolean(L, 5)) {
-    //     pop->group = PopGroup::Slave;
-    // } else if(lua_toboolean(L, 6)) {
-    //     pop->group = PopGroup::FARMER;
-    // } else if(lua_toboolean(L, 7)) {
-    //     pop->group = PopGroup::LABORER;
-    // } else {
-    //     pop->group = PopGroup::Other;
-    // }
 
-    pop->good_needs = std::vector<float>(g_world->goods.size(), 0);
+    pop->basic_needs_amount = std::vector<float>(g_world->goods.size(), 0);
+    pop->luxury_needs_satisfaction = std::vector<float>(g_world->goods.size(), 0);
+    pop->luxury_needs_deminishing_factor = std::vector<float>(g_world->goods.size(), 0);
 
-    // -- Loads the needs table into pop->good_needs
+    // Lua next = pops top and then pushes key & value in table
     lua_pushvalue(L, 8);
-    // stack now contains: -1 => table
     lua_pushnil(L);
-    // stack now contains: -1 => nil; -2 => table
     while(lua_next(L, -2)) {
-        // stack now contains: -1 => table2; -2 => key; -3 => table
         lua_pushnil(L);
-        // stack now contains: -1 => nil; -2 => table2; -3 => key; -4 => table
         lua_next(L, -2);
-        // stack now contains: -1 => value; -2 => key2; -3 => table2; -4 => key; -5 => table
-        const Good& good = *find_or_throw<Good>(luaL_checkstring(L, -1));
-        lua_pop(L, 1);
-        // stack now contains: -1 => key; -2 => table2; -3 => key; -4 => table
+        const Good& good = *find_or_throw<Good>(pop_string(L));
         lua_next(L, -2);
-        // stack now contains: -1 => value; -2 => key; -3 => table2; -4 => key; -5 => table
-        const float amount = lua_tonumber(L, -1);
-        // pop value + key + table2, leaving key
-        lua_pop(L, 3);
-        // stack now contains: -1 => key; -2 => table
-        pop->good_needs[g_world->get_id(good)] = amount;
+        const float amount = pop_number(L);
+        lua_pop(L, 2);
+        pop->basic_needs_amount[g_world->get_id(good)] = amount;
     }
-    // stack now contains: -1 => table
+    lua_pop(L, 1);
+
+    lua_pushvalue(L, 9);
+    lua_pushnil(L);
+    while(lua_next(L, -2)) {
+        lua_pushnil(L);
+        lua_next(L, -2);
+        const Good& good = *find_or_throw<Good>(pop_string(L));
+        lua_next(L, -2);
+        const float satisfaction = pop_number(L);
+        lua_next(L, -2);
+        const float deminishing = pop_number(L);
+        lua_pop(L, 2);
+        pop->luxury_needs_satisfaction[g_world->get_id(good)] = satisfaction;
+        pop->luxury_needs_deminishing_factor[g_world->get_id(good)] = deminishing;
+    }
     lua_pop(L, 1);
 
     // Add onto vector
@@ -987,14 +1002,27 @@ int LuaAPI::get_pop_type(lua_State* L) {
     lua_pushboolean(L, pop_type->group == PopGroup::LABORER);
     lua_newtable(L);
     size_t index = 1;
-    for(size_t i = 0; i < pop_type->good_needs.size(); i++) {
-        if(pop_type->good_needs[i] != 0) {
+    for(size_t i = 0; i < pop_type->basic_needs_amount.size(); i++) {
+        if(pop_type->basic_needs_amount[i] != 0) {
             lua_pushnumber(L, index++);
 
             lua_newtable(L);
-            lua_pushstring(L, g_world->goods[i]->ref_name.c_str());
-            lua_pushnumber(L, pop_type->good_needs[i]);
+            append_to_table(L, 1, g_world->goods[i]->ref_name.c_str());
+            append_to_table(L, 2, pop_type->basic_needs_amount[i]);
+
             lua_settable(L, -3);
+        }
+    }
+    lua_newtable(L);
+    index = 1;
+    for(size_t i = 0; i < pop_type->luxury_needs_satisfaction.size(); i++) {
+        if(pop_type->luxury_needs_satisfaction[i] != 0) {
+            lua_pushnumber(L, index++);
+
+            lua_newtable(L);
+            append_to_table(L, 1, g_world->goods[i]->ref_name.c_str());
+            append_to_table(L, 2, pop_type->luxury_needs_satisfaction[i]);
+            append_to_table(L, 3, pop_type->luxury_needs_deminishing_factor[i]);
 
             lua_settable(L, -3);
         }
@@ -1014,14 +1042,13 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
     lua_pushboolean(L, pop_type->group == PopGroup::LABORER);
     lua_newtable(L);
     size_t index = 1;
-    for(size_t i = 0; i < pop_type->good_needs.size(); i++) {
-        if(pop_type->good_needs[i] != 0) {
+    for(size_t i = 0; i < pop_type->basic_needs_amount.size(); i++) {
+        if(pop_type->basic_needs_amount[i] != 0) {
             lua_pushnumber(L, index++);
 
             lua_newtable(L);
-            lua_pushstring(L, g_world->goods[i]->ref_name.c_str());
-            lua_pushnumber(L, pop_type->good_needs[i]);
-            lua_settable(L, -3);
+            append_to_table(L, 1, g_world->goods[i]->ref_name.c_str());
+            append_to_table(L, 2, pop_type->basic_needs_amount[i]);
 
             lua_settable(L, -3);
         }

@@ -43,7 +43,12 @@ class PopType : public RefnameEntity<uint8_t> {
 public:
     UnifiedRender::Decimal social_value;
     PopGroup group;
-    std::vector<float> good_needs; 
+    // The amount of goods needed to satisfy basic needs
+    std::vector<float> basic_needs_amount; 
+    // The amount of satisfaction each luxury good gives
+    std::vector<float> luxury_needs_satisfaction; 
+    // The deminishing returns factor of the luxury good satisfaction
+    std::vector<float> luxury_needs_deminishing_factor; 
 };
 
 #include "culture.hpp"

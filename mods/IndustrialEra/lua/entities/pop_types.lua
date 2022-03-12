@@ -25,9 +25,12 @@
 
 -- Pop types
 
-basic_needs = {
-    { "bread", 1.0 },
+standard_basic_needs = {
+    { "wheat", 1.0 },
     { "salt", 0.1 }
+} 
+standard_luxury_needs = {
+    { "bread", 0.5, 0.8 }
 } 
 
 burgeoise = PopType:new{
@@ -35,7 +38,8 @@ burgeoise = PopType:new{
     ref_name = "burgeoise",
     social_value = 2.0,
     is_burgeoise = true,
-    needs = basic_needs 
+    basic_needs = standard_basic_needs,
+    luxury_needs = standard_luxury_needs
 }
 burgeoise:register()
 
@@ -43,7 +47,8 @@ artisan = PopType:new{
     name = _("Artisan"),
     ref_name = "artisan",
     social_value = 1.0,
-    needs = basic_needs
+    basic_needs = standard_basic_needs,
+    luxury_needs = standard_luxury_needs
 }
 artisan:register()
 
@@ -51,7 +56,8 @@ bureaucrat = PopType:new{
     name = _("Bureaucrat"),
     ref_name = "bureaucrat",
     social_value = 2.5,
-    needs = basic_needs
+    basic_needs = standard_basic_needs,
+    luxury_needs = standard_luxury_needs
 }
 bureaucrat:register()
 
@@ -59,7 +65,8 @@ intellectual = PopType:new{
     name = _("Clergymen"),
     ref_name = "intellectual",
     social_value = 2.5,
-    needs = basic_needs
+    basic_needs = standard_basic_needs,
+    luxury_needs = standard_luxury_needs
 }
 intellectual:register()
 
@@ -67,7 +74,8 @@ soldier = PopType:new{
     name = _("Soldier"),
     ref_name = "soldier",
     social_value = 1.5,
-    needs = basic_needs
+    basic_needs = standard_basic_needs,
+    luxury_needs = standard_luxury_needs
 }
 soldier:register()
 
@@ -76,7 +84,8 @@ farmer = PopType:new{
     ref_name = "farmer",
     social_value = 1.0,
     is_farmer = true,
-    needs = basic_needs
+    basic_needs = standard_basic_needs,
+    luxury_needs = standard_luxury_needs
 }
 farmer:register()
 
@@ -85,7 +94,8 @@ laborer = PopType:new{
     ref_name = "laborer",
     social_value = 1.0,
     is_laborer = true,
-    needs = basic_needs
+    basic_needs = standard_basic_needs,
+    luxury_needs = standard_luxury_needs
 }
 laborer:register()
 
@@ -94,7 +104,8 @@ slave = PopType:new{
     ref_name = "slave",
     social_value = 0.1,
     is_slave = true,
-    needs = basic_needs
+    basic_needs = standard_basic_needs,
+    luxury_needs = standard_luxury_needs
 }
 slave:register()
 
@@ -102,13 +113,17 @@ slave:register()
 officer = PopType:new{
     name = _("Officer"),
     ref_name = "officer",
-    social_value = 1.5
+    social_value = 1.5,
+    basic_needs = standard_basic_needs,
+    luxury_needs = standard_luxury_needs
 }
 officer:register()
 
 craftsmen = PopType:new{
     name = _("Craftsmen"),
     ref_name = "craftsmen",
-    social_value = 1.5
+    social_value = 1.5,
+    basic_needs = standard_basic_needs,
+    luxury_needs = standard_luxury_needs
 }
 craftsmen:register()

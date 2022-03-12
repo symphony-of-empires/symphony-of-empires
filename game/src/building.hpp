@@ -64,8 +64,7 @@ public:
     // We used to calculate these per each economical tick but now we can just store them
     // and multiply it by the level of the factory - this is the **minimum** amount of employed
     // people we can have at a time
-    int num_req_farmers = 0;
-    int num_req_laborers = 0;
+    int num_req_workers = 0;
     int num_req_entrepreneurs = 0;
 };
 
