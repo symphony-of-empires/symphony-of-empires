@@ -40,9 +40,6 @@ cotton:register()
 coffee = Good:new{ ref_name = "coffee" }
 coffee.name = _("Coffe bean")
 coffee:register()
-steel = Good:new{ ref_name = "steel" }
-steel.name = _("Steel bean")
-steel:register()
 
 -- Industrial materials
 fuel = Good:new{ ref_name = "fuel" }
@@ -60,9 +57,6 @@ fabric:register()
 dye = Good:new{ ref_name = "dye" }
 dye.name = _("Dye")
 dye:register()
-steel = Good:new{ ref_name = "steel" }
-steel.name = _("Steel")
-steel:register()
 
 -- Military stuff
 arms = Good:new{ ref_name = "arms" }
@@ -85,9 +79,6 @@ gold:register()
 iron = Good:new{ ref_name = "iron" }
 iron.name = _("Iron")
 iron:register()
-silver = Good:new{ ref_name = "silver" }
-silver.name = _("Silver")
-silver:register()
 oil = Good:new{ ref_name = "oil" }
 oil.name = _("Oil")
 oil:register()
@@ -100,6 +91,9 @@ coal:register()
 sulfur = Good:new{ ref_name = "sulfur" }
 sulfur.name = _("Sulfur")
 sulfur:register()
+steel = Good:new{ ref_name = "steel" }
+steel.name = _("Steel bean")
+steel:register()
 
 -- Food
 bread = Good:new{ ref_name = "bread" }

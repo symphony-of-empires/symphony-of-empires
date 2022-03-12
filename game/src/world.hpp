@@ -72,6 +72,31 @@ public:
     };\
     list_type<type*> list;
 
+#define LIST_FOR_LOCAL_TYPE(type, list, list_type)\
+    inline const list_type<type>& get_list(const type&) const {\
+        return list;\
+    };\
+    inline list_type<type>& get_list(const type&) {\
+        return list;\
+    };\
+    inline size_t get_id(const type& ptr) const {\
+        return ((ptrdiff_t)&ptr - (ptrdiff_t)&list[0]) / sizeof(type);\
+    };\
+    inline void insert(const type& ptr) {\
+        auto& list = this->get_list(ptr);\
+        ptr.cached_id = list.size();\
+        list.push_back(ptr);\
+    };\
+    inline void remove(type& ptr) {\
+        type::Id cached_id = this->get_id<type>(ptr);\
+        auto& list = this->get_list(ptr);\
+        for(type::Id i = cached_id + 1; i < list.size(); i++) {\
+            list[i].cached_id--;\
+        }\
+        list.erase(list.begin() + cached_id);\
+    };\
+    list_type<type> list;
+
 // Contains the main world class object, containing all the data relevant for the simulation
 class World {
     std::vector<Event*> daily_check_events;

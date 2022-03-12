@@ -79,10 +79,6 @@ sulfur_mine = IndustryType:new{ ref_name = "sulfur_mine", name = _("Sulfur mine"
 sulfur_mine:register()
 sulfur_mine:add_output(sulfur)
 
-silver_mine = IndustryType:new{ ref_name = "silver_mine", name = _("Silver mine") }
-silver_mine:register()
-silver_mine:add_output(silver)
-
 -- Secondary sector industries (now the fun begins)
 iron_smelter = IndustryType:new{ ref_name = "iron_smelter", name = _("Iron smelter") }
 iron_smelter:register()
