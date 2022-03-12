@@ -399,7 +399,7 @@ void Economy::do_tick(World& world) {
                 // TODO: DO NOT MAKE POP BUY FROM STOCKPILE, INSTEAD MAKE THEM BUY FROM ORDERS
                 size_t j = 0;
                 for(auto& product : province->products) {
-                    rand_seed = ::rand_r(&seed);
+                    rand_seed = rand();
 
                     // Only buy the available stuff
                     UnifiedRender::Number bought = std::floor(std::min<UnifiedRender::Number>(std::fmod(rand_seed, pop.size * (-pop.life_needs_met)), province->products[j].supply));
@@ -438,7 +438,7 @@ void Economy::do_tick(World& world) {
                 // NOTE: We used to have this thing where anything below 2.5 meant everyone dies
                 // and this was removed because it's such an unescesary detail that consumes precious
                 // CPU branching prediction... and we can't afford that!
-                rand_seed = ::rand_r(&seed);
+                rand_seed = rand();
 
                 // More literacy means more educated persons with less children
                 UnifiedRender::Decimal growth = pop.size / (pop.literacy + 1.f);
