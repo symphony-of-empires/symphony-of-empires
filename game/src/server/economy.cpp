@@ -70,7 +70,7 @@ void militancy_update(World& world, Nation* nation) {
     // Anger per ideology (how much we hate the current ideology)
     std::vector<UnifiedRender::Decimal> ideology_anger(world.ideologies.size(), 0.f);
     const UnifiedRender::Decimal coup_chances = 1000.f;
-    auto rand = UnifiedRender::rand();
+    auto rand = UnifiedRender::get_local_generator();
     for(const auto& province : nation->controlled_provinces) {
         for(const auto& pop : province->pops) {
             // TODO: Ok, look, the justification is that educated people
@@ -184,9 +184,8 @@ void Economy::do_tick(World& world) {
         std::vector<Unit*> new_nation_units;
 
         // Minimal speedup but probably can keep our branch predictor happy ^_^
-        auto rand = UnifiedRender::rand();
+        auto rand = UnifiedRender::get_local_generator();
         for(const auto& province : nation->controlled_provinces) {
-            float rand_seed;
 
             std::vector<Workers> entrepreneurs;
             entrepreneurs.reserve(world.cultures.size() * world.religions.size() * world.pop_types.size());
