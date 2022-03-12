@@ -27,15 +27,12 @@
 -- Farmable stuff
 wheat = Good:new{ ref_name = "wheat" }
 wheat.name = _("Wheat")
-wheat.is_edible = true
 wheat:register()
 grapes = Good:new{ ref_name = "grapes" }
 grapes.name = _("Grapes")
-grapes.is_edible = true
 grapes:register()
 rice = Good:new{ ref_name = "rice" }
 rice.name = _("Rice")
-rice.is_edible = true
 rice:register()
 cotton = Good:new{ ref_name = "cotton" }
 cotton.name = _("Cotton")
@@ -101,27 +98,21 @@ steel:register()
 -- Food
 bread = Good:new{ ref_name = "bread" }
 bread.name = _("Bread")
-bread.is_edible = true
 bread:register()
 salt = Good:new{ ref_name = "salt" }
 salt.name = _("Salt")
-salt.is_edible = true
 salt:register()
 
 -- Commodities
 wine = Good:new{ ref_name = "wine" }
 wine.name = _("Wine")
-wine.is_edible = true
 wine:register()
 alcohol = Good:new{ ref_name = "alcohol" }
 alcohol.name = _("Alcohol")
-alcohol.is_edible = true
 alcohol:register()
 opium = Good:new{ ref_name = "opium" }
 opium.name = _("Opium")
-opium.is_edible = true
 opium:register()
 spices = Good:new{ ref_name = "spices" }
 spices.name = _("Spices")
-spices.is_edible = true
 spices:register()

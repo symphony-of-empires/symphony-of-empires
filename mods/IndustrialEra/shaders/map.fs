@@ -378,7 +378,7 @@ void main() {
 	borders.x = smoothstep(0., 1., borders.x);
 
 #ifdef DIAG_BORDER
-	float is_diag = borders_diag.w;
+	float is_diag = borders_diag.z;
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
 	vec2 coord = texture(tile_map, diag_coords).xy;
 #else

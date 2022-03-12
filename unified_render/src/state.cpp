@@ -328,7 +328,8 @@ UnifiedRender::State::State(void) {
 
     // Plugins system (still wip)
     for(const auto& plugin : Path::get_all("plugin.dll")) {
-#if defined windows
+#ifdef _MSC_VER
+#   if defined windows
         HINSTANCE hGetProcIDDLL = LoadLibrary(plugin.c_str());
         // This shouldn't happen - like ever!
         if(!hGetProcIDDLL) {
@@ -347,6 +348,7 @@ UnifiedRender::State::State(void) {
         if(r != 0) {
             UnifiedRender::Log::warning("plugin", "Error RET=" + std::to_string(r) + " on plugin " + plugin);
         }
+#   endif
 #endif
     }
 

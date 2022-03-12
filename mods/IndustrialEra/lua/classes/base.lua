@@ -161,8 +161,7 @@ end
 Good = {
 	id = 0,
 	name = "",
-	ref_name = "",
-	is_edible = false
+	ref_name = ""
 }
 function Good:new(o)
 	o = o or {}
@@ -171,7 +170,7 @@ function Good:new(o)
 	return o
 end
 function Good:register()
-	self.id = add_good(self.ref_name, self.name, self.is_edible)
+	self.id = add_good(self.ref_name, self.name)
 end
 function Good:get(ref_name)
 	o = Good:new()
@@ -692,7 +691,8 @@ PopType = {
     is_slave = false,
     is_farmer = false,
     is_laborer = false,
-	needs = {}
+	basic_needs = {},
+	luxury_needs = {}
 }
 function PopType:new(o)
 	o = o or {}
@@ -702,18 +702,18 @@ function PopType:new(o)
 end
 function PopType:get(ref_name)
 	o = PopType:new()
-	o.id, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_farmer, o.is_laborer, o.needs = get_pop_type(ref_name)
+	o.id, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_farmer, o.is_laborer, o.basic_needs, luxury_needs = get_pop_type(ref_name)
 	o.ref_name = ref_name
 	return o
 end
 function PopType:get_by_id(id)
 	o = PopType:new()
-	o.ref_name, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_farmer, o.is_laborer, o.needs = get_pop_type_by_id(id)
+	o.ref_name, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_farmer, o.is_laborer, o.basic_needs, o.luxury_needs = get_pop_type_by_id(id)
 	o.id = id
 	return o
 end
 function PopType:register()
-	self.id = add_pop_type(self.ref_name, self.name, self.social_value, self.is_burgeoise, self.is_slave, self.is_farmer, self.is_laborer, self.needs)
+	self.id = add_pop_type(self.ref_name, self.name, self.social_value, self.is_burgeoise, self.is_slave, self.is_farmer, self.is_laborer, self.basic_needs, self.luxury_needs)
 end
 
 Culture = {

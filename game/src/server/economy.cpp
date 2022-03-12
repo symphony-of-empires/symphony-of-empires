@@ -31,6 +31,7 @@
 #include "unified_render/print.hpp"
 #include "unified_render/serializer.hpp"
 #include "unified_render/thread_pool.hpp"
+#include "unified_render/rand.hpp"
 
 #include "action.hpp"
 #include "server/economy.hpp"
@@ -63,6 +64,110 @@ public:
     }
 };
 
+void militancy_update(World& world, Nation* nation) {
+    // Total anger in population (global)
+    UnifiedRender::Decimal total_anger = 0.f;
+    // Anger per ideology (how much we hate the current ideology)
+    std::vector<UnifiedRender::Decimal> ideology_anger(world.ideologies.size(), 0.f);
+    const UnifiedRender::Decimal coup_chances = 1000.f;
+    auto rand = UnifiedRender::get_local_generator();
+    for(const auto& province : nation->controlled_provinces) {
+        for(const auto& pop : province->pops) {
+            // TODO: Ok, look, the justification is that educated people
+            // almost never do coups - in comparasion to uneducated
+            // peseants, rich people don't need to protest!
+            const UnifiedRender::Decimal anger = (std::max<UnifiedRender::Decimal>(pop.militancy * pop.con, 0.001f) / std::max<UnifiedRender::Decimal>(pop.literacy, 1.f) / std::max<UnifiedRender::Decimal>(pop.life_needs_met, 0.001f));
+            total_anger += anger;
+            for(const auto& ideology : world.ideologies) {
+                ideology_anger[world.get_id(*ideology)] += (pop.ideology_approval[world.get_id(*ideology)] * anger) * (pop.size / 1000);
+            }
+        }
+    }
+
+    // Rebellions!
+    // TODO: Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
+    if(!std::fmod(rand(), std::max<UnifiedRender::Decimal>(1, coup_chances - total_anger))) {
+        // Compile list of uprising provinces
+        std::vector<Province*> uprising_provinces;
+        for(const auto& province : nation->owned_provinces) {
+            UnifiedRender::Decimal province_anger = 0.f;
+            UnifiedRender::Decimal province_threshold = 0.f;
+            for(const auto& pop : province->pops) {
+                province_anger += pop.militancy * pop.con;
+                province_threshold += pop.literacy * pop.life_needs_met;
+            }
+
+            if(province_anger > province_threshold) {
+                uprising_provinces.push_back(province);
+            }
+        }
+
+        Nation* dup_nation = new Nation();
+        dup_nation->name = nation->ref_name;
+        dup_nation->ref_name = nation->ref_name;
+        dup_nation->accepted_cultures = nation->accepted_cultures;
+        dup_nation->accepted_religions = nation->accepted_religions;
+        dup_nation->base_literacy = nation->base_literacy;
+        dup_nation->research = nation->research;
+        dup_nation->relations = nation->relations;
+        dup_nation->client_hints = nation->client_hints;
+        // Rebel with the most popular ideology
+        dup_nation->ideology = world.ideologies[std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()))];
+        world.insert(*dup_nation);
+        for(auto& _nation : world.nations) {
+            _nation->relations.resize(world.nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
+        }
+
+        // TODO: Tell the clients about this new nation
+        g_server->broadcast(Action::NationAdd::form_packet(*dup_nation));
+
+        // Make the most angry provinces revolt!
+        std::vector<TreatyClause::BaseClause*> clauses;
+        for(auto& province : uprising_provinces) {
+            // TODO: We should make a copy of the `rebel` nation for every rebellion!!!
+            // TODO: We should also give them an unique ideology!!!
+            dup_nation->give_province(*province);
+            for(auto& unit : province->get_units()) {
+                unit->owner = dup_nation;
+            }
+
+            // Declare war seeking all provinces from the owner
+            TreatyClause::AnexxProvince* cl = new TreatyClause::AnexxProvince();
+            cl->provinces = uprising_provinces;
+            cl->sender = dup_nation;
+            cl->receiver = nation;
+            cl->type = TreatyClauseType::ANEXX_PROVINCES;
+            clauses.push_back(cl);
+            print_info("Revolt on [%s]! [%s] has taken over!", province->ref_name.c_str(), dup_nation->ideology->ref_name.c_str());
+        }
+        dup_nation->declare_war(*nation, clauses);
+    }
+
+    // Roll a dice! (more probability with more anger!)
+    if(!std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger))) {
+        // Choose the ideology with most "anger" (the one more probable to coup d'
+        // etat) - amgry radicals will surely throw off the current administration
+        // while peaceful people wonq't
+        const int idx = std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()));
+
+        // Ideology_anger and ideologies are mapped 1:1 - so we just pick up the associated ideology
+        // Apply the policies of the ideology
+        nation->current_policy = world.ideologies[idx]->policies;
+
+        // Switch ideologies of nation
+        nation->ideology = world.ideologies[idx];
+
+        // People who are aligned to the ideology are VERY happy now
+        for(const auto& province : nation->owned_provinces) {
+            for(auto& pop : province->pops) {
+                pop.militancy = -50.f;
+            }
+        }
+
+        print_info("Coup d' etat on [%s]! [%s] has taken over!", nation->ref_name.c_str(), nation->ideology->ref_name.c_str());
+    }
+}
+
 // Phase 1 of economy: Delivers & Orders are sent from all factories in the world
 void Economy::do_tick(World& world) {
     // Collect list of nations that exist
@@ -79,10 +184,9 @@ void Economy::do_tick(World& world) {
         std::vector<Unit*> new_nation_units;
 
         // Minimal speedup but probably can keep our branch predictor happy ^_^
-        unsigned int seed = std::rand();
+        auto rand = UnifiedRender::get_local_generator();
         for(const auto& province : nation->controlled_provinces) {
-            float rand_seed;
-            
+
             std::vector<Workers> entrepreneurs;
             entrepreneurs.reserve(world.cultures.size() * world.religions.size() * world.pop_types.size());
             std::vector<Workers> farmers;
@@ -133,11 +237,8 @@ void Economy::do_tick(World& world) {
                 }
 
                 UnifiedRender::Number available_laborers = 0;
-                UnifiedRender::Number needed_farmers = building_type->num_req_farmers;
+                UnifiedRender::Number needed_laborers = building_type->num_req_workers;
 
-                UnifiedRender::Number available_farmers = 0;
-                UnifiedRender::Number needed_laborers = building_type->num_req_laborers;
-                
                 UnifiedRender::Number available_entrepreneurs = 0;
                 UnifiedRender::Number needed_entrepreneurs = building_type->num_req_entrepreneurs;
 
@@ -146,27 +247,6 @@ void Economy::do_tick(World& world) {
                 // - Laborers: They are needed to produce non-edible food
                 // - Farmers: They are needed to produce edibles
                 // - Burgeoise: They help "organize" the factory
-                for(size_t i = 0; i < farmers.size(); i++) {
-                    if(available_farmers >= needed_farmers) {
-                        break;
-                    }
-
-                    Workers& workers = farmers[i];
-                    const UnifiedRender::Number employed = std::min<UnifiedRender::Number>(needed_farmers - available_farmers, workers.amount);
-                    available_farmers += employed;
-                    // Give pay to the POP
-                    const UnifiedRender::Decimal payment = employed * nation->current_policy.min_wage;
-                    workers.pop.budget += payment * nation->get_salary_paid_mod();
-                    building.budget -= payment;
-                    workers.amount -= employed;
-                    // Delete job request when it has 0 amount
-                    if(!workers.amount) {
-                        farmers.erase(farmers.begin() + i);
-                        --i;
-                        continue;
-                    }
-                }
-
                 for(size_t i = 0; i < laborers.size(); i++) {
                     if(available_laborers >= needed_laborers) {
                         break;
@@ -262,11 +342,7 @@ void Economy::do_tick(World& world) {
                         Product& product = province->products[world.get_id(*input)];
                         // Farmers can only work with edibles and laborers can only work for edibles
                         UnifiedRender::Number quantity = 0.f;
-                        if(input->is_edible) {
-                            quantity = (available_farmers / needed_farmers) * 5000.f;
-                        } else {
-                            quantity = (available_laborers / needed_laborers) * 5000.f;
-                        }
+                        quantity = (available_laborers / needed_laborers) * 5000.f;
 
                         quantity = std::min<UnifiedRender::Number>(quantity, building.stockpile[k]);
                         quantity = std::min<UnifiedRender::Number>(quantity, product.supply);
@@ -301,11 +377,7 @@ void Economy::do_tick(World& world) {
                         Product& product = province->products[world.get_id(*output)];
                         // Farmers can only work with edibles and laborers can only work for edibles
                         UnifiedRender::Number quantity = 0;
-                        if(output->is_edible) {
-                            quantity = (available_farmers / needed_farmers) * 5000;
-                        } else {
-                            quantity = (available_laborers / needed_laborers) * 5000;
-                        }
+                        quantity = (available_laborers / needed_laborers) * 5000;
                         //quantity *= nation->get_industry_output_mod();
                         product.supply += quantity;
                         //building.budget += quantity * product.price;
@@ -328,10 +400,8 @@ void Economy::do_tick(World& world) {
                 // TODO: DO NOT MAKE POP BUY FROM STOCKPILE, INSTEAD MAKE THEM BUY FROM ORDERS
                 size_t j = 0;
                 for(auto& product : province->products) {
-                    rand_seed = ::rand_r(&seed);
-
                     // Only buy the available stuff
-                    UnifiedRender::Number bought = std::floor(std::min<UnifiedRender::Number>(std::fmod(rand_seed, pop.size * (-pop.life_needs_met)), province->products[j].supply));
+                    UnifiedRender::Number bought = std::floor(std::min<UnifiedRender::Number>(std::fmod(rand(), pop.size * (-pop.life_needs_met)), province->products[j].supply));
                     if(bought < 0.f) {
                         break;
                     }
@@ -342,11 +412,12 @@ void Economy::do_tick(World& world) {
                     product.supply -= bought;
                     product.demand += bought;
                     pop.budget -= bought * product.price;
-                    if(world.goods[j]->is_edible) {
-                        pop.life_needs_met += pop.size / bought;
-                    } else {
-                        pop.everyday_needs_met += pop.size / bought;
-                    }
+                    // if(world.goods[j]->is_edible) {
+                        // pop.life_needs_met += pop.size / bought;
+                    // }
+                    // else {
+                    pop.everyday_needs_met += pop.size / bought;
+                    // }
 
                     if(pop.budget < 0.f) {
                         // TODO: Get a loan
@@ -366,12 +437,11 @@ void Economy::do_tick(World& world) {
                 // NOTE: We used to have this thing where anything below 2.5 meant everyone dies
                 // and this was removed because it's such an unescesary detail that consumes precious
                 // CPU branching prediction... and we can't afford that!
-                rand_seed = ::rand_r(&seed);
 
                 // More literacy means more educated persons with less children
                 UnifiedRender::Decimal growth = pop.size / (pop.literacy + 1.f);
                 growth *= pop.life_needs_met;
-                growth = std::min<UnifiedRender::Decimal>(std::fmod(rand_seed, 10.f), growth);
+                growth = std::min<UnifiedRender::Decimal>(std::fmod(rand(), 10.f), growth);
                 //growth *= (growth > 0.f) ? nation->get_reproduction_mod() : nation->get_death_mod();
                 pop.size += static_cast<UnifiedRender::Number>((int)growth);
 
@@ -405,106 +475,7 @@ void Economy::do_tick(World& world) {
             nation->research[world.get_id(*nation->focus_tech)] += research;
         }
 
-        // Total anger in population (global)
-        UnifiedRender::Decimal total_anger = 0.f;
-        // Anger per ideology (how much we hate the current ideology)
-        std::vector<UnifiedRender::Decimal> ideology_anger(world.ideologies.size(), 0.f);
-        const UnifiedRender::Decimal coup_chances = 1000.f;
-        for(const auto& province : nation->controlled_provinces) {
-            for(const auto& pop : province->pops) {
-                // TODO: Ok, look, the justification is that educated people
-                // almost never do coups - in comparasion to uneducated
-                // peseants, rich people don't need to protest!
-                const UnifiedRender::Decimal anger = (std::max<UnifiedRender::Decimal>(pop.militancy * pop.con, 0.001f) / std::max<UnifiedRender::Decimal>(pop.literacy, 1.f) / std::max<UnifiedRender::Decimal>(pop.life_needs_met, 0.001f));
-                total_anger += anger;
-                for(const auto& ideology : world.ideologies) {
-                    ideology_anger[world.get_id(*ideology)] += (pop.ideology_approval[world.get_id(*ideology)] * anger) * (pop.size / 1000);
-                }
-            }
-        }
-
-        // Rebellions!
-        // TODO: Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-        if(!std::fmod(std::rand(), std::max<UnifiedRender::Decimal>(1, coup_chances - total_anger))) {
-            // Compile list of uprising provinces
-            std::vector<Province*> uprising_provinces;
-            for(const auto& province : nation->owned_provinces) {
-                UnifiedRender::Decimal province_anger = 0.f;
-                UnifiedRender::Decimal province_threshold = 0.f;
-                for(const auto& pop : province->pops) {
-                    province_anger += pop.militancy * pop.con;
-                    province_threshold += pop.literacy * pop.life_needs_met;
-                }
-
-                if(province_anger > province_threshold) {
-                    uprising_provinces.push_back(province);
-                }
-            }
-
-            Nation* dup_nation = new Nation();
-            dup_nation->name = nation->ref_name;
-            dup_nation->ref_name = nation->ref_name;
-            dup_nation->accepted_cultures = nation->accepted_cultures;
-            dup_nation->accepted_religions = nation->accepted_religions;
-            dup_nation->base_literacy = nation->base_literacy;
-            dup_nation->research = nation->research;
-            dup_nation->relations = nation->relations;
-            dup_nation->client_hints = nation->client_hints;
-            // Rebel with the most popular ideology
-            dup_nation->ideology = world.ideologies[std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()))];
-            world.insert(*dup_nation);
-            for(auto& _nation : world.nations) {
-                _nation->relations.resize(world.nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
-            }
-
-            // TODO: Tell the clients about this new nation
-            g_server->broadcast(Action::NationAdd::form_packet(*dup_nation));
-
-            // Make the most angry provinces revolt!
-            std::vector<TreatyClause::BaseClause*> clauses;
-            for(auto& province : uprising_provinces) {
-                // TODO: We should make a copy of the `rebel` nation for every rebellion!!!
-                // TODO: We should also give them an unique ideology!!!
-                dup_nation->give_province(*province);
-                for(auto& unit : province->get_units()) {
-                    unit->owner = dup_nation;
-                }
-
-                // Declare war seeking all provinces from the owner
-                TreatyClause::AnexxProvince* cl = new TreatyClause::AnexxProvince();
-                cl->provinces = uprising_provinces;
-                cl->sender = dup_nation;
-                cl->receiver = nation;
-                cl->type = TreatyClauseType::ANEXX_PROVINCES;
-                clauses.push_back(cl);
-                print_info("Revolt on [%s]! [%s] has taken over!", province->ref_name.c_str(), dup_nation->ideology->ref_name.c_str());
-            }
-            dup_nation->declare_war(*nation, clauses);
-        }
-
-        // Roll a dice! (more probability with more anger!)
-        if(!std::fmod(std::rand(), std::max(coup_chances, coup_chances - total_anger))) {
-            // Choose the ideology with most "anger" (the one more probable to coup d'
-            // etat) - amgry radicals will surely throw off the current administration
-            // while peaceful people wonq't
-            const int idx = std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()));
-
-            // Ideology_anger and ideologies are mapped 1:1 - so we just pick up the associated ideology
-            // Apply the policies of the ideology
-            nation->current_policy = world.ideologies[idx]->policies;
-
-            // Switch ideologies of nation
-            nation->ideology = world.ideologies[idx];
-
-            // People who are aligned to the ideology are VERY happy now
-            for(const auto& province : nation->owned_provinces) {
-                for(auto& pop : province->pops) {
-                    pop.militancy = -50.f;
-                }
-            }
-
-            print_info("Coup d' etat on [%s]! [%s] has taken over!", nation->ref_name.c_str(), nation->ideology->ref_name.c_str());
-        }
+        militancy_update(world, nation);
 
         if(!new_nation_units.empty()) {
             // Add to new_units list

@@ -670,12 +670,10 @@ public:
     static inline void serialize(Archive& stream, const Good* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
-        ::serialize(stream, &obj->is_edible);
     }
     static inline void deserialize(Archive& stream, Good* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
-        ::deserialize(stream, &obj->is_edible);
     }
 };
 
