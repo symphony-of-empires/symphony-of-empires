@@ -76,6 +76,7 @@ namespace UI {
         int width, height;
 
         glm::ivec2 get_pos(Widget& w, glm::ivec2 offset);
+        void clear_hover_recursive(Widget& w);
         bool check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         UI::ClickState check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, UI::ClickState click_state, bool clickable);
         bool check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y);
@@ -91,9 +92,7 @@ namespace UI {
         void load_textures();
         void add_widget(Widget* widget);
         void remove_widget(Widget* widget);
-
         void render_all(glm::ivec2 mouse_pos);
-
         void resize(const int width, const int height);
 
         /**

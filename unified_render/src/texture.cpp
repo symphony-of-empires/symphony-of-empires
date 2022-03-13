@@ -105,6 +105,10 @@ void UnifiedRender::Texture::gen_mipmaps() const {
 
 // Converts the texture into a OpenGL texture, and assigns it a number
 void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
+    if(surface->w == 0 || surface->h == 0) {
+        return;
+    }
+
     int colors = surface->format->BytesPerPixel;
     GLuint texture_format;
     if(colors == 4) {
@@ -136,7 +140,7 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
     } else {
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
-
+    
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glTexImage2D(GL_TEXTURE_2D, 0, colors, surface->w, surface->h, 0, texture_format, GL_UNSIGNED_BYTE, surface->pixels);
