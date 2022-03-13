@@ -108,7 +108,6 @@ namespace UnifiedRender::IO {
         ~PackageManager();
         UnifiedRender::IO::Asset::Base* get_unique(const IO::Path& path);
         std::vector<UnifiedRender::IO::Asset::Base*> get_multiple(const UnifiedRender::IO::Path& path);
-
         std::vector<Package> packages;
     };
 };

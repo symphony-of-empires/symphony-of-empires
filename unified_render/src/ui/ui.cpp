@@ -95,6 +95,10 @@ Context::Context() {
     //widget_shader = UnifiedRender::OpenGL::Program::create_regular("shader/2d_shader.vs", "shader/2d_shader.fs");
 }
 
+Context::~Context() {
+    TTF_CloseFont(default_font);
+}
+
 void Context::add_widget(Widget* widget) {
     widget->is_show = 1;
 

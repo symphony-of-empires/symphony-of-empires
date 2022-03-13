@@ -49,6 +49,42 @@
 
 using namespace UI;
 
+Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, WidgetType _type, const UnifiedRender::Texture* tex)
+    : is_show{ 1 },
+    type{ _type },
+    x{ _x },
+    y{ _y },
+    width{ w },
+    height{ h },
+    parent{ _parent },
+    current_texture{ tex }
+{
+    if(parent != nullptr) {
+        x += parent->padding.x;
+        y += parent->padding.y;
+        parent->add_child(this);
+    } else {
+        // Add the widget to the context in each construction without parent
+        g_ui_context->add_widget(this);
+    }
+}
+
+Widget::~Widget() {
+    // Delete the children recursively
+    for(auto& child : children) {
+        delete child;
+    }
+    children.clear();
+
+    // Common texture also deleted?
+    if(text_texture != nullptr) {
+        delete text_texture;
+    }
+    if(tooltip != nullptr) {
+        delete tooltip;
+    }
+}
+
 void Widget::draw_rect(const GLuint tex,
     UnifiedRender::Rect rect_pos,
     UnifiedRender::Rect rect_tex,
@@ -290,42 +326,6 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
 
         glColor4f(0.7f, 0.7f, 0.7f, 0.5f);
         draw_rect(0, pos_rect, tex_rect, viewport);
-    }
-}
-
-Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, WidgetType _type, const UnifiedRender::Texture* tex)
-    : is_show{ 1 },
-    type{ _type },
-    x{ _x },
-    y{ _y },
-    width{ w },
-    height{ h },
-    parent{ _parent },
-    current_texture{ tex }
-{
-    if(parent != nullptr) {
-        x += parent->padding.x;
-        y += parent->padding.y;
-        parent->add_child(this);
-    } else {
-        // Add the widget to the context in each construction without parent
-        g_ui_context->add_widget(this);
-    }
-}
-
-Widget::~Widget() {
-    // Delete the children recursively
-    for(auto& child : children) {
-        delete child;
-    }
-    children.clear();
-
-    // Common texture also deleted?
-    if(text_texture != nullptr) {
-        delete text_texture;
-    }
-    if(tooltip != nullptr) {
-        delete tooltip;
     }
 }
 

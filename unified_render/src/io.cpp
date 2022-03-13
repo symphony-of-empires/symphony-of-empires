@@ -135,7 +135,9 @@ UnifiedRender::IO::Package::Package(void) {
 }
 
 UnifiedRender::IO::Package::~Package(void) {
-
+    //for(const auto& asset : assets) {
+    //    delete asset;
+    //}
 }
 
 #include <filesystem>

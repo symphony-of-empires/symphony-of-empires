@@ -78,6 +78,7 @@ namespace UnifiedRender {
         const UnifiedRender::Model& load_wavefront(const std::string& path);
         const UnifiedRender::Model& load_stl(const std::string& path);
     public:
+        ~ModelManager();
         const UnifiedRender::Model& load(const std::string& path);
     };
 }

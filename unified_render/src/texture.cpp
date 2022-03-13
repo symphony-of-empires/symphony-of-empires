@@ -281,6 +281,13 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::get_white() {
     return *((const Texture *) white);
 }
 
+UnifiedRender::TextureManager::~TextureManager(void) {
+    for(const auto& tex : textures) {
+        delete tex.second;
+    }
+    textures.clear();
+}
+
 //
 // Finds a texture in the list of a texture manager
 // if the texture is already in the list we load the saved texture from the list

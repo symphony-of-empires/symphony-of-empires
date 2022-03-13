@@ -23,9 +23,6 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/audio.hpp"
-#include "unified_render/print.hpp"
-
 #include <cstring>
 #include <algorithm>
 
@@ -39,6 +36,9 @@
 
 #include <filesystem>
 #include "stb_vorbis.c"
+
+#include "unified_render/audio.hpp"
+#include "unified_render/print.hpp"
 
 //
 // Audio
@@ -84,6 +84,13 @@ UnifiedRender::Audio::~Audio() {
 //
 // Audio manager
 //
+UnifiedRender::AudioManager::~AudioManager(void) {
+    for(const auto& sound : sounds) {
+        delete sound.second;
+    }
+    sounds.clear();
+}
+
 const UnifiedRender::Audio& UnifiedRender::AudioManager::load(const std::string& path) {
     // Find Sound when wanting to be loaded
     std::map<std::string, UnifiedRender::Audio*>::const_iterator it = sounds.find(path);

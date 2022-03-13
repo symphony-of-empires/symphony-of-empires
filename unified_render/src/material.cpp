@@ -53,7 +53,10 @@ UnifiedRender::MaterialManager::MaterialManager(void) {
 }
 
 UnifiedRender::MaterialManager::~MaterialManager(void) {
-
+    for(const auto& material : materials) {
+        delete material.second;
+    }
+    materials.clear();
 }
 
 std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::MaterialManager::load_wavefront(

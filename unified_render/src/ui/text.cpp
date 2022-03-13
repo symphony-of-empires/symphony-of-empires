@@ -34,16 +34,18 @@ Text::Text(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 
 }
 
+Text::~Text(void) {
+    labels.clear();
+    children.clear();
+}
+
 void Text::on_render(Context&, UnifiedRender::Rect) {
-    // Do nothing!
+
 }
 
 void Text::text(const std::string& text) {
-    // Delete old labels in vector (if any)
-    for(auto& lab : labels) {
-        lab->kill();
-    }
     labels.clear();
+    children.clear();
 
     if(text.empty()) {
         return;
@@ -54,11 +56,23 @@ void Text::text(const std::string& text) {
     size_t pos = 0, y = 0;
     size_t line_width = std::max<size_t>(1, this->width / 12);
     while(pos < text.length()) {
-        size_t end_pos = text.length();
         size_t remaining_chars = text.length() - pos;
+        size_t end_pos = text.length();
         if(remaining_chars > line_width) {
             end_pos = pos + line_width;
-            for(int i = pos + line_width; i > pos; i--) {
+        }
+
+        bool break_line = false;
+        for(int i = pos; i <= end_pos; i++) {
+            if(text[i] == '\n') {
+                end_pos = i;
+                break_line = true;
+                break;
+            }
+        }
+        
+        if(!break_line && remaining_chars > line_width) {
+            for(int i = end_pos; i > pos; i--) {
                 if(text[i] == ' ') {
                     end_pos = i;
                     break;
@@ -68,10 +82,11 @@ void Text::text(const std::string& text) {
 
         std::string buf = text.substr(pos, end_pos - pos);
         pos = end_pos;
-
-        UI::Label* lab = new UI::Label(8, y, buf, this);
-        labels.push_back(lab);
-
+        if(break_line) {
+            pos++;
+        }
+        
+        labels.push_back(std::unique_ptr<UI::Label>(new UI::Label(0, y, buf, this)));
         y += 24;
     }
     height = y;

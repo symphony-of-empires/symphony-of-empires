@@ -87,6 +87,7 @@ namespace UI {
         Tooltip* tooltip_widget = nullptr;
     public:
         Context();
+        ~Context();
         void load_textures();
         void add_widget(Widget* widget);
         void remove_widget(Widget* widget);
