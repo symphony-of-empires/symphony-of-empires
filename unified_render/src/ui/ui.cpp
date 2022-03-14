@@ -95,6 +95,10 @@ Context::Context() {
     //widget_shader = UnifiedRender::OpenGL::Program::create_regular("shader/2d_shader.vs", "shader/2d_shader.fs");
 }
 
+Context::~Context() {
+    TTF_CloseFont(default_font);
+}
+
 void Context::add_widget(Widget* widget) {
     widget->is_show = 1;
 
@@ -371,6 +375,13 @@ void Context::render_all(glm::ivec2 mouse_pos) {
     glPopMatrix();
 }
 
+void Context::clear_hover_recursive(Widget& w) {
+    w.is_hover = false;
+    for(auto& child : w.children) {
+        clear_hover_recursive(*child);
+    }
+}
+
 bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
     glm::ivec2 offset{ x_off, y_off };
     offset = get_pos(w, offset);
@@ -412,6 +423,10 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
 
         for(auto& child : w.children) {
             consumed_hover |= check_hover_recursive(*child, mx, my, offset.x, offset.y);
+        }
+    } else {
+        for(auto& child : w.children) {
+            clear_hover_recursive(*child);
         }
     }
     return consumed_hover;

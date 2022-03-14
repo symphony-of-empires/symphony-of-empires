@@ -47,6 +47,7 @@ BinaryImage::BinaryImage(size_t _width, size_t _height)
     height{ _height }
 {
     buffer = std::unique_ptr<uint32_t>(new uint32_t[width * height]);
+    std::memset(buffer.get(), 0, sizeof(uint32_t) * width * height);
 }
 
 BinaryImage::BinaryImage(const BinaryImage& tex)
@@ -70,7 +71,7 @@ void BinaryImage::from_file(const UnifiedRender::IO::Path& path) {
     // valgrind complains about mismatched frees
     buffer = std::unique_ptr<uint32_t>(new uint32_t[width * height]);
     std::memcpy(buffer.get(), c_buffer, sizeof(uint32_t) * width * height);
-    free(c_buffer);
+    std::free(c_buffer);
 }
 
 uint32_t BinaryImage::get_pixel(size_t x, size_t y) const {
@@ -78,5 +79,5 @@ uint32_t BinaryImage::get_pixel(size_t x, size_t y) const {
 }
 
 BinaryImage::~BinaryImage() {
-    buffer.reset(nullptr);
+    
 }

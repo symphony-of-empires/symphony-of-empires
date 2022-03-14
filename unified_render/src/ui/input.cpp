@@ -66,3 +66,43 @@ UI::Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     on_click_outside = &UI::Input::on_click_outside_default;
     on_update = &UI::Input::on_update_default;
 }
+
+UI::Input::~Input(void) {
+
+}
+
+void UI::Input::set_buffer(const std::string& _buffer) {
+    buffer = _buffer;
+    text(buffer);
+}
+
+std::string UI::Input::get_buffer(void) const {
+    return buffer;
+}
+
+void UI::Input::on_click_default(UI::Widget& w) {
+    UI::Input& input = static_cast<UI::Input&>(w);
+    input.is_selected = true;
+}
+
+void UI::Input::on_click_outside_default(UI::Widget& w) {
+    UI::Input& input = static_cast<UI::Input&>(w);
+    if(input.is_selected) {
+        input.text(input.buffer);
+    }
+    input.is_selected = false;
+}
+
+void UI::Input::on_update_default(UI::Widget& w) {
+    UI::Input& input = static_cast<UI::Input&>(w);
+    input.timer = (input.timer + 1) % 60;
+
+    const std::string cursor = input.timer >= 30 ? "_" : "";
+    if(input.is_selected && input.timer % 30 == 0) {
+        if(!input.buffer.empty()) {
+            input.text(input.buffer + cursor);
+        } else if(!cursor.empty()) {
+            input.text(cursor);
+        }
+    }
+}

@@ -1,8 +1,10 @@
 #pragma once
+
 #include <random>
 
 #undef rot32
 #define rot32(x,k) (((x)<<(k))|((x)>>(32-(k))))
+
 namespace UnifiedRender {
     class rand {
     private:

@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      unified_render/ui/tooltip.hpp
+//      unified_render/ui/numeric_input.hpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -25,27 +25,28 @@
 
 #pragma once
 
-#include <vector>
 #include <string>
-#include <memory>
-
-#include "unified_render/ui/widget.hpp"
+#include "unified_render/ui/group.hpp"
 
 namespace UI {
-	class Label;
-
+	class Context;
+    class Input;
+    class Button;
+    
     /**
      * @ingroup UI
-     * @brief Tooltip widget
+     * @brief Small "numeric input" wrapper which uses a group for holding the 3
+     * required elements for a totally "numeric" input
      *
      */
-    class Tooltip: public Widget {
-        std::vector<std::unique_ptr<UI::Label>> labels;
-    public:
-        Tooltip();
-        Tooltip(Widget* parent, unsigned w, unsigned h);
-        virtual ~Tooltip();
-        void set_pos(int x, int y, int width, int height, int screen_width, int screen_height);
-        void text(const std::string& text);
-    };
+	class NumericInput : public Group {
+	public:
+		NumericInput(int _x, int _y, unsigned w, unsigned h, Widget* _parent);
+		void set_buffer(const std::string& _buffer);
+		std::string get_buffer(void) const;
+
+        Input* inp;
+        Button* add_btn;
+        Button* sub_btn;
+	};
 };

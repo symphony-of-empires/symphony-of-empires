@@ -27,8 +27,10 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "unified_render/ui/widget.hpp"
+
 namespace UI {
 	class Context;
 	class Label;
@@ -40,10 +42,10 @@ namespace UI {
      *
      */
     class Text: public Widget {
-        std::vector<UI::Label*> labels;
+        std::vector<std::unique_ptr<UI::Label>> labels;
     public:
         Text(int x, int y, unsigned w, unsigned h, Widget* parent);
-        virtual ~Text() override {};
+        virtual ~Text();
 
         virtual void on_render(Context& ctx, UnifiedRender::Rect viewport);
         virtual void text(const std::string& text);

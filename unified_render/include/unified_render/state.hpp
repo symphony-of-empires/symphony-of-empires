@@ -23,7 +23,12 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#pragma once 
+#pragma once
+
+#include <vector>
+#include <mutex>
+#include <memory>
+#include <map>
 
 #include <GL/glew.h>
 #ifdef _MSC_VER
@@ -45,11 +50,6 @@
 #   include <SDL2/SDL_audio.h>
 #	include <SDL2/SDL_joystick.h>
 #endif
-
-#include <vector>
-#include <mutex>
-#include <memory>
-#include <map>
 
 #include "unified_render/io.hpp"
 #include "unified_render/ui/ui.hpp"

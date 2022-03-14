@@ -24,11 +24,9 @@
 // ----------------------------------------------------------------------------
 
 #include "unified_render/ui/tooltip.hpp"
-
 #include "unified_render/ui/widget.hpp"
 #include "unified_render/ui/label.hpp"
 #include "unified_render/ui/ui.hpp"
-
 #include "unified_render/state.hpp"
 #include "unified_render/path.hpp"
 #include "unified_render/texture.hpp"
@@ -65,6 +63,11 @@ Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
     border = Border(g_ui_context->border_tex, size, texture_size);
 }
 
+Tooltip::~Tooltip(void) {
+    labels.clear();
+    children.clear();
+}
+
 // Tooltip::Tooltip(Widget* parent)
 //     : Widget()
 // {
@@ -88,21 +91,17 @@ void Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int screen
     int extra_below = screen_h - _y - _height;
     if(extra_above > extra_below) {
         y = _y - height - 10;
-    }
-    else {
+    } else {
         y = _y + _height + 10;
     }
 
     x = _x;
 }
 
-// Note! Code duplictation of Text::text 
+// Note! Code duplication of Text::text 
 void Tooltip::text(const std::string& text) {
-    // Delete old labels in vector (if any)
-    for(auto& lab : labels) {
-        lab->kill();
-    }
     labels.clear();
+    children.clear();
 
     if(text.empty()) {
         return;
@@ -118,6 +117,7 @@ void Tooltip::text(const std::string& text) {
         if(remaining_chars > line_width) {
             end_pos = pos + line_width;
         }
+
         bool break_line = false;
         for(int i = pos; i <= end_pos; i++) {
             if(text[i] == '\n') {
@@ -126,6 +126,7 @@ void Tooltip::text(const std::string& text) {
                 break;
             }
         }
+        
         if(!break_line && remaining_chars > line_width) {
             for(int i = end_pos; i > pos; i--) {
                 if(text[i] == ' ') {
@@ -137,13 +138,11 @@ void Tooltip::text(const std::string& text) {
 
         std::string buf = text.substr(pos, end_pos - pos);
         pos = end_pos;
-        if (break_line) {
+        if(break_line) {
             pos++;
         }
 
-        UI::Label* lab = new UI::Label(8, y, buf, this);
-        labels.push_back(lab);
-
+        labels.push_back(std::unique_ptr<UI::Label>(new UI::Label(8, y, buf, this)));
         y += 24;
     }
     height = y;

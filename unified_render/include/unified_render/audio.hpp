@@ -58,6 +58,7 @@ namespace UnifiedRender {
     private:
         std::map<std::string, UnifiedRender::Audio*> sounds;
     public:
+        ~AudioManager();
         const Audio& load(const std::string& path);
     };
 };

@@ -38,38 +38,18 @@ namespace UI {
 	class Input : public Widget {
 	public:
 		Input(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-		virtual ~Input() override {};
-		
-		static void on_click_default(Widget& w) {
-			Input& input = static_cast<UI::Input&>(w);
-			input.is_selected = true;
-		};
+		virtual ~Input() override;
+		void set_buffer(const std::string& _buffer);
+		std::string get_buffer(void) const;
 
-		static void on_click_outside_default(Widget& w) {
-			Input& input = static_cast<UI::Input&>(w);
-			if(input.is_selected) {
-				input.text(input.buffer);
-			}
-			input.is_selected = false;
-		};
-
-		static void on_update_default(Widget& w) {
-			UI::Input& input = static_cast<UI::Input&>(w);
-			input.timer = (input.timer + 1) % 60;
-			std::string cursor = input.timer >= 30 ? "_" : "";
-			if(input.is_selected && input.timer % 30 == 0) {
-				if(!input.buffer.empty()) {
-					input.text(input.buffer + cursor);
-				} else if(!cursor.empty()) {
-					input.text(cursor);
-				}
-			}
-		};
+		static void on_click_default(Widget& w);
+		static void on_click_outside_default(Widget& w);
+		static void on_update_default(Widget& w);
 
 		std::function<void(UI::Input&, const char*)> on_textinput;
-		std::string buffer = "";
 		bool is_selected = false;
 	private:
-		int timer; // TODO: Needs to not be frame dependand
+		std::string buffer = "";
+		int timer; // TODO: Needs to not be frame dependant
 	};
 };

@@ -52,6 +52,10 @@ Label::Label(int _x, int _y, const std::string& _text, Widget* _parent)
     height = text_texture->height;
 }
 
+Label::~Label(void) {
+    
+}
+
 void Label::on_render(Context&, UnifiedRender::Rect viewport) {
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {

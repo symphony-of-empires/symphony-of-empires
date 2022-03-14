@@ -131,6 +131,13 @@ void UnifiedRender::Model::draw(const UnifiedRender::OpenGL::Program& shader) co
     }
 }
 
+UnifiedRender::ModelManager::~ModelManager(void) {
+    for(const auto& model : models) {
+        delete model.second;
+    }
+    models.clear();
+}
+
 const UnifiedRender::Model& UnifiedRender::ModelManager::load_wavefront(const std::string& path) {
     class WavefrontFace {
     public:

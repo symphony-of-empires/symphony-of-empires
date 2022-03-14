@@ -357,8 +357,15 @@ UnifiedRender::State::State(void) {
 }
 
 UnifiedRender::State::~State(void) {
+    delete tex_man;
+    delete sound_man;
+    delete material_man;
+    delete model_man;
+    delete package_man;
+
     delete ui_ctx;
 
+    SDL_GL_DeleteContext(context);
     SDL_CloseAudio();
 
     TTF_Quit();
