@@ -305,14 +305,14 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
     if(gs.editor) {
         rename_inp = new UI::Input(0, this->height - (64 + 24), 128, 24, this);
-        rename_inp->buffer = province->name;
-        rename_inp->text(rename_inp->buffer);
+        rename_inp->set_buffer(province->name);
+        rename_inp->text(rename_inp->get_buffer());
 
         auto* xchg_name_btn = new UI::Image(0, this->height - (64 + 24), 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         xchg_name_btn->right_side_of(*rename_inp);
         xchg_name_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
-            o.province->name = o.rename_inp->buffer;
+            o.province->name = o.rename_inp->get_buffer();
             o.gs.ui_ctx->prompt("Update", "Updated name of province to \"" + o.province->name + "\"!");
         });
         xchg_name_btn->tooltip = new UI::Tooltip(xchg_name_btn, 512, 24);
