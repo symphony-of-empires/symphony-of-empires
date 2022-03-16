@@ -160,9 +160,11 @@ namespace UI {
 		void left_side_of(const Widget& rhs);
 		void right_side_of(const Widget& rhs);
 
+		// If the widget can't be moved when scrolling
 		bool is_pinned = false;
 		bool is_render = true;
 
+		// If you can move the children by scrolling
 		bool is_scroll = false;
 
 		bool is_hover = false;

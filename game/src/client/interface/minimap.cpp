@@ -32,6 +32,8 @@
 #include "unified_render/ui/close_button.hpp"
 #include "unified_render/ui/image.hpp"
 #include "unified_render/ui/tooltip.hpp"
+#include "unified_render/ui/div.hpp"
+#include "unified_render/ui/label.hpp"
 #include "unified_render/locale.hpp"
 
 #include "client/interface/minimap.hpp"
@@ -50,6 +52,7 @@ std::vector<ProvinceColor> culture_map_mode(const World& world);
 std::string culture_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> religion_map_mode(const World& world);
 std::string religion_tooltip(const World& world, const Province::Id id);
+mapmode_generator good_map_mode(Good::Id id);
 // UNUSED
 std::vector<ProvinceColor> terrain_map_mode(const World& world);
 
@@ -62,86 +65,178 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     this->is_scroll = false;
     this->padding = glm::ivec2(0, 24);
 
-    auto* flat_btn = new UI::Image(5, 5, 24, 24, "gfx/flat_icon.png", this);
-    flat_btn->on_click = ([](UI::Widget& w) {
-        Minimap* state = (Minimap*)w.parent;
-        state->gs.map->set_view(MapView::PLANE_VIEW);
+    auto* flex_column1 = new UI::Div(5, 5, 24, 190, this);
+    flex_column1->flex = UI::Flex::COLUMN;
+    flex_column1->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
+    flex_column1->flex_align = UI::Align::CENTER;
+    auto* flex_column2 = new UI::Div(35, 5, 24, 190, this);
+    flex_column2->flex = UI::Flex::COLUMN;
+    flex_column2->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
+    flex_column2->flex_align = UI::Align::CENTER;
+
+    auto* flat_btn = new UI::Image(0, 0, 24, 24, "gfx/flat_icon.png", flex_column1);
+    flat_btn->on_click = ([this](UI::Widget& w) {
+        this->gs.map->set_view(MapView::PLANE_VIEW);
     });
     flat_btn->set_tooltip("Flat map");
 
-    auto* globe_btn = new UI::Image(35, 5, 24, 24, "gfx/globe_icon.png", this);
-    globe_btn->on_click = ([](UI::Widget& w) {
-        Minimap* state = (Minimap*)w.parent;
-        state->gs.map->set_view(MapView::SPHERE_VIEW);
+    auto* globe_btn = new UI::Image(0, 0, 24, 24, "gfx/globe_icon.png", flex_column2);
+    globe_btn->on_click = ([this](UI::Widget& w) {
+        this->gs.map->set_view(MapView::SPHERE_VIEW);
     });
     globe_btn->set_tooltip("Globe map");
 
-    auto* political_ibtn = new UI::Image(5, 35, 24, 24, "gfx/icon.png", this);
-    political_ibtn->on_click = ([](UI::Widget& w) {
-        Minimap* state = (Minimap*)w.parent;
-        state->gs.current_mode = MapMode::NORMAL;
+    auto* political_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
+    political_ibtn->on_click = ([this](UI::Widget& w) {
+        this->gs.current_mode = MapMode::NORMAL;
 
         mapmode_generator map_mode = political_map_mode;
         mapmode_tooltip tooltip = empty_province_tooltip;
-        state->gs.map->set_map_mode(map_mode, tooltip);
+        this->gs.map->set_map_mode(map_mode, tooltip);
+        set_mapmode_options(nullptr);
     });
     political_ibtn->set_tooltip("Political");
 
-    auto* relations_ibtn = new UI::Image(5, 65, 24, 24, "gfx/icon.png", this);
-    relations_ibtn->on_click = ([](UI::Widget& w) {
-        Minimap* state = (Minimap*)w.parent;
-        state->gs.current_mode = MapMode::RELATIONS_SELECT;
-        state->gs.highlighted_nation = state->gs.curr_nation;
+    auto* relations_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
+    relations_ibtn->on_click = ([this](UI::Widget& w) {
+        this->gs.current_mode = MapMode::RELATIONS_SELECT;
+        this->gs.highlighted_nation = this->gs.curr_nation;
 
         mapmode_generator map_mode = relations_map_mode;
         mapmode_tooltip tooltip = relations_tooltip;
-        state->gs.map->set_map_mode(map_mode, tooltip);
+        this->gs.map->set_map_mode(map_mode, tooltip);
+        set_mapmode_options(nullptr);
     });
     relations_ibtn->set_tooltip("Relations");
 
-    auto* population_ibtn = new UI::Image(5, 95, 24, 24, "gfx/icon.png", this);
-    population_ibtn->on_click = ([](UI::Widget& w) {
-        Minimap* state = (Minimap*)w.parent;
+    auto* population_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
+    population_ibtn->on_click = ([this](UI::Widget& w) {
         mapmode_generator map_mode = population_map_mode;
         mapmode_tooltip tooltip = population_tooltip;
-        state->gs.map->set_map_mode(map_mode, tooltip);
-        state->gs.current_mode = MapMode::NORMAL;
+        this->gs.map->set_map_mode(map_mode, tooltip);
+        this->gs.current_mode = MapMode::NORMAL;
+        set_mapmode_options(nullptr);
     });
     population_ibtn->set_tooltip("Population");
 
-    auto* terrain_color_ibtn = new UI::Image(35, 35, 24, 24, "gfx/icon.png", this);
-    terrain_color_ibtn->on_click = ([](UI::Widget& w) {
-        Minimap* state = (Minimap*)w.parent;
-        state->gs.current_mode = MapMode::NORMAL;
+    auto* terrain_color_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
+    terrain_color_ibtn->on_click = ([this](UI::Widget& w) {
+        this->gs.current_mode = MapMode::NORMAL;
 
         mapmode_generator map_mode = terrain_color_map_mode;
         mapmode_tooltip tooltip = terrain_type_tooltip;
-        state->gs.map->set_map_mode(map_mode, tooltip);
+        this->gs.map->set_map_mode(map_mode, tooltip);
+        set_mapmode_options(nullptr);
     });
     terrain_color_ibtn->set_tooltip("Terrain type");
 
-    auto* culture_ibtn = new UI::Image(35, 65, 24, 24, "gfx/icon.png", this);
-    culture_ibtn->on_click = ([](UI::Widget& w) {
-        Minimap* state = (Minimap*)w.parent;
-        state->gs.current_mode = MapMode::NORMAL;
+    auto* culture_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
+    culture_ibtn->on_click = ([this](UI::Widget& w) {
+        this->gs.current_mode = MapMode::NORMAL;
 
         mapmode_generator map_mode = culture_map_mode;
         mapmode_tooltip tooltip = culture_tooltip;
-        state->gs.map->set_map_mode(map_mode, tooltip);
+        this->gs.map->set_map_mode(map_mode, tooltip);
+        set_mapmode_options(nullptr);
     });
     culture_ibtn->set_tooltip("Culture diversity");
 
-    auto* religion_ibtn = new UI::Image(35, 95, 24, 24, "gfx/icon.png", this);
-    religion_ibtn->on_click = ([](UI::Widget& w) {
-        Minimap* state = (Minimap*)w.parent;
-        state->gs.current_mode = MapMode::NORMAL;
+    auto* religion_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
+    religion_ibtn->on_click = ([this](UI::Widget& w) {
+        this->gs.current_mode = MapMode::NORMAL;
 
         mapmode_generator map_mode = religion_map_mode;
         mapmode_tooltip tooltip = religion_tooltip;
-        state->gs.map->set_map_mode(map_mode, tooltip);
+        this->gs.map->set_map_mode(map_mode, tooltip);
+        set_mapmode_options(nullptr);
     });
     religion_ibtn->set_tooltip("Religion");
+
+    auto* good_price_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
+    good_price_ibtn->on_click = ([this](UI::Widget& w) {
+        this->gs.current_mode = MapMode::NORMAL;
+
+        set_mapmode_options(new MapmodeGoodOptions(this->gs));
+    });
+    good_price_ibtn->set_tooltip("Prices");
+
     new UI::Image(65, 5, 332, 166, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/minimap.png")), this);
+}
+
+void Minimap::set_mapmode_options(Widget* widget) {
+    if(mapmode_options)
+        mapmode_options->kill();
+    mapmode_options = widget;
+}
+
+MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
+    : UI::Div(-200, -250, 200, 500, nullptr),
+    gs{ gs }
+{
+    this->origin = UI::Origin::MIDDLE_RIGHT_SCREEN;
+    this->current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
+    this->is_scroll = true;
+
+    glm::ivec2 size(4, 4);
+    glm::ivec2 texture_size(10, 10);
+    auto tex_man = UnifiedRender::State::get_instance().tex_man;
+    auto border_tex = &tex_man->load(Path::get("gfx/border2.png"));
+    this->border = UI::Border(border_tex, size, texture_size);
+
+    auto goods = gs.world->goods;
+
+    auto* flex_column = new UI::Div(4, 4, 192, goods.size() * 35, this);
+    flex_column->flex = UI::Flex::COLUMN;
+    flex_column->flex_justify = UI::FlexJustify::START;
+
+    for(size_t i = 0; i < goods.size(); i++) {
+        Good* good = goods[i];
+        UnifiedRender::TextureOptions options;
+        options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+        options.mag_filter = GL_LINEAR;
+        auto good_tex = &tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png"), options);
+
+        auto* good_div = new UI::Div(0, 0, 200, 35, flex_column);
+        new UI::Image(0, 0, 35, 35, good_tex, good_div);
+        new UI::Label(35, 0, good->name, good_div);
+        good_div->on_click = ([this, i](UI::Widget& w) {
+            this->gs.current_mode = MapMode::NORMAL;
+
+            mapmode_generator map_mode = good_map_mode((Good::Id)i);
+            mapmode_tooltip tooltip = empty_province_tooltip;
+            this->gs.map->set_map_mode(map_mode, tooltip);
+        });
+    }
+
+    mapmode_generator map_mode = good_map_mode(0);
+    mapmode_tooltip tooltip = empty_province_tooltip;
+    this->gs.map->set_map_mode(map_mode, tooltip);
+}
+
+mapmode_generator good_map_mode(Good::Id id) {
+    return [id](const World& world) {
+        std::vector<std::pair<Province::Id, float>> province_amounts;
+        float max_price = 0.0001f;
+        for(auto const& province : world.provinces) {
+            Product product = province->products[id];
+            float price = log2(product.price + 1.f);
+            max_price = std::max<float>(price, max_price);
+            province_amounts.push_back(std::make_pair(world.get_id(*province), price));
+        }
+
+        // Mix each color depending of how many live there compared to max_amount
+        UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 229, 217);
+        UnifiedRender::Color max = UnifiedRender::Color::rgb8(220, 46, 35);
+        std::vector<ProvinceColor> province_color;
+        for(auto const& prov_amount : province_amounts) {
+            Province::Id prov_id = prov_amount.first;
+            uint32_t price = prov_amount.second;
+            float ratio = price / max_price;
+            UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ratio);
+            province_color.push_back(ProvinceColor(prov_id, color));
+        }
+        return province_color;
+    };
 }
 
 #include "unified_render/byteswap.hpp"
@@ -206,12 +301,13 @@ form_final:
         if(rel.has_alliance) {
             str += "allied with us";
             return str;
-        } else if(rel.has_war) {
+        }
+        else if(rel.has_war) {
             str += "at war with us";
             return str;
         }
-        
-        const std::vector<std::string> rel_lvls = {
+
+        const std::vector<std::string> rel_lvls ={
             "nemesis",
             "enemy",
             "disrespectful",
@@ -328,7 +424,8 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
             auto search = culture_amounts.find(pop.culture->cached_id);
             if(search == culture_amounts.end()) {
                 culture_amounts[pop.culture->cached_id] = pop.size;
-            } else {
+            }
+            else {
                 culture_amounts[pop.culture->cached_id] += pop.size;
             }
 
@@ -398,7 +495,8 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
             auto search = religion_amounts.find(pop.religion->cached_id);
             if(search == religion_amounts.end()) {
                 religion_amounts[pop.religion->cached_id] = pop.size;
-            } else {
+            }
+            else {
                 religion_amounts[pop.religion->cached_id] += pop.size;
             }
 
@@ -440,7 +538,7 @@ std::string religion_tooltip(const World& world, const Province::Id id){
             religions.push_back(std::make_pair(pop.religion->cached_id, pop.size));
         }
     }
-    
+
     std::sort(religions.begin(), religions.end(), [](religion_amount a, religion_amount b) {
         return a.second > b.second;
     });

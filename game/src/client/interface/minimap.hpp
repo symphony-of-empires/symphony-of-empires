@@ -26,12 +26,23 @@
 #pragma once
 
 #include "unified_render/ui/window.hpp"
+#include "unified_render/ui/div.hpp"
 #include "client/game_state.hpp"
 
 namespace Interface {
     class Minimap: public UI::Window {
         GameState& gs;
+        Widget* mapmode_options = nullptr;
+
+        void set_mapmode_options(Widget* widget);
     public:
         Minimap(GameState& gs, int x, int y, UI::Origin origin);
+    };
+
+    class MapmodeGoodOptions: public UI::Div {
+        GameState& gs;
+        Minimap* minimap;
+    public:
+        MapmodeGoodOptions(GameState& gs);
     };
 };

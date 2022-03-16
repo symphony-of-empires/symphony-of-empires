@@ -54,7 +54,7 @@ namespace UnifiedRender {
         }
 
         inline glm::vec2 position(void) const {
-            return glm::vec2{ left, right };
+            return glm::vec2{ left, top };
         }
 
         inline void position(glm::vec2 position) {
