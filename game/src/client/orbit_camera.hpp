@@ -153,6 +153,7 @@ public:
         float pi = glm::pi<float>();
         float y_rad = glm::acos(intersection_point.z / radius);
         float x_rad = glm::atan(intersection_point.y, intersection_point.x);
+        x_rad += x_rad < 0 ? 2.f * pi : 0.f;
 
         out_pos.x = map_size.x * x_rad / (2.f * pi);
         out_pos.y = map_size.y * y_rad / (pi);
