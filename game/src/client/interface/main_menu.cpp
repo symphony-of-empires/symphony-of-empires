@@ -59,14 +59,12 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     this->text("Internet multiplayer");
 
     ip_addr_inp = new UI::Input(0, 0, 128, 24, this);
-    ip_addr_inp->buffer = "127.0.0.1";
-    ip_addr_inp->text(ip_addr_inp->buffer);
+    ip_addr_inp->set_buffer("127.0.0.1");
     ip_addr_inp->tooltip = new UI::Tooltip(ip_addr_inp, 512, 24);
     ip_addr_inp->tooltip->text("IP Address of the server");
 
     username_inp = new UI::Input(0, 24, 512, 24, this);
-    username_inp->buffer = "Player";
-    username_inp->text(username_inp->buffer);
+    username_inp->set_buffer("Player");
     username_inp->tooltip = new UI::Tooltip(username_inp, 512, 24);
     username_inp->tooltip->text("Your publicly visible username");
 
@@ -74,14 +72,14 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     conn_btn->text("Connect");
     conn_btn->on_click = ([this](UI::Widget& w) {
         auto& gs = this->gs;
-        UnifiedRender::Log::debug("ui", "Okey, connecting to [" + ip_addr_inp->buffer + "]");
+        UnifiedRender::Log::debug("ui", "Okey, connecting to [" + ip_addr_inp->get_buffer() + "]");
 
         // TODO: Handle when mods differ (i.e checksum not equal to host)
         gs.host_mode = false;
 
         try {
-            gs.client = new Client(gs, this->ip_addr_inp->buffer, 1836);
-            gs.client->username = this->username_inp->buffer;
+            gs.client = new Client(gs, this->ip_addr_inp->get_buffer(), 1836);
+            gs.client->username = this->username_inp->get_buffer();
             gs.client->wait_for_snapshot();
             gs.in_game = true;
             return;
