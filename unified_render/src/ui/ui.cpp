@@ -135,7 +135,8 @@ void Context::clear_dead_recursive(Widget* w) {
             delete w->children[index];
             w->children.erase(w->children.begin() + index);
             index--;
-        } else {
+        }
+        else {
             clear_dead_recursive(w->children[index]);
         }
     }
@@ -146,7 +147,8 @@ void Context::clear_dead() {
             delete widgets[index];
             widgets.erase(widgets.begin() + index);
             index--;
-        } else {
+        }
+        else {
             clear_dead_recursive(widgets[index]);
         }
     }
@@ -269,7 +271,7 @@ void Context::resize(int _width, int _height) {
     height = _height;
 }
 
-void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
+void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport, glm::vec2 offset) {
     if(!w.is_show || !w.is_render) {
         return;
     }
@@ -283,9 +285,9 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
         w.height = height;
     }
 
-    glm::ivec2 offset{ viewport.left, viewport.top };
     glm::ivec2 size{ w.width, w.height };
     offset = get_pos(w, offset);
+    auto viewport_offset = get_pos(w, viewport.position());
     UnifiedRender::Rect local_viewport = UnifiedRender::Rect{ offset, size };
 
     if(!w.parent || w.parent->type != UI::WidgetType::GROUP) {
@@ -312,7 +314,7 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport) {
             }
         }
 
-        render_recursive(*child, viewport);
+        render_recursive(*child, viewport, offset);
     }
 }
 
@@ -338,11 +340,11 @@ void Context::render_all(glm::ivec2 mouse_pos) {
     glTranslatef(0.f, 0.f, 0.f);
     UnifiedRender::Rect viewport(0, 0, width, height);
     for(auto& widget : this->widgets) {
-        render_recursive(*widget, viewport);
+        render_recursive(*widget, viewport, glm::vec2(0));
     }
 
     if(tooltip_widget != nullptr) {
-        render_recursive(*tooltip_widget, viewport);
+        render_recursive(*tooltip_widget, viewport, glm::vec2(0));
     }
 
     // Cursor
@@ -394,7 +396,8 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
     const UnifiedRender::Rect r = UnifiedRender::Rect(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(mx, my)) {
         w.is_hover = false;
-    } else if(w.is_transparent) {
+    }
+    else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
@@ -424,7 +427,8 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
         for(auto& child : w.children) {
             consumed_hover |= check_hover_recursive(*child, mx, my, offset.x, offset.y);
         }
-    } else {
+    }
+    else {
         for(auto& child : w.children) {
             clear_hover_recursive(*child);
         }
@@ -469,7 +473,8 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
         const UnifiedRender::Rect r = UnifiedRender::Rect(offset.x, offset.y, w.width, w.height);
         if(!r.in_bounds(glm::vec2(mx, my))) {
             clickable = false;
-        } else if(w.is_transparent) {
+        }
+        else if(w.is_transparent) {
             if(w.current_texture != nullptr) {
                 int tex_width = w.current_texture->width;
                 int tex_height = w.current_texture->height;
@@ -618,7 +623,8 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
     const UnifiedRender::Rect r = UnifiedRender::Rect(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(glm::vec2(mx, my))) {
         return false;
-    } else if(w.is_transparent) {
+    }
+    else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
@@ -647,6 +653,18 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
             break;
         }
     }
+
+    int child_top = 0;
+    int child_bottom = w.height;
+    for(auto& child : w.children) {
+        if(!child->is_pinned) {
+            child_top = std::min(child_top, child->y);
+            child_bottom = std::max(child_bottom, child->y + (int)child->height);
+        }
+    }
+    child_bottom -= w.height;
+    y = std::min(-child_top, y);
+    y = std::max(-child_bottom, y);
 
     if(w.is_scroll) {
         for(auto& child : w.children) {
