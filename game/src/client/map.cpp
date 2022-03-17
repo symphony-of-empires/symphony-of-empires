@@ -211,7 +211,7 @@ void Map::create_labels() {
 
         glm::vec2 min_point_x(world.width - 1.f, world.height - 1.f), min_point_y(world.width - 1.f, world.height - 1.f);
         glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
-        
+
         std::set<Province*> visited_provinces;
         if(nation->capital != nullptr) {
             max_point_x.x = nation->capital->max_x;
@@ -225,14 +225,15 @@ void Map::create_labels() {
             min_point_y.y = nation->capital->min_y;
 
             get_blob_bounds(&visited_provinces, *nation, *nation->capital, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
-        } else {
+        }
+        else {
             get_blob_bounds(&visited_provinces, *nation, **(nation->controlled_provinces.begin()), &min_point_x, &min_point_y, &max_point_x, &max_point_y);
         }
 
 #if 0
         // Stop super-big labels
         if(glm::abs(min_point_x.x - max_point_x.x) >= world.width / 2.f
-        || glm::abs(min_point_y.y - max_point_y.y) >= world.height / 2.f) {
+            || glm::abs(min_point_y.y - max_point_y.y) >= world.height / 2.f) {
             auto* label = map_font->gen_text(nation->get_client_hint().alt_name, glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
             nation_labels.push_back(label);
             print_error("Extremely big nation: %s", nation->ref_name.c_str());
@@ -272,7 +273,8 @@ void Map::set_view(MapView view) {
     Camera* old_camera = camera;
     if(view == MapView::PLANE_VIEW) {
         camera = new FlatCamera(old_camera);
-    } else if(view == MapView::SPHERE_VIEW) {
+    }
+    else if(view == MapView::SPHERE_VIEW) {
         camera = new OrbitCamera(old_camera, GLOBE_RADIUS);
     }
     delete old_camera;
@@ -286,7 +288,8 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
         Nation* province_owner = world.provinces[i]->owner;
         if(province_owner == nullptr) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        } else {
+        }
+        else {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }
@@ -310,6 +313,10 @@ void Map::reload_shaders() {
     map_render->reload_shaders();
 }
 
+void Map::set_selection(selector_func _selector) {
+    selector = _selector;
+}
+
 void Map::set_map_mode(mapmode_generator mapmode_generator, mapmode_tooltip tooltip_generator){
     mapmode_func = mapmode_generator;
     mapmode_tooltip_func = tooltip_generator;
@@ -330,13 +337,13 @@ void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& 
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-        ));
+            ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-        ));
+            ));
     }
     flag.upload();
     shader.set_texture(0, "diffuse_map", *nation_flags[world.get_id(nation)]);
@@ -355,14 +362,6 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
         const Tile& tile = gs.world->get_tile(select_pos.first, select_pos.second);
         switch(gs.current_mode) {
-        case MapMode::RELATIONS_SELECT:
-            if(tile.province_id < (Province::Id)-3) {
-                auto province = world.provinces[tile.province_id];
-                if(province->controller != nullptr) {
-                    gs.highlighted_nation = province->controller;
-                }
-            }
-            break;
         case MapMode::COUNTRY_SELECT:
             if(tile.province_id < (Province::Id)-3) {
                 auto province = world.provinces[tile.province_id];
@@ -372,6 +371,11 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             }
             break;
         case MapMode::NORMAL:
+            if (selector) {
+                auto province = world.provinces[tile.province_id];
+                selector(world, *this, province);
+                break;
+            }
             // Check if we selected an unit
             input.selected_units.clear();
             for(const auto& unit : gs.world->units) {
@@ -413,7 +417,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    } else if(event.button.button == SDL_BUTTON_RIGHT) {
+    }
+    else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
         if(tile.province_id == (Province::Id)-1) {
             return;
@@ -479,7 +484,8 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx) {
                 last_camera_drag_pos = map_pos;
                 input.last_camera_mouse_pos = mouse_pos;
             }
-        } else if(event.button.button == SDL_BUTTON_LEFT) {
+        }
+        else if(event.button.button == SDL_BUTTON_LEFT) {
             input.drag_coord = input.select_pos;
             input.drag_coord.first = (int)input.drag_coord.first;
             input.drag_coord.second = (int)input.drag_coord.second;
@@ -698,7 +704,8 @@ void Map::draw(const GameState& gs) {
     glFrontFace(GL_CCW);
     if(distance_to_map < 0.070) {
         map_font->draw(province_labels, projection, view);
-    } else {
+    }
+    else {
         map_font->draw(nation_labels, projection, view);
     }
     glDepthFunc(GL_LEQUAL);

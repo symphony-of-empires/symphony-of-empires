@@ -79,6 +79,8 @@ public:
 };
 typedef std::function<std::string(const World& world, const Province::Id id)> mapmode_tooltip;
 typedef std::function<std::vector<ProvinceColor>(const World& world)> mapmode_generator;
+class Map;
+typedef std::function<void(const World& world, Map& map, Province* province)> selector_func;
 std::vector<ProvinceColor> political_map_mode(const World& world);
 std::string political_province_tooltip(const World& world, const Province::Id id);
 std::string empty_province_tooltip(const World& world, const Province::Id id);
@@ -89,6 +91,9 @@ class Map {
     // Called to get the provinces info to show in tooltip
     mapmode_tooltip mapmode_tooltip_func;
     Rivers* rivers;
+
+    selector_func selector = nullptr;
+    
 public:
     Map(const World& world, int screen_width, int screen_height);
     ~Map();
@@ -120,6 +125,8 @@ public:
     // Input states
     bool is_drag = false;
     glm::vec2 last_camera_drag_pos;
+
+    void set_selection(selector_func selector);
 
     const World& world;
     Camera* camera;
