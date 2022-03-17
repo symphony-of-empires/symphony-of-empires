@@ -48,7 +48,7 @@ NationMarketView::NationMarketView(GameState& _gs, Nation* _nation)
         //if(product->building == nullptr || product->building->get_owner() != nation) {
         //    continue;
         //}
-        
+
         new ProductInfo(gs, 0, (i * 24) + 128, product, this);
         i++;
     }*/
@@ -63,47 +63,34 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     nation{ _nation }
 {
     this->is_scroll = false;
-    this->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<NationView&>(w);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
-            return;
-        }
-
-        w.text(o.nation->get_client_hint().alt_name);
+    this->on_each_tick = ([this](UI::Widget& w) {
+        w.text(this->nation->get_client_hint().alt_name);
     });
+    this->on_each_tick(*this);
 
     auto* flag_img = new UI::Image(0, 0, 128, 96, nullptr, this);
-    flag_img->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<NationView&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
-            return;
-        }
-        w.current_texture = &o.gs.get_nation_flag(*o.nation);
+    flag_img->on_each_tick = ([this](UI::Widget& w) {
+        w.current_texture = &this->gs.get_nation_flag(*this->nation);
     });
+    flag_img->on_each_tick(*flag_img);
     flag_img->tooltip = new UI::Tooltip(flag_img, 512, 24);
     flag_img->tooltip->text(UnifiedRender::Locale::translate("The flag which represents the country"));
 
     auto* name_lab = new UI::Label(0, 0, "?", this);
     name_lab->below_of(*flag_img);
-    name_lab->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<NationView&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
-            return;
-        }
-        w.text(o.nation->get_client_hint().alt_name);
+    name_lab->on_each_tick = ([this](UI::Widget& w) {
+        w.text(this->nation->get_client_hint().alt_name);
     });
+    name_lab->on_each_tick(*name_lab);
     name_lab->tooltip = new UI::Tooltip(name_lab, 512, 24);
     name_lab->tooltip->text(UnifiedRender::Locale::translate("The official name"));
 
     auto* ideology_lab = new UI::Label(0, 0, "?", this);
     ideology_lab->below_of(*name_lab);
-    ideology_lab->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<NationView&>(*w.parent);
-       if(o.gs.world->time % o.gs.world->ticks_per_month) {
-            return;
-        }
-        w.text(o.nation->get_client_hint().ideology->name);
+    ideology_lab->on_each_tick = ([this](UI::Widget& w) {
+        w.text(this->nation->get_client_hint().ideology->name);
     });
+    ideology_lab->on_each_tick(*ideology_lab);
     ideology_lab->tooltip = new UI::Tooltip(ideology_lab, 512, 24);
     ideology_lab->tooltip->text(UnifiedRender::Locale::translate("The ideology according to their policies"));
 
@@ -112,25 +99,19 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     if(gs.curr_nation != nation) {
         rel_lab = new UI::Label(0, 0, "?", this);
         rel_lab->below_of(*ideology_lab);
-        rel_lab->on_each_tick = ([](UI::Widget& w) {
-            auto& o = static_cast<NationView&>(*w.parent);
-            if(o.gs.world->time % o.gs.world->ticks_per_month) {
-                return;
-            }
-            w.text(std::to_string(o.gs.curr_nation->relations[o.gs.world->get_id(*o.nation)].relation));
+        rel_lab->on_each_tick = ([this](UI::Widget& w) {
+            w.text(std::to_string(this->gs.curr_nation->relations[this->gs.world->get_id(*this->nation)].relation));
         });
+        rel_lab->on_each_tick(*rel_lab);
         rel_lab->tooltip = new UI::Tooltip(rel_lab, 512, 24);
         rel_lab->tooltip->text(UnifiedRender::Locale::translate("Our diplomatic relations with them"));
 
         interest_lab = new UI::Label(0, 0, "?", this);
         interest_lab->below_of(*rel_lab);
-        interest_lab->on_each_tick = ([](UI::Widget& w) {
-            auto& o = static_cast<NationView&>(*w.parent);
-            if(o.gs.world->time % o.gs.world->ticks_per_month) {
-                return;
-            }
-            w.text(std::to_string(o.gs.curr_nation->relations[o.gs.world->get_id(*o.nation)].interest));
+        interest_lab->on_each_tick = ([this](UI::Widget& w) {
+            w.text(std::to_string(this->gs.curr_nation->relations[this->gs.world->get_id(*this->nation)].interest));
         });
+        interest_lab->on_each_tick(*interest_lab);
         interest_lab->tooltip = new UI::Tooltip(interest_lab, 512, 24);
         interest_lab->tooltip->text(UnifiedRender::Locale::translate("Interest/Tolerance towards them"));
     }
@@ -138,7 +119,8 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     auto* market_btn = new UI::Button(0, 0, this->width, 24, this);
     if(gs.curr_nation != nation) {
         market_btn->below_of(*interest_lab);
-    } else {
+    }
+    else {
         market_btn->below_of(*ideology_lab);
     }
     market_btn->text(UnifiedRender::Locale::translate("Examine market"));
@@ -170,21 +152,19 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         auto* dow_btn = new UI::Button(0, 0, this->width, 24, this);
         dow_btn->below_of(*dec_btn);
         dow_btn->tooltip = new UI::Tooltip(dow_btn, 512, 24);
-        dow_btn->on_each_tick = ([](UI::Widget& w) {
-            auto& o = static_cast<NationView&>(*w.parent);
+        dow_btn->on_each_tick = ([this](UI::Widget& w) {
 
-            if(o.gs.curr_nation->relations[o.gs.world->get_id(*o.nation)].has_war) {
+            if(this->gs.curr_nation->relations[this->gs.world->get_id(*this->nation)].has_war) {
                 w.text(UnifiedRender::Locale::translate("Propose treaty"));
-                w.on_click = ([](UI::Widget& w) {
-                    auto& o = static_cast<NationView&>(*w.parent);
-                    new Interface::TreatyDraftView(o.gs, o.nation);
+                w.on_click = ([this](UI::Widget& w) {
+                    new Interface::TreatyDraftView(this->gs, this->nation);
                 });
                 w.tooltip->text(UnifiedRender::Locale::translate("End the war against this country and propose a peace deal"));
-            } else {
+            }
+            else {
                 w.text(UnifiedRender::Locale::translate("Declare war"));
-                w.on_click = ([](UI::Widget& w) {
-                    auto& o = static_cast<NationView&>(*w.parent);
-                    new Interface::WarDeclarePrompt(o.gs, o.nation);
+                w.on_click = ([this](UI::Widget& w) {
+                    new Interface::WarDeclarePrompt(this->gs, this->nation);
                 });
                 w.tooltip->text(UnifiedRender::Locale::translate("Declaring war on this nation will bring all their allies to their side"));
             }
@@ -208,7 +188,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         embargo_btn->text(UnifiedRender::Locale::translate("Embargo"));
         embargo_btn->tooltip = new UI::Tooltip(embargo_btn, 512, 24);
         embargo_btn->tooltip->text(UnifiedRender::Locale::translate("Prevent imports/exports to this country"));
-        
+
         auto* allow_market_access_btn = new UI::Button(0, 0, this->width, 24, this);
         allow_market_access_btn->below_of(*embargo_btn);
         allow_market_access_btn->text(UnifiedRender::Locale::translate("Allow market access"));
@@ -219,7 +199,8 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         allow_military_access_btn->tooltip = new UI::Tooltip(allow_military_access_btn, 512, 24);
         allow_military_access_btn->tooltip->text(UnifiedRender::Locale::translate("Allow this nation to cross our land with their units"));
         close_btn->below_of(*allow_military_access_btn);
-    } else {
+    }
+    else {
         close_btn->below_of(*market_btn);
     }
     close_btn->text("Close");

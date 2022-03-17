@@ -107,9 +107,6 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
 
     this->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<ProvincePopulationTab&>(w);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
-            return;
-        }
         o.update_piecharts();
     });
     this->on_each_tick(*this);
