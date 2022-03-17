@@ -50,20 +50,6 @@
 typedef signed int ssize_t;
 #endif
 
-// Structure that represents a person emigrating from a province to another
-
-class Workers {
-public:
-    Pop& pop;
-    size_t amount;
-    Workers(Pop& _pop): pop{ _pop }, amount{ _pop.size } {};
-    Workers& operator=(const Workers& workers) {
-        pop = workers.pop;
-        amount = workers.amount;
-        return *this;
-    }
-};
-
 void militancy_update(World& world, Nation* nation) {
     // Total anger in population (global)
     UnifiedRender::Decimal total_anger = 0.f;
@@ -86,6 +72,7 @@ void militancy_update(World& world, Nation* nation) {
 
     // Rebellions!
     // TODO: Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
+#if 0 // TODO: Fix so this works in parrallel
     if(!std::fmod(rand(), std::max<UnifiedRender::Decimal>(1, coup_chances - total_anger))) {
         // Compile list of uprising provinces
         std::vector<Province*> uprising_provinces;
@@ -142,6 +129,7 @@ void militancy_update(World& world, Nation* nation) {
         }
         dup_nation->declare_war(*nation, clauses);
     }
+#endif
 
     // Roll a dice! (more probability with more anger!)
     if(!std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger))) {
@@ -168,6 +156,180 @@ void militancy_update(World& world, Nation* nation) {
     }
 }
 
+constexpr float production_scaling_speed_factor = 0.5f;
+constexpr float scale_speed(float v) {
+    return 1.0f - production_scaling_speed_factor + production_scaling_speed_factor * v;
+}
+// Updates supply, demand, and set wages for workers
+void update_factory_production(World& world,
+    Building& building,
+    BuildingType* building_type,
+    Province* province,
+    float& pop_payment) {
+
+    if(!building_type->is_factory) return;
+
+    if(building_type->outputs.size() == 0) {
+        return;
+    }
+
+    // Multiple outputs ? Will we have that ?
+    // TODO add output modifier
+    // Calculate outputs
+    auto output = building_type->outputs[0];
+    auto output_product = province->products[world.get_id(*output)];
+    auto output_price = output_product.price;
+    auto output_amount = 1.f * building.production_scale;
+
+    // TODO set min wages
+    float min_wage = 0;
+    min_wage = 1.f;
+    // TODO set output depending on amount of workers
+    float total_worker_pop = building.workers;
+
+    min_wage = std::max(min_wage, 0.0001f);
+
+    // TODO add input modifier
+    float inputs_cost = 0.f;
+    for(uint32_t i = 0; i < building_type->req_goods.size(); i++) {
+        auto input = building_type->req_goods[i];
+        auto good = input.first;
+        auto amount = input.second;
+        Product& product = province->products[world.get_id(*good)];
+        auto price = product.price;
+        inputs_cost += price * amount;
+    }
+    inputs_cost *= building.production_scale;
+    auto output_value = output_amount * output_price;
+    auto profit = output_value - min_wage - inputs_cost;
+
+    output_product.supply += output_amount;
+
+    for(uint32_t i = 0; i < building_type->req_goods.size(); i++) {
+        auto input = building_type->req_goods[i];
+        auto good = input.first;
+        auto amount = input.second;
+        Product& product = province->products[world.get_id(*good)];
+        product.demand += amount; // * price ?
+    }
+
+    if(profit <= 0) {
+        if(output_value - inputs_cost > 0) {
+            pop_payment += (output_value - inputs_cost);
+        }
+    }
+    else {
+        pop_payment += min_wage + profit * 0.2f * building.workers;
+        // TODO pay profit to owner
+    }
+
+    // Rescale production
+    // This is used to set how much the of the maximum capicity the factory produce
+    building.production_scale = std::clamp<float>(building.production_scale * scale_speed((float)output_value / (min_wage + inputs_cost)), 0.05f, 1.f);
+}
+
+// Update the factory employment
+void update_factories_employment(const World& world, Province* province) {
+    float unallocated_workers;
+    for(uint32_t i = 0; i < province->pops.size(); i++) {
+        auto& pop = province->pops[i];
+        if(pop.type->group == PopGroup::LABORER) {
+            unallocated_workers += pop.size;
+        }
+    }
+    // TODO set pop size to float ?
+
+    // Sort factories by production scale, which is suppose to represent how profitable the factory is
+    // Might be better to calculate how profitable it really is and use that instead
+    std::vector<std::pair<uint32_t, float>> factories_by_profitability(province->buildings.size());
+    for(uint32_t i = 0; i < province->buildings.size(); i++)
+        factories_by_profitability[i] = std::pair<uint32_t, float>(i, province->buildings[i].production_scale);
+    std::sort(std::begin(factories_by_profitability), std::end(factories_by_profitability), [](std::pair<uint32_t, float> const& a, std::pair<uint32_t, float> const& b) { return a.second > b.second; });
+
+    // The most profitable factory gets to pick workers first
+    for(uint32_t i = 0; i < province->buildings.size(); i++) {
+        auto factory_index = factories_by_profitability[i].first;
+        auto building = province->buildings[factory_index];
+        auto type = world.building_types[factories_by_profitability[i].first];
+        float factory_workers = building.level * type->num_req_workers * building.production_scale;
+        float amount_needed = factory_workers;
+        float allocated_workers = std::min(amount_needed, unallocated_workers);
+
+        // Average with how much the factory had before
+        // Makes is more stable so everyone don't change workplace immediately
+        building.workers = (allocated_workers) / 16.0f + (building.workers * 15.0f) / 16.0f;
+        unallocated_workers -= building.workers;
+    }
+}
+
+void update_pop_needs(World& world, Province& province, Pop& pop) {
+    // Deduct life needs met (to force pops to eat nom nom)
+    pop.life_needs_met -= 0.01f;
+
+    // Use 10% of our budget for buying uneeded commodities and shit
+    // TODO: Should lower spending with higher literacy, and higher
+    // TODO: Higher the fullfilment per unit with higher literacy
+
+    auto type = *pop.type;
+
+    // Do basic needs
+    {
+        float total_price = 0;
+        for(size_t i = 0; i < world.goods.size(); i++) {
+            auto price = province.products[i].price;
+            total_price += type.basic_needs_amount[i] * price;
+        }
+        float buying_factor = std::min(1.f, (float)pop.budget / total_price);
+        for(size_t i = 0; i < world.goods.size(); i++) {
+            auto product = province.products[i];
+            product.demand += type.basic_needs_amount[i] * buying_factor;
+        }
+        pop.life_needs_met += buying_factor;
+        pop.budget = std::max(0.f, (float)pop.budget - total_price);
+    }
+
+    // Do luxury needs
+    // TODO proper calulcation with pops trying to optimize satifcation
+    {
+        float total_price = 0;
+        for(size_t i = 0; i < world.goods.size(); i++) {
+            auto price = province.products[i].price;
+            total_price += type.luxury_needs_satisfaction[i] * price;
+        }
+        float buying_factor = std::min(1.f, (float)pop.budget / total_price);
+        for(size_t i = 0; i < world.goods.size(); i++) {
+            auto product = province.products[i];
+            product.demand += type.basic_needs_amount[i] * buying_factor;
+        }
+        pop.everyday_needs_met += buying_factor;
+        pop.budget = std::max(0.f, (float)pop.budget - total_price);
+    }
+
+    // x2.5 life needs met modifier, that is the max allowed
+    pop.life_needs_met = std::min<UnifiedRender::Decimal>(1.5f, std::max<UnifiedRender::Decimal>(pop.life_needs_met, -5.f));
+    pop.everyday_needs_met = std::min<UnifiedRender::Decimal>(1.5f, std::max<UnifiedRender::Decimal>(pop.everyday_needs_met, -5.f));
+
+    // Current liking of the party is influenced by the life_needs_met
+    pop.ideology_approval[world.get_id(*province.owner->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
+
+    // NOTE: We used to have this thing where anything below 2.5 meant everyone dies
+    // and this was removed because it's such an unescesary detail that consumes precious
+    // CPU branching prediction... and we can't afford that!
+
+    // More literacy means more educated persons with less children
+    UnifiedRender::Decimal growth = pop.size / (pop.literacy + 1.f);
+    growth *= pop.life_needs_met;
+    growth = std::min<UnifiedRender::Decimal>(std::fmod(rand(), 10.f), growth);
+    //growth *= (growth > 0.f) ? nation->get_reproduction_mod() : nation->get_death_mod();
+    pop.size += static_cast<UnifiedRender::Number>((int)growth);
+
+    // Met life needs means less militancy
+    // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
+    // and the opposite happens with negative life needs
+    pop.militancy += 0.01f * (-pop.life_needs_met) * province.owner->get_militancy_mod();
+    pop.con += 0.01f * (-pop.life_needs_met) * province.owner->get_militancy_mod();
+}
+
 // Phase 1 of economy: Delivers & Orders are sent from all factories in the world
 void Economy::do_tick(World& world) {
     // Collect list of nations that exist
@@ -186,39 +348,7 @@ void Economy::do_tick(World& world) {
         // Minimal speedup but probably can keep our branch predictor happy ^_^
         auto rand = UnifiedRender::get_local_generator();
         for(const auto& province : nation->controlled_provinces) {
-
-            std::vector<Workers> entrepreneurs;
-            entrepreneurs.reserve(world.cultures.size() * world.religions.size() * world.pop_types.size());
-            std::vector<Workers> farmers;
-            farmers.reserve(world.cultures.size() * world.religions.size() * world.pop_types.size());
-            std::vector<Workers> laborers;
-            laborers.reserve(world.cultures.size() * world.religions.size() * world.pop_types.size());
-
-            for(size_t i = 0; i < province->pops.size(); i++) {
-                Pop& pop = province->pops[i];
-                if(!pop.size) {
-                    province->pops.erase(province->pops.begin() + i);
-                    i--;
-                    continue;
-                }
-
-                // Also add this POP to the AvailableWorkers array
-                Workers workers{ pop };
-                switch(pop.type->group) {
-                case PopGroup::BURGEOISE:
-                    entrepreneurs.push_back(workers);
-                    break;
-                case PopGroup::FARMER:
-                    farmers.push_back(workers);
-                    break;
-                case PopGroup::LABORER:
-                    laborers.push_back(workers);
-                    break;
-                default:
-                    break;
-                }
-            }
-
+            float laborers_payment = 0.f;
             for(const auto& building_type : world.building_types) {
                 auto& building = province->buildings[world.get_id(*building_type)];
                 building.production_cost = 0.f;
@@ -235,59 +365,7 @@ void Economy::do_tick(World& world) {
 #endif
                     continue;
                 }
-
-                UnifiedRender::Number available_laborers = 0;
-                UnifiedRender::Number needed_laborers = building_type->num_req_workers;
-
-                UnifiedRender::Number available_entrepreneurs = 0;
-                UnifiedRender::Number needed_entrepreneurs = building_type->num_req_entrepreneurs;
-
-                // Search through all the job requests
-                // Industries require 2 (or 3) types of POPs to correctly function
-                // - Laborers: They are needed to produce non-edible food
-                // - Farmers: They are needed to produce edibles
-                // - Burgeoise: They help "organize" the factory
-                for(size_t i = 0; i < laborers.size(); i++) {
-                    if(available_laborers >= needed_laborers) {
-                        break;
-                    }
-
-                    Workers& workers = laborers[i];
-                    const UnifiedRender::Number employed = std::min<UnifiedRender::Number>(needed_laborers - available_laborers, workers.amount);
-                    available_laborers += employed;
-                    // Give pay to the POP
-                    const UnifiedRender::Decimal payment = employed * nation->current_policy.min_wage;
-                    workers.pop.budget += payment * nation->get_salary_paid_mod();
-                    building.budget -= payment;
-                    workers.amount -= employed;
-                    // Delete job request when it has 0 amount
-                    if(!workers.amount) {
-                        laborers.erase(laborers.begin() + i);
-                        --i;
-                        continue;
-                    }
-                }
-
-                for(size_t i = 0; i < entrepreneurs.size(); i++) {
-                    if(available_entrepreneurs >= needed_entrepreneurs) {
-                        break;
-                    }
-
-                    Workers& workers = entrepreneurs[i];
-                    const UnifiedRender::Number employed = std::min<UnifiedRender::Number>(needed_entrepreneurs - available_entrepreneurs, workers.amount);
-                    available_entrepreneurs += employed;
-                    // Give pay to the POP
-                    const UnifiedRender::Decimal payment = employed * nation->current_policy.min_wage;
-                    workers.pop.budget += payment * nation->get_salary_paid_mod();
-                    building.budget -= payment;
-                    workers.amount -= employed;
-                    // Delete job request when it has 0 amount
-                    if(!workers.amount) {
-                        entrepreneurs.erase(entrepreneurs.begin() + i);
-                        --i;
-                        continue;
-                    }
-                }
+                update_factory_production(world, building, building_type, province, laborers_payment);
 
                 // Buildings who have fullfilled requirements to build stuff will spawn a unit
                 if(building.working_unit_type != nullptr) {
@@ -334,138 +412,30 @@ void Economy::do_tick(World& world) {
                     UnifiedRender::Log::debug("economy", "- %f entrepreneurs (%f needed)", available_entrepreneurs, needed_entrepreneurs);
                 }
 #endif
-
-                if(building_type->is_factory) {
-                    // Consume inputs needed to produce stuff (will decrease supplies and increase demand)
-                    size_t k = 0;
-                    for(const auto& input : building_type->inputs) {
-                        Product& product = province->products[world.get_id(*input)];
-                        // Farmers can only work with edibles and laborers can only work for edibles
-                        UnifiedRender::Number quantity = 0.f;
-                        quantity = (available_laborers / needed_laborers) * 5000.f;
-
-                        quantity = std::min<UnifiedRender::Number>(quantity, building.stockpile[k]);
-                        quantity = std::min<UnifiedRender::Number>(quantity, product.supply);
-                        quantity = std::min<UnifiedRender::Number>(quantity, building.budget / product.price);
-
-                        //quantity *= nation->get_industry_input_mod();
-                        product.supply -= quantity;
-                        product.demand += quantity;
-                        building.stockpile[k] -= quantity;
-                        building.budget -= quantity * product.price;
-                        k++;
-                    }
-                }
-
-                // Building the building itself
-                for(const auto& good : building.req_goods) {
-                    UnifiedRender::Number quantity = good.second * nation->get_industry_input_mod();
-                }
-
-                // TODO: We should deduct and set willing payment from military spendings
-                // Building an unit
-                for(const auto& good : building.req_goods_for_unit) {
-                    UnifiedRender::Number quantity = good.second * nation->get_industry_input_mod();
-                }
-
-                // Produce products (incrementing supply)
-                if(building.can_do_output()) {
-#if 0
-                    UnifiedRender::Log::debug("economy", "Can do output!!!");
-#endif
-                    for(const auto& output : building_type->outputs) {
-                        Product& product = province->products[world.get_id(*output)];
-                        // Farmers can only work with edibles and laborers can only work for edibles
-                        UnifiedRender::Number quantity = 0;
-                        quantity = (available_laborers / needed_laborers) * 5000;
-                        //quantity *= nation->get_industry_output_mod();
-                        product.supply += quantity;
-                        //building.budget += quantity * product.price;
-                    }
-                    continue;
+            }
+            float amount_laborers;
+            for(uint32_t i = 0; i < province->pops.size(); i++) {
+                auto& pop = province->pops[i];
+                if(pop.type->group == PopGroup::LABORER) {
+                    amount_laborers += pop.size;
                 }
             }
+            for(uint32_t i = 0; i < province->pops.size(); i++) {
+                auto& pop = province->pops[i];
+                if(pop.type->group == PopGroup::LABORER) {
+                    float ratio = pop.size / amount_laborers;
+                    pop.budget += laborers_payment * ratio;
+                }
+            }
+
+            update_factories_employment(world, province);
 
             // POPs now will proceed to buy products produced from factories & buying from the stockpile
             // of this province with the local market price
             for(size_t i = 0; i < province->pops.size(); i++) {
                 Pop& pop = province->pops[i];
 
-                // Deduct life needs met (to force pops to eat nom nom)
-                pop.life_needs_met -= 0.01f;
-
-                // Use 10% of our budget for buying uneeded commodities and shit
-                // TODO: Should lower spending with higher literacy, and higher
-                // TODO: Higher the fullfilment per unit with higher literacy
-                // TODO: DO NOT MAKE POP BUY FROM STOCKPILE, INSTEAD MAKE THEM BUY FROM ORDERS
-                size_t j = 0;
-                for(auto& product : province->products) {
-                    // Only buy the available stuff
-                    UnifiedRender::Number bought = std::floor(std::min<UnifiedRender::Number>(std::fmod(rand(), pop.size * (-pop.life_needs_met)), province->products[j].supply));
-                    if(bought < 0.f) {
-                        break;
-                    }
-
-                    // Deduct from pop's budget the product * how many we bought
-                    // NOTE: If we didn't bought anything it will simply invalidate this, plus if the supply is nil
-                    // this also gets nullified
-                    product.supply -= bought;
-                    product.demand += bought;
-                    pop.budget -= bought * product.price;
-                    // if(world.goods[j]->is_edible) {
-                        // pop.life_needs_met += pop.size / bought;
-                    // }
-                    // else {
-                    pop.everyday_needs_met += pop.size / bought;
-                    // }
-
-                    if(pop.budget < 0.f) {
-                        // TODO: Get a loan
-                        // TODO: Get the life savings
-                        break;
-                    }
-                    j++;
-                }
-
-                // x2.5 life needs met modifier, that is the max allowed
-                pop.life_needs_met = std::min<UnifiedRender::Decimal>(1.5f, std::max<UnifiedRender::Decimal>(pop.life_needs_met, -5.f));
-                pop.everyday_needs_met = std::min<UnifiedRender::Decimal>(1.5f, std::max<UnifiedRender::Decimal>(pop.everyday_needs_met, -5.f));
-
-                // Current liking of the party is influenced by the life_needs_met
-                pop.ideology_approval[world.get_id(*nation->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
-
-                // NOTE: We used to have this thing where anything below 2.5 meant everyone dies
-                // and this was removed because it's such an unescesary detail that consumes precious
-                // CPU branching prediction... and we can't afford that!
-
-                // More literacy means more educated persons with less children
-                UnifiedRender::Decimal growth = pop.size / (pop.literacy + 1.f);
-                growth *= pop.life_needs_met;
-                growth = std::min<UnifiedRender::Decimal>(std::fmod(rand(), 10.f), growth);
-                //growth *= (growth > 0.f) ? nation->get_reproduction_mod() : nation->get_death_mod();
-                pop.size += static_cast<UnifiedRender::Number>((int)growth);
-
-                // Met life needs means less militancy
-                // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
-                // and the opposite happens with negative life needs
-                pop.militancy += 0.01f * (-pop.life_needs_met) * nation->get_militancy_mod();;
-                pop.con += 0.01f * (-pop.life_needs_met) * nation->get_militancy_mod();;
-            }
-
-            // Close the local market of this province
-            int i = 0;
-            for(auto& product : province->products) {
-                product.close_market();
-                for(const auto& building_type : world.building_types) {
-                    Building& building = province->buildings[world.get_id(*building_type)];
-                    for(const auto& output : building_type->outputs) {
-                        if(world.get_id(*output) == i) {
-                            building.budget += product.demand * product.price;
-                            break;
-                        }
-                    }
-                }
-                i++;
+                update_pop_needs(world, *province, pop);
             }
         }
 

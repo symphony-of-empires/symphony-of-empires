@@ -34,11 +34,11 @@
 class Technology;
 
 // Type for military outposts
-class BuildingType : public RefnameEntity<uint8_t> {
+class BuildingType: public RefnameEntity<uint8_t> {
 public:
     //BuildingType();
     //~BuildingType();
-    
+
     bool is_plot_on_sea;
     bool is_plot_on_land;
     bool is_build_land_units;
@@ -65,12 +65,12 @@ public:
     // and multiply it by the level of the factory - this is the **minimum** amount of employed
     // people we can have at a time
     int num_req_workers = 0;
-    int num_req_entrepreneurs = 0;
+    // int num_req_entrepreneurs = 0;
 };
 
 // A military outpost, on land serves as a "spawn" place for units
 // When adjacent to a water tile this serves as a shipyard for spawning naval units
-class Building : public IdEntity<uint16_t> {
+class Building: public IdEntity<uint16_t> {
 public:
     Building();
     ~Building();
@@ -92,19 +92,25 @@ public:
 
     // Total money that the factory has
     UnifiedRender::Decimal budget = 0.f;
-    
+
     // Days that the factory has not been operational
     UnifiedRender::Number days_unoperational = 0;
-    
+
     // Money needed to produce - helps determine the price of the output products
     UnifiedRender::Decimal production_cost = 0.f;
-    
+
     // Stockpile of inputs in the factory
     std::vector<UnifiedRender::Number> stockpile;
-    
+
     // The employees needed per output
     std::vector<UnifiedRender::Number> employees_needed_per_output;
 
     // Level of building (all starts at 0)
     UnifiedRender::Number level = 0;
+
+    // Amount of currently working pops
+    float workers = 0.f;
+    
+    // How much of the factory is being used. From 0-1
+    float production_scale = 1.f;
 };

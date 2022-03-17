@@ -246,24 +246,26 @@ World::World() {
             std::string member = luaL_checkstring(L, 2);
             if(member == "ref_name") {
                 lua_pushstring(L, (*ideology)->ref_name.c_str());
-            } else if(member == "name") {
-                lua_pushstring(L, (*ideology)->name.c_str());
             }
-            UnifiedRender::Log::debug("lua", "__index?");
-            return 1;
-        }},
-        { "__newindex", [](lua_State* L) {
-            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
-            std::string member = luaL_checkstring(L, 2);
-            if(member == "ref_name") {
-                (*ideology)->ref_name = luaL_checkstring(L, 3);
-            } else if(member == "name") {
-                (*ideology)->name = luaL_checkstring(L, 3);
-            }
-            UnifiedRender::Log::debug("lua", "__newindex?");
-            return 0;
-        }},
-        { NULL, NULL }
+ else if(member == "name") {
+  lua_pushstring(L, (*ideology)->name.c_str());
+}
+UnifiedRender::Log::debug("lua", "__index?");
+return 1;
+}},
+{ "__newindex", [](lua_State* L) {
+    Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
+    std::string member = luaL_checkstring(L, 2);
+    if(member == "ref_name") {
+        (*ideology)->ref_name = luaL_checkstring(L, 3);
+    }
+else if(member == "name") {
+ (*ideology)->name = luaL_checkstring(L, 3);
+}
+UnifiedRender::Log::debug("lua", "__newindex?");
+return 0;
+}},
+{ NULL, NULL }
     };
     const luaL_Reg ideology_methods[] ={
         { "new", [](lua_State* L) {
@@ -338,7 +340,7 @@ World::World() {
     for(const auto& path : mod_paths) {
         curr_path.append(";" + path + "lua/?.lua");
     }
-    
+
     lua_pop(lua, 1);
     lua_pushstring(lua, curr_path.c_str());
     lua_setfield(lua, -2, "path");
@@ -412,7 +414,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 }
 
 void World::load_initial(void) {
-    const std::vector<std::string> init_files = {
+    const std::vector<std::string> init_files ={
         "terrain_types", "good_types",
         "ideologies", "cultures", "nations",  "unit_traits", "building_types",
         "technology", "religions", "pop_types", "industry_types",
@@ -487,7 +489,8 @@ void World::load_initial(void) {
                 ::deserialize(ar, &tiles[i]);
             }
         }
-    } catch(const std::exception& e) {
+    }
+    catch(const std::exception& e) {
         UnifiedRender::Log::error("cache", e.what());
     }
 
@@ -653,6 +656,7 @@ void World::load_mod(void) {
 
 void World::do_tick() {
     profiler.start("AI");
+#if 0
     // AI and stuff
     // Just random shit to make the world be like more alive
     std::for_each(std::execution::par, nations.begin(), nations.end(), [this](auto& nation) {
@@ -680,36 +684,37 @@ void World::do_tick() {
         }
         ai_do_tick(nation, this);
     });
+#endif
     profiler.stop("AI");
 
     profiler.start("Economy");
     // Every ticks_per_month ticks do an economical tick
-    if(!(time % ticks_per_month)) {
-        Economy::do_tick(*this);
-        /*
-        // Calculate prestige for today (newspapers come out!)
-        for(auto& nation : this->nations) {
-            const UnifiedRender::Decimal decay_per_cent = 5.f;
-            const UnifiedRender::Decimal max_modifier = 10.f;
-            const UnifiedRender::Decimal min_prestige = std::max<UnifiedRender::Decimal>(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
+    // if(!(time % ticks_per_month)) {
+    Economy::do_tick(*this);
+    /*
+    // Calculate prestige for today (newspapers come out!)
+    for(auto& nation : this->nations) {
+        const UnifiedRender::Decimal decay_per_cent = 5.f;
+        const UnifiedRender::Decimal max_modifier = 10.f;
+        const UnifiedRender::Decimal min_prestige = std::max<UnifiedRender::Decimal>(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
 
-            // Prestige cannot go below min prestige
-            nation->prestige = std::max<UnifiedRender::Decimal>(nation->prestige, min_prestige);
-            nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<UnifiedRender::Decimal>(std::max<UnifiedRender::Decimal>(1, nation->prestige - min_prestige) / (min_prestige + 1), max_modifier);
+        // Prestige cannot go below min prestige
+        nation->prestige = std::max<UnifiedRender::Decimal>(nation->prestige, min_prestige);
+        nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<UnifiedRender::Decimal>(std::max<UnifiedRender::Decimal>(1, nation->prestige - min_prestige) / (min_prestige + 1), max_modifier);
 
-            float economy_score = 0.f;
-            for(const auto& province : nation->owned_provinces) {
-                // Calculate economy score of nations
-                for(const auto& pop : province->pops) {
-                    economy_score += pop.budget;
-                }
+        float economy_score = 0.f;
+        for(const auto& province : nation->owned_provinces) {
+            // Calculate economy score of nations
+            for(const auto& pop : province->pops) {
+                economy_score += pop.budget;
             }
-            nation->economy_score = economy_score / 100.f;
         }
-        */
-        g_server->broadcast(Action::NationUpdate::form_packet(nations));
-        g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
+        nation->economy_score = economy_score / 100.f;
     }
+    */
+    g_server->broadcast(Action::NationUpdate::form_packet(nations));
+    g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
+    // }
     profiler.stop("Economy");
 
     profiler.start("Units");
@@ -740,11 +745,11 @@ void World::do_tick() {
                 if(!war->is_involved(*unit->owner)) {
                     continue;
                 }
-                
+
                 auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
                     return &e.province == unit->province;
                 });
-                
+
                 // Create a new battle if none is occurring on this province
                 unit->target = nullptr;
                 if(it == war->battles.end()) {
@@ -753,7 +758,8 @@ void World::do_tick() {
                     if(war->is_attacker(*unit->owner)) {
                         battle.attackers.push_back(unit);
                         battle.defenders.push_back(other_unit);
-                    } else {
+                    }
+                    else {
                         battle.attackers.push_back(other_unit);
                         battle.defenders.push_back(unit);
                     }
@@ -762,7 +768,8 @@ void World::do_tick() {
                     war->battles.push_back(battle);
                     UnifiedRender::Log::debug("game", "New battle of \"" + battle.name + "\"");
                     break;
-                } else {
+                }
+                else {
                     Battle& battle = *it;
 
                     // Add the unit to one side depending on who are we attacking
@@ -773,7 +780,8 @@ void World::do_tick() {
                             battle.attackers.push_back(unit);
                             unit->on_battle = true;
                         }
-                    } else if(war->is_defender(*unit->owner)) {
+                    }
+                    else if(war->is_defender(*unit->owner)) {
                         if(std::find(battle.defenders.begin(), battle.defenders.end(), unit) == battle.defenders.end()) {
                             battle.defenders.push_back(unit);
                             unit->on_battle = true;
@@ -793,7 +801,8 @@ void World::do_tick() {
         if(unit->target != nullptr && unit->can_move()) {
             if(unit->move_progress) {
                 unit->move_progress -= std::min<UnifiedRender::Decimal>(unit->move_progress, unit->get_speed());
-            } else {
+            }
+            else {
                 unit->set_province(*unit->target);
             }
         }
@@ -880,16 +889,18 @@ void World::do_tick() {
             UnifiedRender::Decimal* pts_count;
             if(tech->type == TechnologyType::MILITARY) {
                 pts_count = &mil_research_pts[get_id(*nation)];
-            } else if(tech->type == TechnologyType::NAVY) {
+            }
+            else if(tech->type == TechnologyType::NAVY) {
                 pts_count = &naval_research_pts[get_id(*nation)];
-            } else {
+            }
+            else {
                 continue;
             }
 
             if(*pts_count <= 0.f) {
                 continue;
             }
-            
+
             const UnifiedRender::Decimal pts = *pts_count / 4.f;
             *research_progress += pts;
             *pts_count -= pts;
@@ -925,31 +936,36 @@ void World::do_tick() {
                     continue;
                 }
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
+            }
+            else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
                 if(!dyn_clause->in_effect()) {
                     continue;
                 }
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+            }
+            else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
                 if(!dyn_clause->in_effect()) {
                     continue;
                 }
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::HUMILIATE) {
+            }
+            else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
                 if(!dyn_clause->in_effect()) {
                     continue;
                 }
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+            }
+            else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
                 if(!dyn_clause->in_effect()) {
                     continue;
                 }
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
+            }
+            else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
                 if(!dyn_clause->in_effect()) {
                     continue;
@@ -961,7 +977,8 @@ void World::do_tick() {
             if(clause->sender->ref_name == clause->receiver->ref_name) {
                 if(clause->sender->owned_provinces.empty()) {
                     // TODO: Delete clause->sender (and fixup references) !!!
-                } else if(clause->receiver->owned_provinces.empty()) {
+                }
+                else if(clause->receiver->owned_provinces.empty()) {
                     // TODO: Delete clause->receiver (and fixup references) !!!
                 }
             }
@@ -974,7 +991,7 @@ void World::do_tick() {
     profiler.stop("Events");
 
     if(!(time % ticks_per_month)) {
-        UnifiedRender::Log::debug("game", std::to_string(time / 12 / ticks_per_month) + "/" + std::to_string((time / ticks_per_month % 12) + 1) + + "/" + std::to_string((time % ticks_per_month) + 1));
+        UnifiedRender::Log::debug("game", std::to_string(time / 12 / ticks_per_month) + "/" + std::to_string((time / ticks_per_month % 12) + 1) + +"/" + std::to_string((time % ticks_per_month) + 1));
     }
 
     UnifiedRender::Log::debug("game", "Tick " + std::to_string(time) + " done");
