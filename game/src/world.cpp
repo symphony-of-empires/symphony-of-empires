@@ -656,7 +656,7 @@ void World::load_mod(void) {
 
 void World::do_tick() {
     profiler.start("AI");
-#if 0
+// #if 0
     // AI and stuff
     // Just random shit to make the world be like more alive
     std::for_each(std::execution::par, nations.begin(), nations.end(), [this](auto& nation) {
@@ -684,12 +684,12 @@ void World::do_tick() {
         }
         ai_do_tick(nation, this);
     });
-#endif
+// #endif
     profiler.stop("AI");
 
     profiler.start("Economy");
     // Every ticks_per_month ticks do an economical tick
-    // if(!(time % ticks_per_month)) {
+    if(!(time % ticks_per_month)) {
     Economy::do_tick(*this);
     /*
     // Calculate prestige for today (newspapers come out!)
@@ -714,7 +714,7 @@ void World::do_tick() {
     */
     g_server->broadcast(Action::NationUpdate::form_packet(nations));
     g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
-    // }
+    }
     profiler.stop("Economy");
 
     profiler.start("Units");

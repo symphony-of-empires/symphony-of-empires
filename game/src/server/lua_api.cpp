@@ -260,7 +260,6 @@ int LuaAPI::add_input_to_industry_type(lua_State* L) {
     // And the inputs also employ people
     for(const auto& input : industry_type->inputs) {
         industry_type->num_req_workers += 100;
-        industry_type->num_req_entrepreneurs += 1;
     }
     return 0;
 }
@@ -275,7 +274,6 @@ int LuaAPI::add_output_to_industry_type(lua_State* L) {
     // of the factory
     for(const auto& output : industry_type->outputs) {
         industry_type->num_req_workers += 100;
-        industry_type->num_req_entrepreneurs += 1;
     }
     return 0;
 }
