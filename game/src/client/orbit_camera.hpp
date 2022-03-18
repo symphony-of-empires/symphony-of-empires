@@ -34,6 +34,7 @@
 #include <glm/gtx/intersect.hpp>
 
 #include "unified_render/print.hpp"
+
 #include "client/camera.hpp"
 #include "value_chase.hpp"
 
@@ -98,7 +99,7 @@ public:
         update();
     }
 
-    glm::mat4 get_view() override {
+    glm::mat4 get_view(void) override {
         glm::vec3 look_at = glm::vec3(0);
         glm::vec3 up_vector = glm::vec3(0.f, -1.f, 0.f);
 
@@ -119,11 +120,11 @@ public:
         return glm::lookAt(world_position, look_at, up_vector);
     };
 
-    glm::vec3 get_map_pos() override {
+    glm::vec3 get_map_pos(void) override {
         glm::vec3 out_pos = map_position;
         out_pos.x = glm::mod(out_pos.x, map_size.x);
         return out_pos;
-    }
+    };
 
     bool get_cursor_map_pos(std::pair<int, int> mouse_pos, glm::ivec2& out_pos) override {
         float mouse_x = mouse_pos.first;
@@ -162,13 +163,13 @@ public:
     };
 
     glm::vec3 get_tile_world_pos(glm::vec2 tile_pos) override {
-        glm::vec2 normalized_pos = tile_pos / map_size;
+        const float pi = glm::pi<float>();
+        const glm::vec2 normalized_pos = tile_pos / map_size;
         glm::vec2 radiance_pos;
-        float pi = glm::pi<float>();
         radiance_pos.x = glm::mod(normalized_pos.x * 2.f * pi, 2.f * pi);
         radiance_pos.y = glm::max(0.f, glm::min(pi, normalized_pos.y * pi));
 
-        float distance = radius;
+        const float distance = radius;
         glm::vec3 out_pos;
         out_pos.x = distance * cos(radiance_pos.x) * sin(radiance_pos.y);
         out_pos.y = distance * sin(radiance_pos.x) * sin(radiance_pos.y);
