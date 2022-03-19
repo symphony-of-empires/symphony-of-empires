@@ -664,22 +664,27 @@ void Map::draw(const GameState& gs) {
     for(const auto& province : world.provinces) {
         const float y = province_units_y[world.get_id(*province)];
         province_units_y[world.get_id(*province)] += 2.5f;
-        const std::pair<float, float> prov_pos = province->get_pos();
+        const glm::vec2 prov_pos = glm::vec2(province->get_pos().first, province->get_pos().second);
 
         unsigned int i = 0;
         for(const auto& unit : province->get_units()) {
-            std::pair<float, float> pos = prov_pos;
-            pos.first -= 1.5f * ((province->get_units().size() / 2) - i);
-            pos.second -= y;
-            glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
+            glm::vec2 pos = prov_pos;
+            pos.x -= 1.5f * ((province->get_units().size() / 2) - i);
+            pos.y -= y;
+            glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
             if(unit->target != nullptr) {
-                UnifiedRender::Line target_line = UnifiedRender::Line(pos.first, pos.second, unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f), unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f));
-                obj_shader->set_uniform("model", model);
-                obj_shader->set_texture(0, "diffuse_map", *line_tex);
-                target_line.draw();
+                //UnifiedRender::Line target_line = UnifiedRender::Line(pos.x, pos.y, );
+                const glm::vec2 target_pos = glm::vec2(
+                    unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f),
+                    unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f)
+                );
 
-                //const std::pair<float, float> tpos = unit->target->get_pos();
-                //model = glm::rotate(model, std::atan2(tpos.first - pos.first, tpos.second - pos.second), glm::vec3(0.f, 1.f, 0.f));
+                const float dist = glm::sqrt(glm::pow(glm::abs(pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(pos.y - target_pos.y), 2.f));
+                auto line_square = UnifiedRender::Square(0.f, 0.f, dist, 0.5f);
+                glm::mat4 line_model = glm::rotate(model, glm::atan(target_pos.y - pos.y, target_pos.x - pos.x), glm::vec3(0.f, 0.f, 1.f));
+                obj_shader->set_uniform("model", line_model);
+                obj_shader->set_texture(0, "diffuse_map", *line_tex);
+                line_square.draw();
             }
             obj_shader->set_uniform("model", model);
             obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
