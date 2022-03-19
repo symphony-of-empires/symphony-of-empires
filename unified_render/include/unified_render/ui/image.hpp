@@ -48,7 +48,9 @@ namespace UI {
     public:
         Image(int x, int y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* parent = nullptr);
         Image(int x, int y, unsigned w, unsigned h, const std::string& tex_path, Widget* parent = nullptr);
+        Image(int x, int y, unsigned w, unsigned h, const std::string& tex_path, bool mipmap = true, Widget* parent = nullptr);
         static Image* make_transparent(int x, int y, unsigned w, unsigned h, const std::string& tex_path, Widget* parent = nullptr);
+        static Image* make_transparent(int x, int y, unsigned w, unsigned h, const std::string& tex_path, bool mipmap = true, Widget* parent = nullptr);
         virtual ~Image() override {};
     };
 };

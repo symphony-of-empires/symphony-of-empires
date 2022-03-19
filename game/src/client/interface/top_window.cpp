@@ -128,59 +128,51 @@ TopWindow::TopWindow(GameState& _gs)
 }
 
 TimeControlView::TimeControlView(GameState& _gs)
-    : UI::Group(-192, 0),
+    : UI::Group(-480, 0),
     gs{ _gs }
 {
     this->is_scroll = false;
     this->is_pinned = true;
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
 
-    auto* speed0_btn = new UI::Button(0, 0, 48, 24, this);
-    speed0_btn->text("||");
-    speed0_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<TimeControlView&>(*w.parent);
-        o.gs.paused = true;
-    });
-    speed0_btn->tooltip = new UI::Tooltip(speed0_btn, 512, 24);
-    speed0_btn->tooltip->text("Pause");
+    UI::Image::make_transparent(0, 0, 480, 60, "gfx/ui/bg/time_control_bg.png", true, this);
 
-    auto* speed1_btn = new UI::Button(0, 0, 48, 24, this);
-    speed1_btn->right_side_of(*speed0_btn);
-    speed1_btn->text(">");
-    speed1_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<TimeControlView&>(*w.parent);
-        o.gs.paused = false;
-        o.gs.ms_delay_speed = 1000;
-    });
-    speed1_btn->tooltip = new UI::Tooltip(speed1_btn, 512, 24);
-    speed1_btn->tooltip->text("Turtle speed");
+    int btn_size = 30;
 
-    auto* speed2_btn = new UI::Button(0, 0, 48, 24, this);
-    speed2_btn->right_side_of(*speed1_btn);
-    speed2_btn->text(">>");
-    speed2_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<TimeControlView&>(*w.parent);
-        o.gs.paused = false;
-        o.gs.ms_delay_speed = 500;
+    auto btn_group = new UI::Group(320, 12, this);
+    auto* speed0_btn = UI::Image::make_transparent(0, 0, btn_size, btn_size, "gfx/ui/button/time_control_pause.png", true, btn_group);
+    speed0_btn->on_click = ([this](UI::Widget&) {
+        this->gs.paused = true;
     });
-    speed2_btn->tooltip = new UI::Tooltip(speed2_btn, 512, 24);
-    speed2_btn->tooltip->text("Horse speed");
+    speed0_btn->set_tooltip("Pause");
 
-    auto* speed3_btn = new UI::Button(0, 0, 48, 24, this);
-    speed3_btn->right_side_of(*speed2_btn);
-    speed3_btn->text(">>>");
-    speed3_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<TimeControlView&>(*w.parent);
-        o.gs.paused = false;
-        o.gs.ms_delay_speed = 50;
+    auto* speed1_btn = new UI::Image(45, 0, btn_size, btn_size, "gfx/ui/button/time_control_1.png", true, btn_group);
+    speed1_btn->on_click = ([this](UI::Widget&) {
+        this->gs.paused = false;
+        this->gs.ms_delay_speed = 1000;
     });
-    speed3_btn->tooltip = new UI::Tooltip(speed3_btn, 512, 24);
-    speed3_btn->tooltip->text("Fire speed");
+    speed1_btn->set_tooltip("Turtle speed");
 
-    auto* time_lab = new UI::Label(192, 24, " ", this);
-    time_lab->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<TimeControlView&>(*w.parent);
-        const std::string day_names[7] = {
+    auto* speed2_btn = new UI::Image(80, 0, btn_size, btn_size, "gfx/ui/button/time_control_2.png", true, btn_group);
+    speed2_btn->on_click = ([this](UI::Widget&) {
+        this->gs.paused = false;
+        this->gs.ms_delay_speed = 500;
+    });
+    speed2_btn->set_tooltip("Horse speed");
+
+    auto* speed3_btn = new UI::Image(115, 0, btn_size, btn_size, "gfx/ui/button/time_control_3.png", true, btn_group);
+    speed3_btn->on_click = ([this](UI::Widget&) {
+        this->gs.paused = false;
+        this->gs.ms_delay_speed = 50;
+    });
+    speed3_btn->set_tooltip("Fire speed");
+
+    auto font = TTF_OpenFont(Path::get("fonts/neon_euler/euler.ttf").c_str(), 20);
+    auto text_color = UnifiedRender::Color(1., 1., 1.);
+
+    auto* time_lab = new UI::Label(50, 30, " ", this);
+    time_lab->on_each_tick = ([this](UI::Widget& w) {
+        const std::string day_names[7] ={
             "Monday",
             "Tuesday",
             "Wednesday",
@@ -190,7 +182,7 @@ TimeControlView::TimeControlView(GameState& _gs)
             "Sunday"
         };
 
-        const std::string month_names[12] = {
+        const std::string month_names[12] ={
             "January",
             "Febraury",
             "March",
@@ -205,11 +197,13 @@ TimeControlView::TimeControlView(GameState& _gs)
             "December"
         };
 
-        const int day = g_world->time % g_world->ticks_per_month;
-        const int month = (g_world->time / g_world->ticks_per_month) % 12;
-        const int year = g_world->time / g_world->ticks_per_month / 12;
+        const World* world = this->gs.world;
+        const int day = world->time % world->ticks_per_month;
+        const int month = (world->time / world->ticks_per_month) % 12;
+        const int year = world->time / world->ticks_per_month / 12;
         w.text(day_names[day % 7] + ", " + month_names[month] + " " + std::to_string(day) + ", " + std::to_string(year));
-        w.x = 192 - w.width;
     });
+    time_lab->font = font;
+    time_lab->text_color = text_color;
     time_lab->on_each_tick(*time_lab);
 }
