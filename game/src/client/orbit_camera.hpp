@@ -130,15 +130,14 @@ public:
         float mouse_x = mouse_pos.first;
         float mouse_y = screen_size.y - 1.f - mouse_pos.second;
 
-        glm::mat4 view = get_view();
-        glm::mat4 projection = get_projection();
-
-        glm::vec3 world_space_near = glm::unProject(
+        const glm::mat4 view = get_view();
+        const glm::mat4 projection = get_projection();
+        const glm::vec3 world_space_near = glm::unProject(
             glm::vec3(mouse_x, mouse_y, 0.f),
             view, projection,
-            glm::vec4(0.f, 0.f, screen_size));
-
-        glm::vec3 world_space_far = glm::unProject(
+            glm::vec4(0.f, 0.f, screen_size)
+        );
+        const glm::vec3 world_space_far = glm::unProject(
             glm::vec3(mouse_x, mouse_y, 1.f),
             view, projection,
             glm::vec4(0.f, 0.f, screen_size)
@@ -158,7 +157,6 @@ public:
 
         out_pos.x = map_size.x * x_rad / (2.f * pi);
         out_pos.y = map_size.y * y_rad / (pi);
-
         return hit;
     };
 

@@ -81,14 +81,13 @@ public:
         update();
     }
 
-
-    glm::vec3 get_map_pos() override {
+    glm::vec3 get_map_pos(void) override {
         glm::vec3 out_pos = map_position;
         out_pos.x = glm::mod(out_pos.x, map_size.x);
         return out_pos;
     }
 
-    glm::mat4 get_view() override {
+    glm::mat4 get_view(void) override {
         glm::vec3 look_at = world_position;
         look_at.z = 0;
         look_at.y -= world_position.z > -200 ? 0.06f * (200 + world_position.z) : 0;
@@ -100,15 +99,14 @@ public:
         float mouse_x = mouse_pos.first;
         float mouse_y = screen_size.y - 1.f - mouse_pos.second;
 
-        glm::mat4 view = get_view();
-        glm::mat4 projection = get_projection();
-
-        glm::vec3 world_space_near = glm::unProject(
+        const glm::mat4 view = get_view();
+        const glm::mat4 projection = get_projection();
+        const glm::vec3 world_space_near = glm::unProject(
             glm::vec3(mouse_x, mouse_y, 0.f),
             view, projection,
-            glm::vec4(0.f, 0.f, screen_size));
-
-        glm::vec3 world_space_far = glm::unProject(
+            glm::vec4(0.f, 0.f, screen_size)
+        );
+        const glm::vec3 world_space_far = glm::unProject(
             glm::vec3(mouse_x, mouse_y, 1.f),
             view, projection,
             glm::vec4(0.f, 0.f, screen_size)

@@ -7,10 +7,11 @@ in vec2 v_texcoord;
 provided vec2 map_size;
 provided sampler2D tile_map;
 provided sampler2D terrain_map;
+provided sampler2D tile_sheet_nation;
 
 float is_not_lake(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	return terrain.x == 1./255. ? 1. : 1.;
+	return terrain.x == 1. / 255. ? 1. : 1.;
 }
 
 vec2 sum(vec4 v1, vec4 v2) {

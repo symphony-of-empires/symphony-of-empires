@@ -242,10 +242,10 @@ void Map::create_labels() {
 #endif
 
         glm::vec2 lab_min, lab_max;
-        lab_min.x = min_point_x.x;
-        lab_min.y = min_point_y.y;
-        lab_max.x = max_point_x.x;
-        lab_max.y = max_point_y.y;
+        lab_min.x = max_point_x.x;
+        lab_min.y = max_point_x.y;
+        lab_max.x = min_point_y.x;
+        lab_max.y = min_point_y.y;
 
         glm::vec2 mid_point = 0.5f * (lab_min + lab_max);
         glm::vec3 center = camera->get_tile_world_pos(mid_point);
@@ -254,14 +254,21 @@ void Map::create_labels() {
         glm::vec3 right = camera->get_tile_world_pos(mid_point + x_step);
         float width = glm::length(left - right);
 
-        glm::vec3 right_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x + 1.f, mid_point.y));
-        right_dir  = right_dir - center;
-        glm::vec3 top_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x, mid_point.y - 1.f));
-        top_dir = top_dir - center;
+        glm::vec3 right_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x + 1.f, mid_point.y)) - center;
+        glm::vec3 top_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x, mid_point.y - 1.f)) - center;
 
-        auto* label = map_font->gen_text(nation->get_client_hint().alt_name, top_dir, right_dir, width);
+        float angle = glm::atan(lab_max.y - lab_min.y, lab_max.x - lab_min.x);
+        if(angle > M_PI_2) {
+            angle -= M_PI_2;
+            angle = -angle;
+        } else if(angle < -M_PI_2) {
+            angle += M_PI_2;
+            angle = -angle;
+        }
+
+        auto* label = map_font->gen_text(nation->get_client_hint().alt_name, top_dir, right_dir, width, 15.f);
         label->model = glm::translate(label->model, center);
-        label->model = glm::rotate(label->model, std::atan2(lab_max.y - lab_min.y, lab_max.x - lab_min.x), glm::vec3(0.f, 0.f, 1.f));
+        label->model = glm::rotate(label->model, angle, glm::vec3(0.f, 0.f, 1.f));
         label->model = glm::translate(label->model, glm::vec3(-(width / 2.f), 0.f, 0.f));
         nation_labels.push_back(label);
     }

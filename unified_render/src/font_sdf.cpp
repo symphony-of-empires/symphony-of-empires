@@ -87,13 +87,13 @@ UnifiedRender::FontSDF::FontSDF(const std::string& filename) {
     }
 }
 
-Label3D* UnifiedRender::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width) {
+Label3D* UnifiedRender::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, float curve) {
     UnifiedRender::Color color = UnifiedRender::Color(0.f, 0.f, 0.f);
 
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
     std::u32string unicode_text = conv_utf8_utf32.from_bytes(text);
 
-    float text_width = 0;
+    float text_width = 0.f;
     for(char32_t& character : unicode_text) {
         if(!unicode_map.count(character)) {
             continue;
@@ -109,6 +109,8 @@ Label3D* UnifiedRender::FontSDF::gen_text(const std::string& text, glm::vec3 top
 
     std::vector<glm::vec3> positions;
     std::vector<glm::vec2> tex_coords;
+
+    int idx = 1;
     for(char32_t& character : unicode_text) {
         if(!unicode_map.count(character)) {
             continue;
@@ -126,11 +128,15 @@ Label3D* UnifiedRender::FontSDF::gen_text(const std::string& text, glm::vec3 top
         glm::vec2 plane_tr(glyph.plane_bounds.right, glyph.plane_bounds.top);
         glm::vec2 plane_br(glyph.plane_bounds.right, glyph.plane_bounds.bottom);
 
-        glm::mat2x3 base(right, top);
-        glm::vec3 char_tl = start + base * plane_tl * scale;
-        glm::vec3 char_bl = start + base * plane_bl * scale;
-        glm::vec3 char_tr = start + base * plane_tr * scale;
-        glm::vec3 char_br = start + base * plane_br * scale;
+        const glm::mat2x3 base = glm::mat2x3(right, top) * scale;
+
+        const glm::mat4x4 trans(1.f);
+        glm::rotate(trans, curve * std::cos((unicode_text.size() / idx) * 360.f), glm::vec3(0.f, 0.f, 1.f));
+
+        glm::vec3 char_tl = glm::vec3(trans * glm::vec4(start + base * plane_tl, 0.f));
+        glm::vec3 char_bl = glm::vec3(trans * glm::vec4(start + base * plane_bl, 0.f));
+        glm::vec3 char_tr = glm::vec3(trans * glm::vec4(start + base * plane_tr, 0.f));
+        glm::vec3 char_br = glm::vec3(trans * glm::vec4(start + base * plane_br, 0.f));
 
         tex_coords.push_back(atlas_tl);
         positions.push_back(char_tl);
@@ -145,7 +151,9 @@ Label3D* UnifiedRender::FontSDF::gen_text(const std::string& text, glm::vec3 top
         tex_coords.push_back(atlas_tl);
         positions.push_back(char_tl);
 
-        start += right * glyph.advance * scale;
+        start.x += right.x * glyph.advance * scale;
+        start.y += right.y * glyph.advance * scale;
+        idx++;
     }
 
     TriangleList* triangles = new TriangleList(positions, tex_coords);
