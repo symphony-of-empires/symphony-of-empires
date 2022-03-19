@@ -42,9 +42,28 @@ Image::Image(int _x, int _y, unsigned w, unsigned h, const std::string& texture_
     current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get(texture_path));
 }
 
+Image::Image(int _x, int _y, unsigned w, unsigned h, const std::string& texture_path, bool mipmap, Widget* _parent)
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::IMAGE)
+{
+    UnifiedRender::TextureOptions options;
+    if(mipmap) {
+        options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+        options.mag_filter = GL_LINEAR;
+    }
+    current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get(texture_path), options);
+}
+
 Image* Image::make_transparent(int x, int y, unsigned w, unsigned h, const std::string& tex_path, Widget* parent) {
+    return make_transparent(x, y, w, h, tex_path, false, parent);
+}
+
+Image* Image::make_transparent(int x, int y, unsigned w, unsigned h, const std::string& tex_path, bool mipmap, Widget* parent) {
     UnifiedRender::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
+    if(mipmap) {
+        no_drop_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+        no_drop_options.mag_filter = GL_LINEAR;
+    }
     auto texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get(tex_path), no_drop_options);
     Image* image = new Image(x, y, w, h, texture, parent);
     image->is_transparent = true;
