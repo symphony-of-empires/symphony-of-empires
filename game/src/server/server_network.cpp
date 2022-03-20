@@ -190,18 +190,12 @@ void Server::net_loop(int id) {
                         throw ServerException("Unknown unit type");
 
                     // TODO: Find building
-                    Building* building = nullptr;
-                    //for(auto& _building : province->get_buildings()) {
-                    //    if(_building.get_owner() == nation && _building.type == building_type) {
-                    //        building = &_building;
-                    //    }
-                    //}
-
+                    Building& building = province->get_buildings()[g_world->get_id(*building_type)];
                     // TODO: Check nation can build this unit
 
                     // Tell the building to build this specific unit type
-                    building->working_unit_type = unit_type;
-                    building->req_goods_for_unit = unit_type->req_goods;
+                    building.working_unit_type = unit_type;
+                    building.req_goods_for_unit = unit_type->req_goods;
                     print_info("New order for building; build unit [%s]", unit_type->ref_name.c_str());
                 } break;
                 // Client tells server to build new outpost, the location (& type) is provided by

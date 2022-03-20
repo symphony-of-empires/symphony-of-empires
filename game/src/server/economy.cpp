@@ -242,8 +242,10 @@ void update_factories_employment(const World& world, Province* province) {
     // Sort factories by production scale, which is suppose to represent how profitable the factory is
     // Might be better to calculate how profitable it really is and use that instead
     std::vector<std::pair<uint32_t, float>> factories_by_profitability(province->buildings.size());
-    for(uint32_t i = 0; i < province->buildings.size(); i++)
+    for(uint32_t i = 0; i < province->buildings.size(); i++) {
         factories_by_profitability[i] = std::pair<uint32_t, float>(i, province->buildings[i].production_scale);
+    }
+
     std::sort(std::begin(factories_by_profitability), std::end(factories_by_profitability), [](std::pair<uint32_t, float> const& a, std::pair<uint32_t, float> const& b) { return a.second > b.second; });
 
     // The most profitable factory gets to pick workers first
@@ -382,10 +384,12 @@ void Economy::do_tick(World& world) {
                         can_build_unit = false;
                     }
 
+                    can_build_unit = true;
                     if(can_build_unit) {
                         // TODO: Maybe delete if size becomes 0?
-                        UnifiedRender::Number final_size = std::min<UnifiedRender::Number>((*it).size, army_size);
-                        (*it).size -= final_size;
+                        //UnifiedRender::Number final_size = std::min<UnifiedRender::Number>((*it).size, army_size);
+                        //(*it).size -= final_size;
+                        UnifiedRender::Number final_size = 100;
 
                         // Spawn a unit
                         Unit* unit = new Unit();

@@ -690,30 +690,30 @@ void World::do_tick() {
     profiler.start("Economy");
     // Every ticks_per_month ticks do an economical tick
     if(!(time % ticks_per_month)) {
-    Economy::do_tick(*this);
-    /*
-    // Calculate prestige for today (newspapers come out!)
-    for(auto& nation : this->nations) {
-        const UnifiedRender::Decimal decay_per_cent = 5.f;
-        const UnifiedRender::Decimal max_modifier = 10.f;
-        const UnifiedRender::Decimal min_prestige = std::max<UnifiedRender::Decimal>(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
+        Economy::do_tick(*this);
+        /*
+        // Calculate prestige for today (newspapers come out!)
+        for(auto& nation : this->nations) {
+            const UnifiedRender::Decimal decay_per_cent = 5.f;
+            const UnifiedRender::Decimal max_modifier = 10.f;
+            const UnifiedRender::Decimal min_prestige = std::max<UnifiedRender::Decimal>(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
 
-        // Prestige cannot go below min prestige
-        nation->prestige = std::max<UnifiedRender::Decimal>(nation->prestige, min_prestige);
-        nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<UnifiedRender::Decimal>(std::max<UnifiedRender::Decimal>(1, nation->prestige - min_prestige) / (min_prestige + 1), max_modifier);
+            // Prestige cannot go below min prestige
+            nation->prestige = std::max<UnifiedRender::Decimal>(nation->prestige, min_prestige);
+            nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<UnifiedRender::Decimal>(std::max<UnifiedRender::Decimal>(1, nation->prestige - min_prestige) / (min_prestige + 1), max_modifier);
 
-        float economy_score = 0.f;
-        for(const auto& province : nation->owned_provinces) {
-            // Calculate economy score of nations
-            for(const auto& pop : province->pops) {
-                economy_score += pop.budget;
+            float economy_score = 0.f;
+            for(const auto& province : nation->owned_provinces) {
+                // Calculate economy score of nations
+                for(const auto& pop : province->pops) {
+                    economy_score += pop.budget;
+                }
             }
+            nation->economy_score = economy_score / 100.f;
         }
-        nation->economy_score = economy_score / 100.f;
-    }
-    */
-    g_server->broadcast(Action::NationUpdate::form_packet(nations));
-    g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
+        */
+        g_server->broadcast(Action::NationUpdate::form_packet(nations));
+        g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
     }
     profiler.stop("Economy");
 
