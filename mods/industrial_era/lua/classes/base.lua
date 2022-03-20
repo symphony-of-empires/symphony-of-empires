@@ -702,7 +702,7 @@ function PopType:new(o)
 end
 function PopType:get(ref_name)
 	o = PopType:new()
-	o.id, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_farmer, o.is_laborer, o.basic_needs, luxury_needs = get_pop_type(ref_name)
+	o.id, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_farmer, o.is_laborer, o.basic_needs, o.luxury_needs = get_pop_type(ref_name)
 	o.ref_name = ref_name
 	return o
 end

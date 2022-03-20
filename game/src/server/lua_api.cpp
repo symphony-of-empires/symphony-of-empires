@@ -1025,7 +1025,7 @@ int LuaAPI::get_pop_type(lua_State* L) {
             lua_settable(L, -3);
         }
     }
-    return 8;
+    return 9;
 }
 
 int LuaAPI::get_pop_type_by_id(lua_State* L) {
@@ -1051,7 +1051,20 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
             lua_settable(L, -3);
         }
     }
-    return 8;
+    index = 1;
+    for(size_t i = 0; i < pop_type->luxury_needs_satisfaction.size(); i++) {
+        if(pop_type->luxury_needs_satisfaction[i] != 0) {
+            lua_pushnumber(L, index++);
+
+            lua_newtable(L);
+            append_to_table(L, 1, g_world->goods[i]->ref_name.c_str());
+            append_to_table(L, 2, pop_type->luxury_needs_satisfaction[i]);
+            append_to_table(L, 3, pop_type->luxury_needs_deminishing_factor[i]);
+
+            lua_settable(L, -3);
+        }
+    }
+    return 9;
 }
 
 int LuaAPI::add_culture(lua_State* L) {
