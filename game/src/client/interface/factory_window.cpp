@@ -32,10 +32,11 @@
 #include "unified_render/ui/div.hpp"
 #include "unified_render/ui/label.hpp"
 #include "unified_render/ui/image.hpp"
+#include "unified_render/ui/scrollbar.hpp"
 
 using namespace Interface;
 
-void make_building_header(UI::Div* table, const World* world) {
+void make_building_header(UI::Div* table) {
 	auto* row = new UI::Div(0, 0, 800, 35, table);
 	row->flex = UI::Flex::ROW;
 	row->flex_justify = UI::FlexJustify::START;
@@ -50,6 +51,10 @@ void make_building_header(UI::Div* table, const World* world) {
 	name_lab->text("Name");
 	name_lab->border = border;
 
+	auto workers_lab = new UI::Div(0, 0, 100, 35, row);
+	workers_lab->text("Workers");
+	workers_lab->border = border;
+
 	auto province_lab = new UI::Div(0, 0, 200, 35, row);
 	province_lab->text("Province");
 	province_lab->border = border;
@@ -58,7 +63,7 @@ void make_building_header(UI::Div* table, const World* world) {
 	input_lab->text("Inputs");
 	input_lab->border = border;
 
-	auto output_lab = new UI::Div(0, 0, 100, 35, row);
+	auto output_lab = new UI::Div(0, 0, 35, 35, row);
 	output_lab->text("Output");
 	output_lab->border = border;
 
@@ -82,6 +87,10 @@ void make_building_row(UI::Div* table, Building& building, BuildingType* type, P
 	name_lab->text(type->name);
 	name_lab->border = border;
 
+	auto workers_lab = new UI::Div(0, 0, 100, 35, row);
+	workers_lab->text(UnifiedRender::string_format("%d", building.workers));
+	workers_lab->border = border;
+
 	auto province_lab = new UI::Div(0, 0, 200, 35, row);
 	province_lab->text(province->name);
 	province_lab->border = border;
@@ -97,7 +106,7 @@ void make_building_row(UI::Div* table, Building& building, BuildingType* type, P
 	}
 
 	auto output = type->outputs[0];
-	auto output_div = new UI::Div(0, 0, 100, 35, row);
+	auto output_div = new UI::Div(0, 0, 35, 35, row);
 	output_div->border = border;
 	auto output_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + output->ref_name + ".png", true, output_div);
 	output_good_image->set_tooltip(output->name);
@@ -119,16 +128,19 @@ FactoryWindow::FactoryWindow(GameState& gs)
 
 	int size = 0;
 	for(auto prov : nation->owned_provinces) {
-		size += prov->buildings.size();
+		for(size_t i = 0; i < prov->buildings.size(); i++) {
+			auto& building = prov->buildings[i];
+			if(building.level != 0)
+				size++;
+		}
 	}
 
 	auto* header_column = new UI::Div(5, 5, 800 - 10, 35, this);
-	header_column->flex = UI::Flex::COLUMN;
-	header_column->flex_justify = UI::FlexJustify::START;
-	make_building_header(header_column, gs.world);
+	make_building_header(header_column);
 
-	auto* table = new UI::Div(5, 40, 800 - 10, 800 - 40, this);
+	auto* table = new UI::Div(5, 40, 800 - 10, 700, this);
 	table->is_scroll = true;
+	new UI::Scrollbar(700, 0, 20, 700, table);
 
 	auto* flex_column = new UI::Div(0, 0, 800 - 10, size * 35, table);
 	flex_column->flex = UI::Flex::COLUMN;

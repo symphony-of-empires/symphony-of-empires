@@ -17,31 +17,25 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      unified_render/ui/window.cpp
+//      unified_render/ui/scrollbar.hpp
 //
 // Abstract:
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/ui/window.hpp"
-#include "unified_render/ui/ui.hpp"
-#include "unified_render/state.hpp"
-#include "unified_render/path.hpp"
-#include "unified_render/texture.hpp"
+#pragma once
 
-using namespace UI;
+#include "unified_render/ui/widget.hpp"
 
-Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI::WidgetType::WINDOW),
-    is_movable{ true }
-{
-    padding = glm::ivec2(8, 24 + 8);
-    current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
-    is_scroll = true;
-    text_color = UnifiedRender::Color(1., 1., 1.);
-
-    glm::ivec2 size(4, 4);
-    glm::ivec2 texture_size(10, 10);
-    glm::ivec2 offset(0, 24);
-    border = Border(g_ui_context->border_tex, size, texture_size, offset);
-}
+namespace UI {
+    /**
+     * @ingroup UI
+     * @brief Window widget
+     *
+     */
+    class Scrollbar : public Widget {
+    public:
+        Scrollbar(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
+        virtual ~Scrollbar() override {};
+    };
+};

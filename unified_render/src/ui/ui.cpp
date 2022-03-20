@@ -130,15 +130,20 @@ void Context::clear(void) {
 }
 
 void Context::clear_dead_recursive(Widget* w) {
+    bool changed = false;
     for(size_t index = 0; index < w->children.size(); index++) {
         if((w->children[index])->dead) {
             delete w->children[index];
             w->children.erase(w->children.begin() + index);
             index--;
+            changed = true;
         }
         else {
             clear_dead_recursive(w->children[index]);
         }
+    }
+    if(changed) {
+        w->need_recalc = true;
     }
 }
 void Context::clear_dead() {
@@ -272,6 +277,10 @@ void Context::resize(int _width, int _height) {
 }
 
 void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport, glm::vec2 offset) {
+    if(w.need_recalc) {
+        w.recalc_child_pos();
+        w.need_recalc = false;
+    }
     // Only render widget that are shown
     if(!w.is_show || !w.is_render) {
         return;
@@ -658,24 +667,8 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
         }
     }
 
-    int child_top = 0;
-    int child_bottom = w.height;
-    for(auto& child : w.children) {
-        if(!child->is_pinned) {
-            child_top = std::min(child_top, child->y);
-            child_bottom = std::max(child_bottom, child->y + (int)child->height);
-        }
-    }
-    child_bottom -= w.height;
-    y = std::min(-child_top, y);
-    y = std::max(-child_bottom, y);
-
     if(w.is_scroll) {
-        for(auto& child : w.children) {
-            if(!child->is_pinned) {
-                child->y += y;
-            }
-        }
+        w.scroll(y);
         scrolled = true;
     }
     return scrolled;

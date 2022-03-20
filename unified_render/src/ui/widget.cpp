@@ -347,8 +347,12 @@ void Widget::recalc_child_pos() {
 
     bool is_row = flex == Flex::ROW;
     size_t lenght = 0;
+    int movable_children = 0;
     for(auto& child : children) {
-        lenght += is_row ? child->width : child->height;
+        if(!child->is_pinned) {
+            lenght += is_row ? child->width : child->height;
+            movable_children++;
+        }
     }
 
     size_t current_lenght = 0;
@@ -357,6 +361,7 @@ void Widget::recalc_child_pos() {
     case FlexJustify::START:
         current_lenght = 0;
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + flex_gap;
@@ -370,6 +375,7 @@ void Widget::recalc_child_pos() {
     case FlexJustify::END:
         current_lenght = is_row ? width : height;
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->x = current_lenght - child->width - flex_gap;
                 current_lenght -= child->width;
@@ -383,8 +389,9 @@ void Widget::recalc_child_pos() {
     case FlexJustify::SPACE_BETWEEN:
         current_lenght = 0;
         size = is_row ? width : height;
-        difference = (size - lenght) / children.size();
+        difference = (size - lenght) / (std::max(1, movable_children - 1));
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
@@ -397,9 +404,10 @@ void Widget::recalc_child_pos() {
         break;
     case FlexJustify::SPACE_AROUND:
         size = is_row ? width : height;
-        difference = (size - lenght) / (children.size() + 1);
-        current_lenght = std::max<int>(0, difference);
+        difference = (size - lenght) / movable_children;
+        current_lenght = std::max<int>(0, difference / 2);
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
@@ -415,6 +423,7 @@ void Widget::recalc_child_pos() {
     switch(flex_align) {
     case Align::START:
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->y = 0;
             }
@@ -425,6 +434,7 @@ void Widget::recalc_child_pos() {
         break;
     case Align::END:
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->y = std::max<int>(0, height - child->height);
             }
@@ -435,6 +445,7 @@ void Widget::recalc_child_pos() {
         break;
     case Align::CENTER:
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->y = std::max<int>(0, height - child->height) / 2;
             }
@@ -456,7 +467,8 @@ void Widget::add_child(Widget* child) {
     children.push_back(child);
     child->parent = this;
 
-    recalc_child_pos();
+    // Child changes means a recalculation of positions is in order
+    need_recalc = true;
 }
 
 static inline unsigned int power_two_floor(const unsigned int val) {
@@ -498,4 +510,24 @@ void Widget::set_tooltip(std::string text) {
     }
     tooltip = new Tooltip();
     tooltip->text(text);
+}
+
+void Widget::scroll(int y) {
+    int child_top = 0;
+    int child_bottom = height;
+    for(auto& child : children) {
+        if(!child->is_pinned) {
+            child_top = std::min(child_top, child->y);
+            child_bottom = std::max(child_bottom, child->y + (int)child->height);
+        }
+    }
+    child_bottom -= height;
+    y = std::min(-child_top, y);
+    y = std::max(-child_bottom, y);
+
+    for(auto& child : children) {
+        if(!child->is_pinned) {
+            child->y += y;
+        }
+    }
 }

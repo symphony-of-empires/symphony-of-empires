@@ -84,6 +84,7 @@ namespace UI {
 		PROGRESS_BAR,
 		SLIDER,
 		GROUP,
+		SCROLLBAR,
 	};
 
 	enum class Flex {
@@ -154,6 +155,7 @@ namespace UI {
 		virtual void text(const std::string& text);
 		virtual void set_tooltip(Tooltip* tooltip);
 		virtual void set_tooltip(std::string text);
+		void scroll(int y);
 
 		void above_of(const Widget& rhs);
 		void below_of(const Widget& rhs);
@@ -207,6 +209,7 @@ namespace UI {
 			dead = true;
 		};
 
+
 		std::function<void(Widget&)> on_update;
 		std::function<void(Widget&, glm::ivec2 mouse_pos, glm::ivec2 widget_pos)> on_hover;
 		std::function<void(Widget&)> on_click;
@@ -227,6 +230,7 @@ namespace UI {
 	private:
 		// Used internally for managing widgets outside of window bounds
 		bool is_show = true;
+		bool need_recalc = false;
 		// Used internally for drawing hover effects on clickable child widgets
 		bool is_clickable = false;
 		bool dead = false;
