@@ -80,6 +80,7 @@ namespace UI {
         bool check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off);
         UI::ClickState check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, UI::ClickState click_state, bool clickable);
         bool check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y);
+        // Render the widget and it's children
         void render_recursive(Widget& widget, UnifiedRender::Rect viewport, glm::vec2 offset);
         int do_tick_recursive(Widget& w);
         void clear_dead_recursive(Widget* w);
@@ -92,6 +93,7 @@ namespace UI {
         void load_textures();
         void add_widget(Widget* widget);
         void remove_widget(Widget* widget);
+        // Render all widgets
         void render_all(glm::ivec2 mouse_pos);
         void resize(const int width, const int height);
 

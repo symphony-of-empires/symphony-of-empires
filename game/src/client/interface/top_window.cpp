@@ -32,6 +32,8 @@
 #include "client/interface/policies.hpp"
 #include "client/interface/army.hpp"
 #include "client/interface/technology.hpp"
+#include "client/interface/pop_window.hpp"
+#include "client/interface/factory_window.hpp"
 #include "io_impl.hpp"
 #include "unified_render/ui/components.hpp"
 
@@ -77,24 +79,33 @@ TopWindow::TopWindow(GameState& _gs)
     });
     economy_ibtn->set_tooltip("Economy & World Market");
 
+    auto* pops_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/pv_1.png", flex_column);
+    pops_ibtn->on_click = ([this](UI::Widget& w) {
+        new Interface::PopWindow(this->gs);
+    });
+    pops_ibtn->set_tooltip("Population");
+
+    auto* factory_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/pv_0.png", flex_column);
+    factory_ibtn->on_click = ([this](UI::Widget&) {
+        new Interface::FactoryWindow(this->gs);
+    });
+    factory_ibtn->set_tooltip("Factories");
+
     auto* military_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/military_score.png", flex_column);
-    military_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
-        auto& o = static_cast<TopWindow&>(*w.parent->parent);
-        new Interface::ArmyView(o.gs);
+    military_ibtn->on_click = ([this](UI::Widget&) {
+        new Interface::ArmyView(this->gs);
     });
     military_ibtn->set_tooltip("Military");
 
     auto* research_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/tech.png", flex_column);
-    research_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
-        auto& o = static_cast<TopWindow&>(*w.parent->parent);
-        new Interface::TechTreeView(o.gs);
+    research_ibtn->on_click = ([this](UI::Widget&) {
+        new Interface::TechTreeView(this->gs);
     });
     research_ibtn->set_tooltip("Research");
 
     auto* save_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/save.png", flex_column);
-    save_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
-        auto& o = static_cast<TopWindow&>(*w.parent->parent);
-        save(o.gs);
+    save_ibtn->on_click = ([this](UI::Widget&) {
+        save(this->gs);
     });
     save_ibtn->set_tooltip("Saves the current game; TODO: SAVE LUA STATE");
 

@@ -272,10 +272,11 @@ void Context::resize(int _width, int _height) {
 }
 
 void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport, glm::vec2 offset) {
+    // Only render widget that are shown
     if(!w.is_show || !w.is_render) {
         return;
     }
-
+    // Only render widget that have a width and height
     if(!w.width || !w.height) {
         return;
     }
@@ -286,10 +287,11 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport, glm::vec
     }
 
     glm::ivec2 size{ w.width, w.height };
+    // Get the widget origin relative to the parent or screen 
     offset = get_pos(w, offset);
     auto viewport_offset = get_pos(w, viewport.position());
     UnifiedRender::Rect local_viewport = UnifiedRender::Rect{ offset, size };
-
+    // Set the viewport to the intersection of the parents and currents widgets viewport
     if(!w.parent || w.parent->type != UI::WidgetType::GROUP) {
         local_viewport = viewport.intersection(local_viewport);
     }
@@ -297,7 +299,9 @@ void Context::render_recursive(Widget& w, UnifiedRender::Rect viewport, glm::vec
 
     local_viewport.offset(-offset);
     glPushMatrix();
+    // Offset the widget start pos
     glTranslatef(offset.x, offset.y, 0.f);
+    // Render the widget, only render what's inside the viewport
     w.on_render(*this, local_viewport);
     glPopMatrix();
 
