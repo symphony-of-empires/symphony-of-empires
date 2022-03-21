@@ -1,5 +1,5 @@
-// Symphony of Empires
-// Copyright (C) 2021, Symphony of Empires contributors
+// Unified Render - General purpouse game engine
+// Copyright (C) 2021, Unified Render contributors
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,31 +17,27 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      unified_render/ui/window.cpp
+//      string_format.hpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Formatting of strings
 // ----------------------------------------------------------------------------
 
-#include "unified_render/ui/window.hpp"
-#include "unified_render/ui/ui.hpp"
-#include "unified_render/state.hpp"
-#include "unified_render/path.hpp"
-#include "unified_render/texture.hpp"
+#pragma once
 
-using namespace UI;
+#include <memory>
+#include <string>
+#include <stdexcept>
 
-Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI::WidgetType::WINDOW),
-    is_movable{ true }
-{
-    padding = glm::ivec2(8, 24 + 8);
-    current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
-    is_scroll = true;
-    text_color = UnifiedRender::Color(1., 1., 1.);
-
-    glm::ivec2 size(4, 4);
-    glm::ivec2 texture_size(10, 10);
-    glm::ivec2 offset(0, 24);
-    border = Border(g_ui_context->border_tex, size, texture_size, offset);
+namespace UnifiedRender {
+    template<typename ... Args>
+    std::string string_format(const std::string& format, Args ... args)
+    {
+        int size_s = std::snprintf(nullptr, 0, format.c_str(), args ...) + 1; // Extra space for '\0'
+        if(size_s <= 0){ throw std::runtime_error("Error during formatting."); }
+        auto size = static_cast<size_t>(size_s);
+        auto buf = std::make_unique<char[]>(size);
+        std::snprintf(buf.get(), size, format.c_str(), args ...);
+        return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
+    }
 }

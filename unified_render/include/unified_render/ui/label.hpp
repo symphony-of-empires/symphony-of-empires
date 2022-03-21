@@ -44,7 +44,6 @@ namespace UI {
     public:
         Label(int x, int y, const std::string& text = " ", Widget* parent = nullptr);
         virtual ~Label();
-        virtual void on_render(Context& ctx, UnifiedRender::Rect viewport);
         virtual void text(const std::string& _text);
     };
 };

@@ -17,48 +17,25 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      unified_render/ui/label.cpp
+//      unified_render/ui/scrollbar.hpp
 //
 // Abstract:
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include <cstdlib>
-#include <cstring>
-#include <string>
-#include <cmath>
-#include <algorithm>
-
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <glm/vec2.hpp>
+#pragma once
 
 #include "unified_render/ui/widget.hpp"
-#include "unified_render/ui/label.hpp"
-#include "unified_render/ui/ui.hpp"
-#include "unified_render/path.hpp"
-#include "unified_render/print.hpp"
-#include "unified_render/texture.hpp"
-#include "unified_render/rectangle.hpp"
-#include "unified_render/state.hpp"
 
-using namespace UI;
-
-Label::Label(int _x, int _y, const std::string& _text, Widget* _parent)
-    : Widget(_parent, _x, _y, 0, 0, UI::WidgetType::LABEL)
-{
-    text(_text);
-    width = text_texture->width + text_offset_x;
-    height = text_texture->height;
-}
-
-Label::~Label(void) {
-    
-}
-
-void Label::text(const std::string& _text) {
-    UI::Widget::text(_text);
-
-    width = text_texture->width + text_offset_x;
-    height = text_texture->height;
-}
+namespace UI {
+    /**
+     * @ingroup UI
+     * @brief Window widget
+     *
+     */
+    class Scrollbar : public Widget {
+    public:
+        Scrollbar(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
+        virtual ~Scrollbar() override {};
+    };
+};

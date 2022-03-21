@@ -63,7 +63,8 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
         x += parent->padding.x;
         y += parent->padding.y;
         parent->add_child(this);
-    } else {
+    }
+    else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }
@@ -301,19 +302,24 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     if(text_texture != nullptr) {
+        if(!text_texture->gl_tex_num) {
+            text_texture->to_opengl();
+        }
         glColor3f(text_color.r, text_color.g, text_color.b);
 
         int x_offset = text_offset_x;
         int y_offset = text_offset_y;
         if(text_align_x == UI::Align::CENTER) {
             x_offset = (width - text_texture->width) / 2;
-        } else if(text_align_x == UI::Align::END) {
+        }
+        else if(text_align_x == UI::Align::END) {
             x_offset += width - text_texture->width;
         }
 
         if(text_align_y == UI::Align::CENTER) {
             y_offset = (height - text_texture->height) / 2;
-        } else if (text_align_y == UI::Align::END) {
+        }
+        else if(text_align_y == UI::Align::END) {
             y_offset += height - text_texture->height;
         }
         draw_rectangle(x_offset, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
@@ -341,8 +347,12 @@ void Widget::recalc_child_pos() {
 
     bool is_row = flex == Flex::ROW;
     size_t lenght = 0;
+    int movable_children = 0;
     for(auto& child : children) {
-        lenght += is_row ? child->width : child->height;
+        if(!child->is_pinned) {
+            lenght += is_row ? child->width : child->height;
+            movable_children++;
+        }
     }
 
     size_t current_lenght = 0;
@@ -351,10 +361,12 @@ void Widget::recalc_child_pos() {
     case FlexJustify::START:
         current_lenght = 0;
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + flex_gap;
-            } else {
+            }
+            else {
                 child->y = current_lenght;
                 current_lenght += child->height + flex_gap;
             }
@@ -363,10 +375,12 @@ void Widget::recalc_child_pos() {
     case FlexJustify::END:
         current_lenght = is_row ? width : height;
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->x = current_lenght - child->width - flex_gap;
                 current_lenght -= child->width;
-            } else {
+            }
+            else {
                 child->y = current_lenght - child->height - flex_gap;
                 current_lenght -= child->height;
             }
@@ -375,12 +389,14 @@ void Widget::recalc_child_pos() {
     case FlexJustify::SPACE_BETWEEN:
         current_lenght = 0;
         size = is_row ? width : height;
-        difference = (size - lenght) / children.size();
+        difference = (size - lenght) / (std::max(1, movable_children - 1));
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
-            } else {
+            }
+            else {
                 child->y = current_lenght;
                 current_lenght += child->height + difference;
             }
@@ -388,13 +404,15 @@ void Widget::recalc_child_pos() {
         break;
     case FlexJustify::SPACE_AROUND:
         size = is_row ? width : height;
-        difference = (size - lenght) / (children.size() + 1);
-        current_lenght = std::max<int>(0, difference);
+        difference = (size - lenght) / movable_children;
+        current_lenght = std::max<int>(0, difference / 2);
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
-            } else {
+            }
+            else {
                 child->y = current_lenght;
                 current_lenght += child->height + difference;
             }
@@ -405,27 +423,33 @@ void Widget::recalc_child_pos() {
     switch(flex_align) {
     case Align::START:
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->y = 0;
-            } else {
+            }
+            else {
                 child->x = 0;
             }
         }
         break;
     case Align::END:
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->y = std::max<int>(0, height - child->height);
-            } else {
+            }
+            else {
                 child->x = std::max<int>(0, width - child->width);
             }
         }
         break;
     case Align::CENTER:
         for(auto& child : children) {
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->y = std::max<int>(0, height - child->height) / 2;
-            } else {
+            }
+            else {
                 child->x = std::max<int>(0, width - child->width) / 2;
             }
         }
@@ -443,7 +467,8 @@ void Widget::add_child(Widget* child) {
     children.push_back(child);
     child->parent = this;
 
-    recalc_child_pos();
+    // Child changes means a recalculation of positions is in order
+    need_recalc = true;
 }
 
 static inline unsigned int power_two_floor(const unsigned int val) {
@@ -485,4 +510,24 @@ void Widget::set_tooltip(std::string text) {
     }
     tooltip = new Tooltip();
     tooltip->text(text);
+}
+
+void Widget::scroll(int y) {
+    int child_top = 0;
+    int child_bottom = height;
+    for(auto& child : children) {
+        if(!child->is_pinned) {
+            child_top = std::min(child_top, child->y);
+            child_bottom = std::max(child_bottom, child->y + (int)child->height);
+        }
+    }
+    child_bottom -= height;
+    y = std::min(-child_top, y);
+    y = std::max(-child_bottom, y);
+
+    for(auto& child : children) {
+        if(!child->is_pinned) {
+            child->y += y;
+        }
+    }
 }
