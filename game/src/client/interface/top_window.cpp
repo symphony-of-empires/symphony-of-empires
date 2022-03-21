@@ -212,7 +212,7 @@ TimeControlView::TimeControlView(GameState& _gs)
         const int day = world->time % world->ticks_per_month;
         const int month = (world->time / world->ticks_per_month) % 12;
         const int year = world->time / world->ticks_per_month / 12;
-        w.text(day_names[day % 7] + ", " + month_names[month] + " " + std::to_string(day) + ", " + std::to_string(year));
+        w.text(day_names[day % 7] + ", " + month_names[month] + " " + std::to_string(day + 1) + ", " + std::to_string(year));
     });
     time_lab->font = font;
     time_lab->text_color = text_color;
