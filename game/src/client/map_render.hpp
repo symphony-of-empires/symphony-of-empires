@@ -89,7 +89,7 @@ public:
 
     MapOptions options;
 private:
-    std::unique_ptr<UnifiedRender::Texture> gen_border_sdf();
+    void update_border_sdf(UnifiedRender::Rect update_area);
 
     const World& world;
 
@@ -116,8 +116,8 @@ private:
     UnifiedRender::Quad2D* map_2d_quad;
 
     std::unique_ptr<UnifiedRender::OpenGL::Program> map_shader;
-    std::unique_ptr<UnifiedRender::OpenGL::Program> border_sdf_shader;
+    std::unique_ptr<UnifiedRender::OpenGL::Program> sdf_shader;
     std::unique_ptr<UnifiedRender::OpenGL::Program> border_gen_shader;
     std::unique_ptr<UnifiedRender::OpenGL::Program> output_shader;
-    UnifiedRender::Texture* border_sdf;
+    std::unique_ptr<UnifiedRender::Texture> border_sdf;
 };

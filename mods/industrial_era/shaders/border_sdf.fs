@@ -36,7 +36,7 @@ void main() {
 	nCoord[7] = m_coord + j_vec.zz * pix;
 
 	vec4 m_frag_data = fetch_pixel(m_coord);
-	// if (jump < 8) {
+	// if (jump > 8) {
 	// 	f_frag_color = m_frag_data;
 	// 	return;
 	// }

@@ -1,13 +1,12 @@
 #version 330 compatibility
-precision lowp float;
 
 out vec4 f_frag_color;
 in vec2 v_texcoord;
 
-provided vec2 map_size;
-provided sampler2D tile_map;
-provided sampler2D terrain_map;
-provided sampler2D tile_sheet_nation;
+uniform vec2 map_size;
+uniform sampler2D tile_map;
+uniform sampler2D terrain_map;
+uniform sampler2D tile_sheet_nation;
 
 float is_not_lake(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
@@ -31,10 +30,19 @@ vec2 getBorder(vec2 texcoord) {
 	vec2 coordLD = mPos + pix * vec2(-0.25, +0.25);
 	vec2 coordRU = mPos + pix * vec2(+0.25, -0.25);
 	vec2 coordRD = mPos + pix * vec2(+0.25, +0.25);
-	vec4 provienceLU = texture(tile_map, coordLU).xyzw;
-	vec4 provienceLD = texture(tile_map, coordLD).xyzw;
-	vec4 provienceRU = texture(tile_map, coordRU).xyzw;
-	vec4 provienceRD = texture(tile_map, coordRD).xyzw;
+
+	vec4 provienceLU, provienceLD, provienceRU, provienceRD;
+	provienceLU.xy = texture(tile_map, coordLU).xy;
+	provienceLD.xy = texture(tile_map, coordLD).xy;
+	provienceRU.xy = texture(tile_map, coordRU).xy;
+	provienceRD.xy = texture(tile_map, coordRD).xy;
+
+	vec2 scale = vec2(255./256.);
+	provienceLU.zw = texture(tile_sheet_nation, provienceLU.xy * scale).xy;
+	provienceLD.zw = texture(tile_sheet_nation, provienceLD.xy * scale).xy;
+	provienceRU.zw = texture(tile_sheet_nation, provienceRU.xy * scale).xy;
+	provienceRD.zw = texture(tile_sheet_nation, provienceRD.xy * scale).xy;
+
 	vec2 x0 = sum(provienceLU, provienceRU) * is_not_lake(coordLU) * is_not_lake(coordRU);
 	vec2 x1 = sum(provienceLD, provienceRD) * is_not_lake(coordLD) * is_not_lake(coordRD);
 	vec2 y0 = sum(provienceLU, provienceLD) * is_not_lake(coordLU) * is_not_lake(coordLD);

@@ -44,6 +44,14 @@ namespace UnifiedRender {
 
         }
 
+        inline float width(void) const {
+            return right - left;
+        }
+
+        inline float height(void) const {
+            return bottom - top;
+        }
+
         inline glm::vec2 size(void) const {
             return glm::vec2{ right - left, bottom - top };
         }
@@ -60,6 +68,13 @@ namespace UnifiedRender {
         inline void position(glm::vec2 position) {
             left = position.x;
             top = position.y;
+        }
+
+        inline void scale(glm::vec2 factor) {
+            left *= factor.x;
+            top *= factor.y;
+            right *= factor.x;
+            bottom *= factor.y;
         }
 
         inline void offset(glm::vec2 offset) {

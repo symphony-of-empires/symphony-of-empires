@@ -103,7 +103,7 @@ namespace Path {
             std::string rsult = get_full() + path + str;
             if(file_exists(rsult) == true) {
                 end_path += rsult;
-                print_info("Path '%s' exists", end_path.c_str());
+                // print_info("Path '%s' exists", end_path.c_str());
                 file_found = true;
                 break;
             }
@@ -144,6 +144,10 @@ namespace Path {
 
     std::vector<std::string> get_data(const std::string& str) {
         std::vector<std::string> files_text;
+        if(mod_paths.size() == 0) {
+            print_error("No mods founds");
+        }
+        bool found = false;
         for(const auto& path : mod_paths) {
             std::string rsult = get_full() + path + str;
 #ifdef windows
@@ -160,10 +164,11 @@ namespace Path {
 
                 files_text.push_back(content);
                 print_info("Path '%s' exists (added to string list)", rsult.c_str());
+                found = true;
             }
-            else {
-                print_info("Path '%s' does not exist so not added", rsult.c_str());
-            }
+        }
+        if(!found) {
+            print_info("Path '%s' does not exist so not added", str);
         }
         return files_text;
     }

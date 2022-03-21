@@ -5,6 +5,10 @@ project(SymphonyOfEmpires)
 option(BUILD_ENGINE "Enable building UnifiedRender" ON)
 option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
 
+IF(LOG_TO_CONSOLE)
+	add_compile_definitions(LOG_TO_CONSOLE)
+ENDIF()
+
 # Backend selection
 IF(UR_BACKEND_OPENGL)
 	message("Using OpenGL backend")

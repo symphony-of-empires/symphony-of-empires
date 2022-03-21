@@ -132,190 +132,6 @@ UnifiedRender::State::State(void) {
     model_man = new UnifiedRender::ModelManager();
     package_man = new UnifiedRender::IO::PackageManager();
 
-    // Compile built-in shaders
-
-    // Big library used mostly by every shader, compiled for faster linking or other stuff
-    builtin_shaders["fs_lib"] = std::unique_ptr<UnifiedRender::OpenGL::FragmentShader>(new UnifiedRender::OpenGL::FragmentShader(
-        "#version 330 compatibility\n"
-        "precision lowp float;\n"
-        "\n"
-        "// Generic function for normalization of the water\n"
-        "vec3 get_water_normal(float time, sampler2D wave1, sampler2D wave2, vec2 tex_coords) {\n"
-        "    float offset = time * 0.01;\n"
-        "    vec2 coords = tex_coords * 50.0;\n"
-        "    vec3 normal1 = texture(wave1, coords + vec2(1.0) * offset).xyz;\n"
-        "    normal1 = normalize(normal1 * 2.0 - 1.0);\n"
-        "    vec3 normal2 = texture(wave2, coords + vec2(0.2, -0.8) * offset).xyz;\n"
-        "    normal2 = normalize(normal2 * 2.0 - 1.0);\n"
-        "    vec3 normal = normalize(normal1 + normal2);\n"
-        "    normal.z *= -1.0;\n"
-        "    return normal;\n"
-        "}\n"
-        "\n"
-        "// https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm\n"
-        "vec4 no_tiling(sampler2D tex, vec2 uv, sampler2D noisy_tex) {\n"
-        "    float k = texture(noisy_tex, 0.005 * uv).x; // cheap (cache friendly) lookup\n"
-        "    float v = 1.0;\n"
-        "\n"
-        "    vec2 duvdx = dFdx(uv);\n"
-        "    vec2 duvdy = dFdx(uv);\n"
-        "\n"
-        "    float l = k * 8.0;\n"
-        "    float f = fract(l);\n"
-        "\n"
-        "    float ia = floor(l); // my method\n"
-        "    float ib = ia + 1.0;\n"
-        "\n"
-        "    vec2 offa = sin(vec2(3.0f, 7.0) * ia); // can replace with any other hash\n"
-        "    vec2 offb = sin(vec2(3.0f, 7.0) * ib); // can replace with any other hash\n"
-        "\n"
-        "    vec4 cola = textureGrad(tex, uv + v * offa, duvdx, duvdy);\n"
-        "    vec4 colb = textureGrad(tex, uv + v * offb, duvdx, duvdy);\n"
-        "    vec4 diff = cola - colb;\n"
-        "    return mix(cola, colb, smoothstep(0.2, 0.8, f - 0.1 * (diff.x + diff.y + diff.z)));\n"
-        "}\n"
-        "\n"
-        "// Watercolor efffect\n"
-        "float water_aquarelle(sampler2D noise_tex, vec2 tex_coords) {\n"
-        "    vec2 uv = tex_coords * 20.0;\n"
-        "    vec3 col = vec3(1.0);\n"
-        "    \n"
-        "    float strenght = 0.5;\n"
-        "    float tex3 = textureLod(noise_tex, uv * 0.02, 1.5).x;\n"
-        "    float layer1 = mix(strenght, 1.0, tex3);\n"
-        "    \n"
-        "    uv *= 2.1;\n"
-        "    float tex4 = textureLod(noise_tex, -uv * 0.02 + 0.3, 1.5).x;\n"
-        "    float layer2 = mix(strenght, 1.0,  tex4);\n"
-        "    layer1 += layer2;\n"
-        "    layer1 *= 0.69;\n"
-        "    layer1 = clamp(layer1, 0.0, 1.05);\n"
-        "    return layer1;\n"
-        "}\n"
-    ));
-
-    // 2D generic fragment shader
-    builtin_shaders["fs_2d"] = std::unique_ptr<UnifiedRender::OpenGL::FragmentShader>(new UnifiedRender::OpenGL::FragmentShader(
-        "#version 330 compatibility\n"
-        "precision lowp float;\n"
-        "\n"
-        "out vec4 f_frag_color;\n"
-        "in vec2 v_texcoord;\n"
-        "\n"
-        "provided sampler2D tex;\n"
-        "\n"
-        "void main() {\n"
-        "    f_frag_color = texture(tex, v_texcoord);\n"
-        "}\n"
-    ));
-
-    // 2D generic vertex shader
-    builtin_shaders["vs_2d"] = std::unique_ptr<UnifiedRender::OpenGL::VertexShader>(new UnifiedRender::OpenGL::VertexShader(
-        "#version 330 compatibility\n"
-        "precision lowp float;\n"
-        "\n"
-        "layout (location = 0) in vec2 m_pos;\n"
-        "layout (location = 1) in vec2 m_texcoord;\n"
-        "\n"
-        "out vec2 v_texcoord;\n"
-        "\n"
-        "void main() {\n"
-        "    gl_Position = vec4(m_pos.xy, 0.0, 1.0);\n"
-        "    v_texcoord = m_texcoord;\n"
-        "}\n"
-    ));
-
-    // 3D generic fragment shader
-    builtin_shaders["fs_3d"] = std::unique_ptr<UnifiedRender::OpenGL::FragmentShader>(new UnifiedRender::OpenGL::FragmentShader(
-        "#version 330 compatibility\n"
-        "precision lowp float;\n"
-        "\n"
-        "out vec4 f_color;\n"
-        "in vec2 v_texcoord;\n"
-        "\n"
-        "uniform sampler2D diffuse_map;\n"
-        "\n"
-        "uniform vec3 ambient_color;\n"
-        "uniform vec3 diffuse_color;\n"
-        "\n"
-        "void main() {\n"
-        "    vec4 tex_color = texture(diffuse_map, v_texcoord);\n"
-        //"    tex_color.rgb *= ambient_color * diffuse_color;\n"
-        "    f_color = tex_color;\n"
-        "}\n"
-    ));
-
-    // 3D generic vertex shader
-    builtin_shaders["vs_3d"] = std::unique_ptr<UnifiedRender::OpenGL::VertexShader>(new UnifiedRender::OpenGL::VertexShader(
-        "#version 330 compatibility\n"
-        "precision lowp float;\n"
-        "\n"
-        "layout (location = 0) in vec3 m_pos;\n"
-        "layout (location = 1) in vec2 m_texcoord;\n"
-        "\n"
-        "provided mat4 view;\n"
-        "provided mat4 projection;\n"
-        "provided mat4 model;\n"
-        "\n"
-        "out vec2 v_texcoord;\n"
-        "\n"
-        "void main() {\n"
-        "    v_texcoord = m_texcoord;\n"
-        "    gl_Position = projection * view * model * vec4(m_pos, 1.0);\n"
-        "}\n"
-    ));
-
-    builtin_shaders["vs_font_sdf"] = std::unique_ptr<UnifiedRender::OpenGL::VertexShader>(new UnifiedRender::OpenGL::VertexShader(
-        "#version 330 compatibility\n"
-        "precision lowp float;\n"
-        "\n"
-        "layout (location = 0) in vec3 m_pos;\n"
-        "layout (location = 1) in vec2 m_texcoord;\n"
-        "\n"
-        "uniform mat4 view;\n"
-        "uniform mat4 projection;\n"
-        "uniform mat4 model;\n"
-        "\n"
-        "out vec2 v_texcoord;\n"
-        "\n"
-        "void main() {\n"
-        "    v_texcoord = m_texcoord;\n"
-        "    gl_Position = projection * view * model * vec4(m_pos, 1.0);\n"
-        "}\n"
-    ));
-
-    builtin_shaders["fs_font_sdf"] = std::unique_ptr<UnifiedRender::OpenGL::FragmentShader>(new UnifiedRender::OpenGL::FragmentShader(
-        "#version 330 compatibility\n"
-        "precision lowp float;\n"
-        "\n"
-        "out vec4 f_color;\n"
-        "in vec2 v_texcoord;\n"
-        "\n"
-        "uniform sampler2D atlas;\n"
-        "uniform float px_range;\n"
-        "\n"
-        "float screen_px_range() {\n"
-        "    vec2 uv = v_texcoord;\n"
-        "    uv.y = 1.0 - uv.y;\n"
-        "    vec2 unit_range = vec2(px_range) / vec2(textureSize(atlas, 0));\n"
-        "    return max(0.5 * dot(unit_range, vec2(1.0) / fwidth(uv)), 1.0);\n"
-        "}\n"
-        "\n"
-        "float median(float r, float g, float b) {\n"
-        "    return max(min(r, g), min(max(r, g), b));\n"
-        "}\n"
-        "\n"
-        "void main() {\n"
-        "    vec2 uv = v_texcoord;\n"
-        "    uv.y = 1. - uv.y;\n"
-        "    vec3 msd = texture(atlas, uv).rgb;\n"
-        "    float sd = median(msd.r, msd.g, msd.b);\n"
-        "    float screen_px_distance = screen_px_range() * (sd - 0.5);\n"
-        "    float opacity = clamp(screen_px_distance + 0.5, 0.0, 1.0);\n"
-        "    f_color = vec4(0.0, 0.0, 0.0, opacity);\n"
-        "}\n"
-    ));
-
     const std::string asset_path = Path::get_full();
 
     print_info("Assets path: %s", asset_path.c_str());
@@ -325,6 +141,36 @@ UnifiedRender::State::State(void) {
             Path::add_path(path.string());
         }
     }
+
+    // Compile built-in shaders
+    const auto read_file = [](std::string file_name) {
+        return Path::cat_strings(Path::get_data("shaders/" + file_name));
+    };
+    const auto load_fragment_shader = [read_file](std::string file_name) {
+        return std::unique_ptr<UnifiedRender::OpenGL::FragmentShader>(new UnifiedRender::OpenGL::FragmentShader(read_file(file_name)));
+    };
+    const auto load_vertex_shader = [read_file](std::string file_name) {
+        return std::unique_ptr<UnifiedRender::OpenGL::VertexShader>(new UnifiedRender::OpenGL::VertexShader(read_file(file_name)));
+    };
+
+    // Big library used mostly by every shader, compiled for faster linking or other stuff
+    builtin_shaders["fs_lib"] = load_fragment_shader("fs_lib.fs");
+
+    // 2D generic fragment shader
+    builtin_shaders["fs_2d"] = load_fragment_shader("fs_2d.fs");
+
+    // 2D generic vertex shader
+    builtin_shaders["vs_2d"] = load_vertex_shader("vs_2d.vs");
+
+    // 3D generic fragment shader
+    builtin_shaders["fs_3d"] = load_fragment_shader("fs_3d.fs");
+
+    // 3D generic vertex shader
+    builtin_shaders["vs_3d"] = load_vertex_shader("vs_3d.vs");
+
+    builtin_shaders["vs_font_sdf"] = load_vertex_shader("vs_font_sdf.vs");
+
+    builtin_shaders["fs_font_sdf"] = load_fragment_shader("fs_font_sdf.fs");
 
     // Plugins system (still wip)
     for(const auto& plugin : Path::get_all("plugin.dll")) {
@@ -336,8 +182,8 @@ UnifiedRender::State::State(void) {
             UnifiedRender::Log::error("plugin", "DLL file " + plugin + " not found");
             continue;
         }
-        
-        typedef int(__stdcall* plugin_dll_entry_t)(const char *gameid, int gamever);
+
+        typedef int(__stdcall* plugin_dll_entry_t)(const char* gameid, int gamever);
         plugin_dll_entry_t entry = (plugin_dll_entry_t)GetProcAddress(hGetProcIDDLL, "__unirend_entry");
         if(!entry) {
             UnifiedRender::Log::warning("plugin", "Can't find __unirend_entry on " + plugin);
@@ -405,8 +251,8 @@ void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
                 gs.sound_queue.erase(gs.sound_queue.begin() + i);
                 continue;
             }
-			
-			const float volume = (SDL_MIX_MAXVOLUME / 100.f) * gs.sound_volume;
+
+            const float volume = (SDL_MIX_MAXVOLUME / 100.f) * gs.sound_volume;
             SDL_MixAudio(stream, &sound->data[sound->pos], amount, volume);
             sound->pos += amount;
             i++;
@@ -425,8 +271,8 @@ void UnifiedRender::State::mixaudio(void* userdata, uint8_t* stream, int len) {
                 gs.music_queue.erase(gs.music_queue.begin() + i);
                 continue;
             }
-			
-			const float volume = (SDL_MIX_MAXVOLUME / 100.f) * gs.music_volume;
+
+            const float volume = (SDL_MIX_MAXVOLUME / 100.f) * gs.music_volume;
             const float fade = (SDL_MIX_MAXVOLUME / 100.f) * gs.music_fade_value;
             SDL_MixAudio(stream, &music->data[music->pos], amount, volume - fade);
             music->pos += amount;
