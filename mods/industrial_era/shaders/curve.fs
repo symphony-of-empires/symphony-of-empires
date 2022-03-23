@@ -9,6 +9,7 @@ uniform sampler2D water;
 
 void main() {
     f_color.xyz = texture(water, v_texcoord).xyz;
+    f_color.xyz *= 0.6;
 	f_color.xyz = pow(f_color.xyz, vec3(1.0 / 2.2));
 
     vec2 uv = v_texcoord;

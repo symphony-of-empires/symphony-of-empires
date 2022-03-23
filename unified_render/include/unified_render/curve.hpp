@@ -37,16 +37,17 @@ namespace UnifiedRender {
 
     class Curve {
     public:
-        Curve(std::vector<glm::vec2> points, float width);
-        Curve(glm::vec2 p1, glm::vec2 p2, float width);
+        Curve(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width);
+        // Curve(glm::vec2 p1, glm::vec2 p2, float width);
 
 #ifdef UR_BACKEND_OPENGL
         void draw();
 #endif
     private:
         void create_line();
+        std::vector<glm::vec3> points;
+        std::vector<glm::vec3> normals;
         float width;
-        std::vector<glm::vec2> points;
         std::vector<Quad*> quads;
     };
 };

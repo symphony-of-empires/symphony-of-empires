@@ -254,7 +254,6 @@ void MapRender::update_options(MapOptions new_options) {
 // Used to create borders thicker than one tile
 void MapRender::update_border_sdf(UnifiedRender::Rect update_area) {
     glEnable(GL_SCISSOR_TEST);
-    glDisable(GL_CULL_FACE);
     glViewport(update_area.left, update_area.top, update_area.width(), update_area.height());
     glScissor(update_area.left, update_area.top, update_area.width(), update_area.height());
     auto border_tex = UnifiedRender::Texture(world.width, world.height);

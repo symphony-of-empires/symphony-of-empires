@@ -35,18 +35,9 @@
 
 using namespace UnifiedRender;
 
-Curve::Curve(std::vector<glm::vec2> _points, float _width)
-    : width{ _width }
+Curve::Curve(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width)
+    : points{ points }, normals{ normals }, width{ width }
 {
-    points = _points;
-    create_line();
-};
-
-Curve::Curve(glm::vec2 p1, glm::vec2 p2, float _width)
-    : width{ _width }
-{
-    points.push_back(p1);
-    points.push_back(p2);
     create_line();
 };
 
@@ -56,17 +47,19 @@ void Curve::create_line() {
     glm::vec3 prev_c3;
     glm::vec3 prev_c4;
     for(int i = 0; i < points.size() - 1; i++) {
-        glm::vec2 p1 = points[i];
-        glm::vec2 p2 = points[i + 1];
+        glm::vec3 p1 = points[i];
+        glm::vec3 p2 = points[i + 1];
+        glm::vec3 normal = normals[i];
+
         // Vec from p1 to p2
-        glm::vec2 p1t2 = p2 - p1;
+        glm::vec3 p1t2 = p2 - p1;
         // Orthogonal vector to the line from p1 to p2
-        glm::vec2 ortho = glm::vec2(p1t2.y, -p1t2.x);
+        glm::vec3 ortho = glm::cross(p1t2, normal);//glm::vec2(p1t2.y, -p1t2.x);
         // ortho = ortho.y > 0 ? ortho : -ortho; // Needed for window order of triangle 
         ortho = glm::normalize(ortho);
         // Creates the line corners
-        glm::vec3 c1 = glm::vec3(p1 + ortho * width * 0.5f, -0.05);
-        glm::vec3 c2 = glm::vec3(p1 - ortho * width * 0.5f, -0.05);
+        glm::vec3 c1 = p1 - ortho * width * 0.5f;
+        glm::vec3 c2 = p1 + ortho * width * 0.5f;
         if(i != 0) {
             c1 = glm::mix(c1, prev_c3, .5f);
             c2 = glm::mix(c2, prev_c4, .5f);
@@ -75,8 +68,8 @@ void Curve::create_line() {
             UnifiedRender::Quad* quad = new UnifiedRender::Quad(prev_c1, prev_c2, prev_c4, prev_c3);
             quads.push_back(quad);
         }
-        glm::vec3 c3 = glm::vec3(p2 + ortho * width * 0.5f, -0.05);
-        glm::vec3 c4 = glm::vec3(p2 - ortho * width * 0.5f, -0.05);
+        glm::vec3 c3 = p2 - ortho * width * 0.5f;
+        glm::vec3 c4 = p2 + ortho * width * 0.5f;
         prev_c1 = c1;
         prev_c2 = c2;
         prev_c3 = c3;

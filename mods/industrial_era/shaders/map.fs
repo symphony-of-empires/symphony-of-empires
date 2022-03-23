@@ -474,6 +474,7 @@ void main() {
 #ifdef RIVERS
 	float river = texture(river_texture, tex_coords).x;
 	river = smoothstep(0.1, 0.65, river);
+	river *= far_from_map;
 	out_color = mix(out_color, river_col * out_color, river * 0.5);
 #endif
 

@@ -67,7 +67,7 @@ namespace UnifiedRender {
         int resolution;
     public:
         float radius;
-        Sphere(float x, float y, float z, float radius, int resolution);
+        Sphere(float x, float y, float z, float radius, int resolution, bool cw_winding = true);
         ~Sphere();
     };
 }

@@ -614,7 +614,7 @@ void Map::draw(const GameState& gs) {
     }
 
     map_render->draw(camera, view_mode);
-    //rivers->draw(camera);
+    rivers->draw(camera);
 
     // TODO: We need to better this
     obj_shader->use();
@@ -710,18 +710,18 @@ void Map::draw(const GameState& gs) {
     glm::vec3 map_pos = camera->get_map_pos();
     float distance_to_map = map_pos.z / world.width;
 
-    glDepthFunc(GL_ALWAYS);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
+    // glDepthFunc(GL_ALWAYS);
+    // glEnable(GL_CULL_FACE);
+    // glCullFace(GL_BACK);
+    // glFrontFace(GL_CCW);
     if(distance_to_map < 0.070) {
         map_font->draw(province_labels, projection, view);
     }
     else {
         map_font->draw(nation_labels, projection, view);
     }
-    glDepthFunc(GL_LEQUAL);
-    glDisable(GL_CULL_FACE);
+    // glDepthFunc(GL_LEQUAL);
+    // glDisable(GL_CULL_FACE);
 
     obj_shader->use();
     obj_shader->set_uniform("model", glm::mat4(1.f));
@@ -757,7 +757,7 @@ void Map::draw(const GameState& gs) {
         obj_shader->set_texture(0, "diffuse_map", skybox_texture);
         obj_shader->set_uniform("model", model);
 
-        UnifiedRender::Sphere skybox = UnifiedRender::Sphere(0.f, 0.f, 0.f, 8000.f, 40);
+        UnifiedRender::Sphere skybox = UnifiedRender::Sphere(0.f, 0.f, 0.f, 8000.f, 40, false);
         skybox.draw();
     }
 

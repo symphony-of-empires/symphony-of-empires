@@ -115,7 +115,7 @@ UnifiedRender::Quad2D::~Quad2D(void) {
 
 }
 
-UnifiedRender::Sphere::Sphere(float center_x, float center_y, float center_z, float _radius, int _resolution)
+UnifiedRender::Sphere::Sphere(float center_x, float center_y, float center_z, float _radius, int _resolution, bool cw_winding)
 	: UnifiedRender::Mesh<glm::vec3, glm::vec2>(UnifiedRender::MeshMode::TRIANGLES),
 	resolution{ _resolution },
 	radius{ _radius }
@@ -123,13 +123,14 @@ UnifiedRender::Sphere::Sphere(float center_x, float center_y, float center_z, fl
 	buffer.resize(6 * resolution * resolution);
 	glm::vec3 center_pos(center_x, center_y, center_z);
 
+	// Switch the order of the vertices if not clockwise winding
 	for(int latitude = 0; latitude < resolution; latitude++) {
 		for(int longitude = 0; longitude < resolution; longitude++) {
 			buffer[(longitude + latitude * resolution) * 6 + 0] = calc_pos(center_pos, longitude + 0, latitude + 0);
-			buffer[(longitude + latitude * resolution) * 6 + 1] = calc_pos(center_pos, longitude + 1, latitude + 0);
-			buffer[(longitude + latitude * resolution) * 6 + 2] = calc_pos(center_pos, longitude + 0, latitude + 1);
-			buffer[(longitude + latitude * resolution) * 6 + 3] = calc_pos(center_pos, longitude + 0, latitude + 1);
-			buffer[(longitude + latitude * resolution) * 6 + 4] = calc_pos(center_pos, longitude + 1, latitude + 0);
+			buffer[(longitude + latitude * resolution) * 6 + 1] = calc_pos(center_pos, longitude + cw_winding, latitude + !cw_winding);
+			buffer[(longitude + latitude * resolution) * 6 + 2] = calc_pos(center_pos, longitude + !cw_winding, latitude + cw_winding);
+			buffer[(longitude + latitude * resolution) * 6 + 3] = calc_pos(center_pos, longitude + !cw_winding, latitude + cw_winding);
+			buffer[(longitude + latitude * resolution) * 6 + 4] = calc_pos(center_pos, longitude + cw_winding, latitude + !cw_winding);
 			buffer[(longitude + latitude * resolution) * 6 + 5] = calc_pos(center_pos, longitude + 1, latitude + 1);
 		}
 	}
@@ -146,12 +147,13 @@ UnifiedRender::MeshData<glm::vec3, glm::vec2> UnifiedRender::Sphere::calc_pos(gl
 	float longitude_rad = longitude_ratio * 2 * M_PI;
 	float latitude_ratio = ((float)latitude) / resolution;
 	float latitude_rad = latitude_ratio * M_PI;
+
 	float x = radius * std::cos(longitude_rad) * std::sin(latitude_rad);
 	float y = radius * std::sin(longitude_rad) * std::sin(latitude_rad);
 	float z = radius * std::cos(latitude_rad);
+
 	glm::vec3 pos(x, y, z);
 	pos += center_pos;
-	// glm::vec2 tex_coord(1. - longitude_ratio, latitude_ratio);
 	glm::vec2 tex_coord(longitude_ratio, latitude_ratio);
 	return UnifiedRender::MeshData<glm::vec3, glm::vec2>(pos, tex_coord);
 }
