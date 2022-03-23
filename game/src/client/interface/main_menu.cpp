@@ -76,12 +76,15 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 
         // TODO: Handle when mods differ (i.e checksum not equal to host)
         gs.host_mode = false;
-
         try {
             gs.client = new Client(gs, this->ip_addr_inp->get_buffer(), 1836);
             gs.client->username = this->username_inp->get_buffer();
             gs.client->wait_for_snapshot();
             gs.in_game = true;
+
+            gs.ui_ctx->clear();
+            gs.current_mode = MapMode::COUNTRY_SELECT;
+            gs.select_nation = new Interface::LobbySelectView(gs);
             return;
         }
         catch(UnifiedRender::Networking::SocketException& e) {
@@ -141,7 +144,6 @@ MainMenu::MainMenu(GameState& _gs)
     button_list->flex = UI::Flex::COLUMN;
     button_list->flex_align = UI::Align::CENTER;
     button_list->flex_gap = 8;
-
 
     int b_width = 225;
     int b_height = 33;

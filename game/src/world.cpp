@@ -758,8 +758,7 @@ void World::do_tick() {
                     if(war->is_attacker(*unit->owner)) {
                         battle.attackers.push_back(unit);
                         battle.defenders.push_back(other_unit);
-                    }
-                    else {
+                    } else {
                         battle.attackers.push_back(other_unit);
                         battle.defenders.push_back(unit);
                     }
@@ -768,8 +767,7 @@ void World::do_tick() {
                     war->battles.push_back(battle);
                     UnifiedRender::Log::debug("game", "New battle of \"" + battle.name + "\"");
                     break;
-                }
-                else {
+                } else {
                     Battle& battle = *it;
 
                     // Add the unit to one side depending on who are we attacking

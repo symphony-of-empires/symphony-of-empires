@@ -124,7 +124,7 @@ void Context::remove_widget(Widget* widget) {
 void Context::clear(void) {
     // Remove all widgets
     for(auto& widget : widgets) {
-        delete widget;
+        widget->kill();
     }
     widgets.clear();
 }
@@ -146,6 +146,7 @@ void Context::clear_dead_recursive(Widget* w) {
         w->need_recalc = true;
     }
 }
+
 void Context::clear_dead() {
     for(size_t index = 0; index < widgets.size(); index++) {
         if((widgets[index])->dead) {

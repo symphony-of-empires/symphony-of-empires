@@ -227,19 +227,16 @@ void Client::net_loop(void) {
                     case ActionType::BUILDING_ADD: {
                         Province* province;
                         ::deserialize(ar, &province);
-                        Building building;
-                        ::deserialize(ar, &building);
-                        province->buildings.push_back(building);
+                        BuildingType* building_type;
+                        ::deserialize(ar, &building_type);
+                        province->buildings[world.get_id(*building_type)].level++;
                     } break;
                     case ActionType::BUILDING_REMOVE: {
-                        /*Building* building;
-                        ::deserialize(ar, &building);
-
-                        if(building->get_owner() != nullptr)
-                            print_info("Remove building property of [%s]", building->get_owner()->ref_name.c_str());
-                        
-                        world.remove(building);
-                        delete building;*/
+                        Province* province;
+                        ::deserialize(ar, &province);
+                        BuildingType* building_type;
+                        ::deserialize(ar, &building_type);
+                        province->buildings[world.get_id(*building_type)].level--;
                     } break;
                     case ActionType::TREATY_ADD: {
                         Treaty* treaty = new Treaty();
