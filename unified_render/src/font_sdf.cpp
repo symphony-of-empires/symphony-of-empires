@@ -105,7 +105,7 @@ Label3D* UnifiedRender::FontSDF::gen_text(const std::string& text, glm::vec3 top
     float scale = width / text_width;
     top = glm::normalize(top);
     right = glm::normalize(right);
-    glm::vec3 start = right;
+    glm::vec3 start = -right * width * 0.5f;
 
     std::vector<glm::vec3> positions;
     std::vector<glm::vec2> tex_coords;
@@ -129,25 +129,21 @@ Label3D* UnifiedRender::FontSDF::gen_text(const std::string& text, glm::vec3 top
         glm::vec2 plane_br(glyph.plane_bounds.right, glyph.plane_bounds.bottom);
 
         const glm::mat2x3 base = glm::mat2x3(right, top) * scale;
-
-        const glm::mat4x4 trans(1.f);
-        glm::rotate(trans, curve * std::cos((unicode_text.size() / idx) * 360.f), glm::vec3(0.f, 0.f, 1.f));
-
-        glm::vec3 char_tl = glm::vec3(trans * glm::vec4(start + base * plane_tl, 0.f));
-        glm::vec3 char_bl = glm::vec3(trans * glm::vec4(start + base * plane_bl, 0.f));
-        glm::vec3 char_tr = glm::vec3(trans * glm::vec4(start + base * plane_tr, 0.f));
-        glm::vec3 char_br = glm::vec3(trans * glm::vec4(start + base * plane_br, 0.f));
+        glm::vec3 char_tl = start + base * plane_tl;
+        glm::vec3 char_bl = start + base * plane_bl;
+        glm::vec3 char_tr = start + base * plane_tr;
+        glm::vec3 char_br = start + base * plane_br;
 
         tex_coords.push_back(atlas_tl);
         positions.push_back(char_tl);
+        tex_coords.push_back(atlas_br);
+        positions.push_back(char_br);
         tex_coords.push_back(atlas_bl);
         positions.push_back(char_bl);
-        tex_coords.push_back(atlas_br);
-        positions.push_back(char_br);
-        tex_coords.push_back(atlas_br);
-        positions.push_back(char_br);
         tex_coords.push_back(atlas_tr);
         positions.push_back(char_tr);
+        tex_coords.push_back(atlas_br);
+        positions.push_back(char_br);
         tex_coords.push_back(atlas_tl);
         positions.push_back(char_tl);
 
