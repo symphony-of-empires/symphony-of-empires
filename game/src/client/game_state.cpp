@@ -561,6 +561,7 @@ void GameState::update_on_tick(void) {
     }
 }
 
+// TODO: Don't run this thread if not needed (i.e non-host-mode)
 void GameState::world_thread(void) {
     while(run) {
         // Gamestate thread hasn't acknowledged the updated tick just yet
@@ -570,8 +571,8 @@ void GameState::world_thread(void) {
             }
         }
 
-        // TODO: We should only enable this on debug builds, but whatever...
-        if(world->world_mutex.try_lock()) {
+        // Only run the economy simulation of host mode is ON, otherwise don't :-) 
+        if(host_mode && world->world_mutex.try_lock()) {
             try {
                 world->do_tick();
                 update_tick = true;

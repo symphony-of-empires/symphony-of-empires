@@ -154,12 +154,6 @@ public:
     // Total number of prestige
     UnifiedRender::Decimal prestige = 0.1f;
 
-    // Base literacy applied to all pops
-    UnifiedRender::Decimal base_literacy;
-
-    // Determines if the nation is civilized
-    bool is_civilized;
-
     // Level of infamy
     UnifiedRender::Decimal infamy = 0;
 

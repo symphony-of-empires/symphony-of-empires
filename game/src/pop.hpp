@@ -58,11 +58,15 @@ public:
     bool operator==(const Pop& rhs) const;
     Ideology* get_ideology(void) const;
 
-    size_t size;
-    size_t unemployed = 0;
-    UnifiedRender::Decimal life_needs_met = 0, everyday_needs_met = 0, luxury_needs_met = 0;
-    UnifiedRender::Decimal literacy = 0, militancy = 0, con = 0;
-    UnifiedRender::Decimal budget = 0, savings = 0;
+    UnifiedRender::Number size;
+    UnifiedRender::Decimal life_needs_met = 0.f;
+    UnifiedRender::Decimal everyday_needs_met = 0.f;
+    UnifiedRender::Decimal luxury_needs_met = 0.f;
+    UnifiedRender::Decimal literacy = 0.f;
+    UnifiedRender::Decimal militancy = 0.f;
+    UnifiedRender::Decimal con = 0.f;
+    UnifiedRender::Decimal budget = 0.f;
+    UnifiedRender::Decimal savings = 0.f;
 
     PopType* type;
     Culture* culture;

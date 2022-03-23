@@ -121,7 +121,6 @@ public:
     UnifiedRender::Decimal supply;
     // Money that the unit has
     UnifiedRender::Decimal budget;
-    std::vector<UnitTrait*> traits;
     // TODO: ser/deser
     bool on_battle = false;
 };

@@ -127,8 +127,6 @@ World::World() {
 
     lua_register(lua, "set_nation_mod_to_invention", LuaAPI::set_nation_mod_to_invention);
 
-    lua_register(lua, "add_unit_trait", LuaAPI::add_unit_trait);
-
     lua_register(lua, "add_building_type", LuaAPI::add_building_type);
     lua_register(lua, "get_building_type", LuaAPI::get_building_type);
 
@@ -369,8 +367,6 @@ World::~World() {
         delete nation;
     } for(auto& building_type : building_types) {
         delete building_type;
-    } for(auto& unit_trait : unit_traits) {
-        delete unit_trait;
     } for(auto& unit : units) {
         delete unit;
     } for(auto& ideology : ideologies) {
@@ -416,7 +412,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 void World::load_initial(void) {
     const std::vector<std::string> init_files ={
         "terrain_types", "good_types",
-        "ideologies", "cultures", "nations",  "unit_traits", "building_types",
+        "ideologies", "cultures", "nations", "building_types",
         "technology", "religions", "pop_types", "industry_types",
         "unit_types", "boat_types", "provinces", "init"
     };
@@ -758,8 +754,7 @@ void World::do_tick() {
                     if(war->is_attacker(*unit->owner)) {
                         battle.attackers.push_back(unit);
                         battle.defenders.push_back(other_unit);
-                    }
-                    else {
+                    } else {
                         battle.attackers.push_back(other_unit);
                         battle.defenders.push_back(unit);
                     }
@@ -768,8 +763,7 @@ void World::do_tick() {
                     war->battles.push_back(battle);
                     UnifiedRender::Log::debug("game", "New battle of \"" + battle.name + "\"");
                     break;
-                }
-                else {
+                } else {
                     Battle& battle = *it;
 
                     // Add the unit to one side depending on who are we attacking

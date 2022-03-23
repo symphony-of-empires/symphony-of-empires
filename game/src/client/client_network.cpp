@@ -101,7 +101,6 @@ void Client::net_loop(void) {
     }
     
     has_snapshot = true;
-    
     try {
         ActionType action;
         
@@ -151,7 +150,6 @@ void Client::net_loop(void) {
                 ::deserialize(ar, &action);
 
                 print_info("Receiving package of %zu bytes", packet.size());
-
                 if(!gs.host_mode) {
                     // Ping from server, we should answer with a pong!
                     switch(action) {
@@ -173,8 +171,9 @@ void Client::net_loop(void) {
                         for(Nation::Id i = 0; i < size; i++) {
                             Nation* nation;
                             ::deserialize(ar, &nation);
-                            if(nation == nullptr)
+                            if(nation == nullptr) {
                                 throw ClientException("Unknown nation");
+                            }
                             ::deserialize(ar, nation);
                         }
                     } break;
@@ -213,8 +212,9 @@ void Client::net_loop(void) {
                         for(Unit::Id i = 0; i < size; i++) {
                             Unit* unit;
                             ::deserialize(ar, &unit);
-                            if(unit == nullptr)
+                            if(unit == nullptr) {
                                 throw ClientException("Unknown unit");
+                            }
                             ::deserialize(ar, unit);
                         }
                     } break;
@@ -227,19 +227,16 @@ void Client::net_loop(void) {
                     case ActionType::BUILDING_ADD: {
                         Province* province;
                         ::deserialize(ar, &province);
-                        Building building;
-                        ::deserialize(ar, &building);
-                        province->buildings.push_back(building);
+                        BuildingType* building_type;
+                        ::deserialize(ar, &building_type);
+                        province->buildings[world.get_id(*building_type)].level++;
                     } break;
                     case ActionType::BUILDING_REMOVE: {
-                        /*Building* building;
-                        ::deserialize(ar, &building);
-
-                        if(building->get_owner() != nullptr)
-                            print_info("Remove building property of [%s]", building->get_owner()->ref_name.c_str());
-                        
-                        world.remove(building);
-                        delete building;*/
+                        Province* province;
+                        ::deserialize(ar, &province);
+                        BuildingType* building_type;
+                        ::deserialize(ar, &building_type);
+                        province->buildings[world.get_id(*building_type)].level--;
                     } break;
                     case ActionType::TREATY_ADD: {
                         Treaty* treaty = new Treaty();
@@ -253,12 +250,14 @@ void Client::net_loop(void) {
                     case ActionType::WORLD_TICK: {
                         // Give up the world mutex for now
                         gs.update_tick = true;
+                        gs.world->time++;
                     } break;
                     case ActionType::PROVINCE_COLONIZE: {
                         Province* province;
                         ::deserialize(ar, &province);
-                        if(province == nullptr)
+                        if(province == nullptr) {
                             throw ClientException("Unknown province");
+                        }
                         ::deserialize(ar, province);
                     } break;
                     default:

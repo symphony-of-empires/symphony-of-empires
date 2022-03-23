@@ -124,7 +124,6 @@ public:
     LIST_FOR_TYPE(PopType, pop_types, std::vector);
     LIST_FOR_TYPE(Event, events, std::vector);
     LIST_FOR_TYPE(UnitType, unit_types, std::vector);
-    LIST_FOR_TYPE(UnitTrait, unit_traits, std::vector);
     LIST_FOR_TYPE(Unit, units, std::vector);
     LIST_FOR_TYPE(BuildingType, building_types, std::vector);
     LIST_FOR_TYPE(Treaty, treaties, std::vector);

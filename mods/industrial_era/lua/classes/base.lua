@@ -179,25 +179,6 @@ function Good:get(ref_name)
 	return o
 end
 
-UnitTrait = {
-	id = 0,
-	ref_name = "",
-	supply_consumption_mod = 1.0,
-	speed_mod = 1.0,
-	max_health_mod = 1.0,
-	defense_mod = 1.0,
-	attack_mod = 1.0
-}
-function UnitTrait:new(o)
-	o = o or {}
-	setmetatable(o, self)
-	self.__index = self
-	return o
-end
-function UnitTrait:register()
-	self.id = add_unit_trait(self.ref_name, self.supply_consumption_mod, self.speed_mod, self.max_health_mod, self.defense_mod, self.attack_mod)
-end
-
 Nation = {
 	id = 0,
 	name = "",

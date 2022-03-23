@@ -61,8 +61,6 @@ namespace LuaAPI {
     int get_technology(lua_State* L);
     int add_req_tech_to_tech(lua_State* L);
 
-    int add_unit_trait(lua_State* L);
-
     int add_building_type(lua_State* L);
     int get_building_type(lua_State* L);
 

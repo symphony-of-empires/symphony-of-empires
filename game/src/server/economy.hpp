@@ -31,4 +31,4 @@ class World;
 // overhead, they are distributed accross 48 ticks
 namespace Economy {
     void do_tick(World& world);
-}
+};

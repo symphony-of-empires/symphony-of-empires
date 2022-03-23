@@ -63,9 +63,8 @@ public:
 
     // We used to calculate these per each economical tick but now we can just store them
     // and multiply it by the level of the factory - this is the **minimum** amount of employed
-    // people we can have at a time
+    // people we should have at a time
     int num_req_workers = 0;
-    // int num_req_entrepreneurs = 0;
 };
 
 // A military outpost, on land serves as a "spawn" place for units
@@ -87,6 +86,7 @@ public:
     // Required goods for building the working unit
     // TODO: change this to a struct instead of a pair for readablity
     std::vector<std::pair<Good*, UnifiedRender::Number>> req_goods_for_unit;
+
     // Required goods for building this, or repairing this after a military attack
     std::vector<std::pair<Good*, UnifiedRender::Number>> req_goods;
 

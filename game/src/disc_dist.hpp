@@ -93,7 +93,11 @@ public:
 			prob[less.second] = 1.f;
 		}
 	}
-	~DiscreteDistribution() {};
+	
+	~DiscreteDistribution(void)
+	{
+
+	};
 
 	// Get a random item with a certian probabilty
 	T get_item(void) {

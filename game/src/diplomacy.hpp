@@ -203,7 +203,8 @@ public:
     War& war;
     Province& province;
     std::vector<Unit*> attackers, defenders;
-    size_t attacker_casualties = 0, defender_casualties = 0;
+    size_t attacker_casualties = 0;
+    size_t defender_casualties = 0;
     bool ended = false;
 };
 
