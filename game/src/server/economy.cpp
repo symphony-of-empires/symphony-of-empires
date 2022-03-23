@@ -155,6 +155,85 @@ void militancy_update(World& world, Nation* nation) {
     }
 }
 
+constexpr int32_t price_update_delay = 2;
+constexpr float price_change_rate = 0.025f;
+constexpr float base_price = 1.f;
+constexpr float purchasing_change_rate = 1.f;
+void economy_single_good_tick(World& world, Good* good) {
+    auto good_id = world.get_id(*good);
+
+    auto province_size = world.provinces.size();
+    // std::vector<std::vector<float>> purchasing_arrays(province_size);
+    // std::vector<float> global_demand_delta(province_size);
+
+    // Calculate global demand
+    // for(uint32_t i = 0; i < province_size; i++) {
+    //     auto province = world.provinces[i];
+    //     auto& product = province->products[good_id];
+    //     auto demand = product.demand;
+    //     auto demand_in_state = std::max(demand, 0.001f);
+
+    //     float tarrif = 1.;
+
+
+    //     // apparent_price = state_price * (tarrif * owner tarrif + 1.0) + distance_vector * 0.001f
+    //     std::vector<float> apparent_price(province_size);
+    //     for(uint32_t j = 0; j < apparent_price.size(); j++) {
+    //         auto other_province = world.provinces[j];
+    //         auto& other_product = other_province->products[good_id];
+    //         apparent_price[j] = other_product.price * tarrif + world.prov_distances[i * province_size + j] * 0.001f;
+    //     }
+
+    //     // values = production / (prices * prices)
+    //     std::vector<float> values(province_size);
+    //     purchasing_arrays[i] = values;
+    //     // sum_weightings = sum(production / (prices * prices))
+    //     float sum_weightings = 0.;
+    //     for(uint32_t j = 0; j < province_size; j++) {
+    //         auto other_province = world.provinces[j];
+    //         auto& other_product = other_province->products[good_id];
+    //         values[j] = other_product.supply / (apparent_price[j] * apparent_price[j]);
+    //         sum_weightings += values[j];
+    //     }
+
+    //     if(sum_weightings > 0) {
+    //         // value *= demand / sum(production / (prices * prices))
+    //         for(uint32_t j = 0; j < province_size; j++) {
+    //             values[j] *= demand_in_state / sum_weightings;
+    //         }
+
+    //         // pay tarrifs & increase global demand
+    //         for(uint32_t j = 0; j < province_size; j++) {
+    //             auto other_province = world.provinces[j];
+    //             auto& other_product = other_province->products[good_id];
+    //             auto money_spent = other_product.price * values[j] / apparent_price[j];
+    //             global_demand_delta[j] += 0.85 * money_spent;
+    //         }
+    //     }
+    // }
+    // for(uint32_t i = 0; i < province_size; i++) {
+    //     auto province = world.provinces[i];
+    //     auto& product = province->products[good_id];
+    //     product.global_demand += global_demand_delta[i];
+    // }
+
+    // determine new prices
+    for(uint32_t i = 0; i < province_size; i++) {
+        auto province = world.provinces[i];
+        auto& product = province->products[good_id];
+        auto demand = product.demand;
+        auto supply = product.supply;
+        auto demand_in_state = std::max(demand, 0.001f);
+        auto current_price = product.price;
+
+        float final_dot_product = current_price * demand_in_state / (supply + 0.0001f);
+
+        auto new_price = std::clamp<float>(final_dot_product, 0.01f, base_price * 10.0f);
+        auto state_price_delta = ((current_price * (1.0f - price_change_rate) + new_price * price_change_rate) - current_price) / float(price_update_delay);
+        product.price += state_price_delta;
+    }
+}
+
 constexpr float production_scaling_speed_factor = 0.5f;
 constexpr float scale_speed(float v) {
     return 1.0f - production_scaling_speed_factor + production_scaling_speed_factor * v;
@@ -176,7 +255,7 @@ void update_factory_production(World& world,
     // TODO add output modifier
     // Calculate outputs
     auto output = building_type->outputs[0];
-    auto output_product = province->products[world.get_id(*output)];
+    Product& output_product = province->products[world.get_id(*output)];
     auto output_price = output_product.price;
     auto output_amount = 1.f * building.production_scale;
 
@@ -282,7 +361,7 @@ void update_pop_needs(World& world, Province& province, Pop& pop) {
         }
         float buying_factor = std::min(1.f, (float)pop.budget / total_price);
         for(size_t i = 0; i < world.goods.size(); i++) {
-            auto product = province.products[i];
+            Product& product = province.products[i];
             product.demand += type.basic_needs_amount[i] * buying_factor;
         }
         pop.life_needs_met += buying_factor;
@@ -299,7 +378,7 @@ void update_pop_needs(World& world, Province& province, Pop& pop) {
         }
         float buying_factor = std::min(1.f, (float)pop.budget / total_price);
         for(size_t i = 0; i < world.goods.size(); i++) {
-            auto product = province.products[i];
+            Product& product = province.products[i];
             product.demand += type.basic_needs_amount[i] * buying_factor;
         }
         pop.everyday_needs_met += buying_factor;
@@ -341,6 +420,15 @@ void Economy::do_tick(World& world) {
         }
     }
 
+    for(Good::Id id = 0; id < world.goods.size(); id++) {
+        for(size_t i = 0; i < world.provinces.size(); i++) {
+            Province* prov = world.provinces[i];            
+            Product& product = prov->products[id];
+            product.demand = 0;
+            product.supply = 0;
+        }
+    }
+
     std::vector<Unit*> new_units;
     std::mutex new_units_mutex;
     std::for_each(std::execution::par, eval_nations.begin(), eval_nations.end(), [&new_units, &new_units_mutex, &world](const auto& nation) {
@@ -364,10 +452,11 @@ void Economy::do_tick(World& world) {
 #if 0
                     print_info("Building of [%s] in [%s] is closed due to lack of funds!", building_type->ref_name.c_str(), province->ref_name.c_str());
 #endif
-                    continue;
+                    // continue;
                 }
                 update_factory_production(world, building, building_type, province, laborers_payment);
 
+#if 0
                 // Buildings who have fullfilled requirements to build stuff will spawn a unit
                 if(building.working_unit_type != nullptr) {
                     bool can_build_unit = building.can_build_unit();
@@ -405,7 +494,8 @@ void Economy::do_tick(World& world) {
                         building.working_unit_type = nullptr;
                         UnifiedRender::Log::debug("economy", "[" + province->ref_name + "]: Has built an unit of [" + unit->type->ref_name + "]");
                     }
-                }
+            }
+#endif
 
 #if 0
                 if(1) {
@@ -413,9 +503,9 @@ void Economy::do_tick(World& world) {
                     UnifiedRender::Log::debug("economy", "- %f farmers (%f needed)", available_farmers, needed_farmers);
                     UnifiedRender::Log::debug("economy", "- %f laborers (%f needed)", available_laborers, needed_laborers);
                     UnifiedRender::Log::debug("economy", "- %f entrepreneurs (%f needed)", available_entrepreneurs, needed_entrepreneurs);
-                }
+        }
 #endif
-            }
+    }
             float amount_laborers;
             for(uint32_t i = 0; i < province->pops.size(); i++) {
                 auto& pop = province->pops[i];
@@ -440,7 +530,7 @@ void Economy::do_tick(World& world) {
 
                 update_pop_needs(world, *province, pop);
             }
-        }
+}
 
         // Do research on focused research
         if(nation->focus_tech != nullptr) {
@@ -448,7 +538,7 @@ void Economy::do_tick(World& world) {
             nation->research[world.get_id(*nation->focus_tech)] += research;
         }
 
-        militancy_update(world, nation);
+        // militancy_update(world, nation);
 
         if(!new_nation_units.empty()) {
             // Add to new_units list
@@ -458,6 +548,10 @@ void Economy::do_tick(World& world) {
             }
         }
     });
+
+    for(Good::Id id = 0; id < world.goods.size(); id++) {
+        economy_single_good_tick(world, world.goods[id]);
+    }
 
     if(!new_units.empty()) {
         // Lock for world is already acquired since the economy runs inside the world's do_tick which

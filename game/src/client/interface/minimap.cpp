@@ -27,6 +27,7 @@
 #include <unordered_map>
 
 #include "unified_render/path.hpp"
+#include "unified_render/string_format.hpp"
 #include "unified_render/texture.hpp"
 #include "unified_render/ui/button.hpp"
 #include "unified_render/ui/close_button.hpp"
@@ -36,12 +37,14 @@
 #include "unified_render/ui/label.hpp"
 #include "unified_render/locale.hpp"
 
+
 #include "client/interface/minimap.hpp"
 #include "client/map.hpp"
 #include "world.hpp"
 
 using namespace Interface;
 
+mapmode_tooltip good_tooltip(Good::Id id);
 mapmode_generator good_map_mode(Good::Id id);
 mapmode_generator relations_map_mode(Nation::Id id);
 mapmode_tooltip relations_tooltip(Nation::Id id);
@@ -208,14 +211,32 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
             this->gs.current_mode = MapMode::NORMAL;
 
             mapmode_generator map_mode = good_map_mode((Good::Id)i);
-            mapmode_tooltip tooltip = empty_province_tooltip;
+            mapmode_tooltip tooltip = good_tooltip((Good::Id)i);
             this->gs.map->set_map_mode(map_mode, tooltip);
         });
     }
 
     mapmode_generator map_mode = good_map_mode(0);
-    mapmode_tooltip tooltip = empty_province_tooltip;
+    mapmode_tooltip tooltip = good_tooltip(0);
     this->gs.map->set_map_mode(map_mode, tooltip);
+}
+
+mapmode_tooltip good_tooltip(Good::Id good_id) {
+    return [good_id](const World& world, const Province::Id id) {
+        const Province& province = *world.provinces[id];
+
+        if(province.controller == nullptr) {
+            return UnifiedRender::Locale::translate("Uncontrolled");
+        }
+        const Product& product = province.products[good_id]; 
+        std::string str;
+        str += UnifiedRender::string_format("Price: %f\n", product.price);
+        str += UnifiedRender::string_format("Demand: %f\n", product.demand);
+        str += UnifiedRender::string_format("Supply: %f\n", product.supply);
+        
+
+        return str;
+    };
 }
 
 mapmode_generator good_map_mode(Good::Id id) {
@@ -245,7 +266,7 @@ mapmode_generator good_map_mode(Good::Id id) {
 }
 
 void relations_map_mode_selector(const World& world, Map& map, Province* province) {
-    if (province->controller == nullptr) {
+    if(province->controller == nullptr) {
         return;
     }
     Nation::Id nation_id = world.get_id(*province->owner);
@@ -302,14 +323,13 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
 
         if(province.controller == province.owner) {
             str += UnifiedRender::Locale::translate(province.controller->get_client_hint().alt_name);
-            goto form_final;
         }
-
-        str += UnifiedRender::Locale::translate("Owned by") + " ";
-        str += UnifiedRender::Locale::translate(province.owner->get_client_hint().alt_name);
-        str += " " + UnifiedRender::Locale::translate("controlled by") + " ";
-        str += UnifiedRender::Locale::translate(province.controller->get_client_hint().alt_name);
-    form_final:
+        else {
+            str += UnifiedRender::Locale::translate("Owned by") + " ";
+            str += UnifiedRender::Locale::translate(province.owner->get_client_hint().alt_name);
+            str += " " + UnifiedRender::Locale::translate("controlled by") + " ";
+            str += UnifiedRender::Locale::translate(province.controller->get_client_hint().alt_name);
+        }
         str += " ";
 
         {
